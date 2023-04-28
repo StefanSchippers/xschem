@@ -2378,15 +2378,20 @@ proc is_xschem_file {f} {
   set score 0
   set instances 0
   set nline 0
+  set generator 0
   if {$a} {
     puts stderr "Can not open file $f"
   } else {
     fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
+      # this is a script. not an xschem file
       if { $nline == 0 && [regexp {^#!} $line] } { 
-        set ret GENERATOR
-        break
-      } ;# this is a script. not an xschem file
+        #### too dangerous executing an arbitrary script...
+        # close $fd
+        # set fd [open "|$f"]
+        set generator 1
+        # continue
+      }
       if { [regexp {^[TKGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
       if { [regexp {^N +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
@@ -2397,7 +2402,9 @@ proc is_xschem_file {f} {
       incr nline
     } 
     if { $score > 4 }  { set ret 1} ;# Heuristic decision :-)
-    if { $ret ne {0}  && $ret ne {GENERATOR}} {
+    if {$generator eq {1}} {
+      set ret GENERATOR
+    } elseif { $ret ne {0}} {
       if { $instances} {
         set ret SCHEMATIC
       } else { 
@@ -2644,14 +2651,28 @@ proc myload_getresult {loadfile confirm_overwrt} {
     }
     set type [is_xschem_file "$fname"]
     if { $type eq {0}  || $type eq {GENERATOR} } {
-      set answer [
-        alert_ "$fname does not seem to be an xschem file...\nContinue?" {} 0 1]
+      if { $type eq {0} } {
+        set answer [alert_ "$fname does not seem to be an xschem file...\nContinue?" {} 0 1]
+      } else { ;# $type == GENERATOR
+        set answer 1
+      }
       if { $answer eq {0}} {
         set myload_retval {}
         return {}
-      } else {
-        return "$fname"
+      } else { ;# $answer == 1
+        if { $type eq {GENERATOR} } {
+          if { [regexp {\([^()]*\)$} $fname]} {
+            return "$fname"
+          } else {
+            set myload_retval {}
+            return {}
+          }
+        }
+        # $type == 0 so return empty string
+        set myload_retval {}
+        return {}
       }
+    # $type == SYMBOL or SCHEMATIC
     } elseif { $type ne {SYMBOL} && ($myload_ext eq {*.sym}) } { ;# SCHEMATIC
       set answer [
         alert_ "$fname does not seem to be a SYMBOL file...\nContinue?" {} 0 1]

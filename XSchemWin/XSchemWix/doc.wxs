@@ -351,6 +351,18 @@
           <Component Id="cmp8C7AB373FA963AF5F88C8B394FB28B19" Guid="{2769EF54-5FCC-4F01-8EF9-38FB088B49AD}">
             <File Id="fil4477B2695680604C6F6AA9F5E0E2FFB1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\install_xschem.html" />
           </Component>
+		  <Component Id="cmp9D7115210A8866197FB4C7594E7CB7CF" Guid="{7FE310DA-ED92-4A55-9B92-A30280B91E70}">
+			<File Id="fil2F1C2868A0660CBF692C20795D28F0B6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_01.png" />
+		  </Component>
+		  <Component Id="cmp72EFAE4CB2B8A2B5ED8A785D4C565C68" Guid="{A66CD465-8088-45EB-B1F7-BD59967302F4}">
+			<File Id="fil9673B620CC067BC8BC1EAB6F89B58DC5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_02.png" />
+		  </Component>
+		  <Component Id="cmp5C04C95A67E090E0421B204F319D4216" Guid="{31D7ED34-DAB4-4A63-B97F-8655506E7DCB}">
+		 	<File Id="fil2B3AB07BDBC11B1A8D30C3F688474716" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_03.png" />
+		  </Component>
+		  <Component Id="cmpE415804152519EC8DE1A4531549F43A1" Guid="{2492BED0-6AB2-4FA7-BD75-85B29A2226C1}">
+			<File Id="fil257D69C3B519AEDA7869DB9500C1FE75" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_04.png" />
+		  </Component>
           <Component Id="cmp2DB8618704C7034B543BD78F8410CB70" Guid="{83F8DFAB-5FFC-4D6C-9CCD-89BF2D9D4B1F}">
             <File Id="filABBDDFFF90735804749ED6C5727372C5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\load_schematic.png" />
           </Component>
@@ -531,6 +543,15 @@
           <Component Id="cmp80D71431189149660F707A733ED9DC48" Guid="{90281885-9FA3-4F22-9AD5-8438D1C6439F}">
             <File Id="fil357970DD2C11943DF6420EF42642EB1C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generation6.png" />
           </Component>
+		  <Component Id="cmp14C7D96F77333525B6BDFBCBF7AB9CA3" Guid="{E555176E-5B03-4920-A358-3A73343EBB38}">
+			<File Id="fil769446F0F3B253C5050DCAB87CCDDD41" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators01.png" />
+		  </Component>
+		  <Component Id="cmpDE7F31AEB44A68034AA9A9FC61A10273" Guid="{861E66CE-CFCC-4F94-A8F2-2762F3FD4381}">
+			<File Id="fil6ADBC78007047FC155237D4ACC26C98B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators02.png" />
+		  </Component>
+		  <Component Id="cmp64456081A2F7796762FBF32E72BD32E8" Guid="{897DEC28-7F63-4B78-BAA1-3040A8ECBDB6}">
+			<File Id="fil3BCC9EA97E466FEBC43573FD37F99938" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators03.png" />
+		  </Component>
           <Component Id="cmp4E173EB8A7B4151CF229043A306A5618" Guid="{90058AB6-91F5-42D9-AF76-51C4762A780B}">
             <File Id="filCA3BA0C82FEE664384F4C8ADA0482FE9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_properties1.png" />
           </Component>
@@ -660,6 +681,9 @@
           <Component Id="cmp985E62F77AD4CAB5BAD58A8FB1DDE01C" Guid="{1E33007E-8EFC-4088-92CB-F9345AD1E259}">
             <File Id="filCE8F73D37564708A2A7577F6572AB436" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_10.png" />
           </Component>
+		  <Component Id="cmp1FDDA235D8F5FB7FE4A87DB567130688" Guid="{E1133E6A-1E30-4BE3-BDE6-2858634D90C5}">
+			<File Id="fil69F1DF47B740420085B90CDA4B817E6E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_instance_based_implementation.html" />
+		  </Component>
           <Component Id="cmpE446C6E6AE8E31BAB020041B768CE39F" Guid="{1CA6FEE9-B22D-4CCF-8D4A-C0D0EB1BE429}">
             <File Id="fil053FE6DA638A1B0E61F3A31E35D7802F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_ngspice_backannotation.html" />
           </Component>
@@ -696,6 +720,9 @@
           <Component Id="cmpF6C3D9737087F3D9B2228B21C6734980" Guid="{5D6112F2-6700-4D32-93BF-6CA9CFAAAB7B}">
             <File Id="fil4FA1C5C00C93E9729B1D42AAF2DC8786" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_10.png" />
           </Component>
+		  <Component Id="cmp774E63A5CA21989193C0A5221E254967" Guid="{A302D953-7497-4B1A-871F-95066D0CD928}">
+			<File Id="fil26E89D7E68D72A1CB270E2D55FE2FE46" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_symbol_generators.html" />
+  		  </Component>
           <Component Id="cmpA1AF34A5AB0E46E83E2489246BC02E35" Guid="{D505CB00-A64B-427C-AFE8-B00A08538225}">
             <File Id="filAE2DADB4EC5D12FB0073EC1A86C9BB29" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_symgen.html" />
           </Component>
@@ -1100,6 +1127,10 @@
       <ComponentRef Id="cmp7D84114D6FDF0E09CB66A982B3C581C3" />
       <ComponentRef Id="cmpDB80566B13B66B2A92E91DA0585404A9" />
       <ComponentRef Id="cmp8C7AB373FA963AF5F88C8B394FB28B19" />
+	  <ComponentRef Id="cmp9D7115210A8866197FB4C7594E7CB7CF" />
+	  <ComponentRef Id="cmp72EFAE4CB2B8A2B5ED8A785D4C565C68" />
+	  <ComponentRef Id="cmp5C04C95A67E090E0421B204F319D4216" />
+	  <ComponentRef Id="cmpE415804152519EC8DE1A4531549F43A1" />
       <ComponentRef Id="cmp2DB8618704C7034B543BD78F8410CB70" />
       <ComponentRef Id="cmp8A2095B0FF09EA0F68B73AAAC60EA69B" />
       <ComponentRef Id="cmp97047CA23E73FCF9A2A774BE2B268856" />
@@ -1160,6 +1191,9 @@
 	  <ComponentRef Id="cmp7361D09B42DD785D86E85494B40CB7E5" />
       <ComponentRef Id="cmpFD4E64677B8277F8F66B179CC7D77CBF" />
       <ComponentRef Id="cmp80D71431189149660F707A733ED9DC48" />
+	  <ComponentRef Id="cmp14C7D96F77333525B6BDFBCBF7AB9CA3" />
+	  <ComponentRef Id="cmpDE7F31AEB44A68034AA9A9FC61A10273" />
+	  <ComponentRef Id="cmp64456081A2F7796762FBF32E72BD32E8" />
       <ComponentRef Id="cmp4E173EB8A7B4151CF229043A306A5618" />
       <ComponentRef Id="cmpB389126DA86CA574DE924B2998CB8630" />
       <ComponentRef Id="cmp6D2ED59DF2340D1122FD7F1D589EF887" />
@@ -1203,6 +1237,7 @@
       <ComponentRef Id="cmp710F4F002ED6F6CB0E9862784C453AF1" />
       <ComponentRef Id="cmp651906A147E90D0C461D5C5590A9A51D" />
       <ComponentRef Id="cmp985E62F77AD4CAB5BAD58A8FB1DDE01C" />
+	  <ComponentRef Id="cmp1FDDA235D8F5FB7FE4A87DB567130688" />
       <ComponentRef Id="cmpE446C6E6AE8E31BAB020041B768CE39F" />
       <ComponentRef Id="cmp15745350561238600071BBE2E3F27222" />
       <ComponentRef Id="cmp52C11CD4D51DFF7449A091F7881DA4B1" />
@@ -1215,6 +1250,7 @@
       <ComponentRef Id="cmpF30BEF86E910B592533E88B56DEEF496" />
       <ComponentRef Id="cmpB914BD58B465D9996191A52C41981288" />
       <ComponentRef Id="cmpF6C3D9737087F3D9B2228B21C6734980" />
+	  <ComponentRef Id="cmp774E63A5CA21989193C0A5221E254967" />
       <ComponentRef Id="cmpA1AF34A5AB0E46E83E2489246BC02E35" />
       <ComponentRef Id="cmp89BE8EF1B2B36CB950714E6DDEC886BB" />
 	  <ComponentRef Id="cmp24AB399EEF91852024CB83CD0A4EF749" />

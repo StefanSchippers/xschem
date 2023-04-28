@@ -579,6 +579,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    attribute. </pre>
    <li><kbd>       enable_layers</kbd></li><pre>
    Enable/disable layers depending on tcl array variable enable_layer() </pre>
+   <li><kbd>       escape_chars source</kbd></li><pre>
+   escape tcl special characters with backslash </pre>
    <li><kbd>       exit</kbd></li><pre>
    Exit the program, ask for confirm if current file modified. </pre>
    <li><kbd>       expandlabel lab</kbd></li><pre>
@@ -640,6 +642,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> yorigin </kbd> y coordinate of origin </li>
      <li><kbd> zoom </kbd> zoom level </li>
    </ul>
+   <li><kbd>       get_cell cell n_dirs</kbd></li><pre>
+   return result of get_cell function </pre>
+   <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
+   return result of get_cell_w_ext function </pre>
    <li><kbd>       getprop instance|instance_pin|symbol|text ref </kbd></li><pre>
       
        getprop instance inst
@@ -748,6 +754,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Example: xschem instances_to_net PANEL
     --&gt; { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
         { {Vpanel1} {minus} {600} {-440} } </pre>
+   <li><kbd>       is_symgen symbol</kbd></li><pre>
+   tell if 'symbol' is agenerator (symbol(param1,param2,...) </pre>
    <li><kbd>       line x1 y1 x2 y2 [pos]</kbd></li><pre>
    Place a line on current layer (rectcolor) 
    if integer number 'pos' is given place line at indicated
@@ -1160,7 +1168,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

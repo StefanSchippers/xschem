@@ -89,6 +89,8 @@
 #define xunlink unlink
 #define xfseek fseek
 #define xftell ftell
+#define popen popen
+#define pclose pclose
 #else
 #include <tkWinInt.h>
 #define xunlink _unlink
@@ -100,6 +102,8 @@ extern void change_to_unix_fn(char* fn);
 extern char win_temp_dir[PATH_MAX];
 #define xfseek _fseeki64
 #define xftell _ftelli64
+#define popen _popen
+#define pclose _pclose
 #endif
 
 #undef HAS_XCB

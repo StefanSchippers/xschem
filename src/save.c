@@ -3168,7 +3168,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   generator = is_generator(cmd);
   if(generator) {
     cmd = get_generator_command(cmd);
-    dbg(1, "l_s_d(): cmd=%s\n", cmd);
+    dbg(1, "l_s_d(): generator: cmd=%s\n", cmd);
     if(cmd) {
       lcc[level].fd = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
       my_free(_ALLOC_ID_, &cmd);
