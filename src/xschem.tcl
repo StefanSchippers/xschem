@@ -2700,8 +2700,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.buttons_bot.cancel invoke
   }
   set myload_loadfile $loadfile
-  set myload_ext $ext
-  set myload_globfilter $ext
+  if {$ext ne {}} {set myload_ext $ext}
+  set myload_globfilter $myload_ext
   set myload_save_initialfile $initialf
   set myload_retval {} 
   upvar #0 $global_initdir initdir
@@ -2805,11 +2805,11 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
   radiobutton .load.buttons_bot.all -text All -variable myload_globfilter -value {*} \
-     -command { setglob $myload_dir1 }
+     -command { set myload_ext $myload_globfilter; setglob $myload_dir1 }
   radiobutton .load.buttons_bot.sym -text .sym -variable myload_globfilter -value {*.sym} \
-     -command { setglob $myload_dir1 }
+     -command { set myload_ext $myload_globfilter; setglob $myload_dir1 }
   radiobutton .load.buttons_bot.sch -text .sch -variable myload_globfilter -value {*.sch} \
-     -command { setglob $myload_dir1 }
+     -command { set myload_ext $myload_globfilter; setglob $myload_dir1 }
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $myload_dir1}
   label .load.buttons.mkdirlab -text { New dir: } -fg blue
   entry .load.buttons.newdir -width 16
@@ -6520,6 +6520,8 @@ set_ne undo_type disk
 set_ne tabbed_interface 0
 ## case insensitive symbol lookup (on case insensitive filesystems only!)
 set_ne case_insensitive 0
+
+set_ne myload_ext {*}
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
