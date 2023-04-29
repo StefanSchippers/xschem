@@ -2694,8 +2694,6 @@ proc myload_place_symbol {} {
 
   set entry [.load.buttons_bot.entry get]
   # puts "entry=$entry, myload_retval=$myload_retval"
-  update
-  if {$myload_retval == $entry} {return}
   set myload_retval  $entry
   set sym [myload_getresult 2 0]
   # puts "sym=$sym myload_dir1=$myload_dir1 myload_dir2=$myload_dir2"
@@ -2840,6 +2838,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       if { $myload_globfilter eq {**} } { set myload_globfilter * }
       setglob $myload_dir1
     }
+    # set to something different to any file to force a new placement in myload_place_symbol
+    set myload_retval {   }
+  }
+  bind .load.buttons_bot.entry <ButtonPress> {
+    # set to something different to any file to force a new placement in myload_place_symbol
+    set myload_retval {   }
   }
   radiobutton .load.buttons_bot.all -text All -variable myload_globfilter -value {*} \
      -command { set myload_ext $myload_globfilter; setglob $myload_dir1 }
@@ -2930,7 +2934,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   if {$myload_loadfile == 2} { 
     bind .load <Leave> {
-      myload_place_symbol
+      if { {%W} eq {.load} && $myload_retval ne {} && [.load.buttons_bot.entry get] ne $myload_retval} {
+        myload_place_symbol
+      }
     }
   }
 
@@ -2978,9 +2984,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
     }
     if {$myload_loadfile == 2} {
-      # set to empty to avoid myload_place_symbol doing nothing if placing
-      # the same symbol multiple times.
-      set myload_retval {}
       myload_place_symbol
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
