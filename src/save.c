@@ -3154,6 +3154,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int symbols, sym_n_pins=0, generator;
   const char *cmd;
 
+  if(!name) {
+    dbg(0, "l_s_d(): Warning: name parameter set to NULL, returning with no action\n");
+    return 0;
+  }
+  sympath[0] = '\0'; /* set to empty */
   check_symbol_storage();
   symbol = xctx->sym;
   symbols = xctx->symbols;
@@ -3197,7 +3202,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   }
   if(lcc[level].fd==NULL) {
     /* issue warning only on top level symbol loading */
-    if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n",sympath);
+    if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n", name);
     my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
     if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
     {
