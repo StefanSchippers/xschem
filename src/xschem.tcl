@@ -2708,7 +2708,6 @@ proc myload_place_symbol {} {
 proc myload_display_preview {f} {
   set type [is_xschem_file $f]
   if { $type ne {0} && $type ne {GENERATOR} } {
-    ### update
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"
@@ -2930,7 +2929,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 
   if {$myload_loadfile == 2} { 
-    bind .load.buttons_bot.entry <Leave> {
+    bind .load <Leave> {
       myload_place_symbol
     }
   }
