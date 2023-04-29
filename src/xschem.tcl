@@ -2984,7 +2984,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
     }
     if {$myload_loadfile == 2} {
-      myload_place_symbol
+      set myload_retval  {   }
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
   if { [ info exists myload_yview]} {
