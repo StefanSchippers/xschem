@@ -1,4 +1,5 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.1.0 file_version=1.2
+}
 G {}
 K {type=switch
 format="@name @@P @@M @@CP @@CM @model"
@@ -27,3 +28,4 @@ T {@#1:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
 T {@#2:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}
 T {@#0:net_name} -45 -12.5 0 1 0.15 0.15 {layer=15}
 T {@#3:net_name} -45 22.5 0 1 0.15 0.15 {layer=15}
+T {@device_model} 2.5 13 0 0 0.04 0.04 {}
