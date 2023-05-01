@@ -1216,23 +1216,27 @@ void launcher(void)
   }
 }
 
-const char *get_sym_name(int inst, int ext)
+
+/* get symbol reference of instance 'inst', looking into 
+ * instance 'schematic' attribute (and appending '.sym') if set
+ * or get it from inst[inst].name.
+ * perform tcl substitution of the result and
+ * return the last 'ndir' directory components of symbol reference. */
+const char *get_sym_name(int inst, int ndir, int ext)
 {
   const char *sym, *sch;
 
   /* instance based symbol selection */
   sch = get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0);
   if(xctx->tok_size) { /* token exists */ 
-    if(ext) sym = get_cell_w_ext(add_ext(rel_sym_path(sch), ".sym"), 0);
-    else sym = get_cell(add_ext(rel_sym_path(sch), ".sym"), 0);
+    sym = add_ext(rel_sym_path(sch), ".sym");
   } 
-  else if(ext) {
-    sym = get_cell_w_ext(tcl_hook2(xctx->inst[inst].name), 0);
-  } else {
-    sym = get_cell(tcl_hook2(xctx->inst[inst].name), 0);
+  else {
+    sym = tcl_hook2(xctx->inst[inst].name);
   }
-  dbg(1, "get_sym_name(): inst=%d, ext=%d, returning sym=%s\n", inst, ext, sym);
-  return sym;
+
+  if(ext) return get_cell_w_ext(sym, ndir);
+  else return get_cell(sym, ndir);
 }
 
 void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)

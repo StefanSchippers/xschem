@@ -1309,7 +1309,7 @@ extern char *read_line(FILE *fp, int dbg_level);
 extern void read_record(int firstchar, FILE *fp, int dbg_level);
 extern void create_sch_from_sym(void);
 extern void get_sch_from_sym(char *filename, xSymbol *sym, int inst);
-extern const char *get_sym_name(int inst, int ext);
+extern const char *get_sym_name(int inst, int ndir, int ext);
 extern void get_additional_symbols(int what);
 extern int descend_schematic(int instnumber);
 extern void go_back(int confirm);
