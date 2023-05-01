@@ -95,21 +95,12 @@ void check_unique_names(int rename)
   int newpropcnt = 0;
   char *tmp = NULL;
   Int_hashentry *entry;
-  int big =  xctx->wires> 2000 || xctx->instances > 2000;
   char *upinst = NULL;
 
   if(xctx->hilight_nets) {
-    xRect boundbox;
-    if(!big) calc_drawing_bbox(&boundbox, 2);
     xctx->enable_drill=0;
     clear_all_hilights();
-    if(!big) {
-      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-    }
     draw();
-    if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   }
   int_hash_free(&xctx->inst_table);
   int_hash_init(&xctx->inst_table, HASHSIZE);

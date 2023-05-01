@@ -1943,20 +1943,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(key=='K' && state == ShiftMask)                           /* delete hilighted nets */
    {
-    xRect boundbox;
-    int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
     if(xctx->semaphore >= 2) break;
     xctx->enable_drill=0;
-    if(!big) calc_drawing_bbox(&boundbox, 2);
     clear_all_hilights();
     /* undraw_hilight_net(1); */
-    if(!big) {
-      bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-      bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-    }
     draw();
-    if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     break;
    }
    if(key=='g' && state==Mod1Mask) { /* highlight net and send to viewer */

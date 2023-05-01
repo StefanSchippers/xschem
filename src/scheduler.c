@@ -3755,19 +3755,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Clear all highlights */
     else if(!strcmp(argv[1], "unhilight_all"))
     {
-      xRect boundbox;
-      int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
       xctx->enable_drill=0;
-      if(!big) calc_drawing_bbox(&boundbox, 2);
       clear_all_hilights();
       /* undraw_hilight_net(1); */
-      if(!big) {
-        bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-        bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-        bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-      }
       draw();
-      if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
       Tcl_ResetResult(interp);
     }
     

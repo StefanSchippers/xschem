@@ -596,16 +596,10 @@ int search(const char *tok, const char *val, int sub, int sel)
  const char *empty_string = "";
  char *tmpname=NULL;
  int found = 0;
- xRect boundbox;
- int big =  xctx->wires> 2000 || xctx->instances > 2000;
 #ifdef __unix__
  regex_t re;
 #endif
 
- /* when unselecting selected area should be redrawn */
- if(sel == -1 && !big) {
-   calc_drawing_bbox(&boundbox, 1);
- }
  if(!val) {
    fprintf(errfp, "search(): warning: null val key\n");
    return TCL_ERROR;
@@ -765,13 +759,7 @@ int search(const char *tok, const char *val, int sub, int sel)
  }
  if(found) {
    if(sel == -1) {
-     if(!big) {
-       bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-       bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-       bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-     }
      draw();
-     if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
    }
    if(sel) {
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
@@ -1747,12 +1735,9 @@ void unhilight_net(void)
 {
   int i,n;
   char *type;
-  xRect boundbox;
-  int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
 
   rebuild_selected_array();
   prepare_netlist_structs(0);
-  if(!big) calc_drawing_bbox(&boundbox, 2);
   dbg(1, "unhilight_net(): entering\n");
   for(i=0;i<xctx->lastsel; ++i) {
    n = xctx->sel_array[i].n;
@@ -1775,14 +1760,8 @@ void unhilight_net(void)
      break;
    }
   }
-  if(!big) {
-    bbox(START, 0.0 , 0.0 , 0.0 , 0.0); 
-    bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-  }
   propagate_hilights(0, 1, XINSERT_NOREPLACE); /* will also clear xctx->hilight_nets if nothing left hilighted */
   draw();
-  if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 
   unselect_all(1);
 }
@@ -1790,19 +1769,9 @@ void unhilight_net(void)
 /* redraws the whole affected rectangle, this avoids artifacts due to antialiased text */
 void redraw_hilights(int clear)
 {
-  xRect boundbox;
-  int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   if(!has_x) return;
-  if(!big) calc_drawing_bbox(&boundbox, 2);
   if(clear) clear_all_hilights();
-  if(!big) {
-    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-    bbox(ADD, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    dbg(1, "bbox: %g %g %g %g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-  }
   draw();
-  if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
 }
 
 
