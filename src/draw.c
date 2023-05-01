@@ -559,14 +559,12 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   }
   if( (layer==TEXTWIRELAYER && !(xctx->inst[n].flags&2) ) ||
       (xctx->sym_txt && (layer==TEXTLAYER) && (xctx->inst[n].flags&2) ) ) {
-    const char *txtptr;
     for(j=0;j< symptr->texts; ++j)
     {
       text = symptr->text[j];
       if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
       if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
-      txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
@@ -577,6 +575,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       }
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
+        char *txtptr = NULL;
         #if HAS_CAIRO==1
         textfont = symptr->text[j].font;
         if((textfont && textfont[0]) || (symptr->text[j].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
@@ -597,11 +596,13 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           cairo_font_face_destroy(xctx->cairo_font);
         }
         #endif
+        my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
         dbg(1, "drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr);
         draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter,
           x0+x1, y0+y1, text.xscale, text.yscale);
+        my_free(_ALLOC_ID_, &txtptr);
         #if HAS_CAIRO!=1
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
@@ -744,20 +745,21 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
   
    if(layer==PROPERTYLAYER && xctx->sym_txt)
    {
-    const char *txtptr;
+    char *txtptr = NULL;
     for(j=0;j< symptr->texts; ++j)
     {
      text = symptr->text[j];
      if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
-     txtptr= translate(n, text.txt_ptr);
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&text);
      #endif
+     my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
+     my_free(_ALLOC_ID_, &txtptr);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);

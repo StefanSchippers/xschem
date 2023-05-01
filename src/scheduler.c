@@ -646,7 +646,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else if(xctx->sel_array[0].type==ELEMENT) {
         my_snprintf(name, S(name), "edit_file {%s}",
-            abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""));
+            abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
         tcleval(name);
       }
     }
@@ -2351,7 +2351,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rebuild_selected_array();
       if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
         tclvareval("set INITIALINSTDIR [file dirname {",
-             abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+             abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), "}]", NULL);
       }
       unselect_all(1);
       xctx->mx_double_save = xctx->mousex_snap;
@@ -2828,6 +2828,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *type;
         char *name=NULL;
         char *ptr=NULL;
+        char *sym = NULL;
         bbox(START,0.0,0.0,0.0,0.0);
         my_strncpy(symbol, argv[3], S(symbol));
         xctx->push_undo();
@@ -2837,7 +2838,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
         }
-        sym_number=match_symbol(symbol);
+        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+        my_strdup(_ALLOC_ID_, &sym, tcl_hook2(symbol));
+        sym_number=match_symbol(sym);
+        my_free(_ALLOC_ID_, &sym);
         if(sym_number>=0)
         {
           prefix=(get_tok_value( (xctx->sym+sym_number)->templ , "name",0))[0]; /* get new symbol prefix  */
@@ -2848,8 +2853,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
         my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
-        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+        dbg(0, "bbox1: %g %g %g %g\n", xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {

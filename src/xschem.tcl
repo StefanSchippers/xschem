@@ -3652,11 +3652,11 @@ proc property_search {} {
 proc tclpropeval {s instname symname} {
   # puts "tclpropeval: $s $instname $symname"
   global env debug_var
-  if {$debug_var <=-1} {puts "tclpropeval: $s"}
   regsub {^@tcleval\(} $s {} s
   regsub {\)([ \t\n]*)$} $s {\1} s
-  if { [catch {eval $s} res] } {
-    if { $debug_var<=-1 } { puts "tclpropeval warning: $res"}
+  # puts "tclpropeval: $s $instname $symname"
+  if { [catch {subst $s} res] } {
+    # puts $res
     set res ?\n
   }
   return $res

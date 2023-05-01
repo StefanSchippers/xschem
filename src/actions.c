@@ -992,7 +992,7 @@ void delete_files(void)
   rebuild_selected_array();
   if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
     my_snprintf(str, S(str), "delete_files {%s}",
-         abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""));
+         abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
   } else {
     my_snprintf(str, S(str), "delete_files {%s}",
          abs_sym_path(xctx->sch[xctx->currsch], ""));
@@ -1037,6 +1037,15 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  }
  dbg(1, "place_symbol(): load_file_dialog returns:  name=%s\n",name);
  my_strncpy(name, rel_sym_path(name), S(name));
+ if(strstr(name, "tcleval(") == name) {
+   my_strncpy(name, tcl_hook2(name), S(name));
+ } else if(strstr(name, "/tcleval(") || strstr(name, "tcleval(") == name) {
+   my_strncpy(name, get_cell(name, 0), S(name));
+   my_strncpy(name, tcl_hook2(name), S(name));
+ } else {
+   my_strncpy(name, rel_sym_path(name), S(name));
+ }
+ dbg(1, "place_symbol(): after tcl_hook2:  name=%s\n",name);
  if(name[0]) {
    if(first_call && to_push_undo) xctx->push_undo();
  } else  return 0;
@@ -1142,7 +1151,7 @@ void symbol_in_new_window(int new_process)
     else new_schematic("create", NULL, filename);
   }
   else {
-    my_strncpy(filename, abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), S(filename));
+    my_strncpy(filename, abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), S(filename));
     if(!check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 1);
       else new_schematic("create", NULL, filename);

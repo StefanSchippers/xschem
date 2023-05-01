@@ -3102,7 +3102,7 @@ const char *translate(int inst, const char* s)
       result_pos+=tmp;
     }
    } else if(strcmp(token,"@sym_last_modified")==0) {
-    my_strncpy(file_name, abs_sym_path(xctx->inst[inst].name, ""), S(file_name));
+    my_strncpy(file_name, abs_sym_path(tcl_hook2(xctx->inst[inst].name), ""), S(file_name));
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);

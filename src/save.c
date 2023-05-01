@@ -2383,6 +2383,7 @@ void link_symbols_to_instances(int from)
 {
   int cond, i, merge = 1;
   char *type=NULL;
+  char *name = NULL;
 
   if(from < 0 ) {
     from = 0;
@@ -2392,7 +2393,9 @@ void link_symbols_to_instances(int from)
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    xctx->inst[i].ptr = match_symbol(xctx->inst[i].name);
+    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(xctx->inst[i].name));
+    xctx->inst[i].ptr = match_symbol(name);
+    my_free(_ALLOC_ID_, &name);
   }
   for(i = from; i < xctx->instances; ++i) {
     type=xctx->sym[xctx->inst[i].ptr].type;
@@ -3864,7 +3867,7 @@ void create_sch_from_sym(void)
       my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
       my_free(_ALLOC_ID_, &sch);
       if(!schname[0]) {
-        my_strncpy(schname, add_ext(abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""),
+        my_strncpy(schname, add_ext(abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""),
              ".sch"), S(schname));
       }
       if( !stat(schname, &buf) ) {

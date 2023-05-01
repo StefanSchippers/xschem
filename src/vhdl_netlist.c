@@ -491,7 +491,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
- for(i=0;i<xctx->instances; ++i) xctx->inst[i].color = stored_flags[i];
+ for(i=0;i<xctx->instances; ++i) if(!xctx->inst[i].color) xctx->inst[i].color = stored_flags[i];
+
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);
@@ -667,7 +668,7 @@ int vhdl_block_netlist(FILE *fd, int i)
             if(!strcmp(get_tok_value( (xctx->inst[l].ptr+ xctx->sym)->prop_ptr, "vhdl_ignore",0 ), "true") ) {
               continue;
             }
-            if(!xctx->x_strcmp(xctx->sym[j].name,xctx->inst[l].name))
+            if(!xctx->x_strcmp(xctx->sym[j].name, tcl_hook2(xctx->inst[l].name)))
             {
               found=1; break;
             }

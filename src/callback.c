@@ -125,7 +125,7 @@ static void start_place_symbol(double mx, double my)
     rebuild_selected_array();
     if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
       tclvareval("set INITIALINSTDIR [file dirname {",
-           abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""), "}]", NULL);
+           abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), "}]", NULL);
     } 
     unselect_all(1);
     xctx->mx_double_save = xctx->mousex_snap;
@@ -1856,7 +1856,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     }
     else if(xctx->sel_array[0].type==ELEMENT) {
       my_snprintf(str, S(str), "edit_file {%s}",
-         abs_sym_path(xctx->inst[xctx->sel_array[0].n].name, ""));
+         abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
       tcleval(str);
 
     }

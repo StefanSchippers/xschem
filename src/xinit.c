@@ -682,7 +682,7 @@ int compare_schematics(const char *f)
   for(i = 0; i < xctx->instances; ++i) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
     my_realloc(_ALLOC_ID_, &s, l);
-    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
     int_hash_lookup(&table1, s, i, XINSERT_NOREPLACE);
@@ -744,7 +744,7 @@ int compare_schematics(const char *f)
   for(i = 0; i < xctx->instances; ++i) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
     my_realloc(_ALLOC_ID_, &s, l);
-    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
     int_hash_lookup(&table2, s, i, XINSERT_NOREPLACE);
@@ -790,7 +790,7 @@ int compare_schematics(const char *f)
   for(i = 0; i < xctx->instances; ++i) {
     l = 1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
     my_realloc(_ALLOC_ID_,&s, l);
-    my_snprintf(s, l, "C %s %g %g %d %d %s",  xctx->inst[i].name,
+    my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
     found = int_hash_lookup(&table2, s, i, XLOOKUP);

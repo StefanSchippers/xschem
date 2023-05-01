@@ -1293,8 +1293,11 @@ static void update_symbol(const char *result, int x)
   prefix=0;
   sym_number = -1;
   if(strcmp(symbol, xctx->inst[*ii].name)) {
+    char *sym = NULL;
     set_modify(1);
-    sym_number=match_symbol(symbol); /* check if exist */
+    my_strdup2(_ALLOC_ID_, &sym, tcl_hook2(symbol));
+    sym_number=match_symbol(sym); /* check if exist */
+    my_free(_ALLOC_ID_, &sym);
     if(sym_number>=0) {
       prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
     }
