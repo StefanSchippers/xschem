@@ -33,11 +33,11 @@ N 500 -350 500 -290 {
 lab=#net13}
 N 790 -350 790 -290 {
 lab=#net14}
-C {mosgen( @model )} 480 -140 0 0 {name=x1
+C {mosgen(@model)} 480 -140 0 0 {name=x1
 model=nfet_01v8}
-C {mosgen( @model )} 770 -140 0 0 {name=x2
+C {mosgen(@model)} 770 -140 0 0 {name=x2
 model=nfet_g5v0d10v5}
-C {mosgen( @model )} 480 -260 0 0 {name=x3
+C {mosgen(@model)} 480 -260 0 0 {name=x3
 model=pfet_01v8}
-C {mosgen( @model )} 770 -260 0 0 {name=x4
+C {mosgen(@model)} 770 -260 0 0 {name=x4
 model=pfet_g5v0d10v5}
