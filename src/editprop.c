@@ -1246,7 +1246,7 @@ static void update_symbol(const char *result, int x)
   int no_change_props=0;
   int only_different=0;
   int copy_cell=0;
-  int prefix=0;
+  int prefix=0, old_prefix = 0;
   char *name = NULL, *ptr = NULL, *new_prop = NULL;
   char symbol[PATH_MAX];
   char *type;
@@ -1290,7 +1290,7 @@ static void update_symbol(const char *result, int x)
   }
   /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
      to use for inst name (from symbol template) */
-  prefix=0;
+  old_prefix = prefix = 0;
   sym_number = -1;
   if(strcmp(symbol, xctx->inst[*ii].name)) {
     char *sym = NULL;
@@ -1306,6 +1306,7 @@ static void update_symbol(const char *result, int x)
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
+    old_prefix=(get_tok_value((xctx->sym + xctx->inst[*ii].ptr)->templ, "name",0))[0];
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
@@ -1354,7 +1355,8 @@ static void update_symbol(const char *result, int x)
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* 20110325 only modify prefix if prefix not NUL */
-      if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
+      /* change prefix if changing symbol type; */
+      if(prefix && old_prefix && old_prefix != prefix) name[0]=(char)prefix;
       dbg(1, "update_symbol(): name=%s, inst[*ii].prop_ptr=%s\n",
           name, xctx->inst[*ii].prop_ptr);
       my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
