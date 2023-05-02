@@ -4043,7 +4043,7 @@ void descend_symbol(void)
                  "/xschem_web/", get_cell_w_ext(name, 0), NULL);
       load_schematic(1, sympath, 1, 1);
     } else {
-      dbg(0, "descend_symbol(): sympath=%s\n", sympath);
+      dbg(1, "descend_symbol(): sympath=%s\n", sympath);
       load_schematic(1, sympath, 1, 1);
     }
     my_free(_ALLOC_ID_, &sympath);

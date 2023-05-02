@@ -3568,13 +3568,13 @@ const char *translate2(Lcc *lcc, int level, char* s)
     }
     else escape = 0;
     space = SPACE(c);
-    if (state == TOK_BEGIN && c == '@' && !escape) state = TOK_TOKEN;
+    if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN;
     else if(state==TOK_TOKEN && token_pos > 1 &&
        (
-         ( (space || c == '@') && !escape ) ||
-         ( (!space && c != '@') && escape )
-       )
-      ) state=TOK_SEP;
+         ( (space  || c == '%' || c == '@') && !escape ) ||
+         ( (!space && c != '%' && c != '@') && escape  )
+       )   
+      ) state = TOK_SEP;
     STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
     if (state == TOK_TOKEN) token[token_pos++] = (char)c;
@@ -3592,6 +3592,11 @@ const char *translate2(Lcc *lcc, int level, char* s)
         xctx->tok_size = 0;
       } else {
         my_strdup2(_ALLOC_ID_, &value, get_tok_value(lcc[level].prop_ptr, token + 1, 0));
+        /* propagate %xxx tokens to upper levels if no value found */
+        if(!value[0]  && token[0] == '%') {
+          my_strdup2(_ALLOC_ID_, &value, token + 1);
+          xctx->tok_size = 1; /* just to tell %xxx token was found */
+        }
         dbg(1, "translate2(): lcc[%d].prop_ptr=%s value=%s\n", level, lcc[level].prop_ptr, value);
       }
       if(xctx->tok_size && value[0]) {
@@ -3655,7 +3660,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
         memcpy(result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
-      if (c == '@') s--; /* push back to input for next token */
+      if (c == '%' || c == '@') s--; /* push back to input for next token */
       else result[result_pos++] = (char)c;
       state = TOK_BEGIN;
     }
