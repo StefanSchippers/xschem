@@ -1559,14 +1559,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "instance_list"))
     {
       int i;
+      char *s = NULL;
       for(i = 0; i < xctx->instances; ++i) {
-        char *name = xctx->inst[i].name ? xctx->inst[i].name : "";
+        const char *name = xctx->inst[i].name ? translate(i, xctx->inst[i].name) : "";
         char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
         char *type = (xctx->inst[i].ptr + xctx->sym)->type;
         type = type ? type : "";
-        if(i > 0) Tcl_AppendResult(interp, " ", NULL);
-        Tcl_AppendResult(interp, "{", instname, "} {", name, "} {", type, "}", NULL);
+        if(i > 0) my_mstrcat(_ALLOC_ID_, &s, " ", NULL);
+        my_mstrcat(_ALLOC_ID_, &s,  "{", instname, "} {", name, "} {", type, "}", NULL);
       }
+      Tcl_SetResult(interp, (char *)s, TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &s);
     }
     /* instance_net inst pin
      *   Return the name of the net attached to pin 'pin' of instance 'inst'

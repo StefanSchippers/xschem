@@ -1248,9 +1248,9 @@ static void update_symbol(const char *result, int x)
   int copy_cell=0;
   int prefix=0, old_prefix = 0;
   char *name = NULL, *ptr = NULL, *new_prop = NULL;
-  char symbol[PATH_MAX];
+  char symbol[PATH_MAX], *translated_sym = NULL, *old_translated_sym = NULL;
   char *type;
-  int cond;
+  int cond, changed_symbol = 0;
   int pushed=0;
   int *ii = &xctx->edit_sym_i; /* static var */
   int *netl_com = &xctx->netlist_commands; /* static var */
@@ -1288,19 +1288,9 @@ static void update_symbol(const char *result, int x)
    remove_symbols();
    link_symbols_to_instances(-1);
   }
-  /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
-     to use for inst name (from symbol template) */
-  old_prefix = prefix = 0;
-  sym_number = -1;
+  /* User edited the Symbol textbox */
   if(strcmp(symbol, xctx->inst[*ii].name)) {
-    char *sym = NULL;
-    set_modify(1);
-    my_strdup2(_ALLOC_ID_, &sym, tcl_hook2(symbol));
-    sym_number=match_symbol(sym); /* check if exist */
-    my_free(_ALLOC_ID_, &sym);
-    if(sym_number>=0) {
-      prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
-    }
+    changed_symbol = 1;
   }
   for(k=0;k<xctx->lastsel; ++k) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
@@ -1310,17 +1300,9 @@ static void update_symbol(const char *result, int x)
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-    if(sym_number>=0) /* changing symbol ! */
-    {
-      if(!pushed) { xctx->push_undo(); pushed=1;}
-      delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
-                        /* if number of pins is different we must delete these data *before* */
-                        /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
-      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].name, rel_sym_path(symbol));
-      xctx->inst[*ii].ptr=sym_number; /* update instance to point to new symbol */
-    }
-    bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1,
-              xctx->inst[*ii].x2, xctx->inst[*ii].y2);
+    bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1, xctx->inst[*ii].x2, xctx->inst[*ii].y2);
+
+    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
 
     /* update property string from tcl dialog */
     if(!no_change_props)
@@ -1340,6 +1322,7 @@ static void update_symbol(const char *result, int x)
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop);
             if(!pushed) { xctx->push_undo(); pushed=1; set_modify(1);}
+            dbg(1, "update_symbol(): *ii=%d, new_prop=%s\n", *ii, new_prop ? new_prop : "NULL");
             my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, new_prop);
           }
         }  else {
@@ -1349,6 +1332,31 @@ static void update_symbol(const char *result, int x)
       }
     }
 
+    /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
+     * to use for inst name (from symbol template) */
+    prefix = 0;
+    sym_number = -1;
+    my_strdup2(_ALLOC_ID_, &translated_sym, translate(*ii, symbol));
+    dbg(1, "update_symbol: %s -- %s\n", translated_sym, old_translated_sym);
+    if(changed_symbol ||
+        ( !strcmp(symbol, xctx->inst[*ii].name) &&  strcmp(translated_sym, old_translated_sym) ) ) { 
+      sym_number=match_symbol(translated_sym); /* check if exist */
+      if(sym_number>=0) {
+        prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
+      }
+    }
+
+    if(sym_number>=0) /* changing symbol ! */
+    {
+      if(!pushed) { xctx->push_undo(); pushed=1; set_modify(1);}
+      delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
+                        /* if number of pins is different we must delete these data *before* */
+                        /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
+      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].name, rel_sym_path(symbol));
+      xctx->inst[*ii].ptr=sym_number; /* update instance to point to new symbol */
+    }
+    my_free(_ALLOC_ID_, &translated_sym);
+    my_free(_ALLOC_ID_, &old_translated_sym);
 
     /* if symbol changed ensure instance name (with new prefix char) is unique */
     /* preserve backslashes in name ---------0---------------------------------->. */
@@ -1356,7 +1364,12 @@ static void update_symbol(const char *result, int x)
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* change prefix if changing symbol type; */
-      if(prefix && old_prefix && old_prefix != prefix) name[0]=(char)prefix;
+      if(prefix && old_prefix && old_prefix != prefix) {
+        name[0]=(char)prefix;
+        my_strdup(_ALLOC_ID_, &ptr, subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
+      } else {
+        my_strdup(_ALLOC_ID_, &ptr, xctx->inst[*ii].prop_ptr);
+      }
       /* set unique name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_all_names();
@@ -1364,7 +1377,6 @@ static void update_symbol(const char *result, int x)
     } else { /* no name attribute was set in instance */
       my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].instname, "");
     }
-
 
     /* set cached flags in instances */
     type=xctx->sym[xctx->inst[*ii].ptr].type;
@@ -1384,8 +1396,6 @@ static void update_symbol(const char *result, int x)
     xctx->inst[*ii].embed = !strcmp(get_tok_value(xctx->inst[*ii].prop_ptr, "embed", 2), "true");
 
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
-
-
 
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
