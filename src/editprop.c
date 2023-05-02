@@ -1329,9 +1329,8 @@ static void update_symbol(const char *result, int x)
         char * ss=NULL;
         my_strdup(_ALLOC_ID_, &ss, xctx->inst[*ii].prop_ptr);
         if( set_different_token(&ss, new_prop, xctx->old_prop) ) {
-          if(!pushed) { xctx->push_undo(); pushed=1;}
+          if(!pushed) { xctx->push_undo(); pushed=1; set_modify(1);}
           my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, ss);
-          set_modify(1);
         }
         my_free(_ALLOC_ID_, &ss);
       }
@@ -1340,14 +1339,12 @@ static void update_symbol(const char *result, int x)
           if(!xctx->inst[*ii].prop_ptr || strcmp(xctx->inst[*ii].prop_ptr, new_prop)) {
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop);
-            if(!pushed) { xctx->push_undo(); pushed=1;}
+            if(!pushed) { xctx->push_undo(); pushed=1; set_modify(1);}
             my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, new_prop);
-            set_modify(1);
           }
         }  else {
-          if(!pushed) { xctx->push_undo(); pushed=1;}
+          if(!pushed) { xctx->push_undo(); pushed=1; set_modify(1);}
           my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, "");
-          set_modify(1);
         }
       }
     }

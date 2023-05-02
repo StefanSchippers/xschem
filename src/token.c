@@ -851,12 +851,12 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                         /* in hash table */
    {
-     const char *s = sanitize(get_sym_name(inst, 0, 0));
+     const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
      fputs(s, fd);
    }
    else if (strcmp(token,"@symname_ext")==0) 
    {
-     const char *s = sanitize(get_sym_name(inst, 0, 1));
+     const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
      fputs(s, fd);
    }
    else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
@@ -1223,9 +1223,9 @@ void print_vhdl_element(FILE *fd, int inst)
  /* print instance name and subckt */
   dbg(2, "print_vhdl_element(): printing inst name & subcircuit name\n");
   if( (lab = expandlabel(name, &tmp)) != NULL)
-    fprintf(fd, "%d %s : %s\n", tmp, lab, sanitize(get_sym_name(inst, 0, 0)) );
+    fprintf(fd, "%d %s : %s\n", tmp, lab, sanitize(translate(inst, get_sym_name(inst, 0, 0))) );
   else  /*  name in some strange format, probably an error */
-    fprintf(fd, "1 %s : %s\n", name, sanitize(get_sym_name(inst, 0, 0)) );
+    fprintf(fd, "1 %s : %s\n", name, sanitize(translate(inst, get_sym_name(inst, 0, 0))) );
   dbg(2, "print_vhdl_element(): printing generics passed as properties\n");
 
 
@@ -1864,7 +1864,7 @@ int print_spice_element(FILE *fd, int inst)
       }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
-        const char *s = sanitize(get_sym_name(inst, 0, 0));
+        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
@@ -1873,7 +1873,7 @@ int print_spice_element(FILE *fd, int inst)
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present in attributes */
       {
-        const char *s = sanitize(get_sym_name(inst, 0, 1));
+        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
         tmp = strlen(s) +100 ; /* always make room for some extra chars 
                                 * so 1-char writes to result do not need reallocs */
         STR_ALLOC(&result, tmp + result_pos, &size);
@@ -2094,7 +2094,8 @@ void print_tedax_element(FILE *fd, int inst)
    int n;
    Int_hashtable table={NULL, 0};
    subcircuit = 1;
-   fprintf(fd, "__subcircuit__ %s %s\n", sanitize(get_sym_name(inst, 0, 0)), xctx->inst[inst].instname);
+   fprintf(fd, "__subcircuit__ %s %s\n",
+       sanitize(translate(inst, get_sym_name(inst, 0, 0))), xctx->inst[inst].instname);
    int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
@@ -2231,12 +2232,12 @@ void print_tedax_element(FILE *fd, int inst)
     else if(strcmp(token,"@symname")==0)        /* of course symname must not be present  */
                                         /* in hash table */
     {
-      const char *s = sanitize(get_sym_name(inst, 0, 0));
+      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
       fputs(s, fd);
     }
     else if (strcmp(token,"@symname_ext")==0) 
     {
-      const char *s = sanitize(get_sym_name(inst, 0, 1));
+      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
       fputs(s, fd);
     }
     else if(strcmp(token,"@schname_ext")==0)        /* of course schname must not be present  */
@@ -2472,12 +2473,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
     {
-      const char *s = sanitize(get_sym_name(inst, 0, 0));
+      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
       fputs(s, fd);
     }
     else if (strcmp(token,"@symname_ext")==0) 
     {
-      const char *s = sanitize(get_sym_name(inst, 0, 1));
+      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
       fputs(s, fd);
     }
     else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */

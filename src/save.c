@@ -2393,7 +2393,7 @@ void link_symbols_to_instances(int from)
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(xctx->inst[i].name));
+    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name)));
     xctx->inst[i].ptr = match_symbol(name);
     my_free(_ALLOC_ID_, &name);
   }
@@ -3975,7 +3975,7 @@ void descend_symbol(void)
       if(ret == 0) clear_all_hilights();
       if(ret == -1) return; /* user cancel */
     }
-    my_snprintf(name, S(name), "%s", xctx->inst[n].name);
+    my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name));
     /* dont allow descend in the default missing symbol */
     if((xctx->inst[n].ptr+ xctx->sym)->type &&
        !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return;
@@ -4043,7 +4043,7 @@ void descend_symbol(void)
                  "/xschem_web/", get_cell_w_ext(name, 0), NULL);
       load_schematic(1, sympath, 1, 1);
     } else {
-      dbg(1, "descend_symbol(): sympath=%s\n", sympath);
+      dbg(0, "descend_symbol(): sympath=%s\n", sympath);
       load_schematic(1, sympath, 1, 1);
     }
     my_free(_ALLOC_ID_, &sympath);

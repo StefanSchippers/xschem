@@ -69,11 +69,15 @@ N 840 -520 840 -460 {
 lab=IN}
 N 840 -460 920 -460 {
 lab=IN}
-C {symbolgen(inv)} 150 -460 0 0 {name=x1  
+N 470 -640 520 -640 {
+lab=IN}
+N 600 -640 660 -640 {
+lab=IN_BUF3}
+C {symbolgen(inv, @ROUT )} 150 -460 0 0 {name=x1  
 tclcommand="edit_file [abs_sym_path symbolgen]"
 ROUT=1200}
 C {lab_pin.sym} 30 -520 0 0 {name=p1 lab=IN}
-C {symbolgen(buf,2)} 150 -560 0 0 {name=x3  
+C {symbolgen(buf, @ROUT )} 150 -560 0 0 {name=x3  
 tclcommand="edit_file [abs_sym_path symbolgen]"
 ROUT=1200}
 C {lab_pin.sym} 310 -560 0 1 {name=p2 lab=IN_BUF}
@@ -112,3 +116,8 @@ C {lab_pin.sym} 840 -520 0 0 {name=p9 lab=IN}
 C {parax_cap.sym} 1080 -550 0 0 {name=C3 gnd=0 value=100f m=1}
 C {parax_cap.sym} 1080 -450 0 0 {name=C4 gnd=0 value=100f m=1}
 C {noconn.sym} 840 -560 0 0 {name=l3}
+C {symbolgen()} 560 -640 0 0 {name=x5  
+tclcommand="edit_file [abs_sym_path symbolgen]"
+ROUT=1200}
+C {lab_pin.sym} 470 -640 0 0 {name=p4 lab=IN}
+C {lab_pin.sym} 660 -640 0 1 {name=p6 lab=IN_BUF3}
