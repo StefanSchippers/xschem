@@ -1325,7 +1325,6 @@ static void update_symbol(const char *result, int x)
     /* update property string from tcl dialog */
     if(!no_change_props)
     {
-      dbg(1, "update_symbol(): no_change_props=%d\n", no_change_props);
       if(only_different) {
         char * ss=NULL;
         my_strdup(_ALLOC_ID_, &ss, xctx->inst[*ii].prop_ptr);
@@ -1349,29 +1348,30 @@ static void update_symbol(const char *result, int x)
         }
       }
     }
+
+
     /* if symbol changed ensure instance name (with new prefix char) is unique */
-    /* preserve backslashes in name ----------------------------------->. */
+    /* preserve backslashes in name ---------0---------------------------------->. */
     my_strdup(_ALLOC_ID_, &name, get_tok_value(xctx->inst[*ii].prop_ptr, "name", 1));
     if(name && name[0] ) {
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
-      /* 20110325 only modify prefix if prefix not NUL */
       /* change prefix if changing symbol type; */
       if(prefix && old_prefix && old_prefix != prefix) name[0]=(char)prefix;
-      dbg(1, "update_symbol(): name=%s, inst[*ii].prop_ptr=%s\n",
-          name, xctx->inst[*ii].prop_ptr);
-      my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[*ii].prop_ptr, "name", name) );
-                     /* set name of current inst */
+      /* set unique name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_all_names();
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-    } else {
+    } else { /* no name attribute was set in instance */
       my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].instname, "");
     }
+
+
+    /* set cached flags in instances */
     type=xctx->sym[xctx->inst[*ii].ptr].type;
     cond= !type || !IS_LABEL_SH_OR_PIN(type);
-    if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag for different textlayer for pin/labels */
+    if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag = 1 for textlayer for ordinary symbols */
     else {
-      xctx->inst[*ii].flags &= ~2;
+      xctx->inst[*ii].flags &= ~2;  /* bit 1: flag = 0 for textlayer for pins/labels/net show symbols */
       my_strdup(_ALLOC_ID_, &xctx->inst[*ii].lab,
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
@@ -1382,7 +1382,11 @@ static void update_symbol(const char *result, int x)
           xctx->inst[*ii].flags |= HIDE_INST;
     else  xctx->inst[*ii].flags &= ~HIDE_INST;
     xctx->inst[*ii].embed = !strcmp(get_tok_value(xctx->inst[*ii].prop_ptr, "embed", 2), "true");
+
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
+
+
+
   /* new symbol bbox after prop changes (may change due to text length) */
   if(xctx->modified) {
     xctx->prep_hash_inst=0;
