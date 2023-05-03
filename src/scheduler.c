@@ -1565,7 +1565,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
         char *type = (xctx->inst[i].ptr + xctx->sym)->type;
         type = type ? type : "";
-        if(i > 0) my_mstrcat(_ALLOC_ID_, &s, " ", NULL);
+        if(i > 0) my_mstrcat(_ALLOC_ID_, &s, "\n", NULL);
         my_mstrcat(_ALLOC_ID_, &s,  "{", instname, "} {", name, "} {", type, "}", NULL);
       }
       Tcl_SetResult(interp, (char *)s, TCL_VOLATILE);

@@ -47,10 +47,10 @@ N 340 -200 390 -200 {
 lab=IN}
 N 790 -200 900 -200 {
 lab=OUT}
-C {xschem-repo/trunk/xschem_library/devices/ipin.sym} 340 -200 0 0 {name=p1 lab=IN}
-C {xschem-repo/trunk/xschem_library/devices/opin.sym} 900 -200 0 0 {name=p2 lab=OUT}
-C {xschem-repo/trunk/xschem_library/devices/vdd.sym} 640 -350 0 0 {name=l1 lab=VDD}
-C {xschem-repo/trunk/xschem_library/devices/gnd.sym} 640 -50 0 0 {name=l2 lab=GND}
+C {ipin.sym} 340 -200 0 0 {name=p1 lab=IN}
+C {opin.sym} 900 -200 0 0 {name=p2 lab=OUT}
+C {vdd.sym} 640 -350 0 0 {name=l1 lab=VDD}
+C {gnd.sym} 640 -50 0 0 {name=l2 lab=GND}
 C {mosgen(@model\\)} 480 -260 0 0 {name=M1
 L=0.15
 W=1
