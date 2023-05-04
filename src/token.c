@@ -432,12 +432,14 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   int quote=0, state=TOK_BEGIN;
   int escape=0;
   int cmp = 1;
+  static char *translated_tok = NULL;
 
   xctx->tok_size = 0;
   if(s==NULL) {
     if(tok == NULL) {
       my_free(_ALLOC_ID_, &result);
       my_free(_ALLOC_ID_, &token);
+      my_free(_ALLOC_ID_, &translated_tok);
       size = sizetok = 0;
       dbg(2, "get_tok_value(): clear static data\n");
     }
@@ -490,7 +492,12 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     } else if(state==TOK_END) {
       result[value_pos]='\0';
       if( !cmp ) {
-        return with_quotes & 2 ? result : tcl_hook2(result);
+        if(with_quotes & 2) {
+          return result;
+        } else {
+          my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+          return translated_tok;
+        }
       }
       value_pos=0;
       state=TOK_BEGIN;
@@ -499,7 +506,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(c=='\0') {
       result[0]='\0';
       xctx->tok_size = 0;
-      return with_quotes & 2 ? result : tcl_hook2(result);
+      return result;
     }
   }
 }
@@ -2908,6 +2915,7 @@ char *find_nth(const char *str, const char *sep, int n)
 const char *translate(int inst, const char* s)
 {
  static const char *empty="";
+ static char *translated_tok = NULL;
  static char *result=NULL; /* safe to keep even with multiple schematics */
  size_t size=0;
  size_t tmp;
@@ -2933,6 +2941,7 @@ const char *translate(int inst, const char* s)
  sp_prefix = tclgetboolvar("spiceprefix");
  if(!s) {
    my_free(_ALLOC_ID_, &result);
+   my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
 
@@ -3537,7 +3546,8 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- return tcl_hook2(result);
+ my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+ return translated_tok;
 }
 
 const char *translate2(Lcc *lcc, int level, char* s)
