@@ -658,6 +658,9 @@
           </Component>
         </Directory>
 		<Directory Id="dir0E49847221518A8EA1A21E5E7C2A0013" Name="generators">
+		  <Component Id="cmp25A7C4122212FC7D9EAC62B717AFABD5" Guid="{49B4D4B0-1D23-49E2-9E77-D56BAA874B27}">
+			<File Id="fil6DAD69B2E89265134875F6363A12D945" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\mosgen" />
+		  </Component>
 		  <Component Id="cmp32465EBB4792AC111E037BC93352D608" Guid="{AF168DB3-7773-4827-9440-A66CE3EC0377}">
 			<File Id="fil2394C46591EC087671BABBB84C6A7A38" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\my_inv.sch" />
 		  </Component>
@@ -669,6 +672,9 @@
 		  </Component>
 		  <Component Id="cmp58DEF4BE570C94119EE2C3392A79729E" Guid="{4E5077D3-9AD2-4B60-927E-189B490B39BB}">
 			<File Id="filE5921602E7E3F12690CF1D1BD574EFD9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\symbolgen" />
+		  </Component>
+		  <Component Id="cmpA817B5B11EE935E104D26D6539BBAC55" Guid="{01B8AB98-B989-4B98-BA56-EE45AF3E5635}">
+			<File Id="filEA97A0AE18C05A9F29AAD6255329186E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\test_mosgen.sch" />
 		  </Component>
 		  <Component Id="cmp564B680048CCEDCA705AB3D245A19E30" Guid="{B9DEB694-0240-4CA7-A71A-539F16C39DE4}">
 			<File Id="filC194343F1D6B4EE6B4AF35363CDA35E4" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\test_symbolgen.sch" />
@@ -5699,10 +5705,12 @@
 	  <ComponentRef Id="cmp30D416247CB7868426C9E8075767CD1A" />
       <ComponentRef Id="cmpB573F1750B3939F980B65D02B78EE0E3" />
       <ComponentRef Id="cmp07A884BAD56D6B1718967173C498C3C3" />
+	  <ComponentRef Id="cmp25A7C4122212FC7D9EAC62B717AFABD5" />
 	  <ComponentRef Id="cmp32465EBB4792AC111E037BC93352D608" />
 	  <ComponentRef Id="cmp2FDFB818395E2338E0060D6F28271CE7" />
 	  <ComponentRef Id="cmpD694720EA8D2EEE4E58970628CFBC57A" />
 	  <ComponentRef Id="cmp58DEF4BE570C94119EE2C3392A79729E" />
+	  <ComponentRef Id="cmpA817B5B11EE935E104D26D6539BBAC55" />
 	  <ComponentRef Id="cmp564B680048CCEDCA705AB3D245A19E30" />
 	  <ComponentRef Id="cmpB218B4D54FEA02DE77E9B9650F18D0C6" />
       <ComponentRef Id="cmp93CCC992DFDB8670EC1762AF056E9A71" />

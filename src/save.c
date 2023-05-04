@@ -3155,7 +3155,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *dash;
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
-  const char *cmd;
+  char *cmd = NULL;
 
   if(!name) {
     dbg(0, "l_s_d(): Warning: name parameter set to NULL, returning with no action\n");
@@ -3171,7 +3171,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-  cmd = tcl_hook2(name);
+  my_strdup2(_ALLOC_ID_, &cmd, tcl_hook2(name));
   dbg(1, "l_s_d(): cmd=%s\n", cmd);
   generator = is_generator(cmd);
   if(generator) {
