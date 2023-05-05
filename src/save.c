@@ -3156,6 +3156,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
   char *cmd = NULL;
+  char *translated_cmd = NULL;
 
   if(!name) {
     dbg(0, "l_s_d(): Warning: name parameter set to NULL, returning with no action\n");
@@ -3175,13 +3176,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
   dbg(1, "l_s_d(): cmd=%s\n", cmd);
   generator = is_generator(cmd);
   if(generator) {
-    cmd = get_generator_command(cmd);
+    translated_cmd = get_generator_command(cmd);
     dbg(1, "l_s_d(): generator: cmd=%s\n", cmd);
-    if(cmd) {
-      lcc[level].fd = popen(cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
+    if(translated_cmd) {
+      lcc[level].fd = popen(translated_cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
     } else {
       lcc[level].fd = NULL;
     }
+    my_free(_ALLOC_ID_, &translated_cmd);
   } else if(!embed_fd) { /* regular symbol: open file */
     if(!strcmp(xctx->file_version,"1.0")) {
       my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));

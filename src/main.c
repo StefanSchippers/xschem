@@ -71,7 +71,6 @@ static void child_handler(int signum)
 int main(int argc, char **argv)
 {
   int i;
-  my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
   signal(SIGILL, sig_handler);
@@ -85,6 +84,7 @@ int main(int argc, char **argv)
   if(!getenv("DISPLAY") || !getenv("DISPLAY")[0]) has_x=0;
 #endif
   argc = process_options(argc, argv);
+  my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
   /* if detach is 1 no interactive command shell is created ...

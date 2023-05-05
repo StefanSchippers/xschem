@@ -52,6 +52,10 @@ BEGIN{
     idx[$5] = id
   }
   else { # realloc
+    if(!($3 in address)) {
+      print "Corruption: address " $3 " was freed. Can not realloc. id=" id
+      print_source($3)
+    }
     total += $7 - address[$3]
     if(total > max) max = total
     delete address[$3]
@@ -73,14 +77,20 @@ END{
   for(i in address) {
     stale++
     leak+= address[i]
-    print "  address[ " i ", " idx[i] " ]= " address[i]
-    if(show_source) {
-      pipe = "egrep -n 'my_(malloc|calloc|realloc|free|mstrcat|strcat|strncat|strdup|strdup2)\\(" idx[i] ",' *.c xschem.h"
-      while( pipe | getline a) print "    " a
-      close(pipe)
-    }
+    print_source(i)
   }
   print "Number of unfreed pointers = " stale
   # as a crosscheck 'leak' should be equal to 'total'.
   print "Total leaked memory = " leak
+}
+
+function print_source(add)
+{
+  print "  address[ " add ", " idx[add] " ]= " address[add]
+  if(show_source) {
+    pipe = "egrep -n 'my_(malloc|calloc|realloc|free|mstrcat|strcat|strncat|strdup|strdup2)\\(" idx[add] \
+    ",' *.c xschem.h"
+    while( pipe | getline a) print "    " a
+    close(pipe)
+  }
 }
