@@ -13,7 +13,7 @@ xvhdl_format=\"@@y <= not @@a after 90 ps;\"
 xverilog_format=\"assign #90 @@y = ~@@a ;\"
 format=\"@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp\"
 template=\"name=x1 wn=1u lln=2u wp=4u lp=2u\"
-schematic=schematicgen(inv)}
+schematic=schematicgen.tcl(inv)}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}
 L 4 -20 -20 -20 20 {}
@@ -36,7 +36,7 @@ xvhdl_format=\"@@y <= @@a after 90 ps;\"
 xverilog_format=\"assign #90 @@y = @@a ;\"
 format=\"@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp\"
 template=\"name=x1 wn=1u lln=2u wp=4u lp=2u\"
-schematic=schematicgen(buf)}
+schematic=schematicgen.tcl(buf)}
 L 4 20 0 40 0 {}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}

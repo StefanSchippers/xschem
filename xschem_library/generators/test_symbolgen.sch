@@ -73,11 +73,11 @@ N 470 -640 520 -640 {
 lab=IN}
 N 600 -640 660 -640 {
 lab=IN_BUF3}
-C {symbolgen(inv, @ROUT )} 150 -460 0 0 {name=x1  
+C {symbolgen.tcl(inv, @ROUT )} 150 -460 0 0 {name=x1  
 tclcommand="edit_file [abs_sym_path symbolgen]"
 ROUT=1200}
 C {lab_pin.sym} 30 -520 0 0 {name=p1 lab=IN}
-C {symbolgen(buf, @ROUT )} 150 -560 0 0 {name=x3  
+C {symbolgen.tcl(buf, @ROUT )} 150 -560 0 0 {name=x3  
 tclcommand="edit_file [abs_sym_path symbolgen]"
 ROUT=1200}
 C {lab_pin.sym} 310 -560 0 1 {name=p2 lab=IN_BUF}
@@ -103,11 +103,11 @@ descr="load waves"
 tclcommand="xschem raw_read $netlist_dir/test_symbolgen.raw tran"
 }
 C {my_inv.sym} 960 -460 0 0 {name=x2 ROUT=1000
-schematic=schematicgen(inv)
+schematic=schematicgen.tcl(inv)
 tclcommand="edit_file [abs_sym_path schematicgen]"}
 C {lab_pin.sym} 1120 -460 0 1 {name=p5 lab=IN_INV2}
 C {my_inv.sym} 960 -560 0 0 {name=x4 ROUT=1000
-schematic="schematicgen(buf,4)"
+schematic="schematicgen.tcl(buf,4)"
 tclcommand="edit_file [abs_sym_path schematicgen]"}
 C {lab_pin.sym} 1120 -560 0 1 {name=p7 lab=IN_BUF2}
 C {vdd.sym} 620 -470 0 0 {name=l2 lab=VCC}
@@ -116,7 +116,7 @@ C {lab_pin.sym} 840 -520 0 0 {name=p9 lab=IN}
 C {parax_cap.sym} 1080 -550 0 0 {name=C3 gnd=0 value=100f m=1}
 C {parax_cap.sym} 1080 -450 0 0 {name=C4 gnd=0 value=100f m=1}
 C {noconn.sym} 840 -560 0 0 {name=l3}
-C {symbolgen()} 560 -640 0 0 {name=x5  
+C {symbolgen.tcl()} 560 -640 0 0 {name=x5  
 tclcommand="edit_file [abs_sym_path symbolgen]"
 ROUT=1200}
 C {lab_pin.sym} 470 -640 0 0 {name=p4 lab=IN}
