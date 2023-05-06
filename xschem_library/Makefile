@@ -18,7 +18,7 @@ install: FORCE
 	$(SCCBOX) install -f -d examples/stimuli.* "$(XDOCDIR)"/examples
 	$(SCCBOX) install -f -d binto7seg/*.sym "$(XDOCDIR)"/binto7seg
 	$(SCCBOX) install -f -d binto7seg/*.sch "$(XDOCDIR)"/binto7seg
-	$(SCCBOX) install -f -d generators/*.* "$(XDOCDIR)"/generators
+	$(SCCBOX) install -f -d generators/* "$(XDOCDIR)"/generators
 	$(SCCBOX) install -f -d inst_sch_select/*.* "$(XDOCDIR)"/inst_sch_select
 	$(SCCBOX) install -f -d xTAG/*.sym* "$(XDOCDIR)"/xTAG
 	$(SCCBOX) install -f -d xTAG/*.sch "$(XDOCDIR)"/xTAG

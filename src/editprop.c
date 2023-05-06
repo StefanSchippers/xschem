@@ -136,7 +136,8 @@ size_t my_strdup(int id, char **dest, const char *src) /* empty source string --
 {
  size_t len;
 
- if(*dest == src) dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
+ if(*dest == src && src!=NULL) 
+   dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
  if(src!=NULL && src[0]!='\0')  {
    len = strlen(src)+1;
    my_realloc(id, dest, len);
@@ -314,7 +315,8 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
 size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates also empty string  */
 {
  size_t len;
- if(*dest == src) dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
+ if(*dest == src && src!=NULL) 
+   dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
  if(src!=NULL) {
    len = strlen(src)+1;
    my_realloc(id, dest, len);
