@@ -4514,7 +4514,7 @@ proc sub_match_file { f {paths {}} } {
     foreach j [glob -nocomplain -directory $i *] {
       # puts "--> $j  $f"
       # set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
-      if {[file isdirectory $j]} {
+      if {[file isdirectory $j] && [file readable $j]} {
         set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
         if {[array names match_file_dir_arr -exact $jj] == {}} {
           set match_file_dir_arr($jj) 1
@@ -4552,20 +4552,20 @@ proc sub_find_file { f {paths {}} } {
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
       # puts "--> $j  $f"
-      if {[file isdirectory $j]} {
+      if {[file isdirectory $j]  && [file readable $j]} {
         set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
         if {[array names match_file_dir_arr -exact $jj] == {}} {
           set match_file_dir_arr($jj) 1
           # puts "********** directory $jj"
-          set res [sub_find_file $f $j] ;# recursive call
+          set sub_res [sub_find_file $f $j] ;# recursive call
+          if {$sub_res != {} } {set res [concat $res $sub_res]}
         }
       } else {
         set fname [file tail $j]
         if {$fname == $f} {
-          set res $j
+          lappend res $j
         }
       }
-      if {$res ne {} } {return $res}
     }
   }
   return $res
