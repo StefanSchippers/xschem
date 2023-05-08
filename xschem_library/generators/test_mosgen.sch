@@ -51,7 +51,7 @@ C {ipin.sym} 340 -200 0 0 {name=p1 lab=IN}
 C {opin.sym} 900 -200 0 0 {name=p2 lab=OUT}
 C {vdd.sym} 640 -350 0 0 {name=l1 lab=VDD}
 C {gnd.sym} 640 -50 0 0 {name=l2 lab=GND}
-C {mosgen(@model\\)} 480 -260 0 0 {name=M1
+C {mosgen.tcl(@model\\)} 480 -260 0 0 {name=M1
 L=0.15
 W=1
 nf=1 
@@ -65,7 +65,7 @@ sa=0 sb=0 sd=0
 model=pfet_01v8
 spiceprefix=X
 }
-C {mosgen(@model\\)} 480 -140 0 0 {name=M2
+C {mosgen.tcl(@model\\)} 480 -140 0 0 {name=M2
 L=0.15
 W=1
 nf=1 
@@ -79,7 +79,7 @@ sa=0 sb=0 sd=0
 model=nfet_01v8
 spiceprefix=X
 }
-C {mosgen(@model\\)} 770 -260 0 0 {name=M3
+C {mosgen.tcl(@model\\)} 770 -260 0 0 {name=M3
 L=0.15
 W=1
 nf=1 
@@ -93,7 +93,7 @@ sa=0 sb=0 sd=0
 model=pfet_g5v0d10v5
 spiceprefix=X
 }
-C {mosgen(@model\\)} 770 -140 0 0 {name=M4
+C {mosgen.tcl(@model\\)} 770 -140 0 0 {name=M4
 L=0.15
 W=1
 nf=1 

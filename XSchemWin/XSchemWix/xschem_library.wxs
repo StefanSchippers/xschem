@@ -658,8 +658,8 @@
           </Component>
         </Directory>
 		<Directory Id="dir0E49847221518A8EA1A21E5E7C2A0013" Name="generators">
-		  <Component Id="cmp25A7C4122212FC7D9EAC62B717AFABD5" Guid="{49B4D4B0-1D23-49E2-9E77-D56BAA874B27}">
-			<File Id="fil6DAD69B2E89265134875F6363A12D945" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\mosgen" />
+		  <Component Id="cmp0F55AD823E95BFAA9D9A15832B8C8284" Guid="{EC5D73DF-D0C8-4817-900B-05555DB2D20E}">
+			<File Id="fil02423799DAB193B33F10B93F68C459BF" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\mosgen.tcl" />
 		  </Component>
 		  <Component Id="cmp32465EBB4792AC111E037BC93352D608" Guid="{AF168DB3-7773-4827-9440-A66CE3EC0377}">
 			<File Id="fil2394C46591EC087671BABBB84C6A7A38" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\my_inv.sch" />
@@ -667,11 +667,11 @@
 		  <Component Id="cmp2FDFB818395E2338E0060D6F28271CE7" Guid="{D5ECCD09-F9EF-49DD-A580-ACA7C412F655}">
 			<File Id="filDCFDB550B6C29A336880A1572644E706" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\my_inv.sym" />
 		  </Component>
-		  <Component Id="cmpD694720EA8D2EEE4E58970628CFBC57A" Guid="{4A19C027-6F09-49E0-882B-B2CEE0CC6AF4}">
-			<File Id="fil04A857FE7499CAB218B6B6842FC16201" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\schematicgen" />
+		  <Component Id="cmpA0B999D2E953DE5F96898C6AA89266BB" Guid="{C17079F0-35A6-437E-82EA-8E7BE66F15F2}">
+			<File Id="filC6F8120E1B1A1679FD283BE9678BBD03" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\schematicgen.tcl" />
 		  </Component>
-		  <Component Id="cmp58DEF4BE570C94119EE2C3392A79729E" Guid="{4E5077D3-9AD2-4B60-927E-189B490B39BB}">
-			<File Id="filE5921602E7E3F12690CF1D1BD574EFD9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\symbolgen" />
+		  <Component Id="cmpBCC4CEE00D48A7CB9CEC1B4BD1544959" Guid="{9F750B12-409D-47BF-BED9-A4AFBE13BA73}">
+			<File Id="filE3E7E950F048C42AF8548DEABE52AD52" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\symbolgen.tcl" />
 		  </Component>
 		  <Component Id="cmpA817B5B11EE935E104D26D6539BBAC55" Guid="{01B8AB98-B989-4B98-BA56-EE45AF3E5635}">
 			<File Id="filEA97A0AE18C05A9F29AAD6255329186E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\generators\test_mosgen.sch" />
@@ -5705,11 +5705,11 @@
 	  <ComponentRef Id="cmp30D416247CB7868426C9E8075767CD1A" />
       <ComponentRef Id="cmpB573F1750B3939F980B65D02B78EE0E3" />
       <ComponentRef Id="cmp07A884BAD56D6B1718967173C498C3C3" />
-	  <ComponentRef Id="cmp25A7C4122212FC7D9EAC62B717AFABD5" />
+	  <ComponentRef Id="cmp0F55AD823E95BFAA9D9A15832B8C8284" />
 	  <ComponentRef Id="cmp32465EBB4792AC111E037BC93352D608" />
 	  <ComponentRef Id="cmp2FDFB818395E2338E0060D6F28271CE7" />
-	  <ComponentRef Id="cmpD694720EA8D2EEE4E58970628CFBC57A" />
-	  <ComponentRef Id="cmp58DEF4BE570C94119EE2C3392A79729E" />
+	  <ComponentRef Id="cmpA0B999D2E953DE5F96898C6AA89266BB" />
+	  <ComponentRef Id="cmpBCC4CEE00D48A7CB9CEC1B4BD1544959" />
 	  <ComponentRef Id="cmpA817B5B11EE935E104D26D6539BBAC55" />
 	  <ComponentRef Id="cmp564B680048CCEDCA705AB3D245A19E30" />
 	  <ComponentRef Id="cmpB218B4D54FEA02DE77E9B9650F18D0C6" />
