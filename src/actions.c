@@ -1418,9 +1418,6 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d\n", sym->name, inst);
   if(inst >= 0) my_strdup(_ALLOC_ID_, &str_tmp,  get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 2));
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
-
-
-
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
     /* @symname in schematic attribute will be replaced with symbol name */
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(str_replace(str_tmp, "@symname", sym->name, '\\')));

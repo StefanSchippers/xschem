@@ -3144,12 +3144,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int *lastr = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
   int *lastp = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
   int *lasta = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
-  xLine **ll = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xLine *));
-  xRect **bb = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xRect *));
-  xArc **aa = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xArc *));
-  xPoly **pp = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xPoly *));
   int lastt;
-  xText *tt;
+  xLine tmpline, **ll = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xLine *));
+  xRect tmprect, **bb = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xRect *));
+  xPoly tmppoly, **pp = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xPoly *));
+  xArc tmparc, **aa = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xArc *));
+  xText tmptext, *tt;
   int endfile;
   char *skip_line;
   const char *dash;
@@ -3328,14 +3328,30 @@ int load_sym_def(const char *name, FILE *embed_fd)
        read_line(lcc[level].fd, 0);
        continue;
      }
-     i=lastl[c];
-     my_realloc(_ALLOC_ID_, &ll[c],(i+1)*sizeof(xLine));
-     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&ll[c][i].x1, &ll[c][i].y1,
-        &ll[c][i].x2, &ll[c][i].y2) < 4 ) {
+
+     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
+        &tmpline.x2, &tmpline.y2) < 4 ) {
        fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
        read_line(lcc[level].fd, 0);
        continue;
      }
+     tmpline.prop_ptr = NULL;
+     load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
+
+     if( !strcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmpline.prop_ptr);
+       continue;
+     }
+
+     i=lastl[c];
+     my_realloc(_ALLOC_ID_, &ll[c],(i+1)*sizeof(xLine));
+
+     ll[c][i].x1 = tmpline.x1;
+     ll[c][i].y1 = tmpline.y1;
+     ll[c][i].x2 = tmpline.x2;
+     ll[c][i].y2 = tmpline.y2;
+     ll[c][i].prop_ptr = tmpline.prop_ptr;
+
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
        ROTATION(rot, flip, 0.0, 0.0, ll[c][i].x1, ll[c][i].y1, rx1, ry1);
@@ -3344,8 +3360,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
        ll[c][i].x2 = lcc[level].x0 + rx2;  ll[c][i].y2 = lcc[level].y0 + ry2;
      }
      ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2);
-     ll[c][i].prop_ptr=NULL;
-     load_ascii_string( &ll[c][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
      if(!strcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
        ll[c][i].bus = 1;
@@ -3371,24 +3385,42 @@ int load_sym_def(const char *name, FILE *embed_fd)
        read_line(lcc[level].fd, 0);
        continue;
      }
-     i=lastp[c];
-     my_realloc(_ALLOC_ID_, &pp[c],(i+1)*sizeof(xPoly));
-     pp[c][i].x = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
-     pp[c][i].y = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
-     pp[c][i].selected_point = my_calloc(_ALLOC_ID_, poly_points, sizeof(unsigned short));
-     pp[c][i].points = poly_points;
+
+     tmppoly.x = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
+     tmppoly.y = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
+     tmppoly.selected_point = my_calloc(_ALLOC_ID_, poly_points, sizeof(unsigned short));
+     tmppoly.points = poly_points;
      for(k=0;k<poly_points; ++k) {
-       if(fscanf(lcc[level].fd, "%lf %lf ",&(pp[c][i].x[k]), &(pp[c][i].y[k]) ) < 2 ) {
+       if(fscanf(lcc[level].fd, "%lf %lf ",&(tmppoly.x[k]), &(tmppoly.y[k]) ) < 2 ) {
          fprintf(errfp,"l_s_d(): WARNING: missing fields for POLYGON object\n");
        }
        if (level>0) {
          rot = lcc[level].rot; flip = lcc[level].flip;
-         ROTATION(rot, flip, 0.0, 0.0, pp[c][i].x[k], pp[c][i].y[k], rx1, ry1);
-         pp[c][i].x[k] = lcc[level].x0 + rx1;  pp[c][i].y[k] = lcc[level].y0 + ry1;
+         ROTATION(rot, flip, 0.0, 0.0, tmppoly.x[k], tmppoly.y[k], rx1, ry1);
+         tmppoly.x[k] = lcc[level].x0 + rx1;  tmppoly.y[k] = lcc[level].y0 + ry1;
        }
      }
-     pp[c][i].prop_ptr=NULL;
-     load_ascii_string( &pp[c][i].prop_ptr, lcc[level].fd);
+
+     tmppoly.prop_ptr=NULL;
+     load_ascii_string( &tmppoly.prop_ptr, lcc[level].fd);
+
+     if( !strcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmppoly.prop_ptr);
+       my_free(_ALLOC_ID_, &tmppoly.x);
+       my_free(_ALLOC_ID_, &tmppoly.y);
+       my_free(_ALLOC_ID_, &tmppoly.selected_point);
+       continue; 
+     }
+
+     i=lastp[c];
+     my_realloc(_ALLOC_ID_, &pp[c],(i+1)*sizeof(xPoly));
+
+     pp[c][i].x = tmppoly.x;
+     pp[c][i].y = tmppoly.y;
+     pp[c][i].selected_point = tmppoly.selected_point;
+     pp[c][i].prop_ptr = tmppoly.prop_ptr;
+     pp[c][i].points = poly_points;
+
      if( !strcmp(get_tok_value(pp[c][i].prop_ptr,"fill",0),"true") )
        pp[c][i].fill =1;
      else
@@ -3412,14 +3444,31 @@ int load_sym_def(const char *name, FILE *embed_fd)
        read_line(lcc[level].fd, 0);
        continue;
      }
-     i=lasta[c];
-     my_realloc(_ALLOC_ID_, &aa[c],(i+1)*sizeof(xArc));
-     if( fscanf(lcc[level].fd, "%lf %lf %lf %lf %lf ",&aa[c][i].x, &aa[c][i].y,
-        &aa[c][i].r, &aa[c][i].a, &aa[c][i].b) < 5 ) {
+
+     if( fscanf(lcc[level].fd, "%lf %lf %lf %lf %lf ",&tmparc.x, &tmparc.y,
+        &tmparc.r, &tmparc.a, &tmparc.b) < 5 ) {
        fprintf(errfp,"l_s_d(): WARNING: missing fields for ARC object, ignoring\n");
        read_line(lcc[level].fd, 0);
        continue;
      }
+     tmparc.prop_ptr = NULL;
+     load_ascii_string( &tmparc.prop_ptr, lcc[level].fd);
+
+     if( !strcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmparc.prop_ptr);
+       continue;
+     }
+
+     i=lasta[c];
+     my_realloc(_ALLOC_ID_, &aa[c],(i+1)*sizeof(xArc));
+
+     aa[c][i].x = tmparc.x;
+     aa[c][i].y = tmparc.y;
+     aa[c][i].r = tmparc.r;
+     aa[c][i].a = tmparc.a;
+     aa[c][i].b = tmparc.b;
+     aa[c][i].prop_ptr = tmparc.prop_ptr;
+
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
        if (flip) {
@@ -3434,8 +3483,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].x = lcc[level].x0 + rx1;  aa[c][i].y = lcc[level].y0 + ry1;
        aa[c][i].a = angle;
      }
-     aa[c][i].prop_ptr=NULL;
-     load_ascii_string( &aa[c][i].prop_ptr, lcc[level].fd);
      if( !strcmp(get_tok_value(aa[c][i].prop_ptr,"fill",0),"true") )
        aa[c][i].fill =1;
      else
@@ -3457,15 +3504,31 @@ int load_sym_def(const char *name, FILE *embed_fd)
        read_line(lcc[level].fd, 0);
        continue;
      }
-     if (level>0 && c == PINLAYER) c = 7; /* Don't care about pins inside SYM: set on different layer */
-     i=lastr[c];
-     my_realloc(_ALLOC_ID_, &bb[c],(i+1)*sizeof(xRect));
-     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&bb[c][i].x1, &bb[c][i].y1,
-        &bb[c][i].x2, &bb[c][i].y2) < 4 ) {
-       fprintf(errfp,"l_s_d(): WARNING:  missing fields for Box object, ignoring\n");
+
+     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmprect.x1, &tmprect.y1,
+        &tmprect.x2, &tmprect.y2) < 4 ) {
+       fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
        read_line(lcc[level].fd, 0);
        continue;
      }
+     tmprect.prop_ptr = NULL;
+     load_ascii_string(&tmprect.prop_ptr, lcc[level].fd);
+
+     if( !strcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmprect.prop_ptr);
+       continue;
+     }
+
+     if (level>0 && c == PINLAYER) c = 7; /* Don't care about pins inside SYM: set on different layer */
+     i=lastr[c];
+     my_realloc(_ALLOC_ID_, &bb[c],(i+1)*sizeof(xRect));
+
+     bb[c][i].x1 = tmprect.x1;
+     bb[c][i].y1 = tmprect.y1;
+     bb[c][i].x2 = tmprect.x2;
+     bb[c][i].y2 = tmprect.y2;
+     bb[c][i].prop_ptr = tmprect.prop_ptr;
+
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
        ROTATION(rot, flip, 0.0, 0.0, bb[c][i].x1, bb[c][i].y1, rx1, ry1);
@@ -3474,8 +3537,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
        bb[c][i].x2 = lcc[level].x0 + rx2;  bb[c][i].y2 = lcc[level].y0 + ry2;
      }
      RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2);
-     bb[c][i].prop_ptr=NULL;
-     load_ascii_string( &bb[c][i].prop_ptr, lcc[level].fd);
      /* don't load graphs of LCC schematic instances */
      if(strstr(get_tok_value(bb[c][i].prop_ptr, "flags", 0), "graph")) {
        my_free(_ALLOC_ID_, &bb[c][i].prop_ptr);
@@ -3497,18 +3558,32 @@ int load_sym_def(const char *name, FILE *embed_fd)
      lastr[c]++;
      break;
     case 'T':
-     i=lastt;
-     my_realloc(_ALLOC_ID_, &tt,(i+1)*sizeof(xText));
-     tt[i].txt_ptr=NULL;
-     tt[i].font=NULL;
-     load_ascii_string(&tt[i].txt_ptr, lcc[level].fd);
-     dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
-     if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tt[i].x0, &tt[i].y0, &tt[i].rot,
-        &tt[i].flip, &tt[i].xscale, &tt[i].yscale) < 6 ) {
+     tmptext.prop_ptr = tmptext.txt_ptr = tmptext.font = NULL;
+     load_ascii_string(&tmptext.txt_ptr, lcc[level].fd);
+     if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tmptext.x0, &tmptext.y0, &tmptext.rot,
+        &tmptext.flip, &tmptext.xscale, &tmptext.yscale) < 6 ) {
        fprintf(errfp,"l_s_d(): WARNING:  missing fields for Text object, ignoring\n");
        read_line(lcc[level].fd, 0);
        continue;
      }
+     load_ascii_string(&tmptext.prop_ptr, lcc[level].fd);
+     if( !strcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmptext.prop_ptr);
+       my_free(_ALLOC_ID_, &tmptext.txt_ptr);
+       continue;
+     }
+     i=lastt;
+     my_realloc(_ALLOC_ID_, &tt,(i+1)*sizeof(xText));
+     tt[i].font=NULL;
+     tt[i].txt_ptr = tmptext.txt_ptr;
+     tt[i].x0 = tmptext.x0;
+     tt[i].y0 = tmptext.y0;
+     tt[i].rot = tmptext.rot;
+     tt[i].flip = tmptext.flip;
+     tt[i].xscale = tmptext.xscale;
+     tt[i].yscale = tmptext.yscale;
+     tt[i].prop_ptr = tmptext.prop_ptr;
+     dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
        dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
@@ -3564,8 +3639,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
                    lcc[level].rot + 2 : lcc[level].rot)) & 0x3;
        tt[i].flip = lcc[level].flip ^ tt[i].flip;
      }
-     tt[i].prop_ptr=NULL;
-     load_ascii_string(&tt[i].prop_ptr, lcc[level].fd);
      if(level > 0 && symtype && !strcmp(symtype, "label")) {
        char lay[30];
        my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
@@ -3576,14 +3649,29 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ++lastt;
      break;
     case 'N': /* store wires as lines on layer WIRELAYER. */
-     i = lastl[WIRELAYER];
-     my_realloc(_ALLOC_ID_, &ll[WIRELAYER],(i+1)*sizeof(xLine));
-     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&ll[WIRELAYER][i].x1, &ll[WIRELAYER][i].y1,
-        &ll[WIRELAYER][i].x2, &ll[WIRELAYER][i].y2) < 4 ) {
+
+     tmpline.prop_ptr = NULL;
+     if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
+        &tmpline.x2, &tmpline.y2) < 4 ) {
        fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
        read_line(lcc[level].fd, 0);
        continue;
+     }    
+     load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
+
+     if( !strcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+       my_free(_ALLOC_ID_, &tmpline.prop_ptr);
+       continue;
      }
+    
+     i = lastl[WIRELAYER];
+     my_realloc(_ALLOC_ID_, &ll[WIRELAYER],(i+1)*sizeof(xLine));
+     ll[WIRELAYER][i].x1 = tmpline.x1;
+     ll[WIRELAYER][i].y1 = tmpline.y1;
+     ll[WIRELAYER][i].x2 = tmpline.x2;
+     ll[WIRELAYER][i].y2 = tmpline.y2;
+     ll[WIRELAYER][i].prop_ptr = tmpline.prop_ptr;
+
      if (level>0) {
        rot = lcc[level].rot; flip = lcc[level].flip;
        ROTATION(rot, flip, 0.0, 0.0, ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, rx1, ry1);
@@ -3592,8 +3680,6 @@ int load_sym_def(const char *name, FILE *embed_fd)
        ll[WIRELAYER][i].x2 = lcc[level].x0 + rx2;  ll[WIRELAYER][i].y2 = lcc[level].y0 + ry2;
      }
      ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2);
-     ll[WIRELAYER][i].prop_ptr=NULL;
-     load_ascii_string( &ll[WIRELAYER][i].prop_ptr, lcc[level].fd);
      dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
      ll[WIRELAYER][i].dash = 0;
      if(!strcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
@@ -3641,6 +3727,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
       }
       dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
+      
       if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
           !strcmp(symtype, "logo") ||
           !strcmp(symtype, "netlist_commands") ||
@@ -3655,6 +3742,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           !strcmp(symtype, "verilog_preprocessor") ||
           !strcmp(symtype, "timescale")
         ) break;
+      if(!strcmp(get_tok_value(prop_ptr, "symbol_ignore", 0), "true")) break;
       /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
       if( level==0 && IS_PIN(symtype) ) {
         add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);

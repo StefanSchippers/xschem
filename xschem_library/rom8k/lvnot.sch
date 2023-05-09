@@ -33,7 +33,7 @@ N 420 -360 420 -340 {lab=VCCPIN}
 N 420 -180 420 -160 {lab=VSSPIN}
 C {opin.sym} 480 -260 0 0 {name=p1 lab=y verilog_type=wire}
 C {ipin.sym} 350 -260 0 0 {name=p2 lab=a}
-C {use.sym} 350 -550 0 0 {------------------------------------------------
+C {use.sym} 300 -540 0 0 {------------------------------------------------
 library ieee;
         use ieee.std_logic_1164.all;
 --         use ieee.std_logic_arith.all;
