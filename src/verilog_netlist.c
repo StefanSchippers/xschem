@@ -21,6 +21,7 @@
  */
 
 #include "xschem.h"
+static Int_hashtable used_symbols = {NULL, 0};
 
 static int verilog_netlist(FILE *fd , int verilog_stop)
 {
@@ -60,9 +61,15 @@ static int verilog_netlist(FILE *fd , int verilog_stop)
     {
      if(xctx->lastsel)
      {
-      if(xctx->inst[i].sel==SELECTED) print_verilog_element(fd, i) ;
+      if(xctx->inst[i].sel==SELECTED) {
+        print_verilog_element(fd, i) ;
+        int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+      }
      }
-     else print_verilog_element(fd, i) ;  /* this is the element line  */
+     else {
+       print_verilog_element(fd, i) ;  /* this is the element line  */
+       int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+     }
     }
    }
    my_free(_ALLOC_ID_, &type);
@@ -98,6 +105,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, HASHSIZE);
+ int_hash_init(&used_symbols, HASHSIZE);
  xctx->netlist_count=0;
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
@@ -354,6 +362,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
+    if(int_hash_lookup(&used_symbols, xctx->sym[i].name, 0, XLOOKUP) == NULL) continue;
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
@@ -395,6 +404,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);
+ int_hash_free(&used_symbols);
 
  dbg(1, "global_verilog_netlist(): starting awk on netlist!\n");
  if(!split_f) {

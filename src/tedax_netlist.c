@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-
+static Int_hashtable used_symbols = {NULL, 0};
 static int tedax_netlist(FILE *fd, int tedax_stop )
 {
   int err = 0;
@@ -66,6 +66,8 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
          fprintf(fd,"#**** end user architecture code\n");
        } else {
          print_tedax_element(fd, i) ;  /* this is the element line  */
+         int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+
        }
      }
     }
@@ -138,6 +140,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  xctx->push_undo();
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, HASHSIZE);
+ int_hash_init(&used_symbols, HASHSIZE);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
@@ -206,6 +209,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
+    if(int_hash_lookup(&used_symbols, xctx->sym[i].name, 0, XLOOKUP) == NULL) continue;
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
@@ -245,6 +249,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);
+ int_hash_free(&used_symbols);
 
  /* print globals nodes found in netlist 28032003 */
  record_global_node(0,fd,NULL);

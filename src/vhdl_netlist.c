@@ -22,7 +22,6 @@
 
 #include "xschem.h"
 
-
 static int vhdl_netlist(FILE *fd , int vhdl_stop)
 {
  int err = 0;
@@ -99,10 +98,10 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
      if(xctx->lastsel)
      {
       if(xctx->inst[i].sel==SELECTED) {
-        print_vhdl_element(fd, i) ;
+        print_vhdl_element(fd, i);
       }
      } else {
-        print_vhdl_element(fd, i) ;
+        print_vhdl_element(fd, i);
      }
     }
    }
