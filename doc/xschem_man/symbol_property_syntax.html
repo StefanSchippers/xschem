@@ -502,6 +502,12 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    <kbd>opamp_65nm_empty.sch</kbd>, ... and define some user accessible method in hierarchy_config procedure
    to select one of these 'switch' schematics.
   </p>
+  <li><kbd>symbol_ignore</kbd></li>
+  <p>
+   This attribute can be attached to symbol elements, like lines, rectangles, polygons, arcs, texts, 
+   wires and instances (in case of lcc symbols). If set to true (<kbd>symbol_ignore=true</kbd>)
+   the corresponding element will not be displayed when the symbol is instantiated.
+  </p>
  </ul>
  <h3>PREDEFINED SYMBOL VALUES</h3>
  <ul>

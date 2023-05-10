@@ -1119,11 +1119,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    testmode </pre>
    <li><kbd>       toggle_colorscheme</kbd></li><pre>
    Toggle dark/light colorscheme </pre>
+   <li><kbd>       toggle_ignore</kbd></li><pre>
+   toggle *_ignore=true attribute on selected instances
+   * = {spice,verilog,vhdl,tedax} depending on current netlist mode </pre>
    <li><kbd>       translate n str</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      Example: xschem translate vref {the voltage is @value}
-     the voltage is 1.8 
-</pre>
+     the voltage is 1.8 </pre>
    <li><kbd>       trim_wires</kbd></li><pre>
    Remove operlapping wires, join lines, trim wires at intersections </pre>
    <li><kbd>       undo</kbd></li><pre>
@@ -1168,7 +1170,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
  </ul>

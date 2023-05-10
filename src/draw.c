@@ -419,7 +419,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers; ++i)" loop */
-  int k, j, textlayer, hide = 0;
+  int k, j, textlayer, hide = 0, disabled = 0;
   double x0,y0,x1,y1,x2,y2;
   double *x, *y; /* polygon point arrays */
   short flip;
@@ -436,6 +436,55 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   #endif
 
   if(xctx->inst[n].ptr == -1) return;
+  if(  layer == 0) { 
+    if(
+        (
+          xctx->netlist_type == CAD_SPICE_NETLIST &&
+          (
+            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "spice_ignore", 0), "true") ||
+            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "spice_ignore", 0), "true")
+          )
+        ) || 
+
+        (
+          xctx->netlist_type == CAD_VERILOG_NETLIST &&
+          (
+            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "verilog_ignore", 0), "true") ||
+            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "verilog_ignore", 0), "true")
+          )
+        ) ||
+
+        (
+          xctx->netlist_type == CAD_VHDL_NETLIST &&
+          (
+            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "vhdl_ignore", 0), "true") ||
+            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "vhdl_ignore", 0), "true")
+          )
+        ) ||
+
+        (
+          xctx->netlist_type == CAD_TEDAX_NETLIST &&
+          (
+            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "tedax_ignore", 0), "true") ||
+            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "tedax_ignore", 0), "true")
+          )
+        )
+
+      ) {
+       xctx->inst[n].flags |= 16; /* *_ignore=true */
+    } else {
+       xctx->inst[n].flags &= ~16;
+    }
+  }
+  if(xctx->inst[n].flags & 16) {
+     char *type = xctx->sym[xctx->inst[n].ptr].type;
+     if( strcmp(type, "launcher") && strcmp(type, "logo") && strcmp(type, "probe") &&
+         strcmp(type, "raw_data_show") ) {
+       c = GRIDLAYER;
+       what = NOW;
+       disabled = 1;
+     }
+  }
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(!has_x) return;
   if( (xctx->inst[n].flags & HIDE_INST) ||
@@ -568,7 +617,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
-      if( xctx->inst[n].color == -10000) {
+      if(disabled) textlayer = GRIDLAYER;
+      else if( xctx->inst[n].color == -10000) {
         textlayer = symptr->text[j].layer;
         if(xctx->only_probes) textlayer = GRIDLAYER;
         else if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;

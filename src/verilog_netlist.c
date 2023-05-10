@@ -63,12 +63,12 @@ static int verilog_netlist(FILE *fd , int verilog_stop)
      {
       if(xctx->inst[i].sel==SELECTED) {
         print_verilog_element(fd, i) ;
-        int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+        int_hash_lookup(&used_symbols, get_sym_name(i, 9999, 1), 1, XINSERT); /* symbol is used */
       }
      }
      else {
        print_verilog_element(fd, i) ;  /* this is the element line  */
-       int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+       int_hash_lookup(&used_symbols, get_sym_name(i, 9999, 1), 1, XINSERT); /* symbol is used */
      }
     }
    }

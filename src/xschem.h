@@ -546,7 +546,8 @@ typedef struct
                 * bit 1: flag for different textlayer for pin/labels,
                 *        1: ordinary symbol, 0: label/pin/show 
                 * bit 2: highlight if connected net/label is highlighted
-                * bit 3: hidden instance, show only bounding box (hide=true attribute)*/
+                * bit 3: hidden instance, show only bounding box (hide=true attribute)
+                * bit 4: disabled instance (*_ignore=true), will draw in grey */
   char *prop_ptr;
   char **node;
   char *lab;      /*  lab attribute if any (pin/label) */

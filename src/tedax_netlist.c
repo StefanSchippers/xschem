@@ -66,7 +66,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
          fprintf(fd,"#**** end user architecture code\n");
        } else {
          print_tedax_element(fd, i) ;  /* this is the element line  */
-         int_hash_lookup(&used_symbols, xctx->inst[i].name, 1, XINSERT); /* symbol is used */
+         int_hash_lookup(&used_symbols, get_sym_name(i, 9999, 1), 1, XINSERT); /* symbol is used */
 
        }
      }
