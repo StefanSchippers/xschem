@@ -479,7 +479,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if(xctx->inst[n].flags & 16) {
      char *type = xctx->sym[xctx->inst[n].ptr].type;
      if( strcmp(type, "launcher") && strcmp(type, "logo") && strcmp(type, "probe") &&
-         strcmp(type, "raw_data_show") ) {
+         strcmp(type, "raw_data_show") &&  strcmp(type, "noconn")) {
        c = GRIDLAYER;
        what = NOW;
        disabled = 1;
