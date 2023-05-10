@@ -23,7 +23,6 @@
 #include "xschem.h"
 
 static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schematics */
-static Int_hashtable used_symbols = {NULL, 0};
 
 static const char *hier_psprint_mtime(const char *file_name)
 {
@@ -208,8 +207,6 @@ static int spice_netlist(FILE *fd, int spice_stop )
        } else {
          const char *m;
          if(print_spice_element(fd, i)) {
-           /* symbol is used */
-           int_hash_lookup(&used_symbols, translate(i, get_sym_name(i, 9999, 1)), 1, XINSERT);
            fprintf(fd, "**** end_element\n");
          }
          /* hash device_model attribute if any */
@@ -257,7 +254,6 @@ int global_spice_netlist(int global)  /* netlister driver */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, HASHSIZE);
  str_hash_init(&model_table, HASHSIZE);
- int_hash_init(&used_symbols, HASHSIZE);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
@@ -416,8 +412,6 @@ int global_spice_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if(int_hash_lookup(&used_symbols,
-        get_trailing_path(xctx->sym[i].name, 9999, 0), 0, XLOOKUP) == NULL) continue;
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
@@ -507,7 +501,6 @@ int global_spice_netlist(int global)  /* netlister driver */
  }
  str_hash_free(&model_table);
  str_hash_free(&subckt_table);
- int_hash_free(&used_symbols);
  if(first) fprintf(fd,"**** end user architecture code\n");
 
 
