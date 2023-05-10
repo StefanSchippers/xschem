@@ -1132,7 +1132,7 @@ const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
   static char s[PATH_MAX]; /* safe to keep even with multiple schematic windows */
   size_t len;
   size_t ext_pos, dir_pos;
-  int n_ext, n_dir, c, i;
+  int n_ext, n_dir, c, i, generator = 0;
 
   if(str == NULL) return NULL;  
   my_strncpy(s, str, S(s));
@@ -1140,8 +1140,12 @@ const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
 
   for(ext_pos=len, dir_pos=len, n_ext=0, n_dir=0, i=(int)len; i>=0; i--) {
     c = s[i];
-    if(c=='.' && ++n_ext==1) ext_pos = i;
+    if(c=='.' && ++n_ext == 1) {
+      if(!generator) ext_pos = i;
+      if(generator) s[i] = '_';
+    }
     if(c=='/' && ++n_dir==no_of_dir+1) dir_pos = i;
+    if(c=='(') generator = 1;
   }
   if(skip_ext) s[ext_pos] = '\0';
 

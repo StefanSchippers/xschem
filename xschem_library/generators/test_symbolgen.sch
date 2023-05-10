@@ -73,11 +73,11 @@ N 470 -640 520 -640 {
 lab=IN}
 N 600 -640 660 -640 {
 lab=IN_BUF3}
-C {symbolgen.tcl(inv, @ROUT )} 150 -460 0 0 {name=x1  
+C {symbolgen.tcl(inv,@ROUT\\)} 150 -460 0 0 {name=x1  
 tclcommand="edit_file [abs_sym_path symbolgen.tcl]"
 ROUT=1200}
 C {lab_pin.sym} 30 -520 0 0 {name=p1 lab=IN}
-C {symbolgen.tcl(buf, @ROUT )} 150 -560 0 0 {name=x3  
+C {symbolgen.tcl(buf,@ROUT\\)} 150 -560 0 0 {name=x3  
 tclcommand="edit_file [abs_sym_path symbolgen.tcl]"
 ROUT=1200}
 C {lab_pin.sym} 310 -560 0 1 {name=p2 lab=IN_BUF}
