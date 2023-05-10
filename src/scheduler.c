@@ -3345,9 +3345,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"highlight",0), "true"))
                 xctx->inst[inst].flags |= HILIGHT_CONN;
           else  xctx->inst[inst].flags &= ~HILIGHT_CONN;
+
           if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"hide",0), "true"))
                 xctx->inst[inst].flags |= HIDE_INST;
           else  xctx->inst[inst].flags &= ~HIDE_INST;
+
+         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"spice_ignore",0), "true"))
+              xctx->inst[inst].flags |= SPICE_IGNORE_INST;
+         else xctx->inst[inst].flags &= ~SPICE_IGNORE_INST;
+     
+         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"verilog_ignore",0), "true"))
+              xctx->inst[inst].flags |= VERILOG_IGNORE_INST;
+         else xctx->inst[inst].flags &= ~VERILOG_IGNORE_INST;
+     
+         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_ignore",0), "true"))
+              xctx->inst[inst].flags |= VHDL_IGNORE_INST;
+         else xctx->inst[inst].flags &= ~VHDL_IGNORE_INST;
+     
+         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"tedax_ignore",0), "true"))
+              xctx->inst[inst].flags |= TEDAX_IGNORE_INST;
+         else xctx->inst[inst].flags &= ~TEDAX_IGNORE_INST;
+
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
@@ -3699,6 +3717,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           } else {
             my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
           }
+
+          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0), "true"))
+               xctx->inst[i].flags |= SPICE_IGNORE_INST;
+          else xctx->inst[i].flags &= ~SPICE_IGNORE_INST;
+
+          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0), "true"))
+               xctx->inst[i].flags |= VERILOG_IGNORE_INST;
+          else xctx->inst[i].flags &= ~VERILOG_IGNORE_INST;
+
+          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0), "true"))
+               xctx->inst[i].flags |= VHDL_IGNORE_INST;
+          else xctx->inst[i].flags &= ~VHDL_IGNORE_INST;
+
+          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
+               xctx->inst[i].flags |= TEDAX_IGNORE_INST;
+          else xctx->inst[i].flags &= ~TEDAX_IGNORE_INST;
+
           set_modify(1);
         }
       }

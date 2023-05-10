@@ -954,14 +954,10 @@ static int name_nodes_of_pins_labels_and_propagate()
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
       if(for_netlist>0) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
-        if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"verilog_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_SPICE_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_VHDL_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"vhdl_ignore",0),"true")==0 ) continue;
-        if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
-          strcmp(get_tok_value(inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
+        if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE_INST)) continue;
+        if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE_INST)) continue;
+        if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE_INST)) continue;
+        if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE_INST)) continue;
       }
       port=0;
       my_strdup2(_ALLOC_ID_, &dir, "");

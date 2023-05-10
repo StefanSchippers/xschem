@@ -445,43 +445,43 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           (
             xctx->netlist_type == CAD_SPICE_NETLIST &&
             (
-              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "spice_ignore", 0), "true") ||
-              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "spice_ignore", 0), "true")
+              (xctx->inst[n].flags & SPICE_IGNORE_INST) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & SPICE_IGNORE_INST)
             )
           ) || 
   
           (
             xctx->netlist_type == CAD_VERILOG_NETLIST &&
             (
-              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "verilog_ignore", 0), "true") ||
-              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "verilog_ignore", 0), "true")
+              (xctx->inst[n].flags & VERILOG_IGNORE_INST) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & VERILOG_IGNORE_INST)
             )
           ) ||
   
           (
             xctx->netlist_type == CAD_VHDL_NETLIST &&
             (
-              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "vhdl_ignore", 0), "true") ||
-              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "vhdl_ignore", 0), "true")
+              (xctx->inst[n].flags & VHDL_IGNORE_INST) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & VHDL_IGNORE_INST)
             )
           ) ||
   
           (
             xctx->netlist_type == CAD_TEDAX_NETLIST &&
             (
-              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "tedax_ignore", 0), "true") ||
-              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "tedax_ignore", 0), "true")
+              (xctx->inst[n].flags & TEDAX_IGNORE_INST) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & TEDAX_IGNORE_INST)
             )
           )
   
         ) {
-         xctx->inst[n].flags |= 16; /* *_ignore=true */
+         xctx->inst[n].flags |= IGNORE_INST; /* *_IGNORE_INST in current netlisting mode as evaluated above */
       } else {
-         xctx->inst[n].flags &= ~16;
+         xctx->inst[n].flags &= ~IGNORE_INST;
       }
     }
   }
-  if(xctx->inst[n].flags & 16) {
+  if(xctx->inst[n].flags & IGNORE_INST) {
     c = GRIDLAYER;
     what = NOW;
     disabled = 1;

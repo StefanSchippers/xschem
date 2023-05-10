@@ -200,6 +200,9 @@ proc netlist_test {} {
     pcb_test1.sch           tedax      1925087189
     test_doublepin.sch      spice        64707104
     simulate_ff.sch         spice      1321596936
+    test_symbolgen.sch      spice       486085716
+    inst_sch_select.sch     spice       695251894
+    test_mosgen.sch         spice        21996225
   } {
     xschem set netlist_type $t
     xschem load [abs_sym_path $f]

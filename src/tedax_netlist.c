@@ -35,11 +35,9 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   if(!tedax_stop) {
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
-     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
-     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
-       continue;
-     }
+     if(xctx->inst[i].flags & TEDAX_IGNORE_INST) continue;
+     if(xctx->sym[xctx->inst[i].ptr].flags & TEDAX_IGNORE_INST) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
@@ -47,11 +45,9 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     }
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
-     if( strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
      if(xctx->inst[i].ptr<0) continue;
-     if(!strcmp(get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "tedax_ignore",0 ), "true") ) {
-       continue;
-     }
+     if(xctx->inst[i].flags & TEDAX_IGNORE_INST) continue;
+     if(xctx->sym[xctx->inst[i].ptr].flags & TEDAX_IGNORE_INST) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
 
      if( type && !IS_LABEL_OR_PIN(type) ) {
@@ -207,7 +203,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
+    if(xctx->sym[i].flags & TEDAX_IGNORE_INST) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))

@@ -1899,6 +1899,16 @@ static void load_inst(int k, FILE *fd)
       my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide",0), "true"))
         xctx->inst[i].flags |= HIDE_INST;
+
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0), "true"))
+        xctx->inst[i].flags |= SPICE_IGNORE_INST;
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0), "true"))
+        xctx->inst[i].flags |= VERILOG_IGNORE_INST;
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0), "true"))
+        xctx->inst[i].flags |= VHDL_IGNORE_INST;
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
+        xctx->inst[i].flags |= TEDAX_IGNORE_INST;
+
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
         xctx->inst[i].flags |= HILIGHT_CONN;
 
@@ -3297,6 +3307,21 @@ int load_sym_def(const char *name, FILE *embed_fd)
          symbol[symbols].flags |= HIDE_INST;
        else symbol[symbols].flags &= ~HIDE_INST;
 
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"spice_ignore",0), "true"))
+            symbol[symbols].flags |= SPICE_IGNORE_INST;
+       else symbol[symbols].flags &= ~SPICE_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"verilog_ignore",0), "true"))
+            symbol[symbols].flags |= VERILOG_IGNORE_INST;
+       else symbol[symbols].flags &= ~VERILOG_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"vhdl_ignore",0), "true"))
+            symbol[symbols].flags |= VHDL_IGNORE_INST;
+       else symbol[symbols].flags &= ~VHDL_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"tedax_ignore",0), "true"))
+            symbol[symbols].flags |= TEDAX_IGNORE_INST;
+       else symbol[symbols].flags &= ~TEDAX_IGNORE_INST;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -3316,6 +3341,22 @@ int load_sym_def(const char *name, FILE *embed_fd)
        if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"hide",0), "true"))
          symbol[symbols].flags |= HIDE_INST;
        else symbol[symbols].flags &= ~HIDE_INST;
+
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"spice_ignore",0), "true"))
+            symbol[symbols].flags |= SPICE_IGNORE_INST;
+       else symbol[symbols].flags &= ~SPICE_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"verilog_ignore",0), "true"))
+            symbol[symbols].flags |= VERILOG_IGNORE_INST;
+       else symbol[symbols].flags &= ~VERILOG_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"vhdl_ignore",0), "true"))
+            symbol[symbols].flags |= VHDL_IGNORE_INST;
+       else symbol[symbols].flags &= ~VHDL_IGNORE_INST;
+  
+       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"tedax_ignore",0), "true"))
+            symbol[symbols].flags |= TEDAX_IGNORE_INST;
+       else symbol[symbols].flags &= ~TEDAX_IGNORE_INST;
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
