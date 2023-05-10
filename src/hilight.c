@@ -1710,7 +1710,7 @@ void hilight_net(int viewer)
        /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
        xctx->inst[n].color = xctx->hilight_color;
        inst_hilight_hash_lookup(xctx->inst[n].instname, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(type &&  (!strcmp(type, "current_probe") || !strcmp(type, "vsource")) ) {
+       if(type &&  (!strcmp(type, "ammeter") || !strcmp(type, "vsource")) ) {
          if(viewer == XSCHEM_GRAPH)  send_current_to_graph(&s, sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);

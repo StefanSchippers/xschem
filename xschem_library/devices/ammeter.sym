@@ -1,7 +1,7 @@
 v {xschem version=3.1.0 file_version=1.2
 }
 G {}
-K {type=probe
+K {type=ammeter
 format="@name @pinlist 0
 .save I( ?1 @name )"
 template="name=Vmeas"}
