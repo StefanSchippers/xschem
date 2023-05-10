@@ -1,7 +1,7 @@
 v {xschem version=3.1.0 file_version=1.2
 }
 G {}
-K {type=ngprobe
+K {type=probe
 vhdl_ignore=true
 spice_ignore=false
 verilog_ignore=true

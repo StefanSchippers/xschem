@@ -1,7 +1,7 @@
 v {xschem version=3.1.0 file_version=1.2
 }
 G {}
-K {type=differential_probe
+K {type=probe
 format=".save v(@@p\\\\) v(@@m\\\\)"
 template="name=p1"}
 V {}

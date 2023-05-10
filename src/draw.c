@@ -437,53 +437,54 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   if(xctx->inst[n].ptr == -1) return;
   if(  layer == 0) { 
-    if(
-        (
-          xctx->netlist_type == CAD_SPICE_NETLIST &&
+    char *type = xctx->sym[xctx->inst[n].ptr].type;
+    if( strcmp(type, "launcher") && strcmp(type, "logo") &&
+        strcmp(type, "probe") &&
+        strcmp(type, "architecture") && strcmp(type, "noconn")) {
+      if(
           (
-            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "spice_ignore", 0), "true") ||
-            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "spice_ignore", 0), "true")
-          )
-        ) || 
-
-        (
-          xctx->netlist_type == CAD_VERILOG_NETLIST &&
+            xctx->netlist_type == CAD_SPICE_NETLIST &&
+            (
+              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "spice_ignore", 0), "true") ||
+              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "spice_ignore", 0), "true")
+            )
+          ) || 
+  
           (
-            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "verilog_ignore", 0), "true") ||
-            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "verilog_ignore", 0), "true")
-          )
-        ) ||
-
-        (
-          xctx->netlist_type == CAD_VHDL_NETLIST &&
+            xctx->netlist_type == CAD_VERILOG_NETLIST &&
+            (
+              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "verilog_ignore", 0), "true") ||
+              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "verilog_ignore", 0), "true")
+            )
+          ) ||
+  
           (
-            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "vhdl_ignore", 0), "true") ||
-            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "vhdl_ignore", 0), "true")
-          )
-        ) ||
-
-        (
-          xctx->netlist_type == CAD_TEDAX_NETLIST &&
+            xctx->netlist_type == CAD_VHDL_NETLIST &&
+            (
+              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "vhdl_ignore", 0), "true") ||
+              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "vhdl_ignore", 0), "true")
+            )
+          ) ||
+  
           (
-            !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "tedax_ignore", 0), "true") ||
-            !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "tedax_ignore", 0), "true")
+            xctx->netlist_type == CAD_TEDAX_NETLIST &&
+            (
+              !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "tedax_ignore", 0), "true") ||
+              !strcmp(get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "tedax_ignore", 0), "true")
+            )
           )
-        )
-
-      ) {
-       xctx->inst[n].flags |= 16; /* *_ignore=true */
-    } else {
-       xctx->inst[n].flags &= ~16;
+  
+        ) {
+         xctx->inst[n].flags |= 16; /* *_ignore=true */
+      } else {
+         xctx->inst[n].flags &= ~16;
+      }
     }
   }
   if(xctx->inst[n].flags & 16) {
-     char *type = xctx->sym[xctx->inst[n].ptr].type;
-     if( strcmp(type, "launcher") && strcmp(type, "logo") && strcmp(type, "probe") &&
-         strcmp(type, "raw_data_show") &&  strcmp(type, "noconn")) {
-       c = GRIDLAYER;
-       what = NOW;
-       disabled = 1;
-     }
+    c = GRIDLAYER;
+    what = NOW;
+    disabled = 1;
   }
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(!has_x) return;

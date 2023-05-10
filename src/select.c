@@ -44,7 +44,7 @@ static void check_connected_wire(int stop_at_junction, int n)
   for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
     k = instptr->n;
     type = (xctx->inst[k].ptr+ xctx->sym)->type;
-    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
+    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") )) {
       double x0, y0;
       xRect *rct;
       rct=(xctx->inst[k].ptr+ xctx->sym)->rect[PINLAYER];

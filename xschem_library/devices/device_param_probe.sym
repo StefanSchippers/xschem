@@ -1,6 +1,6 @@
 v {xschem version=3.0.0 file_version=1.2 }
 G {}
-K {type=raw_data_show
+K {type=probe
 vhdl_ignore=true
 spice_ignore=false
 verilog_ignore=true
