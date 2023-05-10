@@ -253,17 +253,20 @@ const char *add_ext(const char *f, const char *ext)
   int i;
 
   dbg(1, "add_ext(): f=%s ext=%s\n", f, ext);
-  if((p=strrchr(f,'.'))) {
-    my_strncpy(ff, f, (p-f) + 1);
-    p = ff + (p-f);
-    dbg(1, "add_ext(): 1: ff=%s\n", ff);
-  } else {
-    i = my_strncpy(ff, f, S(ff));
-    p = ff+i;
-    dbg(1, "add_ext(): 2: ff=%s\n", ff);
+  if(strchr(f,'(')) my_strncpy(ff, f, S(ff)); /* generator: return as is */
+  else {
+    if((p=strrchr(f,'.'))) {
+      my_strncpy(ff, f, (p-f) + 1);
+      p = ff + (p-f);
+      dbg(1, "add_ext(): 1: ff=%s\n", ff);
+    } else {
+      i = my_strncpy(ff, f, S(ff));
+      p = ff+i;
+      dbg(1, "add_ext(): 2: ff=%s\n", ff);
+    }
+    my_strncpy(p, ext, S(ff)-(p-ff));
+    dbg(1, "add_ext(): 3: ff=%s\n", ff);
   }
-  my_strncpy(p, ext, S(ff)-(p-ff));
-  dbg(1, "add_ext(): 3: ff=%s\n", ff);
   return ff;
 }
 

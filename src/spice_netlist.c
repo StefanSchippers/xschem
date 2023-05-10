@@ -208,7 +208,8 @@ static int spice_netlist(FILE *fd, int spice_stop )
        } else {
          const char *m;
          if(print_spice_element(fd, i)) {
-           int_hash_lookup(&used_symbols, get_sym_name(i, 9999, 1), 1, XINSERT); /* symbol is used */
+           /* symbol is used */
+           int_hash_lookup(&used_symbols, translate(i, get_sym_name(i, 9999, 1)), 1, XINSERT);
            fprintf(fd, "**** end_element\n");
          }
          /* hash device_model attribute if any */
@@ -415,7 +416,8 @@ int global_spice_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if(int_hash_lookup(&used_symbols, xctx->sym[i].name, 0, XLOOKUP) == NULL) continue;
+    if(int_hash_lookup(&used_symbols,
+        get_trailing_path(xctx->sym[i].name, 9999, 0), 0, XLOOKUP) == NULL) continue;
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));

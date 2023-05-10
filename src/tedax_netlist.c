@@ -66,7 +66,9 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
          fprintf(fd,"#**** end user architecture code\n");
        } else {
          print_tedax_element(fd, i) ;  /* this is the element line  */
-         int_hash_lookup(&used_symbols, get_sym_name(i, 9999, 1), 1, XINSERT); /* symbol is used */
+         /* symbol is used */
+         int_hash_lookup(&used_symbols, translate(i, get_sym_name(i, 9999, 1)), 1, XINSERT);
+
 
        }
      }
@@ -209,7 +211,8 @@ int global_tedax_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if(int_hash_lookup(&used_symbols, xctx->sym[i].name, 0, XLOOKUP) == NULL) continue;
+    if(int_hash_lookup(&used_symbols,
+        get_trailing_path(xctx->sym[i].name, 9999, 0), 0, XLOOKUP) == NULL) continue;
     if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"tedax_ignore",0),"true")==0 ) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
