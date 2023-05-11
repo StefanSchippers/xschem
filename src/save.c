@@ -2445,7 +2445,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     int generator = 0;
     if(is_generator(fname)) generator = 1;
     my_strncpy(name, fname, S(name));
-
+    dbg(0, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
     if(strstr(fname , "http://") == fname ||
        strstr(fname , "https://") == fname) {
@@ -2468,17 +2468,18 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       char sympath[PATH_MAX];
       my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
       /* fname does not begin with $XSCHEM_TMP_DIR/xschem_web and fname does not exist */
-      if(strstr(fname, sympath) != fname && stat(fname, &buf)) { 
+
+      if(strstr(fname, sympath) != fname /* && stat(fname, &buf)*/) { 
         my_snprintf(msg, S(msg), "get_directory {%s}", fname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
-      }
+      } 
+
       /* local file name */
       my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
-    /* local file specified and not coming from web url */
-    } else {
-      /* if name is /some/path/.  remove /. at end */
+    } else { /* local file specified and not coming from web url */
+      /* build current_dirname by stripping off last filename from url */
       my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
@@ -2486,6 +2487,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
     }
+
     dbg(1, "load_schematic(): opening file for loading:%s, fname=%s\n", name, fname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) return; /* empty filename */

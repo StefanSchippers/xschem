@@ -438,7 +438,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if(xctx->inst[n].ptr == -1) return;
   if(  layer == 0) { 
     char *type = xctx->sym[xctx->inst[n].ptr].type;
-    if( strcmp(type, "launcher") && strcmp(type, "logo") &&
+    if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
         strcmp(type, "architecture") && strcmp(type, "noconn")) {
       if(
