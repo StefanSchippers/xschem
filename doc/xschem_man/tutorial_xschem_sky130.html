@@ -89,6 +89,9 @@ cd open_pdks
 make
 make install </pre><br>
 
+  <p class="important"> If you want to install also the gf180mcu pdk replace the above ./configure command 
+   with the following:</p> <br>
+  <pre class="code"> ./configure --enable-sky130-pdk --enable-gf180mcu-pdk </pre><br>
   <li> At this point the complete PDK has been installed in <kbd>/usr/local/share/pdk</kbd> (or 
        <kbd>&lt;prefix&gt;/share/pdk</kbd> if --prefix was provided).<br>
        Xschem libraries also have been installed and are located under
