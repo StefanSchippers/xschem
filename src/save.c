@@ -2445,7 +2445,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     int generator = 0;
     if(is_generator(fname)) generator = 1;
     my_strncpy(name, fname, S(name));
-    dbg(0, "load_schematic(): fname=%s\n", fname);
+    dbg(1, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
     if(strstr(fname , "http://") == fname ||
        strstr(fname , "https://") == fname) {
