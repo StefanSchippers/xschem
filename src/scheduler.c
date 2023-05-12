@@ -3708,10 +3708,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
-          if(first && !strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) {
-            first = 0;
-            remove = 1;
+          if(first) {
+            xctx->push_undo();
+            if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) {
+              remove = 1;
+            }
           }
+          first = 0;
           if(remove) {
             my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, NULL));
           } else {

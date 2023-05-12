@@ -529,7 +529,10 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     else {
       xctx->inst[n].flags&=~1;
     }
-    if(hide) drawrect(SYMLAYER, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
+    if(hide) {
+      int color = disabled ? GRIDLAYER : SYMLAYER;
+      drawrect(color, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
+    }
   } else if(xctx->inst[n].flags&1) {
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
@@ -545,18 +548,22 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   if(!hide) {
     for(j=0;j< symptr->lines[layer]; ++j)
     {
+      int dash;
       line = &(symptr->line[layer])[j];
+      dash = disabled ? 3 : line->dash;
       ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line->bus)
-        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line->dash, NULL);
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, dash, NULL);
       else
-        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->dash, NULL);
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash, NULL);
     }
     for(j=0;j< symptr->polygons[layer]; ++j)
     {
+      int dash;
       polygon = &(symptr->poly[layer])[j];
+      dash = disabled ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       for(k=0;k<polygon->points; ++k) {
@@ -564,14 +571,15 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash); /* added fill */
+      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash); /* added fill */
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
     for(j=0;j< symptr->arcs[layer]; ++j)
     {
-  
+      int dash;
       arc = &(symptr->arc[layer])[j];
+      dash = disabled ? 3 : arc->dash;
       if(flip) {
         angle = 270.*rot+180.-arc->b-arc->a;
       } else {
@@ -580,7 +588,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
       ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
-      drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, arc->dash);
+      drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, dash);
     }
   } /* if(!hide) */
 
@@ -588,7 +596,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
     for(j=0;j< symptr->rects[layer]; ++j)
     {
+      int dash;
       rect = &(symptr->rect[layer])[j];
+      dash = disabled ? 3 : rect->dash;
       ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
       #if HAS_CAIRO == 1
@@ -602,7 +612,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       #endif
       {
         RECTORDER(x1,y1,x2,y2);
-        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash);
+        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash);
         if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
       }
     }
