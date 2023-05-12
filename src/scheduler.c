@@ -56,7 +56,7 @@ static int get_symbol(const char *s)
   return i;
 }       
 
-static int get_instance(const char *s)
+int get_instance(const char *s)
 {
   int i, found=0;
   for(i=0;i<xctx->instances; ++i) {
@@ -3716,11 +3716,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           i = xctx->sel_array[n].n;
           if(first) {
             xctx->push_undo();
-            if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) {
-              remove = 1;
-            }
+            first = 0;
           }
-          first = 0;
+          remove = 0;
+          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) remove = 1;
           if(remove) {
             my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, NULL));
           } else {

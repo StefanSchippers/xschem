@@ -3729,11 +3729,19 @@ void draw(void)
     if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
       for(i=0;i<xctx->texts; ++i)
       {
+        const char *txt_ptr =  xctx->text[i].txt_ptr;
         textlayer = xctx->text[i].layer;
         if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
         if(xctx->only_probes) textlayer = GRIDLAYER;
         else if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-        dbg(1, "draw(): drawing string %d = %s\n",i, xctx->text[i].txt_ptr);
+        dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
+        if(xctx->text[i].flags & TEXT_FLOATER) {
+          int inst = get_instance(get_tok_value(xctx->text[i].prop_ptr, "floater", 0));
+          if(inst >= 0) {
+            dbg(1, "floater: %s\n", xctx->text[i].txt_ptr);
+            txt_ptr = translate(inst, xctx->text[i].txt_ptr);
+          }
+        }
         #if HAS_CAIRO==1
         if(!xctx->enable_layer[textlayer]) continue;
         textfont = xctx->text[i].font;
@@ -3757,7 +3765,7 @@ void draw(void)
           cairo_font_face_destroy(xctx->cairo_font);
         }
         #endif
-        draw_string(textlayer, ADD, xctx->text[i].txt_ptr,
+        draw_string(textlayer, ADD, txt_ptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);

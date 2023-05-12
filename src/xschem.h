@@ -289,6 +289,7 @@ extern char win_temp_dir[PATH_MAX];
 #define TEXT_ITALIC 4
 /* flag (.flags field) to hide text in symbols when displaying instances */
 #define HIDE_TEXT 8
+#define TEXT_FLOATER 16
 
 #define S(a) (sizeof(a)/sizeof(a[0]))
 #define BUS_WIDTH 4
@@ -1362,6 +1363,7 @@ extern void new_polygon(int what);
 extern void compile_font(void);
 extern void rebuild_selected_array(void);
 
+extern int get_instance(const char *s);
 extern void edit_property(int x);
 extern int xschem(ClientData clientdata, Tcl_Interp *interp,
            int argc, const char * argv[]);

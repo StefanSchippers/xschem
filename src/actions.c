@@ -628,6 +628,8 @@ int set_text_flags(xText *t)
     t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
     str = get_tok_value(t->prop_ptr, "hide", 0);
     t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
+    str = get_tok_value(t->prop_ptr, "floater", 0);
+    t->flags |= xctx->tok_size ? TEXT_FLOATER : 0;
   }
   return 0;
 }
