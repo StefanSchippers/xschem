@@ -1897,6 +1897,7 @@ static void load_inst(int k, FILE *fd)
       load_ascii_string(&prop_ptr,fd);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
       my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
+
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide",0), "true"))
         xctx->inst[i].flags |= HIDE_INST;
 
@@ -1908,6 +1909,9 @@ static void load_inst(int k, FILE *fd)
         xctx->inst[i].flags |= VHDL_IGNORE_INST;
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
         xctx->inst[i].flags |= TEDAX_IGNORE_INST;
+
+      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide_texts",0), "true"))
+        xctx->inst[i].flags |= HIDE_SYMBOL_TEXTS;
 
       if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
         xctx->inst[i].flags |= HILIGHT_CONN;
@@ -2409,12 +2413,12 @@ void link_symbols_to_instances(int from)
   }
   for(i = from; i < xctx->instances; ++i) {
     type=xctx->sym[xctx->inst[i].ptr].type;
-    cond= !type || !IS_LABEL_SH_OR_PIN(type);
-    if(cond) xctx->inst[i].flags|=2; /* ordinary symbol */
-    else {
-      xctx->inst[i].flags &=~2; /* label or pin */
+    cond= type && IS_LABEL_SH_OR_PIN(type);
+    if(cond) {
+      xctx->inst[i].flags |= PIN_OR_LABEL; /* label or pin */
       my_strdup(_ALLOC_ID_, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
     }
+    else xctx->inst[i].flags &= ~PIN_OR_LABEL; /* ordinary symbol */
   }
   /* symbol_bbox() might call translate() that might call prepare_netlist_structs() that 
    * needs .lab field set above, so this must be done last */

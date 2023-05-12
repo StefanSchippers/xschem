@@ -436,7 +436,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   #endif
 
   if(xctx->inst[n].ptr == -1) return;
-  if(  layer == 0) { 
+  if(layer == 0) { 
     char *type = xctx->sym[xctx->inst[n].ptr].type;
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
@@ -617,8 +617,14 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       }
     }
   }
-  if( (layer==TEXTWIRELAYER && !(xctx->inst[n].flags&2) ) ||
-      (xctx->sym_txt && (layer==TEXTLAYER) && (xctx->inst[n].flags&2) ) ) {
+  if(
+      !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
+      (
+         (layer==TEXTWIRELAYER && (xctx->inst[n].flags & PIN_OR_LABEL) ) ||
+         (xctx->sym_txt && (layer==TEXTLAYER) && !(xctx->inst[n].flags & PIN_OR_LABEL))
+      )
+    )
+  {
     for(j=0;j< symptr->texts; ++j)
     {
       text = symptr->text[j];

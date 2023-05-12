@@ -296,6 +296,9 @@ static void merge_inst(int k,FILE *fd)
     if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
       xctx->inst[i].flags |= TEDAX_IGNORE_INST;
 
+    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide_texts",0), "true"))
+      xctx->inst[i].flags |= HIDE_SYMBOL_TEXTS;
+
     xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
     my_free(_ALLOC_ID_, &prop_ptr);
     xctx->instances++;

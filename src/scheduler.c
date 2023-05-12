@@ -2866,12 +2866,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           hash_all_names();
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           type=xctx->sym[xctx->inst[inst].ptr].type;
-          cond= !type || !IS_LABEL_SH_OR_PIN(type);
-          if(cond) xctx->inst[inst].flags|=2;
-          else {
-            xctx->inst[inst].flags &=~2;
+
+          cond= type && IS_LABEL_SH_OR_PIN(type);
+          if(cond) {
+            xctx->inst[inst].flags |= PIN_OR_LABEL;
             my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
+          else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
+
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           my_free(_ALLOC_ID_, &ptr);
         }
@@ -3335,12 +3337,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               tclgetboolvar("disable_unique_names"));
           }
           type=xctx->sym[xctx->inst[inst].ptr].type;
-          cond= !type || !IS_LABEL_SH_OR_PIN(type);
-          if(cond) xctx->inst[inst].flags|=2;
-          else {
-            xctx->inst[inst].flags &=~2;
+          cond= type && IS_LABEL_SH_OR_PIN(type);
+          if(cond) {
+            xctx->inst[inst].flags |= PIN_OR_LABEL;
             my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
+          else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
 
           if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"highlight",0), "true"))
                 xctx->inst[inst].flags |= HILIGHT_CONN;
@@ -3365,6 +3367,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"tedax_ignore",0), "true"))
               xctx->inst[inst].flags |= TEDAX_IGNORE_INST;
          else xctx->inst[inst].flags &= ~TEDAX_IGNORE_INST;
+
+         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"hide_texts",0), "true"))
+              xctx->inst[inst].flags |= HIDE_SYMBOL_TEXTS;
+         else xctx->inst[inst].flags &= ~HIDE_SYMBOL_TEXTS;
 
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           if(!fast) {

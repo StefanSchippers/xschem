@@ -826,112 +826,116 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer]; ++j)
-   {
-    line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
-    ORDER(x1,y1,x2,y2);
-    ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
-   }
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer]; ++j)
-   {
-     polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
-     {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
-       int k;
-       double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-       double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-       for(k=0;k<polygon.points; ++k) {
-         ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
-         x[k]+= x0;
-         y[k] += y0;
-       }
-       ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
-       my_free(_ALLOC_ID_, &x);
-       my_free(_ALLOC_ID_, &y);
-     }
-
-   }
-   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer]; ++j)
-   {
-     double angle;
-     arc = ((xctx->inst[n].ptr+ xctx->sym)->arc[layer])[j];
-     if(flip) {
-       angle = 270.*rot+180.-arc.b-arc.a;
-     } else {
-       angle = arc.a+rot*270.;
-     }
-     angle = fmod(angle, 360.);
-     if(angle<0.) angle+=360.;
-     ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-     ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
-   }
-   if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer]; ++j)
-   {
-      rect = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
-      ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
-      RECTORDER(x1,y1,x2,y2);
-      if (rect.flags & 1024) /* image */
-      {
-        ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
-        continue;
+  for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->lines[layer]; ++j)
+  {
+   line = ((xctx->inst[n].ptr+ xctx->sym)->line[layer])[j];
+   ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
+   ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
+   ORDER(x1,y1,x2,y2);
+   ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+  }
+  for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer]; ++j)
+  {
+    polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
+    {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
+      int k;
+      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
+      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
+      for(k=0;k<polygon.points; ++k) {
+        ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+        x[k]+= x0;
+        y[k] += y0;
       }
-      ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
-   }
-   if(  (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
-        (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) )
-   {
+      ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
+      my_free(_ALLOC_ID_, &x);
+      my_free(_ALLOC_ID_, &y);
+    }
+
+  }
+  for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer]; ++j)
+  {
+    double angle;
+    arc = ((xctx->inst[n].ptr+ xctx->sym)->arc[layer])[j];
+    if(flip) {
+      angle = 270.*rot+180.-arc.b-arc.a;
+    } else {
+      angle = arc.a+rot*270.;
+    }
+    angle = fmod(angle, 360.);
+    if(angle<0.) angle+=360.;
+    ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
+    ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
+  }
+  if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer]; ++j)
+  {
+     rect = ((xctx->inst[n].ptr+ xctx->sym)->rect[layer])[j];
+     ROTATION(rot, flip, 0.0,0.0,rect.x1,rect.y1,x1,y1);
+     ROTATION(rot, flip, 0.0,0.0,rect.x2,rect.y2,x2,y2);
+     RECTORDER(x1,y1,x2,y2);
+     if (rect.flags & 1024) /* image */
+     {
+       ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
+       continue;
+     }
+     ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
+  }
+  if(
+      !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
+      (
+         (layer==TEXTWIRELAYER && (xctx->inst[n].flags & PIN_OR_LABEL) ) ||
+         (xctx->sym_txt && (layer==TEXTLAYER) && !(xctx->inst[n].flags & PIN_OR_LABEL))
+      )
+    )
+  {
     const char *txtptr;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
-     text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
-     /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
-     if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
-     if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
-     txtptr= translate(n, text.txt_ptr);
-     ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-     textlayer = layer;
-     /* do not allow custom text color on PINLAYER hilighted instances */
-     if( !(xctx->inst[n].color == -PINLAYER)) {
-       textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
-       if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
-     }
-      /* display PINLAYER colored instance texts even if PINLAYER disabled */
-     if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
-       my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
-       my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
-       textfont = symptr->text[j].font;
-       if( (textfont && textfont[0])) {
-         my_snprintf(ps_font_family, S(ps_font_family), textfont);
-         my_snprintf(ps_font_name, S(ps_font_name), textfont);
-       }
-       if( symptr->text[j].flags & TEXT_BOLD) { 
-         if( (symptr->text[j].flags & TEXT_ITALIC) || (symptr->text[j].flags & TEXT_OBLIQUE) ) {
-           my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
-         } else {
-           my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
-         }
-       }
-       else if( symptr->text[j].flags & TEXT_ITALIC)
-         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-       else if( symptr->text[j].flags & TEXT_OBLIQUE)
-         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-       if(text_ps) {
-         ps_draw_string(textlayer, txtptr,
-           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-           flip^text.flip, text.hcenter, text.vcenter,
-           x0+x1, y0+y1, text.xscale, text.yscale);
-       } else {
-         old_ps_draw_string(textlayer, txtptr,
-           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-           flip^text.flip, text.hcenter, text.vcenter,
-           x0+x1, y0+y1, text.xscale, text.yscale);
-       }
-     }
+      text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
+      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
+      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
+      if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
+      txtptr= translate(n, text.txt_ptr);
+      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
+      textlayer = layer;
+      /* do not allow custom text color on PINLAYER hilighted instances */
+      if( !(xctx->inst[n].color == -PINLAYER)) {
+        textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
+        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
+      }
+       /* display PINLAYER colored instance texts even if PINLAYER disabled */
+      if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
+        my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
+        my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
+        textfont = symptr->text[j].font;
+        if( (textfont && textfont[0])) {
+          my_snprintf(ps_font_family, S(ps_font_family), textfont);
+          my_snprintf(ps_font_name, S(ps_font_name), textfont);
+        }
+        if( symptr->text[j].flags & TEXT_BOLD) { 
+          if( (symptr->text[j].flags & TEXT_ITALIC) || (symptr->text[j].flags & TEXT_OBLIQUE) ) {
+            my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+          } else {
+            my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+          }
+        }
+        else if( symptr->text[j].flags & TEXT_ITALIC)
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+        else if( symptr->text[j].flags & TEXT_OBLIQUE)
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+        if(text_ps) {
+          ps_draw_string(textlayer, txtptr,
+            (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+            flip^text.flip, text.hcenter, text.vcenter,
+            x0+x1, y0+y1, text.xscale, text.yscale);
+        } else {
+          old_ps_draw_string(textlayer, txtptr,
+            (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
+            flip^text.flip, text.hcenter, text.vcenter,
+            x0+x1, y0+y1, text.xscale, text.yscale);
+        }
+      }
     }
-   }
-
+  }
 }
 
 

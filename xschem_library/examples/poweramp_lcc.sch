@@ -190,8 +190,7 @@ C {res.sym} 1940 -1410 1 1 {name=R11 m=1 value=0.3}
 C {res.sym} 1940 -1250 1 1 {name=R9 m=1 value=0.3}
 C {res.sym} 90 -570 0 0 {name=R19 m=1 value='100k'
 }
-C {res.sym} 90 -510 0 0 {name=R0 m=1 value="'100k/gain'"
-floaters=true}
+C {res.sym} 90 -510 0 0 {name=R0 m=1 value="'100k/gain'"}
 C {lab_pin.sym} 90 -400 0 1 {name=p108 lab=IN}
 C {lab_pin.sym} 2190 -210 0 1 {name=p9 lab=OUTM}
 C {lab_pin.sym} 310 170 0 0 {name=p12 lab=VPP}

@@ -1110,10 +1110,14 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
     xctx->inst[n].flags |= HIDE_INST;
   if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"highlight",0), "true"))
     xctx->inst[n].flags |= HILIGHT_CONN;
+  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"hide_texts",0), "true"))
+    xctx->inst[n].flags |= HIDE_SYMBOL_TEXTS;
   type = xctx->sym[xctx->inst[n].ptr].type;
-  cond= !type || !IS_LABEL_SH_OR_PIN(type);
-  if(cond) xctx->inst[n].flags|=2;
-  else my_strdup(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
+  cond= type && IS_LABEL_SH_OR_PIN(type);
+  if(cond) {
+    xctx->inst[n].flags |= PIN_OR_LABEL;
+    my_strdup(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
+  }
   xctx->inst[n].embed = !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "embed", 2), "true");
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   xctx->instances++; /* must be updated before calling symbol_bbox() */

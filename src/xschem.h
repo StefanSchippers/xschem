@@ -168,6 +168,7 @@ extern char win_temp_dir[PATH_MAX];
 #define ELEMINST 100       /*  (initial) max # of placed elements,   was 600 20102004 */
 #define ELEMDEF 50         /*  (initial) max # of defined elements */
 #define EMBEDDED 1   /* used for embedded symbols marking in Symbol.flags */
+#define PIN_OR_LABEL 2 /* symbol represents a pin or a label */
 #define HILIGHT_CONN 4 /* used to hilight instances if connected wire is hilighted */
 #define HIDE_INST 8    /*  will only show a bounding box for specific symbol instance */
 #define SPICE_IGNORE_INST 16
@@ -175,6 +176,7 @@ extern char win_temp_dir[PATH_MAX];
 #define VHDL_IGNORE_INST 64
 #define TEDAX_IGNORE_INST 128
 #define IGNORE_INST 256
+#define HIDE_SYMBOL_TEXTS 512
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 80
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
@@ -525,12 +527,15 @@ typedef struct
   char *templ;
   int flags;   /* bit 0: embedded flag 
                 * bit 1: **free**
-                * bit 2: highight if connected wire highlighted
-                * bit 4: spice_ignore=true
-                * bit 5: verilog_ignore=true
-                * bit 6: vhdl_ignore=true
-	        * bit 7: tedax_ignore=true
-	        * bit 8: instance must be ignored based on *_ignore=true and netlisting mode. used in draw.c
+                * bit 2: HILIGHT_CONN, highlight if connected net/label is highlighted
+                * bit 3: HIDE_INST, hidden instance, show only bounding box (hide=true attribute)
+                * bit 4: SPICE_IGNORE_INST, spice_ignore=true
+                * bit 5: VERILOG_IGNORE_INST, verilog_ignore=true
+                * bit 6: VHDL_IGNORE_INST, vhdl_ignore=true
+                * bit 7: TEDAX_IGNORE_INST, tedax_ignore=true
+                * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
+                *        used in draw.c
+                * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true on instance (not used in symbol, but keep free)
                 */
 
 } xSymbol;
@@ -554,16 +559,19 @@ typedef struct
   short sel;
   short embed; /* cache embed=true|false attribute in prop_ptr */
   int color; /* hilight color */
-  short flags; /* bit 0: skip field, 
+  short flags; /* bit 0: skip field, set to 1 while drawing layer 0 if symbol is outside bbox
+                *        to avoid doing the evaluation again.
                 * bit 1: flag for different textlayer for pin/labels,
                 *        1: ordinary symbol, 0: label/pin/show 
-                * bit 2: highlight if connected net/label is highlighted
-                * bit 3: hidden instance, show only bounding box (hide=true attribute)
-                * bit 4: spice_ignore=true
-                * bit 5: verilog_ignore=true
-                * bit 6: vhdl_ignore=true
-                * bit 7: tedax_ignore=true
-	        * bit 8: instance must be ignored based on *_ignore=true and netlisting mode. used in draw.c
+                * bit 2: HILIGHT_CONN, highlight if connected net/label is highlighted
+                * bit 3: HIDE_INST, hidden instance, show only bounding box (hide=true attribute)
+                * bit 4: SPICE_IGNORE_INST, spice_ignore=true
+                * bit 5: VERILOG_IGNORE_INST, verilog_ignore=true
+                * bit 6: VHDL_IGNORE_INST, vhdl_ignore=true
+                * bit 7: TEDAX_IGNORE_INST, tedax_ignore=true
+	        * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
+                *        used in draw.c
+	        * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true (hide_texts=true attribute on instance)
                 */
   char *prop_ptr;
   char **node;

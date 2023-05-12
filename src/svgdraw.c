@@ -531,8 +531,15 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash, rect->fill);
     }
   }
-  if( (layer==TEXTWIRELAYER  && !(xctx->inst[n].flags&2) ) ||
-      (xctx->sym_txt && (layer==TEXTLAYER)   && (xctx->inst[n].flags&2) ) ) {
+
+  if(
+      !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
+      (
+         (layer==TEXTWIRELAYER && (xctx->inst[n].flags & PIN_OR_LABEL) ) ||
+         (xctx->sym_txt && (layer==TEXTLAYER) && !(xctx->inst[n].flags & PIN_OR_LABEL))
+      )
+    )
+  {
     const char *txtptr;
     for(j=0;j< symptr->texts; ++j) {
       text = symptr->text[j];
@@ -695,8 +702,8 @@ void svg_draw(void)
   *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->polygons[c] ) unused_layer[c] = 0;
   *         if( (c == PINLAYER || xctx->enable_layer[c]) && symptr->arcs[c] ) unused_layer[c] = 0;
   *         if( (c != PINLAYER || xctx->enable_layer[c]) && symptr->rects[c] ) unused_layer[c] = 0;
-  *         if( (c==TEXTWIRELAYER  && !(xctx->inst[i].flags&2) ) ||
-  *             (xctx->sym_txt && (c==TEXTLAYER)   && (xctx->inst[i].flags&2) ) )
+  *         if( (c==TEXTWIRELAYER  && (xctx->inst[i].flags & PIN_OR_LABEL) ) ||
+  *             (xctx->sym_txt && (c==TEXTLAYER)   && !(xctx->inst[i].flags & PIN_OR_LABEL) ) )
   *         {
   *           int j;
   *           for(j=0;j< symptr->texts; ++j)

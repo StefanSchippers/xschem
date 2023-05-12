@@ -1384,13 +1384,14 @@ static void update_symbol(const char *result, int x)
 
     /* set cached flags in instances */
     type=xctx->sym[xctx->inst[*ii].ptr].type;
-    cond= !type || !IS_LABEL_SH_OR_PIN(type);
-    if(cond) xctx->inst[*ii].flags |= 2; /* bit 1: flag = 1 for textlayer for ordinary symbols */
-    else {
-      xctx->inst[*ii].flags &= ~2;  /* bit 1: flag = 0 for textlayer for pins/labels/net show symbols */
+    cond= type && IS_LABEL_SH_OR_PIN(type);
+    if(cond) {
+      xctx->inst[*ii].flags |= PIN_OR_LABEL;
       my_strdup(_ALLOC_ID_, &xctx->inst[*ii].lab,
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
+    else xctx->inst[*ii].flags &= ~PIN_OR_LABEL;
+
     if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"highlight",0), "true"))
          xctx->inst[*ii].flags |= HILIGHT_CONN;
     else xctx->inst[*ii].flags &= ~HILIGHT_CONN;
@@ -1414,6 +1415,11 @@ static void update_symbol(const char *result, int x)
     if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"hide",0), "true"))
          xctx->inst[*ii].flags |= HIDE_INST;
     else xctx->inst[*ii].flags &= ~HIDE_INST;
+
+    if(!strcmp(get_tok_value(xctx->inst[*ii].prop_ptr,"hide_texts",0), "true"))
+         xctx->inst[*ii].flags |= HIDE_SYMBOL_TEXTS;
+    else xctx->inst[*ii].flags &= ~HIDE_SYMBOL_TEXTS;
+
     xctx->inst[*ii].embed = !strcmp(get_tok_value(xctx->inst[*ii].prop_ptr, "embed", 2), "true");
 
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
