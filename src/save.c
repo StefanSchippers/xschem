@@ -1827,6 +1827,8 @@ static void load_text(FILE *fd)
   }
   xctx->text[i].prop_ptr=NULL;
   xctx->text[i].font=NULL;
+  xctx->text[i].floater_instname=NULL;
+  xctx->text[i].floater_ptr=NULL;
   xctx->text[i].sel=0;
   load_ascii_string(&xctx->text[i].prop_ptr,fd);
   set_text_flags(&xctx->text[i]);
@@ -3074,7 +3076,7 @@ static void calc_symbol_bbox(int pos)
      int tmp;
 *    count++;
 *    rot=tt[i].rot;flip=tt[i].flip;
-*    text_bbox(tt[i].txt_ptr, tt[i].xscale, tt[i].yscale, rot, flip,
+*    text_bbox(get_text_floater(i), tt[i].xscale, tt[i].yscale, rot, flip,
 *    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2, &dtmp);
 *    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
 *    updatebbox(count,&boundbox,&tmp);
@@ -3605,7 +3607,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      lastr[c]++;
      break;
     case 'T':
-     tmptext.prop_ptr = tmptext.txt_ptr = tmptext.font = NULL;
+     tmptext.floater_instname = tmptext.prop_ptr = tmptext.txt_ptr = tmptext.font = tmptext.floater_ptr = NULL;
      load_ascii_string(&tmptext.txt_ptr, lcc[level].fd);
      if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tmptext.x0, &tmptext.y0, &tmptext.rot,
         &tmptext.flip, &tmptext.xscale, &tmptext.yscale) < 6 ) {
@@ -3630,6 +3632,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tt[i].xscale = tmptext.xscale;
      tt[i].yscale = tmptext.yscale;
      tt[i].prop_ptr = tmptext.prop_ptr;
+     tt[i].floater_ptr = tmptext.floater_ptr;
+     tt[i].floater_instname = tmptext.floater_instname;
      dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
      if (level>0) {
        const char* tmp = translate2(lcc, level, tt[i].txt_ptr);

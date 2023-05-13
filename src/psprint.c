@@ -1126,12 +1126,12 @@ void create_ps(char **psfile, int what)
         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
   
       if(text_ps) {
-        ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+        ps_draw_string(textlayer, get_text_floater(i),
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
       } else {
-        old_ps_draw_string(textlayer, xctx->text[i].txt_ptr,
+        old_ps_draw_string(textlayer, get_text_floater(i),
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);

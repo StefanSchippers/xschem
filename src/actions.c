@@ -79,18 +79,46 @@ unsigned int hash_file(const char *f, int skip_path_lines)
   return 0;
 }
 
-/* mod=-1 used to force set title */
+int there_are_floaters(void)
+{
+  int floaters = 0, k;
+  for(k = 0; k < xctx->texts; k++) {
+    if(xctx->text[k].flags & TEXT_FLOATER) {
+      floaters = 1;
+      break;
+    }
+  }
+  return floaters;
+}
+
+/* mod=-1 used to force set title 
+ * mod=-2 used to reset floaters cache */
 void set_modify(int mod)
 {
-  char *top_path;
+  int i, floaters = 0;
 
-  top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-  if(mod != -1) xctx->modified = mod;
+  if(mod != -2 && mod != -1) xctx->modified = mod;
   dbg(1, "set_modify(): %d\n", mod);
-  if(mod == -1 || mod != xctx->prev_set_modify) { /* mod=-1 used to force set title */
+
+  if(mod == 1 || mod == -1 || mod == -2) {
+    /* hash instance names if there are (many) floaters and many instances for faster lookup */
+    for(i = 0; i < xctx->texts; i++)
+    if(xctx->text[i].flags & TEXT_FLOATER) {
+      floaters++; 
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_instname); /* clear floater cached value */
+    }
+    if(floaters) {
+      floater_hash_all_names();
+    } else {
+      int_hash_free(&xctx->floater_inst_table);
+    }
+  }
+  if(mod != -2 && (mod == -1 || mod != xctx->prev_set_modify) ) { /* mod=-1 used to force set title */
     if(mod != -1) xctx->prev_set_modify = mod;
     else mod = xctx->modified;
     if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
+      char *top_path =  xctx->top_path[0] ? xctx->top_path : ".";
       if(mod == 1) {
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
         tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
@@ -99,9 +127,9 @@ void set_modify(int mod)
         tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
       }
     }
+    if(xctx->modified) tcleval("set_tab_names *");
+    else tcleval("set_tab_names");
   }
-  if(xctx->modified) tcleval("set_tab_names *");
-  else tcleval("set_tab_names");
 }
 
 void print_version()
@@ -546,6 +574,12 @@ void remove_symbol(int j)
     if(xctx->sym[j].text[i].font != NULL) {
       my_free(_ALLOC_ID_, &xctx->sym[j].text[i].font);
     }
+    if(xctx->sym[j].text[i].floater_instname != NULL) {
+      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].floater_instname);
+    }
+    if(xctx->sym[j].text[i].floater_ptr != NULL) {
+      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].floater_ptr);
+    }
   }
   my_free(_ALLOC_ID_, &xctx->sym[j].text);
 
@@ -606,6 +640,38 @@ int set_rect_flags(xRect *r)
   return f;
 }
 
+const char *get_text_floater(int i)
+{
+  const char *txt_ptr =  xctx->text[i].txt_ptr;
+  Int_hashentry *entry;
+  if(xctx->text[i].flags & TEXT_FLOATER) {
+    int inst = -1;
+    const char *instname;
+    
+    if(xctx->text[i].floater_instname) 
+      instname = xctx->text[i].floater_instname;
+    else
+      instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
+    if(xctx->floater_inst_table.table) {
+      entry = int_hash_lookup(&xctx->floater_inst_table, instname, 0, XLOOKUP);
+      inst = entry ? entry->value : -1;
+    } else {
+      inst = get_instance(instname);
+    }
+    if(inst >= 0) {
+      if(xctx->text[i].floater_ptr) {
+        txt_ptr = xctx->text[i].floater_ptr;
+      } else {
+        /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
+        my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
+        txt_ptr = xctx->text[i].floater_ptr;
+      }
+      dbg(1, "floater: %s\n",txt_ptr);
+    }
+  }
+  return txt_ptr;
+} 
+
 int set_text_flags(xText *t)
 {
   const char *str;
@@ -630,6 +696,7 @@ int set_text_flags(xText *t)
     t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
     str = get_tok_value(t->prop_ptr, "floater", 0);
     t->flags |= xctx->tok_size ? TEXT_FLOATER : 0;
+    my_strdup2(_ALLOC_ID_, &t->floater_instname, get_tok_value(t->prop_ptr, "floater", 0));
   }
   return 0;
 }
@@ -694,6 +761,8 @@ void clear_drawing(void)
  for(i=0;i<xctx->texts; ++i)
  {
   my_free(_ALLOC_ID_, &xctx->text[i].font);
+  my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);
+  my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr);
   my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
  }
@@ -726,6 +795,7 @@ void clear_drawing(void)
  }
  dbg(1, "clear drawing(): deleted data structures, now deleting hash\n");
  int_hash_free(&xctx->inst_table);
+ int_hash_free(&xctx->floater_inst_table);
 }
 
 /*  xctx->n_active_layers is the total number of layers for hilights. */
@@ -817,8 +887,6 @@ short connect_by_kissing(void)
           done_undo = 1;
         }
         storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
-        /* storeobject sets modify, but we clear it here, will be set if move operation completes */
-        set_modify(0);
         changed = 1;
         xctx->need_reb_sel_arr = 1;
       }
@@ -1135,7 +1203,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   if(draw_sym & 3) {
     bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
   }
-  /* set_modify(1); */
   if(draw_sym&1) {
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
@@ -1336,10 +1403,14 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
     dest_sym->text[j].prop_ptr = NULL;
     dest_sym->text[j].txt_ptr = NULL;
     dest_sym->text[j].font = NULL;
+    dest_sym->text[j].floater_instname = NULL;
+    dest_sym->text[j].floater_ptr = NULL;
     my_strdup(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, src_sym->text[j].prop_ptr);
+    my_strdup(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, src_sym->text[j].floater_ptr);
     dbg(1, "copy_symbol1(): allocating sym %d text %d\n", dest_sym - xctx->sym, j);
     my_strdup(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, src_sym->text[j].txt_ptr);
     my_strdup(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
+    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, src_sym->text[j].floater_instname);
   }
 }   
 
@@ -1783,27 +1854,42 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    ++count;
    updatebbox(count,boundbox,&rect);
  }
- if(has_x && selected != 2) for(i=0;i<xctx->texts; ++i)
- { 
-   int no_of_lines; 
-   double longest_line;
-   if(selected == 1 && !xctx->text[i].sel) continue;
-   #if HAS_CAIRO==1
-   customfont = set_text_custom_font(&xctx->text[i]);
-   #endif
-   if(text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
-         xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
-         xctx->text[i].hcenter, xctx->text[i].vcenter,
-         xctx->text[i].x0, xctx->text[i].y0,
-         &rect.x1,&rect.y1, &rect.x2,&rect.y2, &no_of_lines, &longest_line) ) {
-     ++count;
-     updatebbox(count,boundbox,&rect);
+ if(has_x && selected != 2) {
+   int floaters = 0;
+   /* hash instance names if there are (many) floaters and many instances for faster lookup */
+   if(xctx->floater_inst_table.table == NULL) {
+     for(i = 0; i < xctx->texts; i++) {
+       if(xctx->text[i].flags & TEXT_FLOATER) {
+         floaters++;
+       }
+     }
+     if(floaters) {
+       floater_hash_all_names();
+     }
    }
-   #if HAS_CAIRO==1
-   if(customfont) {
-     cairo_restore(xctx->cairo_ctx);
+
+   for(i=0;i<xctx->texts; ++i)
+   { 
+     int no_of_lines; 
+     double longest_line;
+     if(selected == 1 && !xctx->text[i].sel) continue;
+     #if HAS_CAIRO==1
+     customfont = set_text_custom_font(&xctx->text[i]);
+     #endif
+     if(text_bbox(get_text_floater(i), xctx->text[i].xscale,
+           xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
+           xctx->text[i].hcenter, xctx->text[i].vcenter,
+           xctx->text[i].x0, xctx->text[i].y0,
+           &rect.x1,&rect.y1, &rect.x2,&rect.y2, &no_of_lines, &longest_line) ) {
+       ++count;
+       updatebbox(count,boundbox,&rect);
+     }
+     #if HAS_CAIRO==1
+     if(customfont) {
+       cairo_restore(xctx->cairo_ctx);
+     }
+     #endif
    }
-   #endif
  }
  for(i=0;i<xctx->instances; ++i)
  {
@@ -2116,7 +2202,7 @@ static void restore_selection(double x1, double y1, double x2, double y2)
 void new_wire(int what, double mx_snap, double my_snap)
 {
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
-  int s_pnetname;
+  int s_pnetname, modified = 0;
   if( (what & PLACE) ) {
     s_pnetname = tclgetboolvar("show_pin_net_names");
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
@@ -2127,6 +2213,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,WIRE,0,0,NULL);
+          modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0, NULL);
         }
@@ -2135,6 +2222,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+          modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
@@ -2144,6 +2232,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,WIRE,0,0,NULL);
+          modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0, NULL);
         }
@@ -2152,6 +2241,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+          modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
@@ -2160,6 +2250,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
         storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+        modified = 1;
         hash_wire(XINSERT, xctx->wires-1, 1);
         drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
       }
@@ -2224,6 +2315,7 @@ void new_wire(int what, double mx_snap, double my_snap)
       }
     }
     xctx->ui_state |= STARTWIRE;
+    if(modified) set_modify(1);
   }
   if( what & END) {
     xctx->ui_state &= ~STARTWIRE;
@@ -2292,7 +2384,7 @@ void change_layer()
 {
   int k, n, type, c;
   double x1,y1,x2,y2, a, b, r;
-
+  int modified = 0;
 
    if(xctx->lastsel) xctx->push_undo();
    for(k=0;k<xctx->lastsel; ++k)
@@ -2306,6 +2398,7 @@ void change_layer()
        x2 = xctx->line[c][n].x2;
        y2 = xctx->line[c][n].y2;
        storeobject(-1, x1,y1,x2,y2,LINE,xctx->rectcolor, 0, xctx->line[c][n].prop_ptr);
+       modified = 1;
      }
      if(type==ARC && xctx->arc[c][n].sel==SELECTED) {
        x1 = xctx->arc[c][n].x;
@@ -2325,11 +2418,11 @@ void change_layer()
        x2 = xctx->rect[c][n].x2;
        y2 = xctx->rect[c][n].y2;
        storeobject(-1, x1,y1,x2,y2,xRECT,xctx->rectcolor, 0, xctx->rect[c][n].prop_ptr);
+       modified = 1;
      }
      else if(type==xTEXT && xctx->text[n].sel==SELECTED) {
        if(xctx->rectcolor != xctx->text[n].layer) {
          char *p;
-         set_modify(1);
          my_strdup(_ALLOC_ID_, &xctx->text[n].prop_ptr, 
            subst_token(xctx->text[n].prop_ptr, "layer", dtoa(xctx->rectcolor) ));
          xctx->text[n].layer = xctx->rectcolor;
@@ -2338,11 +2431,13 @@ void change_layer()
            if(*p == '\n') *p = ' ';
            ++p;
          }
+         modified = 1;
        }
      }
    }
    if(xctx->lastsel) delete_only_rect_line_arc_poly();
    unselect_all(1);
+   if(modified) set_modify(1);
 }
 
 void new_arc(int what, double sweep)
@@ -2371,6 +2466,7 @@ void new_arc(int what, double sweep)
         xctx->push_undo();
         drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
         store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, xctx->rectcolor, 0, NULL);
+        set_modify(1);
       }
       xctx->ui_state &= ~STARTARC;
       xctx->nl_state=0;
@@ -2399,6 +2495,7 @@ void new_arc(int what, double sweep)
 
 void new_line(int what)
 {
+  int modified = 0;
   if( (what & PLACE) )
   {
     if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
@@ -2410,6 +2507,7 @@ void new_line(int what)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,LINE,xctx->rectcolor,0,NULL);
+          modified = 1;
           drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0, NULL);
         }
         if(xctx->nl_yy2!=xctx->nl_yy1) {
@@ -2417,6 +2515,7 @@ void new_line(int what)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          modified = 1;
           drawline(xctx->rectcolor,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
       } else if(xctx->manhattan_lines==2) {
@@ -2425,6 +2524,7 @@ void new_line(int what)
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          modified = 1;
           drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0, NULL);
         }
         if(xctx->nl_xx2!=xctx->nl_xx1) {
@@ -2432,6 +2532,7 @@ void new_line(int what)
           xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
           storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+          modified = 1;
           drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
       } else {
@@ -2439,8 +2540,10 @@ void new_line(int what)
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
         storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,LINE,xctx->rectcolor,0,NULL);
+        modified = 1;
         drawline(xctx->rectcolor,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
       }
+      if(modified) set_modify(1);
     }
     xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
     xctx->ui_state |= STARTLINE;
@@ -2513,6 +2616,7 @@ void new_line(int what)
 
 void new_rect(int what)
 {
+  int modified = 0;
   if( (what & PLACE) )
   {
    if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTRECT) )
@@ -2527,9 +2631,11 @@ void new_rect(int what)
     filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     xctx->draw_window = save_draw;
     storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);
+    modified = 1;
    }
    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
    xctx->ui_state |= STARTRECT;
+   if(modified) set_modify(1);
   }
   if( what & END)
   {
@@ -2568,6 +2674,7 @@ void new_polygon(int what)
      /* fprintf(errfp, "added point: %.16g %.16g\n", xctx->nl_polyx[xctx->nl_points-1],
          xctx->nl_polyy[xctx->nl_points-1]); */
      xctx->ui_state |= STARTPOLYGON;
+     set_modify(1);
    }
    if( what & ADD)
    {
@@ -2821,7 +2928,9 @@ int place_text(int draw_text, double mx, double my)
   check_text_storage();
   t->txt_ptr=NULL;
   t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
+  t->floater_ptr = NULL;
   t->font=NULL;
+  t->floater_instname=NULL;
   my_strdup(_ALLOC_ID_, &t->txt_ptr, txt);
   t->x0=mx;
   t->y0=my;
@@ -2859,7 +2968,8 @@ int place_text(int draw_text, double mx, double my)
   save_draw=xctx->draw_window;
   xctx->draw_window=1;
   if(draw_text) {
-    draw_string(textlayer, NOW, t->txt_ptr, 0, 0, t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
+    draw_string(textlayer, NOW, get_text_floater(xctx->texts), 0, 0,
+        t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
   }
   xctx->draw_window = save_draw;
   #if HAS_CAIRO==1
@@ -2873,7 +2983,6 @@ int place_text(int draw_text, double mx, double my)
   rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
   drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
-  set_modify(1);
   return 1;
 }
 

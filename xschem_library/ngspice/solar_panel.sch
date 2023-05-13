@@ -54,6 +54,11 @@ L 4 1130 -1060 1130 -1020 {}
 L 4 1130 -1060 1150 -1060 {}
 L 4 1150 -1060 1150 -1020 {}
 L 4 1150 -1020 1160 -1020 {}
+L 4 890 -690 890 -650 {}
+L 4 880 -650 890 -650 {}
+L 4 880 -650 890 -640 {}
+L 4 890 -640 900 -650 {}
+L 4 890 -650 900 -650 {}
 B 2 1260 -560 1680 -390 {flags=graph 
 y1 = -0.42
 y2 = 22
@@ -167,6 +172,13 @@ T {set between 0 and 1
 to simulate
 sun radiation
 level} 10 -390 0 0 0.2 0.2 {}
+T {@name} 885 -628.75 0 0 0.2 0.2 {floater=L2
+layer=7}
+T {@value} 885 -613.75 0 0 0.2 0.2 {floater=L2
+layer=7}
+T {m=@m} 885 -598.75 0 0 0.2 0.2 {floater=L2
+layer=7}
+T {Floater text example} 860 -720 0 0 0.4 0.4 {}
 N 1010 -160 1100 -160 {lab=0}
 N 1100 -250 1100 -160 {lab=0}
 N 640 -560 730 -560 {lab=#net1}
@@ -250,7 +262,8 @@ C {ind.sym} 890 -560 3 1 {name=L2
 m=1
 value=40u
 footprint=1206
-device=inductor net_name=true}
+device=inductor net_name=true
+hide_texts=true}
 C {lab_pin.sym} 1140 -390 0 1 {name=l7  lab=LED }
 C {lab_pin.sym} 820 -500 0 1 {name=l9  lab=SW }
 C {capa.sym} 1010 -230 0 0 {name=C1
@@ -318,7 +331,7 @@ C {lab_pin.sym} 760 -670 0 0 {name=l13  lab=CTRL1 }
 C {comp_ngspice.sym} 660 -870 0 0 {name=x3 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n}
 C {lab_pin.sym} 550 -840 0 0 {name=l16
 lab=REF}
-C {lab_pin.sym} 550 -900 0 0 {name=l15  lab=LED }
+C {lab_pin.sym} 550 -900 0 0 {name=l15  lab=LED}
 C {lab_pin.sym} 830 -870 0 1 {name=l18  lab=LEVEL}
 C {comp_ngspice.sym} 950 -1000 0 0 {name=x4 OFFSET=0.5 AMPLITUDE=1 ROUT=1 COUT=1p}
 C {lab_pin.sym} 1060 -1000 0 1 {name=l19  lab=CTRL1 }

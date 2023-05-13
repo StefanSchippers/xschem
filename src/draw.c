@@ -809,8 +809,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
      drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
    }
-  
-   if(layer==PROPERTYLAYER && xctx->sym_txt)
+ 
+   if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&  layer==SELLAYER && xctx->sym_txt)
    {
     char *txtptr = NULL;
     for(j=0;j< symptr->texts; ++j)
@@ -2707,10 +2707,10 @@ int embed_rawfile(const char *rawfile)
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     xInstance *i = &xctx->inst[xctx->sel_array[0].n];
     xctx->push_undo();
-    set_modify(1);
     ptr = base64_from_file(rawfile, &len);
     my_strdup2(_ALLOC_ID_, &i->prop_ptr, subst_token(i->prop_ptr, "spice_data", ptr));
     my_free(_ALLOC_ID_, &ptr);
+    set_modify(1);
   }
   return res;
 }
@@ -3599,7 +3599,7 @@ void draw(void)
   Instentry *instanceptr;
   Wireentry *wireptr;
   int use_hash;
-  int cc, c, i = 0;
+  int cc, c, i = 0 /*, floaters = 0 */;
   xSymbol *symptr;
   int textlayer;
   #if HAS_CAIRO==1
@@ -3634,6 +3634,7 @@ void draw(void)
     if(!xctx->only_probes) drawgrid();
     draw_graph_all((xctx->graph_flags & 6) + 8); /* xctx->graph_flags for cursors */
     draw_images_all();
+
     x1 = X_TO_XSCHEM(xctx->areax1);
     y1 = Y_TO_XSCHEM(xctx->areay1);
     x2 = X_TO_XSCHEM(xctx->areax2);
@@ -3729,19 +3730,11 @@ void draw(void)
     if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
       for(i=0;i<xctx->texts; ++i)
       {
-        const char *txt_ptr =  xctx->text[i].txt_ptr;
+        const char *txt_ptr;
         textlayer = xctx->text[i].layer;
         if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
         if(xctx->only_probes) textlayer = GRIDLAYER;
         else if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-        dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
-        if(xctx->text[i].flags & TEXT_FLOATER) {
-          int inst = get_instance(get_tok_value(xctx->text[i].prop_ptr, "floater", 0));
-          if(inst >= 0) {
-            dbg(1, "floater: %s\n", xctx->text[i].txt_ptr);
-            txt_ptr = translate(inst, xctx->text[i].txt_ptr);
-          }
-        }
         #if HAS_CAIRO==1
         if(!xctx->enable_layer[textlayer]) continue;
         textfont = xctx->text[i].font;
@@ -3765,6 +3758,8 @@ void draw(void)
           cairo_font_face_destroy(xctx->cairo_font);
         }
         #endif
+        txt_ptr =  get_text_floater(i);
+        dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
         draw_string(textlayer, ADD, txt_ptr,
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,

@@ -28,7 +28,6 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  int i,l;
  char *type=NULL;
 
- /* set_modify(1); */ /* 20160302 prepare_netlist_structs could change schematic (wire node naming for example) */
  if(!vhdl_stop) {
    xctx->prep_net_structs = 0;
    err |= prepare_netlist_structs(1);

@@ -158,6 +158,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rebuild_selected_array();
       move_objects(START,0,0,0);
       xctx->ui_state |= START_SYMPIN;
+      set_modify(1);
       Tcl_ResetResult(interp);
     }
 
@@ -1821,6 +1822,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         save = xctx->draw_window; xctx->draw_window = 1;
         drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, NULL);
         xctx->draw_window = save;
+        set_modify(1);
       }
       else xctx->ui_state |= MENUSTARTLINE;
     }
@@ -2750,6 +2752,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         save = xctx->draw_window; xctx->draw_window = 1;
         drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
         xctx->draw_window = save;
+        set_modify(1);
       }
       else xctx->ui_state |= MENUSTARTRECT;
     }
@@ -2835,7 +2838,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         bbox(START,0.0,0.0,0.0,0.0);
         my_strncpy(symbol, argv[3], S(symbol));
         xctx->push_undo();
-        set_modify(1);
         if(!fast) {
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
@@ -2882,6 +2884,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
         bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         /* redraw symbol */
+        set_modify(1);
         bbox(SET,0.0,0.0,0.0,0.0);
         draw();
         bbox(END,0.0,0.0,0.0,0.0);
@@ -3324,7 +3327,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
             xctx->push_undo();
           }
-          set_modify(1);
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
@@ -3373,6 +3375,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          else xctx->inst[inst].flags &= ~HIDE_SYMBOL_TEXTS;
 
           xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
+          set_modify(1);
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
@@ -3538,7 +3541,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(change_done) set_modify(1);
         set_text_flags(t);
-        text_bbox(t->txt_ptr, t->xscale,
+        text_bbox(get_text_floater(n), t->xscale,
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
@@ -3925,6 +3928,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0, NULL);
         xctx->draw_window = save;
         if(tclgetboolvar("autotrim_wires")) trim_wires();
+        set_modify(1);
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }

@@ -491,6 +491,7 @@ typedef struct
 typedef struct
 {
   char *txt_ptr;
+  char *floater_ptr; /* cached value of translated text for floaters (avoid calls to translate() */
   double x0,y0;
   short rot;
   short flip;
@@ -498,10 +499,16 @@ typedef struct
   double xscale;
   double yscale;
   char *prop_ptr;
+  char *floater_instname; /* cached value of floater=... attribute in prop_ptr */
   int layer; /*  20171201 for cairo  */
   short hcenter, vcenter;
   char *font; /*  20171201 for cairo */
-  int flags; /* TEXT_BOLD:1 TEXT_OBLIQUE:2 TEXT_ITALIC:4 HIDE_TEXT:8 */
+  int flags; /* bit 0 : TEXT_BOLD
+              * bit 1 : TEXT_OBLIQUE
+              * bit 2 : TEXT_ITALICi
+              * bit 3 : HIDE_TEXT
+              * bit 4 : TEXT_FLOATER */
+
 } xText;
 
 typedef struct
@@ -647,15 +654,6 @@ typedef struct {
   int port;
 } Drivers;
 
-/* instance name (refdes) hash table, for unique name checking */
-typedef struct inst_hashentry Inst_hashentry;
-struct inst_hashentry 
-{
-  struct inst_hashentry *next;
-  unsigned int hash;
-  char *token;
-  int value;
-};
 
 /* generic string hash table */
 
@@ -896,6 +894,7 @@ typedef struct {
   int tail_undo_ptr;
   int head_undo_ptr;
   Int_hashtable inst_table;
+  Int_hashtable floater_inst_table;
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;
 
@@ -1130,6 +1129,7 @@ extern int raw_read_from_attr(const char *type);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
+extern const char *get_text_floater(int i);
 extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
@@ -1154,6 +1154,7 @@ extern void set_snap(double);
 extern void set_grid(double);
 extern void create_plot_cmd(void);
 extern void set_modify(int mod);
+extern int there_are_floaters(void);
 extern void dbg(int level, char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);
 extern void here(double i);
@@ -1287,7 +1288,7 @@ extern void check_touch(int i, int j,
          unsigned short *included, unsigned short *includes,
          double *xt, double *yt);
 
-extern void storeobject(int pos, double x1,double y1,double x2,double y2,
+extern int storeobject(int pos, double x1,double y1,double x2,double y2,
                         unsigned short type,unsigned int rectcolor,
                         unsigned short sel, const char *prop_ptr);
 extern void store_poly(int pos, double *x, double *y, int points,
@@ -1450,6 +1451,7 @@ extern const char *subst_token(const char *s, const char *tok, const char *new_v
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
 extern void hash_all_names(void);
+extern void floater_hash_all_names(void);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
 /* extern char *escape_chars(char *dest, const char *source, int size); */
 

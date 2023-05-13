@@ -192,7 +192,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 }
 
 
-static void del_rect_line_arc_poly(void)
+static void del_rect_line_arc_poly(int floaters)
 {
  xRect tmp;
  int c, j, i, k, itmp;
@@ -200,6 +200,7 @@ static void del_rect_line_arc_poly(void)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ int deleted = 0;
 
  for(k=0;k<xctx->lastsel; ++k)
  {
@@ -211,7 +212,7 @@ static void del_rect_line_arc_poly(void)
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&xctx->text[n]);
      #endif
-     text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
+     text_bbox(get_text_floater(n), xctx->text[n].xscale,
                xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
                xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
                &xx1,&yy1,&xx2,&yy2, &itmp, &dtmp);
@@ -220,7 +221,7 @@ static void del_rect_line_arc_poly(void)
        cairo_restore(xctx->cairo_ctx);
      }
      #endif
-     bbox(ADD, xx1, yy1, xx2, yy2 );
+     if(!floaters) bbox(ADD, xx1, yy1, xx2, yy2 );
    }
  }
  for(c=0;c<cadlayers; ++c)
@@ -232,10 +233,10 @@ static void del_rect_line_arc_poly(void)
    {
     if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     ++j;
-    bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
+    if(!floaters) bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
     my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
     set_rect_extraptr(0, &xctx->rect[c][i]);
-    set_modify(1);
+    deleted = 1;
     continue;
    }
    if(j)
@@ -255,11 +256,11 @@ static void del_rect_line_arc_poly(void)
       ov = INT_BUS_WIDTH(xctx->lw);
       if(xctx->line[c][i].y1 < xctx->line[c][i].y2) { y1 = xctx->line[c][i].y1-ov; y2 = xctx->line[c][i].y2+ov; }
       else                        { y1 = xctx->line[c][i].y1+ov; y2 = xctx->line[c][i].y2-ov; }
-      bbox(ADD, xctx->line[c][i].x1-ov, y1 , xctx->line[c][i].x2+ov , y2 );
+      if(!floaters) bbox(ADD, xctx->line[c][i].x1-ov, y1 , xctx->line[c][i].x2+ov , y2 );
     } else {
-      bbox(ADD, xctx->line[c][i].x1, xctx->line[c][i].y1 , xctx->line[c][i].x2 , xctx->line[c][i].y2 );
+      if(!floaters) bbox(ADD, xctx->line[c][i].x1, xctx->line[c][i].y1 , xctx->line[c][i].x2 , xctx->line[c][i].y2 );
     }
-    set_modify(1);
+    deleted = 1;
     my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
     continue;
    }
@@ -283,9 +284,9 @@ static void del_rect_line_arc_poly(void)
     else
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
+    if(!floaters) bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
     my_free(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr);
-    set_modify(1);
+    deleted = 1;
     continue;
    }
    if(j)
@@ -311,13 +312,13 @@ static void del_rect_line_arc_poly(void)
       if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
     ++j;
-    bbox(ADD, x1, y1, x2, y2);
+    if(!floaters) bbox(ADD, x1, y1, x2, y2);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].selected_point);
     /*fprintf(errfp, "bbox: %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2); */
-    set_modify(1);
+    deleted = 1;
     continue;
    }
    if(j)
@@ -327,28 +328,31 @@ static void del_rect_line_arc_poly(void)
   }
   xctx->polygons[c] -= j;
  }
+ if(deleted) set_modify(1);
 }
 
 
 void delete(int to_push_undo)
 {
-  int i, j, tmp;
+  int i, j, tmp, deleted = 0, floaters;
   int select_rot = 0, select_flip = 0;
   #if HAS_CAIRO==1
   int customfont;
   #endif
   double xx1,yy1,xx2,yy2, dtmp;
 
+  floaters = there_are_floaters();
   dbg(3, "delete(): start\n");
   j = 0;
-  bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
+  if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   rebuild_selected_array();
   if(to_push_undo && xctx->lastsel) xctx->push_undo();
   /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which
    *  needs prepare_netlist_structs which needs a consistent xctx->inst[] data structure */
-  find_inst_to_be_redrawn(4 + 32); /* 32: call prepare_netlist_structs(0) if show net names enabled
-                                        *  4: call symbol_bbox() to precisely update bbox to current zoom level
-                                        */
+  if(!floaters) find_inst_to_be_redrawn(4 + 32);
+                                  /* 32: call prepare_netlist_structs(0) if show net names enabled
+                                   *  4: call symbol_bbox() to precisely update bbox to current zoom level
+                                   */
   for(i=0;i<xctx->texts; ++i)
   {
     if(xctx->text[i].sel == SELECTED)
@@ -358,7 +362,7 @@ void delete(int to_push_undo)
       #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
-      text_bbox(xctx->text[i].txt_ptr, xctx->text[i].xscale,
+      if(!floaters) text_bbox(get_text_floater(i), xctx->text[i].xscale,
                 xctx->text[i].yscale, (short) select_rot, (short) select_flip, xctx->text[i].hcenter,
                 xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
                 &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
@@ -367,11 +371,13 @@ void delete(int to_push_undo)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      bbox(ADD, xx1, yy1, xx2, yy2 );
+      if(!floaters) bbox(ADD, xx1, yy1, xx2, yy2 );
       my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->text[i].font);
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr);
       my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
-      set_modify(1);
+      deleted = 1;
       ++j;
       continue;
     }
@@ -389,7 +395,7 @@ void delete(int to_push_undo)
   {
     if(xctx->inst[i].sel == SELECTED)
     {
-      set_modify(1);
+      deleted = 1;
       if(xctx->inst[i].prop_ptr != NULL)
       {
         my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
@@ -423,19 +429,19 @@ void delete(int to_push_undo)
         ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
       } else {
         double ov, y1, y2;
         ov = cadhalfdotsize;
         if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
         else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
       }
 
       my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->wire[i].node);
 
-      set_modify(1);
+      deleted = 1;
       continue;
     }
     if(j) {
@@ -449,22 +455,26 @@ void delete(int to_push_undo)
     xctx->prep_hi_structs=0;
   }
   if(tclgetboolvar("autotrim_wires")) trim_wires();
-  del_rect_line_arc_poly();
+  del_rect_line_arc_poly(floaters);
   update_conn_cues(WIRELAYER, 0, 0);
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
 
-  find_inst_to_be_redrawn(2 + 4 + 8 + 32); /* 32: call prepare_netlist_structs(0)
+  if(!floaters) {
+    find_inst_to_be_redrawn(2 + 4 + 8 + 32);
+                                       /* 32: call prepare_netlist_structs(0)
                                         *  2: add previously built list
                                         *  4: call symbol_bbox to precisely update bboxes ... needed?
                                         *  8: do not iterate over selection (there is no more selection, deleted)
                                         */
-  find_inst_to_be_redrawn(16); /* clear data */
+    find_inst_to_be_redrawn(16); /* clear data */
+  }
+  if(deleted) set_modify(1);
   xctx->lastsel = 0;
-  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!floaters) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
-  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+  if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->ui_state &= ~SELECTION;
 }
 
@@ -472,7 +482,7 @@ void delete(int to_push_undo)
 void delete_only_rect_line_arc_poly(void)
 {
  bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
- del_rect_line_arc_poly();
+ del_rect_line_arc_poly(0);
  xctx->lastsel = 0;
  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
  draw();
@@ -642,7 +652,7 @@ void unselect_all(int dr)
         #if HAS_CAIRO==1
         customfont = set_text_custom_font(& xctx->text[i]); /* needed for bbox calculation */
         #endif
-        draw_temp_string(xctx->gctiled,ADD, xctx->text[i].txt_ptr,
+        draw_temp_string(xctx->gctiled,ADD, get_text_floater(i),
          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
          xctx->text[i].x0, xctx->text[i].y0,
          xctx->text[i].xscale, xctx->text[i].yscale);
@@ -806,7 +816,6 @@ void select_text(int i,unsigned short select_mode, int fast)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-
   if(!fast) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
     my_snprintf(str, S(str), "selected text %d: properties: %s", i,s);
@@ -820,12 +829,12 @@ void select_text(int i,unsigned short select_mode, int fast)
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
   if(select_mode)
-    draw_temp_string(xctx->gc[SELLAYER],ADD, xctx->text[i].txt_ptr,
+    draw_temp_string(xctx->gc[SELLAYER],ADD, get_text_floater(i),
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
   else
-    draw_temp_string(xctx->gctiled,NOW, xctx->text[i].txt_ptr,
+    draw_temp_string(xctx->gctiled,NOW, get_text_floater(i),
      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
      xctx->text[i].x0, xctx->text[i].y0,
      xctx->text[i].xscale, xctx->text[i].yscale);
@@ -1050,7 +1059,8 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
-  text_bbox(xctx->text[i].txt_ptr,
+
+  text_bbox(get_text_floater(i),
              xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,

@@ -210,7 +210,7 @@ void draw_selection(GC g, int interruptable)
      #if HAS_CAIRO==1
      customfont =  set_text_custom_font(&xctx->text[n]);
      #endif
-     draw_temp_string(g,ADD, xctx->text[n].txt_ptr,
+     draw_temp_string(g,ADD, get_text_floater(n),
       (xctx->text[n].rot +
       ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3,
        xctx->text[n].flip^xctx->move_flip, xctx->text[n].hcenter, xctx->text[n].vcenter,
@@ -661,15 +661,17 @@ void copy_objects(int what)
   if(what & END)                                 /* copy selected objects */
   {
     int l, firstw, firsti;
-    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
+    int floaters = there_are_floaters();
+    if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
-    set_modify(1); xctx->push_undo(); /* 20150327 push_undo */
+    xctx->push_undo();
     
     firstw = firsti = 1;
 
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
-    find_inst_to_be_redrawn(0); /* build list before copying and recalculating prepare_netlist_structs() */
+    /* build list before copying and recalculating prepare_netlist_structs() */
+    if(!floaters) find_inst_to_be_redrawn(0);
 
     for(i=0;i<xctx->lastsel; ++i)
     {
@@ -718,13 +720,13 @@ void copy_objects(int what)
           ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
           else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
-          bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
+          if(!floaters) bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
         } else {
           double ov, y1, y2;
           ov = cadhalfdotsize;
           if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
           else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
-          bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
+          if(!floaters) bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
         }
       }
     }
@@ -779,14 +781,14 @@ void copy_objects(int what)
           if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
                { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
           else { y1 = xctx->line[c][l].y1+ov; y2 = xctx->line[c][l].y2-ov; }
-          bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
+          if(!floaters) bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
         } else {
           double ov, y1, y2;
           ov = cadhalfdotsize;
           if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
                 { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
           else  { y1 = xctx->line[c][l].y1+ov; y2 = xctx->line[c][l].y2-ov; }
-          bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
+          if(!floaters) bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
         }
         break;
   
@@ -816,7 +818,7 @@ void copy_objects(int what)
             if(j==0 || x[j] > bx2) bx2 = x[j];
             if(j==0 || y[j] > by2) by2 = y[j];
           }
-          bbox(ADD, bx1, by1, bx2, by2);
+          if(!floaters) bbox(ADD, bx1, by1, bx2, by2);
           xctx->sel_array[i].n=xctx->polygons[c];
           store_poly(-1, x, y, p->points, c, p->sel, p->prop_ptr);
           p->sel=0;
@@ -849,14 +851,16 @@ void copy_objects(int what)
                    xctx->arc[c][n].r, angle, xctx->arc[c][n].b, c, SELECTED, xctx->arc[c][n].prop_ptr);
      
         l = xctx->arcs[c] - 1;
-        if(xctx->arc[c][l].fill)
-          arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r, 0, 360,
-                   &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        else
-          arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r,
-                   xctx->arc[c][l].a, xctx->arc[c][n].b,
-                   &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
+        if(!floaters) {
+          if(xctx->arc[c][l].fill) {
+            arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r,
+                0, 360, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+          } else {
+            arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r,
+                xctx->arc[c][l].a, xctx->arc[c][n].b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+          }
+          bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
+        }
         break;
   
        case xRECT:
@@ -879,7 +883,7 @@ void copy_objects(int what)
         storeobject(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
         l = xctx->rects[c] - 1;
-        bbox(ADD, xctx->rect[c][l].x1, xctx->rect[c][l].y1, xctx->rect[c][l].x2, xctx->rect[c][l].y2);
+        if(!floaters) bbox(ADD, xctx->rect[c][l].x1, xctx->rect[c][l].y1, xctx->rect[c][l].x2, xctx->rect[c][l].y2);
         break;
   
        case xTEXT:
@@ -905,7 +909,10 @@ void copy_objects(int what)
         xctx->text[xctx->texts].sel=SELECTED;
         xctx->text[xctx->texts].prop_ptr=NULL;
         xctx->text[xctx->texts].font=NULL;
+        xctx->text[xctx->texts].floater_instname=NULL;
+        xctx->text[xctx->texts].floater_ptr=NULL;
         my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
+        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
         set_text_flags(&xctx->text[xctx->texts]);
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
@@ -915,7 +922,7 @@ void copy_objects(int what)
         #if HAS_CAIRO==1 /* bbox after copy */
         customfont = set_text_custom_font(&xctx->text[l]);
         #endif
-        text_bbox(xctx->text[l].txt_ptr, xctx->text[l].xscale,
+        text_bbox(get_text_floater(l), xctx->text[l].xscale,
           xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip, 
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
@@ -925,7 +932,7 @@ void copy_objects(int what)
           cairo_restore(xctx->cairo_ctx);
         }
         #endif
-        bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
+        if(!floaters) bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
   
         xctx->sel_array[i].n=xctx->texts;
         xctx->texts++;
@@ -983,6 +990,10 @@ void copy_objects(int what)
         if(!newpropcnt) hash_all_names();
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, 
           tclgetboolvar("disable_unique_names"));
+        /* this is needed since no find_inst_to_be_redrawn() is executed if floaters are present */
+        if(floaters) symbol_bbox(xctx->instances,
+             &xctx->inst[xctx->instances].x1, &xctx->inst[xctx->instances].y1,
+             &xctx->inst[xctx->instances].x2, &xctx->inst[xctx->instances].y2);
         xctx->instances++;
       } /* if(xctx->sel_array[i].type == ELEMENT) */
     }  /* for(i = 0; i < xctx->lastsel; ++i) */
@@ -993,8 +1004,10 @@ void copy_objects(int what)
       xctx->prep_hi_structs=0;
     }
     /* build after copying and after recalculating prepare_netlist_structs() */
-    find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
-    find_inst_to_be_redrawn(16); /* clear data */
+    if(!floaters) {
+      find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
+      find_inst_to_be_redrawn(16); /* clear data */
+    }
     check_collapsing_objects();
     if(tclgetboolvar("autotrim_wires")) trim_wires();
     if(xctx->hilight_nets) {
@@ -1003,9 +1016,10 @@ void copy_objects(int what)
     xctx->ui_state &= ~STARTCOPY;
     xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0;
     xctx->move_rot = xctx->move_flip = 0;
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    set_modify(1);
+    if(!floaters) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
-    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     xctx->rotatelocal=0;
   } /* if(what & END) */
   draw_selection(xctx->gc[SELLAYER], 0);
@@ -1076,7 +1090,6 @@ void move_objects(int what, int merge, double dx, double dy)
   int firsti, firstw;
 
   bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-  set_modify(1);
   /* no undo push for MERGE ad PLACE, already done before */
   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
     dbg(1, "move_objects(): push undo state\n");
@@ -1436,7 +1449,7 @@ void move_objects(int what, int merge, double dx, double dy)
       #if HAS_CAIRO==1  /* bbox before move */
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
-      text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
+      text_bbox(get_text_floater(n), xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
@@ -1462,7 +1475,7 @@ void move_objects(int what, int merge, double dx, double dy)
       #if HAS_CAIRO==1  /* bbox after move */
       customfont = set_text_custom_font(&xctx->text[n]);
       #endif
-      text_bbox(xctx->text[n].txt_ptr, xctx->text[n].xscale,
+      text_bbox(get_text_floater(n), xctx->text[n].xscale,
          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
@@ -1523,6 +1536,7 @@ void move_objects(int what, int merge, double dx, double dy)
   draw();
   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
+  set_modify(1);
  }
  draw_selection(xctx->gc[SELLAYER], 0);
 }

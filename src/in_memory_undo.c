@@ -96,6 +96,8 @@ static void free_undo_texts(int slot)
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_instname);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_ptr);
   }
   my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr);
   xctx->uslot[slot].texts = 0;
@@ -173,6 +175,12 @@ static void free_undo_symbols(int slot)
       }
       if(sym->text[j].font != NULL) {
         my_free(_ALLOC_ID_, &sym->text[j].font);
+      }
+      if(sym->text[j].floater_instname != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].floater_instname);
+      }
+      if(sym->text[j].floater_ptr != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].floater_ptr);
       }
     }
     my_free(_ALLOC_ID_, &sym->text);
@@ -352,9 +360,13 @@ void mem_push_undo(void)
     xctx->uslot[slot].tptr[i].prop_ptr = NULL;
     xctx->uslot[slot].tptr[i].txt_ptr = NULL;
     xctx->uslot[slot].tptr[i].font = NULL;
+    xctx->uslot[slot].tptr[i].floater_instname = NULL;
+    xctx->uslot[slot].tptr[i].floater_ptr = NULL;
     my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr, xctx->text[i].prop_ptr);
     my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr, xctx->text[i].txt_ptr);
     my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font, xctx->text[i].font);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_instname, xctx->text[i].floater_instname);
+    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_ptr, xctx->text[i].floater_ptr);
   }
 
   /* wires */
@@ -512,10 +524,14 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->text[i] = xctx->uslot[slot].tptr[i];
     xctx->text[i].txt_ptr = NULL;
     xctx->text[i].font = NULL;
+    xctx->text[i].floater_instname = NULL;
+    xctx->text[i].floater_ptr = NULL;
     xctx->text[i].prop_ptr = NULL;
     my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, xctx->uslot[slot].tptr[i].prop_ptr);
     my_strdup(_ALLOC_ID_, &xctx->text[i].txt_ptr, xctx->uslot[slot].tptr[i].txt_ptr);
     my_strdup(_ALLOC_ID_, &xctx->text[i].font, xctx->uslot[slot].tptr[i].font);
+    my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_instname, xctx->uslot[slot].tptr[i].floater_instname);
+    my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, xctx->uslot[slot].tptr[i].floater_ptr);
   }
 
   /* wires */

@@ -43,11 +43,12 @@ static void merge_text(FILE *fd)
      }
      xctx->text[i].prop_ptr=NULL;
      xctx->text[i].font=NULL;
+     xctx->text[i].floater_instname=NULL;
+     xctx->text[i].floater_ptr=NULL;
      xctx->text[i].sel=0;
      load_ascii_string(&xctx->text[i].prop_ptr,fd);
      set_text_flags(&xctx->text[i]);
      select_text(i,SELECTED, 1);
-     set_modify(1);
      xctx->texts++;
 }
 
@@ -108,7 +109,6 @@ static void merge_box(FILE *fd)
     set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     select_box(c,i, SELECTED, 1, 1);
     xctx->rects[c]++;
-    set_modify(1);
 }
 
 static void merge_arc(FILE *fd)
@@ -150,7 +150,6 @@ static void merge_arc(FILE *fd)
 
     select_arc(c,i, SELECTED, 1);
     xctx->arcs[c]++;
-    set_modify(1);
 }
 
 
@@ -207,7 +206,6 @@ static void merge_polygon(FILE *fd)
 
     select_polygon(c,i, SELECTED, 1);
     xctx->polygons[c]++;
-    set_modify(1);
 }
 
 static void merge_line(FILE *fd)
@@ -243,7 +241,6 @@ static void merge_line(FILE *fd)
     }
     select_line(c,i, SELECTED, 1);
     xctx->lines[c]++;
-    set_modify(1);
 }
 
 static void merge_inst(int k,FILE *fd)
@@ -302,7 +299,6 @@ static void merge_inst(int k,FILE *fd)
     xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
     my_free(_ALLOC_ID_, &prop_ptr);
     xctx->instances++;
-    set_modify(1);
 }
 
 /* merge selection if selection_load=1, otherwise ask for filename */
@@ -452,4 +448,5 @@ void merge_file(int selection_load, const char ext[])
     } else {
       dbg(0, "merge_file(): can not open %s\n", name);
     }
+    set_modify(1);
 }

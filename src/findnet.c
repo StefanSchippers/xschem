@@ -290,7 +290,7 @@ static void find_closest_text(double mx,double my)
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
-   text_bbox(xctx->text[i].txt_ptr,
+   text_bbox(get_text_floater(i),
              xctx->text[i].xscale, xctx->text[i].yscale, rot, flip,
               xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,

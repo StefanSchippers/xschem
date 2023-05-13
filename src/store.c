@@ -159,7 +159,6 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
     xctx->arc[rectc][n].dash = 0;
 
   xctx->arcs[rectc]++;
-  set_modify(1);
 }
 
 void store_poly(int pos, double *x, double *y, int points, unsigned int rectc, 
@@ -208,14 +207,13 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
 
 
   xctx->polygons[rectc]++;
-  set_modify(1);
 }
 
-void storeobject(int pos, double x1,double y1,double x2,double y2,
+int storeobject(int pos, double x1,double y1,double x2,double y2,
                  unsigned short type, unsigned int rectc,
                  unsigned short sel, const char *prop_ptr)
 {
- int n, j;
+ int n, j, modified = 0;
  const char *dash;
     if(type == LINE)
     {
@@ -248,7 +246,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      } else
        xctx->line[rectc][n].dash = 0;
      xctx->lines[rectc]++;
-     set_modify(1);
+     modified = 1;
     }
     if(type == xRECT)
     {
@@ -286,7 +284,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
         draw_image(0, r, &r->x1, &r->y1, &r->x2, &r->y2, 0, 0);
      }
      xctx->rects[rectc]++;
-     set_modify(1);
+     modified = 1;
     }
     if(type == WIRE)
     {
@@ -314,6 +312,7 @@ void storeobject(int pos, double x1,double y1,double x2,double y2,
      else xctx->wire[n].bus=0;
      xctx->wire[n].sel=sel;
      xctx->wires++;
-     set_modify(1);
+     modified = 1;
     }
+    return modified;
 }

@@ -42,6 +42,18 @@ static char *find_bracket(char *s)
  return s;
 }
 
+void floater_hash_all_names(void)
+{
+  int i;
+  int_hash_free(&xctx->floater_inst_table);
+  int_hash_init(&xctx->floater_inst_table, HASHSIZE);
+  for(i=0; i<xctx->instances; ++i) { 
+    if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      int_hash_lookup(&xctx->floater_inst_table, xctx->inst[i].instname, i, XINSERT);
+    }
+  }
+}  
+
 void hash_all_names(void)
 {
   int i;
@@ -50,6 +62,7 @@ void hash_all_names(void)
   int_hash_init(&xctx->inst_table, HASHSIZE);
   for(i=0; i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      if(xctx->inst[i].ptr == -1) continue;
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
       if(!type) continue;
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
@@ -91,7 +104,7 @@ const char *tcl_hook2(const char *cmd)
  */
 void check_unique_names(int rename)
 {
-  int i, first = 1;
+  int i, first = 1, modified = 0;
   int newpropcnt = 0;
   char *tmp = NULL;
   Int_hashentry *entry;
@@ -109,6 +122,7 @@ void check_unique_names(int rename)
   first = 1;
   for(i=0;i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
+      if(xctx->inst[i].ptr == -1) continue;
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
@@ -119,7 +133,8 @@ void check_unique_names(int rename)
         if(rename == 1) {
           if(first) {
             bbox(START,0.0,0.0,0.0,0.0);
-            set_modify(1); xctx->push_undo();
+            modified = 1;
+            xctx->push_undo();
             xctx->prep_hash_inst=0;
             xctx->prep_net_structs=0;
             xctx->prep_hi_structs=0;
@@ -145,6 +160,7 @@ void check_unique_names(int rename)
     }
   } /* for(i...) */
   my_free(_ALLOC_ID_, &upinst);
+  if(modified) set_modify(1);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
@@ -176,6 +192,13 @@ int is_generator(const char *name)
   /* regfree(&re); */
   return res;
   #else
+  if (!name) return 0;
+  char cmd[PATH_MAX+100];
+  my_snprintf(cmd, S(cmd), "my_regexp {%s} {%s} [list %s]", "-nocase", "^[^ \\t()]+\\([^()]*\\)[ \\t]*$", name);
+  tcleval(cmd);
+  int ret = atoi(tclresult());
+  if (ret > 0)
+      return 1;
   return 0;
   #endif
 }
@@ -218,9 +241,19 @@ char *get_generator_command(const char *str)
   if(stat(cmd_filename, &buf)) { /* symbol generator not found */
     goto end;
   }
+  #ifdef __unix__
   my_strdup(_ALLOC_ID_, &gen_cmd, cmd_filename);
   *spc_idx = ' ';
   my_strcat(_ALLOC_ID_, &gen_cmd, spc_idx);
+  #else
+  /* tclsh "cmd_filename" a b c */
+  /* command tclsh is needed so new TCL windows will NOT open */
+  /* quotes are needed for filename if filename has spaces */
+  *spc_idx = ' ';
+  int len = 8 + strlen(cmd_filename) + strlen(spc_idx) + 1; /*8="tclsh "+ "\""*2*/
+  gen_cmd = my_malloc(_ALLOC_ID_, len * sizeof(char));
+  my_snprintf(gen_cmd, len, "tclsh \"%s\"%s", cmd_filename, spc_idx);
+  #endif
   dbg(1, "get_generator_command(): cmd_filename=%s\n", cmd_filename);
   dbg(1, "get_generator_command(): gen_cmd=%s\n", gen_cmd);
   dbg(1, "get_generator_command(): is_symgen=%d\n", is_generator(str));

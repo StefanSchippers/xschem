@@ -789,12 +789,12 @@ void svg_draw(void)
         my_snprintf(svg_font_style, S(svg_font_style), "oblique");
  
       if(text_svg) 
-        svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+        svg_draw_string(textlayer, get_text_floater(i),
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
       else
-        old_svg_draw_string(textlayer, xctx->text[i].txt_ptr,
+        old_svg_draw_string(textlayer, get_text_floater(i),
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
           xctx->text[i].x0,xctx->text[i].y0,
           xctx->text[i].xscale, xctx->text[i].yscale);
