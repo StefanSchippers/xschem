@@ -460,6 +460,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    xctx->pop_undo(4, 0);
+   tclvareval("get_directory [list ", xctx->sch[xctx->currsch], "]", NULL);
+   my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */

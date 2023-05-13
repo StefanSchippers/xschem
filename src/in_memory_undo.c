@@ -552,4 +552,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
   update_conn_cues(WIRELAYER, 0, 0);
+  if(there_are_floaters()) {
+    floater_hash_all_names();
+  }
 }

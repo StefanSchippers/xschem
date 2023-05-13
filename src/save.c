@@ -2246,6 +2246,9 @@ static void read_xschem_file(FILE *fd)
       dbg(1, "read_xschem_file(): no file_version, assuming file_version=%s\n", xctx->file_version);
     }
   }
+  if(there_are_floaters()) {
+    floater_hash_all_names();
+  }
 }
 
 void load_ascii_string(char **ptr, FILE *fd)

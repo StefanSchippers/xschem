@@ -242,7 +242,9 @@ char *get_generator_command(const char *str)
     goto end;
   }
   #ifdef __unix__
-  my_strdup(_ALLOC_ID_, &gen_cmd, cmd_filename);
+  /* my_strdup(_ALLOC_ID_, &gen_cmd, cmd_filename); */
+  /* add quotes to protect spaces in cmd path */
+  my_mstrcat(_ALLOC_ID_, &gen_cmd, "\"", cmd_filename, "\"", NULL);
   *spc_idx = ' ';
   my_strcat(_ALLOC_ID_, &gen_cmd, spc_idx);
   #else

@@ -1477,7 +1477,7 @@ static int edit_symbol_property(int x)
        !strcmp( (xctx->inst[*ii].ptr+ xctx->sym)->type, "netlist_commands");
    if(xctx->inst[*ii].prop_ptr!=NULL) {
      if(*netl_com && x==1) {
-       tclsetvar("retval",get_tok_value( xctx->inst[*ii].prop_ptr,"value",0));
+       tclsetvar("retval",get_tok_value( xctx->inst[*ii].prop_ptr,"value",2));
      } else {
        tclsetvar("retval",xctx->inst[*ii].prop_ptr);
      }

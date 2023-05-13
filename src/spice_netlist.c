@@ -434,6 +434,8 @@ int global_spice_netlist(int global)  /* netlister driver */
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
    xctx->pop_undo(4, 0);
+   tclvareval("get_directory [list ", xctx->sch[xctx->currsch], "]", NULL);
+   my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */

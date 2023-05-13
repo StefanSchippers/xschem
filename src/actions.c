@@ -92,7 +92,9 @@ int there_are_floaters(void)
 }
 
 /* mod=-1 used to force set title 
- * mod=-2 used to reset floaters cache */
+ * mod=-2 used to reset floaters cache 
+ * if floaters are present set_modify(1) (after a modify opration) must be done before draw()
+ * to invalidate cached floater string values  before redrawing*/
 void set_modify(int mod)
 {
   int i, floaters = 0;
@@ -104,7 +106,7 @@ void set_modify(int mod)
     /* hash instance names if there are (many) floaters and many instances for faster lookup */
     for(i = 0; i < xctx->texts; i++)
     if(xctx->text[i].flags & TEXT_FLOATER) {
-      floaters++; 
+      floaters++;
       my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
       my_free(_ALLOC_ID_, &xctx->text[i].floater_instname); /* clear floater cached value */
     }
@@ -1855,15 +1857,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    updatebbox(count,boundbox,&rect);
  }
  if(has_x && selected != 2) {
-   int floaters = 0;
-   /* hash instance names if there are (many) floaters and many instances for faster lookup */
    if(xctx->floater_inst_table.table == NULL) {
-     for(i = 0; i < xctx->texts; i++) {
-       if(xctx->text[i].flags & TEXT_FLOATER) {
-         floaters++;
-       }
-     }
-     if(floaters) {
+     if(there_are_floaters()) {
        floater_hash_all_names();
      }
    }
