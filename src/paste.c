@@ -266,11 +266,9 @@ static void merge_inst(int k,FILE *fd)
       return;
     }
     xctx->inst[i].sel=0;
-    xctx->inst[i].flags=0;
     xctx->inst[i].color=-10000;
     xctx->inst[i].ptr=-1;
     xctx->inst[i].prop_ptr=NULL;
-    xctx->inst[i].instname=NULL;
     xctx->inst[i].lab=NULL;  /* assigned in link_symbols_to_instances */
     xctx->inst[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
@@ -278,25 +276,7 @@ static void merge_inst(int k,FILE *fd)
     new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide",0), "true"))
-       xctx->inst[i].flags |= HIDE_INST;
-
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
-       xctx->inst[i].flags |= HILIGHT_CONN;
-
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0), "true"))
-      xctx->inst[i].flags |= SPICE_IGNORE_INST;
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0), "true"))
-      xctx->inst[i].flags |= VERILOG_IGNORE_INST;
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0), "true"))
-      xctx->inst[i].flags |= VHDL_IGNORE_INST;
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
-      xctx->inst[i].flags |= TEDAX_IGNORE_INST;
-
-    if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide_texts",0), "true"))
-      xctx->inst[i].flags |= HIDE_SYMBOL_TEXTS;
-
-    xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
+    set_inst_flags(&xctx->inst[i]);
     my_free(_ALLOC_ID_, &prop_ptr);
     xctx->instances++;
 }

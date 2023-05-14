@@ -1129,6 +1129,8 @@ extern int raw_read_from_attr(const char *type);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
+extern int set_inst_flags(xInstance *inst);
+extern int set_sym_flags(xSymbol *sym);
 extern const char *get_text_floater(int i);
 extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);

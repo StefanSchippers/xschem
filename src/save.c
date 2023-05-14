@@ -1889,38 +1889,17 @@ static void load_inst(int k, FILE *fd)
       read_line(fd, 0);
     } else {
       xctx->inst[i].color=-10000;
-      xctx->inst[i].flags=0;
       xctx->inst[i].sel=0;
       xctx->inst[i].ptr=-1; /*04112003 was 0 */
       xctx->inst[i].prop_ptr=NULL;
-      xctx->inst[i].instname=NULL;
       xctx->inst[i].lab=NULL; /* assigned in link_symbols_to_instances */
       xctx->inst[i].node=NULL;
       load_ascii_string(&prop_ptr,fd);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
-      my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
 
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide",0), "true"))
-        xctx->inst[i].flags |= HIDE_INST;
-
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0), "true"))
-        xctx->inst[i].flags |= SPICE_IGNORE_INST;
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0), "true"))
-        xctx->inst[i].flags |= VERILOG_IGNORE_INST;
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0), "true"))
-        xctx->inst[i].flags |= VHDL_IGNORE_INST;
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
-        xctx->inst[i].flags |= TEDAX_IGNORE_INST;
-
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"hide_texts",0), "true"))
-        xctx->inst[i].flags |= HIDE_SYMBOL_TEXTS;
-
-      if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"highlight",0), "true"))
-        xctx->inst[i].flags |= HILIGHT_CONN;
-
+      set_inst_flags(&xctx->inst[i]);
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n", i, xctx->inst[i].name? xctx->inst[i].name:"<NULL>",
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
-      xctx->inst[i].embed = !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "embed", 2), "true");
       xctx->instances++;
     }
     my_free(_ALLOC_ID_, &prop_ptr);
@@ -2246,9 +2225,7 @@ static void read_xschem_file(FILE *fd)
       dbg(1, "read_xschem_file(): no file_version, assuming file_version=%s\n", xctx->file_version);
     }
   }
-  if(there_are_floaters()) {
-    floater_hash_all_names();
-  }
+  int_hash_free(&xctx->floater_inst_table);
 }
 
 void load_ascii_string(char **ptr, FILE *fd)
@@ -3307,32 +3284,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
        dbg(1, "load_sym_def: K prop=\n%s\n", symbol[symbols].prop_ptr);
        if(!symbol[symbols].prop_ptr) break;
-       my_strdup2(_ALLOC_ID_, &symbol[symbols].templ,
-                  get_tok_value(symbol[symbols].prop_ptr, "template", 0));
-       my_strdup2(_ALLOC_ID_, &symbol[symbols].type,
-                  get_tok_value(symbol[symbols].prop_ptr, "type",0));
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
-         symbol[symbols].flags |= HILIGHT_CONN;
-       else symbol[symbols].flags &= ~HILIGHT_CONN;
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"hide",0), "true"))
-         symbol[symbols].flags |= HIDE_INST;
-       else symbol[symbols].flags &= ~HIDE_INST;
-
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"spice_ignore",0), "true"))
-            symbol[symbols].flags |= SPICE_IGNORE_INST;
-       else symbol[symbols].flags &= ~SPICE_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"verilog_ignore",0), "true"))
-            symbol[symbols].flags |= VERILOG_IGNORE_INST;
-       else symbol[symbols].flags &= ~VERILOG_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"vhdl_ignore",0), "true"))
-            symbol[symbols].flags |= VHDL_IGNORE_INST;
-       else symbol[symbols].flags &= ~VHDL_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"tedax_ignore",0), "true"))
-            symbol[symbols].flags |= TEDAX_IGNORE_INST;
-       else symbol[symbols].flags &= ~TEDAX_IGNORE_INST;
+       set_sym_flags(& symbol[symbols]);
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);
@@ -3342,32 +3294,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      if (level==0 && !symbol[symbols].prop_ptr) {
        load_ascii_string(&symbol[symbols].prop_ptr, lcc[level].fd);
        if(!symbol[symbols].prop_ptr) break;
-       my_strdup2(_ALLOC_ID_, &symbol[symbols].templ,
-                  get_tok_value(symbol[symbols].prop_ptr, "template", 0));
-       my_strdup2(_ALLOC_ID_, &symbol[symbols].type,
-                  get_tok_value(symbol[symbols].prop_ptr, "type",0));
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"highlight",0), "true"))
-         symbol[symbols].flags |= HILIGHT_CONN;
-       else symbol[symbols].flags &= ~HILIGHT_CONN;
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"hide",0), "true"))
-         symbol[symbols].flags |= HIDE_INST;
-       else symbol[symbols].flags &= ~HIDE_INST;
-
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"spice_ignore",0), "true"))
-            symbol[symbols].flags |= SPICE_IGNORE_INST;
-       else symbol[symbols].flags &= ~SPICE_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"verilog_ignore",0), "true"))
-            symbol[symbols].flags |= VERILOG_IGNORE_INST;
-       else symbol[symbols].flags &= ~VERILOG_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"vhdl_ignore",0), "true"))
-            symbol[symbols].flags |= VHDL_IGNORE_INST;
-       else symbol[symbols].flags &= ~VHDL_IGNORE_INST;
-  
-       if(!strcmp(get_tok_value(symbol[symbols].prop_ptr,"tedax_ignore",0), "true"))
-            symbol[symbols].flags |= TEDAX_IGNORE_INST;
-       else symbol[symbols].flags &= ~TEDAX_IGNORE_INST;
+       set_sym_flags(& symbol[symbols]);
      }
      else {
        load_ascii_string(&aux_ptr, lcc[level].fd);

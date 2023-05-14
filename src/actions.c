@@ -91,6 +91,36 @@ int there_are_floaters(void)
   return floaters;
 }
 
+const char *get_text_floater(int i)
+{
+  const char *txt_ptr =  xctx->text[i].txt_ptr;
+  if(xctx->text[i].flags & TEXT_FLOATER) {
+    int inst = -1;
+    const char *instname;
+
+    if(!xctx->floater_inst_table.table) {
+      floater_hash_all_names();
+    }
+      
+    if(xctx->text[i].floater_instname) 
+      instname = xctx->text[i].floater_instname;
+    else
+      instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
+    inst = get_instance(instname);
+    if(inst >= 0) {
+      if(xctx->text[i].floater_ptr) {
+        txt_ptr = xctx->text[i].floater_ptr;
+      } else {
+        /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
+        my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
+        txt_ptr = xctx->text[i].floater_ptr;
+      }
+      dbg(1, "floater: %s\n",txt_ptr);
+    }
+  }
+  return txt_ptr;
+} 
+
 /* mod=-1 used to force set title 
  * mod=-2 used to reset floaters cache 
  * if floaters are present set_modify(1) (after a modify opration) must be done before draw()
@@ -108,13 +138,8 @@ void set_modify(int mod)
     if(xctx->text[i].flags & TEXT_FLOATER) {
       floaters++;
       my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
-      my_free(_ALLOC_ID_, &xctx->text[i].floater_instname); /* clear floater cached value */
     }
-    if(floaters) {
-      floater_hash_all_names();
-    } else {
-      int_hash_free(&xctx->floater_inst_table);
-    }
+    int_hash_free(&xctx->floater_inst_table);
   }
   if(mod != -2 && (mod == -1 || mod != xctx->prev_set_modify) ) { /* mod=-1 used to force set title */
     if(mod != -1) xctx->prev_set_modify = mod;
@@ -619,7 +644,6 @@ void remove_symbols(void)
   dbg(1, "remove_symbols(): done\n");
 }
 
-
 /* set cached rect .flags bitmask based on attributes, currently:
  * graph              1
  * graph_unlocked     1 + 2
@@ -641,38 +665,63 @@ int set_rect_flags(xRect *r)
   dbg(1, "set_rect_flags(): flags=%d\n", f);
   return f;
 }
-
-const char *get_text_floater(int i)
+int set_sym_flags(xSymbol *sym)
 {
-  const char *txt_ptr =  xctx->text[i].txt_ptr;
-  Int_hashentry *entry;
-  if(xctx->text[i].flags & TEXT_FLOATER) {
-    int inst = -1;
-    const char *instname;
-    
-    if(xctx->text[i].floater_instname) 
-      instname = xctx->text[i].floater_instname;
-    else
-      instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
-    if(xctx->floater_inst_table.table) {
-      entry = int_hash_lookup(&xctx->floater_inst_table, instname, 0, XLOOKUP);
-      inst = entry ? entry->value : -1;
-    } else {
-      inst = get_instance(instname);
-    }
-    if(inst >= 0) {
-      if(xctx->text[i].floater_ptr) {
-        txt_ptr = xctx->text[i].floater_ptr;
-      } else {
-        /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
-        my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
-        txt_ptr = xctx->text[i].floater_ptr;
-      }
-      dbg(1, "floater: %s\n",txt_ptr);
-    }
-  }
-  return txt_ptr;
-} 
+  sym->flags = 0;
+  my_strdup2(_ALLOC_ID_, &sym->templ,
+             get_tok_value(sym->prop_ptr, "template", 0));
+
+  my_strdup2(_ALLOC_ID_, &sym->type,
+             get_tok_value(sym->prop_ptr, "type",0));
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"highlight",0), "true"))
+    sym->flags |= HILIGHT_CONN;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"hide",0), "true"))
+    sym->flags |= HIDE_INST;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"spice_ignore",0), "true"))
+       sym->flags |= SPICE_IGNORE_INST;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"verilog_ignore",0), "true"))
+       sym->flags |= VERILOG_IGNORE_INST;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"vhdl_ignore",0), "true"))
+       sym->flags |= VHDL_IGNORE_INST;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"tedax_ignore",0), "true"))
+       sym->flags |= TEDAX_IGNORE_INST;
+
+  return 0;
+}
+
+int set_inst_flags(xInstance *inst)
+{
+  inst->flags=0;
+  inst->instname=NULL;
+  my_strdup2(_ALLOC_ID_, &inst->instname, get_tok_value(inst->prop_ptr, "name", 0));
+   
+  if(!strcmp(get_tok_value(inst->prop_ptr,"hide",0), "true"))
+    inst->flags |= HIDE_INST;
+              
+  if(!strcmp(get_tok_value(inst->prop_ptr,"spice_ignore",0), "true"))
+    inst->flags |= SPICE_IGNORE_INST;
+  if(!strcmp(get_tok_value(inst->prop_ptr,"verilog_ignore",0), "true"))
+    inst->flags |= VERILOG_IGNORE_INST;
+  if(!strcmp(get_tok_value(inst->prop_ptr,"vhdl_ignore",0), "true"))
+    inst->flags |= VHDL_IGNORE_INST;
+  if(!strcmp(get_tok_value(inst->prop_ptr,"tedax_ignore",0), "true"))
+    inst->flags |= TEDAX_IGNORE_INST;
+        
+  if(!strcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
+    inst->flags |= HIDE_SYMBOL_TEXTS;
+   
+  if(!strcmp(get_tok_value(inst->prop_ptr,"highlight",0), "true"))
+    inst->flags |= HILIGHT_CONN;
+
+  inst->embed = !strcmp(get_tok_value(inst->prop_ptr, "embed", 2), "true");
+  return 0;
+}
 
 int set_text_flags(xText *t)
 {
@@ -1143,7 +1192,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   dbg(1, "place_symbol(): checked inst_ptr storage, sym number i=%d\n", i);
   xctx->inst[n].ptr = i;
   xctx->inst[n].name=NULL;
-  xctx->inst[n].instname=NULL;
   xctx->inst[n].lab=NULL;
   dbg(1, "place_symbol(): entering my_strdup: name=%s\n",name);  /*  03-02-2000 */
   my_strdup2(_ALLOC_ID_, &xctx->inst[n].name ,name);
@@ -1170,27 +1218,13 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"spice_ignore",0), "true"))
-    xctx->inst[n].flags |= SPICE_IGNORE_INST;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"verilog_ignore",0), "true"))
-    xctx->inst[n].flags |= VERILOG_IGNORE_INST;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"vhdl_ignore",0), "true"))
-    xctx->inst[n].flags |= VHDL_IGNORE_INST;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"tedax_ignore",0), "true"))
-    xctx->inst[n].flags |= TEDAX_IGNORE_INST;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"hide",0), "true"))
-    xctx->inst[n].flags |= HIDE_INST;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"highlight",0), "true"))
-    xctx->inst[n].flags |= HILIGHT_CONN;
-  if(!strcmp(get_tok_value(xctx->inst[n].prop_ptr,"hide_texts",0), "true"))
-    xctx->inst[n].flags |= HIDE_SYMBOL_TEXTS;
+  set_inst_flags(&xctx->inst[n]);
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= type && IS_LABEL_SH_OR_PIN(type);
   if(cond) {
     xctx->inst[n].flags |= PIN_OR_LABEL;
     my_strdup(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
   }
-  xctx->inst[n].embed = !strcmp(get_tok_value(xctx->inst[n].prop_ptr, "embed", 2), "true");
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   xctx->instances++; /* must be updated before calling symbol_bbox() */
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
@@ -1857,12 +1891,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
    updatebbox(count,boundbox,&rect);
  }
  if(has_x && selected != 2) {
-   if(xctx->floater_inst_table.table == NULL) {
-     if(there_are_floaters()) {
-       floater_hash_all_names();
-     }
-   }
-
    for(i=0;i<xctx->texts; ++i)
    { 
      int no_of_lines; 

@@ -151,6 +151,7 @@ void check_unique_names(int rename)
     if( (xctx->inst[i].color != -10000) && rename) {
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
       new_prop_string(i, tmp, newpropcnt++, 0);
+      my_strdup(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
       int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
@@ -694,7 +695,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(old_prop==NULL)
  {
   my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
   return;
  }
  old_name_len = my_strdup(_ALLOC_ID_, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
@@ -704,7 +704,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  if(old_name==NULL)
  {
   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
   my_free(_ALLOC_ID_, &up_old_name);
   return;
  }
@@ -715,7 +714,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
      entry->value == i)
  {
   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
-  my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, old_name);
   int_hash_lookup(&xctx->inst_table, up_old_name, i, XINSERT);
   my_free(_ALLOC_ID_, &old_name);
   my_free(_ALLOC_ID_, &up_old_name);
@@ -745,7 +743,6 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  tmp2 = subst_token(old_prop, "name", new_name);
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, tmp2);
-   my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, new_name);
    int_hash_lookup(&xctx->inst_table, up_new_name, i, XINSERT); /* reinsert in hash */
  }
  my_free(_ALLOC_ID_, &old_name);

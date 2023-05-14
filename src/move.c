@@ -913,6 +913,7 @@ void copy_objects(int what)
         xctx->text[xctx->texts].floater_ptr=NULL;
         my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
         my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
+        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].floater_instname, xctx->text[n].floater_instname);
         set_text_flags(&xctx->text[xctx->texts]);
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
@@ -967,10 +968,6 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].name=NULL;
         my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
         my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
-        /* 
-         * my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, get_tok_value(xctx->inst[n].prop_ptr, "name",0));
-         */
-        xctx->inst[xctx->instances].instname = NULL; /* will be set in new_prop_string() */
         my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
         xctx->inst[xctx->instances].embed = xctx->inst[n].embed;
@@ -987,6 +984,8 @@ void copy_objects(int what)
         if(!newpropcnt) hash_all_names();
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, 
           tclgetboolvar("disable_unique_names"));
+        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, 
+            get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
         /* this is needed since no find_inst_to_be_redrawn() is executed if floaters are present */
         if(floaters) symbol_bbox(xctx->instances,
              &xctx->inst[xctx->instances].x1, &xctx->inst[xctx->instances].y1,

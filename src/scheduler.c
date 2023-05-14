@@ -59,19 +59,26 @@ static int get_symbol(const char *s)
 int get_instance(const char *s)
 {
   int i, found=0;
-  for(i=0;i<xctx->instances; ++i) {
-    if(!strcmp(xctx->inst[i].instname, s)) {
-      found=1;
-      break;
+  Int_hashentry *entry;
+
+  if(xctx->floater_inst_table.table) {
+    entry = int_hash_lookup(&xctx->floater_inst_table, s, 0, XLOOKUP);
+    i = entry ? entry->value : -1;
+  } else {
+    for(i=0;i<xctx->instances; ++i) {
+      if(!strcmp(xctx->inst[i].instname, s)) {
+        found=1;
+        break;
+      }
     }
-  }
-  dbg(1, "get_instance(): found=%d, i=%d\n", found, i);
-  if(!found) {
-    if(!isonlydigit(s)) return -1;
-    i=atoi(s);
-  }
-  if(i<0 || i>xctx->instances) {
-    return -1;
+    dbg(1, "get_instance(): found=%d, i=%d\n", found, i);
+    if(!found) {
+      if(!isonlydigit(s)) return -1;
+      i=atoi(s);
+    }
+    if(i<0 || i>xctx->instances) {
+      return -1;
+    }
   }
   return i;
 }
@@ -2858,7 +2865,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
         my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
-        dbg(0, "bbox1: %g %g %g %g\n", xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+        dbg(0, "bbox1: %g %g %g %g\n", 
+            xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {
@@ -2867,8 +2875,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           hash_all_names();
           new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-          type=xctx->sym[xctx->inst[inst].ptr].type;
+          my_strdup(_ALLOC_ID_, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name", 0));
 
+          type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= type && IS_LABEL_SH_OR_PIN(type);
           if(cond) {
             xctx->inst[inst].flags |= PIN_OR_LABEL;
@@ -3338,6 +3347,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             new_prop_string(inst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL),fast, 
               tclgetboolvar("disable_unique_names"));
           }
+          set_inst_flags(&xctx->inst[inst]);
+
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= type && IS_LABEL_SH_OR_PIN(type);
           if(cond) {
@@ -3346,35 +3357,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
 
-          if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"highlight",0), "true"))
-                xctx->inst[inst].flags |= HILIGHT_CONN;
-          else  xctx->inst[inst].flags &= ~HILIGHT_CONN;
-
-          if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"hide",0), "true"))
-                xctx->inst[inst].flags |= HIDE_INST;
-          else  xctx->inst[inst].flags &= ~HIDE_INST;
-
-         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"spice_ignore",0), "true"))
-              xctx->inst[inst].flags |= SPICE_IGNORE_INST;
-         else xctx->inst[inst].flags &= ~SPICE_IGNORE_INST;
-     
-         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"verilog_ignore",0), "true"))
-              xctx->inst[inst].flags |= VERILOG_IGNORE_INST;
-         else xctx->inst[inst].flags &= ~VERILOG_IGNORE_INST;
-     
-         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"vhdl_ignore",0), "true"))
-              xctx->inst[inst].flags |= VHDL_IGNORE_INST;
-         else xctx->inst[inst].flags &= ~VHDL_IGNORE_INST;
-     
-         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"tedax_ignore",0), "true"))
-              xctx->inst[inst].flags |= TEDAX_IGNORE_INST;
-         else xctx->inst[inst].flags &= ~TEDAX_IGNORE_INST;
-
-         if(!strcmp(get_tok_value(xctx->inst[inst].prop_ptr,"hide_texts",0), "true"))
-              xctx->inst[inst].flags |= HIDE_SYMBOL_TEXTS;
-         else xctx->inst[inst].flags &= ~HIDE_SYMBOL_TEXTS;
-
-          xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           set_modify(1);
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
@@ -3728,23 +3710,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           } else {
             my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
           }
-
-          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"spice_ignore",0), "true"))
-               xctx->inst[i].flags |= SPICE_IGNORE_INST;
-          else xctx->inst[i].flags &= ~SPICE_IGNORE_INST;
-
-          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"verilog_ignore",0), "true"))
-               xctx->inst[i].flags |= VERILOG_IGNORE_INST;
-          else xctx->inst[i].flags &= ~VERILOG_IGNORE_INST;
-
-          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"vhdl_ignore",0), "true"))
-               xctx->inst[i].flags |= VHDL_IGNORE_INST;
-          else xctx->inst[i].flags &= ~VHDL_IGNORE_INST;
-
-          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr,"tedax_ignore",0), "true"))
-               xctx->inst[i].flags |= TEDAX_IGNORE_INST;
-          else xctx->inst[i].flags &= ~TEDAX_IGNORE_INST;
-
+          set_inst_flags(&xctx->inst[i]);
           set_modify(1);
         }
       }
