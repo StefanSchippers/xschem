@@ -1174,6 +1174,7 @@ static int edit_text_property(int x)
       /* dbg(1, "edit_property(): text props=%s text=%s\n", tclgetvar("props"), tclgetvar("retval")); */
       if(text_changed) {
         double cg;
+        my_free(_ALLOC_ID_, &xctx->text[sel].floater_ptr);
         cg = tclgetdoublevar("cadgrid");
         c = xctx->rects[PINLAYER];
         for(l=0;l<c; ++l) {
@@ -1244,7 +1245,7 @@ static int edit_text_property(int x)
       #endif
 
       bbox(ADD, xx1, yy1, xx2, yy2 );
-    }
+    } /* for(k=0;k<xctx->lastsel; ++k) */
     bbox(SET,0.0,0.0,0.0,0.0);
     draw();
     bbox(END,0.0,0.0,0.0,0.0);
