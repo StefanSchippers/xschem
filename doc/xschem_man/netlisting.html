@@ -25,12 +25,28 @@ p{padding: 15px  30px 10px;}
   <kbd>VHDL</kbd>. Netlisting mode can be set in the <kbd>Options</kbd> menu
   (<kbd>Vhdl</kbd>, <kbd>Verilog</kbd> <kbd>Spice</kbd> radio buttons)
   or with the <kbd>&lt;Shift&gt;V</kbd> key. Once a netlist mode is set, hitting the
-  <kbd>Netlist</kbd> button on the top-right of the menu bar or the <kbd>&lt;Shift&gt;N</kbd>
-  key will produce the netlist file in the defined simulation directory.
+  <kbd>Netlist</kbd> button on the top-right of the menu bar or the <kbd>n</kbd>
+  key will produce the netlist file in the defined simulation directory.<br>
   The simulation directory is one important path that is specified in the <kbd>xschemrc</kbd>
-  file, if no one is defined XSCHEM will prompt for a directory.
+  file with the tcl variable <kbd>netlist_dir</kbd> (default if unset is <kbd>~/.xschem/simulations</kbd>)
+  if <kbd>netlist_dir</kbd> is set to empty value (<kbd>set netlist_dir {}</kbd>) 
+  xschem will prompt user the first time the netlist is created.<br>
   The path where netlists are produced can be changed with the
-  <kbd>Simulation-&gt;Set netlist dir</kbd> menu entry.
+  <kbd>Simulation-&gt;Set netlist dir</kbd> menu entry or simply by changing the
+  <kbd>netlist_dir</kbd> variable, either 
+  in the xschemrc file or interactively by giving tcl commands.<br>
+
+
+  If you use xschem interactively by giving tcl commands you may do something like:<br>
+
+  <kbd>set netlist_dir [xschem get current_dirname]/spice; xschem netlist</kbd><br>
+
+  to have the netlist saved into a <kbd>spice/</kbd> folder into the directory containing the current
+  schematic (this directory is not necessarily the current directory, like 'pwd').
+
+  There is also a <kbd>local_netlist_dir</kbd> variable. If this variable is set to 1
+  (default setting if unspecified is 0) instead of using <kbd>~/.xschem/simulations</kbd>
+  the netlist will be saved in <kbd>(directory of current schematic)/simulation</kbd>
   The netlist filename is <kbd>cellname.ext</kbd> where <kbd>cellname</kbd> is the name of the 
   top-level schematic from which the netlist has been generated, and <kbd>ext</kbd> is the
   file extension:</p>

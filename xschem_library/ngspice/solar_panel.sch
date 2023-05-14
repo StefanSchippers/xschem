@@ -177,20 +177,14 @@ T {set between 0 and 1
 to simulate
 sun radiation
 level} 10 -440 0 0 0.2 0.2 {}
-T {@name} 875 -698.75 0 0 0.3 0.3 {floater=L2
-layer=7}
-T {@value} 875 -673.75 0 0 0.3 0.3 {floater=L2
-layer=7}
-T {m=@m} 875 -648.75 0 0 0.3 0.3 {floater=L2
-layer=7}
+T {@name} 875 -698.75 0 0 0.3 0.3 {layer=7 name=L2}
+T {@value} 875 -673.75 0 0 0.3 0.3 {layer=7 name=L2}
+T {m=@m} 875 -648.75 0 0 0.3 0.3 {layer=7 name=L2}
 T {Floater text
 example} 850 -820 0 0 0.4 0.4 {}
-T {@name} 985 -308.75 0 1 0.3 0.3 {floater=C1
-layer=7}
-T {@value} 985 -286.25 0 1 0.3 0.3 {floater=C1
-layer=7}
-T {m=@m} 985 -263.75 0 1 0.3 0.3 {floater=C1
-layer=7}
+T {@name} 985 -308.75 0 1 0.3 0.3 {layer=7 name=C1}
+T {@value} 985 -286.25 0 1 0.3 0.3 {layer=7 name=C1}
+T {m=@m} 985 -263.75 0 1 0.3 0.3 {layer=7 name=C1}
 T {Floater text
 example} 870 -440 0 0 0.4 0.4 {}
 N 1010 -210 1100 -210 {lab=0}

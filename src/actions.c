@@ -105,7 +105,7 @@ const char *get_text_floater(int i)
     if(xctx->text[i].floater_instname) 
       instname = xctx->text[i].floater_instname;
     else
-      instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
+      instname = get_tok_value(xctx->text[i].prop_ptr, "name", 0);
     inst = get_instance(instname);
     if(inst >= 0) {
       if(xctx->text[i].floater_ptr) {
@@ -744,9 +744,9 @@ int set_text_flags(xText *t)
     t->flags |= strcmp(str, "bold")  ? 0 : TEXT_BOLD;
     str = get_tok_value(t->prop_ptr, "hide", 0);
     t->flags |= strcmp(str, "true")  ? 0 : HIDE_TEXT;
-    str = get_tok_value(t->prop_ptr, "floater", 0);
+    str = get_tok_value(t->prop_ptr, "name", 0);
     t->flags |= xctx->tok_size ? TEXT_FLOATER : 0;
-    my_strdup2(_ALLOC_ID_, &t->floater_instname, get_tok_value(t->prop_ptr, "floater", 0));
+    my_strdup2(_ALLOC_ID_, &t->floater_instname, str);
   }
   return 0;
 }

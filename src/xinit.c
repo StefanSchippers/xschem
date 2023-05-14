@@ -2415,11 +2415,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* set tcl netlist_dir if netlist_dir given on cmdline */
  if(cli_opt_netlist_dir[0]) tclsetvar("netlist_dir", cli_opt_netlist_dir);
 
- if(!set_netlist_dir(0, NULL)) {
-   const char *n;
-   n = tclgetvar("netlist_dir");
-   fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
- }
+ /* 
+  * if(!set_netlist_dir(0, NULL)) {
+  *   const char *n;
+  *   n = tclgetvar("netlist_dir");
+  *   fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
+  * }
+  */
  if(cli_opt_initial_netlist_name[0]) my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
 
  enable_layers();
