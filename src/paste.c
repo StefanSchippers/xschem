@@ -268,6 +268,7 @@ static void merge_inst(int k,FILE *fd)
     xctx->inst[i].sel=0;
     xctx->inst[i].color=-10000;
     xctx->inst[i].ptr=-1;
+    xctx->inst[i].instname=NULL;
     xctx->inst[i].prop_ptr=NULL;
     xctx->inst[i].lab=NULL;  /* assigned in link_symbols_to_instances */
     xctx->inst[i].node=NULL;

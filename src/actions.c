@@ -698,7 +698,6 @@ int set_sym_flags(xSymbol *sym)
 int set_inst_flags(xInstance *inst)
 {
   inst->flags=0;
-  inst->instname=NULL;
   my_strdup2(_ALLOC_ID_, &inst->instname, get_tok_value(inst->prop_ptr, "name", 0));
    
   if(!strcmp(get_tok_value(inst->prop_ptr,"hide",0), "true"))
@@ -1208,6 +1207,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].sel=0;
   xctx->inst[n].node=NULL;
   xctx->inst[n].prop_ptr=NULL;
+  xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
   if(first_call) hash_all_names();
   if(inst_props) {
