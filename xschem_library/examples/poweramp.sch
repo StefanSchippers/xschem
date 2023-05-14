@@ -96,6 +96,10 @@ T {actual value
 200} 860 -1280 0 0 0.4 0.4 {}
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
+T {@spice_get_voltage} 761.875 -786.09375 0 0 1 1 {layer=15
+floater=p9}
+T {@spice_get_voltage} 761.875 -206.09375 0 0 1 1 {layer=15
+floater=p14}
 N 70 -1220 70 -1200 {lab=#net1}
 N 70 -1080 70 -1060 {lab=#net2}
 N 300 -1140 310 -1140 {lab=VSS}
@@ -241,7 +245,7 @@ C {lab_pin.sym} 870 -1200 0 0 {name=p27 lab=IN_INT}
 C {ammeter.sym} 210 -1220 3 0 {name=vcurrvpp  net_name=true       }
 C {ammeter.sym} 210 -1060 3 0 {name=vcurrvnn  net_name=true       }
 C {ammeter.sym} 210 -1140 3 0 {name=vcurrvss  net_name=true       }
-C {launcher.sym} 780 -120 0 0 {name=h2
+C {launcher.sym} 710 -70 0 0 {name=h2
 descr="Ctrl-Click
 Clear all probes" 
 tclcommand="
@@ -280,7 +284,7 @@ C {ngspice_get_expr.sym} 830 -480 2 0 {name=r29
 node="[format %.4g [expr \{([ngspice::get_voltage outm] - [ngspice::get_voltage outp]) * [ngspice::get_current \{r1[i]\}]\}]] "
 descr = power
 }
-C {launcher.sym} 780 -190 0 0 {name=h3
+C {launcher.sym} 710 -120 0 0 {name=h3
 descr="Load file into gaw" 
 comment="
   This launcher gets raw filename from current schematic using 'xschem get schname'

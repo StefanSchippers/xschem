@@ -354,6 +354,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_cursor2_x = G_X(xctx->mousex);
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
+          if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
         }
         else  need_redraw = 1;
@@ -397,6 +398,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* backannotate node values at cursor b position */
       else if(key == 'a' && state == Mod1Mask  && (xctx->graph_flags & 4)) {
         backannotate_at_cursor_b_pos(r, gr);
+        if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
         redraw_all_at_end = 1;
       }
       /* x cursor1 toggle */
@@ -412,6 +414,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_cursor2_x = G_X(xctx->mousex);
           if(tclgetboolvar("live_cursor2_backannotate")) {
             backannotate_at_cursor_b_pos(r, gr);
+            if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
             redraw_all_at_end = 1;
           } else {
             need_all_redraw = 1;
@@ -662,6 +665,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
             if(i == xctx->graph_master) backannotate_at_cursor_b_pos(r, gr);
+            if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
             redraw_all_at_end = 1;
           } else {
             need_redraw = 1;
