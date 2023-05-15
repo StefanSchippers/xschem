@@ -1254,7 +1254,7 @@ static int edit_text_property(int x)
 }
 
 /* x=0 use text widget   x=1 use vim editor */
-static int update_symbol(const char *result, int x)
+static int update_symbol(const char *result, int x, int first_sel)
 {
   int k, sym_number;
   int no_change_props=0;
@@ -1272,7 +1272,7 @@ static int update_symbol(const char *result, int x)
 
   floaters = there_are_floaters();
   dbg(1, "update_symbol(): entering\n");
-  *ii=xctx->sel_array[0].n;
+  *ii=xctx->sel_array[first_sel].n;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
    my_free(_ALLOC_ID_, &xctx->old_prop);
@@ -1310,7 +1310,7 @@ static int update_symbol(const char *result, int x)
   }
   for(k=0;k<xctx->lastsel; ++k) {
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
-    if(xctx->sel_array[k].type!=ELEMENT) continue;
+    if(xctx->sel_array[k].type != ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
     old_prefix=(get_tok_value((xctx->sym + xctx->inst[*ii].ptr)->templ, "name",0))[0];
     /* 20171220 calculate bbox before changes to correctly redraw areas */
@@ -1404,6 +1404,7 @@ static int update_symbol(const char *result, int x)
     else xctx->inst[*ii].flags &= ~PIN_OR_LABEL;
 
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
+
   if(pushed) modified = 1;
   /* new symbol bbox after prop changes (may change due to text length) */
   if(modified) {
@@ -1432,14 +1433,14 @@ static int update_symbol(const char *result, int x)
 }
 
 /* x=0 use text widget   x=1 use vim editor */
-static int edit_symbol_property(int x)
+static int edit_symbol_property(int x, int first_sel)
 {
    char *result=NULL;
    int *ii = &xctx->edit_sym_i; /* static var */
    int *netl_com = &xctx->netlist_commands; /* static var */
    int modified = 0;
 
-   *ii=xctx->sel_array[0].n;
+   *ii=xctx->sel_array[first_sel].n;
    *netl_com = 0;
    if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
      *netl_com = 
@@ -1471,7 +1472,7 @@ static int edit_symbol_property(int x)
      my_strdup(_ALLOC_ID_, &result, tclresult());
    }
    dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
-   modified = update_symbol(result, x);
+   modified = update_symbol(result, x, first_sel);
    my_free(_ALLOC_ID_, &result);
    dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", modified);
    *ii=-1;
@@ -1537,7 +1538,7 @@ void change_elem_order(void)
     if(modified) set_modify(1);
   }
 }
-
+/* replace substring 'rep' in 'str' with 'with', if 'rep' not preceeded by an 'escape' char */
 char *str_replace(const char *str, const char *rep, const char *with, int escape)
 {
   static char *result = NULL;
@@ -1598,7 +1599,7 @@ char *str_chars_replace(const char *str, const char *replace_set, const char wit
 /* x=0 use tcl text widget  x=1 use vim editor  x=2 only view data */
 void edit_property(int x)
 {
- int j, modified = 0;
+ int type, j, modified = 0;
 
  if(!has_x) return;
  rebuild_selected_array(); /* from the .sel field in objects build */
@@ -1712,16 +1713,33 @@ void edit_property(int x)
    tclsetvar("preserve_unchanged_attrs", "0");
  }
 
- switch(xctx->sel_array[0].type)
+ type = xctx->sel_array[0].type;
+ for(j=0; j < xctx->lastsel; j++) {
+   if(xctx->sel_array[j].type == ELEMENT) {
+     type = ELEMENT;
+     break;
+   }
+ }
+
+ switch(type)
  {
   case ELEMENT:
-   modified |= edit_symbol_property(x);
+   modified |= edit_symbol_property(x, j);
    while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1' ) {
      unselect_all(1);
      select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      rebuild_selected_array();
-     if(xctx->lastsel && xctx->sel_array[0].type ==ELEMENT) {
-       modified |= edit_symbol_property(0);
+
+     type = xctx->sel_array[0].type;
+     for(j=0; j < xctx->lastsel; j++) {
+       if(xctx->sel_array[j].type == ELEMENT) {
+         type = ELEMENT;
+         break;
+       }
+     }
+
+     if(xctx->lastsel && type == ELEMENT) {
+       modified |= edit_symbol_property(0, j);
      } else {
        break;
      }
