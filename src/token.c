@@ -195,7 +195,7 @@ int is_generator(const char *name)
   #else
   if (!name) return 0;
   char cmd[PATH_MAX+100];
-  my_snprintf(cmd, S(cmd), "my_regexp {%s} {%s} [list %s]", "-nocase", "^[^ \\t()]+\\([^()]*\\)[ \\t]*$", name);
+  my_snprintf(cmd, S(cmd), "regexp {%s} {%s} [list %s]", "-nocase", "^[^ \\t()]+\\([^()]*\\)[ \\t]*$", name);
   tcleval(cmd);
   int ret = atoi(tclresult());
   if (ret > 0)

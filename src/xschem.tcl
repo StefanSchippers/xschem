@@ -6405,13 +6405,6 @@ proc setup_tcp_xschem {} {
   return 1
 }
 
-proc my_regexp {options pattern name} {
-  if { [regexp $options $pattern $name] } {
-    return 1
-  } 
-  return 0
-}
-
 proc setup_tcp_bespice {} {
   global bespice_listen_port bespice_server_getdata
   if { [info exists bespice_listen_port] && ($bespice_listen_port ne {}) } { 

@@ -664,8 +664,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
           }
           if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
-            if(i == xctx->graph_master) backannotate_at_cursor_b_pos(r, gr);
-            if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+            if(i == xctx->graph_master) {
+              backannotate_at_cursor_b_pos(r, gr);
+              if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+            }
             redraw_all_at_end = 1;
           } else {
             need_redraw = 1;
