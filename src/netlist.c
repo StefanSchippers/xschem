@@ -1344,6 +1344,16 @@ int sym_vs_sch_pins()
                 break;
               }
               load_ascii_string(&tmp,fd);
+
+              /* generators or names with @ characters in general need translate() to process
+               * arguments. This can not be done in this context (the current schematic we are looking
+               * into is not loaded), so skip test */
+              if( strchr(name, '@')) {
+                dbg(1, "sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n", 
+                   name);
+                break;
+              }
+
               symbol = match_symbol(name);
               my_strdup(_ALLOC_ID_, &type, xctx->sym[symbol].type);
               if(type && IS_PIN(type)) {
