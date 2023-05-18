@@ -6471,7 +6471,7 @@ set_ne myload_globfilter {*}
 set_ne component_browser_on_top 1
 ## list of tcl procedures to load at end of xschem.tcl
 set_ne tcl_files {}
-set_ne download_url_helper {curl -f -s -O}
+set_ne download_url_helper {curl -f -s -O -J}
 set_ne netlist_dir "$USER_CONF_DIR/simulations"
 # this global exists only for netlist_type radiobuttons, don't use, use [xschem] subcommand to get/set values
 # it is also used in xschemrc to set initial netlist type.

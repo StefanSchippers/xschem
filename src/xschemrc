@@ -367,9 +367,9 @@
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
 ###########################################################################
-#### used to download files from web: default: {curl -f -s -O}
-# set download_url_helper {curl -f -s -O}
-# set download_url_helper {wget -N --quiet}
+#### used to download files from web: default: {curl -f -s -O -J}
+# set download_url_helper {curl -f -s -O -J}
+# set download_url_helper {wget -N --quiet --content-disposition}
 
 ###########################################################################
 #### XSCHEM TOOLBAR
