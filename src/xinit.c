@@ -2440,8 +2440,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     char f[PATH_MAX];
 
    #ifdef __unix__
-   if(strstr(cli_opt_filename, "http://") == cli_opt_filename ||
-      strstr(cli_opt_filename, "https://") == cli_opt_filename) {
+   if(is_from_web(cli_opt_filename)) {
      my_snprintf(f, S(f), "%s", cli_opt_filename);
    } else if(cli_opt_filename[0] == '~' && cli_opt_filename[1] == '/') {
      my_snprintf(f, S(f), "%s%s", home_dir, cli_opt_filename + 1);

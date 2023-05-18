@@ -2434,8 +2434,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     my_strncpy(name, fname, S(name));
     dbg(1, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
-    if(strstr(fname , "http://") == fname ||
-       strstr(fname , "https://") == fname) {
+    if(is_from_web(fname)) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
       tclvareval("download_url {", fname, "}", NULL);
       /* build local file name of downloaded object */
@@ -2449,8 +2448,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
 
     /* local filename specified but coming (push, pop) from web object ... */
-    } else if((strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-               strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+    } else if(is_from_web(xctx->current_dirname)) {
       /* ... but not local file from web download --> reset current_dirname */
       char sympath[PATH_MAX];
       my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
@@ -3105,6 +3103,22 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
   }
 }
 
+/* return 1 if http or https url
+ * return 2 if cached /tmp/xschem_web/... file/directory
+ * return 0 otherwise
+ */
+int is_from_web(const char *f)
+{
+  static char tmp[PATH_MAX] = "";
+  int res = 0;
+  if(!tmp[0]) my_snprintf(tmp, S(tmp), "%s/xschem_web", tclgetvar("XSCHEM_TMP_DIR"));
+  if(strstr(f, "http://") == f || strstr(f, "https://") == f) res = 1;
+  /* if(strstr(f, tmp) == f) res = 2; */
+  dbg(1, "is_from_web(%s) = %d\n", f, res);
+  return res;
+}
+
+
 /* load_sym_def(): load a symbol definition looking up 'name' in the search paths.
  * if 'embed_fd' FILE pointer is given read from there instead of searching 'name'
  * Global (or static global) variables used:
@@ -3192,8 +3206,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     }
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
       /* not found: try web URL */
-      if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-          strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+      if(is_from_web(xctx->current_dirname)) {
         my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
         if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
           /* not already cached in .../xschem_web/ so download */
@@ -4104,22 +4117,31 @@ void descend_symbol(void)
     load_schematic(1, name_embedded, 1, 1);
   } else {
     char *sympath = NULL;
+    char *current_dirname_save = NULL;
+    int web_url;
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
 
-    if( /* ... we are in a schematic downloaded from web ... */
-        (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-         strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
+    web_url = is_from_web(xctx->current_dirname);
+
+    /* ... we are in a schematic downloaded from web ... */
+    if(web_url) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
       my_mstrcat(_ALLOC_ID_, &sympath, tclgetvar("XSCHEM_TMP_DIR"),
                  "/xschem_web/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
+      my_strdup(_ALLOC_ID_, &current_dirname_save, xctx->current_dirname); /* save http url */
     }
-    if(stat(sympath, &buf)) { /* not found */
+    if(!sympath || stat(sympath, &buf)) { /* not found */
       dbg(1, "descend_symbol: not found: %s\n", sympath);
       my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
     }
     dbg(1, "descend_symbol(): name=%s, sympath=%s, dirname=%s\n", name, sympath, xctx->current_dirname);
     load_schematic(1, sympath, 1, 1);
+    if(web_url) {
+      /* restore web url current_dirname that is reset by load_schematic with local path */
+      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
+      my_free(_ALLOC_ID_, &current_dirname_save);
+    }
     my_free(_ALLOC_ID_, &sympath);
   }
   zoom_full(1, 0, 1, 0.97);

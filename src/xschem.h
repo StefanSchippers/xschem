@@ -1309,6 +1309,7 @@ extern int spice_block_netlist(FILE *fd, int i);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
+extern int is_from_web(const char *f);
 extern int load_sym_def(const char name[], FILE *embed_fd);
 extern void descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,

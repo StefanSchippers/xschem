@@ -1535,8 +1535,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   struct stat buf;
 
   /* get sch/sym name from parent schematic downloaded from web */
-  if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-      strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
+  if(is_from_web(xctx->current_dirname)) {
     web_url = 1;
   }
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d web_url=%d\n", sym->name, inst, web_url);
@@ -1583,8 +1582,11 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
       /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
       tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
     }
-    /* load it */
-    my_strncpy(filename, sympath, PATH_MAX);
+    if(stat(sympath, &buf)) { /* not found !!! build abs_sym_path to look into local fs and hope fror the best */
+      my_strncpy(filename, abs_sym_path(sym->name, ".sch"), PATH_MAX);
+    } else {
+      my_strncpy(filename, sympath, PATH_MAX);
+    }
   }
   my_free(_ALLOC_ID_, &str_tmp);
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
