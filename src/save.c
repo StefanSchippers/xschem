@@ -3194,8 +3194,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
       /* not found: try web URL */
       if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
           strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
-        tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
         my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+        if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
+          /* not already cached in .../xschem_web/ so download */
+          tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
+        }
         lcc[level].fd=fopen(sympath,fopen_read_mode);
       }
     }
@@ -4101,24 +4104,22 @@ void descend_symbol(void)
     load_schematic(1, name_embedded, 1, 1);
   } else {
     char *sympath = NULL;
-    my_strdup2(_ALLOC_ID_, &sympath, name);
-    my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(sympath), ""));
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
-    dbg(1, "name=%s, sympath=%s\n", name, sympath);
 
-    if( stat(sympath, &buf) && /* file does not exists ... */
-        /* ... and we are in a schematic downloaded from web ... */
+    if( /* ... we are in a schematic downloaded from web ... */
         (strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
          strstr(xctx->current_dirname, "https://") == xctx->current_dirname)) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
       my_mstrcat(_ALLOC_ID_, &sympath, tclgetvar("XSCHEM_TMP_DIR"),
-                 "/xschem_web/", get_cell_w_ext(name, 0), NULL);
-      load_schematic(1, sympath, 1, 1);
-    } else {
-      dbg(1, "descend_symbol(): sympath=%s\n", sympath);
-      load_schematic(1, sympath, 1, 1);
+                 "/xschem_web/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
     }
+    if(stat(sympath, &buf)) { /* not found */
+      dbg(1, "descend_symbol: not found: %s\n", sympath);
+      my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
+    }
+    dbg(1, "descend_symbol(): name=%s, sympath=%s, dirname=%s\n", name, sympath, xctx->current_dirname);
+    load_schematic(1, sympath, 1, 1);
     my_free(_ALLOC_ID_, &sympath);
   }
   zoom_full(1, 0, 1, 0.97);

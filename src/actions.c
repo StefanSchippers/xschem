@@ -1574,15 +1574,16 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   }
   if(sch) my_free(_ALLOC_ID_, &sch);
 
-  /* if( strstr(xctx->current_dirname, "http://") == xctx->current_dirname ||
-   *  strstr(xctx->current_dirname, "https://") == xctx->current_dirname) {
-   */
   if(web_url) {
     char sympath[PATH_MAX];
-    /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
-    tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
-    /* build local file name of downloaded object and load it */
+
+    /* build local cached filename of web_url */
     my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    if(stat(sympath, &buf)) { /* not found, download */
+      /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
+      tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
+    }
+    /* load it */
     my_strncpy(filename, sympath, PATH_MAX);
   }
   my_free(_ALLOC_ID_, &str_tmp);

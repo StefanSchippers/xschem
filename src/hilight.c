@@ -579,6 +579,20 @@ static int bus_search(const char*s)
  return bus;
 }
 
+#ifndef __unix__
+static int win_regexec(const char *options, const char *pattern, char *name) 
+{
+  if (options!=NULL)
+    tclvareval("regexp {", options,"} {", pattern, "} {", name, "}", NULL);
+  else
+    tclvareval("regexp {", pattern, "} {", name, "}", NULL);
+  int ret = atoi(tclresult());
+  if (ret > 0)
+      return 1;
+  return 0;
+}
+#endif
+
 /* sel: -1 --> unselect
  *       1 --> select
  *       0 --> highlight
@@ -649,7 +663,8 @@ int search(const char *tok, const char *val, int sub, int sel)
      if( (!sub && !regexec(&re, str,0 , NULL, 0) ) ||           /* 20071120 regex instead of strcmp */
          (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
      #else
-     if( !sub && (strstr(str,val) ) ||
+
+     if( (!sub && win_regexec(NULL, val, str)) ||
          (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
      #endif
      {
@@ -683,7 +698,9 @@ int search(const char *tok, const char *val, int sub, int sel)
      if(   (!regexec(&re, str,0 , NULL, 0) && !sub )  ||       /* 20071120 regex instead of strcmp */
            ( !strcmp(str, val) &&  sub ) )
      #else
-     if (!strcmp(str, val) && sub)
+       if(   (win_regexec(NULL, val, str) && !sub )  ||       /* 20071120 regex instead of strcmp */
+           ( !strcmp(str, val) &&  sub ) )
+
      #endif
      {
        if(!sel) {
@@ -712,7 +729,8 @@ int search(const char *tok, const char *val, int sub, int sel)
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
          ( !strcmp(str, val) &&  sub ))
      #else
-     if ((!strcmp(str, val) && sub))
+     if( (win_regexec(NULL, val, str) && !sub ) ||
+         ( !strcmp(str, val) &&  sub ))
      #endif
      {
        if(sel==1) {
@@ -738,7 +756,8 @@ int search(const char *tok, const char *val, int sub, int sel)
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
          ( !strcmp(str, val) &&  sub ))
      #else
-     if ((!strcmp(str, val) && sub))
+     if( (win_regexec(NULL, val, str) && !sub ) ||
+         ( !strcmp(str, val) &&  sub ))
      #endif
      {
          if(sel==1) {

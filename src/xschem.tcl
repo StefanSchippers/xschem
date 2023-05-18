@@ -3611,12 +3611,7 @@ proc property_search {} {
     button .dialog.but.cancel -text Cancel -command { set search_found 1; destroy .dialog }
     
     # Window doesn't support regular expression, has to be exact match for now
-    if {$OS == "Windows"} {
-      set search_exact 1 
-      checkbutton .dialog.but.sub -text Exact_search -variable search_exact -state disable
-    } else {
-      checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
-    }
+    checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
     radiobutton .dialog.but.nosel -text {Highlight} -variable search_select -value 0
     radiobutton .dialog.but.sel -text {Select} -variable search_select -value 1
     # 20171211 added unselect
@@ -6440,12 +6435,8 @@ if {$OS == "Windows"} {
 
 # Remove temporary location for web objects
 if {[file exists ${XSCHEM_TMP_DIR}/xschem_web] } {
-  foreach file [glob -nocomplain ${XSCHEM_TMP_DIR}/xschem_web/* ${XSCHEM_TMP_DIR}/xschem_web/.*] {
-    # skip /${XSCHEM_TMP_DIR}/xschem_web/.. and /${XSCHEM_TMP_DIR}/xschem_web/.
-    if {[regexp {/\.\.$} $file] || [regexp {/\.$} $file] } {continue}
-    file delete $file
-  } 
-  file delete ${XSCHEM_TMP_DIR}/xschem_web
+  # -force deletes also if not empty
+  file delete -force ${XSCHEM_TMP_DIR}/xschem_web
 }
 
 # used in C code
