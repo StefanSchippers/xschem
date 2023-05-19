@@ -2901,6 +2901,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* reset_flags
+     *   Reset cached instance and symbol cached flags (inst->flags, sym->flags) */
+    else if(!strcmp(argv[1], "reset_flags"))
+    {
+      int i;
+      for(i = 0; i < xctx->instances; i++) {
+        set_inst_flags(&xctx->inst[i]);
+      }
+      for(i = 0; i < xctx->symbols; i++) {
+        set_sym_flags(&xctx->sym[i]);
+      }
+      Tcl_ResetResult(interp);
+    }
+
     /* rotate
      *   Rotate selected objects around their centers */
     else if(!strcmp(argv[1], "rotate"))
