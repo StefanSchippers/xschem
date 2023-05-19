@@ -19,8 +19,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=-2.36168e-05
-x2=0.0109434
+x1=0.00562909
+x2=0.0165959
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -33,8 +33,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 58
 divy = 12
-x1=-2.36168e-05
-x2=0.0109434
+x1=0.00562909
+x2=0.0165959
 divx=10
 node="outp
 outm
@@ -49,8 +49,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 0
 y2 = 830
 divy = 6
-x1=-2.36168e-05
-x2=0.0109434
+x1=0.00562909
+x2=0.0165959
 divx=10
 
 
@@ -63,8 +63,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0
 y2 = 840
 divy = 6
-x1=-2.36168e-05
-x2=0.0109434
+x1=0.00562909
+x2=0.0165959
 divx=10
 
 
@@ -97,9 +97,9 @@ T {actual value
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
 T {@spice_get_voltage} 761.875 -786.09375 0 0 0.8 0.8 {layer=15
-floater=p9}
+xname=p9}
 T {@spice_get_voltage} 761.875 -206.09375 0 0 0.8 0.8 {layer=15
-floater=p14}
+name=p14}
 N 70 -1220 70 -1200 {lab=#net1}
 N 70 -1080 70 -1060 {lab=#net2}
 N 300 -1140 310 -1140 {lab=VSS}
@@ -321,7 +321,7 @@ xschem raw_read $netlist_dir/poweramp.raw tran
 C {launcher.sym} 1450 -30 0 0 {name=h6
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {simulator_commands.sym} 1020 -540 0 0 {name=COMMANDS
+C {simulator_commands.sym} 1020 -450 0 0 {name=COMMANDS
 simulator=ngspice
 only_toplevel=false 
 value="
@@ -349,7 +349,7 @@ save p(r*) p(v*)
 write poweramp.raw
 .endc
 "}
-C {simulator_commands.sym} 1020 -740 0 0 {name=COMMANDS1
+C {simulator_commands.sym} 1020 -650 0 0 {name=COMMANDS1
 simulator=xyce
 only_toplevel=false 
 value="
