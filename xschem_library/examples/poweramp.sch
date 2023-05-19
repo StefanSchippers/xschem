@@ -97,7 +97,7 @@ T {actual value
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
 T {@spice_get_voltage} 761.875 -786.09375 0 0 0.8 0.8 {layer=15
-xname=p9}
+name=p9}
 T {@spice_get_voltage} 761.875 -206.09375 0 0 0.8 0.8 {layer=15
 name=p14}
 N 70 -1220 70 -1200 {lab=#net1}
