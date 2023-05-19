@@ -1347,7 +1347,9 @@ const char *get_sym_name(int inst, int ndir, int ext)
   const char *sym, *sch;
 
   /* instance based symbol selection */
-  sch = get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0);
+  sch = tcl_hook2(str_replace(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 2), "@symname",
+        get_cell(xctx->inst[inst].name, 0), '\\'));
+
   if(xctx->tok_size) { /* token exists */ 
     sym = add_ext(rel_sym_path(sch), ".sym");
   } 
@@ -1451,7 +1453,7 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
 }   
 
 /* what = 1: start
- * what = 0 : end
+ * what = 0 : end : should NOT be called if match_symbol() has been executed between start & end
  */
 void get_additional_symbols(int what)
 {
@@ -1472,12 +1474,15 @@ void get_additional_symbols(int what)
       char *spice_sym_def = NULL;
       char *vhdl_sym_def = NULL;
       char *verilog_sym_def = NULL;
-      const char *sch;
+      char *sch = NULL;
       
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",0));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",0));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",0));
-      sch = get_tok_value(xctx->inst[i].prop_ptr,"schematic",0);
+      my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
+         str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
+           get_cell(xctx->inst[i].name, 0), '\\')));
+      dbg(1, "get_additional_symbols(): sch=%s\n", sch);
       if(xctx->tok_size) { /* token exists */
         int j;
         char *sym = NULL;
@@ -1514,6 +1519,7 @@ void get_additional_symbols(int what)
          j = found->value;
         }
       }
+      my_free(_ALLOC_ID_, &sch);
       my_free(_ALLOC_ID_, &spice_sym_def);
       my_free(_ALLOC_ID_, &vhdl_sym_def);
       my_free(_ALLOC_ID_, &verilog_sym_def);
@@ -1543,7 +1549,8 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
     /* @symname in schematic attribute will be replaced with symbol name */
-    my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(str_replace(str_tmp, "@symname", sym->name, '\\')));
+    my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(str_replace(str_tmp, "@symname",
+       get_cell(sym->name, 0), '\\')));
     if(is_generator(sch)) { /* generator: return as is */
       my_strncpy(filename, sch, PATH_MAX);
       dbg(1, "get_sch_from_sym(): filename=%s\n", filename);
