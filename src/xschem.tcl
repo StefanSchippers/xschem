@@ -2006,8 +2006,8 @@ proc graph_edit_properties {n} {
       update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get] fast
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
 
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
@@ -2029,8 +2029,8 @@ proc graph_edit_properties {n} {
       update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get] fast
+      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
+      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
@@ -2182,19 +2182,34 @@ proc graph_edit_properties {n} {
   }
 
 
-  label .graphdialog.top3.labmin -text { Y min:}
-  entry .graphdialog.top3.min -width 7
-  bind .graphdialog.top3.min <KeyRelease> {
-    xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.min get]
+  label .graphdialog.top3.ylabmin -text { Y min:}
+  entry .graphdialog.top3.ymin -width 7
+  bind .graphdialog.top3.ymin <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
     xschem draw_graph $graph_selected
   }
 
-  label .graphdialog.top3.labmax -text { Y max:}
-  entry .graphdialog.top3.max -width 7
-  bind .graphdialog.top3.max <KeyRelease> {
-    xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.max get]
+  label .graphdialog.top3.ylabmax -text { Y max:}
+  entry .graphdialog.top3.ymax -width 7
+  bind .graphdialog.top3.ymax <KeyRelease> {
+    xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
     xschem draw_graph $graph_selected
   }
+
+  label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
+  entry .graphdialog.top3.xmag -width 4
+  bind .graphdialog.top3.xmag <KeyRelease> {
+    xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top3.ylabmag -text { }
+  entry .graphdialog.top3.ymag -width 4
+  bind .graphdialog.top3.ymag <KeyRelease> {
+    xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
+    xschem draw_graph $graph_selected
+  }
+
 
   button .graphdialog.top.clear -text Clear -padx 2 -command {
     .graphdialog.top.search delete 0 end
@@ -2209,10 +2224,12 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top.rainbow -side left
   pack .graphdialog.top.lw -side left
   pack .graphdialog.top.lwe -side left
-  .graphdialog.top3.min insert 0 [xschem getprop rect 2 $graph_selected y1]
-  .graphdialog.top3.max insert 0 [xschem getprop rect 2 $graph_selected y2]
+  .graphdialog.top3.ymin insert 0 [xschem getprop rect 2 $graph_selected y1]
+  .graphdialog.top3.ymax insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
   .graphdialog.top3.xmax insert 0 [xschem getprop rect 2 $graph_selected x2]
+  .graphdialog.top3.xmag insert 0 [xschem getprop rect 2 $graph_selected xlabmag]
+  .graphdialog.top3.ymag insert 0 [xschem getprop rect 2 $graph_selected ylabmag]
 
   # top3 frame
   set graph_rainbow [xschem getprop rect 2 $graph_selected rainbow]
@@ -2221,7 +2238,7 @@ proc graph_edit_properties {n} {
   if { $graph_rainbow eq {} } { set graph_rainbow 0 }
   if { $graph_logx eq {} } { set graph_logx 0 }
   if { $graph_logy eq {} } { set graph_logy 0 }
-  checkbutton .graphdialog.top3.logx -padx 2 -text {Log X scale} -variable graph_logx \
+  checkbutton .graphdialog.top3.logx -padx 2 -text {Log X} -variable graph_logx \
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logx $graph_logx fast
@@ -2238,7 +2255,7 @@ proc graph_edit_properties {n} {
        }
      }
 
-  checkbutton .graphdialog.top3.logy -text {Log Y scale} -variable graph_logy \
+  checkbutton .graphdialog.top3.logy -text {Log Y} -variable graph_logy \
      -command {
        if { [xschem get schname] eq $graph_schname } {
          xschem setprop rect 2 $graph_selected logy $graph_logy fast
@@ -2256,7 +2273,8 @@ proc graph_edit_properties {n} {
      }
   pack .graphdialog.top3.logx .graphdialog.top3.logy -side left
   pack .graphdialog.top3.xlabmin .graphdialog.top3.xmin .graphdialog.top3.xlabmax .graphdialog.top3.xmax -side left
-  pack .graphdialog.top3.labmin .graphdialog.top3.min .graphdialog.top3.labmax .graphdialog.top3.max -side left
+  pack .graphdialog.top3.ylabmin .graphdialog.top3.ymin .graphdialog.top3.ylabmax .graphdialog.top3.ymax -side left
+  pack .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag -side left
   # binding
   bind .graphdialog.top.search <KeyRelease> {
     fill_graph_listbox
@@ -3651,7 +3669,7 @@ proc tclpropeval {s instname symname} {
   regsub {\)([ \t\n]*)$} $s {\1} s
   # puts "tclpropeval: $s $instname $symname"
   if { [catch {subst $s} res] } {
-    # puts $res
+    # puts stderr $res
     set res ?\n
   }
   return $res
@@ -4592,6 +4610,7 @@ proc get_directory {f} {
 # fetch a remote url into ${XSCHEM_TMP_DIR}/xschem_web
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper OS
+  # puts "download_url: $url"
   if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
     file mkdir ${XSCHEM_TMP_DIR}/xschem_web
   }

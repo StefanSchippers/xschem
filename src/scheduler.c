@@ -189,6 +189,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           "x2=10e-6\n"
           "divx=5\n"
           "subdivx=1\n"
+          "xlabmag=1.0\n"
+          "ylabmag=1.0\n"
           "node=\"\"\n"
           "color=\"\"\n"
           "dataset=-1\n"

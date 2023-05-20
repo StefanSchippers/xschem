@@ -414,6 +414,9 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  if(global)
  {
    int saved_hilight_nets = xctx->hilight_nets;
+   int web_url = is_from_web(xctx->current_dirname);
+   char *current_dirname_save = NULL;
+
    str_hash_init(&subckt_table, HASHSIZE);
    unselect_all(1);
    remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
@@ -435,8 +438,10 @@ int global_vhdl_netlist(int global)  /* netlister driver */
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
-      tclvareval("get_directory [list ", xctx->sch[xctx->currsch - 1], "]", NULL);
-      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
+      if(!web_url) {
+        tclvareval("get_directory [list ", xctx->sch[xctx->currsch - 1], "]", NULL);
+        my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
+      }
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
@@ -460,13 +465,18 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    xctx->pop_undo(4, 0);
-   tclvareval("get_directory [list ", xctx->sch[xctx->currsch], "]", NULL);
-   my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
+   if(web_url) {
+     my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
+   } else {
+     tclvareval("get_directory [list ", xctx->sch[xctx->currsch], "]", NULL);
+     my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
+   }
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
+   my_free(_ALLOC_ID_, &current_dirname_save);
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; ++i) if(!xctx->inst[i].color) xctx->inst[i].color = stored_flags[i];

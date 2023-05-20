@@ -2328,6 +2328,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 
   dbg(1, "setup_graph_data: i=%d\n", i);
   /* default values */
+  gr->magx = gr->magy = 1.0;
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;
   gr->logx = gr->logy = 0;
@@ -2390,6 +2391,10 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
     gr->unity_suffix = val[0];
     gr->unity = get_unit(val);
   }
+  val = get_tok_value(r->prop_ptr,"xlabmag",0);
+  if(val[0]) gr->magx = atof(val);
+  val = get_tok_value(r->prop_ptr,"ylabmag",0);
+  if(val[0]) gr->magy = atof(val);
   val = get_tok_value(r->prop_ptr,"subdivx",0);
   if(val[0]) gr->subdivx = atoi(val);
   val = get_tok_value(r->prop_ptr,"subdivy",0);
@@ -2461,10 +2466,12 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
   tmp = gr->marginy * 0.02;
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+  gr->txtsizey *= gr->magy;
 
   gr->txtsizex = gr->w / gr->divx * 0.0033;
   tmp = gr->marginy * 0.0063;
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
+  gr->txtsizex *= gr->magx;
 
   /* cache coefficients for faster graph --> xschem coord transformations */
   gr->cx = gr->w / gr->gw;

@@ -785,12 +785,10 @@ typedef struct {
   /* direct graph->screen transform */
   double scx, sdx, scy, sdy;
   double dscy, dsdy;
-  int divx;
-  int divy;
-  int subdivx;
-  int subdivy;
-  double unitx;
-  double unity;
+  int divx, divy;
+  int subdivx, subdivy;
+  double magx, magy;
+  double unitx, unity;
   int unitx_suffix; /* 'n' or 'u' or 'M' or 'k' ... */
   int unity_suffix;
   double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
