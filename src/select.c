@@ -164,9 +164,10 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    /* strings bbox */
    for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->texts; ++j)
    {
+     text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
+     if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
      sym_flip = flip;
      sym_rot = rot;
-     text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
      /* dbg(2, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"NULL"); */
      tmp_txt = translate(i, text.txt_ptr);
      /* dbg(2, "symbol_bbox(): translated text: %s\n", tmp_txt); */
