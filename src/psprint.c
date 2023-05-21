@@ -800,7 +800,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
     if(what != 7) {
       char fname[PATH_MAX];
-      if(!strcmp(get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "type", 0), "subcircuit")) {
+      if(!strcmp(xctx->sym[xctx->inst[n].ptr].type, "subcircuit")) {
         get_sch_from_sym(fname, xctx->inst[n].ptr+ xctx->sym, n);
         fprintf(fd, 
           "[ "

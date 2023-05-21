@@ -861,11 +861,36 @@ static int instcheck(int n, int p)
   xInstance * const inst = xctx->inst;
   int j, sqx, sqy;
   double x0, y0;
+  int rects = xctx->sym[inst[n].ptr].rects[PINLAYER];
+  int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "show_label") && rects == 2;
+
+  /* process bus taps : type = show_label, pin 0 = bus connection, pin 1 = tap (lab=[n]) */
+  if(bus_tap && p == 1) {
+    /* do nothing */
+    dbg(0, "instcheck(): bus tap pin 1: node=%s\n", inst[n].node[p] ? inst[n].node[p] : "NULL");
+  }
+  else if(bus_tap && p == 0) {
+    char *node_base_name = NULL;
+    dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[0]);
+    if(!inst[n].node[1]) {
+      node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[0]) + 1);
+      sscanf(inst[n].node[0], "%[^[]", node_base_name);
+      my_strcat(_ALLOC_ID_, &node_base_name, get_tok_value(inst[n].prop_ptr, "lab", 0));
+      set_inst_node(n, 1, node_base_name);
+      get_inst_pin_coord(n, 1, &x0, &y0);
+      get_square(x0, y0, &sqx, &sqy);
+      err |= name_attached_nets(x0, y0, sqx, sqy, inst[n].node[1]);
+      err |= name_attached_inst(n, x0, y0, sqx, sqy, inst[n].node[1]);
+    } else {
+      if(for_netlist>0) err |= signal_short("Bus tap", inst[n].node[0], inst[n].node[1]);
+    }
+    my_free(_ALLOC_ID_, &node_base_name);
+  }
+
 
   /* should process only symbols with pass-through pins */
-  if(find_pass_through_symbols(1, n)) {
+  else if(find_pass_through_symbols(1, n)) {
     int k = inst[n].ptr;
-    int rects = xctx->sym[k].rects[PINLAYER];
     char *pin_name = NULL;
     my_strdup(_ALLOC_ID_, &pin_name, get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0));
     if(p >= rects) return 1;

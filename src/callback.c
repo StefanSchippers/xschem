@@ -278,7 +278,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
      for(c=0;c<cadlayers; ++c) {
        if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
        for(i = 0; i < xctx->instances; ++i) {
-         type = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "type", 0);
+         type = xctx->sym[xctx->inst[i].ptr].type;
          if(!strstr(type, "source") && !strstr(type, "probe")) continue;
          if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
          symptr = (xctx->inst[i].ptr+ xctx->sym);
