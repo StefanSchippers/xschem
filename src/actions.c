@@ -3,7 +3,7 @@
  * This file is part of XSCHEM,
  * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
- * Copyright (C) 1998-2022 Stefan Frederik Schippers
+ * Copyright (C) 1998-2023 Stefan Frederik Schippers
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ void set_modify(int mod)
 void print_version()
 {
   printf("XSCHEM V%s\n", XSCHEM_VERSION);
-  printf("Copyright 1998-2022 Stefan Schippers\n");
+  printf("Copyright (C) 1998-2023 Stefan Schippers\n");
   printf("\n");
   printf("This is free software; see the source for copying conditions.  There is NO\n");
   printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");

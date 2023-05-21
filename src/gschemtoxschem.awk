@@ -5,7 +5,7 @@
 #  This file is part of XSCHEM,
 #  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
 #  simulation.
-#  Copyright (C) 1998-2022 Stefan Frederik Schippers
+#  Copyright (C) 1998-2023 Stefan Frederik Schippers
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -461,7 +461,7 @@ function print_header()
        "device @name @device\n" \
        "@comptag\"\n"
   }
-  print "v {xschem version=3.1.0 file_version=1.2}"
+  print "v {xschem version=3.4.0 file_version=1.2}"
   template_attrs = "template=\"" template_attrs "\"\n"
 
   if(FILENAME ~/\.sym$/) {

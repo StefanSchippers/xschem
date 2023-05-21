@@ -1,3 +1,227 @@
+3.4.0:
+- Added xmag and ymag entry boxes in grapg dialog box to allow user change of x/y label text sizes
+- Replace @symname in instance "schematic" attribute with basename of symbol
+  (without extension and directories)
+- Added "xschem reset_flags" command to update and sync cached attributes of symbols and instances
+- Better handling of web_urls: if already cached do not download again
+- If multiple objects are selected (instances, texts, wires, ...) and there is an instance in
+  the set edit instance attributes
+- Text floaters (name=xxx atttribute (xxx=instname) set on text to display instance attributes)
+- Hide_texts=true attribute added on instance will avoid the display of all symbol texts
+  (will be probably used when using floater symbol texts)
+- Disabled elements are displayed in grey and dashed. Properties->toggle *_ignore function
+- Symbol_ignore=true attribute can be set on all symbol elements (text, lines, rectangles, arcs, polys, 
+  instances, nets) such that these marked elements are not displayed when symbol is instantiated.
+- Symbol generators may now take attributes like: "mosgen( @model )", with @model expanded to
+  instance (or symbol template) value. update_symbol() updated to reflect this change.
+- When changing a symbol on an instance do not force change prefix (1st name char) if old and
+  new symbol have same prefix
+- Persistent load file dialog (Shift-Insert) now correctly handles generator script selection
+  (do nothing until user adds () or (param1,param2,...) to generator name).
+- Schematic and symbol generators "symbol_ref(param1,param2,...)".
+- Instance based schematic selection (via instance "schematic" attribute)
+- Draw_graph_points() split big XDrawLines requests into smaller chunks to handle raw files
+  with > 4M points
+- Enable spice_sym_def, verilog_sym_def, vhdl_sym_def on instances in addition as globally
+  on symbols, for instance based specific implementations.
+  These attributes must be paired with an instance "schematic=..." attribute that sets
+  the subcircuit name of the alternate implementation. docs updated.
+- Implement xschem sch_pinlist command, improve xschem pinlist inst [attr]
+- Xschem tcp server: drop connection at end of response to make client reads easier (eof detection)
+- Add xschem instance_list command, updated docs
+- Add tcl procedures documentation in developer_info.html
+- Handle viewing / netlisting remote (http[s]) hierarchic objects
+- If a custom format netlist is given (for example lvs_netlist) and lvs_netlist attribute in
+  instance or symbol is existing but empty device will not be netlisted
+- Instance attribute "hide=true" will make the instance display as a bounding box only
+- Add command xschem logic_set_net <net_name> <value> [ntimes] to set a specific net
+  instead of selected nets
+- Add xschemrc variable zoom_full_center, if set to 1 full zoom will center the schematic instead
+  of anchoring to lower-left drawing area corner.
+- Add Simulation->Monitor current simulation to display stdout of running simulation
+  (to get simulation status / ETA and the like... )
+- Added execute(cmd,last), execute(data,last), execute(status,last) for post-mortem
+  inspection of last simulation
+- Documentation about xschem commands in developer_info.html
+- Add table_read() function to read simulation data in ascii tabular form
+- Rename top_subckt to lvs_netlist (more appropriate), better tcp interface (redirect stdout
+  to socket in addition to command return value)
+- Added "s" bindkey in graphs to swap "a" and "b" cursors
+- Added command xschem hilight_instname
+- Refactor some code (use set_text_flags() to avoid repetitive code),
+  add xschem setprop text and xschem getprop text commands to set/get text attributes
+- Ascii85 postscript encoding by Raphael Cabrera, fix some compiler warnings and add some
+  little optimizations in ascii85 encoder
+- Revert and fix regression (graphical artifacts due to wrong change_linewidth()
+- Add postscript quality attrs to some example schematics
+- "preserve unchanged props" will be automatically checked when editing attributes on multiple
+  object selection and unchecked on single object selection as this is the 99.9% use case
+- Added jpeg_quality attribute that can be used in images / graphs to specify the quality
+  factor of jpg embedded images in ps export. If unspecified quality=100 is used.
+  A value of 25 results in 6x smaller files and acceptable results, so it is worth
+  using a quality factor less than 100
+- Added libjpeg detection code, so postscript image embedding will be disabled if libjpeg not present
+- Ps/pdf ecxport: dont print rectangle frames around images
+- Use my_free/my_malloc for memory leak checks
+- Default to unlocked state (lock=false) at title 1st placement
+- Add accelerator Shift-B for edit schematic header/license
+--diff option to visually compare two different (versions of) schematics
+- Add command "Simulation->Changelog from current hierarchy" that lists schematics 
+  from current hierarchy, sorted by modification time
+- When setting Simulation->LVS netlist, use "lvs_format" attribute for netlisting if this
+  attribute is existing, otherwise keep using "format"
+- "xschem set format <fmt_attribute>" will change netlisting format attribute instead of
+  default "format" (or verilog_format or vhdl_format),
+  however fallback to default netlisting rule attribute if not defined in symbol.
+  add tcl function "from_eng <n>" to convert spice formatted numbers to floating point
+- Added verilogprefix symbol attribute: will be prefixed to symbol name references in verilog netlists
+- Implementation of fetch schematics from web (xschem http://......xxx.sch) 
+- When placing symbols user can also type file name (with full path also)
+  inside File/search box instead of clicking in the list box. web URLs will be returned as
+  they are with no further interpretation
+- Dim schematic to grey if showing only probes, instead of hiding it completely
+- "@path" will be expanded in symbols with the hierarchy path,
+  so a fully qualified instance name is obtained with @path@name
+- Fill attribute on rectangles to override layer fill style: fill=false will not fill
+- Global properties dialog box: close if clicking outside or pressing Shift-Return
+- Shift-enter/clicking outside ends text insert widget.
+  Entry widget for text properties string replaced with multiline text widget
+- Recursive attribute substitution. use also template attribute of parents if not found
+  in instance prop_ptr
+- Ipin,iopin,opin reshaped to better show connection hotspot
+- Use sim_pinnumber for port ordering in simulation netlists and leave pinnumber
+  for package pin position.
+  These two collide, for example in spice port ordering vs (transistor problem)
+  device package pinnumbers. Dont load graphs in lcc symbols
+- Save symbol with ordered pins if sim_pinnumber is present in all pins
+- Annotation of voltage and currents in (nested) LCC instances
+- Change_layer() now works also for text objects
+- Allow changing start color in rainbow multi-dataset graphs
+- Added rainbow checkbutton for multicolor waves in case of multiple datasets
+- Wire labels: default name set to p1 instead of l1, so it will not clash with typical
+  inductor names
+- Removed (now) duplicated inst_hash_lookup: use int_hash_lookup.
+  Search function does not highlight nets if searching for something that is not "lab"
+- Persists highlights on instances as user ascends/descends into different hierarchy
+  level of schematics
+- Add cmdline option --preinit <commands> to execute given commands before
+  executing xschemrc file.
+  This can be used to switch library search paths depending on a variable setting.
+- Netlister code rewrite to allow any combination of pass-through symbols
+- Load_file_dialog: make remember last dir work again
+- Handle pass-through symbols chained with wires and no labels attached to wires
+- Allow to use @pinlist in format string even for symbols with duplicated ports.
+  Duplicated entries will be skipped.
+- Add component_browser_on_top tcl variable in xschemrc (default setting: enabled (1)
+  to enable or disable component browser window always on top
+- Allow negative integers in expandlabel() ( xx[6:5:-2:3] )
+- Update send_net_to graph() and send_current_to_graph() to use sch_waves_loaded() as the hierarchy
+  level where raw file was loaded, to skip upper path designators
+- Added label notation EN[0:3:6:5]: EN[start:end:offset:repetitions],
+  it will expand to a 20 bit bus:
+  a[0],a[1],a[2],a[3],a[6],a[7],a[8],a[9],a[12],a[13],a[14],\
+  a[15],a[18],a[19],a[20],a[21],a[24],a[25],a[26],a[27]
+- Allow nets with no label pass thru symbols with duplicated pins.
+  named nets will propagate through duplicated pins
+- Use limiting mylog()/mylog10() functions in expression calculator
+- Faster jump table in plot_raw_custom_data(), added simulation->add waveform reload launcher
+- Added verilog_extra attribute for list of implicit node connections to symbol in 
+  verilog netlists. extra attribute still used in verilog as a list of attributes NOT
+  use as component attributes / symbol parameters.
+- Added prev(), del() function in graph processing. Extend calculation 1 or 2 point
+  beyond viewport for exact deriv/integ/prev/del calculation at left edge
+- @pinlist will be comma separated in verilog netlists
+- Added vhdl_sym_def, spice_sym_def, verilog_sym_def attributes for symbols.
+  If defined and not empty the corresponding netlister will insert the content of the
+  attribute instead of the subcircuit schematic implementation.
+  Typically used to include a definition file. Updated documentation
+- Graph axes in engineering notation (20u, 10p, 3k), fix an issue in graph panning with
+  button1 mouse;
+  ngspice:: get_current, get_voltage, get_diff_voltage, get_node embedded into xschem.tcl,
+  to_eng tcl procedure to convert number to engineering form.
+- Add Highlight->Select overlapped instances command
+- Added File -> Component browser, clicking recent component buttons displays preview
+- New option for non blocking file selector, so it will remain open allowing to pick
+  multiple components (Shft-Insert).
+  Aborted place symbol operation will no more set schematic status to modified
+- Allow tabs and newlines in graph expressions in addition to spaces; updated example schematics
+- Allow spice multipliers in numbers (20u, 10k, 20p) in graph expressions
+- Added "Annotate operating point" into Simulation menu
+- New added graphs will have dataset attr set to -1 to include by default all datasets
+- Make op backannotation in schematic work also if raw file loaded at hierarchy level > 0
+- Xschem raw_read accepts an optional type argument after file name (tran, ac, dc, op, ...)
+  to select type of simulation to load from raw file.
+  New command xschem annotate_op will replace ngspice::annotate tcl procedure.
+- Bypass tcl for voltage and current backannotation in schematic from cursor b positon in graph
+- Better number formatting in backannotation. Alt-e if nothing selected opens another
+  copy (tab/window) of current schematic (after warning)
+- If sweep variables are defined on X axis (instead of default index 0) use first
+  sweep X-axis var in live cursor backannotation
+- Add backannotation info (as hidden text) in lab_pin.sym, lab_wire.sym,
+  transitioning example schematics from old (push) backannotation model to new pull model.
+- Fixed current (also hierarchic) reporting in ammeter.sym and vsource.sym)
+- Let cursor graph backannotation work for multiple sweeps (implicit datasets)
+- Alt-a in graph annotates schematic with values at cursor b position.
+  Simulation->Live annotate option to automatically update schematic probes if cursor moved.
+  Some improvements and fixes in ngspice_annotate.tcl. Fix xschem setprobe command.
+- Add simulator_commands.sym, simulator_commands_shown.sym, add_custom_button.tcl into release package
+- Restructured graph dialog box, added min/max x, adjusted sweep variables vertical aligmnent,
+  added atof_spice() that recognizes spice suffixes (12p, 4.2MEG etc)
+- Do not show bboxes of hidden texts while moving objects if global option
+  "show hidden texts" is not set;
+- Limit max size of embedded graph bitmaps in svg export.
+- Added deriv0() graph function, does derivative w.r.t. index 0 (sweep) variable, regardless of
+  graph sweep (x axis) variable.
+- Xschem print command: if w and h are set to 0 compute image size automatically
+- Graphs are now rendered (as detailed png bitmaps) in svg exports
+- Look for inutile stimuli files in schematic directory instead of in simulation directory
+- Fix find_closest_dataset() if log scale axes are used
+- Ngspice_backannotate.tcl: handle Xyce operating point data, removed hspice_netlist
+  (no more existent)
+- Inst_hash_lookup() will insert and lookup only instance basename (x1[3:0] --> x1) so better
+  and stronger uniquenes of instance names is ensured.
+- Ngspice_backannotate accepts a filename (if not given assume as before <circuit_name>.raw)
+- More Xyce integration, transform .save in .print tran, transform x1.x2.node to X1:X2:NODE in
+  Xyce lookups, more checks for malformed raw files
+- Added "devices/simulator_commands*.sym" to conditionally include commands in the netlist depending on
+  selected target simulator
+- Added command "xschem get netlist_name fallback" that returns user set netlist name or fallback name
+  derived from circuit filename. simulate and waves procedures handle user  netlist name if set
+- Zoom by area plots reverse x axis if done with Shift key pressed
+- Balloon tooltip procedure made more general. Easy to reuse for any widget
+- Added [t]rack bindkey in graph to display the wave closest to mouse in multiple dataset plots
+- Add commands "xschem set format ..." and "xschem get format" to change/view format attribute used for
+  netlisting, overriding defaults. Example: "xschem set format my_format"
+- If ALt-x (compare schematics) is given before setting a compare filename, schematic is compared
+  with saved version of itself
+- Add xschem get zoom to query zoom factor
+- Allow "xschem descend -<n>" (n=number) to descend into nth rightmost instance; added traversal.awk script
+- Warning and highlight perfectly overlapped symbols
+- Add "Plotname: constants" to the list of recognized ngspice plots in raw file
+- Focus main window when mouse leaves SNAP or GRID text entries
+- Added xschemrc variable `autofocus_mainwindow` (default setting: enabled (1) ),
+  if this variable is set moving the mouse to the main drawing area when a dialog box is open
+  (typically while editing a component attribute list) will focus the main window, so user
+  can move / zoom/pan the schematic using the usual commands, for example to look at a
+  different part of the schematic while editing the component.
+  If this variable is unset a click is needed to focus the main window.
+  This will thus not allow to move / zoom, but allows to type into the dialog box if the
+  mouse goes out of it.
+- Changed @schname to @schname_ext and added @schname that expands to the schematic
+  name containing the instance, with no extension (no .sch)
+- Added @topschname predefined attribute that expands to the toplevel
+  schematic name (no path) with no .sch extension
+- Unselect_all() before inserting wire label or text from the menu to avoid moving
+  previously selected objects
+- Y log axis option in graphs
+- User selectable log X scale instead of assiming log X for AC analyses only
+- Fix ngspice_backannotate.tcl: correctly backannotate ammeter currents; correctly
+  handle multipoint Operating point data in graphs
+- Store just magnitude and phase of AC vectors instead of dB and phase. 
+  Add db20() function to get dB values from magnitude in graph RPN expressions.
+- Do not accept 0 in graph `X div` and `Y div` textboxes, as this will cause an endless loop
+- Button 1 Double click does edit object attributes
+
 3.1.0:
 - Lot of bug fixes.
 - Alow embedding (png) images in schematics

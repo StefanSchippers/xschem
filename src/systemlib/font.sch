@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {font file}
 K {}

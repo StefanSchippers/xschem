@@ -4,7 +4,7 @@
 #  This file is part of XSCHEM,
 #  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
 #  simulation.
-#  Copyright (C) 1998-2022 Stefan Frederik Schippers
+#  Copyright (C) 1998-2023 Stefan Frederik Schippers
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -3571,7 +3571,7 @@ proc about {} {
   button .about.link -text {http://repo.hu/projects/xschem} -font Underline-Font -fg blue -relief flat
   button .about.link2 -text {https://github.com/StefanSchippers/xschem} -font Underline-Font -fg blue -relief flat
   button .about.link3 -text {Online XSCHEM Manual} -font Underline-Font -fg blue -relief flat
-  label .about.copyright -text "\n Copyright 1998-2022 Stefan Schippers (stefan.schippers@gmail.com) \n
+  label .about.copyright -text "\n Copyright (C) 1998-2023 Stefan Schippers (stefan.schippers@gmail.com) \n
  This is free software; see the source for copying conditions.  There is NO warranty;
  not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\n"
   button .about.close -text Close -command {destroy .about} -font {Sans 18}
