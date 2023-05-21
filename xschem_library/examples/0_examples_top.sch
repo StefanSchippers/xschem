@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {}
@@ -88,7 +88,8 @@ N 860 -390 920 -390 {lab=#net2}
 N 880 -430 910 -420 {lab=#net1}
 N 380 -310 640 -310 {lab=BUS[4:0]}
 N 510 -400 510 -320 {lab=BUS[1]}
-N 410 -360 410 -320 {lab=BUS[2]}
+N 410 -350 410 -320 {lab=BUS[2]}
+N 460 -400 460 -320 {lab=BUS[2:1]}
 C {poweramp.sym} 480 -690 0 0 {name=x1
 tclcommand="xschem descend"}
 C {tesla.sym} 160 -570 0 0 {name=x2}
@@ -119,7 +120,7 @@ C {rlc.sym} 160 -770 0 0 {name=x0}
 C {lab_pin.sym} 640 -310 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
 C {bus_connect.sym} 500 -310 0 0 {name=l3 lab=BUS[1]}
 C {bus_connect_nolab.sym} 400 -310 0 0 {name=r1}
-C {lab_pin.sym} 410 -360 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
+C {lab_pin.sym} 410 -350 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
 C {LCC_instances.sym} 160 -450 0 0 {name=x7}
 C {test_backannotated_subckt.sym} 160 -410 0 0 {name=x10}
 C {plot_manipulation.sym} 160 -370 0 0 {name=x11}
@@ -1470,3 +1471,5 @@ C {poweramp_lcc.sym} 480 -650 0 0 {name=x16
 tclcommand="xschem descend"}
 C {test_symbolgen.sym} 480 -530 0 0 {name=x18}
 C {inst_sch_select.sym} 480 -490 0 0 {name=x24}
+C {test_bus_tap.sym} 480 -450 0 0 {name=x22}
+C {bus_tap.sym} 450 -310 1 1 {name=l5 lab=[2:1]}
