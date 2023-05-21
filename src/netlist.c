@@ -1004,14 +1004,14 @@ static int name_nodes_of_pins_labels_and_propagate()
       err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
-  my_free(_ALLOC_ID_, &dir);
-  my_free(_ALLOC_ID_, &type);
-  my_free(_ALLOC_ID_, &global_node);
+  if(dir) my_free(_ALLOC_ID_, &dir);
+  if(type) my_free(_ALLOC_ID_, &type);
+  if(global_node) my_free(_ALLOC_ID_, &global_node);
   if(for_netlist) {
-    my_free(_ALLOC_ID_, &sig_type);
-    my_free(_ALLOC_ID_, &verilog_type);
-    my_free(_ALLOC_ID_, &value);
-    my_free(_ALLOC_ID_, &class);
+    if(sig_type) my_free(_ALLOC_ID_, &sig_type);
+    if(verilog_type) my_free(_ALLOC_ID_, &verilog_type);
+    if(value) my_free(_ALLOC_ID_, &value);
+    if(class) my_free(_ALLOC_ID_, &class);
   }
   return err;
 }
