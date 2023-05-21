@@ -1703,6 +1703,7 @@ void edit_property(int x)
                         &xctx->inst[j].x2, &xctx->inst[j].y2);
     }
    } /* end for(j...) */
+   if(modified) set_modify(1);
    return;
  } /* if((xctx->lastsel==0 ) */
 
