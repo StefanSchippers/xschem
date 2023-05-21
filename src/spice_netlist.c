@@ -26,13 +26,15 @@ static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schemat
 
 static const char *hier_psprint_mtime(const char *file_name)
 {
-  static char date[200] = "";
+  static char date[200];
   struct stat time_buf;
   struct tm *tm;
+  my_strncpy(date, "xxxxxxxx_xxxxxx", S(date)); 
   if(!stat(file_name , &time_buf)) {
     tm=localtime(&(time_buf.st_mtime) );
     strftime(date, sizeof(date), "%Y%m%d_%H%M%S", tm);
   }
+  dbg(1, "hier_psprint_mtime(): file_name=%s, date=%s\n", file_name, date);
   return date;
 }
 
