@@ -1762,7 +1762,6 @@ int print_spice_element(FILE *fd, int inst)
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
   const char *lab, *value = NULL;
   /* char *translatedvalue = NULL; */
-  int pin_number;
   size_t sizetok=0;
   size_t token_pos=0;
   int escape=0;
@@ -1987,15 +1986,75 @@ int print_spice_element(FILE *fd, int inst)
           }
         }
       }
-      /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
-      else if (token[0]=='@' && token[1]=='#') {
-        pin_number = atoi(token+2);
-        if (pin_number < no_of_pins) {
+      /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+       * @#0, @#1:net_name, @#2:name, ... */
+      else if(token[0]=='@' && token[1]=='#') {
+        int n;
+        char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+        char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+   
+        pin_num_or_name[0]='\0';
+        pin_attr[0]='\0';
+        n=-1;
+        sscanf(token+2, "%[^:]:%[^:]", pin_num_or_name, pin_attr);
+        if(isonlydigit(pin_num_or_name)) {
+          n = atoi(pin_num_or_name);
+        }
+        else if(pin_num_or_name[0]) {
+          for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
+            char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
+            if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
+          }
+        }
+        if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+          char *pin_attr_value = NULL;
+          int is_net_name = !strcmp(pin_attr, "net_name");
+          /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
+           *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
+          if(!is_net_name) {
+            pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+            /* get pin_attr from instance pin attribute string */
+            if(!pin_attr_value) {
+             my_strdup(_ALLOC_ID_, &pin_attr_value,
+                get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+            }
+          }
+          /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
+           * if 'net_name=true' attribute is set in instance or symbol */
+          if(!pin_attr_value && is_net_name) {
+            prepare_netlist_structs(0);
+            my_strdup2(_ALLOC_ID_, &pin_attr_value,
+                 xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
+          }
+          if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+          value = pin_attr_value;
+          /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
+          if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+            char *ss;
+            int slot;
+            char *tmpstr = NULL;
+            tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
+            if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+              sscanf(ss+1, "%s", tmpstr);
+              if(isonlydigit(tmpstr)) {
+                slot = atoi(tmpstr);
+                if(strstr(value,":")) value = find_nth(value, ":", slot);
+              }
+            }
+            my_free(_ALLOC_ID_, &tmpstr);
+          }
+          tmp=strlen(value);
+          STR_ALLOC(&result, tmp + result_pos, &size);
+          memcpy(result+result_pos, value, tmp+1);
+          result_pos+=tmp;
+          my_free(_ALLOC_ID_, &pin_attr_value);
+        }
+        else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
           const char *si;
-          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin_number].prop_ptr;
+          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
           si  = get_tok_value(prop, "spice_ignore",0);
           if(strcmp(si, "true")) {
-            str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
+            str_ptr =  net_name(inst,n, &multip, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                           * so 1-char writes to result do not need reallocs */
@@ -2003,6 +2062,8 @@ int print_spice_element(FILE *fd, int inst)
             result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
           }
         }
+        my_free(_ALLOC_ID_, &pin_attr);
+        my_free(_ALLOC_ID_, &pin_num_or_name);
       }
       else if (!strncmp(token,"@tcleval", 8)) {
         size_t s;
@@ -3049,8 +3110,8 @@ const char *translate(int inst, const char* s)
          if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
            const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
            tmp = strlen(str_ptr) +100 ;
-           STR_ALLOC(&result, tmp + result_pos, &size);
-           result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
+   STR_ALLOC(&result, tmp + result_pos, &size);
+result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
          }
          break;
        }
@@ -3123,6 +3184,15 @@ const char *translate(int inst, const char* s)
        memcpy(result+result_pos, value, tmp+1);
        result_pos+=tmp;
        my_free(_ALLOC_ID_, &pin_attr_value);
+     }
+     else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+       const char *str_ptr=NULL;
+       int multip;
+       str_ptr =  net_name(inst,n, &multip, 0, 1);
+       tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                     * so 1-char writes to result do not need reallocs */
+       STR_ALLOC(&result, tmp + result_pos, &size);
+       result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
      }
      my_free(_ALLOC_ID_, &pin_attr);
      my_free(_ALLOC_ID_, &pin_num_or_name);

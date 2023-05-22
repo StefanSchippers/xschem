@@ -5,12 +5,13 @@ K {}
 V {}
 S {}
 E {}
-P 4 7 740 -320 740 -350 730 -350 740 -380 750 -350 740 -350 740 -320 {fill=true}
+P 4 7 740 -320 740 -350 730 -350 740 -377.5 750 -350 740 -350 740 -320 {fill=true}
 T {Specifying @lab
 will result in net
 @#1:net_name} 730 -320 0 0 0.4 0.4 {name=l6 layer=4}
 T {Title symbol has embedded TCL command
 to enable show_pin_net_names } 180 -110 0 0 0.4 0.4 { layer=7}
+T {@#p:net_name} 160 -570 0 0 0.4 0.4 {name=R4}
 N 280 -420 1020 -420 {bus=true
 lab=DATA[15:0]}
 N 500 -610 500 -430 {
