@@ -5,6 +5,10 @@ K {}
 V {}
 S {}
 E {}
+P 4 7 600 -200 600 -230 590 -230 600 -260 610 -230 600 -230 600 -200 {fill=true}
+T {Specifying @lab
+will result in net
+@#1:net_name} 590 -200 0 0 0.4 0.4 {name=l6 layer=4}
 N 140 -300 880 -300 {bus=true
 lab=DATA[15:0]}
 N 360 -490 360 -310 {
@@ -23,7 +27,7 @@ N 470 -490 470 -310 {
 lab=DATA[10]}
 N 590 -490 590 -310 {
 lab=DATA[0]}
-N 590 -560 590 -550 {
+N 810 -460 810 -450 {
 lab=VCC}
 N 470 -560 470 -550 {
 lab=VCC}
@@ -43,17 +47,22 @@ N 160 -410 160 -300 {
 lab=DATA[15:0]}
 N 160 -480 160 -470 {
 lab=VCC}
-N 810 -150 810 -140 {
-lab=VSS}
-N 810 -300 810 -210 {
+N 810 -390 810 -300 {
 lab=DATA[15:0]}
-C {bus_tap.sym} 370 -300 3 0 {name=l1 lab=[3]}
-C {bus_tap.sym} 260 -300 3 0 {name=l2 lab=[13]}
-C {bus_tap.sym} 410 -300 1 0 {name=l3 lab=[7:4]}
-C {bus_tap.sym} 290 -300 1 0 {name=l4 lab=[11:8]}
-C {bus_tap.sym} 180 -300 1 0 {name=l5 lab=[3:0]}
-C {bus_tap.sym} 480 -300 3 0 {name=l7 lab=[10]}
-C {bus_tap.sym} 600 -300 3 0 {name=l8 lab=[0]}
+C {bus_tap.sym} 370 -300 3 0 {name=l1 lab=[3]
+net_name=true}
+C {bus_tap.sym} 260 -300 3 0 {name=l2 lab=[13]
+net_name=true}
+C {bus_tap.sym} 410 -300 1 0 {name=l3 lab=[7:4]
+net_name=true}
+C {bus_tap.sym} 290 -300 1 0 {name=l4 lab=[11:8]
+net_name=true}
+C {bus_tap.sym} 180 -300 1 0 {name=l5 lab=[3:0]
+net_name=true}
+C {bus_tap.sym} 480 -300 3 0 {name=l7 lab=[10]
+net_name=true}
+C {bus_tap.sym} 600 -300 3 0 {name=l8 lab=[0]
+net_name=true}
 C {res.sym} 590 -520 0 0 {name=R1
 value=1k
 footprint=1206
@@ -104,14 +113,15 @@ m=1
 net_name=true}
 C {lab_pin.sym} 160 -480 0 0 {name=p10 sig_type=std_logic lab=VCC
 }
-C {bus_tap.sym} 560 -300 1 0 {name=l6 lab=[15:12]}
+C {bus_tap.sym} 560 -300 1 0 {name=l6 lab=[15:12]
+net_name=true}
 C {lab_pin.sym} 250 -560 0 0 {name=p2 sig_type=std_logic lab=VCC
 }
 C {lab_pin.sym} 360 -560 0 0 {name=p3 sig_type=std_logic lab=VCC
 }
 C {lab_pin.sym} 470 -560 0 0 {name=p4 sig_type=std_logic lab=VCC
 }
-C {lab_pin.sym} 590 -560 0 0 {name=p5 sig_type=std_logic lab=VCC
+C {lab_pin.sym} 810 -460 0 0 {name=p5 sig_type=std_logic lab=VCC
 }
 C {lab_pin.sym} 190 -30 0 0 {name=p6 sig_type=std_logic lab=VSS
 }
@@ -129,9 +139,7 @@ m=1
 net_name=true}
 C {lab_pin.sym} 140 -300 0 0 {name=p1 sig_type=std_logic lab=DATA[15:0]
 }
-C {lab_pin.sym} 810 -140 0 0 {name=p11 sig_type=std_logic lab=VSS
-}
-C {res.sym} 810 -180 0 0 {name=R10[15:0]
+C {res.sym} 810 -420 0 0 {name=R10[15:0]
 value=1k
 footprint=1206
 device=resistor
