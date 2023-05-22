@@ -2,7 +2,6 @@ v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {type=show_label
-format="* tap:  @@bus -->  @@lab"
 template="name=l1 lab=[0]"}
 V {}
 S {}
