@@ -9,7 +9,7 @@ P 4 7 740 -320 740 -350 730 -350 740 -380 750 -350 740 -350 740 -320 {fill=true}
 T {Specifying @lab
 will result in net
 @#1:net_name} 730 -320 0 0 0.4 0.4 {name=l6 layer=4}
-T {tcleval(set show_pin_net_names=[set show_pin_net_names 1])} 150 -100 0 0 0.4 0.4 {name=l6 layer=4}
+T {tcleval(set show_pin_net_names=[set show_pin_net_names 1] [xschem update_all_sym_bboxes])} 150 -100 0 0 0.4 0.4 {name=l6 layer=4}
 N 280 -420 1020 -420 {bus=true
 lab=DATA[15:0]}
 N 500 -610 500 -430 {

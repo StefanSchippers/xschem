@@ -3851,6 +3851,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       for(i = 0; i < xctx->instances; ++i) {
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       }
+      Tcl_ResetResult(interp);
     }
 
     else { cmd_found = 0;}
