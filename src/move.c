@@ -513,7 +513,13 @@ void find_inst_to_be_redrawn(int what)
           int p;
           char *type=xctx->sym[xctx->inst[n].ptr].type;
           /* collect all nodes connected to instances that set node names */
-          if(type && IS_LABEL_OR_PIN(type)) {
+          if(type && 
+             (
+               IS_LABEL_OR_PIN(type) ||
+               /* bus taps */
+               (!strcmp(type, "show_label") && (inst[n].ptr + xctx->sym)->rects[PINLAYER] == 2)
+             )
+            ) {
             for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
               if( inst[n].node && inst[n].node[p]) {
                 dbg(1,"find_inst_to_be_redrawn(): hashing inst %s, node %s\n", inst[n].instname, inst[n].node[p]);
@@ -525,6 +531,17 @@ void find_inst_to_be_redrawn(int what)
         /* collect all nodes connected to selected wires (node names will change if wire deleted/moved) */
         if(xctx->sel_array[i].type == WIRE) {
           int_hash_lookup(&xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
+        }
+      }
+      /* propagate all node[1] of bus taps that have node[0] hashed above */
+      for(i=0; i < xctx->instances; ++i) {
+        char *type=xctx->sym[xctx->inst[i].ptr].type;
+        /* bus taps */
+        if(type && !strcmp(type, "show_label") && (inst[i].ptr + xctx->sym)->rects[PINLAYER] == 2 ) {
+          if(int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[0], 0, XLOOKUP)) {
+            int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[1], 0, XINSERT_NOREPLACE);
+            dbg(0, "bus_tap: propagate %s\n",  xctx->inst[i].node[1]);
+          }
         }
       }
     } /* if(!(what & 8)) */
