@@ -3844,6 +3844,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "update_all_sym_bboxes"))
     {
       int i;
+      for(i = 0; i < xctx->texts; i++)
+      if(xctx->text[i].flags & TEXT_FLOATER) {
+        my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
+      }
       for(i = 0; i < xctx->instances; ++i) {
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       }
