@@ -540,7 +540,7 @@ void find_inst_to_be_redrawn(int what)
         if(type && !strcmp(type, "show_label") && (inst[i].ptr + xctx->sym)->rects[PINLAYER] == 2 ) {
           if(int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[0], 0, XLOOKUP)) {
             int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[1], 0, XINSERT_NOREPLACE);
-            dbg(0, "bus_tap: propagate %s\n",  xctx->inst[i].node[1]);
+            dbg(1, "bus_tap: propagate %s\n",  xctx->inst[i].node[1]);
           }
         }
       }
