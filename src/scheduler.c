@@ -610,12 +610,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* display_hilights
-     *   Print a list of highlighted objects (nets, net labels/pins, instances) */
+    /* display_hilights [nets|instances]
+     *   Print a list of highlighted objects (nets, net labels/pins, instances)
+     *   if 'instances' is specified list only instance highlights
+     *   if 'nets' is specified list only net highlights */
     else if(!strcmp(argv[1], "display_hilights"))
     {
       char *str = NULL;
-      display_hilights(&str);
+      int what = 3; /* nets and instances */
+      if(argc > 2) {
+        if(!strcmp(argv[2], "instances")) what = 2; /* instances only */
+        else if(!strcmp(argv[2], "nets")) what = 1; /* nets only */
+      }
+      display_hilights(what, &str);
       Tcl_SetResult(interp, str, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &str);
     }
@@ -1488,7 +1495,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             dbg(1, "xschem hilight_instname: setting hilight flag on inst %d\n",inst);
             /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
             xctx->inst[inst].color = xctx->hilight_color;
-            inst_hilight_hash_lookup(xctx->inst[inst].instname, xctx->hilight_color, XINSERT_NOREPLACE);
+            inst_hilight_hash_lookup(inst, xctx->hilight_color, XINSERT_NOREPLACE);
             if(incr_hi) incr_hilight_color();
           }
           dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);

@@ -128,15 +128,20 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
 }
 
 /* wrapper function to hash highlighted instances, avoid clash with net names */
-Hilight_hashentry *inst_hilight_hash_lookup(const char *token, int value, int what)
+Hilight_hashentry *inst_hilight_hash_lookup(int i,  int value, int what)
 {
+  const char *token = xctx->inst[i].instname;
   char *inst_tok = NULL;
   size_t len = strlen(token) + 2; /* token plus one more character and \0 */
+  int label = 0;
   Hilight_hashentry *entry;
+  if(IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) label = 1;
   dbg(1, "inst_hilight_hash_lookup: token=%s value=%d what=%d\n", token, value, what);
   inst_tok = my_malloc(_ALLOC_ID_, len);
   /* instance name uglyfication: add a space at beginning so it will never match a valid net name */
-  my_snprintf(inst_tok, len, " %s", token);
+  /* use 2 spaces for pins/labels to distinguish from other instances */
+  if(label) my_snprintf(inst_tok, len, "  %s", token);
+  else my_snprintf(inst_tok, len, " %s", token);
   entry = hilight_hash_lookup(inst_tok, value, what);
   my_free(_ALLOC_ID_, &inst_tok);
   return entry;
@@ -183,20 +188,36 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   return ptr2;
 }
 
-void display_hilights(char **str)
+/* what:
+ *  1: list only nets
+ *  2: list only intances
+ *  3: list all
+ */
+void display_hilights(int what, char **str)
 {
   int i;
   int first = 1;
+  int instance = 0;
+  const char *ptr;
   Hilight_hashentry *entry;
   for(i=0;i<HASHSIZE; ++i) {
     entry = xctx->hilight_table[i];
     while(entry) {
-      if(!first) my_strcat(_ALLOC_ID_, str, " ");
-      my_strcat(_ALLOC_ID_, str,"{");
-      my_strcat(_ALLOC_ID_, str, entry->path+1);
-      my_strcat(_ALLOC_ID_, str, entry->token);
-      my_strcat(_ALLOC_ID_, str,"}");
-      first = 0;
+      ptr = entry->token;
+      if(ptr[0] == ' ' && ptr[1] == ' ' ) goto skip; /* do not list net labels / pins / net_show */
+      if(ptr[0] == ' ') instance = 1;
+      else instance = 0;
+      dbg(1, "what=%d, instance=%d, token=%s\n", what, instance, ptr);
+      if( ((what & 1) && !instance)  || ((what & 2) && instance) ) {
+        if(instance) ptr++; /* skip uglyfication space */
+        if(!first) my_strcat(_ALLOC_ID_, str, " ");
+        my_strcat(_ALLOC_ID_, str,"{");
+        my_strcat(_ALLOC_ID_, str, entry->path+1);
+        my_strcat(_ALLOC_ID_, str, ptr);
+        my_strcat(_ALLOC_ID_, str,"}");
+        first = 0;
+      }
+      skip: 
       entry = entry->next;
     }
   }
@@ -676,7 +697,7 @@ int search(const char *tok, const char *val, int sub, int sel)
            dbg(1, "search(): setting hilight flag on inst %d\n",i);
            /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
            xctx->inst[i].color = col;
-           inst_hilight_hash_lookup(xctx->inst[i].instname, col, XINSERT_NOREPLACE);
+           inst_hilight_hash_lookup(i, col, XINSERT_NOREPLACE);
          }
        }
        if(sel==1) {
@@ -827,7 +848,7 @@ static void drill_hilight(int mode)
           if( (entry=bus_hilight_hash_lookup(netbitname, 0, XLOOKUP)) ) {
             if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
               xctx->inst[i].color = entry->value;
-              inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
+              inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE); 
             }
             my_strdup(_ALLOC_ID_, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
             if(propagate_str) {
@@ -1222,7 +1243,7 @@ void propagate_hilights(int set, int clear, int mode)
               if(entry) {
                 if(set) {
                   xctx->inst[i].color=entry->value;
-                  inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE);
+                  inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE);
                 } else {
                   nohilight_pins = 0; /* at least one connected net is hilighted: keep instance hilighted */
                 }
@@ -1236,7 +1257,7 @@ void propagate_hilights(int set, int clear, int mode)
         }
       }
       else {
-        entry=inst_hilight_hash_lookup(xctx->inst[i].instname, 0, XLOOKUP);
+        entry=inst_hilight_hash_lookup(i, 0, XLOOKUP);
         if (entry && set) xctx->inst[i].color=entry->value;
       }
     /* ... else hilight/clear pin/label instances attached to hilight nets */
@@ -1244,7 +1265,7 @@ void propagate_hilights(int set, int clear, int mode)
       entry=bus_hilight_hash_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set) {
         xctx->inst[i].color = entry->value;
-        inst_hilight_hash_lookup(xctx->inst[i].instname, entry->value, XINSERT_NOREPLACE); 
+        inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE); 
       }
       else if(!entry && clear) xctx->inst[i].color = -10000;
     }
@@ -1728,7 +1749,7 @@ void hilight_net(int viewer)
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
        xctx->inst[n].color = xctx->hilight_color;
-       inst_hilight_hash_lookup(xctx->inst[n].instname, xctx->hilight_color, XINSERT_NOREPLACE);
+       inst_hilight_hash_lookup(n, xctx->hilight_color, XINSERT_NOREPLACE);
        if(type &&  (!strcmp(type, "ammeter") || !strcmp(type, "vsource")) ) {
          if(viewer == XSCHEM_GRAPH)  send_current_to_graph(&s, sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
@@ -1770,7 +1791,7 @@ void unhilight_net(void)
        if( xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
          bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XDELETE);
        } else {
-         inst_hilight_hash_lookup(xctx->inst[n].instname, xctx->hilight_color, XDELETE);
+         inst_hilight_hash_lookup(n, xctx->hilight_color, XDELETE);
        }
      }
      xctx->inst[n].color = -10000;

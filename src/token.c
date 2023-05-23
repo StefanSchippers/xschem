@@ -129,7 +129,7 @@ void check_unique_names(int rename)
       if( (entry = int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
-        inst_hilight_hash_lookup(xctx->inst[i].instname, -PINLAYER, XINSERT_NOREPLACE);
+        inst_hilight_hash_lookup(i, -PINLAYER, XINSERT_NOREPLACE);
         if(rename == 1) {
           if(first) {
             bbox(START,0.0,0.0,0.0,0.0);

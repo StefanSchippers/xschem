@@ -1174,7 +1174,7 @@ extern int save(int confirm);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
 /* wrapper function to hash highlighted instances, avoid clash with net names */
-extern Hilight_hashentry *inst_hilight_hash_lookup(const char *token, int value, int what);
+extern Hilight_hashentry *inst_hilight_hash_lookup(int i, int value, int what);
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int search(const char *tok, const char *val, int sub, int sel);
 extern int process_options(int argc, char **argv);
@@ -1502,7 +1502,7 @@ extern void unhilight_net();
 extern void propagate_hilights(int set, int clear, int mode);
 extern void  select_connected_wires(int stop_at_junction);
 extern void draw_hilight_net(int on_window);
-extern void display_hilights(char **str);
+extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern int prepare_netlist_structs(int for_netlist);

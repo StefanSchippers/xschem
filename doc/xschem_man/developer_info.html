@@ -558,7 +558,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    instance number to descend into for vector instances (default: 0). </pre>
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
-   <li><kbd>       display_hilights</kbd></li><pre>
+   <li><kbd>       display_hilights [nets|instances]</kbd></li><pre>
+   Print a list of highlighted objects (nets, net labels/pins, instances)
+   if 'instances' is specified list only instance highlights
+   if 'nets' is specified list only net highlights </pre>
    Print a list of highlighted objects (nets, net labels/pins, instances) </pre>
    <li><kbd>       draw_graph [n] [flags]</kbd></li><pre>
    Redraw graph rectangle number 'n'.
