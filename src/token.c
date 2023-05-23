@@ -3235,8 +3235,8 @@ const char *translate(int inst, const char* s)
          if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
            const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
            tmp = strlen(str_ptr) +100 ;
-   STR_ALLOC(&result, tmp + result_pos, &size);
-result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
+           STR_ALLOC(&result, tmp + result_pos, &size);
+           result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
          }
          break;
        }
