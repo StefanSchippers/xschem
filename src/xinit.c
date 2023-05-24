@@ -1349,7 +1349,7 @@ static void create_new_window(int *window_count, const char *fname)
 
 static void create_new_tab(int *window_count, const char *fname)
 {
-  int i, n;
+  int i;
   char open_path[WINDOW_PATH_SIZE];
   char nn[WINDOW_PATH_SIZE];
   char win_path[WINDOW_PATH_SIZE];
@@ -1389,19 +1389,17 @@ static void create_new_tab(int *window_count, const char *fname)
   (*window_count)++;
   tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
   tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
-  n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
-      n = i;
       break;
     }
   }
-  if(n == -1) {
+  if(i >= MAX_NEW_WINDOWS) {
     dbg(0, "new_schematic(\"newtab\"...): no more free slots\n");
     return;
   }
   /* tcl code to create the tab button */
-  my_snprintf(nn, S(nn), "%d", n);
+  my_snprintf(nn, S(nn), "%d", i);
   tclvareval(
     "button ", ".tabs.x", nn, " -padx 2 -pady 0 -takefocus 0 -anchor nw -text Tab2 "
     "-command \"xschem new_schematic switch_tab .x", nn, ".drw\"", NULL);
@@ -1414,14 +1412,14 @@ static void create_new_tab(int *window_count, const char *fname)
     " -before ", ".tabs.add -side left", NULL);
   /*                                   */
 
-  my_snprintf(win_path, S(win_path), ".x%d.drw", n);
-  my_strncpy(window_path[n], win_path, S(window_path[n]));
+  my_snprintf(win_path, S(win_path), ".x%d.drw", i);
+  my_strncpy(window_path[i], win_path, S(window_path[i]));
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */
   xctx->netlist_type = CAD_SPICE_NETLIST; /* for new windows start with spice netlist mode */
   tclsetvar("netlist_type","spice");
   init_pixdata();/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
-  save_xctx[n] = xctx;
+  save_xctx[i] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
   xctx->window = save_xctx[0]->window;
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
