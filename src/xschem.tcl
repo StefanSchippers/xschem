@@ -1349,7 +1349,7 @@ proc select_inst {fullinst {redraw 1 } } {
 }
 
 proc pin_label {} {
-  return [rel_sym_path [find_file lab_pin.sym]]
+  return [rel_sym_path [find_file_first lab_pin.sym]]
 }
 
 ## given a hierarchical net name x1.xamp.netname go down in the hierarchy and 
@@ -3065,7 +3065,7 @@ proc create_pins {} {
   regsub -all {<} $retval {[} retval 
   regsub -all {>} $retval {]} retval 
   set lines [split $retval \n]
-  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   
   # viewdata $retval
@@ -3169,7 +3169,7 @@ proc add_lab_no_prefix {} {
   global env retval USER_CONF_DIR
   global filetmp
 
-  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
@@ -3191,7 +3191,7 @@ proc add_lab_prefix {} {
   global env retval USER_CONF_DIR
   global filetmp
 
-  set dirprefix [file dirname [rel_sym_path [find_file ipin.sym]]]
+  set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   set retval [ read_data_nonewline $filetmp ]
   regsub -all {<} $retval {[} retval
@@ -4558,7 +4558,7 @@ proc match_file  { f {paths {}} } {
   return $res
 }
 
-proc sub_find_file { f {paths {}} } {
+proc sub_find_file { f {paths {}} {first 0} } {
   global pathlist match_file_dir_arr
   set res {}
   if {$paths eq {}} {set paths $pathlist}
@@ -4570,13 +4570,17 @@ proc sub_find_file { f {paths {}} } {
         if {[array names match_file_dir_arr -exact $jj] == {}} {
           set match_file_dir_arr($jj) 1
           # puts "********** directory $jj"
-          set sub_res [sub_find_file $f $j] ;# recursive call
-          if {$sub_res != {} } {set res [concat $res $sub_res]}
+          set sub_res [sub_find_file $f $j $first] ;# recursive call
+          if {$sub_res != {} } {
+            set res [concat $res $sub_res]
+            if {$first} {return $res}
+          }
         }
       } else {
         set fname [file tail $j]
         if {$fname == $f} {
           lappend res $j
+          if {$first} {return $res}
         }
       }
     }
@@ -4590,10 +4594,23 @@ proc sub_find_file { f {paths {}} } {
 proc find_file  { f {paths {}} } {
   global match_file_dir_arr
   catch {unset match_file_dir_arr}
-  set res  [sub_find_file $f $paths]
+  set res  [sub_find_file $f $paths 0]
   catch {unset match_file_dir_arr}
   return $res
 }
+
+# find given file $f into $paths directories 
+# use $pathlist global search path if $paths empty
+# recursively descend directories
+# only return FIRST FOUND
+proc find_file_first  { f {paths {}} } {
+  global match_file_dir_arr
+  catch {unset match_file_dir_arr}
+  set res  [sub_find_file $f $paths 1] 
+  catch {unset match_file_dir_arr}
+  return $res
+}        
+
 
 # alternative implementation of "file dirname ... "
 # that does not mess with http:// (file dirname removes double slashes)
@@ -6179,7 +6196,7 @@ proc build_widgets { {topwin {} } } {
   }
   $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu add command -label {Add waveform reload launcher} -command {
-      xschem place_symbol [rel_sym_path [find_file launcher.sym]] "name=h5\ndescr=\"load waves\" 
+      xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
   }

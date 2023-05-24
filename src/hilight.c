@@ -132,7 +132,7 @@ Hilight_hashentry *inst_hilight_hash_lookup(int i,  int value, int what)
 {
   const char *token = xctx->inst[i].instname;
   char *inst_tok = NULL;
-  size_t len = strlen(token) + 2; /* token plus one more character and \0 */
+  size_t len = strlen(token) + 3; /* token plus two more character and \0 */
   int label = 0;
   Hilight_hashentry *entry;
   if(IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) label = 1;
