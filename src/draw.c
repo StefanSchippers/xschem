@@ -3131,8 +3131,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
-          if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
-          else wave_color = wc;
           first = -1;
           poly_npoints = 0;
           my_realloc(_ALLOC_ID_, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
@@ -3155,6 +3153,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                                    sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
+                    if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+                    else wave_color = wc;
                     if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
                   }
@@ -3196,6 +3196,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                                sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
+                if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+                else wave_color = wc;
                 if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
               }
