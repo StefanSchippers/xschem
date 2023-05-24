@@ -5889,19 +5889,19 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu add separator
   $topwin.menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
        -accelerator {Shift+V} \
-       -command "xschem set netlist_type spice"
+       -command "xschem set netlist_type spice; xschem redraw"
   $topwin.menubar.option.menu add radiobutton -label "VHDL netlist" -variable netlist_type -value vhdl \
        -accelerator {Shift+V} \
-       -command "xschem set netlist_type vhdl"
+       -command "xschem set netlist_type vhdl; xschem redraw"
   $topwin.menubar.option.menu add radiobutton -label "Verilog netlist" -variable netlist_type -value verilog \
        -accelerator {Shift+V} \
-       -command "xschem set netlist_type verilog"
+       -command "xschem set netlist_type verilog; xschem redraw"
   $topwin.menubar.option.menu add radiobutton -label "tEDAx netlist" -variable netlist_type -value tedax \
        -accelerator {Shift+V} \
-       -command "xschem set netlist_type tedax"
+       -command "xschem set netlist_type tedax; xschem redraw"
   $topwin.menubar.option.menu add radiobutton -label "Symbol global attrs" -variable netlist_type -value symbol \
        -accelerator {Shift+V} \
-       -command "xschem set netlist_type symbol"
+       -command "xschem set netlist_type symbol; xschem redraw"
   $topwin.menubar.edit.menu add command -label "Undo" -command "xschem undo; xschem redraw" -accelerator U
   toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
   $topwin.menubar.edit.menu add command -label "Redo" -command "xschem redo; xschem redraw" -accelerator {Shift+U}

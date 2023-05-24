@@ -1656,6 +1656,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    {
     xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
     set_tcl_netlist_type();
+    draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
     break;
    }
    if(key=='s' && (state == 0) )      /* simulate */

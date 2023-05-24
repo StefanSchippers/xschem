@@ -3717,27 +3717,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(xctx->netlist_type == CAD_VERILOG_NETLIST) attr="verilog_ignore";
       else if(xctx->netlist_type == CAD_VHDL_NETLIST) attr="vhdl_ignore";
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST) attr="tedax_ignore";
-      else  attr="spice_ignore";
-      rebuild_selected_array();
-      for(n=0; n < xctx->lastsel; ++n) {
-        if(xctx->sel_array[n].type == ELEMENT) {
-          i = xctx->sel_array[n].n;
-          if(first) {
-            xctx->push_undo();
-            first = 0;
+      else if(xctx->netlist_type == CAD_SPICE_NETLIST) attr="spice_ignore";
+      else attr = NULL;
+      if(attr) {
+        rebuild_selected_array();
+        for(n=0; n < xctx->lastsel; ++n) {
+          if(xctx->sel_array[n].type == ELEMENT) {
+            i = xctx->sel_array[n].n;
+            if(first) {
+              xctx->push_undo();
+              first = 0;
+            }
+            remove = 0;
+            if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) remove = 1;
+            if(remove) {
+              my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, NULL));
+            } else {
+              my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
+            }
+            set_inst_flags(&xctx->inst[i]);
+            set_modify(1);
           }
-          remove = 0;
-          if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) remove = 1;
-          if(remove) {
-            my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, NULL));
-          } else {
-            my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
-          }
-          set_inst_flags(&xctx->inst[i]);
-          set_modify(1);
         }
+        draw();
       }
-      draw();
       Tcl_ResetResult(interp);
     }
 
