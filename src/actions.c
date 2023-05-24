@@ -971,8 +971,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   int use_label_prefix;
   int found=0;
 
-  my_strdup(_ALLOC_ID_, &symname_pin, tcleval("rel_sym_path [find_file lab_pin.sym]"));
-  my_strdup(_ALLOC_ID_, &symname_wire, tcleval("rel_sym_path [find_file lab_wire.sym]"));
+  my_strdup(_ALLOC_ID_, &symname_pin, tcleval("rel_sym_path [find_file_first lab_pin.sym]"));
+  my_strdup(_ALLOC_ID_, &symname_wire, tcleval("rel_sym_path [find_file_first lab_wire.sym]"));
   if(symname_pin && symname_wire) {
     rebuild_selected_array();
     k = xctx->lastsel;
@@ -1126,10 +1126,10 @@ void delete_files(void)
 void place_net_label(int type)
 {
   if(type == 1) {
-      const char *lab = tcleval("rel_sym_path [find_file lab_pin.sym]");
+      const char *lab = tcleval("rel_sym_path [find_file_first lab_pin.sym]");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   } else {
-      const char *lab = tcleval("rel_sym_path [find_file lab_wire.sym]");
+      const char *lab = tcleval("rel_sym_path [find_file_first lab_wire.sym]");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   }
   move_objects(START,0,0,0);

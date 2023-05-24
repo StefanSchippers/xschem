@@ -3941,10 +3941,10 @@ void create_sch_from_sym(void)
   char *sch = NULL;
   size_t ln;
 
-  my_strdup(_ALLOC_ID_, &pinname[0], tcleval("rel_sym_path [find_file ipin.sym]"));
-  my_strdup(_ALLOC_ID_, &pinname[1], tcleval("rel_sym_path [find_file opin.sym]"));
-  my_strdup(_ALLOC_ID_, &pinname[2], tcleval("rel_sym_path [find_file iopin.sym]"));
-  my_strdup(_ALLOC_ID_, &generic_pin, tcleval("rel_sym_path [find_file generic_pin.sym]"));
+  my_strdup(_ALLOC_ID_, &pinname[0], tcleval("rel_sym_path [find_file_first ipin.sym]"));
+  my_strdup(_ALLOC_ID_, &pinname[1], tcleval("rel_sym_path [find_file_first opin.sym]"));
+  my_strdup(_ALLOC_ID_, &pinname[2], tcleval("rel_sym_path [find_file_first iopin.sym]"));
+  my_strdup(_ALLOC_ID_, &generic_pin, tcleval("rel_sym_path [find_file_first generic_pin.sym]"));
   
   if(pinname[0] && pinname[1] && pinname[2] && generic_pin) {
     rebuild_selected_array();
