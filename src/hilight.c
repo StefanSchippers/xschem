@@ -493,7 +493,7 @@ void hilight_parent_pins(void)
  if(!xctx->hilight_nets) return;
  prepare_netlist_structs(0);
  i=xctx->previous_instance[xctx->currsch];
- inst_number = xctx->sch_inst_number[xctx->currsch+1];
+ inst_number = xctx->sch_inst_number[xctx->currsch];
 
  /* may be set to -1 by descend_symbol to notify we are
   * descending into a smbol from an instance with no embed flag set 
@@ -529,7 +529,7 @@ void hilight_parent_pins(void)
       bus_hilight_hash_lookup(find_nth(net_node, ",",
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
     }
-   }
+  }
  }
  my_free(_ALLOC_ID_, &pin_node);
  my_free(_ALLOC_ID_, &net_node);
@@ -545,10 +545,12 @@ void hilight_child_pins(void)
  int mult, net_mult, i, inst_number;
 
  i = xctx->previous_instance[xctx->currsch-1];
- if(!xctx->hilight_nets) return;
+ if(!xctx->hilight_nets) {
+   return;
+ }
  prepare_netlist_structs(0);
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
- inst_number = xctx->sch_inst_number[xctx->currsch];
+ inst_number = xctx->sch_inst_number[xctx->currsch-1];
 
  /* may be set to -1 by descend_symbol to notify we are
   * descending into a smbol from an instance with no embed flag set 

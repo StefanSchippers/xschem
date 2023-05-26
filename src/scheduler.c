@@ -1950,6 +1950,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             load_schematic(load_symbols, f, undo_reset, !force);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
+            if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
+            str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
             xctx->sch_path_hash[xctx->currsch] = 0;
             xctx->sch_inst_number[xctx->currsch] = 1;
             if(nofullzoom) draw();
@@ -2732,11 +2734,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "rebuild_connectivity"))
     {
       int err = 0;
+      int n = 1;
+      if(argc > 2) n = atoi(argv[2]);
       xctx->prep_hash_inst=0;
       xctx->prep_hash_wires=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
-      err |= prepare_netlist_structs(1);
+      err |= prepare_netlist_structs(n);
       Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
     }
 
@@ -3689,7 +3693,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
+      Str_hashentry *entry;
+      int level;
       Tcl_ResetResult(interp);
+      if(argc > 2) {
+        const char *node = argv[2];
+        level = xctx->currsch;
+        while(level > 0) {
+          entry = str_hash_lookup(&xctx->portmap[level], node, NULL, XLOOKUP);
+          if(entry) node = entry->value;
+          else break;
+          level--;
+        }
+        Tcl_AppendResult(interp, node, NULL);
+      }
     }
 
     /* toggle_colorscheme
@@ -4144,7 +4161,7 @@ int tclvareval(const char *script, ...)
     size = my_strcat(_ALLOC_ID_, &str, p);
     dbg(2, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
-  dbg(1, "tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size);
+  dbg(2, "tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size);
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);
   va_end(args);
   if(return_code != TCL_OK) {

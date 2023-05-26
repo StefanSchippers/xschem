@@ -4076,6 +4076,9 @@ void descend_symbol(void)
   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], str);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
+  if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
+  str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
+
   xctx->sch_path_hash[xctx->currsch+1] = 0;
   my_free(_ALLOC_ID_, &str);
 
@@ -4089,9 +4092,9 @@ void descend_symbol(void)
     /* use -1 to keep track we are descending into symbol from instance with no embed attr
      * we use this info to avoid asking to save parent schematic when returning from a symbol
      * created from a generator */
-    xctx->sch_inst_number[xctx->currsch+1] = -1;
+    xctx->sch_inst_number[xctx->currsch] = -1;
   else
-    xctx->sch_inst_number[xctx->currsch+1] = 1; /* inst number we descend into. For symbol always 1 */
+    xctx->sch_inst_number[xctx->currsch] = 1; /* inst number we descend into. For symbol always 1 */
   xctx->previous_instance[xctx->currsch]=n; /* instance we are descending from */
 
   /* store previous zoom area */

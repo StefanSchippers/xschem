@@ -349,6 +349,7 @@ static void free_xschem_data()
   my_free(_ALLOC_ID_, &xctx->maxl);
   my_free(_ALLOC_ID_, &xctx->sel_array);
   for(i=0;i<CADMAXHIER; ++i) {
+    if(xctx->portmap[i].table) str_hash_free(&xctx->portmap[i]);
     if(xctx->sch_path[i]) my_free(_ALLOC_ID_, &xctx->sch_path[i]);
     if(xctx->hier_attr[i].templ) my_free(_ALLOC_ID_, &xctx->hier_attr[i].templ);
     if(xctx->hier_attr[i].prop_ptr) my_free(_ALLOC_ID_, &xctx->hier_attr[i].prop_ptr);
@@ -541,8 +542,11 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->hier_attr[i].templ = NULL;
     xctx->hier_attr[i].symname = NULL;
     xctx->hier_attr[i].fd = NULL;
+    xctx->portmap[i].table = NULL;
+    xctx->portmap[i].size = 0;
   }
   my_strdup(_ALLOC_ID_, &xctx->sch_path[0],".");
+
   xctx->sch_inst_number[0] = 1;
   xctx->maxt=CADMAXTEXT;
   xctx->maxw=CADMAXWIRES;

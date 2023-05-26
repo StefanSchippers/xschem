@@ -530,6 +530,7 @@ void ask_new_file(void)
         remove_symbols();
         load_schematic(1, f, 1, 1);
         tclvareval("update_recent_file {", f, "}", NULL);
+        if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
         my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_path_hash[xctx->currsch] = 0;
         xctx->sch_inst_number[xctx->currsch] = 1;
@@ -1602,11 +1603,11 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
 
 int descend_schematic(int instnumber)
 {
- const char *str;
+ char *str = NULL;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
  int save_ok = 0;
- int n = 0;
+ int i, n = 0;
 
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
@@ -1655,17 +1656,13 @@ int descend_schematic(int instnumber)
    dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
  
    if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
-     str=expandlabel(xctx->inst[n].instname, &inst_mult);
+     my_strdup2(_ALLOC_ID_, &str, expandlabel(xctx->inst[n].instname, &inst_mult));
    } else {
-     str = "";
+     my_strdup2(_ALLOC_ID_, &str, "");
      inst_mult = 1;
    }
-   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   xctx->sch_path_hash[xctx->currsch+1] =0;
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
-             xctx->inst[n].prop_ptr);
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
-             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
+   prepare_netlist_structs(0);
+
    inst_number = 1;
    if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
                           the hierarchy path you descend to */
@@ -1677,8 +1674,7 @@ int descend_schematic(int instnumber)
        inum = tclresult();
        dbg(1, "descend_schematic(): inum=%s\n", inum);
        if(!inum[0]) {
-         my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1]);
-         xctx->sch_path_hash[xctx->currsch+1] =0;
+         my_free(_ALLOC_ID_, &str);
          return 0;
        }
        inst_number=atoi(inum);
@@ -1689,11 +1685,48 @@ int descend_schematic(int instnumber)
      /* any invalid number->descend to leftmost inst */
      if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
    }
+
+   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   xctx->sch_path_hash[xctx->currsch+1] =0;
+   if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
+   str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
+
+   for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
+     const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
+     char *pin_node = NULL, *net_node = NULL;
+     int k, mult, net_mult;
+     char *single_p = NULL, *single_n = NULL;
+
+     if(!pin_name[0]) continue;
+     if(!xctx->inst[n].node[i]) continue;
+
+     my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
+     my_strdup2(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[n].node[i], &net_mult));
+
+     for(k = 1; k<=mult; ++k) {
+         my_strdup2(_ALLOC_ID_, &single_p, find_nth(pin_node, ",", k));
+         my_strdup2(_ALLOC_ID_, &single_n,
+             find_nth(net_node, ",", ((inst_number - 1) * mult + k - 1) % net_mult + 1));
+         str_hash_lookup(&xctx->portmap[xctx->currsch + 1], single_p, single_n, XINSERT);
+         dbg(1, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n);
+     }
+     if(single_p) my_free(_ALLOC_ID_, &single_p);
+     if(single_n) my_free(_ALLOC_ID_, &single_n);
+     my_free(_ALLOC_ID_, &net_node);
+     my_free(_ALLOC_ID_, &pin_node);
+   }
+
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
+             xctx->inst[n].prop_ptr);
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
+             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
+
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
+   my_free(_ALLOC_ID_, &str);
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
-   xctx->sch_inst_number[xctx->currsch+1] = inst_number;
+   xctx->sch_inst_number[xctx->currsch] = inst_number;
    dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
    dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
  
@@ -1703,7 +1736,6 @@ int descend_schematic(int instnumber)
    xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
    xctx->currsch++;
    hilight_child_pins();
- 
    unselect_all(1);
    get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n);
    dbg(1, "descend_schematic(): filename=%s\n", filename);
@@ -1756,6 +1788,9 @@ void go_back(int confirm) /*  20171006 add confirm */
     from_embedded_sym=1;
   }
   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+  if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
+
+  xctx->sch_path_hash[xctx->currsch] = 0;
   xctx->currsch--;
   save_modified = xctx->modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
@@ -1765,7 +1800,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */
-  if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch + 1] != -1)
+  if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch] != -1)
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {
