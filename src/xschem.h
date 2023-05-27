@@ -1502,6 +1502,7 @@ extern int hilight_netname(const char *name);
 extern void unhilight_net();
 extern void propagate_hilights(int set, int clear, int mode);
 extern void  select_connected_wires(int stop_at_junction);
+extern char *resolved_net(const char *net);
 extern void draw_hilight_net(int on_window);
 extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);

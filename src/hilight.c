@@ -507,6 +507,7 @@ void hilight_parent_pins(void)
 
  for(j=0;j<rects; ++j)
  {
+  char *p_n_s1, *p_n_s2;
   if(!xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
@@ -515,9 +516,12 @@ void hilight_parent_pins(void)
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
 
+  p_n_s1 = pin_node;
   for(k = 1; k<=mult; ++k) {
     xctx->currsch++;
-    entry = bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XLOOKUP);
+    /* entry = bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XLOOKUP); */
+    entry = bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), 0, XLOOKUP);
+    p_n_s1 = NULL;
     xctx->currsch--;
     if(entry)
     {
@@ -559,6 +563,7 @@ void hilight_child_pins(void)
 
  for(j=0;j<rects; ++j)
  {
+  char *p_n_s1, *p_n_s2;
   dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
 
   if(!xctx->inst[i].node[j]) continue;
@@ -568,6 +573,7 @@ void hilight_child_pins(void)
   if(!pin_name[0]) continue;
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_child_pins(): pin_node=%s\n", pin_node);
+  p_n_s1 = pin_node;
   for(k = 1; k<=mult; ++k) {
     dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
@@ -578,13 +584,16 @@ void hilight_child_pins(void)
       ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     xctx->currsch++;
     if(entry) {
-      bus_hilight_hash_lookup(find_nth(pin_node, ",", k), entry->value, XINSERT_NOREPLACE);
+      /* bus_hilight_hash_lookup(find_nth(pin_node, ",", k), entry->value, XINSERT_NOREPLACE); */
+      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), entry->value, XINSERT_NOREPLACE);
       /* dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ",", k)); */
     }
     else {
-      bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XDELETE);
+      /* bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XDELETE); */
+      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), 0, XDELETE);
       /* dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ",", k)); */
     }
+    p_n_s1 = NULL;
   } /* for(k..) */
  }
  my_free(_ALLOC_ID_, &pin_node);
@@ -1864,6 +1873,74 @@ void select_hilight_net(void)
  rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
  redraw_hilights(0);
  
+}
+
+
+/* returns the full path name of "net" recursively resolving port connections
+ * propagating lower level nets to upper levels.
+ * "net" can be a bussed net. */
+char *resolved_net(const char *net)
+{
+  char *rnet = NULL;
+  Str_hashentry *entry;
+  if(net) {
+    char *n_s1, *n_s2;
+    int k, mult;
+    char *exp_net = NULL;
+    char *resolved_net;
+    int level = xctx->currsch;
+    int start_level;
+    char *path = xctx->sch_path[level] + 1;
+    char *path2 = NULL;
+    char *path2_ptr;
+    int skip = 0;
+
+    start_level = sch_waves_loaded();
+    if(start_level == -1) start_level = 0;
+    if(net[0] == '#') net++;
+    if(path) {
+      /* skip path components that are above the level where raw file was loaded */
+      while(*path && skip < start_level) {
+        if(*path == '.') skip++;
+        ++path;
+      }
+    }
+    dbg(1, "path=%s\n", path);
+    my_strdup(_ALLOC_ID_, &exp_net, expandlabel(net, &mult));
+    n_s1 = exp_net;
+    for(k = 0; k < mult; k++) {
+      char *net_name = my_strtok_r(n_s1, ",", "", &n_s2);
+      level = xctx->currsch;
+      n_s1 = NULL;
+      resolved_net = net_name;
+      while(level > start_level) {
+        entry = str_hash_lookup(&xctx->portmap[level], resolved_net, NULL, XLOOKUP);
+        if(entry) resolved_net = entry->value;
+        else break;
+        level--;
+      }
+      my_strdup2(_ALLOC_ID_, &path2, path);
+      skip = start_level;
+      path2_ptr = path2;
+      if(level == start_level) path2_ptr[0] = '\0';
+      else while(*path2_ptr) {
+        if(*path2_ptr == '.') skip++;
+        if(skip == level) {
+          *(path2_ptr +1) = '\0';
+          break;
+        }
+        path2_ptr++;
+      }
+      dbg(1, "path2=%s\n", path2);
+      dbg(1, "level=%d start_level=%d\n", level, start_level);
+
+      my_mstrcat(_ALLOC_ID_, &rnet, path2, resolved_net, NULL);
+      if(k < mult - 1) my_strcat(_ALLOC_ID_, &rnet, ",");
+    }
+    my_free(_ALLOC_ID_, &path2);
+    my_free(_ALLOC_ID_, &exp_net);
+  }
+  return rnet;
 }
 
 void draw_hilight_net(int on_window)

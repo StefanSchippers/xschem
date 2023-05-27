@@ -1,9 +1,10 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {type=label
 format="*.alias @lab"
-template="name=p1 sig_type=std_logic lab=xxx"}
+template="name=p1 sig_type=std_logic lab=xxx"
+net_name=true}
 V {}
 S {}
 E {}

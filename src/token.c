@@ -3287,6 +3287,15 @@ const char *translate(int inst, const char* s)
             my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
          }
        }
+
+       /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
+       if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
+         prepare_netlist_structs(0);
+         my_strdup2(_ALLOC_ID_, &pin_attr_value,
+                 xctx->inst[inst].node && xctx->inst[inst].node[n] ? 
+                    resolved_net(xctx->inst[inst].node[n]) : "?");
+       }
+
        if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
        value = pin_attr_value;
        /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */

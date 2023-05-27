@@ -439,19 +439,21 @@ size_t my_mstrcat(int id, char **str, const char *add, ...)
   append_str = add;
   do {
     if( *str != NULL) {
-      if(append_str[0]=='\0') continue;
-      a = strlen(append_str) + 1;
-      my_realloc(id, str, s + a );
-      memcpy(*str + s, append_str, a);
-      s += a - 1;
-      dbg(3,"my_mstrcat(%d,): reallocated string %s\n", id, *str);
+      if(append_str[0]) {
+        a = strlen(append_str) + 1;
+        my_realloc(id, str, s + a );
+        memcpy(*str + s, append_str, a);
+        s += a - 1;
+        dbg(3,"my_mstrcat(%d,): reallocated string %s\n", id, *str);
+      }
     } else {
-      if(append_str[0] == '\0') continue;
-      a = strlen(append_str) + 1;
-      *str = my_malloc(id, a);
-      memcpy(*str, append_str, a);
-      dbg(3,"my_mstrcat(%d,): allocated string %s\n", id, *str);
-      s = a - 1;
+      if(append_str[0]) {
+        a = strlen(append_str) + 1;
+        *str = my_malloc(id, a);
+        memcpy(*str, append_str, a);
+        s = a - 1;
+        dbg(3,"my_mstrcat(%d,): allocated string %s\n", id, *str);
+      }
     }
     append_str = va_arg(args, const char *);
   } while(append_str);

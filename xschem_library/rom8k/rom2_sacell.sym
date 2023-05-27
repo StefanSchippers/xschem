@@ -1,8 +1,10 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=subcircuit
+v {xschem version=3.4.0 file_version=1.2
+}
+G {}
+K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-}
+net_name=true}
 V {}
 S {}
 E {}
@@ -33,3 +35,5 @@ T {VSS} -125 26 0 0 0.2 0.2 {}
 T {LDQI} 125 -34 0 1 0.2 0.2 {}
 T {LDQ_B} 125 -14 0 1 0.2 0.2 {}
 T {LDYMS} 125 6 0 1 0.2 0.2 {}
+T {@#VCC:resolved_net} -100 10 0 0 0.1 0.1 { layer=15}
+T {@#VSS:resolved_net} -100 30 0 0 0.1 0.1 { layer=15}

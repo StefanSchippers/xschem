@@ -2928,6 +2928,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* resolved_net
+     *   returns the topmost full hierarchy name of selected net/pin/label
+     *   nets connected to I/O ports are mapped to upper level recursively */
+    else if(!strcmp(argv[1], "resolved_net"))
+    {
+      char *net = NULL;
+      Tcl_ResetResult(interp);
+      prepare_netlist_structs(0);
+      if(xctx->lastsel == 1) {
+        if(xctx->sel_array[0].type == ELEMENT) {
+          int n=xctx->sel_array[0].n;
+          if(xctx->inst[n].ptr >= 0) { 
+           const  char *type = xctx->sym[xctx->inst[n].ptr].type;
+            if(IS_LABEL_SH_OR_PIN(type) && xctx->inst[n].node && xctx->inst[n].node[0]) {
+              net = xctx->inst[n].node[0];
+            }
+          }
+        } else if(xctx->sel_array[0].type == WIRE) {
+          int n=xctx->sel_array[0].n;
+          if(xctx->wire[n].node) {
+            net = xctx->wire[n].node;
+          }
+        }
+      }
+      Tcl_AppendResult(interp, resolved_net(net), NULL);
+    }
+
     /* rotate
      *   Rotate selected objects around their centers */
     else if(!strcmp(argv[1], "rotate"))
@@ -3693,20 +3720,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      Str_hashentry *entry;
-      int level;
       Tcl_ResetResult(interp);
-      if(argc > 2) {
-        const char *node = argv[2];
-        level = xctx->currsch;
-        while(level > 0) {
-          entry = str_hash_lookup(&xctx->portmap[level], node, NULL, XLOOKUP);
-          if(entry) node = entry->value;
-          else break;
-          level--;
-        }
-        Tcl_AppendResult(interp, node, NULL);
-      }
     }
 
     /* toggle_colorscheme

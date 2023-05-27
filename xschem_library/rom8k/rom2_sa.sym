@@ -1,8 +1,10 @@
-v {xschem version=2.9.5_RC6 file_version=1.1}
-G {type=subcircuit
+v {xschem version=3.4.0 file_version=1.2
+}
+G {}
+K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-}
+net_name=true}
 V {}
 S {}
 E {}
@@ -36,3 +38,5 @@ T {LDPRECH} -125 -4 0 0 0.2 0.2 {}
 T {LDSAL} -125 16 0 0 0.2 0.2 {}
 T {vcc} -125 36 0 0 0.2 0.2 {}
 T {vss} -125 56 0 0 0.2 0.2 {}
+T {@#vcc:resolved_net} -100 40 0 0 0.1 0.1 { layer=15}
+T {@#vss:resolved_net} -100 60 0 0 0.1 0.1 { layer=15}

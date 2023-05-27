@@ -482,6 +482,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -758,7 +760,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
     --&gt; { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
         { {Vpanel1} {minus} {600} {-440} } </pre>
    <li><kbd>       is_symgen symbol</kbd></li><pre>
-   tell if 'symbol' is a generator (symbol(param1,param2,...) </pre>
+   tell if 'symbol' is agenerator (symbol(param1,param2,...) </pre>
    <li><kbd>       line x1 y1 x2 y2 [pos]</kbd></li><pre>
    Place a line on current layer (rectcolor) 
    if integer number 'pos' is given place line at indicated
@@ -967,6 +969,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Example: xschem replace_symbol R3 capa.sym </pre>
    <li><kbd>       reset_flags</kbd></li><pre>
    Reset cached instance and symbol cached flags (inst-&gt;flags, sym-&gt;flags) </pre>
+   <li><kbd>       resolved_net</kbd></li><pre>
+   returns the topmost full hierarchy name of selected net/pin/label
+   nets connected to I/O ports are mapped to upper level recursively </pre>
    <li><kbd>       rotate</kbd></li><pre>
    Rotate selected objects around their centers </pre>
    <li><kbd>       save</kbd></li><pre>
@@ -1175,6 +1180,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 

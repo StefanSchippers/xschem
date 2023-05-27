@@ -1,10 +1,10 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {type=iopin
 format="*.iopin @lab"
 template="name=p1 lab=xxx"
-}
+net_name=true}
 V {}
 S {}
 E {}

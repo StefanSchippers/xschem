@@ -1,10 +1,14 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {}
 V {}
 S {}
 E {}
+T {( @#0:resolved_net )} 440 -265 0 1 0.2 0.2 {name=l2 layer=15}
+T {( @#0:resolved_net )} 100 -285 0 1 0.2 0.2 {name=p1 layer=15}
+T {( @#0:resolved_net )} 100 -235 0 1 0.2 0.2 {name=p2 layer=15}
+T {( @#0:resolved_net )} 690 -265 0 1 0.2 0.2 {name=p3 layer=15}
 N 450 -240 450 -180 { lab=IOUT}
 N 450 -240 540 -240 { lab=IOUT}
 N 600 -240 680 -240 { lab=OUT}
