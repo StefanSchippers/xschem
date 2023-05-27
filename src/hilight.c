@@ -1878,7 +1878,8 @@ void select_hilight_net(void)
 
 /* returns the full path name of "net" recursively resolving port connections
  * propagating lower level nets to upper levels.
- * "net" can be a bussed net. */
+ * "net" can be a bussed net.
+ * caller *MUST* free returned string */
 char *resolved_net(const char *net)
 {
   char *rnet = NULL;

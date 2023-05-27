@@ -3290,10 +3290,13 @@ const char *translate(int inst, const char* s)
 
        /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
        if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
+         char *rn = NULL;
          prepare_netlist_structs(0);
-         my_strdup2(_ALLOC_ID_, &pin_attr_value,
-                 xctx->inst[inst].node && xctx->inst[inst].node[n] ? 
-                    resolved_net(xctx->inst[inst].node[n]) : "?");
+         if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
+           rn = resolved_net(xctx->inst[inst].node[n]);
+         }
+         my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
+         if(rn) my_free(_ALLOC_ID_, &rn);
        }
 
        if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");

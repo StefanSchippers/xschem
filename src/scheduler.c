@@ -2933,7 +2933,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   nets connected to I/O ports are mapped to upper level recursively */
     else if(!strcmp(argv[1], "resolved_net"))
     {
-      char *net = NULL;
+      char *net = NULL, *rn = NULL;
       Tcl_ResetResult(interp);
       prepare_netlist_structs(0);
       if(xctx->lastsel == 1) {
@@ -2952,7 +2952,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
       }
-      Tcl_AppendResult(interp, resolved_net(net), NULL);
+      rn = resolved_net(net);
+      Tcl_AppendResult(interp, rn, NULL);
+      my_free(_ALLOC_ID_, &rn);
     }
 
     /* rotate
