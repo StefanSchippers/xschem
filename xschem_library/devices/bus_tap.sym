@@ -3,7 +3,10 @@ v {xschem version=3.4.0 file_version=1.2
 G {}
 K {type=show_label
 template="name=l1 lab=[0]"
-format="* tap: @#0:net_name --> @#1:net_name"}
+format="* tap: @#0:net_name --> @#1:net_name"
+verilog_format="// tap: @#0:net_name --> @#1:net_name"
+vhdl_format="-- tap: @#0:net_name --> @#1:net_name"
+tedax_format="# tap: @#0:net_name --> @#1:net_name"}
 V {}
 S {}
 E {}

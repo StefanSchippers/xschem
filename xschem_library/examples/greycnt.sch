@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {process
 begin
@@ -51,19 +51,19 @@ T {GRAY} 830 -780 0 0 0.4 0.4 {}
 T {BINARY} 1210 -780 0 0 0.4 0.4 {}
 T {This example can be simulated in SPICE, VHDL, VERILOG} 50 -860 0 0 0.6 0.6 {layer=7}
 N 720 -630 830 -630 {lab=B[6]}
-N 570 -610 620 -610 {lab=A[6]}
-N 570 -530 620 -530 {lab=A[5]}
-N 570 -450 620 -450 {lab=A[4]}
+N 570 -610 620 -610 {lab=A[1]}
+N 570 -530 620 -530 {lab=A[2]}
+N 570 -450 620 -450 {lab=A[3]}
 N 720 -550 830 -550 {lab=B[5]}
 N 720 -470 830 -470 {lab=B[4]}
-N 570 -690 630 -690 {lab=A[7]}
+N 570 -690 630 -690 {lab=A[0]}
 N 720 -390 830 -390 {lab=B[3]}
-N 570 -370 620 -370 {lab=A[3]}
-N 570 -290 620 -290 {lab=A[2]}
-N 570 -210 620 -210 {lab=A[1]}
+N 570 -370 620 -370 {lab=A[4]}
+N 570 -290 620 -290 {lab=A[5]}
+N 570 -210 620 -210 {lab=A[6]}
 N 720 -310 830 -310 {lab=B[2]}
 N 720 -230 830 -230 {lab=B[1]}
-N 570 -130 620 -130 {lab=A[0]}
+N 570 -130 620 -130 {lab=A[7]}
 N 720 -150 830 -150 {lab=B[0]}
 N 830 -130 1020 -130 {lab=B[0]}
 N 830 -150 830 -130 {lab=B[0]}
@@ -82,53 +82,65 @@ N 830 -630 830 -610 {lab=B[6]}
 N 690 -690 830 -690 {lab=B[7]}
 N 830 -690 1030 -690 {lab=B[7]}
 N 830 -710 830 -690 {lab=B[7]}
-N 1120 -630 1230 -630 {lab=C[6]}
-N 1120 -550 1230 -550 {lab=C[5]}
-N 1120 -470 1230 -470 {lab=C[4]}
-N 1120 -390 1230 -390 {lab=C[3]}
-N 1120 -310 1230 -310 {lab=C[2]}
-N 1120 -230 1230 -230 {lab=C[1]}
-N 1120 -150 1230 -150 {lab=C[0]}
-N 1090 -690 1130 -690 {lab=C[7]}
-N 1130 -710 1130 -690 {lab=C[7]}
-N 1130 -710 1230 -710 {lab=C[7]}
-N 1120 -630 1120 -590 {lab=C[6]}
-N 1020 -590 1120 -590 {lab=C[6]}
-N 1020 -590 1020 -570 {lab=C[6]}
-N 1120 -550 1120 -510 {lab=C[5]}
-N 1020 -510 1120 -510 {lab=C[5]}
-N 1020 -510 1020 -490 {lab=C[5]}
-N 1120 -470 1120 -430 {lab=C[4]}
-N 1020 -430 1120 -430 {lab=C[4]}
-N 1020 -430 1020 -410 {lab=C[4]}
-N 1120 -390 1120 -350 {lab=C[3]}
-N 1020 -350 1120 -350 {lab=C[3]}
-N 1020 -350 1020 -330 {lab=C[3]}
-N 1120 -310 1120 -270 {lab=C[2]}
-N 1020 -270 1120 -270 {lab=C[2]}
-N 1020 -270 1020 -250 {lab=C[2]}
-N 1120 -230 1120 -190 {lab=C[1]}
-N 1020 -190 1120 -190 {lab=C[1]}
-N 1020 -190 1020 -170 {lab=C[1]}
-N 1130 -690 1130 -670 {lab=C[7]}
-N 1020 -670 1130 -670 {lab=C[7]}
-N 1020 -670 1020 -650 {lab=C[7]}
-N 620 -690 620 -650 {lab=A[7]}
-N 620 -610 620 -570 {lab=A[6]}
-N 620 -530 620 -490 {lab=A[5]}
-N 620 -450 620 -410 {lab=A[4]}
-N 620 -370 620 -330 {lab=A[3]}
-N 620 -290 620 -250 {lab=A[2]}
-N 620 -210 620 -170 {lab=A[1]}
+N 1120 -630 1230 -630 {lab=C[1]}
+N 1120 -550 1230 -550 {lab=C[2]}
+N 1120 -470 1230 -470 {lab=C[3]}
+N 1120 -390 1230 -390 {lab=C[4]}
+N 1120 -310 1230 -310 {lab=C[5]}
+N 1120 -230 1230 -230 {lab=C[6]}
+N 1120 -150 1230 -150 {lab=C[7]}
+N 1090 -690 1130 -690 {lab=C[0]}
+N 1130 -710 1130 -690 {lab=C[0]}
+N 1130 -710 1230 -710 {lab=C[0]}
+N 1120 -630 1120 -590 {lab=C[1]}
+N 1020 -590 1120 -590 {lab=C[1]}
+N 1020 -590 1020 -570 {lab=C[1]}
+N 1120 -550 1120 -510 {lab=C[2]}
+N 1020 -510 1120 -510 {lab=C[2]}
+N 1020 -510 1020 -490 {lab=C[2]}
+N 1120 -470 1120 -430 {lab=C[3]}
+N 1020 -430 1120 -430 {lab=C[3]}
+N 1020 -430 1020 -410 {lab=C[3]}
+N 1120 -390 1120 -350 {lab=C[4]}
+N 1020 -350 1120 -350 {lab=C[4]}
+N 1020 -350 1020 -330 {lab=C[4]}
+N 1120 -310 1120 -270 {lab=C[5]}
+N 1020 -270 1120 -270 {lab=C[5]}
+N 1020 -270 1020 -250 {lab=C[5]}
+N 1120 -230 1120 -190 {lab=C[6]}
+N 1020 -190 1120 -190 {lab=C[6]}
+N 1020 -190 1020 -170 {lab=C[6]}
+N 1130 -690 1130 -670 {lab=C[0]}
+N 1020 -670 1130 -670 {lab=C[0]}
+N 1020 -670 1020 -650 {lab=C[0]}
+N 620 -690 620 -650 {lab=A[0]}
+N 620 -610 620 -570 {lab=A[1]}
+N 620 -530 620 -490 {lab=A[2]}
+N 620 -450 620 -410 {lab=A[3]}
+N 620 -370 620 -330 {lab=A[4]}
+N 620 -290 620 -250 {lab=A[5]}
+N 620 -210 620 -170 {lab=A[6]}
+N 1240 -700 1240 -100 {
+
+bus=true
+lab=C[7:0]}
+N 1240 -100 1280 -100 {
+
+bus=true
+lab=C[7:0]}
+N 560 -680 560 -80 {
+
+bus=true
+lab=A[7:0]}
+N 520 -80 560 -80 {
+
+bus=true
+lab=A[7:0]}
 C {title.sym} 160 -30 0 0 {name=l3 author="Stefan Schippers"}
 C {verilog_timescale.sym} 30 -110 0 0 {name=s1 timestep="1ps" precision="1ps" }
 C {xnor.sym} 660 -470 0 0 {name=x2}
 C {xnor.sym} 660 -550 0 0 {name=x3}
 C {xnor.sym} 660 -630 0 0 {name=x14}
-C {lab_pin.sym} 570 -690 0 0 {name=p9 lab=A[7] }
-C {lab_pin.sym} 570 -610 0 0 {name=p1 lab=A[6] }
-C {lab_pin.sym} 570 -530 0 0 {name=p2 lab=A[5] }
-C {lab_pin.sym} 570 -450 0 0 {name=p3 lab=A[4] }
 C {lab_pin.sym} 830 -710 0 1 {name=p4 lab=B[7]}
 C {lab_pin.sym} 830 -630 0 1 {name=p0 lab=B[6]}
 C {lab_pin.sym} 830 -550 0 1 {name=p5 lab=B[5]}
@@ -137,14 +149,10 @@ C {assign.sym} 660 -690 0 0 {name=v1 delay=1}
 C {xnor.sym} 660 -230 0 0 {name=x1}
 C {xnor.sym} 660 -310 0 0 {name=x4}
 C {xnor.sym} 660 -390 0 0 {name=x5}
-C {lab_pin.sym} 570 -370 0 0 {name=p7 lab=A[3] }
-C {lab_pin.sym} 570 -290 0 0 {name=p8 lab=A[2] }
-C {lab_pin.sym} 570 -210 0 0 {name=p10 lab=A[1]}
 C {lab_pin.sym} 830 -390 0 1 {name=p11 lab=B[3]}
 C {lab_pin.sym} 830 -310 0 1 {name=p12 lab=B[2]}
 C {lab_pin.sym} 830 -230 0 1 {name=p13 lab=B[1]}
 C {xnor.sym} 660 -150 0 0 {name=x6}
-C {lab_pin.sym} 570 -130 0 0 {name=p14 lab=A[0]}
 C {lab_pin.sym} 830 -150 0 1 {name=p15 lab=B[0]}
 C {lab_pin.sym} 150 -220 0 1 { name=l16 lab=B[7:0] }
 C {lab_pin.sym} 90 -200 0 0 { name=l17 lab=A[7:0]  verilog_type=reg}
@@ -156,14 +164,6 @@ C {xnor.sym} 1060 -230 0 0 {name=x10}
 C {xnor.sym} 1060 -310 0 0 {name=x11}
 C {xnor.sym} 1060 -390 0 0 {name=x12}
 C {xnor.sym} 1060 -150 0 0 {name=x13}
-C {lab_pin.sym} 1230 -710 0 1 {name=p18 lab=C[7]}
-C {lab_pin.sym} 1230 -630 0 1 {name=p19 lab=C[6]}
-C {lab_pin.sym} 1230 -550 0 1 {name=p20 lab=C[5]}
-C {lab_pin.sym} 1230 -470 0 1 {name=p21 lab=C[4]}
-C {lab_pin.sym} 1230 -390 0 1 {name=p22 lab=C[3]}
-C {lab_pin.sym} 1230 -310 0 1 {name=p23 lab=C[2]}
-C {lab_pin.sym} 1230 -230 0 1 {name=p24 lab=C[1]}
-C {lab_pin.sym} 1230 -150 0 1 {name=p25 lab=C[0]}
 C {lab_pin.sym} 150 -190 0 1 { name=l26 lab=C[7:0] }
 C {use.sym} 60 -650 0 0 {library ieee;
 use std.TEXTIO.all;
@@ -174,3 +174,21 @@ use ieee.std_logic_unsigned.all;
 
 }
 C {noconn.sym} 90 -200 0 1 {name=l1}
+C {bus_tap.sym} 1240 -700 3 0 {name=l2 lab=[0]}
+C {bus_tap.sym} 1240 -620 3 0 {name=l4 lab=[1]}
+C {bus_tap.sym} 1240 -540 3 0 {name=l5 lab=[2]}
+C {bus_tap.sym} 1240 -460 3 0 {name=l6 lab=[3]}
+C {bus_tap.sym} 1240 -380 3 0 {name=l7 lab=[4]}
+C {bus_tap.sym} 1240 -300 3 0 {name=l8 lab=[5]}
+C {bus_tap.sym} 1240 -220 3 0 {name=l9 lab=[6]}
+C {bus_tap.sym} 1240 -140 3 0 {name=l10 lab=[7]}
+C {lab_pin.sym} 1280 -100 0 1 {name=p16 lab=C[7:0]}
+C {bus_tap.sym} 560 -680 1 1 {name=l11 lab=[0]}
+C {bus_tap.sym} 560 -600 1 1 {name=l12 lab=[1]}
+C {bus_tap.sym} 560 -520 1 1 {name=l13 lab=[2]}
+C {bus_tap.sym} 560 -440 1 1 {name=l14 lab=[3]}
+C {bus_tap.sym} 560 -360 1 1 {name=l15 lab=[4]}
+C {bus_tap.sym} 560 -280 1 1 {name=l18 lab=[5]}
+C {bus_tap.sym} 560 -200 1 1 {name=l19 lab=[6]}
+C {bus_tap.sym} 560 -120 1 1 {name=l20 lab=[7]}
+C {lab_pin.sym} 520 -80 0 0 {name=p1 lab=A[7:0]}

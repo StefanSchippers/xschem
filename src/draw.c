@@ -3147,14 +3147,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                 wrap) {                          /* ... or sweep variable changed direction */
                 if(dataset == -1 || dataset == sweepvar_wrap) {
                   /* plot graph */
+                  if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+                  else wave_color = wc;
                   if(bus_msb) {
                     if(digital) {
                       draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
                                    sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
-                    if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
-                    else wave_color = wc;
                     if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
                   }
@@ -3190,14 +3190,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               /* plot graph. Bus bundles are not plotted if graph is not digital.*/
+              if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+              else wave_color = wc;
               if(bus_msb) {
                 if(digital) {
                   draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
                                sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
-                if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
-                else wave_color = wc;
                 if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
               }
