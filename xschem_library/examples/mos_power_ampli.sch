@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {type=subcircuit
@@ -74,6 +74,9 @@ T {ANALOG AUDIO AMPLIFIER
 N-Channel only power stage} 290 -380 0 0 0.5 0.5 {layer=8 symbol_ignore=true}
 T {@name} 40 -1350 0 0 0.8 0.8 {}
 T {@symname} 1320 -1350 0 1 0.8 0.8 {}
+T {( @#0:resolved_net )} 120 -635 0 1 0.2 0.2 {name=p0 layer=15}
+T {( @#0:resolved_net )} 120 -585 0 1 0.2 0.2 {name=p1 layer=15}
+T {( @#0:resolved_net )} 1360 -665 0 1 0.2 0.2 {name=p5 layer=15}
 N 180 -590 180 -550 {lab=E9}
 N 260 -550 340 -550 {lab=E9}
 N 340 -590 340 -550 {lab=E9}

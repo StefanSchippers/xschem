@@ -3170,6 +3170,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   int symbols, sym_n_pins=0, generator;
   char *cmd = NULL;
   char *translated_cmd = NULL;
+  int is_floater = 0;
 
   if(!name) {
     dbg(0, "l_s_d(): Warning: name parameter set to NULL, returning with no action\n");
@@ -3564,7 +3565,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
        continue;
      }
      load_ascii_string(&tmptext.prop_ptr, lcc[level].fd);
-     if( !strcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true")) {
+
+     is_floater = 0;
+     get_tok_value(tmptext.prop_ptr, "name", 2);
+     if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
+     if( !strcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
        my_free(_ALLOC_ID_, &tmptext.prop_ptr);
        my_free(_ALLOC_ID_, &tmptext.txt_ptr);
        continue;

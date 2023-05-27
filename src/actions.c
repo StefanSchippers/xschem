@@ -1695,7 +1695,7 @@ int descend_schematic(int instnumber)
      const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
      char *pin_node = NULL, *net_node = NULL;
      int k, mult, net_mult;
-     char *single_p, *single_n = NULL;
+     char *single_p, *single_n = NULL, *single_n_ptr = NULL;
      char *p_n_s1 = NULL;
      char *p_n_s2 = NULL;
 
@@ -1708,12 +1708,14 @@ int descend_schematic(int instnumber)
      p_n_s1 = pin_node;
      for(k = 1; k<=mult; ++k) {
          single_p = my_strtok_r(p_n_s1, ",", "", &p_n_s2);
-         if(single_p[0] == '#') single_p++;
          p_n_s1 = NULL;
          my_strdup2(_ALLOC_ID_, &single_n,
              find_nth(net_node, ",", ((inst_number - 1) * mult + k - 1) % net_mult + 1));
-         str_hash_lookup(&xctx->portmap[xctx->currsch + 1], single_p, single_n, XINSERT);
-         dbg(1, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n);
+         single_n_ptr = single_n;
+         if(single_n_ptr[0] == '#') single_n_ptr++;
+
+         str_hash_lookup(&xctx->portmap[xctx->currsch + 1], single_p, single_n_ptr, XINSERT);
+         dbg(0, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n_ptr);
      }
      if(single_n) my_free(_ALLOC_ID_, &single_n);
      my_free(_ALLOC_ID_, &net_node);
