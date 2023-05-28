@@ -54,7 +54,7 @@ lab=DATA[15:0]}
 N 280 -810 940 -810 {bus=true
 lab=DIN[15..0]}
 N 390 -800 390 -740 {
-lab=DIN0}
+lab=0}
 N 610 -800 610 -740 {
 lab=DIN[4..1]}
 N 390 -680 390 -660 {
@@ -62,8 +62,22 @@ lab=VSS}
 N 610 -680 610 -660 {
 lab=VSS}
 N 810 -800 810 -740 {
-lab=DIN5}
+lab=5}
 N 810 -680 810 -660 {
+lab=VSS}
+N 1110 -620 1770 -620 {bus=true
+lab=ADD[3:0],ENAB,CK}
+N 1220 -610 1220 -550 {
+lab=ADD[3:0]}
+N 1440 -610 1440 -550 {
+lab=ENAB}
+N 1220 -490 1220 -470 {
+lab=VSS}
+N 1440 -490 1440 -470 {
+lab=VSS}
+N 1640 -610 1640 -550 {
+lab=CK}
+N 1640 -490 1640 -470 {
 lab=VSS}
 C {bus_tap.sym} 510 -380 3 0 {name=l1 lab=[3]
 net_name=true}
@@ -200,4 +214,36 @@ device=resistor
 m=1
 net_name=true}
 C {lab_pin.sym} 810 -660 0 0 {name=p14 sig_type=std_logic lab=VSS
+}
+C {lab_pin.sym} 1110 -620 0 0 {name=p15 sig_type=std_logic lab=ADD[3:0],ENAB,CK
+}
+C {bus_tap.sym} 1210 -620 1 0 {name=l13 lab=[3:0]
+net_name=true}
+C {bus_tap.sym} 1430 -620 1 0 {name=l14 lab=ENAB
+net_name=true}
+C {res.sym} 1440 -520 0 0 {name=R1[3:0]
+value=1k
+footprint=1206
+device=resistor
+m=1
+net_name=true}
+C {res.sym} 1220 -520 0 0 {name=R5
+value=1k
+footprint=1206
+device=resistor
+m=1
+net_name=true}
+C {lab_pin.sym} 1220 -470 0 0 {name=p16 sig_type=std_logic lab=VSS
+}
+C {lab_pin.sym} 1440 -470 0 0 {name=p17 sig_type=std_logic lab=VSS
+}
+C {bus_tap.sym} 1630 -620 1 0 {name=l15 lab=CK
+net_name=true}
+C {res.sym} 1640 -520 0 0 {name=R6
+value=1k
+footprint=1206
+device=resistor
+m=1
+net_name=true}
+C {lab_pin.sym} 1640 -470 0 0 {name=p18 sig_type=std_logic lab=VSS
 }

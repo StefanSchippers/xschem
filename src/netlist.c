@@ -871,11 +871,18 @@ static int instcheck(int n, int p)
   }
   else if(bus_tap && p == 0) {
     char *node_base_name = NULL;
+    const char *tap;
     dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[0]);
     if(!inst[n].node[1]) {
-      node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[0]) + 1);
-      sscanf(inst[n].node[0], "%[^[]", node_base_name);
-      my_strcat(_ALLOC_ID_, &node_base_name, get_tok_value(inst[n].prop_ptr, "lab", 0));
+      tap = get_tok_value(inst[n].prop_ptr, "lab", 0);
+      if(tap[0] == '[') {
+        node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[0]) + 1);
+        sscanf(inst[n].node[0], "%[^[]", node_base_name);
+        my_strcat(_ALLOC_ID_, &node_base_name, tap);
+      }
+      else {
+        my_strdup2(_ALLOC_ID_, &node_base_name, tap);
+      }
       set_inst_node(n, 1, node_base_name);
       get_inst_pin_coord(n, 1, &x0, &y0);
       get_square(x0, y0, &sqx, &sqy);
