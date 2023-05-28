@@ -5881,7 +5881,7 @@ proc build_widgets { {topwin {} } } {
        -command {
          input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
        }
-  $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins" -variable show_pin_net_names \
+  $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins/floaters" -variable show_pin_net_names \
      -command {
         xschem update_all_sym_bboxes
         xschem redraw

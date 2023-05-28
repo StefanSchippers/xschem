@@ -3277,8 +3277,8 @@ const char *translate(int inst, const char* s)
        if(!pin_attr_value && is_net_name) {
          char *instprop = xctx->inst[inst].prop_ptr;
          char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-         if(s_pnetname && (!strcmp(get_tok_value(instprop, "net_name", 0), "true") ||
-            !strcmp(get_tok_value(symprop, "net_name", 0), "true"))) {
+         if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+            !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
             prepare_netlist_structs(0);
             my_strdup2(_ALLOC_ID_, &pin_attr_value,
                  xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
@@ -3291,12 +3291,20 @@ const char *translate(int inst, const char* s)
        /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
        if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
          char *rn = NULL;
-         prepare_netlist_structs(0);
-         if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
-           rn = resolved_net(xctx->inst[inst].node[n]);
+         char *instprop = xctx->inst[inst].prop_ptr;
+         char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
+         dbg(1, "translate(): resolved_net: %s, symbol %s\n", xctx->current_name, xctx->inst[inst].name);
+         if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+            !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
+           prepare_netlist_structs(0);
+           if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
+             rn = resolved_net(xctx->inst[inst].node[n]);
+           }
+           my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
+           if(rn) my_free(_ALLOC_ID_, &rn);
+         } else {
+            my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
          }
-         my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
-         if(rn) my_free(_ALLOC_ID_, &rn);
        }
 
        if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
