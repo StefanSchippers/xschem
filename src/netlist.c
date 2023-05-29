@@ -875,9 +875,21 @@ static int instcheck(int n, int p)
     dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[0]);
     if(!inst[n].node[1]) {
       tap = get_tok_value(inst[n].prop_ptr, "lab", 0);
-      if(tap[0] == '[') {
+      if(tap[0] == '[' || isonlydigit(tap)) {
+        char *nptr = strchr(inst[n].node[0], '[');
+        if(nptr) {
+           while(nptr > inst[n].node[0]) {
+             nptr--;
+             if(*nptr == ',') {
+               while(*(++nptr) ==' ');
+               break;
+             }
+           }
+        } else {
+          nptr = inst[n].node[0];
+        }
         node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[0]) + 1);
-        sscanf(inst[n].node[0], "%[^[]", node_base_name);
+        sscanf(nptr, "%[^[]", node_base_name);
         my_strcat(_ALLOC_ID_, &node_base_name, tap);
       }
       else {

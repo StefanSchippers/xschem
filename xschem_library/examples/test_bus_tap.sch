@@ -51,33 +51,33 @@ N 300 -510 300 -500 {
 lab=VCC}
 N 950 -420 950 -380 {
 lab=DATA[15:0]}
-N 280 -810 940 -810 {bus=true
+N 280 -780 940 -780 {bus=true
 lab=DIN[15..0]}
-N 390 -800 390 -740 {
+N 390 -770 390 -710 {
 lab=0}
-N 610 -800 610 -740 {
+N 610 -770 610 -710 {
 lab=DIN[4..1]}
-N 390 -680 390 -660 {
+N 390 -650 390 -630 {
 lab=VSS}
-N 610 -680 610 -660 {
+N 610 -650 610 -630 {
 lab=VSS}
-N 810 -800 810 -740 {
+N 810 -770 810 -710 {
 lab=5}
-N 810 -680 810 -660 {
+N 810 -650 810 -630 {
 lab=VSS}
-N 1110 -620 1770 -620 {bus=true
-lab=ADD[3:0],ENAB,CK}
-N 1220 -610 1220 -550 {
+N 280 -970 940 -970 {bus=true
+lab="CK , S1, ADD[3:0],ENAB"}
+N 390 -960 390 -900 {
 lab=ADD[3:0]}
-N 1440 -610 1440 -550 {
+N 610 -960 610 -900 {
 lab=ENAB}
-N 1220 -490 1220 -470 {
+N 390 -840 390 -820 {
 lab=VSS}
-N 1440 -490 1440 -470 {
+N 610 -840 610 -820 {
 lab=VSS}
-N 1640 -610 1640 -550 {
+N 810 -960 810 -900 {
 lab=CK}
-N 1640 -490 1640 -470 {
+N 810 -840 810 -820 {
 lab=VSS}
 C {bus_tap.sym} 510 -380 3 0 {name=l1 lab=[3]
 net_name=true}
@@ -183,67 +183,67 @@ author="tcleval(Stefan Schippers[
     xschem update_all_sym_bboxes
   \}]
 )"}
-C {lab_pin.sym} 280 -810 0 0 {name=p11 sig_type=std_logic lab=DIN[15..0]
+C {lab_pin.sym} 280 -780 0 0 {name=p11 sig_type=std_logic lab=DIN[15..0]
 }
-C {bus_tap.sym} 380 -810 1 0 {name=l10 lab=0
+C {bus_tap.sym} 380 -780 1 0 {name=l10 lab=0
 net_name=true}
-C {bus_tap.sym} 600 -810 1 0 {name=l11 lab=[4..1]
+C {bus_tap.sym} 600 -780 1 0 {name=l11 lab=[4..1]
 net_name=true}
-C {res.sym} 610 -710 0 0 {name=R11[3:0]
+C {res.sym} 610 -680 0 0 {name=R11[3:0]
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {res.sym} 390 -710 0 0 {name=R12
+C {res.sym} 390 -680 0 0 {name=R12
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {lab_pin.sym} 390 -660 0 0 {name=p12 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 390 -630 0 0 {name=p12 sig_type=std_logic lab=VSS
 }
-C {lab_pin.sym} 610 -660 0 0 {name=p13 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 610 -630 0 0 {name=p13 sig_type=std_logic lab=VSS
 }
-C {bus_tap.sym} 800 -810 1 0 {name=l12 lab=5
+C {bus_tap.sym} 800 -780 1 0 {name=l12 lab=5
 net_name=true}
-C {res.sym} 810 -710 0 0 {name=R13
+C {res.sym} 810 -680 0 0 {name=R13
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {lab_pin.sym} 810 -660 0 0 {name=p14 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 810 -630 0 0 {name=p14 sig_type=std_logic lab=VSS
 }
-C {lab_pin.sym} 1110 -620 0 0 {name=p15 sig_type=std_logic lab=ADD[3:0],ENAB,CK
+C {lab_pin.sym} 280 -970 0 0 {name=p15 sig_type=std_logic lab="CK , S1, ADD[3:0],ENAB"
 }
-C {bus_tap.sym} 1210 -620 1 0 {name=l13 lab=[3:0]
+C {bus_tap.sym} 380 -970 1 0 {name=l13 lab=[3:0]
 net_name=true}
-C {bus_tap.sym} 1430 -620 1 0 {name=l14 lab=ENAB
+C {bus_tap.sym} 600 -970 1 0 {name=l14 lab=ENAB
 net_name=true}
-C {res.sym} 1440 -520 0 0 {name=R1[3:0]
+C {res.sym} 610 -870 0 0 {name=R1[3:0]
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {res.sym} 1220 -520 0 0 {name=R5
+C {res.sym} 390 -870 0 0 {name=R5
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {lab_pin.sym} 1220 -470 0 0 {name=p16 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 390 -820 0 0 {name=p16 sig_type=std_logic lab=VSS
 }
-C {lab_pin.sym} 1440 -470 0 0 {name=p17 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 610 -820 0 0 {name=p17 sig_type=std_logic lab=VSS
 }
-C {bus_tap.sym} 1630 -620 1 0 {name=l15 lab=CK
+C {bus_tap.sym} 800 -970 1 0 {name=l15 lab=CK
 net_name=true}
-C {res.sym} 1640 -520 0 0 {name=R6
+C {res.sym} 810 -870 0 0 {name=R6
 value=1k
 footprint=1206
 device=resistor
 m=1
 net_name=true}
-C {lab_pin.sym} 1640 -470 0 0 {name=p18 sig_type=std_logic lab=VSS
+C {lab_pin.sym} 810 -820 0 0 {name=p18 sig_type=std_logic lab=VSS
 }
