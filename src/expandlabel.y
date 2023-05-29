@@ -386,7 +386,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          sign = XSIGN($3-$1);
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
-                         dbg(3, "yyparse(): parsing first idx range\n");
                          for(i=$1;;i+=sign*$5)
                          {
                           check_idx(&$$,++$$[0]);
@@ -401,7 +400,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int i;
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
-                         dbg(3, "yyparse(): parsing first idx range\n");
                          for(i=$1;;i+=XSIGN($3-$1))
                          {
                           check_idx(&$$,++$$[0]);
@@ -410,7 +408,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          }
                         }
         | B_IDXNUM      { 
-                         dbg(3, "yyparse(): parsing first idx item\n");
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                           check_idx(&$$, ++$$[0]);
@@ -437,7 +434,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int sign;
 
                          sign = XSIGN($5-$3);
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
                          for(i=$3;;i+=sign*$7)
                          {
                           check_idx(&$$, ++$$[0]);
@@ -449,7 +445,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
         | index ',' B_IDXNUM ':' B_IDXNUM
                         {
                          int i;
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
                          for(i=$3;;i+=XSIGN($5-$3))
                          {
                           check_idx(&$$, ++$$[0]);
@@ -459,7 +454,6 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         }
         | index ',' B_IDXNUM
                         {
-                         dbg(3, "yyparse(): parsing comma sep idx list\n");
                           check_idx(&$$, ++$$[0]);
                          $$[$$[0]]=$3;
                         }
@@ -489,7 +483,6 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          sign = XSIGN($3-$1);
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
-                         dbg(3, "yyparse(): parsing first idx range\n");
                          for(i=$1;;i+=sign*$5)
                          {
                           check_idx(&$$,++$$[0]);
@@ -504,7 +497,6 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          int i;
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
-                         dbg(3, "yyparse(): doubledot\n");
                          for(i=$1;;i+=XSIGN($3-$1))
                          {
                           check_idx(&$$,++$$[0]);
@@ -533,7 +525,6 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          int sign;
                          
                          sign = XSIGN($5-$3);
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
                          for(i=$3;;i+=sign*$7)
                          {
                           check_idx(&$$, ++$$[0]);
@@ -545,7 +536,6 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
 	| index_nobracket ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM
                         {
                          int i;
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
                          for(i=$3;;i+=XSIGN($5-$3))
                          {
                           check_idx(&$$, ++$$[0]);
@@ -553,59 +543,17 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                           if(i==$5) break;
                          }
                         }
-
-
-
-	| index ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM
-                        {
-                         /* start .. end .. offset .. repetitions */
-                         int r, i, sign, offset;
-                         sign = XSIGN($5-$3);
-                         offset = 0;
-                         for(r=0; r < $9; r++) {
-                           for(i = $3;; i += sign) {
-                             check_idx(&$$,++$$[0]);
-                             $$[$$[0]] = i + offset;
-                             if(i == $5) break;
-                           }
-                           offset += $7;
-                         }
-                        }
-	| index ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM
-                        {
-                         int i;   
-                         int sign;
-                         
-                         sign = XSIGN($5-$3);
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
-                         for(i=$3;;i+=sign*$7)
-                         {
-                          check_idx(&$$, ++$$[0]);
-                          $$[$$[0]]=i;
-                          if(sign==1 && i + $7 > $5) break;
-                          if(sign==-1 && i - $7 < $5) break;
-                         }
-                        }
-	| index ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM
-                        {
-                         int i;
-                         dbg(3, "yyparse(): parsing comma sep idx range\n");
-                         for(i=$3;;i+=XSIGN($5-$3))
-                         {
-                          check_idx(&$$, ++$$[0]);
-                          $$[$$[0]]=i;
-                          if(i==$5) break;
-                         }
-                        }
-
 	| index_nobracket ',' B_IDXNUM
                         {
-                         dbg(3, "yyparse(): parsing comma sep idx list\n");
-                          check_idx(&$$, ++$$[0]);
+                         check_idx(&$$, ++$$[0]);
                          $$[$$[0]]=$3;
                         }
-
-
+/*
+	| B_IDXNUM ',' index_nobracket
+                        {
+                          if($$==NULL) dbg(0, "null\n");
+                        }
+*/
 
 %%
 
