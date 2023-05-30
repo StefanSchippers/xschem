@@ -89,6 +89,27 @@ xinv0 BB5 AA0 bf
   Example of a more complex bus routing. main bus is a bundle of 2 buses: DATA_A[0..15] and DATA_B[0..15]
  </p>
  <img src="busses3.png">
+
+ <h2> BUS TAPS</h2>
+ <p>
+  A new symbol, <kbd>devices/bus_tap.sym</kbd> has been creted to make bus connections more flexible.
+  This is a 2 pin symbol, one pin must be connected to the bus wire, the other pin only defines the bus slice, indicating
+  only the range of bits and not the complete bus name: </p>
+ <img src="busses4.png">
+ <p>
+  As you see in the picture a <kbd>lab</kbd> attribute is given that specifies only a bit range, like 
+  <kbd>[13]</kbd> or <kbd>[7:0]</kbd>. The net attached to the 'bus slice' end of the <kbd>bus_tap.sym</kbd>
+  will get the base name of the bus (<kbd>DATA</kbd> in the example) and the index, that is <kbd>DATA[13]</kbd>
+  In the example below the menu <kbd>Options-&gt;Show net names on symbol pins / floaters</kbd> has been enbled
+  to see (the pink texts) the resulting net names.
+ </p>
+ <img src="busses5.png">
+ <p>
+  A complete example <kbd>examples/test_bus_tap.sch</kbd> shows various possible <kbd>bus_tap.sym</kbd> use cases.
+ </p>
+ <img src="busses6.png">
+ <br>
+ <br>
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
