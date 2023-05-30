@@ -204,6 +204,9 @@
           <Component Id="cmp157B5219A7A2A7FADB3A03AC8C900547" Guid="{83778CA6-D493-4C9A-B8AB-A11667021FEE}">
             <File Id="fil1520D09F9EA53D3076FB37540B25E1A2" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\ngspice_probe.sym" />
           </Component>
+		  <Component Id="cmp7FD77D2D892EDE017A87A8187530E68E" Guid="{0C03C139-5FAF-4C5B-B68E-9930E8A25600}">
+			<File Id="fil38BD4B1BE8B914BDD3435D447177F3ED" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\njfet.sym" />
+		  </Component>
           <Component Id="cmp760183C5DD94B043236C0C76AED52D1D" Guid="{4B9B5AF9-6623-4292-9094-75259105FE2C}">
             <File Id="filEA10B76709EC397050799A266185C1C9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\nmos-sub.sym" />
           </Component>
@@ -243,6 +246,9 @@
           <Component Id="cmp004CF4DDC696E3EA52D640D9E37AD267" Guid="{93A83FAB-3113-4F12-B794-C1726A720B6D}">
             <File Id="fil22CE0DC0F66C9807D47F5F318E320D7E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\parax_cap.sym" />
           </Component>
+		  <Component Id="cmp83E841F168C67A3E16B8A581130029ED" Guid="{EAEBA77A-7B81-4B11-B66E-3FEF7DC99887}">
+			<File Id="fil0C7E6C9D95B3E223F0F7DA2FCD23F86D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\pjfet.sym" />
+		  </Component>
           <Component Id="cmp54688CF5860243A791DC28F51936B7AF" Guid="{924D0C0C-FD3D-485E-83A5-F0083C856B35}">
             <File Id="fil9568DD89BCD1E639CA02A3134ACE4403" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\pmos-sub.sym" />
           </Component>
@@ -638,6 +644,12 @@
           <Component Id="cmp0898DA6C877FCE7864D357A26953F87A" Guid="{A01C4B30-3880-4A65-8930-31C91909C861}">
               <File Id="fil82A165D995D6368288BB7A46B7261CCD" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_extracted_netlist.sym" />
           </Component>
+		  <Component Id="cmp907587BBD5473F9A4C86688C17BDE5A8" Guid="{565595E6-AECE-4493-8299-E06259256FEF}">
+			<File Id="filAC3A6D5553970430289AD03D022B6141" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_jfet.sch" />
+		  </Component>
+		  <Component Id="cmp1D7B9F6FEEFBCF02E529E9A1A971ADBA" Guid="{36CECE33-0276-4CE2-9D1A-7A8E87E46E74}">
+			<File Id="fil8E71C7CEED0DF364222086BC8786905A" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_jfet.sym" />
+		  </Component>
           <Component Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" Guid="{62C5CBE3-D841-4D0E-A076-75414096A2DA}">
             <File Id="fil44DEAF0637B5696172643A0ED1297267" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_lm324.sch" />
           </Component>
@@ -5564,6 +5576,7 @@
       <ComponentRef Id="cmpDBD7997C2E32AB5D4A9CFE2301C1B9E8" />
       <ComponentRef Id="cmpD848F0569DB3AD069EA0882CFC8AAB44" />
       <ComponentRef Id="cmp157B5219A7A2A7FADB3A03AC8C900547" />
+	  <ComponentRef Id="cmp7FD77D2D892EDE017A87A8187530E68E" />
       <ComponentRef Id="cmp760183C5DD94B043236C0C76AED52D1D" />
       <ComponentRef Id="cmp201AEE90E7E1E6B8B996CDEF03672DE2" />
       <ComponentRef Id="cmpED5728849DC160EFFFBC268099D26236" />
@@ -5577,6 +5590,7 @@
       <ComponentRef Id="cmpEF5F9118C01D87DA5656E9E45327C63B" />
       <ComponentRef Id="cmpAFDCFB6B1E8F20898A155E1037F6BE69" />
       <ComponentRef Id="cmp004CF4DDC696E3EA52D640D9E37AD267" />
+	  <ComponentRef Id="cmp83E841F168C67A3E16B8A581130029ED" />
       <ComponentRef Id="cmp54688CF5860243A791DC28F51936B7AF" />
       <ComponentRef Id="cmp0A04CF242AD8E4EE29B024EF4F3A1AB3" />
       <ComponentRef Id="cmp5DBC6910BF9FEA52DCE5E1FF0990B552" />
@@ -5708,6 +5722,8 @@
       <ComponentRef Id="cmp67FF7D4EB6E699EEC0A31BF183FA828E" />
       <ComponentRef Id="cmpC16AA3364EC55046BA68DBB76C8ED4BB" />
       <ComponentRef Id="cmp0898DA6C877FCE7864D357A26953F87A" />
+	  <ComponentRef Id="cmp907587BBD5473F9A4C86688C17BDE5A8" />
+	  <ComponentRef Id="cmp1D7B9F6FEEFBCF02E529E9A1A971ADBA" />
       <ComponentRef Id="cmp77E0F6C53A43FB1A2E8231AA49C7A604" />
       <ComponentRef Id="cmp4B4D8B4C4B196D864383F4138BBA8B2D" />
       <ComponentRef Id="cmp7BBFD4FFD4BD205783E8852433FC5873" />

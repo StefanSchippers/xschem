@@ -12,10 +12,6 @@ will result in net
 T {Title symbol has embedded TCL command
 to enable show_pin_net_names } 180 -110 0 0 0.4 0.4 { layer=7}
 T {@#1:net_name} 1120 -1030 0 0 0.4 0.4 {name=l19 layer=4}
-T {This label only names the
-bus radix. Do NOT attach
-components to it.
-Use a bus tap symbol.} 870 -770 0 0 0.3 0.3 {}
 N 170 -390 910 -390 {bus=true
 lab=DATA[15:0]}
 N 390 -530 390 -400 {
@@ -85,7 +81,7 @@ lab=CK}
 N 700 -850 700 -830 {
 lab=VSS}
 N 980 -790 1640 -790 {bus=true
-lab=DOUT}
+lab=DOUT[15:0]}
 N 1140 -780 1140 -720 {
 lab=DOUT[0]}
 N 1310 -780 1310 -720 {
@@ -104,6 +100,8 @@ N 1090 -1170 1110 -1170 {
 lab=DOUT[15:0]}
 N 1110 -1170 1110 -800 {
 lab=DOUT[15:0]}
+N 620 -600 620 -590 {
+lab=VCC}
 C {bus_tap.sym} 400 -390 3 0 {name=l1 lab=[3]
 }
 C {bus_tap.sym} 290 -390 3 0 {name=l2 lab=[13]
@@ -246,13 +244,13 @@ C {bus_tap.sym} 270 -980 1 0 {name=l13 lab=[3:0]
 }
 C {bus_tap.sym} 490 -980 1 0 {name=l14 lab=ENAB
 }
-C {res.sym} 500 -880 0 0 {name=R15[3:0]
+C {res.sym} 280 -880 0 0 {name=R15[3:0]
 value=1k
 footprint=1206
 device=resistor
 m=1
 }
-C {res.sym} 280 -880 0 0 {name=R14
+C {res.sym} 500 -880 0 0 {name=R14
 value=1k
 footprint=1206
 device=resistor
@@ -272,7 +270,7 @@ m=1
 }
 C {lab_pin.sym} 700 -830 0 0 {name=p18 sig_type=std_logic lab=VSS
 }
-C {lab_pin.sym} 980 -790 0 0 {name=p19 sig_type=std_logic lab=DOUT
+C {lab_pin.sym} 980 -790 0 0 {name=p19 sig_type=std_logic lab=DOUT[15:0]
 }
 C {bus_tap.sym} 1130 -790 1 0 {name=l16 lab=[0]
 }
@@ -313,4 +311,6 @@ C {lab_pin.sym} 680 -1090 0 0 {name=p28 lab=LDSAL}
 C {lab_pin.sym} 680 -1070 0 0 {name=p29 lab=vcc}
 C {lab_pin.sym} 680 -1050 0 0 {name=p30 lab=vss}
 C {bus_tap.sym} 1120 -790 3 0 {name=l19 lab=[15:0]
+}
+C {lab_pin.sym} 620 -600 0 0 {name=p23 sig_type=std_logic lab=VCC
 }
