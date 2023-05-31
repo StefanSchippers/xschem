@@ -1715,7 +1715,7 @@ int descend_schematic(int instnumber)
          if(single_n_ptr[0] == '#') single_n_ptr++;
 
          str_hash_lookup(&xctx->portmap[xctx->currsch + 1], single_p, single_n_ptr, XINSERT);
-         dbg(0, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n_ptr);
+         dbg(1, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n_ptr);
      }
      if(single_n) my_free(_ALLOC_ID_, &single_n);
      my_free(_ALLOC_ID_, &net_node);
