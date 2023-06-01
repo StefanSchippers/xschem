@@ -33,7 +33,7 @@
 #define CAD_SPICE_NETLIST 1
 
 
-int dbg_var = 0;
+static int dbg_var = 0;
 #include "xschem.h"
 
 /* 

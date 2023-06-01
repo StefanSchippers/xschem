@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include "xschem.h"
 
+static int dbg_var=3;
 #ifndef STRINGPTR
 #define STRINGPTR
 typedef struct          /* used in expandlabel.y */
@@ -261,25 +262,26 @@ int  *idx;  /* for bus index & bus index ranges */
 
 line:    /* empty */
          | list         {
+                         dbg(dbg_var, "yyparse(): list, dest_string.str=%s\n", $1.str);
                          my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str); 
                          my_free(_ALLOC_ID_, &$1.str); 
                          dest_string.m=$1.m;
                         }
 ;
 list:     B_NAME        { 
-                         dbg(3, "yyparse(): B_NAME, $1=%s\n", $1);
+                         dbg(dbg_var, "yyparse(): B_NAME, $1=%s\n", $1);
                          $$.str = expandlabel_strdup($1);
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | B_LINE        {
-                         dbg(3, "yyparse(): B_LINE\n");
+                         dbg(dbg_var, "yyparse(): B_LINE\n");
                          $$.str = expandlabel_strdup($1); /* prima era =$1 */
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | list B_NAME   { 
-                         dbg(3, "yyparse(): list B_NAME, $2=%s\n", $2);
+                         dbg(dbg_var, "yyparse(): list B_NAME, $2=%s\n", $2);
                          $$.str = expandlabel_strcat($1.str, $2);
                          my_free(_ALLOC_ID_, &$1.str);
                          my_free(_ALLOC_ID_, &$2);
@@ -287,30 +289,22 @@ list:     B_NAME        {
                         }
         | list '*' B_NUM
                         {
-                         dbg(3, "yyparse(): list * B_NUM\n");
-                         dbg(3, "yyparse(): |%s| %d \n",$1.str,$3);
+                         dbg(dbg_var, "yyparse(): list * B_NUM\n");
+                         dbg(dbg_var, "yyparse(): |%s| %d \n",$1.str,$3);
                          $$.str=expandlabel_strmult2($3,$1.str);
-                         dbg(3, "yyparse(): |%s|\n",$$.str);
+                         dbg(dbg_var, "yyparse(): |%s|\n",$$.str);
                          $$.m = $3 * $1.m;
                          my_free(_ALLOC_ID_, &$1.str);
                         }
         | B_NUM '*' list
                         {
-                         dbg(3, "yyparse(): B_NUM * list\n");
+                         dbg(dbg_var, "yyparse(): B_NUM * list\n");
                          $$.str=expandlabel_strmult($1,$3.str);
                          $$.m = $1 * $3.m;
                          my_free(_ALLOC_ID_, &$3.str);
                         }
-        | B_NAME '*' list
-                        {
-                         dbg(3, "yyparse(): B_NAME * list\n");
-                         $$.str=expandlabel_strcat_char($1, '*', $3.str);
-                         $$.m = 1;
-                         my_free(_ALLOC_ID_, &$1);
-                         my_free(_ALLOC_ID_, &$3.str);
-                        }
         | list ',' list { 
-                         dbg(3, "yyparse(): list , list\n");
+                         dbg(dbg_var, "yyparse(): list , list\n");
                          $$.str=expandlabel_strcat_char($1.str, ',', $3.str);
                          $$.m = $1.m + $3.m;
                          my_free(_ALLOC_ID_, &$1.str);
@@ -318,19 +312,20 @@ list:     B_NAME        {
                         }
         | list B_CAR list
                         {
-                         dbg(3, "yyparse(): list B_CAR list\n");
+                         dbg(dbg_var, "yyparse(): list B_CAR list\n");
                          $$.str=expandlabel_strcat_char($1.str, (char)$2, $3.str);
                          $$.m = $1.m + $3.m;
                          my_free(_ALLOC_ID_, &$1.str);
                          my_free(_ALLOC_ID_, &$3.str);
                         }
         | '(' list ')'  {
-                         dbg(3, "yyparse(): ( list )\n");
+                         dbg(dbg_var, "yyparse(): ( list )\n");
                          $$=$2;
                         }
         | B_NAME  '[' B_NAME  ']' 
                         {
                          size_t size = strlen($1) + strlen($3) + 3;
+                         dbg(dbg_var, "yyparse(): B_NAME [ B_NAME ] , $1=%s $3=%s\n", $1, $3);
                          $$.str = my_malloc(_ALLOC_ID_, size);
                          $$.m=-1;
                          my_snprintf($$.str, size, "%s[%s]", $1, $3);
@@ -339,21 +334,18 @@ list:     B_NAME        {
                         }
         | B_NAME  '[' index  ']' 
                         {
-                         dbg(3, "yyparse(): making bus: n=%d\n",$3[0]);
-                         dbg(3, "yyparse(): B_NAME[ index ] , $1=%s $3=%d\n", $1, *$3);
+                         dbg(dbg_var, "yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]);
                          $$.str=expandlabel_strbus($1,$3);
                          my_free(_ALLOC_ID_, &$1); 
-                         dbg(3, "yyparse(): done making bus: n=%d\n",$3[0]);
                          $$.m=$3[0];
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index_nobracket  ']' 
                         {
-                         dbg(3, "yyparse(): making nobracket bus: n=%d\n",$3[0]);
+                         dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]);
                          $$.str=expandlabel_strbus_nobracket($1,$3);
                          my_free(_ALLOC_ID_, &$1);
-                         dbg(3, "yyparse(): done making nobracket bus: n=%d\n",$3[0]);
                          $$.m=$3[0];
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
