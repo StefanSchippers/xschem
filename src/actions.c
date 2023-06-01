@@ -1712,8 +1712,10 @@ int descend_schematic(int instnumber)
          my_strdup2(_ALLOC_ID_, &single_n,
              find_nth(net_node, ",", ((inst_number - 1) * mult + k - 1) % net_mult + 1));
          single_n_ptr = single_n;
-         if(single_n_ptr[0] == '#') single_n_ptr++;
-
+         if(single_n_ptr[0] == '#') {
+           my_mstrcat(_ALLOC_ID_, &single_n, "[", my_itoa((inst_mult - inst_number + 1) * mult - k), "]", NULL);
+           single_n_ptr = single_n + 1;
+         }
          str_hash_lookup(&xctx->portmap[xctx->currsch + 1], single_p, single_n_ptr, XINSERT);
          dbg(1, "descend_schematic(): %s: %s ->%s\n", xctx->inst[n].instname, single_p, single_n_ptr);
      }

@@ -278,7 +278,6 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
-
         | list B_NAME   { 
                          dbg(3, "yyparse(): list B_NAME, $2=%s\n", $2);
                          $$.str = expandlabel_strcat($1.str, $2);
@@ -286,7 +285,6 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$2);
                          $$.m = $1.m;
                         }
-
         | list '*' B_NUM
                         {
                          dbg(3, "yyparse(): list * B_NUM\n");
@@ -548,12 +546,5 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          check_idx(&$$, ++$$[0]);
                          $$[$$[0]]=$3;
                         }
-/*
-	| B_IDXNUM ',' index_nobracket
-                        {
-                          if($$==NULL) dbg(0, "null\n");
-                        }
-*/
-
 %%
 
