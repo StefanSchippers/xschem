@@ -7,8 +7,8 @@ S {}
 E {}
 L 7 40 -800 80 -800 {}
 B 2 850 -470 1650 -70 {flags=graph
-y1=-50
-y2=50
+y1=-58.7947
+y2=61.2053
 ypos1=0
 ypos2=2
 divy=5
@@ -101,12 +101,12 @@ C {code.sym} 20 -190 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".include \\"models_poweramp.txt\\"
-.options method=gear savecurrents XMU=0.49 ITL4=100 CHGTOL=1e-15 TRTOL=1 RELTOL=0.0001 VNTOL=0.1u
+.options method=gear savecurrents ITL4=500 ITL5=50000  CHGTOL=1e-15 TRTOL=1
 .control
 save all
-* op
-* write test_extracted_netlist.raw
-* set appendwrite
+op
+write test_extracted_netlist.raw
+set appendwrite
 tran  100n 400u 
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 

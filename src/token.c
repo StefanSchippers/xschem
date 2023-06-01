@@ -3784,14 +3784,14 @@ const char *translate(int inst, const char* s)
    if(c == '@' || c == '%') s--;
    else result[result_pos++]=(char)c;
    state=TOK_BEGIN;
-  }
+  } /* else if(state==TOK_SEP) */
   else if(state==TOK_BEGIN) result[result_pos++]=(char)c;
   if(c=='\0')
   {
    result[result_pos]='\0';
    break;
   }
- }
+ } /* while(1) */
  dbg(2, "translate(): returning %s\n", result);
  my_free(_ALLOC_ID_, &token);
 

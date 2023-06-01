@@ -1,10 +1,17 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.4.0 file_version=1.2
+}
 G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
 net_name=true
-}
+xxxspice_sym_def = "
+* Ideal amplifier
+.subckt mos_power_ampli_extracted MINUS PLUS VSS OUT VPP VNN
+E1 out vss plus minus 10000
+.ends
+
+"}
 V {}
 S {}
 E {}
