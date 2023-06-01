@@ -874,7 +874,8 @@ static int instcheck(int n, int p)
     const char *tap;
     dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[0]);
     if(!inst[n].node[1]) { /* still unnamed */
-      tap = get_tok_value(inst[n].prop_ptr, "lab", 0);
+      /* tap = get_tok_value(inst[n].prop_ptr, "lab", 0); */
+      tap = inst[n].lab;
       /* Check if this is a bus slice and must be appended to bus base name */
       if(tap[0] == '[' || isonlydigit(tap)) {
         /* find bus basename, from beginning or first character after ',' and ' ' */

@@ -2928,15 +2928,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* resolved_net
-     *   returns the topmost full hierarchy name of selected net/pin/label
-     *   nets connected to I/O ports are mapped to upper level recursively */
+    /* resolved_net [net]
+     *   if 'net' is given  return its topmost full hierarchy name
+     *   else returns the topmost full hierarchy name of selected net/pin/label.
+     *   Nets connected to I/O ports are mapped to upper level recursively */
     else if(!strcmp(argv[1], "resolved_net"))
     {
-      char *net = NULL, *rn = NULL;
+      const char *net = NULL;
+      char  *rn = NULL;
       Tcl_ResetResult(interp);
       prepare_netlist_structs(0);
-      if(xctx->lastsel == 1) {
+      if(argc > 2) {
+        net = argv[2];
+      } else if(xctx->lastsel == 1) {
         if(xctx->sel_array[0].type == ELEMENT) {
           int n=xctx->sel_array[0].n;
           if(xctx->inst[n].ptr >= 0) { 

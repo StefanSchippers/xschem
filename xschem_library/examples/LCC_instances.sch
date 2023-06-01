@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {type=subcircuit
@@ -51,7 +51,8 @@ dataset=-1}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
 P 4 5 0 -1160 1840 -1160 1840 0 -0 0 0 -1160 {dash=4}
-T {These 2 instances are equivalent} 260 -310 0 0 0.4 0.4 {}
+T {These 2 instances
+are equivalent} 260 -310 0 0 0.4 0.4 {}
 T {Example of using a schematic as a component instance
 instead of the usual symbol. LCC: Local Custom Cell.
 
@@ -84,7 +85,7 @@ lab=ZZ}
 C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"}
 C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
-C {code_shown.sym} 510 -250 0 0 {name=STIMULI
+C {code_shown.sym} 480 -280 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".control

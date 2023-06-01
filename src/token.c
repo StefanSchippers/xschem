@@ -3418,7 +3418,9 @@ const char *translate(int inst, const char* s)
              ++path;
            }
            prepare_netlist_structs(0);
-           if(pin_prop_ptr) net = get_tok_value(pin_prop_ptr, "lab", 0);
+           if(pin_prop_ptr) {
+             net = get_tok_value(pin_prop_ptr, "lab", 0);
+           }
            if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
