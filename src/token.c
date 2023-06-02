@@ -3401,7 +3401,6 @@ const char *translate(int inst, const char* s)
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
-       const char *pin_prop_ptr = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][0].prop_ptr;
        if(no_of_pins == 1) {
          char *fqnet = NULL;
          const char *path =  xctx->sch_path[xctx->currsch] + 1;
@@ -3418,13 +3417,12 @@ const char *translate(int inst, const char* s)
              ++path;
            }
            prepare_netlist_structs(0);
-           if(pin_prop_ptr) {
-             net = get_tok_value(pin_prop_ptr, "lab", 0);
-           }
-           if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
+           net = xctx->inst[inst].lab;
+           if(net == NULL || net[0] == '\0')
+              net = net_name(inst,0, &multip, 0, 0);
            len = strlen(path) + strlen(net) + 1;
            dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
-           dbg(1, "                                net=%s, pin_prop_ptr=%s\n", net, pin_prop_ptr);
+           dbg(1, "                                net=%s\n", net);
            fqnet = my_malloc(_ALLOC_ID_, len);
            my_snprintf(fqnet, len, "%s%s", path, net);
            strtolower(fqnet);
