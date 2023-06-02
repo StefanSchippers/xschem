@@ -3417,35 +3417,36 @@ const char *translate(int inst, const char* s)
              ++path;
            }
            prepare_netlist_structs(0);
-           net = xctx->inst[inst].lab;
-           if(net == NULL || net[0] == '\0')
-              net = net_name(inst,0, &multip, 0, 0);
-           len = strlen(path) + strlen(net) + 1;
-           dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
-           dbg(1, "                                net=%s\n", net);
-           fqnet = my_malloc(_ALLOC_ID_, len);
-           my_snprintf(fqnet, len, "%s%s", path, net);
-           strtolower(fqnet);
-           dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
-           idx = get_raw_index(fqnet);
-           if(idx >= 0) {
-             val = xctx->graph_values[idx][xctx->graph_annotate_p];
+           net = expandlabel(xctx->inst[inst].lab, &multip);
+           if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
+           if(multip == 1) {
+             len = strlen(path) + strlen(net) + 1;
+             dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
+             dbg(1, "                                net=%s\n", net);
+             fqnet = my_malloc(_ALLOC_ID_, len);
+             my_snprintf(fqnet, len, "%s%s", path, net);
+             strtolower(fqnet);
+             dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
+             idx = get_raw_index(fqnet);
+             if(idx >= 0) {
+               val = xctx->graph_values[idx][xctx->graph_annotate_p];
+             }
+             if(idx < 0) {
+               valstr = "";
+               xctx->tok_size = 0;
+               len = 0;
+             } else {
+               valstr = dtoa_eng(val);
+               len = xctx->tok_size;
+             }
+             if(len) {
+               STR_ALLOC(&result, len + result_pos, &size);
+               memcpy(result+result_pos, valstr, len+1);
+               result_pos += len;
+             }
+             dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+             my_free(_ALLOC_ID_, &fqnet);
            }
-           if(idx < 0) {
-             valstr = "";
-             xctx->tok_size = 0;
-             len = 0;
-           } else {
-             valstr = dtoa_eng(val);
-             len = xctx->tok_size;
-           }
-           if(len) {
-             STR_ALLOC(&result, len + result_pos, &size);
-             memcpy(result+result_pos, valstr, len+1);
-             result_pos += len;
-           }
-           dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-           my_free(_ALLOC_ID_, &fqnet);
          }
        }
      }
@@ -3459,7 +3460,7 @@ const char *translate(int inst, const char* s)
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *net = NULL;
        size_t len;
-       int idx, n;
+       int idx, n, multip;
        double val;
        const char *valstr;
        tmp = strlen(token) + 1;
@@ -3472,7 +3473,8 @@ const char *translate(int inst, const char* s)
          }
          net = my_malloc(_ALLOC_ID_, tmp);
          n = sscanf(token + 19, "%[^)]", net);
-         if(n == 1) {
+         expandlabel(net, &multip);
+         if(n == 1 && multip == 1) {
            strtolower(net);
            len = strlen(path) + strlen(xctx->inst[inst].instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
