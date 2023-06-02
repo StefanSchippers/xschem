@@ -484,6 +484,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -972,7 +974,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       resolved_net [net]</kbd></li><pre>
    if 'net' is given  return its topmost full hierarchy name
    else returns the topmost full hierarchy name of selected net/pin/label.
-   Nets connected to I/O ports are mapped to upper level recursively</pre>
+   Nets connected to I/O ports are mapped to upper level recursively </pre>
    <li><kbd>       rotate</kbd></li><pre>
    Rotate selected objects around their centers </pre>
    <li><kbd>       save</kbd></li><pre>
@@ -1103,6 +1105,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       symbols [n]</kbd></li><pre>
    if 'n' given list symbol with name or number 'n', else 
    list all used symbols </pre>
+   <li><kbd>       tab_list</kbd></li><pre>
+   list all windows / tabs with window pathname and associated filename </pre>
    <li><kbd>       table_read [table_file]</kbd></li><pre>
    If a simulation raw file is lodaded unload from memory.
    else read a tabular file 'table_file'

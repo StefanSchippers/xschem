@@ -77,6 +77,20 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
     }
 }/*}}}*/
 
+Xschem_ctx **get_save_xctx(void)
+{
+  return save_xctx;
+}
+
+char *get_window_path(int i)
+{
+  return window_path[i];
+}
+
+int get_window_count(void)
+{
+  return window_count;
+}
 
 static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
     char arg_copy[256]; /* overflow safe */
@@ -1176,7 +1190,10 @@ int check_loaded(const char *f, char *win_path)
     ctx = save_xctx[i];
     dbg(1, "window_count=%d i=%d\n", window_count, i);
     /* if only one schematic it is not yet saved in save_xctx */
-    if(window_count == 0 && i == 0)  ctx = xctx;
+    if(window_count == 0 && i == 0)  {
+      ctx = xctx;
+      my_snprintf(window_path[0],  S(window_path[0]), ".drw" );
+    }
     if(ctx) {
       dbg(1, "%s <--> %s\n", ctx->sch[ctx->currsch], f);
       if(!strcmp(ctx->sch[ctx->currsch], f)) {

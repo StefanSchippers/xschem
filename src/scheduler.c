@@ -3678,6 +3678,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 't': /*----------------------------------------------*/
+    /* tab_list
+     *   list all windows / tabs with window pathname and associated filename */
+    if(!strcmp(argv[1], "tab_list"))
+    {
+      int i;
+      Xschem_ctx *ctx, **save_xctx = get_save_xctx();
+      int found = 0;
+      for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
+        ctx = save_xctx[i];
+        /* if only one schematic it is not yet saved in save_xctx */
+        if(get_window_count() == 0 && i == 0)  {
+          ctx = xctx;
+        }
+        if(i == 0 ) {
+          if(ctx) Tcl_AppendResult(interp, ".drw", " {", ctx->sch[ctx->currsch], "}\n", NULL);
+        }
+        else if(ctx) {
+          Tcl_AppendResult(interp, get_window_path(i), " {", ctx->sch[ctx->currsch], "}\n", NULL);
+        }
+      }
+      dbg(1, "check_loaded: return %d\n", found);
+      return found;
+    }
+
     /* table_read [table_file]
      *   If a simulation raw file is lodaded unload from memory.
      *   else read a tabular file 'table_file'
@@ -3702,7 +3726,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *       0.1     0.0     1.5    0.6
      *       ...     ...     ...    ...
      */
-    if(!strcmp(argv[1], "table_read"))
+    else if(!strcmp(argv[1], "table_read"))
     {
       char f[PATH_MAX + 100];
       if(sch_waves_loaded() >= 0) {
@@ -3722,6 +3746,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } 
       Tcl_ResetResult(interp);
     }
+
     /* test 
      *   testmode */
     else if(!strcmp(argv[1], "test"))

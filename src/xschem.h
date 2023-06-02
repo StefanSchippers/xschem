@@ -1333,6 +1333,9 @@ extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
 extern int check_loaded(const char *f, char *win_path);
+extern char *get_window_path(int i);
+extern int get_window_count(void);
+extern Xschem_ctx **get_save_xctx(void);
 extern void link_symbols_to_instances(int from);
 extern void load_ascii_string(char **ptr, FILE *fd);
 extern char *read_line(FILE *fp, int dbg_level);
