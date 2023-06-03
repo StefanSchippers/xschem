@@ -5800,6 +5800,9 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   $topwin.menubar.file.menu add separator
+  $topwin.menubar.file.menu add command -label "Start new Xschem process" -accelerator {X} -command {
+    xschem new_process
+  }
   $topwin.menubar.file.menu add command -label "Close schematic" -accelerator {Ctrl+W} -command {
     xschem exit
   }

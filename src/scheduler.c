@@ -2202,6 +2202,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* new_process [f]
+     *   Start a new xschem process for a schematic.
+     *   If 'f' is given load specified schematic. */
+    else if(!strcmp(argv[1], "new_process"))
+    {
+      if(argc > 2) {
+        char f[PATH_MAX + 100];
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, tclresult(), S(f));  
+        new_xschem_process(f, 0);
+      } else new_xschem_process("", 0);
+      Tcl_ResetResult(interp);
+    }
+
     /* new_schematic create|destroy|destroy_all|switch_win winpath file
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
@@ -2232,36 +2247,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(s, S(s), "%d", r);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
-    }
-
-    /* new_symbol_window [f]
-     *   Start a new xschem process for a symbol.
-     *   If 'f' is given load specified symbol. */
-    else if(!strcmp(argv[1], "new_symbol_window"))
-    {
-      if(argc > 2)  {
-        char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
-        my_strncpy(f, tclresult(), S(f));  
-        new_xschem_process(f, 1);
-      } else new_xschem_process("", 1);
-      Tcl_ResetResult(interp);
-    }
-
-    /* new_window [f]
-     *   Start a new xschem process for a schematic.
-     *   If 'f' is given load specified schematic. */
-    else if(!strcmp(argv[1], "new_window"))
-    {
-      if(argc > 2) {
-        char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
-        my_strncpy(f, tclresult(), S(f));  
-        new_xschem_process(f, 0);
-      } else new_xschem_process("", 0);
-      Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
     break;

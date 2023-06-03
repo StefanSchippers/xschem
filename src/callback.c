@@ -2186,25 +2186,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     copy_objects(START);
     break;
    }
-   if(key=='n' && state==Mod1Mask)              /* empty schematic in new window */
-   {
-     if(xctx->semaphore >= 2) break;
-     tcleval("xschem new_window");
-     break;
-   }
-   if(key=='N' && state==(ShiftMask|Mod1Mask) )    /* empty symbol in new window */
-   {
-     if(xctx->semaphore >= 2) break;
-     tcleval("xschem new_symbol_window");
-     break;
-   }
-   if(key=='n' && state==ControlMask)              /* new schematic */
+   if(key=='n' && state==ControlMask)              /* clear schematic */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SCHEMATIC");
      break;
    }
-   if(key=='N' && state==(ShiftMask|ControlMask) )    /* new symbol */
+   if(key=='N' && state==(ShiftMask|ControlMask) )    /* clear symbol */
    {
      if(xctx->semaphore >= 2) break;
      tcleval("xschem clear SYMBOL");
