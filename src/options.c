@@ -142,7 +142,8 @@ static void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'v') || (type == LONG && !strcmp("version", opt)) ) {
         print_version();
-
+        quit=1;
+        has_x=0;
     } else if( (type == SHORT && *opt == 't') || (type == LONG && !strcmp("tedax", opt)) ) {
         dbg(1, "process_options(): set netlist type to tEDAx\n");
         cli_opt_netlist_type=CAD_TEDAX_NETLIST;

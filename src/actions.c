@@ -166,7 +166,6 @@ void print_version()
   printf("\n");
   printf("This is free software; see the source for copying conditions.  There is NO\n");
   printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
-  exit(EXIT_SUCCESS);
 }
 
 char *escape_chars(const char *source)
