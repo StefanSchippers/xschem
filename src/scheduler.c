@@ -414,46 +414,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[i], "force") ) cancel = 0;
         if(!strcmp(argv[i], "symbol")) symbol = 1;
       }
-      if(cancel == 1) cancel=save(1);
-      if(cancel != -1) { /* -1 means user cancel save request */
-        char name[PATH_MAX];
-        struct stat buf;
-        int i;
-        xctx->currsch = 0;
-        unselect_all(1);
-        remove_symbols();
-        clear_drawing();
-        if(symbol == 1) {
-          xctx->netlist_type = CAD_SYMBOL_ATTRS;
-          set_tcl_netlist_type();
-          for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
-            if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
-            else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
-            if(stat(name, &buf)) break;
-          }
-          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
-          my_strncpy(xctx->current_name, name, S(xctx->current_name));
-        } else {
-          xctx->netlist_type = CAD_SPICE_NETLIST;
-          set_tcl_netlist_type();
-          for(i=0;; ++i) {
-            if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
-            else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
-            if(stat(name, &buf)) break;
-          }
-          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
-          my_strncpy(xctx->current_name, name, S(xctx->current_name));
-        }
-        draw();
-        set_modify(0);
-        xctx->prep_hash_inst=0;
-        xctx->prep_hash_wires=0;
-        xctx->prep_net_structs=0;
-        xctx->prep_hi_structs=0;
-        if(has_x) {
-          set_modify(-1);
-        }
-      }
+      clear_schematic(cancel, symbol);
       Tcl_ResetResult(interp);
     }
 
@@ -719,21 +680,58 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* exit
-     *   Exit the program, ask for confirm if current file modified. */
+    /* exit [closewindow]
+     *   Exit the program, ask for confirm if current file modified.
+     *   if 'closewindow' is given close the window, otherwise leave with a blank schematic */
     else if(!strcmp(argv[1], "exit"))
     {
+      int closewindow = 0;
+
+      if(argc > 2 && !strcmp(argv[2], "closewindow")) closewindow = 1;
       if(!strcmp(xctx->current_win_path, ".drw")) {
         if(has_x) {
           int remaining;
-          remaining = new_schematic("destroy_all", NULL, NULL);
-          if(!remaining) {
-            if(xctx->modified) {
-              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
-                      "[get_cell [xschem get schname] 0]"
-                      ": UNSAVED data: want to exit?\"");
+          if(!tclgetboolvar("tabbed_interface")) { /* non tabbed interface */
+            if(closewindow) {
+              remaining = new_schematic("destroy_all", NULL, NULL);
+              if(!remaining) {
+                if(xctx->modified) {
+                  tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                          "[get_cell [xschem get schname] 0]"
+                          ": UNSAVED data: want to exit?\"");
+                }
+                if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+                  tcleval("exit");
+                }
+              }
+            } else {
+               clear_schematic(0, 0);
             }
-            if(!xctx->modified || !strcmp(tclresult(), "ok")) tcleval("exit");
+          } else { /* tabbed interface */
+            int wc = get_window_count();
+            dbg(1, "wc=%d\n", wc);
+            if(wc > 0 ) {
+              if(xctx->modified) {
+                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                          "[get_cell [xschem get schname] 0]"
+                          ": UNSAVED data: want to exit?\"");
+              }
+              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+                swap_tabs();
+                set_modify(0);
+                new_schematic("destroy", xctx->current_win_path, NULL);
+              }
+            } else {
+              if(xctx->modified) {
+                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                          "[get_cell [xschem get schname] 0]"
+                          ": UNSAVED data: want to exit?\"");
+              }
+              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+                 if(closewindow) tcleval("exit");
+                 else clear_schematic(0, 0);
+              }
+            }
           }
         }
         else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
@@ -1966,10 +1964,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
  
     /* load_new_window [f]
-     *   Load schematic in a new tab/window. If 'f' not given prompt user */
+     *   Load schematic in a new tab/window. If 'f' not given prompt user 
+     *   if 'f' is given as empty '{}' then open untitled.sch */
     else if(!strcmp(argv[1], "load_new_window") )
     {
       char f[PATH_MAX + 100];
+      int cancel = 0;
       if(has_x) {
         if(argc > 2) {
           my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
@@ -1977,15 +1977,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(f, tclresult(), S(f));
         } else {
           tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
-          my_snprintf(f, S(f), "%s", tclresult());
+          if(tclresult()[0]) {
+            my_snprintf(f, S(f), "%s", tclresult());
+          } else {
+            cancel = 1;
+          }
         }
-        if(f[0] ) {
-         new_schematic("create", NULL, f);
-         tclvareval("update_recent_file {", f, "}", NULL);
+        if(!cancel) {
+          if(f[0]) {
+           new_schematic("create", NULL, f);
+           tclvareval("update_recent_file {", f, "}", NULL);
+          } else {
+            new_schematic("create", NULL, NULL);
+          }
         }
-      } else {
-        Tcl_ResetResult(interp);
       }
+      Tcl_ResetResult(interp);
     }
     
     /* log f
@@ -3751,8 +3758,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      dbg(0, "--> %d\n", get_window_count());
-      /* swap_tabs(0, 1); */
+      swap_tabs();
       Tcl_ResetResult(interp);
     }
 

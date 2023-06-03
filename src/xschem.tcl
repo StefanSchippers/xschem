@@ -689,8 +689,7 @@ proc update_recent_file {f {topwin {} } } {
     set recentfile [lreplace $recentfile 10 end]
   }
   write_recent_file
-  if { [info exists has_x] } {setup_recent_menu 0 $topwin}
-  if { [info exists has_x] } {setup_recent_menu 1 $topwin}
+  if { [info exists has_x] } {setup_recent_menu $topwin}
 }
 
 proc write_recent_file {} {
@@ -721,26 +720,15 @@ proc write_recent_file {} {
   close $fd
 }
 
-proc setup_recent_menu { {in_new_window 0} { topwin {} } } {
+proc setup_recent_menu { { topwin {} } } {
   global recentfile
-  # puts "setup recent menu in_new_window=$in_new_window"
-  if {$in_new_window} {
-    $topwin.menubar.file.menu.recent_new_window delete 0 9
-  } else {
-    $topwin.menubar.file.menu.recent delete 0 9
-  }
+  $topwin.menubar.file.menu.recent delete 0 9
   set i 0
   if { [info exists recentfile] } {
     foreach i $recentfile {
-      if {$in_new_window} {
-        $topwin.menubar.file.menu.recent_new_window add command \
-          -command "xschem load_new_window {$i} gui" \
-          -label [file tail $i]
-      } else {
-        $topwin.menubar.file.menu.recent add command \
-          -command "xschem load {$i} gui" \
-          -label [file tail $i]
-      }
+      $topwin.menubar.file.menu.recent add command \
+        -command "xschem load {$i} gui" \
+        -label [file tail $i]
     }
   }
 }
@@ -5231,17 +5219,12 @@ proc setup_tabbed_interface {} {
     destroy .tabs
   }
   if {$tabbed_interface} {
-    .menubar.file.menu entryconfigure {Open recent in new window} -state disabled
-    .menubar.file.menu entryconfigure {Open new window} -state disabled
     set_tab_names 
-  } else {
-    .menubar.file.menu entryconfigure {Open recent in new window} -state normal
-    .menubar.file.menu entryconfigure {Open new window} -state normal
-  } 
+  }
   # update tabbed window close (X) function
   if {$tabbed_interface} {
     wm protocol . WM_DELETE_WINDOW { 
-      xschem exit
+      xschem exit closewindow
     }
   # restore non tabbed window close function for main window
   } else {
@@ -5251,7 +5234,7 @@ proc setup_tabbed_interface {} {
       restore_ctx .drw
       housekeeping_ctx
       xschem new_schematic switch_win .drw
-      xschem exit
+      xschem exit closewindow
       # did not exit (user cancel) ... switch back 
       restore_ctx $old
       housekeeping_ctx
@@ -5350,9 +5333,6 @@ proc set_tab_names {{mod {}}} {
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
     .tabs$tabname configure -text [file tail [xschem get schname]]$mod -bg Palegreen
-    if {$tabname eq {.x0}} {
-      .tabs$tabname configure -fg red
-    }
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
          .tabs.x$i configure -bg $tctx::tab_bg
@@ -5361,6 +5341,23 @@ proc set_tab_names {{mod {}}} {
   }
 }
 
+proc quit_xschem {} {
+  global tabbed_interface
+
+  set remaining [xschem new_schematic destroy_all]
+  if {$tabbed_interface != 1} {
+    if {$remaining == 0 } {
+      save_ctx  [xschem get current_win_path]
+      restore_ctx .drw
+      xschem new_schematic switch_win .drw
+      housekeeping_ctx
+      xschem exit closewindow
+    }
+  } else {
+    xschem new_schematic switch_tab .drw
+    xschem exit closewindow
+  }
+}
 proc raise_dialog {parent window_path } {
   global myload_loadfile component_browser_on_top
   foreach i ".dialog .graphdialog .load" {
@@ -5754,46 +5751,29 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.help.menu add command -label "Keys" -command "textwindow \"${XSCHEM_SHAREDIR}/keys.help\" ro"
   $topwin.menubar.help.menu add command -label "About XSCHEM" -command "about"
   
-  $topwin.menubar.file.menu add command -label "New Schematic"  -accelerator Ctrl+N\
+  $topwin.menubar.file.menu add command -label "Clear Schematic"  -accelerator Ctrl+N\
     -command {
       xschem clear schematic
     }
   # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
-  $topwin.menubar.file.menu add command -label "New Symbol" -accelerator Ctrl+Shift+N \
+  $topwin.menubar.file.menu add command -label "Clear Symbol" -accelerator Ctrl+Shift+N \
     -command {
       xschem clear symbol
     }
   # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
-  $topwin.menubar.file.menu add command -label "New empty Schematic window" -accelerator {Alt+N} \
-    -command {
-      xschem new_window
-    }
-  $topwin.menubar.file.menu add command -label "New empty Symbol window" -accelerator {Alt+Shift+N} \
-    -command {
-      xschem new_symbol_window
-    }
   $topwin.menubar.file.menu add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
       load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
     }
   $topwin.menubar.file.menu add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
-  $topwin.menubar.file.menu add cascade -label "Open recent" -menu $topwin.menubar.file.menu.recent
-  $topwin.menubar.file.menu add cascade -label {Open recent in new window} \
-    -menu $topwin.menubar.file.menu.recent_new_window
-  menu $topwin.menubar.file.menu.recent_new_window -tearoff 0
-  menu $topwin.menubar.file.menu.recent -tearoff 0
-  setup_recent_menu 0 $topwin
-  setup_recent_menu 1 $topwin
-  $topwin.menubar.file.menu add command -label {Open new window} -command "xschem load_new_window"
-  if {$tabbed_interface} {
-    $topwin.menubar.file.menu entryconfigure {Open new window} -state disabled
-    $topwin.menubar.file.menu entryconfigure {Open recent in new window} -state disabled
-  }
-  toolbar_add FileOpen "xschem load" "Open File" $topwin
-  $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
-
   $topwin.menubar.file.menu add command -label "Open Most Recent" \
     -command {xschem load [lindex "$recentfile" 0] gui} -accelerator {Ctrl+Shift+O}
+  $topwin.menubar.file.menu add cascade -label "Open recent" -menu $topwin.menubar.file.menu.recent
+  menu $topwin.menubar.file.menu.recent -tearoff 0
+  setup_recent_menu $topwin
+  $topwin.menubar.file.menu add command -label {Create new window/tab} -command "xschem new_schematic create"
+  toolbar_add FileOpen "xschem load" "Open File" $topwin
+  $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
   $topwin.menubar.file.menu add command -label "Merge" -command "xschem merge" -accelerator {B}
@@ -5820,8 +5800,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   $topwin.menubar.file.menu add separator
-  $topwin.menubar.file.menu add command -label "Exit" -accelerator {Ctrl+Q} -command {
+  $topwin.menubar.file.menu add command -label "Close schematic" -accelerator {Ctrl+W} -command {
     xschem exit
+  }
+  $topwin.menubar.file.menu add command -label "Quit Xschem" -accelerator {Ctrl+Q} -command {
+    quit_xschem
   }
   $topwin.menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
@@ -6075,7 +6058,7 @@ proc build_widgets { {topwin {} } } {
   toolbar_add ToolInsertLine "xschem line" "Insert Line" $topwin
   $topwin.menubar.tools.menu add command -label "Insert rect" -command "xschem rect" -accelerator R
   toolbar_add ToolInsertRect "xschem rect" "Insert Rectangle" $topwin
-  $topwin.menubar.tools.menu add command -label "Insert polygon" -command "xschem polygon" -accelerator Ctrl+W
+  $topwin.menubar.tools.menu add command -label "Insert polygon" -command "xschem polygon" -accelerator Ctrl+P
   toolbar_add ToolInsertPolygon "xschem polygon" "Insert Polygon" $topwin
   $topwin.menubar.tools.menu add command -label "Insert arc" -command "xschem arc" -accelerator Shift+C
   toolbar_add ToolInsertArc "xschem arc" "Insert Arc" $topwin
@@ -6238,9 +6221,9 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   $rootwin configure  -background {}
   wm  geometry $rootwin $initial_geometry
   #wm maxsize . 1600 1200
-  if {$tabbed_interface && $rootwin eq {.}} {
+  if {$tabbed_interface} {
     wm protocol $rootwin WM_DELETE_WINDOW {
-      xschem exit
+      xschem exit closewindow
     }
   } elseif { $rootwin == {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {
@@ -6249,7 +6232,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
        restore_ctx .drw
        housekeeping_ctx
        xschem new_schematic switch_win .drw
-       xschem exit
+       xschem exit closewindow
        # did not exit ... switch back 
        restore_ctx $old
        housekeeping_ctx

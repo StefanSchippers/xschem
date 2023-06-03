@@ -135,6 +135,7 @@ alt         'n'         Empty schematic in new window
 alt+shift   'N'         Empty symbol in new window
 shift       'O'         Toggle Light / Dark colorscheme
 ctrl        'o'         Load schematic
+-           'p'         Place polygon. Operation ends by placing last point over first.
 alt         'p'         Add symbol pin
 ctrl        'p'         Pan schematic view
 shift       'P'         Pan, other way to.
@@ -159,7 +160,7 @@ shift       'U'         Redo
 ctrl        'v'         Paste from clipboard
 shift       'V'         Toggle spice/vhdl/verilog netlist 
 -           'w'         Place wire
-ctrl        'w'         Place polygon. Operation ends by placing last point over first.
+ctrl        'w'         close current schematic
 shift       'W'         Place wire, snapping to closest pin or net endpoint
 ctrl        'x'         Cut into clipboard
 -           'x'         New cad session

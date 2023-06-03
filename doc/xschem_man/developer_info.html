@@ -486,6 +486,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -588,8 +589,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Enable/disable layers depending on tcl array variable enable_layer() </pre>
    <li><kbd>       escape_chars source</kbd></li><pre>
    escape tcl special characters with backslash </pre>
-   <li><kbd>       exit</kbd></li><pre>
-   Exit the program, ask for confirm if current file modified. </pre>
+   <li><kbd>       exit [closewindow]</kbd></li><pre>
+   Exit the program, ask for confirm if current file modified.
+   if 'closewindow' is given close the window, otherwise leave with a blank schematic </pre>
    <li><kbd>       expandlabel lab</kbd></li><pre>
    Expand vectored labels/instance names:
    xschem expandlabel {2*A[3:0]} --&gt; A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
@@ -793,7 +795,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
    'nofullzoom': do not do a fll zoom on new schematic.</pre>
    <li><kbd>       load_new_window [f]</kbd></li><pre>
-   Load schematic in a new tab/window. If 'f' not given prompt user </pre>
+   Load schematic in a new tab/window. If 'f' not given prompt user 
+   if 'f' is given as empty '{}' then open untitled.sch </pre>
    <li><kbd>       log f</kbd></li><pre>
    If 'f' is given output stderr messages to file 'f'
    if 'f' is not given and a file log is open, close log
@@ -1185,6 +1188,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 

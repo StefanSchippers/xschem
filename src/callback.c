@@ -1503,7 +1503,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     xctx->ui_state |= START_SYMPIN;
     break;
    }
-   if(key=='w' && !xctx->ui_state && state==ControlMask)              /* start polygon, 20171115 */
+   if(key=='p' && !xctx->ui_state && state==0)              /* start polygon, 20171115 */
    {
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): start polygon\n");
@@ -1599,30 +1599,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     redraw_w_a_l_r_p_rubbers();
     break;
    }
-   if(key=='q' && state == ControlMask) /* exit */
+   if(key=='w' && state == ControlMask) /* close current schematic */
    {
-     int remaining, save_sem;
+     int save_sem;
      if(xctx->semaphore >= 2) break;
-     if(!strcmp(xctx->current_win_path, ".drw")) {
-       save_sem = xctx->semaphore;
-       /* tcleval("new_window destroy_all"); */ /* close child schematics */
-       remaining = new_schematic("destroy_all", NULL, NULL);
-       xctx->semaphore = save_sem;
-       /* if(tclresult()[0] == '1') { */
-       if(!remaining) {
-         if(xctx->modified) {
-           tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \"" 
-                   "[get_cell [xschem get schname] 0]"
-                   ": UNSAVED data: want to exit?\"");
-         }
-         if(!xctx->modified || !strcmp(tclresult(),"ok")) tcleval("exit");
-       }
-     } else {
-       /* xschem new_schematic destroy asks user confirmation if schematic changed */
-       save_sem = xctx->semaphore;
-       new_schematic("destroy", xctx->current_win_path, NULL);
-       xctx->semaphore = save_sem;
-     }
+     save_sem = xctx->semaphore;
+     tcleval("xschem exit");
+     xctx->semaphore = save_sem;
      break;
    }
    if(key=='t' && state == 0)                        /* place text */
@@ -1846,6 +1829,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='Q' && state == (ControlMask | ShiftMask) ) /* view attributes */
    {
     edit_property(2);break;
+   }
+   if(key=='q' && state==ControlMask) /* quit xschem */
+   {
+    if(xctx->semaphore >= 2) break;
+    tcleval("quit_xschem");
+    break;
    }
    if(key=='q' && state==0) /* edit attributes */
    {

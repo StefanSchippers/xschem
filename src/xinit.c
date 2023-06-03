@@ -1182,14 +1182,26 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   semaphore--;
 }
 
-
-void swap_tabs(int i, int j)
+/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)  */
+void swap_tabs(void)
 {
   int wc = window_count;
-  if(wc && j <=wc && i <= wc && j!=i) {
+  if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
-
+    int i = 0;
+    int j;
+    for(j = 1; j < MAX_NEW_WINDOWS; j++) {
+      if(save_xctx[j]) break;
+    }
+    if(j >= MAX_NEW_WINDOWS) {
+      dbg(0, "swap_tabs(): no tab to swap to found\n");
+      return;
+    }
+    if(!save_xctx[i]) {
+      dbg(0, "swap_tabs(): no tab to swap from found\n");
+      return;
+    }
 
     tmp = save_xctx[i]->top_path;
     save_xctx[i]->top_path = save_xctx[j]->top_path;
@@ -1211,6 +1223,7 @@ void swap_tabs(int i, int j)
     set_modify(-1);
     xctx = ctx;
     set_modify(-1);
+    new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL);
   }
 }
 

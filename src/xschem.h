@@ -1332,7 +1332,7 @@ extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
-extern void swap_tabs(int i, int j);
+extern void swap_tabs(void);
 extern int check_loaded(const char *f, char *win_path);
 extern char *get_window_path(int i);
 extern int get_window_count(void);
@@ -1347,6 +1347,7 @@ extern const char *get_sym_name(int inst, int ndir, int ext);
 extern void get_additional_symbols(int what);
 extern int descend_schematic(int instnumber);
 extern void go_back(int confirm);
+extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);
 extern void view_zoom(double z);
 extern void draw_stuff(void);

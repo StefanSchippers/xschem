@@ -38,7 +38,6 @@ p{padding: 15px  30px 10px;}
   This list is available in XSCHEM in the <kbd>Help</kbd> menu
  </p>
  <pre class="code" style="height: 600px;">
-
                         XSCHEM MOUSE BINDINGS
 ----------------------------------------------------------------------
 LeftButton              Clear selection and select a graphic object 
@@ -80,12 +79,13 @@ RightButton             Context menu
 
 Shift + RightButton     Select object under the mouse and if label/pin
                         select attached nets
-
+                        
 Ctrl + RightButton      Select object under the mouse and if label/pin
                         select attached nets up to net junctions
-
+                        
 LeftButton Double click Terminate Polygon placement
                         Edit object attributes
+
 
                         XSCHEM KEY BINDINGS
 ----------------------------------------------------------------------
@@ -98,7 +98,7 @@ ctrl       Enter        Confirm closing dialog boxes
 -          Left         Move right
 -          Right        Move left
 -          Up           Move up
-ctrl       Left         Previous tab (if tabbed interface enabled)
+ctrl       Left         Previous tab (if tabbed interface enabled) 
 ctrl       Right        Next tab (if tabbed interface enabled)
 -           '\'         Toggle fullscreen
 -           '!'         Break selected wires at any wire or component pin
@@ -145,6 +145,7 @@ alt         'g'         Hilight selected nets and send to gaw waveform viewer
 alt         'h'         create symbol pins from schematic pins
 ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
 shift       'H'         Attach net labels to selected instance
+ctrl+shift  'H'         Make schematic and symbol from selected components
 -           'i'         Descend to  symbol
 alt         'i'         Edit selected symbol in a new window
 alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins
@@ -174,6 +175,7 @@ alt         'n'         Empty schematic in new window
 alt+shift   'N'         Empty symbol in new window
 shift       'O'         Toggle Light / Dark colorscheme
 ctrl        'o'         Load schematic
+-           'p'         Place polygon. Operation ends by placing last point over first.
 alt         'p'         Add symbol pin
 ctrl        'p'         Pan schematic view
 shift       'P'         Pan, other way to.
@@ -198,7 +200,7 @@ shift       'U'         Redo
 ctrl        'v'         Paste from clipboard
 shift       'V'         Toggle spice/vhdl/verilog netlist 
 -           'w'         Place wire
-ctrl        'w'         Place polygon. Operation ends by placing last point over first.
+ctrl        'w'         close current schematic
 shift       'W'         Place wire, snapping to closest pin or net endpoint
 ctrl        'x'         Cut into clipboard
 -           'x'         New cad session

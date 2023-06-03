@@ -1826,6 +1826,50 @@ void go_back(int confirm) /*  20171006 add confirm */
  }
 }
 
+void clear_schematic(int cancel, int symbol)
+{
+      if(cancel == 1) cancel=save(1);
+      if(cancel != -1) { /* -1 means user cancel save request */
+        char name[PATH_MAX];
+        struct stat buf;
+        int i;
+        xctx->currsch = 0;
+        unselect_all(1);
+        remove_symbols();
+        clear_drawing();
+        if(symbol == 1) {
+          xctx->netlist_type = CAD_SYMBOL_ATTRS;
+          set_tcl_netlist_type();
+          for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
+            if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
+            else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
+            if(stat(name, &buf)) break;
+          }
+          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
+          my_strncpy(xctx->current_name, name, S(xctx->current_name));
+        } else {
+          xctx->netlist_type = CAD_SPICE_NETLIST;
+          set_tcl_netlist_type();
+          for(i=0;; ++i) {
+            if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
+            else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
+            if(stat(name, &buf)) break;
+          }
+          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
+          my_strncpy(xctx->current_name, name, S(xctx->current_name));
+        }
+        draw();
+        set_modify(0);
+        xctx->prep_hash_inst=0;
+        xctx->prep_hash_wires=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+        if(has_x) {
+          set_modify(-1);
+        }
+      }
+}
+
 #ifndef __unix__
 /* Source: https://www.tcl.tk/man/tcl8.7/TclCmd/glob.htm */
 /* backslash character has a special meaning to glob command,
