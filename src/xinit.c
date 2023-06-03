@@ -1179,6 +1179,39 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   semaphore--;
 }
 
+
+void swap_tabs(int i, int j)
+{
+  int wc = window_count;
+  if(wc && j <=wc && i <= wc && j!=i) {
+    Xschem_ctx *ctx;
+    char *tmp;
+
+
+    tmp = save_xctx[i]->top_path;
+    save_xctx[i]->top_path = save_xctx[j]->top_path;
+    save_xctx[j]->top_path = tmp;
+
+    tmp = save_xctx[i]->current_win_path;
+    save_xctx[i]->current_win_path = save_xctx[j]->current_win_path;
+    save_xctx[j]->current_win_path = tmp;
+
+    ctx = save_xctx[i];
+    save_xctx[i] = save_xctx[j];
+    save_xctx[j] = ctx;
+   
+    /* update filenames on tab buttons */
+    ctx = xctx;
+    xctx = save_xctx[i];
+    set_modify(-1);
+    xctx = save_xctx[j];
+    set_modify(-1);
+    xctx = ctx;
+    set_modify(-1);
+  }
+}
+
+
 /* check if filename is already loaded into a tab or window */
 /* caller should supply a win_path string for storing matching window path */
 int check_loaded(const char *f, char *win_path)

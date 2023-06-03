@@ -3751,6 +3751,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
+      swap_tabs(0, 1);
       Tcl_ResetResult(interp);
     }
 

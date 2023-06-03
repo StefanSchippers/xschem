@@ -1332,6 +1332,7 @@ extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
+extern void swap_tabs(int i, int j);
 extern int check_loaded(const char *f, char *win_path);
 extern char *get_window_path(int i);
 extern int get_window_count(void);
