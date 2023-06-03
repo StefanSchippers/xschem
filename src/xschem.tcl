@@ -138,15 +138,14 @@ proc inutile_translate {f} {
 proc inutile { {filename {}}} {
   global XSCHEM_SHAREDIR retval netlist_dir
 
+  if { ![string compare $filename  ""]  } then {
+   tk_messageBox -type ok -message "Please give a file name as argument"
+   return
+  }
   toplevel .inutile
   wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
   wm iconname .inutile "(IN)UTILE"
   set utile_path $XSCHEM_SHAREDIR/utile
-  if { ![string compare $filename  ""]  } then {
-   wm withdraw .inutile
-   tk_messageBox -type ok -message "Please give a file name as argument"
-   exit
-  }
   set retval {}
   frame .inutile.buttons
   pack .inutile.buttons -side bottom -fill x -pady 2m
@@ -5242,11 +5241,7 @@ proc setup_tabbed_interface {} {
   # update tabbed window close (X) function
   if {$tabbed_interface} {
     wm protocol . WM_DELETE_WINDOW { 
-      if { [xschem get current_win_path] eq {.drw} } {
-        xschem exit
-      } else { 
-        xschem new_schematic destroy [xschem get current_win_path] {}
-      }
+      xschem exit
     }
   # restore non tabbed window close function for main window
   } else {
@@ -5826,11 +5821,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
   $topwin.menubar.file.menu add separator
   $topwin.menubar.file.menu add command -label "Exit" -accelerator {Ctrl+Q} -command {
-    if {[xschem get current_win_path] eq {.drw} } {
-      xschem exit
-    } else {
-      xschem new_schematic destroy [xschem get current_win_path] {}
-    }
+    xschem exit
   }
   $topwin.menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -command {
@@ -6249,11 +6240,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   #wm maxsize . 1600 1200
   if {$tabbed_interface && $rootwin eq {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {
-      if { [xschem get current_win_path] eq {.drw} } {
-        xschem exit
-      } else {
-        xschem new_schematic destroy [xschem get current_win_path] {}
-      }
+      xschem exit
     }
   } elseif { $rootwin == {.}} {
     wm protocol $rootwin WM_DELETE_WINDOW {
@@ -6343,7 +6330,6 @@ proc print_help_and_exit {} {
     set helpfile [read $fd]
     puts $helpfile
     close $fd
-    exit
   }
 }
 

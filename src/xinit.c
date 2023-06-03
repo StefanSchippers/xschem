@@ -850,6 +850,8 @@ static void xwin_exit(void)
    return;
  }
  tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
+ /* "1" parameter means to force exit even if there are modified tabs/windows */
+ if(has_x) new_schematic("destroy_all", "1", NULL);
  delete_schematic_data(1);
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
@@ -1602,7 +1604,7 @@ static void destroy_tab(int *window_count, const char *win_path)
   }
 }
 
-static void destroy_all_windows(int *window_count)
+static void destroy_all_windows(int *window_count, int force)
 {
   int i;
   Xschem_ctx *savectx;
@@ -1619,7 +1621,7 @@ static void destroy_all_windows(int *window_count)
           xctx = save_xctx[i];
           close = 0;
           /* reset old focused window so callback() will force repaint on expose events */
-          if(xctx->modified && has_x) {
+          if(!force && xctx->modified && has_x) {
             tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                     "[get_cell [xschem get schname] 0]"
                     ": UNSAVED data: want to exit?\"");
@@ -1651,7 +1653,7 @@ static void destroy_all_windows(int *window_count)
   }
 }
 
-static void destroy_all_tabs(int *window_count)
+static void destroy_all_tabs(int *window_count, int force)
 {
   int i;
   Xschem_ctx *savectx;
@@ -1664,7 +1666,7 @@ static void destroy_all_tabs(int *window_count)
         xctx = save_xctx[i];
         close = 0;
         /* reset old focused window so callback() will force repaint on expose events */
-        if(xctx->modified && has_x) {
+        if(!force && xctx->modified && has_x) {
           tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                   "[get_cell [xschem get schname] 0]"
                   ": UNSAVED data: want to exit?\"");
@@ -1726,9 +1728,9 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
     }
   } else if(!strcmp(what, "destroy_all")) {
     if(!tabbed_interface) {
-      destroy_all_windows(&window_count);
+      destroy_all_windows(&window_count, win_path ? 1 : 0);
     } else {
-      destroy_all_tabs(&window_count);
+      destroy_all_tabs(&window_count, win_path ? 1 : 0);
     }
   } else if(!strcmp(what, "switch_win")) {
     switch_window(&window_count, win_path); /* see comments in switch_window() */

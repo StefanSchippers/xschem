@@ -158,7 +158,8 @@ static void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'h') || (type == LONG && !strcmp("help", opt)) ) {
         help=1;
-
+        quit=1;
+        has_x=0;
     } else {
         fprintf(errfp, "Unknown option: %s\n", opt);
     }
