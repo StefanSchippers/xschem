@@ -40,6 +40,7 @@ typedef int myproc(
 /* variables for handling multiple windows/tabs */
 static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schematic context structure */
 static char window_path[MAX_NEW_WINDOWS][WINDOW_PATH_SIZE];
+/* ==0 if no additional windows/tabs, ==1 if one additional window/tab, ... */
 static int window_count = 0;
 
 /* ----------------------------------------------------------------------- */

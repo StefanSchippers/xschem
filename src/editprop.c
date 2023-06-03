@@ -766,6 +766,11 @@ static int edit_rect_property(int x)
   const char *dash, *fill;
   int preserve, modified = 0;
   char *oldprop=NULL;
+
+  if(x < 0 || x > 2) {
+    fprintf(errfp, "edit_rect_property() : unknown parameter x=%d\n",x);
+    return 0;
+  }
   my_strdup(_ALLOC_ID_, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("retval",oldprop);
@@ -778,10 +783,7 @@ static int edit_rect_property(int x)
     xctx->semaphore--;
   }
   else if(x==2) tcleval("viewdata $::retval");
-  else if(x==1) tcleval("edit_vi_prop {Text:}");
-  else {
-    fprintf(errfp, "edit_rect_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
-  }
+  else tcleval("edit_vi_prop {Text:}"); /* x == 1 */
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(strcmp(tclgetvar("rcode"),"") )
   {
@@ -1108,6 +1110,10 @@ static int edit_text_property(int x)
   /* const char *str; */
   char *oldprop = NULL;
 
+  if(x < 0 || x > 2) {
+    fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x);
+    return 0;
+  }      
   dbg(1, "edit_text_property(): entering\n");
   sel = xctx->sel_array[0].n;
   my_strdup(_ALLOC_ID_, &oldprop, xctx->text[sel].prop_ptr);
@@ -1134,10 +1140,7 @@ static int edit_text_property(int x)
     if( (oldprop && strcmp(oldprop, tclgetvar("props"))) || (!oldprop && props[0]) ) props_changed = 1;
   }
   else if(x==2) tcleval("viewdata $::retval");
-  else if(x==1) tcleval("edit_vi_prop {Text:}");
-  else {
-    fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x); exit(EXIT_FAILURE);
-  }
+  else tcleval("edit_vi_prop {Text:}"); /* x == 1 */
   preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
   if(x == 0 || x == 1) {
     if(strcmp(xctx->text[sel].txt_ptr, tclgetvar("retval") ) ) {
