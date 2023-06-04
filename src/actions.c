@@ -450,18 +450,29 @@ const char *get_file_path(char *f)
  */
 int save(int confirm)
 {
-     if(xctx->modified)
-     {
-       if(confirm) {
-         tcleval("ask_save");
-         if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
-         else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch]);
-         else return 0; /* user clicks "no" */
-       } else {
-         return save_schematic(xctx->sch[xctx->currsch]);
-       }
-     }
-     return 1; /* circuit not changed: always succeeed */
+  struct stat buf;
+  char *name = xctx->sch[xctx->currsch];
+  int force = 0;
+
+  if(!stat(name, &buf)) {
+    if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+      force = 1;
+      confirm = 0;
+    }
+  } 
+
+  if(force || xctx->modified)
+  {
+    if(confirm) {
+      tcleval("ask_save");
+      if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
+      else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch]);
+      else return 0; /* user clicks "no" */
+    } else {
+      return save_schematic(xctx->sch[xctx->currsch]);
+    }
+  }
+  return 1; /* circuit not changed: always succeeed */
 }
 
 void saveas(const char *f, int type) /*  changed name from ask_save_file to saveas 20121201 */
