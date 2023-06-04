@@ -178,7 +178,7 @@ extern char win_temp_dir[PATH_MAX];
 #define IGNORE_INST 256
 #define HIDE_SYMBOL_TEXTS 512
 #define CADMAXGRIDPOINTS 512
-#define CADMAXHIER 80
+#define CADMAXHIER 40
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
 #define CADDRAWBUFFERSIZE 512
 
@@ -237,7 +237,7 @@ extern char win_temp_dir[PATH_MAX];
 
 /*  for netlist.c */
 #define BOXSIZE 400
-#define NBOXES 100
+#define NBOXES 50
 
 #define MAX_UNDO 80
 
