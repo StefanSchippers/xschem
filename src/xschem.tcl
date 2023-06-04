@@ -5708,10 +5708,11 @@ proc build_widgets { {topwin {} } } {
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
   set bbg {-highlightthickness 0}
-  if { $topwin ne {}} {
-    set mbg {-bg gray50}
-    set bbg {-bg gray50 -highlightthickness 0}
-  }
+
+  # if { $topwin ne {}} {
+  #   set mbg {-bg gray50}
+  #   set bbg {-bg gray50 -highlightthickness 0}
+  # }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
    -padx 3 -pady 0 $mbg
@@ -5957,12 +5958,12 @@ proc build_widgets { {topwin {} } } {
          -command { xschem only_probes }
   $topwin.menubar.view.menu add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
-          xschem build_colors 1
+          xschem build_colors
           xschem redraw
        }
    toolbar_add ViewToggleColors {
           xschem toggle_colorscheme
-          xschem build_colors 1
+          xschem build_colors
           xschem redraw
        } "Toggle Color Scheme" $topwin
   $topwin.menubar.view.menu add command -label "Dim colors"  -accelerator {} -command {

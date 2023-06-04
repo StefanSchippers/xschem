@@ -385,6 +385,8 @@ do { \
   } \
 } while(0)
 
+#define SWAP(a,b, tmp) do { tmp = a; a = b; b = tmp; } while(0)
+
 #define INT_WIDTH(x) ( tclgetboolvar("change_lw") ? ( (int)(x) == 0 ? 1 : (int)(x) ) : (int)(x) ) 
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
@@ -1333,6 +1335,7 @@ extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
 extern void swap_tabs(void);
+extern void swap_windows(void);
 extern int check_loaded(const char *f, char *win_path);
 extern char *get_window_path(int i);
 extern int get_window_count(void);

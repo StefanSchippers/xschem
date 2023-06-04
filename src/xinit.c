@@ -1186,6 +1186,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
 void swap_tabs(void)
 {
   int wc = window_count;
+  if(!tclgetboolvar("tabbed_interface")) return;
   if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
@@ -1226,6 +1227,93 @@ void swap_tabs(void)
     new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL);
   }
 }
+
+/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)  */
+void swap_windows(void)
+{
+  int wc = window_count;
+  if(tclgetboolvar("tabbed_interface")) return;
+  if(wc) {
+    Xschem_ctx *ctx;
+    char *tmp;
+    char wp_i[WINDOW_PATH_SIZE], wp_j[WINDOW_PATH_SIZE];
+    Window window;
+    Pixmap save_pixmap;
+    GC gc, *gcptr;
+    int i = 0;
+    int j;
+    Tk_Window tkwin, mainwindow;
+    char geometry[80];
+
+    for(j = 1; j < MAX_NEW_WINDOWS; j++) {
+      if(save_xctx[j]) break;
+    }
+    if(j >= MAX_NEW_WINDOWS) {
+      dbg(0, "swap_windows(): no tab to swap to found\n");
+      return;
+    }
+    if(!save_xctx[i]) {
+      dbg(0, "swap_windows(): no tab to swap from found\n");
+      return;
+    }
+    dbg(1, "swap_windows(): i=%d, j=%d\n", i, j);
+
+    my_snprintf(wp_i, S(wp_i), "%s", save_xctx[i]->current_win_path);
+    my_snprintf(wp_j, S(wp_j), "%s", save_xctx[j]->current_win_path);
+
+    mainwindow = Tk_MainWindow(interp);
+    tkwin = Tk_Parent(Tk_NameToWindow(interp, wp_j, mainwindow));
+
+    dbg(1, "swap_windows(): %s: %dx%d+%d+%d\n",
+            wp_j, Tk_Width(tkwin), Tk_Height(tkwin), Tk_X(tkwin), Tk_Y(tkwin));
+    my_snprintf(geometry, S(geometry), "%dx%d+%d+%d",
+            Tk_Width(tkwin), Tk_Height(tkwin), Tk_X(tkwin), Tk_Y(tkwin));
+
+    /* swap tcl contexts */
+    tclvareval("save_ctx ", xctx->current_win_path, NULL);
+    tclvareval("restore_ctx ", wp_i, NULL);
+    tclvareval("save_ctx ", "_temp", NULL);
+    tclvareval("restore_ctx ", wp_j, NULL);
+    tclvareval("save_ctx ", wp_i, NULL);
+    tclvareval("restore_ctx ", "_temp", NULL);
+    tclvareval("save_ctx ", wp_j, NULL);
+    tclvareval("delete_ctx _temp", NULL);
+
+    /* swap xschem xctx structs */
+    ctx = save_xctx[i];
+    save_xctx[i] = save_xctx[j];
+    save_xctx[j] = ctx;
+
+    /* swap window paths */
+    SWAP(save_xctx[i]->top_path, save_xctx[j]->top_path, tmp);
+    SWAP(save_xctx[i]->current_win_path, save_xctx[j]->current_win_path, tmp);
+
+    /* swap drawing stuff */
+    SWAP(save_xctx[i]->save_pixmap, save_xctx[j]->save_pixmap, save_pixmap);
+    SWAP(save_xctx[i]->window, save_xctx[j]->window, window);
+    SWAP(save_xctx[i]->gctiled, save_xctx[j]->gctiled, gc);
+    SWAP(save_xctx[i]->gc, save_xctx[j]->gc, gcptr);
+    SWAP(save_xctx[i]->gcstipple, save_xctx[j]->gcstipple, gcptr);
+
+    /* rebuld colors and pixmaps, redraw swapped schematics */
+    tclvareval("restore_ctx ", wp_i, NULL);
+    new_schematic("switch_win", wp_i, "");
+    tclvareval("housekeeping_ctx", NULL);
+    tclvareval("xschem build_colors", NULL);
+    resetwin(1, 1, 1, 0, 0);
+    draw();
+    
+    tclvareval("restore_ctx ", wp_j, NULL);
+    new_schematic("switch_win", wp_j, "");
+    tclvareval("housekeeping_ctx", NULL);
+    tclvareval("xschem build_colors", NULL);
+    resetwin(1, 1, 1, 0, 0);
+    draw();
+    /* move primary window to location of deleted window */
+    tclvareval("wm geometry . ", geometry, NULL);
+  }
+}
+
 
 
 /* check if filename is already loaded into a tab or window */

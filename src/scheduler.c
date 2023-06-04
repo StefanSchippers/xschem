@@ -691,23 +691,35 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!strcmp(xctx->current_win_path, ".drw")) {
         if(has_x) {
           int remaining;
-          if(!tclgetboolvar("tabbed_interface")) { /* non tabbed interface */
-            if(closewindow) {
-              remaining = new_schematic("destroy_all", NULL, NULL);
-              if(!remaining) {
-                if(xctx->modified) {
-                  tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+          /* non tabbed interface */
+          if(!tclgetboolvar("tabbed_interface")) {
+            int wc = get_window_count();
+            dbg(1, "wc=%d\n", wc);
+            if(wc > 0 ) {
+              if(xctx->modified) {
+                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                           "[get_cell [xschem get schname] 0]"
                           ": UNSAVED data: want to exit?\"");
-                }
-                if(!xctx->modified || !strcmp(tclresult(), "ok")) {
-                  tcleval("exit");
-                }
+              }
+              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+                swap_windows();
+                set_modify(0);
+                new_schematic("destroy", xctx->current_win_path, NULL);
               }
             } else {
-               clear_schematic(0, 0);
+              if(xctx->modified) {
+                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                          "[get_cell [xschem get schname] 0]"
+                          ": UNSAVED data: want to exit?\"");
+              }
+              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+                 if(closewindow) tcleval("exit");
+                 else clear_schematic(0, 0);
+              }
             }
-          } else { /* tabbed interface */
+          }
+          /* tabbed interface */
+          else {
             int wc = get_window_count();
             dbg(1, "wc=%d\n", wc);
             if(wc > 0 ) {
@@ -3743,7 +3755,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      swap_tabs();
+      swap_windows();
       Tcl_ResetResult(interp);
     }
 
