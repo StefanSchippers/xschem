@@ -1547,13 +1547,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      if(xctx->semaphore >= 2) break;
      delete(1/* to_push_undo */);break;
    }
-   if(key==XK_Left && (state & ControlMask)) /* previous tab */
-   {
-     tcleval("prev_tab");
-   }
-   if(key==XK_Right && (state & ControlMask)) /* next tab */
-   {
+   if(key==XK_Right && state == ControlMask) {
+     int save = xctx->semaphore;
+     if(xctx->semaphore >= 2) break;
+     xctx->semaphore = 0;
      tcleval("next_tab");
+     xctx->semaphore = save;
+   }
+   if(key==XK_Left && state == ControlMask) {
+     int save = xctx->semaphore;
+     if(xctx->semaphore >= 2) break;
+     xctx->semaphore = 0;
+     tcleval("prev_tab");
+     xctx->semaphore = save;
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
