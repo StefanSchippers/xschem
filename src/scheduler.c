@@ -702,7 +702,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               }
               if(!xctx->modified || !strcmp(tclresult(), "ok")) {
                 swap_windows();
-                set_modify(0);
+                set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
                 new_schematic("destroy", xctx->current_win_path, NULL);
               }
             } else {

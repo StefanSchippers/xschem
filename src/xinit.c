@@ -1182,7 +1182,8 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   semaphore--;
 }
 
-/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)  */
+/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)
+ * used for window close ('xschem exit' command) */
 void swap_tabs(void)
 {
   int wc = window_count;
@@ -1224,11 +1225,13 @@ void swap_tabs(void)
     set_modify(-1);
     xctx = ctx;
     set_modify(-1);
+    /* set context to tab that is about to be deleted */
     new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL);
   }
 }
 
-/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)  */
+/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)
+ * used for window close ('xschem exit' command) */
 void swap_windows(void)
 {
   int wc = window_count;
@@ -1258,12 +1261,15 @@ void swap_windows(void)
     }
     dbg(1, "swap_windows(): i=%d, j=%d\n", i, j);
 
-    my_snprintf(wp_i, S(wp_i), "%s", save_xctx[i]->current_win_path);
-    my_snprintf(wp_j, S(wp_j), "%s", save_xctx[j]->current_win_path);
+    my_snprintf(wp_i, S(wp_i), "%s", save_xctx[i]->current_win_path); /* primary (.drw) window */
+    my_snprintf(wp_j, S(wp_j), "%s", save_xctx[j]->current_win_path); /* sub (.x?.drw) window */
 
     mainwindow = Tk_MainWindow(interp);
+    /* get parent of wp_j window, since window manager reparents application windows to a
+     * parent window with title bar and borders. This gives accurate geometry data */
     tkwin = Tk_Parent(Tk_NameToWindow(interp, wp_j, mainwindow));
 
+    /* get sub-window geometry and position. primary window wp_i will be sized and moved there. */
     dbg(1, "swap_windows(): %s: %dx%d+%d+%d\n",
             wp_j, Tk_Width(tkwin), Tk_Height(tkwin), Tk_X(tkwin), Tk_Y(tkwin));
     my_snprintf(geometry, S(geometry), "%dx%d+%d+%d",
@@ -1301,16 +1307,17 @@ void swap_windows(void)
     tclvareval("housekeeping_ctx", NULL);
     tclvareval("xschem build_colors", NULL);
     resetwin(1, 1, 1, 0, 0);
+    /* move primary window to location of deleted window */
+    tclvareval("wm geometry . ", geometry, NULL);
     draw();
     
+    /* set context to window that is about to be deleted */
     tclvareval("restore_ctx ", wp_j, NULL);
     new_schematic("switch_win", wp_j, "");
     tclvareval("housekeeping_ctx", NULL);
     tclvareval("xschem build_colors", NULL);
     resetwin(1, 1, 1, 0, 0);
-    draw();
-    /* move primary window to location of deleted window */
-    tclvareval("wm geometry . ", geometry, NULL);
+    /* draw(); */ /* avoid drawing, since usually this will be destroyed soon after */
   }
 }
 
