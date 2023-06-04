@@ -690,7 +690,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 && !strcmp(argv[2], "closewindow")) closewindow = 1;
       if(!strcmp(xctx->current_win_path, ".drw")) {
         if(has_x) {
-          int remaining;
           /* non tabbed interface */
           if(!tclgetboolvar("tabbed_interface")) {
             int wc = get_window_count();
