@@ -488,6 +488,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -850,10 +852,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
-   <li><kbd>       new_schematic create|destroy|destroy_all|switch_win winpath file</kbd></li><pre>
+   <li><kbd>       new_schematic create|destroy|destroy_all|switch_win|switch_tab winpath file</kbd></li><pre>
    Open/destroy a new tab or window 
      create: create new empty window or with 'file' loaded if 'file' given.
-             The winpath must be given (even {} is ok) but is not used.
+             The winpath must be given (even {} is ok).
+             non empty winpath ({1}) will avoid warnings if opening the
+             same file multiple times.
      destroy: destroy tab/window identified by winpath. Example:
               xschem new_schematic destroy .x1.drw
      destroy_all: close all tabs/additional windows

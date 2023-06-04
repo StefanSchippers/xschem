@@ -2231,7 +2231,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* new_schematic create|destroy|destroy_all|switch_win|switch_tab winpath file
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
-     *             The winpath must be given (even {} is ok) but is not used.
+     *             The winpath must be given (even {} is ok).
+     *             non empty winpath ({1}) will avoid warnings if opening the
+     *             same file multiple times.
      *     destroy: destroy tab/window identified by winpath. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
