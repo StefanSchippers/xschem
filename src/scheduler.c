@@ -1996,7 +1996,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(!cancel) {
           if(f[0]) {
-           new_schematic("create", NULL, f);
+           new_schematic("create", "noconfirm", f);
            tclvareval("update_recent_file {", f, "}", NULL);
           } else {
             new_schematic("create", NULL, NULL);
@@ -2228,7 +2228,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* new_schematic create|destroy|destroy_all|switch_win winpath file
+    /* new_schematic create|destroy|destroy_all|switch_win|switch_tab winpath file
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
      *             The winpath must be given (even {} is ok) but is not used.
@@ -2252,7 +2252,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           char f[PATH_MAX + 100];
           my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
           tcleval(f);
-          my_strncpy(f, tclresult(), S(f));  
+          my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));  
           r = new_schematic(argv[2], argv[3], f);
         }
         my_snprintf(s, S(s), "%d", r);
