@@ -1985,7 +1985,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 2) {
           my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
           tcleval(f);
-          my_strncpy(f, tclresult(), S(f));
+          my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
         } else {
           tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
           if(tclresult()[0]) {

@@ -1387,7 +1387,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
     if(c == '{') {
       ungetc(c, fp);
       load_ascii_string(&str, fp);
-      dbg(dbg_level, "{%s}", str);
+      dbg(dbg_level, "{%s}", str ? str : "");
     } else {
       dbg(dbg_level, "%c", c);
     }
@@ -3704,7 +3704,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       dbg(1, "l_s_d() component: level=%d, sym=%s, prop_ptr = %s\n", level, symname, prop_ptr);
       if(level + 1 >=CADMAXHIER) {
         fprintf(errfp, "l_s_d(): Symbol recursively instantiating symbol: max depth reached, skipping\n");
-        if(has_x) tcleval("alert_ {xSymbol recursively instantiating symbol: max depth reached, skipping} {} 1");
+        if(has_x) tcleval("alert_ {Symbol recursively instantiating symbol: max depth reached, skipping} {} 1");
         endfile = 1;
         continue;
       }
