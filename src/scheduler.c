@@ -3754,7 +3754,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      swap_windows();
+      dbg(0, "sizeof Xschem_ctx=%d\n", sizeof(Xschem_ctx));
+      /* swap_windows(); */
       Tcl_ResetResult(interp);
     }
 
