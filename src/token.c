@@ -3398,13 +3398,16 @@ const char *translate(int inst, const char* s)
    else if(strcmp(token,"@spice_get_voltage")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
+     if(xctx->graph_annotate_p>=0 && !tclgetboolvar("live_cursor2_backannotate")) {
+       xctx->graph_annotate_p = -1;
+     }
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 1) {
          char *fqnet = NULL;
          const char *path =  xctx->sch_path[xctx->currsch] + 1;
-         const char *net = NULL;
+         char *net = NULL;
          size_t len;
          int idx;
          double val;
@@ -3417,14 +3420,19 @@ const char *translate(int inst, const char* s)
              ++path;
            }
            prepare_netlist_structs(0);
-           net = expandlabel(xctx->inst[inst].lab, &multip);
-           if(net == NULL || net[0] == '\0') net = net_name(inst,0, &multip, 0, 0);
+           my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
+           if(net == NULL || net[0] == '\0') {
+             my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
+           }
            if(multip == 1) {
              len = strlen(path) + strlen(net) + 1;
              dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
              dbg(1, "                                net=%s\n", net);
-             fqnet = my_malloc(_ALLOC_ID_, len);
-             my_snprintf(fqnet, len, "%s%s", path, net);
+             /* 
+              * fqnet = my_malloc(_ALLOC_ID_, len);
+              * my_snprintf(fqnet, len, "%s%s", path, net);
+              */
+             my_strdup2(_ALLOC_ID_, &fqnet, resolved_net(net));
              strtolower(fqnet);
              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
              idx = get_raw_index(fqnet);
@@ -3447,7 +3455,8 @@ const char *translate(int inst, const char* s)
              dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
              my_free(_ALLOC_ID_, &fqnet);
            }
-         }
+           my_free(_ALLOC_ID_, &net);
+         } 
        }
      }
    }
@@ -3455,6 +3464,9 @@ const char *translate(int inst, const char* s)
    {
      int start_level; /* hierarchy level where waves were loaded */
      dbg(1, "--> %s\n", token);
+     if(xctx->graph_annotate_p>=0 && !tclgetboolvar("live_cursor2_backannotate")) {
+       xctx->graph_annotate_p = -1;
+     }
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        char *fqnet = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
@@ -3509,6 +3521,9 @@ const char *translate(int inst, const char* s)
    else if(strncmp(token,"@spice_get_current(", 19)==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
+     if(xctx->graph_annotate_p>=0 && !tclgetboolvar("live_cursor2_backannotate")) {
+       xctx->graph_annotate_p = -1;
+     }
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
@@ -3576,6 +3591,9 @@ const char *translate(int inst, const char* s)
    else if(strcmp(token,"@spice_get_diff_voltage")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
+     if(xctx->graph_annotate_p>=0 && !tclgetboolvar("live_cursor2_backannotate")) {
+       xctx->graph_annotate_p = -1;
+     }
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
@@ -3642,6 +3660,9 @@ const char *translate(int inst, const char* s)
    else if(strcmp(token,"@spice_get_current")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
+     if(xctx->graph_annotate_p>=0 && !tclgetboolvar("live_cursor2_backannotate")) {
+       xctx->graph_annotate_p = -1;
+     }
      if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;

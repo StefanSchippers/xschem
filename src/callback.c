@@ -420,7 +420,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_all_redraw = 1;
           }
         } else {
-          need_all_redraw = 1;
+          xctx->graph_annotate_p = -1;
+          /* need_all_redraw = 1; */
+          redraw_all_at_end = 1;
         }
       }
       /* swap cursors */
