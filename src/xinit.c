@@ -1452,7 +1452,6 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
       save_xctx[i] = NULL;
       my_strncpy(window_path[i], "", S(window_path[i]));
     }
-    tclvareval("save_ctx ", xctx->current_win_path, NULL);
     save_xctx[0] = xctx; /* save current schematic */
     /* window_path[0] = Tk_NameToWindow(interp, ".drw", mainwindow); */
     my_strncpy(window_path[0], xctx->current_win_path, S(window_path[0]));
@@ -1461,6 +1460,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
     dbg(0, "new_schematic(\"create\"...): no more free slots\n");
     return; /* no more free slots */
   }
+  tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
   tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
   tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
@@ -1545,7 +1545,6 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
       save_xctx[i] = NULL;
       my_strncpy(window_path[i], "", S(window_path[i]));
     }
-    tclvareval("save_ctx ", xctx->current_win_path, NULL);
     save_xctx[0] = xctx; /* save current schematic */
     my_strncpy(window_path[0], xctx->current_win_path, S(window_path[0]));
   }
@@ -1553,6 +1552,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
     dbg(0, "new_schematic(\"new_tab\"...): no more free slots\n");
     return; /* no more free slots */
   }
+  tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
   tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
   tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");

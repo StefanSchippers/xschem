@@ -5511,6 +5511,12 @@ proc restore_ctx {context} {
   }
 }
 
+
+# context is saved in array variable in tctx:: namespace.
+# to get list of array names: 
+#   array names  tctx::.drw
+#   array names  tctx::.x1.drw
+#   .....
 proc save_ctx {context} {
   global has_x
   if {![info exists has_x]} {return}
@@ -6275,11 +6281,20 @@ proc set_initial_dirs {} {
   }
 }
 
+# called whenever XSCHEM_LUBRARY_PATH changes (see trace command at end) 
+proc trace_set_paths {varname idxname op} {
+  if {$varname eq {XSCHEM_LIBRARY_PATH} } {
+    # puts stderr "executing set_paths after XSCHEM_LIBRARY_PATH change"
+    uplevel #0 set_paths
+  }
+}
+
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
 # new library search path.
 proc set_paths {} {
   global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives
   set pathlist {}
+  # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
       set pathlist_orig [split $XSCHEM_LIBRARY_PATH \;]
@@ -6732,4 +6747,7 @@ if { $show_infowindow } { wm deiconify .infotext }
 # xschem listen and bespice listen
 setup_tcp_xschem
 setup_tcp_bespice
+
+# automatically build pathlist whenever XSCHEM_LIBRARY_PATH changes
+trace add variable XSCHEM_LIBRARY_PATH write trace_set_paths
 
