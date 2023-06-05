@@ -3425,6 +3425,7 @@ const char *translate(int inst, const char* s)
              my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
            }
            if(multip == 1) {
+             char *rn;
              len = strlen(path) + strlen(net) + 1;
              dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
              dbg(1, "                                net=%s\n", net);
@@ -3432,7 +3433,10 @@ const char *translate(int inst, const char* s)
               * fqnet = my_malloc(_ALLOC_ID_, len);
               * my_snprintf(fqnet, len, "%s%s", path, net);
               */
+
+             rn = resolved_net(net);
              my_strdup2(_ALLOC_ID_, &fqnet, resolved_net(net));
+             if(rn) my_free(_ALLOC_ID_, &rn);
              strtolower(fqnet);
              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
              idx = get_raw_index(fqnet);

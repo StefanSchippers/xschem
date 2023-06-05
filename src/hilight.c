@@ -1907,16 +1907,20 @@ char *resolved_net(const char *net)
       }
     }
     dbg(1, "path=%s\n", path);
-    my_strdup(_ALLOC_ID_, &exp_net, expandlabel(net, &mult));
+    my_strdup2(_ALLOC_ID_, &exp_net, expandlabel(net, &mult));
     n_s1 = exp_net;
     for(k = 0; k < mult; k++) {
       char *net_name = my_strtok_r(n_s1, ",", "", &n_s2);
       level = xctx->currsch;
       n_s1 = NULL;
       resolved_net = net_name;
+      dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
       while(level > start_level) {
         entry = str_hash_lookup(&xctx->portmap[level], resolved_net, NULL, XLOOKUP);
-        if(entry) resolved_net = entry->value;
+        if(entry) {
+          resolved_net = entry->value;
+          dbg(1, "resolved_net(): while loop: resolved_net=%s\n", resolved_net);
+        }
         else break;
         level--;
       }
