@@ -109,8 +109,6 @@ p{padding: 15px  30px 10px;}
     set PDK sky130A
     set SKYWATER_MODELS ${PDK_ROOT}/${PDK}/libs.tech/ngspice
     set SKYWATER_STDCELLS ${PDK_ROOT}/${PDK}/libs.ref/sky130_fd_sc_hd/spice
-    # the following command does the necessary housekeeping to load the new paths
-    set_paths
  </pre>
  <p>
   At this point your new tab will work with the new defnitions while the previous tab
@@ -139,8 +137,6 @@ p{padding: 15px  30px 10px;}
       set XSCHEM_LIBRARY_PATH {} ;# clear previous definitions
       append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library  ;# for devices/
       append XSCHEM_LIBRARY_PATH :${PDK_ROOT}/${PDK}/libs.tech/xschem
-      # the following command does the necessary housekeeping to load the new paths
-      set_paths
   }
  </pre>
 
