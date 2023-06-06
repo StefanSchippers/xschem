@@ -83,4 +83,4 @@ xschem instance ../../../xschem_library/devices/gnd.sym 250 -130 0 0 {name=l1 la
 xschem instance ../../../xschem_library/devices/res.sym 550 -290 0 0 {name=R1 m=1 value=47K footprint=1206 device=resistor}
 xschem instance ../../../xschem_library/devices/lab_wire.sym 330 -260 0 0 {name=l3 lab=Z}
 xschem save
-xschem exit
+xschem exit closewindow

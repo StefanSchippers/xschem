@@ -1403,7 +1403,7 @@ static int update_symbol(const char *result, int x, int first_sel)
     cond= type && IS_LABEL_SH_OR_PIN(type);
     if(cond) {
       xctx->inst[*ii].flags |= PIN_OR_LABEL;
-      my_strdup(_ALLOC_ID_, &xctx->inst[*ii].lab,
+      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].lab,
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
     else xctx->inst[*ii].flags &= ~PIN_OR_LABEL;

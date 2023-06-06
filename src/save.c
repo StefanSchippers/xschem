@@ -2399,7 +2399,7 @@ void link_symbols_to_instances(int from)
     cond= type && IS_LABEL_SH_OR_PIN(type);
     if(cond) {
       xctx->inst[i].flags |= PIN_OR_LABEL; /* label or pin */
-      my_strdup(_ALLOC_ID_, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
+      my_strdup2(_ALLOC_ID_, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
     }
     else xctx->inst[i].flags &= ~PIN_OR_LABEL; /* ordinary symbol */
   }

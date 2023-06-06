@@ -671,7 +671,7 @@ static void set_inst_node(int i, int j, const char *node)
     const char *dir = get_tok_value(rect[j].prop_ptr, "dir",0);
     bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, 0,"","","","");
   }
-  if(node[0] == '#') { /* update multilicity of unnamed node */
+  if(node && node[0] == '#') { /* update multilicity of unnamed node */
     int pin_mult; 
     expandlabel(get_tok_value(rect[j].prop_ptr, "name", 0), &pin_mult);
     get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j]) + 4));
@@ -859,29 +859,51 @@ static int instcheck(int n, int p)
 {
   int err = 0;
   xInstance * const inst = xctx->inst;
+  xSymbol * const sym = xctx->sym;
   int j, sqx, sqy;
   double x0, y0;
   int rects = xctx->sym[inst[n].ptr].rects[PINLAYER];
-  int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "show_label") && rects == 2;
+  int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "bus_tap");
+  int k = inst[n].ptr;
 
-  /* process bus taps : type = show_label, pin 0 = bus connection, pin 1 = tap (lab=[n]) */
-  if(bus_tap && p == 1) {
+
+  if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
+       ((inst[n].flags & VERILOG_IGNORE_INST) || 
+       (k >= 0 && (sym[k].flags & VERILOG_IGNORE_INST))) ) return 0;
+       
+  if( xctx->netlist_type == CAD_SPICE_NETLIST &&
+       ((inst[n].flags & SPICE_IGNORE_INST) || 
+       (k >= 0 && (sym[k].flags & SPICE_IGNORE_INST))) ) return 0;
+       
+  if( xctx->netlist_type == CAD_VHDL_NETLIST &&
+       ((inst[n].flags & VHDL_IGNORE_INST) || 
+       (k >= 0 &&(sym[k].flags & VHDL_IGNORE_INST))) ) return 0;
+       
+  if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
+       ((inst[n].flags & TEDAX_IGNORE_INST) || 
+       (k >= 0 && (sym[k].flags & TEDAX_IGNORE_INST))) ) return 0;
+
+
+
+
+  /* process bus taps : type = bus_tap */
+  if(bus_tap && p == 0) {
     /* do nothing */
-    dbg(0, "instcheck(): bus tap pin 1: node=%s\n", inst[n].node[p] ? inst[n].node[p] : "NULL");
+    dbg(0, "instcheck(): bus tap pin 0: node=%s\n", inst[n].node[p] ? inst[n].node[p] : "NULL");
   }
-  else if(bus_tap && p == 0) {
+  else if(bus_tap && p == 1) {
     char *node_base_name = NULL;
     const char *tap;
-    dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[0]);
-    if(!inst[n].node[1]) { /* still unnamed */
+    dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[p]);
+    if(!inst[n].node[0]) { /* still unnamed */
       /* tap = get_tok_value(inst[n].prop_ptr, "lab", 0); */
       tap = inst[n].lab;
       /* Check if this is a bus slice and must be appended to bus base name */
       if(tap[0] == '[' || isonlydigit(tap)) {
         /* find bus basename, from beginning or first character after ',' and ' ' */
-        char *nptr = strchr(inst[n].node[0], '[');
+        char *nptr = strchr(inst[n].node[p], '[');
         if(nptr) {
-           while(nptr > inst[n].node[0]) {
+           while(nptr > inst[n].node[p]) {
              nptr--;
              if(*nptr == ',') {
                while(*(++nptr) ==' ');
@@ -889,22 +911,22 @@ static int instcheck(int n, int p)
              }
            }
         } else {
-          nptr = inst[n].node[0];
+          nptr = inst[n].node[p];
         }
-        node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[0]) + 1);
+        node_base_name = my_malloc(_ALLOC_ID_, strlen(inst[n].node[p]) + 1);
         sscanf(nptr, "%[^[]", node_base_name);
         my_strcat(_ALLOC_ID_, &node_base_name, tap);
       }
       else {
         my_strdup2(_ALLOC_ID_, &node_base_name, tap);
       }
-      set_inst_node(n, 1, node_base_name);
-      get_inst_pin_coord(n, 1, &x0, &y0);
+      set_inst_node(n, 0, node_base_name);
+      get_inst_pin_coord(n, 0, &x0, &y0);
       get_square(x0, y0, &sqx, &sqy);
-      err |= name_attached_nets(x0, y0, sqx, sqy, inst[n].node[1]);
-      err |= name_attached_inst(n, x0, y0, sqx, sqy, inst[n].node[1]);
+      err |= name_attached_nets(x0, y0, sqx, sqy, inst[n].node[0]);
+      err |= name_attached_inst(n, x0, y0, sqx, sqy, inst[n].node[0]);
     } else {
-      if(for_netlist>0) err |= signal_short("Bus tap", inst[n].node[0], inst[n].node[1]);
+      if(for_netlist>0) err |= signal_short("Bus tap", inst[n].node[p], inst[n].node[0]);
     }
     my_free(_ALLOC_ID_, &node_base_name);
   }
@@ -1168,6 +1190,8 @@ int prepare_netlist_structs(int for_netl)
   for_netlist = for_netl;
   if(for_netlist>0 && xctx->prep_net_structs) return 0;
   else if(!for_netlist && xctx->prep_hi_structs) return 0;
+  reset_flags();
+  set_modify(-2); /* to reset floater cached values */
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
   if(for_netlist) {
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);

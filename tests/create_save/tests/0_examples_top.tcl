@@ -32,4 +32,4 @@ xschem instance ../../../xschem_library/devices/bus_connect.sym 500 -530 0 0 {na
 xschem instance ../../../xschem_library/devices/bus_connect_nolab.sym 400 -530 0 0 {name=r1}
 xschem instance ../../../xschem_library/devices/lab_pin.sym 410 -600 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
 xschem save
-xschem exit
+xschem exit closewindow

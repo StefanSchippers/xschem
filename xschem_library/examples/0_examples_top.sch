@@ -45,12 +45,12 @@ A 7 884.1666666666666 -210 39.58991173406564 210.3432488842396 198.9246444160511
 P 1 10 880 -490 870 -550 950 -530 910 -510 940 -480 920 -480 910 -460 890 -500 880 -480 880 -490 {dash=3}
 P 4 6 830 -470 830 -560 820 -510 820 -550 810 -520 810 -490 {}
 P 15 11 870 -520 880 -560 900 -530 910 -550 920 -520 940 -530 920 -490 890 -500 860 -480 840 -530 870 -520 {fill=true}
-T {Welcome to XSCHEM!} 110 -1060 0 0 1 1 {layer=5}
+T {Welcome to XSCHEM!} 110 -1100 0 0 1 1 {layer=5}
 T {This is a test schematic window 
 
 On the left you see some sample circuits. You may descend into any of these by selecting one with a left mouse button click and
 pressing the 'e' key, or by menu 'Edit -> Push Schematic'. You can return here after descending into a schematic by hitting 
-'<Ctrl>-e' or by menu 'Edit -> Pop'.} 60 -990 0 0 0.4 0.4 {}
+'<Ctrl>-e' or by menu 'Edit -> Pop'.} 60 -1030 0 0 0.4 0.4 {}
 T {Lines} 960 -680 0 0 0.6 0.6 {layer=4}
 T {Rectangles} 960 -620 0 0 0.6 0.6 {layer=4}
 T {Polygons} 960 -530 0 0 0.6 0.6 {layer=4}
@@ -87,16 +87,16 @@ N 380 -310 640 -310 {lab=BUS[4:0]}
 N 510 -400 510 -320 {lab=BUS[1]}
 N 410 -350 410 -320 {lab=BUS[2]}
 N 460 -400 460 -320 {lab=BUS[2:1]}
-C {poweramp.sym} 480 -750 0 0 {name=x1
+C {poweramp.sym} 480 -790 0 0 {name=x1
 tclcommand="xschem descend"}
-C {tesla.sym} 160 -630 0 0 {name=x2}
-C {test_ne555.sym} 160 -590 0 0 {name=x3}
-C {test_lm324.sym} 160 -550 0 0 {name=x4}
-C {osc.sym} 160 -670 0 0 {name=x5}
+C {tesla.sym} 160 -670 0 0 {name=x2}
+C {test_ne555.sym} 160 -630 0 0 {name=x3}
+C {test_lm324.sym} 160 -590 0 0 {name=x4}
+C {osc.sym} 160 -710 0 0 {name=x5}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {cmos_example.sym} 160 -710 0 0 {name=x6}
-C {greycnt.sym} 160 -750 0 0 {name=x8}
-C {loading.sym} 160 -790 0 0 {name=x9}
+C {cmos_example.sym} 160 -750 0 0 {name=x6}
+C {greycnt.sym} 160 -790 0 0 {name=x8}
+C {loading.sym} 160 -830 0 0 {name=x9}
 C {inv_bsource.sym} 880 -320 0 0 {name=B1 TABLE="1.4 3.0 1.6 0.0"}
 C {launcher.sym} 460 -140 0 0 {name=h1 
 descr="XSCHEM ON REPO.HU" 
@@ -113,17 +113,17 @@ url="$\{XSCHEM_SHAREDIR\}/../doc/xschem/index.html"
 program=x-www-browser
 
 }
-C {rlc.sym} 160 -830 0 0 {name=x0}
+C {rlc.sym} 160 -870 0 0 {name=x0}
 C {lab_pin.sym} 640 -310 0 1 {name=l2 sig_type=std_logic lab=BUS[4:0]}
 C {bus_connect.sym} 500 -310 0 0 {name=l3 lab=BUS[1]}
 C {bus_connect_nolab.sym} 400 -310 0 0 {name=r1}
 C {lab_pin.sym} 410 -350 3 1 {name=l4 sig_type=std_logic lab=BUS[2]}
-C {LCC_instances.sym} 160 -510 0 0 {name=x7}
-C {test_backannotated_subckt.sym} 160 -470 0 0 {name=x10}
-C {plot_manipulation.sym} 160 -430 0 0 {name=x11}
-C {logic_test.sym} 160 -390 0 0 {name=x12}
-C {simulate_ff.sym} 160 -350 0 0 {name=x13}
-C {test_mos_verilog.sym} 160 -310 0 0 {name=x14}
+C {LCC_instances.sym} 160 -550 0 0 {name=x7}
+C {test_backannotated_subckt.sym} 160 -510 0 0 {name=x10}
+C {plot_manipulation.sym} 160 -470 0 0 {name=x11}
+C {logic_test.sym} 160 -430 0 0 {name=x12}
+C {simulate_ff.sym} 160 -390 0 0 {name=x13}
+C {test_mos_verilog.sym} 160 -350 0 0 {name=x14}
 C {launcher.sym} 1265 -225 0 0 {name=h5 
 descr=" Ctrl-Left-Click to load/
 unload waveforms" 
@@ -1456,18 +1456,19 @@ xwtAgA9ve8fHC0Dod8blIpQLQJBdgRgxavQ/AAAAgEslwD6d7SiMdxwqP41maeirFRxABH/Rb+tVM0DO
 cwtAyKwqggMC8z8AAABAXz/APixDHOviNio/cIyWTt0GHEAHmaX3NW0zQHJvU5F/bTNA3V5CW3kqoL85tJeeXUIJQIB/waNeQglAcFfF8JIdC0DY7tjwBPjxPwAAALCc
 UsA+"
 }
-C {test_ac.sym} 160 -270 0 0 {name=x15}
-C {rom8k.sym} 480 -790 0 0 {name=x17}
-C {test_doublepin.sym} 160 -230 0 0 {name=x19}
-C {classD_amp.sym} 480 -830 0 0 {name=x20}
-C {delta_sigma.sym} 480 -670 0 0 {name=x21}
-C {solar_panel.sym} 480 -630 0 0 {name=xsolar}
-C {test_extracted_netlist.sym} 160 -190 0 0 {name=x23
+C {test_ac.sym} 160 -310 0 0 {name=x15}
+C {rom8k.sym} 480 -830 0 0 {name=x17}
+C {test_doublepin.sym} 160 -270 0 0 {name=x19}
+C {classD_amp.sym} 480 -870 0 0 {name=x20}
+C {delta_sigma.sym} 480 -710 0 0 {name=x21}
+C {solar_panel.sym} 480 -670 0 0 {name=xsolar}
+C {test_extracted_netlist.sym} 160 -230 0 0 {name=x23
 tclcommand="xschem descend"}
-C {poweramp_lcc.sym} 480 -710 0 0 {name=x16
+C {poweramp_lcc.sym} 480 -750 0 0 {name=x16
 tclcommand="xschem descend"}
-C {test_symbolgen.sym} 480 -590 0 0 {name=x18}
-C {inst_sch_select.sym} 480 -550 0 0 {name=x24}
-C {test_bus_tap.sym} 480 -510 0 0 {name=x22}
+C {test_symbolgen.sym} 480 -630 0 0 {name=x18}
+C {inst_sch_select.sym} 480 -590 0 0 {name=x24}
+C {test_bus_tap.sym} 480 -550 0 0 {name=x22}
 C {bus_tap.sym} 450 -310 1 1 {name=l5 lab=[2:1]}
-C {test_jfet.sym} 480 -470 0 0 {name=x25}
+C {test_jfet.sym} 480 -510 0 0 {name=x25}
+C {test_short_option.sym} 480 -470 0 0 {name=x26}

@@ -77,4 +77,4 @@ xschem instance ../../../xschem_library/devices/lab_pin.sym 40 -350 0 1 {name=l5
 xschem instance ../../../xschem_library/devices/lab_pin.sym 40 -410 0 1 {name=l6 lab=INPUT_E verilog_type=reg}
 xschem instance ../../../xschem_library/devices/lab_pin.sym 40 -390 0 1 {name=l7 lab=INPUT_F verilog_type=reg}
 xschem save
-xschem exit
+xschem exit closewindow

@@ -508,7 +508,7 @@ void hilight_parent_pins(void)
  for(j=0;j<rects; ++j)
  {
   char *p_n_s1, *p_n_s2;
-  if(!xctx->inst[i].node[j]) continue;
+  if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
@@ -566,7 +566,7 @@ void hilight_child_pins(void)
   char *p_n_s1, *p_n_s2;
   dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
 
-  if(!xctx->inst[i].node[j]) continue;
+  if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_child_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
@@ -1219,7 +1219,7 @@ static void send_current_to_gaw(int simtype, const char *node)
   my_free(_ALLOC_ID_, &t);
 }
 
-/* hilight/clear pin/label instances attached to hilight nets, or instances with "hilight=true"
+/* hilight/clear pin/label instances attached to hilight nets, or instances with "highlight=true"
  * attr if en_hilight_conn_inst option is set
  */
 void propagate_hilights(int set, int clear, int mode)
@@ -1242,7 +1242,7 @@ void propagate_hilights(int set, int clear, int mode)
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     hilight_connected_inst = en_hi && 
       ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
-    /* hilight/clear instances with hilight=true attr set and en_hilight_conn_inst option is set ... */
+    /* hilight/clear instances with highlight=true attr set and en_hilight_conn_inst option is set ... */
     if(type && !IS_LABEL_SH_OR_PIN(type)) {
       if (hilight_connected_inst) {
         int rects, j, nohilight_pins;
@@ -1296,17 +1296,16 @@ void propagate_hilights(int set, int clear, int mode)
 
 static int get_logic_value(int inst, int n)
 {
-  int /* mult, */ val;
+  int /* mult, */ val = 2; /* LOGIC_X */
   Hilight_hashentry *entry;
   /* char *netname = NULL; */
 
+  if(!xctx->inst[inst].node || !xctx->inst[inst].node[n]) return val;
   /* fast option: dont use net_name() (no expandlabel though) */
   /* THIS MUST BE DONE TO HANDLE VECTOR INSTANCES/BUSES */
   /* my_strdup(xxxx, &netname, net_name(inst, n, &mult, 1, 0)); */
   entry=hilight_hash_lookup(xctx->inst[inst].node[n], 0, XLOOKUP);
-  if(!entry) {
-    val = 2; /* LOGIC_X */
-  } else {
+  if(entry) {
     val = entry->value;
     val = (val == LOGIC_0) ? 0 : (val == LOGIC_1) ? 1 : (val == LOGIC_Z) ? 3 : 2;
     /* dbg(1, "get_logic_value(): inst=%d pin=%d net=%s val=%d\n", inst, n, netname, val); */
@@ -1562,7 +1561,10 @@ static void propagate_logic()
           clock_pin = xctx->simdata[i].pin[j].clock;
           if(clock_pin != -1) {
             /* no bus_hilight_lookup --> no bus expansion */
-            entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
+            entry = NULL;
+            if(xctx->inst[i].node && xctx->inst[i].node[j]) {
+              entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP); /* clock pin */
+            }
             clock_val =  (!entry) ? LOGIC_X : entry->value;
             clock_oldval =  (!entry) ? LOGIC_X : entry->oldvalue;
             if(entry) {
@@ -1625,6 +1627,7 @@ static void propagate_logic()
     for(i=0; i<xctx->instances; ++i) {
       for(j=0;j < xctx->simdata[i].npin; ++j) {
         if(xctx->simdata[i].pin[j].value != -10000) {
+          if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
           entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP); 
           if(!entry || xctx->hilight_time != entry->time) {
             hilight_hash_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);

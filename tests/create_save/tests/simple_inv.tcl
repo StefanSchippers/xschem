@@ -14,4 +14,4 @@ xschem wire -10 -70 -10 20
 xschem select_all
 xschem hilight
 xschem save
-xschem exit
+xschem exit closewindow

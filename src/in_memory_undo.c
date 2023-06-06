@@ -344,9 +344,9 @@ void mem_push_undo(void)
     xctx->uslot[slot].iptr[i].instname = NULL;
     xctx->uslot[slot].iptr[i].lab = NULL;
     xctx->uslot[slot].iptr[i].node = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].lab, xctx->inst[i].lab);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].lab, xctx->inst[i].lab);
     my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].instname, xctx->inst[i].instname);
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].prop_ptr, xctx->inst[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].prop_ptr, xctx->inst[i].prop_ptr);
     my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].name, xctx->inst[i].name);
   }
 
@@ -503,10 +503,10 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->inst[i].name = NULL;
     xctx->inst[i].instname = NULL;
     xctx->inst[i].lab = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, xctx->uslot[slot].iptr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr, xctx->uslot[slot].iptr[i].prop_ptr);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, xctx->uslot[slot].iptr[i].name);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, xctx->uslot[slot].iptr[i].instname);
-    my_strdup(_ALLOC_ID_, &xctx->inst[i].lab, xctx->uslot[slot].iptr[i].lab);
+    my_strdup2(_ALLOC_ID_, &xctx->inst[i].lab, xctx->uslot[slot].iptr[i].lab);
   }
 
   /* symbols */

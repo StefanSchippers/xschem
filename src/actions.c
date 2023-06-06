@@ -676,6 +676,7 @@ int set_rect_flags(xRect *r)
   dbg(1, "set_rect_flags(): flags=%d\n", f);
   return f;
 }
+
 int set_sym_flags(xSymbol *sym)
 {
   sym->flags = 0;
@@ -710,7 +711,15 @@ int set_inst_flags(xInstance *inst)
 {
   inst->flags=0;
   my_strdup2(_ALLOC_ID_, &inst->instname, get_tok_value(inst->prop_ptr, "name", 0));
-   
+
+  if(inst->ptr >=0) {
+    char *type = xctx->sym[inst->ptr].type;
+    int cond= type && IS_LABEL_SH_OR_PIN(type);
+    if(cond) {
+      inst->flags |= PIN_OR_LABEL;
+      my_strdup2(_ALLOC_ID_, &(inst->lab), get_tok_value(inst->prop_ptr,"lab",0));
+    }
+  }
   if(!strcmp(get_tok_value(inst->prop_ptr,"hide",0), "true"))
     inst->flags |= HIDE_INST;
               
@@ -760,6 +769,18 @@ int set_text_flags(xText *t)
     my_strdup2(_ALLOC_ID_, &t->floater_instname, str);
   }
   return 0;
+}
+
+
+void reset_flags(void)
+{
+  int i;
+  for(i = 0; i < xctx->instances; i++) {
+    set_inst_flags(&xctx->inst[i]);
+  }     
+  for(i = 0; i < xctx->symbols; i++) { 
+    set_sym_flags(&xctx->sym[i]);
+  }     
 }
 
 /* what: 
@@ -1234,7 +1255,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   cond= type && IS_LABEL_SH_OR_PIN(type);
   if(cond) {
     xctx->inst[n].flags |= PIN_OR_LABEL;
-    my_strdup(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
+    my_strdup2(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
   }
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   xctx->instances++; /* must be updated before calling symbol_bbox() */

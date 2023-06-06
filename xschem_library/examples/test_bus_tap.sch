@@ -102,6 +102,10 @@ N 1110 -1170 1110 -800 {
 lab=DOUT[15:0]}
 N 620 -600 620 -590 {
 lab=VCC}
+N 390 -970 390 -910 {
+lab=ADD[1]}
+N 390 -850 390 -830 {
+lab=VSS}
 C {bus_tap.sym} 400 -390 3 0 {name=l1 lab=[3]
 }
 C {bus_tap.sym} 290 -390 3 0 {name=l2 lab=[13]
@@ -313,4 +317,14 @@ C {lab_pin.sym} 680 -1050 0 0 {name=p30 lab=vss}
 C {bus_tap.sym} 1120 -790 3 0 {name=l19 lab=[15:0]
 }
 C {lab_pin.sym} 620 -600 0 0 {name=p23 sig_type=std_logic lab=VCC
+}
+C {bus_tap.sym} 380 -980 1 0 {name=l20 lab=[1]
+}
+C {res.sym} 390 -880 0 0 {name=R20
+value=1k
+footprint=1206
+device=resistor
+m=1
+}
+C {lab_pin.sym} 390 -830 0 0 {name=p31 sig_type=std_logic lab=VSS
 }

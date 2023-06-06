@@ -2899,7 +2899,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           cond= type && IS_LABEL_SH_OR_PIN(type);
           if(cond) {
             xctx->inst[inst].flags |= PIN_OR_LABEL;
-            my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+            my_strdup2(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
 
@@ -2923,13 +2923,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Reset cached instance and symbol cached flags (inst->flags, sym->flags) */
     else if(!strcmp(argv[1], "reset_flags"))
     {
-      int i;
-      for(i = 0; i < xctx->instances; i++) {
-        set_inst_flags(&xctx->inst[i]);
-      }
-      for(i = 0; i < xctx->symbols; i++) {
-        set_sym_flags(&xctx->sym[i]);
-      }
+      reset_flags();
       Tcl_ResetResult(interp);
     }
 
@@ -3418,7 +3412,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           cond= type && IS_LABEL_SH_OR_PIN(type);
           if(cond) {
             xctx->inst[inst].flags |= PIN_OR_LABEL;
-            my_strdup(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
+            my_strdup2(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
 

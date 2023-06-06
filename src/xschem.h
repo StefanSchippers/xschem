@@ -336,9 +336,14 @@ extern char win_temp_dir[PATH_MAX];
 
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
 
+/* "show_label" type symbols are used for any type of symbol that
+ * must be automatically highlighted by attached nets 
+ * show_label also used on metal option type symbols (pass-through symbols) 
+ * to optionally short two nets (using *_ignore=[true|false] attribute) */
 #define IS_LABEL_SH_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && \
-                                 strcmp(type,"show_label") && strcmp(type,"iopin")))
-#define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
+                                 strcmp(type,"show_label") && strcmp(type,"iopin") && strcmp(type,"bus_tap")))
+#define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && \
+                                 strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
 #define XSIGN(x) ( (x) < 0 ? -1 : 1)
 #define XSIGN0(x) ( (x) < 0 ? -1 : (x) > 0 ? 1 : 0)
@@ -1132,6 +1137,7 @@ extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
 extern int set_inst_flags(xInstance *inst);
 extern int set_sym_flags(xSymbol *sym);
+extern void reset_flags(void);
 extern const char *get_text_floater(int i);
 extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);

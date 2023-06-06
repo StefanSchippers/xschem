@@ -516,8 +516,11 @@ void find_inst_to_be_redrawn(int what)
           if(type && 
              (
                IS_LABEL_OR_PIN(type) ||
+               /* some pass through symbols have type show_label (metal option)
+                *                   |                     */
+               (!strcmp(type, "show_label") && (inst[n].ptr + xctx->sym)->rects[PINLAYER] > 1) ||
                /* bus taps */
-               (!strcmp(type, "show_label") && (inst[n].ptr + xctx->sym)->rects[PINLAYER] == 2)
+               !strcmp(type, "bus_tap")
              )
             ) {
             for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
@@ -537,10 +540,10 @@ void find_inst_to_be_redrawn(int what)
       for(i=0; i < xctx->instances; ++i) {
         char *type=xctx->sym[xctx->inst[i].ptr].type;
         /* bus taps */
-        if(type && !strcmp(type, "show_label") && (inst[i].ptr + xctx->sym)->rects[PINLAYER] == 2 ) {
-          if(int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[0], 0, XLOOKUP)) {
-            int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[1], 0, XINSERT_NOREPLACE);
-            dbg(1, "bus_tap: propagate %s\n",  xctx->inst[i].node[1]);
+        if(type && !strcmp(type, "bus_tap")) {
+          if(int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[1], 0, XLOOKUP)) {
+            int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[0], 0, XINSERT_NOREPLACE);
+            dbg(1, "bus_tap: propagate %s\n",  xctx->inst[i].node[0]);
           }
         }
       }
@@ -985,7 +988,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].name=NULL;
         my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
         my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
-        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
+        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
         xctx->inst[xctx->instances].embed = xctx->inst[n].embed;
         xctx->inst[xctx->instances].flags = xctx->inst[n].flags;

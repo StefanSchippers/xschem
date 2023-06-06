@@ -216,4 +216,4 @@ xschem instance ../../../xschem_library/devices/spice_probe.sym 1670 -740 0 0 {n
 xschem instance ../../../xschem_library/devices/lab_pin.sym 1670 -790 0 0 {name=l4 lab=LDBL[0,16,32,1,17,33,2,18,34]}
 xschem instance ../../../xschem_library/devices/spice_probe.sym 1670 -790 0 0 {name=p91 analysis=tran}
 xschem save
-xschem exit
+xschem exit closewindow
