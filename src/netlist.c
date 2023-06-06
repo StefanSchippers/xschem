@@ -887,9 +887,10 @@ static int instcheck(int n, int p)
   int rects = xctx->sym[inst[n].ptr].rects[PINLAYER];
   int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "bus_tap");
   int k = inst[n].ptr;
-  int lvs_ignore=tclgetboolvar("lvs_ignore");
   int shorted_inst = 
-       (k >=0) && lvs_ignore && ((inst[n].flags & LVS_IGNORE_SHORT) || (sym[k].flags & LVS_IGNORE_SHORT));
+      (k >=0) &&
+      ((inst[n].flags & LVS_IGNORE_SHORT) || (sym[k].flags & LVS_IGNORE_SHORT)) &&
+      netlist_lvs_ignore;
 
   if(!inst[n].node) return 0;
 

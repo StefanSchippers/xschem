@@ -1706,7 +1706,8 @@ int descend_schematic(int instnumber)
      my_strdup2(_ALLOC_ID_, &str, "");
      inst_mult = 1;
    }
-   prepare_netlist_structs(0);
+   prepare_netlist_structs(0); /* for portmap feature (mapping subcircuit nodes connected to
+                                * ports to upper level) */
 
    inst_number = 1;
    if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate

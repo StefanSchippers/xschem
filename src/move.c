@@ -493,6 +493,7 @@ void find_inst_to_be_redrawn(int what)
   xInstance * const inst = xctx->inst;
 
   int s_pnetname = tclgetboolvar("show_pin_net_names");
+  int lvs_ignore = tclgetboolvar("lvs_ignore");
 
   
   dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
@@ -511,7 +512,24 @@ void find_inst_to_be_redrawn(int what)
         n = xctx->sel_array[i].n;
         if( xctx->sel_array[i].type == ELEMENT) {
           int p;
-          char *type=xctx->sym[xctx->inst[n].ptr].type;
+          char *type;
+          int shorted_inst;
+          if(xctx->inst[n].ptr < 0 ) continue;
+          type=xctx->sym[xctx->inst[n].ptr].type;
+          shorted_inst = 
+                  lvs_ignore &&
+                  /* 
+                   * (
+                   *   (inst[n].flags & LVS_IGNORE_SHORT) ||
+                   *   (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_SHORT)
+                   * ) &&
+                   * can not use LVS_IGNORE_SHORT .flag since i want to re-display also when
+                   * attribute is changed from short to anything else */
+                  (
+                    get_tok_value(inst[n].prop_ptr, "lvs_ignore", 0)[0] ||
+                    get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "lvs_ignore", 0)[0]
+                  );
+
           /* collect all nodes connected to instances that set node names */
           if(type && 
              (
@@ -520,7 +538,9 @@ void find_inst_to_be_redrawn(int what)
                 *                   |                     */
                (!strcmp(type, "show_label") && (inst[n].ptr + xctx->sym)->rects[PINLAYER] > 1) ||
                /* bus taps */
-               !strcmp(type, "bus_tap")
+               !strcmp(type, "bus_tap") ||
+               /* instances that have lvs_ignore=true and global lvs_ignore is set */
+               shorted_inst
              )
             ) {
             for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
@@ -536,7 +556,7 @@ void find_inst_to_be_redrawn(int what)
           int_hash_lookup(&xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
         }
       }
-      /* propagate all node[1] of bus taps that have node[0] hashed above */
+      /* propagate all node[0] of bus taps that have node[1] hashed above */
       for(i=0; i < xctx->instances; ++i) {
         char *type=xctx->sym[xctx->inst[i].ptr].type;
         /* bus taps */
@@ -549,8 +569,12 @@ void find_inst_to_be_redrawn(int what)
       }
     } /* if(!(what & 8)) */
   
-    if(!xctx->inst_redraw_table || xctx->instances > xctx->inst_redraw_table_size) {
+    if(!xctx->inst_redraw_table) {
+       xctx->inst_redraw_table = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned char));
+    } else if(xctx->instances > xctx->inst_redraw_table_size) {
       my_realloc(_ALLOC_ID_, &xctx->inst_redraw_table, xctx->instances * sizeof(unsigned char));
+      memset(xctx->inst_redraw_table + xctx->inst_redraw_table_size, 0,
+          (xctx->instances - xctx->inst_redraw_table_size) * sizeof(unsigned char));
       xctx->inst_redraw_table_size = xctx->instances;
     }
     for(i=0; i < xctx->instances; ++i) {
@@ -575,7 +599,8 @@ void find_inst_to_be_redrawn(int what)
               symbol_bbox(i, &inst[i].x1, &inst[i].y1, &inst[i].x2, &inst[i].y2);
               bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
             }
-            xctx->inst_redraw_table[i] = 1;
+            xctx->inst_redraw_table[i] = 1; /* keep list of instances to be redrawn for faster lookup when
+                                             * what==2 in following calls */
             break;
           }
         }
@@ -1543,8 +1568,10 @@ void move_objects(int what, int merge, double dx, double dy)
     xctx->prep_hi_structs=0;
   }
   /* build after copying and after recalculating prepare_netlist_structs() */
-  if(!floaters) find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
-  if(!floaters) find_inst_to_be_redrawn(16); /* clear data */
+  if(!floaters) {
+    find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
+    find_inst_to_be_redrawn(16); /* clear data */
+  }
   check_collapsing_objects();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
 
