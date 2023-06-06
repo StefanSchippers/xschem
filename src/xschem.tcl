@@ -4773,6 +4773,12 @@ proc swap_compare_schematics {} {
   global compare_sch XSCHEM_TMP_DIR
   set sch1 [xschem get schname]
   set sch2 [xschem get sch_to_compare]
+  if { $sch1 eq $sch2} {
+    set msg "Swapping with same schematic name on disk. Suggest to cancel to avoid losing/overwriting data"
+    set answer [tk_messageBox -message  $msg \
+       -icon warning -parent [xschem get topwindow]  -type okcancel]
+    if { $answer ne {ok} } {return} 
+  }
   puts "swap_compare_schematics:\n  sch1=$sch1\n  sch2=$sch2"
   if {$sch2 ne {}} {
     xschem load $sch2 nofullzoom gui

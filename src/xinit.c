@@ -685,6 +685,7 @@ int compare_schematics(const char *f)
   int_hash_init(&table1, HASHSIZE);
   int_hash_init(&table2, HASHSIZE);
 
+  dbg(1, "compare_schematics(): xctx->sch_to_compare=%s\n", xctx->sch_to_compare);
   /* set filename of schematic to compare */
   if(f == NULL) {
     tcleval("load_file_dialog {Schematic to compare with} *.\\{sch,sym\\} INITIALLOADDIR");

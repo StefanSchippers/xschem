@@ -1108,7 +1108,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
       XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
       rebuild_selected_array();
-      if(tclgetboolvar("compare_sch") && xctx->sch_to_compare[0]){
+      if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
         compare_schematics("");
       } else {
         draw_selection(xctx->gc[SELLAYER],0);

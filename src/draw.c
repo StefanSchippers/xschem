@@ -3825,7 +3825,7 @@ void draw(void)
                       xctx->xrect[0].width, xctx->xrect[0].height);
       #endif
     }
-    if(tclgetboolvar("compare_sch") && xctx->sch_to_compare[0]){
+    if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0]*/ ){
       compare_schematics("");
     } else {
       draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
