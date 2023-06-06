@@ -1741,6 +1741,7 @@ void hilight_net(int viewer)
    switch(xctx->sel_array[i].type) {
     case WIRE:
          /* sets xctx->hilight_nets=1 */
+     if(!xctx->wire[n].node) break;
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == XSCHEM_GRAPH) {
          send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);

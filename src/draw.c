@@ -431,13 +431,17 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   register xSymbol *symptr;
   double angle;
   char *type;
+  int lvs_ignore = 0;
   #if HAS_CAIRO==1
   const char *textfont;
   #endif
 
+  lvs_ignore=tclgetboolvar("lvs_ignore");
   if(xctx->inst[n].ptr == -1) return;
   if(layer == 0) { 
     char *type = xctx->sym[xctx->inst[n].ptr].type;
+    
+    xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
         strcmp(type, "architecture") && strcmp(type, "noconn")) {
@@ -472,20 +476,32 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
               (xctx->inst[n].flags & TEDAX_IGNORE_INST) ||
               (xctx->sym[xctx->inst[n].ptr].flags & TEDAX_IGNORE_INST)
             )
+          ) ||
+          (
+            lvs_ignore &&
+            (
+              (xctx->inst[n].flags & LVS_IGNORE_OPEN) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_OPEN)
+            )
           )
-  
         ) {
          xctx->inst[n].flags |= IGNORE_INST; /* *_IGNORE_INST in current netlisting mode as evaluated above */
-      } else {
-         xctx->inst[n].flags &= ~IGNORE_INST;
       }
     }
   }
-  if(xctx->inst[n].flags & IGNORE_INST) {
+  if(lvs_ignore &&
+    ( (xctx->inst[n].flags & LVS_IGNORE_SHORT) ||
+      (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_SHORT)) ) {
+    c = PINLAYER;
+    what = NOW;
+    disabled = 2;
+  }
+  else if(xctx->inst[n].flags & IGNORE_INST) {
     c = GRIDLAYER;
     what = NOW;
     disabled = 1;
   }
+
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(!has_x) return;
   if( (xctx->inst[n].flags & HIDE_INST) ||
@@ -530,7 +546,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       xctx->inst[n].flags&=~1;
     }
     if(hide) {
-      int color = disabled ? GRIDLAYER : SYMLAYER;
+      int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
       drawrect(color, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2);
     }
   } else if(xctx->inst[n].flags&1) {
@@ -550,7 +566,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       line = &(symptr->line[layer])[j];
-      dash = disabled ? 3 : line->dash;
+      dash = (disabled == 1) ? 3 : line->dash;
       ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
@@ -563,7 +579,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       polygon = &(symptr->poly[layer])[j];
-      dash = disabled ? 3 : polygon->dash;
+      dash = (disabled == 1) ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       for(k=0;k<polygon->points; ++k) {
@@ -579,7 +595,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       arc = &(symptr->arc[layer])[j];
-      dash = disabled ? 3 : arc->dash;
+      dash = (disabled == 1) ? 3 : arc->dash;
       if(flip) {
         angle = 270.*rot+180.-arc->b-arc->a;
       } else {
@@ -598,7 +614,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       rect = &(symptr->rect[layer])[j];
-      dash = disabled ? 3 : rect->dash;
+      dash = (disabled == 1) ? 3 : rect->dash;
       ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
       ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
       #if HAS_CAIRO == 1
@@ -634,7 +650,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
-      if(disabled) textlayer = GRIDLAYER;
+      if(disabled == 1) textlayer = GRIDLAYER;
+      else if(disabled == 2) textlayer = PINLAYER;
       else if( xctx->inst[n].color == -10000) {
         textlayer = symptr->text[j].layer;
         if(xctx->only_probes) textlayer = GRIDLAYER;

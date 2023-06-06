@@ -704,14 +704,19 @@ int set_sym_flags(xSymbol *sym)
   if(!strcmp(get_tok_value(sym->prop_ptr,"tedax_ignore",0), "true"))
        sym->flags |= TEDAX_IGNORE_INST;
 
+  if(!strcmp(get_tok_value(sym->prop_ptr,"lvs_ignore",0), "short"))
+       sym->flags |= LVS_IGNORE_SHORT;
+
+  if(!strcmp(get_tok_value(sym->prop_ptr,"lvs_ignore",0), "open"))
+       sym->flags |= LVS_IGNORE_OPEN;
+  dbg(1, "set_sym_flags: inst %s flags=%d\n", sym->name, sym->flags);
   return 0;
 }
 
 int set_inst_flags(xInstance *inst)
 {
-  inst->flags=0;
+  inst->flags &= IGNORE_INST; /* do not clear IGNORE_INST bit, used in draw_symbol() */
   my_strdup2(_ALLOC_ID_, &inst->instname, get_tok_value(inst->prop_ptr, "name", 0));
-
   if(inst->ptr >=0) {
     char *type = xctx->sym[inst->ptr].type;
     int cond= type && IS_LABEL_SH_OR_PIN(type);
@@ -738,7 +743,15 @@ int set_inst_flags(xInstance *inst)
   if(!strcmp(get_tok_value(inst->prop_ptr,"highlight",0), "true"))
     inst->flags |= HILIGHT_CONN;
 
+  if(!strcmp(get_tok_value(inst->prop_ptr,"lvs_ignore",0), "open"))
+    inst->flags |= LVS_IGNORE_OPEN;
+
+  if(!strcmp(get_tok_value(inst->prop_ptr,"lvs_ignore",0), "short"))
+    inst->flags |= LVS_IGNORE_SHORT;
+
   inst->embed = !strcmp(get_tok_value(inst->prop_ptr, "embed", 2), "true");
+
+  dbg(1, "set_inst_flags: inst %s flags=%d\n", inst->instname, inst->flags);
   return 0;
 }
 
@@ -775,6 +788,7 @@ int set_text_flags(xText *t)
 void reset_flags(void)
 {
   int i;
+  dbg(1, "reset_flags()\n");
   for(i = 0; i < xctx->instances; i++) {
     set_inst_flags(&xctx->inst[i]);
   }     

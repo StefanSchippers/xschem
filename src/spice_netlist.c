@@ -156,6 +156,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
   int i, flag = 0;
   char *type=NULL;
   int top_sub;
+  int lvs_ignore = tclgetboolvar("lvs_ignore");
 
   top_sub = tclgetboolvar("lvs_netlist");
   if(!spice_stop) {
@@ -165,9 +166,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
     err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
-     if(xctx->inst[i].ptr<0) continue;
-     if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-     if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+     if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        if(top_sub && !flag) {
@@ -188,9 +187,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
     if(top_sub) fprintf(fd, "\n");
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
-     if(xctx->inst[i].ptr<0) continue;
-     if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-     if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+     if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
  
      if( type && !IS_LABEL_OR_PIN(type) ) {
@@ -244,6 +241,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  int split_f;
  Str_hashtable subckt_table = {NULL, 0};
  Str_hashentry *model_entry;
+ int lvs_ignore = tclgetboolvar("lvs_ignore");
 
  split_f = tclgetboolvar("split_files");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
@@ -280,9 +278,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  first = 0;
  for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=header' property */
  {
-  if(xctx->inst[i].ptr<0) continue;
-  if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-  if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+  if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
   if( type && !strcmp(type,"netlist_commands") ) {
@@ -311,9 +307,7 @@ int global_spice_netlist(int global)  /* netlister driver */
 
  /* print top subckt ipin/opins */
  for(i=0;i<xctx->instances; ++i) {
-  if(xctx->inst[i].ptr<0) continue;
-  if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-  if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+  if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   dbg(1, "global_spice_netlist(): |%s|\n", type);
   /* 
@@ -335,9 +329,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with no 'place=end' property
                                    and no place=header */
  {
-  if(xctx->inst[i].ptr<0) continue;
-  if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-  if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+  if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
   if( type && !strcmp(type,"netlist_commands") ) {
@@ -409,6 +401,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    for(i=0;i<xctx->symbols; ++i)
    {
     if(xctx->sym[i].flags & SPICE_IGNORE_INST) continue;
+    if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
@@ -470,9 +463,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  if(!split_f) {
    for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=end' property */
    {
-    if(xctx->inst[i].ptr<0) continue;
-    if(xctx->inst[i].flags & SPICE_IGNORE_INST) continue;
-    if(xctx->sym[xctx->inst[i].ptr].flags & SPICE_IGNORE_INST) continue;
+    if(skip_instance(i, lvs_ignore, SPICE_IGNORE_INST)) continue;
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
     if( type && !strcmp(type,"netlist_commands") ) {

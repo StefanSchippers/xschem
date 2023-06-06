@@ -3,7 +3,7 @@ v {xschem version=3.4.0 file_version=1.2
 G {}
 K {type=show_label
 template="name=x1 value=0.1"
-format="@name @pinlist @symname value=@value"
+format="* short @name : @#0:net_name <--> @#1:net_name"
 highlight=true}
 V {}
 S {}

@@ -26,6 +26,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   int err = 0;
   int i;
   char *type=NULL;
+  int lvs_ignore = tclgetboolvar("lvs_ignore");
 
   if(!tedax_stop) {
     xctx->prep_net_structs = 0;
@@ -35,9 +36,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   if(!tedax_stop) {
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
-     if(xctx->inst[i].ptr<0) continue;
-     if(xctx->inst[i].flags & TEDAX_IGNORE_INST) continue;
-     if(xctx->sym[xctx->inst[i].ptr].flags & TEDAX_IGNORE_INST) continue;
+     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE_INST)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
@@ -45,9 +44,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     }
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
-     if(xctx->inst[i].ptr<0) continue;
-     if(xctx->inst[i].flags & TEDAX_IGNORE_INST) continue;
-     if(xctx->sym[xctx->inst[i].ptr].flags & TEDAX_IGNORE_INST) continue;
+     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE_INST)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
 
      if( type && !IS_LABEL_OR_PIN(type) ) {
@@ -131,6 +128,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  char *subckt_name;
  char *abs_path = NULL;
  Str_hashtable subckt_table = {NULL, 0};
+ int lvs_ignore = tclgetboolvar("lvs_ignore");
 
  xctx->push_undo();
  statusmsg("",2);  /* clear infowindow */
@@ -207,6 +205,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    for(i=0;i<xctx->symbols; ++i)
    {
     if(xctx->sym[i].flags & TEDAX_IGNORE_INST) continue;
+    if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))

@@ -6197,6 +6197,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
       xschem set format {}
     }
   }
+  $topwin.menubar.simulation.menu add checkbutton -label "Set 'lvs_ignore' variable" \
+         -variable lvs_ignore -command {xschem rebuild_connectivity; xschem unhilight_all}
   $topwin.menubar.simulation.menu add command -label {Changelog from current hierarchy} -command {
     viewdata [list_hierarchy]
   }
@@ -6503,6 +6505,7 @@ set_ne netlist_type spice
 set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne lvs_netlist 0
+set_ne lvs_ignore 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1
 set_ne verilog_2001 1

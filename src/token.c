@@ -1402,6 +1402,7 @@ void print_vhdl_element(FILE *fd, int inst)
      /* print generic map */
      for(i=0;i<no_of_generics; ++i)
      {
+       if(!xctx->inst[inst].node || !xctx->inst[inst].node[no_of_pins+i]) continue;
        my_strdup(_ALLOC_ID_, &generic_type,get_tok_value(
          (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"type",0));
        my_strdup(_ALLOC_ID_, &generic_value,   xctx->inst[inst].node[no_of_pins+i] );

@@ -177,6 +177,9 @@ extern char win_temp_dir[PATH_MAX];
 #define TEDAX_IGNORE_INST 128
 #define IGNORE_INST 256
 #define HIDE_SYMBOL_TEXTS 512
+#define LVS_IGNORE_SHORT 1024 /* flag set if inst/symbol has lvs_ignore=short */
+#define LVS_IGNORE_OPEN 2048  /* flag set if inst/symbol has lvs_ignore=open */
+#define LVS_IGNORE (LVS_IGNORE_SHORT | LVS_IGNORE_OPEN)
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 40
 #define CADCHUNKALLOC 512 /*  was 256  20102004 */
@@ -551,6 +554,8 @@ typedef struct
                 * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
                 *        used in draw.c
                 * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true on instance (not used in symbol, but keep free)
+                * bit 10: LVS_IGNORE_SHORT: short together all nets connected to symbol if lvs_ignore tcl var set
+                * bit 11: LVS_IGNORE_OPEN: remove symbol leaving all connected nets open if lvs_ignore tcl var set
                 */
 
 } xSymbol;
@@ -587,6 +592,8 @@ typedef struct
 	        * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
                 *        used in draw.c
 	        * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true (hide_texts=true attribute on instance)
+                * bit 10: LVS_IGNORE_SHORT: short together all nets connected to symbol if lvs_ignore tcl var set
+                * bit 11: LVS_IGNORE_OPEN: remove symbol leaving all connected nets open if lvs_ignore tcl var set
                 */
   char *prop_ptr;
   char **node;
@@ -1522,6 +1529,7 @@ extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern int prepare_netlist_structs(int for_netlist);
+extern int skip_instance(int i, int lvs_ignore, int mask);
 extern int compare_schematics(const char *filename);
 extern int warning_overlapped_symbols(int sel);
 extern void free_simdata(void);

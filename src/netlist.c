@@ -23,6 +23,7 @@
 #include "xschem.h"
 
 static int for_netlist = 0;
+static int netlist_lvs_ignore = 0;
 static void instdelete(int n, int x, int y)
 {
   Instentry *saveptr, **prevptr;
@@ -401,6 +402,12 @@ void netlist_options(int i)
   }
   /* fprintf(errfp, "netlist_options(): bus_char=%s\n", str); */
 
+  str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_ignore", 0);
+  if(str[0]) {
+    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
+    if(!strcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
+    else tclsetintvar("lvs_.netlist", 0);
+  }
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_netlist", 0);
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
@@ -592,6 +599,7 @@ static void name_generics()
       if((generic_rects = (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER]) > 0) {
         rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
         for (j=rects;j<rects+generic_rects; ++j) {
+          if(!inst[i].node) continue;
           if(inst[i].node[j]) continue; /* already named node */
           rct=(inst[i].ptr+ xctx->sym)->rect[GENERICLAYER];
           x0=(rct[j-rects].x1+rct[j-rects].x2)/2;
@@ -607,6 +615,7 @@ static void name_generics()
             int p = iptr->pin;
             int n = iptr->n;
             if(n == i) continue;
+            if(!inst[n].node) continue;
             if((iptr->x0==x0) && (iptr->y0==y0)) {
               if((inst[n].ptr+ xctx->sym)->type && inst[n].node[p] != NULL &&
                  !strcmp((inst[n].ptr+ xctx->sym)->type, "label")) {
@@ -662,6 +671,7 @@ static void set_inst_node(int i, int j, const char *node)
   int inst_mult;
   xRect *rect = (inst[i].ptr + xctx->sym)->rect[PINLAYER];
 
+  if(!inst[i].node) return;
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
   expandlabel(inst[i].instname, &inst_mult);
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
@@ -697,7 +707,7 @@ static int name_attached_inst_to_net(int k, int sqx, int sqy)
     if(touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x0, y0)) {
       if(!inst[n].node[p]) {
         dbg(1, "name_attached_inst_to_net(): inst %s, pin %d <-- %s\n", 
-              inst[n].instname, p, wire[k].node);
+              inst[n].instname, p, wire[k].node ? wire[k].node : "NULL");
         set_inst_node(n, p, wire[k].node);
         err |= instcheck(n, p);
       } else {
@@ -807,6 +817,18 @@ static int name_attached_inst(int i, double x0, double y0, int sqx, int sqy, con
   return err;
 }
 
+int skip_instance(int i, int lvs_ignore, int mask)
+{
+  int skip = 0;
+  if(xctx->inst[i].ptr < 0) skip = 1;
+  else if(xctx->inst[i].flags & mask) skip = 1;
+  else if(xctx->sym[xctx->inst[i].ptr].flags & mask) skip = 1;
+  else if(lvs_ignore && (xctx->inst[i].flags & LVS_IGNORE)) skip = 1;
+  else if(lvs_ignore && (xctx->sym[xctx->inst[i].ptr].flags & LVS_IGNORE)) skip = 1;
+  return skip;
+}
+
+
 /* what: 
  * Determine if given "ninst" instance has pass-through pins 
  * 0: initialize
@@ -865,7 +887,11 @@ static int instcheck(int n, int p)
   int rects = xctx->sym[inst[n].ptr].rects[PINLAYER];
   int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "bus_tap");
   int k = inst[n].ptr;
+  int lvs_ignore=tclgetboolvar("lvs_ignore");
+  int shorted_inst = 
+       (k >=0) && lvs_ignore && ((inst[n].flags & LVS_IGNORE_SHORT) || (sym[k].flags & LVS_IGNORE_SHORT));
 
+  if(!inst[n].node) return 0;
 
   if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
        ((inst[n].flags & VERILOG_IGNORE_INST) || 
@@ -883,15 +909,13 @@ static int instcheck(int n, int p)
        ((inst[n].flags & TEDAX_IGNORE_INST) || 
        (k >= 0 && (sym[k].flags & TEDAX_IGNORE_INST))) ) return 0;
 
+  if( netlist_lvs_ignore &&
+       ((inst[n].flags & LVS_IGNORE_OPEN) || 
+       (k >= 0 && (sym[k].flags & LVS_IGNORE_OPEN))) ) return 0;
 
-
-
-  /* process bus taps : type = bus_tap */
-  if(bus_tap && p == 0) {
-    /* do nothing */
-    dbg(0, "instcheck(): bus tap pin 0: node=%s\n", inst[n].node[p] ? inst[n].node[p] : "NULL");
-  }
-  else if(bus_tap && p == 1) {
+  /* process bus taps : type = bus_tap 
+   * node 1 connects to bus (DATA[15:0]) , node 0 is the tap ([2:0]) */
+  if(rects > 1 && bus_tap && p == 1) {
     char *node_base_name = NULL;
     const char *tap;
     dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[p]);
@@ -933,7 +957,7 @@ static int instcheck(int n, int p)
 
 
   /* should process only symbols with pass-through pins */
-  else if(find_pass_through_symbols(1, n)) {
+  else if(shorted_inst || find_pass_through_symbols(1, n)) {
     int k = inst[n].ptr;
     char *pin_name = NULL;
     my_strdup(_ALLOC_ID_, &pin_name, get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0));
@@ -941,7 +965,11 @@ static int instcheck(int n, int p)
     for(j = 0; j < rects; ++j) {
       const char *other_pin;
       if(j == p) continue;
-      other_pin = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
+      if(shorted_inst) {
+        other_pin = get_tok_value(xctx->sym[k].rect[PINLAYER][p].prop_ptr, "name", 0);
+      } else {
+        other_pin = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
+      }
       if(!strcmp(other_pin, pin_name)) {
         dbg(1, "instcheck: inst %s pin %s(%d) <--> pin %s(%d)\n", inst[n].instname, pin_name, p, other_pin, j);
         dbg(1, "instcheck: node: %s\n", inst[n].node[p]);
@@ -1027,6 +1055,7 @@ static int name_nodes_of_pins_labels_and_propagate()
         if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE_INST)) continue;
         if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE_INST)) continue;
         if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE_INST)) continue;
+        if( netlist_lvs_ignore && (inst[i].flags & LVS_IGNORE_OPEN)) continue;
       }
       port=0;
       my_strdup2(_ALLOC_ID_, &dir, "");
@@ -1126,7 +1155,7 @@ static int set_unnamed_inst(int i, int j)
   set_inst_node(i, j, tmp_str);
   get_inst_pin_coord(i, j, &x0, &y0);
   get_square(x0, y0, &sqx, &sqy);
-  err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[j]);
+  if(inst[i].node && inst[i].node[j]) err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[j]);
   return err;
 }
 
@@ -1142,6 +1171,7 @@ static int name_unlabeled_instances()
   dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
   for (i = 0; i < instances; ++i)
   {
+    if(!inst[i].node) continue;
     if(inst[i].ptr != -1) {
       rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       for(j = 0; j < rects; ++j) {
@@ -1187,9 +1217,12 @@ int prepare_netlist_structs(int for_netl)
 {
   int err = 0;
   char nn[PATH_MAX+30];
+  netlist_lvs_ignore=tclgetboolvar("lvs_ignore");
   for_netlist = for_netl;
   if(for_netlist>0 && xctx->prep_net_structs) return 0;
   else if(!for_netlist && xctx->prep_hi_structs) return 0;
+  
+  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
   reset_flags();
   set_modify(-2); /* to reset floater cached values */
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
@@ -1197,7 +1230,6 @@ int prepare_netlist_structs(int for_netl)
     my_snprintf(nn, S(nn), "-----------%s", xctx->sch[xctx->currsch]);
     statusmsg(nn,2);
   }
-  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
   delete_netlist_structs();
   free_simdata(); /* invalidate simulation cache */
   err |= reset_node_data_and_rehash();
