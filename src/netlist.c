@@ -895,20 +895,20 @@ static int instcheck(int n, int p)
   if(!inst[n].node) return 0;
 
   if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
-       ((inst[n].flags & VERILOG_IGNORE_INST) || 
-       (k >= 0 && (sym[k].flags & VERILOG_IGNORE_INST))) ) return 0;
+       ((inst[n].flags & VERILOG_IGNORE) || 
+       (k >= 0 && (sym[k].flags & VERILOG_IGNORE))) ) return 0;
        
   if( xctx->netlist_type == CAD_SPICE_NETLIST &&
-       ((inst[n].flags & SPICE_IGNORE_INST) || 
-       (k >= 0 && (sym[k].flags & SPICE_IGNORE_INST))) ) return 0;
+       ((inst[n].flags & SPICE_IGNORE) || 
+       (k >= 0 && (sym[k].flags & SPICE_IGNORE))) ) return 0;
        
   if( xctx->netlist_type == CAD_VHDL_NETLIST &&
-       ((inst[n].flags & VHDL_IGNORE_INST) || 
-       (k >= 0 &&(sym[k].flags & VHDL_IGNORE_INST))) ) return 0;
+       ((inst[n].flags & VHDL_IGNORE) || 
+       (k >= 0 &&(sym[k].flags & VHDL_IGNORE))) ) return 0;
        
   if( xctx->netlist_type == CAD_TEDAX_NETLIST &&
-       ((inst[n].flags & TEDAX_IGNORE_INST) || 
-       (k >= 0 && (sym[k].flags & TEDAX_IGNORE_INST))) ) return 0;
+       ((inst[n].flags & TEDAX_IGNORE) || 
+       (k >= 0 && (sym[k].flags & TEDAX_IGNORE))) ) return 0;
 
   if( netlist_lvs_ignore &&
        ((inst[n].flags & LVS_IGNORE_OPEN) || 
@@ -1052,10 +1052,10 @@ static int name_nodes_of_pins_labels_and_propagate()
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
       if(for_netlist>0) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
-        if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE_INST)) continue;
-        if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE_INST)) continue;
-        if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE_INST)) continue;
-        if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE_INST)) continue;
+        if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE)) continue;
+        if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE)) continue;
+        if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE)) continue;
+        if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE)) continue;
         if( netlist_lvs_ignore && (inst[i].flags & LVS_IGNORE_OPEN)) continue;
       }
       port=0;

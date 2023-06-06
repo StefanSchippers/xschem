@@ -449,32 +449,32 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           (
             xctx->netlist_type == CAD_SPICE_NETLIST &&
             (
-              (xctx->inst[n].flags & SPICE_IGNORE_INST) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & SPICE_IGNORE_INST)
+              (xctx->inst[n].flags & SPICE_IGNORE) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & SPICE_IGNORE)
             )
           ) || 
   
           (
             xctx->netlist_type == CAD_VERILOG_NETLIST &&
             (
-              (xctx->inst[n].flags & VERILOG_IGNORE_INST) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & VERILOG_IGNORE_INST)
+              (xctx->inst[n].flags & VERILOG_IGNORE) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & VERILOG_IGNORE)
             )
           ) ||
   
           (
             xctx->netlist_type == CAD_VHDL_NETLIST &&
             (
-              (xctx->inst[n].flags & VHDL_IGNORE_INST) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & VHDL_IGNORE_INST)
+              (xctx->inst[n].flags & VHDL_IGNORE) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & VHDL_IGNORE)
             )
           ) ||
   
           (
             xctx->netlist_type == CAD_TEDAX_NETLIST &&
             (
-              (xctx->inst[n].flags & TEDAX_IGNORE_INST) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & TEDAX_IGNORE_INST)
+              (xctx->inst[n].flags & TEDAX_IGNORE) ||
+              (xctx->sym[xctx->inst[n].ptr].flags & TEDAX_IGNORE)
             )
           ) ||
           (

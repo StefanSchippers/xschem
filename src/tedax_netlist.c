@@ -36,7 +36,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   if(!tedax_stop) {
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
-     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE_INST)) continue;
+     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
@@ -44,7 +44,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     }
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
-     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE_INST)) continue;
+     if(skip_instance(i, lvs_ignore, TEDAX_IGNORE)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
 
      if( type && !IS_LABEL_OR_PIN(type) ) {
@@ -204,7 +204,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if(xctx->sym[i].flags & TEDAX_IGNORE_INST) continue;
+    if(xctx->sym[i].flags & TEDAX_IGNORE) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));

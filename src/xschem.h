@@ -171,14 +171,18 @@ extern char win_temp_dir[PATH_MAX];
 #define PIN_OR_LABEL 2 /* symbol represents a pin or a label */
 #define HILIGHT_CONN 4 /* used to hilight instances if connected wire is hilighted */
 #define HIDE_INST 8    /*  will only show a bounding box for specific symbol instance */
-#define SPICE_IGNORE_INST 16
-#define VERILOG_IGNORE_INST 32
-#define VHDL_IGNORE_INST 64
-#define TEDAX_IGNORE_INST 128
+#define SPICE_IGNORE 16
+#define VERILOG_IGNORE 32
+#define VHDL_IGNORE 64
+#define TEDAX_IGNORE 128
 #define IGNORE_INST 256
 #define HIDE_SYMBOL_TEXTS 512
 #define LVS_IGNORE_SHORT 1024 /* flag set if inst/symbol has lvs_ignore=short */
 #define LVS_IGNORE_OPEN 2048  /* flag set if inst/symbol has lvs_ignore=open */
+#define SPICE_SHORT 4096
+#define VERILOG_SHORT 8192
+#define VHDL_SHORT 16384
+#define TEDAX_SHORT 32768
 #define LVS_IGNORE (LVS_IGNORE_SHORT | LVS_IGNORE_OPEN)
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 40
@@ -547,10 +551,10 @@ typedef struct
                 * bit 1: **free**
                 * bit 2: HILIGHT_CONN, highlight if connected net/label is highlighted
                 * bit 3: HIDE_INST, hidden instance, show only bounding box (hide=true attribute)
-                * bit 4: SPICE_IGNORE_INST, spice_ignore=true
-                * bit 5: VERILOG_IGNORE_INST, verilog_ignore=true
-                * bit 6: VHDL_IGNORE_INST, vhdl_ignore=true
-                * bit 7: TEDAX_IGNORE_INST, tedax_ignore=true
+                * bit 4: SPICE_IGNORE, spice_ignore=true
+                * bit 5: VERILOG_IGNORE, verilog_ignore=true
+                * bit 6: VHDL_IGNORE, vhdl_ignore=true
+                * bit 7: TEDAX_IGNORE, tedax_ignore=true
                 * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
                 *        used in draw.c
                 * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true on instance (not used in symbol, but keep free)
@@ -579,16 +583,16 @@ typedef struct
   short sel;
   short embed; /* cache embed=true|false attribute in prop_ptr */
   int color; /* hilight color */
-  short flags; /* bit 0: skip field, set to 1 while drawing layer 0 if symbol is outside bbox
+  int flags;   /* bit 0: skip field, set to 1 while drawing layer 0 if symbol is outside bbox
                 *        to avoid doing the evaluation again.
                 * bit 1: flag for different textlayer for pin/labels,
                 *        1: ordinary symbol, 0: label/pin/show 
                 * bit 2: HILIGHT_CONN, highlight if connected net/label is highlighted
                 * bit 3: HIDE_INST, hidden instance, show only bounding box (hide=true attribute)
-                * bit 4: SPICE_IGNORE_INST, spice_ignore=true
-                * bit 5: VERILOG_IGNORE_INST, verilog_ignore=true
-                * bit 6: VHDL_IGNORE_INST, vhdl_ignore=true
-                * bit 7: TEDAX_IGNORE_INST, tedax_ignore=true
+                * bit 4: SPICE_IGNORE, spice_ignore=true
+                * bit 5: VERILOG_IGNORE, verilog_ignore=true
+                * bit 6: VHDL_IGNORE, vhdl_ignore=true
+                * bit 7: TEDAX_IGNORE, tedax_ignore=true
 	        * bit 8: IGNORE_INST, instance must be ignored based on *_ignore=true and netlisting mode.
                 *        used in draw.c
 	        * bit 9: HIDE_SYMBOL_TEXTS, hide_texts=true (hide_texts=true attribute on instance)

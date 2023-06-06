@@ -693,16 +693,16 @@ int set_sym_flags(xSymbol *sym)
     sym->flags |= HIDE_INST;
 
   if(!strcmp(get_tok_value(sym->prop_ptr,"spice_ignore",0), "true"))
-       sym->flags |= SPICE_IGNORE_INST;
+       sym->flags |= SPICE_IGNORE;
 
   if(!strcmp(get_tok_value(sym->prop_ptr,"verilog_ignore",0), "true"))
-       sym->flags |= VERILOG_IGNORE_INST;
+       sym->flags |= VERILOG_IGNORE;
 
   if(!strcmp(get_tok_value(sym->prop_ptr,"vhdl_ignore",0), "true"))
-       sym->flags |= VHDL_IGNORE_INST;
+       sym->flags |= VHDL_IGNORE;
 
   if(!strcmp(get_tok_value(sym->prop_ptr,"tedax_ignore",0), "true"))
-       sym->flags |= TEDAX_IGNORE_INST;
+       sym->flags |= TEDAX_IGNORE;
 
   if(!strcmp(get_tok_value(sym->prop_ptr,"lvs_ignore",0), "short"))
        sym->flags |= LVS_IGNORE_SHORT;
@@ -729,13 +729,13 @@ int set_inst_flags(xInstance *inst)
     inst->flags |= HIDE_INST;
               
   if(!strcmp(get_tok_value(inst->prop_ptr,"spice_ignore",0), "true"))
-    inst->flags |= SPICE_IGNORE_INST;
+    inst->flags |= SPICE_IGNORE;
   if(!strcmp(get_tok_value(inst->prop_ptr,"verilog_ignore",0), "true"))
-    inst->flags |= VERILOG_IGNORE_INST;
+    inst->flags |= VERILOG_IGNORE;
   if(!strcmp(get_tok_value(inst->prop_ptr,"vhdl_ignore",0), "true"))
-    inst->flags |= VHDL_IGNORE_INST;
+    inst->flags |= VHDL_IGNORE;
   if(!strcmp(get_tok_value(inst->prop_ptr,"tedax_ignore",0), "true"))
-    inst->flags |= TEDAX_IGNORE_INST;
+    inst->flags |= TEDAX_IGNORE;
         
   if(!strcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
     inst->flags |= HIDE_SYMBOL_TEXTS;
