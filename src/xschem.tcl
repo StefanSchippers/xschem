@@ -4614,7 +4614,6 @@ proc get_directory {f} {
 # set 'n' last directory components to every symbol
 proc fix_symbols {n} {
   xschem push_undo
-  xschem remove_symbols
   foreach {i s t} [xschem instance_list] {
     set sympath  [find_file_first [file tail $s]]
     if { $sympath  ne {}} {
