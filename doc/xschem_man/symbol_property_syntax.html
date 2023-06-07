@@ -155,18 +155,40 @@ type=nmos
   <li><kbd>spice_ignore</kbd></li>
   <li><kbd>verilog_ignore</kbd></li>
   <li><kbd>tedax_ignore</kbd></li>
-  <p>These 3 attributes tell XSCHEM to ignore completely the symbol in the respective netlist formats.</p>
+  <p>These 4 attributes tell XSCHEM to ignore completely all instances of the symbol in the respective netlist formats.
+   Allowed values for these attributes are <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> and
+   <kbd>short</kbd>
+   If <kbd>short</kbd> is specified all symbol instances will short together all their pins. For this to work
+   only one of the nets connected to the symbol may have a net label attached to it. All other nets will take this name.
+   If more labeled nets connect to the shorted symbol a net short error is reported.
+   Shorted symbol instances are displayed in the pin color (red) layer. See some images in the 
+    <a href="component_property_syntax.html#spice_ignore">component properties man page</a> when describing the same instance
+   based attributes.<br>
+   Disabled symbols (<kbd>spice_ignore=true</kbd> or <kbd>spice_ignore=open</kbd>) are displayed in grey.</p>
+
+
+  <li><kbd>lvs_ignore</kbd></li>
+  <p> This attribute works in the same way as above attributes, may take the values
+   <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> or <kbd>short</kbd>, and 
+   will affect the symbol behaviour in the same way, but only if tcl variable 
+   <kbd>lvs_ignore</kbd> is set to <kbd>1</kbd>. This can be done in the Simulation menu:
+   <kbd>Set 'lvs_ignore' variable</kbd>. If this <kbd>lvs_ignore</kbd> is set on the symbol
+   it will be shorted / ignored or kept as is depending on its <kbd>lvs_ignore</kbd> attribute
+   and will be effective in all netlising formats. This is mostly used to modify the produced netlist
+   automatically when doing schematic vs layout (LVS) comparison.</p>
+
+
   <li><kbd>vhdl_stop</kbd></li>
   <li><kbd>spice_stop</kbd></li>
   <li><kbd>verilog_stop</kbd></li>
   <li><kbd>tedax_stop</kbd></li>
-  <p> These 3 attributes will avoid XSCHEM to descend into the schematic representation of the symbol
-    (if there is one) when building the respective netlist format. For example, if an analog block
-    has a schematic (.sch) file describing the circuit that is meaningless when doing a VHDL netlist,
-    we can use a <kbd>vhdl_stop=true</kbd> attribute to avoid descending into the schematic.
-    Only the global property of the schematic will be netlisted. This allows to insert some 
-    behavioral VHDL code in the global schematic property that describes the block in a way
-    the VHDL simulator can understand.</p>
+  <p> These 4 attributes will avoid XSCHEM to descend into the schematic representation of the symbol
+   (if there is one) when building the respective netlist format. For example, if an analog block
+   has a schematic (.sch) file describing the circuit that is meaningless when doing a VHDL netlist,
+   we can use a <kbd>vhdl_stop=true</kbd> attribute to avoid descending into the schematic.
+   Only the global property of the schematic will be netlisted. This allows to insert some 
+   behavioral VHDL code in the global schematic property that describes the block in a way
+   the VHDL simulator can understand.</p>
   <li><kbd>spice_primitive</kbd></li>
   <li><kbd>vhdl_primitive</kbd></li>
   <li><kbd>verilog_primitive</kbd></li>

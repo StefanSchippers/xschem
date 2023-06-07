@@ -138,13 +138,39 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
      and spice netlisting mode, it tells XSCHEM that this component must be netlisted in the very first
      part of a spice netlist. This is necessary for some spice commands 
      that need to be placed <b>before</b> the rest of the netlist.</p>
-  <li><kbd>spice_ignore</kbd></li>
-  <p> This tells XSCHEM that for SPICE netlist this component will be <b>completely</b> ignored.</p>
-  <li><kbd>verilog_ignore</kbd></li>
-  <p> This tells XSCHEM that for Verilog netlist this component will be <b>completely</b> ignored.</p>
-  <li><kbd>vhdl_ignore</kbd></li>
-  <p> This tells XSCHEM that for VHDL netlist this component will be <b>completely</b> ignored.</p>
 
+  <li id="spice_ignore"><kbd>vhdl_ignore</kbd></li>
+  <li><kbd>spice_ignore</kbd></li>
+  <li><kbd>verilog_ignore</kbd></li>
+  <li><kbd>tedax_ignore</kbd></li>
+  <p >These 4 attributes tell XSCHEM to ignore completely the instance in the respective netlist formats.
+    Allowed values for these attributes are <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> and
+    <kbd>short</kbd>
+    If <kbd>short</kbd> is specified the instance will short together all its pins. For this to work
+    only one of the nets connected to the symbol may have a net label attached to it. All other nets will take this name.
+    If more labeled nets connect to the shorted symbol a net short error is reported.
+    Shorted instances are displayed in the pin color (red) layer. See in below image the upper netname of R1
+    is <kbd>VDD</kbd>. </p>
+  <img src="component_properties4.png">
+  <p> Disabled components (<kbd>spice_ignore=true</kbd> or <kbd>spice_ignore=open</kbd>) are displayed in grey.</p>
+  <img src="component_properties5.png">
+
+  <li><kbd>lvs_ignore</kbd></li>
+  <p> This attribute works in the same way as above attributes, may take the values 
+   <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> or <kbd>short</kbd>, and
+   will affect the specific instance behaviour in the same way, but only if tcl variable
+   <kbd>lvs_ignore</kbd> is set to <kbd>1</kbd>. This can be done in the Simulation menu:
+   <kbd>Set 'lvs_ignore' variable</kbd>. If this <kbd>lvs_ignore</kbd> is set on the instance
+   it will be shorted / ignored or kept as is depending on its <kbd>lvs_ignore</kbd> attribute
+   and will be effective in all netlising formats. This is mostly used to modify the produced netlist
+   automatically when doing schematic vs layout (LVS) comparison.</p>
+
+  <p> By using the <kbd>*_ignore</kbd> attributes you can modify the circuit depending on the value of a tcl variable:</p>
+  <img src="component_properties6.png">
+  <p> just set the attribute to something like:</p>
+  <pre class="code"> spice_ignore="tcleval([if {$IGNORE == 1} {return {true}} else {return {false}}])" </pre>
+  <p> or:</p>
+  <pre class="code"> spice_ignore="tcleval([if {$IGNORE == 1} {return {short}} else {return {false}}])" </pre><br>
 
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>
