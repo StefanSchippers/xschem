@@ -4615,7 +4615,7 @@ proc get_directory {f} {
 proc fix_symbols {n} {
   set fast {}
   foreach {i s t} [xschem instance_list] {
-    set sympath  [find_file_first $s]
+    set sympath  [find_file_first [file tail $s]]
     if { $sympath  ne {}} {
       set new_sym_ref [get_cell $sympath $n]
       puts "$i:  $s --> $new_sym_ref"
