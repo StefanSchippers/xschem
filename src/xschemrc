@@ -374,16 +374,16 @@
 ###########################################################################
 #### XSCHEM TOOLBAR
 ###########################################################################
-#### default: not enabled.
-# set toolbar_visible 1
+#### default: enabled, horizontal
+# set toolbar_visible 0
 # set toolbar_horiz   1
 
 ###########################################################################
 #### TABBED WINDOWS
 ###########################################################################
-#### default: not enabled. Interface can be changed runtime if only one window 
+#### default: enabled. Interface can be changed runtime if only one window 
 #### or tab is open.
-# set tabbed_interface 1
+# set tabbed_interface 0
 
 ###########################################################################
 #### CASE INSENSITIVE SYMBOL LOOKUP

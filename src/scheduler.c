@@ -2819,7 +2819,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       remove_symbols();
       link_symbols_to_instances(-1);
-      draw();
       Tcl_ResetResult(interp);
     }
 
@@ -2907,6 +2906,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* draw(); */
         Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
       }
+    }
+
+    /* reset_symbol inst symref
+     *   This is a low level command, it merely changes the xctx->inst[...].name field.
+     *   It is caller responsibility to delete all symbols before and do a reload_symbols
+     *   afterward */
+    else if(!strcmp(argv[1], "reset_symbol"))
+    {
+      int inst;
+      if(argc!=4) {
+        Tcl_SetResult(interp, "xschem reset_symbol needs 2 additional arguments", TCL_STATIC);
+        return TCL_ERROR;
+      }   
+      if((inst = get_instance(argv[2])) < 0 ) {
+        Tcl_SetResult(interp, "xschem reset_symbol: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      } else {
+        my_strdup(_ALLOC_ID_, &xctx->inst[inst].name, argv[3]);
+      }
+      Tcl_ResetResult(interp);
     }
 
     /* reset_flags

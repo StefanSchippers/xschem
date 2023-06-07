@@ -4613,16 +4613,18 @@ proc get_directory {f} {
 
 # set 'n' last directory components to every symbol
 proc fix_symbols {n} {
-  set fast {}
+  xschem push_undo
+  xschem remove_symbols
   foreach {i s t} [xschem instance_list] {
     set sympath  [find_file_first [file tail $s]]
     if { $sympath  ne {}} {
       set new_sym_ref [get_cell $sympath $n]
       puts "$i:  $s --> $new_sym_ref"
-      xschem replace_symbol $i $new_sym_ref $fast
-      set fast fast
+      xschem reset_symbol $i $new_sym_ref
     }
   }
+  xschem reload_symbols
+  xschem set_modify 1
   xschem redraw
 }
 
@@ -5080,7 +5082,7 @@ proc context_menu { } {
 #
 proc setup_toolbar {} {
   global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR
-  set_ne toolbar_visible 0
+  set_ne toolbar_visible 1
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
     FileOpen
@@ -6589,7 +6591,7 @@ set_ne tclstop 0
 set_ne undo_type disk
 
 ## show tab bar (tabbed interface) 
-set_ne tabbed_interface 0
+set_ne tabbed_interface 1
 ## case insensitive symbol lookup (on case insensitive filesystems only!)
 set_ne case_insensitive 0
 
