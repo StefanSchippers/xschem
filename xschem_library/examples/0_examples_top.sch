@@ -79,14 +79,16 @@ T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
 T {Bus rippers} 580 -380 0 0 0.6 0.6 {layer=4}
-N 820 -420 940 -420 {lab=#net1}
-N 860 -460 860 -370 {lab=#net2}
+N 910 -420 940 -420 {lab=#net1}
+N 860 -390 860 -370 {lab=#net2}
 N 860 -390 920 -390 {lab=#net2}
 N 880 -430 910 -420 {lab=#net1}
 N 380 -310 640 -310 {lab=BUS[4:0]}
 N 510 -400 510 -320 {lab=BUS[1]}
 N 410 -350 410 -320 {lab=BUS[2]}
 N 460 -400 460 -320 {lab=BUS[2:1]}
+N 860 -460 860 -390 {lab=#net2}
+N 820 -420 910 -420 {lab=#net1}
 C {poweramp.sym} 480 -820 0 0 {name=x1
 tclcommand="xschem descend"}
 C {tesla.sym} 160 -700 0 0 {name=x2}

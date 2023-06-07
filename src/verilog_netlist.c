@@ -45,11 +45,11 @@ static int verilog_netlist(FILE *fd , int verilog_stop)
  {
    for(i=0;i<xctx->instances; ++i) /* ... print all element except ipin opin labels use package */
    {
-    if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+    if(skip_instance(i, lvs_ignore)) continue;
     dbg(2, "verilog_netlist():       into the netlisting loop\n");
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if( type &&
-       ( !IS_LABEL_OR_PIN(type) &&
+       ( !IS_LABEL_SH_OR_PIN(type) &&
          strcmp(type,"netlist_commands")&&
          strcmp(type,"timescale")&&
          strcmp(type,"verilog_preprocessor")
@@ -129,7 +129,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
@@ -159,7 +159,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  tmp=0;
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"opin"))==0)
   {
@@ -173,7 +173,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  dbg(1, "global_verilog_netlist(): printing top level inout pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"iopin"))==0)
   {
@@ -187,7 +187,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  dbg(1, "global_verilog_netlist(): printing top level input pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"ipin"))==0)
   {
@@ -215,7 +215,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  dbg(1, "global_verilog_netlist(): printing top level out pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"opin"))==0)
   {
@@ -234,7 +234,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  dbg(1, "global_verilog_netlist(): printing top level inout pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"iopin"))==0)
   {
@@ -253,7 +253,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  dbg(1, "global_verilog_netlist(): printing top level input pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+  if(skip_instance(i, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"ipin"))==0)
   {
@@ -275,7 +275,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  fprintf(fd,"---- begin user architecture code\n");
 
  for(i=0;i<xctx->instances; ++i) {
-   if(skip_instance(i, lvs_ignore, VERILOG_IGNORE)) continue;
+   if(skip_instance(i, lvs_ignore)) continue;
    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if(type && !strcmp(type,"netlist_commands")) {
      fprintf(fd, "%s\n", get_tok_value(xctx->inst[i].prop_ptr,"value", 0));
@@ -329,7 +329,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
-    if(xctx->sym[i].flags & VERILOG_IGNORE) continue;
+    if(xctx->sym[i].flags & (VERILOG_IGNORE | VERILOG_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
@@ -459,7 +459,7 @@ int verilog_block_netlist(FILE *fd, int i)
     fmt_attr = xctx->format ? xctx->format : "verilog_format";
     for(j=0;j<xctx->instances; ++j)
     {
-     if(skip_instance(j, lvs_ignore, VERILOG_IGNORE)) continue;
+     if(skip_instance(j, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
      if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
      {
@@ -559,7 +559,7 @@ int verilog_block_netlist(FILE *fd, int i)
     err |= verilog_netlist(fd, verilog_stop);
     fprintf(fd,"---- begin user architecture code\n");
     for(l=0;l<xctx->instances; ++l) {
-      if(skip_instance(l, lvs_ignore, VERILOG_IGNORE)) continue;
+      if(skip_instance(l, lvs_ignore)) continue;
       if(xctx->netlist_count &&
         !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
   

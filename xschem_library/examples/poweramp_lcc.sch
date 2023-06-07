@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {}
@@ -140,7 +140,7 @@ N 2080 -1410 2080 -1400 { lab=VPP}
 N 210 -570 210 -540 { lab=FBN}
 N 210 1020 210 1050 { lab=FB}
 N 190 -960 190 -860 { lab=VSSX}
-N 190 570 190 670 { lab=INX}
+N 190 640 190 670 { lab=INX}
 N 1970 -1410 1990 -1410 {lab=#net3}
 N 1970 -1250 1990 -1250 {lab=#net4}
 N 1880 -1330 1990 -1330 {lab=#net5}
@@ -174,6 +174,7 @@ N 270 640 270 820 {
 lab=INX}
 N 190 640 270 640 {
 lab=INX}
+N 190 570 190 640 { lab=INX}
 C {vsource.sym} 1880 -1360 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
 C {vsource.sym} 1880 -1300 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
 C {lab_pin.sym} 2120 -1410 0 1 {name=p5 lab=VPP}

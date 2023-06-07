@@ -516,20 +516,8 @@ void find_inst_to_be_redrawn(int what)
           int shorted_inst;
           if(xctx->inst[n].ptr < 0 ) continue;
           type=xctx->sym[xctx->inst[n].ptr].type;
-          shorted_inst = 
-                  lvs_ignore &&
-                  /* 
-                   * (
-                   *   (inst[n].flags & LVS_IGNORE_SHORT) ||
-                   *   (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_SHORT)
-                   * ) &&
-                   * can not use LVS_IGNORE_SHORT .flag since i want to re-display also when
-                   * attribute is changed from short to anything else */
-                  (
-                    get_tok_value(inst[n].prop_ptr, "lvs_ignore", 0)[0] ||
-                    get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "lvs_ignore", 0)[0]
-                  );
-
+          set_inst_flags(&xctx->inst[n]);
+          shorted_inst = shorted_instance(n, lvs_ignore);
           /* collect all nodes connected to instances that set node names */
           if(type && 
              (

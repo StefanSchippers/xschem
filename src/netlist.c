@@ -670,12 +670,14 @@ static void set_inst_node(int i, int j, const char *node)
   xInstance * const inst = xctx->inst;
   int inst_mult;
   xRect *rect = (inst[i].ptr + xctx->sym)->rect[PINLAYER];
+  int skip;
 
   if(!inst[i].node) return;
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
   expandlabel(inst[i].instname, &inst_mult);
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
-  if(!for_netlist) {
+  skip = skip_instance(i, netlist_lvs_ignore);
+  if(!for_netlist || skip) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
   } else {
     const char *dir = get_tok_value(rect[j].prop_ptr, "dir",0);
@@ -817,7 +819,28 @@ static int name_attached_inst(int i, double x0, double y0, int sqx, int sqy, con
   return err;
 }
 
-int skip_instance(int i, int lvs_ignore, int mask)
+int shorted_instance(int i, int lvs_ignore)
+{
+  xInstance * const inst = xctx->inst;
+  xSymbol * const sym = xctx->sym;
+  int shorted = 0;
+
+  if(inst[i].ptr < 0) shorted = 0;
+  else if(lvs_ignore) {
+    if((inst[i].flags & LVS_IGNORE_SHORT) || (sym[inst[i].ptr].flags & LVS_IGNORE_SHORT) ) shorted = 1;
+  } else if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+    if((inst[i].flags & SPICE_SHORT) || (sym[inst[i].ptr].flags & SPICE_SHORT) ) shorted = 1;
+  } else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
+    if((inst[i].flags & VERILOG_SHORT) || (sym[inst[i].ptr].flags & VERILOG_SHORT) ) shorted = 1;
+  } else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
+    if((inst[i].flags & VHDL_SHORT) || (sym[inst[i].ptr].flags & VHDL_SHORT) ) shorted = 1;
+  } else if(xctx->netlist_type == CAD_TEDAX_NETLIST) 
+    if((inst[i].flags & TEDAX_SHORT) || (sym[inst[i].ptr].flags & TEDAX_SHORT) ) shorted = 1;
+
+  return shorted;
+}
+
+static int skip_instance2(int i, int lvs_ignore, int mask)
 {
   int skip = 0;
   if(xctx->inst[i].ptr < 0) skip = 1;
@@ -825,6 +848,23 @@ int skip_instance(int i, int lvs_ignore, int mask)
   else if(xctx->sym[xctx->inst[i].ptr].flags & mask) skip = 1;
   else if(lvs_ignore && (xctx->inst[i].flags & LVS_IGNORE)) skip = 1;
   else if(lvs_ignore && (xctx->sym[xctx->inst[i].ptr].flags & LVS_IGNORE)) skip = 1;
+  return skip;
+}
+
+int skip_instance(int i, int lvs_ignore)
+{
+  int skip = 0;
+  if(xctx->netlist_type == CAD_SPICE_NETLIST)
+      skip =  skip_instance2(i, lvs_ignore, SPICE_SHORT | SPICE_IGNORE);
+  else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
+      skip =  skip_instance2(i, lvs_ignore, VERILOG_SHORT | VERILOG_IGNORE);
+  else if(xctx->netlist_type == CAD_VHDL_NETLIST)
+      skip =  skip_instance2(i, lvs_ignore, VHDL_SHORT | VHDL_IGNORE);
+  else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
+      skip =  skip_instance2(i, lvs_ignore, TEDAX_SHORT | TEDAX_IGNORE);
+  else skip = 0;
+
+  dbg(1, "skip_instance(): instance %d skip=%d\n", i, skip);
   return skip;
 }
 
@@ -887,10 +927,7 @@ static int instcheck(int n, int p)
   int rects = xctx->sym[inst[n].ptr].rects[PINLAYER];
   int bus_tap = !strcmp(xctx->sym[inst[n].ptr].type, "bus_tap");
   int k = inst[n].ptr;
-  int shorted_inst = 
-      (k >=0) &&
-      ((inst[n].flags & LVS_IGNORE_SHORT) || (sym[k].flags & LVS_IGNORE_SHORT)) &&
-      netlist_lvs_ignore;
+  int shorted_inst = shorted_instance(n, netlist_lvs_ignore);
 
   if(!inst[n].node) return 0;
 
@@ -1022,7 +1059,6 @@ static int name_nodes_of_pins_labels_and_propagate()
   for (i=0;i<instances; ++i) {
     /* name ipin opin label node fields from prop_ptr attributes */
     if(inst[i].ptr<0) continue;
-
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
       !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
@@ -1050,7 +1086,7 @@ static int name_nodes_of_pins_labels_and_propagate()
       xctx->hilight_nets=1;
     }
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
-      if(for_netlist>0) {
+      if(for_netlist) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
         if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE)) continue;
         if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE)) continue;
@@ -1093,7 +1129,7 @@ static int name_nodes_of_pins_labels_and_propagate()
 
       /* do not count multiple labels/pins with same name */
       bus_node_hash_lookup(inst[i].node[0],    /* insert node in hash table */
-        dir, XINSERT, port, sig_type, verilog_type, value, class);
+         dir, XINSERT, port, sig_type, verilog_type, value, class);
 
       get_inst_pin_coord(i, 0, &x0, &y0);
       get_square(x0, y0, &sqx, &sqy);

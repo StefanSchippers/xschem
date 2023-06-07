@@ -5,80 +5,96 @@ K {}
 V {}
 S {}
 E {}
-L 7 920 -190 1100 -190 {}
-P 4 7 320 -630 320 -550 310 -550 320 -530 330 -550 320 -550 320 -630 {}
-P 4 7 640 -540 590 -540 590 -550 570 -540 590 -530 590 -540 640 -540 {}
-P 4 7 950 -470 950 -380 940 -380 950 -360 960 -380 950 -380 950 -470 {}
+L 7 930 -250 1110 -250 {}
+P 4 7 330 -690 330 -610 320 -610 330 -590 340 -610 330 -610 330 -690 {}
+P 4 7 650 -600 600 -600 600 -610 580 -600 600 -590 600 -600 650 -600 {}
 T {Title symbol has embedded TCL command
-to enable show_pin_net_names.} 130 -130 0 0 0.4 0.4 { layer=7}
+to enable show_pin_net_names.} 160 -120 0 0 0.4 0.4 { layer=6}
 T {Set tcl variable IGNORE to 1 or 0 to
-enable / disable some components} 50 -940 0 0 1 1 {}
-T {tcleval(IGNORE=$IGNORE)} 920 -230 0 0 0.6 0.6 {name=l1}
+enable / disable / short  some components} 50 -940 0 0 1 1 {}
+T {tcleval(IGNORE=$IGNORE)} 930 -290 0 0 0.6 0.6 {name=l1}
 T {The short component is a pass-through symbol. It can be used to short two nets.
-Setting spice_ignore=true will disable the component and remove the short.} 80 -690 0 0 0.4 0.4 {}
+Setting spice_ignore=true will disable the component and remove the short.} 90 -750 0 0 0.4 0.4 {}
 T {This is the lab_show component
 it is used only to display the net
 name it is attached to. This works if
 Options->Show net names on symbol pins
-is enabled.} 650 -600 0 0 0.4 0.4 {}
-N 120 -230 170 -230 {
+is enabled.} 660 -660 0 0 0.4 0.4 {}
+T {This instance has a 'spice_ignore=short'
+attribute when IGNORE=0} 440 -240 0 0 0.4 0.4 { layer=6}
+T {This component behaves either as
+an inverter or as a short
+depending on IGNORE} 1310 -540 0 0 0.4 0.4 { layer=1}
+N 130 -290 180 -290 {
 lab=NET_A}
-N 470 -230 520 -230 {
-lab=#net1}
-N 170 -330 170 -230 {
-lab=NET_A}
-N 470 -330 470 -230 {
-lab=#net1}
-N 170 -330 290 -330 {
-lab=NET_A}
-N 350 -330 470 -330 {
-lab=#net1}
-N 120 -420 170 -420 {
-lab=NET_C}
-N 470 -420 520 -420 {
-lab=NET_C}
-N 170 -520 170 -420 {
-lab=NET_C}
-N 470 -520 470 -420 {
-lab=NET_C}
-N 170 -520 290 -520 {
-lab=NET_C}
-N 350 -520 470 -520 {
-lab=NET_C}
-N 370 -420 470 -420 {
-lab=NET_C}
-N 170 -420 290 -420 {
-lab=NET_C}
-N 370 -230 470 -230 {
-lab=#net1}
-N 170 -230 290 -230 {
-lab=NET_A}
-N 600 -420 650 -420 {
-lab=#net2}
-N 650 -400 650 -340 {
-lab=#net2}
-N 650 -340 740 -340 {
-lab=#net2}
-N 650 -300 740 -300 {
+N 480 -290 530 -290 {
 lab=NET_B}
-N 650 -300 650 -230 {
+N 180 -390 180 -290 {
+lab=NET_A}
+N 480 -390 480 -290 {
 lab=NET_B}
-N 600 -230 650 -230 {
+N 180 -390 300 -390 {
+lab=NET_A}
+N 360 -390 480 -390 {
 lab=NET_B}
-N 860 -320 900 -320 {
+N 160 -480 180 -480 {
+lab=NET_C}
+N 480 -480 530 -480 {
+lab=NET_C}
+N 180 -580 180 -480 {
+lab=NET_C}
+N 480 -580 480 -480 {
+lab=NET_C}
+N 180 -580 300 -580 {
+lab=NET_C}
+N 360 -580 480 -580 {
+lab=NET_C}
+N 380 -480 480 -480 {
+lab=NET_C}
+N 180 -480 300 -480 {
+lab=NET_C}
+N 380 -290 480 -290 {
+lab=NET_B}
+N 180 -290 300 -290 {
+lab=NET_A}
+N 610 -480 660 -480 {
+lab=#net1}
+N 660 -460 660 -400 {
+lab=#net1}
+N 660 -400 750 -400 {
+lab=#net1}
+N 660 -360 750 -360 {
+lab=NET_B}
+N 660 -360 660 -290 {
+lab=NET_B}
+N 610 -290 660 -290 {
+lab=NET_B}
+N 980 -380 1020 -380 {
+lab=NET_E}
+N 660 -460 760 -460 {
+lab=#net1}
+N 820 -460 980 -460 {
+lab=NET_E}
+N 980 -460 980 -380 {
+lab=NET_E}
+N 660 -480 660 -460 {
+lab=#net1}
+N 120 -420 160 -420 {
+lab=NET_C}
+N 160 -480 160 -420 {
+lab=NET_C}
+N 1560 -590 1680 -590 {
 lab=#net2}
-N 650 -400 750 -400 {
-lab=#net2}
-N 810 -400 860 -400 {
-lab=#net2}
-N 860 -400 860 -320 {
-lab=#net2}
-N 650 -420 650 -400 {
-lab=#net2}
-N 840 -320 860 -320 {
-lab=#net2}
-C {lab_pin.sym} 120 -230 0 0 {name=p3 sig_type=std_logic lab=NET_A}
-C {iopin.sym} 80 -140 0 1 { name=p4 lab=NET_A }
+N 120 -480 160 -480 {
+lab=NET_C}
+N 1760 -590 1820 -590 {
+lab=NET_F}
+N 1210 -590 1480 -590 {
+lab=NET_B}
+N 850 -380 980 -380 {
+lab=NET_E}
+C {lab_pin.sym} 130 -290 0 0 {name=p3 sig_type=std_logic lab=NET_A}
+C {ipin.sym} 100 -190 0 0 { name=p4 lab=NET_D }
 C {title.sym} 160 -30 0 0 {name=l1
 author="tcleval([
   if \{$show_pin_net_names == 0\} \{
@@ -89,36 +105,37 @@ author="tcleval([
   return \{Stefan Schippers\}
 ])"
 }
-C {short.sym} 320 -330 0 0 {name=x2
+C {short.sym} 330 -390 0 0 {name=x2
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{true\}\}])"
 }
-C {lab_pin.sym} 650 -230 0 1 {name=p5 sig_type=std_logic lab=NET_B}
-C {lab_show.sym} 470 -330 0 1 {name=l2 }
-C {lab_pin.sym} 120 -420 0 0 {name=p1 sig_type=std_logic lab=NET_C}
-C {short.sym} 320 -520 0 0 {name=x5
+C {lab_pin.sym} 660 -290 0 1 {name=p5 sig_type=std_logic lab=NET_B}
+C {lab_show.sym} 480 -390 0 1 {name=l2 }
+C {lab_pin.sym} 60 -480 0 0 {name=p1 sig_type=std_logic lab=NET_C}
+C {short.sym} 330 -580 0 0 {name=x5
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{true\}\} else \{return \{false\}\}])"
 }
-C {lab_show.sym} 470 -520 0 1 {name=l3 }
-C {iopin.sym} 80 -110 0 1 { name=p7 lab=NET_C }
-C {lab_show.sym} 650 -420 0 1 {name=l5 }
-C {inv_ngspice.sym} 560 -420 0 0 {name=x3  
+C {lab_show.sym} 480 -580 0 1 {name=l3 }
+C {ipin.sym} 100 -170 0 0 { name=p7 lab=NET_C }
+C {lab_show.sym} 660 -480 0 1 {name=l5 }
+C {inv_ngspice.sym} 570 -480 0 0 {name=x3  
 ROUT=1000}
-C {inv_ngspice.sym} 560 -230 0 0 {name=x6  
-ROUT=1000}
-C {inv_ngspice.sym} 330 -420 0 0 {name=x7  
+C {inv_ngspice.sym} 570 -290 0 0 {name=x6  
+ROUT=1000
+spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{short\}\}])"}
+C {inv_ngspice.sym} 340 -480 0 0 {name=x7  
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{true\}\}])"
 ROUT=1000}
-C {inv_ngspice.sym} 330 -230 0 0 {name=x8  
+C {inv_ngspice.sym} 340 -290 0 0 {name=x8  
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{true\}\} else \{return \{false\}\}])"
 ROUT=1000}
-C {and_ngspice.sym} 780 -320 0 0 {name=x4 ROUT=1000 
-spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{true\}\}])"
+C {and_ngspice.sym} 790 -380 0 0 {name=x4 ROUT=1000 
+spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{false\}\} else \{return \{true\}\}])"
 }
-C {short.sym} 780 -400 0 0 {name=x1
-spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{true\}\} else \{return \{false\}\}])"
+C {short.sym} 790 -460 0 0 {name=x1
+spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{true\}\} else \{return \{false\}\}])"
 }
-C {lab_show.sym} 900 -320 0 1 {name=l4 }
-C {launcher.sym} 750 -90 0 0 {name=h1
+C {lab_show.sym} 1020 -380 0 1 {name=l4 }
+C {launcher.sym} 830 -100 0 0 {name=h1
 descr="Toggle IGNORE variable and
 rebuild connectivity"
 tclcommand="
@@ -130,3 +147,22 @@ if \{![info exists IGNORE]\} \{
 xschem rebuild_connectivity
 xschem unhilight_all
 "}
+C {ammeter.sym} 90 -480 3 0 {name=Vopt2
+spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{true\}\} else \{return \{short\}\}])"
+}
+C {lab_pin.sym} 60 -420 0 0 {name=p2 sig_type=std_logic lab=NET_D}
+C {ammeter.sym} 90 -420 3 0 {name=Vopt1
+spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{true\}\} else \{return \{short\}\}])"
+}
+C {lab_show.sym} 180 -580 0 0 {name=l6 }
+C {lab_wire.sym} 920 -380 0 0 {name=p6 sig_type=std_logic lab=NET_E}
+C {lab_pin.sym} 1820 -590 0 1 {name=p8 sig_type=std_logic lab=NET_F}
+C {inv_ngspice.sym} 1520 -590 0 0 {name=x10  
+ROUT=1000
+spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{false\}\} else \{return \{short\}\}])"}
+C {inv_ngspice.sym} 1720 -590 0 0 {name=x11  
+ROUT=1000}
+C {lab_pin.sym} 1210 -590 0 0 {name=p9 sig_type=std_logic lab=NET_B}
+C {lab_show.sym} 1590 -590 0 1 {name=l7 }
+C {lab_show.sym} 1380 -590 0 1 {name=l8 }
+C {ipin.sym} 100 -210 0 0 { name=p10 lab=NET_A }

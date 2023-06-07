@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {}
@@ -205,8 +205,6 @@ N 460 -1060 460 -1020 {lab=#net1}
 N 460 -700 460 -640 {lab=VNN}
 N 460 -940 460 -920 {lab=OUT}
 N 460 -1160 460 -1120 { lab=VPP}
-N 570 -920 680 -920 {
-lab=OUT}
 N 220 -1020 460 -1020 {
 lab=#net1}
 N 340 -1090 420 -1090 {
@@ -242,7 +240,7 @@ lab=OUT_LPF}
 N 740 -920 780 -920 {
 lab=OUT_LPF}
 N 460 -740 460 -700 {lab=VNN}
-N 460 -920 570 -920 {
+N 460 -920 680 -920 {
 lab=OUT}
 N 780 -830 780 -810 {
 lab=VSS}

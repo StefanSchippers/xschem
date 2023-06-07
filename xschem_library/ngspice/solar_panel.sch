@@ -254,14 +254,12 @@ N 820 -330 820 -210 {
 lab=0}
 N 1760 -710 1810 -710 {
 lab=#net7}
-N 1780 -650 1810 -650 {
-lab=#net8}
 N 1930 -680 2040 -680 {
+lab=#net8}
+N 1770 -650 1810 -650 {
 lab=#net9}
-N 1770 -650 1780 -650 {
-lab=#net8}
 N 1770 -650 1770 -520 {
-lab=#net8}
+lab=#net9}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
 C {code_shown.sym} 170 -310 0 0 {name=CONTROL
 value="tcleval(

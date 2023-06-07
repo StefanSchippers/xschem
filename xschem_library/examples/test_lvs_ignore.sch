@@ -23,7 +23,7 @@ it is used only to display the net
 name it is attached to. This works if
 Options->Show net names on symbol pins
 is enabled.} 220 -350 0 0 0.4 0.4 {}
-N 850 -430 920 -430 {
+N 850 -430 1010 -430 {
 lab=#net1}
 N 850 -430 850 -380 {
 lab=#net1}
@@ -42,8 +42,6 @@ lab=GND}
 N 850 -580 850 -570 {
 lab=VDD}
 N 850 -510 850 -430 {
-lab=#net1}
-N 920 -430 1010 -430 {
 lab=#net1}
 N 1090 -430 1110 -430 {
 lab=#net3}

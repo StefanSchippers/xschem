@@ -489,9 +489,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       }
     }
   }
-  if(lvs_ignore &&
-    ( (xctx->inst[n].flags & LVS_IGNORE_SHORT) ||
-      (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_SHORT)) ) {
+  if(shorted_instance(n, lvs_ignore)) {
     c = PINLAYER;
     what = NOW;
     disabled = 2;
