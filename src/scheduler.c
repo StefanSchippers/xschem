@@ -2833,17 +2833,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* replace_symbol inst new_symbol [fast]
      *   Replace 'inst' symbol with 'new_symbol'
-     *   If doing multiple substitutions set 'fast' to 0
-     *    on first call and non zero on next calls
-     *   for faster operation
+     *   If doing multiple substitutions set 'fast' to {}
+     *    on first call and 'fast' on next calls
+     *   for faster operation.
+     *   do a 'xschem redraw' at end to update screen
      *   Example: xschem replace_symbol R3 capa.sym */
     else if(!strcmp(argv[1], "replace_symbol"))
     {
       int inst, fast = 0;
       if(argc == 5) {
+        argc = 4;
         if(!strcmp(argv[4], "fast")) {
           fast = 1;
-          argc = 4;
         }
       }
       if(argc!=4) {
@@ -2860,16 +2861,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *name=NULL;
         char *ptr=NULL;
         char *sym = NULL;
-        bbox(START,0.0,0.0,0.0,0.0);
         my_strncpy(symbol, argv[3], S(symbol));
-        xctx->push_undo();
         if(!fast) {
+          xctx->push_undo();
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
         }
-        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         my_strdup(_ALLOC_ID_, &sym, tcl_hook2(symbol));
         sym_number=match_symbol(sym);
         my_free(_ALLOC_ID_, &sym);
@@ -2883,16 +2881,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
         my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
-        dbg(0, "bbox1: %g %g %g %g\n", 
-            xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
         my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
           my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
-          hash_all_names();
-          new_prop_string(inst, ptr,0, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+          if(!fast) hash_all_names();
+          new_prop_string(inst, ptr, fast, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           my_strdup(_ALLOC_ID_, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name", 0));
 
           type=xctx->sym[xctx->inst[inst].ptr].type;
@@ -2907,14 +2903,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_free(_ALLOC_ID_, &ptr);
         }
         my_free(_ALLOC_ID_, &name);
-        /* new symbol bbox after prop changes (may change due to text length) */
-        symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-        /* redraw symbol */
         set_modify(1);
-        bbox(SET,0.0,0.0,0.0,0.0);
-        draw();
-        bbox(END,0.0,0.0,0.0,0.0);
+        /* draw(); */
         Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
       }
     }
