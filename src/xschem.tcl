@@ -4611,6 +4611,21 @@ proc get_directory {f} {
   return $r
 }
 
+# set 'n' last directory components to every symbol
+proc fix_symbols {n} {
+  set fast {}
+  foreach {i s t} [xschem instance_list] {
+    set sympath  [find_file_first $s]
+    if { $sympath  ne {}} {
+      set new_sym_ref [get_cell $sympath $n]
+      puts "$i:  $s --> $new_sym_ref"
+      xschem replace_symbol $i $new_sym_ref $fast
+      set fast fast
+    }
+  }
+  xschem redraw
+}
+
 # fetch a remote url into ${XSCHEM_TMP_DIR}/xschem_web
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper OS
