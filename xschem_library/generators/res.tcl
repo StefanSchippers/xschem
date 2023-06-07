@@ -1,10 +1,33 @@
 #!/bin/sh
 # the next line restarts using wish \
 exec tclsh "$0" "$@"
+proc from_eng {i} {
+  set str {} 
+  scan $i "%g%s" n str
+  set str [string tolower $str]
+  if { [regexp {^meg} $str] } { set str {meg} } else {
+    set suffix [string index $str 0]
+  } 
+  set mult [switch $suffix {
+    a         { expr {1e-18}}
+    f         { expr {1e-15}}
+    p         { expr {1e-12}}
+    n         { expr { 1e-9}}
+    u         { expr {1e-6}} 
+    m         { expr {1e-3}}
+    k         { expr {1e3}}
+    meg       { expr {1e6}}
+    g         { expr {1e9}} 
+    t         { expr {1e12}}
+    default   { expr {1.0}}
+  }]      
+  return [expr {$n * $mult}]
+}       
 
 set arg1 [lindex $argv 0]
-puts stderr "res value=$arg1"
-if {$arg1 > 0.1} {
+if {$arg1 eq {}} { puts stderr "empty arg"; set arg1 1K}
+if {[from_eng $arg1] > 0.1} {
+puts stderr "res value=|$arg1|"
 puts "v {xschem version=3.4.0 file_version=1.2
 }
 G {}
