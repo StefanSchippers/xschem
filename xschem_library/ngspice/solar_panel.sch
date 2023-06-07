@@ -252,14 +252,6 @@ N 770 -1030 890 -1030 {
 lab=TRIANG}
 N 820 -330 820 -210 {
 lab=0}
-N 1760 -710 1810 -710 {
-lab=#net7}
-N 1930 -680 2040 -680 {
-lab=#net8}
-N 1770 -650 1810 -650 {
-lab=#net9}
-N 1770 -650 1770 -520 {
-lab=#net9}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
 C {code_shown.sym} 170 -310 0 0 {name=CONTROL
 value="tcleval(
@@ -362,4 +354,3 @@ C {lab_pin.sym} 160 -450 0 0 {name=l20  lab=SUN }
 C {spice_probe.sym} 850 -1030 0 1 {name=p4 analysis=tran}
 C {spice_probe.sym} 810 -890 0 1 {name=p5 analysis=tran}
 C {spice_probe.sym} 760 -670 0 0 {name=p6 analysis=tran}
-C {comp_ngspice.sym} 1870 -680 0 0 {name=x5 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n}
