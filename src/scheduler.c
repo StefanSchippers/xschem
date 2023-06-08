@@ -1005,7 +1005,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_SetResult(interp, "0",TCL_STATIC);
           }
           else if(!strcmp(argv[2], "ntabs")) { /* get number of additional tabs (0 = only one tab) */
-            Tcl_SetResult(interp, my_itoa(new_schematic("ntabs", NULL, NULL)),TCL_VOLATILE);
+            Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
           }
           break;
           case 'p':
