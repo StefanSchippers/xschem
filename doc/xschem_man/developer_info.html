@@ -490,6 +490,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -566,6 +567,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    instance number to descend into for vector instances (default: 0). </pre>
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
+   <li><kbd>       destroy_all [force]</kbd></li><pre>
+   Close all additional windows/.tabs. If 'force' is given do not ask for
+   confirmation for changed schematics
+   Returns the remaining # of windows/tabs in addition to main window/tab </pre>
    <li><kbd>       display_hilights [nets|instances]</kbd></li><pre>
    Print a list of highlighted objects (nets, net labels/pins, instances)
    if 'instances' is specified list only instance highlights
@@ -595,7 +600,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       exit [closewindow]</kbd></li><pre>
    Exit the program, ask for confirm if current file modified.
    if 'closewindow' is given close the window, otherwise leave with a blank schematic
-   when closing the last remaining window </pre>
+   if 'force' is given do not ask before closing modified schematic windows/tabs
+   when closing the last remaining window
+   This command returns the list of remaining open windows in addition to main window </pre>
    <li><kbd>       expandlabel lab</kbd></li><pre>
    Expand vectored labels/instance names:
    xschem expandlabel {2*A[3:0]} --&gt; A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
@@ -853,7 +860,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
-   <li><kbd>       new_schematic create|destroy|destroy_all|switch_win|switch_tab winpath file</kbd></li><pre>
+   <li><kbd>       new_schematic create|destroy|destroy_all|switch winpath file</kbd></li><pre>
    Open/destroy a new tab or window 
      create: create new empty window or with 'file' loaded if 'file' given.
              The winpath must be given (even {} is ok).
@@ -862,8 +869,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      destroy: destroy tab/window identified by winpath. Example:
               xschem new_schematic destroy .x1.drw
      destroy_all: close all tabs/additional windows
-     switch_win: switch context to specified 'winpath' window
-     switch_tab: switch context to specified 'winpath' tab
+     switch: switch context to specified 'winpath' window or specified schematic name
    Main window/tab has winpath set to .drw,
    Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...</pre>
    <li><kbd>       only_probes</kbd></li><pre>
@@ -1113,6 +1119,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    When a symbol is selected edit it in a new tab/window if not already open.
    If nothing selected open another window of the second schematic (issues a warning).
    if 'new_process' is given start a new xschem process </pre>
+   <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
+   Switch context to indicated window path or schematic name
+   returns the # of windows/tabs in addition to main window/tab</pre>
    <li><kbd>       symbols [n]</kbd></li><pre>
    if 'n' given list symbol with name or number 'n', else 
    list all used symbols </pre>

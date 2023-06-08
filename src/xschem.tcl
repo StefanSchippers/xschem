@@ -5230,7 +5230,7 @@ proc setup_tabbed_interface {} {
     if { ![winfo exists .tabs] } {
       frame .tabs
       button .tabs.x0 -padx 2 -pady 0 -anchor nw -takefocus 0 \
-          -text Main -command "xschem new_schematic switch_tab .drw"
+          -text Main -command "xschem new_schematic switch .drw"
       bind .tabs.x0 <ButtonPress> {swap_tabs %X %Y press}
       bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
       button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } -command "xschem new_schematic create"
@@ -5255,12 +5255,12 @@ proc setup_tabbed_interface {} {
       save_ctx $old
       restore_ctx .drw
       housekeeping_ctx
-      xschem new_schematic switch_win .drw
+      xschem new_schematic switch .drw
       xschem exit closewindow
       # did not exit (user cancel) ... switch back 
       restore_ctx $old
       housekeeping_ctx
-      xschem new_schematic switch_win $old
+      xschem new_schematic switch $old
     }
   }
 }
@@ -5371,12 +5371,12 @@ proc quit_xschem {} {
     if {$remaining == 0 } {
       save_ctx  [xschem get current_win_path]
       restore_ctx .drw
-      xschem new_schematic switch_win .drw
+      xschem new_schematic switch .drw
       housekeeping_ctx
       xschem exit closewindow
     }
   } else {
-    xschem new_schematic switch_tab .drw
+    xschem new_schematic switch .drw
     xschem exit closewindow
   }
 }
@@ -6265,12 +6265,12 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
        save_ctx $old
        restore_ctx .drw
        housekeeping_ctx
-       xschem new_schematic switch_win .drw
+       xschem new_schematic switch .drw
        xschem exit closewindow
        # did not exit ... switch back 
        restore_ctx $old
        housekeeping_ctx
-       xschem new_schematic switch_win $old
+       xschem new_schematic switch $old
     }
   } else {
     wm protocol $rootwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"

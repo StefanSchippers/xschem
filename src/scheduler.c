@@ -571,6 +571,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* destroy_all [force]
+     *   Close all additional windows/.tabs. If 'force' is given do not ask for
+     *   confirmation for changed schematics
+     *   Returns the remaining # of windows/tabs in addition to main window/tab */
+    else if(!strcmp(argv[1], "destroy_all"))
+    {
+      int force = 0;
+      if(argc > 2 && !strcmp(argv[2], "force")) force = 1;
+      if(force) 
+        new_schematic("destroy_all", "force", NULL); 
+      else
+        new_schematic("destroy_all", NULL, NULL); 
+      Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
+    }
+
     /* display_hilights [nets|instances]
      *   Print a list of highlighted objects (nets, net labels/pins, instances)
      *   if 'instances' is specified list only instance highlights
@@ -683,12 +698,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* exit [closewindow]
      *   Exit the program, ask for confirm if current file modified.
      *   if 'closewindow' is given close the window, otherwise leave with a blank schematic
-     *   when closing the last remaining window */
+     *   if 'force' is given do not ask before closing modified schematic windows/tabs
+     *   when closing the last remaining window
+     *   This command returns the list of remaining open windows in addition to main window */
     else if(!strcmp(argv[1], "exit"))
     {
       int closewindow = 0;
+      int force = 0;
 
-      if(argc > 2 && !strcmp(argv[2], "closewindow")) closewindow = 1;
+      for(i = 2; i < argc; ++i) {
+        if(!strcmp(argv[i], "closewindow")) closewindow = 1;
+        if(!strcmp(argv[i], "force")) force = 1;
+      }     
       if(!strcmp(xctx->current_win_path, ".drw")) {
         if(has_x) {
           /* non tabbed interface */
@@ -696,23 +717,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int wc = get_window_count();
             dbg(1, "wc=%d\n", wc);
             if(wc > 0 ) {
-              if(xctx->modified) {
+              if(!force && xctx->modified) {
                 tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                           "[get_cell [xschem get schname] 0]"
                           ": UNSAVED data: want to exit?\"");
               }
-              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                 swap_windows();
                 set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
                 new_schematic("destroy", xctx->current_win_path, NULL);
               }
             } else {
-              if(xctx->modified) {
+              if(!force && xctx->modified) {
                 tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                           "[get_cell [xschem get schname] 0]"
                           ": UNSAVED data: want to exit?\"");
               }
-              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                  if(closewindow) tcleval("exit");
                  else clear_schematic(0, 0);
               }
@@ -723,23 +744,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int wc = get_window_count();
             dbg(1, "wc=%d\n", wc);
             if(wc > 0 ) {
-              if(xctx->modified) {
+              if(!force && xctx->modified) {
                 tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                           "[get_cell [xschem get schname] 0]"
                           ": UNSAVED data: want to exit?\"");
               }
-              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                 swap_tabs();
                 set_modify(0);
                 new_schematic("destroy", xctx->current_win_path, NULL);
               }
             } else {
-              if(xctx->modified) {
+              if(!force && xctx->modified) {
                 tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                           "[get_cell [xschem get schname] 0]"
                           ": UNSAVED data: want to exit?\"");
               }
-              if(!xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                  if(closewindow) tcleval("exit");
                  else clear_schematic(0, 0);
               }
@@ -747,10 +768,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
         else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
-      } else {
+      } else { 
+        if(force) set_modify(0); /* avoid ask to save downstream */
         new_schematic("destroy", xctx->current_win_path, NULL);
       }
-      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
     }
 
     /* expandlabel lab
@@ -2229,7 +2251,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* new_schematic create|destroy|destroy_all|switch_win|switch_tab winpath file
+    /* new_schematic create|destroy|destroy_all|switch winpath file
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
      *             The winpath must be given (even {} is ok).
@@ -2238,8 +2260,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     destroy: destroy tab/window identified by winpath. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
-     *     switch_win: switch context to specified 'winpath' window
-     *     switch_tab: switch context to specified 'winpath' tab
+     *     switch: switch context to specified 'winpath' window or specified schematic name
      *   Main window/tab has winpath set to .drw,
      *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...
      */
@@ -3669,6 +3690,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* switch [window_path |schematic_name]
+     *   Switch context to indicated window path or schematic name
+     *   returns the # of windows/tabs in addition to main window/tab
+     */
+    else if(!strcmp(argv[1], "switch"))
+    {
+      if(argc > 2) new_schematic("switch", argv[2], NULL);
+      Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
+    }
+ 
     /* symbols [n]
      *   if 'n' given list symbol with name or number 'n', else 
      *   list all used symbols */

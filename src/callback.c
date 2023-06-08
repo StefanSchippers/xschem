@@ -1033,12 +1033,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if( xctx->semaphore >= 1  || event == Expose) {
      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_winpath, winpath);
      redraw_only = 1;
+     new_schematic("switch_no_tcl_ctx", winpath, "");
    } else {
      dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_winpath, winpath, xctx->semaphore);
-     if(old_winpath[0]) tclvareval("save_ctx ", old_winpath, NULL);
-     tclvareval("restore_ctx ", winpath, NULL);
+     new_schematic("switch", winpath, "");
    }
-   new_schematic("switch_win", winpath, "");
    tclvareval("housekeeping_ctx", NULL);
  }
  /* artificially set semaphore to allow only redraw operations in switched schematic,
@@ -2863,7 +2862,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
-   if(old_winpath[0]) new_schematic("switch_win", old_winpath, "");
+   if(old_winpath[0]) new_schematic("switch_no_tcl_ctx", old_winpath, "");
  }
  else
  if(strcmp(old_winpath, winpath)) {
