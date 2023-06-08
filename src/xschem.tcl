@@ -4615,10 +4615,13 @@ proc get_directory {f} {
 proc fix_symbols {n} {
   xschem push_undo
   foreach {i s t} [xschem instance_list] {
+    if {![regexp {\(.*\)$} $s param]} { set param {}}
+    regsub {\([^)]*\)$} $s {} s
+    puts "--------> $s  $param"
     set sympath  [find_file_first [file tail $s]]
     if { $sympath  ne {}} {
-      set new_sym_ref [get_cell $sympath $n]
-      puts "$i:  $s --> $new_sym_ref"
+      set new_sym_ref [get_cell $sympath $n]$param
+      puts "$i:  $s$param --> $new_sym_ref"
       xschem reset_symbol $i $new_sym_ref
     }
   }

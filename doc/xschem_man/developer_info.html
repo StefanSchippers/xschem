@@ -491,6 +491,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -675,6 +676,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Get the value of attribute 'attr'
    If 'attr has the form 'cell::sym_attr' look up attribute 'sym_attr'
    of the symbol referenced by the instance.
+      
+       getprop instance_notcl inst attr
+   Same as above but do not perform tcl substitution
       
        getprop instance_pin inst pin
    Get the full attribute string of pin 'pin' of instance 'inst'
@@ -1205,6 +1209,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

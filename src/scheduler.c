@@ -1173,6 +1173,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'attr has the form 'cell::sym_attr' look up attribute 'sym_attr'
      *   of the symbol referenced by the instance.
      *
+     * getprop instance_notcl inst attr
+     *   Same as above but do not perform tcl substitution
+     *
      * getprop instance_pin inst pin
      *   Get the full attribute string of pin 'pin' of instance 'inst'
      *   Example: xschem getprop instance_pin x3 MINUS --> name=MINUS dir=in
@@ -1205,8 +1208,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "getprop"))
     {
-      if(argc > 2 && !strcmp(argv[2], "instance")) {
+      if(argc > 2 && (!strcmp(argv[2], "instance") || !strcmp(argv[2], "instance_notcl"))) {
         int i;
+        int with_quotes = 0;
         const char *tmp;
         if(argc < 4) {
           Tcl_SetResult(interp, "'xschem getprop instance' needs 1 or 2 additional arguments", TCL_STATIC);
@@ -1216,17 +1220,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
+        if(!strcmp(argv[2], "instance_notcl")) with_quotes = 2;
         if(argc < 5) {
           Tcl_SetResult(interp, xctx->inst[i].prop_ptr, TCL_VOLATILE);
         } else if(!strcmp(argv[4], "cell::name")) {
           tmp = xctx->inst[i].name;
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else if(strstr(argv[4], "cell::") ) {
-          tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, argv[4]+6, 0);
+          tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, argv[4]+6, with_quotes);
           dbg(1, "scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else {
-          Tcl_SetResult(interp, (char *)get_tok_value(xctx->inst[i].prop_ptr, argv[4], 0), TCL_VOLATILE);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->inst[i].prop_ptr, argv[4], with_quotes), TCL_VOLATILE);
         }
       } else if(argc > 2 && !strcmp(argv[2], "instance_pin")) {
         /*   0       1        2         3   4       5     */
@@ -1610,7 +1615,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i;
       char *s = NULL;
       for(i = 0; i < xctx->instances; ++i) {
-        const char *name = xctx->inst[i].name ? translate(i, xctx->inst[i].name) : "";
+        const char *name = xctx->inst[i].name ? xctx->inst[i].name : "";
         char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
         char *type = (xctx->inst[i].ptr + xctx->sym)->type;
         type = type ? type : "";
