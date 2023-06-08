@@ -594,7 +594,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    escape tcl special characters with backslash </pre>
    <li><kbd>       exit [closewindow]</kbd></li><pre>
    Exit the program, ask for confirm if current file modified.
-   if 'closewindow' is given close the window, otherwise leave with a blank schematic </pre>
+   if 'closewindow' is given close the window, otherwise leave with a blank schematic
+   when closing the last remaining window </pre>
    <li><kbd>       expandlabel lab</kbd></li><pre>
    Expand vectored labels/instance names:
    xschem expandlabel {2*A[3:0]} --&gt; A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
@@ -1195,6 +1196,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 
