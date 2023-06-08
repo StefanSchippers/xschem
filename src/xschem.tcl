@@ -4617,11 +4617,10 @@ proc fix_symbols {n} {
   foreach {i s t} [xschem instance_list] {
     if {![regexp {\(.*\)$} $s param]} { set param {}}
     regsub {\([^)]*\)$} $s {} s
-    puts "--------> $s  $param"
     set sympath  [find_file_first [file tail $s]]
     if { $sympath  ne {}} {
       set new_sym_ref [get_cell $sympath $n]$param
-      puts "$i:  $s$param --> $new_sym_ref"
+      puts "Remapping $i:  $s$param --> $new_sym_ref"
       xschem reset_symbol $i $new_sym_ref
     }
   }
@@ -5383,6 +5382,7 @@ proc quit_xschem {} {
     xschem exit closewindow
   }
 }
+
 proc raise_dialog {parent window_path } {
   global myload_loadfile component_browser_on_top
   foreach i ".dialog .graphdialog .load" {
