@@ -2265,6 +2265,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     destroy: destroy tab/window identified by winpath. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
+     *              if the 'force'argument is given do not issue a warning if modified
+     *              tabs are about to be closed.
      *     switch: switch context to specified 'winpath' window or specified schematic name
      *   Main window/tab has winpath set to .drw,
      *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...

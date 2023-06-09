@@ -5365,22 +5365,13 @@ proc set_tab_names {{mod {}}} {
   }
 }
 
-proc quit_xschem {} {
+proc quit_xschem { {force {}}} {
   global tabbed_interface
 
-  set remaining [xschem new_schematic destroy_all]
-  if {$tabbed_interface != 1} {
-    if {$remaining == 0 } {
-      save_ctx  [xschem get current_win_path]
-      restore_ctx .drw
-      xschem new_schematic switch .drw
-      housekeeping_ctx
-      xschem exit closewindow
-    }
-  } else {
-    xschem new_schematic switch .drw
-    xschem exit closewindow
-  }
+  xschem new_schematic destroy_all $force
+  xschem new_schematic switch .drw
+  set remaining [xschem exit closewindow $force]
+  return $remaining
 }
 
 proc raise_dialog {parent window_path } {
@@ -5464,7 +5455,8 @@ set tctx::global_list {
   add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps colors compare_sch connect_by_kissing constrained_move
-  copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme dim_bg dim_value
+  copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme
+  delay_flag  dim_bg dim_value
   disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital

@@ -1872,9 +1872,9 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
     }
   } else if(!strcmp(what, "destroy_all")) {
     if(!tabbed_interface) {
-      destroy_all_windows(&window_count, win_path ? 1 : 0);
+      destroy_all_windows(&window_count, (win_path && win_path[0]) ? 1 : 0);
     } else {
-      destroy_all_tabs(&window_count, win_path ? 1 : 0);
+      destroy_all_tabs(&window_count, (win_path && win_path[0]) ? 1 : 0);
     }
   } else if(!strcmp(what, "switch")) {
     if(tabbed_interface) switch_tab(&window_count, win_path);
