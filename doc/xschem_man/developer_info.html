@@ -1381,6 +1381,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    # if set use &lt;sch_dir&gt;/simulation for netlist and sims
    local_netlist_dir 0
 
+   lvs_ignore 0
    lvs_netlist 0
    measure_text "y=\nx="
    menu_debug_var 0
@@ -1510,6 +1511,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       convert_to_png
       create_layers_menu
       create_pins
+
+      # pause execution for 'ms milliseconds, keeping event loop responding
+      delay [ms]
       delete_ctx
       delete_files
       delete_tab
@@ -1535,7 +1539,20 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       # use $pathlist global search path if $paths empty
       # recursively descend directories
       find_file f [paths]
-      fix_symbols
+
+      # as above, return only first match found
+      find_file_first f [paths]
+
+      # process all symbols in current design, get full path of them if found in 
+      # XSCHEM_LIBRARY_PATH search path, then transform them with exactly one 'n_dir'
+      # path components added.
+      # example: current design has an instance referencing 'lab_pin.sym'
+      #          after executing 'fix_symbols 1' the instance symbol reference
+      #          will be devices/lab_pin.sym. This will be done only on symbols
+      #          that are existing in the current search paths (there is
+      #          devices/lab_pin.sym in one of the search paths).
+      fix_symbols n_dirs
+
       from_eng
       gaw_cmd
       gaw_echoline
@@ -1587,6 +1604,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
       myload_display_preview
       myload_getresult
+      myload_place_symbol
       myload_set_colors1
       myload_set_colors2
       myload_set_home
@@ -1602,6 +1620,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       print_help_and_exit
       probe_net
       property_search
+
+      # quit xschem closing all tabs/windows (including the first/main) 
+      # user has the option to cancel the closing of modified tabs/windows
+      # if 'force' is given no confirmation is asked and modified content is lost.
+      # the number of schematic views  left over (in addition to main window)
+      #  is returned. If only one (the main view) is left command returns 0.
+      quit_xschem [force]
+
       raise_dialog
       read_data
       read_data_nonewline
@@ -1632,7 +1658,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       select_netlist_dir
       set_bindings
       set_env
-      setglob
+      set_graph_linewidth
       set_initial_dirs
       set_missing_colors_to_black
 
@@ -1641,8 +1667,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
       set_old_tk_fonts
 
-      # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
-      # new library search path.
+      # when XSCHEM_LIBRARY_PATH is changed this function is called 
+      # by 'trace_set_paths' refresh and cache new library search paths.
       set_paths
       
       set_replace_key_binding
@@ -1652,6 +1678,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       set_sim_defaults
 
       set_tab_names
+      setglob
       setup_recent_menu
       setup_tabbed_interface
       setup_tcp_bespice
@@ -1695,6 +1722,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       toolbar_add
       toolbar_hide
       toolbar_show
+
+      # this function executes whenever XSCHEM_LIBRARY_PATH changes (registered
+      # with a 'trace' command)
+      trace_set_paths
+
       try_download_url
       update_div
       update_graph_node
