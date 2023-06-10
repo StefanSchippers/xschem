@@ -228,6 +228,7 @@ extern char win_temp_dir[PATH_MAX];
 #define PLACE_SYMBOL 4194304U /* used in move_objects after place_symbol to avoid storing intermediate undo state */
 #define START_SYMPIN 8388608U
 #define GRAPHPAN 16777216U
+#define MENUSTARTMOVE 33554432U
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
 #define SELECTED2 4U        /*  second point selected... */
@@ -1254,6 +1255,7 @@ extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
 extern unsigned short select_object(double mx,double my, unsigned short sel_mode,
                                     int override_lock); /*  return type 20160503 */
 extern void unselect_all(int dr);
+extern void select_attached_nets(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);

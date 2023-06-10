@@ -2196,7 +2196,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         move_objects(START,0,0,0);
         move_objects( END,0,atof(argv[2]), atof(argv[3]));
       }
-      else move_objects(START,0,0,0);
+      else xctx->ui_state |= MENUSTARTMOVE;
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}

@@ -5923,6 +5923,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Duplicate objects" -command "xschem copy_objects" -accelerator C
   toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
   $topwin.menubar.edit.menu add command -label "Move objects" -command "xschem move_objects" -accelerator M
+  $topwin.menubar.edit.menu add command -label "Move objects stretching attached wires" \
+      -command "set connect_by_kissing 2; xschem move_objects" -accelerator Shift+M
   toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
   $topwin.menubar.edit.menu add command -label "Flip selected objects" -command "xschem flip" -accelerator {Alt-F}
   $topwin.menubar.edit.menu add command -label "Rotate selected objects" -command "xschem rotate" -accelerator {Alt-R}

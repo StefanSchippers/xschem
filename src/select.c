@@ -1036,6 +1036,40 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
    return sel.type;
 }
 
+/* Partial-select wire ends that land on instance pins */
+void select_attached_nets(void)
+{
+  int inst, j, i, rects, r, sqx, sqy;
+  double x0, y0;
+  Wireentry *wptr;
+  int cbk = (tclgetintvar("connect_by_kissing") == 2);
+
+  hash_wires();
+  rebuild_selected_array();
+
+  if(cbk) for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) {
+    inst = xctx->sel_array[j].n;
+    if((xctx->inst[inst].ptr >= 0)) {
+      rects = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+      for(r = 0; r < rects; r++)
+      {
+        get_inst_pin_coord(inst, r, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
+          i = wptr->n;
+          if(xctx->wire[i].x1 == x0 &&  xctx->wire[i].y1 == y0) {
+             select_wire(i,SELECTED1, 1);
+          }
+          if(xctx->wire[i].x2 == x0 &&  xctx->wire[i].y2 == y0) {
+             select_wire(i,SELECTED2, 1);
+          }
+        }
+      }
+    }
+    rebuild_selected_array();
+  }
+}
+
 void select_inside(double x1,double y1, double x2, double y2, int sel) /*added unselect (sel param) */
 {
  int c,i, tmpint;
