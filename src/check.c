@@ -432,7 +432,7 @@ void break_wires_at_pins(int remove)
               check_wire_storage();
               if(!remove || !RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, x0, y0, 
                              xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)
-                             || !touches_inst_pin(xctx->wire[i].x1, xctx->wire[i].y1, k) 
+                             || (!touches_inst_pin(xctx->wire[i].x1, xctx->wire[i].y1, k) && xctx->wire[i].end1 > 0) 
                 ) {
                 xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
                 xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
@@ -456,7 +456,8 @@ void break_wires_at_pins(int remove)
                 xctx->need_reb_sel_arr=1;
                 xctx->wires++;
               } else {
-                dbg(0, "break_wires_at_pins(): skipping wire creation on wire %d\n", i); 
+                dbg(0, "break_wires_at_pins(): skipping wire creation on wire %d, end1=%d\n",
+                    i, xctx->wire[xctx->wires].end1); 
                 deleted_wire = 1;
               }
               xctx->wire[i].x1 = x0;
@@ -464,7 +465,7 @@ void break_wires_at_pins(int remove)
               if(remove && RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
                   xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)) {
 
-                if(touches_inst_pin(xctx->wire[i].x2, xctx->wire[i].y2, k)) {
+                if(touches_inst_pin(xctx->wire[i].x2, xctx->wire[i].y2, k) || xctx->wire[i].end2 == 0) {
                   dbg(1, "break_wires_at_pins(): wire %d needs to be deleted: %g %g %g %g\n", 
                           i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
                   /* mark for deletion only if no other nets attached */
