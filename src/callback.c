@@ -2377,13 +2377,20 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      view_unzoom(0.0);
      break;
    }
-   if(key=='!')
+   if(key=='!' && !(state & ControlMask))
    {
      if(xctx->semaphore >= 2) break;
-     break_wires_at_pins();
+     break_wires_at_pins(0);
+     break;
+   }
+   if(key=='!' && (state & ControlMask))
+   {
+     if(xctx->semaphore >= 2) break;
+     break_wires_at_pins(1);
      break;
    }
    break;
+
   case ButtonPress:                     /* end operation */
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {

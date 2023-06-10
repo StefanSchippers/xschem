@@ -492,6 +492,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -513,8 +514,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Attach net labels to selected component(s) instance(s) </pre>
    <li><kbd>       bbox begin|end</kbd></li><pre>
    Start/end bounding box calculation: parameter is either 'begin' or 'end' </pre>
-   <li><kbd>       break_wires</kbd></li><pre>
-   Break wires at selected instance pins </pre>
+   <li><kbd>       break_wires [remove] </kbd></li><pre>
+   Break wires at selected instance pins
+   if '1' is given as 'remove' parameter broken wires that are all inside selected
+   instances will be deleted </pre>
    <li><kbd>       build_colors</kbd></li><pre>
    Rebuild color palette using values of tcl vars dim_value and dim_bg </pre>
    <li><kbd>       callback winpath event mx my key button aux state</kbd></li><pre>
@@ -873,6 +876,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      destroy: destroy tab/window identified by winpath. Example:
               xschem new_schematic destroy .x1.drw
      destroy_all: close all tabs/additional windows
+              if the 'force'argument is given do not issue a warning if modified
+              tabs are about to be closed.
      switch: switch context to specified 'winpath' window or specified schematic name
    Main window/tab has winpath set to .drw,
    Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...</pre>

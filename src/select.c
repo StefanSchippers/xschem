@@ -333,6 +333,50 @@ static void del_rect_line_arc_poly(int floaters)
 }
 
 
+int delete_wires(int floaters, int selected_flag)
+{
+  int i, j = 0, deleted = 0;
+  for(i=0;i<xctx->wires; ++i)
+  {
+    if(xctx->wire[i].sel == selected_flag) {
+      ++j;
+      if(xctx->wire[i].bus){
+        double ov, y1, y2;
+        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
+        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
+        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+      } else {
+        double ov, y1, y2;
+        ov = cadhalfdotsize;
+        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
+        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
+        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
+      }
+
+      hash_wire(XDELETE, i, 0);
+      my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->wire[i].node);
+
+      deleted = 1;
+      continue;
+    }
+    if(j) {
+      xctx->wire[i-j] = xctx->wire[i];
+    }
+  }
+  xctx->wires -= j;
+  if(j) {
+    xctx->prep_hash_wires=0;
+    xctx->prep_net_structs=0;
+    xctx->prep_hi_structs=0;
+  }
+  if(xctx->hilight_nets) {
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
+  }
+  return deleted;
+}
+
 void delete(int to_push_undo)
 {
   int i, j, tmp, deleted = 0, floaters;
@@ -420,44 +464,15 @@ void delete(int to_push_undo)
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
   }
-  j = 0;
-  for(i=0;i<xctx->wires; ++i)
-  {
-    if(xctx->wire[i].sel == SELECTED) {
-      ++j;
-      if(xctx->wire[i].bus){
-        double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-      } else {
-        double ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-      }
 
-      my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-      my_free(_ALLOC_ID_, &xctx->wire[i].node);
+  if(delete_wires(floaters, SELECTED)) {
+    deleted = 1;
+    if(tclgetboolvar("autotrim_wires")) trim_wires();
+    update_conn_cues(WIRELAYER, 0, 0);
+  }
 
-      deleted = 1;
-      continue;
-    }
-    if(j) {
-      xctx->wire[i-j] = xctx->wire[i];
-    }
-  }
-  xctx->wires -= j;
-  if(j) {
-    xctx->prep_hash_wires=0;
-    xctx->prep_net_structs=0;
-    xctx->prep_hi_structs=0;
-  }
-  if(tclgetboolvar("autotrim_wires")) trim_wires();
   del_rect_line_arc_poly(floaters);
-  update_conn_cues(WIRELAYER, 0, 0);
+
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
@@ -478,7 +493,6 @@ void delete(int to_push_undo)
   if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->ui_state &= ~SELECTION;
 }
-
 
 void delete_only_rect_line_arc_poly(void)
 {

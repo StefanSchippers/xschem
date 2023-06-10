@@ -307,11 +307,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* break_wires
-     *   Break wires at selected instance pins */
+    /* break_wires [remove] 
+     *   Break wires at selected instance pins
+     *   if '1' is given as 'remove' parameter broken wires that are all inside selected
+     *   instances will be deleted */
     else if(!strcmp(argv[1], "break_wires"))
     {
-      break_wires_at_pins();
+      int remove = 0;
+      if(argc > 2) remove = atoi(argv[2]);
+      break_wires_at_pins(remove);
       Tcl_ResetResult(interp);
     }
 

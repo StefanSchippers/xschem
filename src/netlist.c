@@ -186,6 +186,7 @@ static void wiredelete(int n, int x, int y)
   Wireentry *saveptr, **prevptr;
 
   prevptr = &xctx->wire_spatial_table[x][y];
+  if(*prevptr == NULL) return;
   while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
   saveptr = (*prevptr)->next;
   my_free(_ALLOC_ID_, prevptr);

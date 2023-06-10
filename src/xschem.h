@@ -1221,6 +1221,7 @@ extern const char *get_sym_template(char *s, char *extra);
 extern void zoom_full(int draw, int sel, int flags, double shrink);
 extern void updatebbox(int count,xRect *boundbox,xRect *tmp);
 extern void draw_selection(GC g, int interruptable);
+extern int delete_wires(int floaters, int selected_flag);
 extern void delete(int to_push_undo);
 extern void delete_only_rect_line_arc_poly(void);
 extern void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, double *bx2, double *by2);
@@ -1300,7 +1301,7 @@ extern int rectclip(int,int,int,int,
            double*,double*,double*,double*);
 extern void trim_wires(void);
 extern void update_conn_cues(int layer, int draw_cues, int dr_win);
-extern void break_wires_at_pins(void);
+extern void break_wires_at_pins(int remove);
 
 extern void check_touch(int i, int j,
          unsigned short *parallel,unsigned short *breaks,
