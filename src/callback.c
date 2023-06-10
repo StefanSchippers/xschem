@@ -2183,7 +2183,14 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     move_objects(START,0,0,0);
     break;
    }
-
+   if(key=='M' && state==ShiftMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+   {
+    xctx->mx_double_save=xctx->mousex_snap;
+    xctx->my_double_save=xctx->mousey_snap;
+    tclsetintvar("connect_by_kissing", 2); /* 2 will be used to reset var to 0 at end of move */
+    move_objects(START,0,0,0);
+    break;
+   }
    if(key=='c' && state==0 &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {

@@ -394,7 +394,7 @@ static int touches_inst_pin(double x, double y, int inst)
       }
     }
   }
-  dbg(0, "touches_inst_pin(): %g %g : touches =%d on inst %d\n", x, y, touches, inst);
+  dbg(1, "touches_inst_pin(): %g %g : touches =%d on inst %d\n", x, y, touches, inst);
   return touches;
 }
 
@@ -440,7 +440,7 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].end2 = 0;
                 xctx->wire[xctx->wires].x2=x0;
                 xctx->wire[xctx->wires].y2=y0;
-                xctx->wire[xctx->wires].sel=0;
+                xctx->wire[xctx->wires].sel=SELECTED;
                 xctx->wire[xctx->wires].prop_ptr=NULL;
                 my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
                 if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
@@ -456,7 +456,7 @@ void break_wires_at_pins(int remove)
                 xctx->need_reb_sel_arr=1;
                 xctx->wires++;
               } else {
-                dbg(0, "break_wires_at_pins(): skipping wire creation on wire %d, end1=%d\n",
+                dbg(1, "break_wires_at_pins(): skipping wire creation on wire %d, end1=%d\n",
                     i, xctx->wire[xctx->wires].end1); 
                 deleted_wire = 1;
               }
@@ -471,7 +471,7 @@ void break_wires_at_pins(int remove)
                   /* mark for deletion only if no other nets attached */
                   xctx->wire[i].sel = SELECTED4; /* use a special flag to later delete these wires
                                                   * only and not other seleted wires */
-                  dbg(0, "break_wires_at_pins(): mark wire %d for deletion: end2=%d\n", i, xctx->wire[i].end2);
+                  dbg(1, "break_wires_at_pins(): mark wire %d for deletion: end2=%d\n", i, xctx->wire[i].end2);
                 }
               }
             }
@@ -521,7 +521,7 @@ void break_wires_at_pins(int remove)
             xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
             xctx->wire[xctx->wires].x2=x0;
             xctx->wire[xctx->wires].y2=y0;
-            xctx->wire[xctx->wires].sel=0;
+            xctx->wire[xctx->wires].sel=SELECTED;
             xctx->wire[xctx->wires].prop_ptr=NULL;
             my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
             if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))

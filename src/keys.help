@@ -127,6 +127,7 @@ alt         'l'         add lab_pin.sym to schematic
 ctrl+shift  'o'         Load most recent schematic
 ctrl        'o'         Load schematic
 -           'm'         Move selected obj.
+shift       'M'         Move selected obj, insert wire when separating touching instance pins.
 shift       'N'         Top level only netlist
 -           'n'         Hierarchical Netlist
 ctrl        'n'         Clear schematic

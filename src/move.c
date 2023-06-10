@@ -1073,7 +1073,8 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->rotatelocal=0;
   xctx->deltax = xctx->deltay = 0.0;
   rebuild_selected_array();
-  if(tclgetboolvar("connect_by_kissing")) xctx->kissing = connect_by_kissing();
+  /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
+  if(tclgetintvar("connect_by_kissing")) xctx->kissing = connect_by_kissing();
   else xctx->kissing = 0;
   xctx->movelastsel = xctx->lastsel;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
@@ -1086,7 +1087,10 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
-  if(xctx->kissing) pop_undo(0, 0);
+  if(xctx->kissing) {
+    pop_undo(0, 0);
+    if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
+  }
   draw_selection(xctx->gctiled,0);
   xctx->move_rot=xctx->move_flip=0;
   xctx->deltax=xctx->deltay=0.;
@@ -1119,6 +1123,9 @@ void move_objects(int what, int merge, double dx, double dy)
   int firsti, firstw;
   int floaters = there_are_floaters();
 
+  if(tclgetintvar("connect_by_kissing") == 2) {
+    tclsetintvar("connect_by_kissing", 0);
+  }
   if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   /* no undo push for MERGE ad PLACE, already done before */
   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
