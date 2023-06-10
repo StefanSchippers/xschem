@@ -386,10 +386,9 @@ void break_wires_at_pins(void)
   int changed=0;
 
   hash_wires();
-  /* xctx->need_reb_sel_arr=1; */ /* seems not needed */
   rebuild_selected_array();
 
-  /* for(k=0;k<xctx->instances; ++k) */
+  /* break wires that touch selected instance pins */
   for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     k = xctx->sel_array[j].n;
     if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 )
@@ -397,6 +396,7 @@ void break_wires_at_pins(void)
       for(r=0;r<rects;r++)
       {
         get_inst_pin_coord(k, r, &x0, &y0);
+        dbg(1, "break_wires_at_pins(): processing pin %g %g\n", x0, y0);
         get_square(x0, y0, &sqx, &sqy);
         for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
           i = wptr->n;
@@ -405,6 +405,8 @@ void break_wires_at_pins(void)
           {
             if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
                 (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
+              dbg(1, "break_wires_at_pins(): processing wire %d: %g %g %g %g\n",
+                  i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
               if(!changed) { xctx->push_undo(); changed=1;}
               check_wire_storage();
               xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
@@ -420,6 +422,9 @@ void break_wires_at_pins(void)
                 xctx->wire[xctx->wires].bus=0;
               xctx->wire[xctx->wires].node=NULL;
               hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
+              dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
+                  xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
+                               xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
               my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
               xctx->need_reb_sel_arr=1;
               xctx->wires++;
@@ -431,8 +436,7 @@ void break_wires_at_pins(void)
       }
     }
   }
-  /* xctx->prep_hash_wires=0; */
-  /* hash_wires(); */
+  /* break wires that touch selected wires */
   rebuild_selected_array();
   for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==WIRE) {
   /* for(k=0; k < xctx->wires; ++k) { */
