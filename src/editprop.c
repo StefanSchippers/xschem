@@ -1275,7 +1275,6 @@ static int update_symbol(const char *result, int x, int first_sel)
   int *netl_com = &xctx->netlist_commands; /* static var */
   int floaters, modified = 0;
 
-  floaters = there_are_floaters();
   dbg(1, "update_symbol(): entering\n");
   *ii=xctx->sel_array[first_sel].n;
   if(!result) {
@@ -1300,6 +1299,9 @@ static int update_symbol(const char *result, int x, int first_sel)
   no_change_props=atoi(tclgetvar("no_change_attrs") );
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
+  /* if there are floaters or generators (dynamic symbols, pCells) do not collect
+   * list of things to redraw, just redraw all screen */
+  floaters = there_are_floaters() || is_generator(symbol);
   if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
   /* 20191227 necessary? --> Yes since a symbol copy has already been done
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
@@ -1427,7 +1429,7 @@ static int update_symbol(const char *result, int x, int first_sel)
   /* redraw symbol with new props */
   if(!floaters) bbox(SET,0.0,0.0,0.0,0.0);
   else set_modify(-2); /* reset floaters caches */
-  dbg(1, "update_symbol(): redrawing inst_ptr.txtprop string\n");
+  dbg(1, "update_symbol(): redrawing : floaters=%d\n", floaters);
   draw();
   if(!floaters) bbox(END,0.0,0.0,0.0,0.0);
   my_free(_ALLOC_ID_, &name);
