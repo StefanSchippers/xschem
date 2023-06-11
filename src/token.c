@@ -3421,7 +3421,9 @@ const char *translate(int inst, const char* s)
              ++path;
            }
            prepare_netlist_structs(0);
-           my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
+           if(xctx->inst[inst].lab) {
+             my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
+           }
            if(net == NULL || net[0] == '\0') {
              my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
            }
