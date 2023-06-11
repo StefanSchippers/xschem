@@ -3569,6 +3569,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      is_floater = 0;
      get_tok_value(tmptext.prop_ptr, "name", 2);
      if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
+     else {
+       get_tok_value(tmptext.prop_ptr, "floater", 2);
+       if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
+     }
      if( !strcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
        my_free(_ALLOC_ID_, &tmptext.prop_ptr);
        my_free(_ALLOC_ID_, &tmptext.txt_ptr);
