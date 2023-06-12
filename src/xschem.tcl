@@ -6133,7 +6133,7 @@ proc build_widgets { {topwin {} } } {
    -variable compare_sch \
    -accelerator {Alt-X}
   $topwin.menubar.hilight.menu add command \
-   -label {Highlight net-pin name mismatches on selected instances} \
+   -label {Highlight net-pin mismatches on sel. instances} \
    -command "xschem net_pin_mismatch" \
    -accelerator {Shift-X} 
   $topwin.menubar.hilight.menu add command -label {Highlight duplicate instance names} \

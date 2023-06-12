@@ -1,11 +1,11 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.0 file_version=1.2
 }
 G {}
 K {}
 V {}
 S {}
 E {}
-B 2 710 -590 1510 -190 {flags=graph
+B 2 710 -620 1510 -220 {flags=graph
 y1=-0.013
 y2=2.1
 ypos1=0
@@ -13,22 +13,23 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
-x2=5e-08
+x1=-2.5e-09
+x2=4.75e-08
 divx=5
 subdivx=1
 node="out1
 out2
 out3
 out4
-out5"
-color="7 8 9 10 11"
+out5
+out6"
+color="7 8 9 10 11 12"
 dataset=-1
 unitx=1
 logx=0
 logy=0
 hilight_wave=-1}
-B 2 710 -910 1510 -590 {flags=graph
+B 2 710 -940 1510 -620 {flags=graph
 y1=-0.013
 y2=2.1
 ypos1=0
@@ -36,8 +37,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
-x2=5e-08
+x1=-2.5e-09
+x2=4.75e-08
 divx=5
 subdivx=1
 node="plus
@@ -49,35 +50,38 @@ logx=0
 logy=0
 hilight_wave=-1}
 T {Default instance:
-Uses comp_65nm.sch} 10 -900 0 0 0.4 0.4 { layer=7}
+Uses comp_65nm.sch} 10 -930 0 0 0.4 0.4 { layer=7}
 T {Alternate instance:
-Uses comp_65nm_parax.sch} 10 -690 0 0 0.4 0.4 { layer=8}
+Uses comp_65nm_parax.sch} 10 -720 0 0 0.4 0.4 { layer=8}
 T {Alternate instance:
 Uses comp_65nm_pex
 contained in attribute
 spice_sym_def
-No schematic used} 10 -490 0 0 0.4 0.4 {}
+No schematic used} 10 -520 0 0 0.4 0.4 {}
 T {Alternate instance:
 Uses comp_65nm_empty.sch
 netlist embedded in global
-spice schematic attribute} 340 -890 0 0 0.4 0.4 { layer=10}
+spice schematic attribute} 340 -920 0 0 0.4 0.4 { layer=10}
 T {Alternate instance:
 Uses spice_sym_def to read in 
 file comp_65nm_file.cir
-no schematic used} 340 -590 0 0 0.4 0.4 { layer=11}
+no schematic used} 340 -620 0 0 0.4 0.4 { layer=11}
 T {The same symbol is simulated with 5 different implementations
-using instance 'schematic' and 'spice_sym_def' attributes} 190 -1010 0 0 0.6 0.6 { layer=4 slant=oblique}
-T {Instance based implementation selection.} 250 -1070 0 0 0.8 0.8 {}
-C {comp_65nm.sym} 180 -790 0 0 {name=x1}
-C {lab_pin.sym} 120 -820 0 0 {name=p1 lab=PLUS}
-C {lab_pin.sym} 240 -790 0 1 {name=p2 lab=OUT1}
-C {lab_pin.sym} 120 -760 0 0 {name=p3 lab=MINUS}
-C {comp_65nm.sym} 180 -580 0 0 {name=x2
+using instance 'schematic' and 'spice_sym_def' attributes} 190 -1040 0 0 0.6 0.6 { layer=4 slant=oblique}
+T {Instance based implementation selection.} 250 -1100 0 0 0.8 0.8 {}
+T {comp_65nm_read.sym:
+symbol has "spice_sym_def"
+attribute and reads in a file} 340 -360 0 0 0.4 0.4 { layer=12}
+C {comp_65nm.sym} 180 -820 0 0 {name=x1}
+C {lab_pin.sym} 120 -850 0 0 {name=p1 lab=PLUS}
+C {lab_pin.sym} 240 -820 0 1 {name=p2 lab=OUT1}
+C {lab_pin.sym} 120 -790 0 0 {name=p3 lab=MINUS}
+C {comp_65nm.sym} 180 -610 0 0 {name=x2
 schematic=comp_65nm_parax.sch}
-C {lab_pin.sym} 120 -610 0 0 {name=p4 lab=PLUS}
-C {lab_pin.sym} 240 -580 0 1 {name=p5 lab=OUT2}
-C {lab_pin.sym} 120 -550 0 0 {name=p6 lab=MINUS}
-C {comp_65nm.sym} 180 -310 0 0 {name=x3
+C {lab_pin.sym} 120 -640 0 0 {name=p4 lab=PLUS}
+C {lab_pin.sym} 240 -610 0 1 {name=p5 lab=OUT2}
+C {lab_pin.sym} 120 -580 0 0 {name=p6 lab=MINUS}
+C {comp_65nm.sym} 180 -340 0 0 {name=x3
 schematic=comp_65nm_pex
 spice_sym_def=".subckt comp_65nm_pex PLUS OUT MINUS
 ** parasitic netlist
@@ -109,9 +113,9 @@ C2 GN1 0 200f m=1
 
 verilog_sym_def="verilog stuff"
 vhdl_sym_def="vhdl stuff"}
-C {lab_pin.sym} 120 -340 0 0 {name=p7 lab=PLUS}
-C {lab_pin.sym} 240 -310 0 1 {name=p8 lab=OUT3}
-C {lab_pin.sym} 120 -280 0 0 {name=p9 lab=MINUS}
+C {lab_pin.sym} 120 -370 0 0 {name=p7 lab=PLUS}
+C {lab_pin.sym} 240 -340 0 1 {name=p8 lab=OUT3}
+C {lab_pin.sym} 120 -310 0 0 {name=p9 lab=MINUS}
 C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version released on 2/22/06
 
 * PTM 65nm NMOS 
@@ -238,31 +242,31 @@ C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version r
 +rshg = 0.4 gbmin = 1e-010 rbpb = 5 rbpd = 15 
 +rbps = 15 rbdb = 15 rbsb = 15 ngcon = 1 
 "}
-C {vsource.sym} 680 -110 0 0 {name=V1 value=2}
-C {lab_pin.sym} 680 -140 0 0 {name=p21 lab=VCC}
-C {lab_pin.sym} 680 -80 0 0 {name=p10 lab=0}
-C {vsource.sym} 800 -110 0 0 {name=V2 value=1}
-C {lab_pin.sym} 800 -140 0 0 {name=p11 lab=MINUS}
-C {lab_pin.sym} 800 -80 0 0 {name=p12 lab=0}
-C {vsource.sym} 950 -110 0 0 {name=V3 value="pwl 0 0 10n 0 20n 2 30n 2 40n 0"}
-C {lab_pin.sym} 950 -140 0 0 {name=p13 lab=PLUS}
-C {lab_pin.sym} 950 -80 0 0 {name=p14 lab=0}
+C {vsource.sym} 700 -120 0 0 {name=V1 value=2}
+C {lab_pin.sym} 700 -150 0 0 {name=p21 lab=VCC}
+C {lab_pin.sym} 700 -90 0 0 {name=p10 lab=0}
+C {vsource.sym} 820 -120 0 0 {name=V2 value=1}
+C {lab_pin.sym} 820 -150 0 0 {name=p11 lab=MINUS}
+C {lab_pin.sym} 820 -90 0 0 {name=p12 lab=0}
+C {vsource.sym} 970 -120 0 0 {name=V3 value="pwl 0 0 10n 0 20n 2 30n 2 40n 0"}
+C {lab_pin.sym} 970 -150 0 0 {name=p13 lab=PLUS}
+C {lab_pin.sym} 970 -90 0 0 {name=p14 lab=0}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {launcher.sym} 790 -170 0 0 {name=h5
+C {launcher.sym} 820 -190 0 0 {name=h5
 descr="load waves" 
 tclcommand="xschem raw_read $netlist_dir/test_instance_schematic_selection.raw tran"
 }
-C {code_shown.sym} 140 -190 0 0 {name=COMMANDS only_toplevel=false value=".control
+C {code_shown.sym} 140 -170 0 0 {name=COMMANDS only_toplevel=false value=".control
   save all
   tran 1n 50n
   write test_instance_schematic_selection.raw
 .endc"}
-C {comp_65nm.sym} 490 -700 0 0 {name=x4
+C {comp_65nm.sym} 490 -730 0 0 {name=x4
 schematic=comp_65nm_empty.sch}
-C {lab_pin.sym} 430 -730 0 0 {name=p15 lab=PLUS}
-C {lab_pin.sym} 550 -700 0 1 {name=p16 lab=OUT4}
-C {lab_pin.sym} 430 -670 0 0 {name=p17 lab=MINUS}
-C {comp_65nm.sym} 490 -420 0 0 {name=x5
+C {lab_pin.sym} 430 -760 0 0 {name=p15 lab=PLUS}
+C {lab_pin.sym} 550 -730 0 1 {name=p16 lab=OUT4}
+C {lab_pin.sym} 430 -700 0 0 {name=p17 lab=MINUS}
+C {comp_65nm.sym} 490 -450 0 0 {name=x5
 schematic=comp_65nm_file
 spice_sym_def="tcleval(
   [read_data_nonewline [abs_sym_path comp_65nm_file.cir]]
@@ -272,6 +276,12 @@ vhdl_sym_def="tcleval(
   [read_data_nonewline [abs_sym_path comp_65nm_file.cir]]
 )"
 tclcommand="textwindow [abs_sym_path comp_65nm_file.cir]"}
-C {lab_pin.sym} 430 -450 0 0 {name=p18 lab=PLUS}
-C {lab_pin.sym} 550 -420 0 1 {name=p19 lab=OUT5}
-C {lab_pin.sym} 430 -390 0 0 {name=p20 lab=MINUS}
+C {lab_pin.sym} 430 -480 0 0 {name=p18 lab=PLUS}
+C {lab_pin.sym} 550 -450 0 1 {name=p19 lab=OUT5}
+C {lab_pin.sym} 430 -420 0 0 {name=p20 lab=MINUS}
+C {comp_65nm_read.sym} 490 -230 0 0 {name=x6
+
+tclcommand="textwindow [abs_sym_path comp_65nm_read.cir]"}
+C {lab_pin.sym} 430 -260 0 0 {name=p22 lab=PLUS}
+C {lab_pin.sym} 550 -230 0 1 {name=p23 lab=OUT6}
+C {lab_pin.sym} 430 -200 0 0 {name=p24 lab=MINUS}
