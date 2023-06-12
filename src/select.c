@@ -1036,7 +1036,7 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
    return sel.type;
 }
 
-/* Partial-select wire ends that land on instance pins */
+/* Partial-select wire ends that land on instance pins  and selected nets */
 void select_attached_nets(void)
 {
   int wire, inst, j, i, rects, r, sqx, sqy;

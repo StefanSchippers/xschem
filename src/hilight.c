@@ -850,7 +850,15 @@ static void drill_hilight(int mode)
       hilight_connected_inst = en_hi &&
        ((xctx->inst[i].flags & HILIGHT_CONN) || (symbol->flags & HILIGHT_CONN));
       for(j=0; j<npin; ++j) {
-        my_strdup2(_ALLOC_ID_, &netname, net_name(i, j, &mult, 1, 0));
+
+        if(xctx->inst[i].node && xctx->inst[i].node[j] &&
+           strstr(xctx->inst[i].node[j], "#net") == xctx->inst[i].node[j]) {
+          my_strdup2(_ALLOC_ID_, &netname,xctx->inst[i].node[j]);
+        } else {
+          /* mult here will be set to pin multiplicity */
+          my_strdup2(_ALLOC_ID_, &netname, net_name(i, j, &mult, 1, 0));
+        }
+        /* mult here will be set to net multiplicity */
         expandlabel(netname, &mult);
         dbg(1, "inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult);
         for(k = 1; k <= mult; ++k) {
@@ -870,13 +878,19 @@ static void drill_hilight(int mode)
                 propagate = atoi(propag);
 
                 if(propagate < 0 || propagate >= npin) {
-                   dbg(0, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
+                   dbg(0, "Error: inst: %s, pin %d, propag set to %s <<%d>>\n",
                      xctx->inst[i].instname, j, propagate_str, propagate);
                      continue;
                 }
                 /* expandlabel(rct[propagate].name, &pinmult); */
                 /* get net to propagate hilight to...*/
-                my_strdup2(_ALLOC_ID_, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
+
+                if(xctx->inst[i].node && xctx->inst[i].node[propagate] &&
+                   strstr(xctx->inst[i].node[propagate], "#net") == xctx->inst[i].node[propagate]) {
+                  my_strdup2(_ALLOC_ID_, &propagated_net,xctx->inst[i].node[propagate]);
+                } else {
+                  my_strdup2(_ALLOC_ID_, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
+                }
                 netbitname = find_nth(propagated_net, ",", k);
                 dbg(1, "netbitname=%s\n", netbitname);
                 /* add net to highlight list */
@@ -1742,6 +1756,7 @@ void hilight_net(int viewer)
     case WIRE:
          /* sets xctx->hilight_nets=1 */
      if(!xctx->wire[n].node) break;
+     dbg(1, "hilight_net(): wire[n].node=%s\n", xctx->wire[n].node);
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == XSCHEM_GRAPH) {
          send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);
