@@ -354,3 +354,4 @@ C {lab_pin.sym} 160 -450 0 0 {name=l20  lab=SUN }
 C {spice_probe.sym} 850 -1030 0 1 {name=p4 analysis=tran}
 C {spice_probe.sym} 810 -890 0 1 {name=p5 analysis=tran}
 C {spice_probe.sym} 760 -670 0 0 {name=p6 analysis=tran}
+C {spice_probe.sym} 160 -450 0 0 {name=p7 analysis=tran}
