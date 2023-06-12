@@ -254,6 +254,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else {
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
       }
+      tclsetboolvar("live_cursor2_backannotate", 1);
       tclsetvar("rawfile_loaded", "0");
       free_rawfile(1);
       tcleval("array unset ngspice::ngspice_data");
