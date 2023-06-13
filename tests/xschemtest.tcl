@@ -201,7 +201,7 @@ proc netlist_test {} {
     test_doublepin.sch      spice        64707104
     simulate_ff.sch         spice      1321596936
     test_symbolgen.sch      spice       486085716
-    inst_sch_select.sch     spice       695251894
+    inst_sch_select.sch     spice       801962545
     test_mosgen.sch         spice        21996225
   } {
     xschem set netlist_type $t
