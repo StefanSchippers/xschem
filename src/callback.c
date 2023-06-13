@@ -2427,6 +2427,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel) select_connected_wires(1);
    }
+   else if(button == Button3 &&  state == Mod1Mask && xctx->semaphore <2)
+   {
+     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap);
+   }
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);

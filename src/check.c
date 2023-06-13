@@ -398,6 +398,56 @@ static int touches_inst_pin(double x, double y, int inst)
   return touches;
 }
 
+void break_wires_at_point(double x0, double y0)
+{
+  int i, sqx, sqy;
+  Wireentry *wptr;
+  int changed=0;
+
+  dbg(1, "break_wires_at_pins(): processing pin %g %g\n", x0, y0);
+  get_square(x0, y0, &sqx, &sqy);
+  for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
+    i = wptr->n;
+    if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) {
+      if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
+          (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
+        dbg(1, "break_wires_at_point(): processing wire %d: %g %g %g %g\n",
+            i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+        if(!changed) { xctx->push_undo(); changed=1;}
+        check_wire_storage();
+        xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
+        xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
+        xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
+        xctx->wire[xctx->wires].end2 = 1;
+        xctx->wire[xctx->wires].x2=x0;
+        xctx->wire[xctx->wires].y2=y0;
+        xctx->wire[xctx->wires].sel=SELECTED;
+        xctx->wire[xctx->wires].prop_ptr=NULL;
+        my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+        if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
+          xctx->wire[xctx->wires].bus=1;
+        else
+          xctx->wire[xctx->wires].bus=0;
+        xctx->wire[xctx->wires].node=NULL;
+        hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
+        dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
+            xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
+                         xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
+        my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
+        xctx->need_reb_sel_arr=1;
+        xctx->wires++;
+        xctx->wire[i].x1 = x0;
+        xctx->wire[i].y1 = y0;
+        xctx->wire[i].sel = SELECTED;
+        xctx->wire[i].end1 = 1;
+      } /* if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) || ... ) */
+    } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
+  } /* for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) */
+  xctx->need_reb_sel_arr = 1;
+  rebuild_selected_array();
+  draw();
+}
+
 /* if remove=1 is given wires that are all inside instance bboxes are deleted */
 void break_wires_at_pins(int remove)
 {
@@ -414,16 +464,14 @@ void break_wires_at_pins(int remove)
     k = xctx->sel_array[j].n;
     if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 )
     {
-      for(r=0;r<rects;r++)
-      {
+      for(r=0;r<rects;r++) {
         get_inst_pin_coord(k, r, &x0, &y0);
         dbg(1, "break_wires_at_pins(): processing pin %g %g\n", x0, y0);
         get_square(x0, y0, &sqx, &sqy);
         for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
           i = wptr->n;
           if( touch(xctx->wire[i].x1, xctx->wire[i].y1,
-                    xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) )
-          {
+                    xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) {
             if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
                 (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
               dbg(1, "break_wires_at_pins(): processing wire %d: %g %g %g %g\n",
@@ -437,7 +485,7 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
                 xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
                 xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
-                xctx->wire[xctx->wires].end2 = 0;
+                xctx->wire[xctx->wires].end2 = 1;
                 xctx->wire[xctx->wires].x2=x0;
                 xctx->wire[xctx->wires].y2=y0;
                 xctx->wire[xctx->wires].sel=xctx->wire[i].sel;
@@ -462,6 +510,7 @@ void break_wires_at_pins(int remove)
               }
               xctx->wire[i].x1 = x0;
               xctx->wire[i].y1 = y0;
+              xctx->wire[i].end1 = 1;
               if(remove && RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
                   xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)) {
 
@@ -474,12 +523,12 @@ void break_wires_at_pins(int remove)
                   dbg(1, "break_wires_at_pins(): mark wire %d for deletion: end2=%d\n", i, xctx->wire[i].end2);
                 }
               }
-            }
-          }
-        }
-      }
-    }
-  }
+            } /* if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) || ... ) */
+          } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
+        } /* for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) */
+      } /* for(r=0;r<rects;r++) */
+    } /* if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 ) */
+  } /* for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) */
 
   if(remove) {
     if(delete_wires(1, SELECTED4)) {
@@ -521,6 +570,8 @@ void break_wires_at_pins(int remove)
             xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
             xctx->wire[xctx->wires].x2=x0;
             xctx->wire[xctx->wires].y2=y0;
+            xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
+            xctx->wire[xctx->wires].end2 = 1;
             xctx->wire[xctx->wires].sel=SELECTED;
             xctx->wire[xctx->wires].prop_ptr=NULL;
             my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
@@ -534,6 +585,7 @@ void break_wires_at_pins(int remove)
             xctx->wires++;
             xctx->wire[i].x1 = x0;
             xctx->wire[i].y1 = y0;
+            xctx->wire[i].end1 = 1;
           }
         }
       }
@@ -543,6 +595,7 @@ void break_wires_at_pins(int remove)
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
   xctx->prep_hash_wires=0;
+  prepare_netlist_structs(0);
   if(deleted_wire) {
     if(tclgetboolvar("autotrim_wires")) trim_wires();
     update_conn_cues(WIRELAYER, 0, 0);

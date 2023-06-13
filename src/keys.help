@@ -26,6 +26,8 @@ Shift + Right Button    Select all connected wires/labels/pins
 Ctrl + Right Button     Select all connected wires/labels/pins, stopping at 
                         wire junctions
 
+Alt + RightButton       cut wire at mouse position (creates 2 adjacent wires)
+
 Mouse Wheel             Zoom in / out
 
 MidButton drag          Pan viewable area

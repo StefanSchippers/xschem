@@ -1303,6 +1303,7 @@ extern int rectclip(int,int,int,int,
            double*,double*,double*,double*);
 extern void trim_wires(void);
 extern void update_conn_cues(int layer, int draw_cues, int dr_win);
+extern void break_wires_at_point(double x0, double y0);
 extern void break_wires_at_pins(int remove);
 
 extern void check_touch(int i, int j,
