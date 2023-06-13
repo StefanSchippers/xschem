@@ -443,9 +443,11 @@ void break_wires_at_point(double x0, double y0)
       } /* if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) || ... ) */
     } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
   } /* for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) */
-  xctx->need_reb_sel_arr = 1;
-  rebuild_selected_array();
-  draw();
+  if(changed) {
+    xctx->need_reb_sel_arr = 1;
+    rebuild_selected_array();
+    draw();
+  }
 }
 
 /* if remove=1 is given wires that are all inside instance bboxes are deleted */
@@ -591,15 +593,17 @@ void break_wires_at_pins(int remove)
       }
     }
   }
-  set_modify(1);
-  xctx->prep_net_structs=0;
-  xctx->prep_hi_structs=0;
-  xctx->prep_hash_wires=0;
-  prepare_netlist_structs(0);
-  if(deleted_wire) {
-    if(tclgetboolvar("autotrim_wires")) trim_wires();
-    update_conn_cues(WIRELAYER, 0, 0);
-    draw();
+  if(changed) {
+    set_modify(1);
+    xctx->prep_net_structs=0;
+    xctx->prep_hi_structs=0;
+    xctx->prep_hash_wires=0;
+    prepare_netlist_structs(0);
+    if(deleted_wire) {
+      if(tclgetboolvar("autotrim_wires")) trim_wires();
+      update_conn_cues(WIRELAYER, 0, 0);
+      draw();
+    }
   }
 
 }
