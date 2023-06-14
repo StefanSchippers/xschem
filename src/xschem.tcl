@@ -6105,6 +6105,8 @@ proc build_widgets { {topwin {} } } {
      -command "xschem break_wires" -accelerator {!}
   $topwin.menubar.tools.menu add command -label "Remove wires running through selected inst. pins" \
      -command "xschem break_wires 1" -accelerator {Ctrl-!}
+  $topwin.menubar.tools.menu add command -label "Break wires at mouse position" \
+     -command "xschem wire_cut" -accelerator {Alt-Right Butt.}
    toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
   $topwin.menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
      -command {

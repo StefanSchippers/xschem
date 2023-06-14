@@ -227,8 +227,9 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTCIRCLE 2097152U
 #define PLACE_SYMBOL 4194304U /* used in move_objects after place_symbol to avoid storing intermediate undo state */
 #define START_SYMPIN 8388608U
-#define GRAPHPAN 16777216U
+#define GRAPHPAN 16777216U /* bit 24 */
 #define MENUSTARTMOVE 33554432U
+#define MENUSTARTWIRECUT 67108864U /* bit 26 */
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
 #define SELECTED2 4U        /*  second point selected... */

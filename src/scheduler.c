@@ -4045,6 +4045,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
+    /* wire_cut
+     *   start a wire cut operation. Point the mouse in the middle of a wire and
+     *   click left button. */
+    else if(!strcmp(argv[1], "wire_cut"))
+    {
+      xctx->ui_state |= MENUSTARTWIRECUT;
+      Tcl_ResetResult(interp);
+    }
+
     else { cmd_found = 0;}
     break;
     case 'x': /*----------------------------------------------*/

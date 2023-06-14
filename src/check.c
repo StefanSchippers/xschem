@@ -421,7 +421,7 @@ void break_wires_at_point(double x0, double y0)
         xctx->wire[xctx->wires].end2 = 1;
         xctx->wire[xctx->wires].x2=x0;
         xctx->wire[xctx->wires].y2=y0;
-        xctx->wire[xctx->wires].sel=SELECTED;
+        xctx->wire[xctx->wires].sel=0;
         xctx->wire[xctx->wires].prop_ptr=NULL;
         my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
         if(!strcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
@@ -438,15 +438,23 @@ void break_wires_at_point(double x0, double y0)
         xctx->wires++;
         xctx->wire[i].x1 = x0;
         xctx->wire[i].y1 = y0;
-        xctx->wire[i].sel = SELECTED;
+        xctx->wire[i].sel = 0;
         xctx->wire[i].end1 = 1;
       } /* if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) || ... ) */
     } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
   } /* for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) */
   if(changed) {
+    int w = xctx->draw_window;
+    int p = xctx->draw_pixmap;
     xctx->need_reb_sel_arr = 1;
     rebuild_selected_array();
     draw();
+    xctx->draw_window = 1;
+    xctx->draw_pixmap = 0;
+    filledarc(PINLAYER, NOW, x0, y0, cadhalfdotsize, 0, 360);
+    xctx->draw_window = w;
+    xctx->draw_pixmap = p;
+
   }
 }
 

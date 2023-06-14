@@ -2638,6 +2638,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
        break;
      }
+     if(xctx->ui_state & MENUSTARTWIRECUT) {
+       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap);
+       xctx->ui_state &=~MENUSTARTWIRECUT;
+       break;
+     }
      if(xctx->ui_state & MENUSTARTMOVE) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
