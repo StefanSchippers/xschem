@@ -398,6 +398,8 @@ void delete(int to_push_undo)
                                   /* 32: call prepare_netlist_structs(0) if show net names enabled
                                    *  4: call symbol_bbox() to precisely update bbox to current zoom level
                                    */
+  del_rect_line_arc_poly(floaters);
+
   for(i=0;i<xctx->texts; ++i)
   {
     if(xctx->text[i].sel == SELECTED)
@@ -471,7 +473,6 @@ void delete(int to_push_undo)
     update_conn_cues(WIRELAYER, 0, 0);
   }
 
-  del_rect_line_arc_poly(floaters);
 
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
