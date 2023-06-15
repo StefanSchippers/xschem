@@ -16,7 +16,7 @@ net_name=true
 V {}
 S {}
 E {}
-B 5 -2.5 -2.5 2.5 2.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}"
+B 5 -2.5 -2.5 2.5 2.5 {name=P dir=inout }"
 
 if {[regexp -nocase {^(VCC|VDD|VPP)$} $arg1]} {
 puts "L 4 -20 -40 20 -40 {}
