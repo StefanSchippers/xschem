@@ -445,6 +445,21 @@ const char *list_tokens(const char *s, int with_quotes)
   }
 }
 
+int get_pin_number(int inst, const char *pin_name)
+{
+  int n = -1;
+  if(isonlydigit(pin_name)) {
+    n = atoi(pin_name);
+  } 
+  else if(pin_name[0]) {
+    for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
+      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
+      if(!strcmp(get_tok_value(prop,"name",0), pin_name)) break;
+    } 
+  }     
+  return n;
+}
+
 /* given @#ADD[3:0]:net_name return ADD[3:0] in pin_num_or_name and net_name in pin_attr */
 static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **pin_attr)
 {
@@ -987,17 +1002,8 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
      pin_num_or_name[0]='\0';
      pin_attr[0]='\0';
-     n=-1;
      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-     if(isonlydigit(pin_num_or_name)) {
-       n = atoi(pin_num_or_name);
-     }
-     else if(pin_num_or_name[0]) {
-       for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
-         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
-         if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
-       }
-     }
+     n = get_pin_number(inst, pin_num_or_name);
      if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
        char *pin_attr_value = NULL;
        int is_net_name = !strcmp(pin_attr, "net_name");
@@ -2088,17 +2094,8 @@ int print_spice_element(FILE *fd, int inst)
    
         pin_num_or_name[0]='\0';
         pin_attr[0]='\0';
-        n=-1;
         get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-        if(isonlydigit(pin_num_or_name)) {
-          n = atoi(pin_num_or_name);
-        }
-        else if(pin_num_or_name[0]) {
-          for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
-            char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
-            if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
-          }
-        }
+        n = get_pin_number(inst, pin_num_or_name);
         if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
           char *pin_attr_value = NULL;
           int is_net_name = !strcmp(pin_attr, "net_name");
@@ -2732,17 +2729,8 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
  
       pin_num_or_name[0]='\0';
       pin_attr[0]='\0';
-      n=-1;
       get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-      if(isonlydigit(pin_num_or_name)) {
-        n = atoi(pin_num_or_name);
-      }
-      else if(pin_num_or_name[0]) {
-        for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
-          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
-          if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
-        }
-      }
+      n = get_pin_number(inst, pin_num_or_name);
       if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
         char *pin_attr_value = NULL;
         int is_net_name = !strcmp(pin_attr, "net_name");
@@ -3176,17 +3164,8 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
 
   pin_num_or_name[0]='\0';
   pin_attr[0]='\0';
-  n=-1;
   get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-  if(isonlydigit(pin_num_or_name)) {
-    n = atoi(pin_num_or_name);
-  }
-  else if(pin_num_or_name[0]) {
-    for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
-      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
-      if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
-    }
-  }
+  n = get_pin_number(inst, pin_num_or_name);
   if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
     char *pin_attr_value = NULL;
     int is_net_name = !strcmp(pin_attr, "net_name");

@@ -39,20 +39,16 @@ void statusmsg(char str[],int n)
 static int get_symbol(const char *s)
 {   
   int i, found=0; 
-  for(i=0;i<xctx->symbols; ++i) {
+  if(isonlydigit(s)) {
+    i=atoi(s);
+    found = 1;
+  } else for(i=0;i<xctx->symbols; ++i) {
     if(!strcmp(xctx->sym[i].name, s)) {
       found=1;
       break;
     }     
   }     
-  dbg(1, "get_symbol(): found=%d, i=%d\n", found, i);
-  if(!found) {
-    if(!isonlydigit(s)) return -1;
-    i=atoi(s);
-  }     
-  if(i<0 || i>xctx->symbols) {
-    return -1; 
-  }       
+  if(!found || i < 0 || i >= xctx->symbols) return -1;       
   return i;
 }       
 
@@ -61,9 +57,14 @@ int get_instance(const char *s)
   int i, found=0;
   Int_hashentry *entry;
 
-  if(xctx->floater_inst_table.table) {
+  if(isonlydigit(s)) {
+     i=atoi(s);
+     found = 1;
+  }
+  else if(xctx->floater_inst_table.table) {
     entry = int_hash_lookup(&xctx->floater_inst_table, s, 0, XLOOKUP);
     i = entry ? entry->value : -1;
+    found = 1;
   } else {
     for(i=0;i<xctx->instances; ++i) {
       if(!strcmp(xctx->inst[i].instname, s)) {
@@ -71,15 +72,8 @@ int get_instance(const char *s)
         break;
       }
     }
-    dbg(1, "get_instance(): found=%d, i=%d\n", found, i);
-    if(!found) {
-      if(!isonlydigit(s)) return -1;
-      i=atoi(s);
-    }
-    if(i<0 || i>xctx->instances) {
-      return -1;
-    }
   }
+  if(!found || i < 0 || i >= xctx->instances) return -1;
   return i;
 }
 
@@ -1242,7 +1236,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /*   0       1        2         3   4       5     */
         /* xschem getprop instance_pin X10 PLUS [pin_attr]  */
         /* xschem getprop instance_pin X10  1   [pin_attr]  */
-        int inst, n=-1;
+        int inst, n;
         size_t tmp;
         char *subtok=NULL;
         const char *value=NULL;
@@ -1254,16 +1248,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
-        if(isonlydigit(argv[4])) {
-          n = atoi(argv[4]);
-        }
-        else {
-          xSymbol *ptr = xctx->inst[inst].ptr+ xctx->sym;
-          for(n = 0; n < ptr->rects[PINLAYER]; ++n) {
-            char *prop = ptr->rect[PINLAYER][n].prop_ptr;
-            if(!strcmp(get_tok_value(prop, "name",0), argv[4])) break;
-          }
-        }
+        n = get_pin_number(inst, argv[4]);
         if(n>=0  && n < (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER]) {
           if(argc < 6) {
            Tcl_SetResult(interp, (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, TCL_VOLATILE);

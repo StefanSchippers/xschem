@@ -1444,6 +1444,7 @@ extern void print_spice_subckt_nodes(FILE *fd, int symbol);
 extern void print_tedax_subckt(FILE *fd, int symbol);
 extern void print_vhdl_element(FILE *fd, int inst);
 extern void print_verilog_element(FILE *fd, int inst);
+extern int get_pin_number(int inst, const char *pin_name);
 extern const char *get_tok_value(const char *s,const char *tok,int with_quotes);
 extern const char *list_tokens(const char *s, int with_quotes);
 extern size_t my_snprintf(char *str, size_t size, const char *fmt, ...);
