@@ -445,6 +445,37 @@ const char *list_tokens(const char *s, int with_quotes)
   }
 }
 
+/* given @#ADD[3:0]:net_name return ADD[3:0] in pin_num_or_name and net_name in pin_attr */
+static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **pin_attr)
+{
+  const char *p = token + 2;
+  int bracket = 0, done = 0;
+  const char *colon = strchr(token + 2, ':');
+
+  while(colon && *p) {
+    if(*p == '[') bracket = 1;
+    if(*p == ':' && !bracket) {
+      /*   01234567890123456
+       *   @#A[3:0]:net_name */
+      *pin_num_or_name = my_malloc(_ALLOC_ID_, p - token - 1);
+      memcpy(*pin_num_or_name, token + 2, p - token - 2);
+      (*pin_num_or_name)[p - token - 2] = '\0';
+      my_strdup2(_ALLOC_ID_, pin_attr, p + 1);
+      done = 1;
+      break;
+    }
+    if(*p == ']') bracket = 0;
+    p++;
+  }
+  if(!done) {
+    my_strdup2(_ALLOC_ID_, pin_num_or_name, token + 2);
+    my_strdup2(_ALLOC_ID_, pin_attr, "");
+  }
+  dbg(1, "get_pin_and_attr(): token=%s, name=%s, attr=%s\n", token,
+      *pin_num_or_name ? *pin_num_or_name : "NULL", 
+      *pin_attr ? *pin_attr: "NULL");
+}
+
 /* state machine that parses a string made up of <token>=<value> ... */
 /* couples and returns the value of the given token  */
 /* if s==NULL or no match return empty string */
@@ -951,13 +982,13 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     * @#0, @#1:net_name, @#2:name, ... */
    else if(token[0]=='@' && token[1]=='#') {
      int n;
-     char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-     char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+     char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
+     char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
 
      pin_num_or_name[0]='\0';
      pin_attr[0]='\0';
      n=-1;
-     sscanf(token+2, "%[^:]:%[^:]", pin_num_or_name, pin_attr);
+     get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
      if(isonlydigit(pin_num_or_name)) {
        n = atoi(pin_num_or_name);
      }
@@ -2052,13 +2083,13 @@ int print_spice_element(FILE *fd, int inst)
        * @#0, @#1:net_name, @#2:name, ... */
       else if(token[0]=='@' && token[1]=='#') {
         int n;
-        char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-        char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+        char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
+        char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
    
         pin_num_or_name[0]='\0';
         pin_attr[0]='\0';
         n=-1;
-        sscanf(token+2, "%[^:]:%[^:]", pin_num_or_name, pin_attr);
+        get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
         if(isonlydigit(pin_num_or_name)) {
           n = atoi(pin_num_or_name);
         }
@@ -2696,13 +2727,13 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      * @#0, @#1:net_name, @#2:name, ... */
     else if(token[0]=='@' && token[1]=='#') {
       int n;
-      char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-      char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+      char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
+      char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
  
       pin_num_or_name[0]='\0';
       pin_attr[0]='\0';
       n=-1;
-      sscanf(token+2, "%[^:]:%[^:]", pin_num_or_name, pin_attr);
+      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
       if(isonlydigit(pin_num_or_name)) {
         n = atoi(pin_num_or_name);
       }
@@ -3133,6 +3164,113 @@ char *find_nth(const char *str, const char *sep, int n)
   }
 }
 
+/* given a token like @#pin:attr get value of pin attribute 'attr'
+ * if only @#pin is given return name of net attached to 'pin'
+ * caller should free returned string */
+static char *get_pin_attr(const char *token, int inst, int s_pnetname)
+{
+  char *value = NULL;
+  int n;
+  char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
+  char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
+
+  pin_num_or_name[0]='\0';
+  pin_attr[0]='\0';
+  n=-1;
+  get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
+  if(isonlydigit(pin_num_or_name)) {
+    n = atoi(pin_num_or_name);
+  }
+  else if(pin_num_or_name[0]) {
+    for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
+      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
+      if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
+    }
+  }
+  if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+    char *pin_attr_value = NULL;
+    int is_net_name = !strcmp(pin_attr, "net_name");
+    /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
+     *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
+    if(!is_net_name) {
+      pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+      /* get pin_attr from instance pin attribute string */
+      if(!pin_attr_value) {
+       my_strdup(_ALLOC_ID_, &pin_attr_value,
+          get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+      }
+    }
+    /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
+     * if 'net_name=true' attribute is set in instance or symbol */
+    if(!pin_attr_value && is_net_name) {
+      char *instprop = xctx->inst[inst].prop_ptr;
+      char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
+      if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+         !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
+         prepare_netlist_structs(0);
+         my_strdup2(_ALLOC_ID_, &pin_attr_value,
+              xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
+      /* do not show net_name: set to empty string */
+      } else {
+         my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
+      }
+    }
+
+    /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
+    if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
+      char *rn = NULL;
+      char *instprop = xctx->inst[inst].prop_ptr;
+      char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
+      dbg(1, "translate(): resolved_net: %s, symbol %s\n", xctx->current_name, xctx->inst[inst].name);
+      if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+         !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
+        prepare_netlist_structs(0);
+        if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
+          rn = resolved_net(xctx->inst[inst].node[n]);
+        }
+        my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
+        if(rn) my_free(_ALLOC_ID_, &rn);
+      } else {
+         my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
+      }
+    }
+
+    if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+    my_strdup2(_ALLOC_ID_, &value, pin_attr_value);
+    /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
+    if(pin_attr_value && pin_attr_value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+      char *ss;
+      int slot;
+      char *tmpstr = NULL;
+      tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
+      if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+        sscanf(ss+1, "%s", tmpstr);
+        if(isonlydigit(tmpstr)) {
+          slot = atoi(tmpstr);
+          if(strstr(value,":")) my_strdup2(_ALLOC_ID_, &value, find_nth(value, ":", slot));
+        }
+      }
+      my_free(_ALLOC_ID_, &tmpstr);
+    }
+    my_free(_ALLOC_ID_, &pin_attr_value);
+    my_free(_ALLOC_ID_, &pin_attr_value);
+  }
+  else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+    const char *str_ptr=NULL;
+    int multip;
+    size_t tmp;
+    str_ptr =  net_name(inst,n, &multip, 0, 1);
+    tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                  * so 1-char writes to result do not need reallocs */
+
+    value = my_malloc(_ALLOC_ID_, tmp);
+    my_snprintf(value, tmp, "?%d %s ", multip, str_ptr);
+  }
+  my_free(_ALLOC_ID_, &pin_attr);
+  my_free(_ALLOC_ID_, &pin_num_or_name);
+  return value;
+}
+
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
@@ -3244,105 +3382,14 @@ const char *translate(int inst, const char* s)
        }
      }
    } else if(token[0]=='@' && token[1]=='#') {
-     int n;
-     char *pin_attr = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-     char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
-
-     pin_num_or_name[0]='\0';
-     pin_attr[0]='\0';
-     n=-1;
-     sscanf(token+2, "%[^:]:%[^:]", pin_num_or_name, pin_attr);
-     if(isonlydigit(pin_num_or_name)) {
-       n = atoi(pin_num_or_name);
-     }
-     else if(pin_num_or_name[0]) {
-       for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
-         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
-         if(!strcmp(get_tok_value(prop,"name",0), pin_num_or_name)) break;
-       }
-     }
-     if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
-       char *pin_attr_value = NULL;
-       int is_net_name = !strcmp(pin_attr, "net_name");
-       /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
-        *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
-       if(!is_net_name) {
-         pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
-         /* get pin_attr from instance pin attribute string */
-         if(!pin_attr_value) {
-          my_strdup(_ALLOC_ID_, &pin_attr_value,
-             get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
-         }
-       }
-       /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
-        * if 'net_name=true' attribute is set in instance or symbol */
-       if(!pin_attr_value && is_net_name) {
-         char *instprop = xctx->inst[inst].prop_ptr;
-         char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-         if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-            !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
-            prepare_netlist_structs(0);
-            my_strdup2(_ALLOC_ID_, &pin_attr_value,
-                 xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
-         /* do not show net_name: set to empty string */
-         } else {
-            my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
-         }
-       }
-
-       /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
-       if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
-         char *rn = NULL;
-         char *instprop = xctx->inst[inst].prop_ptr;
-         char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-         dbg(1, "translate(): resolved_net: %s, symbol %s\n", xctx->current_name, xctx->inst[inst].name);
-         if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-            !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
-           prepare_netlist_structs(0);
-           if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
-             rn = resolved_net(xctx->inst[inst].node[n]);
-           }
-           my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
-           if(rn) my_free(_ALLOC_ID_, &rn);
-         } else {
-            my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
-         }
-       }
-
-       if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
-       value = pin_attr_value;
-       /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-       if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
-         char *ss;
-         int slot;
-         char *tmpstr = NULL;
-         tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
-         if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
-           sscanf(ss+1, "%s", tmpstr);
-           if(isonlydigit(tmpstr)) {
-             slot = atoi(tmpstr);
-             if(strstr(value,":")) value = find_nth(value, ":", slot);
-           }
-         }
-         my_free(_ALLOC_ID_, &tmpstr);
-       }
+     value = get_pin_attr(token, inst, s_pnetname);
+     if(value) {
        tmp=strlen(value);
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos, value, tmp+1);
        result_pos+=tmp;
-       my_free(_ALLOC_ID_, &pin_attr_value);
+       my_free(_ALLOC_ID_, &value);
      }
-     else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
-       const char *str_ptr=NULL;
-       int multip;
-       str_ptr =  net_name(inst,n, &multip, 0, 1);
-       tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
-                                     * so 1-char writes to result do not need reallocs */
-       STR_ALLOC(&result, tmp + result_pos, &size);
-       result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
-     }
-     my_free(_ALLOC_ID_, &pin_attr);
-     my_free(_ALLOC_ID_, &pin_num_or_name);
    } else if(strcmp(token,"@sch_last_modified")==0) {
 
     get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst);

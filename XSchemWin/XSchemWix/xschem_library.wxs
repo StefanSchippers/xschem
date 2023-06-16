@@ -4855,6 +4855,12 @@
 			<Component Id="cmp192C74207CA975756F65616672478110" Guid="{3706C5AD-C104-494A-B664-DEB07667A8B3}">
 			  <File Id="filF6591742485594FADE7363F8CB7C10F7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_parax.sch" />
 			</Component>
+			<Component Id="cmp2EA52751158DBB689A9A03A9D3094EB3" Guid="{CA754177-CB2B-4639-9DEC-D5F08BCE9052}">
+              <File Id="filA6F9E299A8A8FAA10A2F89366D418D56" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_read.cir" />
+            </Component>
+            <Component Id="cmp106813C0BB3FE64D6E9D5FC6CDC1FF92" Guid="{7AE49B47-B1C0-4E7C-BB79-B0658CEB5662}">
+              <File Id="fil6B1B3D42E84BBF6F3073C22FE296B9B4" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_read.sym" />
+            </Component>
 			<Component Id="cmp8907B142997C1E0613C32A1C536C5122" Guid="{955C050B-2D41-42AC-A988-92A33E682F4E}">
 			  <File Id="fil31820620336E6D619A3D1A05DBB16AB7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\inst_sch_select.sch" />
 			</Component>
@@ -7150,6 +7156,8 @@
 	  <ComponentRef Id="cmp9F68EB0D01C258AFF8A160616F017CC6" />
 	  <ComponentRef Id="cmpC49759288BFBD4977B75C3C2666BFB1A" />
 	  <ComponentRef Id="cmp192C74207CA975756F65616672478110" />
+	  <ComponentRef Id="cmp2EA52751158DBB689A9A03A9D3094EB3" />
+      <ComponentRef Id="cmp106813C0BB3FE64D6E9D5FC6CDC1FF92" />
 	  <ComponentRef Id="cmp8907B142997C1E0613C32A1C536C5122" />
 	  <ComponentRef Id="cmp17EC96974E9D7222C8BAD002E8B6A792" />
       <ComponentRef Id="cmp9B1CE895DCA915D6CEFBA5A5D4D37400" />
