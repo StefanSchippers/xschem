@@ -445,7 +445,22 @@ const char *list_tokens(const char *s, int with_quotes)
   }
 }
 
-int get_pin_number(int inst, const char *pin_name)
+int get_sym_pin_number(int sym, const char *pin_name)
+{ 
+  int n = -1;
+  if(isonlydigit(pin_name)) {
+    n = atoi(pin_name);
+  } 
+  else if(pin_name[0]) {
+    for(n = 0 ; n < xctx->sym[sym].rects[PINLAYER]; ++n) {
+      char *prop = xctx->sym[sym].rect[PINLAYER][n].prop_ptr;
+      if(!strcmp(get_tok_value(prop,"name",0), pin_name)) break;
+    }  
+  }       
+  return n;
+}   
+
+int get_inst_pin_number(int inst, const char *pin_name)
 {
   int n = -1;
   if(isonlydigit(pin_name)) {
@@ -997,13 +1012,11 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     * @#0, @#1:net_name, @#2:name, ... */
    else if(token[0]=='@' && token[1]=='#') {
      int n;
-     char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
-     char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
+     char *pin_attr = NULL;
+     char *pin_num_or_name = NULL;
 
-     pin_num_or_name[0]='\0';
-     pin_attr[0]='\0';
      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-     n = get_pin_number(inst, pin_num_or_name);
+     n = get_inst_pin_number(inst, pin_num_or_name);
      if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
        char *pin_attr_value = NULL;
        int is_net_name = !strcmp(pin_attr, "net_name");
@@ -1817,13 +1830,19 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
    else if(token[0]=='@' && token[1]=='#') {
-     pin_number = atoi(token+2);
-     if(pin_number < no_of_pins) {
+     char *pin_attr = NULL;
+     char *pin_num_or_name = NULL;
+     get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
+     pin_number = get_sym_pin_number(symbol, pin_num_or_name);
+     if(pin_number >= 0 && pin_number < no_of_pins) {
        if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
        fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
        }
      }
+     my_free(_ALLOC_ID_, &pin_attr);
+     my_free(_ALLOC_ID_, &pin_num_or_name);
+   
    }
    /* this will print the other @parameters, usually "extra" nodes so they will be in the order
     * specified by the format string. The 'extra' attribute is no more used to print extra nodes
@@ -2089,13 +2108,11 @@ int print_spice_element(FILE *fd, int inst)
        * @#0, @#1:net_name, @#2:name, ... */
       else if(token[0]=='@' && token[1]=='#') {
         int n;
-        char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
-        char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
+        char *pin_attr = NULL;
+        char *pin_num_or_name = NULL;
    
-        pin_num_or_name[0]='\0';
-        pin_attr[0]='\0';
         get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-        n = get_pin_number(inst, pin_num_or_name);
+        n = get_inst_pin_number(inst, pin_num_or_name);
         if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
           char *pin_attr_value = NULL;
           int is_net_name = !strcmp(pin_attr, "net_name");
@@ -2243,7 +2260,6 @@ void print_tedax_element(FILE *fd, int inst)
  const char *value;
  char *extra=NULL, *extra_pinnumber=NULL;
  char *numslots=NULL;
- int pin_number;
  const char *extra_token, *extra_token_val;
  char *extra_ptr;
  char *extra_pinnumber_token, *extra_pinnumber_ptr;
@@ -2483,20 +2499,21 @@ void print_tedax_element(FILE *fd, int inst)
      * slot numbers start from 1
      */
     } else if(token[0]=='@' && token[1]=='#') {
-      if( strchr(token, ':') )  {
 
-        int n;
-        char *subtok = my_malloc(_ALLOC_ID_, sizetok * sizeof(char));
+      int n;
+      char *pin_attr = NULL;
+      char *pin_num_or_name = NULL;
+            
+      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
+      n = get_inst_pin_number(inst, pin_num_or_name);
+      if( strchr(token, ':') )  {
         char *subtok2 = my_malloc(_ALLOC_ID_, sizetok * sizeof(char)+20);
-        subtok[0]='\0';
-        n=-1;
-        sscanf(token+2, "%d:%s", &n, subtok);
-        if(n!=-1 && subtok[0]) {
-          my_snprintf(subtok2, sizetok * sizeof(char)+20, "%s(%d)", subtok, n);
+        if(n!=-1 && pin_attr[0]) {
+          my_snprintf(subtok2, sizetok * sizeof(char)+20, "%s(%d)", pin_attr, n);
           value = get_tok_value(xctx->inst[inst].prop_ptr,subtok2,0);
           if( n>=0 && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
             if(!value[0])
-              value = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr,subtok,0);
+              value = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr,pin_attr,0);
           }
           if(value[0]) {
             char *ss;
@@ -2508,14 +2525,14 @@ void print_tedax_element(FILE *fd, int inst)
             fprintf(fd, "%s", value);
           }
         }
-        my_free(_ALLOC_ID_, &subtok);
+        my_free(_ALLOC_ID_, &pin_attr);
+        my_free(_ALLOC_ID_, &pin_num_or_name);
         my_free(_ALLOC_ID_, &subtok2);
       } else {
         /* reference by pin number instead of pin name, allows faster lookup of the attached net name */
         /* @#n --> return net name attached to pin of index 'n' */
-        pin_number = atoi(token+2);
-        if(pin_number < no_of_pins) {
-          str_ptr =  net_name(inst,pin_number, &multip, 0, 1);
+        if(n >= 0 && n < no_of_pins) {
+          str_ptr =  net_name(inst, n, &multip, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
       }
@@ -2724,13 +2741,11 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      * @#0, @#1:net_name, @#2:name, ... */
     else if(token[0]=='@' && token[1]=='#') {
       int n;
-      char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
-      char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
+      char *pin_attr = NULL;
+      char *pin_num_or_name = NULL;
  
-      pin_num_or_name[0]='\0';
-      pin_attr[0]='\0';
       get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-      n = get_pin_number(inst, pin_num_or_name);
+      n = get_inst_pin_number(inst, pin_num_or_name);
       if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
         char *pin_attr_value = NULL;
         int is_net_name = !strcmp(pin_attr, "net_name");
@@ -3159,13 +3174,11 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
 {
   char *value = NULL;
   int n;
-  char *pin_attr = my_malloc(_ALLOC_ID_, sizeof(char));
-  char *pin_num_or_name = my_malloc(_ALLOC_ID_, sizeof(char));
+  char *pin_attr = NULL;
+  char *pin_num_or_name = NULL;
 
-  pin_num_or_name[0]='\0';
-  pin_attr[0]='\0';
   get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
-  n = get_pin_number(inst, pin_num_or_name);
+  n = get_inst_pin_number(inst, pin_num_or_name);
   if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
     char *pin_attr_value = NULL;
     int is_net_name = !strcmp(pin_attr, "net_name");
