@@ -60,6 +60,6 @@ void compile_font(void)
  clear_drawing();
  unselect_all(1);
  xctx->currsch = 0;
- my_strncpy(xctx->sch[xctx->currsch], "", S(xctx->sch[xctx->currsch]));
+ my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
 }
 

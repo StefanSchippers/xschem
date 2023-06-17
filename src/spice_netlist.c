@@ -116,7 +116,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   my_free(_ALLOC_ID_, &abs_path);
   str_hash_free(&subckt_table);
   my_free(_ALLOC_ID_, &subckt_name);
-  my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+  my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
   xctx->currsch--;
   unselect_all(1);
   xctx->pop_undo(4, 0);
@@ -430,7 +430,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    /* get_additional_symbols(0); */
    my_free(_ALLOC_ID_, &subckt_name);
    /*clear_drawing(); */
-   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");

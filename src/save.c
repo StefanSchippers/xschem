@@ -2330,7 +2330,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   xRect *rect;
   int rects;
 
-  if( strcmp(schname,"") ) my_strncpy(xctx->sch[xctx->currsch], schname, S(xctx->sch[xctx->currsch]));
+  if( strcmp(schname,"") ) my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
   else return 0;
   dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx->currsch, schname);
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
@@ -2443,7 +2443,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strncpy(xctx->sch[xctx->currsch], name, S(xctx->sch[xctx->currsch]));
+      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], name);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
 
@@ -2460,7 +2460,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       } 
 
       /* local file name */
-      my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
+      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], fname);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
     } else { /* local file specified and not coming from web url */
@@ -2468,7 +2468,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
       my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strncpy(xctx->sch[xctx->currsch], fname, S(xctx->sch[xctx->currsch]));
+      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], fname);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
     }
@@ -2548,7 +2548,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     } else {
       my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
     }
-    my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", xctx->current_dirname, name);
+    my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch],  xctx->current_dirname, "/", name, NULL);
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();

@@ -1884,7 +1884,7 @@ void go_back(int confirm) /*  20171006 add confirm */
     load_sym_def(xctx->sch[xctx->currsch], NULL);
     from_embedded_sym=1;
   }
-  my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+  my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
   if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
 
   xctx->sch_path_hash[xctx->currsch] = 0;
@@ -1935,7 +1935,7 @@ void clear_schematic(int cancel, int symbol)
             else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
             if(stat(name, &buf)) break;
           }
-          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
+          my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         } else {
           xctx->netlist_type = CAD_SPICE_NETLIST;
@@ -1945,7 +1945,7 @@ void clear_schematic(int cancel, int symbol)
             else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
             if(stat(name, &buf)) break;
           }
-          my_snprintf(xctx->sch[xctx->currsch], S(xctx->sch[xctx->currsch]), "%s/%s", pwd_dir, name);
+          my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         }
         draw();

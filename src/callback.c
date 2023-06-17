@@ -2041,18 +2041,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    if(0 && (key=='u') && (state==ControlMask))                   /* testmode */
    {
-    int mult;
-    remove_symbol(2);
-    link_symbols_to_instances(-1);
-    expandlabel("/RST", &mult);
-    expandlabel("/CCC[3:0]", &mult);
-    expandlabel("CCC[AA:BB:DD]", &mult);
-    expandlabel("CCC[9:1:2]", &mult);
-    expandlabel("CCC[10:BB:DD]", &mult);
-    expandlabel("CCC[10..BB..DD]", &mult);
-    expandlabel("CCC[10..0..2]", &mult);
-    expandlabel("123", &mult);
-    expandlabel("123AA", &mult);
+    dbg(0, "%d\n", sizeof(Xschem_ctx));
     break;
    }
    if(key=='u' && state==0)                             /* undo */
@@ -2341,7 +2330,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     check_unique_names(1);
     break;
    }
-   if( 0 && (key==';') && (state & ControlMask) )    /* testmode:  for performance testing */
+   if( 0 && (key==';') && (state & ControlMask) )    /* testmode */
    {
     break;
    }

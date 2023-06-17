@@ -229,7 +229,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
    str_hash_free(&subckt_table);
    my_free(_ALLOC_ID_, &subckt_name);
    /*clear_drawing(); */
-   my_strncpy(xctx->sch[xctx->currsch] , "", S(xctx->sch[xctx->currsch]));
+   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
    xctx->pop_undo(4, 0);

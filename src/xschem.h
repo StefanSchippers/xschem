@@ -850,7 +850,7 @@ typedef struct {
   char *schvhdlprop;
   char *schsymbolprop;
   char *schverilogprop;
-  char sch[CADMAXHIER][PATH_MAX];
+  char *sch[CADMAXHIER];
   int currsch;
   char *version_string;
   char *header_text; /* header text (license info) placed in the 'v' record after xschem/file version */
