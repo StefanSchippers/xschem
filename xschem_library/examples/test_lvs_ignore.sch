@@ -17,36 +17,45 @@ T {tcleval(lvs_ignore=$lvs_ignore)} 980 -190 0 0 0.6 0.6 {name=l1}
 T {This component has attribute
 lvs_ignore=open} 910 -370 0 0 0.4 0.4 {}
 T {This component has attribute
-lvs_ignore=short} 170 -560 0 0 0.4 0.4 {}
+lvs_ignore=short} 70 -560 0 0 0.4 0.4 {}
 T {This is the lab_show component
 it is used only to display the net
 name it is attached to. This works if
 Options->Show net names on symbol pins
 is enabled.} 220 -350 0 0 0.4 0.4 {}
+T {This component has
+attribute
+lvs_ignore=open} 470 -620 0 0 0.4 0.4 {}
 N 850 -430 1010 -430 {
 lab=#net1}
 N 850 -430 850 -380 {
 lab=#net1}
-N 130 -540 130 -530 {
+N 50 -540 50 -530 {
 lab=VDD}
-N 130 -470 130 -430 {
-lab=#net2}
-N 130 -430 280 -430 {
-lab=#net2}
+N 50 -470 50 -430 {
+lab=VDD}
+N 50 -430 280 -430 {
+lab=VDD}
 N 360 -430 430 -430 {
 lab=STARTUP}
-N 130 -430 130 -380 {
-lab=#net2}
-N 130 -320 130 -290 {
+N 50 -430 50 -380 {
+lab=VDD}
+N 50 -320 50 -290 {
 lab=GND}
 N 850 -580 850 -570 {
 lab=VDD}
 N 850 -510 850 -430 {
 lab=#net1}
 N 1090 -430 1110 -430 {
-lab=#net3}
+lab=#net2}
 N 850 -320 850 -290 {
 lab=GND}
+N 400 -520 490 -520 {
+lab=STARTUP}
+N 400 -520 400 -430 {
+lab=STARTUP}
+N 550 -520 700 -520 {
+lab=#net3}
 C {title.sym} 160 -30 0 0 {name=l1
 author="tcleval([
   if \{$show_pin_net_names == 0\} \{
@@ -75,19 +84,19 @@ C {inv_ngspice.sym} 1050 -430 0 0 {name=x5 ROUT=1000}
 C {lab_show.sym} 920 -430 0 1 {name=l10 }
 C {lab_show.sym} 1110 -430 0 1 {name=l3 }
 C {gnd.sym} 850 -290 0 0 {name=l4 lab=GND}
-C {res.sym} 130 -500 0 0 {name=R1
+C {res.sym} 50 -500 0 0 {name=R1
 value=100MEG
 footprint=1206
 device=resistor
 m=1
 lvs_ignore=short}
-C {vdd.sym} 130 -540 0 0 {name=l12 lab=VDD}
-C {capa.sym} 130 -350 0 0 {name=C1
+C {vdd.sym} 50 -540 0 0 {name=l12 lab=VDD}
+C {capa.sym} 50 -350 0 0 {name=C1
 m=1
 value=1p
 footprint=1206
 device="ceramic capacitor"}
-C {gnd.sym} 130 -290 0 0 {name=l13 lab=GND}
+C {gnd.sym} 50 -290 0 0 {name=l13 lab=GND}
 C {lab_show.sym} 170 -430 2 0 {name=l14 }
 C {lab_pin.sym} 430 -430 0 1 {name=p1 sig_type=std_logic lab=STARTUP}
 C {inv_ngspice.sym} 320 -430 0 0 {name=x2 ROUT=1000}
@@ -98,3 +107,5 @@ device=resistor
 m=1
 }
 C {vdd.sym} 850 -580 0 0 {name=l6 lab=VDD}
+C {short.sym} 520 -520 0 0 {name=x1 value=0.1 lvs_ignore=open}
+C {lab_show.sym} 700 -520 0 1 {name=l2 }
