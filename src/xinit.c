@@ -2436,6 +2436,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  [m]allocate dynamic memory */
  /*                             */
  alloc_xschem_data("", ".drw");
+ /* initialize current schematic name to empty string to avoid gazillion checks in the code for NULL */
+ my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], "");
 
  /* global context / graphic preferences/settings */
  pixdata=my_calloc(_ALLOC_ID_, cadlayers, sizeof(char*));
@@ -2660,7 +2662,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    load_schematic(1, f, !cli_opt_do_netlist, 1);
    tclvareval("update_recent_file {", f, "}", NULL);
- } else if(!cli_opt_tcl_script[0]) {
+ } else /* if(!cli_opt_tcl_script[0]) */
+ {
    char * tmp;
    char fname[PATH_MAX];
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
@@ -2755,13 +2758,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* source tcl file given on command line with --script */
  if(cli_opt_tcl_script[0]) {
-   char str[PATH_MAX + 40];
    /* can not use tclvareval() here because if script contains 'exit'
     * program terminates before tclvareval() has a chance to cleanup
     * its dynamically allocated string
     */
-   my_snprintf(str, S(str), "update; source {%s}", cli_opt_tcl_script);
-   tcleval(str);
+   dbg(1, "executing --script file : %s\n",  cli_opt_tcl_script);
+   tcleval("update");
+   source_tcl_file(cli_opt_tcl_script);
  }
 
  /* load additional files */
@@ -2771,7 +2774,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* Execute tcl script given on command line with --command */
  if(cli_opt_tcl_post_command) {
-   tcleval(cli_opt_tcl_post_command);
+   source_tcl_file(cli_opt_tcl_post_command);
  }
 
  if(quit) {
