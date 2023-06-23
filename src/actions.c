@@ -555,7 +555,7 @@ void ask_new_file(void)
         my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
         xctx->sch_path_hash[xctx->currsch] = 0;
         xctx->sch_inst_number[xctx->currsch] = 1;
-        zoom_full(1, 0, 1, 0.97);
+        zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       }
     }
 }
@@ -1844,7 +1844,7 @@ int descend_schematic(int instnumber)
      propagate_hilights(1, 0, XINSERT_NOREPLACE);
    }
    dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-   zoom_full(1, 0, 1, 0.97);
+   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
  return 1;
 }

@@ -1502,7 +1502,7 @@ void updatebbox(int count, xRect *boundbox, xRect *tmp)
 {
  RECTORDER(tmp->x1, tmp->y1, tmp->x2, tmp->y2);
  /* dbg(1, "updatebbox(): count=%d, tmp = %g %g %g %g\n",
-         count, tmp->x1, tmp->y1, tmp->x2, tmp->y2); */
+  *       count, tmp->x1, tmp->y1, tmp->x2, tmp->y2); */
  if(count==1)  *boundbox = *tmp;
  else
  {
@@ -4159,7 +4159,7 @@ void descend_symbol(void)
     }
     my_free(_ALLOC_ID_, &sympath);
   }
-  zoom_full(1, 0, 1, 0.97);
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
 }
 
 /* 20111023 align selected object to current grid setting */

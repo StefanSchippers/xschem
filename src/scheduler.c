@@ -1982,7 +1982,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->sch_path_hash[xctx->currsch] = 0;
             xctx->sch_inst_number[xctx->currsch] = 1;
             if(nofullzoom) draw();
-            else zoom_full(1, 0, 1, 0.97);
+            else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
           }
         }
       }
@@ -2498,7 +2498,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1);
           set_viewport_size(w, h, 1.0);
-          zoom_full(0, 0, 2, 0.97);
+          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0);
@@ -2533,7 +2533,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           h = atoi(argv[5]);
           save_restore_zoom(1);
           set_viewport_size(w, h, 1.0);
-          zoom_full(0, 0, 2, 0.97);
+          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           svg_draw();
           save_restore_zoom(0);
         } else if(argc == 10) {
@@ -2825,7 +2825,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       remove_symbols();
       load_schematic(1, xctx->sch[xctx->currsch], 1, 1);
       if(argc > 2 && !strcmp(argv[2], "zoom_full") ) {
-        zoom_full(1, 0, 1, 0.97);
+        zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       } else {
         draw();
       }
@@ -4108,7 +4108,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom to highlighted objects */
     else if(!strcmp(argv[1], "zoom_hilighted"))
     {
-      zoom_full(1, 2, 1, 0.97);
+      zoom_full(1, 2, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       Tcl_ResetResult(interp);
     }
 
@@ -4132,7 +4132,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom to selection */
     else if(!strcmp(argv[1], "zoom_selected"))
     {
-      zoom_full(1, 1, 1, 0.97);
+      zoom_full(1, 1, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}

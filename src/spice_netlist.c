@@ -57,7 +57,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   if((what & 1)  && !ps_draw(1)) return; /* prolog */
   xctx->push_undo();
   str_hash_init(&subckt_table, HASHSIZE);
-  zoom_full(0, 0, 3, 0.97);
+  zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   if(what & 1) ps_draw(2); /* page */
   if(what & 2) { /* print cellname */
     my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
@@ -98,7 +98,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
           dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
           load_schematic(1,filename, 0, 1);
           get_additional_symbols(1);
-          zoom_full(0, 0, 1, 0.97);
+          zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
           if(what & 1) ps_draw(2); /* page */
           if(what & 2) { /* print cellname */
             my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
@@ -123,7 +123,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
   if(what & 1) ps_draw(4); /* trailer */
-  zoom_full(0, 0, 3, 0.97);
+  zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   draw();
 }
 

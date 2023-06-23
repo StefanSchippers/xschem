@@ -1092,7 +1092,7 @@ void toggle_fullscreen(const char *topwin)
      * pending_fullzoom does not work on the last corect ConfigureNotify event,
      * so wee zoom_full() again */
   }
-  zoom_full(1, 0, 1, 0.97); /* draw */
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
 }
 
 
@@ -1163,7 +1163,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
       dbg(1, "preview_window() draw, load schematic\n");
       load_schematic(1,fname, 0, 1);
     }
-    zoom_full(1, 0, 1, 0.97); /* draw */
+    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
     xctx = save_xctx;
   }
   else if(!strcmp(what, "destroy")) {
@@ -1524,9 +1524,9 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
   /* draw empty window so if following load fails due to missing file window appears correctly drawn */
-  zoom_full(1, 0, 1, 0.97);
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   load_schematic(1, fname, 1, 1);
-  zoom_full(1, 0, 1, 0.97); /* draw */
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   /* restore previous context,
@@ -1623,9 +1623,9 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   resetwin(1, 0, 1, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
   /* draw empty window so if following load fails due to missing file window appears correctly drawn */
   tclvareval("housekeeping_ctx", NULL);
-  zoom_full(1, 0, 1, 0.97);
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   load_schematic(1,fname, 1, 1);
-  zoom_full(1, 0, 1, 0.97); /* draw */
+  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
 }
 
 static void destroy_window(int *window_count, const char *win_path)
@@ -2071,7 +2071,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     }
     if(xctx->pending_fullzoom > 0) {
       dbg(1, "resetwin(): pending_fulzoom: doing zoom_full()\n");
-      zoom_full(1, 0, 1, 0.97);
+      zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       xctx->pending_fullzoom--;
     }
     dbg(1, "resetwin(): Window reset\n");
@@ -2676,9 +2676,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    load_schematic(1, fname, !cli_opt_do_netlist, 1);
  }
-
-
- zoom_full(0, 0, 1, 0.97);   /* Necessary to tell xschem the initial area to display */
+ /* Necessary to tell xschem the initial area to display */
+ zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  xctx->pending_fullzoom=1;
  if(cli_opt_do_netlist) {
    if(debug_var>=1) {
@@ -2719,7 +2718,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areay1 = -2;
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
-     zoom_full(0, 0, 2, 0.97);
+     zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
      ps_draw(7);
    } else if(cli_opt_do_print == 2) {
      if(!has_x) {
