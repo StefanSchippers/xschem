@@ -1420,6 +1420,7 @@ static void switch_tab(int *window_count, const char *win_path)
 {        
   int n;
 
+  dbg(1, "switch_tab(): win_path=%s\n", win_path);
   if(xctx->semaphore) return; /* some editing operation ongoing. do nothing */
   if(!win_path) {
     dbg(0, "switch_tab(): no filename or window path given\n");
@@ -1622,6 +1623,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   tclvareval("housekeeping_ctx", NULL);
   load_schematic(1,fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+  xctx->pending_fullzoom=1;
 }
 
 static void destroy_window(int *window_count, const char *win_path)
