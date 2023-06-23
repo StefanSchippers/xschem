@@ -2769,7 +2769,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* Execute tcl script given on command line with --command */
  if(cli_opt_tcl_post_command) {
-   source_tcl_file(cli_opt_tcl_post_command);
+   tcleval(cli_opt_tcl_post_command);
  }
 
  if(quit) {
