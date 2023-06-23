@@ -1973,6 +1973,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!undo_reset) xctx->push_undo();
             xctx->currsch = 0;
             remove_symbols();
+            xctx->zoom=CADINITIALZOOM;
+            xctx->mooz=1/CADINITIALZOOM;
+            xctx->xorigin=CADINITIALX;
+            xctx->yorigin=CADINITIALY;
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
             load_schematic(load_symbols, f, undo_reset, !force);
             tclvareval("update_recent_file {", f, "}", NULL);
