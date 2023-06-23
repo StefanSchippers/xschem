@@ -1523,8 +1523,6 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   enable_layers();
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
-  /* draw empty window so if following load fails due to missing file window appears correctly drawn */
-  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   load_schematic(1, fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
@@ -1621,9 +1619,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   enable_layers();
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
-  /* draw empty window so if following load fails due to missing file window appears correctly drawn */
   tclvareval("housekeeping_ctx", NULL);
-  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   load_schematic(1,fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
 }
