@@ -473,7 +473,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
   xctx->currsch = 0;
   xctx->ui_state = 0;
-  xctx->lw = -1.0;
+  xctx->lw = 0.0;
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
@@ -1889,6 +1889,7 @@ void change_linewidth(double w)
   int i, linew;
 
   /* choose line width automatically based on zoom */
+  dbg(1, "change_linewidth(): w = %g, win_path=%s\n", w, xctx->current_win_path);
   if(w<0. || xctx->lw == -1.0) {
     double cs;
     cs = tclgetdoublevar("cadsnap");
@@ -2650,11 +2651,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
      my_snprintf(f, S(f), "%s%s", home_dir, cli_opt_filename + 1);
    } else if(cli_opt_filename[0] == '.' && cli_opt_filename[1] == '/') {
      my_snprintf(f, S(f), "%s%s", pwd_dir, cli_opt_filename + 1);
-   } else if(cli_opt_filename[0] !='/') {
-     my_snprintf(f, S(f), "%s/%s", pwd_dir, cli_opt_filename);
    } else {
-     my_snprintf(f, S(f), "%s", cli_opt_filename);
+     my_snprintf(f, S(f), "%s", abs_sym_path(cli_opt_filename, ""));
    }
+   /*
+    * } else if(cli_opt_filename[0] !='/') {
+    *   my_snprintf(f, S(f), "%s/%s", pwd_dir, cli_opt_filename);
+    * } else {
+    *   my_snprintf(f, S(f), "%s", cli_opt_filename);
+    * }
+    */
    #else
    my_strncpy(f, abs_sym_path(cli_opt_filename, ""), S(f));
    #endif
