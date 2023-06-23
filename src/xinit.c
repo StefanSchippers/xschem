@@ -2071,8 +2071,10 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     }
     if(xctx->pending_fullzoom > 0) {
       tcleval("winfo ismapped .");
-      if(tclresult()[0] == '1') {
-        dbg(1, "resetwin(): pending_fulzoom: doing zoom_full()\n");
+      /* if window unmapped or size has not been set by wm (width == 1 // height == 1) do not 
+       * perform the pending full_zoom */
+      if(tclresult()[0] == '1' && (width > 1 || height > 1) ) {
+        dbg(1, "resetwin(): window mapped, pending_fulzoom: doing zoom_full()\n");
         zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
         xctx->pending_fullzoom--;
       }
