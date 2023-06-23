@@ -2023,8 +2023,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
       #endif
     }
     if(status) {
-       dbg(0, "resetwin(): win_path=%s\n", xctx->current_win_path);
-       dbg(0, "resetwin(): create_pixmap=%d, clear_pixmap=%d, force=%d, width=%d, height=%d, pending_fullzoom=%d\n",
+       dbg(1, "resetwin(): win_path=%s\n", xctx->current_win_path);
+       dbg(1, "resetwin(): create_pixmap=%d, clear_pixmap=%d, force=%d, width=%d, height=%d, pending_fullzoom=%d\n",
            create_pixmap, clear_pixmap, force, width, height, xctx->pending_fullzoom);
       /* if(wattr.map_state==IsUnmapped) return; */
       xctx->areax2 = width + 2 * INT_WIDTH(xctx->lw);
