@@ -549,6 +549,10 @@ void ask_new_file(void)
         xctx->currsch = 0;
         unselect_all(1);
         remove_symbols();
+        xctx->zoom=CADINITIALZOOM;
+        xctx->mooz=1/CADINITIALZOOM;
+        xctx->xorigin=CADINITIALX;
+        xctx->yorigin=CADINITIALY;
         load_schematic(1, f, 1, 1);
         tclvareval("update_recent_file {", f, "}", NULL);
         if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);

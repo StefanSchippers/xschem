@@ -1524,6 +1524,10 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   enable_layers();
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+  xctx->zoom=CADINITIALZOOM;
+  xctx->mooz=1/CADINITIALZOOM;
+  xctx->xorigin=CADINITIALX;
+  xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
@@ -1621,6 +1625,10 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
   tclvareval("housekeeping_ctx", NULL);
+  xctx->zoom=CADINITIALZOOM;
+  xctx->mooz=1/CADINITIALZOOM;
+  xctx->xorigin=CADINITIALX;
+  xctx->yorigin=CADINITIALY;
   load_schematic(1,fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   xctx->pending_fullzoom=1;
@@ -2629,7 +2637,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
   *   fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
   * }
   */
- if(cli_opt_initial_netlist_name[0]) my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
+ if(cli_opt_initial_netlist_name[0])
+    my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
 
  enable_layers();
 
