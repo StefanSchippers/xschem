@@ -271,6 +271,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  }
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
+ if(tclgetboolvar("show_infowindow_after_netlist")) tcleval("show_infotext");
  return err;
 }
 

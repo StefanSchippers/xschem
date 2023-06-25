@@ -5470,7 +5470,8 @@ set tctx::global_list {
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
   rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_exact search_found search_schematic
-  search_select search_value selected_tok show_hidden_texts show_infowindow show_pin_net_names
+  search_select search_value selected_tok show_hidden_texts show_infowindow
+  show_infowindow_after_netlist show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
   textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
@@ -6560,6 +6561,7 @@ set_ne compare_sch 0
 set_ne disable_unique_names 0
 set_ne sym_txt 1
 set_ne show_infowindow 0 
+set_ne show_infowindow_after_netlist 0 
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0

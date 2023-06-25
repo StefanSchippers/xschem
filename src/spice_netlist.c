@@ -519,6 +519,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &type);
  my_free(_ALLOC_ID_, &place);
  xctx->netlist_count = 0;
+ if(tclgetboolvar("show_infowindow_after_netlist")) tcleval("show_infotext");
  return err;
 }
 
