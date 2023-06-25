@@ -242,10 +242,12 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
       if(default_snap==0.0) default_snap = CADSNAP;
     }
     cs = newsnap ? newsnap : default_snap;
-    if(cs == default_snap) {
-      tclvareval(xctx->top_path, ".statusbar.3 configure -background PaleGreen", NULL);
-    } else {
-      tclvareval(xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
+    if(has_x) {
+      if(cs == default_snap) {
+        tclvareval(xctx->top_path, ".statusbar.3 configure -background PaleGreen", NULL);
+      } else {
+        tclvareval(xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
+      }
     }
     tclsetdoublevar("cadsnap", cs);
 }
@@ -262,10 +264,12 @@ void set_grid(double newgrid)
     }
     cg = newgrid ? newgrid : default_grid;
     dbg(1, "set_grid(): default_grid = %.16g, cadgrid=%.16g\n", default_grid, cg);
-    if(cg == default_grid) {
-      tclvareval(xctx->top_path, ".statusbar.5 configure -background PaleGreen", NULL);
-    } else {
-      tclvareval(xctx->top_path, ".statusbar.5 configure -background OrangeRed", NULL);
+    if(has_x) {
+      if(cg == default_grid) {
+        tclvareval(xctx->top_path, ".statusbar.5 configure -background PaleGreen", NULL);
+      } else {
+        tclvareval(xctx->top_path, ".statusbar.5 configure -background OrangeRed", NULL);
+      }
     }
     tclsetdoublevar("cadgrid", cg);
 }

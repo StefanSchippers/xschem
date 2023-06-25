@@ -5226,10 +5226,10 @@ proc pack_tabs {} {
 }
 
 proc setup_tabbed_interface {} {
-  global tabbed_interface toolbar_horiz
+  global tabbed_interface toolbar_horiz has_x
 
   if { $tabbed_interface } {
-    if { ![winfo exists .tabs] } {
+    if { [info exists has_x] && ![winfo exists .tabs] } {
       frame .tabs
       button .tabs.x0 -padx 2 -pady 0 -anchor nw -takefocus 0 \
           -text Main -command "xschem new_schematic switch .drw"

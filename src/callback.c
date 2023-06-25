@@ -1535,10 +1535,12 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     my_snprintf(n, S(n), "%d", xctx->rectcolor);
     tclvareval("xschem set rectcolor ", n, NULL);
 
-    if(!strcmp(winpath, ".drw")) {
-      tclvareval("reconfigure_layers_button {}", NULL);
-    } else {
-      tclvareval("reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
+    if(has_x) {
+      if(!strcmp(winpath, ".drw")) {
+        tclvareval("reconfigure_layers_button {}", NULL);
+      } else {
+        tclvareval("reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
+      }
     }
     dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
     break;

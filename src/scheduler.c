@@ -2003,26 +2003,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char f[PATH_MAX + 100];
       int cancel = 0;
-      if(has_x) {
-        if(argc > 2) {
-          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-          tcleval(f);
-          my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
+      if(argc > 2) {
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        tcleval(f);
+        my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
+      } else {
+        tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
+        if(tclresult()[0]) {
+          my_snprintf(f, S(f), "%s", tclresult());
         } else {
-          tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
-          if(tclresult()[0]) {
-            my_snprintf(f, S(f), "%s", tclresult());
-          } else {
-            cancel = 1;
-          }
+          cancel = 1;
         }
-        if(!cancel) {
-          if(f[0]) {
-           new_schematic("create", "noconfirm", f);
-           tclvareval("update_recent_file {", f, "}", NULL);
-          } else {
-            new_schematic("create", NULL, NULL);
-          }
+      }
+      if(!cancel) {
+        if(f[0]) {
+         new_schematic("create", "noconfirm", f);
+         tclvareval("update_recent_file {", f, "}", NULL);
+        } else {
+          new_schematic("create", NULL, NULL);
         }
       }
       Tcl_ResetResult(interp);

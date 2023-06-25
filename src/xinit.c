@@ -967,17 +967,17 @@ int build_colors(double dim, double dim_bg)
       tcleval("regsub -all {#} $svg_colors {0x} svg_colors");
     }
     init_color_array(dim, dim_bg);
-    for(i=0;i<cadlayers; ++i)
+    if(has_x) for(i=0;i<cadlayers; ++i)
     {
      xctx->color_index[i] = find_best_color(xctx->color_array[i]);
     }
-    for(i=0;i<cadlayers; ++i)
+    if(has_x) for(i=0;i<cadlayers; ++i)
     {
       XSetBackground(display, xctx->gc[i], xctx->color_index[0]); /* for dashed lines 'off' color */
       XSetForeground(display, xctx->gc[i], xctx->color_index[i]);
       XSetForeground(display, xctx->gcstipple[i], xctx->color_index[i]);
     }
-    for(i=0;i<cadlayers; ++i) {
+    if(has_x) for(i=0;i<cadlayers; ++i) {
 #ifdef __unix__
       XLookupColor(display, colormap, xctx->color_array[i], &xcolor_exact, &xcolor);
       xctx->xcolor_array[i] = xcolor;
@@ -987,7 +987,7 @@ int build_colors(double dim, double dim_bg)
       xctx->xcolor_array[i] = *xc;
 #endif
     }
-    tcleval("reconfigure_layers_menu");
+    if(has_x) tcleval("reconfigure_layers_menu");
     return 0; /* success */
 }
 
@@ -1401,16 +1401,18 @@ static void switch_window(int *window_count, const char *win_path, int tcl_ctx)
     if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
     else my_snprintf(my_win_path, S(my_win_path), ".x%d.drw", n);
     dbg(1, "new_schematic(\"switch\"...): %s\n", my_win_path);
-    tkwin =  Tk_NameToWindow(interp, my_win_path, mainwindow); /* NULL if win_path not existing */
-    if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", win_path);
+    if(has_x) {
+      tkwin =  Tk_NameToWindow(interp, my_win_path, mainwindow); /* NULL if win_path not existing */
+      if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", win_path);
+    }
     /* if window was closed then tkwin == 0 --> do nothing */
-    if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {
+    if((!has_x || tkwin) && n >= 0 && n < MAX_NEW_WINDOWS) {
 
       if(tcl_ctx) tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
       if(tcl_ctx) tclvareval("restore_ctx ", win_path, NULL);
       tclvareval("housekeeping_ctx", NULL);
-      if(tcl_ctx) tclvareval("reconfigure_layers_button {}", NULL);
+      if(tcl_ctx && has_x) tclvareval("reconfigure_layers_button {}", NULL);
       set_modify(-1); /* sets window title */
     }
   }
@@ -1440,7 +1442,7 @@ static void switch_tab(int *window_count, const char *win_path)
       xctx = save_xctx[n];
       tclvareval("restore_ctx ", win_path, NULL);
       tclvareval("housekeeping_ctx", NULL);
-      tclvareval("reconfigure_layers_button {}", NULL);
+      if(has_x) tclvareval("reconfigure_layers_button {}", NULL);
       xctx->window = save_xctx[0]->window;
       resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
@@ -1489,8 +1491,10 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   }
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
-  tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-  tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+  if(has_x) {
+    tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
+    tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+  }
   n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
@@ -1504,12 +1508,14 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   }
   my_snprintf(window_path[n], S(window_path[n]), ".x%d.drw", n);
   my_snprintf(toppath, S(toppath), ".x%d", n);
-  tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400", NULL);
-  tclvareval("build_widgets ", toppath, NULL);
-  tclvareval("pack_widgets ", toppath, " ; update", NULL);
-  Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
-  win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
-  Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
+  if(has_x) {
+    tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400", NULL);
+    tclvareval("build_widgets ", toppath, NULL);
+    tclvareval("pack_widgets ", toppath, " ; update", NULL);
+    Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
+    win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
+    Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
+  }
   xctx = NULL;
   alloc_xschem_data(toppath, window_path[n]); /* alloc data into xctx */
   xctx->netlist_type = CAD_SPICE_NETLIST; /* for new windows start with spice netlist mode */
@@ -1520,7 +1526,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   xctx->window = win_id;
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
-  create_gc();
+  if(has_x) create_gc();
   enable_layers();
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
@@ -1539,7 +1545,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   new_schematic("switch", prev_window, "");
   tclvareval("housekeeping_ctx", NULL);
 
-  windowid(toppath);
+  if(has_x) windowid(toppath);
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
@@ -1583,8 +1589,10 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   }
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
-  tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-  tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+  if(has_x) {
+    tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
+    tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+  }
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
       break;
@@ -1596,16 +1604,18 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   }
   /* tcl code to create the tab button */
   my_snprintf(nn, S(nn), "%d", i);
-  tclvareval(
-    "button ", ".tabs.x", nn, " -padx 2 -pady 0 -takefocus 0 -anchor nw -text Tab2 "
-    "-command \"xschem new_schematic switch .x", nn, ".drw\"", NULL);
-  tclvareval("bind .tabs.x",nn," <ButtonPress> {swap_tabs %X %Y press}", NULL);
-  tclvareval("bind .tabs.x",nn," <ButtonRelease> {swap_tabs %X %Y release}", NULL);
-  tclvareval(
-    "if {![info exists tctx::tab_bg] } {set tctx::tab_bg [",
-    ".tabs.x", nn, " cget -bg]}", NULL);
-  tclvareval("pack ", ".tabs.x", nn, 
-    " -before ", ".tabs.add -side left", NULL);
+  if(has_x) {
+    tclvareval(
+      "button ", ".tabs.x", nn, " -padx 2 -pady 0 -takefocus 0 -anchor nw -text Tab2 "
+      "-command \"xschem new_schematic switch .x", nn, ".drw\"", NULL);
+    tclvareval("bind .tabs.x",nn," <ButtonPress> {swap_tabs %X %Y press}", NULL);
+    tclvareval("bind .tabs.x",nn," <ButtonRelease> {swap_tabs %X %Y release}", NULL);
+    tclvareval(
+      "if {![info exists tctx::tab_bg] } {set tctx::tab_bg [",
+      ".tabs.x", nn, " cget -bg]}", NULL);
+    tclvareval("pack ", ".tabs.x", nn, 
+      " -before ", ".tabs.add -side left", NULL);
+  }
   /*                                   */
 
   my_snprintf(win_path, S(win_path), ".x%d.drw", i);
@@ -1620,7 +1630,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   xctx->window = save_xctx[0]->window;
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
-  create_gc();
+  if(has_x) create_gc();
   enable_layers();
   build_colors(0.0, 0.0);
   resetwin(1, 0, 1, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
@@ -1857,7 +1867,6 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
   int tabbed_interface;
   const char *tmp;
 
-  if(!has_x) return 0;
   tabbed_interface = 0;
   if((tmp = tclgetvar("tabbed_interface"))) {
     if(tmp[0] == '1') tabbed_interface = 1;
@@ -2786,7 +2795,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  /* load additional files */
- if(has_x) for(i = 2; i < cli_opt_argc; ++i) {
+ for(i = 2; i < cli_opt_argc; ++i) {
    tclvareval("xschem load_new_window ",  cli_opt_argv[i], NULL);
  }
 
