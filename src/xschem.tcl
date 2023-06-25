@@ -6436,18 +6436,28 @@ proc source_user_tcl_files {} {
   }
 }
 
-proc setup_tcp_xschem {} {
+proc setup_tcp_xschem { {port_number {}} } {
   global xschem_listen_port xschem_server_getdata
+
+  # if a server socket was already set close it.
+  if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }
+  if {$port_number ne {}} { set xschem_listen_port $port_number}
   if { [info exists xschem_listen_port] && ($xschem_listen_port ne {}) } { 
     if {[catch {socket -server xschem_server $xschem_listen_port} err]} {
       puts "setup_tcp_xschem: problems listening to TCP port: $xschem_listen_port"
       puts $err
       return 0
     } else {
-      set xschem_server_getdata(server) $err
+      set chan $err
+      set xschem_server_getdata(server) $chan
+      # this piece of code deals with automatic port number selection (port_number argument set to 0) 
+      # tcl will automatically choose a free tcp port.
+      set assigned_port [lindex [chan configure $chan -sockname] end]
+      set xschem_listen_port $assigned_port
+      return $assigned_port
     }
   }
-  return 1
+  return 0
 }
 
 proc setup_tcp_bespice {} {
