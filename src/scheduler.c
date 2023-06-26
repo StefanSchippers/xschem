@@ -710,63 +710,60 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[i], "force")) force = 1;
       }     
       if(!strcmp(xctx->current_win_path, ".drw")) {
-        if(has_x) {
-          /* non tabbed interface */
-          if(!tclgetboolvar("tabbed_interface")) {
-            int wc = get_window_count();
-            dbg(1, "wc=%d\n", wc);
-            if(wc > 0 ) {
-              if(!force && xctx->modified) {
-                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
-                          "[get_cell [xschem get schname] 0]"
-                          ": UNSAVED data: want to exit?\"");
-              }
-              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-                swap_windows();
-                set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
-                new_schematic("destroy", xctx->current_win_path, NULL);
-              }
-            } else {
-              if(!force && xctx->modified) {
-                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
-                          "[get_cell [xschem get schname] 0]"
-                          ": UNSAVED data: want to exit?\"");
-              }
-              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-                 if(closewindow) tcleval("exit");
-                 else clear_schematic(0, 0);
-              }
+        /* non tabbed interface */
+        if(!tclgetboolvar("tabbed_interface")) {
+          int wc = get_window_count();
+          dbg(1, "wc=%d\n", wc);
+          if(wc > 0 ) {
+            if(!force && xctx->modified) {
+              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                        "[get_cell [xschem get schname] 0]"
+                        ": UNSAVED data: want to exit?\"");
             }
-          }
-          /* tabbed interface */
-          else {
-            int wc = get_window_count();
-            dbg(1, "wc=%d\n", wc);
-            if(wc > 0 ) {
-              if(!force && xctx->modified) {
-                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
-                          "[get_cell [xschem get schname] 0]"
-                          ": UNSAVED data: want to exit?\"");
-              }
-              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-                swap_tabs();
-                set_modify(0);
-                new_schematic("destroy", xctx->current_win_path, NULL);
-              }
-            } else {
-              if(!force && xctx->modified) {
-                tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
-                          "[get_cell [xschem get schname] 0]"
-                          ": UNSAVED data: want to exit?\"");
-              }
-              if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-                 if(closewindow) tcleval("exit");
-                 else clear_schematic(0, 0);
-              }
+            if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              swap_windows();
+              set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
+              new_schematic("destroy", xctx->current_win_path, NULL);
+            }
+          } else {
+            if(!force && xctx->modified) {
+              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                        "[get_cell [xschem get schname] 0]"
+                        ": UNSAVED data: want to exit?\"");
+            }
+            if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+               if(closewindow) tcleval("exit");
+               else clear_schematic(0, 0);
             }
           }
         }
-        else tcleval("exit"); /* if has_x == 0 there are no additional windows to close */
+        /* tabbed interface */
+        else {
+          int wc = get_window_count();
+          dbg(1, "wc=%d\n", wc);
+          if(wc > 0 ) {
+            if(has_x && !force && xctx->modified) {
+              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                        "[get_cell [xschem get schname] 0]"
+                        ": UNSAVED data: want to exit?\"");
+            }
+            if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              swap_tabs();
+              set_modify(0);
+              new_schematic("destroy", xctx->current_win_path, NULL);
+            }
+          } else {
+            if(has_x && !force && xctx->modified) {
+              tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
+                        "[get_cell [xschem get schname] 0]"
+                        ": UNSAVED data: want to exit?\"");
+            }
+            if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+               if(closewindow) tcleval("exit");
+               else clear_schematic(0, 0);
+            }
+          }
+        }
       } else { 
         if(force) set_modify(0); /* avoid ask to save downstream */
         new_schematic("destroy", xctx->current_win_path, NULL);

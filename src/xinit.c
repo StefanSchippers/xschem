@@ -906,6 +906,9 @@ static void xwin_exit(void)
  my_free(_ALLOC_ID_, &cli_opt_argv);
  if(errfp!=stderr) fclose(errfp);
  errfp=stderr;
+ dbg(1, "xwin_exit(): closing tcp servers\n");
+ tcleval("if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }");
+ tcleval("if {[info exists bespice_server_getdata(server)]} { close $bespice_server_getdata(server) }");
  if(!detach) printf("\n");
  init_done=0; /* 20150409 to avoid multiple calls */
 }
@@ -1666,10 +1669,12 @@ static void destroy_window(int *window_count, const char *win_path)
     else close = 1;
     Tcl_ResetResult(interp);
     if(close) {
-      tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
-      if(!tkwin) dbg(0, "new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", win_path);
+      if(has_x) {
+        tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
+        if(!tkwin) dbg(0, "new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", win_path);
+      }
       n = -1;
-      if(tkwin) for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
+      if(!has_x || tkwin) for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
         if(!strcmp(win_path, window_path[i])) {
           n = i;
           break;
@@ -1685,14 +1690,17 @@ static void destroy_window(int *window_count, const char *win_path)
         xctx = save_xctx[n];
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
-        tclvareval("winfo toplevel ", win_path, NULL);
+        if(has_x) tclvareval("winfo toplevel ", win_path, NULL);
         delete_schematic_data(1);
         save_xctx[n] = NULL;
-        Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
-        tclvareval("destroy ", tclresult(), NULL);
+        if(has_x) {
+          Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
+          tclvareval("destroy ", tclresult(), NULL);
+        }
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
-        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+        if(has_x && *window_count == 0)
+          tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
       }
     }
     /* following 3 lines must be done also if window not closed */
@@ -1700,7 +1708,7 @@ static void destroy_window(int *window_count, const char *win_path)
     tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
   } else {
-    dbg(0, "new_schematic() destroy_tab: there are no additional tabs\n");
+    dbg(0, "new_schematic() destroy_window: there are no additional tabs\n");
   }
 }
 
@@ -1776,8 +1784,10 @@ static void destroy_all_windows(int *window_count, int force)
     dbg(1, "new_schematic() destroy_all\n");
     for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
       if(window_path[i][0]) {
-        tkwin =  Tk_NameToWindow(interp, window_path[i], mainwindow); /* NULL if win_path not existing */
-        if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", window_path[i]);
+        if(has_x) {
+          tkwin = Tk_NameToWindow(interp, window_path[i], mainwindow); /* NULL if win_path not existing */
+        }
+        if(has_x && !tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", window_path[i]);
         else { 
           xctx = save_xctx[i];
           close = 0;
@@ -1791,18 +1801,21 @@ static void destroy_all_windows(int *window_count, int force)
           else close = 1;
           Tcl_ResetResult(interp);
           if(close) {
-            tclvareval("winfo toplevel ", window_path[i], NULL);
+            if(has_x) tclvareval("winfo toplevel ", window_path[i], NULL);
             delete_schematic_data(1);
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
             save_xctx[i] = NULL;
-            Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[i], mainwindow));
-            tclvareval("destroy ", tclresult(), NULL);
+            if(has_x) {
+              Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[i], mainwindow));
+              tclvareval("destroy ", tclresult(), NULL);
+            }
             /* delete Tcl context of deleted schematic window */
             tclvareval("delete_ctx ", window_path[i], NULL);
             my_strncpy(window_path[i], "", S(window_path[i]));
             (*window_count)--;
-            if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+            if(has_x && *window_count == 0)
+               tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
           }
         }
       }
@@ -1838,14 +1851,14 @@ static void destroy_all_tabs(int *window_count, int force)
         if(close) {
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path[i], NULL);
-          tclvareval("delete_tab ", window_path[i], NULL);
+          if(has_x) tclvareval("delete_tab ", window_path[i], NULL);
           delete_schematic_data(1);
           /* set saved ctx to main window if previous is about to be destroyed */
           if(savectx == save_xctx[i]) savectx = save_xctx[0];
           save_xctx[i] = NULL;
           my_strncpy(window_path[i], "", S(window_path[i]));
           (*window_count)--;
-          if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+          if(has_x && *window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
         }
       }
     }
