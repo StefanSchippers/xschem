@@ -15,7 +15,7 @@ put /local/install_shares {
  symgen.awk order_labels.awk sort_labels.awk spice.awk tedax.awk verilog.awk
  vhdl.awk hspice_backannotate.tcl add_custom_menu.tcl create_graph.tcl
  add_custom_button.tcl change_index.tcl icon.xpm resources.tcl xschemrc
- ngspice_backannotate.tcl gschemtoxschem.awk traversal.tcl
+ ngspice_backannotate.tcl gschemtoxschem.awk traversal.tcl mouse_bindings.tcl
 }
 
 # generate a list of objects from the list of source files
