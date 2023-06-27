@@ -111,6 +111,15 @@
           <Component Id="cmp6D354145B37A6C2A69DE69A16C8651A8" Guid="{5E8BA266-622D-4800-A7D3-DC1C10A35074}">
             <File Id="fil68C4E6BD7190A06AEBA8E05EA1E02BDA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses3.png" />
           </Component>
+		  <Component Id="cmp15AB585898B739D28C38577333DE6664" Guid="{14A66845-6B67-4D22-B5A2-46C8A56A9FA0}">
+			<File Id="fil8CA9E97720B6AEE7E044ADE67044D376" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses4.png" />
+		  </Component>
+		  <Component Id="cmp39F0981B2376C8DD273D8C5A1B4A56FC" Guid="{08368DBE-9D93-4182-8CC3-C55FF0570679}">
+			<File Id="fil82E84138D42BBED4CF981F391A942D99" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses5.png" />
+		  </Component>
+		  <Component Id="cmpE3D43CAAD367DC5DC13E04524A89C888" Guid="{0CEC7ECC-5920-4803-B00A-B3CBD5CF894C}">
+			<File Id="fil37526641F7755DFEAA6D2C58DB0ED07B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses6.png" />
+		  </Component>
           <Component Id="cmpA6AB78B04BBC707FE694C5FD48F835BB" Guid="{CAB4FECD-75C2-42F4-A613-0E4D96C2FC23}">
             <File Id="filCC1A2B64517E9CA43452D1BA34093ACC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands.html" />
           </Component>
@@ -1056,6 +1065,9 @@
       <ComponentRef Id="cmp5EBD402900C682E1450A66E4E517B871" />
       <ComponentRef Id="cmpA8F006A1010B7C3BA88B9E4849C82340" />
       <ComponentRef Id="cmp6D354145B37A6C2A69DE69A16C8651A8" />
+	  <ComponentRef Id="cmp15AB585898B739D28C38577333DE6664" />
+	  <ComponentRef Id="cmp39F0981B2376C8DD273D8C5A1B4A56FC" />
+	  <ComponentRef Id="cmpE3D43CAAD367DC5DC13E04524A89C888" />
       <ComponentRef Id="cmpA6AB78B04BBC707FE694C5FD48F835BB" />
       <ComponentRef Id="cmp5F2A45E78EBD02CB7779C16BF4C03932" />
       <ComponentRef Id="cmp35239CC60E8A28DF0814C1E2C8AED814" />

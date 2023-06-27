@@ -135,6 +135,9 @@
       <Component Id="CMPADDCUSTOMMENU">
         <File Id="ADDCUSTOMMENU" KeyPath="yes" Source="../../src/add_custom_menu.tcl" />
       </Component>
+      <Component Id="CMPMOUSEBINDINGS">
+		<File Id="MOUSEBINDINGS" KeyPath="yes" Source="../../src/mouse_bindings.tcl" />
+	  </Component>
       <Component Id="CMPKEYSHELP">
         <File Id="KEYSHELP" KeyPath="yes" Source="../../src/keys.help" />
       </Component>
@@ -330,7 +333,8 @@
       <ComponentRef Id="CMPGSCHEMTOXSCHEMAWK" />
       <ComponentRef Id="CMPHSPICEBACKANNOTATE" />
       <ComponentRef Id="CMPADDCUSTOMMENU" />
-      <ComponentRef Id="CMPHERCULESTOSPICEAWK" />
+	  <ComponentRef Id="CMPMOUSEBINDINGS" />
+	  <ComponentRef Id="CMPHERCULESTOSPICEAWK" />
       <ComponentRef Id="CMPIMPORTOPUSSYMBOLSAWK" />
       <ComponentRef Id="CMPLABELCOMPACTORAWK" />
       <ComponentRef Id="CMPMAKEEDITAWK" />

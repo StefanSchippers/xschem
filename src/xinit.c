@@ -1388,7 +1388,7 @@ static void switch_window(int *window_count, const char *win_path, int tcl_ctx)
 {
   int n;
   char my_win_path[80];
-  Tk_Window tkwin;
+  Tk_Window tkwin=NULL;
   if(!win_path) {
     dbg(0, "switch_window(): no filename or window path given\n");
     return;
@@ -1651,7 +1651,7 @@ static void destroy_window(int *window_count, const char *win_path)
 {
   int i, n;
   Xschem_ctx *savectx;
-  Tk_Window tkwin;
+  Tk_Window tkwin=NULL;
   savectx = xctx;
   if(*window_count) {
     int close = 0;
@@ -1777,7 +1777,7 @@ static void destroy_all_windows(int *window_count, int force)
 {
   int i;
   Xschem_ctx *savectx;
-  Tk_Window tkwin;
+  Tk_Window tkwin=NULL;
   savectx = xctx;
   if(*window_count) {
     int close;

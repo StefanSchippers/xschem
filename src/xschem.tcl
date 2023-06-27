@@ -912,10 +912,20 @@ proc sim_is_xyce {} {
 # usually as a result of malformed input strings
 proc list_tokens {s} {
   set res [xschem list_tokens $s 0]
-  if {[string is list $res]} {
-    return $res
+
+
+  if { [info tclversion] > 8.4 } {
+    if { [string is list $res]} {
+      return $res
+    } else {
+      return [split $res]
+    }
   } else {
-    return [split $res]
+    if {![catch {llength $res}]} {
+      return $res
+    } else {
+      return [split $res]
+    }
   }
 }
 
@@ -923,10 +933,20 @@ proc list_tokens {s} {
 proc tolist {s} {
   set s [string trim $s]
   regsub -all {[\t\n ]+} $s { } s
-  if {[string is list $s] } {
-    return $s
+
+
+  if { [info tclversion] > 8.4 } {
+    if { [string is list $s]} {
+      return $s
+    } else {
+      return [split $s]
+    }
   } else {
-    return [split $s]
+    if {![catch {llength $s}]} {
+      return $s
+    } else {
+      return [split $s]
+    }
   }
 }
 
