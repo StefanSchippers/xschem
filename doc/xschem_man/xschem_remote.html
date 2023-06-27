@@ -23,7 +23,7 @@ p{padding: 15px  30px 10px;}
  <h3>GENERAL INFORMATIONS</h3>
  <p>
  XSCHEM embeds a tcl shell, when running xschem the terminal will present a tcl prompt allowing to 
- send / get commands through it.
+ send commands through it.
  Most user actions done in the drawing window can be done by sending tcl commands through the tcl shell.
  A tcp socket can be activated to allow sending remote commands to xschem, for this to work you
  must the <kbd>xschem_listen_port</kbd> tcl variable in xschemrc, specifying an unused port number.
@@ -39,6 +39,49 @@ p{padding: 15px  30px 10px;}
  This command: '<kbd>puts $XSCHEM_LIBRARY_PATH</kbd>' will print the content of the <kbd>XSCHEM_LIBRARY_PATH</kbd> tcl variable 
  containing the search path.
  </p>
+
+
+ <h3> Handling TCP connection with multiple XSCHEM instances </h3>
+ <p> 
+  Since the same TCP port can not be used in more than one process a mechanism is provided to handle multiple
+  xschem processes.<br>
+  A <kbd>setup_tcp_xschem &lt;port&gt;</kbd> command is provided to set up another TCP port xschem will listen to,
+  freeing the initial port number set in the <kbd>xschem_listen_port</kbd> TCL variable, in the <kbd>xschemrc</kbd>
+  configuration file.
+ </p>
+ <ul>
+ <li>If port is given and is an unused TCP port it will be used for following TCP communications.</li>
+ <li>If port is not given use the port number defined in <kbd>xschem_listen_port</kbd>.</li>
+ <li>If port number is given and is equal to <kbd>0</kbd> a free port number will be used.</li>
+ </ul>
+ <p>
+  In all cases the <kbd>xschem_listen_port</kbd> returns the new port number that will be used and set the global 
+   <kbd>xschem_listen_port</kbd> variable accordingly.<br><br>
+  The following shell script fragment shows the commands to be used to negotiate with xschem another tcp port.<br>
+  The <kbd>nc</kbd> (netcat) utility is used to pipe the commands to the tcp socket.<br>
+  When starting xschem a fixed initial port number is always used (2021 by default), so it is always possible to
+  remotely communicate with xschem using this TCP port. Then the following comands can be sent to setup a new port number
+  for further communications, freeing the initial (2021) potr number. If another xschem process is started it will 
+  again use the initial port number, so no port number collisions occur.
+ </p>
+ <pre class="code">
+# start an xschem instance in background
+schippes@asus:~$ xschem -b &amp;
+[1] 9342
+# negotiate a new port number instead of default 2021
+schippes@asus:~$ a=$(echo 'setup_tcp_xschem 0' |nc localhost 2021)
+schippes@asus:~$ echo "$a"
+34279
+# Send a command using the new port number
+schippes@asus:~$ b=$(echo 'xschem get current_name' |nc localhost "$a")
+schippes@asus:~$ echo "$b"
+untitled.sch
+
+## repeat above steps if you want additional xschem instances each listenng to a different free tcp port.
+
+ </pre>
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
