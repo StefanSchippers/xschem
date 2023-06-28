@@ -2847,6 +2847,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   int p, dset, ofs;
   int first, last;
   double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
+  double xx0; /* first sweep value */
   double start;
   double end;
   int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
@@ -2855,18 +2856,18 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
   end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
   for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-    double prev_x, prev_prev_x;
     int cnt=0, wrap;
     register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
     first = -1;
-    prev_prev_x = prev_x = 0;
     last = ofs; 
     for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
       if(gr->logx) 
         xx = mylog10(gv[p]);
       else
         xx = gv[p];
-      wrap = ( /* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+
+      if(p == ofs) xx0 = xx;
+      wrap = ( cnt > 1 && xx == xx0);
       if(first != -1) {                      /* there is something to plot ... */
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
@@ -2885,8 +2886,6 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         last = p;
         ++cnt;
       } /* if(xx >= start && xx <= end) */
-      prev_prev_x = prev_x;
-      prev_x = xx;
     } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
     if(first != -1) {
       if(dataset == -1 || dataset == sweepvar_wrap) {
@@ -2956,6 +2955,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       int p, dset, ofs;
       int first, last;
       double xx, yy ; /* the p-th point */
+      double xx0; /* first sweep value */
       double start;
       double end;
       int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
@@ -2964,7 +2964,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
       /* loop through all datasets found in raw file */
       for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-        double prev_x, prev_prev_x;
+        double prev_x;
         int cnt=0, wrap;
         register SPICE_DATA *gvx = xctx->graph_values[sweep_idx];
         register SPICE_DATA *gvy;
@@ -2974,15 +2974,15 @@ int find_closest_wave(int i, Graph_ctx *gr)
         first = -1;
         /* Process "npoints" simulation items 
          * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
-        prev_prev_x = prev_x = 0;
         last = ofs; 
         dbg(1, "find_closest_wave(): xval=%g yval=%g\n", xval, yval);
         for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
           else xx = gvx[p];
+          if(p == ofs) xx0 = xx;
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
-          wrap = (/* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+          wrap = (cnt > 1 && xx == xx0);
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
               dbg(1, "find_closest_wave(): last=%d\n", last);
@@ -3013,7 +3013,6 @@ int find_closest_wave(int i, Graph_ctx *gr)
             last = p;
             ++cnt;
           } /* if(xx >= start && xx <= end) */
-          prev_prev_x = prev_x;
           prev_x = xx;
         } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
         /* offset pointing to next dataset */
@@ -3123,6 +3122,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         int poly_npoints;
         int first, last;
         double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
+        double xx0; /* the first sweep value */
         double start;
         double end;
         int n_bits = 1; 
@@ -3142,7 +3142,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-          double prev_x, prev_prev_x;
+          double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
   
@@ -3151,12 +3151,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           my_realloc(_ALLOC_ID_, &point, xctx->graph_npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
-          prev_prev_x = prev_x = 0;
+          prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
-            wrap = (/* sweep_idx == 0 && */ cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
+            if(p == ofs) xx0 = xx;
+            wrap = (cnt > 1 && xx == xx0);
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
@@ -3199,7 +3200,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               poly_npoints++;
               ++cnt;
             } /* if(xx >= start && xx <= end) */
-            prev_prev_x = prev_x;
             prev_x = xx;
           } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
           if(first != -1) {
