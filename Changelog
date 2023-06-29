@@ -1,3 +1,83 @@
+3.4.1:
+- Add more info in xschem_man about remote tcp connection 
+- Add mouse_bindings.tcl, courtesy Paul Bodenstab
+- Make the "xschem_quit" command work (close current window / tab) also if
+  xschem started in -x (no graphics) mode
+- Changed tcl procedure `setup_tcp_xschem` to allow setting a different port number for
+  further tcp commuication (and freeing the original port number)
+- Enable xschem to load multiple files even if started with "-x" (only CLI mode)
+- Add "show_infowindow_after_netlist" tcl variable (default = 0) that can be set in
+  xschemrc to always show erc window after netlist even without or no critical errors
+- Added missing images for bus tap html manpages
+- If a file is given on cmdline without any path qualifier (/.../, ./, ~/, ...) look into search paths.
+- Apply center full zoom in all zoom full commands if tcl variable zoom_full_center is set
+- Modify xschemrc file to avoid side effects if sourced (intentionally or by mistake) multiple times.
+- Show red dot when cutting a wire with new alt-right button click on a wire.
+  Added also menu command in Tools
+- Added command Alt-RightButton to cut a wire at mouse position.
+- Do a prepare_netlist_structs(0) at end of break_wires_at_pins() for connectivity consistency
+- Extended `Shift-M` command to selected nets (nets attached to them will stretch)
+- Text elements with attribute name=xxx or floater=xxx will go through a tcl
+  substitution (instead of the translate(...) function if the referenced xxx
+  instance does not exist.
+- floater=instname can now be given instead of name=instname (they are equivalent)
+- Add new command `Shift-M`, move selected instances adding wires when separating
+  overlapping instance pins (Connect by kissing)
+- Break_wires_at_pins(): delete piece of wires connected to symbol pins that extend
+  beyond the pin into the symbol
+- Add command "Tools -> Remove wires running throuh selected inst. pins"
+- Quit_xschem command
+- Added commands `xschem switch [win_path|schname]`, `xschem destroy_all [force]`,
+  added `[force]` option to xschem exit
+- Changed defaults in xschem: now toolbar and tabbed interface (more robust than multi-window)
+  is enabled by default, doc updates, improved fix_symbols for setting/removing path compoents
+  from symbol references, now uses low-level xschem reset_symbol (faster)
+- Add procedure `fix_symbols <n>`to set `n` last directory components to all symbols in current design
+- Added attributes spice_ignore=short, verilog_ignore=short, .... that will transform the
+  instance into a short in the current netlisting mode, shorting all pins to the same net.
+  Works similarly as lvs_ignore=short, but does not need lvs_ignore global setting
+- Fix compare schematics if no file for schematic to compare with is given.
+  In this case compare current schematic with saved version.
+  Also issue a warning if swapping compare schematics if comparing schematic with disk version of itself.
+- Added global tcl variable `lvs_ignore` that can be used to enable instance or symbol
+  attributes `lvs_ignore=open` or `lvs_ignore=short` while netlisting, added `test_lvs_ignore.sch` example
+- Disable displaying backannotation data if `b` cursor is hidden or `Simulation->Live annotation
+  with b cursor` is disabled.
+  Use resolved_net() in translate() when displaying @spice_get_voltage so it will work on sub block ports
+- Make `xschem exit` (ctrl-w, close window) work in multi-window mode exactly as in tabbed
+  interface, allowing to close the root window (will be swapped with subwindow and deleted)
+- Save (ctrl-s function) normally does not save if no changes are made.
+  However if file timestamp has changed since opening (by someone else) prompt user to
+  decide what to do (save or not)
+- Make ctrl-ArrowLeft/ctrl-ArrowRight work again (move to next/prev tab)
+- Removed File menu commands `Empty schematic in new window` and `Empty symbol
+  in new window` since these just create another xschem process. Added `File->Start
+  new xschem process`. `xschem new_window` and `xschem new_symbol_window` commands removed,
+  added `xschem new_process
+- Place polygon bind key is now `p`, ctrl-w is now `Close current schematic`, while ctrl-q is
+  `Quit xschem`. Reorganized File menu, added more orthogonal `Create new schematic/tab`
+  removed some largely unused entries. Ctrl-w does not close the last window, just leaves it blank.
+  Use ctrl-q to close xschem
+- Removed some direct exit() calls in editprop.c
+- Cleaner exit if xschem -v is given
+- Cleanup exit procedures: tcl exit command will cleanly delete additional tabs/windows
+  data structures before closing
+- Add command xschem tab_list, returns window pathname and associated filename loaded
+- @spice_get_voltage: do not process if net is a multiple bit bundle
+- xschem resolved_net command: add [net] parameter
+- Fix long standing bug: redundant grammar rule in expandlabel.y causing it to fail
+  recognizing nodes like GND*16
+- Add more ".." bus notations: XX[4,2,8..1..3,12,23] and others. 
+- Implementation of portmap feature: from sub-schematics resolve hierarchic name of schematic
+  nets connected to I/O pins (go to the upper level recursively until resolved)
+- Enable rainbow colored graphs also for double dc sweeps
+- Update n and p jfets, added pjfet simulation
+- Allow @#n:pin_attr or @#pin_name:pin_attr in verilog and vhdl format string (print_vhdl_primitive,
+  print_verilog_primitive), in addition to @#n (convergence to translate()
+- Improved "xschem display_hilights [nets|instances]" that displays highlight nets or instaces or
+  both,with full hierarchy path, not including uninteresting net/pin/net_show elements.
+- Bus_tap.sym symbol for true bus tap (slice some bits out of a bigger bus).
+
 3.4.0:
 - Added xmag and ymag entry boxes in grapg dialog box to allow user change of x/y label text sizes
 - Replace @symname in instance "schematic" attribute with basename of symbol
