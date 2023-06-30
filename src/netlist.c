@@ -594,7 +594,6 @@ static void name_generics()
   /* name generic pins from attached labels */
   dbg(2, "name_generics(): naming generics from attached labels\n");
   if(for_netlist) for (i=0;i<instances; ++i) { /* ... assign node fields on all (non label) instances */
-    if(inst[i].ptr<0) continue;
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(type && !IS_LABEL_OR_PIN(type) ) {
@@ -845,8 +844,7 @@ int shorted_instance(int i, int lvs_ignore)
 static int skip_instance2(int i, int lvs_ignore, int mask)
 {
   int skip = 0;
-  if(xctx->inst[i].ptr < 0) skip = 1;
-  else if(xctx->inst[i].flags & mask) skip = 1;
+  if(xctx->inst[i].flags & mask) skip = 1;
   else if(xctx->sym[xctx->inst[i].ptr].flags & mask) skip = 1;
   else if(lvs_ignore && (xctx->inst[i].flags & LVS_IGNORE)) skip = 1;
   else if(lvs_ignore && (xctx->sym[xctx->inst[i].ptr].flags & LVS_IGNORE)) skip = 1;
@@ -856,7 +854,8 @@ static int skip_instance2(int i, int lvs_ignore, int mask)
 int skip_instance(int i, int skip_short, int lvs_ignore)
 {
   int skip = 0;
-  if(xctx->netlist_type == CAD_SPICE_NETLIST)
+  if(xctx->inst[i].ptr < 0) skip = 1;
+  else if(xctx->netlist_type == CAD_SPICE_NETLIST)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? SPICE_SHORT : 0) | SPICE_IGNORE);
   else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? VERILOG_SHORT : 0) | VERILOG_IGNORE);
@@ -1060,7 +1059,6 @@ static int name_nodes_of_pins_labels_and_propagate()
   print_erc =  (xctx->netlist_count == 0 || startlevel < xctx->currsch) && for_netlist;
   for (i=0;i<instances; ++i) {
     /* name ipin opin label node fields from prop_ptr attributes */
-    if(inst[i].ptr<0) continue;
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
