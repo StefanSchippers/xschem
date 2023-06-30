@@ -1,10 +1,11 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.4.1 file_version=1.2
+}
 G {}
 K {type=noconn
-format="* noconn "
-vhdl_ignore=true
-verilog_ignore=true
-spice_ignore=true
+format="* noconn @#0:net_name"
+vhdl_format="-- noconn @#0:net_name"
+verilog_format="// noconn @#0:net_name"
+tedax_format="# noconn @#0:net_name"
 template="name=l1"}
 V {}
 S {}
