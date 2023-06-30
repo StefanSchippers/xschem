@@ -595,6 +595,7 @@ static void name_generics()
   dbg(2, "name_generics(): naming generics from attached labels\n");
   if(for_netlist) for (i=0;i<instances; ++i) { /* ... assign node fields on all (non label) instances */
     if(inst[i].ptr<0) continue;
+    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(type && !IS_LABEL_OR_PIN(type) ) {
       if((generic_rects = (inst[i].ptr+ xctx->sym)->rects[GENERICLAYER]) > 0) {
@@ -677,7 +678,7 @@ static void set_inst_node(int i, int j, const char *node)
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
   expandlabel(inst[i].instname, &inst_mult);
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
-  skip = skip_instance(i, netlist_lvs_ignore);
+  skip = skip_instance(i, 1, netlist_lvs_ignore);
   if(!for_netlist || skip) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
   } else {
@@ -852,17 +853,17 @@ static int skip_instance2(int i, int lvs_ignore, int mask)
   return skip;
 }
 
-int skip_instance(int i, int lvs_ignore)
+int skip_instance(int i, int skip_short, int lvs_ignore)
 {
   int skip = 0;
   if(xctx->netlist_type == CAD_SPICE_NETLIST)
-      skip =  skip_instance2(i, lvs_ignore, SPICE_SHORT | SPICE_IGNORE);
+      skip =  skip_instance2(i, lvs_ignore, (skip_short ? SPICE_SHORT : 0) | SPICE_IGNORE);
   else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-      skip =  skip_instance2(i, lvs_ignore, VERILOG_SHORT | VERILOG_IGNORE);
+      skip =  skip_instance2(i, lvs_ignore, (skip_short ? VERILOG_SHORT : 0) | VERILOG_IGNORE);
   else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-      skip =  skip_instance2(i, lvs_ignore, VHDL_SHORT | VHDL_IGNORE);
+      skip =  skip_instance2(i, lvs_ignore, (skip_short ? VHDL_SHORT : 0) | VHDL_IGNORE);
   else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-      skip =  skip_instance2(i, lvs_ignore, TEDAX_SHORT | TEDAX_IGNORE);
+      skip =  skip_instance2(i, lvs_ignore, (skip_short ? TEDAX_SHORT : 0) | TEDAX_IGNORE);
   else skip = 0;
 
   dbg(1, "skip_instance(): instance %d skip=%d\n", i, skip);
@@ -1060,6 +1061,7 @@ static int name_nodes_of_pins_labels_and_propagate()
   for (i=0;i<instances; ++i) {
     /* name ipin opin label node fields from prop_ptr attributes */
     if(inst[i].ptr<0) continue;
+    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
       !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
@@ -1087,6 +1089,7 @@ static int name_nodes_of_pins_labels_and_propagate()
       xctx->hilight_nets=1;
     }
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
+      #if 0
       if(for_netlist) {
         /* 20150918 skip labels / pins if ignore property specified on instance */
         if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE)) continue;
@@ -1095,6 +1098,7 @@ static int name_nodes_of_pins_labels_and_propagate()
         if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE)) continue;
         if( netlist_lvs_ignore && (inst[i].flags & LVS_IGNORE_OPEN)) continue;
       }
+      #endif
       port=0;
       my_strdup2(_ALLOC_ID_, &dir, "");
       if(strcmp(type,"label")) {  /* instance is a port (not a label) */
@@ -1210,6 +1214,7 @@ static int name_unlabeled_instances()
   for (i = 0; i < instances; ++i)
   {
     if(!inst[i].node) continue;
+    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     if(inst[i].ptr != -1) {
       rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       for(j = 0; j < rects; ++j) {

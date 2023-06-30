@@ -36,7 +36,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   if(!tedax_stop) {
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
-     if(skip_instance(i, lvs_ignore)) continue;
+     if(skip_instance(i, 1, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
@@ -44,7 +44,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     }
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
-     if(skip_instance(i, lvs_ignore)) continue;
+     if(skip_instance(i, 1, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
 
      if( type && !IS_LABEL_OR_PIN(type) ) {

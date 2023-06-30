@@ -39,7 +39,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  fprintf(fd, "//// begin user declarations\n");
  for(l=0;l<xctx->instances; ++l)
  {
-  if(skip_instance(l, lvs_ignore)) continue;
+  if(skip_instance(l, 1, lvs_ignore)) continue;
   if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
 
   if(!strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "arch_declarations") )
@@ -55,7 +55,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  fprintf(fd, "//// begin user attributes\n");
  for(l=0;l<xctx->instances; ++l)
  {
-  if(skip_instance(l, lvs_ignore)) continue;
+  if(skip_instance(l, 1, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"attributes"))==0)
   {
@@ -70,7 +70,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  {
    for(i=0;i<xctx->instances; ++i) /* ... print all element except ipin opin labels use package */
    {                       /* dont print elements with vhdl_ignore=true set in symbol */
-    if(skip_instance(i, lvs_ignore)) continue;
+    if(skip_instance(i, 1, lvs_ignore)) continue;
     dbg(2, "vhdl_netlist():       into the netlisting loop\n");
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if( type &&
@@ -152,7 +152,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level packages\n");
   for(i=0;i<xctx->instances; ++i)
   {
-   if(skip_instance(i, lvs_ignore)) continue;
+   if(skip_instance(i, 1, lvs_ignore)) continue;
    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"package"))==0)
    {
@@ -167,7 +167,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level use statements\n");
   for(i=0;i<xctx->instances; ++i)
   {
-   if(skip_instance(i, lvs_ignore)) continue;
+   if(skip_instance(i, 1, lvs_ignore)) continue;
    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"use"))==0)
    {
@@ -232,7 +232,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  tmp=0;
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore)) continue;
+  if(skip_instance(i, 1, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
   if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
@@ -249,7 +249,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level inout pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore)) continue;
+  if(skip_instance(i, 1, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
   if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
@@ -266,7 +266,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level input pins\n");
  for(i=0;i<xctx->instances; ++i)
  {
-  if(skip_instance(i, lvs_ignore)) continue;
+  if(skip_instance(i, 1, lvs_ignore)) continue;
   my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
   if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
@@ -284,7 +284,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  dbg(1, "global_vhdl_netlist(): printing top level port attributes\n");
   for(i=0;i<xctx->instances; ++i)
   {
-   if(skip_instance(i, lvs_ignore)) continue;
+   if(skip_instance(i, 1, lvs_ignore)) continue;
    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if( type && (strcmp(type,"port_attributes"))==0)
    {
@@ -363,7 +363,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  fprintf(fd,"//// begin user architecture code\n");
 
  for(i=0;i<xctx->instances; ++i) {
-   if(skip_instance(i, lvs_ignore)) continue;
+   if(skip_instance(i, 1, lvs_ignore)) continue;
    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
    if(type && !strcmp(type,"netlist_commands")) {
      fprintf(fd, "%s\n", get_tok_value(xctx->inst[i].prop_ptr,"value", 0));
@@ -540,7 +540,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     dbg(1, "vhdl_block_netlist():       packages\n");
     for(l=0;l<xctx->instances; ++l)
     {
-     if(skip_instance(l, lvs_ignore)) continue;
+     if(skip_instance(l, 1, lvs_ignore)) continue;
      if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
      if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "package") )
       fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
@@ -549,7 +549,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     dbg(1, "vhdl_block_netlist():       use statements\n");
     for(l=0;l<xctx->instances; ++l)
     {
-     if(skip_instance(l, lvs_ignore)) continue;
+     if(skip_instance(l, 1, lvs_ignore)) continue;
      if(!(xctx->inst[l].ptr+ xctx->sym)->type) continue;
      if( !strcmp((xctx->inst[l].ptr+ xctx->sym)->type, "use") )
       fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
@@ -591,7 +591,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     dbg(1, "vhdl_block_netlist():       port attributes\n");
     for(l=0;l<xctx->instances; ++l)
     {
-     if(skip_instance(l, lvs_ignore)) continue;
+     if(skip_instance(l, 1, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
      if( type && (strcmp(type,"port_attributes"))==0)
      {
@@ -626,7 +626,7 @@ int vhdl_block_netlist(FILE *fd, int i)
           found=0;
           for(l=0;l<xctx->instances; ++l)
           {
-            if(skip_instance(l, lvs_ignore)) continue;
+            if(skip_instance(l, 1, lvs_ignore)) continue;
             if(!xctx->x_strcmp(xctx->sym[j].name, tcl_hook2(xctx->inst[l].name)))
             {
               found=1; break;
@@ -672,7 +672,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     fprintf(fd,"//// begin user architecture code\n");
   
     for(l=0;l<xctx->instances; ++l) {
-      if(skip_instance(l, lvs_ignore)) continue;
+      if(skip_instance(l, 1, lvs_ignore)) continue;
       if(xctx->netlist_count &&
         !strcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
   
