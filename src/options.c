@@ -138,18 +138,18 @@ static void check_opt(char *opt, char *optval, int type)
         cli_opt_netlist_type=CAD_VERILOG_NETLIST;
 
     } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("detach", opt)) ) {
-        detach = 1;
+        cli_opt_detach = 1;
 
     } else if( (type == SHORT && *opt == 'v') || (type == LONG && !strcmp("version", opt)) ) {
         print_version();
-        quit=1;
+        cli_opt_quit=1;
         has_x=0;
     } else if( (type == SHORT && *opt == 't') || (type == LONG && !strcmp("tedax", opt)) ) {
         dbg(1, "process_options(): set netlist type to tEDAx\n");
         cli_opt_netlist_type=CAD_TEDAX_NETLIST;
 
     } else if( (type == SHORT && *opt == 'q') || (type == LONG && !strcmp("quit", opt)) ) {
-        quit=1;
+        cli_opt_quit=1;
 
     } else if( (type == SHORT && *opt == 'x') || (type == LONG && !strcmp("no_x", opt)) ) {
         has_x=0;
@@ -159,7 +159,7 @@ static void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == SHORT && *opt == 'h') || (type == LONG && !strcmp("help", opt)) ) {
         help=1;
-        quit=1;
+        cli_opt_quit=1;
         has_x=0;
     } else {
         fprintf(errfp, "Unknown option: %s\n", opt);

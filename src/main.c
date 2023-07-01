@@ -87,8 +87,8 @@ int main(int argc, char **argv)
   my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
-  /* if detach is 1 no interactive command shell is created ...
-   * using detach if no windowing exists (has_x == 0) is non sense so do nothing
+  /* if cli_opt_detach is 1 no interactive command shell is created ...
+   * using cli_opt_detach if no windowing exists (has_x == 0) is non sense so do nothing
    */
 
 
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
   }
 
 
-  if(detach) {
+  if(cli_opt_detach) {
     fclose(stdin);
     #ifdef __unix__
     freopen("/dev/null", "w", stdout);
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     freopen("nul", "w", stderr);
     #endif
   }
-  if(detach && has_x) {
+  if(cli_opt_detach && has_x) {
     Tcl_FindExecutable(argv[0]); /* tcl stores executable name for its internal usage */
     interp = Tcl_CreateInterp(); /* create the tcl interpreter */
     Tcl_AppInit(interp); /* execute our init function */

@@ -168,8 +168,6 @@ int yyparse_error = 0;
 char *xschem_executable=NULL;
 Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
-int quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
-int detach = 0; /* no tcl console if set; batch mode */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
 const char fopen_read_mode[] = "rb";
@@ -197,6 +195,8 @@ int cli_opt_do_print=0;
 int cli_opt_do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int cli_opt_do_simulation=0;
 int cli_opt_do_waves=0;
+int cli_opt_detach = 0; /* no tcl console if set; batch mode */
+int cli_opt_quit=0;  /* set from process_options (ex netlist from cmdline and quit) */
 char cli_opt_tcl_script[PATH_MAX] = {'\0'};
 char cli_opt_initial_netlist_name[PATH_MAX]={0};
 char cli_opt_rcfile[PATH_MAX] = {'\0'};

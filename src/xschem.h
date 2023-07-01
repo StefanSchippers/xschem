@@ -1109,8 +1109,6 @@ extern int yyparse_error;
 extern char *xschem_executable;
 extern Tcl_Interp *interp;
 extern double *character[256];
-extern int quit;
-extern int detach; /* no TCL console */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
@@ -1130,6 +1128,8 @@ extern int cli_opt_do_print;
 extern int cli_opt_do_netlist;
 extern int cli_opt_do_simulation;
 extern int cli_opt_do_waves;
+extern int cli_opt_detach; /* no TCL console */
+extern int cli_opt_quit;
 extern char cli_opt_tcl_script[PATH_MAX];
 extern char cli_opt_initial_netlist_name[PATH_MAX];
 extern char cli_opt_rcfile[PATH_MAX];

@@ -909,7 +909,7 @@ static void xwin_exit(void)
  dbg(1, "xwin_exit(): closing tcp servers\n");
  tcleval("if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }");
  tcleval("if {[info exists bespice_server_getdata(server)]} { close $bespice_server_getdata(server) }");
- if(!detach) printf("\n");
+ if(!cli_opt_detach) printf("\n");
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 
@@ -2817,7 +2817,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval(cli_opt_tcl_post_command);
  }
 
- if(quit) {
+ if(cli_opt_quit) {
    tcleval("exit");
  }
 
@@ -2827,7 +2827,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* */
 
 
- if(tclgetboolvar("use_tclreadline") && !detach && !cli_opt_no_readline) {
+ if(tclgetboolvar("use_tclreadline") && !cli_opt_detach && !cli_opt_no_readline) {
    tcleval( "if {![catch {package require tclreadline}]} "
      "{::tclreadline::readline builtincompleter 0;"
       "::tclreadline::readline customcompleter completer;"
