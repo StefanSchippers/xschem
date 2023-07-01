@@ -1033,13 +1033,13 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
        if(!pin_attr_value && is_net_name) {
          prepare_netlist_structs(0);
-         my_strdup2(_ALLOC_ID_, &pin_attr_value,
+         my_strdup(_ALLOC_ID_, &pin_attr_value,
               xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
        }
        if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
        value = pin_attr_value;
        /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-       if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+       if(value[0] && !strcmp(pin_attr, "pinnumber") ) {
          char *ss;
          int slot;
          char *tmpstr = NULL;
@@ -2129,13 +2129,13 @@ int print_spice_element(FILE *fd, int inst)
           /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
           if(!pin_attr_value && is_net_name) {
             prepare_netlist_structs(0);
-            my_strdup2(_ALLOC_ID_, &pin_attr_value,
+            my_strdup(_ALLOC_ID_, &pin_attr_value,
                  xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
           }
           if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
           value = pin_attr_value;
           /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-          if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+          if(value[0] && !strcmp(pin_attr, "pinnumber") ) {
             char *ss;
             int slot;
             char *tmpstr = NULL;
@@ -2488,7 +2488,7 @@ void print_tedax_element(FILE *fd, int inst)
         break;
       }
      }
-
+    }
     /* this allow to print in netlist any properties defined for pins.
      * @#n:property, where 'n' is the pin index (starting from 0) and
      * 'property' the property defined for that pin (property=value)
@@ -2498,44 +2498,63 @@ void print_tedax_element(FILE *fd, int inst)
      * if property value is not slotted print entire value regardless of device slot.
      * slot numbers start from 1
      */
-    } else if(token[0]=='@' && token[1]=='#') {
-
+    else if(token[0]=='@' && token[1]=='#') {
       int n;
       char *pin_attr = NULL;
       char *pin_num_or_name = NULL;
-            
+   
       get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
       n = get_inst_pin_number(inst, pin_num_or_name);
-      if( strchr(token, ':') )  {
-        char *subtok2 = my_malloc(_ALLOC_ID_, sizetok * sizeof(char)+20);
-        if(n!=-1 && pin_attr[0]) {
-          my_snprintf(subtok2, sizetok * sizeof(char)+20, "%s(%d)", pin_attr, n);
-          value = get_tok_value(xctx->inst[inst].prop_ptr,subtok2,0);
-          if( n>=0 && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
-            if(!value[0])
-              value = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr,pin_attr,0);
-          }
-          if(value[0]) {
-            char *ss;
-            int slot;
-            if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
-              sscanf(ss+1, "%d", &slot);
-              if(strstr(value, ":")) value = find_nth(value, ":", slot);
-            }
-            fprintf(fd, "%s", value);
+      if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+        char *pin_attr_value = NULL;
+        int is_net_name = !strcmp(pin_attr, "net_name");
+        /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
+         *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
+        if(!is_net_name) {
+          pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+          /* get pin_attr from instance pin attribute string */
+          if(!pin_attr_value) {
+           my_strdup(_ALLOC_ID_, &pin_attr_value,
+              get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
           }
         }
-        my_free(_ALLOC_ID_, &pin_attr);
-        my_free(_ALLOC_ID_, &pin_num_or_name);
-        my_free(_ALLOC_ID_, &subtok2);
-      } else {
-        /* reference by pin number instead of pin name, allows faster lookup of the attached net name */
-        /* @#n --> return net name attached to pin of index 'n' */
-        if(n >= 0 && n < no_of_pins) {
-          str_ptr =  net_name(inst, n, &multip, 0, 1);
+        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
+        if(!pin_attr_value && is_net_name) {
+          prepare_netlist_structs(0);
+          my_strdup(_ALLOC_ID_, &pin_attr_value,
+               xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
+        }
+        if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+        value = pin_attr_value;
+        /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
+        if(value[0] && !strcmp(pin_attr, "pinnumber")) {
+          char *ss;
+          int slot;
+          char *tmpstr = NULL;
+          tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
+          if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+            sscanf(ss+1, "%s", tmpstr);
+            if(isonlydigit(tmpstr)) {
+              slot = atoi(tmpstr);
+              if(strstr(value,":")) value = find_nth(value, ":", slot);
+            }
+          }
+          my_free(_ALLOC_ID_, &tmpstr);
+        }
+        fprintf(fd, "%s", value);
+        my_free(_ALLOC_ID_, &pin_attr_value);
+      }
+      else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+        const char *si;
+        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
+        si  = get_tok_value(prop, "tedax_ignore",0);
+        if(strcmp(si, "true")) {
+          str_ptr =  net_name(inst,n, &multip, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
       }
+      my_free(_ALLOC_ID_, &pin_attr);
+      my_free(_ALLOC_ID_, &pin_num_or_name);
     }
     else if(!strncmp(token,"@tcleval", 8)) {
       /* char tclcmd[strlen(token)+100] ; */
@@ -2762,13 +2781,13 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
         if(!pin_attr_value && is_net_name) {
           prepare_netlist_structs(0);
-          my_strdup2(_ALLOC_ID_, &pin_attr_value,
+          my_strdup(_ALLOC_ID_, &pin_attr_value,
                xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
         }
         if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
         value = pin_attr_value;
         /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-        if(value && value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+        if(value[0] && !strcmp(pin_attr, "pinnumber") ) {
           char *ss;
           int slot;
           char *tmpstr = NULL;
@@ -3230,7 +3249,7 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
     if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
     my_strdup2(_ALLOC_ID_, &value, pin_attr_value);
     /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-    if(pin_attr_value && pin_attr_value[0] != 0 && !strcmp(pin_attr, "pinnumber") ) {
+    if(pin_attr_value[0] && !strcmp(pin_attr, "pinnumber") ) {
       char *ss;
       int slot;
       char *tmpstr = NULL;
