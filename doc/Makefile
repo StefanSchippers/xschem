@@ -11,7 +11,7 @@ install: FORCE
 	$(SCCBOX) install -f manpages/xschem.1 "$(MANDIR)"/man1/xschem.1
 
 install_pdf: FORCE
-	sh -c "cd xschem_man; ./create_pdf_man" && $(SCCBOX) install -f -d xschem_man/xschem_man.pdf "$(XDOCDIR)"/xschem_man
+	sh -c "cd xschem_man; . ./create_pdf_man" && $(SCCBOX) install -f -d xschem_man/xschem_man.pdf "$(XDOCDIR)"/xschem_man
 
 uninstall: FORCE
 	$(SCCBOX) rm -f "$(XDOCDIR)"/xschem_man/*
