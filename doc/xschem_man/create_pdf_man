@@ -41,4 +41,4 @@ generate_pdf () {
 }
 
 #### generate pdf doc
-generate_pdf /home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html xschem_man.pdf
+generate_pdf xschem_man.html xschem_man.pdf
