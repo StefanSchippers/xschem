@@ -40,5 +40,12 @@ generate_pdf () {
   rm -rf $tmpdir
 }
 
+# check for htmldoc else return error exit status
+if ! [ -x "$(command -v htmldoc)" ]; then
+    echo "htmldoc could not be found"
+    exit 1
+fi
+
 #### generate pdf doc
 generate_pdf xschem_man.html xschem_man.pdf
+exit 0

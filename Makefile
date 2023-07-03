@@ -25,6 +25,9 @@ install: FORCE
 	cd doc && $(MAKE) install
 	cd src/utile && $(MAKE) install
 
+install_pdf: FORCE
+	cd doc && $(MAKE) install_pdf
+
 uninstall: FORCE
 	cd src && $(MAKE) uninstall
 	cd xschem_library && $(MAKE) uninstall
