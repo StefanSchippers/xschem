@@ -365,7 +365,8 @@
 #### TCL FILES TO LOAD AT STARTUP
 ###########################################################################
 #### list of tcl files to preload.
-# set tcl_files [list ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl]
+set tcl_files {}
+# lappend tcl_files [list ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl]
 # lappend tcl_files ${XSCHEM_SHAREDIR}/change_index.tcl
 # lappend tcl_files ....
 
