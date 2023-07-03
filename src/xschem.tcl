@@ -1446,7 +1446,7 @@ proc simulate {{callback {}}} {
   simuldir 
   set_sim_defaults
   set netlist_type [xschem get netlist_type]
-  if { [select_netlist_dir 0] ne {}} {
+  if { [set_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool $netlist_type
     set S [xschem get schname]
@@ -1589,7 +1589,7 @@ proc waves {} {
   simuldir
   set netlist_type [xschem get netlist_type]
   set_sim_defaults
-  if { [select_netlist_dir 0] ne {}} {
+  if { [set_netlist_dir 0] ne {}} {
     set d ${netlist_dir}
     set tool ${netlist_type}
     set S [xschem get schname]
@@ -2361,7 +2361,7 @@ proc edit_netlist {netlist } {
  set netlist_type [xschem get netlist_type]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
- if { [select_netlist_dir 0] ne "" } {
+ if { [set_netlist_dir 0] ne "" } {
    if {$OS == "Windows"} {
      set cmd "$editor \"$netlist_dir/${netlist}\""
      eval exec $cmd &
@@ -3245,14 +3245,18 @@ proc simuldir {} {
 }
 
 #
-# force==0: force creation of $netlist_dir (if not empty)
-#           if netlist_dir empty and no dir given prompt user
-#           else set netlist_dir to dir
+# force==0: force creation of $netlist_dir (if netlist_dir variable not empty)
+#           and return current setting.
+#           if netlist_dir variable empty:
+#               if no dir given prompt user
+#               else set netlist_dir to dir
 #
 # force==1: if no dir given prompt user
 #           else set netlist_dir to dir
 #
-proc select_netlist_dir { force {dir {} }} {
+# Return current netlist directory
+#
+proc set_netlist_dir { force {dir {} }} {
   global netlist_dir env OS
 
   if { ( $force == 0 )  && ( $netlist_dir ne {} ) } {
@@ -6186,7 +6190,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.simulation.menu add command -label "Set netlist Dir" \
     -command {
-          select_netlist_dir 1
+          set_netlist_dir 1
     }
   $topwin.menubar.simulation.menu add command -label "Set top level netlist name" \
     -command {
@@ -6194,7 +6198,7 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'simulation' dir under current schematic dir" \
     -variable local_netlist_dir \
-    -command { if {$local_netlist_dir == 0 } { select_netlist_dir 1 } else { simuldir} }
+    -command { if {$local_netlist_dir == 0 } { set_netlist_dir 1 } else { simuldir} }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   $topwin.menubar.simulation.menu add command -label {Monitor current simulation} -command {
     view_current_sim_output
@@ -6208,7 +6212,7 @@ proc build_widgets { {topwin {} } } {
      inutile_translate  [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
-     if { [select_netlist_dir 0] ne "" } {
+     if { [set_netlist_dir 0] ne "" } {
         simuldir; get_shell $netlist_dir
      }
    }

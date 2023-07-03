@@ -30,7 +30,7 @@ generate_pdf () {
   sed -i '/href *= *"video_tutorials\//s/="/="https:\/\/xschem.sourceforge.io\/stefan\/xschem_man\//' $(basename $root_file)
   
   #### resize images since htmldoc does not fit images in pdf pages at all.
-  sed -i '/<img/s/>/ width="640">/' *.html
+  sed -i '/<img/s/<img /<img width="640" /' *.html
   
   #### generate pdf from list of html files.
   htmldoc --top 10mm --bottom 10mm --right 10mm --left 10mm --webpage --linkcolor blue \
@@ -40,7 +40,5 @@ generate_pdf () {
   rm -rf $tmpdir
 }
 
-#### generate pdf doc for github/repo.hi xschem version, with autoconfiguration (./configure && make)
+#### generate pdf doc
 generate_pdf /home/schippes/xschem-repo/trunk/doc/xschem_man/xschem_man.html xschem_man.pdf
-#### generate pdf doc for sourceforge xschem version, with NO autoconfiguration (edit Makefile and make)
-generate_pdf xschem_man.html xschem_man_sourceforge.pdf

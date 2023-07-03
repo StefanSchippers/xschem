@@ -2208,12 +2208,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hilight_net_pin_mismatches();
     }
 
-    /* netlist
-     *   do a netlist of current schematic in currently defined netlist format */
+    /* netlist [filename]
+     *   do a netlist of current schematic in currently defined netlist format 
+     *   if 'filename'is given use specified name for the netlist
+     *   if 'filename' contains path components place the file in specified path location.
+     *   if only a name is given and no path ('/') components are given use the
+     *   default netlisting directory.
+     *   This means that 'xschem netlist test.spice' and 'xschem netlist ./test.spice'
+     *   will create the netlist in different places.
+     *   netlisting directory is reset to previous setting after completing this command */
     else if(!strcmp(argv[1], "netlist") )
     {
       int err = 0;
+      char save[PATH_MAX];
+      const char *path;
       yyparse_error = 0;
+      my_strncpy(save, tclgetvar("netlist_dir"), S(save));
+      if(argc > 2) {
+        my_strncpy(xctx->netlist_name, get_cell_w_ext(argv[2], 0), S(xctx->netlist_name));
+        tclvareval("file dirname ", argv[2], NULL);
+        path = tclresult();
+        if(strchr(argv[2], '/')) {
+          set_netlist_dir(1, path);
+        }
+      }
       if(set_netlist_dir(0, NULL) ) {
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
           err = global_spice_netlist(1);                  /* 1 means global netlist */
@@ -2226,6 +2244,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
+        if(argc > 2) {
+          my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
+          set_netlist_dir(1, save);
+        }
         Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
       }
     }

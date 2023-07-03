@@ -494,7 +494,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -864,8 +863,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       net_pin_mismatch</kbd></li><pre>
    Highlight nets attached to selected symbols with
    a different name than symbol pin </pre>
-   <li><kbd>       netlist</kbd></li><pre>
-   do a netlist of current schematic in currently defined netlist format </pre>
+   <li><kbd>       netlist [filename]</kbd></li><pre>
+   do a netlist of current schematic in currently defined netlist format 
+   if 'filename'is given use specified name for the netlist
+   if 'filename' contains path components place the file in specified path location.
+   if only a name is given and no path ('/') components are given use the
+   default netlisting directory.
+   This means that 'xschem netlist test.spice' and 'xschem netlist ./test.spice'
+   will create the netlist in different places.
+   netlisting directory is reset to previous setting after completing this command </pre>
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
@@ -1219,6 +1225,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
+
 
 
 
@@ -1667,7 +1677,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       schpins_to_sympins
       select_inst
       select_layers
-      select_netlist_dir
       set_bindings
       set_env
       set_graph_linewidth
@@ -1676,6 +1685,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
       # set 'var' with '$val' if 'var' not existing
       set_ne var val
+
+      # set_netlist_dir force [path]
+      # if path is given set as new netlist path where netlists and simulations are done.
+      # force should be always set to 1 unless you just want to query current path.
+      # select_netlist_dir 0 will return current path (you can get with $netlist_dir as well)
+      set_netlist_dir
 
       set_old_tk_fonts
 

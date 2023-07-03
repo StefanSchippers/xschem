@@ -274,11 +274,11 @@ void set_grid(double newgrid)
     tclsetdoublevar("cadgrid", cg);
 }
 
-int set_netlist_dir(int force, char *dir)
+int set_netlist_dir(int force, const char *dir)
 {
   char cmd[PATH_MAX+200];
-  if(dir) my_snprintf(cmd, S(cmd), "select_netlist_dir %d {%s}", force, dir);
-  else    my_snprintf(cmd, S(cmd), "select_netlist_dir %d", force);
+  if(dir) my_snprintf(cmd, S(cmd), "set_netlist_dir %d {%s}", force, dir);
+  else    my_snprintf(cmd, S(cmd), "set_netlist_dir %d", force);
   tcleval(cmd);
   if(!strcmp("", tclresult()) ) {
     return 0;
