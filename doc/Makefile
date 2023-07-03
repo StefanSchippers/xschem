@@ -22,6 +22,7 @@ clean:
 
 distclean:
 	$(SCCBOX) rm -f manpages/xschem.1
+	$(SCCBOX) rm -f xschem_man/xschem_man.pdf
 
 FORCE:
 

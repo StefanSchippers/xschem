@@ -10,7 +10,7 @@ install: FORCE
 	$(SCCBOX) rm "$(XSHAREDIR)/utile/Makefile"
 
 uninstall: FORCE
-	$(SCCBOX) rm -f "$(XSHAREDIR)/utile/*"
+	$(SCCBOX) rm -f "$(XSHAREDIR)"/utile/*
 
 clean:
 
