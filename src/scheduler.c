@@ -1592,6 +1592,49 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_AppendResult(interp, s, NULL);
       }
     }
+
+    /* instance_coord [instance]
+     *   Return instance name, symbol name, x placement coord, y placement coord, rotation and flip
+     *   of selected instances 
+     *   if 'instance' is given (instance name or number) return data about specified instance 
+     *   Example:
+     *     xschem [~] xschem instance_coord   
+     *     {R5} {res.sym} 260 260 0 0
+     *     {C1} {capa.sym} 150 150 1 1 */
+    else if(!strcmp(argv[1], "instance_coord"))
+    {
+    /* xschem instances_to_net PLUS */
+      xSymbol *symbol;
+      short flip, rot;
+      double x0,y0;
+      int n, i;
+      int user_inst = -1;
+
+      if(argc > 2) {
+        i = get_instance(argv[2]);
+        if(i < 0) {
+          Tcl_SetResult(interp, "xschem instance_net: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        user_inst = i;
+      }
+
+      rebuild_selected_array();
+      for(n=0; user_inst >=0 || n < xctx->lastsel; ++n) {
+        if(user_inst >=0 || xctx->sel_array[n].type == ELEMENT) {
+          if(user_inst == -1) i = xctx->sel_array[n].n;
+          x0 = xctx->inst[i].x0;
+          y0 = xctx->inst[i].y0;
+          rot = xctx->inst[i].rot;
+          flip = xctx->inst[i].flip;
+          symbol = xctx->sym + xctx->inst[i].ptr;
+          Tcl_AppendResult(interp, "{", xctx->inst[i].instname, "} ", "{", symbol->name, "} ",
+             dtoa(x0), " ", dtoa(y0), " ", my_itoa(rot), " ", my_itoa(flip), "\n", NULL);
+          if(user_inst >= 0) break;
+        }
+      }
+    }
+
     /* instance_list
      *   Return a list of 3-items. Each 3-item is 
      *   an instance name followed by the symbol reference and symbol type.

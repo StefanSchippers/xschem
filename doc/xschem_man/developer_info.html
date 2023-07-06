@@ -494,6 +494,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -753,6 +755,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       instance_bbox inst</kbd></li><pre>
    return instance and symbol bounding boxes
    'inst' can be an instance name or number </pre>
+   <li><kbd>       instance_coord [instance]</kbd></li><pre>
+   Return instance name, symbol name, x placement coord, y placement coord, rotation and flip
+   of selected instances 
+   if 'instance' is given (instance name or number) return data about specified instance 
+   Example:
+     xschem [~] xschem instance_coord   
+     {R5} {res.sym} 260 260 0 0
+     {C1} {capa.sym} 150 150 1 1 </pre>
    <li><kbd>       instance_list</kbd></li><pre>
    Return a list of 3-items. Each 3-item is 
    an instance name followed by the symbol reference and symbol type.
@@ -1225,6 +1235,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 
