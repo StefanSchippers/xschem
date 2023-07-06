@@ -1552,18 +1552,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   It is used only for efficiency reasons if placing multiple instances */
     if(!strcmp(argv[1], "instance"))
     {
-      if(argc==7)
+      if(argc==7) {
        /*           pos sym_name      x                y             rot       */
         place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]), 
                /* flip              prop draw first to_push_undo */
                (short)atoi(argv[6]),NULL,  3,   1,      1);
-      else if(argc==8)
+        set_modify(1);
+      } else if(argc==8) {
         place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]),
                (short)atoi(argv[6]), argv[7], 3, 1, 1);
-      else if(argc==9) {
+        set_modify(1);
+      } else if(argc==9) {
         int x = !(atoi(argv[8]));
         place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]),
                (short)atoi(argv[6]), argv[7], 0, x, 1);
+        set_modify(1);
       }
     }
 
