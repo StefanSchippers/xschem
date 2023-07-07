@@ -3648,9 +3648,10 @@ void draw(void)
       if(tclgetboolvar("dark_colorscheme")) build_colors(-1.5, 0);
       else build_colors(1.5, 0);
     }
-    if(xctx->draw_pixmap)
+    if(xctx->draw_pixmap) {
       XFillRectangle(display, xctx->save_pixmap, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
+    }
     if(xctx->draw_window) 
       XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
@@ -3812,8 +3813,9 @@ void draw(void)
       xctx->lw = xctx->save_lw;
       change_linewidth(xctx->save_lw);
     }
-    if(xctx->do_copy_area) { /* this is zero only when doing png hardcopy to avoid video flickering */
-      if(!xctx->draw_window) {
+    /* do_copy_area is zero only when doing png hardcopy to avoid video flickering */
+    if(xctx->do_copy_area) {
+      if(!xctx->draw_window && xctx->save_pixmap) {
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
       }

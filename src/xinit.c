@@ -1644,7 +1644,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   xctx->yorigin=CADINITIALY;
   load_schematic(1,fname, 1, 1);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
-  xctx->pending_fullzoom=1;
+  /* xctx->pending_fullzoom=1; */
 }
 
 static void destroy_window(int *window_count, const char *win_path)
@@ -2080,6 +2080,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           #else
           Tk_FreePixmap(display, xctx->save_pixmap);
           #endif
+          xctx->save_pixmap = 0;
           XFreeGC(display,xctx->gctiled);
         }
         if(create_pixmap) {
@@ -2099,7 +2100,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
         }
       }
     }
-    if(xctx->pending_fullzoom > 0) {
+    if(xctx->pending_fullzoom > 0 && create_pixmap) {
       tcleval("winfo ismapped .");
       /* if window unmapped or size has not been set by wm (width == 1 // height == 1) do not 
        * perform the pending full_zoom */
