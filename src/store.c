@@ -68,11 +68,16 @@ void check_inst_storage(void)
 {
  if(xctx->instances >= xctx->maxi)
  {
+  int i, old = xctx->maxi;
+  
   xctx->maxi=(1 + xctx->instances / ELEMINST) * ELEMINST;
   my_realloc(_ALLOC_ID_, &xctx->inst, sizeof(xInstance)*xctx->maxi);
   #ifdef ZERO_REALLOC
   memset(xctx->inst + xctx->instances, 0, sizeof(xInstance) * (xctx->maxi - xctx->instances));
   #endif
+  /* clear all flag bits (to avoid random data in bit 8, that can not be cleraed 
+   * by set_inst_flags() */
+  for(i = old; i < xctx->maxi; i++) xctx->inst[i].flags = 0;
  }
 }
 

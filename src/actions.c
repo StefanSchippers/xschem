@@ -750,6 +750,7 @@ int set_inst_flags(xInstance *inst)
   const char *ptr;
   inst->flags &= IGNORE_INST; /* do not clear IGNORE_INST bit, used in draw_symbol() */
   my_strdup2(_ALLOC_ID_, &inst->instname, get_tok_value(inst->prop_ptr, "name", 0));
+  dbg(1, "set_inst_flags(): instname=%s\n", inst->instname);
   if(inst->ptr >=0) {
     char *type = xctx->sym[inst->ptr].type;
     int cond= type && IS_LABEL_SH_OR_PIN(type);
