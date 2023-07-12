@@ -5491,7 +5491,7 @@ set tctx::global_list {
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show
   netlist_type no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
-  persistent_command preserve_unchanged_attrs prev_symbol ps_colors rainbow_colors
+  persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
@@ -6573,6 +6573,7 @@ set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0
 set_ne color_ps 1
+set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
 set_ne fullscreen 0

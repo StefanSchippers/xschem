@@ -958,27 +958,26 @@ static void fill_ps_colors()
 
 }
 
-#define A4
+/* #define A4 */
 void create_ps(char **psfile, int what)
 {
   double dx, dy, scale, scaley;
   int landscape=1;
   static int numpages = 0;
   double margin=10; /* in postscript points, (1/72)". No need to add margin as xschem zoom full already has margins.*/
-
-  /* Letter: 612 792, A4: 595 842 */
-  #ifdef A4
-  double pagex=842;/* a4, in postscript points, (1/72)" */
-  double pagey=595;/* a4, in postscript points, (1/72)" */
-  #else /* Letter */
-  double pagex=792;/* Letter, in postscript points, (1/72)" */
-  double pagey=612;/* Letter, in postscript points, (1/72)" */
-  #endif
+  char papername[80] = "a4";
+  double pagex = 842;
+  double pagey = 595;
   xRect boundbox;
   int c,i, textlayer;
   int old_grid;
   const char *textfont;
 
+  if(tcleval("info exists ps_paper_size")[0] == '1') {
+    my_strncpy(papername, tcleval("lindex $ps_paper_size 0"), S(papername));
+    pagex = my_atod(tcleval("lindex $ps_paper_size 1"));
+    pagey = my_atod(tcleval("lindex $ps_paper_size 2"));
+  }
   if(what & 1) { /* prolog */
     numpages = 0;
     if(!(fd = open_tmpfile("psplot_", psfile)) ) {
@@ -1019,7 +1018,7 @@ void create_ps(char **psfile, int what)
     dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     fprintf(fd, "%%!PS-Adobe-3.0\n");
     /* fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey); */
-    fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", "a4", pagex, pagey);
+    fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", papername, pagex, pagey);
     fprintf(fd, "%%%%PageOrientation: %s\n", landscape ? "Landscape" : "Portrait");
     fprintf(fd, "%%%%Title: xschem plot\n");
     fprintf(fd, "%%%%Creator: xschem\n");

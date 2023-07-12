@@ -98,8 +98,8 @@
 #### If unset $USER_CONF_DIR/simulations is assumed (normally ~/.xschem/simulations) 
 # set netlist_dir $env(HOME)/.xschem/simulations
 
-##### if this is set to '1' netlists and simulations will go into a simulation/ folder
-##### inside the directory containing the top level schematic. Default: not set (0)
+#### if this is set to '1' netlists and simulations will go into a simulation/ folder
+#### inside the directory containing the top level schematic. Default: not set (0)
 # set local_netlist_dir 1
 
 ###########################################################################
@@ -148,6 +148,11 @@
 
 #### allow color postscript and svg exports. Default: 1, enable color
 # set color_ps 1
+
+#### set paper size: name, height, width. Sizes in 1/72 of an inch (typographical points)
+#### default: {a4 842 595}
+# set ps_paper_size {a4 842 595}
+# set ps_paper_size {letter 792 612}
 
 #### initial size of xschem window you can specify also position with (wxh+x+y)
 #### this is the default:
@@ -369,7 +374,6 @@ set tcl_files {}
 # lappend tcl_files [list ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl]
 # lappend tcl_files ${XSCHEM_SHAREDIR}/change_index.tcl
 # lappend tcl_files ....
-
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION

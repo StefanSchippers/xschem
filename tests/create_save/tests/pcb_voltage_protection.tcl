@@ -69,7 +69,6 @@ spiceprefix=X
 m=1
 url="https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwjs8pzxuozfAhWpz4UKHR4CDnMQFjAAegQIAhAC&url=https%3A%2F%2Fwww.infineon.com%2Fdgdl%2Firlml6402.pdf%3FfileId%3D5546d462533600a401535668c9822638&usg=AOvVaw21fCRax-ssVpLqDeGK8KiC"}
 xschem instance ../../../xschem_library/devices/led.sym 650 -290 0 0 {name=x1 model=D1N5765 device=D1N5765 area=1 footprint=acy(300)}
-xschem instance ../../../xschem_library/devices/title.sym 160 -30 0 0 {name=l2 author="Igor2"}
 xschem instance ../../../xschem_library/devices/lab_pin.sym 170 -340 0 1 {name=p6 lab=VOUT}
 xschem instance ../../../xschem_library/devices/lab_pin.sym 170 -360 0 1 {name=p7 lab=VSS}
 xschem instance ../../../xschem_library/devices/lab_pin.sym 170 -380 0 1 {name=p8 lab=VCC}

@@ -39,7 +39,6 @@ xschem wire 1540 -350 1540 -330 {lab=vss}
 xschem wire 1540 -530 1540 -510 {lab=vss}
 xschem wire 1720 -180 1720 -160 {lab=vss}
 xschem wire 1540 -180 1540 -160 {lab=vss}
-xschem instance ../../../xschem_library/devices/title.sym 170 0 0 0 {name=l3 author="Stefan Schippers"}
 xschem instance ../../../xschem_library/devices/code.sym 590 -160 0 0 {name=STIMULI value="
 .options SCALE=0.10
 .param VCC=1.5
