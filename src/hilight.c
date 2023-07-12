@@ -632,7 +632,7 @@ static int win_regexec(const char *options, const char *pattern, char *name)
  *       0 : regex search
  *       1 : exact search
  */
-int search(const char *tok, const char *val, int sub, int sel)
+int search(const char *tok, const char *val, int sub, int sel, int match_case)
 {
  int save_draw;
  int i,c, col = 7,tmp,bus=0;
@@ -642,9 +642,14 @@ int search(const char *tok, const char *val, int sub, int sel)
  const char *empty_string = "";
  char *tmpname=NULL;
  int found = 0;
-#ifdef __unix__
+ int(*comparefn)(const char *,const char *) = strcmp;
+ char *(*substrfn)(const char *,const char *) = strstr;
+ #ifdef __unix__
+ int cflags = REG_NOSUB | REG_EXTENDED;
  regex_t re;
-#endif
+ #else
+ char *regexp_options = NULL;
+ #endif
 
  if(!val) {
    fprintf(errfp, "search(): warning: null val key\n");
@@ -652,13 +657,25 @@ int search(const char *tok, const char *val, int sub, int sel)
  }
  save_draw = xctx->draw_window;
  xctx->draw_window=1;
-#ifdef __unix__
- if(regcomp(&re, val , REG_NOSUB | REG_EXTENDED)) return TCL_ERROR;
-#endif
+ /* replace strcmp and strstr with my_strcasecmp and my_strcasestr 
+  * if SPICE or VHDL (case insensitive) netlist mode is set */
+ if(!match_case) {
+   comparefn = my_strcasecmp;
+   substrfn = my_strcasestr;
+ }
+ #ifdef __unix__
+ if(!match_case) {
+   cflags |= REG_ICASE; /* ignore case for Spice and VHDL (these are case insensitive netlists) */
+ }
+ if(regcomp(&re, val , cflags)) return TCL_ERROR;
+ #else 
+ if(!match_case) {
+   regexp_options = "-nocase";
+ }
+ #endif
  dbg(1, "search():val=%s\n", val);
  if(!sel) {
    col=xctx->hilight_color;
-   if(tclgetboolvar("incr_hilight")) incr_hilight_color();
  }
  has_token = 0;
  prepare_netlist_structs(0);
@@ -693,11 +710,10 @@ int search(const char *tok, const char *val, int sub, int sel)
    if(str && has_token) {
      #ifdef __unix__
      if( (!sub && !regexec(&re, str,0 , NULL, 0) ) ||           /* 20071120 regex instead of strcmp */
-         (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
+         (sub && !bus && !comparefn(str, val)) || (sub && bus && substrfn(str,val)))
      #else
-
-     if( (!sub && win_regexec(NULL, val, str)) ||
-         (sub && !strcmp(str, val) && !bus) || (sub && strstr(str,val) && bus))
+     if( (!sub && win_regexec(regexp_options, val, str)) ||
+         (sub && !bus && !comparefn(str, val)) || (sub && bus && substrfn(str,val)))
      #endif
      {
        if(!sel) {
@@ -728,10 +744,10 @@ int search(const char *tok, const char *val, int sub, int sel)
    if(xctx->tok_size ) {
      #ifdef __unix__
      if(   (!regexec(&re, str,0 , NULL, 0) && !sub )  ||       /* 20071120 regex instead of strcmp */
-           ( !strcmp(str, val) &&  sub ) )
+           ( !comparefn(str, val) &&  sub ) )
      #else
-       if(   (win_regexec(NULL, val, str) && !sub )  ||       /* 20071120 regex instead of strcmp */
-           ( !strcmp(str, val) &&  sub ) )
+       if(   (win_regexec(regexp_options, val, str) && !sub )  ||       /* 20071120 regex instead of strcmp */
+           ( !comparefn(str, val) &&  sub ) )
 
      #endif
      {
@@ -759,10 +775,10 @@ int search(const char *tok, const char *val, int sub, int sel)
    if(xctx->tok_size) {
      #ifdef __unix__
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
-         ( !strcmp(str, val) &&  sub ))
+         ( !comparefn(str, val) &&  sub ))
      #else
-     if( (win_regexec(NULL, val, str) && !sub ) ||
-         ( !strcmp(str, val) &&  sub ))
+     if( (win_regexec(regexp_options, val, str) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
      #endif
      {
        if(sel==1) {
@@ -786,10 +802,10 @@ int search(const char *tok, const char *val, int sub, int sel)
    if(xctx->tok_size) {
      #ifdef __unix__
      if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
-         ( !strcmp(str, val) &&  sub ))
+         ( !comparefn(str, val) &&  sub ))
      #else
-     if( (win_regexec(NULL, val, str) && !sub ) ||
-         ( !strcmp(str, val) &&  sub ))
+     if( (win_regexec(regexp_options, val, str) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
      #endif
      {
          if(sel==1) {
@@ -809,6 +825,7 @@ int search(const char *tok, const char *val, int sub, int sel)
    }
  }
  if(found) {
+  if(tclgetboolvar("incr_hilight")) incr_hilight_color();
    if(sel == -1) {
      draw();
    }

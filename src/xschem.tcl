@@ -1327,7 +1327,7 @@ proc descend_hierarchy {path {redraw 1}} {
     set inst $path
     regsub {\..*} $inst {} inst    ;# take 1st path component: xlev1[3].xlev2.m3 -> xlev1[3]
     regsub {[^.]+\.} $path {} path ;# take remaining path: xlev1[3].xlev2.m3 -> xlev2.m3
-    xschem search exact 1 name $inst
+    xschem search exact 1 name $inst 1
     # handle vector instances: xlev1[3:0] -> xlev1[3],xlev1[2],xlev1[1],xlev1[0]
     # descend into the right one
     set inst_list [split [lindex [xschem expandlabel [lindex [xschem selected_set] 0 ] ] 0] {,}]
@@ -3600,7 +3600,7 @@ proc about {} {
 
 proc property_search {} {
   global search_value search_found
-  global search_exact
+  global search_exact search_case
   global search_select
   global custom_token OS
 
@@ -3631,22 +3631,24 @@ proc property_search {} {
           set custom_token [.dialog.custom.e get]
           if {$debug_var<=-1} { puts stderr "|$custom_token|" }
           if { $search_exact==1 } {
-            set search_found [xschem searchmenu exact $search_select $custom_token $search_value]
+            set search_found [xschem searchmenu exact $search_select $custom_token $search_value $search_case]
           } else {
-            set search_found [xschem searchmenu regex $search_select $custom_token $search_value]
+            set search_found [xschem searchmenu regex $search_select $custom_token $search_value $search_case]
           }
           destroy .dialog 
     }
     button .dialog.but.cancel -text Cancel -command { set search_found 1; destroy .dialog }
     
     # Window doesn't support regular expression, has to be exact match for now
-    checkbutton .dialog.but.sub -text Exact_search -variable search_exact 
+    checkbutton .dialog.but.sub -text {Exact search} -variable search_exact 
+    checkbutton .dialog.but.case -text {Match case} -variable search_case 
     radiobutton .dialog.but.nosel -text {Highlight} -variable search_select -value 0
     radiobutton .dialog.but.sel -text {Select} -variable search_select -value 1
     # 20171211 added unselect
     radiobutton .dialog.but.unsel -text {Unselect} -variable search_select -value -1
     pack .dialog.but.ok  -anchor w -side left
     pack .dialog.but.sub  -side left
+    pack .dialog.but.case  -side left
     pack .dialog.but.nosel  -side left
     pack .dialog.but.sel  -side left
     pack .dialog.but.unsel  -side left
@@ -5493,7 +5495,7 @@ set tctx::global_list {
   netlist_type no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   rawfile_loaded rcode recentfile
-  replace_key retval retval_orig rotated_text search_exact search_found search_schematic
+  replace_key retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
@@ -6754,6 +6756,7 @@ set_ne XSCHEM_START_WINDOW {}
 set custom_token {lab}
 set search_value {}
 set search_exact 0
+set search_case 1
 
 # 20171005
 set custom_label_prefix {}

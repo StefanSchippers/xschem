@@ -45,6 +45,28 @@ int my_strcasecmp(const char *s1, const char *s2)
   return tolower(*s1) - tolower(*s2);
 }
 
+char *my_strcasestr(const char *haystack, const char *needle)
+{
+  const char *h, *n;
+  int found = 0;
+  if(needle[0] == '\0') return (char *)haystack;
+
+  for(h = haystack; *h; h++) {
+    found = 1;
+    for(n = needle; *n; n++) {
+      const char *hh = h + (n - needle);
+      dbg(1, "%c   %c\n", *hh, *n);
+      if(toupper(*hh) != toupper(*n)) {
+        found = 0;
+        break;
+      }
+    }
+    if(found) return (char *)h;
+  }
+  return NULL;
+}
+
+
 int my_strncasecmp(const char *s1, const char *s2, size_t n)
 {
   if (n == 0) return 0;

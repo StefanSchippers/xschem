@@ -3154,7 +3154,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* search regex|exact select tok val
+    /* search regex|exact select tok val [match_case]
      *   Search instances with attribute string containing 'tok'
      *   attribute and value 'val'
      *   search can be exact ('exact') or as a regular expression ('regex')
@@ -3170,21 +3170,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *       cell::name : will search for 'val' in the symbol name
      *       cell::<attr> will search for 'val' in symbol attribute 'attr'
      *         example: xschem search regex 0 cell::template GAIN=100
+     *    match_case:
+     *      1 : Match case
+     *      0 : Do not match case
+     *      If not given assume 1 (Match case)
      */
     else if(!strcmp(argv[1], "search") || !strcmp(argv[1], "searchmenu"))
     {
-      /*   0      1         2        3       4   5   */
-      /*                           select            */
-      /* xschem search regex|exact 0|1|-1   tok val  */
+      /*   0      1         2        3       4   5        6      */
+      /*                           select                        */
+      /* xschem search regex|exact 0|1|-1   tok val [match_case] */
       int select, r;
+      int match_case = 1;
+      if(argc > 6 && argv[6][0] == '0') match_case = 0;
       if(argc < 6) {
         Tcl_SetResult(interp, "xschem search requires 4 or 5 additional fields.", TCL_STATIC);
         return TCL_ERROR;
       }
       if(argc > 5) {
         select = atoi(argv[3]);
-        if(!strcmp(argv[2], "regex") )  r = search(argv[4],argv[5],0,select);
-        else  r = search(argv[4],argv[5],1,select);
+        if(!strcmp(argv[2], "regex") )  r = search(argv[4],argv[5],0,select, match_case);
+        else  r = search(argv[4],argv[5],1,select, match_case);
         if(r == 0) {
           if(has_x && !strcmp(argv[1], "searchmenu")) 
             tcleval("tk_messageBox -type ok -parent [xschem get topwindow] -message {Not found.}");
@@ -3855,8 +3861,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      dbg(0, "sizeof Xschem_ctx=%d\n", sizeof(Xschem_ctx));
-      /* swap_windows(); */
+      /* 
+      * if(argc > 3) {
+      *   char *r = my_strcasestr(argv[2], argv[3]);
+      *   dbg(0, "%s\n", r ? r : "NULL");
+      * }
+      */
       Tcl_ResetResult(interp);
     }
 
