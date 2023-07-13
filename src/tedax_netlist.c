@@ -51,7 +51,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
        /* already done in global_tedax_netlist */
        if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
        if(xctx->netlist_count &&
-          !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
+          !strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
        if(!strcmp(type,"netlist_commands")) {
          fprintf(fd,"#**** begin user architecture code\n");
          print_tedax_element(fd, i) ;  /* this is the element line  */
@@ -76,7 +76,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   char filename[PATH_MAX];
   char *extra=NULL;
 
-  if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
+  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
      tedax_stop=1;
   else
      tedax_stop=0;

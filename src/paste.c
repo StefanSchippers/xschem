@@ -102,7 +102,7 @@ static void merge_box(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
       ptr[i].fill =0;
     else
       ptr[i].fill =1;
@@ -136,7 +136,7 @@ static void merge_arc(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -192,7 +192,7 @@ static void merge_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;

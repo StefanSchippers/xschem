@@ -784,7 +784,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
 
-  if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
   if( !fast )
@@ -869,7 +869,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
 
-  if(!strcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
   if(!fast)
   {

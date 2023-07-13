@@ -1853,7 +1853,7 @@ static void load_wire(FILE *fd)
     ptr[i].end1 = ptr[i].end2 = ptr[i].bus = ptr[i].sel = 0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
     ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
-    if(!strcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") ) ptr[i].bus = 1;
+    if(!strboolcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") ) ptr[i].bus = 1;
     ptr[i].node = NULL;
     xctx->wires++;
 }
@@ -1946,7 +1946,7 @@ static void load_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -1986,7 +1986,7 @@ static void load_arc(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -2027,7 +2027,7 @@ static void load_box(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
+    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
       ptr[i].fill =0;
     else
       ptr[i].fill =1;
@@ -2068,7 +2068,7 @@ static void load_line(FILE *fd)
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
 
-    if(!strcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") )
+    if(!strboolcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") )
       ptr[i].bus = 1;
     else
       ptr[i].bus = 0;
@@ -3339,7 +3339,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tmpline.prop_ptr = NULL;
      load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
 
-     if( !strcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+     if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
        my_free(_ALLOC_ID_, &tmpline.prop_ptr);
        continue;
      }
@@ -3362,7 +3362,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }
      ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2);
      dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
-     if(!strcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
+     if(!strboolcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
        ll[c][i].bus = 1;
      else
        ll[c][i].bus = 0;
@@ -3405,7 +3405,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tmppoly.prop_ptr=NULL;
      load_ascii_string( &tmppoly.prop_ptr, lcc[level].fd);
 
-     if( !strcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
+     if( !strboolcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
        my_free(_ALLOC_ID_, &tmppoly.prop_ptr);
        my_free(_ALLOC_ID_, &tmppoly.x);
        my_free(_ALLOC_ID_, &tmppoly.y);
@@ -3422,7 +3422,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      pp[c][i].prop_ptr = tmppoly.prop_ptr;
      pp[c][i].points = poly_points;
 
-     if( !strcmp(get_tok_value(pp[c][i].prop_ptr,"fill",0),"true") )
+     if( !strboolcmp(get_tok_value(pp[c][i].prop_ptr,"fill",0),"true") )
        pp[c][i].fill =1;
      else
        pp[c][i].fill =0;
@@ -3455,7 +3455,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tmparc.prop_ptr = NULL;
      load_ascii_string( &tmparc.prop_ptr, lcc[level].fd);
 
-     if( !strcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
+     if( !strboolcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
        my_free(_ALLOC_ID_, &tmparc.prop_ptr);
        continue;
      }
@@ -3484,7 +3484,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].x = lcc[level].x0 + rx1;  aa[c][i].y = lcc[level].y0 + ry1;
        aa[c][i].a = angle;
      }
-     if( !strcmp(get_tok_value(aa[c][i].prop_ptr,"fill",0),"true") )
+     if( !strboolcmp(get_tok_value(aa[c][i].prop_ptr,"fill",0),"true") )
        aa[c][i].fill =1;
      else
        aa[c][i].fill =0;
@@ -3515,7 +3515,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      tmprect.prop_ptr = NULL;
      load_ascii_string(&tmprect.prop_ptr, lcc[level].fd);
 
-     if( !strcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
+     if( !strboolcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
        my_free(_ALLOC_ID_, &tmprect.prop_ptr);
        continue;
      }
@@ -3544,7 +3544,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        continue;
      }
      dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
-     if( !strcmp(get_tok_value(bb[c][i].prop_ptr,"fill",0),"false") )
+     if( !strboolcmp(get_tok_value(bb[c][i].prop_ptr,"fill",0),"false") )
        bb[c][i].fill =0;
      else
        bb[c][i].fill =1;
@@ -3576,7 +3576,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        get_tok_value(tmptext.prop_ptr, "floater", 2);
        if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
      }
-     if( !strcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
+     if( !strboolcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
        my_free(_ALLOC_ID_, &tmptext.prop_ptr);
        my_free(_ALLOC_ID_, &tmptext.txt_ptr);
        continue;
@@ -3670,7 +3670,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      }    
      load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
 
-     if( !strcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+     if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
        my_free(_ALLOC_ID_, &tmpline.prop_ptr);
        continue;
      }
@@ -3693,7 +3693,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
      ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2);
      dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
      ll[WIRELAYER][i].dash = 0;
-     if(!strcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
+     if(!strboolcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
        ll[WIRELAYER][i].bus = 1;
      else
        ll[WIRELAYER][i].bus = 0;
@@ -3753,7 +3753,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           !strcmp(symtype, "verilog_preprocessor") ||
           !strcmp(symtype, "timescale")
         ) break;
-      if(!strcmp(get_tok_value(prop_ptr, "symbol_ignore", 0), "true")) break;
+      if(!strboolcmp(get_tok_value(prop_ptr, "symbol_ignore", 0), "true")) break;
       /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
       if( level==0 && IS_PIN(symtype) ) {
         add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);

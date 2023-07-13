@@ -79,6 +79,18 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
+/* same as strcmp(), but allow "1" for "true" and "0" for "false" */
+int strboolcmp(const char *str, const char *boolean)
+{
+  if(!strcmp(boolean, "true")) {
+    return (strcmp(str, "true") != 0  && strcmp(str,"1") != 0);
+  } else if(!strcmp(boolean, "false")) {
+    return (strcmp(str, "false") != 0 && strcmp(str,"0") != 0);
+  } else {
+     return strcmp(str, boolean);
+  }
+}
+
 /* return lenght of line and skip */
 size_t my_fgets_skip(FILE *fd)
 {
@@ -831,7 +843,7 @@ static int edit_rect_property(int x)
         xctx->rect[c][n].dash = 0;
 
       fill = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
-      if(!strcmp(fill, "false")) xctx->rect[c][n].fill = 0;
+      if(!strboolcmp(fill, "false")) xctx->rect[c][n].fill = 0;
       else xctx->rect[c][n].fill = 1;
 
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
@@ -889,7 +901,7 @@ static int edit_line_property(void)
         my_strdup(_ALLOC_ID_, &xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
-      xctx->line[c][n].bus = !strcmp(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0), "true");
+      xctx->line[c][n].bus = !strboolcmp(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0), "true");
       dash = get_tok_value(xctx->line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
@@ -949,7 +961,7 @@ static int edit_wire_property(void)
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("retval"));
       }
       bus_ptr = get_tok_value(xctx->wire[k].prop_ptr,"bus",0);
-      if(!strcmp(bus_ptr, "true")) {
+      if(!strboolcmp(bus_ptr, "true")) {
         double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
@@ -1011,7 +1023,7 @@ static int edit_arc_property(void)
         my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
      old_fill = xctx->arc[c][i].fill;
-     if( !strcmp(get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0),"true") )
+     if( !strboolcmp(get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0),"true") )
        xctx->arc[c][i].fill =1;
      else
        xctx->arc[c][i].fill =0;
@@ -1081,7 +1093,7 @@ static int edit_polygon_property(void)
      }
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
-     if( !strcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0),"true") )
+     if( !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0),"true") )
        xctx->poly[c][i].fill =1;
      else
        xctx->poly[c][i].fill =0;

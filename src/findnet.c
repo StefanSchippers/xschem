@@ -268,7 +268,7 @@ static void find_closest_element(double mx,double my)
     dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n",i,tmp);
   }
  } /* end for i */
- if( r!=-1 &&  strcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true") ) {
+ if( r!=-1 &&  strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true") ) {
    sel.n = r; sel.type = ELEMENT;
  }
 }

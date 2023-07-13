@@ -194,7 +194,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
        /* already done in global_spice_netlist */
        if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
        if(xctx->netlist_count &&
-          !strcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
+          !strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
        if(!strcmp(type,"netlist_commands")) {
          fprintf(fd,"**** begin user architecture code\n");
          print_spice_element(fd, i) ;  /* this is the element line  */
@@ -416,12 +416,12 @@ int global_spice_netlist(int global)  /* netlister driver */
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        if( split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
+        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           err |= vhdl_block_netlist(fd, i);
-        else if(split_f && strcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
+        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
           err |= verilog_block_netlist(fd, i);
         else
-          if( strcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") )
+          if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") )
             err |= spice_block_netlist(fd, i);
       }
     }
@@ -541,7 +541,7 @@ int spice_block_netlist(FILE *fd, int i)
   my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
   split_f = tclgetboolvar("split_files");
 
-  if(!strcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
+  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
      spice_stop=1;
   else
      spice_stop=0;

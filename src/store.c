@@ -152,7 +152,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   xctx->arc[rectc][n].prop_ptr = NULL;
   my_strdup(_ALLOC_ID_, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
   xctx->arc[rectc][n].sel = sel;
-  if( !strcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
+  if( !strboolcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
     xctx->arc[rectc][n].fill =1;
   else
     xctx->arc[rectc][n].fill =0;
@@ -199,7 +199,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   xctx->poly[rectc][n].sel = sel;
 
 
-  if( !strcmp(get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0),"true") )
+  if( !strboolcmp(get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0),"true") )
     xctx->poly[rectc][n].fill =1;
   else
     xctx->poly[rectc][n].fill =0;
@@ -241,7 +241,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->line[rectc][n].prop_ptr=NULL;
      my_strdup(_ALLOC_ID_, &xctx->line[rectc][n].prop_ptr, prop_ptr);
      xctx->line[rectc][n].sel=sel;
-     if( prop_ptr && !strcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
+     if( prop_ptr && !strboolcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
        xctx->line[rectc][n].bus = 1;
      else
        xctx->line[rectc][n].bus = 0;
@@ -279,7 +279,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->rect[rectc][n].dash = 0;
-     if(!strcmp(get_tok_value(xctx->rect[rectc][n].prop_ptr,"fill",0),"false") )
+     if(!strboolcmp(get_tok_value(xctx->rect[rectc][n].prop_ptr,"fill",0),"false") )
        xctx->rect[rectc][n].fill =0;
      else
        xctx->rect[rectc][n].fill =1;
@@ -313,7 +313,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->wire[n].end1=0;
      xctx->wire[n].end2=0;
      my_strdup(_ALLOC_ID_, &xctx->wire[n].prop_ptr, prop_ptr);
-     if(prop_ptr && !strcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
+     if(prop_ptr && !strboolcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
      else xctx->wire[n].bus=0;
      xctx->wire[n].sel=sel;
      xctx->wires++;

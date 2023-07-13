@@ -3004,7 +3004,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
 
-          xctx->inst[inst].embed = !strcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
+          xctx->inst[inst].embed = !strboolcmp(get_tok_value(xctx->inst[inst].prop_ptr, "embed", 2), "true");
           my_free(_ALLOC_ID_, &ptr);
         }
         my_free(_ALLOC_ID_, &name);
@@ -3927,7 +3927,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               first = 0;
             }
             remove = 0;
-            if(!strcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) remove = 1;
+            if(!strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, attr, 0), "true")) remove = 1;
             if(remove) {
               my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, NULL));
             } else {

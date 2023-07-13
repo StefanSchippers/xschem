@@ -406,19 +406,19 @@ void netlist_options(int i)
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_ignore", 0);
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
-    if(!strcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
+    if(!strboolcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
     else tclsetintvar("lvs_.netlist", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_netlist", 0);
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
-    if(!strcmp(str, "true")) tclsetintvar("lvs_netlist", 1);
+    if(!strboolcmp(str, "true")) tclsetintvar("lvs_netlist", 1);
     else tclsetintvar("lvs_netlist", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "spiceprefix", 0);
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
-    if(!strcmp(str, "false")) tclsetvar("spiceprefix", "0");
+    if(!strboolcmp(str, "false")) tclsetvar("spiceprefix", "0");
     else tclsetvar("spiceprefix", "1");
   }
 
@@ -1125,7 +1125,7 @@ static int name_nodes_of_pins_labels_and_propagate()
                 inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
-      if(!strcmp(type,"label") && global_node && !strcmp(global_node, "true")) {
+      if(!strcmp(type,"label") && global_node && !strboolcmp(global_node, "true")) {
         dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
         record_global_node(1,NULL, inst[i].node[0]);
       }

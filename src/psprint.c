@@ -133,9 +133,9 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   my_free(_ALLOC_ID_, &closure.buffer);
   png_data = cairo_image_surface_get_data(surface);
 
-  invertImage = !strcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
+  invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
   if(!invertImage)
-    invertImage = !strcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
+    invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
   BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
   for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
   {

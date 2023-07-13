@@ -983,7 +983,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     for(i=0;i<no_of_pins; ++i)
     {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-      if(strcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
+      if(strboolcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
         const char *name = get_tok_value(prop,"name",0);
         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
           if(!first) fprintf(fd, " , ");
@@ -999,7 +999,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     for(i=0;i<no_of_pins; ++i) {
      xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
-       if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
          str_ptr =  net_name(inst,i, &multip, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
@@ -1060,7 +1060,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
        const char *si;
        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
        si  = get_tok_value(prop, "verilog_ignore",0);
-       if(strcmp(si, "true")) {
+       if(strboolcmp(si, "true")) {
          str_ptr =  net_name(inst,n, &multip, 0, 1);
          fprintf(fd, "----pin(%s) ", str_ptr);
        }
@@ -1478,7 +1478,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int_hash_init(&table, 37);
   for(i=0;i<no_of_pins; ++i)
   {
-    if(strcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
+    if(strboolcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
       const char *name = get_tok_value(pinptr[i].prop_ptr, "name", 0);
       if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
         if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
@@ -1715,7 +1715,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
   for(i=0;i<no_of_pins; ++i)
   {
-    if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), "true")) {
+    if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), "true")) {
       str_ptr=
         expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
       fprintf(fd, "%s ", str_ptr);
@@ -1808,7 +1808,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
     int_hash_init(&table, 37);
     for(i=0;i<no_of_pins; ++i)
     {
-      if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+      if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
           str_ptr= expandlabel(name, &multip);
@@ -1824,7 +1824,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
        prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
-     if(i<no_of_pins && strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
        fprintf(fd, "%s ", expandlabel(token+2, &multip));
      }
    }
@@ -1835,7 +1835,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
      pin_number = get_sym_pin_number(symbol, pin_num_or_name);
      if(pin_number >= 0 && pin_number < no_of_pins) {
-       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
        fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
        }
@@ -2073,7 +2073,7 @@ int print_spice_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins; ++i)
         {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-          int spice_ignore = !strcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+          int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
           const char *name = get_tok_value(prop, "name", 0);
           if(!spice_ignore) {
             if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
@@ -2092,7 +2092,7 @@ int print_spice_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins; ++i) {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
-            if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+            if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
               str_ptr =  net_name(inst,i, &multip, 0, 1);
 
               tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
@@ -2159,7 +2159,7 @@ int print_spice_element(FILE *fd, int inst)
           const char *si;
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
           si  = get_tok_value(prop, "spice_ignore",0);
-          if(strcmp(si, "true")) {
+          if(strboolcmp(si, "true")) {
             str_ptr =  net_name(inst,n, &multip, 0, 1);
 
             tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
@@ -2548,7 +2548,7 @@ void print_tedax_element(FILE *fd, int inst)
         const char *si;
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
         si  = get_tok_value(prop, "tedax_ignore",0);
-        if(strcmp(si, "true")) {
+        if(strboolcmp(si, "true")) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
@@ -2733,7 +2733,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      int first = 1;
      int_hash_init(&table, 37);
      for(i=0;i<no_of_pins; ++i) {
-       if(strcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
          const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
            if(!first) fprintf(fd, " , ");
@@ -2808,7 +2808,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         const char *si;
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
         si  = get_tok_value(prop, "verilog_ignore",0);
-        if(strcmp(si, "true")) {
+        if(strboolcmp(si, "true")) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
           fprintf(fd, "----pin(%s) ", str_ptr);
         }
@@ -2999,7 +2999,7 @@ void print_verilog_element(FILE *fd, int inst)
  for(i=0;i<no_of_pins; ++i)
  {
    xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
-   if(strcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+   if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
      const char *name = get_tok_value(ptr->rect[PINLAYER][i].prop_ptr, "name", 0);
      if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
        if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
@@ -3216,8 +3216,8 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
     if(!pin_attr_value && is_net_name) {
       char *instprop = xctx->inst[inst].prop_ptr;
       char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-      if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-         !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
+      if(s_pnetname && (!strboolcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+         !strboolcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
          prepare_netlist_structs(0);
          my_strdup2(_ALLOC_ID_, &pin_attr_value,
               xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
@@ -3233,8 +3233,8 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
       char *instprop = xctx->inst[inst].prop_ptr;
       char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
       dbg(1, "translate(): resolved_net: %s, symbol %s\n", xctx->current_name, xctx->inst[inst].name);
-      if(s_pnetname && (!strcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-         !strcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
+      if(s_pnetname && (!strboolcmp(get_tok_value(symprop, "net_name", 0), "true") ||
+         !strboolcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
         prepare_netlist_structs(0);
         if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
           rn = resolved_net(xctx->inst[inst].node[n]);
@@ -3383,7 +3383,7 @@ const char *translate(int inst, const char* s)
      for(i=0;i<no_of_pins; ++i) {
        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
        if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
-         if(strcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+         if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
            const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
            tmp = strlen(str_ptr) +100 ;
            STR_ALLOC(&result, tmp + result_pos, &size);
