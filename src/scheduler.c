@@ -1343,7 +1343,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       static char res[8192];
       Tcl_ResetResult(interp);
       my_snprintf(res, S(res), "*******global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+      
+      my_snprintf(res, S(res), "areax1=%d\n", xctx->areax1); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areay1=%d\n", xctx->areay1); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areax2=%d\n", xctx->areax2); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areay2=%d\n", xctx->areay2); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areaw=%d\n", xctx->areaw); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "areah=%d\n", xctx->areah); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "xrect[0].width=%d\n",
+              xctx->xrect[0].width); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "xrect[0].height=%d\n",
+              xctx->xrect[0].height); Tcl_AppendResult(interp, res, NULL);
+
       my_snprintf(res, S(res), "INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "lw=%g\n", xctx->lw); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "symbols=%d\n", xctx->symbols); Tcl_AppendResult(interp, res, NULL);
@@ -2541,6 +2554,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem print svg file.svg   400 300        [ -300 -200 300 200 ]
      *   xschem print ps  file.ps
      *   xschem print pdf file.pdf
+     *   xschem print ps_full  file.ps
+     *   xschem print pdf_full file.pdf
      */
     else if(!strcmp(argv[1], "print") )
     {
@@ -2553,7 +2568,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
       if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps")) {
-        ps_draw(7);
+        int fullzoom = 0;
+        ps_draw(7, fullzoom);
+      }
+      else if(!strcmp(argv[2], "pdf_full") || !strcmp(argv[2],"ps_full")) {
+        int fullzoom = 1;
+        ps_draw(7, fullzoom);
       }
       else if(!strcmp(argv[2], "png")) {
         int w = 0, h = 0;

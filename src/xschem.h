@@ -1201,7 +1201,7 @@ extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what)
 extern int search(const char *tok, const char *val, int sub, int sel, int match_case);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
-extern int ps_draw(int what);
+extern int ps_draw(int what, int fullzoom);
 extern void svg_draw(void);
 extern void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2);
 extern void set_viewport_size(int w, int h, double lw);
@@ -1577,6 +1577,6 @@ extern void del_wire_table(void);
 extern void del_object_table(void);
 extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char **filename);
-extern void create_ps(char** psfile, int what);
+extern void create_ps(char** psfile, int what, int fullzoom);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
 #endif /*CADGLOBALS */

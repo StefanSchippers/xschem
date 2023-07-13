@@ -272,6 +272,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   set_viewport_size(rwi, rhi, xctx->lw);
   zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
   resetwin(1, 1, 1, rwi, rhi);
+  change_linewidth(xctx->lw * 4.0);
+  dbg(1, "lw=%g\n", xctx->lw);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
   save_draw_window = xctx->draw_window;
@@ -310,15 +312,15 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
 
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
-  xctx->draw_window = save_draw_window;
-  xctx->do_copy_area = save;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0);
   resetwin(1, 1, 1, 0, 0);
-  change_linewidth(-1.);
+  change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
   draw();
+  xctx->do_copy_area = save;
+  xctx->draw_window = save_draw_window;
   fprintf(fd, "gsave\n");
   fprintf(fd, "save\n");
   fprintf(fd, "/RawData currentfile /ASCII85Decode filter def\n");
@@ -453,14 +455,14 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
 
 static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash, int fill)
 {
- double x1,y1,x2,y2;
+ double x1,y1,x2,y2, tmp;
  double psdash;
 
   x1=X_TO_PS(rectx1);
   y1=Y_TO_PS(recty1);
   x2=X_TO_PS(rectx2);
   y2=Y_TO_PS(recty2);
-  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&tmp,&tmp,&tmp,&tmp) )
   {
     psdash = dash / xctx->zoom;
     if(dash) {
@@ -852,6 +854,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     }
 
   }
+  if((xctx->inst[n].ptr+ xctx->sym)->arcs[layer]) fprintf(fd, "NP\n"); /* newpath */
   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->arcs[layer]; ++j)
   {
     double angle;
@@ -958,8 +961,7 @@ static void fill_ps_colors()
 
 }
 
-/* #define A4 */
-void create_ps(char **psfile, int what)
+void create_ps(char **psfile, int what, int fullzoom)
 {
   double dx, dy, scale, scaley;
   int landscape=1;
@@ -972,11 +974,23 @@ void create_ps(char **psfile, int what)
   int c,i, textlayer;
   int old_grid;
   const char *textfont;
+  static double saveadjustedxorigin,saveadjustedyorigin, saveadjustedzoom, saveadjustedmooz, saveadjustedlw;
+  static double savexorigin, saveyorigin, savezoom, savemooz, savelw;
+  static int savex1, savey1, savex2, savey2, savew, saveh;
+  static int saveadjustedx1, saveadjustedy1, saveadjustedx2, saveadjustedy2, saveadjustedw, saveadjustedh;
+  static XRectangle savexrect, saveadjustedxrect;
 
+  dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
   if(tcleval("info exists ps_paper_size")[0] == '1') {
+    double tmp;
     my_strncpy(papername, tcleval("lindex $ps_paper_size 0"), S(papername));
     pagex = my_atod(tcleval("lindex $ps_paper_size 1"));
     pagey = my_atod(tcleval("lindex $ps_paper_size 2"));
+    if(pagex < pagey) { /* start with landscape; later we decide paper orientation */
+      tmp = pagex;
+      pagex = pagey;
+      pagey = tmp;
+    }
   }
   if(what & 1) { /* prolog */
     numpages = 0;
@@ -996,7 +1010,7 @@ void create_ps(char **psfile, int what)
   old_grid=tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
 
-
+  /* xschem window aspect ratio decides if portrait or landscape */
   boundbox.x1 = xctx->areax1;
   boundbox.x2 = xctx->areax2;
   boundbox.y1 = xctx->areay1;
@@ -1004,10 +1018,72 @@ void create_ps(char **psfile, int what)
   dx=boundbox.x2-boundbox.x1;
   dy=boundbox.y2-boundbox.y1;
 
-  /* xschem window aspect ratio decides if portrait or landscape */
-  if(dy > dx) landscape = 0;
-  else landscape = 1;
-  if(!landscape) {
+  /* xschem drawing bbox decides if portrait or landscape */
+  if(fullzoom) {
+    calc_drawing_bbox(&boundbox, 0);
+    dx=boundbox.x2-boundbox.x1;
+    dy=boundbox.y2-boundbox.y1;
+  }
+  if(dx >= dy) {
+    landscape = 1;
+  } else {
+    landscape = 0;
+  }
+  dbg(1, "dx=%g, dy=%g\n", dx, dy);
+
+
+  if(fullzoom) {
+    /* save size and zoom factor */
+    savexorigin = xctx->xorigin;
+    saveyorigin = xctx->yorigin;
+    savezoom = xctx->zoom;
+    savemooz = xctx->mooz;
+    savelw = xctx->lw;
+    savex1 = xctx->areax1;
+    savex2 = xctx->areax2;
+    savey1 = xctx->areay1;
+    savey2 = xctx->areay2;
+    savew = xctx->areaw;
+    saveh = xctx->areah;
+    savexrect = xctx->xrect[0];
+    /* this zoom only done to reset lw */
+    zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+    /* adjust aspect ratio to paper size */
+    if(landscape) 
+      xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
+    else
+      xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
+    saveadjustedxrect = xctx->xrect[0];
+    dbg(1, "xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areaw = xctx->areax2-xctx->areax1;
+    xctx->areah = xctx->areay2 - xctx->areay1;
+    dbg(1, "dx=%g, dy=%g\n", dx, dy);
+    /* fit schematic into adjusted size */
+    zoom_full(0, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+    boundbox.x1 = xctx->areax1;
+    boundbox.x2 = xctx->areax2;
+    boundbox.y1 = xctx->areay1;
+    boundbox.y2 = xctx->areay2;
+    dx=boundbox.x2-boundbox.x1;
+    dy=boundbox.y2-boundbox.y1;
+    saveadjustedlw = xctx->lw;
+    saveadjustedx1 = xctx->areax1;
+    saveadjustedy1 = xctx->areay1;
+    saveadjustedx2 = xctx->areax2;
+    saveadjustedy2 = xctx->areay2;
+    saveadjustedw = xctx->areaw;
+    saveadjustedh = xctx->areah;
+    saveadjustedzoom = xctx->zoom;
+    saveadjustedmooz = xctx->mooz;
+    saveadjustedxorigin = xctx->xorigin;
+    saveadjustedyorigin = xctx->yorigin;
+  }
+
+  if(!landscape) { /* decide paper orientation for best schematic fit */
     double tmp;
     tmp = pagex;
     pagex = pagey;
@@ -1146,20 +1222,43 @@ void create_ps(char **psfile, int what)
       {
         
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
-            xRect* r = &xctx->rect[c][i];
-            /* PNG Code Here */
-            ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2,0 ,0);
-            continue;
+          xRect* r = &xctx->rect[c][i];
+          /* PNG Code Here */
+          ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2,0 ,0);
+          continue;
         }
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
-                xRect* r = &xctx->rect[c][i];
-                ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+          xRect* r = &xctx->rect[c][i];
+          ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+          /* restore original size and zoom factor */
+          if(fullzoom) {
+            xctx->xorigin = saveadjustedxorigin;
+            xctx->yorigin = saveadjustedyorigin;
+            xctx->zoom = saveadjustedzoom;
+            xctx->mooz = saveadjustedmooz;
+            xctx->lw = saveadjustedlw;
+            xctx->areax1 = saveadjustedx1;
+            xctx->areax2 = saveadjustedx2;
+            xctx->areay1 = saveadjustedy1;
+            xctx->areay2 = saveadjustedy2;
+            xctx->areaw = saveadjustedw;
+            xctx->areah = saveadjustedh;
+            xctx->xrect[0] = saveadjustedxrect;
+            boundbox.x1 = xctx->areax1;
+            boundbox.x2 = xctx->areax2;
+            boundbox.y1 = xctx->areay1;
+            boundbox.y2 = xctx->areay2;
+            dx=boundbox.x2-boundbox.x1;
+            dy=boundbox.y2-boundbox.y1;
+            change_linewidth(xctx->lw);
+          }
         }
         if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
             xctx->rect[c][i].x2, xctx->rect[c][i].y2, xctx->rect[c][i].dash, xctx->rect[c][i].fill);
         }
       }
+      if(xctx->arcs[c]) fprintf(fd, "NP\n"); /* newpath */
       for(i=0;i<xctx->arcs[c]; ++i)
       {
         ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
@@ -1170,6 +1269,11 @@ void create_ps(char **psfile, int what)
           xctx->poly[c][i].fill, xctx->poly[c][i].dash);
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
+    } /* for(c=0;c<cadlayers; ++c) */
+
+    /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
+    for(c=0;c<cadlayers; ++c) {
+      set_ps_colors(c);
       for(i=0;i<xctx->instances; ++i)
         ps_draw_symbol(i,c,what,0,0,0.0,0.0);
     }
@@ -1183,6 +1287,7 @@ void create_ps(char **psfile, int what)
       double x1, y1, x2, y2;
       Wireentry *wireptr;
       int i;
+      int first = 1;
       Iterator_ctx ctx;
       update_conn_cues(WIRELAYER, 0, 0);
       /* draw connecting dots */
@@ -1191,6 +1296,10 @@ void create_ps(char **psfile, int what)
       x2 = X_TO_XSCHEM(xctx->areax2);
       y2 = Y_TO_XSCHEM(xctx->areay2);
       for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
+        if(first) {
+          fprintf(fd, "NP\n"); /* newpath */
+          first = 0;
+        }
         i = wireptr->n;
         if( xctx->wire[i].end1 >1 ) {
           ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360, 0);
@@ -1211,9 +1320,28 @@ void create_ps(char **psfile, int what)
   }
   tclsetboolvar("draw_grid", old_grid);
   my_free(_ALLOC_ID_, &ps_colors);
+
+
+  /* restore original size and zoom factor */
+  if(fullzoom) {
+    xctx->xorigin = savexorigin;
+    xctx->yorigin = saveyorigin;
+    xctx->zoom = savezoom;
+    xctx->mooz = savemooz;
+    xctx->lw = savelw;
+    xctx->areax1 = savex1;
+    xctx->areax2 = savex2;
+    xctx->areay1 = savey1;
+    xctx->areay2 = savey2;
+    xctx->areaw = savew;
+    xctx->areah = saveh;
+    xctx->xrect[0] = savexrect;
+    change_linewidth(-1.);
+  }
+
 }
 
-int ps_draw(int what)
+int ps_draw(int what, int fullzoom)
 {
  char tmp[2*PATH_MAX+40];
  static char lastdir[PATH_MAX] = "";
@@ -1234,7 +1362,7 @@ int ps_draw(int what)
      else return 0;
    }
  }
- create_ps(&psfile, what);
+ create_ps(&psfile, what, fullzoom);
  if(what & 4) { /* trailer */
    if(xctx->plotfile[0]) {
      my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, xctx->plotfile);

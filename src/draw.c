@@ -147,7 +147,7 @@ void print_image()
   } else tcleval( "convert_to_png plot.xpm plot.png");
   #else
   char *psfile = NULL;
-  create_ps(&psfile, 7);
+  create_ps(&psfile, 7, 0);
   if (xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, xctx->plotfile);
     tcleval(cmd);

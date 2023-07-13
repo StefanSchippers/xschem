@@ -2096,7 +2096,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           XSetFillStyle(display,xctx->gctiled,FillTiled);
           /* whenever a pixmap is recreated all GC attributes must be reissued */
           resetcairo(1, 0, 1); /* create, clear, force */
-          change_linewidth(-1.0);
+          /* change_linewidth(-1.0); */
         }
       }
     }
@@ -2761,7 +2761,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
      zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
-     ps_draw(7);
+     ps_draw(7, 0);
    } else if(cli_opt_do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");
