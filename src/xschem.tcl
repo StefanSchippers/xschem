@@ -5847,7 +5847,7 @@ proc build_widgets { {topwin {} } } {
      -command "xschem saveas {} symbol" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
   $topwin.menubar.file.menu add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
-  $topwin.menubar.file.menu add command -label "PDF/PS Export Full" -command "xschem print pdf_full" -accelerator {*}
+  $topwin.menubar.file.menu add command -label "PDF/PS Export Full" -command "xschem print pdf_full"
   $topwin.menubar.file.menu add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"
   $topwin.menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
   $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
