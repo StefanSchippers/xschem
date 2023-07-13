@@ -3659,6 +3659,7 @@ proc property_search {} {
     focus  .dialog
     bind .dialog <Escape> {.dialog.but.cancel invoke}
     bind .dialog <Return> {.dialog.but.ok invoke}
+    wm protocol .dialog WM_DELETE_WINDOW {.dialog.but.cancel invoke} 
     grab set .dialog
     tkwait window .dialog
     xschem set semaphore [expr {[xschem get semaphore] -1}]
