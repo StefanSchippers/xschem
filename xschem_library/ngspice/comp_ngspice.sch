@@ -1,4 +1,4 @@
-v {xschem version=3.4.0 file_version=1.2
+v {xschem version=3.4.1 file_version=1.2
 }
 G {}
 K {}
@@ -9,6 +9,8 @@ T {( @#0:resolved_net )} 440 -265 0 1 0.2 0.2 {name=l2 layer=15}
 T {( @#0:resolved_net )} 100 -285 0 1 0.2 0.2 {name=p1 layer=15}
 T {( @#0:resolved_net )} 100 -235 0 1 0.2 0.2 {name=p2 layer=15}
 T {( @#0:resolved_net )} 690 -265 0 1 0.2 0.2 {name=p3 layer=15}
+T {( @#0:resolved_net )} 250 -285 0 1 0.2 0.2 {name=l6 layer=15}
+T {( @#0:resolved_net )} 250 -235 0 1 0.2 0.2 {name=l1 layer=15}
 N 450 -240 450 -180 { lab=IOUT}
 N 450 -240 540 -240 { lab=IOUT}
 N 600 -240 680 -240 { lab=OUT}
@@ -23,8 +25,8 @@ C {bsource.sym} 450 -150 0 1 {name=B1 VAR=V FUNC="\{OFFSET + AMPLITUDE/2*(tanh(V
 }
 C {title.sym} 160 -30 0 0 {name=l3 author="Stefan Schippers"}
 C {res.sym} 570 -240 1 0 {name=R1
-value='ROUT'
+value=\{ROUT\}
 m=1}
-C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value='COUT' m=1}
+C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value=\{COUT\} m=1}
 C {vsource.sym} 150 -260 1 0 {name=V1 value=0}
 C {vsource.sym} 150 -210 1 0 {name=V2 value=0}

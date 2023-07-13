@@ -31,6 +31,9 @@ p{padding: 15px  30px 10px;}
   <li>ROUT: the output resistance.</li>
   <li>COUT: the output capacitance. Together with ROUT defines a RC time constant (dominant pole).</li>
  </ul>
+ <p> Parameters and expressions should be enclosed in curly braces or single quotes:<br>
+     <kbd>value={ROUT}</kbd> or <kbd>value='ROUT'</kbd>
+ </p>
  <p>
   The image below shows the circuit. A 'B' voltage-type source with an hyperbolic tangent
   function is used because it has continuous derivative and a realistic shape.
@@ -107,8 +110,8 @@ x1 REFD DRIVED IN comp_ngspice OFFSET=5 AMPLITUDE=10 GAIN=100 ROUT=1000 COUT=1p
 *.ipin MINUS
 *.opin OUT
 B1 IOUT 0 V = {OFFSET + AMPLITUDE/2*(tanh(V(IPLUS,IMINUS)*GAIN*2/AMPLITUDE))}
-R1 OUT IOUT ROUT m=1
-C3 OUT 0 COUT m=1
+R1 OUT IOUT {ROUT} m=1
+C3 OUT 0 {COUT} m=1
 V1 IPLUS PLUS 0
 .save i(v1)
 V2 IMINUS MINUS 0
