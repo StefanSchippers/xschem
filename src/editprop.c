@@ -82,10 +82,10 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
 /* same as strcmp(), but allow "1" for "true" and "0" for "false" */
 int strboolcmp(const char *str, const char *boolean)
 {
-  if(!strcmp(boolean, "true")) {
-    return (strcmp(str, "true") != 0  && strcmp(str,"1") != 0);
-  } else if(!strcmp(boolean, "false")) {
-    return (strcmp(str, "false") != 0 && strcmp(str,"0") != 0);
+  if(!my_strcasecmp(boolean, "true")) {
+    return (my_strcasecmp(str, "true") != 0  && strcmp(str,"1") != 0);
+  } else if(!my_strcasecmp(boolean, "false")) {
+    return (my_strcasecmp(str, "false") != 0 && strcmp(str,"0") != 0);
   } else {
      return strcmp(str, boolean);
   }
