@@ -6515,7 +6515,7 @@ print_help_and_exit
 
 set_ne text_replace_selection 1
 if {$text_replace_selection && $OS != "Windows"} {
-  # deletes selected text when pasting in text widgets
+  # deletes selected text when pasting in text widgets, courtesy Wolf-Dieter Busch
   proc tk_textPaste w {
     global tcl_platform
     if {![catch {::tk::GetSelection $w CLIPBOARD} sel]} then {
