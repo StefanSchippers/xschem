@@ -214,6 +214,10 @@
 #### default: enabled (1)
 # set autofocus_mainwindow 0
 
+#### replace selected text in text widgets when pasting from clipboard
+#### default: enabled (1)
+# set text_replace_selection 0
+
 #### set component browser always above drawing canvas.
 #### default: enabled (1)
 # set component_browser_on_top 0

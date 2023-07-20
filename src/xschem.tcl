@@ -5501,7 +5501,8 @@ set tctx::global_list {
   show_infowindow_after_netlist show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
-  textwindow_fileid textwindow_filename textwindow_w tmp_bus_char toolbar_horiz toolbar_list
+  text_replace_selection textwindow_fileid textwindow_filename textwindow_w tmp_bus_char
+  toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   vsize xschem_libs xschem_listen_port zoom_full_center
@@ -6511,6 +6512,29 @@ set env(LC_ALL) C
 set_ne add_all_windows_drives 1
 set_paths
 print_help_and_exit
+
+set_ne text_replace_selection 1
+if {$text_replace_selection && $OS != "Windows"} {
+  # deletes selected text when pasting in text widgets
+  proc tk_textPaste w {
+    global tcl_platform
+    if {![catch {::tk::GetSelection $w CLIPBOARD} sel]} then {
+      set oldSeparator [$w cget -autoseparators]
+      if {$oldSeparator} then {
+        $w configure -autoseparators 0
+        $w edit separator
+      }
+      foreach {to from} [lreverse [$w tag ranges sel]] {
+        $w delete $from $to
+      }
+      $w insert insert $sel
+      if {$oldSeparator} then {
+        $w edit separator
+        $w configure -autoseparators 1
+      }
+    }
+  }
+}
 
 # focus the schematic window if mouse goes over it, even if a dialog box is displayed,
 # without needing to click. This allows to move/zoom/pan the schematic while editing attributes.
