@@ -264,6 +264,30 @@ void incr_hilight_color(void)
   xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
 }
 
+static void set_rawfile_for_bespice() 
+{
+  char raw_file[PATH_MAX];
+  char netlist_file[PATH_MAX];
+  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  my_strncpy(raw_file, tclresult(), S(raw_file));
+  tcleval("file tail [file rootname [xschem get schname 0]].spice");
+  my_strncpy(netlist_file, tclresult(), S(netlist_file));
+
+  /* (1) make sure that the raw file has been opened */
+  tclvareval("puts $bespice_server_getdata(sock) ",
+              "{open_file \"", raw_file, "\"}",
+              NULL);
+  /* (2) create curves for electrically equivalent nodes (pins of spice subcircuits) */
+  tclvareval("puts $bespice_server_getdata(sock) ",
+              "{create_equivalent_nets \"", raw_file, "\" \"", netlist_file, "\"}",
+              NULL);
+  /* (3) make sure that the raw file is used for commands plotting voltages and currents 
+            this is important if more than one file has been opened. */
+  tclvareval("puts $bespice_server_getdata(sock) ",
+              "{use_file_for_link_to_schematic \"", raw_file, "\"}",
+              NULL);
+}
+
 /* print all highlight signals which are not ports (in/out/inout). */
 void create_plot_cmd(void)
 {
@@ -310,6 +334,7 @@ void create_plot_cmd(void)
   }
   if(viewer == GAW) tcleval("setup_tcp_gaw");
   if(tclresult()[0] == '0')  return;
+  if(viewer == BESPICE) set_rawfile_for_bespice();
   idx = 1;
   first = 1;
   for(i=0;i<HASHSIZE; ++i) /* set ngspice colors */
@@ -366,45 +391,21 @@ void create_plot_cmd(void)
         }
         if(viewer == BESPICE) {
           char *t=NULL, *p=NULL;
-          sprintf(color_str, "%d %d %d", 
+          sprintf(color_str, "#%02x%02x%02x", 
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           my_strdup(_ALLOC_ID_, &t, tok);
           my_strdup2(_ALLOC_ID_, &p, (entry->path)+1);
 
-          if(simtype == 0 ) { /* spice */
-            tclvareval(
+          /* bespice command syntax : 
+                add_voltage_on_spice_node_to_plot <plot name> <section name> <hierarchical spice node name> <flag clear> [<color>]
+                    plot name is "*" => automatic
+                    section name is empty => automatic or user defined
+          */
+          tclvareval(
               "puts $bespice_server_getdata(sock) ",
-              "{set_curve_style \"",
-              rawfile,
-              "\" \"v(", strtolower(p), strtolower(t),
-              ")\" \"solid_line\" \"no symbol\" 1 ",
-              color_str, "}",
+              "{add_voltage_on_spice_node_to_plot * \"\" \"",
+              p, t, "\" 0 ", color_str, "}",
               NULL);
-            tclvareval(
-              "puts $bespice_server_getdata(sock) ",
-              "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
-              ")\" \"\"}",
-              NULL);
-          } else { /* Xyce */
-            char *c=p;
-            while(*c){
-              if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
-              ++c;
-            }
-            tclvareval(
-              "puts $bespice_server_getdata(sock) ",
-              "{set_curve_style \"",
-              rawfile,
-              "\" \"", strtoupper(p), strtoupper(t),
-              "\" \"solid_line\" \"no symbol\" 1 ",
-              color_str, "}",
-              NULL);
-            tclvareval(
-              "puts $bespice_server_getdata(sock) ",
-              "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
-              "\" \"\"}",
-              NULL);
-          }
           my_free(_ALLOC_ID_, &p);
           my_free(_ALLOC_ID_, &t);
         }
@@ -950,10 +951,9 @@ static void send_net_to_bespice(int simtype, const char *node)
   const char *expanded_tok;
   const char *tok;
   char color_str[30];
-  char rawfile[PATH_MAX];
 
-  tcleval("file tail [file rootname [xschem get schname 0]].raw");
-  my_strncpy(rawfile, tclresult(), S(rawfile));
+  set_rawfile_for_bespice();
+
   if(!node || !node[0]) return;
   tok = node;
   node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
@@ -961,46 +961,22 @@ static void send_net_to_bespice(int simtype, const char *node)
   if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
     char *t=NULL, *p=NULL;
     c = get_color(xctx->hilight_color);
-    sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+    sprintf(color_str, "#%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
     expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; ++k) {
       my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
-      if(simtype == 0 ) { /* spice */
-        tclvareval(
-          "puts $bespice_server_getdata(sock) ",
-          "{set_curve_style \"",
-          rawfile,
-          "\" \"v(", strtolower(p), strtolower(t),
-          ")\" \"solid_line\" \"no symbol\" 1 ", 
-          color_str, "}",
-          NULL);
-        tclvareval(
-          "puts $bespice_server_getdata(sock) ",
-          "{add_curve_to_plot \"", rawfile, "\" \"v(", strtolower(p), strtolower(t),
-          ")\" \"\"}", 
-          NULL);
-      } else { /* Xyce */
-        char *c=p;
-        while(*c){
-          if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
-          ++c;
-        }
-        tclvareval(
-          "puts $bespice_server_getdata(sock) ",
-          "{set_curve_style \"",
-          rawfile,
-          "\" \"", strtoupper(p), strtoupper(t),
-          "\" \"solid_line\" \"no symbol\" 1 ",
-          color_str, "}",
-          NULL);
-        tclvareval(
-          "puts $bespice_server_getdata(sock) ",
-          "{add_curve_to_plot \"", rawfile, "\" \"", strtoupper(p), strtoupper(t),
-          "\" \"\"}", 
-          NULL);
-      }
+      /* bespice command syntax : 
+            add_voltage_on_spice_node_to_plot <plot name> <section name> <hierarchical spice node name> <flag clear> [<color>]
+                plot name is "*" => automatic
+                section name is empty => automatic or user defined
+      */
+      tclvareval(
+              "puts $bespice_server_getdata(sock) ",
+              "{add_voltage_on_spice_node_to_plot * \"\" \"",
+              p, t, "\" 0 ", color_str, "}",
+              NULL);
     }
     my_free(_ALLOC_ID_, &p);
     my_free(_ALLOC_ID_, &t);
@@ -1101,60 +1077,29 @@ static void send_current_to_bespice(int simtype, const char *node)
   const char *tok;
   char color_str[30];
   char *t=NULL, *p=NULL;
-  char rawfile[PATH_MAX];
   
-  tcleval("file tail [file rootname [xschem get schname 0]].raw");
-  my_strncpy(rawfile, tclresult(), S(rawfile));
+  set_rawfile_for_bespice();
 
   if(!node || !node[0]) return;
   tok = node;
   /* c = PINLAYER; */
   c = get_color(xctx->hilight_color);
-  sprintf(color_str, "%d %d %d", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
+  sprintf(color_str, "#%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
   expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; ++k) {
     my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
-    if(!simtype) { /* spice */
-      tclvareval(
-        "puts $bespice_server_getdata(sock) ",
-        "{set_curve_style \"",
-        rawfile,
-        "\" \"i(", xctx->currsch>0 ? "v." : "",
-        strtolower(p), strtolower(t),
-        ")\" \"solid_line\" \"no symbol\" 1 ",
-        color_str, "}",
-        NULL);
-      tclvareval(
-        "puts $bespice_server_getdata(sock) ",
-        "{add_curve_to_plot \"", rawfile, "\" \"i(",  xctx->currsch>0 ? "v." : "",
-        strtolower(p), strtolower(t),
-        ")\" \"\"}",
-        NULL);
-    } else {       /* Xyce */
-      char *c=p;
-      while(*c){
-        if(*c == '.') *c = ':'; /* Xyce uses : as path separator */
-        ++c;
-      }
-
-      tclvareval(
-        "puts $bespice_server_getdata(sock) ",
-        "{set_curve_style \"",
-        rawfile,
-        "\" \"", xctx->currsch>0 ? "V:" : "",
-        strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t), "#branch",
-        "\" \"solid_line\" \"no symbol\" 1 ",
-        color_str, "}",
-        NULL);
-      tclvareval(
-        "puts $bespice_server_getdata(sock) ",
-        "{add_curve_to_plot \"", rawfile, "\" \"",  xctx->currsch>0 ? "V:" : "",
-        strtoupper(p), strtoupper( xctx->currsch>0 ? t+1 : t), "#branch",
-        "\" \"\"}",
-        NULL);
-    }
+    /* bespice command syntax : 
+        add_current_through_spice_device_to_plot <plot name> <section name> <hierarchical spice device name> <flag clear> [<color>]
+            plot name is "*" => automatic
+            section name is empty => automatic or user defined
+    */
+    tclvareval(
+          "puts $bespice_server_getdata(sock) ",
+          "{add_current_through_spice_device_to_plot * \"\" \"",
+          p, t, "\" 0 ", color_str, "}",
+          NULL);
   }
   my_free(_ALLOC_ID_, &p);
   my_free(_ALLOC_ID_, &t);

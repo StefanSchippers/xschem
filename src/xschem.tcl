@@ -1027,6 +1027,8 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
 
+    # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
+    # This server is listening on port $bespice_listen_port. 
     set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
     set sim(spicewave,3,name) {Bespice wave}
     set_ne sim(spicewave,3,fg) 0
@@ -1287,6 +1289,8 @@ proc xschem_getdata {sock} {
   unset xschem_server_getdata(res,$sock)
 } 
 
+# this function is called as soon as bespice wave connects to the communication server listening on $bespice_listen_port
+# it makes sure the communication over the socket connection is possible
 proc bespice_server {sock addr port} {
   global bespice_server_getdata
   if { ![info exists bespice_server_getdata(sock)] } {
@@ -1295,6 +1299,8 @@ proc bespice_server {sock addr port} {
     set bespice_server_getdata(addr,$sock) [list $addr $port]
     set bespice_server_getdata(sock) [list $sock]
     fileevent $sock readable [list bespice_getdata $sock]
+    # this informs bespice wave that it receives it's instructions from xschem. Some features will be adjusted for that.
+    puts $bespice_server_getdata(sock) "set_customer_specialization xschem"
   }
 }
 
@@ -6492,14 +6498,30 @@ proc setup_tcp_xschem { {port_number {}} } {
 proc setup_tcp_bespice {} {
   global bespice_listen_port bespice_server_getdata
   if { [info exists bespice_listen_port] && ($bespice_listen_port ne {}) } { 
-    if {[catch {socket -server bespice_server $bespice_listen_port} err]} {
-      puts "setup_tcp_bespice: problems listening to TCP port: $bespice_listen_port"
-      puts $err
-      return 0
-    } else {
-      set bespice_server_getdata(server) $err
+    # We will attempt to open port $bespice_listen_port ... $bespice_listen_port + 1000 this should succeed ...
+    # We need to make this attempt as several instances of xschem / bespice might be running.
+    # Each of these instances needs it's own server listening on a dedicated port.
+    # The variable $bespice_listen_port is passed to bespice wave when the application is started in the function "set_sim_defaults()".
+    set port $bespice_listen_port
+    set last_port [expr $port + 1000] 
+    while { $port < $last_port } {    
+        if {[catch {socket -server bespice_server $port} err]} {
+          # failed => increment port
+          incr port
+        } else {
+          # succeded => set $bespice_listen_port and socket connection for communication
+          puts "setup_tcp_bespice: success : listening to TCP port: $port"
+          set bespice_server_getdata(server) $err
+          set bespice_listen_port $port
+          return 1
+        }
     }
-  }
+    puts "setup_tcp_bespice: problems listening to TCP port: $bespice_listen_port ... $last_port"
+    puts $err
+    return 0
+  } 
+  # bespice_listen_port not defined, nothing to do
+  puts "setup_tcp_bespice: the functionallity was not set up as the variable \$bespice_listen_port hasn't been defined in your xschemrc file."
   return 1
 }
 
