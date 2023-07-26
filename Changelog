@@ -1,3 +1,33 @@
+3.4.2:
+- Merged Gerard upates for Xschem <--> BeSpice TCP communication
+- added tcl variable text_replace_selection (default: enabled (1) ) to automatically
+  replace selected text in text widgets when pasting from clipboard
+- case insensitive compare in boolean attributes (attr=false, attr=True, attr=FALSE, attr=1)
+- allow "1" / "0" in addition to "true" / "false" in all boolean attributes
+- make the "X" window button close the search dialog box, as Cancel (and Escape key) does
+- add "xschem print pdf_full" and "xschem print ps_full" commands to print full view properly
+  fitting paper size, regardless of xschem window size, some fixes in circle postscript
+  drawing (set newpath) and rectangle clipping. Add menu command "PDF/PS export full"
+- add case insensitive matching in xschem search function
+- add xschemrc variable "ps_paper_size" to specify custom paper sizes in ps/pdf exports
+- explicitly clear instance flag bits when allocating new instance array data to avoid random
+  data in bit 8 (IGNORE_INST).
+  This does not cause any problem but random data in log files, causing false positives
+  in automated regression tests
+- fix crash on windows if a new tab is opened and immediately closed (incorrect call of draw()
+  after clearing pixmap)
+- fix regression(repo.hu: r2353, github: 0bb4c9f) : "xschem instance" command not setting
+  modified flag on schematic, so following xschem save doing nothing.
+- add xschem command `xschem instance_coord [instance]`: returns placement coords,
+   rotation, flip of selected or specified instance
+- initialize tcl_files to empty in xschemrc to avoid side effects if
+   reloading another xschemrc
+- added install_pdf make target to create pdf doc from html man pages
+- "xschem netlist" command accepts an optional filename argument
+- do not create nets for devices that have *_ignore=true attribute set,
+  this generates false warnings about undriven nets.
+- do not use tclreadline if tcl variable tcl_interactive is 0
+
 3.4.1:
 - Add more info in xschem_man about remote tcp connection 
 - Add mouse_bindings.tcl, courtesy Paul Bodenstab
