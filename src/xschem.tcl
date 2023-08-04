@@ -6521,7 +6521,7 @@ proc setup_tcp_bespice {} {
     return 0
   } 
   # bespice_listen_port not defined, nothing to do
-  puts "setup_tcp_bespice: the functionallity was not set up as the variable \$bespice_listen_port hasn't been defined in your xschemrc file."
+  # puts "setup_tcp_bespice: the functionallity was not set up as the variable \$bespice_listen_port hasn't been defined in your xschemrc file."
   return 1
 }
 
