@@ -174,6 +174,28 @@ static char *expandlabel_strmult(int n, char *s)
  return str;
 }
 
+
+static char *expandlabel_strbus_suffix(char *s, int *n, char *suffix)
+{                        
+ int i,l;                
+ int tmplen;             
+ char *res=NULL;         
+ char *tmp=NULL;        
+ my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
+ l=0;
+ for(i=1;i<n[0];i++)     
+ {                       
+  tmplen = sprintf(tmp, "%s[%d]%s,", s, n[i], suffix); 
+  /* strcpy(res+l,tmp); */
+  memcpy(res+l,tmp, tmplen+1); /* 20180923 */
+  l+=tmplen;             
+ }                      
+ my_free(_ALLOC_ID_, &tmp);
+ sprintf(res+l, "%s[%d]%s", s, n[i], suffix);
+ return res;
+}                        
+                  
 static char *expandlabel_strbus(char *s, int *n)
 {
  int i,l;
@@ -225,6 +247,27 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
  sprintf(res+l, "%s%d", s, n[i]);
  return res;
 }
+
+static char *expandlabel_strbus_nobracket_suffix(char *s, int *n, char *suffix)
+{                        
+ int i,l;                
+ int tmplen;             
+ char *res=NULL;        
+ char *tmp=NULL;
+ my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
+ l=0;                    
+ for(i=1;i<n[0];i++)     
+ {                       
+  tmplen = sprintf(tmp, "%s%d%s,", s, n[i], suffix);
+  /* strcpy(res+l,tmp); */
+  memcpy(res+l,tmp, tmplen+1);
+  l+=tmplen;            
+ }
+ my_free(_ALLOC_ID_, &tmp);
+ sprintf(res+l, "%s%d%s", s, n[i], suffix);
+ return res;             
+}     
 
 %}
 
@@ -341,6 +384,17 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
+        | B_NAME  '[' index  ']' B_NAME
+                        {
+                         dbg(dbg_var, "yyparse(): B_NAME [ index ] B_NAME, $1=%s $3=%d, $5=%s\n", $1, $3[0], $5);
+                         $$.str=expandlabel_strbus_suffix($1, $3, $5);
+                         my_free(_ALLOC_ID_, &$1);
+                         my_free(_ALLOC_ID_, &$5);
+                         $$.m=$3[0];
+                         my_free(_ALLOC_ID_, &$3);
+                         idxsize=INITIALIDXSIZE;
+                        }
+
         | B_NAME  '[' index_nobracket  ']' 
                         {
                          dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]);
@@ -350,6 +404,17 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
+        | B_NAME  '[' index_nobracket  ']' B_NAME
+                        {
+                         dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d, $5=%s\n",$1, $3[0], $5);
+                         $$.str=expandlabel_strbus_nobracket_suffix($1, $3, $5);
+                         my_free(_ALLOC_ID_, &$1);
+                         my_free(_ALLOC_ID_, &$5);
+                         $$.m=$3[0];
+                         my_free(_ALLOC_ID_, &$3);
+                         idxsize=INITIALIDXSIZE;
+                        }
+
 ;
 index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
