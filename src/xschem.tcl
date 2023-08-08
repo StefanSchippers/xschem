@@ -5761,7 +5761,7 @@ proc build_widgets { {topwin {} } } {
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files tmp_bus_char compare_sch
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
-  global cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
+  global cadsnap cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
@@ -5907,10 +5907,10 @@ proc build_widgets { {topwin {} } } {
        xschem redraw
      }
   $topwin.menubar.option.menu add command -label "Half Snap Threshold" -accelerator G -command {
-         xschem set cadsnap [expr {[xschem get cadsnap] / 2.0} ]
+         xschem set cadsnap [expr {$cadsnap / 2.0} ]
        }
   $topwin.menubar.option.menu add command -label "Double Snap Threshold" -accelerator Shift-G -command {
-         xschem set cadsnap [expr {[xschem get cadsnap] * 2.0} ]
+         xschem set cadsnap [expr {$cadsnap * 2.0} ]
        }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
      -command { xschem redraw }
@@ -6007,8 +6007,7 @@ proc build_widgets { {topwin {} } } {
   # toolbar_add ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
   $topwin.menubar.view.menu add command -label "Set snap value" \
          -command {
-         input_line "Enter snap value ( default: [xschem get cadsnap_default] current: [xschem get cadsnap])" \
-         "xschem set cadsnap" [xschem get cadsnap]
+         input_line "Enter snap value (float):" "xschem set cadsnap" $cadsnap
        }
   $topwin.menubar.view.menu add command -label "Set grid spacing" \
        -command {
