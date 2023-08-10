@@ -2151,10 +2151,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
   my_strncpy(home_dir, home_buff, S(home_dir));
 #endif
  /* set error and exit handlers */
- XSetErrorHandler(err);
  if(!interp) interp=inter;
  Tcl_Init(interp);
  if(has_x) {
+   XSetErrorHandler(err);
    Tk_Init(interp);
    tclsetvar("has_x","1");
  }
