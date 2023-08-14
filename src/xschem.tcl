@@ -3222,9 +3222,16 @@ proc add_lab_prefix {} {
   xschem merge $USER_CONF_DIR/.clipboard.sch
 }
 
-proc make_symbol {name} {
+proc make_symbol {name {ask {no}} } {
   global XSCHEM_SHAREDIR symbol_width
   set name [abs_sym_path $name ]
+  set symname [abs_sym_path $name .sym]
+  if { $ask eq {no} && [file exists $symname] } {
+    set answer [tk_messageBox -message "Warning: symbol $symname already exists. Overwrite?" \
+        -icon warning -parent [xschem get topwindow] -type okcancel]
+    if {$answer ne {ok}} { return {}}
+
+  }
   # puts "make_symbol{}, executing: ${XSCHEM_SHAREDIR}/make_sym.awk $symbol_width ${name}"
   eval exec {awk -f ${XSCHEM_SHAREDIR}/make_sym.awk $symbol_width $name}
   return {}
