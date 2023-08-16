@@ -2818,6 +2818,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tcleval(cli_opt_tcl_post_command);
  }
 
+ /* Execute tcl commands given in tcl variable postinit_commands if existing */
+ tcleval("eval_postinit_commands");
+
  if(cli_opt_quit) {
    tcleval("exit");
  }

@@ -6477,6 +6477,13 @@ proc source_user_tcl_files {} {
   }
 }
 
+proc eval_postinit_commands {} {
+  global postinit_commands
+  if {[info exists postinit_commands]} {
+    catch {eval $postinit_commands}
+  }
+}
+
 proc setup_tcp_xschem { {port_number {}} } {
   global xschem_listen_port xschem_server_getdata
 
