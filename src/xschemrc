@@ -380,6 +380,11 @@ set tcl_files {}
 # lappend tcl_files ....
 
 ###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER COMPLETING STARTUP
+###########################################################################
+# set postinit_commands {puts [xschem get version]}
+
+###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
 ###########################################################################
 #### used to download files from web: default: {curl -f -s -O -J}
