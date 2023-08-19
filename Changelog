@@ -1,3 +1,21 @@
+3.4.3:
+- revert format of [xschem pinlist <instance> <attr>] to old (3.1.0) format: 
+  { {0} {PLUS} } { {1} {OUT} } { {2} {MINUS} } 
+  instead of:
+  {PLUS} {OUT} {MINUS}
+- add postinit_commands description in distribution provided xschemrc
+- add "postinit_commands" variable that can be set in xschemrc file, this variable may
+  contain commands that will be executed after completing startup.
+  Example: set postinit_commands {xschem set format xyce_format}
+- make_symbol: ask before overwriting an existing symbol file.
+- Correctly detect if DISPLAY env var is set but specified display is not existing or
+  xserver not running, and start in text mode
+- remove reference to cadsnap_default in menu widget "View->Set snap value"
+- change "[xschem get cadsnap]" to use  TCL's global variable cadsnap
+- remove warning message if bespice_listen_port is not set (not necessary, scares new users)
+- allow expansion of labels like aaa[3:2]_qq --> aaa[3]_qq,aaa[2]_qq andi
+  aaa[3..2]_qq --> aaa3_qq,aaa2_qq
+
 3.4.2:
 - Merged Gerard upates for Xschem <--> BeSpice TCP communication
 - added tcl variable text_replace_selection (default: enabled (1) ) to automatically

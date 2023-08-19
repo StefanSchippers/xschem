@@ -68,7 +68,7 @@ function beginfile(f)
  text_voffset=20
  lab_voffset=4
  ip=op=n_pin=0
- print "v {xschem version=3.4.2 file_version=1.2}" > sym
+ print "v {xschem version=3.4.3 file_version=1.2}" > sym
  if(template=="") {
   printf "%s", "K {type=subcircuit\nformat=\"@name @pinlist @symname\"\n"  >sym
   printf "%s\n", "template=\"name=x1\""  >sym
