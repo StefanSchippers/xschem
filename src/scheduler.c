@@ -2453,9 +2453,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         for(p=0;p<no_of_pins;p++) {
           if(first == 0) Tcl_AppendResult(interp, " ", NULL);
           if(argc > 3 && argv[3][0]) {
-            Tcl_AppendResult(interp, "{",
+            Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
               get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, argv[3], 0),
-              "}", NULL);
+              "} }", NULL);
           } else {
             Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
                (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "} }", NULL);
