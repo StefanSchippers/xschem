@@ -746,7 +746,7 @@ void select_wire(int i,unsigned short select_mode, int fast)
   /*my_strncpy(s,xctx->wire[i].prop_ptr!=NULL?xctx->wire[i].prop_ptr:"<NULL>",256); */
   if( !fast )
   {
-    my_snprintf(str, S(str), "selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
+    my_snprintf(str, S(str), "Info: selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
            xctx->wire[i].end1, xctx->wire[i].end2,
            xctx->wire[i].prop_ptr? xctx->wire[i].prop_ptr: "(null)");
     statusmsg(str,2);
@@ -789,7 +789,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
   if( !fast )
   {
-    my_snprintf(str, S(str), "selected element %d: %s properties: %s", i, xctx->inst[i].name,s);
+    my_snprintf(str, S(str), "Info: selected element %d: %s properties: %s", i, xctx->inst[i].name,s);
     statusmsg(str,2);
     my_snprintf(str, S(str), "symbol name=%s", xctx->inst[i].name==NULL?"(null)":xctx->inst[i].name);
     statusmsg(str,2);
@@ -836,7 +836,7 @@ void select_text(int i,unsigned short select_mode, int fast)
   #endif
   if(!fast) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
-    my_snprintf(str, S(str), "selected text %d: properties: %s", i,s);
+    my_snprintf(str, S(str), "Info: selected text %d: properties: %s", i,s);
     statusmsg(str,2);
     my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g", i, xctx->text[i].x0, xctx->text[i].y0);
     statusmsg(str,1);
@@ -874,7 +874,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
   if(!fast)
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
-   my_snprintf(str, S(str), "selected box : layer=%d, n=%d properties: %s",c-4,i,s);
+   my_snprintf(str, S(str), "Info: selected box : layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,2);
 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",
@@ -913,7 +913,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   if(!fast)
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
-   my_snprintf(str, S(str), "selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
+   my_snprintf(str, S(str), "Info: selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,2);
 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  r = %.16g a = %.16g b = %.16g",
@@ -942,7 +942,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   if(!fast)
   {
    my_strncpy(s,xctx->poly[c][i].prop_ptr!=NULL?xctx->poly[c][i].prop_ptr:"<NULL>",S(s));
-   my_snprintf(str, S(str), "selected polygon: layer=%d, n=%d properties: %s",c-4,i,s);
+   my_snprintf(str, S(str), "Info: selected polygon: layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,2);
 
    my_snprintf(str, S(str), "n=%4d x0 = %.16g  y0 = %.16g ...", i, xctx->poly[c][i].x[0], xctx->poly[c][i].y[0]);
@@ -964,7 +964,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
   if(!fast)
   {
    my_strncpy(s,xctx->line[c][i].prop_ptr!=NULL?xctx->line[c][i].prop_ptr:"<NULL>",S(s));
-   my_snprintf(str, S(str), "selected line: layer=%d, n=%d properties: %s",c-4,i,s);
+   my_snprintf(str, S(str), "Info: selected line: layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,2);
 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",

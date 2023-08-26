@@ -275,7 +275,7 @@ static int hash_inst_pin(int what, int i, int j)
   if(for_netlist && j<rects &&
      (!prop_ptr || !get_tok_value(prop_ptr, "name",0)[0] || !get_tok_value(prop_ptr, "dir",0)[0]) ) {
     char str[2048];
-    my_snprintf(str, S(str), "symbol %s: missing all or name or dir attributes on pin %d\n  %s",
+    my_snprintf(str, S(str), "Error: symbol %s: missing all or name or dir attributes on pin %d\n  %s",
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
     err |= 1;
@@ -652,7 +652,7 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
  if( n1 && n2 && strcmp( n1, n2) )
  {
    err |= 1;
-   my_snprintf(str, S(str), "%s shorted: %s - %s", tag, n1, n2);
+   my_snprintf(str, S(str), "Error: %s shorted: %s - %s", tag, n1, n2);
    dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
    statusmsg(str,2);
    tcleval("show_infotext"); /* critical error: force ERC window showing */
@@ -1073,7 +1073,7 @@ static int name_nodes_of_pins_labels_and_propagate()
            strcmp(type, "attributes") &&
            strcmp(type, "netlist_options") &&
            strcmp(type, "use")) {
-        my_snprintf(str, S(str), "instance: %d (%s): no name attribute set", i, inst[i].name);
+        my_snprintf(str, S(str), "Warning: instance: %d (%s): no name attribute set", i, inst[i].name);
         statusmsg(str,2);
         inst[i].color = -PINLAYER;
         xctx->hilight_nets=1;
@@ -1081,7 +1081,7 @@ static int name_nodes_of_pins_labels_and_propagate()
     }
     if(print_erc && (!type || !type[0]) ) {
       char str[2048];
-      my_snprintf(str, S(str), "Symbol: %s: no type attribute set", inst[i].name);
+      my_snprintf(str, S(str), "Warning: Symbol: %s: no type attribute set", inst[i].name);
       statusmsg(str,2);
       inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
@@ -1355,7 +1355,7 @@ int warning_overlapped_symbols(int sel)
         xctx->inst[i].sel = SELECTED;
         xctx->need_reb_sel_arr = 1;
       }
-      my_snprintf(str, S(str), "Warning: overlapped instance found: %s(%s) -> %s\n",
+      my_snprintf(str, S(str), "Error: overlapped instance found: %s(%s) -> %s\n",
             xctx->inst[i].instname, xctx->inst[i].name, xctx->inst[found->value].instname);
       statusmsg(str,2);
       err |= 1;
@@ -1522,7 +1522,7 @@ int sym_vs_sch_pins()
                         )
                       ) {
                       char str[2048];
-                      my_snprintf(str, S(str), "Symbol %s: Unmatched subcircuit schematic pin direction: %s",
+                      my_snprintf(str, S(str), "Error: Symbol %s: Unmatched subcircuit schematic pin direction: %s",
                                   xctx->sym[i].name, lab);
                       statusmsg(str,2);
                       my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
@@ -1543,7 +1543,8 @@ int sym_vs_sch_pins()
                 if(!pin_match) {
                   char str[2048];
                   /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
-                  my_snprintf(str, S(str), "Symbol %s: schematic pin: %s not in symbol", xctx->sym[i].name, lab);
+                  my_snprintf(str, S(str), "Error: Symbol %s: schematic pin: %s not in symbol",
+                              xctx->sym[i].name, lab);
                   statusmsg(str,2);
                   err |= 1;
                   tcleval("show_infotext"); /* critical error: force ERC window showing */
@@ -1578,7 +1579,7 @@ int sym_vs_sch_pins()
         fclose(fd);
         if(pin_cnt != rects) {
           char str[2048];
-          my_snprintf(str, S(str), "Symbol %s has %d pins, its schematic has %d pins",
+          my_snprintf(str, S(str), "Error: Symbol %s has %d pins, its schematic has %d pins",
                       xctx->sym[i].name, rects, pin_cnt);
           statusmsg(str,2);
           err |= 1;
@@ -1603,7 +1604,7 @@ int sym_vs_sch_pins()
           if(!pin_match) {
             char str[2048];
             /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
-            my_snprintf(str, S(str), "Symbol %s: symbol pin: %s not in schematic",
+            my_snprintf(str, S(str), "Error: Symbol %s: symbol pin: %s not in schematic",
                         xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);
             err |= 1;

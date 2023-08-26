@@ -209,7 +209,7 @@ int traverse_node_hash()
    if( !record_global_node(3, NULL, entry->token)) {
      if(entry->d.out ==0  && entry->d.inout == 0)
      {
-       my_snprintf(str, S(str), "undriven node: %s", entry->token);
+       my_snprintf(str, S(str), "Error: undriven node: %s", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str, 2);
@@ -218,28 +218,28 @@ int traverse_node_hash()
      }
      else if(entry->d.out + entry->d.inout + entry->d.in == 1)
      {
-       my_snprintf(str, S(str), "open net: %s", entry->token);
+       my_snprintf(str, S(str), "Warning: open net: %s", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
      }
      else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
-       my_snprintf(str, S(str), "shorted output node: %s", entry->token);
+       my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
      }
      else if(entry->d.in ==0 && entry->d.inout == 0)
      {
-       my_snprintf(str, S(str), "node: %s goes nowhere", entry->token);
+       my_snprintf(str, S(str), "Warning: node: %s goes nowhere", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
      }
      else if(entry->d.out >=2 && entry->d.inout == 0 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
-       my_snprintf(str, S(str), "shorted output node: %s", entry->token);
+       my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
