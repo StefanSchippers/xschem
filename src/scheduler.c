@@ -2267,7 +2267,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hilight_net_pin_mismatches();
     }
 
-    /* netlist [filename]
+    /* netlist [-messages] [filename]
      *   do a netlist of current schematic in currently defined netlist format 
      *   if 'filename'is given use specified name for the netlist
      *   if 'filename' contains path components place the file in specified path location.
@@ -2275,20 +2275,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   default netlisting directory.
      *   This means that 'xschem netlist test.spice' and 'xschem netlist ./test.spice'
      *   will create the netlist in different places.
-     *   netlisting directory is reset to previous setting after completing this command */
+     *   netlisting directory is reset to previous setting after completing this command
+     *   If -messages is given return the ERC messages instead of just a fail (1) 
+     *   or no fail (0) code. */
     else if(!strcmp(argv[1], "netlist") )
     {
       int err = 0;
+      int messages = 0;
       char save[PATH_MAX];
+      const char *fname = NULL;
       const char *path;
       yyparse_error = 0;
       my_strncpy(save, tclgetvar("netlist_dir"), S(save));
       if(argc > 2) {
-        my_strncpy(xctx->netlist_name, get_cell_w_ext(argv[2], 0), S(xctx->netlist_name));
-        tclvareval("file dirname ", argv[2], NULL);
-        path = tclresult();
-        if(strchr(argv[2], '/')) {
-          set_netlist_dir(1, path);
+        if(!strcmp(argv[2], "-messages")) {
+          messages = 1;
+          if(argc > 3) fname = argv[3];
+        } else {
+          fname = argv[2];
+        }
+        if(fname) {
+          my_strncpy(xctx->netlist_name, get_cell_w_ext(fname, 0), S(xctx->netlist_name));
+          tclvareval("file dirname ", fname, NULL);
+          path = tclresult();
+          if(strchr(fname, '/')) {
+            set_netlist_dir(1, path);
+          }
         }
       }
       if(set_netlist_dir(0, NULL) ) {
@@ -2307,7 +2319,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
           set_netlist_dir(1, save);
         }
-        Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
+        if(messages) {
+          Tcl_SetResult(interp, (char *)tcleval(".infotext.f1.text get 1.0 end"), TCL_VOLATILE);
+        } else {
+         Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
+        }
       }
     }
 
