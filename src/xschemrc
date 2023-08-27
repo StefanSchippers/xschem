@@ -346,10 +346,11 @@
 # set show_infowindow 0
 
 ###########################################################################
-#### ALWAYS SHOW ERC INFO WINDOW AFTER NETLIST
+#### SHOW ERC INFO WINDOW AFTER NETLIST
 ###########################################################################
-#### default: 0 
-# set show_infowindow_after_netlist 0
+#### allowed values: never onerror always
+#### default: onerror
+# set show_infowindow_after_netlist onerror
 
 ###########################################################################
 #### TCP CONNECTION WITH GAW

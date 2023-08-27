@@ -2280,12 +2280,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   or no fail (0) code. */
     else if(!strcmp(argv[1], "netlist") )
     {
+      char *saveshow = NULL;
       int err = 0;
       int messages = 0;
       char save[PATH_MAX];
       const char *fname = NULL;
       const char *path;
       yyparse_error = 0;
+      my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
+      tclsetvar("show_infowindow_after_netlist", "never");
       my_strncpy(save, tclgetvar("netlist_dir"), S(save));
       if(argc > 2) {
         if(!strcmp(argv[2], "-messages")) {
@@ -2325,6 +2328,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
       }
+      tclsetvar("show_infowindow_after_netlist", saveshow);
+      my_free(_ALLOC_ID_, &saveshow);
     }
 
     /* new_process [f]

@@ -4406,10 +4406,15 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   return $rcode
 }
 
-proc show_infotext {} {
-  global has_x infowindow_text
+proc show_infotext {{err 0}} {
+  global has_x infowindow_text show_infowindow_after_netlist
+  set s $show_infowindow_after_netlist
+  if {$s == 1} { set s always}
+  if {$s == 0} { set s onerror}
   if {[info exists has_x]} {
-     wm deiconify .infotext
+     if {($s eq {always}) || ($err != 0 && $s eq {onerror})} {
+       wm deiconify .infotext
+     }
   } else {
     puts stderr $infowindow_text
   }
@@ -6659,7 +6664,7 @@ set_ne compare_sch 0
 set_ne disable_unique_names 0
 set_ne sym_txt 1
 set_ne show_infowindow 0 
-set_ne show_infowindow_after_netlist 0 
+set_ne show_infowindow_after_netlist onerror 
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0
