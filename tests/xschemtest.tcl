@@ -206,10 +206,11 @@ proc netlist_test {} {
   } {
     xschem set netlist_type $t
     xschem load [abs_sym_path $f]
-    xschem netlist
     if {$t eq {verilog}} { set t v}
     if {$t eq {tedax}} { set t tdx}
     set netlist_file $netlist_dir/[file rootname $f].$t
+    file delete $netlist_file
+    xschem netlist
     ## check netlist hashes, compare with gold hashes
     set netlist_hash [xschem hash_file $netlist_file 1]
     if { $netlist_hash == $h } {
