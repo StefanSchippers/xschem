@@ -22,22 +22,28 @@
 
 #include "xschem.h"
 
+/* n=1: messages in status bar
+ * n=2: append str in ERC window messages
+ * n=3: set ERC messages to str */
 void statusmsg(char str[],int n)
 {
   if(!str) return;
   if(str[0]== '\0') {
-    tclsetvar("infowindow_text", "");
+    my_free(_ALLOC_ID_, &xctx->infowindow_text);
   } else {
 
-    if(n == 2) {
-      tcleval("if {$infowindow_text ne {}} {append infowindow_text \\n}");
-      tclvareval("append infowindow_text {", str, "}", NULL);
+    if(n == 3) {
+      my_strdup(_ALLOC_ID_, &xctx->infowindow_text, str);
+    } else if(n == 2) {
+      if(xctx->infowindow_text && xctx->infowindow_text[0]) {
+        my_strcat(_ALLOC_ID_, &xctx->infowindow_text, "\n");
+      }
+      my_strcat(_ALLOC_ID_, &xctx->infowindow_text, str);
     }
   }
   if(!has_x) return;
-  if(n==2) {
+  if(n == 2 || n == 3) {
     dbg(3, "statusmsg(): n = 2, str = %s\n", str);
-    tcleval("infowindow");
   }
   else {
     tclvareval(xctx->top_path, ".statusbar.1 configure -text {", str, "}", NULL);
@@ -942,7 +948,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'i':
-          if(!strcmp(argv[2], "instances")) { /* number of instances in schematic */
+          if(!strcmp(argv[2], "infowindow_text")) { /* ERC messages */
+            if(xctx && xctx->infowindow_text)
+              Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);
+            else
+              Tcl_SetResult(interp, "", TCL_STATIC);
+          }
+          else if(!strcmp(argv[2], "instances")) { /* number of instances in schematic */
             Tcl_SetResult(interp, my_itoa(xctx->instances), TCL_VOLATILE);
           }
           break;
@@ -2298,7 +2310,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
       my_strncpy(save, tclgetvar("netlist_dir"), S(save));
-      if(argc > 2 && strcmp(argv[2], "-erc")) { /* xschem netlist NOT invoked from GUI */
+      if(argc <= 2 || (argc > 2 && strcmp(argv[2], "-erc"))) { /* xschem netlist NOT invoked from GUI */
         tclsetvar("show_infowindow_after_netlist", "never");
       }  
       if(argc > 2) {
@@ -2334,7 +2346,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_netlist_dir(1, save);
         }
         if(messages) {
-          Tcl_SetResult(interp, (char *)tclgetvar("infowindow_text"), TCL_VOLATILE);
+          Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);
         } else {
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
@@ -3397,6 +3409,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "hide_symbols")) { /* set to 0,1,2 for various hiding level of symbols */
             xctx->hide_symbols=atoi(argv[3]);
+          }
+          else if(!strcmp(argv[2], "infowindow_text")) { /* ERC messages */
+            my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
           }
         } else { /* argv[2][0] >= 'n' */
           if(!strcmp(argv[2], "netlist_name")) { /* set custom netlist name */

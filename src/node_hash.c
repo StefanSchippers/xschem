@@ -214,7 +214,6 @@ int traverse_node_hash()
        if(incr_hi) incr_hilight_color();
        statusmsg(str, 2);
        err |= 1;
-       tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
      }
      else if(entry->d.out + entry->d.inout + entry->d.in == 1)
      {

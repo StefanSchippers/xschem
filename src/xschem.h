@@ -909,6 +909,7 @@ typedef struct {
   int n_active_layers;
   int *active_layer;
   char *undo_dirname;
+  char *infowindow_text; /* ERC messages */
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;

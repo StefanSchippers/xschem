@@ -279,7 +279,6 @@ static int hash_inst_pin(int what, int i, int j)
         xctx->inst[i].name, j, prop_ptr);
     statusmsg(str,2);
     err |= 1;
-    tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
     if(!xctx->netlist_count) {
       xctx->inst[i].color = -PINLAYER;
       xctx->hilight_nets=1;
@@ -655,7 +654,6 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
    my_snprintf(str, S(str), "Error: %s shorted: %s - %s", tag, n1, n2);
    dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
    statusmsg(str,2);
-   tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
    if(!xctx->netlist_count) {
       bus_hilight_hash_lookup(n1, xctx->hilight_color, XINSERT);
       if(tclgetboolvar("incr_hilight")) incr_hilight_color();
@@ -1359,7 +1357,6 @@ int warning_overlapped_symbols(int sel)
             xctx->inst[i].instname, xctx->inst[i].name, xctx->inst[found->value].instname);
       statusmsg(str,2);
       err |= 1;
-      tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
     }
   }
   int_hash_free(&table);
@@ -1528,7 +1525,6 @@ int sym_vs_sch_pins()
                       my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
                       statusmsg(str,2);
                       err |= 1;
-                      tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
                       for(j = 0; j < xctx->instances; ++j) {
                         if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
                           xctx->inst[j].color = -PINLAYER;
@@ -1547,7 +1543,6 @@ int sym_vs_sch_pins()
                               xctx->sym[i].name, lab);
                   statusmsg(str,2);
                   err |= 1;
-                  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
                   for(j = 0; j < xctx->instances; ++j) {
                     dbg(1, "inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[i].name);
                     if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
@@ -1583,7 +1578,6 @@ int sym_vs_sch_pins()
                       xctx->sym[i].name, rects, pin_cnt);
           statusmsg(str,2);
           err |= 1;
-          tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
           for(j = 0; j < xctx->instances; ++j) {
             if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
               xctx->inst[j].color = -PINLAYER;
@@ -1608,7 +1602,6 @@ int sym_vs_sch_pins()
                         xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);
             err |= 1;
-            tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
             for(k = 0; k < xctx->instances; ++k) {
               if(!xctx->x_strcmp(get_sym_name(k, 9999, 1), xctx->sym[i].name)) {
                 xctx->inst[k].color = -PINLAYER;

@@ -420,6 +420,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->head_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->undo_dirname = NULL;
+  xctx->infowindow_text = NULL;
 
   if(!strcmp(tclgetvar("undo_type"), "disk")) {
     xctx->undo_type = 0;
@@ -854,6 +855,7 @@ static void xwin_exit(void)
  }
  tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
  /* "1" parameter means to force exit even if there are modified tabs/windows */
+ if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL);
  delete_schematic_data(1);
  if(has_x) {

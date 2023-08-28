@@ -734,7 +734,6 @@ void unselect_all(int dr)
       drawtempline(xctx->gctiled,END, 0.0, 0.0, 0.0, 0.0);
     }
     xctx->ui_state &= ~SELECTION;
-    /*\statusmsg("",2); */
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
     dbg(2, "unselect_all(1): done\n");
@@ -749,13 +748,14 @@ void select_wire(int i,unsigned short select_mode, int fast)
     my_snprintf(str, S(str), "Info: selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
            xctx->wire[i].end1, xctx->wire[i].end2,
            xctx->wire[i].prop_ptr? xctx->wire[i].prop_ptr: "(null)");
-    statusmsg(str,2);
+    statusmsg(str,3);
+    tcleval("infowindow");
 
-   my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",
+    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",
       i, xctx->wire[i].x1, xctx->wire[i].y1,
       xctx->wire[i].x2-xctx->wire[i].x1, xctx->wire[i].y2-xctx->wire[i].y1
-   );
-   statusmsg(str,1);
+    );
+    statusmsg(str,1);
   }
   if( ((xctx->wire[i].sel|select_mode) == (SELECTED1|SELECTED2)) ||
       ((xctx->wire[i].sel == SELECTED) && select_mode) )
@@ -789,15 +789,15 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
   if( !fast )
   {
-    my_snprintf(str, S(str), "Info: selected element %d: %s properties: %s", i, xctx->inst[i].name,s);
-    statusmsg(str,2);
-    my_snprintf(str, S(str), "symbol name=%s", xctx->inst[i].name==NULL?"(null)":xctx->inst[i].name);
-    statusmsg(str,2);
+    my_snprintf(str, S(str), "Info: selected element %d: %s\nproperties:\n%s", i,
+      xctx->inst[i].name ? xctx->inst[i].name : "<NULL>" , s);
+    statusmsg(str,3);
     /* 20190526 */ /*Why this? 20191125 only on small schematics. slow down on big schematics */
     if(xctx->instances < 150) {
       prepare_netlist_structs(0);
       if(xctx->inst[i].ptr != -1) for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER] ; ++j)
       {
+        if(j == 0) statusmsg("pinlist:", 2);
         if(xctx->inst[i].node && (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr)
         {
           my_snprintf(str, S(str), "pin:%s -> %s",
@@ -808,6 +808,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
         }
       }
     }
+    tcleval("infowindow");
     my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",i, 
        xctx->inst[i].xx1, xctx->inst[i].yy1,
        xctx->inst[i].xx2-xctx->inst[i].xx1, xctx->inst[i].yy2-xctx->inst[i].yy1
@@ -837,7 +838,8 @@ void select_text(int i,unsigned short select_mode, int fast)
   if(!fast) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
     my_snprintf(str, S(str), "Info: selected text %d: properties: %s", i,s);
-    statusmsg(str,2);
+    statusmsg(str,3);
+    tcleval("infowindow");
     my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g", i, xctx->text[i].x0, xctx->text[i].y0);
     statusmsg(str,1);
   }
@@ -875,7 +877,8 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected box : layer=%d, n=%d properties: %s",c-4,i,s);
-   statusmsg(str,2);
+   statusmsg(str,3);
+   tcleval("infowindow");
 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",
       i, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
@@ -914,8 +917,9 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
-   statusmsg(str,2);
-
+   statusmsg(str,3);
+   tcleval("infowindow");
+ 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  r = %.16g a = %.16g b = %.16g",
       i, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
    statusmsg(str,1);
@@ -943,7 +947,8 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   {
    my_strncpy(s,xctx->poly[c][i].prop_ptr!=NULL?xctx->poly[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected polygon: layer=%d, n=%d properties: %s",c-4,i,s);
-   statusmsg(str,2);
+   statusmsg(str,3);
+   tcleval("infowindow");
 
    my_snprintf(str, S(str), "n=%4d x0 = %.16g  y0 = %.16g ...", i, xctx->poly[c][i].x[0], xctx->poly[c][i].y[0]);
    statusmsg(str,1);
@@ -965,7 +970,8 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
   {
    my_strncpy(s,xctx->line[c][i].prop_ptr!=NULL?xctx->line[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected line: layer=%d, n=%d properties: %s",c-4,i,s);
-   statusmsg(str,2);
+   statusmsg(str,3);
+   tcleval("infowindow");
 
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",
       i, xctx->line[c][i].x1, xctx->line[c][i].y1,

@@ -4413,19 +4413,20 @@ proc show_infotext {{err 0}} {
   if {$s == 0} { set s onerror}
   if {($s eq {always}) || ($err != 0 && $s eq {onerror})} {
     if {[info exists has_x]} {
+      infowindow
       wm deiconify .infotext
     } else {
-      puts stderr $infowindow_text
+      puts stderr [xschem get infowindow_text]
     }
   }
 }
 
 proc infowindow {} {
-  global infowindow_text
-
-  set infotxt $infowindow_text
+  global infowindow_text has_x
+  set infowindow_text [xschem get infowindow_text]
+  if {![info exists has_x]} { return }
   set z {.infotext}
-  if ![string compare $infotxt ""] { 
+  if ![string compare $infowindow_text ""] { 
     if [winfo exists $z] {
       $z.f1.text delete 1.0 end
     }
@@ -4456,7 +4457,7 @@ proc infowindow {} {
     bind $z <Escape> "wm withdraw $z; set show_infowindow 0"
   }
   $z.f1.text delete 1.0 end
-  $z.f1.text insert 1.0 $infotxt
+  $z.f1.text insert 1.0 $infowindow_text
   set lines [$z.f1.text count -displaylines 1.0 end]
   $z.f1.text see ${lines}.0
   return {}
