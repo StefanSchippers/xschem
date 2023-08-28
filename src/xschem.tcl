@@ -4411,9 +4411,11 @@ proc show_infotext {{err 0}} {
   set s $show_infowindow_after_netlist
   if {$s == 1} { set s always}
   if {$s == 0} { set s onerror}
+  if {[info exists has_x]} {
+    infowindow
+  }
   if {($s eq {always}) || ($err != 0 && $s eq {onerror})} {
     if {[info exists has_x]} {
-      infowindow
       wm deiconify .infotext
     } else {
       puts stderr [xschem get infowindow_text]

@@ -1071,7 +1071,8 @@ static int name_nodes_of_pins_labels_and_propagate()
            strcmp(type, "attributes") &&
            strcmp(type, "netlist_options") &&
            strcmp(type, "use")) {
-        my_snprintf(str, S(str), "Warning: instance: %d (%s): no name attribute set", i, inst[i].name);
+        my_snprintf(str, S(str), "Warning: instance: %s (%s): no name attribute set",
+          inst[i].instname, inst[i].name);
         statusmsg(str,2);
         inst[i].color = -PINLAYER;
         xctx->hilight_nets=1;
