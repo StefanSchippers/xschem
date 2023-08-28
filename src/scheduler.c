@@ -2317,7 +2317,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[2], "-messages")) {
           messages = 1;
           if(argc > 3) fname = argv[3];
-        } else {
+        } else if(strcmp(argv[2], "-erc")) {
           fname = argv[2];
         }
         if(fname) {
