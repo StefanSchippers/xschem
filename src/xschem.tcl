@@ -4411,12 +4411,12 @@ proc show_infotext {{err 0}} {
   set s $show_infowindow_after_netlist
   if {$s == 1} { set s always}
   if {$s == 0} { set s onerror}
-  if {[info exists has_x]} {
-     if {($s eq {always}) || ($err != 0 && $s eq {onerror})} {
-       wm deiconify .infotext
-     }
-  } else {
-    puts stderr $infowindow_text
+  if {($s eq {always}) || ($err != 0 && $s eq {onerror})} {
+    if {[info exists has_x]} {
+      wm deiconify .infotext
+    } else {
+      puts stderr $infowindow_text
+    }
   }
 }
 
@@ -4424,7 +4424,6 @@ proc infowindow {} {
   global infowindow_text
 
   set infotxt $infowindow_text
-  if { $infowindow_text ne {}} {append infotxt \n}
   set z {.infotext}
   if ![string compare $infotxt ""] { 
     if [winfo exists $z] {
@@ -4456,8 +4455,10 @@ proc infowindow {} {
     pack $z.f2 -fill x
     bind $z <Escape> "wm withdraw $z; set show_infowindow 0"
   }
-  $z.f1.text insert end $infotxt
-  $z.f1.text see end
+  $z.f1.text delete 1.0 end
+  $z.f1.text insert 1.0 $infotxt
+  set lines [$z.f1.text count -displaylines 1.0 end]
+  $z.f1.text see ${lines}.0
   return {}
 }
 
@@ -5995,7 +5996,7 @@ proc build_widgets { {topwin {} } } {
    -padx 2 -pady 0 -command \{simulate_button $topwin.menubar.simulate\} $bbg
   set simulate_bg [$topwin.menubar.simulate cget -bg]
   eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
-   -padx 2 -pady 0 -command \{xschem netlist\} $bbg
+   -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
   $topwin.menubar.view.menu add checkbutton -label "Show ERC Info window" -variable show_infowindow \
@@ -6275,7 +6276,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem redraw} 
                   # {xschem save; xschem reload}
-  toolbar_add Netlist { xschem netlist } "Create netlist" $topwin
+  toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
   toolbar_add Simulate "simulate_button $topwin.menubar.simulate" "Run simulation" $topwin
   toolbar_add Waves { waves } "View results" $topwin
 

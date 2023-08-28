@@ -24,15 +24,24 @@
 
 void statusmsg(char str[],int n)
 {
-  tclsetvar("infowindow_text", str);
+  if(!str) return;
+  if(str[0]== '\0') {
+    tclsetvar("infowindow_text", "");
+  } else {
+
+    if(n == 2) {
+      tcleval("if {$infowindow_text ne {}} {append infowindow_text \\n}");
+      tclvareval("append infowindow_text {", str, "}", NULL);
+    }
+  }
   if(!has_x) return;
   if(n==2) {
     dbg(3, "statusmsg(): n = 2, str = %s\n", str);
     tcleval("infowindow");
   }
   else {
-    tclvareval(xctx->top_path, ".statusbar.1 configure -text $infowindow_text", NULL);
-    dbg(3, "statusmsg(str, %d): -> $infowindow_text = %s\n", n, tclgetvar("infowindow_text"));
+    tclvareval(xctx->top_path, ".statusbar.1 configure -text {", str, "}", NULL);
+    dbg(3, "statusmsg(str, %d): -> str = %s\n", n, str);
   }
 }
 
@@ -2288,8 +2297,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *path;
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
-      tclsetvar("show_infowindow_after_netlist", "never");
       my_strncpy(save, tclgetvar("netlist_dir"), S(save));
+      if(argc > 2 && strcmp(argv[2], "-erc")) { /* xschem netlist NOT invoked from GUI */
+        tclsetvar("show_infowindow_after_netlist", "never");
+      }  
       if(argc > 2) {
         if(!strcmp(argv[2], "-messages")) {
           messages = 1;
@@ -2323,7 +2334,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_netlist_dir(1, save);
         }
         if(messages) {
-          Tcl_SetResult(interp, (char *)tcleval(".infotext.f1.text get 1.0 end"), TCL_VOLATILE);
+          Tcl_SetResult(interp, (char *)tclgetvar("infowindow_text"), TCL_VOLATILE);
         } else {
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
