@@ -272,17 +272,17 @@ static int hash_inst_pin(int what, int i, int j)
   }
 
 
-  if(for_netlist && j<rects &&
+  if(xctx->netlist_count && for_netlist && j<rects &&
      (!prop_ptr || !get_tok_value(prop_ptr, "name",0)[0] || !get_tok_value(prop_ptr, "dir",0)[0]) ) {
     char str[2048];
-    my_snprintf(str, S(str), "Error: symbol %s: missing all or name or dir attributes on pin %d\n  %s",
-        xctx->inst[i].name, j, prop_ptr);
+    my_snprintf(str, S(str), "Error: instance %s, symbol %s: missing all or name or dir attributes on pin "
+        " %d\n"
+        "attribute string:\n%s",
+        xctx->inst[i].instname, xctx->inst[i].name, j, prop_ptr ? prop_ptr : "<NULL>");
     statusmsg(str,2);
     err |= 1;
-    if(!xctx->netlist_count) {
-      xctx->inst[i].color = -PINLAYER;
-      xctx->hilight_nets=1;
-    }
+    xctx->inst[i].color = -PINLAYER;
+    xctx->hilight_nets=1;
   }
   rot=xctx->inst[i].rot;
   flip=xctx->inst[i].flip;
@@ -648,7 +648,7 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
 {
  int err = 0;
  char str[2048];
- if( n1 && n2 && strcmp( n1, n2) )
+ if( xctx->netlist_count && n1 && n2 && strcmp( n1, n2) )
  {
    err |= 1;
    my_snprintf(str, S(str), "Error: %s shorted: %s - %s", tag, n1, n2);
