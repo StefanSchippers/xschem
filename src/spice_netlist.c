@@ -580,7 +580,7 @@ int spice_block_netlist(FILE *fd, int i)
     spice_stop ? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
     get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
-  
+    err |= warning_overlapped_symbols(0);
     if(xctx->schprop && xctx->schprop[0]) {
       fprintf(fd,"**** begin user architecture code\n");
       fprintf(fd, "%s\n", xctx->schprop);

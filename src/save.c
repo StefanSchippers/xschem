@@ -2561,7 +2561,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   /* warning if two symbols perfectly overlapped */
-  warning_overlapped_symbols(0);
+  /* warning_overlapped_symbols(0); */ /* do this when netlisting */
 }
 
 void clear_undo(void)
