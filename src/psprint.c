@@ -1351,8 +1351,10 @@ int ps_draw(int what, int fullzoom)
  if(what & 1) { /* prolog */
    if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
    if(has_x && !xctx->plotfile[0]) {
-     tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
-       get_cell(xctx->sch[xctx->currsch], 0) , ".pdf} -initialdir {", lastdir, "}", NULL);
+     /* tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
+      *   get_cell(xctx->sch[xctx->currsch], 0) , ".pdf} -initialdir {", lastdir, "}", NULL); */
+     tclvareval("save_file_dialog {Select destination file} *.{ps,pdf} INITIALLOADDIR {", pwd_dir, "/",
+       get_cell(xctx->sch[xctx->currsch], 0), ".pdf}", NULL);
      r = tclresult();
      if(r[0]) {
        my_strncpy(xctx->plotfile, r, S(xctx->plotfile));

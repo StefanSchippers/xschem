@@ -90,8 +90,10 @@ void print_image()
   if(!has_x) return;
   if(!lastdir[0]) my_strncpy(lastdir, pwd_dir, S(lastdir));
   if(!xctx->plotfile[0]) {
-    tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
-      get_cell(xctx->sch[xctx->currsch], 0) , ".png} -initialdir {", lastdir, "}", NULL);
+    /* tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
+     *   get_cell(xctx->sch[xctx->currsch], 0), ".png} -initialdir {", lastdir, "}", NULL); */
+    tclvareval("save_file_dialog {Select destination file} *.png INITIALLOADDIR {", pwd_dir, "/", 
+      get_cell(xctx->sch[xctx->currsch], 0), ".png}", NULL);
     r = tclresult();
     if(r[0]) {
       my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
