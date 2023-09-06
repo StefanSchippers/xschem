@@ -3833,8 +3833,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "switch"))
     {
-      if(argc > 2) new_schematic("switch", argv[2], NULL);
-      Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
+      int r;
+      if(argc > 2) r = new_schematic("switch", argv[2], NULL);
+      Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
     }
  
     /* symbols [n]

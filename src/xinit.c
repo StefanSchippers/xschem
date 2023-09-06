@@ -1386,21 +1386,21 @@ int check_loaded(const char *f, char *win_path)
   return found;
 }
 
-static void switch_window(int *window_count, const char *win_path, int tcl_ctx)
+static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
 {
   int n;
   char my_win_path[80];
   Tk_Window tkwin=NULL;
   if(!win_path) {
     dbg(0, "switch_window(): no filename or window path given\n");
-    return;
+    return 1;
   }
-  if(!strcmp(win_path, xctx->current_win_path)) return; /* already there */
+  if(!strcmp(win_path, xctx->current_win_path)) return 1; /* already there */
   if(*window_count) {
     n = get_tab_or_window_number(win_path);
     if(n == -1) {
       dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", win_path);
-      return;
+      return 1;
     }
     /* build my_win_path since win_path can also be a filename */
     if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
@@ -1419,27 +1419,31 @@ static void switch_window(int *window_count, const char *win_path, int tcl_ctx)
       tclvareval("housekeeping_ctx", NULL);
       if(tcl_ctx && has_x) tclvareval("reconfigure_layers_button {}", NULL);
       set_modify(-1); /* sets window title */
+      return 0;
     }
+  } else {
+    dbg(0, "No additional windows are present\n");
   }
+  return 1;
 }
 
-static void switch_tab(int *window_count, const char *win_path)
+static int switch_tab(int *window_count, const char *win_path)
 {        
   int n;
 
   dbg(1, "switch_tab(): win_path=%s\n", win_path);
-  if(xctx->semaphore) return; /* some editing operation ongoing. do nothing */
+  if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
   if(!win_path) {
     dbg(0, "switch_tab(): no filename or window path given\n");
-    return;
+    return 1;
   }
-  if(!strcmp(win_path, xctx->current_win_path)) return; /* already there */
+  if(!strcmp(win_path, xctx->current_win_path)) return 1; /* already there */
   if(*window_count) {
     dbg(1, "new_schematic() switch_tab: %s\n", win_path);
     n = get_tab_or_window_number(win_path);
     if(n == -1) {
       dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", win_path);
-      return;
+      return 1;
     }
     /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
@@ -1452,8 +1456,12 @@ static void switch_tab(int *window_count, const char *win_path)
       resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
       draw();
+      return 0;
     }
+  } else {
+    dbg(0, "No tabs are present\n");
   }
+  return 1;
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
@@ -1908,8 +1916,8 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
       destroy_all_tabs(&window_count, (win_path && win_path[0]) ? 1 : 0);
     }
   } else if(!strcmp(what, "switch")) {
-    if(tabbed_interface) switch_tab(&window_count, win_path);
-    else switch_window(&window_count, win_path, 1);
+    if(tabbed_interface) return switch_tab(&window_count, win_path);
+    else return switch_window(&window_count, win_path, 1);
   } else if(!strcmp(what, "switch_no_tcl_ctx") && !tabbed_interface) {
     switch_window(&window_count, win_path, 0);
   }
