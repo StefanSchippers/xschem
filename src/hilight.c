@@ -501,8 +501,8 @@ void hilight_parent_pins(void)
   * this is used when descending into symbols created from generators */
  if(inst_number == -1) inst_number = 1;
 
- dbg(0, "hilight_parent_pins(): previous_instance=%d\n", xctx->previous_instance[xctx->currsch]);
- dbg(0, "hilight_parent_pins(): inst_number=%d\n", inst_number);
+ dbg(1, "hilight_parent_pins(): previous_instance=%d\n", xctx->previous_instance[xctx->currsch]);
+ dbg(1, "hilight_parent_pins(): inst_number=%d\n", inst_number);
 
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
 
@@ -511,15 +511,15 @@ void hilight_parent_pins(void)
   char *p_n_s1, *p_n_s2;
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
-  dbg(0, "hilight_parent_pins(): net_node=%s\n", net_node);
+  dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
-  dbg(0, "pin_name=%s\n", pin_name);
+  dbg(1, "pin_name=%s\n", pin_name);
   if(!pin_name[0]) continue;
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
-  dbg(0, "hilight_parent_pins(): pin_node=%s\n", pin_node);
+  dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
 
   p_n_s1 = pin_node;
-  dbg(0, "p_n_s1=%s\n", p_n_s1);
+  dbg(1, "p_n_s1=%s\n", p_n_s1);
   for(k = 1; k<=mult; ++k) {
     xctx->currsch++;
     /* entry = bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XLOOKUP); */
@@ -528,7 +528,7 @@ void hilight_parent_pins(void)
     xctx->currsch--;
     if(entry)
     {
-      dbg(0, "found hilight entry in child: %s\n", entry->token);
+      dbg(1, "found hilight entry in child: %s\n", entry->token);
       bus_hilight_hash_lookup(find_nth(net_node, ",",
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
