@@ -1395,24 +1395,26 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
     dbg(0, "switch_window(): no filename or window path given\n");
     return 1;
   }
-  if(!strcmp(win_path, xctx->current_win_path)) return 1; /* already there */
+  if(!strcmp(win_path, xctx->current_win_path)) return 0; /* already there */
+  n = get_tab_or_window_number(win_path);
+  if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
+  else my_snprintf(my_win_path, S(my_win_path), ".x%d.drw", n);
+  if(n == -1) {
+    dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", win_path);
+    return 1;
+  }
   if(*window_count) {
-    n = get_tab_or_window_number(win_path);
-    if(n == -1) {
-      dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", win_path);
-      return 1;
-    }
     /* build my_win_path since win_path can also be a filename */
-    if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
-    else my_snprintf(my_win_path, S(my_win_path), ".x%d.drw", n);
     dbg(1, "new_schematic(\"switch\"...): %s\n", my_win_path);
     if(has_x) {
       tkwin =  Tk_NameToWindow(interp, my_win_path, mainwindow); /* NULL if win_path not existing */
-      if(!tkwin) dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", win_path);
+      if(!tkwin) {
+        dbg(0, "new_schematic(\"switch\",...): Warning: %s has been destroyed\n", win_path);
+        return 1;
+      }
     }
     /* if window was closed then tkwin == 0 --> do nothing */
     if((!has_x || tkwin) && n >= 0 && n < MAX_NEW_WINDOWS) {
-
       if(tcl_ctx) tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
       if(tcl_ctx) tclvareval("restore_ctx ", win_path, NULL);
@@ -1420,11 +1422,10 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
       if(tcl_ctx && has_x) tclvareval("reconfigure_layers_button {}", NULL);
       set_modify(-1); /* sets window title */
       return 0;
-    }
-  } else {
-    dbg(0, "No additional windows are present\n");
+    } else return 1;
   }
-  return 1;
+  dbg(0, "No additional windows are present\n");
+  return 0;
 }
 
 static int switch_tab(int *window_count, const char *win_path)
@@ -1437,14 +1438,14 @@ static int switch_tab(int *window_count, const char *win_path)
     dbg(0, "switch_tab(): no filename or window path given\n");
     return 1;
   }
-  if(!strcmp(win_path, xctx->current_win_path)) return 1; /* already there */
+  if(!strcmp(win_path, xctx->current_win_path)) return 0; /* already there */
+  n = get_tab_or_window_number(win_path);
+  if(n == -1) {
+    dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", win_path);
+    return 1;
+  }
   if(*window_count) {
     dbg(1, "new_schematic() switch_tab: %s\n", win_path);
-    n = get_tab_or_window_number(win_path);
-    if(n == -1) {
-      dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", win_path);
-      return 1;
-    }
     /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
       tclvareval("save_ctx ", xctx->current_win_path, NULL);
@@ -1457,11 +1458,10 @@ static int switch_tab(int *window_count, const char *win_path)
       set_modify(-1); /* sets window title */
       draw();
       return 0;
-    }
-  } else {
-    dbg(0, "No tabs are present\n");
+    } else return 1;
   }
-  return 1;
+  dbg(0, "No tabs are present\n");
+  return 0;
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
