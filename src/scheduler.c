@@ -3829,7 +3829,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* switch [window_path |schematic_name]
      *   Switch context to indicated window path or schematic name
-     *   returns the # of windows/tabs in addition to main window/tab
+     *   returns 0 if switch was successfull or 1 in case of errors
+     *   (no tabs/windows present or no matching winpath / schematic name
+     *   found).
      */
     else if(!strcmp(argv[1], "switch"))
     {

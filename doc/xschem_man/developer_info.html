@@ -648,6 +648,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> gridlayer </kbd> layer number for grid </li>
      <li><kbd> help </kbd> command help </li>
      <li><kbd> header_text </kbd> header metadata (license info etc) present in schematic </li>
+     <li><kbd> infowindow_text </kbd> ERC messages </li>
      <li><kbd> instances </kbd> number of instances in schematic </li>
      <li><kbd> lastsel </kbd> number of selected objects </li>
      <li><kbd> line_width </kbd> get line width </li>
@@ -1097,6 +1098,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> format </kbd> set name of custom format attribute used for netlisting </li>
      <li><kbd> header_text </kbd> set header metadata (used for license info) </li>
      <li><kbd> hide_symbols </kbd> set to 0,1,2 for various hiding level of symbols </li>
+     <li><kbd> infowindow_text </kbd> ERC messages </li>
      <li><kbd> netlist_name </kbd> set custom netlist name </li>
      <li><kbd> netlist_type </kbd> set netlisting mode (spice, verilog, vhdl, tedax, symbol) </li>
      <li><kbd> no_draw </kbd> set no drawing flag (0 or 1) </li>
@@ -1160,7 +1162,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'new_process' is given start a new xschem process </pre>
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
    Switch context to indicated window path or schematic name
-   returns the # of windows/tabs in addition to main window/tab</pre>
+   returns 0 if switch was successfull or 1 in case of errors
+   (no tabs/windows present or no matching winpath / schematic name
+   found).</pre>
    <li><kbd>       symbols [n]</kbd></li><pre>
    if 'n' given list symbol with name or number 'n', else 
    list all used symbols </pre>
@@ -1247,7 +1251,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 
