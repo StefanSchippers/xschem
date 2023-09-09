@@ -1005,7 +1005,10 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
   tok = node;
   node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
   if(tok[0] == '#') tok++;
-  if(node_entry  && (node_entry->d.port == 0 || !strcmp(xctx->sch_path[xctx->currsch], ".") )) {
+  if(node_entry  && (node_entry->d.port == 0 ||
+                     /* !strcmp(xctx->sch_path[xctx->currsch], ".") */
+                       xctx->currsch == xctx->graph_raw_level
+                    )) {
     char *t=NULL, *p=NULL;
     char *path;
     int start_level;
@@ -1733,6 +1736,8 @@ void hilight_net(int viewer)
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == XSCHEM_GRAPH) {
          send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);
+         dbg(1, "1 hilight_net(): send_net_to_graph() sets s=%s\n", s);
+         dbg(1, "hilight_net(): wire[n].node=%s\n", xctx->wire[n].node);
        } else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
        else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
        if(incr_hi) incr_hilight_color();
@@ -1743,7 +1748,11 @@ void hilight_net(int viewer)
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
        if(!bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-         if(viewer == XSCHEM_GRAPH) send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
+         if(viewer == XSCHEM_GRAPH) {
+           send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
+           dbg(1, "2 hilight_net(): send_net_to_graph() sets s=%s\n", s);
+           dbg(1, "hilight_net(): inst[n].node[0]=%s\n", xctx->inst[n].node[0]);
+         }
          else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
          if(incr_hi) incr_hilight_color();
@@ -1754,7 +1763,7 @@ void hilight_net(int viewer)
        xctx->inst[n].color = xctx->hilight_color;
        inst_hilight_hash_lookup(n, xctx->hilight_color, XINSERT_NOREPLACE);
        if(type &&  (!strcmp(type, "ammeter") || !strcmp(type, "vsource")) ) {
-         if(viewer == XSCHEM_GRAPH)  send_current_to_graph(&s, sim_is_xyce, xctx->inst[n].instname);
+         if(viewer == XSCHEM_GRAPH) send_current_to_graph(&s, sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == GAW) send_current_to_gaw(sim_is_xyce, xctx->inst[n].instname);
          else if(viewer == BESPICE) send_current_to_bespice(sim_is_xyce, xctx->inst[n].instname);
        }
