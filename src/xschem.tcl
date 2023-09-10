@@ -1263,7 +1263,7 @@ proc bespice_getdata {sock} {
 }
 
 proc xschem_getdata {sock} {
-  global xschem_server_getdata tclcmd_puts
+  global xschem_server_getdata tclcmd_puts debug_var
 
   while {1} {
     if {[gets $sock line] < 0} {
@@ -1283,7 +1283,7 @@ proc xschem_getdata {sock} {
   puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
   flush $sock
   close $sock ;# server closes
-  puts "Close $xschem_server_getdata(addr,$sock)"
+  if {$debug_var<=-1} {puts "Close $xschem_server_getdata(addr,$sock)"}
   unset xschem_server_getdata(addr,$sock)
   unset xschem_server_getdata(line,$sock)
   unset xschem_server_getdata(res,$sock)
@@ -1305,8 +1305,8 @@ proc bespice_server {sock addr port} {
 }
 
 proc xschem_server {sock addr port} {
-  global xschem_server_getdata
-  puts "Accept $sock from $addr port $port"
+  global xschem_server_getdata debug_var
+  if {$debug_var<=-1} {puts "Accept $sock from $addr port $port"}
   fconfigure $sock -buffering line -blocking 0
   set xschem_server_getdata(addr,$sock) [list $addr $port]
   set xschem_server_getdata(line,$sock) {}
