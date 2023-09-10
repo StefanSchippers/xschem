@@ -1272,13 +1272,13 @@ proc xschem_getdata {sock} {
       append xschem_server_getdata(line,$sock) $line \n
     }
   }
-  puts "tcp<-- $xschem_server_getdata(line,$sock)"
+  if {$debug_var<=-1} {puts "tcp<-- $xschem_server_getdata(line,$sock)"}
   # xschem command must be executed at global scope...
   redef_puts
   uplevel #0 [list catch $xschem_server_getdata(line,$sock) tclcmd_puts]
   rename puts {}
   rename ::tcl::puts puts
-  puts "tcp--> $tclcmd_puts"
+  if {$debug_var<=-1} {puts "tcp--> $tclcmd_puts"}
   set xschem_server_getdata(res,$sock) "$tclcmd_puts"
   puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
   flush $sock
