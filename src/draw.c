@@ -1880,6 +1880,7 @@ int sch_waves_loaded(void)
     dbg(1, "sch_waves_loaded(): graph_raw_schname=%s\n", xctx->graph_raw_schname);
     for(i = xctx->currsch; i >= 0; i--) {
       dbg(1, "sch_waves_loaded(): %d --> %s\n", i, xctx->sch[i]);
+      if( !xctx->sch[i] ) continue;
       if( !strcmp(xctx->graph_raw_schname, xctx->sch[i]) ) {
         dbg(1, "sch_waves_loaded(): returning %d\n", i);
         return i;
