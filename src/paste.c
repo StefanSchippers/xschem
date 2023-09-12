@@ -282,12 +282,16 @@ static void merge_inst(int k,FILE *fd)
     xctx->instances++;
 }
 
-/* merge selection if selection_load=1, otherwise ask for filename */
-/* selection_load: */
-/*                      0: ask filename to merge */
-/*                         if ext=="" else use ext as name  ... 20071215 */
-/*                      1: merge selection */
-/*                      2: merge clipboard */
+/* merge selection if selection_load=1, otherwise ask for filename
+ * selection_load:
+ *                      0: ask filename to merge
+ *                         if ext=="" else use ext as name 
+ *                      1: merge selection
+ *                      2: merge clipboard
+ *                      if bit 3 is set do not start a  move_objects(RUBBER,0,0,0)
+ *                      to avoid graphical artifacts if doing a xschem paste with x and y offsets
+ *                      from script
+ */
 void merge_file(int selection_load, const char ext[])
 {
     FILE *fd;
@@ -298,8 +302,10 @@ void merge_file(int selection_load, const char ext[])
     char tmp[256]; /* 20161122 overflow safe */
     char *aux_ptr=NULL;
     int got_mouse, generator = 0;
+    int rubber = 1;
 
-
+    rubber = !(selection_load & 8);
+    selection_load &= 7;
     if(selection_load==0)
     {
      if(!strcmp(ext,"")) {
@@ -425,7 +431,7 @@ void merge_file(int selection_load, const char ext[])
      move_objects(START,0,0,0);
      xctx->mousex_snap = xctx->mx_double_save;
      xctx->mousey_snap = xctx->my_double_save;
-     move_objects(RUBBER,0,0,0);
+     if(rubber) move_objects(RUBBER,0,0,0);
     } else {
       dbg(0, "merge_file(): can not open %s\n", name);
     }

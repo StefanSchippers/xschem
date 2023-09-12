@@ -2464,11 +2464,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Paste clipboard. If 'x y' not given user should complete placement in the GUI */
     else if(!strcmp(argv[1], "paste"))
     {
-      merge_file(2, ".sch");
       if(argc > 3) {
+        merge_file(10, ".sch"); /* set bit 3 to avoid doing move_objects(RUBBER,...) */
         xctx->deltax = atof(argv[2]);
         xctx->deltay = atof(argv[3]);
         move_objects(END, 0, 0.0, 0.0);
+      } else {
+        merge_file(2, ".sch");
       }
       Tcl_ResetResult(interp);
     }
