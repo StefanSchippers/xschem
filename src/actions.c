@@ -1944,6 +1944,7 @@ void clear_schematic(int cancel, int symbol)
             else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
             if(stat(name, &buf)) break;
           }
+          my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
           my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         } else {
@@ -1954,6 +1955,7 @@ void clear_schematic(int cancel, int symbol)
             else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
             if(stat(name, &buf)) break;
           }
+          my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
           my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
           my_strncpy(xctx->current_name, name, S(xctx->current_name));
         }

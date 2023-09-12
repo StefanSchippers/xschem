@@ -80,6 +80,31 @@ static void check_connected_wire(int stop_at_junction, int n)
   }
 }
 
+#if 0
+int select_dangling_labels(void)
+{
+  int i;
+  char * type;
+  for(i = 0; i < xctx->instances; i++) {
+    type = (xctx->inst[i].ptr+ xctx->sym)->type;
+    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") )) {
+      double x0, y0;
+      int sqx, sqy;
+      xRect *rct;
+      Wireentry *wptr;
+      rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+      if(rct) {
+        get_inst_pin_coord(i, 0, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        wptr = xctx->wire_spatial_table[sqx][sqy];
+      }
+
+    }
+  }
+  return 0;
+}
+#endif
+
 /* stop_at_junction==1 --> stop selecting wires at 'T' junctions */
 void select_connected_wires(int stop_at_junction)
 {
@@ -98,7 +123,7 @@ void select_connected_wires(int stop_at_junction)
         break;
       case ELEMENT:
         type = (xctx->inst[i].ptr+ xctx->sym)->type;
-        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") || !strcmp(type, "ngprobe"))) {
+        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") )) {
           double x0, y0;
           int sqx, sqy;
           xRect *rct;
