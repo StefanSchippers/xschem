@@ -120,7 +120,7 @@ int select_dangling_nets(void)
         touches = touch(xctx->wire[w].x1, xctx->wire[w].y1, xctx->wire[w].x2, xctx->wire[w].y2, x0, y0);
         if(touches) {
           table[w] = 1; /* wire[w] is NOT dangling */
-          dbg(0, "wire %d touches inst %d\n", w, i);
+          dbg(1, "wire %d touches inst %d\n", w, i);
         }
       }
     }
