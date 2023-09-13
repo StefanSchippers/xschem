@@ -82,6 +82,7 @@ static void check_connected_wire(int stop_at_junction, int n)
 
 int select_dangling_nets(void)
 {
+  int netlist_lvs_ignore=tclgetboolvar("lvs_ignore");
   int i, p, w, touches, rects, done;
   int ret = 0; /* return code: 1: dangling elements found */
   int *table = NULL;
@@ -107,6 +108,7 @@ int select_dangling_nets(void)
     RECTORDER(x1, y1, x2, y2);
     for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
       i = instptr->n;
+      if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
       type = (xctx->inst[i].ptr+ xctx->sym)->type;
       rct=(xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
       if(!rct) continue;
@@ -211,6 +213,7 @@ int select_dangling_nets(void)
         if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
           goto cont2;
         }
+        if(skip_instance(n, 0, netlist_lvs_ignore)) goto cont2;
         rct = (xctx->inst[n].ptr+ xctx->sym)->rect[PINLAYER];
         if(!rct) goto cont2;
         rects = (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER];

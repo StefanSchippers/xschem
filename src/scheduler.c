@@ -3295,12 +3295,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* select_dangling_nets 
      *   Select all nets/labels that are dangling, ie not attached to any non pin/port/probe components
-     *   Returns 1 if danglings found, 0 otherwise */
+     *   Returns number of selected items (wires,labels) if danglings found, 0 otherwise */
     else if(!strcmp(argv[1], "select_dangling_nets"))  
     {       
-      int r;
-      r = select_dangling_nets();
-      Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
+      select_dangling_nets();
+      Tcl_SetResult(interp, my_itoa(xctx->lastsel), TCL_VOLATILE);
     }       
 
     /* select_hilight_net
