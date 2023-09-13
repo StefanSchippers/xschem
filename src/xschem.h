@@ -1259,6 +1259,8 @@ extern unsigned short select_object(double mx,double my, unsigned short sel_mode
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
+/*  Select all nets that are dangling, ie not attached to any non pin/port/probe components */
+extern int select_dangling_nets(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,

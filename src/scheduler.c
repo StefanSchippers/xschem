@@ -1768,8 +1768,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * returns pin_name x y */
       xSymbol *symbol;
       xRect *rct;
-      short flip, rot;
-      double x0,y0, pinx0, piny0;
+      double pinx0, piny0;
       char num[60];
       int p, i, no_of_pins, slot;
       const char *pin;
@@ -1785,10 +1784,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "", TCL_STATIC);
         return TCL_OK;
       }
-      x0 = xctx->inst[i].x0;
-      y0 = xctx->inst[i].y0;
-      rot = xctx->inst[i].rot;
-      flip = xctx->inst[i].flip;
       symbol = xctx->sym + xctx->inst[i].ptr;
       no_of_pins= symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
@@ -1810,11 +1805,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "", TCL_STATIC);
         return TCL_OK;
       }
-      pinx0 = (rct[p].x1+rct[p].x2)/2;
-      piny0 = (rct[p].y1+rct[p].y2)/2;
-      ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
-      pinx0 += x0;
-      piny0 += y0;
+      get_inst_pin_coord(i, p, &pinx0, &piny0);
       my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 0), pinx0, piny0);
       Tcl_SetResult(interp, num, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &tmpstr);
@@ -1869,8 +1860,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* xschem instances_to_net PLUS */
       xSymbol *symbol;
       xRect *rct;
-      short flip, rot;
-      double x0,y0, pinx0, piny0, rpinx0, rpiny0;
+      double pinx0, piny0;
       char *pins = NULL;
       int p, i, no_of_pins;
       prepare_netlist_structs(0);
@@ -1879,10 +1869,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_ERROR;
       }
       for(i = 0;i < xctx->instances; ++i) {
-        x0 = xctx->inst[i].x0;
-        y0 = xctx->inst[i].y0;
-        rot = xctx->inst[i].rot;
-        flip = xctx->inst[i].flip;
         symbol = xctx->sym + xctx->inst[i].ptr;
         no_of_pins= symbol->rects[PINLAYER];
         rct=symbol->rect[PINLAYER];
@@ -1894,13 +1880,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
              !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
             my_mstrcat(_ALLOC_ID_, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
-            pinx0 = (rct[p].x1+rct[p].x2)/2;
-            piny0 = (rct[p].y1+rct[p].y2)/2;
-            ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, rpinx0, rpiny0);
-            rpinx0 += x0;
-            rpiny0 += y0;
-            my_strncpy(xx, dtoa(rpinx0), S(xx));
-            my_strncpy(yy, dtoa(rpiny0), S(yy));
+            get_inst_pin_coord(i, p, &pinx0, &piny0);
+            my_strncpy(xx, dtoa(pinx0), S(xx));
+            my_strncpy(yy, dtoa(piny0), S(yy));
             my_mstrcat(_ALLOC_ID_, &pins, "} {", xx, "} {", yy, "} } ", NULL);
           }
         }
@@ -3310,6 +3292,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       select_all();
       Tcl_ResetResult(interp);
     }
+
+    /* select_dangling_nets 
+     *   Select all nets/labels that are dangling, ie not attached to any non pin/port/probe components
+     *   Returns 1 if danglings found, 0 otherwise */
+    else if(!strcmp(argv[1], "select_dangling_nets"))  
+    {       
+      int r;
+      r = select_dangling_nets();
+      Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
+    }       
 
     /* select_hilight_net
      *   Select all highlight objects (wires, labels, pins, instances) */

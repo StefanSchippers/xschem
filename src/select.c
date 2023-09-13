@@ -80,30 +80,165 @@ static void check_connected_wire(int stop_at_junction, int n)
   }
 }
 
-#if 0
-int select_dangling_labels(void)
+int select_dangling_nets(void)
 {
-  int i;
-  char * type;
-  for(i = 0; i < xctx->instances; i++) {
-    type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") )) {
-      double x0, y0;
-      int sqx, sqy;
-      xRect *rct;
-      Wireentry *wptr;
-      rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
-      if(rct) {
-        get_inst_pin_coord(i, 0, &x0, &y0);
-        get_square(x0, y0, &sqx, &sqy);
-        wptr = xctx->wire_spatial_table[sqx][sqy];
-      }
+  int i, p, w, touches, rects, done;
+  int ret = 0; /* return code: 1: dangling elements found */
+  int *table = NULL;
+  xRect *rct;
+  xWire * const wire = xctx->wire;
+  Instentry *instptr;
+  Wireentry *wireptr;
+  Iterator_ctx ctx;
+  char *type;
+  double x0, y0, x1, y1, x2, y2;
 
+  table = my_calloc(_ALLOC_ID_, xctx->wires, sizeof(int));
+  
+  hash_instances();
+  hash_wires();
+
+  /* Mark nets connected to non pin/label/probe components as NOT dangling (table[w] = 1) */
+  for(w = 0; w < xctx->wires; w++) {
+    x1 = xctx->wire[w].x1;
+    y1 = xctx->wire[w].y1;
+    x2 = xctx->wire[w].x2;
+    y2 = xctx->wire[w].y2;
+    RECTORDER(x1, y1, x2, y2);
+    for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
+      i = instptr->n;
+      type = (xctx->inst[i].ptr+ xctx->sym)->type;
+      rct=(xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+      if(!rct) continue;
+      if( type && (!strcmp(type, "label") || !strcmp(type, "probe") )) {
+        continue;
+      }
+      rects = (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER];
+      for(p = 0; p < rects; p++)
+      {
+        get_inst_pin_coord(i, p, &x0, &y0);
+        touches = touch(xctx->wire[w].x1, xctx->wire[w].y1, xctx->wire[w].x2, xctx->wire[w].y2, x0, y0);
+        if(touches) {
+          table[w] = 1; /* wire[w] is NOT dangling */
+          dbg(0, "wire %d touches inst %d\n", w, i);
+        }
+      }
     }
   }
-  return 0;
+
+  /* Propagate NOT dangling nets to other nets */
+  done = 0;
+  while(!done) {
+    done = 1;
+    for(w = 0; w < xctx->wires; w++) {
+      if(table[w] == 0) continue;
+      /* wire[w] is not dangling */
+      x1 = xctx->wire[w].x1;
+      y1 = xctx->wire[w].y1;
+      x2 = xctx->wire[w].x2;
+      y2 = xctx->wire[w].y2;
+      RECTORDER(x1, y1, x2, y2);
+      for(init_wire_iterator(&ctx, x1, y1, x2, y2); (wireptr = wire_iterator_next(&ctx)) ;) {
+        i = wireptr->n;
+        if(i == w) continue;
+        if(table[i]) continue;
+        touches = touch(wire[w].x1, wire[w].y1, wire[w].x2, wire[w].y2, wire[i].x1, wire[i].y1) ||
+                  touch(wire[w].x1, wire[w].y1, wire[w].x2, wire[w].y2, wire[i].x2, wire[i].y2) ||
+                  touch(wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, wire[w].x1, wire[w].y1) ||
+                  touch(wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, wire[w].x2, wire[w].y2);
+        if(touches) { 
+          table[i] = 1; /* wire[i] also not dangling */
+          done = 0;
+        }
+      }
+    }
+  }
+
+  /* Select all nets that are dangling */
+  for(w = 0; w < xctx->wires; w++) {
+    if(!table[w]) {
+      xctx->wire[w].sel = SELECTED;
+      ret = 1;
+    }
+  }
+
+  /* select pins/labels/probes attached to dangling nets */
+  for(w = 0; w < xctx->wires; w++) {
+    x1 = xctx->wire[w].x1;
+    y1 = xctx->wire[w].y1;
+    x2 = xctx->wire[w].x2;
+    y2 = xctx->wire[w].y2;
+    RECTORDER(x1, y1, x2, y2);
+    for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
+      i = instptr->n;
+      type = (xctx->inst[i].ptr+ xctx->sym)->type;
+      if( type && (!strcmp(type, "label") || !strcmp(type, "probe") )) {
+        rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+        if(!rct) continue;
+        get_inst_pin_coord(i, 0, &x0, &y0);
+        touches = touch(xctx->wire[w].x1, xctx->wire[w].y1, xctx->wire[w].x2, xctx->wire[w].y2, x0, y0);
+        if(touches && table[w] == 0) {
+          xctx->inst[i].sel = SELECTED;
+          ret = 1;
+        }
+      }
+    }
+  }
+
+  /* select dangling labels/probes (not connected to anything) */
+  for(i = 0; i < xctx->instances; i++) {
+    int dangling = 1;
+    type = (xctx->inst[i].ptr+ xctx->sym)->type;
+    if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
+      int sqx, sqy;
+      rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
+      if(!rct) continue;
+      get_inst_pin_coord(i, 0, &x0, &y0);
+      get_square(x0, y0, &sqx, &sqy);
+      wireptr = xctx->wire_spatial_table[sqx][sqy];
+      while (wireptr) {
+        int n = wireptr->n;
+        if (touch(xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2, x0, y0)) {
+          dangling = 0; /* inst[i] connected to a wire */
+        }
+        wireptr = wireptr->next;
+      }
+      instptr = xctx->inst_spatial_table[sqx][sqy];
+      while(instptr) {
+        int n = instptr->n;
+        if(n == i) goto cont2;
+        type = (xctx->inst[n].ptr+ xctx->sym)->type;
+        if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
+          goto cont2;
+        }
+        rct = (xctx->inst[n].ptr+ xctx->sym)->rect[PINLAYER];
+        if(!rct) goto cont2;
+        rects = (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER];
+        for(p = 0; p < rects; p++)
+        { 
+          get_inst_pin_coord(n, p, &x1, &y1);
+          touches = (x0 == x1 && y0 == y1);
+          if(touches) {
+            dangling = 0; /* inst[i] connected to non label/probe inst[n] */
+          }
+        }
+        cont2:
+        instptr = instptr->next;
+      }
+      if(dangling) {
+        xctx->inst[i].sel = SELECTED;
+        ret = 1;
+      }
+    }
+  }
+
+  /* draw selection */
+  xctx->need_reb_sel_arr = 1;
+  rebuild_selected_array();
+  draw_selection(xctx->gc[SELLAYER], 0);
+  my_free(_ALLOC_ID_, &table);
+  return ret;
 }
-#endif
 
 /* stop_at_junction==1 --> stop selecting wires at 'T' junctions */
 void select_connected_wires(int stop_at_junction)
