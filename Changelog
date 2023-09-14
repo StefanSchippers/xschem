@@ -1,3 +1,48 @@
+3.4.4:
+- "xschem connected_nets" command now works for any selected instance, not only labels/probes/pins.
+  Argument can be 0, 1, 2 (2-->select only wire segments drectly attached to selected net/instance)
+
+- Add commands "xschem get wires", "xschem getprop wire n attr", "xschem touch x1 y1 x2 y2 x0 y0",
+  "xschem wire_coord n"
+
+- Add command "xschem select_dangling_nets" that selects all labels/wires that are not connected
+  to any non-label/non-probe components
+
+- xschem tcp connections: print open/close/in/out data on console only if in tcl debug mode
+
+- Improve send nets to graph. do not refuse to send top level port signals, allow to send bussed
+  signals even if graphdialog widget is not shown (proc graph_add_nodes_from_list)
+
+- hilight_parent_pins(): if two or more child pins are attached to the same parent net hilighting
+  one of these child pins will not propagate to parent if the unhilight child pin comes after the
+  hilight pin.
+  This is now fixed. Going up in hierarchy will never clear parent hilights.
+  It is recommended to clear all probes before tracking child pin propagation with hilights upstream.
+
+- xschem switch command: return success also if command given (with right filename/winpath) when no
+  additional windows/tabs are present
+
+- xschem switch command return exit status depending if switch context was successfull or not
+
+- export ps/pdf, png, svg functions now use custom file chooser widget (as Save As does)
+  to enable creation of new folders
+
+- Report in-hierarchy overlapped symbols when netlisting
+
+- Better ERC messaging in case of errors (shorts, pins with missing attrs), ...)
+
+- Fix wrong netlist filename if invoking netlist from GUI
+
+- Do not show ERC info window if netlisting invoked via CLI; global variable
+  show_infowindow_after_netlist can now take 3 values: always, onerror, never, to decide when showing
+  the ERC info window after netlisting. Old values (1, 0) still accepted as aliases for always
+  and onerror
+
+- Add optional "-messages" in "xschem netlist" command to return ERC messages instead of
+  fail(1)/good(0) code
+
+- Prefix ERC infowindow messages with Error: or Warning: or Info:
+
 3.4.3:
 - revert format of [xschem pinlist <instance> <attr>] to old (3.1.0) format: 
   { {0} {PLUS} } { {1} {OUT} } { {2} {MINUS} } 
