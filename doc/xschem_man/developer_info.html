@@ -503,8 +503,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -556,9 +554,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       compare_schematics [sch_file]</kbd></li><pre>
    Compare currently loaded schematic with another 'sch_file' schematic.
    if no file is given prompt user to choose one </pre>
-   <li><kbd>       connected_nets [1|0]</kbd></li><pre>
-   Select nets connected to currently selected net or net label/pin.
-   if '1' argument is given, stop at wire junctions </pre>
+   <li><kbd>       connected_nets [0|1|2|3]</kbd></li><pre>
+   Select nets/labels  connected to currently selected instance
+   if '1' argument is given, stop at wire junctions
+   if '2' argument is given select only wires directly attached to selected instance/net
+   if '3' argument is given combine '1' and '2' </pre>
    <li><kbd>       copy</kbd></li><pre>
    Copy selection to clipboard </pre>
    <li><kbd>       copy_objects</kbd></li><pre>
@@ -1267,6 +1267,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 

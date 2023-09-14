@@ -22,10 +22,12 @@
 
 #include "xschem.h"
 
-/* select all nets and pins/labels that are *physically* connected to current selected wire segments */
-/* stop_at_junction==1 --> stop selecting wires at 'T' junctions */
-/* Recursive routine */
-static void check_connected_wire(int stop_at_junction, int n)
+/* select all nets and pins/labels that are *physically* connected to current selected wire segments
+ * stop_at_junction==1 --> stop selecting wires at 'T' junctions
+ * stop_at_junction==2 --> select only wires directly attached to selected net/instance
+ * Recursive routine
+ */
+static void check_connected_nets(int stop_at_junction, int n)
 { 
   int k, touches;
   xWire * const wire = xctx->wire;
@@ -40,7 +42,7 @@ static void check_connected_wire(int stop_at_junction, int n)
   x2 = wire[n].x2;
   y2 = wire[n].y2;
   RECTORDER(x1, y1, x2, y2);
-  dbg(1, "check_connected_wire(): n=%d, %g %g %g %g\n", n, x1, y1, x2, y2);
+  dbg(1, "check_connected_nets(): n=%d, %g %g %g %g\n", n, x1, y1, x2, y2);
   for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
     k = instptr->n;
     type = (xctx->inst[k].ptr+ xctx->sym)->type;
@@ -58,26 +60,81 @@ static void check_connected_wire(int stop_at_junction, int n)
       }
     }
   }
-  for(init_wire_iterator(&ctx, x1, y1, x2, y2); (wireptr = wire_iterator_next(&ctx)) ;) {
-    k = wireptr->n;
-    if(n == k || xctx->wire[k].sel == SELECTED) continue;
-    if(!stop_at_junction) {
-      touches = touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x1, wire[k].y1) ||
-                touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x2, wire[k].y2) ||
-                touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x1, wire[n].y1) ||
-                touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x2, wire[n].y2);
-    } else {
-      touches = (wire[n].x1 == wire[k].x1 && wire[n].y1 == wire[k].y1 && wire[n].end1 < 2 && wire[k].end1 < 2) ||
-                (wire[n].x1 == wire[k].x2 && wire[n].y1 == wire[k].y2 && wire[n].end1 < 2 && wire[k].end2 < 2) ||
-                (wire[n].x2 == wire[k].x1 && wire[n].y2 == wire[k].y1 && wire[n].end2 < 2 && wire[k].end1 < 2) ||
-                (wire[n].x2 == wire[k].x2 && wire[n].y2 == wire[k].y2 && wire[n].end2 < 2 && wire[k].end2 < 2);
-    } 
-    if(touches) {
-      xctx->need_reb_sel_arr=1;
-      xctx->wire[k].sel = SELECTED;
-      check_connected_wire(stop_at_junction, k); /* recursive check */
+  if(!(stop_at_junction & 2)) {
+    for(init_wire_iterator(&ctx, x1, y1, x2, y2); (wireptr = wire_iterator_next(&ctx)) ;) {
+      k = wireptr->n;
+      if(n == k || xctx->wire[k].sel == SELECTED) continue;
+
+
+
+
+      if((stop_at_junction  & 1)== 0) {
+        touches = touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x1, wire[k].y1) ||
+                  touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, wire[k].x2, wire[k].y2) ||
+                  touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x1, wire[n].y1) ||
+                  touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, wire[n].x2, wire[n].y2);
+      } else {
+        touches = (wire[n].x1 == wire[k].x1 && wire[n].y1 == wire[k].y1 && wire[n].end1 < 2 && wire[k].end1 < 2) ||
+                  (wire[n].x1 == wire[k].x2 && wire[n].y1 == wire[k].y2 && wire[n].end1 < 2 && wire[k].end2 < 2) ||
+                  (wire[n].x2 == wire[k].x1 && wire[n].y2 == wire[k].y1 && wire[n].end2 < 2 && wire[k].end1 < 2) ||
+                  (wire[n].x2 == wire[k].x2 && wire[n].y2 == wire[k].y2 && wire[n].end2 < 2 && wire[k].end2 < 2);
+      } 
+      if(touches) {
+        xctx->wire[k].sel = SELECTED;
+        check_connected_nets(stop_at_junction, k); /* recursive check */
+      }
     }
   }
+}
+
+/* stop_at_junction==1 --> stop selecting wires at 'T' junctions 
+ * stop_at_junction==2 --> select only wires directly attached to selected net/instance
+ */
+void select_connected_nets(int stop_at_junction)
+{
+  int i, n;
+
+  if(stop_at_junction & 1) trim_wires();
+  hash_wires();
+  hash_instances();
+  rebuild_selected_array(); /* does nothing as already done in most of use cases */
+  for(n=0; n<xctx->lastsel; ++n) {
+    i = xctx->sel_array[n].n;
+    switch(xctx->sel_array[n].type) {
+      double x0, y0;
+      int sqx, sqy, p, rects;
+      Wireentry *wptr;
+
+      case WIRE:
+        if(xctx->wire[i].sel == SELECTED) check_connected_nets(stop_at_junction, i);
+        break;
+      case ELEMENT:
+        rects = (xctx->inst[i].ptr + xctx->sym)->rects[PINLAYER];
+        for(p = 0; p < rects; p++)
+        {
+          get_inst_pin_coord(i, p, &x0, &y0);
+          get_square(x0, y0, &sqx, &sqy);
+          wptr = xctx->wire_spatial_table[sqx][sqy];
+          while (wptr) {
+             dbg(1, "select_connected_nets(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
+                 x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                                  xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
+             if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
+                 xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
+               xctx->wire[wptr->n].sel = SELECTED;
+               check_connected_nets(stop_at_junction, wptr->n);
+             }
+             wptr=wptr->next;
+          }
+        } /* for(p...) */
+        break;
+      default:
+        break;
+    } /* switch(...) */
+  } /* for(... lastsel ...) */
+  xctx->need_reb_sel_arr=1;
+  rebuild_selected_array();
+  draw_selection(xctx->gc[SELLAYER], 0);
 }
 
 int select_dangling_nets(void)
@@ -242,57 +299,6 @@ int select_dangling_nets(void)
   my_free(_ALLOC_ID_, &table);
   return ret;
 }
-
-/* stop_at_junction==1 --> stop selecting wires at 'T' junctions */
-void select_connected_wires(int stop_at_junction)
-{
-  int i, n;
-
-  if(stop_at_junction) trim_wires();
-  hash_wires();
-  hash_instances();
-  rebuild_selected_array(); /* does nothing as already done in most of use cases */
-  for(n=0; n<xctx->lastsel; ++n) {
-    i = xctx->sel_array[n].n;
-    switch(xctx->sel_array[n].type) {
-      char *type;
-      case WIRE:
-        if(xctx->wire[i].sel == SELECTED) check_connected_wire(stop_at_junction, i);
-        break;
-      case ELEMENT:
-        type = (xctx->inst[i].ptr+ xctx->sym)->type;
-        if( type && (IS_LABEL_SH_OR_PIN(type) || !strcmp(type, "probe") )) {
-          double x0, y0;
-          int sqx, sqy;
-          xRect *rct;
-          Wireentry *wptr;
-          rct = (xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER];
-          if(rct) {
-            get_inst_pin_coord(i, 0, &x0, &y0);
-            get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wire_spatial_table[sqx][sqy];
-            while (wptr) {
-               dbg(1, "select_connected_wires(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
-                   x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-                                    xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
-               if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-                   xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
-                 xctx->wire[wptr->n].sel = SELECTED;
-                 check_connected_wire(stop_at_junction, wptr->n);
-               }
-               wptr=wptr->next;
-            }
-          } /* if(rct) */
-        } /* if(type & ...) */
-        break;
-      default:
-        break;
-    } /* switch(...) */
-  } /* for(... lastsel ...) */
-  rebuild_selected_array();
-  draw_selection(xctx->gc[SELLAYER], 0);
-}
-
 
 void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 {

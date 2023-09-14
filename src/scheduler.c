@@ -477,14 +477,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
-    /* connected_nets [1|0]
-     *   Select nets connected to currently selected net or net label/pin.
-     *   if '1' argument is given, stop at wire junctions */
+    /* connected_nets [0|1|2|3]
+     *   Select nets/labels  connected to currently selected instance
+     *   if '1' argument is given, stop at wire junctions
+     *   if '2' argument is given select only wires directly attached to selected instance/net
+     *   if '3' argument is given combine '1' and '2' */
     else if(!strcmp(argv[1], "connected_nets"))
     {
       int stop_at_junction = 0;
-      if(argc > 2 && argv[2][0] == '1') stop_at_junction = 1;
-      select_connected_wires(stop_at_junction);
+      if(argc > 2 ) stop_at_junction = atoi(argv[2]);
+      select_connected_nets(stop_at_junction);
       Tcl_ResetResult(interp);
     }
 
