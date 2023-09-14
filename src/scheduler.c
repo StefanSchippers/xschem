@@ -1131,6 +1131,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           case 'w':
           if(!strcmp(argv[2], "wirelayer")) { /* layer used for wires */
             Tcl_SetResult(interp, my_itoa(WIRELAYER), TCL_VOLATILE);
+          } else if(!strcmp(argv[2], "wires")) { /* number of wires */
+            Tcl_SetResult(interp, my_itoa(xctx->wires), TCL_VOLATILE);
           }
           break;
           case 'x':
@@ -1220,6 +1222,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * getprop text num attr
      *   Get attribute 'attr' of text number 'num'
      *
+     * getprop wire num attr
+     *   Get attribute 'attr' of wire number 'num'
+     *    
      * ('inst' can be an instance name or instance number)
      * ('pin' can be a pin name or pin number)
      */
@@ -1330,6 +1335,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           int n = atoi(argv[3]);
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->text[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
+        }
+      } else if(!strcmp(argv[2], "wire")) { /* xschem getprop wire n token */
+        if(argc < 5) {
+          Tcl_SetResult(interp, "xschem getprop wire needs <n> <token>", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          int n = atoi(argv[3]);
+          Tcl_SetResult(interp, (char *)get_tok_value(xctx->wire[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
         }
       }
     }
@@ -3985,6 +3998,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* touch x1 y1 x2 y2 x0 y0
+     *   returns 1 if line {x1 y1 x2 y2} touches point {x0 y0}, 0 otherwise */
+    else if(!strcmp(argv[1], "touch") )
+    {
+      if(argc>7) {
+        double x1, y1, x2, y2, x0, y0;
+        int r;
+        x0 = atof(argv[6]);
+        y0 = atof(argv[7]);
+        x1 = atof(argv[2]);
+        y1 = atof(argv[3]);
+        x2 = atof(argv[4]);
+        y2 = atof(argv[5]);
+        r = touch(x1, y1, x2, y2, x0, y0);
+        Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
+      }
+    }
+
     /* translate n str
      *   Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      *     Example: xschem translate vref {the voltage is @value}
@@ -4130,15 +4161,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         warning_overlapped_symbols(0);
       }
     }
-    /* windowid
-     *   Used by xschem.tcl for configure events */
+    /* windowid topwin_path
+     *   Used by xschem.tcl for configure events (set icon) */
     else if(!strcmp(argv[1], "windowid"))
     {
       if(argc > 2) {
         windowid(argv[2]);
       }
     }
-
+    /* wire_coord n
+     *   return 4 coordinates of wire[n] */
+    else if(!strcmp(argv[1], "wire_coord"))
+    {
+      if(argc > 2) {
+        char *r = NULL;
+        int n = atoi(argv[2]);
+        if(n > 0 && n < xctx->wires) {
+          xWire * const wire = xctx->wire;
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].x1), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].y1), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].x2), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].y2), NULL);
+          Tcl_SetResult(interp, r, TCL_VOLATILE);
+        }
+      }
+    }
     /* wire [x1 y1 x2 y2] [pos] [prop] [sel]
      *   Place a new wire
      *   if no coordinates are given start a GUI wire placement */

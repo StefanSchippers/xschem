@@ -503,6 +503,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -673,6 +675,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> topwindow </kbd> same as top_path but main window returned as "." </li>
      <li><kbd> version </kbd> return xschem version </li>
      <li><kbd> wirelayer </kbd> layer used for wires </li>
+     <li><kbd> wires </kbd> number of wires </li>
      <li><kbd> xorigin </kbd> x coordinate of origin </li>
      <li><kbd> yorigin </kbd> y coordinate of origin </li>
      <li><kbd> zoom </kbd> zoom level </li>
@@ -721,6 +724,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        getprop text num attr
    Get attribute 'attr' of text number 'num'
       
+       getprop wire num attr
+   Get attribute 'attr' of wire number 'num'
+    
        ('inst' can be an instance name or instance number)
        ('pin' can be a pin name or pin number)</pre>
    <li><kbd>       get_tok str tok [with_quotes]</kbd></li><pre>
@@ -1206,6 +1212,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       toggle_ignore</kbd></li><pre>
    toggle *_ignore=true attribute on selected instances
    * = {spice,verilog,vhdl,tedax} depending on current netlist mode </pre>
+   <li><kbd>       touch x1 y1 x2 y2 x0 y0</kbd></li><pre>
+   returns 1 if line {x1 y1 x2 y2} touches point {x0 y0}, 0 otherwise </pre>
    <li><kbd>       translate n str</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      Example: xschem translate vref {the voltage is @value}
@@ -1230,8 +1238,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       warning_overlapped_symbols [sel]</kbd></li><pre>
    Highlight or select (if 'sel' set to 1) perfectly overlapped instances
    this is usually an error and difficult to grasp visually </pre>
-   <li><kbd>       windowid</kbd></li><pre>
-   Used by xschem.tcl for configure events </pre>
+   <li><kbd>       windowid topwin_path</kbd></li><pre>
+   Used by xschem.tcl for configure events (set icon) </pre>
+   <li><kbd>       wire_coord n</kbd></li><pre>
+   return 4 coordinates of wire[n] </pre>
    <li><kbd>       wire [x1 y1 x2 y2] [pos] [prop] [sel]</kbd></li><pre>
    Place a new wire
    if no coordinates are given start a GUI wire placement </pre>
@@ -1257,6 +1267,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 
