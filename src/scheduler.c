@@ -3265,35 +3265,104 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* select instance|wire|text id [clear]
-     * Select indicated instance or wire or text.
+    /* select instance|wire|text id [clear] [fast]
+     * select rect|line|poly|arc layer id [clear] [fast]
+     * Select indicated instance or wire or text, or
+     * Select indicated (layer, number) rectangle, line, polygon, arc.
      * For 'instance' 'id' can be the instance name or number
-     * for 'wire' or 'text' 'id' is the position in the respective arrays
-     * if 'clear' is specified does an unselect operation */
+     * for all other objects 'id' is the position in the respective arrays
+     * if 'clear' is specified does an unselect operation
+     * if 'fast' is specified avoid sending information to infowindow and status bar
+     * returns 1 if something selected, 0 otherwise */
     else if(!strcmp(argv[1], "select"))
     {
       short unsigned int  sel = SELECTED;
+      int fast = 0;
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
+      } else if(argc < 5 && (!strcmp(argv[2], "rect") || !strcmp(argv[2], "line") ||
+                     !strcmp(argv[2], "poly") || !strcmp(argv[2], "arc"))) { 
+        Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
+        return TCL_ERROR;
+      } else if(argc < 4) {
+        Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
+        return TCL_ERROR;
       }
-      if(argc > 4 && !strcmp(argv[4], "clear")) sel = 0;
+      if(argc > 4) {
+       int i;
+       for(i = 4; i < argc; i++) {
+         if(!strcmp(argv[i], "clear")) sel = 0;
+         if(!strcmp(argv[i], "fast")) fast = 1;
+       }
+      }
       if(!strcmp(argv[2], "instance") && argc > 3) {
-        int i;
+        int n;
         /* find by instance name  or number*/
-        i = get_instance(argv[3]);
-        if(i >= 0) {
-           select_element(i, sel, 0, 0);
+        n = get_instance(argv[3]);
+        if(n >= 0) {
+           select_element(n, sel, fast, 0);
+           xctx->ui_state |= SELECTION;
         }
-        Tcl_SetResult(interp, (i >= 0) ? "1" : "0" , TCL_STATIC);
+        Tcl_SetResult(interp, (n >= 0) ? "1" : "0" , TCL_STATIC);
       }
       else if(!strcmp(argv[2], "wire") && argc > 3) {
         int n=atoi(argv[3]);
-        if(n<xctx->wires && n >= 0) select_wire(atoi(argv[3]), sel, 0);
+        int valid = n < xctx->wires && n >= 0;
+        if(valid) {
+          select_wire(n, sel, fast);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
+      }
+      else if(!strcmp(argv[2], "line") && argc > 4) {
+        int c=atoi(argv[3]);
+        int n=atoi(argv[4]);
+        int valid = n < xctx->lines[c] && n >= 0 && c < cadlayers && c >= 0;
+        if(valid) {
+          select_line(c, n, sel, fast);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
+      }
+      else if(!strcmp(argv[2], "rect") && argc > 4) {
+        int c=atoi(argv[3]);
+        int n=atoi(argv[4]);
+        int valid = n < xctx->rects[c] && n >= 0 && c < cadlayers && c >= 0;
+        if(valid) {
+          select_box(c, n, sel, fast, 0);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
+      }
+      else if(!strcmp(argv[2], "arc") && argc > 4) {
+        int c=atoi(argv[3]);
+        int n=atoi(argv[4]);
+        int valid = n < xctx->arcs[c] && n >= 0 && c < cadlayers && c >= 0;
+        if(valid) {
+          select_arc(c, n, sel, fast);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
+      }
+      else if(!strcmp(argv[2], "poly") && argc > 4) {
+        int c=atoi(argv[3]);
+        int n=atoi(argv[4]);
+        int valid = n < xctx->polygons[c] && n >= 0 && c < cadlayers && c >= 0;
+        if(valid) {
+          select_polygon(c, n, sel, fast);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
       }
       else if(!strcmp(argv[2], "text") && argc > 3) {
         int n=atoi(argv[3]);
-        if(n<xctx->texts && n >= 0) select_text(atoi(argv[3]), sel, 0);
+        int valid = n < xctx->texts && n >= 0;
+        if(valid) {
+          select_text(n, sel, fast);
+          xctx->ui_state |= SELECTION;
+        }
+        Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
       }
       drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
       drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

@@ -503,6 +503,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -933,9 +937,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if no 'attr' is given return full attribute string,
    else return value for attribute 'attr'.
    Example: xschem pinlist x3 name
-   --&gt;  {PLUS} {OUT} {MINUS}
+   --&gt;  { {0} {PLUS} } { {1} {OUT} } { {2} {{MINUS} }
    Example: xschem pinlist x3 dir
-   --&gt;  {in} {out} {in}
+   --&gt;  { {0} {in} } { {1} {out} } { {2} {in} }
    Example: xschem pinlist x3
    --&gt; { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
        { {2} {name=MINUS dir=in } }</pre>
@@ -1080,11 +1084,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       1 : Match case
       0 : Do not match case
       If not given assume 1 (Match case)</pre>
-   <li><kbd>       select instance|wire|text id [clear]</kbd></li><pre>
-       Select indicated instance or wire or text.
+   <li><kbd>       select instance|wire|text id [clear] [fast]</kbd></li><pre>
+       select rect|line|poly|arc layer id [clear] [fast]
+       Select indicated instance or wire or text, or
+       Select indicated (layer, number) rectangle, line, polygon, arc.
        For 'instance' 'id' can be the instance name or number
-       for 'wire' or 'text' 'id' is the position in the respective arrays
-       if 'clear' is specified does an unselect operation </pre>
+       for all other objects 'id' is the position in the respective arrays
+       if 'clear' is specified does an unselect operation
+       if 'fast' is specified avoid sending information to infowindow and status bar
+       returns 1 if something selected, 0 otherwise </pre>
    <li><kbd>       select_all</kbd></li><pre>
    Selects all objects in schematic </pre>
    <li><kbd>       select_dangling_nets </kbd></li><pre>
@@ -1267,7 +1275,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 
