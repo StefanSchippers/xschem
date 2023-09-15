@@ -1944,7 +1944,6 @@ proc graph_edit_properties {n} {
   if { [winfo exists .graphdialog]} {
     set geom [winfo geometry .graphdialog]
   } 
-  puts "geom-->$geom"
   catch {destroy .graphdialog}
   toplevel .graphdialog ;# -width 1 -height 1
   update idletasks
