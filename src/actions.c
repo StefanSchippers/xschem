@@ -1179,11 +1179,10 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
            }
            if(!strcmp(tclgetvar("use_lab_wire"),"0")) {
              place_symbol(-1,symname_pin, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-             first_call=0;
            } else {
              place_symbol(-1,symname_wire, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
-             first_call=0;
            }
+           first_call=0;
          }
          dbg(1, "attach_labels_to_inst(): %d   %.16g %.16g %s\n", i, pinx0, piny0,labname);
       }
@@ -1194,9 +1193,11 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     my_free(_ALLOC_ID_, &type);
     if(!found) return;
     /*  draw things  */
-    bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-    draw();
-    bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    if(!first_call) {
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+      draw();
+      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    }
   } else {
     fprintf(errfp, "attach_labels_to_inst(): location of schematic labels not found\n");
     tcleval("alert_ {attach_labels_to_inst(): location of schematic labels not found} {}");

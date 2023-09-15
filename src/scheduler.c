@@ -2477,9 +2477,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if no 'attr' is given return full attribute string,
      *   else return value for attribute 'attr'.
      *   Example: xschem pinlist x3 name
-     *   -->  {PLUS} {OUT} {MINUS}
+     *   -->  { {0} {PLUS} } { {1} {OUT} } { {2} {{MINUS} }
      *   Example: xschem pinlist x3 dir
-     *   -->  {in} {out} {in}
+     *   -->  { {0} {in} } { {1} {out} } { {2} {in} }
      *   Example: xschem pinlist x3
      *   --> { {0} {name=PLUS dir=in } } { {1} {name=OUT dir=out } }
      *       { {2} {name=MINUS dir=in } }
