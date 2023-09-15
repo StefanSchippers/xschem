@@ -218,7 +218,7 @@ proc execute_fileevent {id} {
     # asynchronous close. We lose exit status and stderr though, but
     # avoid the program to freeze waiting for process to exit.
     set lastproc [lindex [pid $execute(pipe,$id)] end]
-    set ps_status [exec ps -o s= [pid $execute(pipe,$id)]]
+    set ps_status [exec ps -o state= -p $lastproc]
     set finished [regexp Z $ps_status] ;# if zombie consider process to be finished.
   } else {
     set eof [eof $execute(pipe,$id)]
