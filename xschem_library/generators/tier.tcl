@@ -21,9 +21,6 @@ B 5 -2.5 -2.5 2.5 2.5 {name=P dir=inout }"
 if {[regexp -nocase {^(VCC|VDD|VPP)$} $arg1]} {
 puts "L 4 -20 -40 20 -40 {}
 L 4 0 -40 0 0 {}
-
-
-
 T {@#0:net_name} 5 -13.75 0 0 0.15 0.15 {layer=15}
 T {@lab} -15 -53.75 0 0 0.2 0.2 {}"
 } else {

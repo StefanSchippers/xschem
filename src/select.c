@@ -223,6 +223,7 @@ int select_dangling_nets(void)
 
   /* select pins/labels/probes attached to dangling nets */
   for(w = 0; w < xctx->wires; w++) {
+    if(table[w]) continue;
     x1 = xctx->wire[w].x1;
     y1 = xctx->wire[w].y1;
     x2 = xctx->wire[w].x2;
@@ -236,7 +237,7 @@ int select_dangling_nets(void)
         if(!rct) continue;
         get_inst_pin_coord(i, 0, &x0, &y0);
         touches = touch(xctx->wire[w].x1, xctx->wire[w].y1, xctx->wire[w].x2, xctx->wire[w].y2, x0, y0);
-        if(touches && table[w] == 0) {
+        if(touches) {
           xctx->inst[i].sel = SELECTED;
           ret = 1;
         }
@@ -247,6 +248,7 @@ int select_dangling_nets(void)
   /* select dangling labels/probes (not connected to anything) */
   for(i = 0; i < xctx->instances; i++) {
     int dangling = 1;
+    if(xctx->inst[i].sel == SELECTED) continue;
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
       int sqx, sqy;
