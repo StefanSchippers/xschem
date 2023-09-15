@@ -93,6 +93,7 @@ static void check_connected_nets(int stop_at_junction, int n)
 void select_connected_nets(int stop_at_junction)
 {
   int i, n;
+  int netlist_lvs_ignore=tclgetboolvar("lvs_ignore");
 
   if(stop_at_junction & 1) trim_wires();
   hash_wires();
@@ -104,6 +105,7 @@ void select_connected_nets(int stop_at_junction)
       double x0, y0;
       int sqx, sqy, p, rects;
       Wireentry *wptr;
+      Instentry *iptr;
 
       case WIRE:
         if(xctx->wire[i].sel == SELECTED) check_connected_nets(stop_at_junction, i);
@@ -114,8 +116,7 @@ void select_connected_nets(int stop_at_junction)
         {
           get_inst_pin_coord(i, p, &x0, &y0);
           get_square(x0, y0, &sqx, &sqy);
-          wptr = xctx->wire_spatial_table[sqx][sqy];
-          while (wptr) {
+          for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
              dbg(1, "select_connected_nets(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
                  x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
                                   xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
@@ -124,7 +125,30 @@ void select_connected_nets(int stop_at_junction)
                xctx->wire[wptr->n].sel = SELECTED;
                check_connected_nets(stop_at_junction, wptr->n);
              }
-             wptr=wptr->next;
+          }
+          for(iptr = xctx->inst_spatial_table[sqx][sqy]; iptr; iptr = iptr->next) {
+            int rects, p, touches;
+            char *type;
+            xRect *rct;
+            int n = iptr->n;
+            double x1, y1;
+  
+            if(n == i) continue;
+            type = (xctx->inst[n].ptr+ xctx->sym)->type;
+            if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
+              if(skip_instance(n, 0, netlist_lvs_ignore)) continue;
+              rct = (xctx->inst[n].ptr+ xctx->sym)->rect[PINLAYER];
+              if(!rct) continue;
+              rects = (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER];
+              for(p = 0; p < rects; p++)
+              {
+                get_inst_pin_coord(n, p, &x1, &y1);
+                touches = (x0 == x1 && y0 == y1);
+                if(touches) {
+                  xctx->inst[n].sel = SELECTED;
+                }
+              }
+            }
           }
         } /* for(p...) */
         break;
@@ -256,25 +280,20 @@ int select_dangling_nets(void)
       if(!rct) continue;
       get_inst_pin_coord(i, 0, &x0, &y0);
       get_square(x0, y0, &sqx, &sqy);
-      wireptr = xctx->wire_spatial_table[sqx][sqy];
-      while (wireptr) {
+      for(wireptr = xctx->wire_spatial_table[sqx][sqy]; wireptr; wireptr = wireptr->next) {
         int n = wireptr->n;
         if (touch(xctx->wire[n].x1, xctx->wire[n].y1, xctx->wire[n].x2, xctx->wire[n].y2, x0, y0)) {
           dangling = 0; /* inst[i] connected to a wire */
         }
-        wireptr = wireptr->next;
       }
-      instptr = xctx->inst_spatial_table[sqx][sqy];
-      while(instptr) {
+      for(instptr = xctx->inst_spatial_table[sqx][sqy]; instptr; instptr = instptr->next) {
         int n = instptr->n;
-        if(n == i) goto cont2;
+        if(n == i) continue;
         type = (xctx->inst[n].ptr+ xctx->sym)->type;
-        if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
-          goto cont2;
-        }
-        if(skip_instance(n, 0, netlist_lvs_ignore)) goto cont2;
+        if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) continue;
+        if(skip_instance(n, 0, netlist_lvs_ignore)) continue;
         rct = (xctx->inst[n].ptr+ xctx->sym)->rect[PINLAYER];
-        if(!rct) goto cont2;
+        if(!rct) continue;
         rects = (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER];
         for(p = 0; p < rects; p++)
         { 
@@ -284,8 +303,6 @@ int select_dangling_nets(void)
             dangling = 0; /* inst[i] connected to non label/probe inst[n] */
           }
         }
-        cont2:
-        instptr = instptr->next;
       }
       if(dangling) {
         xctx->inst[i].sel = SELECTED;
