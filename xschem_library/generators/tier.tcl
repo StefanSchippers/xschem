@@ -10,7 +10,7 @@ puts "v {xschem version=3.4.0 file_version=1.2
 G {}
 K {type=label
 format=\"*.alias @lab\"
-template=\"name=p1 sig_type=std_logic lab=xxx\"
+template=\"name=p1 sig_type=std_logic lab=${arg1}\"
 net_name=true
 }
 V {}
@@ -24,8 +24,8 @@ L 4 0 -40 0 0 {}
 T {@#0:net_name} 5 -13.75 0 0 0.15 0.15 {layer=15}
 T {@lab} -15 -53.75 0 0 0.2 0.2 {}"
 } else {
-puts "P 4 7 0 0 0 -20 -10 -20 0 -40 10 -20 0 -20 0 0 {fill=true}
-T {@#0:net_name} 5 -13.75 0 0 0.15 0.15 {layer=15}
-T {@lab} -15 -53.75 0 0 0.2 0.2 {}"
+puts "P 4 7 0 0 0 20 -10 20 0 40 10 20 0 20 0 0 {fill=true}
+T {@#0:net_name} 5 10 0 0 0.15 0.15 {layer=15}
+T {@lab} -15 45 0 0 0.2 0.2 {}"
 }
 

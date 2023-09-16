@@ -1,4 +1,4 @@
-v {xschem version=3.4.0 file_version=1.2
+v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {}
@@ -39,7 +39,7 @@ N 570 -360 570 -280 {
 lab=VDD}
 C {tier.tcl(@lab\\)} 180 -480 0 0 {name=p1 sig_type=std_logic lab=VDD
 tclcommand="edit_file [abs_sym_path tier.tcl]"}
-C {tier.tcl(@lab\\)} 180 -240 2 0 {name=p2 sig_type=std_logic lab=VSS
+C {tier.tcl(@lab\\)} 180 -240 0 0 {name=p2 sig_type=std_logic lab=VSS
 tclcommand="edit_file [abs_sym_path tier.tcl]"
 }
 C {res.sym} 180 -330 0 0 {name=R1
@@ -62,8 +62,8 @@ value=1p
 footprint=1206
 device="ceramic capacitor"
 net_name=true}
-C {tier.tcl(@lab\\)} 460 -220 2 0 {name=p3 sig_type=std_logic lab=VSS}
-C {tier.tcl(@lab\\)} 570 -220 2 0 {name=p4 sig_type=std_logic lab=VSS}
+C {tier.tcl(@lab\\)} 460 -220 0 0 {name=p3 sig_type=std_logic lab=VSS}
+C {tier.tcl(@lab\\)} 570 -220 0 0 {name=p4 sig_type=std_logic lab=VSS}
 C {res.tcl(@value\\)} 460 -390 0 0 {name=R2 value=100
 net_name=true
 tclcommand="edit_file [abs_sym_path res.tcl]"
