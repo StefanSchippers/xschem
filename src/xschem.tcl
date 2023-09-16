@@ -1633,7 +1633,14 @@ proc waves {} {
 # ============================================================
 
 
+proc graph_push_undo {} {
+  global graph_change_done
 
+  if {$graph_change_done == 0} {
+    xschem push_undo
+    set graph_change_done 1
+  }
+}
 
 # allow change color (via graph_change_wave_color) of double clicked wave
 proc graph_edit_wave {n n_wave} {
@@ -1696,6 +1703,7 @@ proc graph_edit_wave {n n_wave} {
 
 
 # add nodes from provided list of {node color} .... 
+# used in hilight_net()
 proc graph_add_nodes_from_list {nodelist} {
   global graph_bus graph_selected graph_schname
   if {$graph_bus} {
@@ -1899,7 +1907,7 @@ proc graph_update_nodelist {} {
   xschem setprop rect 2 $graph_selected color $col fast
 }
 
-proc fill_graph_listbox {} {
+proc graph_fill_listbox {} {
   set retval [.graphdialog.top.search get]
   set retval [graph_get_signal_list [xschem raw_query list] $retval]
   .graphdialog.center.left.list1 delete 0 end
@@ -1907,47 +1915,50 @@ proc fill_graph_listbox {} {
 }
 
 # called from event handlers (OK, KeyRelease, DoubleClick) in graph_edit_properties
-proc update_graph_node {node} {
+proc graph_update_node {node} {
   global graph_selected
   graph_update_nodelist
   regsub -all {\\?(["\\])} $node {\\\1} node_quoted ;#"4vim
+  graph_push_undo
   xschem setprop rect 2 $graph_selected node $node_quoted fast
   xschem draw_graph $graph_selected
 }
 
-proc update_div {graph_selected div} {
+proc graph_update_div {graph_selected div} {
   set divis [.graphdialog.top2.$div get]
   if {[regexp {^[0-9]+$} $divis] && $divis < 1} {
     set divis 1
     .graphdialog.top2.$div delete 0 end
     .graphdialog.top2.$div insert 0 $divis
   }
+  graph_push_undo
   xschem setprop rect 2 $graph_selected $div $divis
   xschem draw_graph $graph_selected
 }
 
-proc set_graph_linewidth {graph_sel} {
+proc graph_set_linewidth {graph_sel} {
   global graph_linewidth_mult
   set custom_lw [.graphdialog.top.lwe get]
   if {[regexp {^[ \t]*$} $custom_lw]} {
     set custom_lw  $graph_linewidth_mult
   }
+  graph_push_undo
   xschem setprop rect 2 $graph_sel linewidth_mult $custom_lw
 }
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
-  global graph_linewidth_mult
-  xschem push_undo
+  global graph_linewidth_mult graph_change_done
+  set graph_change_done 0
   set geom {}
   if { [winfo exists .graphdialog]} {
     set geom [winfo geometry .graphdialog]
   } 
   catch {destroy .graphdialog}
   toplevel .graphdialog ;# -width 1 -height 1
+  wm withdraw .graphdialog
   update idletasks
-  if {$geom ne {}} { wm geometry .graphdialog $geom}
 
   set graph_selected $n
   set graph_schname [xschem get schname]
@@ -2025,31 +2036,26 @@ proc graph_edit_properties {n} {
   }
   button .graphdialog.bottom.ok -text OK -command {
     if { [xschem get schname] eq $graph_schname } {
-
-      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_push_undo
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
-
       if {$graph_unlocked} {
         xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
       } else {
         xschem setprop rect 2 $graph_selected flags {graph} fast
       }
-      destroy .graphdialog
-      set graph_selected {}
-      set graph_schname {}
-    } else {
-      destroy .graphdialog
-      set graph_selected {}
-      set graph_schname {}
     }
+    destroy .graphdialog
+    set graph_selected {}
+    set graph_schname {}
   }
   button .graphdialog.bottom.apply -text Apply -command {
     if { [xschem get schname] eq $graph_schname } {
-
-      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_push_undo
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
       xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
@@ -2077,6 +2083,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labunitx -text {X units}
   spinbox .graphdialog.top2.unitx -values {f p n u m 1 k M G T} -width 2 \
    -command {
+      graph_push_undo
       xschem setprop rect 2 $graph_selected unitx [.graphdialog.top2.unitx get]
       xschem draw_graph $graph_selected
     }
@@ -2084,6 +2091,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labunity -text {  Y units}
   spinbox .graphdialog.top2.unity -values {f p n u m 1 k M G T} -width 2 \
    -command {
+      graph_push_undo
       xschem setprop rect 2 $graph_selected unity [.graphdialog.top2.unity get]
       xschem draw_graph $graph_selected
     }
@@ -2091,18 +2099,19 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labdivx -text {  X div.}
   entry .graphdialog.top2.divx -width 2
   bind .graphdialog.top2.divx <KeyRelease> {
-    update_div $graph_selected divx
+    graph_update_div $graph_selected divx
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
   entry .graphdialog.top2.divy -width 2
   bind .graphdialog.top2.divy <KeyRelease> {
-    update_div $graph_selected divy
+    graph_update_div $graph_selected divy
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
   entry .graphdialog.top2.subdivx  -width 2
   bind .graphdialog.top2.subdivx <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected subdivx [.graphdialog.top2.subdivx get]
     xschem draw_graph $graph_selected
   }
@@ -2110,6 +2119,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
   entry .graphdialog.top2.subdivy -width 2
   bind .graphdialog.top2.subdivy <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected subdivy [.graphdialog.top2.subdivy get]
     xschem draw_graph $graph_selected
   }
@@ -2117,6 +2127,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labdset -text {  Dataset}
   entry .graphdialog.top2.dset -width 4
   bind .graphdialog.top2.dset <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
     xschem draw_graph $graph_selected
   }
@@ -2125,6 +2136,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top2.labsweep -text {  Sweep}
   entry .graphdialog.top2.sweep -width 10 
   bind .graphdialog.top2.sweep <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
     xschem draw_graph $graph_selected
   }
@@ -2163,10 +2175,11 @@ proc graph_edit_properties {n} {
   entry .graphdialog.top.search -width 10 
   checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
-    -command fill_graph_listbox
+    -command graph_fill_listbox
   checkbutton .graphdialog.top.rainbow -text {Rainbow colors} -variable graph_rainbow \
     -command {
        if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
          xschem setprop rect 2 $graph_selected rainbow $graph_rainbow fast
          xschem draw_graph $graph_selected
        }
@@ -2174,7 +2187,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top.lw -text "  Line width:"
   entry .graphdialog.top.lwe -width 4 
   bind .graphdialog.top.lwe <KeyRelease> {
-    set_graph_linewidth $graph_selected
+    graph_set_linewidth $graph_selected
     xschem draw_graph $graph_selected
   }
   set custom_lw [xschem getprop rect 2 $n linewidth_mult]
@@ -2187,6 +2200,7 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
          xschem setprop rect 2 $graph_selected digital $graph_digital fast
          xschem draw_graph $graph_selected
        }
@@ -2194,12 +2208,14 @@ proc graph_edit_properties {n} {
   label .graphdialog.top3.xlabmin -text { X min:}
   entry .graphdialog.top3.xmin -width 7
   bind .graphdialog.top3.xmin <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
     xschem draw_graph $graph_selected
   }
   label .graphdialog.top3.xlabmax -text { X max:}
   entry .graphdialog.top3.xmax -width 7
   bind .graphdialog.top3.xmax <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
     xschem draw_graph $graph_selected
   }
@@ -2208,6 +2224,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top3.ylabmin -text { Y min:}
   entry .graphdialog.top3.ymin -width 7
   bind .graphdialog.top3.ymin <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
     xschem draw_graph $graph_selected
   }
@@ -2215,6 +2232,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top3.ylabmax -text { Y max:}
   entry .graphdialog.top3.ymax -width 7
   bind .graphdialog.top3.ymax <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
     xschem draw_graph $graph_selected
   }
@@ -2222,6 +2240,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
   entry .graphdialog.top3.xmag -width 4
   bind .graphdialog.top3.xmag <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
     xschem draw_graph $graph_selected
   }
@@ -2229,6 +2248,7 @@ proc graph_edit_properties {n} {
   label .graphdialog.top3.ylabmag -text { }
   entry .graphdialog.top3.ymag -width 4
   bind .graphdialog.top3.ymag <KeyRelease> {
+    graph_push_undo
     xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
     xschem draw_graph $graph_selected
   }
@@ -2236,7 +2256,7 @@ proc graph_edit_properties {n} {
 
   button .graphdialog.top.clear -text Clear -padx 2 -command {
     .graphdialog.top.search delete 0 end
-    fill_graph_listbox 
+    graph_fill_listbox 
   }
   pack .graphdialog.top.labsearch .graphdialog.top.search -side left
   pack .graphdialog.top.clear -side left
@@ -2264,12 +2284,15 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top3.logx -padx 2 -text {Log X} -variable graph_logx \
      -command {
        if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
          xschem setprop rect 2 $graph_selected logx $graph_logx fast
          if { $graph_logx eq 1} {
+           graph_push_undo
            xschem setprop rect 2 $graph_selected subdivx 8 fast
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 8
          } else {
+           graph_push_undo
            xschem setprop rect 2 $graph_selected subdivx 4 fast
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 4
@@ -2281,12 +2304,15 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top3.logy -text {Log Y} -variable graph_logy \
      -command {
        if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
          xschem setprop rect 2 $graph_selected logy $graph_logy fast
          if { $graph_logy eq 1} {
+           graph_push_undo
            xschem setprop rect 2 $graph_selected subdivy 8 fast
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 8
          } else {
+           graph_push_undo
            xschem setprop rect 2 $graph_selected subdivy 4 fast
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 4
@@ -2300,18 +2326,18 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag -side left
   # binding
   bind .graphdialog.top.search <KeyRelease> {
-    fill_graph_listbox
+    graph_fill_listbox
   }
   bind .graphdialog.center.left.list1 <Double-Button-1> {
     graph_add_nodes
     if { [xschem get schname] eq $graph_schname } {
-      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
   }
 
   bind .graphdialog.center.right.text1 <KeyRelease> {
     if { [xschem get schname] eq $graph_schname } {
-      update_graph_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
   }
   bind .graphdialog <Control-Return> {
@@ -2335,6 +2361,8 @@ proc graph_edit_properties {n} {
   # add stuff in textbox at end of line + 1 char (after newline) 
   # .graphdialog.center.right.text1 insert {insert lineend + 1 char} foo\n
   # tkwait window .graphdialog
+  wm deiconify .graphdialog
+  if {$geom ne {}} { wm geometry .graphdialog $geom}
 }
 
 proc graph_show_measure {{action show}} {
@@ -5518,7 +5546,7 @@ set tctx::global_list {
   delay_flag  dim_bg dim_value
   disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_digital
+  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_change_done graph_digital
   graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
@@ -6700,6 +6728,7 @@ set_ne graph_logy 0
 set_ne graph_rainbow 0
 set_ne graph_selected {}
 set_ne graph_schname {}
+set_ne graph_change_done 0 ;# used to push undo only once when editing graphs
 set_ne graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
 set_ne graph_linewidth_mult 2.0 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
 # user clicked this wave 
