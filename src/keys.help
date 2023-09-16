@@ -151,6 +151,7 @@ shift       'R'         Rotate
 -           'r'         Start rect
 shift       'S'         Change element order
 ctrl+shift  'S'         Save  as schematic
+            's'         run simulation (asks confirmation)
 ctrl        's'         Save schematic
 alt         's'         Reload current schematic from disk
 ctrl+alt    's'         Save-as symbol
