@@ -1823,6 +1823,144 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
  </pre>
 
+ <h1>SOME USEFUL SCRIPT <a id="scripts">EXAMPLES</a></h1><br>
+
+
+ <p> The following examples show the xschem commands one by one. In general you should create small TCL procedures 
+  to perform these tasks. This way you can optimize things, for example creating temporary variables holding the
+  output of the various <kbd>xschem ...</kbd> commands.</p>
+
+
+ <ul>
+
+
+ <li> <h3>Instantiate a component and wire it up with specific nets on its terminals.</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># Create a 5V Vvdd voltage source
+xschem instance vsource.sym 100 100 0 0 {name=Vvdd value=5}</pre>
+     </td>
+     <td><img src="developer_info_08.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># Attach labels, They will get the symbol pin labels
+xschem select instance vvdd
+xschem attach_labels
+</pre>
+     </td>
+     <td><img src="developer_info_09.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># Select labels, unselect vsource and change positive and negative terminal
+# labels to VCC and GND respectively
+# The first item in the selected_set list is the first vsource terminal
+# (the positive terminal), the second one is the negative terminal.
+# At the end unselect all
+xschem connected_nets
+xschem select instance Vvdd clear
+xschem setprop instance [lindex [xschem selected_set] 0] lab VCC
+xschem setprop instance [lindex [xschem selected_set] 1] lab GND
+xschem unselect_all
+</pre>
+     </td>
+     <td><img src="developer_info_10.png"></td></tr>
+ </table>
+
+
+ <li> <h3>Disable a component in the schematic</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># Add spice_ignore=true attribute
+# the component will be ignored in generated netlists.
+xschem setprop instance Vvdd spice_ignore true
+     </td>
+     <td><img src="developer_info_11.png"></td></tr>
+</table>
+
+
+ <li> <h3>Delete a component together with its attached nets</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># select component, select attached nets and delete
+# this will also select wire segments if labels are attached to selected instance with wires.
+xschem select instance Vvdd
+xschem connected_nets
+     </td>
+     <td><img src="developer_info_12.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># Delete selection
+xschem delete
+     </td>
+     <td><img src="developer_info_13.png"></td></tr>
+</table>
+
+
+ <li> <h3>Delete dangling nets and labels</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># If after some editing or deletions dangling nets are present
+# they can all be selected. Deletion may be done with a "xschem delete" command.
+xschem select_dangling_nets
+     </td>
+     <td><img src="developer_info_14.png"></td></tr>
+</table>
+
+
+ <li> <h3>Change attributes of a group of components</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># From this situation we want to select all MOS elements with L=2
+# and modify L (gate length) to 3
+     </td>
+     <td><img src="developer_info_15.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># Do an exact search of elements with L=2
+xschem search exact 1 L 2
+# a more precise search to avoid selecting unwanted elements might be:
+# xschem search regex 1 propstring "L=2\[ \n\].*model=nfet"
+# the above command will do a regular expression search on the whole
+# instance property string (the special token propstring)
+foreach i [xschem selected_set] { xschem setprop instance $i L 3}
+xschem unselect_all
+     </td>
+     <td><img src="developer_info_16.png"></td></tr>
+
+</table>
+
+
+ <li> <h3>Copy a components with its wired terminals</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># From this situation we want to copy Vvdd to a different location
+# and change the instance name, voltage value  and its positive terminal net name
+     </td>
+     <td><img src="developer_info_17.png"></td></tr>
+
+ <tr><td width="60%">  
+        <pre class="code"># select the desired instance
+xschem select instance Vvdd
+# select attached wires
+xschem connected_nets
+# Copy to clipboard
+xschem copy
+# Paste selection 150 x-axis units to the right
+xschem paste 150 0
+# First selected_set item is the voltage source (it was selected first)
+xschem setprop instance [lindex [xschem selected_set] 0] name Vvpp
+xschem setprop instance [lindex [xschem selected_set] 0] value 12
+# Following item is the net label attached to the first symbol pin
+xschem setprop instance [lindex [xschem selected_set] 1] lab VPP 
+
+     </td>
+     <td><img src="developer_info_18.png"></td></tr>
+
+</table>
+
+
+ </ul>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>

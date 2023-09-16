@@ -342,7 +342,7 @@ proc view_current_sim_output {} {
 }
 
 #### Scrollable frame 
-proc scrollyview {container args} {
+proc sframeyview {container args} {
   global ${container}_vpos ;# global to remember scrollbar position
   set_ne ${container}_vpos 0
   if {[lindex $args 0] eq {place}} {
@@ -366,7 +366,7 @@ proc scrollyview {container args} {
 # scrollable frame constructor
 proc sframe {container} {
   frame $container.f
-  scrollbar $container.vs -command "scrollyview $container" ;# scrollyview moveto commands
+  scrollbar $container.vs -command "sframeyview $container" ;# sframeyview moveto commands
   frame $container.f.scrl
   pack $container.f -expand yes -fill both -side left
   pack $container.vs -expand yes -fill y
@@ -1226,13 +1226,13 @@ file manually.
      wm geometry .sim "${simconf_default_geometry}"
   }
  
-  bind .sim.topf.f <Configure> {scrollyview .sim.topf}
+  bind .sim.topf.f <Configure> {sframeyview .sim.topf}
   bind .sim <Configure> {
     set simconf_default_geometry [wm geometry .sim]
   }
-  bind .sim <ButtonPress-4> { scrollyview .sim.topf scroll -0.2}
-  bind .sim <ButtonPress-5> { scrollyview .sim.topf scroll 0.2}
-  scrollyview .sim.topf place
+  bind .sim <ButtonPress-4> { sframeyview .sim.topf scroll -0.2}
+  bind .sim <ButtonPress-5> { sframeyview .sim.topf scroll 0.2}
+  sframeyview .sim.topf place
   set maxsize [expr {[winfo height ${scrollframe}] + [winfo height .sim.bottom]}]
   wm maxsize .sim 9999 $maxsize
   # tkwait window .sim
