@@ -507,6 +507,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -538,6 +540,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Invoke the callback event dispatcher with a software event </pre>
    <li><kbd>       case_insensitive 1|0</kbd></li><pre>
    Set case insensitive symbol lookup. Use only on case insensitive filesystems </pre>
+   <li><kbd>       change_elem_order n</kbd></li><pre>
+   set selected object (instance, wire, line, rect, ...) to position 'n' in its respective array </pre>
    <li><kbd>       check_symbols</kbd></li><pre>
    List all used symbols in current schematic and warn if some symbol is newer </pre>
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
@@ -631,8 +635,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       find_nth string sep n</kbd></li><pre>
    Find n-th field string separated by characters in sep. 1st field is in position 1
    xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --&gt; bbb </pre>
-   <li><kbd>       flip</kbd></li><pre>
-   Flip selection horizontally </pre>
+   <li><kbd>       flip [x0 y0]</kbd></li><pre>
+   Flip selection horizontally around point x0 y0. 
+   if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       flip_in_place</kbd></li><pre>
    Flip selection horizontally, each object around its center </pre>
    <li><kbd>       fullscreen</kbd></li><pre>
@@ -880,6 +885,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    to deduce symbol interface pins. </pre>
    <li><kbd>       merge [f]</kbd></li><pre>
    Merge another file. if 'f' not given prompt user. </pre>
+   <li><kbd>       move_instance inst x y rot flip [nodraw] [noundo]</kbd></li><pre>
+   resets instance coordinates, and rotaton/flip. A dash will keep existing value
+   if 'nodraw' is given do not draw the moved instance
+   if 'noundo' is given operation is not undoable </pre>
    <li><kbd>       move_objects [dx dy]</kbd></li><pre>
    Start a move operation on selection and let user terminate the operation in the GUI
    if dx and dy are given move by that amount. </pre>
@@ -1041,8 +1050,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'net' is given  return its topmost full hierarchy name
    else returns the topmost full hierarchy name of selected net/pin/label.
    Nets connected to I/O ports are mapped to upper level recursively </pre>
-   <li><kbd>       rotate</kbd></li><pre>
-   Rotate selected objects around their centers </pre>
+   <li><kbd>       rotate [x0 y0]</kbd></li><pre>
+   Rotate selection around point x0 y0. 
+   if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       save</kbd></li><pre>
    Save schematic if modified. Does not ask confirmation! </pre>
    <li><kbd>       saveas [file] [type]</kbd></li><pre>
@@ -1275,6 +1285,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 

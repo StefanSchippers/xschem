@@ -1520,7 +1520,7 @@ static int edit_symbol_property(int x, int first_sel)
    return modified;
 }
 
-void change_elem_order(void)
+void change_elem_order(int n)
 {
   xInstance tmpinst;
   xRect tmpbox;
@@ -1531,20 +1531,30 @@ void change_elem_order(void)
   rebuild_selected_array();
   if(xctx->lastsel==1)
   {
-    my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
-    tclsetvar("retval",tmp_txt);
-    xctx->semaphore++;
-    tcleval("text_line {Object Sequence number} 0");
-    xctx->semaphore--;
-    if(strcmp(tclgetvar("rcode"),"") )
-    {
+    if(n < 0) {
+      my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
+      tclsetvar("retval",tmp_txt);
+      xctx->semaphore++;
+      tcleval("text_line {Object Sequence number} 0");
+      xctx->semaphore--;
+      if(strcmp(tclgetvar("rcode"),"") )
+      {
+        xctx->push_undo();
+        modified = 1;
+        xctx->prep_hash_inst=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+      }
+      sscanf(tclgetvar("retval"), "%d",&new_n);
+      if(new_n < 0) new_n = 0;
+    } else {
+      new_n = n;
       xctx->push_undo();
       modified = 1;
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
     }
-    sscanf(tclgetvar("retval"), "%d",&new_n);
 
     if(xctx->sel_array[0].type==ELEMENT)
     {

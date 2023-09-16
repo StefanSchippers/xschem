@@ -1556,7 +1556,7 @@ extern void hilight_child_pins(void);
 extern void hilight_parent_pins(void);
 extern void hilight_net_pin_mismatches(void);
 extern Node_hashentry **get_node_table_ptr(void);
-extern void change_elem_order(void);
+extern void change_elem_order(int n);
 extern int is_generator(const char *name);
 extern char *str_chars_replace(const char *str, const char *replace_set, const char with);
 extern char *str_replace(const char *str, const char *rep, const char *with, int escape);

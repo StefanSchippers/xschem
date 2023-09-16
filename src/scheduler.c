@@ -366,6 +366,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* change_elem_order n
+     *   set selected object (instance, wire, line, rect, ...) to position 'n' in its respective array */
+    else if(!strcmp(argv[1], "change_elem_order"))
+    {
+      if(argc > 2) {
+        int n = atoi(argv[2]);
+        if(n >= 0) change_elem_order(n);
+      }
+    }
+
     /* check_symbols
      *   List all used symbols in current schematic and warn if some symbol is newer */
     else if(!strcmp(argv[1], "check_symbols"))
@@ -822,19 +832,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* flip
-     *   Flip selection horizontally */
+    /* flip [x0 y0]
+     *   Flip selection horizontally around point x0 y0. 
+     *   if x0, y0 not given use mouse coordinates */
     else if(!strcmp(argv[1], "flip"))
     {
+      double x0 = xctx->mousex_snap;
+      double y0 = xctx->mousey_snap;
+      if(argc > 3) {
+        x0 = atof(argv[2]);
+        y0 = atof(argv[3]);
+      }
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
         rebuild_selected_array();
-        xctx->mx_double_save=xctx->mousex_snap;
-        xctx->my_double_save=xctx->mousey_snap;
+        xctx->mx_double_save = xctx->mousex_snap = x0;
+        xctx->my_double_save = xctx->mousey_snap = y0;
         move_objects(START,0,0,0);
-        if(xctx->lastsel>1) move_objects(FLIP,0, 0, 0);
-        else                move_objects(FLIP|ROTATELOCAL,0,0,0);
-        xctx->deltax = -xctx->mx_double_save;
-        xctx->deltay = 0;
+        move_objects(FLIP,0, 0, 0);
         move_objects(END,0,0,0);
       }
       Tcl_ResetResult(interp);
@@ -2249,6 +2263,48 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* move_instance inst x y rot flip [nodraw] [noundo]
+     *   resets instance coordinates, and rotaton/flip. A dash will keep existing value
+     *   if 'nodraw' is given do not draw the moved instance
+     *   if 'noundo' is given operation is not undoable */
+    else if(!strcmp(argv[1], "move_instance"))
+    {
+      int undo = 1, dr = 1;
+      if(argc > 7) {
+        int i;
+        for(i = 7; i < argc; i++) {
+          if(!strcmp(argv[i], "nodraw")) dr = 0;
+          if(!strcmp(argv[i], "noundo")) undo = 0;
+        }
+      }
+      if(argc > 6) {
+        int i;
+        if((i = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem pinlist: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        if(undo) xctx->push_undo();
+        if(dr) {
+          bbox(START,0.0,0.0,0.0,0.0);
+          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+        }
+        if(strcmp(argv[3], "-")) xctx->inst[i].x0 = atof(argv[3]);
+        if(strcmp(argv[4], "-")) xctx->inst[i].y0 = atof(argv[4]);
+        if(strcmp(argv[5], "-")) xctx->inst[i].rot = (unsigned short)atoi(argv[5]);
+        if(strcmp(argv[6], "-")) xctx->inst[i].flip = (unsigned short)atoi(argv[6]);
+        symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
+        if(dr) {
+          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+          bbox(SET,0.0,0.0,0.0,0.0);
+          draw();
+          bbox(END,0.0,0.0,0.0,0.0);
+        }
+        set_modify(1);
+        xctx->prep_hash_inst=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+      }
+    }
     /* move_objects [dx dy]
      *   Start a move operation on selection and let user terminate the operation in the GUI
      *   if dx and dy are given move by that amount. */
@@ -3118,14 +3174,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &rn);
     }
 
-    /* rotate
-     *   Rotate selected objects around their centers */
+    /* rotate [x0 y0]
+     *   Rotate selection around point x0 y0. 
+     *   if x0, y0 not given use mouse coordinates */
     else if(!strcmp(argv[1], "rotate"))
     {
+      double x0 = xctx->mousex_snap;
+      double y0 = xctx->mousey_snap;
+      if(argc > 3) {
+        x0 = atof(argv[2]);
+        y0 = atof(argv[3]);
+      }
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
         rebuild_selected_array();
+        xctx->mx_double_save = xctx->mousex_snap = x0;
+        xctx->my_double_save = xctx->mousey_snap = y0;
         move_objects(START,0,0,0);
-        move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        move_objects(ROTATE,0,0,0);
         move_objects(END,0,0,0);
       }
       Tcl_ResetResult(interp);

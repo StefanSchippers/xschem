@@ -1913,7 +1913,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    if(key=='S' && state == ShiftMask)   /* change element order */
    {
     if(xctx->semaphore >= 2) break;
-    change_elem_order();
+    change_elem_order(-1);
     break;
    }
    if(key=='k' && state==Mod1Mask)        /* select whole net (all attached wires/labels/pins) */
@@ -2106,8 +2106,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
       move_objects(START,0,0,0);
-      if(xctx->lastsel>1) move_objects(FLIP,0,0,0);
-      else               move_objects(FLIP|ROTATELOCAL,0,0,0);
+      move_objects(FLIP,0,0,0);
       move_objects(END,0,0,0);
     }
     break;
@@ -2142,8 +2141,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
       move_objects(START,0,0,0);
-      if(xctx->lastsel>1) move_objects(ROTATE,0,0,0);
-      else               move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      move_objects(ROTATE,0,0,0);
       move_objects(END,0,0,0);
     }
 
