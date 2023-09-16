@@ -1959,6 +1959,32 @@ xschem setprop instance [lindex [xschem selected_set] 1] lab VPP
 </table>
 
 
+ <li> <h3>Transform a component into a short</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># We want to transform this voltage source into a short, passing the 
+# negative label onto the positive terminal.
+# Warning: no net label must be present on the positive net, otherwise you end up with 
+# an ERC error (multiple differnet labels on the same net)
+     </td>
+     <td><img src="developer_info_19.png"></td></tr>
+
+ <tr><td width="60%">  
+        <pre class="code"># add spice_ignore=short attribute to instance
+# All pins of the instance will be shorted together to the same net.
+# Instance will be shown in red to indicate the short condition.
+# Option "Options-&gt;Show net name on symbol pins" is enabled and attribute 
+# <kbd>net_name=true</kbd> is set on the resistor to show net names.
+# you see the left resistor terminal is GND now.
+
+xschem setprop instance Vvdd spice_ignore short
+
+     </td>
+     <td><img src="developer_info_20.png"></td></tr>
+
+</table>
+
+
  </ul>
 
  <!-- end of slide -->
