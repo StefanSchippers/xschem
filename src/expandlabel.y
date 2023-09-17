@@ -285,6 +285,7 @@ int  *idx;  /* for bus index & bus index ranges */
 %token <val> B_IDXNUM
 %token <val> B_DOUBLEDOT
 %token <str> B_NAME
+%token <str> B_TRAILER
 %token <str> B_LINE
 /* BISON Declarations: non terminal symbols*/
 %type <ptr> list
@@ -292,6 +293,7 @@ int  *idx;  /* for bus index & bus index ranges */
 %type <idx> index_nobracket
 
 /* operator precedences (bottom = highest)  and associativity  */
+%left B_TRAILER
 %left B_NAME
 %left B_DOUBLEDOT
 %left ':'
@@ -384,7 +386,7 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
-        | B_NAME  '[' index  ']' B_NAME
+        | B_NAME  '[' index  ']' B_TRAILER
                         {
                          dbg(dbg_var, "yyparse(): B_NAME [ index ] B_NAME, $1=%s $3=%d, $5=%s\n", $1, $3[0], $5);
                          $$.str=expandlabel_strbus_suffix($1, $3, $5);
@@ -404,7 +406,7 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
-        | B_NAME  '[' index_nobracket  ']' B_NAME
+        | B_NAME  '[' index_nobracket  ']' B_TRAILER
                         {
                          dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d, $5=%s\n",$1, $3[0], $5);
                          $$.str=expandlabel_strbus_nobracket_suffix($1, $3, $5);

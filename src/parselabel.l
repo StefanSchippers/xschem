@@ -139,6 +139,7 @@ const char *expandlabel(const char *s, int *m)
 */
 
 %x index
+%x trailer
 %x mult
 
 SP [ \t\n]*
@@ -185,6 +186,19 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                         }
 }  /* end <mult> */
 
+
+
+<trailer>{
+  /* recognize characters after a bus label: AA[33:31]_xx  --> _xx */
+{IDX_ID_N}		{
+                          yylval.ptr.str=NULL;/*19102004 */
+                          my_strdup(_ALLOC_ID_, &yylval.ptr.str, yytext); /* freed after use in expandlabel.y */
+                          if(parselabel_debug >= 3) fprintf(errfp, "yylex(): B_TRAILER: |%s|\n", yytext);
+                          BEGIN(INITIAL);
+                          return B_TRAILER;
+			}
+}
+
   /* node indexes: "3:2" "5:1:2" "5..1" "7..1..2" "b:a" "c:b:a" .... */
 <index>{
 {INT}                   {
@@ -196,9 +210,18 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): B_DOUBLEDOT: |%s|\n", yytext);
                           return B_DOUBLEDOT;
                         }
+
+  /* end vector node index "...]" followed by trailing chars (excluding , and *) : A[33:31]_xx */
+\]/[^*,]		{
+
+                          if(parselabel_debug >= 3) fprintf(errfp, "yylex(): close bracket2: %s\n", yytext);
+                          BEGIN(trailer);
+                          return yytext[0];
+			}
+
   /* end vector node index "...]" */
 \]                      {
-                          if(parselabel_debug >= 3) fprintf(errfp, "yylex(): close bracket: %s\n", yytext);
+                          if(parselabel_debug >= 3) fprintf(errfp, "yylex(): close bracket1: %s\n", yytext);
                           BEGIN(INITIAL);
                           return yytext[0];
                         }
