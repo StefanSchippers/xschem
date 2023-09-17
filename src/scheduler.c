@@ -372,7 +372,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(argc > 2) {
         int n = atoi(argv[2]);
-        if(n >= 0) change_elem_order(n);
+        if(n >= 0) {
+          change_elem_order(n);
+          xctx->prep_hash_wires=0;
+          xctx->prep_hash_inst=0;
+          xctx->prep_net_structs=0;
+          xctx->prep_hi_structs=0;
+        }
       }
     }
 
@@ -2535,7 +2541,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if no 'attr' is given return full attribute string,
      *   else return value for attribute 'attr'.
      *   Example: xschem pinlist x3 name
-     *   -->  { {0} {PLUS} } { {1} {OUT} } { {2} {{MINUS} }
+     *   -->  { {0} {PLUS} } { {1} {OUT} } { {2} {MINUS} }
      *   Example: xschem pinlist x3 dir
      *   -->  { {0} {in} } { {1} {out} } { {2} {in} }
      *   Example: xschem pinlist x3
