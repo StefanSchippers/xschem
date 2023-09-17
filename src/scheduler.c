@@ -2471,18 +2471,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* origin x y [zoom]
-     *   Move origin to 'x, y', optionally changing zoom level to 'zoom' */
+     *   Move origin to 'x, y', optionally changing zoom level to 'zoom'
+     *   A dash ('-') given for x or y will keep existing value */
     else if(!strcmp(argv[1], "origin"))
     {
       if(argc > 3) {
-        xctx->xorigin = atof(argv[2]);
-        xctx->yorigin = atof(argv[3]);
-        if(argc == 5) {
+        if(strcmp(argv[2], "-")) xctx->xorigin = atof(argv[2]);
+        if(strcmp(argv[3], "-")) xctx->yorigin = atof(argv[3]);
+        if(argc > 4) {
           xctx->zoom = atof(argv[4]);
           xctx->mooz=1/xctx->zoom;
         }
         draw();
       }
+      Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
     break;
@@ -3195,6 +3197,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+
+    /* rotate_in_place
+     *   Rotate selected objects around their 0,0 coordinate point */
+    else if(!strcmp(argv[1], "rotate_in_place"))
+    {   
+      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) {
+        rebuild_selected_array();
+        move_objects(START,0,0,0);
+        move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        move_objects(END,0,0,0);
+      }
+      Tcl_ResetResult(interp);
+    }
+
     else { cmd_found = 0;}
     break;
     case 's': /*----------------------------------------------*/

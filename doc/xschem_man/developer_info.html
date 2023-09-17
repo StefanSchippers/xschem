@@ -509,6 +509,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -931,7 +932,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       only_probes</kbd></li><pre>
        dim schematic to better show highlights </pre>
    <li><kbd>       origin x y [zoom]</kbd></li><pre>
-   Move origin to 'x, y', optionally changing zoom level to 'zoom' </pre>
+   Move origin to 'x, y', optionally changing zoom level to 'zoom'
+   A dash ('-') given for x or y will keep existing value </pre>
    <li><kbd>       parse_cmd</kbd></li><pre>
    debug command to test parse_cmd_string()
    splits a command string into argv-like arguments
@@ -1053,6 +1055,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       rotate [x0 y0]</kbd></li><pre>
    Rotate selection around point x0 y0. 
    if x0, y0 not given use mouse coordinates </pre>
+   <li><kbd>       rotate_in_place</kbd></li><pre>
+   Rotate selected objects around their 0,0 coordinate point </pre>
    <li><kbd>       save</kbd></li><pre>
    Save schematic if modified. Does not ask confirmation! </pre>
    <li><kbd>       saveas [file] [type]</kbd></li><pre>
@@ -1285,6 +1289,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 
