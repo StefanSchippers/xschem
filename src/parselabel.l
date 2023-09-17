@@ -212,7 +212,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                         }
 
   /* end vector node index "...]" followed by trailing chars (excluding , and *) : A[33:31]_xx */
-\]/[^*,]		{
+\]/[^*,)]		{
 
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): close bracket2: %s\n", yytext);
                           BEGIN(trailer);
