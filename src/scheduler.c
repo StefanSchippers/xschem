@@ -2311,12 +2311,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_hi_structs=0;
       }
     }
-    /* move_objects [dx dy]
+    /* move_objects [dx dy] [kissing] [stretch]
      *   Start a move operation on selection and let user terminate the operation in the GUI
+     *   if kissing is given add nets to pins that touch other instances or nets
+     *   if stretch is given stretch connected nets to follow instace pins 
      *   if dx and dy are given move by that amount. */
     else if(!strcmp(argv[1], "move_objects"))
     {
-      if(argc==4) {
+      int kissing= 0;
+      int stretch = 0;
+      if(argc > 2) {
+        int i;
+        for(i = 2; i < argc; i++) {
+          if(!strcmp(argv[i], "kissing")) kissing = 1;
+          if(!strcmp(argv[i], "stretch")) stretch = 1;
+        }
+      }
+      if(kissing | stretch) argc = 2;
+      if(stretch) select_attached_nets();
+      if(kissing) tclsetintvar("connect_by_kissing", 2);
+      if(argc > 3) {
         move_objects(START,0,0,0);
         move_objects( END,0,atof(argv[2]), atof(argv[3]));
       }

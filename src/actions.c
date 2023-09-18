@@ -965,6 +965,7 @@ void enable_layers(void)
   }
 }
 
+/* Add wires when moving instances or wires */
 short connect_by_kissing(void)
 {
   xSymbol *symbol;
@@ -977,16 +978,22 @@ short connect_by_kissing(void)
   Wireentry *wptr;
   Instpinentry *iptr;
   int sqx, sqy;
+  Str_hashtable coord_table = {NULL, 0}; /* hash table to add new wires at a given position only once */
+  char coord[200]; /* string representation of 'x0 y0' or 'pinx0 piny0' */
 
+  str_hash_init(&coord_table, HASHSIZE);
   rebuild_selected_array();
   k = xctx->lastsel;
   prepare_netlist_structs(0);
+
+  /* add wires to moving instance pins */
   for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
-    x0 = xctx->inst[xctx->sel_array[j].n].x0;
-    y0 = xctx->inst[xctx->sel_array[j].n].y0;
-    rot = xctx->inst[xctx->sel_array[j].n].rot;
-    flip = xctx->inst[xctx->sel_array[j].n].flip;
-    symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
+    int inst = xctx->sel_array[j].n;
+    x0 = xctx->inst[inst].x0;
+    y0 = xctx->inst[inst].y0;
+    rot = xctx->inst[inst].rot;
+    flip = xctx->inst[inst].flip;
+    symbol = xctx->sym + xctx->inst[inst].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
     for(i=0;i<npin; ++i) {
@@ -1001,7 +1008,7 @@ short connect_by_kissing(void)
       kissing=0;
       while(iptr) {
         ii = iptr->n;
-        if(ii == xctx->sel_array[j].n) {
+        if(ii == inst) {
           iptr = iptr->next;
           continue;
         }
@@ -1018,7 +1025,7 @@ short connect_by_kissing(void)
             kissing=0;
             break;
           }
-          else if( (pinx0 != w->x1 || piny0 != w->y1) && (pinx0 != w->x2 || piny0 != w->y2)) {
+          else {
             kissing = 1;
             break;
           }
@@ -1027,17 +1034,85 @@ short connect_by_kissing(void)
       }
       if(kissing) {
      
-        dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
         if(!done_undo) {
           xctx->push_undo();
           done_undo = 1;
         }
-        storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
-        changed = 1;
-        xctx->need_reb_sel_arr = 1;
+        my_snprintf(coord, S(coord), "%.16g %.16g", pinx0, piny0);
+        if (str_hash_lookup(&coord_table, coord, "", XLOOKUP)==NULL) {
+          dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", pinx0, piny0, xctx->wires);
+          str_hash_lookup(&coord_table, coord, "", XINSERT);
+          storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
+          changed = 1;
+          xctx->need_reb_sel_arr = 1;
+        }
       }
     }
   }
+
+  /* add wires to moving wire endpoints */
+  for(j=0; j < k; ++j) if(xctx->sel_array[j].type == WIRE) {
+    int wire = xctx->sel_array[j].n;
+    if(xctx->wire[wire].sel != SELECTED) continue; /* skip partially selected wires */
+    for(i=0;i<2; ++i) {
+      if(i == 0) {
+        x0 = xctx->wire[wire].x1;
+        y0 = xctx->wire[wire].y1;
+      } else {
+        x0 = xctx->wire[wire].x2;
+        y0 = xctx->wire[wire].y2;
+      }
+
+      get_square(x0, y0, &sqx, &sqy);
+      iptr=xctx->instpin_spatial_table[sqx][sqy];
+      wptr=xctx->wire_spatial_table[sqx][sqy];
+      kissing=0;
+      while(iptr) {
+        ii = iptr->n;
+        dbg(1, "connect_by_kissing(): ii=%d, x0=%g, y0=%g,  iptr->x0=%g, iptr->y0=%g\n",
+               ii, x0, y0, iptr->x0, iptr->y0);
+        if( iptr->x0 == x0 && iptr->y0 == y0  &&  xctx->inst[ii].sel == 0) {
+          kissing=1;
+          break;
+        }
+        iptr = iptr->next;
+      }
+      while(wptr) {
+        xWire *w = &xctx->wire[wptr->n];
+        if(wire == wptr->n) {
+          wptr = wptr->next;
+          continue;
+        }
+        if( touch(w->x1, w->y1, w->x2, w->y2, x0, y0)) {
+          if( w->sel) {
+            kissing=0;
+            break;
+          }
+          else {
+            kissing = 1;
+            break;
+          }
+        }
+        wptr = wptr->next;
+      }
+      if(kissing) {
+        if(!done_undo) {
+          xctx->push_undo();
+          done_undo = 1;
+        }
+        my_snprintf(coord, S(coord), "%.16g %.16g", x0, y0);
+        if (str_hash_lookup(&coord_table, coord, "", XLOOKUP)==NULL) {
+          dbg(1, "connect_by_kissing(): adding wire in %g %g, wires before = %d\n", x0, y0, xctx->wires);
+          str_hash_lookup(&coord_table, coord, "", XINSERT);
+          storeobject(-1, x0, y0,  x0, y0, WIRE, 0, SELECTED1, NULL);
+          changed = 1;
+          xctx->need_reb_sel_arr = 1;
+        }
+
+      }
+    }
+  }
+  str_hash_free(&coord_table);
   rebuild_selected_array();
   return changed;
 }

@@ -2177,10 +2177,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     tclsetintvar("connect_by_kissing", 2); /* 2 will be used to reset var to 0 at end of move */
-    select_attached_nets(); /* stretch nets that land on selected instance pins */
+    /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
     move_objects(START,0,0,0);
     break;
    }
+   if(key=='m' && state==ControlMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+   {        
+    xctx->mx_double_save=xctx->mousex_snap;
+    xctx->my_double_save=xctx->mousey_snap;
+    select_attached_nets(); /* stretch nets that land on selected instance pins */
+    move_objects(START,0,0,0);
+    break;
+   }    
+
    if(key=='c' && state==0 &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
@@ -2636,7 +2645,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        /* stretch nets that land on selected instance pins if connect_by_kissing == 2 */
-       select_attached_nets();
+       /* select_attached_nets(); */
        move_objects(START,0,0,0);
        xctx->ui_state &=~MENUSTARTMOVE;
        break;
