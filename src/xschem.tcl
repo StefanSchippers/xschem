@@ -2697,7 +2697,7 @@ proc load_file_dialog_up {dir} {
 
 
 proc myload_getresult {loadfile confirm_overwrt} {
-  global myload_dir1 myload_retval myload_ext
+  global myload_dir1 myload_retval myload_ext has_x
   if { $myload_retval ne {}} {
     if { [regexp {^https?://} $myload_retval] } {
       set fname $myload_retval
@@ -2736,9 +2736,19 @@ proc myload_getresult {loadfile confirm_overwrt} {
         return {}
       } else { ;# $answer == 1
         if { $type eq {GENERATOR} } {
-          if { [regexp {\([^()]*\)$} $fname]} {
+          if {[regexp {\([^()]*\)$} $fname]} {
+
+            # regsub {[^()]+}
+ 
             return "$fname"
           } else {
+            puts stderr {Attempting to load a generator file without giving parameters: generator(params,...)}
+            if {$has_x} {
+              tk_messageBox \
+               -message {Attempting to load a generator file without giving parameters: generator(params,...)} \
+                  -icon warning -parent [xschem get topwindow] -type ok
+            }
+
             set myload_retval {}
             return {}
           }

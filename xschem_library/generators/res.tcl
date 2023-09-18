@@ -2,8 +2,9 @@
 # the next line restarts using wish \
 exec tclsh "$0" "$@"
 proc from_eng {i} {
-  set str {} 
-  scan $i "%g%s" n str
+  set n 1
+  set str {k }
+  if {[scan $i "%g%s" n str] < 2} { set str {}}
   set str [string tolower $str]
   if { [regexp {^meg} $str] } { set str {meg} } else {
     set suffix [string index $str 0]
