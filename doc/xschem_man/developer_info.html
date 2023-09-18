@@ -510,6 +510,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -890,8 +892,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    resets instance coordinates, and rotaton/flip. A dash will keep existing value
    if 'nodraw' is given do not draw the moved instance
    if 'noundo' is given operation is not undoable </pre>
-   <li><kbd>       move_objects [dx dy]</kbd></li><pre>
+   <li><kbd>       move_objects [dx dy] [kissing] [stretch]</kbd></li><pre>
    Start a move operation on selection and let user terminate the operation in the GUI
+   if kissing is given add nets to pins that touch other instances or nets
+   if stretch is given stretch connected nets to follow instace pins 
    if dx and dy are given move by that amount. </pre>
    <li><kbd>       net_label [type]</kbd></li><pre>
    Place a new net label
