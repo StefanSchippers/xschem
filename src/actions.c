@@ -1392,18 +1392,11 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
   set_inst_flags(&xctx->inst[n]);
   
-
-  
-
-  
-
+  /* After having assigned prop_ptr to new instance translate symbol reference
+   * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name), S(name));
   i = match_symbol(name);
   xctx->inst[n].ptr = i;
-
-
-
-
 
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= type && IS_LABEL_SH_OR_PIN(type);
