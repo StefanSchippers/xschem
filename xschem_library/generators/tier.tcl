@@ -10,7 +10,7 @@ puts "v {xschem version=3.4.0 file_version=1.2
 G {}
 K {type=label
 format=\"*.alias @lab\"
-template=\"name=p1 sig_type=std_logic lab=${arg1}\"
+template=\"name=p1 sig_type=std_logic lab=GND\"
 net_name=true
 }
 V {}

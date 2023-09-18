@@ -1391,6 +1391,20 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
   set_inst_flags(&xctx->inst[n]);
+  
+
+  
+
+  
+
+  my_strncpy(name, translate(n, name), S(name));
+  i = match_symbol(name);
+  xctx->inst[n].ptr = i;
+
+
+
+
+
   type = xctx->sym[xctx->inst[n].ptr].type;
   cond= type && IS_LABEL_SH_OR_PIN(type);
   if(cond) {
