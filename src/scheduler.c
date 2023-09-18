@@ -2318,19 +2318,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if dx and dy are given move by that amount. */
     else if(!strcmp(argv[1], "move_objects"))
     {
+      int nparam = 0;
       int kissing= 0;
       int stretch = 0;
       if(argc > 2) {
         int i;
         for(i = 2; i < argc; i++) {
-          if(!strcmp(argv[i], "kissing")) kissing = 1;
-          if(!strcmp(argv[i], "stretch")) stretch = 1;
+          if(!strcmp(argv[i], "kissing")) {kissing = 1; nparam++;}
+          if(!strcmp(argv[i], "stretch")) {stretch = 1; nparam++;}
         }
       }
-      if(kissing | stretch) argc = 2;
       if(stretch) select_attached_nets();
       if(kissing) tclsetintvar("connect_by_kissing", 2);
-      if(argc > 3) {
+      if(argc > 3 + nparam) {
         move_objects(START,0,0,0);
         move_objects( END,0,atof(argv[2]), atof(argv[3]));
       }
@@ -3067,7 +3067,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "replace_symbol"))
     {
       int inst, fast = 0;
-      if(argc == 5) {
+      if(argc > 4) {
         argc = 4;
         if(!strcmp(argv[4], "fast")) {
           fast = 1;
@@ -4389,12 +4389,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
-    /* wire_cut
+    /* wire_cut [x y]
      *   start a wire cut operation. Point the mouse in the middle of a wire and
-     *   click left button. */
+     *   click left button.
+     *   if x and y are given cut wire at given point */
     else if(!strcmp(argv[1], "wire_cut"))
     {
-      xctx->ui_state |= MENUSTARTWIRECUT;
+      if(argc > 3) {
+        break_wires_at_point(atof(argv[2]), atof(argv[3]));
+      } else {
+        xctx->ui_state |= MENUSTARTWIRECUT;
+      }
       Tcl_ResetResult(interp);
     }
 

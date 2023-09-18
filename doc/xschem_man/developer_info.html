@@ -510,8 +510,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1271,9 +1269,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       wire [x1 y1 x2 y2] [pos] [prop] [sel]</kbd></li><pre>
    Place a new wire
    if no coordinates are given start a GUI wire placement </pre>
-   <li><kbd>       wire_cut</kbd></li><pre>
+   <li><kbd>       wire_cut [x y]</kbd></li><pre>
    start a wire cut operation. Point the mouse in the middle of a wire and
-   click left button. </pre>
+   click left button.
+   if x and y are given cut wire at given point </pre>
    <li><kbd>       xcb_info</kbd></li><pre>
    For debug </pre>
    <li><kbd>       zoom_box [x1 y1 x2 y2] [factor]</kbd></li><pre>
@@ -1293,6 +1292,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
+
 
 
 
@@ -1897,7 +1900,7 @@ xschem unselect_all
 xschem setprop instance Vvdd spice_ignore true
      </td>
      <td><img src="developer_info_11.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Delete a component together with its attached nets</h3><br></li>
@@ -1915,7 +1918,7 @@ xschem connected_nets
 xschem delete
      </td>
      <td><img src="developer_info_13.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Delete dangling nets and labels</h3><br></li>
@@ -1926,7 +1929,7 @@ xschem delete
 xschem select_dangling_nets
      </td>
      <td><img src="developer_info_14.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Change attributes of a group of components</h3><br></li>
@@ -1948,7 +1951,7 @@ foreach i [xschem selected_set] { xschem setprop instance $i L 3}
 xschem unselect_all
      </td>
      <td><img src="developer_info_16.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Copy a components with its wired terminals</h3><br></li>
@@ -1976,7 +1979,7 @@ xschem setprop instance [lindex [xschem selected_set] 1] lab VPP
 
      </td>
      <td><img src="developer_info_18.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Transform a component into a short</h3><br></li>
@@ -2001,7 +2004,7 @@ xschem setprop instance Vvdd spice_ignore short
 
      </td>
      <td><img src="developer_info_20.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Move a selected portion of the schematic</h3><br></li>
@@ -2016,7 +2019,7 @@ xschem setprop instance Vvdd spice_ignore short
 xschem move_objects 100 0
      </td>
      <td><img src="developer_info_22.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Rotate a selected portion of the schematic</h3><br></li>
@@ -2031,7 +2034,7 @@ xschem move_objects 100 0
 xschem rotate 1100 -800
      </td>
      <td><img src="developer_info_24.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Flip a selected portion of the schematic</h3><br></li>
@@ -2042,7 +2045,7 @@ xschem rotate 1100 -800
 xschem flip 1100 -800
      </td>
      <td><img src="developer_info_25.png"></td></tr>
-</table>
+ </table>
 
 
  <li> <h3>Rotate in place a selected portion of the schematic</h3><br></li>
@@ -2058,7 +2061,78 @@ xschem flip 1100 -800
 xschem rotate_in_place
      </td>
      <td><img src="developer_info_27.png"></td></tr>
-</table>
+ </table>
+
+
+ <li> <h3>Move a wired object</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># After selecting some objects ...
+     </td>
+     <td><img src="developer_info_28.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... we select only the first segments attached to their pins ...
+xschem connected_nets 2
+     </td>
+     <td><img src="developer_info_29.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... And then move the selection.
+xschem move_objects 100 0
+     </td>
+     <td><img src="developer_info_30.png"></td></tr>
+
+ </table>
+
+
+ <li> <h3>Add and wire parallel devices</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># Given this instance ...
+     </td>
+     <td><img src="developer_info_31.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... The following commands will copy-paste the object and move it 
+# using the "connect by kissing" feature: when separating connected instances a wire is added.
+xschem select instance Q1
+xschem copy
+xschem paste 0 0
+xschem move_objects 120 0 kissing
+xschem unselect_all
+     </td>
+     <td><img src="developer_info_32.png"></td></tr>
+ </table>
+
+
+ <li> <h3>Replace symbols</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># In the following schematic we want to replace the nfet3/pfet3 with nfet and pfet
+# that have the bull connection pin.
+     </td>
+     <td><img src="developer_info_33.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code">
+xschem search regex 1 model {fet_01v8} ;# select all instances that match "fet_01v8" model name
+set f {}
+foreach i [xschem selected_set] {
+  # Replace fet3 with fet in symbol reference
+  set newname [regsub {fet3} [xschem getprop instance $i cell::name] {fet}]
+  xschem replace_symbol $i $newname $f
+  # remove body attribute since it is now assigned to the bulk pin
+  xschem setprop instance $i body fast
+  set f fast ;# the f parameter is for optimzing (avoid pushing undo at each iteration)
+}
+xschem unselect_all
+xschem redraw
+     </td>
+     <td><img src="developer_info_34.png"></td></tr>
+ </table>
+
+
 
 
 
