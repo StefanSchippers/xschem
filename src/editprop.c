@@ -1307,7 +1307,7 @@ static int update_symbol(const char *result, int x, int first_sel)
   int pushed=0;
   int *ii = &xctx->edit_sym_i; /* static var */
   int *netl_com = &xctx->netlist_commands; /* static var */
-  int floaters, modified = 0;
+  int generator = 0,floaters, modified = 0;
 
   dbg(1, "update_symbol(): entering\n");
   *ii=xctx->sel_array[first_sel].n;
@@ -1329,13 +1329,14 @@ static int update_symbol(const char *result, int x, int first_sel)
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
   my_strncpy(symbol, (char *) tclgetvar("symbol") , S(symbol));
+  generator = is_generator(symbol);
   dbg(1, "update_symbol(): symbol=%s\n", symbol);
   no_change_props=atoi(tclgetvar("no_change_attrs") );
   only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
   copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
   /* if there are floaters or generators (dynamic symbols, pCells) do not collect
    * list of things to redraw, just redraw all screen */
-  floaters = there_are_floaters() || is_generator(symbol);
+  floaters = there_are_floaters() || generator;
   if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
   /* 20191227 necessary? --> Yes since a symbol copy has already been done
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
@@ -1452,6 +1453,9 @@ static int update_symbol(const char *result, int x, int first_sel)
     xctx->prep_hash_inst=0;
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
+    if(floaters) { /* we need to recalculate bbox of dynamic symbols (floaters/ generators) after prop changes */
+       symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
+    }
     if(!floaters) {
       find_inst_to_be_redrawn(1 + 4 + 32);  /* 32: call prepare_netlist_structs(0) */
       find_inst_to_be_redrawn(16); /* clear data */

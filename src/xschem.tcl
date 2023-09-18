@@ -2669,13 +2669,19 @@ proc setglob {dir} {
 }
 
 proc load_file_dialog_mkdir {dir} {
-  global myload_dir1
+  global myload_dir1 has_x
   if { $dir ne {} } {
-    file mkdir "${myload_dir1}/$dir"
+    if {[catch {file mkdir "${myload_dir1}/$dir"} err]} {
+      puts $err
+      if {$has_x} {
+        tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+      }
+    }
     setglob ${myload_dir1}
     myload_set_colors2
   }
 }
+
 proc load_file_dialog_up {dir} {
   global myload_dir1
   bind .load.l.paneright.draw <Expose> {}
@@ -3285,10 +3291,15 @@ proc make_symbol_lcc {name} {
 
 # create simulation dir 'simulation/' under current schematic directory
 proc simuldir {} {
-  global netlist_dir local_netlist_dir
+  global netlist_dir local_netlist_dir has_x
   if { $local_netlist_dir == 1 } {
     set simdir [xschem get current_dirname]/simulation
-    file mkdir $simdir
+    if {[catch {file mkdir "$simdir"} err]} {
+      puts $err
+      if {$has_x} {
+        tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+      } 
+    }
     set netlist_dir $simdir
     return $netlist_dir
   }
@@ -3308,11 +3319,17 @@ proc simuldir {} {
 # Return current netlist directory
 #
 proc set_netlist_dir { force {dir {} }} {
-  global netlist_dir env OS
+  global netlist_dir env OS has_x
 
   if { ( $force == 0 )  && ( $netlist_dir ne {} ) } {
     if {![file exist $netlist_dir]} {
-      file mkdir $netlist_dir
+      if {[catch {file mkdir "$netlist_dir"} err]} {
+        puts $err
+        if {$has_x} {
+          tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+        } 
+      }
+
     }
     regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
     return $netlist_dir
@@ -3336,7 +3353,13 @@ proc set_netlist_dir { force {dir {} }} {
 
   if {$new_dir ne {} } {
     if {![file exist $new_dir]} {
-      file mkdir $new_dir
+      if {[catch {file mkdir "$new_dir"} err]} {
+        puts $err
+        if {$has_x} {
+          tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+        } 
+      }
+
     }
     set netlist_dir $new_dir  
   }
@@ -4718,10 +4741,16 @@ proc fix_symbols {n} {
 
 # fetch a remote url into ${XSCHEM_TMP_DIR}/xschem_web
 proc download_url {url} {
-  global XSCHEM_TMP_DIR download_url_helper OS
+  global XSCHEM_TMP_DIR download_url_helper OS has_x
   # puts "download_url: $url"
   if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
-    file mkdir ${XSCHEM_TMP_DIR}/xschem_web
+    if {[catch {file mkdir "${XSCHEM_TMP_DIR}/xschem_web"} err]} {
+      puts $err
+      if {$has_x} {
+        tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+      } 
+    }
+
   }
   if {$OS eq "Windows"} {
     set cmd "cmd /c \"cd ${XSCHEM_TMP_DIR}/xschem_web & $download_url_helper $url\""
