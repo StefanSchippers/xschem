@@ -1948,7 +1948,6 @@ foreach i [xschem selected_set] { xschem setprop instance $i L 3}
 xschem unselect_all
      </td>
      <td><img src="developer_info_16.png"></td></tr>
-
 </table>
 
 
@@ -1977,7 +1976,6 @@ xschem setprop instance [lindex [xschem selected_set] 1] lab VPP
 
      </td>
      <td><img src="developer_info_18.png"></td></tr>
-
 </table>
 
 
@@ -2003,8 +2001,65 @@ xschem setprop instance Vvdd spice_ignore short
 
      </td>
      <td><img src="developer_info_20.png"></td></tr>
-
 </table>
+
+
+ <li> <h3>Move a selected portion of the schematic</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># After selecting some objects...
+     </td>
+     <td><img src="developer_info_21.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... We move them by some X / Y quantities.
+xschem move_objects 100 0
+     </td>
+     <td><img src="developer_info_22.png"></td></tr>
+</table>
+
+
+ <li> <h3>Rotate a selected portion of the schematic</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># After selecting some objects ...
+     </td>
+     <td><img src="developer_info_23.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... We rotate them clockwise around point 1100,-800 (shown with the red cross)
+xschem rotate 1100 -800
+     </td>
+     <td><img src="developer_info_24.png"></td></tr>
+</table>
+
+
+ <li> <h3>Flip a selected portion of the schematic</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># After selecting some objects as before ...
+# ... We flip them horizontally around point 1100,-800 (shown with the red cross)
+xschem flip 1100 -800
+     </td>
+     <td><img src="developer_info_25.png"></td></tr>
+</table>
+
+
+ <li> <h3>Rotate in place a selected portion of the schematic</h3><br></li>
+ <table style="width:95%;">
+ <tr><td width="60%">
+        <pre class="code"># After selecting some objects ...
+     </td>
+     <td><img src="developer_info_26.png"></td></tr>
+
+ <tr><td width="60%">
+        <pre class="code"># ... We rotate clockwise each object around their origins
+# the same command 'flip_in_place' is available for flipping horizontally.
+xschem rotate_in_place
+     </td>
+     <td><img src="developer_info_27.png"></td></tr>
+</table>
+
 
 
  </ul>
