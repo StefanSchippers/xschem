@@ -22,37 +22,42 @@ p{padding: 15px  30px 10px;}
   It is possible to insert a symbol by referencing a generator script instead of a <kbd>.sym</kbd> file.
   When inserting the symbol select the <kbd>All</kbd> checkbox to see all files , select the generator script,
   then in the File/Search textbox add two parenthesis <kbd>()</kbd> (or put required parameters in 
-  between, like <kbd>(buf)</kbd>)
- </p>
- <p class="important"> 
-  In recent xschem versions all generator scripts have an extension, so in following examples <kbd>schematicgen</kbd>
-  and <kbd>symbolgen</kbd> are renamed to <kbd>schematicgen.tcl</kbd> and <kbd>symbolgen.tcl</kbd> respectively.
-  The <kbd>.tcl</kbd> extension is used in this case since in my example generators are tcl scripts.
+  between, like <kbd>(buf,250)</kbd>). If you don't append the <kbd>()</kbd> xschem will do that for you.
  </p>
  <img src="symbol_generators01.png">
  <p>
-  The symbolgen generator in this example takes either a <kbd>(buf)</kbd> or a <kbd>(inv)</kbd> parameter
-  to generate a buffer or an inverter, respectively. If no parameters are given (empty parentheses) a buffer
-  is generated.<br>
+  The symbolgen.tcl generator in this example takes two parameters,  a <kbd>(buf)</kbd> or a <kbd>(inv)</kbd>
+   parameter to generate a buffer or an inverter, respectively, and a output resistance value (a number)
+  If no parameters are given (empty parentheses) a buffer is generated with a default ROUT.
+<br>
+ </p>
+
+ <img src="symbol_generators04.png">
+
+
+ <p>
   In this example a tcl script is used, you can use any language you like. The script only needs to parse
-  the parameters (if any) and output on standard output a regular xschem symbol file.
+  the parameters (if any) and outputs on standard output a regular xschem symbol file.
  </p>
  <pre class="code">
+
 #!/bin/sh
 # the next line restarts using wish \
 exec tclsh "$0" "$@"
 
 set arg1 [lindex $argv 0]
+set rout [lindex $argv 1]
+# puts stderr "arg1=|$arg1| $rout=|$rout|"
 if { $arg1 eq {inv}} {
-puts {v {xschem version=3.1.0 file_version=1.2}
+puts "v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 xvhdl_primitive=true
 xverilog_primitive=true
-xvhdl_format="@@y &lt; not @@a after 90 ps;"
-xverilog_format="assign #90 @@y = ~@@a ;"
-format="@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp"
-template="name=x1 wn=1u lln=2u wp=4u lp=2u"
-schematic=schematicgen(inv)}
+xvhdl_format=\"@@y &lt;= not @@a after 90 ps;\"
+xverilog_format=\"assign #90 @@y = ~@@a ;\"
+format=\"@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp\"
+template=\"name=x1 wn=1u lln=2u wp=4u lp=2u\"
+schematic=schematicgen.tcl(inv)}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}
 L 4 -20 -20 -20 20 {}
@@ -61,21 +66,21 @@ L 4 30 -0 40 -0 {}
 B 5 37.5 -2.5 42.5 2.5 {name=y dir=out }
 B 5 -42.5 -2.5 -37.5 2.5 {name=a dir=in }
 A 4 25 -0 5 180 360 {}
-T {@symname} -47.5 24 0 0 0.3 0.3 {}
+T {$arg1 $rout} -47.5 24 0 0 0.3 0.3 {}
 T {@name} 25 -22 0 0 0.2 0.2 {}
 T {y} 7.5 -6.5 0 1 0.2 0.2 {}
 T {a} -17.5 -6.5 0 0 0.2 0.2 {}
-}
+"
 } else {
-puts {v {xschem version=3.1.0 file_version=1.2}
+puts "v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 xvhdl_primitive=true
 xverilog_primitive=true
-xvhdl_format="@@y &lt; @@a after 90 ps;"
-xverilog_format="assign #90 @@y = @@a ;"
-format="@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp"
-template="name=x1 wn=1u lln=2u wp=4u lp=2u"
-schematic=schematicgen(buf)}
+xvhdl_format=\"@@y &lt;= @@a after 90 ps;\"
+xverilog_format=\"assign #90 @@y = @@a ;\"
+format=\"@name @pinlist @symname wn=@wn lln=@lln wp=@wp lp=@lp\"
+template=\"name=x1 wn=1u lln=2u wp=4u lp=2u\"
+schematic=schematicgen.tcl(buf)}
 L 4 20 0 40 0 {}
 L 4 -40 0 -20 0 {}
 L 4 -20 -20 20 0 {}
@@ -83,31 +88,38 @@ L 4 -20 -20 -20 20 {}
 L 4 -20 20 20 0 {}
 B 5 37.5 -2.5 42.5 2.5 {name=y dir=out }
 B 5 -42.5 -2.5 -37.5 2.5 {name=a dir=in }
-T {@symname} -47.5 24 0 0 0.3 0.3 {}
+T {$arg1 $rout} -47.5 24 0 0 0.3 0.3 {}
 T {@name} 25 -22 0 0 0.2 0.2 {}
 T {y} 7.5 -6.5 0 1 0.2 0.2 {}
 T {a} -17.5 -6.5 0 0 0.2 0.2 {}
+"
 }
-}
+
  </pre>
  <p>
-  The <kbd>generators/test_symbolgen.sch</kbd> is a test schematic that places two instancs of this
-  symbol generator, one as <kbd>symbolgen(buf)</kbd> and one as <kbd>symbolgen(inv)</kbd>.
+  The <kbd>generators/test_symbolgen.sch</kbd> is a test schematic that places two instances of this
+  symbol generator, one as <kbd>symbolgen.tcl(buf,@ROUT\)</kbd> and one as <kbd>symbolgen.tcl(inv,@ROUT\)</kbd>.
+  The <kbd>buf,@ROUT</kbd> indicates two parameters, one indicates if it is a buffer or an inverter, 
+  the second passes an additional parameter. Instead of using a numeric literal the instance
+  value ROUT is passed to the generator.
+  A backslash is needed before the closing parenthesis to avoid this parenthesis to be considered
+  as part of the parameter.
   The schematic implementations of these symbols are defined by the generator using a <kbd>schematic</kbd>
-  attribute. The buffer will use <kbd>schematicgen(buf)</kbd> and the inverter will
-  use <kbd>schematicgen(inv)</kbd>, these schematic names are referencing a schematic generator
-  script instead of regular schematic files. See next section about schematic generators.
+  attribute. The buffer will use <kbd>schematicgen.tcl(buf)</kbd> and the inverter will
+  use <kbd>schematicgen.tcl(inv)</kbd>, these schematic names are referencing a schematic generator
+  script instead of regular schematic files.
+  You see different schematics (see below picture) when descending the buf or inv generator.
+  See next section about schematic generators.
  </p>
  <img src="symbol_generators02.png">
  <p>
   The following is the extracted netlist from this example:
  </p>
  <pre class="code">
-
 ** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/test_symbolgen.sch
 **.subckt test_symbolgen
-x1 IN_INV IN symbolgen_inv wn=1u lln=2u wp=4u lp=2u
-x3 IN_BUF IN symbolgen_buf wn=1u lln=2u wp=4u lp=2u
+x1 IN_INV IN symbolgen_tcl_inv_1200 wn=1u lln=2u wp=4u lp=2u
+x3 IN_BUF IN symbolgen_tcl_buf_1200 wn=1u lln=2u wp=4u lp=2u
 C1 IN_BUF 0 100f m=1
 C2 IN_INV 0 100f m=1
 **** begin user architecture code
@@ -121,22 +133,26 @@ Vin in 0 pwl 0 0 100n 0 100.1n 3 200n 3 200.1n 0
   tran 1n 300n uic
   write test_symbolgen.raw
 .endc
+
+
+**** end user architecture code
 **.ends
 
-* expanding   symbol:  symbolgen(inv) # of pins=2
-** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen
-** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/schematicgen
-.subckt symbolgen_inv y a  wn=1u lln=2u wp=4u lp=2u
+* expanding   symbol:  symbolgen.tcl(inv,1200) # of pins=2
+** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen.tcl
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/schematicgen.tcl
+.subckt symbolgen_tcl_inv_1200 y a  wn=1u lln=2u wp=4u lp=2u
 *.opin y
 *.ipin a
 m2 y a VCC VCC cmosp w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
 m1 y a 0 0 cmosn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
 .ends
 
-* expanding   symbol:  symbolgen(buf) # of pins=2
-** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen
-** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/schematicgen
-.subckt symbolgen_buf y a  wn=1u lln=2u wp=4u lp=2u
+
+* expanding   symbol:  symbolgen.tcl(buf,1200) # of pins=2
+** sym_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/symbolgen.tcl
+** sch_path: /home/schippes/xschem-repo/trunk/xschem_library/generators/schematicgen.tcl
+.subckt symbolgen_tcl_buf_1200 y a  wn=1u lln=2u wp=4u lp=2u
 *.opin y
 *.ipin a
 m2 net1 a VCC VCC cmosp w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
@@ -144,22 +160,23 @@ m1 net1 a 0 0 cmosn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='w
 m3 y net1 VCC VCC cmosp w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
 m4 y net1 0 0 cmosn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
 .ends
-.GLOBAL VCC
+
 .end
+
  </pre>
  <p>
   This approach allows to create polymorphic symbols. Multiple parameters may be given to the generator script,
-  like <kbd>symbolgen(inv,hv,100)</kbd>. Xschem will call the symbolgen script with the following command:
-  <kbd>symbolgen inv hv 100</kbd> and take the standard output from the script as the symbol
+  like <kbd>symbolgen.tcl(inv,hv,100)</kbd>. Xschem will call the symbolgen.tcl script with the following command:
+  <kbd>symbolgen.tcl inv hv 100</kbd> and take the standard output from the script as the symbol
   file to load and display.
  </p>
  <h2> Schematic generators (pcells)</h2>
  <p>
   The same approach used for symbol generators can be used for schematic generators. If you add a 
-  <kbd>schematic=schematicgen(buf,4)</kbd> attribute to an instance
-  xschem will look for a script named <kbd>schematicgen</kbd> in the search paths and call
+  <kbd>schematic=schematicgen.tcl(buf,4)</kbd> attribute to an instance
+  xschem will look for a script named <kbd>schematicgeni.tcl</kbd> in the search paths and call
   it with the given parameters (that is, execute the command 
-  <kbd>schematicgen buf 4</kbd>) and read the produced output as a schematic file.
+  <kbd>schematicgen.tcl buf 4</kbd>) and read the produced output as a schematic file.
  </p>
  <img src="symbol_generators03.png">
  <br><br><br>
