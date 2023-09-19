@@ -575,8 +575,16 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
     These tokens may be placed as text in the symbol graphic window, not in format strings.
   </p>
   <li><kbd>@#pin_name:net_name</kbd></li>
+
   <li><kbd>@#n:net_name</kbd></li>
-  <p> these expand to the net name attached to pin with name <kbd>pin_name</kbd> or with sequence number <kbd>n</kbd>. </p>
+  <p> these expand to the net name attached to pin with name <kbd>pin_name</kbd> or with
+    sequence number <kbd>n</kbd>. </p>
+
+  <li><kbd>@#pin_name:resolved_net</kbd></li>
+  <li><kbd>@#n:resolved_net</kbd></li>
+  <p> these expand to the full hierarchy name of the net attached to pin with name <kbd>pin_name</kbd> or with 
+    sequence number <kbd>n</kbd>. </p>
+
   <li><kbd>@sch_last_modified</kbd></li>
   <p>
    this indicates the last modification time of the <kbd>.sch</kbd> file of the symbol.

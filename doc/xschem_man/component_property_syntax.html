@@ -250,6 +250,10 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <p> This will override at instance level the value of attribute <kbd>pinnumber</kbd> of <kbd>index</kbd>th pin of the symbol.
       This is mainly used for tedax, where by back annotation a connection to a symbol must be changed.
       This notation is faster since xschem does not have to find a pin by string matching.</p>
+
+  <li><kbd>pin_attr(name|index)</kbd></li>
+  <p> This is a general mechanism where at instance level a pin attribute may be overridden for netlisting. Example:<br>
+      <kbd> sig_type(OUT)=bit_vector</kbd> (set VHDL type of pin OUT to bit_vector).</p>
  </ul><br>
 
  <h3>TCL ATTRIBUTE SUBSTITUTION</h3>

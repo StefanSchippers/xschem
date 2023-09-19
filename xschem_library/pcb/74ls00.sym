@@ -1,7 +1,8 @@
-v {xschem version=2.9.8 file_version=1.2}
+v {xschem version=3.4.4 file_version=1.2
+}
 G {}
 K {type=nand
-format="@name @pinlist @value"
+format="@name @pinlist @power @ground @symname"
 verilog_format="nand #(@risedel , @falldel ) @name ( @#2 , @#0 , @#1 );"
 risedel=100
 falldel=200 

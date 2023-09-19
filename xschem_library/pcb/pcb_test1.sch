@@ -1,4 +1,5 @@
-v {xschem version=3.0.0 file_version=1.2 }
+v {xschem version=3.4.4 file_version=1.2
+}
 G {}
 K {}
 V {}
@@ -29,16 +30,20 @@ N 520 -460 760 -460 {lab=A}
 N 580 -420 760 -420 {lab=B}
 N 580 -420 580 -350 {lab=B}
 N 520 -350 580 -350 {lab=B}
-N 480 -460 520 -460 {}
+N 480 -460 520 -460 {
+lab=A}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan"}
 C {74ls00.sym} 420 -350 0 0 {name=U1:2  risedel=100 falldel=200}
 C {74ls00.sym} 870 -440 0 0 {name=U1:1  risedel=100 falldel=200}
 C {lab_pin.sym} 970 -440 0 1 {name=p0 lab=OUTPUT_Y}
 C {74ls00.sym} 420 -460 0 0 {name=U1:4 risedel=100 falldel=200
-url="http://www.engrcs.com/components/74LS00.pdf" 
-power=VCC5 
+url="http://www.engrcs.com/components/74LS00.pdf"
 
-___net:14=VCC5
+#="you can reroute implicit power pins in the following two ways:"
+__power=VCC5 
+__net:14=VCC5
+
+#="You can reassign pin attrinutes this way:"
 ___pinnumber(B)=111:222:333:444}
 C {7805.sym} 730 -190 0 0 {name=U0 
 spiceprefix=X
