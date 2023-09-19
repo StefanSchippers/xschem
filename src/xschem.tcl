@@ -2736,22 +2736,7 @@ proc myload_getresult {loadfile confirm_overwrt} {
         return {}
       } else { ;# $answer == 1
         if { $type eq {GENERATOR} } {
-          if {[regexp {\([^()]*\)$} $fname]} {
-
-            # regsub {[^()]+}
- 
-            return "$fname"
-          } else {
-            puts stderr {Attempting to load a generator file without giving parameters: generator(params,...)}
-            if {$has_x} {
-              tk_messageBox \
-               -message {Attempting to load a generator file without giving parameters: generator(params,...)} \
-                  -icon warning -parent [xschem get topwindow] -type ok
-            }
-
-            set myload_retval {}
-            return {}
-          }
+          return "${fname}"
         }
         # $type == 0 but $answer==1 so return selected filename
         return "$fname"

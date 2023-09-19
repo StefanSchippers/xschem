@@ -3046,6 +3046,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       remove_symbols();
       link_symbols_to_instances(-1);
+      xctx->prep_hi_structs=0;
+      xctx->prep_net_structs=0;
       Tcl_ResetResult(interp);
     }
 
