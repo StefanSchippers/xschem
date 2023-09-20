@@ -2330,17 +2330,20 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   xRect *rect;
   int rects;
 
-  if( strcmp(schname,"")) {
-    if(!xctx->sch[xctx->currsch] || strcmp(schname, xctx->sch[xctx->currsch])) {
-       my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
-    }
-  } else return 0;
+  if(!schname || !strcmp(schname, "")) return 0;
+
   dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx->currsch, schname);
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
   /* dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], "")); */
   my_strncpy(name, xctx->sch[xctx->currsch], S(name));
-  set_modify(-1);
-  if(!stat(name, &buf)) {
+
+  /* saving to a different filename */
+  if(!xctx->sch[xctx->currsch] || strcmp(schname, xctx->sch[xctx->currsch])) {
+     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
+     set_modify(-1); /* set title to new filename */
+  }
+  /* saving to same filename */
+  else if(!stat(name, &buf)) {
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
       tclvareval("ask_save \"Schematic file: ", name,
           "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
