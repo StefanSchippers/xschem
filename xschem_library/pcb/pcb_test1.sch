@@ -40,7 +40,7 @@ C {74ls00.sym} 420 -460 0 0 {name=U1:4 risedel=100 falldel=200
 url="http://www.engrcs.com/components/74LS00.pdf"
 
 #="you can reroute implicit power pins in the following two ways:"
-__power=VCC5 
+power=VCC5 
 __net:14=VCC5
 
 #="You can reassign pin attrinutes this way:"
