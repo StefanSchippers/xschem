@@ -3308,6 +3308,7 @@ const char *translate(int inst, const char* s)
  Lcc *lcc;
  char *value1 = NULL;
  int sim_is_xyce;
+ char *instname = xctx->inst[inst].instname ? xctx->inst[inst].instname : "";
 
  s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
@@ -3324,8 +3325,7 @@ const char *translate(int inst, const char* s)
  my_realloc(_ALLOC_ID_, &result,size);
  result[0]='\0';
 
- dbg(1, "translate(): substituting props in <%s>, instance <%s>\n",
-        s ? s : "NULL" , xctx->inst[inst].instname ? xctx->inst[inst].instname : "NULL");
+ dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "NULL" , instname);
 
  while(1)
  {
@@ -3351,9 +3351,9 @@ const char *translate(int inst, const char* s)
   {
    token[token_pos]='\0';
    if(!strcmp(token, "@name")) {
-     tmp = strlen(xctx->inst[inst].instname);
+     tmp = strlen(instname);
      STR_ALLOC(&result, tmp + result_pos, &size);
-     memcpy(result+result_pos,xctx->inst[inst].instname, tmp+1);
+     memcpy(result+result_pos, instname, tmp+1);
      result_pos+=tmp;
    } else if(strcmp(token,"@symname")==0) {
     tmp_sym_name = get_sym_name(inst, 0, 0);
@@ -3486,7 +3486,7 @@ const char *translate(int inst, const char* s)
            if(multip == 1) {
              char *rn;
              len = strlen(path) + strlen(net) + 1;
-             dbg(1, "translate() @spice_get_voltage: inst=%s\n", xctx->inst[inst].instname);
+             dbg(1, "translate() @spice_get_voltage: inst=%s\n", instname);
              dbg(1, "                                net=%s\n", net);
              /* 
               * fqnet = my_malloc(_ALLOC_ID_, len);
@@ -3549,10 +3549,10 @@ const char *translate(int inst, const char* s)
          expandlabel(net, &multip);
          if(n == 1 && multip == 1) {
            strtolower(net);
-           len = strlen(path) + strlen(xctx->inst[inst].instname) + strlen(net) + 2;
+           len = strlen(path) + strlen(instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(_ALLOC_ID_, len);
-           my_snprintf(fqnet, len, "%s%s.%s", path, xctx->inst[inst].instname, net);
+           my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
            strtolower(fqnet);
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
            idx = get_raw_index(fqnet);
@@ -3603,7 +3603,7 @@ const char *translate(int inst, const char* s)
          n = sscanf(token + 19, "%[^)]", dev);
          if(n == 1) {
            strtolower(dev);
-           len = strlen(path) + strlen(xctx->inst[inst].instname) +
+           len = strlen(path) + strlen(instname) +
                  strlen(dev) + 21; /* some extra chars for i(..) wrapper */
            dbg(1, "dev=%s\n", dev);
            fqdev = my_malloc(_ALLOC_ID_, len);
@@ -3614,12 +3614,12 @@ const char *translate(int inst, const char* s)
              else prefix=dev[0];
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
-             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, xctx->inst[inst].instname, dev);
+             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
              else if(prefix == 'd')
-               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, xctx->inst[inst].instname, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, xctx->inst[inst].instname, dev);
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, instname, dev);
+             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
            } else {
-             my_snprintf(fqdev, len, "i(%s%s.%s)", path, xctx->inst[inst].instname, dev);
+             my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
            }
            strtolower(fqdev);
            dbg(1, "fqdev=%s\n", fqdev);
@@ -3733,7 +3733,7 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            ++path;
          }
-         my_strdup2(_ALLOC_ID_, &dev, xctx->inst[inst].instname);
+         my_strdup2(_ALLOC_ID_, &dev, instname);
          strtolower(dev);
          len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
          dbg(1, "dev=%s\n", dev);
