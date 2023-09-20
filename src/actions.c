@@ -519,8 +519,6 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     dbg(1, "saveas(): res = %s\n", res);
     save_schematic(res);
     tclvareval("update_recent_file {", res,"}",  NULL);
-
-    my_strncpy(xctx->current_name, rel_sym_path(res), S(xctx->current_name));
     return;
 }
 

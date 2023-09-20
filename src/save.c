@@ -2325,34 +2325,35 @@ static void make_schematic(const char *schname)
 int save_schematic(const char *schname) /* 20171020 added return value */
 {
   FILE *fd;
-  char name[PATH_MAX]; /* overflow safe 20161122 */
   struct stat buf;
   xRect *rect;
   int rects;
 
   if(!schname || !strcmp(schname, "")) return 0;
 
-  dbg(1, "save_schematic(): currsch=%d name=%s\n",xctx->currsch, schname);
-  dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
-  /* dbg(1, "save_schematic(): abs_sym_path=%s\n", abs_sym_path(xctx->sch[xctx->currsch], "")); */
-  my_strncpy(name, xctx->sch[xctx->currsch], S(name));
+  dbg(1, "save_schematic(): currsch=%d schname=%s\n",xctx->currsch, schname);
+  dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch] ? xctx->sch[xctx->currsch] : "NULL");
 
-  /* saving to a different filename */
-  if(!xctx->sch[xctx->currsch] || strcmp(schname, xctx->sch[xctx->currsch])) {
-     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
-     set_modify(-1); /* set title to new filename */
+  if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
+    my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
+    set_modify(-1); /* set title to new filename */
   }
-  /* saving to same filename */
-  else if(!stat(name, &buf)) {
-    if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
-      tclvareval("ask_save \"Schematic file: ", name,
-          "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
-      if(strcmp(tclresult(), "yes") ) return 0;
+  else if(strcmp(schname, xctx->sch[xctx->currsch])) { /* user asks to save to a different filename */
+    my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
+    set_modify(-1); /* set title to new filename */
+  }
+  else { /* user asks to save to same filename */
+    if(!stat(xctx->sch[xctx->currsch], &buf)) {
+      if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+        tclvareval("ask_save \"Schematic file: ", xctx->sch[xctx->currsch],
+            "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
+        if(strcmp(tclresult(), "yes") ) return 0;
+      }
     }
   }
-  if(!(fd=fopen(name,"w")))
+  if(!(fd=fopen(schname,"w")))
   {
-    fprintf(errfp, "save_schematic(): problems opening file %s \n",name);
+    fprintf(errfp, "save_schematic(): problems opening file %s \n",schname);
     tcleval("alert_ {file opening for write failed!} {}");
     return 0;
   }
@@ -2363,10 +2364,10 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   write_xschem_file(fd);
   fclose(fd);
   /* update time stamp */
-  if(!stat(name, &buf)) {
+  if(!stat(schname, &buf)) {
     xctx->time_last_modify =  buf.st_mtime;
   }
-  my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
+  my_strncpy(xctx->current_name, rel_sym_path(schname), S(xctx->current_name));
   /* why clear all these? */
   /* 
    * xctx->prep_hi_structs=0;
