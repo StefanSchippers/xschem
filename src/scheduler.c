@@ -2026,7 +2026,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   open file or opening a new(not existing) file.
      *   'noundoreset': do not reset the undo history
      *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
-     *   'nofullzoom': do not do a fll zoom on new schematic.
+     *   'nofullzoom': do not do a full zoom on new schematic.
      */
     else if(!strcmp(argv[1], "load") )
     {
@@ -2067,10 +2067,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!undo_reset) xctx->push_undo();
             xctx->currsch = 0;
             remove_symbols();
-            xctx->zoom=CADINITIALZOOM;
-            xctx->mooz=1/CADINITIALZOOM;
-            xctx->xorigin=CADINITIALX;
-            xctx->yorigin=CADINITIALY;
+            if(!nofullzoom) {
+              xctx->zoom=CADINITIALZOOM;
+              xctx->mooz=1/CADINITIALZOOM;
+              xctx->xorigin=CADINITIALX;
+              xctx->yorigin=CADINITIALY;
+            }
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
             load_schematic(load_symbols, f, undo_reset, !force);
             tclvareval("update_recent_file {", f, "}", NULL);
