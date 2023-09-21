@@ -3308,16 +3308,16 @@ const char *translate(int inst, const char* s)
  Lcc *lcc;
  char *value1 = NULL;
  int sim_is_xyce;
- char *instname = xctx->inst[inst].instname ? xctx->inst[inst].instname : "";
+ char *instname = NULL;
 
  s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
- if(!s) {
+ if(!s || !xctx || !xctx->inst) {
    my_free(_ALLOC_ID_, &result);
    my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
-
+ instname = xctx->inst[inst].instname ? xctx->inst[inst].instname : "";
  sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
  level = xctx->currsch;
  lcc = xctx->hier_attr;
