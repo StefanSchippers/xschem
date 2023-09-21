@@ -114,6 +114,11 @@ extern char win_temp_dir[PATH_MAX];
 
 #if HAS_CAIRO==1
 #define DRAW_ALL_CAIRO 0 /* use cairo for all graphics. Work in progress! */
+
+/* Uncomment below #define if your graphic adapter shows garbage on screen or there are missing objects
+ * while doing edit/copy/move operations with xschem. */
+/* #define FIX_BROKEN_TILED_FILL 1 */
+
 #include <cairo.h>
 #include "cairo_jpg.h"
 #ifdef __unix__

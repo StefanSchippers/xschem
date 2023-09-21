@@ -1128,7 +1128,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
       break;
     }
     if(xctx->ui_state & STARTPAN)   pan(RUBBER, mx, my);
-    #ifndef __unix__
+    #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
@@ -2786,7 +2786,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        xctx->my_double_save=xctx->mousey_snap;
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
          unselect_all(1);
-#ifndef __unix__
+#if  defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
          MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
 #endif
