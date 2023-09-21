@@ -3253,7 +3253,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
   }
@@ -3819,7 +3819,7 @@ void draw(void)
     /* do_copy_area is zero only when doing png hardcopy to avoid video flickering */
     if(xctx->do_copy_area) {
       if(!xctx->draw_window && xctx->save_pixmap) {
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
       }
       #if !defined(__unix__) && HAS_CAIRO==1
