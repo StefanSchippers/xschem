@@ -2094,6 +2094,11 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           XFreeGC(display,xctx->gctiled);
         }
         if(create_pixmap) {
+          #if defined(FIX_BROKEN_TILED_FILL)
+          XGCValues gcv;
+          unsigned long gcvm;
+          #endif
+
           #ifdef __unix__
           xctx->save_pixmap = XCreatePixmap(display, xctx->window,
              xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
@@ -2101,9 +2106,18 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           xctx->save_pixmap = Tk_GetPixmap(display, xctx->window,
              xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
           #endif
+
+          #if defined(FIX_BROKEN_TILED_FILL)
+          gcv.function = GXnoop; /* disable all graphic operations with gctiled */
+          gcvm = GCFunction;
+          xctx->gctiled = XCreateGC(display,xctx->window, gcvm, &gcv); /* noop for gctiled */
+          XSetFillStyle(display,xctx->gctiled,FillSolid);
+          #else
           xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
           XSetTile(display,xctx->gctiled, xctx->save_pixmap);
           XSetFillStyle(display,xctx->gctiled,FillTiled);
+          #endif
+         
           /* whenever a pixmap is recreated all GC attributes must be reissued */
           resetcairo(1, 0, 1); /* create, clear, force */
           /* change_linewidth(-1.0); */
