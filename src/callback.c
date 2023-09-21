@@ -1132,7 +1132,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
         (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
         (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
-        (xctx->ui_state & STARTPOLYGON) || (xctx->ui_state & STARTPAN) ||
+        (xctx->ui_state & STARTPOLYGON) || /* (xctx->ui_state & STARTPAN) || */
         (xctx->ui_state & STARTSELECT)) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gctiled, xctx->xrect[0].x, xctx->xrect[0].y,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
