@@ -971,6 +971,8 @@ typedef struct {
   /* pan */
   double xpan,ypan,xpan2,ypan2;
   double p_xx1,p_xx2,p_yy1,p_yy2;
+  /* draw_crosshair */
+  double prev_crossx, prev_crossy;
   /* set_modify */
   int prev_set_modify;
   /* pan */
@@ -1270,6 +1272,7 @@ extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern int select_dangling_nets(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
+extern void draw_crosshair(int del);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);

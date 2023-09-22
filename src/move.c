@@ -195,9 +195,11 @@ void draw_selection(GC g, int interruptable)
 
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
   #if defined(FIX_BROKEN_TILED_FILL)
-  else
+  else {
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+  }
   #endif
   for(i=0;i<xctx->movelastsel; ++i)
   {

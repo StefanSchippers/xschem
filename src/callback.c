@@ -45,11 +45,15 @@ static int waves_selected(int event, KeySym key, int state, int button)
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10) ) {
        is_inside = 1;
+       draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
     }
   }
   if(!is_inside) {
-    tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
+    if(tclgetboolvar("draw_crosshair"))
+      tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+    else
+      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     if(xctx->graph_flags & 64) {
       tcleval("graph_show_measure stop");
     }
@@ -974,6 +978,50 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
+void draw_crosshair(int del)
+{
+  int sdw, sdp;
+
+
+  sdw = xctx->draw_window;
+  sdp = xctx->draw_pixmap;
+
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+
+  bbox(START,0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, X_TO_XSCHEM(xctx->areax1), xctx->prev_crossy - xctx->lw,
+            X_TO_XSCHEM(xctx->areax2),  xctx->prev_crossy + xctx->lw);
+  bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+     xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+  bbox(START,0.0, 0.0, 0.0, 0.0);
+  bbox(ADD,  xctx->prev_crossx - xctx->lw,  Y_TO_XSCHEM(xctx->areay1),
+             xctx->prev_crossx + xctx->lw,  Y_TO_XSCHEM(xctx->areay2));
+  bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+     xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+  draw_selection(xctx->gc[SELLAYER], 1);
+  drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
+       xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
+  drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
+       xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
+
+  if(!del) {
+    drawline(TEXTLAYER, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
+       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 2, NULL);
+    drawline(TEXTLAYER, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
+       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2), 2, NULL);
+  }
+  xctx->prev_crossx = xctx->mousex_snap;
+  xctx->prev_crossy = xctx->mousey_snap;
+
+  xctx->draw_window = sdw;
+  xctx->draw_pixmap = sdp;
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -992,7 +1040,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 #else
  XKeyboardState kbdstate;
 #endif
-
+int draw_xhair = tclgetboolvar("draw_crosshair");
 
 #ifndef __unix__
  if(cstate & 0x0001) { /* caps lock */
@@ -1073,6 +1121,10 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  switch(event)
  {
   case EnterNotify:
+    if(tclgetboolvar("draw_crosshair"))
+      tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+    else 
+      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s",
         user_conf_dir, ".selection.sch");
 
@@ -1123,6 +1175,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
     break;
 
   case MotionNotify:
+
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
@@ -1138,6 +1191,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     #endif
+    if(draw_xhair) draw_crosshair(0);
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
@@ -2795,7 +2849,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        xctx->my_double_save=xctx->mousey_snap;
        if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
          unselect_all(1);
-#if  defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
+#if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
          MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
 #endif
@@ -2854,6 +2908,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        /* 20150927 filter out button4 and button5 events */
        if(!(state&(Button4Mask|Button5Mask) ) ) select_rect(END,-1);
      }
+     if(draw_xhair) draw_crosshair(0);
      rebuild_selected_array();
      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );

@@ -605,6 +605,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->gridpoint=(XPoint*)my_calloc(_ALLOC_ID_, CADMAXGRIDPOINTS,sizeof(XPoint));
   xctx->enable_drill = 0;
   xctx->prev_set_modify = -1;
+  xctx->prev_crossx = xctx->prev_crossy = 0.0;
   xctx->pending_fullzoom = 0;
   my_strncpy(xctx->hiersep, ".", S(xctx->hiersep));
   xctx->no_undo = 0;

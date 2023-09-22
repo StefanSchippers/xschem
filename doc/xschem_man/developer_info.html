@@ -510,6 +510,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -846,7 +847,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    open file or opening a new(not existing) file.
    'noundoreset': do not reset the undo history
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
-   'nofullzoom': do not do a fll zoom on new schematic.</pre>
+   'nofullzoom': do not do a full zoom on new schematic.</pre>
    <li><kbd>       load_new_window [f]</kbd></li><pre>
    Load schematic in a new tab/window. If 'f' not given prompt user 
    if 'f' is given as empty '{}' then open untitled.sch </pre>
@@ -1269,10 +1270,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       wire [x1 y1 x2 y2] [pos] [prop] [sel]</kbd></li><pre>
    Place a new wire
    if no coordinates are given start a GUI wire placement </pre>
-   <li><kbd>       wire_cut [x y]</kbd></li><pre>
+   <li><kbd>       wire_cut [x y] [noalign]</kbd></li><pre>
    start a wire cut operation. Point the mouse in the middle of a wire and
-   click left button.
-   if x and y are given cut wire at given point </pre>
+   Alt-click right button.
+   if x and y are given cut wire at given point
+   if noalign is given and is set to 'noalign' do not align the cut point to closest snap point </pre>
    <li><kbd>       xcb_info</kbd></li><pre>
    For debug </pre>
    <li><kbd>       zoom_box [x1 y1 x2 y2] [factor]</kbd></li><pre>
@@ -1292,7 +1294,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

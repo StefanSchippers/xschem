@@ -5568,7 +5568,7 @@ set tctx::global_list {
   cadsnap cairo_font_name change_lw color_ps colors compare_sch connect_by_kissing constrained_move
   copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme
   delay_flag  dim_bg dim_value
-  disable_unique_names do_all_inst draw_grid draw_window edit_prop_pos edit_prop_size
+  disable_unique_names do_all_inst draw_crosshair draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_change_done graph_digital
   graph_linewidth_mult graph_logx
@@ -6726,6 +6726,7 @@ set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne connect_by_kissing 0
+set_ne draw_crosshair 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne persistent_command 0

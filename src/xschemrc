@@ -195,6 +195,12 @@
 #### disable some symbol layers. Default: none, all layers are visible.
 # set enable_layer(5) 0 ;# example to disable pin red boxes
 
+#### enable drawing the grid. Default: enabled (1)
+# set draw_grid 1
+
+#### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
+# set draw_crosshair 1
+
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 
