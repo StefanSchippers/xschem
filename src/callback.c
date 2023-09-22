@@ -22,6 +22,10 @@
 
 #include "xschem.h"
 
+/* allow to use the Windows keys as alternate for Alt */
+#define SET_MODMASK ( (state & Mod1Mask) || (state & Mod4Mask) ) 
+#define EQUAL_MODMASK ( (state == Mod1Mask) || (state == Mod4Mask) ) 
+
 static int waves_selected(int event, KeySym key, int state, int button)
 {
   int i;
@@ -30,7 +34,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   if(xctx->ui_state & excl) skip = 1;
   else if(sch_waves_loaded() < 0 ) skip = 1;
-  else if(key !='a' && (state & Mod1Mask)) skip = 1;
+  else if(key !='a' && SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
   else if(event == ButtonPress && button == Button2) skip = 1;
@@ -135,7 +139,7 @@ static void start_place_symbol(double mx, double my)
     xctx->mx_double_save = xctx->mousex_snap;
     xctx->my_double_save = xctx->mousey_snap;
     if(place_symbol(-1,NULL,xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/* to_push_undo */) ) {
-      xctx->mousey_snap = xctx->my_double_save;
+     xctx->mousey_snap = xctx->my_double_save;
       xctx->mousex_snap = xctx->mx_double_save;
       move_objects(START,0,0,0);
       xctx->ui_state |= PLACE_SYMBOL;
@@ -400,7 +404,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       /* backannotate node values at cursor b position */
-      else if(key == 'a' && state == Mod1Mask  && (xctx->graph_flags & 4)) {
+      else if(key == 'a' && EQUAL_MODMASK  && (xctx->graph_flags & 4)) {
         backannotate_at_cursor_b_pos(r, gr);
         if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
         redraw_all_at_end = 1;
@@ -1072,8 +1076,10 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 
  #if 0
  /* exclude Motion and Expose events */
- if(event!=6 /* && event!=12 */) dbg(0, "callback(): event=%d, winpath=%s, old_winpath=%s, semaphore=%d\n",
-                                      event, winpath, old_winpath, xctx->semaphore+1);
+ if(event!=6 /* && event!=12 */) {
+   dbg(0, "callback(): state=%d event=%d, winpath=%s, old_winpath=%s, semaphore=%d\n",
+           state, event, winpath, old_winpath, xctx->semaphore+1);
+ }
  #endif
  
  /* Schematic window context switch */
@@ -1119,6 +1125,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    statusmsg(str,1);
  }
 
+ dbg(0, "key=%c(%d) EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, key, SET_MODMASK, EQUAL_MODMASK);
  switch(event)
  {
   case EnterNotify:
@@ -1206,7 +1213,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     }
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
-      if( (state & Button1Mask)  && (state & Mod1Mask)) { /* 20171026 added unselect by area  */
+      if( (state & Button1Mask)  && SET_MODMASK) { /* 20171026 added unselect by area  */
           select_rect(RUBBER,0);
       } else if(state & Button1Mask) {
         select_rect(RUBBER,1);
@@ -1226,7 +1233,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     redraw_w_a_l_r_p_rubbers();
     /* start of a mouse area select */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN) && !(state & Mod1Mask) &&
+       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
       if(mx != xctx->mx_save || my != xctx->my_save) {
@@ -1244,7 +1251,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
         }
       }
     }
-    if((state & Button1Mask)  && (state & Mod1Mask) && !(state & ShiftMask) &&
+    if((state & Button1Mask)  && (SET_MODMASK) && !(state & ShiftMask) &&
        !(xctx->ui_state & STARTPAN) && 
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
@@ -1347,13 +1354,13 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      print_hilight_net(0);
      break;
    }
-   if(key == 'j'  && state==Mod1Mask)   /* create labels without i prefix from hilight nets */
+   if(key == 'j'  && EQUAL_MODMASK)   /* create labels without i prefix from hilight nets */
    {
      if(xctx->semaphore >= 2) break;
      print_hilight_net(4);
      break;
    }
-   if(key == 'J'  && state==(Mod1Mask | ShiftMask) ) /* create labels with i prefix from hilight nets */
+   if(key == 'J'  && SET_MODMASK && (state & ShiftMask) ) /* create labels with i prefix from hilight nets */
    {
      if(xctx->semaphore >= 2) break;
      print_hilight_net(2);
@@ -1367,7 +1374,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      xctx->semaphore = savesem;
      break;
    }
-   if(key == 'h'  && state==Mod1Mask)   /* create symbol pins from schematic pins 20171208 */
+   if(key == 'h'  && EQUAL_MODMASK)   /* create symbol pins from schematic pins 20171208 */
    {
      tcleval("schpins_to_sympins");
      break;
@@ -1422,7 +1429,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      }
      break;
    }
-   if(key == 'j'  && state == (ControlMask | Mod1Mask) )  /* print list of highlight net with label expansion */
+   if(key == 'j'  && SET_MODMASK && (state & ControlMask) )  /* print list of highlight net with label expansion */
    {
      print_hilight_net(3);
      break;
@@ -1548,7 +1555,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    {
     view_zoom(0.0); break;
    }
-   if(key=='p' && state == Mod1Mask)                           /* add symbol pin */
+   if(key=='p' && EQUAL_MODMASK)                           /* add symbol pin */
    {
     unselect_all(1);
     storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
@@ -1731,7 +1738,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      }
      break;
    }
-   if(key=='s' && state == (ControlMask | Mod1Mask) )           /* save as symbol */
+   if(key=='s' && SET_MODMASK && (state & ControlMask) )           /* save as symbol */
    {
      if(xctx->semaphore >= 2) break;
      saveas(NULL, SYMBOL);
@@ -1748,7 +1755,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     if(xctx->semaphore >= 2) break;
     descend_schematic(0);break;
    }
-   if(key=='e' && state == Mod1Mask)            /* edit schematic in new window */
+   if(key=='e' && EQUAL_MODMASK)            /* edit schematic in new window */
    {
     int save = xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
@@ -1756,7 +1763,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     xctx->semaphore = save;
     break;
    }
-   if(key=='i' && state == Mod1Mask)            /* edit symbol in new window */
+   if(key=='i' && EQUAL_MODMASK)            /* edit symbol in new window */
    {
     int save =  xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
@@ -1770,7 +1777,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     go_back(1);break;
    }
 
-   if(key=='a' && state == Mod1Mask)   /* graph annotate dc point @cursor2 */
+   if(key=='a' && EQUAL_MODMASK)   /* graph annotate dc point @cursor2 */
    {
     if(xctx->semaphore >= 2) break;
     if(waves_selected(event, key, state, button)) {
@@ -1820,7 +1827,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    {
      tcleval("swap_compare_schematics");
    }
-   if(key=='x' && state == Mod1Mask) /* compare schematics(must set first) */
+   if(key=='x' && EQUAL_MODMASK) /* compare schematics(must set first) */
    {
      unselect_all(0);
      if(tclgetboolvar("compare_sch")) {
@@ -1906,7 +1913,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     edit_property(0);
     break;
    }
-   if(key=='q' && state==Mod1Mask)                      /* edit .sch file (DANGER!!) */
+   if(key=='q' && EQUAL_MODMASK)                      /* edit .sch file (DANGER!!) */
    {
     if(xctx->semaphore >= 2) break;
     rebuild_selected_array();
@@ -1944,7 +1951,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 
     break;
    }
-   if(key=='s' && state & Mod1Mask)                     /* reload */
+   if(key=='s' && SET_MODMASK)                     /* reload */
    {
     if(xctx->semaphore >= 2) break;
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
@@ -1971,7 +1978,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     change_elem_order(-1);
     break;
    }
-   if(key=='k' && state==Mod1Mask)        /* select whole net (all attached wires/labels/pins) */
+   if(key=='k' && EQUAL_MODMASK)        /* select whole net (all attached wires/labels/pins) */
    {
      select_hilight_net();
      break;
@@ -2010,7 +2017,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     draw();
     break;
    }
-   if(key=='g' && state==Mod1Mask) { /* highlight net and send to viewer */
+   if(key=='g' && EQUAL_MODMASK) { /* highlight net and send to viewer */
      int tool = 0;
      int exists = 0;
      char *tool_name = NULL;
@@ -2063,7 +2070,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     set_snap(c_snap * 2.0);
     break;
    }
-   if(key=='*' && state==(Mod1Mask|ShiftMask) )         /* svg print , 20121108 */
+   if(key=='*' && SET_MODMASK && (state & ShiftMask) )         /* svg print , 20121108 */
    {
     if(xctx->semaphore >= 2) break;
     svg_draw();
@@ -2081,7 +2088,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     print_image();
     break;
    }
-   if(key=='u' && state==Mod1Mask)                      /* align to grid */
+   if(key=='u' && EQUAL_MODMASK)                      /* align to grid */
    {
     if(xctx->semaphore >= 2) break;
     xctx->push_undo();
@@ -2138,7 +2145,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      }
      break;
    }
-   if(key=='l' && state == Mod1Mask) {                         /* add pin label*/
+   if(key=='l' && EQUAL_MODMASK) {                         /* add pin label*/
      place_net_label(1);
      break;
    }
@@ -2148,7 +2155,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      else logic_set((int)key - '0', 1, NULL);
      break;
    }
-   if(key=='L' && state == (Mod1Mask | ShiftMask)) {                         /* add pin label*/
+   if(key=='L' && SET_MODMASK && (state & ShiftMask)) {                         /* add pin label*/
     place_net_label(0);
     break;
    }
@@ -2173,7 +2180,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     toggle_fullscreen(winpath);
     break;
    }
-   if(key=='f' && state==Mod1Mask)              /* flip objects around their anchor points 20171208 */
+   if(key=='f' && EQUAL_MODMASK)              /* flip objects around their anchor points 20171208 */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(FLIP|ROTATELOCAL,0,0,0);
     else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP|ROTATELOCAL);
@@ -2202,7 +2209,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 
     break;
    }
-   if(key=='r' && state==Mod1Mask)              /* rotate objects around their anchor points 20171208 */
+   if(key=='r' && EQUAL_MODMASK)              /* rotate objects around their anchor points 20171208 */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
     else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
@@ -2364,7 +2371,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
     break;
    }
-   if(key=='b' && state==Mod1Mask)                     /* hide/show instance details */
+   if(key=='b' && EQUAL_MODMASK)                     /* hide/show instance details */
    {
     if(xctx->semaphore >= 2) break;
     xctx->hide_symbols++;
@@ -2480,11 +2487,11 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel) select_connected_nets(1);
    }
-   else if(button == Button3 &&  state == Mod1Mask && xctx->semaphore <2)
+   else if(button == Button3 &&  EQUAL_MODMASK && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
    }
-   else if(button == Button3 &&  state == (ShiftMask | Mod1Mask) && xctx->semaphore <2)
+   else if(button == Button3 && SET_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }
@@ -2656,7 +2663,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
-   else if(button==Button1 && (state & Mod1Mask) ) {
+   else if(button==Button1 && (SET_MODMASK) ) {
      xctx->last_command = 0;
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
@@ -2848,7 +2855,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
-       if( !(state & ShiftMask) && !(state & Mod1Mask) ) {
+       if( !(state & ShiftMask) && !(SET_MODMASK) ) {
          unselect_all(1);
 #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
          MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
