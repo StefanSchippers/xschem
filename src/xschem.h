@@ -408,7 +408,8 @@ do { \
 
 #define SWAP(a,b, tmp) do { tmp = a; a = b; b = tmp; } while(0)
 
-#define INT_WIDTH(x) ( tclgetboolvar("change_lw") ? ( (int)(x) == 0 ? 1 : (int)(x) ) : (int)(x) ) 
+#define XLINEWIDTH(x) ( tclgetboolvar("change_lw") ? ( (int)(x) == 0 ? 1 : (int)(x) ) : (int)(x) ) 
+#define INT_WIDTH(x) ((int)(x) == 0 ? 1 : (int)(x))
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
 /* set do double if you need more precision at the expense of memory */
@@ -1303,6 +1304,8 @@ extern void draw_temp_symbol(int what, GC gc, int n,int layer,
 extern void draw_temp_string(GC gc,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 
+extern void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
+     double sx1, double sy1, double sx2, double sy2, double dx1, double dy1, double lw);
 extern void draw(void);
 extern void clip_xy_to_short(double x, double y, short *sx, short *sy);
 extern int clip( double*,double*,double*,double*);

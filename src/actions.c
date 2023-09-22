@@ -3377,8 +3377,13 @@ void select_rect(int what, int select)
     RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
 
     #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    /* 
+     * MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+     *     xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+     */
+
+     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+       xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2, xctx->nl_xr, xctx->nl_yr, xctx->lw);
     #else
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     #endif

@@ -406,6 +406,10 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  int tmp;
  double dtmp;
  if(!has_x) return;
+ #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+ if(gctext == xctx->gctiled) return;
+ #endif
+
  dbg(2, "draw_string(): string=%s\n",str);
  if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
      &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) return;
@@ -723,6 +727,10 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
+
+ #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+ if(gc == xctx->gctiled) return;
+ #endif
 
  if( (xctx->inst[n].flags & HIDE_INST) ||
      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
@@ -1086,13 +1094,13 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      dash_arr[0] = dash_arr[1] = (char) dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap)
     XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
    #if !defined(__unix__) && HAS_CAIRO==1
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
@@ -1120,7 +1128,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    #if !defined(__unix__) && HAS_CAIRO==1
    check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
    #endif
-   XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+   XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
  }
  else if((what & END) && i)
@@ -1153,6 +1161,10 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
+ #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+ if(gc == xctx->gctiled) return;
+ #endif
+
  if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1201,7 +1213,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
    XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
 
    XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
-   XSetLineAttributes (display, gc, INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+   XSetLineAttributes (display, gc, XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
  }
 
@@ -1226,6 +1238,10 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
 
  if(!has_x) return;
+ #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+ if(gc == xctx->gctiled) return;
+ #endif
+
  if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1434,7 +1450,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      char dash_arr[2];
      dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
    }
 
    if(xctx->draw_window) {
@@ -1457,7 +1473,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      }
    }
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
    }
   }
  }
@@ -1631,7 +1647,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = (char)dash;
     XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
   }
   if(xctx->draw_window) XDrawLines(display, xctx->window, xctx->gc[c], p, points, CoordModeOrigin);
   if(xctx->draw_pixmap)
@@ -1645,7 +1661,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     }
   }
   if(dash) {
-    XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
   my_free(_ALLOC_ID_, &p);
 }
@@ -1657,6 +1673,10 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   int i;
   short sx, sy;
   if(!has_x) return;
+  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+  if(g == xctx->gctiled) return;
+  #endif
+
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
   y1=Y_TO_SCREEN(y1);
@@ -1694,7 +1714,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    if(dash) {
      dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
    }
    if(xctx->draw_window) XDrawRectangle(display, xctx->window, xctx->gc[c], (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
@@ -1706,7 +1726,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
     (unsigned int)y2 - (unsigned int)y1);
    }
    if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], INT_WIDTH(xctx->lw) ,LineSolid, LINECAP, LINEJOIN);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP, LINEJOIN);
    }
   }
  }
@@ -1747,6 +1767,10 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
+ #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
+ if(gc == xctx->gctiled) return;
+ #endif
+
  if(what & NOW)
  {
   x1=X_TO_SCREEN(rectx1);
@@ -1974,11 +1998,11 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   if(what) {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(2.4 * gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+            XLINEWIDTH(2.4 * gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   } else {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
-            INT_WIDTH(gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+            XLINEWIDTH(gr->linewidth_mult * xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
 }
 
@@ -2120,7 +2144,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
 
   for(p=0;p<cadlayers; ++p) {
     XSetLineAttributes(display, xctx->gc[p], 
-       INT_WIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
 
   if(gr->logx) {
@@ -2171,7 +2195,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
     set_thick_waves(0, wcnt, wave_col, gr);
   }
   for(p=0;p<cadlayers; ++p) {
-    XSetLineAttributes(display, xctx->gc[p], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
 }
 #define MAX_POLY_POINTS 4096*16
@@ -2191,7 +2215,7 @@ static void draw_graph_points(int idx, int first, int last,
   dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
   for(p=0;p<cadlayers; ++p) {
     XSetLineAttributes(display, xctx->gc[p],
-      INT_WIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+      XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
   if(idx == -1) return;
   digital = gr->digital;
@@ -2241,7 +2265,7 @@ static void draw_graph_points(int idx, int first, int last,
     set_thick_waves(0, wcnt, wave_col, gr);
   } else dbg(1, "skipping wave: %s\n", xctx->graph_names[idx]);
   for(p=0;p<cadlayers; ++p) {
-    XSetLineAttributes(display, xctx->gc[p], INT_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
 }
 
@@ -3633,6 +3657,7 @@ void draw(void)
   const char *textfont;
   #endif
 
+  dbg(1, "draw()\n");
   if(!xctx || xctx->no_draw) return;
   #if HAS_CAIRO==1
   #ifndef __unix__
@@ -3853,15 +3878,47 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
      unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
+  dbg(1, "MyXCopyArea()\n");
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   #if HAS_CAIRO==1
   my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
   #endif
-  #elif (defined(__unix__)  && HAS_CAIRO==1) || DRAW_ALL_CAIRO==1
-  cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
-  cairo_paint(xctx->cairo_ctx);
+  /* 
+   * #elif (defined(__unix__)  && HAS_CAIRO==1) || DRAW_ALL_CAIRO==1
+   * cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
+   * cairo_paint(xctx->cairo_ctx);
+   */
   #else
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   #endif
 }
+
+void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
+     double sx1, double sy1, double sx2, double sy2,
+     double dx1, double dy1, double lw)
+{  
+  double isx1, isy1, isx2, isy2, idx1, idy1;
+  unsigned int width, height;
+
+  isx1=X_TO_SCREEN(sx1) - 2 * INT_WIDTH(lw);
+  isy1=Y_TO_SCREEN(sy1) - 2 * INT_WIDTH(lw);
+  isx2=X_TO_SCREEN(sx2) + 2 * INT_WIDTH(lw);
+  isy2=Y_TO_SCREEN(sy2) + 2 * INT_WIDTH(lw);
+
+  idx1=X_TO_SCREEN(dx1) - 2 * INT_WIDTH(lw);
+  idy1=Y_TO_SCREEN(dy1) - 2 * INT_WIDTH(lw);
+  
+  width = (unsigned int)isx2 - (unsigned int)isx1;
+  height = (unsigned int)isy2 - (unsigned int)isy1;
+
+  #if !defined(__unix__)
+  XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
+  #if HAS_CAIRO==1
+  my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
+  #endif
+  #else
+  XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
+  #endif
+}
+

@@ -819,7 +819,7 @@ void unselect_all(int dr)
  #if HAS_CAIRO==1
  int customfont;
  #endif
-    dbg(2, "unselect_all(1): start\n");
+    dbg(1, "unselect_all(1): start\n");
     xctx->ui_state = 0;
     xctx->lastsel = 0;
 
@@ -925,11 +925,12 @@ void unselect_all(int dr)
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
     #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
-    if(xctx->save_pixmap && xctx->window) 
+    if(xctx->save_pixmap && xctx->window) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
           xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+      if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+    }
     #endif  
-
     dbg(2, "unselect_all(1): done\n");
 }
 

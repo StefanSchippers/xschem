@@ -193,6 +193,7 @@ void draw_selection(GC g, int interruptable)
   int customfont;
   #endif
 
+  dbg(1,"draw_selection\n");
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
   #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
   else {
