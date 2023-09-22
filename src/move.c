@@ -1059,6 +1059,7 @@ void copy_objects(int what)
     xctx->rotatelocal=0;
   } /* if(what & END) */
   draw_selection(xctx->gc[SELLAYER], 0);
+  if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
 }
 
 
@@ -1593,4 +1594,5 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->rotatelocal=0;
  }
  draw_selection(xctx->gc[SELLAYER], 0);
+ if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
 }
