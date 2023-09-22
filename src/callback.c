@@ -985,28 +985,35 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 void draw_crosshair(int del)
 {
   int sdw, sdp;
+  int bbox_set = xctx->bbox_set;
 
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-
+  
   #if defined(FIX_BROKEN_TILED_FILL)
-  bbox(START,0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, X_TO_XSCHEM(xctx->areax1), xctx->prev_crossy - xctx->lw,
-            X_TO_XSCHEM(xctx->areax2),  xctx->prev_crossy + xctx->lw);
-  bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  if(!bbox_set) {
+    bbox(START,0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, X_TO_XSCHEM(xctx->areax1), xctx->prev_crossy - xctx->lw,
+              X_TO_XSCHEM(xctx->areax2),  xctx->prev_crossy + xctx->lw);
+    bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  }
   MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
      xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-  bbox(END, 0.0, 0.0, 0.0, 0.0);
-  bbox(START,0.0, 0.0, 0.0, 0.0);
-  bbox(ADD,  xctx->prev_crossx - xctx->lw,  Y_TO_XSCHEM(xctx->areay1),
-             xctx->prev_crossx + xctx->lw,  Y_TO_XSCHEM(xctx->areay2));
-  bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  if(!bbox_set) {
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+    bbox(START,0.0, 0.0, 0.0, 0.0);
+    bbox(ADD,  xctx->prev_crossx - xctx->lw,  Y_TO_XSCHEM(xctx->areay1),
+               xctx->prev_crossx + xctx->lw,  Y_TO_XSCHEM(xctx->areay2));
+    bbox(SET, 0.0, 0.0, 0.0, 0.0);
+  }
   MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
      xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-  bbox(END, 0.0, 0.0, 0.0, 0.0);
+  if(!bbox_set) {
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  }
   draw_selection(xctx->gc[SELLAYER], 1);
   #endif
   drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
@@ -2857,10 +2864,6 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
        xctx->my_double_save=xctx->mousey_snap;
        if( !(state & ShiftMask) && !(SET_MODMASK) ) {
          unselect_all(1);
-#if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
-         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-           xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-#endif
        }
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();

@@ -198,7 +198,7 @@ void draw_selection(GC g, int interruptable)
   else {
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-    if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+     if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
   }
   #endif
   for(i=0;i<xctx->movelastsel; ++i)
@@ -668,6 +668,11 @@ void copy_objects(int what)
   {
    char *str = NULL; /* 20161122 overflow safe */
    draw_selection(xctx->gctiled,0);
+   #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
+   MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+       xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+   #endif  
+
    xctx->move_rot = xctx->move_flip = 0;
    xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
@@ -1100,6 +1105,12 @@ void move_objects(int what, int merge, double dx, double dy)
     if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
   }
   draw_selection(xctx->gctiled,0);
+  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
+  if(xctx->save_pixmap && xctx->window)
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+  #endif  
+
   xctx->move_rot=xctx->move_flip=0;
   xctx->deltax=xctx->deltay=0.;
   xctx->ui_state &= ~STARTMOVE;
