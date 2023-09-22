@@ -1011,9 +1011,9 @@ void draw_crosshair(int del)
 
   if(!del) {
     drawline(TEXTLAYER, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
-       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 2, NULL);
+       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
     drawline(TEXTLAYER, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
-       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2), 2, NULL);
+       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2), 3, NULL);
   }
   xctx->prev_crossx = xctx->mousex_snap;
   xctx->prev_crossy = xctx->mousey_snap;
