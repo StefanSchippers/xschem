@@ -15,17 +15,17 @@
 #### XSCHEM SYSTEM-WIDE DESIGN LIBRARY PATHS: XSCHEM_LIBRARY_PATH
 ###########################################################################
 #### If unset xschem starts with XSCHEM_LIBRARY_PATH set to the default, typically:
-#### /home/schippes/.xschem/xschem_library
-#### /home/schippes/share/xschem/xschem_library/devices
-#### /home/schippes/share/doc/xschem/examples
-#### /home/schippes/share/doc/xschem/ngspice
-#### /home/schippes/share/doc/xschem/logic
-#### /home/schippes/share/doc/xschem/xschem_simulator
-#### /home/schippes/share/doc/xschem/generators
-#### /home/schippes/share/doc/xschem/inst_sch_select
-#### /home/schippes/share/doc/xschem/binto7seg
-#### /home/schippes/share/doc/xschem/pcb
-#### /home/schippes/share/doc/xschem/rom8k
+#### <install_root>/.xschem/xschem_library
+#### <install_root>/share/xschem/xschem_library/devices
+#### <install_root>/share/doc/xschem/examples
+#### <install_root>/share/doc/xschem/ngspice
+#### <install_root>/share/doc/xschem/logic
+#### <install_root>/share/doc/xschem/xschem_simulator
+#### <install_root>/share/doc/xschem/generators
+#### <install_root>/share/doc/xschem/inst_sch_select
+#### <install_root>/share/doc/xschem/binto7seg
+#### <install_root>/share/doc/xschem/pcb
+#### <install_root>/share/doc/xschem/rom8k
 
 #### For testing in build src directory
 #### if unset following paths are set and maintained if existing:
@@ -48,13 +48,14 @@
 # append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/examples
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/ngspice
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xschem_simulator
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/logic
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xschem_simulator
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/generators
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/inst_sch_select
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/binto7seg
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
+#### Optional, often not needed...
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/symgen
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xTAG
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rulz-r8c33
@@ -66,13 +67,13 @@
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/ngspice"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/generators"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/inst_sch_select"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 
 ###########################################################################
 #### SET CUSTOM COLORS FOR XSCHEM LIBRARIES MATCHING CERTAIN PATTERNS
