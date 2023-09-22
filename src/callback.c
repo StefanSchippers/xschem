@@ -985,7 +985,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 void draw_crosshair(int del)
 {
   int sdw, sdp;
+  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
   int bbox_set = xctx->bbox_set;
+  #endif
 
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
