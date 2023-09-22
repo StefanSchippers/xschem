@@ -138,7 +138,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
  char name[1024]; /* overflow safe 20161122 */
  int cmd_found = 1;
  char *not_avail = "Not available in this context. If using --tcl consider using --command";
-
+ 
  Tcl_ResetResult(interp);
  if(argc < 2) {
    Tcl_SetResult(interp, "Missing arguments.", TCL_STATIC);
@@ -999,6 +999,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           break;
           case 'g':
           if(!strcmp(argv[2], "graph_lastsel")) { /* number of last graph that was clicked */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->graph_lastsel),TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "gridlayer")) { /* layer number for grid */
@@ -1011,6 +1012,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else Tcl_SetResult(interp, "0",TCL_STATIC);
           }
           else if(!strcmp(argv[2], "header_text")) { /* header metadata (license info etc) present in schematic */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(xctx && xctx->header_text) {
               Tcl_SetResult(interp, xctx->header_text, TCL_VOLATILE);
             } else {
@@ -1026,15 +1028,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_SetResult(interp, "", TCL_STATIC);
           }
           else if(!strcmp(argv[2], "instances")) { /* number of instances in schematic */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->instances), TCL_VOLATILE);
           }
           break;
           case 'l':
           if(!strcmp(argv[2], "lastsel")) { /* number of selected objects */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             rebuild_selected_array();
             Tcl_SetResult(interp, my_itoa(xctx->lastsel),TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "line_width")) { /* get line width */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, dtoa(xctx->lw), TCL_VOLATILE);
           }
           break;
@@ -1042,6 +1047,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[2], "netlist_name")) { /* netlist name if set. If 'fallback' given get default name */
             if(argc > 3 &&  !strcmp(argv[3], "fallback")) {
               char f[PATH_MAX];
+              if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
               if(xctx->netlist_type == CAD_SPICE_NETLIST) {
                 my_snprintf(f, S(f), "%s.spice", get_cell(xctx->current_name, 0));
               }
@@ -1067,6 +1073,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
           else if(!strcmp(argv[2], "netlist_type")) { /* get current netlist type (spice/vhdl/verilog/tedax) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(xctx->netlist_type == CAD_SPICE_NETLIST) {
               Tcl_SetResult(interp, "spice", TCL_STATIC);
             }
@@ -1087,12 +1094,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
           else if(!strcmp(argv[2], "no_draw")) { /* disable drawing */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(xctx->no_draw != 0 )
               Tcl_SetResult(interp, "1",TCL_STATIC);
             else
               Tcl_SetResult(interp, "0",TCL_STATIC);
           }
           else if(!strcmp(argv[2], "ntabs")) { /* get number of additional tabs (0 = only one tab) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
           }
           break;
@@ -1103,6 +1112,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           break;
           case 'r':
           if(!strcmp(argv[2], "rectcolor")) { /* current layer number */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->rectcolor),TCL_VOLATILE);
           }
           break;
@@ -1111,12 +1121,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             Tcl_SetResult(interp, my_itoa(SELLAYER),TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "semaphore")) { /* used for debug */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->semaphore),TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "schname")) /* get full path of current sch. if 'n' given get sch of level 'n' */
           {
             int x;
             /* allows to retrieve name of n-th parent schematic */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(argc > 3) x = atoi(argv[3]);
             else x = xctx->currsch;
             if(x < 0 ) x = xctx->currsch + x;
@@ -1127,6 +1139,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "sch_path")) /* get hierarchy path. if 'n' given get hierpath of level 'n' */
           {
             int x;
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(argc > 3) x = atoi(argv[3]);
             else x = xctx->currsch;
             if(x < 0 ) x = xctx->currsch + x;
@@ -1136,6 +1149,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "sch_to_compare")) /* if set return schematic current design is compared with */
           {
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, xctx->sch_to_compare, TCL_VOLATILE);
           }
           break;
@@ -1185,11 +1199,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* top_path="" for main window, ".x1", ".x2", ... for additional windows.
            * always "" in tabbed interface */
           else if(!strcmp(argv[2], "top_path")) { /* get top hier path of current window (always "" for tabbed if) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, xctx->top_path, TCL_VOLATILE);
           }
           /* same as above but main window returned as "." */
           else if(!strcmp(argv[2], "topwindow")) { /* same as top_path but main window returned as "." */
             char *top_path;
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             top_path =  xctx->top_path[0] ? xctx->top_path : ".";
             Tcl_SetResult(interp, top_path,TCL_VOLATILE);
           }
@@ -1203,12 +1219,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[2], "wirelayer")) { /* layer used for wires */
             Tcl_SetResult(interp, my_itoa(WIRELAYER), TCL_VOLATILE);
           } else if(!strcmp(argv[2], "wires")) { /* number of wires */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->wires), TCL_VOLATILE);
           }
           break;
           case 'x':
           if(!strcmp(argv[2], "xorigin")) { /* x coordinate of origin */
             char s[128];
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(s, S(s), "%.16g", xctx->xorigin);
             Tcl_SetResult(interp, s,TCL_VOLATILE);
           }
@@ -1216,6 +1234,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           case 'y':
           if(!strcmp(argv[2], "yorigin")) { /* y coordinate of origin */
             char s[128];
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(s, S(s), "%.16g", xctx->yorigin);
             Tcl_SetResult(interp, s,TCL_VOLATILE);
           }
@@ -1223,6 +1242,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           case 'z':
           if(!strcmp(argv[2], "zoom")) { /* zoom level */
             char s[128];
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(s, S(s), "%.16g", xctx->zoom);
             Tcl_SetResult(interp, s,TCL_VOLATILE);
           }
@@ -1301,6 +1321,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "getprop"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && (!strcmp(argv[2], "instance") || !strcmp(argv[2], "instance_notcl"))) {
         int i;
         int with_quotes = 0;
@@ -1425,6 +1446,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *s=NULL;
       int t;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       if(argc == 5) t = atoi(argv[4]);
       else t = 0;
@@ -1438,6 +1460,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if returned value is 0 it means that last searched attribute did not exist */
     else if(!strcmp(argv[1], "get_tok_size") )
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_SetResult(interp, my_itoa((int)xctx->tok_size), TCL_VOLATILE);
     }
 
@@ -1445,7 +1468,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Return various global variables used in the program */
     else if(!strcmp(argv[1], "globals"))
     {
-      static char res[8192];
+      static char res[8192]; 
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       my_snprintf(res, S(res), "*******global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
       
@@ -1541,6 +1565,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Go up one level (pop) in hierarchy */
     else if(!strcmp(argv[1], "go_back"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       go_back(1);
       Tcl_ResetResult(interp);
     }
@@ -1591,6 +1616,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if 'file' is not given show a fileselector dialog box */
     else if(!strcmp(argv[1], "hier_psprint"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         my_strncpy(xctx->plotfile, argv[2], S(xctx->plotfile));
       }
@@ -1604,6 +1630,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   (elements that have the 'propag' attribute on pins ) */
     else if(!strcmp(argv[1], "hilight"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->enable_drill = 0;
       if(argc >=3 && !strcmp(argv[2], "drill")) xctx->enable_drill = 1;
       hilight_net(0);
@@ -1615,6 +1642,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   'inst' can be an instance name or number */
     else if(!strcmp(argv[1], "hilight_instname"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int inst;
         char *type;
@@ -1652,6 +1680,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "hilight_netname"))
     {
       int ret = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         ret = hilight_netname(argv[2]);
       }
@@ -1670,6 +1699,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   It is used only for efficiency reasons if placing multiple instances */
     if(!strcmp(argv[1], "instance"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc==7) {
        /*           pos sym_name      x                y             rot       */
         place_symbol(-1, argv[2], atof(argv[3]), atof(argv[4]), (short)atoi(argv[5]), 
@@ -1695,7 +1725,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char s[200];
-
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem instance_bbox: instance not found", TCL_STATIC);
@@ -1730,7 +1760,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       double x0,y0;
       int n, i;
       int user_inst = -1;
-
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         i = get_instance(argv[2]);
         if(i < 0) {
@@ -1765,6 +1795,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char *s = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 0; i < xctx->instances; ++i) {
         const char *name = xctx->inst[i].name ? xctx->inst[i].name : "";
         char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
@@ -1784,6 +1815,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* xschem instance_net inst pin */
       int no_of_pins, i, p, multip;
       const char *str_ptr=NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 4) {
         Tcl_SetResult(interp, "xschem instance_net needs 2 additional arguments", TCL_STATIC);
         return TCL_ERROR;
@@ -1818,6 +1850,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* xschem instance_nodemap [instance_name] */
       int p, no_of_pins;
       int inst = -1, first=1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       prepare_netlist_structs(0);
       if(argc > 2) {
         inst = get_instance(argv[2]);
@@ -1858,6 +1891,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *pin;
       char *ss;
       char *tmpstr = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {
         Tcl_SetResult(interp,
           "xschem instance_pin_coord requires an instance, a pin attribute and a value", TCL_STATIC);
@@ -1902,6 +1936,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char *pins = NULL;
       int p, i, no_of_pins;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         prepare_netlist_structs(0);
         if((i = get_instance(argv[2])) < 0 ) {
@@ -1927,6 +1962,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char s[30];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         i = get_instance(argv[2]);
         my_snprintf(s, S(s), "%d", i);
@@ -1947,6 +1983,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       double pinx0, piny0;
       char *pins = NULL;
       int p, i, no_of_pins;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       prepare_netlist_structs(0);
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem instances_to_net requires a net name argument", TCL_STATIC);
@@ -1996,6 +2033,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       double x1,y1,x2,y2;
       int pos, save;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 5) {
         x1=atof(argv[2]);
         y1=atof(argv[3]);
@@ -2035,6 +2073,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "list_hierarchy"))
     {
       char *res = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       hier_psprint(&res, 2);
       Tcl_SetResult(interp, res, TCL_VOLATILE);
@@ -2046,6 +2085,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "list_hilights"))
     {
       const char *sep;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         sep = argv[2];
       } else {
@@ -2081,6 +2121,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0;
       size_t i;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
         for(i = 3; i < argc; ++i) {
           if(!strcmp(argv[i], "symbol")) load_symbols = 0;
@@ -2148,6 +2189,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char f[PATH_MAX + 100];
       int cancel = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
@@ -2198,6 +2240,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "logic_get_net"))
     {
       static char s[2]="X";
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       if(argc > 2) {
         Hilight_hashentry  *entry;
@@ -2238,6 +2281,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "logic_set_net"))
     {
       int num =  1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 4 ) num = atoi(argv[4]);
       if(argc > 3) {
         int n = atoi(argv[3]);
@@ -2260,6 +2304,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "logic_set"))
     {
       int num =  1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 ) num = atoi(argv[3]);
       if(argc > 2) {
         int n = atoi(argv[2]);
@@ -2275,6 +2320,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Make a schematic from selected symbol */
     if(!strcmp(argv[1], "make_sch")) /* make schematic from selected symbol 20171004 */
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       create_sch_from_sym();
       Tcl_ResetResult(interp);
     }
@@ -2284,6 +2330,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   also ask if a symbol (.sym) file needs to be created */
     else if(!strcmp(argv[1], "make_sch_from_sel"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       make_schematic_symbol_from_sel();
       Tcl_ResetResult(interp);
     }
@@ -2294,6 +2341,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   to deduce symbol interface pins. */
     else if(!strcmp(argv[1], "make_symbol"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(has_x) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
                         "-message {do you want to make symbol view ?}");
       if(!has_x || strcmp(tclresult(), "ok")==0) {
@@ -2308,6 +2356,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "merge"))
     {
       char f[PATH_MAX + 100];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 3) {
         merge_file(0, "");  /* 2nd param not used for merge 25122002 */
       }
@@ -2327,6 +2376,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "move_instance"))
     {
       int undo = 1, dr = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 7) {
         int i;
         for(i = 7; i < argc; i++) {
@@ -2372,6 +2422,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int nparam = 0;
       int kissing= 0;
       int stretch = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int i;
         for(i = 2; i < argc; i++) {
@@ -2431,6 +2482,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char save[PATH_MAX];
       const char *fname = NULL;
       const char *path;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
       my_strncpy(save, tclgetvar("netlist_dir"), S(save));
@@ -2484,6 +2536,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'f' is given load specified schematic. */
     else if(!strcmp(argv[1], "new_process"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         char f[PATH_MAX + 100];
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
@@ -2513,6 +2566,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int r = -1;
       char s[20];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
 
         if(argc == 3) r = new_schematic(argv[2], NULL, NULL);
@@ -2535,6 +2589,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * dim schematic to better show highlights */
     if(!strcmp(argv[1], "only_probes"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->only_probes = !xctx->only_probes;
       tclsetboolvar("only_probes", xctx->only_probes);
       toggle_only_probes();
@@ -2546,6 +2601,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   A dash ('-') given for x or y will keep existing value */
     else if(!strcmp(argv[1], "origin"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
         if(strcmp(argv[2], "-")) xctx->xorigin = atof(argv[2]);
         if(strcmp(argv[3], "-")) xctx->yorigin = atof(argv[3]);
@@ -2590,6 +2646,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Paste clipboard. If 'x y' not given user should complete placement in the GUI */
     else if(!strcmp(argv[1], "paste"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
         merge_file(10, ".sch"); /* set bit 3 to avoid doing move_objects(RUBBER,...) */
         xctx->deltax = atof(argv[2]);
@@ -2616,6 +2673,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "pinlist"))
     {
       int i, p, no_of_pins, first = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem pinlist: instance not found", TCL_STATIC);
@@ -2646,6 +2704,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "place_symbol"))
     {
       int ret;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->semaphore++;
       rebuild_selected_array();
       if(xctx->lastsel && xctx->sel_array[0].type==ELEMENT) {
@@ -2678,6 +2737,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Start a GUI placement of a text object */
     else if(!strcmp(argv[1], "place_text"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->semaphore++;
       xctx->last_command = 0;
       unselect_all(1);
@@ -2697,6 +2757,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Start a GUI placement of a polygon */
     else if(!strcmp(argv[1], "polygon"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->ui_state |= MENUSTARTPOLYGON;
     }
 
@@ -2705,6 +2766,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "preview_window"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc == 3) preview_window(argv[2], "{}", "{}");
       else if(argc == 4) preview_window(argv[2], argv[3], "{}");
       else if(argc == 5) {
@@ -2731,6 +2793,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "print") )
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem print needs at least 1 more arguments: plot_type", TCL_STATIC);
         return TCL_ERROR;
@@ -2827,6 +2890,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   of created objects */
     else if(!strcmp(argv[1], "print_hilight_net"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         print_hilight_net(atoi(argv[2]));
       }
@@ -2836,6 +2900,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Print spice raw netlist line for instance (number or name) 'inst' */
     else if(!strcmp(argv[1], "print_spice_element") )
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int inst;
         if((inst = get_instance(argv[2])) < 0 ) {
@@ -2852,6 +2917,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "propagate_hilights"))
     {
       int set = 1, clear = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
          set = atoi(argv[2]);
          clear = atoi(argv[3]);
@@ -2863,6 +2929,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Push current state on undo stack */
     else if(!strcmp(argv[1], "push_undo"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->push_undo();
       Tcl_ResetResult(interp);
     }
@@ -2873,6 +2940,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Delete loaded simulation raw file */
     if(!strcmp(argv[1], "raw_clear"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       tclsetvar("rawfile_loaded", "0");
       free_rawfile(1);
       Tcl_ResetResult(interp);
@@ -2895,6 +2963,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "raw_query"))
     {
       int i;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       if(argc > 2 && !strcmp(argv[2], "loaded")) {
         Tcl_SetResult(interp, my_itoa(sch_waves_loaded()), TCL_VOLATILE);
@@ -2970,6 +3039,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       char f[PATH_MAX + 100];
       int res = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
         tclsetvar("rawfile_loaded", "0");
@@ -2997,6 +3067,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If sim not given read first section found */
     else if(!strcmp(argv[1], "raw_read_from_attr"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
       } else {
@@ -3018,6 +3089,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int err = 0;
       int n = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) n = atoi(argv[2]);
       xctx->prep_hash_inst=0;
       xctx->prep_hash_wires=0;
@@ -3031,6 +3103,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Rebuild selection list*/
     else if(!strcmp(argv[1], "rebuild_selection"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       rebuild_selected_array();
     }
 
@@ -3043,6 +3116,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       double x1,y1,x2,y2;
       int pos, save;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 5) {
         x1=atof(argv[2]);
         y1=atof(argv[3]);
@@ -3064,6 +3138,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Redo last undone action */
     else if(!strcmp(argv[1], "redo"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->pop_undo(1, 1); /* 2nd param: set_modify_status */
       Tcl_ResetResult(interp);
     }
@@ -3072,6 +3147,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   redraw window */
     else if(!strcmp(argv[1], "redraw"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       draw();
       Tcl_ResetResult(interp);
     }
@@ -3080,6 +3156,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Forced (be careful!) Reload current schematic from disk */
     else if(!strcmp(argv[1], "reload"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       unselect_all(1);
       remove_symbols();
       load_schematic(1, xctx->sch[xctx->currsch], 1, 1);
@@ -3095,6 +3172,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Reload all used symbols from disk */
     else if(!strcmp(argv[1], "reload_symbols"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       remove_symbols();
       link_symbols_to_instances(-1);
       xctx->prep_hi_structs=0;
@@ -3106,6 +3184,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Internal command: remove all symbol definitions */
     else if(!strcmp(argv[1], "remove_symbols"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       remove_symbols();
       Tcl_ResetResult(interp);
     }
@@ -3120,6 +3199,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "replace_symbol"))
     {
       int inst, fast = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 4) {
         argc = 4;
         if(!strcmp(argv[4], "fast")) {
@@ -3195,6 +3275,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "reset_symbol"))
     {
       int inst;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc!=4) {
         Tcl_SetResult(interp, "xschem reset_symbol needs 2 additional arguments", TCL_STATIC);
         return TCL_ERROR;
@@ -3212,6 +3293,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Reset cached instance and symbol cached flags (inst->flags, sym->flags) */
     else if(!strcmp(argv[1], "reset_flags"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       reset_flags();
       Tcl_ResetResult(interp);
     }
@@ -3224,6 +3306,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       const char *net = NULL;
       char  *rn = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       prepare_netlist_structs(0);
       if(argc > 2) {
@@ -3256,6 +3339,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       double x0 = xctx->mousex_snap;
       double y0 = xctx->mousey_snap;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
         x0 = atof(argv[2]);
         y0 = atof(argv[3]);
@@ -3275,6 +3359,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Rotate selected objects around their 0,0 coordinate point */
     else if(!strcmp(argv[1], "rotate_in_place"))
     {   
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) {
         rebuild_selected_array();
         move_objects(START,0,0,0);
@@ -3291,6 +3376,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Save schematic if modified. Does not ask confirmation! */
     if(!strcmp(argv[1], "save"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       dbg(1, "scheduler(): saving: current schematic\n");
       if(!strcmp(xctx->sch[xctx->currsch], "")) {   /* check if unnamed schematic, use saveas in this case... */
         saveas(NULL, SCHEMATIC);
@@ -3313,6 +3399,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       const char *fptr;
       char f[PATH_MAX + 100];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
       if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
@@ -3342,6 +3429,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i, first = 1;
       char *dir = NULL;
       const char *lab;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 0; i < xctx->instances; ++i) {
         if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "ipin") ) dir="in";
         else if( !strcmp((xctx->inst[i].ptr + xctx->sym)->type, "opin") ) dir="out";
@@ -3366,6 +3454,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
       int new_process = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
       schematic_in_new_window(new_process);
       Tcl_ResetResult(interp);
@@ -3399,6 +3488,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* xschem search regex|exact 0|1|-1   tok val [match_case] */
       int select, r;
       int match_case = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 6 && argv[6][0] == '0') match_case = 0;
       if(argc < 6) {
         Tcl_SetResult(interp, "xschem search requires 4 or 5 additional fields.", TCL_STATIC);
@@ -3432,6 +3522,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       short unsigned int  sel = SELECTED;
       int fast = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem select: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
@@ -3527,6 +3618,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Selects all objects in schematic */
     else if(!strcmp(argv[1], "select_all"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       select_all();
       Tcl_ResetResult(interp);
     }
@@ -3535,7 +3627,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Select all nets/labels that are dangling, ie not attached to any non pin/port/probe components
      *   Returns number of selected items (wires,labels) if danglings found, 0 otherwise */
     else if(!strcmp(argv[1], "select_dangling_nets"))  
-    {       
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       select_dangling_nets();
       Tcl_SetResult(interp, my_itoa(xctx->lastsel), TCL_VOLATILE);
     }       
@@ -3544,6 +3637,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Select all highlight objects (wires, labels, pins, instances) */
     else if(!strcmp(argv[1], "select_hilight_net"))  
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       select_hilight_net();
       Tcl_ResetResult(interp);
     }
@@ -3553,6 +3647,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "selected_set"))
     {
       int n, i, first = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == ELEMENT) {
@@ -3569,6 +3664,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "selected_wire"))
     {
       int n, i, first = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
         if(xctx->sel_array[n].type == WIRE) {
@@ -3589,6 +3685,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int exists = 0;
       char *viewer_name = NULL;
       char tcl_str[200];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       tcleval("info exists sim");
       if(tclresult()[0] == '1') exists = 1;
       xctx->enable_drill = 0;
@@ -3615,9 +3712,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 3) {
         if(argv[2][0] < 'n') {
           if(!strcmp(argv[2], "cadgrid")) { /* set cad grid (default: 20) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             set_grid( atof(argv[3]) );
           }
           else if(!strcmp(argv[2], "cadsnap")) { /* set mouse snap (default: 10) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             set_snap( atof(argv[3]) );
           }
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
@@ -3627,6 +3726,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             constrained_move = atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "draw_window")) { /* set drawing to window (1 or 0) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->draw_window=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "format")) { /* set name of custom format attribute used for netlisting */
@@ -3634,23 +3734,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strdup(_ALLOC_ID_, &xctx->format, argv[3]);
           }
           else if(!strcmp(argv[2], "header_text")) { /* set header metadata (used for license info) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(!xctx->header_text || strcmp(xctx->header_text, argv[3])) {
               set_modify(1); xctx->push_undo();
               my_strdup2(_ALLOC_ID_, &xctx->header_text, argv[3]);
             } 
           }
           else if(!strcmp(argv[2], "hide_symbols")) { /* set to 0,1,2 for various hiding level of symbols */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->hide_symbols=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "infowindow_text")) { /* ERC messages */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
           }
         } else { /* argv[2][0] >= 'n' */
           if(!strcmp(argv[2], "netlist_name")) { /* set custom netlist name */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strncpy(xctx->netlist_name, argv[3], S(xctx->netlist_name));
           }
           else if(!strcmp(argv[2], "netlist_type")) /* set netlisting mode (spice, verilog, vhdl, tedax, symbol) */
           {
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(!strcmp(argv[3], "spice")){
               xctx->netlist_type=CAD_SPICE_NETLIST;
             }
@@ -3673,13 +3778,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "no_draw")) { /* set no drawing flag (0 or 1) */
             int s = atoi(argv[3]);
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->no_draw=s;
           }
           else if(!strcmp(argv[2], "no_undo")) { /* set to 1 to disable undo */
             int s = atoi(argv[3]);
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->no_undo=s;
           }
           else if(!strcmp(argv[2], "rectcolor")) { /* set current layer (0, 1, .... , cadlayers-1) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->rectcolor=atoi(argv[3]);
             if(xctx->rectcolor < 0 ) xctx->rectcolor = 0;
             if(xctx->rectcolor >= cadlayers ) xctx->rectcolor = cadlayers - 1;
@@ -3689,20 +3797,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
           else if(!strcmp(argv[2], "sch_to_compare")) { /* st name of schematic to compare current window with */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strncpy(xctx->sch_to_compare, abs_sym_path(argv[3], ""), S(xctx->sch_to_compare));
           }
           else if(!strcmp(argv[2], "text_svg")) { /* set to 1 to use svg <text> elements */
             text_svg=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "semaphore")) { /* debug */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             dbg(1, "scheduler(): set semaphore to %s\n", argv[3]);
             xctx->semaphore=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "show_hidden_texts")) { /* set to 1 to enable showing texts with attr hide=true */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             dbg(1, "scheduler(): set show_hidden_texts to %s\n", argv[3]);
             xctx->show_hidden_texts=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "sym_txt")) { /* set to 0 to hide symbol texts */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->sym_txt=atoi(argv[3]);
           }
           else {
@@ -3718,6 +3830,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "set_different_tok") )
     {
       char *s = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       my_strdup(_ALLOC_ID_, &s, argv[2]);
       set_different_token(&s, argv[3], argv[4]);
@@ -3729,6 +3842,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Force modify status on current schematic */
     else if(!strcmp(argv[1], "set_modify"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         set_modify(atoi(argv[2]));
       }
@@ -3763,6 +3877,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "setprop"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
     /*   0       1       2     3    4     5    6
      * xschem setprop instance R4 value [30k] [fast] */
       if(argc > 2 && !strcmp(argv[2], "instance")) {
@@ -4006,6 +4121,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   ( set sim(spice,1,fg) 0 ) */
     else if(!strcmp(argv[1], "simulate") )
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(set_netlist_dir(0, NULL) ) {
         if(argc > 2) tclvareval("simulate ", argv[2], NULL);
         else tcleval("simulate");
@@ -4018,6 +4134,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   wire to closest pin/net endpoint) */
     else if(!strcmp(argv[1], "snap_wire"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->ui_state |= MENUSTARTSNAPWIRE;
     }
 
@@ -4041,6 +4158,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "subst_tok"))
     {
       char *s=NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
@@ -4054,6 +4172,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "symbol_in_new_window"))
     {
       int new_process = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
       symbol_in_new_window(new_process);
       Tcl_ResetResult(interp);
@@ -4068,6 +4187,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "switch"))
     {
       int r;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) r = new_schematic("switch", argv[2], NULL);
       Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
     }
@@ -4079,6 +4199,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i;
       char n[100];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         i = get_symbol(argv[2]);
         Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);
@@ -4097,6 +4218,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i;
       Xschem_ctx *ctx, **save_xctx = get_save_xctx();
       int found = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
         ctx = save_xctx[i];
         /* if only one schematic it is not yet saved in save_xctx */
@@ -4141,6 +4263,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "table_read"))
     {
       char f[PATH_MAX + 100];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         free_rawfile(1);
         tclsetvar("rawfile_loaded", "0");
@@ -4177,6 +4300,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "toggle_colorscheme"))
     {
       int d_c;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       d_c = tclgetboolvar("dark_colorscheme");
       d_c = !d_c;
       tclsetboolvar("dark_colorscheme", d_c);
@@ -4194,6 +4318,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int i, n, first = 1, remove = 0;
       char *attr;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(xctx->netlist_type == CAD_VERILOG_NETLIST) attr="verilog_ignore";
       else if(xctx->netlist_type == CAD_VHDL_NETLIST) attr="vhdl_ignore";
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST) attr="tedax_ignore";
@@ -4248,6 +4373,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     the voltage is 1.8 */
     else if(!strcmp(argv[1], "translate") )
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc>3) {
         int i;
         char *s = NULL;
@@ -4266,6 +4392,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Remove operlapping wires, join lines, trim wires at intersections */
     else if(!strcmp(argv[1], "trim_wires"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->push_undo();
       trim_wires();
       draw();
@@ -4279,6 +4406,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "undo"))
     {
       int redo = 0, set_modify = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         redo = atoi(argv[2]);
       }
@@ -4294,6 +4422,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "undo_type"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         dbg(1, "xschem undo_type %s\n", argv[2]);
         if(!strcmp(argv[2], "disk")) {
@@ -4324,6 +4453,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Clear all highlights */
     else if(!strcmp(argv[1], "unhilight_all"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       xctx->enable_drill=0;
       clear_all_hilights();
       /* undraw_hilight_net(1); */
@@ -4335,6 +4465,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Unhighlight selected nets/pins */
     else if(!strcmp(argv[1], "unhilight"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       unhilight_net();
     }
 
@@ -4342,6 +4473,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Unselect everything */
     else if(!strcmp(argv[1], "unselect_all"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) unselect_all(atoi(argv[2]));
       else unselect_all(1);
       Tcl_ResetResult(interp);
@@ -4352,6 +4484,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "update_all_sym_bboxes"))
     {
       int i;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 0; i < xctx->texts; i++)
       if(xctx->text[i].flags & TEXT_FLOATER) {
         my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
@@ -4370,6 +4503,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if multiple selection show the first element (in xschem  array order) */
     if(!strcmp(argv[1], "view_prop"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       edit_property(2);
       Tcl_ResetResult(interp);
     }
@@ -4381,6 +4515,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          this is usually an error and difficult to grasp visually */
     if(!strcmp(argv[1], "warning_overlapped_symbols"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         warning_overlapped_symbols(atoi(argv[2]));
       } else {
@@ -4399,6 +4534,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   return 4 coordinates of wire[n] */
     else if(!strcmp(argv[1], "wire_coord"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         char *r = NULL;
         int n = atoi(argv[2]);
@@ -4420,6 +4556,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       double x1,y1,x2,y2;
       int pos = -1, save, sel = 0;
       const char *prop=NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 5) {
         x1=atof(argv[2]);
         y1=atof(argv[3]);
@@ -4451,7 +4588,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "wire_cut"))
     { 
       int i, align = 1;
-
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; i++) {
         if(!strcmp(argv[i], "noalign")) align = 0;
       }
@@ -4485,6 +4622,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "zoom_box"))
     {
       double x1, y1, x2, y2, factor;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       dbg(1, "scheduler(): xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]);
       if(argc==6 || argc == 7) {
         x1 = atof(argv[2]);
@@ -4515,6 +4653,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int draw = 1;
       double shrink = 0.97;
       char * endptr;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "center")) flags  |= 2;
         else if(!strcmp(argv[i], "nodraw")) draw = 0;
@@ -4533,6 +4672,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom to highlighted objects */
     else if(!strcmp(argv[1], "zoom_hilighted"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       zoom_full(1, 2, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       Tcl_ResetResult(interp);
     }
@@ -4541,6 +4681,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom in drawing */
     else if(!strcmp(argv[1], "zoom_in"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       view_zoom(0.0);
       Tcl_ResetResult(interp);
     }
@@ -4549,6 +4690,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom out drawing */
     else if(!strcmp(argv[1], "zoom_out"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       view_unzoom(0.0);
       Tcl_ResetResult(interp);
     }
@@ -4557,6 +4699,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Zoom to selection */
     else if(!strcmp(argv[1], "zoom_selected"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       zoom_full(1, 1, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
       Tcl_ResetResult(interp);
     }
