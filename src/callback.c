@@ -1016,8 +1016,8 @@ void draw_crosshair(int del)
   if(!bbox_set) {
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
-  draw_selection(xctx->gc[SELLAYER], 1);
   #endif
+  draw_selection(xctx->gc[SELLAYER], 0);
   drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
        xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
   drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
@@ -1208,7 +1208,9 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
     }
     #endif
-    if(draw_xhair) draw_crosshair(0);
+    if(draw_xhair) {
+      draw_crosshair(0);
+    }
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
