@@ -4393,16 +4393,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else xctx->ui_state |= MENUSTARTWIRE;
     }
-    /* wire_cut [x y]
+    /* wire_cut [x y] [noalign]
      *   start a wire cut operation. Point the mouse in the middle of a wire and
-     *   click left button.
-     *   if x and y are given cut wire at given point */
+     *   Alt-click right button.
+     *   if x and y are given cut wire at given point
+     *   if noalign is given and is set to 'noalign' do not align the cut point to closest snap point */
     else if(!strcmp(argv[1], "wire_cut"))
-    {
+    { 
+      int i, align = 1;
+
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "noalign")) align = 0;
+      }
       if(argc > 3) {
-        break_wires_at_point(atof(argv[2]), atof(argv[3]));
+        break_wires_at_point(atof(argv[2]), atof(argv[3]), align);
       } else {
-        xctx->ui_state |= MENUSTARTWIRECUT;
+        if(align) xctx->ui_state |= MENUSTARTWIRECUT;
+        else xctx->ui_state |= MENUSTARTWIRECUT2;
       }
       Tcl_ResetResult(interp);
     }

@@ -2427,7 +2427,11 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
    }
    else if(button == Button3 &&  state == Mod1Mask && xctx->semaphore <2)
    {
-     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap);
+     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
+   }
+   else if(button == Button3 &&  state == (ShiftMask | Mod1Mask) && xctx->semaphore <2)
+   {
+     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
@@ -2637,8 +2641,13 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
        break;
      }
      if(xctx->ui_state & MENUSTARTWIRECUT) {
-       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap);
+       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
        xctx->ui_state &=~MENUSTARTWIRECUT;
+       break;
+     }
+     if(xctx->ui_state & MENUSTARTWIRECUT2) {
+       break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
+       xctx->ui_state &=~MENUSTARTWIRECUT2;
        break;
      }
      if(xctx->ui_state & MENUSTARTMOVE) {

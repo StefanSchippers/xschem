@@ -235,6 +235,7 @@ extern char win_temp_dir[PATH_MAX];
 #define GRAPHPAN 16777216U /* bit 24 */
 #define MENUSTARTMOVE 33554432U
 #define MENUSTARTWIRECUT 67108864U /* bit 26 */
+#define MENUSTARTWIRECUT2 134217728U /* bit 27 : do not align cut point to snap */
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
 #define SELECTED2 4U        /*  second point selected... */
@@ -1313,7 +1314,7 @@ extern int rectclip(int,int,int,int,
            double*,double*,double*,double*);
 extern void trim_wires(void);
 extern void update_conn_cues(int layer, int draw_cues, int dr_win);
-extern void break_wires_at_point(double x0, double y0);
+extern void break_wires_at_point(double x0, double y0, int align);
 extern void break_wires_at_pins(int remove);
 
 extern void check_touch(int i, int j,
