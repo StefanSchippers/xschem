@@ -982,13 +982,13 @@ void draw_crosshair(int del)
 {
   int sdw, sdp;
 
-
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
 
+  #if defined(FIX_BROKEN_TILED_FILL)
   bbox(START,0.0, 0.0, 0.0, 0.0);
   bbox(ADD, X_TO_XSCHEM(xctx->areax1), xctx->prev_crossy - xctx->lw,
             X_TO_XSCHEM(xctx->areax2),  xctx->prev_crossy + xctx->lw);
@@ -1004,6 +1004,7 @@ void draw_crosshair(int del)
      xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
   bbox(END, 0.0, 0.0, 0.0, 0.0);
   draw_selection(xctx->gc[SELLAYER], 1);
+  #endif
   drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
        xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
   drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
