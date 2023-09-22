@@ -993,7 +993,7 @@ void draw_crosshair(int del)
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   
-  #if defined(FIX_BROKEN_TILED_FILL)
+  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
   if(!bbox_set) {
     bbox(START,0.0, 0.0, 0.0, 0.0);
     bbox(ADD, X_TO_XSCHEM(xctx->areax1), xctx->prev_crossy - xctx->lw,

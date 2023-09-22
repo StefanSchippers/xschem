@@ -2095,7 +2095,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           XFreeGC(display,xctx->gctiled);
         }
         if(create_pixmap) {
-          #if defined(FIX_BROKEN_TILED_FILL)
+          #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
           XGCValues gcv;
           unsigned long gcvm;
           #endif
@@ -2108,7 +2108,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
              xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
           #endif
 
-          #if defined(FIX_BROKEN_TILED_FILL)
+          #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
           gcv.function = GXnoop; /* disable all graphic operations with gctiled */
           gcvm = GCFunction;
           xctx->gctiled = XCreateGC(display,xctx->window, gcvm, &gcv); /* noop for gctiled */
