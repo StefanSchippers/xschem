@@ -349,6 +349,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CLIP(x,a,b) (((x) < (a)) ? (a) : ((x) > (b)) ? (b) : (x))
 
 #define MINOR(a,b) ( (a) <= (b) ? (a) : (b) )
+#define MAJOR(a,b) ( (a) >= (b) ? (a) : (b) )
 
 /* "show_label" type symbols are used for any type of symbol that
  * must be automatically highlighted by attached nets 
