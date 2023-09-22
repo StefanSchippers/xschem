@@ -425,8 +425,7 @@ static int closest_point_calculation(double x1, double y1, double x2, double y2,
     else if(sq_distance <  sq_cs) ret = 1;
   }
 
-  dbg(0, "x3 = %g y3=%g dist=%g ret=%d\n", x3, y3, sqrt(sq_distance), ret);
-  if(touch(x1, y1, x2, y2, x3, y3)) dbg(0, "touches\n");
+  dbg(1, "x3 = %g y3=%g dist=%g ret=%d\n", x3, y3, sqrt(sq_distance), ret);
   if(ret == 1) {
     *x0 = my_round(x3 / cs) * cs;
     *y0 = my_round(y3 / cs) * cs;
