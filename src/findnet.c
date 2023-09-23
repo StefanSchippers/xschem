@@ -250,7 +250,7 @@ static void find_closest_box(double mx,double my)
  }
 }
 
-static void find_closest_element(double mx,double my)
+static void find_closest_element(double mx,double my, int override_lock)
 {
  double tmp;
  int i,r=-1;
@@ -268,7 +268,7 @@ static void find_closest_element(double mx,double my)
     dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n",i,tmp);
   }
  } /* end for i */
- if( r!=-1 &&  strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true") ) {
+ if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true")) ) {
    sel.n = r; sel.type = ELEMENT;
  }
 }
@@ -312,7 +312,7 @@ static void find_closest_text(double mx,double my)
  }
 }
 
-Selected find_closest_obj(double mx,double my)
+Selected find_closest_obj(double mx,double my, int override_lock)
 {
  sel.n = 0L; sel.col = 0; sel.type = 0;
  distance = DBL_MAX;
@@ -324,7 +324,7 @@ Selected find_closest_obj(double mx,double my)
  /* dbg(1, "2 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_text(mx,my);
  find_closest_net(mx,my);
- find_closest_element(mx,my);
+ find_closest_element(mx,my, override_lock);
  return sel;    /*sel.type = 0 if nothing found */
 }
 

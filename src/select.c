@@ -1201,7 +1201,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
 unsigned short select_object(double mx,double my, unsigned short select_mode, int override_lock)
 {
    Selected sel;
-   sel = find_closest_obj(mx, my);
+   sel = find_closest_obj(mx, my, override_lock);
 
    dbg(1, "select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type);
 
@@ -1359,121 +1359,127 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_element(i,SELECTED,1, 1): select_element(i,0,1, 0);
+   if(sel) {
+     if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
+       select_element(i, SELECTED, 1, 1);
+     }
+   } else {
+     select_element(i, 0, 1, 0);
+   }
   }
  }
  for(c=0;c<cadlayers; ++c)
  {
-  if(!xctx->enable_layer[c]) continue;
-  for(i=0;i<xctx->polygons[c]; ++i) {
-    int k, selected_points, flag;
-
-    polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
-    if(OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
-    selected_points = 0;
-    flag=0;
-    for(k=0; k<xctx->poly[c][i].points; ++k) {
-      if(xctx->poly[c][i].sel==SELECTED) xctx->poly[c][i].selected_point[k] = 1;
-      if( POINTINSIDE(xctx->poly[c][i].x[k],xctx->poly[c][i].y[k], x1,y1,x2,y2)) {
-        flag=1;
-        xctx->poly[c][i].selected_point[k] = (short)sel;
-      }
-      if(xctx->poly[c][i].selected_point[k]) selected_points++;
+   if(!xctx->enable_layer[c]) continue;
+   for(i=0;i<xctx->polygons[c]; ++i) {
+     int k, selected_points, flag;
+ 
+     polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
+     if(OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
+     selected_points = 0;
+     flag=0;
+     for(k=0; k<xctx->poly[c][i].points; ++k) {
+       if(xctx->poly[c][i].sel==SELECTED) xctx->poly[c][i].selected_point[k] = 1;
+       if( POINTINSIDE(xctx->poly[c][i].x[k],xctx->poly[c][i].y[k], x1,y1,x2,y2)) {
+         flag=1;
+         xctx->poly[c][i].selected_point[k] = (short)sel;
+       }
+       if(xctx->poly[c][i].selected_point[k]) selected_points++;
+     }
+     if(flag) {
+       if(selected_points==0) {
+         select_polygon(c, i, 0, 1);
+       }
+       if(selected_points==xctx->poly[c][i].points) {
+         xctx->ui_state |= SELECTION;
+         select_polygon(c, i, SELECTED, 1);
+       } else if(selected_points) {
+         /* for polygon, SELECTED1 means partial sel */
+         if(sel && en_s) select_polygon(c, i, SELECTED1,1);
+       }
+     }
+ 
+   }
+   for(i=0;i<xctx->lines[c]; ++i)
+   {
+    if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
+    {
+     xctx->ui_state |= SELECTION;
+     sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
     }
-    if(flag) {
-      if(selected_points==0) {
-        select_polygon(c, i, 0, 1);
-      }
-      if(selected_points==xctx->poly[c][i].points) {
-        xctx->ui_state |= SELECTION;
-        select_polygon(c, i, SELECTED, 1);
-      } else if(selected_points) {
-        /* for polygon, SELECTED1 means partial sel */
-        if(sel && en_s) select_polygon(c, i, SELECTED1,1);
-      }
+    else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1, x1,y1,x2,y2) )
+    {
+     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+     select_line(c, i,SELECTED1,1);
     }
-
-  }
-  for(i=0;i<xctx->lines[c]; ++i)
-  {
-   if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
-   {
-    xctx->ui_state |= SELECTION;
-    sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
+    else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2) )
+    {
+     xctx->ui_state |= SELECTION;
+     select_line(c, i,SELECTED2,1);
+    }
    }
-   else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1, x1,y1,x2,y2) )
-   {
-    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-    select_line(c, i,SELECTED1,1);
+   for(i=0;i<xctx->arcs[c]; ++i) {
+     x = xctx->arc[c][i].x;
+     y = xctx->arc[c][i].y;
+     a = xctx->arc[c][i].a;
+     b = xctx->arc[c][i].b;
+     r = xctx->arc[c][i].r;
+     xa = x + r * cos(a * XSCH_PI/180.);
+     ya = y - r * sin(a * XSCH_PI/180.);
+     xb = x + r * cos((a+b) * XSCH_PI/180.);
+     yb = y - r * sin((a+b) * XSCH_PI/180.);
+     arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+     if(RECT_INSIDE(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
+     }
+     else if( sel && en_s && POINTINSIDE(x, y, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED1,1);
+     }
+     else if( sel && en_s && POINTINSIDE(xb, yb, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED3,1);
+     }
+     else if( sel && en_s && POINTINSIDE(xa, ya, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED2,1);
+     }
    }
-   else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2) )
+   for(i=0;i<xctx->rects[c]; ++i)
    {
-    xctx->ui_state |= SELECTION;
-    select_line(c, i,SELECTED2,1);
-   }
-  }
-  for(i=0;i<xctx->arcs[c]; ++i) {
-    x = xctx->arc[c][i].x;
-    y = xctx->arc[c][i].y;
-    a = xctx->arc[c][i].a;
-    b = xctx->arc[c][i].b;
-    r = xctx->arc[c][i].r;
-    xa = x + r * cos(a * XSCH_PI/180.);
-    ya = y - r * sin(a * XSCH_PI/180.);
-    xb = x + r * cos((a+b) * XSCH_PI/180.);
-    yb = y - r * sin((a+b) * XSCH_PI/180.);
-    arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    if(RECT_INSIDE(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
+    if(RECT_INSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
+    {
       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-      sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
+      sel? select_box(c,i, SELECTED, 1, 1): select_box(c,i, 0, 1, 0);
     }
-    else if( sel && en_s && POINTINSIDE(x, y, x1, y1, x2, y2) )
-    {
-     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-     select_arc(c, i,SELECTED1,1);
+    else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 2048)){ /* no stretch on unscaled images */
+      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1, x1,y1,x2,y2) )
+      {                                  /*20070302 added stretch select */
+        xctx->ui_state |= SELECTION;
+        select_box(c, i,SELECTED1,1, 0);
+      }
+      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y1, x1,y1,x2,y2) )
+      {
+        xctx->ui_state |= SELECTION;
+        select_box(c, i,SELECTED2,1, 0);
+      }
+      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y2, x1,y1,x2,y2) )
+      {
+        xctx->ui_state |= SELECTION;
+        select_box(c, i,SELECTED3,1, 0);
+      }
+      if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2) )
+      {
+        xctx->ui_state |= SELECTION;
+        select_box(c, i,SELECTED4,1, 0);
+      }
     }
-    else if( sel && en_s && POINTINSIDE(xb, yb, x1, y1, x2, y2) )
-    {
-     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-     select_arc(c, i,SELECTED3,1);
-    }
-    else if( sel && en_s && POINTINSIDE(xa, ya, x1, y1, x2, y2) )
-    {
-     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-     select_arc(c, i,SELECTED2,1);
-    }
-  }
-  for(i=0;i<xctx->rects[c]; ++i)
-  {
-   if(RECT_INSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
-   {
-    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-    sel? select_box(c,i, SELECTED, 1, 1): select_box(c,i, 0, 1, 0);
-   }
-   else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 2048)){ /* no stretch on unscaled images */
-     if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1, x1,y1,x2,y2) )
-     {                                  /*20070302 added stretch select */
-      xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED1,1, 0);
-     }
-     if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y1, x1,y1,x2,y2) )
-     {
-      xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED2,1, 0);
-     }
-     if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y2, x1,y1,x2,y2) )
-     {
-      xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED3,1, 0);
-     }
-     if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2) )
-     {
-      xctx->ui_state |= SELECTION;
-      select_box(c, i,SELECTED4,1, 0);
-     }
-   }
-
-  } /* end for i */
+ 
+   } /* end for i */
  } /* end for c */
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

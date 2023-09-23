@@ -2925,6 +2925,16 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
      if(button==Button1) {
+       int sel;
+       if(!xctx->lastsel) {
+         /* Following 5 lines do again a selection overriding lock,
+          * so locked instance attrs can be edited */
+         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1);
+         if(sel) {
+           xctx->ui_state = SELECTION;
+           rebuild_selected_array();
+         }
+       }
        if(xctx->ui_state ==  0 || xctx->ui_state == SELECTION) {
          edit_property(0);
        } else {
