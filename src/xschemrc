@@ -203,6 +203,10 @@
 #### enable drawing the grid. Default: enabled (1)
 # set draw_grid 1
 
+#### enable stretch mode: when dragging a selection rectangle that cuts wires these are stretched
+#### to follow the selected objects when moved. Default: not enabled (0).
+# set enable_stretch 0
+
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
 # set draw_crosshair 1
 
