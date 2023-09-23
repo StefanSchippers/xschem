@@ -3852,6 +3852,17 @@ proc attach_labels_to_inst {} {
   return {}
 }
 
+# if no_ask_save is set to 1 just return yes (always save)
+proc ask_save_optional { {ask {save file?}} {cancel 1}} {
+  global no_ask_save
+
+  if { $no_ask_save } {
+    return yes
+  } else {
+    return [ask_save $ask $cancel]
+  }
+}
+
 proc ask_save { {ask {save file?}} {cancel 1}} {
   global rcode wm_fix
   set rcode {}
@@ -5576,8 +5587,8 @@ set tctx::global_list {
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
-  lvs_netlist  measure_text netlist_dir netlist_show
-  netlist_type no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
+  lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
+  no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_case search_exact search_found search_schematic
@@ -6736,6 +6747,7 @@ set_ne disable_unique_names 0
 set_ne sym_txt 1
 set_ne show_infowindow 0 
 set_ne show_infowindow_after_netlist onerror 
+set_ne no_ask_save 0 ;# if set to 1 ctrl-s (save) will not ask to save
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0

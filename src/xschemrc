@@ -186,6 +186,10 @@
 #### default: 0
 # set autotrim_wires 0
 
+#### do not ask to save file when doing control-s or File -> Save
+#### default: disabled (0), will ask before saving.
+# set no_ask_save 0
+
 #### set widget scaling (mainly for font display), this is useful on 4K displays
 #### default: unset (tk uses its default) > 1.0 ==> bigger 
 # set tk_scaling 1.7

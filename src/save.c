@@ -2345,7 +2345,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   else { /* user asks to save to same filename */
     if(!stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
-        tclvareval("ask_save \"Schematic file: ", xctx->sch[xctx->currsch],
+        tclvareval("ask_save_optional \"Schematic file: ", xctx->sch[xctx->currsch],
             "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
         if(strcmp(tclresult(), "yes") ) return 0;
       }

@@ -479,7 +479,7 @@ int save(int confirm)
   if(force || xctx->modified)
   {
     if(confirm) {
-      tcleval("ask_save");
+      tcleval("ask_save_optional");
       if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
       else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch]);
       else return 0; /* user clicks "no" */
@@ -1969,7 +1969,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   if(xctx->modified)
   {
     if(confirm) {
-      tcleval("ask_save");
+      tcleval("ask_save_optional");
       if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch]);
       else if(!strcmp(tclresult(), "") ) return;
     } else {
