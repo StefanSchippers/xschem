@@ -2901,9 +2901,10 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    if(xctx->semaphore >= 2) break;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
-       tclsetvar("enable_stretch", "1");
+       int es = tclgetboolvar("enable_stretch");
+       tclsetboolvar("enable_stretch", !es);
        select_rect(END,-1);
-       tclsetvar("enable_stretch", "0");
+       tclsetboolvar("enable_stretch", es);
        break;
      } else {
        /* 20150927 filter out button4 and button5 events */
