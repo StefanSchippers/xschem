@@ -1101,11 +1101,11 @@ void move_objects(int what, int merge, double dx, double dy)
  }
  if(what & ABORT)                               /* draw objects while moving */
  {
+  draw_selection(xctx->gctiled,0);
   if(xctx->kissing) {
     pop_undo(0, 0);
     if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
   }
-  draw_selection(xctx->gctiled,0);
   #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
   if(xctx->save_pixmap && xctx->window)
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
