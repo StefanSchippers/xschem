@@ -205,6 +205,8 @@
 
 #### enable stretch mode: when dragging a selection rectangle that cuts wires these are stretched
 #### to follow the selected objects when moved. Default: not enabled (0).
+#### This can be normally done by dragging with the Control key pressed.
+#### Enabling this option swaps the two drag modes.
 # set enable_stretch 0
 
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
@@ -390,7 +392,7 @@
 #### TCL FILES TO LOAD AT STARTUP
 ###########################################################################
 #### list of tcl files to preload.
-set tcl_files {}
+# set tcl_files {}
 # lappend tcl_files [list ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl]
 # lappend tcl_files ${XSCHEM_SHAREDIR}/change_index.tcl
 # lappend tcl_files ....
