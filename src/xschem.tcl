@@ -3109,6 +3109,18 @@ proc delete_files { dir } {
  }
 }
 
+proc create_user_xschemrc {} {
+  global USER_CONF_DIR XSCHEM_SHAREDIR
+
+  if {![file exists $USER_CONF_DIR/xschemrc]} {
+    file copy $XSCHEM_SHAREDIR/xschemrc $USER_CONF_DIR/xschemrc
+    puts stderr "copied system $XSCHEM_SHAREDIR/xschemrc to $USER_CONF_DIR/xschemrc"
+    puts stderr "Please review the file and make your changes, then restart xschem"
+  } else {
+    puts stderr "$USER_CONF_DIR/xschemrc already exists, will not overwrite."
+  }
+}
+
 proc create_pins {} {
   global env retval USER_CONF_DIR
   global filetmp
