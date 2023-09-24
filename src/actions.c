@@ -3213,16 +3213,80 @@ double ceil_to_n_digits(double x, int n)
   return ceil(x / scale) * scale;
 }
 
-int place_text(int draw_text, double mx, double my)
+
+
+int create_text(int draw_text, double x, double y, int rot, int flip, const char *txt,
+    const char *props, double hsize, double vsize)
 {
-  char *txt;
   int textlayer;
-  /* const char *str; */
+  xText *t;
   int save_draw;
-  xText *t = &xctx->text[xctx->texts];
   #if HAS_CAIRO==1
   const char  *textfont;
   #endif
+
+  check_text_storage();
+  t = &xctx->text[xctx->texts];
+  t->txt_ptr=NULL;
+  t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
+  t->floater_ptr = NULL;
+  t->font=NULL;
+  t->floater_instname=NULL;
+  my_strdup(_ALLOC_ID_, &t->txt_ptr, txt);
+  t->x0=x;
+  t->y0=y;
+  t->rot=(short int) rot;
+  t->flip=(short int) flip;
+  t->sel=0;
+  t->xscale= hsize;
+  t->yscale= vsize;
+  my_strdup(_ALLOC_ID_, &t->prop_ptr, props);
+  /*  debug ... */
+  /*  t->prop_ptr=NULL; */
+  dbg(1, "place_text(): done text input\n");
+  set_text_flags(t);
+  textlayer = t->layer;
+  if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
+
+  if(draw_text) {
+    #if HAS_CAIRO==1
+    textfont = t->font;
+    if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
+      cairo_font_slant_t slant;
+      cairo_font_weight_t weight;
+      textfont = (t->font && t->font[0]) ? t->font : tclgetvar("cairo_font_name");
+      weight = ( t->flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+      slant = CAIRO_FONT_SLANT_NORMAL;
+      if(t->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+      if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+      cairo_save(xctx->cairo_ctx);
+      cairo_save(xctx->cairo_save_ctx);
+      xctx->cairo_font =
+            cairo_toy_font_face_create(textfont, slant, weight);
+      cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+      cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+      cairo_font_face_destroy(xctx->cairo_font);
+    }
+    #endif
+    save_draw=xctx->draw_window;
+    xctx->draw_window=1;
+    draw_string(textlayer, NOW, get_text_floater(xctx->texts), t->rot, t->flip,
+        t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
+    xctx->draw_window = save_draw;
+    #if HAS_CAIRO==1
+    if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
+      cairo_restore(xctx->cairo_ctx);
+      cairo_restore(xctx->cairo_save_ctx);
+    }
+    #endif
+  }
+  xctx->texts++;
+  return 1;
+}
+
+int place_text(int draw_text, double mx, double my)
+{
+  char *txt, *props, *hsize, *vsize;
 
   tclsetvar("props","");
   tclsetvar("retval","");
@@ -3236,64 +3300,16 @@ int place_text(int draw_text, double mx, double my)
   xctx->semaphore--;
 
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
-
+  /* get: retval, hsize, vsize, props,  */
   txt =  (char *)tclgetvar("retval");
+  props =  (char *)tclgetvar("props");
+  hsize =  (char *)tclgetvar("hsize");
+  vsize =  (char *)tclgetvar("vsize");
   if(!txt || !strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
   xctx->push_undo();
-  check_text_storage();
-  t->txt_ptr=NULL;
-  t->prop_ptr=NULL;  /*  20111006 added missing initialization of pointer */
-  t->floater_ptr = NULL;
-  t->font=NULL;
-  t->floater_instname=NULL;
-  my_strdup(_ALLOC_ID_, &t->txt_ptr, txt);
-  t->x0=mx;
-  t->y0=my;
-  t->rot=0;
-  t->flip=0;
-  t->sel=0;
-  t->xscale= atof(tclgetvar("hsize"));
-  t->yscale= atof(tclgetvar("vsize"));
-  my_strdup(_ALLOC_ID_, &t->prop_ptr, (char *)tclgetvar("props"));
-  /*  debug ... */
-  /*  t->prop_ptr=NULL; */
-  dbg(1, "place_text(): done text input\n");
-  set_text_flags(t);
-  textlayer = t->layer;
-  if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;
-  #if HAS_CAIRO==1
-  textfont = t->font;
-  if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
-    cairo_font_slant_t slant;
-    cairo_font_weight_t weight;
-    textfont = (t->font && t->font[0]) ? t->font : tclgetvar("cairo_font_name");
-    weight = ( t->flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
-    slant = CAIRO_FONT_SLANT_NORMAL;
-    if(t->flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
-    if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
-    cairo_save(xctx->cairo_ctx);
-    cairo_save(xctx->cairo_save_ctx);
-    xctx->cairo_font =
-          cairo_toy_font_face_create(textfont, slant, weight);
-    cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-    cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-    cairo_font_face_destroy(xctx->cairo_font);
-  }
-  #endif
-  save_draw=xctx->draw_window;
-  xctx->draw_window=1;
-  if(draw_text) {
-    draw_string(textlayer, NOW, get_text_floater(xctx->texts), 0, 0,
-        t->hcenter, t->vcenter, t->x0,t->y0, t->xscale, t->yscale);
-  }
-  xctx->draw_window = save_draw;
-  #if HAS_CAIRO==1
-  if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
-    cairo_restore(xctx->cairo_ctx);
-    cairo_restore(xctx->cairo_save_ctx);
-  }
-  #endif
-  xctx->texts++;
+  dbg(0,"props=%s, txt=%s\n", props, txt);
+
+  create_text(draw_text, mx, my, 0, 0, txt, props, atof(hsize), atof(vsize));
   select_text(xctx->texts - 1, SELECTED, 0);
   rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
   drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

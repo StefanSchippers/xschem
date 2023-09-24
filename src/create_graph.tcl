@@ -22,9 +22,12 @@
 
 
 # procedure to create a graph in an empty xschem window and display waveforms
-proc create_graph {rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 12 13 14}}} {
+proc create_graph {title rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 12 13 14}}} {
   # clear window if not already empty
   xschem clear force
+
+  # add title text
+  xschem create_text 1 30 -350 0 0 $title {} 0.5
   # clear loaded raw file if any
   xschem raw_clear
   # set current layer to graph layer (grey, layer 2)

@@ -1430,6 +1430,8 @@ extern int tclvareval(const char *script, ...);
 extern const char *tcl_hook2(const char *res);
 extern void statusmsg(char str[],int n);
 extern int place_text(int draw_text, double mx, double my);
+extern int create_text(int draw_text, double x, double y, int rot, int flip, const char *txt,
+       const char *props, double hsize, double vsize);
 extern void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
 extern Instentry *inst_iterator_next(Iterator_ctx *ctx);
 extern void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);

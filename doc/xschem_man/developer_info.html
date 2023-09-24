@@ -511,6 +511,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -575,10 +577,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Start a GUI copy operation </pre>
    <li><kbd>       count_items string separator quoting_chars</kbd></li><pre>
    Debug command </pre>
-   <li><kbd>       Create_plot_cmd</kbd></li><pre>
+   <li><kbd>       create_plot_cmd</kbd></li><pre>
    Create an xplot file in netlist/simulation directory with
    the list of highlighted nodes in a format the selected waveform
    viewer understands (bespice, gaw, ngspice) </pre>
+   <li><kbd>       create_text draw x y rot flip text props size</kbd></li><pre>
+   Create a text object
+     draw is a flag. If set to 1 will draw the created text
+     x, y, rot, flip specify the position and orientation
+     text is the text string
+     props is the attribute string
+     size sets the size </pre>
    <li><kbd>       cut</kbd></li><pre>
    Cut selection to clipboard </pre>
    <li><kbd>       debug n</kbd></li><pre>
@@ -1294,7 +1303,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 
