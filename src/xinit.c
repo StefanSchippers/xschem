@@ -2314,10 +2314,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("USER_CONF_DIR", user_conf_dir);
 #endif
 
- /* create USER_CONF_DIR if it was not installed */
+ /* create USER_CONF_DIR if it was not installed, also populate it with template xschemrc */
  if(stat(user_conf_dir, &buf)) {
    if(!mkdir(user_conf_dir, 0700)) {
-     dbg(1, "Tcl_AppInit(): created %s dir\n", user_conf_dir);
+     char srcfile[PATH_MAX];
+     char dstfile[PATH_MAX];
+     my_snprintf(dstfile, S(dstfile), "%s/xschemrc", user_conf_dir);
+     my_snprintf(srcfile, S(srcfile), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
+     tclvareval("file copy {", srcfile, "} {", dstfile, "}", NULL);
+     fprintf(stderr, "Created %s dir with template xschemrc\n", user_conf_dir);
    } else {
     fprintf(errfp, "Tcl_AppInit(): failure creating %s\n", user_conf_dir);
     Tcl_Exit(EXIT_FAILURE);
