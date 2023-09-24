@@ -3565,7 +3565,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* find by instance name  or number*/
         n = get_instance(argv[3]);
         if(n >= 0) {
-           select_element(n, sel, fast, 0);
+           select_element(n, sel, fast, 1);
            xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, (n >= 0) ? "1" : "0" , TCL_STATIC);
