@@ -555,6 +555,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, my_itoa(count_items(argv[2], argv[3], argv[4])), TCL_VOLATILE);
       }
     }
+
     /* create_plot_cmd
      *   Create an xplot file in netlist/simulation directory with
      *   the list of highlighted nodes in a format the selected waveform
@@ -565,7 +566,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       create_plot_cmd();
       Tcl_ResetResult(interp);
     }
-
 
     /* create_text draw x y rot flip text props size
      *   Create a text object
@@ -584,9 +584,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     } 
-
-
-
 
     /* cut
      *   Cut selection to clipboard */

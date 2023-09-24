@@ -42,6 +42,8 @@ proc create_graph {title rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 
   xschem setprop rect 2 0 node $node
   # set node colors
   xschem setprop rect 2 0 color $color
+  # set thinner graph line widths
+  xschem setprop rect 2 0 linewidth_mult 0.5
   # make xschem display full the graph rectangle
   xschem zoom_full
   # full zoom graph data on x axis
