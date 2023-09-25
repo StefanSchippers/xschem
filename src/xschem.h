@@ -1354,7 +1354,8 @@ extern int place_symbol(int pos, const char *symbol_name, double x, double y, sh
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
 extern void attach_labels_to_inst(int interactive);
-extern short connect_by_kissing(void);
+extern void clear_partial_selected_wires(void);
+extern short connect_by_kissing(int action); /* action: 1 to select, 0 to unselect */
 extern void delete_files(void);
 extern int sym_vs_sch_pins(void);
 extern char *get_generator_command(const char *str);

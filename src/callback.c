@@ -2233,7 +2233,8 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     move_objects(START,0,0,0);
     break;
    }
-   if(key=='M' && state==ShiftMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+   if(((key == 'M' && state == ShiftMask) || (key == 'm' && EQUAL_MODMASK)) &&
+     !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
@@ -2242,7 +2243,8 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     move_objects(START,0,0,0);
     break;
    }
-   if(key=='m' && state==ControlMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+   if(key=='m' && (state==ControlMask) &&
+       !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {        
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
@@ -2251,6 +2253,17 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     move_objects(START,0,0,0);
     break;
    }    
+
+   if(key=='c' && EQUAL_MODMASK &&           /* duplicate selection */
+     !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
+   {
+    if(xctx->semaphore >= 2) break;
+    tclsetintvar("connect_by_kissing", 2); /* 2 will be used to reset var to 0 at end of move */
+    xctx->mx_double_save=xctx->mousex_snap;
+    xctx->my_double_save=xctx->mousey_snap;
+    copy_objects(START);
+    break;
+   }
 
    if(key=='c' && state==0 &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))

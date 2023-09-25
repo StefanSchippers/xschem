@@ -38,6 +38,7 @@ p{padding: 15px  30px 10px;}
   This list is available in XSCHEM in the <kbd>Help</kbd> menu
  </p>
  <pre class="code" style="height: 600px;">
+
                         XSCHEM MOUSE BINDINGS
 ----------------------------------------------------------------------
 LeftButton              Clear selection and select a graphic object 
@@ -51,12 +52,15 @@ ctrl + LeftButton       if an 'url' or 'tclcommand' property is defined on
                         tclcommand
 
 LeftButton drag         Select objects by area, clearing previous selection
-
-shift + LeftButton drag Select objects by area, without clearing 
-                        previous selection
+                        "[shift] left button drag" and "[shift] ctrl-left
+                        button drag" commands are swapped if enable_stretch
+                        is set.
 
 Ctrl + LeftButton drag  Select objects by area to perform a 
                         subsequent   'stretch'  move operation
+
+shift + LeftButton drag Select objects by area, without clearing 
+                        previous selection
 
 Shift +                 Select objects by area without unselecting
 Ctrl + LeftButton drag  to perform a subsequent   'stretch'  move operation
@@ -69,9 +73,10 @@ Ctrl + Right Button     Select all connected wires/labels/pins, stopping at
 Alt + RightButton       Cut wire at mouse position (creates 2 adjacent wires)
                         aligns the cut point to current snap setting.
 
-Alt + Shift + RightButton 
+Alt + Shift + RightButton
                         Cut wire at mouse position (creates 2 adjacent wires)
                         does not align cut point to current snap setting.
+
 
 Mouse Wheel             Zoom in / out
 
@@ -129,7 +134,8 @@ shift       'A'         Toggle show netlist
 Shift       'B'         Edit/add header/license metadata to the schematic/symbol file.
 ctrl        'b'         Toggle show text in symbol
 alt         'b'         Toggle show symbol details / only bounding boxes
--           'c'         Copy selected obj. 
+-           'c'         Copy selected objects, 'c' and 'alt-c' commands are swapped if enable_stretch is set
+Alt         'c'         Copy selected objects, insert wires when separating touching instance pins/wires
 ctrl        'c'         Save to clipboard
 shift       'C'         Start arc placement
 shift+ctrl  'C'         Start circle placement
@@ -173,9 +179,10 @@ alt+shift   'l'         add lab_wire.sym to schematic
 alt         'l'         add lab_pin.sym to schematic
 ctrl+shift  'o'         Load most recent schematic
 ctrl        'o'         Load schematic
--           'm'         Move selected objects
+-           'm'         Move selected objects. 'm' and 'ctrl-m' commands are swapped if enable_stretch is set
 ctrl        'm'         Move selected objects, stretching wires attached to them
-shift       'M'         Move selected objects, insert wire when separating touching instance pins/wires
+Alt         'm'         Move selected objects, insert wires when separating touching instance pins/wires
+shift       'M'         Move selected objects, insert wires when separating touching instance pins/wires
                         Stretch wires that land on selected instance pins.
 shift       'N'         Top level only netlist
 -           'n'         Hierarchical Netlist
@@ -195,9 +202,9 @@ ctrl        'q'         Exit XSCHEM
 alt         'r'         Rotate objects around their anchor points
 shift       'R'         Rotate
 -           'r'         Start rect
-            's'         run simulation (asks confirmation)
 shift       'S'         Change element order
 ctrl+shift  'S'         Save  as schematic
+            's'         run simulation (asks confirmation)
 ctrl        's'         Save schematic
 alt         's'         Reload current schematic from disk
 ctrl+alt    's'         Save-as symbol
@@ -219,7 +226,7 @@ shift       'X'         Highlight discrepancies between object ports and attache
 shift       'Z'         Zoom in
 ctrl        'z'         Zoom out
 -           '?'         Help
--           '&amp;'         Join / break / collapse wires
+-           '&amp;         Join / break / collapse wires
 shift       '*'         Postscript/pdf print
 ctr+shift   '*'         Xpm/png print
 alt+shift   '*'         Svg print

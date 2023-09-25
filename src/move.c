@@ -658,6 +658,9 @@ void copy_objects(int what)
    xctx->rotatelocal=0;
    dbg(1, "copy_objects(): START copy\n");
    rebuild_selected_array();
+   if(tclgetintvar("connect_by_kissing") == 2) xctx->kissing = connect_by_kissing(1);
+   else xctx->kissing = 0;
+
    save_selection(1);
    xctx->deltax = xctx->deltay = 0.0;
    xctx->movelastsel = xctx->lastsel;
@@ -669,6 +672,12 @@ void copy_objects(int what)
   {
    char *str = NULL; /* 20161122 overflow safe */
    draw_selection(xctx->gctiled,0);
+
+   if(xctx->kissing) {
+     pop_undo(0, 0);
+     if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
+   }
+
    #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
@@ -708,12 +717,21 @@ void copy_objects(int what)
   {
     int l, firstw, firsti;
     int floaters = there_are_floaters();
+
+
+    if(tclgetintvar("connect_by_kissing") == 2) {
+      tclsetintvar("connect_by_kissing", 0);
+    }
+
     if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
-    xctx->push_undo();
-    
-    firstw = firsti = 1;
 
+    if( !xctx->kissing ) {
+      dbg(1, "copy_objects(): push undo state\n");
+      xctx->push_undo();
+    }
+
+    firstw = firsti = 1;
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
     /* build list before copying and recalculating prepare_netlist_structs() */
@@ -1088,7 +1106,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->deltax = xctx->deltay = 0.0;
   rebuild_selected_array();
   /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
-  if(tclgetintvar("connect_by_kissing")) xctx->kissing = connect_by_kissing();
+  if(tclgetintvar("connect_by_kissing")) xctx->kissing = connect_by_kissing(1);
   else xctx->kissing = 0;
   xctx->movelastsel = xctx->lastsel;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&

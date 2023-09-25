@@ -963,8 +963,23 @@ void enable_layers(void)
   }
 }
 
-/* Add wires when moving instances or wires */
-short connect_by_kissing(void)
+
+/* not used... */
+void clear_partial_selected_wires(void)
+{
+  int j;
+  rebuild_selected_array();
+  for(j=0; j < xctx->lastsel; ++j) if(xctx->sel_array[j].type == WIRE) {
+    int wire = xctx->sel_array[j].n;
+    select_wire(wire, 0, 1);
+  }
+  rebuild_selected_array();
+}
+
+
+/* Add wires when moving instances or wires
+ * action: 1 to select, 0 to unselect */
+short connect_by_kissing(int action)
 {
   xSymbol *symbol;
   int npin, i, j;
