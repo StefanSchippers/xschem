@@ -5991,9 +5991,8 @@ proc build_widgets { {topwin {} } } {
            xschem redraw
          }
      }
+  $topwin.menubar.option.menu add checkbutton -label "Persistet wire/line place command" -variable persistent_command
 
-  $topwin.menubar.option.menu add checkbutton -label "Show netlist win" -variable netlist_show \
-     -accelerator {Shift+A} 
   $topwin.menubar.option.menu add checkbutton -label "Flat netlist" -variable flat_netlist \
      -accelerator : \
      -command {
@@ -6024,11 +6023,6 @@ proc build_widgets { {topwin {} } } {
        }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
      -command { xschem redraw }
-  $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins/floaters" -variable show_pin_net_names \
-     -command {
-        xschem update_all_sym_bboxes
-        xschem redraw
-     }
   $topwin.menubar.option.menu add separator
   $topwin.menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
        -accelerator {Shift+V} \
@@ -6191,6 +6185,12 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" \
      -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
+  $topwin.menubar.sym.menu add checkbutton -label "Show net names on symbol pins/floaters" \
+     -variable show_pin_net_names \
+     -command {
+        xschem update_all_sym_bboxes
+        xschem redraw
+     }
   $topwin.menubar.sym.menu add command -label "Set symbol width" \
      -command {
         input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
@@ -6221,7 +6221,6 @@ proc build_widgets { {topwin {} } } {
      -label "Search all search-paths for schematic associated to symbol" -variable search_schematic
   $topwin.menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
       -variable disable_unique_names
-  $topwin.menubar.tools.menu add checkbutton -label "Persistet wire/line place command" -variable persistent_command
   $topwin.menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
   $topwin.menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
@@ -6315,6 +6314,8 @@ proc build_widgets { {topwin {} } } {
     -command {
           input_line {Set netlist file name} {xschem set netlist_name} [xschem get netlist_name] 40
     }
+  $topwin.menubar.simulation.menu add checkbutton -label "Show netlist after netlist command" \
+     -variable netlist_show -accelerator {Shift+A} 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'simulation' dir under current schematic dir" \
     -variable local_netlist_dir \
     -command { if {$local_netlist_dir == 0 } { set_netlist_dir 1 } else { simuldir} }
