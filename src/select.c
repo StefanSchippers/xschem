@@ -1273,6 +1273,7 @@ void select_attached_nets(void)
     }
     if(xctx->sel_array[j].type==WIRE) {
       wire = xctx->sel_array[j].n;
+      if(xctx->wire[wire].sel != SELECTED) continue;
       for(r = 0; r < 2; r++)
       {
         if(r == 0) {
