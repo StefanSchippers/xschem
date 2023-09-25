@@ -5610,7 +5610,8 @@ set tctx::global_list {
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
   text_replace_selection textwindow_fileid textwindow_filename textwindow_w tmp_bus_char
   toolbar_horiz toolbar_list
-  toolbar_visible transparent_svg undo_type use_lab_wire use_label_prefix use_tclreadline
+  toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
+  use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   vsize xschem_libs xschem_listen_port zoom_full_center
 }
@@ -5983,6 +5984,8 @@ proc build_widgets { {topwin {} } } {
      -onvalue disk -offvalue memory -command {switch_undo}
   $topwin.menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
      -accelerator Y 
+  $topwin.menubar.option.menu add checkbutton -label "Unsel. partial sel. wires after stretch move" \
+     -variable unselect_partial_sel_wires
 
   $topwin.menubar.option.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
      -command {
@@ -6007,7 +6010,6 @@ proc build_widgets { {topwin {} } } {
          set bus_replacement_char $tmp_bus_char
        } 
      }
-  $topwin.menubar.option.menu add checkbutton -label "Verilog 2001 netlist variant" -variable verilog_2001
   $topwin.menubar.option.menu add checkbutton \
     -label "Group bus slices in Verilog instances" -variable verilog_bitblast
   $topwin.menubar.option.menu add checkbutton -label "Draw grid" -variable draw_grid \
@@ -6072,7 +6074,6 @@ proc build_widgets { {topwin {} } } {
      -value 1 -accelerator H -command {xschem set constrained_move 1} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
      -value 2 -accelerator V -command {xschem set constrained_move 2} 
-  $topwin.menubar.edit.menu add checkbutton -label "Add wire when separating pins" -variable connect_by_kissing 
   $topwin.menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -6754,6 +6755,7 @@ set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne connect_by_kissing 0
+set_ne unselect_partial_sel_wires 0
 set_ne draw_crosshair 0
 set_ne draw_grid 1
 set_ne big_grid_points 0

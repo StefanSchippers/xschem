@@ -973,20 +973,18 @@ void clear_partial_selected_wires(void)
     int wire = xctx->sel_array[j].n;
     select_wire(wire, 0, 1);
   }
+  xctx->need_reb_sel_arr = 1;
   rebuild_selected_array();
 }
 
 
-/* Add wires when moving instances or wires
- * action: 1 to select, 0 to unselect */
-short connect_by_kissing(int action)
+/* Add wires when moving instances or wires */
+int connect_by_kissing(void)
 {
   xSymbol *symbol;
   int npin, i, j;
   double x0,y0, pinx0, piny0;
-  short flip, rot;
-  xRect *rct;
-  short kissing, changed = 0;
+  int kissing, changed = 0;
   int k, ii, done_undo = 0;
   Wireentry *wptr;
   Instpinentry *iptr;
@@ -997,24 +995,15 @@ short connect_by_kissing(int action)
   str_hash_init(&coord_table, HASHSIZE);
   rebuild_selected_array();
   k = xctx->lastsel;
-  prepare_netlist_structs(0);
+  prepare_netlist_structs(0); /* rebuild spatial hashes */
 
   /* add wires to moving instance pins */
   for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     int inst = xctx->sel_array[j].n;
-    x0 = xctx->inst[inst].x0;
-    y0 = xctx->inst[inst].y0;
-    rot = xctx->inst[inst].rot;
-    flip = xctx->inst[inst].flip;
     symbol = xctx->sym + xctx->inst[inst].ptr;
     npin = symbol->rects[PINLAYER];
-    rct=symbol->rect[PINLAYER];
     for(i=0;i<npin; ++i) {
-      pinx0 = (rct[i].x1+rct[i].x2)/2;
-      piny0 = (rct[i].y1+rct[i].y2)/2;
-      ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
-      pinx0 += x0;
-      piny0 += y0;
+      get_inst_pin_coord(inst, i, &pinx0, &piny0);
       get_square(pinx0, piny0, &sqx, &sqy);
       iptr=xctx->instpin_spatial_table[sqx][sqy];
       wptr=xctx->wire_spatial_table[sqx][sqy];
@@ -1025,23 +1014,17 @@ short connect_by_kissing(int action)
           iptr = iptr->next;
           continue;
         }
-        if( iptr->x0 == pinx0 && iptr->y0 == piny0  &&  xctx->inst[ii].sel == 0) {
-          kissing=1;
+        if( iptr->x0 == pinx0 && iptr->y0 == piny0  && xctx->inst[ii].sel == 0) {
+          kissing = 1;
           break;
         }
         iptr = iptr->next;
       }
       while(wptr) {
         xWire *w = &xctx->wire[wptr->n];
-        if( touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0)) {
-          if( w->sel) {
-            kissing=0;
-            break;
-          }
-          else {
-            kissing = 1;
-            break;
-          }
+        if( touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0) && w->sel == 0) {
+          kissing = 1;
+          break;
         }
         wptr = wptr->next;
       }
@@ -1057,6 +1040,7 @@ short connect_by_kissing(int action)
           str_hash_lookup(&coord_table, coord, "", XINSERT);
           storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
           changed = 1;
+          xctx->prep_hash_wires=0;
           xctx->need_reb_sel_arr = 1;
         }
       }
@@ -1085,7 +1069,7 @@ short connect_by_kissing(int action)
         dbg(1, "connect_by_kissing(): ii=%d, x0=%g, y0=%g,  iptr->x0=%g, iptr->y0=%g\n",
                ii, x0, y0, iptr->x0, iptr->y0);
         if( iptr->x0 == x0 && iptr->y0 == y0  &&  xctx->inst[ii].sel == 0) {
-          kissing=1;
+          kissing = 1;
           break;
         }
         iptr = iptr->next;
@@ -1096,15 +1080,9 @@ short connect_by_kissing(int action)
           wptr = wptr->next;
           continue;
         }
-        if( touch(w->x1, w->y1, w->x2, w->y2, x0, y0)) {
-          if( w->sel) {
-            kissing=0;
-            break;
-          }
-          else {
-            kissing = 1;
-            break;
-          }
+        if( touch(w->x1, w->y1, w->x2, w->y2, x0, y0) && w->sel == 0) {
+          kissing = 1;
+          break;
         }
         wptr = wptr->next;
       }
@@ -1119,9 +1097,9 @@ short connect_by_kissing(int action)
           str_hash_lookup(&coord_table, coord, "", XINSERT);
           storeobject(-1, x0, y0,  x0, y0, WIRE, 0, SELECTED1, NULL);
           changed = 1;
+          xctx->prep_hash_wires=0;
           xctx->need_reb_sel_arr = 1;
         }
-
       }
     }
   }
@@ -1129,6 +1107,73 @@ short connect_by_kissing(int action)
   rebuild_selected_array();
   return changed;
 }
+
+int unselect_partial_sel_wires(void)
+{
+  xSymbol *symbol;
+  int npin, i, j;
+  double x0,y0, pinx0, piny0;
+  int changed = 0;
+  int k;
+  Wireentry *wptr;
+  int sqx, sqy;
+
+  if(!tclgetboolvar("unselect_partial_sel_wires")) return 0;
+  rebuild_selected_array();
+  k = xctx->lastsel;
+  prepare_netlist_structs(0); /* rebuild spatial hashes */
+  /* unselect wires attached to moved instance pins */
+  for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
+    int inst = xctx->sel_array[j].n;
+    symbol = xctx->sym + xctx->inst[inst].ptr;
+    npin = symbol->rects[PINLAYER];
+    for(i=0;i<npin; ++i) {
+      get_inst_pin_coord(inst, i, &pinx0, &piny0);
+      get_square(pinx0, piny0, &sqx, &sqy);
+      wptr=xctx->wire_spatial_table[sqx][sqy];
+      while(wptr) {
+        xWire *w = &xctx->wire[wptr->n];
+        if(touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0) && w->sel && w->sel != SELECTED) {
+          select_wire(wptr->n, 0, 1);
+          changed = 1;
+        }
+        wptr = wptr->next;
+      }
+    }
+  }
+  /* unselect wires attached to moved wire endpoints */
+  for(j=0; j < k; ++j) if(xctx->sel_array[j].type == WIRE) {
+    int wire = xctx->sel_array[j].n;
+    if(xctx->wire[wire].sel != SELECTED) continue; /* skip partially selected wires */
+    for(i=0;i<2; ++i) {
+      if(i == 0) {
+        x0 = xctx->wire[wire].x1;
+        y0 = xctx->wire[wire].y1;
+      } else {
+        x0 = xctx->wire[wire].x2;
+        y0 = xctx->wire[wire].y2;
+      }
+      get_square(x0, y0, &sqx, &sqy);
+      wptr=xctx->wire_spatial_table[sqx][sqy];
+      while(wptr) {
+        xWire *w = &xctx->wire[wptr->n];
+        if(wire == wptr->n) {
+          wptr = wptr->next;
+          continue;
+        }
+        if(touch(w->x1, w->y1, w->x2, w->y2, x0, y0) && w->sel && w->sel != SELECTED) {
+          xctx->wire[wptr->n].sel = 0;
+          select_wire(wptr->n, 0, 1);
+          changed = 1;
+        }
+        wptr = wptr->next;
+      }
+    }
+  }
+  return changed;
+}
+
+
 
 void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 20171005 */
 {

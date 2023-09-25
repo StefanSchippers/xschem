@@ -658,7 +658,7 @@ void copy_objects(int what)
    xctx->rotatelocal=0;
    dbg(1, "copy_objects(): START copy\n");
    rebuild_selected_array();
-   if(tclgetintvar("connect_by_kissing") == 2) xctx->kissing = connect_by_kissing(1);
+   if(tclgetintvar("connect_by_kissing") == 2) xctx->kissing = connect_by_kissing();
    else xctx->kissing = 0;
 
    save_selection(1);
@@ -1106,7 +1106,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->deltax = xctx->deltay = 0.0;
   rebuild_selected_array();
   /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
-  if(tclgetintvar("connect_by_kissing")) xctx->kissing = connect_by_kissing(1);
+  if(tclgetintvar("connect_by_kissing")) xctx->kissing = connect_by_kissing();
   else xctx->kissing = 0;
   xctx->movelastsel = xctx->lastsel;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
@@ -1622,6 +1622,9 @@ void move_objects(int what, int merge, double dx, double dy)
   draw();
   if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
+
+  unselect_partial_sel_wires();
+
  }
  draw_selection(xctx->gc[SELLAYER], 0);
  if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);

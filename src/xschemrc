@@ -181,6 +181,11 @@
 #### connected by pins. Default: not enabled (0)
 # set connect_by_kissing 1
 
+#### if set to 1 at end of a move operation that stretches wires attached to
+#### moved objects these wires will be unselected.
+#### default: not enabled (0)
+# set unselect_partial_sel_wires 0
+
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
 #### default: 0
