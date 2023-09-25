@@ -938,7 +938,7 @@ void clear_drawing(void)
   xctx->polygons[i] = 0;
  }
  dbg(1, "clear drawing(): deleted data structures, now deleting hash\n");
- int_hash_free(&xctx->inst_table);
+ int_hash_free(&xctx->inst_name_table);
  int_hash_free(&xctx->floater_inst_table);
 }
 

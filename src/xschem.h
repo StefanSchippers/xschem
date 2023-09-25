@@ -921,7 +921,7 @@ typedef struct {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
-  Int_hashtable inst_table;
+  Int_hashtable inst_name_table;
   Int_hashtable floater_inst_table;
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;

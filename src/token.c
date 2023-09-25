@@ -58,8 +58,8 @@ void hash_all_names(void)
 {
   int i;
   char *upinst = NULL, *type = NULL;
-  int_hash_free(&xctx->inst_table);
-  int_hash_init(&xctx->inst_table, HASHSIZE);
+  int_hash_free(&xctx->inst_name_table);
+  int_hash_init(&xctx->inst_name_table, HASHSIZE);
   for(i=0; i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       if(xctx->inst[i].ptr == -1) continue;
@@ -67,7 +67,7 @@ void hash_all_names(void)
       if(!type) continue;
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
+      int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT);
     }
   }
   my_free(_ALLOC_ID_, &upinst);
@@ -115,8 +115,8 @@ void check_unique_names(int rename)
     clear_all_hilights();
     draw();
   }
-  int_hash_free(&xctx->inst_table);
-  int_hash_init(&xctx->inst_table, HASHSIZE);
+  int_hash_free(&xctx->inst_name_table);
+  int_hash_init(&xctx->inst_name_table, HASHSIZE);
 
   /* look for duplicates */
   first = 1;
@@ -126,7 +126,8 @@ void check_unique_names(int rename)
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      if( (entry = int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT_NOREPLACE) ) && entry->value != i) {
+      if( (entry = int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT_NOREPLACE) ) &&
+           entry->value != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
         inst_hilight_hash_lookup(i, -PINLAYER, XINSERT_NOREPLACE);
@@ -147,14 +148,14 @@ void check_unique_names(int rename)
   } /* for(i...) */
 
   /* rename duplicates */
-  for(i=0;i<xctx->instances; ++i) {
-    if( (xctx->inst[i].color != -10000) && rename) {
+  if(rename) for(i=0;i<xctx->instances; ++i) {
+    if( (xctx->inst[i].color != -10000)) {
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
       new_prop_string(i, tmp, newpropcnt++, 0);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
       my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
       strtoupper(upinst);
-      int_hash_lookup(&xctx->inst_table, upinst, i, XINSERT);
+      int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT);
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
       my_free(_ALLOC_ID_, &tmp);
@@ -168,7 +169,7 @@ void check_unique_names(int rename)
     bbox(END,0.0,0.0,0.0,0.0);
   }
   redraw_hilights(0);
-  int_hash_free(&xctx->inst_table);
+  int_hash_free(&xctx->inst_name_table);
 }
 
 int is_generator(const char *name)
@@ -771,11 +772,11 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  xctx->prefix=old_name[0];
  /* don't change old_prop if name does not conflict. */
  /* if no hash_all_names() is done and inst_table uninitialized --> use old_prop */
- if(dis_uniq_names || (entry = int_hash_lookup(&xctx->inst_table, up_old_name, i, XLOOKUP))==NULL ||
+ if(dis_uniq_names || (entry = int_hash_lookup(&xctx->inst_name_table, up_old_name, i, XLOOKUP))==NULL ||
      entry->value == i)
  {
   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
-  int_hash_lookup(&xctx->inst_table, up_old_name, i, XINSERT);
+  int_hash_lookup(&xctx->inst_name_table, up_old_name, i, XINSERT);
   my_free(_ALLOC_ID_, &old_name);
   my_free(_ALLOC_ID_, &up_old_name);
   return;
@@ -794,7 +795,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
    }
    my_strdup(_ALLOC_ID_, &up_new_name, new_name);
    strtoupper(up_new_name);
-   if((entry = int_hash_lookup(&xctx->inst_table, up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
+   if((entry = int_hash_lookup(&xctx->inst_name_table, up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
    {
     last[(int)xctx->prefix]=q+1;
     break;
@@ -804,7 +805,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  tmp2 = subst_token(old_prop, "name", new_name);
  if(strcmp(tmp2, old_prop) ) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, tmp2);
-   int_hash_lookup(&xctx->inst_table, up_new_name, i, XINSERT); /* reinsert in hash */
+   int_hash_lookup(&xctx->inst_name_table, up_new_name, i, XINSERT); /* reinsert in hash */
  }
  my_free(_ALLOC_ID_, &old_name);
  my_free(_ALLOC_ID_, &up_old_name);

@@ -506,8 +506,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     }
   }
   xctx->node_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Node_hashentry *));
-  xctx->inst_table.table = NULL;
-  xctx->inst_table.size = 0;
+  xctx->inst_name_table.table = NULL;
+  xctx->inst_name_table.size = 0;
   xctx->floater_inst_table.table = NULL;
   xctx->floater_inst_table.size = 0;
   xctx->hilight_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Hilight_hashentry *));
