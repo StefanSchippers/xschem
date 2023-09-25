@@ -6024,10 +6024,6 @@ proc build_widgets { {topwin {} } } {
        }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
      -command { xschem redraw }
-  $topwin.menubar.option.menu add command -label "Set symbol width" \
-       -command {
-         input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
-       }
   $topwin.menubar.option.menu add checkbutton -label "Show net names on symbol pins/floaters" -variable show_pin_net_names \
      -command {
         xschem update_all_sym_bboxes
@@ -6186,7 +6182,7 @@ proc build_widgets { {topwin {} } } {
      -command { update_schematic_header } -accelerator Shift+B
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
-  $topwin.menubar.sym.menu add radiobutton -label "Show Symbols" \
+  $topwin.menubar.sym.menu add radiobutton -label "Show symbols" \
      -variable hide_symbols -value 0 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
@@ -6195,8 +6191,14 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" \
      -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
-  $topwin.menubar.sym.menu add command -label "Make symbol from schematic" -command "xschem make_symbol" -accelerator A
-  $topwin.menubar.sym.menu add command -label "Make schematic from symbol" -command "xschem make_sch" -accelerator Ctrl+L
+  $topwin.menubar.sym.menu add command -label "Set symbol width" \
+     -command {
+        input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
+      }
+  $topwin.menubar.sym.menu add command -label "Make symbol from schematic" \
+     -command "xschem make_symbol" -accelerator A
+  $topwin.menubar.sym.menu add command -label "Make schematic from symbol" \
+     -command "xschem make_sch" -accelerator Ctrl+L
   $topwin.menubar.sym.menu add command -label "Make schematic and symbol from selected components" \
      -command "xschem make_sch_from_sel" -accelerator Ctrl+Shift+H
   $topwin.menubar.sym.menu add command -label "Attach net labels to component instance" \
@@ -6219,7 +6221,7 @@ proc build_widgets { {topwin {} } } {
      -label "Search all search-paths for schematic associated to symbol" -variable search_schematic
   $topwin.menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
       -variable disable_unique_names
-  $topwin.menubar.tools.menu add checkbutton -label "Remember last command" -variable persistent_command
+  $topwin.menubar.tools.menu add checkbutton -label "Persistet wire/line place command" -variable persistent_command
   $topwin.menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
   $topwin.menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
