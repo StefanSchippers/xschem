@@ -1430,7 +1430,7 @@ static int update_symbol(const char *result, int x, int first_sel)
       }
       /* set unique name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
-      if(!k) hash_all_names();
+      if(!k) hash_all_names(-1, XINSERT);
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     }
 

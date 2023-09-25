@@ -5983,6 +5983,15 @@ proc build_widgets { {topwin {} } } {
      -onvalue disk -offvalue memory -command {switch_undo}
   $topwin.menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
      -accelerator Y 
+
+  $topwin.menubar.option.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
+     -command {
+         if {$autotrim_wires == 1} {
+           xschem trim_wires
+           xschem redraw
+         }
+     }
+
   $topwin.menubar.option.menu add checkbutton -label "Show netlist win" -variable netlist_show \
      -accelerator {Shift+A} 
   $topwin.menubar.option.menu add checkbutton -label "Flat netlist" -variable flat_netlist \
@@ -6248,13 +6257,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.tools.menu add command -label "Break wires at mouse position, align cut point" \
      -command "xschem wire_cut" -accelerator {Alt-Right Butt.}
    toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
-  $topwin.menubar.tools.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
-     -command {
-         if {$autotrim_wires == 1} {
-           xschem trim_wires
-           xschem redraw
-         }
-     }
   $topwin.menubar.tools.menu add command -label "Select all connected wires/labels/pins" \
      -accelerator {Shift-Right Butt.} \
      -command { xschem connected_nets}

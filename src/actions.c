@@ -1392,7 +1392,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].prop_ptr=NULL;
   xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
-  if(first_call) hash_all_names();
+  if(first_call) hash_all_names(-1, XINSERT);
   if(inst_props) {
     new_prop_string(n, inst_props,!first_call, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
   }

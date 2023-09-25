@@ -2228,6 +2228,8 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
     }
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
+    if(tclgetboolvar("enable_stretch")) 
+      select_attached_nets(); /* stretch nets that land on selected instance pins */
     move_objects(START,0,0,0);
     break;
    }
@@ -2244,7 +2246,8 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    {        
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
-    select_attached_nets(); /* stretch nets that land on selected instance pins */
+    if(!tclgetboolvar("enable_stretch")) 
+      select_attached_nets(); /* stretch nets that land on selected instance pins */
     move_objects(START,0,0,0);
     break;
    }    
@@ -2927,7 +2930,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
      if(button==Button1) {
        int sel;
-       if(!xctx->lastsel) {
+       if(!xctx->lastsel && xctx->ui_state ==  0) {
          /* Following 5 lines do again a selection overriding lock,
           * so locked instance attrs can be edited */
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1);

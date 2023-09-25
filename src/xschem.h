@@ -989,7 +989,6 @@ typedef struct {
   int bbox_set; /* set to 1 if a clipping bbox is set (void bbox() ) */
   XRectangle savexrect;
   /* new_prop_string */
-  char prefix;
   /* edit_symbol_property, update_symbol */
   char *old_prop;
   int edit_sym_i;
@@ -1503,7 +1502,8 @@ extern float my_atof(const char *p);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
-extern void hash_all_names(void);
+extern void hash_all_names(int inst, int action); /* if i == -1 hash all instances, else do only inst */
+extern int name_is_used(char *name);
 extern void floater_hash_all_names(void);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
 /* extern char *escape_chars(char *dest, const char *source, int size); */

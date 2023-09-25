@@ -54,24 +54,65 @@ void floater_hash_all_names(void)
   }
 }  
 
-void hash_all_names(void)
+/* if inst == -1 hash all instance names, else do only given instance
+ * action can be XINSERT or XDELETE to insert or remove items */
+void hash_all_names(int inst, int action)
 {
-  int i;
-  char *upinst = NULL, *type = NULL;
-  int_hash_free(&xctx->inst_name_table);
-  int_hash_init(&xctx->inst_name_table, HASHSIZE);
-  for(i=0; i<xctx->instances; ++i) {
+  int i, mult, start, stop;
+  char *upinst = NULL;
+  char *upinst_ptr, *upinst_state, *single_name;
+  if(inst == -1) {
+    int_hash_free(&xctx->inst_name_table);
+    int_hash_init(&xctx->inst_name_table, HASHSIZE);
+  }
+  if(inst == -1) {
+     start = 0;
+     stop =  xctx->instances;
+  } else {
+    start = inst;
+    stop = inst + 1;
+  }
+  if(inst != -1) dbg(1, "hash_all_names(): start=%d, stop=%d, instname=%s\n",
+        start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "NULL");
+  for(i = start; i < stop; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      if(xctx->inst[i].ptr == -1) continue;
-      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-      if(!type) continue;
-      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
+      my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, &mult));
       strtoupper(upinst);
-      int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT);
+
+      upinst_ptr = upinst;
+      while( (single_name = my_strtok_r(upinst_ptr, ",", "", &upinst_state)) ) {
+        upinst_ptr = NULL;
+        dbg(1, "hash_all_names(): inst %d, name %s --> %d\n", i, single_name, action);
+        int_hash_lookup(&xctx->inst_name_table, single_name, i, action);
+        dbg(1, "hash_all_names(): hashing %s from %s\n", single_name, xctx->inst[i].instname);
+      }
     }
   }
   my_free(_ALLOC_ID_, &upinst);
-  my_free(_ALLOC_ID_, &type);
+}
+
+
+/* return -1 if name is not used, else return instance number with same name found */
+int name_is_used(char *name)
+{
+  int mult, used = -1;
+  char *upinst = NULL;
+  char *upinst_ptr, *upinst_state, *single_name;
+  Int_hashentry *entry;
+  my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, &mult));
+  strtoupper(upinst);
+  upinst_ptr = upinst;
+  while( (single_name = my_strtok_r(upinst_ptr, ",", "", &upinst_state)) ) {
+    upinst_ptr = NULL;
+    entry = int_hash_lookup(&xctx->inst_name_table, single_name, 1, XLOOKUP);
+    if(entry) {
+      used = entry->value;
+      break;
+    }
+  }
+  my_free(_ALLOC_ID_, &upinst);
+  dbg(1, "name_is_used(%s): return inst %d\n", name, used);
+  return used;
 }
 
 /* if cmd is wrapped inside tcleval(...) pass the content to tcl
@@ -107,8 +148,7 @@ void check_unique_names(int rename)
   int i, first = 1, modified = 0;
   int newpropcnt = 0;
   char *tmp = NULL;
-  Int_hashentry *entry;
-  char *upinst = NULL;
+  int used;
 
   if(xctx->hilight_nets) {
     xctx->enable_drill=0;
@@ -124,10 +164,9 @@ void check_unique_names(int rename)
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       if(xctx->inst[i].ptr == -1) continue;
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
-      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
-      strtoupper(upinst);
-      if( (entry = int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT_NOREPLACE) ) &&
-           entry->value != i) {
+      used = name_is_used(xctx->inst[i].instname);
+      hash_all_names(i, XINSERT_NOREPLACE);
+      if( used != -1 && used != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
         inst_hilight_hash_lookup(i, -PINLAYER, XINSERT_NOREPLACE);
@@ -153,15 +192,12 @@ void check_unique_names(int rename)
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
       new_prop_string(i, tmp, newpropcnt++, 0);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
-      my_strdup(_ALLOC_ID_, &upinst, xctx->inst[i].instname);
-      strtoupper(upinst);
-      int_hash_lookup(&xctx->inst_name_table, upinst, i, XINSERT);
+      hash_all_names(i, XINSERT);
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
       my_free(_ALLOC_ID_, &tmp);
     }
   } /* for(i...) */
-  my_free(_ALLOC_ID_, &upinst);
   if(modified) set_modify(1);
   if(rename == 1 && xctx->hilight_nets) {
     bbox(SET,0.0,0.0,0.0,0.0);
@@ -730,87 +766,72 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
 }
 
-void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
-{
 /* given a old_prop property string, return a new */
 /* property string in xctx->inst[i].prop_ptr such that the element name is */
 /* unique in current design (that is, element name is changed */
 /* if necessary) */
 /* if old_prop=NULL return NULL */
 /* if old_prop does not contain a valid "name" or empty return old_prop */
- char *old_name=NULL, *new_name=NULL;
- const char *tmp;
- const char *tmp2;
- int q,qq;
- static int last[1 << 8 * sizeof(char) ]; /* safe to keep with multiple schematics, reset on 1st invocation */
- size_t old_name_len;
- int n;
- char *old_name_base = NULL;
- Int_hashentry *entry;
- char *up_old_name = NULL;
- char *up_new_name = NULL;
-
- dbg(1, "new_prop_string(): i=%d, old_prop=%s, fast=%d\n", i, old_prop, fast);
- if(!fast) { /* on 1st invocation of new_prop_string */
-   for(q=1;q<=255;q++) last[q]=1;
- }
- if(old_prop==NULL)
- {
-  my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
-  return;
- }
- old_name_len = my_strdup(_ALLOC_ID_, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
- my_strdup(_ALLOC_ID_, &up_old_name, old_name);
- strtoupper(up_old_name);
-
- if(old_name==NULL)
- {
-  my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
-  my_free(_ALLOC_ID_, &up_old_name);
-  return;
- }
- xctx->prefix=old_name[0];
- /* don't change old_prop if name does not conflict. */
- /* if no hash_all_names() is done and inst_table uninitialized --> use old_prop */
- if(dis_uniq_names || (entry = int_hash_lookup(&xctx->inst_name_table, up_old_name, i, XLOOKUP))==NULL ||
-     entry->value == i)
- {
-  my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
-  int_hash_lookup(&xctx->inst_name_table, up_old_name, i, XINSERT);
-  my_free(_ALLOC_ID_, &old_name);
-  my_free(_ALLOC_ID_, &up_old_name);
-  return;
- }
- old_name_base = my_malloc(_ALLOC_ID_, old_name_len+1);
- n = sscanf(old_name, "%[^[0-9]",old_name_base);
- tmp=find_bracket(old_name);
- my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
- qq=fast ?  last[(int)xctx->prefix] : 1;
- for(q=qq;;q++)
- {
-   if(n >= 1 ) {
-     my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, tmp);
+void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
+{
+  char *old_name=NULL, *new_name=NULL;
+  const char *brkt;
+  const char *new_prop;
+  size_t old_name_len;
+  int n, q;
+  char *old_name_base = NULL;
+  char *up_new_name = NULL;
+  int is_used;
+ 
+  dbg(1, "new_prop_string(): i=%d, old_prop=%s, fast=%d\n", i, old_prop, fast);
+  if(old_prop==NULL) {
+   my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
+   return;
+  }
+  old_name_len = my_strdup(_ALLOC_ID_, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
+ 
+  if(old_name==NULL) {
+   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
+   return;
+  }
+  /* don't change old_prop if name does not conflict. */
+  /* if no hash_all_names() is done and inst_table uninitialized --> use old_prop */
+  is_used =  name_is_used(old_name);
+  if(dis_uniq_names || is_used == -1 || is_used == i) {
+   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
+   hash_all_names(i, XINSERT); /* add instance 'i' to xctx->inst_name_table */
+   my_free(_ALLOC_ID_, &old_name);
+   return;
+  }
+  /* old_name is not unique. Find another unique name */
+  old_name_base = my_malloc(_ALLOC_ID_, old_name_len+1);
+  n = sscanf(old_name, "%[^[0-9]",old_name_base);
+  brkt=find_bracket(old_name);
+  my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
+ 
+  for(q = 1 ;; ++q) {
+   if(n) {
+     my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, brkt);
    } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
-     my_snprintf(new_name, old_name_len + 40, "%c%d%s", xctx->prefix,q, tmp);
+     my_snprintf(new_name, old_name_len + 40, "%d%s", q, brkt);
    }
-   my_strdup(_ALLOC_ID_, &up_new_name, new_name);
-   strtoupper(up_new_name);
-   if((entry = int_hash_lookup(&xctx->inst_name_table, up_new_name, i, XLOOKUP)) == NULL || entry->value == i)
-   {
-    last[(int)xctx->prefix]=q+1;
-    break;
-   }
- }
- my_free(_ALLOC_ID_, &old_name_base);
- tmp2 = subst_token(old_prop, "name", new_name);
- if(strcmp(tmp2, old_prop) ) {
-   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, tmp2);
-   int_hash_lookup(&xctx->inst_name_table, up_new_name, i, XINSERT); /* reinsert in hash */
- }
- my_free(_ALLOC_ID_, &old_name);
- my_free(_ALLOC_ID_, &up_old_name);
- my_free(_ALLOC_ID_, &new_name);
- my_free(_ALLOC_ID_, &up_new_name);
+   is_used = name_is_used(new_name);
+   if(is_used == -1 ) break; 
+  }
+ 
+  my_free(_ALLOC_ID_, &old_name_base);
+  dbg(1, "new_prop_string(): new_name=%s\n", new_name);
+  new_prop = subst_token(old_prop, "name", new_name);
+  dbg(1, "new_prop_string(): old_prop=|%s|\n", old_prop);
+  dbg(1, "new_prop_string(): new_prop=|%s|\n", new_prop);
+  if(strcmp(new_prop, old_prop) ) {
+    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, new_prop);
+    my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, new_name);
+    hash_all_names(i, XINSERT);
+  }
+  my_free(_ALLOC_ID_, &old_name);
+  my_free(_ALLOC_ID_, &new_name);
+  my_free(_ALLOC_ID_, &up_new_name);
 }
 
 
@@ -1108,6 +1129,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 /* if tok not found in s and new_val!=NULL add tok=new_val at end.*/
 /* if new_val is empty ('\0') set token value to "" (token="") */
 /* if new_val is NULL *remove* 'token (and =val if any)' from s */
+/* return the updated string */
 {
   static char *result=NULL;
   size_t size=0;
