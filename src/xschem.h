@@ -983,6 +983,8 @@ typedef struct {
   /* load_schematic */
   int save_netlist_type;
   int loaded_symbol;
+  /* *bus_hilight_hash_lookup */
+  int some_nets_added; /* when hashing a bus net if at least one bit has been added set this to 1 */
   /* bbox */
   int bbx1, bbx2, bby1, bby2;
   int savew, saveh, savex1, savex2, savey1, savey2;

@@ -155,6 +155,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   Hilight_hashentry *ptr1=NULL, *ptr2=NULL;
   int mult;
  
+  xctx->some_nets_added = 0;
   if(token==NULL) return NULL;
   /* if( token[0] == '#' || !strpbrk(token, "*[],.:")) { */
   if( token[0] == '#' || !strpbrk(token, "*,.:")) {
@@ -173,6 +174,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
       /* insert one bus element at a time in hash table */
       dbg(2, "bus_hilight_hash_lookup(): inserting: %s, value:%d\n", start,value);
       ptr1=hilight_hash_lookup(start, value, what);
+      if(!ptr1) xctx->some_nets_added = 1;
       if(ptr1 && !ptr2) {
         ptr2=ptr1; /*return first non null entry */
         if(what==XLOOKUP) break; /* 20161221 no need to go any further if only looking up element */
@@ -262,6 +264,7 @@ int get_color(int value)
 void incr_hilight_color(void)
 {
   xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
+  dbg(1, "incr_hilight_color(): xctx->hilight_color=%d\n", xctx->hilight_color);
 }
 
 static void set_rawfile_for_bespice() 
@@ -1732,7 +1735,7 @@ void hilight_net(int viewer)
     case WIRE:
          /* sets xctx->hilight_nets=1 */
      if(!xctx->wire[n].node) break;
-     dbg(1, "hilight_net(): wire[n].node=%s\n", xctx->wire[n].node);
+     dbg(1, "hilight_net(): wire[n].node=%s, incr_hi=%d\n", xctx->wire[n].node, incr_hi);
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == XSCHEM_GRAPH) {
          send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);
@@ -1740,13 +1743,14 @@ void hilight_net(int viewer)
          dbg(1, "hilight_net(): wire[n].node=%s\n", xctx->wire[n].node);
        } else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
        else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
-       if(incr_hi) incr_hilight_color();
      }
+     if(xctx->some_nets_added && incr_hi) incr_hilight_color();
      break;
     case ELEMENT:
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
+       dbg(1, "hilight_net(): node[0]=%s, incr_hi=%d\n", xctx->inst[n].node[0], incr_hi);
        if(!bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
          if(viewer == XSCHEM_GRAPH) {
            send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
@@ -1755,8 +1759,8 @@ void hilight_net(int viewer)
          }
          else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
-         if(incr_hi) incr_hilight_color();
        }
+       if(xctx->some_nets_added && incr_hi) incr_hilight_color();
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */

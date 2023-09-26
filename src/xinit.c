@@ -616,6 +616,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->save_lw = 0.0;  /* used to save linewidth when selecting 'only_probes' view */
   xctx->onetime = 0; /* callback() static var */
   xctx->save_netlist_type = 0;
+  xctx->some_nets_added = 0;
   xctx->loaded_symbol = 0;
   xctx->no_draw = 0;
   xctx->bbox_set = 0; /* bbox */
