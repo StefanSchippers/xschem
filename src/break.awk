@@ -33,6 +33,7 @@ BEGIN{ quote=0 }
 
  # dont break .include lines as ngspice chokes on these.
  if(tolower($1) ~ /\.inc(lude)?|\.lib|\.title|\.save|\.write/) nobreak = 1
+ else if($0 ~/^\*\* ..._path:/) nobreak = 1
  else nobreak = 0
  # 20151203 faster executionif no {}' present
  if($0 ~/[{}']/ || quote) {
