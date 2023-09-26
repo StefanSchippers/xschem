@@ -187,7 +187,21 @@ void trim_wires(void)
           xctx->wire[xctx->wires].y1=xctx->wire[j].y1;
           xctx->wire[xctx->wires].x2=x0;
           xctx->wire[xctx->wires].y2=y0;
-          xctx->wire[xctx->wires].sel=0;
+
+
+          if(xctx->wire[j].sel == SELECTED1) {
+            xctx->wire[xctx->wires].sel = SELECTED1;
+            xctx->wire[j].sel = 0;
+          } else if(xctx->wire[j].sel == SELECTED2) {
+            xctx->wire[xctx->wires].sel = 0;
+            xctx->wire[j].sel = SELECTED2;
+          } else if(xctx->wire[j].sel == SELECTED) {
+            xctx->wire[xctx->wires].sel = SELECTED;
+            xctx->wire[j].sel = SELECTED;
+          } else {
+            xctx->wire[xctx->wires].sel = 0;
+            xctx->wire[j].sel = 0;
+          }
           xctx->wire[xctx->wires].prop_ptr=NULL;
           my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
           if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
@@ -336,6 +350,7 @@ void trim_wires(void)
           dbg(2, "trim_wires(): i=%d merged with j=%d\n", i, j);
           xctx->wire[i].x2 = xctx->wire[j].x2;
           xctx->wire[i].y2 = xctx->wire[j].y2;
+          if(xctx->wire[j].sel) xctx->wire[i].sel = xctx->wire[j].sel;
           wireflag[j] = 1;
           break;
         }

@@ -1606,6 +1606,7 @@ void move_objects(int what, int merge, double dx, double dy)
     find_inst_to_be_redrawn(16); /* clear data */
   }
   check_collapsing_objects();
+  unselect_partial_sel_wires();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
 
   if(xctx->hilight_nets) {
@@ -1623,7 +1624,6 @@ void move_objects(int what, int merge, double dx, double dy)
   if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
 
-  unselect_partial_sel_wires();
 
  }
  draw_selection(xctx->gc[SELLAYER], 0);
