@@ -2096,10 +2096,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
           XFreeGC(display,xctx->gctiled);
         }
         if(create_pixmap) {
-          #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
           XGCValues gcv;
           unsigned long gcvm;
-          #endif
 
           #ifdef __unix__
           xctx->save_pixmap = XCreatePixmap(display, xctx->window,
@@ -2109,16 +2107,16 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
              xctx->xrect[0].width, xctx->xrect[0].height, screendepth);
           #endif
 
-          #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-          gcv.function = GXnoop; /* disable all graphic operations with gctiled */
-          gcvm = GCFunction;
-          xctx->gctiled = XCreateGC(display,xctx->window, gcvm, &gcv); /* noop for gctiled */
-          XSetFillStyle(display,xctx->gctiled,FillSolid);
-          #else
-          xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
-          XSetTile(display,xctx->gctiled, xctx->save_pixmap);
-          XSetFillStyle(display,xctx->gctiled,FillTiled);
-          #endif
+          if(fix_broken_tiled_fill || !_unix) {
+            gcv.function = GXnoop; /* disable all graphic operations with gctiled */
+            gcvm = GCFunction;
+            xctx->gctiled = XCreateGC(display,xctx->window, gcvm, &gcv); /* noop for gctiled */
+            XSetFillStyle(display,xctx->gctiled,FillSolid);
+          } else {
+            xctx->gctiled = XCreateGC(display,xctx->window,0L, NULL);
+            XSetTile(display,xctx->gctiled, xctx->save_pixmap);
+            XSetFillStyle(display,xctx->gctiled,FillTiled);
+          }
          
           /* whenever a pixmap is recreated all GC attributes must be reissued */
           resetcairo(1, 0, 1); /* create, clear, force */
@@ -2490,6 +2488,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  l_width=atoi(tclgetvar("line_width"));
  if(tclgetboolvar("change_lw")) l_width = 0.0;
  cadlayers=atoi(tclgetvar("cadlayers"));
+ fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
  tclvareval("set_ne cadgrid ", tmp, NULL);

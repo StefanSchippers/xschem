@@ -469,3 +469,10 @@
 #### Instead, additional drives can be added using XSCHEM_LIBRARY_PATH
 #### default: 1
 # set add_all_windows_drives 0
+
+###########################################################################
+#### FIX GRAPHIC PROBLEMS ON SOME DRIVERS/GPU CONFIGURATIONS
+###########################################################################
+#### if you see garbage on screen / graphic artifacts while editing with
+#### xschem try to set this to 1. Default: not enabled (0)
+# set fix_broken_tiled_fill 0

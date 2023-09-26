@@ -406,9 +406,9 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  int tmp;
  double dtmp;
  if(!has_x) return;
- #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
- if(gctext == xctx->gctiled) return;
- #endif
+ if(fix_broken_tiled_fill || !_unix) {
+   if(gctext == xctx->gctiled) return;
+ }
 
  dbg(2, "draw_string(): string=%s\n",str);
  if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
@@ -728,9 +728,9 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
 
- #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
- if(gc == xctx->gctiled) return;
- #endif
+ if(fix_broken_tiled_fill || !_unix) {
+   if(gc == xctx->gctiled) return;
+ }
 
  if( (xctx->inst[n].flags & HIDE_INST) ||
      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
@@ -1161,9 +1161,9 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
- #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
- if(gc == xctx->gctiled) return;
- #endif
+ if(fix_broken_tiled_fill || !_unix) {
+   if(gc == xctx->gctiled) return;
+ }
 
  if(what & ADD)
  {
@@ -1238,9 +1238,9 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
 
  if(!has_x) return;
- #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
- if(gc == xctx->gctiled) return;
- #endif
+ if(fix_broken_tiled_fill || !_unix) {
+   if(gc == xctx->gctiled) return;
+ }
 
  if(what & ADD)
  {
@@ -1673,9 +1673,9 @@ void drawtemppolygon(GC g, int what, double *x, double *y, int points)
   int i;
   short sx, sy;
   if(!has_x) return;
-  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-  if(g == xctx->gctiled) return;
-  #endif
+  if(fix_broken_tiled_fill || !_unix) {
+    if(g == xctx->gctiled) return;
+  }
 
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
@@ -1767,9 +1767,9 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
- #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
- if(gc == xctx->gctiled) return;
- #endif
+ if(fix_broken_tiled_fill || !_unix) {
+   if(gc == xctx->gctiled) return;
+ }
 
  if(what & NOW)
  {

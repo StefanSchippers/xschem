@@ -5593,8 +5593,8 @@ set tctx::global_list {
   delay_flag  dim_bg dim_value
   disable_unique_names do_all_inst draw_crosshair draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  filetmp flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus graph_change_done graph_digital
-  graph_linewidth_mult graph_logx
+  filetmp fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus
+  graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
@@ -6116,9 +6116,6 @@ proc build_widgets { {topwin {} } } {
        -command {
          input_line "Enter grid spacing (float):" "xschem set cadgrid" $cadgrid
        }
-  $topwin.menubar.view.menu add checkbutton -label "View only Probes" -variable only_probes \
-         -accelerator {5} \
-         -command { xschem only_probes }
   $topwin.menubar.view.menu add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
           xschem build_colors
@@ -6150,6 +6147,19 @@ proc build_widgets { {topwin {} } } {
          -command {
            if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
          }
+
+  $topwin.menubar.view.menu add checkbutton -label "Fix for GPUs with broken tiled fill" \
+         -variable fix_broken_tiled_fill \
+         -command {
+           if { $fix_broken_tiled_fill == 1} {
+             xschem set fix_broken_tiled_fill 1
+           } else {
+             xschem set fix_broken_tiled_fill 0
+           }
+           xschem resetwin 1 1 0 0 0
+           xschem redraw
+         }
+
   $topwin.menubar.view.menu add checkbutton -label "Symbol text" -variable sym_txt \
      -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
@@ -6278,6 +6288,9 @@ proc build_widgets { {topwin {} } } {
       xschem redraw } \
    -variable compare_sch \
    -accelerator {Alt-X}
+  $topwin.menubar.hilight.menu add checkbutton -label "View only Probes" -variable only_probes \
+         -accelerator {5} \
+         -command { xschem only_probes }
   $topwin.menubar.hilight.menu add command \
    -label {Highlight net-pin mismatches on sel. instances} \
    -command "xschem net_pin_mismatch" \
@@ -6845,6 +6858,7 @@ set_ne dark_colorscheme 1
 set_ne enable_dim_bg 0
 set_ne dim_bg 0.0
 set_ne dim_value 0.0
+set_ne fix_broken_tiled_fill 0 ;# set to 1 on some broken X11 drivers / GPUs that show garbage on screen */
 ##### set colors
 if {!$rainbow_colors} {
   set_ne cadlayers 22

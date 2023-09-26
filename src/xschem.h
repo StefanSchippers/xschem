@@ -1079,11 +1079,13 @@ typedef struct {
 
 /* GLOBAL VARIABLES */
 
-/*********** X11 specific globals ***********/
+/*********** X11/system  specific globals ***********/
 extern Colormap colormap;
 extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern Display *display;
+extern int _unix; /* set to 1 on unix systems */
+extern int fix_broken_tiled_fill; /* if set to 1 work around some GPUs with rotten tiled fill operations */
 
 #ifdef HAS_XCB
 extern xcb_connection_t *xcb_conn;

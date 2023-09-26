@@ -1010,6 +1010,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'f':
+          if(!strcmp(argv[2], "fix_broken_tiled_fill")) { /* get drawing method setting (for broken GPUs) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, my_itoa(fix_broken_tiled_fill),TCL_VOLATILE);
+          }
           if(!strcmp(argv[2], "format")) { /* alternate format attribute to use in netlist (or NULL) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(!xctx->format ) Tcl_SetResult(interp, "<NULL>",TCL_STATIC);
@@ -3317,6 +3321,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* resetwin create_pixmap clear_pixmap force w h
+     *   internal command: calls resetwin() */
+    else if(!strcmp(argv[1], "resetwin"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 6) {
+        resetwin(atoi(argv[2]), atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6]));
+      }
+      Tcl_ResetResult(interp);
+    }
+
     /* resolved_net [net]
      *   if 'net' is given  return its topmost full hierarchy name
      *   else returns the topmost full hierarchy name of selected net/pin/label.
@@ -3747,6 +3762,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "draw_window")) { /* set drawing to window (1 or 0) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->draw_window=atoi(argv[3]);
+          }
+          else if(!strcmp(argv[2], "fix_broken_tiled_fill")) { /* alternate drawing method for broken GPUs */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            fix_broken_tiled_fill = atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "format")) { /* set name of custom format attribute used for netlisting */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

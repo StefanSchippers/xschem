@@ -195,13 +195,13 @@ void draw_selection(GC g, int interruptable)
 
   dbg(1,"draw_selection\n");
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
-  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-  else {
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-           xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-     if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+  if(fix_broken_tiled_fill || !_unix) {
+    if(g == xctx->gctiled) {
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+             xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+       if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+    }
   }
-  #endif
   for(i=0;i<xctx->movelastsel; ++i)
   {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
@@ -678,10 +678,10 @@ void copy_objects(int what)
      if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
    }
 
-   #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
-   MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-       xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-   #endif  
+   if(fix_broken_tiled_fill || !_unix) {
+     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+   }
 
    xctx->move_rot = xctx->move_flip = 0;
    xctx->deltax = xctx->deltay = 0.;
@@ -1124,11 +1124,11 @@ void move_objects(int what, int merge, double dx, double dy)
     pop_undo(0, 0);
     if(tclgetintvar("connect_by_kissing") == 2) tclsetintvar("connect_by_kissing", 0);
   }
-  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__) 
+  if(fix_broken_tiled_fill || !_unix) {
   if(xctx->save_pixmap && xctx->window)
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-  #endif  
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+  }
 
   xctx->move_rot=xctx->move_flip=0;
   xctx->deltax=xctx->deltay=0.;

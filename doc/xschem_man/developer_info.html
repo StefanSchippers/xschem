@@ -513,6 +513,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -668,6 +669,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> currsch </kbd> hierarchy level of current schematic (start at 0) </li>
      <li><kbd> debug_var </kbd> debug level (0 = no debug, 1, 2, 3,...) </li>
      <li><kbd> draw_window </kbd> direct draw into window </li>
+     <li><kbd> fix_broken_tiled_fill </kbd> get drawing method setting (for broken GPUs) </li>
      <li><kbd> format </kbd> alternate format attribute to use in netlist (or NULL) </li>
      <li><kbd> graph_lastsel </kbd> number of last graph that was clicked </li>
      <li><kbd> gridlayer </kbd> layer number for grid </li>
@@ -1060,6 +1062,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    afterward </pre>
    <li><kbd>       reset_flags</kbd></li><pre>
    Reset cached instance and symbol cached flags (inst-&gt;flags, sym-&gt;flags) </pre>
+   <li><kbd>       resetwin create_pixmap clear_pixmap force w h</kbd></li><pre>
+   internal command: calls resetwin() </pre>
    <li><kbd>       resolved_net [net]</kbd></li><pre>
    if 'net' is given  return its topmost full hierarchy name
    else returns the topmost full hierarchy name of selected net/pin/label.
@@ -1141,6 +1145,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> color_ps </kbd> set color psoscript (1 or 0) </li>
      <li><kbd> constrained_move </kbd> set constrained move (1=horiz, 2=vert, 0=none) </li>
      <li><kbd> draw_window </kbd> set drawing to window (1 or 0) </li>
+     <li><kbd> fix_broken_tiled_fill </kbd> alternate drawing method for broken GPUs </li>
      <li><kbd> format </kbd> set name of custom format attribute used for netlisting </li>
      <li><kbd> header_text </kbd> set header metadata (used for license info) </li>
      <li><kbd> hide_symbols </kbd> set to 0,1,2 for various hiding level of symbols </li>
@@ -1303,7 +1308,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

@@ -131,6 +131,17 @@ Pixmap cad_icon_pixmap=0, cad_icon_mask=0;
 /* char *cad_icon[] */
 Pixmap *pixmap = NULL;
 Visual *visual;
+#ifdef __unix__
+int _unix = 1;
+#else
+int _unix = 0;
+#endif
+
+#ifdef FIX_BROKEN_TILED_FILL
+int fix_broken_tiled_fill = 1;
+#else
+int fix_broken_tiled_fill = 0;
+#endif
 
 /* ---------------------------------------------- */
 /* These variables are mirrored in tcl code       */

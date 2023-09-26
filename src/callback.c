@@ -992,17 +992,17 @@ void draw_crosshair(int del)
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   
-  #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-  MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-       0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
-       xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
-       0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+  if(fix_broken_tiled_fill || !_unix) {
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
+         xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
+         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
 
-  MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-       (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
-       4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-       (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
-  #endif
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
+         4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+  }
   draw_selection(xctx->gc[SELLAYER], 0);
   drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
        xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
@@ -1184,16 +1184,16 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
       break;
     }
     if(xctx->ui_state & STARTPAN)   pan(RUBBER, mx, my);
-    #if defined(FIX_BROKEN_TILED_FILL) || !defined(__unix__)
-    if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
-        (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
-        (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
-        (xctx->ui_state & STARTPOLYGON) || /* (xctx->ui_state & STARTPAN) || */
-        (xctx->ui_state & STARTSELECT)) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-        xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    if(fix_broken_tiled_fill || !_unix) {
+      if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
+          (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
+          (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
+          (xctx->ui_state & STARTPOLYGON) || /* (xctx->ui_state & STARTPAN) || */
+          (xctx->ui_state & STARTSELECT)) {
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+      }
     }
-    #endif
     if(draw_xhair) {
       draw_crosshair(0);
     }
