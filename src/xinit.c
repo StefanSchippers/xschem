@@ -1469,7 +1469,7 @@ static int switch_tab(int *window_count, const char *win_path)
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
 static void create_new_window(int *window_count, const char *noconfirm, const char *fname)
 {
-  Window win_id;
+  Window win_id = 0LU;
   char toppath[WINDOW_PATH_SIZE];
   char prev_window[WINDOW_PATH_SIZE];
   int i, n;
@@ -1538,7 +1538,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   init_pixdata();/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
   save_xctx[n] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
-  xctx->window = win_id;
+  if(has_x) xctx->window = win_id;
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
   if(has_x) create_gc();
@@ -2037,7 +2037,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
 /* w and h (if > 0 ) parameters force reset pixmap to w x h, regardless of window size */
 void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
 {
-  unsigned int width, height;
+  unsigned int width = 0, height = 0;
   int status;
   #ifndef __unix__
   HWND hwnd = Tk_GetHWND(xctx->window);

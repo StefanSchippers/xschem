@@ -189,7 +189,7 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
 
   if(sch_waves_loaded() >= 0) { 
-    int dset, first, last, dataset = gr->dataset, i, p, ofs = 0;
+    int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0;
     double start, end;
     int sweepvar_wrap = 0, sweep_idx;
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
@@ -248,26 +248,30 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       ofs += xctx->graph_npoints[dset];
       sweepvar_wrap++;
     } /* for(dset...) */
-    if(p > last) {
-      double sweep0, sweep1;
-      p = last;
-      sweep0 = xctx->graph_values[sweep_idx][first];
-      sweep1 = xctx->graph_values[sweep_idx][p];
-      if(fabs(sweep0 - cursor2) < fabs(sweep1 - cursor2)) {
-        p = first;
+
+
+    if(first != -1) {
+      if(p > last) {
+        double sweep0, sweep1;
+        p = last;
+        sweep0 = xctx->graph_values[sweep_idx][first];
+        sweep1 = xctx->graph_values[sweep_idx][p];
+        if(fabs(sweep0 - cursor2) < fabs(sweep1 - cursor2)) {
+          p = first;
+        }
       }
+      dbg(1, "xx=%g, p=%d\n", xx, p);
+      tcleval("array unset ngspice::ngspice_data");
+      xctx->graph_annotate_p = p;
+      for(i = 0; i < xctx->graph_nvars; ++i) {
+        char s[100];
+        my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
+        dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
+        tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
+      }
+      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
+      tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
     }
-    dbg(1, "xx=%g, p=%d\n", xx, p);
-    tcleval("array unset ngspice::ngspice_data");
-    xctx->graph_annotate_p = p;
-    for(i = 0; i < xctx->graph_nvars; ++i) {
-      char s[100];
-      my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
-      dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
-      tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
-    }
-    tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
-    tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
   }
 }
 
@@ -324,7 +328,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 {
   Graph_ctx *gr;
   int i, redraw_all_at_end = 0, need_all_redraw = 0, need_redraw = 0, dataset = 0;
-  double xx1, xx2, yy1, yy2;
+  double xx1 = 0.0, xx2 = 0.0, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
@@ -559,12 +563,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(gr->unitx != 1.0) 
             my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
           else
-            strncpy(sx, dtoa_eng(xval), S(sx));
+            my_strncpy(sx, dtoa_eng(xval), S(sx));
 
           if(gr->unitx != 1.0)
             my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
           else
-            strncpy(sy, dtoa_eng(yval), S(sy));
+            my_strncpy(sy, dtoa_eng(yval), S(sy));
   
           tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
           tcleval("graph_show_measure");
@@ -945,7 +949,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
             if(xx1 == xx2) xx2 += 1e-6;
             */
-
+            if(xx1 == xx2) xx2 += 1e-6;
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;

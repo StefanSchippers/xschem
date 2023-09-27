@@ -1137,7 +1137,7 @@ static int edit_text_property(int x)
   #endif
   int sel, k, text_changed = 0, props_changed = 0, size_changed = 0, tmp;
   int c,l, preserve;
-  double hsize, vsize, dtmp;
+  double hsize = 0.4, vsize = 0.4, dtmp;
   double xx1,yy1,xx2,yy2;
   double pcx,pcy;      /* pin center 20070317 */
   char property[100];/* used for float 2 string conv (xscale  and yscale) overflow safe */

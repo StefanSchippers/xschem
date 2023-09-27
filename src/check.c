@@ -415,6 +415,7 @@ static int touches_inst_pin(double x, double y, int inst)
 
 /* return 2 if x0, y0 is on the segment
  * return 1 if x0, y0 is less than cadsnap (10) from the segment
+ * return 0 if nothing will be cut (mouse too far away or degenerated segment) 
  * In this case x0, y0 are reset to the closest point on the segment */
 static int closest_point_calculation(double x1, double y1, double x2, double y2,
                                      double *x0, double *y0, int align)
@@ -426,22 +427,20 @@ static int closest_point_calculation(double x1, double y1, double x2, double y2,
   sq_cs = cs * cs; /* get squared value to compare with squared distance */
 
   if(x1 == x2 && y1 == y2) {
-    x3 = x1;
-    y3 = y1;
+    ret = 0;
   } else {
     projection = (x2 - x1) * (*x0 - x1) + (y2 - y1) * (*y0 - y1);
     projection /= (x2 - x1) * ( x2 - x1) + (y2 - y1) * (y2 - y1);
     x3 = x1 + projection * (x2 - x1);
     y3 = y1 + projection * (y2 - y1);
+    sq_distance = (*x0 - x3) * (*x0 - x3) + (*y0 - y3) * (*y0 - y3);
+    if(projection <= 1 && projection >= 0) { /* point is within x1,y1 - x2,y2 */
+      if(sq_distance == 0) ret = 2;
+      else if(sq_distance <  sq_cs) ret = 1;
+    }
+    dbg(1, "x3 = %g y3=%g dist=%g ret=%d\n", x3, y3, sqrt(sq_distance), ret);
   }
-  sq_distance = (*x0 - x3) * (*x0 - x3) + (*y0 - y3) * (*y0 - y3);
 
-  if(projection <= 1 && projection >= 0) { /* point is within x1,y1 - x2,y2 */
-    if(sq_distance == 0) ret = 2;
-    else if(sq_distance <  sq_cs) ret = 1;
-  }
-
-  dbg(1, "x3 = %g y3=%g dist=%g ret=%d\n", x3, y3, sqrt(sq_distance), ret);
   if(ret == 1) {
     if(align) {
       *x0 = my_round(x3 / cs) * cs;
@@ -450,6 +449,7 @@ static int closest_point_calculation(double x1, double y1, double x2, double y2,
       *x0 = x3;
       *y0 = y3;
     }
+    /* if ret == 2 leave x0 and y0 as they are since x0,y0 already touches wire */
   }
   return ret;
 }
@@ -470,7 +470,7 @@ void break_wires_at_point(double x0, double y0, int align)
     x2 = xctx->wire[i].x2;
     y2 = xctx->wire[i].y2;
     r = closest_point_calculation(x1, y1, x2, y2, &x0, &y0, align);
-    if( r == 1 || touch(x1, y1, x2, y2, x0,y0) ) {
+    if( r != 0 && (r == 1 || touch(x1, y1, x2, y2, x0,y0) )) {
       if( (x0 != x1 && x0 != x2) ||
           (y0 != y1 && y0 != y2) ) {
         dbg(1, "break_wires_at_point(): processing wire %d: %g %g %g %g\n",

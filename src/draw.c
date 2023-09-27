@@ -2209,7 +2209,7 @@ static void draw_graph_points(int idx, int first, int last,
   int poly_npoints = 0;
   double s1;
   double s2;
-  double c, c1;
+  double c = 0, c1;
   register SPICE_DATA *gv = xctx->graph_values[idx];
 
   dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
@@ -2874,7 +2874,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   int p, dset, ofs;
   int first, last;
   double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
-  double xx0; /* first sweep value */
+  double xx0 = 0; /* first sweep value */
   double start;
   double end;
   int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
@@ -2982,7 +2982,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       int p, dset, ofs;
       int first, last;
       double xx, yy ; /* the p-th point */
-      double xx0; /* first sweep value */
+      double xx0 = 0.0; /* first sweep value */
       double start;
       double end;
       int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
@@ -2991,7 +2991,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
       /* loop through all datasets found in raw file */
       for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
-        double prev_x;
+        double prev_x = 0.0;
         int cnt=0, wrap;
         register SPICE_DATA *gvx = xctx->graph_values[sweep_idx];
         register SPICE_DATA *gvy;
@@ -3022,7 +3022,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
           }
           if(xx >= start && xx <= end) {
             if(first == -1) first = p;
-            if( XSIGN(xval - xx) != XSIGN(xval - prev_x)) {
+            if( p > ofs && XSIGN(xval - xx) != XSIGN(xval - prev_x)) {
 
                if(min < 0.0) {
                   min = fabs(yval - yy);
@@ -3078,8 +3078,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   char *bus_msb = NULL;
   int wcnt = 0, idx, expression;
   int measure_p = -1;
-  double measure_x;
-  double measure_prev_x;
+  double measure_x = 0.0;
+  double measure_prev_x = 0.0;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   
@@ -3149,7 +3149,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         int poly_npoints;
         int first, last;
         double xx; /* the p-th sweep variable value:  xctx->graph_values[sweep_idx][p] */
-        double xx0; /* the first sweep value */
+        double xx0 = 0.0; /* the first sweep value */
         double start;
         double end;
         int n_bits = 1; 
@@ -3291,7 +3291,7 @@ static void draw_graph_all(int flags)
 {
   int  i, sch_loaded, hide_graphs;
   int bbox_set = 0;
-  int save_bbx1, save_bby1, save_bbx2, save_bby2;
+  int save_bbx1 = 0, save_bby1 = 0, save_bbx2 = 0, save_bby2 = 0;
   dbg(1, "draw_graph_all(): flags=%d\n", flags);
   /* save bbox data, since draw_graph_all() is called from draw() which may be called after a bbox(SET) */
   sch_loaded = (sch_waves_loaded() >= 0);

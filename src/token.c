@@ -667,7 +667,7 @@ const char *get_sym_template(char *s,char *extra)
 /* 2: eat backslashes */
 /* 3: 1+2  :) */
 
- dbg(1, "get_sym_template(): s=%s, extra=%s\n", s, extra);
+ dbg(1, "get_sym_template(): s=%s, extra=%s\n", s ? s : "NULL", extra ? extra : "NULL");
  if(s==NULL) {
    my_free(_ALLOC_ID_, &result);
    return "";

@@ -4225,7 +4225,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "switch"))
     {
-      int r;
+      int r = 1; /* error: no switch was done */
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) r = new_schematic("switch", argv[2], NULL);
       Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
