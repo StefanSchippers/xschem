@@ -1102,7 +1102,9 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 
  c_snap = tclgetdoublevar("cadsnap");
  state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
+ #ifdef __unix__
  state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
+ #endif
  if(xctx->semaphore >= 2)
  {
    if(debug_var>=2)
