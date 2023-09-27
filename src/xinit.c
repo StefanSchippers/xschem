@@ -2120,7 +2120,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
          
           /* whenever a pixmap is recreated all GC attributes must be reissued */
           resetcairo(1, 0, 1); /* create, clear, force */
-          /* change_linewidth(-1.0); */
+          change_linewidth(-1.0);
         }
       }
     }

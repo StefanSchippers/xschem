@@ -1120,7 +1120,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    statusmsg(str,1);
  }
 
- dbg(1, "key=%c(%d) EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, key, SET_MODMASK, EQUAL_MODMASK);
+ dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
  switch(event)
  {
   case EnterNotify:

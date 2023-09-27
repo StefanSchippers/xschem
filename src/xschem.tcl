@@ -5784,6 +5784,9 @@ global env has_x OS autofocus_mainwindow
   
     # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
     if {$OS == "Windows" } {
+      bind $topwin <Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$Mod1Mask}]}
+      bind $topwin <Control-Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$ControlMask + $Mod1Mask}]}
+      bind $topwin <Shift-Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$ShiftMask + $Mod1Mask}]}
       bind $topwin <Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$Mod1Mask}]}
       bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
       bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
