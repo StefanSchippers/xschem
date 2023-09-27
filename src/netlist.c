@@ -899,7 +899,7 @@ static int find_pass_through_symbols(int what, int ninst)
         }
       }
       int_hash_free(&table);
-      if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[i].name);
+      if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[k].name);
     }
     my_free(_ALLOC_ID_, &symtable);
   } else if(what ==1) { /* query */
