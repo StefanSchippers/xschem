@@ -1101,7 +1101,8 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
  xctx->semaphore++; /* to recognize recursive callback() calls */
 
  c_snap = tclgetdoublevar("cadsnap");
- state &=~Mod2Mask; /* 20170511 filter out NumLock status */
+ state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
+ state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
  if(xctx->semaphore >= 2)
  {
    if(debug_var>=2)
