@@ -2640,6 +2640,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
 /* pass to tcl values of Alt, Shift, COntrol key masks so bind Alt-KeyPress events will work for windows */
 #ifndef __unix__
+ my_snprintf(tmp, S(tmp), "%d", Mod4Mask);
+ tclsetvar("Mod4Mask", tmp);
  my_snprintf(tmp, S(tmp), "%d", Mod1Mask);
  tclsetvar("Mod1Mask", tmp);
  my_snprintf(tmp, S(tmp), "%d", ShiftMask);
