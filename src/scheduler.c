@@ -1065,6 +1065,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, dtoa(xctx->lw), TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "lines")) { /* (xschem get lines n) number of lines on layer 'n' */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            if(argc > 3) {
+              int c = atoi(argv[3]);
+              if(c >=0 && c < cadlayers) {
+                Tcl_SetResult(interp, my_itoa(xctx->lines[c]),TCL_VOLATILE);
+              } else {
+                Tcl_SetResult(interp, "xschem get rects n: layer number out of range", TCL_STATIC);
+                return TCL_ERROR;
+              }
+            } else {
+              Tcl_SetResult(interp, "xschem get rects n: give a layer number", TCL_STATIC);
+              return TCL_ERROR;
+            }
+          }
           break;
           case 'n':
           if(!strcmp(argv[2], "netlist_name")) { /* netlist name if set. If 'fallback' given get default name */
@@ -1137,6 +1152,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[2], "rectcolor")) { /* current layer number */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->rectcolor),TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "rects")) { /* (xschem get rects n) number of rectangles on layer 'n' */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            if(argc > 3) {
+              int c = atoi(argv[3]);
+              if(c >=0 && c < cadlayers) {
+                Tcl_SetResult(interp, my_itoa(xctx->rects[c]),TCL_VOLATILE);
+              } else {
+                Tcl_SetResult(interp, "xschem get rects n: layer number out of range", TCL_STATIC);
+                return TCL_ERROR;
+              }
+            } else {
+              Tcl_SetResult(interp, "xschem get rects n: give a layer number", TCL_STATIC);
+              return TCL_ERROR;
+            }
           }
           break;
           case 's':
@@ -2048,14 +2078,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'l': /*----------------------------------------------*/
-    /* line x1 y1 x2 y2 [pos]
-     *   Place a line on current layer (rectcolor) 
-     *   if integer number 'pos' is given place line at indicated
-     *   position in the line array. */
+    /* line [x1 y1 x2 y2] [pos] [propstring] [draw]
+     *   if 'x1 y1 x2 y2'is given place line on current
+     *   layer (rectcolor) at indicated coordinates.
+     *   if 'pos' is given insert at given position in rectangle array.
+     *   if 'pos' set to -1 append to last element in line array.
+     *   'propstring' is the attribute string. Set to empty if not given.
+     *   if 'draw' is set to 1 (default) draw the new object, else don't
+     *   If no coordinates are given start a GUI operation of line placement */
     if(!strcmp(argv[1], "line"))
-    {
+    {   
       double x1,y1,x2,y2;
       int pos, save;
+      int draw = 1;
+      const char *prop_str = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 5) {
         x1=atof(argv[2]);
@@ -2064,13 +2100,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         y2=atof(argv[5]);
         ORDER(x1,y1,x2,y2);
         pos=-1;
-        if(argc==7) pos=atoi(argv[6]);
-        storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,NULL);
-        save = xctx->draw_window; xctx->draw_window = 1;
-        drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, NULL);
-        xctx->draw_window = save;
+        if(argc > 6) pos=atoi(argv[6]);
+        if(argc > 7) prop_str = argv[7];
+        if(argc > 8) draw = atoi(argv[8]);
+        storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,prop_str);
+        if(draw) {
+          save = xctx->draw_window; xctx->draw_window = 1;
+          drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, NULL);
+          xctx->draw_window = save;
+        }
         set_modify(1);
-      }
+      } 
       else xctx->ui_state |= MENUSTARTLINE;
     }
 
@@ -3130,28 +3170,37 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rebuild_selected_array();
     }
 
-    /* rect [x1 y1 x2 y2] [pos]
+    /* rect [x1 y1 x2 y2] [pos] [propstring] [draw]
      *   if 'x1 y1 x2 y2'is given place recangle on current
      *   layer (rectcolor) at indicated coordinates.
      *   if 'pos' is given insert at given position in rectangle array.
+     *   if 'pos' set to -1 append rectangle to last element in rectangle array.
+     *   'propstring' is the attribute string. Set to empty if not given.
+     *   if 'draw' is set to 1 (default) draw the new object, else don't
      *   If no coordinates are given start a GUI operation of rectangle placement */
     else if(!strcmp(argv[1], "rect"))
     {
       double x1,y1,x2,y2;
       int pos, save;
+      int draw = 1;
+      const char *prop_str = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 5) {
         x1=atof(argv[2]);
         y1=atof(argv[3]);
         x2=atof(argv[4]);
         y2=atof(argv[5]);
-        ORDER(x1,y1,x2,y2);
+        RECTORDER(x1,y1,x2,y2);
         pos=-1;
-        if(argc==7) pos=atoi(argv[6]);
-        storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,NULL);
-        save = xctx->draw_window; xctx->draw_window = 1;
-        drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
-        xctx->draw_window = save;
+        if(argc > 6) pos=atoi(argv[6]);
+        if(argc > 7) prop_str = argv[7];
+        if(argc > 8) draw = atoi(argv[8]);
+        storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,prop_str);
+        if(draw) {
+          save = xctx->draw_window; xctx->draw_window = 1;
+          drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
+          xctx->draw_window = save;
+        }
         set_modify(1);
       }
       else xctx->ui_state |= MENUSTARTRECT;
