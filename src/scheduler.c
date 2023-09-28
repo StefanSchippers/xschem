@@ -3883,9 +3883,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               change_layer();
             }
           }
-          else if(!strcmp(argv[2], "sch_to_compare")) { /* st name of schematic to compare current window with */
+          else if(!strcmp(argv[2], "sch_to_compare")) { /* set name of schematic to compare current window with */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strncpy(xctx->sch_to_compare, abs_sym_path(argv[3], ""), S(xctx->sch_to_compare));
+          }
+          else if(!strcmp(argv[2], "schsymbolprop")) { /* set global symbol attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, argv[3]);
+          }
+          else if(!strcmp(argv[2], "schprop")) { /* set schematic global spice attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schprop, argv[3]);
+          }
+          else if(!strcmp(argv[2], "schverilogprop")) { /* set schematic global verilog attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schverilogprop, argv[3]);
+          }
+          else if(!strcmp(argv[2], "schvhdlprop")) { /* set schematic global vhdl attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, argv[3]);
+          }
+          else if(!strcmp(argv[2], "schtedaxprop")) { /* set schematic global tedax attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, argv[3]);
           }
           else if(!strcmp(argv[2], "text_svg")) { /* set to 1 to use svg <text> elements */
             text_svg=atoi(argv[3]);

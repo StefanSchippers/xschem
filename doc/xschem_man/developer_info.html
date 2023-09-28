@@ -512,6 +512,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1162,7 +1163,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> no_draw </kbd> set no drawing flag (0 or 1) </li>
      <li><kbd> no_undo </kbd> set to 1 to disable undo </li>
      <li><kbd> rectcolor </kbd> set current layer (0, 1, .... , cadlayers-1) </li>
-     <li><kbd> sch_to_compare </kbd> st name of schematic to compare current window with </li>
+     <li><kbd> sch_to_compare </kbd> set name of schematic to compare current window with </li>
+     <li><kbd> schsymbolprop </kbd> set global symbol attribute string </li>
+     <li><kbd> schprop </kbd> set schematic global spice attribute string </li>
+     <li><kbd> schverilogprop </kbd> set schematic global verilog attribute string </li>
+     <li><kbd> schvhdlprop </kbd> set schematic global vhdl attribute string </li>
+     <li><kbd> schtedaxprop </kbd> set schematic global tedax attribute string </li>
      <li><kbd> text_svg </kbd> set to 1 to use svg &lt;text&gt; elements </li>
      <li><kbd> semaphore </kbd> debug </li>
      <li><kbd> show_hidden_texts </kbd> set to 1 to enable showing texts with attr hide=true </li>
@@ -1315,6 +1321,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 
