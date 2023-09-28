@@ -997,7 +997,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 void draw_crosshair(int del)
 {
   int sdw, sdp;
-  dbg(1, "draw_crosshair()\n");
+  dbg(1, "draw_crosshair(): del=%d\n", del);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
@@ -1015,18 +1015,18 @@ void draw_crosshair(int del)
          4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
          (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
   }
-  draw_selection(xctx->gc[SELLAYER], 0);
   drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
        xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
   drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
        xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
 
   if(!del) {
-    drawline(TEXTLAYER, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
+    drawline(xctx->crosshair_layer, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
        X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
-    drawline(TEXTLAYER, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
+    drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
        xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2), 3, NULL);
   }
+  draw_selection(xctx->gc[SELLAYER], 0);
   xctx->prev_crossx = xctx->mousex_snap;
   xctx->prev_crossy = xctx->mousey_snap;
 
@@ -1142,6 +1142,9 @@ int rstate; /* (reduced state, without ShiftMask) */
  dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
  switch(event)
  {
+  case LeaveNotify:
+    draw_crosshair(1);
+    break;
   case EnterNotify:
     if(tclgetboolvar("draw_crosshair"))
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);

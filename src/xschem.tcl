@@ -5589,7 +5589,7 @@ set tctx::global_list {
   add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps colors compare_sch constrained_move
-  copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme
+  copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
   delay_flag  dim_bg dim_value
   disable_unique_names do_all_inst draw_crosshair draw_grid draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
@@ -5762,7 +5762,7 @@ global env has_x OS autofocus_mainwindow
          }
        }
     "
-    bind $topwin <Leave> "graph_show_measure stop"
+    bind $topwin <Leave> "xschem callback %W %T %x %y 0 0 0 %s; graph_show_measure stop"
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
@@ -6761,6 +6761,7 @@ set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0
 set_ne color_ps 1
+set_ne crosshair_layer 3 ;# TEXTLAYER
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112

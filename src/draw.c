@@ -3657,7 +3657,11 @@ void draw(void)
   #endif
 
   dbg(1, "draw()\n");
+
   if(!xctx || xctx->no_draw) return;
+  xctx->crosshair_layer = tclgetintvar("crosshair_layer");
+  if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;
+  if(xctx->crosshair_layer >= cadlayers ) xctx->crosshair_layer = 2;
   #if HAS_CAIRO==1
   #ifndef __unix__
   clear_cairo_surface(xctx->cairo_save_ctx,

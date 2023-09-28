@@ -630,6 +630,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->gcstipple=my_calloc(_ALLOC_ID_, cadlayers, sizeof(GC));
   xctx->color_array=my_calloc(_ALLOC_ID_, cadlayers, sizeof(char*));
   xctx->enable_layer=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->crosshair_layer = TEXTLAYER;
   xctx->n_active_layers = 0;
   xctx->active_layer=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->hide_symbols = 0;
@@ -2481,6 +2482,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* get xschem globals from tcl variables set in xschemrc/xschem.tcl */
  cairo_font_line_spacing = tclgetdoublevar("cairo_font_line_spacing");
+
  if(color_ps==-1)
    color_ps=atoi(tclgetvar("color_ps"));
  else  {
@@ -2489,7 +2491,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  l_width=atoi(tclgetvar("line_width"));
  if(tclgetboolvar("change_lw")) l_width = 0.0;
+
  cadlayers=atoi(tclgetvar("cadlayers"));
+
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
@@ -2506,6 +2510,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  alloc_xschem_data("", ".drw");
  /* initialize current schematic name to empty string to avoid gazillion checks in the code for NULL */
  my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], "");
+
+ xctx->crosshair_layer = tclgetintvar("crosshair_layer");
+ if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;
+ if(xctx->crosshair_layer >= cadlayers ) xctx->crosshair_layer = 2;
 
  /* global context / graphic preferences/settings */
  pixdata=my_calloc(_ALLOC_ID_, cadlayers, sizeof(char*));
