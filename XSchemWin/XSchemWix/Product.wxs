@@ -243,6 +243,13 @@
       <Component Id="CMPTRADUCIAWK">
         <File Id="TRADUCIAWK" KeyPath="yes" Source="../../src/traduci.awk" />
       </Component>
+	  <Component Id="CMPPLACEPLINS">
+		<File Id="PLACEPLINS" KeyPath="yes" Source="../../src/place_pins.tcl" />
+	  </Component>
+	  <Component Id="CMPPLACESYMPINS">
+		<File Id="PLACESYMPINS" KeyPath="yes" Source="../../src/place_sym_pins.tcl" />
+	  </Component>
+		
       <Directory Id="SYSTEMLIBFOLDER" Name="systemlib">
         <Component Id="CMPSYSTEMLIBFONTSCH">
           <File Id="FONTSCH" KeyPath="yes" Source="../../src/systemlib/font.sch" />
@@ -359,6 +366,8 @@
       <ComponentRef Id="CMPFLATTENTEDAXAWK" />
       <ComponentRef Id="CMPTRACKMEMORYAWK" />
       <ComponentRef Id="CMPTRADUCIAWK" />
+	  <ComponentRef Id="CMPPLACEPLINS" />
+	  <ComponentRef Id="CMPPLACESYMPINS" />			
       <ComponentRef Id="CMPVERILOGAWK" />
       <ComponentRef Id="CMPVHDLAWK" />
       <ComponentRef Id="CMPXSCHEMHELP" />

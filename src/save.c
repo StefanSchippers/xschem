@@ -486,7 +486,8 @@ static int read_dataset(FILE *fd, const char *type)
       else xctx->graph_sim_type = "op";
       dbg(dbglev, "read_dataset(): op graph_sim_type=%s\n", xctx->graph_sim_type ? xctx->graph_sim_type : "<NULL>");
     }
-    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "ac analysis")) {
+    else if(!strncmp(line, "Plotname:", 9) &&
+            ( strstr(lowerline, "ac analysis") || strstr(lowerline, "sp analysis")) ) {
       ac = 1;
       if(xctx->graph_sim_type && strcmp(xctx->graph_sim_type, "ac")) xctx->graph_sim_type = NULL;
       else if(type && !strcmp(type, "ac")) xctx->graph_sim_type = "ac";
