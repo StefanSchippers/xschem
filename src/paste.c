@@ -279,6 +279,7 @@ static void merge_inst(int k,FILE *fd)
     new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
+    hash_names(i, XINSERT);
     my_free(_ALLOC_ID_, &prop_ptr);
     xctx->instances++;
 }

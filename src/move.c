@@ -1041,13 +1041,13 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot + ( (xctx->move_flip && 
            (xctx->inst[xctx->instances].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
         xctx->inst[xctx->instances].flip = (xctx->move_flip? !xctx->inst[n].flip:xctx->inst[n].flip);
+        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, xctx->inst[n].instname);
         /* the newpropcnt argument is zero for the 1st call and used in  */
         /* new_prop_string() for cleaning some internal caches. */
         if(!newpropcnt) hash_names(-1, XINSERT);
-        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, 
+        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
-        my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, 
-            get_tok_value(xctx->inst[xctx->instances].prop_ptr, "name", 0));
+        hash_names(xctx->instances, XINSERT);
         /* this is needed since no find_inst_to_be_redrawn() is executed if floaters are present */
         if(floaters) symbol_bbox(xctx->instances,
              &xctx->inst[xctx->instances].x1, &xctx->inst[xctx->instances].y1,

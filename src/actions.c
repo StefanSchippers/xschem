@@ -1205,7 +1205,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   if(symname_pin && symname_wire) {
     rebuild_selected_array();
     k = xctx->lastsel;
-    first_call=1; /*  20171214 for place_symbol--> new_prop_string */
+    first_call=1;
     prepare_netlist_structs(0);
     for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
       found=1;
@@ -1417,6 +1417,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
  if(i!=-1)
  {
+  if(first_call) hash_names(-1, XINSERT);
   check_inst_storage();
   if(pos==-1 || pos > xctx->instances) n=xctx->instances;
   else
@@ -1450,7 +1451,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].prop_ptr=NULL;
   xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
-  if(first_call) hash_names(-1, XINSERT);
   if(inst_props) {
     new_prop_string(n, inst_props,!first_call, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
   }

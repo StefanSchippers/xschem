@@ -643,7 +643,7 @@ void set_inst_prop(int i)
   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, ptr);
   if(get_tok_value(ptr, "name",0)[0]) {
     my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
-    new_prop_string(i, tmp, 0, tclgetboolvar("disable_unique_names"));
+    new_prop_string(i, tmp, 0, tclgetboolvar("disable_unique_names")); /* sets also inst[].instname */
     my_free(_ALLOC_ID_, &tmp);
   }
 }
@@ -1431,9 +1431,11 @@ static int update_symbol(const char *result, int x, int first_sel)
       /* set unique name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_names(-1, XINSERT);
-      new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+      hash_names(*ii, XDELETE);
+      new_prop_string(*ii, ptr, k,               /* sets also inst[].instname */
+         tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+      hash_names(*ii, XINSERT);
     }
-
     set_inst_flags(&xctx->inst[*ii]);
     /* set cached flags in instances */
     type=xctx->sym[xctx->inst[*ii].ptr].type;
@@ -1444,7 +1446,6 @@ static int update_symbol(const char *result, int x, int first_sel)
                 get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
     }
     else xctx->inst[*ii].flags &= ~PIN_OR_LABEL;
-
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
 
   if(pushed) modified = 1;

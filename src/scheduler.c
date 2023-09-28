@@ -3319,9 +3319,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
           my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           if(!fast) hash_names(-1, XINSERT);
-          new_prop_string(inst, ptr, fast, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-          my_strdup(_ALLOC_ID_, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name", 0));
-
+          hash_names(inst, XDELETE);
+          new_prop_string(inst, ptr, fast,           /* sets also inst[].instname */
+             tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+          hash_names(inst, XINSERT);
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= type && IS_LABEL_SH_OR_PIN(type);
           if(cond) {
@@ -4021,15 +4022,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
-          if(!strcmp(argv[4], "name")) hash_names(-1, XINSERT);
+          if(!strcmp(argv[4], "name") && fast == 0) hash_names(-1, XINSERT);
           if(argc > 5) {
             my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
           } else {/* assume argc == 5 , delete attribute */
             my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL));
           }
+          hash_names(inst, XDELETE);
           new_prop_string(inst, subst, fast, tclgetboolvar("disable_unique_names"));
           my_free(_ALLOC_ID_, &subst);
           set_inst_flags(&xctx->inst[inst]);
+          hash_names(inst, XINSERT);
 
           type=xctx->sym[xctx->inst[inst].ptr].type;
           cond= type && IS_LABEL_SH_OR_PIN(type);
