@@ -139,10 +139,6 @@ const char *tcl_hook2(const char *cmd)
   return result;
 }
 
-/* Missing: 
- * if one instance is named R1[3:0] and another is named R1[2] 
- * the name collision is not detected nor corrected
- */
 void check_unique_names(int rename)
 {
   int i, first = 1, modified = 0;

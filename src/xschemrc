@@ -177,10 +177,6 @@
 #### default: 0
 # set persistent_command 1
 
-#### if set to 1 a wire is inserted when separating components that are
-#### connected by pins. Default: not enabled (0)
-# set connect_by_kissing 1
-
 #### if set to 1 at end of a move operation that stretches wires attached to
 #### moved objects these wires will be unselected.
 #### default: not enabled (0)

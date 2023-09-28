@@ -2245,7 +2245,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
    {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
-    tclsetintvar("connect_by_kissing", 2); /* 2 will be used to reset var to 0 at end of move */
+    xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
     /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
     move_objects(START,0,0,0);
     break;
@@ -2265,7 +2265,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(xctx->semaphore >= 2) break;
-    tclsetintvar("connect_by_kissing", 2); /* 2 will be used to reset var to 0 at end of move */
+    xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     copy_objects(START);

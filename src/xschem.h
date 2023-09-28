@@ -946,6 +946,8 @@ typedef struct {
   /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;
+  /* connect by kissing enable flag */
+  int connect_by_kissing;
   /* a wire was created while separating a component frm a net or another component */
   int kissing;
   short move_flip;

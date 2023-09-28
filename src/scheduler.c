@@ -2454,7 +2454,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(stretch) select_attached_nets();
-      if(kissing) tclsetintvar("connect_by_kissing", 2);
+      if(kissing) xctx->connect_by_kissing = 2;
       if(argc > 3 + nparam) {
         move_objects(START,0,0,0);
         move_objects( END,0,atof(argv[2]), atof(argv[3]));

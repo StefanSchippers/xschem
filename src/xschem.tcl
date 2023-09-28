@@ -5588,7 +5588,7 @@ set tctx::global_list {
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
   add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cairo_font_name change_lw color_ps colors compare_sch connect_by_kissing constrained_move
+  cadsnap cairo_font_name change_lw color_ps colors compare_sch constrained_move
   copy_cell custom_label_prefix custom_token dark_colors dark_colorscheme
   delay_flag  dim_bg dim_value
   disable_unique_names do_all_inst draw_crosshair draw_grid draw_window edit_prop_pos edit_prop_size
@@ -6775,7 +6775,6 @@ set_ne show_hidden_texts 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
-set_ne connect_by_kissing 0
 set_ne unselect_partial_sel_wires 0
 set_ne draw_crosshair 0
 set_ne draw_grid 1
