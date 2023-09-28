@@ -1043,7 +1043,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].flip = (xctx->move_flip? !xctx->inst[n].flip:xctx->inst[n].flip);
         /* the newpropcnt argument is zero for the 1st call and used in  */
         /* new_prop_string() for cleaning some internal caches. */
-        if(!newpropcnt) hash_all_names(-1, XINSERT);
+        if(!newpropcnt) hash_names(-1, XINSERT);
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, 
           tclgetboolvar("disable_unique_names"));
         my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, 

@@ -514,6 +514,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -780,13 +781,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname net</kbd></li><pre>
    Highlight net name 'net' </pre>
-   <li><kbd>       instance sym_name x y rot flip [prop] [first_call]</kbd></li><pre>
+   <li><kbd>       instance sym_name x y rot flip [prop] [n]</kbd></li><pre>
    Place a new instance of symbol 'sym_name' at position x,y,
    rotation and flip  set to 'rot', 'flip'
    if 'prop' is given it is the new instance attribute
    string (default: symbol template string)
-   if 'first_call' is given it must be 1 on first call
-   and zero on following calls
+   if 'n' is given it must be 0 on first call
+   and non zero on following calls
    It is used only for efficiency reasons if placing multiple instances </pre>
    <li><kbd>       instance_bbox inst</kbd></li><pre>
    return instance and symbol bounding boxes
@@ -1308,7 +1309,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

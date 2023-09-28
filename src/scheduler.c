@@ -1712,13 +1712,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'i': /*----------------------------------------------*/
-    /* instance sym_name x y rot flip [prop] [first_call]
+    /* instance sym_name x y rot flip [prop] [n]
      *   Place a new instance of symbol 'sym_name' at position x,y,
      *   rotation and flip  set to 'rot', 'flip'
      *   if 'prop' is given it is the new instance attribute
      *   string (default: symbol template string)
-     *   if 'first_call' is given it must be 1 on first call
-     *   and zero on following calls
+     *   if 'n' is given it must be 0 on first call
+     *   and non zero on following calls
      *   It is used only for efficiency reasons if placing multiple instances */
     if(!strcmp(argv[1], "instance"))
     {
@@ -3269,7 +3269,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
           my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
-          if(!fast) hash_all_names(-1, XINSERT);
+          if(!fast) hash_names(-1, XINSERT);
           new_prop_string(inst, ptr, fast, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           my_strdup(_ALLOC_ID_, &xctx->inst[inst].instname, get_tok_value(xctx->inst[inst].prop_ptr, "name", 0));
 
@@ -3952,7 +3952,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
-          if(!strcmp(argv[4], "name")) hash_all_names(-1, XINSERT);
+          if(!strcmp(argv[4], "name")) hash_names(-1, XINSERT);
           if(argc > 5) {
             my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
           } else {/* assume argc == 5 , delete attribute */

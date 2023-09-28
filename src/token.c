@@ -56,7 +56,7 @@ void floater_hash_all_names(void)
 
 /* if inst == -1 hash all instance names, else do only given instance
  * action can be XINSERT or XDELETE to insert or remove items */
-void hash_all_names(int inst, int action)
+void hash_names(int inst, int action)
 {
   int i, mult, start, stop;
   char *upinst = NULL;
@@ -72,7 +72,7 @@ void hash_all_names(int inst, int action)
     start = inst;
     stop = inst + 1;
   }
-  if(inst != -1) dbg(1, "hash_all_names(): start=%d, stop=%d, instname=%s\n",
+  if(inst != -1) dbg(1, "hash_names(): start=%d, stop=%d, instname=%s\n",
         start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "NULL");
   for(i = start; i < stop; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
@@ -82,9 +82,9 @@ void hash_all_names(int inst, int action)
       upinst_ptr = upinst;
       while( (single_name = my_strtok_r(upinst_ptr, ",", "", &upinst_state)) ) {
         upinst_ptr = NULL;
-        dbg(1, "hash_all_names(): inst %d, name %s --> %d\n", i, single_name, action);
+        dbg(1, "hash_names(): inst %d, name %s --> %d\n", i, single_name, action);
         int_hash_lookup(&xctx->inst_name_table, single_name, i, action);
-        dbg(1, "hash_all_names(): hashing %s from %s\n", single_name, xctx->inst[i].instname);
+        dbg(1, "hash_names(): hashing %s from %s\n", single_name, xctx->inst[i].instname);
       }
     }
   }
@@ -161,7 +161,7 @@ void check_unique_names(int rename)
       if(xctx->inst[i].ptr == -1) continue;
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
       used = name_is_used(xctx->inst[i].instname);
-      hash_all_names(i, XINSERT_NOREPLACE);
+      hash_names(i, XINSERT_NOREPLACE);
       if( used != -1 && used != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
         xctx->inst[i].color = -PINLAYER;
@@ -188,7 +188,7 @@ void check_unique_names(int rename)
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
       new_prop_string(i, tmp, newpropcnt++, 0);
       my_strdup(_ALLOC_ID_, &xctx->inst[i].instname, get_tok_value(xctx->inst[i].prop_ptr, "name", 0));
-      hash_all_names(i, XINSERT);
+      hash_names(i, XINSERT);
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
       my_free(_ALLOC_ID_, &tmp);
@@ -791,11 +791,11 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
    return;
   }
   /* don't change old_prop if name does not conflict. */
-  /* if no hash_all_names() is done and inst_table uninitialized --> use old_prop */
+  /* if no hash_names() is done and inst_table uninitialized --> use old_prop */
   is_used =  name_is_used(old_name);
   if(dis_uniq_names || is_used == -1 || is_used == i) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
-   hash_all_names(i, XINSERT); /* add instance 'i' to xctx->inst_name_table */
+   hash_names(i, XINSERT); /* add instance 'i' to xctx->inst_name_table */
    my_free(_ALLOC_ID_, &old_name);
    return;
   }
@@ -823,7 +823,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   if(strcmp(new_prop, old_prop) ) {
     my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, new_prop);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, new_name);
-    hash_all_names(i, XINSERT);
+    hash_names(i, XINSERT);
   }
   my_free(_ALLOC_ID_, &old_name);
   my_free(_ALLOC_ID_, &new_name);

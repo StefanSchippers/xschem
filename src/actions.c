@@ -1381,9 +1381,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  int i,j,n;
  char name[PATH_MAX];
  char name1[PATH_MAX];
- char *type;
  char tclev = 0;
- int cond;
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.sym INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
@@ -1391,7 +1389,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
    my_strncpy(name1, symbol_name, S(name1));
  }
 
- dbg(1, "place_symbol(): 1: name1=%s\n",name1);
+ dbg(0, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
  /* remove tcleval( given in file selector, if any ... */
  if(strstr(name1, "tcleval(")) {
    tclev = 1;
@@ -1452,7 +1450,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].prop_ptr=NULL;
   xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
-  if(first_call) hash_all_names(-1, XINSERT);
+  if(first_call) hash_names(-1, XINSERT);
   if(inst_props) {
     new_prop_string(n, inst_props,!first_call, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
   }
@@ -1461,20 +1459,14 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
-  set_inst_flags(&xctx->inst[n]);
   
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name), S(name));
   i = match_symbol(name);
   xctx->inst[n].ptr = i;
-
-  type = xctx->sym[xctx->inst[n].ptr].type;
-  cond= type && IS_LABEL_SH_OR_PIN(type);
-  if(cond) {
-    xctx->inst[n].flags |= PIN_OR_LABEL;
-    my_strdup2(_ALLOC_ID_, &xctx->inst[n].lab, get_tok_value(xctx->inst[n].prop_ptr,"lab",0));
-  }
+  set_inst_flags(&xctx->inst[n]);
+  hash_names(n, XINSERT);
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   xctx->instances++; /* must be updated before calling symbol_bbox() */
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate

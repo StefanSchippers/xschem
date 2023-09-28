@@ -631,7 +631,7 @@ char *strtoupper(char* s) {
   return s;
 }
 
-/* caller should do hash_all_names() (once) before (repeatedly) using this function */
+/* caller should do hash_names() (once) before (repeatedly) using this function */
 void set_inst_prop(int i)
 {
   char *ptr;
@@ -1430,7 +1430,7 @@ static int update_symbol(const char *result, int x, int first_sel)
       }
       /* set unique name of current inst */
       if(!pushed) { xctx->push_undo(); pushed=1;}
-      if(!k) hash_all_names(-1, XINSERT);
+      if(!k) hash_names(-1, XINSERT);
       new_prop_string(*ii, ptr, k, tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
     }
 
