@@ -1389,7 +1389,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
    my_strncpy(name1, symbol_name, S(name1));
  }
 
- dbg(0, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
+ dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
  /* remove tcleval( given in file selector, if any ... */
  if(strstr(name1, "tcleval(")) {
    tclev = 1;
