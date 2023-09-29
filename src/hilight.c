@@ -155,11 +155,15 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   Hilight_hashentry *ptr1=NULL, *ptr2=NULL;
   int mult;
  
+  dbg(1, "bus_hilight_hash_lookup(): token=%s value=%d what=%d\n",
+       token ? token : "NULL", value, what);
   xctx->some_nets_added = 0;
   if(token==NULL) return NULL;
   /* if( token[0] == '#' || !strpbrk(token, "*[],.:")) { */
   if( token[0] == '#' || !strpbrk(token, "*,.:")) {
+    dbg(2, "bus_hilight_hash_lookup(): inserting: %s, value:%d\n", token, value);
     ptr1=hilight_hash_lookup(token, value, what);
+    if(!ptr1) xctx->some_nets_added = 1;
     return ptr1;
   }
   my_strdup(_ALLOC_ID_, &string, expandlabel(token,&mult));
@@ -1744,7 +1748,9 @@ void hilight_net(int viewer)
        } else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
        else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
      }
-     if(xctx->some_nets_added && incr_hi) incr_hilight_color();
+     if(xctx->some_nets_added && incr_hi) {
+       incr_hilight_color();
+     }
      break;
     case ELEMENT:
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
@@ -1760,7 +1766,9 @@ void hilight_net(int viewer)
          else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
        }
-       if(xctx->some_nets_added && incr_hi) incr_hilight_color();
+       if(xctx->some_nets_added && incr_hi) {
+         incr_hilight_color();
+       }
      } else {
        dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
        /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
