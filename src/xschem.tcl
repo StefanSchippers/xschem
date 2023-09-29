@@ -5765,7 +5765,7 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <Leave> "
       xschem callback %W %T %x %y 0 0 0 %s
       graph_show_measure stop
-      $topwin configure -cursor {}
+      # $topwin configure -cursor {}
     "
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
@@ -5779,7 +5779,7 @@ global env has_x OS autofocus_mainwindow
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
       bind $topwin <Enter> "
-         if {\$draw_crosshair} {$topwin configure -cursor none}
+         # if {\$draw_crosshair} {$topwin configure -cursor none}
          destroy .ctxmenu
          focus $topwin
          xschem callback %W %T %x %y 0 0 0 0

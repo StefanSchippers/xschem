@@ -1144,12 +1144,13 @@ int rstate; /* (reduced state, without ShiftMask) */
  switch(event)
  {
   case LeaveNotify:
-    draw_crosshair(1);
+    if(draw_xhair) draw_crosshair(1);
+    tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
   case EnterNotify:
     xctx->mouse_inside = 1;
-    if(tclgetboolvar("draw_crosshair"))
+    if(draw_xhair)
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
     else 
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
