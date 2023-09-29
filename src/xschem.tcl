@@ -5762,7 +5762,11 @@ global env has_x OS autofocus_mainwindow
          }
        }
     "
-    bind $topwin <Leave> "xschem callback %W %T %x %y 0 0 0 %s; graph_show_measure stop"
+    bind $topwin <Leave> "
+      xschem callback %W %T %x %y 0 0 0 %s
+      graph_show_measure stop
+      $topwin configure -cursor {}
+    "
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
@@ -5774,7 +5778,12 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+      bind $topwin <Enter> "
+         if {\$draw_crosshair} {$topwin configure -cursor none}
+         destroy .ctxmenu
+         focus $topwin
+         xschem callback %W %T %x %y 0 0 0 0
+      "
     } else {
       bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
       bind $topwin <Enter> "destroy .ctxmenu; xschem callback %W %T %x %y 0 0 0 0"

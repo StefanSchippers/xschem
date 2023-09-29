@@ -97,7 +97,12 @@ const char *expandlabel(const char *s, int *m)
  YY_BUFFER_STATE buf;
  my_free(_ALLOC_ID_, &dest_string.str);     /* 30102004  delete 'memory' of previous execution */
 
+  
  if(parselabel_debug >= 3) fprintf(errfp, "expandlabel(): entering\n");
+ if(!strpbrk(s, "*,.:")) { /* shortcut: nothing to parse / expand */
+   *m = 1;
+   return s;
+ }
  buf=yy_scan_string(s);
  yyparse();
  yy_delete_buffer(buf);
