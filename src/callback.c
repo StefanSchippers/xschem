@@ -1001,6 +1001,7 @@ void draw_crosshair(int del)
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
+  if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   
@@ -1144,8 +1145,10 @@ int rstate; /* (reduced state, without ShiftMask) */
  {
   case LeaveNotify:
     draw_crosshair(1);
+    xctx->mouse_inside = 0;
     break;
   case EnterNotify:
+    xctx->mouse_inside = 1;
     if(tclgetboolvar("draw_crosshair"))
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
     else 
