@@ -27,7 +27,7 @@ proc create_graph {title rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 
   xschem clear force
 
   # add title text
-  xschem create_text 1 30 -350 0 0 $title {} 0.5
+  xschem text 30 -350 0 0 $title {} 0.5 1
   # clear loaded raw file if any
   xschem raw_clear
   # set current layer to graph layer (grey, layer 2)

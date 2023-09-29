@@ -38,7 +38,7 @@ proc place_sym_pins {filename dir {x 0}  {y 0} {spacing 20}} {
     xschem rect $x1 $y1 $x2 $y2 -1 "name=$name dir=$dir" 0
     xschem set rectcolor 4 ;# symbol line color
     xschem line $x $y [expr {$x + $line_offset}] $y {} 0
-    xschem create_text 0 [expr {$x + $offset}]  [expr {$y - 4}]  0 $flip $name {} 0.2
+    xschem text [expr {$x + $offset}]  [expr {$y - 4}]  0 $flip $name {} 0.2 0
     incr y $spacing
   }
   xschem set schsymbolprop "type=subcircuit\nformat=\"@name @pinlist @symname\"\ntemplate=\"name=X1\""

@@ -567,24 +567,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* create_text draw x y rot flip text props size
-     *   Create a text object
-     *     draw is a flag. If set to 1 will draw the created text
-     *     x, y, rot, flip specify the position and orientation
-     *     text is the text string
-     *     props is the attribute string
-     *     size sets the size */
-    else if(!strcmp(argv[1], "create_text") )
-    {
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-
-      if(argc > 9) {
-        create_text(atoi(argv[2]), atof(argv[3]), atof(argv[4]), atoi(argv[5]), atoi(argv[6]),
-                    argv[7], argv[8], atof(argv[9]), atof(argv[9]));
-      }
-      Tcl_ResetResult(interp);
-    } 
-
     /* cut
      *   Cut selection to clipboard */
     else if(!strcmp(argv[1], "cut"))
@@ -1188,6 +1170,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(x<=xctx->currsch && x >= 0) {
               Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
             }
+          }
+          else if(!strcmp(argv[2], "schprop")) /* get schematic "spice" global attributes */
+          {
+             Tcl_SetResult(interp, xctx->schprop ? xctx->schprop : "", TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "schvhdlprop")) /* get schematic "vhdl" global attributes */
+          {
+             Tcl_SetResult(interp, xctx->schvhdlprop ? xctx->schvhdlprop : "", TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "schverilogprop")) /* get schematic "verilog" global attributes */
+          {
+             Tcl_SetResult(interp, xctx->schverilogprop ? xctx->schverilogprop : "", TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "schsymbolprop")) /* get schematic "symbol" global attributes */
+          {
+             Tcl_SetResult(interp, xctx->schsymbolprop ? xctx->schsymbolprop : "", TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "schtedaxprop")) /* get schematic "tedax" global attributes */
+          {
+             Tcl_SetResult(interp, xctx->schtedaxprop ? xctx->schtedaxprop : "", TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "sch_path")) /* get hierarchy path. if 'n' given get hierpath of level 'n' */
           {
@@ -4392,6 +4394,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } 
       Tcl_ResetResult(interp);
     }
+
+    /* text x y rot flip text props size draw
+     *   Create a text object
+     *     x, y, rot, flip specify the position and orientation
+     *     text is the text string
+     *     props is the attribute string
+     *     size sets the size
+     *     draw is a flag. If set to 1 will draw the created text */
+    else if(!strcmp(argv[1], "text") )
+    { 
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 10) {Tcl_SetResult(interp,
+          "xschem text requires 8 additional arguments", TCL_STATIC); return TCL_ERROR;}
+        
+      create_text(atoi(argv[9]), atof(argv[2]), atof(argv[3]), atoi(argv[4]), atoi(argv[5]),
+                    argv[6], argv[7], atof(argv[8]), atof(argv[9]));
+      Tcl_ResetResult(interp);
+    }     
+          
 
     /* test 
      *   testmode */
