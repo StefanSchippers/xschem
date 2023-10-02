@@ -459,7 +459,6 @@ static int read_dataset(FILE *fd, const char *type)
 { 
   int variables = 0, i, done_points = 0;
   char *line = NULL, *varname = NULL, *lowerline = NULL;
-  char *ptr;
   int n = 0, done_header = 0, ac = 0;
   int exit_status = 0, npoints, nvars;
   int dbglev=1;
@@ -470,13 +469,13 @@ static int read_dataset(FILE *fd, const char *type)
     strtolower(lowerline);
     /* this is an ASCII raw file. We don't handle this (yet) */
     if(!strcmp(line, "Values:\n") || !strcmp(line, "Values:\r\n")) {
-      free_rawfile(0);
       dbg(dbglev, "read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)\n");
       tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)}");
       free_rawfile(0);
-      return 0;
+      exit_status = 0;
+      goto read_dataset_done;
     }
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
@@ -542,7 +541,8 @@ static int read_dataset(FILE *fd, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         free_rawfile(0);
-        return 1;
+        exit_status = 0;
+        goto read_dataset_done;
       }
       if(xctx->graph_sim_type) {
         my_realloc(_ALLOC_ID_, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
@@ -562,13 +562,15 @@ static int read_dataset(FILE *fd, const char *type)
       if(xctx->graph_datasets > 0  && xctx->graph_nvars != nvars && xctx->graph_sim_type) {
         dbg(0, "Xschem requires all datasets to be saved with identical and same number of variables\n");
         dbg(0, "There is a mismatch, so this and following datasets will not be read\n");
-        return 1;
+        /* exit_status = 1; */ /* do not set, if something useful has been read keep exit status as is */
+        goto read_dataset_done;
       }
 
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         free_rawfile(0);
-        return 1;
+        exit_status = 0;
+        goto read_dataset_done;
       }
       if(xctx->graph_sim_type) {
         xctx->graph_nvars = nvars;
@@ -579,7 +581,8 @@ static int read_dataset(FILE *fd, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         free_rawfile(0);
-        return 1;
+        exit_status = 0;
+        goto read_dataset_done;
       }
       if(xctx->graph_sim_type) {
         my_realloc(_ALLOC_ID_, &xctx->graph_npoints, (xctx->graph_datasets+1) * sizeof(int));
@@ -591,6 +594,7 @@ static int read_dataset(FILE *fd, const char *type)
       }
     }
     if(xctx->graph_sim_type && !done_header && variables) {
+      char *ptr;
       /* get the list of lines with index and node name */
       if(!xctx->graph_names) xctx->graph_names = my_calloc(_ALLOC_ID_, xctx->graph_nvars, sizeof(char *));
       my_realloc(_ALLOC_ID_, &varname, strlen(line) + 1) ;
@@ -598,7 +602,8 @@ static int read_dataset(FILE *fd, const char *type)
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         free_rawfile(0);
-        return 1;
+        exit_status = 0;
+        goto read_dataset_done;
       }
       strtolower(varname);
       /* transform ':' hierarchy separators (Xyce) to '.' */
@@ -628,9 +633,11 @@ static int read_dataset(FILE *fd, const char *type)
     }
     my_free(_ALLOC_ID_, &line);
   } /*  while((line = my_fgets(fd, NULL))  */
-  my_free(_ALLOC_ID_, &lowerline);
-  my_free(_ALLOC_ID_, &varname);
-  if(exit_status == 0 && xctx->graph_datasets && xctx->graph_npoints) {
+  read_dataset_done:
+  if(line) my_free(_ALLOC_ID_, &line);
+  if(lowerline) my_free(_ALLOC_ID_, &lowerline);
+  if(varname) my_free(_ALLOC_ID_, &varname);
+  if(exit_status == 1 && xctx->graph_datasets && xctx->graph_npoints) {
     dbg(dbglev, "raw file read: datasets=%d, last dataset points=%d, nvars=%d\n",
         xctx->graph_datasets,  xctx->graph_npoints[xctx->graph_datasets-1], xctx->graph_nvars);
   }
