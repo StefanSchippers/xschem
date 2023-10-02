@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {}
@@ -27,5 +27,7 @@ C {lab_pin.sym} 130 -240 0 1 {name=l6 sig_type=std_logic lab=A1}
 C {lab_pin.sym} 260 -240 0 0 {name=l7 sig_type=std_logic lab=Y1}
 C {parax_cap.sym} 360 -460 0 0 {name=C1 gnd=0 value=8f m=1}
 C {parax_cap.sym} 620 -460 0 0 {name=C2 gnd=0 value=8f m=1}
-C {vsource.sym} 290 -240 1 0 {name=V1 value=0}
-C {vsource.sym} 100 -240 1 0 {name=V2 value=0}
+C {vsource.sym} 290 -240 1 0 {name=V1 value=0
+savecurrent=1}
+C {vsource.sym} 100 -240 1 0 {name=V2 value=0
+savecurrent=1}

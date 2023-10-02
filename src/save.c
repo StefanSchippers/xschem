@@ -348,6 +348,36 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
   return encoded_data;
 }
 
+/* Non-square 'r x c' matrix 'a' in-place transpose */
+void transpose_matrix(double *a, int r, int c)
+{
+  double t; /* holds element to be replaced, eventually becomes next element to move */
+  int size = r * c - 1;
+  int next; /* location of 't' to be moved */
+  int begin; /* holds start of cycle */
+  int i;
+  double tmp;
+  char *done = my_calloc(_ALLOC_ID_, r, c); /* hash to mark moved elements */
+
+  done[0] = done[size] = 1; /* first and last matrix elements are not moved. */
+  i = 1;
+  while (i < size) {
+    begin = i;
+    t = a[i];
+    do {
+      next = (i * r) % size;
+      SWAP(a[next], t, tmp);
+      dbg(1, "swap %g <--> %g\n", a[next], t);
+      done[i] = 1;
+      i = next;
+    } while (i != begin);
+    /* Get Next Move */
+    for (i = 1; i < size && done[i]; i++) ;
+  }
+  my_free(_ALLOC_ID_, &done);
+}
+
+
 /* SPICE RAWFILE ROUTINES */
 /* read the binary portion of a ngspice raw simulation file
  * data layout in memory arranged to maximize cache locality 

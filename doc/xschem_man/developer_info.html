@@ -503,6 +503,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
+
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -516,7 +522,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       annotate_op [raw_file]</kbd></li><pre>
    Annotate operating point data into current schematic. 
    use &lt;schematic name&gt;.raw or use supplied argument as raw file to open
-   look for operating point data and annotate voltages/currents into schematic </pre>
+   look for operating point data and annotate voltages/currents
+   into schematic </pre>
    <li><kbd>       arc</kbd></li><pre>
    Start a GUI placement of an arc.
    User should click 3 unaligned points to define the arc </pre>
@@ -526,8 +533,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Start/end bounding box calculation: parameter is either 'begin' or 'end' </pre>
    <li><kbd>       break_wires [remove] </kbd></li><pre>
    Break wires at selected instance pins
-   if '1' is given as 'remove' parameter broken wires that are all inside selected
-   instances will be deleted </pre>
+   if '1' is given as 'remove' parameter broken wires that are
+   all inside selected instances will be deleted </pre>
    <li><kbd>       build_colors</kbd></li><pre>
    Rebuild color palette using values of tcl vars dim_value and dim_bg </pre>
    <li><kbd>       callback winpath event mx my key button aux state</kbd></li><pre>
@@ -535,7 +542,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       case_insensitive 1|0</kbd></li><pre>
    Set case insensitive symbol lookup. Use only on case insensitive filesystems </pre>
    <li><kbd>       change_elem_order n</kbd></li><pre>
-   set selected object (instance, wire, line, rect, ...) to position 'n' in its respective array </pre>
+   set selected object (instance, wire, line, rect, ...) to
+   position 'n' in its respective array </pre>
    <li><kbd>       check_symbols</kbd></li><pre>
    List all used symbols in current schematic and warn if some symbol is newer </pre>
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
@@ -559,12 +567,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       connected_nets [0|1|2|3]</kbd></li><pre>
    Select nets/labels  connected to currently selected instance
    if '1' argument is given, stop at wire junctions
-   if '2' argument is given select only wires directly attached to selected instance/net
+   if '2' argument is given select only wires directly
+   attached to selected instance/net
    if '3' argument is given combine '1' and '2' </pre>
    <li><kbd>       copy</kbd></li><pre>
    Copy selection to clipboard </pre>
-   <li><kbd>       copy_objects</kbd></li><pre>
-   Start a GUI copy operation </pre>
+   <li><kbd>       copy_objects [deltax deltay [rot flip]]</kbd></li><pre>
+   if deltax and deltay (and optionally rot and flip) are given copy selection
+   to specified offset, otherwise start a GUI copy operation </pre>
    <li><kbd>       count_items string separator quoting_chars</kbd></li><pre>
    Debug command </pre>
    <li><kbd>       create_plot_cmd</kbd></li><pre>
@@ -1316,6 +1326,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

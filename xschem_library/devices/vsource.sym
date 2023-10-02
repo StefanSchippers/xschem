@@ -1,10 +1,11 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {type=vsource
-format="@name @pinlist @value
-.save I( ?1 @name )"
-template="name=V1 value=3"}
+format="tcleval([expr \{@savecurrent ? \\"@name @pinlist @value
+.save I( ?1 @name )\\" : \\"@name @pinlist @value \\"\}])"
+template="name=V1 value=3 savecurrent=false"
+}
 V {}
 S {}
 E {}

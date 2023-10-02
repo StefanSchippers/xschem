@@ -1,4 +1,4 @@
-v {xschem version=3.4.0 file_version=1.2
+v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {}
@@ -242,13 +242,16 @@ C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version r
 +rshg = 0.4 gbmin = 1e-010 rbpb = 5 rbpd = 15 
 +rbps = 15 rbdb = 15 rbsb = 15 ngcon = 1 
 "}
-C {vsource.sym} 700 -120 0 0 {name=V1 value=2}
+C {vsource.sym} 700 -120 0 0 {name=V1 value=2
+savecurrent=true}
 C {lab_pin.sym} 700 -150 0 0 {name=p21 lab=VCC}
 C {lab_pin.sym} 700 -90 0 0 {name=p10 lab=0}
-C {vsource.sym} 820 -120 0 0 {name=V2 value=1}
+C {vsource.sym} 820 -120 0 0 {name=V2 value=1
+savecurrent=true}
 C {lab_pin.sym} 820 -150 0 0 {name=p11 lab=MINUS}
 C {lab_pin.sym} 820 -90 0 0 {name=p12 lab=0}
-C {vsource.sym} 970 -120 0 0 {name=V3 value="pwl 0 0 10n 0 20n 2 30n 2 40n 0"}
+C {vsource.sym} 970 -120 0 0 {name=V3 value="pwl 0 0 10n 0 20n 2 30n 2 40n 0"
+savecurrent=true}
 C {lab_pin.sym} 970 -150 0 0 {name=p13 lab=PLUS}
 C {lab_pin.sym} 970 -90 0 0 {name=p14 lab=0}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}

@@ -256,7 +256,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* annotate_op [raw_file]
      *   Annotate operating point data into current schematic. 
      *   use <schematic name>.raw or use supplied argument as raw file to open
-     *   look for operating point data and annotate voltages/currents into schematic */
+     *   look for operating point data and annotate voltages/currents
+     *   into schematic */
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int i;
@@ -328,8 +329,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* break_wires [remove] 
      *   Break wires at selected instance pins
-     *   if '1' is given as 'remove' parameter broken wires that are all inside selected
-     *   instances will be deleted */
+     *   if '1' is given as 'remove' parameter broken wires that are
+     *   all inside selected instances will be deleted */
     else if(!strcmp(argv[1], "break_wires"))
     {
       int remove = 0;
@@ -380,7 +381,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* change_elem_order n
-     *   set selected object (instance, wire, line, rect, ...) to position 'n' in its respective array */
+     *   set selected object (instance, wire, line, rect, ...) to
+     *   position 'n' in its respective array */
     else if(!strcmp(argv[1], "change_elem_order"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -517,7 +519,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* connected_nets [0|1|2|3]
      *   Select nets/labels  connected to currently selected instance
      *   if '1' argument is given, stop at wire junctions
-     *   if '2' argument is given select only wires directly attached to selected instance/net
+     *   if '2' argument is given select only wires directly
+     *   attached to selected instance/net
      *   if '3' argument is given combine '1' and '2' */
     else if(!strcmp(argv[1], "connected_nets"))
     {
@@ -538,12 +541,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* copy_objects
-     *   Start a GUI copy operation */
+    /* copy_objects [deltax deltay [rot flip]]
+     *   if deltax and deltay (and optionally rot and flip) are given copy selection
+     *   to specified offset, otherwise start a GUI copy operation */
     else if(!strcmp(argv[1], "copy_objects"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      copy_objects(START);
+      if(argc > 3) {
+        copy_objects(START);
+        xctx->deltax = atof(argv[2]);
+        xctx->deltay = atof(argv[3]);
+        if(argc > 4) {
+          xctx->move_rot = (short int)atoi(argv[4]);
+        }
+        if(argc > 5) {
+          xctx->move_flip = (short int)atoi(argv[5]);
+        }
+        copy_objects(END);
+      } else {
+        copy_objects(START);
+      }
       Tcl_ResetResult(interp);
     }
 

@@ -1,4 +1,4 @@
-v {xschem version=3.1.0 file_version=1.2
+v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {}
@@ -196,13 +196,16 @@ C {lab_pin.sym} 410 -430 0 0 {name=p39 lab=LDYMS[15:0]}
 C {lab_pin.sym} 410 -350 0 0 {name=p26 lab=vccsa}
 C {lab_pin.sym} 410 -330 0 0 {name=p31 lab=vss}
 C {lab_pin.sym} 410 -410 0 0 {name=p40 lab=LDOE}
-C {vsource.sym} 90 -920 0 0 {name=vsa value=0}
+C {vsource.sym} 90 -920 0 0 {name=vsa value=0
+savecurrent=1}
 C {lab_pin.sym} 90 -950 0 0 {name=p44 lab=vcc}
 C {lab_pin.sym} 90 -890 0 0 {name=p45 lab=vccsa}
-C {vsource.sym} 190 -820 0 0 {name=vdec value=0}
+C {vsource.sym} 190 -820 0 0 {name=vdec value=0
+savecurrent=1}
 C {lab_pin.sym} 190 -850 0 0 {name=p48 lab=vcc}
 C {lab_pin.sym} 190 -790 0 0 {name=p49 lab=vccdec}
-C {vsource.sym} 90 -820 0 0 {name=vl value=0}
+C {vsource.sym} 90 -820 0 0 {name=vl value=0
+savecurrent=1}
 C {lab_pin.sym} 90 -850 0 0 {name=p50 lab=vcc}
 C {lab_pin.sym} 90 -790 0 0 {name=p51 lab=vccl}
 C {lab_pin.sym} 410 -390 0 0 {name=p5 lab=LDPRECH}
