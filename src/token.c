@@ -635,9 +635,17 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
 }
 
-int get_last_used_index(const char *old_name_base, const char *brkt)
+int get_last_used_index(const char *old_basename, const char *brkt)
 {
-  return 1;
+  int retval = 1;
+  Int_hashentry *entry;
+  size_t size = strlen(old_basename) + strlen(brkt)+40;
+  char *refname = my_malloc(_ALLOC_ID_, size);
+  my_snprintf(refname, size, "_@%s@%s", old_basename, brkt);
+  entry = int_hash_lookup(&xctx->inst_name_table, refname, 0, XLOOKUP);
+  if(entry) retval = entry->value;
+  my_free(_ALLOC_ID_, &refname);
+  return retval;
 }
 
 /* if inst == -1 hash all instance names, else do only given instance
@@ -678,8 +686,14 @@ void hash_names(int inst, int action)
   if(upinst) my_free(_ALLOC_ID_, &upinst);
 }
 
-/* return -1 if name is not used, else return first instance number with same name found */
-static int name_is_used(char *name, int q)
+/* return -1 if name is not used, else return first instance number with same name found
+ * old_basename: base name (without [...]) of instance name the new 'name' was built from
+ * brkt: pointer to '[...]' part of instance name (or empty string if no [...] found)
+ * q: integer number added to 'name' when trying an unused instance name 
+ *    (name = old_basename + q + bracket)
+ *    or -1 if only testing for unique 'name'.
+ */
+static int name_is_used(char *name, const char *old_basename, const char *brkt, int q)
 {
   int mult, used = -1;
   char *upinst = NULL;
@@ -698,6 +712,14 @@ static int name_is_used(char *name, int q)
   }
   my_free(_ALLOC_ID_, &upinst);
   dbg(1, "name_is_used(%s): return inst %d\n", name, used);
+
+  if(q != -1 && used == -1) {
+    size_t size = strlen(old_basename) + strlen(brkt)+40;
+    char *refname = my_malloc(_ALLOC_ID_, size);
+    my_snprintf(refname, size, "_@%s@%s", old_basename, brkt);
+    int_hash_lookup(&xctx->inst_name_table, refname, q, XINSERT);
+    my_free(_ALLOC_ID_, &refname);
+  }
   return used;
 }
 
@@ -732,7 +754,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   }
   /* don't change old_prop if name does not conflict. */
   /* if no hash_names() is done and inst_table uninitialized --> use old_prop */
-  is_used =  name_is_used(old_name, -1);
+  is_used =  name_is_used(old_name, "", "", -1);
   if(dis_uniq_names || is_used == -1 || is_used == i) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
    my_free(_ALLOC_ID_, &old_name);
@@ -741,18 +763,15 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   /* old_name is not unique. Find another unique name */
   old_name_base = my_malloc(_ALLOC_ID_, old_name_len+1);
   n = sscanf(old_name, "%[^[0-9]",old_name_base);
-  brkt=find_bracket(old_name);
-  my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40); /* strlen(old_name)+40); */
+  if(!n) old_name_base[0] = '\0'; /* there is no basename (like in "[3:0]" or "12"), set to empty string */
+  brkt=find_bracket(old_name); /* if no bracket found will point to end of string ('\0') */
+  my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40);
  
 
   qq = get_last_used_index(old_name_base, brkt); /*  */
-  for(q = qq ;; ++q) {
-    if(n) {
-      my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, brkt);
-    } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
-      my_snprintf(new_name, old_name_len + 40, "%d%s", q, brkt);
-    }
-    is_used = name_is_used(new_name, q);
+  for(q = qq;; ++q) {
+    my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, brkt);
+    is_used = name_is_used(new_name, old_name_base, brkt, q);
     if(is_used == -1 ) break; 
   }
   my_free(_ALLOC_ID_, &old_name_base);
@@ -790,7 +809,7 @@ void check_unique_names(int rename)
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       if(xctx->inst[i].ptr == -1) continue;
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
-      used = name_is_used(xctx->inst[i].instname, -1);
+      used = name_is_used(xctx->inst[i].instname,"", "", -1);
       hash_names(i, XINSERT_NOREPLACE);
       if( used != -1 && used != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
