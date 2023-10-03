@@ -790,7 +790,7 @@ void check_unique_names(int rename)
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       if(xctx->inst[i].ptr == -1) continue;
       if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
-      used = name_is_used(xctx->inst[i].instname);
+      used = name_is_used(xctx->inst[i].instname, -1);
       hash_names(i, XINSERT_NOREPLACE);
       if( used != -1 && used != i) {
         dbg(0, "check_unique_names(): found duplicate: i=%d name=%s\n", i, xctx->inst[i].instname);
