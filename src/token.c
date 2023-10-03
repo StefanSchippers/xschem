@@ -678,8 +678,8 @@ void hash_names(int inst, int action)
   if(upinst) my_free(_ALLOC_ID_, &upinst);
 }
 
-/* return -1 if name is not used, else return instance number with same name found */
-static int name_is_used(char *name)
+/* return -1 if name is not used, else return first instance number with same name found */
+static int name_is_used(char *name, int q)
 {
   int mult, used = -1;
   char *upinst = NULL;
@@ -732,7 +732,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   }
   /* don't change old_prop if name does not conflict. */
   /* if no hash_names() is done and inst_table uninitialized --> use old_prop */
-  is_used =  name_is_used(old_name);
+  is_used =  name_is_used(old_name, -1);
   if(dis_uniq_names || is_used == -1 || is_used == i) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
    my_free(_ALLOC_ID_, &old_name);
@@ -752,7 +752,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
     } else { /* goes here if weird name set for example to name=[3:0] or name=12 */
       my_snprintf(new_name, old_name_len + 40, "%d%s", q, brkt);
     }
-    is_used = name_is_used(new_name);
+    is_used = name_is_used(new_name, q);
     if(is_used == -1 ) break; 
   }
   my_free(_ALLOC_ID_, &old_name_base);

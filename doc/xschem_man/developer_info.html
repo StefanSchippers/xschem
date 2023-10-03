@@ -261,7 +261,7 @@ device="tantalium capacitor"<br>
   are perfectly equivalent.
  </p>
 
- <h3>TEXT OBJECT</h3>
+ <a id="textobj"><h3>TEXT OBJECT</h3></a>
  <p>
   Example: <kbd>T {3 of 4 NANDS of a 74ls00} 500 -580 0 0 0.4 0.4 {font=Monospace layer=4}</kbd><br>
   This line defines a text object, the first field after the type tag is the displayed text,
@@ -277,7 +277,7 @@ device="tantalium capacitor"<br>
    with respect to its anchor point.
    <img src="developer_info_03.png"></li>
    <li> text X and Y sizes are stored as floating point numbers.</li>
-   <li> Finally a property string is stored with the same syntax as the displayed text field.
+   <li> Finally a property string is available to attach attributes to the text object.
         Currently the following attributes are predefined for text objects:<br><br>
         <ul>
          <li><kbd>font</kbd> Name of font to be used (ex: font=Arial)</li>
@@ -286,6 +286,8 @@ device="tantalium capacitor"<br>
          <li><kbd>vcenter</kbd> If set to <kbd>true</kbd> vertical center text</li>
          <li><kbd>weight</kbd> If set to <kbd>bold</kbd> use bold style</li>
          <li><kbd>slant</kbd> If set to <kbd> italic</kbd> or <kbd>oblique</kbd> use that style for text</li>
+         <li><kbd>hide</kbd> If set to <kbd>true</kbd> text will be hidden unless <kbd>View-&gt;Show hidden texts</kbd>
+           is enabled</li>
         </ul>
    </li>
   </ul> 
