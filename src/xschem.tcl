@@ -6135,13 +6135,9 @@ proc build_widgets { {topwin {} } } {
        }
   $topwin.menubar.view.menu add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
-          xschem build_colors
-          xschem redraw
        }
    toolbar_add ViewToggleColors {
           xschem toggle_colorscheme
-          xschem build_colors
-          xschem redraw
        } "Toggle Color Scheme" $topwin
   $topwin.menubar.view.menu add command -label "Dim colors"  -accelerator {} -command {
           color_dim
