@@ -321,7 +321,7 @@ void create_plot_cmd(void)
   if(tclresult()[0] == '1') exists = 1;
   xctx->enable_drill = 0;
   if(exists) {
-    viewer = atoi(tclgetvar("sim(spicewave,default)"));
+    viewer = tclgetintvar("sim(spicewave,default)");
     my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
     my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
     dbg(1,"create_plot_cmd(): viewer_name=%s\n", viewer_name);

@@ -1894,12 +1894,8 @@ static void destroy_all_tabs(int *window_count, int force)
 int new_schematic(const char *what, const char *win_path, const char *fname)
 {
   int tabbed_interface;
-  const char *tmp;
 
-  tabbed_interface = 0;
-  if((tmp = tclgetvar("tabbed_interface"))) {
-    if(tmp[0] == '1') tabbed_interface = 1;
-  }
+  tabbed_interface = tclgetboolvar("tabbed_interface");
   dbg(1, "new_schematic(): current_win_path=%s, what=%s, win_path=%s\n", xctx->current_win_path, what, win_path);
   if(!strcmp(what, "ntabs")) {
     return window_count;
@@ -2485,16 +2481,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  cairo_font_line_spacing = tclgetdoublevar("cairo_font_line_spacing");
 
  if(color_ps==-1)
-   color_ps=atoi(tclgetvar("color_ps"));
+   color_ps=tclgetboolvar("color_ps");
  else  {
-   my_snprintf(tmp, S(tmp), "%d",color_ps);
-   tclsetvar("color_ps",tmp);
+   tclsetboolvar("color_ps", color_ps);
  }
- l_width=atoi(tclgetvar("line_width"));
- if(tclgetboolvar("change_lw")) l_width = 0.0;
-
- cadlayers=atoi(tclgetvar("cadlayers"));
-
+ l_width=tclgetdoublevar("line_width");
+ if(tclgetboolvar("change_lw")) l_width = -1.0;
+ cadlayers=tclgetintvar("cadlayers");
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);

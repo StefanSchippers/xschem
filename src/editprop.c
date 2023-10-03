@@ -818,7 +818,7 @@ static int edit_rect_property(int x)
   }
   else if(x==2) tcleval("viewdata $::retval");
   else tcleval("edit_vi_prop {Text:}"); /* x == 1 */
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
     xctx->push_undo();
@@ -885,7 +885,7 @@ static int edit_line_property(void)
   xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
     double y1, y2;
@@ -941,7 +941,7 @@ static int edit_wire_property(void)
   xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
     xctx->push_undo();
@@ -1006,7 +1006,7 @@ static int edit_arc_property(void)
   xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
    xctx->push_undo();
@@ -1076,7 +1076,7 @@ static int edit_polygon_property(void)
   xctx->semaphore++;
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
    xctx->push_undo();
@@ -1175,7 +1175,7 @@ static int edit_text_property(int x)
   }
   else if(x==2) tcleval("viewdata $::retval");
   else tcleval("edit_vi_prop {Text:}"); /* x == 1 */
-  preserve = atoi(tclgetvar("preserve_unchanged_attrs"));
+  preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(x == 0 || x == 1) {
     if(strcmp(xctx->text[sel].txt_ptr, tclgetvar("retval") ) ) {
       dbg(1, "edit_text_property(): x=%d, text_changed=1\n", x);
@@ -1331,9 +1331,9 @@ static int update_symbol(const char *result, int x, int first_sel)
   my_strncpy(symbol, (char *) tclgetvar("symbol") , S(symbol));
   generator = is_generator(symbol);
   dbg(1, "update_symbol(): symbol=%s\n", symbol);
-  no_change_props=atoi(tclgetvar("no_change_attrs") );
-  only_different=atoi(tclgetvar("preserve_unchanged_attrs") );
-  copy_cell=atoi(tclgetvar("user_wants_copy_cell") );
+  no_change_props=tclgetboolvar("no_change_attrs");
+  only_different=tclgetboolvar("preserve_unchanged_attrs");
+  copy_cell=tclgetboolvar("user_wants_copy_cell");
   /* if there are floaters or generators (dynamic symbols, pCells) do not collect
    * list of things to redraw, just redraw all screen */
   floaters = there_are_floaters() || generator;
@@ -1782,7 +1782,7 @@ void edit_property(int x)
  {
   case ELEMENT:
    modified |= edit_symbol_property(x, j);
-   while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1' ) {
+   while( x == 0 && tclgetboolvar("edit_symbol_prop_new_sel")) {
      unselect_all(1);
      select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      rebuild_selected_array();

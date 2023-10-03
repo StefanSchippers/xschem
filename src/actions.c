@@ -947,12 +947,12 @@ void enable_layers(void)
 {
   int i;
   char tmp[50];
-  const char *en;
+  int en;
   xctx->n_active_layers = 0;
   for(i = 0; i< cadlayers; ++i) {
     my_snprintf(tmp, S(tmp), "enable_layer(%d)",i);
-    en = tclgetvar(tmp);
-    if(!en || en[0] == '0') xctx->enable_layer[i] = 0;
+    en = tclgetboolvar(tmp);
+    if(!en) xctx->enable_layer[i] = 0;
     else {
       xctx->enable_layer[i] = 1;
       if(i>=7) {
@@ -1229,14 +1229,14 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
         tclsetvar("do_all_inst", "1");
         tclsetvar("rotated_text", "0");
       }
-      use_label_prefix = atoi(tclgetvar("use_label_prefix"));
+      use_label_prefix = tclgetboolvar("use_label_prefix");
       rot_txt = tclgetvar("rotated_text");
       if(strcmp(rot_txt,"")) rotated_text=atoi(rot_txt);
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[xctx->sel_array[j].n].ptr+ xctx->sym)->type);
       if( type && IS_LABEL_OR_PIN(type) ) {
         continue;
       }
-      if(!do_all_inst && !strcmp(tclgetvar("do_all_inst"),"1")) do_all_inst=1;
+      if(!do_all_inst && tclgetboolvar("do_all_inst")) do_all_inst=1;
       dbg(1, "attach_labels_to_inst(): 1--> %s %.16g %.16g   %s\n",
           xctx->inst[xctx->sel_array[j].n].name,
           xctx->inst[xctx->sel_array[j].n].x0,
@@ -1310,7 +1310,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
            } else {
              rot1=(short)((rot+rotated_text)%4); /*  20111103 20171208 text_rotation */
            }
-           if(!strcmp(tclgetvar("use_lab_wire"),"0")) {
+           if(!tclgetboolvar("use_lab_wire")) {
              place_symbol(-1,symname_pin, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
            } else {
              place_symbol(-1,symname_wire, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
@@ -2149,8 +2149,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  boundbox->y2=100;
  if(selected != 2) for(c=0;c<cadlayers; ++c)
  {
-  const char *tmp = tclgetvar("hide_empty_graphs");
-  int hide_graphs =  (tmp && tmp[0] == '1') ? 1 : 0;
+  int hide_graphs = tclgetboolvar("hide_empty_graphs");
   int waves = (sch_waves_loaded() >= 0);
 
   for(i=0;i<xctx->lines[c]; ++i)

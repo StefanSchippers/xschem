@@ -4890,13 +4890,18 @@ int tclgetintvar(const char *s)
 
 int tclgetboolvar(const char *s)
 {
+  int res;
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
     dbg(0, "%s\n", tclresult());
     return 0;
   }
-  return p[0] == '1' ? 1 : 0;
+  if(Tcl_GetBoolean(interp, p, &res) == TCL_ERROR) {
+    dbg(0, "%s\n", tclresult());
+    return 0;
+  }
+  return res;
 }
 
 const char *tclgetvar(const char *s)

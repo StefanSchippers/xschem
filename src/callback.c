@@ -2059,7 +2059,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->enable_drill = 0;
      if(exists) {
        if(!tool) {
-         tool = atoi(tclgetvar("sim(spicewave,default)"));
+         tool = tclgetintvar("sim(spicewave,default)");
          my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
          my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
          dbg(1,"callback(): tool_name=%s\n", tool_name);
@@ -2727,9 +2727,9 @@ int rstate; /* (reduced state, without ShiftMask) */
      } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
        tcleval(".dialog.buttons.ok invoke");
        break;
-     } else if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+     } else if(button==Button1 && state==0 && tclgetboolvar("edit_symbol_prop_new_sel")) {
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
-     } else if(button==Button1 && (state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+     } else if(button==Button1 && (state & ShiftMask) && tclgetboolvar("edit_symbol_prop_new_sel")) {
        select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
      }

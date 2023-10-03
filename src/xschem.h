@@ -1513,7 +1513,6 @@ extern const char *subst_token(const char *s, const char *tok, const char *new_v
 extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
 extern void hash_names(int inst, int action); /* if i == -1 hash all instances, else do only inst */
-extern int name_is_used(char *name);
 extern void floater_hash_all_names(void);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
 /* extern char *escape_chars(char *dest, const char *source, int size); */
