@@ -1443,9 +1443,11 @@ static int update_symbol(const char *result, int x, int first_sel)
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_names(-1, XINSERT);
       hash_names(*ii, XDELETE);
+      dbg(1, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
       new_prop_string(*ii, ptr, k,               /* sets also inst[].instname */
          tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
       hash_names(*ii, XINSERT);
+      dbg(1, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
     }
     set_inst_flags(&xctx->inst[*ii]);
     /* set cached flags in instances */

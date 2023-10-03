@@ -750,6 +750,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
  
   if(old_name==NULL) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
+   my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
    return;
   }
   /* don't change old_prop if name does not conflict. */
@@ -757,6 +758,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   is_used =  name_is_used(old_name, "", "", -1);
   if(dis_uniq_names || is_used == -1 || is_used == i) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);
+   my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, old_name);
    my_free(_ALLOC_ID_, &old_name);
    return;
   }
