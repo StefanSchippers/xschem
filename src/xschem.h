@@ -1271,7 +1271,7 @@ extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             double *rx2, double *ry2, int *cairo_lines, double *longest_line);
 #endif
 
-extern unsigned short select_object(double mx,double my, unsigned short sel_mode,
+extern Selected select_object(double mx,double my, unsigned short sel_mode,
                                     int override_lock); /*  return type 20160503 */
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);

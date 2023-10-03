@@ -1045,7 +1045,6 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  char str[PATH_MAX + 100];
  struct stat buf;
  int redraw_only;
- unsigned short sel;
  double c_snap;
 #ifndef __unix__
  short cstate = GetKeyState(VK_CAPITAL);
@@ -2515,16 +2514,18 @@ int rstate; /* (reduced state, without ShiftMask) */
   /*
    * if(button == Button3 && tclgetvar("graph_selected")[0] && xctx->semaphore >=2 )
    * {
+        Selected sel;
    *    sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-   *    if(sel) send_net_to_graph(1);
+   *    if(sel.type) send_net_to_graph(1);
    *   
    * }
    * else
    */
    if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
+     Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-     if(sel) select_connected_nets(1);
+     if(sel.type) select_connected_nets(1);
    }
    else if(button == Button3 &&  EQUAL_MODMASK && xctx->semaphore <2)
    {
@@ -2536,8 +2537,9 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
+     Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-     if(sel) select_connected_nets(0);
+     if(sel.type) select_connected_nets(0);
    }
    else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
      int ret;
@@ -2890,6 +2892,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        break;
      }
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE)  ) {
+       Selected sel;
        int prev_last_sel = xctx->lastsel;
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
@@ -2899,17 +2902,17 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
-#ifndef __unix__
+       #ifndef __unix__
        draw_selection(xctx->gc[SELLAYER], 0);
-#endif
-       if(sel && state == ControlMask) {
+       #endif
+       if(sel.type && state == ControlMask) {
          int savesem = xctx->semaphore;
          xctx->semaphore = 0;
          launcher();
          xctx->semaphore = savesem;
        }
        if( !(state & ShiftMask) )  {
-         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel == 0 ) {
+         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel.type == 0 ) {
            if(!prev_last_sel) {
              redraw_hilights(1); /* 1: clear all hilights, then draw */
            }
@@ -2968,12 +2971,12 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
      if(button==Button1) {
-       int sel;
+       Selected sel;
        if(!xctx->lastsel && xctx->ui_state ==  0) {
          /* Following 5 lines do again a selection overriding lock,
           * so locked instance attrs can be edited */
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1);
-         if(sel) {
+         if(sel.type) {
            xctx->ui_state = SELECTION;
            rebuild_selected_array();
          }

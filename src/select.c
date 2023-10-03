@@ -1198,7 +1198,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
 }
 
 /* 20160503 return type field */
-unsigned short select_object(double mx,double my, unsigned short select_mode, int override_lock)
+Selected select_object(double mx,double my, unsigned short select_mode, int override_lock)
 {
    Selected sel;
    sel = find_closest_obj(mx, my, override_lock);
@@ -1237,7 +1237,7 @@ unsigned short select_object(double mx,double my, unsigned short select_mode, in
    drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 
    if(sel.type)  xctx->ui_state |= SELECTION;
-   return sel.type;
+   return sel;
 }
 
 /* Partial-select wire ends that land on instance pins  and selected nets */
