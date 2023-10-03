@@ -2727,9 +2727,9 @@ int rstate; /* (reduced state, without ShiftMask) */
      } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
        tcleval(".dialog.buttons.ok invoke");
        break;
-     } else if(button==Button1 && state==0 && tclgetboolvar("edit_symbol_prop_new_sel")) {
+     } else if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
-     } else if(button==Button1 && (state & ShiftMask) && tclgetboolvar("edit_symbol_prop_new_sel")) {
+     } else if(button==Button1 && (state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
      }
