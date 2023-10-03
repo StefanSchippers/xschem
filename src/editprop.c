@@ -79,23 +79,27 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
-
 /* same as case insensitive strcmp(), but allow '1, true, on, yes' for true value
  * both in str and boolean */
 int strboolcmp(const char *str, const char *boolean)
 {
-  int s = 0, b = 0;
-  if(!my_strcasecmp(boolean, "true") ||
-     !my_strcasecmp(boolean, "1") ||
-     !my_strcasecmp(boolean, "on") ||
-     !my_strcasecmp(boolean, "yes")) b = 1;
-
+  int retval, s = 0, b = 0;
+  if(!my_strcasecmp(boolean, "true")) b = 1;
+  else if(!my_strcasecmp(boolean, "false")) b = 0;
+  else b = -1;
   if(!my_strcasecmp(str, "true") ||
      !my_strcasecmp(str, "1") ||
      !my_strcasecmp(str, "on") ||
      !my_strcasecmp(str, "yes")) s = 1;
-
-  return (s != b);
+  else if(!my_strcasecmp(str, "false") ||
+     !my_strcasecmp(str, "0") ||
+     !my_strcasecmp(str, "off") ||
+     !my_strcasecmp(str, "no")) s = 0;
+  else s = -1;
+  if(s == -1 || b == -1) retval = strcmp(str, boolean);
+  else retval = (s != b);
+  dbg(0, "strboolcmp(): str=%s boolean=%s retval=%d\n", str, boolean, retval);
+  return retval;
 }
 
 /* return lenght of line and skip */
