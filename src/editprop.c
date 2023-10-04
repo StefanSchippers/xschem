@@ -1304,7 +1304,7 @@ static int edit_text_property(int x)
 }
 
 /* x=0 use text widget   x=1 use vim editor */
-static int update_symbol(const char *result, int x, int first_sel)
+static int update_symbol(const char *result, int x, int selected_inst)
 {
   int k, sym_number;
   int no_change_props=0;
@@ -1320,8 +1320,8 @@ static int update_symbol(const char *result, int x, int first_sel)
   int *netl_com = &xctx->netlist_commands; /* static var */
   int generator = 0,floaters, modified = 0;
 
-  dbg(1, "update_symbol(): entering\n");
-  *ii=xctx->sel_array[first_sel].n;
+  dbg(1, "update_symbol(): entering, selected_inst = %d\n", selected_inst);
+  *ii = selected_inst;
   if(!result) {
    dbg(1, "update_symbol(): edit symbol prop aborted\n");
    my_free(_ALLOC_ID_, &xctx->old_prop);
@@ -1531,7 +1531,7 @@ static int edit_symbol_property(int x, int first_sel)
      my_strdup(_ALLOC_ID_, &result, tclresult());
    }
    dbg(1, "edit_symbol_property(): before update_symbol, modified=%d\n", xctx->modified);
-   modified = update_symbol(result, x, first_sel);
+   modified = update_symbol(result, x, *ii);
    my_free(_ALLOC_ID_, &result);
    dbg(1, "edit_symbol_property(): done update_symbol, modified=%d\n", modified);
    *ii=-1;
@@ -1783,11 +1783,23 @@ void edit_property(int x)
    tclsetvar("preserve_unchanged_attrs", "0");
  }
 
- type = xctx->sel_array[0].type;
- for(j=0; j < xctx->lastsel; j++) {
-   if(xctx->sel_array[j].type == ELEMENT) {
-     type = ELEMENT;
-     break;
+ /* retrieve first selected element (if still selected)... */
+ if(xctx->first_sel.n >=0 && xctx->first_sel.type == ELEMENT && 
+    xctx->inst[xctx->first_sel.n].sel == SELECTED) {
+   type = ELEMENT;
+   for(j=0; j < xctx->lastsel; j++) {
+     if(xctx->sel_array[j].type == ELEMENT && xctx->sel_array[j].n == xctx->first_sel.n) {
+       break;
+     }
+   }
+ /* ... otherwise get first from sel_array[] list */
+ } else {
+   type = xctx->sel_array[0].type;
+   for(j=0; j < xctx->lastsel; j++) {
+     if(xctx->sel_array[j].type == ELEMENT) {
+       type = ELEMENT;
+       break;
+     }
    }
  }
 

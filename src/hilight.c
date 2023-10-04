@@ -748,6 +748,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
        }
        if(sel==1) {
          xctx->inst[i].sel = SELECTED;
+         set_first_sel(ELEMENT, i, 0);
          xctx->need_reb_sel_arr=1;
        }
        if(sel==-1) { /* 20171211 unselect */
@@ -775,6 +776,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
        }
        if(sel==1) {
          xctx->wire[i].sel = SELECTED;
+         set_first_sel(WIRE, i, 0);
          xctx->need_reb_sel_arr=1;
        }
        if(sel==-1) {
@@ -802,6 +804,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
      {
        if(sel==1) {
          xctx->line[c][i].sel = SELECTED;
+         set_first_sel(LINE, i, c);
          xctx->need_reb_sel_arr=1;
        }
        if(sel==-1) {
@@ -829,6 +832,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
      {
          if(sel==1) {
            xctx->rect[c][i].sel = SELECTED;
+           set_first_sel(xRECT, i, c);
            xctx->need_reb_sel_arr=1;
          }
          if(sel==-1) {
@@ -1853,6 +1857,7 @@ void select_hilight_net(void)
  for(i=0;i<xctx->wires; ++i) {
    if( (entry = bus_hilight_hash_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
       xctx->wire[i].sel = SELECTED;
+      set_first_sel(WIRE, i, 0);
    }
  }
  for(i=0;i<xctx->instances; ++i) {
@@ -1863,6 +1868,7 @@ void select_hilight_net(void)
   if( xctx->inst[i].color != -10000) {
     dbg(1, "select_hilight_net(): instance %d flags & HILIGHT_CONN true\n", i);
      xctx->inst[i].sel = SELECTED;
+     set_first_sel(ELEMENT, i, 0);
   }
   else if(hilight_connected_inst) {
     int rects, j;
@@ -1872,6 +1878,7 @@ void select_hilight_net(void)
           entry=bus_hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
           if(entry) {
             xctx->inst[i].sel = SELECTED;
+            set_first_sel(ELEMENT, i, 0);
             break;
           }
         }
@@ -1879,7 +1886,10 @@ void select_hilight_net(void)
     }
   } else if( type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
     entry=bus_hilight_hash_lookup(xctx->inst[i].node[0], 0, XLOOKUP);
-    if(entry) xctx->inst[i].sel = SELECTED;
+    if(entry) {
+      xctx->inst[i].sel = SELECTED;
+      set_first_sel(ELEMENT, i, 0);
+    }
   }
  }
  xctx->need_reb_sel_arr = 1;

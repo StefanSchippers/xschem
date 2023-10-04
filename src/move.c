@@ -89,8 +89,10 @@ void rebuild_selected_array() /* can be used only if new selected set is lower *
     xctx->sel_array[xctx->lastsel++].col = c;
    }
  }
- if(xctx->lastsel==0) xctx->ui_state &= ~SELECTION;
- else xctx->ui_state |= SELECTION;
+ if(xctx->lastsel==0) {
+   xctx->ui_state &= ~SELECTION;
+   set_first_sel(0, -1, 0);
+ } else xctx->ui_state |= SELECTION;
  xctx->need_reb_sel_arr=0;
 }
 
@@ -718,7 +720,7 @@ void copy_objects(int what)
     int l, firstw, firsti;
     int floaters = there_are_floaters();
 
-
+    set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
 
     if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -968,6 +970,7 @@ void copy_objects(int what)
         xctx->text[xctx->texts].rot=(xctx->text[n].rot +
          ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
         xctx->text[xctx->texts].flip=xctx->move_flip^xctx->text[n].flip;
+        set_first_sel(xTEXT, xctx->texts, 0);
         xctx->text[xctx->texts].sel=SELECTED;
         xctx->text[xctx->texts].prop_ptr=NULL;
         xctx->text[xctx->texts].font=NULL;
@@ -1037,6 +1040,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].color = -10000;
         xctx->inst[xctx->instances].x0 = xctx->rx1+xctx->deltax;
         xctx->inst[xctx->instances].y0 = xctx->ry1+xctx->deltay;
+        set_first_sel(ELEMENT, xctx->instances, 0);
         xctx->inst[xctx->instances].sel = SELECTED;
         xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot + ( (xctx->move_flip && 
            (xctx->inst[xctx->instances].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;

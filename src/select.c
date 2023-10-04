@@ -655,6 +655,7 @@ void delete(int to_push_undo)
   draw();
   if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->ui_state &= ~SELECTION;
+  set_first_sel(0, -1, 0);
 }
 
 void delete_only_rect_line_arc_poly(void)
@@ -694,6 +695,7 @@ void delete_only_rect_line_arc_poly(void)
  draw();
  bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
  xctx->ui_state &= ~SELECTION;
+ set_first_sel(0, -1, 0);
 }
 
 
@@ -812,6 +814,19 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  }
 }
 
+void set_first_sel(unsigned short type, int n, unsigned int col)
+{
+  if(n == -1) { /* reset first_sel */
+    xctx->first_sel.type = 0;
+    xctx->first_sel.n = -1;
+    xctx->first_sel.col = 0;
+  }else if(xctx->first_sel.n == -1) {
+    xctx->first_sel.type = type;
+    xctx->first_sel.n = n;
+    xctx->first_sel.col = col;
+  }
+}
+
 void unselect_all(int dr)
 {
  int i,c;
@@ -822,24 +837,24 @@ void unselect_all(int dr)
     dbg(1, "unselect_all(1): start\n");
     xctx->ui_state = 0;
     xctx->lastsel = 0;
-
-     for(i=0;i<xctx->wires; ++i)
+    set_first_sel(0, -1, 0);
+    for(i=0;i<xctx->wires; ++i)
+    {
+     if(xctx->wire[i].sel)
      {
-      if(xctx->wire[i].sel)
+      xctx->wire[i].sel = 0;
       {
-       xctx->wire[i].sel = 0;
-       {
-         if(dr) {
-           if(xctx->wire[i].bus)
-             drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
-                                                xctx->wire[i].x2, xctx->wire[i].y2);
-           else
-             drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1,
-                                              xctx->wire[i].x2, xctx->wire[i].y2);
-         }
-       }
+        if(dr) {
+          if(xctx->wire[i].bus)
+            drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+                                               xctx->wire[i].x2, xctx->wire[i].y2);
+          else
+            drawtempline(xctx->gctiled, ADD, xctx->wire[i].x1, xctx->wire[i].y1,
+                                             xctx->wire[i].x2, xctx->wire[i].y2);
+        }
       }
      }
+    }
     for(i=0;i<xctx->instances; ++i)
     {
      if(xctx->inst[i].sel == SELECTED)
@@ -953,10 +968,12 @@ void select_wire(int i,unsigned short select_mode, int fast)
     statusmsg(str,1);
   }
   if( ((xctx->wire[i].sel|select_mode) == (SELECTED1|SELECTED2)) ||
-      ((xctx->wire[i].sel == SELECTED) && select_mode) )
-   xctx->wire[i].sel = SELECTED;
-  else
-   xctx->wire[i].sel = select_mode;
+      ((xctx->wire[i].sel == SELECTED) && select_mode) ) {
+    xctx->wire[i].sel = SELECTED;
+  } else {
+    xctx->wire[i].sel = select_mode;
+  }
+  if( xctx->wire[i].sel == SELECTED) set_first_sel(WIRE, i, 0);
   if(select_mode) {
    dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2);
    if(xctx->wire[i].bus)
@@ -1011,6 +1028,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
     statusmsg(str,1);
   }
   xctx->inst[i].sel = select_mode;
+  if(select_mode == SELECTED) set_first_sel(ELEMENT, i, 0);
   if(select_mode) {
     for(c=0;c<cadlayers; ++c) {
       draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);
@@ -1039,20 +1057,20 @@ void select_text(int i,unsigned short select_mode, int fast)
     statusmsg(str,1);
   }
   xctx->text[i].sel = select_mode;
-
   #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
-  if(select_mode)
+  if(select_mode) {
+    set_first_sel(xTEXT, i, 0);
     draw_temp_string(xctx->gc[SELLAYER],ADD, get_text_floater(i),
-     xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-     xctx->text[i].x0, xctx->text[i].y0,
-     xctx->text[i].xscale, xctx->text[i].yscale);
-  else
+      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+      xctx->text[i].x0, xctx->text[i].y0,
+      xctx->text[i].xscale, xctx->text[i].yscale);
+  } else
     draw_temp_string(xctx->gctiled,NOW, get_text_floater(i),
-     xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-     xctx->text[i].x0, xctx->text[i].y0,
-     xctx->text[i].xscale, xctx->text[i].yscale);
+      xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+      xctx->text[i].x0, xctx->text[i].y0,
+      xctx->text[i].xscale, xctx->text[i].yscale);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1098,7 +1116,8 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
   }
 
   if( xctx->rect[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->rect[c][i].sel = SELECTED;
-
+  
+  if(xctx->rect[c][i].sel == SELECTED) set_first_sel(xRECT, i, c);
   xctx->need_reb_sel_arr=1;
 }
 
@@ -1127,6 +1146,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
     xctx->arc[c][i].sel = 0;
     drawtemparc(xctx->gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
                               xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
+    if(xctx->arc[c][i].sel == SELECTED) set_first_sel(ARC, i, c);
   }
 
   /*if( xctx->arc[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->arc[c][i].sel = SELECTED; */
@@ -1154,6 +1174,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   }
   else
    drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+  if(xctx->poly[c][i].sel == SELECTED) set_first_sel(POLYGON, i, c);
   xctx->need_reb_sel_arr=1;
 }
 
@@ -1175,10 +1196,12 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
    statusmsg(str,1);
   }
   if( ((xctx->line[c][i].sel|select_mode) == (SELECTED1|SELECTED2)) ||
-      ((xctx->line[c][i].sel == SELECTED) && select_mode) )
-   xctx->line[c][i].sel = SELECTED;
-  else
-   xctx->line[c][i].sel = select_mode;
+      ((xctx->line[c][i].sel == SELECTED) && select_mode) ) {
+    xctx->line[c][i].sel = SELECTED;
+  } else {
+    xctx->line[c][i].sel = select_mode;
+  }
+  if(xctx->line[c][i].sel == SELECTED) set_first_sel(LINE, i, c);
   if(select_mode) {
    if(xctx->line[c][i].bus)
      drawtempline(xctx->gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,

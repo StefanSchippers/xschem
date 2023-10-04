@@ -884,6 +884,7 @@ typedef struct {
   int lastsel;
   int maxsel;
   Selected *sel_array;
+  Selected first_sel; /* first selected instance (used as master when editing multile pbjects) */
   int prep_net_structs;
   int prep_hi_structs;
   int prep_hash_inst;
@@ -1273,6 +1274,7 @@ extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
 
 extern Selected select_object(double mx,double my, unsigned short sel_mode,
                                     int override_lock); /*  return type 20160503 */
+extern void set_first_sel(unsigned short type, int n, unsigned int col);
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);

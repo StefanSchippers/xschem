@@ -603,6 +603,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->maxsel=MAXGROUP;
   xctx->sel_array=my_calloc(_ALLOC_ID_, xctx->maxsel, sizeof(Selected));
+  xctx->first_sel.n = -1;
+  xctx->first_sel.type = 0;
+  xctx->first_sel.col = 0;
   xctx->biggridpoint=(XSegment*)my_calloc(_ALLOC_ID_, CADMAXGRIDPOINTS,sizeof(XSegment));
   xctx->gridpoint=(XPoint*)my_calloc(_ALLOC_ID_, CADMAXGRIDPOINTS,sizeof(XPoint));
   xctx->enable_drill = 0;
@@ -782,6 +785,7 @@ int compare_schematics(const char *f)
       dbg(1, "schematic 2 instance %d: %s mismatch or not found in schematic 1\n", i,
          xctx->inst[i].instname ? xctx->inst[i].instname : "");
       xctx->inst[i].sel = SELECTED;
+      set_first_sel(ELEMENT, i, 0);
       xctx->need_reb_sel_arr=1;
       ret = 1;
     }
@@ -798,6 +802,7 @@ int compare_schematics(const char *f)
       dbg(1, "schematic 2 net %d: %s mismatch or not found in schematic 1\n", i,
          xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
       xctx->wire[i].sel = SELECTED;
+      set_first_sel(WIRE, i, 0);
       xctx->need_reb_sel_arr=1;
       ret = 1;
     }
@@ -825,6 +830,7 @@ int compare_schematics(const char *f)
     found = int_hash_lookup(&table2, s, i, XLOOKUP);
     if(!found) {
       xctx->inst[i].sel = SELECTED;
+      set_first_sel(ELEMENT, i, 0);
       xctx->need_reb_sel_arr=1;
       ret = 1;
     }

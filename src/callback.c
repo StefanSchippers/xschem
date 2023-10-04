@@ -2733,6 +2733,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
      } else if(button==Button1 && (state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       tclsetvar("preserve_unchanged_attrs", "1");
        rebuild_selected_array();
      }
    }

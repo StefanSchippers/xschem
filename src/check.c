@@ -645,6 +645,7 @@ void break_wires_at_pins(int remove)
             xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
             xctx->wire[xctx->wires].end2 = 1;
             xctx->wire[xctx->wires].sel=SELECTED;
+            set_first_sel(WIRE, xctx->wires, 0);
             xctx->wire[xctx->wires].prop_ptr=NULL;
             my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
             if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))

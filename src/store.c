@@ -152,6 +152,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   xctx->arc[rectc][n].prop_ptr = NULL;
   my_strdup(_ALLOC_ID_, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
   xctx->arc[rectc][n].sel = sel;
+  if(sel == SELECTED) set_first_sel(ARC, n, rectc);
   if( !strboolcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
     xctx->arc[rectc][n].fill =1;
   else
@@ -197,7 +198,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   }
   xctx->poly[rectc][n].points = points;
   xctx->poly[rectc][n].sel = sel;
-
+  if(sel == SELECTED) set_first_sel(POLYGON, n, rectc);
 
   if( !strboolcmp(get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0),"true") )
     xctx->poly[rectc][n].fill =1;
@@ -241,6 +242,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->line[rectc][n].prop_ptr=NULL;
      my_strdup(_ALLOC_ID_, &xctx->line[rectc][n].prop_ptr, prop_ptr);
      xctx->line[rectc][n].sel=sel;
+     if(sel == SELECTED) set_first_sel(LINE, n, rectc);
      if( prop_ptr && !strboolcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
        xctx->line[rectc][n].bus = 1;
      else
@@ -274,6 +276,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].extraptr=NULL;
      my_strdup(_ALLOC_ID_, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
+     if(sel == SELECTED) set_first_sel(xRECT, n, rectc);
      if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(dash);
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
@@ -316,6 +319,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      if(prop_ptr && !strboolcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
      else xctx->wire[n].bus=0;
      xctx->wire[n].sel=sel;
+     if(sel == SELECTED) set_first_sel(WIRE, n, 0);
      xctx->wires++;
      modified = 1;
     }

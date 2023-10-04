@@ -1352,6 +1352,7 @@ int warning_overlapped_symbols(int sel)
         xctx->hilight_nets=1;
       } else {
         xctx->inst[i].sel = SELECTED;
+        set_first_sel(ELEMENT, i, 0);
         xctx->need_reb_sel_arr = 1;
       }
       my_snprintf(str, S(str), "Error: overlapped instance found: %s(%s) -> %s\n",
