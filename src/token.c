@@ -3535,7 +3535,7 @@ const char *translate(int inst, const char* s)
               */
 
              rn = resolved_net(net);
-             my_strdup2(_ALLOC_ID_, &fqnet, resolved_net(net));
+             my_strdup2(_ALLOC_ID_, &fqnet, rn);
              if(rn) my_free(_ALLOC_ID_, &rn);
              strtolower(fqnet);
              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
