@@ -1,46 +1,73 @@
 3.4.4:
+- First selected instance is now always the master (instead of the first in the
+  xschem array order) when doing an edit attribute on a group of selected elements
+- vsource.sym and ammeter.sym: add "savecurrent=1|0|true|false" attribute do decide if
+  a .save I(...) is to be printed in netlist.
+  Default is 1 for ammeter.sym and 0 for vsource.sym.
+- Add "deltax deltay rot flip" optional parameters for xschem "copy_objects" command
+  to make copy operation scriptable (lot more efficient than using clipboard)
+- Added commands xschem get schprop|schvhdprop|schverilogprop|schtedaxprop|schsymbolprop,
+  "xschem create_text" renamed to "xschem text" for syntax consistency
+- Extend "xschem rect" and "xschem line" commands, add "xschem get rects n"
+  and "xschem get lines n"
+- Add crosshair_layer tcl variable, so user can change crosshair layer.
+  Crosshair is deleted on LeaveNotify events.
+- Added xschem set [schsymbolprop|schprop|schverilogprop|schvhdlprop|schtedaxprop] <value>
+  commands for setting global schematic/symbol attributes
+- Removed tcl variable connect_by_kissing (to many options is a mess)
+- Add tcl variable "unselect_partial_sel_wires" and related options menu entry to unselect
+  partially selected wires attached to component pins after a stretch move command
+- If $USER_CONF_DIR (~/.xschem) is not existing create it and also place
+  the template xschemrc into it
+- Add tcl variable no_ask_save: if set to 1 xschem will not ask to save modified schematics
+- control-mouse drag select will negate the setting of enable_stretch tcl variable
+  so drag and control-drag can be swapped vith Options->enable stretch
+- Add draw_crosshair setting in xschemrc: draw a crosshair at mouse coordinates
+- Commands for breaking wires also for oblique lines, with options to snap the break point
+  or keep it as is
+- Add fix_broken_tiled_fill tcl variable: 
+  if defined work around some graphic adapters/driver implemtations that dont honor the
+  X11 specifications for drawing with a pixmap tile fill pattern
+- Place_symbol(): make it smarter when dealing with generators.
+  add parenthesis () after file name and better handle tcleval(...) given in file selector
+- Improve connect by kissing: now 3 move operations are present:
+   1) just move selection,
+   2) move adding wires to connected pins/wire endpoints,
+   3) move by stretching wires attached to pins/endpoints to follow moving objects
+- Add "xschem rotate_in_place" command
+- Add tcl command "xschem change_elem_order n"
+  Add optional x0 and y0 coordinates as additional parameters to "xschem flip
+" and "xschem rotate" commands, add command "move_instance inst x y rot flip"
+- xschem select: extend command to allow selecting rectangles, lines, polygons, arcs. returns
+  1 if something selected, 0 otherwise
 - "xschem connected_nets" command now works for any selected instance, not only labels/probes/pins.
   Argument can be 0, 1, 2 (2-->select only wire segments drectly attached to selected net/instance)
-
 - Add commands "xschem get wires", "xschem getprop wire n attr", "xschem touch x1 y1 x2 y2 x0 y0",
   "xschem wire_coord n"
-
 - Add command "xschem select_dangling_nets" that selects all labels/wires that are not connected
   to any non-label/non-probe components
-
 - xschem tcp connections: print open/close/in/out data on console only if in tcl debug mode
-
 - Improve send nets to graph. do not refuse to send top level port signals, allow to send bussed
   signals even if graphdialog widget is not shown (proc graph_add_nodes_from_list)
-
 - hilight_parent_pins(): if two or more child pins are attached to the same parent net hilighting
   one of these child pins will not propagate to parent if the unhilight child pin comes after the
   hilight pin.
   This is now fixed. Going up in hierarchy will never clear parent hilights.
   It is recommended to clear all probes before tracking child pin propagation with hilights upstream.
-
 - xschem switch command: return success also if command given (with right filename/winpath) when no
   additional windows/tabs are present
-
 - xschem switch command return exit status depending if switch context was successfull or not
-
 - export ps/pdf, png, svg functions now use custom file chooser widget (as Save As does)
   to enable creation of new folders
-
 - Report in-hierarchy overlapped symbols when netlisting
-
 - Better ERC messaging in case of errors (shorts, pins with missing attrs), ...)
-
 - Fix wrong netlist filename if invoking netlist from GUI
-
 - Do not show ERC info window if netlisting invoked via CLI; global variable
   show_infowindow_after_netlist can now take 3 values: always, onerror, never, to decide when showing
   the ERC info window after netlisting. Old values (1, 0) still accepted as aliases for always
   and onerror
-
 - Add optional "-messages" in "xschem netlist" command to return ERC messages instead of
   fail(1)/good(0) code
-
 - Prefix ERC infowindow messages with Error: or Warning: or Info:
 
 3.4.3:
