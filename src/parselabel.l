@@ -101,7 +101,8 @@ const char *expandlabel(const char *s, int *m)
  if(parselabel_debug >= 3) fprintf(errfp, "expandlabel(): entering\n");
  if(!strpbrk(s, "*,.:")) { /* shortcut: nothing to parse / expand */
    *m = 1;
-   return s;
+   my_strdup(_ALLOC_ID_, &dest_string.str, s);
+   return dest_string.str;
  }
  buf=yy_scan_string(s);
  yyparse();
