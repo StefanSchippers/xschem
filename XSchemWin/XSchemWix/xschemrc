@@ -15,16 +15,17 @@
 #### XSCHEM SYSTEM-WIDE DESIGN LIBRARY PATHS: XSCHEM_LIBRARY_PATH
 ###########################################################################
 #### If unset xschem starts with XSCHEM_LIBRARY_PATH set to the default, typically:
-#### /home/schippes/.xschem/xschem_library
-#### /home/schippes/share/xschem/xschem_library/devices
-#### /home/schippes/share/doc/xschem/examples
-#### /home/schippes/share/doc/xschem/ngspice
-#### /home/schippes/share/doc/xschem/logic
-#### /home/schippes/share/doc/xschem/xschem_simulator
-#### /home/schippes/share/doc/xschem/generators
-#### /home/schippes/share/doc/xschem/binto7seg
-#### /home/schippes/share/doc/xschem/pcb
-#### /home/schippes/share/doc/xschem/rom8k
+#### <install_root>/.xschem/xschem_library
+#### <install_root>/share/xschem/xschem_library/devices
+#### <install_root>/share/doc/xschem/examples
+#### <install_root>/share/doc/xschem/ngspice
+#### <install_root>/share/doc/xschem/logic
+#### <install_root>/share/doc/xschem/xschem_simulator
+#### <install_root>/share/doc/xschem/generators
+#### <install_root>/share/doc/xschem/inst_sch_select
+#### <install_root>/share/doc/xschem/binto7seg
+#### <install_root>/share/doc/xschem/pcb
+#### <install_root>/share/doc/xschem/rom8k
 
 #### For testing in build src directory
 #### if unset following paths are set and maintained if existing:
@@ -35,6 +36,7 @@
 #### ../xschem_library/logic
 #### ../xschem_library/xschem_simulator
 #### ../xschem_library/generators
+#### ../xschem_library/inst_sch_select
 #### ../xschem_library/binto7seg
 #### ../xschem_library/pcb
 #### ../xschem_library/rom8k
@@ -46,12 +48,14 @@
 # append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/examples
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/ngspice
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xschem_simulator
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/logic
-# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xschem_simulator
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/generators
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/inst_sch_select
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/binto7seg
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
+#### Optional, often not needed...
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/symgen
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xTAG
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rulz-r8c33
@@ -63,12 +67,13 @@
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/ngspice"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/generators"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/inst_sch_select"
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
 
 ###########################################################################
 #### SET CUSTOM COLORS FOR XSCHEM LIBRARIES MATCHING CERTAIN PATTERNS
@@ -93,6 +98,10 @@
 ###########################################################################
 #### If unset $USER_CONF_DIR/simulations is assumed (normally ~/.xschem/simulations) 
 # set netlist_dir $env(HOME)/.xschem/simulations
+
+#### if this is set to '1' netlists and simulations will go into a simulation/ folder
+#### inside the directory containing the top level schematic. Default: not set (0)
+# set local_netlist_dir 1
 
 ###########################################################################
 #### NETLIST AND HIERARCHICAL PRINT EXCLUDE PATTERNS
@@ -141,6 +150,11 @@
 #### allow color postscript and svg exports. Default: 1, enable color
 # set color_ps 1
 
+#### set paper size: name, height, width. Sizes in 1/72 of an inch (typographical points)
+#### default: {a4 842 595}
+# set ps_paper_size {a4 842 595}
+# set ps_paper_size {letter 792 612}
+
 #### initial size of xschem window you can specify also position with (wxh+x+y)
 #### this is the default:
 # set initial_geometry {900x600}
@@ -149,6 +163,10 @@
 #### allowing to move away by zooming / unzooming with mouse wheel
 #### default setting: 0
 # set unzoom_nodrift 0
+
+#### if set to 1 full zoom will center the drawing instead of anhoring to lower
+#### left corner. Default: 0
+# set zoom_full_center 1
 
 #### if set to 1 allow to place multiple components with same name.
 #### Warning: this is normally not allowed in any simulation netlist.
@@ -159,21 +177,44 @@
 #### default: 0
 # set persistent_command 1
 
-#### if set to 1 a wire is inserted when separating components that are
-#### connected by pins. Default: not enabled (0)
-# set connect_by_kissing 1
+#### if set to 1 at end of a move operation that stretches wires attached to
+#### moved objects these wires will be unselected.
+#### default: not enabled (0)
+# set unselect_partial_sel_wires 0
 
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
 #### default: 0
 # set autotrim_wires 0
 
+#### do not ask to save file when doing control-s or File -> Save
+#### default: disabled (0), will ask before saving.
+# set no_ask_save 0
+
 #### set widget scaling (mainly for font display), this is useful on 4K displays
 #### default: unset (tk uses its default) > 1.0 ==> bigger 
 # set tk_scaling 1.7
 
+#### use the tclreadline package if available , Default: 1 (enabled).
+# set use_tclreadline 1
+
 #### disable some symbol layers. Default: none, all layers are visible.
 # set enable_layer(5) 0 ;# example to disable pin red boxes
+
+#### enable drawing the grid. Default: enabled (1)
+# set draw_grid 1
+
+#### enable stretch mode: when dragging a selection rectangle that cuts wires these are stretched
+#### to follow the selected objects when moved. Default: not enabled (0).
+#### This can be normally done by dragging with the Control key pressed.
+#### Enabling this option swaps the two drag modes.
+# set enable_stretch 0
+
+#### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
+# set draw_crosshair 1
+
+#### set crosshair layer; Default 3 (TEXTLAYER)
+# set crosshair_layer 3
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
@@ -194,9 +235,17 @@
 #### default: enabled (1)
 # set autofocus_mainwindow 0
 
+#### replace selected text in text widgets when pasting from clipboard
+#### default: enabled (1)
+# set text_replace_selection 0
+
 #### set component browser always above drawing canvas.
 #### default: enabled (1)
 # set component_browser_on_top 0
+
+#### set graph line width multiplier with respect to xschem actual line width
+#### default: 2.0
+# set graph_linewidth_mult 4.0
 
 ###########################################################################
 #### EXPORT FORMAT TRANSLATORS, PNG AND PDF
@@ -318,6 +367,11 @@ set editor {notepad.exe}
 # set show_infowindow 0
 
 ###########################################################################
+#### SHOW ERC INFO WINDOW AFTER NETLIST
+###########################################################################
+#### allowed values: never onerror always
+#### default: onerror
+# set show_infowindow_after_netlist onerror
 
 ###########################################################################
 #### TCP CONNECTION WITH GAW
@@ -342,29 +396,36 @@ set editor {notepad.exe}
 #### TCL FILES TO LOAD AT STARTUP
 ###########################################################################
 #### list of tcl files to preload.
+# set tcl_files {}
+# lappend tcl_files [list ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl]
 # lappend tcl_files ${XSCHEM_SHAREDIR}/change_index.tcl
-# lappend tcl_files ${XSCHEM_SHAREDIR}/ngspice_backannotate.tcl
+# lappend tcl_files ....
+
+###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER COMPLETING STARTUP
+###########################################################################
+# set postinit_commands {puts [xschem get version]}
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
 ###########################################################################
-#### used to download files from web: default: {curl -f -s -O}
-# set download_url_helper {curl -f -s -O}
-# set download_url_helper {wget -N --quiet}
+#### used to download files from web: default: {curl -f -s -O -J}
+# set download_url_helper {curl -f -s -O -J}
+# set download_url_helper {wget -N --quiet --content-disposition}
 
 ###########################################################################
 #### XSCHEM TOOLBAR
 ###########################################################################
-#### default: not enabled.
-# set toolbar_visible 1
+#### default: enabled, horizontal
+# set toolbar_visible 0
 # set toolbar_horiz   1
 
 ###########################################################################
 #### TABBED WINDOWS
 ###########################################################################
-#### default: not enabled. Interface can be changed runtime if only one window 
+#### default: enabled. Interface can be changed runtime if only one window 
 #### or tab is open.
-# set tabbed_interface 1
+# set tabbed_interface 0
 
 ###########################################################################
 #### CASE INSENSITIVE SYMBOL LOOKUP
@@ -407,3 +468,10 @@ set editor {notepad.exe}
 #### Instead, additional drives can be added using XSCHEM_LIBRARY_PATH
 #### default: 1
 # set add_all_windows_drives 0
+
+###########################################################################
+#### FIX GRAPHIC PROBLEMS ON SOME DRIVERS/GPU CONFIGURATIONS
+###########################################################################
+#### if you see garbage on screen / graphic artifacts while editing with
+#### xschem try to set this to 1. Default: not enabled (0)
+# set fix_broken_tiled_fill 0

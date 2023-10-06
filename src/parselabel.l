@@ -97,7 +97,10 @@ const char *expandlabel(const char *s, int *m)
  YY_BUFFER_STATE buf;
  my_free(_ALLOC_ID_, &dest_string.str);     /* 30102004  delete 'memory' of previous execution */
 
-  
+ if(!s) {
+   *m = -1;
+   return NULL;
+ }
  if(parselabel_debug >= 3) fprintf(errfp, "expandlabel(): entering\n");
  if(!strpbrk(s, "*,.:")) { /* shortcut: nothing to parse / expand */
    *m = 1;
@@ -123,19 +126,17 @@ const char *expandlabel(const char *s, int *m)
  }
  if(parselabel_debug >= 3) 
    fprintf(errfp, "expandlabel(): returning %s  from %s mult=%d\n",dest_string.str, s, dest_string.m);
- if(dest_string.str)
-    *m = dest_string.m;
- else
-    *m=-1;
  if(dest_string.str) {
+   *m = dest_string.m;
    if(xctx->netlist_type == CAD_SPICE_NETLIST && bus_char[0] && bus_char[1]) {
      str_char_replace(dest_string.str, '[', bus_char[0]);
      str_char_replace(dest_string.str, ']', bus_char[1]);
    }
-   return dest_string.str;
  } else {
-   return s;
+   *m=-1;
+   my_strdup(_ALLOC_ID_, &dest_string.str, s);
  }
+ return dest_string.str;
 }
 
 
