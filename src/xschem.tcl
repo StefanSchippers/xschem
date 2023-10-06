@@ -6083,8 +6083,14 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Move objects adding wires to connected pins" \
       -command "xschem move_objects kissing" -accelerator Shift+M
   toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
-  $topwin.menubar.edit.menu add command -label "Flip selected objects" -command "xschem flip" -accelerator {Alt-F}
-  $topwin.menubar.edit.menu add command -label "Rotate selected objects" -command "xschem rotate" -accelerator {Alt-R}
+  $topwin.menubar.edit.menu add command -label "Flip in place selected objects" -state disabled \
+     -accelerator {Alt-F}
+  $topwin.menubar.edit.menu add command -label "Rotate in place selected objects" -state disabled \
+      -accelerator {Alt-R}
+  $topwin.menubar.edit.menu add command -label "Flip selected objects" -state disabled \
+     -accelerator {Shift-F}
+  $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state disabled \
+      -accelerator {Shift-R}
   $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
      -value 0 -command {xschem set constrained_move 0} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
