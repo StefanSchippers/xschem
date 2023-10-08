@@ -1380,7 +1380,7 @@ static int eval_logic_expr(int inst, int output)
         if(sp > 2) {
           s = stack[sp - 1];
           if(s < 2) {
-            stack[sp - 3] = (s == 0) ? stack[sp - 3]  : stack[sp - 2];
+            stack[sp - 3] = (s == 0) ? stack[sp - 3] : (s == 1) ? stack[sp - 2] : 2;
           }
           else stack[sp - 3] = 2; /* setting to 2 (X) may lead to simulation deadlocks */
           sp -=2;

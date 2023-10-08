@@ -2,8 +2,8 @@ v {xschem version=3.4.5 file_version=1.2
 }
 G {}
 K {type=switch
-function1="0 Z 3 m"
-function2="Z 0 3 m"
+function1="0 Z 3 M"
+function2="Z 0 3 M"
 template="name=s1"
 }
 V {}
