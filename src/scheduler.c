@@ -2332,7 +2332,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "logic_get_net"))
     {
-      static char s[2]="X";
+      static char s[2];
+
+      my_strncpy(s, "X", S(s));
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       if(argc > 2) {
