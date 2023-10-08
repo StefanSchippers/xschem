@@ -2334,7 +2334,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       static char s[2];
 
-      my_strncpy(s, "X", S(s));
+      my_strncpy(s, "2", S(s));
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       Tcl_ResetResult(interp);
       if(argc > 2) {
@@ -2349,10 +2349,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             s[0] = '0';
             break;
             case -1:
-            s[0] = '2';
+            s[0] = '2'; /* Unknown (X) */
             break;
             case -13:
-            s[0] = '3';
+            s[0] = '3'; /* Hi-Z (Z) */
             break;
             default:
             s[0] = '2';
