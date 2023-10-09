@@ -1227,8 +1227,8 @@ static int edit_text_property(int x)
         cg = tclgetdoublevar("cadgrid");
         c = xctx->rects[PINLAYER];
         for(l=0;l<c; ++l) {
-          if(!strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)),
-                       xctx->text[sel].txt_ptr) ) {
+          if(xctx->text[sel].txt_ptr &&
+              !strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)), xctx->text[sel].txt_ptr) ) {
             /*
             #if HAS_CAIRO==1
             customfont = set_text_custom_font(&xctx->text[sel]);
