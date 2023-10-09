@@ -362,11 +362,11 @@ void mem_push_undo(void)
     xctx->uslot[slot].tptr[i].font = NULL;
     xctx->uslot[slot].tptr[i].floater_instname = NULL;
     xctx->uslot[slot].tptr[i].floater_ptr = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr, xctx->text[i].prop_ptr);
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr, xctx->text[i].txt_ptr);
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font, xctx->text[i].font);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr, xctx->text[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr, xctx->text[i].txt_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font, xctx->text[i].font);
     my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_instname, xctx->text[i].floater_instname);
-    my_strdup(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_ptr, xctx->text[i].floater_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_ptr, xctx->text[i].floater_ptr);
   }
 
   /* wires */
@@ -527,11 +527,11 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->text[i].floater_instname = NULL;
     xctx->text[i].floater_ptr = NULL;
     xctx->text[i].prop_ptr = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, xctx->uslot[slot].tptr[i].prop_ptr);
-    my_strdup(_ALLOC_ID_, &xctx->text[i].txt_ptr, xctx->uslot[slot].tptr[i].txt_ptr);
-    my_strdup(_ALLOC_ID_, &xctx->text[i].font, xctx->uslot[slot].tptr[i].font);
+    my_strdup2(_ALLOC_ID_, &xctx->text[i].prop_ptr, xctx->uslot[slot].tptr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->text[i].txt_ptr, xctx->uslot[slot].tptr[i].txt_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->text[i].font, xctx->uslot[slot].tptr[i].font);
     my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_instname, xctx->uslot[slot].tptr[i].floater_instname);
-    my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, xctx->uslot[slot].tptr[i].floater_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, xctx->uslot[slot].tptr[i].floater_ptr);
   }
 
   /* wires */

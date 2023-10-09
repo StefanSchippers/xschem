@@ -1264,7 +1264,7 @@ static int edit_text_property(int x)
             }
           }
         }
-        my_strdup(_ALLOC_ID_, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
+        my_strdup2(_ALLOC_ID_, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
       }
       if(x==0 && props_changed) {
         if(oldprop && preserve)

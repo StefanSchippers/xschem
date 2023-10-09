@@ -116,7 +116,7 @@ const char *get_text_floater(int i)
         txt_ptr = xctx->text[i].floater_ptr;
       } else {
         /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
-        my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
         txt_ptr = xctx->text[i].floater_ptr;
       }
       dbg(1, "floater: %s\n",txt_ptr);
@@ -124,7 +124,7 @@ const char *get_text_floater(int i)
       /* do just a tcl substitution if floater does not reference an existing instance 
        * (but name=something attribute must be present) and text matches tcleval(...) */
       if(strstr(txt_ptr, "tcleval(") == txt_ptr) {
-        my_strdup(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr));
         txt_ptr = xctx->text[i].floater_ptr;
       }
     }
@@ -1685,11 +1685,11 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
     dest_sym->text[j].font = NULL;
     dest_sym->text[j].floater_instname = NULL;
     dest_sym->text[j].floater_ptr = NULL;
-    my_strdup(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, src_sym->text[j].prop_ptr);
-    my_strdup(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, src_sym->text[j].floater_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, src_sym->text[j].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, src_sym->text[j].floater_ptr);
     dbg(1, "copy_symbol1(): allocating sym %d text %d\n", dest_sym - xctx->sym, j);
-    my_strdup(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, src_sym->text[j].txt_ptr);
-    my_strdup(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
+    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, src_sym->text[j].txt_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
     my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, src_sym->text[j].floater_instname);
   }
 }   
@@ -2789,7 +2789,7 @@ void change_layer()
      else if(type==xTEXT && xctx->text[n].sel==SELECTED) {
        if(xctx->rectcolor != xctx->text[n].layer) {
          char *p;
-         my_strdup(_ALLOC_ID_, &xctx->text[n].prop_ptr, 
+         my_strdup2(_ALLOC_ID_, &xctx->text[n].prop_ptr, 
            subst_token(xctx->text[n].prop_ptr, "layer", dtoa(xctx->rectcolor) ));
          xctx->text[n].layer = xctx->rectcolor;
          p = xctx->text[n].prop_ptr;
@@ -3283,7 +3283,7 @@ int create_text(int draw_text, double x, double y, int rot, int flip, const char
   t->floater_ptr = NULL;
   t->font=NULL;
   t->floater_instname=NULL;
-  my_strdup(_ALLOC_ID_, &t->txt_ptr, txt);
+  my_strdup2(_ALLOC_ID_, &t->txt_ptr, txt);
   t->x0=x;
   t->y0=y;
   t->rot=(short int) rot;

@@ -961,7 +961,7 @@ void copy_objects(int what)
              xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
         }
         xctx->text[xctx->texts].txt_ptr=NULL;
-        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
+        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
         xctx->text[n].sel=0;
          dbg(2, "copy_objects(): current str=%s\n",
           xctx->text[xctx->texts].txt_ptr);
@@ -976,9 +976,9 @@ void copy_objects(int what)
         xctx->text[xctx->texts].font=NULL;
         xctx->text[xctx->texts].floater_instname=NULL;
         xctx->text[xctx->texts].floater_ptr=NULL;
-        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
-        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
-        my_strdup(_ALLOC_ID_, &xctx->text[xctx->texts].floater_instname, xctx->text[n].floater_instname);
+        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
+        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
+        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].floater_instname, xctx->text[n].floater_instname);
         set_text_flags(&xctx->text[xctx->texts]);
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
