@@ -643,8 +643,8 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
         entry->next=NULL;
         entry->token=NULL;
         entry->value=NULL;
-        my_strdup(_ALLOC_ID_, &entry->token, token);
-        my_strdup(_ALLOC_ID_, &entry->value, value);
+        my_strdup2(_ALLOC_ID_, &entry->token, token);
+        my_strdup2(_ALLOC_ID_, &entry->value, value);
         entry->hash=hashcode;
         *preventry=entry;
       }
@@ -661,7 +661,7 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
         *preventry=saveptr;
       }
       else if(value && what == XINSERT ) {
-        my_strdup(_ALLOC_ID_, &entry->value, value);
+        my_strdup2(_ALLOC_ID_, &entry->value, value);
       }
       return entry;   /* found matching entry, return the address */
     }
@@ -743,7 +743,7 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
         entry=(Int_hashentry *)my_malloc(_ALLOC_ID_, s);
         entry->next=NULL;
         entry->token=NULL;
-        my_strdup(_ALLOC_ID_, &entry->token, token);
+        my_strdup2(_ALLOC_ID_, &entry->token, token);
         entry->value = value;
         entry->hash=hashcode;
         *preventry=entry;
@@ -843,7 +843,7 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
         entry=(Ptr_hashentry *)my_malloc(_ALLOC_ID_, s);
         entry->next=NULL;
         entry->token=NULL;
-        my_strdup(_ALLOC_ID_, &entry->token, token);
+        my_strdup2(_ALLOC_ID_, &entry->token, token);
         entry->value = value;
         entry->hash=hashcode;
         *preventry=entry;
