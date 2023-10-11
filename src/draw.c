@@ -3918,7 +3918,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
   #if HAS_CAIRO==1
-  my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
+  my_cairo_fill(xctx->cairo_save_sfc, (int)idx1, (int)idy1, width, height);
   #endif
   #else
   XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
