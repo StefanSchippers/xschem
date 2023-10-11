@@ -1371,7 +1371,7 @@ int sym_vs_sch_pins()
   int err = 0;
   char **lab_array =NULL;
   int lab_array_size = 0;
-  int i, j, k, symbol, n_syms, rects, pin_cnt=0, pin_match, mult;
+  int i, j, k, symbol, n_syms, pin_cnt=0, pin_match, mult;
   struct stat buf;
   char name[PATH_MAX];
   char *type = NULL;
@@ -1391,7 +1391,23 @@ int sym_vs_sch_pins()
   for(i=0;i<n_syms; ++i)
   {
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
-      rects = xctx->sym[i].rects[PINLAYER];
+      int rects = xctx->sym[i].rects[PINLAYER];
+      /* Determine if symbol has pass-through pins (pins with identical name) 
+       * if any is found do not check with schematic */
+      Int_hashtable pin_table = {NULL, 0};
+      int p;
+      int unique_pins = 0;
+      int_hash_init(&pin_table, HASHSIZE);
+      for(p = 0; p < rects; p++) {
+        const char *pname = get_tok_value(xctx->sym[i].rect[PINLAYER][p].prop_ptr, "name", 0);
+        if(!int_hash_lookup(&pin_table, pname, i, XINSERT_NOREPLACE)) {
+          unique_pins++;
+        }
+      }
+      dbg(1, "%s: rects=%d, unique_pins=%d\n", xctx->sym[i].name, rects, unique_pins);
+      int_hash_free(&pin_table);
+      /* pass through symbols, duplicated pins: do not check with schematic */
+      if(rects > unique_pins) continue;
       get_sch_from_sym(filename, xctx->sym + i, -1);
       if(!stat(filename, &buf)) {
         fd = fopen(filename, "r");
