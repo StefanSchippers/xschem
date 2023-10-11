@@ -3163,8 +3163,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
       if(strstr(ntok, ",")) {
-        my_strdup2(_ALLOC_ID_, &bus_msb, find_nth(ntok, ";,", "\"", 0, 2));
-        my_strdup2(_ALLOC_ID_, &bus_msb, find_nth(bus_msb, " ", "", 0, 1)); /* chop spaces */
+        /* also trim spaces */
+        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(find_nth(ntok, ";,", "\"", 0, 2), " "));
       }
       dbg(1, "ntok=|%s|, bus_msb=|%s|\n", ntok, bus_msb ? bus_msb : "NULL");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);

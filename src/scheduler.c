@@ -2493,7 +2493,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 6) {
         int i;
         if((i = get_instance(argv[2])) < 0 ) {
-          Tcl_SetResult(interp, "xschem pinlist: instance not found", TCL_STATIC);
+          Tcl_SetResult(interp, "xschem move_instance: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
         if(undo) xctx->push_undo();
@@ -4585,6 +4585,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
         my_free(_ALLOC_ID_, &s);
+      }
+    }
+
+    /* trim_chars str sep
+     *   Remove leading and trailing chars matching any character in 'sep' from str */
+    else if(!strcmp(argv[1], "trim_chars"))
+    {
+      if(argc > 3) {
+        char *s = trim_chars(argv[2], argv[3]);
+        Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
     }
 

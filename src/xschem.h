@@ -1480,7 +1480,7 @@ extern void ptr_hash_init(Ptr_hashtable *hashtable, int size);
 extern void ptr_hash_free(Ptr_hashtable *hashtable);
 extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
        const char *token,  void * const value, int what);
-
+extern char *trim_chars(const char *str, const char *sep);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
 extern const char *translate(int inst, const char* s);

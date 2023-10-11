@@ -3185,6 +3185,43 @@ int isonlydigit(const char *s)
     return 1;
 }
 
+
+/* remove leading and trailing characters specified in 'sep' */
+char *trim_chars(const char *str, const char *sep)
+{
+  static char *result = NULL;
+  static size_t result_size = 0;
+  size_t len;
+  char *ptr;
+  char *last;
+
+  if(str == NULL) {
+    my_free(_ALLOC_ID_, &result);
+    result_size = 0;
+    return NULL;
+  }
+  len = strlen(str) + 1;
+  /* allocate storage for result */
+  if(len > result_size) {
+    result_size = len + CADCHUNKALLOC;
+    my_realloc(_ALLOC_ID_, &result, result_size);
+  }
+  memcpy(result, str, len);
+  if(*str == '\0')return result;
+  ptr = result;
+  while (*ptr) {
+    if(!strchr(sep, *ptr)) break;
+    ptr++;
+  }
+  if(*ptr == '\0') return ptr;
+  last = ptr + strlen(ptr) -1;
+  while(strchr(sep, *last) && last > result) {
+    last--;
+  }
+  last[1] = '\0';
+  return ptr;
+}
+
 /* find nth field in str separated by sep. 1st field is position 1
  * separators inside quotes are not considered as field separators 
  * if keep_quote == 1 keep quoting characters  and backslashes in returned field
