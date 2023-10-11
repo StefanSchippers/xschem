@@ -329,8 +329,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
      for(i=0;i<xctx->sym[j].rects[PINLAYER]; ++i)
      {
        if(strboolcmp(get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
-         my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
-                   xctx->sym[j].rect[PINLAYER][i].prop_ptr,"sig_type",0));
+         my_strdup(_ALLOC_ID_, &sig_type,
+            get_tok_value( xctx->sym[j].rect[PINLAYER][i].prop_ptr,"sig_type",0));
          my_strdup(_ALLOC_ID_, &port_value,
             get_tok_value(xctx->sym[j].rect[PINLAYER][i].prop_ptr,"value", 0) );
          if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"std_logic");

@@ -196,7 +196,8 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     double start, end;
     int sweepvar_wrap = 0, sweep_idx;
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
-    sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+    Raw *raw = xctx->raw;
+    sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
     if(sweep_idx < 0) sweep_idx = 0;
     cursor2 =  xctx->graph_cursor2_x;
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
@@ -211,15 +212,15 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
     dbg(1, "dataset=%d\n", dataset);
     ofs = 0;
-    for(dset = 0 ; dset < xctx->graph_datasets; dset++) {
+    for(dset = 0 ; dset < raw->datasets; dset++) {
       double prev_x, prev_prev_x;
       int cnt=0, wrap;
-      register SPICE_DATA *gv = xctx->graph_values[sweep_idx];
+      register SPICE_DATA *gv = raw->values[sweep_idx];
       int s=0;
       first = -1;
       prev_prev_x = prev_x = 0;
       last = ofs;
-      for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) {
+      for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
         xx = gv[p];
         wrap = ( cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
         if(wrap) {
@@ -232,13 +233,13 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
             if(p == first) {
-              if(xx == cursor2) {dset = xctx->graph_datasets; break;}
+              if(xx == cursor2) {dset = raw->datasets; break;}
               s = XSIGN0(xx - cursor2);
               dbg(1, "s=%d\n", s);
             } else {
               int ss =  XSIGN0(xx -  cursor2);
               dbg(1, "s=%d, ss=%d\n", s, ss);
-              if(ss != s) {dset = xctx->graph_datasets; break;}
+              if(ss != s) {dset = raw->datasets; break;}
             }
             last = p;
           }
@@ -246,9 +247,9 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         } /* if(xx >= start && xx <= end) */
         prev_prev_x = prev_x;
         prev_x = xx;
-      } /* for(p = ofs ; p < ofs + xctx->graph_npoints[dset]; p++) */
+      } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
       /* offset pointing to next dataset */
-      ofs += xctx->graph_npoints[dset];
+      ofs += raw->npoints[dset];
       sweepvar_wrap++;
     } /* for(dset...) */
 
@@ -257,22 +258,22 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       if(p > last) {
         double sweep0, sweep1;
         p = last;
-        sweep0 = xctx->graph_values[sweep_idx][first];
-        sweep1 = xctx->graph_values[sweep_idx][p];
+        sweep0 = raw->values[sweep_idx][first];
+        sweep1 = raw->values[sweep_idx][p];
         if(fabs(sweep0 - cursor2) < fabs(sweep1 - cursor2)) {
           p = first;
         }
       }
       dbg(1, "xx=%g, p=%d\n", xx, p);
       tcleval("array unset ngspice::ngspice_data");
-      xctx->graph_annotate_p = p;
-      for(i = 0; i < xctx->graph_nvars; ++i) {
+      raw->annot_p = p;
+      for(i = 0; i < raw->nvars; ++i) {
         char s[100];
-        my_snprintf(s, S(s), "%.4g", xctx->graph_values[i][p]);
-        dbg(1, "%s = %g\n", xctx->graph_names[i], xctx->graph_values[i][p]);
-        tclvareval("array set ngspice::ngspice_data [list {",  xctx->graph_names[i], "} ", s, "]", NULL);
+        my_snprintf(s, S(s), "%.4g", raw->values[i][p]);
+        dbg(1, "%s = %g\n", raw->names[i], raw->values[i][p]);
+        tclvareval("array set ngspice::ngspice_data [list {",  raw->names[i], "} ", s, "]", NULL);
       }
-      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->graph_nvars), NULL);
+      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( raw->nvars), NULL);
       tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
     }
   }
@@ -339,6 +340,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
 
+  if(!xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
 
@@ -440,7 +442,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             need_all_redraw = 1;
           }
         } else {
-          xctx->graph_annotate_p = -1;
+          xctx->raw->annot_p = -1;
           /* need_all_redraw = 1; */
           redraw_all_at_end = 1;
         }
@@ -504,13 +506,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
   /* parameters for absolute positioning by mouse drag in bottom graph area */
   if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
-    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
     int dset = dataset == -1 ? 0 : dataset;
     double wwx1, wwx2, pp, delta, ccx, ddx;
     if(idx < 0 ) idx = 0;
     delta = gr->gw;
     wwx1 =  get_raw_value(dset, idx, 0);
-    wwx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] - 1);
+    wwx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] - 1);
     if(gr->logx) {
       wwx1 = mylog10(wwx1);
       wwx2 = mylog10(wwx2);
@@ -544,7 +546,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
     setup_graph_data(i, 1, gr); /* skip flag set, no reload x1 and x2 fields */
-    if(gr->dataset >= 0 && gr->dataset < xctx->graph_datasets) dataset =gr->dataset;
+    if(gr->dataset >= 0 /* && gr->dataset < xctx->raw->datasets */) dataset =gr->dataset;
     else dataset = -1;
     /* destroy / show measurement widget */
     if(i == xctx->graph_master) {
@@ -887,7 +889,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       else if(key == 'f') {
-        if(xctx->graph_values) {
+        if(xctx->raw && xctx->raw->values) {
           if(xctx->graph_left) { /* full Y zoom*/
             if(i == xctx->graph_master) {
               need_redraw = graph_fullyzoom(r, gr, dataset);
@@ -898,26 +900,26 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
               need_redraw = graph_fullxzoom(r, gr, dataset);
             }
           }
-        } /* graph_values */
+        } /* raw->values */
       } /* key == 'f' */
       /* absolute positioning by mouse drag in bottom graph area */
       else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
 
-        if(xctx->graph_values) {
+        if(xctx->raw && xctx->raw->values) {
           /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
 
             /*
              * this calculation is done in 1st loop, only for master graph 
              * and applied to all locked graphs 
-            int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", 1));
+            int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
             int dset = dataset == -1 ? 0 : dataset;
             double wwx1, wwx2, pp, delta, ccx, ddx;
 
             if(idx < 0 ) idx = 0;
             delta = gr->gw;
             wwx1 =  get_raw_value(dset, idx, 0);
-            wwx2 = get_raw_value(dset, idx, xctx->graph_npoints[dset] - 1);
+            wwx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] - 1);
             if(gr->logx) {
               wwx1 = mylog10(wwx1);
               wwx2 = mylog10(wwx2);
@@ -2744,80 +2746,80 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(xctx->last_command == STARTWIRE)  start_wire(mx, my);
        break;
      }
-     if(xctx->ui_state & MENUSTARTWIRECUT) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT)) {
        break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
-       xctx->ui_state &=~MENUSTARTWIRECUT;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTWIRECUT2) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT2)) {
        break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
-       xctx->ui_state &=~MENUSTARTWIRECUT2;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTMOVE) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTMOVE)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        /* stretch nets that land on selected instance pins if connect_by_kissing == 2 */
        /* select_attached_nets(); */
        move_objects(START,0,0,0);
-       xctx->ui_state &=~MENUSTARTMOVE;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTWIRE) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_wire(PLACE, xctx->mousex_snap, xctx->mousey_snap);
-       xctx->ui_state &=~MENUSTARTWIRE;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTSNAPWIRE) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTSNAPWIRE)) {
        double x, y;
 
        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
        xctx->mx_double_save = my_round(x / c_snap) * c_snap;
        xctx->my_double_save = my_round(y / c_snap) * c_snap;
        new_wire(PLACE, x, y);
-       xctx->ui_state &=~MENUSTARTSNAPWIRE;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTLINE) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTLINE)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_line(PLACE);
-       xctx->ui_state &=~MENUSTARTLINE;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTRECT) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTRECT)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_rect(PLACE);
-       xctx->ui_state &=~MENUSTARTRECT;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTPOLYGON) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTPOLYGON)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_polygon(PLACE);
-       xctx->ui_state &=~MENUSTARTPOLYGON;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTARC) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTARC)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_arc(PLACE, 180.);
-       xctx->ui_state &=~MENUSTARTARC;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTCIRCLE) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTCIRCLE)) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
        new_arc(PLACE, 360.);
-       xctx->ui_state &=~MENUSTARTCIRCLE;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
-     if(xctx->ui_state & MENUSTARTZOOM) {
+     if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTZOOM)) {
        zoom_rectangle(START);
-       xctx->ui_state &=~MENUSTARTZOOM;
+       xctx->ui_state &=~MENUSTART;
        break;
      }
      if(xctx->ui_state & STARTZOOM) {

@@ -219,6 +219,9 @@
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 
+#### enable drawing grid axes. Default: enabled (1)
+# set draw_grid_axes 1
+
 #### enable grouping contiguous bits of bus slices in net->pin instance
 #### assignments for verilog netlists. Default: disabled (0)
 # set verilog_bitblast 0

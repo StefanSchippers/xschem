@@ -625,8 +625,8 @@ static void name_generics()
                   my_strdup(_ALLOC_ID_, &sig_type,"");
                   bus_node_hash_lookup(inst[n].node[p],"", XINSERT, 1, sig_type,"", "","");
                 } else {
-                  my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
-                    (inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type",0));
+                  my_strdup(_ALLOC_ID_, &sig_type,
+                    get_tok_value((inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type", 0));
                   /* insert generic label in hash table as a port so it will not */
                   /* be declared as a signal in the vhdl netlist. this is a workaround */
                   /* that should be fixed 25092001 */

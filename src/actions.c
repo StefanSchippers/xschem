@@ -1949,10 +1949,10 @@ int descend_schematic(int instnumber)
 
      p_n_s1 = pin_node;
      for(k = 1; k<=mult; ++k) {
-         single_p = my_strtok_r(p_n_s1, ",", "", &p_n_s2);
+         single_p = my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2);
          p_n_s1 = NULL;
          my_strdup2(_ALLOC_ID_, &single_n,
-             find_nth(net_node, ",", ((inst_number - 1) * mult + k - 1) % net_mult + 1));
+             find_nth(net_node, ",", "", 0, ((inst_number - 1) * mult + k - 1) % net_mult + 1));
          single_n_ptr = single_n;
          if(single_n_ptr[0] == '#') {
            if(mult > 1) {
@@ -1974,7 +1974,7 @@ int descend_schematic(int instnumber)
              get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
-   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", inst_number));
+   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
    my_free(_ALLOC_ID_, &str);
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");

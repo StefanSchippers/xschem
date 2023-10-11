@@ -508,7 +508,7 @@ int verilog_block_netlist(FILE *fd, int i)
   
     if(extra) {
       for(extra_ptr = extra; ; extra_ptr=NULL) {
-        extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+        extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr1);
         if(!extra_token) break;
         if(tmp) fprintf(fd, " ,\n");
         fprintf(fd, "  %s", extra_token);
@@ -550,7 +550,7 @@ int verilog_block_netlist(FILE *fd, int i)
     if(extra2) {
       saveptr1 = NULL;
       for(extra_ptr = extra2; ; extra_ptr=NULL) {
-        extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+        extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr1);
         if(!extra_token) break;
         fprintf(fd, "  inout %s ;\n", extra_token);
         fprintf(fd, "  wire %s ;\n", extra_token);

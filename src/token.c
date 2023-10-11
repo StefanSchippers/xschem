@@ -423,6 +423,8 @@ static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **p
 /* 1: return backslashes and quotes as part of the token value if they are present */
 /* bit 1: */
 /* 1: do not perform tcl_hook2 substitution */
+/* bit: 2 = 1: same as bit 0 = 1, but remove surrounding "..." quotes, keep everything in between */
+
 
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {
@@ -481,7 +483,9 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       }
       if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c;
     } else if(state == TOK_VALUE) {
-      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) result[value_pos++]=(char)c;
+      if( with_quotes & 1) result[value_pos++] = (char)c;
+      else if(( with_quotes & 4) && (escape || c != '"')) result[value_pos++] = (char)c;
+      else if( escape || (c != '\\' && c != '"')) result[value_pos++]=(char)c;
     } else if(state == TOK_ENDTOK || state == TOK_SEP) {
         if(token_pos) {
           token[token_pos] = '\0';
@@ -675,7 +679,7 @@ void hash_names(int inst, int action)
       strtoupper(upinst);
 
       upinst_ptr = upinst;
-      while( (single_name = my_strtok_r(upinst_ptr, ",", "", &upinst_state)) ) {
+      while( (single_name = my_strtok_r(upinst_ptr, ",", "", 0, &upinst_state)) ) {
         upinst_ptr = NULL;
         dbg(1, "hash_names(): inst %d, name %s --> %d\n", i, single_name, action);
         int_hash_lookup(&xctx->inst_name_table, single_name, i, action);
@@ -702,7 +706,7 @@ static int name_is_used(char *name, const char *old_basename, const char *brkt, 
   my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, &mult));
   strtoupper(upinst);
   upinst_ptr = upinst;
-  while( (single_name = my_strtok_r(upinst_ptr, ",", "", &upinst_state)) ) {
+  while( (single_name = my_strtok_r(upinst_ptr, ",", "", 0, &upinst_state)) ) {
     upinst_ptr = NULL;
     entry = int_hash_lookup(&xctx->inst_name_table, single_name, 1, XLOOKUP);
     if(entry) {
@@ -1088,7 +1092,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
            sscanf(ss+1, "%s", tmpstr);
            if(isonlydigit(tmpstr)) {
              slot = atoi(tmpstr);
-             if(strstr(value,":")) value = find_nth(value, ":", slot);
+             if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
            }
          }
          my_free(_ALLOC_ID_, &tmpstr);
@@ -1360,17 +1364,22 @@ int count_items(const char *s, const char *sep, const char *quote)
   const char *ptr;
   int items = 0;
   int state = 0; /* 1 if item is being processed */
-  int c, q = 0;
+  int c, q = 0, e = 0;
 
   ptr = s;
-  while( (c = *(unsigned char *)ptr ++) ) {
-    if(strchr(quote, c)) q = !q;
-    if(q || !strchr(sep, c)) { /* not a separator */
+  while( (c = *(unsigned char *)ptr++) ) {
+    if(!e && c == '\\') {
+      e = 1;
+      continue;
+    }
+    if(!e && strchr(quote, c)) q = !q;
+    if(e || q || !strchr(sep, c)) { /* not a separator */
       if(!state) items++;
       state = 1;
     } else {
       state = 0;
     }
+    e = 0;
   }
   dbg(1, "count_items: s=%s, items=%d\n", s, items);
   return items;
@@ -2185,7 +2194,7 @@ int print_spice_element(FILE *fd, int inst)
               sscanf(ss+1, "%s", tmpstr);
               if(isonlydigit(tmpstr)) {
                 slot = atoi(tmpstr);
-                if(strstr(value,":")) value = find_nth(value, ":", slot);
+                if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
               }
             }
             my_free(_ALLOC_ID_, &tmpstr);
@@ -2355,8 +2364,8 @@ void print_tedax_element(FILE *fd, int inst)
      if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
        dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
        for(n = 0; n < net_mult; ++n) {
-         my_strdup(_ALLOC_ID_, &netbit, find_nth(net, ",", n+1));
-         my_strdup(_ALLOC_ID_, &pinbit, find_nth(pin, ",", n+1));
+         my_strdup(_ALLOC_ID_, &netbit, find_nth(net, ",", "", 0, n+1));
+         my_strdup(_ALLOC_ID_, &pinbit, find_nth(pin, ",", "", 0, n+1));
          fprintf(fd, "__map__ %s -> %s\n", 
            pinbit ? pinbit : "__UNCONNECTED_PIN__", 
            netbit ? netbit : "__UNCONNECTED_PIN__");
@@ -2409,8 +2418,8 @@ void print_tedax_element(FILE *fd, int inst)
      /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
      /* fprintf(errfp, "extra: |%s|\n", extra); */
      for(extra_ptr = extra, extra_pinnumber_ptr = extra_pinnumber; ; extra_ptr=NULL, extra_pinnumber_ptr=NULL) {
-       extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", "", &saveptr1);
-       extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr2);
+       extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", "", 0, &saveptr1);
+       extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr2);
        if(!extra_token) break;
        /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
        /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */
@@ -2577,7 +2586,7 @@ void print_tedax_element(FILE *fd, int inst)
             sscanf(ss+1, "%s", tmpstr);
             if(isonlydigit(tmpstr)) {
               slot = atoi(tmpstr);
-              if(strstr(value,":")) value = find_nth(value, ":", slot);
+              if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
             }
           }
           my_free(_ALLOC_ID_, &tmpstr);
@@ -2837,7 +2846,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
             sscanf(ss+1, "%s", tmpstr);
             if(isonlydigit(tmpstr)) {
               slot = atoi(tmpstr);
-              if(strstr(value,":")) value = find_nth(value, ":", slot);
+              if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
             }
           }
           my_free(_ALLOC_ID_, &tmpstr);
@@ -3056,7 +3065,7 @@ void print_verilog_element(FILE *fd, int inst)
  if(v_extra) {
    const char *val;
    for(extra_ptr = v_extra; ; extra_ptr=NULL) {
-     extra_token=my_strtok_r(extra_ptr, " ", "", &saveptr1);
+     extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr1);
      if(!extra_token) break;
 
      val = get_tok_value(xctx->inst[inst].prop_ptr, extra_token, 0);
@@ -3152,14 +3161,14 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        else
          my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j])+1 );
      }
-     expandlabel(get_tok_value(                            /*  remove quotes --. */
-             (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
+     expandlabel(
+        get_tok_value( (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
      return expandlabel(str_node, &tmp);
    }
    else
    {
-     expandlabel(get_tok_value(                             /* remove quotes --. */
-             (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
+     expandlabel(
+        get_tok_value( (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
      return expandlabel(xctx->inst[i].node[j], &tmp);
    }
  }
@@ -3177,53 +3186,65 @@ int isonlydigit(const char *s)
 }
 
 /* find nth field in str separated by sep. 1st field is position 1
- * find_nth("aaa,bbb,ccc,ddd", ',', 2)  --> "bbb"
+ * separators inside quotes are not considered as field separators 
+ * if keep_quote == 1 keep quoting characters  and backslashes in returned field
+ * if keep_quote == 4 same as above but remove surrounding "..."
+ * find_nth("aaa,bbb,ccc,ddd", ",", 0, 2)  --> bbb
+ * find_nth("aaa, \"bbb, \" ccc\" , ddd", " ,", "\"", 0, 2)  --> bbb, " ccc
+ * find_nth("aaa, \"bbb, \" ccc\" , ddd", " ,", "\"", 1, 2)  --> "bbb, \" ccc"
+ * find_nth("aaa, \"bbb, \" ccc\" , ddd", " ,", "\"", 4, 2)  --> bbb, \" ccc
  */
-char *find_nth(const char *str, const char *sep, int n)
+char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n)
 {
   static char *result=NULL; /* safe to keep even with multiple schematic windows */
   static size_t result_size = 0; /* safe to keep even with multiple schematic windows */
-  int i;
+  int i, q = 0, e = 0; /* e: escape */
+  int result_pos;
   size_t len;
-  char *ptr;
-  int count = -1;
+  int count = 0, first_nonsep=1;
 
+  /* clean up static data */
   if(!str) {
     my_free(_ALLOC_ID_, &result);
     result_size = 0;
     return NULL;
   }
+  /* allocate storage for result */
   len = strlen(str) + 1;
   if(len > result_size) {
     result_size = len + CADCHUNKALLOC;
     my_realloc(_ALLOC_ID_, &result, result_size);
   }
-  memcpy(result, str, len);
-  i = 0;
-  while(result[i] && strchr(sep, result[i])) i++; /* strip off leading separators */
-  ptr = result + i;
-  for(count=1; result[i] != 0; ++i) {
-    if(strchr(sep, result[i])) {
-      result[i]=0;
-      if(count==n) {
-        dbg(1, "1 find_nth(): returning %s\n", ptr);
-        return ptr;
+
+  result_pos = 0;
+  for(i = 0; str[i]; i++) {
+    if(!e && strchr(quote, str[i])) {
+      q = !q;
+      if(keep_quote != 1) {
+        continue;
       }
-      ++i;
-      while(result[i] && strchr(sep, result[i])) i++;
-      ptr = result + i;
-      ++count;
     }
+    if(!e && str[i] =='\\') { /* only recognize escape if there are some quoting chars */
+      e = 1;
+      continue;
+    }
+    if(!e && !q && strchr(sep, str[i])) {
+      first_nonsep = 1;
+      if(count == n) { /* first == 1 --> separators at beginning are not preceded by a field */
+        break; /* we have found the 'count'th field, return. */
+      }
+    } else {
+      if(first_nonsep) count++; /* found a new field */
+      first_nonsep=0;
+      if(count == n) {
+        if(e == 1 && keep_quote) result[result_pos++] = '\\';
+        result[result_pos++] = str[i]; /* if field matches requested one store result */
+      }
+    }
+    e = 0;
   }
-  if(count==n) {
-     dbg(1, "2 find_nth(): returning %s\n", ptr);
-    return ptr;
-  }
-  else {
-    result[0] = '\0';
-    dbg(1, "3 find_nth(): returning %s\n", result);
-    return result;
-  }
+  result[result_pos++] = '\0';
+  return result;
 }
 
 /* given a token like @#pin:attr get value of pin attribute 'attr'
@@ -3298,7 +3319,7 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
         sscanf(ss+1, "%s", tmpstr);
         if(isonlydigit(tmpstr)) {
           slot = atoi(tmpstr);
-          if(strstr(value,":")) my_strdup2(_ALLOC_ID_, &value, find_nth(value, ":", slot));
+          if(strstr(value,":")) my_strdup2(_ALLOC_ID_, &value, find_nth(value, ":", "", 0, slot));
         }
       }
       my_free(_ALLOC_ID_, &tmpstr);
@@ -3499,7 +3520,7 @@ const char *translate(int inst, const char* s)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
-     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 1) {
@@ -3541,7 +3562,7 @@ const char *translate(int inst, const char* s)
              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
              idx = get_raw_index(fqnet);
              if(idx >= 0) {
-               val = xctx->graph_values[idx][xctx->graph_annotate_p];
+               val = xctx->raw->values[idx][xctx->raw->annot_p];
              }
              if(idx < 0) {
                valstr = "";
@@ -3569,7 +3590,7 @@ const char *translate(int inst, const char* s)
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
      dbg(1, "--> %s\n", token);
-     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        char *fqnet = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *net = NULL;
@@ -3598,7 +3619,7 @@ const char *translate(int inst, const char* s)
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
-             val = xctx->graph_values[idx][xctx->graph_annotate_p];
+             val = xctx->raw->values[idx][xctx->raw->annot_p];
            }
            if(idx < 0) {
              valstr = "";
@@ -3624,7 +3645,7 @@ const char *translate(int inst, const char* s)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
-     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
@@ -3666,7 +3687,7 @@ const char *translate(int inst, const char* s)
            dbg(1, "fqdev=%s\n", fqdev);
            idx = get_raw_index(fqdev);
            if(idx >= 0) {
-             val = xctx->graph_values[idx][xctx->graph_annotate_p];
+             val = xctx->raw->values[idx][xctx->raw->annot_p];
            }
            if(idx < 0) {
              valstr = "";
@@ -3686,13 +3707,13 @@ const char *translate(int inst, const char* s)
          } /* if(n == 1) */
          my_free(_ALLOC_ID_, &dev);
        } /* if(path) */
-     } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) */
+     } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
    }
    else if(strcmp(token,"@spice_get_diff_voltage")==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
-     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        int multip;
        int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
        if(no_of_pins == 2) {
@@ -3727,11 +3748,11 @@ const char *translate(int inst, const char* s)
            dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
            idx1 = get_raw_index(fqnet1);
            if(idx1 >= 0) {
-             val1 = xctx->graph_values[idx1][xctx->graph_annotate_p];
+             val1 = xctx->raw->values[idx1][xctx->raw->annot_p];
            }
            idx2 = get_raw_index(fqnet2);
            if(idx2 >= 0) {
-             val2 = xctx->graph_values[idx2][xctx->graph_annotate_p];
+             val2 = xctx->raw->values[idx2][xctx->raw->annot_p];
            }
            val = val1 - val2;
            if(idx1 < 0 || idx2 < 0) {
@@ -3759,7 +3780,7 @@ const char *translate(int inst, const char* s)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
-     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->graph_annotate_p>=0) {
+     if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
@@ -3798,7 +3819,7 @@ const char *translate(int inst, const char* s)
          strtolower(fqdev);
          idx = get_raw_index(fqdev);
          if(idx >= 0) {
-           val = xctx->graph_values[idx][xctx->graph_annotate_p];
+           val = xctx->raw->values[idx][xctx->raw->annot_p];
          }
          if(idx < 0) {
            valstr = "";

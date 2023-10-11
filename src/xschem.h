@@ -23,7 +23,7 @@
 #ifndef CADGLOBALS
 #define CADGLOBALS
 
-#define XSCHEM_VERSION "3.4.4"
+#define XSCHEM_VERSION "3.4.5"
 #define XSCHEM_FILE_VERSION "1.2"
 
 #if HAS_PIPE == 1
@@ -209,38 +209,43 @@ extern char win_temp_dir[PATH_MAX];
 #define CAD_TEDAX_NETLIST 4
 #define CAD_SYMBOL_ATTRS 5
 
-#define STARTWIRE 1U        /*  possible states, encoded in global 'rubber' */
-#define STARTRECT 4U
-#define STARTLINE 8U
-#define SELECTION  16U      /*  signals that some objects are selected. */
-#define STARTSELECT 32U     /*  used for drawing a selection rectangle */
-#define STARTMOVE 64U       /*  used for move/copy  operations */
-#define STARTCOPY 128U      /*  used for move/copy  operations */
-#define STARTZOOM 256U      /*  used for move/copy  operations */
-#define STARTMERGE 512U     /*  used fpr merge schematic/symbol */
-#define MENUSTARTWIRE 1024U /*  start wire invoked from menu */
-#define MENUSTARTLINE 2048U /*  start line invoked from menu */
-#define MENUSTARTRECT 4096U /*  start rect invoked from menu */
-#define MENUSTARTZOOM 8192U /*  start zoom box invoked from menu */
-#define STARTPAN     16384U /*  new pan method with mouse button3 */
-#define PLACE_TEXT 32768U
-#define MENUSTARTSNAPWIRE 65536U  /*  start wire invoked from menu, snap to pin variant 20171022 */
-#define STARTPOLYGON 131072U
-#define MENUSTARTPOLYGON 262144U
-#define STARTARC 524288U
-#define MENUSTARTARC 1048576U
-#define MENUSTARTCIRCLE 2097152U
-#define PLACE_SYMBOL 4194304U /* used in move_objects after place_symbol to avoid storing intermediate undo state */
-#define START_SYMPIN 8388608U
-#define GRAPHPAN 16777216U /* bit 24 */
-#define MENUSTARTMOVE 33554432U
-#define MENUSTARTWIRECUT 67108864U /* bit 26 */
-#define MENUSTARTWIRECUT2 134217728U /* bit 27 : do not align cut point to snap */
+/*  possible states, encoded in global 'ui_state' */
+#define STARTWIRE 1U
+#define STARTRECT 2U
+#define STARTLINE 4U
+#define SELECTION 8U        /*  signals that some objects are selected. */
+#define STARTSELECT 16U     /*  used for drawing a selection rectangle */
+#define STARTMOVE 32U       /*  used for move/copy  operations */
+#define STARTCOPY 64U       /*  used for move/copy  operations */
+#define STARTZOOM 128U      /*  used for move/copy  operations */
+#define STARTMERGE 256U     /*  used fpr merge schematic/symbol */
+#define STARTPAN 512U       /*  new pan method with mouse button3 */
+#define PLACE_TEXT 1024U
+#define STARTPOLYGON 2048U
+#define STARTARC 4096U
+#define PLACE_SYMBOL 8192U  /* used in move_objects after place_symbol to avoid storing intermediate undo state */
+#define START_SYMPIN 16384U
+#define GRAPHPAN 32768U     /* bit 15 */
+#define MENUSTART 65536U    /* bit 16 */
+
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
 #define SELECTED2 4U        /*  second point selected... */
 #define SELECTED3 8U
 #define SELECTED4 16U
+
+/* sub states encoded in global ui_state2 to reduce ui_state bits usage */
+#define MENUSTARTWIRE 1U /*  start wire invoked from menu */
+#define MENUSTARTLINE 2U /*  start line invoked from menu */
+#define MENUSTARTRECT 4U /*  start rect invoked from menu */
+#define MENUSTARTZOOM 8U /*  start zoom box invoked from menu */
+#define MENUSTARTSNAPWIRE 16U  /*  start wire invoked from menu, snap to pin variant 20171022 */
+#define MENUSTARTPOLYGON 32U
+#define MENUSTARTARC 64U
+#define MENUSTARTCIRCLE 128U
+#define MENUSTARTMOVE 256U
+#define MENUSTARTWIRECUT 512U 
+#define MENUSTARTWIRECUT2 1024U /* do not align cut point to snap */
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2
@@ -615,7 +620,6 @@ typedef struct
   char *instname; /*  20150409 instance name (example: I23)  */
 } xInstance;
 
-
 typedef struct
 {
   double x;
@@ -756,6 +760,29 @@ struct hilight_hashentry
   int time; /*delta-time for sims */
 };
 
+
+
+
+typedef struct {
+  /* spice raw file specific data */
+  char **names;
+  SPICE_DATA **values;
+  int nvars;
+  int *npoints;
+  int allpoints; /* all points of all datasets combined */
+  int datasets;
+  Int_hashtable table;
+  const char *sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
+  int annot_p; /* point in raw file to use for annotating schematic voltages/currents/etc */
+  /* when descending hierarchy xctx->current_name changes, xctx->raw_schname
+   * holds the name of the top schematic from which the raw file was loaded */
+  char *schname;
+  int level;  /* hierarchy level where raw file has been read MIRRORED IN TCL*/
+} Raw;
+
+
+
+
 /*  for netlist.c */
 typedef struct instpinentry Instpinentry;
 struct instpinentry
@@ -874,8 +901,9 @@ typedef struct {
   double zoom;
   double mooz;
   double lw;
-  unsigned int ui_state ; /* this signals that we are doing a net place,panning etc.
-                            * used to prevent nesting of some commands */
+  unsigned int ui_state;   /* this signals that we are doing a net place,panning etc.
+                           * used to prevent nesting of some commands */
+  unsigned int ui_state2; /* sub states of ui_state MENUSTART bit */ 
   double mousex,mousey; /* mouse coord. */
   double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
   double mx_double_save, my_double_save;
@@ -1005,13 +1033,10 @@ typedef struct {
   int undo_initialized;
   /* graph context struct */
   Graph_ctx graph_struct;
-  /* spice raw file specific data */
-  char **graph_names;
-  SPICE_DATA **graph_values;
-  int graph_nvars;
-  int *graph_npoints;
-  int graph_allpoints; /* all points of all datasets combined */
-  int graph_datasets;
+
+  Raw *raw; /* spice simulation data struct pointer */
+
+  /*    */
   /* data related to all graphs, so not stored in per-graph graph_struct */
   double graph_cursor1_x;
   double graph_cursor2_x;
@@ -1030,13 +1055,6 @@ typedef struct {
   int graph_bottom; 
   int graph_left;
   int graph_lastsel; /* last graph that was clicked (selected) */
-  const char *graph_sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
-  int graph_annotate_p; /* point in raw file to use for annotating schematic voltages/currents/etc */
-  Int_hashtable graph_raw_table;
-  /* when descending hierarchy xctx->current_name changes, xctx->graph_raw_schname
-   * holds the name of the top schematic from which the raw file was loaded */
-  char *graph_raw_schname;
-  int graph_raw_level;  /* hierarchy level where raw file has been read MIRRORED IN TCL*/
   /*    */
   XSegment *biggridpoint;
   XPoint *gridpoint;
@@ -1163,7 +1181,7 @@ extern int filter_data(const char *din, const size_t ilen,
            char **dout, size_t *olen, const char *cmd);
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
-extern int raw_read_from_attr(const char *type);
+extern int raw_read_from_attr(Raw **rawptr, const char *type);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
@@ -1176,8 +1194,8 @@ extern unsigned char *base64_decode(const char *data, const size_t input_length,
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);
-extern void free_rawfile(int dr);
-extern int raw_read(const char *f, const char *type);
+extern void free_rawfile(Raw **rawptr, int dr);
+extern int raw_read(const char *f, Raw **rawptr, const char *type);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok);
@@ -1463,7 +1481,7 @@ extern void ptr_hash_free(Ptr_hashtable *hashtable);
 extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
        const char *token,  void * const value, int what);
 
-extern char *find_nth(const char *str, const char *sep, int n);
+extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);
@@ -1482,7 +1500,7 @@ extern void my_strndup(int id, char **dest, const char *src, size_t n);
 extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_fgets(FILE *fd, size_t *line_len);
 extern size_t my_fgets_skip(FILE *fd);
-extern char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr);
+extern char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quote, char **saveptr);
 extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);

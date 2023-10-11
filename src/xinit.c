@@ -441,12 +441,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
-  xctx->graph_names = NULL;
-  xctx->graph_values = NULL;
-  xctx->graph_nvars = 0;
-  xctx->graph_npoints = NULL;
-  xctx->graph_allpoints = 0;
-  xctx->graph_datasets = 0;
+  xctx->raw = NULL;
   xctx->graph_master = 0;
   xctx->graph_cursor1_x = 0;
   xctx->graph_flags = 0;
@@ -454,11 +449,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->graph_bottom = 0;
   xctx->graph_left = 0;
   xctx->graph_lastsel = -1;
-  xctx->graph_sim_type = NULL; /* type of sim, "tran", "dc", "op", "ac", ... */
-  xctx->graph_annotate_p = -1; /* point in raw file to use for annotating voltages/currents/etc */
   xctx->graph_struct.hilight_wave = -1; /* index of wave */
-  xctx->graph_raw_schname = NULL;
-  xctx->graph_raw_level = -1; /* hierarchy level where raw file has been read */
   xctx->wires = 0;
   xctx->instances = 0;
   xctx->symbols = 0;
@@ -474,12 +465,11 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
   xctx->currsch = 0;
   xctx->ui_state = 0;
+  xctx->ui_state2 = 0;
   xctx->lw = 0.0;
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
-  xctx->graph_raw_table.size = 0;
-  xctx->graph_raw_table.table = NULL;
   xctx->node_redraw_table.size = 0;
   xctx->node_redraw_table.table = NULL;
   xctx->prep_net_structs = 0;
@@ -679,7 +669,7 @@ static void delete_schematic_data(int delete_pixmap)
   escape_chars(NULL);
   sanitize(NULL);
   is_generator(NULL);
-  free_rawfile(0);
+  free_rawfile(&xctx->raw, 0);
   free_xschem_data(); /* delete the xctx struct */
 }
 
@@ -903,7 +893,7 @@ static void xwin_exit(void)
  translate(0, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
- find_nth(NULL, "", 0); /* clear static data in function */
+ find_nth(NULL, "", "", 0, 0); /* clear static data in function */
  tcl_hook2(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  dbg(1, "xwin_exit(): removing font\n");

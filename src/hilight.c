@@ -529,14 +529,13 @@ void hilight_parent_pins(void)
   dbg(1, "p_n_s1=%s\n", p_n_s1);
   for(k = 1; k<=mult; ++k) {
     xctx->currsch++;
-    /* entry = bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XLOOKUP); */
-    entry = bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), 0, XLOOKUP);
+    entry = bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2), 0, XLOOKUP);
     p_n_s1 = NULL;
     xctx->currsch--;
     if(entry)
     {
       dbg(1, "found hilight entry in child: %s\n", entry->token);
-      bus_hilight_hash_lookup(find_nth(net_node, ",",
+      bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0, 
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
     else
@@ -548,7 +547,7 @@ void hilight_parent_pins(void)
        * you should unhilight all net probes, hilight the desired child pins and then go up */
 
       /* 
-       * bus_hilight_hash_lookup(find_nth(net_node, ",",
+       * bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
        *     ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
        */
     }
@@ -596,21 +595,15 @@ void hilight_child_pins(void)
   for(k = 1; k<=mult; ++k) {
     dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
-    /* dbg(1, "hilight_child_pins(): looking net:%s\n",  find_nth(net_node, ",",
-        ((inst_number - 1) * mult + k - 1) % net_mult + 1)); */
     xctx->currsch--;
-    entry = bus_hilight_hash_lookup(find_nth(net_node, ",", 
+    entry = bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
       ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
     xctx->currsch++;
     if(entry) {
-      /* bus_hilight_hash_lookup(find_nth(pin_node, ",", k), entry->value, XINSERT_NOREPLACE); */
-      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), entry->value, XINSERT_NOREPLACE);
-      /* dbg(1, "hilight_child_pins(): inserting: %s\n", find_nth(pin_node, ",", k)); */
+      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2), entry->value, XINSERT_NOREPLACE);
     }
     else {
-      /* bus_hilight_hash_lookup(find_nth(pin_node, ",", k), 0, XDELETE); */
-      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", &p_n_s2), 0, XDELETE);
-      /* dbg(1, "hilight_child_pins(): deleting: %s\n", find_nth(pin_node, ",", k)); */
+      bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2), 0, XDELETE);
     }
     p_n_s1 = NULL;
   } /* for(k..) */
@@ -902,7 +895,7 @@ static void drill_hilight(int mode)
         expandlabel(netname, &mult);
         dbg(1, "inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult);
         for(k = 1; k <= mult; ++k) {
-          netbitname = find_nth(netname, ",", k);
+          netbitname = find_nth(netname, ",", "", 0, k);
           dbg(1, "netbitname=%s\n", netbitname);
           if( (entry=bus_hilight_hash_lookup(netbitname, 0, XLOOKUP)) ) {
             if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
@@ -914,7 +907,7 @@ static void drill_hilight(int mode)
               int n = 1;
               const char *propag;
               dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
-              while((propag = find_nth(propagate_str, ",", n++))[0]) {
+              while((propag = find_nth(propagate_str, ",", "", 0, n++))[0]) {
                 propagate = atoi(propag);
 
                 if(propagate < 0 || propagate >= npin) {
@@ -931,7 +924,7 @@ static void drill_hilight(int mode)
                 } else {
                   my_strdup2(_ALLOC_ID_, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
                 }
-                netbitname = find_nth(propagated_net, ",", k);
+                netbitname = find_nth(propagated_net, ",", "", 0, k);
                 dbg(1, "netbitname=%s\n", netbitname);
                 /* add net to highlight list */
                 if(!netbitname[0]) continue;
@@ -988,7 +981,7 @@ static void send_net_to_bespice(int simtype, const char *node)
     expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; ++k) {
-      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
       /* bespice command syntax : 
             add_voltage_on_spice_node_to_plot <plot name> <section name> <hierarchical spice node name> <flag clear> [<color>]
                 plot name is "*" => automatic
@@ -1018,7 +1011,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
   if(tok[0] == '#') tok++;
   if(node_entry  && (node_entry->d.port == 0 ||
                      /* !strcmp(xctx->sch_path[xctx->currsch], ".") */
-                       xctx->currsch == xctx->graph_raw_level
+                       xctx->currsch == xctx->raw->level
                     )) {
     char *t=NULL, *p=NULL;
     char *path;
@@ -1038,7 +1031,7 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
     }
     strtolower(path);
     for(k=1; k<=tok_mult; ++k) {
-      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
       strtolower(t);
       if(simtype == 0 ) { /* ngspice */
         dbg(1, "%s%s color=%d\n", path, t, c);
@@ -1080,7 +1073,7 @@ static void send_net_to_gaw(int simtype, const char *node)
     path = p;
     strtolower(path);
     for(k=1; k<=tok_mult; ++k) {
-      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
       strtolower(t);
       if(simtype == 0 ) { /* ngspice */
         tclvareval("puts $gaw_fd {copyvar v(", path, t,
@@ -1114,7 +1107,7 @@ static void send_current_to_bespice(int simtype, const char *node)
   expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; ++k) {
-    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     /* bespice command syntax : 
         add_current_through_spice_device_to_plot <plot name> <section name> <hierarchical spice device name> <flag clear> [<color>]
             plot name is "*" => automatic
@@ -1156,7 +1149,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   strtolower(path);
   there_is_hierarchy = (strstr(path, ".") != NULL);
   for(k=1; k<=tok_mult; ++k) {
-    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     strtolower(t);
     if(!simtype) { /* ngspice */
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", there_is_hierarchy ? "v." : "", path, t, c);
@@ -1196,7 +1189,7 @@ static void send_current_to_gaw(int simtype, const char *node)
   strtolower(path);
   there_is_hierarchy = (xctx->currsch > 0);
   for(k=1; k<=tok_mult; ++k) {
-    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", k));
+    my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     strtolower(t);
     if(!simtype) { /* spice */
       tclvareval("puts $gaw_fd {copyvar i(", there_is_hierarchy ? "v." : "", path, t,
@@ -1586,7 +1579,7 @@ static void propagate_logic()
           }
           dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata[i].pin[j].go_to);
           while(1) {
-            propag = find_nth(xctx->simdata[i].pin[j].go_to, ",", n);
+            propag = find_nth(xctx->simdata[i].pin[j].go_to, ",", "", 0, n);
             ++n;
             if(!propag[0]) break;
             propagate = atoi(propag);
@@ -1933,7 +1926,7 @@ char *resolved_net(const char *net)
     my_strdup2(_ALLOC_ID_, &exp_net, expandlabel(net, &mult));
     n_s1 = exp_net;
     for(k = 0; k < mult; k++) {
-      char *net_name = my_strtok_r(n_s1, ",", "", &n_s2);
+      char *net_name = my_strtok_r(n_s1, ",", "", 0, &n_s2);
       level = xctx->currsch;
       n_s1 = NULL;
       resolved_net = net_name;

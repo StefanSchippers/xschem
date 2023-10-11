@@ -743,12 +743,12 @@ namespace eval ngspice {
 }
 
 proc ngspice::get_current {n} {
-  global graph_raw_level
+  global raw_level
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
-  while { $skip < $graph_raw_level } { 
+  while { $skip < $raw_level } { 
     regsub {^[^.]*\.} $path {} path
     incr skip
   }
@@ -787,12 +787,12 @@ proc ngspice::get_current {n} {
 }
 
 proc ngspice::get_diff_voltage {n m} {
-  global graph_raw_level
+  global raw_level
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
-  while { $skip < $graph_raw_level } {
+  while { $skip < $raw_level } {
     regsub {^[^.]*\.} $path {} path
     incr skip
   }
@@ -818,12 +818,12 @@ proc ngspice::get_diff_voltage {n m} {
 
 
 proc ngspice::get_voltage {n} {
-  global graph_raw_level
+  global raw_level
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
-  while { $skip < $graph_raw_level } { 
+  while { $skip < $raw_level } { 
     regsub {^[^.]*\.} $path {} path
     incr skip
   }
@@ -853,12 +853,12 @@ proc update_schematic_header {} {
 }
 
 proc ngspice::get_node {n} {
-  global graph_raw_level
+  global raw_level
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
-  while { $skip < $graph_raw_level } { 
+  while { $skip < $raw_level } { 
     regsub {^[^.]*\.} $path {} path
     incr skip
   }
@@ -1741,7 +1741,7 @@ proc graph_add_nodes_from_list {nodelist} {
         set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
         xschem setprop rect 2 $graph_selected color $col fastundo
         graph_update_nodelist
-        regsub -all {\\?(["\\])} $node {\\\1} node_quoted ;#"4vim
+        regsub -all {[\\"]} $node "\\\\&" node_quoted
         xschem setprop rect 2 $graph_selected node $node_quoted fast
         xschem draw_graph $graph_selected
       }
@@ -1774,7 +1774,7 @@ proc graph_add_nodes_from_list {nodelist} {
         append nnn "\n"
       } 
       append nnn $sel
-      regsub -all {\\?(["\\])} $nnn {\\\1} node_quoted ;#"4vim
+      regsub -all {[\\"]} $nnn "\\\\&" node_quoted
       xschem setprop rect 2 [xschem get graph_lastsel] node $node_quoted fast
       xschem draw_graph [xschem get graph_lastsel]
     }
@@ -1918,7 +1918,7 @@ proc graph_fill_listbox {} {
 proc graph_update_node {node} {
   global graph_selected
   graph_update_nodelist
-  regsub -all {\\?(["\\])} $node {\\\1} node_quoted ;#"4vim
+  regsub -all {[\\"]} $node "\\\\&" node_quoted
   graph_push_undo
   xschem setprop rect 2 $graph_selected node $node_quoted fast
   xschem draw_graph $graph_selected
@@ -2354,7 +2354,7 @@ proc graph_edit_properties {n} {
   eval .graphdialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
 
   # fill data in right textbox
-  set plotted_nodes [xschem getprop rect 2 $n node]
+  set plotted_nodes [xschem getprop rect 2 $n node 0]
   if {[string length $plotted_nodes] > 0 && [string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
   .graphdialog.center.right.text1 insert 1.0 $plotted_nodes
   graph_update_nodelist
@@ -3772,7 +3772,7 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_var env path graph_raw_level
+  global debug_var env path raw_level
 
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
@@ -3781,7 +3781,7 @@ proc tclpropeval2 {s} {
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
-  while { $skip < $graph_raw_level } {
+  while { $skip < $raw_level } {
     regsub {^[^.]*\.} $path {} path
     incr skip
   }
@@ -5590,19 +5590,19 @@ set tctx::global_list {
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps colors compare_sch constrained_move
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
-  delay_flag  dim_bg dim_value
-  disable_unique_names do_all_inst draw_crosshair draw_grid draw_window edit_prop_pos edit_prop_size
+  delay_flag  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
+  draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   filetmp fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus
   graph_change_done graph_digital graph_linewidth_mult graph_logx
-  graph_logy graph_rainbow graph_raw_level graph_schname graph_sel_color graph_sel_wave
+  graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
   incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  rawfile_loaded rcode recentfile
+  raw_level rawfile_loaded rcode recentfile
   replace_key retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6791,6 +6791,7 @@ set_ne unselect_partial_sel_wires 0
 set_ne draw_crosshair 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
+set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne autotrim_wires 0
 set_ne compare_sch 0
@@ -6821,7 +6822,7 @@ set_ne graph_rainbow 0
 set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_change_done 0 ;# used to push undo only once when editing graphs
-set_ne graph_raw_level -1 ;# hierarchy level where raw file has been loaded 
+set_ne raw_level -1 ;# hierarchy level where raw file has been loaded 
 set_ne graph_linewidth_mult 2.0 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
 # user clicked this wave 
 set_ne graph_sel_wave {}
@@ -6889,7 +6890,7 @@ if {!$rainbow_colors} {
    "#aa2222" "#7ccc40" "#00ffcc" "#ce0097" "#d2d46b"
    "#ef6158" "#fdb200"}
   set_ne dark_colors {
-   "#000000" "#00ccee" "#3f3f3f" "#cccccc" "#88dd00" 
+   "#000000" "#00ccee" "#4f4f4f" "#cccccc" "#88dd00" 
    "#bb2200" "#00ccee" "#ff0000" "#ffff00" "#ffffff"
    "#ff00ff" "#00ff00" "#0044dd" "#aaaa00" "#aaccaa"
    "#ff7777" "#bfff81" "#00ffcc" "#ce0097" "#d2d46b" 

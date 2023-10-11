@@ -140,10 +140,13 @@ char *my_fgets(FILE *fd, size_t *line_len)
  * character, removed from input and all characters before next quote are considered
  * as part of the token. backslash can be used to enter literal quoting characters and
  * literal backslashes.
+ * behavior described above can be changed if keep_quote is not zero:
+ * keep_quote == 1: keep quotes and backslahes
+ * keep_quote == 4: remove surrounding "...", keep everything in between
  * if quote is empty no backslash is removed from input and behavior is identical
  * to strtok_r
  */
-char *my_strtok_r(char *str, const char *delim, const char *quote, char **saveptr)
+char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quote, char **saveptr)
 {
   char *tok;
   int q = 0; /* quote */
@@ -160,11 +163,11 @@ char *my_strtok_r(char *str, const char *delim, const char *quote, char **savept
     if(ne) *(*saveptr - ne) = **saveptr; /* shift back eating escapes / quotes */
     if(!e && strchr(quote, **saveptr)) {
       q = !q;
-      ++ne;
+      if(keep_quote != 1) ++ne;
     }
-    if(quote[0] && !e && **saveptr == '\\') { /* if quote is empty string do not skip backslashes either */
+    if(!e && **saveptr == '\\') { /* do not skip backslashes either */
       e = 1;
-      ++ne;
+      if(keep_quote == 0) ++ne;
     } else e = 0;
     ++(*saveptr);
   }
