@@ -2686,7 +2686,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       }
       #endif
       draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
-        xt, DW_Y(yt), gr->digtxtsizelab, gr->digtxtsizelab);
+        xt, DW_Y(yt), gr->digtxtsizelab * gr->magy, gr->digtxtsizelab * gr->magy);
       #if HAS_CAIRO == 1
       if(gr->hilight_wave == wcnt) {
         xctx->cairo_font =
