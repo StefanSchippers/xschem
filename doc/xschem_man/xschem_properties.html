@@ -135,7 +135,8 @@ p{padding: 15px  30px 10px;}
  </p>
  <img src="pin_order.png">
 
- <h3> PRIMITIVE OBJECT PROPERTIES</h3>
+ <a id="prim_attrs">
+ <h3> PRIMITIVE OBJECT PROPERTIES</h3></a>
  <p>
   The following attribute may be set on lines, arcs, polygons, rectangles:
   <ul>
@@ -143,9 +144,19 @@ p{padding: 15px  30px 10px;}
   </ul>
  </p>
  <p>
-  The following attribute may be set on arcs and polygons:
+  The following attribute may be set on arcs, polygons, rectangles:
   <ul>
-  <li> <kbd>fill=true</kbd>. This specifies to fill the object with the layer predefined fill style.</li>
+  <li> <kbd>fill=true</kbd>. This specifies to fill the object with the layer predefined fill style.
+    The default for rectangles (for historical reasons) is to use fill style if not specified.
+    For arcs and polygons the default is to not use fill if unspecified.</li>
+  </ul>
+ </p>
+ <p>
+  The following attribute may be set on rectangles and instances:
+  <ul>
+  <li> <kbd>lock=true</kbd> (or 1) can be set to disallow selecting the object.
+    You always can double click on it to edit the attributes and reset lock to false (or 0).
+    This is useful for title objects or frames you don't want to select while editing inside them.
   </ul>
  </p>
  <p>

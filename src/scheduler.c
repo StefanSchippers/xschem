@@ -4714,8 +4714,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       unhilight_net();
     }
 
-    /* unselect_all
-     *   Unselect everything */
+    /* unselect_all [draw]
+     *   Unselect everything. If draw is given and set to '0' no drawing is done */
     else if(!strcmp(argv[1], "unselect_all"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

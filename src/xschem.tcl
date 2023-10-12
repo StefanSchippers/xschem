@@ -6016,13 +6016,6 @@ proc build_widgets { {topwin {} } } {
      }
   $topwin.menubar.option.menu add checkbutton -label "Persistet wire/line place command" -variable persistent_command
 
-  $topwin.menubar.option.menu add checkbutton -label "Flat netlist" -variable flat_netlist \
-     -accelerator : \
-     -command {
-        if { $flat_netlist==1 } {xschem set flat_netlist 1} else { xschem set flat_netlist 0} 
-     }
-  $topwin.menubar.option.menu add checkbutton -label "Split netlist" -variable split_files \
-     -accelerator {} 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set tmp_bus_char"
@@ -6046,21 +6039,41 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
      -command { xschem redraw }
   $topwin.menubar.option.menu add separator
-  $topwin.menubar.option.menu add radiobutton -label "Spice netlist" -variable netlist_type -value spice \
-       -accelerator {Shift+V} \
+
+
+  $topwin.menubar.option.menu add cascade -label "Netlist format / Symbol mode" \
+       -menu $topwin.menubar.option.menu.netlist
+  menu $topwin.menubar.option.menu.netlist -tearoff 0
+
+
+
+  $topwin.menubar.option.menu.netlist add checkbutton -label "Flat netlist" -variable flat_netlist \
+     -accelerator : \
+     -command {
+        if { $flat_netlist==1 } {xschem set flat_netlist 1} else { xschem set flat_netlist 0} 
+     }
+  $topwin.menubar.option.menu.netlist add checkbutton -label "Split netlist" -variable split_files \
+     -accelerator {} 
+  $topwin.menubar.option.menu.netlist add radiobutton -label "Spice netlist"\
+       -variable netlist_type -value spice -accelerator {Shift+V} \
        -command "xschem set netlist_type spice; xschem redraw"
-  $topwin.menubar.option.menu add radiobutton -label "VHDL netlist" -variable netlist_type -value vhdl \
-       -accelerator {Shift+V} \
+  $topwin.menubar.option.menu.netlist add radiobutton -label "VHDL netlist"\
+       -variable netlist_type -value vhdl -accelerator {Shift+V} \
        -command "xschem set netlist_type vhdl; xschem redraw"
-  $topwin.menubar.option.menu add radiobutton -label "Verilog netlist" -variable netlist_type -value verilog \
-       -accelerator {Shift+V} \
+  $topwin.menubar.option.menu.netlist add radiobutton -label "Verilog netlist"\
+       -variable netlist_type -value verilog -accelerator {Shift+V} \
        -command "xschem set netlist_type verilog; xschem redraw"
-  $topwin.menubar.option.menu add radiobutton -label "tEDAx netlist" -variable netlist_type -value tedax \
-       -accelerator {Shift+V} \
+  $topwin.menubar.option.menu.netlist add radiobutton -label "tEDAx netlist" \
+       -variable netlist_type -value tedax -accelerator {Shift+V} \
        -command "xschem set netlist_type tedax; xschem redraw"
-  $topwin.menubar.option.menu add radiobutton -label "Symbol global attrs" -variable netlist_type -value symbol \
-       -accelerator {Shift+V} \
+  $topwin.menubar.option.menu.netlist add radiobutton -label "Symbol global attrs" \
+       -variable netlist_type -value symbol -accelerator {Shift+V} \
        -command "xschem set netlist_type symbol; xschem redraw"
+
+
+
+
+
   $topwin.menubar.edit.menu add command -label "Undo" -command "xschem undo; xschem redraw" -accelerator U
   toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
   $topwin.menubar.edit.menu add command -label "Redo" -command "xschem redo; xschem redraw" -accelerator {Shift+U}
@@ -6115,11 +6128,6 @@ proc build_widgets { {topwin {} } } {
    -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
-  $topwin.menubar.view.menu add checkbutton -label "Show ERC Info window" -variable show_infowindow \
-    -command {
-       if { $show_infowindow != 0 } {wm deiconify .infotext
-       } else {wm withdraw .infotext}
-     }
   $topwin.menubar.view.menu add command -label "Redraw" -command "xschem redraw" -accelerator Esc
   toolbar_add ViewRedraw "xschem redraw" "Redraw" $topwin
   $topwin.menubar.view.menu add command -label "Fullscreen" \
@@ -6151,12 +6159,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view.menu add command -label "Dim colors"  -accelerator {} -command {
           color_dim
        }
-  $topwin.menubar.view.menu add command -label "Visible layers"  -accelerator {} -command {
-          select_layers
-          xschem redraw
-       }
-  $topwin.menubar.view.menu add checkbutton -label "Show hidden texts"  -variable show_hidden_texts \
-         -command {xschem update_all_sym_bboxes; xschem redraw}
   $topwin.menubar.view.menu add command -label "Change current layer color"  -accelerator {} -command {
           change_color
        }
@@ -6182,24 +6184,44 @@ proc build_widgets { {topwin {} } } {
            xschem redraw
          }
 
-  $topwin.menubar.view.menu add checkbutton -label "Symbol text" -variable sym_txt \
-     -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
      -accelerator {_}
   $topwin.menubar.view.menu add command -label "Set line width" \
        -command {
          input_line "Enter linewidth (float):" "xschem line_width"
        }
-  $topwin.menubar.view.menu add checkbutton -label "Show Toolbar" -variable toolbar_visible \
+  $topwin.menubar.view.menu add checkbutton -label "Tabbed interface" -variable tabbed_interface \
+    -command setup_tabbed_interface
+
+  $topwin.menubar.view.menu add cascade -label "Show / Hide" \
+       -menu $topwin.menubar.view.menu.show 
+  menu $topwin.menubar.view.menu.show -tearoff 0
+
+  $topwin.menubar.view.menu.show add checkbutton -label "Show ERC Info window" \
+    -variable show_infowindow -command {
+       if { $show_infowindow != 0 } {wm deiconify .infotext
+       } else {wm withdraw .infotext}
+     }
+  $topwin.menubar.view.menu.show add command -label "Visible layers"  -accelerator {} \
+    -command {
+          select_layers
+          xschem redraw
+       }
+  $topwin.menubar.view.menu.show add checkbutton -label "Symbol text" -variable sym_txt \
+     -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
+  $topwin.menubar.view.menu.show add checkbutton -label "Show Toolbar" -variable toolbar_visible \
      -command "
         if { \$toolbar_visible } \" toolbar_show $topwin\" else \"toolbar_hide $topwin\"
      "
-  $topwin.menubar.view.menu add checkbutton -label "Horizontal Toolbar" -variable toolbar_horiz \
+  $topwin.menubar.view.menu.show add checkbutton -label "Horizontal Toolbar" -variable toolbar_horiz \
      -command " 
         if { \$toolbar_visible } \" toolbar_hide $topwin; toolbar_show $topwin \"
      "
-  $topwin.menubar.view.menu add checkbutton -label "Tabbed interface" -variable tabbed_interface \
-    -command setup_tabbed_interface
+  $topwin.menubar.view.menu.show add checkbutton -label "Show hidden texts"  -variable show_hidden_texts \
+         -command {xschem update_all_sym_bboxes; xschem redraw}
+  $topwin.menubar.view.menu.show add checkbutton -label "Draw grid axes"  -variable draw_grid_axes \
+         -command {xschem redraw}
+
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
