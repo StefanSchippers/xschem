@@ -1243,7 +1243,7 @@ Selected select_object(double mx,double my, unsigned short select_mode, int over
      select_polygon(sel.col, sel.n, select_mode,0);
      break;
     case xRECT:
-     select_box(sel.col,sel.n, select_mode,0, 0);
+     select_box(sel.col,sel.n, select_mode,0, override_lock);
      break;
     case ARC:
      select_arc(sel.col,sel.n, select_mode,0);
@@ -1478,7 +1478,15 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
     if(RECT_INSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
     {
       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-      sel? select_box(c,i, SELECTED, 1, 1): select_box(c,i, 0, 1, 0);
+
+
+      if(sel) {
+        if(strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true")) {
+          select_box(c,i, SELECTED, 1, 1);
+        }
+      } else {
+        select_box(c,i, 0, 1, 0);
+      }
     }
     else if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 2048)){ /* no stretch on unscaled images */
       if( sel && en_s && POINTINSIDE(xctx->rect[c][i].x1,xctx->rect[c][i].y1, x1,y1,x2,y2) )

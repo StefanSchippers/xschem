@@ -223,7 +223,7 @@ static void find_closest_arc(double mx,double my)
 }
 
 
-static void find_closest_box(double mx,double my)
+static void find_closest_box(double mx,double my, int override_lock)
 {
  double tmp;
  int i,c,r=-1, col = 0;
@@ -244,8 +244,7 @@ static void find_closest_box(double mx,double my)
   } /* end for i */
  } /* end for c */
  dbg(1, "find_closest_box(): distance=%.16g\n", distance);
- if( r!=-1)
- {
+ if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->rect[col][r].prop_ptr, "lock", 0), "true"))) {
   sel.n = r; sel.type = xRECT; sel.col = col;
  }
 }
@@ -319,7 +318,7 @@ Selected find_closest_obj(double mx,double my, int override_lock)
  find_closest_line(mx,my);
  find_closest_polygon(mx,my);
  /* dbg(1, "1 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
- find_closest_box(mx,my);
+ find_closest_box(mx,my, override_lock);
  find_closest_arc(mx,my);
  /* dbg(1, "2 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_text(mx,my);

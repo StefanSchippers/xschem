@@ -511,6 +511,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -638,9 +641,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem expandlabel {2*A[3:0]} --&gt; A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
    last field is the number of bits
    since [ and ] are TCL special characters argument must be quoted with { and } </pre>
-   <li><kbd>       find_nth string sep n</kbd></li><pre>
+   <li><kbd>       find_nth string sep quote keep_quote n</kbd></li><pre>
    Find n-th field string separated by characters in sep. 1st field is in position 1
-   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --&gt; bbb </pre>
+   do not split quoted fields (if quote characters are given) and return unquoted.
+   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --&gt; bbb 
+   xschem find_nth {aaa, "bbb, ccc" , ddd} { ,} {"} 2  --&gt; bbb, ccc</pre>
    <li><kbd>       flip [x0 y0]</kbd></li><pre>
    Flip selection horizontally around point x0 y0. 
    if x0, y0 not given use mouse coordinates </pre>
@@ -663,6 +668,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> currsch </kbd> hierarchy level of current schematic (start at 0) </li>
      <li><kbd> debug_var </kbd> debug level (0 = no debug, 1, 2, 3,...) </li>
      <li><kbd> draw_window </kbd> direct draw into window </li>
+     <li><kbd> first_sel </kbd> get data about first selected object </li>
      <li><kbd> fix_broken_tiled_fill </kbd> get drawing method setting (for broken GPUs) </li>
      <li><kbd> format </kbd> alternate format attribute to use in netlist (or NULL) </li>
      <li><kbd> graph_lastsel </kbd> number of last graph that was clicked </li>
@@ -741,7 +747,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Get value of attribute 'sym_attr' of symbol 'sym_name'
    'with_quotes' (default:0) is an integer passed to get_tok_value()
       
-       getprop rect layer num attr
+       getprop rect layer num attr [with_quotes]
+   if '1' is given as 'keep' return backslashes and unescaped quotes if present in value
    Get attribute 'attr' of rectangle number 'num' on layer 'layer'
       
        getprop text num attr
@@ -912,6 +919,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if kissing is given add nets to pins that touch other instances or nets
    if stretch is given stretch connected nets to follow instace pins 
    if dx and dy are given move by that amount. </pre>
+   <li><kbd>       my_strtok_r str delim quote keep_quote</kbd></li><pre>
+       test for my_strtok_r() function </pre>
    <li><kbd>       net_label [type]</kbd></li><pre>
    Place a new net label
    'type': 1: place a 'lab_pin.sym' label
@@ -1138,8 +1147,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Returns number of selected items (wires,labels) if danglings found, 0 otherwise </pre>
    <li><kbd>       select_hilight_net</kbd></li><pre>
    Select all highlight objects (wires, labels, pins, instances) </pre>
-   <li><kbd>       selected_set</kbd></li><pre>
-   Return a list of selected instance names </pre>
+   <li><kbd>       select_inside x1 y1 x2 y2 [sel]</kbd></li><pre>
+   Select all objects inside the indicated area
+   if [sel] is set to '0' do an unselect operation </pre>
+   <li><kbd>       selected_set [what]</kbd></li><pre>
+   Return a list of selected instance names
+   If what is not given or set to 'inst' return list of selected instance names
+   If what set to 'rect' return list of selected rectangles with their coordinates </pre>
    <li><kbd>       selected_wire</kbd></li><pre>
   Return list of selected nets </pre>
    <li><kbd>       send_to_viewer</kbd></li><pre>
@@ -1277,6 +1291,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      Example: xschem translate vref {the voltage is @value}
      the voltage is 1.8 </pre>
+   <li><kbd>       trim_chars str sep</kbd></li><pre>
+   Remove leading and trailing chars matching any character in 'sep' from str </pre>
    <li><kbd>       trim_wires</kbd></li><pre>
    Remove operlapping wires, join lines, trim wires at intersections </pre>
    <li><kbd>       undo</kbd></li><pre>

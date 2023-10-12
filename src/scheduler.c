@@ -3795,15 +3795,50 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* selected_set
-     *   Return a list of selected instance names */
+    /* select_inside x1 y1 x2 y2 [sel]
+     *   Select all objects inside the indicated area
+         if [sel] is set to '0' do an unselect operation */
+    else if(!strcmp(argv[1], "select_inside"))
+    {
+      int sel = SELECTED;
+      double x1, y1, x2, y2;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 6 && argv[6][0] == '0') sel = 0;
+      x1 = atof(argv[2]);
+      y1 = atof(argv[3]);
+      x2 = atof(argv[4]);
+      y2 = atof(argv[5]);
+      select_inside(x1, y1, x2, y2, sel);
+      Tcl_ResetResult(interp);
+    }
+
+    /* selected_set [what]
+     *   Return a list of selected instance names
+     *   If what is not given or set to 'inst' return list of selected instance names
+     *   If what set to 'rect' return list of selected rectangles with their coordinates */
     else if(!strcmp(argv[1], "selected_set"))
     {
       int n, i, first = 1;
+      int what = ELEMENT;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      
+      if(argc > 2) {
+        if(!strcmp(argv[2], "rect")) what = xRECT;
+      }
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
-        if(xctx->sel_array[n].type == ELEMENT) {
+        if(what == xRECT &&  xctx->sel_array[n].type == xRECT) {
+         char col[30], num[30], coord[200];
+         int c = xctx->sel_array[n].col;
+         i = xctx->sel_array[n].n;
+         my_strncpy(col, my_itoa(c), S(col));
+         my_strncpy(num, my_itoa(i), S(num));
+         my_snprintf(coord, S(coord), "%g %g %g %g", 
+           xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
+         if(first == 0) Tcl_AppendResult(interp, "\n", NULL);
+         first = 0;
+         Tcl_AppendResult(interp,col, " ", num, " ", coord , NULL);
+        } else if(what == ELEMENT && xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
           if(first == 0)  Tcl_AppendResult(interp, " ", NULL);
           Tcl_AppendResult(interp, "{", xctx->inst[i].instname, "}", NULL);
@@ -4214,7 +4249,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
         if(change_done) set_modify(1);
-        set_rect_flags(r); /* set cached .flags bitmask from on attributes */
+        set_rect_flags(r); /* set cached .flags bitmask from attributes */
         if(!fast) {
           bbox(ADD, r->x1, r->y1, r->x2, r->y2);
           /* redraw rect with new props */
