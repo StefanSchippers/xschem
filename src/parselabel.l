@@ -105,6 +105,10 @@ const char *expandlabel(const char *s, int *m)
  if(!strpbrk(s, "*,.:")) { /* shortcut: nothing to parse / expand */
    *m = 1;
    my_strdup2(_ALLOC_ID_, &dest_string.str, s);
+   if(xctx->netlist_type == CAD_SPICE_NETLIST && bus_char[0] && bus_char[1]) {
+     str_char_replace(dest_string.str, '[', bus_char[0]);
+     str_char_replace(dest_string.str, ']', bus_char[1]);
+   }
    return dest_string.str;
  }
  buf=yy_scan_string(s);
