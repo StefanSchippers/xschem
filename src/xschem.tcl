@@ -5606,7 +5606,7 @@ set tctx::global_list {
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   raw_level rawfile_loaded rcode recentfile
-  replace_key retval retval_orig rotated_text search_case search_exact search_found search_schematic
+  retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
@@ -5624,7 +5624,7 @@ set tctx::global_list {
 ## EXCEPTIONS, not to be saved/restored:
 ## execute
 set tctx::global_array_list {
-  dircolor sim enable_layer
+  replace_key dircolor sim enable_layer
 }
 
 proc delete_ctx {context} {
