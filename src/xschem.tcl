@@ -4951,10 +4951,9 @@ proc swap_compare_schematics {} {
     }
   }
 }
-
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
-  global input_line_cmd input_line_data wm_fix
-  set input_line_data {}
+  global wm_fix
+  set retval {}
   if { [winfo exists .dialog] } return
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
@@ -4964,7 +4963,6 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   # 20100203
   if { $wm_fix } { tkwait visibility .dialog }
   wm geometry .dialog "+$X+$Y"
-  set input_line_cmd $cmd
   frame .dialog.f1
   label .dialog.f1.l -text $txt
   entry .dialog.f1.e -width $w
@@ -4973,13 +4971,11 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   
   pack .dialog.f1.l .dialog.f1.e -side left
   frame .dialog.f2
-  button .dialog.f2.ok -text OK  -command {
-    if {$input_line_cmd ne {}} {
-      eval [subst -nocommands {$input_line_cmd [.dialog.f1.e get]}]
-    }
-    set input_line_data [.dialog.f1.e get]
+  button .dialog.f2.ok -text OK  -command  "
+    eval $cmd \[.dialog.f1.e get\]
+    set retval [.dialog.f1.e get]
     destroy .dialog
-  }
+  "
   button .dialog.f2.cancel -text Cancel -command { destroy .dialog }
   pack .dialog.f2.ok  -anchor w -side left
   pack .dialog.f2.cancel -anchor e
@@ -4991,7 +4987,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   focus .dialog.f1.e
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
-  return $input_line_data
+  return $retval
 }
 
 proc launcher {launcher_var {launcher_program {} } } {
@@ -5600,7 +5596,7 @@ set tctx::global_list {
   graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
-  incr_hilight infowindow_text input_line_cmd input_line_data launcher_default_program
+  incr_hilight infowindow_text launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
@@ -5611,7 +5607,7 @@ set tctx::global_list {
   show_infowindow_after_netlist show_pin_net_names
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
-  text_replace_selection textwindow_fileid textwindow_filename textwindow_w tmp_bus_char
+  text_replace_selection textwindow_fileid textwindow_filename textwindow_w
   toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
@@ -5881,7 +5877,7 @@ proc switch_undo {} {
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
-  global netlist_show flat_netlist split_files tmp_bus_char compare_sch
+  global netlist_show flat_netlist split_files compare_sch
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadsnap cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
@@ -6018,10 +6014,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
-       input_line "Enter two characters to replace default bus \[\] delimiters:" "set tmp_bus_char"
-       if { [info exists tmp_bus_char] && [string length $tmp_bus_char] >=2} {
-         set bus_replacement_char $tmp_bus_char
-       } 
+       input_line "Enter two characters to replace default bus \[\] delimiters:" "set bus_replacement_char"
      }
   $topwin.menubar.option.menu add checkbutton \
     -label "Group bus slices in Verilog instances" -variable verilog_bitblast
