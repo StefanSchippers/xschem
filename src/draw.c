@@ -3126,9 +3126,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
   int wcnt = 0, idx, expression;
-  int measure_p = -1;
-  double measure_x = 0.0;
-  double measure_prev_x = 0.0;
+  int *measure_p = NULL;
+  double *measure_x = NULL;
+  double *measure_prev_x = NULL;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   Raw *raw = xctx->raw;
@@ -3147,6 +3147,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
  
   /* draw stuff */
   if(flags & 8) {
+    int k;
     #if !defined(__unix__) && HAS_CAIRO==1
     double sw = (gr->sx2 - gr->sx1);
     double sh = (gr->sy2 - gr->sy1);
@@ -3162,7 +3163,15 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     nptr = node;
     cptr = color;
     sptr = sweep;
-    n_nodes = count_items(node, " \t\n", "\"");
+    n_nodes = count_items(node, "\n\t ", "\"");
+    measure_p = my_malloc(_ALLOC_ID_, sizeof(int) * n_nodes);
+    measure_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
+    measure_prev_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
+    for(k = 0 ; k < n_nodes; k++) {
+      measure_p[k] = -1;
+      measure_x[k] = 0.0;
+      measure_prev_x[k] = 0.0;
+    }
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
       /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
@@ -3280,13 +3289,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = (short)S_X(xx);
               if(dataset == -1 || dataset == sweepvar_wrap) {
-                if(measure_p == -1 && flags & 2 && cnt) { /* cursor1: show measurements on nodes in graph */
+                /* cursor1: show measurements on nodes in graph */
+                if(measure_p[wcnt] == -1 && flags & 2 && cnt) {
                   if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
-                    measure_p = p;
-                    measure_x = xx;
-                    measure_prev_x = prev_x;
+                    measure_p[wcnt] = p;
+                    measure_x[wcnt] = xx;
+                    measure_prev_x[wcnt] = prev_x;
                   }
-                } /* if(measure_p == -1 && flags & 2 && p > ofs) */
+                } /* if(measure_p[wcnt] == -1 && flags & 2 && p > ofs) */
               } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
@@ -3315,13 +3325,18 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(measure_p != -1) show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
-            idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
+        if(measure_p[wcnt] != -1)
+           show_node_measures(measure_p[wcnt], measure_x[wcnt], measure_prev_x[wcnt], bus_msb, wave_color, 
+              idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
 
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
       ++wcnt;
+      if(wcnt >= n_nodes) {
+        dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
+        wcnt--; /* nosense, but avoid a crash */
+      }
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
     if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
@@ -3329,6 +3344,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
+    my_free(_ALLOC_ID_, &measure_p);
+    my_free(_ALLOC_ID_, &measure_x);
+    my_free(_ALLOC_ID_, &measure_prev_x);
   } /* if(flags & 8) */
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);

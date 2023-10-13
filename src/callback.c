@@ -253,7 +253,6 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       sweepvar_wrap++;
     } /* for(dset...) */
 
-
     if(first != -1) {
       if(p > last) {
         double sweep0, sweep1;
@@ -278,44 +277,6 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     }
   }
 }
-
-     /* draw only probes. does not work as multiple texts will be overlayed */
-     /* need to draw a background under texts */
-     #if 0 
-
-     /*
-      * xSymbol *symptr; 
-      * const char *type;
-      * int c;
-      */
-
-     save = xctx->draw_window;
-     xctx->draw_window = 1;
-     for(c=0;c<cadlayers; ++c) {
-       if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
-       for(i = 0; i < xctx->instances; ++i) {
-         type = xctx->sym[xctx->inst[i].ptr].type;
-         if(!strstr(type, "source") && !strstr(type, "probe")) continue;
-         if(xctx->inst[i].ptr == -1 || (c > 0 && (xctx->inst[i].flags & 1)) ) continue;
-         symptr = (xctx->inst[i].ptr+ xctx->sym);
-         if(
-             c==0 ||
-             symptr->lines[c] ||
-             symptr->arcs[c] ||
-             symptr->rects[c] ||
-             symptr->polygons[c] ||
-             ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
-         {
-             draw_symbol(ADD, c, i,c,0,0,0.0,0.0);
-         }
-       }
-       filledrect(c, END, 0.0, 0.0, 0.0, 0.0);
-       drawarc(c, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
-       drawrect(c, END, 0.0, 0.0, 0.0, 0.0, 0);
-       drawline(c, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
-     }
-     xctx->draw_window = save;
-     #endif
 
 /* process user input (arrow keys for now) when only graphs are selected */
 
