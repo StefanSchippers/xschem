@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -51,10 +51,11 @@ x2=3
 divx=6
 node="a
 zz
+zz%1
 zzz"
-color="4 6 8"
+color="8 6 12 7"
 sweep="v(a)"
-dataset=-1}
+dataset=0}
 B 2 10 -950 570 -720 {flags=graph 
 y1 = 0
 y2 = 3
@@ -66,7 +67,7 @@ node="z
 a"
 color="4 6"
 sweep="v(a) v(z)"
-dataset=-1}
+}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
 P 4 5 0 -1160 1840 -1160 1840 0 -0 0 0 -1160 {dash=4}
