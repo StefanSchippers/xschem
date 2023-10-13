@@ -3174,8 +3174,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     }
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
-      /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
       char *nd = find_nth(ntok, "%", "\"", 0, 2);
+      if(wcnt >= n_nodes) {
+        dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
+        dbg(0, "draw_graph(): n_nodes=%d\n", n_nodes);
+        wcnt--; /* nosense, but avoid a crash */
+      }
+      /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
       if(nd[0]) {
         node_dataset = atoi(nd);
         my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 0, 1));
@@ -3333,10 +3338,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
       ++wcnt;
-      if(wcnt >= n_nodes) {
-        dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
-        wcnt--; /* nosense, but avoid a crash */
-      }
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
     if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
