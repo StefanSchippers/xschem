@@ -196,7 +196,18 @@ p{padding: 15px  30px 10px;}
   <li><kbd>integ()</kbd> Integration</li>
   <li><kbd>dup()</kbd> Duplicate last element on stack</li>
   </ul>
-
+ <h3>Display a specific dataset for a node</h3>
+ <p>
+The following syntax:
+<kbd>node%n</kbd> where <kbd>node</kbd> is a saved node or a bus or an expression
+  and <kbd>n</kbd> is an integer number will plot only the indicated dataset number.
+  Dataset numbers start from 0.
+  This syntax is accepted for single nodes, bus names and expressions:<br><br>
+  <kbd>"DATA_4; en cal saout % 4"</kbd><br>
+  <kbd>saout%3</kbd><br>
+  <kbd>"Power dataset 6; I(VVCC) VCC *  %6"</kbd><br><br>
+  <img src="graphs17.png"><br>
+ </p>
  <!-- end of slide -->
  <div class="filler"></div>
 </div>

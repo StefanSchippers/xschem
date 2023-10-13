@@ -3131,6 +3131,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   Raw *raw = xctx->raw;
+  int node_dataset = -1; /* dataset specified as %<n> after node/bus/expression name */
+  char *ntok_copy = NULL; /* copy of ntok without %<n> */
   
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
@@ -3162,15 +3164,25 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     n_nodes = count_items(node, " \t\n", "\"");
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
-      if(strstr(ntok, ",")) {
-        /* also trim spaces */
-        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(find_nth(ntok, ";,", "\"", 0, 2), " "));
+      /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
+      char *nd = find_nth(ntok, "%", "\"", 0, 2);
+      if(nd[0]) {
+        node_dataset = atoi(nd);
+        my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 0, 1));
+      } else {
+        node_dataset = -1;
+        my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
       }
-      dbg(1, "ntok=|%s|, bus_msb=|%s|\n", ntok, bus_msb ? bus_msb : "NULL");
+      dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
+      if(strstr(ntok_copy, ",")) {
+        /* also trim spaces */
+        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(find_nth(ntok_copy, ";,", "\"", 0, 2), " "));
+      }
+      dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "NULL");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
       stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
       nptr = cptr = sptr = NULL;
-      dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+      dbg(1, "ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "NULL");
       if(ctok && ctok[0]) wc = atoi(ctok);
       if(wc < 0) wc = 4;
       if(wc >= cadlayers) wc = cadlayers - 1;
@@ -3181,20 +3193,21 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         }
       }
       draw_graph_variables(wcnt, wc, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
-      /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
+      /* if ntok_copy following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
       expression = 0;
       if(raw && raw->values && !bus_msb) {
-        if(strstr(ntok, ";")) {
-          my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", "\"", 0, 2));
+        if(strstr(ntok_copy, ";")) {
+          my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
         } else {
-          my_strdup2(_ALLOC_ID_, &express, ntok);
+          my_strdup2(_ALLOC_ID_, &express, ntok_copy);
         }
+        dbg(1, "express=|%s|\n", express);
         if(strpbrk(express, " \n\t")) {
           expression = 1;
         }
       }
-      /* quickly find index number of ntok variable to be plotted */
+      /* quickly find index number of ntok_copy variable to be plotted */
       if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
         int p, dset, ofs;
         int poly_npoints;
@@ -3207,13 +3220,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
-        int dataset = gr->dataset;
+        int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
         int digital = gr->digital;
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
         if(bus_msb) {
-          idx_arr = get_bus_idx_array(ntok, &n_bits); /* idx_arr allocated by function, must free! */
+          idx_arr = get_bus_idx_array(ntok_copy, &n_bits); /* idx_arr allocated by function, must free! */
         }
         bbox(START, 0.0, 0.0, 0.0, 0.0);
         bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
@@ -3245,7 +3258,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                   else wave_color = wc;
                   if(bus_msb) {
                     if(digital) {
-                      draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
+                      draw_graph_bus_points(ntok_copy, n_bits, idx_arr, first, last, wave_color,
                                    sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
@@ -3287,7 +3300,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               else wave_color = wc;
               if(bus_msb) {
                 if(digital) {
-                  draw_graph_bus_points(ntok, n_bits, idx_arr, first, last, wave_color,
+                  draw_graph_bus_points(ntok_copy, n_bits, idx_arr, first, last, wave_color,
                                sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
@@ -3302,7 +3315,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
         if(measure_p != -1) show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
-            idx, idx_arr, n_bits, n_nodes, ntok, wcnt, gr);
+            idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
 
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
@@ -3310,6 +3323,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
+    if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
     if(express) my_free(_ALLOC_ID_, &express);
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);

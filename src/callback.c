@@ -379,7 +379,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
         }
-        else  need_redraw = 1;
       }
       gr->master_gx1 = gr->gx1;
       gr->master_gx2 = gr->gx2;
@@ -453,7 +452,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         tmp = xctx->graph_cursor2_x;
         xctx->graph_cursor2_x = xctx->graph_cursor1_x;
         xctx->graph_cursor1_x = tmp;
-        need_all_redraw = 1;
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          redraw_all_at_end = 1;
+        }
+        else need_all_redraw = 1;
       }
       /* measurement tooltip */
       else if((key == 'm') ) {

@@ -6841,7 +6841,7 @@ set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_change_done 0 ;# used to push undo only once when editing graphs
 set_ne raw_level -1 ;# hierarchy level where raw file has been loaded 
-set_ne graph_linewidth_mult 2.0 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
+set_ne graph_linewidth_mult 1.4 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
 # user clicked this wave 
 set_ne graph_sel_wave {}
 # flag to force simulation stop (Esc key pressed) 
