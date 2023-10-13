@@ -1996,6 +1996,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
  */
 static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
 {
+  dbg(1, "set_thick_waves(): what=%d\n", what);
   if(what) {
       if(gr->hilight_wave == wcnt)
          XSetLineAttributes (display, xctx->gc[wave_col],
@@ -2248,11 +2249,11 @@ static void draw_graph_points(int idx, int first, int last,
   gv = raw->values[idx];
 
   dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
+  if(idx == -1) return;
   for(p=0;p<cadlayers; ++p) {
     XSetLineAttributes(display, xctx->gc[p],
       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
-  if(idx == -1) return;
   digital = gr->digital;
   if(digital) {
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */

@@ -1928,7 +1928,7 @@ void change_linewidth(double w)
   int i, linew;
 
   /* choose line width automatically based on zoom */
-  dbg(1, "change_linewidth(): w = %g, win_path=%s\n", w, xctx->current_win_path);
+  dbg(1, "change_linewidth(): w = %g, win_path=%s lw=%g\n", w, xctx->current_win_path, xctx->lw);
   if(w<0. || xctx->lw == -1.0) {
     double cs;
     cs = tclgetdoublevar("cadsnap");

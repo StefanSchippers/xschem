@@ -276,6 +276,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tcleval("array unset ngspice::ngspice_data");
       raw_read(f, &xctx->raw, "op");
       if(xctx->raw && xctx->raw->values) {
+        tclsetvar("rawfile_loaded", "1");
         xctx->raw->annot_p = 0;
         for(i = 0; i < xctx->raw->nvars; ++i) {
           char s[100];
