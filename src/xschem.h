@@ -766,6 +766,7 @@ struct hilight_hashentry
 typedef struct {
   /* spice raw file specific data */
   char **names;
+  char filename[PATH_MAX];
   SPICE_DATA **values;
   int nvars;
   int *npoints;
