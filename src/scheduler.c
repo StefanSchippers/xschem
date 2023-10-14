@@ -3093,7 +3093,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query values node [dset] : print all simulation
      *   values of 'node' for dataset 'dset' (default dset=0)
      *   xschem raw_query points [dset] : print simulation points for
-     *   dataset 'dset' (default dset=0)
+     *   dataset 'dset' (default dataset points combined)
      */
     else if(!strcmp(argv[1], "raw_query"))
     {

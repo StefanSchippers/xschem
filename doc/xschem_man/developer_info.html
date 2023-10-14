@@ -514,6 +514,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -685,6 +687,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> no_draw </kbd> disable drawing </li>
      <li><kbd> ntabs </kbd> get number of additional tabs (0 = only one tab) </li>
      <li><kbd> pinlayer </kbd> layer number for pins </li>
+     <li><kbd> raw_level </kbd> hierarchy level where raw file was loaded </li>
      <li><kbd> rectcolor </kbd> current layer number </li>
      <li><kbd> rects </kbd> (xschem get rects n) number of rectangles on layer 'n' </li>
      <li><kbd> sellayer </kbd> layer number for selection </li>
@@ -1033,7 +1036,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem raw_query values node [dset] : print all simulation
    values of 'node' for dataset 'dset' (default dset=0)
    xschem raw_query points [dset] : print simulation points for
-   dataset 'dset' (default dset=0)</pre>
+   dataset 'dset' (default dataset points combined)</pre>
    <li><kbd>       raw_read [file] [sim]</kbd></li><pre>
    If a raw file is already loaded delete from memory
    else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
@@ -1344,6 +1347,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

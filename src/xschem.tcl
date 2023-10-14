@@ -5613,7 +5613,7 @@ set tctx::global_list {
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  rawfile_loaded rcode recentfile
+  rawfile rawfile_loaded rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6976,6 +6976,7 @@ if {$OS == "Windows"} {
 }
 
 set rawfile_loaded 0
+set rawfile {}
 
 # flag bound to a checkbutton in symbol editprop form
 # if set cell is copied when renaming it

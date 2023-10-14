@@ -55,7 +55,7 @@ color="8 14 7 12"
 
 linewidth_mult=1.0
 hilight_wave=-1
-dataset=70}
+dataset=-1}
 B 2 350 -1160 810 -1030 {flags=graph
 y1 = 0.647319
 y2 = 0.652563
@@ -68,7 +68,7 @@ subdivx=2
 node="plus
 minus"
 color="4 5"
-dataset=70
+dataset=-1
 linewidth_mult=1.0
 divy=3
 subdivy=1}
@@ -89,7 +89,7 @@ cal
 --failure--
 \\"SAOUT#70; vss,saout%70\\""
 color="4 4 4 8 8 7 7"
-dataset=70
+dataset=-1
 digital=1
 ypos1=0.0825406
 ypos2=0.767045
@@ -107,7 +107,7 @@ subdivx=4
 unitx=n
 
 
-dataset=70
+dataset=-1
 color="4 7"
 node="\\"power dset 97 ; i(vvcc) vcc * % 23\\"
 \\"power dset 70 ; i(vvcc) vcc * % 70\\""
