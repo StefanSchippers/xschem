@@ -685,7 +685,6 @@ void free_rawfile(Raw **rawptr, int dr)
   }
   if(raw->npoints) my_free(_ALLOC_ID_, &raw->npoints);
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
-  tclsetintvar("raw_level", -1);
   if(raw->table.table) int_hash_free(&raw->table);
   my_free(_ALLOC_ID_, rawptr);
   if(deleted && dr) draw();
@@ -774,7 +773,6 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
   raw = *rawptr;
   raw->level = -1; 
-  tclsetintvar("raw_level", -1); 
   raw->annot_p = -1;
 
   int_hash_init(&raw->table, HASHSIZE);
@@ -784,7 +782,6 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
       int i;
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
-      tclsetintvar("raw_level",  xctx->currsch);
       raw->allpoints = 0;
       for(i = 0; i < raw->datasets; ++i) {
         raw->allpoints +=  raw->npoints[i];
@@ -840,7 +837,6 @@ int table_read(const char *f)
   }
   xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
   xctx->raw->level = -1; 
-  tclsetintvar("raw_level", -1); 
   xctx->raw->annot_p = -1;
 
   /* quick inspect file and get upper bound of number of data lines */
@@ -927,7 +923,6 @@ int table_read(const char *f)
       int i;
       my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[xctx->currsch]);
       xctx->raw->level = xctx->currsch;
-      tclsetintvar("raw_level",  xctx->currsch);
       xctx->raw->allpoints = 0;
       for(i = 0; i < xctx->raw->datasets; ++i) {
         xctx->raw->allpoints +=  xctx->raw->npoints[i];

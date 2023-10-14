@@ -1160,7 +1160,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'r':
-          if(!strcmp(argv[2], "rectcolor")) { /* current layer number */
+          if(!strcmp(argv[2], "raw_level")) { /* hierarchy level where raw file was loaded */
+            int ret = -1;
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            if(xctx->raw) ret = xctx->raw->level;
+            Tcl_SetResult(interp, my_itoa(ret),TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "rectcolor")) { /* current layer number */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->rectcolor),TCL_VOLATILE);
           }

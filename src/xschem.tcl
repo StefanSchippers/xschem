@@ -743,7 +743,7 @@ namespace eval ngspice {
 }
 
 proc ngspice::get_current {n} {
-  global raw_level
+  set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
@@ -787,7 +787,7 @@ proc ngspice::get_current {n} {
 }
 
 proc ngspice::get_diff_voltage {n m} {
-  global raw_level
+  set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
@@ -818,7 +818,7 @@ proc ngspice::get_diff_voltage {n m} {
 
 
 proc ngspice::get_voltage {n} {
-  global raw_level
+  set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
@@ -853,7 +853,7 @@ proc update_schematic_header {} {
 }
 
 proc ngspice::get_node {n} {
-  global raw_level
+  set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
@@ -2003,6 +2003,7 @@ proc graph_edit_properties {n} {
      -xscrollcommand {.graphdialog.center.left.xscroll set}
   scrollbar .graphdialog.center.left.yscroll -command {.graphdialog.center.left.list1 yview}
   scrollbar .graphdialog.center.left.xscroll -orient horiz -command {.graphdialog.center.left.list1 xview}
+
   grid .graphdialog.center.left.lab1 .graphdialog.center.left.add
   grid .graphdialog.center.left.list1 - .graphdialog.center.left.yscroll -sticky nsew
   grid .graphdialog.center.left.xscroll - -sticky nsew
@@ -2012,7 +2013,9 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
-  label .graphdialog.center.right.lab1 -text {Signals in graph}
+  label .graphdialog.center.right.lab1 -text { Signals in graph }
+  label .graphdialog.center.right.rawlab -text { Raw file: }
+  entry .graphdialog.center.right.rawentry -textvariable rawfile -width 30 -state disabled
   text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -bg grey70 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
@@ -2020,13 +2023,18 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 
-  grid .graphdialog.center.right.text1 - .graphdialog.center.right.yscroll -sticky nsew
-  grid .graphdialog.center.right.xscroll - -sticky nsew
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.rawlab \
+       .graphdialog.center.right.rawentry -
+  grid configure .graphdialog.center.right.rawentry -sticky ew
+  grid .graphdialog.center.right.text1 - - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - - - -sticky ew
   grid rowconfig .graphdialog.center.right 0 -weight 0
   grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
-  grid columnconfig .graphdialog.center.right 0 -weight 1
-  grid columnconfig .graphdialog.center.right 1 -weight 1
+  grid rowconfig .graphdialog.center.right 2 -weight 0
+  grid columnconfig .graphdialog.center.right 0 -weight 0
+  grid columnconfig .graphdialog.center.right 1 -weight 0
+  grid columnconfig .graphdialog.center.right 2 -weight 1
+  grid columnconfig .graphdialog.center.right 3 -weight 0
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {
@@ -2168,7 +2176,8 @@ proc graph_edit_properties {n} {
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
        .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
        .graphdialog.top2.labdset .graphdialog.top2.dset \
-       .graphdialog.top2.labsweep .graphdialog.top2.sweep -side left
+       .graphdialog.top2.labsweep -side left
+  pack .graphdialog.top2.sweep -side left -fill x -expand yes
 
   # top frame
   label .graphdialog.top.labsearch -text Search:
@@ -2258,7 +2267,8 @@ proc graph_edit_properties {n} {
     .graphdialog.top.search delete 0 end
     graph_fill_listbox 
   }
-  pack .graphdialog.top.labsearch .graphdialog.top.search -side left
+  pack .graphdialog.top.labsearch -side left
+  pack .graphdialog.top.search -side left -expand yes -fill x
   pack .graphdialog.top.clear -side left
   pack .graphdialog.top.incr -side left
   pack .graphdialog.top.bus -side left
@@ -2320,10 +2330,11 @@ proc graph_edit_properties {n} {
          xschem draw_graph $graph_selected
        }
      }
-  pack .graphdialog.top3.logx .graphdialog.top3.logy -side left
-  pack .graphdialog.top3.xlabmin .graphdialog.top3.xmin .graphdialog.top3.xlabmax .graphdialog.top3.xmax -side left
-  pack .graphdialog.top3.ylabmin .graphdialog.top3.ymin .graphdialog.top3.ylabmax .graphdialog.top3.ymax -side left
-  pack .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag -side left
+  pack .graphdialog.top3.logx .graphdialog.top3.logy \
+   .graphdialog.top3.xlabmin .graphdialog.top3.xmin .graphdialog.top3.xlabmax .graphdialog.top3.xmax \
+   .graphdialog.top3.ylabmin .graphdialog.top3.ymin .graphdialog.top3.ylabmax .graphdialog.top3.ymax \
+   .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag \
+   -fill x -expand yes -side left
   # binding
   bind .graphdialog.top.search <KeyRelease> {
     graph_fill_listbox
@@ -3775,8 +3786,9 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_var env path raw_level
+  global debug_var env path
 
+  set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
@@ -5601,7 +5613,7 @@ set tctx::global_list {
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  raw_level rawfile_loaded rcode recentfile
+  rawfile_loaded rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6840,7 +6852,6 @@ set_ne graph_rainbow 0
 set_ne graph_selected {}
 set_ne graph_schname {}
 set_ne graph_change_done 0 ;# used to push undo only once when editing graphs
-set_ne raw_level -1 ;# hierarchy level where raw file has been loaded 
 set_ne graph_linewidth_mult 1.4 ;# default multiplier (w.r.t. xschem lines) for line width in graphs 
 # user clicked this wave 
 set_ne graph_sel_wave {}
