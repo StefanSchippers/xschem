@@ -774,7 +774,12 @@ typedef struct {
   int datasets;
   Int_hashtable table;
   const char *sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
-  int annot_p; /* point in raw file to use for annotating schematic voltages/currents/etc */
+  int annot_p; /* point in raw file to use for annotating schematic voltages/currents/etc
+                * this is the closest available simulated point *before* the point
+                * calculated from mouse in graph */
+  double annot_x; /* X point to backannotate as calculated from mouse position.
+                   * need to interpolate the Y value between annot_p and annot_p + 1 */
+  int annot_sweep_idx; /* index of sweep variable where cursor annotation has occurred */
   /* when descending hierarchy xctx->current_name changes, xctx->raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *schname;

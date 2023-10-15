@@ -266,6 +266,8 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       dbg(1, "xx=%g, p=%d\n", xx, p);
       tcleval("array unset ngspice::ngspice_data");
       raw->annot_p = p;
+      raw->annot_x = cursor2;
+      raw->annot_sweep_idx = sweep_idx;
       for(i = 0; i < raw->nvars; ++i) {
         char s[100];
         my_snprintf(s, S(s), "%.4g", raw->values[i][p]);
@@ -403,6 +405,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         } else {
           xctx->raw->annot_p = -1;
+          xctx->raw->annot_sweep_idx = -1;
           /* need_all_redraw = 1; */
           redraw_all_at_end = 1;
         }

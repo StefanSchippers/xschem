@@ -383,18 +383,16 @@ void transpose_matrix(double *a, int r, int c)
  * data layout in memory arranged to maximize cache locality 
  * when looking up data 
  */
-static void read_binary_block(FILE *fd, Raw *raw)
+static void read_binary_block(FILE *fd, Raw *raw, int ac)
 {
   int p, v;
   double *tmp;
   int offset = 0;
-  int ac = 0;
 
   if(!raw) {
     dbg(0, "read_binary_block() no raw struct allocated\n");
     return;
   }
-  if(!strcmp(raw->sim_type, "ac")) ac = 1; /* AC analysis, complex numbers twice the size */
 
   for(p = 0 ; p < raw->datasets; p++) {
     offset += raw->npoints[p];
@@ -497,7 +495,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(raw->sim_type) {
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
-        read_binary_block(fd, raw); 
+        read_binary_block(fd, raw, ac); 
         raw->datasets++;
         exit_status = 1;
       } else { 
@@ -775,6 +773,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   raw = *rawptr;
   raw->level = -1; 
   raw->annot_p = -1;
+  raw->annot_sweep_idx = -1;
 
   int_hash_init(&raw->table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
@@ -842,6 +841,7 @@ int table_read(const char *f)
   raw = xctx->raw;
   raw->level = -1; 
   raw->annot_p = -1;
+  raw->annot_sweep_idx = -1;
 
   /* quick inspect file and get upper bound of number of data lines */
   ufd = open(f, O_RDONLY);

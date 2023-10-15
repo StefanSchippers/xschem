@@ -3380,6 +3380,31 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
   return value;
 }
 
+static double interpolate_yval(int idx)
+{
+  double val = xctx->raw->values[idx][xctx->raw->annot_p];
+  /* not operating point, annotate from 'b' cursor */
+  if((xctx->raw->allpoints > 1) && xctx->raw->annot_sweep_idx >= 0) {
+    Raw *raw = xctx->raw;
+    int dset;
+    int npoints;
+    SPICE_DATA *sweep_gv = raw->values[raw->annot_sweep_idx];
+    SPICE_DATA *gv = raw->values[idx];
+    for(dset = 0 ; dset < raw->datasets; dset++) {
+      npoints += raw->npoints[dset];
+      if(npoints > raw->annot_p) break;
+    }
+    if(raw->annot_p + 1 < npoints) {
+      double dx = sweep_gv[raw->annot_p + 1] - sweep_gv[raw->annot_p];
+      double dy = gv[raw->annot_p + 1] - gv[raw->annot_p];
+      double offset = raw->annot_x - sweep_gv[raw->annot_p];
+      double interp = dx != 0.0 ? offset * dy / dx : 0.0;
+      val += interp;
+    }
+  }
+  return val;
+}
+
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
@@ -3599,7 +3624,7 @@ const char *translate(int inst, const char* s)
              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
              idx = get_raw_index(fqnet);
              if(idx >= 0) {
-               val = xctx->raw->values[idx][xctx->raw->annot_p];
+               val = interpolate_yval(idx);
              }
              if(idx < 0) {
                valstr = "";
@@ -3656,7 +3681,7 @@ const char *translate(int inst, const char* s)
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
            idx = get_raw_index(fqnet);
            if(idx >= 0) {
-             val = xctx->raw->values[idx][xctx->raw->annot_p];
+             val = interpolate_yval(idx);
            }
            if(idx < 0) {
              valstr = "";
@@ -3724,7 +3749,7 @@ const char *translate(int inst, const char* s)
            dbg(1, "fqdev=%s\n", fqdev);
            idx = get_raw_index(fqdev);
            if(idx >= 0) {
-             val = xctx->raw->values[idx][xctx->raw->annot_p];
+             val = interpolate_yval(idx);
            }
            if(idx < 0) {
              valstr = "";
@@ -3784,19 +3809,13 @@ const char *translate(int inst, const char* s)
            dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
            dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
            idx1 = get_raw_index(fqnet1);
-           if(idx1 >= 0) {
-             val1 = xctx->raw->values[idx1][xctx->raw->annot_p];
-           }
            idx2 = get_raw_index(fqnet2);
-           if(idx2 >= 0) {
-             val2 = xctx->raw->values[idx2][xctx->raw->annot_p];
-           }
-           val = val1 - val2;
            if(idx1 < 0 || idx2 < 0) {
              valstr = "";
              xctx->tok_size = 0;
              len = 0;
            } else {
+             val = interpolate_yval(idx1) - interpolate_yval(idx2);
              valstr = dtoa_eng(val);
              len = xctx->tok_size;
            }
@@ -3856,7 +3875,7 @@ const char *translate(int inst, const char* s)
          strtolower(fqdev);
          idx = get_raw_index(fqdev);
          if(idx >= 0) {
-           val = xctx->raw->values[idx][xctx->raw->annot_p];
+           val = interpolate_yval(idx);
          }
          if(idx < 0) {
            valstr = "";
