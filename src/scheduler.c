@@ -4526,14 +4526,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* test 
      *   testmode */
-    else if(!strcmp(argv[1], "test"))
+    else if(0 && !strcmp(argv[1], "test"))
     {
-      /* 
-      * if(argc > 3) {
-      *   char *r = my_strcasestr(argv[2], argv[3]);
-      *   dbg(0, "%s\n", r ? r : "NULL");
-      * }
-      */
+      static int swap = 0;
+      static Raw *saveraw = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(swap == 0) {
+        saveraw = xctx->raw;
+        swap = 1;
+        xctx->raw = NULL;
+        raw_read("/home/schippes/.xschem/simulations/cmos_example_ngspice2.raw", &xctx->raw, "dc");
+        draw();
+      } else {
+         free_rawfile(&xctx->raw, 0);
+         swap = 0;
+         xctx->raw = saveraw;
+         draw();
+      }
+
       Tcl_ResetResult(interp);
     }
 

@@ -3387,7 +3387,7 @@ static double interpolate_yval(int idx)
   if((xctx->raw->allpoints > 1) && xctx->raw->annot_sweep_idx >= 0) {
     Raw *raw = xctx->raw;
     int dset;
-    int npoints;
+    int npoints = 0;
     SPICE_DATA *sweep_gv = raw->values[raw->annot_sweep_idx];
     SPICE_DATA *gv = raw->values[idx];
     for(dset = 0 ; dset < raw->datasets; dset++) {
