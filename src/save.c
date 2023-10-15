@@ -832,14 +832,16 @@ int table_read(const char *f)
   size_t lines, bytes;
   char *line = NULL, *line_ptr, *line_save;
   const char *line_tok;
+  Raw *raw;
   
   if(xctx->raw) {
     dbg(0, "table_read(): must clear current data file before loading new\n");
     return 0;
   }
   xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
-  xctx->raw->level = -1; 
-  xctx->raw->annot_p = -1;
+  raw = xctx->raw;
+  raw->level = -1; 
+  raw->annot_p = -1;
 
   /* quick inspect file and get upper bound of number of data lines */
   ufd = open(f, O_RDONLY);
@@ -847,7 +849,7 @@ int table_read(const char *f)
   count_lines_bytes(ufd, &lines, &bytes);
   close(ufd);
 
-  int_hash_init(&xctx->raw->table, HASHSIZE);
+  int_hash_init(&raw->table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
   if(fd) {
     int nline = 0;
@@ -872,9 +874,9 @@ int table_read(const char *f)
         prev_empty = 1;
         goto clear;
       }
-      if(!xctx->raw->datasets || (prev_prev_empty == 1 && prev_empty == 1) ) {
-        xctx->raw->datasets++;
-        my_realloc(_ALLOC_ID_, &xctx->raw->npoints, xctx->raw->datasets * sizeof(int));
+      if(!raw->datasets || (prev_prev_empty == 1 && prev_empty == 1) ) {
+        raw->datasets++;
+        my_realloc(_ALLOC_ID_, &raw->npoints, raw->datasets * sizeof(int));
         dataset_points = 0;
       }
       prev_prev_empty = prev_empty = 0;
@@ -888,17 +890,17 @@ int table_read(const char *f)
         line_ptr = NULL;
         /* dbg(1,"%s ", line_tok); */
         if(nline == 0) { /* header line */
-          my_realloc(_ALLOC_ID_, &xctx->raw->names, (field + 1) * sizeof(char *));
-          xctx->raw->names[field] = NULL;
-          my_strcat(_ALLOC_ID_, &xctx->raw->names[field], line_tok);
-          int_hash_lookup(&xctx->raw->table, xctx->raw->names[field], field, XINSERT_NOREPLACE);
-          xctx->raw->nvars = field + 1;
+          my_realloc(_ALLOC_ID_, &raw->names, (field + 1) * sizeof(char *));
+          raw->names[field] = NULL;
+          my_strcat(_ALLOC_ID_, &raw->names[field], line_tok);
+          int_hash_lookup(&raw->table, raw->names[field], field, XINSERT_NOREPLACE);
+          raw->nvars = field + 1;
         } else { /* data line */
-          if(field >= xctx->raw->nvars) break;
+          if(field >= raw->nvars) break;
           #if SPICE_DATA_TYPE == 1 /* float */
-          xctx->raw->values[field][npoints] = (SPICE_DATA)my_atof(line_tok);
+          raw->values[field][npoints] = (SPICE_DATA)my_atof(line_tok);
           #else /* double */
-          xctx->raw->values[field][npoints] = (SPICE_DATA)my_atod(line_tok);
+          raw->values[field][npoints] = (SPICE_DATA)my_atod(line_tok);
           #endif
         }
         ++field;
@@ -907,32 +909,32 @@ int table_read(const char *f)
         ++npoints;
         dataset_points++;
       }
-      xctx->raw->npoints[xctx->raw->datasets - 1] = dataset_points;
+      raw->npoints[raw->datasets - 1] = dataset_points;
       /* dbg(1, "\n"); */
       ++nline;
       if(nline == 1) {
         int f;
-        xctx->raw->values = my_calloc(_ALLOC_ID_, xctx->raw->nvars + 1, sizeof(SPICE_DATA *));
-        for(f = 0; f <= xctx->raw->nvars; f++) { /* one extra column for wave expressions */
-          my_realloc(_ALLOC_ID_, &xctx->raw->values[f], lines * sizeof(SPICE_DATA));
+        raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
+        for(f = 0; f <= raw->nvars; f++) { /* one extra column for wave expressions */
+          my_realloc(_ALLOC_ID_, &raw->values[f], lines * sizeof(SPICE_DATA));
         }
       }
       clear:
       my_free(_ALLOC_ID_, &line);
     } /* while(line ....) */
-    xctx->raw->allpoints = 0;
+    raw->allpoints = 0;
     if(res == 1) {
       int i;
-      my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[xctx->currsch]);
-      my_strncpy(xctx->raw->filename, f, S(xctx->raw->filename));
-      xctx->raw->level = xctx->currsch;
-      xctx->raw->allpoints = 0;
-      for(i = 0; i < xctx->raw->datasets; ++i) {
-        xctx->raw->allpoints +=  xctx->raw->npoints[i];
+      my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
+      my_strncpy(raw->filename, f, S(raw->filename));
+      raw->level = xctx->currsch;
+      raw->allpoints = 0;
+      for(i = 0; i < raw->datasets; ++i) {
+        raw->allpoints +=  raw->npoints[i];
       }
       dbg(0, "Table file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d\n",
-             xctx->raw->allpoints, xctx->raw->nvars, xctx->raw->datasets);
+             raw->allpoints, raw->nvars, raw->datasets);
     } else {
       dbg(0, "table_read(): no useful data found\n");
     }

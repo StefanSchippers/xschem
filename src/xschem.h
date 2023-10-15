@@ -778,7 +778,7 @@ typedef struct {
   /* when descending hierarchy xctx->current_name changes, xctx->raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *schname;
-  int level;  /* hierarchy level where raw file has been read MIRRORED IN TCL*/
+  int level;  /* hierarchy level where raw file has been read */
 } Raw;
 
 
