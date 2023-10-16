@@ -51,7 +51,7 @@ node="cal%0
 saout
 saout%70
 saout%3"
-color="8 14 7 12"
+color="8 19 7 12"
 
 linewidth_mult=1.0
 hilight_wave=-1
@@ -65,8 +65,8 @@ x2=4.39927e-07
 unitx=n
 divx=5
 subdivx=2
-node="plus
-minus"
+node="plus%0
+minus%0"
 color="4 5"
 dataset=-1
 linewidth_mult=1.0
@@ -81,8 +81,8 @@ x2=4.39927e-07
 unitx=n
 divx=5
 subdivx=4
-node="en
-cal
+node="en%0
+cal%0
 \\"SAOUT#3; vss,saout%3\\"
 --slow--
 \\"SAOUT#15; vss,saout%15\\"

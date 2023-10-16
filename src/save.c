@@ -610,6 +610,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       char *ptr;
       /* get the list of lines with index and node name */
       if(!raw->names) raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
+      if(!raw->cursor_b_val) raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_realloc(_ALLOC_ID_, &varname, strlen(line) + 1) ;
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
@@ -672,6 +673,7 @@ void free_rawfile(Raw **rawptr, int dr)
       my_free(_ALLOC_ID_, &raw->names[i]);
     }
     my_free(_ALLOC_ID_, &raw->names);
+    my_free(_ALLOC_ID_, &raw->cursor_b_val);
   }
   if(raw->values) {
     deleted = 1;
@@ -682,8 +684,8 @@ void free_rawfile(Raw **rawptr, int dr)
     my_free(_ALLOC_ID_, &raw->values);
   }
   if(raw->npoints) my_free(_ALLOC_ID_, &raw->npoints);
+  if(raw->filename) my_free(_ALLOC_ID_, &raw->filename);
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
-  my_strncpy(raw->filename, "", S(raw->filename));
   if(raw->table.table) int_hash_free(&raw->table);
   my_free(_ALLOC_ID_, rawptr);
   if(deleted && dr) draw();
@@ -780,7 +782,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   if(fd) {
     if((res = read_dataset(fd, rawptr, type)) == 1) {
       int i;
-      my_strncpy(raw->filename, f, S(raw->filename));
+      my_strdup2(_ALLOC_ID_, &raw->filename, f);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
       raw->allpoints = 0;
@@ -925,8 +927,8 @@ int table_read(const char *f)
     raw->allpoints = 0;
     if(res == 1) {
       int i;
+      my_strdup2(_ALLOC_ID_, &raw->filename, f);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
-      my_strncpy(raw->filename, f, S(raw->filename));
       raw->level = xctx->currsch;
       raw->allpoints = 0;
       for(i = 0; i < raw->datasets; ++i) {
@@ -938,7 +940,7 @@ int table_read(const char *f)
     } else {
       dbg(0, "table_read(): no useful data found\n");
     }
-    
+    raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
     fclose(fd);
     return res;
   }

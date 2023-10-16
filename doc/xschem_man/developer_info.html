@@ -516,6 +516,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1030,13 +1031,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem raw_query datasets: get number of datasets (simulation runs)
    xschem raw_query value node n: return n-th value of 'node' in raw file
    xschem raw_query loaded: return hierarchy level
+   xschem raw_query filename: return raw filename 
    where raw file was loaded or -1 if no raw loaded
    xschem raw_query index node: get index of simulation variable 'node'. 
      Example:  raw_query index v(led) --&gt; 46
    xschem raw_query values node [dset] : print all simulation
    values of 'node' for dataset 'dset' (default dset=0)
    xschem raw_query points [dset] : print simulation points for
-   dataset 'dset' (default dataset points combined)</pre>
+   dataset 'dset' (default: all dataset points combined)</pre>
    <li><kbd>       raw_read [file] [sim]</kbd></li><pre>
    If a raw file is already loaded delete from memory
    else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
@@ -1281,7 +1283,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      props is the attribute string
      size sets the size
      draw is a flag. If set to 1 will draw the created text </pre>
-   <li><kbd>       test </kbd></li><pre>
+   <li><kbd>       test [rawfile type]</kbd></li><pre>
    testmode </pre>
    <li><kbd>       toggle_colorscheme</kbd></li><pre>
    Toggle dark/light colorscheme </pre>
@@ -1347,7 +1349,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

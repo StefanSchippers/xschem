@@ -2083,12 +2083,13 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset)
         }
         if(xctx->raw && v >= 0) {
           int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
-          int ofs = 0;
+          int ofs = 0, ofs_end;
           for(dset = 0 ; dset < raw->datasets; dset++) {
             double xx, xx0;
             int cnt=0, wrap;
             register SPICE_DATA *gv = raw->values[sweep_idx];
-            for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
+            ofs_end = ofs + raw->npoints[dset];
+            for(p = ofs ; p < ofs_end; p++) {
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
               if(p == ofs) xx0 = xx;
@@ -2114,7 +2115,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset)
               }
             } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
             /* offset pointing to next dataset */
-            ofs += raw->npoints[dset];
+            ofs = ofs_end;
             sweepvar_wrap++;
           } /* for(dset...) */
         }
@@ -2911,7 +2912,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
 int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
 {
   int idx = -1;
-  int p, dset, ofs;
+  int p, dset, ofs, ofs_end;
   int first, last;
   double xx; /* the p-th sweep variable value:  xctx->raw->values[sweep_idx][p] */
   double xx0 = 0; /* first sweep value */
@@ -2930,9 +2931,10 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   for(dset = 0 ; dset < raw->datasets; dset++) {
     int cnt=0, wrap;
     register SPICE_DATA *gv = raw->values[sweep_idx];
+    ofs_end = ofs + raw->npoints[dset];
     first = -1;
     last = ofs; 
-    for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
+    for(p = ofs ; p < ofs_end; p++) {
       if(gr->logx) 
         xx = mylog10(gv[p]);
       else
@@ -2965,7 +2967,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
       }
     }
     /* offset pointing to next dataset */
-    ofs += raw->npoints[dset];
+    ofs = ofs_end;
     sweepvar_wrap++;
   } /* for(dset...) */
   return idx;
@@ -3028,7 +3030,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
     else idx = get_raw_index(express);
     dbg(1, "find_closest_wave(): expression=%d, idx=%d\n", expression, idx);
     if( idx != -1 ) {
-      int p, dset, ofs;
+      int p, dset, ofs, ofs_end;
       int first, last;
       double xx, yy ; /* the p-th point */
       double xx0 = 0.0; /* first sweep value */
@@ -3044,7 +3046,8 @@ int find_closest_wave(int i, Graph_ctx *gr)
         int cnt=0, wrap;
         register SPICE_DATA *gvx = raw->values[sweep_idx];
         register SPICE_DATA *gvy;
-        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs + raw->npoints[dset]-1, express);
+        ofs_end = ofs + raw->npoints[dset];
+        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express);
         gvy = raw->values[idx];
         dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
@@ -3052,7 +3055,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
          * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
         last = ofs; 
         dbg(1, "find_closest_wave(): xval=%g yval=%g\n", xval, yval);
-        for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
+        for(p = ofs ; p < ofs_end; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
           else xx = gvx[p];
           if(p == ofs) xx0 = xx;
@@ -3092,7 +3095,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
           prev_x = xx;
         } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
         /* offset pointing to next dataset */
-        ofs += raw->npoints[dset];
+        ofs = ofs_end;
         sweepvar_wrap++;
       } /* for(dset...) */
 
@@ -3224,7 +3227,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       }
       /* quickly find index number of ntok_copy variable to be plotted */
       if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
-        int p, dset, ofs;
+        int p, dset, ofs, ofs_end;
         int poly_npoints;
         int first, last;
         double xx; /* the p-th sweep variable value:  raw->values[sweep_idx][p] */
@@ -3251,7 +3254,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = raw->values[sweep_idx];
-  
+            
+          ofs_end = ofs + raw->npoints[dset];
           first = -1;
           poly_npoints = 0;
           my_realloc(_ALLOC_ID_, &point, raw->npoints[dset] * sizeof(XPoint));
@@ -3259,7 +3263,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_x = 0;
           last = ofs; 
-          for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
+          for(p = ofs ; p < ofs_end; p++) {
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
             if(p == ofs) xx0 = xx;
@@ -3326,7 +3330,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             }
           }
           /* offset pointing to next dataset */
-          ofs += raw->npoints[dset];
+          ofs = ofs_end;
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);

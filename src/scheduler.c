@@ -3087,13 +3087,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n: return n-th value of 'node' in raw file
      *   xschem raw_query loaded: return hierarchy level
+     *   xschem raw_query filename: return raw filename 
      *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
      *   xschem raw_query values node [dset] : print all simulation
      *   values of 'node' for dataset 'dset' (default dset=0)
      *   xschem raw_query points [dset] : print simulation points for
-     *   dataset 'dset' (default dataset points combined)
+     *   dataset 'dset' (default: all dataset points combined)
      */
     else if(!strcmp(argv[1], "raw_query"))
     {
@@ -3156,6 +3157,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(dset >= 0 && dset <  raw->datasets) 
                 Tcl_SetResult(interp, my_itoa(raw->npoints[dset]), TCL_VOLATILE);
           }
+        } else if(argc > 2 && !strcmp(argv[2], "filename")) {
+          Tcl_SetResult(interp, raw->filename, TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "vars")) {
           Tcl_SetResult(interp, my_itoa(raw->nvars), TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "list")) {
@@ -4524,26 +4527,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }     
           
 
-    /* test 
+    /* test [rawfile type]
      *   testmode */
-    else if(0 && !strcmp(argv[1], "test"))
+    else if(!strcmp(argv[1], "test"))
     {
-      static int swap = 0;
-      static Raw *saveraw = NULL;
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(swap == 0) {
-        saveraw = xctx->raw;
-        swap = 1;
-        xctx->raw = NULL;
-        raw_read("/home/schippes/.xschem/simulations/cmos_example_ngspice2.raw", &xctx->raw, "dc");
-        draw();
-      } else {
-         free_rawfile(&xctx->raw, 0);
-         swap = 0;
-         xctx->raw = saveraw;
-         draw();
-      }
+      static int cnt = 1;
+      static Raw *raw[10];
+      static int nraw = 0;
 
+      if(nraw == 0) {
+        raw[nraw] = xctx->raw;
+        nraw++;
+      }
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) { 
+          xctx->raw = NULL;
+          raw_read(argv[2], &xctx->raw, argv[3]);
+          raw[nraw] = xctx->raw;
+          nraw++;
+          cnt = (cnt + 1) % nraw;
+          draw();
+      } else {
+        xctx->raw = raw[cnt];
+        cnt = (cnt + 1) % nraw;
+      }
       Tcl_ResetResult(interp);
     }
 

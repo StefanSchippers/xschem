@@ -766,7 +766,7 @@ struct hilight_hashentry
 typedef struct {
   /* spice raw file specific data */
   char **names;
-  char filename[PATH_MAX];
+  char *filename;
   SPICE_DATA **values;
   int nvars;
   int *npoints;
@@ -780,6 +780,7 @@ typedef struct {
   double annot_x; /* X point to backannotate as calculated from mouse position.
                    * need to interpolate the Y value between annot_p and annot_p + 1 */
   int annot_sweep_idx; /* index of sweep variable where cursor annotation has occurred */
+  double *cursor_b_val;
   /* when descending hierarchy xctx->current_name changes, xctx->raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *schname;

@@ -188,11 +188,30 @@ static void start_wire(double mx, double my)
 
 }
 
+static double interpolate_yval(int idx, int point_not_last)
+{          
+  double val = xctx->raw->values[idx][xctx->raw->annot_p];
+  /* not operating point, annotate from 'b' cursor */
+  if((xctx->raw->allpoints > 1) && xctx->raw->annot_sweep_idx >= 0) {
+    Raw *raw = xctx->raw;
+    SPICE_DATA *sweep_gv = raw->values[raw->annot_sweep_idx];
+    SPICE_DATA *gv = raw->values[idx];
+    if(point_not_last) {
+      double dx = sweep_gv[raw->annot_p + 1] - sweep_gv[raw->annot_p];
+      double dy = gv[raw->annot_p + 1] - gv[raw->annot_p];
+      double offset = raw->annot_x - sweep_gv[raw->annot_p];
+      double interp = dx != 0.0 ? offset * dy / dx : 0.0;
+      val += interp;
+    }
+  }  
+  return val;
+}      
+     
 static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
 
   if(sch_waves_loaded() >= 0) { 
-    int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0;
+    int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0, ofs_end;
     double start, end;
     int sweepvar_wrap = 0, sweep_idx;
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
@@ -217,10 +236,11 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       int cnt=0, wrap;
       register SPICE_DATA *gv = raw->values[sweep_idx];
       int s=0;
+      ofs_end = ofs + raw->npoints[dset];
       first = -1;
       prev_prev_x = prev_x = 0;
       last = ofs;
-      for(p = ofs ; p < ofs + raw->npoints[dset]; p++) {
+      for(p = ofs ; p < ofs_end; p++) {
         xx = gv[p];
         wrap = ( cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
         if(wrap) {
@@ -233,13 +253,13 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
             if(p == first) {
-              if(xx == cursor2) {dset = raw->datasets; break;}
+              if(xx == cursor2) {goto done;}
               s = XSIGN0(xx - cursor2);
               dbg(1, "s=%d\n", s);
             } else {
               int ss =  XSIGN0(xx -  cursor2);
               dbg(1, "s=%d, ss=%d\n", s, ss);
-              if(ss != s) {dset = raw->datasets; break;}
+              if(ss != s) {goto done;}
             }
             last = p;
           }
@@ -249,10 +269,10 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         prev_x = xx;
       } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
       /* offset pointing to next dataset */
-      ofs += raw->npoints[dset];
+      ofs = ofs_end;
       sweepvar_wrap++;
     } /* for(dset...) */
-
+    done:
     if(first != -1) {
       if(p > last) {
         double sweep0, sweep1;
@@ -264,18 +284,19 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         }
       }
       dbg(1, "xx=%g, p=%d\n", xx, p);
-      tcleval("array unset ngspice::ngspice_data");
+      Tcl_UnsetVar(interp, "ngspice::ngspice_data", TCL_GLOBAL_ONLY);
       raw->annot_p = p;
       raw->annot_x = cursor2;
       raw->annot_sweep_idx = sweep_idx;
       for(i = 0; i < raw->nvars; ++i) {
         char s[100];
-        my_snprintf(s, S(s), "%.4g", raw->values[i][p]);
-        dbg(1, "%s = %g\n", raw->names[i], raw->values[i][p]);
-        tclvareval("array set ngspice::ngspice_data [list {",  raw->names[i], "} ", s, "]", NULL);
+        raw->cursor_b_val[i] =  interpolate_yval(i, (p < ofs_end));
+        my_snprintf(s, S(s), "%.5g", raw->cursor_b_val[i]);
+        /* tclvareval("array set ngspice::ngspice_data [list {",  raw->names[i], "} ", s, "]", NULL); */
+        Tcl_SetVar2(interp, "ngspice::ngspice_data", raw->names[i], s, TCL_GLOBAL_ONLY);
       }
-      tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( raw->nvars), NULL);
-      tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+      Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ vars", my_itoa( raw->nvars), TCL_GLOBAL_ONLY);
+      Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ points", "1", TCL_GLOBAL_ONLY);
     }
   }
 }
