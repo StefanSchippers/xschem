@@ -1202,6 +1202,7 @@ extern char *base64_encode(const unsigned char *data, const size_t input_length,
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);
 extern void free_rawfile(Raw **rawptr, int dr);
+extern void read_more_rawfile(int what, const char *f, const char *type);
 extern int raw_read(const char *f, Raw **rawptr, const char *type);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);

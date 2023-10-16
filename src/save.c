@@ -802,6 +802,34 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   return 0;
 }
 
+/* what == 1: read another raw file
+ * what == 2: switch raw file
+ * what == 3: remove a raw file
+ * what == 4: remove all additional raw files
+ */
+void read_more_rawfile(int what, const char *f, const char *type)
+{
+      static int cnt = 1;
+      static Raw *raw[50];
+      static int nraw = 0;
+
+      if(nraw == 0) {
+        raw[nraw] = xctx->raw;
+        nraw++;
+      }
+      if(what == 1 && f && type) {
+          xctx->raw = NULL;
+          raw_read(f, &xctx->raw, type);
+          raw[nraw] = xctx->raw;
+          nraw++;
+          cnt = (cnt + 1) % nraw;
+          draw();
+      } else if(what == 2) {
+        cnt = (cnt + 1) % nraw;
+        xctx->raw = raw[cnt];
+      }
+}
+
 /* Read data organized as a table
  * First line is the header line containing variable names.
  * data is presented in column format after the header line

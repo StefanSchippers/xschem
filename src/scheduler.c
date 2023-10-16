@@ -1851,7 +1851,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xSymbol *symbol;
       short flip, rot;
       double x0,y0;
-      int n, i;
+      int n, i = 0;
       int user_inst = -1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
@@ -1868,6 +1868,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(user_inst >=0 || xctx->sel_array[n].type == ELEMENT) {
           char srot[16], sflip[16], sx0[70], sy0[70];
           if(user_inst == -1) i = xctx->sel_array[n].n;
+          else i = user_inst;
           x0 = xctx->inst[i].x0;
           y0 = xctx->inst[i].y0;
           rot = xctx->inst[i].rot;
@@ -4531,26 +4532,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   testmode */
     else if(!strcmp(argv[1], "test"))
     {
-      static int cnt = 1;
-      static Raw *raw[10];
-      static int nraw = 0;
-
-      if(nraw == 0) {
-        raw[nraw] = xctx->raw;
-        nraw++;
-      }
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 3) { 
-          xctx->raw = NULL;
-          raw_read(argv[2], &xctx->raw, argv[3]);
-          raw[nraw] = xctx->raw;
-          nraw++;
-          cnt = (cnt + 1) % nraw;
-          draw();
-      } else {
-        xctx->raw = raw[cnt];
-        cnt = (cnt + 1) % nraw;
-      }
+      if(argc > 3) read_more_rawfile(1, argv[2], argv[3]);
+      else read_more_rawfile(2, NULL, NULL);
       Tcl_ResetResult(interp);
     }
 

@@ -2085,7 +2085,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset)
           int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
           int ofs = 0, ofs_end;
           for(dset = 0 ; dset < raw->datasets; dset++) {
-            double xx, xx0;
+            double xx, xx0 = 0.0; /* gcc gives false warnings if xx0 not initialized here */
             int cnt=0, wrap;
             register SPICE_DATA *gv = raw->values[sweep_idx];
             ofs_end = ofs + raw->npoints[dset];
@@ -3121,7 +3121,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 {
-  int wc = 4, wave_color;
+  int wc = 4, wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
