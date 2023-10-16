@@ -28,7 +28,7 @@ B 2 1690 -960 2250 -630 {flags=graph,unlocked
 rawfile=tcleval($netlist_dir/cmos_example_ngspice_dc.raw)
 sim_type=dc
 y1=-160
-y2=-0.78
+y2=0
 divy=4
 subdivy=1
 x1=2.3
@@ -38,7 +38,7 @@ subdivx=1
 node="\\"GAIN @ 2uA;diffout deriv() % 0\\"
 \\"GAIN @ 10uA;diffout deriv() % 1\\"
 \\"GAIN @ 100uA;diffout deriv() % 2\\""
-color="10 12 6"
+color="8 7 6"
 dataset=-1}
 B 2 190 -760 327 -700 {flags=image
 alpha=0.6
@@ -63,7 +63,7 @@ subdivx=1
 node="diffout@2uA;v(diffout)%0
 diffout@10uA;v(diffout)%1
 diffout@100uA;v(diffout)%2"
-color="10 12 6"
+color="8 7 6"
 dataset=-1
 }
 B 2 1050 -470 1680 -190 {flags=graph,unlocked
@@ -81,7 +81,7 @@ subdivx=1
 
 
 dataset=-1
-color="10 12 6"
+color="8 7 6"
 node="\\"diffout 2uA; diffout%0\\"
 \\"diffout 10uA; diffout%1\\"
 \\"diffout 100uA; diffout%2\\""
@@ -102,7 +102,7 @@ subdivx=8
 
 
 dataset=-1
-color="10 12 6"
+color="8 7 6"
 node="\\"gain 2uA; diffout db20()%0\\"
 \\"gain 10uA; diffout db20()%1\\"
 \\"gain 10uA; diffout db20()%2\\""
@@ -126,7 +126,7 @@ subdivx=8
 
 
 dataset=-1
-color="10 12 6"
+color="8 7 6"
 node="\\"phase 2uA; ph(diffout)%0\\"
 \\"phase 10uA; ph(diffout)%1\\"
 \\"phase 100uA; ph(diffout)%2\\""
@@ -308,7 +308,7 @@ descr="I="}
 C {launcher.sym} 475 -695 0 0 {name=h3 
 descr="Load NGSPICE waveforms (ctrl-left-click)" 
 tclcommand="
-xschem raw_read $netlist_dir/cmos_example_ngspice.raw dc
+xschem raw_read $netlist_dir/cmos_example_ngspice_tran.raw tran
 "
 }
 C {launcher.sym} 1310 -30 0 0 {name=h4
