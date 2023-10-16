@@ -1908,10 +1908,18 @@ proc graph_update_nodelist {} {
 }
 
 proc graph_fill_listbox {} {
+  global graph_selected
   set retval [.graphdialog.top.search get]
+
+  set rawfile [xschem getprop rect 2 $graph_selected rawfile 0]
+  puts "graph_fill_listbox: $rawfile"
+  xschem raw switch $rawfile 
+
   set retval [graph_get_signal_list [xschem raw_query list] $retval]
   .graphdialog.center.left.list1 delete 0 end
   eval .graphdialog.center.left.list1 insert 0 $retval
+
+  xschem raw switch_back
 }
 
 # called from event handlers (OK, KeyRelease, DoubleClick) in graph_edit_properties
@@ -2014,8 +2022,31 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
+  if  { [ info tclversion] > 8.4} {
+    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp}  -width 4
+  }
+  
+  bind .graphdialog.center.right.list <<ComboboxSelected>> {
+    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get]
+  }
+
+  bind .graphdialog.center.right.list <KeyRelease> {
+    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get]
+  }
+
+  if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
+    .graphdialog.center.right.list set [xschem getprop rect 2 $graph_selected sim_type 2]
+  } else {
+    .graphdialog.center.right.list set tran
+  }
+
   label .graphdialog.center.right.rawlab -text { Raw file: }
-  entry .graphdialog.center.right.rawentry -textvariable rawfile -width 30 -state disabled
+  entry .graphdialog.center.right.rawentry -width 30
+  bind .graphdialog.center.right.rawentry <KeyRelease> {
+    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] 
+  }
+  .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
+  .graphdialog.center.right.rawentry xview moveto 1
   text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -bg grey70 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
@@ -2023,18 +2054,19 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.rawlab \
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.list .graphdialog.center.right.rawlab \
        .graphdialog.center.right.rawentry -
   grid configure .graphdialog.center.right.rawentry -sticky ew
-  grid .graphdialog.center.right.text1 - - .graphdialog.center.right.yscroll -sticky nsew
-  grid .graphdialog.center.right.xscroll - - - -sticky ew
+  grid .graphdialog.center.right.text1 - - - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - - - - -sticky ew
   grid rowconfig .graphdialog.center.right 0 -weight 0
   grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
   grid rowconfig .graphdialog.center.right 2 -weight 0
   grid columnconfig .graphdialog.center.right 0 -weight 0
   grid columnconfig .graphdialog.center.right 1 -weight 0
-  grid columnconfig .graphdialog.center.right 2 -weight 1
-  grid columnconfig .graphdialog.center.right 3 -weight 0
+  grid columnconfig .graphdialog.center.right 2 -weight 0
+  grid columnconfig .graphdialog.center.right 3 -weight 1
+  grid columnconfig .graphdialog.center.right 4 -weight 0
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {
@@ -2185,7 +2217,7 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command graph_fill_listbox
-  checkbutton .graphdialog.top.rainbow -text {Rainbow colors} -variable graph_rainbow \
+  checkbutton .graphdialog.top.rainbow -text {Rainbow col.} -variable graph_rainbow \
     -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
@@ -2205,7 +2237,7 @@ proc graph_edit_properties {n} {
   } else {
     .graphdialog.top.lwe insert 0 $custom_lw
   }
-  checkbutton .graphdialog.top.unlocked -text {Unlocked X axis} -variable graph_unlocked
+  checkbutton .graphdialog.top.unlocked -text {Unlock. X axis} -variable graph_unlocked
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
@@ -2362,7 +2394,7 @@ proc graph_edit_properties {n} {
   }
   
   # fill data in left listbox
-  eval .graphdialog.center.left.list1 insert 0 [graph_get_signal_list [xschem raw_query list] {}]
+  graph_fill_listbox
 
   # fill data in right textbox
   set plotted_nodes [xschem getprop rect 2 $n node 0]
@@ -5613,7 +5645,7 @@ set tctx::global_list {
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  rawfile rawfile_loaded rcode recentfile
+  rawfile_loaded rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6976,7 +7008,6 @@ if {$OS == "Windows"} {
 }
 
 set rawfile_loaded 0
-set rawfile {}
 
 # flag bound to a checkbutton in symbol editprop form
 # if set cell is copied when renaming it

@@ -273,6 +273,7 @@ extern char win_temp_dir[PATH_MAX];
 /*    1215497, 1823231, 2734867, 4102283, 6153409, 9230113, 13845163 */
 
 #define HASHSIZE 31627
+#define MAX_RAW_N 50 /* max number of raw files that can be loaded */
 
                    /*  parameters passed to action functions, see actions.c */
 #define END      1 /*  endop */
@@ -1043,6 +1044,13 @@ typedef struct {
 
   Raw *raw; /* spice simulation data struct pointer */
 
+  /* data for additional raw files */
+  int extra_idx;                    /* current raw file */
+  int extra_prev_idx;               /* previous crrent (to switch back) */
+  Raw *extra_raw_arr[MAX_RAW_N]; /* array of pointers to Raw structure */
+  int extra_raw_n;                  /* number of elements in array */
+
+
   /*    */
   /* data related to all graphs, so not stored in per-graph graph_struct */
   double graph_cursor1_x;
@@ -1202,7 +1210,7 @@ extern char *base64_encode(const unsigned char *data, const size_t input_length,
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);
 extern void free_rawfile(Raw **rawptr, int dr);
-extern void read_more_rawfile(int what, const char *f, const char *type);
+extern void extra_rawfile(int what, const char *f, const char *type);
 extern int raw_read(const char *f, Raw **rawptr, const char *type);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
@@ -1213,8 +1221,8 @@ extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
 extern int find_closest_wave(int i, Graph_ctx *gr);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
-extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int dataset);
-extern int graph_fullxzoom(xRect *r, Graph_ctx *gr, int dataset);
+extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);
+extern int graph_fullxzoom(int i, Graph_ctx *gr, int dataset);
 extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);

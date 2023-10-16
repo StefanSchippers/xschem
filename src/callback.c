@@ -886,7 +886,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else { /* not graph_left, full X zoom*/ 
             /* selected or locked or master */
             if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-              need_redraw = graph_fullxzoom(r, gr, dataset);
+              need_redraw = graph_fullxzoom(i, gr, dataset);
             }
           }
         } /* raw->values */

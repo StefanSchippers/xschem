@@ -272,6 +272,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       tclsetboolvar("live_cursor2_backannotate", 1);
       tclsetvar("rawfile_loaded", "0");
+      extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       tcleval("array unset ngspice::ngspice_data");
       raw_read(f, &xctx->raw, "op");
@@ -281,6 +282,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         for(i = 0; i < xctx->raw->nvars; ++i) {
           char s[100];
           int p = 0;
+          xctx->raw->cursor_b_val[i] =  xctx->raw->values[i][p];
           my_snprintf(s, S(s), "%.4g", xctx->raw->values[i][p]);
           dbg(1, "%s = %g\n", xctx->raw->names[i], xctx->raw->values[i][p]);
           tclvareval("array set ngspice::ngspice_data [list {",  xctx->raw->names[i], "} ", s, "]", NULL);
@@ -3072,12 +3074,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'r': /*----------------------------------------------*/
+    /* raw what [rawfile type]
+     * what = read | clear | info | switch | switch_back
+     *   Load /clear / switch additional raw files */
+    if(!strcmp(argv[1], "raw"))
+    {
+      int err = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3 && !strcmp(argv[2], "read")) {
+        if(argc > 4) extra_rawfile(1, argv[3], argv[4]);
+        else extra_rawfile(1, argv[3], NULL);
+      } else if(argc > 2 && !strcmp(argv[2], "switch")) {
+        if(argv[3]) {
+          extra_rawfile(2, argv[3], NULL);
+        } else {
+          extra_rawfile(2, NULL, NULL);
+        }
+      } else if(argc > 2 && !strcmp(argv[2], "info")) {
+        extra_rawfile(4, NULL, NULL);
+      } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
+        extra_rawfile(5, NULL, NULL);
+      } else if(argc > 2 && !strcmp(argv[2], "clear")) {
+        if(argc > 3)  extra_rawfile(3, argv[3], NULL);
+        else extra_rawfile(3, NULL, NULL);
+      } else {
+        err = 1;
+      }
+      if(err) {Tcl_SetResult(interp, "Wrong command", TCL_STATIC); return TCL_ERROR;}
+    }
+
     /* raw_clear 
      *   Delete loaded simulation raw file */
-    if(!strcmp(argv[1], "raw_clear"))
+    else if(!strcmp(argv[1], "raw_clear"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       tclsetvar("rawfile_loaded", "0");
+      extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       Tcl_ResetResult(interp);
     }
@@ -3181,9 +3213,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int res = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
         tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 0);
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
@@ -3209,8 +3243,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
       } else {
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 0);
         if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2]);
         else  raw_read_from_attr(&xctx->raw, NULL);
@@ -4227,13 +4263,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(START,0.0,0.0,0.0,0.0);
         }
         if(argc > 5 && c == 2 && !strcmp(argv[5], "fullxzoom")) {
-          xRect *r = &xctx->rect[c][n];
           Graph_ctx *gr = &xctx->graph_struct;
           int dataset;
           setup_graph_data(n, 0, gr);
           if(xctx->raw && gr->dataset >= 0 && gr->dataset < xctx->raw->datasets) dataset = gr->dataset;
           else dataset = -1;
-          graph_fullxzoom(r, gr, dataset);
+          graph_fullxzoom(n, gr, dataset);
         } 
         if(argc > 5 && c == 2 && !strcmp(argv[5], "fullyzoom")) {
           xRect *r = &xctx->rect[c][n];
@@ -4492,12 +4527,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
         tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));  
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 0);
         table_read(f);
         if(sch_waves_loaded() >= 0) {
@@ -4527,17 +4564,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }     
           
-
-    /* test [rawfile type]
-     *   testmode */
-    else if(!strcmp(argv[1], "test"))
-    {
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 3) read_more_rawfile(1, argv[2], argv[3]);
-      else read_more_rawfile(2, NULL, NULL);
-      Tcl_ResetResult(interp);
-    }
-
     /* toggle_colorscheme
      *   Toggle dark/light colorscheme */
     else if(!strcmp(argv[1], "toggle_colorscheme"))

@@ -442,6 +442,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   xctx->raw = NULL;
+  xctx->extra_idx = 0;
+  xctx->extra_prev_idx = 0;
+  xctx->extra_raw_n = 0;
   xctx->graph_master = 0;
   xctx->graph_cursor1_x = 0;
   xctx->graph_flags = 0;
@@ -669,6 +672,7 @@ static void delete_schematic_data(int delete_pixmap)
   escape_chars(NULL);
   sanitize(NULL);
   is_generator(NULL);
+  extra_rawfile(3, NULL, NULL);
   free_rawfile(&xctx->raw, 0);
   free_xschem_data(); /* delete the xctx struct */
 }

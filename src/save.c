@@ -486,6 +486,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
              "Use binary format in ngspice (set filetype=binary)\n");
       tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)}");
+      extra_rawfile(3, NULL, NULL);
       free_rawfile(rawptr, 0);
       exit_status = 0;
       goto read_dataset_done;
@@ -553,6 +554,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "No. of Data Rows : %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -581,6 +583,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
 
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -593,6 +596,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "No. Points: %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -615,6 +619,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
+        extra_rawfile(3, NULL, NULL);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -802,32 +807,106 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   return 0;
 }
 
-/* what == 1: read another raw file
- * what == 2: switch raw file
- * what == 3: remove a raw file
- * what == 4: remove all additional raw files
+/* what == 1: read another raw file and switch to it
+ * what == 2: switch raw file. If filename given switch to that one, else switch to next
+ * what == 3: remove a raw file. If no filename given remove all, keep current in xctx->raw
+ * what == 4: print info
+ * what == 5: switch back to previous
  */
-void read_more_rawfile(int what, const char *f, const char *type)
+void extra_rawfile(int what, const char *f, const char *type)
 {
-      static int cnt = 1;
-      static Raw *raw[50];
-      static int nraw = 0;
+  int i;
 
-      if(nraw == 0) {
-        raw[nraw] = xctx->raw;
-        nraw++;
+  dbg(1, "extra_rawfile(): what=%d, f=%s, type=%s\n", what, f ? f : "NULL", type ? type : "NULL");
+  if(xctx->raw && xctx->extra_raw_n == 0) {
+    xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+    xctx->extra_raw_n++;
+  }
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && f ) { /* read */
+    for(i = 0; i < xctx->extra_raw_n; i++) {
+      if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) break;
+    }
+    if(i >= xctx->extra_raw_n) { /* file not found: read it  and switch to it */
+      int ret = 0;
+      Raw *save;
+      save = xctx->raw;
+      xctx->raw = NULL;
+      ret = raw_read(f, &xctx->raw, type);
+      if(ret) {
+        xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+        xctx->extra_raw_n++;
+        xctx->extra_prev_idx = xctx->extra_idx;
+        xctx->extra_idx = xctx->extra_raw_n;
+      } else {
+        xctx->raw = save;
+        xctx->extra_prev_idx = xctx->extra_idx;
       }
-      if(what == 1 && f && type) {
-          xctx->raw = NULL;
-          raw_read(f, &xctx->raw, type);
-          raw[nraw] = xctx->raw;
-          nraw++;
-          cnt = (cnt + 1) % nraw;
-          draw();
-      } else if(what == 2) {
-        cnt = (cnt + 1) % nraw;
-        xctx->raw = raw[cnt];
+    } else { /* file found: switch to it */
+      xctx->extra_prev_idx = xctx->extra_idx;
+      xctx->extra_idx = i;
+      xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
+    }
+  } else if(what == 2) { /* switch */
+    if(f) {
+      for(i = 0; i < xctx->extra_raw_n; i++) {
+        if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) break;
       }
+      if(i < xctx->extra_raw_n) { /* if file found switch to it ... */
+        xctx->extra_prev_idx = xctx->extra_idx;
+        xctx->extra_idx = i;
+      }
+    } else { /* switch to next */
+      xctx->extra_prev_idx = xctx->extra_idx;
+      xctx->extra_idx = (xctx->extra_idx + 1) % xctx->extra_raw_n;
+    }
+    xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
+  } else if(what == 5) { /* switch_back */
+    int tmp;
+    tmp = xctx->extra_idx;
+    xctx->extra_idx = xctx->extra_prev_idx;
+    xctx->extra_prev_idx = tmp;
+    xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
+  } else if(what == 3) { /* clear */
+    if(!f) { /* clear all , keep only current */
+      for(i = 0; i < xctx->extra_raw_n; i++) {
+        if(i == xctx->extra_idx) {
+          xctx->raw = xctx->extra_raw_arr[i];
+          xctx->extra_raw_arr[i] = NULL;
+        } else {
+          free_rawfile(&xctx->extra_raw_arr[i], 0);
+        }
+      }
+      xctx->extra_prev_idx = 0;
+      xctx->extra_idx = 0;
+      xctx->extra_raw_n = 0;
+    } else { /* clear provided file if found, switch to first in remaining */
+      int found = -1;
+      if(xctx->extra_raw_n > 1 ) {
+        for(i = 0; i < xctx->extra_raw_n; i++) {
+          if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) {
+            free_rawfile(&xctx->extra_raw_arr[i], 0);
+            found = i;
+            continue;
+          }
+          if(found != -1) xctx->extra_raw_arr[i - 1] = xctx->extra_raw_arr[i];
+        }
+        if(found != -1) {
+          xctx->extra_raw_n--;
+          xctx->extra_idx = 0;
+          xctx->extra_prev_idx = 0;
+          xctx->raw = xctx->extra_raw_arr[0];
+        }
+      }
+    }
+  } else if(what == 4) { /* info */
+    if(xctx->raw) {
+      dbg(1, "extra_raw_n = %d\n", xctx->extra_raw_n);
+      Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
+      for(i = 0; i < xctx->extra_raw_n; i++) {
+        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->filename, "\n",  NULL);
+      }
+    }
+  }
 }
 
 /* Read data organized as a table
