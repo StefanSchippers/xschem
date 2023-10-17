@@ -199,7 +199,7 @@ proc completer { text start end line } { return {}}
 # set 'var' with '$val' if 'var' not existing
 proc set_ne { var val } {
     upvar #0 $var v
-    if { ![ info exists v ] } {
+    if { ![info exists v ] } {
       set v $val
     }
 }
@@ -1911,15 +1911,24 @@ proc graph_fill_listbox {} {
   global graph_selected
   set retval [.graphdialog.top.search get]
 
-  set rawfile [xschem getprop rect 2 $graph_selected rawfile 0]
-  puts "graph_fill_listbox: $rawfile"
-  xschem raw switch $rawfile 
-
-  set retval [graph_get_signal_list [xschem raw_query list] $retval]
+  set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
+  set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
+  # puts "graph_fill_listbox: $rawfile $sim_type"
+  if {$rawfile ne {}} {
+    set res [xschem raw switch $rawfile $sim_type]
+    if {$res} {
+      set retval [graph_get_signal_list [xschem raw_query list] $retval]
+    } else {
+      set retval  {}
+    }
+    # puts "switch back"
+    xschem raw switch_back
+  } else {
+    set retval [graph_get_signal_list [xschem raw_query list] $retval]
+  }
   .graphdialog.center.left.list1 delete 0 end
   eval .graphdialog.center.left.list1 insert 0 $retval
 
-  xschem raw switch_back
 }
 
 # called from event handlers (OK, KeyRelease, DoubleClick) in graph_edit_properties
@@ -2022,28 +2031,47 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
-  if  { [ info tclversion] > 8.4} {
+  if { [info tclversion] > 8.4} {
     ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp}  -width 4
-  }
-  
-  bind .graphdialog.center.right.list <<ComboboxSelected>> {
-    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get]
-  }
-
-  bind .graphdialog.center.right.list <KeyRelease> {
-    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get]
-  }
-
-  if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
-    .graphdialog.center.right.list set [xschem getprop rect 2 $graph_selected sim_type 2]
   } else {
-    .graphdialog.center.right.list set tran
+    entry .graphdialog.center.right.list -width 4
   }
+  if { [info tclversion] > 8.4} {
+    bind .graphdialog.center.right.list <<ComboboxSelected>> {
+      xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+      if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+        graph_fill_listbox
+      }
+    }
+    if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
+      .graphdialog.center.right.list set [xschem getprop rect 2 $graph_selected sim_type 2]
+    } else {
+      .graphdialog.center.right.list set tran
+    }
+  } else {
+    .graphdialog.center.right.list delete 0 end
+    if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
+      .graphdialog.center.right.list insert 0 [xschem getprop rect 2 $graph_selected sim_type 2]
+    } else {
+      .graphdialog.center.right.list insert 0 tran
+    }
+  }
+
+  bind .graphdialog.center.right.list <FocusOut> {
+    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+    if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+      graph_fill_listbox
+    }
+  }
+
 
   label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
-  bind .graphdialog.center.right.rawentry <KeyRelease> {
-    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] 
+  bind .graphdialog.center.right.rawentry <FocusOut> {
+    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
+    if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+      graph_fill_listbox
+    }
   }
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
@@ -2138,19 +2166,19 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labdivx -text {  X div.}
   entry .graphdialog.top2.divx -width 2
-  bind .graphdialog.top2.divx <KeyRelease> {
+  bind .graphdialog.top2.divx <FocusOut> {
     graph_update_div $graph_selected divx
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
   entry .graphdialog.top2.divy -width 2
-  bind .graphdialog.top2.divy <KeyRelease> {
+  bind .graphdialog.top2.divy <FocusOut> {
     graph_update_div $graph_selected divy
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
   entry .graphdialog.top2.subdivx  -width 2
-  bind .graphdialog.top2.subdivx <KeyRelease> {
+  bind .graphdialog.top2.subdivx <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivx [.graphdialog.top2.subdivx get]
     xschem draw_graph $graph_selected
@@ -2158,7 +2186,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
   entry .graphdialog.top2.subdivy -width 2
-  bind .graphdialog.top2.subdivy <KeyRelease> {
+  bind .graphdialog.top2.subdivy <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivy [.graphdialog.top2.subdivy get]
     xschem draw_graph $graph_selected
@@ -2166,7 +2194,7 @@ proc graph_edit_properties {n} {
   
   label .graphdialog.top2.labdset -text {  Dataset}
   entry .graphdialog.top2.dset -width 4
-  bind .graphdialog.top2.dset <KeyRelease> {
+  bind .graphdialog.top2.dset <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
     xschem draw_graph $graph_selected
@@ -2175,11 +2203,20 @@ proc graph_edit_properties {n} {
   
   label .graphdialog.top2.labsweep -text {  Sweep}
   entry .graphdialog.top2.sweep -width 10 
-  bind .graphdialog.top2.sweep <KeyRelease> {
+
+  # bind .graphdialog.top2.sweep <KeyRelease> {
+  #   graph_push_undo
+  #   xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
+  #   xschem draw_graph $graph_selected
+  # }
+
+  bind .graphdialog.top2.sweep <FocusOut> {
+    puts [.graphdialog.top2.sweep get]
     graph_push_undo
     xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
     xschem draw_graph $graph_selected
-  }
+  }   
+
   .graphdialog.top2.sweep insert 0 [xschem getprop rect 2 $graph_selected sweep]
   
   set graph_divx [xschem getprop rect 2 $graph_selected divx]
@@ -2227,7 +2264,7 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top.lw -text "  Line width:"
   entry .graphdialog.top.lwe -width 4 
-  bind .graphdialog.top.lwe <KeyRelease> {
+  bind .graphdialog.top.lwe <FocusOut> {
     graph_set_linewidth $graph_selected
     xschem draw_graph $graph_selected
   }
@@ -2248,14 +2285,14 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top3.xlabmin -text { X min:}
   entry .graphdialog.top3.xmin -width 7
-  bind .graphdialog.top3.xmin <KeyRelease> {
+  bind .graphdialog.top3.xmin <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
     xschem draw_graph $graph_selected
   }
   label .graphdialog.top3.xlabmax -text { X max:}
   entry .graphdialog.top3.xmax -width 7
-  bind .graphdialog.top3.xmax <KeyRelease> {
+  bind .graphdialog.top3.xmax <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
     xschem draw_graph $graph_selected
@@ -2264,7 +2301,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmin -text { Y min:}
   entry .graphdialog.top3.ymin -width 7
-  bind .graphdialog.top3.ymin <KeyRelease> {
+  bind .graphdialog.top3.ymin <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
     xschem draw_graph $graph_selected
@@ -2272,7 +2309,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmax -text { Y max:}
   entry .graphdialog.top3.ymax -width 7
-  bind .graphdialog.top3.ymax <KeyRelease> {
+  bind .graphdialog.top3.ymax <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
     xschem draw_graph $graph_selected
@@ -2280,7 +2317,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
   entry .graphdialog.top3.xmag -width 4
-  bind .graphdialog.top3.xmag <KeyRelease> {
+  bind .graphdialog.top3.xmag <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
     xschem draw_graph $graph_selected
@@ -2288,7 +2325,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmag -text { }
   entry .graphdialog.top3.ymag -width 4
-  bind .graphdialog.top3.ymag <KeyRelease> {
+  bind .graphdialog.top3.ymag <FocusOut> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
     xschem draw_graph $graph_selected
@@ -2368,7 +2405,7 @@ proc graph_edit_properties {n} {
    .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag \
    -fill x -expand yes -side left
   # binding
-  bind .graphdialog.top.search <KeyRelease> {
+  bind .graphdialog.top.search <FocusOut> {
     graph_fill_listbox
   }
   bind .graphdialog.center.left.list1 <Double-Button-1> {
@@ -2378,7 +2415,7 @@ proc graph_edit_properties {n} {
     }
   }
 
-  bind .graphdialog.center.right.text1 <KeyRelease> {
+  bind .graphdialog.center.right.text1 <FocusOut> {
     if { [xschem get schname] eq $graph_schname } {
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
@@ -3022,7 +3059,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   "
 
   ### update
-  if { [ info exists myload_sash_pos] } {
+  if { [info exists myload_sash_pos] } {
     eval .load.l sash mark 0 [.load.l sash coord 0]
     eval .load.l sash dragto 0 [subst $myload_sash_pos]
   }
@@ -3100,7 +3137,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       set myload_retval  {   }
     }
   };# bind .load.l.paneright.list <<ListboxSelect>>
-  if { [ info exists myload_yview]} {
+  if { [info exists myload_yview]} {
    .load.l.paneright.list yview moveto  [lindex $myload_yview 0]
   }
   if {$loadfile != 2} {
@@ -3142,7 +3179,7 @@ proc path_head {s n } {
 
 
 proc delete_files { dir } { 
- if  { [ info tclversion]  >=8.4} {
+ if  { [info tclversion]  >=8.4} {
    set x [tk_getOpenFile -title "DELETE FILES" -multiple 1 -initialdir [file dirname $dir] ]
  } else {
    set x [tk_getOpenFile -title "DELETE FILES" -initialdir [file dirname $dir] ]
@@ -4212,7 +4249,7 @@ proc edit_prop {txtlabel} {
   set selected_tok {<ALL>}
   set old_selected_tok {<ALL>}
   label .dialog.f2.r4 -text {   Edit Attr:}
-  if  { [ info tclversion] > 8.4} {
+  if  { [info tclversion] > 8.4} {
     ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
   }
   pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 \
@@ -4226,7 +4263,7 @@ proc edit_prop {txtlabel} {
   pack .dialog.f2.r2 -side left
   pack .dialog.f2.r3 -side left
   pack .dialog.f2.r4 -side left
-  if { [ info tclversion] > 8.4 } { pack .dialog.f2.r5 -side left }
+  if { [info tclversion] > 8.4 } { pack .dialog.f2.r5 -side left }
   pack .dialog.yscroll -side right -fill y 
   pack .dialog.xscroll -side bottom -fill x
   pack .dialog.symprop  -fill both -expand yes
@@ -4237,7 +4274,7 @@ proc edit_prop {txtlabel} {
       .dialog.f1.b2 invoke
     }
   }
-  if  { [ info tclversion] > 8.4} {
+  if  { [info tclversion] > 8.4} {
     bind .dialog.f2.r5 <<ComboboxSelected>> {
       if {$old_selected_tok ne $selected_tok} {
         if { $old_selected_tok eq {<ALL>} } {
@@ -4390,7 +4427,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     .dialog.textinput delete 1.0 end
   }
   label .dialog.f1.r4 -text {   Edit Attr:}
-  if  { [ info tclversion] > 8.4} {
+  if  { [info tclversion] > 8.4} {
     ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
   }
   checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
@@ -4404,7 +4441,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.f1.b3 -side left -fill x -expand yes
   pack .dialog.f1.b4 -side left -fill x -expand yes
   pack .dialog.f1.r4 -side left
-  if  { [ info tclversion] > 8.4} {pack .dialog.f1.r5 -side left}
+  if  { [info tclversion] > 8.4} {pack .dialog.f1.r5 -side left}
 
 
   pack .dialog.yscroll -side right -fill y 
@@ -4416,7 +4453,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     }
   }
 
-  if  { [ info tclversion] > 8.4} {
+  if  { [info tclversion] > 8.4} {
     bind .dialog.f1.r5 <<ComboboxSelected>> {
       if {$old_selected_tok ne $selected_tok} {
         if { $old_selected_tok eq {<ALL>} } {

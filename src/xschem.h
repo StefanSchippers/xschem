@@ -774,7 +774,7 @@ typedef struct {
   int allpoints; /* all points of all datasets combined */
   int datasets;
   Int_hashtable table;
-  const char *sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
+  char *sim_type; /* type of sim, "tran", "dc", "ac", "op", ... */
   int annot_p; /* point in raw file to use for annotating schematic voltages/currents/etc
                 * this is the closest available simulated point *before* the point
                 * calculated from mouse in graph */
@@ -1210,7 +1210,7 @@ extern char *base64_encode(const unsigned char *data, const size_t input_length,
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
 extern int get_raw_index(const char *node);
 extern void free_rawfile(Raw **rawptr, int dr);
-extern void extra_rawfile(int what, const char *f, const char *type);
+extern int extra_rawfile(int what, const char *f, const char *type);
 extern int raw_read(const char *f, Raw **rawptr, const char *type);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);

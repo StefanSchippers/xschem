@@ -464,6 +464,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
   int n = 0, done_header = 0, ac = 0;
   int exit_status = 0, npoints, nvars;
   int dbglev=1;
+  const char *sim_type = NULL;
   Raw *raw;
  
   if(!rawptr) {
@@ -475,7 +476,6 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     dbg(0, "read_dataset(): no raw struct allocated\n");
     return 0;
   }
-  raw->sim_type = NULL;
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
   while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
@@ -493,7 +493,8 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     }
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
-      if(raw->sim_type) {
+      if(sim_type) {
+        my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
         read_binary_block(fd, raw, ac); 
@@ -503,48 +504,42 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         dbg(dbglev, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", nvars, npoints);
         fseek(fd, nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
       }
+      sim_type = NULL; /* ready for next header */
       done_points = 0;
       ac = 0;
     }
     /* if type is given (not NULL) choose the simulation that matches type, else take the first one */
-    /* if raw->sim_type is set skip all datasets that do not match */
+    /* if sim_type is set skip all datasets that do not match */
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "transient analysis")) {
-      if(raw->sim_type && strcmp(raw->sim_type, "tran")) raw->sim_type = NULL;
-      else if(type && !strcmp(type, "tran")) raw->sim_type = "tran";
-      else if(type && strcmp(type, "tran")) raw->sim_type = NULL;
-      else raw->sim_type = "tran";
-      dbg(dbglev, "read_dataset(): tran raw->sim_type=%s\n", raw->sim_type ? raw->sim_type : "<NULL>");
+      if(!type) type = "tran";
+      if(!strcmp(type, "tran")) sim_type = "tran";
+      dbg(dbglev, "read_dataset(): tran sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "dc transfer characteristic")) {
-      if(raw->sim_type && strcmp(raw->sim_type, "dc")) raw->sim_type = NULL;
-      else if(type && !strcmp(type, "dc")) raw->sim_type = "dc";
-      else if(type && strcmp(type, "dc")) raw->sim_type = NULL;
-      else raw->sim_type = "dc";
-      dbg(dbglev, "read_dataset(): dc raw->sim_type=%s\n", raw->sim_type ? raw->sim_type : "<NULL>");
+      if(!type) type = "dc";
+      if(!strcmp(type, "dc")) sim_type = "dc";
+      dbg(dbglev, "read_dataset(): dc sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "operating point")) {
-      if(raw->sim_type && strcmp(raw->sim_type, "op")) raw->sim_type = NULL;
-      else if(type && !strcmp(type, "op")) raw->sim_type = "op";
-      else if(type && strcmp(type, "op")) raw->sim_type = NULL;
-      else raw->sim_type = "op";
-      dbg(dbglev, "read_dataset(): op raw->sim_type=%s\n", raw->sim_type ? raw->sim_type : "<NULL>");
+
+      if(!type) type = "op";
+      if(!strcmp(type, "op")) sim_type = "op";
+      dbg(dbglev, "read_dataset(): op sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9) &&
             ( strstr(lowerline, "ac analysis") || strstr(lowerline, "sp analysis")) ) {
       ac = 1;
-      if(raw->sim_type && strcmp(raw->sim_type, "ac")) raw->sim_type = NULL;
-      else if(type && !strcmp(type, "ac")) raw->sim_type = "ac";
-      else if(type && strcmp(type, "ac")) raw->sim_type = NULL;
-      else raw->sim_type = "ac";
-      dbg(dbglev, "read_dataset(): ac raw->sim_type=%s\n", raw->sim_type ? raw->sim_type : "<NULL>");
+      if(!type) type = "ac";
+      if(!strcmp(type, "ac")) sim_type = "ac";
+      dbg(dbglev, "read_dataset(): ac sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9)) {
       char name[PATH_MAX];
-      raw->sim_type = NULL;
       n = sscanf(line, "Plotname: %s", name);
       if(n==1) {
-        if(raw->sim_type && strcmp(raw->sim_type, "custom")) raw->sim_type = NULL;
-        else if(type && !strcmp(type, name)) raw->sim_type = "custom";
+        if(!type) type = name;
+        if(!strcmp(type, name)) sim_type = name;
+        dbg(dbglev, "read_dataset(): ac sim_type=%s\n", sim_type ? sim_type : "<NULL>");
       }
     }
     /* points and vars are needed for all sections (also ones we are not interested in)
@@ -559,12 +554,12 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         exit_status = 0;
         goto read_dataset_done;
       }
-      if(raw->sim_type) {
+      if(sim_type) {
         my_realloc(_ALLOC_ID_, &raw->npoints, (raw->datasets+1) * sizeof(int));
         raw->npoints[raw->datasets] = npoints;
-        /* multi-point OP is equivalent to a DC sweep. Change  raw->sim_type */
-        if(raw->npoints[raw->datasets] > 1 && !strcmp(raw->sim_type, "op") ) {
-          raw->sim_type = "dc";
+        /* multi-point OP is equivalent to a DC sweep. Change  sim_type */
+        if(raw->npoints[raw->datasets] > 1 && !strcmp(sim_type, "op") ) {
+          sim_type = "dc";
         }
       }
       done_points = 1;
@@ -574,7 +569,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       dbg(dbglev, "read_dataset(): nvars=%d\n", nvars);
 
       if(ac) nvars <<= 1;
-      if(raw->datasets > 0  && raw->nvars != nvars && raw->sim_type) {
+      if(raw->datasets > 0  && raw->nvars != nvars && sim_type) {
         dbg(0, "Xschem requires all datasets to be saved with identical and same number of variables\n");
         dbg(0, "There is a mismatch, so this and following datasets will not be read\n");
         /* exit_status = 1; */ /* do not set, if something useful has been read keep exit status as is */
@@ -588,7 +583,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         exit_status = 0;
         goto read_dataset_done;
       }
-      if(raw->sim_type) {
+      if(sim_type) {
         raw->nvars = nvars;
       }
     }
@@ -601,16 +596,16 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         exit_status = 0;
         goto read_dataset_done;
       }
-      if(raw->sim_type) {
+      if(sim_type) {
         my_realloc(_ALLOC_ID_, &raw->npoints, (raw->datasets+1) * sizeof(int));
         raw->npoints[raw->datasets] = npoints;
-        /* multi-point OP is equivalent to a DC sweep. Change  raw->sim_type */
-        if(raw->npoints[raw->datasets] > 1 && !strcmp(raw->sim_type, "op") ) {
-          raw->sim_type = "dc";
+        /* multi-point OP is equivalent to a DC sweep. Change  sim_type */
+        if(raw->npoints[raw->datasets] > 1 && !strcmp(sim_type, "op") ) {
+          sim_type = "dc";
         }
       }
     }
-    if(raw->sim_type && !done_header && variables) {
+    if(sim_type && !done_header && variables) {
       char *ptr;
       /* get the list of lines with index and node name */
       if(!raw->names) raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
@@ -631,7 +626,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         if(*ptr == ':') *ptr = '.';
         ++ptr;
       }
-      if(raw->sim_type && !strcmp(raw->sim_type, "ac")) { /* AC */
+      if(sim_type && !strcmp(sim_type, "ac")) { /* AC */
         my_strcat(_ALLOC_ID_, &raw->names[i << 1], varname);
         int_hash_lookup(&raw->table, raw->names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
@@ -647,7 +642,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       dbg(dbglev, "read_dataset(): get node list -> names[%d] = %s\n", i, raw->names[i]);
     }
     /* after this line comes the list of indexes and associated nodes */
-    if(raw->sim_type && !strncmp(line, "Variables:", 10)) {
+    if(sim_type && !strncmp(line, "Variables:", 10)) {
       variables = 1 ;
     }
     my_free(_ALLOC_ID_, &line);
@@ -688,6 +683,7 @@ void free_rawfile(Raw **rawptr, int dr)
     }
     my_free(_ALLOC_ID_, &raw->values);
   }
+  if(raw->sim_type) my_free(_ALLOC_ID_, &raw->sim_type);
   if(raw->npoints) my_free(_ALLOC_ID_, &raw->npoints);
   if(raw->filename) my_free(_ALLOC_ID_, &raw->filename);
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
@@ -795,9 +791,10 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
         raw->allpoints +=  raw->npoints[i];
       }
       dbg(0, "Raw file data read: %s\n", f);
-      dbg(0, "points=%d, vars=%d, datasets=%d\n", 
-             raw->allpoints, raw->nvars, raw->datasets);
+      dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
+             raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "NULL");
     } else {
+      free_rawfile(rawptr, 0);
       dbg(0, "raw_read(): no useful data found\n");
     }
     fclose(fd);
@@ -812,48 +809,69 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
  * what == 3: remove a raw file. If no filename given remove all, keep current in xctx->raw
  * what == 4: print info
  * what == 5: switch back to previous
+ * return 1 if sucessfull, 0 otherwise
  */
-void extra_rawfile(int what, const char *f, const char *type)
+int extra_rawfile(int what, const char *file, const char *type)
 {
   int i;
-
-  dbg(1, "extra_rawfile(): what=%d, f=%s, type=%s\n", what, f ? f : "NULL", type ? type : "NULL");
+  int ret = 1;
+  char f[PATH_MAX];
+  dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
+      what, file ? file : "NULL", type ? type : "NULL");
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && f ) { /* read */
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) { /* read */
+    tclvareval("subst {", file, "}", NULL);
+    my_strncpy(f, tclresult(), S(f));
     for(i = 0; i < xctx->extra_raw_n; i++) {
-      if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) break;
+      if(xctx->extra_raw_arr[i]->sim_type && 
+         !strcmp(xctx->extra_raw_arr[i]->filename, f) &&
+         !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+        ) break;
     }
-    if(i >= xctx->extra_raw_n) { /* file not found: read it  and switch to it */
-      int ret = 0;
+    if(i >= xctx->extra_raw_n) { /* file not found: read it and switch to it */
+      int read_ret = 0;
       Raw *save;
       save = xctx->raw;
       xctx->raw = NULL;
-      ret = raw_read(f, &xctx->raw, type);
-      if(ret) {
+      read_ret = raw_read(f, &xctx->raw, type);
+      if(read_ret) {
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_raw_n++;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
       } else {
-        xctx->raw = save;
+        ret = 0; /* not found so did not switch */
+        dbg(0, "extra_rawfile() read: %s %s not found\n", f, type);
+        xctx->raw = save; /* restore */
         xctx->extra_prev_idx = xctx->extra_idx;
       }
     } else { /* file found: switch to it */
+      dbg(1, "extra_rawfile() read: found: switch to it\n");
       xctx->extra_prev_idx = xctx->extra_idx;
       xctx->extra_idx = i;
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   } else if(what == 2) { /* switch */
-    if(f) {
+    if(file && type) {
+      tclvareval("subst {", file, "}", NULL);
+      my_strncpy(f, tclresult(), S(f));
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) break;
+        dbg(1, "      extra_rawfile(): checking with %s\n", xctx->extra_raw_arr[i]->filename);
+        if(xctx->extra_raw_arr[i]->sim_type &&
+           !strcmp(xctx->extra_raw_arr[i]->filename, f) &&
+           !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+          ) break;
       }
       if(i < xctx->extra_raw_n) { /* if file found switch to it ... */
+        dbg(1, "extra_rawfile() switch: found: switch to it\n");
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = i;
+      } else {
+        dbg(0, "extra_rawfile() switch: %s %s not found\n", f, type);
+        ret = 0;
       }
     } else { /* switch to next */
       xctx->extra_prev_idx = xctx->extra_idx;
@@ -867,7 +885,7 @@ void extra_rawfile(int what, const char *f, const char *type)
     xctx->extra_prev_idx = tmp;
     xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
   } else if(what == 3) { /* clear */
-    if(!f) { /* clear all , keep only current */
+    if(!file) { /* clear all , keep only current */
       for(i = 0; i < xctx->extra_raw_n; i++) {
         if(i == xctx->extra_idx) {
           xctx->raw = xctx->extra_raw_arr[i];
@@ -881,6 +899,8 @@ void extra_rawfile(int what, const char *f, const char *type)
       xctx->extra_raw_n = 0;
     } else { /* clear provided file if found, switch to first in remaining */
       int found = -1;
+      tclvareval("subst {", file, "}", NULL);
+      my_strncpy(f, tclresult(), S(f));
       if(xctx->extra_raw_n > 1 ) {
         for(i = 0; i < xctx->extra_raw_n; i++) {
           if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) {
@@ -895,18 +915,20 @@ void extra_rawfile(int what, const char *f, const char *type)
           xctx->extra_idx = 0;
           xctx->extra_prev_idx = 0;
           xctx->raw = xctx->extra_raw_arr[0];
-        }
-      }
+        } else ret = 0;
+      } else ret = 0;
     }
   } else if(what == 4) { /* info */
     if(xctx->raw) {
       dbg(1, "extra_raw_n = %d\n", xctx->extra_raw_n);
       Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->filename, "\n",  NULL);
+        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->filename, " ", 
+            xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "NULL", "\n",  NULL);
       }
     }
   }
+  return ret;
 }
 
 /* Read data organized as a table

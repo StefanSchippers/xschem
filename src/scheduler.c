@@ -3080,23 +3080,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "raw"))
     {
       int err = 0;
+      int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 && !strcmp(argv[2], "read")) {
-        if(argc > 4) extra_rawfile(1, argv[3], argv[4]);
-        else extra_rawfile(1, argv[3], NULL);
+        if(argc > 4) ret = extra_rawfile(1, argv[3], argv[4]);
+        else ret = extra_rawfile(1, argv[3], NULL);
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "switch")) {
-        if(argv[3]) {
-          extra_rawfile(2, argv[3], NULL);
+        if(argc > 4) {
+          ret = extra_rawfile(2, argv[3], argv[4]);
         } else {
-          extra_rawfile(2, NULL, NULL);
+          ret = extra_rawfile(2, NULL, NULL);
         }
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
-        extra_rawfile(4, NULL, NULL);
+        ret = extra_rawfile(4, NULL, NULL);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
-        extra_rawfile(5, NULL, NULL);
+        ret = extra_rawfile(5, NULL, NULL);
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
-        if(argc > 3)  extra_rawfile(3, argv[3], NULL);
-        else extra_rawfile(3, NULL, NULL);
+        if(argc > 3)  ret = extra_rawfile(3, argv[3], NULL);
+        else ret = extra_rawfile(3, NULL, NULL);
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else {
         err = 1;
       }
@@ -3173,7 +3178,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           idx = get_raw_index(argv[3]);
           if(argc > 4) dataset = atoi(argv[4]);
           if(idx >= 0) {
-            int np =  raw->npoints[dataset];
+            int np;
+            if(dataset < 0 ) 
+              np = raw->allpoints;
+            else
+              np = raw->npoints[dataset];
             Tcl_ResetResult(interp);
             for(p = 0; p < np; p++) {
               sprintf(n, "%.10e", get_raw_value(dataset, idx, p));

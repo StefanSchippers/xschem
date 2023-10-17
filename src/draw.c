@@ -3220,6 +3220,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   /* draw stuff */
   if(flags & 8) {
     int k;
+    int save_datasets = -1, save_npoints = -1;
     #if !defined(__unix__) && HAS_CAIRO==1
     double sw = (gr->sx2 - gr->sx1);
     double sh = (gr->sy2 - gr->sy1);
@@ -3238,6 +3239,15 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
     }
     raw = xctx->raw;
+
+    /* transform multiple OP points into a dc sweep */
+    if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
+      save_datasets = raw->datasets;
+      raw->datasets = 1;
+      save_npoints = raw->npoints[0];
+      raw->npoints[0] = raw->allpoints;
+    }
+
     nptr = node;
     cptr = color;
     sptr = sweep;
@@ -3419,6 +3429,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
+    if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
+      raw->datasets = save_datasets;
+      raw->npoints[0] = save_npoints;
+    }
     if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
     if(express) my_free(_ALLOC_ID_, &express);
     if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL);
