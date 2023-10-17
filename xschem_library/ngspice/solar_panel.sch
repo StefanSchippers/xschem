@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -84,7 +84,7 @@ L 4 960 -340 970 -330 {}
 L 4 970 -330 980 -340 {}
 L 4 970 -340 980 -340 {}
 B 2 1260 -560 1680 -390 {flags=graph 
-y1 = -0.42
+y1 = -0.00068
 y2 = 22
 divy = 6
 subdivy=1
@@ -113,8 +113,8 @@ i(vled)
 jpeg_quality=30
 linewidth_mult=2.0}
 B 2 1260 -750 1680 -560 {flags=graph 
-y1 = -8.9e-05
-y2 = 100
+y1 = 0
+y2 = 1
 divy = 5
 subdivy=1
 x1=5e-10
@@ -167,6 +167,52 @@ ypos1=0.00261891
 ypos2=0.51596
 color=8
 node="\\"CTRL1 Duty cycle; ctrl1 20u ravg()\\""
+jpeg_quality=30
+linewidth_mult=2.0}
+B 2 1750 -840 2170 -650 {flags=graph 
+y1 = -2.7e-05
+y2 = 97
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+
+ unitx=m subdivx=4
+color=7
+node="\\"Panel power; i(vpanel) v(panel) *\\""
+hilight_wave=-1
+jpeg_quality=30
+linewidth_mult=2.0}
+B 2 1750 -640 2170 -450 {flags=graph 
+y1 = -8.5e-07
+y2 = 31
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+
+ unitx=m subdivx=4
+color=7
+node="\\"Led power; i(vled) v(led) *\\""
+hilight_wave=-1
+jpeg_quality=30
+linewidth_mult=2.0}
+B 2 1750 -1040 2170 -850 {flags=graph 
+y1 = -8.5e-07
+y2 = 31
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+
+ unitx=m subdivx=4
+color="7 4"
+node="\\"Panel power; i(vpanel) v(panel) *\\"
+\\"Led power; i(vled) v(led) *\\""
+hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0}
 B 18 65 -960 320 -775 {}

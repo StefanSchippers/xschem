@@ -2134,9 +2134,9 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             my_strdup2(_ALLOC_ID_, &express, ntok_copy);
           }
           if(strpbrk(express, " \n\t")) {
-            /* just probe a single point to get the index. custom data column already calculated */
-            /* v = calc_custom_data_yrange(sweep_idx, express, gr); */ /* why this? */
-            v = raw->nvars;
+            /* we *need* to recalculate the expression column for any new expression
+             * This is *expecially needed if graph contains more than one expression */
+            v = calc_custom_data_yrange(sweep_idx, express, gr);
           } else {
             v = get_raw_index(express);
           }
