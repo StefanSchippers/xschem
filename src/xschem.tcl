@@ -5032,7 +5032,7 @@ proc swap_compare_schematics {} {
   }
 }
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
-  global wm_fix
+  global wm_fix retval
   set retval {}
   if { [winfo exists .dialog] } return
   xschem set semaphore [expr {[xschem get semaphore] +1}]
@@ -5051,9 +5051,12 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   
   pack .dialog.f1.l .dialog.f1.e -side left
   frame .dialog.f2
+
   button .dialog.f2.ok -text OK  -command  "
-    eval $cmd \[.dialog.f1.e get\]
-    set retval [.dialog.f1.e get]
+    if { {$cmd} ne {} } {
+      eval $cmd \[.dialog.f1.e get\]
+    }
+    set retval \[.dialog.f1.e get\]
     destroy .dialog
   "
   button .dialog.f2.cancel -text Cancel -command { destroy .dialog }
