@@ -2018,6 +2018,8 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     int dset = dataset == -1 ? 0 : dataset;
     char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
     char *sim_type = NULL;
+    int save_datasets = -1, save_npoints = -1;
+    Raw *raw = NULL;
 
     if(idx < 0 ) idx = 0;
 
@@ -2034,7 +2036,16 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
         extra_rawfile(1, custom_rawfile, xctx->raw->sim_type);
       }
     }
+    raw = xctx->raw;
 
+    /* transform multiple OP points into a dc sweep */
+    if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
+      save_datasets = raw->datasets;
+      raw->datasets = 1;
+      save_npoints = raw->npoints[0];
+      raw->npoints[0] = raw->allpoints;
+    }   
+ 
     xx1 = get_raw_value(dset, idx, 0);
     xx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] -1);
     if(gr->logx) {
@@ -2049,6 +2060,10 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     my_free(_ALLOC_ID_, &sim_type);
 
     need_redraw = 1;
+    if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
+      raw->datasets = save_datasets;
+      raw->npoints[0] = save_npoints;
+    }
     return need_redraw;
   } else {
     return 0;

@@ -2211,7 +2211,6 @@ proc graph_edit_properties {n} {
   # }
 
   bind .graphdialog.top2.sweep <FocusOut> {
-    puts [.graphdialog.top2.sweep get]
     graph_push_undo
     xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
     xschem draw_graph $graph_selected
