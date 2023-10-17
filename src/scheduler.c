@@ -30,8 +30,8 @@ void statusmsg(char str[],int n)
   if(!str) return;
   if(str[0]== '\0') {
     my_free(_ALLOC_ID_, &xctx->infowindow_text);
+    return;
   } else {
-
     if(n == 3) {
       my_strdup(_ALLOC_ID_, &xctx->infowindow_text, str);
     } else if(n == 2) {
@@ -3125,7 +3125,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n: return n-th value of 'node' in raw file
      *   xschem raw_query loaded: return hierarchy level
-     *   xschem raw_query filename: return raw filename 
+     *   xschem raw_query rawfile: return raw filename 
      *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
@@ -3199,8 +3199,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(dset >= 0 && dset <  raw->datasets) 
                 Tcl_SetResult(interp, my_itoa(raw->npoints[dset]), TCL_VOLATILE);
           }
-        } else if(argc > 2 && !strcmp(argv[2], "filename")) {
-          Tcl_SetResult(interp, raw->filename, TCL_VOLATILE);
+        } else if(argc > 2 && !strcmp(argv[2], "rawfile")) {
+          Tcl_SetResult(interp, raw->rawfile, TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "vars")) {
           Tcl_SetResult(interp, my_itoa(raw->nvars), TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "list")) {

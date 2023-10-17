@@ -36,6 +36,7 @@ char **parse_cmd_string(const char *cmd, int *argc)
   static char *cmd_copy = NULL;
   static char *argv[PARSE_SIZE];
   char *cmd_ptr, *cmd_save;
+  dbg(1, "parse_cmd_string(): cmd=|%s|\n", cmd ? cmd : "NULL");
   if(!cmd || !cmd[0]) {
     if(cmd_copy) my_free(_ALLOC_ID_, &cmd_copy);
     return NULL;
@@ -47,7 +48,7 @@ char **parse_cmd_string(const char *cmd, int *argc)
     cmd_ptr = NULL;
     dbg(1, "--> %s\n", argv[*argc]);
     (*argc)++;
-    if(*argc >= PARSE_SIZE) break;
+    if(*argc + 1 >= PARSE_SIZE) break; /* leave one element for the last NULL pointer */
   }
   argv[*argc] = NULL; /*terminating pointer needed by execvp() */
   return argv;
@@ -93,7 +94,7 @@ int filter_data(const char *din,  const size_t ilen,
  *                                  p1
  */
   fflush(NULL); /* flush all stdio streams before process forking */
-  if( (pid = fork()) == 0) {
+  if( (pid = fork()) == 0) { /* child process */
     #if 1
     char **av;
     int ac;
@@ -110,6 +111,7 @@ int filter_data(const char *din,  const size_t ilen,
 
     #if 1
     av = parse_cmd_string(cmd, &ac);
+    parse_cmd_string(NULL, NULL); /* clear data */
     if(execvp(av[0], av) == -1) {
     #endif
 
@@ -685,7 +687,7 @@ void free_rawfile(Raw **rawptr, int dr)
   }
   if(raw->sim_type) my_free(_ALLOC_ID_, &raw->sim_type);
   if(raw->npoints) my_free(_ALLOC_ID_, &raw->npoints);
-  if(raw->filename) my_free(_ALLOC_ID_, &raw->filename);
+  if(raw->rawfile) my_free(_ALLOC_ID_, &raw->rawfile);
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
   if(raw->table.table) int_hash_free(&raw->table);
   my_free(_ALLOC_ID_, rawptr);
@@ -783,7 +785,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   if(fd) {
     if((res = read_dataset(fd, rawptr, type)) == 1) {
       int i;
-      my_strdup2(_ALLOC_ID_, &raw->filename, f);
+      my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
       raw->allpoints = 0;
@@ -827,7 +829,7 @@ int extra_rawfile(int what, const char *file, const char *type)
     my_strncpy(f, tclresult(), S(f));
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type && 
-         !strcmp(xctx->extra_raw_arr[i]->filename, f) &&
+         !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
          !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
         ) break;
     }
@@ -859,9 +861,9 @@ int extra_rawfile(int what, const char *file, const char *type)
       tclvareval("subst {", file, "}", NULL);
       my_strncpy(f, tclresult(), S(f));
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        dbg(1, "      extra_rawfile(): checking with %s\n", xctx->extra_raw_arr[i]->filename);
+        dbg(1, "      extra_rawfile(): checking with %s\n", xctx->extra_raw_arr[i]->rawfile);
         if(xctx->extra_raw_arr[i]->sim_type &&
-           !strcmp(xctx->extra_raw_arr[i]->filename, f) &&
+           !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
            !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
           ) break;
       }
@@ -903,7 +905,7 @@ int extra_rawfile(int what, const char *file, const char *type)
       my_strncpy(f, tclresult(), S(f));
       if(xctx->extra_raw_n > 1 ) {
         for(i = 0; i < xctx->extra_raw_n; i++) {
-          if(!strcmp(xctx->extra_raw_arr[i]->filename, f)) {
+          if(!strcmp(xctx->extra_raw_arr[i]->rawfile, f)) {
             free_rawfile(&xctx->extra_raw_arr[i], 0);
             found = i;
             continue;
@@ -923,7 +925,7 @@ int extra_rawfile(int what, const char *file, const char *type)
       dbg(1, "extra_raw_n = %d\n", xctx->extra_raw_n);
       Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->filename, " ", 
+        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->rawfile, " ", 
             xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "NULL", "\n",  NULL);
       }
     }
@@ -1056,7 +1058,7 @@ int table_read(const char *f)
     raw->allpoints = 0;
     if(res == 1) {
       int i;
-      my_strdup2(_ALLOC_ID_, &raw->filename, f);
+      my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
       raw->allpoints = 0;
