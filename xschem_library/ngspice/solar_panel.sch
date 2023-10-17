@@ -113,8 +113,8 @@ i(vled)
 jpeg_quality=30
 linewidth_mult=2.0}
 B 2 1260 -750 1680 -560 {flags=graph 
-y1 = 0
-y2 = 1
+y1 = -2.7e-05
+y2 = 97
 divy = 5
 subdivy=1
 x1=5e-10
@@ -167,52 +167,6 @@ ypos1=0.00261891
 ypos2=0.51596
 color=8
 node="\\"CTRL1 Duty cycle; ctrl1 20u ravg()\\""
-jpeg_quality=30
-linewidth_mult=2.0}
-B 2 1750 -840 2170 -650 {flags=graph 
-y1 = -2.7e-05
-y2 = 97
-divy = 5
-subdivy=1
-x1=5e-10
-x2=0.001
-divx=9
-
- unitx=m subdivx=4
-color=7
-node="\\"Panel power; i(vpanel) v(panel) *\\""
-hilight_wave=-1
-jpeg_quality=30
-linewidth_mult=2.0}
-B 2 1750 -640 2170 -450 {flags=graph 
-y1 = -8.5e-07
-y2 = 31
-divy = 5
-subdivy=1
-x1=5e-10
-x2=0.001
-divx=9
-
- unitx=m subdivx=4
-color=7
-node="\\"Led power; i(vled) v(led) *\\""
-hilight_wave=-1
-jpeg_quality=30
-linewidth_mult=2.0}
-B 2 1750 -1040 2170 -850 {flags=graph 
-y1 = -8.5e-07
-y2 = 31
-divy = 5
-subdivy=1
-x1=5e-10
-x2=0.001
-divx=9
-
- unitx=m subdivx=4
-color="7 4"
-node="\\"Panel power; i(vpanel) v(panel) *\\"
-\\"Led power; i(vled) v(led) *\\""
-hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0}
 B 18 65 -960 320 -775 {}
