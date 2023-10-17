@@ -837,7 +837,7 @@ int extra_rawfile(int what, const char *file, const char *type)
          !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
         ) break;
     }
-    if(i >= xctx->extra_raw_n) { /* file not found: read it and switch to it */
+    if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
       int read_ret = 0;
       Raw *save;
       save = xctx->raw;

@@ -282,13 +282,13 @@ C {lab_pin.sym} 750 -290 0 1 {name=p10 lab=MINUS  net_name=true}
 C {lab_pin.sym} 830 -420 0 1 {name=p11 lab=DIFFOUT  net_name=true}
 C {lab_pin.sym} 260 -220 0 0 {name=p13 lab=GN  net_name=true}
 C {lab_pin.sym} 30 -350 0 0 {name=p14 lab=0  net_name=true}
-C {vsource.sym} 30 -380 0 0 {name=VPLUS
+C {vsource.sym} 30 -380 0 0 {name=VMINUS
 value="2.5 pulse 2.4 2.6 10n 1n 1n 0.999u 2u ac 1 0" 
 net_name=true
 }
 C {lab_pin.sym} 60 -440 0 1 {name=p15 lab=MINUS  net_name=true}
 C {lab_pin.sym} 30 -500 0 0 {name=p16 lab=0  net_name=true}
-C {vsource.sym} 30 -530 0 0 {name=V1 value=2.5  net_name=true}
+C {vsource.sym} 30 -530 0 0 {name=VPLUS value=2.5  net_name=true}
 C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=PLUS  net_name=true}
 C {capa.sym} 750 -390 0 0 {name=CL
 m=1
@@ -333,7 +333,7 @@ value=".temp 30
   op
   write cmos_example_ngspice.raw
   set appendwrite
-  dc vplus 2.3 2.7 0.001
+  dc vminus 2.3 2.7 0.001
   write cmos_example_ngspice.raw
   tran 0.5n 5u
   write cmos_example_ngspice.raw
@@ -344,7 +344,7 @@ value=".temp 30
   alterparam IB=10u
   reset
   save all
-  dc vplus 2.4 2.6 0.001
+  dc vminus 2.4 2.6 0.001
   write cmos_example_ngspice.raw
   tran 0.5n 5u
   write cmos_example_ngspice.raw
@@ -355,7 +355,7 @@ value=".temp 30
   alterparam IB=100u
   reset
   save all
-  dc vplus 2.3 2.7 0.001
+  dc vminus 2.3 2.7 0.001
   write cmos_example_ngspice.raw
   tran 0.5n 5u
   write cmos_example_ngspice.raw
