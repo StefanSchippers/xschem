@@ -4622,7 +4622,9 @@ proc infowindow {} {
   }
   $z.f1.text delete 1.0 end
   $z.f1.text insert 1.0 $infowindow_text
-  set lines [$z.f1.text count -displaylines 1.0 end]
+  ## does not work in tcl/tk8.4
+  # set lines [$z.f1.text count -displaylines 1.0 end]
+  set lines [regexp -all \n [$z.f1.text get 1.0 end]]
   $z.f1.text see ${lines}.0
   return {}
 }
