@@ -100,6 +100,7 @@ int filter_data(const char *din,  const size_t ilen,
     int ac;
     #endif
     /* child */
+    debug_var = 0; /* do not log child allocations, see below */
     close(p1[1]); /* only read from p1 */
     close(p2[0]); /* only write to p2 */
     close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
@@ -111,7 +112,10 @@ int filter_data(const char *din,  const size_t ilen,
 
     #if 1
     av = parse_cmd_string(cmd, &ac);
-    parse_cmd_string(NULL, NULL); /* clear data */
+    /* ATTENTION: above parse_cmd_string() 'cmd_copy' allocated string is not (can not be) freed
+     * since av[] points into it, * so it may appear as leaked memory. This is the reason I set
+     * debug_var=0 in child. (avoid false warnings).
+     * Following execvp() clears all process data, nothing is leaked. */
     if(execvp(av[0], av) == -1) {
     #endif
 

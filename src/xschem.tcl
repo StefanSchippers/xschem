@@ -2057,7 +2057,7 @@ proc graph_edit_properties {n} {
     }
   }
 
-  bind .graphdialog.center.right.list <FocusOut> {
+  bind .graphdialog.center.right.list <KeyRelease> {
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
     if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
       graph_fill_listbox
@@ -2067,7 +2067,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
-  bind .graphdialog.center.right.rawentry <FocusOut> {
+  bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
       graph_fill_listbox
@@ -2166,19 +2166,19 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labdivx -text {  X div.}
   entry .graphdialog.top2.divx -width 2
-  bind .graphdialog.top2.divx <FocusOut> {
+  bind .graphdialog.top2.divx <KeyRelease> {
     graph_update_div $graph_selected divx
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
   entry .graphdialog.top2.divy -width 2
-  bind .graphdialog.top2.divy <FocusOut> {
+  bind .graphdialog.top2.divy <KeyRelease> {
     graph_update_div $graph_selected divy
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
   entry .graphdialog.top2.subdivx  -width 2
-  bind .graphdialog.top2.subdivx <FocusOut> {
+  bind .graphdialog.top2.subdivx <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivx [.graphdialog.top2.subdivx get]
     xschem draw_graph $graph_selected
@@ -2186,7 +2186,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
   entry .graphdialog.top2.subdivy -width 2
-  bind .graphdialog.top2.subdivy <FocusOut> {
+  bind .graphdialog.top2.subdivy <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivy [.graphdialog.top2.subdivy get]
     xschem draw_graph $graph_selected
@@ -2194,7 +2194,7 @@ proc graph_edit_properties {n} {
   
   label .graphdialog.top2.labdset -text {  Dataset}
   entry .graphdialog.top2.dset -width 4
-  bind .graphdialog.top2.dset <FocusOut> {
+  bind .graphdialog.top2.dset <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
     xschem draw_graph $graph_selected
@@ -2210,7 +2210,7 @@ proc graph_edit_properties {n} {
   #   xschem draw_graph $graph_selected
   # }
 
-  bind .graphdialog.top2.sweep <FocusOut> {
+  bind .graphdialog.top2.sweep <Leave> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
     xschem draw_graph $graph_selected
@@ -2263,7 +2263,7 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top.lw -text "  Line width:"
   entry .graphdialog.top.lwe -width 4 
-  bind .graphdialog.top.lwe <FocusOut> {
+  bind .graphdialog.top.lwe <KeyRelease> {
     graph_set_linewidth $graph_selected
     xschem draw_graph $graph_selected
   }
@@ -2284,14 +2284,14 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top3.xlabmin -text { X min:}
   entry .graphdialog.top3.xmin -width 7
-  bind .graphdialog.top3.xmin <FocusOut> {
+  bind .graphdialog.top3.xmin <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
     xschem draw_graph $graph_selected
   }
   label .graphdialog.top3.xlabmax -text { X max:}
   entry .graphdialog.top3.xmax -width 7
-  bind .graphdialog.top3.xmax <FocusOut> {
+  bind .graphdialog.top3.xmax <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
     xschem draw_graph $graph_selected
@@ -2300,7 +2300,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmin -text { Y min:}
   entry .graphdialog.top3.ymin -width 7
-  bind .graphdialog.top3.ymin <FocusOut> {
+  bind .graphdialog.top3.ymin <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
     xschem draw_graph $graph_selected
@@ -2308,7 +2308,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmax -text { Y max:}
   entry .graphdialog.top3.ymax -width 7
-  bind .graphdialog.top3.ymax <FocusOut> {
+  bind .graphdialog.top3.ymax <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
     xschem draw_graph $graph_selected
@@ -2316,7 +2316,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
   entry .graphdialog.top3.xmag -width 4
-  bind .graphdialog.top3.xmag <FocusOut> {
+  bind .graphdialog.top3.xmag <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
     xschem draw_graph $graph_selected
@@ -2324,7 +2324,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmag -text { }
   entry .graphdialog.top3.ymag -width 4
-  bind .graphdialog.top3.ymag <FocusOut> {
+  bind .graphdialog.top3.ymag <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
     xschem draw_graph $graph_selected
@@ -2404,7 +2404,7 @@ proc graph_edit_properties {n} {
    .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag \
    -fill x -expand yes -side left
   # binding
-  bind .graphdialog.top.search <FocusOut> {
+  bind .graphdialog.top.search <KeyRelease> {
     graph_fill_listbox
   }
   bind .graphdialog.center.left.list1 <Double-Button-1> {
@@ -2414,7 +2414,7 @@ proc graph_edit_properties {n} {
     }
   }
 
-  bind .graphdialog.center.right.text1 <FocusOut> {
+  bind .graphdialog.center.right.text1 <KeyRelease> {
     if { [xschem get schname] eq $graph_schname } {
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
     }
