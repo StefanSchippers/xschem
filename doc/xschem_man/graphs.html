@@ -43,6 +43,11 @@ p{padding: 15px  30px 10px;}
   <br>
   <img src="graphs05.png"><br>
  </p>
+
+
+
+
+
  <a id="graphs"><h2>Using XSCHEM's internal graph functions</h2></a>
  <p>
   Xschem can now display waveforms by itself in the drawing area. in the Simulation menu there is an entry to
@@ -117,6 +122,8 @@ p{padding: 15px  30px 10px;}
   <kbd>^X</kbd> will match all nodes that begin with <kbd>X</kbd>, <kbd>xm[0-9]\.</kbd> will match all nodes
   containing xm followed by one digit and a dot.
  </p>
+
+
  <h3>Display bus signals</h3>
  <p>
   If you have a design where digital signals are present you might want to group some of these to form a
@@ -196,6 +203,8 @@ p{padding: 15px  30px 10px;}
   <li><kbd>integ()</kbd> Integration</li>
   <li><kbd>dup()</kbd> Duplicate last element on stack</li>
   </ul>
+
+
  <h3>Display a specific dataset for a node</h3>
  <p>
 The following syntax:
@@ -208,6 +217,35 @@ The following syntax:
   <kbd>"Power dataset 6; I(VVCC) VCC * %6"</kbd><br><br>
   <img src="graphs17.png"><br>
  </p>
+
+
+ <h3>Specify a different raw file in a graph</h3>
+ <p>
+  It is now possible (xschem 3.4.5+) to load more raw files for a schematic in xschem.<br>
+  Each graph may optionally refer to a different raw file. 
+  If you double click on a graph while waveforms are loaded you see the graphdialog dialog box:
+  <img src="graphs18.png"><br>
+  The dialog box has now a simulation type listbox and a <kbd>Raw file:</kbd> text entry box.
+  Specifying an existing .raw file name and a simulation type from the listbox 
+  will override the 'base' raw file loaded in xschem.
+  (the 'base' raw file is the only one that was loaded previously and applied to all graphs)
+  If no raw file is specified in a graph it will use the loaded 'base' raw file if any, like 
+  it used to work before.
+  It is also possible to have multiple graphs all referring to the same raw file, each graph 
+  showing a different simulation. It is for example possible to show a dc, tran, ac simulation all
+  loaded from a common .raw file.
+  Image below shows an example: DC, AC, Transient simulation each one done with 3 runs
+  varying the Bias current. In addition the <kbd>xschem annotate_op</kbd> is also used to 
+  annotate the operating point into teh schematic.
+  Ctrl-Left-button-clicking the <kbd>Backannotate</kbd> launcher will instantly update
+  all graphs with data taken from the updated raw file(s).
+  <br>
+  <img src="graphs19.png"><br>
+
+ </p>
+
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
