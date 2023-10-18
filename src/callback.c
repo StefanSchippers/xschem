@@ -48,6 +48,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
+    if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
     if( (xctx->ui_state & GRAPHPAN) ||
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
        POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10) ) {

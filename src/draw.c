@@ -2018,9 +2018,10 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     int dset = dataset == -1 ? 0 : dataset;
     char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
     char *sim_type = NULL;
-    int save_datasets = -1, save_npoints = -1;
+    int k, save_datasets = -1, save_npoints = -1;
     Raw *raw = NULL;
 
+    dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
     if(idx < 0 ) idx = 0;
 
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
@@ -2046,8 +2047,12 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       raw->npoints[0] = raw->allpoints;
     }   
  
-    xx1 = get_raw_value(dset, idx, 0);
-    xx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] -1);
+    xx1 = xx2 = get_raw_value(dset, idx, 0);
+    for(k = 0; k < xctx->raw->npoints[dset]; k++) {
+      double v = get_raw_value(dset, idx, k);
+      if(v < xx1) xx1 = v;
+      if(v > xx2) xx2 = v;
+    }
     if(gr->logx) {
       xx1 = mylog10(xx1);
       xx2 = mylog10(xx2);
