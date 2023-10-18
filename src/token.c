@@ -991,6 +991,11 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    {
     fprintf( fd, "%s",xctx->sch_path[xctx->currsch] + 1);
    }
+   else if(strcmp(token,"@symref")==0)
+   {
+     const char *s = get_sym_name(inst, 9999, 1);
+     fputs(s, fd);
+   }
    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                         /* in hash table */
    {
@@ -2072,6 +2077,14 @@ int print_spice_element(FILE *fd, int inst)
         result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
         /* fputs(s,fd); */
       }
+      else if(strcmp(token,"@symref")==0) 
+      {
+        const char *s = get_sym_name(inst, 9999, 1);
+        tmp = strlen(s) +100 ; /* always make room for some extra chars 
+                                * so 1-char writes to result do not need reallocs */
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+      }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
@@ -2488,6 +2501,11 @@ void print_tedax_element(FILE *fd, int inst)
     {
      fputs(xctx->sch_path[xctx->currsch] + 1, fd);
     }
+    else if(strcmp(token,"@symref")==0)
+    {
+      const char *s = get_sym_name(inst, 9999, 1);
+      fputs(s, fd);
+    }
     else if(strcmp(token,"@symname")==0)        /* of course symname must not be present  */
                                         /* in hash table */
     {
@@ -2747,6 +2765,11 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     else if(strcmp(token,"@path")==0)
     {
      fputs(xctx->sch_path[xctx->currsch] + 1, fd);
+    }
+    else if(strcmp(token,"@symref")==0)
+    {
+      const char *s = get_sym_name(inst, 9999, 1);
+      fputs(s, fd);
     }
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
@@ -3454,6 +3477,13 @@ const char *translate(int inst, const char* s)
      STR_ALLOC(&result, tmp + result_pos, &size);
      memcpy(result+result_pos, instname, tmp+1);
      result_pos+=tmp;
+   } else if(strcmp(token,"@symref")==0) {
+    tmp_sym_name = get_sym_name(inst, 9999, 1);
+    tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
+    tmp=strlen(tmp_sym_name);
+    STR_ALLOC(&result, tmp + result_pos, &size);
+    memcpy(result+result_pos,tmp_sym_name, tmp+1);
+    result_pos+=tmp;
    } else if(strcmp(token,"@symname")==0) {
     tmp_sym_name = get_sym_name(inst, 0, 0);
     tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
