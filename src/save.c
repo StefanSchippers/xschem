@@ -783,6 +783,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
     dbg(0, "raw_read(): must clear current raw file before loading new\n");
     return res;
   }
+  dbg(1, "raw_read(): type=%s\n", type ? type : "NULL");
   *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
   raw = *rawptr;
   raw->level = -1; 
@@ -833,7 +834,8 @@ int extra_rawfile(int what, const char *file, const char *type)
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) { /* read */
+  /* **************** read ************* */
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     for(i = 0; i < xctx->extra_raw_n; i++) {
@@ -850,12 +852,12 @@ int extra_rawfile(int what, const char *file, const char *type)
       read_ret = raw_read(f, &xctx->raw, type);
       if(read_ret) {
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
-        xctx->extra_raw_n++;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
+        xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s %s not found\n", f, type);
+        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type);
         xctx->raw = save; /* restore */
         xctx->extra_prev_idx = xctx->extra_idx;
       }
@@ -865,7 +867,8 @@ int extra_rawfile(int what, const char *file, const char *type)
       xctx->extra_idx = i;
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
-  } else if(what == 2) { /* switch */
+  /* **************** switch ************* */
+  } else if(what == 2) {
     if(file && type) {
       tclvareval("subst {", file, "}", NULL);
       my_strncpy(f, tclresult(), S(f));
@@ -881,7 +884,7 @@ int extra_rawfile(int what, const char *file, const char *type)
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = i;
       } else {
-        dbg(0, "extra_rawfile() switch: %s %s not found\n", f, type);
+        dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
         ret = 0;
       }
     } else { /* switch to next */
@@ -889,13 +892,17 @@ int extra_rawfile(int what, const char *file, const char *type)
       xctx->extra_idx = (xctx->extra_idx + 1) % xctx->extra_raw_n;
     }
     xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
-  } else if(what == 5) { /* switch_back */
+  /* **************** switch back ************* */
+  } else if(what == 5) {
     int tmp;
+    dbg(1, "extra_rawfile() switch back: extra_idx=%d, extra_prev_idx=%d\n",
+            xctx->extra_idx,  xctx->extra_prev_idx);
     tmp = xctx->extra_idx;
     xctx->extra_idx = xctx->extra_prev_idx;
     xctx->extra_prev_idx = tmp;
     xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
-  } else if(what == 3) { /* clear */
+  /* **************** clear ************* */
+  } else if(what == 3) {
     if(!file) { /* clear all , keep only current */
       for(i = 0; i < xctx->extra_raw_n; i++) {
         if(i == xctx->extra_idx) {
@@ -929,7 +936,8 @@ int extra_rawfile(int what, const char *file, const char *type)
         } else ret = 0;
       } else ret = 0;
     }
-  } else if(what == 4) { /* info */
+  /* **************** info ************* */
+  } else if(what == 4) {
     if(xctx->raw) {
       dbg(1, "extra_raw_n = %d\n", xctx->extra_raw_n);
       Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
@@ -938,6 +946,8 @@ int extra_rawfile(int what, const char *file, const char *type)
             xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "NULL", "\n",  NULL);
       }
     }
+  } else {
+    ret = 0;
   }
   return ret;
 }

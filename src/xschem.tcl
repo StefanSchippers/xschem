@@ -908,6 +908,29 @@ proc sim_is_xyce {} {
   return 0
 }
 
+# tests if file f exists. One level of global scope 'subst' is done on f
+# to expand global variables / commands catching errors.
+# example:
+#    % set b {$env(HOME)/.bashrc}
+#    $env(HOME)/.bashrc
+#    % file_exists $b
+#    1
+#    % 
+#    %
+#    % set b {$env(HOMExx)/.bashrc}
+#    $env(HOMExx)/.bashrc
+#    % file_exists $b
+#    0
+#    % 
+proc file_exists {f} {
+  set ret 0
+  set r [catch "uplevel #0 {subst $f}" res]
+  if {$r == 0} {
+    if {[file exists $res]} { set ret 1}
+  }
+  return $ret
+}
+
 # wrapper to "xschem list_tokens" comand to handle non list results
 # usually as a result of malformed input strings
 proc list_tokens {s} {
@@ -2045,7 +2068,7 @@ proc graph_edit_properties {n} {
   if { [info tclversion] > 8.4} {
     bind .graphdialog.center.right.list <<ComboboxSelected>> {
       xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-      if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+      if {[file_exists [.graphdialog.center.right.rawentry get]]} {
         graph_fill_listbox
       }
     }
@@ -2065,7 +2088,7 @@ proc graph_edit_properties {n} {
 
   bind .graphdialog.center.right.list <KeyRelease> {
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
       graph_fill_listbox
     }
   }
@@ -2075,7 +2098,7 @@ proc graph_edit_properties {n} {
   entry .graphdialog.center.right.rawentry -width 30
   bind .graphdialog.center.right.rawentry <Leave> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
-    if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
+    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
       graph_fill_listbox
     }
   }
@@ -6101,7 +6124,7 @@ proc build_widgets { {topwin {} } } {
            xschem redraw
          }
      }
-  $topwin.menubar.option.menu add checkbutton -label "Persistet wire/line place command" -variable persistent_command
+  $topwin.menubar.option.menu add checkbutton -label "Persistent wire/line place command" -variable persistent_command
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
