@@ -359,6 +359,7 @@
 # set editor {gvim -f -geometry 90x28}
 # set editor { xterm -geometry 100x40 -e nano }
 # set editor { xterm -geometry 100x40 -e pico }
+# set editor {gedit -w}
 
 #### For Windows
 # set editor {notepad.exe}

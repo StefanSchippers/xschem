@@ -2038,7 +2038,7 @@ proc graph_edit_properties {n} {
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
   if { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp}  -width 4
+    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp noise}  -width 4
   } else {
     entry .graphdialog.center.right.list -width 4
   }
@@ -2073,7 +2073,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
-  bind .graphdialog.center.right.rawentry <KeyRelease> {
+  bind .graphdialog.center.right.rawentry <Leave> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     if {[file exists [subst [.graphdialog.center.right.rawentry get]]]} {
       graph_fill_listbox

@@ -526,6 +526,11 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(!strcmp(type, "dc")) sim_type = "dc";
       dbg(dbglev, "read_dataset(): dc sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "noise spectral density curves")) {
+      if(!type) type = "noise";
+      if(!strcmp(type, "noise")) sim_type = "noise";
+      dbg(dbglev, "read_dataset(): noise sim_type=%s\n", sim_type ? sim_type : "<NULL>");
+    }
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "operating point")) {
 
       if(!type) type = "op";
