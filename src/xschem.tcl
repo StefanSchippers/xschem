@@ -1944,7 +1944,7 @@ proc graph_fill_listbox {} {
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
   # puts "graph_fill_listbox: $rawfile $sim_type"
   if {$rawfile ne {}} {
-    set res [xschem raw switch $rawfile $sim_type]
+    set res [xschem raw read $rawfile $sim_type]
     if {$res} {
       set retval [graph_get_signal_list [xschem raw_query list] $retval]
     } else {
@@ -2096,7 +2096,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
-  bind .graphdialog.center.right.rawentry <Leave> {
+  bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     if {[file_exists [.graphdialog.center.right.rawentry get]]} {
       graph_fill_listbox
