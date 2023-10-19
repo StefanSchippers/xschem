@@ -2026,15 +2026,17 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
 
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
-    if((i == xctx->graph_master) && sch_waves_loaded()!= -1 && custom_rawfile[0]) {
+    if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
     }
     
     if(i != xctx->graph_master ) {
       my_strdup2(_ALLOC_ID_, &custom_rawfile,
         get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0));
-      if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-        extra_rawfile(1, custom_rawfile, xctx->raw->sim_type);
+      my_strdup2(_ALLOC_ID_, &sim_type,
+        get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"sim_type",0));
+      if(custom_rawfile[0]) {
+        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
       }
     }
     raw = xctx->raw;
