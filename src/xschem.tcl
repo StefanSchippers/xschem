@@ -1483,10 +1483,37 @@ proc reroute_net {old new} {
   xschem set no_undo 0
 }
 
+## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
+## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
+## $s : schematic name (opamp) or netlist_name if given
+## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
+## $d : netlist directory
+proc sim_cmd {cmd} {
+  global  netlist_dir terminal
+  set tool [xschem get netlist_type]
+  set d ${netlist_dir}
+  set S [xschem get schname]
+
+  set custom_netlist_file [xschem get netlist_name]
+  if {$custom_netlist_file ne {}} {
+    set s [file rootname $custom_netlist_file]
+  } else {
+    set s [file tail [file rootname $S]]
+  }
+  set n ${netlist_dir}/${s}
+  if {$tool eq {verilog}} {
+    set N ${n}.v
+  } else {
+    set N ${n}.${tool}
+  }
+  # puts "N=$N\nn=$n\ns=$s\nS=$S\nd=$d"
+  return [subst $cmd]
+}
+
 proc simulate {{callback {}}} { 
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
-  ## $s : schematic name (opamp)
+  ## $s : schematic name (opamp) or netlist_name if given
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
@@ -1629,7 +1656,7 @@ proc gaw_cmd {cmd} {
 proc waves {} { 
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
-  ## $s : schematic name (opamp)
+  ## $s : schematic name (opamp) or netlist_name if given
   ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
   ## $d : netlist directory
 
@@ -5505,6 +5532,7 @@ proc setup_tabbed_interface {} {
       bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
       button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } -command "xschem new_schematic create"
       pack .tabs.x0 .tabs.add -side left
+      balloon .tabs.add {Create a new tab}
       pack_tabs
     }
   } else {
