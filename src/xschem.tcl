@@ -204,6 +204,22 @@ proc set_ne { var val } {
     }
 }
 
+
+# $execute(id) is an integer identifying the running pipeline
+#       set id $execute(id) to get the current subprocess id in variable 'id'
+# $execute(status,$id) contains the status argument as given in proc execute
+# $execute(pipe,$id) contains the channel descriptor to read or write as specified in status
+# $execute(data,$id) contains the stdout of the pipeline (output data)
+# $execute(cmd,$id) contains the pipeline command
+# when subprocess ends all execute(...,$id) data is cleared
+#
+# The following post-mortem data is available for last finished process:
+#   execute(cmd,last)     : the command
+#   execute(data,last)    : the data
+#   execute(error,last)   : the errors (stderr) 
+#   execute(status,last)  : the status argument as was given when calling proc execute
+#   execute(exitcode,last): exit code of last finished process
+#
 # execute service function
 proc execute_fileevent {id} {
   global execute OS
@@ -278,9 +294,11 @@ proc execute_wait {status args} {
 # status:
 #   rw     open pipe in 'r+' (read write) mode instead of 'r'
 #   line   set line buffering mode of channel
+#   none   set no channel buffering. 
 #   1      get status report at process end
 #   0      no status report
-#   these  options can be combined as in '1rwline'
+#
+# These options can be combined as in '1rwline' of '1rnone'
 #
 proc execute {status args} {
   global execute has_x
@@ -316,6 +334,9 @@ proc execute {status args} {
   fconfigure $pipe -blocking 0
   if {[regexp {line} $status]} {
     fconfigure $pipe -buffering line
+  }
+  if {[regexp {none} $status]} {
+    fconfigure $pipe -buffering none
   }
   fileevent $pipe readable "execute_fileevent $id"
   return $id
