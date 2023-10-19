@@ -5625,6 +5625,7 @@ proc set_tab_names {{mod {}}} {
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
     .tabs$tabname configure -text [file tail [xschem get schname]]$mod -bg Palegreen
+    balloon .tabs$tabname [xschem get schname]
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
          .tabs.x$i configure -bg $tctx::tab_bg
