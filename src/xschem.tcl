@@ -2910,7 +2910,7 @@ proc myload_set_colors2 {} {
         set pattern $j 
         set color $dircolor($j)
         set len [string length [regexp -inline $pattern $dir1]]
-        puts "len=$len\npattern=$pattern\nname=$name\n\n\n"
+        # puts "len=$len\npattern=$pattern\nname=$name\n\n\n"
         if { $len > $maxlen } {
           .load.l.paneright.list itemconfigure $i -foreground $color -selectforeground $color
           set maxlen $len
