@@ -364,8 +364,9 @@ C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
 C {launcher.sym} 1050 -1320 0 0 {name=h3
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {simulator_commands.sym} 470 -150 0 0 {name=COMMANDS
+C {simulator_commands.sym} 470 -150 0 0 {name=INTERACTIVE
 simulator=ngspice
+spice_ignore=0
 only_toplevel=false 
 value="
 .options SCALE=0.10
@@ -395,7 +396,7 @@ vvss vss 0 0
 .include models_rom8k.txt
 
 "}
-C {simulator_commands.sym} 600 -150 0 0 {name=COMMANDS1
+C {simulator_commands.sym} 600 -150 0 0 {name=COMMANDS
 place=header
 simulator=xyce
 only_toplevel=false 
@@ -481,8 +482,9 @@ tclcommand="
   \}
 "
 }
-C {simulator_commands.sym} 340 -150 0 0 {name=BATCH\\ MODE
+C {simulator_commands.sym} 340 -150 0 0 {name=BATCH_MODE
 simulator=ngspice
+spice_ignore=1
 only_toplevel=false 
 value="
 .options SCALE=0.10
@@ -508,3 +510,17 @@ vvss vss 0 0
 .include models_rom8k.txt
 
 "}
+C {launcher.sym} 300 -240 0 0 {name=h7
+descr="Swap interactive / batch mode"
+tclcommand="proc simswap \{\} \{
+
+  set x [xschem getprop instance INTERACTIVE spice_ignore]
+  xschem setprop instance BATCH_MODE spice_ignore $x
+  set x [expr \{ !$x\}]
+  xschem setprop instance INTERACTIVE spice_ignore $x
+\}
+
+simswap
+
+"
+}

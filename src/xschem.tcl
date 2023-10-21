@@ -377,6 +377,34 @@ proc insert_running_cmds {lb} {
   }
 }
 
+# periodically update status
+proc update_process_status {lb} {
+  global execute
+  set exists 0
+  set selected [$lb curselection]
+  if { [winfo exists .pstat] } {
+    if { $selected ne {} && [llength $selected] == 1} {
+      .pstat.text delete 1.0 end
+      set idx $selected
+      set cmd1 [$lb get $idx]
+      foreach  {id pid cmd2} [get_running_cmds] {
+        if { $cmd1 eq $cmd2 } {
+          if {[catch { set t $execute(data,$id) } err]} {
+            set t $err
+          }
+          .pstat.text insert 1.0 $t
+          .pstat.text yview moveto 1
+          break
+        }
+      }
+    }
+    after 1000 "update_process_status $lb"
+  } else {
+   after cancel "update_process_status $lb"
+  }
+}
+
+
 # display stdout of selected sub-process
 proc view_process_status {lb} {
   global execute
@@ -404,6 +432,7 @@ proc view_process_status {lb} {
       }
     }
   }
+  after 1000 "update_process_status $lb"
 }
 
 # top level dialog displaying running sub-processes
@@ -1133,7 +1162,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,0,fg) 0
     set_ne sim(spice,0,st) 0
     
-    set_ne sim(spice,1,cmd) {ngspice -b -r "$n.raw" -o "$n.out" "$N"}
+    set_ne sim(spice,1,cmd) {ngspice -b -r "$n.raw" "$N"}
     set sim(spice,1,name) {Ngspice batch}
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1

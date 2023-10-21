@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -95,7 +95,9 @@ C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 270 -670 0 0 {name=p33 lab=VREF}
 C {vsource.sym} 270 -640 0 0 {name=v2 value="'VCC/2'"}
 C {lab_pin.sym} 270 -610 0 0 {name=p34 lab=0}
-C {code_shown.sym} 10 -440 0 0 {name=CONTROL 
+C {simulator_commands.sym} 10 -390 0 0 {name=INTERACTIVE
+simulator=ngspice
+spice_ignore=0
 tclcommand="xschem edit_vi_prop"
 xxplace=end
 value="
@@ -164,4 +166,36 @@ C {launcher.sym} 870 -90 0 0 {name=h1
 descr="Netlist + Simulate
 Ctrl-Left-Click" 
 tclcommand="xschem netlist; xschem simulate"
+}
+C {simulator_commands.sym} 150 -390 0 0 {name=BATCH_MODE
+simulator=ngspice
+spice_ignore=1
+tclcommand="xschem edit_vi_prop"
+xxplace=end
+value="
+** download the models from:
+** https://ptm.asu.edu/modelcard/65nm_bulk.txt
+.include models_65nm.txt
+.model switch sw vt='VCC/2' vh=0.2 ron=1000 roff=1G
+.param VCC=1.2
+.option method=GEAR
+.measure tran avg1 AVG v(x1.qn) from=1u to=3u 
+.measure tran avg2 AVG v(x1.qn) from=4u to=6u
+.measure tran avg3 AVG v(x1.qn) from=7u to=9u
+* save all
+.tran 0.2n 9u uic
+"}
+C {launcher.sym} 70 -210 0 0 {name=h2
+descr="Swap interactive / batch mode"
+tclcommand="proc simswap \{\} \{
+
+  set x [xschem getprop instance INTERACTIVE spice_ignore]
+  xschem setprop instance BATCH_MODE spice_ignore $x
+  set x [expr \{ !$x\}]
+  xschem setprop instance INTERACTIVE spice_ignore $x
+\}
+
+simswap
+
+"
 }
