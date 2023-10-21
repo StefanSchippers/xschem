@@ -273,6 +273,7 @@ proc execute_fileevent {id} {
       unset execute(data,$id)
       unset execute(status,$id)
       unset execute(cmd,$id)
+Y      # apply a delay, process does not disappear immediately.
       if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
   }
 }
@@ -333,6 +334,7 @@ proc execute {status args} {
   set execute(cmd,$id) $args
   set execute(data,$id) ""
 
+  # Apply a delay to catch the new process.
   if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}} 
   fconfigure $pipe -blocking 0
   if {[regexp {line} $status]} {
@@ -345,6 +347,9 @@ proc execute {status args} {
   return $id
 }
 
+# kill selected sub-processes by looking up their command strings
+# into all running sub-processes, killing the matching ones
+# with the supplied 'sig'.
 proc kill_running_cmds {lb sig} {
   global execute
   set selected [$lb curselection]
@@ -358,9 +363,12 @@ proc kill_running_cmds {lb sig} {
       }
     }
   }
+  # apply a delay, after a kill command process does not disappear
+  # immediately.
   after 250 insert_running_cmds $lb
 }
 
+# refresh list of running commands in dialog box
 proc insert_running_cmds {lb} {
   $lb delete 0 end
   foreach {id pid cmd} [get_running_cmds] {
@@ -369,6 +377,7 @@ proc insert_running_cmds {lb} {
   }
 }
 
+# display stdout of selected sub-process
 proc view_process_status {lb} {
   global execute
   set exists 0
@@ -397,6 +406,7 @@ proc view_process_status {lb} {
   }
 }
 
+# top level dialog displaying running sub-processes
 proc list_running_cmds {} {
   set top .processlist
   toplevel $top
@@ -429,6 +439,8 @@ proc list_running_cmds {} {
   insert_running_cmds $lb
 }
 
+# for each running sub-process return a list of three elements per process: 
+# the integer id, the process PID, the command string.
 proc get_running_cmds {} {
   global execute
   set ret {}
@@ -6162,7 +6174,7 @@ proc switch_undo {} {
 }
 
 proc build_widgets { {topwin {} } } {
-  global XSCHEM_SHAREDIR tabbed_interface simulate_bg
+  global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -6658,8 +6670,12 @@ proc build_widgets { {topwin {} } } {
     -variable local_netlist_dir \
     -command { if {$local_netlist_dir == 0 } { set_netlist_dir 1 } else { simuldir} }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
-  $topwin.menubar.simulation.menu add command -label {List running sub-processes} -command {
-    list_running_cmds
+  if {$OS == {Windows}} {
+    $topwin.menubar.simulation.menu add command -label {List running sub-processes} -state disabled
+  } else {
+    $topwin.menubar.simulation.menu add command -label {List running sub-processes} -command {
+      list_running_cmds
+    }
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      simuldir
