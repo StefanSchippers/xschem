@@ -95,6 +95,12 @@ int main(int argc, char **argv)
   }
 #endif
   argc = process_options(argc, argv);
+
+  /* if invoked in background detach from console */
+  if(getpgrp() != tcgetpgrp(STDOUT_FILENO)) {
+    cli_opt_detach = 1;
+  }
+
   my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");

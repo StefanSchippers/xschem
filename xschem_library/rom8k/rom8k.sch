@@ -366,7 +366,7 @@ descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
 C {simulator_commands.sym} 470 -150 0 0 {name=INTERACTIVE
 simulator=ngspice
-spice_ignore=0
+spice_ignore=1
 only_toplevel=false 
 value="
 .options SCALE=0.10
@@ -484,7 +484,7 @@ tclcommand="
 }
 C {simulator_commands.sym} 340 -150 0 0 {name=BATCH_MODE
 simulator=ngspice
-spice_ignore=1
+spice_ignore=0
 only_toplevel=false 
 value="
 .options SCALE=0.10
@@ -513,7 +513,6 @@ vvss vss 0 0
 C {launcher.sym} 300 -240 0 0 {name=h7
 descr="Swap interactive / batch mode"
 tclcommand="proc simswap \{\} \{
-
   set x [xschem getprop instance INTERACTIVE spice_ignore]
   xschem setprop instance BATCH_MODE spice_ignore $x
   set x [expr \{ !$x\}]
