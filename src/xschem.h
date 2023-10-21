@@ -323,13 +323,7 @@ extern char win_temp_dir[PATH_MAX];
 #define RECT_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
 ( (xa) > (x2) || (xb) < (x1) || (ya) > (y2) || (yb) < (y1) )
 
-#define RECT_TOUCH(xa,ya,xb,yb,x1,y1,x2,y2) \
- ( POINTINSIDE(xa,ya,x1,y1,x2,y2) || \
-   POINTINSIDE(xa,yb,x1,y1,x2,y2) || \
-   POINTINSIDE(xb,ya,x1,y1,x2,y2) || \
-   POINTINSIDE(xb,yb,x1,y1,x2,y2) )
-
-
+#define RECT_TOUCH(xa,ya,xb,yb,x1,y1,x2,y2)  (!(xa > x2 || xb < x1 || ya > y2 || yb < y1))
 
 #define ROTATION(rot, flip, x0, y0, x, y, rx, ry) \
 { \
