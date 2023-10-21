@@ -273,7 +273,7 @@ proc execute_fileevent {id} {
       unset execute(data,$id)
       unset execute(status,$id)
       unset execute(cmd,$id)
-Y      # apply a delay, process does not disappear immediately.
+      # apply a delay, process does not disappear immediately.
       if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
   }
 }

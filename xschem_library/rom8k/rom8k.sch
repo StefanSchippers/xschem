@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -344,13 +344,13 @@ C {lab_pin.sym} 890 -300 0 0 {name=p98 lab=LDEN}
 C {spice_probe.sym} 890 -300 0 0 {name=p99 analysis=tran}
 C {lab_pin.sym} 1450 -40 0 0 {name=p100 lab=LDA[12:0]}
 C {spice_probe.sym} 1450 -40 0 0 {name=p101 analysis=tran}
-C {opin.sym} 290 -120 0 0 {name=p7 lab=LDQ[15:0]}
-C {ipin.sym} 210 -190 0 0 {name=p77 lab=LDA[12:0]}
-C {ipin.sym} 210 -170 0 0 {name=p78 lab=LDCP}
-C {ipin.sym} 210 -210 0 0 {name=p79 lab=LDEN}
-C {ipin.sym} 210 -150 0 0 {name=p80 lab=LDOE}
-C {ipin.sym} 210 -110 0 0 {name=p81 lab=vss}
-C {ipin.sym} 210 -90 0 0 {name=p82 lab=vcc}
+C {opin.sym} 190 -90 0 0 {name=p7 lab=LDQ[15:0]}
+C {ipin.sym} 110 -160 0 0 {name=p77 lab=LDA[12:0]}
+C {ipin.sym} 110 -140 0 0 {name=p78 lab=LDCP}
+C {ipin.sym} 110 -180 0 0 {name=p79 lab=LDEN}
+C {ipin.sym} 110 -120 0 0 {name=p80 lab=LDOE}
+C {ipin.sym} 110 -80 0 0 {name=p81 lab=vss}
+C {ipin.sym} 110 -60 0 0 {name=p82 lab=vcc}
 C {rom3_array.sym} 1190 -700 0 0 {name=xarr}
 C {lab_pin.sym} 1040 -710 0 0 {name=l13 lab=LDWL[511:0]}
 C {lab_pin.sym} 1040 -690 0 0 {name=l46 lab=vss}
@@ -364,7 +364,7 @@ C {spice_probe.sym} 1670 -790 0 0 {name=p91 analysis=tran}
 C {launcher.sym} 1050 -1320 0 0 {name=h3
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {simulator_commands.sym} 430 -170 0 0 {name=COMMANDS
+C {simulator_commands.sym} 470 -150 0 0 {name=COMMANDS
 simulator=ngspice
 only_toplevel=false 
 value="
@@ -395,7 +395,7 @@ vvss vss 0 0
 .include models_rom8k.txt
 
 "}
-C {simulator_commands.sym} 560 -170 0 0 {name=COMMANDS1
+C {simulator_commands.sym} 600 -150 0 0 {name=COMMANDS1
 place=header
 simulator=xyce
 only_toplevel=false 
@@ -481,3 +481,30 @@ tclcommand="
   \}
 "
 }
+C {simulator_commands.sym} 340 -150 0 0 {name=BATCH\\ MODE
+simulator=ngspice
+only_toplevel=false 
+value="
+.options SCALE=0.10
+.param VCC=1.5
+.temp 25
+.param WPRECH=30u
+
+vvss vss 0 0
+
+** to generate following file: 
+** copy .../share/doc/xschem/rom8k/stimuli.rom8k to simulation directory
+** then do 'Simulation->Utile Stimuli Editor (GUI)' and press 'Translate'
+.include stimuli_rom8k.cir
+
+* .op ALL  4n
+*.dc vvcc 0 2 0.1
+.save tran i(vvcc) i(vsa) i(vl) i(vdec)
+.tran 0.2n 480n uic
+
+** download models from here: 
+** http://www.amarketplaceofideas.com/wp-content/uploads/2014/11/180nm-V1.7z
+** and save to 'models_rom8k.txt' in simulation directory
+.include models_rom8k.txt
+
+"}
