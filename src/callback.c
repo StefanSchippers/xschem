@@ -1228,8 +1228,12 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
       if( (state & Button1Mask)  && SET_MODMASK) { /* 20171026 added unselect by area  */
-          select_rect(RUBBER,0);
+        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
+        else  xctx->nl_dir = 1;
+        select_rect(RUBBER,0);
       } else if(state & Button1Mask) {
+        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
+        else  xctx->nl_dir = 1;
         select_rect(RUBBER,1);
       }
     }

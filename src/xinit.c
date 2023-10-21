@@ -541,7 +541,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->nl_points = xctx->nl_maxpoints = 0;
   /* select_rect */
   xctx->nl_xr = xctx->nl_yr = xctx->nl_xr2 = xctx->nl_yr2 = 0.0;
-  xctx->nl_sel = xctx->nl_sem = 0;
+  xctx->nl_sel = xctx->nl_sem = xctx->nl_dir = 0;
 
   xctx->hilight_time = 0; /* timestamp for sims */
   xctx->hilight_nets = 0;

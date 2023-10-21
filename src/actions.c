@@ -3395,6 +3395,8 @@ void pan(int what, int mx, int my)
 /*  20150927 select=1: select objects, select=0: unselect objects */
 void select_rect(int what, int select)
 {
+ dbg(1, "select_rect(): mousex_save=%g mousey_save=%g, mousex_snap=%g mousey_snap=%g\n", 
+        xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
  if(what & RUBBER)
  {
     if(xctx->nl_sem==0) {
@@ -3408,12 +3410,19 @@ void select_rect(int what, int select)
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
-    bbox(START,0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
-    bbox(SET,0.0, 0.0, 0.0, 0.0);
+    if(xctx->nl_dir == 0) {
+      bbox(START,0.0, 0.0, 0.0, 0.0);
+      bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
+      bbox(SET,0.0, 0.0, 0.0, 0.0);
+    }
     draw_selection(xctx->gc[SELLAYER], 0);
-    if(!xctx->nl_sel) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
-    bbox(END,0.0, 0.0, 0.0, 0.0);
+    /* if(xctx->nl_sel) { */
+      if(xctx->nl_dir == 0) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
+      else select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
+    /* } */
+    if(xctx->nl_dir == 0) {
+      bbox(END,0.0, 0.0, 0.0, 0.0);
+    }
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     drawtemprect(xctx->gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3456,13 +3465,18 @@ void select_rect(int what, int select)
     }
 
     /*  draw_selection(xctx->gc[SELLAYER], 0); */
-    select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
+    if(xctx->nl_dir == 0) select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
+    else select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
-    bbox(START,0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
-    bbox(SET,0.0, 0.0, 0.0, 0.0);
+    if(xctx->nl_dir == 0) {
+      bbox(START,0.0, 0.0, 0.0, 0.0);
+      bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
+      bbox(SET,0.0, 0.0, 0.0, 0.0);
+    }
     draw_selection(xctx->gc[SELLAYER], 0);
-    bbox(END,0.0, 0.0, 0.0, 0.0);
+    if(xctx->nl_dir == 0) {
+      bbox(END,0.0, 0.0, 0.0, 0.0);
+    }
     /*  /20171219 */
 
     xctx->ui_state &= ~STARTSELECT;

@@ -323,6 +323,11 @@ extern char win_temp_dir[PATH_MAX];
 #define RECT_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2)  \
 ( (xa) > (x2) || (xb) < (x1) || (ya) > (y2) || (yb) < (y1) )
 
+#define RECT_TOUCH(xa,ya,xb,yb,x1,y1,x2,y2) \
+ ( POINTINSIDE(xa,ya,x1,y1,x2,y2) || \
+   POINTINSIDE(xa,yb,x1,y1,x2,y2) || \
+   POINTINSIDE(xb,ya,x1,y1,x2,y2) || \
+   POINTINSIDE(xb,yb,x1,y1,x2,y2) )
 
 
 
@@ -1007,6 +1012,7 @@ typedef struct {
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
   int nl_sel, nl_sem; /* nl_sel is the select mode (select) the select_rect() was called with */
+  int nl_dir; /* direction of the drag mode select_rect was called with */
   /* compare_schematics */
   char sch_to_compare[PATH_MAX];
   /* pan */
@@ -1312,6 +1318,7 @@ extern void set_first_sel(unsigned short type, int n, unsigned int col);
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);
 extern void select_inside(double x1,double y1, double x2, double y2, int sel);
+extern void select_touch(double x1,double y1, double x2, double y2, int sel);
 /*  Select all nets that are dangling, ie not attached to any non pin/port/probe components */
 extern int select_dangling_nets(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);

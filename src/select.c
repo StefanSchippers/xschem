@@ -1518,6 +1518,128 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 }
 
+void select_touch(double x1,double y1, double x2, double y2, int sel) /*added unselect (sel param) */
+{
+ int c,i, tmpint;
+ double x, y, r, a, b, xa, ya, xb, yb; /* arc */
+ double xx1,yy1,xx2,yy2, dtmp;
+ xRect tmp;
+ int select_rot = 0, select_flip = 0;
+ #if HAS_CAIRO==1
+ int customfont;
+ #endif
+
+ for(i=0;i<xctx->wires; ++i)
+ {
+  if(POINTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1, x1,y1,x2,y2) || 
+     POINTINSIDE(xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2)) {
+   xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+   sel ? select_wire(i,SELECTED, 1): select_wire(i,0, 1);
+  }
+ }
+ for(i=0;i<xctx->texts; ++i)
+ {
+  select_rot = xctx->text[i].rot;
+  select_flip = xctx->text[i].flip;
+  #if HAS_CAIRO==1
+  customfont = set_text_custom_font(&xctx->text[i]);
+  #endif
+
+  text_bbox(get_text_floater(i),
+             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
+             xctx->text[i].hcenter, xctx->text[i].vcenter,
+             xctx->text[i].x0, xctx->text[i].y0,
+             &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
+  #if HAS_CAIRO==1
+  if(customfont) {
+    cairo_restore(xctx->cairo_ctx);
+  }
+  #endif
+  if(RECT_TOUCH(xx1, yy1, xx2, yy2,x1,y1,x2,y2))
+  {
+   xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+   sel ? select_text(i, SELECTED, 1): select_text(i, 0, 1);
+  }
+ }
+ for(i=0;i<xctx->instances; ++i)
+ {
+  if(RECT_TOUCH(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
+  {
+   xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+   if(sel) {
+     if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
+       select_element(i, SELECTED, 1, 1);
+     }
+   } else {
+     select_element(i, 0, 1, 0);
+   }
+  }
+ }
+ for(c=0;c<cadlayers; ++c)
+ {
+   if(!xctx->enable_layer[c]) continue;
+   for(i=0;i<xctx->polygons[c]; ++i) {
+     int k, flag;
+ 
+     polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
+     if(OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
+     flag=0;
+     for(k=0; k<xctx->poly[c][i].points; ++k) {
+       if(xctx->poly[c][i].sel==SELECTED) xctx->poly[c][i].selected_point[k] = 1;
+       if( POINTINSIDE(xctx->poly[c][i].x[k],xctx->poly[c][i].y[k], x1,y1,x2,y2)) {
+         xctx->ui_state |= SELECTION;
+         flag=1;
+         break;
+       }
+     }
+     if(flag) {
+       sel ? select_polygon(c, i, SELECTED, 1):  select_polygon(c, i, 0, 1);
+     }
+   }
+   for(i=0;i<xctx->lines[c]; ++i)
+   {
+    if(POINTINSIDE(xctx->line[c][i].x1, xctx->line[c][i].y1, x1,y1,x2,y2) ||
+       POINTINSIDE(xctx->line[c][i].x2, xctx->line[c][i].y2, x1,y1,x2,y2)) {
+     xctx->ui_state |= SELECTION;
+     sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
+    }
+   }
+   for(i=0;i<xctx->arcs[c]; ++i) {
+     x = xctx->arc[c][i].x;
+     y = xctx->arc[c][i].y;
+     a = xctx->arc[c][i].a;
+     b = xctx->arc[c][i].b;
+     r = xctx->arc[c][i].r;
+     xa = x + r * cos(a * XSCH_PI/180.);
+     ya = y - r * sin(a * XSCH_PI/180.);
+     xb = x + r * cos((a+b) * XSCH_PI/180.);
+     yb = y - r * sin((a+b) * XSCH_PI/180.);
+     arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
+     if(RECT_TOUCH(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
+     }
+   }
+   for(i=0;i<xctx->rects[c]; ++i)
+   {
+    if(RECT_TOUCH(xctx->rect[c][i].x1,xctx->rect[c][i].y1,xctx->rect[c][i].x2,xctx->rect[c][i].y2, x1,y1,x2,y2))
+    {
+      xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+      if(sel) {
+        if(strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true")) {
+          select_box(c,i, SELECTED, 1, 1);
+        }
+      } else {
+        select_box(c,i, 0, 1, 0);
+      }
+    }
+   } /* end for i */
+ } /* end for c */
+ drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
+ drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+ drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+}
+
 void select_all(void)
 {
  int c,i;
