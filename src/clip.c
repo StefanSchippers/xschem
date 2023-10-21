@@ -38,6 +38,8 @@ static int outcode(double x,double y, double sx1, double sy1, double sx2, double
  return code;
 }
 
+
+/* clip a line (in screen coordinates) with screen boundaries */
 int clip( double *xa,double *ya,double *xb,double *yb)
 {
  int outa, outb,outpoint;
@@ -48,6 +50,38 @@ int clip( double *xa,double *ya,double *xb,double *yb)
  sy1 = xctx->xrect[0].y;
  sx2 = sx1 + xctx->xrect[0].width;
  sy2 = sy1 + xctx->xrect[0].height;
+ outa=outcode(*xa, *ya, sx1, sy1, sx2, sy2);
+ outb=outcode(*xb, *yb, sx1, sy1, sx2, sy2);
+ while(1)
+ {
+  if(!(outa | outb)) return 1;  /* line is all inside! */
+  else if(outa & outb) return 0; /* line is all outside! */
+  else
+  {
+   outpoint=outa? outa:outb;
+   if(UP & outpoint)
+     {x= *xa + (*xb-*xa) * (sy2 - *ya) / (*yb - *ya); y = sy2;}
+   else if(DOWN & outpoint)
+     {x= *xa + (*xb-*xa) * (sy1 - *ya) / (*yb - *ya); y = sy1;}
+   else if(RIGHT & outpoint)
+     {y= *ya + (*yb-*ya) * (sx2 - *xa) / (*xb - *xa); x = sx2;}
+   /* else if(LEFT & outpoint) */
+   else
+     {y= *ya + (*yb-*ya) * (sx1 - *xa) / (*xb - *xa); x = sx1;}
+   if(outpoint == outa)
+     {*xa=x; *ya=y; outa=outcode(*xa, *ya, sx1, sy1, sx2, sy2);}
+   else
+     {*xb=x; *yb=y; outb=outcode(*xb, *yb, sx1, sy1, sx2, sy2);}
+  }
+ }
+}
+
+/* clip a line (xa,ya,xb,yb) with rectangle (sx1,sy1,sx2,sy2) */
+int lineclip(double *xa,double *ya,double *xb,double *yb,
+             double sx1,double sy1,double sx2,double sy2)
+{
+ int outa, outb,outpoint;
+ double x,y;
  outa=outcode(*xa, *ya, sx1, sy1, sx2, sy2);
  outb=outcode(*xb, *yb, sx1, sy1, sx2, sy2);
  while(1)

@@ -1531,8 +1531,12 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
 
  for(i=0;i<xctx->wires; ++i)
  {
-  if(POINTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1, x1,y1,x2,y2) || 
-     POINTINSIDE(xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2)) {
+  double lx1, ly1, lx2, ly2;
+  lx1 = xctx->wire[i].x1;
+  ly1 = xctx->wire[i].y1;
+  lx2 = xctx->wire[i].x2;
+  ly2 = xctx->wire[i].y2;
+  if(lineclip(&lx1, &ly1, &lx2, &ly2, x1,y1,x2,y2)) {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    sel ? select_wire(i,SELECTED, 1): select_wire(i,0, 1);
   }
@@ -1598,8 +1602,12 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
    }
    for(i=0;i<xctx->lines[c]; ++i)
    {
-    if(POINTINSIDE(xctx->line[c][i].x1, xctx->line[c][i].y1, x1,y1,x2,y2) ||
-       POINTINSIDE(xctx->line[c][i].x2, xctx->line[c][i].y2, x1,y1,x2,y2)) {
+    double lx1, ly1, lx2, ly2;
+    lx1 = xctx->line[c][i].x1;
+    ly1 = xctx->line[c][i].y1;
+    lx2 = xctx->line[c][i].x2;
+    ly2 = xctx->line[c][i].y2;
+    if(lineclip(&lx1, &ly1, &lx2, &ly2, x1,y1,x2,y2)) {
      xctx->ui_state |= SELECTION;
      sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
     }

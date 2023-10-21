@@ -4564,6 +4564,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* test
+     *   Testmode ... */
+    else if(!strcmp(argv[1], "test") )
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      Tcl_ResetResult(interp);
+    }
+
     /* text x y rot flip text props size draw
      *   Create a text object
      *     x, y, rot, flip specify the position and orientation

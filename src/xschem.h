@@ -1352,7 +1352,11 @@ extern void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC 
      double sx1, double sy1, double sx2, double sy2, double dx1, double dy1, double lw);
 extern void draw(void);
 extern void clip_xy_to_short(double x, double y, short *sx, short *sy);
+/* clip a line (in screen coordinates) with screen boundaries */
 extern int clip( double*,double*,double*,double*);
+/* clip a line (xa,ya,xb,yb) with rectangle (sx1,sy1,sx2,sy2) */
+extern int lineclip(double *xa,double *ya,double *xb,double *yb, 
+             double sx1,double sy1,double sx2,double sy2);
 extern int textclip(int x1,int y1,int x2,int y2,
            double xa,double ya,double xb,double yb);
 extern double dist_from_rect(double mx,
