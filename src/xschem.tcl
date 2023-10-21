@@ -205,7 +205,7 @@ proc set_ne { var val } {
 }
 
 
-# $execute(id) is an integer identifying the running pipeline
+# $execute(id) is an integer identifying the last running pipeline
 #       set id $execute(id) to get the current subprocess id in variable 'id'
 # $execute(status,$id) contains the status argument as given in proc execute
 # $execute(pipe,$id) contains the channel descriptor to read or write as specified in status
@@ -273,6 +273,7 @@ proc execute_fileevent {id} {
       unset execute(data,$id)
       unset execute(status,$id)
       unset execute(cmd,$id)
+      if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
   }
 }
 
@@ -331,6 +332,8 @@ proc execute {status args} {
   set execute(pipe,$id) $pipe
   set execute(cmd,$id) $args
   set execute(data,$id) ""
+
+  if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}} 
   fconfigure $pipe -blocking 0
   if {[regexp {line} $status]} {
     fconfigure $pipe -buffering line
@@ -342,6 +345,100 @@ proc execute {status args} {
   return $id
 }
 
+proc kill_running_cmds {lb sig} {
+  global execute
+  set selected [$lb curselection]
+  foreach idx $selected {
+    set cmd1 [$lb get $idx]
+    foreach  {id pid cmd2} [get_running_cmds] {
+      # puts "$cmd1\n$cmd2 \n$pid"
+      if { $cmd1 eq $cmd2 } {
+        exec kill $sig $pid
+        break
+      }
+    }
+  }
+  after 250 insert_running_cmds $lb
+}
+
+proc insert_running_cmds {lb} {
+  $lb delete 0 end
+  foreach {id pid cmd} [get_running_cmds] {
+    # puts "inserting $cmd"
+    $lb insert end $cmd
+  }
+}
+
+proc view_process_status {lb} {
+  global execute
+  set exists 0
+  if { [winfo exists .pstat] } {
+    .pstat.text delete 1.0 end
+    set exists 1
+  }
+  set selected [$lb curselection]
+  if {$selected ne {} && [llength $selected] == 1} {
+    set idx $selected
+    set cmd1 [$lb get $idx]
+    foreach  {id pid cmd2} [get_running_cmds] {
+      if { $cmd1 eq $cmd2 } {
+        if {[catch { set t $execute(data,$id) } err]} {
+          set t $err
+        }
+        if {$exists == 0} {
+          viewdata $t ro .pstat
+        } else {
+         .pstat.text insert 1.0 $t
+        }
+        .pstat.text yview moveto 1
+        break
+      }
+    }
+  }
+}
+
+proc list_running_cmds {} {
+  set top .processlist
+  toplevel $top
+  set frame1 $top.f1
+  set frame2 $top.f2
+  set frame3 $top.f3
+  frame $frame1
+  frame $frame2
+  frame $frame3
+  set lb $frame2.lb
+  listbox $lb -width 70 -height 8 -selectmode extended \
+     -yscrollcommand "$frame2.yscroll set" \
+     -xscrollcommand "$frame2.xscroll set"
+  scrollbar $frame2.yscroll -command "$lb yview"
+  scrollbar $frame2.xscroll -orient horiz -command "$lb xview"
+  pack  $frame2.yscroll -side right -fill y
+  pack  $frame2.xscroll -side bottom -fill x
+  pack  $lb -side bottom  -fill both -expand true
+
+  button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" -bg yellow
+  button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" -bg red
+  button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" -bg PaleGreen
+  button $frame3.b4 -width 16 -text {Dismiss} -command "destroy $top" -bg PaleGreen
+
+  pack $frame3.b1 $frame3.b2 $frame3.b3 $frame3.b4 -side left -fill x -expand 1
+  pack $frame1 -fill x -expand 0
+  pack $frame2 -fill both -expand 1
+  pack $frame3 -fill x -expand 0
+
+  insert_running_cmds $lb
+}
+
+proc get_running_cmds {} {
+  global execute
+  set ret {}
+  foreach i [array names execute *pipe*] {
+    set id [lindex [split $i ,] 1]
+    lappend ret $id  [pid $execute($i)] $execute(cmd,$id)
+  } 
+  return $ret
+}
+
 # pause for $del_ms milliseconds, keep event loop responsive
 proc delay {del_ms} {
   global delay_flag
@@ -349,18 +446,6 @@ proc delay {del_ms} {
   vwait delay_flag
   unset delay_flag
 }  
-
-proc view_current_sim_output {} {
-  global execute viewdata_wcounter
-  if {[catch { set t $execute(data,$execute(id)) } err]} {
-    if {[catch { set t $execute(data,last) } err]} {
-      set t $err
-    }
-  } 
-  viewdata $t ro
-  .view${viewdata_wcounter}.text yview moveto 1
-
-}
 
 #### Scrollable frame 
 proc sframeyview {container args} {
@@ -1029,7 +1114,7 @@ proc set_sim_defaults {{reset {}}} {
     if {$OS == "Windows"} {
       set_ne sim(spice,0,cmd) {ngspice -i "$N" -a}
     } else {
-      set_ne sim(spice,0,cmd) {$terminal -e 'ngspice -i "$N" -a || sh'}
+      set_ne sim(spice,0,cmd) {$terminal -e {ngspice -i "$N" -a || sh}}
     }
     # can not use set_ne as variables bound to entry widgets always exist if widget exists
     set sim(spice,0,name) {Ngspice}
@@ -1041,7 +1126,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1
     
-    set_ne sim(spice,2,cmd) "Xyce \"\$N\"\n# Add -r \"\$n.raw\" if you want all variables saved"
+    set_ne sim(spice,2,cmd) {Xyce "$N"}
     set sim(spice,2,name) {Xyce batch}
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
@@ -1082,7 +1167,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spicewave,default) 0
     
     ### verilog
-    set_ne sim(verilog,0,cmd) {iverilog -o .verilog_object -g2012 "$N" && vvp .verilog_object}
+    set_ne sim(verilog,0,cmd) {sh -c "iverilog -o .verilog_object -g2012 '$N' && vvp .verilog_object"}
     set sim(verilog,0,name) {Icarus verilog}
     set_ne sim(verilog,0,fg) 0
     set_ne sim(verilog,0,st) 1
@@ -1100,7 +1185,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(verilogwave,default) 0
     
     ### vhdl
-    set_ne sim(vhdl,0,cmd) {ghdl -c --ieee=synopsys -fexplicit "$N" -r "$s" --wave="$n.ghw"}
+    set_ne sim(vhdl,0,cmd) {ghdl -c --ieee=synopsys -fexplicit "$N" -r "$s" "--wave=$n.ghw"}
     set sim(vhdl,0,name) {Ghdl}
     set_ne sim(vhdl,0,fg) 0
     set_ne sim(vhdl,0,st) 1
@@ -1510,12 +1595,12 @@ proc sim_cmd {cmd} {
   return [subst $cmd]
 }
 
+## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
+## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
+## $s : schematic name (opamp) or netlist_name if given
+## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
+## $d : netlist directory
 proc simulate {{callback {}}} { 
-  ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
-  ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
-  ## $s : schematic name (opamp) or netlist_name if given
-  ## $S : schematic name full path (/home/schippes/.xschem/xschem_library/opamp.sch)
-  ## $d : netlist directory
 
   global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
@@ -1552,21 +1637,25 @@ proc simulate {{callback {}}} {
     } else {
       set fg {execute}
     }
-    set cmd [subst $sim($tool,$def,cmd)]
+    set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
+    set save [pwd]
+    cd $netlist_dir
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       if { $callback ne {} } {
-        uplevel #0 "eval cd $netlist_dir; $callback"
+        uplevel #0 "eval $callback"
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
-      return 0 # no execute ID on windows
+      set id 0
     } else {
       set execute(callback) $callback
-      set id [$fg $st sh -c "cd $netlist_dir; $cmd"]
+      # puts $cmd
+      set id [eval $fg $st $cmd]
       puts "Simulation started: execution ID: $id"
-      return $id
     }
+    cd $save
+    return $id
   } else {
     return -1
   }
@@ -1697,8 +1786,11 @@ proc waves {} {
     } else {
       set fg {execute}
     }
-    set cmd [subst $sim($tool,$def,cmd)]
-    $fg $st sh -c "cd $netlist_dir; $cmd"
+    set save [pwd]
+    cd $netlist_dir
+    set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
+    eval $fg $st $cmd
+    cd $save
   }
 }
 # ============================================================
@@ -2546,11 +2638,14 @@ proc get_shell { {curpath {}} } {
  global netlist_dir debug_var
  global  terminal
 
+ set save [pwd]
  if { $curpath ne {} } {
-   execute 0 sh -c "cd $curpath && $terminal"
+   cd $curpath
+   eval execute 0 $terminal
  } else {
-   execute 0 sh -c "$terminal"
+   eval execute 0 $terminal
  }
+ cd $save
 }
 
 proc edit_netlist {netlist } {
@@ -2562,12 +2657,15 @@ proc edit_netlist {netlist } {
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
  if { [set_netlist_dir 0] ne "" } {
+   set save [pwd]
+   cd $netlist_dir
    if {$OS == "Windows"} {
-     set cmd "$editor \"$netlist_dir/${netlist}\""
+     set cmd "$editor \"${netlist}\""
      eval exec $cmd &
    } else {
-     execute 0  sh -c "cd $netlist_dir && $editor $ftype  \"${netlist}\""
+     eval execute 0 $editor $ftype  \"${netlist}\"
    }
+   cd $save
  }
  return {}
 }
@@ -2744,13 +2842,16 @@ proc add {f} {
 proc myload_set_colors1 {} {
   global myload_files1 dircolor
   for {set i 0} { $i< [.load.l.paneleft.list index end] } { incr i} {
+    set maxlen 0
     set name "[lindex $myload_files1 $i]"
     .load.l.paneleft.list itemconfigure $i -foreground black -selectforeground black
     foreach j [array names dircolor] {
       set pattern $j
       set color $dircolor($j)
-      if { [regexp $pattern $name] } {
+      set len [string length [regexp -inline $pattern $name]]
+      if { $len > $maxlen } {
         .load.l.paneleft.list itemconfigure $i -foreground $color -selectforeground $color
+        set maxlen $len
       }
     }
   }
@@ -2760,14 +2861,18 @@ proc myload_set_colors2 {} {
   global myload_index1 myload_files2 dircolor
   set dir1 [abs_sym_path [.load.l.paneleft.list get $myload_index1]]
   for {set i 0} { $i< [.load.l.paneright.list index end] } { incr i} {
+    set maxlen 0
     set name "$dir1/[lindex $myload_files2 $i]"
     if {[ file isdirectory $name]} {
       .load.l.paneright.list itemconfigure $i -foreground blue
       foreach j [array names dircolor] {
         set pattern $j 
         set color $dircolor($j)
-        if { [regexp $pattern $name] } {
+        set len [string length [regexp -inline $pattern $dir1]]
+        puts "len=$len\npattern=$pattern\nname=$name\n\n\n"
+        if { $len > $maxlen } {
           .load.l.paneright.list itemconfigure $i -foreground $color -selectforeground $color
+          set maxlen $len
         }
       }
 
@@ -4752,13 +4857,17 @@ proc textwindow {filename {ro {}}} {
   return {}
 }
 
-proc viewdata {data {ro {}}} {
+proc viewdata {data {ro {}} {win .view}} {
   global viewdata_wcounter  rcode viewdata_filename
   global viewdata_w OS viewdata_fileid env
   # set viewdata_w .view$viewdata_wcounter
   # catch {destroy $viewdata_w}
-  set viewdata_wcounter [expr {$viewdata_wcounter+1}]
-  set viewdata_w .view$viewdata_wcounter
+  if {$win eq {.view}} {
+    set viewdata_wcounter [expr {$viewdata_wcounter+1}]
+    set viewdata_w $win$viewdata_wcounter
+  } else {
+    set viewdata_w $win
+  }
   set rcode {}
   toplevel $viewdata_w
   wm title $viewdata_w {View data}
@@ -5256,7 +5365,7 @@ proc context_menu { } {
   } else {
     set font fixed
   }
-  set selection  [expr {[xschem get lastsel] eq {1}}]
+  set selection  [expr {[xschem get lastsel] > 0}]
   toplevel .ctxmenu
   wm overrideredirect .ctxmenu 1
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
@@ -5294,6 +5403,18 @@ proc context_menu { } {
     button .ctxmenu.b17 -text {Duplicate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -highlightthickness 0 -image CtxmenuDuplicate -compound left \
       -font [subst $font] -command {set retval 17; destroy .ctxmenu}
+    button .ctxmenu.b22 -text {Rotate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuRotate -compound left \
+      -font [subst $font] -command {xschem rotate; destroy .ctxmenu}
+    button .ctxmenu.b23 -text {Flip selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuFlip -compound left \
+      -font [subst $font] -command {xschem flip; destroy .ctxmenu}
+    button .ctxmenu.b24 -text {Rotate in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuRotate -compound left \
+      -font [subst $font] -command {xschem rotate_in_place; destroy .ctxmenu}
+    button .ctxmenu.b25 -text {Flip in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuFlip -compound left \
+      -font [subst $font] -command {xschem flip_in_place; destroy .ctxmenu}
   }
   if {!$selection} {
     button .ctxmenu.b14 -text {Go to upper level} -padx 3 -pady 0 -anchor w -activebackground grey50 \
@@ -5338,6 +5459,8 @@ proc context_menu { } {
   pack .ctxmenu.b10 .ctxmenu.b11 -fill x -expand true
   if {$selection} {
     pack .ctxmenu.b12 .ctxmenu.b13 .ctxmenu.b18 -fill x -expand true
+    pack .ctxmenu.b22 .ctxmenu.b23 -fill x -expand true
+    pack .ctxmenu.b24 .ctxmenu.b25 -fill x -expand true
   }
   if {!$selection} {
     pack .ctxmenu.b14 -fill x -expand true
@@ -6256,14 +6379,14 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Move objects adding wires to connected pins" \
       -command "xschem move_objects kissing" -accelerator Shift+M
   toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
-  $topwin.menubar.edit.menu add command -label "Flip in place selected objects" -state disabled \
-     -accelerator {Alt-F}
-  $topwin.menubar.edit.menu add command -label "Rotate in place selected objects" -state disabled \
-      -accelerator {Alt-R}
-  $topwin.menubar.edit.menu add command -label "Flip selected objects" -state disabled \
-     -accelerator {Shift-F}
-  $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state disabled \
-      -accelerator {Shift-R}
+  $topwin.menubar.edit.menu add command -label "Flip in place selected objects" -state normal \
+     -command {xschem flip_in_place} -accelerator {Alt-F}
+  $topwin.menubar.edit.menu add command -label "Rotate in place selected objects" -state normal \
+      -command {xschem rotate_in_place} -accelerator {Alt-R}
+  $topwin.menubar.edit.menu add command -label "Flip selected objects" -state normal \
+     -command {xschem flip} -accelerator {Shift-F}
+  $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state normal \
+      -command {xschem rotate} -accelerator {Shift-R}
   $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
      -value 0 -command {xschem set constrained_move 0} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
@@ -6535,8 +6658,8 @@ proc build_widgets { {topwin {} } } {
     -variable local_netlist_dir \
     -command { if {$local_netlist_dir == 0 } { set_netlist_dir 1 } else { simuldir} }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
-  $topwin.menubar.simulation.menu add command -label {Monitor current simulation} -command {
-    view_current_sim_output
+  $topwin.menubar.simulation.menu add command -label {List running sub-processes} -command {
+    list_running_cmds
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      simuldir
@@ -6555,24 +6678,35 @@ proc build_widgets { {topwin {} } } {
      -command {edit_netlist [xschem get netlist_name fallback]}
   $topwin.menubar.simulation.menu add command -label {Send highlighted nets to viewer} \
     -command {xschem create_plot_cmd} -accelerator Shift+J
-  $topwin.menubar.simulation.menu add checkbutton -label "Hide graphs if no spice data loaded" \
-     -variable hide_empty_graphs -command {xschem redraw}
-  $topwin.menubar.simulation.menu add checkbutton -variable rawfile_loaded \
-     -label {Load/Unload spice .raw file} -command {
-     xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+  $topwin.menubar.simulation.menu add command -label {Changelog from current hierarchy} -command {
+    viewdata [list_hierarchy]
   }
-  $topwin.menubar.simulation.menu add command -label {Add waveform graph} -command {xschem add_graph}
-  $topwin.menubar.simulation.menu add command -label {Add waveform reload launcher} -command {
+  $topwin.menubar.simulation.menu add separator
+
+
+  $topwin.menubar.simulation.menu add cascade -label "Graphs" -menu $topwin.menubar.simulation.menu.graph
+  menu $topwin.menubar.simulation.menu.graph -tearoff 0
+  $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
+         -variable live_cursor2_backannotate 
+  $topwin.menubar.simulation.menu.graph add command -label {Add waveform reload launcher} -command {
       xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
   }
-  $topwin.menubar.simulation.menu add checkbutton -label "Live annotate probes with 'b' cursor" \
-         -variable live_cursor2_backannotate 
-  $topwin.menubar.simulation.menu add command -label "Annotate Operating Point into schematic" \
+  $topwin.menubar.simulation.menu.graph add command -label {Add waveform graph} -command {xschem add_graph}
+  $topwin.menubar.simulation.menu.graph add command -label "Annotate Operating Point into schematic" \
          -command {set show_hidden_texts 1; xschem annotate_op}
-  $topwin.menubar.simulation.menu add separator
-  $topwin.menubar.simulation.menu add checkbutton -label "LVS netlist: Top level is a .subckt" \
+  $topwin.menubar.simulation.menu.graph add checkbutton -variable rawfile_loaded \
+     -label {Load/Unload spice .raw file} -command {
+     xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+  }
+  $topwin.menubar.simulation.menu.graph add checkbutton -label "Hide graphs if no spice data loaded" \
+     -variable hide_empty_graphs -command {xschem redraw}
+
+
+  $topwin.menubar.simulation.menu add cascade -label "LVS" -menu $topwin.menubar.simulation.menu.lvs
+  menu $topwin.menubar.simulation.menu.lvs -tearoff 0
+  $topwin.menubar.simulation.menu.lvs add checkbutton -label "LVS netlist: Top level is a .subckt" \
   -variable lvs_netlist -command {
     if {$lvs_netlist == 1} {
       xschem set format lvs_format 
@@ -6580,14 +6714,11 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
       xschem set format {}
     }
   }
-  $topwin.menubar.simulation.menu add checkbutton -label "Set 'lvs_ignore' variable" \
+  $topwin.menubar.simulation.menu.lvs add checkbutton -label "Set 'lvs_ignore' variable" \
          -variable lvs_ignore -command {xschem rebuild_connectivity; xschem unhilight_all}
-  $topwin.menubar.simulation.menu add command -label {Changelog from current hierarchy} -command {
-    viewdata [list_hierarchy]
-  }
-  $topwin.menubar.simulation.menu add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
+  $topwin.menubar.simulation.menu.lvs add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -command {xschem redraw} 
-                  # {xschem save; xschem reload}
+
   toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
   toolbar_add Simulate "simulate_button $topwin.menubar.simulate" "Run simulation" $topwin
   toolbar_add Waves { waves } "View results" $topwin

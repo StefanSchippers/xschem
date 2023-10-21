@@ -915,7 +915,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         x0 = atof(argv[2]);
         y0 = atof(argv[3]);
       }
-      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
+      if(xctx->ui_state & STARTMOVE) move_objects(FLIP,0,0,0);
+      else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP);
+      else {
         rebuild_selected_array();
         xctx->mx_double_save = xctx->mousex_snap = x0;
         xctx->my_double_save = xctx->mousey_snap = y0;
@@ -931,7 +933,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "flip_in_place"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) {
+      if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
+      else {
         rebuild_selected_array();
         move_objects(START,0,0,0);
         move_objects(FLIP|ROTATELOCAL,0,0,0);
@@ -2992,7 +2996,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 1.0);
+          set_viewport_size(w, h, xctx->lw);
           zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           svg_draw();
           save_restore_zoom(0);
@@ -3004,7 +3008,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           x2 = atof(argv[8]);
           y2 = atof(argv[9]);
           save_restore_zoom(1);
-          set_viewport_size(w, h, 1.0);
+          set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
           svg_draw();
           save_restore_zoom(0);
@@ -3553,7 +3557,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         x0 = atof(argv[2]);
         y0 = atof(argv[3]);
       }
-      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) { 
+
+      if(xctx->ui_state & STARTMOVE) move_objects(ROTATE,0,0,0);
+      else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE);
+      else {
         rebuild_selected_array();
         xctx->mx_double_save = xctx->mousex_snap = x0;
         xctx->my_double_save = xctx->mousey_snap = y0;
@@ -3569,7 +3576,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "rotate_in_place"))
     {   
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(! (xctx->ui_state & (STARTMOVE | STARTCOPY) ) ) {
+      if(xctx->ui_state & STARTMOVE) move_objects(FLIP|ROTATELOCAL,0,0,0);
+      else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP|ROTATELOCAL);
+      else {    
         rebuild_selected_array();
         move_objects(START,0,0,0);
         move_objects(ROTATE|ROTATELOCAL,0,0,0);

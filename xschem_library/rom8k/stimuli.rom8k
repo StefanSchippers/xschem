@@ -1,6 +1,6 @@
 
 unit n
-voltage VCC
+voltage 'VCC'
 slope 0.2
 format hspice
 

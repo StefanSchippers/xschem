@@ -319,6 +319,29 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
       format_spec = 0;
       prev = f + 1;
     }
+    else if(format_spec && (*f == 'p') ) {
+      char nfmt[50], nstr[50];
+      void *i;
+      int  nlen;
+      i = va_arg(args, void *);
+      l = f - fmt+1;
+      strncpy(nfmt, fmt, l);
+      nfmt[l] = '\0';
+      l = fmt - prev;
+      if(n+l > size) break;
+      memcpy(string + n, prev, l);
+      string[n+l] = '\0';
+      n += l;
+      nlen = sprintf(nstr, nfmt, i);
+      if(n + nlen + 1 > size) {
+        overflow = 1;
+        break;
+      }
+      memcpy(string +n, nstr, nlen+1);
+      n += nlen;
+      format_spec = 0;
+      prev = f + 1;
+    }
     else if(format_spec && (*f == 'g' || *f == 'e' || *f == 'f')) {
       char nfmt[50], nstr[50];
       double i;
@@ -588,7 +611,9 @@ void *my_malloc(int id, size_t size)
 void my_realloc(int id, void *ptr,size_t size)
 {
  void *a;
+ char old[100];
  a = *(void **)ptr;
+ my_snprintf(old, S(old), "%p", a);
  if(size == 0) {
    free(*(void **)ptr);
    dbg(3, "\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);
@@ -596,8 +621,8 @@ void my_realloc(int id, void *ptr,size_t size)
  } else {
    *(void **)ptr=realloc(*(void **)ptr,size);
     if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
-   dbg(3, "\nmy_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
-           id, a, *(void **)ptr,(unsigned long) size);
+   dbg(3, "\nmy_realloc(%d,): reallocating %s --> %p to %lu bytes\n",
+           id, old, *(void **)ptr,(unsigned long) size);
  }
 }
 

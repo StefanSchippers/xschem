@@ -62,6 +62,29 @@
 ##
 ##
 
+
+# #
+# # context menu steps.
+# # open xschem and draw a 0,0, 100,100 polygon border. The image should be drawn inside it
+# # set light colorscheme, set transparent svg background
+# # draw image inside the border in green color
+# # set line with 40 disable change line width, redraw
+# # move away the border, full zoom the image 
+# # export svg:
+#  xschem print svg 1.svg 400 400 0 0 100 100
+# # edit svg, change .l4 layer from green to black (#000000)
+# # you need imagemagick and graphicsmagick packages
+# gm convert -size 16x16 1.svg 1.png
+# convert -background white -alpha remove -alpha off 1.png -transparent white 1.gif
+# base64 1.gif
+# # the output is the 16x16 image with transparent background, antialiasing 
+# # and base64 encoded
+# #
+# #
+# #
+
+
+
 ## FILE
 
 image create photo imgFileOpen
@@ -542,6 +565,20 @@ CtxmenuBlank put "
 R0lGODlhEAAQAPAAAAAAAAAAACH5BAEAAAAALAAAAAAQABAAAAIOhI+py+0Po5y02ouzPgUAOw==
 "
 
+image create photo CtxmenuRotate
+CtxmenuRotate put "
+R0lGODlhEAAQAPQAAAAAACoqKisrKzo6Oj8/P15eXmBgYHZ2doKCgq+vr9fX19jY2OLi4uTk5Ofn
+5+/v7/7+/v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEA
+ABIALAAAAAAQABAAAAVCoCSOZGmeqBg5ixOlUgLMc4Iec2AE83ESAMVIUYMNZy+jhOdQSgyAhZMJ
+eziIgKTpgaABbKeu14fyfmGMAs2ZHpRCADs=
+"
+
+image create photo CtxmenuFlip
+CtxmenuFlip put "
+R0lGODlhEAAQAPMAAAAAAAQEBDc3N42NjaamptDQ0NHR0eTk5AAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAACH5BAEAAAgALAAAAAAQABAAAAQvEMlJq7046807NgJwTAcgGBMIrAPhDquJBnFtAwGisi4B
+r6dUaCQpBT3IpHKJiAAAOw==
+"
 image create photo CtxmenuAbort
 CtxmenuAbort put "
 R0lGODlhEAAQAPUAAAAAAAQEBAkJCQ0NDRISEhcXFx4eHicnJygoKC4uLjIyMjg4ODw8PE5OTlFR
