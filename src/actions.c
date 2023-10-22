@@ -3358,7 +3358,7 @@ int place_text(int draw_text, double mx, double my)
   vsize =  (char *)tclgetvar("vsize");
   if(!txt || !strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
   xctx->push_undo();
-  dbg(0,"props=%s, txt=%s\n", props, txt);
+  dbg(1,"props=%s, txt=%s\n", props, txt);
 
   create_text(draw_text, mx, my, 0, 0, txt, props, atof(hsize), atof(vsize));
   select_text(xctx->texts - 1, SELECTED, 0);
