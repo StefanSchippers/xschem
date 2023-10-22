@@ -441,6 +441,7 @@ proc view_process_status {lb} {
 # top level dialog displaying running sub-processes
 proc list_running_cmds {} {
   set top .processlist
+  if {[winfo exists $top]} {return}
   toplevel $top
   set frame1 $top.f1
   set frame2 $top.f2
@@ -1161,27 +1162,34 @@ proc set_sim_defaults {{reset {}}} {
       set_ne sim(spice,0,cmd) {$terminal -e {ngspice -i "$N" -a || sh}}
     }
     # can not use set_ne as variables bound to entry widgets always exist if widget exists
-    set sim(spice,0,name) {Ngspice}
+    set sim(spice,0,name) {Ngspice interactive}
     set_ne sim(spice,0,fg) 0
     set_ne sim(spice,0,st) 0
-    
-    set_ne sim(spice,1,cmd) {ngspice -b -r "$n.raw" "$N"}
-    set sim(spice,1,name) {Ngspice batch}
+
+
+    set_ne sim(spice,1,cmd) {ngspice "$N" -a}
+    set sim(spice,1,name) {Ngspice Control mode}
     set_ne sim(spice,1,fg) 0
     set_ne sim(spice,1,st) 1
+
     
-    set_ne sim(spice,2,cmd) {Xyce "$N"}
-    set sim(spice,2,name) {Xyce batch}
+    set_ne sim(spice,2,cmd) {ngspice -b -r "$n.raw" "$N"}
+    set sim(spice,2,name) {Ngspice batch}
     set_ne sim(spice,2,fg) 0
     set_ne sim(spice,2,st) 1
     
-    set_ne sim(spice,3,cmd) {mpirun /path/to/parallel/Xyce "$N"}
-    set sim(spice,3,name) {Xyce parallel batch}
+    set_ne sim(spice,3,cmd) {Xyce "$N"}
+    set sim(spice,3,name) {Xyce batch}
     set_ne sim(spice,3,fg) 0
     set_ne sim(spice,3,st) 1
     
+    set_ne sim(spice,4,cmd) {mpirun /path/to/parallel/Xyce "$N"}
+    set sim(spice,4,name) {Xyce parallel batch}
+    set_ne sim(spice,4,fg) 0
+    set_ne sim(spice,4,st) 1
+    
     # number of configured spice simulators, and default one
-    set_ne sim(spice,n) 4
+    set_ne sim(spice,n) 5
     set_ne sim(spice,default) 0
     
     ### spice wave view
