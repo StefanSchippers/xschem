@@ -44,6 +44,7 @@ user:~$ xschem .../xschem_library/examples/0_examples_top.sch
   xschem accepts short (-h) or long (--help) options:
  </p>
  <pre class="code">
+
 usage: xschem [options] [schematic | symbol ]
 Options:
   -h  --help           Print this help.
@@ -51,23 +52,23 @@ Options:
   -n  --netlist        Do a netlist of the given schematic cell.
   -v  --version        Print version information and exit.
   -V  --vhdl           Set netlist type to VHDL.
-  -S  --simulate       Run a simulation of the current schematc file
-                       (spice/Verilog/VHDL, depending on the netlist
+  -S  --simulate       Run a simulation of the current schematc file 
+                       (spice/Verilog/VHDL, depending on the netlist 
                        type chosen).
   -w  --verilog        Set netlist type to Verilog.
+  --tcl &lt;tcl_cmd&gt;      Execute specified tcl instructions before any other action,
+                       after sourcing xschemrc, this can be used to change xschemrc variables.
   --preinit &lt;tcl_cmd&gt;  Execute specified tcl instructions before any other action,
                        and before loading xschemrc.
-  --tcl &lt;tcl_script&gt;   Execute specified tcl instructions before any other action,
-                       this can be used to change xschemrc variables.
+  --script &lt;file&gt;      Execute specified tcl file as a command script (perhaps with xschem  commands).
   --command &lt;tcl_cmd&gt;  Execute specified tcl commands after completing startup.
   --diff &lt;file&gt;        Show differences with given file.
-  --script &lt;file&gt;      Execute specified tcl file as a command script (perhaps with xschem  commands).
   --tcp_port &lt;number&gt;  Listen to specified tcp port for client connections. (number &gt;=1024).
   -i  --no_rcload      Do not load any xschemrc file.
-  -o &lt;file&gt;            Set output path for netlist.
-  --netlist_path &lt;file&gt;
+  --netlist_path &lt;path&gt;
+  -o &lt;path&gt;            Set output path for netlist.
+  --netlist_filename &lt;file&gt;    
   -N &lt;file&gt;            Set name (only name, not path) of top level netlist file.
-  --netlist_filename &lt;file&gt;
   -t  --tedax          Set netlist type to tEDAx.
   -s  --spice          Set netlist type to SPICE.
   -y  --symbol         Set netlist type to SYMBOL (used when drawing symbols)
@@ -75,9 +76,9 @@ Options:
   -z  --rainbow        Use a raibow-looking layer color table.
   -W  --waves          Show simulation waveforms.
   -f  --flat_netlist   Set flat netlist (for spice format only).
-  -r  --no_readline    Start without the tclreadline package ( this is
-                       necessary if stdin and stdout are to be redirected
-                       for example to /dev/null).
+  -r  --no_readline    Start without the tclreadline package, this is necessary
+      --pipe           if stdin and stdout are to be redirected. This also prevents xschem
+                       from closing stdin / stdout / stderr even if invoked from pipes.
   -c  --color_ps       Set color postscript.
   --plotfile &lt;file&gt;    Use &lt;file&gt; as output for plot (png, svg, ps).
   --rcfile &lt;file&gt;      Use &lt;file&gt; as a rc file for startup instead of the

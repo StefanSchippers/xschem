@@ -97,7 +97,7 @@ int main(int argc, char **argv)
   argc = process_options(argc, argv);
 
   /* if invoked in background detach from console */
-  if(getpgrp() != tcgetpgrp(STDOUT_FILENO)) {
+  if(getpgrp() != tcgetpgrp(STDOUT_FILENO) && !cli_opt_no_readline) {
     cli_opt_detach = 1;
   }
 

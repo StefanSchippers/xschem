@@ -29,9 +29,9 @@ Options:
   -z  --rainbow        Use a raibow-looking layer color table.
   -W  --waves          Show simulation waveforms.
   -f  --flat_netlist   Set flat netlist (for spice format only).
-  -r  --no_readline    Start without the tclreadline package ( this is
-                       necessary if stdin and stdout are to be redirected
-                       for example to /dev/null).
+  -r  --no_readline    Start without the tclreadline package, this is necessary
+      --pipe           if stdin and stdout are to be redirected. This also prevents xschem
+                       from closing stdin / stdout / stderr even if invoked from pipes.
   -c  --color_ps       Set color postscript.
   --plotfile <file>    Use <file> as output for plot (png, svg, ps).
   --rcfile <file>      Use <file> as a rc file for startup instead of the

@@ -49,6 +49,9 @@ static void check_opt(char *opt, char *optval, int type)
     } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("no_readline", opt)) ) {
         cli_opt_no_readline=1;
 
+    } else if( (type == LONG && !strcmp("pipe", opt)) ) {
+        cli_opt_no_readline=1;
+
     } else if( (type == SHORT && *opt == 'p') || (type == LONG && !strcmp("postscript", opt)) ) {
         dbg(1, "process_options(): will print postscript/pdf\n");
         cli_opt_do_print=1;
