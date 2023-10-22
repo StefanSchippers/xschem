@@ -1922,6 +1922,9 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='q' && rstate==ControlMask) /* quit xschem */
    {
     if(xctx->semaphore >= 2) break;
+    /* must be set to zero, otherwise switch_tab/switch_win does not proceed
+     * and these are necessary when closing tabs/windows */
+    xctx->semaphore = 0;
     tcleval("quit_xschem");
     break;
    }
@@ -3007,7 +3010,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    break;
  } /* switch(event) */
 
- xctx->semaphore--;
+ if(xctx->semaphore > 0) xctx->semaphore--;
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);

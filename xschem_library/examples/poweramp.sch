@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -331,9 +331,10 @@ xschem raw_read $netlist_dir/poweramp.raw tran
 C {launcher.sym} 1450 -30 0 0 {name=h6
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {simulator_commands.sym} 1020 -450 0 0 {name=COMMANDS
+C {simulator_commands.sym} 1020 -670 0 0 {name=NGSPICE
 simulator=ngspice
 only_toplevel=false 
+spice_ignore=0
 value="
 .option ITL4=20000 ITL5=0
 vvss vss 0 dc 0 
@@ -359,7 +360,7 @@ save p(r*) p(v*)
 write poweramp.raw
 .endc
 "}
-C {simulator_commands.sym} 1020 -650 0 0 {name=COMMANDS1
+C {simulator_commands.sym} 1020 -870 0 0 {name=COMMANDS1
 simulator=xyce
 only_toplevel=false 
 value="
@@ -385,5 +386,40 @@ C {launcher.sym} 1495 -1165 0 0 {name=h7
 descr="load Xyce waves" 
 tclcommand="
 xschem raw_read $netlist_dir/poweramp_xyce.raw tran
+"
+}
+C {simulator_commands.sym} 1020 -480 0 0 {name=NGSPICE_BATCH
+simulator=ngspice
+spice_ignore=1
+only_toplevel=false 
+value="
+.option ITL4=20000 ITL5=0
+vvss vss 0 dc 0 
+.temp 30
+
+.param frequ=5k
+.param gain=45
+.option savecurrents
+
+** models are generally not free: you must download
+** SPICE models for active devices and put them  into the below 
+** referenced file in simulation directory.
+.include \\"models_poweramp.txt\\"
+.save all
+.op
+.tran  8e-7 0.07 uic
+"}
+C {launcher.sym} 960 -330 0 0 {name=h4
+descr="Swap interactive
+/batch mode"
+tclcommand="proc simswap \{\} \{
+  set x [xschem getprop instance NGSPICE spice_ignore]
+  xschem setprop instance NGSPICE_BATCH spice_ignore $x
+  set x [expr \{ !$x\}]
+  xschem setprop instance NGSPICE spice_ignore $x
+\}
+
+simswap
+
 "
 }

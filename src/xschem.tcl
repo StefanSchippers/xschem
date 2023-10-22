@@ -383,18 +383,21 @@ proc update_process_status {lb} {
   set exists 0
   set selected [$lb curselection]
   if { [winfo exists .pstat] } {
-    if { $selected ne {} && [llength $selected] == 1} {
-      .pstat.text delete 1.0 end
-      set idx $selected
-      set cmd1 [$lb get $idx]
-      foreach  {id pid cmd2} [get_running_cmds] {
-        if { $cmd1 eq $cmd2 } {
-          if {[catch { set t $execute(data,$id) } err]} {
-            set t $err
+    set pos [lindex [.pstat.text yview] 1]
+    if {$pos == 1} {
+      if { $selected ne {} && [llength $selected] == 1} {
+        .pstat.text delete 1.0 end
+        set idx $selected
+        set cmd1 [$lb get $idx]
+        foreach  {id pid cmd2} [get_running_cmds] {
+          if { $cmd1 eq $cmd2 } {
+            if {[catch { set t $execute(data,$id) } err]} {
+              set t $err
+            }
+            .pstat.text insert 1.0 $t
+            .pstat.text yview moveto 1
+            break
           }
-          .pstat.text insert 1.0 $t
-          .pstat.text yview moveto 1
-          break
         }
       }
     }

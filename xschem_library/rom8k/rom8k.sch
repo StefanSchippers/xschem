@@ -366,7 +366,7 @@ descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
 C {simulator_commands.sym} 470 -150 0 0 {name=INTERACTIVE
 simulator=ngspice
-spice_ignore=1
+spice_ignore=0
 only_toplevel=false 
 value="
 .options SCALE=0.10
@@ -484,7 +484,7 @@ tclcommand="
 }
 C {simulator_commands.sym} 340 -150 0 0 {name=BATCH_MODE
 simulator=ngspice
-spice_ignore=0
+spice_ignore=1
 only_toplevel=false 
 value="
 .options SCALE=0.10
