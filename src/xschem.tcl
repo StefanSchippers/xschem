@@ -1332,7 +1332,9 @@ proc simconf {} {
   }
   button .sim.bottom.help  -text Help -command {
     viewdata {In this dialog box you set the commands xschem uses to launch the 
-various external tools.
+various external tools. The commands go through a tcl 'subst' round
+ to do TCL variable and command substitution, so you may use the TCL
+'{' and '}' characters for grouping arguments with spaces.
 Xschem has 3 main netlisting modes (spice, verilog, vhdl) and for each
 netlisting mode some simulators and some viewers can be defined.
 The following variables are defined and will get substituted by
