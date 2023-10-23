@@ -159,6 +159,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
 
  /* netlist_options */
  for(i=0;i<xctx->instances; ++i) {
+   if(skip_instance(i, 1, lvs_ignore)) continue;
    if(!(xctx->inst[i].ptr+ xctx->sym)->type) continue;
    if( !strcmp((xctx->inst[i].ptr+ xctx->sym)->type,"netlist_options") ) {
      netlist_options(i);

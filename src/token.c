@@ -372,7 +372,7 @@ int get_inst_pin_number(int inst, const char *pin_name)
   if(isonlydigit(pin_name)) {
     n = atoi(pin_name);
   } 
-  else if(pin_name[0]) {
+  else if(pin_name[0] && xctx->inst[inst].ptr >= 0) {
     for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
       if(!strcmp(get_tok_value(prop,"name",0), pin_name)) break;
@@ -614,6 +614,7 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 
 
    dbg(1, "get_pin_attr_from_inst(): inst=%d pin=%d attr=%s\n", inst, pin, attr);
+   if(xctx->inst[inst].ptr < 0 ) return NULL;
    pin_attr_value = NULL;
    str = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
@@ -3317,6 +3318,7 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
   char *pin_attr = NULL;
   char *pin_num_or_name = NULL;
 
+  if(xctx->inst[inst].ptr < 0) return NULL;
   get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
   n = get_inst_pin_number(inst, pin_num_or_name);
   if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -3504,7 +3506,8 @@ const char *translate(int inst, const char* s)
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
-   } else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+   /* recognize single pins 15112003 */
+   } else if(token[0]=='@' && token[1]=='@' && xctx->inst[inst].ptr >= 0) {
      int i, multip;
      int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
      prepare_netlist_structs(0);
@@ -3529,7 +3532,7 @@ const char *translate(int inst, const char* s)
        result_pos+=tmp;
        my_free(_ALLOC_ID_, &value);
      }
-   } else if(strcmp(token,"@sch_last_modified")==0) {
+   } else if(strcmp(token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
 
     get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst);
     if(!stat(file_name , &time_buf)) {
@@ -3583,7 +3586,7 @@ const char *translate(int inst, const char* s)
      memcpy(result+result_pos,xctx->inst[inst].prop_ptr, tmp+1);
      result_pos+=tmp;
    }
-   else if(strcmp(token,"@spice_get_voltage")==0 )
+   else if(strcmp(token,"@spice_get_voltage")==0 && xctx->inst[inst].ptr >= 0)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -3776,7 +3779,7 @@ const char *translate(int inst, const char* s)
        } /* if(path) */
      } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
    }
-   else if(strcmp(token,"@spice_get_diff_voltage")==0 )
+   else if(strcmp(token,"@spice_get_diff_voltage")==0  && xctx->inst[inst].ptr >= 0)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -3945,7 +3948,9 @@ const char *translate(int inst, const char* s)
      /* add nothing */
    } else {
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-     if(!xctx->tok_size) value=get_tok_value((xctx->inst[inst].ptr + xctx->sym)->templ, token+1, 0);
+     if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
+       value=get_tok_value((xctx->inst[inst].ptr + xctx->sym)->templ, token+1, 0);
+     }
      if(!xctx->tok_size) { /* above lines did not find a value for token */
        if(token[0] =='%') {
          /* no definition found -> subst with token without leading % */
