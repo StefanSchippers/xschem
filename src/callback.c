@@ -358,10 +358,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* move cursor2 */
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+        int floaters = there_are_floaters();
         xctx->graph_cursor2_x = G_X(xctx->mousex);
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
-          if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
         }
       }
@@ -403,8 +404,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* backannotate node values at cursor b position */
       else if(key == 'a' && EQUAL_MODMASK  && (xctx->graph_flags & 4)) {
+        int floaters = there_are_floaters();
         backannotate_at_cursor_b_pos(r, gr);
-        if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
         redraw_all_at_end = 1;
       }
       /* x cursor1 toggle */
@@ -415,12 +417,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* x cursor2 toggle */
       else if((key == 'b') ) {
+        int floaters = there_are_floaters();
         xctx->graph_flags ^= 4;
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
           if(tclgetboolvar("live_cursor2_backannotate")) {
             backannotate_at_cursor_b_pos(r, gr);
-            if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+            if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
             redraw_all_at_end = 1;
           } else {
             need_all_redraw = 1;
@@ -435,12 +438,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* swap cursors */
       else if((key == 's') ) {
         double tmp;
+        int floaters = there_are_floaters();
         tmp = xctx->graph_cursor2_x;
         xctx->graph_cursor2_x = xctx->graph_cursor1_x;
         xctx->graph_cursor1_x = tmp;
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
-          if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
         }
         else need_all_redraw = 1;
@@ -673,18 +677,25 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if((key == 't') ) {
         if(track_dset != -2) {
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
+          int floaters = there_are_floaters();
           if(i == xctx->graph_master || !unlocked) {
             gr->dataset = track_dset;
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
+            
+          }
+         /* do this here to update texts printing current dataset in graph
+          *     tcleval([xschem getprop rect 2 n dataset]) */
+          if(i == xctx->graph_master && floaters) {
+            set_modify(-2); /* update floater caches to reflect actual backannotation */
+            redraw_all_at_end = 1;
           }
           if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
             if(i == xctx->graph_master) {
               backannotate_at_cursor_b_pos(r, gr);
-              if(there_are_floaters()) set_modify(-2); /* update floater caches to reflect actual backannotation */
             }
             redraw_all_at_end = 1;
           } else {
-            need_redraw = 1;
+            if(!redraw_all_at_end) need_redraw = 1;
           }
 
         }

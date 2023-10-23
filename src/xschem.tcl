@@ -466,7 +466,14 @@ proc list_running_cmds {} {
   button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" -bg yellow
   button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" -bg red
   button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" -bg PaleGreen
-  button $frame3.b4 -width 16 -text {Dismiss} -command "destroy $top" -bg PaleGreen
+  button $frame3.b4 -width 16 -text {Dismiss} -bg PaleGreen -command "
+    if {\[winfo exists .pstat\]} {
+      after cancel [list update_process_status $lb]
+      destroy .pstat
+    }
+    destroy $top
+
+  "
 
   pack $frame3.b1 $frame3.b2 $frame3.b3 $frame3.b4 -side left -fill x -expand 1
   pack $frame1 -fill x -expand 0

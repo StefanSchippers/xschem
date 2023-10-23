@@ -85,6 +85,7 @@ int there_are_floaters(void)
   for(k = 0; k < xctx->texts; k++) {
     if(xctx->text[k].flags & TEXT_FLOATER) {
       floaters = 1;
+      dbg(1, "text %d is a floater\n", k);
       break;
     }
   }

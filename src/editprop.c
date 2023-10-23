@@ -860,6 +860,8 @@ static int edit_rect_property(int x)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
+    int floaters = there_are_floaters();
+    dbg(1, "floaters=%d\n", floaters);
     xctx->push_undo();
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
@@ -888,21 +890,21 @@ static int edit_rect_property(int x)
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
           (!oldprop && xctx->rect[c][n].prop_ptr) || (oldprop && !xctx->rect[c][n].prop_ptr)) {
          if(!drw) {
-           bbox(START,0.0,0.0,0.0,0.0);
+           if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
          }
          if( xctx->rect[c][n].flags & 1024) {
            draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
                          &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
          }
-         bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
+         if(!floaters) {
+           bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
+         }
       }
     }
-    if(drw) {
-      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-      draw();
-      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-    }
+    if(!floaters && drw) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+    if(drw) draw();
+    if(!floaters && drw)   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     modified = 1;
   }
   my_free(_ALLOC_ID_, &oldprop);

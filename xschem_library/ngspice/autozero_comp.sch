@@ -127,6 +127,7 @@ Output on SAOUT
 Gaussian Threshold variation (via delvto parameter) is added to all MOS transistors.} 1110 -240 0 0 0.6 0.6 {}
 T {.param ABSVAR=0.05
 delvto='agauss(0,ABSVAR,3)'} 1390 -120 0 0 0.6 0.6 {layer=8}
+T {tcleval(Dataset=\\n[xschem getprop rect 2 0 dataset])} 340 -850 0 0 0.7 0.7 {floater=xxx}
 N 120 -470 120 -450 {lab=TEMPERAT}
 N 360 -530 390 -530 {lab=VSS}
 N 360 -500 360 -480 {lab=VSS}
