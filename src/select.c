@@ -1224,31 +1224,38 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
 Selected select_object(double mx,double my, unsigned short select_mode, int override_lock)
 {
    Selected sel;
+   xctx->already_selected = 0;
    sel = find_closest_obj(mx, my, override_lock);
-
    dbg(1, "select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type);
 
    switch(sel.type)
    {
     case WIRE:
+     if(xctx->wire[sel.n].sel) xctx->already_selected = 1;
      select_wire(sel.n, select_mode, 0);
      break;
     case xTEXT:
+     if(xctx->text[sel.n].sel) xctx->already_selected = 1;
      select_text(sel.n, select_mode, 0);
      break;
     case LINE:
+     if(xctx->line[sel.col][sel.n].sel) xctx->already_selected = 1;
      select_line(sel.col, sel.n, select_mode,0);
      break;
     case POLYGON:
+     if(xctx->poly[sel.col][sel.n].sel) xctx->already_selected = 1;
      select_polygon(sel.col, sel.n, select_mode,0);
      break;
     case xRECT:
+     if(xctx->rect[sel.col][sel.n].sel) xctx->already_selected = 1;
      select_box(sel.col,sel.n, select_mode,0, override_lock);
      break;
     case ARC:
+     if(xctx->arc[sel.col][sel.n].sel) xctx->already_selected = 1;
      select_arc(sel.col,sel.n, select_mode,0);
      break;
     case ELEMENT:
+     if(xctx->inst[sel.n].sel) xctx->already_selected = 1;
      select_element(sel.n,select_mode,0, override_lock);
      break;
     default:

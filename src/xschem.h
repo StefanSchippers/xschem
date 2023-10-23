@@ -972,6 +972,7 @@ typedef struct {
   int *node_mult;
   int node_mult_size;
   /* callback.c */
+  int already_selected; /* when clicking on an object that is already selected this will be 1 */
   int mx_save, my_save, last_command;
   char sel_or_clip[PATH_MAX];
   int onetime;

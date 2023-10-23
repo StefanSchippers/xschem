@@ -613,6 +613,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->only_probes = 0;
   xctx->menu_removed = 0; /* fullscreen previous setting */
   xctx->save_lw = 0.0;  /* used to save linewidth when selecting 'only_probes' view */
+  xctx->already_selected = 0;
   xctx->onetime = 0; /* callback() static var */
   xctx->save_netlist_type = 0;
   xctx->some_nets_added = 0;

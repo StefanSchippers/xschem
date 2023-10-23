@@ -1260,7 +1260,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
 
     redraw_w_a_l_r_p_rubbers();
-    /* start of a mouse area select */
+    /* start of a mouse area select. No shift pressed */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
@@ -1280,6 +1280,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         }
       }
     }
+    /* Unselect by area */
     if((state & Button1Mask)  && (SET_MODMASK) && !(state & ShiftMask) &&
        !(xctx->ui_state & STARTPAN) && 
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
@@ -1287,6 +1288,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         select_rect(START,0);
       }
     }
+    /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) &&
              !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
              !(xctx->ui_state & STARTPAN) ) {
@@ -1296,8 +1298,10 @@ int rstate; /* (reduced state, without ShiftMask) */
         }
         if(abs(mx-xctx->mx_save) > 8 || 
            abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
-          select_object(X_TO_XSCHEM(xctx->mx_save),
-                        Y_TO_XSCHEM(xctx->my_save), 0, 0); /* remove near obj if dragging */
+          if(!xctx->already_selected) {
+            select_object(X_TO_XSCHEM(xctx->mx_save),
+                          Y_TO_XSCHEM(xctx->my_save), 0, 0); /* remove near obj if dragging */
+          }
           rebuild_selected_array();
         }
       }
@@ -2714,17 +2718,12 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
     draw();
    }
+   /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
      xctx->last_command = 0;
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
-
-     /* useless code ? 20200905 */
-     /* if(xctx->semaphore<2) {
-       rebuild_selected_array();
-     } */
-
      select_object(xctx->mousex, xctx->mousey, 0, 0);
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
@@ -2902,6 +2901,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        tcleval("set constrained_move 0" );
        break;
      }
+     /* Button1Press to select objects */
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE)  ) {
        Selected sel;
        int prev_last_sel = xctx->lastsel;
