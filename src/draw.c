@@ -2023,13 +2023,11 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
 
     dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
     if(idx < 0 ) idx = 0;
-
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
     }
-    
     if(i != xctx->graph_master ) {
       my_strdup2(_ALLOC_ID_, &custom_rawfile,
         get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0));
@@ -2039,7 +2037,13 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
         extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
       }
     }
+
     raw = xctx->raw;
+    /* if doing double variable DC sweeps raw->datasets == 1 but there are multiple curves.
+     * find_closest_wave() may return a dataset number that is > 0 but its a "virtual" dataset
+     * since double DC sweeps just do multiple sweeps by wrapping the sweep variable 
+     */
+    if(dset >= raw->datasets) dset = 0;
 
     /* transform multiple OP points into a dc sweep */
     if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
@@ -2048,7 +2052,6 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       save_npoints = raw->npoints[0];
       raw->npoints[0] = raw->allpoints;
     }   
- 
     xx1 = xx2 = get_raw_value(dset, idx, 0);
     for(k = 0; k < xctx->raw->npoints[dset]; k++) {
       double v = get_raw_value(dset, idx, k);

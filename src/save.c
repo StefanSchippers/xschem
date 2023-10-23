@@ -1565,7 +1565,10 @@ double get_raw_value(int dataset, int idx, int point)
 {
   int i, ofs;
   ofs = 0;
-  if(xctx->raw && xctx->raw->values) {
+  if(dataset >= xctx->raw->datasets) { 
+    dbg(0, "get_raw_value(): dataset(%d) >= datasets(%d)\n", dataset,  xctx->raw->datasets);
+  }
+  if(xctx->raw && xctx->raw->values && dataset < xctx->raw->datasets) {
     if(dataset == -1) {
       if(point < xctx->raw->allpoints)
         return xctx->raw->values[idx][point];
