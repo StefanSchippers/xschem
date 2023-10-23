@@ -280,9 +280,10 @@ value="tcleval(
   *   schematic: [xschem get current_name]
   tran .05u 1m uic
   write solar_panel.raw
-  exit
+  quit 0
 .endc
-)" 
+)
+" 
 
 net_name=true}
 C {code.sym} 20 -240 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 

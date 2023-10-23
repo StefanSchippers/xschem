@@ -348,6 +348,7 @@ value="* .option SCALE=1e-6
     write autozero_comp.raw
     let run = run + 1
   end
+  quit 0
 .endc
 "}
 C {inv-2.sym} 160 -570 0 0 {name=x14 m=1 

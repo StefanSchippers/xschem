@@ -362,6 +362,7 @@ value=".temp 30
   ac dec 10 1 1G
   remzerovec
   write cmos_example_ngspice.raw
+  quit 0
 .endc
 
 "}

@@ -339,7 +339,6 @@ value="
 .option ITL4=20000 ITL5=0
 vvss vss 0 dc 0 
 .temp 30
-
 .param frequ=5k
 .param gain=45
 .option savecurrents
@@ -358,6 +357,7 @@ tran  8e-7 0.07 uic
 plot outp outm
 save p(r*) p(v*)
 write poweramp.raw
+quit 0
 .endc
 "}
 C {simulator_commands.sym} 1020 -870 0 0 {name=COMMANDS1

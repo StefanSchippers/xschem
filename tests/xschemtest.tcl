@@ -192,7 +192,7 @@ proc netlist_test {} {
   foreach {f t h} {
     rom8k.sch               spice      1998661799
     greycnt.sch             verilog    2899796185
-    autozero_comp.sch       spice      2431386309
+    autozero_comp.sch       spice       751826850
     loading.sch             vhdl       2975204502
     mos_power_ampli.sch     spice      1986885043
     hierarchical_tedax.sch  tedax       998070173

@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -112,6 +112,7 @@ VD D 0 dc 0
   save all
   dc VD 0 20 0.01 VG 0 -1 -0.1
   write test_jfet.raw
+  quit 0
 .endc
 "}
 C {noconn.sym} 340 -140 0 0 {name=l1}
