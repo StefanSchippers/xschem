@@ -2269,14 +2269,14 @@ proc graph_edit_properties {n} {
     if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
       .graphdialog.center.right.list set [xschem getprop rect 2 $graph_selected sim_type 2]
     } else {
-      .graphdialog.center.right.list set tran
+      .graphdialog.center.right.list set {}
     }
   } else {
     .graphdialog.center.right.list delete 0 end
     if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
       .graphdialog.center.right.list insert 0 [xschem getprop rect 2 $graph_selected sim_type 2]
     } else {
-      .graphdialog.center.right.list insert 0 tran
+      .graphdialog.center.right.list insert 0 {}
     }
   }
 
@@ -2290,8 +2290,10 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
+
   bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
+    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
     if {[file_exists [.graphdialog.center.right.rawentry get]]} {
       graph_fill_listbox
     }
@@ -6744,20 +6746,20 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.simulation.menu add cascade -label "Graphs" -menu $topwin.menubar.simulation.menu.graph
   menu $topwin.menubar.simulation.menu.graph -tearoff 0
-  $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
-         -variable live_cursor2_backannotate 
+  $topwin.menubar.simulation.menu.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu.graph add command -label {Add waveform reload launcher} -command {
       xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
   }
-  $topwin.menubar.simulation.menu.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu.graph add command -label "Annotate Operating Point into schematic" \
          -command {set show_hidden_texts 1; xschem annotate_op}
   $topwin.menubar.simulation.menu.graph add checkbutton -variable rawfile_loaded \
      -label {Load/Unload spice .raw file} -command {
      xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
   }
+  $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
+         -variable live_cursor2_backannotate 
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Hide graphs if no spice data loaded" \
      -variable hide_empty_graphs -command {xschem redraw}
 
