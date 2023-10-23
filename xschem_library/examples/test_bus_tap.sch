@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -27,7 +27,7 @@ E {}
 P 4 7 630 -290 630 -320 620 -320 630 -347.5 640 -320 630 -320 630 -290 {fill=true}
 T {Specifying @lab
 will result in net
-@#1:net_name} 640 -310 0 0 0.4 0.4 {name=l6 layer=4}
+@#0:net_name} 640 -310 0 0 0.4 0.4 {name=l6 layer=4}
 T {Title symbol has embedded TCL command
 to enable show_pin_net_names } 180 -110 0 0 0.4 0.4 { layer=7}
 T {@#1:net_name} 1120 -1030 0 0 0.4 0.4 {name=l19 layer=4}

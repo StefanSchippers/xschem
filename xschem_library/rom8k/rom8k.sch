@@ -388,6 +388,7 @@ vvss vss 0 0
   tran 0.2n 480n uic
   write rom8k_ngspice.raw
   acct
+  quit 0
 .endc
 
 ** download models from here: 

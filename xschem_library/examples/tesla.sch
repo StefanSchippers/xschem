@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -32,8 +32,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=k
-x1=4e-10
-x2=0.001
+x1=0.000952652
+x2=0.000957538
 divx=5
 subdivx=1
 node=hv
@@ -49,8 +49,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=4e-10
-x2=0.001
+x1=0.000952652
+x2=0.000957538
 divx=5
 subdivx=1
 
@@ -174,6 +174,7 @@ tran 40n 1m  uic
 meas tran iavg AVG i(vvcc) from=950u to=990u
 save tran p(q5) i(l1) i(l2)
 write tesla.raw
+quit 0
 .endc
 "}
 C {lab_pin.sym} 140 -680 0 0 {name=p1 lab=VCC}

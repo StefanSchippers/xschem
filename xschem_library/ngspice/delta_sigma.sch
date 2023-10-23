@@ -114,6 +114,7 @@ value="
   * save all
   tran 0.2n 9u uic
   write delta_sigma.raw
+  quit 0
 .endc
 "}
 C {vsource.sym} 270 -540 0 1 {name=v3 

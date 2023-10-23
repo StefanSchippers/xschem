@@ -118,6 +118,7 @@ write LCC_instances.raw
 set appendwrite 
 dc v1 3 0 -0.001
 write LCC_instances.raw
+quit 0
 .endc
 "}
 C {code.sym} 840 -190 0 0 {name=MODEL

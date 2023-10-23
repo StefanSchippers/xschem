@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -108,7 +108,8 @@ C {lab_pin.sym} 630 -280 0 1 {name=p10 lab=MINUS  net_name=true}
 C {lab_pin.sym} 830 -360 0 1 {name=p11 lab=DIFFOUT  net_name=true}
 C {lab_pin.sym} 240 -230 0 0 {name=p13 lab=GN  net_name=true}
 C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0  net_name=true}
-C {vsource.sym} 30 -310 0 0 {name=VPLUS value="2.5 pwl 0 2.4 10n 2.4 10.1n 2.6"  net_name=true}
+C {vsource.sym} 30 -310 0 0 {name=VPLUS value=2.5 net_name=true
+}
 C {lab_pin.sym} 60 -370 0 1 {name=p15 lab=PLUS  net_name=true}
 C {lab_pin.sym} 30 -430 0 0 {name=p16 lab=0  net_name=true}
 C {vsource.sym} 30 -460 0 0 {name=V1 value=2.5  net_name=true}
@@ -159,7 +160,7 @@ setscale vcc                         $ set as xaxis for myplot
 settype voltage vcc
 write plot_manipulation.raw
 plot s_vec
-
+quit 0
 .endc
 
 ** ngspice

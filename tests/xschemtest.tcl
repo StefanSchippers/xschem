@@ -190,13 +190,13 @@ proc test_xschem_simulation {{f simulate_ff.sch}} {
 proc netlist_test {} {
   global netlist_dir
   foreach {f t h} {
-    rom8k.sch               spice      1998661799
+    rom8k.sch               spice      1947979332
     greycnt.sch             verilog    2899796185
     autozero_comp.sch       spice       751826850
     loading.sch             vhdl       2975204502
     mos_power_ampli.sch     spice      1986885043
     hierarchical_tedax.sch  tedax       998070173
-    LCC_instances.sch       spice       268038818
+    LCC_instances.sch       spice      1619668159
     pcb_test1.sch           tedax      1925087189
     test_doublepin.sch      spice       894741562
     simulate_ff.sch         spice       574849766
