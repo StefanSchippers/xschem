@@ -254,7 +254,11 @@ proc execute_fileevent {id} {
         if {"CHILDSTATUS" == [lindex $errorCode 0]} {
           set exit_status [lindex $errorCode 2]
         }
-        if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+        if {$exit_status != 0} {
+          if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+        } else {
+          if {$report} {viewdata "Completed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
+        }
       } else {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
