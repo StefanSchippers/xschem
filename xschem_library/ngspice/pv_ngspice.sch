@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -55,6 +55,7 @@ T {position the mouse close to one of the curves
 and press 't' to display only that curve.
 This allows you to annotate the active
 waveform in the schematic.} 480 -370 0 0 0.3 0.3 {}
+T {tcleval(SUN=[expr \{[xschem getprop rect 2 0 dataset] == -1 ? \{N/A\} : ([xschem getprop rect 2 0 dataset] + 1)*20\}]%)} 710 -460 0 0 0.4 0.4 {name=xxxx}
 N 430 -480 430 -420 {
 lab=minus}
 N 430 -570 430 -540 {

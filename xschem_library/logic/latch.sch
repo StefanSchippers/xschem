@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -33,6 +33,7 @@ end if ;
 end process ;
 
  }
+K {}
 V {reg iQ;
 
 always @( D or G or RST) begin
@@ -61,3 +62,8 @@ C {ipin.sym} 120 -440 0 0 {name=p14 lab=RST}
 C {opin.sym} 280 -440 0 0 {name=p1 lab=QN}
 C {title.sym} 160 -30 0 0 {name=l17}
 C {ipin.sym} 120 -380 0 0 {name=p3 lab=D}
+C {noconn.sym} 280 -320 2 1 {name=l4}
+C {noconn.sym} 280 -440 2 1 {name=l1}
+C {noconn.sym} 120 -440 2 0 {name=l2}
+C {noconn.sym} 120 -380 2 0 {name=l3}
+C {noconn.sym} 120 -320 2 0 {name=l5}

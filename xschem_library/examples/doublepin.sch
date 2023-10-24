@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -42,7 +42,6 @@ C {ipin.sym} 210 -190 0 0 {name=p3 lab=B}
 C {opin.sym} 810 -250 0 0 {name=p4 lab=Z}
 C {ipin.sym} 330 -150 0 0 {name=p5 lab=RST}
 C {ipin.sym} 360 -240 0 0 {name=p7 lab=CK}
-C {noconn.sym} 810 -250 2 1 {name=l6}
 C {use.sym} 380 -480 0 0 {------------------------------------------------
 library ieee;
         use ieee.std_logic_1164.all;
