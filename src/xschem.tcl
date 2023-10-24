@@ -463,6 +463,7 @@ proc list_running_cmds {} {
   pack  $frame2.xscroll -side bottom -fill x
   pack  $lb -side bottom  -fill both -expand true
 
+  bind $lb <Double-Button-1> [list $frame3.b3 invoke]
   button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" -bg yellow
   button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" -bg red
   button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" -bg PaleGreen
@@ -6731,6 +6732,12 @@ proc build_widgets { {topwin {} } } {
     $topwin.menubar.simulation.menu add command -label {List running sub-processes} -command {
       list_running_cmds
     }
+  }
+  $topwin.menubar.simulation.menu add command -label {View last job data} -command {
+    viewdata $execute(data,last)
+  }
+  $topwin.menubar.simulation.menu add command -label {View last job errors} -command {
+    viewdata $execute(error,last)
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      simuldir
