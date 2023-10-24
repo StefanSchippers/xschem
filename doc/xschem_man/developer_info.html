@@ -518,6 +518,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1280,6 +1282,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        0.0     0.0     1.8    0.3
        0.1     0.0     1.5    0.6
        ...     ...     ...    ...</pre>
+   <li><kbd>       test</kbd></li><pre>
+   Testmode ... </pre>
    <li><kbd>       text x y rot flip text props size draw</kbd></li><pre>
    Create a text object
      x, y, rot, flip specify the position and orientation
@@ -1287,6 +1291,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      props is the attribute string
      size sets the size
      draw is a flag. If set to 1 will draw the created text </pre>
+   <li><kbd>       text_string n</kbd></li><pre>
+   get text string of text object 'n' </pre>
    <li><kbd>       toggle_colorscheme</kbd></li><pre>
    Toggle dark/light colorscheme </pre>
    <li><kbd>       toggle_ignore</kbd></li><pre>
@@ -1351,8 +1357,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
-
 
 
 

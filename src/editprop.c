@@ -1184,6 +1184,7 @@ static int edit_text_property(int x)
   char property[100];/* used for float 2 string conv (xscale  and yscale) overflow safe */
   /* const char *str; */
   char *oldprop = NULL;
+  int floater = there_are_floaters();
 
   if(x < 0 || x > 2) {
     fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x);
@@ -1230,7 +1231,8 @@ static int edit_text_property(int x)
       modified = 1;
       xctx->push_undo();
     }
-    bbox(START,0.0,0.0,0.0,0.0);
+    if(!floater) bbox(START,0.0,0.0,0.0,0.0);
+    else set_modify(-2); /* clear text floater caches */
     for(k=0;k<xctx->lastsel; ++k)
     {
       if(xctx->sel_array[k].type!=xTEXT) continue;
@@ -1249,7 +1251,7 @@ static int edit_text_property(int x)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      bbox(ADD, xx1, yy1, xx2, yy2 );
+      if(!floater) bbox(ADD, xx1, yy1, xx2, yy2 );
       /* dbg(1, "edit_property(): text props=%s text=%s\n", tclgetvar("props"), tclgetvar("retval")); */
       if(text_changed) {
         double cg;
@@ -1323,11 +1325,11 @@ static int edit_text_property(int x)
       }
       #endif
 
-      bbox(ADD, xx1, yy1, xx2, yy2 );
+      if(!floater) bbox(ADD, xx1, yy1, xx2, yy2 );
     } /* for(k=0;k<xctx->lastsel; ++k) */
-    bbox(SET,0.0,0.0,0.0,0.0);
+    if(!floater) bbox(SET,0.0,0.0,0.0,0.0);
     draw();
-    bbox(END,0.0,0.0,0.0,0.0);
+    if(!floater) bbox(END,0.0,0.0,0.0,0.0);
   }
   my_free(_ALLOC_ID_, &oldprop);
   return modified;

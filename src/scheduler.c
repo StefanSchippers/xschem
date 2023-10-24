@@ -4590,6 +4590,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }     
           
+
+    /* text_string n
+     *   get text string of text object 'n' */
+    else if(!strcmp(argv[1], "text_string") )
+    {
+      int n;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {Tcl_SetResult(interp,
+          "xschem text_string requires 1 additional argument", TCL_STATIC); return TCL_ERROR;}
+      n = atoi(argv[2]);
+      if(n >= 0 && n < xctx->texts) {
+        Tcl_SetResult(interp, xctx->text[n].txt_ptr, TCL_VOLATILE);
+      } else {
+        Tcl_ResetResult(interp);
+      }
+    }
+
     /* toggle_colorscheme
      *   Toggle dark/light colorscheme */
     else if(!strcmp(argv[1], "toggle_colorscheme"))
