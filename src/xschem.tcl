@@ -5604,9 +5604,13 @@ proc tab_ctx_cmd {tab_but what} {
       xschem new_schematic switch $old {} 0 ;# no draw
     } elseif {$what eq {close}} {
       set old [xschem get current_win_path]
+      set ntabs [xschem get ntabs]
       xschem new_schematic switch $win_path {} 0 ;# no draw
-      xschem exit
-      xschem new_schematic switch $old {} 1 ;# draw
+      set remaining_tabs [xschem exit]
+      if { $old != $win_path || $remaining_tabs == $ntabs} {
+        # don't switch if we were on the tab that has been closed.
+        xschem new_schematic switch $old {} 1 ;# draw
+      }
     }
   }
   # puts $filename
