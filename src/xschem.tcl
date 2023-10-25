@@ -5622,10 +5622,13 @@ proc tab_context_menu {tab_but} {
   }
   if {!$found} { set filename {}}
 
-  if {[is_xschem_file $filename] eq {SCHEMATIC}} {
+
+  set filetype [is_xschem_file $filename]
+
+  if {$filetype eq {SCHEMATIC}} {
     set counterpart [abs_sym_path $filename .sym]
     set msg {Open symbol}
-  } elseif {[is_xschem_file $filename] eq {SYMBOL}} {
+  } elseif {$filetype eq {SYMBOL}} {
     set counterpart [abs_sym_path $filename .sch]
     set msg {Open schematic}
   } else {
@@ -5659,9 +5662,6 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b4 -text {Edit file} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuEdit -compound left \
     -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but edit; destroy .ctxmenu"
-  button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
-    -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -highlightthickness 0 -image CtxmenuEdit -compound left \
@@ -5672,6 +5672,11 @@ proc tab_context_menu {tab_but} {
          destroy .ctxmenu
        "
   }
+  if {$filetype eq {SCHEMATIC}} {
+    button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuEdit -compound left \
+      -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
+  }
   button .ctxmenu.b7 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuEdit -compound left \
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
@@ -5681,9 +5686,11 @@ proc tab_context_menu {tab_but} {
   pack .ctxmenu.b2 -fill x -expand true
   pack .ctxmenu.b3 -fill x -expand true
   pack .ctxmenu.b4 -fill x -expand true
-  pack .ctxmenu.b5 -fill x -expand true
   if {$counterpart ne {}} {
     pack .ctxmenu.b6 -fill x -expand true
+  }
+  if {$filetype eq {SCHEMATIC}} {
+    pack .ctxmenu.b5 -fill x -expand true
   }
   pack .ctxmenu.b7 -fill x -expand true
   wm geometry .ctxmenu "+$x+$y"
@@ -6193,6 +6200,7 @@ proc save_ctx {context} {
 
 proc housekeeping_ctx {} {
   global has_x simulate_bg show_hidden_texts case_insensitive draw_window hide_symbols
+  global netlist_type
   if {![info exists has_x]} {return}
   uplevel #0 {
   }
@@ -6205,6 +6213,7 @@ proc housekeeping_ctx {} {
   } else {
     [xschem get top_path].menubar.simulate configure -bg red
   }
+  .statusbar.7 configure -text $netlist_type
 }
 
 proc simulate_button {button_path} {
