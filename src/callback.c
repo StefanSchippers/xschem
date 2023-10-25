@@ -1099,10 +1099,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    if( xctx->semaphore >= 1  || event == Expose) {
      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_winpath, winpath);
      redraw_only = 1;
-     new_schematic("switch_no_tcl_ctx", winpath, "");
+     new_schematic("switch_no_tcl_ctx", winpath, "", 1);
    } else {
      dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_winpath, winpath, xctx->semaphore);
-     new_schematic("switch", winpath, "");
+     new_schematic("switch", winpath, "", 1);
    }
    tclvareval("housekeeping_ctx", NULL);
  }
@@ -3025,7 +3025,7 @@ int rstate; /* (reduced state, without ShiftMask) */
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
-   if(old_winpath[0]) new_schematic("switch_no_tcl_ctx", old_winpath, "");
+   if(old_winpath[0]) new_schematic("switch_no_tcl_ctx", old_winpath, "", 1);
  }
  else
  if(strcmp(old_winpath, winpath)) {

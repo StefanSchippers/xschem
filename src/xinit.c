@@ -83,6 +83,12 @@ Xschem_ctx **get_save_xctx(void)
   return save_xctx;
 }
 
+/* array of tab names to be matched with xctx->current_win_path
+ * window_path[0] = .drw
+ * window_path[1] = .x3.drw
+ * window_path[2] = .x4.drw
+ * ...
+ */ 
 char *get_window_path(int i)
 {
   return window_path[i];
@@ -864,7 +870,7 @@ static void xwin_exit(void)
  tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
  /* "1" parameter means to force exit even if there are modified tabs/windows */
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
- if(has_x) new_schematic("destroy_all", "1", NULL);
+ if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  delete_schematic_data(1);
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
@@ -1211,10 +1217,11 @@ static int get_tab_or_window_number(const char *win_path)
   }
   if(n == -1) {
     for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
-      ctx = save_xctx[i];
       /* if only one schematic it is not yet saved in save_xctx */
       if(get_window_count() == 0 && i == 0)  {
         ctx = xctx;
+      } else {
+        ctx = save_xctx[i];
       }
       if(ctx && !strcmp(win_path, get_cell_w_ext(ctx->current_name, 0))) {
         n = i;
@@ -1269,7 +1276,7 @@ void swap_tabs(void)
     xctx = ctx;
     set_modify(-1);
     /* set context to tab that is about to be deleted */
-    new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL);
+    new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL, 1);
   }
 }
 
@@ -1346,7 +1353,7 @@ void swap_windows(void)
 
     /* rebuld colors and pixmaps, redraw swapped schematics */
     tclvareval("restore_ctx ", wp_i, NULL);
-    new_schematic("switch", wp_i, "");
+    new_schematic("switch", wp_i, "", 1);
     tclvareval("housekeeping_ctx", NULL);
     tclvareval("xschem build_colors", NULL);
     resetwin(1, 1, 1, 0, 0);
@@ -1356,7 +1363,7 @@ void swap_windows(void)
     
     /* set context to window that is about to be deleted */
     tclvareval("restore_ctx ", wp_j, NULL);
-    new_schematic("switch", wp_j, "");
+    new_schematic("switch", wp_j, "", 1);
     tclvareval("housekeeping_ctx", NULL);
     tclvareval("xschem build_colors", NULL);
     resetwin(1, 1, 1, 0, 0);
@@ -1368,6 +1375,9 @@ void swap_windows(void)
 
 /* check if filename is already loaded into a tab or window */
 /* caller should supply a win_path string for storing matching window path */
+/* window_path[0] == ".drw" */
+/* window_path[1] == ".x1.drw" */
+/* ....                        */
 int check_loaded(const char *f, char *win_path)
 {  
   int i;
@@ -1395,11 +1405,13 @@ int check_loaded(const char *f, char *win_path)
   return found;
 }
 
+/* win_path: .drw for main (first) window, .x1.drw, ... for additional windows */
 static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
 {
   int n;
   char my_win_path[80];
   Tk_Window tkwin=NULL;
+  dbg(1, "switch_window(): win_path=%s\n", win_path);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
   if(!win_path) {
     dbg(0, "switch_window(): no filename or window path given\n");
@@ -1438,7 +1450,8 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
   return 0;
 }
 
-static int switch_tab(int *window_count, const char *win_path)
+/* win_path: .drw for main (first) tab, .x1.drw, ... for additional tabs */
+static int switch_tab(int *window_count, const char *win_path, int dr)
 {        
   int n;
 
@@ -1464,9 +1477,9 @@ static int switch_tab(int *window_count, const char *win_path)
       tclvareval("housekeeping_ctx", NULL);
       if(has_x) tclvareval("reconfigure_layers_button {}", NULL);
       xctx->window = save_xctx[0]->window;
-      resetwin(1, 1, 1, 0, 0);
+      if(dr) resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
-      draw();
+      if(dr) draw();
       return 0;
     } else return 1;
   }
@@ -1565,7 +1578,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
    * because the Expose event after new window creation does a context switch prev win -> new win 
    */
   tclvareval("restore_ctx ", prev_window, NULL);
-  new_schematic("switch", prev_window, "");
+  new_schematic("switch", prev_window, "", 1);
   tclvareval("housekeeping_ctx", NULL);
 
   if(has_x) windowid(toppath);
@@ -1588,13 +1601,13 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
     if(has_x) {
       tcleval(msg);
       if(strcmp(tclresult(), "ok")) {
-        switch_tab(window_count, open_path);
+        switch_tab(window_count, open_path, 1);
         return;
       }
     }
     else {
       dbg(0, "create_new_tab: %s already open: %s\n", fname, open_path);
-      switch_tab(window_count, open_path);
+      switch_tab(window_count, open_path, 1);
       return;
     }
   }
@@ -1631,8 +1644,9 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
     tclvareval(
       "button ", ".tabs.x", nn, " -padx 2 -pady 0 -takefocus 0 -anchor nw -text Tab2 "
       "-command \"xschem new_schematic switch .x", nn, ".drw\"", NULL);
-    tclvareval("bind .tabs.x",nn," <ButtonPress> {swap_tabs %X %Y press}", NULL);
-    tclvareval("bind .tabs.x",nn," <ButtonRelease> {swap_tabs %X %Y release}", NULL);
+    tclvareval("bind .tabs.x",nn," <ButtonPress-1> {swap_tabs %X %Y press}", NULL);
+    tclvareval("bind .tabs.x",nn," <ButtonRelease-1> {swap_tabs %X %Y release}", NULL);
+    tclvareval("bind .tabs.x",nn," <ButtonPress-3> {tab_context_menu %W}", NULL);
     tclvareval(
       "if {![info exists tctx::tab_bg] } {set tctx::tab_bg [",
       ".tabs.x", nn, " cget -bg]}", NULL);
@@ -1895,7 +1909,7 @@ static void destroy_all_tabs(int *window_count, int force)
  *    ".drw"       ""
  *    ".x1.drw"    ".x1"
  */
-int new_schematic(const char *what, const char *win_path, const char *fname)
+int new_schematic(const char *what, const char *win_path, const char *fname, int dr)
 {
   int tabbed_interface;
 
@@ -1922,7 +1936,7 @@ int new_schematic(const char *what, const char *win_path, const char *fname)
       destroy_all_tabs(&window_count, (win_path && win_path[0]) ? 1 : 0);
     }
   } else if(!strcmp(what, "switch")) {
-    if(tabbed_interface) return switch_tab(&window_count, win_path);
+    if(tabbed_interface) return switch_tab(&window_count, win_path, dr);
     else return switch_window(&window_count, win_path, 1);
   } else if(!strcmp(what, "switch_no_tcl_ctx") && !tabbed_interface) {
     switch_window(&window_count, win_path, 0);

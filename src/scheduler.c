@@ -665,9 +665,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && !strcmp(argv[2], "force")) force = 1;
       if(force) 
-        new_schematic("destroy_all", "force", NULL); 
+        new_schematic("destroy_all", "force", NULL, 1); 
       else
-        new_schematic("destroy_all", NULL, NULL); 
+        new_schematic("destroy_all", NULL, NULL, 1); 
       Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
     }
 
@@ -817,7 +817,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               swap_windows();
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
-              new_schematic("destroy", xctx->current_win_path, NULL);
+              new_schematic("destroy", xctx->current_win_path, NULL, 1);
             }
           } else {
             if(!force && xctx->modified) {
@@ -844,7 +844,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               swap_tabs();
               set_modify(0);
-              new_schematic("destroy", xctx->current_win_path, NULL);
+              new_schematic("destroy", xctx->current_win_path, NULL, 1);
             }
           } else {
             if(has_x && !force && xctx->modified) {
@@ -860,7 +860,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } else { 
         if(force) set_modify(0); /* avoid ask to save downstream */
-        new_schematic("destroy", xctx->current_win_path, NULL);
+        new_schematic("destroy", xctx->current_win_path, NULL, 1);
       }
       Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
     }
@@ -2322,10 +2322,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(!cancel) {
         if(f[0]) {
-         new_schematic("create", "noconfirm", f);
+         new_schematic("create", "noconfirm", f, 1);
          tclvareval("update_recent_file {", f, "}", NULL);
         } else {
-          new_schematic("create", NULL, NULL);
+          new_schematic("create", NULL, NULL, 1);
         }
       }
       Tcl_ResetResult(interp);
@@ -2688,7 +2688,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* new_schematic create|destroy|destroy_all|switch winpath file
+    /* new_schematic create|destroy|destroy_all|switch winpath file [draw]
      *   Open/destroy a new tab or window 
      *     create: create new empty window or with 'file' loaded if 'file' given.
      *             The winpath must be given (even {} is ok).
@@ -2706,18 +2706,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "new_schematic"))
     {
       int r = -1;
+      int dr = 1;
       char s[20];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
 
-        if(argc == 3) r = new_schematic(argv[2], NULL, NULL);
-        else if(argc == 4) r = new_schematic(argv[2], argv[3], NULL);
-        else if(argc == 5) {
+        if(argc >= 6 && argv[5][0] == '0') dr = 0;
+        if(argc == 3) r = new_schematic(argv[2], NULL, NULL, 1);
+        else if(argc == 4) r = new_schematic(argv[2], argv[3], NULL, 1);
+        else if(argc >= 5) {
           char f[PATH_MAX + 100];
           my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
           tcleval(f);
           my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));  
-          r = new_schematic(argv[2], argv[3], f);
+          r = new_schematic(argv[2], argv[3], f, dr);
         }
         my_snprintf(s, S(s), "%d", r);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
@@ -4468,7 +4470,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int r = 1; /* error: no switch was done */
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) r = new_schematic("switch", argv[2], NULL);
+      if(argc > 2) r = new_schematic("switch", argv[2], NULL, 1);
       Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
     }
  

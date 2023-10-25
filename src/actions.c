@@ -1511,13 +1511,13 @@ void symbol_in_new_window(int new_process)
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
     my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
     if(new_process) new_xschem_process(filename, 1);
-    else new_schematic("create", NULL, filename);
+    else new_schematic("create", NULL, filename, 1);
   }
   else {
     my_strncpy(filename, abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), S(filename));
     if(!check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 1);
-      else new_schematic("create", NULL, filename);
+      else new_schematic("create", NULL, filename, 1);
     }
   }
 }
@@ -1530,7 +1530,7 @@ void schematic_in_new_window(int new_process)
   rebuild_selected_array();
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
     if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
-    else new_schematic("create", NULL, xctx->sch[xctx->currsch]);
+    else new_schematic("create", NULL, xctx->sch[xctx->currsch], 1);
   }
   else {
     if(                   /*  do not descend if not subcircuit */
@@ -1547,7 +1547,7 @@ void schematic_in_new_window(int new_process)
     get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n);
     if(!check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 0);
-      else new_schematic("create", NULL, filename);
+      else new_schematic("create", NULL, filename, 1);
     }
   }
 }

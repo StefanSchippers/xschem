@@ -5563,6 +5563,150 @@ proc context_menu { } {
   return $retval
 }
 
+proc tab_ctx_cmd {tab_but what} {
+  global terminal editor netlist_dir
+  # get win_path from tab name
+  set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
+  set tablist [xschem tab_list]
+  set found 0
+  foreach {tabname filename} $tablist {
+    if {$win_path eq $tabname} {
+      set found 1
+      break
+    }
+  }
+  if {!$found} { set filename {}}
+  if { $filename ne {} } {
+    if {$what eq {dir}} {
+      execute 0 xdg-open [file dirname $filename]
+    } elseif {$what eq {copy}} {
+      clipboard clear
+      clipboard append $filename
+    } elseif {$what eq {term}} {
+      set save [pwd]
+      cd [file dirname $filename]
+      execute 0 $terminal
+      cd $save
+    } elseif {$what eq {edit}} {
+      eval execute 0 $editor $filename
+    } elseif {$what eq {netlist}} {
+      set old [xschem get current_win_path]
+      set save [pwd]
+      xschem new_schematic switch $win_path {} 0 ;# no draw
+      cd $netlist_dir
+      eval execute 0 $editor [xschem get netlist_name fallback]
+      cd $save
+      xschem new_schematic switch $old {} 0 ;# no draw
+    } elseif {$what eq {close}} {
+      set old [xschem get current_win_path]
+      xschem new_schematic switch $win_path {} 0 ;# no draw
+      xschem exit
+      xschem new_schematic switch $old {} 1 ;# draw
+    }
+  }
+  # puts $filename
+}
+proc tab_context_menu {tab_but} {
+  global retval
+
+
+  # find filename associated with tab button
+  set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
+  set tablist [xschem tab_list] ;# .drw filename0 .x1.drw filename1 ...
+  set found 0
+  foreach {tabname filename} $tablist {
+    if {$win_path eq $tabname} {
+      set found 1
+      break
+    }
+  }
+  if {!$found} { set filename {}}
+
+  if {[is_xschem_file $filename] eq {SCHEMATIC}} {
+    set counterpart [abs_sym_path $filename .sym]
+    set msg {Open symbol}
+  } elseif {[is_xschem_file $filename] eq {SYMBOL}} {
+    set counterpart [abs_sym_path $filename .sch]
+    set msg {Open schematic}
+  } else {
+    set counterpart {}
+    set msg {}
+  }
+  # puts $counterpart
+
+  # puts $tab_but
+  set retval 0
+  if {[info tclversion] >= 8.5} {
+    set font {Sans 8 bold}
+  } else {
+    set font fixed
+  }
+  toplevel .ctxmenu
+  wm overrideredirect .ctxmenu 1
+  set x [expr {[winfo pointerx .ctxmenu] - 10}]
+  set y [expr {[winfo pointery .ctxmenu] - 10}]
+  button .ctxmenu.b0 -text {Tab menu} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -bg white -highlightthickness 0 -state disabled -disabledforeground black -font [subst $font]
+  button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
+  button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
+  button .ctxmenu.b3 -text {Open terminal} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
+  button .ctxmenu.b4 -text {Edit file} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but edit; destroy .ctxmenu"
+  button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
+  if {$counterpart ne {}} {
+    button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
+       -highlightthickness 0 -image CtxmenuEdit -compound left \
+      -font [subst $font] \
+      -command "
+         set retval 6
+         xschem new_schematic create {} $counterpart
+         destroy .ctxmenu
+       "
+  }
+  button .ctxmenu.b7 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuEdit -compound left \
+    -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
+
+  pack .ctxmenu.b0 -fill x -expand true
+  pack .ctxmenu.b1 -fill x -expand true
+  pack .ctxmenu.b2 -fill x -expand true
+  pack .ctxmenu.b3 -fill x -expand true
+  pack .ctxmenu.b4 -fill x -expand true
+  pack .ctxmenu.b5 -fill x -expand true
+  if {$counterpart ne {}} {
+    pack .ctxmenu.b6 -fill x -expand true
+  }
+  pack .ctxmenu.b7 -fill x -expand true
+  wm geometry .ctxmenu "+$x+$y"
+  update
+  # if window has been destroyed (by mouse pointer exiting) do nothing
+  if { ![winfo exists .ctxmenu] } { return 0 }
+
+  set wx [winfo width .ctxmenu]
+  set wy [winfo height .ctxmenu]
+  set sx [winfo screenwidth .]
+  set sy [winfo screenheight .]
+  if { $y + $wy > $sy } {
+    set y [expr {$y - ( $y + $wy - $sy )} ]
+  }
+  if { $x + $wx > $sx } {
+    set x [expr {$x - ( $x + $wx - $sx )} ]
+  }
+  wm geometry .ctxmenu "+$x+$y";# move away from screen edges
+  bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu}}
+  tkwait window .ctxmenu
+  return $retval
+}
+
 #
 # toolbar: Public variables that we allow to be overridden
 # Code contributed by Neil Johnson (github: nejohnson)
@@ -5719,8 +5863,9 @@ proc setup_tabbed_interface {} {
       frame .tabs
       button .tabs.x0 -padx 2 -pady 0 -anchor nw -takefocus 0 \
           -text Main -command "xschem new_schematic switch .drw"
-      bind .tabs.x0 <ButtonPress> {swap_tabs %X %Y press}
-      bind .tabs.x0 <ButtonRelease> {swap_tabs %X %Y release}
+      bind .tabs.x0 <ButtonPress-3> {tab_context_menu %W}
+      bind .tabs.x0 <ButtonPress-1> {swap_tabs %X %Y press}
+      bind .tabs.x0 <ButtonRelease-1> {swap_tabs %X %Y release}
       button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } -command "xschem new_schematic create"
       pack .tabs.x0 .tabs.add -side left
       balloon .tabs.add {Create a new tab}
