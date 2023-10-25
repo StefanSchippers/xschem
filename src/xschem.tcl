@@ -5587,6 +5587,11 @@ proc tab_ctx_cmd {tab_but what} {
       cd [file dirname $filename]
       execute 0 $terminal
       cd $save
+    } elseif {$what eq {simterm}} {
+      set save [pwd]
+      cd $netlist_dir
+      execute 0 $terminal
+      cd $save
     } elseif {$what eq {edit}} {
       eval execute 0 $editor $filename
     } elseif {$what eq {netlist}} {
@@ -5658,9 +5663,12 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuOpendir -compound left \
     -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
-  button .ctxmenu.b3 -text {Open terminal} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+  button .ctxmenu.b3 -text {Open circuit dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
+  button .ctxmenu.b8 -text {Open sim. dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuTerm -compound left \
+    -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Edit file} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuEdit -compound left \
     -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but edit; destroy .ctxmenu"
@@ -5687,6 +5695,7 @@ proc tab_context_menu {tab_but} {
   pack .ctxmenu.b1 -fill x -expand true
   pack .ctxmenu.b2 -fill x -expand true
   pack .ctxmenu.b3 -fill x -expand true
+  pack .ctxmenu.b8 -fill x -expand true
   pack .ctxmenu.b4 -fill x -expand true
   if {$counterpart ne {}} {
     pack .ctxmenu.b6 -fill x -expand true
