@@ -520,6 +520,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -950,7 +951,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
-   <li><kbd>       new_schematic create|destroy|destroy_all|switch winpath file</kbd></li><pre>
+   <li><kbd>       new_schematic create|destroy|destroy_all|switch winpath file [draw]</kbd></li><pre>
    Open/destroy a new tab or window 
      create: create new empty window or with 'file' loaded if 'file' given.
              The winpath must be given (even {} is ok).
@@ -962,6 +963,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
               if the 'force'argument is given do not issue a warning if modified
               tabs are about to be closed.
      switch: switch context to specified 'winpath' window or specified schematic name
+              If 'draw' is given and set to 0 do not redraw after switching tab
+              (only tab i/f)
    Main window/tab has winpath set to .drw,
    Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...</pre>
    <li><kbd>       only_probes</kbd></li><pre>
@@ -1357,6 +1360,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 

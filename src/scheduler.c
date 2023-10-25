@@ -2700,6 +2700,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *              if the 'force'argument is given do not issue a warning if modified
      *              tabs are about to be closed.
      *     switch: switch context to specified 'winpath' window or specified schematic name
+     *              If 'draw' is given and set to 0 do not redraw after switching tab
+     *              (only tab i/f)
      *   Main window/tab has winpath set to .drw,
      *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...
      */

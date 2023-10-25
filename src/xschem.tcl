@@ -5602,6 +5602,11 @@ proc tab_ctx_cmd {tab_but what} {
       eval execute 0 $editor [xschem get netlist_name fallback]
       cd $save
       xschem new_schematic switch $old {} 0 ;# no draw
+    } elseif {$what eq {save}} {
+      set old [xschem get current_win_path]
+      xschem new_schematic switch $win_path {} 0 ;# no draw
+      xschem save
+      xschem new_schematic switch $old {} 0 ;# no draw
     } elseif {$what eq {close}} {
       set old [xschem get current_win_path]
       set ntabs [xschem get ntabs]
@@ -5688,7 +5693,10 @@ proc tab_context_menu {tab_but} {
        -highlightthickness 0 -image CtxmenuEdit -compound left \
       -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   }
-  button .ctxmenu.b7 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+  button .ctxmenu.b7 -text {Save} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+     -highlightthickness 0 -image CtxmenuSave -compound left \
+    -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
+  button .ctxmenu.b8 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuDelete -compound left \
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
@@ -5704,6 +5712,7 @@ proc tab_context_menu {tab_but} {
     pack .ctxmenu.b5 -fill x -expand true
   }
   pack .ctxmenu.b7 -fill x -expand true
+  pack .ctxmenu.b8 -fill x -expand true
   wm geometry .ctxmenu "+$x+$y"
   update
   # if window has been destroyed (by mouse pointer exiting) do nothing
