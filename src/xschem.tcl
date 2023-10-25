@@ -5628,9 +5628,11 @@ proc tab_context_menu {tab_but} {
   if {$filetype eq {SCHEMATIC}} {
     set counterpart [abs_sym_path $filename .sym]
     set msg {Open symbol}
+    set img CtxmenuSymbol
   } elseif {$filetype eq {SYMBOL}} {
     set counterpart [abs_sym_path $filename .sch]
     set msg {Open schematic}
+    set img CtxmenuSchematic
   } else {
     set counterpart {}
     set msg {}
@@ -5651,20 +5653,20 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b0 -text {Tab menu} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg white -highlightthickness 0 -state disabled -disabledforeground black -font [subst $font]
   button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -highlightthickness 0 -image CtxmenuCopy -compound left \
     -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -highlightthickness 0 -image CtxmenuOpendir -compound left \
     -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
   button .ctxmenu.b3 -text {Open terminal} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Edit file} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuEdit -compound left \
     -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but edit; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuEdit -compound left \
+       -highlightthickness 0 -image $img -compound left \
       -font [subst $font] \
       -command "
          set retval 6
@@ -5678,7 +5680,7 @@ proc tab_context_menu {tab_but} {
       -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   }
   button .ctxmenu.b7 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -highlightthickness 0 -image CtxmenuDelete -compound left \
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
   pack .ctxmenu.b0 -fill x -expand true
