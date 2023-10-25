@@ -5666,12 +5666,9 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b3 -text {Open circuit dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
-  button .ctxmenu.b8 -text {Open sim. dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+  button .ctxmenu.b4 -text {Open sim. dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
-  button .ctxmenu.b4 -text {Edit file} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
-    -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but edit; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -highlightthickness 0 -image $img -compound left \
@@ -5695,7 +5692,6 @@ proc tab_context_menu {tab_but} {
   pack .ctxmenu.b1 -fill x -expand true
   pack .ctxmenu.b2 -fill x -expand true
   pack .ctxmenu.b3 -fill x -expand true
-  pack .ctxmenu.b8 -fill x -expand true
   pack .ctxmenu.b4 -fill x -expand true
   if {$counterpart ne {}} {
     pack .ctxmenu.b6 -fill x -expand true
