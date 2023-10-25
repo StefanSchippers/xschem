@@ -5667,10 +5667,10 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuOpendir -compound left \
     -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
-  button .ctxmenu.b3 -text {Open circuit dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+  button .ctxmenu.b3 -text {Open circuit dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
-  button .ctxmenu.b4 -text {Open sim. dir term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+  button .ctxmenu.b4 -text {Open sim. dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   if {$counterpart ne {}} {
