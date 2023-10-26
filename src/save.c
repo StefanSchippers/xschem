@@ -835,8 +835,6 @@ int extra_rawfile(int what, const char *file, const char *type)
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
-  } else {
-    return 1; /* an initial raw file must be present before calling extra_rawfile() */
   }
   /* **************** read ************* */
   if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
@@ -872,7 +870,7 @@ int extra_rawfile(int what, const char *file, const char *type)
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** switch ************* */
-  } else if(what == 2) {
+  } else if(what == 2 && xctx->extra_raw_n > 0) {
     if(file && type) {
       tclvareval("subst {", file, "}", NULL);
       my_strncpy(f, tclresult(), S(f));
@@ -897,7 +895,7 @@ int extra_rawfile(int what, const char *file, const char *type)
     }
     xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
   /* **************** switch back ************* */
-  } else if(what == 5) {
+  } else if(what == 5 && xctx->extra_raw_n > 0) {
     int tmp;
     dbg(1, "extra_rawfile() switch back: extra_idx=%d, extra_prev_idx=%d\n",
             xctx->extra_idx,  xctx->extra_prev_idx);
