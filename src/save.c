@@ -830,9 +830,13 @@ int extra_rawfile(int what, const char *file, const char *type)
   char f[PATH_MAX];
   dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
       what, file ? file : "NULL", type ? type : "NULL");
+
+
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
+  } else {
+    return 1; /* an initial raw file must be present before calling extra_rawfile() */
   }
   /* **************** read ************* */
   if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
