@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -27,12 +27,12 @@ spice_sym_def="tcleval([read_data_nonewline [abs_sym_path comp_65nm_read.cir]])"
 V {}
 S {}
 E {}
-L 4 -40 -50 -40 50 {}
-L 4 40 0 60 0 {}
-L 4 -60 30 -40 30 {}
-L 4 -40 -50 40 0 {}
-L 4 -40 50 40 0 {}
-L 4 -60 -30 -40 -30 {}
+L 6 -40 -50 -40 50 {}
+L 6 -40 -50 40 0 {}
+L 6 -40 50 40 0 {}
+L 6 40 0 60 0 {}
+L 6 -60 30 -40 30 {}
+L 6 -60 -30 -40 -30 {}
 B 5 -62.5 -32.5 -57.5 -27.5 {name=PLUS dir=in }
 B 5 57.5 -2.5 62.5 2.5 {name=OUT dir=out }
 B 5 -62.5 27.5 -57.5 32.5 {name=MINUS dir=in }

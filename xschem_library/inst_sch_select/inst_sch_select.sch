@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -42,7 +42,7 @@ out3
 out4
 out5
 out6"
-color="7 8 9 10 11 12"
+color="9 10 11 12 13 14"
 dataset=-1
 unitx=1
 logx=0
@@ -69,28 +69,28 @@ logx=0
 logy=0
 hilight_wave=-1}
 T {Default instance:
-Uses comp_65nm.sch} 10 -930 0 0 0.4 0.4 { layer=7}
+Uses comp_65nm.sch} 10 -930 0 0 0.4 0.4 { layer=9}
 T {Alternate instance:
-Uses comp_65nm_parax.sch} 10 -720 0 0 0.4 0.4 { layer=8}
+Uses comp_65nm_parax.sch} 10 -720 0 0 0.4 0.4 { layer=10}
 T {Alternate instance:
 Uses comp_65nm_pex
 contained in attribute
 spice_sym_def
-No schematic used} 10 -520 0 0 0.4 0.4 {}
+No schematic used} 10 -520 0 0 0.4 0.4 { layer=11}
 T {Alternate instance:
 Uses comp_65nm_empty.sch
 netlist embedded in global
-spice schematic attribute} 340 -920 0 0 0.4 0.4 { layer=10}
+spice schematic attribute} 340 -920 0 0 0.4 0.4 { layer=12}
 T {Alternate instance:
 Uses spice_sym_def to read in 
 file comp_65nm_file.cir
-no schematic used} 340 -620 0 0 0.4 0.4 { layer=11}
+no schematic used} 340 -620 0 0 0.4 0.4 { layer=13}
 T {The same symbol is simulated with 5 different implementations
 using instance 'schematic' and 'spice_sym_def' attributes} 190 -1040 0 0 0.6 0.6 { layer=4 slant=oblique}
 T {Instance based implementation selection.} 250 -1100 0 0 0.8 0.8 {}
 T {comp_65nm_read.sym:
 symbol has "spice_sym_def"
-attribute and reads in a file} 340 -360 0 0 0.4 0.4 { layer=12}
+attribute and reads in a file} 340 -360 0 0 0.4 0.4 { layer=14}
 C {comp_65nm.sym} 180 -820 0 0 {name=x1}
 C {lab_pin.sym} 120 -850 0 0 {name=p1 lab=PLUS}
 C {lab_pin.sym} 240 -820 0 1 {name=p2 lab=OUT1}

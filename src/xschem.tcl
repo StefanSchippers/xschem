@@ -5637,19 +5637,20 @@ proc tab_context_menu {tab_but} {
   if {!$found} { set filename {}}
 
 
-  set filetype [is_xschem_file $filename]
 
-  if {$filetype eq {SCHEMATIC}} {
+  set old [xschem get current_win_path]
+  xschem new_schematic switch $win_path {} 0 ;# no draw
+  set filetype [xschem get netlist_type] ;# symbol or spice or vhdl or tedax or verilog
+  xschem new_schematic switch $old {} 0 ;# no draw
+
+  if {$filetype ne {symbol}} {
     set counterpart [abs_sym_path $filename .sym]
     set msg {Open symbol}
     set img CtxmenuSymbol
-  } elseif {$filetype eq {SYMBOL}} {
+  } else {
     set counterpart [abs_sym_path $filename .sch]
     set msg {Open schematic}
     set img CtxmenuSchematic
-  } else {
-    set counterpart {}
-    set msg {}
   }
   # puts $counterpart
 
@@ -5688,7 +5689,7 @@ proc tab_context_menu {tab_but} {
          destroy .ctxmenu
        "
   }
-  if {$filetype eq {SCHEMATIC}} {
+  if {$filetype ne {symbol}} {
     button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -highlightthickness 0 -image CtxmenuEdit -compound left \
       -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
@@ -5708,7 +5709,7 @@ proc tab_context_menu {tab_but} {
   if {$counterpart ne {}} {
     pack .ctxmenu.b6 -fill x -expand true
   }
-  if {$filetype eq {SCHEMATIC}} {
+  if {$filetype ne {symbol}} {
     pack .ctxmenu.b5 -fill x -expand true
   }
   pack .ctxmenu.b7 -fill x -expand true
