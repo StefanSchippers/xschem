@@ -4132,7 +4132,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   
   width = (unsigned int)isx2 - (unsigned int)isx1;
   height = (unsigned int)isy2 - (unsigned int)isy1;
-
+  dbg(1, "%g %g %g %g  --> %g %g\n", isx1, isy1, isx2, isy2, idx1, idy1);
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
   #if HAS_CAIRO==1

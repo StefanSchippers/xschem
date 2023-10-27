@@ -195,7 +195,6 @@ void draw_selection(GC g, int interruptable)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-
   dbg(1,"draw_selection %s\n", g == xctx->gctiled ? "gctiled" : "gcselect");
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
   for(i=0;i<xctx->movelastsel; ++i)
@@ -447,6 +446,7 @@ void draw_selection(GC g, int interruptable)
      if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled) {
        short save_flip, save_rot;
        double save_x0, save_y0;
+       double save_x1, save_y1, save_x2, save_y2;
        double x1, y1, x2, y2;
 
        /* Can be made simpler ? */
@@ -456,6 +456,10 @@ void draw_selection(GC g, int interruptable)
        save_rot = xctx->inst[n].rot;
        save_x0 = xctx->inst[n].x0;
        save_y0 = xctx->inst[n].y0;
+       save_x1 = xctx->inst[n].xx1;
+       save_y1 = xctx->inst[n].yy1;
+       save_x2 = xctx->inst[n].xx2;
+       save_y2 = xctx->inst[n].yy2;
        xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
        xctx->inst[n].rot = (xctx->inst[n].rot + xctx->move_rot) & 0x3;
        xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
@@ -465,6 +469,10 @@ void draw_selection(GC g, int interruptable)
        xctx->inst[n].flip = save_flip;
        xctx->inst[n].x0 = save_x0;
        xctx->inst[n].y0 = save_y0;
+       xctx->inst[n].xx1 = save_x1;
+       xctx->inst[n].yy1 = save_y1;
+       xctx->inst[n].xx2 = save_x2;
+       xctx->inst[n].yy2 = save_y2;
 
        MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
          x1, y1, x2, y2, x1, y1,
