@@ -940,13 +940,6 @@ void unselect_all(int dr)
     xctx->ui_state &= ~SELECTION;
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
-    if(fix_broken_tiled_fill || !_unix) {
-      if(xctx->save_pixmap && xctx->window) {
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-        if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
-      }
-    }
     dbg(2, "unselect_all(1): done\n");
   }
 }
@@ -1068,11 +1061,12 @@ void select_text(int i,unsigned short select_mode, int fast)
       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
       xctx->text[i].x0, xctx->text[i].y0,
       xctx->text[i].xscale, xctx->text[i].yscale);
-  } else
+  } else {
     draw_temp_string(xctx->gctiled,NOW, get_text_floater(i),
       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
       xctx->text[i].x0, xctx->text[i].y0,
       xctx->text[i].xscale, xctx->text[i].yscale);
+  }
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1113,12 +1107,10 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
                                     xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   } else {
     xctx->rect[c][i].sel = 0;
-    drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+    drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,   
                                xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   }
-
   if( xctx->rect[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->rect[c][i].sel = SELECTED;
-  
   if(xctx->rect[c][i].sel == SELECTED) set_first_sel(xRECT, i, c);
   xctx->need_reb_sel_arr=1;
 }
@@ -1143,13 +1135,13 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   if(select_mode) {
     xctx->arc[c][i].sel = select_mode;
     drawtemparc(xctx->gc[SELLAYER], ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
-                                   xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
+                              xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   } else {
     xctx->arc[c][i].sel = 0;
     drawtemparc(xctx->gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
                               xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
-    if(xctx->arc[c][i].sel == SELECTED) set_first_sel(ARC, i, c);
   }
+  if(xctx->arc[c][i].sel == SELECTED) set_first_sel(ARC, i, c);
 
   /*if( xctx->arc[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->arc[c][i].sel = SELECTED; */
 
@@ -1172,10 +1164,11 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   }
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
-   drawtemppolygon(xctx->gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+    drawtemppolygon(xctx->gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
   }
-  else
-   drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+  else {
+    drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+  }
   if(xctx->poly[c][i].sel == SELECTED) set_first_sel(POLYGON, i, c);
   xctx->need_reb_sel_arr=1;
 }
@@ -1212,13 +1205,14 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
      drawtempline(xctx->gc[SELLAYER], ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                      xctx->line[c][i].x2, xctx->line[c][i].y2);
   }
-  else
-   if(xctx->line[c][i].bus)
-     drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
-                                  xctx->line[c][i].x2, xctx->line[c][i].y2);
-   else
-     drawtempline(xctx->gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
-                                xctx->line[c][i].x2, xctx->line[c][i].y2);
+  else {
+    if(xctx->line[c][i].bus)
+      drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                                 xctx->line[c][i].x2, xctx->line[c][i].y2);
+    else
+      drawtempline(xctx->gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                                 xctx->line[c][i].x2, xctx->line[c][i].y2);
+  }
   xctx->need_reb_sel_arr=1;
 }
 
@@ -1269,6 +1263,13 @@ Selected select_object(double mx,double my, unsigned short select_mode, int over
    drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 
    if(sel.type)  xctx->ui_state |= SELECTION;
+
+
+   if(!select_mode) {
+     rebuild_selected_array();
+     draw_selection(xctx->gc[SELLAYER], 0);
+   }
+
    return sel;
 }
 
@@ -1525,6 +1526,12 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+
+ if(!sel) {
+   rebuild_selected_array();
+   draw_selection(xctx->gc[SELLAYER], 0);
+ }
+
 }
 
 void select_touch(double x1,double y1, double x2, double y2, int sel) /*added unselect (sel param) */
@@ -1655,6 +1662,12 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
+
+ if(!sel) {
+   rebuild_selected_array();
+   draw_selection(xctx->gc[SELLAYER], 0);
+ }
+
 }
 
 void select_all(void)

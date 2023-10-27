@@ -4868,7 +4868,7 @@ proc infowindow {} {
   if ![winfo exists $z] {
     toplevel $z
     wm title $z {Info window}
-    wm transient $z .
+    # wm transient $z .
     wm  geometry $z 90x24+0+400
     wm iconname $z {Info window}
     wm withdraw $z
@@ -6727,7 +6727,7 @@ proc build_widgets { {topwin {} } } {
            } else {
              xschem set fix_broken_tiled_fill 0
            }
-           xschem resetwin 1 1 0 0 0
+           xschem resetwin 1 1 1 0 0
            xschem redraw
          }
 

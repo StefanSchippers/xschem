@@ -187,6 +187,7 @@ static void update_symbol_bboxes(short rot, short flip)
     }
   }
 }
+
 void draw_selection(GC g, int interruptable)
 {
   int i, c, k, n;
@@ -195,15 +196,8 @@ void draw_selection(GC g, int interruptable)
   int customfont;
   #endif
 
-  dbg(1,"draw_selection\n");
+  dbg(1,"draw_selection %s\n", g == xctx->gctiled ? "gctiled" : "gcselect");
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
-  if(fix_broken_tiled_fill || !_unix) {
-    if(g == xctx->gctiled) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-             xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-       if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
-    }
-  }
   for(i=0;i<xctx->movelastsel; ++i)
   {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
@@ -449,10 +443,38 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
                 xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      }
-     for(k=0;k<cadlayers; ++k) {
-       draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
-         ( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot,
-         xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
+
+     if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled) {
+       short save_flip, save_rot;
+       double save_x0, save_y0;
+       double x1, y1, x2, y2;
+
+       /* Can be made simpler ? */
+       dbg(1, "rot=%d flip=%d deltax=%g deltay=%g\n",
+              xctx->move_rot, xctx->move_flip, xctx->deltax, xctx->deltay);
+       save_flip = xctx->inst[n].flip;
+       save_rot = xctx->inst[n].rot;
+       save_x0 = xctx->inst[n].x0;
+       save_y0 = xctx->inst[n].y0;
+       xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
+       xctx->inst[n].rot = (xctx->inst[n].rot + xctx->move_rot) & 0x3;
+       xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
+       xctx->inst[n].y0 = xctx->ry1+xctx->deltay;
+       symbol_bbox(n, &x1, &y1, &x2, &y2);
+       xctx->inst[n].rot = save_rot;
+       xctx->inst[n].flip = save_flip;
+       xctx->inst[n].x0 = save_x0;
+       xctx->inst[n].y0 = save_y0;
+
+       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         x1, y1, x2, y2, x1, y1,
+         xctx->lw);
+     } else { 
+       for(k=0;k<cadlayers; ++k) {
+         draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
+           ( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot,
+           xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
+       }
      }
      break;
    }
@@ -680,11 +702,6 @@ void copy_objects(int what)
      if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    }
 
-   if(fix_broken_tiled_fill || !_unix) {
-     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-   }
-
    xctx->move_rot = xctx->move_flip = 0;
    xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
@@ -699,7 +716,6 @@ void copy_objects(int what)
    xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
-   draw_selection(xctx->gc[SELLAYER],1);
   }
   if(what & ROTATELOCAL ) {
    xctx->rotatelocal=1;
@@ -1126,12 +1142,7 @@ void move_objects(int what, int merge, double dx, double dy)
     pop_undo(0, 0);
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
   }
-  if(fix_broken_tiled_fill || !_unix) {
-  if(xctx->save_pixmap && xctx->window)
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-  }
-
+  
   xctx->move_rot=xctx->move_flip=0;
   xctx->deltax=xctx->deltay=0.;
   xctx->ui_state &= ~STARTMOVE;
@@ -1142,7 +1153,6 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
   draw_selection(xctx->gctiled,0);
   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
-  draw_selection(xctx->gc[SELLAYER],1);
  }
  if(what & ROTATELOCAL) {
   xctx->rotatelocal=1;

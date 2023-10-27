@@ -1211,17 +1211,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    if(xctx->ui_state & STARTPAN)   pan(RUBBER, mx, my);
-    if(fix_broken_tiled_fill || !_unix) {
-      if ((xctx->ui_state & STARTWIRE) || (xctx->ui_state & STARTARC) ||
-          (xctx->ui_state & STARTLINE) || (xctx->ui_state & STARTMOVE) ||
-          (xctx->ui_state & STARTCOPY) || (xctx->ui_state & STARTRECT) ||
-          (xctx->ui_state & STARTPOLYGON) || /* (xctx->ui_state & STARTPAN) || */
-          (xctx->ui_state & STARTSELECT)) {
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-      }
-    }
+    if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
     if(draw_xhair) {
       draw_crosshair(0);
     }

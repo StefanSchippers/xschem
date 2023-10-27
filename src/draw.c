@@ -406,9 +406,6 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  int tmp;
  double dtmp;
  if(!has_x) return;
- if(fix_broken_tiled_fill || !_unix) {
-   if(gctext == xctx->gctiled) return;
- }
 
  dbg(2, "draw_string(): string=%s\n",str);
  if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
@@ -727,10 +724,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
-
- if(fix_broken_tiled_fill || !_unix) {
-   if(gc == xctx->gctiled) return;
- }
 
  if( (xctx->inst[n].flags & HIDE_INST) ||
      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
@@ -1162,10 +1155,8 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
- if(fix_broken_tiled_fill || !_unix) {
-   if(gc == xctx->gctiled) return;
- }
 
+ if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled && what == ADD) what = NOW;
  if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1200,7 +1191,13 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
+   if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+     RECTORDER(linex1, liney1, linex2, liney2);
+     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         linex1, liney1, linex2, liney2, linex1, liney1, xctx->lw);
+   } else {
+     XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
+   }
   }
  }
  else if(what & THICK)
@@ -1211,10 +1208,14 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
-   XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
-
-   XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
-   XSetLineAttributes (display, gc, XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+   if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         linex1, liney1, linex2, liney2, linex1, liney1, BUS_WIDTH * xctx->lw);
+   } else {
+     XSetLineAttributes (display, gc, INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+     XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
+     XSetLineAttributes (display, gc, XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+   }
   }
  }
 
@@ -1239,10 +1240,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
 
  if(!has_x) return;
- if(fix_broken_tiled_fill || !_unix) {
-   if(gc == xctx->gctiled) return;
- }
-
+ if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled && what == ADD) what = NOW;
  if(what & ADD)
  {
   if(i>=CADDRAWBUFFERSIZE)
@@ -1272,19 +1270,25 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
  }
  else if(what & NOW)
  {
+  double sx1, sy1, sx2, sy2;
   xx1=X_TO_SCREEN(x-r);
   yy1=Y_TO_SCREEN(y-r);
   xx2=X_TO_SCREEN(x+r);
   yy2=Y_TO_SCREEN(y+r);
   arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
-  x1=X_TO_SCREEN(x1);
-  y1=Y_TO_SCREEN(y1);
-  x2=X_TO_SCREEN(x2);
-  y2=Y_TO_SCREEN(y2);
-  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
+  sx1=X_TO_SCREEN(x1);
+  sy1=Y_TO_SCREEN(y1);
+  sx2=X_TO_SCREEN(x2);
+  sy2=Y_TO_SCREEN(y2);
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) )
   {
-   XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
-            (int)(a*64), (int)(b*64));
+    if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+          x1, y1, x2, y2, x1, y1, xctx->lw);
+    } else {
+      XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
+               (int)(a*64), (int)(b*64));
+    }
   }
  }
  else if((what & END) && i)
@@ -1667,32 +1671,35 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   my_free(_ALLOC_ID_, &p);
 }
 
-void drawtemppolygon(GC g, int what, double *x, double *y, int points)
+void drawtemppolygon(GC gc, int what, double *x, double *y, int points)
 {
   double x1,y1,x2,y2;
+  double sx1,sy1,sx2,sy2;
   XPoint *p;
   int i;
   short sx, sy;
   if(!has_x) return;
-  if(fix_broken_tiled_fill || !_unix) {
-    if(g == xctx->gctiled) return;
-  }
-
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
-  x1=X_TO_SCREEN(x1);
-  y1=Y_TO_SCREEN(y1);
-  x2=X_TO_SCREEN(x2);
-  y2=Y_TO_SCREEN(y2);
-  p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
-  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
-    for(i=0;i<points; ++i) {
-      clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
-      p[i].x = sx;
-      p[i].y = sy;
+  sx1=X_TO_SCREEN(x1);
+  sy1=Y_TO_SCREEN(y1);
+  sx2=X_TO_SCREEN(x2);
+  sy2=Y_TO_SCREEN(y2);
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) ) {
+
+    if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+          x1, y1, x2, y2, x1, y1, xctx->lw);
+    } else {
+      p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
+      for(i=0;i<points; ++i) {
+        clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
+        p[i].x = sx;
+        p[i].y = sy;
+      }
+      XDrawLines(display, xctx->window, gc, p, points, CoordModeOrigin);
+      my_free(_ALLOC_ID_, &p);
     }
-    XDrawLines(display, xctx->window, g, p, points, CoordModeOrigin);
   }
-  my_free(_ALLOC_ID_, &p);
 }
 
 void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int dash)
@@ -1768,9 +1775,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
  double x1,y1,x2,y2;
 
  if(!has_x) return;
- if(fix_broken_tiled_fill || !_unix) {
-   if(gc == xctx->gctiled) return;
- }
+ if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled && what == ADD) what = NOW;
 
  if(what & NOW)
  {
@@ -1781,9 +1786,15 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   /* if( (x2-x1)< 3.0 && (y2-y1)< 3.0) return; */
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   XDrawRectangle(display, xctx->window, gc, (int)x1, (int)y1,
-    (unsigned int)x2 - (unsigned int)x1,
-    (unsigned int)y2 - (unsigned int)y1);
+   if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         rectx1, recty1, rectx2, recty2, rectx1, recty1, xctx->lw);
+
+   } else {
+     XDrawRectangle(display, xctx->window, gc, (int)x1, (int)y1,
+       (unsigned int)x2 - (unsigned int)x1,
+       (unsigned int)y2 - (unsigned int)y1);
+   }
   }
  }
  else if(what & ADD)

@@ -3397,7 +3397,6 @@ void pan(int what, int mx, int my)
  * XCopy Area operations */
 void fix_restore_rect(double x1, double y1, double x2, double y2)
 {
-  dbg(0, "---\n");
   /* horizontal lines */
   MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
       x1, y1, x2, y1, x1, y1,
@@ -3421,8 +3420,8 @@ void fix_restore_rect(double x1, double y1, double x2, double y2)
 /*  20150927 select=1: select objects, select=0: unselect objects */
 void select_rect(int what, int select)
 {
- dbg(1, "select_rect(): mousex_save=%g mousey_save=%g, mousex_snap=%g mousey_snap=%g\n", 
-        xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
+ dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex_snap=%g mousey_snap=%g\n", 
+        what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
  if(what & RUBBER)
  {
     if(xctx->nl_sem==0) {
@@ -3431,24 +3430,32 @@ void select_rect(int what, int select)
     }
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    if(fix_broken_tiled_fill || !_unix) {
+      fix_restore_rect(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    } else {
+      drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    }
     xctx->nl_xr2=xctx->mousex_snap;xctx->nl_yr2=xctx->mousey_snap;
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
+    #if 0
     if(xctx->nl_dir == 0) {
       bbox(START,0.0, 0.0, 0.0, 0.0);
       bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
       bbox(SET,0.0, 0.0, 0.0, 0.0);
     }
+    #endif
     draw_selection(xctx->gc[SELLAYER], 0);
     /* if(xctx->nl_sel) { */
       if(xctx->nl_dir == 0) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
       else select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     /* } */
+    #if 0
     if(xctx->nl_dir == 0) {
       bbox(END,0.0, 0.0, 0.0, 0.0);
     }
+    #endif
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     drawtemprect(xctx->gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3479,13 +3486,7 @@ void select_rect(int what, int select)
     RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
 
     if(fix_broken_tiled_fill || !_unix) {
-      /* 
-       * MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-       *     xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
-       */
-
-       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2, xctx->nl_xr, xctx->nl_yr, xctx->lw);
+      fix_restore_rect(xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
     } else {
       drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     }
@@ -3494,15 +3495,19 @@ void select_rect(int what, int select)
     if(xctx->nl_dir == 0) select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
+    #if 0
     if(xctx->nl_dir == 0) {
       bbox(START,0.0, 0.0, 0.0, 0.0);
       bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
       bbox(SET,0.0, 0.0, 0.0, 0.0);
     }
+    #endif
     draw_selection(xctx->gc[SELLAYER], 0);
+    #if 0
     if(xctx->nl_dir == 0) {
       bbox(END,0.0, 0.0, 0.0, 0.0);
     }
+    #endif
     /*  /20171219 */
 
     xctx->ui_state &= ~STARTSELECT;

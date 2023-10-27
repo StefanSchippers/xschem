@@ -1007,7 +1007,7 @@ typedef struct {
   /* select_rect */
   double nl_xr, nl_yr, nl_xr2, nl_yr2;
   int nl_sel, nl_sem; /* nl_sel is the select mode (select) the select_rect() was called with */
-  int nl_dir; /* direction of the drag mode select_rect was called with */
+  int nl_dir; /* direction of the drag select_rect was called with: 0=to the right, 1=to the left */
   /* compare_schematics */
   char sch_to_compare[PATH_MAX];
   /* pan */
