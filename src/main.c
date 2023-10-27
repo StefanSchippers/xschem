@@ -96,10 +96,12 @@ int main(int argc, char **argv)
 #endif
   argc = process_options(argc, argv);
 
+  #ifdef __unix__
   /* if invoked in background detach from console */
   if(getpgrp() != tcgetpgrp(STDOUT_FILENO) && !cli_opt_no_readline) {
     cli_opt_detach = 1;
   }
+  #endif
 
   my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
