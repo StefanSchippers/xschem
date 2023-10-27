@@ -834,10 +834,11 @@ void unselect_all(int dr)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+  set_first_sel(0, -1, 0);
+  if((xctx->ui_state & SELECTION) || xctx->lastsel) {
     dbg(1, "unselect_all(1): start\n");
     xctx->ui_state = 0;
     xctx->lastsel = 0;
-    set_first_sel(0, -1, 0);
     for(i=0;i<xctx->wires; ++i)
     {
      if(xctx->wire[i].sel)
@@ -947,6 +948,7 @@ void unselect_all(int dr)
       }
     }
     dbg(2, "unselect_all(1): done\n");
+  }
 }
 
 void select_wire(int i,unsigned short select_mode, int fast)
