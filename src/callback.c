@@ -2139,9 +2139,38 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if(0 && (key=='u') && rstate==ControlMask)                   /* testmode */
+   if( 0 && (key=='u') && rstate==ControlMask)                   /* testmode */
    {
-    dbg(0, "%d\n", sizeof(Xschem_ctx));
+    int x = 1;
+    if(x == 0) {
+      XFillRectangle(display, xctx->window,  xctx->gctiled, 
+        xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+    } else if(x == 1) {
+      int i;
+      for(i = 0; i < xctx->xrect[0].height; i++) {
+        XDrawLine(display, xctx->window,  xctx->gctiled,
+           xctx->xrect[0].x, i, xctx->xrect[0].width, i);
+      }
+    } else if(x == 2) {
+      int i, j;
+      for(i = 0; i < xctx->xrect[0].width; i++) {
+        for(j = 0; j < xctx->xrect[0].height; j++) {
+          XDrawLine(display, xctx->window,  xctx->gctiled,
+            i, xctx->xrect[0].y, xctx->xrect[0].width - i, j);
+
+          XDrawLine(display, xctx->window,  xctx->gctiled,
+             xctx->xrect[0].width - i, xctx->xrect[0].y, i, j);
+
+          XDrawLine(display, xctx->window,  xctx->gctiled,
+            i, xctx->xrect[0].height, xctx->xrect[0].width - i, j);
+
+          XDrawLine(display, xctx->window,  xctx->gctiled,
+             xctx->xrect[0].width - i, xctx->xrect[0].height, i, j);
+
+        }
+      }
+    }
+    x++;
     break;
    }
    if(key=='u' && rstate==0)                             /* undo */

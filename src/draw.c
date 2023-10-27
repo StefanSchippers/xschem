@@ -4087,7 +4087,7 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
      unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
-  dbg(1, "MyXCopyArea()\n");
+  dbg(1, "MyXCopyArea(%d, %d, %u, %u)\n", src_x, src_y, width, height);
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   #if HAS_CAIRO==1
@@ -4110,6 +4110,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
 
+  dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g)\n", sx1, sy1, sx2, sy2);
   isx1=X_TO_SCREEN(sx1) - 2 * INT_WIDTH(lw);
   isy1=Y_TO_SCREEN(sy1) - 2 * INT_WIDTH(lw);
   isx2=X_TO_SCREEN(sx2) + 2 * INT_WIDTH(lw);

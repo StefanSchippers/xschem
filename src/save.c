@@ -1185,16 +1185,17 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define SGN 14
 #define SQRT 15
 #define TAN 16
-#define INTEG 17
-#define AVG 18
-#define DERIV 19
-#define EXCH 20
-#define DUP 21
-#define RAVG 22 /* running average */
-#define DB20 23
-#define DERIV0 24 /* derivative to first sweep variable, regardless of specified sweep_idx */
-#define PREV 25 /* previous point */
-#define DEL 26 /* delay by an anount of sweep axis distance */
+#define TANH 17
+#define INTEG 18
+#define AVG 19
+#define DERIV 20
+#define EXCH 21
+#define DUP 22
+#define RAVG 23 /* running average */
+#define DB20 24
+#define DERIV0 25 /* derivative to first sweep variable, regardless of specified sweep_idx */
+#define PREV 26 /* previous point */
+#define DEL 27 /* delay by an anount of sweep axis distance */
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
 
@@ -1242,6 +1243,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
     else if(!strcmp(n, "sqrt()")) stack1[stackptr1++].i = SQRT;
     else if(!strcmp(n, "tan()")) stack1[stackptr1++].i = TAN;
+    else if(!strcmp(n, "tanh()")) stack1[stackptr1++].i = TANH;
     else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
     else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
@@ -1528,6 +1530,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             break;
           case TAN:
             stack2[stackptr2 - 1] =  tan(stack2[stackptr2 - 1]);
+            break;
+          case TANH:
+            stack2[stackptr2 - 1] =  tanh(stack2[stackptr2 - 1]);
             break;
           case SIN:
             stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);

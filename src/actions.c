@@ -3393,6 +3393,31 @@ void pan(int what, int mx, int my)
   }
 }
 
+/* instead of doing a drawtemprect(xctx->gctiled, NOW, ....) do 4 
+ * XCopy Area operations */
+void fix_restore_rect(double x1, double y1, double x2, double y2)
+{
+  dbg(0, "---\n");
+  /* horizontal lines */
+  MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+      x1, y1, x2, y1, x1, y1,
+      xctx->lw);
+
+  MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+      x1, y2, x2, y2, x1, y2,
+      xctx->lw);
+
+  /* vertical lines */
+  MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+      x1, y1, x1, y2, x1, y1,
+      xctx->lw);
+
+  MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+      x2, y1, x2, y2, x2, y1,
+      xctx->lw);
+}
+
+
 /*  20150927 select=1: select objects, select=0: unselect objects */
 void select_rect(int what, int select)
 {
