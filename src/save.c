@@ -816,7 +816,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   return 0;
 }
 
-/* what == 1: read another raw file and switch to it
+/* what == 1: read another raw file and switch to it (make it the current one)
  * what == 2: switch raw file. If filename given switch to that one, else switch to next
  * what == 3: remove a raw file. If no filename given remove all, keep current in xctx->raw
  * what == 4: print info
@@ -831,7 +831,7 @@ int extra_rawfile(int what, const char *file, const char *type)
   dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
       what, file ? file : "NULL", type ? type : "NULL");
 
-
+  /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
@@ -905,36 +905,39 @@ int extra_rawfile(int what, const char *file, const char *type)
     xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
   /* **************** clear ************* */
   } else if(what == 3) {
-    if(!file) { /* clear all , keep only current */
+    if(!file) { /* clear all */
+      if(xctx->extra_raw_n == 0) ret = 0;
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        if(i == xctx->extra_idx) {
-          xctx->raw = xctx->extra_raw_arr[i];
-          xctx->extra_raw_arr[i] = NULL;
-        } else {
-          free_rawfile(&xctx->extra_raw_arr[i], 0);
-        }
+        free_rawfile(&xctx->extra_raw_arr[i], 0);
       }
+      xctx->raw = NULL;
       xctx->extra_prev_idx = 0;
       xctx->extra_idx = 0;
       xctx->extra_raw_n = 0;
-    } else { /* clear provided file if found, switch to first in remaining */
+    } else { /* clear provided file if found, switch to first in remaining if any */
       int found = -1;
       tclvareval("subst {", file, "}", NULL);
       my_strncpy(f, tclresult(), S(f));
-      if(xctx->extra_raw_n > 1 ) {
+      if(xctx->extra_raw_n > 0 ) {
         for(i = 0; i < xctx->extra_raw_n; i++) {
           if(!strcmp(xctx->extra_raw_arr[i]->rawfile, f)) {
             free_rawfile(&xctx->extra_raw_arr[i], 0);
             found = i;
             continue;
           }
-          if(found != -1) xctx->extra_raw_arr[i - 1] = xctx->extra_raw_arr[i];
+          if(found != -1 && i > 0) {
+            xctx->extra_raw_arr[i - 1] = xctx->extra_raw_arr[i];
+          }
         }
         if(found != -1) {
           xctx->extra_raw_n--;
           xctx->extra_idx = 0;
           xctx->extra_prev_idx = 0;
-          xctx->raw = xctx->extra_raw_arr[0];
+          if(xctx->extra_raw_n) {
+            xctx->raw = xctx->extra_raw_arr[0];
+          } else {
+            xctx->raw = NULL;
+          }
         } else ret = 0;
       } else ret = 0;
     }
