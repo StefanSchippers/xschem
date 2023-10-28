@@ -1028,8 +1028,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             Tcl_SetResult(interp, res, TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "fix_broken_tiled_fill")) { /* get drawing method setting (for broken GPUs) */
-            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(fix_broken_tiled_fill),TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "fix_mouse_coord")) { /* get fix_mouse_coord setting (fix for broken RDP)*/
+            Tcl_SetResult(interp, my_itoa(fix_mouse_coord),TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "format")) { /* alternate format attribute to use in netlist (or NULL) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -3987,8 +3989,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->draw_window=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "fix_broken_tiled_fill")) { /* alternate drawing method for broken GPUs */
-            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             fix_broken_tiled_fill = atoi(argv[3]);
+          }
+          else if(!strcmp(argv[2], "fix_mouse_coord")) { /* fix for wrong mouse coords in RDP software */
+            fix_mouse_coord = atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "format")) { /* set name of custom format attribute used for netlisting */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

@@ -6519,6 +6519,12 @@ proc build_widgets { {topwin {} } } {
   setup_recent_menu $topwin
   $topwin.menubar.file.menu add command -label {Create new window/tab} -command "xschem new_schematic create"
   toolbar_add FileOpen "xschem load" "Open File" $topwin
+
+  $topwin.menubar.file.menu add command -label "Open schematic in new window/tab" \
+      -command "xschem schematic_in_new_window" -accelerator Alt+E
+  $topwin.menubar.file.menu add command -label "Open symbol in new window/tab" \
+      -command "xschem symbol_in_new_window" -accelerator Alt+I
+
   $topwin.menubar.file.menu add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
   $topwin.menubar.file.menu add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
   toolbar_add FileSave "xschem save" "Save File" $topwin
@@ -6541,11 +6547,15 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file.menu add command -label "Save as symbol" \
      -command "xschem saveas {} symbol" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
-  $topwin.menubar.file.menu add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
-  $topwin.menubar.file.menu add command -label "PDF/PS Export Full" -command "xschem print pdf_full"
-  $topwin.menubar.file.menu add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"
-  $topwin.menubar.file.menu add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
-  $topwin.menubar.file.menu add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
+  $topwin.menubar.file.menu add cascade -label "Image export" -menu $topwin.menubar.file.menu.im_exp
+  menu $topwin.menubar.file.menu.im_exp -tearoff 0
+  $topwin.menubar.file.menu.im_exp add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
+  $topwin.menubar.file.menu.im_exp add command -label "PDF/PS Export Full" -command "xschem print pdf_full"
+  $topwin.menubar.file.menu.im_exp add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"
+  $topwin.menubar.file.menu.im_exp add command -label "PNG Export" -command "xschem print png" -accelerator {Ctrl+*}
+  $topwin.menubar.file.menu.im_exp add command -label "SVG Export" -command "xschem print svg" -accelerator {Alt+*}
+
+
   $topwin.menubar.file.menu add separator
   $topwin.menubar.file.menu add command -label "Start new Xschem process" -accelerator {X} -command {
     xschem new_process
@@ -6602,12 +6612,25 @@ proc build_widgets { {topwin {} } } {
      -command { xschem redraw }
   $topwin.menubar.option.menu add separator
 
+  $topwin.menubar.option.menu add checkbutton -label "Fix for GPUs with broken tiled fill" \
+         -variable fix_broken_tiled_fill \
+         -command {
+           if { $fix_broken_tiled_fill == 1} {
+             xschem set fix_broken_tiled_fill 1
+           } else {
+             xschem set fix_broken_tiled_fill 0
+           }
+           xschem resetwin 1 1 1 0 0
+           xschem redraw
+         }
+  $topwin.menubar.option.menu add checkbutton -label "Fix broken RDP mouse coordinates" \
+     -variable fix_mouse_coord -command {xschem set fix_mouse_coord $fix_mouse_coord}
+
+  $topwin.menubar.option.menu add separator
 
   $topwin.menubar.option.menu add cascade -label "Netlist format / Symbol mode" \
        -menu $topwin.menubar.option.menu.netlist
   menu $topwin.menubar.option.menu.netlist -tearoff 0
-
-
 
   $topwin.menubar.option.menu.netlist add checkbutton -label "Flat netlist" -variable flat_netlist \
      -accelerator : \
@@ -6649,10 +6672,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Delete" -command "xschem delete" -accelerator Del
   toolbar_add EditDelete "xschem delete" "Delete" $topwin
   $topwin.menubar.edit.menu add command -label "Select all" -command "xschem select_all" -accelerator Ctrl+A
-  $topwin.menubar.edit.menu add command -label "Edit schematic in new window/tab" \
-      -command "xschem schematic_in_new_window" -accelerator Alt+E
-  $topwin.menubar.edit.menu add command -label "Edit symbol in new window/tab" \
-      -command "xschem symbol_in_new_window" -accelerator Alt+I
   $topwin.menubar.edit.menu add command -label "Duplicate objects" -command "xschem copy_objects" -accelerator C
   toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
   $topwin.menubar.edit.menu add command -label "Move objects" -command "xschem move_objects" -accelerator M
@@ -6732,18 +6751,6 @@ proc build_widgets { {topwin {} } } {
          -accelerator {Ctrl+$} \
          -command {
            if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
-         }
-
-  $topwin.menubar.view.menu add checkbutton -label "Fix for GPUs with broken tiled fill" \
-         -variable fix_broken_tiled_fill \
-         -command {
-           if { $fix_broken_tiled_fill == 1} {
-             xschem set fix_broken_tiled_fill 1
-           } else {
-             xschem set fix_broken_tiled_fill 0
-           }
-           xschem resetwin 1 1 1 0 0
-           xschem redraw
          }
 
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
