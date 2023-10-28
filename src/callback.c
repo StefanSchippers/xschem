@@ -2142,7 +2142,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if( (key=='u') && rstate==ControlMask)                   /* testmode */
+   if( 0 && (key=='u') && rstate==ControlMask)                   /* testmode */
    {
     static int x = 0;
 
