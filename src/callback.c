@@ -1058,6 +1058,19 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 int draw_xhair = tclgetboolvar("draw_crosshair");
 int rstate; /* (reduced state, without ShiftMask) */
 
+ /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+  * events. Some remote connection softwares do not generate the correct coordinates
+  * on such events */
+ if(fix_mouse_coord) {
+   if(event == KeyPress || event == KeyRelease) {
+     tclvareval("getmousex ", winpath, NULL);
+     mx = atoi(tclresult());
+     tclvareval("getmousey ", winpath, NULL);
+     my = atoi(tclresult());
+     dbg(1, "mx = %d  my=%d\n", mx, my);
+   }
+ }
+
 #ifndef __unix__
  if(cstate & 0x0001) { /* caps lock */
    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
@@ -2129,7 +2142,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if( 0 && (key=='u') && rstate==ControlMask)                   /* testmode */
+   if( (key=='u') && rstate==ControlMask)                   /* testmode */
    {
     static int x = 0;
 

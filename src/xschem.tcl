@@ -6288,6 +6288,21 @@ proc clear_simulate_button {button_path simvar} {
   unset $simvar
 }
 
+# these two routines are workarounds for broken remote desktop connection tools
+# that do not correctly return mouse coordinates (%x, %y) on KeyPress events
+proc getmousex {win} {
+  set x [winfo pointerx $win]     ;# absolute mouse position in root window
+  set originx [winfo rootx $win]  ;# absolute position of left window corner in root window
+  set relx [expr {$x - $originx}] ;# mouse position relative to window origin
+  return $relx
+}
+proc getmousey {win} {
+  set y [winfo pointery $win]     ;# absolute mouse position in root window
+  set originy [winfo rooty $win]  ;# absolute position of top window corner in root window
+  set rely [expr {$y - $originy}] ;# mouse position relative to window origin
+  return $rely
+}
+
 proc set_bindings {topwin} {
 global env has_x OS autofocus_mainwindow
   ###
@@ -7468,6 +7483,11 @@ set_ne enable_dim_bg 0
 set_ne dim_bg 0.0
 set_ne dim_value 0.0
 set_ne fix_broken_tiled_fill 0 ;# set to 1 on some broken X11 drivers / GPUs that show garbage on screen */
+# this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+# events. Some remote connection softwares do not generate the correct coordinates
+# on such events */
+set_ne fix_mouse_coord 0
+
 ##### set colors
 if {!$rainbow_colors} {
   set_ne cadlayers 22

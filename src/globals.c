@@ -143,6 +143,11 @@ int fix_broken_tiled_fill = 1;
 int fix_broken_tiled_fill = 0;
 #endif
 
+/* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+ * events. Some remote connection softwares do not generate the correct coordinates
+ * on such events */
+int fix_mouse_coord = 0;
+
 /* ---------------------------------------------- */
 /* These variables are mirrored in tcl code       */
 /* ---------------------------------------------- */

@@ -2507,6 +2507,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(tclgetboolvar("change_lw")) l_width = -1.0;
  cadlayers=tclgetintvar("cadlayers");
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
+ fix_mouse_coord = tclgetboolvar("fix_mouse_coord");
  if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
  tclvareval("set_ne cadgrid ", tmp, NULL);

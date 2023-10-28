@@ -1124,7 +1124,6 @@ extern unsigned char **pixdata;
 extern unsigned char pixdata_init[22][32];
 extern Display *display;
 extern int _unix; /* set to 1 on unix systems */
-extern int fix_broken_tiled_fill; /* if set to 1 work around some GPUs with rotten tiled fill operations */
 
 #ifdef HAS_XCB
 extern xcb_connection_t *xcb_conn;
@@ -1145,6 +1144,11 @@ extern int constrained_move;
 extern double cairo_font_scale; /*  default: 1.0, allows to adjust font size */
 extern double cairo_font_line_spacing;
 extern int debug_var;
+extern int fix_broken_tiled_fill; /* if set to 1 work around some GPUs with rotten tiled fill operations */
+/* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+ * events. Some remote connection softwares do not generate the correct coordinates
+ * on such events */
+extern int fix_mouse_coord;
 
 /*********** These variables are NOT mirrored in tcl code ***********/
 extern int help;

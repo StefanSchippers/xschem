@@ -479,3 +479,13 @@
 #### if you see garbage on screen / graphic artifacts while editing with
 #### xschem try to set this to 1. Default: not enabled (0)
 # set fix_broken_tiled_fill 0
+
+###########################################################################
+#### FIX SOME REMOTE DESKTOP CONNECTION SOFTWARES NOT CORRECTLY REPORTING
+#### MOUSE COORDINATES ON KEYPRESS / KEYRELEASE EVENTS
+###########################################################################
+#### If you see strange behavior while using keybindings to create graphic 
+#### objects ('w', 'l', 't', 'r', ...) try to set this to 1.
+#### Default: not enabled (0)
+# set fix_mouse_coord 0
+
