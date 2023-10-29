@@ -482,7 +482,6 @@ static void del_rect_line_arc_poly()
  if(deleted) set_modify(1);
 }
 
-
 int delete_wires(int selected_flag)
 {
   int i, j = 0, deleted = 0;
@@ -603,40 +602,9 @@ void delete(int to_push_undo)
 
 void delete_only_rect_line_arc_poly(void)
 {
- int k, itmp;
- double dtmp;
- #if HAS_CAIRO==1 
- int customfont;
- #endif
-
- bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
- for(k=0;k<xctx->lastsel; ++k)
- {
-   double xx1, yy1, xx2, yy2;
-   int n=xctx->sel_array[k].n;
-   int type=xctx->sel_array[k].type;
-   /* text bboxes are calculated because this function is called in change_layer() */
-   if(type==xTEXT && xctx->text[n].sel==SELECTED) {
-     #if HAS_CAIRO==1
-     customfont = set_text_custom_font(&xctx->text[n]);
-     #endif
-     text_bbox(get_text_floater(n), xctx->text[n].xscale,
-               xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
-               xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
-               &xx1,&yy1,&xx2,&yy2, &itmp, &dtmp);
-     #if HAS_CAIRO==1
-     if(customfont) {
-       cairo_restore(xctx->cairo_ctx);
-     }
-     #endif
-     bbox(ADD, xx1, yy1, xx2, yy2 );
-   }
- }
  del_rect_line_arc_poly();
  xctx->lastsel = 0;
- bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
  draw();
- bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
  xctx->ui_state &= ~SELECTION;
  set_first_sel(0, -1, 0);
 }
