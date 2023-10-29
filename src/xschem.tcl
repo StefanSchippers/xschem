@@ -6791,6 +6791,12 @@ proc build_widgets { {topwin {} } } {
          -command {xschem update_all_sym_bboxes; xschem redraw}
   $topwin.menubar.view.menu.show add checkbutton -label "Draw grid axes"  -variable draw_grid_axes \
          -command {xschem redraw}
+  $topwin.menubar.view.menu.show add checkbutton -label "Show net names on symbol pins/floaters" \
+     -variable show_pin_net_names \
+     -command {
+        xschem update_all_sym_bboxes
+        xschem redraw
+     }
 
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
@@ -6810,12 +6816,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" \
      -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
-  $topwin.menubar.sym.menu add checkbutton -label "Show net names on symbol pins/floaters" \
-     -variable show_pin_net_names \
-     -command {
-        xschem update_all_sym_bboxes
-        xschem redraw
-     }
   $topwin.menubar.sym.menu add command -label "Set symbol width" \
      -command {
         input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 

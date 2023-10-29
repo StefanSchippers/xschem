@@ -674,12 +674,13 @@ void free_rawfile(Raw **rawptr, int dr)
   int i;
 
   Raw *raw;
-  int deleted = 0;
-  if(!rawptr || !*rawptr) return;
+  if(!rawptr || !*rawptr) {
+    if(dr) draw();
+    return;
+  }
   raw = *rawptr;
-  dbg(1, "free_rawfile(): clearing data\n");
+  dbg(0, "free_rawfile(): clearing data\n");
   if(raw->names) {
-    deleted = 1;
     for(i = 0 ; i < raw->nvars; ++i) {
       my_free(_ALLOC_ID_, &raw->names[i]);
     }
@@ -687,7 +688,6 @@ void free_rawfile(Raw **rawptr, int dr)
     my_free(_ALLOC_ID_, &raw->cursor_b_val);
   }
   if(raw->values) {
-    deleted = 1;
     /* free also extra column for custom data plots */
     for(i = 0 ; i <= raw->nvars; ++i) {
       my_free(_ALLOC_ID_, &raw->values[i]);
@@ -700,7 +700,7 @@ void free_rawfile(Raw **rawptr, int dr)
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
   if(raw->table.table) int_hash_free(&raw->table);
   my_free(_ALLOC_ID_, rawptr);
-  if(deleted && dr) draw();
+  if(dr) draw();
 }
 
 /* caller must free returned pointer */
