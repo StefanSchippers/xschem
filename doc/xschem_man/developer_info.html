@@ -521,6 +521,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -677,6 +678,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> draw_window </kbd> direct draw into window </li>
      <li><kbd> first_sel </kbd> get data about first selected object </li>
      <li><kbd> fix_broken_tiled_fill </kbd> get drawing method setting (for broken GPUs) </li>
+     <li><kbd> fix_mouse_coord </kbd> get fix_mouse_coord setting (fix for broken RDP)</li>
      <li><kbd> format </kbd> alternate format attribute to use in netlist (or NULL) </li>
      <li><kbd> graph_lastsel </kbd> number of last graph that was clicked </li>
      <li><kbd> gridlayer </kbd> layer number for grid </li>
@@ -1182,6 +1184,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> constrained_move </kbd> set constrained move (1=horiz, 2=vert, 0=none) </li>
      <li><kbd> draw_window </kbd> set drawing to window (1 or 0) </li>
      <li><kbd> fix_broken_tiled_fill </kbd> alternate drawing method for broken GPUs </li>
+     <li><kbd> fix_mouse_coord </kbd> fix for wrong mouse coords in RDP software </li>
      <li><kbd> format </kbd> set name of custom format attribute used for netlisting </li>
      <li><kbd> header_text </kbd> set header metadata (used for license info) </li>
      <li><kbd> hide_symbols </kbd> set to 0,1,2 for various hiding level of symbols </li>
@@ -1323,6 +1326,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Unselect everything. If draw is given and set to '0' no drawing is done </pre>
    <li><kbd>       update_all_sym_bboxes</kbd></li><pre>
    Update all symbol bounding boxes (useful if show_pin_net_names is set) </pre>
+   <li><kbd>       update_op</kbd></li><pre>
+   update tcl ngspice::ngspice array data from raw file point 0 </pre>
    <li><kbd>       view_prop</kbd></li><pre>
    View attributes of selected element (read only)
    if multiple selection show the first element (in xschem  array order) </pre>
@@ -1360,7 +1365,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

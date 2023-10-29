@@ -818,7 +818,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
 
 /* what == 1: read another raw file and switch to it (make it the current one)
  * what == 2: switch raw file. If filename given switch to that one, else switch to next
- * what == 3: remove a raw file. If no filename given remove all, keep current in xctx->raw
+ * what == 3: remove a raw file. If no filename given remove all
  * what == 4: print info
  * what == 5: switch back to previous
  * return 1 if sucessfull, 0 otherwise
@@ -910,6 +910,7 @@ int extra_rawfile(int what, const char *file, const char *type)
       for(i = 0; i < xctx->extra_raw_n; i++) {
         free_rawfile(&xctx->extra_raw_arr[i], 0);
       }
+      tcleval("array unset ngspice::ngspice_data");
       xctx->raw = NULL;
       xctx->extra_prev_idx = 0;
       xctx->extra_idx = 0;
@@ -936,6 +937,7 @@ int extra_rawfile(int what, const char *file, const char *type)
           if(xctx->extra_raw_n) {
             xctx->raw = xctx->extra_raw_arr[0];
           } else {
+            tcleval("array unset ngspice::ngspice_data");
             xctx->raw = NULL;
           }
         } else ret = 0;
@@ -955,6 +957,27 @@ int extra_rawfile(int what, const char *file, const char *type)
     ret = 0;
   }
   return ret;
+}
+
+int update_op()
+{
+  int res = 0, p = 0, i;
+  tcleval("array unset ngspice::ngspice_data");
+  if(xctx->raw && xctx->raw->values) {
+    tclsetvar("rawfile_loaded", "1");
+    xctx->raw->annot_p = 0;
+    for(i = 0; i < xctx->raw->nvars; ++i) {
+      char s[100];
+      res = 1;
+      xctx->raw->cursor_b_val[i] =  xctx->raw->values[i][p];
+      my_snprintf(s, S(s), "%.4g", xctx->raw->values[i][p]);
+      dbg(1, "%s = %g\n", xctx->raw->names[i], xctx->raw->values[i][p]);
+      tclvareval("array set ngspice::ngspice_data [list {",  xctx->raw->names[i], "} ", s, "]", NULL);
+    }
+    tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->raw->nvars), NULL);
+    tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+  } 
+  return res;
 }
 
 /* Read data organized as a table

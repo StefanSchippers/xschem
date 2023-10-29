@@ -260,7 +260,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   into schematic */
     else if(!strcmp(argv[1], "annotate_op"))
     {
-      int i;
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
@@ -274,23 +273,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tclsetvar("rawfile_loaded", "0");
       extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
-      tcleval("array unset ngspice::ngspice_data");
       raw_read(f, &xctx->raw, "op");
-      if(xctx->raw && xctx->raw->values) {
-        tclsetvar("rawfile_loaded", "1");
-        xctx->raw->annot_p = 0;
-        for(i = 0; i < xctx->raw->nvars; ++i) {
-          char s[100];
-          int p = 0;
-          xctx->raw->cursor_b_val[i] =  xctx->raw->values[i][p];
-          my_snprintf(s, S(s), "%.4g", xctx->raw->values[i][p]);
-          dbg(1, "%s = %g\n", xctx->raw->names[i], xctx->raw->values[i][p]);
-          tclvareval("array set ngspice::ngspice_data [list {",  xctx->raw->names[i], "} ", s, "]", NULL);
-        }
-        tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->raw->nvars), NULL);
-        tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
-        draw();
-      }
+      update_op();
+      draw();
     }
 
     /* arc
@@ -3102,15 +3087,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           ret = extra_rawfile(2, NULL, NULL);
         }
+        update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
         ret = extra_rawfile(4, NULL, NULL);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
         ret = extra_rawfile(5, NULL, NULL);
+        update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
-        if(argc > 3)  ret = extra_rawfile(3, argv[3], NULL);
-        else ret = extra_rawfile(3, NULL, NULL);
+        if(argc > 3)  {
+          ret = extra_rawfile(3, argv[3], NULL);
+        } else {
+          ret = extra_rawfile(3, NULL, NULL);
+        }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else {
         err = 1;
@@ -3232,6 +3222,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int res = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
+        tcleval("array unset ngspice::ngspice_data");
         extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
         tclsetvar("rawfile_loaded", "0");
@@ -4823,6 +4814,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       }
       Tcl_ResetResult(interp);
+    }
+
+    /* update_op
+     *   update tcl ngspice::ngspice array data from raw file point 0 */
+    else if(!strcmp(argv[1], "update_op"))
+    {
+      int ret;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      ret = update_op();
+      Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
     else { cmd_found = 0;}

@@ -915,6 +915,7 @@ proc ngspice::get_current {n} {
   set path [string range [xschem get sch_path] 1 end]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
+  if { [xschem get currsch] < $raw_level} { return {}}
   set skip 0
   while { $skip < $raw_level } { 
     regsub {^[^.]*\.} $path {} path
@@ -957,6 +958,7 @@ proc ngspice::get_current {n} {
 proc ngspice::get_diff_voltage {n m} {
   set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
+  if { [xschem get currsch] < $raw_level} { return {}}
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
@@ -988,6 +990,7 @@ proc ngspice::get_diff_voltage {n m} {
 proc ngspice::get_voltage {n} {
   set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
+  if { [xschem get currsch] < $raw_level} { return {}}
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
@@ -1023,6 +1026,7 @@ proc update_schematic_header {} {
 proc ngspice::get_node {n} {
   set raw_level [xschem get raw_level]
   set path [string range [xschem get sch_path] 1 end]
+  if { [xschem get currsch] < $raw_level} { return {}}
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
