@@ -1250,20 +1250,6 @@ static int edit_text_property(int x)
         for(l=0;l<c; ++l) {
           if(xctx->text[sel].txt_ptr &&
               !strcmp( (get_tok_value(xctx->rect[PINLAYER][l].prop_ptr, "name",0)), xctx->text[sel].txt_ptr) ) {
-            /*
-            #if HAS_CAIRO==1
-            customfont = set_text_custom_font(&xctx->text[sel]);
-            #endif
-            text_bbox(get_text_floater(sel), xctx->text[sel].xscale,
-            xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
-            xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
-            &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-            #if HAS_CAIRO==1
-            if(customfont) {
-              cairo_restore(xctx->cairo_ctx);
-            }
-            #endif
-            */
             pcx = (xctx->rect[PINLAYER][l].x1+xctx->rect[PINLAYER][l].x2)/2.0;
             pcy = (xctx->rect[PINLAYER][l].y1+xctx->rect[PINLAYER][l].y2)/2.0;
             if(
@@ -1300,20 +1286,6 @@ static int edit_text_property(int x)
         xctx->text[sel].xscale=hsize;
         xctx->text[sel].yscale=vsize;
       }
-      /* calculate bbox, some cleanup needed here */
-      #if HAS_CAIRO==1
-      customfont = set_text_custom_font(&xctx->text[sel]);
-      #endif
-      text_bbox(get_text_floater(sel), xctx->text[sel].xscale,
-                xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
-                 xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
-                &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-      #if HAS_CAIRO==1
-      if(customfont) {
-        cairo_restore(xctx->cairo_ctx);
-      }
-      #endif
-
     } /* for(k=0;k<xctx->lastsel; ++k) */
     draw();
   }

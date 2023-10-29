@@ -3429,23 +3429,11 @@ void select_rect(int what, int select)
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
-    #if 0
-    if(xctx->nl_dir == 0) {
-      bbox(START,0.0, 0.0, 0.0, 0.0);
-      bbox(ADD, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
-      bbox(SET,0.0, 0.0, 0.0, 0.0);
-    }
-    #endif
     draw_selection(xctx->gc[SELLAYER], 0);
     /* if(xctx->nl_sel) { */
       if(xctx->nl_dir == 0) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
       else select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     /* } */
-    #if 0
-    if(xctx->nl_dir == 0) {
-      bbox(END,0.0, 0.0, 0.0, 0.0);
-    }
-    #endif
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     drawtemprect(xctx->gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3480,26 +3468,10 @@ void select_rect(int what, int select)
     } else {
       drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     }
-
-    /*  draw_selection(xctx->gc[SELLAYER], 0); */
     if(xctx->nl_dir == 0) select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
-    #if 0
-    if(xctx->nl_dir == 0) {
-      bbox(START,0.0, 0.0, 0.0, 0.0);
-      bbox(ADD, xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
-      bbox(SET,0.0, 0.0, 0.0, 0.0);
-    }
-    #endif
     draw_selection(xctx->gc[SELLAYER], 0);
-    #if 0
-    if(xctx->nl_dir == 0) {
-      bbox(END,0.0, 0.0, 0.0, 0.0);
-    }
-    #endif
-    /*  /20171219 */
-
     xctx->ui_state &= ~STARTSELECT;
     xctx->nl_sem=0;
  }

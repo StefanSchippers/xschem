@@ -2492,13 +2492,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc > 6) {
-        int i;
+        int i, s_pnetname, floaters;
         if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem move_instance: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
+        s_pnetname = tclgetboolvar("show_pin_net_names");
+        floaters = set_modify(1);
+        floaters |= s_pnetname;
+
         if(undo) xctx->push_undo();
-        if(dr) {
+        if(dr && !floaters) {
           bbox(START,0.0,0.0,0.0,0.0);
           bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
         }
@@ -2507,16 +2511,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(strcmp(argv[5], "-")) xctx->inst[i].rot = (unsigned short)atoi(argv[5]);
         if(strcmp(argv[6], "-")) xctx->inst[i].flip = (unsigned short)atoi(argv[6]);
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
-        if(dr) {
-          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-          bbox(SET,0.0,0.0,0.0,0.0);
-          draw();
-          bbox(END,0.0,0.0,0.0,0.0);
-        }
-        set_modify(1);
         xctx->prep_hash_inst=0;
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
+        if(dr) {
+          if(!floaters) {
+            bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+            bbox(SET,0.0,0.0,0.0,0.0);
+          }
+          draw();
+          if(!floaters) {
+            bbox(END,0.0,0.0,0.0,0.0);
+          }
+        }
       }
     }
     /* move_objects [dx dy] [kissing] [stretch]
