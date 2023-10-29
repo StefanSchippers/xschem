@@ -136,8 +136,9 @@ const char *get_text_floater(int i)
 /* mod=-1 used to force set title 
  * mod=-2 used to reset floaters cache 
  * if floaters are present set_modify(1) (after a modify opration) must be done before draw()
- * to invalidate cached floater string values  before redrawing*/
-void set_modify(int mod)
+ * to invalidate cached floater string values  before redrawing
+ * return 1 if floaters are found (mod==-2 or mod == 1 or mod == -1) */
+int set_modify(int mod)
 {
   int i, floaters = 0;
 
@@ -169,6 +170,7 @@ void set_modify(int mod)
     if(xctx->modified) tcleval("set_tab_names *");
     else tcleval("set_tab_names");
   }
+  return floaters;
 }
 
 void print_version()

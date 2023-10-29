@@ -1229,7 +1229,7 @@ extern void enable_layers(void);
 extern void set_snap(double);
 extern void set_grid(double);
 extern void create_plot_cmd(void);
-extern void set_modify(int mod);
+extern int set_modify(int mod); /* return number of floaters */
 extern int there_are_floaters(void);
 extern void dbg(int level, char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);

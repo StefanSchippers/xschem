@@ -4179,12 +4179,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         } else {
           char *type;
-          int cond;
+          int floaters = 0, cond;
           char *subst = NULL;
+          floaters = set_modify(1);
           if(!fast) {
-            bbox(START,0.0,0.0,0.0,0.0);
+            if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+            if(!floaters) 
+              bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
             xctx->push_undo();
           }
           xctx->prep_hash_inst=0;
@@ -4209,16 +4211,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strdup2(_ALLOC_ID_, &xctx->inst[inst].lab, get_tok_value(xctx->inst[inst].prop_ptr, "lab", 0));
           }
           else xctx->inst[inst].flags &= ~PIN_OR_LABEL;
-
-          set_modify(1);
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-            /* redraw symbol with new props */
-            bbox(SET,0.0,0.0,0.0,0.0);
+            if(!floaters) {
+              bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+              /* redraw symbol with new props */
+              bbox(SET,0.0,0.0,0.0,0.0);
+            }
             draw();
-            bbox(END,0.0,0.0,0.0,0.0);
+            if(!floaters) {
+              bbox(END,0.0,0.0,0.0,0.0);
+            }
           }
           Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
         }
