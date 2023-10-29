@@ -4181,7 +4181,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           char *type;
           int floaters = 0, cond;
           char *subst = NULL;
+          int s_pnetname = tclgetboolvar("show_pin_net_names");
           floaters = set_modify(1);
+          floaters |= s_pnetname;
           if(!fast) {
             if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);

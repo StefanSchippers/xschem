@@ -217,7 +217,7 @@ N 500 -560 500 -520 {
 lab=VCC}
 N 570 -580 570 -560 {
 lab=VCC}
-N 690 -420 830 -420 {
+N 690 -420 840 -420 {
 lab=DIFFOUT}
 N 30 -440 30 -410 {
 lab=MINUS}
@@ -279,7 +279,7 @@ C {lab_pin.sym} 450 -490 0 0 {name=p7 lab=VCC  net_name=true}
 C {lab_pin.sym} 570 -580 0 0 {name=p8 lab=VCC  net_name=true}
 C {lab_pin.sym} 440 -290 0 0 {name=p9 lab=PLUS  net_name=true}
 C {lab_pin.sym} 750 -290 0 1 {name=p10 lab=MINUS  net_name=true}
-C {lab_pin.sym} 830 -420 0 1 {name=p11 lab=DIFFOUT  net_name=true}
+C {lab_pin.sym} 840 -420 0 1 {name=p11 lab=DIFFOUT  net_name=true}
 C {lab_pin.sym} 260 -220 0 0 {name=p13 lab=GN  net_name=true}
 C {lab_pin.sym} 30 -350 0 0 {name=p14 lab=0  net_name=true}
 C {vsource.sym} 30 -380 0 0 {name=VMINUS
@@ -329,7 +329,7 @@ value=".temp 30
 .option savecurrents
 .save all @m4[gm] @m5[gm] @m1[gm]
 .control
-  save all
+  save all alli
   op
   write cmos_example_ngspice.raw
   set appendwrite
@@ -389,9 +389,9 @@ value="* .temp 30
 .dc vplus 2.3 2.7 0.001
 
 "}
-C {ngspice_get_value.sym} 520 -310 0 0 {name=r6 node=i(@$\{path\}m4[id])
+C {ngspice_get_value.sym} 480 -320 0 1 {name=r6 node=i(@$\{path\}m4[id])
 descr="I="}
-C {ngspice_get_value.sym} 670 -310 0 1 {name=r7 node=i(@$\{path\}m5[id])
+C {ngspice_get_value.sym} 710 -320 0 0 {name=r7 node=i(@$\{path\}m5[id])
 descr="I="}
 C {ngspice_get_expr.sym} 160 -150 0 0 {name=r8 node="[to_eng [expr \{[ngspice::get_voltage gn] * [ngspice::get_current \{m3[id]\}]\}]]"
 descr="Power="
@@ -404,3 +404,5 @@ tclcommand="
 xschem raw switch; xschem redraw"
 
 }
+C {ngspice_get_value.sym} 210 -200 0 1 {name=r1 node=i(@$\{path\}m3[id])
+descr="I="}
