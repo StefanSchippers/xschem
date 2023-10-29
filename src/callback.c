@@ -2142,82 +2142,37 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if( 0 && (key=='u') && rstate==ControlMask)                   /* testmode */
+   if(0 && (key=='u') && rstate==ControlMask)                   /* testmode */
    {
     static int x = 0;
 
     if(x == 0) {
-      XFillRectangle(display, xctx->window,  xctx->gctiled, 
-        xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
-    } else if(x == 1) {
       int i;
-      for(i = xctx->xrect[0].y; i < xctx->xrect[0].height; i++) {
-        XDrawLine(display, xctx->window,  xctx->gctiled,
-           xctx->xrect[0].x, i, xctx->xrect[0].width, i);
-      }
-    } else if(x == 2) {
-      int i;
+      XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+            xctx->areaw, xctx->areah);
+      XFlush(display);
+      sleep_ms(400);
       for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
         XDrawLine(display, xctx->window,  xctx->gctiled,
            i, xctx->xrect[0].y, i, xctx->xrect[0].height);
+        XFlush(display);
+        sleep_ms(4);
       }
-    } else if(x == 3) {
-      int i, j;
-      for(i = 0; i < xctx->xrect[0].width; i+=1) {
-        for(j = 0; j < xctx->xrect[0].height; j+=1) {
-          XDrawLine(display, xctx->window,  xctx->gctiled,
-            i, xctx->xrect[0].y, xctx->xrect[0].width - i, j);
-
-          XDrawLine(display, xctx->window,  xctx->gctiled,
-             xctx->xrect[0].width - i, xctx->xrect[0].y, i, j);
-
-          XDrawLine(display, xctx->window,  xctx->gctiled,
-            i, xctx->xrect[0].height, xctx->xrect[0].width - i, j);
-
-          XDrawLine(display, xctx->window,  xctx->gctiled,
-             xctx->xrect[0].width - i, xctx->xrect[0].height, i, j);
-
-        }
-      }
-    } else if(x == 4) {
-      int i, j;
-      XPoint p[2];
-      for(i = 0; i < xctx->xrect[0].width; i+=1) {
-        for(j = 0; j < xctx->xrect[0].height; j+=1) {
-          p[0].x = (short int)i;
-          p[0].y = (short int)(xctx->xrect[0].y);
-          p[1].x = (short int)(xctx->xrect[0].width - i);
-          p[1].y = (short int)j;
-          XDrawLines(display, xctx->window,  xctx->gctiled,
-            p, 2, CoordModeOrigin);
-
-          p[0].x = (short int)(xctx->xrect[0].width - i);
-          p[0].y = (short int)xctx->xrect[0].y;
-          p[1].x = (short int)i;
-          p[1].y = (short int)j;
-          XDrawLines(display, xctx->window,  xctx->gctiled,
-            p, 2, CoordModeOrigin);
-
-          p[0].x = (short int)i;
-          p[0].y = (short int)xctx->xrect[0].height;
-          p[1].x = (short int)(xctx->xrect[0].width - i);
-          p[1].y = (short int)j;
-          XDrawLines(display, xctx->window,  xctx->gctiled,
-            p, 2, CoordModeOrigin);
-
-          p[0].x = (short int)(xctx->xrect[0].width - i);
-          p[0].y = (short int)xctx->xrect[0].height;
-          p[1].x = (short int)i;
-          p[1].y = (short int)j;
-          XDrawLines(display, xctx->window,  xctx->gctiled,
-            p, 2, CoordModeOrigin);
-        }
+    } else if(x == 1) {
+      int i;
+      XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+            xctx->areaw, xctx->areah);
+      XFlush(display);
+      sleep_ms(400);
+      for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
+        XDrawLine(display, xctx->window,  xctx->gctiled,
+           i, xctx->xrect[0].y, i+1, xctx->xrect[0].height);
+        XFlush(display);
+        sleep_ms(4);
       }
     }
-
-    here(x);
     x++;
-    x %= 5;
+    x %= 2;
     break;
    }
    if(key=='u' && rstate==0)                             /* undo */

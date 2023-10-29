@@ -1224,6 +1224,7 @@ extern int find_closest_wave(int i, Graph_ctx *gr);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
 extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);
 extern int graph_fullxzoom(int i, Graph_ctx *gr, int dataset);
+extern void sleep_ms(int milliseconds);
 extern double timer(int start);
 extern void enable_layers(void);
 extern void set_snap(double);
