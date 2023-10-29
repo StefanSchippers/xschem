@@ -6612,6 +6612,12 @@ proc build_widgets { {topwin {} } } {
      -command { xschem redraw }
   $topwin.menubar.option.menu add separator
 
+  $topwin.menubar.option.menu add checkbutton -label "No XCopyArea drawing model" -variable draw_window \
+         -accelerator {Ctrl+$} \
+         -command {
+           if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
+         }
+
   $topwin.menubar.option.menu add checkbutton -label "Fix for GPUs with broken tiled fill" \
          -variable fix_broken_tiled_fill \
          -command {
@@ -6746,11 +6752,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view.menu add command -label "Reset all colors to default" \
          -accelerator {} -command {
           reset_colors 1
-         }
-  $topwin.menubar.view.menu add checkbutton -label "No XCopyArea drawing model" -variable draw_window \
-         -accelerator {Ctrl+$} \
-         -command {
-           if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
          }
 
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \

@@ -390,7 +390,6 @@ static void free_xschem_data()
   my_free(_ALLOC_ID_, &xctx->current_win_path);
   my_free(_ALLOC_ID_, &xctx->fill_type);
   my_free(_ALLOC_ID_, &xctx->format);
-  if(xctx->inst_redraw_table) my_free(_ALLOC_ID_, &xctx->inst_redraw_table);
   my_free(_ALLOC_ID_, &xctx);
 }
 
@@ -479,8 +478,6 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
-  xctx->node_redraw_table.size = 0;
-  xctx->node_redraw_table.table = NULL;
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
   xctx->simdata = NULL;
@@ -511,8 +508,6 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->floater_inst_table.size = 0;
   xctx->hilight_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Hilight_hashentry *));
 
-  xctx->inst_redraw_table = NULL;
-  xctx->inst_redraw_table_size = 0;
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
 #if HAS_CAIRO==1
@@ -867,8 +862,6 @@ static void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
- tcleval("catch { ngspice::resetdata }"); /* remove ngspice annotation data if any */
- /* "1" parameter means to force exit even if there are modified tabs/windows */
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  delete_schematic_data(1);

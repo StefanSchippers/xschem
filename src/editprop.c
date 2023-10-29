@@ -860,8 +860,6 @@ static int edit_rect_property(int x)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("rcode"),"") )
   {
-    int floaters = there_are_floaters();
-    dbg(1, "floaters=%d\n", floaters);
     xctx->push_undo();
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
@@ -890,21 +888,15 @@ static int edit_rect_property(int x)
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
           (!oldprop && xctx->rect[c][n].prop_ptr) || (oldprop && !xctx->rect[c][n].prop_ptr)) {
          if(!drw) {
-           if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
            drw = 1;
          }
          if( xctx->rect[c][n].flags & 1024) {
            draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
                          &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
          }
-         if(!floaters) {
-           bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
-         }
       }
     }
-    if(!floaters && drw) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     if(drw) draw();
-    if(!floaters && drw)   bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     modified = 1;
   }
   my_free(_ALLOC_ID_, &oldprop);
@@ -1184,7 +1176,6 @@ static int edit_text_property(int x)
   char property[100];/* used for float 2 string conv (xscale  and yscale) overflow safe */
   /* const char *str; */
   char *oldprop = NULL;
-  int floater = there_are_floaters();
 
   if(x < 0 || x > 2) {
     fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x);
@@ -1231,8 +1222,7 @@ static int edit_text_property(int x)
       modified = 1;
       xctx->push_undo();
     }
-    if(!floater) bbox(START,0.0,0.0,0.0,0.0);
-    else set_modify(-2); /* clear text floater caches */
+    set_modify(-2); /* clear text floater caches */
     for(k=0;k<xctx->lastsel; ++k)
     {
       if(xctx->sel_array[k].type!=xTEXT) continue;
@@ -1251,7 +1241,6 @@ static int edit_text_property(int x)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      if(!floater) bbox(ADD, xx1, yy1, xx2, yy2 );
       /* dbg(1, "edit_property(): text props=%s text=%s\n", tclgetvar("props"), tclgetvar("retval")); */
       if(text_changed) {
         double cg;
@@ -1325,11 +1314,8 @@ static int edit_text_property(int x)
       }
       #endif
 
-      if(!floater) bbox(ADD, xx1, yy1, xx2, yy2 );
     } /* for(k=0;k<xctx->lastsel; ++k) */
-    if(!floater) bbox(SET,0.0,0.0,0.0,0.0);
     draw();
-    if(!floater) bbox(END,0.0,0.0,0.0,0.0);
   }
   my_free(_ALLOC_ID_, &oldprop);
   return modified;
@@ -1350,7 +1336,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
   int pushed=0;
   int *ii = &xctx->edit_sym_i; /* static var */
   int *netl_com = &xctx->netlist_commands; /* static var */
-  int generator = 0,floaters, modified = 0;
+  int modified = 0;
 
   dbg(1, "update_symbol(): entering, selected_inst = %d\n", selected_inst);
   *ii = selected_inst;
@@ -1372,15 +1358,10 @@ static int update_symbol(const char *result, int x, int selected_inst)
     dbg(1, "update_symbol(): new_prop=%s\n", new_prop);
   }
   my_strncpy(symbol, (char *) tclgetvar("symbol") , S(symbol));
-  generator = is_generator(symbol);
   dbg(1, "update_symbol(): symbol=%s\n", symbol);
   no_change_props=tclgetboolvar("no_change_attrs");
   only_different=tclgetboolvar("preserve_unchanged_attrs");
   copy_cell=tclgetboolvar("user_wants_copy_cell");
-  /* if there are floaters or generators (dynamic symbols, pCells) do not collect
-   * list of things to redraw, just redraw all screen */
-  floaters = there_are_floaters() || generator;
-  if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
   /* 20191227 necessary? --> Yes since a symbol copy has already been done
      in edit_symbol_property() -> tcl edit_prop, this ensures new symbol is loaded from disk.
      if for some reason a symbol with matching name is loaded in xschem this
@@ -1401,8 +1382,6 @@ static int update_symbol(const char *result, int x, int selected_inst)
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-    if(!floaters)
-       bbox(ADD, xctx->inst[*ii].x1, xctx->inst[*ii].y1, xctx->inst[*ii].x2, xctx->inst[*ii].y2);
     my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
 
     /* update property string from tcl dialog */
@@ -1499,23 +1478,14 @@ static int update_symbol(const char *result, int x, int selected_inst)
     xctx->prep_hash_inst=0;
     xctx->prep_net_structs=0;
     xctx->prep_hi_structs=0;
-    if(floaters) { /* we need to recalculate bbox of dynamic symbols (floaters/ generators) after prop changes */
-       symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-    }
-    if(!floaters) {
-      find_inst_to_be_redrawn(1 + 4 + 32);  /* 32: call prepare_netlist_structs(0) */
-      find_inst_to_be_redrawn(16); /* clear data */
-    }
+    symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
     if(xctx->hilight_nets) {
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
   }
   /* redraw symbol with new props */
-  if(!floaters) bbox(SET,0.0,0.0,0.0,0.0);
-  else set_modify(-2); /* reset floaters caches */
-  dbg(1, "update_symbol(): redrawing : floaters=%d\n", floaters);
+  set_modify(-2); /* reset floaters caches */
   draw();
-  if(!floaters) bbox(END,0.0,0.0,0.0,0.0);
   my_free(_ALLOC_ID_, &name);
   my_free(_ALLOC_ID_, &ptr);
   my_free(_ALLOC_ID_, &new_prop);

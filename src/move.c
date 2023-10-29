@@ -512,171 +512,9 @@ void draw_selection(GC g, int interruptable)
   xctx->movelastsel = i;
 }
 
-/* 
- * build list of nodes attached to objects (wires, pins, wire labels) about to be moved/copied/deleted,
- * first time call with find_inst_to_be_redrawn(1), before doing the move/copy/delete,
- * then call with find_inst_to_be_redrawn(6) (2 | 4) after move/copy/delete is done.
- * what (bits can be ORed together):
- * 1: collect list of instances to be redrawn, add bboxes
- * 2: use previously collected list, add bboxes with updated node names, do this call after moving/deleting 
- *    objects and after a prepare_netlist_structs() 
- * 4: call symbol_bbox before bbox(ADD, ...) 
- * 8: do NOT build xctx->node_redraw_table using selected instances/wires
- * 16: clear hash and arrays
- * 32: call prepare_netlist_structs(0) if hilights or show net name on pins
- */
-void find_inst_to_be_redrawn(int what)
-{
-  Int_hashentry *nentry;
-  int i, n, p, rects;
-  xSymbol * sym;
-  xInstance * const inst = xctx->inst;
-
-  int s_pnetname = tclgetboolvar("show_pin_net_names");
-  int lvs_ignore = tclgetboolvar("lvs_ignore");
-
-  
-  dbg(1,"find_inst_to_be_redrawn(): what=%d\n", what);
-  if(what & 16) {
-    my_free(_ALLOC_ID_, &xctx->inst_redraw_table);
-    xctx->inst_redraw_table_size = 0;
-    if((s_pnetname || xctx->hilight_nets)) int_hash_free(&xctx->node_redraw_table);
-    return;
-  }
-  if((s_pnetname || xctx->hilight_nets)) {
-    if(xctx->node_redraw_table.table == NULL)  int_hash_init(&xctx->node_redraw_table, HASHSIZE);
-    if(what & 32) prepare_netlist_structs(0);
-    if(!(what & 8)) {
-      for(i=0;i<xctx->lastsel; ++i)
-      {
-        n = xctx->sel_array[i].n;
-        if( xctx->sel_array[i].type == ELEMENT) {
-          int p;
-          char *type;
-          int shorted_inst;
-          if(xctx->inst[n].ptr < 0 ) continue;
-          type=xctx->sym[xctx->inst[n].ptr].type;
-          set_inst_flags(&xctx->inst[n]);
-          shorted_inst = shorted_instance(n, lvs_ignore);
-          /* collect all nodes connected to instances that set node names */
-          if(type && 
-             (
-               IS_LABEL_OR_PIN(type) ||
-               /* some pass through symbols have type show_label (metal option)
-                *                   |                     */
-               (!strcmp(type, "show_label") && (inst[n].ptr + xctx->sym)->rects[PINLAYER] > 1) ||
-               /* bus taps */
-               !strcmp(type, "bus_tap") ||
-               /* instances that have lvs_ignore=true and global lvs_ignore is set */
-               shorted_inst
-             )
-            ) {
-            for(p = 0;  p < (inst[n].ptr + xctx->sym)->rects[PINLAYER]; p++) {
-              if( inst[n].node && inst[n].node[p]) {
-                dbg(1,"find_inst_to_be_redrawn(): hashing inst %s, node %s\n", inst[n].instname, inst[n].node[p]);
-                int_hash_lookup(&xctx->node_redraw_table, xctx->inst[n].node[p], 0, XINSERT_NOREPLACE);
-              }
-            }
-          }
-        }
-        /* collect all nodes connected to selected wires (node names will change if wire deleted/moved) */
-        if(xctx->sel_array[i].type == WIRE) {
-          int_hash_lookup(&xctx->node_redraw_table,  xctx->wire[n].node, 0, XINSERT_NOREPLACE);
-        }
-      }
-      /* propagate all node[0] of bus taps that have node[1] hashed above */
-      for(i=0; i < xctx->instances; ++i) {
-        char *type=xctx->sym[xctx->inst[i].ptr].type;
-        /* bus taps */
-        if(type && !strcmp(type, "bus_tap")) {
-          if(int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[1], 0, XLOOKUP)) {
-            int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[0], 0, XINSERT_NOREPLACE);
-            dbg(1, "bus_tap: propagate %s\n",  xctx->inst[i].node[0]);
-          }
-        }
-      }
-    } /* if(!(what & 8)) */
-  
-    if(!xctx->inst_redraw_table) {
-       xctx->inst_redraw_table = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned char));
-    } else if(xctx->instances > xctx->inst_redraw_table_size) {
-      my_realloc(_ALLOC_ID_, &xctx->inst_redraw_table, xctx->instances * sizeof(unsigned char));
-      memset(xctx->inst_redraw_table + xctx->inst_redraw_table_size, 0,
-          (xctx->instances - xctx->inst_redraw_table_size) * sizeof(unsigned char));
-      xctx->inst_redraw_table_size = xctx->instances;
-    }
-    for(i=0; i < xctx->instances; ++i) {
-      sym = xctx->inst[i].ptr + xctx->sym;
-      rects = sym->rects[PINLAYER];
-      if(what & 2 && xctx->inst_redraw_table[i]) {
-        dbg(1, "find_inst_to_be_redrawn(): 1 bboxing inst %s\n", xctx->inst[i].instname);
-        if(what & 1) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
-        if(what & 4) {
-          symbol_bbox(i, &inst[i].x1, &inst[i].y1, &inst[i].x2, &inst[i].y2 );
-          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2 );
-        }
-        continue;
-      }
-      for(p = 0; p < rects; p++) {
-        if(xctx->inst[i].node && xctx->inst[i].node[p]) {
-          nentry = int_hash_lookup(&xctx->node_redraw_table, xctx->inst[i].node[p], 0, XLOOKUP);
-          if(nentry) {
-            dbg(1, "find_inst_to_be_redrawn(): 2 bboxing inst %s\n", xctx->inst[i].instname);
-            if(what & 1) bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-            if(what & 4) {
-              symbol_bbox(i, &inst[i].x1, &inst[i].y1, &inst[i].x2, &inst[i].y2);
-              bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-            }
-            xctx->inst_redraw_table[i] = 1; /* keep list of instances to be redrawn for faster lookup when
-                                             * what==2 in following calls */
-            break;
-          }
-        }
-      }
-    }
-  
-    if(what & 5) for(i=0;i < xctx->wires; ++i) {
-      if(xctx->wire[i].node) {
-        nentry = int_hash_lookup(&xctx->node_redraw_table, xctx->wire[i].node, 0, XLOOKUP);
-        if(nentry) {
-          if(xctx->wire[i].bus){
-            double ov, y1, y2;
-            ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-            if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-            else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-            dbg(1, "find_inst_to_be_redrawn(): 3 bboxing wire %d\n", i);
-            bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-          } else {
-            double ov, y1, y2;
-            ov = cadhalfdotsize;
-            if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-            else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-            dbg(1, "find_inst_to_be_redrawn(): 4 bboxing wire %d\n", i);
-            bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-          }
-        }
-      }
-    }
-  } /* if((s_pnetname || xctx->hilight_nets)) */
-  if(!(what & 8) ) {
-    if(what & 5) for(i=0;i<xctx->lastsel; ++i) { /* add bboxes of selected objects */
-      n = xctx->sel_array[i].n;
-      if( xctx->sel_array[i].type == ELEMENT) {
-        dbg(1, "find_inst_to_be_redrawn(): 5 bboxing inst %s\n", xctx->inst[n].instname);
-        if(what & 1) bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2 );
-        if(what & 4) {
-          symbol_bbox(n, &inst[n].x1, &inst[n].y1, &inst[n].x2, &inst[n].y2);
-          bbox(ADD, inst[n].x1, inst[n].y1, inst[n].x2, inst[n].y2);
-        }
-      }
-    }
-  }
-}
-
 void copy_objects(int what)
 {
   int tmpi, c, i, n, k /*, tmp */ ;
-  xRect tmp;
   double angle, dtmp;
   int newpropcnt;
   double tmpx, tmpy;
@@ -742,12 +580,10 @@ void copy_objects(int what)
   if(what & END)                                 /* copy selected objects */
   {
     int l, firstw, firsti;
-    int floaters = there_are_floaters();
 
     set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
 
-    if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     newpropcnt=0;
 
     if( !xctx->kissing ) {
@@ -758,8 +594,6 @@ void copy_objects(int what)
     firstw = firsti = 1;
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
-    /* build list before copying and recalculating prepare_netlist_structs() */
-    if(!floaters) find_inst_to_be_redrawn(0);
 
     for(i=0;i<xctx->lastsel; ++i)
     {
@@ -803,19 +637,6 @@ void copy_objects(int what)
         xctx->wire[n].sel=0;
   
         l = xctx->wires -1;
-        if(xctx->wire[n].bus){
-          double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-          if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
-          else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
-          if(!floaters) bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
-        } else {
-          double ov, y1, y2;
-          ov = cadhalfdotsize;
-          if(xctx->wire[l].y1 < xctx->wire[l].y2) { y1 = xctx->wire[l].y1-ov; y2 = xctx->wire[l].y2+ov; }
-          else                        { y1 = xctx->wire[l].y1+ov; y2 = xctx->wire[l].y2-ov; }
-          if(!floaters) bbox(ADD, xctx->wire[l].x1-ov, y1 , xctx->wire[l].x2+ov , y2 );
-        }
       }
     }
   
@@ -863,21 +684,6 @@ void copy_objects(int what)
         xctx->line[c][n].sel=0;
         
         l = xctx->lines[c] - 1;
-        if(xctx->line[c][l].bus){
-          double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-          if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
-               { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
-          else { y1 = xctx->line[c][l].y1+ov; y2 = xctx->line[c][l].y2-ov; }
-          if(!floaters) bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
-        } else {
-          double ov, y1, y2;
-          ov = cadhalfdotsize;
-          if(xctx->line[c][l].y1 < xctx->line[c][l].y2) 
-                { y1 = xctx->line[c][l].y1-ov; y2 = xctx->line[c][l].y2+ov; }
-          else  { y1 = xctx->line[c][l].y1+ov; y2 = xctx->line[c][l].y2-ov; }
-          if(!floaters) bbox(ADD, xctx->line[c][l].x1-ov, y1 , xctx->line[c][l].x2+ov , y2 );
-        }
         break;
   
        case POLYGON:
@@ -906,7 +712,6 @@ void copy_objects(int what)
             if(j==0 || x[j] > bx2) bx2 = x[j];
             if(j==0 || y[j] > by2) by2 = y[j];
           }
-          if(!floaters) bbox(ADD, bx1, by1, bx2, by2);
           xctx->sel_array[i].n=xctx->polygons[c];
           store_poly(-1, x, y, p->points, c, p->sel, p->prop_ptr);
           p->sel=0;
@@ -939,16 +744,6 @@ void copy_objects(int what)
                    xctx->arc[c][n].r, angle, xctx->arc[c][n].b, c, SELECTED, xctx->arc[c][n].prop_ptr);
      
         l = xctx->arcs[c] - 1;
-        if(!floaters) {
-          if(xctx->arc[c][l].fill) {
-            arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r,
-                0, 360, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-          } else {
-            arc_bbox(xctx->arc[c][l].x, xctx->arc[c][l].y, xctx->arc[c][l].r,
-                xctx->arc[c][l].a, xctx->arc[c][n].b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-          }
-          bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
-        }
         break;
   
        case xRECT:
@@ -971,7 +766,6 @@ void copy_objects(int what)
         storeobject(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
         l = xctx->rects[c] - 1;
-        if(!floaters) bbox(ADD, xctx->rect[c][l].x1, xctx->rect[c][l].y1, xctx->rect[c][l].x2, xctx->rect[c][l].y2);
         break;
   
        case xTEXT:
@@ -1022,7 +816,6 @@ void copy_objects(int what)
           cairo_restore(xctx->cairo_ctx);
         }
         #endif
-        if(!floaters) bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
   
         xctx->sel_array[i].n=xctx->texts;
         xctx->texts++;
@@ -1076,8 +869,7 @@ void copy_objects(int what)
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
         hash_names(xctx->instances, XINSERT);
-        /* this is needed since no find_inst_to_be_redrawn() is executed if floaters are present */
-        if(floaters) symbol_bbox(xctx->instances,
+        symbol_bbox(xctx->instances,
              &xctx->inst[xctx->instances].x1, &xctx->inst[xctx->instances].y1,
              &xctx->inst[xctx->instances].x2, &xctx->inst[xctx->instances].y2);
         xctx->instances++;
@@ -1090,10 +882,6 @@ void copy_objects(int what)
       xctx->prep_hi_structs=0;
     }
     /* build after copying and after recalculating prepare_netlist_structs() */
-    if(!floaters) {
-      find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
-      find_inst_to_be_redrawn(16); /* clear data */
-    }
     check_collapsing_objects();
     if(tclgetboolvar("autotrim_wires")) trim_wires();
     if(xctx->hilight_nets) {
@@ -1103,9 +891,7 @@ void copy_objects(int what)
     xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0;
     xctx->move_rot = xctx->move_flip = 0;
     set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
-    if(!floaters) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
-    if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     xctx->rotatelocal=0;
   } /* if(what & END) */
   draw_selection(xctx->gc[SELLAYER], 0);
@@ -1117,7 +903,6 @@ void copy_objects(int what)
 void move_objects(int what, int merge, double dx, double dy)
 {
  int c, i, n, k, tmpint;
- xRect tmp;
  double angle, dtmp;
  double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
  #if HAS_CAIRO==1
@@ -1179,10 +964,8 @@ void move_objects(int what, int merge, double dx, double dy)
  if(what & END)                                 /* move selected objects */
  {
   int firsti, firstw;
-  int floaters = there_are_floaters();
 
   if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
-  if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   /* no undo push for MERGE ad PLACE, already done before */
   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
     dbg(1, "move_objects(): push undo state\n");
@@ -1204,7 +987,6 @@ void move_objects(int what, int merge, double dx, double dy)
   firsti = firstw = 1;
   draw_selection(xctx->gctiled,0);
   update_symbol_bboxes(0, 0);
-  if(!floaters) find_inst_to_be_redrawn(0); /* build list before moving and recalculating prepare_netlist_structs() */
   for(k=0;k<cadlayers; ++k)
   {
    for(i=0;i<xctx->lastsel; ++i)
@@ -1216,21 +998,6 @@ void move_objects(int what, int merge, double dx, double dy)
       xctx->prep_hash_wires=0;
       firstw = 0;
       if(k == 0) {
-
-        if(wire[n].bus){ /* bbox before move */
-          double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          if(!floaters) bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        } else {
-          double ov, y1, y2;
-          ov = cadhalfdotsize;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          if(!floaters) bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        }
-
         if(xctx->rotatelocal) {
           ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
              wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
@@ -1264,41 +1031,11 @@ void move_objects(int what, int merge, double dx, double dy)
         wire[n].y1=xctx->ry1;
         wire[n].x2=xctx->rx2;
         wire[n].y2=xctx->ry2;
-
-        if(wire[n].bus){ /* bbox after move */
-          double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          if(!floaters) bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        } else {
-          double ov, y1, y2;
-          ov = cadhalfdotsize;
-          if(wire[n].y1 < wire[n].y2) { y1 = wire[n].y1-ov; y2 = wire[n].y2+ov; }
-          else                        { y1 = wire[n].y1+ov; y2 = wire[n].y2-ov; }
-          if(!floaters) bbox(ADD, wire[n].x1-ov, y1 , wire[n].x2+ov , y2 );
-        }
       }
       break;
 
      case LINE:
       if(c!=k) break;
-      if(xctx->line[c][n].bus){ /* bbox before move */
-        double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
-             { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
-        else { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
-      } else {
-        double ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
-              { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
-        else  { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
-      }
-
       if(xctx->rotatelocal) {
         ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
            line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
@@ -1333,22 +1070,6 @@ void move_objects(int what, int merge, double dx, double dy)
       line[c][n].y1=xctx->ry1;
       line[c][n].x2=xctx->rx2;
       line[c][n].y2=xctx->ry2;
-
-      if(xctx->line[c][n].bus){ /* bbox after move */
-        double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
-             { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
-        else { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
-      } else {
-        double ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(xctx->line[c][n].y1 < xctx->line[c][n].y2)
-              { y1 = xctx->line[c][n].y1-ov; y2 = xctx->line[c][n].y2+ov; }
-        else  { y1 = xctx->line[c][n].y1+ov; y2 = xctx->line[c][n].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->line[c][n].x1-ov, y1 , xctx->line[c][n].x2+ov , y2 );
-      }
       break;
 
      case POLYGON:
@@ -1380,7 +1101,6 @@ void move_objects(int what, int merge, double dx, double dy)
           }
 
         }
-        if(!floaters) bbox(ADD, bx1, by1, bx2, by2); /* bbox before move */
 
         for(j=0; j<p->points; ++j) {
           if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
@@ -1388,24 +1108,11 @@ void move_objects(int what, int merge, double dx, double dy)
           if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
           if(j==0 || p->y[j] > by2) by2 = p->y[j];
         }
-        if(!floaters) bbox(ADD, bx1, by1, bx2, by2); /* bbox after move */
       }
       break;
 
      case ARC:
       if(c!=k) break;
-
-      if(!floaters) {
-        if(xctx->arc[c][n].fill) {/* bbox before move */
-          arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
-                 0, 360, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        } else {
-          arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
-                 xctx->arc[c][n].a, xctx->arc[c][n].b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        }
-        bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
-      }
-
       if(xctx->rotatelocal) {
         /* rotate center wrt itself: do nothing */
         xctx->rx1 = xctx->arc[c][n].x;
@@ -1446,24 +1153,11 @@ void move_objects(int what, int merge, double dx, double dy)
         xctx->arc[c][n].y = xctx->ry1;
         xctx->arc[c][n].b = angle;
       }
-
-      if(!floaters) {
-        if(xctx->arc[c][n].fill) {/* bbox after move */
-          arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
-                 0, 360, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        } else {
-          arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
-                 xctx->arc[c][n].a, xctx->arc[c][n].b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-        }
-        bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
-      }
-
       break;
 
      case xRECT:
       if(c!=k) break;
       /* bbox before move */
-      if(!floaters) bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       if(xctx->rotatelocal) {
         ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
           xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
@@ -1538,7 +1232,6 @@ void move_objects(int what, int merge, double dx, double dy)
       xctx->rect[c][n].y2 = xctx->ry2;
 
       /* bbox after move */
-      if(!floaters) bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       break;
 
      case xTEXT:
@@ -1555,7 +1248,6 @@ void move_objects(int what, int merge, double dx, double dy)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      if(!floaters) bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
       if(xctx->rotatelocal) {
         ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
           xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
@@ -1581,7 +1273,6 @@ void move_objects(int what, int merge, double dx, double dy)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      if(!floaters) bbox(ADD, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2 );
 
       break;
 
@@ -1608,8 +1299,7 @@ void move_objects(int what, int merge, double dx, double dy)
       xctx->inst[n].rot = (xctx->inst[n].rot +
        ( (xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
       xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
-      /* this is needed since no find_inst_to_be_redrawn() is executed if floaters are present */
-      if(floaters) symbol_bbox(n,
+      symbol_bbox(n,
          &xctx->inst[n].x1, &xctx->inst[n].y1,
          &xctx->inst[n].x2, &xctx->inst[n].y2);
     } 
@@ -1619,10 +1309,6 @@ void move_objects(int what, int merge, double dx, double dy)
     xctx->prep_hi_structs=0;
   }
   /* build after copying and after recalculating prepare_netlist_structs() */
-  if(!floaters) {
-    find_inst_to_be_redrawn(1 + 2 + 4 + 32); /* 32: call prepare_netlist_structs(0) */
-    find_inst_to_be_redrawn(16); /* clear data */
-  }
   check_collapsing_objects();
   unselect_partial_sel_wires();
   if(tclgetboolvar("autotrim_wires")) trim_wires();
@@ -1637,9 +1323,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xctx->move_rot=xctx->move_flip=0;
   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->deltax=xctx->deltay=0.;
   set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
-  if(!floaters) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
-  if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->rotatelocal=0;
 
 

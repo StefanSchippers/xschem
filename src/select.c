@@ -383,7 +383,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
 }
 
 
-static void del_rect_line_arc_poly(int floaters)
+static void del_rect_line_arc_poly()
 {
  xRect tmp;
  int c, j, i;
@@ -398,7 +398,6 @@ static void del_rect_line_arc_poly(int floaters)
    {
     if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     ++j;
-    if(!floaters) bbox(ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
     my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
     set_rect_extraptr(0, &xctx->rect[c][i]);
     deleted = 1;
@@ -416,15 +415,6 @@ static void del_rect_line_arc_poly(int floaters)
    if(xctx->line[c][i].sel == SELECTED)
    {
     ++j;
-    if(xctx->line[c][i].bus){
-      double ov, y1, y2;
-      ov = INT_BUS_WIDTH(xctx->lw);
-      if(xctx->line[c][i].y1 < xctx->line[c][i].y2) { y1 = xctx->line[c][i].y1-ov; y2 = xctx->line[c][i].y2+ov; }
-      else                        { y1 = xctx->line[c][i].y1+ov; y2 = xctx->line[c][i].y2-ov; }
-      if(!floaters) bbox(ADD, xctx->line[c][i].x1-ov, y1 , xctx->line[c][i].x2+ov , y2 );
-    } else {
-      if(!floaters) bbox(ADD, xctx->line[c][i].x1, xctx->line[c][i].y1 , xctx->line[c][i].x2 , xctx->line[c][i].y2 );
-    }
     deleted = 1;
     my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
     continue;
@@ -449,7 +439,6 @@ static void del_rect_line_arc_poly(int floaters)
     else
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    if(!floaters) bbox(ADD, tmp.x1, tmp.y1, tmp.x2, tmp.y2);
     my_free(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr);
     deleted = 1;
     continue;
@@ -475,7 +464,6 @@ static void del_rect_line_arc_poly(int floaters)
       if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
     ++j;
-    if(!floaters) bbox(ADD, x1, y1, x2, y2);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
@@ -495,27 +483,13 @@ static void del_rect_line_arc_poly(int floaters)
 }
 
 
-int delete_wires(int floaters, int selected_flag)
+int delete_wires(int selected_flag)
 {
   int i, j = 0, deleted = 0;
   for(i=0;i<xctx->wires; ++i)
   {
     if(xctx->wire[i].sel == selected_flag) {
       ++j;
-      if(xctx->wire[i].bus){
-        double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-      } else {
-        double ov, y1, y2;
-        ov = cadhalfdotsize;
-        if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
-        else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
-        if(!floaters) bbox(ADD, xctx->wire[i].x1-ov, y1 , xctx->wire[i].x2+ov , y2 );
-      }
-
       hash_wire(XDELETE, i, 0);
       my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->wire[i].node);
@@ -541,46 +515,29 @@ int delete_wires(int floaters, int selected_flag)
 
 void delete(int to_push_undo)
 {
-  int i, j, tmp, deleted = 0, floaters;
-  int select_rot = 0, select_flip = 0;
+  int i, j, deleted = 0;
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  double xx1,yy1,xx2,yy2, dtmp;
 
-  floaters = there_are_floaters();
   dbg(3, "delete(): start\n");
   j = 0;
-  if(!floaters) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
   rebuild_selected_array();
   if(to_push_undo && xctx->lastsel) xctx->push_undo();
-  /* first calculate bbox, because symbol_bbox() needs translate (@#0:net_name) which
-   *  needs prepare_netlist_structs which needs a consistent xctx->inst[] data structure */
-  if(!floaters) find_inst_to_be_redrawn(4 + 32);
-                                  /* 32: call prepare_netlist_structs(0) if show net names enabled
-                                   *  4: call symbol_bbox() to precisely update bbox to current zoom level
-                                   */
-  del_rect_line_arc_poly(floaters);
+  del_rect_line_arc_poly();
 
   for(i=0;i<xctx->texts; ++i)
   {
     if(xctx->text[i].sel == SELECTED)
     {
-      select_rot = xctx->text[i].rot;
-      select_flip = xctx->text[i].flip;
       #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[i]);
       #endif
-      if(!floaters) text_bbox(get_text_floater(i), xctx->text[i].xscale,
-                xctx->text[i].yscale, (short) select_rot, (short) select_flip, xctx->text[i].hcenter,
-                xctx->text[i].vcenter, xctx->text[i].x0, xctx->text[i].y0,
-                &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
       #if HAS_CAIRO==1
       if(customfont) {
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      if(!floaters) bbox(ADD, xx1, yy1, xx2, yy2 );
       my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->text[i].font);
       my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);
@@ -629,31 +586,17 @@ void delete(int to_push_undo)
     xctx->prep_hi_structs=0;
   }
 
-  if(delete_wires(floaters, SELECTED)) {
+  if(delete_wires(SELECTED)) {
     deleted = 1;
     if(tclgetboolvar("autotrim_wires")) trim_wires();
     update_conn_cues(WIRELAYER, 0, 0);
   }
-
-
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
-
-  if(!floaters) {
-    find_inst_to_be_redrawn(2 + 4 + 8 + 32);
-                                       /* 32: call prepare_netlist_structs(0)
-                                        *  2: add previously built list
-                                        *  4: call symbol_bbox to precisely update bboxes ... needed?
-                                        *  8: do not iterate over selection (there is no more selection, deleted)
-                                        */
-    find_inst_to_be_redrawn(16); /* clear data */
-  }
   if(deleted) set_modify(1);
   xctx->lastsel = 0;
-  if(!floaters) bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
   draw();
-  if(!floaters) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
   xctx->ui_state &= ~SELECTION;
   set_first_sel(0, -1, 0);
 }
@@ -689,7 +632,7 @@ void delete_only_rect_line_arc_poly(void)
      bbox(ADD, xx1, yy1, xx2, yy2 );
    }
  }
- del_rect_line_arc_poly(0);
+ del_rect_line_arc_poly();
  xctx->lastsel = 0;
  bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
  draw();

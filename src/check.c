@@ -603,7 +603,7 @@ void break_wires_at_pins(int remove)
   } /* for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) */
 
   if(remove) {
-    if(delete_wires(1, SELECTED4)) {
+    if(delete_wires(SELECTED4)) {
       deleted_wire = 1;
     }
   }

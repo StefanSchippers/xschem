@@ -2568,7 +2568,6 @@ static void restore_selection(double x1, double y1, double x2, double y2)
 
 void new_wire(int what, double mx_snap, double my_snap)
 {
-  int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   int s_pnetname, modified = 0;
   if( (what & PLACE) ) {
     s_pnetname = tclgetboolvar("show_pin_net_names");
@@ -2626,21 +2625,10 @@ void new_wire(int what, double mx_snap, double my_snap)
       if(s_pnetname || xctx->hilight_nets) {
         prepare_netlist_structs(0); /* since xctx->prep_hi_structs==0, do a delete_netlist_structs() first,
                                      * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
-        if(!big) {
-          bbox(START , 0.0 , 0.0 , 0.0 , 0.0);
-          if(xctx->node_redraw_table.table == NULL)  int_hash_init(&xctx->node_redraw_table, HASHSIZE);
-          int_hash_lookup(&(xctx->node_redraw_table),  xctx->wire[xctx->wires-1].node, 0, XINSERT_NOREPLACE);
-        } 
-        if(!big) {
-          find_inst_to_be_redrawn(1 + 4 + 8); /* add bboxes before and after symbol_bbox, don't use selection */
-          find_inst_to_be_redrawn(16); /* delete hash and arrays */
-          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-        }
         if(xctx->hilight_nets) {
           propagate_hilights(1, 1, XINSERT_NOREPLACE);
         }
         draw();
-        if(!big) bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
       } else update_conn_cues(WIRELAYER, 1,1);
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
     }

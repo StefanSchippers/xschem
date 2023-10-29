@@ -976,11 +976,6 @@ typedef struct {
   int mx_save, my_save, last_command;
   char sel_or_clip[PATH_MAX];
   int onetime;
-  /* list of nodes, instances attached to these need redraw */
-  Int_hashtable node_redraw_table;
-  /* list of instances, collected using previous table, that need redraw */
-  unsigned char *inst_redraw_table;
-  int inst_redraw_table_size;
   /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;
@@ -1281,7 +1276,7 @@ extern const char *get_sym_template(char *s, char *extra);
 extern void zoom_full(int draw, int sel, int flags, double shrink);
 extern void updatebbox(int count,xRect *boundbox,xRect *tmp);
 extern void draw_selection(GC g, int interruptable);
-extern int delete_wires(int floaters, int selected_flag);
+extern int delete_wires(int selected_flag);
 extern void delete(int to_push_undo);
 extern void delete_only_rect_line_arc_poly(void);
 extern void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, double *bx2, double *by2);
