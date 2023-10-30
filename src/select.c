@@ -1320,7 +1320,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
      int k, selected_points, flag;
  
      polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
-     if(OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
+     if(RECT_OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
      selected_points = 0;
      flag=0;
      for(k=0; k<xctx->poly[c][i].points; ++k) {
@@ -1513,7 +1513,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
      int k, flag;
  
      polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
-     if(OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
+     if(RECT_OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
      flag=0;
      for(k=0; k<xctx->poly[c][i].points; ++k) {
        if(xctx->poly[c][i].sel==SELECTED) xctx->poly[c][i].selected_point[k] = 1;

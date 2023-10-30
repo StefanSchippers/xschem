@@ -346,9 +346,6 @@ extern char win_temp_dir[PATH_MAX];
   if(y2 < y1) {xxtmp = y1; y1 = y2; y2 = xxtmp;} \
 }
 
-#define OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2) \
- (xa>x2 || xb<x1 ||  ya>y2 || yb<y1 )
-
 #define LINE_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2) \
  (xa>=x2 || xb<=x1 ||  ( (ya<yb)? (ya>=y2 || yb<=y1) : (yb>=y2 || ya<=y1) ) )
 

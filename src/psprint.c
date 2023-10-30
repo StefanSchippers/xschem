@@ -792,7 +792,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     x2=X_TO_PS(xctx->inst[n].x2);
     y1=Y_TO_PS(xctx->inst[n].y1);
     y2=Y_TO_PS(xctx->inst[n].y2);
-    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
+    if(RECT_OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
     {
       xctx->inst[n].flags|=1;
       return;

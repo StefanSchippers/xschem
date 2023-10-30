@@ -519,7 +519,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
     y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
     y2=Y_TO_SCREEN(xctx->inst[n].y2+yoffset);
-    if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
+    if(RECT_OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
     {
      xctx->inst[n].flags|=1;
      return;
@@ -744,7 +744,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
    y1=Y_TO_SCREEN(xctx->inst[n].y1+yoffset);
    y2=Y_TO_SCREEN (xctx->inst[n].y2+yoffset);
-   if(OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
+   if(RECT_OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2))
    {
     xctx->inst[n].flags|=1;
     return;
@@ -3494,9 +3494,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &measure_x);
     my_free(_ALLOC_ID_, &measure_prev_x);
   } /* if(flags & 8) */
-  bbox(START, 0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+  /* 
+   * bbox(START, 0.0, 0.0, 0.0, 0.0);
+   * bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+   * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+   */
   if(flags & 8) {
     /* cursor1 */
     if((flags & 2)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
@@ -3507,11 +3509,16 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
-         xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+      /* 
+       * MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+       *   xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+       */
+      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 
+        gr->rx1, gr->ry1, gr->rx2, gr->ry2, gr->rx1, gr->ry1, 0.0);
+    
     }
   }
-  bbox(END, 0.0, 0.0, 0.0, 0.0);
+  /* bbox(END, 0.0, 0.0, 0.0, 0.0); */
 }
 
 /* flags:
