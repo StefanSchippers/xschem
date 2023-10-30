@@ -1718,15 +1718,17 @@ static void destroy_window(int *window_count, const char *win_path)
         xctx = save_xctx[n];
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
-        if(has_x) tclvareval("winfo toplevel ", win_path, NULL);
-        my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
+        if(has_x) {
+          tclvareval("winfo toplevel ", win_path, NULL);
+          my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
+        }
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {
           Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
           tclvareval("destroy ", toplevel, NULL);
+          my_free(_ALLOC_ID_, &toplevel);
         }
-        my_free(_ALLOC_ID_, &toplevel);
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
         if(has_x && *window_count == 0)
@@ -1831,14 +1833,19 @@ static void destroy_all_windows(int *window_count, int force)
           else close = 1;
           Tcl_ResetResult(interp);
           if(close) {
-            if(has_x) tclvareval("winfo toplevel ", window_path[i], NULL);
+            char *toplevel = NULL;
+            if(has_x) {
+              tclvareval("winfo toplevel ", window_path[i], NULL);
+              my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
+            }
             delete_schematic_data(1);
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
             save_xctx[i] = NULL;
             if(has_x) {
               Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[i], mainwindow));
-              tclvareval("destroy ", tclresult(), NULL);
+              tclvareval("destroy ", toplevel, NULL);
+              my_free(_ALLOC_ID_, &toplevel);
             }
             /* delete Tcl context of deleted schematic window */
             tclvareval("delete_ctx ", window_path[i], NULL);
