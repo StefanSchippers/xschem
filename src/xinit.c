@@ -1712,18 +1712,21 @@ static void destroy_window(int *window_count, const char *win_path)
         return;
       }
       if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
+        char *toplevel = NULL;
         /* delete Tcl context of deleted schematic window */
         tclvareval("delete_ctx ", win_path, NULL);
         xctx = save_xctx[n];
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
         if(has_x) tclvareval("winfo toplevel ", win_path, NULL);
+        my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {
           Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
-          tclvareval("destroy ", tclresult(), NULL);
+          tclvareval("destroy ", toplevel, NULL);
         }
+        my_free(_ALLOC_ID_, &toplevel);
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
         if(has_x && *window_count == 0)
