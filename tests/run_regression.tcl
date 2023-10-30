@@ -57,4 +57,4 @@ foreach tc $tcases {
 }
 
 source test_utility.tcl
-exec $xschem_cmd -q --script xschemtest.tcl > stefan_xschemtest.log 2>@1
+exec $xschem_cmd --pipe -q --script xschemtest.tcl > stefan_xschemtest.log 2>@1
