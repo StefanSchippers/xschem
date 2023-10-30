@@ -1800,8 +1800,11 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
-     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         rectx1, recty1, rectx2, recty2, rectx1, recty1, xctx->lw);
+     /* 
+      * MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+      *     rectx1, recty1, rectx2, recty2, rectx1, recty1, xctx->lw);
+      */
+     fix_restore_rect(rectx1, recty1, rectx2, recty2);
 
    } else {
      XDrawRectangle(display, xctx->window, gc, (int)x1, (int)y1,

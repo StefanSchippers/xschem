@@ -3387,6 +3387,7 @@ void pan(int what, int mx, int my)
  * XCopy Area operations */
 void fix_restore_rect(double x1, double y1, double x2, double y2)
 {
+  dbg(1, "%g %g %g %g\n", x1, y1, x2, y2);
   /* horizontal lines */
   MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
       x1, y1, x2, y1, x1, y1,
@@ -3420,11 +3421,7 @@ void select_rect(int what, int select)
     }
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    if(fix_broken_tiled_fill || !_unix) {
-      fix_restore_rect(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    } else {
-      drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    }
+    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     xctx->nl_xr2=xctx->mousex_snap;xctx->nl_yr2=xctx->mousey_snap;
 
     /*  20171026 update unselected objects while dragging */
@@ -3462,12 +3459,7 @@ void select_rect(int what, int select)
  else if(what & END)
  {
     RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
-
-    if(fix_broken_tiled_fill || !_unix) {
-      fix_restore_rect(xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2);
-    } else {
-      drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
-    }
+    drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     if(xctx->nl_dir == 0) select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 

@@ -4967,6 +4967,9 @@
           <Component Id="cmp81121000EE29EDB7D590EC4C84F1AA2A" Guid="{A8F771A4-8B16-49FA-A581-85D0B728E74A}">
             <File Id="fil34A55EC1C05159C07FC90AED847FFF66" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\autozero_comp.sch" />
           </Component>
+		  <Component Id="cmpD009418B633A058FED795DBEBEBC109A" Guid="{F82671C1-051F-4316-A08C-0EF141742489}">
+			<File Id="filCCD77ADC0EAAE880C2F943B2F1A05EEF" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\autozero_comp.sym" />
+		  </Component>
           <Component Id="cmp6459B0DD74A47A086E6B614933AFC28C" Guid="{84B8FE38-A121-4078-9118-E17E2FBB5879}">
             <File Id="fil407D827A4500F875A532804A7BE85429" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\autozero_comp_xyce.sch" />
           </Component>
@@ -7192,6 +7195,7 @@
       <ComponentRef Id="cmp2088AAC35A08E0518ACDC24298104ED3" />
       <ComponentRef Id="cmp4E42D794E5F6CF3E7A3EDA9C016D70A3" />
       <ComponentRef Id="cmp81121000EE29EDB7D590EC4C84F1AA2A" />
+	  <ComponentRef Id="cmpD009418B633A058FED795DBEBEBC109A" />
       <ComponentRef Id="cmp6459B0DD74A47A086E6B614933AFC28C" />
       <ComponentRef Id="cmp89838BB57E0FD4179DCA4965EB90E8C7" />
       <ComponentRef Id="cmp80F17668356F715FB30000BA77553EBA" />

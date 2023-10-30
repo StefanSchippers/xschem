@@ -86,7 +86,7 @@ proc inutile_alias_window {w filename} {
  toplevel $w -class Dialog
  wm title $w "(IN)UTILE ALIAS FILE: $filename"
  wm iconname $w "ALIAS"
- wm transient $w .
+ # wm transient $w .
 
  set fileid [open $filename "RDONLY CREAT"]
  set testo [read $fileid]
@@ -111,7 +111,7 @@ proc inutile_help_window {w filename} {
  toplevel $w -class Dialog
  wm title $w "(IN)UTILE ALIAS FILE"
  wm iconname $w "ALIAS"
- wm transient $w .
+ # wm transient $w .
  
  frame $w.buttons
  pack $w.buttons -side bottom -fill x -pady 2m
@@ -148,7 +148,7 @@ proc inutile { {filename {}}} {
   toplevel .inutile -class Dialog
   wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
   wm iconname .inutile "(IN)UTILE"
-  wm transient .inutile .
+  # wm transient .inutile .
   set utile_path $XSCHEM_SHAREDIR/utile
   set retval {}
   frame .inutile.buttons
@@ -451,7 +451,7 @@ proc list_running_cmds {} {
   set top .processlist
   if {[winfo exists $top]} {return}
   toplevel $top -class Dialog
-  wm transient $top .
+  # wm transient $top .
   set frame1 $top.f1
   set frame2 $top.f2
   set frame3 $top.f3
@@ -1318,7 +1318,7 @@ proc simconf {} {
   toplevel .sim -class Dialog
   wm title .sim {Simulation Configuration}
   wm geometry .sim 700x340
-  wm transient .sim .
+  # wm transient .sim .
   frame .sim.topf
   set scrollframe [sframe .sim.topf]
   frame ${scrollframe}.top
@@ -3152,7 +3152,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
   toplevel .load -class Dialog
   wm title .load $msg
-  wm transient .load .
+  # wm transient .load .
   set_ne myload_index1 0
   if { ![info exists myload_files1]} {
     set myload_files1 $pathlist
@@ -3876,7 +3876,7 @@ proc tclcmd {} {
     destroy .tclcmd
   }
   toplevel .tclcmd -class Dialog
-  wm transient .tclcmd .
+  # wm transient .tclcmd .
   label .tclcmd.txtlab -text {Enter TCL expression. Shift-Return will evaluate}
   panedwindow .tclcmd.p -orient vert
   text .tclcmd.t -width 100 -height 3
@@ -3997,6 +3997,7 @@ proc color_dim {} {
 
 # show xschem about dialog
 proc about {} {
+  global OS
   if [winfo exists .about] { 
     bind .about.link <Button-1> {}
     bind .about.link2 <Button-1> {}
@@ -4023,10 +4024,17 @@ proc about {} {
   pack .about.descr
   pack .about.copyright
   pack .about.close
-  bind .about.link <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem}
-  bind .about.link2 <Button-1> {execute 0 xdg-open https://github.com/StefanSchippers/xschem}
-  bind .about.link3 <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem/index.html}
-  bind .about.link4 <Button-1> {execute 0 xdg-open file://$XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html}
+  if {$OS == "Windows"} {
+    bind .about.link <Button-1> {eval start http://repo.hu/projects/xschem}
+    bind .about.link2 <Button-1> {eval start https://github.com/StefanSchippers/xschem}
+    bind .about.link3 <Button-1> {eval start http://repo.hu/projects/xschem/index.html}
+    bind .about.link4 <Button-1> {eval start $XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html}
+  } else {
+    bind .about.link <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem}
+    bind .about.link2 <Button-1> {execute 0 xdg-open https://github.com/StefanSchippers/xschem}
+    bind .about.link3 <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem/index.html}
+    bind .about.link4 <Button-1> {execute 0 xdg-open file://$XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html}
+  }
 }
 
 proc property_search {} {
@@ -4919,7 +4927,7 @@ proc textwindow {filename {ro {}}} {
   toplevel $textwindow_w
   wm title $textwindow_w $filename
   wm iconname $textwindow_w $filename
-  wm transient $textwindow_w .
+  # wm transient $textwindow_w .
  frame $textwindow_w.buttons
   pack $textwindow_w.buttons -side bottom -fill x -pady 2m
   button $textwindow_w.buttons.dismiss -text Dismiss -command "destroy $textwindow_w"
@@ -4965,7 +4973,7 @@ proc viewdata {data {ro {}} {win .view}} {
   set rcode {}
   toplevel $viewdata_w
   wm title $viewdata_w {View data}
-  wm transient $viewdata_w .
+  # wm transient $viewdata_w .
   frame $viewdata_w.buttons
   pack $viewdata_w.buttons -side bottom -fill x -pady 2m
 
@@ -5592,7 +5600,7 @@ proc context_menu { } {
 }
 
 proc tab_ctx_cmd {tab_but what} {
-  global terminal editor netlist_dir
+  global terminal editor netlist_dir OS
   # get win_path from tab name
   set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
   set tablist [xschem tab_list]
@@ -5606,20 +5614,43 @@ proc tab_ctx_cmd {tab_but what} {
   if {!$found} { set filename {}}
   if { $filename ne {} } {
     if {$what eq {dir}} {
-      execute 0 xdg-open [file dirname $filename]
+      if {$OS == "Windows" } {
+        set dir [file dirname $filename]
+        set command [list {*}[auto_execok start] {}]
+        exec {*}$command $dir &
+      } else {
+        execute 0 xdg-open [file dirname $filename]
+      }
     } elseif {$what eq {copy}} {
       clipboard clear
       clipboard append $filename
     } elseif {$what eq {term}} {
-      set save [pwd]
-      cd [file dirname $filename]
-      execute 0 $terminal
-      cd $save
+      if {$OS == "Windows" } {
+        set save [pwd]
+        set dir [file dirname $filename]
+        cd $dir
+        set command [list {*}[auto_execok start] {}]
+        exec {*}$command &
+        cd $save
+      } else {
+        set save [pwd]
+        cd [file dirname $filename]
+        execute 0 $terminal
+        cd $save
+      }
     } elseif {$what eq {simterm}} {
-      set save [pwd]
-      cd $netlist_dir
-      execute 0 $terminal
-      cd $save
+      if {$OS == "Windows" } {
+        set save [pwd]
+        cd $netlist_dir
+        set command [list {*}[auto_execok start] {}]
+        exec {*}$command &
+        cd $save
+      } else {
+        set save [pwd]
+        cd $netlist_dir
+        execute 0 $terminal
+        cd $save
+      }
     } elseif {$what eq {edit}} {
       eval execute 0 $editor $filename
     } elseif {$what eq {netlist}} {
@@ -5713,7 +5744,7 @@ proc tab_context_menu {tab_but} {
       -font [subst $font] \
       -command "
          set retval 6
-         xschem new_schematic create {} $counterpart
+         xschem new_schematic create {} {$counterpart}
          destroy .ctxmenu
        "
   }
@@ -7422,7 +7453,11 @@ set_ne editor {gvim -f}
 set_ne rainbow_colors 0
 set_ne initial_geometry {900x600}
 set_ne edit_symbol_prop_new_sel {}
-set_ne launcher_default_program {xdg-open}
+if {$OS == "Windows"} {
+  set_ne launcher_default_program {start}
+} else {
+  set_ne launcher_default_program {xdg-open}
+}
 set_ne auto_hilight 0
 set_ne use_tclreadline 1
 set_ne en_hilight_conn_inst 0
@@ -7494,7 +7529,7 @@ set_ne dark_colorscheme 1
 set_ne enable_dim_bg 0
 set_ne dim_bg 0.0
 set_ne dim_value 0.0
-set_ne fix_broken_tiled_fill 0 ;# set to 1 on some broken X11 drivers / GPUs that show garbage on screen */
+set_ne fix_broken_tiled_fill 1 ;# set to 1 on some broken X11 drivers / GPUs that show garbage on screen */
 # this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
 # events. Some remote connection softwares do not generate the correct coordinates
 # on such events */
