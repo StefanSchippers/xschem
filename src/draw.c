@@ -721,6 +721,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ int fix_broken = (gc == xctx->gctiled) && (fix_broken_tiled_fill || !_unix);
 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
@@ -733,7 +734,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  } else {
    hide = 0;
  }
-
+ 
  flip = xctx->inst[n].flip;
  if(tmp_flip) flip = !flip;
  rot = (xctx->inst[n].rot + rot ) & 0x3;
@@ -754,18 +755,30 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
                             xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
      xctx->inst[n].flags|=1;
      return;
+   } else if(fix_broken) {
+     xctx->inst[n].flags|=1;
    }
    else xctx->inst[n].flags&=~1;
    if(hide) {
-     symptr = (xctx->inst[n].ptr+ xctx->sym);
-     x0=xctx->inst[n].x0;
-     y0=xctx->inst[n].y0;
-     x0 += xoffset;
-     y0 += yoffset;
-     ROTATION(rot, flip, 0.0,0.0,symptr->minx, symptr->miny,x1,y1);
-     ROTATION(rot, flip, 0.0,0.0,symptr->maxx, symptr->maxy,x2,y2);
-     RECTORDER(x1,y1,x2,y2);
-     drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
+     /* 
+      * symptr = (xctx->inst[n].ptr+ xctx->sym);
+      * x0=xctx->inst[n].x0;
+      * y0=xctx->inst[n].y0;
+      * x0 += xoffset;
+      * y0 += yoffset;
+      * ROTATION(rot, flip, 0.0,0.0,symptr->minx, symptr->miny,x1,y1);
+      * ROTATION(rot, flip, 0.0,0.0,symptr->maxx, symptr->maxy,x2,y2);
+      * RECTORDER(x1,y1,x2,y2);
+      * drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
+      */
+      drawtemprect(gc,what,xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset,
+                           xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
+   }
+   if(fix_broken) { /* do a copyArea on first layer only. Faster. */
+     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+       xctx->inst[n].x1 + xoffset, xctx->inst[n].y1 + yoffset,
+       xctx->inst[n].x2 + xoffset, xctx->inst[n].y2 + yoffset,
+       xctx->inst[n].x1 + xoffset, xctx->inst[n].y1 + yoffset, xctx->lw);
    }
  } else if(xctx->inst[n].flags&1) {
    dbg(2, "draw_symbol(): skipping inst %d\n", n);
