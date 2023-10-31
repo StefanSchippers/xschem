@@ -4152,8 +4152,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * setprop rect 2 n fullyzoom
      *   These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
      *
-     * setprop text n tok [val] [fast|fastundo]
+     * setprop text n [tok] [val] [fast|fastundo]
      *   Set attribute 'tok' of text number 'n'
+     *   If 'tok' not specified set text string (txt_ptr) to value
+     *   If "txt_ptr" is given as token replace the text txt_ptr ("the text")
      *   If 'val' not given (no attribute value) delete attribute from text
      *   If 'fast' argument is given does not redraw and is not undoable
      *   If 'fastundo' s given same as above but action is undoable.
@@ -4335,11 +4337,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         Tcl_ResetResult(interp);
 
-      } else if(argc > 4 && !strcmp(argv[2], "text")) {
-      /*  0       1      2   3   4    5      6
-       * xschem setprop text n token value [fast] */
+      } else if(argc > 3 && !strcmp(argv[2], "text")) {
+      /*  0       1      2   3   4      5      6
+       * xschem setprop text n [token] value [fast|fastundo]
+       * if "txt_ptr" is given as token replace the text txt_ptr ("the text") */
         int change_done = 0;
-        int tmp, fast = 0;
+        int argc_copy, i, tmp, fast = 0;
         double xx1, xx2, yy1, yy2, dtmp;
         xText *t;
         int n = atoi(argv[3]);
@@ -4348,37 +4351,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         }
         t = &xctx->text[n];
-        if(argc > 6) {
-          if(!strcmp(argv[6], "fast")) {
+
+        argc_copy = argc;
+        for(i = 5; i < argc_copy; i++) {
+          if(!strcmp(argv[i], "fast")) {
             fast = 1;
-            argc = 6;
+            argc--;
           }
-          if(!strcmp(argv[6], "fastundo")) {
+          if(!strcmp(argv[i], "fastundo")) {
             fast = 3;
-            argc = 6;
-          }
-        }
-        else if(argc > 5) {
-          if(!strcmp(argv[5], "fast")) {
-            fast = 1;
-            argc = 5;
-          }
-          if(!strcmp(argv[5], "fastundo")) {
-            fast = 3;
-            argc = 5;
+            argc--;
           }
         }
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
         }
         if(argc > 5) {
+         if(!fast) {
+            text_bbox(get_text_floater(n), t->xscale,
+                  t->yscale, t->rot, t->flip, t->hcenter,
+                  t->vcenter, t->x0, t->y0,
+                  &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
+            bbox(ADD, xx1, yy1, xx2, yy2);
+          }
           /* verify if there is some difference */
-          if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
+          if(!strcmp(argv[4], "txt_ptr")) {
+            if(strcmp(argv[5], t->txt_ptr)) {
+              change_done = 1;
+              if(fast == 3 || fast == 0) xctx->push_undo();
+              my_strdup2(_ALLOC_ID_, &t->txt_ptr, argv[5]);
+            }
+          } else if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
             my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
           }
-        } else {
+        } else if(argc > 4) {
           get_tok_value(t->prop_ptr, argv[4], 0);
           if(xctx->tok_size) {
             change_done = 1;
@@ -4386,18 +4394,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
           }
         }
-        if(change_done) set_modify(1);
-        set_text_flags(t);
-        text_bbox(get_text_floater(n), t->xscale,
+        if(change_done) {
+          set_modify(1);
+          set_text_flags(t);
+          text_bbox(get_text_floater(n), t->xscale,
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-
+          if(!fast) bbox(ADD, xx1, yy1, xx2, yy2);
+        }
         if(!fast) {
-          bbox(ADD, xx1, yy1, xx2, yy2);
           /* redraw rect with new props */
           bbox(SET,0.0,0.0,0.0,0.0);
-          draw();
+          if(change_done) draw();
           bbox(END,0.0,0.0,0.0,0.0);
         }
         Tcl_ResetResult(interp);

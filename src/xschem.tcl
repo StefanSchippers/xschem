@@ -226,7 +226,7 @@ proc set_ne { var val } {
 #
 # execute service function
 proc execute_fileevent {id} {
-  global execute OS
+  global execute OS has_x
 
   append execute(data,$id) [read $execute(pipe,$id) 1024]
   if { $OS != {Windows} } {
@@ -282,7 +282,7 @@ proc execute_fileevent {id} {
       unset execute(status,$id)
       unset execute(cmd,$id)
       # apply a delay, process does not disappear immediately.
-      if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
+      if {[info exists has_x] && [winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
   }
 }
 
@@ -343,7 +343,7 @@ proc execute {status args} {
   set execute(data,$id) ""
 
   # Apply a delay to catch the new process.
-  if {[winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}} 
+  if {[info exists has_x] && [winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}} 
   fconfigure $pipe -blocking 0
   if {[regexp {line} $status]} {
     fconfigure $pipe -buffering line
@@ -387,9 +387,10 @@ proc insert_running_cmds {lb} {
 
 # periodically update status
 proc update_process_status {lb} {
-  global execute
+  global execute has_x
   set exists 0
   set selected [$lb curselection]
+  if { ![info exists has_x]} {return}
   if { [winfo exists .pstat] } {
     set pos [lindex [.pstat.text yview] 1]
     if {$pos == 1} {
@@ -418,9 +419,10 @@ proc update_process_status {lb} {
 
 # display stdout of selected sub-process
 proc view_process_status {lb} {
-  global execute
+  global execute has_x
   set exists 0
-  if { [winfo exists .pstat] } {
+  if {![info exists has_x]} {return}
+  if {[winfo exists .pstat] } {
     .pstat.text delete 1.0 end
     set exists 1
   }
@@ -448,7 +450,9 @@ proc view_process_status {lb} {
 
 # top level dialog displaying running sub-processes
 proc list_running_cmds {} {
+  global has_x
   set top .processlist
+  if {![info exists has_x]} {return}
   if {[winfo exists $top]} {return}
   toplevel $top -class Dialog
   # wm transient $top .
@@ -1945,13 +1949,13 @@ proc graph_edit_wave {n n_wave} {
 # add nodes from provided list of {node color} .... 
 # used in hilight_net()
 proc graph_add_nodes_from_list {nodelist} {
-  global graph_bus graph_selected graph_schname
+  global graph_bus graph_selected graph_schname has_x
   if {$graph_bus} {
     set sep ,
   } else {
     set sep \n
   }
-  if { [winfo exists .graphdialog] } {
+  if { [info exists has_x] && [winfo exists .graphdialog] } {
     set sel {}
     set current_node_list [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
     set col  [xschem getprop rect 2 $graph_selected color]
@@ -2212,7 +2216,9 @@ proc graph_set_linewidth {graph_sel} {
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
-  global graph_linewidth_mult graph_change_done
+  global graph_linewidth_mult graph_change_done has_x
+
+  if { ![info exists has_x]} {return} 
   set graph_change_done 0
   set geom {}
   if { [winfo exists .graphdialog]} {
@@ -2694,8 +2700,9 @@ proc graph_edit_properties {n} {
 }
 
 proc graph_show_measure {{action show}} {
-  global measure_id measure_text
+  global measure_id measure_text has_x
  
+  if {![info exists has_x]} return;
   set_ne measure_text "y=\nx="
   if { [info exists measure_id] } {
     after cancel $measure_id
@@ -2879,26 +2886,30 @@ proc cleanup {} {
 }
 
 proc display {} {
-    variable c_t
-    if { [winfo exists $c_t(w)]} {
-      set w $c_t(w)
-      set n $c_t(n)
-      cleanup
-      destroy $w.title
-      for {set i 0} {$i < $n} {incr i} {
-        destroy $w.b$i
-      }
-      set i $c_t(top)
-      button $w.title -text Recent -pady 0 -padx 0 -width 7 -state disabled -disabledforeground black \
-        -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
-      pack $w.title -side top -fill x
-      while {1} {
-        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 7
-        pack $w.b$i -side top -fill x
-        set i [expr {($i + 1) % $n}]
-        if { $i == $c_t(top) } break
-      }
+  global has_x
+  variable c_t
+  
+  if {![info exists has_x]} {return}
+
+  if { [winfo exists $c_t(w)]} {
+    set w $c_t(w)
+    set n $c_t(n)
+    cleanup
+    destroy $w.title
+    for {set i 0} {$i < $n} {incr i} {
+      destroy $w.b$i
     }
+    set i $c_t(top)
+    button $w.title -text Recent -pady 0 -padx 0 -width 7 -state disabled -disabledforeground black \
+      -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
+    pack $w.title -side top -fill x
+    while {1} {
+      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 7
+      pack $w.b$i -side top -fill x
+      set i [expr {($i + 1) % $n}]
+      if { $i == $c_t(top) } break
+    }
+  }
 }
 
 proc add {f} {
@@ -3014,7 +3025,7 @@ proc load_file_dialog_mkdir {dir} {
   if { $dir ne {} } {
     if {[catch {file mkdir "${myload_dir1}/$dir"} err]} {
       puts $err
-      if {$has_x} {
+      if {[info exists has_x]} {
         tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
       }
     }
@@ -3645,7 +3656,7 @@ proc simuldir {} {
     set simdir [xschem get current_dirname]/simulation
     if {[catch {file mkdir "$simdir"} err]} {
       puts $err
-      if {$has_x} {
+      if {[info exists has_x]} {
         tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
       } 
     }
@@ -3674,7 +3685,7 @@ proc set_netlist_dir { force {dir {} }} {
     if {![file exist $netlist_dir]} {
       if {[catch {file mkdir "$netlist_dir"} err]} {
         puts $err
-        if {$has_x} {
+        if {[info exists has_x]} {
           tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
         } 
       }
@@ -3704,7 +3715,7 @@ proc set_netlist_dir { force {dir {} }} {
     if {![file exist $new_dir]} {
       if {[catch {file mkdir "$new_dir"} err]} {
         puts $err
-        if {$has_x} {
+        if {[info exists has_x]} {
           tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
         } 
       }
@@ -4961,7 +4972,8 @@ proc textwindow {filename {ro {}}} {
 
 proc viewdata {data {ro {}} {win .view}} {
   global viewdata_wcounter  rcode viewdata_filename
-  global viewdata_w OS viewdata_fileid env
+  global viewdata_w OS viewdata_fileid env has_x
+  if {![info exists has_x]} {return}
   # set viewdata_w .view$viewdata_wcounter
   # catch {destroy $viewdata_w}
   if {$win eq {.view}} {
@@ -5138,7 +5150,7 @@ proc download_url {url} {
   if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
     if {[catch {file mkdir "${XSCHEM_TMP_DIR}/xschem_web"} err]} {
       puts $err
-      if {$has_x} {
+      if {[info exists has_x]} {
         tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
       } 
     }
@@ -5325,7 +5337,7 @@ proc swap_compare_schematics {} {
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   global wm_fix retval
   set retval {}
-  if { [winfo exists .dialog] } return
+  if { [winfo exists .dialog] } {return}
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
   wm title .dialog {Input number}

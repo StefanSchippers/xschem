@@ -102,8 +102,8 @@ int main(int argc, char **argv)
 
   #ifdef __unix__
   /* if invoked in background (and not invoked from a command pipeline) detach from console */
-
   if(!fstat(0, &statbuf)) {
+     setvbuf(stdout, NULL, _IOLBF, 0); /* set to line buffer mode */
      if(statbuf.st_mode & S_IFIFO) stdin_is_a_fifo = 1; /* input coming from a command pipe */
   }
   
