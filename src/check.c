@@ -21,7 +21,9 @@
  */
 
 #include "xschem.h"
+#ifdef __unix__
 #include <sys/select.h> /* select() */
+#endif
 static int check_includes(double x1a, double y1a, double x2a, double y2a,
                    double x1b, double y1b, double x2b, double y2b)
 { 

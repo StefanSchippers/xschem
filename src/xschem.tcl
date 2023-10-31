@@ -7319,7 +7319,7 @@ proc setup_tcp_bespice {} {
           incr port
         } else {
           # succeded => set $bespice_listen_port and socket connection for communication
-          puts "setup_tcp_bespice: success : listening to TCP port: $port"
+          puts stderr "setup_tcp_bespice: success : listening to TCP port: $port"
           set bespice_server_getdata(server) $err
           set bespice_listen_port $port
           return 1
