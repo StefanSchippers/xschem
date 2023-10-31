@@ -71,6 +71,10 @@ static void child_handler(int signum)
 int main(int argc, char **argv)
 {
   int i;
+  #ifdef __unix__
+  int stdin_is_a_fifo = 0;
+  struct stat statbuf;
+  #endif
   Display *display;
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
@@ -97,8 +101,13 @@ int main(int argc, char **argv)
   argc = process_options(argc, argv);
 
   #ifdef __unix__
-  /* if invoked in background detach from console */
-  if(getpgrp() != tcgetpgrp(STDOUT_FILENO) && !cli_opt_no_readline) {
+  /* if invoked in background (and not invoked from a command pipeline) detach from console */
+
+  if(!fstat(0, &statbuf)) {
+     if(statbuf.st_mode & S_IFIFO) stdin_is_a_fifo = 1; /* input coming from a command pipe */
+  }
+  
+  if(!stdin_is_a_fifo && getpgrp() != tcgetpgrp(STDOUT_FILENO) && !cli_opt_no_readline) {
     cli_opt_detach = 1;
   }
   #endif

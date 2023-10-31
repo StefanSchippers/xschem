@@ -775,6 +775,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
                            xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
    }
    if(fix_broken) { /* do a copyArea on first layer only. Faster. */
+     symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2);
      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
        xctx->inst[n].x1 + xoffset, xctx->inst[n].y1 + yoffset,
        xctx->inst[n].x2 + xoffset, xctx->inst[n].y2 + yoffset,
