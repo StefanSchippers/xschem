@@ -1973,7 +1973,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(xctx->semaphore >= 2) break;
     edit_property(1);break;
    }
-   if(key=='i' && rstate==0)                     /* descend to  symbol */
+   if(key=='i' && rstate==0) /* descend to  symbol */
    {
     if(xctx->semaphore >= 2) break;
     descend_symbol();break;
