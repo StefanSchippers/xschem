@@ -1396,6 +1396,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *
      * getprop text num attr
      *   Get attribute 'attr' of text number 'num'
+     *   if attribute is 'txt_ptr' return the text
      *
      * getprop wire num attr
      *   Get attribute 'attr' of wire number 'num'
@@ -1512,7 +1513,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         } else {
           int n = atoi(argv[3]);
-          Tcl_SetResult(interp, (char *)get_tok_value(xctx->text[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
+          if(!strcmp(argv[4], "txt_ptr"))
+            Tcl_SetResult(interp, xctx->text[n].txt_ptr, TCL_VOLATILE);
+          else 
+            Tcl_SetResult(interp, (char *)get_tok_value(xctx->text[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
         }
       } else if(!strcmp(argv[2], "wire")) { /* xschem getprop wire n token */
         if(argc < 5) {
@@ -3683,8 +3687,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* search regex|exact select tok val [match_case]
-     *   Search instances with attribute string containing 'tok'
-     *   attribute and value 'val'
+     *   Search instances / wires / rects / texts with attribute string containing 'tok'
+     *   and value 'val'
      *   search can be exact ('exact') or as a regular expression ('regex')
      *   select: 
      *      0 : highlight matching instances
@@ -3884,7 +3888,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* selected_set [what]
      *   Return a list of selected instance names
      *   If what is not given or set to 'inst' return list of selected instance names
-     *   If what set to 'rect' return list of selected rectangles with their coordinates */
+     *   If what set to 'rect' return list of selected rectangles with their coordinates
+     *   If what set to 'text' return list of selected texts with their coordinates */
     else if(!strcmp(argv[1], "selected_set"))
     {
       int n, i, first = 1;
@@ -3893,20 +3898,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       
       if(argc > 2) {
         if(!strcmp(argv[2], "rect")) what = xRECT;
+        else if(!strcmp(argv[2], "text")) what = xTEXT;
       }
       rebuild_selected_array();
       for(n=0; n < xctx->lastsel; ++n) {
         if(what == xRECT &&  xctx->sel_array[n].type == xRECT) {
-         char col[30], num[30], coord[200];
-         int c = xctx->sel_array[n].col;
-         i = xctx->sel_array[n].n;
-         my_strncpy(col, my_itoa(c), S(col));
-         my_strncpy(num, my_itoa(i), S(num));
-         my_snprintf(coord, S(coord), "%g %g %g %g", 
-           xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
-         if(first == 0) Tcl_AppendResult(interp, "\n", NULL);
-         first = 0;
-         Tcl_AppendResult(interp,col, " ", num, " ", coord , NULL);
+          char col[30], num[30], coord[200];
+          int c = xctx->sel_array[n].col;
+          i = xctx->sel_array[n].n;
+          my_strncpy(col, my_itoa(c), S(col));
+          my_strncpy(num, my_itoa(i), S(num));
+          my_snprintf(coord, S(coord), "%g %g %g %g", 
+            xctx->rect[c][i].x1, xctx->rect[c][i].y1, xctx->rect[c][i].x2, xctx->rect[c][i].y2);
+          if(first == 0) Tcl_AppendResult(interp, "\n", NULL);
+          first = 0;
+          Tcl_AppendResult(interp,col, " ", num, " ", coord , NULL);
+        } else if(what == xTEXT &&  xctx->sel_array[n].type == xTEXT) {
+          char num[30], coord[200];
+          i = xctx->sel_array[n].n;
+          my_strncpy(num, my_itoa(i), S(num));
+          my_snprintf(coord, S(coord), "%g %g %d %d",
+          xctx->text[i].x0, xctx->text[i].y0, xctx->text[i].rot, xctx->text[i].flip);
+          if(first == 0) Tcl_AppendResult(interp, "\n", NULL);
+          first = 0;
+          Tcl_AppendResult(interp, num, " ", coord , " {", xctx->text[i].txt_ptr, "}", NULL);
         } else if(what == ELEMENT && xctx->sel_array[n].type == ELEMENT) {
           i = xctx->sel_array[n].n;
           if(first == 0)  Tcl_AppendResult(interp, " ", NULL);

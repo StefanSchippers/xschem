@@ -840,6 +840,36 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
      }
    }
  }
+
+ if(sel) for(i=0;i<xctx->texts; ++i) {
+   str = get_tok_value(xctx->text[i].prop_ptr, tok,0);
+   if(xctx->tok_size) {
+     #ifdef __unix__
+     if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #else
+     if( (win_regexec(regexp_options, val, str) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #endif
+     {
+         if(sel==1) {
+           xctx->text[i].sel = SELECTED;
+           set_first_sel(xTEXT, i, 0);
+           xctx->need_reb_sel_arr=1;
+         }
+         if(sel==-1) {
+           xctx->text[i].sel = 0;
+           xctx->need_reb_sel_arr=1;
+         }
+         found = 1;
+     }
+     else {
+       dbg(2, "search(): not found text=%d, tok=%s, val=%s search=%s\n",
+                           i, tok, str, val);
+     }
+   }
+ }
+
  if(found) {
   if(tclgetboolvar("incr_hilight")) incr_hilight_color();
    if(sel == -1) {
