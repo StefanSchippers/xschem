@@ -394,7 +394,9 @@
 #### BESPICE WAVE SOCKET CONNECTION
 ###########################################################################
 #### set bespice wave listening port; default: not enabled
-# set bespice_listen_port 2022
+#### set port number to 0 so TCL will automatically and reliably find
+#### a free port
+# set bespice_listen_port 0
 
 ###########################################################################
 #### TCL FILES TO LOAD AT STARTUP
