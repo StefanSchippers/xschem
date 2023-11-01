@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -56,14 +56,15 @@ C {lab_pin.sym} 740 -420 0 0 {name=l7 sig_type=std_logic lab=0}
 C {lab_pin.sym} 760 -420 0 1 {name=l8 sig_type=std_logic lab=CLK}
 C {keeper_ngspice.sym} 1030 -570 0 0 {name=x3}
 C {lab_pin.sym} 500 -480 0 1 {name=l9 sig_type=std_logic lab=DI}
-C {buf_ngspice.sym} 1070 -460 0 0 {name=x4 ROUT=100}
+C {buf_ngspice.sym} 1070 -460 0 0 {name=x4 RUP=100 RDOWN=100}
 C {lab_pin.sym} 970 -480 0 0 {name=l10 sig_type=std_logic lab=QI}
 C {lab_pin.sym} 1160 -460 0 1 {name=l11 sig_type=std_logic lab=Q}
 C {switch_ngspice.sym} 990 -330 0 0 {name=S3 model=SWITCH}
 C {lab_pin.sym} 990 -260 0 0 {name=l2 sig_type=std_logic lab=0}
 C {lab_pin.sym} 950 -310 0 0 {name=l3 sig_type=std_logic lab=0}
 C {lab_pin.sym} 950 -330 0 0 {name=l12 sig_type=std_logic lab=RST}
-C {buf_ngspice.sym} 630 -460 0 0 {name=x1}
+C {buf_ngspice.sym} 630 -460 0 0 {name=x1
+RUP=1000}
 C {switch_ngspice.sym} 430 -460 1 1 {name=S4 model=SWITCH}
 C {lab_pin.sym} 430 -420 0 1 {name=l13 sig_type=std_logic lab=VCC}
 C {lab_pin.sym} 410 -420 0 0 {name=l14 sig_type=std_logic lab=RST}
@@ -71,4 +72,5 @@ C {switch_ngspice.sym} 520 -330 0 0 {name=S5 model=SWITCH}
 C {lab_pin.sym} 520 -260 0 0 {name=l15 sig_type=std_logic lab=0}
 C {lab_pin.sym} 480 -310 0 0 {name=l16 sig_type=std_logic lab=0}
 C {lab_pin.sym} 480 -330 0 0 {name=l17 sig_type=std_logic lab=RST}
-C {buf_ngspice.sym} 170 -460 0 0 {name=x5}
+C {buf_ngspice.sym} 170 -460 0 0 {name=x5
+RUP=1000}

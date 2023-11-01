@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -144,7 +144,7 @@ C {lab_pin.sym} 1520 -390 0 0 {name=p1 lab=RST}
 C {spice_probe.sym} 840 -250 0 0 {name=p6 attrs=""}
 C {spice_probe.sym} 710 -410 0 0 {name=p17 attrs=""}
 C {spice_probe.sym} 1540 -270 0 0 {name=p18 attrs=""}
-C {inv_ngspice.sym} 1040 -410 0 0 {name=x11 ROUT=1000 net_name=true}
+C {inv_ngspice.sym} 1040 -410 0 0 {name=x11 net_name=true RUP=1000}
 C {lab_wire.sym} 1130 -410 0 0 {name=l2 lab=QN}
 C {spice_probe.sym} 1090 -410 0 0 {name=p19 attrs=""}
 C {ipin.sym} 310 -370 0 0 {name=p242 lab=VREF}

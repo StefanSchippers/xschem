@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -24,6 +24,8 @@ K {}
 V {}
 S {}
 E {}
+T {@name
+@FUNC} 490 -520 0 0 0.2 0.2 {name=B2}
 N 470 -470 470 -430 { lab=#net1}
 N 470 -470 540 -470 { lab=#net1}
 N 470 -370 470 -320 { lab=0}
@@ -36,11 +38,6 @@ C {bsource.sym} 470 -400 0 1 {name=B1 VAR=V FUNC="'VCC/2*(1-tanh((V(A1)-VCC/2)*1
 }
 C {lab_pin.sym} 320 -470 0 0 {name=l2 sig_type=std_logic lab=A1}
 C {lab_pin.sym} 470 -320 0 0 {name=l3 sig_type=std_logic lab=0}
-C {res.sym} 570 -470 1 0 {name=R1
-value='ROUT'
-footprint=1206
-device=resistor
-m=1}
 C {lab_pin.sym} 670 -470 0 1 {name=l5 sig_type=std_logic lab=Y1}
 C {lab_pin.sym} 130 -240 0 1 {name=l6 sig_type=std_logic lab=A1}
 C {lab_pin.sym} 260 -240 0 0 {name=l7 sig_type=std_logic lab=Y1}
@@ -50,3 +47,6 @@ C {vsource.sym} 290 -240 1 0 {name=V1 value=0
 savecurrent=1}
 C {vsource.sym} 100 -240 1 0 {name=V2 value=0
 savecurrent=1}
+C {bsource.sym} 570 -470 3 1 {name=B2 VAR=I FUNC="'v(X1,Y1) > 0 ? v(X1,Y1) / RUP : v(X1,Y1) / RDOWN'"
+hide_texts=1}
+C {lab_pin.sym} 470 -470 0 0 {name=l4 sig_type=std_logic lab=X1}

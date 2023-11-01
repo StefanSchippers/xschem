@@ -124,25 +124,25 @@ value="pwl
 + 6.001u 0.97 9u 0.97"}
 C {lab_pin.sym} 270 -510 0 0 {name=p1 lab=0}
 C {lab_pin.sym} 270 -570 0 0 {name=p2 lab=SIG_IN}
-C {vsource.sym} 520 -550 0 0 {name=v1 
+C {vsource.sym} 520 -540 0 0 {name=v1 
 value="pulse 0 VCC 100n 100p 100p 9.9n 20n" 
 xvalue="sin 0.2 1.8 1u 0"
 }
-C {lab_pin.sym} 520 -520 0 0 {name=p6 lab=0}
-C {lab_pin.sym} 520 -580 0 0 {name=p7 lab=CK}
+C {lab_pin.sym} 520 -510 0 0 {name=p6 lab=0}
+C {lab_pin.sym} 520 -570 0 0 {name=p7 lab=CK}
 C {vsource.sym} 390 -640 0 0 {name=v5 value=VCC}
 C {lab_pin.sym} 390 -610 0 0 {name=p17 lab=0}
 C {lab_pin.sym} 390 -570 0 0 {name=p18 lab=VSS}
 C {vsource.sym} 390 -540 0 0 {name=v6 value=0}
 C {lab_pin.sym} 390 -510 0 0 {name=p19 lab=0}
-C {lab_pin.sym} 520 -680 0 0 {name=p55 lab=RST}
-C {vsource.sym} 520 -650 0 0 {name=v7 value="pwl 0 VCC 
+C {lab_pin.sym} 520 -670 0 0 {name=p55 lab=RST}
+C {vsource.sym} 520 -640 0 0 {name=v7 value="pwl 0 VCC 
 + 1u VCC 1.001u 0 3u 0 3.001u VCC
 + 4u VCC 4.001u 0 6u 0 6.001u VCC
 + 7u VCC 7.001u 0 9u 0 9.001u VCC"
 
 }
-C {lab_pin.sym} 520 -620 0 0 {name=p56 lab=0}
+C {lab_pin.sym} 520 -610 0 0 {name=p56 lab=0}
 C {vdd.sym} 390 -670 0 0 {name=l2 lab=VCC}
 C {adc.sym} 620 -190 0 0 {name=x1}
 C {lab_pin.sym} 700 -220 0 1 {name=p38 lab=CODE[5:0]}
@@ -153,8 +153,8 @@ C {lab_pin.sym} 540 -160 0 0 {name=p42 lab=RST}
 C {spice_probe.sym} 270 -670 0 0 {name=p3 attrs=""}
 C {spice_probe.sym} 390 -670 0 0 {name=p4 attrs=""}
 C {spice_probe.sym} 270 -570 0 0 {name=p5 attrs=""}
-C {spice_probe.sym} 520 -580 0 0 {name=p8 attrs=""}
-C {spice_probe.sym} 520 -680 0 0 {name=p9 attrs=""}
+C {spice_probe.sym} 520 -570 0 0 {name=p8 attrs=""}
+C {spice_probe.sym} 520 -670 0 0 {name=p9 attrs=""}
 C {spice_probe.sym} 700 -220 0 0 {name=p10 attrs=""}
 C {launcher.sym} 1270 -90 0 0 {name=h5 
 descr="Select arrow and 
