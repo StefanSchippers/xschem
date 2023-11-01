@@ -523,6 +523,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -764,6 +765,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       
        getprop text num attr
    Get attribute 'attr' of text number 'num'
+   if attribute is 'txt_ptr' return the text
       
        getprop wire num attr
    Get attribute 'attr' of wire number 'num'
@@ -1129,8 +1131,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    schematic (issues a warning).
    if 'new_process' is given start a new xschem process </pre>
    <li><kbd>       search regex|exact select tok val [match_case]</kbd></li><pre>
-   Search instances with attribute string containing 'tok'
-   attribute and value 'val'
+   Search instances / wires / rects / texts with attribute string containing 'tok'
+   and value 'val'
    search can be exact ('exact') or as a regular expression ('regex')
    select: 
       0 : highlight matching instances
@@ -1170,7 +1172,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       selected_set [what]</kbd></li><pre>
    Return a list of selected instance names
    If what is not given or set to 'inst' return list of selected instance names
-   If what set to 'rect' return list of selected rectangles with their coordinates </pre>
+   If what set to 'rect' return list of selected rectangles with their coordinates
+   If what set to 'text' return list of selected texts with their coordinates </pre>
    <li><kbd>       selected_wire</kbd></li><pre>
   Return list of selected nets </pre>
    <li><kbd>       send_to_viewer</kbd></li><pre>
@@ -1368,6 +1371,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 
