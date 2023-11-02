@@ -1,6 +1,33 @@
-#!/bin/sh
-gawk '
-
+#!/usr/bin/awk -f
+#
+#  File: make_sym_from_spice.awk
+#  
+#  This file is part of XSCHEM,
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  simulation.
+#  Copyright (C) 1998-2023 Stefan Frederik Schippers
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+#
+# create xschem symbols from a spice netlist.
+# Spice netlist should contain *.PININFO lines that specify the direction
+# of ports otherwise inout is assumed for all symbol ports.
+# Usage:
+#   make_sym_from_spice.awk netlist.spice
+# Generated symbols should be in current directory
 BEGIN{
   sym_type = "subcircuit" # or "primitive"
 ##########################   JOIN   ##########################
@@ -27,7 +54,6 @@ BEGIN{
     $0=netlist[i]
     process_subckts()
   }
-
   skip=0
   for(i=0;i<netlist_lines; i++) { 
     $0=netlist[i]
@@ -66,9 +92,11 @@ function process_subckts(         j, i,name)
    }
 
    pin_ar[curr_subckt,"n"]=j-1
-   if(skip_symbol_prefix) pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " prefix=" skip_symbol_prefix
+   if(skip_symbol_prefix)
+     pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " prefix=" skip_symbol_prefix
    get_template(template) 
-   if(skip_symbol_prefix) pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " prefix"
+   if(skip_symbol_prefix)
+     pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " prefix"
  }
  else if(toupper($1) ~ /^\*\.PININFO/) {
    for(i=2;i<=NF;i++) {
@@ -280,7 +308,7 @@ function compact_label(name, ar,a,b,        ret,start,i)
           else {ret = ret ar[name,i-1] ","; start=i }
         }
       }
-      else if(lab_name(ar[name,i])!=lab_name(ar[name,i-1])) { 			# lab basename changed
+      else if(lab_name(ar[name,i])!=lab_name(ar[name,i-1])) {
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
         else if(start<i-1) 
@@ -289,7 +317,7 @@ function compact_label(name, ar,a,b,        ret,start,i)
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
         start=i
       }
-      else if(lab_index(ar[name,i]) != lab_index(ar[name,i-1])-1 &&               # index not equal, +1,-1 previous
+      else if(lab_index(ar[name,i]) != lab_index(ar[name,i-1])-1 &&
               lab_index(ar[name,i]) != lab_index(ar[name,i-1])+1  ) {             
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
@@ -299,7 +327,7 @@ function compact_label(name, ar,a,b,        ret,start,i)
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
         start=i
       }
-      else if( lab_index(ar[name,start])!=lab_index(ar[name,i]) &&                 # range count != element count
+      else if( lab_index(ar[name,start])!=lab_index(ar[name,i]) &&
                abs(start-i)!=abs(lab_index(ar[name,start])-lab_index(ar[name,i])) ) {
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
@@ -309,18 +337,6 @@ function compact_label(name, ar,a,b,        ret,start,i)
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
         start=i
       }
-
-#      else if( lab_index(ar[name,i]) != lab_index(ar[name,start])  ) {
-#        if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
-#          ret = ret (i-start) "*" ar[name,i-1] ",";
-#        else if(start<i-1)
-#          ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,i-1]) "],"
-#        else
-#          ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
-#        start=i
-#      }
-
-
     }
   }
   if(ar[name,b] !~ /\[/)  {
@@ -333,8 +349,6 @@ function compact_label(name, ar,a,b,        ret,start,i)
     ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,b]) "]"
   else
     ret = ret lab_name(ar[name,b]) "[" lab_index(ar[name,b]) "]"
-
-  # print "compact_label(): ret=" ret
   return ret
 }
 
@@ -505,5 +519,3 @@ function format_translate(s, extra,            n_extra, extra_arr, extra_hash, c
  return str
 }
 
-
-' $@
