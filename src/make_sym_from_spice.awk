@@ -30,6 +30,12 @@
 # Generated symbols should be in current directory
 BEGIN{
   sym_type = "subcircuit" # or "primitive"
+
+  inherited_pin["VGND"]=1
+  inherited_pin["VPWR"]=1
+  inherited_pin["VNB"]=1
+  inherited_pin["VPB"]=1
+
 ##########################   JOIN   ##########################
   netlist_lines=0
   first=1
