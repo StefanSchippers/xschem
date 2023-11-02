@@ -16,7 +16,7 @@ put /local/install_shares {
  vhdl.awk hspice_backannotate.tcl add_custom_menu.tcl create_graph.tcl
  add_custom_button.tcl change_index.tcl icon.xpm resources.tcl xschemrc
  ngspice_backannotate.tcl gschemtoxschem.awk traversal.tcl mouse_bindings.tcl
- place_sym_pins.tcl place_pins.tcl
+ place_sym_pins.tcl place_pins.tcl make_sch_from_spice.awk make_sym_from_spice.awk
 }
 
 # generate a list of objects from the list of source files

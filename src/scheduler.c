@@ -777,8 +777,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* exit [closewindow]
      *   Exit the program, ask for confirm if current file modified.
      *   if 'closewindow' is given close the window, otherwise leave with a blank schematic
-     *   if 'force' is given do not ask before closing modified schematic windows/tabs
      *   when closing the last remaining window
+     *   if 'force' is given do not ask before closing modified schematic windows/tabs
      *   This command returns the list of remaining open windows in addition to main window */
     else if(!strcmp(argv[1], "exit"))
     {
