@@ -1283,7 +1283,7 @@ static int edit_text_property(int x)
         set_text_flags(&xctx->text[sel]);
       }
       if(text_changed || props_changed) {
-        get_text_floater(sel);
+        get_text_floater(sel); /* update xctx->text[sel].floater_ptr cache */
       }
       if(size_changed) {
         xctx->text[sel].xscale=hsize;
