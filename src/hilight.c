@@ -624,7 +624,7 @@ static int bus_search(const char*s)
 }
 
 #ifndef __unix__
-static int win_regexec(const char *options, const char *pattern, char *name) 
+static int win_regexec(const char *options, const char *pattern, const char *name) 
 {
   if (options!=NULL)
     tclvareval("regexp {", options,"} {", pattern, "} {", name, "}", NULL);

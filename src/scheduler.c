@@ -69,7 +69,7 @@ static int get_symbol(const char *s)
 
 int get_instance(const char *s)
 {
-  int i, found=0;
+  int i = -1, found=0;
   Int_hashentry *entry;
 
   if(isonlydigit(s)) {
@@ -78,8 +78,10 @@ int get_instance(const char *s)
   }
   else if(xctx->floater_inst_table.table) {
     entry = int_hash_lookup(&xctx->floater_inst_table, s, 0, XLOOKUP);
-    i = entry ? entry->value : -1;
-    found = 1;
+    if(entry) {
+      i = entry->value;
+      found = 1;
+    }
   } else {
     for(i=0;i<xctx->instances; ++i) {
       if(!strcmp(xctx->inst[i].instname, s)) {

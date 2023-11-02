@@ -6416,6 +6416,7 @@ global env has_x OS autofocus_mainwindow
       bind $topwin <Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$Mod1Mask}]}
       bind $topwin <Control-Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$ControlMask + $Mod1Mask}]}
       bind $topwin <Shift-Alt-ButtonPress> {xschem callback %W %T %x %y 0 %b 0 [expr {$ShiftMask + $Mod1Mask}]}
+      bind $topwin <Alt-Motion> {xschem callback %W %T %x %y 0 0 0 [expr {$Mod1Mask+%s}]}
       bind $topwin <Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$Mod1Mask}]}
       bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
       bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}

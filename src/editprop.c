@@ -1222,7 +1222,7 @@ static int edit_text_property(int x)
       modified = 1;
       xctx->push_undo();
     }
-    set_modify(-2); /* clear text floater caches */
+    /* set_modify(-2); */ /* ? Not needed, overkill... clear text floater caches */
     for(k=0;k<xctx->lastsel; ++k)
     {
       if(xctx->sel_array[k].type!=xTEXT) continue;
@@ -1273,7 +1273,7 @@ static int edit_text_property(int x)
         }
         my_strdup2(_ALLOC_ID_, &xctx->text[sel].txt_ptr, (char *) tclgetvar("retval"));
       }
-      if(x==0 && props_changed) {
+      if(props_changed) {
         if(oldprop && preserve)
           set_different_token(&xctx->text[sel].prop_ptr, (char *) tclgetvar("props"), oldprop);
         else
@@ -1281,6 +1281,9 @@ static int edit_text_property(int x)
 
         my_free(_ALLOC_ID_, &xctx->text[sel].floater_ptr);
         set_text_flags(&xctx->text[sel]);
+      }
+      if(text_changed || props_changed) {
+        get_text_floater(sel);
       }
       if(size_changed) {
         xctx->text[sel].xscale=hsize;
