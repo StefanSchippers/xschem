@@ -6200,7 +6200,7 @@ set tctx::global_list {
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  rawfile_loaded rcode recentfile
+  rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6488,6 +6488,26 @@ proc switch_undo {} {
     } else {
       set undo_type memory
     }
+  }
+}
+
+proc load_raw {} {
+  global netlist_dir
+
+  set types {
+      {{Raw Files}       {.raw}        }
+      {{All Files}        *            }
+  }
+
+
+  set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
+  if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
+    xschem raw_clear
+   }
+    set filename [tk_getOpenFile -title "Select file" -multiple 0 -initialdir $netlist_dir \
+            -initialfile [file tail $filename]  -filetypes $types]
+  if {[file exists $filename]} {
+    xschem raw_read $filename
   }
 }
 
@@ -7048,9 +7068,11 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   }
   $topwin.menubar.simulation.menu.graph add command -label "Annotate Operating Point into schematic" \
          -command {set show_hidden_texts 1; xschem annotate_op}
-  $topwin.menubar.simulation.menu.graph add checkbutton -variable rawfile_loaded \
-     -label {Load/Unload spice .raw file} -command {
-     xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+  $topwin.menubar.simulation.menu.graph add command -label {Load spice .raw file} -command {
+     load_raw
+  }
+  $topwin.menubar.simulation.menu.graph add command -label {Unload spice .raw file} -command {
+     xschem raw_clear
   }
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
          -variable live_cursor2_backannotate 
@@ -7624,8 +7646,6 @@ if {$OS == "Windows"} {
 } else {
   set filetmp [pwd]/.tmp2
 }
-
-set rawfile_loaded 0
 
 # flag bound to a checkbutton in symbol editprop form
 # if set cell is copied when renaming it

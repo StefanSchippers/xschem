@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -96,6 +96,12 @@ T {@symname} 1320 -1350 0 1 0.8 0.8 {}
 T {( @#0:resolved_net )} 120 -635 0 1 0.2 0.2 {name=p0 layer=15}
 T {( @#0:resolved_net )} 120 -585 0 1 0.2 0.2 {name=p1 layer=15}
 T {( @#0:resolved_net )} 1360 -665 0 1 0.2 0.2 {name=p5 layer=15}
+T {@name} 805 -486.25 2 0 0.2 0.2 {
+name=R11}
+T {@value} 783.75 -545 2 1 0.2 0.2 {
+name=R11}
+T {m=@m} 805 -501.25 2 0 0.2 0.2 {
+name=R11}
 N 180 -590 180 -550 {lab=E9}
 N 260 -550 340 -550 {lab=E9}
 N 340 -590 340 -550 {lab=E9}
@@ -262,7 +268,8 @@ rload out 0 4
 *.probe dc v(plus,vdc)
 "}
 C {lab_wire.sym} 920 -850 0 0 {name=l1 lab=GA}
-C {res.sym} 800 -530 1 1 {name=R11 m=1 value=1300 net_name=true}
+C {res.sym} 800 -530 1 1 {name=R11 m=1 value=1300 net_name=true
+hide_texts=true}
 C {pnp.sym} 540 -580 0 0 {name=Q8 model=q2n2907p area=1 net_name=true}
 C {capa.sym} 1240 -1020 0 0 {name=C12 m=1 value="40u" net_name=true}
 C {diode.sym} 920 -1240 0 0 {name=D0 model=d1n4148 area=1

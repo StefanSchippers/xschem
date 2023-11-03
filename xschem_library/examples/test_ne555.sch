@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -38,8 +38,9 @@ divx=5
 subdivx=1
 node="out
 trig
-ctrl"
-color="4 15 7"
+\\"2/3 Vcc; ctrl\\"
+\\"1/3 Vcc; x1.18\\""
+color="4 15 7 12"
 dataset=-1
 unitx=1
 logx=0

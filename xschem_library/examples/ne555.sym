@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -42,10 +42,6 @@ L 4 60 120 80 120 {}
 L 4 60 40 80 40 {}
 L 4 -80 -40 -60 -40 {}
 L 4 -60 -130 -20 -130 {}
-L 4 -20 -130 -10 -120 {}
-L 4 -10 -120 0 -120 {}
-L 4 0 -120 10 -120 {}
-L 4 10 -120 20 -130 {}
 L 4 20 -130 60 -130 {}
 L 4 -30 -10 -20 10 {}
 L 4 -30 -10 -10 -10 {}
@@ -146,6 +142,7 @@ B 5 77.5 117.5 82.5 122.5 {name=CTRL dir=in }
 B 5 77.5 37.5 82.5 42.5 {name=THRES dir=in }
 B 5 77.5 -42.5 82.5 -37.5 {name=DIS dir=out }
 B 5 77.5 -122.5 82.5 -117.5 {name=VCC dir=in }
+A 4 0 -135.8333333333333 20.83333333333334 196.260204708312 147.4795905833761 {}
 T {@symname} -27.5 -111 0 0 0.3 0.3 {}
 T {@name} 25 -152 0 0 0.2 0.2 {}
 T {OUT} -35 26 0 1 0.2 0.2 {}

@@ -964,7 +964,6 @@ int update_op()
   int res = 0, p = 0, i;
   tcleval("array unset ngspice::ngspice_data");
   if(xctx->raw && xctx->raw->values) {
-    tclsetvar("rawfile_loaded", "1");
     xctx->raw->annot_p = 0;
     for(i = 0; i < xctx->raw->nvars; ++i) {
       char s[100];

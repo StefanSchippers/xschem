@@ -272,7 +272,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
       }
       tclsetboolvar("live_cursor2_backannotate", 1);
-      tclsetvar("rawfile_loaded", "0");
       extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       raw_read(f, &xctx->raw, "op");
@@ -3136,7 +3135,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "raw_clear"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      tclsetvar("rawfile_loaded", "0");
       extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       Tcl_ResetResult(interp);
@@ -3148,8 +3146,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n: return n-th value of 'node' in raw file
      *   xschem raw_query loaded: return hierarchy level
-     *   xschem raw_query rawfile: return raw filename 
      *   where raw file was loaded or -1 if no raw loaded
+     *   xschem raw_query rawfile: return raw filename 
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
      *   xschem raw_query values node [dset] : print all simulation
@@ -3248,7 +3246,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval("array unset ngspice::ngspice_data");
         extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
-        tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 0);
@@ -3258,10 +3255,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 3) res = raw_read(f, &xctx->raw, argv[3]);
         else res = raw_read(f, &xctx->raw, NULL);
         if(sch_waves_loaded() >= 0) {
-          tclsetvar("rawfile_loaded", "1");
           draw();
         }
-        else  tclsetvar("rawfile_loaded", "0");
       }
       Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
@@ -3284,10 +3279,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2]);
         else  raw_read_from_attr(&xctx->raw, NULL);
         if(sch_waves_loaded() >= 0) {
-          tclsetvar("rawfile_loaded", "1");
           draw();
         }
-        else  tclsetvar("rawfile_loaded", "0");
       }
       Tcl_ResetResult(interp);
     }
@@ -4595,7 +4588,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(sch_waves_loaded() >= 0) {
         extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 1);
-        tclsetvar("rawfile_loaded", "0");
       } else if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
@@ -4604,10 +4596,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         free_rawfile(&xctx->raw, 0);
         table_read(f);
         if(sch_waves_loaded() >= 0) {
-          tclsetvar("rawfile_loaded", "1");
           draw();
         }
-        else  tclsetvar("rawfile_loaded", "0");
       } 
       Tcl_ResetResult(interp);
     }
