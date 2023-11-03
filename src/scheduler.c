@@ -624,11 +624,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int ret=0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) {
-        int n = atoi(argv[2]);
-        ret = descend_schematic(n);
-      } else {
-        ret = descend_schematic(0);
+      if(xctx->semaphore == 0) {
+        if(argc > 2) {
+          int n = atoi(argv[2]);
+          ret = descend_schematic(n);
+        } else {
+          ret = descend_schematic(0);
+        }
       }
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
     }
@@ -638,7 +640,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "descend_symbol"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      descend_symbol();
+      if(xctx->semaphore == 0) descend_symbol();
       Tcl_ResetResult(interp);
     }
 
@@ -928,6 +930,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         move_objects(FLIP|ROTATELOCAL,0,0,0);
         move_objects(END,0,0,0);
       }
+      Tcl_ResetResult(interp);
+    }
+
+    /* floaters_from_selected_inst
+     *   flatten to current level selected instance texts */
+    else if(!strcmp(argv[1], "floaters_from_selected_inst"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      floaters_from_selected_inst();
       Tcl_ResetResult(interp);
     }
 
@@ -1658,7 +1669,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "go_back"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      go_back(1);
+      if((xctx->semaphore == 0)) go_back(1);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}

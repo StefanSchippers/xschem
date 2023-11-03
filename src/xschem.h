@@ -1236,6 +1236,7 @@ extern void print_version(void);
 extern int set_netlist_dir(int force, const char *dir);
 extern void netlist_options(int i);
 extern int  check_lib(int what, const char *s);
+extern int floaters_from_selected_inst();
 extern void select_all(void);
 extern void change_linewidth(double w);
 extern void schematic_in_new_window(int new_process);

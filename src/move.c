@@ -197,6 +197,12 @@ void draw_selection(GC g, int interruptable)
   #endif
   dbg(1,"draw_selection %s\n", g == xctx->gctiled ? "gctiled" : "gcselect");
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
+
+  if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled && xctx->movelastsel > 800) {
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
+          xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
+    return;
+  }
   for(i=0;i<xctx->movelastsel; ++i)
   {
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
@@ -443,46 +449,11 @@ void draw_selection(GC g, int interruptable)
                 xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      }
 
-     if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled) {
-       short save_flip, save_rot;
-       double save_x0, save_y0;
-       double save_x1, save_y1, save_x2, save_y2;
-       double x1, y1, x2, y2;
-
-       /* Can be made simpler ? */
-       dbg(1, "rot=%d flip=%d deltax=%g deltay=%g\n",
-              xctx->move_rot, xctx->move_flip, xctx->deltax, xctx->deltay);
-       save_flip = xctx->inst[n].flip;
-       save_rot = xctx->inst[n].rot;
-       save_x0 = xctx->inst[n].x0;
-       save_y0 = xctx->inst[n].y0;
-       save_x1 = xctx->inst[n].xx1;
-       save_y1 = xctx->inst[n].yy1;
-       save_x2 = xctx->inst[n].xx2;
-       save_y2 = xctx->inst[n].yy2;
-       xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
-       xctx->inst[n].rot = (xctx->inst[n].rot + xctx->move_rot) & 0x3;
-       xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
-       xctx->inst[n].y0 = xctx->ry1+xctx->deltay;
-       symbol_bbox(n, &x1, &y1, &x2, &y2);
-       xctx->inst[n].rot = save_rot;
-       xctx->inst[n].flip = save_flip;
-       xctx->inst[n].x0 = save_x0;
-       xctx->inst[n].y0 = save_y0;
-       xctx->inst[n].xx1 = save_x1;
-       xctx->inst[n].yy1 = save_y1;
-       xctx->inst[n].xx2 = save_x2;
-       xctx->inst[n].yy2 = save_y2;
-
-       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         x1, y1, x2, y2, x1, y1,
-         xctx->lw);
-     } else { 
-       for(k=0;k<cadlayers; ++k) {
-         draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
-           ( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot,
-           xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
-       }
+     for(k=0;k<cadlayers; ++k) {
+       draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
+         xctx->move_rot, 
+         /*  (( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) & 0x3, */
+         xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
      }
      break;
    }
@@ -528,6 +499,7 @@ void copy_objects(int what)
    xctx->rotatelocal=0;
    dbg(1, "copy_objects(): START copy\n");
    rebuild_selected_array();
+   update_symbol_bboxes(0, 0);
    if(xctx->connect_by_kissing == 2) xctx->kissing = connect_by_kissing();
    else xctx->kissing = 0;
 
@@ -902,432 +874,431 @@ void copy_objects(int what)
 /* merge param unused, RFU */
 void move_objects(int what, int merge, double dx, double dy)
 {
- int c, i, n, k, tmpint;
- double angle, dtmp;
- double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
- #if HAS_CAIRO==1
- int customfont;
- #endif
- xLine ** const line = xctx->line;
- xWire * const wire = xctx->wire;
-
- if(what & START)
- {
-  xctx->rotatelocal=0;
-  xctx->deltax = xctx->deltay = 0.0;
-  rebuild_selected_array();
-  /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
-  if(xctx->connect_by_kissing == 2) xctx->kissing = connect_by_kissing();
-  else xctx->kissing = 0;
-  xctx->movelastsel = xctx->lastsel;
-  if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
-          xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {
-    xctx->x1 = xctx->arc[c][n].x;
-    xctx->y_1 = xctx->arc[c][n].y;
-  } else {xctx->x1=xctx->mousex_snap;xctx->y_1=xctx->mousey_snap;}
-  xctx->move_flip = 0;xctx->move_rot = 0;
-  xctx->ui_state|=STARTMOVE;
- }
- if(what & ABORT)                               /* draw objects while moving */
- {
-  draw_selection(xctx->gctiled,0);
-  if(xctx->kissing) {
-    pop_undo(0, 0);
-    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
-  }
-  
-  xctx->move_rot=xctx->move_flip=0;
-  xctx->deltax=xctx->deltay=0.;
-  xctx->ui_state &= ~STARTMOVE;
-  update_symbol_bboxes(0, 0);
- }
- if(what & RUBBER)                              /* abort operation */
- {
-  xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
-  draw_selection(xctx->gctiled,0);
-  xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
- }
- if(what & ROTATELOCAL) {
-  xctx->rotatelocal=1;
- }
- if(what & ROTATE) {
-  draw_selection(xctx->gctiled,0);
-  xctx->move_rot= (xctx->move_rot+1) & 0x3;
-  update_symbol_bboxes(xctx->move_rot, xctx->move_flip);
- }
- if(what & FLIP)
- {
-  draw_selection(xctx->gctiled,0);
-  xctx->move_flip = !xctx->move_flip;
-  update_symbol_bboxes(xctx->move_rot, xctx->move_flip);
- }
- if(what & END)                                 /* move selected objects */
- {
-  int firsti, firstw;
-
-  if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
-  /* no undo push for MERGE ad PLACE, already done before */
-  if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
-    dbg(1, "move_objects(): push undo state\n");
-    xctx->push_undo();
-  }
-  if((xctx->ui_state & PLACE_SYMBOL)) {
-    int n = xctx->sel_array[0].n;
-    const char *f =  abs_sym_path((xctx->inst[n].ptr+ xctx->sym)->name, "");
-    tclvareval("c_toolbar::add {",f, "}; c_toolbar::display", NULL);
-  }
-  xctx->ui_state &= ~PLACE_SYMBOL;
-  xctx->ui_state &= ~PLACE_TEXT;
-  if(dx!=0.0 || dy!=0.0) {
-    xctx->deltax = dx;
-    xctx->deltay = dy;
-  }
-
-  /* calculate moving symbols bboxes before actually doing the move */
-  firsti = firstw = 1;
-  draw_selection(xctx->gctiled,0);
-  update_symbol_bboxes(0, 0);
-  for(k=0;k<cadlayers; ++k)
+  int c, i, n, k, tmpint;
+  double angle, dtmp;
+  double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
+  #if HAS_CAIRO==1
+  int customfont;
+  #endif
+  xLine ** const line = xctx->line;
+  xWire * const wire = xctx->wire;
+ 
+  if(what & START)
   {
-   for(i=0;i<xctx->lastsel; ++i)
+   xctx->rotatelocal=0;
+   xctx->deltax = xctx->deltay = 0.0;
+   rebuild_selected_array();
+   update_symbol_bboxes(0, 0);
+   /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
+   if(xctx->connect_by_kissing == 2) xctx->kissing = connect_by_kissing();
+   else xctx->kissing = 0;
+   xctx->movelastsel = xctx->lastsel;
+   if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
+           xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {
+     xctx->x1 = xctx->arc[c][n].x;
+     xctx->y_1 = xctx->arc[c][n].y;
+   } else {xctx->x1=xctx->mousex_snap;xctx->y_1=xctx->mousey_snap;}
+   xctx->move_flip = 0;xctx->move_rot = 0;
+   xctx->ui_state|=STARTMOVE;
+  }
+  if(what & ABORT)                               /* draw objects while moving */
+  {
+   draw_selection(xctx->gctiled,0);
+   if(xctx->kissing) {
+     pop_undo(0, 0);
+     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
+   }
+   
+   xctx->move_rot=xctx->move_flip=0;
+   xctx->deltax=xctx->deltay=0.;
+   xctx->ui_state &= ~STARTMOVE;
+   update_symbol_bboxes(0, 0);
+  }
+  if(what & RUBBER)                              /* abort operation */
+  {
+   xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
+   draw_selection(xctx->gctiled,0);
+   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
+  }
+  if(what & ROTATELOCAL) {
+   xctx->rotatelocal=1;
+  }
+  if(what & ROTATE) {
+   draw_selection(xctx->gctiled,0);
+   xctx->move_rot= (xctx->move_rot+1) & 0x3;
+   update_symbol_bboxes(xctx->move_rot, xctx->move_flip);
+  }
+  if(what & FLIP)
+  {
+   draw_selection(xctx->gctiled,0);
+   xctx->move_flip = !xctx->move_flip;
+   update_symbol_bboxes(xctx->move_rot, xctx->move_flip);
+  }
+  if(what & END)                                 /* move selected objects */
+  {
+   int firsti, firstw;
+ 
+   if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
+   /* no undo push for MERGE ad PLACE, already done before */
+   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
+     dbg(1, "move_objects(): push undo state\n");
+     xctx->push_undo();
+   }
+   if((xctx->ui_state & PLACE_SYMBOL)) {
+     int n = xctx->sel_array[0].n;
+     const char *f =  abs_sym_path((xctx->inst[n].ptr+ xctx->sym)->name, "");
+     tclvareval("c_toolbar::add {",f, "}; c_toolbar::display", NULL);
+   }
+   xctx->ui_state &= ~PLACE_SYMBOL;
+   xctx->ui_state &= ~PLACE_TEXT;
+   if(dx!=0.0 || dy!=0.0) {
+     xctx->deltax = dx;
+     xctx->deltay = dy;
+   }
+ 
+   /* calculate moving symbols bboxes before actually doing the move */
+   firsti = firstw = 1;
+   draw_selection(xctx->gctiled,0);
+   update_symbol_bboxes(0, 0);
+   for(k=0;k<cadlayers; ++k)
    {
-    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
-    switch(xctx->sel_array[i].type)
+    for(i=0;i<xctx->lastsel; ++i)
     {
-     case WIRE:
-      xctx->prep_hash_wires=0;
-      firstw = 0;
-      if(k == 0) {
-        if(xctx->rotatelocal) {
-          ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
-             wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
-          ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
-             wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
-        } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-             wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-             wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
-        }
-        if( wire[n].sel & (SELECTED|SELECTED1) )
-        {
+     c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
+     switch(xctx->sel_array[i].type)
+     {
+      case WIRE:
+       xctx->prep_hash_wires=0;
+       firstw = 0;
+       if(k == 0) {
+         if(xctx->rotatelocal) {
+           ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
+              wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
+           ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
+              wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
+         } else {
+           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+              wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
+           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+              wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
+         }
+         if( wire[n].sel & (SELECTED|SELECTED1) )
+         {
+          xctx->rx1+=xctx->deltax;
+          xctx->ry1+=xctx->deltay;
+         }
+         if( wire[n].sel & (SELECTED|SELECTED2) )
+         {
+          xctx->rx2+=xctx->deltax;
+          xctx->ry2+=xctx->deltay;
+         }
+         wire[n].x1=xctx->rx1;
+         wire[n].y1=xctx->ry1;
+         ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
+         if( wire[n].x1 == xctx->rx2 &&  wire[n].y1 == xctx->ry2)
+         {
+          if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
+          else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+         }
+         wire[n].x1=xctx->rx1;
+         wire[n].y1=xctx->ry1;
+         wire[n].x2=xctx->rx2;
+         wire[n].y2=xctx->ry2;
+       }
+       break;
+ 
+      case LINE:
+       if(c!=k) break;
+       if(xctx->rotatelocal) {
+         ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
+            line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
+         ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
+            line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
+       } else {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
+       }
+ 
+       if( line[c][n].sel & (SELECTED|SELECTED1) )
+       {
+        xctx->rx1+=xctx->deltax;
+        xctx->ry1+=xctx->deltay;
+       }
+       if( line[c][n].sel & (SELECTED|SELECTED2) )
+       {
+        xctx->rx2+=xctx->deltax;
+        xctx->ry2+=xctx->deltay;
+       }
+       line[c][n].x1=xctx->rx1;
+       line[c][n].y1=xctx->ry1;
+       ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
+       if( line[c][n].x1 == xctx->rx2 &&  line[c][n].y1 == xctx->ry2)
+       {
+        if(line[c][n].sel == SELECTED1) line[c][n].sel = SELECTED2;
+        else if(line[c][n].sel == SELECTED2) line[c][n].sel = SELECTED1;
+       }
+       line[c][n].x1=xctx->rx1;
+       line[c][n].y1=xctx->ry1;
+       line[c][n].x2=xctx->rx2;
+       line[c][n].y2=xctx->ry2;
+       break;
+ 
+      case POLYGON:
+       if(c!=k) break;
+       {
+         xPoly *p = &xctx->poly[c][n];
+         double bx1=0., by1=0., bx2=0., by2=0.;
+         int j;
+         double savex0, savey0;
+         savex0 = p->x[0];
+         savey0 = p->y[0];
+         for(j=0; j<p->points; ++j) {
+           if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
+           if(j==0 || p->y[j] < by1) by1 = p->y[j];
+           if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
+           if(j==0 || p->y[j] > by2) by2 = p->y[j];
+ 
+           if( p->sel==SELECTED || p->selected_point[j]) {
+             if(xctx->rotatelocal) {
+               ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j],
+                        xctx->rx1,xctx->ry1);
+             } else {
+               ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j],
+                        xctx->rx1,xctx->ry1);
+             }
+ 
+             p->x[j] =  xctx->rx1+xctx->deltax;
+             p->y[j] =  xctx->ry1+xctx->deltay;
+           }
+ 
+         }
+ 
+         for(j=0; j<p->points; ++j) {
+           if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
+           if(j==0 || p->y[j] < by1) by1 = p->y[j];
+           if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
+           if(j==0 || p->y[j] > by2) by2 = p->y[j];
+         }
+       }
+       break;
+ 
+      case ARC:
+       if(c!=k) break;
+       if(xctx->rotatelocal) {
+         /* rotate center wrt itself: do nothing */
+         xctx->rx1 = xctx->arc[c][n].x;
+         xctx->ry1 = xctx->arc[c][n].y;
+       } else {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->rx1,xctx->ry1);
+       }
+       angle = xctx->arc[c][n].a;
+       if(xctx->move_flip) {
+         angle = 270.*xctx->move_rot+180.-xctx->arc[c][n].b-xctx->arc[c][n].a;
+       } else {
+         angle = xctx->arc[c][n].a+xctx->move_rot*270.;
+       }
+       angle = fmod(angle, 360.);
+       if(angle<0.) angle+=360.;
+ 
+       if(xctx->arc[c][n].sel == SELECTED) {
+         xctx->arc[c][n].x = xctx->rx1+xctx->deltax;
+         xctx->arc[c][n].y = xctx->ry1+xctx->deltay;
+         xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel == SELECTED1) {
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         if(xctx->arc[c][n].r+xctx->deltax) xctx->arc[c][n].r = fabs(xctx->arc[c][n].r+xctx->deltax);
+         xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel == SELECTED2) {
+         angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+angle, 360.));
+         if(angle<0.) angle +=360.;
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel==SELECTED3) {
+         angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+xctx->arc[c][n].b, 360.));
+         if(angle<0.) angle +=360.;
+         if(angle==0) angle=360.;
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         xctx->arc[c][n].b = angle;
+       }
+       break;
+ 
+      case xRECT:
+       if(c!=k) break;
+       /* bbox before move */
+       if(xctx->rotatelocal) {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+           xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
+           xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
+       } else {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
+       }
+ 
+       if( xctx->rect[c][n].sel == SELECTED) {
          xctx->rx1+=xctx->deltax;
          xctx->ry1+=xctx->deltay;
-        }
-        if( wire[n].sel & (SELECTED|SELECTED2) )
-        {
          xctx->rx2+=xctx->deltax;
          xctx->ry2+=xctx->deltay;
-        }
-        wire[n].x1=xctx->rx1;
-        wire[n].y1=xctx->ry1;
-        ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
-        if( wire[n].x1 == xctx->rx2 &&  wire[n].y1 == xctx->ry2)
-        {
-         if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-         else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
-        }
-        wire[n].x1=xctx->rx1;
-        wire[n].y1=xctx->ry1;
-        wire[n].x2=xctx->rx2;
-        wire[n].y2=xctx->ry2;
-      }
-      break;
-
-     case LINE:
-      if(c!=k) break;
-      if(xctx->rotatelocal) {
-        ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
-           line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
-        ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
-           line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
-      } else {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
-      }
-
-      if( line[c][n].sel & (SELECTED|SELECTED1) )
-      {
-       xctx->rx1+=xctx->deltax;
-       xctx->ry1+=xctx->deltay;
-      }
-      if( line[c][n].sel & (SELECTED|SELECTED2) )
-      {
-       xctx->rx2+=xctx->deltax;
-       xctx->ry2+=xctx->deltay;
-      }
-      line[c][n].x1=xctx->rx1;
-      line[c][n].y1=xctx->ry1;
-      ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
-      if( line[c][n].x1 == xctx->rx2 &&  line[c][n].y1 == xctx->ry2)
-      {
-       if(line[c][n].sel == SELECTED1) line[c][n].sel = SELECTED2;
-       else if(line[c][n].sel == SELECTED2) line[c][n].sel = SELECTED1;
-      }
-      line[c][n].x1=xctx->rx1;
-      line[c][n].y1=xctx->ry1;
-      line[c][n].x2=xctx->rx2;
-      line[c][n].y2=xctx->ry2;
-      break;
-
-     case POLYGON:
-      if(c!=k) break;
-      {
-        xPoly *p = &xctx->poly[c][n];
-        double bx1=0., by1=0., bx2=0., by2=0.;
-        int j;
-        double savex0, savey0;
-        savex0 = p->x[0];
-        savey0 = p->y[0];
-        for(j=0; j<p->points; ++j) {
-          if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
-          if(j==0 || p->y[j] < by1) by1 = p->y[j];
-          if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
-          if(j==0 || p->y[j] > by2) by2 = p->y[j];
-
-          if( p->sel==SELECTED || p->selected_point[j]) {
-            if(xctx->rotatelocal) {
-              ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j],
-                       xctx->rx1,xctx->ry1);
-            } else {
-              ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j],
-                       xctx->rx1,xctx->ry1);
-            }
-
-            p->x[j] =  xctx->rx1+xctx->deltax;
-            p->y[j] =  xctx->ry1+xctx->deltay;
-          }
-
-        }
-
-        for(j=0; j<p->points; ++j) {
-          if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
-          if(j==0 || p->y[j] < by1) by1 = p->y[j];
-          if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
-          if(j==0 || p->y[j] > by2) by2 = p->y[j];
-        }
-      }
-      break;
-
-     case ARC:
-      if(c!=k) break;
-      if(xctx->rotatelocal) {
-        /* rotate center wrt itself: do nothing */
-        xctx->rx1 = xctx->arc[c][n].x;
-        xctx->ry1 = xctx->arc[c][n].y;
-      } else {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->rx1,xctx->ry1);
-      }
-      angle = xctx->arc[c][n].a;
-      if(xctx->move_flip) {
-        angle = 270.*xctx->move_rot+180.-xctx->arc[c][n].b-xctx->arc[c][n].a;
-      } else {
-        angle = xctx->arc[c][n].a+xctx->move_rot*270.;
-      }
-      angle = fmod(angle, 360.);
-      if(angle<0.) angle+=360.;
-
-      if(xctx->arc[c][n].sel == SELECTED) {
-        xctx->arc[c][n].x = xctx->rx1+xctx->deltax;
-        xctx->arc[c][n].y = xctx->ry1+xctx->deltay;
-        xctx->arc[c][n].a = angle;
-      } else if(xctx->arc[c][n].sel == SELECTED1) {
-        xctx->arc[c][n].x = xctx->rx1;
-        xctx->arc[c][n].y = xctx->ry1;
-        if(xctx->arc[c][n].r+xctx->deltax) xctx->arc[c][n].r = fabs(xctx->arc[c][n].r+xctx->deltax);
-        xctx->arc[c][n].a = angle;
-      } else if(xctx->arc[c][n].sel == SELECTED2) {
-        angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+angle, 360.));
-        if(angle<0.) angle +=360.;
-        xctx->arc[c][n].x = xctx->rx1;
-        xctx->arc[c][n].y = xctx->ry1;
-        xctx->arc[c][n].a = angle;
-      } else if(xctx->arc[c][n].sel==SELECTED3) {
-        angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+xctx->arc[c][n].b, 360.));
-        if(angle<0.) angle +=360.;
-        if(angle==0) angle=360.;
-        xctx->arc[c][n].x = xctx->rx1;
-        xctx->arc[c][n].y = xctx->ry1;
-        xctx->arc[c][n].b = angle;
-      }
-      break;
-
-     case xRECT:
-      if(c!=k) break;
-      /* bbox before move */
-      if(xctx->rotatelocal) {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
-          xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
-          xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
-      } else {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
-      }
-
-      if( xctx->rect[c][n].sel == SELECTED) {
-        xctx->rx1+=xctx->deltax;
-        xctx->ry1+=xctx->deltay;
-        xctx->rx2+=xctx->deltax;
-        xctx->ry2+=xctx->deltay;
-      }
-      else if( xctx->rect[c][n].sel == SELECTED1) {   /* 20070302 stretching on rectangles */
-        xctx->rx1+=xctx->deltax;
-        xctx->ry1+=xctx->deltay;
-      }
-      else if( xctx->rect[c][n].sel == SELECTED2) {
-        xctx->rx2+=xctx->deltax;
-        xctx->ry1+=xctx->deltay;
-      }
-      else if( xctx->rect[c][n].sel == SELECTED3) {
-        xctx->rx1+=xctx->deltax;
-        xctx->ry2+=xctx->deltay;
-      }
-      else if( xctx->rect[c][n].sel == SELECTED4) {
-        xctx->rx2+=xctx->deltax;
-        xctx->ry2+=xctx->deltay;
-      }
-      else if(xctx->rect[c][n].sel==(SELECTED1|SELECTED2))
-      {
-        xctx->ry1+=xctx->deltay;
-      }
-      else if(xctx->rect[c][n].sel==(SELECTED3|SELECTED4))
-      {
-        xctx->ry2+=xctx->deltay;
-      }
-      else if(xctx->rect[c][n].sel==(SELECTED1|SELECTED3))
-      {
-        xctx->rx1+=xctx->deltax;
-      }
-      else if(xctx->rect[c][n].sel==(SELECTED2|SELECTED4))
-      {
-        xctx->rx2+=xctx->deltax;
-      }
-
-      tx1 = xctx->rx1;
-      ty1 = xctx->ry1;
-      RECTORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
-
-      if( xctx->rx2 == tx1) {
-        if(xctx->rect[c][n].sel==SELECTED1) xctx->rect[c][n].sel = SELECTED2;
-        else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED1;
-        else if(xctx->rect[c][n].sel==SELECTED3) xctx->rect[c][n].sel = SELECTED4;
-        else if(xctx->rect[c][n].sel==SELECTED4) xctx->rect[c][n].sel = SELECTED3;
-      }
-      if( xctx->ry2 == ty1) {
-        if(xctx->rect[c][n].sel==SELECTED1) xctx->rect[c][n].sel = SELECTED3;
-        else if(xctx->rect[c][n].sel==SELECTED3) xctx->rect[c][n].sel = SELECTED1;
-        else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED4;
-        else if(xctx->rect[c][n].sel==SELECTED4) xctx->rect[c][n].sel = SELECTED2;
-      }
-
-      xctx->rect[c][n].x1 = xctx->rx1;
-      xctx->rect[c][n].y1 = xctx->ry1;
-      xctx->rect[c][n].x2 = xctx->rx2;
-      xctx->rect[c][n].y2 = xctx->ry2;
-
-      /* bbox after move */
-      break;
-
-     case xTEXT:
-      if(k!=TEXTLAYER) break;
-      #if HAS_CAIRO==1  /* bbox before move */
-      customfont = set_text_custom_font(&xctx->text[n]);
-      #endif
-      text_bbox(get_text_floater(n), xctx->text[n].xscale,
-         xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
-         xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
-         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
-      #if HAS_CAIRO==1
-      if(customfont) {
-        cairo_restore(xctx->cairo_ctx);
-      }
-      #endif
-      if(xctx->rotatelocal) {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
-          xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
-      } else {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       }
+       else if( xctx->rect[c][n].sel == SELECTED1) {   /* 20070302 stretching on rectangles */
+         xctx->rx1+=xctx->deltax;
+         xctx->ry1+=xctx->deltay;
+       }
+       else if( xctx->rect[c][n].sel == SELECTED2) {
+         xctx->rx2+=xctx->deltax;
+         xctx->ry1+=xctx->deltay;
+       }
+       else if( xctx->rect[c][n].sel == SELECTED3) {
+         xctx->rx1+=xctx->deltax;
+         xctx->ry2+=xctx->deltay;
+       }
+       else if( xctx->rect[c][n].sel == SELECTED4) {
+         xctx->rx2+=xctx->deltax;
+         xctx->ry2+=xctx->deltay;
+       }
+       else if(xctx->rect[c][n].sel==(SELECTED1|SELECTED2))
+       {
+         xctx->ry1+=xctx->deltay;
+       }
+       else if(xctx->rect[c][n].sel==(SELECTED3|SELECTED4))
+       {
+         xctx->ry2+=xctx->deltay;
+       }
+       else if(xctx->rect[c][n].sel==(SELECTED1|SELECTED3))
+       {
+         xctx->rx1+=xctx->deltax;
+       }
+       else if(xctx->rect[c][n].sel==(SELECTED2|SELECTED4))
+       {
+         xctx->rx2+=xctx->deltax;
+       }
+ 
+       tx1 = xctx->rx1;
+       ty1 = xctx->ry1;
+       RECTORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
+ 
+       if( xctx->rx2 == tx1) {
+         if(xctx->rect[c][n].sel==SELECTED1) xctx->rect[c][n].sel = SELECTED2;
+         else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED1;
+         else if(xctx->rect[c][n].sel==SELECTED3) xctx->rect[c][n].sel = SELECTED4;
+         else if(xctx->rect[c][n].sel==SELECTED4) xctx->rect[c][n].sel = SELECTED3;
+       }
+       if( xctx->ry2 == ty1) {
+         if(xctx->rect[c][n].sel==SELECTED1) xctx->rect[c][n].sel = SELECTED3;
+         else if(xctx->rect[c][n].sel==SELECTED3) xctx->rect[c][n].sel = SELECTED1;
+         else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED4;
+         else if(xctx->rect[c][n].sel==SELECTED4) xctx->rect[c][n].sel = SELECTED2;
+       }
+ 
+       xctx->rect[c][n].x1 = xctx->rx1;
+       xctx->rect[c][n].y1 = xctx->ry1;
+       xctx->rect[c][n].x2 = xctx->rx2;
+       xctx->rect[c][n].y2 = xctx->ry2;
+ 
+       /* bbox after move */
+       break;
+ 
+      case xTEXT:
+       if(k!=TEXTLAYER) break;
+       #if HAS_CAIRO==1  /* bbox before move */
+       customfont = set_text_custom_font(&xctx->text[n]);
+       #endif
+       text_bbox(get_text_floater(n), xctx->text[n].xscale,
+          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
+          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
+          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
+       #if HAS_CAIRO==1
+       if(customfont) {
+         cairo_restore(xctx->cairo_ctx);
+       }
+       #endif
+       if(xctx->rotatelocal) {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
            xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
-      }
-      xctx->text[n].x0=xctx->rx1+xctx->deltax;
-      xctx->text[n].y0=xctx->ry1+xctx->deltay;
-      xctx->text[n].rot=(xctx->text[n].rot +
-       ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
-      xctx->text[n].flip=xctx->move_flip^xctx->text[n].flip;
-
-      #if HAS_CAIRO==1  /* bbox after move */
-      customfont = set_text_custom_font(&xctx->text[n]);
-      #endif
-      text_bbox(get_text_floater(n), xctx->text[n].xscale,
-         xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
-         xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
-         &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
-      #if HAS_CAIRO==1
-      if(customfont) {
-        cairo_restore(xctx->cairo_ctx);
-      }
-      #endif
-
-      break;
-
-     default:
-      break;
-    } /* end switch(xctx->sel_array[i].type) */
-   } /* end for(i=0;i<xctx->lastsel; ++i) */
-  } /*end for(k=0;k<cadlayers; ++k) */
-
-  for(i = 0; i < xctx->lastsel; ++i) {
-    n = xctx->sel_array[i].n;
-    if(xctx->sel_array[i].type == ELEMENT) {
-      xctx->prep_hash_inst=0;
-      firsti = 0;
-      if(xctx->rotatelocal) {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
-           xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
-      } else {
-        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
-           xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
-      }
-      xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
-      xctx->inst[n].y0 = xctx->ry1+xctx->deltay;
-      xctx->inst[n].rot = (xctx->inst[n].rot +
-       ( (xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
-      xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
-      symbol_bbox(n,
-         &xctx->inst[n].x1, &xctx->inst[n].y1,
-         &xctx->inst[n].x2, &xctx->inst[n].y2);
-    } 
+       } else {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
+       }
+       xctx->text[n].x0=xctx->rx1+xctx->deltax;
+       xctx->text[n].y0=xctx->ry1+xctx->deltay;
+       xctx->text[n].rot=(xctx->text[n].rot +
+        ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
+       xctx->text[n].flip=xctx->move_flip^xctx->text[n].flip;
+ 
+       #if HAS_CAIRO==1  /* bbox after move */
+       customfont = set_text_custom_font(&xctx->text[n]);
+       #endif
+       text_bbox(get_text_floater(n), xctx->text[n].xscale,
+          xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
+          xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
+          &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
+       #if HAS_CAIRO==1
+       if(customfont) {
+         cairo_restore(xctx->cairo_ctx);
+       }
+       #endif
+ 
+       break;
+ 
+      default:
+       break;
+     } /* end switch(xctx->sel_array[i].type) */
+    } /* end for(i=0;i<xctx->lastsel; ++i) */
+   } /*end for(k=0;k<cadlayers; ++k) */
+ 
+   for(i = 0; i < xctx->lastsel; ++i) {
+     n = xctx->sel_array[i].n;
+     if(xctx->sel_array[i].type == ELEMENT) {
+       xctx->prep_hash_inst=0;
+       firsti = 0;
+       if(xctx->rotatelocal) {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
+            xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
+       } else {
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+            xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
+       }
+       xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
+       xctx->inst[n].y0 = xctx->ry1+xctx->deltay;
+       xctx->inst[n].rot = (xctx->inst[n].rot +
+        ( (xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
+       xctx->inst[n].flip = xctx->move_flip ^ xctx->inst[n].flip;
+       symbol_bbox(n,
+          &xctx->inst[n].x1, &xctx->inst[n].y1,
+          &xctx->inst[n].x2, &xctx->inst[n].y2);
+     } 
+   }
+   if(!firsti || !firstw) {
+     xctx->prep_net_structs=0;
+     xctx->prep_hi_structs=0;
+   }
+   /* build after copying and after recalculating prepare_netlist_structs() */
+   check_collapsing_objects();
+   unselect_partial_sel_wires();
+   if(tclgetboolvar("autotrim_wires")) trim_wires();
+ 
+   if(xctx->hilight_nets) {
+     propagate_hilights(1, 1, XINSERT_NOREPLACE);
+   }
+ 
+   xctx->ui_state &= ~STARTMOVE;
+   if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
+   xctx->ui_state &= ~STARTMERGE;
+   xctx->move_rot=xctx->move_flip=0;
+   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->deltax=xctx->deltay=0.;
+   set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
+   draw();
+   xctx->rotatelocal=0;
   }
-  if(!firsti || !firstw) {
-    xctx->prep_net_structs=0;
-    xctx->prep_hi_structs=0;
-  }
-  /* build after copying and after recalculating prepare_netlist_structs() */
-  check_collapsing_objects();
-  unselect_partial_sel_wires();
-  if(tclgetboolvar("autotrim_wires")) trim_wires();
-
-  if(xctx->hilight_nets) {
-    propagate_hilights(1, 1, XINSERT_NOREPLACE);
-  }
-
-  xctx->ui_state &= ~STARTMOVE;
-  if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
-  xctx->ui_state &= ~STARTMERGE;
-  xctx->move_rot=xctx->move_flip=0;
-  xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->deltax=xctx->deltay=0.;
-  set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
-  draw();
-  xctx->rotatelocal=0;
-
-
- }
- draw_selection(xctx->gc[SELLAYER], 0);
- if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
+  draw_selection(xctx->gc[SELLAYER], 0);
+  if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
 }

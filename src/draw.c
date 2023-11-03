@@ -721,7 +721,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  #if HAS_CAIRO==1
  int customfont;
  #endif
- int fix_broken = (gc == xctx->gctiled) && (fix_broken_tiled_fill || !_unix);
 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
@@ -755,8 +754,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
                             xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
      xctx->inst[n].flags|=1;
      return;
-   } else if(fix_broken) {
-     xctx->inst[n].flags|=1;
    }
    else xctx->inst[n].flags&=~1;
    if(hide) {
@@ -773,13 +770,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
       */
       drawtemprect(gc,what,xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset,
                            xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
-   }
-   if(fix_broken) { /* do a copyArea on first layer only. Faster. */
-     symbol_bbox(n, &xctx->inst[n].x1, &xctx->inst[n].y1, &xctx->inst[n].x2, &xctx->inst[n].y2);
-     MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-       xctx->inst[n].x1 + xoffset, xctx->inst[n].y1 + yoffset,
-       xctx->inst[n].x2 + xoffset, xctx->inst[n].y2 + yoffset,
-       xctx->inst[n].x1 + xoffset, xctx->inst[n].y1 + yoffset, xctx->lw);
    }
  } else if(xctx->inst[n].flags&1) {
    dbg(2, "draw_symbol(): skipping inst %d\n", n);
@@ -4144,15 +4134,15 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
 {  
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
-
+  int intlw = INT_WIDTH(lw);
   dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g)\n", sx1, sy1, sx2, sy2);
-  isx1=X_TO_SCREEN(sx1) - 2 * INT_WIDTH(lw);
-  isy1=Y_TO_SCREEN(sy1) - 2 * INT_WIDTH(lw);
-  isx2=X_TO_SCREEN(sx2) + 2 * INT_WIDTH(lw);
-  isy2=Y_TO_SCREEN(sy2) + 2 * INT_WIDTH(lw);
+  isx1=X_TO_SCREEN(sx1) - 2 * intlw;
+  isy1=Y_TO_SCREEN(sy1) - 2 * intlw;
+  isx2=X_TO_SCREEN(sx2) + 2 * intlw;
+  isy2=Y_TO_SCREEN(sy2) + 2 * intlw;
 
-  idx1=X_TO_SCREEN(dx1) - 2 * INT_WIDTH(lw);
-  idy1=Y_TO_SCREEN(dy1) - 2 * INT_WIDTH(lw);
+  idx1=X_TO_SCREEN(dx1) - 2 * intlw;
+  idy1=Y_TO_SCREEN(dy1) - 2 * intlw;
   
   width = (unsigned int)isx2 - (unsigned int)isx1;
   height = (unsigned int)isy2 - (unsigned int)isy1;

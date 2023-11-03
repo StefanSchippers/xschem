@@ -481,7 +481,9 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
         result[0] = '\0';
         return result;
       }
-      if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c;
+      /* if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c; */
+      token[token_pos++]=(char)c;
+
     } else if(state == TOK_VALUE) {
       if( with_quotes & 1) result[value_pos++] = (char)c;
       else if(( with_quotes & 4) && (escape || c != '"')) result[value_pos++] = (char)c;

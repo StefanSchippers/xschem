@@ -940,6 +940,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
       draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);
     }
   } else {
+    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2 );
     for(c=0;c<cadlayers; ++c) {
       draw_temp_symbol(NOW, xctx->gctiled, i,c,0,0,0.0,0.0);
     }
@@ -1579,6 +1580,65 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
    draw_selection(xctx->gc[SELLAYER], 0);
  }
 
+}
+
+
+int floaters_from_selected_inst()
+{
+  int res = 0, first = 1;
+  int i, n, t;
+  int instrot, instflip;
+  double instx0, insty0;
+  xSymbol *sym;
+  for(n = 0; n < xctx->lastsel; ++n) {
+    i = xctx->sel_array[n].n;
+    if(xctx->sel_array[n].type == ELEMENT) {
+      if(xctx->inst[i].ptr < 0) continue;
+      if(xctx->inst[i].flags & HIDE_SYMBOL_TEXTS) continue;
+      sym = xctx->sym + xctx->inst[i].ptr;
+      if( sym->type && (IS_LABEL_SH_OR_PIN(sym->type) || !strcmp(sym->type, "probe") )) continue;
+      instx0 = xctx->inst[i].x0;
+      insty0 = xctx->inst[i].y0;
+      instrot = xctx->inst[i].rot;
+      instflip = xctx->inst[i].flip;
+      if(first) {
+        xctx->push_undo();
+        set_modify(1);
+        first = 0;
+      }
+      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
+           subst_token(xctx->inst[i].prop_ptr, "hide_texts", "true"));
+      set_inst_flags(&xctx->inst[i]);
+      for(t = 0; t < sym->texts; t++) {
+        double txtx0, txty0;
+        int txtrot, txtflip;
+        int rot, flip;
+        double x0, y0;
+        xText *symtxt;
+        symtxt = &sym->text[t];
+        if(strstr(symtxt->txt_ptr, ":net_name")) continue;
+        txtx0 = symtxt->x0;
+        txty0 = symtxt->y0;
+        txtrot = symtxt->rot;
+        txtflip = symtxt->flip;
+       
+        rot = (txtrot + ( (instflip && (txtrot & 1) ) ? instrot+2 : instrot) ) & 0x3;
+        flip = txtflip ^ instflip;
+  
+        ROTATION(instrot, instflip, 0.0, 0.0, txtx0, txty0, x0, y0);
+        x0 += instx0;
+        y0 += insty0;
+  
+        create_text(0, x0, y0, rot, flip, symtxt->txt_ptr, 
+              subst_token(symtxt->prop_ptr, "name", xctx->inst[i].instname),
+              symtxt->xscale, symtxt->yscale);
+        
+        set_text_flags(symtxt);
+        dbg(1, "instance %d: symtext %d: %s\n", i, t, symtxt->txt_ptr);
+      }
+    }
+  }
+  return res;
 }
 
 void select_all(void)

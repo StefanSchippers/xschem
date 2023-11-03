@@ -2343,7 +2343,6 @@ void zoom_full(int dr, int sel, int flags, double shrink)
 void view_zoom(double z)
 {
   double factor;
-  /*  int i; */
   factor = z!=0.0 ? z : CADZOOMSTEP;
   if(xctx->zoom<CADMINZOOM) return;
   xctx->zoom/= factor;
@@ -2351,6 +2350,7 @@ void view_zoom(double z)
   xctx->xorigin=-xctx->mousex_snap+(xctx->mousex_snap+xctx->xorigin)/factor;
   xctx->yorigin=-xctx->mousey_snap+(xctx->mousey_snap+xctx->yorigin)/factor;
   change_linewidth(-1.);
+
   draw();
   redraw_w_a_l_r_p_rubbers();
 }
@@ -2358,7 +2358,6 @@ void view_zoom(double z)
 void view_unzoom(double z)
 {
   double factor;
-  /*  int i; */
   factor = z!=0.0 ? z : CADZOOMSTEP;
   if(xctx->zoom>CADMAXZOOM) return;
   xctx->zoom*= factor;
