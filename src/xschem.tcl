@@ -6880,6 +6880,12 @@ proc build_widgets { {topwin {} } } {
           -command "schpins_to_sympins" -accelerator Alt+H
   $topwin.menubar.sym.menu add command -label "Place symbol pin" \
           -command "xschem add_symbol_pin" -accelerator Alt+P
+  $topwin.menubar.sym.menu add command -label "Place net pin label" \
+          -command "xschem net_label 1" -accelerator Alt+L
+  $topwin.menubar.sym.menu add command -label "Place net wire label" \
+          -command "xschem net_label 0" -accelerator Alt-Shift-L
+  $topwin.menubar.sym.menu add command -label "Change selected inst. texts to floaters" \
+          -command "xschem floaters_from_selected_inst"
   $topwin.menubar.sym.menu add command -label "Print list of highlight nets" \
           -command "xschem print_hilight_net 1" -accelerator J
   $topwin.menubar.sym.menu add command -label "Print list of highlight nets, with buses expanded" \

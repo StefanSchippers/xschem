@@ -1632,12 +1632,15 @@ int floaters_from_selected_inst()
         create_text(0, x0, y0, rot, flip, symtxt->txt_ptr, 
               subst_token(symtxt->prop_ptr, "name", xctx->inst[i].instname),
               symtxt->xscale, symtxt->yscale);
-        
-        set_text_flags(symtxt);
+        xctx->text[xctx->texts - 1].sel = SELECTED;
+        set_text_flags(&xctx->text[xctx->texts - 1]);
         dbg(1, "instance %d: symtext %d: %s\n", i, t, symtxt->txt_ptr);
       }
     }
   }
+  xctx->need_reb_sel_arr=1;
+  rebuild_selected_array();
+  draw();
   return res;
 }
 

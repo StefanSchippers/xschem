@@ -2602,7 +2602,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     if(!strcmp(argv[1], "net_label"))
     {
       if(argc > 2) {
-        unselect_all(1);
         place_net_label(atoi(argv[2]));
       }
     }

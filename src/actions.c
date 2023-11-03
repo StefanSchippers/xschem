@@ -1358,6 +1358,7 @@ void delete_files(void)
 
 void place_net_label(int type)
 {
+  unselect_all(1);
   if(type == 1) {
       const char *lab = tcleval("rel_sym_path [find_file_first lab_pin.sym]");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
