@@ -51,6 +51,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   char *abs_path = NULL;
   struct stat buf;
   Str_hashtable subckt_table = {NULL, 0};
+  int save_prev_mod = xctx->prev_set_modify;
  
   save = xctx->do_copy_area;
   xctx->do_copy_area = 0;
@@ -120,6 +121,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->currsch--;
   unselect_all(1);
   xctx->pop_undo(4, 0);
+  xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
   if(what & 1) ps_draw(4, 1); /* trailer */
@@ -242,6 +244,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  Str_hashtable subckt_table = {NULL, 0};
  Str_hashentry *model_entry;
  int lvs_ignore = tclgetboolvar("lvs_ignore");
+ int save_prev_mod = xctx->prev_set_modify;
 
  split_f = tclgetboolvar("split_files");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
@@ -436,6 +439,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
    xctx->pop_undo(4, 0);
+   xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
    } else {

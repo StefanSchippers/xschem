@@ -96,6 +96,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  const char *fmt_attr = NULL;
  Str_hashtable subckt_table = {NULL, 0};
  int lvs_ignore = tclgetboolvar("lvs_ignore");
+ int save_prev_mod = xctx->prev_set_modify;
 
  split_f = tclgetboolvar("split_files");
  xctx->push_undo();
@@ -361,6 +362,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    xctx->pop_undo(4, 0);
+   xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
    } else {

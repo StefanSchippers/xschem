@@ -142,11 +142,16 @@ int set_modify(int mod)
 {
   int i, floaters = 0;
 
-  if(mod != -2 && mod != -1) xctx->modified = mod;
-  dbg(1, "set_modify(): %d\n", mod);
+  dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
-  if(mod == 1 || mod == -1 || mod == -2) {
-    /* hash instance names if there are (many) floaters and many instances for faster lookup */
+  /* set modify state */
+  if(mod == 0 || mod == 1) {
+    xctx->prev_set_modify = xctx->modified;
+    xctx->modified = mod;
+  }
+  
+  /* clear floater caches */
+  if(mod == 1 || mod == -2) {
     for(i = 0; i < xctx->texts; i++)
     if(xctx->text[i].flags & TEXT_FLOATER) {
       floaters++;
@@ -154,21 +159,24 @@ int set_modify(int mod)
     }
     int_hash_free(&xctx->floater_inst_table);
   }
-  if(mod != -2 && (mod == -1 || mod != xctx->prev_set_modify) ) { /* mod=-1 used to force set title */
-    if(mod != -1) xctx->prev_set_modify = mod;
-    else mod = xctx->modified;
-    if(has_x && strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font")) {
+
+  /* force title   no mod      mod */
+  if(mod == -1 || mod == 0 || mod == 1) {
+    if(has_x &&
+       strcmp(get_cell(xctx->sch[xctx->currsch],1), "systemlib/font") &&
+       (xctx->prev_set_modify != xctx->modified || mod == -1)
+      ) {
       char *top_path =  xctx->top_path[0] ? xctx->top_path : ".";
-      if(mod == 1) {
+      if(xctx->modified == 1) {
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
         tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
       } else {
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
         tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
       }
+      if(xctx->modified) tcleval("set_tab_names *");
+      else tcleval("set_tab_names");
     }
-    if(xctx->modified) tcleval("set_tab_names *");
-    else tcleval("set_tab_names");
   }
   return floaters;
 }
@@ -481,6 +489,7 @@ int save(int confirm)
 
   if(force || xctx->modified)
   {
+    dbg(1, "save(): force=%d modified=%d\n", force, xctx->modified);
     if(confirm) {
       tcleval("ask_save_optional");
       if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
