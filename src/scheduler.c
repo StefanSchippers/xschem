@@ -1983,6 +1983,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* instance_number inst [n]
+     *   Return the position of instance 'inst' in the instance array 
+     *   If 'n' is given set indicated instance position to 'n' */
+    else if(!strcmp(argv[1], "instance_number"))
+    {
+      int i;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem instance_number 1 additional argument", TCL_STATIC); 
+        return TCL_ERROR;
+      }   
+      if((i = get_instance(argv[2])) < 0 ) {
+        Tcl_SetResult(interp, "xschem instance_number: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      }
+
+      if(argc > 3) {
+        unselect_all(0);
+        select_element(i, SELECTED, 1, 1);
+        rebuild_selected_array();
+        i = atoi(argv[3]);
+        change_elem_order(i);
+        draw();
+      }
+      Tcl_SetResult(interp, my_itoa(i), TCL_VOLATILE);
+    }
+
     /* instance_pin_coord inst attr value
      *   Return the name and coordinates of pin with 
      *   attribute 'attr' set to 'value' of instance 'inst'

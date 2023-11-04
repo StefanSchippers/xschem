@@ -524,6 +524,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -836,6 +837,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    --&gt; x3 PLUS LED OUT LEVEL MINUS REF
    instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on...
    If 'pin' is given restrict map to only that pin </pre>
+   <li><kbd>       instance_number inst [n]</kbd></li><pre>
+   Return the position of instance 'inst' in the instance array 
+   If 'n' is given set indicated instance position to 'n' </pre>
    <li><kbd>       instance_pin_coord inst attr value</kbd></li><pre>
    Return the name and coordinates of pin with 
    attribute 'attr' set to 'value' of instance 'inst'
@@ -1373,6 +1377,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 
