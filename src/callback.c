@@ -1225,9 +1225,6 @@ int rstate; /* (reduced state, without ShiftMask) */
       break;
     }
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
-    if(draw_xhair) {
-      draw_crosshair(0);
-    }
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
@@ -1308,6 +1305,9 @@ int rstate; /* (reduced state, without ShiftMask) */
           rebuild_selected_array();
         }
       }
+    }
+    if(draw_xhair) {
+      draw_crosshair(0);
     }
     break;
   case KeyRelease:
