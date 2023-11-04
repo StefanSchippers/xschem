@@ -997,6 +997,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
+/* del == 0 : delete and draw
+ * del == 1 : delete
+ * del == 2 : draw */
 void draw_crosshair(int del)
 {
   int sdw, sdp;
@@ -1008,23 +1011,25 @@ void draw_crosshair(int del)
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   
-  if(fix_broken_tiled_fill || !_unix) {
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
-         xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
-         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
-
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
-         4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+  if(del != 2) {
+    if(fix_broken_tiled_fill || !_unix) {
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+           0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
+           xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
+           0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+  
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+           (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
+           4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+           (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+    }  else {
+      drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
+           xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
+      drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
+           xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
+    }
   }
-  drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
-       xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
-  drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
-       xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
-
-  if(!del) {
+  if(del != 1) {
     drawline(xctx->crosshair_layer, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
        X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
     drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
@@ -1224,6 +1229,9 @@ int rstate; /* (reduced state, without ShiftMask) */
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
+    if(draw_xhair) {
+      draw_crosshair(1);
+    }
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
     if(xctx->semaphore >= 2) break;
     if(xctx->ui_state) {
@@ -1307,7 +1315,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     if(draw_xhair) {
-      draw_crosshair(0);
+      draw_crosshair(2);
     }
     break;
   case KeyRelease:
