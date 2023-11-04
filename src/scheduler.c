@@ -1419,6 +1419,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "getprop"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem getprop needs instance|instance_pin|wire|symbol|text|rect", TCL_STATIC);
+        return TCL_ERROR;
+      }
       if(argc > 2 && (!strcmp(argv[2], "instance") || !strcmp(argv[2], "instance_notcl"))) {
         int i;
         int with_quotes = 0;
@@ -1489,7 +1493,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
       /* xschem getprop symbol lm358.sym [type] */
-      } else if(!strcmp(argv[2], "symbol")) {
+      } else if(argc > 2 && !strcmp(argv[2], "symbol")) {
         int i;
         if(argc < 4) {
           Tcl_SetResult(interp, "xschem getprop symbol needs 1 or 2 or 3 additional arguments", TCL_STATIC);
@@ -1508,7 +1512,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(argc > 5) 
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->sym[i].prop_ptr, argv[4], atoi(argv[5])), TCL_VOLATILE);
 
-      } else if(!strcmp(argv[2], "rect")) { /* xschem getprop rect c n token */
+      } else if(argc > 2 && !strcmp(argv[2], "rect")) { /* xschem getprop rect c n token */
         if(argc < 6) {
           Tcl_SetResult(interp, "xschem getprop rect needs <color> <n> <token>", TCL_STATIC);
           return TCL_ERROR;
@@ -1519,7 +1523,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(argc > 6) with_quotes = atoi(argv[6]);
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->rect[c][n].prop_ptr, argv[5], with_quotes), TCL_VOLATILE);
         }
-      } else if(!strcmp(argv[2], "text")) { /* xschem getprop text n token */
+      } else if(argc > 2 && !strcmp(argv[2], "text")) { /* xschem getprop text n token */
         if(argc < 5) {
           Tcl_SetResult(interp, "xschem getprop text needs <n> <token>", TCL_STATIC);
           return TCL_ERROR;
@@ -1530,7 +1534,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else 
             Tcl_SetResult(interp, (char *)get_tok_value(xctx->text[n].prop_ptr, argv[4], 2), TCL_VOLATILE);
         }
-      } else if(!strcmp(argv[2], "wire")) { /* xschem getprop wire n token */
+      } else if(argc > 2 && !strcmp(argv[2], "wire")) { /* xschem getprop wire n token */
         if(argc < 5) {
           Tcl_SetResult(interp, "xschem getprop wire needs <n> <token>", TCL_STATIC);
           return TCL_ERROR;
