@@ -267,7 +267,9 @@ proc execute_fileevent {id} {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
-        uplevel #0 "eval $execute(callback,$id)"
+        puts $execute(callback,$id)
+        uplevel #0 eval $execute(callback,$id)
+      
       } 
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
@@ -604,6 +606,9 @@ proc ev {s} {
     return $s
   }
 }
+
+# should not be called directly by user 
+# does netlist post processing, called from global_(spice|vhdl|verilog)_netlist()
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist netlist_dir
  global verilog_2001 debug_var OS verilog_bitblast
@@ -1685,6 +1690,7 @@ proc simulate {{callback {}}} {
   global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
 
+  set button_path [xschem get top_path].menubar.simulate
   simuldir 
   set_sim_defaults
   set netlist_type [xschem get netlist_type]
@@ -1720,16 +1726,24 @@ proc simulate {{callback {}}} {
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
     set save [pwd]
     cd $netlist_dir
+    $button_path configure -bg red
+    set tctx::[xschem get current_win_path]_simulate 1
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
+      clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
       if { $callback ne {} } {
-        uplevel #0 "eval $callback"
+        uplevel #0 {
+          eval $callback
+        }
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
       set id 0
     } else {
-      set execute(callback) $callback
+      set execute(callback) "
+         clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
+         $callback
+      "
       # puts $cmd
       set id [eval $fg $st $cmd]
       puts "Simulation started: execution ID: $id"
@@ -6308,25 +6322,6 @@ proc housekeeping_ctx {} {
   .statusbar.7 configure -text $netlist_type
 }
 
-proc simulate_button {button_path} {
-  global simulate_bg
-  if { ![info exists tctx::[xschem get current_win_path]_simulate] } {
-    set tctx::[xschem get current_win_path]_simulate 1
-    $button_path configure -bg red
-    if {[catch {
-      simulate "clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate"
-    } err ]} {
-      puts {Error running simulation procedure}
-      alert_ {Error running simulation procedure}
-      clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
-    }
-    if {$err == -1} {
-       puts {Error: simulate procedure returned error code -1}
-       alert_ {Error: simulate procedure returned error code -1}
-    }
-  }
-}
-
 proc clear_simulate_button {button_path simvar} {
   global simulate_bg
   if { "tctx::[xschem get current_win_path]_simulate" eq $simvar } {
@@ -6774,13 +6769,16 @@ proc build_widgets { {topwin {} } } {
   toolbar_add EditPushSym "xschem descend_symbol" "Push symbol" $topwin
   $topwin.menubar.edit.menu add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E
   toolbar_add EditPop "xschem go_back" "Pop" $topwin
+
+  # eval is needed here to expand $bbg before evaluating 'button'
   eval button $topwin.menubar.waves -text "Waves"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command waves $bbg
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 \
-   -padx 2 -pady 0 -command \{simulate_button $topwin.menubar.simulate\} $bbg
+   -padx 2 -pady 0 -command simulate $bbg
   set simulate_bg [$topwin.menubar.simulate cget -bg]
   eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
    -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
+
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
   $topwin.menubar.view.menu add command -label "Redraw" -command "xschem redraw" -accelerator Esc
@@ -7096,7 +7094,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
          -command {xschem redraw} 
 
   toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
-  toolbar_add Simulate "simulate_button $topwin.menubar.simulate" "Run simulation" $topwin
+  toolbar_add Simulate "simulate" "Run simulation" $topwin
   toolbar_add Waves { waves } "View results" $topwin
 
   pack $topwin.menubar.file -side left

@@ -700,6 +700,7 @@ void hash_names(int inst, int action)
  *    (name = old_basename + q + bracket)
  *    or -1 if only testing for unique 'name'.
  */
+
 static int name_is_used(char *name, const char *old_basename, const char *brkt, int q)
 {
   int xmult, used = -1;

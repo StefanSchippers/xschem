@@ -149,9 +149,9 @@ const char *expandlabel(const char *s, int *m)
    Lexical analyzer
 */
 
-%x index
-%x trailer
-%x mult
+%x parse_index
+%x parse_trailer
+%x parse_mult
 
 SP [ \t\n]*
 NOTSP [^ \t\n]
@@ -181,13 +181,13 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
 %%
   /* this action resets initial condition at start of line. This is extremely useful if previously lexer
    * bailed out in the middle of some non INITIAL start condition due to yyparse() syntax errors */
-<mult,index>^.           {
+<parse_mult,parse_index>^.           {
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): matched: ^[^*] |%s|, push back\n",yytext);
                           yyless(0);    /* push entire token back to input */
                           BEGIN(INITIAL); /* reset parser */
                          }
 
-<mult>{
+<parse_mult>{
   /* postfix multiplier */
 {INT}                   {
                           sscanf(yytext, "%d",&yylval.val);
@@ -195,11 +195,11 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                           BEGIN(INITIAL);
                           return B_NUM;
                         }
-}  /* end <mult> */
+}  /* end <parse_mult> */
 
 
 
-<trailer>{
+<parse_trailer>{
   /* recognize characters after a bus label: AA[33:31]_xx  --> _xx */
 {IDX_ID_N}		{
                           yylval.ptr.str=NULL;/*19102004 */
@@ -211,7 +211,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
 }
 
   /* node indexes: "3:2" "5:1:2" "5..1" "7..1..2" "b:a" "c:b:a" .... */
-<index>{
+<parse_index>{
 {INT}                   {
                           sscanf(yytext, "%d",&yylval.val);
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): B_IDXNUM: |%s|\n", yytext);
@@ -226,7 +226,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
 \]/[^*,)]		{
 
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): close bracket2: %s\n", yytext);
-                          BEGIN(trailer);
+                          BEGIN(parse_trailer);
                           return yytext[0];
 			}
 
@@ -262,7 +262,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): B_NAME1: |%s|\n", yytext);
                           return B_NAME;
                         }
-}  /* end <index> */
+}  /* end <parse_index> */
 
   /* a comment, return as LINE token */
 ^\*.*                   {
@@ -309,7 +309,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* start vector node index: "aa[" */
 \[                      {
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): open bracket: %s\n", yytext);
-                          BEGIN(index);
+                          BEGIN(parse_index);
                           return yytext[0];
                         }
   /* "*(aa,bb,cc)" or "*aaa" prefix multiplication*/
@@ -321,7 +321,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
   /* "*16" postfix multiplication */
 {MULTIP}/{INT}          {
                           if(parselabel_debug >= 3) fprintf(errfp, "yylex(): post *: |%s|\n", yytext);
-                          BEGIN(mult);
+                          BEGIN(parse_mult);
                           return '*';
                         }
 {NOTSP}                 {
