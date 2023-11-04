@@ -2366,47 +2366,60 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='n' && rstate==0)              /* hierarchical netlist */
    {
+    int err = 0;
     yyparse_error = 0;
     if(xctx->semaphore >= 2) break;
     unselect_all(1);
     if(set_netlist_dir(0, NULL)) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        global_spice_netlist(1);
+        err = global_spice_netlist(1);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        global_vhdl_netlist(1);
+        err = global_vhdl_netlist(1);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        global_verilog_netlist(1);
+        err = global_verilog_netlist(1);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        global_tedax_netlist(1);
+        err = global_tedax_netlist(1);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");
 
       dbg(1, "callback(): -------------\n");
     }
+    if(err) {
+      tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+    } else {
+      tclvareval(xctx->top_path, ".menubar.netlist configure -bg LightGreen", NULL);
+    }
     break;
    }
    if(key=='N' && rstate == 0)              /* current level only netlist */
    {
+    int err = 0;
     yyparse_error = 0;
     if(xctx->semaphore >= 2) break;
     unselect_all(1);
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        global_spice_netlist(0);
+        err = global_spice_netlist(0);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        global_vhdl_netlist(0);
+        err = global_vhdl_netlist(0);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        global_verilog_netlist(0);
+        err = global_verilog_netlist(0);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        global_tedax_netlist(0);
+        err = global_tedax_netlist(0);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");
       dbg(1, "callback(): -------------\n");
     }
+    if(err) {
+      tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+    } else {
+      tclvareval(xctx->top_path, ".menubar.netlist configure -bg LightGreen", NULL);
+    }
+
     break;
    }
    if(key=='A' && rstate == 0)                             /* toggle show netlist */

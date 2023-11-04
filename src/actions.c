@@ -149,6 +149,10 @@ int set_modify(int mod)
     xctx->prev_set_modify = xctx->modified;
     xctx->modified = mod;
   }
+  if(mod) {
+    tclvareval(xctx->top_path, ".menubar.netlist configure -bg $simulate_bg", NULL);
+    tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
+  }
   
   /* clear floater caches */
   if(mod == 1 || mod == -2) {

@@ -266,6 +266,7 @@ proc execute_fileevent {id} {
       } else {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
+      set execute(exitcode,last) $exit_status
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         uplevel #0 eval $execute(callback,$id)
       } 
@@ -276,7 +277,6 @@ proc execute_fileevent {id} {
       set execute(error,last) $err
       set execute(status,last) $execute(status,$id)
       if { ![info exists exit_status] } { set exit_status 0 }
-      set execute(exitcode,last) $exit_status
       unset execute(pipe,$id)
       unset execute(data,$id)
       unset execute(status,$id)
@@ -1724,7 +1724,7 @@ proc simulate {{callback {}}} {
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
     set save [pwd]
     cd $netlist_dir
-    $button_path configure -bg red
+    $button_path configure -bg yellow
     set tctx::[xschem get current_win_path]_simulate 1
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
@@ -6315,15 +6315,21 @@ proc housekeeping_ctx {} {
   if {![info exists tctx::[xschem get current_win_path]_simulate]} {
     [xschem get top_path].menubar.simulate configure -bg $simulate_bg
   } else {
-    [xschem get top_path].menubar.simulate configure -bg red
+    [xschem get top_path].menubar.simulate configure -bg yellow
   }
   .statusbar.7 configure -text $netlist_type
 }
 
 proc clear_simulate_button {button_path simvar} {
-  global simulate_bg
+  global simulate_bg execute
   if { "tctx::[xschem get current_win_path]_simulate" eq $simvar } {
-    $button_path configure -bg $simulate_bg
+    if {![info exists execute(exitcode,last)]} {
+      $button_path configure -bg $simulate_bg
+    } elseif { $execute(exitcode,last) == 0} {
+      $button_path configure -bg LightGreen
+    } else {
+      $button_path configure -bg red
+    }
   }
   unset $simvar
 }
@@ -6769,12 +6775,12 @@ proc build_widgets { {topwin {} } } {
   toolbar_add EditPop "xschem go_back" "Pop" $topwin
 
   # eval is needed here to expand $bbg before evaluating 'button'
-  eval button $topwin.menubar.waves -text "Waves"  -activebackground red  -takefocus 0 \
+  eval button $topwin.menubar.waves -text "Waves"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 -command waves $bbg
-  eval button $topwin.menubar.simulate -text "Simulate"  -activebackground red  -takefocus 0 \
+  eval button $topwin.menubar.simulate -text "Simulate"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 -command simulate $bbg
   set simulate_bg [$topwin.menubar.simulate cget -bg]
-  eval button $topwin.menubar.netlist -text "Netlist"  -activebackground red  -takefocus 0 \
+  eval button $topwin.menubar.netlist -text "Netlist"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
 
   # create  $topwin.menubar.layers.menu

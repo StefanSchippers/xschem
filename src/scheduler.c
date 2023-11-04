@@ -2708,6 +2708,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
       }
+      if(err) {
+        tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+      } else {
+        tclvareval(xctx->top_path, ".menubar.netlist configure -bg LightGreen", NULL);
+      }
       tclsetvar("show_infowindow_after_netlist", saveshow);
       my_free(_ALLOC_ID_, &saveshow);
     }
