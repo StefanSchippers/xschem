@@ -267,9 +267,7 @@ proc execute_fileevent {id} {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
-        puts $execute(callback,$id)
         uplevel #0 eval $execute(callback,$id)
-      
       } 
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
