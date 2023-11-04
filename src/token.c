@@ -659,7 +659,7 @@ int get_last_used_index(const char *old_basename, const char *brkt)
  * action can be XINSERT or XDELETE to insert or remove items */
 void hash_names(int inst, int action)
 {
-  int i, mult, start, stop;
+  int i, xmult, start, stop;
   char *upinst = NULL;
   char *upinst_ptr, *upinst_state, *single_name;
   dbg(1, "hash_names(): inst=%d, action=%d\n", inst, action);
@@ -678,7 +678,7 @@ void hash_names(int inst, int action)
         start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "NULL");
   for(i = start; i < stop; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, &mult));
+      my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, &xmult));
       strtoupper(upinst);
 
       upinst_ptr = upinst;
@@ -702,11 +702,11 @@ void hash_names(int inst, int action)
  */
 static int name_is_used(char *name, const char *old_basename, const char *brkt, int q)
 {
-  int mult, used = -1;
+  int xmult, used = -1;
   char *upinst = NULL;
   char *upinst_ptr, *upinst_state, *single_name;
   Int_hashentry *entry;
-  my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, &mult));
+  my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, &xmult));
   strtoupper(upinst);
   upinst_ptr = upinst;
   while( (single_name = my_strtok_r(upinst_ptr, ",", "", 0, &upinst_state)) ) {
