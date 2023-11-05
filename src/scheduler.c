@@ -2710,8 +2710,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(err) {
         tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+        tclvareval(xctx->top_path, "set tctx::", xctx->current_win_path, "_netlist red", NULL);
       } else {
         tclvareval(xctx->top_path, ".menubar.netlist configure -bg LightGreen", NULL);
+        tclvareval(xctx->top_path, "set tctx::", xctx->current_win_path, "_netlist LightGreen", NULL);
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);
       my_free(_ALLOC_ID_, &saveshow);

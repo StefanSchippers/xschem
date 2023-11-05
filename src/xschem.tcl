@@ -268,7 +268,7 @@ proc execute_fileevent {id} {
       }
       set execute(exitcode,last) $exit_status
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
-        uplevel #0 eval $execute(callback,$id)
+        eval uplevel #0 [list $execute(callback,$id)]
       } 
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
@@ -1725,10 +1725,10 @@ proc simulate {{callback {}}} {
     set save [pwd]
     cd $netlist_dir
     $button_path configure -bg yellow
-    set tctx::[xschem get current_win_path]_simulate 1
+    set tctx::[xschem get current_win_path]_simulate yellow
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
-      clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
+      set_simulate_button list [xschem get top_path] [xschem get current_win_path]
       if { $callback ne {} } {
         uplevel #0 {
           eval $callback
@@ -1738,8 +1738,14 @@ proc simulate {{callback {}}} {
       eval exec $cmd &
       set id 0
     } else {
+      # window interface       tabbed interface
+      # -----------------------------------------
+      # top_path   win_path    top_path   win_path
+      #  {}        .drw         {}        .drw
+      #  .x1       .x1.drw      {}        .x1.drw
+      #  .x2       .x2.drw      {}        .x2.drw
       set execute(callback) "
-         clear_simulate_button $button_path tctx::[xschem get current_win_path]_simulate
+         set_simulate_button [list [xschem get top_path] [xschem get current_win_path]]
          $callback
       "
       # puts $cmd
@@ -6312,26 +6318,59 @@ proc housekeeping_ctx {} {
   xschem set hide_symbols $hide_symbols
   xschem set draw_window $draw_window
   xschem case_insensitive $case_insensitive
-  if {![info exists tctx::[xschem get current_win_path]_simulate]} {
-    [xschem get top_path].menubar.simulate configure -bg $simulate_bg
-  } else {
-    [xschem get top_path].menubar.simulate configure -bg yellow
-  }
+  set_sim_netlist_buttons 
   .statusbar.7 configure -text $netlist_type
 }
 
-proc clear_simulate_button {button_path simvar} {
+# callback that resets simulate button color at end of simulation
+proc set_simulate_button {top_path winpath} {
   global simulate_bg execute
-  if { "tctx::[xschem get current_win_path]_simulate" eq $simvar } {
-    if {![info exists execute(exitcode,last)]} {
-      $button_path configure -bg $simulate_bg
-    } elseif { $execute(exitcode,last) == 0} {
-      $button_path configure -bg LightGreen
-    } else {
-      $button_path configure -bg red
+
+  set current_win [xschem get current_win_path]
+  set simvar tctx::${winpath}_simulate
+  set sim_button $top_path.menubar.simulate
+
+  if {![info exists execute(exitcode,last)]} {
+    if { $current_win eq $winpath} {
+      $sim_button configure -bg $simulate_bg
     }
+    set $simvar $simulate_bg
+  } elseif { $execute(exitcode,last) == 0} {
+    if { $current_win eq $winpath} {
+      $sim_button configure -bg LightGreen
+    }
+    set $simvar LightGreen
+  } else {   
+    if { $current_win eq $winpath} {
+      $sim_button configure -bg red
+    }
+    set $simvar red
   }
-  unset $simvar
+}
+
+
+# set simulate and netlist buttons on context change
+proc set_sim_netlist_buttons {} {
+  global simulate_bg execute
+
+  set win_path [xschem get current_win_path]
+  set top_path [xschem get top_path]
+
+  set netlist_var tctx::${win_path}_netlist
+  set sim_var  tctx::${win_path}_simulate
+  set netlist_button $top_path.menubar.netlist
+  set sim_button $top_path.menubar.simulate
+  if {![info exists $netlist_var] || [set $netlist_var] eq $simulate_bg} {
+    $netlist_button configure -bg  $simulate_bg
+  } else { 
+    $netlist_button configure -bg [set $netlist_var]
+  }
+
+  if {![info exists $sim_var] || [set $sim_var] eq $simulate_bg} {
+    $sim_button configure -bg  $simulate_bg
+  } else { 
+    $sim_button configure -bg [set $sim_var]
+  }
 }
 
 # these two routines are workarounds for broken remote desktop connection tools

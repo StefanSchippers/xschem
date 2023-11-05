@@ -406,7 +406,7 @@ void netlist_options(int i)
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strboolcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
-    else tclsetintvar("lvs_.netlist", 0);
+    else tclsetintvar("lvs_ignore", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_netlist", 0);
   if(str[0]) {
