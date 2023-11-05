@@ -142,7 +142,7 @@ int set_modify(int mod)
 {
   int i, floaters = 0;
 
-  dbg(0, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
+  dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
   /* set modify state */
   if(mod == 0 || mod == 1) {
