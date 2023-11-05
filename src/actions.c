@@ -142,11 +142,10 @@ int set_modify(int mod)
 {
   int i, floaters = 0;
 
-  dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
+  dbg(0, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
   /* set modify state */
   if(mod == 0 || mod == 1) {
-    xctx->prev_set_modify = xctx->modified;
     xctx->modified = mod;
   }
   if(mod) {
@@ -182,6 +181,7 @@ int set_modify(int mod)
       else tcleval("set_tab_names");
     }
   }
+  xctx->prev_set_modify = xctx->modified;
   return floaters;
 }
 
