@@ -151,8 +151,8 @@ int set_modify(int mod)
   if(mod == 1 || (mod == 0  && xctx->prev_set_modify) || mod == -2) {
     tclvareval(xctx->top_path, ".menubar.netlist configure -bg $simulate_bg", NULL);
     tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
-    tclvareval(xctx->top_path, "set tctx::", xctx->current_win_path, "_netlist $simulate_bg", NULL);
-    tclvareval(xctx->top_path, "set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
+    tclvareval("set tctx::", xctx->current_win_path, "_netlist $simulate_bg", NULL);
+    tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
   }
   
   /* clear floater caches */
