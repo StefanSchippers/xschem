@@ -1678,6 +1678,15 @@ proc sim_cmd {cmd} {
   return [subst $cmd]
 }
 
+# wrapper to proc simulate, if called from button.
+proc simulate_from_button {{callback {}}} {
+
+   set simvar tctx::[xschem get current_win_path]_simulate
+   if {![info exists $simvar] || [set $simvar] ne {yellow}} {
+     simulate $callback
+   }
+}
+ 
 ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
 ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
 ## $s : schematic name (opamp) or netlist_name if given
@@ -6817,7 +6826,9 @@ proc build_widgets { {topwin {} } } {
   eval button $topwin.menubar.waves -text "Waves"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 -command waves $bbg
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground yellow  -takefocus 0 \
-   -padx 2 -pady 0 -command simulate $bbg
+   -padx 2 -pady 0 $bbg -command {
+     simulate_from_button
+   }
   set simulate_bg [$topwin.menubar.simulate cget -bg]
   eval button $topwin.menubar.netlist -text "Netlist"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
@@ -7137,7 +7148,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
          -command {xschem redraw} 
 
   toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
-  toolbar_add Simulate "simulate" "Run simulation" $topwin
+  toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
   toolbar_add Waves { waves } "View results" $topwin
 
   pack $topwin.menubar.file -side left
