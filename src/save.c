@@ -2654,6 +2654,9 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
      set_modify(0);
   }
+  tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
+  tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
+  tclvareval("catch {unset tctx::", xctx->current_win_path, "_simulate_id}", NULL);
   return 1;
 }
 
