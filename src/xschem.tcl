@@ -215,10 +215,12 @@ proc set_ne { var val } {
 # $execute(pipe,$id) contains the channel descriptor to read or write as specified in status
 # $execute(data,$id) contains the stdout of the pipeline (output data)
 # $execute(cmd,$id) contains the pipeline command
+# $execute(win_path,$id) contains the xctx->current_win_path that started the command
 # when subprocess ends all execute(...,$id) data is cleared
 #
 # The following post-mortem data is available for last finished process:
 #   execute(cmd,last)     : the command
+#   execute(win_path,last): the xctx->current_win_path that started the last command
 #   execute(data,last)    : the data
 #   execute(error,last)   : the errors (stderr) 
 #   execute(status,last)  : the status argument as was given when calling proc execute
@@ -270,13 +272,14 @@ proc execute_fileevent {id} {
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         eval uplevel #0 [list $execute(callback,$id)]
       } 
-      if { [info exists tctx::[xschem get current_win_path]_simulate_id] } {
-        if { [set tctx::[xschem get current_win_path]_simulate_id] eq $id } {
-          unset tctx::[xschem get current_win_path]_simulate_id
+      if { [info exists tctx::$execute(win_path,$id)_simulate_id] } {
+        if { [set tctx::$execute(win_path,$id)_simulate_id] eq $id } {
+          unset tctx::$execute(win_path,$id)_simulate_id
         }
       }
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
+      set execute(win_path,last) $execute(win_path,$id)
       set execute(data,last) $execute(data,$id)
       if { ![info exists err] } { set err {} }
       set execute(error,last) $err
@@ -286,6 +289,7 @@ proc execute_fileevent {id} {
       unset execute(data,$id)
       unset execute(status,$id)
       unset execute(cmd,$id)
+      unset execute(win_path,$id)
       # apply a delay, process does not disappear immediately.
       if {[info exists has_x] && [winfo exists .processlist]} { after 250 {insert_running_cmds .processlist.f2.lb}}
   }
@@ -345,6 +349,7 @@ proc execute {status args} {
   set execute(status,$id) $status
   set execute(pipe,$id) $pipe
   set execute(cmd,$id) $args
+  set execute(win_path,$id) [xschem get current_win_path]
   set execute(data,$id) ""
 
   # Apply a delay to catch the new process.
