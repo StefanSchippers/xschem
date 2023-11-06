@@ -270,7 +270,11 @@ proc execute_fileevent {id} {
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         eval uplevel #0 [list $execute(callback,$id)]
       } 
-      catch {unset tctx::[xschem get current_win_path]_simulate_id}
+      if { [info exists tctx::[xschem get current_win_path]_simulate_id] } {
+        if { [set tctx::[xschem get current_win_path]_simulate_id] eq $id } {
+          unset tctx::[xschem get current_win_path]_simulate_id
+        }
+      }
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
       set execute(data,last) $execute(data,$id)
