@@ -270,6 +270,7 @@ proc execute_fileevent {id} {
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         eval uplevel #0 [list $execute(callback,$id)]
       } 
+      unset tctx::[xschem get current_win_path]_simulate_id
       catch {unset execute(callback,$id)} 
       set execute(cmd,last) $execute(cmd,$id)
       set execute(data,last) $execute(data,$id)
@@ -358,22 +359,28 @@ proc execute {status args} {
 # kill selected sub-processes by looking up their command strings
 # into all running sub-processes, killing the matching ones
 # with the supplied 'sig'.
-proc kill_running_cmds {lb sig} {
+proc kill_running_cmds {{lb {}} sig} {
   global execute
-  set selected [$lb curselection]
-  foreach idx $selected {
-    set cmd1 [$lb get $idx]
-    foreach  {id pid cmd2} [get_running_cmds] {
-      # puts "$cmd1\n$cmd2 \n$pid"
-      if { $cmd1 eq $cmd2 } {
-        exec kill $sig $pid
-        break
+  if { [regexp {^[0-9]+$} $lb] } {
+    set id $lb
+    set pid [pid $execute(pipe,$id)]
+    exec kill $sig $pid
+  } else {
+    set selected [$lb curselection]
+    foreach idx $selected {
+      set cmd1 [$lb get $idx]
+      foreach  {id pid cmd2} [get_running_cmds] {
+        # puts "$cmd1\n$cmd2 \n$pid"
+        if { $cmd1 eq $cmd2 } {
+          exec kill $sig $pid
+          break
+        }
       }
     }
+    after 250 insert_running_cmds $lb
   }
   # apply a delay, after a kill command process does not disappear
   # immediately.
-  after 250 insert_running_cmds $lb
 }
 
 # refresh list of running commands in dialog box
@@ -1221,29 +1228,34 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,default) 0
     
     ### spice wave view
-    set_ne sim(spicewave,0,cmd) {gaw "$n.raw" } 
-    set sim(spicewave,0,name) {Gaw viewer}
+    set_ne sim(spicewave,0,cmd) {} 
+    set sim(spicewave,0,name) {Xschem internal waves}
     set_ne sim(spicewave,0,fg) 0
     set_ne sim(spicewave,0,st) 0
    
-    set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
-    set sim(spicewave,1,name) {Ngpice Viewer}
+    set_ne sim(spicewave,1,cmd) {gaw "$n.raw" } 
+    set sim(spicewave,1,name) {Gaw viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
-
-    set_ne sim(spicewave,2,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
-    set sim(spicewave,2,name) {Rawtovcd}
+   
+    set_ne sim(spicewave,2,cmd) {$terminal -e ngspice}
+    set sim(spicewave,2,name) {Ngpice Viewer}
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
 
-    # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
-    # This server is listening on port $bespice_listen_port. 
-    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set sim(spicewave,3,name) {Bespice wave}
+    set_ne sim(spicewave,3,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
+    set sim(spicewave,3,name) {Rawtovcd}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
+
+    # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
+    # This server is listening on port $bespice_listen_port. 
+    set_ne sim(spicewave,4,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
+    set sim(spicewave,4,name) {Bespice wave}
+    set_ne sim(spicewave,4,fg) 0
+    set_ne sim(spicewave,4,st) 0
     # number of configured spice wave viewers, and default one
-    set_ne sim(spicewave,n) 4
+    set_ne sim(spicewave,n) 5
     set_ne sim(spicewave,default) 0
     
     ### verilog
@@ -1344,15 +1356,29 @@ proc simconf {} {
     pack ${scrollframe}.center.$tool.l -fill y -side left
     pack ${scrollframe}.center.$tool.r -fill both -expand yes
     for {set i 0} { $i < $sim($tool,n)} {incr i} {
-      frame ${scrollframe}.center.$tool.r.$i
-      pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
-      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
-      radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
-         -variable sim($tool,default) -value $i
-      text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
-      ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
-      checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) -bg $bg($toggle)
-      checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) -bg $bg($toggle)
+      if {$tool eq {spicewave} && $i == 0} {
+        frame ${scrollframe}.center.$tool.r.$i
+        pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
+        entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
+        radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
+           -variable sim($tool,default) -value $i
+        text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -state disabled -wrap none -bg $bg($toggle)
+        ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 {}
+        checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) \
+             -state disabled -bg $bg($toggle)
+        checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status  -variable sim($tool,$i,st) \
+             -state disabled -bg $bg($toggle)
+      } else {
+        frame ${scrollframe}.center.$tool.r.$i
+        pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
+        entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
+        radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
+           -variable sim($tool,default) -value $i
+        text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
+        ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
+        checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) -bg $bg($toggle)
+        checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) -bg $bg($toggle)
+      }
 
       pack ${scrollframe}.center.$tool.r.$i.lab -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.radio -side left -fill y 
@@ -1680,10 +1706,15 @@ proc sim_cmd {cmd} {
 
 # wrapper to proc simulate, if called from button.
 proc simulate_from_button {{callback {}}} {
-
    set simvar tctx::[xschem get current_win_path]_simulate
    if {![info exists $simvar] || [set $simvar] ne {yellow}} {
      simulate $callback
+   } elseif {[info exists $simvar] && [set $simvar] eq {yellow}} {
+     set simulate_id tctx::[xschem get current_win_path]_simulate_id
+     if { [info exists $simulate_id] } {
+       set id [set $simulate_id]
+       kill_running_cmds $id -15
+     }
    }
 }
  
@@ -1697,7 +1728,6 @@ proc simulate {{callback {}}} {
   global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
 
-  set button_path [xschem get top_path].menubar.simulate
   simuldir 
   set_sim_defaults
   set netlist_type [xschem get netlist_type]
@@ -1733,8 +1763,11 @@ proc simulate {{callback {}}} {
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
     set save [pwd]
     cd $netlist_dir
-    $button_path configure -bg yellow
-    set tctx::[xschem get current_win_path]_simulate yellow
+    if {[info exists has_x]} {
+      set button_path [xschem get top_path].menubar.simulate
+      $button_path configure -bg yellow
+      set tctx::[xschem get current_win_path]_simulate yellow
+    }
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       set_simulate_button list [xschem get top_path] [xschem get current_win_path]
@@ -1759,6 +1792,7 @@ proc simulate {{callback {}}} {
       "
       # puts $cmd
       set id [eval $fg $st $cmd]
+      if {[info exists has_x]} {set tctx::[xschem get current_win_path]_simulate_id $id}
       puts "Simulation started: execution ID: $id"
     }
     cd $save
@@ -1857,7 +1891,7 @@ proc waves {} {
   ## $d : netlist directory
 
   global netlist_dir terminal sim XSCHEM_SHAREDIR has_x 
-  global bespice_listen_port env
+  global bespice_listen_port env simulate_bg
 
   simuldir
   set netlist_type [xschem get netlist_type]
@@ -1894,10 +1928,18 @@ proc waves {} {
       set fg {execute}
     }
     set save [pwd]
-    cd $netlist_dir
-    set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
-    eval $fg $st $cmd
-    cd $save
+    if {$def eq {0}} {
+      if { [xschem raw_query loaded] != -1} {
+        xschem raw_clear
+      } else {
+        load_raw
+      }
+    } else {
+      cd $netlist_dir
+      set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
+      eval $fg $st $cmd
+      cd $save
+    }
   }
 }
 # ============================================================
@@ -6327,14 +6369,15 @@ proc housekeeping_ctx {} {
   xschem set hide_symbols $hide_symbols
   xschem set draw_window $draw_window
   xschem case_insensitive $case_insensitive
-  set_sim_netlist_buttons 
+  set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
 }
 
 # callback that resets simulate button color at end of simulation
 proc set_simulate_button {top_path winpath} {
-  global simulate_bg execute
+  global simulate_bg execute has_x
 
+  if {![info exists has_x]} return
   set current_win [xschem get current_win_path]
   set simvar tctx::${winpath}_simulate
   set sim_button $top_path.menubar.simulate
@@ -6359,9 +6402,10 @@ proc set_simulate_button {top_path winpath} {
 
 
 # set simulate and netlist buttons on context change
-proc set_sim_netlist_buttons {} {
-  global simulate_bg execute
+proc set_sim_netlist_waves_buttons {} {
+  global simulate_bg execute has_x
 
+  if {![info exists has_x]} {return}
   set win_path [xschem get current_win_path]
   set top_path [xschem get top_path]
 
@@ -6369,6 +6413,8 @@ proc set_sim_netlist_buttons {} {
   set sim_var  tctx::${win_path}_simulate
   set netlist_button $top_path.menubar.netlist
   set sim_button $top_path.menubar.simulate
+  set waves_var tctx::${win_path}_waves
+  set waves_button $top_path.menubar.waves
   if {![info exists $netlist_var] || [set $netlist_var] eq $simulate_bg} {
     $netlist_button configure -bg  $simulate_bg
   } else { 
@@ -6379,6 +6425,12 @@ proc set_sim_netlist_buttons {} {
     $sim_button configure -bg  $simulate_bg
   } else { 
     $sim_button configure -bg [set $sim_var]
+  }
+
+  if {![info exists $waves_var] || [set $waves_var] eq $simulate_bg} {
+    $waves_button configure -bg  $simulate_bg
+  } else { 
+    $waves_button configure -bg [set $waves_var]
   }
 }
 
@@ -6539,20 +6591,20 @@ proc switch_undo {} {
 }
 
 proc load_raw {} {
-  global netlist_dir
+  global netlist_dir has_x
 
   set types {
       {{Raw Files}       {.raw}        }
       {{All Files}        *            }
   }
-
-
   set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
   if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
     xschem raw_clear
    }
+  if {[info exists has_x]} {
     set filename [tk_getOpenFile -title "Select file" -multiple 0 -initialdir $netlist_dir \
             -initialfile [file tail $filename]  -filetypes $types]
+  }
   if {[file exists $filename]} {
     xschem raw_read $filename
   }
@@ -7120,10 +7172,10 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   }
   $topwin.menubar.simulation.menu.graph add command -label "Annotate Operating Point into schematic" \
          -command {set show_hidden_texts 1; xschem annotate_op}
-  $topwin.menubar.simulation.menu.graph add command -label {Load spice .raw file} -command {
+  $topwin.menubar.simulation.menu.graph add command -label {Load Spice .raw file} -command {
      load_raw
   }
-  $topwin.menubar.simulation.menu.graph add command -label {Unload spice .raw file} -command {
+  $topwin.menubar.simulation.menu.graph add command -label {Unload Spice .raw file} -command {
      xschem raw_clear
   }
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \

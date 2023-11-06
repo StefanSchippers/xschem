@@ -700,6 +700,12 @@ void free_rawfile(Raw **rawptr, int dr)
   if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
   if(raw->table.table) int_hash_free(&raw->table);
   my_free(_ALLOC_ID_, rawptr);
+
+  if(has_x) {
+    tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
+    tclvareval(xctx->top_path, ".menubar.waves configure -bg $simulate_bg", NULL);
+  }   
+
   if(dr) draw();
 }
 
@@ -810,6 +816,15 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
       dbg(0, "raw_read(): no useful data found\n");
     }
     fclose(fd);
+    if(has_x) {
+      if(sch_waves_loaded() >= 0) {
+        tclvareval("set tctx::", xctx->current_win_path, "_waves LightGreen", NULL);
+        tclvareval(xctx->top_path, ".menubar.waves configure -bg LightGreen", NULL);
+      } else {
+        tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
+        tclvareval(xctx->top_path, ".menubar.waves configure -bg $simulate_bg", NULL);
+      }
+    }
     return res;
   }
   dbg(0, "raw_read(): failed to open file %s for reading\n", f);
