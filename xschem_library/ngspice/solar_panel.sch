@@ -278,7 +278,7 @@ value="tcleval(
   * example of tcl evaluation of code blocks:
   *   current path: $path 
   *   schematic: [xschem get current_name]
-  tran .01u 2m uic
+  tran .05u 1m uic
   write solar_panel.raw
   quit 0
 .endc
