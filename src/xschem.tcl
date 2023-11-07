@@ -1772,11 +1772,6 @@ proc simulate {{callback {}}} {
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
     set save [pwd]
     cd $netlist_dir
-    if {[info exists has_x]} {
-      set button_path [xschem get top_path].menubar.simulate
-      $button_path configure -bg yellow
-      set tctx::[xschem get current_win_path]_simulate yellow
-    }
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
       set_simulate_button list [xschem get top_path] [xschem get current_win_path]
@@ -1801,7 +1796,12 @@ proc simulate {{callback {}}} {
       "
       # puts $cmd
       set id [eval $fg $st $cmd]
-      if {[info exists has_x]} {set tctx::[xschem get current_win_path]_simulate_id $id}
+      if {[info exists has_x] && $id >= 0} {
+        set tctx::[xschem get current_win_path]_simulate_id $id
+        set button_path [xschem get top_path].menubar.simulate
+        $button_path configure -bg yellow
+        set tctx::[xschem get current_win_path]_simulate yellow
+      }
       puts "Simulation started: execution ID: $id"
     }
     cd $save
