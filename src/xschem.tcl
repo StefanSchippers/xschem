@@ -3774,12 +3774,13 @@ proc simuldir {} {
   global netlist_dir local_netlist_dir has_x
   if { $local_netlist_dir == 1 } {
     set simdir [xschem get current_dirname]/simulation
-    if {[catch {file mkdir "$simdir"} err]} {
-      puts $err
-      if {[info exists has_x]} {
-        tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-      } 
-    }
+    
+    # if {[catch {file mkdir "$simdir"} err]} {
+    #   puts $err
+    #   if {[info exists has_x]} {
+    #     tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+    #   } 
+    # }
     set netlist_dir $simdir
     return $netlist_dir
   }

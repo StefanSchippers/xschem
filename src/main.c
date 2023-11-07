@@ -26,10 +26,12 @@
 #endif
 #include <locale.h>
 
+/* can not install a child handler as the tcl-tk toolkit probably already uses it */
+/* #define HANDLE_SIGCHLD */
+
 static void sig_handler(int s){
   char emergency_prefix[PATH_MAX];
   const char *emergency_dir;
-
 
   if(s==SIGINT) {
     fprintf(errfp, "Use 'exit' to close the program\n");
@@ -58,13 +60,13 @@ static void sig_handler(int s){
   exit(EXIT_FAILURE);
 }
 
-#if 0
+#ifdef HANDLE_SIGCHLD
 static void child_handler(int signum)
 {
-    /* fprintf(errfp, "SIGCHLD received\n"); */
-#ifdef __unix__
-    wait(NULL);
-#endif
+  fprintf(errfp, "SIGCHLD received\n");
+  #ifdef __unix__
+  wait(NULL);
+  #endif
 }
 #endif
 
@@ -81,7 +83,10 @@ int main(int argc, char **argv)
   signal(SIGILL, sig_handler);
   signal(SIGTERM, sig_handler);
   signal(SIGFPE, sig_handler);
-  /* signal(SIGCHLD, child_handler); */  /* avoid zombies 20180925 --> conflicts with tcl exec */
+
+  #ifdef HANDLE_SIGCHLD
+  signal(SIGCHLD, child_handler); /* avoid zombies 20180925 --> conflicts with tcl exec */
+  #endif
 
   errfp=stderr;
   /* 20181013 check for empty or non existing DISPLAY *before* calling Tk_Main or Tcl_Main */
