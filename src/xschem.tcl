@@ -270,6 +270,8 @@ proc execute_fileevent {id} {
       }
       set execute(exitcode,last) $exit_status
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
+        # puts  $execute(callback,$id)
+        # puts $execute(win_path,$id)
         eval uplevel #0 [list $execute(callback,$id)]
       } 
       if { [info exists tctx::$execute(win_path,$id)_simulate_id] } {
@@ -370,10 +372,14 @@ proc execute {status args} {
 # with the supplied 'sig'.
 proc kill_running_cmds {{lb {}} sig} {
   global execute
-  if { [regexp {^[0-9]+$} $lb] } {
+  if { [regexp {^[0-9]+$} $lb] && $lb >= 0 } {
     set id $lb
-    set pid [pid $execute(pipe,$id)]
-    exec kill $sig $pid
+    if { [info exists execute(pipe,$id)] } {
+      set pid [pid $execute(pipe,$id)]
+      exec kill $sig $pid
+    } else {
+      return 0
+    }
   } else {
     set selected [$lb curselection]
     foreach idx $selected {
@@ -390,6 +396,7 @@ proc kill_running_cmds {{lb {}} sig} {
   }
   # apply a delay, after a kill command process does not disappear
   # immediately.
+  return 1
 }
 
 # refresh list of running commands in dialog box
@@ -1715,6 +1722,7 @@ proc sim_cmd {cmd} {
 
 # wrapper to proc simulate, if called from button.
 proc simulate_from_button {{callback {}}} {
+   global simulate_bg
    set simvar tctx::[xschem get current_win_path]_simulate
    if {![info exists $simvar] || [set $simvar] ne {yellow}} {
      simulate $callback
@@ -1722,7 +1730,13 @@ proc simulate_from_button {{callback {}}} {
      set simulate_id tctx::[xschem get current_win_path]_simulate_id
      if { [info exists $simulate_id] } {
        set id [set $simulate_id]
-       kill_running_cmds $id -15
+       set res [kill_running_cmds $id -15]
+       if { $res == 0} {
+         # something went wrong. Forget about the process
+         unset tctx::[xschem get current_win_path]_simulate_id
+         set tctx::[xschem get current_win_path]_simulate $simulate_bg
+         [xschem get top_path].menubar.simulate configure -bg $simulate_bg
+       }
      }
    }
 }
@@ -1796,7 +1810,7 @@ proc simulate {{callback {}}} {
       "
       # puts $cmd
       set id [eval $fg $st $cmd]
-      if {[info exists has_x] && $id >= 0} {
+      if {[info exists has_x] && $id >= 0 && $fg == 0} {
         set tctx::[xschem get current_win_path]_simulate_id $id
         set button_path [xschem get top_path].menubar.simulate
         $button_path configure -bg yellow
@@ -6390,6 +6404,13 @@ proc set_simulate_button {top_path winpath} {
   set current_win [xschem get current_win_path]
   set simvar tctx::${winpath}_simulate
   set sim_button $top_path.menubar.simulate
+
+  # puts "current_win=$current_win"
+  # puts "simvar=$simvar"
+  # puts "winpath=$winpath"
+  # puts "top_path=$top_path"
+  # puts "sim_button=$sim_button"
+  # puts "execute(exitcode,last)=$execute(exitcode,last)"
 
   if {![info exists execute(exitcode,last)]} {
     if { $current_win eq $winpath} {
