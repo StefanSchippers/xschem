@@ -1809,8 +1809,24 @@ proc simulate {{callback {}}} {
          $callback
       "
       # puts $cmd
+
+      # speculative setting. If foreground process, the eval below will block
+      # until process finished.
+      if {$fg eq {execute_wait} } {
+        set tctx::[xschem get current_win_path]_simulate yellow
+        set button_path [xschem get top_path].menubar.simulate
+        $button_path configure -bg yellow
+      }
+
       set id [eval $fg $st $cmd]
-      if {[info exists has_x] && $id >= 0 && $fg == 0} {
+
+      # undo speculative setting
+      if {$fg eq {execute_wait} && $id == -1} {
+        set tctx::[xschem get current_win_path]_simulate red
+        set button_path [xschem get top_path].menubar.simulate
+        $button_path configure -bg red
+      }
+      if {[info exists has_x] && $id >= 0 && $fg ne {execute_wait}} {
         set tctx::[xschem get current_win_path]_simulate_id $id
         set button_path [xschem get top_path].menubar.simulate
         $button_path configure -bg yellow
