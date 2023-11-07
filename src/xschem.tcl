@@ -242,6 +242,12 @@ proc execute_fileevent {id} {
     set lastproc [lindex [pid $execute(pipe,$id)] end]
     set ps_status [exec ps -o state= -p $lastproc]
     set finished [regexp Z $ps_status] ;# if zombie consider process to be finished.
+    if { $eof && !$finished} {
+      after 2000 "execute_fileevent $id"
+      fileevent $execute(pipe,$id) readable ""
+      # puts "rescheduling $id"
+      return
+    }
   } else {
     set eof [eof $execute(pipe,$id)]
     set finished 1
