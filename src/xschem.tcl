@@ -3769,18 +3769,11 @@ proc make_symbol_lcc {name} {
   return {}
 }
 
-# create simulation dir 'simulation/' under current schematic directory
+# point netlist_dir to  simulation dir 'simulation/' under current schematic directory
 proc simuldir {} {
   global netlist_dir local_netlist_dir has_x
   if { $local_netlist_dir == 1 } {
     set simdir [xschem get current_dirname]/simulation
-    
-    # if {[catch {file mkdir "$simdir"} err]} {
-    #   puts $err
-    #   if {[info exists has_x]} {
-    #     tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-    #   } 
-    # }
     set netlist_dir $simdir
     return $netlist_dir
   }
@@ -3788,64 +3781,72 @@ proc simuldir {} {
 }
 
 #
-# force==0: force creation of $netlist_dir (if netlist_dir variable not empty)
+# change==0: force creation of $netlist_dir (if netlist_dir variable not empty)
 #           and return current setting.
-#           if netlist_dir variable empty:
-#               if no dir given prompt user
-#               else set netlist_dir to dir
 #
-# force==1: if no dir given prompt user
+# change==1: if no dir given prompt user
 #           else set netlist_dir to dir
 #
 # Return current netlist directory
 #
-proc set_netlist_dir { force {dir {} }} {
+proc set_netlist_dir { change {dir {} }} {
   global netlist_dir env OS has_x
 
+  #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
-  if { ( $force == 0 )  && ( $netlist_dir ne {} ) } {
-    if {![file exist $netlist_dir]} {
-      if {[catch {file mkdir "$netlist_dir"} err]} {
-        puts $err
-        if {[info exists has_x]} {
-          tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-        } 
+
+  #### change == 0
+  if {$change == 0} {
+    if {$netlist_dir ne {}} {
+      if {![file exist $netlist_dir]} {
+        if {[catch {file mkdir "$netlist_dir"} err]} {
+          puts $err
+          if {[info exists has_x]} {
+            tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+          } 
+        }
       }
-    }
-    regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
-    return $netlist_dir
-  } 
-  if { $dir eq {} } {
-    if { $netlist_dir ne {} }  { 
-      set initdir $netlist_dir
-    } else {
-      if {$OS == "Windows"} {
-        set initdir  $env(windir)
-      } else {
-        set initdir  [pwd]
-      }
-    }
-    # 20140409 do not change netlist_dir if user Cancels action
-    set new_dir [tk_chooseDirectory -initialdir $initdir \
-       -parent [xschem get topwindow] -title {Select netlist DIR} -mustexist false]
+    } 
+  #### change == 1
   } else {
-    set new_dir $dir
-  }
-
-  if {$new_dir ne {} } {
-    if {![file exist $new_dir]} {
-      if {[catch {file mkdir "$new_dir"} err]} {
-        puts $err
-        if {[info exists has_x]} {
-          tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-        } 
+    if { $dir eq {} } {
+      if { $netlist_dir ne {} }  { 
+        set initdir $netlist_dir
+      } else {
+        if {$OS == "Windows"} {
+          set initdir  $env(windir)
+        } else {
+          set initdir  [pwd]
+        }
       }
-
+      # prompt user for a dir
+      set new_dir [tk_chooseDirectory -initialdir $initdir \
+         -parent [xschem get topwindow] -title {Select netlist DIR} -mustexist false]
+    } else {
+      # use provided dir argument
+      set new_dir $dir
     }
-    set netlist_dir $new_dir  
+  
+    # create new dir if not already existing
+    if {$new_dir ne {} } {
+      if {![file exist $new_dir]} {
+        if {[catch {file mkdir "$new_dir"} err]} {
+          puts $err
+          if {[info exists has_x]} {
+            tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+          } 
+        }
+  
+      }
+      set netlist_dir $new_dir  
+    }
   }
   regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
-  return $netlist_dir
+  # return $netlist_dir if valid and existing, else return empty string
+  if {$netlist_dir ne {} && [file exists $netlist_dir]} {
+    return $netlist_dir
+  }
+  return {}
 }
 
 

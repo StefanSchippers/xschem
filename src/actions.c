@@ -311,11 +311,23 @@ void set_grid(double newgrid)
     tclsetdoublevar("cadgrid", cg);
 }
 
-int set_netlist_dir(int force, const char *dir)
+
+/* 
+ *
+ * change==0: force creation of $netlist_dir (if netlist_dir variable not empty)
+ *
+ * change==1: if no dir given prompt user
+ *            else set netlist_dir to dir
+ *
+ * Return 1 if netlist_dir is a valid directory and existing
+ * Return 0 otherwise
+ *
+ */
+int set_netlist_dir(int change, const char *dir)
 {
   char cmd[PATH_MAX+200];
-  if(dir) my_snprintf(cmd, S(cmd), "set_netlist_dir %d {%s}", force, dir);
-  else    my_snprintf(cmd, S(cmd), "set_netlist_dir %d", force);
+  if(dir) my_snprintf(cmd, S(cmd), "set_netlist_dir %d {%s}", change, dir);
+  else    my_snprintf(cmd, S(cmd), "set_netlist_dir %d", change);
   tcleval(cmd);
   if(!strcmp("", tclresult()) ) {
     return 0;
