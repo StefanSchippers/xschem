@@ -2660,13 +2660,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *saveshow = NULL;
       int err = 0;
       int messages = 0;
-      char save[PATH_MAX];
       const char *fname = NULL;
       const char *path;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
-      my_strncpy(save, tclgetvar("netlist_dir"), S(save));
       if(argc <= 2 || (argc > 2 && strcmp(argv[2], "-erc"))) { /* xschem netlist NOT invoked from GUI */
         tclsetvar("show_infowindow_after_netlist", "never");
       }  
@@ -2700,7 +2698,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                             "-message {Please Set netlisting mode (Options menu)}");
         if(argc > 2) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
-          set_netlist_dir(1, save);
         }
         if(messages) {
           Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);

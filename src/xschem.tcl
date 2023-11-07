@@ -634,7 +634,6 @@ proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist netlist_dir
  global verilog_2001 debug_var OS verilog_bitblast
  
- simuldir
  set netlist_type [xschem get netlist_type]
  if {$debug_var <= -1} { puts "netlist: source_file=$source_file, netlist_type=$netlist_type" }
  set dest $netlist_dir/$netlist_file
@@ -1751,7 +1750,6 @@ proc simulate {{callback {}}} {
   global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
 
-  simuldir 
   set_sim_defaults
   set netlist_type [xschem get netlist_type]
   if { [set_netlist_dir 0] ne {}} {
@@ -1828,7 +1826,9 @@ proc simulate {{callback {}}} {
       puts "Simulation started: execution ID: $id"
 
       if {$fg eq {execute_wait}} {
-        vwait execute(pipe,$id)
+        if {$id >= 0} {
+          vwait execute(pipe,$id)
+        }
         xschem set semaphore [expr {[xschem get semaphore] -1}]
       }
     }
@@ -1857,7 +1857,6 @@ proc setup_tcp_gaw {} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
  
   if { [info exists gaw_fd] } { return 1; } 
-  simuldir
   set custom_netlist_file [xschem get netlist_name]
   if {$custom_netlist_file ne {}} {
     set s [file rootname $custom_netlist_file]
@@ -1885,7 +1884,6 @@ proc setup_tcp_gaw {} {
 proc gaw_cmd {cmd} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
 
-  simuldir
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
@@ -1927,9 +1925,8 @@ proc waves {} {
   ## $d : netlist directory
 
   global netlist_dir terminal sim XSCHEM_SHAREDIR has_x 
-  global bespice_listen_port env simulate_bg
+  global bespice_listen_port env simulate_bg execute
 
-  simuldir
   set netlist_type [xschem get netlist_type]
   set_sim_defaults
   if { [set_netlist_dir 0] ne {}} {
@@ -1963,7 +1960,9 @@ proc waves {} {
     } else {
       set fg {execute}
     }
-    set save [pwd]
+
+    if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
+
     if {$def eq {0}} {
       if { [xschem raw_query loaded] != -1} {
         xschem raw_clear
@@ -1971,10 +1970,21 @@ proc waves {} {
         load_raw
       }
     } else {
-      cd $netlist_dir
       set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
-      eval $fg $st $cmd
+
+      set save [pwd]
+      cd $netlist_dir
+      set id [eval execute $st $cmd]
       cd $save
+
+      if {$fg eq {execute_wait}} {
+        if {$id >= 0} {
+          vwait execute(pipe,$id)
+        }
+        xschem set semaphore [expr {[xschem get semaphore] -1}]
+      }
+
+
     }
   }
 }
@@ -2844,7 +2854,6 @@ proc edit_netlist {netlist } {
  global netlist_dir debug_var
  global editor terminal OS
 
- simuldir
  set netlist_type [xschem get netlist_type]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
@@ -3786,6 +3795,7 @@ proc simuldir {} {
 proc set_netlist_dir { force {dir {} }} {
   global netlist_dir env OS has_x
 
+  simuldir
   if { ( $force == 0 )  && ( $netlist_dir ne {} ) } {
     if {![file exist $netlist_dir]} {
       if {[catch {file mkdir "$netlist_dir"} err]} {
@@ -3794,7 +3804,6 @@ proc set_netlist_dir { force {dir {} }} {
           tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
         } 
       }
-
     }
     regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
     return $netlist_dir
@@ -7167,7 +7176,7 @@ proc build_widgets { {topwin {} } } {
      -variable netlist_show -accelerator {Shift+A} 
   $topwin.menubar.simulation.menu add checkbutton -label "Use 'simulation' dir under current schematic dir" \
     -variable local_netlist_dir \
-    -command { if {$local_netlist_dir == 0 } { set_netlist_dir 1 } else { simuldir} }
+    -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   if {$OS == {Windows}} {
     $topwin.menubar.simulation.menu add command -label {List running sub-processes} -state disabled
@@ -7183,16 +7192,14 @@ proc build_widgets { {topwin {} } } {
     viewdata $execute(error,last)
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
-     simuldir
      inutile [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Translate} -command {
-     simuldir
      inutile_translate  [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
   }
   $topwin.menubar.simulation.menu add command -label {Shell [simulation path]} -command {
      if { [set_netlist_dir 0] ne "" } {
-        simuldir; get_shell $netlist_dir
+        get_shell $netlist_dir
      }
    }
   $topwin.menubar.simulation.menu add command -label {Edit Netlist} \
@@ -7523,7 +7530,6 @@ set env(LC_ALL) C
 set_ne add_all_windows_drives 1
 set_paths
 print_help_and_exit
-
 set_ne text_replace_selection 1
 if {$text_replace_selection && $OS != "Windows"} {
   # deletes selected text when pasting in text widgets, courtesy Wolf-Dieter Busch

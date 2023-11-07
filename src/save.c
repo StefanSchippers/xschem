@@ -2604,6 +2604,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   struct stat buf;
   xRect *rect;
   int rects;
+  char msg[PATH_MAX + 100];
 
   if(!schname || !strcmp(schname, "")) return 0;
 
@@ -2644,6 +2645,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     xctx->time_last_modify =  buf.st_mtime;
   }
   my_strncpy(xctx->current_name, rel_sym_path(schname), S(xctx->current_name));
+  my_snprintf(msg, S(msg), "get_directory {%s}", schname);
+  my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
   /* why clear all these? */
   /* 
    * xctx->prep_hi_structs=0;
@@ -2657,6 +2660,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
   tclvareval("catch {unset tctx::", xctx->current_win_path, "_simulate_id}", NULL);
+  tcleval("simuldir"); /* set local simulation directory if local_netlist_dir -s set*/
   return 1;
 }
 
@@ -2845,6 +2849,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   }
   /* warning if two symbols perfectly overlapped */
   /* warning_overlapped_symbols(0); */ /* do this when netlisting */
+  tcleval("simuldir"); /* set local simulation directory if local_netlist_dir -s set*/
 }
 
 void clear_undo(void)
