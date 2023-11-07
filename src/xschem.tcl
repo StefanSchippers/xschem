@@ -1784,10 +1784,10 @@ proc simulate {{callback {}}} {
       set fg {execute}
     }
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
-    set save [pwd]
-    cd $netlist_dir
     if {$OS == "Windows"} {
       # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
+      set save [pwd]
+      cd $netlist_dir
       set_simulate_button list [xschem get top_path] [xschem get current_win_path]
       if { $callback ne {} } {
         uplevel #0 {
@@ -1796,6 +1796,7 @@ proc simulate {{callback {}}} {
       }
       #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
       eval exec $cmd &
+      cd $save
       set id 0
     } else {
       # window interface       tabbed interface
@@ -1810,31 +1811,27 @@ proc simulate {{callback {}}} {
       "
       # puts $cmd
 
-      # speculative setting. If foreground process, the eval below will block
-      # until process finished.
-      if {$fg eq {execute_wait} } {
-        set tctx::[xschem get current_win_path]_simulate yellow
-        set button_path [xschem get top_path].menubar.simulate
-        $button_path configure -bg yellow
-      }
+      if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
 
-      set id [eval $fg $st $cmd]
+      set save [pwd]
+      cd $netlist_dir
+      set id [eval execute $st $cmd]   ;# Start simulation process
+      cd $save
 
-      # undo speculative setting
-      if {$fg eq {execute_wait} && $id == -1} {
-        set tctx::[xschem get current_win_path]_simulate red
-        set button_path [xschem get top_path].menubar.simulate
-        $button_path configure -bg red
-      }
-      if {[info exists has_x] && $id >= 0 && $fg ne {execute_wait}} {
+      if {[info exists has_x] && $id >= 0 } {
         set tctx::[xschem get current_win_path]_simulate_id $id
         set button_path [xschem get top_path].menubar.simulate
         $button_path configure -bg yellow
         set tctx::[xschem get current_win_path]_simulate yellow
       }
+
       puts "Simulation started: execution ID: $id"
+
+      if {$fg eq {execute_wait}} {
+        vwait execute(pipe,$id)
+        xschem set semaphore [expr {[xschem get semaphore] -1}]
+      }
     }
-    cd $save
     return $id
   } else {
     return -1
