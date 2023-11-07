@@ -2134,7 +2134,13 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
   
       while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
+        char *c1, *c2;
         char *nd = find_nth(ntok, "%", "\"", 0, 2);
+        /* do not consider % in alias names (like SUN %; sun 100 *) */
+        c1 = strstr(ntok, ";");
+        c2 = strstr(ntok, "%");
+        if(c1 && c2 && c1 > c2) nd[0] = '\0';
+
 
         /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
         if(nd[0]) {
@@ -3305,7 +3311,16 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     }
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
-      char *nd = find_nth(ntok, "%", "\"", 0, 2);
+
+      char *nd;
+      char *c1, *c2;
+
+      nd = find_nth(ntok, "%", "\"", 0, 2);
+      /* do not consider % in alias names (like SUN %; sun 100 *) */
+      c1 = strstr(ntok, ";");
+      c2 = strstr(ntok, "%");
+      if(c1 && c2 && c1 > c2) nd[0] = '\0';
+
       if(wcnt >= n_nodes) {
         dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
         dbg(0, "draw_graph(): n_nodes=%d\n", n_nodes);
