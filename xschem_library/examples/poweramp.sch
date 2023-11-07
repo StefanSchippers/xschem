@@ -347,8 +347,18 @@ vvss vss 0 dc 0
 ** SPICE models for active devices and put them  into the below 
 ** referenced file in simulation directory.
 .include \\"models_poweramp.txt\\"
-.save all
-.tran  8e-7 0.07 uic
+.control
+save all
+op
+write poweramp_op.raw
+tran  8e-7 0.07 uic
+* .FOUR 20k v(outm,outp)
+* .probe i(*) 
+plot outp outm
+save p(r*) p(v*)
+write poweramp.raw
+quit 0
+.endc
 "}
 C {simulator_commands.sym} 1020 -870 0 0 {name=COMMANDS1
 simulator=xyce
