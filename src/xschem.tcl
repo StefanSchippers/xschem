@@ -228,7 +228,7 @@ proc set_ne { var val } {
 #
 # execute service function
 proc execute_fileevent {id} {
-  global execute OS has_x
+  global execute OS has_x errorCode
 
   append execute(data,$id) [read $execute(pipe,$id) 1024]
   if { $OS != {Windows} } {
@@ -261,10 +261,14 @@ proc execute_fileevent {id} {
       if {$finished} {fconfigure $execute(pipe,$id) -blocking 1}
       set exit_status 0
       set catch_return [eval catch [list {close $execute(pipe,$id)} err] ]
+      # puts "catch_return=$catch_return"
       if {$catch_return} {
-        global errorCode
+        # puts "errorCode=$errorCode"
         if {"CHILDSTATUS" == [lindex $errorCode 0]} {
           set exit_status [lindex $errorCode 2]
+          # puts "exit_status=$exit_status"
+        } else {
+          set exit_status  $catch_return
         }
         if {$exit_status != 0} {
           if {$report} {viewdata "Failed: $execute(cmd,$id)\nstderr:\n$err\ndata:\n$execute(data,$id)"}
