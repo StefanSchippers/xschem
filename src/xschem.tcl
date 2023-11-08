@@ -264,7 +264,9 @@ proc execute_fileevent {id} {
       # puts "catch_return=$catch_return"
       if {$catch_return} {
         # puts "errorCode=$errorCode"
-        if {"CHILDSTATUS" == [lindex $errorCode 0]} {
+        if {"NONE" == [lindex $errorCode 0]} {
+          set exit_status 0
+        } elseif {"CHILDSTATUS" == [lindex $errorCode 0]} {
           set exit_status [lindex $errorCode 2]
           # puts "exit_status=$exit_status"
         } else {
