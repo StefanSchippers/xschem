@@ -2760,6 +2760,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
+   if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, f, !cli_opt_do_netlist, 1);
    tclvareval("update_recent_file {", f, "}", NULL);
  } else /* if(!cli_opt_tcl_script[0]) */
@@ -2774,6 +2775,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
+   if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, fname, !cli_opt_do_netlist, 1);
  }
  /* Necessary to tell xschem the initial area to display */
