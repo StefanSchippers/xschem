@@ -5812,6 +5812,24 @@ proc tab_ctx_cmd {tab_but what} {
         # don't switch if we were on the tab that has been closed.
         xschem new_schematic switch $old {} 1 ;# draw
       }
+    } elseif {[regexp {^open } $what]} {
+      set counterpart [lindex $what 1]
+      set filetype  [lindex $what 2]
+
+      # see if $counterpart already open, in this case switch to it
+      set found 0
+      foreach {tabname filename} $tablist {
+        if {$filename eq $counterpart} {
+          set found 1
+          break
+        }
+      }
+      if {$found} {
+        xschem new_schematic switch $tabname {} 1 ;# draw
+      } else {
+        xschem new_schematic create {1} $counterpart
+        if {$filetype ne {symbol} } { xschem set netlist_type symbol}
+      }
     }
   }
   # puts $filename
@@ -5831,9 +5849,6 @@ proc tab_context_menu {tab_but} {
     }
   }
   if {!$found} { set filename {}}
-
-
-
   set old [xschem get current_win_path]
   xschem new_schematic switch $win_path {} 0 ;# no draw
   set filetype [xschem get netlist_type] ;# symbol or spice or vhdl or tedax or verilog
@@ -5874,16 +5889,12 @@ proc tab_context_menu {tab_but} {
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Open sim. dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuTerm -compound left \
-    -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
+    -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -highlightthickness 0 -image $img -compound left \
       -font [subst $font] \
-      -command "
-         set retval 6
-         xschem new_schematic create {} {$counterpart}
-         destroy .ctxmenu
-       "
+      -command "set retval 6; tab_ctx_cmd $tab_but {open {$counterpart} $filetype} ; destroy .ctxmenu"
   }
   if {$filetype ne {symbol}} {
     button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
@@ -5895,7 +5906,7 @@ proc tab_context_menu {tab_but} {
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
   button .ctxmenu.b8 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuDelete -compound left \
-    -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
+    -font [subst $font] -command "set retval 8; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
   pack .ctxmenu.b0 -fill x -expand true
   pack .ctxmenu.b1 -fill x -expand true

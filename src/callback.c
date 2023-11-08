@@ -1010,7 +1010,6 @@ void draw_crosshair(int del)
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  
   if(del != 2) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
@@ -1233,7 +1232,13 @@ int rstate; /* (reduced state, without ShiftMask) */
       draw_crosshair(1);
     }
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) {
+      if(draw_xhair) {
+        draw_crosshair(2);
+      }
+      break;
+    }
+
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
         my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
@@ -1314,6 +1319,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         }
       }
     }
+
     if(draw_xhair) {
       draw_crosshair(2);
     }

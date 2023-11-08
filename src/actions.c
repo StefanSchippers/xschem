@@ -149,7 +149,8 @@ int set_modify(int mod)
     xctx->modified = mod;
   }
   if(mod == 1 || (mod == 0  && xctx->prev_set_modify) || mod == -2) {
-    if(has_x) {
+    /*                Do not configure buttons if displaying in preview window */
+    if(has_x && (xctx->top_path[0] == '\0' || strstr(xctx->top_path, ".x") == xctx->top_path)) {
       char s[256];
       tclvareval(xctx->top_path, ".menubar.netlist configure -bg $simulate_bg", NULL);
       tclvareval("set tctx::", xctx->current_win_path, "_netlist $simulate_bg", NULL);
@@ -163,12 +164,12 @@ int set_modify(int mod)
       }
     }
     if(sch_waves_loaded() >= 0) {
-      if(has_x) {
+      if(has_x && (xctx->top_path[0] == '\0' || strstr(xctx->top_path, ".x") == xctx->top_path)) {
         tclvareval("set tctx::", xctx->current_win_path, "_waves LightGreen", NULL);
         tclvareval(xctx->top_path, ".menubar.waves configure -bg LightGreen", NULL);
       }
     } else {
-      if(has_x) {
+      if(has_x && (xctx->top_path[0] == '\0' || strstr(xctx->top_path, ".x") == xctx->top_path)) {
         tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
         tclvareval(xctx->top_path, ".menubar.waves configure -bg $simulate_bg", NULL);
       }

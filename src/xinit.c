@@ -1486,12 +1486,13 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   Window win_id = 0LU;
   char toppath[WINDOW_PATH_SIZE];
   char prev_window[WINDOW_PATH_SIZE];
-  int i, n;
+  int i, n, confirm = 1;
 
   dbg(1, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
   
+  if(noconfirm && noconfirm[0]) confirm = 0;
   my_strncpy(prev_window,  xctx->current_win_path, S(prev_window));
-  if((!noconfirm || !noconfirm[0]) && fname && fname[0] && check_loaded(fname, toppath)) {
+  if(confirm && fname && fname[0] && check_loaded(fname, toppath)) {
     char msg[PATH_MAX+100];
     my_snprintf(msg, S(msg),
        "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -1563,7 +1564,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
-  load_schematic(1, fname, 1, 1);
+  load_schematic(1, fname, 1, confirm);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
@@ -1580,13 +1581,14 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
 static void create_new_tab(int *window_count, const char *noconfirm, const char *fname)
 {
-  int i;
+  int i, confirm = 1;
   char open_path[WINDOW_PATH_SIZE];
   char nn[WINDOW_PATH_SIZE];
   char win_path[WINDOW_PATH_SIZE];
 
   dbg(1, "new_schematic() new_tab, creating...\n");
-  if((!noconfirm || !noconfirm[0]) && fname && fname[0] && check_loaded(fname, open_path)) {
+  if(noconfirm && noconfirm[0]) confirm = 0;
+  if(confirm && fname && fname[0] && check_loaded(fname, open_path)) {
     char msg[PATH_MAX+100];
     my_snprintf(msg, S(msg),
        "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -1669,7 +1671,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
-  load_schematic(1,fname, 1, 1);
+  load_schematic(1,fname, 1, confirm);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   /* xctx->pending_fullzoom=1; */
 }
