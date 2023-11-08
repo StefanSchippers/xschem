@@ -2660,7 +2660,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
   tclvareval("catch {unset tctx::", xctx->current_win_path, "_simulate_id}", NULL);
-  tcleval("simuldir"); /* set local simulation directory if local_netlist_dir -s set*/
+  tcleval("simuldir"); /* set local simulation directory if local_netlist_dir is set*/
   return 1;
 }
 
@@ -2849,7 +2849,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   }
   /* warning if two symbols perfectly overlapped */
   /* warning_overlapped_symbols(0); */ /* do this when netlisting */
-  tcleval("simuldir"); /* set local simulation directory if local_netlist_dir -s set*/
+  if(reset_undo) tcleval("simuldir"); /* set local simulation directory if local_netlist_dir is set*/
 }
 
 void clear_undo(void)

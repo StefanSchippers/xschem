@@ -3798,7 +3798,7 @@ proc set_netlist_dir { change {dir {} }} {
 
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
-
+  # puts "-->$netlist_dir"
   #### change == 0
   if {$change == 0} {
     if {$netlist_dir ne {}} {
