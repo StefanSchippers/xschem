@@ -1255,34 +1255,29 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,default) 0
     
     ### spice wave view
-    set_ne sim(spicewave,0,cmd) {} 
-    set sim(spicewave,0,name) {Xschem internal waves}
+    set_ne sim(spicewave,0,cmd) {gaw "$n.raw" } 
+    set sim(spicewave,0,name) {Gaw viewer}
     set_ne sim(spicewave,0,fg) 0
     set_ne sim(spicewave,0,st) 0
    
-    set_ne sim(spicewave,1,cmd) {gaw "$n.raw" } 
-    set sim(spicewave,1,name) {Gaw viewer}
+    set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
+    set sim(spicewave,1,name) {Ngpice Viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
-   
-    set_ne sim(spicewave,2,cmd) {$terminal -e ngspice}
-    set sim(spicewave,2,name) {Ngpice Viewer}
+
+    set_ne sim(spicewave,2,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
+    set sim(spicewave,2,name) {Rawtovcd}
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
 
-    set_ne sim(spicewave,3,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
-    set sim(spicewave,3,name) {Rawtovcd}
-    set_ne sim(spicewave,3,fg) 0
-    set_ne sim(spicewave,3,st) 0
-
     # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
     # This server is listening on port $bespice_listen_port. 
-    set_ne sim(spicewave,4,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set sim(spicewave,4,name) {Bespice wave}
-    set_ne sim(spicewave,4,fg) 0
-    set_ne sim(spicewave,4,st) 0
+    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
+    set sim(spicewave,3,name) {Bespice wave}
+    set_ne sim(spicewave,3,fg) 0
+    set_ne sim(spicewave,3,st) 0
     # number of configured spice wave viewers, and default one
-    set_ne sim(spicewave,n) 5
+    set_ne sim(spicewave,n) 4
     set_ne sim(spicewave,default) 0
     
     ### verilog
@@ -1929,7 +1924,7 @@ proc gaw_cmd {cmd} {
   unset gaw_fd
 }
 
-proc waves {} { 
+proc waves {{type {}}} { 
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice) 
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
   ## $s : schematic name (opamp) or netlist_name if given
@@ -1975,12 +1970,11 @@ proc waves {} {
 
     if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
 
-    if {$def eq {0}} {
+    if {$type ne {external} } {
       if { [xschem raw_query loaded] != -1} {
         xschem raw_clear
-      } else {
-        load_raw
       }
+      load_raw $type
     } else {
       set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
 
@@ -3796,7 +3790,7 @@ proc simuldir {} {
 # Return current netlist directory
 #
 proc set_netlist_dir { change {dir {} }} {
-  global netlist_dir env OS has_x
+  global netlist_dir env OS has_x local_netlist_dir
 
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
@@ -3815,6 +3809,9 @@ proc set_netlist_dir { change {dir {} }} {
     } 
   #### change == 1
   } else {
+    if {$local_netlist_dir == 1} {
+      set dir $netlist_dir
+    }
     if { $dir eq {} } {
       if { $netlist_dir ne {} }  { 
         set initdir $netlist_dir
@@ -6656,7 +6653,7 @@ proc switch_undo {} {
   }
 }
 
-proc load_raw {} {
+proc load_raw {{type {}}} {
   global netlist_dir has_x
 
   set types {
@@ -6672,12 +6669,16 @@ proc load_raw {} {
             -initialfile [file tail $filename]  -filetypes $types]
   }
   if {[file exists $filename]} {
-    xschem raw_read $filename
+    if {$type ne {}} {
+      xschem raw_read $filename $type
+    } else {
+      xschem raw_read $filename
+    }
   }
 }
 
 proc build_widgets { {topwin {} } } {
-  global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS
+  global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
   global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -6940,9 +6941,26 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E
   toolbar_add EditPop "xschem go_back" "Pop" $topwin
 
+
   # eval is needed here to expand $bbg before evaluating 'button'
-  eval button $topwin.menubar.waves -text "Waves"  -activebackground yellow  -takefocus 0 \
-   -padx 2 -pady 0 -command waves $bbg
+  # eval button $topwin.menubar.waves -text "Waves" -activebackground yellow  -takefocus 0 \
+  #  -padx 2 -pady 0 -command waves $bbg
+
+  eval menubutton $topwin.menubar.waves -text "Waves" -activebackground yellow  -takefocus 0 \
+   -padx 2 -pady 0 -menu $topwin.menubar.waves.menu
+  menu  $topwin.menubar.waves.menu -tearoff 0
+  $topwin.menubar.waves.menu add command -label {External viewer} -command {waves external}
+  $topwin.menubar.waves.menu add separator
+  $topwin.menubar.waves.menu add command -label Clear -command {xschem raw_clear}
+  $topwin.menubar.waves.menu add separator
+  $topwin.menubar.waves.menu add command -label Op -command {waves op}
+  $topwin.menubar.waves.menu add command -label Dc -command {waves dc}
+  $topwin.menubar.waves.menu add command -label Ac -command {waves ac}
+  $topwin.menubar.waves.menu add command -label Tran -command {waves tran}
+  $topwin.menubar.waves.menu add command -label Noise -command {waves noise}
+  $topwin.menubar.waves.menu add command -label Sp -command {waves sp}
+
+
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground yellow  -takefocus 0 \
    -padx 2 -pady 0 $bbg -command {
      simulate_from_button
