@@ -1760,25 +1760,8 @@ void edit_property(int x)
    tclsetvar("preserve_unchanged_attrs", "0");
  }
 
- /* retrieve first selected element (if still selected)... */
- if(xctx->first_sel.n >=0 && xctx->first_sel.type == ELEMENT && 
-    xctx->inst[xctx->first_sel.n].sel == SELECTED) {
-   type = ELEMENT;
-   for(j=0; j < xctx->lastsel; j++) {
-     if(xctx->sel_array[j].type == ELEMENT && xctx->sel_array[j].n == xctx->first_sel.n) {
-       break;
-     }
-   }
- /* ... otherwise get first from sel_array[] list */
- } else {
-   type = xctx->sel_array[0].type;
-   for(j=0; j < xctx->lastsel; j++) {
-     if(xctx->sel_array[j].type == ELEMENT) {
-       type = ELEMENT;
-       break;
-     }
-   }
- }
+ j = set_first_sel(0, -2, 0);
+ type = xctx->sel_array[j].type;
 
  switch(type)
  {

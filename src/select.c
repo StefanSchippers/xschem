@@ -725,17 +725,43 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  }
 }
 
-void set_first_sel(unsigned short type, int n, unsigned int col)
+/* n = -1 : clear first selected info 
+ * n = -2 : return first selected element if still selected, or get first from 
+ *          selected list. Id no elements selected return first selected item (j = 0) 
+ * n >= 0 : store indicated element as first selected
+ */
+int set_first_sel(unsigned short type, int n, unsigned int col)
 {
-  if(n == -1) { /* reset first_sel */
+  if(n == -2) {
+    int j;
+    /* retrieve first selected element (if still selected)... */
+    if(xctx->first_sel.n >=0 && xctx->first_sel.type == ELEMENT && 
+       xctx->inst[xctx->first_sel.n].sel == SELECTED) {
+      for(j=0; j < xctx->lastsel; j++) {
+        if(xctx->sel_array[j].type == ELEMENT && xctx->sel_array[j].n == xctx->first_sel.n) {
+          break;
+        }
+      }
+    /* ... otherwise get first from sel_array[] list */
+    } else {
+      for(j=0; j < xctx->lastsel; j++) {
+        if(xctx->sel_array[j].type == ELEMENT) {
+          break;
+        }
+      }
+    }
+    if(j >= xctx->lastsel) j = 0;
+    return j;
+  } else if(n == -1) { /* reset first_sel */
     xctx->first_sel.type = 0;
     xctx->first_sel.n = -1;
     xctx->first_sel.col = 0;
-  }else if(xctx->first_sel.n == -1) {
+  } else if(xctx->first_sel.n == -1) {
     xctx->first_sel.type = type;
     xctx->first_sel.n = n;
     xctx->first_sel.col = col;
   }
+  return 0;
 }
 
 void unselect_all(int dr)
