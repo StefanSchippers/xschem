@@ -512,13 +512,28 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
   /* parameters for absolute positioning by mouse drag in bottom graph area */
   if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
-    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
-    int dset = dataset == -1 ? 0 : dataset;
+    int idx;
+    int dset;
     double wwx1, wwx2, pp, delta, ccx, ddx;
+
+    char *rawfile = NULL;
+    char *sim_type = NULL;
+    int switched = 0;
+
+    my_strdup2(_ALLOC_ID_, &rawfile, get_tok_value(r->prop_ptr, "rawfile", 0));
+    my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
+    switched = extra_rawfile(2, rawfile, sim_type);
+    my_free(_ALLOC_ID_, &rawfile);
+    my_free(_ALLOC_ID_, &sim_type);
+
+    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
+    dset = dataset == -1 ? 0 : dataset;
+
     if(idx < 0 ) idx = 0;
     delta = gr->gw;
     wwx1 =  get_raw_value(dset, idx, 0);
     wwx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] - 1);
+    if(wwx1 == wwx2) wwx2 += 1e-6;
     if(gr->logx) {
       wwx1 = mylog10(wwx1);
       wwx2 = mylog10(wwx2);
@@ -528,6 +543,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     pp = (xctx->mousex_snap - ddx) / ccx;
     xx1 = pp - delta / 2.0;
     xx2 = pp + delta / 2.0;
+
+    if(switched) extra_rawfile(5, NULL, NULL); /* switch back to previous raw file */
+
   }
   else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && !xctx->graph_left && !xctx->graph_top) {
     /* parameters for zoom area by mouse drag */
@@ -547,7 +565,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
-    if( !(r->flags & 1) ) continue;
+    if( !(r->flags & 1) ) continue; /* 1: graph; 3: graph_unlocked */
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;

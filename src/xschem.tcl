@@ -4954,8 +4954,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   } else {
     wm geometry .alert "+$X+$Y"
   }
-  label .alert.l1 -font {Sans 12 bold} \
-       -text "                              \n  ${txtlabel}  \n" -wraplength 700 
+  label .alert.l1 -font {Sans 10 bold} \
+       -text "                              \n  ${txtlabel}  \n" -wraplength 750 
   if { $yesno} {
     set oktxt Yes
   } else {
@@ -7714,6 +7714,12 @@ set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne unselect_partial_sel_wires 0
+
+# if set show selected elements while dragging the selection rectangle.
+# once selected these can not be unselected by retracting the selection rectangle
+# if not set show selected items at end of drag.
+set_ne incremental_select 1
+
 set_ne draw_crosshair 0
 set_ne draw_grid 1
 set_ne big_grid_points 0

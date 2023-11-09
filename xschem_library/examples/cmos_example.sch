@@ -94,8 +94,8 @@ y1=-53
 y2=43
 
 subdivy=1
-x1=0.295931
-x2=9.29594
+x1=0
+x2=9
 divx=6
 subdivx=8
 
@@ -118,8 +118,8 @@ y1=37
 y2=180
 divy=4
 subdivy=1
-x1=0.295931
-x2=9.29594
+x1=0
+x2=9
 divx=6
 subdivx=8
 

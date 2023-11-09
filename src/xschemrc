@@ -182,6 +182,11 @@
 #### default: not enabled (0)
 # set unselect_partial_sel_wires 0
 
+#### if set show selected elements while dragging the selection rectangle.
+#### once selected these can not be unselected by retracting the selection rectangle
+#### if not set show selected items at end of drag. Default: enabled (1)
+# set_ne incremental_select 0
+
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
 #### default: 0
