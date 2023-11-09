@@ -6989,7 +6989,15 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves.menu add separator
   $topwin.menubar.waves.menu add command -label Clear -command {xschem raw_clear}
   $topwin.menubar.waves.menu add separator
-  $topwin.menubar.waves.menu add command -label Op -command {waves op}
+  $topwin.menubar.waves.menu add command -label {Op Annotate} -command {
+       set retval [select_raw]
+       set show_hidden_texts 1
+       if {$retval ne {}} {
+         xschem annotate_op $retval
+       } else {
+         xschem annotate_op
+       }
+  }
   $topwin.menubar.waves.menu add command -label Dc -command {waves dc}
   $topwin.menubar.waves.menu add command -label Ac -command {waves ac}
   $topwin.menubar.waves.menu add command -label Tran -command {waves tran}
@@ -7290,13 +7298,15 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 "
   }
   $topwin.menubar.simulation.menu.graph add command -label "Annotate Operating Point into schematic" \
-         -command {set show_hidden_texts 1; xschem annotate_op}
-  $topwin.menubar.simulation.menu.graph add command -label {Load Spice .raw file} -command {
-     load_raw
-  }
-  $topwin.menubar.simulation.menu.graph add command -label {Unload Spice .raw file} -command {
-     xschem raw_clear
-  }
+    -command {
+       set retval [select_raw]
+       set show_hidden_texts 1
+       if {$retval ne {}} {
+         xschem annotate_op $retval
+       } else {
+         xschem annotate_op
+       }
+    }
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
          -variable live_cursor2_backannotate 
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Hide graphs if no spice data loaded" \
