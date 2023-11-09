@@ -6998,6 +6998,7 @@ proc build_widgets { {topwin {} } } {
          xschem annotate_op
        }
   }
+  $topwin.menubar.waves.menu add command -label Op -command {waves op}
   $topwin.menubar.waves.menu add command -label Dc -command {waves dc}
   $topwin.menubar.waves.menu add command -label Ac -command {waves ac}
   $topwin.menubar.waves.menu add command -label Tran -command {waves tran}
