@@ -177,7 +177,7 @@ int set_modify(int mod)
   }  
   
   /* clear floater caches */
-  if(mod == 1 || mod == -2) {
+  if(mod == 1 || mod == -2 || mod == -1) {
     for(i = 0; i < xctx->texts; i++)
     if(xctx->text[i].flags & TEXT_FLOATER) {
       floaters++;
