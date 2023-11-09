@@ -2439,8 +2439,17 @@ proc graph_edit_properties {n} {
   }
 
 
-  label .graphdialog.center.right.rawlab -text { Raw file: }
   entry .graphdialog.center.right.rawentry -width 30
+  button .graphdialog.center.right.rawbut -text {Raw file:} -command {
+   .graphdialog.center.right.rawentry delete 0 end
+   .graphdialog.center.right.rawentry insert 0 [select_raw]
+    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
+    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
+      graph_fill_listbox
+    }
+
+  }
 
   bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
@@ -2458,7 +2467,7 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.list .graphdialog.center.right.rawlab \
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.list .graphdialog.center.right.rawbut \
        .graphdialog.center.right.rawentry -
   grid configure .graphdialog.center.right.rawentry -sticky ew
   grid .graphdialog.center.right.text1 - - - .graphdialog.center.right.yscroll -sticky nsew
@@ -6673,21 +6682,28 @@ proc switch_undo {} {
   }
 }
 
-proc load_raw {{type {}}} {
-  global netlist_dir has_x
 
+proc select_raw {} {
+  global has_x netlist_dir
+  set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
   set types {
       {{Raw Files}       {.raw}        }
-      {{All Files}        *            }
-  }
-  set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
-  if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
-    xschem raw_clear
-   }
+      {{All Files}        *            }  
+  } 
   if {[info exists has_x]} {
     set filename [tk_getOpenFile -title "Select file" -multiple 0 -initialdir $netlist_dir \
             -initialfile [file tail $filename]  -filetypes $types]
   }
+  return $filename
+}
+
+proc load_raw {{type {}}} {
+  global netlist_dir has_x
+
+  if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
+    xschem raw_clear
+   }
+  set filename [select_raw]
   if {[file exists $filename]} {
     if {$type ne {}} {
       xschem raw_read $filename $type
