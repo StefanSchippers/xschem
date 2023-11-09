@@ -2614,10 +2614,12 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
+    set_modify(-2); /* clear floater caches */
   }
   else if(strcmp(schname, xctx->sch[xctx->currsch])) { /* user asks to save to a different filename */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
+    set_modify(-2); /* clear floater caches */
   }
   else { /* user asks to save to same filename */
     if(!stat(xctx->sch[xctx->currsch], &buf)) {
