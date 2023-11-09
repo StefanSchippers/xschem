@@ -4945,7 +4945,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   } else {
     wm geometry .alert "+$X+$Y"
   }
-  label .alert.l1  -text $txtlabel -wraplength 700
+  label .alert.l1 -font {Sans 12 bold} \
+       -text "                              \n  ${txtlabel}  \n" -wraplength 700 
   if { $yesno} {
     set oktxt Yes
   } else {
@@ -4964,9 +4965,9 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
     }  
   }
 
-  pack .alert.l1 -side top -fill x
-  pack .alert.b1 -side left -fill x
-  if {$yesno} {pack .alert.b2 -side left -fill x}
+  pack .alert.l1 -side top -fill both -expand yes
+  pack .alert.b1 -side left -fill x -expand yes
+  if {$yesno} {pack .alert.b2 -side left -fill x -expand yes}
   tkwait visibility .alert
   grab set .alert
   focus .alert.b1
@@ -5737,7 +5738,7 @@ proc context_menu { } {
 }
 
 proc tab_ctx_cmd {tab_but what} {
-  global terminal editor netlist_dir OS
+  global terminal editor netlist_dir OS has_x
   # get win_path from tab name
   set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
   set tablist [xschem tab_list]
@@ -5794,9 +5795,17 @@ proc tab_ctx_cmd {tab_but what} {
       set old [xschem get current_win_path]
       set save [pwd]
       xschem new_schematic switch $win_path {} 0 ;# no draw
-      cd $netlist_dir
-      eval execute 0 $editor [xschem get netlist_name fallback]
-      cd $save
+      if {[file exists $netlist_dir] && [file exists "$netlist_dir/[xschem get netlist_name fallback]"]} {
+        cd $netlist_dir
+        eval execute 0 $editor \"[xschem get netlist_name fallback]\"
+        cd $save
+      } else {
+        if {[info exists has_x]} {
+          alert_ {Netlist not existing, not yet generated} {} 0 0
+        } else {
+          puts {Netlist not existing, not yet generated}
+        }
+      }
       xschem new_schematic switch $old {} 0 ;# no draw
     } elseif {$what eq {save}} {
       set old [xschem get current_win_path]
@@ -7209,6 +7218,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.simulation.menu add command -label "Set netlist Dir" \
     -command {
+          set local_netlist_dir 0
           set_netlist_dir 1
     }
   $topwin.menubar.simulation.menu add command -label "Set top level netlist name" \
