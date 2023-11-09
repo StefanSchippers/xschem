@@ -218,9 +218,6 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     double xx, cursor2; /* xx is the p-th sweep variable value, cursor2 is cursor 'b' x position */
     Raw *raw = xctx->raw;
     int  save_datasets = -1, save_npoints = -1;
-
-
-
     /* transform multiple OP points into a dc sweep */
     if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
       save_datasets = raw->datasets;
@@ -228,9 +225,6 @@ static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       save_npoints = raw->npoints[0];
       raw->npoints[0] = raw->allpoints;
     }
-
-
-
     sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
     if(sweep_idx < 0) sweep_idx = 0;
     cursor2 =  xctx->graph_cursor2_x;

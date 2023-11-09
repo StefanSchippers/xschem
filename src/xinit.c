@@ -483,6 +483,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->simdata = NULL;
   xctx->simdata_ninst = 0;
   xctx->prep_hash_inst = 0;
+  xctx->prep_hash_object = 0;
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->semaphore = 0;
@@ -499,8 +500,10 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
       xctx->instpin_spatial_table[i][j] = NULL;
       xctx->wire_spatial_table[i][j] = NULL;
       xctx->inst_spatial_table[i][j] = NULL;
+      xctx->object_spatial_table[i][j] = NULL;
     }
   }
+  xctx->n_hash_objects = 0;
   xctx->node_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Node_hashentry *));
   xctx->inst_name_table.table = NULL;
   xctx->inst_name_table.size = 0;

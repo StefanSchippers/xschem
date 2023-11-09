@@ -4643,9 +4643,49 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* test
      *   Testmode ... */
-    else if(!strcmp(argv[1], "test") )
+    else if(0 && !strcmp(argv[1], "test") )
     {
+      Iterator_ctx ctx;
+      Objectentry *objectptr;
+      int type, n, c;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+
+      hash_objects();
+      dbg(0, "n_hash_objects=%d\n", xctx->n_hash_objects);
+
+      for(init_object_iterator(&ctx, 1000., -1000., 2000., -400.); (objectptr = object_iterator_next(&ctx)) ;) {
+        type = objectptr->type;
+        n = objectptr->n;
+        c = objectptr->c;
+        dbg(0, "type=%d, n=%d c=%d\n", type, n, c);
+        switch(type) {
+          case ELEMENT:
+            select_element(n, SELECTED, 1, 1);
+            break;
+          case WIRE:
+            select_wire(n, SELECTED, 1);
+            break;
+          case xTEXT:
+            select_text(n, SELECTED, 1);
+            break;
+          case xRECT:
+            select_box(c, n, SELECTED, 1, 0);
+            break;
+          case LINE:
+            select_line(c, n, SELECTED, 1);
+            break;
+          case POLYGON:
+            select_polygon(c, n, SELECTED, 1);
+            break;
+          case ARC:
+            select_arc(c, n, SELECTED, 1);
+            break;
+        }
+      }
+      rebuild_selected_array();
+      draw();
+
+      del_object_table();
       Tcl_ResetResult(interp);
     }
 

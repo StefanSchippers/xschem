@@ -3618,7 +3618,7 @@ const char *translate(int inst, const char* s)
            if(net == NULL || net[0] == '\0') {
              my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
            }
-           if(multip == 1) {
+           if(multip == 1 && net && net[0] && path) {
              char *rn;
              len = strlen(path) + strlen(net) + 1;
              dbg(1, "translate() @spice_get_voltage: inst=%s\n", instname);
@@ -3629,31 +3629,33 @@ const char *translate(int inst, const char* s)
               */
 
              rn = resolved_net(net);
-             my_strdup2(_ALLOC_ID_, &fqnet, rn);
-             if(rn) my_free(_ALLOC_ID_, &rn);
-             strtolower(fqnet);
-             dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
-             idx = get_raw_index(fqnet);
-             if(idx >= 0) {
-               val = xctx->raw->cursor_b_val[idx];
+             if(rn) {
+               my_strdup2(_ALLOC_ID_, &fqnet, rn);
+               if(rn) my_free(_ALLOC_ID_, &rn);
+               strtolower(fqnet);
+               dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
+               idx = get_raw_index(fqnet);
+               if(idx >= 0) {
+                 val = xctx->raw->cursor_b_val[idx];
+               }
+               if(idx < 0) {
+                 valstr = "";
+                 xctx->tok_size = 0;
+                 len = 0;
+               } else {
+                 valstr = dtoa_eng(val);
+                 len = xctx->tok_size;
+               }
+               if(len) {
+                 STR_ALLOC(&result, len + result_pos, &size);
+                 memcpy(result+result_pos, valstr, len+1);
+                 result_pos += len;
+               }
+               dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+               if(fqnet) my_free(_ALLOC_ID_, &fqnet);
              }
-             if(idx < 0) {
-               valstr = "";
-               xctx->tok_size = 0;
-               len = 0;
-             } else {
-               valstr = dtoa_eng(val);
-               len = xctx->tok_size;
-             }
-             if(len) {
-               STR_ALLOC(&result, len + result_pos, &size);
-               memcpy(result+result_pos, valstr, len+1);
-               result_pos += len;
-             }
-             dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-             my_free(_ALLOC_ID_, &fqnet);
            }
-           my_free(_ALLOC_ID_, &net);
+           if(net) my_free(_ALLOC_ID_, &net);
          } 
        }
      }

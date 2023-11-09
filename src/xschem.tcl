@@ -2442,7 +2442,7 @@ proc graph_edit_properties {n} {
   entry .graphdialog.center.right.rawentry -width 30
   button .graphdialog.center.right.rawbut -text {Raw file:} -command {
    .graphdialog.center.right.rawentry delete 0 end
-   .graphdialog.center.right.rawentry insert 0 [select_raw]
+   .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
     if {[file_exists [.graphdialog.center.right.rawentry get]]} {

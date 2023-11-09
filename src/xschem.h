@@ -811,6 +811,17 @@ struct instentry
   int n;
 };
 
+
+typedef struct objectentry Objectentry;
+struct objectentry
+{ 
+  struct objectentry *next;
+  int type;
+  int n;
+  int c;
+};
+  
+
 typedef struct 
 {
   int x1a, x2a;
@@ -819,8 +830,10 @@ typedef struct
   int tmpi, tmpj;
   Instentry *instanceptr;
   Wireentry *wireptr;
+  Objectentry *objectptr;
   unsigned short *instflag;
   unsigned short *wireflag;
+  unsigned short *objectflag;
 } Iterator_ctx;
 
 
@@ -920,6 +933,7 @@ typedef struct {
   int prep_net_structs;
   int prep_hi_structs;
   int prep_hash_inst;
+  int prep_hash_object;
   int prep_hash_wires;
   Simdata *simdata;
   int simdata_ninst;
@@ -932,6 +946,8 @@ typedef struct {
   Instpinentry *instpin_spatial_table[NBOXES][NBOXES];
   Wireentry *wire_spatial_table[NBOXES][NBOXES];
   Instentry *inst_spatial_table[NBOXES][NBOXES];
+  Objectentry *object_spatial_table[NBOXES][NBOXES]; /* spatial hash table for all objects (rect selection) */
+  int n_hash_objects; /* total number of objects in object_spatial_table */
   Window window;
   Pixmap save_pixmap;
   XRectangle xrect[1];
@@ -1291,12 +1307,19 @@ extern int text_bbox(const char * str,double xscale, double yscale,
 
 extern int get_color(int value);
 extern void incr_hilight_color(void);
-extern void hash_inst(int what, int n);
 extern void get_inst_pin_coord(int i, int j, double *x, double *y);
+
 extern void del_inst_table(void);
-extern void hash_wires(void);
-extern void hash_wire(int what, int n, int incremental);
+extern void hash_inst(int what, int n);
 extern void hash_instances(void); /*  20171203 insert instance bbox in spatial hash table */
+
+extern void del_wire_table(void);
+extern void hash_wire(int what, int n, int incremental);
+extern void hash_wires(void);
+
+extern void del_object_table(void);
+extern void hash_object(int what, int type, int n, int c);
+extern void hash_objects(void); /* hash all objects */
 
 #if HAS_CAIRO==1
 extern cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length);
@@ -1489,8 +1512,13 @@ extern int create_text(int draw_text, double x, double y, int rot, int flip, con
        const char *props, double hsize, double vsize);
 extern void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
 extern Instentry *inst_iterator_next(Iterator_ctx *ctx);
+
 extern void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
 extern Wireentry *wire_iterator_next(Iterator_ctx *ctx);
+
+extern void init_object_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2);
+extern Objectentry *object_iterator_next(Iterator_ctx *ctx);
+
 extern void check_unique_names(int rename);
 
 extern unsigned int str_hash(const char *tok);
@@ -1647,8 +1675,6 @@ extern void set_clip_mask(int what);
 extern int pending_events(void);
 #endif
 extern void get_square(double x, double y, int *xx, int *yy);
-extern void del_wire_table(void);
-extern void del_object_table(void);
 extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char **filename);
 extern void create_ps(char** psfile, int what, int fullzoom);

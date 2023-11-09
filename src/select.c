@@ -1260,21 +1260,29 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  en_s = tclgetboolvar("enable_stretch");
  for(i=0;i<xctx->wires; ++i)
  {
-  if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
-  {
-   xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_wire(i,SELECTED, 1): select_wire(i,0, 1);
-  }
-  else if( sel && en_s && POINTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1, x1,y1,x2,y2) )
-  {
-   xctx->ui_state |= SELECTION;
-   select_wire(i,SELECTED1, 1);
-  }
-  else if( sel && en_s && POINTINSIDE(xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2) )
-  {
-   xctx->ui_state |= SELECTION;
-   select_wire(i,SELECTED2, 1);
-  }
+   if(sel) {
+     if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_wire(i, SELECTED, 1);
+     }
+     else if(en_s && POINTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1, x1,y1,x2,y2) )
+     {
+       xctx->ui_state |= SELECTION;
+       select_wire(i, SELECTED1, 1);
+     }
+     else if(en_s && POINTINSIDE(xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2) )
+     {
+       xctx->ui_state |= SELECTION;
+       select_wire(i, SELECTED2, 1);
+     }
+   } else {
+     if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_wire(i, 0, 1);
+     }
+   }
  }
  for(i=0;i<xctx->texts; ++i)
  {
@@ -1302,17 +1310,25 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  }
  for(i=0;i<xctx->instances; ++i)
  {
-  if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
-  {
-   xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   if(sel) {
-     if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
-       select_element(i, SELECTED, 1, 1);
+   if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
+   {
+     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+     if(sel) {
+       if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
+         select_element(i, SELECTED, 1, 1);
+       }
+     } else {
+       select_element(i, 0, 1, 0);
      }
-   } else {
-     select_element(i, 0, 1, 0);
    }
-  }
+   #if 0
+   else {
+     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+     if(sel) {
+       select_element(i, 0, 1, 0);
+     }
+   }
+   #endif
  }
  for(c=0;c<cadlayers; ++c)
  {
@@ -1348,21 +1364,29 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
    }
    for(i=0;i<xctx->lines[c]; ++i)
    {
-    if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
-    {
-     xctx->ui_state |= SELECTION;
-     sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
-    }
-    else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1, x1,y1,x2,y2) )
-    {
-     xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-     select_line(c, i,SELECTED1,1);
-    }
-    else if( sel && en_s && POINTINSIDE(xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2) )
-    {
-     xctx->ui_state |= SELECTION;
-     select_line(c, i,SELECTED2,1);
-    }
+     if(sel) {
+       if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
+       {
+         xctx->ui_state |= SELECTION;
+         select_line(c,i,SELECTED,1);
+       }
+       else if(en_s && POINTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1, x1,y1,x2,y2) )
+       {
+         xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+         select_line(c, i,SELECTED1,1);
+       }
+       else if(en_s && POINTINSIDE(xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2) )
+       {
+         xctx->ui_state |= SELECTION;
+         select_line(c, i,SELECTED2,1);
+       }
+     } else {
+       if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
+       {
+         xctx->ui_state |= SELECTION;
+         select_line(c,i,0,1);
+       }
+     }
    }
    for(i=0;i<xctx->arcs[c]; ++i) {
      x = xctx->arc[c][i].x;

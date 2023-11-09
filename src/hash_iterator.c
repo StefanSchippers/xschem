@@ -134,3 +134,58 @@ Wireentry *wire_iterator_next(Iterator_ctx *ctx)
 }
 
 
+void init_object_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2)
+{
+      ctx->objectflag = NULL;
+      dbg(3, "init_object_iterator(): objects=%d\n", xctx->n_hash_objects);
+      if(xctx->n_hash_objects) {
+        my_realloc(_ALLOC_ID_, &ctx->objectflag, xctx->n_hash_objects * sizeof(unsigned short));
+        memset(ctx->objectflag, 0, xctx->n_hash_objects * sizeof(unsigned short));
+      }
+      /* calculate square 4 1st corner of drawing area */
+      ctx->x1a = (int)floor(x1 / BOXSIZE) ;
+      ctx->y1a = (int)floor(y1 / BOXSIZE) ;
+      /* calculate square 4 2nd corner of drawing area */
+      ctx->x2a = (int)floor(x2 / BOXSIZE);
+      ctx->y2a = (int)floor(y2 / BOXSIZE);
+      ctx->i = ctx->x1a;
+      ctx->j = ctx->y1a;
+      ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->counti = 0;
+      ctx->objectptr = xctx->object_spatial_table[ctx->tmpi][ctx->tmpj];
+      ctx->countj = 0;
+}
+
+Objectentry *object_iterator_next(Iterator_ctx *ctx)
+{
+  Objectentry *ptr;
+  /* dbg(3, "object_iterator_next(): obhjects=%d\n", xctx->n_hash_objects); */
+  while(1) {
+    while(ctx->objectptr) {
+      ptr = ctx->objectptr;
+      ctx->objectptr = ctx->objectptr->next;
+      if(!ctx->objectflag[ptr->n]) {
+        ctx->objectflag[ptr->n] = 1;
+        return ptr;
+      }
+    }
+    if(ctx->j < ctx->y2a && ctx->countj++ < NBOXES) {
+      ctx->j++;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->objectptr = xctx->object_spatial_table[ctx->tmpi][ctx->tmpj];
+    } else if(ctx->i < ctx->x2a && ctx->counti++ < NBOXES) {
+      ctx->i++;
+      ctx->j = ctx->y1a;
+      ctx->countj = 0;
+      ctx->tmpi = ctx->i % NBOXES; if(ctx->tmpi < 0) ctx->tmpi += NBOXES;
+      ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
+      ctx->objectptr = xctx->object_spatial_table[ctx->tmpi][ctx->tmpj];
+    } else {
+      my_free(_ALLOC_ID_, &ctx->objectflag);
+      return NULL;
+    }
+  }
+}
+
+

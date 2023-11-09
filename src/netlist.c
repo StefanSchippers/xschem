@@ -112,6 +112,7 @@ void hash_inst(int what, int n) /* 20171203 insert object bbox in spatial hash t
    }
   }
 }
+
 void hash_instances(void) /* 20171203 insert object bbox in spatial hash table */
 {
  int n;
@@ -123,6 +124,185 @@ void hash_instances(void) /* 20171203 insert object bbox in spatial hash table *
  }
  xctx->prep_hash_inst=1;
 }
+
+
+/* START HASH ALL OBJECTS */
+
+static Objectentry *delobjectentry(Objectentry *t)
+{
+  Objectentry *tmp;
+  while( t ) {
+    tmp = t->next;
+    my_free(_ALLOC_ID_, &t);
+    t = tmp;
+  }
+  return NULL;
+}
+
+void del_object_table(void)
+{
+  int i,j;
+
+  for(i=0;i<NBOXES; ++i)
+    for(j=0;j<NBOXES; ++j)
+      xctx->object_spatial_table[i][j] = delobjectentry(xctx->object_spatial_table[i][j]);
+  xctx->prep_hash_object=0;
+  xctx->n_hash_objects = 0;
+  dbg(1, "del_object_table(): cleared object hash table\n");
+}
+
+
+
+static void objectdelete(int type, int n, int c, int x, int y)
+{
+  Objectentry *saveptr, **prevptr;
+  
+  prevptr = &xctx->object_spatial_table[x][y];
+  while( (*prevptr)->type != type || (*prevptr)->n != n || (*prevptr)->c != c) prevptr = &(*prevptr)->next;
+  saveptr = (*prevptr)->next;
+  my_free(_ALLOC_ID_, prevptr);
+  *prevptr = saveptr;
+} 
+  
+static void objectinsert(int type, int n, int c, int x, int y)
+{
+  Objectentry *ptr, *newptr;
+  ptr=xctx->object_spatial_table[x][y];
+  newptr=my_malloc(_ALLOC_ID_, sizeof(Instentry));
+  newptr->next=ptr;
+  newptr->type=type;
+  newptr->n=n;
+  newptr->c=c;
+  xctx->object_spatial_table[x][y]=newptr;
+  dbg(2, "objectnsert(): inserting object %d %d %d at %d,%d\n",type, n, c, x, y);
+}
+
+/* what:
+ * 0, XINSERT : add to hash
+ * 1, XDELETE : remove from hash
+ */
+void hash_object(int what, int type, int n, int c)
+{
+  int tmpi,tmpj, counti,countj,i,j;
+  double tmpd;
+  double x1, y1, x2, y2;
+  int x1a, x2a, y1a, y2a;
+  int skip = 0;
+
+  switch(type) {
+    case ELEMENT:
+      x1=xctx->inst[n].x1;
+      x2=xctx->inst[n].x2;
+      y1=xctx->inst[n].y1;
+      y2=xctx->inst[n].y2;
+      break;
+    case xRECT:
+      x1 = xctx->rect[c][n].x1;
+      y1 = xctx->rect[c][n].y1;
+      x2 = xctx->rect[c][n].x2;
+      y2 = xctx->rect[c][n].y2;
+      break;
+    case WIRE:
+      x1 = xctx->wire[n].x1;
+      y1 = xctx->wire[n].y1;
+      x2 = xctx->wire[n].x2;
+      y2 = xctx->wire[n].y2;
+      break;
+    case LINE:
+      x1 = xctx->line[c][n].x1;
+      y1 = xctx->line[c][n].y1;
+      x2 = xctx->line[c][n].x2;
+      y2 = xctx->line[c][n].y2;
+      break;
+    case POLYGON:
+      polygon_bbox(xctx->poly[c][n].x, xctx->poly[c][n].y, xctx->poly[c][n].points, &x1, &y1, &x2, &y2);
+      break;
+    case ARC:
+      arc_bbox(xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->arc[c][n].r,
+              xctx->arc[c][n].a, xctx->arc[c][n].b, &x1, &y1, &x2, &y2);
+      break;
+    case xTEXT:
+      text_bbox(get_text_floater(n),
+           xctx->text[n].xscale, xctx->text[n].yscale, xctx->text[n].rot, xctx->text[n].flip,
+           xctx->text[n].hcenter, xctx->text[n].vcenter,
+           xctx->text[n].x0, xctx->text[n].y0,
+           &x1,&y1, &x2,&y2, &tmpi, &tmpd);
+      break;
+    default:
+      skip = 1;
+      x1 = 0.0;
+      y1 = 0.0;
+      x2 = 0.0;
+      y2 = 0.0;
+      break;
+  }
+  if(skip) return;
+  xctx->n_hash_objects++; /* total number of objects in spatial hash table */
+  /* ordered bbox */
+  if( x2 < x1) { tmpd=x2;x2=x1;x1=tmpd;}
+  if( y2 < y1) { tmpd=y2;y2=y1;y1=tmpd;}
+
+  /* calculate square 4 1st bbox point of object[k] */
+  x1a=(int)floor(x1/BOXSIZE);
+  y1a=(int)floor(y1/BOXSIZE);
+
+  /* calculate square 4 2nd bbox point of object[k] */
+  x2a=(int)floor(x2/BOXSIZE);
+  y2a=(int)floor(y2/BOXSIZE);
+
+  /*loop thru all squares that intersect bbox of object[k] */
+  counti=0;
+  for(i=x1a; i<=x2a && counti < NBOXES; ++i)
+  {
+   ++counti;
+   tmpi=i%NBOXES; if(tmpi<0) tmpi+=NBOXES;
+   countj=0;
+   for(j=y1a; j<=y2a && countj < NBOXES; ++j)
+   {
+    ++countj;
+    tmpj=j%NBOXES; if(tmpj<0) tmpj+=NBOXES;
+    /* insert object_ptr[n] in region [tmpi, tmpj] */
+    if(what == XINSERT) objectinsert(type, n, c, tmpi, tmpj);
+    else objectdelete(type, n, c, tmpi, tmpj);
+   }
+  }
+}
+
+void hash_objects(void) /* 20171203 insert object bbox in spatial hash table */
+{
+  int n, c;
+
+  if(xctx->prep_hash_object) return;
+  del_object_table();
+  for(n=0; n<xctx->instances; ++n) {
+    hash_object(XINSERT, ELEMENT, n, 0);
+  }
+  for(n=0; n<xctx->wires; ++n) {
+    hash_object(XINSERT, WIRE, n, 0);
+  }
+  for(n=0; n<xctx->texts; ++n) {
+    hash_object(XINSERT, xTEXT, n, 0);
+  }
+  for(c=0;c<cadlayers; ++c)
+  {   
+    for(n=0; n<xctx->rects[c]; n++) {
+      hash_object(XINSERT, xRECT, n, c);
+    }
+    for(n=0; n<xctx->lines[c]; n++) {
+      hash_object(XINSERT, LINE, n, c);
+    }
+    for(n=0; n<xctx->arcs[c]; n++) {
+      hash_object(XINSERT, ARC, n, c);
+    }
+    for(n=0; n<xctx->polygons[c]; n++) {
+      hash_object(XINSERT, POLYGON, n, c);
+    }
+
+  }
+  xctx->prep_hash_object=1;
+}
+
+/* END HASH ALL OBJECTS */
 
 static void instpindelete(int n,int pin, int x, int y)
 {
