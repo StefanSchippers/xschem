@@ -522,7 +522,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
     my_strdup2(_ALLOC_ID_, &rawfile, get_tok_value(r->prop_ptr, "rawfile", 0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
-    switched = extra_rawfile(2, rawfile, sim_type);
+    if(rawfile[0] && sim_type[0]) switched = extra_rawfile(2, rawfile, sim_type);
     my_free(_ALLOC_ID_, &rawfile);
     my_free(_ALLOC_ID_, &sim_type);
 
