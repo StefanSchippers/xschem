@@ -4655,7 +4655,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hash_objects();
       dbg(0, "n_hash_objects=%d\n", xctx->n_hash_objects);
 
-      for(init_object_iterator(&ctx, 1000., -1000., 2000., -400.); (objectptr = object_iterator_next(&ctx)) ;) {
+      for(init_object_iterator(&ctx, -420., -970., 1300., -250.); (objectptr = object_iterator_next(&ctx)) ;) {
         type = objectptr->type;
         n = objectptr->n;
         c = objectptr->c;
