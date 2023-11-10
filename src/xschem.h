@@ -163,7 +163,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CADMOVESTEP 200
 #define CADMAXZOOM 1000000.0
 #define CADMINZOOM 0.000001
-#define CADHALFDOTSIZE 4
+#define CADHALFDOTSIZE 3.7
 #define CADNULLNODE -1      /*  no valid node number */
 #define CADWIREMINDIST 8.0
 #define CADMAXWIRES 200

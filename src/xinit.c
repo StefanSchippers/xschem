@@ -1959,11 +1959,11 @@ void change_linewidth(double w)
   /* choose line width automatically based on zoom */
   dbg(1, "change_linewidth(): w = %g, win_path=%s lw=%g\n", w, xctx->current_win_path, xctx->lw);
   if(w<0. || xctx->lw == -1.0) {
-    double cs;
-    cs = tclgetdoublevar("cadsnap");
+    double cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
-      cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10);
+      cadhalfdotsize = CADHALFDOTSIZE * (cs < 10. ? cs : 10.) / 10.;
+      /* cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10); */
     }
   /* explicitly set line width */
   } else {

@@ -2347,7 +2347,7 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   xRect boundbox;
   double yzoom;
   double bboxw, bboxh, schw, schh;
-
+  double cs = tclgetdoublevar("cadsnap");
   if(flags & 1) {
     if(tclgetboolvar("change_lw")) {
       xctx->lw = 1.;
@@ -2370,8 +2370,6 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   yzoom = bboxh / schh;
   if(yzoom > xctx->zoom) xctx->zoom = yzoom;
   xctx->zoom /= shrink;
-  /* we do this here since change_linewidth may not be called  if flags & 1 == 0*/
-  cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (tclgetdoublevar("cadsnap")-10);
 
   xctx->mooz = 1 / xctx->zoom;
   if(flags & 2) {
@@ -2383,6 +2381,9 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   }
   dbg(1, "zoom_full(): dr=%d sel=%d flags=%d areaw=%d, areah=%d\n", sel, dr, flags, xctx->areaw, xctx->areah);
   if(flags & 1) change_linewidth(-1.);
+  /* we do this here since change_linewidth may not be called  if flags & 1 == 0*/
+  /* cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (tclgetdoublevar("cadsnap")-10); */
+  cadhalfdotsize = 4.0 * (cs < 10. ? cs : 10.) / 10.;
   if(dr && has_x) {
     draw();
     redraw_w_a_l_r_p_rubbers();
