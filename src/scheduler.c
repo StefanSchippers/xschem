@@ -3157,7 +3157,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
-        if(argc > 3)  {
+        if(argc > 4)  {
+          ret = extra_rawfile(3, argv[3], argv[4]);
+        } else if(argc > 3)  {
           ret = extra_rawfile(3, argv[3], NULL);
         } else {
           ret = extra_rawfile(3, NULL, NULL);

@@ -931,22 +931,29 @@ int extra_rawfile(int what, const char *file, const char *type)
       xctx->extra_idx = 0;
       xctx->extra_raw_n = 0;
     } else { /* clear provided file if found, switch to first in remaining if any */
-      int found = -1;
+      int found = 0;
       tclvareval("subst {", file, "}", NULL);
       my_strncpy(f, tclresult(), S(f));
       if(xctx->extra_raw_n > 0 ) {
         for(i = 0; i < xctx->extra_raw_n; i++) {
-          if(!strcmp(xctx->extra_raw_arr[i]->rawfile, f)) {
+          if(type && type[0] &&
+              !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
+              !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+              ) {
             free_rawfile(&xctx->extra_raw_arr[i], 0);
-            found = i;
+            found++;
+            continue;
+          } else if( !(type && type[0]) && !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) {
+            free_rawfile(&xctx->extra_raw_arr[i], 0);
+            found++;
             continue;
           }
-          if(found != -1 && i > 0) {
-            xctx->extra_raw_arr[i - 1] = xctx->extra_raw_arr[i];
+          if(found) {
+            xctx->extra_raw_arr[i - found] = xctx->extra_raw_arr[i];
           }
         }
-        if(found != -1) {
-          xctx->extra_raw_n--;
+        if(found != 0) {
+          xctx->extra_raw_n -= found;
           xctx->extra_idx = 0;
           xctx->extra_prev_idx = 0;
           if(xctx->extra_raw_n) {
