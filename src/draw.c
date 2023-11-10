@@ -2755,6 +2755,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   } else {
     char *ntok_ptr = NULL;
     char *alias_ptr = NULL;
+    dbg(1, "ntok=%s\n", ntok);
     if(strstr(ntok, ";")) {
        my_strdup2(_ALLOC_ID_, &alias_ptr, tcl_hook2(find_nth(ntok, ";", "\"", 0, 1)));
        my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
@@ -3280,9 +3281,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */
-    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
-    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",2));
+    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",2)); 
+    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",2)); 
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
@@ -3329,7 +3330,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       }
       /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
       if(nd[0]) {
-        node_dataset = atoi(nd);
+        node_dataset = atoi(tcl_hook2(nd));
         my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 0, 1));
       } else {
         node_dataset = -1;
