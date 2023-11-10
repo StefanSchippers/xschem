@@ -1301,8 +1301,15 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
     else if(!strcmp(n, "del()")) {
+      int d, t = 0, p = 0;
+      /* set 'first' to beginning of dataset containing 'first' */
+      for(d = 0; d < xctx->raw->datasets; d++) {
+        t += xctx->raw->npoints[d];
+        if(t > first) break;
+        p = t;
+      }
+      first = p;
       stack1[stackptr1++].i = DEL;
-      first = 0;
     }
     else if(!strcmp(n, "db20()")) stack1[stackptr1++].i = DB20;
     else if(!strcmp(n, "deriv()")) {
