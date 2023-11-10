@@ -640,6 +640,16 @@ proc ev {s} {
   }
 }
 
+## evaluate expression. if expression has errors or does not evaluate return 0
+proc ev0 {s} {
+  if {![catch {expr $s} res]} {
+    return [format %.4g $res]
+  } else {
+    return 0
+  }
+} 
+ 
+
 # should not be called directly by user 
 # does netlist post processing, called from global_(spice|vhdl|verilog)_netlist()
 proc netlist {source_file show netlist_file} {
@@ -4276,7 +4286,7 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_var env path
+  global debug_tcleval env path debug_var
 
   set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
@@ -4308,7 +4318,7 @@ proc tclpropeval2 {s} {
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
   if { [catch {uplevel #0 "subst \{$s\}"} res] } {
-    if { $debug_var<=-1 } { puts "tclpropeval2 warning: $s --> $res"}
+    if { $debug_tcleval > 0} { puts "tclpropeval2 warning: $s --> $res"}
     set res ?\n
   }
   # puts "tclpropeval2: res=|$res|"
@@ -7653,6 +7663,7 @@ set_ne xschem_libs {}
 set_ne noprint_libs {}
 set_ne nolist_libs {}
 set_ne debug_var 0
+set_ne debug_tcleval 0 ;# debug tclpropeval2 (tcleval() in xschem attributes)
 # used to activate debug from menu
 set_ne menu_debug_var 0
 set textwindow_wcounter 1
