@@ -60,7 +60,7 @@ x1=2.3
 x2=2.7
 divx=6
 subdivx=1
-node="tcleval($\{iset0\}A);v(diffout)%0
+node="diffout@2uA;v(diffout)%0
 diffout@10uA;v(diffout)%1
 diffout@100uA;v(diffout)%2"
 color="8 7 6"
