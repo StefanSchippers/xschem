@@ -2828,7 +2828,7 @@ proc graph_edit_properties {n} {
   graph_fill_listbox
 
   # fill data in right textbox
-  set plotted_nodes [xschem getprop rect 2 $n node 0]
+  set plotted_nodes [xschem getprop rect 2 $n node 2]
   if {[string length $plotted_nodes] > 0 && [string index $plotted_nodes end] ne "\n"} {append plotted_nodes \n}
   .graphdialog.center.right.text1 insert 1.0 $plotted_nodes
   graph_update_nodelist

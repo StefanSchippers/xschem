@@ -2749,13 +2749,14 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   }
   /* draw node labels in graph */
   if(bus_msb) {
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", find_nth(ntok, ";,", "\"", 0, 1), gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", "\"", 0, 1));
+    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", 
+         tcl_hook2(find_nth(ntok, ";,", "\"", 0, 1)), gr->unity_suffix);
+    else  my_snprintf(tmpstr, S(tmpstr), "%s",tcl_hook2(find_nth(ntok, ";,", "\"", 0, 1)));
   } else {
     char *ntok_ptr = NULL;
     char *alias_ptr = NULL;
     if(strstr(ntok, ";")) {
-       my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
+       my_strdup2(_ALLOC_ID_, &alias_ptr, tcl_hook2(find_nth(ntok, ";", "\"", 0, 1)));
        my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
     }
     else {
