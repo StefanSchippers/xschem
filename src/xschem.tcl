@@ -5344,9 +5344,12 @@ proc rel_sym_path {symbol} {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
+    if {![regexp {/$} $path_elem]} {
+      append path_elem /
+    }
     set pl [string length $path_elem]
     if { [string equal -length $pl $path_elem $symbol] } {
-      set name [string range $symbol [expr {$pl+1}] end]
+      set name [string range $symbol [expr {$pl}] end]
       # When $path_elem is "C:/", string equal will match, 
       # but $path_elem should not be removed from $name if $name 
       # has more / for more directory levels.

@@ -219,6 +219,9 @@
       <Component Id="CMPMAKESCHFROMSPICEAWK">
         <File Id="MAKESCHFROMSPICEAWK" KeyPath="yes" Source="../../src/make_sch_from_spice.awk" />
       </Component>
+	  <Component Id="CMPMAKESYMFROMSPICEAWK">
+		<File Id="MAKESYMFROMSPICE" KeyPath="yes" Source="../../src/make_sym_from_spice.awk" />
+	  </Component>
       <Component Id="CMPMAKEVHDLFROMSPICEAWK">
         <File Id="MAKEVHDLFROMSPICEAWK" KeyPath="yes" Source="../../src/make_vhdl_from_spice.awk" />
       </Component>
@@ -249,7 +252,7 @@
 	  <Component Id="CMPPLACESYMPINS">
 		<File Id="PLACESYMPINS" KeyPath="yes" Source="../../src/place_sym_pins.tcl" />
 	  </Component>
-		
+	  
       <Directory Id="SYSTEMLIBFOLDER" Name="systemlib">
         <Component Id="CMPSYSTEMLIBFONTSCH">
           <File Id="FONTSCH" KeyPath="yes" Source="../../src/systemlib/font.sch" />
@@ -347,6 +350,7 @@
       <ComponentRef Id="CMPMAKEEDITAWK" />
       <ComponentRef Id="CMPMAKESCHFROMCADENCEPINAWK" />
       <ComponentRef Id="CMPMAKESCHFROMSPICEAWK" />
+	  <ComponentRef Id="CMPMAKESYMFROMSPICEAWK" />
       <ComponentRef Id="CMPMAKESCHFROMVHDLAWK" />
       <ComponentRef Id="CMPMAKESYMAWK" />
       <ComponentRef Id="CMPMAKESYMLCCAWK" />
@@ -367,8 +371,8 @@
       <ComponentRef Id="CMPTRACKMEMORYAWK" />
       <ComponentRef Id="CMPTRADUCIAWK" />
 	  <ComponentRef Id="CMPPLACEPLINS" />
-	  <ComponentRef Id="CMPPLACESYMPINS" />			
-      <ComponentRef Id="CMPVERILOGAWK" />
+	  <ComponentRef Id="CMPPLACESYMPINS" />
+	  <ComponentRef Id="CMPVERILOGAWK" />
       <ComponentRef Id="CMPVHDLAWK" />
       <ComponentRef Id="CMPXSCHEMHELP" />
       <ComponentRef Id="CMPSYSTEMLIBFONTSCH" />
