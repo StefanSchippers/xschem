@@ -3283,11 +3283,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char f[PATH_MAX + 100];
       int res = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(sch_waves_loaded() >= 0) {
+      /* 
+      * if(sch_waves_loaded() >= 0) {
+      *   tcleval("array unset ngspice::ngspice_data");
+      *   extra_rawfile(3, NULL, NULL);
+      *   free_rawfile(&xctx->raw, 1);
+      * } else
+      */
+      if(argc > 2) {
         tcleval("array unset ngspice::ngspice_data");
-        extra_rawfile(3, NULL, NULL);
-        free_rawfile(&xctx->raw, 1);
-      } else if(argc > 2) {
         extra_rawfile(3, NULL, NULL);
         free_rawfile(&xctx->raw, 0);
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
