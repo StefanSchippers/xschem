@@ -3379,15 +3379,15 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
       char *ss;
       int slot;
       char *tmpstr = NULL;
-      tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
-      if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+      if( xctx->inst[inst].instname && (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+        tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
         sscanf(ss+1, "%s", tmpstr);
         if(isonlydigit(tmpstr)) {
           slot = atoi(tmpstr);
           if(strstr(value,":")) my_strdup2(_ALLOC_ID_, &value, find_nth(value, ":", "", 0, slot));
         }
+        my_free(_ALLOC_ID_, &tmpstr);
       }
-      my_free(_ALLOC_ID_, &tmpstr);
     }
     my_free(_ALLOC_ID_, &pin_attr_value);
     my_free(_ALLOC_ID_, &pin_attr_value);

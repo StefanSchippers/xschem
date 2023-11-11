@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -31,7 +31,7 @@ template="name=C1
 m=1
 value=1p
 footprint=1206
-device=polarized_capacitor
+device=polarized_capacitor"
 }
 V {}
 S {}
