@@ -1243,6 +1243,8 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define DERIV0 25 /* derivative to first sweep variable, regardless of specified sweep_idx */
 #define PREV 26 /* previous point */
 #define DEL 27 /* delay by an anount of sweep axis distance */
+#define MAX 28 /* clip data above given argument */
+#define MIN 29 /* clip data below given argument */
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
 
@@ -1300,6 +1302,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
     }
     else if(!strcmp(n, "avg()")) stack1[stackptr1++].i = AVG;
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
+    else if(!strcmp(n, "max()")) stack1[stackptr1++].i = MAX;
+    else if(!strcmp(n, "min()")) stack1[stackptr1++].i = MIN;
     else if(!strcmp(n, "del()")) {
       int d, t = 0, p = 0;
       /* set 'first' to beginning of dataset containing 'first' */
@@ -1422,6 +1426,16 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
             }
             stack2[stackptr2 - 2] = (result - ravg_store(2, i, stack1[i].prevp, 0, 0)) / stack2[stackptr2 - 1];
             /* dbg(1, "result=%g ravg_store=%g\n", result,  ravg_store(2, i, stack1[i].prevp, 0, 0)); */
+            stackptr2--;
+            break;
+          case MAX:
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] < stack2[stackptr2 - 1] ?
+                                    stack2[stackptr2 - 1] :  stack2[stackptr2 - 2];
+            stackptr2--;
+            break;
+          case MIN:
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] > stack2[stackptr2 - 1] ?
+                                    stack2[stackptr2 - 1] :  stack2[stackptr2 - 2];
             stackptr2--;
             break;
           case POW:
