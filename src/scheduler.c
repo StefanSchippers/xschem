@@ -3543,6 +3543,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* reset_caches
+     *   Reset cached instance and symbol cached flags (inst->flags, sym->flags) */
+    else if(!strcmp(argv[1], "reset_caches"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      reset_caches();
+      Tcl_ResetResult(interp);
+    }
+
     /* reset_symbol inst symref
      *   This is a low level command, it merely changes the xctx->inst[...].name field.
      *   It is caller responsibility to delete all symbols before and do a reload_symbols
@@ -3561,15 +3570,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else {
         my_strdup(_ALLOC_ID_, &xctx->inst[inst].name, argv[3]);
       }
-      Tcl_ResetResult(interp);
-    }
-
-    /* reset_flags
-     *   Reset cached instance and symbol cached flags (inst->flags, sym->flags) */
-    else if(!strcmp(argv[1], "reset_flags"))
-    {
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      reset_flags();
       Tcl_ResetResult(interp);
     }
 

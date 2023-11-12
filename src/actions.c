@@ -884,10 +884,10 @@ int set_text_flags(xText *t)
 }
 
 
-void reset_flags(void)
+void reset_caches(void)
 {
   int i;
-  dbg(1, "reset_flags()\n");
+  dbg(1, "reset_caches()\n");
   for(i = 0; i < xctx->instances; i++) {
     set_inst_flags(&xctx->inst[i]);
   }     
