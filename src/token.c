@@ -3658,6 +3658,7 @@ const char *translate(int inst, const char* s)
        char *fqnet = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *net = NULL;
+       char *global_net;
        size_t len;
        int idx, n, multip;
        double val;
@@ -3677,9 +3678,15 @@ const char *translate(int inst, const char* s)
            len = strlen(path) + strlen(instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(_ALLOC_ID_, len);
-           if(record_global_node(3, NULL, net)) {
+
+
+           global_net = strrchr(net, '.');
+           if(global_net == NULL) global_net = net;
+           else global_net++;
+
+           if(record_global_node(3, NULL, global_net)) {
              strtolower(net);
-             my_snprintf(fqnet, len, "%s", net);
+             my_snprintf(fqnet, len, "%s", global_net);
            } else {
              strtolower(net);
              my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);

@@ -42,7 +42,7 @@ L 4 1420 -730 1440 -750 {dash=3}
 L 4 1420 -770 1420 -730 {dash=3}
 L 4 1420 -770 1440 -750 {dash=3}
 L 4 1350 -750 1420 -750 {dash=3}
-B 2 750 -490 1410 -260 {flags=graph 
+B 2 790 -490 1410 -260 {flags=graph 
 y1 = 0
 y2 = 3
 divy = 6
@@ -91,22 +91,28 @@ N 410 -100 410 -80 {lab=HALF}
 N 410 -190 430 -190 {lab=ZZZ}
 N 410 -190 410 -160 {lab=ZZZ}
 N 420 -400 420 -380 {lab=HALF}
-N 420 -490 700 -490 {lab=ZZ}
+N 420 -490 740 -490 {lab=ZZ}
 N 420 -490 420 -460 {lab=ZZ}
-N 700 -240 1450 -240 {lab=#net1}
+N 740 -240 1450 -240 {lab=#net1}
 N 320 -190 410 -190 {lab=ZZZ}
 N 330 -490 420 -490 {lab=ZZ}
 N 730 -860 730 -770 { lab=Z}
 N 650 -860 650 -770 { lab=A}
-N 700 -320 700 -240 {
+N 740 -320 740 -240 {
 lab=#net1}
-N 700 -490 700 -380 {
+N 740 -490 740 -380 {
 lab=ZZ}
-C {vsource.sym} 50 -140 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"
+N 50 -280 50 -270 {
+lab=VDD}
+N 50 -180 50 -140 {
+lab=A}
+N 50 -420 50 -400 {
+lab=HALF}
+C {vsource.sym} 50 -110 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"
 savecurrent=1}
-C {lab_pin.sym} 50 -170 0 0 {name=p4 lab=A}
-C {lab_pin.sym} 50 -110 0 0 {name=p5 lab=0}
-C {code_shown.sym} 480 -280 0 0 {name=STIMULI
+C {lab_pin.sym} 50 -180 0 0 {name=p4 lab=A}
+C {lab_pin.sym} 50 -80 0 0 {name=p5 lab=0}
+C {code_shown.sym} 480 -310 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value=".control
@@ -117,6 +123,8 @@ write LCC_instances.raw
 
 set appendwrite 
 dc v1 3 0 -0.001
+write LCC_instances.raw
+op
 write LCC_instances.raw
 quit 0
 .endc
@@ -179,7 +187,6 @@ C {lab_pin.sym} 240 -190 0 0 {name=p6 lab=A}
 C {lab_pin.sym} 430 -190 0 1 {name=p7 lab=ZZZ}
 C {vsource.sym} 50 -240 0 0 {name=V2 value=3
 savecurrent=1}
-C {lab_pin.sym} 50 -270 0 0 {name=p8 lab=VDD}
 C {lab_pin.sym} 50 -210 0 0 {name=p9 lab=0}
 C {res.sym} 410 -130 0 0 {name=R1
 value=20k
@@ -187,10 +194,10 @@ footprint=1206
 device=resistor
 m=1}
 C {lab_pin.sym} 410 -80 0 0 {name=p10 lab=HALF}
-C {vsource.sym} 50 -340 0 0 {name=V3 value=1.5
+C {vsource.sym} 50 -370 0 0 {name=V3 value=1.5
 savecurrent=1}
-C {lab_pin.sym} 50 -370 0 0 {name=p11 lab=HALF}
-C {lab_pin.sym} 50 -310 0 0 {name=p12 lab=0}
+C {lab_pin.sym} 50 -420 0 0 {name=p11 lab=HALF}
+C {lab_pin.sym} 50 -340 0 0 {name=p12 lab=0}
 C {lab_pin.sym} 120 -490 0 0 {name=p13 lab=A}
 C {res.sym} 420 -430 0 0 {name=R2
 value=20k
@@ -202,7 +209,7 @@ C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {cmos_inv.sch} 60 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
-C {lab_pin.sym} 700 -490 0 1 {name=p1 lab=ZZ}
+C {lab_pin.sym} 740 -490 0 1 {name=p1 lab=ZZ}
 C {lab_pin.sym} 650 -770 0 0 {name=p14 lab=A}
 C {cmos_inv.sym} 690 -860 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
 C {lab_pin.sym} 730 -770 0 1 {name=p2 lab=Z}
@@ -214,4 +221,5 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
-C {ammeter.sym} 700 -350 0 1 {name=Vmeas}
+C {ammeter.sym} 740 -350 0 1 {name=Vmeas}
+C {vdd.sym} 50 -280 0 0 {name=l2 lab=VDD}
