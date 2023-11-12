@@ -69,7 +69,7 @@ P 5 5 40 -670 690 -670 690 -230 40 -230 40 -670 { dash=5}
 T {Modulator} 530 -710 0 0 0.6 0.6 { layer=5}
 T {Digital Decimator} 1030 -520 0 0 0.6 0.6 {layer=4}
 T {D} 190 -530 0 0 1 1 { layer=5 font=Symbol}
-T {S} 380 -650 0 0 1 1 { layer=5 font=Symbol}
+T {S} 370 -650 0 0 1 1 { layer=5 font=Symbol}
 T {D-S} 460 -705 0 0 0.6 0.6 { layer=5 font=Symbol}
 N 920 -410 940 -410 {lab=Q}
 N 940 -410 940 -250 {lab=Q}
@@ -88,26 +88,26 @@ N 670 -410 800 -410 { lab=COMP}
 N 210 -250 940 -250 { lab=Q}
 N 1080 -410 1170 -410 { lab=QN}
 N 940 -410 1000 -410 { lab=Q}
-N 530 -440 550 -440 { lab=INTEG}
-N 530 -440 530 -400 { lab=INTEG}
-N 310 -370 320 -370 { lab=VREF}
-N 210 -430 320 -430 {lab=FB}
-N 460 -400 530 -400 { lab=INTEG}
-N 430 -570 460 -570 { lab=INTEG}
-N 460 -570 460 -400 { lab=INTEG}
-N 320 -570 370 -570 { lab=FB}
+N 520 -440 550 -440 { lab=INTEG}
+N 520 -440 520 -400 { lab=INTEG}
+N 300 -370 310 -370 { lab=VREF}
+N 210 -430 310 -430 {lab=FB}
+N 450 -400 520 -400 { lab=INTEG}
+N 420 -570 450 -570 { lab=INTEG}
+N 450 -570 450 -400 { lab=INTEG}
+N 310 -570 360 -570 { lab=FB}
 N 120 -430 140 -430 { lab=SIG_IN}
-N 320 -570 320 -430 { lab=FB}
+N 310 -570 310 -430 { lab=FB}
 N 210 -430 210 -380 { lab=FB}
 N 210 -320 210 -250 { lab=Q}
-N 440 -400 460 -400 { lab=INTEG}
+N 430 -400 450 -400 { lab=INTEG}
 N 200 -430 210 -430 {lab=FB}
 N 1070 -270 1450 -270 { lab=RSTI}
 N 1070 -300 1070 -270 { lab=RSTI}
 N 1170 -390 1170 -320 { lab=#net4}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 800 -390 0 0 {name=p4 lab=CK}
-C {lab_wire.sym} 770 -410 0 0 {name=l4 lab=COMP}
+C {lab_wire.sym} 760 -410 0 1 {name=l4 lab=COMP}
 C {lab_pin.sym} 940 -330 0 1 {name=p8 lab=Q}
 C {flip_flop_ngspice.sym} 860 -390 0 0 {name=x1}
 C {lab_pin.sym} 800 -370 0 0 {name=p3 lab=0}
@@ -147,10 +147,10 @@ C {spice_probe.sym} 1540 -270 0 0 {name=p18 attrs=""}
 C {inv_ngspice.sym} 1040 -410 0 0 {name=x11 net_name=true RUP=1000}
 C {lab_wire.sym} 1130 -410 0 0 {name=l2 lab=QN}
 C {spice_probe.sym} 1090 -410 0 0 {name=p19 attrs=""}
-C {ipin.sym} 310 -370 0 0 {name=p242 lab=VREF}
-C {lab_pin.sym} 530 -420 0 0 {name=p244 lab=INTEG}
+C {ipin.sym} 300 -370 0 0 {name=p242 lab=VREF}
+C {lab_pin.sym} 520 -420 0 0 {name=p244 lab=INTEG}
 C {ipin.sym} 120 -430 0 0 {name=p260 lab=SIG_IN}
-C {capa.sym} 400 -570 1 0 {name=c10 m=1 value="1e-12"}
+C {capa.sym} 390 -570 1 0 {name=c10 m=1 value="1e-12"}
 C {res.sym} 170 -430 1 0 {name=R4
 value=60k
 footprint=1206
@@ -162,10 +162,10 @@ value=60k
 footprint=1206
 device=resistor
 m=1}
-C {lab_pin.sym} 320 -460 0 0 {name=p262 lab=FB}
-C {spice_probe.sym} 460 -500 0 0 {name=p264 attrs=""}
+C {lab_pin.sym} 310 -490 0 0 {name=p262 lab=FB}
+C {spice_probe.sym} 450 -500 0 0 {name=p264 attrs=""}
 C {spice_probe.sym} 220 -430 0 0 {name=p265 attrs=""}
-C {opamp_65nm.sym} 380 -400 2 1 {name=x41}
+C {opamp_65nm.sym} 370 -400 2 1 {name=x41}
 C {comp_65nm.sym} 610 -410 0 0 {name=x42}
 C {spice_probe.sym} 1470 -430 0 0 {name=p2 attrs=""}
 C {or_ngspice.sym} 1110 -320 0 0 {name=x3 ROUT=1000 net_name=true}

@@ -91,11 +91,31 @@ P 8 7 620 -700 820 -700 820 -710 860 -700 820 -690 820 -700 620 -700 {}
 T {Value of this signal
 is equal to adc conversion
 CODE[5:0]} 602.5 -792.5 0 0 0.4 0.4 {layer=8}
+N 510 -220 540 -220 {
+lab=SIG_IN}
+N 510 -200 540 -200 {
+lab=VREF}
+N 510 -180 540 -180 {
+lab=CK}
+N 510 -160 540 -160 {
+lab=RST}
+N 270 -720 270 -690 {
+lab=VREF}
+N 520 -720 520 -690 {
+lab=RST}
+N 390 -720 390 -690 {
+lab=VCC}
+N 270 -570 270 -540 {
+lab=SIG_IN}
+N 520 -570 520 -540 {
+lab=CK}
+N 390 -570 390 -540 {
+lab=VSS}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
-C {lab_pin.sym} 270 -670 0 0 {name=p33 lab=VREF}
-C {vsource.sym} 270 -640 0 0 {name=v2 value="'VCC/2'"}
-C {lab_pin.sym} 270 -610 0 0 {name=p34 lab=0}
-C {simulator_commands.sym} 10 -390 0 0 {name=INTERACTIVE
+C {lab_pin.sym} 270 -720 0 0 {name=p33 lab=VREF}
+C {vsource.sym} 270 -660 0 0 {name=v2 value="'VCC/2'"}
+C {lab_pin.sym} 270 -630 0 0 {name=p34 lab=0}
+C {simulator_commands.sym} 10 -380 0 0 {name=INTERACTIVE
 simulator=ngspice
 spice_ignore=0
 tclcommand="xschem edit_vi_prop"
@@ -120,44 +140,44 @@ value="
   quit 0
 .endc
 "}
-C {vsource.sym} 270 -540 0 1 {name=v3 
+C {vsource.sym} 270 -510 0 1 {name=v3 
 value="pwl
 + 0.001u 0.34 3u 0.34 
 + 3.001u 0.88 6u 0.88
 + 6.001u 0.97 9u 0.97"}
-C {lab_pin.sym} 270 -510 0 0 {name=p1 lab=0}
+C {lab_pin.sym} 270 -480 0 0 {name=p1 lab=0}
 C {lab_pin.sym} 270 -570 0 0 {name=p2 lab=SIG_IN}
-C {vsource.sym} 520 -540 0 0 {name=v1 
+C {vsource.sym} 520 -510 0 0 {name=v1 
 value="pulse 0 VCC 100n 100p 100p 9.9n 20n" 
 xvalue="sin 0.2 1.8 1u 0"
 }
-C {lab_pin.sym} 520 -510 0 0 {name=p6 lab=0}
+C {lab_pin.sym} 520 -480 0 0 {name=p6 lab=0}
 C {lab_pin.sym} 520 -570 0 0 {name=p7 lab=CK}
-C {vsource.sym} 390 -640 0 0 {name=v5 value=VCC}
-C {lab_pin.sym} 390 -610 0 0 {name=p17 lab=0}
+C {vsource.sym} 390 -660 0 0 {name=v5 value=VCC}
+C {lab_pin.sym} 390 -630 0 0 {name=p17 lab=0}
 C {lab_pin.sym} 390 -570 0 0 {name=p18 lab=VSS}
-C {vsource.sym} 390 -540 0 0 {name=v6 value=0}
-C {lab_pin.sym} 390 -510 0 0 {name=p19 lab=0}
-C {lab_pin.sym} 520 -670 0 0 {name=p55 lab=RST}
-C {vsource.sym} 520 -640 0 0 {name=v7 value="pwl 0 VCC 
+C {vsource.sym} 390 -510 0 0 {name=v6 value=0}
+C {lab_pin.sym} 390 -480 0 0 {name=p19 lab=0}
+C {lab_pin.sym} 520 -720 0 0 {name=p55 lab=RST}
+C {vsource.sym} 520 -660 0 0 {name=v7 value="pwl 0 VCC 
 + 1u VCC 1.001u 0 3u 0 3.001u VCC
 + 4u VCC 4.001u 0 6u 0 6.001u VCC
 + 7u VCC 7.001u 0 9u 0 9.001u VCC"
 
 }
-C {lab_pin.sym} 520 -610 0 0 {name=p56 lab=0}
-C {vdd.sym} 390 -670 0 0 {name=l2 lab=VCC}
+C {lab_pin.sym} 520 -630 0 0 {name=p56 lab=0}
+C {vdd.sym} 390 -720 0 0 {name=l2 lab=VCC}
 C {adc.sym} 620 -190 0 0 {name=x1}
 C {lab_pin.sym} 700 -220 0 1 {name=p38 lab=CODE[5:0]}
-C {lab_pin.sym} 540 -220 0 0 {name=p39 lab=SIG_IN}
-C {lab_pin.sym} 540 -200 0 0 {name=p40 lab=VREF}
-C {lab_pin.sym} 540 -180 0 0 {name=p41 lab=CK}
-C {lab_pin.sym} 540 -160 0 0 {name=p42 lab=RST}
-C {spice_probe.sym} 270 -670 0 0 {name=p3 attrs=""}
-C {spice_probe.sym} 390 -670 0 0 {name=p4 attrs=""}
+C {lab_pin.sym} 510 -220 0 0 {name=p39 lab=SIG_IN}
+C {lab_pin.sym} 510 -200 0 0 {name=p40 lab=VREF}
+C {lab_pin.sym} 510 -180 0 0 {name=p41 lab=CK}
+C {lab_pin.sym} 510 -160 0 0 {name=p42 lab=RST}
+C {spice_probe.sym} 270 -720 0 0 {name=p3 attrs=""}
+C {spice_probe.sym} 390 -720 0 0 {name=p4 attrs=""}
 C {spice_probe.sym} 270 -570 0 0 {name=p5 attrs=""}
 C {spice_probe.sym} 520 -570 0 0 {name=p8 attrs=""}
-C {spice_probe.sym} 520 -670 0 0 {name=p9 attrs=""}
+C {spice_probe.sym} 520 -720 0 0 {name=p9 attrs=""}
 C {spice_probe.sym} 700 -220 0 0 {name=p10 attrs=""}
 C {launcher.sym} 1270 -90 0 0 {name=h5 
 descr="Select arrow and 
@@ -171,7 +191,7 @@ descr="Netlist + Simulate
 Ctrl-Left-Click" 
 tclcommand="xschem netlist; xschem simulate"
 }
-C {simulator_commands.sym} 150 -390 0 0 {name=BATCH_MODE
+C {simulator_commands.sym} 150 -380 0 0 {name=BATCH_MODE
 simulator=ngspice
 spice_ignore=1
 tclcommand="xschem edit_vi_prop"
