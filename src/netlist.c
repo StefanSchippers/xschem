@@ -1445,9 +1445,7 @@ int prepare_netlist_structs(int for_netl)
   
   dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
 
-  /* Don't reset caches systematically. Users should call 'xschem reset_caches'
-   * if they play with tcl variables that need to be updated into attributes */
-  /* reset_caches(); */ /* update cached flags: necessary if some tcleval() is used for cached attrs */
+  reset_caches(); /* update cached flags: necessary if some tcleval() is used for cached attrs */
 
   set_modify(-2); /* to reset floater cached values */
   /* delete instance pins spatial hash, wires spatial hash, node_hash, wires and inst nodes.*/
