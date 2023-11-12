@@ -660,35 +660,36 @@ static void print_wires(void)
 /*      1: add entry */
 /*      2: delete list only, no print */
 /*      3: look if node is a global */
-int record_global_node(int what, FILE *fp, char *node)
+int record_global_node(int what, FILE *fp, const char *node)
 {
- static int max_globals=0; /* safe to keep even with multiple schematics, netlist code always resets data */
- static int size_globals=0; /* safe to keep even with multiple schematics, netlist code always resets data */
- static char **globals=NULL; /* safe to keep even with multiple schematics, netlist code always resets data */
  int i;
 
- if( what==1 || what==3) {
+ if( what == 1 || what == 3) {
     if(!node) return 0;
     if(!strcmp(node, "0")) return 1;
-    for(i=0;i<max_globals; ++i) {
-      if( !strcmp(node, globals[i] )) return 1; /* node is a global */
+    for(i = 0;i < xctx->max_globals; ++i) {
+      if( !strcmp(node, xctx->globals[i] )) return 1; /* node is a global */
     }
     if(what == 3) return 0; /* node is not a global */
-    if(max_globals>=size_globals) {
-       size_globals+=CADCHUNKALLOC;
-       my_realloc(_ALLOC_ID_, &globals, size_globals*sizeof(char *) );
+    if(xctx->max_globals >= xctx->size_globals) {
+       xctx->size_globals+=CADCHUNKALLOC;
+       my_realloc(_ALLOC_ID_, &xctx->globals, xctx->size_globals*sizeof(char *) );
     }
-    globals[max_globals]=NULL;
-    my_strdup(_ALLOC_ID_, &globals[max_globals], node);
-    max_globals++;
- } else if(what == 0 || what == 2) {
-    for(i=0;i<max_globals; ++i) {
-       if(what == 0 && xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", globals[i]);
-       if(what == 0 && xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", globals[i]);
-       my_free(_ALLOC_ID_, &globals[i]);
+    xctx->globals[xctx->max_globals]=NULL;
+    my_strdup(_ALLOC_ID_, &xctx->globals[xctx->max_globals], node);
+    xctx->max_globals++;
+ } else if(what == 0) {
+    for(i = 0;i < xctx->max_globals; ++i) {
+       if(xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", xctx->globals[i]);
+       if(xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", xctx->globals[i]);
     }
-    my_free(_ALLOC_ID_, &globals);
-    size_globals=max_globals=0;
+ } else if(what == 2) {
+    for(i=0;i<xctx->max_globals; ++i) {
+       my_free(_ALLOC_ID_, &xctx->globals[i]);
+    }
+    my_free(_ALLOC_ID_, &xctx->globals);
+    xctx->size_globals = xctx->max_globals=0;
+
  }
  return 0;
 }

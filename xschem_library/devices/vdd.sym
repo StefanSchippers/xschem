@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -32,3 +32,4 @@ L 4 0 -20 0 0 {}
 L 4 -10 -20 10 -20 {}
 B 5 -2.5 -2.5 2.5 2.5 {name=p dir=inout verilog_type=wire goto=0}
 T {@lab} -12.5 -35 0 0 0.2 0.2 {}
+T {@spice_get_voltage} 6.875 -16.09375 0 0 0.2 0.2 {layer=15}

@@ -259,6 +259,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
 
  /* print globals nodes found in netlist 28032003 */
  record_global_node(0,fd,NULL);
+ /* record_global_node(2, NULL, NULL); */ /* delete list --> do it in xwin_exit() */
  fprintf(fd, "__HIERSEP__ %s\n", xctx->hiersep);
 
  dbg(1, "global_tedax_netlist(): starting awk on netlist!\n");

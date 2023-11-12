@@ -1930,6 +1930,13 @@ char *resolved_net(const char *net)
 {
   char *rnet = NULL;
   Str_hashentry *entry;
+
+  /* global node ? return as is */
+  if(net && record_global_node(3, NULL, net)) {
+    my_strdup(_ALLOC_ID_, &rnet, net);
+    return rnet;
+  }
+ 
   if(net) {
     char *n_s1, *n_s2;
     int k, mult;

@@ -619,6 +619,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->save_lw = 0.0;  /* used to save linewidth when selecting 'only_probes' view */
   xctx->already_selected = 0;
   xctx->onetime = 0; /* callback() static var */
+  xctx->max_globals = 0;
+  xctx->size_globals = 0;
+  xctx->globals = NULL;
   xctx->save_netlist_type = 0;
   xctx->some_nets_added = 0;
   xctx->loaded_symbol = 0;
@@ -680,6 +683,7 @@ static void delete_schematic_data(int delete_pixmap)
   extra_rawfile(3, NULL, NULL);
   free_rawfile(&xctx->raw, 0);
   statusmsg("", 1); /* clear allocated string */
+  record_global_node(2, NULL, NULL); /* delete global node array */
   free_xschem_data(); /* delete the xctx struct */
 }
 
@@ -910,7 +914,6 @@ static void xwin_exit(void)
  dbg(1, "xwin_exit(): closed display\n");
  my_strncpy(cli_opt_filename, "", S(cli_opt_filename));
  my_free(_ALLOC_ID_, &xschem_executable);
- record_global_node(2, NULL, NULL); /* delete global node array */
  dbg(1, "xwin_exit(): deleted undo buffer\n");
  /* delete cmdline stuff */
  for(i = 0 ; i < cli_opt_argc; ++i) {
@@ -1276,9 +1279,11 @@ void swap_tabs(void)
   }
 }
 
-/* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)
- * used for window close ('xschem exit' command) */
-void swap_windows(void)
+/* swap primary view (.drw) with first valid window (x1.drw, x2.drw, ...)
+ * used for window close ('xschem exit' command) 
+ * if dr == 1 do draw and don't move following window onto first. This is used if
+ * primary windows is about to be deleted */
+void swap_windows(int dr)
 {
   int wc = window_count;
   if(tclgetboolvar("tabbed_interface")) return;
@@ -1287,10 +1292,7 @@ void swap_windows(void)
     char *tmp;
     char wp_i[WINDOW_PATH_SIZE], wp_j[WINDOW_PATH_SIZE];
     Window window;
-    Pixmap save_pixmap;
-    GC gc, *gcptr;
-    int i = 0;
-    int j;
+    int i = 0, j;
     Tk_Window tkwin, mainwindow;
     char geometry[80];
 
@@ -1336,34 +1338,23 @@ void swap_windows(void)
     save_xctx[i] = save_xctx[j];
     save_xctx[j] = ctx;
 
-    /* swap window paths */
+    /* re-swap window paths */
     SWAP(save_xctx[i]->top_path, save_xctx[j]->top_path, tmp);
     SWAP(save_xctx[i]->current_win_path, save_xctx[j]->current_win_path, tmp);
-
-    /* swap drawing stuff */
-    SWAP(save_xctx[i]->save_pixmap, save_xctx[j]->save_pixmap, save_pixmap);
+    /* re-swap window IDs */
     SWAP(save_xctx[i]->window, save_xctx[j]->window, window);
-    SWAP(save_xctx[i]->gctiled, save_xctx[j]->gctiled, gc);
-    SWAP(save_xctx[i]->gc, save_xctx[j]->gc, gcptr);
-    SWAP(save_xctx[i]->gcstipple, save_xctx[j]->gcstipple, gcptr);
 
-    /* rebuld colors and pixmaps, redraw swapped schematics */
-    tclvareval("restore_ctx ", wp_i, NULL);
-    new_schematic("switch", wp_i, "", 1);
-    tclvareval("housekeeping_ctx", NULL);
-    tclvareval("xschem build_colors", NULL);
-    resetwin(1, 1, 1, 0, 0);
+    new_schematic("switch", wp_i, "", 0);
     /* move primary window to location of deleted window */
-    tclvareval("wm geometry . ", geometry, NULL);
-    draw();
-    
-    /* set context to window that is about to be deleted */
-    tclvareval("restore_ctx ", wp_j, NULL);
-    new_schematic("switch", wp_j, "", 1);
-    tclvareval("housekeeping_ctx", NULL);
-    tclvareval("xschem build_colors", NULL);
+    if(!dr) tclvareval("wm geometry . ", geometry, "; update", NULL);
     resetwin(1, 1, 1, 0, 0);
-    /* draw(); */ /* avoid drawing, since usually this will be destroyed soon after */
+    if(dr) draw();
+    
+    new_schematic("switch", wp_j, "", 0);
+    resetwin(1, 1, 1, 0, 0);
+
+    my_snprintf(old_winpath, S(old_winpath), "");
+    if(dr) draw();
   }
 }
 

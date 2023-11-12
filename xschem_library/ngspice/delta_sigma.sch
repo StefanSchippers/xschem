@@ -111,8 +111,11 @@ value="
 .measure tran avg2 AVG v(x1.qn) from=4u to=6u
 .measure tran avg3 AVG v(x1.qn) from=7u to=9u
 .control
-  * save all
-  tran 0.2n 9u uic
+  tran 0.2n .9u uic
+  write delta_sigma.raw
+  set appendwrite
+  save all
+  op
   write delta_sigma.raw
   quit 0
 .endc

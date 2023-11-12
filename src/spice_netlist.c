@@ -461,7 +461,10 @@ int global_spice_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &stored_flags);
 
  /* print globals nodes found in netlist 28032003 */
- if(!split_f) record_global_node(0,fd,NULL);
+ if(!split_f) {
+   record_global_node(0,fd,NULL);
+   /* record_global_node(2, NULL, NULL); */ /* delete list --> do it in xwin_exit() */
+ }
 
  /* =================================== 20121223 */
  first = 0;

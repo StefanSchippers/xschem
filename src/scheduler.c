@@ -803,9 +803,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-              swap_windows();
+              swap_windows(0);
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
-              new_schematic("destroy", xctx->current_win_path, NULL, 1);
+              new_schematic("destroy", xctx->current_win_path, NULL, 0);
+              draw();
             }
           } else {
             if(!force && xctx->modified) {
@@ -1624,8 +1625,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(res, S(res), "sch[%d]=%s\n",i,xctx->sch[i]); Tcl_AppendResult(interp, res, NULL);
       }
       my_snprintf(res, S(res), "modified=%d\n", xctx->modified); Tcl_AppendResult(interp, res, NULL);
-      my_snprintf(res, S(res), "areaw=%d\n", xctx->areaw); Tcl_AppendResult(interp, res, NULL);
-      my_snprintf(res, S(res), "areah=%d\n", xctx->areah); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
@@ -3354,6 +3353,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rebuild_selected_array();
     }
 
+    /* record_global_node n node 
+         call the record_global_node function (list of netlist global nodes) */
+    else if(!strcmp(argv[1], "record_global_node"))
+    {
+      int ret = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) {
+        int n = atoi(argv[2]);
+        if(n == 1 && argc > 3) ret = record_global_node(1,NULL, argv[3]); /* insert node */
+        else if(n == 0) ret = record_global_node(0, stdout, NULL);
+        else if(n == 2) ret = record_global_node(2, NULL, NULL);
+        else if(n == 3 && argc > 3) ret = record_global_node(3, NULL, argv[3]); /* look up node */
+      }
+      Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
+    }
+
     /* rect [x1 y1 x2 y2] [pos] [propstring] [draw]
      *   if 'x1 y1 x2 y2'is given place recangle on current
      *   layer (rectcolor) at indicated coordinates.
@@ -4542,6 +4557,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
       symbol_in_new_window(new_process);
       Tcl_ResetResult(interp);
+    }
+
+    /* swap_windows 
+     *   swap first and second window in window interface (internal command)
+     */
+    else if(!strcmp(argv[1], "swap_windows"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(!tclgetboolvar("tabbed_interface") && get_window_count()) {
+        swap_windows(1);
+      }
     }
 
     /* switch [window_path |schematic_name]

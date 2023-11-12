@@ -3605,12 +3605,7 @@ const char *translate(int inst, const char* s)
          double val;
          const char *valstr;
          if(path) {
-           int skip = 0;
            /* skip path components that are above the level where raw file was loaded */
-           while(*path && skip < start_level) {
-             if(*path == '.') skip++;
-             ++path;
-           }
            prepare_netlist_structs(0);
            if(xctx->inst[inst].lab) {
              my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
@@ -3618,16 +3613,10 @@ const char *translate(int inst, const char* s)
            if(net == NULL || net[0] == '\0') {
              my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
            }
-           if(multip == 1 && net && net[0] && path) {
+           if(multip == 1 && net && net[0]) {
              char *rn;
-             len = strlen(path) + strlen(net) + 1;
              dbg(1, "translate() @spice_get_voltage: inst=%s\n", instname);
              dbg(1, "                                net=%s\n", net);
-             /* 
-              * fqnet = my_malloc(_ALLOC_ID_, len);
-              * my_snprintf(fqnet, len, "%s%s", path, net);
-              */
-
              rn = resolved_net(net);
              if(rn) {
                my_strdup2(_ALLOC_ID_, &fqnet, rn);
@@ -3685,11 +3674,16 @@ const char *translate(int inst, const char* s)
          n = sscanf(token + 19, "%[^)]", net);
          expandlabel(net, &multip);
          if(n == 1 && multip == 1) {
-           strtolower(net);
            len = strlen(path) + strlen(instname) + strlen(net) + 2;
            dbg(1, "net=%s\n", net);
            fqnet = my_malloc(_ALLOC_ID_, len);
-           my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
+           if(record_global_node(3, NULL, net)) {
+             strtolower(net);
+             my_snprintf(fqnet, len, "%s", net);
+           } else {
+             strtolower(net);
+             my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
+           }
            strtolower(fqnet);
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
            idx = get_raw_index(fqnet);

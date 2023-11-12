@@ -184,6 +184,7 @@ int yyparse_error = 0;
 char *xschem_executable=NULL;
 Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
+char old_winpath[PATH_MAX] = ".drw"; /* previously switched window, used in callback() */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
 const char fopen_read_mode[] = "rb";

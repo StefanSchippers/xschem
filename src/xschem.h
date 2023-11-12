@@ -1030,6 +1030,10 @@ typedef struct {
   int mx_s, my_s;
   int mmx_s, mmy_s;
   double xorig_save, yorig_save;
+  /* record_global_node() */
+  int max_globals;
+  int size_globals; 
+  char **globals; 
   /* load_schematic */
   int save_netlist_type;
   int loaded_symbol;
@@ -1174,6 +1178,7 @@ extern int yyparse_error;
 extern char *xschem_executable;
 extern Tcl_Interp *interp;
 extern double *character[256];
+extern char old_winpath[PATH_MAX]; /* previously switched window, used in callback() */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
@@ -1451,7 +1456,7 @@ extern void mem_clear_undo(void);
 extern void load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
 extern void swap_tabs(void);
-extern void swap_windows(void);
+extern void swap_windows(int dr);
 extern int check_loaded(const char *f, char *win_path);
 extern char *get_window_path(int i);
 extern int get_window_count(void);
@@ -1615,7 +1620,7 @@ extern void select_arc(int c, int i, unsigned short select_mode, int fast);
 extern void select_line(int c, int i, unsigned short select_mode, int fast);
 extern void select_polygon(int c, int i, unsigned short select_mode, int fast );
 extern const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int erc);
-extern int record_global_node(int what, FILE *fp, char *node);
+extern int record_global_node(int what, FILE *fp, const char *node);
 extern int count_items(const char *s, const char *sep, const char *quote);
 extern int get_unnamed_node(int what, int mult, int node);
 extern void node_hash_free(void);

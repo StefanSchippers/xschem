@@ -65,7 +65,7 @@ unitx=n
 divy=2
 digital=1}
 P 4 5 700 -480 1680 -480 1680 -90 700 -90 700 -480 {dash=5}
-P 5 5 40 -670 970 -670 970 -230 40 -230 40 -670 { dash=5}
+P 5 5 40 -670 690 -670 690 -230 40 -230 40 -670 { dash=5}
 T {Modulator} 530 -710 0 0 0.6 0.6 { layer=5}
 T {Digital Decimator} 1030 -520 0 0 0.6 0.6 {layer=4}
 T {D} 190 -530 0 0 1 1 { layer=5 font=Symbol}
@@ -169,3 +169,7 @@ C {opamp_65nm.sym} 380 -400 2 1 {name=x41}
 C {comp_65nm.sym} 610 -410 0 0 {name=x42}
 C {spice_probe.sym} 1470 -430 0 0 {name=p2 attrs=""}
 C {or_ngspice.sym} 1110 -320 0 0 {name=x3 ROUT=1000 net_name=true}
+C {opamp_65nm.sch} -180 -650 0 0 {name=x10}
+C {lab_pin.sym} 100 -930 0 0 {name=p7 lab=FB}
+C {lab_pin.sym} 890 -980 0 1 {name=p9 lab=OUT}
+C {lab_pin.sym} 100 -1070 0 0 {name=p13 lab=VREF}
