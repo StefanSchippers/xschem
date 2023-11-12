@@ -546,8 +546,11 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     }
     else if(!strncmp(line, "Plotname:", 9)) {
       char name[PATH_MAX];
-      n = sscanf(line, "Plotname: %s", name);
-      if(n==1) {
+      char *ptr;
+      my_strncpy(name, line + 10, S(name));
+      ptr = strchr(name ,'\n');
+      if(ptr) *ptr = '\0';
+      if(name[0]) {
         if(!type) type = name;
         if(!strcmp(type, name)) sim_type = name;
         dbg(dbglev, "read_dataset(): ac sim_type=%s\n", sim_type ? sim_type : "<NULL>");
