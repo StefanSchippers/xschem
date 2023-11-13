@@ -387,7 +387,7 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
 {
  size_t len;
  if(*dest == src && src!=NULL) 
-   dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
+   dbg(0, "my_strdup2(): WARNING: src == *dest == %p, id=%d\n", src, id);
  if(src!=NULL) {
    len = strlen(src)+1;
    my_realloc(id, dest, len);
