@@ -1260,6 +1260,7 @@ extern int  check_lib(int what, const char *s);
 extern int floaters_from_selected_inst();
 extern void select_all(void);
 extern void change_linewidth(double w);
+extern void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to);
 extern void schematic_in_new_window(int new_process);
 extern void symbol_in_new_window(int new_process);
 extern void new_xschem_process(const char *cell, int symbol);

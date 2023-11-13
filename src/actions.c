@@ -1573,6 +1573,64 @@ void symbol_in_new_window(int new_process)
   }
 }
 
+void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to)
+{
+  char **sch;
+  char **sch_path;
+  int *sch_path_hash;
+  int *sch_inst_number;
+  int *previous_instance;
+  Zoom *zoom_array;
+  Lcc *hier_attr;
+  int i, j;
+  Str_hashentry **fromnext;
+  Str_hashentry **tonext;
+  
+  sch = from->sch;
+  sch_path = from->sch_path;
+  sch_path_hash = from->sch_path_hash;
+  sch_inst_number = from->sch_inst_number;
+  previous_instance = from->previous_instance;
+  zoom_array = from->zoom_array;
+  hier_attr = from->hier_attr;
+  to->currsch = from->currsch;
+  for(i = 0; i <= from->currsch; i++) {
+    my_strdup2(_ALLOC_ID_, &to->sch[i], sch[i]);
+    my_strdup2(_ALLOC_ID_, &to->sch_path[i], sch_path[i]);
+    to->sch_path_hash[i] = sch_path_hash[i];
+    to->sch_inst_number[i] = sch_inst_number[i];
+    to->previous_instance[i] = previous_instance[i];
+    to->zoom_array[i].x = zoom_array[i].x;
+    to->zoom_array[i].y = zoom_array[i].y;
+    to->zoom_array[i].zoom = zoom_array[i].zoom;
+    to->hier_attr[i].x0 = hier_attr[i].x0;
+    to->hier_attr[i].y0 = hier_attr[i].y0;
+    to->hier_attr[i].rot = hier_attr[i].rot;
+    to->hier_attr[i].flip = hier_attr[i].flip;
+    to->hier_attr[i].fd = NULL; /* Never used outside load_sym_def() */
+    my_strdup2(_ALLOC_ID_, &to->hier_attr[i].prop_ptr, hier_attr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &to->hier_attr[i].templ, hier_attr[i].templ);
+    my_strdup2(_ALLOC_ID_, &to->hier_attr[i].symname, hier_attr[i].symname);
+    if(to->portmap[i].table) str_hash_free(&to->portmap[i]);
+    str_hash_init(&to->portmap[i], HASHSIZE);
+    for(j = 0; j < HASHSIZE; j++) {
+      if(!from->portmap[i].table || !from->portmap[i].table[j]) continue;
+      fromnext = &(from->portmap[i].table[j]);
+      tonext =  &(to->portmap[i].table[j]);
+      while(*fromnext) {
+        Str_hashentry *e;
+        e = my_calloc(_ALLOC_ID_, 1, sizeof(Str_hashentry));
+        e->hash = (*fromnext)->hash;
+        my_strdup2(_ALLOC_ID_, &e->token, (*fromnext)->token);
+        my_strdup2(_ALLOC_ID_, &e->value, (*fromnext)->value);
+        *tonext = e;
+        fromnext = &( (*fromnext)->next );
+        tonext = &( (*tonext)->next );
+      }
+    }
+  }
+}
+
  /*  20111007 duplicate current schematic if no inst selected */
 void schematic_in_new_window(int new_process)
 {

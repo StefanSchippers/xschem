@@ -907,6 +907,18 @@ int extra_rawfile(int what, const char *file, const char *type)
         dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
         ret = 0;
       }
+    } else if(file && isonlydigit(file) ) {
+      tclvareval("subst {", file, "}", NULL);
+      my_strncpy(f, tclresult(), S(f));
+      i = atoi(file);
+      if(i >= 0 && i < xctx->extra_raw_n) { /* if file found switch to it ... */
+        dbg(1, "extra_rawfile() switch: found: switch to it\n");
+        xctx->extra_prev_idx = xctx->extra_idx;
+        xctx->extra_idx = i;
+      } else {
+        dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
+        ret = 0;
+      }
     } else { /* switch to next */
       xctx->extra_prev_idx = xctx->extra_idx;
       xctx->extra_idx = (xctx->extra_idx + 1) % xctx->extra_raw_n;

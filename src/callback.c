@@ -1842,6 +1842,16 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->semaphore = save;
     break;
    }
+
+   if(key=='E' && EQUAL_MODMASK)          /* edit schematic in new window - new xschem process */
+   { 
+    int save = xctx->semaphore;
+    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+    schematic_in_new_window(1);
+    xctx->semaphore = save;
+    break;
+   }
+
    if(key=='i' && EQUAL_MODMASK)            /* edit symbol in new window */
    {
     int save =  xctx->semaphore;
@@ -1850,6 +1860,17 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->semaphore = save;
     break;
    }
+
+   if(key=='I' && EQUAL_MODMASK)            /* edit symbol in new window - new xschem process */
+   {
+    int save =  xctx->semaphore;
+    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+    symbol_in_new_window(1);
+    xctx->semaphore = save;
+    break;
+   }
+
+
    if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
    {
     if(xctx->semaphore >= 2) break;

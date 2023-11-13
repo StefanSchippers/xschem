@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -20,9 +20,13 @@ v {xschem version=3.4.4 file_version=1.2
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 }
 G {}
+K {}
 V {}
 S {}
 E {}
+T {( @#0:resolved_net )} 90 -225 0 0 0.2 0.2 {name=p6 layer=15}
+T {( @#0:resolved_net )} 90 -165 0 0 0.2 0.2 {name=p9 layer=15}
+T {( @#0:resolved_net )} 90 -145 0 0 0.2 0.2 {name=p10 layer=15}
 N 1130 -590 1130 -340 {lab=FN}
 N 660 -520 660 -340 {lab=BN}
 N 1050 -820 1130 -820 {lab=Q}
@@ -68,11 +72,11 @@ N 400 -240 820 -240 {lab=#net1}
 C {ipin.sym} 80 -220 0 0 {name=p6 lab=D}
 C {ipin.sym} 80 -160 0 0 {name=p9 lab=G}
 C {ipin.sym} 80 -140 0 0 {name=p10 lab=CD}
-C {opin.sym} 180 -240 0 0 {name=p11 lab=Q}
-C {iopin.sym} 180 -220 0 0 {name=p12 lab=vcc}
-C {iopin.sym} 180 -200 0 0 {name=p13 lab=vss}
-C {iopin.sym} 180 -180 0 0 {name=p14 lab=vccsup}
-C {iopin.sym} 180 -160 0 0 {name=p15 lab=vsssup}
+C {opin.sym} 230 -210 0 0 {name=p11 lab=Q}
+C {iopin.sym} 230 -190 0 0 {name=p12 lab=vcc}
+C {iopin.sym} 230 -170 0 0 {name=p13 lab=vss}
+C {iopin.sym} 230 -150 0 0 {name=p14 lab=vccsup}
+C {iopin.sym} 230 -130 0 0 {name=p15 lab=vsssup}
 C {lab_pin.sym} 1130 -820 0 1 {name=p1 lab=Q}
 C {capa.sym} 630 -460 1 0 {name=c2 m=1 value=3f}
 C {lab_pin.sym} 600 -460 1 0 {name=p8 lab=vss}

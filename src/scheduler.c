@@ -3144,6 +3144,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else if(argc > 2 && !strcmp(argv[2], "switch")) {
         if(argc > 4) {
           ret = extra_rawfile(2, argv[3], argv[4]);
+        } else if(argc > 3) {
+          ret = extra_rawfile(2, argv[3], NULL);
         } else {
           ret = extra_rawfile(2, NULL, NULL);
         }
@@ -4682,42 +4684,48 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int type, n, c;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
-      hash_objects();
-      dbg(0, "n_hash_objects=%d\n", xctx->n_hash_objects);
-
-      for(init_object_iterator(&ctx, -420., -970., 1300., -250.); (objectptr = object_iterator_next(&ctx)) ;) {
-        type = objectptr->type;
-        n = objectptr->n;
-        c = objectptr->c;
-        dbg(0, "type=%d, n=%d c=%d\n", type, n, c);
-        switch(type) {
-          case ELEMENT:
-            select_element(n, SELECTED, 1, 1);
-            break;
-          case WIRE:
-            select_wire(n, SELECTED, 1);
-            break;
-          case xTEXT:
-            select_text(n, SELECTED, 1);
-            break;
-          case xRECT:
-            select_box(c, n, SELECTED, 1, 0);
-            break;
-          case LINE:
-            select_line(c, n, SELECTED, 1);
-            break;
-          case POLYGON:
-            select_polygon(c, n, SELECTED, 1);
-            break;
-          case ARC:
-            select_arc(c, n, SELECTED, 1);
-            break;
+      if(argc > 2 && atoi(argv[2]) == 1) {
+        hash_objects();
+        dbg(0, "n_hash_objects=%d\n", xctx->n_hash_objects);
+  
+        for(init_object_iterator(&ctx, -420., -970., 1300., -250.); (objectptr = object_iterator_next(&ctx)) ;) {
+          type = objectptr->type;
+          n = objectptr->n;
+          c = objectptr->c;
+          dbg(0, "type=%d, n=%d c=%d\n", type, n, c);
+          switch(type) {
+            case ELEMENT:
+              select_element(n, SELECTED, 1, 1);
+              break;
+            case WIRE:
+              select_wire(n, SELECTED, 1);
+              break;
+            case xTEXT:
+              select_text(n, SELECTED, 1);
+              break;
+            case xRECT:
+              select_box(c, n, SELECTED, 1, 0);
+              break;
+            case LINE:
+              select_line(c, n, SELECTED, 1);
+              break;
+            case POLYGON:
+              select_polygon(c, n, SELECTED, 1);
+              break;
+            case ARC:
+              select_arc(c, n, SELECTED, 1);
+              break;
+          }
         }
+        rebuild_selected_array();
+        draw();
+  
+        del_object_table();
       }
-      rebuild_selected_array();
-      draw();
-
-      del_object_table();
+      else if(argc > 2 && atoi(argv[2]) == 2) {
+        Xschem_ctx **save_xctx = get_save_xctx();
+        copy_hierarchy_data(save_xctx[0], save_xctx[1]);
+      }
       Tcl_ResetResult(interp);
     }
 
