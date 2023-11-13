@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -355,7 +355,7 @@ comment="
 "
 tclcommand="
   set count 0
-  set duration 300
+  set duration 80
   xschem select instance p8  ;# CLEAR_
   xschem select instance p9  ;# CLK
   xschem logic_set 0         ;# reset pulse (active low) 

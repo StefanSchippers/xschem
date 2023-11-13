@@ -193,6 +193,9 @@ proc netlist_test {} {
     rom8k.sch               spice      1947979332
     greycnt.sch             verilog    2899796185
     autozero_comp.sch       spice       751826850
+    test_generators.sch     spice        49312823
+    inst_sch_select.sch     spice       801962545
+    test_bus_tap.sch        spice       181420586
     loading.sch             vhdl       2975204502
     mos_power_ampli.sch     spice      1986885043
     hierarchical_tedax.sch  tedax       998070173

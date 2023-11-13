@@ -42,7 +42,7 @@ out3
 out4
 out5
 out6"
-color="9 10 11 12 13 14"
+color="7 8 9 10 11 12"
 dataset=-1
 unitx=1
 logx=0
