@@ -47,7 +47,7 @@ proc create_save {} {
           close $fd
           set filename [regsub {\.tcl$} $f {}]
           set output ${filename}_debug.txt
-          if {[catch {eval exec {$xschem_cmd ${results_dir}/$fn_sch -d 1 --script ${testname}/tests/${f} 2> ${results_dir}/$output}} msg]} {
+          if {[catch {eval exec {$xschem_cmd ${results_dir}/$fn_sch --pipe -d 1 --script ${testname}/tests/${f} 2> ${results_dir}/$output}} msg]} {
             puts "FATAL: $msg"
             incr num_fatals
           } else {

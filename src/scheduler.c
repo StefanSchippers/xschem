@@ -775,7 +775,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* exit [closewindow]
+    /* exit [closewindow] [force]
      *   Exit the program, ask for confirm if current file modified.
      *   if 'closewindow' is given close the window, otherwise leave with a blank schematic
      *   when closing the last remaining window
@@ -2703,6 +2703,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
+      }
+      else {
+         if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
+         else dbg(0, "Can not write into the netlist directory. Please check");
+         err = 1;
       }
       if(err) {
         if(has_x) {

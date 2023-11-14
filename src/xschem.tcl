@@ -1799,61 +1799,46 @@ proc simulate {{callback {}}} {
       set fg {execute}
     }
     set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
-    if {$OS == "Windows"} {
-      # $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
-      set save [pwd]
-      cd $netlist_dir
-      set_simulate_button list [xschem get top_path] [xschem get current_win_path]
-      if { $callback ne {} } {
-        uplevel #0 {
-          eval $callback
-        }
+    
+    # window interface       tabbed interface
+    # -----------------------------------------
+    # top_path   win_path    top_path   win_path
+    #  {}        .drw         {}        .drw
+    #  .x1       .x1.drw      {}        .x1.drw
+    #  .x2       .x2.drw      {}        .x2.drw
+    set execute(callback) "
+       set_simulate_button [list [xschem get top_path] [xschem get current_win_path]]
+       $callback
+    "
+    # puts $cmd
+
+    if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
+
+    set save [pwd]
+    cd $netlist_dir
+    # Note: Windows $cmd cannot be surrounded by {} as exec will change forward slash to backward slash
+    set id [eval execute $st $cmd]   ;# Start simulation process
+    cd $save
+
+    if {[info exists has_x] && $id >= 0 } {
+      set tctx::[xschem get current_win_path]_simulate_id $id
+      set button_path [xschem get top_path].menubar.simulate
+      $button_path configure -bg yellow
+      set tctx::[xschem get current_win_path]_simulate yellow
+    }
+
+    puts "Simulation started: execution ID: $id"
+
+    if {$fg eq {execute_wait}} {
+      if {$id >= 0} {
+        vwait execute(pipe,$id)
       }
-      #eval exec {cmd /V /C "cd $netlist_dir&&$cmd}
-      eval exec $cmd &
-      cd $save
-      set id 0
-    } else {
-      # window interface       tabbed interface
-      # -----------------------------------------
-      # top_path   win_path    top_path   win_path
-      #  {}        .drw         {}        .drw
-      #  .x1       .x1.drw      {}        .x1.drw
-      #  .x2       .x2.drw      {}        .x2.drw
-      set execute(callback) "
-         set_simulate_button [list [xschem get top_path] [xschem get current_win_path]]
-         $callback
-      "
-      # puts $cmd
-
-      if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
-
-      set save [pwd]
-      cd $netlist_dir
-      set id [eval execute $st $cmd]   ;# Start simulation process
-      cd $save
-
-      if {[info exists has_x] && $id >= 0 } {
-        set tctx::[xschem get current_win_path]_simulate_id $id
-        set button_path [xschem get top_path].menubar.simulate
-        $button_path configure -bg yellow
-        set tctx::[xschem get current_win_path]_simulate yellow
-      }
-
-      puts "Simulation started: execution ID: $id"
-
-      if {$fg eq {execute_wait}} {
-        if {$id >= 0} {
-          vwait execute(pipe,$id)
-        }
-        xschem set semaphore [expr {[xschem get semaphore] -1}]
-      }
+      xschem set semaphore [expr {[xschem get semaphore] -1}]
     }
     return $id
   } else {
     return -1
   }
-  
 }
 
 proc gaw_echoline {} {
