@@ -2482,6 +2482,11 @@ int rstate; /* (reduced state, without ShiftMask) */
                 "-message {Please Set netlisting mode (Options menu)}");
       dbg(1, "callback(): -------------\n");
     }
+    else {
+       if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
+       else dbg(0, "Can not write into the netlist directory. Please check");
+       err = 1;
+    }
     if(err) {
       if(has_x) {
         tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
