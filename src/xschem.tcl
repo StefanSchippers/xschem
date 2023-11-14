@@ -2208,6 +2208,26 @@ proc graph_get_signal_list {siglist pattern } {
   return $result
 }
 
+proc touches {sel tag} {
+  set res 0
+  scan $sel {%d.%d %d.%d} sel_linestart sel_charstart sel_lineend sel_charend
+  scan $tag {%d.%d %d.%d} tag_linestart tag_charstart tag_lineend tag_charend
+  set selstart [expr {$sel_linestart * 1000000 + $sel_charstart}]
+  set selend [expr {$sel_lineend * 1000000 + $sel_charend}]
+  set tagstart [expr {$tag_linestart * 1000000 + $tag_charstart}]
+  set tagend [expr {$tag_lineend * 1000000 + $tag_charend}]
+  # puts "selstart: $selstart"
+  # puts "selend: $selend"
+  # puts "tagstart: $tagstart"
+  # puts "tagend: $tagend"
+  if { ($tagstart >= $selstart && $tagstart <= $selend) ||
+       ($tagend >= $selstart && $tagend <= $selend) } {
+    set res 1
+  }
+  # puts "touch: returning $res"
+  return $res
+}
+
 # change color of selected wave in text widget and redraw graph
 # OR
 # change color attribute of wave given as parameter, redraw graph
@@ -2217,14 +2237,34 @@ proc graph_change_wave_color {{wave {}}} {
   if { [xschem get schname] ne $graph_schname } return
   #  get tag the cursor is on:
   if { $wave eq {}} {
-    set tag [.graphdialog.center.right.text1 tag names insert]
-    if { [regexp {^t} $tag]} {
-      set index [string range $tag 1 end]
-      set col  [xschem getprop rect 2 $graph_selected color]
-      set col [lreplace $col $index $index  $graph_sel_color]
-      xschem setprop rect 2 $graph_selected color $col fast
+    set sel_range [.graphdialog.center.right.text1 tag ranges sel]
+    if {$sel_range ne {}} {
+      # puts "sel_range --> $sel_range"
+      foreach tag [.graphdialog.center.right.text1 tag names] {
+        if {$tag eq {sel}} {continue}
+        set tag_range [.graphdialog.center.right.text1 tag ranges $tag]
+        # puts "$tag --> $tag_range"
+
+        if { [touches $sel_range $tag_range]} {
+          set index [string range $tag 1 end]
+          set col  [xschem getprop rect 2 $graph_selected color]
+          set col [lreplace $col $index $index  $graph_sel_color]
+          xschem setprop rect 2 $graph_selected color $col fast
+        }
+      }
       graph_update_nodelist
       xschem draw_graph $graph_selected
+    } else {
+      set tag [.graphdialog.center.right.text1 tag names insert]
+      if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
+      if { [regexp {^t} $tag]} {
+        set index [string range $tag 1 end]
+        set col  [xschem getprop rect 2 $graph_selected color]
+        set col [lreplace $col $index $index  $graph_sel_color]
+        xschem setprop rect 2 $graph_selected color $col fast
+        graph_update_nodelist
+        xschem draw_graph $graph_selected
+      }
     }
   # wave to change provided as parameter
   } else {
