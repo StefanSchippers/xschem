@@ -2216,10 +2216,10 @@ proc touches {sel tag} {
   set selend [expr {$sel_lineend * 1000000 + $sel_charend}]
   set tagstart [expr {$tag_linestart * 1000000 + $tag_charstart}]
   set tagend [expr {$tag_lineend * 1000000 + $tag_charend}]
-  puts "selstart: $selstart"
-  puts "selend: $selend"
-  puts "tagstart: $tagstart"
-  puts "tagend: $tagend"
+  # puts "selstart: $selstart"
+  # puts "selend: $selend"
+  # puts "tagstart: $tagstart"
+  # puts "tagend: $tagend"
   if { ($tagstart >= $selstart && $tagstart <= $selend) ||
        ($tagend >= $selstart && $tagend <= $selend) ||
        ($selstart >= $tagstart && $selstart <= $tagend) ||
@@ -2227,7 +2227,7 @@ proc touches {sel tag} {
      } {
     set res 1
   }
-  puts "touch: returning $res"
+  # puts "touch: returning $res"
   return $res
 }
 
