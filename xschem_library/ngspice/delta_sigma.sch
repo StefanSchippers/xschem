@@ -55,7 +55,7 @@ x1=2e-12
 x2=9e-06
 divx=5
 subdivx=1
-node="CODE,code[5],code[4],code[3],code[2],code[1],code[0]
+node="CODE;code[5],code[4],code[3],code[2],code[1],code[0]
 ck
 rst
 x1.comp"

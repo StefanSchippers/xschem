@@ -126,7 +126,7 @@ color="7 4 6 10"
 node="\\"Panel power; i(vpanel) v(panel) *\\"
 \\"Led power; i(vled) v(led) *\\"
 \\"Avg.Pan. Pwr; i(vpanel) v(panel) * 20u ravg()\\"
-\\"SUN %; sun 100 *\\""
+\\"SUN \\\\%; sun 100 *\\""
 hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0}

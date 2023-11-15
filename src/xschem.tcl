@@ -2005,6 +2005,7 @@ proc graph_push_undo {} {
 proc graph_edit_wave {n n_wave} {
   global graph_sel_color graph_selected colors graph_sel_wave
   global graph_schname cadlayers
+  if {[winfo exists .graphdialog]} {return}
   set graph_schname [xschem get schname]
   set_ne graph_sel_color 4
   set graph_selected $n
@@ -2025,7 +2026,9 @@ proc graph_edit_wave {n n_wave} {
   toplevel .graphdialog -class Dialog
   wm transient .graphdialog .
   frame .graphdialog.f
-  button .graphdialog.ok -text OK -command {destroy .graphdialog}
+  button .graphdialog.ok -text OK -command {
+    destroy .graphdialog
+  }
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
   for {set i 4} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.f.r$i -value $i -bg [lindex $colors $i] \

@@ -3257,6 +3257,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   char *ntok_copy = NULL; /* copy of ntok without %<n> */
   char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
   char *sim_type = NULL;
+  int save_extra_idx = -1;
   
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
@@ -3271,6 +3272,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   /* draw stuff */
   if(flags & 8) {
     int k;
+    char *tmp_ptr = NULL;
     int save_datasets = -1, save_npoints = -1;
     #if !defined(__unix__) && HAS_CAIRO==1
     double sw = (gr->sx2 - gr->sx1);
@@ -3286,11 +3288,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",2)); 
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
-    if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-      extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
-    }
-    raw = xctx->raw;
-
     /* transform multiple OP points into a dc sweep */
     if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
       save_datasets = raw->datasets;
@@ -3298,6 +3295,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       save_npoints = raw->npoints[0];
       raw->npoints[0] = raw->allpoints;
     }
+    save_extra_idx = xctx->extra_idx;
+    dbg(1, "1: save_extra_idx=%d\n", save_extra_idx);
 
     nptr = node;
     cptr = color;
@@ -3314,32 +3313,58 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
 
-      char *nd;
-      char *c1, *c2;
+      char *nd = NULL;
+      char str_extra_idx[30];
 
-      nd = find_nth(ntok, "%", "\"", 0, 2);
-      /* do not consider % in alias names (like SUN %; sun 100 *) */
-      c1 = strstr(ntok, ";");
-      c2 = strstr(ntok, "%");
-      if(c1 && c2 && c1 > c2) nd[0] = '\0';
+      if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
+        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+      }
+      raw = xctx->raw;
 
+      my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
       if(wcnt >= n_nodes) {
         dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
         dbg(0, "draw_graph(): n_nodes=%d\n", n_nodes);
         wcnt--; /* nosense, but avoid a crash */
       }
       /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
+      /* if %n rawfile.raw is specified use rawfile.raw for this node */
+
       if(nd[0]) {
-        node_dataset = atoi(tcl_hook2(nd));
-        my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 0, 1));
+        int pos = 1;
+        if(isonlydigit(find_nth(nd, " ", "\"", 0, 1))) pos = 2;
+        if(raw && raw->values) {
+          char *node_rawfile = NULL;
+          char *node_sim_type = NULL;
+          tclvareval("subst {", find_nth(nd, " ", "\"", 0, pos), "}", NULL);
+          my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+          tclvareval("subst {", find_nth(nd, " ", "\"", 0, pos + 1), "}", NULL);
+          my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
+                sim_type[0] ? sim_type : xctx->raw->sim_type);
+          dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+          if(node_rawfile && node_rawfile[0]) {
+            extra_rawfile(1, node_rawfile, node_sim_type);
+            raw = xctx->raw;
+          }
+          my_free(_ALLOC_ID_, &node_rawfile);
+          my_free(_ALLOC_ID_, &node_sim_type);
+        }
+        if(pos == 2) node_dataset = atoi(tcl_hook2(nd));
+        else node_dataset = -1;
+        dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
+        my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
       } else {
         node_dataset = -1;
         my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
       }
+      my_free(_ALLOC_ID_, &nd);
       dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
-      if(strstr(ntok_copy, ",")) {
+
+      tmp_ptr = find_nth(ntok_copy, ";", "\"", 4, 2);
+      if(strstr(tmp_ptr, ",")) {
+        tmp_ptr = find_nth(tmp_ptr, ",", "\"", 4, 1);
         /* also trim spaces */
-        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(find_nth(ntok_copy, ";,", "\"", 0, 2), " "));
+        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, " "));
       }
       dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "NULL");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
@@ -3488,6 +3513,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
+
+      if(save_extra_idx != -1) {
+        my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
+        extra_rawfile(2, str_extra_idx, NULL);
+        raw = xctx->raw;
+      }
+
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
     if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
       raw->datasets = save_datasets;
@@ -3495,7 +3527,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     }
     if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
     if(express) my_free(_ALLOC_ID_, &express);
-    if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL);
+    /* if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL); */
     my_free(_ALLOC_ID_, &custom_rawfile);
     my_free(_ALLOC_ID_, &sim_type);
     my_free(_ALLOC_ID_, &node);
