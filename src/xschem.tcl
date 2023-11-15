@@ -2276,12 +2276,12 @@ proc graph_update_nodelist {} {
   set col  [xschem getprop rect 2 $graph_selected color]
   set col [string trim $col " \n"]
 
-  set regx {(?:(tcleval\()?"[^"]+"\)?)|(?:(tcleval\()?[^\n \t]+\)?)}
+  set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
   set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
   set tt {}
   set cc {}
   set start 0
-  while {[regexp -indices -start $start $regx $txt idx]} {
+  while {[regexp -indices -start $start $regx $txt idxall idx]} {
     lappend tt [lindex $idx 0]
     set start [expr {[lindex $idx 1] + 1}]
     lappend cc $start
