@@ -3283,9 +3283,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */
-    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",2));
-    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",2)); 
-    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",2)); 
+    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
+    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
+    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     /* transform multiple OP points into a dc sweep */
