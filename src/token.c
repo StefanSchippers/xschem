@@ -3203,13 +3203,23 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
 
 int isonlydigit(const char *s)
 {
-    char c;
-    if(s == NULL || *s == '\0') return 0;
-    while( (c = *s) ) {
-     if(c < '0' || c > '9') return 0;
-     ++s;
+  char c;
+  int res = 1;
+  int first = 1;
+  if(s == NULL || *s == '\0') return 0;
+  while( (c = *s++) ) {
+    if(first == 1) {
+      first = 0;
+      if(c == '-') {
+        continue;
+      }
     }
-    return 1;
+    if(c < '0' || c > '9') {
+      res = 0;
+      break;
+    }
+  }
+  return res;
 }
 
 
