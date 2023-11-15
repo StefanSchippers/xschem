@@ -804,6 +804,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   if(fd) {
     if((res = read_dataset(fd, rawptr, type)) == 1) {
       int i;
+      set_modify(-2); /* clear text floater caches */
       my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
