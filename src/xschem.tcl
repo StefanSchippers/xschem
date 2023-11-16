@@ -5897,7 +5897,7 @@ proc tab_ctx_cmd {tab_but what} {
   # puts $filename
 }
 proc tab_context_menu {tab_but} {
-  global retval
+  global retval search_schematic
 
 
   # find filename associated with tab button
@@ -5917,11 +5917,19 @@ proc tab_context_menu {tab_but} {
   xschem new_schematic switch $old {} 0 ;# no draw
 
   if {$filetype ne {symbol}} {
-    set counterpart [abs_sym_path $filename .sym]
+    if {$search_schematic == 1} {
+      set counterpart [abs_sym_path [xschem get current_name] {.sym}]
+    } else {
+      set counterpart [abs_sym_path $filename .sym]
+    }
     set msg {Open symbol}
     set img CtxmenuSymbol
   } else {
-    set counterpart [abs_sym_path $filename .sch]
+    if {$search_schematic == 1} {
+      set counterpart [abs_sym_path [xschem get current_name] {.sch}]
+    } else {
+      set counterpart [abs_sym_path $filename .sch]
+    }
     set msg {Open schematic}
     set img CtxmenuSchematic
   }

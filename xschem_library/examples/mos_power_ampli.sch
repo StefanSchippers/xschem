@@ -137,11 +137,11 @@ N 690 -1210 690 -970 {lab=VBOOST}
 N 690 -910 690 -900 {lab=B1}
 N 260 -550 260 -540 {lab=E9}
 N 150 -180 260 -180 {lab=VSS}
-N 40 -300 220 -300 {lab=B3}
+N 50 -300 220 -300 {lab=B3}
 N 260 -270 260 -240 {lab=E3}
 N 150 -240 150 -180 {lab=VSS}
-N 40 -210 40 -180 {lab=VSS}
-N 40 -180 150 -180 {lab=VSS}
+N 50 -240 50 -180 {lab=VSS}
+N 50 -180 150 -180 {lab=VSS}
 N 690 -690 1110 -690 {lab=OUTI}
 N 180 -550 260 -550 {lab=E9}
 N 1110 -700 1110 -690 {lab=OUTI}
@@ -153,6 +153,7 @@ N 1110 -820 1110 -790 {lab=SA}
 N 860 -850 1070 -850 {lab=GA}
 N 340 -830 340 -780 {lab=C2}
 N 340 -720 340 -650 {lab=C9}
+N 220 -720 340 -720 {lab=C9}
 N 180 -690 180 -650 {lab=C5}
 N 1330 -680 1390 -680 {lab=OUT}
 N 1110 -680 1240 -680 {lab=OUTI}
@@ -183,7 +184,7 @@ N 340 -1270 560 -1270 {lab=VPP}
 N 1110 -1270 1110 -880 { lab=VPP}
 N 560 -1270 1110 -1270 {lab=VPP}
 N 230 -1040 800 -1040 { lab=#net2}
-N 0 -180 40 -180 {
+N 0 -180 50 -180 {
 lab=VSS}
 N 0 -140 1110 -140 {
 lab=VNN}
@@ -196,14 +197,6 @@ N 400 -620 400 -570 {
 lab=MINUS}
 N 380 -620 400 -620 {
 lab=MINUS}
-N 300 -720 340 -720 {
-lab=C9}
-N 220 -720 240 -720 {
-lab=#net8}
-N 40 -300 40 -270 {
-lab=B3}
-N 150 -400 150 -360 {
-lab=VPP}
 C {ipin.sym} 0 -620 0 0 {name=p0 lab=PLUS}
 C {ipin.sym} 0 -140 0 0 {name=p3 lab=VNN}
 C {nmos3.sym} 1090 -530 0 0 {name=xm2 model=irf540 m=1
@@ -294,9 +287,9 @@ url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf"
  net_name=true}
 C {npn.sym} 240 -300 0 0 {name=Q3 model=q2n2222 area=1 net_name=true}
 C {res.sym} 150 -330 0 1 {name=R1 m=1 value=10k net_name=true}
-C {lab_pin.sym} 150 -400 0 0 {name=p7 lab=VPP}
+C {lab_pin.sym} 150 -360 0 0 {name=p7 lab=VPP}
 C {res.sym} 260 -210 0 1 {name=R10 m=1 value=170 net_name=true}
-C {capa.sym} 40 -240 0 0 {name=C3 m=1 value=100n net_name=true}
+C {capa.sym} 50 -270 0 0 {name=C3 m=1 value=100n net_name=true}
 C {res.sym} 560 -700 0 1 {name=R12 m=1 value=1300 net_name=true}
 C {lab_pin.sym} 690 -890 0 0 {name=p12 lab=B1}
 C {lab_pin.sym} 340 -550 0 1 {name=p13 lab=E9}
@@ -305,7 +298,7 @@ C {lab_pin.sym} 560 -650 0 1 {name=p20 lab=E8}
 C {lab_pin.sym} 840 -940 0 0 {name=p21 lab=E11}
 C {lab_pin.sym} 260 -260 0 1 {name=p22 lab=E3}
 C {lab_pin.sym} 260 -350 0 0 {name=p26 lab=C3}
-C {lab_pin.sym} 40 -300 0 0 {name=p30 lab=B3}
+C {lab_pin.sym} 50 -300 0 0 {name=p30 lab=B3}
 C {lab_pin.sym} 520 -580 0 0 {name=p33 lab=VSS}
 C {res.sym} 340 -750 0 1 {name=R13 m=1 value=300 net_name=true}
 C {npn.sym} 200 -720 0 1 {name=Q7 model=q2n2222 area=1 net_name=true}
@@ -472,4 +465,3 @@ C {ngspice_get_expr.sym} 1130 -860 0 0 {name=r22
 node="[ngspice::get_current \{xm1.rd[i]\}]" 
 descr = current
 }
-C {ammeter.sym} 270 -720 1 0 {name=v9  net_name=true }

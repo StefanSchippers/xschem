@@ -245,6 +245,9 @@ int global_spice_netlist(int global)  /* netlister driver */
  Str_hashentry *model_entry;
  int lvs_ignore = tclgetboolvar("lvs_ignore");
  int save_prev_mod = xctx->prev_set_modify;
+ struct stat buf;
+ char *top_symbol_name = NULL;
+ int found_top_symbol = 0; /* if top level has a symbol use it for pin ordering */
 
  split_f = tclgetboolvar("split_files");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
@@ -310,20 +313,29 @@ int global_spice_netlist(int global)  /* netlister driver */
  fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
 
  /* print top subckt ipin/opins */
- for(i=0;i<xctx->instances; ++i) {
-  if(skip_instance(i, 1, lvs_ignore)) continue;
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-  dbg(1, "global_spice_netlist(): |%s|\n", type);
-  /* 
-  if( type && !strcmp(type,"netlist_options") ) {
-    continue;
-  }
-  */
-  if( type && IS_PIN(type)) {
-   str_tmp = expandlabel ( (xctx->inst[i].lab ? xctx->inst[i].lab : ""), &multip);
-   /*must handle  invalid node names */
-   fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
-  }
+ my_strdup2(_ALLOC_ID_, &top_symbol_name, abs_sym_path(add_ext(xctx->current_name, ".sym"), ""));
+ if(!stat(top_symbol_name, &buf)) { /* if top level has a symbol use the symbol for pin ordering */
+   dbg(1, "found top level symbol %s\n", top_symbol_name);
+   load_sym_def(top_symbol_name, NULL);
+   /* only use the symbol if it has pins */
+   if(xctx->sym[xctx->symbols - 1].rects[PINLAYER] > 0) {
+     fprintf(fd," ");
+     print_spice_subckt_nodes(fd, xctx->symbols - 1);
+     found_top_symbol = 1;
+   }
+   remove_symbol(xctx->symbols - 1);
+   my_free(_ALLOC_ID_, &top_symbol_name);
+ }
+ if(!found_top_symbol) {
+   for(i=0;i<xctx->instances; ++i) {
+     if(skip_instance(i, 1, lvs_ignore)) continue;
+     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     if( type && IS_PIN(type)) {
+       str_tmp = expandlabel ( (xctx->inst[i].lab ? xctx->inst[i].lab : ""), &multip);
+       /*must handle  invalid node names */
+       fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
+     }
+   }
  }
  fprintf(fd,"\n");
 
