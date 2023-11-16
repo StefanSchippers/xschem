@@ -197,7 +197,7 @@ proc netlist_test {} {
     inst_sch_select.sch     spice       801962545
     test_bus_tap.sch        spice       181420586
     loading.sch             vhdl       2975204502
-    mos_power_ampli.sch     spice      4084823731
+    mos_power_ampli.sch     spice       475695942
     hierarchical_tedax.sch  tedax       998070173
     LCC_instances.sch       spice       696885230
     pcb_test1.sch           tedax      1925087189

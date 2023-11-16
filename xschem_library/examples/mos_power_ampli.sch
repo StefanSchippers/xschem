@@ -35,8 +35,8 @@ y1=-47
 y2=50
 divy=4
 subdivy=4
-x1=0.00823137
-x2=0.00892608
+x1=0.0227349
+x2=0.0233008
 divx=8
 subdivx=1
 dataset=0
@@ -54,8 +54,8 @@ y1=0
 y2=160
 divy=4
 subdivy=9
-x1=0.00823137
-x2=0.00892608
+x1=0.0227349
+x2=0.0233008
 divx=8
 subdivx=9
 dataset=0
@@ -72,8 +72,8 @@ y1=-0.19
 y2=160
 divy=4
 subdivy=9
-x1=0.00823137
-x2=0.00892608
+x1=0.0227349
+x2=0.0233008
 divx=8
 subdivx=9
 dataset=0
@@ -203,11 +203,11 @@ C {nmos3.sym} 1090 -530 0 0 {name=xm2 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/irf540.pdf"
  net_name=true}
-C {res.sym} 960 -500 0 1 {name=R7 m=1 value=190 net_name=true}
+C {res.sym} 960 -500 0 1 {name=R7 m=1 value=320 net_name=true}
 C {nmos3.sym} 1090 -850 0 0 {name=xm1 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/irf540.pdf" net_name=true}
-C {res.sym} 960 -820 0 1 {name=R0 m=1 value=190 net_name=true}
+C {res.sym} 960 -820 0 1 {name=R0 m=1 value=320 net_name=true}
 C {lab_wire.sym} 880 -530 0 0 {name=l8 lab=GB}
 C {res.sym} 340 -1140 0 1 {name=R2 m=1 value=50 net_name=true}
 C {res.sym} 180 -1140 0 1 {name=R3 m=1 value=50 net_name=true}
@@ -268,7 +268,7 @@ rload out 0 4
 *.probe dc v(plus,vdc)
 "}
 C {lab_wire.sym} 920 -850 0 0 {name=l1 lab=GA}
-C {res.sym} 800 -530 1 1 {name=R11 m=1 value=1300 net_name=true
+C {res.sym} 800 -530 1 1 {name=R11 m=1 value=400 net_name=true
 hide_texts=true}
 C {pnp.sym} 540 -580 0 0 {name=Q8 model=q2n2907p area=1 net_name=true}
 C {capa.sym} 1240 -1020 0 0 {name=C12 m=1 value="40u" net_name=true}
@@ -280,17 +280,17 @@ url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf" net_name=true}
 C {res.sym} 690 -850 0 1 {name=R14 m=1 value=4k net_name=true}
 C {pnp.sym} 820 -900 0 0 {name=Q11 model=q2n2907p area=1 net_name=true}
 C {res.sym} 690 -940 0 1 {name=R15 m=1 value=4k net_name=true}
-C {res.sym} 260 -510 0 1 {name=R5 m=1 value=120 net_name=true}
-C {res.sym} 260 -450 0 1 {name=R6 m=1 value=120 net_name=true}
+C {res.sym} 260 -510 0 1 {name=R5 m=1 value=40 net_name=true}
+C {res.sym} 260 -450 0 1 {name=R6 m=1 value=40 net_name=true}
 C {zener.sym} 150 -270 2 0 {name=D2 model=d1n755 area=1
 url="http://www.futurlec.com/Datasheet/Diodes/1N746-1N759.pdf"
  net_name=true}
 C {npn.sym} 240 -300 0 0 {name=Q3 model=q2n2222 area=1 net_name=true}
 C {res.sym} 150 -330 0 1 {name=R1 m=1 value=10k net_name=true}
 C {lab_pin.sym} 150 -360 0 0 {name=p7 lab=VPP}
-C {res.sym} 260 -210 0 1 {name=R10 m=1 value=170 net_name=true}
+C {res.sym} 260 -210 0 1 {name=R10 m=1 value=300 net_name=true}
 C {capa.sym} 50 -270 0 0 {name=C3 m=1 value=100n net_name=true}
-C {res.sym} 560 -700 0 1 {name=R12 m=1 value=1300 net_name=true}
+C {res.sym} 560 -700 0 1 {name=R12 m=1 value=400 net_name=true}
 C {lab_pin.sym} 690 -890 0 0 {name=p12 lab=B1}
 C {lab_pin.sym} 340 -550 0 1 {name=p13 lab=E9}
 C {lab_pin.sym} 560 -530 0 0 {name=p19 lab=C8}
@@ -464,4 +464,8 @@ descr = current
 C {ngspice_get_expr.sym} 1130 -860 0 0 {name=r22 
 node="[ngspice::get_current \{xm1.rd[i]\}]" 
 descr = current
+}
+C {ngspice_get_expr.sym} 610 -830 0 1 {name=r20 
+node="[format %.4g [expr [ngspice::get_current \{q6[ic]\}] / [ngspice::get_current \{q6[ib]\}] ] ]"
+descr = beta
 }

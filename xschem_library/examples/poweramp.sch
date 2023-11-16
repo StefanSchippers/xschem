@@ -38,8 +38,8 @@ B 2 1200 -500 1880 -310 {flags=graph
 y1 = -0.0059
 y2 = 11
 divy = 6
-x1=0.00562909
-x2=0.0165959
+x1=0.0227673
+x2=0.0231289
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -52,8 +52,8 @@ B 2 1200 -830 1880 -520 {flags=graph
 y1 = -49
 y2 = 58
 divy = 12
-x1=0.00562909
-x2=0.0165959
+x1=0.0227673
+x2=0.0231289
 divx=10
 node="outp
 outm
@@ -68,8 +68,8 @@ B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 0
 y2 = 830
 divy = 6
-x1=0.00562909
-x2=0.0165959
+x1=0.0227673
+x2=0.0231289
 divx=10
 
 
@@ -82,8 +82,8 @@ B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0
 y2 = 840
 divy = 6
-x1=0.00562909
-x2=0.0165959
+x1=0.0227673
+x2=0.0231289
 divx=10
 
 
@@ -185,8 +185,8 @@ N 240 -320 240 -220 { lab=INX}
 N 160 -1220 180 -1220 {lab=#net3}
 N 160 -1060 180 -1060 {lab=#net4}
 N 70 -1140 180 -1140 {lab=#net5}
-C {vsource.sym} 70 -1170 0 0 {name=V1 value="dc 50 pwl 0 0 1m 50"}
-C {vsource.sym} 70 -1110 0 0 {name=V0 value="dc 50 pwl 0 0 1m 50"}
+C {vsource.sym} 70 -1170 0 0 {name=V1 value="dc VPP pwl 0 0 1m VPP"}
+C {vsource.sym} 70 -1110 0 0 {name=V0 value="dc VPP pwl 0 0 1m VPP"}
 C {lab_pin.sym} 310 -1220 0 1 {name=p5 lab=VPP}
 C {lab_pin.sym} 310 -1060 0 1 {name=p6 lab=VNN}
 C {lab_pin.sym} 310 -1140 0 1 {name=p3 lab=VSS}
@@ -199,9 +199,9 @@ C {lab_pin.sym} 700 -1200 0 1 {name=p32 lab=REFP}
 C {capa.sym} 260 -1100 0 0 {name=C3 m=1 value="100u"}
 C {res.sym} 130 -1220 1 1 {name=R11 m=1 value=0.3}
 C {res.sym} 130 -1060 1 1 {name=R9 m=1 value=0.3}
-C {res.sym} 550 -920 0 1 {name=R19 m=1 value='100k'
+C {res.sym} 550 -920 0 1 {name=R19 m=1 value=50k
 }
-C {res.sym} 550 -860 0 1 {name=R0 m=1 value="'100k/gain'"}
+C {res.sym} 550 -860 0 1 {name=R0 m=1 value="'50k/gain'"}
 C {lab_pin.sym} 550 -750 0 0 {name=p108 lab=IN}
 C {mos_power_ampli.sym} 500 -660 0 0 {name=x1}
 C {lab_pin.sym} 350 -640 0 0 {name=p2 lab=VPP}
@@ -210,9 +210,9 @@ C {lab_pin.sym} 860 -700 0 1 {name=p9 lab=OUTM}
 C {mos_power_ampli.sym} 500 -200 0 0 {name=x0}
 C {lab_pin.sym} 350 -180 0 0 {name=p12 lab=VPP}
 C {lab_pin.sym} 350 -160 0 0 {name=p13 lab=VNN}
-C {res.sym} 240 -350 0 1 {name=R6 m=1 value=100k}
+C {res.sym} 240 -350 0 1 {name=R6 m=1 value=50k}
 C {lab_pin.sym} 240 -400 0 0 {name=p7 lab=VPP}
-C {res.sym} 260 -160 0 1 {name=R7 m=1 value=100k}
+C {res.sym} 260 -160 0 1 {name=R7 m=1 value=50k}
 C {lab_pin.sym} 260 -110 0 0 {name=p15 lab=VSS}
 C {lab_pin.sym} 500 -1070 0 0 {name=p20 lab=VSS}
 C {lab_pin.sym} 540 -1110 0 0 {name=p21 lab=IN}
@@ -226,17 +226,17 @@ C {lab_pin.sym} 550 -290 0 0 {name=p11 lab=VSS}
 C {capa.sym} 550 -340 0 0 {name=C6 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 350 -200 0 0 {name=p28 lab=VSS}
 C {lab_pin.sym} 350 -660 0 0 {name=p1 lab=VSS}
-C {res.sym} 550 -460 0 1 {name=R2 m=1 value='100k'}
-C {res.sym} 550 -400 0 1 {name=R3 m=1 value="'100k/(gain-2)'"}
+C {res.sym} 550 -460 0 1 {name=R2 m=1 value=50k}
+C {res.sym} 550 -400 0 1 {name=R3 m=1 value="'50k/(gain-2)'"}
 C {vsource.sym} 870 -1140 0 0 {name=V3 
 xvalue="dc 0 pulse -.1 .1 1m .1u .1u 10.1u 20u" 
 value="dc 0 sin 0 1 \{frequ\} 1m"
 }
-C {res.sym} 240 -810 0 1 {name=R4 m=1 value=100k}
+C {res.sym} 240 -810 0 1 {name=R4 m=1 value=50k}
 C {lab_pin.sym} 240 -860 0 0 {name=p18 lab=VPP}
-C {res.sym} 260 -620 0 1 {name=R5 m=1 value=100k}
+C {res.sym} 260 -620 0 1 {name=R5 m=1 value=50k}
 C {lab_pin.sym} 260 -570 0 0 {name=p10 lab=VSS}
-C {res.sym} 400 -950 0 1 {name=R8 m=1 value=100k}
+C {res.sym} 400 -950 0 1 {name=R8 m=1 value=50k}
 C {capa.sym} 170 -220 1 0 {name=C4 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 140 -220 0 0 {name=p0 lab=IN}
 C {capa.sym} 150 -680 1 0 {name=C1 m=1 value="100n ; ic=0"}
@@ -244,7 +244,7 @@ C {lab_pin.sym} 120 -680 0 0 {name=p17 lab=VSS}
 C {lab_pin.sym} 240 -710 0 0 {name=p22 lab=VSSX}
 C {res.sym} 920 -1200 1 1 {name=R10 m=1 value=2}
 C {lab_pin.sym} 400 -1000 0 0 {name=p24 lab=VPP}
-C {res.sym} 400 -490 0 1 {name=R13 m=1 value=100k}
+C {res.sym} 400 -490 0 1 {name=R13 m=1 value=50k}
 C {lab_pin.sym} 400 -540 0 0 {name=p16 lab=VPP}
 C {vsource.sym} 870 -1080 0 0 {name=Vin value=0 xvalue="pwl 0 .1 1m .1 1.01m 0"
 }
@@ -338,6 +338,7 @@ spice_ignore=0
 value="
 .option ITL4=20000 ITL5=0
 vvss vss 0 dc 0 
+.param VPP=50
 .temp 30
 .param frequ=5k
 .param gain=45
@@ -351,7 +352,7 @@ vvss vss 0 dc 0
 save all
 op
 write poweramp_op.raw
-tran  8e-7 0.07 uic
+tran  8e-7 0.025 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
 plot outp outm
