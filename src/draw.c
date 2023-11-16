@@ -1994,7 +1994,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   my_strdup2(_ALLOC_ID_, &ntok_copy, ntok);
   nptr = ntok_copy;
   my_strtok_r(nptr, ";,", "", 0, &saven); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ";, ", "", 0, &saven)) ) {
+  while( (bit_name = my_strtok_r(NULL, ";, \n", "", 0, &saven)) ) {
     int idx;
     if(p >= *n_bits) break; /* security check to avoid out of bound writing */
     if( (idx = get_raw_index(bit_name)) != -1) {
@@ -3332,13 +3332,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 
       if(nd[0]) {
         int pos = 1;
-        if(isonlydigit(find_nth(nd, " ", "\"", 0, 1))) pos = 2;
+        if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
         if(raw && raw->values) {
           char *node_rawfile = NULL;
           char *node_sim_type = NULL;
-          tclvareval("subst {", find_nth(nd, " ", "\"", 0, pos), "}", NULL);
+          tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
           my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
-          tclvareval("subst {", find_nth(nd, " ", "\"", 0, pos + 1), "}", NULL);
+          tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
           my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
                 sim_type[0] ? sim_type : xctx->raw->sim_type);
           dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
@@ -3364,7 +3364,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(strstr(tmp_ptr, ",")) {
         tmp_ptr = find_nth(tmp_ptr, ",", "\"", 4, 1);
         /* also trim spaces */
-        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, " "));
+        my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
       }
       dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "NULL");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
