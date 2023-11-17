@@ -858,7 +858,7 @@ static int edit_rect_property(int x)
   else if(x==2) tcleval("viewdata $::retval");
   else tcleval("edit_vi_prop {Text:}"); /* x == 1 */
   preserve = tclgetboolvar("preserve_unchanged_attrs");
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     xctx->push_undo();
     for(i=0; i<xctx->lastsel; ++i) {
@@ -919,7 +919,7 @@ static int edit_line_property(void)
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
   preserve = tclgetboolvar("preserve_unchanged_attrs");
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     double y1, y2;
     xctx->push_undo();
@@ -975,7 +975,7 @@ static int edit_wire_property(void)
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
   preserve = tclgetboolvar("preserve_unchanged_attrs");
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     xctx->push_undo();
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
@@ -1040,7 +1040,7 @@ static int edit_arc_property(void)
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
   preserve = tclgetboolvar("preserve_unchanged_attrs");
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
    xctx->push_undo();
    for(ii=0; ii<xctx->lastsel; ii++) {
@@ -1110,7 +1110,7 @@ static int edit_polygon_property(void)
   tcleval("text_line {Input property:} 0 normal");
   xctx->semaphore--;
   preserve = tclgetboolvar("preserve_unchanged_attrs");
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
    xctx->push_undo();
    for(ii=0; ii<xctx->lastsel; ii++) {
@@ -1190,16 +1190,16 @@ static int edit_text_property(int x)
      tclsetvar("props","");
   tclsetvar("retval",xctx->text[sel].txt_ptr);
   my_snprintf(property, S(property), "%.16g",xctx->text[sel].yscale);
-  tclsetvar("vsize",property);
+  tclsetvar("tctx::vsize",property);
   my_snprintf(property, S(property), "%.16g",xctx->text[sel].xscale);
-  tclsetvar("hsize",property);
+  tclsetvar("tctx::hsize",property);
   if(x==0) {
     const char *props;
     xctx->semaphore++;
     tcleval("enter_text {text:} normal");
     xctx->semaphore--;
-    hsize =atof(tclgetvar("hsize"));
-    vsize =atof(tclgetvar("vsize"));
+    hsize =atof(tclgetvar("tctx::hsize"));
+    vsize =atof(tclgetvar("tctx::vsize"));
     props = tclgetvar("props");
     if(xctx->text[sel].xscale != hsize || xctx->text[sel].yscale != vsize) {
       size_changed = 1;
@@ -1215,9 +1215,9 @@ static int edit_text_property(int x)
       text_changed=1;
     }
   }
-  if(strcmp(tclgetvar("rcode"),"") )
+  if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
-    dbg(1, "edit_text_property(): rcode !=\"\"\n");
+    dbg(1, "edit_text_property(): tctx::rcode !=\"\"\n");
     if(text_changed || size_changed || props_changed) {
       modified = 1;
       xctx->push_undo();
@@ -1532,7 +1532,7 @@ void change_elem_order(int n)
       xctx->semaphore++;
       tcleval("text_line {Object Sequence number} 0");
       xctx->semaphore--;
-      if(strcmp(tclgetvar("rcode"),"") )
+      if(strcmp(tclgetvar("tctx::rcode"),"") )
       {
         xctx->push_undo();
         modified = 1;
@@ -1695,14 +1695,14 @@ void edit_property(int x)
    }
    else if(x==2)    tcleval("viewdata $::retval");
    dbg(1, "edit_property(): done executing edit_vi_prop, result=%s\n",tclresult());
-   dbg(1, "edit_property(): rcode=%s\n",tclgetvar("rcode") );
+   dbg(1, "edit_property(): tctx::rcode=%s\n",tclgetvar("tctx::rcode") );
 
    my_strdup(_ALLOC_ID_, &new_prop, (char *) tclgetvar("retval"));
    tclsetvar("retval", new_prop);
    my_free(_ALLOC_ID_, &new_prop);
 
 
-   if(strcmp(tclgetvar("rcode"),"") )
+   if(strcmp(tclgetvar("tctx::rcode"),"") )
    {
      if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("retval") ) ) ) {

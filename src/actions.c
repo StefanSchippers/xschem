@@ -1267,14 +1267,14 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       if(interactive && !do_all_inst) {
         dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
         tcleval("attach_labels_to_inst");
-        if(!strcmp(tclgetvar("rcode"),"") ) {
+        if(!strcmp(tclgetvar("tctx::rcode"),"") ) {
           bbox(END, 0., 0., 0., 0.);
           my_free(_ALLOC_ID_, &prop);
           return;
         }
       }
       if(interactive == 0 ) {
-        tclsetvar("rcode", "yes");
+        tclsetvar("tctx::rcode", "yes");
         tclsetvar("use_lab_wire", "0");
         tclsetvar("use_label_prefix", "0");
         tclsetvar("do_all_inst", "1");
@@ -3440,20 +3440,20 @@ int place_text(int draw_text, double mx, double my)
   tclsetvar("props","");
   tclsetvar("retval","");
 
-  if(!tclgetvar("hsize"))
-   tclsetvar("hsize","0.4");
-  if(!tclgetvar("vsize"))
-   tclsetvar("vsize","0.4");
+  if(!tclgetvar("tctx::hsize"))
+   tclsetvar("tctx::hsize","0.4");
+  if(!tclgetvar("tctx::vsize"))
+   tclsetvar("tctx::vsize","0.4");
   xctx->semaphore++;
   tcleval("enter_text {text:} normal");
   xctx->semaphore--;
 
-  dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("hsize"), tclgetvar("vsize") );
+  dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("tctx::hsize"), tclgetvar("tctx::vsize") );
   /* get: retval, hsize, vsize, props,  */
   txt =  (char *)tclgetvar("retval");
   props =  (char *)tclgetvar("props");
-  hsize =  (char *)tclgetvar("hsize");
-  vsize =  (char *)tclgetvar("vsize");
+  hsize =  (char *)tclgetvar("tctx::hsize");
+  vsize =  (char *)tclgetvar("tctx::vsize");
   if(!txt || !strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
   xctx->push_undo();
   dbg(1,"props=%s, txt=%s\n", props, txt);

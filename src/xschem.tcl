@@ -1066,10 +1066,10 @@ proc ngspice::get_voltage {n} {
 }
 
 proc update_schematic_header {} {
-  global retval rcode
+  global retval
   set retval [xschem get header_text]
   text_line {Header/License text:} 0
-  if { $rcode ne {}} {
+  if { $tctx::rcode ne {}} {
     xschem set header_text $retval
   }
 }
@@ -2003,7 +2003,7 @@ proc graph_push_undo {} {
 
 # allow change color (via graph_change_wave_color) of double clicked wave
 proc graph_edit_wave {n n_wave} {
-  global graph_sel_color graph_selected colors graph_sel_wave
+  global graph_sel_color graph_selected graph_sel_wave
   global graph_schname cadlayers
   if {[winfo exists .graphdialog]} {return}
   set graph_schname [xschem get schname]
@@ -2031,7 +2031,7 @@ proc graph_edit_wave {n n_wave} {
   }
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
   for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.f.r$i -value $i -bg [lindex $colors $i] \
+    radiobutton .graphdialog.f.r$i -value $i -bg [lindex $tctx::colors $i] \
          -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
     pack .graphdialog.f.r$i -side left -fill both -expand yes
   }
@@ -2266,18 +2266,8 @@ proc graph_change_wave_color {{wave {}}} {
   }
 }
 
-# tag nodes in text widget with assigned colors 
-proc graph_update_nodelist {} {
-  global graph_selected colors graph_sel_color graph_schname
-  if { [xschem get schname] ne $graph_schname } return
-  # delete old tags
-  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
-  # tagging nodes in text widget:
-  set col  [xschem getprop rect 2 $graph_selected color]
-  set col [string trim $col " \n"]
-
+proc graph_tag_nodes {txt} {
   set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
-  set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
   set tt {}
   set cc {}
   set start 0
@@ -2286,7 +2276,21 @@ proc graph_update_nodelist {} {
     set start [expr {[lindex $idx 1] + 1}]
     lappend cc $start
   }
+  return [list $tt $cc] 
+}
 
+# tag nodes in text widget with assigned colors 
+proc graph_update_nodelist {} {
+  global graph_selected graph_sel_color graph_schname
+  if { [xschem get schname] ne $graph_schname } return
+  # delete old tags
+  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
+  # tagging nodes in text widget:
+  set col  [xschem getprop rect 2 $graph_selected color]
+  set col [string trim $col " \n"]
+
+  set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+  lassign [graph_tag_nodes $txt] tt cc
   set n 0
   if { $tt ne {} } {
     foreach t $tt c $cc {
@@ -2296,7 +2300,7 @@ proc graph_update_nodelist {} {
         set col_idx $graph_sel_color
         lappend col $graph_sel_color
       }
-      set b [lindex $colors $col_idx]  
+      set b [lindex $tctx::colors $col_idx]  
       .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
 
       if { [info tclversion] > 8.4} {
@@ -2347,6 +2351,8 @@ proc graph_fill_listbox {} {
 proc graph_update_node {node} {
   global graph_selected
   graph_update_nodelist
+  # add a backslash before " and \ characters
+  # note the double escaping for regsub replace string
   regsub -all {[\\"]} $node "\\\\&" node_quoted
   graph_push_undo
   xschem setprop rect 2 $graph_selected node $node_quoted fast
@@ -2376,7 +2382,7 @@ proc graph_set_linewidth {graph_sel} {
 }
 
 proc graph_edit_properties {n} {
-  global graph_bus graph_sort graph_digital graph_selected colors graph_sel_color
+  global graph_bus graph_sort graph_digital graph_selected graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
   global graph_linewidth_mult graph_change_done has_x
 
@@ -2568,7 +2574,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.cancel -side left
 
   for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.bottom.r$i -value $i -bg [lindex $colors $i] \
+    radiobutton .graphdialog.bottom.r$i -value $i -bg [lindex $tctx::colors $i] \
       -variable graph_sel_color -command graph_change_wave_color
     pack .graphdialog.bottom.r$i -side left
   }
@@ -3904,8 +3910,8 @@ proc set_netlist_dir { change {dir {} }} {
 
 
 proc enter_text {textlabel {preserve_disabled disabled}} {
-  global retval rcode has_cairo preserve_unchanged_attrs wm_fix props
-  set rcode {}
+  global retval has_cairo preserve_unchanged_attrs wm_fix props
+  set tctx::rcode {}
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
   wm transient .dialog .
@@ -3937,11 +3943,11 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   pack  .dialog.edit.props -side bottom -expand yes -fill x 
   pack .dialog.edit  -side top  -fill x 
   if {$has_cairo } {
-    entry .dialog.edit.hsize.hsize -relief sunken -textvariable vsize -width 20
+    entry .dialog.edit.hsize.hsize -relief sunken -textvariable tctx::vsize -width 20
   } else {
-    entry .dialog.edit.hsize.hsize -relief sunken -textvariable hsize -width 20
+    entry .dialog.edit.hsize.hsize -relief sunken -textvariable tctx::hsize -width 20
   }
-  entry .dialog.edit.vsize.vsize -relief sunken -textvariable vsize -width 20
+  entry .dialog.edit.vsize.vsize -relief sunken -textvariable tctx::vsize -width 20
   text .dialog.edit.props.props -width 70 -height 3
   .dialog.edit.props.props insert 1.0 $props
   label .dialog.edit.hsize.hlab -text "hsize:"
@@ -3959,15 +3965,15 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
    set props [.dialog.edit.props.props get 1.0 {end - 1 chars}]
    set retval [.dialog.txt get 1.0 {end - 1 chars}]
    if {$has_cairo} { 
-     set hsize $vsize
+     set tctx::hsize $tctx::vsize
    }
-   set rcode {ok}
+   set tctx::rcode {ok}
    destroy .dialog 
   }
   button .dialog.buttons.cancel -text "Cancel" -command  \
   {
    set retval {}
-   set rcode {}
+   set tctx::rcode {}
    destroy .dialog 
   }
   button .dialog.buttons.b3 -text "Load" -command \
@@ -4094,7 +4100,7 @@ proc tclcmd {} {
 }
 
 proc select_layers {} {
-  global dark_colorscheme colors enable_layer
+  global dark_colorscheme enable_layer
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .sl -class Dialog
   wm transient .sl .
@@ -4112,7 +4118,7 @@ proc select_layers {} {
   pack .sl.f1.ok -side left -expand yes -fill x
   frame .sl.f0.f$f 
   pack .sl.f0.f$f -side left -fill y
-  foreach i $colors {
+  foreach i $tctx::colors {
     if { $dark_colorscheme == 1 } {
       set ind_bg white
     } else {
@@ -4357,9 +4363,9 @@ proc tclpropeval2 {s} {
 }
 
 proc attach_labels_to_inst {} {
-  global use_lab_wire use_label_prefix custom_label_prefix rcode do_all_inst rotated_text
+  global use_lab_wire use_label_prefix custom_label_prefix do_all_inst rotated_text
 
-  set rcode {}
+  set tctx::rcode {}
   if { [winfo exists .dialog] } return
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
@@ -4382,10 +4388,10 @@ proc attach_labels_to_inst {} {
   button .dialog.but.ok -text OK -command {
         set custom_label_prefix [.dialog.custom.e get]
         #### put command here
-        set rcode yes
+        set tctx::rcode yes
         destroy .dialog 
   }
-  button .dialog.but.cancel -text Cancel -command { set rcode {}; destroy .dialog }
+  button .dialog.but.cancel -text Cancel -command { set tctx::rcode {}; destroy .dialog }
   checkbutton .dialog.but.wire -text {use wire labels} -variable use_lab_wire
   checkbutton .dialog.but.do_all -text {Do all} -variable do_all_inst
   label .dialog.but.rot -text {Rotated Text}
@@ -4423,8 +4429,8 @@ proc ask_save_optional { {ask {save file?}} {cancel 1}} {
 }
 
 proc ask_save { {ask {save file?}} {cancel 1}} {
-  global rcode wm_fix
-  set rcode {}
+  global wm_fix
+  set tctx::rcode {}
   if { [winfo exists .dialog] } return
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
@@ -4440,19 +4446,19 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
   frame .dialog.f1
   button .dialog.f1.b1 -text {Yes} -command\
   {
-   set rcode {yes}
+   set tctx::rcode {yes}
    destroy .dialog
   }
   if {$cancel} {
     button .dialog.f1.b2 -text {Cancel} -command\
     {
-     set rcode {}
+     set tctx::rcode {}
      destroy .dialog
     }
   }
   button .dialog.f1.b3 -text {No} -command\
   {
-   set rcode {no}
+   set tctx::rcode {no}
    destroy .dialog
   }
   pack .dialog.l1 .dialog.f1 -side top -fill x
@@ -4469,17 +4475,17 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
   grab set .dialog
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
-  return $rcode
+  return $tctx::rcode
 }
 
 
 proc edit_vi_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval symbol prev_symbol rcode debug_var editor
+  global XSCHEM_TMP_DIR retval symbol prev_symbol debug_var editor
   global user_wants_copy_cell
  
   set netlist_type [xschem get netlist_type]
   set user_wants_copy_cell 0
-  set rcode {}
+  set tctx::rcode {}
   set filename .xschem_edit_file.[pid]
   if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
   set filename $filename.$suffix
@@ -4494,16 +4500,16 @@ proc edit_vi_prop {txtlabel} {
   if [string compare $tmp $retval] {
          set retval $tmp
          if {$debug_var<=-1} {puts "modified"}
-         set rcode ok
-         return  $rcode
+         set tctx::rcode ok
+         return  $tctx::rcode
   } else {
-         set rcode {}
-         return $rcode
+         set tctx::rcode {}
+         return $tctx::rcode
   }
 }
 
 proc edit_vi_netlist_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval rcode debug_var editor
+  global XSCHEM_TMP_DIR retval debug_var editor
   global user_wants_copy_cell
  
   set netlist_type [xschem get netlist_type]
@@ -4526,15 +4532,15 @@ proc edit_vi_netlist_prop {txtlabel} {
          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
          set retval \"${retval}\" 
          if {$debug_var <= -1}  {puts "modified"}
-         set rcode ok
-         return  $rcode
+         set tctx::rcode ok
+         return  $tctx::rcode
   } else {
-         set rcode {}
-         return $rcode
+         set tctx::rcode {}
+         return $tctx::rcode
   }
 }
 proc reset_colors {ask} {
-  global colors dark_colors light_colors dark_colorscheme USER_CONF_DIR svg_colors ps_colors
+  global dark_colors light_colors dark_colorscheme USER_CONF_DIR svg_colors ps_colors
   global light_colors_save dark_colors_save
 
   if {$ask} {
@@ -4546,13 +4552,13 @@ proc reset_colors {ask} {
   set light_colors $light_colors_save
   set dark_colors $dark_colors_save
   if { $dark_colorscheme == 1 } {
-    set colors $dark_colors
+    set tctx::colors $dark_colors
   } else {
-    set colors $light_colors
+    set tctx::colors $light_colors
   }
   regsub -all {"} $light_colors  {} ps_colors
   regsub -all {#} $ps_colors  {0x} ps_colors
-  regsub -all {"} $colors {} svg_colors
+  regsub -all {"} $tctx::colors {} svg_colors
   regsub -all {#} $svg_colors {0x} svg_colors
   file delete ${USER_CONF_DIR}/colors
   xschem build_colors
@@ -4561,7 +4567,7 @@ proc reset_colors {ask} {
 }
 
 proc change_color {} {
-  global colors dark_colors light_colors dark_colorscheme cadlayers USER_CONF_DIR svg_colors ps_colors
+  global dark_colors light_colors dark_colorscheme cadlayers USER_CONF_DIR svg_colors ps_colors
 
   set n [xschem get rectcolor]
   if { $n < 0 || $n >=$cadlayers} return
@@ -4575,7 +4581,7 @@ proc change_color {} {
   set value [tk_chooseColor -initialcolor $initial_color]
   if {[string compare $value {}] } {
     set cc [lreplace $c $n $n $value]
-    set colors $cc
+    set tctx::colors $cc
     if { $dark_colorscheme == 1 } {
       set dark_colors $cc
     } else {
@@ -4583,7 +4589,7 @@ proc change_color {} {
       regsub -all {"} $cc  {} ps_colors
       regsub -all {#} $ps_colors  {0x} ps_colors
     }
-    regsub -all {"} $colors {} svg_colors
+    regsub -all {"} $tctx::colors {} svg_colors
     regsub -all {#} $svg_colors {0x} svg_colors
 
     xschem build_colors
@@ -4599,10 +4605,10 @@ proc change_color {} {
 
 proc edit_prop {txtlabel} {
   global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
-  global prev_symbol retval symbol rcode no_change_attrs preserve_unchanged_attrs copy_cell debug_var
+  global prev_symbol retval symbol no_change_attrs preserve_unchanged_attrs copy_cell debug_var
   global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok
   set user_wants_copy_cell 0
-  set rcode {}
+  set tctx::rcode {}
   set retval_orig $retval
   if {$debug_var <= -1}  {puts " edit_prop{}: retval=$retval"}
   if { [winfo exists .dialog] } return
@@ -4659,7 +4665,7 @@ proc edit_prop {txtlabel} {
     }
     set symbol [.dialog.f1.e2 get]
     set abssymbol [abs_sym_path $symbol]
-    set rcode {ok}
+    set tctx::rcode {ok}
     set user_wants_copy_cell $copy_cell
     set prev_symbol [abs_sym_path $prev_symbol]
     if { ($abssymbol ne $prev_symbol) && $copy_cell } {
@@ -4687,12 +4693,12 @@ proc edit_prop {txtlabel} {
     destroy .dialog
   }
   button .dialog.f1.b2 -text "Cancel" -command  {
-    set rcode {}
+    set tctx::rcode {}
     set edit_symbol_prop_new_sel {}
     destroy .dialog
   }
   wm protocol .dialog  WM_DELETE_WINDOW {
-    set rcode {}
+    set tctx::rcode {}
     set edit_symbol_prop_new_sel {}
     destroy .dialog
   }
@@ -4791,7 +4797,7 @@ proc edit_prop {txtlabel} {
   set edit_symbol_prop_new_sel 0
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
-  return $rcode
+  return $tctx::rcode
 }
 
 proc read_data_nonewline {f} {
@@ -4826,12 +4832,12 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs wm_fix
-  global retval rcode debug_var selected_tok retval_orig old_selected_tok
+  global retval debug_var selected_tok retval_orig old_selected_tok
   set retval_orig $retval
   if $clear==1 then {set retval ""}
   if {$debug_var <= -1}  {puts " text_line{}: clear=$clear"}
   if {$debug_var <= -1}  {puts " text_line{}: retval=$retval"}
-  set rcode {}
+  set tctx::rcode {}
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog
   wm title .dialog {Text input}
@@ -4871,12 +4877,12 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       set selected_tok {<ALL>}
     }
     destroy .dialog
-    set rcode {ok}
+    set tctx::rcode {ok}
   }
   button .dialog.f1.b2 -text "Cancel" -command  \
   {
     set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-    set rcode {}
+    set tctx::rcode {}
     destroy .dialog
   }
   button .dialog.f1.b3 -text "Load" -command \
@@ -4969,9 +4975,9 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   #tkwait visibility .dialog
   #grab set .dialog
   #focus .dialog.textinput
-  set rcode {}   
+  set tctx::rcode {}   
   tkwait window .dialog
-  return $rcode
+  return $tctx::rcode
 }
 
 # alert_ text [position] [nowait] [yesno]
@@ -4982,8 +4988,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 # if yesnow is 1 show yes and no buttons and return user choice (1 / 0).
 # (this works only if nowait is unset).
 proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
-  global has_x rcode
-  set rcode 1
+  global has_x
+  set tctx::rcode 1
   if {![info exists has_x] } {return}
   toplevel .alert -class Dialog
   wm title .alert {Alert}
@@ -5004,13 +5010,13 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   }
   button .alert.b1 -text $oktxt -command  \
   {
-    set rcode 1
+    set tctx::rcode 1
     destroy .alert
   } 
   if {$yesno} {
     button .alert.b2 -text "No" -command  \
     {  
-      set rcode 0
+      set tctx::rcode 0
       destroy .alert
     }  
   }
@@ -5034,7 +5040,7 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
     }
   }
   if {!$nowait} {tkwait window .alert}
-  return $rcode
+  return $tctx::rcode
 }
 
 proc show_infotext {{err 0}} {
@@ -5147,7 +5153,7 @@ proc textwindow {filename {ro {}}} {
 }
 
 proc viewdata {data {ro {}} {win .view}} {
-  global viewdata_wcounter  rcode viewdata_filename
+  global viewdata_wcounter viewdata_filename
   global viewdata_w OS viewdata_fileid env has_x
   if {![info exists has_x]} {return}
   # set viewdata_w .view$viewdata_wcounter
@@ -5158,7 +5164,7 @@ proc viewdata {data {ro {}} {win .view}} {
   } else {
     set viewdata_w $win
   }
-  set rcode {}
+  set tctx::rcode {}
   toplevel $viewdata_w
   wm title $viewdata_w {View data}
   # wm transient $viewdata_w .
@@ -5193,7 +5199,7 @@ proc viewdata {data {ro {}} {win .view}} {
   pack $viewdata_w.xscroll -side bottom -fill x
   # 20171103 insert at insertion cursor(insert tag) instead of 0.0
   $viewdata_w.text insert insert $data
-  return $rcode
+  return $tctx::rcode
 }
 
 proc sub_match_file { f {paths {}} } {
@@ -5565,9 +5571,9 @@ proc launcher {launcher_var {launcher_program {} } } {
 }
 
 proc reconfigure_layers_button { { topwin {} } } {
-   global colors dark_colorscheme
+   global dark_colorscheme
    set c [xschem get rectcolor]
-   $topwin.menubar.layers configure -background [lindex $colors $c]
+   $topwin.menubar.layers configure -background [lindex $tctx::colors $c]
    if { $dark_colorscheme == 1 && $c == 0} {
      $topwin.menubar.layers configure -foreground white
    } else {
@@ -5576,9 +5582,9 @@ proc reconfigure_layers_button { { topwin {} } } {
 }
 
 proc reconfigure_layers_menu { {topwin {} } } {
-   global colors dark_colorscheme
+   global dark_colorscheme
    set j 0
-   foreach i $colors {
+   foreach i $tctx::colors {
      set ind_bg white
      if {  $j == [xschem get backlayer] } {
         if { $dark_colorscheme == 1 } { 
@@ -6355,6 +6361,7 @@ namespace eval tctx {
   variable max_new_windows
   variable source_swap_tab
   variable dest_swap_tab
+  variable colors
 }
 
 ## list of dialogs: when open do not perform context switching
@@ -6392,7 +6399,7 @@ set tctx::global_list {
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
   add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cairo_font_name change_lw color_ps colors compare_sch constrained_move
+  cadsnap cairo_font_name change_lw color_ps tctx::colors compare_sch constrained_move
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
   delay_flag  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
@@ -6400,13 +6407,13 @@ set tctx::global_list {
   filetmp fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus
   graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
-  graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols hsize
+  graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
   incr_hilight infowindow_text launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  rcode recentfile
+  tctx::rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist show_pin_net_names
@@ -6417,7 +6424,7 @@ set tctx::global_list {
   toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  vsize xschem_libs xschem_listen_port zoom_full_center
+  tctx::vsize xschem_libs xschem_listen_port zoom_full_center
 }
 
 ## list of global arrays to save/restore on context switching
@@ -6767,7 +6774,7 @@ proc load_raw {{type {}}} {
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
-  global colors recentfile color_ps transparent_svg menu_debug_var enable_stretch
+  global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadsnap cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
@@ -6797,7 +6804,7 @@ proc build_widgets { {topwin {} } } {
    -padx 3 -pady 0 $mbg
   menu $topwin.menubar.prop.menu -tearoff 0
   eval menubutton $topwin.menubar.layers -text "Layers" -menu $topwin.menubar.layers.menu \
-   -padx 3 -pady 0 -background [lindex $colors 4]
+   -padx 3 -pady 0 -background [lindex $tctx::colors 4]
   menu $topwin.menubar.layers.menu -tearoff 0
   eval menubutton $topwin.menubar.tools -text "Tools" -menu $topwin.menubar.tools.menu \
    -padx 3 -pady 0 $mbg
@@ -7536,10 +7543,10 @@ proc set_missing_colors_to_black {} {
 }
 
 proc create_layers_menu { {topwin {} } } {
-  global dark_colorscheme colors
+  global dark_colorscheme
   if { $dark_colorscheme == 1 } { set txt_color black} else { set txt_color white} 
   set j 0
-  foreach i $colors {
+  foreach i $tctx::colors {
     ## 20121121
     if {  $j == [xschem get pinlayer] } { 
       set laylab [format %2d $j]-PIN
@@ -7923,7 +7930,7 @@ set_missing_colors_to_black
 set dark_colors_save $dark_colors
 set light_colors_save $light_colors
 
-set_ne colors $dark_colors
+set_ne tctx::colors $dark_colors
 ##### end set colors
 
 
@@ -7993,13 +8000,13 @@ if { [llength $dark_colors] < $cadlayers || [llength $light_colors] < $cadlayers
   puts stderr { Warning: wrong number of configured layers in light_colors or dark_colors variables.}
 }
 if { $dark_colorscheme == 1} { 
-  set colors $dark_colors
+  set tctx::colors $dark_colors
 } else {
-  set colors $light_colors
+  set tctx::colors $light_colors
 }
 regsub -all {"} $light_colors  {} ps_colors
 regsub -all {#} $ps_colors  {0x} ps_colors
-regsub -all {"} $colors {} svg_colors
+regsub -all {"} $tctx::colors {} svg_colors
 regsub -all {#} $svg_colors {0x} svg_colors
 
 if { $show_infowindow } { wm deiconify .infotext } 

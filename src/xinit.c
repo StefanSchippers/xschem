@@ -290,7 +290,7 @@ static void init_color_array(double dim, double dim_bg)
  double tmp_dim;
 
  for(i=0;i<cadlayers; ++i) {
-   my_snprintf(s, S(s), "lindex $colors %d",i);
+   my_snprintf(s, S(s), "lindex $tctx::colors %d",i);
    tcleval(s);
    dbg(2, "init_color_array(): color:%s\n",tclresult());
 
@@ -969,20 +969,20 @@ int build_colors(double dim, double dim_bg)
     if(tclgetboolvar("dark_colorscheme")) {
       tcleval("llength $dark_colors");
       if(atoi(tclresult())>=cadlayers){
-        tcleval("set colors $dark_colors");
+        tcleval("set tctx::colors $dark_colors");
       }
     } else {
       tcleval("llength $light_colors");
       if(atoi(tclresult()) >=cadlayers){
-        tcleval("set colors $light_colors");
+        tcleval("set tctx::colors $light_colors");
       }
     }
-    tcleval("llength $colors");
+    tcleval("llength $tctx::colors");
     if(atoi(tclresult())<cadlayers){
-      fprintf(errfp,"Tcl var colors not set correctly\n");
+      fprintf(errfp,"Tcl var tctx::colors not set correctly\n");
       return -1; /* fail */
     } else {
-      tcleval("regsub -all {\"} $colors {} svg_colors");
+      tcleval("regsub -all {\"} $tctx::colors {} svg_colors");
       tcleval("regsub -all {#} $svg_colors {0x} svg_colors");
     }
     init_color_array(dim, dim_bg);

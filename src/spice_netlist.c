@@ -318,7 +318,8 @@ int global_spice_netlist(int global)  /* netlister driver */
    dbg(1, "found top level symbol %s\n", top_symbol_name);
    load_sym_def(top_symbol_name, NULL);
    /* only use the symbol if it has pins and is a subcircuit */
-   if(!strcmp(xctx->sym[xctx->symbols - 1].type, "subcircuit") &&
+   if(xctx->sym[xctx->symbols - 1].type != NULL && 
+     !strcmp(xctx->sym[xctx->symbols - 1].type, "subcircuit") &&
        xctx->sym[xctx->symbols - 1].rects[PINLAYER] > 0) {
      fprintf(fd," ");
      print_spice_subckt_nodes(fd, xctx->symbols - 1);
