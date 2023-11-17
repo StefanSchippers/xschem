@@ -216,7 +216,8 @@ proc set_ne { var val } {
 # $execute(data,$id) contains the stdout of the pipeline (output data)
 # $execute(cmd,$id) contains the pipeline command
 # $execute(win_path,$id) contains the xctx->current_win_path that started the command
-# when subprocess ends all execute(...,$id) data is cleared
+# $execute(exitcode,id) contains the exit code. This variable will not be deleted at the end
+# when subprocess ends all execute(...,$id) data is cleared (except execute(exitcode,id)
 #
 # The following post-mortem data is available for last finished process:
 #   execute(cmd,last)     : the command
@@ -281,6 +282,7 @@ proc execute_fileevent {id} {
         if {$report} {viewdata "Completed: $execute(cmd,$id)\ndata:\n$execute(data,$id)"}
       }
       set execute(exitcode,last) $exit_status
+      set execute(exitcode,$id) $exit_status
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         # puts  $execute(callback,$id)
         # puts $execute(win_path,$id)
@@ -2266,46 +2268,53 @@ proc graph_change_wave_color {{wave {}}} {
   }
 }
 
+# set txt [xschem getprop rect 2 $n node 2]
+# set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+# return first and last indexes of nodes in txt
 proc graph_tag_nodes {txt} {
   global graph_selected graph_sel_color
   # delete old tags
-  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
+  if { [winfo exists .graphdialog.center.right.text1] } {
+    eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names] 
+    set col  [xschem getprop rect 2 $graph_selected color]
+    set col [string trim $col " \n"]
+  }
   set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
   set tt {}
   set cc {}
   set start 0
-  set col  [xschem getprop rect 2 $graph_selected color]
-  set col [string trim $col " \n"]
 
   while {[regexp -indices -start $start $regx $txt idxall idx]} {
     lappend tt [lindex $idx 0]
     set start [expr {[lindex $idx 1] + 1}]
     lappend cc $start
   }
-  set n 0
-  if { $tt ne {} } {
-    foreach t $tt c $cc {
-      set col_idx [lindex $col $n]
-      # add missing colors
-      if {$col_idx eq {}} {
-        set col_idx $graph_sel_color
-        lappend col $graph_sel_color
+  if { [winfo exists .graphdialog.center.right.text1] } {
+    set n 0
+    if { $tt ne {} } {
+      foreach t $tt c $cc {
+        set col_idx [lindex $col $n]
+        # add missing colors
+        if {$col_idx eq {}} {
+          set col_idx $graph_sel_color
+          lappend col $graph_sel_color
+        }
+        set b [lindex $tctx::colors $col_idx]
+        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
+        if { [info tclversion] > 8.4} {
+          .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
+        } else {
+          .graphdialog.center.right.text1 tag configure t$n -background $b
+        }
+        incr n
       }
-      set b [lindex $tctx::colors $col_idx]
-      .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
-      if { [info tclversion] > 8.4} {
-        .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
-      } else {
-        .graphdialog.center.right.text1 tag configure t$n -background $b
-      }
-      incr n
+      # remove excess colors
+      set col [lrange $col 0 [expr {$n - 1}]]
+    } else {
+      set col {}
     }
-    # remove excess colors
-    set col [lrange $col 0 [expr {$n - 1}]]
-  } else {
-    set col {}
+    xschem setprop rect 2 $graph_selected color $col fast
   }
-  xschem setprop rect 2 $graph_selected color $col fast
   return [list $tt $cc] 
 }
 
