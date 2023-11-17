@@ -2267,30 +2267,21 @@ proc graph_change_wave_color {{wave {}}} {
 }
 
 proc graph_tag_nodes {txt} {
+  global graph_selected graph_sel_color
+  # delete old tags
+  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
   set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
   set tt {}
   set cc {}
   set start 0
+  set col  [xschem getprop rect 2 $graph_selected color]
+  set col [string trim $col " \n"]
+
   while {[regexp -indices -start $start $regx $txt idxall idx]} {
     lappend tt [lindex $idx 0]
     set start [expr {[lindex $idx 1] + 1}]
     lappend cc $start
   }
-  return [list $tt $cc] 
-}
-
-# tag nodes in text widget with assigned colors 
-proc graph_update_nodelist {} {
-  global graph_selected graph_sel_color graph_schname
-  if { [xschem get schname] ne $graph_schname } return
-  # delete old tags
-  eval .graphdialog.center.right.text1 tag delete [ .graphdialog.center.right.text1 tag names]
-  # tagging nodes in text widget:
-  set col  [xschem getprop rect 2 $graph_selected color]
-  set col [string trim $col " \n"]
-
-  set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
-  lassign [graph_tag_nodes $txt] tt cc
   set n 0
   if { $tt ne {} } {
     foreach t $tt c $cc {
@@ -2300,27 +2291,31 @@ proc graph_update_nodelist {} {
         set col_idx $graph_sel_color
         lappend col $graph_sel_color
       }
-      set b [lindex $tctx::colors $col_idx]  
+      set b [lindex $tctx::colors $col_idx]
       .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
-
       if { [info tclversion] > 8.4} {
         .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
       } else {
         .graphdialog.center.right.text1 tag configure t$n -background $b
       }
-      
       incr n
     }
     # remove excess colors
     set col [lrange $col 0 [expr {$n - 1}]]
-    ## for debug
-    # if { [llength $col] != [llength [tolist [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]]] } {
-    #   puts "PROBLEMS: colors and nodes of different length"
-    # }
   } else {
     set col {}
   }
   xschem setprop rect 2 $graph_selected color $col fast
+  return [list $tt $cc] 
+}
+
+# tag nodes in text widget with assigned colors 
+proc graph_update_nodelist {} {
+  global graph_selected graph_sel_color graph_schname
+  if { [xschem get schname] ne $graph_schname } return
+  # tagging nodes in text widget:
+  set txt [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}]
+  graph_tag_nodes $txt
 }
 
 proc graph_fill_listbox {} {
