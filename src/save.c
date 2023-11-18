@@ -836,7 +836,9 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
 }
 
 /* what == 1: read another raw file and switch to it (make it the current one)
- * what == 2: switch raw file. If filename given switch to that one, else switch to next
+ * what == 2: switch raw file. If filename given switch to that one, 
+ * else if filename is an integer switch to that raw file index,
+ * else switch to next
  * what == 3: remove a raw file. If no filename given remove all
  * what == 4: print info
  * what == 5: switch back to previous
