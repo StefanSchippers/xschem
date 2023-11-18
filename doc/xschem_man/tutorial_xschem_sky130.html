@@ -31,9 +31,7 @@ p{padding: 15px  30px 10px;}
   <li> Install the Magic VLSI layout editor. Instructions <a href="http://opencircuitdesign.com/magic/index.html">here.</a></li>
 
   <li> Install <a href="https://sourceforge.net/projects/ngspice/">ngspice</a>, by cloning the git source repository
-       and building the program. If you want adms integration you must instal adms (<kbd>sudo apt-get install adms</kbd>).
-       Otherwise run <kbd>autogen.sh</kbd> (see below) without the <kbd>--adms</kbd> option.
-       Without the --adms also the following <kbd>../configure ...</kbd> line should have <kbd>--enable-adms</kbd> removed.
+       and building the program.
   </li><br>
 
   <pre class="code">
@@ -41,13 +39,11 @@ p{padding: 15px  30px 10px;}
 git clone https://git.code.sf.net/p/ngspice/ngspice ngspice_git
 cd ngspice_git
 mkdir release
-## in order to run the following you must have adms installed (<kbd>sudo apt-get install adms</kbd>)
-## Otherwise run without <kbd>--adms</kbd> and remove <kbd>--enable-adms</kbd> in the following <kbd>../configure... </kbd> line.
-./autogen.sh --adms
+./autogen.sh
 cd release
 ## by default if no <kbd>--prefix</kbd> is provided ngspice will install under <kbd>/usr/local/{bin,share,man,lib}</kbd>
 ## you can add a <kbd>--prefix=/home/username</kbd> to install into your home directory.
-../configure --with-x --enable-xspice --disable-debug --enable-cider --with-readline=yes --enable-openmp --enable-adms
+../configure --with-x --enable-xspice --disable-debug --enable-cider --with-readline=yes --enable-openmp --enable-osdi
 ## build the program
 make
 ## install the program and needed files.

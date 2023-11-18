@@ -4735,6 +4735,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Xschem_ctx **save_xctx = get_save_xctx();
         copy_hierarchy_data(save_xctx[0], save_xctx[1]);
       }
+      else if(argc > 2 && atoi(argv[2]) == 3) {
+        Xschem_ctx **save_xctx = get_save_xctx();
+        save_xctx[1]->raw = save_xctx[0]->raw;
+      }
       Tcl_ResetResult(interp);
     }
 
