@@ -2661,6 +2661,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int messages = 0;
       const char *fname = NULL;
       const char *path;
+      int done_netlist = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
@@ -2684,6 +2685,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(set_netlist_dir(0, NULL) ) {
+        done_netlist = 1;
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
           err = global_spice_netlist(1);                  /* 1 means global netlist */
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
@@ -2697,11 +2699,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                             "-message {Please Set netlisting mode (Options menu)}");
         if(argc > 2) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
-        }
-        if(messages) {
-          Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);
-        } else {
-         Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
       }
       else {
@@ -2721,6 +2718,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);
+      if(done_netlist) {
+        if(messages) {
+          Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);
+        } else {
+         Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
+        }
+      }
       my_free(_ALLOC_ID_, &saveshow);
     }
 
