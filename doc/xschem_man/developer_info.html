@@ -527,6 +527,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -537,11 +538,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Ask user to choose a png file and start a GUI placement of the image </pre>
    <li><kbd>       align</kbd></li><pre>
    Align currently selected objects to current snap setting </pre>
-   <li><kbd>       annotate_op [raw_file]</kbd></li><pre>
+   <li><kbd>       annotate_op [raw_file] [level]</kbd></li><pre>
    Annotate operating point data into current schematic. 
    use &lt;schematic name&gt;.raw or use supplied argument as raw file to open
-   look for operating point data and annotate voltages/currents
-   into schematic </pre>
+   look for operating point data and annotate voltages/currents into schematic.
+   The optional 'level' integer specifies the hierarchy level the raw file refers to.
+   This is necessary if annotate_op is called from a sub schematic at a hierarchy
+   level &gt; 0 but simulation was done at top level (hierarchy 0, for example)</pre>
    <li><kbd>       arc</kbd></li><pre>
    Start a GUI placement of an arc.
    User should click 3 unaligned points to define the arc </pre>
@@ -643,7 +646,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Enable/disable layers depending on tcl array variable enable_layer() </pre>
    <li><kbd>       escape_chars source</kbd></li><pre>
    escape tcl special characters with backslash </pre>
-   <li><kbd>       exit [closewindow]</kbd></li><pre>
+   <li><kbd>       exit [closewindow] [force]</kbd></li><pre>
    Exit the program, ask for confirm if current file modified.
    if 'closewindow' is given close the window, otherwise leave with a blank schematic
    when closing the last remaining window
@@ -1207,6 +1210,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> netlist_type </kbd> set netlisting mode (spice, verilog, vhdl, tedax, symbol) </li>
      <li><kbd> no_draw </kbd> set no drawing flag (0 or 1) </li>
      <li><kbd> no_undo </kbd> set to 1 to disable undo </li>
+     <li><kbd> raw_level </kbd> set hierarchy level loaded raw file refers to </li>
      <li><kbd> rectcolor </kbd> set current layer (0, 1, .... , cadlayers-1) </li>
      <li><kbd> sch_to_compare </kbd> set name of schematic to compare current window with </li>
      <li><kbd> schsymbolprop </kbd> set global symbol attribute string </li>

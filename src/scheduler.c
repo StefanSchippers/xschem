@@ -255,15 +255,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
     }
 
-    /* annotate_op [raw_file]
+    /* annotate_op [raw_file] [level]
      *   Annotate operating point data into current schematic. 
      *   use <schematic name>.raw or use supplied argument as raw file to open
-     *   look for operating point data and annotate voltages/currents
-     *   into schematic */
+     *   look for operating point data and annotate voltages/currents into schematic.
+     *   The optional 'level' integer specifies the hierarchy level the raw file refers to.
+     *   This is necessary if annotate_op is called from a sub schematic at a hierarchy
+     *   level > 0 but simulation was done at top level (hierarchy 0, for example)
+     */
     else if(!strcmp(argv[1], "annotate_op"))
     {
+      int level = -1;
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) {
+        level = atoi(argv[3]);
+        if(level < 0 || level > xctx->currsch) {
+          level = -1;
+        }
+      }
       if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
@@ -275,6 +285,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       raw_read(f, &xctx->raw, "op");
+      if(level >= 0) {
+        xctx->raw->level = level;
+        my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[level]);
+      }
       update_op();
       draw();
     }
@@ -4140,6 +4154,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->no_undo=s;
           }
+          else if(!strcmp(argv[2], "raw_level")) { /* set hierarchy level loaded raw file refers to */
+            int n = atoi(argv[3]);
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            if(n >= 0 && n <= xctx->currsch) {
+              xctx->raw->level = atoi(argv[3]);
+              my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[xctx->raw->level]);
+              Tcl_SetResult(interp, my_itoa(n), TCL_VOLATILE);
+            } else {
+              Tcl_SetResult(interp, "-1", TCL_VOLATILE);
+            }
+          }
           else if(!strcmp(argv[2], "rectcolor")) { /* set current layer (0, 1, .... , cadlayers-1) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->rectcolor=atoi(argv[3]);
@@ -4738,6 +4763,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc > 2 && atoi(argv[2]) == 3) {
         Xschem_ctx **save_xctx = get_save_xctx();
         save_xctx[1]->raw = save_xctx[0]->raw;
+      }
+      else if(argc > 4 && atoi(argv[2]) == 4) {
+         raw_read(argv[3], &xctx->raw,  argv[4]);
+         xctx->raw->level = 0;
       }
       Tcl_ResetResult(interp);
     }
