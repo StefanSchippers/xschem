@@ -3762,18 +3762,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* schematic_in_new_window [new_process]
+    /* schematic_in_new_window [new_process] [nodraw]
      *   When a symbol is selected edit corresponding schematic
      *   in a new tab/window if not already open.
      *   If nothing selected open another window of the second
      *   schematic (issues a warning).
-     *   if 'new_process' is given start a new xschem process */
+     *   if 'new_process' is given start a new xschem process
+     *   if 'nodraw' is given do not draw loaded schematic */
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
       int new_process = 0;
+      int nodraw = 0;
+      int i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
-      schematic_in_new_window(new_process);
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "new_process")) new_process = 1;
+        if(!strcmp(argv[i], "nodraw")) nodraw = 1;
+      }
+      schematic_in_new_window(new_process, !nodraw);
       Tcl_ResetResult(interp);
     }
 

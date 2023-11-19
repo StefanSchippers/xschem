@@ -1838,7 +1838,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
     int save = xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    schematic_in_new_window(0);
+    schematic_in_new_window(0, 1);
     xctx->semaphore = save;
     break;
    }
@@ -1847,7 +1847,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    { 
     int save = xctx->semaphore;
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    schematic_in_new_window(1);
+    schematic_in_new_window(1, 1);
     xctx->semaphore = save;
     break;
    }

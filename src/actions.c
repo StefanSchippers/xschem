@@ -1632,14 +1632,14 @@ void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to)
 }
 
  /*  20111007 duplicate current schematic if no inst selected */
-void schematic_in_new_window(int new_process)
+void schematic_in_new_window(int new_process, int dr)
 {
   char filename[PATH_MAX];
   char win_path[WINDOW_PATH_SIZE];
   rebuild_selected_array();
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
     if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
-    else new_schematic("create", NULL, xctx->sch[xctx->currsch], 1);
+    else new_schematic("create", "noalert", xctx->sch[xctx->currsch], dr);
   }
   else {
     if(                   /*  do not descend if not subcircuit */
@@ -1656,7 +1656,7 @@ void schematic_in_new_window(int new_process)
     get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n);
     if(!check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 0);
-      else new_schematic("create", NULL, filename, 1);
+      else new_schematic("create", "noalert", filename, dr);
     }
   }
 }

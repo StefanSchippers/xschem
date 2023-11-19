@@ -1475,7 +1475,7 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
-static void create_new_window(int *window_count, const char *noconfirm, const char *fname)
+static void create_new_window(int *window_count, const char *noconfirm, const char *fname, int dr)
 {
   Window win_id = 0LU;
   char toppath[WINDOW_PATH_SIZE];
@@ -1559,7 +1559,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
-  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+  if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   /* restore previous context,
@@ -1573,7 +1573,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
-static void create_new_tab(int *window_count, const char *noconfirm, const char *fname)
+static void create_new_tab(int *window_count, const char *noconfirm, const char *fname, int dr)
 {
   int i, confirm = 1;
   char open_path[WINDOW_PATH_SIZE];
@@ -1666,7 +1666,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1,fname, 1, confirm);
-  zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+  if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   /* xctx->pending_fullzoom=1; */
 }
 
@@ -1918,9 +1918,9 @@ int new_schematic(const char *what, const char *win_path, const char *fname, int
     return window_count;
   } else if(!strcmp(what, "create")) {
     if(!tabbed_interface) {
-      create_new_window(&window_count, win_path, fname);
+      create_new_window(&window_count, win_path, fname, dr);
     } else {
-      create_new_tab(&window_count, win_path, fname);
+      create_new_tab(&window_count, win_path, fname, dr);
     }
   } else if(!strcmp(what, "destroy")) {
     if(!tabbed_interface) {
