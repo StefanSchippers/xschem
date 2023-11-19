@@ -35,11 +35,11 @@ L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
 B 2 1200 -500 1880 -310 {flags=graph
-y1 = -0.0059
-y2 = 11
+y1 = -0.00095
+y2 = 12
 divy = 6
-x1=0.0227673
-x2=0.0231289
+x1=0.0226597
+x2=0.0229721
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -49,11 +49,11 @@ color="11 13 12 7"
 unitx=m
 jpeg_quality=30}
 B 2 1200 -830 1880 -520 {flags=graph
-y1 = -49
-y2 = 58
+y1 = -50
+y2 = 61
 divy = 12
-x1=0.0227673
-x2=0.0231289
+x1=0.0226597
+x2=0.0229721
 divx=10
 node="outp
 outm
@@ -63,13 +63,14 @@ x1.vboost
 x0.vboost"
 color="4 15 6 12 7 4"
 unitx=m
-jpeg_quality=30}
+jpeg_quality=30
+hilight_wave=-1}
 B 2 1200 -1020 1880 -830 {flags=graph
 y1 = 0
-y2 = 830
+y2 = 1100
 divy = 6
-x1=0.0227673
-x2=0.0231289
+x1=0.0226597
+x2=0.0229721
 divx=10
 
 
@@ -80,10 +81,10 @@ node="\\"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
 jpeg_quality=30}
 B 2 1200 -310 1880 -120 {flags=graph
 y1 = 0
-y2 = 840
+y2 = 960
 divy = 6
-x1=0.0227673
-x2=0.0231289
+x1=0.0226597
+x2=0.0229721
 divx=10
 
 
@@ -119,22 +120,22 @@ T {@spice_get_voltage} 761.875 -786.09375 0 0 0.8 0.8 {layer=15
 name=p9}
 T {@spice_get_voltage} 761.875 -206.09375 0 0 0.8 0.8 {layer=15
 name=p14}
-N 70 -1220 70 -1200 {lab=#net1}
-N 70 -1080 70 -1060 {lab=#net2}
+N 60 -1210 60 -1190 {lab=VPPI}
+N 60 -1070 60 -1050 {lab=VNNI}
 N 710 -700 860 -700 {lab=OUTM}
 N 500 -1150 570 -1150 {lab=VSS}
 N 570 -1150 570 -1140 {lab=VSS}
 N 570 -1140 610 -1140 {lab=VSS}
 N 540 -1190 570 -1190 {lab=IN}
 N 610 -1200 700 -1200 {lab=REFP}
-N 260 -1070 260 -1060 {lab=VNN}
-N 260 -1140 260 -1130 {lab=VSS}
-N 70 -1060 100 -1060 {lab=#net2}
-N 70 -1220 100 -1220 {lab=#net1}
-N 260 -1140 270 -1140 {lab=VSS}
-N 240 -1220 270 -1220 {lab=VPP}
-N 240 -1060 260 -1060 {lab=VNN}
-N 240 -1140 260 -1140 {lab=VSS}
+N 310 -1060 310 -1050 {lab=VNN}
+N 310 -1130 310 -1120 {lab=VSS}
+N 60 -1050 160 -1050 {lab=VNNI}
+N 60 -1210 160 -1210 {lab=VPPI}
+N 310 -1130 320 -1130 {lab=VSS}
+N 290 -1210 320 -1210 {lab=VPP}
+N 290 -1050 310 -1050 {lab=VNN}
+N 290 -1130 310 -1130 {lab=VSS}
 N 550 -950 710 -950 {lab=OUTM}
 N 400 -890 550 -890 {lab=FBN}
 N 550 -770 550 -750 {lab=IN}
@@ -164,7 +165,7 @@ N 260 -590 260 -570 {lab=VSS}
 N 240 -680 260 -680 {lab=VSSX}
 N 180 -680 240 -680 {lab=VSSX}
 N 870 -1200 890 -1200 {lab=IN_INT}
-N 870 -1200 870 -1170 {lab=IN_INT}
+N 870 -1200 870 -1130 {lab=IN_INT}
 N 400 -1000 400 -980 {lab=VPP}
 N 400 -540 400 -520 {lab=VPP}
 N 860 -700 860 -520 {lab=OUTM}
@@ -173,41 +174,47 @@ N 350 -890 400 -890 {lab=FBN}
 N 350 -430 400 -430 {lab=FB}
 N 570 -1060 610 -1060 {lab=VSS}
 N 570 -1070 570 -1060 {lab=VSS}
-N 270 -1220 310 -1220 {lab=VPP}
-N 260 -1060 310 -1060 {lab=VNN}
-N 270 -1140 310 -1140 {lab=VSS}
-N 270 -1150 270 -1140 { lab=VSS}
-N 270 -1220 270 -1210 { lab=VPP}
+N 320 -1210 360 -1210 {lab=VPP}
+N 310 -1050 360 -1050 {lab=VNN}
+N 320 -1130 360 -1130 {lab=VSS}
+N 320 -1140 320 -1130 { lab=VSS}
+N 320 -1210 320 -1200 { lab=VPP}
 N 400 -920 400 -890 { lab=FBN}
 N 400 -460 400 -430 { lab=FB}
 N 240 -780 240 -680 { lab=VSSX}
 N 240 -320 240 -220 { lab=INX}
-N 160 -1220 180 -1220 {lab=#net3}
-N 160 -1060 180 -1060 {lab=#net4}
-N 70 -1140 180 -1140 {lab=#net5}
-C {vsource.sym} 70 -1170 0 0 {name=V1 value="dc VPP pwl 0 0 1m VPP"}
-C {vsource.sym} 70 -1110 0 0 {name=V0 value="dc VPP pwl 0 0 1m VPP"}
-C {lab_pin.sym} 310 -1220 0 1 {name=p5 lab=VPP}
-C {lab_pin.sym} 310 -1060 0 1 {name=p6 lab=VNN}
-C {lab_pin.sym} 310 -1140 0 1 {name=p3 lab=VSS}
+N 220 -1210 230 -1210 {lab=#net1}
+N 220 -1050 230 -1050 {lab=#net2}
+N 60 -1130 230 -1130 {lab=#net3}
+N 950 -1200 1020 -1200 {
+lab=IN}
+C {vsource.sym} 60 -1160 0 0 {name=V1 value="dc VPP
++ pwl 0 0 1m VPP"}
+C {vsource.sym} 60 -1100 0 0 {name=V0 value="dc VPP
++ pwl 0 0 1m VPP"}
+C {lab_pin.sym} 360 -1210 0 1 {name=p5 lab=VPP}
+C {lab_pin.sym} 360 -1050 0 1 {name=p6 lab=VNN}
+C {lab_pin.sym} 360 -1130 0 1 {name=p3 lab=VSS}
 C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP}
 C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8}
 C {lab_pin.sym} 500 -1150 0 0 {name=p26 lab=VSS}
 C {lab_pin.sym} 540 -1190 0 0 {name=p31 lab=IN}
 C {vcvs.sym} 610 -1170 0 0 {name=E3 value=\{gain*0.99\}}
 C {lab_pin.sym} 700 -1200 0 1 {name=p32 lab=REFP}
-C {capa.sym} 260 -1100 0 0 {name=C3 m=1 value="100u"}
-C {res.sym} 130 -1220 1 1 {name=R11 m=1 value=0.3}
-C {res.sym} 130 -1060 1 1 {name=R9 m=1 value=0.3}
+C {capa.sym} 310 -1090 0 0 {name=C3 m=1 value="100u"}
+C {res.sym} 190 -1210 1 1 {name=R11 m=1 value=0.1}
+C {res.sym} 190 -1050 1 1 {name=R9 m=1 value=0.1}
 C {res.sym} 550 -920 0 1 {name=R19 m=1 value=50k
 }
 C {res.sym} 550 -860 0 1 {name=R0 m=1 value="'50k/gain'"}
 C {lab_pin.sym} 550 -750 0 0 {name=p108 lab=IN}
-C {mos_power_ampli.sym} 500 -660 0 0 {name=x1}
+C {mos_power_ampli.sym} 500 -660 0 0 {name=x1
+}
 C {lab_pin.sym} 350 -640 0 0 {name=p2 lab=VPP}
 C {lab_pin.sym} 350 -620 0 0 {name=p4 lab=VNN}
 C {lab_pin.sym} 860 -700 0 1 {name=p9 lab=OUTM}
-C {mos_power_ampli.sym} 500 -200 0 0 {name=x0}
+C {mos_power_ampli.sym} 500 -200 0 0 {name=x0
+}
 C {lab_pin.sym} 350 -180 0 0 {name=p12 lab=VPP}
 C {lab_pin.sym} 350 -160 0 0 {name=p13 lab=VNN}
 C {res.sym} 240 -350 0 1 {name=R6 m=1 value=50k}
@@ -219,8 +226,8 @@ C {lab_pin.sym} 540 -1110 0 0 {name=p21 lab=IN}
 C {vcvs.sym} 610 -1090 0 0 {name=E0 value=\{-gain*0.99\}}
 C {lab_pin.sym} 700 -1120 0 1 {name=p23 lab=REFM}
 C {lab_pin.sym} 240 -250 0 0 {name=p8 lab=INX}
-C {lab_pin.sym} 870 -1050 0 0 {name=p126 lab=VSS}
-C {lab_pin.sym} 950 -1200 0 1 {name=p127 lab=IN}
+C {lab_pin.sym} 870 -1010 0 0 {name=p126 lab=VSS}
+C {lab_pin.sym} 1020 -1200 0 1 {name=p127 lab=IN}
 C {capa.sym} 550 -800 0 0 {name=C5 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 550 -290 0 0 {name=p11 lab=VSS}
 C {capa.sym} 550 -340 0 0 {name=C6 m=1 value="100n ; ic=0"}
@@ -228,7 +235,7 @@ C {lab_pin.sym} 350 -200 0 0 {name=p28 lab=VSS}
 C {lab_pin.sym} 350 -660 0 0 {name=p1 lab=VSS}
 C {res.sym} 550 -460 0 1 {name=R2 m=1 value=50k}
 C {res.sym} 550 -400 0 1 {name=R3 m=1 value="'50k/(gain-2)'"}
-C {vsource.sym} 870 -1140 0 0 {name=V3 
+C {vsource.sym} 870 -1100 0 0 {name=V3 
 xvalue="dc 0 pulse -.1 .1 1m .1u .1u 10.1u 20u" 
 value="dc 0 sin 0 1 \{frequ\} 1m"
 }
@@ -246,15 +253,15 @@ C {res.sym} 920 -1200 1 1 {name=R10 m=1 value=2}
 C {lab_pin.sym} 400 -1000 0 0 {name=p24 lab=VPP}
 C {res.sym} 400 -490 0 1 {name=R13 m=1 value=50k}
 C {lab_pin.sym} 400 -540 0 0 {name=p16 lab=VPP}
-C {vsource.sym} 870 -1080 0 0 {name=Vin value=0 xvalue="pwl 0 .1 1m .1 1.01m 0"
+C {vsource.sym} 870 -1040 0 0 {name=Vin value=0 xvalue="pwl 0 .1 1m .1 1.01m 0"
 }
 C {lab_pin.sym} 350 -270 0 0 {name=p19 lab=FB}
 C {lab_pin.sym} 350 -730 0 0 {name=p25 lab=FBN}
 C {title.sym} 160 -30 0 0 {name=l2 author="Stefan Schippers"}
-C {lab_pin.sym} 870 -1200 0 0 {name=p27 lab=IN_INT}
-C {ammeter.sym} 210 -1220 3 0 {name=vcurrvpp  net_name=true       }
-C {ammeter.sym} 210 -1060 3 0 {name=vcurrvnn  net_name=true       }
-C {ammeter.sym} 210 -1140 3 0 {name=vcurrvss  net_name=true       }
+C {lab_pin.sym} 870 -1150 0 0 {name=p27 lab=IN_INT}
+C {ammeter.sym} 260 -1210 3 0 {name=vcurrvpp  net_name=true       }
+C {ammeter.sym} 260 -1050 3 0 {name=vcurrvnn  net_name=true       }
+C {ammeter.sym} 260 -1130 3 0 {name=vcurrvss  net_name=true       }
 C {launcher.sym} 710 -70 0 0 {name=h2
 descr="Ctrl-Click
 Clear all probes" 
@@ -281,7 +288,7 @@ tclcommand="
     xschem redraw
 "
 }
-C {capa.sym} 270 -1180 0 0 {name=C2 m=1 value="100u"}
+C {capa.sym} 320 -1170 0 0 {name=C2 m=1 value="100u"}
 C {ngspice_get_expr.sym} 535 -475 0 1 {name=r18 
 node="[ngspice::get_current \{r2[i]\}]"
 descr = current
@@ -316,12 +323,8 @@ C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran }
 C {launcher.sym} 1000 -270 0 0 {name=h1
 descr="Backannotate"
 tclcommand="xschem annotate_op $netlist_dir/poweramp_op.raw"}
-C {ngspice_get_expr.sym} 130 -1010 0 0 {name=r19 
-node="[ngspice::get_current \{r9[i]\}]"
-descr = current
-}
-C {spice_probe.sym} 300 -1220 0 0 {name=p45 analysis=tran }
-C {spice_probe.sym} 300 -1060 0 0 {name=p46 analysis=tran }
+C {spice_probe.sym} 350 -1210 0 0 {name=p45 analysis=tran }
+C {spice_probe.sym} 350 -1050 0 0 {name=p46 analysis=tran }
 C {launcher.sym} 1145 -1165 0 0 {name=h5 
 descr="load ngspice waves" 
 tclcommand="
@@ -340,7 +343,7 @@ value="
 vvss vss 0 dc 0 
 .param VPP=50
 .temp 30
-.param frequ=5k
+.param frequ=15k
 .param gain=45
 .option savecurrents
 
@@ -352,7 +355,7 @@ vvss vss 0 dc 0
 save all
 op
 write poweramp_op.raw
-tran  8e-7 0.025 uic
+tran  2e-7 0.025 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
 plot outp outm
@@ -424,3 +427,5 @@ simswap
 
 "
 }
+C {lab_pin.sym} 60 -1210 0 0 {name=p29 lab=VPPI}
+C {lab_pin.sym} 60 -1050 0 0 {name=p30 lab=VNNI}

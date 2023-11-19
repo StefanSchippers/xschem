@@ -282,6 +282,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
       }
       tclsetboolvar("live_cursor2_backannotate", 1);
+      /* clear all raw files */
       extra_rawfile(3, NULL, NULL);
       free_rawfile(&xctx->raw, 1);
       raw_read(f, &xctx->raw, "op");
