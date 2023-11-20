@@ -42,6 +42,7 @@ static Xschem_ctx *save_xctx[MAX_NEW_WINDOWS]; /* save pointer to current schema
 static char window_path[MAX_NEW_WINDOWS][WINDOW_PATH_SIZE];
 /* ==0 if no additional windows/tabs, ==1 if one additional window/tab, ... */
 static int window_count = 0;
+static int last_created_window = -1;
 
 /* ----------------------------------------------------------------------- */
 /* EWMH message handling routines 20071027... borrowed from wmctrl code */
@@ -92,6 +93,15 @@ Xschem_ctx **get_save_xctx(void)
 char *get_window_path(int i)
 {
   return window_path[i];
+}
+
+char *get_last_created_window(void)
+{
+  if(last_created_window >= 0) {
+    return window_path[last_created_window];
+  } else {
+    return "";
+  }
 }
 
 int get_window_count(void)
@@ -1204,7 +1214,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
 }
 
 
-static int get_tab_or_window_number(const char *win_path)
+int get_tab_or_window_number(const char *win_path)
 {
   int i, n = -1;
   Xschem_ctx *ctx, **save_xctx = get_save_xctx();
@@ -1522,7 +1532,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
-      n = i;
+      last_created_window = n = i;
       break;
     }
   }
@@ -1627,6 +1637,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
     dbg(0, "new_schematic(\"newtab\"...): no more free slots\n");
     return;
   }
+  last_created_window = i;
   /* tcl code to create the tab button */
   my_snprintf(nn, S(nn), "%d", i);
   if(has_x) {
@@ -1911,7 +1922,6 @@ static void destroy_all_tabs(int *window_count, int force)
 int new_schematic(const char *what, const char *win_path, const char *fname, int dr)
 {
   int tabbed_interface;
-
   tabbed_interface = tclgetboolvar("tabbed_interface");
   dbg(1, "new_schematic(): current_win_path=%s, what=%s, win_path=%s\n", xctx->current_win_path, what, win_path);
   if(!strcmp(what, "ntabs")) {

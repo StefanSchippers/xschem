@@ -547,6 +547,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    
+    /* copy_hierarchy to from
+     *   Copy hierarchy info from tab/window "from" to tab/window "to"
+     *   Example: xschem copy_hierarchy .drw .x1.drw */
+    else if(!strcmp(argv[1], "copy_hierarchy"))
+    { 
+      int ret = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) {
+        ret = copy_hierarchy_data(argv[2], argv[3]);
+      }
+      Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
+    }
+
     /* copy_objects [deltax deltay [rot flip]]
      *   if deltax and deltay (and optionally rot and flip) are given copy selection
      *   to specified offset, otherwise start a GUI copy operation */
@@ -1088,7 +1102,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'l':
-          if(!strcmp(argv[2], "lastsel")) { /* number of selected objects */
+          if(!strcmp(argv[2], "last_created_window")) { /* return win_path of last created tab or window */
+            Tcl_SetResult(interp, get_last_created_window(), TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "lastsel")) { /* number of selected objects */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             rebuild_selected_array();
             Tcl_SetResult(interp, my_itoa(xctx->lastsel),TCL_VOLATILE);
@@ -1561,6 +1578,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     
+    /* get_sch_from_sym inst
+     *   get schematic associated with instance 'inst' */
+    else if(!strcmp(argv[1], "get_sch_from_sym") )
+    {
+      int inst = -1;
+      char filename[PATH_MAX];
+      my_strncpy(filename,  "", S(filename));
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) {
+        if((inst = get_instance(argv[2])) < 0 ) {
+          Tcl_SetResult(interp, "xschem get_sch_from_sym: instance not found", TCL_STATIC);
+          return TCL_ERROR;
+        } else {
+          if( xctx->inst[inst].ptr >= 0 ) {
+            get_sch_from_sym(filename, xctx->inst[inst].ptr+ xctx->sym, inst);
+          }
+        }
+      }
+      Tcl_SetResult(interp, filename, TCL_VOLATILE);
+    }
+
     /* get_tok str tok [with_quotes]
      *   get value of token 'tok' in string 'str'
      *   'with_quotes' (default:0) is an integer passed to get_tok_value() */
@@ -3197,12 +3235,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* raw_clear 
-     *   Delete loaded simulation raw file */
+     *   Unload all simulation raw files */
     else if(!strcmp(argv[1], "raw_clear"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      extra_rawfile(3, NULL, NULL);
-      free_rawfile(&xctx->raw, 1);
+      extra_rawfile(3, NULL, NULL); /* unload additional raw files */
+      free_rawfile(&xctx->raw, 1); /* unload base (current) raw file */
       Tcl_ResetResult(interp);
     }
 
@@ -3762,25 +3800,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* schematic_in_new_window [new_process] [nodraw]
+    /* schematic_in_new_window [new_process] [nodraw] [force]
      *   When a symbol is selected edit corresponding schematic
      *   in a new tab/window if not already open.
      *   If nothing selected open another window of the second
      *   schematic (issues a warning).
      *   if 'new_process' is given start a new xschem process
-     *   if 'nodraw' is given do not draw loaded schematic */
+     *   if 'nodraw' is given do not draw loaded schematic
+     *   returns '1' if a new schematic was opened, 0 otherwise */
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {
+      int res = 0;
       int new_process = 0;
       int nodraw = 0;
+      int force = 0;
       int i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; i++) {
         if(!strcmp(argv[i], "new_process")) new_process = 1;
         if(!strcmp(argv[i], "nodraw")) nodraw = 1;
+        if(!strcmp(argv[i], "force")) force = 1;
       }
-      schematic_in_new_window(new_process, !nodraw);
-      Tcl_ResetResult(interp);
+      res = schematic_in_new_window(new_process, !nodraw, force);
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
 
     /* search regex|exact select tok val [match_case]
@@ -4764,8 +4806,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         del_object_table();
       }
       else if(argc > 2 && atoi(argv[2]) == 2) {
-        Xschem_ctx **save_xctx = get_save_xctx();
-        copy_hierarchy_data(save_xctx[0], save_xctx[1]);
+        copy_hierarchy_data(".drw", ".x1.drw");
       }
       else if(argc > 2 && atoi(argv[2]) == 3) {
         Xschem_ctx **save_xctx = get_save_xctx();

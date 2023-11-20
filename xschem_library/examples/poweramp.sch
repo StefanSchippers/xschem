@@ -322,7 +322,7 @@ C {spice_probe.sym} 670 -1120 0 0 {name=p43 analysis=tran }
 C {spice_probe.sym} 950 -1200 0 0 {name=p44 analysis=tran }
 C {launcher.sym} 1000 -270 0 0 {name=h1
 descr="Backannotate"
-tclcommand="xschem annotate_op $netlist_dir/poweramp_op.raw"}
+tclcommand="xschem annotate_op $netlist_dir/poweramp.raw"}
 C {spice_probe.sym} 350 -1210 0 0 {name=p45 analysis=tran }
 C {spice_probe.sym} 350 -1050 0 0 {name=p46 analysis=tran }
 C {launcher.sym} 1145 -1165 0 0 {name=h5 
@@ -354,11 +354,11 @@ vvss vss 0 dc 0
 .control
 save all
 op
-write poweramp_op.raw
+write poweramp.raw
+set appendwrite
 tran  2e-7 0.025 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
-plot outp outm
 save p(r*) p(v*)
 write poweramp.raw
 quit 0

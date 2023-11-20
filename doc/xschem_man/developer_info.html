@@ -521,16 +521,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
-
-
-
-
-
-
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -596,6 +586,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if '3' argument is given combine '1' and '2' </pre>
    <li><kbd>       copy</kbd></li><pre>
    Copy selection to clipboard </pre>
+   <li><kbd>       copy_hierarchy to from</kbd></li><pre>
+   Copy hierarchy info from tab/window "from" to tab/window "to"
+   Example: xschem copy_hierarchy .drw .x1.drw </pre>
    <li><kbd>       copy_objects [deltax deltay [rot flip]]</kbd></li><pre>
    if deltax and deltay (and optionally rot and flip) are given copy selection
    to specified offset, otherwise start a GUI copy operation </pre>
@@ -699,6 +692,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> header_text </kbd> header metadata (license info etc) present in schematic </li>
      <li><kbd> infowindow_text </kbd> ERC messages </li>
      <li><kbd> instances </kbd> number of instances in schematic </li>
+     <li><kbd> last_created_window </kbd> return win_path of last created tab or window </li>
      <li><kbd> lastsel </kbd> number of selected objects </li>
      <li><kbd> line_width </kbd> get line width </li>
      <li><kbd> lines </kbd> (xschem get lines n) number of lines on layer 'n' </li>
@@ -783,6 +777,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
     
        ('inst' can be an instance name or instance number)
        ('pin' can be a pin name or pin number)</pre>
+   <li><kbd>       get_sch_from_sym inst</kbd></li><pre>
+   get schematic associated with instance 'inst' </pre>
    <li><kbd>       get_tok str tok [with_quotes]</kbd></li><pre>
    get value of token 'tok' in string 'str'
    'with_quotes' (default:0) is an integer passed to get_tok_value() </pre>
@@ -1052,7 +1048,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        what = read | clear | info | switch | switch_back
    Load /clear / switch additional raw files </pre>
    <li><kbd>       raw_clear </kbd></li><pre>
-   Delete loaded simulation raw file </pre>
+   Unload all simulation raw files </pre>
    <li><kbd>       raw_query loaded|value|index|values|datasets|vars|list </kbd></li><pre>
    xschem raw_query list: get list of saved simulation variables
    xschem raw_query vars: get number of simulation variables
@@ -1140,13 +1136,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    List a 2-item list of all pins  and directions of current schematic
    Example: xschem sch_pinlist
    --&gt;  {PLUS} {in} {OUT} {out} {MINUS} {in} {VCC} {inout} {VSS} {inout}</pre>
-   <li><kbd>       schematic_in_new_window [new_process] [nodraw]</kbd></li><pre>
+   <li><kbd>       schematic_in_new_window [new_process] [nodraw] [force]</kbd></li><pre>
    When a symbol is selected edit corresponding schematic
    in a new tab/window if not already open.
    If nothing selected open another window of the second
    schematic (issues a warning).
    if 'new_process' is given start a new xschem process
-   if 'nodraw' is given do not draw loaded schematic </pre>
+   if 'nodraw' is given do not draw loaded schematic
+   returns '1' if a new schematic was opened, 0 otherwise </pre>
    <li><kbd>       search regex|exact select tok val [match_case]</kbd></li><pre>
    Search instances / wires / rects / texts with attribute string containing 'tok'
    and value 'val'
@@ -1391,6 +1388,18 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

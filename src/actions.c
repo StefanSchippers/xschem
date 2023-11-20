@@ -1573,8 +1573,11 @@ void symbol_in_new_window(int new_process)
   }
 }
 
-void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to)
+int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
 {
+  int n;
+  Xschem_ctx **save_xctx;
+  Xschem_ctx *from, *to;
   char **sch;
   char **sch_path;
   int *sch_path_hash;
@@ -1585,7 +1588,18 @@ void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to)
   int i, j;
   Str_hashentry **fromnext;
   Str_hashentry **tonext;
+
   
+  if(!get_window_count()) { return 0; }
+  save_xctx = get_save_xctx();
+  n = get_tab_or_window_number(from_win_path);
+  if(n >= 0) {
+    from = save_xctx[n];
+  } else return 0;
+  n = get_tab_or_window_number(to_win_path);
+  if(n >= 0) {
+    to = save_xctx[n];
+  } else return 0;
   sch = from->sch;
   sch_path = from->sch_path;
   sch_path_hash = from->sch_path_hash;
@@ -1629,21 +1643,29 @@ void copy_hierarchy_data(Xschem_ctx *from, Xschem_ctx *to)
       }
     }
   }
+  return 1;
 }
 
- /*  20111007 duplicate current schematic if no inst selected */
-void schematic_in_new_window(int new_process, int dr)
+/*  20111007 duplicate current schematic if no inst selected */
+/* if force set to 1 force opening another new schematic even if already open */
+int schematic_in_new_window(int new_process, int dr, int force)
 {
   char filename[PATH_MAX];
   char win_path[WINDOW_PATH_SIZE];
   rebuild_selected_array();
-  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
+  if(xctx->lastsel == 0) {
     if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
-    else new_schematic("create", "noalert", xctx->sch[xctx->currsch], dr);
+    else new_schematic("create", force ? "noalert" : "", xctx->sch[xctx->currsch], dr);
+    return 1;
   }
-  else {
+  else if(xctx->lastsel > 1) {
+    return 0;
+  }
+  else { /* xctx->lastsel == 1 */
+    if(xctx->inst[xctx->sel_array[0].n].ptr < 0 ) return 0;
+    if(!(xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type) return 0;
+    if(xctx->sel_array[0].type != ELEMENT) return 0;
     if(                   /*  do not descend if not subcircuit */
-       (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type &&
        strcmp(
           (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
            "subcircuit"
@@ -1652,13 +1674,14 @@ void schematic_in_new_window(int new_process, int dr)
           (xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->type,
            "primitive"
        )
-    ) return;
+    ) return 0;
     get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n);
-    if(!check_loaded(filename, win_path)) {
+    if(force || !check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 0);
       else new_schematic("create", "noalert", filename, dr);
     }
   }
+  return 1;
 }
 
 void launcher(void)

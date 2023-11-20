@@ -2960,6 +2960,34 @@ proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
   return $r
 }
 
+# opens indicated instance (or selected one) into a separate tab/window
+# keeping the hierarchy path, as it was descended into (as with 'e' key).
+proc open_sub_schematic {{inst {}} {inst_number 0}} {
+  set one_sel [expr {[xschem get lastsel] == 1}]
+  if { $inst eq {} && $one_sel} {
+    set inst [lindex [xschem selected_set] 0]
+    xschem unselect_all
+  } else {
+    set instlist {}
+    # get list of instances (instance names only) 
+    foreach {i s t} [xschem instance_list] {lappend instlist $i}
+    # if provided $inst is not in the list return 0
+    if {[lsearch -exact $instlist $inst] == -1} {return 0}
+  }
+  # open a new top level in another window / tab
+  set schname [xschem get_sch_from_sym $inst]
+  set res [xschem schematic_in_new_window force]
+  # if successfull descend into indicated sub-schematic
+  if {$res} {
+    xschem new_schematic switch [xschem get last_created_window]
+    xschem select instance $inst fast
+    xschem descend
+    return 1
+  }
+  return 0
+}
+
+
 proc is_xschem_file {f} {
   if { ![file exists $f] } { return 0 
   } elseif { [file isdirectory $f] } { return 0 }
@@ -6854,7 +6882,8 @@ proc build_widgets { {topwin {} } } {
   toolbar_add FileOpen "xschem load" "Open File" $topwin
 
   $topwin.menubar.file.menu add command -label "Open schematic in new window/tab" \
-      -command "xschem schematic_in_new_window" -accelerator Alt+E
+      -command "open_sub_schematic" -accelerator Alt+E
+      # -command "xschem schematic_in_new_window" -accelerator Alt+E
   $topwin.menubar.file.menu add command -label "Open symbol in new window/tab" \
       -command "xschem symbol_in_new_window" -accelerator Alt+I
 
