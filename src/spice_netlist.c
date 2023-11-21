@@ -326,8 +326,8 @@ int global_spice_netlist(int global)  /* netlister driver */
      found_top_symbol = 1;
    }
    remove_symbol(xctx->symbols - 1);
-   my_free(_ALLOC_ID_, &top_symbol_name);
  }
+ my_free(_ALLOC_ID_, &top_symbol_name);
  if(!found_top_symbol) {
    for(i=0;i<xctx->instances; ++i) {
      if(skip_instance(i, 1, lvs_ignore)) continue;
