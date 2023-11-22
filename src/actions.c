@@ -553,9 +553,9 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
         if( (p = strrchr(filename, '.')) && !strcmp(p, ".sch") ) {
           my_strncpy(filename, add_ext(filename, ".sym"), S(filename));
         }
-        my_snprintf(name, S(name), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
+        my_snprintf(name, S(name), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
       } else {
-        my_snprintf(name, S(name), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
+        my_snprintf(name, S(name), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
       }
 
       tcleval(name);
@@ -1996,7 +1996,8 @@ int descend_schematic(int instnumber)
      char res[PATH_MAX];
  
      my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename);
+     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
+     /* my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename); */
      tcleval(cmd);
      my_strncpy(res, tclresult(), S(res));
      if(!res[0]) return 0;
