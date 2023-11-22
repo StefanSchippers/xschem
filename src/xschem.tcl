@@ -1267,29 +1267,34 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spice,default) 0
     
     ### spice wave view
-    set_ne sim(spicewave,0,cmd) {gaw "$n.raw" } 
-    set sim(spicewave,0,name) {Gaw viewer}
-    set_ne sim(spicewave,0,fg) 0
-    set_ne sim(spicewave,0,st) 0
-   
-    set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
-    set sim(spicewave,1,name) {Ngpice Viewer}
+    set_ne sim(spicewave,0,cmd) {} 
+    set sim(spicewave,0,name) {Xschem internal waves}
+    set sim(spicewave,0,fg) 0
+    set sim(spicewave,0,st) 0
+
+    set_ne sim(spicewave,1,cmd) {gaw "$n.raw" } 
+    set sim(spicewave,1,name) {Gaw viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
-
-    set_ne sim(spicewave,2,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
-    set sim(spicewave,2,name) {Rawtovcd}
+   
+    set_ne sim(spicewave,2,cmd) {$terminal -e ngspice}
+    set sim(spicewave,2,name) {Ngpice Viewer}
     set_ne sim(spicewave,2,fg) 0
     set_ne sim(spicewave,2,st) 0
 
-    # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
-    # This server is listening on port $bespice_listen_port. 
-    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
-    set sim(spicewave,3,name) {Bespice wave}
+    set_ne sim(spicewave,3,cmd) {rawtovcd -v 1.5 "$n.raw" > "$n.vcd" && gtkwave "$n.vcd" "$n.sav" 2>/dev/null} 
+    set sim(spicewave,3,name) {Rawtovcd}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
+
+    # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
+    # This server is listening on port $bespice_listen_port. 
+    set_ne sim(spicewave,4,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" } 
+    set sim(spicewave,4,name) {Bespice wave}
+    set_ne sim(spicewave,4,fg) 0
+    set_ne sim(spicewave,4,st) 0
     # number of configured spice wave viewers, and default one
-    set_ne sim(spicewave,n) 4
+    set_ne sim(spicewave,n) 5
     set_ne sim(spicewave,default) 0
     
     ### verilog
@@ -1391,6 +1396,8 @@ proc simconf {} {
     pack ${scrollframe}.center.$tool.r -fill both -expand yes
     for {set i 0} { $i < $sim($tool,n)} {incr i} {
       if {$tool eq {spicewave} && $i == 0} {
+        set sim($tool,$i,fg) 0
+        set sim($tool,$i,st) 0
         frame ${scrollframe}.center.$tool.r.$i
         pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
         entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
@@ -1966,11 +1973,7 @@ proc waves {{type {}}} {
     }
 
     if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
-
     if {$type ne {external} } {
-      if { [xschem raw_query loaded] != -1} {
-        xschem raw_clear
-      }
       load_raw $type
     } else {
       set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
@@ -1984,11 +1987,9 @@ proc waves {{type {}}} {
         if {$id >= 0} {
           vwait execute(pipe,$id)
         }
-        xschem set semaphore [expr {[xschem get semaphore] -1}]
       }
-
-
     }
+    if {$fg eq {execute_wait}} xschem set semaphore [expr {[xschem get semaphore] -1}]
   }
 }
 # ============================================================
