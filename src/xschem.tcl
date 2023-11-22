@@ -1950,7 +1950,6 @@ proc waves {{type {}}} {
       set fg {execute}
     }
 
-    if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
     if {$type ne {external} } {
       load_raw $type
     } else {
@@ -1963,11 +1962,12 @@ proc waves {{type {}}} {
 
       if {$fg eq {execute_wait}} {
         if {$id >= 0} {
+          xschem set semaphore [expr {[xschem get semaphore] +1}]
           vwait execute(pipe,$id)
+          xschem set semaphore [expr {[xschem get semaphore] -1}]
         }
       }
     }
-    if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] -1}]}
   }
 }
 # ============================================================
