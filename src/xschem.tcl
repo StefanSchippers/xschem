@@ -27,7 +27,7 @@ proc inutile_line {txtlabel} {
    set X [expr [winfo pointerx .inutile_line] - 60]
    set Y [expr [winfo pointery .inutile_line] - 35]
    wm geometry .inutile_line "+$X+$Y"
-   wm transient .inutile_line .
+   wm transient .inutile_line [xschem get topwindow]
    label .inutile_line.l1  -text $txtlabel
    entry .inutile_line.e1   -width 60
    .inutile_line.e1 delete 0 end
@@ -86,7 +86,7 @@ proc inutile_alias_window {w filename} {
  toplevel $w -class Dialog
  wm title $w "(IN)UTILE ALIAS FILE: $filename"
  wm iconname $w "ALIAS"
- # wm transient $w .
+ # wm transient $w [xschem get topwindow]
 
  set fileid [open $filename "RDONLY CREAT"]
  set testo [read $fileid]
@@ -111,7 +111,7 @@ proc inutile_help_window {w filename} {
  toplevel $w -class Dialog
  wm title $w "(IN)UTILE ALIAS FILE"
  wm iconname $w "ALIAS"
- # wm transient $w .
+ # wm transient $w [xschem get topwindow]
  
  frame $w.buttons
  pack $w.buttons -side bottom -fill x -pady 2m
@@ -148,7 +148,7 @@ proc inutile { {filename {}}} {
   toplevel .inutile -class Dialog
   wm title .inutile "(IN)UTILE (Stefan Schippers, sschippe)"
   wm iconname .inutile "(IN)UTILE"
-  # wm transient .inutile .
+  # wm transient .inutile [xschem get topwindow]
   set utile_path $XSCHEM_SHAREDIR/utile
   set retval {}
   frame .inutile.buttons
@@ -492,7 +492,7 @@ proc list_running_cmds {} {
   if {![info exists has_x]} {return}
   if {[winfo exists $top]} {return}
   toplevel $top -class Dialog
-  # wm transient $top .
+  # wm transient $top [xschem get topwindow]
   set frame1 $top.f1
   set frame2 $top.f2
   set frame3 $top.f3
@@ -1371,7 +1371,7 @@ proc simconf {} {
   toplevel .sim -class Dialog
   wm title .sim {Simulation Configuration}
   wm geometry .sim 700x340
-  # wm transient .sim .
+  # wm transient .sim [xschem get topwindow]
   frame .sim.topf
   set scrollframe [sframe .sim.topf]
   frame ${scrollframe}.top
@@ -2005,7 +2005,7 @@ proc graph_edit_wave {n n_wave} {
   xschem setprop rect 2 $graph_selected color $col fast
   xschem draw_graph  $graph_selected
   toplevel .graphdialog -class Dialog
-  wm transient .graphdialog .
+  wm transient .graphdialog [xschem get topwindow]
   frame .graphdialog.f
   button .graphdialog.ok -text OK -command {
     destroy .graphdialog
@@ -2378,7 +2378,7 @@ proc graph_edit_properties {n} {
   catch {destroy .graphdialog}
   toplevel .graphdialog -class Dialog ;# -width 1 -height 1
   wm withdraw .graphdialog
-  wm transient .graphdialog .
+  wm transient .graphdialog [xschem get topwindow]
   update idletasks
 
   set graph_selected $n
@@ -3350,7 +3350,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
   toplevel .load -class Dialog
   wm title .load $msg
-  # wm transient .load .
+  # wm transient .load [xschem get topwindow]
   set_ne myload_index1 0
   if { ![info exists myload_files1]} {
     set myload_files1 $pathlist
@@ -3925,7 +3925,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   set tctx::rcode {}
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
 
   set X [expr {[winfo pointerx .dialog] - 30}]
   set Y [expr {[winfo pointery .dialog] - 25}]
@@ -4079,7 +4079,7 @@ proc tclcmd {} {
     destroy .tclcmd
   }
   toplevel .tclcmd -class Dialog
-  # wm transient .tclcmd .
+  # wm transient .tclcmd [xschem get topwindow]
   label .tclcmd.txtlab -text {Enter TCL expression. Shift-Return will evaluate}
   panedwindow .tclcmd.p -orient vert
   text .tclcmd.t -width 100 -height 3
@@ -4114,7 +4114,7 @@ proc select_layers {} {
   global dark_colorscheme enable_layer
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .sl -class Dialog
-  wm transient .sl .
+  wm transient .sl [xschem get topwindow]
   if { $dark_colorscheme == 1 } {
     set txt_color black
   } else {
@@ -4183,7 +4183,7 @@ proc color_dim {} {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dim -class Dialog
   wm title .dim {Dim colors}
-  wm transient .dim .
+  wm transient .dim [xschem get topwindow]
   checkbutton .dim.bg -text {Dim background} -variable enable_dim_bg
   # xschem color_dim <scale value> sets also dim_value variable
   scale .dim.scale -digits 2 -label {Dim factor} -length 256 \
@@ -4208,7 +4208,7 @@ proc about {} {
   }
   toplevel .about -class Dialog
   wm title .about {About XSCHEM}
-  wm transient .about .
+  wm transient .about [xschem get topwindow]
   label .about.xschem -text "XSCHEM V[xschem get version]" -font {Sans 24 bold}
   label .about.descr -text "Schematic editor / netlister for VHDL, Verilog, SPICE, tEDAx"
   button .about.link -text {http://repo.hu/projects/xschem} -font Underline-Font -fg blue -relief flat
@@ -4252,7 +4252,7 @@ proc property_search {} {
     xschem set semaphore [expr {[xschem get semaphore] +1}]
     toplevel .dialog -class Dialog
     wm title .dialog {Search}
-    wm transient .dialog .
+    wm transient .dialog [xschem get topwindow]
     if { ![info exists X] } {
       set X [expr {[winfo pointerx .dialog] - 60}]
       set Y [expr {[winfo pointery .dialog] - 35}]
@@ -4381,7 +4381,7 @@ proc attach_labels_to_inst {} {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
   wm title .dialog {Add labels to instances}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
 
   # 20100408
   set X [expr {[winfo pointerx .dialog] - 60}]
@@ -4446,7 +4446,7 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
   wm title .dialog {Ask Save}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
 
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
@@ -4626,7 +4626,7 @@ proc edit_prop {txtlabel} {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog  -class Dialog 
   wm title .dialog {Edit Properties}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
 
@@ -4852,7 +4852,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog
   wm title .dialog {Text input}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
 
@@ -5004,7 +5004,7 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   if {![info exists has_x] } {return}
   toplevel .alert -class Dialog
   wm title .alert {Alert}
-  wm transient .alert .
+  wm transient .alert [xschem get topwindow]
   set X [expr {[winfo pointerx .alert] - 70}]
   set Y [expr {[winfo pointery .alert] - 60}]
   if { [string compare $position ""] != 0 } {
@@ -5084,7 +5084,7 @@ proc infowindow {} {
   if ![winfo exists $z] {
     toplevel $z
     wm title $z {Info window}
-    # wm transient $z .
+    # wm transient $z [xschem get topwindow]
     wm  geometry $z 90x24+0+400
     wm iconname $z {Info window}
     wm withdraw $z
@@ -5131,7 +5131,7 @@ proc textwindow {filename {ro {}}} {
   toplevel $textwindow_w
   wm title $textwindow_w $filename
   wm iconname $textwindow_w $filename
-  # wm transient $textwindow_w .
+  # wm transient $textwindow_w [xschem get topwindow]
  frame $textwindow_w.buttons
   pack $textwindow_w.buttons -side bottom -fill x -pady 2m
   button $textwindow_w.buttons.dismiss -text Dismiss -command "destroy $textwindow_w"
@@ -5178,7 +5178,7 @@ proc viewdata {data {ro {}} {win .view}} {
   set tctx::rcode {}
   toplevel $viewdata_w
   wm title $viewdata_w {View data}
-  # wm transient $viewdata_w .
+  # wm transient $viewdata_w [xschem get topwindow]
   frame $viewdata_w.buttons
   pack $viewdata_w.buttons -side bottom -fill x -pady 2m
 
@@ -5537,7 +5537,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
   wm title .dialog {Input number}
-  wm transient .dialog .
+  wm transient .dialog [xschem get topwindow]
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
   # 20100203
