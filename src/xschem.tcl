@@ -634,17 +634,17 @@ proc to_eng {i} {
 }
 
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
-proc ev {s} {
-  if {![catch {expr $s} res]} {
+proc ev {args} {
+  if {![catch {expr $args} res]} {
     return [format %.4g $res]
   } else {
-    return $s
+    return $args
   }
 }
 
 ## evaluate expression. if expression has errors or does not evaluate return 0
-proc ev0 {s} {
-  if {![catch {expr $s} res]} {
+proc ev0 {args} {
+  if {![catch {expr $args} res]} {
     return [format %.4g $res]
   } else {
     return 0

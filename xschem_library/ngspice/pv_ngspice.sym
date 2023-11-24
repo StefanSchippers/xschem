@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -21,11 +21,11 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {type=subcircuit
-format="@name @pinlist @symname power=@power n=@n m=@m"
+format="@name @pinlist @symname area=@area is=@is isc=@isc n=@n rs=@rs rp=@rp m=@m"
 
 
 
-template="name=X1 power=100 n=36 m=1"}
+template="name=X1 isc=5.8 area=1 n=36 rs=0.002 rp=40 m=1"}
 V {}
 S {}
 E {}
@@ -41,6 +41,6 @@ B 5 -42.5 -2.5 -37.5 2.5 {name=fade dir=in}
 P 4 7 -35 -30 -25 -20 -20 -25 -15 -10 -30 -15 -25 -20 -35 -30 {}
 P 4 7 -35 -5 -25 5 -20 0 -15 15 -30 10 -25 5 -35 -5 {}
 T {@name} 15 -28.75 0 0 0.2 0.2 {}
-T {Wp = @power
+T {isc=@isc
 n = @n} 30 -10 0 0 0.2 0.2 {}
 T {m=@m} -5 16.25 0 1 0.2 0.2 {}
