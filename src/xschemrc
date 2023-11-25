@@ -159,6 +159,9 @@
 #### this is the default:
 # set initial_geometry {900x600}
 
+#### initial geometry of load /save / insert component file selector
+# set file_dialog_default_geometry 800x600
+
 #### if set to 0, when zooming out allow the viewport do drift toward the mouse position,
 #### allowing to move away by zooming / unzooming with mouse wheel
 #### default setting: 0

@@ -114,11 +114,11 @@ lab=B}
 N 530 -670 530 -650 {
 lab=B}
 N 630 -600 630 -540 {
-lab=#net1}
+lab=im}
 N 630 -720 630 -660 {
-lab=#net2}
+lab=ip}
 N 100 -670 100 -650 {
-lab=#net3}
+lab=#net1}
 N 100 -570 590 -570 {
 lab=0}
 N 70 -570 100 -570 {
@@ -132,13 +132,13 @@ lab=0}
 N 530 -590 530 -570 {
 lab=0}
 N 330 -670 330 -650 {
-lab=#net4}
+lab=#net2}
 N 330 -670 360 -670 {
-lab=#net4}
+lab=#net2}
 N 200 -670 270 -670 {
 lab=A}
 N 420 -670 430 -670 {
-lab=#net5}
+lab=#net3}
 N 520 -670 590 -670 {
 lab=B}
 N 490 -670 520 -670 {
@@ -1143,3 +1143,5 @@ write pv_ngspice.raw
 quit
 .endc
 "}
+C {lab_wire.sym} 630 -690 0 0 {name=p6 sig_type=std_logic lab=ip}
+C {lab_wire.sym} 630 -560 0 0 {name=p7 sig_type=std_logic lab=im}

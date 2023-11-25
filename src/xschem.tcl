@@ -3087,11 +3087,11 @@ proc display {} {
       destroy $w.b$i
     }
     set i $c_t(top)
-    button $w.title -text Recent -pady 0 -padx 0 -width 7 -state disabled -disabledforeground black \
+    button $w.title -text Recent -pady 0 -padx 0 -state disabled -disabledforeground black \
       -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
     pack $w.title -side top -fill x
     while {1} {
-      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -width 7
+      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) 
       pack $w.b$i -side top -fill x
       set i [expr {($i + 1) % $n}]
       if { $i == $c_t(top) } break
@@ -3335,7 +3335,7 @@ proc myload_display_preview {f} {
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
   global myload_index1 myload_files2 myload_files1 myload_retval myload_dir1 pathlist OS
-  global myload_default_geometry myload_sash_pos myload_yview tcl_version myload_globfilter myload_dir2
+  global file_dialog_default_geometry myload_sash_pos myload_yview tcl_version myload_globfilter myload_dir2
   global myload_save_initialfile myload_loadfile myload_ext
 
   if { [winfo exists .load] } {
@@ -3360,7 +3360,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent}
   frame .load.l.paneleft
-  eval [subst {listbox .load.l.paneleft.list -listvariable myload_files1 -width 20 -height 12 \
+  eval [subst {listbox .load.l.paneleft.list -listvariable myload_files1 -width 40 -height 12 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3400,13 +3400,13 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack  .load.l.paneright.list -side bottom  -fill both -expand true
 
   if { $loadfile == 2} {
-    .load.l  add .load.l.recent -minsize 30
+    .load.l  add .load.l.recent
     c_toolbar::display
   }
   .load.l  add .load.l.paneleft -minsize 40
   .load.l  add .load.l.paneright -minsize 40
-  # .load.l paneconfigure .load.l.paneleft -stretch always
-  # .load.l paneconfigure .load.l.paneright -stretch always
+  .load.l paneconfigure .load.l.paneleft -stretch always
+  .load.l paneconfigure .load.l.paneright -stretch always
   frame .load.buttons 
   frame .load.buttons_bot
   button .load.buttons_bot.ok -width 5 -text OK -command "
@@ -3486,8 +3486,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons_bot -side bottom -fill x
   pack .load.buttons -side bottom -fill x
   pack .load.l -expand true -fill both
-  if { [info exists myload_default_geometry]} {
-     wm geometry .load "${myload_default_geometry}"
+  if { [info exists file_dialog_default_geometry]} {
+     wm geometry .load "${file_dialog_default_geometry}"
   }
   myload_set_home $initdir
   if { $loadfile != 2} {
@@ -3527,9 +3527,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   .load.l.paneleft.list xview moveto 1
   bind .load <Configure> {
     set myload_sash_pos [.load.l sash coord 0]
-    set myload_default_geometry [wm geometry .load]
+    set file_dialog_default_geometry [wm geometry .load]
     .load.l.paneleft.list xview moveto 1
-    # regsub {\+.*} $myload_default_geometry {} myload_default_geometry
+    # regsub {\+.*} $file_dialog_default_geometry {} file_dialog_default_geometry
   }
 
   bind .load.l.paneright.yscroll <Motion> {
