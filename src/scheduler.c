@@ -4806,23 +4806,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 2) {
-        copy_hierarchy_data(".drw", ".x1.drw");
+        dbg(0, "cur=%d, tail=%d, head=%d\n", xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
         Tcl_ResetResult(interp);
-      }
-      else if(argc > 2 && atoi(argv[2]) == 3) {
-        Xschem_ctx **save_xctx = get_save_xctx();
-        save_xctx[1]->raw = save_xctx[0]->raw;
-        Tcl_ResetResult(interp);
-      }
-      else if(argc > 2 && atoi(argv[2]) == 4) {
-        Xschem_ctx **save_xctx = get_save_xctx();
-        save_xctx[1]->raw = NULL;
-        Tcl_ResetResult(interp);
-      }
-      else if(argc > 2 && atoi(argv[2]) == 5) {
-        Xschem_ctx **save_xctx = get_save_xctx();
-        Tcl_SetResult(interp, save_xctx[1]->raw == NULL ? "null" : "not null", TCL_VOLATILE);
-
       }
     }
 

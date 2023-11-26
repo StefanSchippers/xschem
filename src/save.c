@@ -3046,6 +3046,8 @@ void pop_undo(int redo, int set_modify_status)
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }
+    /* was incremented by a previous push_undo() in netlisting code, so restore */
+    if(redo == 4 && xctx->head_undo_ptr == xctx->cur_undo_ptr) xctx->head_undo_ptr--;
     if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
     xctx->cur_undo_ptr--;
   } else { /* redo == 2, get data without changing undo stack */
