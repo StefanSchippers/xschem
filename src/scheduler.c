@@ -3248,7 +3248,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query list: get list of saved simulation variables
      *   xschem raw_query vars: get number of simulation variables
      *   xschem raw_query datasets: get number of datasets (simulation runs)
-     *   xschem raw_query value node n: return n-th value of 'node' in raw file
+     *   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
+     *     If n is egiven as empty string {} return value at cursor b, dataset not used in this case
      *   xschem raw_query loaded: return hierarchy level
      *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query rawfile: return raw filename 
@@ -3271,22 +3272,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* xschem rawfile_query value v(ldcp) 123 */
         if(argc > 4 && !strcmp(argv[2], "value")) {
           int dataset = -1;
-          int point = atoi(argv[4]);
+          int point = argv[4][0] ? atoi(argv[4]) : -1;
           const char *node = argv[3];
           int idx = -1;
           if(argc > 5) dataset = atoi(argv[5]);
-          if((dataset >= 0 && point >= 0 && point < raw->npoints[dataset]) ||
-              (point >= 0 && point < raw->allpoints)) {
-            if(isonlydigit(node)) {
-              int i = atoi(node);
-              if(i >= 0 && i < raw->nvars) {
-                idx = i;
-              }
-            } else {
-              idx = get_raw_index(node);
-            }
-            if(idx >= 0) {
-              double val = get_raw_value(dataset, idx, point);
+          idx = get_raw_index(node);
+          if(idx >= 0) {
+            double val;
+            if( (dataset >=0 && point >= 0 && point < raw->npoints[dataset]) ||
+                (dataset == -1 && point >= 0 && point < raw->allpoints)
+              ) {
+              val = get_raw_value(dataset, idx, point);
+              Tcl_SetResult(interp, dtoa(val), TCL_VOLATILE);
+            } else if(xctx->raw->cursor_b_val) {
+              val = xctx->raw->cursor_b_val[idx];
               Tcl_SetResult(interp, dtoa(val), TCL_VOLATILE);
             }
           }

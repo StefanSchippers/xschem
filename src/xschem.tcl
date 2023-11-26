@@ -608,8 +608,9 @@ proc from_eng {i} {
 }
 
 ## convert number to engineering form
-proc to_eng {i} {
+proc to_eng {args} {
   set suffix {}
+  set i [expr [join $args]]
   set absi [expr {abs($i)}]
 
   if       {$absi == 0.0}  { set mult 1    ; set suffix {}
@@ -1916,6 +1917,10 @@ proc waves {{type {}}} {
   global netlist_dir terminal sim XSCHEM_SHAREDIR has_x 
   global bespice_listen_port env simulate_bg execute
 
+  if {$type ne {external} } {
+    load_raw $type
+    return
+  }
   set netlist_type [xschem get netlist_type]
   set_sim_defaults
   if { [set_netlist_dir 0] ne {}} {
@@ -1936,7 +1941,7 @@ proc waves {{type {}}} {
       set N ${n}.${tool}
     }
     set tool ${tool}wave
-    if { ![info exists  sim($tool,default)] } {
+    if {![info exists  sim($tool,default)] } {
       if { [info exists has_x] } {alert_ "Warning: viewer for $tool is not configured"}
       puts "Warning: viewer for $tool is not configured"
       return
@@ -1949,23 +1954,18 @@ proc waves {{type {}}} {
     } else {
       set fg {execute}
     }
+    set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
 
-    if {$type ne {external} } {
-      load_raw $type
-    } else {
-      set cmd [subst -nobackslashes $sim($tool,$def,cmd)]
+    set save [pwd]
+    cd $netlist_dir
+    set id [eval execute $st $cmd]
+    cd $save
 
-      set save [pwd]
-      cd $netlist_dir
-      set id [eval execute $st $cmd]
-      cd $save
-
-      if {$fg eq {execute_wait}} {
-        if {$id >= 0} {
-          xschem set semaphore [expr {[xschem get semaphore] +1}]
-          vwait execute(pipe,$id)
-          xschem set semaphore [expr {[xschem get semaphore] -1}]
-        }
+    if {$fg eq {execute_wait}} {
+      if {$id >= 0} {
+        xschem set semaphore [expr {[xschem get semaphore] +1}]
+        vwait execute(pipe,$id)
+        xschem set semaphore [expr {[xschem get semaphore] -1}]
       }
     }
   }

@@ -521,6 +521,22 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1053,7 +1069,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem raw_query list: get list of saved simulation variables
    xschem raw_query vars: get number of simulation variables
    xschem raw_query datasets: get number of datasets (simulation runs)
-   xschem raw_query value node n: return n-th value of 'node' in raw file
+   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
+     If n is egiven as empty string {} return value at cursor b, dataset not used in this case
    xschem raw_query loaded: return hierarchy level
    where raw file was loaded or -1 if no raw loaded
    xschem raw_query rawfile: return raw filename 
@@ -1388,20 +1405,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

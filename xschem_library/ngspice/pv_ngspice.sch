@@ -24,7 +24,7 @@ K {}
 V {}
 S {}
 E {}
-B 2 860 -550 1360 -160 {flags=graph 
+B 2 920 -580 1420 -190 {flags=graph 
 y1 = -0.115954
 y2 = 11.9983
 divy = 4
@@ -40,7 +40,7 @@ dataset=-1
 
 color=4
 node=i(vload)}
-B 2 860 -790 1360 -550 {flags=graph 
+B 2 920 -820 1420 -580 {flags=graph 
 y1 = -34.3253
 y2 = 449.01
 divy = 4
@@ -54,96 +54,64 @@ divx=8
 dataset=-1
 color=4
 node="\\"power; i(vload) v(plus) *\\""}
-B 2 860 -1040 1360 -800 {flags=graph 
-y1 = -0.208022
-y2 = 0.916906
-divy = 4
-subdivy=1
-x1=0
-x2=48
-divx=8
-  unitx=1
-
-
-dataset=-1
-color="4 15"
-node="a
-b"}
-B 2 860 -1290 1360 -1050 {flags=graph 
-y1 = -10.063
-y2 = 4.38019
-divy = 8
-subdivy=0
-x1=0
-x2=48
-divx=8
-  unitx=1
-
-
-dataset=-1
-
-color=15
-node=i(@d1[id])
-logy=1
-subdivx=0}
 T {position the mouse close to one of the curves
 and press 't' to display only that curve.
 This allows you to annotate the active
-waveform in the schematic.} 480 -370 0 0 0.3 0.3 {}
-T {tcleval(SUN=[expr \{[xschem getprop rect 2 0 dataset] == -1 ? \{N/A\} : ([xschem getprop rect 2 0 dataset] + 1)*20\}]%)} 710 -460 0 0 0.4 0.4 {name=xxxx}
-T {@name} 485 -686.25 2 1 0.2 0.2 {
+waveform in the schematic.} 710 -150 0 0 0.3 0.3 {}
+T {tcleval(SUN=[expr \{[xschem getprop rect 2 0 dataset] == -1 ? \{N/A\} : ([xschem getprop rect 2 0 dataset] + 1)*20\}]%)} 720 -540 0 0 0.4 0.4 {name=xxxx}
+T {@name} 495 -766.25 2 1 0.2 0.2 {
 name=Rs}
-T {@value} 495 -646.25 2 0 0.2 0.2 {
+T {@value} 505 -726.25 2 0 0.2 0.2 {
 name=Rs}
-T {m=@m} 485 -701.25 2 1 0.2 0.2 {
+T {m=@m} 495 -781.25 2 1 0.2 0.2 {
 name=Rs}
-T {@spice_get_current} 406.25 -657.5 1 0 0.2 0.2 {layer=15
+T {@spice_get_current} 416.25 -737.5 1 0 0.2 0.2 {layer=15
 name=Rs}
-N 630 -480 630 -420 {
+N 640 -560 640 -500 {
 lab=minus}
-N 630 -800 630 -780 {
+N 640 -880 640 -860 {
 lab=plus}
-N 200 -670 200 -650 {
+N 210 -750 210 -730 {
 lab=A}
-N 160 -670 200 -670 {
+N 170 -750 210 -750 {
 lab=A}
-N 590 -610 590 -570 {
+N 600 -690 600 -650 {
 lab=0}
-N 590 -670 590 -650 {
+N 600 -750 600 -730 {
 lab=B}
-N 530 -670 530 -650 {
+N 540 -750 540 -730 {
 lab=B}
-N 630 -600 630 -540 {
+N 640 -680 640 -620 {
 lab=im}
-N 630 -720 630 -660 {
+N 640 -800 640 -740 {
 lab=ip}
-N 100 -670 100 -650 {
+N 110 -750 110 -730 {
 lab=#net1}
-N 100 -570 590 -570 {
+N 110 -650 600 -650 {
 lab=0}
-N 70 -570 100 -570 {
+N 80 -650 110 -650 {
 lab=0}
-N 100 -590 100 -570 {
+N 110 -670 110 -650 {
 lab=0}
-N 200 -590 200 -570 {
+N 210 -670 210 -650 {
 lab=0}
-N 330 -590 330 -570 {
+N 340 -670 340 -650 {
 lab=0}
-N 530 -590 530 -570 {
+N 540 -670 540 -650 {
 lab=0}
-N 330 -670 330 -650 {
+N 340 -750 340 -730 {
 lab=#net2}
-N 330 -670 360 -670 {
+N 340 -750 370 -750 {
 lab=#net2}
-N 200 -670 270 -670 {
+N 210 -750 280 -750 {
 lab=A}
-N 420 -670 430 -670 {
+N 430 -750 440 -750 {
 lab=#net3}
-N 520 -670 590 -670 {
+N 530 -750 600 -750 {
 lab=B}
-N 490 -670 520 -670 {
+N 500 -750 530 -750 {
 lab=B}
-C {code_shown.sym} 40 -400 0 0 {name=CONTROL_400w_voc_43
+C {code_shown.sym} 360 -420 0 0 {name=CONTROL_400w_voc_43
 spice_ignore=false
 only_toplevel=true
 value=".param isc=11.5
@@ -162,12 +130,12 @@ write pv_ngspice.raw
 quit
 .endc
 "}
-C {iopin.sym} 630 -420 2 1 {name=p2 lab=minus}
+C {iopin.sym} 640 -500 2 1 {name=p2 lab=minus}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
-C {ipin.sym} 90 -760 2 1 {name=p2 lab=fade}
-C {ammeter.sym} 130 -670 3 0 {name=Vf}
-C {iopin.sym} 630 -800 2 1 {name=p1 lab=plus}
-C {launcher.sym} 930 -140 0 0 {name=h3 
+C {ipin.sym} 100 -840 2 1 {name=p2 lab=fade}
+C {ammeter.sym} 140 -750 3 0 {name=Vf}
+C {iopin.sym} 640 -880 2 1 {name=p1 lab=plus}
+C {launcher.sym} 1250 -160 0 0 {name=h3 
 descr="Netlist, Simulate, Reload waves" 
 tclcommand="
 if \{![info exists sim]\} \{set_sim_defaults\}
@@ -180,7 +148,7 @@ xschem simulate
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
-C {launcher.sym} 930 -100 0 0 {name=h1 
+C {launcher.sym} 1250 -120 0 0 {name=h1 
 descr="Load embedded waves" 
 tclcommand="xschem raw_read_from_attr"
 spice_data="
@@ -1092,39 +1060,39 @@ AAAAAAAAACCo+3TfgJ3BIKj7dN+AncEgqPt034CdwRIAAAAAgEdAAAAAAAAAAAAAAAAAAAAAABIAAAAA
 AAAAAAAAAEYzMzMzs0dARjMzMzOzR0AAAAAAAAAAAGBdUguLJqbBYF1SC4smpsFgXVILiyamweDMzMzMzEdAAAAAAAAAAAAAAAAAAAAAAODMzMzMzEdA4MzMzMzMR0AA
 AAAAAAAAAACASGFmXanBAIBIYWZdqcEAgEhhZl2pwXpmZmZm5kdAAAAAAAAAAAAAAAAAAAAAAHpmZmZm5kdAemZmZmbmR0AAAAAAAAAAAEBcFH2pC63BQFwUfakLrcFA
 XBR9qQutwRQAAAAAAEhAAAAAAAAAAAAAAAAAAAAAABQAAAAAAEhAFAAAAAAASEAAAAAAAAAAAICJiQpUobDBgImJClShsMGAiYkKVKGwwQ=="}
-C {launcher.sym} 1300 -90 0 0 {name=h2 
+C {launcher.sym} 1250 -70 0 0 {name=h2 
 descr="Reload waves" 
 tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
 "
 }
-C {ammeter.sym} 630 -510 2 0 {name=Vm savecurrent=true}
-C {ammeter.sym} 630 -750 2 0 {name=Vp savecurrent=true}
-C {diode.sym} 200 -620 0 0 {name=D1 model=DPANEL area='area'
+C {ammeter.sym} 640 -590 2 0 {name=Vm savecurrent=true}
+C {ammeter.sym} 640 -830 2 0 {name=Vp savecurrent=true}
+C {diode.sym} 210 -700 0 0 {name=D1 model=DPANEL area='area'
 
 device_model=".model DPANEL D IS=1n N=1"}
-C {res.sym} 330 -620 0 0 {name=Rp
+C {res.sym} 340 -700 0 0 {name=Rp
 value='rp'
 footprint=1206
 device=resistor
 m=1}
-C {res.sym} 460 -670 1 0 {name=Rs
+C {res.sym} 470 -750 1 0 {name=Rs
 value='rs'
 footprint=1206
 device=resistor
 m=1
 hide_texts=true}
-C {lab_pin.sym} 70 -570 2 1 {name=l2 sig_type=std_logic lab=0}
-C {cccs.sym} 530 -620 2 0 {name=F1 vnam=e1 value=1}
-C {vcvs.sym} 630 -630 0 0 {name=E1 value="'n'"}
-C {lab_wire.sym} 250 -670 0 0 {name=p3 sig_type=std_logic lab=A}
-C {lab_wire.sym} 550 -670 0 0 {name=p4 sig_type=std_logic lab=B}
-C {ammeter.sym} 120 -760 3 0 {name=Vf1}
-C {lab_pin.sym} 150 -760 0 1 {name=p5 sig_type=std_logic lab=F}
-C {bsource.sym} 100 -620 2 0 {name=B1 VAR=I FUNC="v(f) * isc"}
-C {ammeter.sym} 300 -670 3 0 {name=Vr}
-C {ammeter.sym} 390 -670 3 0 {name=Vm1 savecurrent=true}
-C {code_shown.sym} -320 -390 0 0 {name=CONTROL_100w_voc_22
+C {lab_pin.sym} 80 -650 2 1 {name=l2 sig_type=std_logic lab=0}
+C {cccs.sym} 540 -700 2 0 {name=F1 vnam=e1 value=1}
+C {vcvs.sym} 640 -710 0 0 {name=E1 value="'n'"}
+C {lab_wire.sym} 260 -750 0 0 {name=p3 sig_type=std_logic lab=A}
+C {lab_wire.sym} 560 -750 0 0 {name=p4 sig_type=std_logic lab=B}
+C {ammeter.sym} 130 -840 3 0 {name=Vf1}
+C {lab_pin.sym} 160 -840 0 1 {name=p5 sig_type=std_logic lab=F}
+C {bsource.sym} 110 -700 2 0 {name=B1 VAR=I FUNC="v(f) * isc"}
+C {ammeter.sym} 310 -750 3 0 {name=Vr}
+C {ammeter.sym} 400 -750 3 0 {name=Vm1 savecurrent=true}
+C {code_shown.sym} 0 -410 0 0 {name=CONTROL_100w_voc_22
 spice_ignore=true
 only_toplevel=true
 value=".param isc=6
@@ -1143,5 +1111,5 @@ write pv_ngspice.raw
 quit
 .endc
 "}
-C {lab_wire.sym} 630 -690 0 0 {name=p6 sig_type=std_logic lab=ip}
-C {lab_wire.sym} 630 -560 0 0 {name=p7 sig_type=std_logic lab=im}
+C {lab_wire.sym} 640 -770 0 0 {name=p6 sig_type=std_logic lab=ip}
+C {lab_wire.sym} 640 -640 0 0 {name=p7 sig_type=std_logic lab=im}
