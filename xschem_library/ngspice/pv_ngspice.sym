@@ -21,11 +21,11 @@ v {xschem version=3.4.5 file_version=1.2
 }
 G {}
 K {type=subcircuit
-format="@name @pinlist @symname area=@area is=@is isc=@isc n=@n rs=@rs rp=@rp m=@m"
+format="@name @pinlist @symname area=@area isc=@isc n=@n rs=@rs rp=@rp m=@m"
 
 
 
-template="name=X1 isc=5.8 area=1 n=36 rs=0.002 rp=40 m=1"}
+template="name=X1 isc=6 area=1 n=36 rs=0.002 rp=40 m=1"}
 V {}
 S {}
 E {}
