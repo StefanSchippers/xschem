@@ -2032,6 +2032,11 @@ int print_spice_element(FILE *fd, int inst)
 
         if (!xctx->tok_size) value=get_tok_value(template, token+1, 0);
         token_exists = xctx->tok_size;
+
+        if(!strcmp("@savecurrent", token)) {
+          token_exists = 0; /* processed later */
+          value = NULL;
+        }
         /* 
         if (!strncmp(value,"tcleval(", 8)) {
           dbg(1, "print_spice_element(): value=%s\n", value);
@@ -2123,6 +2128,18 @@ int print_spice_element(FILE *fd, int inst)
         STR_ALLOC(&result, tmp + result_pos, &size);
         result_pos += my_snprintf(result + result_pos, tmp, "%s", xctx->current_name);
         /* fputs(xctx->current_name, fd); */
+      }
+      else if(strcmp(token,"@savecurrent")==0)
+      {
+        char *instname = xctx->inst[inst].instname;
+
+        const char *sc = get_tok_value(xctx->inst[inst].prop_ptr, "savecurrent", 0);
+        if(!sc[0]) sc = get_tok_value(template, "savecurrent", 0);
+        if(!strboolcmp(sc , "true")) {
+          tmp = strlen(instname) + 25;
+          STR_ALLOC(&result, tmp + result_pos, &size);
+          result_pos += my_snprintf(result + result_pos, tmp, "\n.save I( ?1 %s )", instname);
+        }
       }
       else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
       {

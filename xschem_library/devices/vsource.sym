@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -21,8 +21,7 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {type=vsource
-format="tcleval([expr \{@savecurrent ? \\"@name @pinlist @value
-.save I( ?1 @name )\\" : \\"@name @pinlist @value \\"\}])"
+format="@name @pinlist @value@savecurrent"
 template="name=V1 value=3 savecurrent=false"
 }
 V {}
