@@ -636,7 +636,8 @@ proc to_eng {args} {
 
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
 proc ev {args} {
-  if {![catch {expr $args} res]} {
+  set i [join $args]
+  if {![catch {expr $i} res]} {
     return [format %.4g $res]
   } else {
     return $args
@@ -645,7 +646,8 @@ proc ev {args} {
 
 ## evaluate expression. if expression has errors or does not evaluate return 0
 proc ev0 {args} {
-  if {![catch {expr $args} res]} {
+  set i [join $args]
+  if {![catch {expr $i} res]} {
     return [format %.4g $res]
   } else {
     return 0
