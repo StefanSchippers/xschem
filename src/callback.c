@@ -115,7 +115,6 @@ void abort_operation(void)
      xctx->ui_state &= ~PLACE_SYMBOL;
      xctx->ui_state &= ~PLACE_TEXT;
    }
-   return;
   }
   if(xctx->ui_state & STARTCOPY)
   {
@@ -1202,25 +1201,25 @@ int rstate; /* (reduced state, without ShiftMask) */
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
     else 
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
-    if(!xctx->sel_or_clip[0]) my_snprintf(xctx->sel_or_clip, S(xctx->sel_or_clip), "%s/%s",
-        user_conf_dir, ".selection.sch");
-
     /* xschem window *sending* selected objects
        when the pointer comes back in abort copy operation since it has been done
        in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
-    if( stat(xctx->sel_or_clip, &buf)  && (xctx->ui_state & STARTCOPY) )
+    if( stat(sel_or_clip, &buf)  && (xctx->ui_state & STARTCOPY) )
     {
       copy_objects(ABORT); /* also unlinks sel_or_flip file */
       unselect_all(1);
     }
-    /* xschem window *receiving* selected objects */
-    /* no selected objects and selection file exists */
-    if(xctx->lastsel == 0  && !stat(xctx->sel_or_clip, &buf)) {
+    /* xschem window *receiving* selected objects selection cleared --> abort */
+    if(stat(sel_or_clip, &buf) && (xctx->ui_state & STARTMERGE)) {
+      abort_operation();
+    }
+    /*xschem window *receiving* selected objects 
+     * no selected objects and selection file exists --> start merge */
+    if(xctx->lastsel == 0  && !stat(sel_or_clip, &buf)) {
       dbg(2, "callback(): Enter event\n");
       xctx->mousex_snap = 490;
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
-      xunlink(xctx->sel_or_clip);
     }
     break;
 

@@ -987,7 +987,6 @@ typedef struct {
   /* callback.c */
   int already_selected; /* when clicking on an object that is already selected this will be 1 */
   int mx_save, my_save, last_command;
-  char sel_or_clip[PATH_MAX];
   int onetime;
   /* move.c */
   double rx1, rx2, ry1, ry2;
@@ -1168,6 +1167,7 @@ extern char *cad_icon[];
 extern FILE *errfp;
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
+extern char sel_or_clip[PATH_MAX];
 extern char pwd_dir[PATH_MAX]; /* obtained via getcwd() */
 extern int tcp_port;
 extern int text_svg;

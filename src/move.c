@@ -512,7 +512,6 @@ void copy_objects(int what)
   }
   if(what & ABORT)                               /* draw objects while moving */
   {
-   char *str = NULL; /* 20161122 overflow safe */
    draw_selection(xctx->gctiled,0);
 
    if(xctx->kissing) {
@@ -523,11 +522,7 @@ void copy_objects(int what)
    xctx->move_rot = xctx->move_flip = 0;
    xctx->deltax = xctx->deltay = 0.;
    xctx->ui_state&=~STARTCOPY;
-   my_strdup(_ALLOC_ID_, &str, user_conf_dir);
-   my_strcat(_ALLOC_ID_, &str, "/.selection.sch");
-   xunlink(str);
    update_symbol_bboxes(0, 0);
-   my_free(_ALLOC_ID_, &str);
   }
   if(what & RUBBER)                              /* draw objects while moving */
   {
@@ -553,6 +548,7 @@ void copy_objects(int what)
   {
     int l, firstw, firsti;
 
+    xunlink(sel_or_clip);
     set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
 
