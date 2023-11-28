@@ -489,7 +489,7 @@ int delete_wires(int selected_flag)
   {
     if(xctx->wire[i].sel == selected_flag) {
       ++j;
-      hash_wire(XDELETE, i, 0);
+      /* hash_wire(XDELETE, i, 0); */ /* can not be done since wire deletions change wire idexes in array */
       my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->wire[i].node);
 

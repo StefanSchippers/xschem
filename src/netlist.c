@@ -26,13 +26,20 @@ static int for_netlist = 0;
 static int netlist_lvs_ignore = 0;
 static void instdelete(int n, int x, int y)
 {
-  Instentry *saveptr, **prevptr;
+  Instentry *saveptr, **prevptr, *ptr;
 
   prevptr = &xctx->inst_spatial_table[x][y];
-  while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
-  saveptr = (*prevptr)->next;
-  my_free(_ALLOC_ID_, prevptr);
-  *prevptr = saveptr;
+  ptr = *prevptr;
+  while(ptr) {
+    if(ptr->n == n) {
+      saveptr = ptr->next;
+      my_free(_ALLOC_ID_, &ptr);
+      *prevptr = saveptr;
+      return;
+    }
+    prevptr = &ptr->next;
+    ptr = *prevptr;
+  }
 }
 
 static void instinsert(int n, int x, int y)
@@ -155,13 +162,20 @@ void del_object_table(void)
 
 static void objectdelete(int type, int n, int c, int x, int y)
 {
-  Objectentry *saveptr, **prevptr;
+  Objectentry *saveptr, **prevptr, *ptr;
   
   prevptr = &xctx->object_spatial_table[x][y];
-  while( (*prevptr)->type != type || (*prevptr)->n != n || (*prevptr)->c != c) prevptr = &(*prevptr)->next;
-  saveptr = (*prevptr)->next;
-  my_free(_ALLOC_ID_, prevptr);
-  *prevptr = saveptr;
+  ptr = *prevptr;
+  while(ptr) {
+    if(ptr->n == n && ptr->type == type && ptr->c == c ) {
+      saveptr = ptr->next;
+      my_free(_ALLOC_ID_, &ptr);
+      *prevptr = saveptr;
+      return;
+    }
+    prevptr = &ptr->next;
+    ptr = *prevptr;
+  }
 } 
   
 static void objectinsert(int type, int n, int c, int x, int y)
@@ -363,14 +377,20 @@ static void del_inst_pin_table(void)
 
 static void wiredelete(int n, int x, int y)
 {
-  Wireentry *saveptr, **prevptr;
+  Wireentry *saveptr, **prevptr, *ptr;
 
   prevptr = &xctx->wire_spatial_table[x][y];
-  if(*prevptr == NULL) return;
-  while( (*prevptr)->n != n) prevptr = &(*prevptr)->next;
-  saveptr = (*prevptr)->next;
-  my_free(_ALLOC_ID_, prevptr);
-  *prevptr = saveptr;
+  ptr = *prevptr;
+  while(ptr) {
+    if(ptr->n == n) {
+      saveptr = ptr->next;
+      my_free(_ALLOC_ID_, &ptr);
+      *prevptr = saveptr;
+      return;
+    }
+    prevptr = &ptr->next;
+    ptr = *prevptr;
+  }
 }
 
 static void wireinsert(int n, int x, int y)
@@ -488,6 +508,7 @@ void hash_wire(int what, int n, int incremental)
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
 
+  dbg(1, "hash_wire(): what=%d n=%d incremental=%d\n",  what, n, incremental);
   wire[n].end1 = wire[n].end2=-1;
   x1=wire[n].x1;
   x2=wire[n].x2;
