@@ -102,7 +102,7 @@ const char *expandlabel(const char *s, int *m)
    return NULL;
  }
  if(parselabel_debug >= 3) fprintf(errfp, "expandlabel(): entering\n");
- if(!strpbrk(s, "*,.:")) { /* shortcut: nothing to parse / expand */
+ if(!strpbrk(s, "*,.:") || s[0] == '$') { /* shortcut: nothing to parse / expand */
    *m = 1;
    my_strdup2(_ALLOC_ID_, &dest_string.str, s);
    if(xctx->netlist_type == CAD_SPICE_NETLIST && bus_char[0] && bus_char[1]) {
