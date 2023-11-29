@@ -2697,6 +2697,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   int no_of_pins=0;
   int symbol = xctx->inst[inst].ptr;
   const char *fmt_attr = NULL;
+  char *result = NULL;
 
   my_strdup(_ALLOC_ID_, &template,
       (xctx->inst[inst].ptr + xctx->sym)->templ);
@@ -2764,61 +2765,60 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     if(!xctx->tok_size)
     value=get_tok_value(template, token+1, 0);
     if(!xctx->tok_size && token[0] =='%') {
-      fputs(token + 1, fd);
+      my_mstrcat(_ALLOC_ID_, &result, token + 1, NULL);
     } else if(value && value[0]!='\0') {
        /* instance names (name) and node labels (lab) go thru the expandlabel function. */
        /*if something else must be parsed, put an if here! */
 
      if(!(strcmp(token+1,"name"))) {
        if( (lab=expandlabel(value, &tmp)) != NULL)
-          fprintf(fd, "----name(%s)", lab);
+          my_mstrcat(_ALLOC_ID_, &result, "----name(", lab, ")", NULL);
        else
-          fprintf(fd, "%s", value);
+          my_mstrcat(_ALLOC_ID_, &result, value, NULL);
      }
      else if(!(strcmp(token+1,"lab"))) {
        if( (lab=expandlabel(value, &tmp)) != NULL)
-          fprintf(fd, "----pin(%s)", lab);
+          my_mstrcat(_ALLOC_ID_, &result, "----pin(", lab, ")", NULL);
        else
-          fprintf(fd, "%s", value);
+          my_mstrcat(_ALLOC_ID_, &result, value, NULL);
      }
-     else  fprintf(fd, "%s", value);
+     else my_mstrcat(_ALLOC_ID_, &result, value, NULL);
     }
     else if(strcmp(token,"@path")==0)
     {
-     fputs(xctx->sch_path[xctx->currsch] + 1, fd);
+     my_mstrcat(_ALLOC_ID_, &result, xctx->sch_path[xctx->currsch] + 1, NULL);
     }
     else if(strcmp(token,"@symref")==0)
     {
       const char *s = get_sym_name(inst, 9999, 1);
-      fputs(s, fd);
+      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
     }
     else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
                                          /* in hash table */
     {
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
-      fputs(s, fd);
+      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
     }
     else if (strcmp(token,"@symname_ext")==0) 
     {
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
-      fputs(s, fd);
+      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
     }
     else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                          /* in hash table */
     {
-      /* fputs(xctx->sch[xctx->currsch],fd); */
-      fputs(xctx->current_name, fd);
+      my_mstrcat(_ALLOC_ID_, &result, xctx->current_name, NULL);
     }
     else if(strcmp(token,"@schname")==0) /* of course schname must not be present  */
                                          /* in hash table */
     {
-      fputs(get_cell(xctx->current_name, 0), fd);
+      my_mstrcat(_ALLOC_ID_, &result, get_cell(xctx->current_name, 0), NULL);
     }
     else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
     {
       const char *topsch;
       topsch = get_trailing_path(xctx->sch[0], 0, 1);
-      fputs(topsch, fd);
+      my_mstrcat(_ALLOC_ID_, &result, topsch, NULL);
     }
     else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present  */
                                          /* in hash table. print multiplicity */
@@ -2830,9 +2830,9 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
        if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
          const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
-           if(!first) fprintf(fd, " , ");
+           if(!first) my_mstrcat(_ALLOC_ID_, &result, " , ", NULL);
            str_ptr =  net_name(inst,i, &multip, 0, 1);
-           fprintf(fd, "----pin(%s) ", str_ptr);
+           my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
            first = 0;
          }
        }
@@ -2844,7 +2844,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         str_ptr =  net_name(inst,i, &multip, 0, 1);
-        fprintf(fd, "----pin(%s) ", str_ptr);
+        my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
         break;
       }
      }
@@ -2895,7 +2895,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
           }
           my_free(_ALLOC_ID_, &tmpstr);
         }
-        fprintf(fd,"%s", value);
+        my_mstrcat(_ALLOC_ID_, &result, value, NULL);
         my_free(_ALLOC_ID_, &pin_attr_value);
       }
       else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -2904,7 +2904,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         si  = get_tok_value(prop, "verilog_ignore",0);
         if(strboolcmp(si, "true")) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
-          fprintf(fd, "----pin(%s) ", str_ptr);
+          my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
         }
       }
       my_free(_ALLOC_ID_, &pin_attr);
@@ -2920,21 +2920,39 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       Tcl_ResetResult(interp);
       my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
       tcleval(tclcmd);
-      fprintf(fd, "%s", tclresult());
+      my_mstrcat(_ALLOC_ID_, &result, tclresult(), NULL);
       my_free(_ALLOC_ID_, &tclcmd);
     }
-    if(c!='%' && c!='@' && c!='\0') fputc(c,fd);
+    if(c!='%' && c!='@' && c!='\0') {
+      char str[2];
+      str[0] = (unsigned char) c;
+      str[1] = '\0';
+      my_mstrcat(_ALLOC_ID_, &result, str, NULL);
+    }
     if(c == '@' || c == '%') s--;
     state=TOK_BEGIN;
    }
-   else if(state==TOK_BEGIN && c!='\0')  fputc(c,fd);
+   else if(state==TOK_BEGIN && c!='\0')  {
+     char str[2];
+     str[0] = (unsigned char) c;
+     str[1] = '\0';
+     my_mstrcat(_ALLOC_ID_, &result, str, NULL);
+   }
    if(c=='\0')
    {
+    /* do one level of substitutions to resolve @params and equations*/
+    if(result && strstr(result, "tcleval(")== result) {
+      dbg(1, "print_verilog_primitive(): before translate() result=%s\n", result);
+      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      dbg(1, "print_verilog_primitive(): after  translate() result=%s\n", result);
+    }
+    if(result) fprintf(fd, "%s", result);
     fputc('\n',fd);
     fprintf(fd, "---- end primitive\n");
     break ;
    }
   }
+  my_free(_ALLOC_ID_, &result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
   my_free(_ALLOC_ID_, &name);
@@ -2975,9 +2993,19 @@ void print_verilog_element(FILE *fd, int inst)
  const char *fmt;
 
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
- fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+
+ /* allow format string override in instance */
+ fmt = get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2);
+ /* get netlist format rule from symbol */
+ if(!xctx->tok_size)
+   fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+ /* allow format string override in instance */
+ if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format") )
+   fmt = get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2);
+ /* get netlist format rule from symbol */
  if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
    fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2);
+
  if(fmt[0]) {
   print_verilog_primitive(fd, inst);
   return;
