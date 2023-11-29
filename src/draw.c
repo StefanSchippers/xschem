@@ -2030,22 +2030,22 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
 {
   xRect *r = &xctx->rect[GRIDLAYER][i];
   if( sch_waves_loaded() >= 0) {
-    int need_redraw = 0;
+    int idx, need_redraw = 0;
     double xx1, xx2;
-    int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
     int dset = dataset == -1 ? 0 : dataset;
     char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
     char *sim_type = NULL;
     int k, save_datasets = -1, save_npoints = -1;
     Raw *raw = NULL;
 
-    dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
-    if(idx < 0 ) idx = 0;
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
     }
+    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
+    dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
+    if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
       my_strdup2(_ALLOC_ID_, &custom_rawfile,
         get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0));
