@@ -2152,7 +2152,7 @@ proc graph_add_nodes {} {
     }
   }
   if {$change_done && $graph_bus} {
-    set sel "BUS_NAME,${sel}\n"
+    set sel "BUS_NAME;${sel}\n"
   } else {
     set sel "${sel}\n"
   }
