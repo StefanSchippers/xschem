@@ -5038,7 +5038,7 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   pack .alert.b1 -side left -fill x -expand yes
   if {$yesno} {pack .alert.b2 -side left -fill x -expand yes}
   tkwait visibility .alert
-  grab set .alert
+  # grab set .alert
   focus .alert.b1
   bind .alert <Return> { destroy .alert }
   bind .alert <Escape> { destroy .alert }
@@ -6875,16 +6875,14 @@ proc build_widgets { {topwin {} } } {
   # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
   $topwin.menubar.file.menu add command -label "Reload" -accelerator {Alt+S} \
     -command {
-     if { [string compare [tk_messageBox -type okcancel -parent [xschem get topwindow] \
-             -message {Are you sure you want to reload?}] ok]==0 } {
-             xschem reload
-        }
+      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
+        xschem reload
+      }
     }
   toolbar_add FileReload {
-     if { [string compare [tk_messageBox -type okcancel -parent [xschem get topwindow] \
-             -message {Are you sure you want to reload?}] ok]==0 } {
-             xschem reload
-        }
+      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
+        xschem reload
+      }
     } "Reload File" $topwin
   $topwin.menubar.file.menu add command -label "Save as" -command "xschem saveas" -accelerator {Ctrl+Shift+S}
   $topwin.menubar.file.menu add command -label "Save as symbol" \

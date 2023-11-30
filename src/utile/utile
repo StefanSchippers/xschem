@@ -3,6 +3,15 @@
 # 10/01/2000 - all architecture-dependent paths ar set here after!
 #				Schippers Stefan
 
-export PATH="$XSCHEM_SHAREDIR/utile:$PATH"
-export UTILE3_PATH="${XSCHEM_SHAREDIR}/utile"
+
+
+UTILEDIR=$(dirname "$0")
+
+export PATH="$UTILEDIR:$PATH"
+export UTILE3_PATH="${UTILEDIR}"
+
+
+
+# export PATH="$XSCHEM_SHAREDIR/utile:$PATH"
+# export UTILE3_PATH="${XSCHEM_SHAREDIR}/utile"
 preprocess.awk $@ | expand_alias.awk | param.awk | clock.awk | stimuli.awk
