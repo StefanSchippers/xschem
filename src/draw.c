@@ -2272,7 +2272,6 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       max = ceil_to_n_digits(max, 2);
       my_free(_ALLOC_ID_, &node);
       my_free(_ALLOC_ID_, &sweep);
-      if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL);
       my_free(_ALLOC_ID_, &custom_rawfile);
       my_free(_ALLOC_ID_, &sim_type);
       if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
