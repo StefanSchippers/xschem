@@ -3846,6 +3846,11 @@ proc simuldir {} {
     set netlist_dir $simdir
     return $netlist_dir
   }
+  if { $local_netlist_dir == 2 } {
+    set simdir [xschem get current_dirname]/simulation/[xschem get current_name]
+    set netlist_dir $simdir
+    return $netlist_dir
+  }
   return {}
 }
 
@@ -3859,7 +3864,7 @@ proc simuldir {} {
 # Return current netlist directory
 #
 proc set_netlist_dir { change {dir {} }} {
-  global netlist_dir env OS has_x local_netlist_dir
+  global netlist_dir env OS has_x local_netlist_dir USER_CONF_DIR
 
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
@@ -3878,11 +3883,15 @@ proc set_netlist_dir { change {dir {} }} {
     } 
   #### change == 1
   } else {
-    if {$local_netlist_dir == 1} {
+    # if local_netlist_dir is set can not provide a dir, set dir to netlist_dir as set by proc simuldir
+    if {$local_netlist_dir != 0} {
       set dir $netlist_dir
     }
     if { $dir eq {} } {
-      if { $netlist_dir ne {} }  { 
+      # set to default simulations/ directory.
+      if {$local_netlist_dir == 0 } {
+        set initdir "$USER_CONF_DIR/simulations"
+      } elseif { $netlist_dir ne {} }  { 
         set initdir $netlist_dir
       } else {
         if {$OS == "Windows"} {
@@ -7323,8 +7332,14 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.simulation.menu add checkbutton -label "Show netlist after netlist command" \
      -variable netlist_show -accelerator {Shift+A} 
-  $topwin.menubar.simulation.menu add checkbutton -label "Use 'simulation' dir under current schematic dir" \
-    -variable local_netlist_dir \
+  $topwin.menubar.simulation.menu add radiobutton -label "set netlisting directory" \
+    -variable local_netlist_dir -value 0 \
+    -command {set_netlist_dir 1 }
+  $topwin.menubar.simulation.menu add radiobutton -label "Use 'simulation' dir in schematic dir" \
+    -variable local_netlist_dir -value 1 \
+    -command {set_netlist_dir 1 }
+  $topwin.menubar.simulation.menu add radiobutton -label "Use 'simulation/\[schname\]' dir in schematic dir" \
+    -variable local_netlist_dir -value 2 \
     -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   if {$OS == {Windows}} {

@@ -2794,13 +2794,16 @@ int Tcl_AppInit(Tcl_Interp *inter)
  zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  xctx->pending_fullzoom=1;
  if(cli_opt_do_netlist) {
-   if(debug_var>=1) {
-     if(tclgetboolvar("flat_netlist"))
-       fprintf(errfp, "xschem: flat netlist requested\n");
-   }
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");
      tcleval("exit");
+   }
+   if(tclgetintvar("local_netlist_dir")) {
+     set_netlist_dir(1, NULL);
+   }
+   if(debug_var>=1) {
+     if(tclgetboolvar("flat_netlist"))
+       fprintf(errfp, "xschem: flat netlist requested\n");
    }
    if(tclgetvar("netlist_dir")[0]) {
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
