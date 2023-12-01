@@ -99,15 +99,22 @@ void abort_operation(void)
 {
   xctx->no_draw = 0;
   tcleval("set constrained_move 0" );
+  dbg(1, "abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command);
   constrained_move=0;
+  if(xctx->last_command && xctx->ui_state & (STARTWIRE | STARTLINE)) {
+    if(xctx->ui_state & STARTWIRE) new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
+    if(xctx->ui_state & STARTLINE) new_line(RUBBER|CLEAR);
+    if(tclgetboolvar("draw_crosshair")) draw_crosshair(2);
+    xctx->ui_state = 0;
+    return;
+  }
   xctx->last_command=0;
   xctx->manhattan_lines = 0;
-  dbg(1, "abort_operation(): Escape: ui_state=%d\n", xctx->ui_state);
   if(xctx->ui_state & STARTMOVE)
   {
-   int save;
    move_objects(ABORT,0,0,0);
    if(xctx->ui_state & (START_SYMPIN | PLACE_SYMBOL | PLACE_TEXT)) {
+     int save;
      save =  xctx->modified;
      delete(1/* to_push_undo */);
      set_modify(save); /* aborted placement: no change, so reset modify flag set by delete() */
