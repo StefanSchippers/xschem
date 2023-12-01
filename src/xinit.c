@@ -2467,8 +2467,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_tcl_command) {
    tcleval(cli_opt_tcl_command);
  }
-
-
  /* set tcp port given in cmdline if any */
  if(tcp_port > 0) {
    if(tcp_port < 1024) fprintf(errfp, "please use port numbers >=1024 on command line\n");
@@ -2553,6 +2551,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
  xctx->only_probes = tclgetintvar("only_probes");
 
  /* set global variables fetching data from tcl code */
+
+ /* if lvs_netlist is set also use lvs_format for devices netlisting rule if existing */
+ if(tclgetboolvar("lvs_netlist")) tcleval("xschem set format lvs_format");
+ else tcleval("xschem set format {}");
+
  if(cli_opt_netlist_type) {
    xctx->netlist_type = cli_opt_netlist_type;
    set_tcl_netlist_type();
