@@ -130,6 +130,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
   xctx->currsch--;
   unselect_all(1);
+  remove_symbols();
   xctx->pop_undo(4, 0);
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
@@ -465,6 +466,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
+   remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {

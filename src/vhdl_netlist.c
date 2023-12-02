@@ -453,6 +453,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
+   remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
