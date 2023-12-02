@@ -3847,7 +3847,7 @@ proc simuldir {} {
     return $netlist_dir
   }
   if { $local_netlist_dir == 2 } {
-    set simdir [xschem get current_dirname]/simulation/[xschem get current_name]
+    set simdir [xschem get current_dirname]/simulation/[get_cell [xschem get current_name] 0]
     set netlist_dir $simdir
     return $netlist_dir
   }
