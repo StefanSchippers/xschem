@@ -192,10 +192,14 @@ type=nmos
   <li><kbd>spice_primitive</kbd></li>
   <li><kbd>vhdl_primitive</kbd></li>
   <li><kbd>verilog_primitive</kbd></li>
-  <p> same as above <kbd>_stop</kbd> attributes, but in this case the schematic subcircuit is completely ignored,
+  <p> Same as above <kbd>_stop</kbd> attributes, but in this case the schematic subcircuit is completely ignored,
    only the 'format' string is dumped to netlist. No component/entity is generated in vhdl netlist, 
    no module declaration in verilog, no .subckt in spice, no schematic global attributes are exported to netlist.</p>
 
+  <li><kbd>default_schematic</kbd></li>
+  <p> If set to <kbd>ignore</kbd> xschem will not descend into the symbol associated schematic and will
+   not complain if this schematic does not exists. To descend into a schematic instances must specify a 
+   <kbd>schematic</kbd> attribute, otherwise no descendng and expansion occurs.</p>
 
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>

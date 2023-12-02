@@ -194,7 +194,7 @@ proc netlist_test {} {
     greycnt.sch             verilog    3032956185
     autozero_comp.sch       spice       751826850
     test_generators.sch     spice        49312823
-    inst_sch_select.sch     spice       801962545
+    inst_sch_select.sch     spice      2444330953
     test_bus_tap.sch        spice       181420586
     loading.sch             vhdl       2975204502
     mos_power_ampli.sch     spice       125840804
@@ -204,7 +204,6 @@ proc netlist_test {} {
     test_doublepin.sch      spice      4159808692
     simulate_ff.sch         spice       574849766
     test_symbolgen.sch      spice      2593807370
-    inst_sch_select.sch     spice       801962545
     test_mosgen.sch         spice        21996225
   } {
     xschem set netlist_type $t

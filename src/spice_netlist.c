@@ -93,7 +93,17 @@ void hier_psprint(char **res, int what)  /* netlister driver */
       get_sch_from_sym(filename, xctx->sym + i, -1);
       if (str_hash_lookup(&subckt_table, filename, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(&subckt_table, filename, "", XINSERT);
+        const char *default_schematic;
+        /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
+         * will not be processed by *_block_netlist() */
+        if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
+          str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
+
+        default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
+        if(!strcmp(default_schematic, "ignore")) {
+          continue;
+        }
+
         if(is_generator(filename) || !stat(filename, &buf)) {
           /* for printing we go down to bottom regardless of spice_stop attribute */
           dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
@@ -433,7 +443,10 @@ int global_spice_netlist(int global)  /* netlister driver */
       dbg(1, "global_spice_netlist(): subckt_name=%s\n", subckt_name);
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
+        /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
+         * will not be processed by *_block_netlist() */
+        if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
+          str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
           err |= vhdl_block_netlist(fd, i);
         else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
@@ -559,8 +572,8 @@ int spice_block_netlist(FILE *fd, int i)
   int split_f;
   const char *sym_def;
   char *name = NULL;
+  const char *default_schematic;
 
-  my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
   split_f = tclgetboolvar("split_files");
 
   if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
@@ -568,6 +581,13 @@ int spice_block_netlist(FILE *fd, int i)
   else
      spice_stop=0;
   get_sch_from_sym(filename, xctx->sym + i, -1);
+
+  default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
+  if(!strcmp(default_schematic, "ignore")) {
+    return err;
+  }
+  my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
+
   dbg(1, "spice_block_netlist(): filename=%s\n", filename);
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",

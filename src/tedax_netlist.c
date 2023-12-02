@@ -75,12 +75,18 @@ static int tedax_block_netlist(FILE *fd, int i)
   int tedax_stop=0;
   char filename[PATH_MAX];
   char *extra=NULL;
+  const char *default_schematic;
 
   if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"tedax_stop",0),"true") )
      tedax_stop=1;
   else
      tedax_stop=0;
   get_sch_from_sym(filename, xctx->sym + i, -1);
+
+  default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
+  if(!strcmp(default_schematic, "ignore")) {
+    return err;
+  }
 
   fprintf(fd, "\n# expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
@@ -220,7 +226,10 @@ int global_tedax_netlist(int global)  /* netlister driver */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
-        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
+        /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
+         * will not be processed by *_block_netlist() */
+        if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
+          str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         err |= tedax_block_netlist(fd, i);
       }
     }

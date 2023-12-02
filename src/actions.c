@@ -1849,8 +1849,10 @@ void get_additional_symbols(int what)
       char *spice_sym_def = NULL;
       char *vhdl_sym_def = NULL;
       char *verilog_sym_def = NULL;
+      char *default_schematic = NULL;
       char *sch = NULL;
       
+      /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",0));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",0));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",0));
@@ -1858,9 +1860,13 @@ void get_additional_symbols(int what)
          str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
            get_cell(xctx->inst[i].name, 0), '\\')));
       dbg(1, "get_additional_symbols(): sch=%s\n", sch);
-      if(xctx->tok_size) { /* token exists */
+      if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists  and instance points to valid symbol */
         int j;
         char *sym = NULL;
+        int ignore_schematic = 0;
+        xSymbol *symptr = xctx->inst[i].ptr + xctx->sym;
+        my_strdup2(_ALLOC_ID_, &default_schematic, get_tok_value(symptr->prop_ptr,"default_schematic",0));
+        ignore_schematic = !strcmp(default_schematic, "ignore");
 
         dbg(1, "get_additional_symbols(): inst=%d, sch=%s\n", i, sch);
         if(is_generator(sch)) {
@@ -1870,15 +1876,23 @@ void get_additional_symbols(int what)
           my_strdup2(_ALLOC_ID_, &sym, add_ext(rel_sym_path(sch), ".sym"));
         }
 
-        found = int_hash_lookup(&sym_table, sym, 0, XLOOKUP);
+        /* if instance symbol has ignore_schematic set to ignore copy the symbol anyway, since
+         * the base symbol will not be netlisted by *_block_netlist() */
+        found = ignore_schematic ? NULL : int_hash_lookup(&sym_table, sym, 0, XLOOKUP);
         if(!found) {
           j = xctx->symbols;
           int_hash_lookup(&sym_table, sym, j, XINSERT);
           dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
           check_symbol_storage();
-          copy_symbol(&xctx->sym[j], xctx->inst[i].ptr + xctx->sym);
-          xctx->sym[j].base_name = (xctx->inst[i].ptr + xctx->sym)->name;
+          copy_symbol(&xctx->sym[j], symptr);
+          xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
+          /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
+           * be skipped */
+          if(default_schematic) {
+            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+              subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
+          }
           if(spice_sym_def)
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
                subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
@@ -1893,6 +1907,7 @@ void get_additional_symbols(int what)
          j = found->value;
         }
         my_free(_ALLOC_ID_, &sym);
+        my_free(_ALLOC_ID_, &default_schematic);
       }
       my_free(_ALLOC_ID_, &sch);
       my_free(_ALLOC_ID_, &spice_sym_def);

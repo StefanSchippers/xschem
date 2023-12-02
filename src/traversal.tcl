@@ -41,7 +41,8 @@ proc traversal {file} {
 proc spaces {n} {
   set indent 4
   set n [expr {$n * $indent}]
-  return [format %${n}s {}]
+  # return [format %${n}s {}]
+  return [string repeat { } $n]
 }
 
 # recursive procedure
