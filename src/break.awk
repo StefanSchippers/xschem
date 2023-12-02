@@ -25,6 +25,8 @@
 
 BEGIN{ quote=0 }
 
+/^\*\*\*\* begin user architecture code/ { user_code = 1 }
+
 {
  pos=0
  sub(/[ \t]*$/, "") # chop trailing white space
@@ -32,7 +34,8 @@ BEGIN{ quote=0 }
  first = substr($0,1,1)
 
  # dont break .include lines as ngspice chokes on these.
- if(tolower($1) ~ /\.inc(lude)?|\.lib|\.title|\.save|\.write/) nobreak = 1
+ if(user_code == 1) nobreak = 1
+ else if(tolower($1) ~ /\.inc(lude)?|\.lib|\.title|\.save|\.write/) nobreak = 1
  else if($0 ~/^\*\* ..._path:/) nobreak = 1
  else nobreak = 0
  # 20151203 faster executionif no {}' present
@@ -42,7 +45,7 @@ BEGIN{ quote=0 }
      pos++
      c = substr($0,i,1)
      if(c ~/[{}']/) quote=!quote 
-     if(!nobreak && pos> 100 && !quote && (c ~/[ \t]/)) {
+     if(!nobreak && pos> 130 && !quote && (c ~/[ \t]/)) {
        if(first=="*") 
          c = "\n*+" c
        else
@@ -56,7 +59,7 @@ BEGIN{ quote=0 }
    split($0, a, /[^ \t]+/)
    for(i=1;i<=NF;i++) {
      pos += length($i)+length(a[i])
-     if(!nobreak && pos>100) {
+     if(!nobreak && pos>130) {
        if(first=="*") {
          printf "%s", "\n*+"
        } else {
@@ -71,3 +74,5 @@ BEGIN{ quote=0 }
    printf "\n"
  }
 }
+
+/^\*\*\*\* end user architecture code/ { user_code = 0 }
