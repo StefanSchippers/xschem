@@ -116,10 +116,6 @@ T {actual value
 200} 860 -1280 0 0 0.4 0.4 {}
 T {Select one or more graphs (and no other objects)
 and use arrow keys to zoom / pan waveforms} 1110 -1120 0 0 0.3 0.3 {}
-T {@spice_get_voltage} 761.875 -786.09375 0 0 0.8 0.8 {layer=15
-name=p9}
-T {@spice_get_voltage} 761.875 -206.09375 0 0 0.8 0.8 {layer=15
-name=p14}
 N 60 -1210 60 -1190 {lab=VPPI}
 N 60 -1070 60 -1050 {lab=VNNI}
 N 710 -700 860 -700 {lab=OUTM}
@@ -195,7 +191,9 @@ C {vsource.sym} 60 -1100 0 0 {name=V0 value="dc VPP
 C {lab_pin.sym} 360 -1210 0 1 {name=p5 lab=VPP}
 C {lab_pin.sym} 360 -1050 0 1 {name=p6 lab=VNN}
 C {lab_pin.sym} 360 -1130 0 1 {name=p3 lab=VSS}
-C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP}
+C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP
+text_size_1=0.7
+text_size_0=0.7}
 C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8}
 C {lab_pin.sym} 500 -1150 0 0 {name=p26 lab=VSS}
 C {lab_pin.sym} 540 -1190 0 0 {name=p31 lab=IN}
@@ -212,7 +210,10 @@ C {mos_power_ampli.sym} 500 -660 0 0 {name=x1
 }
 C {lab_pin.sym} 350 -640 0 0 {name=p2 lab=VPP}
 C {lab_pin.sym} 350 -620 0 0 {name=p4 lab=VNN}
-C {lab_pin.sym} 860 -700 0 1 {name=p9 lab=OUTM}
+C {lab_pin.sym} 860 -700 0 1 {name=p9 lab=OUTM
+text_size_1=0.7
+text_size_0=0.7
+}
 C {mos_power_ampli.sym} 500 -200 0 0 {name=x0
 }
 C {lab_pin.sym} 350 -180 0 0 {name=p12 lab=VPP}
@@ -289,18 +290,11 @@ tclcommand="
 "
 }
 C {capa.sym} 320 -1170 0 0 {name=C2 m=1 value="100u"}
-C {ngspice_get_expr.sym} 535 -475 0 1 {name=r18 
-node="[ngspice::get_current \{r2[i]\}]"
-descr = current
- }
-C {ngspice_get_expr.sym} 585 -895 0 0 {name=r1 
-node="[ngspice::get_current \{r19[i]\}]"
-descr = current
- }
-C {ngspice_get_expr.sym} 830 -480 2 0 {name=r29 
+C {ngspice_get_expr.sym} 840 -460 2 0 {name=r29 
 node="[format %.4g [expr \{([ngspice::get_voltage outm] - [ngspice::get_voltage outp]) * [ngspice::get_current \{r1[i]\}]\}]] "
 descr = power
-}
+text_size_0=0.4
+text_size_1=0.4}
 C {launcher.sym} 710 -120 0 0 {name=h3
 descr="Load file into gaw" 
 comment="
