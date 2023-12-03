@@ -38,7 +38,11 @@ BEGIN{
 
 # join split lines
 {
-  if($0 ~ /^[+]/) {
+
+  if($0 ~ /^\*\*\*\* begin user (architecture|header) code/) {
+     user_code = 1
+  }
+  if($0 ~ /^[+]/ && !user_code) {
     yy = yy " " substr($0,2)
     next
   }
@@ -52,9 +56,13 @@ BEGIN{
     }
     line[lines++] = $0
   }
+  if($0 ~ /^\*\*\*\* end user (architecture|header) code/) {
+    user_code = 0
+  }
 }
 
 END{
+  user_code = 0
   $0=yy
   line[lines++] = $0
 

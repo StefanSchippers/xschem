@@ -25,7 +25,7 @@
 
 BEGIN{ quote=0 }
 
-/^\*\*\*\* begin user architecture code/ { user_code = 1 }
+/^\*\*\*\* begin user (architecture|header) code/ { user_code = 1 }
 
 {
  pos=0
@@ -75,4 +75,4 @@ BEGIN{ quote=0 }
  }
 }
 
-/^\*\*\*\* end user architecture code/ { user_code = 0 }
+/^\*\*\*\* end user (architecture|header) code/ { user_code = 0 }
