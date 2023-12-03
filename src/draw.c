@@ -420,17 +420,21 @@ void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
   const char *ts;
   double size;
   int sym_n = xctx->inst[inst].ptr;
-  xText *txtptr;
 
   if(sym_n >= 0 && xctx->sym[sym_n].texts > text_n) {
-    txtptr =  &(xctx->sym[sym_n].text[text_n]);
-    my_snprintf(attr, S(attr), "text_%d_size", text_n);
-    ts = get_tok_value(xctx->inst[inst].prop_ptr, attr, 0);
+    if(strstr(xctx->inst[inst].prop_ptr, "text_size_")) {
+      my_snprintf(attr, S(attr), "text_size_%d", text_n);
+      ts = get_tok_value(xctx->inst[inst].prop_ptr, attr, 0);
+    } else {
+      xctx->tok_size = 0;
+    }
     if(xctx->tok_size) {
       size = atof(ts);
       *xscale = size;
       *yscale = size;
     } else {
+      xText *txtptr;
+      txtptr =  &(xctx->sym[sym_n].text[text_n]);
       *xscale = txtptr->xscale;
       *yscale = txtptr->yscale;
     }

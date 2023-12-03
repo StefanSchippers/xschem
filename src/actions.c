@@ -808,41 +808,41 @@ int set_inst_flags(xInstance *inst)
       my_strdup2(_ALLOC_ID_, &(inst->lab), get_tok_value(inst->prop_ptr,"lab",0));
     }
   }
+
   if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide",0), "true"))
     inst->flags |= HIDE_INST;
+  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
+    inst->flags |= HIDE_SYMBOL_TEXTS;
               
   ptr = get_tok_value(inst->prop_ptr,"spice_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= SPICE_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= SPICE_IGNORE;
-
+  
   ptr = get_tok_value(inst->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VERILOG_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= VERILOG_IGNORE;
-
+  
   ptr = get_tok_value(inst->prop_ptr,"vhdl_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VHDL_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= VHDL_IGNORE;
-
+  
   ptr = get_tok_value(inst->prop_ptr,"tedax_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= TEDAX_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= TEDAX_IGNORE;
-
+  
   ptr = get_tok_value(inst->prop_ptr,"lvs_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= LVS_IGNORE_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= LVS_IGNORE_OPEN;
-
-  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
-    inst->flags |= HIDE_SYMBOL_TEXTS;
 
   if(!strboolcmp(get_tok_value(inst->prop_ptr,"highlight",0), "true"))
     inst->flags |= HILIGHT_CONN;

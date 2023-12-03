@@ -440,6 +440,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   static char *translated_tok = NULL;
 
   xctx->tok_size = 0;
+  
   if(s==NULL) {
     if(tok == NULL) {
       my_free(_ALLOC_ID_, &result);
@@ -450,6 +451,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     }
     return "";
   }
+  if(!tok || !strstr(s, tok)) return "";
   /* dbg(0, "get_tok_value(): looking for <%s> in <%.30s>\n",tok,s); */
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
