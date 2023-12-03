@@ -1356,6 +1356,7 @@ extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, doubl
 extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash, void *ct);
 extern void draw_string(int layer,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
+extern void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale);
 extern void draw_symbol(int what,int c, int n,int layer,
             short tmp_flip, short tmp_rot, double xoffset, double yoffset);
 extern void drawrect(int c, int what, double rectx1,double recty1,

@@ -542,8 +542,11 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   {
     const char *txtptr;
     for(j=0;j< symptr->texts; ++j) {
+      double xscale, yscale;
+        
+      get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
-      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
+      /* if(xscale*FONTWIDTH* xctx->mooz<1) continue; */
       if(!xctx->show_hidden_texts && (symptr->text[j].flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
@@ -573,12 +576,12 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
           svg_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
             flip^text.flip, text.hcenter, text.vcenter,
-            x0+x1, y0+y1, text.xscale, text.yscale);
+            x0+x1, y0+y1, xscale, yscale);
         else
           old_svg_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
             flip^text.flip, text.hcenter, text.vcenter,
-            x0+x1, y0+y1, text.xscale, text.yscale);
+            x0+x1, y0+y1, xscale, yscale);
       }
     }
   }

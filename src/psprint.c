@@ -893,8 +893,11 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     const char *txtptr;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
+      double xscale, yscale;
+        
+      get_sym_text_size(n, j, &xscale, &yscale);
       text = (xctx->inst[n].ptr+ xctx->sym)->text[j];
-      /* if(text.xscale*FONTWIDTH* xctx->mooz<1) continue; */
+      /* if(xscale*FONTWIDTH* xctx->mooz<1) continue; */
       if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
@@ -929,12 +932,12 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
           ps_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
             flip^text.flip, text.hcenter, text.vcenter,
-            x0+x1, y0+y1, text.xscale, text.yscale);
+            x0+x1, y0+y1, xscale, yscale);
         } else {
           old_ps_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
             flip^text.flip, text.hcenter, text.vcenter,
-            x0+x1, y0+y1, text.xscale, text.yscale);
+            x0+x1, y0+y1, xscale, yscale);
         }
       }
     }

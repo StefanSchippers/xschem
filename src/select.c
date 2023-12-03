@@ -352,6 +352,10 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    /* strings bbox */
    for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->texts; ++j)
    {
+     double xscale, yscale;
+
+     get_sym_text_size(i, j, &xscale, &yscale);
+
      text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
      sym_flip = flip;
@@ -363,7 +367,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      #if HAS_CAIRO==1
      customfont=set_text_custom_font(&text);
      #endif
-     text_bbox(tmp_txt, text.xscale, text.yscale,
+     text_bbox(tmp_txt, xscale, yscale,
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);

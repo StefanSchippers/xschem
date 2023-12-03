@@ -414,6 +414,32 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
 }
 
 
+void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
+{
+  char attr[50];
+  const char *ts;
+  double size;
+  int sym_n = xctx->inst[inst].ptr;
+  xText *txtptr;
+
+  if(sym_n >= 0 && xctx->sym[sym_n].texts > text_n) {
+    txtptr =  &(xctx->sym[sym_n].text[text_n]);
+    my_snprintf(attr, S(attr), "text_%d_size", text_n);
+    ts = get_tok_value(xctx->inst[inst].prop_ptr, attr, 0);
+    if(xctx->tok_size) {
+      size = atof(ts);
+      *xscale = size;
+      *yscale = size;
+    } else {
+      *xscale = txtptr->xscale;
+      *yscale = txtptr->yscale;
+    }
+  } else {
+    *xscale = *yscale = 0.0;
+  }
+}
+
+
 /* 
  * layer: the set of symbol objects on xschem layer 'layer' to draw
  * c    : the layer 'c' to draw those objects on (if != layer it is the hilight color)
@@ -644,8 +670,11 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   {
     for(j=0;j< symptr->texts; ++j)
     {
+      double xscale, yscale;
+
+      get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
-      if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
+      if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
       if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
@@ -686,7 +715,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter,
-          x0+x1, y0+y1, text.xscale, text.yscale);
+          x0+x1, y0+y1, xscale, yscale);
         my_free(_ALLOC_ID_, &txtptr);
         #if HAS_CAIRO!=1
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0);
@@ -837,8 +866,11 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
     char *txtptr = NULL;
     for(j=0;j< symptr->texts; ++j)
     {
+     double xscale, yscale;
+        
+     get_sym_text_size(n, j, &xscale, &yscale);
      text = symptr->text[j];
-     if(!text.txt_ptr || !text.txt_ptr[0] || text.xscale*FONTWIDTH*xctx->mooz<1) continue;
+     if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      #if HAS_CAIRO==1
@@ -847,7 +879,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
-       flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, text.xscale, text.yscale);
+       flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, xscale, yscale);
      my_free(_ALLOC_ID_, &txtptr);
      #if HAS_CAIRO==1
      if(customfont) {
