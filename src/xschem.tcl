@@ -2956,11 +2956,19 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
     if {[lsearch -exact $instlist $inst] == -1} {return 0}
   }
   # open a new top level in another window / tab
-  set schname [xschem get_sch_from_sym $inst]
+  set rawfile [xschem raw_query rawfile]
+  set sim_type [xschem raw_query sim_type]
   set res [xschem schematic_in_new_window force]
   # if successfull descend into indicated sub-schematic
   if {$res} {
     xschem new_schematic switch [xschem get last_created_window]
+    if { $rawfile ne {}} {
+      if {$sim_type eq {op}} {
+        xschem annotate_op $rawfile
+      } else {
+        xschem raw_read $rawfile $sim_type
+      }
+    }
     xschem select instance $inst fast
     xschem descend
     return 1
@@ -6454,7 +6462,7 @@ set tctx::global_list {
 ## EXCEPTIONS, not to be saved/restored:
 ## execute
 set tctx::global_array_list {
-  replace_key dircolor sim enable_layer
+  replace_key dircolor sim enable_layer ngspice::ngspice_data
 }
 
 proc delete_ctx {context} {
@@ -6465,7 +6473,8 @@ proc delete_ctx {context} {
     # puts "delete_ctx $tctx::tctx"
     array unset $tctx::tctx
     foreach tctx::i $tctx::global_array_list {
-      if { [array exists ${tctx::tctx}_$tctx::i] } {
+      regsub {::} $tctx::i {__} arr_name
+      if { [array exists ${tctx::tctx}_$arr_name] } {
         array unset ${tctx::tctx}_$tctx::i
       }
     }
@@ -6491,8 +6500,10 @@ proc restore_ctx {context} {
       }
     }
     foreach tctx::i $tctx::global_array_list {
-      if { [array exists tctx::${tctx::tctx}_$tctx::i] } {
-        array set $tctx::i [array get [subst tctx::${tctx::tctx}_$tctx::i]]
+      unset -nocomplain $tctx::i
+      regsub {::} $tctx::i {__} arr_name
+      if { [array exists tctx::${tctx::tctx}_$arr_name] } {
+        array set $tctx::i [array get [subst tctx::${tctx::tctx}_$arr_name]]
       }
     }
   }
@@ -6519,7 +6530,8 @@ proc save_ctx {context} {
     }
     foreach tctx::i $tctx::global_array_list {
       if { [array exists $tctx::i] } {
-        array set [subst tctx::${tctx::tctx}_$tctx::i] [array get $tctx::i]
+        regsub {::} $tctx::i {__} arr_name
+        array set [subst tctx::${tctx::tctx}_$arr_name] [array get $tctx::i]
       }
     }
   }

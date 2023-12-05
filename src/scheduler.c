@@ -3254,6 +3254,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw_query loaded: return hierarchy level
      *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query rawfile: return raw filename 
+     *   xschem raw_query sim_type: return raw loaded simulation type (ac, op, tran, ...) 
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
      *   xschem raw_query values node [dset] : print all simulation
@@ -3326,6 +3327,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 2 && !strcmp(argv[2], "rawfile")) {
           Tcl_SetResult(interp, raw->rawfile, TCL_VOLATILE);
+        } else if(argc > 2 && !strcmp(argv[2], "sim_type")) {
+          Tcl_SetResult(interp, raw->sim_type, TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "vars")) {
           Tcl_SetResult(interp, my_itoa(raw->nvars), TCL_VOLATILE);
         } else if(argc > 2 && !strcmp(argv[2], "list")) {
