@@ -6730,6 +6730,8 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.5 -side left 
     pack $topwin.statusbar.6 -side left 
     pack $topwin.statusbar.7 -side left 
+    pack $topwin.statusbar.10 -side left 
+    pack $topwin.statusbar.9 -side left 
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
     pack $topwin.menubar -side top -fill x
@@ -7480,13 +7482,15 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   label $topwin.statusbar.1   -text "STATUS BAR 1"  
   label $topwin.statusbar.2   -text "SNAP:"
   entry $topwin.statusbar.3 -relief sunken -bg white \
-         -width 10 -foreground black -takefocus 0
+         -width 7 -foreground black -takefocus 0
   label $topwin.statusbar.4   -text "GRID:"
   entry $topwin.statusbar.5 -relief sunken -bg white \
-         -width 10 -foreground black -takefocus 0
-  label $topwin.statusbar.6   -text "NETLIST MODE:"
+         -width 7 -foreground black -takefocus 0
+  label $topwin.statusbar.6   -text "MODE:"
   label $topwin.statusbar.7 -relief sunken -bg white \
-         -width 8 
+         -width 7 
+  label $topwin.statusbar.10 -text {Stretch:}
+  label $topwin.statusbar.9 -textvariable enable_stretch
   label $topwin.statusbar.8 -activebackground red -text {} 
 }
 

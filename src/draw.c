@@ -422,7 +422,7 @@ void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
   int sym_n = xctx->inst[inst].ptr;
 
   if(sym_n >= 0 && xctx->sym[sym_n].texts > text_n) {
-    if(strstr(xctx->inst[inst].prop_ptr, "text_size_")) {
+    if(xctx->inst[inst].prop_ptr && strstr(xctx->inst[inst].prop_ptr, "text_size_")) {
       my_snprintf(attr, S(attr), "text_size_%d", text_n);
       ts = get_tok_value(xctx->inst[inst].prop_ptr, attr, 0);
     } else {

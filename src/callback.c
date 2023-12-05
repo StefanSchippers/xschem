@@ -1921,11 +1921,9 @@ int rstate; /* (reduced state, without ShiftMask) */
     en_s = !en_s;
 
     if(en_s) {
-        tcleval("alert_ { enabling stretch mode } {}");
         tclsetvar("enable_stretch","1");
     }
     else {
-        tcleval("alert_ { disabling stretch mode } {}");
         tclsetvar("enable_stretch","0");
     }
     break;
