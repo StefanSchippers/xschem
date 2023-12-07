@@ -1164,6 +1164,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   if(semaphore) return;
   ++semaphore;
   dbg(1, "------\n");
+  tclvareval("save_ctx ", xctx->current_win_path, NULL);
   if(!strcmp(what, "create")) {
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
     tkpre_window = Tk_NameToWindow(interp, win_path, mainwindow);
@@ -1172,7 +1173,6 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   }
   else if(!strcmp(what, "draw")) {
     dbg(1, "preview_window() draw\n");
-    tclvareval("save_ctx ", xctx->current_win_path, NULL);
     save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
     if(!current_file || strcmp(fname, current_file) ) { 
@@ -1207,10 +1207,10 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     Tk_DestroyWindow(tkpre_window);
     my_free(_ALLOC_ID_, &current_file);
     xctx = save_xctx; /* restore schematic */
-    tclvareval("restore_ctx ", xctx->current_win_path, NULL);
     save_xctx = NULL;
     set_modify(-1);
   }
+  tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   semaphore--;
 }
 
