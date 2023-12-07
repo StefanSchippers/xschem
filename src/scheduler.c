@@ -133,62 +133,6 @@ static void xschem_cmd_help(int argc, const char **argv)
   Tcl_ResetResult(interp);
 }
 
-#if 0
-static void change_symbol(int inst, char *symbol, int pushed, int old_prefix) {
-    int prefix, sym_number;
-    char *old_translated_sym = NULL, *translated_sym = NULL, *name = NULL, *ptr = NULL;
-    /* symbol reference changed? --> sym_number >=0, set prefix to 1st char
-     * to use for inst name (from symbol template) */
-    prefix = 0;
-    sym_number = -1;
-    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(inst, xctx->inst[inst].name));
-    my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, symbol));
-    dbg(1, "update_symbol: %s -- %s\n", translated_sym, old_translated_sym);
-    if( (!strcmp(symbol, xctx->inst[inst].name) &&  strcmp(translated_sym, old_translated_sym) ) ) {
-      sym_number=match_symbol(translated_sym); /* check if exist */
-      if(sym_number>=0) {
-        prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
-      }
-    }
-     
-    if(sym_number>=0) /* changing symbol ! */
-    {  
-      if(!pushed) { xctx->push_undo(); pushed=1;}
-      delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
-                        /* if number of pins is different we must delete these data *before* */
-                        /* changing ysmbol, otherwise inst might end up deleting non allocated data. */
-      my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
-      xctx->inst[inst].ptr=sym_number; /* update instance to point to new symbol */
-    }
-    my_free(_ALLOC_ID_, &translated_sym);
-    my_free(_ALLOC_ID_, &old_translated_sym);
-
-    /* if symbol changed ensure instance name (with new prefix char) is unique */
-    /* preserve backslashes in name ---------0---------------------------------->. */
-    my_strdup(_ALLOC_ID_, &name, get_tok_value(xctx->inst[inst].prop_ptr, "name", 1));
-    if(name && name[0] ) {
-      dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
-      /* change prefix if changing symbol type; */
-      if(prefix && old_prefix && old_prefix != prefix) {
-        name[0]=(char)prefix;
-        my_strdup(_ALLOC_ID_, &ptr, subst_token(xctx->inst[inst].prop_ptr, "name", name) );
-      } else {
-        my_strdup(_ALLOC_ID_, &ptr, xctx->inst[inst].prop_ptr);
-      }
-      /* set unique name of current inst */
-      if(!pushed) { xctx->push_undo(); pushed=1;}
-      hash_names(-1, XINSERT);
-      hash_names(inst, XDELETE);
-      dbg(1, "update_symbol(): delete %s\n", xctx->inst[inst].instname);
-      new_prop_string(inst, ptr,              /* sets also inst[].instname */
-         tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-      hash_names(inst, XINSERT);
-      dbg(1, "update_symbol(): insert %s\n", xctx->inst[inst].instname);
-    }
-    set_inst_flags(&xctx->inst[inst]);
-}
-#endif
-
 /* can be used to reach C functions from the Tk shell. */
 int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * argv[])
 {
@@ -4402,7 +4346,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
           return TCL_ERROR;
         } else {
-          int floaters = 0;
+          char *translated_sym = NULL;
+          int floaters = 0, sym_number = -1;
           char *subst = NULL;
           int s_pnetname = tclgetboolvar("show_pin_net_names");
           floaters = set_modify(1);
@@ -4425,6 +4370,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           hash_names(inst, XDELETE);
           new_prop_string(inst, subst, tclgetboolvar("disable_unique_names"));
+
+          my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
+          sym_number=match_symbol(translated_sym);
+
+          if(sym_number > 0) {
+            delete_inst_node(inst);
+            xctx->inst[inst].ptr=sym_number;
+          }
           my_free(_ALLOC_ID_, &subst);
           set_inst_flags(&xctx->inst[inst]);
           hash_names(inst, XINSERT);
@@ -4436,11 +4389,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               /* redraw symbol with new props */
               bbox(SET,0.0,0.0,0.0,0.0);
             }
+            set_modify(-2); /* reset floaters caches */
             draw();
             if(!floaters) {
               bbox(END,0.0,0.0,0.0,0.0);
             }
           }
+          my_free(_ALLOC_ID_, &translated_sym);
           Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
         }
       } else if(argc > 2 && !strcmp(argv[2], "symbol")) {
