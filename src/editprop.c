@@ -1356,7 +1356,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-
+    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
     /* update property string from tcl dialog */
     if(!no_change_props)
     {
@@ -1389,7 +1389,6 @@ static int update_symbol(const char *result, int x, int selected_inst)
      * to use for inst name (from symbol template) */
     prefix = 0;
     sym_number = -1;
-    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
     my_strdup2(_ALLOC_ID_, &translated_sym, translate(*ii, symbol));
     dbg(1, "update_symbol: %s -- %s\n", translated_sym, old_translated_sym);
     if(changed_symbol ||
