@@ -27,9 +27,9 @@ highlight=true}
 V {}
 S {}
 E {}
-L 1 -30 -0 30 0 {}
-B 5 -32.5 -2.5 -27.5 2.5 {name=A dir=inout }
-B 5 27.5 -2.5 32.5 2.5 {name=A dir=inout }
-T {short} 2.5 14 0 0 0.3 0.3 { layer=3
+L 1 0 -30 0 30 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=A dir=inout }
+B 5 -2.5 27.5 2.5 32.5 {name=A dir=inout }
+T {short} 22.5 -26 0 0 0.3 0.3 { layer=3
 hcenter=true}
-T {@name} 15 -22 0 0 0.2 0.2 {}
+T {@name} 5 8 0 0 0.2 0.2 {}

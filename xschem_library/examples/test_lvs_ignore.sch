@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -44,7 +44,7 @@ Options->Show net names on symbol pins
 is enabled.} 220 -350 0 0 0.4 0.4 {}
 T {This component has
 attribute
-lvs_ignore=open} 470 -620 0 0 0.4 0.4 {}
+lvs_ignore=open} 470 -650 0 0 0.4 0.4 {}
 N 850 -430 1010 -430 {
 lab=#net1}
 N 850 -430 850 -380 {
@@ -52,13 +52,13 @@ lab=#net1}
 N 50 -540 50 -530 {
 lab=VDD}
 N 50 -470 50 -430 {
-lab=VDD}
+lab=#net2}
 N 50 -430 280 -430 {
-lab=VDD}
+lab=#net2}
 N 360 -430 430 -430 {
 lab=STARTUP}
 N 50 -430 50 -380 {
-lab=VDD}
+lab=#net2}
 N 50 -320 50 -290 {
 lab=GND}
 N 850 -580 850 -570 {
@@ -66,7 +66,7 @@ lab=VDD}
 N 850 -510 850 -430 {
 lab=#net1}
 N 1090 -430 1110 -430 {
-lab=#net2}
+lab=#net3}
 N 850 -320 850 -290 {
 lab=GND}
 N 400 -520 490 -520 {
@@ -74,7 +74,7 @@ lab=STARTUP}
 N 400 -520 400 -430 {
 lab=STARTUP}
 N 550 -520 700 -520 {
-lab=#net3}
+lab=STARTUP}
 C {title.sym} 160 -30 0 0 {name=l1
 author="tcleval([
   if \{$show_pin_net_names == 0\} \{
@@ -126,5 +126,5 @@ device=resistor
 m=1
 }
 C {vdd.sym} 850 -580 0 0 {name=l6 lab=VDD}
-C {short.sym} 520 -520 0 0 {name=x1 value=0.1 lvs_ignore=open}
+C {short.sym} 520 -520 1 0 {name=x1 value=0.1 lvs_ignore=open}
 C {lab_show.sym} 700 -520 0 1 {name=l2 }

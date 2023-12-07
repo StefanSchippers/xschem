@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -47,41 +47,41 @@ depending on IGNORE} 1310 -540 0 0 0.4 0.4 { layer=1}
 N 130 -290 180 -290 {
 lab=NET_A}
 N 480 -290 530 -290 {
-lab=NET_B}
+lab=NET_A}
 N 180 -390 180 -290 {
 lab=NET_A}
 N 480 -390 480 -290 {
-lab=NET_B}
+lab=NET_A}
 N 180 -390 300 -390 {
 lab=NET_A}
 N 360 -390 480 -390 {
-lab=NET_B}
+lab=NET_A}
 N 160 -480 180 -480 {
-lab=NET_C}
+lab=NET_D}
 N 480 -480 530 -480 {
-lab=NET_C}
+lab=#net1}
 N 180 -580 180 -480 {
-lab=NET_C}
+lab=NET_D}
 N 480 -580 480 -480 {
-lab=NET_C}
+lab=#net1}
 N 180 -580 300 -580 {
-lab=NET_C}
+lab=NET_D}
 N 360 -580 480 -580 {
-lab=NET_C}
+lab=#net1}
 N 380 -480 480 -480 {
-lab=NET_C}
+lab=#net1}
 N 180 -480 300 -480 {
-lab=NET_C}
+lab=NET_D}
 N 380 -290 480 -290 {
-lab=NET_B}
+lab=NET_A}
 N 180 -290 300 -290 {
 lab=NET_A}
 N 610 -480 660 -480 {
-lab=#net1}
+lab=NET_E}
 N 660 -460 660 -400 {
-lab=#net1}
+lab=NET_E}
 N 660 -400 750 -400 {
-lab=#net1}
+lab=NET_E}
 N 660 -360 750 -360 {
 lab=NET_B}
 N 660 -360 660 -290 {
@@ -91,21 +91,21 @@ lab=NET_B}
 N 980 -380 1020 -380 {
 lab=NET_E}
 N 660 -460 760 -460 {
-lab=#net1}
+lab=NET_E}
 N 820 -460 980 -460 {
 lab=NET_E}
 N 980 -460 980 -380 {
 lab=NET_E}
 N 660 -480 660 -460 {
-lab=#net1}
+lab=NET_E}
 N 120 -420 160 -420 {
-lab=NET_C}
+lab=NET_D}
 N 160 -480 160 -420 {
-lab=NET_C}
+lab=NET_D}
 N 1560 -590 1680 -590 {
-lab=#net2}
+lab=NET_B}
 N 120 -480 160 -480 {
-lab=NET_C}
+lab=NET_D}
 N 1760 -590 1820 -590 {
 lab=NET_F}
 N 1210 -590 1480 -590 {
@@ -124,13 +124,13 @@ author="tcleval([
   return \{Stefan Schippers\}
 ])"
 }
-C {short.sym} 330 -390 0 0 {name=x2
+C {short.sym} 330 -390 1 0 {name=x2
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{true\}\}])"
 }
 C {lab_pin.sym} 660 -290 0 1 {name=p5 sig_type=std_logic lab=NET_B}
 C {lab_show.sym} 480 -390 0 1 {name=l2 }
 C {lab_pin.sym} 60 -480 0 0 {name=p1 sig_type=std_logic lab=NET_C}
-C {short.sym} 330 -580 0 0 {name=x5
+C {short.sym} 330 -580 1 0 {name=x5
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{true\}\} else \{return \{false\}\}])"
 }
 C {lab_show.sym} 480 -580 0 1 {name=l3 }
@@ -150,7 +150,7 @@ ROUT=1000}
 C {and_ngspice.sym} 790 -380 0 0 {name=x4 ROUT=1000 
 spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{false\}\} else \{return \{true\}\}])"
 }
-C {short.sym} 790 -460 0 0 {name=x1
+C {short.sym} 790 -460 1 0 {name=x1
 spice_ignore="tcleval([if \{$IGNORE == 0\} \{return \{true\}\} else \{return \{false\}\}])"
 }
 C {lab_show.sym} 1020 -380 0 1 {name=l4 }
