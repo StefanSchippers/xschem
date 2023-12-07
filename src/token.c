@@ -740,7 +740,7 @@ static int name_is_used(char *name, const char *old_basename, const char *brkt, 
  * if old_prop=NULL return NULL
  * if old_prop does not contain a valid "name" or empty return old_prop
  * hash_names(-1, XINSERT) must be called before using this function */
-void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
+void new_prop_string(int i, const char *old_prop, int dis_uniq_names)
 {
   char *old_name=NULL, *new_name=NULL;
   const char *brkt;
@@ -751,7 +751,7 @@ void new_prop_string(int i, const char *old_prop, int fast, int dis_uniq_names)
   char *up_new_name = NULL;
   int is_used;
  
-  dbg(1, "new_prop_string(): i=%d, old_prop=%s, fast=%d\n", i, old_prop, fast);
+  dbg(1, "new_prop_string(): i=%d, old_prop=%s\n", i, old_prop);
   if(old_prop==NULL) {
    my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
    return;
@@ -847,7 +847,8 @@ void check_unique_names(int rename)
   if(rename) for(i=0;i<xctx->instances; ++i) {
     if( (xctx->inst[i].color != -10000)) {
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
-      new_prop_string(i, tmp, newpropcnt++, 0);
+      newpropcnt++;
+      new_prop_string(i, tmp, 0);
       hash_names(i, XINSERT);
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
       bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);

@@ -276,7 +276,7 @@ static void merge_inst(int k,FILE *fd)
     my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
     set_inst_flags(&xctx->inst[i]);
     if(!k) hash_names(-1, XINSERT);
-    new_prop_string(i, prop_ptr, k, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
+    new_prop_string(i, prop_ptr, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
     hash_names(i, XINSERT);

@@ -834,7 +834,8 @@ void copy_objects(int what)
         /* the newpropcnt argument is zero for the 1st call and used in  */
         /* new_prop_string() for cleaning some internal caches. */
         if(!newpropcnt) hash_names(-1, XINSERT);
-        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr,newpropcnt++, /* sets also inst[].instname */
+        newpropcnt++;
+        new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
         hash_names(xctx->instances, XINSERT);
         symbol_bbox(xctx->instances,

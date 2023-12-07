@@ -1504,7 +1504,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->inst[n].instname=NULL;
   dbg(1, "place_symbol() :all inst_ptr members set\n");  /*  03-02-2000 */
   if(inst_props) {
-    new_prop_string(n, inst_props,!first_call, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
+    new_prop_string(n, inst_props, tclgetboolvar("disable_unique_names")); /*  20171214 first_call */
   }
   else {
     set_inst_prop(n); /* no props, get from sym template, also calls new_prop_string() */

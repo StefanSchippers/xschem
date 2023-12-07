@@ -682,7 +682,7 @@ void set_inst_prop(int i)
   my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, ptr);
   if(get_tok_value(ptr, "name",0)[0]) {
     my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
-    new_prop_string(i, tmp, 0, tclgetboolvar("disable_unique_names")); /* sets also inst[].instname */
+    new_prop_string(i, tmp, tclgetboolvar("disable_unique_names")); /* sets also inst[].instname */
     my_free(_ALLOC_ID_, &tmp);
   }
 }
@@ -1306,8 +1306,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
   int prefix=0, old_prefix = 0;
   char *name = NULL, *ptr = NULL, *new_prop = NULL;
   char symbol[PATH_MAX], *translated_sym = NULL, *old_translated_sym = NULL;
-  char *type;
-  int cond, changed_symbol = 0;
+  int changed_symbol = 0;
   int pushed=0;
   int *ii = &xctx->edit_sym_i; /* static var */
   int *netl_com = &xctx->netlist_commands; /* static var */
@@ -1357,7 +1356,6 @@ static int update_symbol(const char *result, int x, int selected_inst)
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
-    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
 
     /* update property string from tcl dialog */
     if(!no_change_props)
@@ -1391,6 +1389,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
      * to use for inst name (from symbol template) */
     prefix = 0;
     sym_number = -1;
+    my_strdup2(_ALLOC_ID_, &old_translated_sym, translate(*ii, xctx->inst[*ii].name));
     my_strdup2(_ALLOC_ID_, &translated_sym, translate(*ii, symbol));
     dbg(1, "update_symbol: %s -- %s\n", translated_sym, old_translated_sym);
     if(changed_symbol ||
@@ -1430,21 +1429,12 @@ static int update_symbol(const char *result, int x, int selected_inst)
       if(!k) hash_names(-1, XINSERT);
       hash_names(*ii, XDELETE);
       dbg(1, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
-      new_prop_string(*ii, ptr, k,               /* sets also inst[].instname */
+      new_prop_string(*ii, ptr,               /* sets also inst[].instname */
          tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
       hash_names(*ii, XINSERT);
       dbg(1, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
     }
     set_inst_flags(&xctx->inst[*ii]);
-    /* set cached flags in instances */
-    type=xctx->sym[xctx->inst[*ii].ptr].type;
-    cond= type && IS_LABEL_SH_OR_PIN(type);
-    if(cond) {
-      xctx->inst[*ii].flags |= PIN_OR_LABEL;
-      my_strdup2(_ALLOC_ID_, &xctx->inst[*ii].lab,
-                get_tok_value(xctx->inst[*ii].prop_ptr, "lab",0));
-    }
-    else xctx->inst[*ii].flags &= ~PIN_OR_LABEL;
   }  /* end for(k=0;k<xctx->lastsel; ++k) */
 
   if(pushed) modified = 1;

@@ -1593,7 +1593,7 @@ extern int count_lines_bytes(int fd, size_t *lines, size_t *bytes);
 extern double my_atod(const char *p);
 extern float my_atof(const char *p);
 extern const char *subst_token(const char *s, const char *tok, const char *new_val);
-extern void new_prop_string(int i, const char *old_prop,int fast, int dis_uniq_names);
+extern void new_prop_string(int i, const char *old_prop, int dis_uniq_names);
 extern void hash_name(char *token, int remove);
 extern void hash_names(int inst, int action); /* if i == -1 hash all instances, else do only inst */
 extern void floater_hash_all_names(void);
