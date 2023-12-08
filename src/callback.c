@@ -2677,11 +2677,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
      if(sel.type) select_connected_nets(1);
    }
-   else if(button == Button3 &&  EQUAL_MODMASK && xctx->semaphore <2)
+   else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
    }
-   else if(button == Button3 && SET_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
+   else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }

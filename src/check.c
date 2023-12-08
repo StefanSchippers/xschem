@@ -590,8 +590,6 @@ void break_wires_at_pins(int remove)
                 xctx->need_reb_sel_arr=1;
                 xctx->wires++;
               } else {
-                dbg(1, "break_wires_at_pins(): skipping wire creation on wire %d, end1=%d\n",
-                    i, xctx->wire[xctx->wires].end1); 
                 deleted_wire = 1;
               }
               xctx->wire[i].x1 = x0;
@@ -610,6 +608,19 @@ void break_wires_at_pins(int remove)
                 }
               }
             } /* if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) || ... ) */
+            else if(remove) {
+              int t1 = touches_inst_pin(xctx->wire[i].x1, xctx->wire[i].y1, k);
+              int t2 = touches_inst_pin(xctx->wire[i].x2, xctx->wire[i].y2, k);
+              int e1 = xctx->wire[i].end1;
+              int e2 = xctx->wire[i].end2;
+              int inside = RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
+                           xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2);
+              dbg(1, "i=%d, t1=%d, t2=%d, e1=%d, e2=%d\n", i, t1, t2, e1, e2);
+              if(inside && ( (t1 && t2) || (t1 && e2 == 0) || (t2 && e1 == 0) )) {
+                xctx->wire[i].sel = SELECTED4; 
+                if(!changed) { xctx->push_undo(); changed=1;}
+              }
+            }
           } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
         } /* for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) */
       } /* for(r=0;r<rects;r++) */
