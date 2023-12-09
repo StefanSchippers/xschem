@@ -486,7 +486,6 @@ C {launcher.sym} 460 -190 0 0 {name=h5
 descr=hi_current
 tclcommand="
 set incr_hilight 0
-xschem unhilight_all
 foreach \{n s t\} [xschem instance_list] \{
   if \{$t == \{label\} || $t == \{ipin\} || $t == \{opin\} || $t == \{iopin\}\} \{continue\}
   set curr 0
