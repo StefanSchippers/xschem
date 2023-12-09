@@ -4155,6 +4155,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->hide_symbols=atoi(argv[3]);
           }
+          else if(!strcmp(argv[2], "hilight_color")) { /* set hilight color for next hilight */
+            int c = atoi(argv[3]);
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            if(c >= cadlayers) c = 4;
+            xctx->hilight_color= c;
+          }
+
           else if(!strcmp(argv[2], "infowindow_text")) { /* ERC messages */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
