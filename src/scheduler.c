@@ -4135,6 +4135,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "constrained_move")) { /* set constrained move (1=horiz, 2=vert, 0=none) */
             constrained_move = atoi(argv[3]);
           }
+          else if(!strcmp(argv[2], "cursor1_x")) { /* set graph cursor1 position */
+            xctx->graph_cursor1_x = atof(argv[3]);
+
+            if(xctx->rects[GRIDLAYER] > 0) {
+              Graph_ctx *gr = &xctx->graph_struct;
+              xRect *r = &xctx->rect[GRIDLAYER][0];
+              if(r->flags & 1) {
+                backannotate_at_cursor_b_pos(r, gr); 
+              }
+            }
+          }
+          else if(!strcmp(argv[2], "cursor2_x")) { /* set graph cursor2 position */
+            xctx->graph_cursor2_x = atof(argv[3]);
+
+            if(xctx->rects[GRIDLAYER] > 0) {
+              Graph_ctx *gr = &xctx->graph_struct;
+              xRect *r = &xctx->rect[GRIDLAYER][0];
+              if(r->flags & 1) {
+                backannotate_at_cursor_b_pos(r, gr); 
+              }
+            }
+          }
           else if(!strcmp(argv[2], "draw_window")) { /* set drawing to window (1 or 0) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->draw_window=atoi(argv[3]);

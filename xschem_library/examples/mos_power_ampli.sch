@@ -491,14 +491,11 @@ foreach \{n s t\} [xschem instance_list] \{
   set curr 0
   if \{$t == \{resistor\} || $t == \{ammeter\} \} \{
     set curr [expr \{ abs([from_eng [xschem translate $n \{@spice_get_current\}]])\}]
-  \}
-  if \{$t == \{pnp\}  || $t == \{npn\}\} \{
+  \} elseif \{$t == \{pnp\}  || $t == \{npn\}\} \{
     set curr [expr \{abs([ngspice::get_current $n\\\\\\[ic\\\\\\]])\}]
-  \}
-  
-  if \{$t == \{nmos\}\} \{
+  \} elseif \{$t == \{nmos\}\} \{
     set curr [expr \{abs([ngspice::get_current $n.rd\\\\\\[i\\\\\\]])\}]
-  \}
+  \} else \{continue\}
   if \{$curr > 0.02\} \{
     xschem set hilight_color 11
     xschem hilight_instname $n fast
