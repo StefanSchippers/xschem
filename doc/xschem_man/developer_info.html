@@ -541,6 +541,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -823,8 +825,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Highlight selected element/pins/labels/nets
    if 'drill' is given propagate net highlights through conducting elements
    (elements that have the 'propag' attribute on pins ) </pre>
-   <li><kbd>       hilight_instname inst</kbd></li><pre>
+   <li><kbd>       hilight_instname inst [fast]</kbd></li><pre>
    Highlight instance 'inst' 
+       if 'fast' is specified do not redraw 
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname net</kbd></li><pre>
    Highlight net name 'net' </pre>
@@ -1411,6 +1414,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

@@ -482,3 +482,36 @@ C {ngspice_get_expr.sym} 130 -730 0 1 {name=r21
 node="[format %.4g [expr [ngspice::get_current \{q7[ic]\}] / [ngspice::get_current \{q7[ib]\}] ] ]"
 descr = beta
 }
+C {launcher.sym} 460 -190 0 0 {name=h5
+descr=hi_current
+tclcommand="
+set incr_hilight 0
+xschem unhilight_all
+foreach \{n s t\} [xschem instance_list] \{
+  if \{$t == \{label\} || $t == \{ipin\} || $t == \{opin\} || $t == \{iopin\}\} \{continue\}
+  set curr 0
+  if \{$t == \{resistor\} || $t == \{ammeter\} \} \{
+    set curr [expr \{ abs([from_eng [xschem translate $n \{@spice_get_current\}]])\}]
+  \}
+  if \{$t == \{pnp\}  || $t == \{npn\}\} \{
+    set curr [expr \{abs([ngspice::get_current $n\\\\\\[ic\\\\\\]])\}]
+  \}
+  
+  if \{$t == \{nmos\}\} \{
+    set curr [expr \{abs([ngspice::get_current $n.rd\\\\\\[i\\\\\\]])\}]
+  \}
+  if \{$curr > 0.02\} \{
+    xschem set hilight_color 11
+    xschem hilight_instname $n fast
+  \} elseif \{$curr > 0.01\} \{
+    xschem set hilight_color 0
+    xschem hilight_instname $n fast
+  \} else \{
+    xschem set hilight_color 4
+    xschem hilight_instname $n fast
+  \}
+\}
+xschem redraw
+
+"
+}

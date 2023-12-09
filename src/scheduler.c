@@ -1796,8 +1796,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
-    /* hilight_instname inst
+    /* hilight_instname inst [fast]
      *   Highlight instance 'inst' 
+     * if 'fast' is specified do not redraw 
      *   'inst' can be an instance name or number */
     else if(!strcmp(argv[1], "hilight_instname"))
     {
@@ -1806,6 +1807,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int inst;
         char *type;
         int incr_hi;
+        int fast = 0;
+        if(argc > 3 && !strcmp(argv[3], "fast")) fast = 1;
         xctx->enable_drill=0;
         incr_hi = tclgetboolvar("incr_hilight");
         prepare_netlist_structs(0);
@@ -1828,8 +1831,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(incr_hi) incr_hilight_color();
           }
           dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);
-          if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
-          redraw_hilights(0);
+          if(!fast) {
+            if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
+            redraw_hilights(0);
+          }
         }
       }
       Tcl_ResetResult(interp);
