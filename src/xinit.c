@@ -1575,10 +1575,11 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   tclvareval("save_ctx ", window_path[n], NULL);
   /* restore previous context,
    * because the Expose event after new window creation does a context switch prev win -> new win 
+   * 
+   * tclvareval("restore_ctx ", prev_window, NULL);
+   * new_schematic("switch", prev_window, "", 1);
+   * tclvareval("housekeeping_ctx", NULL);
    */
-  tclvareval("restore_ctx ", prev_window, NULL);
-  new_schematic("switch", prev_window, "", 1);
-  tclvareval("housekeeping_ctx", NULL);
 
   if(has_x) windowid(toppath);
 }

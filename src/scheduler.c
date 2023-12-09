@@ -4768,7 +4768,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* test
      *   Testmode ... */
-    else if(1 && !strcmp(argv[1], "test") )
+    else if(0 && !strcmp(argv[1], "test") )
     {
       Iterator_ctx ctx;
       Objectentry *objectptr;
@@ -4815,10 +4815,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       /* test 2 inst text_n */
-      else if(argc > 5 && atoi(argv[2]) == 2) {
-        double sx, sy;
-        get_sym_text_size(atoi(argv[3]), atoi(argv[4]), &sx, &sy);
-        dbg(0, "size=%g, %g\n", sx, sy);
+      else if(argc > 2 && atoi(argv[2]) == 2) {
+        dbg(0, "graph_flags=%d\n", xctx->graph_flags);
         Tcl_ResetResult(interp);
       }
     }

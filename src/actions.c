@@ -1655,7 +1655,18 @@ int schematic_in_new_window(int new_process, int dr, int force)
   rebuild_selected_array();
   if(xctx->lastsel == 0) {
     if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
-    else new_schematic("create", force ? "noalert" : "", xctx->sch[xctx->currsch], dr);
+    else {
+      int gf = xctx->graph_flags;
+      double c1 = xctx->graph_cursor1_x;
+      double c2 = xctx->graph_cursor2_x;
+      new_schematic("create", force ? "noalert" : "", xctx->sch[xctx->currsch], dr);
+
+      /* propagte raw cursor info to new window */
+      xctx->graph_flags = gf;
+      xctx->graph_cursor1_x = c1;
+      xctx->graph_cursor2_x = c2;
+      dbg(1, "path=%s\n", xctx->current_win_path);
+    }
     return 1;
   }
   else if(xctx->lastsel > 1) {
@@ -2148,6 +2159,15 @@ int descend_schematic(int instnumber)
      propagate_hilights(1, 0, XINSERT_NOREPLACE);
    }
    dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
+
+   if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
+     Graph_ctx *gr = &xctx->graph_struct;
+     xRect *r = &xctx->rect[GRIDLAYER][0];
+     if(r->flags & 1) {
+       backannotate_at_cursor_b_pos(r, gr);
+     }
+   }
+
    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
  return 1;

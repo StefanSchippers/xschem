@@ -214,9 +214,8 @@ static double interpolate_yval(int idx, int point_not_last)
   return val;
 }      
      
-static void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
+void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
-
   if(sch_waves_loaded() >= 0) { 
     int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0, ofs_end;
     double start, end;
