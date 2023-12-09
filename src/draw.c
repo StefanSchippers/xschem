@@ -3936,7 +3936,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   if(!has_x) return;
   rw = fabs(rx2 -rx1);
   rh = fabs(ry2 - ry1);
-  scale = 1.0;
+  scale = 3.0;
   if(rw > rh && rw > max_size) {
     scale = max_size / rw;
   } else if(rh > max_size) {

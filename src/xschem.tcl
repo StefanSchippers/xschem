@@ -2363,7 +2363,11 @@ proc graph_set_linewidth {graph_sel} {
     set custom_lw  $graph_linewidth_mult
   }
   graph_push_undo
-  xschem setprop rect 2 $graph_sel linewidth_mult $custom_lw
+  if {$custom_lw != $graph_linewidth_mult} {
+    xschem setprop rect 2 $graph_sel linewidth_mult $custom_lw
+  } else {
+    xschem setprop rect 2 $graph_sel linewidth_mult ;# delete attribute since it is default
+  }
 }
 
 proc graph_edit_properties {n} {

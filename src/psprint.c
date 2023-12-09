@@ -95,7 +95,7 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
   cairo_surface_t* surface = NULL;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
-  int quality=100;
+  int quality=40;
   const char *quality_attr;
   size_t image_data_len;
   size_t oLength;
@@ -244,7 +244,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
    * static char str[PATH_MAX];
    */
   unsigned char *ascii85EncodedJpeg;
-  int quality=100;
+  int quality=40;
   const char *quality_attr;
   size_t oLength;
   int i;
@@ -259,7 +259,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   if (!has_x) return;
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
-  scale = 2.0;
+  scale = 3.0;
   if (rw > rh && rw > max_size) {
     scale = max_size / rw;
   }
@@ -268,11 +268,12 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   }
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
+  dbg(1, "graph size: %dx%d\n", rwi, rhi);
   save_restore_zoom(1);
   set_viewport_size(rwi, rhi, xctx->lw);
   zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
   resetwin(1, 1, 1, rwi, rhi);
-  change_linewidth(xctx->lw * 4.0);
+  change_linewidth(xctx->lw * 1.0);
   dbg(1, "lw=%g\n", xctx->lw);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");

@@ -86,7 +86,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(what & 1) flag = check_lib(2, abs_path); /* noprint_libs */
     else flag = check_lib(4, abs_path); /* nolist_libs */
-    if(strcmp(xctx->sym[i].type,"subcircuit")==0 && flag)
+    if(flag && (!strcmp(xctx->sym[i].type, "subcircuit") || !strcmp(xctx->sym[i].type, "primitive")))
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
@@ -96,13 +96,11 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         const char *default_schematic;
         /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
          * will not be processed by *_block_netlist() */
-        if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
-          str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-
         default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
         if(!strcmp(default_schematic, "ignore")) {
           continue;
         }
+        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
 
         if(is_generator(filename) || !stat(filename, &buf)) {
           /* for printing we go down to bottom regardless of spice_stop attribute */
@@ -582,8 +580,10 @@ int spice_block_netlist(FILE *fd, int i)
      spice_stop=1;
   else
      spice_stop=0;
+  if(!strcmp(get_tok_value(xctx->sym[i].prop_ptr, "format", 0), "")) {
+    return err;
+  }
   get_sch_from_sym(filename, xctx->sym + i, -1);
-
   default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
   if(!strcmp(default_schematic, "ignore")) {
     return err;
