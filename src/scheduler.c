@@ -5042,15 +5042,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* unhilight_all
+    /* unhilight_all [fast]
+     *   if 'fast' is given do not redraw
      *   Clear all highlights */
     else if(!strcmp(argv[1], "unhilight_all"))
     {
+      int fast = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2 && !strcmp(argv[2], "fast")) fast = 1;
       xctx->enable_drill=0;
       clear_all_hilights();
       /* undraw_hilight_net(1); */
-      draw();
+      if(!fast) draw();
       Tcl_ResetResult(interp);
     }
     

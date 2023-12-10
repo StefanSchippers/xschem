@@ -544,6 +544,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1370,7 +1371,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Undo last action </pre>
    <li><kbd>       undo_type disk|memory</kbd></li><pre>
    Use disk file ('disk') or RAM ('memory') for undo bufer</pre>
-   <li><kbd>       unhilight_all</kbd></li><pre>
+   <li><kbd>       unhilight_all [fast]</kbd></li><pre>
+   if 'fast' is given do not redraw
    Clear all highlights </pre>
    <li><kbd>       unhilight</kbd></li><pre>
    Unhighlight selected nets/pins </pre>
@@ -1417,6 +1419,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 
