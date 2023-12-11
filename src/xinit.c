@@ -1488,6 +1488,7 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
 static void create_new_window(int *window_count, const char *noconfirm, const char *fname, int dr)
 {
+  double save_lw = xctx->lw;
   Window win_id = 0LU;
   char toppath[WINDOW_PATH_SIZE];
   char prev_window[WINDOW_PATH_SIZE];
@@ -1559,6 +1560,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   save_xctx[n] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
   if(has_x) xctx->window = win_id;
+  xctx->lw = save_lw; /* preserve line width on new tabs*/
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
   if(has_x) create_gc();
@@ -1591,6 +1593,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   char open_path[WINDOW_PATH_SIZE];
   char nn[WINDOW_PATH_SIZE];
   char win_path[WINDOW_PATH_SIZE];
+  double save_lw = xctx->lw;
 
   dbg(1, "new_schematic() new_tab, creating...\n");
   if(noconfirm && noconfirm[0]) confirm = 0;
@@ -1667,6 +1670,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   save_xctx[i] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
   xctx->window = save_xctx[0]->window;
+  xctx->lw = save_lw; /* preserve line width on new tabs*/
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
   if(has_x) create_gc();
