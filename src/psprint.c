@@ -1149,7 +1149,7 @@ void create_ps(char **psfile, int what, int fullzoom)
     fprintf(fd, "%%%%EndPageSetup\n");
   
     /* add small page title */
-    if(tclgetboolvar("ps_page_title"))
+    if(tclgetboolvar("ps_page_title") && fullzoom != 2)
        fprintf(fd, "/Helvetica FF 10 SCF SF NP 20 %g MT (%s) show\n", pagey - 20, xctx->current_name);
 
     /* Add anchor for pdfmarks */

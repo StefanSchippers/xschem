@@ -3078,13 +3078,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1, &zi);
-          set_viewport_size(w, h, 1.0);
+          set_viewport_size(w, h, xctx->lw);
           zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
           ps_draw(7, fullzoom);
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
-          change_linewidth(-1.);
+          change_linewidth(save_lw);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
             xRect boundbox;
@@ -3108,7 +3108,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
           save_restore_zoom(1, &zi);
-          set_viewport_size(w, h, 1.0);
+          set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
           ps_draw(7, fullzoom);
@@ -3134,13 +3134,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1, &zi);
-          set_viewport_size(w, h, 1.0);
+          set_viewport_size(w, h, xctx->lw);
           zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
-          change_linewidth(-1.);
+          change_linewidth(save_lw);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
             xRect boundbox;
@@ -3163,7 +3163,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
           save_restore_zoom(1, &zi);
-          set_viewport_size(w, h, 1.0); 
+          set_viewport_size(w, h, xctx->lw); 
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
           print_image();
