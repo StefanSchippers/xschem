@@ -7157,6 +7157,7 @@ proc build_widgets { {topwin {} } } {
      -accelerator {_}
   $topwin.menubar.view.menu add command -label "Set line width" \
        -command {
+         set change_lw 0
          input_line "Enter linewidth (float):" "xschem line_width"
        }
   $topwin.menubar.view.menu add checkbutton -label "Tabbed interface" -variable tabbed_interface \
