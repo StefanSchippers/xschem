@@ -3042,15 +3042,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
 
     /* print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]
-     *   If img_x and img_y are set to 0 (recommended for svg) 
+     *   If img_x and img_y are set to 0 (recommended for svg and ps/pdf) 
      *   they will be calculated by xschem automatically
      *   Export current schematic to image.
      *                            img x   y size    xschem area to export
      *      0     1    2    3         4   5             6    7   8   9
      *   xschem print png file.png  [400 300]       [ -300 -200 300 200 ]
      *   xschem print svg file.svg  [400 300]       [ -300 -200 300 200 ]
-     *   xschem print ps  file.ps
-     *   xschem print pdf file.pdf
+     *   xschem print ps  file.ps   [400 300]       [ -300 -200 300 200 ]
+     *   xschem print pdf file.pdf  [400 300]       [ -300 -200 300 200 ]
      *   xschem print ps_full  file.ps
      *   xschem print pdf_full file.pdf
      */
