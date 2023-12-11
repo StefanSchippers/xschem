@@ -3932,7 +3932,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   cairo_surface_t *png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
   size_t olength;
-  const double max_size = 5000.0;
+  const double max_size = 3000.0;
 
   if(!has_x) return;
   rw = fabs(rx2 -rx1);

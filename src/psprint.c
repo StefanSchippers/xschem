@@ -236,7 +236,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
-  const double max_size = 5000.0;
+  const double max_size = 3000.0;
   int d_c;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
@@ -990,7 +990,6 @@ void create_ps(char **psfile, int what, int fullzoom)
   int c,i, textlayer;
   int old_grid;
   const char *textfont;
-  int save_change_lw;
   static Zoom_info zi;
 
   dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
@@ -1209,8 +1208,6 @@ void create_ps(char **psfile, int what, int fullzoom)
           xctx->text[i].xscale, xctx->text[i].yscale);
       }
     }
-    save_change_lw = tclgetintvar("change_lw");
-    tclsetintvar("change_lw", 0);
     for(c=0;c<cadlayers; ++c)
     {
       set_ps_colors(c);
@@ -1247,7 +1244,6 @@ void create_ps(char **psfile, int what, int fullzoom)
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
     } /* for(c=0;c<cadlayers; ++c) */
-    tclsetintvar("change_lw", save_change_lw);
 
     /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
     for(c=0;c<cadlayers; ++c) {

@@ -3067,6 +3067,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
       if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps")) {
+        double save_lw = xctx->lw;
         int fullzoom = 0;
         int w = 0, h = 0;
         double x1, y1, x2, y2;
@@ -3113,7 +3114,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           ps_draw(7, fullzoom);
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
-          change_linewidth(-1.);
+          change_linewidth(save_lw);
         } else {
           fullzoom = 0;
           ps_draw(7, fullzoom);
@@ -3124,6 +3125,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ps_draw(7, fullzoom);
       }
       else if(!strcmp(argv[2], "png")) {
+        double save_lw = xctx->lw;
         int w = 0, h = 0;
         double x1, y1, x2, y2;
         if(argc == 6 && xctx->lastsel == 0) {
@@ -3167,13 +3169,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           print_image();
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
-          change_linewidth(-1.);
+          change_linewidth(save_lw);
         } else {
           print_image();
         }
       }
       else if(!strcmp(argv[2], "svg")) {
-        int w = 0, h = 0, save_change_lw;
+        double save_lw = xctx->lw;
+        int w = 0, h = 0;
         double x1, y1, x2, y2;
         if(argc == 6 && xctx->lastsel == 0) {
           w = atoi(argv[4]);
@@ -3183,10 +3186,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
-          save_change_lw = tclgetintvar("change_lw");
-          tclsetintvar("change_lw", 0);
           svg_draw();
-          tclsetintvar("change_lw", save_change_lw);
           save_restore_zoom(0, &zi);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
@@ -3213,16 +3213,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
-          save_change_lw = tclgetintvar("change_lw");
-          tclsetintvar("change_lw", 0);
           svg_draw();
-          tclsetintvar("change_lw", save_change_lw);
           save_restore_zoom(0, &zi);
         } else {
           svg_draw();
         }
         resetwin(1, 1, 1, 0, 0);
-        change_linewidth(-1.);
+        change_linewidth(save_lw);
       }
       draw();
       Tcl_ResetResult(interp);
