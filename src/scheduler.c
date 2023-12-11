@@ -3068,7 +3068,56 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps")) {
         int fullzoom = 0;
-        ps_draw(7, fullzoom);
+        int w = 0, h = 0;
+        double x1, y1, x2, y2;
+        if(argc == 6 && xctx->lastsel == 0) {
+          fullzoom = 2;
+          w = atoi(argv[4]);
+          h = atoi(argv[5]);
+          if(w == 0) w = xctx->xrect[0].width;
+          if(h == 0) h = xctx->xrect[0].height;
+          save_restore_zoom(1, &zi);
+          set_viewport_size(w, h, 1.0);
+          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          resetwin(1, 1, 1, w, h);
+          ps_draw(7, fullzoom);
+          save_restore_zoom(0, &zi);
+          resetwin(1, 1, 1, 0, 0);
+          change_linewidth(-1.);
+        } else if(argc == 10 || xctx->lastsel) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            unselect_all(0);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+            w = (int) fabs(x2 - x1);
+            h = (int) fabs(y2 - y1);
+          } else {
+            w = atoi(argv[4]);
+            h = atoi(argv[5]);
+            x1 = atof(argv[6]);
+            y1 = atof(argv[7]);
+            x2 = atof(argv[8]);
+            y2 = atof(argv[9]);
+          }
+          fullzoom = 2;
+          if(w == 0) w = (int) fabs(x2 - x1);
+          if(h == 0) h = (int) fabs(y2 - y1);
+          save_restore_zoom(1, &zi);
+          set_viewport_size(w, h, 1.0);
+          zoom_box(x1, y1, x2, y2, 1.0);
+          resetwin(1, 1, 1, w, h);
+          ps_draw(7, fullzoom);
+          save_restore_zoom(0, &zi);
+          resetwin(1, 1, 1, 0, 0);
+          change_linewidth(-1.);
+        } else {
+          fullzoom = 0;
+          ps_draw(7, fullzoom);
+        }
       }
       else if(!strcmp(argv[2], "pdf_full") || !strcmp(argv[2],"ps_full")) {
         int fullzoom = 1;
@@ -3077,7 +3126,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2], "png")) {
         int w = 0, h = 0;
         double x1, y1, x2, y2;
-        if(argc == 6) {
+        if(argc == 6 && xctx->lastsel == 0) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           if(w == 0) w = xctx->xrect[0].width;
@@ -3090,13 +3139,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(-1.);
-        } else if(argc == 10) {
-          w = atoi(argv[4]);
-          h = atoi(argv[5]);
-          x1 = atof(argv[6]);
-          y1 = atof(argv[7]);
-          x2 = atof(argv[8]);
-          y2 = atof(argv[9]);
+        } else if(argc == 10 || xctx->lastsel) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            unselect_all(0);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+            w = (int) fabs(x2 - x1);
+            h = (int) fabs(y2 - y1);
+          } else {
+            w = atoi(argv[4]);
+            h = atoi(argv[5]);
+            x1 = atof(argv[6]);
+            y1 = atof(argv[7]);
+            x2 = atof(argv[8]);
+            y2 = atof(argv[9]);
+          }
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
           save_restore_zoom(1, &zi);
@@ -3114,7 +3175,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2], "svg")) {
         int w = 0, h = 0, save_change_lw;
         double x1, y1, x2, y2;
-        if(argc == 6) {
+        if(argc == 6 && xctx->lastsel == 0) {
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           if(w == 0) w = xctx->xrect[0].width;
@@ -3127,15 +3188,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           svg_draw();
           tclsetintvar("change_lw", save_change_lw);
           save_restore_zoom(0, &zi);
-        } else if(argc == 10) {
-          w = atoi(argv[4]);
-          h = atoi(argv[5]);
-          x1 = atof(argv[6]);
-          y1 = atof(argv[7]);
-          x2 = atof(argv[8]);
-          y2 = atof(argv[9]);
+        } else if(argc == 10 || xctx->lastsel) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            unselect_all(0);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+            w = (int) fabs(x2 - x1);
+            h = (int) fabs(y2 - y1);
+          } else {
+            w = atoi(argv[4]);
+            h = atoi(argv[5]);
+            x1 = atof(argv[6]);
+            y1 = atof(argv[7]);
+            x2 = atof(argv[8]);
+            y2 = atof(argv[9]);
+          }
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
+          dbg(1, "w=%d, h=%d\n", w, h);
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
@@ -3147,6 +3221,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           svg_draw();
         }
+        resetwin(1, 1, 1, 0, 0);
+        change_linewidth(-1.);
       }
       draw();
       Tcl_ResetResult(interp);

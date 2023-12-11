@@ -323,7 +323,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   xctx->draw_pixmap = 1;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
-  resetwin(1, 1, 1, 0, 0);
+  resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
@@ -972,7 +972,11 @@ static void fill_ps_colors()
  }
 
 }
-
+/* fullzoom:
+ *   0: Print area displayed in window
+ *   1: Do a full zoom before generating ps/pdf
+ *   2: set paper size to bounding box instead of a4/letter
+ */
 void create_ps(char **psfile, int what, int fullzoom)
 {
   double dx, dy, scale, scaley;
@@ -986,12 +990,8 @@ void create_ps(char **psfile, int what, int fullzoom)
   int c,i, textlayer;
   int old_grid;
   const char *textfont;
-  static double saveadjustedxorigin,saveadjustedyorigin, saveadjustedzoom, saveadjustedmooz, saveadjustedlw;
-  static double savexorigin, saveyorigin, savezoom, savemooz, savelw;
-  static int savex1, savey1, savex2, savey2, savew, saveh;
-  static int saveadjustedx1, saveadjustedy1, saveadjustedx2, saveadjustedy2, saveadjustedw, saveadjustedh;
-  static XRectangle savexrect, saveadjustedxrect;
   int save_change_lw;
+  static Zoom_info zi;
 
   dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
   if(tcleval("info exists ps_paper_size")[0] == '1') {
@@ -1032,7 +1032,7 @@ void create_ps(char **psfile, int what, int fullzoom)
   dy=boundbox.y2-boundbox.y1;
 
   /* xschem drawing bbox decides if portrait or landscape */
-  if(fullzoom) {
+  if(fullzoom == 1) {
     calc_drawing_bbox(&boundbox, 0);
     dx=boundbox.x2-boundbox.x1;
     dy=boundbox.y2-boundbox.y1;
@@ -1045,20 +1045,9 @@ void create_ps(char **psfile, int what, int fullzoom)
   dbg(1, "dx=%g, dy=%g\n", dx, dy);
 
 
-  if(fullzoom) {
+  if(fullzoom == 1) {
     /* save size and zoom factor */
-    savexorigin = xctx->xorigin;
-    saveyorigin = xctx->yorigin;
-    savezoom = xctx->zoom;
-    savemooz = xctx->mooz;
-    savelw = xctx->lw;
-    savex1 = xctx->areax1;
-    savex2 = xctx->areax2;
-    savey1 = xctx->areay1;
-    savey2 = xctx->areay2;
-    savew = xctx->areaw;
-    saveh = xctx->areah;
-    savexrect = xctx->xrect[0];
+    save_restore_zoom(1, &zi);
     /* this zoom only done to reset lw */
     zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
     /* adjust aspect ratio to paper size */
@@ -1066,7 +1055,6 @@ void create_ps(char **psfile, int what, int fullzoom)
       xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
-    saveadjustedxrect = xctx->xrect[0];
     dbg(1, "xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->areax1 = -2*INT_WIDTH(xctx->lw);
     xctx->areay1 = -2*INT_WIDTH(xctx->lw);
@@ -1083,17 +1071,6 @@ void create_ps(char **psfile, int what, int fullzoom)
     boundbox.y2 = xctx->areay2;
     dx=boundbox.x2-boundbox.x1;
     dy=boundbox.y2-boundbox.y1;
-    saveadjustedlw = xctx->lw;
-    saveadjustedx1 = xctx->areax1;
-    saveadjustedy1 = xctx->areay1;
-    saveadjustedx2 = xctx->areax2;
-    saveadjustedy2 = xctx->areay2;
-    saveadjustedw = xctx->areaw;
-    saveadjustedh = xctx->areah;
-    saveadjustedzoom = xctx->zoom;
-    saveadjustedmooz = xctx->mooz;
-    saveadjustedxorigin = xctx->xorigin;
-    saveadjustedyorigin = xctx->yorigin;
   }
 
   if(!landscape) { /* decide paper orientation for best schematic fit */
@@ -1102,7 +1079,13 @@ void create_ps(char **psfile, int what, int fullzoom)
     pagex = pagey;
     pagey = tmp;
   }
-
+  if(fullzoom == 2) { /* set media size to bbox */
+    my_strncpy(papername, "bbox", S(papername));
+    pagex = xctx->xrect[0].width;
+    pagey = xctx->xrect[0].height;
+    margin = 0.0;
+  }
+    
   if(what & 1) {/* prolog */
     dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     fprintf(fd, "%%!PS-Adobe-3.0\n");
@@ -1246,28 +1229,6 @@ void create_ps(char **psfile, int what, int fullzoom)
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
           xRect* r = &xctx->rect[c][i];
           ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
-          /* restore original size and zoom factor */
-          if(fullzoom) {
-            xctx->xorigin = saveadjustedxorigin;
-            xctx->yorigin = saveadjustedyorigin;
-            xctx->zoom = saveadjustedzoom;
-            xctx->mooz = saveadjustedmooz;
-            xctx->lw = saveadjustedlw;
-            xctx->areax1 = saveadjustedx1;
-            xctx->areax2 = saveadjustedx2;
-            xctx->areay1 = saveadjustedy1;
-            xctx->areay2 = saveadjustedy2;
-            xctx->areaw = saveadjustedw;
-            xctx->areah = saveadjustedh;
-            xctx->xrect[0] = saveadjustedxrect;
-            boundbox.x1 = xctx->areax1;
-            boundbox.x2 = xctx->areax2;
-            boundbox.y1 = xctx->areay1;
-            boundbox.y2 = xctx->areay2;
-            dx=boundbox.x2-boundbox.x1;
-            dy=boundbox.y2-boundbox.y1;
-            change_linewidth(xctx->lw);
-          }
         }
         if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
@@ -1340,20 +1301,8 @@ void create_ps(char **psfile, int what, int fullzoom)
 
 
   /* restore original size and zoom factor */
-  if(fullzoom) {
-    xctx->xorigin = savexorigin;
-    xctx->yorigin = saveyorigin;
-    xctx->zoom = savezoom;
-    xctx->mooz = savemooz;
-    xctx->lw = savelw;
-    xctx->areax1 = savex1;
-    xctx->areax2 = savex2;
-    xctx->areay1 = savey1;
-    xctx->areay2 = savey2;
-    xctx->areaw = savew;
-    xctx->areah = saveh;
-    xctx->xrect[0] = savexrect;
-    change_linewidth(-1.);
+  if(fullzoom == 1) {
+    save_restore_zoom(0, &zi);
   }
 
 }

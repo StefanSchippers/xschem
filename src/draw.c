@@ -3996,7 +3996,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->do_copy_area=save;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
-  resetwin(1, 1, 1, 0, 0);
+  resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
 
   x1=X_TO_SVG(rx1);
   y1=Y_TO_SVG(ry1);
