@@ -7805,6 +7805,7 @@ set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0
 set_ne color_ps 1
+set_ne ps_page_title 1 ;# add a title in the top left page corner
 set_ne crosshair_layer 3 ;# TEXTLAYER
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0

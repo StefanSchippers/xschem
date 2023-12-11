@@ -872,6 +872,11 @@ typedef struct {
 } Graph_ctx;
 
 typedef struct {
+  int savew, saveh;
+  double savexor, saveyor, savezoom, savelw;
+} Zoom_info;
+
+typedef struct {
   xWire *wire;
   xText *text;
   xRect **rect;
@@ -1493,7 +1498,7 @@ extern void find_inst_to_be_redrawn(int what);
 extern void pan(int what, int mx, int my);
 extern void zoom_rectangle(int what);
 extern void zoom_box(double x1, double y1, double x2, double y2, double factor);
-extern void save_restore_zoom(int save);
+extern void save_restore_zoom(int save, Zoom_info *zi);
 extern void select_rect(int what, int select);
 extern void new_rect(int what);
 extern void new_polygon(int what);

@@ -232,10 +232,11 @@ void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, i
 void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
+  Zoom_info zi;
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
-  const double max_size = 2000.0;
+  const double max_size = 5000.0;
   int d_c;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
@@ -269,11 +270,17 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
   dbg(1, "graph size: %dx%d\n", rwi, rhi);
-  save_restore_zoom(1);
+  save_restore_zoom(1, &zi);
   set_viewport_size(rwi, rhi, xctx->lw);
-  zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
+
+  /* zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0); */
+
+  xctx->xorigin = -rx1;
+  xctx->yorigin = -ry1;
+  xctx->zoom=(rx2-rx1)/(rwi - 1);
+  xctx->mooz = 1 / xctx->zoom;
+
   resetwin(1, 1, 1, rwi, rhi);
-  change_linewidth(xctx->lw * 1.0);
   dbg(1, "lw=%g\n", xctx->lw);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
@@ -286,6 +293,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   tclsetboolvar("dark_colorscheme", 0);
   build_colors(0, 0);
   draw();
+  dbg(1, "width=%d, rwi=%d height=%d rhi=%d\n", xctx->xrect[0].width, rwi, xctx->xrect[0].height, rhi);
   #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
       xctx->xrect[0].width, xctx->xrect[0].height);
@@ -314,7 +322,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
   tclsetboolvar("draw_grid", save_draw_grid);
-  save_restore_zoom(0);
+  save_restore_zoom(0, &zi);
   resetwin(1, 1, 1, 0, 0);
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
@@ -983,6 +991,7 @@ void create_ps(char **psfile, int what, int fullzoom)
   static int savex1, savey1, savex2, savey2, savew, saveh;
   static int saveadjustedx1, saveadjustedy1, saveadjustedx2, saveadjustedy2, saveadjustedw, saveadjustedh;
   static XRectangle savexrect, saveadjustedxrect;
+  int save_change_lw;
 
   dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
   if(tcleval("info exists ps_paper_size")[0] == '1') {
@@ -1158,7 +1167,8 @@ void create_ps(char **psfile, int what, int fullzoom)
     fprintf(fd, "%%%%EndPageSetup\n");
   
     /* add small page title */
-    fprintf(fd, "/Helvetica FF 10 SCF SF NP 20 %g MT (%s) show\n", pagey - 20, xctx->current_name);
+    if(tclgetboolvar("ps_page_title"))
+       fprintf(fd, "/Helvetica FF 10 SCF SF NP 20 %g MT (%s) show\n", pagey - 20, xctx->current_name);
 
     /* Add anchor for pdfmarks */
     fprintf(fd,
@@ -1216,6 +1226,8 @@ void create_ps(char **psfile, int what, int fullzoom)
           xctx->text[i].xscale, xctx->text[i].yscale);
       }
     }
+    save_change_lw = tclgetintvar("change_lw");
+    tclsetintvar("change_lw", 0);
     for(c=0;c<cadlayers; ++c)
     {
       set_ps_colors(c);
@@ -1274,6 +1286,7 @@ void create_ps(char **psfile, int what, int fullzoom)
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
     } /* for(c=0;c<cadlayers; ++c) */
+    tclsetintvar("change_lw", save_change_lw);
 
     /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
     for(c=0;c<cadlayers; ++c) {

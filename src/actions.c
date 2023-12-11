@@ -2558,34 +2558,31 @@ void set_viewport_size(int w, int h, double lw)
     xctx->areah = xctx->areay2-xctx->areay1;
 }
 
-void save_restore_zoom(int save)
+void save_restore_zoom(int save, Zoom_info *zi)
 {
-  static int savew, saveh; /* safe to keep even with multiple schematics */
-  static double savexor, saveyor, savezoom, savelw; /* safe to keep even with multiple schematics */
-
   if(save) {
-    savew = xctx->xrect[0].width;
-    saveh = xctx->xrect[0].height;
-    savelw = xctx->lw;
-    savexor = xctx->xorigin;
-    saveyor = xctx->yorigin;
-    savezoom = xctx->zoom;
+    zi->savew = xctx->xrect[0].width;
+    zi->saveh = xctx->xrect[0].height;
+    zi->savelw = xctx->lw;
+    zi->savexor = xctx->xorigin;
+    zi->saveyor = xctx->yorigin;
+    zi->savezoom = xctx->zoom;
   } else {
     xctx->xrect[0].x = 0;
     xctx->xrect[0].y = 0;
-    xctx->xrect[0].width = (unsigned short)savew;
-    xctx->xrect[0].height = (unsigned short)saveh;
-    xctx->areax2 = savew+2*INT_WIDTH(savelw);
-    xctx->areay2 = saveh+2*INT_WIDTH(savelw);
-    xctx->areax1 = -2*INT_WIDTH(savelw);
-    xctx->areay1 = -2*INT_WIDTH(savelw);
-    xctx->lw = savelw;
+    xctx->xrect[0].width = (unsigned short)zi->savew;
+    xctx->xrect[0].height = (unsigned short)zi->saveh;
+    xctx->areax2 = zi->savew+2*INT_WIDTH(zi->savelw);
+    xctx->areay2 = zi->saveh+2*INT_WIDTH(zi->savelw);
+    xctx->areax1 = -2*INT_WIDTH(zi->savelw);
+    xctx->areay1 = -2*INT_WIDTH(zi->savelw);
+    xctx->lw = zi->savelw;
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2-xctx->areay1;
-    xctx->xorigin = savexor;
-    xctx->yorigin = saveyor;
-    xctx->zoom = savezoom;
-    xctx->mooz = 1 / savezoom;
+    xctx->xorigin = zi->savexor;
+    xctx->yorigin = zi->saveyor;
+    xctx->zoom = zi->savezoom;
+    xctx->mooz = 1 / zi->savezoom;
   }
 }
 

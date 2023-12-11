@@ -3924,6 +3924,7 @@ static void draw_images_all(void)
 void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
 {
   #if HAS_CAIRO==1
+  Zoom_info zi;
   char *ptr = NULL;
   double x1, y1, x2, y2, w, h, rw, rh, scale;
   char transform[150];
@@ -3931,7 +3932,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   cairo_surface_t *png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
   size_t olength;
-  const double max_size = 2000.0;
+  const double max_size = 5000.0;
 
   if(!has_x) return;
   rw = fabs(rx2 -rx1);
@@ -3944,9 +3945,16 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   }
   rwi = (int) (rw * scale + 1.0);
   rhi = (int) (rh * scale + 1.0);
-  save_restore_zoom(1);
+  save_restore_zoom(1, &zi);
   set_viewport_size(rwi, rhi, xctx->lw);
-  zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0);
+
+  /* zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0); */
+  
+  xctx->xorigin = -rx1;
+  xctx->yorigin = -ry1;
+  xctx->zoom=(rx2-rx1)/(rwi - 1);
+  xctx->mooz = 1 / xctx->zoom;
+
   resetwin(1, 1, 1, rwi, rhi);
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
@@ -3987,7 +3995,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->draw_window=save_draw_window;
   xctx->do_copy_area=save;
   tclsetboolvar("draw_grid", save_draw_grid);
-  save_restore_zoom(0);
+  save_restore_zoom(0, &zi);
   resetwin(1, 1, 1, 0, 0);
 
   x1=X_TO_SVG(rx1);

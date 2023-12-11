@@ -545,6 +545,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1044,6 +1045,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       preview_window create|draw|destroy [winpath] [file]</kbd></li><pre>
    Used in fileselector to show a schematic preview.</pre>
    <li><kbd>       print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]</kbd></li><pre>
+   If img_x and img_y are set to 0 (recommended for svg) 
+   they will be calculated by xschem automatically
    Export current schematic to image.
                             img x   y size    xschem area to export
       0     1    2    3         4   5             6    7   8   9
@@ -1419,7 +1422,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

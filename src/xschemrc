@@ -153,6 +153,9 @@
 #### allow color postscript and svg exports. Default: 1, enable color
 # set color_ps 1
 
+#### add a page title in the top left corner of the ps/pdf page. Default: enabled (1)
+# set ps_page_title 1
+
 #### set paper size: name, height, width. Sizes in 1/72 of an inch (typographical points)
 #### default: {a4 842 595}
 # set ps_paper_size {a4 842 595}
