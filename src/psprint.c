@@ -1169,13 +1169,15 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
   if(what & 2) { /* page */
     ++numpages;
-    fprintf(fd, "%%%%BeginSetup\n");
-    fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
-    fprintf(fd, "%%%%EndSetup\n");
-    fprintf(fd, "%%%%Page: %d %d\n\n", numpages, numpages);
-    fprintf(fd, "%%%%BeginPageSetup\n");
-    fprintf(fd, "%%%%EndPageSetup\n");
-  
+
+    if(!eps) {
+      fprintf(fd, "%%%%BeginSetup\n");
+      fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
+      fprintf(fd, "%%%%EndSetup\n");
+      fprintf(fd, "%%%%Page: %d %d\n\n", numpages, numpages);
+      fprintf(fd, "%%%%BeginPageSetup\n");
+      fprintf(fd, "%%%%EndPageSetup\n");
+    }
     /* add small page title */
     if(tclgetboolvar("ps_page_title") && fullzoom != 2)
        fprintf(fd, "/Helvetica FF 10 SCF SF NP 20 %g MT (%s) show\n", pagey - 20, xctx->current_name);
