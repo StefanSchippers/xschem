@@ -1171,6 +1171,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     ++numpages;
     fprintf(fd, "%%%%BeginSetup\n");
     fprintf(fd, "<< /PageSize [%g %g] /Orientation 0 >> setpagedevice\n", pagex, pagey);
+    fprintf(fd, "%%%%EndSetup\n");
     fprintf(fd, "%%%%Page: %d %d\n\n", numpages, numpages);
     fprintf(fd, "%%%%BeginPageSetup\n");
     fprintf(fd, "%%%%EndPageSetup\n");
