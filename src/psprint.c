@@ -977,7 +977,7 @@ static void fill_ps_colors()
  *   1: Do a full zoom before generating ps/pdf
  *   2: set paper size to bounding box instead of a4/letter
  */
-void create_ps(char **psfile, int what, int fullzoom)
+void create_ps(char **psfile, int what, int fullzoom, int eps)
 {
   double dx, dy, scale, scaley;
   int landscape=1;
@@ -1079,22 +1079,49 @@ void create_ps(char **psfile, int what, int fullzoom)
     pagey = tmp;
   }
   if(fullzoom == 2) { /* set media size to bbox */
+    double sc;
     my_strncpy(papername, "bbox", S(papername));
     pagex = xctx->xrect[0].width;
     pagey = xctx->xrect[0].height;
+    if(pagex > pagey) {
+      sc = 842. / pagex;
+      pagex = my_round(pagex * sc);
+      pagey = my_round(pagey * sc);
+    } else {
+      sc = 842. / pagey;
+      pagex = my_round(pagex * sc);
+      pagey = my_round(pagey * sc);
+    }
     margin = 0.0;
   }
     
   if(what & 1) {/* prolog */
     dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-    fprintf(fd, "%%!PS-Adobe-3.0\n");
+    if(!eps) {
+      fprintf(fd, "%%!PS-Adobe-3.0\n");
+    } else {
+      fprintf(fd, "%%!PS-Adobe-2.0 EPSF-2.0\n");
+      fprintf(fd, "%%%%BoundingBox: 0 0 %g %g\n",  pagex, pagey);
+    }
     /* fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", landscape ? "a4land" : "a4", pagex, pagey); */
     fprintf(fd, "%%%%DocumentMedia: %s %g %g 80 () ()\n", papername, pagex, pagey);
     fprintf(fd, "%%%%PageOrientation: %s\n", landscape ? "Landscape" : "Portrait");
     fprintf(fd, "%%%%Title: xschem plot\n");
     fprintf(fd, "%%%%Creator: xschem\n");
-    fprintf(fd, "%%%%Pages: (atend)\n");
+    if(!eps) fprintf(fd, "%%%%Pages: (atend)\n");
     fprintf(fd, "%%%%EndComments\n");
+
+    if(eps) {
+      fprintf(fd, "%%%%BeginProlog\n");
+      fprintf(fd, "save\n");
+      fprintf(fd, "countdictstack\n");
+      fprintf(fd, "mark\n");
+      fprintf(fd, "newpath\n");
+      fprintf(fd, "/showpage {} def\n");
+      fprintf(fd, "/setpagedevice {pop} def\n");
+      fprintf(fd, "%%%%EndProlog\n");
+      fprintf(fd, "%%%%Page 1 1\n");
+    }
     fprintf(fd, "%%%%BeginProlog\n\n");
   
     for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); ++i) {
@@ -1289,6 +1316,13 @@ void create_ps(char **psfile, int what, int fullzoom)
   if(what & 4) { /* trailer */
     fprintf(fd, "%%%%trailer\n");
     fprintf(fd, "%%%%Pages: %d\n", numpages);
+    if(eps) {
+      fprintf(fd, "%%%%Trailer\n");
+      fprintf(fd, "cleartomark\n");
+      fprintf(fd, "countdictstack\n");
+      fprintf(fd, "exch sub { end } repeat\n");
+      fprintf(fd, "restore\n");
+    }
     fprintf(fd, "%%%%EOF\n");
     fclose(fd);
   }
@@ -1303,7 +1337,7 @@ void create_ps(char **psfile, int what, int fullzoom)
 
 }
 
-int ps_draw(int what, int fullzoom)
+int ps_draw(int what, int fullzoom, int eps)
 {
  char tmp[2*PATH_MAX+40];
  static char lastdir[PATH_MAX] = "";
@@ -1316,7 +1350,7 @@ int ps_draw(int what, int fullzoom)
      /* tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
       *   get_cell(xctx->sch[xctx->currsch], 0) , ".pdf} -initialdir {", lastdir, "}", NULL); */
      tclvareval("save_file_dialog {Select destination file} *.{ps,pdf} INITIALLOADDIR {", pwd_dir, "/",
-       get_cell(xctx->sch[xctx->currsch], 0), ".pdf}", NULL);
+       get_cell(xctx->sch[xctx->currsch], 0), eps ? ".eps}": ".pdf}", NULL);
      r = tclresult();
      if(r[0]) {
        my_strncpy(xctx->plotfile, r, S(xctx->plotfile));
@@ -1326,7 +1360,7 @@ int ps_draw(int what, int fullzoom)
      else return 0;
    }
  }
- create_ps(&psfile, what, fullzoom);
+ create_ps(&psfile, what, fullzoom, eps);
  if(what & 4) { /* trailer */
    if(xctx->plotfile[0]) {
      my_snprintf(tmp, S(tmp), "convert_to_pdf {%s} {%s}", psfile, xctx->plotfile);

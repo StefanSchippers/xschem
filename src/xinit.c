@@ -2843,7 +2843,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      xctx->areaw = xctx->areax2-xctx->areax1;
      xctx->areah = xctx->areay2-xctx->areay1;
      zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
-     ps_draw(7, 0);
+     ps_draw(7, 0, 0);
    } else if(cli_opt_do_print == 2) {
      if(!has_x) {
        dbg(0, "xschem: can not do a png export if no X11 present / Xserver running (check if DISPLAY set).\n");

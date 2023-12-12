@@ -6917,6 +6917,7 @@ proc build_widgets { {topwin {} } } {
   # added svg, png 20171022
   $topwin.menubar.file.menu add cascade -label "Image export" -menu $topwin.menubar.file.menu.im_exp
   menu $topwin.menubar.file.menu.im_exp -tearoff 0
+  $topwin.menubar.file.menu.im_exp add command -label "EPS Selection Export" -command "xschem print eps" 
   $topwin.menubar.file.menu.im_exp add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
   $topwin.menubar.file.menu.im_exp add command -label "PDF/PS Export Full" -command "xschem print pdf_full"
   $topwin.menubar.file.menu.im_exp add command -label "Hierarchical PDF/PS Export" -command "xschem hier_psprint"

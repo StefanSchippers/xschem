@@ -1568,18 +1568,21 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if(key == '+'  && state&ControlMask)         /* change line width */
+   if(key == '+'  && state & ControlMask)         /* change line width */
    {
-    xctx->lw+=0.1;
+    xctx->lw = round_to_n_digits(xctx->lw + 0.5, 2);
     change_linewidth(xctx->lw);
+    tclsetboolvar("change_lw", 0);
     draw();
     break;
    }
 
-   if(key == '-'  && state&ControlMask)         /* change line width */
+   if(key == '-'  && state & ControlMask)         /* change line width */
    {
-    xctx->lw-=0.1;if(xctx->lw<0.0) xctx->lw=0.0;
+    xctx->lw = round_to_n_digits(xctx->lw - 0.5, 2);
+    if(xctx->lw < 0.0) xctx->lw = 0.0;
     change_linewidth(xctx->lw);
+    tclsetboolvar("change_lw", 0);
     draw();
     break;
    }
@@ -2186,7 +2189,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='*' && rstate == 0 )                    /* postscript print */
    {
     if(xctx->semaphore >= 2) break;
-    ps_draw(7, 0);
+    ps_draw(7, 0, 0);
     break;
    }
    if(key=='*' && rstate == ControlMask)      /* xpm print */

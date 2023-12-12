@@ -3050,6 +3050,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem print png file.png  [400 300]       [ -300 -200 300 200 ]
      *   xschem print svg file.svg  [400 300]       [ -300 -200 300 200 ]
      *   xschem print ps  file.ps   [400 300]       [ -300 -200 300 200 ]
+     *   xschem print eps file.eps  [400 300]       [ -300 -200 300 200 ]
      *   xschem print pdf file.pdf  [400 300]       [ -300 -200 300 200 ]
      *   xschem print ps_full  file.ps
      *   xschem print pdf_full file.pdf
@@ -3066,12 +3067,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tclvareval("file normalize {", argv[3], "}", NULL);
         my_strncpy(xctx->plotfile, Tcl_GetStringResult(interp), S(xctx->plotfile));
       }
-      if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps")) {
+      if(!strcmp(argv[2], "pdf") || !strcmp(argv[2],"ps") || !strcmp(argv[2],"eps")) {
         double save_lw = xctx->lw;
         int fullzoom = 0;
         int w = 0, h = 0;
+        int eps = 0;
         double x1, y1, x2, y2;
-        if(argc == 6 && xctx->lastsel == 0) {
+
+        if(!strcmp(argv[2],"eps")) eps = 1;
+        if(eps && xctx->lastsel == 0) {
+          if(has_x) tcleval("alert_ {EPS export works only on a selection} {}");
+          else  dbg(0, "EPS export works only on a selection\n");
+        } else if(argc == 6 && xctx->lastsel == 0 && eps == 0) {
           fullzoom = 2;
           w = atoi(argv[4]);
           h = atoi(argv[5]);
@@ -3081,7 +3088,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_viewport_size(w, h, xctx->lw);
           zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
-          ps_draw(7, fullzoom);
+          ps_draw(7, fullzoom, eps);
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(save_lw);
@@ -3111,18 +3118,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
           resetwin(1, 1, 1, w, h);
-          ps_draw(7, fullzoom);
+          ps_draw(7, fullzoom, eps);
           save_restore_zoom(0, &zi);
           resetwin(1, 1, 1, 0, 0);
           change_linewidth(save_lw);
         } else {
           fullzoom = 0;
-          ps_draw(7, fullzoom);
+          ps_draw(7, fullzoom, eps);
         }
       }
       else if(!strcmp(argv[2], "pdf_full") || !strcmp(argv[2],"ps_full")) {
         int fullzoom = 1;
-        ps_draw(7, fullzoom);
+        ps_draw(7, fullzoom, 0);
       }
       else if(!strcmp(argv[2], "png")) {
         double save_lw = xctx->lw;
