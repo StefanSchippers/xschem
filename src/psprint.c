@@ -1317,7 +1317,6 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     fprintf(fd, "%%%%trailer\n");
     fprintf(fd, "%%%%Pages: %d\n", numpages);
     if(eps) {
-      fprintf(fd, "%%%%Trailer\n");
       fprintf(fd, "cleartomark\n");
       fprintf(fd, "countdictstack\n");
       fprintf(fd, "exch sub { end } repeat\n");
