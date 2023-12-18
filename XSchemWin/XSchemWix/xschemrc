@@ -100,7 +100,10 @@
 # set netlist_dir $env(HOME)/.xschem/simulations
 
 #### if this is set to '1' netlists and simulations will go into a simulation/ folder
-#### inside the directory containing the top level schematic. Default: not set (0)
+#### inside the directory containing the top level schematic.
+#### if this is set to '2' netlists and simulations will go into a simulation/[schname]/ folder
+#### inside the directory containing the top level schematic.
+#### Default: not set (0).
 # set local_netlist_dir 1
 
 ###########################################################################
@@ -150,6 +153,9 @@
 #### allow color postscript and svg exports. Default: 1, enable color
 # set color_ps 1
 
+#### add a page title in the top left corner of the ps/pdf page. Default: enabled (1)
+# set ps_page_title 1
+
 #### set paper size: name, height, width. Sizes in 1/72 of an inch (typographical points)
 #### default: {a4 842 595}
 # set ps_paper_size {a4 842 595}
@@ -158,6 +164,9 @@
 #### initial size of xschem window you can specify also position with (wxh+x+y)
 #### this is the default:
 # set initial_geometry {900x600}
+
+#### initial geometry of load /save / insert component file selector
+# set file_dialog_default_geometry 800x600
 
 #### if set to 0, when zooming out allow the viewport do drift toward the mouse position,
 #### allowing to move away by zooming / unzooming with mouse wheel
@@ -181,6 +190,11 @@
 #### moved objects these wires will be unselected.
 #### default: not enabled (0)
 # set unselect_partial_sel_wires 0
+
+#### if set show selected elements while dragging the selection rectangle.
+#### once selected these can not be unselected by retracting the selection rectangle
+#### if not set show selected items at end of drag. Default: enabled (1)
+# set incremental_select 0
 
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
@@ -218,6 +232,9 @@
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
+
+#### enable drawing grid axes. Default: enabled (1)
+# set draw_grid_axes 1
 
 #### enable grouping contiguous bits of bus slices in net->pin instance
 #### assignments for verilog netlists. Default: disabled (0)
@@ -356,6 +373,7 @@ set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 # set editor {gvim -f -geometry 90x28}
 # set editor { xterm -geometry 100x40 -e nano }
 # set editor { xterm -geometry 100x40 -e pico }
+# set editor {gedit -w}
 
 #### For Windows
 set editor {notepad.exe}
@@ -390,7 +408,9 @@ set editor {notepad.exe}
 #### BESPICE WAVE SOCKET CONNECTION
 ###########################################################################
 #### set bespice wave listening port; default: not enabled
-# set bespice_listen_port 2022
+#### set port number to 0 so TCL will automatically and reliably find
+#### a free port
+# set bespice_listen_port 0
 
 ###########################################################################
 #### TCL FILES TO LOAD AT STARTUP
@@ -475,3 +495,13 @@ set editor {notepad.exe}
 #### if you see garbage on screen / graphic artifacts while editing with
 #### xschem try to set this to 1. Default: not enabled (0)
 # set fix_broken_tiled_fill 0
+
+###########################################################################
+#### FIX SOME REMOTE DESKTOP CONNECTION SOFTWARES NOT CORRECTLY REPORTING
+#### MOUSE COORDINATES ON KEYPRESS / KEYRELEASE EVENTS
+###########################################################################
+#### If you see strange behavior while using keybindings to create graphic 
+#### objects ('w', 'l', 't', 'r', ...) try to set this to 1.
+#### Default: not enabled (0)
+# set fix_mouse_coord 0
+

@@ -1057,7 +1057,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
        if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
          str_ptr =  net_name(inst,i, &multip, 0, 1);
-         my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
+         my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
        }
        break;
      }
@@ -1118,7 +1118,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
        si  = get_tok_value(prop, "verilog_ignore",0);
        if(strboolcmp(si, "true")) {
          str_ptr =  net_name(inst,n, &multip, 0, 1);
-         my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
+         my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
        }
      }
      my_free(_ALLOC_ID_, &pin_attr);
@@ -2874,7 +2874,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
       if(!strcmp( get_tok_value(prop,"name",0), token+2)) {
         str_ptr =  net_name(inst,i, &multip, 0, 1);
-        my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
+        my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
         break;
       }
      }
@@ -2934,7 +2934,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         si  = get_tok_value(prop, "verilog_ignore",0);
         if(strboolcmp(si, "true")) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
-          my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ")", NULL);
+          my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
         }
       }
       my_free(_ALLOC_ID_, &pin_attr);

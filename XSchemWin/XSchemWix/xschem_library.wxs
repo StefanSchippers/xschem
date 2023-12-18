@@ -4843,27 +4843,27 @@
           </Directory>
         </Directory>
 		  <Directory Id="dir66E75AF8489D831CEE96A9484F188CC0" Name="inst_sch_select">
-			<Component Id="cmp7FA1B8D455F612D245224AC7EAF95A6C" Guid="{451D1C93-06A3-4119-8130-4C8A555766BA}">
-			  <File Id="filF84E499EC377EDCE3CEC8BD8D987A15D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm.sch" />
-			</Component>
-			<Component Id="cmpA694725AC90906B120BC6ED052B820EC" Guid="{7DB0DC5B-5605-49D5-839A-38AD5C39E087}">
-			  <File Id="filF3BF35891CD9065B7BAE81514DB651B3" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm.sym" />
-			</Component>
-			<Component Id="cmp9F68EB0D01C258AFF8A160616F017CC6" Guid="{29EF4B4F-220A-4D20-B658-30D434F9F822}">
-			  <File Id="fil5132E7C32EBFF52214702F73D3936B0E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_empty.sch" />
-			</Component>
-			<Component Id="cmpC49759288BFBD4977B75C3C2666BFB1A" Guid="{FF1F79F9-1969-4BEE-A84D-541459AFDD9C}">
-			  <File Id="filEEC392331868D39BCF38F222B0F0BDE2" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_file.cir" />
-			</Component>
-			<Component Id="cmp192C74207CA975756F65616672478110" Guid="{3706C5AD-C104-494A-B664-DEB07667A8B3}">
-			  <File Id="filF6591742485594FADE7363F8CB7C10F7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_parax.sch" />
-			</Component>
-			<Component Id="cmp2EA52751158DBB689A9A03A9D3094EB3" Guid="{CA754177-CB2B-4639-9DEC-D5F08BCE9052}">
-              <File Id="filA6F9E299A8A8FAA10A2F89366D418D56" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_read.cir" />
-            </Component>
-            <Component Id="cmp106813C0BB3FE64D6E9D5FC6CDC1FF92" Guid="{7AE49B47-B1C0-4E7C-BB79-B0658CEB5662}">
-              <File Id="fil6B1B3D42E84BBF6F3073C22FE296B9B4" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp_65nm_read.sym" />
-            </Component>
+			  <Component Id="cmp021D39700CA8CE4F0746A6EE7BDBB337" Guid="{FA476C82-AE1D-4FC0-A5D7-1F7B6C9BCE59}">
+				  <File Id="filD48DD79FE6698B5FA5E7CB1B1A502D4D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3.sch" />
+			  </Component>
+			  <Component Id="cmp91FEAFB7B7E439A3149432AC75C30483" Guid="{B98A8C30-A87E-403C-8547-22378B93A9A7}">
+				  <File Id="fil8F88EB494ABEA0D8DE14924878CD8F20" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3.sym" />
+			  </Component>
+			  <Component Id="cmp46876B54A156835169D2D53153CCB721" Guid="{81691335-6298-4403-A8C3-B118444AC8C9}">
+				  <File Id="fil002A2ACB4DCEECA8E385AC5BCEA3C06E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3_empty.sch" />
+			  </Component>
+			  <Component Id="cmp076623E243053854E2E7CAB7513C2F12" Guid="{DC134F12-A622-4E97-9B06-8B5B193AB9F7}">
+				  <File Id="fil284ABF35D84049269AFB0B163E9ECF29" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3_file.cir" />
+			  </Component>
+			  <Component Id="cmp55C89147C2FE0A38848E3A67E4223038" Guid="{A32BB583-AE43-4A9C-8C5C-7D4D3C259164}">
+				  <File Id="fil4BFEDD19767B22A37C178444B7E8B0A9" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3_parax.sch" />
+			  </Component>
+			  <Component Id="cmpBCFC92A50A3ACD13A1E5D3364E207668" Guid="{549CD6A0-4C49-48D6-83FA-839CD7B2A9F5}">
+				  <File Id="filA8F6E71AE6F15F66F6223752DEAF3673" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3_read.cir" />
+			  </Component>
+			  <Component Id="cmp3140A9EFC6CD4F9F63FDC7282532537C" Guid="{B6A01500-6D3C-46CC-990B-6A0D8B5A75D3}">
+				  <File Id="filE8958165515D74F17CB8ECCAC4C32A8C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\comp3_read.sym" />
+			  </Component>
 			<Component Id="cmp8907B142997C1E0613C32A1C536C5122" Guid="{955C050B-2D41-42AC-A988-92A33E682F4E}">
 			  <File Id="fil31820620336E6D619A3D1A05DBB16AB7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\inst_sch_select\inst_sch_select.sch" />
 			</Component>
@@ -7158,13 +7158,13 @@
       <ComponentRef Id="cmp17B3126A87BE08784E2F6F45E02C384B" />
       <ComponentRef Id="cmpF7EBB80CBCB3911C75082F4AB3A6FBC7" />
       <ComponentRef Id="cmpAE952C594E6F45CF215B573DD54FA856" />
-	  <ComponentRef Id="cmp7FA1B8D455F612D245224AC7EAF95A6C" />
-	  <ComponentRef Id="cmpA694725AC90906B120BC6ED052B820EC" />
-	  <ComponentRef Id="cmp9F68EB0D01C258AFF8A160616F017CC6" />
-	  <ComponentRef Id="cmpC49759288BFBD4977B75C3C2666BFB1A" />
-	  <ComponentRef Id="cmp192C74207CA975756F65616672478110" />
-	  <ComponentRef Id="cmp2EA52751158DBB689A9A03A9D3094EB3" />
-      <ComponentRef Id="cmp106813C0BB3FE64D6E9D5FC6CDC1FF92" />
+	  <ComponentRef Id="cmp021D39700CA8CE4F0746A6EE7BDBB337" />
+	  <ComponentRef Id="cmp91FEAFB7B7E439A3149432AC75C30483" />
+	  <ComponentRef Id="cmp46876B54A156835169D2D53153CCB721" />
+	  <ComponentRef Id="cmp076623E243053854E2E7CAB7513C2F12" />
+	  <ComponentRef Id="cmp55C89147C2FE0A38848E3A67E4223038" />
+	  <ComponentRef Id="cmpBCFC92A50A3ACD13A1E5D3364E207668" />
+	  <ComponentRef Id="cmp3140A9EFC6CD4F9F63FDC7282532537C" />
 	  <ComponentRef Id="cmp8907B142997C1E0613C32A1C536C5122" />
 	  <ComponentRef Id="cmp17EC96974E9D7222C8BAD002E8B6A792" />
       <ComponentRef Id="cmp9B1CE895DCA915D6CEFBA5A5D4D37400" />

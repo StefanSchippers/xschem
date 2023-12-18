@@ -417,7 +417,7 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
 void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
 {
   char attr[50];
-  const char *ts;
+  const char *ts=NULL;
   double size;
   int sym_n = xctx->inst[inst].ptr;
 
