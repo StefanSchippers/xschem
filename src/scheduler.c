@@ -951,11 +951,72 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "flip_in_place"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
+      if(xctx->ui_state & STARTMOVE) move_objects(FLIP|ROTATELOCAL,0,0,0);
+      else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP|ROTATELOCAL);
       else {
         rebuild_selected_array();
         move_objects(START,0,0,0);
+        move_objects(FLIP|ROTATELOCAL,0,0,0);
+        move_objects(END,0,0,0);
+      }
+      Tcl_ResetResult(interp);
+    }
+
+    /* flipv [x0 y0]
+     *   Flip selection vertically around point x0 y0. 
+     *   if x0, y0 not given use mouse coordinates */
+    else if(!strcmp(argv[1], "flipv"))
+    {   
+      double x0 = xctx->mousex_snap;
+      double y0 = xctx->mousey_snap;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) { 
+        x0 = atof(argv[2]);
+        y0 = atof(argv[3]);
+      }  
+      if(xctx->ui_state & STARTMOVE) {
+        move_objects(ROTATE,0,0,0);
+        move_objects(ROTATE,0,0,0);
+        move_objects(FLIP,0,0,0);
+      }
+      else if(xctx->ui_state & STARTCOPY) {
+        copy_objects(ROTATE);
+        copy_objects(ROTATE);
+        copy_objects(FLIP);
+      }
+      else {
+        rebuild_selected_array();
+        xctx->mx_double_save = xctx->mousex_snap = x0;
+        xctx->my_double_save = xctx->mousey_snap = y0;
+        move_objects(START,0,0,0);
+        move_objects(ROTATE,0, 0, 0);
+        move_objects(ROTATE,0, 0, 0);
+        move_objects(FLIP,0, 0, 0);
+        move_objects(END,0,0,0);
+      }
+      Tcl_ResetResult(interp);
+    } 
+        
+    /* flipv_in_place
+     *   Flip selection vertically, each object around its center */
+    else if(!strcmp(argv[1], "flipv_in_place"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(xctx->ui_state & STARTMOVE) {
+        move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        move_objects(FLIP|ROTATELOCAL,0,0,0);
+      }
+      else if(xctx->ui_state & STARTCOPY) {
+        copy_objects(ROTATE|ROTATELOCAL);
+        copy_objects(ROTATE|ROTATELOCAL);
+        copy_objects(FLIP|ROTATELOCAL);
+      }
+      else {
+        rebuild_selected_array();
+        move_objects(START,0,0,0);
+        move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        move_objects(ROTATE|ROTATELOCAL,0,0,0);
         move_objects(FLIP|ROTATELOCAL,0,0,0);
         move_objects(END,0,0,0);
       }

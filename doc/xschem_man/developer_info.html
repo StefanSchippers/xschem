@@ -547,6 +547,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -689,6 +690,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       flip_in_place</kbd></li><pre>
    Flip selection horizontally, each object around its center </pre>
+   <li><kbd>       flipv [x0 y0]</kbd></li><pre>
+   Flip selection vertically around point x0 y0. 
+   if x0, y0 not given use mouse coordinates </pre>
+   <li><kbd>       flipv_in_place</kbd></li><pre>
+   Flip selection vertically, each object around its center </pre>
    <li><kbd>       floaters_from_selected_inst</kbd></li><pre>
    flatten to current level selected instance texts </pre>
    <li><kbd>       fullscreen</kbd></li><pre>
@@ -1424,6 +1430,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
 
 
 

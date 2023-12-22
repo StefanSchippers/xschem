@@ -38,7 +38,6 @@ p{padding: 15px  30px 10px;}
   This list is available in XSCHEM in the <kbd>Help</kbd> menu
  </p>
  <pre class="code" style="height: 600px;">
-
                         XSCHEM MOUSE BINDINGS
 ----------------------------------------------------------------------
 LeftButton              Clear selection and select a graphic object 
@@ -145,8 +144,8 @@ ctrl        'e'         Back to parent schematic
 -           'e'         Descend to schematic
 alt         'e'         Edit selected schematic in a new window
             '\'         Toggle Full screen
-shift       'F'         Flip
-alt         'f'         Flip objects around their anchor points
+shift       'F'         Horizontal flip selected objects
+alt         'f'         Horizontal flip selected objects around their anchor points
 ctrl        'f'         Find/select by substring or regexp
 -           'f'         Full zoom
 shift+ctrl  'F'         Zoom full selected elements
@@ -213,8 +212,10 @@ alt         'u'         Align to current grid selected objects
 shift       'U'         Redo
 -           'u'         Undo
 -           'v'         Constrained vertical move/copy of objects
+shift       'V'         Vertical flip selected objects
+alt         'v'         Vertical flip selected objects around their anchor point
 ctrl        'v'         Paste from clipboard
-shift       'V'         Toggle spice/vhdl/verilog netlist 
+ctrl+shift  'V'         Toggle spice/vhdl/verilog netlist 
 -           'w'         Place wire
 ctrl        'w'         close current schematic
 shift       'W'         Place wire, snapping to closest pin or net endpoint
@@ -226,7 +227,7 @@ shift       'X'         Highlight discrepancies between object ports and attache
 shift       'Z'         Zoom in
 ctrl        'z'         Zoom out
 -           '?'         Help
--           '&amp;         Join / break / collapse wires
+-           '&amp;'         Join / break / collapse wires
 shift       '*'         Postscript/pdf print
 ctr+shift   '*'         Xpm/png print
 alt+shift   '*'         Svg print

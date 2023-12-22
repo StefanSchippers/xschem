@@ -3473,6 +3473,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       set file_dialog_globfilter  *[.load.buttons_bot.entry get]*
       if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
       setglob $file_dialog_dir1
+      .load.l.paneright.list yview moveto 1.0
     }
     # set to something different to any file to force a new placement in file_dialog_place_symbol
     set file_dialog_retval {   }
@@ -3626,6 +3627,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { [info exists file_dialog_yview]} {
    .load.l.paneright.list yview moveto  [lindex $file_dialog_yview 0]
   }
+  focus .load.buttons_bot.entry
   if {$loadfile != 2} {
     tkwait window .load
     xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -7027,19 +7029,19 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu.netlist add checkbutton -label "Split netlist" -variable split_files \
      -accelerator {} 
   $topwin.menubar.option.menu.netlist add radiobutton -label "Spice netlist"\
-       -variable netlist_type -value spice -accelerator {Shift+V} \
+       -variable netlist_type -value spice -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type spice; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "VHDL netlist"\
-       -variable netlist_type -value vhdl -accelerator {Shift+V} \
+       -variable netlist_type -value vhdl -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type vhdl; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Verilog netlist"\
-       -variable netlist_type -value verilog -accelerator {Shift+V} \
+       -variable netlist_type -value verilog -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type verilog; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "tEDAx netlist" \
-       -variable netlist_type -value tedax -accelerator {Shift+V} \
+       -variable netlist_type -value tedax -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type tedax; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Symbol global attrs" \
-       -variable netlist_type -value symbol -accelerator {Shift+V} \
+       -variable netlist_type -value symbol -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type symbol; xschem redraw"
 
 
@@ -7067,11 +7069,15 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Move objects adding wires to connected pins" \
       -command "xschem move_objects kissing" -accelerator Shift+M
   toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
-  $topwin.menubar.edit.menu add command -label "Flip in place selected objects" -state normal \
+  $topwin.menubar.edit.menu add command -label "Horizontal Flip in place selected objects" -state normal \
      -command {xschem flip_in_place} -accelerator {Alt-F}
+  $topwin.menubar.edit.menu add command -label "Vertical Flip in place selected objects" -state normal \
+     -command {xschem flipv_in_place} -accelerator {Alt-V}
   $topwin.menubar.edit.menu add command -label "Rotate in place selected objects" -state normal \
       -command {xschem rotate_in_place} -accelerator {Alt-R}
-  $topwin.menubar.edit.menu add command -label "Flip selected objects" -state normal \
+  $topwin.menubar.edit.menu add command -label "Vertical Flip selected objects" -state normal \
+     -command {xschem flipv} -accelerator {Shift-V}
+  $topwin.menubar.edit.menu add command -label "Horizontal Flip selected objects" -state normal \
      -command {xschem flip} -accelerator {Shift-F}
   $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state normal \
       -command {xschem rotate} -accelerator {Shift-R}

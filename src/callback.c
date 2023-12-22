@@ -1793,7 +1793,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     new_rect(PLACE);
     break;
    }
-   if(key=='V' && rstate == 0)                           /* toggle spice/vhdl netlist  */
+   if(key=='V' && rstate == ControlMask)                     /* toggle spice/vhdl netlist  */
    {
     xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
     set_tcl_netlist_type();
@@ -2311,6 +2311,55 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
+   if(key=='V' && rstate == 0)                     /* vertical flip */
+   {
+    if(xctx->ui_state & STARTMOVE) {
+      move_objects(ROTATE,0,0,0);
+      move_objects(ROTATE,0,0,0);
+      move_objects(FLIP,0,0,0);
+    }
+    else if(xctx->ui_state & STARTCOPY) {
+      copy_objects(ROTATE);
+      copy_objects(ROTATE);
+      copy_objects(FLIP);
+    }
+    else {
+      rebuild_selected_array();
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;    
+      move_objects(START,0,0,0);
+      move_objects(ROTATE,0,0,0);
+      move_objects(ROTATE,0,0,0);
+      move_objects(FLIP,0,0,0);
+      move_objects(END,0,0,0);
+    } 
+    break;
+   }
+   if(key=='v' && EQUAL_MODMASK)  /* vertical flip objects around their anchor points */
+   {
+    if(xctx->ui_state & STARTMOVE) {
+      move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      move_objects(FLIP|ROTATELOCAL,0,0,0);
+    }
+    else if(xctx->ui_state & STARTCOPY) {
+      copy_objects(ROTATE|ROTATELOCAL);
+      copy_objects(ROTATE|ROTATELOCAL);
+      copy_objects(FLIP|ROTATELOCAL);
+    }
+    else {
+      rebuild_selected_array();
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      move_objects(START,0,0,0);
+      move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      move_objects(ROTATE|ROTATELOCAL,0,0,0);
+      move_objects(FLIP|ROTATELOCAL,0,0,0);
+      move_objects(END,0,0,0);
+    }
+    break;
+   }
+
    if(key=='\\' && state==0)          /* fullscreen */
    {
     
