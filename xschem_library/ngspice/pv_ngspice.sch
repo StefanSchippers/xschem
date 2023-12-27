@@ -25,33 +25,33 @@ V {}
 S {}
 E {}
 B 2 920 -580 1420 -190 {flags=graph 
-y1 = -0.115954
-y2 = 11.9983
-divy = 4
+y1 = 0
+y2 = 7
+divy = 7
 subdivy=1
 x1=0
-x2=48
+x2=79.8
 divx=8
   unitx=1
 
 
-dataset=-1
+dataset=4
 
 
 color=4
 node=i(vload)}
 B 2 920 -820 1420 -580 {flags=graph 
-y1 = -34.3253
-y2 = 449.01
+y1 = 0
+y2 = 400
 divy = 4
 subdivy=1
 x1=0
-x2=48
+x2=79.8
 divx=8
   unitx=1
 
 
-dataset=-1
+dataset=4
 color=4
 node="\\"power; i(vload) v(plus) *\\""}
 T {position the mouse close to one of the curves
@@ -67,6 +67,8 @@ T {m=@m} 495 -781.25 2 1 0.2 0.2 {
 name=Rs}
 T {@spice_get_current} 416.25 -737.5 1 0 0.2 0.2 {layer=15
 name=Rs}
+T {SUNPOWER
+MAXEON 3} -380 -510 0 0 0.4 0.4 {}
 N 640 -560 640 -500 {
 lab=minus}
 N 640 -880 640 -860 {
@@ -1113,3 +1115,22 @@ quit
 "}
 C {lab_wire.sym} 640 -770 0 0 {name=p6 sig_type=std_logic lab=ip}
 C {lab_wire.sym} 640 -640 0 0 {name=p7 sig_type=std_logic lab=im}
+C {code_shown.sym} -410 -410 0 0 {name=CONTROL_395w_voc_75.4
+spice_ignore=true
+only_toplevel=true
+value=".param isc=6.56
+.param n=104
+.param area=0.003
+.param rp=3.5
+.param rs=0.005
+.option savecurrents
+vload plus minus 0
+vsun fade 0 0
+vref minus 0 0
+.control
+save all
+dc vload 0 80 0.2 vsun 0.2 1.0 0.2
+write pv_ngspice.raw 
+quit
+.endc
+"}
