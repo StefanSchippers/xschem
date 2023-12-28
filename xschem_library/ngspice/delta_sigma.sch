@@ -189,7 +189,7 @@ xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]
 C {launcher.sym} 870 -90 0 0 {name=h1 
 descr="Netlist + Simulate
 Ctrl-Left-Click" 
-tclcommand="xschem netlist; xschem simulate"
+tclcommand="xschem netlist; simulate"
 }
 C {simulator_commands.sym} 150 -380 0 0 {name=BATCH_MODE
 simulator=ngspice
