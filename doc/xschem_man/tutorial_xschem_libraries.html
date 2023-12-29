@@ -19,7 +19,7 @@ p{padding: 15px  30px 10px;}
  <!-- slide title -->
  <h1> TUTORIAL: Manage XSCHEM design / symbol libraries </h1>
  <p>
-  There are 2 ways to describe symbols in xschem,<br>
+  There are various ways to describe symbol locations in xschem,<br>
  </p>
  <ul>
  <li>
@@ -29,6 +29,12 @@ p{padding: 15px  30px 10px;}
  <li>
   second approach: define a <kbd>XSCHEM_LIBRARY_PATH</kbd> that is a list of paths
   one or more levels above the directories containing .sym/.sch files
+ </li>
+ <li>
+  Third approach: define a <kbd>XSCHEM_LIBRARY_PATH</kbd> that is a hierarchy of paths,
+  zero, one or more levels above the directories containing .sym/.sch files.
+  If you have a directory tree where each directory level may contain .sch and .sym files you should list the deepest
+  directories first so xschem will start searching for a symbol reference in the deepest levels first.
  </li>
  </ul>
  <p>
@@ -48,6 +54,22 @@ p{padding: 15px  30px 10px;}
  </p>
 
  <p>
+  In the third approach '<kbd>npn.sym</kbd>' or some other <kbd>dir/symbol.sym</kbd> will be searched in all
+  path elements listed in <kbd>XSCHEM_LIBRARY_PATH</kbd>, by appending the symbol reference to each path element
+  until a file is found. the first match is used. This is the reason you should put the deepest directories first
+  in <kbd>XSCHEM_LIBRARY_PATH</kbd>. If <kbd>/a/b/c/dir/symbol.sym</kbd> is inserted in the design and
+  XSCHEM_LIBRARY_PATH contains 
+  the following definitions:<br>
+  <kbd>set XSCHEM_LIBRARY_PATH /a/b/c /a/b /a</kbd><br>
+  the symbol reference will be just <kbd>dir/symbol.sym</kbd>, since appending the symbol reference to the first path an
+  existing file is found.
+  If the following definition for XSCHEM_LIBRARY_PATH is given instead:<br>
+  <kbd>set XSCHEM_LIBRARY_PATH /a /a/b/ /a/b/c</kbd><br>
+  then the symbol reference will be <kbd>/b/c/dir/symbol.sym</kbd> since the first path component was found in
+  the absolute path of the inserted symbol and the only matching prefix is removed from the relative symbol reference that will 
+  be saved in the schematic.
+ </p>
+ <p>
   The first approach is preferred by pcb hobbysts, people working on
   small designs.
   the second approach is preferred for big designs where a one or more directory level
@@ -56,10 +78,18 @@ p{padding: 15px  30px 10px;}
   or '<kbd>libgroup/libname/symname.sym</kbd>' (2 level directory specification in symbol references)
   instead of just '<kbd>symname.sym</kbd>'<br>
  </p>
- <p>
-  In any case the real path of the symbol reference is obtained by prepending 
-  the XSCHEM_LIBRARY_PATH paths to the symbol reference until the resulting file is found in
-  the machine filesystem.
+ <p class="important"><strong>
+  SYMBOL LOOKUP (ie when loading a schematic):<br>
+  The absolute path of the symbol reference is obtained by appending 
+  the symbol reference to the XSCHEM_LIBRARY_PATH paths in the order they are listed until the resulting file is found in
+  the machine filesystem. The first match is used.<br>
+  SYMBOL INSERTION (ie when drawing a schematic and inserting a component):<br>
+  The relative symbol reference that is saved in the schematic file is obtained by removing the first occurrence
+  of a matching path prefix
+  from the ones listed in <kbd>XSCHEM_LIBRARY_PATH</kbd> in the order they are listed. The first matching prefix
+  is used to determine the relative symbol reference. </strong> This is the reason deepest path elements must be
+  listed first in XSCHEM_LIBRARY_PATH if you want the shortest possible symbol relative reference to saved in
+  the schematic file.
  </p>
 
  <p>
