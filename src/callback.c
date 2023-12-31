@@ -527,7 +527,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
     my_strdup2(_ALLOC_ID_, &rawfile, get_tok_value(r->prop_ptr, "rawfile", 0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
-    if(rawfile[0] && sim_type[0]) switched = extra_rawfile(2, rawfile, sim_type);
+    if(rawfile[0] && sim_type[0]) switched = extra_rawfile(2, rawfile, sim_type, -1.0, -1.0);
     my_free(_ALLOC_ID_, &rawfile);
     my_free(_ALLOC_ID_, &sim_type);
 
@@ -549,7 +549,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     xx1 = pp - delta / 2.0;
     xx2 = pp + delta / 2.0;
 
-    if(switched) extra_rawfile(5, NULL, NULL); /* switch back to previous raw file */
+    if(switched) extra_rawfile(5, NULL, NULL, -1.0, -1.0); /* switch back to previous raw file */
 
   }
   else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && !xctx->graph_left && !xctx->graph_top) {

@@ -283,9 +283,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       tclsetboolvar("live_cursor2_backannotate", 1);
       /* clear all raw files */
-      extra_rawfile(3, NULL, NULL);
+      extra_rawfile(3, NULL, NULL, -1.0, -1.0);
       free_rawfile(&xctx->raw, 1);
-      raw_read(f, &xctx->raw, "op");
+      raw_read(f, &xctx->raw, "op", -1.0, -1.0);
       if(level >= 0) {
         xctx->raw->level = level;
         my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[level]);
@@ -3360,32 +3360,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 && !strcmp(argv[2], "read")) {
-        if(argc > 4) ret = extra_rawfile(1, argv[3], argv[4]);
-        else ret = extra_rawfile(1, argv[3], NULL);
+        if(argc > 4) ret = extra_rawfile(1, argv[3], argv[4], -1.0, -1.0);
+        else ret = extra_rawfile(1, argv[3], NULL, -1.0, -1.0);
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "switch")) {
         if(argc > 4) {
-          ret = extra_rawfile(2, argv[3], argv[4]);
+          ret = extra_rawfile(2, argv[3], argv[4], -1.0, -1.0);
         } else if(argc > 3) {
-          ret = extra_rawfile(2, argv[3], NULL);
+          ret = extra_rawfile(2, argv[3], NULL, -1.0, -1.0);
         } else {
-          ret = extra_rawfile(2, NULL, NULL);
+          ret = extra_rawfile(2, NULL, NULL, -1.0, -1.0);
         }
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
-        ret = extra_rawfile(4, NULL, NULL);
+        ret = extra_rawfile(4, NULL, NULL, -1.0, -1.0);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
-        ret = extra_rawfile(5, NULL, NULL);
+        ret = extra_rawfile(5, NULL, NULL, -1.0, -1.0);
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
         if(argc > 4)  {
-          ret = extra_rawfile(3, argv[3], argv[4]);
+          ret = extra_rawfile(3, argv[3], argv[4], -1.0, -1.0);
         } else if(argc > 3)  {
-          ret = extra_rawfile(3, argv[3], NULL);
+          ret = extra_rawfile(3, argv[3], NULL, -1.0, -1.0);
         } else {
-          ret = extra_rawfile(3, NULL, NULL);
+          ret = extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else {
@@ -3399,7 +3399,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "raw_clear"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      extra_rawfile(3, NULL, NULL); /* unload additional raw files */
+      extra_rawfile(3, NULL, NULL, -1.0, -1.0); /* unload additional raw files */
       free_rawfile(&xctx->raw, 1); /* unload base (current) raw file */
       Tcl_ResetResult(interp);
     }
@@ -3499,7 +3499,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* raw_read [file] [sim]
+    /* raw_read [file] [sim] [sweep1 sweep2]
      *   If a raw file is already loaded delete from memory
      *   else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
      *   If 'sim' not specified load first section found in raw file. */
@@ -3511,19 +3511,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* 
       * if(sch_waves_loaded() >= 0) {
       *   tcleval("array unset ngspice::ngspice_data");
-      *   extra_rawfile(3, NULL, NULL);
+      *   extra_rawfile(3, NULL, NULL, -1.0, -1.0);
       *   free_rawfile(&xctx->raw, 1);
       * } else
       */
       if(argc > 2) {
+        double sweep1 = -1.0, sweep2 = -1.0;
         tcleval("array unset ngspice::ngspice_data");
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(&xctx->raw, 0);
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
-        if(argc > 3) res = raw_read(f, &xctx->raw, argv[3]);
-        else res = raw_read(f, &xctx->raw, NULL);
+        if(argc > 5) {
+          sweep1 = atof(argv[4]);
+          sweep2 = atof(argv[5]);
+        }
+        if(argc > 3) res = raw_read(f, &xctx->raw, argv[3], sweep1, sweep2);
+        else res = raw_read(f, &xctx->raw, NULL, -1.0, -1.0);
         if(sch_waves_loaded() >= 0) {
           draw();
         }
@@ -3541,13 +3546,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(&xctx->raw, 1);
       } else {
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(&xctx->raw, 0);
-        if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2]);
-        else  raw_read_from_attr(&xctx->raw, NULL);
+        if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2], -1.0, -1.0);
+        else  raw_read_from_attr(&xctx->raw, NULL, -1.0, -1.0);
         if(sch_waves_loaded() >= 0) {
           draw();
         }
@@ -4926,13 +4931,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(&xctx->raw, 1);
       } else if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));  
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(&xctx->raw, 0);
         table_read(f);
         if(sch_waves_loaded() >= 0) {

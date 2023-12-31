@@ -2077,7 +2077,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     if((i == xctx->graph_master) && custom_rawfile[0]) {
-      extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+      extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
     }
     idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
     dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
@@ -2088,7 +2088,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       my_strdup2(_ALLOC_ID_, &sim_type,
         get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"sim_type",0));
       if(custom_rawfile[0]) {
-        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
       }
     }
 
@@ -2119,7 +2119,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
 
-    if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL);
+    if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL, -1.0, -1.0);
     my_free(_ALLOC_ID_, &custom_rawfile);
     my_free(_ALLOC_ID_, &sim_type);
 
@@ -2175,7 +2175,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         char str_extra_idx[30];
 
         if(sch_waves_loaded() != -1 && custom_rawfile[0]) {
-          extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+          extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
         }
         raw = xctx->raw;
 
@@ -2194,7 +2194,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                   sim_type[0] ? sim_type : xctx->raw->sim_type);
             dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
             if(node_rawfile && node_rawfile[0]) {
-              extra_rawfile(1, node_rawfile, node_sim_type);
+              extra_rawfile(1, node_rawfile, node_sim_type, -1.0, -1.0);
               raw = xctx->raw;
             }
             my_free(_ALLOC_ID_, &node_rawfile);
@@ -2298,7 +2298,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         }
         if(save_extra_idx != -1) {
           my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
-          extra_rawfile(2, str_extra_idx, NULL);
+          extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
           raw = xctx->raw;
         }   
 
@@ -3191,7 +3191,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
   my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
   my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-    extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+    extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
   }
   raw = xctx->raw;
 
@@ -3303,7 +3303,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
   dbg(0, "closest dataset=%d\n", closest_dataset);
   if(express) my_free(_ALLOC_ID_, &express);
 
-  if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL);
+  if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL, -1.0, -1.0);
   my_free(_ALLOC_ID_, &custom_rawfile);
   my_free(_ALLOC_ID_, &sim_type);
 
@@ -3394,7 +3394,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       char str_extra_idx[30];
 
       if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type);
+        extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
       }
       raw = xctx->raw;
 
@@ -3420,7 +3420,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                 sim_type[0] ? sim_type : xctx->raw->sim_type);
           dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
           if(node_rawfile && node_rawfile[0]) {
-            extra_rawfile(1, node_rawfile, node_sim_type);
+            extra_rawfile(1, node_rawfile, node_sim_type, -1.0, -1.0);
             raw = xctx->raw;
           }
           my_free(_ALLOC_ID_, &node_rawfile);
@@ -3606,14 +3606,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       }
       if(save_extra_idx != -1) {
         my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
-        extra_rawfile(2, str_extra_idx, NULL);
+        extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
         raw = xctx->raw;
       }
 
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
     if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
     if(express) my_free(_ALLOC_ID_, &express);
-    /* if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL); */
+    /* if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL, -1.0, -1.0); */
     my_free(_ALLOC_ID_, &custom_rawfile);
     my_free(_ALLOC_ID_, &sim_type);
     my_free(_ALLOC_ID_, &node);

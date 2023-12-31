@@ -391,32 +391,62 @@ void transpose_matrix(double *a, int r, int c)
  */
 static void read_binary_block(FILE *fd, Raw *raw, int ac)
 {
-  int p, v;
+  int i, p, v;
   double *tmp;
   int offset = 0;
+  #ifdef __unix__
+    long filepos;
+  #else
+    __int3264 filepos;
+  #endif 
+  int npoints;
+
 
   if(!raw) {
     dbg(0, "read_binary_block() no raw struct allocated\n");
     return;
   }
 
+  /* read buffer */
+  tmp = my_calloc(_ALLOC_ID_, raw->nvars, (sizeof(double *) ));
+
+  /* if sweep1 and sweep2 are given calculate actual npoints that will be loaded */
+  npoints = raw->npoints[raw->datasets];
+  if(!(raw->sweep1 == raw->sweep2 && raw->sweep1 == -1.0)) {
+    double sweepvar;
+    npoints = 0;
+    filepos = xftell(fd); /* store file pointer position */
+    for(p = 0; p < raw->npoints[raw->datasets]; p++) {
+      if(fread(tmp, sizeof(double) , raw->nvars, fd) != raw->nvars) {
+         dbg(0, "Warning: binary block is not of correct size\n");
+      }
+      sweepvar = tmp[0];
+      if(sweepvar < raw->sweep1 || sweepvar >= raw->sweep2) continue;
+      else npoints++;
+    }
+    xfseek(fd, filepos, SEEK_SET); /* rewind file pointer */
+  }
   for(p = 0 ; p < raw->datasets; p++) {
     offset += raw->npoints[p];
   }
-
-  /* read buffer */
-  tmp = my_calloc(_ALLOC_ID_, raw->nvars, (sizeof(double *) ));
   /* allocate storage for binary block, add one data column for custom data plots */
   if(!raw->values) raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
   for(p = 0 ; p <= raw->nvars; p++) {
     my_realloc(_ALLOC_ID_,
-       &raw->values[p], (offset + raw->npoints[raw->datasets]) * sizeof(SPICE_DATA));
+       &raw->values[p], (offset + npoints) * sizeof(SPICE_DATA));
   }
   /* read binary block */
-  for(p = 0; p < raw->npoints[raw->datasets]; p++) {
+  p = 0;
+  for(i = 0; i < raw->npoints[raw->datasets]; i++) {
     if(fread(tmp, sizeof(double) , raw->nvars, fd) != raw->nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
+
+    if(!(raw->sweep1 == raw->sweep2 && raw->sweep1 == -1.0)) {
+      double sweepvar = tmp[0];
+      if(sweepvar < raw->sweep1 || sweepvar >= raw->sweep2) continue;
+    }
+
     /* assign to xschem struct, memory aligned per variable, for cache locality */
     if(ac) {
       for(v = 0; v < raw->nvars; v += 2) { /*AC analysis: calculate magnitude */
@@ -436,7 +466,9 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
     else for(v = 0; v < raw->nvars; v++) {
       raw->values[v][offset + p] = (SPICE_DATA)tmp[v];
     }
+    p++;
   }
+  raw->npoints[raw->datasets] = npoints; /* if sweeep1 and sweep2 are given less points are read */
   my_free(_ALLOC_ID_, &tmp);
 }
 
@@ -492,7 +524,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
              "Use binary format in ngspice (set filetype=binary)\n");
       tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)}");
-      extra_rawfile(3, NULL, NULL);
+      extra_rawfile(3, NULL, NULL, -1.0, -1.0);
       free_rawfile(rawptr, 0);
       exit_status = 0;
       goto read_dataset_done;
@@ -563,7 +595,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "No. of Data Rows : %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -592,7 +624,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
 
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -605,7 +637,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "No. Points: %d", &npoints);
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -628,7 +660,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
-        extra_rawfile(3, NULL, NULL);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         free_rawfile(rawptr, 0);
         exit_status = 0;
         goto read_dataset_done;
@@ -738,7 +770,7 @@ char *base64_from_file(const char *f, size_t *length)
   return b64s;
 }
 
-int raw_read_from_attr(Raw **rawptr, const char *type)
+int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2)
 {
   int res = 0;
   unsigned char *s;
@@ -767,7 +799,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type)
         fwrite(s, decoded_length, 1, fd);
         fclose(fd);
         my_free(_ALLOC_ID_, &s);
-        res = raw_read(tmp_filename, rawptr, type);
+        res = raw_read(tmp_filename, rawptr, type, sweep1, sweep2);
         unlink(tmp_filename);
       } else {
         dbg(0, "read_rawfile_from_attr(): failed to open file %s for reading\n", tmp_filename);
@@ -778,7 +810,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type)
 }
 
 /* read a ngspice raw file (with data portion in binary format) */
-int raw_read(const char *f, Raw **rawptr, const char *type)
+int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2)
 {
   int res = 0;
   FILE *fd;
@@ -797,6 +829,8 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
   raw = *rawptr;
   raw->level = -1; 
   raw->annot_p = -1;
+  raw->sweep1 = sweep1;
+  raw->sweep2 = sweep2;
   raw->annot_sweep_idx = -1;
 
   int_hash_init(&raw->table, HASHSIZE);
@@ -844,7 +878,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type)
  * what == 5: switch back to previous
  * return 1 if sucessfull, 0 otherwise
  */
-int extra_rawfile(int what, const char *file, const char *type)
+int extra_rawfile(int what, const char *file, const char *type, double sweep1, double sweep2)
 {
   int i;
   int ret = 1;
@@ -872,7 +906,7 @@ int extra_rawfile(int what, const char *file, const char *type)
       Raw *save;
       save = xctx->raw;
       xctx->raw = NULL;
-      read_ret = raw_read(f, &xctx->raw, type);
+      read_ret = raw_read(f, &xctx->raw, type, sweep1, sweep2);
       if(read_ret) {
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;

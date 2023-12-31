@@ -782,6 +782,7 @@ typedef struct {
    * holds the name of the top schematic from which the raw file was loaded */
   char *schname;
   int level;  /* hierarchy level where raw file has been read */
+  double sweep1, sweep2;
 } Raw;
 
 
@@ -1219,7 +1220,7 @@ extern int filter_data(const char *din, const size_t ilen,
            char **dout, size_t *olen, const char *cmd);
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
-extern int raw_read_from_attr(Raw **rawptr, const char *type);
+extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
@@ -1234,8 +1235,8 @@ extern unsigned char *ascii85_encode(const unsigned char *data, const size_t inp
 extern int get_raw_index(const char *node);
 extern void free_rawfile(Raw **rawptr, int dr);
 extern int update_op();
-extern int extra_rawfile(int what, const char *f, const char *type);
-extern int raw_read(const char *f, Raw **rawptr, const char *type);
+extern int extra_rawfile(int what, const char *f, const char *type, double sweep1, double sweep2);
+extern int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok);

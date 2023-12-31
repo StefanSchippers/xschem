@@ -303,7 +303,7 @@ tclcommand="xschem annotate_op $\{netlist_dir\}/cmos_example_ngspice.raw"
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/cmos_example_ngspice.raw"}
-C {ngspice_get_value.sym} 620 -160 0 0 {name=r5 node=i(@$\{path\}m1[id])
+C {ngspice_get_value.sym} 610 -180 0 0 {name=r5 node=i(@$\{path\}m1[id])
 descr="I="}
 C {launcher.sym} 475 -695 0 0 {name=h3 
 descr="Load NGSPICE waveforms (ctrl-left-click)" 
@@ -406,3 +406,9 @@ xschem raw switch; xschem redraw"
 }
 C {ngspice_get_value.sym} 210 -200 0 1 {name=r1 node=i(@$\{path\}m3[id])
 descr="I="}
+C {ngspice_get_value.sym} 470 -230 0 1 {name=r2 node=@$\{path\}m4[gm]
+descr="gm="}
+C {ngspice_get_value.sym} 720 -230 0 0 {name=r3 node=@$\{path\}m5[gm]
+descr="gm="}
+C {ngspice_get_value.sym} 610 -130 0 0 {name=r4 node=@$\{path\}m1[gm]
+descr="gm="}
