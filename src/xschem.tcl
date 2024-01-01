@@ -1453,23 +1453,25 @@ Foreground (Fg) checkbutton tells xschem to wait for child process to finish.
 Status checkbutton tells xschem to report a status dialog (stdout, stderr,
 exit status) when process finishes.
 Any changes made in the command or tool name entries will be saved in 
-~/.xschem/simrc when 'Save Configuration to file' button is pressed.
-If 'Accept and Close' is pressed then the changes are kept in memory and dialog
-is closed without writing to a file, if xschem is restarted changes will be lost.
+~/.xschem/simrc when 'OK and Close' button or 'Apply Not Close' button is pressed.
 If no ~/.xschem/simrc is present then a minimal default setup is presented.
 To reset to default use the corresponding button or just delete the ~/.xschem/simrc
 file manually.
     } ro
   }
-  button .sim.bottom.ok  -text {Save Configuration to file} -command "simconf_saveconf $scrollframe"
+  #If 'Accept and Close' is pressed then the changes are kept in memory and dialog
+  #is closed without writing to a file, if xschem is restarted changes will be lost.
+  #button .sim.bottom.ok  -text {Save Configuration to file} -command "simconf_saveconf $scrollframe"
+  button .sim.bottom.ok  -text {Apply (Not Close)} -command "simconf_saveconf $scrollframe"
   button .sim.bottom.reset -text {Reset to default} -command {
     simconf_reset
   }
-  button .sim.bottom.close -text {Accept and Close} -command {
+  button .sim.bottom.close -text {OK and Close} -command "
+    simconf_saveconf $scrollframe 
     set_sim_defaults
     destroy .sim
     xschem set semaphore [expr {[xschem get semaphore] -1}]
-  }
+  "
   wm protocol .sim WM_DELETE_WINDOW {
     set_sim_defaults 
     destroy .sim
