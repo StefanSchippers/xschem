@@ -1446,26 +1446,36 @@ XSCHEM before sending commands to the shell:
  - d: simulation directory (example: /home/schippes/.xschem/simulations)
  - terminal: terminal to be used for applications that need to be
    executed in terminal (example: $terminal -e ngspice -i "$N" -a)
+
 If for a given tool there are multiple rows then the radiobutton
 tells which one will be called by xschem.
 Variables should be used with the usual substitution character $: $n, $N, etc.
 Foreground (Fg) checkbutton tells xschem to wait for child process to finish.
 Status checkbutton tells xschem to report a status dialog (stdout, stderr,
 exit status) when process finishes.
-Any changes made in the command or tool name entries will be saved in 
-~/.xschem/simrc when 'Save Configuration to file' button is pressed.
-If 'Accept and Close' is pressed then the changes are kept in memory and dialog
-is closed without writing to a file, if xschem is restarted changes will be lost.
+
+If 'Accept, Save and Close' is pressed then changes made in the dialog box
+entries will be saved in ~/.xschem/simrc, changes will be persistent.
+
+If 'Accept, no Save and Close' is pressed then the changes are kept in
+memory and dialog is closed without writing to a file,
+if xschem is restarted changes will be lost.
+
 If no ~/.xschem/simrc is present then a minimal default setup is presented.
-To reset to default use the corresponding button or just delete the ~/.xschem/simrc
-file manually.
+To reset to default use the corresponding button or just delete the
+~/.xschem/simrc file manually.
     } ro
   }
-  button .sim.bottom.ok  -text {Save Configuration to file} -command "simconf_saveconf $scrollframe"
+  button .sim.bottom.ok  -text {Accept, Save and Close} -command "
+    set_sim_defaults
+    simconf_saveconf $scrollframe
+    destroy .sim
+    xschem set semaphore [expr {[xschem get semaphore] -1}]
+  "
   button .sim.bottom.reset -text {Reset to default} -command {
     simconf_reset
   }
-  button .sim.bottom.close -text {Accept and Close} -command {
+  button .sim.bottom.close -text {Accept, no Save and Close} -command {
     set_sim_defaults
     destroy .sim
     xschem set semaphore [expr {[xschem get semaphore] -1}]
