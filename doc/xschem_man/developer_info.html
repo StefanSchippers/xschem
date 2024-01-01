@@ -1080,9 +1080,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Debug: wrapper to propagate_hilights() function </pre>
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
-   <li><kbd>       raw what [rawfile type]</kbd></li><pre>
+   <li><kbd>       raw what [rawfile type] [sweep1 sweep2]</kbd></li><pre>
        what = read | clear | info | switch | switch_back
-   Load /clear / switch additional raw files </pre>
+   Load / clear / switch additional raw files
+   if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
+   sweep1 &lt;= sweep_var &lt; sweep2 </pre>
    <li><kbd>       raw_clear </kbd></li><pre>
    Unload all simulation raw files </pre>
    <li><kbd>       raw_query loaded|value|index|values|datasets|vars|list </kbd></li><pre>
@@ -1101,10 +1103,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    values of 'node' for dataset 'dset' (default dset=0)
    xschem raw_query points [dset] : print simulation points for
    dataset 'dset' (default: all dataset points combined)</pre>
-   <li><kbd>       raw_read [file] [sim]</kbd></li><pre>
+   <li><kbd>       raw_read [file] [sim] [sweep1 sweep2]</kbd></li><pre>
    If a raw file is already loaded delete from memory
-   else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
-   If 'sim' not specified load first section found in raw file. </pre>
+   then load specified file and analysis 'sim' (dc, ac, tran, op, ...)
+   If 'sim' not specified load first section found in raw file.
+   if sweep1, sweep2 interval is given load only the interval
+   sweep1 &lt;= sweep_var &lt; sweep2 </pre>
    <li><kbd>       raw_read_from_attr [sim]</kbd></li><pre>
    If a simulation raw file is already loaded delete from memory
    else read section 'sim' (tran, dc, ac, op, ...)
@@ -1430,6 +1434,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

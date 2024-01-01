@@ -3351,17 +3351,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'r': /*----------------------------------------------*/
-    /* raw what [rawfile type]
+    /* raw what [rawfile type] [sweep1 sweep2]
      * what = read | clear | info | switch | switch_back
-     *   Load /clear / switch additional raw files */
+     *   Load / clear / switch additional raw files
+     *   if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
+     *   sweep1 <= sweep_var < sweep2 */
     if(!strcmp(argv[1], "raw"))
     {
+      double sweep1 = -1.0, sweep2 = -1.0;
       int err = 0;
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 && !strcmp(argv[2], "read")) {
-        if(argc > 4) ret = extra_rawfile(1, argv[3], argv[4], -1.0, -1.0);
-        else ret = extra_rawfile(1, argv[3], NULL, -1.0, -1.0);
+        if(argc > 6) {
+          sweep1 = atof_spice(argv[5]);
+          sweep2 = atof_spice(argv[6]);
+        }
+        if(argc > 4) ret = extra_rawfile(1, argv[3], argv[4], sweep1, sweep2);
+        else ret = extra_rawfile(1, argv[3], NULL, sweep1, sweep2);
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "switch")) {
         if(argc > 4) {
@@ -3501,8 +3508,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* raw_read [file] [sim] [sweep1 sweep2]
      *   If a raw file is already loaded delete from memory
-     *   else load specified file and analysis 'sim' (dc, ac, tran, op, ...)
-     *   If 'sim' not specified load first section found in raw file. */
+     *   then load specified file and analysis 'sim' (dc, ac, tran, op, ...)
+     *   If 'sim' not specified load first section found in raw file.
+     *   if sweep1, sweep2 interval is given load only the interval
+     *   sweep1 <= sweep_var < sweep2 */
     else if(!strcmp(argv[1], "raw_read"))
     {
       char f[PATH_MAX + 100];
@@ -3524,8 +3533,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
         if(argc > 5) {
-          sweep1 = atof(argv[4]);
-          sweep2 = atof(argv[5]);
+          sweep1 = atof_spice(argv[4]);
+          sweep2 = atof_spice(argv[5]);
         }
         if(argc > 3) res = raw_read(f, &xctx->raw, argv[3], sweep1, sweep2);
         else res = raw_read(f, &xctx->raw, NULL, -1.0, -1.0);
