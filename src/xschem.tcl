@@ -659,7 +659,7 @@ proc ev0 {args} {
 # does netlist post processing, called from global_(spice|vhdl|verilog)_netlist()
 proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist netlist_dir simulate_bg
- global verilog_2001 debug_var OS has_x verilog_bitblas
+ global verilog_2001 debug_var OS has_x verilog_bitblast
 
  # if waves are loaded turn Waves button to yellow to indicate old waves are shown
  set win_path [xschem get current_win_path]
