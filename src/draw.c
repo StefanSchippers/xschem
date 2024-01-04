@@ -2792,12 +2792,20 @@ static void draw_cursor_difference(Graph_ctx *gr)
   double bb = W_X(xctx->graph_cursor2_x);
   double b = CLIP(bb, gr->x1, gr->x2);
   double diff = fabs(b - a);
-  double diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
+  double diffw;
   double xx = ( a + b ) * 0.5;
   double yy = gr->ry2 - 1;
   double dtmp;
   double yline;
-  if(gr->logx) return;
+
+
+  /* if(gr->logx) return; */
+  if(gr->logx) {
+    diffw = fabs(pow(10, xctx->graph_cursor2_x) - pow(10, xctx->graph_cursor1_x));
+  } else {
+    diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
+  }
+
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
   else
