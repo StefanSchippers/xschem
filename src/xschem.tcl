@@ -5611,6 +5611,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   pack .dialog.f2 -expand yes -fill x
   bind .dialog <Escape> {.dialog.f2.cancel invoke}
   bind .dialog <Return> {.dialog.f2.ok invoke}
+  tkwait visibility .dialog
   grab set .dialog
   focus .dialog.f1.e
   tkwait window .dialog

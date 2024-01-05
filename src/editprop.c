@@ -440,6 +440,41 @@ double atof_spice(const char *s)
   return a;
 }
 
+
+/* same as atof_spice, but recognizes 'M' ae Mega, and 'm' as Milli */
+double atof_eng(const char *s)
+{
+  int n;
+  double a = 0.0, mul=1.0;
+  char suffix[100]={0};
+  const char *p;
+
+  if(!s) return 0.0;
+  n = sscanf(s, "%lf%s", &a, suffix);
+  if(n == 0) {
+    return 0.0;
+  } else if(n == 1) {
+    mul = 1.0;
+  } else {
+    p = strpbrk(suffix, "TGMKUNPFAtgmkunpfa");
+    if(p != suffix ) mul = 1.0;
+    else if(tolower(*p) == 't') mul=1e12;
+    else if(tolower(*p) == 'g') mul=1e9;
+    else if(*p == 'M') mul=1e6;
+    else if(*p == 'm') mul=1e-3;
+    else if(tolower(*p) == 'k') mul=1e3;
+    else if(tolower(*p) == 'u') mul=1e-6;
+    else if(tolower(*p) == 'n') mul=1e-9;
+    else if(tolower(*p) == 'p') mul=1e-12;
+    else if(tolower(*p) == 'f') mul=1e-15;
+    else if(tolower(*p) == 'a') mul=1e-18;
+    else mul = 1.0;
+    a *= mul;
+  }
+  return a;
+}
+
+
 char *my_itoa(int i)
 {
   static char s[30];

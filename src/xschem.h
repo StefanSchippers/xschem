@@ -1589,6 +1589,7 @@ extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
 extern char *my_itoa(int i);
 extern double atof_spice(const char *s);
+extern double atof_eng(const char *s); /* same as atof_spice, but recognizes 'M' as Mega and 'm' as Milli */
 extern char *dtoa(double i);
 extern char *dtoa_eng(double i);
 extern char *dtoa_prec(double i);

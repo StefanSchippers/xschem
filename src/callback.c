@@ -414,6 +414,32 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           xctx->graph_flags |= 32; /* Start move cursor2 */
         }
       }
+      else if(event == ButtonPress && button == Button3) {
+        /* Numerically set cursor position */
+        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+          if(gr->logx) {
+            double pos = pow(xctx->graph_cursor1_x, 10); 
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(pos), NULL);
+            pos = mylog10(atof_eng(tclresult()));
+            tclvareval("xschem set cursor1_x ", dtoa(pos), NULL);
+          } else {
+            tclvareval("input_line {Pos:} {xschem set cursor1_x} ", dtoa_eng(xctx->graph_cursor1_x), NULL);
+          }
+           
+          redraw_all_at_end = 1;
+        }
+        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+          if(gr->logx) {
+            double pos = pow(xctx->graph_cursor2_x, 10); 
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(pos), NULL);
+            pos = mylog10(atof_eng(tclresult()));
+            tclvareval("xschem set cursor2_x ", dtoa(pos), NULL);
+          } else {
+            tclvareval("input_line {Pos:} {xschem set cursor2_x} ", dtoa_eng(xctx->graph_cursor2_x), NULL);
+          }
+          redraw_all_at_end = 1;
+        }
+      }
       else if(event == -3 && button == Button1) {
         if(!edit_wave_attributes(1, i, gr)) {
           tclvareval("graph_edit_properties ", my_itoa(i), NULL);
