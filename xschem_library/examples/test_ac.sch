@@ -53,7 +53,7 @@ y2=180
 ypos1=0
 ypos2=2
 
-subdivy=1
+
 unity=1
 x1=3
 x2=10
@@ -64,13 +64,14 @@ node="\\"ph diffout @ 1uA; ph(diffout)%0\\"
 \\"ph diffout @ 100uA; ph(diffout)%2\\""
 color="6 4 7"
 
-unitx=M
+unitx=1
 divx=10
 
 divy=5
 logx=1
 rawfile=$netlist_dir/test_ac.raw
-sim_type=ac}
+sim_type=ac
+subdivy=4}
 B 2 1430 -620 1567 -560 {flags=image
 alpha=0.6
 filter="gm convert png:- -transparent black png:-"

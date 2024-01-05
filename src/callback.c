@@ -427,7 +427,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else {
             tclvareval("input_line {Pos:} {xschem set cursor1_x} ", dtoa_eng(xctx->graph_cursor1_x), NULL);
           }
-           
+          event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           redraw_all_at_end = 1;
         }
         if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
@@ -441,6 +441,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else {
             tclvareval("input_line {Pos:} {xschem set cursor2_x} ", dtoa_eng(xctx->graph_cursor2_x), NULL);
           }
+          event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           redraw_all_at_end = 1;
         }
       }
@@ -539,7 +540,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       !xctx->graph_top /* && !xctx->graph_bottom */
     ) {
     xctx->ui_state |= GRAPHPAN;
-    dbg(1, "save mouse\n");
     if(!xctx->graph_left) xctx->mx_double_save = xctx->mousex_snap;
     if(xctx->graph_left) xctx->my_double_save = xctx->mousey_snap;
   }
@@ -1004,7 +1004,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     } /* if( event == KeyPress || event == ButtonPress || event == MotionNotify ) */
-    else if( event == ButtonRelease) {
+    else if( event == ButtonRelease) { 
       if(button != Button3) {
         xctx->ui_state &= ~GRAPHPAN;
         xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
@@ -1029,6 +1029,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
+          } else if(i == xctx->graph_master) {
+            clear_graphpan_at_end = 1;
           }
         }
       }
