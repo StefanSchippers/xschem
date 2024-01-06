@@ -3481,7 +3481,13 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       set file_dialog_globfilter  *[.load.buttons_bot.entry get]*
       if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
       setglob $file_dialog_dir1
-      .load.l.paneright.list yview moveto 1.0
+      if {[.load.buttons_bot.entry get] ne {}} {
+        .load.l.paneright.list yview moveto 1.0
+      } else {
+        if { [info exists file_dialog_yview]} {
+         .load.l.paneright.list yview moveto  [lindex $file_dialog_yview 0]
+        }
+      }
     }
     # set to something different to any file to force a new placement in file_dialog_place_symbol
     set file_dialog_retval {   }

@@ -39,13 +39,14 @@ subdivx=1
 node="out
 trig
 \\"2/3 Vcc; ctrl\\"
-\\"1/3 Vcc; x1.18\\""
-color="4 15 7 12"
+\\"1/3 Vcc; x1.18\\"
+dis"
+color="4 15 7 12 9"
 dataset=-1
 unitx=1
 logx=0
 logy=0
-}
+hilight_wave=-1}
 T {NE555 TIMER IC EXAMPLE} 360 -490 0 0 0.4 0.4 {}
 N 130 -150 200 -150 {lab=TRIG}
 N 570 -130 570 -100 {
@@ -69,7 +70,8 @@ vvss vss 0 dc 0
   write test_ne555.raw
 .endc
 "}
-C {ne555.sym} 490 -220 0 0 {name=x1}
+C {ne555.sym} 490 -220 0 0 {name=x1
+tclcommand="textwindow $netlist_dir/model_test_ne555.txt"}
 C {res.sym} 130 -180 0 0 {name=r3 m=1 value=2k}
 C {capa.sym} 130 -120 0 0 {name=c6 m=1 value=2n}
 C {vsource.sym} 130 -360 0 1 {name=v1 value=5}

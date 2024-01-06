@@ -1824,6 +1824,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
+ char *result = NULL;
  const char *tclres, *fmt_attr = NULL;
 
  fmt_attr = xctx->format ? xctx->format : "format";
@@ -1901,7 +1902,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
           str_ptr= expandlabel(name, &multip);
-          fprintf(fd, "%s ", str_ptr);
+          /* fprintf(fd, "%s ", str_ptr); */
+          my_mstrcat(_ALLOC_ID_, &result, str_ptr, " ", NULL);
         }
       }
     }
@@ -1914,7 +1916,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
      if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
-       fprintf(fd, "%s ", expandlabel(token+2, &multip));
+       /* fprintf(fd, "%s ", expandlabel(token+2, &multip)); */
+       my_mstrcat(_ALLOC_ID_, &result, expandlabel(token+2, &multip), " ", NULL);
      }
    }
    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
@@ -1926,7 +1929,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      if(pin_number >= 0 && pin_number < no_of_pins) {
        if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
-       fprintf(fd, "%s ",  expandlabel(str_ptr, &multip));
+       /* fprintf(fd, "%s ",  expandlabel(str_ptr, &multip)); */
+       my_mstrcat(_ALLOC_ID_, &result, expandlabel(str_ptr, &multip), " ", NULL);
        }
      }
      my_free(_ALLOC_ID_, &pin_attr);
@@ -1939,7 +1943,8 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
      /* if token not followed by white space it is not an extra node */
      if( ( (space  || c == '%' || c == '@') && !escape ) ) {
-       fprintf(fd, "%s ",  token + 1);
+       /* fprintf(fd, "%s ",  token + 1); */
+       my_mstrcat(_ALLOC_ID_, &result, token + 1, " ", NULL);
      }
    }
    /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */ 
@@ -1952,8 +1957,13 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
   }
   if(c=='\0')
   {
+   my_mstrcat(_ALLOC_ID_, &result, "\n", NULL);
    break ;
   }
+ }
+ if(result) {
+   fprintf(fd, "%s", result);
+   my_free(_ALLOC_ID_, &result);
  }
  my_free(_ALLOC_ID_, &format1);
  my_free(_ALLOC_ID_, &format);
