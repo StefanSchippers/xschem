@@ -1812,6 +1812,21 @@ void print_tedax_subckt(FILE *fd, int symbol)
   }
 }
 
+static int has_included_subcircuit(int symbol, char **result)
+{
+
+  char *spice_sym_def = NULL;
+  int ret = 0;
+
+  my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
+  if(xctx->tok_size) {
+    tclvareval("has_included_subcircuit {", spice_sym_def, "}", NULL);
+    my_mstrcat(_ALLOC_ID_, result, tclresult(), NULL);
+    ret = 1;
+  }
+  my_free(_ALLOC_ID_, &spice_sym_def);
+  return ret;
+}
 
 void print_spice_subckt_nodes(FILE *fd, int symbol)
 {
@@ -1894,20 +1909,20 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      break ;
    }
    else if(strcmp(token, "@pinlist")==0) {
-    Int_hashtable table = {NULL, 0};
-    int_hash_init(&table, 37);
-    for(i=0;i<no_of_pins; ++i)
-    {
-      if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
-        const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
-        if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
-          str_ptr= expandlabel(name, &multip);
-          /* fprintf(fd, "%s ", str_ptr); */
-          my_mstrcat(_ALLOC_ID_, &result, str_ptr, " ", NULL);
-        }
-      }
-    }
-    int_hash_free(&table);
+     Int_hashtable table = {NULL, 0};
+     int_hash_init(&table, 37);
+     for(i=0;i<no_of_pins; ++i)
+     {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
+         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+           str_ptr= expandlabel(name, &multip);
+           /* fprintf(fd, "%s ", str_ptr); */
+           my_mstrcat(_ALLOC_ID_, &result, str_ptr, " ", NULL);
+         }
+       }
+     }
+     int_hash_free(&table);
    }
    else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      char *prop=NULL;
@@ -2192,25 +2207,27 @@ int print_spice_element(FILE *fd, int inst)
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
                                            /* print multiplicity */
       {                                    /* and node number: m1 n1 m2 n2 .... */
-        Int_hashtable table = {NULL, 0};
-        int_hash_init(&table, 37);
-        for(i=0;i<no_of_pins; ++i)
-        {
-          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-          int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
-          const char *name = get_tok_value(prop, "name", 0);
-          if(!spice_ignore) {
-            if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
-              str_ptr =  net_name(inst, i, &multip, 0, 1);
-
-              tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
-                                            * so 1-char writes to result do not need reallocs */
-              STR_ALLOC(&result, tmp + result_pos, &size);
-              result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
+        if(1 || !has_included_subcircuit(xctx->inst[inst].ptr, &result)) {
+          Int_hashtable table = {NULL, 0};
+          int_hash_init(&table, 37);
+          for(i=0;i<no_of_pins; ++i)
+          {
+            char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+            int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+            const char *name = get_tok_value(prop, "name", 0);
+            if(!spice_ignore) {
+              if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+                str_ptr =  net_name(inst, i, &multip, 0, 1);
+  
+                tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+                                              * so 1-char writes to result do not need reallocs */
+                STR_ALLOC(&result, tmp + result_pos, &size);
+                result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
+              }
             }
           }
+          int_hash_free(&table);
         }
-        int_hash_free(&table);
       }
       else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
         for(i=0;i<no_of_pins; ++i) {
@@ -2273,10 +2290,9 @@ int print_spice_element(FILE *fd, int inst)
             }
             my_free(_ALLOC_ID_, &tmpstr);
           }
-          tmp=strlen(value);
+          tmp=strlen(value) + 100;
           STR_ALLOC(&result, tmp + result_pos, &size);
-          memcpy(result+result_pos, value, tmp+1);
-          result_pos+=tmp;
+          result_pos += my_snprintf(result + result_pos, tmp, "%s", value);
           my_free(_ALLOC_ID_, &pin_attr_value);
         }
         else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {

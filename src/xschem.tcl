@@ -653,7 +653,14 @@ proc ev0 {args} {
     return 0
   }
 } 
- 
+
+proc has_included_subcircuit {spice_sym_def} {
+  regsub -all {\n\+} $spice_sym_def { } spice_sym_def
+  if {[regexp -nocase {^\.include } $spice_sym_def]} {
+    set filename [lindex $spice_sym_def 1]
+  }
+  return "---- $filename ----"
+} 
 
 # should not be called directly by user 
 # does netlist post processing, called from global_(spice|vhdl|verilog)_netlist()
