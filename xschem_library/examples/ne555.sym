@@ -22,8 +22,15 @@ v {xschem version=3.4.5 file_version=1.2
 G {}
 K {type=subcircuit
 xformat="@name @pinlist @symname"
+
 format="@name @@GND @@TRIG @@OUT @@RESETB @@CTRL @@THRES @@DIS @@VCC @symname"
-spice_sym_def=".include model_test_ne555.txt"
+
+desc="Following format string will get port order from
+      included .subckt file. In this case will fail because 
+      .subckt uses different node names"
+xformat="@name @pinlist @symname"
+
+spice_sym_def="tcleval(.include $netlist_dir/model_test_ne555.txt)"
 template="name=x1"
 
 }

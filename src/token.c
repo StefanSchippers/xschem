@@ -1812,17 +1812,57 @@ void print_tedax_subckt(FILE *fd, int symbol)
   }
 }
 
-static int has_included_subcircuit(int symbol, char **result)
+/* This function is used to generate the @pinlist replacement getting port order
+ * from the spice_sym_def attribute (either directly or by loading the provided .include file), 
+ * checking with the corresponding symbol pin name and getting the net name attached to it.
+ * Any name mismatch is reported and in this case the function does nothing. The default xschem
+ * symbol port ordering will be used. */
+static int has_included_subcircuit(int inst, int symbol, char **result)
 {
-
   char *spice_sym_def = NULL;
   int ret = 0;
 
   my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
   if(xctx->tok_size) {
     tclvareval("has_included_subcircuit {", spice_sym_def, "}", NULL);
-    my_mstrcat(_ALLOC_ID_, result, tclresult(), NULL);
-    ret = 1;
+    if(tclresult()[0]) {
+      char *pinlist = NULL;
+      char *pin, *save;
+      char *pinlist_ptr;
+      const char *net;
+      int i, no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER], multip; 
+      int symbol_pins = 0;
+      int instance_pins = 0;
+
+      my_strdup2(_ALLOC_ID_, &pinlist, tclresult());
+      dbg(1, "included subcircuit: pinlist=%s\n", pinlist);
+      pinlist_ptr = pinlist;
+      while( (pin = my_strtok_r(pinlist_ptr, " ", "", 0, &save)) ) {
+        instance_pins++;
+        for(i = 0;i < no_of_pins; ++i) {
+          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+          int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+          const char *name = get_tok_value(prop, "name", 0);
+
+          if(!spice_ignore) {
+            if(!strcmp(pin, name)) {
+              symbol_pins++;
+              net =  net_name(inst, i, &multip, 0, 1);
+              my_mstrcat(_ALLOC_ID_, result, "?", my_itoa(multip), " ", net, " ", NULL);
+            }
+          }
+        }
+        pinlist_ptr = NULL;
+      }
+      if(instance_pins == symbol_pins) ret = 1;
+      else {
+        dbg(0, "has_included_subcircuit(): symbol and .subckt pins do not match. Discard .subckt port order\n");
+        if(has_x)
+           tcleval("alert_ {has_included_subcircuit(): "
+                   "symbol and .subckt pins do not match. Discard .subckt port order}");
+      }
+      my_free(_ALLOC_ID_, &pinlist);
+    }
   }
   my_free(_ALLOC_ID_, &spice_sym_def);
   return ret;
@@ -1988,7 +2028,6 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
 int print_spice_element(FILE *fd, int inst)
 {
   int i=0, multip, itmp;
-  size_t tmp;
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
@@ -1999,7 +2038,6 @@ int print_spice_element(FILE *fd, int inst)
   int escape=0;
   int no_of_pins=0;
   char *result = NULL;
-  size_t result_pos = 0;
   size_t size = 0;
   char *spiceprefixtag = NULL; 
   const char *fmt_attr = NULL;
@@ -2038,7 +2076,6 @@ int print_spice_element(FILE *fd, int inst)
   while(1)
   {
     /* always make room for some characters so the single char writes to result do not need reallocs */
-    STR_ALLOC(&result, 100 + result_pos, &size);
     c=*s++;
     if(c=='\\') {
       escape=1;
@@ -2104,10 +2141,8 @@ int print_spice_element(FILE *fd, int inst)
       if(!token_exists && token[0] =='%') {
 
 
-        tmp = strlen(token + 1) +100 ; /* always make room for some extra chars 
-                                        * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", token + 1);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", token + 1); */
+        my_mstrcat(_ALLOC_ID_, &result, token + 1, NULL);
         /* fputs(token + 1, fd); */
       } else if (value && value[0]!='\0') {
          /* instance names (name) and node labels (lab) go thru the expandlabel function. */
@@ -2115,73 +2150,57 @@ int print_spice_element(FILE *fd, int inst)
 
         if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
               && ((lab = expandlabel(value, &itmp)) != NULL)) {
-          tmp = strlen(lab) +100 ; /* always make room for some extra chars 
-                                    * so 1-char writes to result do not need reallocs */
-          STR_ALLOC(&result, tmp + result_pos, &size);
-          result_pos += my_snprintf(result + result_pos, tmp, "%s", lab);
+          /* result_pos += my_snprintf(result + result_pos, tmp, "%s", lab); */
+          my_mstrcat(_ALLOC_ID_, &result, lab, NULL);
           /* fputs(lab,fd); */
 
 
  
         } else { 
 
-          tmp = strlen(value) +100 ; /* always make room for some extra chars 
-                                      * so 1-char writes to result do not need reallocs */
-          STR_ALLOC(&result, tmp + result_pos, &size);
-          result_pos += my_snprintf(result + result_pos, tmp, "%s", value);
+          /* result_pos += my_snprintf(result + result_pos, tmp, "%s", value); */
+          my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           /* fputs(value,fd); */
         }
       }
       else if (strcmp(token,"@path")==0) /* of course symname must not be present in attributes */
       {
         const char *s = xctx->sch_path[xctx->currsch] + 1;
-        tmp = strlen(s) +100 ; /* always make room for some extra chars 
-                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", s); */
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         /* fputs(s,fd); */
       }
       else if(strcmp(token,"@symref")==0) 
       {
         const char *s = get_sym_name(inst, 9999, 1);
-        tmp = strlen(s) +100 ; /* always make room for some extra chars 
-                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", s); */
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
       }
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0)));
-        tmp = strlen(s) +100 ; /* always make room for some extra chars 
-                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", s); */
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         /* fputs(s,fd); */
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname must not be present in attributes */
       {
         const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1)));
-        tmp = strlen(s) +100 ; /* always make room for some extra chars 
-                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", s);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", s); */
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         /* fputs(s,fd); */
       }
       else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
       {
         const char *topsch;
         topsch = get_trailing_path(xctx->sch[0], 0, 1);
-        tmp = strlen(topsch) + 100 ; /* always make room for some extra chars 
-                                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", topsch);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", topsch); */
+        my_mstrcat(_ALLOC_ID_, &result, topsch, NULL);
       }
       else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present in attributes */
       {
-        tmp = strlen(xctx->current_name) +100 ; /* always make room for some extra chars 
-                                                * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", xctx->current_name);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", xctx->current_name); */
+        my_mstrcat(_ALLOC_ID_, &result, xctx->current_name, NULL);
         /* fputs(xctx->current_name, fd); */
       }
       else if(strcmp(token,"@savecurrent")==0)
@@ -2191,23 +2210,20 @@ int print_spice_element(FILE *fd, int inst)
         const char *sc = get_tok_value(xctx->inst[inst].prop_ptr, "savecurrent", 0);
         if(!sc[0]) sc = get_tok_value(template, "savecurrent", 0);
         if(!strboolcmp(sc , "true")) {
-          tmp = strlen(instname) + 25;
-          STR_ALLOC(&result, tmp + result_pos, &size);
-          result_pos += my_snprintf(result + result_pos, tmp, "\n.save I( ?1 %s )", instname);
+          /* result_pos += my_snprintf(result + result_pos, tmp, "\n.save I( ?1 %s )", instname); */
+          my_mstrcat(_ALLOC_ID_, &result, "\n.save I( ?1 ", instname, " )", NULL);
         }
       }
       else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
       {
         const char *schname = get_cell(xctx->current_name, 0);
-        tmp = strlen(schname) +100 ; /* always make room for some extra chars 
-                                      * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", schname);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", schname); */
+        my_mstrcat(_ALLOC_ID_, &result, schname, NULL);
       }
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
                                            /* print multiplicity */
       {                                    /* and node number: m1 n1 m2 n2 .... */
-        if(1 || !has_included_subcircuit(xctx->inst[inst].ptr, &result)) {
+        if(!has_included_subcircuit(inst, xctx->inst[inst].ptr, &result)) {
           Int_hashtable table = {NULL, 0};
           int_hash_init(&table, 37);
           for(i=0;i<no_of_pins; ++i)
@@ -2219,10 +2235,8 @@ int print_spice_element(FILE *fd, int inst)
               if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
                 str_ptr =  net_name(inst, i, &multip, 0, 1);
   
-                tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
-                                              * so 1-char writes to result do not need reallocs */
-                STR_ALLOC(&result, tmp + result_pos, &size);
-                result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
+                /* result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr); */
+                my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
               }
             }
           }
@@ -2236,10 +2250,8 @@ int print_spice_element(FILE *fd, int inst)
             if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
               str_ptr =  net_name(inst,i, &multip, 0, 1);
 
-              tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
-                                            * so 1-char writes to result do not need reallocs */
-              STR_ALLOC(&result, tmp + result_pos, &size);
-              result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
+              /* result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr); */
+              my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
             }
             break;
           }
@@ -2290,9 +2302,8 @@ int print_spice_element(FILE *fd, int inst)
             }
             my_free(_ALLOC_ID_, &tmpstr);
           }
-          tmp=strlen(value) + 100;
-          STR_ALLOC(&result, tmp + result_pos, &size);
-          result_pos += my_snprintf(result + result_pos, tmp, "%s", value);
+          /* result_pos += my_snprintf(result + result_pos, tmp, "%s", value); */
+          my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           my_free(_ALLOC_ID_, &pin_attr_value);
         }
         else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -2302,10 +2313,8 @@ int print_spice_element(FILE *fd, int inst)
           if(strboolcmp(si, "true")) {
             str_ptr =  net_name(inst,n, &multip, 0, 1);
 
-            tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
-                                          * so 1-char writes to result do not need reallocs */
-            STR_ALLOC(&result, tmp + result_pos, &size);
-            result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr);
+            /* result_pos += my_snprintf(result + result_pos, tmp, "?%d %s ", multip, str_ptr); */
+            my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
           }
         }
         my_free(_ALLOC_ID_, &pin_attr);
@@ -2322,29 +2331,40 @@ int print_spice_element(FILE *fd, int inst)
         dbg(1, "print_spice_element(): tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
         res = tcleval(tclcmd);
 
-        tmp = strlen(res) + 100; /* always make room for some extra chars 
-                                  * so 1-char writes to result do not need reallocs */
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        result_pos += my_snprintf(result + result_pos, tmp, "%s", res);
+        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", res); */
+        my_mstrcat(_ALLOC_ID_, &result, res, NULL);
         /* fprintf(fd, "%s", tclresult()); */
         my_free(_ALLOC_ID_, &tclcmd);
       } /* /20171029 */
 
 
       if(c != '%' && c != '@' && c!='\0' ) {
-        result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
+        char str[2];
+        str[0] = (unsigned char) c;
+        str[1] = '\0';
+       
+        /* result_pos += my_snprintf(result + result_pos, 2, "%c", c); */ /* no realloc needed */ 
+        my_mstrcat(_ALLOC_ID_, &result, str, NULL);
         /* fputc(c,fd); */
       }
       if(c == '@' || c == '%' ) s--;
       state=TOK_BEGIN;
     }
     else if(state==TOK_BEGIN && c!='\0') {
-      result_pos += my_snprintf(result + result_pos, 2, "%c", c); /* no realloc needed */
+      char str[2];
+      str[0] = (unsigned char) c;
+      str[1] = '\0';
+      /* result_pos += my_snprintf(result + result_pos, 2, "%c", c); */ /* no realloc needed */
+      my_mstrcat(_ALLOC_ID_, &result, str, NULL);
       /* fputc(c,fd); */
     }
     if(c=='\0')
     {
-      result_pos += my_snprintf(result + result_pos, 2, "%c", '\n'); /* no realloc needed */
+      char str[2];
+      str[0] = '\n';
+      str[1] = '\0';
+      /* result_pos += my_snprintf(result + result_pos, 2, "%c", '\n'); */ /* no realloc needed */
+      my_mstrcat(_ALLOC_ID_, &result, str, NULL);
       /* fputc('\n',fd); */
       break;
     }
