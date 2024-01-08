@@ -211,6 +211,11 @@ type=nmos
     verilog_sym_def="tcleval(`include \"[abs_sym_path verilog_include_file.v]\")"
   </pre>
   </p>
+  <p class="important">
+   For spice netlists if <kbd>@pinlist</kbd> is used in format string and <kbd>spice_sym_def</kbd> attribute 
+   is defined the port order will be derived from the subcircuit
+   referenced by the <kbd>spice_sym_def</kbd> attribute.
+  </p>
   <p>
    In this example a <kbd>verilog_include_file.v</kbd> is included using the verilog <kbd>`include</kbd> directive.
    In order to generate a full path for it the <kbd>abs_sym_path</kbd> TCL function is used that searches for this file

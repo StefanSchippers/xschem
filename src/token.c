@@ -1815,52 +1815,67 @@ void print_tedax_subckt(FILE *fd, int symbol)
 /* This function is used to generate the @pinlist replacement getting port order
  * from the spice_sym_def attribute (either directly or by loading the provided .include file), 
  * checking with the corresponding symbol pin name and getting the net name attached to it.
- * Any name mismatch is reported and in this case the function does nothing. The default xschem
+ * Any name mismatch is reported, in this case the function does nothing and the default xschem
  * symbol port ordering will be used. */
 static int has_included_subcircuit(int inst, int symbol, char **result)
 {
   char *spice_sym_def = NULL;
   int ret = 0;
 
-  my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
+  my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[inst].prop_ptr, "spice_sym_def", 0));
+  if(!spice_sym_def[0]) {
+    my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
+  }
   if(xctx->tok_size) {
-    tclvareval("has_included_subcircuit {", spice_sym_def, "}", NULL);
+    tclvareval("has_included_subcircuit {", get_cell(xctx->sym[symbol].name, 0), "} {",
+               spice_sym_def, "}", NULL);
     if(tclresult()[0]) {
       char *pinlist = NULL;
       char *pin, *save;
       char *pinlist_ptr;
       const char *net;
+      char *tmp_result = NULL;
       int i, no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER], multip; 
       int symbol_pins = 0;
       int instance_pins = 0;
+      Int_hashentry *entry;
+      Int_hashtable table = {NULL, 0};
+      int_hash_init(&table, 37);
+
+      for(i = 0;i < no_of_pins; ++i) {
+        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+        int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+        const char *name = get_tok_value(prop, "name", 0);
+        if(!spice_ignore) {
+          int_hash_lookup(&table, name, i, XINSERT_NOREPLACE);
+        }
+      }
 
       my_strdup2(_ALLOC_ID_, &pinlist, tclresult());
       dbg(1, "included subcircuit: pinlist=%s\n", pinlist);
       pinlist_ptr = pinlist;
       while( (pin = my_strtok_r(pinlist_ptr, " ", "", 0, &save)) ) {
         instance_pins++;
-        for(i = 0;i < no_of_pins; ++i) {
-          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-          int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
-          const char *name = get_tok_value(prop, "name", 0);
-
-          if(!spice_ignore) {
-            if(!strcmp(pin, name)) {
-              symbol_pins++;
-              net =  net_name(inst, i, &multip, 0, 1);
-              my_mstrcat(_ALLOC_ID_, result, "?", my_itoa(multip), " ", net, " ", NULL);
-            }
-          }
+        entry = int_hash_lookup(&table, pin, 0, XLOOKUP);
+        if(entry) {
+          i = entry->value;
+          symbol_pins++;
+          net =  net_name(inst, i, &multip, 0, 1);
+          my_mstrcat(_ALLOC_ID_, &tmp_result, "?", my_itoa(multip), " ", net, " ", NULL);
         }
         pinlist_ptr = NULL;
       }
-      if(instance_pins == symbol_pins) ret = 1;
-      else {
+      int_hash_free(&table);
+      if(instance_pins == symbol_pins) {
+        ret = 1;
+        my_mstrcat(_ALLOC_ID_, result, tmp_result, NULL);
+      } else {
         dbg(0, "has_included_subcircuit(): symbol and .subckt pins do not match. Discard .subckt port order\n");
         if(has_x)
            tcleval("alert_ {has_included_subcircuit(): "
                    "symbol and .subckt pins do not match. Discard .subckt port order}");
       }
+      if(tmp_result) my_free(_ALLOC_ID_, &tmp_result);
       my_free(_ALLOC_ID_, &pinlist);
     }
   }

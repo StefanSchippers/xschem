@@ -132,6 +132,61 @@ format="@name @@GND @@TRIG @@OUT @@RESETB @@CTRL @@THRES @@DIS @@VCC @symname"
   is <b>named</b> and not <b>positional</b>.
  </p>
  </li>
+
+
+ <a id="spice_sym_def">
+ <li>
+ <h3> Obtaining the pin ordering from the subcircuit definition specified via <kbd>spice_sym_def</kbd></h3>
+ <p>
+  For spice netlists if <kbd>@pinlist</kbd> is specified in format string and a symbol <kbd>spice_sym_def</kbd>
+  attribute is used then the order of the symbol ports will be obtained from the <kbd>.subckt</kbd> specified
+  by <kbd>spice_sym_def</kbd>, either directly or via a <kbd>.include</kbd> statement
+ </p>
+ <img src="tutorial_use_existing_subckt08.png">
+ <p> 
+  The <kbd>symbol_include.cir</kbd> file has the following content:
+ </p>
+ <pre class="code">
+* example of a subcircuit contained in a file
+
+.subckt symbol_include Z VCC VSS
++ A B C W=10 L=1
+...
+...
+.ends
+ </pre>
+ <p>
+  And as a result the following circuit:
+ </p>
+ <img src="tutorial_use_existing_subckt09.png">
+ <p>
+  is netlisted in the following way, notice the net assignment in the <kbd>x1</kbd> subcircuit call
+  matches the order in the <kbd>symbol_include.cir</kbd> file:
+ </p>
+ <pre class="code">
+** sch_path: /home/schippes/.xschem/xschem_library/symbol_include/tb_symbol_include.sch
+**.subckt tb_symbol_include XZ XVSS XVCC XC XB XA
+*.opin XZ
+*.ipin XVSS
+*.ipin XVCC
+*.ipin XC
+*.ipin XB
+*.ipin XA
+x1 XZ XVCC XVSS XA XB XC symbol_include
+**.ends
+
+* expanding   symbol:  symbol_include.sym # of pins=6
+** sym_path: /home/schippes/.xschem/xschem_library/symbol_include/symbol_include.sym
+.include symbol_include.cir
+.end
+ </pre>
+
+
+ </li>
+ </a>
+
+
+
  </ol>
 
  <h2>Specifying subcircuit netlist</h2>

@@ -656,14 +656,17 @@ proc ev0 {args} {
 
 # get pin ordering from included subcircuit
 # return empty string if not found.
-proc has_included_subcircuit {spice_sym_def} {
+proc has_included_subcircuit {symname spice_sym_def} {
   global has_x
+  set include_found 0
   # puts "has_included_subcircuit: spice_sym_def=$spice_sym_def"
   regsub -all {\n\+} $spice_sym_def { } spice_sym_def
   set pinlist {}
   # .include? get the file ...
-  if {[regexp -nocase {^\.include } $spice_sym_def]} {
-    set filename [lindex $spice_sym_def 1]
+  if {[regexp -nocase {^ *\.include +} $spice_sym_def]} {
+    regsub -nocase {^ *\.include +} $spice_sym_def {} filename 
+    regsub -all {^"|"$} $filename {} filename
+    set filename [abs_sym_path $filename]
     # puts "filename=$filename"
     set res [catch {open $filename r} fd]
     if { $res } {
@@ -680,8 +683,10 @@ proc has_included_subcircuit {spice_sym_def} {
   # split lines
   set spice_sym_def [split $spice_sym_def \n]
   foreach line $spice_sym_def {
-    # het 1st line with a .subckt. This is our subcircuit definition, get the pin order
-    if {[string tolower [lindex $line 0]] eq {.subckt} } {
+    # get 1st line with a matching .subckt. This is our subcircuit definition, get the pin order
+    if {[string tolower [lindex $line 0]] eq {.subckt}  && 
+        [string tolower [lindex $line 1]] eq $symname} {
+     set include_found 1
      regsub -all { *= *} $line {=} line
      # pin list ends where parameter assignment begins (param=value)
      set last [lsearch -regexp [string tolower $line] {=|param:}]
@@ -695,6 +700,12 @@ proc has_included_subcircuit {spice_sym_def} {
     }
   }
   # return pinlist as found in the .subckt line or empty string if not found
+  if {!$include_found} {
+    puts "has_included_subcircuit: no matching .subckt found in spice_sym_def. Ignore"
+    if { [info exists has_x] } {
+      alert_ "has_included_subcircuit: no matching .subckt found in spice_sym_def. Ignore"
+    }
+  }  
   return $pinlist
 } 
 

@@ -1848,7 +1848,6 @@ void get_additional_symbols(int what)
   Int_hashentry *found;
   Int_hashtable sym_table = {NULL, 0};
 
-
   if(what == 1) { /* start */
     int_hash_init(&sym_table, HASHSIZE);
     num_syms = xctx->symbols;
@@ -1904,15 +1903,18 @@ void get_additional_symbols(int what)
             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
               subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
           }
-          if(spice_sym_def)
+          if(spice_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
                subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
-          if(verilog_sym_def)
+          }
+          if(verilog_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "verilog_sym_def", verilog_sym_def));
-          if(vhdl_sym_def)
+          }
+          if(vhdl_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "vhdl_sym_def", vhdl_sym_def));
+          }
           xctx->symbols++;
         } else {
          j = found->value;
