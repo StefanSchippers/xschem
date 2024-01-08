@@ -7189,7 +7189,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves.menu add command -label Ac -command {waves ac}
   $topwin.menubar.waves.menu add command -label Tran -command {waves tran}
   $topwin.menubar.waves.menu add command -label Noise -command {waves noise}
-  $topwin.menubar.waves.menu add command -label Sp -command {waves sp}
+  $topwin.menubar.waves.menu add command -label Sp -command {waves ac}
+  $topwin.menubar.waves.menu add command -label Spectrum -command {waves ac}
 
 
   eval button $topwin.menubar.simulate -text "Simulate"  -activebackground yellow  -takefocus 0 \

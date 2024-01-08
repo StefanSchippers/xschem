@@ -570,7 +570,9 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       dbg(dbglev, "read_dataset(): op sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9) &&
-            ( strstr(lowerline, "ac analysis") || strstr(lowerline, "sp analysis")) ) {
+            ( strstr(lowerline, "ac analysis") ||
+              strstr(lowerline, "spectrum") ||
+              strstr(lowerline, "sp analysis")) ) {
       ac = 1;
       if(!type) type = "ac";
       if(!strcmp(type, "ac")) sim_type = "ac";
