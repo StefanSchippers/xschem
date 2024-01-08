@@ -311,6 +311,7 @@ extern char win_temp_dir[PATH_MAX];
 /* flag (.flags field) to hide text in symbols when displaying instances */
 #define HIDE_TEXT 8
 #define TEXT_FLOATER 16
+#define HIDE_TEXT_INSTANTIATED 32
 
 #define S(a) (sizeof(a)/sizeof(a[0]))
 #define BUS_WIDTH 4

@@ -679,7 +679,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
       if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
-      if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
+      if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
@@ -875,7 +875,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      get_sym_text_size(n, j, &xscale, &yscale);
      text = symptr->text[j];
      if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
-     if(!xctx->show_hidden_texts && (text.flags & HIDE_TEXT)) continue;
+     if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&text);
