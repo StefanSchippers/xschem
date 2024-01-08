@@ -1,0 +1,7 @@
+* example of a subcircuit contained in a file
+
+.subckt symbol_include Z VCC VSS
++ A B C W=10 L=1 
+...
+...
+.ends

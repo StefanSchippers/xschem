@@ -1827,8 +1827,17 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
   }
   if(xctx->tok_size) {
-    tclvareval("has_included_subcircuit {", get_cell(xctx->sym[symbol].name, 0), "} {",
+    char *symname = NULL;
+    my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0));
+    if(!symname[0]) {
+      my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->sym[symbol].prop_ptr, "schematic", 0));
+    }
+    if(!symname[0]) {
+      my_strdup2(_ALLOC_ID_, &symname, xctx->sym[symbol].name);
+    }
+    tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                spice_sym_def, "}", NULL);
+    my_free(_ALLOC_ID_, &symname);
     if(tclresult()[0]) {
       char *pinlist = NULL;
       char *pin, *save;

@@ -701,9 +701,9 @@ proc has_included_subcircuit {symname spice_sym_def} {
   }
   # return pinlist as found in the .subckt line or empty string if not found
   if {!$include_found} {
-    puts "has_included_subcircuit: no matching .subckt found in spice_sym_def. Ignore"
+    puts "has_included_subcircuit: $symname: no matching .subckt found in spice_sym_def. Ignore"
     if { [info exists has_x] } {
-      alert_ "has_included_subcircuit: no matching .subckt found in spice_sym_def. Ignore"
+      alert_ "has_included_subcircuit: $symname: no matching .subckt found in spice_sym_def. Ignore"
     }
   }  
   return $pinlist
