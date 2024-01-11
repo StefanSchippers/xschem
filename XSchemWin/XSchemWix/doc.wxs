@@ -868,6 +868,12 @@
 		  <Component Id="cmp0A38E2FC1C828C9008B61E8F3719ECCC" Guid="{02F8FAE5-B646-4FA1-9D0F-87FB3B1D2B71}">
 			<File Id="fil613E0E9D05EBA27B050044509EAA87EE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt07.png" />
 		  </Component>
+		  <Component Id="cmp32B0CA60A5FB00569F758EAA9081F26C" Guid="{5032E569-D31C-4BE7-9435-807E9832C5C5}">
+			<File Id="fil21156D26CC781506C3F2ECC0E7F114E4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt08.png" />
+		  </Component>
+		  <Component Id="cmpB349F3F3BB0FC366E3CBDB36997A2C68" Guid="{38573959-0B82-48CF-8CB0-1140FCF201A9}">
+			<File Id="filE6B14BFA8DA4D8B849B6D4677CD65104" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt09.png" />
+		  </Component>
           <Component Id="cmp1887EC93042A8F0C854E00EEC32380FD" Guid="{5E9AABDE-119F-42B5-A70C-6CE4DF95383F}">
             <File Id="filD8D64C42C0EC471FA21B778DAE92DF5D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_libraries.html" />
           </Component>
@@ -1410,6 +1416,8 @@
 	  <ComponentRef Id="cmp8CB8AE85C605D9520D284D02A40D7A0E" />
 	  <ComponentRef Id="cmp641101E8D1E9AEADC4198F95BA7BD96F" />
 	  <ComponentRef Id="cmp0A38E2FC1C828C9008B61E8F3719ECCC" />
+	  <ComponentRef Id="cmp32B0CA60A5FB00569F758EAA9081F26C" />
+	  <ComponentRef Id="cmpB349F3F3BB0FC366E3CBDB36997A2C68" />
       <ComponentRef Id="cmp1887EC93042A8F0C854E00EEC32380FD" />
 	  <ComponentRef Id="cmpF79E68A44B6D276CD4FD94243C7638EB" />
 	  <ComponentRef Id="cmp789D1388A55CE9AADEAAE762DC494821" />

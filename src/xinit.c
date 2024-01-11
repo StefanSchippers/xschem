@@ -2781,6 +2781,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, f, !cli_opt_do_netlist, 1);
+   if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
  } else /* if(!cli_opt_tcl_script[0]) */
  {
@@ -2796,6 +2797,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, fname, !cli_opt_do_netlist, 1);
+   if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  /* Necessary to tell xschem the initial area to display */
  zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);

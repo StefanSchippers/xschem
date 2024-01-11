@@ -602,6 +602,27 @@
           <Component Id="cmp577B194A8B435CC56C0C87F0CC411CBF" Guid="{33EC0CE8-3EAA-48AB-B603-1886279A5AFE}">
             <File Id="filE0CEB8D622ED64D099ACE9E1BEDD2F94" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\switch_rreal.sym" />
           </Component>
+		  <Component Id="cmpAC417054A34B278AF48BE51B20FE88B3" Guid="{3DB7EAE3-30F5-49CC-9186-04831B891250}">
+			<File Id="fil0C55EEE50124AC6C7381B57482E93745" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.cir" />
+		  </Component>
+		  <Component Id="cmp741741C1862E1D0B693AF2C0002D96F7" Guid="{CA12B3B1-D828-413F-AC9C-DDE1C9994CB4}">
+			<File Id="filF5381F5087C81A8902C7F08BD92D295F" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.sch" />
+		  </Component>
+		  <Component Id="cmp3236FC8ED918A4ED02A34F430DE91E68" Guid="{FEE5B5DF-A20F-4C64-AD9E-21B3EC2471E0}">
+			<File Id="fil887E2384312925F3AB14947D4B49DC82" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.sym" />
+		  </Component>
+		  <Component Id="cmp4A2AF395F8EB02E99ED04D4298201E9F" Guid="{193146A7-8E23-4C47-9099-7B653332B59A}">
+			<File Id="filF5015E7C6611837CD1ADA62381E34CE7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include2.cir" />
+		  </Component>
+		  <Component Id="cmpBB4C1B1060604D039E707F46CC40CEE1" Guid="{3C118AB8-7262-456B-809D-0472151B8056}">
+			<File Id="fil22910D3BD270EEC9B4E034953005ABBC" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include2.sch" />
+		  </Component>
+		  <Component Id="cmp45303D34449CB7DAB054313E9529F45E" Guid="{A853505D-26B8-4AC5-8254-231F7C54176A}">
+			<File Id="fil25E6662B8E66993537C1DCB1CB616D80" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\tb_symbol_include.sch" />
+		  </Component>
+		  <Component Id="cmpE9908181C719798C9D4139FFCDC31E39" Guid="{C5FFF0BF-9F6B-45FA-94DB-6FC70269AF49}">
+			<File Id="fil27412765027CF4C420804A0E5356947E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\tb_symbol_include.sym" />
+		  </Component>
           <Component Id="cmp109FD1AC951E122096B4283D61126ACE" Guid="{0B764057-865A-4BF8-975D-522F5B8A3D3C}">
             <File Id="fil3064C202E546C137D1E86FC2753AD2E0" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\tesla.sch" />
           </Component>
@@ -5747,6 +5768,13 @@
       <ComponentRef Id="cmpA093D166017998214F24C758CEFBB096" />
       <ComponentRef Id="cmp5CB70B5DBA3440F6171177580DE99A7B" />
       <ComponentRef Id="cmp577B194A8B435CC56C0C87F0CC411CBF" />
+	  <ComponentRef Id="cmpAC417054A34B278AF48BE51B20FE88B3" />
+	  <ComponentRef Id="cmp741741C1862E1D0B693AF2C0002D96F7" />
+	  <ComponentRef Id="cmp3236FC8ED918A4ED02A34F430DE91E68" />
+	  <ComponentRef Id="cmp4A2AF395F8EB02E99ED04D4298201E9F" />
+	  <ComponentRef Id="cmpBB4C1B1060604D039E707F46CC40CEE1" />
+	  <ComponentRef Id="cmp45303D34449CB7DAB054313E9529F45E" />
+	  <ComponentRef Id="cmpE9908181C719798C9D4139FFCDC31E39" />
       <ComponentRef Id="cmp109FD1AC951E122096B4283D61126ACE" />
       <ComponentRef Id="cmp3E41B7713E7565A81161E653571D1F86" />
       <ComponentRef Id="cmp248A8C6FE2560437AAA699CCCD08B2F9" />

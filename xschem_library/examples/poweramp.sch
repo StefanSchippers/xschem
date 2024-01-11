@@ -184,10 +184,12 @@ N 220 -1050 230 -1050 {lab=#net2}
 N 60 -1130 230 -1130 {lab=#net3}
 N 950 -1200 1020 -1200 {
 lab=IN}
-C {vsource.sym} 60 -1160 0 0 {name=V1 value="dc VPP
-+ pwl 0 0 1m VPP"}
-C {vsource.sym} 60 -1100 0 0 {name=V0 value="dc VPP
-+ pwl 0 0 1m VPP"}
+C {vsource.sym} 60 -1160 0 0 {name=V1 value="dc 'VPP'
++ pwl 0 0 1m 'VPP'"
+}
+C {vsource.sym} 60 -1100 0 0 {name=V0 value="dc 'VPP'
++ pwl 0 0 1m 'VPP'"
+}
 C {lab_pin.sym} 360 -1210 0 1 {name=p5 lab=VPP}
 C {lab_pin.sym} 360 -1050 0 1 {name=p6 lab=VNN}
 C {lab_pin.sym} 360 -1130 0 1 {name=p3 lab=VSS}
@@ -362,10 +364,9 @@ C {simulator_commands.sym} 1020 -870 0 0 {name=COMMANDS1
 simulator=xyce
 only_toplevel=false 
 value="
-.option ITL4=20000 ITL5=0
 vvss vss 0 dc 0 
 .temp 30
-
+.param VPP=50
 .param frequ=5k
 .param gain=45
 
