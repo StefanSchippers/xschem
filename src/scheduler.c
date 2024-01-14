@@ -908,13 +908,38 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'f': /*----------------------------------------------*/
+    /* fill_type n fill_type [nodraw]
+     *   Set fill type for layer 'n', fill_type may be 'solid' or 'stipple' or 'empty'
+     *   If 'nodraw' is given do not redraw window.
+     */ 
+    if(!strcmp(argv[1], "fill_type"))
+    {
+      int dr = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) {
+        int n = atoi(argv[2]);
+        if(n >=0 && n < cadlayers) {
+          if(!strcmp(argv[3], "solid")) xctx->fill_type[n]=1;
+          else if(!strcmp(argv[3], "stipple")) xctx->fill_type[n]=2;
+          else if(!strcmp(argv[3], "empty")) xctx->fill_type[n]=0;
+          free_gc();
+          create_gc();
+          enable_layers();
+          build_colors(0.0, 0.0);
+          resetwin(1, 0, 1, 0, 0);  /* recreate pixmap. resetwin(create_pixmap, clear_pixmap, force, w, h) */
+          if(argc > 4 && !strcmp(argv[4], "nodraw")) dr = 0;
+          if(dr) draw();
+        }
+      } 
+    }   
+
     /* find_nth string sep quote keep_quote n
      *   Find n-th field string separated by characters in sep. 1st field is in position 1
      *   do not split quoted fields (if quote characters are given) and return unquoted.
      *   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --> bbb 
      *   xschem find_nth {aaa, "bbb, ccc" , ddd} { ,} {"} 2  --> bbb, ccc
      */
-    if(!strcmp(argv[1], "find_nth"))
+    else if(!strcmp(argv[1], "find_nth"))
     {
       if(argc > 6) {
         Tcl_SetResult(interp, find_nth(argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6])), TCL_VOLATILE);

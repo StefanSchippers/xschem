@@ -550,6 +550,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -682,6 +683,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem expandlabel {2*A[3:0]} --&gt; A[3],A[2],A[1],A[0],A[3],A[2],A[1],A[0] 8
    last field is the number of bits
    since [ and ] are TCL special characters argument must be quoted with { and } </pre>
+   <li><kbd>       fill_type n fill_type [nodraw]</kbd></li><pre>
+   Set fill type for layer 'n', fill_type may be 'solid' or 'stipple' or 'empty'
+   If 'nodraw' is given do not redraw window.</pre>
    <li><kbd>       find_nth string sep quote keep_quote n</kbd></li><pre>
    Find n-th field string separated by characters in sep. 1st field is in position 1
    do not split quoted fields (if quote characters are given) and return unquoted.
@@ -1436,6 +1440,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 

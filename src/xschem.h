@@ -1663,6 +1663,8 @@ extern int prepare_netlist_structs(int for_netlist);
 extern int skip_instance(int i,  int skip_short, int lvs_ignore);
 extern int shorted_instance(int i, int lvs_ignore);
 extern int compare_schematics(const char *filename);
+extern void create_gc(void);
+extern void free_gc(void);
 extern int warning_overlapped_symbols(int sel);
 extern void free_simdata(void);
 extern void delete_netlist_structs(void);

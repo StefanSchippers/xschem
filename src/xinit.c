@@ -403,7 +403,7 @@ static void free_xschem_data()
   my_free(_ALLOC_ID_, &xctx);
 }
 
-static void create_gc(void)
+void create_gc(void)
 {
   int i;
   for(i=0;i<cadlayers; ++i)
@@ -417,7 +417,7 @@ static void create_gc(void)
   }
 }
 
-static void free_gc()
+void free_gc()
 {
   int i;
   for(i=0;i<cadlayers; ++i) {
