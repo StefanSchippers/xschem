@@ -706,7 +706,8 @@ proc has_included_subcircuit {symname spice_sym_def} {
       alert_ "has_included_subcircuit: $symname: no matching .subckt found in spice_sym_def. Ignore"
     }
   }  
-  return $pinlist
+  # puts $pinlist
+  return [join $pinlist]
 } 
 
 # should not be called directly by user 

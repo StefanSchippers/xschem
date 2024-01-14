@@ -647,6 +647,7 @@ void my_realloc(int id, void *ptr,size_t size)
 {
  void *a;
  char old[100];
+ void *tmp;
  a = *(void **)ptr;
  my_snprintf(old, S(old), "%p", a);
  if(size == 0) {
@@ -654,10 +655,14 @@ void my_realloc(int id, void *ptr,size_t size)
    dbg(3, "\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);
    *(void **)ptr=NULL;
  } else {
-   *(void **)ptr=realloc(*(void **)ptr,size);
-    if(*(void **)ptr == NULL) fprintf(errfp,"my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
-   dbg(3, "\nmy_realloc(%d,): reallocating %s --> %p to %lu bytes\n",
-           id, old, *(void **)ptr,(unsigned long) size);
+   tmp = realloc(*(void **)ptr,size);
+   if(tmp == NULL) {
+     fprintf(errfp,"my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
+   } else {
+      *(void **)ptr = tmp;
+      dbg(3, "\nmy_realloc(%d,): reallocating %s --> %p to %lu bytes\n",
+             id, old, *(void **)ptr,(unsigned long) size);
+   }
  }
 }
 

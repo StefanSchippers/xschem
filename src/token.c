@@ -1838,10 +1838,11 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                spice_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &symname);
+
     if(tclresult()[0]) {
-      char *pinlist = NULL;
       char *pin, *save;
       char *pinlist_ptr;
+      char *pinlist = NULL;
       const char *net;
       char *tmp_result = NULL;
       int i, no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER], multip; 
@@ -1849,19 +1850,28 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
       int instance_pins = 0;
       Int_hashentry *entry;
       Int_hashtable table = {NULL, 0};
-      int_hash_init(&table, 37);
+      int done_first = -1;
 
+      int_hash_init(&table, 6247);
+      my_strdup2(_ALLOC_ID_, &pinlist, tclresult());
+      dbg(1, "included subcircuit: pinlist=%s\n", pinlist);
       for(i = 0;i < no_of_pins; ++i) {
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
         int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
         const char *name = get_tok_value(prop, "name", 0);
         if(!spice_ignore) {
-          int_hash_lookup(&table, name, i, XINSERT_NOREPLACE);
+          int mult;
+          char *name_expanded_ptr, *name_expanded = NULL;
+          my_strdup2(_ALLOC_ID_, &name_expanded, expandlabel(name, &mult));
+          name_expanded_ptr = name_expanded;
+          while((pin = my_strtok_r(name_expanded_ptr, ",", "", 0, &save))) {
+            int_hash_lookup(&table, pin, i, XINSERT_NOREPLACE);
+            name_expanded_ptr = NULL;
+          }
+          my_free(_ALLOC_ID_, &name_expanded);
         }
       }
 
-      my_strdup2(_ALLOC_ID_, &pinlist, tclresult());
-      dbg(1, "included subcircuit: pinlist=%s\n", pinlist);
       pinlist_ptr = pinlist;
       while( (pin = my_strtok_r(pinlist_ptr, " ", "", 0, &save)) ) {
         instance_pins++;
@@ -1869,8 +1879,11 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
         if(entry) {
           i = entry->value;
           symbol_pins++;
-          net =  net_name(inst, i, &multip, 0, 1);
-          my_mstrcat(_ALLOC_ID_, &tmp_result, "?", my_itoa(multip), " ", net, " ", NULL);
+          if(done_first != i) {
+            net =  net_name(inst, i, &multip, 0, 1);
+            my_mstrcat(_ALLOC_ID_, &tmp_result, "?", my_itoa(multip), " ", net, " ", NULL);
+            done_first = i;
+          }
         }
         pinlist_ptr = NULL;
       }
