@@ -908,11 +908,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'f': /*----------------------------------------------*/
+    /* fill_reset [nodraw]
+     *   After setting tcl array pixdata(n) reset fill patterns on all layers
+     *   If 'nodraw' is given do not redraw window.
+     */
+    if(!strcmp(argv[1], "fill_reset"))
+    {
+      int dr = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      init_pixdata();
+      free_gc();
+      create_gc();
+      enable_layers();
+      build_colors(0.0, 0.0);
+      resetwin(1, 0, 1, 0, 0);  /* recreate pixmap. resetwin(create_pixmap, clear_pixmap, force, w, h) */
+      if(argc > 2 && !strcmp(argv[2], "nodraw")) dr = 0;
+      if(dr) draw();
+    }
     /* fill_type n fill_type [nodraw]
      *   Set fill type for layer 'n', fill_type may be 'solid' or 'stipple' or 'empty'
      *   If 'nodraw' is given do not redraw window.
      */ 
-    if(!strcmp(argv[1], "fill_type"))
+    else if(!strcmp(argv[1], "fill_type"))
     {
       int dr = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

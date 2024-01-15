@@ -322,6 +322,25 @@
 #   "#ef6158" "#fdb200" }
 
 ###########################################################################
+#### CUSTOM FILL PATTERNS  MAY BE DEFINED HERE
+###########################################################################
+#### every 0x#### hex data represents one 16 bit row of the 16x16 bit fill bitmap
+#### of the specified layer number.
+#### following examples set a checkerboard fill pattern
+#### for symbol shape drawing layer (layer 4)
+#### and for pin layer (layer 5)
+#
+# set pixdata(4) {
+#   0x8888 0x0000 0x0000 0x0000 0x2222 0x0000 0x0000 0x0000
+#   0x8888 0x0000 0x0000 0x0000 0x2222 0x0000 0x0000 0x0000
+# }
+
+# set pixdata(5) {
+#   0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa
+#   0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa
+# }
+
+###########################################################################
 #### CAIRO STUFF
 ###########################################################################
 #### Scale all fonts by this number

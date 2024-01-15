@@ -325,17 +325,39 @@ static void init_color_array(double dim, double dim_bg)
  }
 }
 
-static void init_pixdata()/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
+void init_pixdata()/* populate xctx->fill_type array that is used in create_gc() to set fill styles */
 {
  int i,j, full, empty;
+ const char *tclpixdata;
+ const char *tclword;
+ int found_data;
+  
  for(i=0;i<cadlayers; ++i) {
+   tclpixdata = Tcl_GetVar2(interp, "pixdata", my_itoa(i), TCL_GLOBAL_ONLY);
+   dbg(1, "pixdata(%d)=%s\n", i, tclpixdata);
    full=1; empty=1;
    for(j=0;j<32; ++j) {
-     if(i<sizeof(pixdata_init)/sizeof(pixdata_init[0]))
-       pixdata[i][j] = pixdata_init[i][j];
-     else
-       pixdata[i][j] = 0x00;
-
+     found_data = 0;
+     if(tclpixdata) {
+       tclvareval("lindex {", tclpixdata, "} ", my_itoa(j >> 1), NULL);
+       tclword = tclresult();
+       if(tclword[0]) {
+         unsigned int word;
+         unsigned char byte;
+         sscanf(tclword, "%x", &word);
+         if(j%2) byte = word & 0xff;
+         else    byte = (word >> 8) & 0xff;
+         dbg(1, "byte=%02x\n", byte);
+         found_data = 1;
+         pixdata[i][j] = byte;
+       }
+     }
+     if(!found_data) {
+       if(i<sizeof(pixdata_init)/sizeof(pixdata_init[0]))
+         pixdata[i][j] = pixdata_init[i][j];
+       else
+         pixdata[i][j] = 0x00;
+     }
      if(pixdata[i][j]!=0xff) full=0;
      if(pixdata[i][j]!=0x00) empty=0;
    }
