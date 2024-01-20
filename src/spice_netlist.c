@@ -211,18 +211,22 @@ static int spice_netlist(FILE *fd, int spice_stop )
          print_spice_element(fd, i) ;  /* this is the element line  */
          fprintf(fd,"**** end user architecture code\n");
        } else {
+         char *val = NULL;
          const char *m;
          if(print_spice_element(fd, i)) {
            fprintf(fd, "**** end_element\n");
          }
          /* hash device_model attribute if any */
-         m = translate(i, get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2));
+         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2));
+         m = val;
+         if(strchr(val, '@')) m = translate(i, val);
          if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          else {
            m = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 0);
            if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          }
          my_free(_ALLOC_ID_, &model_name_result);
+         my_free(_ALLOC_ID_, &val);
        }
      }
     }

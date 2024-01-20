@@ -2138,6 +2138,7 @@ int print_spice_element(FILE *fd, int inst)
     }
     else if (state==TOK_SEP)                    /* got a token */
     {
+      char *val = NULL;
       size_t token_exists = 0;
       token[token_pos]='\0';
       token_pos=0;
@@ -2147,11 +2148,11 @@ int print_spice_element(FILE *fd, int inst)
         value=NULL;
       } else {
         size_t tok_val_len;
-        
         dbg(1, "print_spice_element(): token: |%s|\n", token);
-        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+        my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
+        value = val;
+        if(strchr(value, '@')) value = translate(inst, val);
         tok_val_len = strlen(value);
-        
         if(!strcmp(token, "@spiceprefix")) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
@@ -2386,6 +2387,7 @@ int print_spice_element(FILE *fd, int inst)
       }
       if(c == '@' || c == '%' ) s--;
       state=TOK_BEGIN;
+      my_free(_ALLOC_ID_, &val);
     }
     else if(state==TOK_BEGIN && c!='\0') {
       char str[2];
