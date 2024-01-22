@@ -2151,7 +2151,7 @@ int print_spice_element(FILE *fd, int inst)
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
         value = val;
-        if(!strcmp(token + 1, "device_model") && strchr(value, '@')) value = translate(inst, val);
+        if(!strcmp(token + 1, "model") && strchr(value, '@')) value = translate(inst, val);
         tok_val_len = strlen(value);
         if(!strcmp(token, "@spiceprefix")) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
