@@ -240,9 +240,26 @@ The following syntax:
   all graphs with data taken from the updated raw file(s).
   <br>
   <img src="graphs19.png"><br>
-
  </p>
 
+ <h3>Specify a different raw file for a single signal in a graph</h3>
+ <p>
+  The general syntax for a signal in a graph is the following:<br>
+  <kbd>"alias_name; signal_name % dataset# raw_file sim_type</kbd><br>
+   where:<br>
+   <kbd>dataset#</kbd> is the dataset index to display (only meaningful and needed
+   if multiple datasets are present like in Montecarloo / Mismatch simulations).<br>
+   <kbd>raw_file</kbd> is the location and name of the raw file to load. You can use 
+   <kbd>$netlist_dir</kbd> to quickly reference the simulation directory where usually such
+   raw files are located.<br>
+   <kbd>sim_type</kbd> is the simulation type, like
+   <kbd>ac</kbd>, <kbd>sp</kbd>, <kbd>spectrum</kbd>, <kbd>dc</kbd>, <kbd>op</kbd>,
+   <kbd>tran</kbd>, <kbd>noise</kbd>.<br>
+  Example:<br>
+  <kbd>"SAOUT; saout % 2 $netlist_dir/autozero_comp.raw tran</kbd><br>
+  <br>
+  <img src="graphs20.png"><br>
+ </p>
 
 
  <!-- end of slide -->
