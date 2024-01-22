@@ -1,0 +1,43 @@
+v {xschem version=3.4.4 file_version=1.2
+*
+* This file is part of XSCHEM,
+* a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
+* simulation.
+* Copyright (C) 1998-2023 Stefan Frederik Schippers
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1"
+}
+V {}
+S {}
+E {}
+L 4 -40 -50 -40 50 {}
+L 4 40 0 60 0 {}
+L 4 -60 30 -40 30 {}
+L 4 -40 -50 40 0 {}
+L 4 -40 50 40 0 {}
+L 4 -60 -30 -40 -30 {}
+B 5 -62.5 -32.5 -57.5 -27.5 {name=PLUS dir=in }
+B 5 57.5 -2.5 62.5 2.5 {name=OUT dir=out }
+B 5 -62.5 27.5 -57.5 32.5 {name=MINUS dir=in }
+T {@symname} -32 44 0 0 0.3 0.3 {}
+T {@name} -10 -48.25 0 0 0.2 0.2 {}
+T {PLUS} -38.75 -30.25 0 0 0.2 0.2 {}
+T {OUT} 28.75 -5.25 0 1 0.2 0.2 {}
+T {MINUS} -38.75 18.5 0 0 0.2 0.2 {}
