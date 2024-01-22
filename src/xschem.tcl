@@ -2517,7 +2517,7 @@ proc graph_edit_properties {n} {
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
   if { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp noise}  -width 4
+    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise}  -width 4
   } else {
     entry .graphdialog.center.right.list -width 4
   }

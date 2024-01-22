@@ -515,6 +515,10 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     return 0;
   }
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
+  if(type) {
+    if(!my_strcasecmp(type, "spectrum")) type = "ac";
+    if(!my_strcasecmp(type, "sp")) type = "ac";
+  }
   while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
     strtolower(lowerline);
@@ -897,6 +901,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
+    if(!my_strcasecmp(type, "spectrum")) type = "ac";
+    if(!my_strcasecmp(type, "sp")) type = "ac";
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type && 
          !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
