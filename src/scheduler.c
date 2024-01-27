@@ -3125,7 +3125,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state2 = MENUSTARTPOLYGON;
     }
 
-    /* preview_window create|draw|destroy [winpath] [file]
+    /* preview_window create|draw|destroy|close [winpath] [file]
+     *   destroy: will delete preview schematic data and destroy container window
+     *   close: same as destroy but leave the container window.
      *   Used in fileselector to show a schematic preview.
      */
     else if(!strcmp(argv[1], "preview_window"))

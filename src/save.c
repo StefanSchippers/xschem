@@ -568,8 +568,15 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       dbg(dbglev, "read_dataset(): noise sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "operating point")) {
-
       if(!type) type = "op";
+      if(!strcmp(type, "op")) sim_type = "op";
+      dbg(dbglev, "read_dataset(): op sim_type=%s\n", sim_type ? sim_type : "<NULL>");
+    } 
+    else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "integrated noise")) {
+      if(!type) type = "op";
+      else if(!strcmp(type, "noise")) {
+        sim_type = "noise";
+      }
       if(!strcmp(type, "op")) sim_type = "op";
       dbg(dbglev, "read_dataset(): op sim_type=%s\n", sim_type ? sim_type : "<NULL>");
     }

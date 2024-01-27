@@ -1178,7 +1178,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
   static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
   static Window pre_window;
-  static Tk_Window tkpre_window;
+  static Tk_Window tkpre_window = NULL;
   static int semaphore=0;
 
   /* avoid reentrant calls for example if an alert box is displayed while loading file to preview,
@@ -1190,10 +1190,12 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   if(!strcmp(what, "create")) {
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
     tkpre_window = Tk_NameToWindow(interp, win_path, mainwindow);
-    Tk_MakeWindowExist(tkpre_window);
-    pre_window = Tk_WindowId(tkpre_window);
+    if(tkpre_window) {
+      Tk_MakeWindowExist(tkpre_window);
+      pre_window = Tk_WindowId(tkpre_window);
+    }
   }
-  else if(!strcmp(what, "draw")) {
+  else if(tkpre_window && !strcmp(what, "draw") ) {
     dbg(1, "preview_window() draw\n");
     save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
@@ -1213,11 +1215,13 @@ void preview_window(const char *what, const char *win_path, const char *fname)
       resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
       dbg(1, "preview_window() draw, load schematic\n");
       load_schematic(1,fname, 0, 1);
+    } else {
+      resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
     }
     zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
     xctx = save_xctx;
   }
-  else if(!strcmp(what, "destroy")) {
+  else if(!strcmp(what, "destroy") || !strcmp(what, "close")) {
     dbg(1, "preview_window() destroy\n");
     save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
@@ -1225,8 +1229,10 @@ void preview_window(const char *what, const char *win_path, const char *fname)
       delete_schematic_data(1);
       preview_xctx = NULL;
     }
-    
-    Tk_DestroyWindow(tkpre_window);
+    if(!strcmp(what, "destroy")) {
+      Tk_DestroyWindow(tkpre_window);
+      tkpre_window = NULL;
+    }
     my_free(_ALLOC_ID_, &current_file);
     xctx = save_xctx; /* restore schematic */
     save_xctx = NULL;

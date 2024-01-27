@@ -547,8 +547,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1056,7 +1054,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Start a GUI placement of a text object </pre>
    <li><kbd>       polygon</kbd></li><pre>
    Start a GUI placement of a polygon </pre>
-   <li><kbd>       preview_window create|draw|destroy [winpath] [file]</kbd></li><pre>
+   <li><kbd>       preview_window create|draw|destroy|close [winpath] [file]</kbd></li><pre>
+   destroy: will delete preview schematic data and destroy container window
+   close: same as destroy but leave the container window.
    Used in fileselector to show a schematic preview.</pre>
    <li><kbd>       print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]</kbd></li><pre>
    If img_x and img_y are set to 0 (recommended for svg and ps/pdf) 
@@ -1441,6 +1441,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
+
+
 
 
 
