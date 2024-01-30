@@ -168,6 +168,9 @@
 #### initial geometry of load /save / insert component file selector
 # set file_dialog_default_geometry 800x600
 
+#### display full path (1) or only name (0) for component directories. Default: 1
+# set load_file_dialog_fullpath 1
+
 #### if set to 0, when zooming out allow the viewport do drift toward the mouse position,
 #### allowing to move away by zooming / unzooming with mouse wheel
 #### default setting: 0

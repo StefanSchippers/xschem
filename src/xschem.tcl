@@ -3225,8 +3225,8 @@ proc file_dialog_set_colors1 {} {
 }
 
 proc file_dialog_set_colors2 {} {
-  global file_dialog_index1 file_dialog_files2 dircolor
-  set dir1 [abs_sym_path [.load.l.paneleft.list get $file_dialog_index1]]
+  global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1
+  set dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
   for {set i 0} { $i< [.load.l.paneright.list index end] } { incr i} {
     set maxlen 0
     set name "$dir1/[lindex $file_dialog_files2 $i]"
@@ -3249,8 +3249,22 @@ proc file_dialog_set_colors2 {} {
   }
 }
 
+proc file_dialog_set_names1 {} {
+  global file_dialog_names1 file_dialog_files1 load_file_dialog_fullpath
+  
+  set file_dialog_names1 {}
+  foreach i $file_dialog_files1 {
+    if { $load_file_dialog_fullpath == 1} {
+      set item $i
+    } else {
+      set item [get_cell $i 0]
+    }
+    lappend file_dialog_names1 $item
+  }
+}
+  
 proc file_dialog_set_home {dir} {
-  global pathlist  file_dialog_files1 file_dialog_index1
+  global pathlist  file_dialog_files1 file_dialog_index1 file_dialog_names1
 
   set curr_dirname [xschem get current_dirname]
   .load.l.paneleft.list selection clear 0 end
@@ -3266,6 +3280,7 @@ proc file_dialog_set_home {dir} {
   set i [lsearch -exact $pl $dir]
   if { $i>=0 } {
     set file_dialog_files1 $pathlist
+    file_dialog_set_names1
     update
     file_dialog_set_colors1
     .load.l.paneleft.list xview moveto 1
@@ -3273,6 +3288,7 @@ proc file_dialog_set_home {dir} {
     .load.l.paneleft.list selection set $file_dialog_index1
   } else {
     set file_dialog_files1 [list $dir]
+    file_dialog_set_names1
     update
     file_dialog_set_colors1
     .load.l.paneleft.list xview moveto 1
@@ -3424,7 +3440,9 @@ proc file_dialog_display_preview {f} {
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
   global file_dialog_index1 file_dialog_files2 file_dialog_files1 file_dialog_retval file_dialog_dir1 pathlist OS
-  global file_dialog_default_geometry file_dialog_sash_pos file_dialog_yview tcl_version file_dialog_globfilter file_dialog_dir2
+  global file_dialog_default_geometry file_dialog_sash_pos file_dialog_yview 
+  global file_dialog_names1 tcl_version file_dialog_globfilter file_dialog_dir2
+  
   global file_dialog_save_initialfile file_dialog_loadfile file_dialog_ext
 
   if { [winfo exists .load] } {
@@ -3443,13 +3461,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne file_dialog_index1 0
   if { ![info exists file_dialog_files1]} {
     set file_dialog_files1 $pathlist
+    file_dialog_set_names1
+    update
     set file_dialog_index1 0
   }
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent}
   frame .load.l.paneleft
-  eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_files1 -width 40 -height 12 \
+  eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3466,7 +3486,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     # .load.l.paneright.draw configure -background white
     set file_dialog_sel [.load.l.paneleft.list curselection]
     if { $file_dialog_sel ne {} } {
-      set file_dialog_dir1 [abs_sym_path [.load.l.paneleft.list get $file_dialog_sel]]
+      set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_sel]]
       set file_dialog_index1 $file_dialog_sel
       #### avoid clearing search entry and resetting glob filter
       #### when changing directory in left listbox
@@ -3515,11 +3535,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     bind .load.l.paneright.draw <Expose> {}
     .load.l.paneright.draw configure -background white
     set file_dialog_files1 $pathlist
+    file_dialog_set_names1
     update
     file_dialog_set_colors1
     .load.l.paneleft.list xview moveto 1
     set file_dialog_index1 0
-    set file_dialog_dir1 [abs_sym_path [.load.l.paneleft.list get $file_dialog_index1]]
+    set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
     setglob $file_dialog_dir1
     file_dialog_set_colors2
     .load.l.paneleft.list selection clear 0 end
@@ -3571,7 +3592,14 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
   button .load.buttons.pwd -text {Current dir} -command {load_file_dialog_up  [xschem get schname]}
-  pack .load.buttons.home .load.buttons.up .load.buttons.pwd -side left
+  checkbutton .load.buttons.path -text {Library paths} -variable load_file_dialog_fullpath \
+    -command {
+      file_dialog_set_names1
+      update
+      file_dialog_set_colors1
+      .load.l.paneleft.list xview moveto 1
+    }
+  pack .load.buttons.home .load.buttons.up .load.buttons.pwd .load.buttons.path -side left
   pack .load.buttons.mkdirlab -side left
   pack .load.buttons.newdir -expand true -fill x -side left
   pack .load.buttons.rmdir .load.buttons.mkdir -side right
@@ -3633,7 +3661,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
 
   xschem preview_window create .load.l.paneright.draw {}
-  set file_dialog_dir1 [abs_sym_path [.load.l.paneleft.list get $file_dialog_index1]]
+  set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
   setglob $file_dialog_dir1
   file_dialog_set_colors2
 
@@ -3653,7 +3681,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set file_dialog_yview [.load.l.paneright.list yview] 
     set file_dialog_sel [.load.l.paneright.list curselection]
     if { $file_dialog_sel ne {} } {
-      set file_dialog_dir1 [abs_sym_path [.load.l.paneleft.list get $file_dialog_index1]]
+      set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
       set file_dialog_dir2 [.load.l.paneright.list get $file_dialog_sel]
       if {$file_dialog_dir2 eq {..}} {
         set file_dialog_d [file dirname $file_dialog_dir1]
@@ -7615,7 +7643,7 @@ proc trace_set_paths {varname idxname op} {
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
 # new library search path.
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives
+  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives file_dialog_names1 file_dialog_files1
   set pathlist {}
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
@@ -7644,7 +7672,6 @@ proc set_paths {} {
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
   set file_dialog_files1 $pathlist
-  # set INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR as initial locations in load file dialog box
   set_initial_dirs
 }
 
@@ -7913,6 +7940,7 @@ set_ne incr_hilight 1
 set_ne enable_stretch 0
 set_ne constrained_move 0
 set_ne unselect_partial_sel_wires 0
+set_ne load_file_dialog_fullpath 1
 
 # if set show selected elements while dragging the selection rectangle.
 # once selected these can not be unselected by retracting the selection rectangle
