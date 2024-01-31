@@ -3531,6 +3531,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     xschem preview_window destroy {} {}
     set $global_initdir \"\$file_dialog_dir1\"
   "
+  wm protocol .load WM_DELETE_WINDOW {.load.buttons_bot.cancel invoke}
   button .load.buttons.home -width 5 -text {Home} -command {
     bind .load.l.paneright.draw <Expose> {}
     .load.l.paneright.draw configure -background white
