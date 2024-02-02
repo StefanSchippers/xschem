@@ -4499,8 +4499,6 @@ void descend_symbol(void)
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;
 
-  ++xctx->currsch; /* increment level counter */
-
   if((xctx->inst[n].ptr+ xctx->sym)->flags & EMBEDDED || xctx->inst[n].embed) {
     /* save embedded symbol into a temporary file */
     my_snprintf(name_embedded, S(name_embedded),
@@ -4514,6 +4512,7 @@ void descend_symbol(void)
     unselect_all(1);
     remove_symbols(); /* must follow save (if) embedded */
     /* load_symbol(name_embedded); */
+    ++xctx->currsch; /* increment level counter */
     load_schematic(1, name_embedded, 1, 1);
   } else {
     char *sympath = NULL;
@@ -4536,6 +4535,7 @@ void descend_symbol(void)
       my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
     }
     dbg(1, "descend_symbol(): name=%s, sympath=%s, dirname=%s\n", name, sympath, xctx->current_dirname);
+    ++xctx->currsch; /* increment level counter */
     load_schematic(1, sympath, 1, 1);
     if(web_url) {
       /* restore web url current_dirname that is reset by load_schematic with local path */
