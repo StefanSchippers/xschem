@@ -1773,12 +1773,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "current_name=%s\n", xctx->current_name); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "currsch=%d\n", xctx->currsch); Tcl_AppendResult(interp, res, NULL);
       for(i=0;i<=xctx->currsch; ++i)
-      {
+      { const char *p, *t;
         my_snprintf(res, S(res), "previous_instance[%d]=%d\n",
             i,xctx->previous_instance[i]); Tcl_AppendResult(interp, res, NULL);
         my_snprintf(res, S(res), "sch_path[%d]=%s\n",i,xctx->sch_path[i]? 
             xctx->sch_path[i]:"<NULL>"); Tcl_AppendResult(interp, res, NULL);
         my_snprintf(res, S(res), "sch[%d]=%s\n",i,xctx->sch[i]); Tcl_AppendResult(interp, res, NULL);
+
+        p = xctx->hier_attr[i].prop_ptr ? xctx->hier_attr[i].prop_ptr : "<NULL>";
+        t = xctx->hier_attr[i].templ ? xctx->hier_attr[i].templ : "<NULL>";
+        my_snprintf(res, S(res), "lcc[%d].prop_ptr=%s\n", i, p);
+        Tcl_AppendResult(interp, res, NULL);
+        my_snprintf(res, S(res), "lcc[%d].templ=%s\n", i, t);
+        Tcl_AppendResult(interp, res, NULL);
+       
       }
       my_snprintf(res, S(res), "modified=%d\n", xctx->modified); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
