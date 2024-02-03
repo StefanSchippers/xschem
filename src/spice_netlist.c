@@ -434,6 +434,17 @@ int global_spice_netlist(int global)  /* netlister driver */
     if(xctx->sym[i].flags & (SPICE_IGNORE | SPICE_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
+    /* normally empty, if not raise a warning... */
+    if(xctx->hier_attr[xctx->currsch - 1].templ) {
+      dbg(0, "xctx->hier_attr[xctx->currsch - 1].templ not empty: %s\n",
+        xctx->hier_attr[xctx->currsch - 1].templ);
+    }
+    /* store parent symbol template attr (before descending into it) 
+     * to resolve subschematic instances with model=@modp in format string,
+     * modp will be first looked up in instance prop_ptr string, and if not found
+     * in parent symbol template string */
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ,
+              get_tok_value(xctx->sym[i].prop_ptr, "template", 0));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
@@ -459,6 +470,7 @@ int global_spice_netlist(int global)  /* netlister driver */
             err |= spice_block_netlist(fd, i);
       }
     }
+    my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ);
    }
    my_free(_ALLOC_ID_, &abs_path);
    /* get_additional_symbols(0); */

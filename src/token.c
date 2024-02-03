@@ -2148,16 +2148,36 @@ int print_spice_element(FILE *fd, int inst)
         value=NULL;
       } else {
         size_t tok_val_len;
+        size_t tok_size;
         dbg(1, "print_spice_element(): token: |%s|\n", token);
         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
+        tok_size =  xctx->tok_size;
         value = val;
-        if(!strcmp(token + 1, "model") && strchr(value, '@')) value = translate(inst, val);
+        if(!strcmp(token + 1, "model") && strchr(value, '@')) {
+          value = translate(inst, val);
+          /* Symbol format string contains model=@modp, 
+           * instance attributes does not contain a modp=xxx, 
+           * look up modp in **parent** symbol template attribute */
+          if(value[0] == '\0') {
+             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
+          }
+        }
+        else if(val[0] == '@' && !strpbrk(value + 1, "@ ")) {
+          /* value = translate(inst, val); */
+          value = get_tok_value(xctx->inst[inst].prop_ptr, val + 1, 0);
+          dbg(1, "val=%s, tok=%s, value=%s template=%s\n", 
+              val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
+          if(value[0] == '\0') {
+             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
+          }
+        }
         tok_val_len = strlen(value);
         if(!strcmp(token, "@spiceprefix")) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
+        xctx->tok_size = tok_size;
         /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
 
         if (!xctx->tok_size) value=get_tok_value(template, token+1, 0);

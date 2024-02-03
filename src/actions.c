@@ -2218,6 +2218,8 @@ void go_back(int confirm) /*  20171006 add confirm */
 
   xctx->sch_path_hash[xctx->currsch] = 0;
   xctx->currsch--;
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr);
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ);
   save_modified = xctx->modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 
