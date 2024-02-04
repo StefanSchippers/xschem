@@ -7644,7 +7644,7 @@ proc trace_set_paths {varname idxname op} {
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
 # new library search path.
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives file_dialog_names1 file_dialog_files1
+  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives file_dialog_names1
   set pathlist {}
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
@@ -7672,7 +7672,6 @@ proc set_paths {} {
     }
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
-  set file_dialog_files1 $pathlist
   set_initial_dirs
 }
 
