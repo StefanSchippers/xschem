@@ -544,7 +544,7 @@ const char *get_sym_template(char *s,char *extra)
 /* 2: eat backslashes */
 /* 3: 1+2  :) */
 
- dbg(1, "get_sym_template(): s=%s, extra=%s\n", s ? s : "NULL", extra ? extra : "NULL");
+ dbg(0, "get_sym_template(): s=%s, extra=%s\n", s ? s : "NULL", extra ? extra : "NULL");
  if(s==NULL) {
    my_free(_ALLOC_ID_, &result);
    return "";
@@ -558,11 +558,13 @@ const char *get_sym_template(char *s,char *extra)
  while(1) {
   c=*s++;
   space=SPACE(c) ;
+  dbg(0, "state=%d", state);
   if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
   else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
   else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
+  dbg(0, " --> state=%d\n", state);
   STR_ALLOC(&value, value_pos, &sizeval);
   STR_ALLOC(&token, token_pos, &sizetok);
   if(c=='"') {
@@ -589,13 +591,14 @@ const char *get_sym_template(char *s,char *extra)
   } else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
       token[token_pos]='\0';
+      dbg(0, "token=|%s|\n", token);
       if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
         memcpy(result+result_pos, token, token_pos+1);
         result_pos+=token_pos;
-        result[result_pos++] = (char)c;
       }
       token_pos=0;
     }
+    result[result_pos++] = (char)c;
   }
   escape = (c=='\\' && !escape);
   if(c=='\0') {
@@ -604,6 +607,7 @@ const char *get_sym_template(char *s,char *extra)
  }
  my_free(_ALLOC_ID_, &value);
  my_free(_ALLOC_ID_, &token);
+ dbg(0, "get_sym_template(): result=|%s|\n", result);
  return result;
 }
 
