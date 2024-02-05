@@ -2769,7 +2769,14 @@ proc graph_edit_properties {n} {
   } else {
     .graphdialog.top.lwe insert 0 $custom_lw
   }
-  checkbutton .graphdialog.top.unlocked -text {Unlock. X axis} -variable graph_unlocked
+  checkbutton .graphdialog.top.unlocked -text {Unlock. X axis} -variable graph_unlocked \
+  -command {
+      if {$graph_unlocked} {
+        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
+      } else {
+        xschem setprop rect 2 $graph_selected flags {graph} fast
+      }
+  }
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
