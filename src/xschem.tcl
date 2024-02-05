@@ -4013,8 +4013,10 @@ proc set_netlist_dir { change {dir {} }} {
     }
     if { $dir eq {} } {
       # set to default simulations/ directory.
-      if {$local_netlist_dir == 0 } {
+      if {$local_netlist_dir == 0  && $netlist_dir eq {}} {
         set initdir "$USER_CONF_DIR/simulations"
+      } elseif {$local_netlist_dir == 0 } {
+        set initdir $netlist_dir
       } elseif { $netlist_dir ne {} }  { 
         set initdir $netlist_dir
       } else {
@@ -7128,19 +7130,19 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu.netlist add checkbutton -label "Split netlist" -variable split_files \
      -accelerator {} 
   $topwin.menubar.option.menu.netlist add radiobutton -label "Spice netlist"\
-       -variable netlist_type -value spice -accelerator {Ctrl+Shift+V} \
+       -background grey60 -variable netlist_type -value spice -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type spice; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "VHDL netlist"\
-       -variable netlist_type -value vhdl -accelerator {Ctrl+Shift+V} \
+       -background grey60 -variable netlist_type -value vhdl -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type vhdl; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Verilog netlist"\
-       -variable netlist_type -value verilog -accelerator {Ctrl+Shift+V} \
+       -background grey60 -variable netlist_type -value verilog -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type verilog; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "tEDAx netlist" \
-       -variable netlist_type -value tedax -accelerator {Ctrl+Shift+V} \
+       -background grey60 -variable netlist_type -value tedax -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type tedax; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Symbol global attrs" \
-       -variable netlist_type -value symbol -accelerator {Ctrl+Shift+V} \
+       -background grey60 -variable netlist_type -value symbol -accelerator {Ctrl+Shift+V} \
        -command "xschem set netlist_type symbol; xschem redraw"
 
 
@@ -7181,11 +7183,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state normal \
       -command {xschem rotate} -accelerator {Shift-R}
   $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
-     -value 0 -command {xschem set constrained_move 0} 
+     -background grey60 -value 0 -command {xschem set constrained_move 0} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
-     -value 1 -accelerator H -command {xschem set constrained_move 1} 
+     -background grey60 -value 1 -accelerator H -command {xschem set constrained_move 1} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
-     -value 2 -accelerator V -command {xschem set constrained_move 2} 
+     -background grey60 -value 2 -accelerator V -command {xschem set constrained_move 2} 
   $topwin.menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -7327,13 +7329,13 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
   $topwin.menubar.sym.menu add radiobutton -label "Show symbols" \
-     -variable hide_symbols -value 0 \
+     -background grey60 -variable hide_symbols -value 0 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
-     -variable hide_symbols -value 1 \
+     -background grey60 -variable hide_symbols -value 1 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" \
-     -variable hide_symbols -value 2 \
+     -background grey60 -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add command -label "Set symbol width" \
      -command {
@@ -7470,14 +7472,14 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.simulation.menu add checkbutton -label "Show netlist after netlist command" \
      -variable netlist_show -accelerator {Shift+A} 
-  $topwin.menubar.simulation.menu add radiobutton -label "set netlisting directory" \
-    -variable local_netlist_dir -value 0 \
+  $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use netlist directory" \
+    -background grey60 -variable local_netlist_dir -value 0 \
     -command {set_netlist_dir 1 }
-  $topwin.menubar.simulation.menu add radiobutton -label "Use 'simulation' dir in schematic dir" \
-    -variable local_netlist_dir -value 1 \
+  $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use 'simulation' dir in schematic dir" \
+    -background grey60 -variable local_netlist_dir -value 1 \
     -command {set_netlist_dir 1 }
-  $topwin.menubar.simulation.menu add radiobutton -label "Use 'simulation/\[schname\]' dir in schematic dir" \
-    -variable local_netlist_dir -value 2 \
+  $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use 'simulation/\[schname\]' dir in schematic dir" \
+    -background grey60 -variable local_netlist_dir -value 2 \
     -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   if {$OS == {Windows}} {

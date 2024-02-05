@@ -560,13 +560,22 @@ int verilog_block_netlist(FILE *fd, int i)
     }
     int_hash_free(&table);
     if(extra2) {
+      char *verilog_extra_dir = NULL;
+      const char *dir;
+      my_strdup2(_ALLOC_ID_, &verilog_extra_dir, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra_dir", 0));
       saveptr1 = NULL;
       for(extra_ptr = extra2; ; extra_ptr=NULL) {
         extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr1);
         if(!extra_token) break;
-        fprintf(fd, "  inout %s ;\n", extra_token);
+        dir = get_tok_value(verilog_extra_dir, extra_token, 0);
+        if(dir[0]) {
+          fprintf(fd, "  %s %s ;\n", dir, extra_token);
+        } else {
+          fprintf(fd, "  inout %s ;\n", extra_token);
+        }
         fprintf(fd, "  wire %s ;\n", extra_token);
       }
+      my_free(_ALLOC_ID_, &verilog_extra_dir);
     }
     dbg(1, "verilog_block_netlist():       netlisting %s\n", get_cell( xctx->sch[xctx->currsch], 0));
     err |= verilog_netlist(fd, verilog_stop);
