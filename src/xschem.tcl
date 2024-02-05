@@ -1942,7 +1942,7 @@ proc setup_tcp_gaw {} {
     }
     return 0
   }
-  chan configure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
+  fconfigure $gaw_fd -blocking 1 -buffering line -encoding binary -translation binary
   fileevent $gaw_fd readable gaw_echoline
   puts $gaw_fd "table_set $s.raw"
   return 1
@@ -1962,7 +1962,7 @@ proc gaw_cmd {cmd} {
     }
     return
   }
-  chan configure $gaw_fd -blocking 0 -buffering line -encoding binary -translation binary
+  fconfigure $gaw_fd -blocking 0 -buffering line -encoding binary -translation binary
   puts $gaw_fd "$cmd"
   set n [regexp -all \n $cmd]
   incr n
@@ -7785,7 +7785,7 @@ proc setup_tcp_xschem { {port_number {}} } {
       set xschem_server_getdata(server) $chan
       # this piece of code deals with automatic port number selection (port_number argument set to 0) 
       # tcl will automatically choose a free tcp port.
-      set assigned_port [lindex [chan configure $chan -sockname] end]
+      set assigned_port [lindex [fconfigure $chan -sockname] end]
       set xschem_listen_port $assigned_port
       return $assigned_port
     }
@@ -7812,7 +7812,7 @@ proc setup_tcp_bespice {} {
       # succeded => set $bespice_listen_port and socket connection for communication
       set chan $err
       set bespice_server_getdata(server) $chan
-      set assigned_port [lindex [chan configure $chan -sockname] end]
+      set assigned_port [lindex [fconfigure $chan -sockname] end]
       set bespice_listen_port $assigned_port
       puts stderr "setup_tcp_bespice: success : listening to TCP port: $bespice_listen_port"
       return 1
