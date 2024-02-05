@@ -595,13 +595,14 @@ const char *get_sym_template(char *s,char *extra)
       if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
         memcpy(result+result_pos, token, token_pos+1);
         result_pos+=token_pos;
+        result[result_pos++] = (char)c;
       }
       token_pos=0;
     }
-    result[result_pos++] = (char)c;
   }
   escape = (c=='\\' && !escape);
   if(c=='\0') {
+    if(result[result_pos] != '\0') result[result_pos++] = '\0';
     break;
   }
  }
