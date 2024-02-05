@@ -367,12 +367,21 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   </p>
   <p>
   You may assign the following attributes to an instance: <kbd>name=X1 VPWR=VCC VGND=GND subckt=NOR2_1</kbd>
-   and you want to have VCC and GND connections to the symbol in the Verilog netlist but do not want
-   any of these attributes to be
-   passed as symbol parameters. In this case you set: <kbd>verilog_extra="VPWR VGND"</kbd> and
-   <kbd>extra="VPWR VGND subckt"</kbd> since <kbd>subckt</kbd> is probably a spice attribute and you don't
-   want it in verilog.
+  and you want to have VCC and GND connections to the symbol in the Verilog netlist but do not want
+  any of these attributes to be
+  passed as symbol parameters. In this case you set: <kbd>verilog_extra="VPWR VGND"</kbd> and
+  <kbd>extra="VPWR VGND subckt"</kbd> since <kbd>subckt</kbd> is probably a spice attribute and you don't
+  want it in verilog.
   </p>
+
+  <li><kbd>verilog_extra_dir</kbd></li>
+  <p>
+  This attribute allows to define the pin directions of <kbd>verilog_extra</kbd> symbol ports.
+  If unspecified the default is
+  <kbd>inout</kbd>. Allowed values are <kbd>input</kbd>, <kbd>output</kbd>, <kbd>inout</kbd>.<br>
+  Example:  <kbd>verilog_extra_dir="VPWR=input VGND=input"</kbd>
+  </p>
+
   <li><kbd>verilogprefix</kbd></li>
   <p>
   If this attribute is defined in symbol it will be used as a prefix to the symbol name and subcircuit
