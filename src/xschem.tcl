@@ -74,6 +74,7 @@ proc inutile_template {w f} {
 
 proc inutile_get_time {} {
  global netlist_dir
+ regsub {/$} $netlist_dir {} netlist_dir
  set fileid [open "$netlist_dir/inutile.simulationtime"  "RDONLY"]
  .inutile.buttons.time delete 0 end
  .inutile.buttons.time insert 0 [read -nonewline $fileid]
@@ -131,6 +132,7 @@ proc inutile_help_window {w filename} {
 
 proc inutile_translate {f} {
   global XSCHEM_SHAREDIR netlist_dir
+  regsub {/$} $netlist_dir {} netlist_dir
   set p $XSCHEM_SHAREDIR/utile
   set savedir [pwd]
   cd $netlist_dir
@@ -716,6 +718,7 @@ proc netlist {source_file show netlist_file} {
  global XSCHEM_SHAREDIR flat_netlist netlist_dir simulate_bg
  global verilog_2001 debug_var OS has_x verilog_bitblast
 
+ regsub {/$} $netlist_dir {} netlist_dir
  # if waves are loaded turn Waves button to yellow to indicate old waves are shown
  set win_path [xschem get current_win_path]
  set top_path [xschem get top_path]
@@ -908,6 +911,7 @@ proc edit_file {filename} {
 proc save_sim_defaults {f} {
   global sim netlist_dir terminal
   
+  regsub {/$} $netlist_dir {} netlist_dir
   set a [catch {open $f w} fd]
   if { $a } {
     puts "save_sim_defaults: error opening file $f: $fd"
@@ -1781,6 +1785,7 @@ proc reroute_net {old new} {
 ## $d : netlist directory
 proc sim_cmd {cmd} {
   global  netlist_dir terminal
+  regsub {/$} $netlist_dir {} netlist_dir
   set tool [xschem get netlist_type]
   set d ${netlist_dir}
   set S [xschem get schname]
@@ -1832,6 +1837,7 @@ proc simulate {{callback {}}} {
   global netlist_dir terminal sim env
   global execute XSCHEM_SHAREDIR has_x OS
 
+  regsub {/$} $netlist_dir {} netlist_dir
   set_sim_defaults
   set netlist_type [xschem get netlist_type]
   if { [set_netlist_dir 0] ne {}} {
@@ -1923,6 +1929,7 @@ proc gaw_echoline {} {
 proc setup_tcp_gaw {} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
  
+  regsub {/$} $netlist_dir {} netlist_dir
   if { [info exists gaw_fd] } { return 1; } 
   set custom_netlist_file [xschem get netlist_name]
   if {$custom_netlist_file ne {}} {
@@ -1951,6 +1958,7 @@ proc setup_tcp_gaw {} {
 proc gaw_cmd {cmd} {
   global gaw_fd gaw_tcp_address netlist_dir has_x
 
+  regsub {/$} $netlist_dir {} netlist_dir
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
     unset gaw_fd
@@ -1994,6 +2002,7 @@ proc waves {{type {}}} {
   global netlist_dir terminal sim XSCHEM_SHAREDIR has_x 
   global bespice_listen_port env simulate_bg execute
 
+  regsub {/$} $netlist_dir {} netlist_dir
   if {$type ne {external} } {
     load_raw $type
     return
@@ -2552,6 +2561,7 @@ proc graph_edit_properties {n} {
 
   entry .graphdialog.center.right.rawentry -width 30
   button .graphdialog.center.right.rawbut -text {Raw file:} -command {
+    regsub {/$} $netlist_dir {} netlist_dir
    .graphdialog.center.right.rawentry delete 0 end
    .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
@@ -2973,6 +2983,7 @@ proc get_shell { {curpath {}} } {
  global netlist_dir debug_var
  global  terminal
 
+ regsub {/$} $netlist_dir {} netlist_dir
  set save [pwd]
  if { $curpath ne {} } {
    cd $curpath
@@ -2987,6 +2998,7 @@ proc edit_netlist {netlist } {
  global netlist_dir debug_var
  global editor terminal OS
 
+ regsub {/$} $netlist_dir {} netlist_dir
  set netlist_type [xschem get netlist_type]
 
  if { [regexp vim $editor] } { set ftype "-c \":set filetype=$netlist_type\"" } else { set ftype {} }
@@ -3975,11 +3987,13 @@ proc simuldir {} {
   if { $local_netlist_dir == 1 } {
     set simdir [xschem get current_dirname]/simulation
     set netlist_dir $simdir
+    regsub {/$} $netlist_dir {} netlist_dir
     return $netlist_dir
   }
   if { $local_netlist_dir == 2 } {
     set simdir [xschem get current_dirname]/simulation/[get_cell [xschem get current_name] 0]
     set netlist_dir $simdir
+    regsub {/$} $netlist_dir {} netlist_dir
     return $netlist_dir
   }
   return {}
@@ -3999,6 +4013,7 @@ proc set_netlist_dir { change {dir {} }} {
 
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
+  regsub {/$} $netlist_dir {} netlist_dir
   # puts "-->$netlist_dir"
   #### change == 0
   if {$change == 0} {
@@ -4056,6 +4071,7 @@ proc set_netlist_dir { change {dir {} }} {
     }
   }
   regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
+  regsub {/$} $netlist_dir {} netlist_dir
   # return $netlist_dir if valid and existing, else return empty string
   if {$netlist_dir ne {} && [file exists $netlist_dir]} {
     return $netlist_dir
@@ -5722,6 +5738,7 @@ proc launcher {launcher_var {launcher_program {} } } {
   # env, XSCHEM_SHAREDIR and netlist_dir not used directly but useful in paths passed thru launcher_var
   global launcher_default_program env XSCHEM_SHAREDIR netlist_dir
   
+  regsub {/$} $netlist_dir {} netlist_dir
   if { ![string compare $launcher_program {}] } { set launcher_program $launcher_default_program}
   eval exec  [subst $launcher_program] {[subst $launcher_var]} &
 }
@@ -5954,6 +5971,7 @@ proc context_menu { } {
 
 proc tab_ctx_cmd {tab_but what} {
   global terminal editor netlist_dir OS has_x
+  regsub {/$} $netlist_dir {} netlist_dir
   # get win_path from tab name
   set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
   set tablist [xschem tab_list]
@@ -6906,6 +6924,7 @@ proc switch_undo {} {
 
 proc select_raw {} {
   global has_x netlist_dir
+  regsub {/$} $netlist_dir {} netlist_dir
   set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
   set types {
       {{Raw Files}       {.raw}        }
@@ -6921,6 +6940,7 @@ proc select_raw {} {
 proc load_raw {{type {}}} {
   global netlist_dir has_x
 
+  regsub {/$} $netlist_dir {} netlist_dir
   if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
     xschem raw_clear
    }
