@@ -280,7 +280,7 @@ BEGIN{
 #  sig_type=$3;
   sig_type=$0                           #03062002: allow spaces in sig_type
   sub(/^.* : [ \t]*/,"",sig_type)
-  sub(/[ \t]*(\:=|;).*$/,"",sig_type)
+  sub(/[ \t]*(:=|;).*$/,"",sig_type)
   if(sig_type ~ /[ \t]+/) sig_type="\"" sig_type "\""
 
   pin_label=$1
@@ -342,7 +342,7 @@ inline_function==1{
 
   if( ($1=="end" && $2==";") || ($1=="end" && $2 == inline_function_name)  )
   {
-    print "end inline function"
+    print "end inline function: " $0
     if( !package_decl && !package_body)
       inline_function=0
   }
@@ -350,7 +350,10 @@ inline_function==1{
  }
 }
 
-
+($0 ~ /^[ \t]*(function|procedure)[ \t]+/ && inline_function==1 && $0 !~ / is *$/) {
+  print "end oneliner inline function: " $0
+  inline_function=0
+}
 # # architecture types / subtypes
 # ($1 ~ /^(type|subtype|constant)$/) , /;/{
 #  if(start_arch==1)
@@ -731,7 +734,7 @@ function add_inst_pin(pin_label)
 #  sig_type=$3;
   sig_type=$0				#03062002: allow spaces in sig_type
   sub(/^.* : [ \t]*/,"",sig_type)
-  sub(/[ \t]*(\:=|;).*$/,"",sig_type)
+  sub(/[ \t]*(:=|;).*$/,"",sig_type)
   if(sig_type ~ /[ \t]+/) sig_type="\"" sig_type "\""
   pin_label=$1
   if($0 ~ /:=/) 
@@ -755,6 +758,7 @@ function add_inst_pin(pin_label)
 
 # end entity
 ( $1=="end" && $2 ~ name) || ( $1=="end" && $2=="entity"  && $3 ~ name) {  # 20071213 handle "end entity name"
+  print "end entity: " $0
   end_entity=1 
 
 }
@@ -892,6 +896,7 @@ function print_sch(schname,type_pin, dir_pin, value_pin, class_pin, num_pin, opi
 
 {
 
+ print "print_sch(): schname=" schname
  n=ip;if(op>n) n=op
  if(n==0) n=1
  m=(n-1)/2
