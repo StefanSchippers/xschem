@@ -90,7 +90,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     {
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      get_sch_from_sym(filename, xctx->sym + i, -1);
+      get_sch_from_sym(filename, xctx->sym + i, -1, 0);
       if (str_hash_lookup(&subckt_table, filename, "", XLOOKUP)==NULL)
       {
         const char *default_schematic;
@@ -434,17 +434,14 @@ int global_spice_netlist(int global)  /* netlister driver */
     if(xctx->sym[i].flags & (SPICE_IGNORE | SPICE_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
-    /* normally empty, if not raise a warning... */
-    if(xctx->hier_attr[xctx->currsch - 1].templ) {
-      dbg(0, "xctx->hier_attr[xctx->currsch - 1].templ not empty: %s\n",
-        xctx->hier_attr[xctx->currsch - 1].templ);
-    }
-    /* store parent symbol template attr (before descending into it) 
+    /* store parent symbol template attr (before descending into it) and parent instance prop_ptr
      * to resolve subschematic instances with model=@modp in format string,
      * modp will be first looked up in instance prop_ptr string, and if not found
      * in parent symbol template string */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ,
-              get_tok_value(xctx->sym[i].prop_ptr, "template", 0));
+              tcl_hook2(xctx->sym[i].templ));
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
+              tcl_hook2(xctx->sym[i].parent_prop_ptr));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
@@ -470,8 +467,11 @@ int global_spice_netlist(int global)  /* netlister driver */
             err |= spice_block_netlist(fd, i);
       }
     }
-    my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ);
    }
+   if(xctx->hier_attr[xctx->currsch - 1].templ)
+     my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ);
+   if(xctx->hier_attr[xctx->currsch - 1].prop_ptr)
+     my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr);
    my_free(_ALLOC_ID_, &abs_path);
    /* get_additional_symbols(0); */
    my_free(_ALLOC_ID_, &subckt_name);
@@ -599,7 +599,7 @@ int spice_block_netlist(FILE *fd, int i)
   if(!strcmp(get_tok_value(xctx->sym[i].prop_ptr, "format", 0), "")) {
     return err;
   }
-  get_sch_from_sym(filename, xctx->sym + i, -1);
+  get_sch_from_sym(filename, xctx->sym + i, -1, 0);
   default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
   if(!strcmp(default_schematic, "ignore")) {
     return err;

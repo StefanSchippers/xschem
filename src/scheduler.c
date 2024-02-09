@@ -655,9 +655,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(xctx->semaphore == 0) {
         if(argc > 2) {
           int n = atoi(argv[2]);
-          ret = descend_schematic(n);
+          ret = descend_schematic(n, 0, 0);
         } else {
-          ret = descend_schematic(0);
+          ret = descend_schematic(0, 0, 0);
         }
       }
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
@@ -1698,7 +1698,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         } else {
           if( xctx->inst[inst].ptr >= 0 ) {
-            get_sch_from_sym(filename, xctx->inst[inst].ptr+ xctx->sym, inst);
+            get_sch_from_sym(filename, xctx->inst[inst].ptr+ xctx->sym, inst, 0);
           }
         }
       }

@@ -2167,6 +2167,9 @@ int print_spice_element(FILE *fd, int inst)
               xctx->inst[inst].instname,
               val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
           if(value[0] == '\0') {
+             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, val+1, 0);
+          }
+          if(value[0] == '\0') {
              value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
           }
         }
@@ -2175,6 +2178,9 @@ int print_spice_element(FILE *fd, int inst)
           value = get_tok_value(xctx->inst[inst].prop_ptr, val + 1, 0);
           dbg(1, "val=%s, tok=%s, value=%s template=%s", 
               val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
+          if(value[0] == '\0') {
+             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, val+1, 0);
+          }
           if(value[0] == '\0') {
              value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
           }
@@ -3735,7 +3741,7 @@ const char *translate(int inst, const char* s)
      }
    } else if(strcmp(token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
 
-    get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst);
+    get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst, 0);
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
       tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);

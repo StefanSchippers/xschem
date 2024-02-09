@@ -1872,7 +1872,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='e' && rstate == 0)           /* descend to schematic */
    {
     if(xctx->semaphore >= 2) break;
-    descend_schematic(0);break;
+    descend_schematic(0, 1, 1);break;
    }
    if(key=='e' && EQUAL_MODMASK)            /* edit schematic in new window */
    {
@@ -2846,7 +2846,7 @@ int rstate; /* (reduced state, without ShiftMask) */
          edit_property(1);
          break;
        case 12:
-         descend_schematic(0);
+         descend_schematic(0, 1, 1);
          break;
        case 13:
          descend_symbol();

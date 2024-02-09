@@ -560,6 +560,7 @@ typedef struct
   char *prop_ptr;
   char *type;
   char *templ;
+  char *parent_prop_ptr;
   int flags;   /* bit 0: embedded flag 
                 * bit 1: **free**
                 * bit 2: HILIGHT_CONN, highlight if connected net/label is highlighted
@@ -1478,10 +1479,10 @@ extern void load_ascii_string(char **ptr, FILE *fd);
 extern char *read_line(FILE *fp, int dbg_level);
 extern void read_record(int firstchar, FILE *fp, int dbg_level);
 extern void create_sch_from_sym(void);
-extern void get_sch_from_sym(char *filename, xSymbol *sym, int inst);
+extern void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback);
 extern const char *get_sym_name(int inst, int ndir, int ext);
 extern void get_additional_symbols(int what);
-extern int descend_schematic(int instnumber);
+extern int descend_schematic(int instnumber, int fallback, int alert);
 extern void go_back(int confirm);
 extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);

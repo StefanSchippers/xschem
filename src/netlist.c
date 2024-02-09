@@ -1612,7 +1612,7 @@ int sym_vs_sch_pins()
       int_hash_free(&pin_table);
       /* pass through symbols, duplicated pins: do not check with schematic */
       if(rects > unique_pins) continue;
-      get_sch_from_sym(filename, xctx->sym + i, -1);
+      get_sch_from_sym(filename, xctx->sym + i, -1, 0);
       if(!stat(filename, &buf)) {
         fd = fopen(filename, "r");
         pin_cnt = 0;

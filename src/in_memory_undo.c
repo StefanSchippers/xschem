@@ -129,6 +129,7 @@ static void free_undo_symbols(int slot)
     my_free(_ALLOC_ID_, &sym->prop_ptr);
     my_free(_ALLOC_ID_, &sym->type);
     my_free(_ALLOC_ID_, &sym->templ);
+    my_free(_ALLOC_ID_, &sym->parent_prop_ptr);
 
     for(c = 0;c<cadlayers; ++c) {
       for(j = 0;j<sym->polygons[c]; ++j) {

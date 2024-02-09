@@ -521,7 +521,7 @@ int vhdl_block_netlist(FILE *fd, int i)
     vhdl_stop=1;
   else
     vhdl_stop=0;
-  get_sch_from_sym(filename, xctx->sym + i, -1);
+  get_sch_from_sym(filename, xctx->sym + i, -1, 0);
 
   default_schematic = get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0);
   if(!strcmp(default_schematic, "ignore")) {

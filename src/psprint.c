@@ -812,7 +812,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     if(what != 7) {
       char fname[PATH_MAX];
       if(!strcmp(xctx->sym[xctx->inst[n].ptr].type, "subcircuit")) {
-        get_sch_from_sym(fname, xctx->inst[n].ptr+ xctx->sym, n);
+        get_sch_from_sym(fname, xctx->inst[n].ptr+ xctx->sym, n, 0);
         fprintf(fd, 
           "[ "
           "/Rect [ %g %g %g %g ] "

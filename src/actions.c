@@ -638,6 +638,7 @@ void remove_symbol(int j)
   dbg(1,"clearing symbol %d: %s\n", j, xctx->sym[j].name);
   my_free(_ALLOC_ID_, &xctx->sym[j].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->sym[j].templ);
+  my_free(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr);
   my_free(_ALLOC_ID_, &xctx->sym[j].type);
   my_free(_ALLOC_ID_, &xctx->sym[j].name);
   /*  /20150409 */
@@ -1698,7 +1699,7 @@ int schematic_in_new_window(int new_process, int dr, int force)
            "primitive"
        )
     ) return 0;
-    get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n);
+    get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n, 0);
     if(force || !check_loaded(filename, win_path)) {
       if(new_process) new_xschem_process(filename, 0);
       else new_schematic("create", "noalert", filename, dr);
@@ -1775,9 +1776,11 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
   dest_sym->prop_ptr = NULL;
   dest_sym->type = NULL;
   dest_sym->templ = NULL;
+  dest_sym->parent_prop_ptr = NULL;
   my_strdup2(_ALLOC_ID_, &dest_sym->name, src_sym->name);
   my_strdup2(_ALLOC_ID_, &dest_sym->type, src_sym->type);
   my_strdup2(_ALLOC_ID_, &dest_sym->templ, src_sym->templ);
+  my_strdup(_ALLOC_ID_, &dest_sym->parent_prop_ptr, src_sym->parent_prop_ptr);
   my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, src_sym->prop_ptr);
 
   dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
@@ -1917,6 +1920,7 @@ void get_additional_symbols(int what)
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 
+          my_strdup(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr, xctx->inst[i].prop_ptr);
           /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
            * be skipped */
           if(default_schematic) {
@@ -1960,13 +1964,17 @@ void get_additional_symbols(int what)
     xctx->symbols = num_syms;
   }
 }
-
-void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
+/* fallback = 1: if schematic attribute is set but file not existing fallback
+ * to defaut symbol schematic (symname.sym -> symname.sch) */
+void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 {
   char *sch = NULL;
   char *str_tmp = NULL;
   int web_url = 0;
   struct stat buf;
+  int file_exists=0;
+  int cancel = 0;
+  int is_gen = 0;
 
   /* get sch/sym name from parent schematic downloaded from web */
   if(is_from_web(xctx->current_dirname)) {
@@ -1982,6 +1990,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
        get_cell(sym->name, 0), '\\')));
     if(is_generator(sch)) { /* generator: return as is */
       my_strncpy(filename, sch, PATH_MAX);
+      is_gen = 1;
       dbg(1, "get_sch_from_sym(): filename=%s\n", filename);
     } else { /* not generator */
       dbg(1, "get_sch_from_sym(): after tcl_hook2 sch=%s\n", sch);
@@ -1989,7 +1998,23 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
       if(web_url) my_strncpy(filename, sch, PATH_MAX);
       else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
     }
-  } else { /* no schematic attribute from instance or symbol */
+  } else {
+    my_strncpy(filename, "", PATH_MAX);
+  }
+  
+  if(!is_gen && filename[0]) file_exists = !stat(filename, &buf);
+  dbg(1, "get_sch_from_sym(): fallback=%d, file_exists=%d\n", fallback, file_exists);
+  if(!is_gen && filename[0] && !file_exists && fallback && has_x) {
+    tclvareval("ask_save {Schematic ", filename, "\ndoes not exist.\nDescend into base schematic?}", NULL);
+    if(strcmp(tclresult(), "yes") ) fallback = 0;
+     if(!strcmp(tclresult(), "") ) {
+       my_strncpy(filename, "", PATH_MAX);
+       cancel = 1;
+     }
+  }
+
+  /* no schematic attr from instance or symbol */
+  if(!cancel && (!str_tmp[0] || (!is_gen && filename[0] && !file_exists && fallback))) {
     const char *symname_tcl = tcl_hook2(sym->name);
     if(is_generator(symname_tcl))  my_strncpy(filename, symname_tcl, PATH_MAX);
     else if(tclgetboolvar("search_schematic")) {
@@ -2009,7 +2034,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   }
   if(sch) my_free(_ALLOC_ID_, &sch);
 
-  if(web_url) {
+  if(web_url && filename[0]) {
     char sympath[PATH_MAX];
 
     /* build local cached filename of web_url */
@@ -2028,7 +2053,8 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst)
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
-int descend_schematic(int instnumber)
+/* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic */
+int descend_schematic(int instnumber, int fallback, int alert)
 {
  char *str = NULL;
  char filename[PATH_MAX];
@@ -2059,6 +2085,9 @@ int descend_schematic(int instnumber)
      if(save_ok==0) return 0;
    }
    n = xctx->sel_array[0].n;
+   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n, fallback);
+
+   if(!filename[0]) return 0; /* no filename returned from get_sch_from_sym() --> abort */
    dbg(1, "descend_schematic(): selected:%s\n", xctx->inst[n].name);
    dbg(1, "descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type);
    if(                   /*  do not descend if not subcircuit */
@@ -2176,11 +2205,10 @@ int descend_schematic(int instnumber)
    xctx->currsch++;
    hilight_child_pins();
    unselect_all(1);
-   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n);
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    remove_symbols();
-   load_schematic(1, filename, 1, 1);
+   load_schematic(1, filename, 1, alert);
    if(xctx->hilight_nets) {
      prepare_netlist_structs(0);
      propagate_hilights(1, 0, XINSERT_NOREPLACE);

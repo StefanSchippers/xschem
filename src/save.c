@@ -3632,6 +3632,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbol[symbols].prop_ptr = NULL;
   symbol[symbols].type = NULL;
   symbol[symbols].templ = NULL;
+  symbol[symbols].parent_prop_ptr = NULL;
   symbol[symbols].base_name=NULL;
   symbol[symbols].name=NULL;
 
