@@ -2163,6 +2163,9 @@ int print_spice_element(FILE *fd, int inst)
           /* Symbol format string contains model=@modp, 
            * instance attributes does not contain a modp=xxx, 
            * look up modp in **parent** symbol template attribute */
+          dbg(1, "model: instance=%s ,val=%s, tok=%s, value=%s template=%s\n", 
+              xctx->inst[inst].instname,
+              val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
           if(value[0] == '\0') {
              value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
           }
@@ -2170,7 +2173,7 @@ int print_spice_element(FILE *fd, int inst)
         else if(val[0] == '@' && !strpbrk(value + 1, "@ ")) {
           /* value = translate(inst, val); */
           value = get_tok_value(xctx->inst[inst].prop_ptr, val + 1, 0);
-          dbg(1, "val=%s, tok=%s, value=%s template=%s\n", 
+          dbg(1, "val=%s, tok=%s, value=%s template=%s", 
               val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
           if(value[0] == '\0') {
              value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);

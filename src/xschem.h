@@ -1607,8 +1607,6 @@ extern void hash_name(char *token, int remove);
 extern void hash_names(int inst, int action); /* if i == -1 hash all instances, else do only inst */
 extern void floater_hash_all_names(void);
 extern void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2);
-/* extern char *escape_chars(char *dest, const char *source, int size); */
-
 extern void set_inst_prop(int i);
 extern void unselect_wire(int i);
 extern void select_hilight_net(void);
@@ -1679,7 +1677,7 @@ extern void change_elem_order(int n);
 extern int is_generator(const char *name);
 extern char *str_chars_replace(const char *str, const char *replace_set, const char with);
 extern char *str_replace(const char *str, const char *rep, const char *with, int escape);
-extern char *escape_chars(const char *source);
+extern char *escape_chars(const char *source, const char *charset);
 extern int set_different_token(char **s,const char *new, const char *old);
 extern void print_hilight_net(int show);
 extern void list_hilights(void);

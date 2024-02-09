@@ -217,7 +217,7 @@ void print_version()
   printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 }
 
-char *escape_chars(const char *source)
+char *escape_chars(const char *source, const char *charset)
 {
   int s=0;
   int d=0;
@@ -236,32 +236,41 @@ char *escape_chars(const char *source)
       size += 2;
       my_realloc(_ALLOC_ID_, &dest, size);
     }
-    switch(source[s]) {
-      case '\n':
-        dest[d++] = '\\';
-        dest[d++] = 'n';
-        break;
-      case '\t':
-        dest[d++] = '\\';
-        dest[d++] = 't';
-        break;
-      case '\\':
-      case '\'':
-      case ' ':
-      case ';':
-      case '$':
-      case '!':
-      case '#':
-      case '{':
-      case '}':
-      case '[':
-      case ']':
-      case '"':
+    if(!strcmp(charset, "")) {
+      switch(source[s]) {
+        case '\n':
+          dest[d++] = '\\';
+          dest[d++] = 'n';
+          break;
+        case '\t':
+          dest[d++] = '\\';
+          dest[d++] = 't';
+          break;
+        case '\\':
+        case '\'':
+        case ' ':
+        case ';':
+        case '$':
+        case '!':
+        case '#':
+        case '{':
+        case '}':
+        case '[':
+        case ']':
+        case '"':
+          dest[d++] = '\\';
+          dest[d++] = source[s];
+          break;
+        default:
+          dest[d++] = source[s];
+      }
+    } else {
+      if(strchr(charset, source[s])) { 
         dest[d++] = '\\';
         dest[d++] = source[s];
-        break;
-      default:
+      } else {
         dest[d++] = source[s];
+      }
     }
     s++;
   }
@@ -1850,6 +1859,7 @@ void get_additional_symbols(int what)
   static int num_syms; /* no context switch between start and end so it is safe */
   Int_hashentry *found;
   Int_hashtable sym_table = {NULL, 0};
+  struct stat buf;
 
   if(what == 1) { /* start */
     int_hash_init(&sym_table, HASHSIZE);
@@ -1864,6 +1874,7 @@ void get_additional_symbols(int what)
       char *verilog_sym_def = NULL;
       char *default_schematic = NULL;
       char *sch = NULL;
+      char symbol_base_sch[PATH_MAX] = "";
       
       /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",0));
@@ -1873,6 +1884,11 @@ void get_additional_symbols(int what)
          str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
            get_cell(xctx->inst[i].name, 0), '\\')));
       dbg(1, "get_additional_symbols(): sch=%s\n", sch);
+      if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {/* schematic does not exist */
+        my_snprintf(symbol_base_sch, PATH_MAX, "%s.sch", get_cell(xctx->sym[xctx->inst[i].ptr].name, 9999));
+        dbg(1, "get_additional_symbols(): schematic not existing\n");
+        dbg(1, "using: %s\n", symbol_base_sch);
+      }
       if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists  and instance points to valid symbol */
         int j;
         char *sym = NULL;
@@ -1900,11 +1916,17 @@ void get_additional_symbols(int what)
           copy_symbol(&xctx->sym[j], symptr);
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
+
           /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
            * be skipped */
           if(default_schematic) {
             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
               subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
+          }
+          /* if symbol has no corresponding schematic file use symbol base schematic */
+          if(symbol_base_sch[0]) {
+            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
+              subst_token(xctx->sym[j].prop_ptr, "schematic", symbol_base_sch));
           }
           if(spice_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 

@@ -708,7 +708,7 @@ static void delete_schematic_data(int delete_pixmap)
    * inst & wire .node fields, instance name hash */
   remove_symbols();
   str_replace(NULL, NULL, NULL, 0);
-  escape_chars(NULL);
+  escape_chars(NULL, "");
   sanitize(NULL);
   is_generator(NULL);
   extra_rawfile(3, NULL, NULL, -1.0, -1.0);

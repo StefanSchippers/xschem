@@ -795,12 +795,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* escape_chars source
-     *   escape tcl special characters with backslash */
+    /* escape_chars source [charset]
+     *   escape tcl special characters with backslash
+     *   if charset is given escape characters in charset */
     else if(!strcmp(argv[1], "escape_chars"))
     {
-      if(argc > 2) {
-        Tcl_SetResult(interp, escape_chars(argv[2]), TCL_VOLATILE);
+      if(argc > 3) {
+        Tcl_SetResult(interp, escape_chars(argv[2], argv[3]), TCL_VOLATILE);
+      } else if(argc > 2) {
+        Tcl_SetResult(interp, escape_chars(argv[2], ""), TCL_VOLATILE);
       }
     }
 
