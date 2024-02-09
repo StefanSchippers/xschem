@@ -1863,6 +1863,7 @@ void get_additional_symbols(int what)
   Int_hashentry *found;
   Int_hashtable sym_table = {NULL, 0};
   struct stat buf;
+  int is_gen = 0;
 
   if(what == 1) { /* start */
     int_hash_init(&sym_table, HASHSIZE);
@@ -1901,7 +1902,10 @@ void get_additional_symbols(int what)
         ignore_schematic = !strcmp(default_schematic, "ignore");
 
         dbg(1, "get_additional_symbols(): inst=%d, sch=%s\n", i, sch);
-        if(is_generator(sch)) {
+
+        is_gen = is_generator(sch);
+
+        if(is_gen) {
           my_strdup2(_ALLOC_ID_, &sym, sch);
           dbg(1, "get_additional_symbols(): generator\n");
         } else {
@@ -1928,7 +1932,7 @@ void get_additional_symbols(int what)
               subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
           }
           /* if symbol has no corresponding schematic file use symbol base schematic */
-          if(symbol_base_sch[0]) {
+          if(!is_gen && symbol_base_sch[0]) {
             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
               subst_token(xctx->sym[j].prop_ptr, "schematic", symbol_base_sch));
           }
