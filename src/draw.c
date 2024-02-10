@@ -715,6 +715,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         }
         #endif
         my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
+        if(strchr(txtptr, '@') && !strstr(text.txt_ptr, "\\@"))
+           my_strdup2(_ALLOC_ID_, &txtptr, translate(n, txtptr));
         dbg(1, "drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr);
         draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
@@ -881,6 +883,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      customfont = set_text_custom_font(&text);
      #endif
      my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
+     if(strchr(txtptr, '@') && !strstr(text.txt_ptr, "\\@"))
+        my_strdup2(_ALLOC_ID_, &txtptr, translate(n, txtptr));
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, xscale, yscale);

@@ -547,6 +547,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -666,8 +668,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    attribute. </pre>
    <li><kbd>       enable_layers</kbd></li><pre>
    Enable/disable layers depending on tcl array variable enable_layer() </pre>
-   <li><kbd>       escape_chars source</kbd></li><pre>
-   escape tcl special characters with backslash </pre>
+   <li><kbd>       escape_chars source [charset]</kbd></li><pre>
+   escape tcl special characters with backslash
+   if charset is given escape characters in charset </pre>
    <li><kbd>       exit [closewindow] [force]</kbd></li><pre>
    Exit the program, ask for confirm if current file modified.
    if 'closewindow' is given close the window, otherwise leave with a blank schematic
@@ -1441,6 +1444,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

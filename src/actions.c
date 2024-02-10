@@ -1893,7 +1893,7 @@ void get_additional_symbols(int what)
         dbg(1, "get_additional_symbols(): schematic not existing\n");
         dbg(1, "using: %s\n", symbol_base_sch);
       }
-      if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists  and instance points to valid symbol */
+      if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists and instance points to valid symbol */
         int j;
         char *sym = NULL;
         int ignore_schematic = 0;
