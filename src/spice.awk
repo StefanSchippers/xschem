@@ -36,6 +36,7 @@ BEGIN{
  special_devs["ypowergridbranch"] = 1
  special_devs["yacc"] = 1
  special_devs[".model"] = 1
+ special_devs[".subckt"] = 1
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
    if(ARGV[1] == "-xyce") { xyce = 1} 
