@@ -220,12 +220,14 @@ static int spice_netlist(FILE *fd, int spice_stop )
          my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2));
          m = val;
          if(strchr(val, '@')) m = translate(i, val);
+         else m = tcl_hook2(m);
          if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          else {
            my_strdup2(_ALLOC_ID_, &val,
                get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "device_model", 2));
            m = val;
            if(strchr(val, '@')) m = translate(i, val);
+           else m = tcl_hook2(m);
            if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          }
          my_free(_ALLOC_ID_, &model_name_result);
