@@ -1000,12 +1000,6 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     }
     else my_mstrcat(_ALLOC_ID_, &result, value, NULL);
    }
-   #if 0 /* Disabled: no hierarchy traversal while netlisting */
-   else if(strcmp(token,"@path")==0)
-   {
-    my_mstrcat(_ALLOC_ID_, &result, xctx->sch_path[xctx->currsch] + 1, NULL);
-   }
-   #endif
    else if(strcmp(token,"@symref")==0)
    {
      const char *s = get_sym_name(inst, 9999, 1);
@@ -2237,15 +2231,6 @@ int print_spice_element(FILE *fd, int inst)
           /* fputs(value,fd); */
         }
       }
-      #if 0 /* Disabled: no hierarchy traversal while netlisting */
-      else if (strcmp(token,"@path")==0) /* of course path must not be present in attributes */
-      {
-        const char *s = xctx->sch_path[xctx->currsch] + 1;
-        /* result_pos += my_snprintf(result + result_pos, tmp, "%s", s); */
-        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
-        /* fputs(s,fd); */
-      }
-      #endif
       else if(strcmp(token,"@symref")==0) 
       {
         const char *s = get_sym_name(inst, 9999, 1);
@@ -2671,12 +2656,6 @@ void print_tedax_element(FILE *fd, int inst)
     {
       fputs(value,fd);
     }
-    #if 0 /* Disabled: no hierarchy traversal while netlisting */
-    else if(strcmp(token,"@path")==0)
-    {
-     fputs(xctx->sch_path[xctx->currsch] + 1, fd);
-    }
-    #endif
     else if(strcmp(token,"@symref")==0)
     {
       const char *s = get_sym_name(inst, 9999, 1);
@@ -2939,12 +2918,6 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      }
      else my_mstrcat(_ALLOC_ID_, &result, value, NULL);
     }
-    #if 0 /* Disabled: no hierarchy traversal while netlisting */
-    else if(strcmp(token,"@path")==0)
-    {
-     my_mstrcat(_ALLOC_ID_, &result, xctx->sch_path[xctx->currsch] + 1, NULL);
-    }
-    #endif
     else if(strcmp(token,"@symref")==0)
     {
       const char *s = get_sym_name(inst, 9999, 1);
