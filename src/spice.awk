@@ -27,14 +27,15 @@ BEGIN{
  first=1
  user_code=0 #20180129
 
- # used to handle strange xyce primitives that have a type word before the instance name
- xyceydev["ymemristor"] = 1
- xyceydev["ylin"] = 1
- xyceydev["ydelay"] = 1
- xyceydev["ytransline"] = 1
- xyceydev["ypgbr"] = 1
- xyceydev["ypowergridbranch"] = 1
- xyceydev["yacc"] = 1
+ # used to handle strange primitives that have a type word before the instance name
+ special_devs["ymemristor"] = 1
+ special_devs["ylin"] = 1
+ special_devs["ydelay"] = 1
+ special_devs["ytransline"] = 1
+ special_devs["ypgbr"] = 1
+ special_devs["ypowergridbranch"] = 1
+ special_devs["yacc"] = 1
+ special_devs[".model"] = 1
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
    if(ARGV[1] == "-xyce") { xyce = 1} 
@@ -279,8 +280,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   gsub(","," ",$0)
   print $0
  } else {
-  # handle uncommon xyce primitives that have a prefix before the device name
-  if(tolower($1) in xyceydev) { 
+  # handle uncommon primitives that have a prefix before the device name
+  if(tolower($1) in special_devs) { 
     devprefix = $1
     num = split($3, name, ",")
     $1 = ""

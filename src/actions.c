@@ -2006,19 +2006,20 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
     my_strncpy(filename, "", PATH_MAX);
   }
   
-  if(!is_gen && filename[0]) file_exists = !stat(filename, &buf);
-  dbg(1, "get_sch_from_sym(): fallback=%d, file_exists=%d\n", fallback, file_exists);
-  if(!is_gen && filename[0] && !file_exists && fallback && has_x) {
-    tclvareval("ask_save {Schematic ", filename, "\ndoes not exist.\nDescend into base schematic?}", NULL);
-    if(strcmp(tclresult(), "yes") ) fallback = 0;
-     if(!strcmp(tclresult(), "") ) {
-       my_strncpy(filename, "", PATH_MAX);
-       cancel = 1;
-     }
+  if(has_x && fallback && !is_gen && filename[0]) {
+    file_exists = !stat(filename, &buf);
+    if(!file_exists) {
+      tclvareval("ask_save {Schematic ", filename, "\ndoes not exist.\nDescend into base schematic?}", NULL);
+      if(strcmp(tclresult(), "yes") ) fallback = 0;
+       if(!strcmp(tclresult(), "") ) {
+         my_strncpy(filename, "", PATH_MAX);
+         cancel = 1;
+       }
+    }
   }
 
   /* no schematic attr from instance or symbol */
-  if(!cancel && (!str_tmp[0] || (!is_gen && filename[0] && !file_exists && fallback))) {
+  if(!cancel && (!str_tmp[0] || (fallback && !is_gen && filename[0] && !file_exists ))) {
     const char *symname_tcl = tcl_hook2(sym->name);
     if(is_generator(symname_tcl))  my_strncpy(filename, symname_tcl, PATH_MAX);
     else if(tclgetboolvar("search_schematic")) {
