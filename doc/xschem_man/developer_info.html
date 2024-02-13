@@ -1291,7 +1291,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       
        setprop instance inst [tok] [val] [fast]
    set attribute 'tok' of instance (name or number) 'inst' to value 'val'
-   If 'tok' set to 'prop_ptr' replace whole instance prop_str with 'val'
+   If 'tok' set to 'allprops' replace whole instance prop_str with 'val'
    If 'val' not given (no attribute value) delete attribute from instance
    If 'tok' not given clear completely instance attribute string
    If 'fast' argument if given does not redraw and is not undoable 

@@ -4611,7 +4611,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *
      * setprop instance inst [tok] [val] [fast]
      *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
-     *   If 'tok' set to 'prop_ptr' replace whole instance prop_str with 'val'
+     *   If 'tok' set to 'allprops' replace whole instance prop_str with 'val'
      *   If 'val' not given (no attribute value) delete attribute from instance
      *   If 'tok' not given clear completely instance attribute string
      *   If 'fast' argument if given does not redraw and is not undoable 
@@ -4683,7 +4683,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hi_structs=0;
           if(argc > 4 && !strcmp(argv[4], "name") && fast == 0) hash_names(-1, XINSERT);
           if(argc > 5) {
-            if(!strcmp(argv[4], "prop_ptr")) {
+            if(!strcmp(argv[4], "allprops")) {
               hash_names(-1, XINSERT);
               my_strdup2(_ALLOC_ID_, &subst, argv[5]);
             } else {
