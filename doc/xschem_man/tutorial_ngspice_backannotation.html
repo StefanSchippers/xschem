@@ -134,6 +134,16 @@ write cmos_example.raw
   component, but does not need to be attached to any specific point or wire.
   Edit its attributes and set its <kbd>node</kbd> attribute to an existing saved variable in the raw file.
  </p>
+ <p><b><kbd>ngspice_get_value.sym</kbd> debugging tips:</b></p>
+  <ul>
+    <li>See all available devices in ngspice with <kbd>display</kbd></li>
+    <li>See all values for a device with <kbd>print @somedevice</kbd></li>
+    <ul><li>eg <kbd>print @m.xm6.xmain1.msky130_fd_pr__nfet_g5v0d16v0__base[vth]</kbd></li></ul>
+    <li><b>Some values must explicitly be saved</b> before the analysis to be available for annotation.</li>
+    <ul><li>eg <kbd>save @m.xm6.xmain1.msky130_fd_pr__nfet_g5v0d16v0__base[vth]</kbd></li></ul>
+    <li>Usually you'll need to wrap your value with <kbd>v()</kbd> in the symbol properties in xschem.</li>
+    <ul><li>eg <kbd>node=v(@m.xm6.xmain1.msky130_fd_pr__nfet_g5v0d16v0__base[vth])</kbd></li></ul>
+</ul>
  <img src="backannotation9.png">
  <p>
   Run again the simulation and the <kbd>xschem annotate_op</kbd> command and values will be updated.
