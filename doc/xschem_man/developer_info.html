@@ -549,6 +549,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1158,6 +1159,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Example: xschem replace_symbol R3 capa.sym </pre>
    <li><kbd>       reset_caches</kbd></li><pre>
    Reset cached instance and symbol cached flags (inst-&gt;flags, sym-&gt;flags) </pre>
+   <li><kbd>       reset_inst_prop inst</kbd></li><pre>
+   Reset instance attribute string taking it from symbol template string </pre>
    <li><kbd>       reset_symbol inst symref</kbd></li><pre>
    This is a low level command, it merely changes the xctx-&gt;inst[...].name field.
    It is caller responsibility to delete all symbols before and do a reload_symbols
@@ -1286,9 +1289,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Force modify status on current schematic </pre>
    <li><kbd>       setprop instance|symbol|text|rect ref tok [val] [fast]</kbd></li><pre>
       
-       setprop instance inst tok [val] [fast]
+       setprop instance inst [tok] [val] [fast]
    set attribute 'tok' of instance (name or number) 'inst' to value 'val'
+   If 'tok' set to 'prop_ptr' replace whole instance prop_str with 'val'
    If 'val' not given (no attribute value) delete attribute from instance
+   If 'tok' not given clear completely instance attribute string
    If 'fast' argument if given does not redraw and is not undoable 
       
        setprop symbol name tok [val]
@@ -1444,7 +1449,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

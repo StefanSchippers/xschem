@@ -3838,6 +3838,66 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* reset_inst_prop inst
+     *   Reset instance attribute string taking it from symbol template string */
+    else if(!strcmp(argv[1], "reset_inst_prop"))
+    {
+          char *translated_sym = NULL;
+          int floaters = 0, sym_number = -1;
+          char *subst = NULL;
+          int s_pnetname = tclgetboolvar("show_pin_net_names");
+          int inst;
+
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem reset_inst_prop needs 1 more argument", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      if((inst = get_instance(argv[2])) < 0 ) {
+        Tcl_SetResult(interp, "xschem reset_inst_prop: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      floaters = set_modify(1);
+      floaters |= s_pnetname;
+      if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
+      symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+      if(!floaters)
+        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+      xctx->push_undo();
+      xctx->prep_hash_inst=0;
+      xctx->prep_net_structs=0;
+      xctx->prep_hi_structs=0;
+
+      hash_names(-1, XINSERT);
+      hash_names(inst, XDELETE);
+      set_inst_prop(inst);
+
+      my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
+      sym_number=match_symbol(translated_sym);
+
+      if(sym_number > 0) {
+        delete_inst_node(inst);
+        xctx->inst[inst].ptr=sym_number;
+      }
+      if(subst) my_free(_ALLOC_ID_, &subst);
+      set_inst_flags(&xctx->inst[inst]);
+      hash_names(inst, XINSERT);
+      /* new symbol bbox after prop changes (may change due to text length) */
+      symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
+      if(!floaters) {
+        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
+        /* redraw symbol with new props */
+        bbox(SET,0.0,0.0,0.0,0.0);
+      }
+      set_modify(-2); /* reset floaters caches */
+      draw();
+      if(!floaters) {
+        bbox(END,0.0,0.0,0.0,0.0);
+      }
+      my_free(_ALLOC_ID_, &translated_sym);
+      Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
+    }
+
     /* reset_symbol inst symref
      *   This is a low level command, it merely changes the xctx->inst[...].name field.
      *   It is caller responsibility to delete all symbols before and do a reload_symbols
@@ -4549,9 +4609,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
     /* setprop instance|symbol|text|rect ref tok [val] [fast]
      *
-     * setprop instance inst tok [val] [fast]
+     * setprop instance inst [tok] [val] [fast]
      *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
+     *   If 'tok' set to 'prop_ptr' replace whole instance prop_str with 'val'
      *   If 'val' not given (no attribute value) delete attribute from instance
+     *   If 'tok' not given clear completely instance attribute string
      *   If 'fast' argument if given does not redraw and is not undoable 
      *
      * setprop symbol name tok [val]
@@ -4595,8 +4657,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             argc = 5;
           }
         }
-        if(argc < 5) {
-          Tcl_SetResult(interp, "xschem setprop instance needs 2 or 3 additional arguments", TCL_STATIC);
+        if(argc < 4) {
+          Tcl_SetResult(interp, "xschem setprop instance needs 1 or more additional arguments", TCL_STATIC);
           return TCL_ERROR;
         }
         if((inst = get_instance(argv[3])) < 0 ) {
@@ -4619,11 +4681,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
-          if(!strcmp(argv[4], "name") && fast == 0) hash_names(-1, XINSERT);
+          if(argc > 4 && !strcmp(argv[4], "name") && fast == 0) hash_names(-1, XINSERT);
           if(argc > 5) {
-            my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
-          } else {/* assume argc == 5 , delete attribute */
+            if(!strcmp(argv[4], "prop_ptr")) {
+              hash_names(-1, XINSERT);
+              my_strdup2(_ALLOC_ID_, &subst, argv[5]);
+            } else {
+              my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
+            }
+          } else if(argc > 4) {/* assume argc == 5 , delete attribute */
             my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL));
+          } else if(argc > 3) {
+            /* clear all instance prop_str */
+            my_free(_ALLOC_ID_, &subst);
+        
           }
           hash_names(inst, XDELETE);
           new_prop_string(inst, subst, tclgetboolvar("disable_unique_names"));
@@ -4635,7 +4706,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             delete_inst_node(inst);
             xctx->inst[inst].ptr=sym_number;
           }
-          my_free(_ALLOC_ID_, &subst);
+          if(subst) my_free(_ALLOC_ID_, &subst);
           set_inst_flags(&xctx->inst[inst]);
           hash_names(inst, XINSERT);
           if(!fast) {
