@@ -94,6 +94,109 @@ p{padding: 15px  30px 10px;}
   <kbd>spice_sym_def</kbd> attribute with <kbd>vhdl_sym_def</kbd>, <kbd>verilog_sym_def</kbd> and <kbd>tedax_sym_def</kbd>
   respectively.
  </p><br><br>
+
+ <h3> Instance based SPICE model </h3>
+ <p> In some cases a device is specified by a model and if model parameters can not be set in the
+  instance line we need multiple models if we want to use multiple devices with different model parameters.
+  This can be done by specifying a model in the following way:</p>
+ <pre class="code">
+type=mechanical_rotational
+format="@name @pinlist inertia@name
+.model inertia@name inertia_omega_tau J=@J"
+template="name=N1 J=1.1"
+ </pre>
+ <p> Note the model name is given as <kbd>inertia@name</kbd>, this will make each model instance have a
+  different and unique name. This will generate an instance line: </p>
+ <pre class="code">
+N1 A B C inertiaN1
+.model inertiaN1 inertia_omega_tau J=1.4
+ </pre>
+
+ <p> A better way hat handles also vectored instances is the following:</p>
+ <pre class="code">
+type=mechanical_rotational
+format="@name @pinlist #inertia#@name
+.model #inertia#@name inertia_omega_tau J=@J"
+template="name=N1 J=1.1"
+ </pre>
+ <p> This way if you place a vectored instance name=N1[3:0] it will expand in netlist as:</p>
+ <pre class="code">
+N1[3] XAA XBB XCC inertiaN1[3]
+N1[2] XAA XX XCC inertiaN1[2]
+N1[1] XAA XX XCC inertiaN1[1]
+N1[0] XAA XX XCC inertiaN1[0]
+.model inertiaN1[3] inertia_omega_tau J=1.2
+.model inertiaN1[2] inertia_omega_tau J=1.2
+.model inertiaN1[1] inertia_omega_tau J=1.2
+.model inertiaN1[0] inertia_omega_tau J=1.2
+ </pre>
+
+ <h3> Subcircuits with SPICE models given as parameters </h3>
+ <p> In general SPICE allows parameters to be passed to subcircuits. This is the case for dimensions, like 
+  <kbd>W=2u</kbd>, <kbd>L=0.15u</kbd> that are passed to a subcircuit.
+  The subcircuit uses these parameters (W, L) instead of numbers,
+  making the subcircuit truly parametric. However transistor models in a subcircuit can not be passed as parameters,
+  the following inverter instantiation is illegal:<br>
+  
+  <kbd>X1 A Y inverter W=2u L=0.15u modn=cmosn modp=cmosp</kbd><br>
+  To overcome this problem Xschem must generate multiple subcircuits.</br>
+  Consider the following inv3.sym symbol:</p>
+ <img src="instance_based_implementation_05.png"> 
+ <p> the symbol has the following attributes:</p>
+ <pre class="code">
+type=subcircuit
+format="@name @pinlist @VCCPIN @VSSPIN @symname wn=@wn lln=@lln wp=@wp lp=@lp m=@m"
+template="name=x1 m=1 modn=xmodn modp=xmodp
++ wn=10u lln=1.2u wp=10u lp=1.2u 
++ VCCPIN=VCC VSSPIN=VSS"
+extra="VCCPIN VSSPIN modn modp"
+ </pre>
+ <p> In above attributes two parameters are defined that specify transistor models, <kbd>modn</kbd> and
+ <kbd>modp</kbd>, with default values (if unspecified in instance) <kbd>xmodn</kbd> and <kbd>xmodp</kbd>.
+ The inverter subcircuit transistors will use the <kbd>@modn</kbd> and <kbd>@modp</kbd> as SPICE models:</p>
+ <img src="instance_based_implementation_06.png"> 
+ <p> If an inv3.sym is placed n the schematic and no <kbd>schematic=...</kbd> parameter is given 
+ to create an instance based subcircuit specialization:</p>
+ <p> The following netlist will be produced:</p>
+ <pre class="code">
+x2 LDCP3_B LDCP vcc vss inv3 wn=8.4u lln=2.4u wp=20u lp=2.4u m=1
+...
+...
+.subckt inv3 y a VCCPIN VSSPIN      wn=10u lln=1.2u wp=10u lp=1.2u
+*.opin y
+*.ipin a
+m2 y a VCCPIN VCCPIN xmodp w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
+m1 y a VSSPIN VSSPIN xmodn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
+.ends
+ </pre>
+ <p> However if another instance is placed:</p>
+ <img src="instance_based_implementation_07.png"> 
+ <p> with following attributes: </p>
+ <pre class="code">
+name=x3 m=1 
++ wn=8.4u lln=2.4u wp=20u lp=2.4u
++ VCCPIN=vcc VSSPIN=vss
+schematic=@symname\_1.sch
+modn=yyn modp=yyp
+ </pre>
+ <p> the following netlist is generated:</p>
+ <pre class="code">
+x3 LDCP_B LDCP vcc vss inv3_1 wn=8.4u lln=2.4u wp=20u lp=2.4u m=1
+...
+...
+.subckt inv3_1 y a VCCPIN VSSPIN      wn=10u lln=1.2u wp=10u lp=1.2u
+*.opin y
+*.ipin a
+m2 y a VCCPIN VCCPIN yyp w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
+m1 y a VSSPIN VSSPIN yyn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
+.ends
+ </pre>
+ <p> You see that a second <kbd>inv_1.sym</kbd> is generated with changed models (<kbd>yyn</kbd> and <kbd>yyp</kbd>).
+ This allows you to reuse the same symbol with different model names. Xschem does the necessary work to
+ duplicate the subcircuit, since model names can not be set as parameters.
+ </p>
+
+  
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
