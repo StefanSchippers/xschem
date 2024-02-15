@@ -3842,11 +3842,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Reset instance attribute string taking it from symbol template string */
     else if(!strcmp(argv[1], "reset_inst_prop"))
     {
-          char *translated_sym = NULL;
-          int floaters = 0, sym_number = -1;
-          char *subst = NULL;
-          int s_pnetname = tclgetboolvar("show_pin_net_names");
-          int inst;
+      char *translated_sym = NULL;
+      int floaters = 0, sym_number = -1;
+      char *subst = NULL;
+      int s_pnetname = tclgetboolvar("show_pin_net_names");
+      int inst;
 
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 3) {
