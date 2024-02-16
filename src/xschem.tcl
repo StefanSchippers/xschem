@@ -4501,7 +4501,7 @@ proc tclpropeval2 {s} {
   # puts "tclpropeval2: s=|$s|"
   if {$debug_var <=-1} {puts "tclpropeval2: $s"}
   set path [string range [xschem get sch_path] 1 end]
-  set sch_basename [file rootname [xschem get current_name]]
+  set sch_basename [file tail [file rootname [xschem get current_name]]]
   # skip hierarchy components above the level where raw file has been loaded. 
   # node path names to look up in raw file begin from there.
   set skip 0
