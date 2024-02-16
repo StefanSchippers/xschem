@@ -225,11 +225,11 @@ m1 y a VSSPIN VSSPIN modn18 w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6
 ...
  </pre>
  <p> You see the <kbd>@modeltag</kbd> will be substituted looking first in the mos transistor attributes
-  (but there is no definition there), then in the containing symbol attributes (and there is
+  (but there is no definition there), then in the containing symbol <kbd>template</kbd> attributes (and there is
   a <kbd>modeltag=18</kbd> definition).</p>
  <p> Now suppose you want to place another instance of <kbd>inv4.sym</kbd> but with a different modeltag:
   Since we know that spice does not allow model names to be passed as parameters we need to specialize the 
-  <kbd>inv4.sym</kbd> subcircuit to a new <kbd>inv_1.sym</kbd> subcircuit.
+  <kbd>inv4.sch</kbd> subcircuit to a new <kbd>inv_1.sch</kbd> subcircuit.
   Therefore we give the attribute <kbd>schematic=inv4_1.sch</kbd>
   to the second inv4 instance. We also set there a different modeltag: <kbd>modeltag=13</kbd></p>
  <img src="instance_based_implementation_11.png"> 
