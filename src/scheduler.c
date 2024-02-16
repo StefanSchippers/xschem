@@ -5265,6 +5265,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* translate3 str s1 [s2]
+     *   Translate string 'str' replacing @xxx tokens with values in string s1 or if 
+     *     not found in string s2
+     *     Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
+     *     the voltage is 1.8 */
+    else if(!strcmp(argv[1], "translate3") )
+    {
+      char *s = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], argv[4], argv[5]));
+      if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], argv[4], NULL));
+      else if(argc > 3) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], NULL, NULL));
+      else {
+        Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &s);
+    }
+
     /* trim_chars str sep
      *   Remove leading and trailing chars matching any character in 'sep' from str */
     else if(!strcmp(argv[1], "trim_chars"))

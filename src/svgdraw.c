@@ -39,7 +39,7 @@ static double svg_linew;      /* current width of lines / rectangles */
 
 static void svg_restore_lw(void)
 {
-   svg_linew = xctx->lw*1.2;
+   svg_linew = (xctx->lw <= 0.01 ? 0.2 : xctx->lw) * 1.2;
 }
 
 static void svg_xdrawline(int layer, int bus, double x1, double y1, double x2, double y2, int dash)

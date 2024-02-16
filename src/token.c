@@ -2154,35 +2154,17 @@ int print_spice_element(FILE *fd, int inst)
         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
         tok_size =  xctx->tok_size;
         value = val;
-        if(!strcmp(token + 1, "model") && strchr(value, '@')) {
-          value = translate(inst, val);
+        if(strchr(value, '@')) {
           /* Symbol format string contains model=@modp, 
            * instance attributes does not contain a modp=xxx, 
-           * look up modp in **parent** symbol template attribute */
-          dbg(1, "model: instance=%s ,val=%s, tok=%s, value=%s template=%s\n", 
-              xctx->inst[inst].instname,
-              val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
-          if(value[0] == '\0') {
-             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, val+1, 0);
-          }
-          if(value[0] == '\0') {
-             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
-          }
-        }
-        else if(val[0] == '@' && !strpbrk(value + 1, "@ ")) {
-          /* value = translate(inst, val); */
-          value = get_tok_value(xctx->inst[inst].prop_ptr, val + 1, 0);
-          dbg(1, "val=%s, tok=%s, value=%s template=%s", 
-              val, token, value, xctx->hier_attr[xctx->currsch - 1].templ);
-          if(value[0] == '\0') {
-             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, val+1, 0);
-          }
-          if(value[0] == '\0') {
-             value=get_tok_value(xctx->hier_attr[xctx->currsch - 1].templ, val+1, 0);
-          }
+           * look up modp in **parent** instance prop_ptr and symbol template attribute */
+
+          value = translate3(val, xctx->inst[inst].prop_ptr,
+                                  xctx->hier_attr[xctx->currsch - 1].prop_ptr,
+                                  xctx->hier_attr[xctx->currsch - 1].templ);
         }
         tok_val_len = strlen(value);
-        if(!strcmp(token, "@spiceprefix")) {
+        if(!strcmp(token, "@spiceprefix") && value[0]) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
           my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
           value = spiceprefixtag;
@@ -2197,18 +2179,8 @@ int print_spice_element(FILE *fd, int inst)
           token_exists = 0; /* processed later */
           value = NULL;
         }
-        /* 
-        if (!strncmp(value,"tcleval(", 8)) {
-          dbg(1, "print_spice_element(): value=%s\n", value);
-          my_strdup2(_ALLOC_ID_, &translatedvalue, value);
-          my_strdup2(_ALLOC_ID_, &translatedvalue, translate(inst, translatedvalue));
-          value = translatedvalue;
-        }
-        */
       }
       if(!token_exists && token[0] =='%') {
-
-
         /* result_pos += my_snprintf(result + result_pos, tmp, "%s", token + 1); */
         my_mstrcat(_ALLOC_ID_, &result, token + 1, NULL);
         /* fputs(token + 1, fd); */
@@ -4337,5 +4309,99 @@ const char *translate2(Lcc *lcc, int level, char* s)
   dbg(1, "translate2(): result=%s\n", result);
   /* return tcl_hook2(result); */
   return result;
+}
+
+
+
+/* substitute given tokens in a string with their corresponding values */
+/* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
+/* using s1, s2, s3 in turn to resolve @tokens */
+/* if no definition for @token is found return @token as is in s */
+/* if s==NULL return emty string */
+const char *translate3(const char *s, const char *s1, const char *s2, const char *s3)
+{
+ static const char *empty="";
+ static char *translated_tok = NULL;
+ static char *result=NULL; /* safe to keep even with multiple schematics */
+ register int c, state=TOK_BEGIN, space;
+ char *token=NULL;
+ size_t sizetok=0;
+ size_t token_pos=0;
+ const char *value;
+ int escape=0;
+ char *value1 = NULL;
+
+
+ if(!s || !xctx) {
+   my_free(_ALLOC_ID_, &result);
+   my_free(_ALLOC_ID_, &translated_tok);
+   return empty;
+ }
+ dbg(2, "translate3():\n   s=%s\n   s1=%s\n   s2=%s\n   s3=%s\n", s, s1, s2, s3);
+ my_strdup2(_ALLOC_ID_, &result, "");
+
+ while(1) {
+  c=*s++;
+  if(c=='\\') {
+    escape=1;
+    c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping %) */
+  }
+  else escape=0;
+  space=SPACE(c);
+  if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
+  else if(state==TOK_TOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
+     )                          
+    ) state=TOK_SEP;
+
+  STR_ALLOC(&token, token_pos, &sizetok);
+  if(state==TOK_TOKEN) token[token_pos++]=(char)c;
+  else if(state==TOK_SEP) {
+   token[token_pos]='\0';
+   value = get_tok_value(s1, token+1, 0);
+   if(!xctx->tok_size && s2) {
+     value=get_tok_value(s2, token+1, 0);
+   }
+   if(!xctx->tok_size && s3) {
+     value=get_tok_value(s3, token+1, 0);
+   }
+   if(!xctx->tok_size) { /* above lines did not find a value for token */
+     /* no definition found -> keep token */
+     my_strcat(_ALLOC_ID_, &result, token);
+   } else {
+     my_strdup2(_ALLOC_ID_, &value1, value);
+     my_strcat(_ALLOC_ID_, &result, value1);
+     my_free(_ALLOC_ID_, &value1);
+   }
+   token_pos = 0;
+   if(c == '@' || c == '%') s--;
+   else {
+     char ch[2];
+     ch[0] = (char)c;
+     ch[1] = '\0';
+     my_strcat(_ALLOC_ID_, &result, ch);
+   }
+   state=TOK_BEGIN;
+  } /* else if(state==TOK_SEP) */
+  else if(state==TOK_BEGIN) {
+   char ch[2];
+   ch[0] = (char)c;
+   ch[1] = '\0';
+   my_strcat(_ALLOC_ID_, &result, ch);
+  }
+  if(c=='\0') {
+   my_strcat(_ALLOC_ID_, &result, "");
+   break;
+  }
+ } /* while(1) */
+ dbg(2, "translate3(): returning %s\n", result);
+ my_free(_ALLOC_ID_, &token);
+
+ /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+  * can be calculated */
+ my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+ return translated_tok;
 }
 

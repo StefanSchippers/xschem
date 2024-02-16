@@ -1887,7 +1887,7 @@ void get_additional_symbols(int what)
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
          str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
            get_cell(xctx->inst[i].name, 0), '\\')));
-      dbg(1, "get_additional_symbols(): sch=%s\n", sch);
+      dbg(1, "get_additional_symbols(): inst=%d sch=%s\n",i,  sch);
       if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {/* schematic does not exist */
         my_snprintf(symbol_base_sch, PATH_MAX, "%s.sch", get_cell(xctx->sym[xctx->inst[i].ptr].name, 9999));
         dbg(1, "get_additional_symbols(): schematic not existing\n");

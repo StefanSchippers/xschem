@@ -549,7 +549,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1393,6 +1392,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      Example: xschem translate vref {the voltage is @value}
      the voltage is 1.8 </pre>
+   <li><kbd>       translate3 str s1 [s2]</kbd></li><pre>
+   Translate string 'str' replacing @xxx tokens with values in string s1 or if 
+     not found in string s2
+     Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
+     the voltage is 1.8 </pre>
    <li><kbd>       trim_chars str sep</kbd></li><pre>
    Remove leading and trailing chars matching any character in 'sep' from str </pre>
    <li><kbd>       trim_wires</kbd></li><pre>
@@ -1449,6 +1453,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

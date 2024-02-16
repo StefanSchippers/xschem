@@ -196,7 +196,66 @@ m1 y a VSSPIN VSSPIN yyn w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' 
  duplicate the subcircuit, since model names can not be set as parameters.
  </p>
 
-  
+ <h3> Another example of spice models given as parameters</h3>
+
+ <p> Consider the following symbol instance:</p>
+ <img src="instance_based_implementation_08.png"> 
+ <p> with the following symbol definition</p>
+ <img src="instance_based_implementation_09.png"> 
+ <p> And the following schematic definition. Note the <kbd>model</kbd> syntax for the p-channel transistor
+  (the n-channel transistor has a similar <kbd>model=modn@modeltag</kbd> definition):</p>
+ <img src="instance_based_implementation_10.png"> 
+ <p> The following netlist will be produced</p>
+ <pre class="code">
+...
+...
+x4 LDCP4_B LDCP vcc vss inv4 wn=8.4u lln=2.4u wp=20u lp=2.4u m=1
+...
+...
+* expanding   symbol:  inv4.sym # of pins=2
+** sym_path: /home/schippes/.xschem/xschem_library/test_parametric_model/inv4.sym
+** sch_path: /home/schippes/.xschem/xschem_library/test_parametric_model/inv4.sch
+.subckt inv4 y a VCCPIN VSSPIN     wn=10u lln=1.2u wp=10u lp=1.2u
+*.opin y
+*.ipin a
+m2 y a VCCPIN VCCPIN modp18 w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
+m1 y a VSSPIN VSSPIN modn18 w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
+.ends
+...
+...
+ </pre>
+ <p> You see the <kbd>@modeltag</kbd> will be substituted looking first in the mos transistor attributes
+  (but there is no definition there), then in the containing symbol attributes (and there is
+  a <kbd>modeltag=18</kbd> definition).</p>
+ <p> Now suppose you want to place another instance of <kbd>inv4.sym</kbd> but with a different modeltag:
+  Since we know that spice does not allow model names to be passed as parameters we need to specialize the 
+  <kbd>inv4.sym</kbd> subcircuit to a new <kbd>inv_1.sym</kbd> subcircuit.
+  Therefore we give the attribute <kbd>schematic=inv4_1.sch</kbd>
+  to the second inv4 instance. We also set there a different modeltag: <kbd>modeltag=13</kbd></p>
+ <img src="instance_based_implementation_11.png"> 
+ <p> The netlist for this additional instance will be: </p>
+ <pre class="code">
+...
+...
+x5 LDCP5_B LDCP vcc vss inv4_1 wn=8.4u lln=2.4u wp=20u lp=2.4u m=1
+...
+...
+* expanding   symbol:  inv4_1.sym # of pins=2
+** sym_path: /home/schippes/.xschem/xschem_library/test_parametric_model/inv4.sym
+** sch_path: /home/schippes/.xschem/xschem_library/test_parametric_model/inv4.sch
+.subckt inv4_1 y a VCCPIN VSSPIN     wn=10u lln=1.2u wp=10u lp=1.2u
+*.opin y
+*.ipin a
+m2 y a VCCPIN VCCPIN modp13 w=wp l=lp ad='wp *4.6u' as='wp *4.6u' pd='wp *2+9.2u' ps='wp *2+9.2u' m=1
+m1 y a VSSPIN VSSPIN modn13 w=wn l=lln ad='wn *4.3u' as='wn *4.3u' pd='wn *2+8.6u' ps='wn *2+8.6u' m=1
+.ends
+...
+...
+ </pre>
+ <p> This way it is possible from a single symbol (<kbd>inv4.sym</kbd> in the example) to netlist multiple instances of it
+  with different models, in the example using a <kbd>modeltag</kbd> variable.</p>
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
