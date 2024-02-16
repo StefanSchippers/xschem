@@ -789,22 +789,29 @@ proc netlist {source_file show netlist_file} {
 
 # 20161121
 proc convert_to_pdf {filename dest} {
-  global to_pdf OS
+  global to_pdf OS execute
   if { [regexp -nocase {\.pdf$} $dest] } {
     set pdffile [file rootname $filename].pdf
-    # puts "---> $to_pdf $filename $pdffile"
-    set cmd "exec $to_pdf \$filename \$pdffile"
+    # puts "--->  cmd=$to_pdf  filename=$filename  pdffile=$pdffile  dest=$dest"
     if {$OS == "Windows"} {
       set cmd "exec $to_pdf \$pdffile \$filename"
-    } 
-    if { ![catch {eval $cmd} msg] } {
-      file rename -force $pdffile $dest
-      # ps2pdf succeeded, so remove original .ps file
-      if { ![xschem get debug_var] } {
-        file delete $filename
+      if { ![catch {eval $cmd} msg] } {
+        file rename -force $pdffile $dest
+        # ps2pdf succeeded, so remove original .ps file
+        if { ![xschem get debug_var] } {
+          file delete $filename
+        }
+      } else {
+        puts stderr "problems converting postscript to pdf: $msg"
       }
-    } else {
-      puts stderr "problems converting postscript to pdf: $msg"
+    } else { ;# OS == unix
+      eval execute_wait 0 $to_pdf [list $filename $pdffile]
+      if {$execute(status,last) == 0} {
+        file rename -force $pdffile $dest
+        if { ![xschem get debug_var] } {
+          file delete $filename
+        }
+      }
     }
   } else {
     file rename -force $filename $dest
