@@ -3255,24 +3255,24 @@ proc file_dialog_set_colors1 {} {
 proc file_dialog_set_colors2 {} {
   global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1
   set dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-  for {set i 0} { $i< [.load.l.paneright.list index end] } { incr i} {
+  for {set i 0} { $i< [.load.l.paneright.f.list index end] } { incr i} {
     set maxlen 0
     set name "$dir1/[lindex $file_dialog_files2 $i]"
     if {[ file isdirectory $name]} {
-      .load.l.paneright.list itemconfigure $i -foreground blue
+      .load.l.paneright.f.list itemconfigure $i -foreground blue
       foreach j [array names dircolor] {
         set pattern $j 
         set color $dircolor($j)
         set len [string length [regexp -inline $pattern $dir1]]
         # puts "len=$len\npattern=$pattern\nname=$name\n\n\n"
         if { $len > $maxlen } {
-          .load.l.paneright.list itemconfigure $i -foreground $color -selectforeground $color
+          .load.l.paneright.f.list itemconfigure $i -foreground $color -selectforeground $color
           set maxlen $len
         }
       }
 
     } else {
-      .load.l.paneright.list itemconfigure $i -foreground black
+      .load.l.paneright.f.list itemconfigure $i -foreground black
     }
   }
 }
@@ -3357,6 +3357,7 @@ proc load_file_dialog_mkdir {dir} {
 proc load_file_dialog_up {dir} {
   global file_dialog_dir1
   bind .load.l.paneright.draw <Expose> {}
+  bind .load.l.paneright.draw <Configure> {}
   .load.l.paneright.draw configure -background white
   set d [file dirname $dir]
   if { [file isdirectory $d]} {
@@ -3452,9 +3453,11 @@ proc file_dialog_display_preview {f} {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"
       bind .load.l.paneright.draw <Expose> [subst {xschem preview_window draw .load.l.paneright.draw "$f"}]
+      bind .load.l.paneright.draw <Configure> [subst {xschem preview_window draw .load.l.paneright.draw "$f"}]
     }
   } else {
     bind .load.l.paneright.draw <Expose> {}
+    bind .load.l.paneright.draw <Configure> {}
     .load.l.paneright.draw configure -background white
   }
 }
@@ -3510,8 +3513,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack  .load.l.paneleft.xscroll -side bottom -fill x
   pack  .load.l.paneleft.list -fill both -expand true
   bind .load.l.paneleft.list <<ListboxSelect>> { 
-    # bind .load.l.paneright.draw <Expose> {}
-    # .load.l.paneright.draw configure -background white
     set file_dialog_sel [.load.l.paneleft.list curselection]
     if { $file_dialog_sel ne {} } {
       set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_sel]]
@@ -3524,25 +3525,32 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       file_dialog_set_colors2
     }
   }
-  frame .load.l.paneright
+  panedwindow .load.l.paneright -orient vertical 
+  frame .load.l.paneright.f
   frame .load.l.paneright.draw -background white -height 3.8c
-  listbox .load.l.paneright.list  -listvariable file_dialog_files2 -width 20 -height 12\
-    -yscrollcommand ".load.l.paneright.yscroll set" -selectmode browse \
-    -xscrollcommand ".load.l.paneright.xscroll set" -exportselection 0
-  scrollbar .load.l.paneright.yscroll -command ".load.l.paneright.list yview"
-  scrollbar .load.l.paneright.xscroll -command ".load.l.paneright.list xview" -orient horiz
-  pack .load.l.paneright.draw -side bottom -anchor s -fill x 
-  pack  .load.l.paneright.yscroll -side right -fill y
-  pack  .load.l.paneright.xscroll -side bottom -fill x
-  pack  .load.l.paneright.list -side bottom  -fill both -expand true
+  .load.l.paneright add .load.l.paneright.f
+  .load.l.paneright add .load.l.paneright.draw -minsize 200
+  .load.l.paneright paneconfigure .load.l.paneright.f -stretch never
+  .load.l.paneright paneconfigure .load.l.paneright.draw -stretch always
+
+
+
+  listbox .load.l.paneright.f.list  -listvariable file_dialog_files2 -width 20 -height 12\
+    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
+    -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
+  scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview"
+  scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz
+  pack  .load.l.paneright.f.yscroll -side right -fill y
+  pack  .load.l.paneright.f.xscroll -side bottom -fill x
+  pack  .load.l.paneright.f.list -side bottom  -fill both -expand true
 
   if { $loadfile == 2} {
     .load.l  add .load.l.recent
     c_toolbar::display
   }
   .load.l  add .load.l.paneleft -minsize 40
-  .load.l  add .load.l.paneright -minsize 40
-  .load.l paneconfigure .load.l.paneleft -stretch always
+  .load.l  add .load.l.paneright -minsize 300
+  .load.l paneconfigure .load.l.paneleft -stretch never
   .load.l paneconfigure .load.l.paneright -stretch always
   frame .load.buttons 
   frame .load.buttons_bot
@@ -3562,6 +3570,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   wm protocol .load WM_DELETE_WINDOW {.load.buttons_bot.cancel invoke}
   button .load.buttons.home -width 5 -text {Home} -command {
     bind .load.l.paneright.draw <Expose> {}
+    bind .load.l.paneright.draw <Configure> {}
     .load.l.paneright.draw configure -background white
     set file_dialog_files1 $pathlist
     file_dialog_set_names1
@@ -3573,7 +3582,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     setglob $file_dialog_dir1
     file_dialog_set_colors2
     .load.l.paneleft.list selection clear 0 end
-    .load.l.paneright.list selection clear 0 end
+    .load.l.paneright.f.list selection clear 0 end
     .load.l.paneleft.list selection set $file_dialog_index1
   }
   label .load.buttons_bot.label  -text {  File/Search:}
@@ -3587,10 +3596,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
       setglob $file_dialog_dir1
       if {[.load.buttons_bot.entry get] ne {}} {
-        .load.l.paneright.list yview moveto 1.0
+        .load.l.paneright.f.list yview moveto 1.0
       } else {
         if { [info exists file_dialog_yview]} {
-         .load.l.paneright.list yview moveto  [lindex $file_dialog_yview 0]
+         .load.l.paneright.f.list yview moveto  [lindex $file_dialog_yview 0]
         }
       }
     }
@@ -3652,11 +3661,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         set $global_initdir \"\$file_dialog_dir1\"
       }
     "
-    bind .load.l.paneright.list <Double-Button-1> "
+    bind .load.l.paneright.f.list <Double-Button-1> "
       set file_dialog_retval \[.load.buttons_bot.entry get\]
       if {\$file_dialog_retval ne {}  && 
-          !\[file isdirectory \"\$file_dialog_dir1/\[.load.l.paneright.list get \$file_dialog_sel\]\"\]} {
+          !\[file isdirectory \"\$file_dialog_dir1/\[.load.l.paneright.f.list get \$file_dialog_sel\]\"\]} {
         bind .load.l.paneright.draw <Expose> {}
+        bind .load.l.paneright.draw <Configure> {}
         destroy .load
         xschem preview_window destroy {} {}
         set $global_initdir \"\$file_dialog_dir1\"
@@ -3685,8 +3695,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     # regsub {\+.*} $file_dialog_default_geometry {} file_dialog_default_geometry
   }
 
-  bind .load.l.paneright.yscroll <Motion> {
-    set file_dialog_yview [.load.l.paneright.list yview]
+  bind .load.l.paneright.f.yscroll <Motion> {
+    set file_dialog_yview [.load.l.paneright.f.list yview]
   }
 
   xschem preview_window create .load.l.paneright.draw {}
@@ -3703,15 +3713,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
 
-  bind .load.l.paneright.list <ButtonPress> { 
-    set file_dialog_yview [.load.l.paneright.list yview]
+  bind .load.l.paneright.f.list <ButtonPress> { 
+    set file_dialog_yview [.load.l.paneright.f.list yview]
   }
-  bind .load.l.paneright.list <<ListboxSelect>> {
-    set file_dialog_yview [.load.l.paneright.list yview] 
-    set file_dialog_sel [.load.l.paneright.list curselection]
+  bind .load.l.paneright.f.list <<ListboxSelect>> {
+    set file_dialog_yview [.load.l.paneright.f.list yview] 
+    set file_dialog_sel [.load.l.paneright.f.list curselection]
     if { $file_dialog_sel ne {} } {
       set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-      set file_dialog_dir2 [.load.l.paneright.list get $file_dialog_sel]
+      set file_dialog_dir2 [.load.l.paneright.f.list get $file_dialog_sel]
       if {$file_dialog_dir2 eq {..}} {
         set file_dialog_d [file dirname $file_dialog_dir1]
       } elseif { $file_dialog_dir2 eq {.} } {
@@ -3733,6 +3743,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
       if { [file isdirectory $file_dialog_d]} {
         bind .load.l.paneright.draw <Expose> {}
+        bind .load.l.paneright.draw <Configure> {}
         .load.l.paneright.draw configure -background white
         file_dialog_set_home $file_dialog_d
         setglob $file_dialog_d
@@ -3749,9 +3760,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     if {$file_dialog_loadfile == 2} {
       set file_dialog_retval  {   }
     }
-  };# bind .load.l.paneright.list <<ListboxSelect>>
+  };# bind .load.l.paneright.f.list <<ListboxSelect>>
   if { [info exists file_dialog_yview]} {
-   .load.l.paneright.list yview moveto  [lindex $file_dialog_yview 0]
+   .load.l.paneright.f.list yview moveto  [lindex $file_dialog_yview 0]
   }
   focus .load.buttons_bot.entry
   if {$loadfile != 2} {
