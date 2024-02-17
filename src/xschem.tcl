@@ -2235,6 +2235,7 @@ proc graph_add_nodes {} {
   set change_done 0
   foreach i $sel_idx {
     set c [.graphdialog.center.left.list1 get $i]
+    # escape [ and ] characters.
     set c [regsub -all {([][])}  $c {\\\1}]
     if { ![regexp "(^|\[ \t\n\])${c}($|\[ \t\n\])" $current_node_list]} {
       if {$sel ne {}} {append sel $sep}
@@ -2351,6 +2352,7 @@ proc graph_tag_nodes {txt} {
     set col  [xschem getprop rect 2 $graph_selected color]
     set col [string trim $col " \n"]
   }
+  # non capturing `tcleval(` at beginning and `)` at end
   set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
   set tt {}
   set cc {}
@@ -4931,7 +4933,7 @@ proc edit_prop {txtlabel} {
           set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
         } else {
           set retval [.dialog.symprop get 1.0 {end - 1 chars}]
-          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+          regsub -all {(["\\])} $retval {\\\1} retval ;# vim syntax fix "
           set retval \"${retval}\"
           set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
         }
@@ -4974,6 +4976,26 @@ proc edit_prop {txtlabel} {
     wm geometry .dialog $edit_prop_pos
   }
   set edit_symbol_prop_new_sel 0
+
+  tkwait visibility .dialog
+  # select text after value= or lab= and place cursor just before selection
+  set regx {value *= *("[^"]+"|[^ \t\n"]+)}   ;# vim syntax fix "
+  set regx1 {value *= *[^ \n]}
+  set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
+  .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
+  incr len -1
+  if {$idx eq {} } { 
+    set regx {lab *= *("[^"]+"|[^ \t\n"]+)} ;# vim syntax fix "
+    set regx1 {lab *= *[^ \n]}
+    set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
+    .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
+    incr len -1
+  }
+  if { $idx ne {} } {
+    .dialog.symprop tag add sel "$idx + $len chars" "$idx + $nchars chars"
+    .dialog.symprop mark set insert "$idx + $len chars"
+  }
+  focus .dialog.symprop
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
   return $tctx::rcode
@@ -7358,7 +7380,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
   $topwin.menubar.prop.menu add command -label "Toggle *_ignore attribute on selected instances" \
-     -command "xschem toggle_ignore"
+     -command "xschem toggle_ignore" -accelerator Shift+T
   $topwin.menubar.prop.menu add command -label "Edit Header/License text" \
      -command { update_schematic_header } -accelerator Shift+B
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \

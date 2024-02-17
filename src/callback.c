@@ -1798,6 +1798,10 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->semaphore = save_sem;
      break;
    }
+   /* toggle spice_ignore, verilog_ignore, ... flag on selected instances. */
+   if(key == 'T' && rstate == 0) {
+     toggle_ignore();
+   }
    if(key=='t' && rstate == 0)                        /* place text */
    {
      if(waves_selected(event, key, state, button)) {
