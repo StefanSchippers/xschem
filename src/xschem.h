@@ -1647,6 +1647,7 @@ extern void round_schematic_to_grid(double cadsnap);
 extern void save_selection(int what);
 extern void print_vhdl_signals(FILE *fd);
 extern void print_verilog_signals(FILE *fd);
+extern void list_nets(char **result);
 extern void print_generic(FILE *fd, char *ent_or_comp, int symbol);
 extern void print_verilog_param(FILE *fd, int symbol);
 extern void hilight_net(int to_waveform);

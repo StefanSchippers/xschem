@@ -2419,6 +2419,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tclvareval("join [lsort -decreasing -dictionary {", tclresult(), "}] ", sep, NULL);
     }
 
+    /* list_nets
+     *    List all nets with type (in / out / inout / net) */
+    else if(!strcmp(argv[1], "list_nets"))
+    {
+      char *result = NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      list_nets(&result);
+      Tcl_SetResult(interp, result, TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &result);
+    }
+
     /* list_tokens str with_quotes
      *   List tokens in string 'str'
      *   with_quotes:
