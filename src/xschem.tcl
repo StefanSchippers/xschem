@@ -2168,7 +2168,7 @@ proc graph_add_nodes_from_list {nodelist} {
       set first 1
     }
     if {$change_done && $graph_bus} {
-      set sel "[string toupper $busname],${sel}\n"
+      set sel "[string toupper $busname];${sel}\n"
     } else {
       set sel "${sel}\n"
     }
@@ -2200,7 +2200,7 @@ proc graph_add_nodes_from_list {nodelist} {
       set first 1
     }
     if {$change_done && $graph_bus} {
-      set sel "[string toupper $busname],${sel}\n"
+      set sel "[string toupper $busname];${sel}\n"
     } else {
       set sel "${sel}\n"
     }
