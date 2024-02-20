@@ -36,6 +36,21 @@ p{padding: 15px  30px 10px;}
   After generating the netlist (for example poweramp.spice) the resulting SPICE netlist can be sent directly for
   simulation (for example <kbd>hspice -i poweramp.spice</kbd> for the  Hspice(TM) simulator). 
  </p>
+ <h3> HELPFUL XTERM CONFIGURATION</h3>
+ <p> By default, xschem runs all simulators in an xterm window. Here is some configuration to make xterm more usable:</p>
+ <pre class="code">
+# enable copy/paste with Ctrl-Shift-C and Ctrl-Shift-V.
+# set font size to 18.
+echo '
+XTerm*VT100.Translations: #override \
+    Ctrl Shift &lt;Key&gt;C: copy-selection(CLIPBOARD) \n\
+    Ctrl Shift &lt;Key&gt;V: insert-selection(CLIPBOARD)
+xterm*font:     *-fixed-*-*-*-18-*
+' &gt;&gt; ~/.Xresources
+
+# reload the configuration
+xrdb -merge ~/.Xresources
+    </pre>
 
  <h3> VERILOG SIMULATION</h3>
  <p> This is a tutorial showing how to run a simulation with XSCHEM. The first important thing to
