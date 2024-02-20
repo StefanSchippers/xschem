@@ -261,6 +261,17 @@ The following syntax:
   <img src="graphs20.png"><br>
  </p>
 
+ <h3>Change sweep variable</h3>
+ <p> The graph dialog box has a <kbd>Sweep</kbd> textbox where you can write the 
+  X-axis variable. By default xschem uses the first variable in the raw file for the X-axis, and this is the 
+  sweep variable the simulation was done, so time for transients, frequency for AC sims, voltage or current sweep
+  for DC sims. Example below shows a cmos latch where a DC simulation has vbeen done sweeping the voltage generator
+  on the <kbd>a</kbd> input from 0 to 3V.<br>
+  <img src="graphs21.png"><br><br>
+  If <kbd>v(a) v(z)</kbd> is specified in the Sweep textbox (or <kbd>a z</kbd>) the <kbd>z</kbd> signal
+  will be plotted vs <kbd>a</kbd> and the <kbd>a</kbd> signal will be plotted vs <kbd>z</kbd>.<br>
+  <img src="graphs22.png"><br><br>
+  </p>
 
  <!-- end of slide -->
  <div class="filler"></div>
