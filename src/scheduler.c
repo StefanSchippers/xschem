@@ -3418,7 +3418,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'r': /*----------------------------------------------*/
     /* raw what [rawfile type] [sweep1 sweep2]
-     * what = read | clear | info | switch | switch_back
+     *   what = read | clear | info | switch | switch_back
      *   Load / clear / switch additional raw files
      *   if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
      *   sweep1 <= sweep_var < sweep2 */
@@ -3477,12 +3477,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* raw_query loaded|value|index|values|datasets|vars|list 
+    /* raw_query loaded|value|index|values|datasets|vars|list|set
      *   xschem raw_query list: get list of saved simulation variables
      *   xschem raw_query vars: get number of simulation variables
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
-     *     If n is egiven as empty string {} return value at cursor b, dataset not used in this case
+     *   If n is given as empty string {} return value at cursor b, dataset not used in this case
      *   xschem raw_query loaded: return hierarchy level
      *   where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query rawfile: return raw filename 
@@ -3493,6 +3493,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   values of 'node' for dataset 'dset' (default dset=0)
      *   xschem raw_query points [dset] : print simulation points for
      *   dataset 'dset' (default: all dataset points combined)
+     *   xschem raw_query set node n value [dataset] : change loaded raw file data node[n] to value
+     *     
      */
     else if(!strcmp(argv[1], "raw_query"))
     {
@@ -3567,6 +3569,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           for(i = 0 ; i < raw->nvars; ++i) {
             if(i > 0) Tcl_AppendResult(interp, "\n", NULL);
             Tcl_AppendResult(interp, raw->names[i], NULL);
+          }
+        /*    0      1        2   3   4   5       6
+         *  xschem raw_query set node n value [dataset] */
+        } else if(argc > 5 && !strcmp(argv[2], "set")) {
+          int dataset = -1, ofs = 0;
+          int point = atoi(argv[4]);
+          const char *node = argv[3];
+          int idx = -1;
+          if(argc > 6) dataset = atoi(argv[6]);
+          idx = get_raw_index(node);
+          if(idx >= 0) {
+            if( dataset < xctx->raw->datasets && 
+                ( (dataset >=0 && point >= 0 && point < raw->npoints[dataset]) ||
+                  (dataset == -1 && point >= 0 && point < raw->allpoints) )
+              ) {
+              if(dataset != -1) {
+                for(i = 0; i < dataset; ++i) {
+                  ofs += xctx->raw->npoints[i];
+                } 
+                if(ofs + point < xctx->raw->allpoints) {
+                  point += ofs;
+                }
+              }
+              xctx->raw->values[idx][point] = (SPICE_DATA) atof(argv[5]);
+              Tcl_SetResult(interp, dtoa(xctx->raw->values[idx][point]), TCL_VOLATILE);
+            }
           }
         }
       }
