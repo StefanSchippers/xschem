@@ -3464,7 +3464,7 @@ proc file_dialog_display_preview {f} {
 }
 
 proc file_dialog_right_listboxselect {dirselect} {
-    global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval
+    global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval file_dialog_sel
     global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1 file_dialog_globfilter
     set file_dialog_yview [.load.l.paneright.f.list yview] 
     set file_dialog_sel [.load.l.paneright.f.list curselection]
@@ -3648,7 +3648,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.l.paneleft.list selection set $file_dialog_index1
   }
   label .load.buttons_bot.srclab  -text { Search:}
-  entry .load.buttons_bot.src -takefocus 0 -width 5
+  entry .load.buttons_bot.src -takefocus 0 -width 10
   .load.buttons_bot.src delete 0 end
   .load.buttons_bot.src insert 0 $file_dialog_globfilter
   label .load.buttons_bot.label  -text { File:}
@@ -3756,8 +3756,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     "
     bind .load.l.paneright.f.list <Double-Button-1> "
       set file_dialog_retval \[.load.buttons_bot.entry get\]
-      if {\$file_dialog_retval ne {}  && 
-          !\[file isdirectory \"\$file_dialog_dir1/\[.load.l.paneright.f.list get \$file_dialog_sel\]\"\]} {
+      if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
         destroy .load
