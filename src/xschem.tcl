@@ -51,14 +51,14 @@ proc inutile_line {txtlabel} {
 }
 
 proc inutile_write_data {w f} {
- set fid [open $f "w"]
+ set fid [open $f w]
  set t [$w get  0.0 {end - 1 chars}]
  puts  -nonewline $fid $t 
  close $fid
 }
   
 proc inutile_read_data {w f} {
- set fid [open $f "r"]
+ set fid [open $f r]
  set t [read $fid]
  $w delete 0.0 end
  $w insert 0.0 $t
@@ -66,7 +66,7 @@ proc inutile_read_data {w f} {
 }
 
 proc inutile_template {w f} {
- set fid [open $f "r"]
+ set fid [open $f r]
  set t [read $fid]
  $w insert 0.0 $t
  close $fid
@@ -2409,7 +2409,11 @@ proc graph_fill_listbox {} {
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
   # puts "graph_fill_listbox: $rawfile $sim_type"
   if {$rawfile ne {}} {
-    set res [xschem raw read $rawfile $sim_type]
+    if {$sim_type eq {table}} {
+      set res [xschem raw table_read $rawfile $sim_type]
+    } else {
+      set res [xschem raw read $rawfile $sim_type]
+    }
     if {$res} {
       set retval [graph_get_signal_list [xschem raw_query list] $retval]
     } else {
@@ -2535,7 +2539,7 @@ proc graph_edit_properties {n} {
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
   if { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise}  -width 4
+    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise table}  -width 4
   } else {
     entry .graphdialog.center.right.list -width 4
   }
@@ -3904,7 +3908,7 @@ proc create_pins {} {
   # viewdata $retval
   set pcnt 0
   set y 0
-  set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
+  set fd [open $USER_CONF_DIR/.clipboard.sch w]
   foreach i $lines { 
     puts $fd "C \{${dirprefix}[lindex $i 1].sym\} 0 [set y [expr {$y-20}]] \
                 0 0 \{ name=p[incr pcnt] lab=[lindex $i 0] \}"
@@ -3941,7 +3945,7 @@ proc schpins_to_sympins {} {
   xschem copy
   set clipboard [read_data_nonewline $USER_CONF_DIR/.clipboard.sch]
   set lines [split $clipboard \n]
-  set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
+  set fd [open $USER_CONF_DIR/.clipboard.sch w]
   foreach i $lines {
     set ii [split [regexp -all -inline {\S+} $i]]
     if {[regexp {^C \{.*(i|o|io)pin} $i ]} {
@@ -4011,7 +4015,7 @@ proc add_lab_no_prefix {} {
   # viewdata $retval
   set pcnt 0
   set y 0
-  set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
+  set fd [open $USER_CONF_DIR/.clipboard.sch w]
   foreach i $lines {
     puts $fd "C \{${dirprefix}lab_pin.sym\} 0 [set y [expr {$y+20}]] \
                0 0 \{ name=p[incr pcnt] verilog_type=wire lab=[lindex $i 0] \}"
@@ -4033,7 +4037,7 @@ proc add_lab_prefix {} {
   # viewdata $retval
   set pcnt 0
   set y 0
-  set fd [open $USER_CONF_DIR/.clipboard.sch "w"]
+  set fd [open $USER_CONF_DIR/.clipboard.sch w]
   foreach i $lines {
     puts $fd "C \{${dirprefix}lab_pin.sym\} 0 [set y [expr {$y+20}]] \
                0 0 \{ name=p[incr pcnt] verilog_type=reg lab=i[lindex $i 0] \}"
@@ -5077,21 +5081,21 @@ proc edit_prop {txtlabel} {
 }
 
 proc read_data_nonewline {f} {
-  set fid [open $f "r"]
+  set fid [open $f r]
   set data [read -nonewline $fid]
   close $fid
   return $data
 }
 
 proc read_data {f} {
-  set fid [open $f "r"]
+  set fid [open $f r]
   set data [read $fid]
   close $fid
   return $data
 }
 
 proc read_data_window {w f} {
-  set fid [open $f "r"]
+  set fid [open $f r]
   set t [read $fid]
   #  $w delete 0.0 end
   ## 20171103 insert text at cursor position instead of at beginning (insert index tag)
@@ -5100,7 +5104,7 @@ proc read_data_window {w f} {
 }
 
 proc write_data {data f} {
-  set fid [open $f "w"]
+  set fid [open $f w]
   puts  -nonewline $fid $data
   close $fid
   return {}
@@ -5404,7 +5408,7 @@ proc textwindow {filename {ro {}}} {
   if { $ro eq {} } {
     button $textwindow_w.buttons.save -text "Save" -command \
      { 
-      set textwindow_fileid [open $textwindow_filename "w"]
+      set textwindow_fileid [open $textwindow_filename w]
       puts -nonewline $textwindow_fileid [$textwindow_w.text get 1.0 {end - 1 chars}]
       close $textwindow_fileid 
       destroy $textwindow_w
@@ -5420,7 +5424,7 @@ proc textwindow {filename {ro {}}} {
   pack $textwindow_w.text -expand yes -fill both
   pack $textwindow_w.xscroll -side bottom -fill x
   bind $textwindow_w <Escape> "$textwindow_w.buttons.dismiss invoke"
-  set textwindow_fileid [open $filename "r"]
+  set textwindow_fileid [open $filename r]
 
   # 20171103 insert at insertion cursor(insert tag) instead of 0.0
   $textwindow_w.text insert insert [read $textwindow_fileid]
@@ -5458,7 +5462,7 @@ proc viewdata {data {ro {}} {win .view}} {
         set viewdata_filename [tk_getSaveFile -initialdir [pwd] ]
       }
       if { $viewdata_filename != "" } {
-        set viewdata_fileid [open $viewdata_filename "w"]
+        set viewdata_fileid [open $viewdata_filename w]
         puts -nonewline $viewdata_fileid [$viewdata_w.text get 1.0 {end - 1 chars}]
         close $viewdata_fileid
       }

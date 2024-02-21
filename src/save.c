@@ -883,6 +883,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
 }
 
 /* what == 1: read another raw file and switch to it (make it the current one)
+ *            if type == table use table_read() to read an ascii table
  * what == 2: switch raw file. If filename given switch to that one, 
  * else if filename is an integer switch to that raw file index,
  * else switch to next
@@ -904,8 +905,39 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
+  /* **************** table_read ************* */
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "table")) {
+    tclvareval("subst {", file, "}", NULL);
+    my_strncpy(f, tclresult(), S(f));
+    for(i = 0; i < xctx->extra_raw_n; i++) {
+      if( !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) break;
+    } 
+    if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
+      int read_ret = 0;
+      Raw *save;
+      save = xctx->raw; 
+      xctx->raw = NULL;
+      read_ret = table_read(f);
+      my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, type);
+      if(read_ret) {
+        xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+        xctx->extra_prev_idx = xctx->extra_idx;
+        xctx->extra_idx = xctx->extra_raw_n;
+        xctx->extra_raw_n++;
+      } else {
+        ret = 0; /* not found so did not switch */
+        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type);
+        xctx->raw = save; /* restore */
+        xctx->extra_prev_idx = xctx->extra_idx;
+      }
+    } else { /* file found: switch to it */
+      dbg(1, "extra_rawfile() %d read: found: switch to it\n", i);
+      xctx->extra_prev_idx = xctx->extra_idx;
+      xctx->extra_idx = i; 
+      xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
+    }
   /* **************** read ************* */
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
+  } else if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     if(!my_strcasecmp(type, "spectrum")) type = "ac";
