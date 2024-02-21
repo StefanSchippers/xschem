@@ -3327,6 +3327,7 @@ proc file_dialog_set_home {dir} {
 
 proc setglob {dir} {
       global file_dialog_globfilter file_dialog_files2 OS
+      # puts "setglob: $dir, filter=$file_dialog_globfilter"
       set file_dialog_files2 [lsort [glob -nocomplain -directory $dir -tails -type d .* *]]
       if { $file_dialog_globfilter eq {*}} {
         set file_dialog_files2 ${file_dialog_files2}\ [lsort [
@@ -3464,36 +3465,41 @@ proc file_dialog_display_preview {f} {
 
 proc file_dialog_right_listboxselect {dirselect} {
     global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval
-    global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1
+    global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1 file_dialog_globfilter
     set file_dialog_yview [.load.l.paneright.f.list yview] 
     set file_dialog_sel [.load.l.paneright.f.list curselection]
     if { $file_dialog_sel ne {} } {
+      set curr_dir [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
       set curr_item [.load.l.paneright.f.list get $file_dialog_sel]
-      if { !$dirselect && ($curr_item eq {..} || $curr_item eq {.}) } {
-        set file_dialog_retval  {   }
-        return
-      }
-      set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-      set file_dialog_dir2 $curr_item
-      if {$file_dialog_dir2 eq {..}} {
-        set file_dialog_d [file dirname $file_dialog_dir1]
-      } elseif {$file_dialog_dir2 eq {.} } {
-        set file_dialog_d  $file_dialog_dir1
+
+      if {$curr_item eq {..}} {
+        set file_dialog_d [file dirname $curr_dir]
+      } elseif {$curr_item eq {.} } {
+        set file_dialog_d  $curr_dir
       } else {
         if {$OS == "Windows"} {
-          if {[regexp {^[A-Za-z]\:/$} $file_dialog_dir1]} {
-            set file_dialog_d "$file_dialog_dir1$file_dialog_dir2"
+          if {[regexp {^[A-Za-z]\:/$} $curr_dir]} {
+            set file_dialog_d "$curr_dir$curr_item"
           } else {
-            set file_dialog_d "$file_dialog_dir1/$file_dialog_dir2"
+            set file_dialog_d "$curr_dir/$curr_item"
           }
         } else {
-          if {$file_dialog_dir1 eq "/"} {
-            set file_dialog_d "$file_dialog_dir1$file_dialog_dir2"
+          if {$curr_dir eq "/"} {
+            set file_dialog_d "$curr_dir$curr_item"
           } else {
-            set file_dialog_d "$file_dialog_dir1/$file_dialog_dir2"
+            set file_dialog_d "$curr_dir/$curr_item"
           }
         }
       }
+
+      if { !$dirselect && [file isdirectory $file_dialog_d] } {
+        .load.buttons_bot.entry delete 0 end
+        set file_dialog_retval  {   }
+        return
+      }
+
+      set file_dialog_dir1 $curr_dir
+      set file_dialog_dir2 $curr_item
       if { [file isdirectory $file_dialog_d]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
@@ -3502,15 +3508,16 @@ proc file_dialog_right_listboxselect {dirselect} {
         setglob $file_dialog_d
         file_dialog_set_colors2
         set file_dialog_dir1 $file_dialog_d
-        # .load.buttons_bot.entry delete 0 end
       } else {
         .load.buttons_bot.entry delete 0 end
         .load.buttons_bot.entry insert 0 $file_dialog_dir2
-        file_dialog_display_preview  $file_dialog_dir1/$file_dialog_dir2
+
+        file_dialog_display_preview  $file_dialog_d
         # puts "xschem preview_window draw .load.l.paneright.draw \"$file_dialog_dir1/$file_dialog_dir2\""
       }
     }
     if {$file_dialog_loadfile == 2} {
+      # set to something different to any file to force a new placement in file_dialog_place_symbol
       set file_dialog_retval  {   }
     }
 }
@@ -3534,6 +3541,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set file_dialog_loadfile $loadfile
   if {$ext ne {}} {set file_dialog_ext $ext}
   set file_dialog_globfilter $file_dialog_ext
+
   set file_dialog_save_initialfile $initialf
   set file_dialog_retval {} 
   upvar #0 $global_initdir initdir
@@ -3553,6 +3561,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
   frame .load.l.paneleft -takefocus 0
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
+    -highlightcolor red -highlightthickness 2 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3569,10 +3578,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     if { $file_dialog_sel ne {} } {
       set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_sel]]
       set file_dialog_index1 $file_dialog_sel
-      #### avoid clearing search entry and resetting glob filter
-      #### when changing directory in left listbox
-      # set file_dialog_globfilter $file_dialog_ext
-      # if {$file_dialog_save_initialfile eq {}} {.load.buttons_bot.entry delete 0 end}
+
+      set file_dialog_globfilter  *[.load.buttons_bot.src get]*
+      if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
+
       setglob $file_dialog_dir1
       file_dialog_set_colors2
     }
@@ -3588,6 +3597,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 
   listbox .load.l.paneright.f.list  -listvariable file_dialog_files2 -width 20 -height 12\
+    -highlightcolor red -highlightthickness 2 \
     -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
@@ -3637,14 +3647,18 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.l.paneright.f.list selection clear 0 end
     .load.l.paneleft.list selection set $file_dialog_index1
   }
-  label .load.buttons_bot.label  -text {  File/Search:}
-  entry .load.buttons_bot.entry
+  label .load.buttons_bot.srclab  -text { Search:}
+  entry .load.buttons_bot.src -takefocus 0 -width 5
+  .load.buttons_bot.src delete 0 end
+  .load.buttons_bot.src insert 0 $file_dialog_globfilter
+  label .load.buttons_bot.label  -text { File:}
+  entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
   if { $file_dialog_save_initialfile ne {} } { 
     .load.buttons_bot.entry insert 0 $file_dialog_save_initialfile
   }
-  bind .load.buttons_bot.entry <KeyRelease> {
+  bind .load.buttons_bot.src <KeyRelease> {
     if {$file_dialog_save_initialfile eq {} } {
-      set file_dialog_globfilter  *[.load.buttons_bot.entry get]*
+      set file_dialog_globfilter  *[.load.buttons_bot.src get]*
       if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
       setglob $file_dialog_dir1
       if {[.load.buttons_bot.entry get] ne {}} {
@@ -3671,11 +3685,26 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   # }
 
   radiobutton .load.buttons_bot.all -text All -variable file_dialog_globfilter -value {*} -takefocus 0 \
-     -command { set file_dialog_ext $file_dialog_globfilter; setglob $file_dialog_dir1 }
+     -command {
+        set file_dialog_ext $file_dialog_globfilter
+        setglob $file_dialog_dir1
+        .load.buttons_bot.src delete 0 end
+        .load.buttons_bot.src insert 0 $file_dialog_globfilter
+      }
   radiobutton .load.buttons_bot.sym -text .sym -variable file_dialog_globfilter -value {*.sym} -takefocus 0 \
-     -command { set file_dialog_ext $file_dialog_globfilter; setglob $file_dialog_dir1 }
+     -command {
+        set file_dialog_ext $file_dialog_globfilter
+        setglob $file_dialog_dir1
+        .load.buttons_bot.src delete 0 end
+        .load.buttons_bot.src insert 0 $file_dialog_globfilter
+      }
   radiobutton .load.buttons_bot.sch -text .sch -variable file_dialog_globfilter -value {*.sch} -takefocus 0 \
-     -command { set file_dialog_ext $file_dialog_globfilter; setglob $file_dialog_dir1 }
+     -command {
+        set file_dialog_ext $file_dialog_globfilter
+        setglob $file_dialog_dir1
+        .load.buttons_bot.src delete 0 end
+        .load.buttons_bot.src insert 0 $file_dialog_globfilter
+      }
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
   label .load.buttons.mkdirlab -text { New dir: } -fg blue
   entry .load.buttons.newdir -width 16 -takefocus 0
@@ -3702,6 +3731,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons.newdir -expand true -fill x -side left
   pack .load.buttons.rmdir .load.buttons.mkdir -side right
   pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
+  pack .load.buttons_bot.srclab -side left
+  pack .load.buttons_bot.src -side left 
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
   pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
@@ -3715,7 +3746,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { $loadfile != 2} {
     bind .load <Return> " 
       set file_dialog_retval \[.load.buttons_bot.entry get\]
-      if {\$file_dialog_retval ne {} } {
+      if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
+        bind .load.l.paneright.draw <Expose> {}
+        bind .load.l.paneright.draw <Configure> {}
         destroy .load
         xschem preview_window destroy {} {}
         set $global_initdir \"\$file_dialog_dir1\"
@@ -3771,6 +3804,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
         file_dialog_place_symbol
       }
     }
+  }
+
+  bind .load.l.paneright.f.list <KeyRelease-Return> { 
+    file_dialog_right_listboxselect 1
   }
 
   bind .load.l.paneright.f.list <ButtonRelease-1> { 
