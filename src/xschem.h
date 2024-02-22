@@ -1223,6 +1223,7 @@ extern int filter_data(const char *din, const size_t ilen,
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
 extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
+extern int raw_add_vector(const char *varname);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);

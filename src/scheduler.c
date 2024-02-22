@@ -3480,23 +3480,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* raw_query loaded|value|index|values|datasets|vars|list|set
+    /* raw_query loaded|value|index|values|datasets|vars|list|set|add
      *   xschem raw_query list: get list of saved simulation variables
      *   xschem raw_query vars: get number of simulation variables
      *   xschem raw_query datasets: get number of datasets (simulation runs)
      *   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
-     *   If n is given as empty string {} return value at cursor b, dataset not used in this case
+     *     If n is given as empty string {} return value at cursor b, dataset not used in this case
      *   xschem raw_query loaded: return hierarchy level
-     *   where raw file was loaded or -1 if no raw loaded
+     *     where raw file was loaded or -1 if no raw loaded
      *   xschem raw_query rawfile: return raw filename 
      *   xschem raw_query sim_type: return raw loaded simulation type (ac, op, tran, ...) 
      *   xschem raw_query index node: get index of simulation variable 'node'. 
      *     Example:  raw_query index v(led) --> 46
-     *   xschem raw_query values node [dset] : print all simulation
-     *   values of 'node' for dataset 'dset' (default dset=0)
-     *   xschem raw_query points [dset] : print simulation points for
-     *   dataset 'dset' (default: all dataset points combined)
-     *   xschem raw_query set node n value [dataset] : change loaded raw file data node[n] to value
+     *   xschem raw_query values node [dset]: print all simulation
+     *     values of 'node' for dataset 'dset' (default dset=0)
+     *     xschem raw_query points [dset]: print simulation points for
+     *     dataset 'dset' (default: all dataset points combined)
+     *   xschem raw_query set node n value [dataset]: change loaded raw file data node[n] to value
+     *   xschem raw_query add varname: add a 'varname' vector with all values set to 0 to loaded raw file
      *     
      */
     else if(!strcmp(argv[1], "raw_query"))
@@ -3552,6 +3553,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_AppendResult(interp, n, " ", NULL);
             }
           }
+        } else if(argc > 3 && !strcmp(argv[2], "add")) {
+          int res = 0;
+          res = raw_add_vector(argv[3]);
+          Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE); 
         } else if(argc > 2 && !strcmp(argv[2], "datasets")) {
           Tcl_SetResult(interp, my_itoa(raw->datasets), TCL_VOLATILE); 
         } else if(argc > 2 && !strcmp(argv[2], "points")) {

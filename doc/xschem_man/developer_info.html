@@ -550,6 +550,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1094,29 +1095,30 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
    <li><kbd>       raw what [rawfile type] [sweep1 sweep2]</kbd></li><pre>
-   what = read | clear | info | switch | switch_back
+   what = read | clear | info | switch | switch_back | table_read
    Load / clear / switch additional raw files
    if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
    sweep1 &lt;= sweep_var &lt; sweep2 </pre>
    <li><kbd>       raw_clear </kbd></li><pre>
    Unload all simulation raw files </pre>
-   <li><kbd>       raw_query loaded|value|index|values|datasets|vars|list|set</kbd></li><pre>
+   <li><kbd>       raw_query loaded|value|index|values|datasets|vars|list|set|add</kbd></li><pre>
    xschem raw_query list: get list of saved simulation variables
    xschem raw_query vars: get number of simulation variables
    xschem raw_query datasets: get number of datasets (simulation runs)
    xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
-   If n is given as empty string {} return value at cursor b, dataset not used in this case
+     If n is given as empty string {} return value at cursor b, dataset not used in this case
    xschem raw_query loaded: return hierarchy level
-   where raw file was loaded or -1 if no raw loaded
+     where raw file was loaded or -1 if no raw loaded
    xschem raw_query rawfile: return raw filename 
    xschem raw_query sim_type: return raw loaded simulation type (ac, op, tran, ...) 
    xschem raw_query index node: get index of simulation variable 'node'. 
      Example:  raw_query index v(led) --&gt; 46
-   xschem raw_query values node [dset] : print all simulation
-   values of 'node' for dataset 'dset' (default dset=0)
-   xschem raw_query points [dset] : print simulation points for
-   dataset 'dset' (default: all dataset points combined)
-   xschem raw_query set node n value [dataset] : change loaded raw file data node[n] to value
+   xschem raw_query values node [dset]: print all simulation
+     values of 'node' for dataset 'dset' (default dset=0)
+     xschem raw_query points [dset]: print simulation points for
+     dataset 'dset' (default: all dataset points combined)
+   xschem raw_query set node n value [dataset]: change loaded raw file data node[n] to value
+   xschem raw_query add varname: add a 'varname' vector with all values set to 0 to loaded raw file
      </pre>
    <li><kbd>       raw_read [file] [sim] [sweep1 sweep2]</kbd></li><pre>
    If a raw file is already loaded delete from memory
@@ -1458,7 +1460,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

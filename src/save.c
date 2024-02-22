@@ -824,6 +824,28 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
   return res;
 }
 
+int raw_add_vector(const char *varname)
+{
+  int f;
+  Raw *raw = xctx->raw;
+  if(!raw || !raw->values) return 0;
+
+  raw->nvars++;
+  my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
+  raw->names[raw->nvars - 1] = NULL;
+  my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
+  int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
+
+  my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
+  raw->values[raw->nvars] = NULL;
+  my_realloc(_ALLOC_ID_, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
+  for(f = 0; f < raw->allpoints; f++) {
+    raw->values[raw->nvars - 1][f] = 0.0;
+  }
+
+  return 1;
+}
+
 /* read a ngspice raw file (with data portion in binary format) */
 int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2)
 {
