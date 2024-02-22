@@ -3654,7 +3654,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
   label .load.buttons_bot.srclab  -text { Search:}
-  entry .load.buttons_bot.src -width 12
+  entry .load.buttons_bot.src -width 12 -highlightcolor red -highlightthickness 2
   .load.buttons_bot.src delete 0 end
   .load.buttons_bot.src insert 0 $file_dialog_globfilter
   if { $file_dialog_save_initialfile ne {} } { 
@@ -3681,34 +3681,28 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set file_dialog_retval {   }
   }
 
-  # bind .load <ButtonRelease> {
-  #   puts %W
-  #   if {{%W} ne {.load.buttons.newdir} && [winfo exists .load.buttons_bot.entry] } {
-  #     focus .load.buttons_bot.entry
-  #   }
-  # }
+  # radiobutton .load.buttons_bot.all -text All -variable file_dialog_globfilter -value {*} -takefocus 0 \
+  #    -command {
+  #       set file_dialog_ext $file_dialog_globfilter
+  #       setglob $file_dialog_dir1
+  #       .load.buttons_bot.src delete 0 end
+  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
+  #     }
+  # radiobutton .load.buttons_bot.sym -text .sym -variable file_dialog_globfilter -value {*.sym} -takefocus 0 \
+  #    -command {
+  #       set file_dialog_ext $file_dialog_globfilter
+  #       setglob $file_dialog_dir1
+  #       .load.buttons_bot.src delete 0 end
+  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
+  #     }
+  # radiobutton .load.buttons_bot.sch -text .sch -variable file_dialog_globfilter -value {*.sch} -takefocus 0 \
+  #    -command {
+  #       set file_dialog_ext $file_dialog_globfilter
+  #       setglob $file_dialog_dir1
+  #       .load.buttons_bot.src delete 0 end
+  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
+  #     }
 
-  radiobutton .load.buttons_bot.all -text All -variable file_dialog_globfilter -value {*} -takefocus 0 \
-     -command {
-        set file_dialog_ext $file_dialog_globfilter
-        setglob $file_dialog_dir1
-        .load.buttons_bot.src delete 0 end
-        .load.buttons_bot.src insert 0 $file_dialog_globfilter
-      }
-  radiobutton .load.buttons_bot.sym -text .sym -variable file_dialog_globfilter -value {*.sym} -takefocus 0 \
-     -command {
-        set file_dialog_ext $file_dialog_globfilter
-        setglob $file_dialog_dir1
-        .load.buttons_bot.src delete 0 end
-        .load.buttons_bot.src insert 0 $file_dialog_globfilter
-      }
-  radiobutton .load.buttons_bot.sch -text .sch -variable file_dialog_globfilter -value {*.sch} -takefocus 0 \
-     -command {
-        set file_dialog_ext $file_dialog_globfilter
-        setglob $file_dialog_dir1
-        .load.buttons_bot.src delete 0 end
-        .load.buttons_bot.src insert 0 $file_dialog_globfilter
-      }
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
   label .load.buttons.mkdirlab -text { New dir: } -fg blue
   entry .load.buttons.newdir -width 16 -takefocus 0
@@ -3734,7 +3728,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons.mkdirlab -side left
   pack .load.buttons.newdir -expand true -fill x -side left
   pack .load.buttons.rmdir .load.buttons.mkdir -side right
-  pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
+  # pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
   pack .load.buttons_bot.srclab -side left
   pack .load.buttons_bot.src -side left 
   pack .load.buttons_bot.label -side left
