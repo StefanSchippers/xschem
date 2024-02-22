@@ -3651,12 +3651,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.l.paneright.f.list selection clear 0 end
     .load.l.paneleft.list selection set $file_dialog_index1
   }
-  label .load.buttons_bot.srclab  -text { Search:}
-  entry .load.buttons_bot.src -takefocus 0 -width 10
-  .load.buttons_bot.src delete 0 end
-  .load.buttons_bot.src insert 0 $file_dialog_globfilter
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
+  label .load.buttons_bot.srclab  -text { Search:}
+  entry .load.buttons_bot.src -width 12
+  .load.buttons_bot.src delete 0 end
+  .load.buttons_bot.src insert 0 $file_dialog_globfilter
   if { $file_dialog_save_initialfile ne {} } { 
     .load.buttons_bot.entry insert 0 $file_dialog_save_initialfile
   }
@@ -3832,7 +3832,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { [info exists file_dialog_yview]} {
    .load.l.paneright.f.list yview moveto  [lindex $file_dialog_yview 0]
   }
-  focus .load.buttons_bot.entry
+  focus .load.buttons_bot.src
+  .load.buttons_bot.src selection range 0 end
   if {$loadfile != 2} {
     tkwait window .load
     xschem set semaphore [expr {[xschem get semaphore] -1}]
