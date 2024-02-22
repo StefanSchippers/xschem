@@ -783,6 +783,8 @@ char *base64_from_file(const char *f, size_t *length)
   return b64s;
 }
 
+/* "spice_data" attribute is set on instance by executing 'xschem embed_rawfile'
+ * after seletcing the component */
 int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2)
 {
   int res = 0;

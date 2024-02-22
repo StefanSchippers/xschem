@@ -1717,9 +1717,7 @@ void launcher(void)
   if(xctx->lastsel ==1 && xctx->sel_array[0].type==ELEMENT)
   {
     double mx=xctx->mousex, my=xctx->mousey;
-    select_object(mx,my,SELECTED, 0);
-    tcleval("update; after 300");
-    select_object(mx,my,0, 0);
+    /* select_object(mx,my,SELECTED, 0); */
     n=xctx->sel_array[0].n;
     my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",0), S(program)); /* handle backslashes */
     url = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
@@ -1732,6 +1730,8 @@ void launcher(void)
         tcleval(program);
       }
     }
+    tcleval("update; after 300");
+    select_object(mx,my,0, 0);
   }
 }
 

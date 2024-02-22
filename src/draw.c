@@ -2994,6 +2994,7 @@ int embed_rawfile(const char *rawfile)
   size_t len;
   char *ptr;
   
+  dbg(1, "embed_rawfile(): rawfile=%s\n", rawfile);
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     xInstance *i = &xctx->inst[xctx->sel_array[0].n];
     xctx->push_undo();
