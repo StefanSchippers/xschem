@@ -842,7 +842,6 @@ int raw_add_vector(const char *varname)
   for(f = 0; f < raw->allpoints; f++) {
     raw->values[raw->nvars - 1][f] = 0.0;
   }
-
   return 1;
 }
 
@@ -904,6 +903,78 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
   }
   dbg(0, "raw_read(): failed to open file %s for reading\n", f);
   return 0;
+}
+
+/* create a new raw file with 'number' points with only a sweep variable in it. */
+int new_rawfile(const char *name, const char *type, const char *sweepvar,
+                       double start, double step, int number)
+{
+  int i;
+  int ret = 1;
+  Raw *raw;
+
+  /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
+  if(xctx->raw && xctx->extra_raw_n == 0) {
+    xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+    xctx->extra_raw_n++;
+  }
+
+  if(xctx->extra_raw_n < MAX_RAW_N && name && type) {
+    for(i = 0; i < xctx->extra_raw_n; i++) {
+      if(xctx->extra_raw_arr[i]->sim_type &&
+         !strcmp(xctx->extra_raw_arr[i]->rawfile, name) &&
+         !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+        ) break;
+    }
+
+    for(i = 0; i < xctx->extra_raw_n; i++) {
+      if( !strcmp(xctx->extra_raw_arr[i]->rawfile, name)) break;
+    } 
+    if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
+      double t;
+
+      xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+      raw = xctx->raw;
+      raw->level = -1; 
+      raw->sweep1 = -1.0;
+      raw->sweep2 = -1.0;
+      raw->annot_p = -1;
+      raw->annot_sweep_idx = -1;
+  
+      int_hash_init(&raw->table, HASHSIZE);
+      my_strdup2(_ALLOC_ID_, &raw->rawfile, name);
+      my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
+      my_strdup(_ALLOC_ID_, &raw->sim_type, type);
+      raw->level = xctx->currsch;
+      my_realloc(_ALLOC_ID_, &raw->npoints, 1 * sizeof(int)); /* for now assume only one dataset */
+      raw->datasets = 1;
+      raw->allpoints = number;
+      raw->npoints[0] = number;
+      raw->nvars = 1;
+      raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
+      raw->values[0] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
+      raw->values[1] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
+      raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
+      my_strdup2(_ALLOC_ID_, &raw->names[0], sweepvar);
+      int_hash_lookup(&raw->table, raw->names[0], 0, XINSERT_NOREPLACE);
+
+      for(i = 0; i < number; i++) {
+        t = start + i * step;
+        raw->values[0][i] = t;
+      }
+
+      xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+      xctx->extra_prev_idx = xctx->extra_idx;
+      xctx->extra_idx = xctx->extra_raw_n;
+      xctx->extra_raw_n++;
+    } else { /* file found: print warning, do nothing */
+      dbg(0, "new_rawfile(): the name: %s is already used. Choose a different name\n", name);
+      ret = 0;
+    }
+  } else {
+    ret = 0;
+  }
+  return ret;
 }
 
 /* what == 1: read another raw file and switch to it (make it the current one)

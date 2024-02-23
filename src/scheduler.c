@@ -3418,10 +3418,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'r': /*----------------------------------------------*/
     /* raw what [rawfile type] [sweep1 sweep2]
-     *   what = read | clear | info | switch | switch_back | table_read
-     *   Load / clear / switch additional raw files
-     *   if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
-     *   sweep1 <= sweep_var < sweep2 */
+     *     what = read | clear | info | switch | new | switch_back | table_read
+     *     Load / clear / switch additional raw files
+     *     if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
+     *     sweep1 <= sweep_var < sweep2
+     *   xschem raw new name type sweepvar start step number
+     *     create a new raw file with sweep variable 'sweepvar' with number datapoints
+     *     from start value 'start' and step 'step' */
     if(!strcmp(argv[1], "raw"))
     {
       double sweep1 = -1.0, sweep2 = -1.0;
@@ -3449,6 +3452,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
+      } else if(argc > 8 && !strcmp(argv[2], "new")) {
+        ret = new_rawfile(argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]),atoi(argv[8]));
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
         ret = extra_rawfile(4, NULL, NULL, -1.0, -1.0);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
@@ -3480,7 +3485,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* raw_query loaded|value|index|values|datasets|vars|list|set|add
+    /* raw_query loaded | value | index | values | datasets | vars | list | set | add
      *   xschem raw_query list: get list of saved simulation variables
      *   xschem raw_query vars: get number of simulation variables
      *   xschem raw_query datasets: get number of datasets (simulation runs)
@@ -3549,7 +3554,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               np = raw->npoints[dataset];
             Tcl_ResetResult(interp);
             for(p = 0; p < np; p++) {
-              sprintf(n, "%.10e", get_raw_value(dataset, idx, p));
+              sprintf(n, "%.8g", get_raw_value(dataset, idx, p));
               Tcl_AppendResult(interp, n, " ", NULL);
             }
           }

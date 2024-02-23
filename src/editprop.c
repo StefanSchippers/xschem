@@ -489,7 +489,7 @@ char *dtoa(double i)
   static char s[70];
   size_t n;
 
-  n = my_snprintf(s, S(s), "%g", i);
+  n = my_snprintf(s, S(s), "%.8g", i);
   if(xctx) xctx->tok_size = n;
   return s;
 }
