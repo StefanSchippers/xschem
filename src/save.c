@@ -824,30 +824,34 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
   return res;
 }
 
-int raw_add_vector(const char *varname)
+int raw_add_vector(const char *varname, const char *expr)
 {
   int f;
+  int res = 0;
   Raw *raw = xctx->raw;
   if(!raw || !raw->values) return 0;
 
-  if(int_hash_lookup(&raw->table, varname, 0, XLOOKUP)) {
-    return 0;
+  if(!int_hash_lookup(&raw->table, varname, 0, XLOOKUP)) {
+    raw->nvars++;
+    my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
+    my_realloc(_ALLOC_ID_, &raw->cursor_b_val, raw->nvars * sizeof(double));
+    raw->cursor_b_val[raw->nvars - 1] = 0.0;
+    raw->names[raw->nvars - 1] = NULL;
+    my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
+    int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
+    my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
+    raw->values[raw->nvars] = NULL;
+    my_realloc(_ALLOC_ID_, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
+    res = 1;
   }
-  raw->nvars++;
-  my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
-  my_realloc(_ALLOC_ID_, &raw->cursor_b_val, raw->nvars * sizeof(double));
-  raw->cursor_b_val[raw->nvars - 1] = 0.0;
-  raw->names[raw->nvars - 1] = NULL;
-  my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
-  int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
-
-  my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
-  raw->values[raw->nvars] = NULL;
-  my_realloc(_ALLOC_ID_, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
-  for(f = 0; f < raw->allpoints; f++) {
-    raw->values[raw->nvars - 1][f] = 0.0;
+  if(expr) {
+    plot_raw_custom_data(0, 0, raw->allpoints, expr, varname);
+  } else if(res == 1) {
+    for(f = 0; f < raw->allpoints; f++) {
+      raw->values[raw->nvars - 1][f] = 0.0;
+    }
   }
-  return 1;
+  return res;
 }
 
 /* read a ngspice raw file (with data portion in binary format) */
@@ -1459,7 +1463,7 @@ typedef struct {
   int prevp;
 } Stack1;
 
-int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
+int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, const char *yname)
 {
   int i, p, idx;
   const char *n;
@@ -1467,10 +1471,17 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr)
   Stack1 stack1[STACKMAX];
   double stack2[STACKMAX]={0}, tmp, result, avg;
   int stackptr1 = 0, stackptr2 = 0;
-  SPICE_DATA *y = xctx->raw->values[xctx->raw->nvars]; /* custom plot data column */
+  SPICE_DATA *y;
   SPICE_DATA *x = xctx->raw->values[sweep_idx];
   SPICE_DATA *sweepx = xctx->raw->values[0];
 
+  y = xctx->raw->values[xctx->raw->nvars]; /* custom plot data column */
+  if(yname != NULL) {
+    int yidx = get_raw_index(yname);
+    if(yidx >= 0) {
+      y = xctx->raw->values[yidx]; /* provided index */
+    }
+  }
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
   dbg(1, "plot_raw_custom_data(): expr=%s\n", expr);

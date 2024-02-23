@@ -3147,7 +3147,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
           if(dataset == -1 || dataset == sweepvar_wrap) {
-            idx = plot_raw_custom_data(sweep_idx, first, last, express);
+            idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
           }
           first = -1;
         }
@@ -3164,7 +3164,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
     if(first != -1) {
       if(dataset == -1 || dataset == sweepvar_wrap) {
-        idx = plot_raw_custom_data(sweep_idx, first, last, express);
+        idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
       }
     }
     /* offset pointing to next dataset */
@@ -3258,7 +3258,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
         register SPICE_DATA *gvx = raw->values[sweep_idx];
         register SPICE_DATA *gvy;
         ofs_end = ofs + raw->npoints[dset];
-        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express);
+        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL);
         gvy = raw->values[idx];
         dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
@@ -3551,7 +3551,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                                    sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
-                    if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
+                    if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
                   }
                 }
@@ -3594,7 +3594,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                                sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
-                if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express);
+                if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
               }
             }

@@ -1223,7 +1223,7 @@ extern int filter_data(const char *din, const size_t ilen,
 extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
 extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
-extern int raw_add_vector(const char *varname);
+extern int raw_add_vector(const char *varname, const char *expr);
 extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double step, int number);
 extern char *base64_from_file(const char *f, size_t *length);
@@ -1244,7 +1244,7 @@ extern int extra_rawfile(int what, const char *f, const char *type, double sweep
 extern int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
-extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok);
+extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok, const char *yname);
 extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr);
 extern int sch_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);

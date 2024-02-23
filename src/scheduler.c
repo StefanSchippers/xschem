@@ -3502,7 +3502,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     xschem raw_query points [dset]: print simulation points for
      *     dataset 'dset' (default: all dataset points combined)
      *   xschem raw_query set node n value [dataset]: change loaded raw file data node[n] to value
-     *   xschem raw_query add varname: add a 'varname' vector with all values set to 0 to loaded raw file
+     *   xschem raw_query add varname [expr]
+     *     add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
+     *     otherwise initialize data with values calculated from expr.
+     *     If varname is already existing and expr given recalculate data
+     *     Example: xschem raw_query add power {outm outp - i(@r1[i]) *}
      *     
      */
     else if(!strcmp(argv[1], "raw_query"))
@@ -3560,7 +3564,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 3 && !strcmp(argv[2], "add")) {
           int res = 0;
-          res = raw_add_vector(argv[3]);
+          if(argc > 4) {
+            res = raw_add_vector(argv[3], argv[4]);
+          } else {
+            res = raw_add_vector(argv[3], NULL);
+          }
           Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE); 
         } else if(argc > 2 && !strcmp(argv[2], "datasets")) {
           Tcl_SetResult(interp, my_itoa(raw->datasets), TCL_VOLATILE); 
