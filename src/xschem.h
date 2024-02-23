@@ -1225,7 +1225,7 @@ extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *t
 extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern int raw_add_vector(const char *varname, const char *expr);
 extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
-                       double start, double step, int number);
+                       double start, double end, double step);
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);

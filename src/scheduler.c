@@ -3422,8 +3422,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     Load / clear / switch additional raw files
      *     if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
      *     sweep1 <= sweep_var < sweep2
-     *   xschem raw new name type sweepvar start step number
-     *     create a new raw file with sweep variable 'sweepvar' with number datapoints
+     *   xschem raw new name type sweepvar start end step
+     *     create a new raw file with sweep variable 'sweepvar' with number=(end - start) / step datapoints
      *     from start value 'start' and step 'step' */
     if(!strcmp(argv[1], "raw"))
     {
@@ -3453,7 +3453,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc ==9 && !strcmp(argv[2], "new")) {
-        ret = new_rawfile(argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]),atoi(argv[8]));
+        ret = new_rawfile(argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]),atof(argv[8]));
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
         ret = extra_rawfile(4, NULL, NULL, -1.0, -1.0);

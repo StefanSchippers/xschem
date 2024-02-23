@@ -914,13 +914,14 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
   return 0;
 }
 
-/* create a new raw file with 'number' points with only a sweep variable in it. */
+/* create a new raw file with '(max - min) / step' points with only a sweep variable in it. */
 int new_rawfile(const char *name, const char *type, const char *sweepvar,
-                       double start, double step, int number)
+                       double start, double end, double step)
 {
   int i;
   int ret = 1;
   Raw *raw;
+  int number = (int)floor((end - start) / step) + 1;
 
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
