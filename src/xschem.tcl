@@ -2467,6 +2467,25 @@ proc graph_set_linewidth {graph_sel} {
   }
 }
 
+proc raw_is_loaded {rawfile type} {
+  set loaded 0
+
+  set r [catch "uplevel #0 {subst $rawfile}" res]
+  if {$r == 0} {
+    set rawfile $res
+  } else {
+    return $loaded
+  }
+  set rawlist [lrange [xschem raw info] 2 end]
+  foreach {n f t} $rawlist {
+    if {$rawfile eq $f && $type eq $t} {
+       set loaded 1
+       break
+    }
+  }
+  return $loaded
+}
+
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
@@ -2546,7 +2565,7 @@ proc graph_edit_properties {n} {
   if { [info tclversion] > 8.4} {
     bind .graphdialog.center.right.list <<ComboboxSelected>> {
       xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-      if {[file_exists [.graphdialog.center.right.rawentry get]]} {
+      if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
         graph_fill_listbox
       }
     }
@@ -2566,7 +2585,7 @@ proc graph_edit_properties {n} {
 
   bind .graphdialog.center.right.list <KeyRelease> {
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
+    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
       graph_fill_listbox
     }
   }
@@ -2579,7 +2598,7 @@ proc graph_edit_properties {n} {
    .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
+    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
       graph_fill_listbox
     }
 
@@ -2588,7 +2607,7 @@ proc graph_edit_properties {n} {
   bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[file_exists [.graphdialog.center.right.rawentry get]]} {
+    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
       graph_fill_listbox
     }
   }
