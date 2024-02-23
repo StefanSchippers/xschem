@@ -1714,6 +1714,7 @@ void launcher(void)
   char program[PATH_MAX];
   int n;
   rebuild_selected_array();
+  tcleval("update");
   if(xctx->lastsel ==1 && xctx->sel_array[0].type==ELEMENT)
   {
     double mx=xctx->mousex, my=xctx->mousey;
@@ -1730,7 +1731,7 @@ void launcher(void)
         tcleval(program);
       }
     }
-    tcleval("update; after 300");
+    tcleval("after 300");
     select_object(mx,my,0, 0);
   }
 }

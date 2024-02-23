@@ -2300,7 +2300,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           raw->datasets = save_datasets;
           raw->npoints[0] = save_npoints;
         }
-        if(save_extra_idx != -1) {
+        if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
           my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
           extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
           raw = xctx->raw;
@@ -3617,7 +3617,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         raw->datasets = save_datasets;
         raw->npoints[0] = save_npoints;
       }
-      if(save_extra_idx != -1) {
+      if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
         my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
         extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
         raw = xctx->raw;

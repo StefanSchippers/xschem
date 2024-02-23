@@ -830,8 +830,13 @@ int raw_add_vector(const char *varname)
   Raw *raw = xctx->raw;
   if(!raw || !raw->values) return 0;
 
+  if(int_hash_lookup(&raw->table, varname, 0, XLOOKUP)) {
+    return 0;
+  }
   raw->nvars++;
   my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
+  my_realloc(_ALLOC_ID_, &raw->cursor_b_val, raw->nvars * sizeof(double));
+  raw->cursor_b_val[raw->nvars - 1] = 0.0;
   raw->names[raw->nvars - 1] = NULL;
   my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
   int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
@@ -955,6 +960,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       raw->values[0] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
       raw->values[1] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
       raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
+      raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_strdup2(_ALLOC_ID_, &raw->names[0], sweepvar);
       int_hash_lookup(&raw->table, raw->names[0], 0, XINSERT_NOREPLACE);
 
@@ -967,9 +973,11 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       xctx->extra_prev_idx = xctx->extra_idx;
       xctx->extra_idx = xctx->extra_raw_n;
       xctx->extra_raw_n++;
-    } else { /* file found: print warning, do nothing */
-      dbg(0, "new_rawfile(): the name: %s is already used. Choose a different name\n", name);
-      ret = 0;
+    } else { /* file found: switch to it */
+      dbg(1, "new_rawfile() %d read: found: switch to it\n", i);
+      xctx->extra_prev_idx = xctx->extra_idx;
+      xctx->extra_idx = i; 
+      xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   } else {
     ret = 0;
@@ -1091,8 +1099,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       my_strncpy(f, tclresult(), S(f));
       i = atoi(file);
       if(i >= 0 && i < xctx->extra_raw_n) { /* if file found switch to it ... */
-        dbg(1, "extra_rawfile() switch %d: found: switch to it\n", i);
-        xctx->extra_prev_idx = xctx->extra_idx;
+        dbg(1, "extra_rawfile() switch %d: found: switch %d to it\n", xctx->extra_idx, i);
+        xctx->extra_prev_idx = xctx->extra_idx; 
         xctx->extra_idx = i;
       } else {
         dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
@@ -1106,8 +1114,6 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   /* **************** switch back ************* */
   } else if(what == 5 && xctx->extra_raw_n > 0) {
     int tmp;
-    dbg(1, "extra_rawfile() switch back: extra_idx=%d, extra_prev_idx=%d\n",
-            xctx->extra_idx,  xctx->extra_prev_idx);
     tmp = xctx->extra_idx;
     xctx->extra_idx = xctx->extra_prev_idx;
     xctx->extra_prev_idx = tmp;
@@ -1181,6 +1187,7 @@ int update_op()
   tcleval("array unset ngspice::ngspice_data");
   if(xctx->raw && xctx->raw->values) {
     xctx->raw->annot_p = 0;
+    dbg(1, "update_op(): nvars=%d\n", xctx->raw->nvars);
     for(i = 0; i < xctx->raw->nvars; ++i) {
       char s[100];
       res = 1;
