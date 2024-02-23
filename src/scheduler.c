@@ -3452,8 +3452,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
-      } else if(argc > 8 && !strcmp(argv[2], "new")) {
+      } else if(argc ==9 && !strcmp(argv[2], "new")) {
         ret = new_rawfile(argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]),atoi(argv[8]));
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "info")) {
         ret = extra_rawfile(4, NULL, NULL, -1.0, -1.0);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
@@ -3618,6 +3619,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
         }
+      } else {
+        Tcl_SetResult(interp, "No raw file loaded", TCL_STATIC); return TCL_ERROR;
       }
     }
 
