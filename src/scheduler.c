@@ -3417,22 +3417,112 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'r': /*----------------------------------------------*/
-    /* raw what [rawfile type] [sweep1 sweep2]
-     *     what = read | clear | info | switch | new | switch_back | table_read
-     *     Load / clear / switch additional raw files
+
+    /* raw what ...
+     *     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile |
+     *            read | set | sim_type | switch | switch_back | table_read | value | values | vars |
+     *
+     *   xschem raw read filename [type [sweep1 sweep2]]
      *     if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
      *     sweep1 <= sweep_var < sweep2
+     *     type is the analysis type to load (tran, dc, ac, op, ...). If not given load first found in
+     *     raw file.
+     *
+     *   xschem raw clear [rawfile [type]]
+     *     unload given file and type. If type not given delete all type sfrom rawfile
+     *     if no file is given unload all raw files.
+     * 
+     *   xschem raw info
+     *     print information about loaded raw files and show the currently active one.
+     *
      *   xschem raw new name type sweepvar start end step
      *     create a new raw file with sweep variable 'sweepvar' with number=(end - start) / step datapoints
-     *     from start value 'start' and step 'step' */
-    if(!strcmp(argv[1], "raw"))
+     *     from start value 'start' and step 'step'
+     *
+     *   xschem raw list
+     *     get list of saved simulation variables
+     *
+     *   xschem raw vars
+     *     get number of simulation variables
+     *
+     *   xschem raw switch [n | rawfile type]
+     *     make the indicated 'rawfile, type' the active one
+     *     else if a number n is specified make the n-th raw data the active one.
+     *     if no file or number is specified then switch to the next rawdata in the list.
+     *
+     *   xschem switch_back
+     *     switch to previously active rawdata.
+     *
+     *   xschem raw datasets
+     *     get number of datasets (simulation runs)
+     *
+     *   xschem raw value node n [dataset]
+     *     return n-th value of 'node' in raw file
+     *     If n is given as empty string {} return value at cursor b, dataset not used in this case
+     *
+     *   xschem raw loaded
+     *     return hierarchy level where raw file was loaded or -1 if no raw loaded
+     *
+     *   xschem raw rawfile
+     *      return raw filename 
+     *
+     *   xschem raw sim_type
+     *      return raw loaded simulation type (ac, op, tran, ...) 
+     *
+     *   xschem raw index node
+     *     get index of simulation variable 'node'. 
+     *     Example:  raw index v(led) --> 46
+     *
+     *   xschem raw values node [dset]
+     *     print all simulation values of 'node' for dataset 'dset' (default dset=0)
+     *
+     *   xschem raw points [dset]
+     *     print simulation points for dataset 'dset' (default: all dataset points combined)
+     *
+     *   xschem raw set node n value [dataset]
+     *     change loaded raw file data node[n] to value
+     *
+     *   xschem raw table_read tablefile
+     *     read a tabular data file.
+     *     First line is the header line containing variable names.
+     *     data is presented in column format after the header line
+     *     First column is sweep (x-axis) variable
+     *     Double empty lines start a new dataset
+     *     Single empty lines are ignored 
+     *     Datasets can have different # of lines.
+     *     new dataset do not start with a header row.
+     *     Lines beginning with '#' are comments and ignored
+     *
+     *        time    var_a   var_b   var_c
+     *     # this is a comment, ignored
+     *         0.0     0.0     1.8    0.3
+     *       <single empty line: ignored>
+     *         0.1     0.0     1.5    0.6
+     *         ...     ...     ...    ...
+     *       <empty line>
+     *       <Second empty line: start new dataset>
+     *         0.0     0.0     1.8    0.3
+     *         0.1     0.0     1.5    0.6
+     *         ...     ...     ...    ...
+     *    
+     *   xschem raw add varname [expr]
+     *     add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
+     *     otherwise initialize data with values calculated from expr.
+     *     If varname is already existing and expr given recalculate data
+     *     Example: xschem raw add power {outm outp - i(@r1[i]) *}
+     *     
+     */
+    if(!strcmp(argv[1], "raw") || !strcmp(argv[1], "raw_query"))
     {
       double sweep1 = -1.0, sweep2 = -1.0;
       int err = 0;
       int ret = 0;
+      int i;
+      Raw *raw = xctx->raw;
+      Tcl_ResetResult(interp);
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 && !strcmp(argv[2], "table_read")) {
-        ret = extra_rawfile(1, argv[3], "table", sweep1, sweep2);
+        ret = extra_rawfile(1, argv[3], "tablefile", sweep1, sweep2);
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 3 && !strcmp(argv[2], "read")) {
         if(argc > 6) {
@@ -3470,56 +3560,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           ret = extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
-      } else {
-        err = 1;
-      }
-      if(err) {Tcl_SetResult(interp, "Wrong command", TCL_STATIC); return TCL_ERROR;}
-    }
-
-    /* raw_clear 
-     *   Unload all simulation raw files */
-    else if(!strcmp(argv[1], "raw_clear"))
-    {
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      extra_rawfile(3, NULL, NULL, -1.0, -1.0); /* unload additional raw files */
-      free_rawfile(&xctx->raw, 1); /* unload base (current) raw file */
-      Tcl_ResetResult(interp);
-    }
-
-    /* raw_query loaded | value | index | values | datasets | vars | list | set | add
-     *   xschem raw_query list: get list of saved simulation variables
-     *   xschem raw_query vars: get number of simulation variables
-     *   xschem raw_query datasets: get number of datasets (simulation runs)
-     *   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
-     *     If n is given as empty string {} return value at cursor b, dataset not used in this case
-     *   xschem raw_query loaded: return hierarchy level
-     *     where raw file was loaded or -1 if no raw loaded
-     *   xschem raw_query rawfile: return raw filename 
-     *   xschem raw_query sim_type: return raw loaded simulation type (ac, op, tran, ...) 
-     *   xschem raw_query index node: get index of simulation variable 'node'. 
-     *     Example:  raw_query index v(led) --> 46
-     *   xschem raw_query values node [dset]: print all simulation
-     *     values of 'node' for dataset 'dset' (default dset=0)
-     *     xschem raw_query points [dset]: print simulation points for
-     *     dataset 'dset' (default: all dataset points combined)
-     *   xschem raw_query set node n value [dataset]: change loaded raw file data node[n] to value
-     *   xschem raw_query add varname [expr]
-     *     add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
-     *     otherwise initialize data with values calculated from expr.
-     *     If varname is already existing and expr given recalculate data
-     *     Example: xschem raw_query add power {outm outp - i(@r1[i]) *}
-     *     
-     */
-    else if(!strcmp(argv[1], "raw_query"))
-    {
-      int i;
-      Raw *raw = xctx->raw;
-      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      Tcl_ResetResult(interp);
-      if(argc > 2 && !strcmp(argv[2], "loaded")) {
+      } else if(argc > 2 && !strcmp(argv[2], "loaded")) {
         Tcl_SetResult(interp, my_itoa(sch_waves_loaded()), TCL_VOLATILE);
       } else if(raw && raw->values) {
-        /* xschem rawfile_query value v(ldcp) 123 */
+        /* xschem raw value v(ldcp) 123 */
         if(argc > 4 && !strcmp(argv[2], "value")) {
           int dataset = -1;
           int point = argv[4][0] ? atoi(argv[4]) : -1;
@@ -3540,12 +3584,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
         } else if(argc > 3 && !strcmp(argv[2], "index")) {
-          /* xschem rawfile_query index v(ldcp) */
+          /* xschem raw index v(ldcp) */
           int idx;
           idx = get_raw_index(argv[3]);
           Tcl_SetResult(interp, my_itoa(idx), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "values")) {
-          /* xschem raw_query values ldcp [dataset] */
+          /* xschem raw values ldcp [dataset] */
           int idx;
           char n[70];
           int p, dataset = 0;
@@ -3593,7 +3637,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             Tcl_AppendResult(interp, raw->names[i], NULL);
           }
         /*    0      1        2   3   4   5       6
-         *  xschem raw_query set node n value [dataset] */
+         *  xschem raw set node n value [dataset] */
         } else if(argc > 5 && !strcmp(argv[2], "set")) {
           int dataset = -1, ofs = 0;
           int point = atoi(argv[4]);
@@ -3618,10 +3662,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_SetResult(interp, dtoa(xctx->raw->values[idx][point]), TCL_VOLATILE);
             }
           }
+        } else {
+          err = 1;
         }
       } else {
         Tcl_SetResult(interp, "No raw file loaded", TCL_STATIC); return TCL_ERROR;
       }
+      if(err) {Tcl_SetResult(interp, "Wrong command", TCL_STATIC); return TCL_ERROR;}
+    }
+
+    /* raw_clear 
+     *   Unload all simulation raw files
+     *   You can use xschem raw clear as well.
+     */
+    else if(!strcmp(argv[1], "raw_clear"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      extra_rawfile(3, NULL, NULL, -1.0, -1.0); /* unload additional raw files */
+      free_rawfile(&xctx->raw, 1); /* unload base (current) raw file */
+      Tcl_ResetResult(interp);
     }
 
     /* raw_read [file] [sim] [sweep1 sweep2]

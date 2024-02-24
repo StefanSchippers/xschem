@@ -551,6 +551,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1094,39 +1095,102 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Debug: wrapper to propagate_hilights() function </pre>
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
-   <li><kbd>       raw what [rawfile type] [sweep1 sweep2]</kbd></li><pre>
-     what = read | clear | info | switch | new | switch_back | table_read
-     Load / clear / switch additional raw files
+   <li><kbd>       raw what ...</kbd></li><pre>
+     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile |
+            read | set | sim_type | switch | switch_back | table_read | value | values | vars |
+      
+   xschem raw read filename [type [sweep1 sweep2]]
      if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
      sweep1 &lt;= sweep_var &lt; sweep2
+     type is the analysis type to load (tran, dc, ac, op, ...). If not given load first found in
+     raw file.
+      
+   xschem raw clear [rawfile [type]]
+     unload given file and type. If type not given delete all type sfrom rawfile
+     if no file is given unload all raw files.
+       
+   xschem raw info
+     print information about loaded raw files and show the currently active one.
+      
    xschem raw new name type sweepvar start end step
      create a new raw file with sweep variable 'sweepvar' with number=(end - start) / step datapoints
-     from start value 'start' and step 'step' </pre>
-   <li><kbd>       raw_clear </kbd></li><pre>
-   Unload all simulation raw files </pre>
-   <li><kbd>       raw_query loaded | value | index | values | datasets | vars | list | set | add</kbd></li><pre>
-   xschem raw_query list: get list of saved simulation variables
-   xschem raw_query vars: get number of simulation variables
-   xschem raw_query datasets: get number of datasets (simulation runs)
-   xschem raw_query value node n [dataset]: return n-th value of 'node' in raw file
+     from start value 'start' and step 'step'
+      
+   xschem raw list
+     get list of saved simulation variables
+      
+   xschem raw vars
+     get number of simulation variables
+      
+   xschem raw switch [n | rawfile type]
+     make the indicated 'rawfile, type' the active one
+     else if a number n is specified make the n-th raw data the active one.
+     if no file or number is specified then switch to the next rawdata in the list.
+      
+   xschem switch_back
+     switch to previously active rawdata.
+      
+   xschem raw datasets
+     get number of datasets (simulation runs)
+      
+   xschem raw value node n [dataset]
+     return n-th value of 'node' in raw file
      If n is given as empty string {} return value at cursor b, dataset not used in this case
-   xschem raw_query loaded: return hierarchy level
-     where raw file was loaded or -1 if no raw loaded
-   xschem raw_query rawfile: return raw filename 
-   xschem raw_query sim_type: return raw loaded simulation type (ac, op, tran, ...) 
-   xschem raw_query index node: get index of simulation variable 'node'. 
-     Example:  raw_query index v(led) --&gt; 46
-   xschem raw_query values node [dset]: print all simulation
-     values of 'node' for dataset 'dset' (default dset=0)
-     xschem raw_query points [dset]: print simulation points for
-     dataset 'dset' (default: all dataset points combined)
-   xschem raw_query set node n value [dataset]: change loaded raw file data node[n] to value
-   xschem raw_query add varname [expr]
+      
+   xschem raw loaded
+     return hierarchy level where raw file was loaded or -1 if no raw loaded
+      
+   xschem raw rawfile
+      return raw filename 
+      
+   xschem raw sim_type
+      return raw loaded simulation type (ac, op, tran, ...) 
+      
+   xschem raw index node
+     get index of simulation variable 'node'. 
+     Example:  raw index v(led) --&gt; 46
+      
+   xschem raw values node [dset]
+     print all simulation values of 'node' for dataset 'dset' (default dset=0)
+      
+   xschem raw points [dset]
+     print simulation points for dataset 'dset' (default: all dataset points combined)
+      
+   xschem raw set node n value [dataset]
+     change loaded raw file data node[n] to value
+      
+   xschem raw table_read tablefile
+     read a tabular data file.
+     First line is the header line containing variable names.
+     data is presented in column format after the header line
+     First column is sweep (x-axis) variable
+     Double empty lines start a new dataset
+     Single empty lines are ignored 
+     Datasets can have different # of lines.
+     new dataset do not start with a header row.
+     Lines beginning with '#' are comments and ignored
+      
+        time    var_a   var_b   var_c
+     # this is a comment, ignored
+         0.0     0.0     1.8    0.3
+       &lt;single empty line: ignored&gt;
+         0.1     0.0     1.5    0.6
+         ...     ...     ...    ...
+       &lt;empty line&gt;
+       &lt;Second empty line: start new dataset&gt;
+         0.0     0.0     1.8    0.3
+         0.1     0.0     1.5    0.6
+         ...     ...     ...    ...
+    
+   xschem raw add varname [expr]
      add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
      otherwise initialize data with values calculated from expr.
      If varname is already existing and expr given recalculate data
-     Example: xschem raw_query add power {outm outp - i(@r1[i]) *}
+     Example: xschem raw add power {outm outp - i(@r1[i]) *}
      </pre>
+   <li><kbd>       raw_clear </kbd></li><pre>
+   Unload all simulation raw files
+   You can use xschem raw clear as well.</pre>
    <li><kbd>       raw_read [file] [sim] [sweep1 sweep2]</kbd></li><pre>
    If a raw file is already loaded delete from memory
    then load specified file and analysis 'sim' (dc, ac, tran, op, ...)
@@ -1467,7 +1531,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 

@@ -1014,7 +1014,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     xctx->extra_raw_n++;
   }
   /* **************** table_read ************* */
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "table")) {
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "tablefile")) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     for(i = 0; i < xctx->extra_raw_n; i++) {
@@ -1526,7 +1526,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "asinh()")) stack1[stackptr1++].i = ASINH;
     else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
     else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
-    else if(!strcmp(n, "idx()")) stack1[stackptr1++].i = IDX;
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
     else if(!strcmp(n, "integ()")) {
       if(first > 0) first--;
@@ -1564,6 +1563,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     }
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
+    else if(!strcmp(n, "idx()")) {
+      stack1[stackptr1++].i = IDX;
+    }
     else if( (strtod(n, &endptr)), endptr > n) { /* NUMBER */
       stack1[stackptr1].i = NUMBER;
       stack1[stackptr1++].d = atof_spice(n);
@@ -1587,6 +1589,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     for(i = 0; i < stackptr1; ++i) {
       if(stack1[i].i == NUMBER) { /* number */
         stack2[stackptr2++] = stack1[i].d;
+      }
+      else if(stack1[i].i == IDX) {
+        stack2[stackptr2++] = (double)p;
       }
       else if(stack1[i].i == SPICE_NODE && stack1[i].idx < xctx->raw->nvars) { /* spice node */
         stack2[stackptr2++] =  xctx->raw->values[stack1[i].idx][p];
@@ -1881,9 +1886,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
           case LOG10:
             stack2[stackptr2 - 1] =  mylog10(stack2[stackptr2 - 1]);
             break;
-          case IDX:
-            stack2[stackptr2 - 1] = (double)p;
-            break;
           case DB20:
             stack2[stackptr2 - 1] =  20 * mylog10(stack2[stackptr2 - 1]);
             break;
@@ -1893,11 +1895,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             break;
         } /* switch(...) */
       } /* if(stackptr2 > 0) */
-      else if(stackptr2 == 0) {
-        if(stack1[i].i == IDX) {
-          stack2[stackptr2] = (double)p;
-        }
-      }
     } /* for(i = 0; i < stackptr1; ++i) */
     y[p] = (SPICE_DATA)stack2[0];
   } /* for(p = first ...) */
