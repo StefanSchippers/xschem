@@ -1451,6 +1451,15 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define DEL 27 /* delay by an anount of sweep axis distance */
 #define MAX 28 /* clip data above given argument */
 #define MIN 29 /* clip data below given argument */
+#define ATAN 30
+#define ASIN 31
+#define ACOS 32
+#define COSH 33
+#define SINH 34
+#define ATANH 35
+#define ACOSH 36
+#define ASINH 37
+
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
 
@@ -1499,13 +1508,21 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "*")) stack1[stackptr1++].i = MULT;
     else if(!strcmp(n, "/")) stack1[stackptr1++].i = DIVIS;
     else if(!strcmp(n, "**")) stack1[stackptr1++].i = POW;
+    else if(!strcmp(n, "atan()")) stack1[stackptr1++].i = ATAN;
+    else if(!strcmp(n, "asin()")) stack1[stackptr1++].i = ASIN;
+    else if(!strcmp(n, "acos()")) stack1[stackptr1++].i = ACOS;
+    else if(!strcmp(n, "tan()")) stack1[stackptr1++].i = TAN;
     else if(!strcmp(n, "sin()")) stack1[stackptr1++].i = SIN;
     else if(!strcmp(n, "cos()")) stack1[stackptr1++].i = COS;
     else if(!strcmp(n, "abs()")) stack1[stackptr1++].i = ABS;
     else if(!strcmp(n, "sgn()")) stack1[stackptr1++].i = SGN;
     else if(!strcmp(n, "sqrt()")) stack1[stackptr1++].i = SQRT;
-    else if(!strcmp(n, "tan()")) stack1[stackptr1++].i = TAN;
     else if(!strcmp(n, "tanh()")) stack1[stackptr1++].i = TANH;
+    else if(!strcmp(n, "cosh()")) stack1[stackptr1++].i = COSH;
+    else if(!strcmp(n, "sinh()")) stack1[stackptr1++].i = SINH;
+    else if(!strcmp(n, "atanh()")) stack1[stackptr1++].i = ATANH;
+    else if(!strcmp(n, "acosh()")) stack1[stackptr1++].i = ACOSH;
+    else if(!strcmp(n, "asinh()")) stack1[stackptr1++].i = ASINH;
     else if(!strcmp(n, "exp()")) stack1[stackptr1++].i = EXP;
     else if(!strcmp(n, "ln()")) stack1[stackptr1++].i = LN;
     else if(!strcmp(n, "log10()")) stack1[stackptr1++].i = LOG10;
@@ -1809,17 +1826,47 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
           case SQRT:
             stack2[stackptr2 - 1] =  sqrt(stack2[stackptr2 - 1]);
             break;
-          case TAN:
-            stack2[stackptr2 - 1] =  tan(stack2[stackptr2 - 1]);
-            break;
           case TANH:
             stack2[stackptr2 - 1] =  tanh(stack2[stackptr2 - 1]);
+            break;
+          case COSH:
+            stack2[stackptr2 - 1] =  cosh(stack2[stackptr2 - 1]);
+            break;
+          case SINH:
+            stack2[stackptr2 - 1] =  sinh(stack2[stackptr2 - 1]);
+            break;
+          case ATANH:
+            tmp = stack2[stackptr2 - 1];
+            tmp = 0.5 * log( (1 + tmp) / (1 - tmp) );
+            stack2[stackptr2 - 1] =  tmp;
+            break;
+          case ACOSH:
+            tmp = stack2[stackptr2 - 1];
+            tmp = log(tmp + sqrt(tmp * tmp - 1));
+            stack2[stackptr2 - 1] =  tmp;
+            break;
+          case ASINH:
+            tmp = stack2[stackptr2 - 1];
+            tmp = log(tmp + sqrt(tmp * tmp + 1));
+            stack2[stackptr2 - 1] =  tmp;
+            break;
+          case TAN:
+            stack2[stackptr2 - 1] =  tan(stack2[stackptr2 - 1]);
             break;
           case SIN:
             stack2[stackptr2 - 1] =  sin(stack2[stackptr2 - 1]);
             break;
           case COS:
             stack2[stackptr2 - 1] =  cos(stack2[stackptr2 - 1]);
+            break;
+          case ATAN:
+            stack2[stackptr2 - 1] =  atan(stack2[stackptr2 - 1]);
+            break;
+          case ASIN:
+            stack2[stackptr2 - 1] =  asin(stack2[stackptr2 - 1]);
+            break;
+          case ACOS:
+            stack2[stackptr2 - 1] =  acos(stack2[stackptr2 - 1]);
             break;
           case ABS:
             stack2[stackptr2 - 1] =  fabs(stack2[stackptr2 - 1]);

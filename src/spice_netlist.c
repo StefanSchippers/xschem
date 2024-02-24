@@ -422,7 +422,8 @@ int global_spice_netlist(int global)  /* netlister driver */
 
    my_strdup2(_ALLOC_ID_, &current_dirname_save, xctx->current_dirname);
    unselect_all(1);
-   remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
+   /* ensure all unused symbols purged before descending hierarchy */
+   if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
    dbg(1, "global_spice_netlist(): invoking pop_undo(2, 0)\n");
    xctx->pop_undo(2, 0);
@@ -485,7 +486,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
-   remove_symbols();
+   if(!tclgetboolvar("keep_symbols")) remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {

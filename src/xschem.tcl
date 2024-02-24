@@ -6705,7 +6705,7 @@ set tctx::global_list {
   graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
-  incr_hilight incremental_select infowindow_text launcher_default_program
+  incr_hilight incremental_select infowindow_text keep_symbols launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
@@ -8164,6 +8164,8 @@ set_ne xschem_listen_port {}
 # server for bespice waveform connection (listen to port and send commands to bespice if set)
 # set a port number in xschemrc if you want xschem to be able to cross-probe to bespice
 set_ne bespice_listen_port {}
+
+set_ne keep_symbols 0 ;# if set loaded symbols will not be purged when descending/netlisting.
 
 # hide instance details (show only bbox) 
 set_ne hide_symbols 0

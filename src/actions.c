@@ -2246,7 +2246,7 @@ int descend_schematic(int instnumber, int fallback, int alert)
    unselect_all(1);
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
-   remove_symbols();
+   if(!tclgetboolvar("keep_symbols")) remove_symbols();
    load_schematic(1, filename, 1, alert);
    if(xctx->hilight_nets) {
      prepare_netlist_structs(0);
@@ -2293,7 +2293,7 @@ void go_back(int confirm) /*  20171006 add confirm */
   }
   if(save_ok==0) return;
   unselect_all(1);
-  remove_symbols();
+  if(!tclgetboolvar("keep_symbols")) remove_symbols();
   from_embedded_sym=0;
   if(strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
     /* when returning after editing an embedded symbol

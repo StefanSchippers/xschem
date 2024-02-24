@@ -247,6 +247,10 @@
 #### instead of looking only in symbol directory. Default: disabled (0).
 # set search_schematic 0
 
+#### keep symbols encountered while netlisting / descending the hierarchy.
+#### Default: not enabled (0)
+# set keep_symbols 0
+
 #### focus the schematic window if mouse goes over it, even if a dialog box
 #### is displayed, without needing to click.
 #### This allows to move/zoom/pan the schematic while editing attributes.

@@ -184,7 +184,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
 
  /* flush data structures (remove unused symbols) */
  unselect_all(1);
- remove_symbols();  /* removed 25122002, readded 04112003.. this removes unused symbols */
+ if(!tclgetboolvar("keep_symbols")) remove_symbols();
  /* reload data without popping undo stack, this populates embedded symbols if any */
  xctx->pop_undo(2, 0);
  /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
@@ -404,7 +404,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
 
    str_hash_init(&subckt_table, HASHSIZE);
    unselect_all(1);
-   remove_symbols(); /* 20161205 ensure all unused symbols purged before descending hierarchy */
+   /* ensure all unused symbols purged before descending hierarchy */
+   if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
@@ -453,7 +454,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
-   remove_symbols();
+   if(!tclgetboolvar("keep_symbols")) remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
