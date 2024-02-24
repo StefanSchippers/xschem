@@ -845,7 +845,7 @@ int raw_add_vector(const char *varname, const char *expr)
     res = 1;
   }
   if(expr) {
-    plot_raw_custom_data(0, 0, raw->allpoints, expr, varname);
+    plot_raw_custom_data(0, 0, raw->allpoints -1, expr, varname);
   } else if(res == 1) {
     for(f = 0; f < raw->allpoints; f++) {
       raw->values[raw->nvars - 1][f] = 0.0;
@@ -1485,7 +1485,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
   }
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
-  dbg(1, "plot_raw_custom_data(): expr=%s\n", expr);
+  dbg(1, "plot_raw_custom_data(): expr=%s, first=%d, last=%d\n", expr, first, last);
   while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
     if(stackptr1 >= STACKMAX -2) {
       dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
