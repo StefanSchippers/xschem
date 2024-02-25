@@ -3419,7 +3419,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 'r': /*----------------------------------------------*/
 
     /* raw what ...
-     *     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile |
+     *     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
      *            read | set | sim_type | switch | switch_back | table_read | value | values | vars |
      *
      *   xschem raw read filename [type [sweep1 sweep2]]
@@ -3432,6 +3432,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     unload given file and type. If type not given delete all type sfrom rawfile
      *     if no file is given unload all raw files.
      * 
+     *   xschem raw del name
+     *     delete named vector from current raw file
+     *
      *   xschem raw info
      *     print information about loaded raw files and show the currently active one.
      *
@@ -3551,6 +3554,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ret = extra_rawfile(5, NULL, NULL, -1.0, -1.0);
         update_op();
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
+      } else if(argc > 3 && !strcmp(argv[2], "del")) {
+        ret = raw_deletevar(argv[3]);
+        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
         if(argc > 4)  {
           ret = extra_rawfile(3, argv[3], argv[4], -1.0, -1.0);
@@ -3570,7 +3576,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           const char *node = argv[3];
           int idx = -1;
           if(argc > 5) dataset = atoi(argv[5]);
-          idx = get_raw_index(node);
+          idx = get_raw_index(node, NULL);
           if(idx >= 0) {
             double val;
             if( (dataset >=0 && point >= 0 && point < raw->npoints[dataset]) ||
@@ -3586,14 +3592,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else if(argc > 3 && !strcmp(argv[2], "index")) {
           /* xschem raw index v(ldcp) */
           int idx;
-          idx = get_raw_index(argv[3]);
+          idx = get_raw_index(argv[3], NULL);
           Tcl_SetResult(interp, my_itoa(idx), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "values")) {
           /* xschem raw values ldcp [dataset] */
           int idx;
           char n[70];
           int p, dataset = 0;
-          idx = get_raw_index(argv[3]);
+          idx = get_raw_index(argv[3], NULL);
           if(argc > 4) dataset = atoi(argv[4]);
           if(idx >= 0) {
             int np;
@@ -3644,7 +3650,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           const char *node = argv[3];
           int idx = -1;
           if(argc > 6) dataset = atoi(argv[6]);
-          idx = get_raw_index(node);
+          idx = get_raw_index(node, NULL);
           if(idx >= 0) {
             if( dataset < xctx->raw->datasets && 
                 ( (dataset >=0 && point >= 0 && point < raw->npoints[dataset]) ||

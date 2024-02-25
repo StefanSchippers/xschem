@@ -2037,7 +2037,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   while( (bit_name = my_strtok_r(NULL, ";, \n", "", 0, &saven)) ) {
     int idx;
     if(p >= *n_bits) break; /* security check to avoid out of bound writing */
-    if( (idx = get_raw_index(bit_name)) != -1) {
+    if( (idx = get_raw_index(bit_name, NULL)) != -1) {
       idx_arr[p] = xctx->raw->values[idx];
     } else {
       idx_arr[p] = NULL;
@@ -2083,7 +2083,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
     }
-    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1));
+    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
     dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
     if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
@@ -2234,7 +2234,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
         nptr = sptr = NULL;
         if(stok && stok[0]) {
-          sweep_idx = get_raw_index(stok);
+          sweep_idx = get_raw_index(stok, NULL);
           if( sweep_idx == -1) sweep_idx = 0;
         }
         dbg(1, "graph_fullyzoom(): ntok_copy=%s\n", ntok_copy);
@@ -2251,7 +2251,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
              * This is *expecially needed if graph contains more than one expression */
             v = calc_custom_data_yrange(sweep_idx, express, gr);
           } else {
-            v = get_raw_index(express);
+            v = get_raw_index(express, NULL);
           }
           my_free(_ALLOC_ID_, &express); 
           dbg(1, "graph_fullyzoom(): v=%d\n", v);
@@ -3039,7 +3039,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
     nptr = cptr = sptr = NULL;
     dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
     if(stok && stok[0]) {
-      sweep_idx = get_raw_index(stok);
+      sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) sweep_idx = 0;
     }
     if(gr->digital) {
@@ -3219,7 +3219,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
     nptr = sptr = NULL;
     dbg(1, "ntok=%s\n", ntok);
     if(stok && stok[0]) {
-      sweep_idx = get_raw_index(stok);
+      sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) {
         sweep_idx = 0;
       }
@@ -3238,7 +3238,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
       }
     }
     if(expression) idx = raw->nvars;
-    else idx = get_raw_index(express);
+    else idx = get_raw_index(express, NULL);
     dbg(1, "find_closest_wave(): expression=%d, idx=%d\n", expression, idx);
     if( idx != -1 ) {
       int p, dset, ofs, ofs_end;
@@ -3310,7 +3310,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
         sweepvar_wrap++;
       } /* for(dset...) */
 
-    } /*  if( (idx = get_raw_index(ntok)) != -1 ) */
+    } /*  if( (idx = get_raw_index(ntok, NULL)) != -1 ) */
     ++wcnt;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
   dbg(0, "closest dataset=%d\n", closest_dataset);
@@ -3475,7 +3475,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(wc < 0) wc = 4;
       if(wc >= cadlayers) wc = cadlayers - 1;
       if(stok && stok[0]) {
-        sweep_idx = get_raw_index(stok);
+        sweep_idx = get_raw_index(stok, NULL);
         if( sweep_idx == -1) {
           sweep_idx = 0;
         }
@@ -3496,7 +3496,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         }
       }
       /* quickly find index number of ntok_copy variable to be plotted */
-      if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) {
+      if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) {
         int p, dset, ofs, ofs_end;
         int poly_npoints;
         int first, last;
@@ -3610,7 +3610,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
-      } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express)) != -1 ) */
+      } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) */
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
       if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */

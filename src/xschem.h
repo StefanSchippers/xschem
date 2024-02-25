@@ -1224,6 +1224,7 @@ extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
 extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern int raw_add_vector(const char *varname, const char *expr);
+extern int raw_deletevar(const char *name);
 extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double end, double step);
 extern char *base64_from_file(const char *f, size_t *length);
@@ -1237,7 +1238,7 @@ extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
-extern int get_raw_index(const char *node);
+extern int  get_raw_index(const char *node, Int_hashentry **entry_ret);
 extern void free_rawfile(Raw **rawptr, int dr);
 extern int update_op();
 extern int extra_rawfile(int what, const char *f, const char *type, double sweep1, double sweep2);

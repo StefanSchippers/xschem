@@ -3780,7 +3780,7 @@ const char *translate(int inst, const char* s)
                if(rn) my_free(_ALLOC_ID_, &rn);
                strtolower(fqnet);
                dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
-               idx = get_raw_index(fqnet);
+               idx = get_raw_index(fqnet, NULL);
                if(idx >= 0) {
                  val = xctx->raw->cursor_b_val[idx];
                }
@@ -3850,7 +3850,7 @@ const char *translate(int inst, const char* s)
            }
            strtolower(fqnet);
            dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
-           idx = get_raw_index(fqnet);
+           idx = get_raw_index(fqnet, NULL);
            if(idx >= 0) {
              val = xctx->raw->cursor_b_val[idx];
            }
@@ -3920,7 +3920,7 @@ const char *translate(int inst, const char* s)
            }
            strtolower(fqdev);
            dbg(1, "fqdev=%s\n", fqdev);
-           idx = get_raw_index(fqdev);
+           idx = get_raw_index(fqdev, NULL);
            if(idx >= 0) {
              val = xctx->raw->cursor_b_val[idx];
            }
@@ -3981,8 +3981,8 @@ const char *translate(int inst, const char* s)
            strtolower(fqnet2);
            dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
            dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
-           idx1 = get_raw_index(fqnet1);
-           idx2 = get_raw_index(fqnet2);
+           idx1 = get_raw_index(fqnet1, NULL);
+           idx2 = get_raw_index(fqnet2, NULL);
            if(idx1 < 0 || idx2 < 0) {
              valstr = "";
              xctx->tok_size = 0;
@@ -4048,7 +4048,7 @@ const char *translate(int inst, const char* s)
          }
          dbg(1, "fqdev=%s\n", fqdev);
          strtolower(fqdev);
-         idx = get_raw_index(fqdev);
+         idx = get_raw_index(fqdev, NULL);
          if(idx >= 0) {
            val = xctx->raw->cursor_b_val[idx];
          }

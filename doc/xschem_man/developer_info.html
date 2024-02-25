@@ -530,28 +530,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -1096,7 +1074,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
    <li><kbd>       raw what ...</kbd></li><pre>
-     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile |
+     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
             read | set | sim_type | switch | switch_back | table_read | value | values | vars |
       
    xschem raw read filename [type [sweep1 sweep2]]
@@ -1109,6 +1087,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      unload given file and type. If type not given delete all type sfrom rawfile
      if no file is given unload all raw files.
        
+   xschem raw del name
+     delete named vector from current raw file
+      
    xschem raw info
      print information about loaded raw files and show the currently active one.
       
@@ -1531,22 +1512,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -914,6 +914,33 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
   return 0;
 }
 
+int raw_deletevar(const char *name)
+{
+  int ret = 0;
+  int i, n;
+  Raw *raw = xctx->raw; 
+  Int_hashentry *entry;
+
+  n = get_raw_index(name, &entry);
+  if(n < 0) return ret;
+  dbg(0, "n=%d, %s \n", n, entry->token);
+  int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
+  my_free(_ALLOC_ID_, &raw->names[n]);
+  for(i = n + 1; i < raw->nvars; i++) {
+    int_hash_lookup(&raw->table, raw->names[i], i - 1, XINSERT); /* update hash table */
+    raw->names[i - 1] = raw->names[i];
+  }
+  my_free(_ALLOC_ID_, &raw->values[n]);
+  for(i = n + 1; i <= raw->nvars; i++) {
+    raw->values[i - 1] = raw->values[i];
+  }
+  raw->nvars--;
+  my_realloc(_ALLOC_ID_, &raw->names, sizeof(char *) * raw->nvars);
+  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * raw->nvars + 1);
+  ret = 1;
+  return ret;
+}
+
 /* create a new raw file with '(max - min) / step' points with only a sweep variable in it. */
 int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double end, double step)
@@ -1355,7 +1382,7 @@ int table_read(const char *f)
 }
 
 /* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
-int get_raw_index(const char *node)
+int get_raw_index(const char *node, Int_hashentry **entry_ret)
 {
   char inode[512];
   char vnode[512];
@@ -1378,6 +1405,8 @@ int get_raw_index(const char *node)
       ptr += 2;
       entry = int_hash_lookup(&xctx->raw->table, ptr, 0, XLOOKUP);
     }
+
+    if(entry_ret) *entry_ret = entry;
     if(entry) return entry->value;
   }
   return -1;
@@ -1488,7 +1517,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
 
   y = xctx->raw->values[xctx->raw->nvars]; /* custom plot data column */
   if(yname != NULL) {
-    int yidx = get_raw_index(yname);
+    int yidx = get_raw_index(yname, NULL);
     if(yidx >= 0) {
       y = xctx->raw->values[yidx]; /* provided index */
     }
@@ -1571,7 +1600,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       stack1[stackptr1++].d = atof_spice(n);
     }
     else { /* SPICE_NODE */
-      idx = get_raw_index(n);
+      idx = get_raw_index(n, NULL);
       if(idx == -1) {
         dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
         my_free(_ALLOC_ID_, &ntok_copy);
