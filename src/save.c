@@ -1489,6 +1489,8 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define ACOSH 36
 #define ASINH 37
 #define IDX 38 /* index of point in raw file (0, 1, 2, ...) */
+#define REAL 39
+#define IMAG 40
 
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -1564,6 +1566,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "ravg()")) stack1[stackptr1++].i = RAVG;
     else if(!strcmp(n, "max()")) stack1[stackptr1++].i = MAX;
     else if(!strcmp(n, "min()")) stack1[stackptr1++].i = MIN;
+    else if(!strcmp(n, "im()")) stack1[stackptr1++].i = IMAG;
+    else if(!strcmp(n, "re()")) stack1[stackptr1++].i = REAL;
     else if(!strcmp(n, "del()")) {
       int d, t = 0, p = 0;
       /* set 'first' to beginning of dataset containing 'first' */
@@ -1705,6 +1709,14 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             break;
           case POW:
             stack2[stackptr2 - 2] =  pow(stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case REAL:
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] * cos(stack2[stackptr2 - 1] * XSCH_PI / 180.);
+            stackptr2--;
+            break;
+          case IMAG:
+            stack2[stackptr2 - 2] = stack2[stackptr2 - 2] * sin(stack2[stackptr2 - 1] * XSCH_PI / 180.);
             stackptr2--;
             break;
           case EXCH:
