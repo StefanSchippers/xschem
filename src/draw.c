@@ -1188,6 +1188,33 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   i=0;
  }
 }
+void drawbezier(void)
+{
+  XPoint p[512];
+  int i = 0;
+  double t;
+  double x1=100.0;
+  double y1=-400.0;
+  double x2=500.0;
+  double y2=-800.0;
+  double x3=800.0;
+  double y3=-200.0;
+  double x4=1100.0;
+  double y4=-400.0;
+  double x, y;
+
+  i = 0;
+  for(t = 0; t <= 1.0; t += 0.00390625 /* 1/256 */) {
+    x = pow(1-t, 3) * x1 + 3 * pow(1-t, 2) * t * x2 + 3 * (1-t) * pow(t, 2) * x3 + pow(t, 3) * x4;
+    y = pow(1-t, 3) * y1 + 3 * pow(1-t, 2) * t * y2 + 3 * (1-t) * pow(t, 2) * y3 + pow(t, 3) * y4;
+    p[i].x = (short)X_TO_SCREEN(x);
+    p[i].y = (short)Y_TO_SCREEN(y);
+    i++;
+  }
+  XDrawLines(display, xctx->window, xctx->gc[4], p, i, CoordModeOrigin);
+  XDrawLines(display, xctx->save_pixmap, xctx->gc[4], p, i, CoordModeOrigin);
+
+}
 
 void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,double liney2)
 {

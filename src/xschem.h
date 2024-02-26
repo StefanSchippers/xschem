@@ -1391,6 +1391,7 @@ extern void drawarc(int c, int what, double x, double y, double r, double a, dou
 extern void filledarc(int c, int what, double x, double y, double r, double a, double b);
 extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points);
 extern void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash);
+extern void drawbezier(void);
 extern void draw_temp_symbol(int what, GC gc, int n,int layer,
             short tmp_flip, short tmp_rot, double xoffset, double yoffset);
 extern void draw_temp_string(GC gc,int what, const char *str, short rot, short flip, int hcenter, int vcenter,

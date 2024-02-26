@@ -3601,7 +3601,11 @@ const char *translate(int inst, const char* s)
    my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
- instname = xctx->inst[inst].instname ? xctx->inst[inst].instname : "";
+ if(inst >= xctx->instances) {
+   dbg(0, "translate(): instance number out of bounds: %d\n", inst);
+   return empty;
+ }
+ instname = (inst >=0 && xctx->inst[inst].instname) ? xctx->inst[inst].instname : "";
  sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
  level = xctx->currsch;
  lcc = xctx->hier_attr;
@@ -3639,14 +3643,14 @@ const char *translate(int inst, const char* s)
      STR_ALLOC(&result, tmp + result_pos, &size);
      memcpy(result+result_pos, instname, tmp+1);
      result_pos+=tmp;
-   } else if(strcmp(token,"@symref")==0) {
+   } else if(inst >= 0 && strcmp(token,"@symref")==0) {
     tmp_sym_name = get_sym_name(inst, 9999, 1);
     tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
     tmp=strlen(tmp_sym_name);
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
-   } else if(strcmp(token,"@symname")==0) {
+   } else if(inst >= 0 && strcmp(token,"@symname")==0) {
     tmp_sym_name = get_sym_name(inst, 0, 0);
     tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
     tmp=strlen(tmp_sym_name);
@@ -3659,7 +3663,7 @@ const char *translate(int inst, const char* s)
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos, path, tmp+1);
     result_pos+=tmp;
-   } else if(strcmp(token,"@symname_ext")==0) {
+   } else if(inst >= 0 && strcmp(token,"@symname_ext")==0) {
     tmp_sym_name = get_sym_name(inst, 0, 1);
     tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
     tmp=strlen(tmp_sym_name);
@@ -3667,7 +3671,7 @@ const char *translate(int inst, const char* s)
     memcpy(result+result_pos,tmp_sym_name, tmp+1);
     result_pos+=tmp;
    /* recognize single pins 15112003 */
-   } else if(token[0]=='@' && token[1]=='@' && xctx->inst[inst].ptr >= 0) {
+   } else if(inst >= 0 && token[0]=='@' && token[1]=='@' && xctx->inst[inst].ptr >= 0) {
      int i, multip;
      int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
      prepare_netlist_structs(0);
@@ -3683,7 +3687,7 @@ const char *translate(int inst, const char* s)
          break;
        }
      }
-   } else if(token[0]=='@' && token[1]=='#') {
+   } else if(inst >= 0 && token[0]=='@' && token[1]=='#') {
      value = get_pin_attr(token, inst, s_pnetname);
      if(value) {
        tmp=strlen(value);
@@ -3692,7 +3696,7 @@ const char *translate(int inst, const char* s)
        result_pos+=tmp;
        my_free(_ALLOC_ID_, &value);
      }
-   } else if(strcmp(token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
+   } else if(inst >= 0 && strcmp(token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
 
     get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst, 0);
     if(!stat(file_name , &time_buf)) {
@@ -3702,7 +3706,7 @@ const char *translate(int inst, const char* s)
       memcpy(result+result_pos, date, tmp+1);
       result_pos+=tmp;
     }
-   } else if(strcmp(token,"@sym_last_modified")==0) {
+   } else if(inst >= 0 && strcmp(token,"@sym_last_modified")==0) {
     my_strncpy(file_name, abs_sym_path(tcl_hook2(xctx->inst[inst].name), ""), S(file_name));
     if(!stat(file_name , &time_buf)) {
       tm=localtime(&(time_buf.st_mtime) );
@@ -3740,13 +3744,13 @@ const char *translate(int inst, const char* s)
       STR_ALLOC(&result, tmp + result_pos, &size);
       memcpy(result+result_pos, topsch, tmp+1);
       result_pos+=tmp;
-   } else if(strcmp(token,"@prop_ptr")==0 && xctx->inst[inst].prop_ptr) {
+   } else if(inst >= 0 && strcmp(token,"@prop_ptr")==0 && xctx->inst[inst].prop_ptr) {
      tmp=strlen(xctx->inst[inst].prop_ptr);
      STR_ALLOC(&result, tmp + result_pos, &size);
      memcpy(result+result_pos,xctx->inst[inst].prop_ptr, tmp+1);
      result_pos+=tmp;
    }
-   else if(strcmp(token,"@spice_get_voltage")==0 && xctx->inst[inst].ptr >= 0)
+   else if(inst >= 0 && strcmp(token,"@spice_get_voltage")==0 && xctx->inst[inst].ptr >= 0)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -3841,7 +3845,7 @@ const char *translate(int inst, const char* s)
            if(global_net == NULL) global_net = net;
            else global_net++;
 
-           if(record_global_node(3, NULL, global_net)) {
+           if(inst < 0 || record_global_node(3, NULL, global_net)) {
              strtolower(net);
              my_snprintf(fqnet, len, "%s", global_net);
            } else {
@@ -3849,7 +3853,7 @@ const char *translate(int inst, const char* s)
              my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
            }
            strtolower(fqnet);
-           dbg(1, "translate(): net=%s, fqnet=%s start_level=%d\n", net, fqnet, start_level);
+           dbg(1, "translate(): inst=%d, net=%s, fqnet=%s start_level=%d\n", inst, net, fqnet, start_level);
            idx = get_raw_index(fqnet, NULL);
            if(idx >= 0) {
              val = xctx->raw->cursor_b_val[idx];
@@ -3867,7 +3871,7 @@ const char *translate(int inst, const char* s)
              memcpy(result+result_pos, valstr, len+1);
              result_pos += len;
            }
-           dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+           dbg(1, "instname %s, net=%s, fqnet=%s idx=%d valstr=%s\n", instname,  net, fqnet, idx, valstr);
            my_free(_ALLOC_ID_, &fqnet);
          }
          my_free(_ALLOC_ID_, &net);
@@ -3937,14 +3941,14 @@ const char *translate(int inst, const char* s)
              memcpy(result+result_pos, valstr, len+1);
              result_pos += len;
            }
-           dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
+           dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
            my_free(_ALLOC_ID_, &fqdev);
          } /* if(n == 1) */
          my_free(_ALLOC_ID_, &dev);
        } /* if(path) */
      } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
    }
-   else if(strcmp(token,"@spice_get_diff_voltage")==0  && xctx->inst[inst].ptr >= 0)
+   else if(inst >= 0 && strcmp(token,"@spice_get_diff_voltage")==0  && xctx->inst[inst].ptr >= 0)
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -4065,7 +4069,7 @@ const char *translate(int inst, const char* s)
            memcpy(result+result_pos, valstr, len+1);
            result_pos += len;
          }
-         dbg(1, "inst %d, dev=%s, fqdev=%s idx=%d valstr=%s\n", inst,  dev, fqdev, idx, valstr);
+         dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
          my_free(_ALLOC_ID_, &fqdev);
          my_free(_ALLOC_ID_, &dev);
        }
@@ -4113,7 +4117,7 @@ const char *translate(int inst, const char* s)
    /* if spiceprefix==0 and token == @spiceprefix then set empty value */
    } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
      /* add nothing */
-   } else {
+   } else if(inst >= 0) {
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
      if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
        value=get_tok_value((xctx->inst[inst].ptr + xctx->sym)->templ, token+1, 0);

@@ -69,8 +69,8 @@ dataset=-1
 B 2 1050 -470 1680 -190 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=tran
-y1=0.578703
-y2=5.5787
+y1=1.4
+y2=5
 divy=5
 subdivy=1
 x1=0
@@ -90,7 +90,7 @@ xlabmag=1.4}
 B 2 1050 -740 1680 -530 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=ac
-y1=-53
+y1=-34
 y2=43
 
 subdivy=1
@@ -114,7 +114,7 @@ ylabmag=1.2}
 B 2 1050 -960 1680 -750 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=ac
-y1=37
+y1=21
 y2=180
 divy=4
 subdivy=1
@@ -177,6 +177,10 @@ T {AC Analysis} 1060 -1010 0 0 0.6 0.6 { layer=6}
 T {Transient Analysis} 1060 -510 0 0 0.6 0.6 { layer=6}
 T {DC Analysis} 1690 -1000 0 0 0.6 0.6 { layer=6}
 T {Loaded Raw files:} 20 -1010 0 0 0.6 0.6 {}
+T {tcleval(Power: [to_eng [xschem raw value power 0]]W)} 820 -570 0 0 0.4 0.4 {floater=-1 layer=15}
+T {Example of fetching a user
+parameter saved in raw file.} 730 -630 0 0 0.4 0.4 { layer=15}
+T {Power: @spice_get_voltage(power)\\W} 820 -540 0 0 0.4 0.4 {floater=true layer=15}
 N 30 -310 30 -280 {
 lab=VCC}
 N 30 -310 60 -310 {
@@ -331,6 +335,8 @@ value=".temp 30
 .control
   save all alli
   op
+  let power=-v(vcc) * i(vvcc)
+  settype power power
   write cmos_example_ngspice.raw
   set appendwrite
   dc vminus 2.3 2.7 0.001

@@ -5263,6 +5263,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         dbg(0, "graph_flags=%d\n", xctx->graph_flags);
         Tcl_ResetResult(interp);
       }
+      else if(argc > 2 && atoi(argv[2]) == 3) {
+        drawbezier();
+      }
     }
 
     /* text x y rot flip text props size draw

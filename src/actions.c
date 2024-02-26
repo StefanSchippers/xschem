@@ -123,9 +123,11 @@ const char *get_text_floater(int i)
       dbg(1, "floater: %s\n",txt_ptr);
     } else {
       /* do just a tcl substitution if floater does not reference an existing instance 
-       * (but name=something attribute must be present) and text matches tcleval(...) */
-      if(strstr(txt_ptr, "tcleval(") == txt_ptr) {
-        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr));
+       * (but name=something or floater=something attribute must be present) and text
+       * matches tcleval(...) or contains '@' */
+      if(strstr(txt_ptr, "tcleval(") == txt_ptr || strchr(txt_ptr, '@')) {
+        /* my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr)); */
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr));
         txt_ptr = xctx->text[i].floater_ptr;
       }
     }
