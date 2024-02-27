@@ -305,8 +305,10 @@ void draw_selection(GC g, int interruptable)
      break;
     case POLYGON:
      {
+      int bezier;
       double *x = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
       double *y = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
+      bezier = !strboolcmp(get_tok_value(xctx->poly[c][n].prop_ptr, "bezier", 0), "true");
       if(xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].sel==SELECTED1) {
         for(k=0;k<xctx->poly[c][n].points; ++k) {
           if( xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].selected_point[k]) {
@@ -324,7 +326,7 @@ void draw_selection(GC g, int interruptable)
             y[k] = xctx->poly[c][n].y[k];
           }
         }
-        drawtemppolygon(g, NOW, x, y, xctx->poly[c][n].points);
+        drawtemppolygon(g, NOW, x, y, xctx->poly[c][n].points, bezier);
       }
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);

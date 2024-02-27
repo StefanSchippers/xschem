@@ -867,9 +867,13 @@ void unselect_all(int dr)
       if(xctx->poly[c][i].sel)
       {
        int k;
+       int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
        for(k=0;k<xctx->poly[c][i].points; ++k) xctx->poly[c][i].selected_point[k] = 0;
        xctx->poly[c][i].sel = 0;
-       if(dr) drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+       if(dr) {
+         drawtemppolygon(xctx->gctiled, NOW,
+               xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, bezier);
+       }
       }
      }
     }
@@ -1094,6 +1098,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
+  int bezier;
   if(!fast)
   {
    my_strncpy(s,xctx->poly[c][i].prop_ptr!=NULL?xctx->poly[c][i].prop_ptr:"<NULL>",S(s));
@@ -1104,12 +1109,15 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
    my_snprintf(str, S(str), "n=%4d x0 = %.16g  y0 = %.16g ...", i, xctx->poly[c][i].x[0], xctx->poly[c][i].y[0]);
    statusmsg(str,1);
   }
+  bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
-    drawtemppolygon(xctx->gc[SELLAYER], NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+    drawtemppolygon(xctx->gc[SELLAYER], NOW,
+       xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, bezier);
   }
   else {
-    drawtemppolygon(xctx->gctiled, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points);
+    drawtemppolygon(xctx->gctiled, NOW,
+       xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, bezier);
   }
   if(xctx->poly[c][i].sel == SELECTED) set_first_sel(POLYGON, i, c);
   xctx->need_reb_sel_arr=1;

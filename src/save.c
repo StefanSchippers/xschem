@@ -1300,7 +1300,10 @@ int table_read(const char *f)
       }
       line_ptr = line;
       while(*line_ptr) { /* non empty line ? */
-        if(*line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') empty = 0;
+        if(*line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') {
+          empty = 0;
+          break;
+        }
         line_ptr++;
       }
       if(empty) {
@@ -1317,9 +1320,9 @@ int table_read(const char *f)
       line_ptr = line;
       field = 0;
       #ifdef __unix__
-      while( (line_tok = strtok_r(line_ptr, " \t\n", &line_save)) ) {
+      while( (line_tok = strtok_r(line_ptr, ", \t\n", &line_save)) ) {
       #else
-      while( (line_tok = my_strtok_r(line_ptr, " \t\n", "", 0, &line_save)) ) {
+      while( (line_tok = my_strtok_r(line_ptr, ", \t\n", "", 0, &line_save)) ) {
       #endif
         line_ptr = NULL;
         /* dbg(1,"%s ", line_tok); */

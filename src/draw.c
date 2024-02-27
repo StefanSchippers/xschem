@@ -609,7 +609,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer]; ++j)
     {
       int dash;
+      int bezier;
       polygon = &(symptr->poly[layer])[j];
+      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       dash = (disabled == 1) ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -618,7 +620,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash); /* added fill */
+      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier); /* added fill */
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
@@ -828,8 +830,9 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    }
    for(j=0;j< symptr->polygons[layer]; ++j)
    {
+     int bezier;
      polygon = &(symptr->poly[layer])[j];
-  
+     bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -839,7 +842,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
          x[k] += x0;
          y[k] += y0;
        }
-       drawtemppolygon(gc, NOW, x, y, polygon->points);
+       drawtemppolygon(gc, NOW, x, y, polygon->points, bezier);
        my_free(_ALLOC_ID_, &x);
        my_free(_ALLOC_ID_, &y);
      }
@@ -1188,33 +1191,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   i=0;
  }
 }
-void drawbezier(void)
-{
-  XPoint p[512];
-  int i = 0;
-  double t;
-  double x1=100.0;
-  double y1=-400.0;
-  double x2=500.0;
-  double y2=-800.0;
-  double x3=800.0;
-  double y3=-200.0;
-  double x4=1100.0;
-  double y4=-400.0;
-  double x, y;
-
-  i = 0;
-  for(t = 0; t <= 1.0; t += 0.00390625 /* 1/256 */) {
-    x = pow(1-t, 3) * x1 + 3 * pow(1-t, 2) * t * x2 + 3 * (1-t) * pow(t, 2) * x3 + pow(t, 3) * x4;
-    y = pow(1-t, 3) * y1 + 3 * pow(1-t, 2) * t * y2 + 3 * (1-t) * pow(t, 2) * y3 + pow(t, 3) * y4;
-    p[i].x = (short)X_TO_SCREEN(x);
-    p[i].y = (short)Y_TO_SCREEN(y);
-    i++;
-  }
-  XDrawLines(display, xctx->window, xctx->gc[4], p, i, CoordModeOrigin);
-  XDrawLines(display, xctx->save_pixmap, xctx->gc[4], p, i, CoordModeOrigin);
-
-}
 
 void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,double liney2)
 {
@@ -1467,7 +1443,6 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
  }
 }
 
-
 void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill, int dash)
 {
  static int i=0;
@@ -1561,7 +1536,6 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
  }
 }
 
-
 void filledrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2)
 {
  static int i=0;
@@ -1630,7 +1604,6 @@ void polygon_bbox(double *x, double *y, int points, double *bx1, double *by1, do
   }
 }
 
-
 void arc_bbox(double x, double y, double r, double a, double b,
               double *bx1, double *by1, double *bx2, double *by2)
 {
@@ -1688,11 +1661,40 @@ void arc_bbox(double x, double y, double r, double a, double b,
 
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
+
+static void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
+{
+  XPoint p[512];
+  int i = 0;
+  double t;
+  double xp, yp;
+
+  if(points == 4) {
+    if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
+      drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
+    }
+    i = 0;
+    for(t = 0; t <= 1.0; t += 0.0078125/* 1/128 */) {
+      xp = pow(1-t, 3) * x[0] + 3 * pow(1-t, 2) * t * x[1] + 3 * (1-t) * pow(t, 2) * x[2] + pow(t, 3) * x[3];
+      yp = pow(1-t, 3) * y[0] + 3 * pow(1-t, 2) * t * y[1] + 3 * (1-t) * pow(t, 2) * y[2] + pow(t, 3) * y[3];
+      p[i].x = (short)X_TO_SCREEN(xp);
+      p[i].y = (short)Y_TO_SCREEN(yp);
+      i++;
+    }
+    XDrawLines(display, w, gc, p, i, CoordModeOrigin);
+    if(fill) {
+      XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
+    }
+  }
+
+}
+
 /* Unused 'what' parameter used in spice data draw_graph() 
  * to avoid unnecessary clipping (what = 0) */
-void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash)
+void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, int flags)
 {
   double x1,y1,x2,y2;
+  int fill, bezier;
   XPoint *p;
   int i;
   short sx, sy;
@@ -1719,22 +1721,34 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
       for(i=0;i<points; ++i) p[i].x = (short)X_TO_SCREEN(x[i]);
       for(i=0;i<points; ++i) p[i].y = (short)Y_TO_SCREEN(y[i]);
   }
+  fill = xctx->fill_pattern && xctx->fill_type[c] &&
+         poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1]);
+  bezier = flags && points == 4;
   if(dash) {
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = (char)dash;
     XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
   }
-  if(xctx->draw_window) XDrawLines(display, xctx->window, xctx->gc[c], p, points, CoordModeOrigin);
-  if(xctx->draw_pixmap)
-    XDrawLines(display, xctx->save_pixmap, xctx->gc[c], p, points, CoordModeOrigin);
-  if(xctx->fill_pattern && xctx->fill_type[c]){
-    if(poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1])) {
-      if(xctx->draw_window)
-         XFillPolygon(display, xctx->window, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
-      if(xctx->draw_pixmap)
-         XFillPolygon(display, xctx->save_pixmap, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
+  if(xctx->draw_window) {
+    if(bezier) {
+      drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill);
+    } else {
+      XDrawLines(display, xctx->window, xctx->gc[c], p, points, CoordModeOrigin);
     }
+  }
+  if(xctx->draw_pixmap) {
+    if(bezier) {
+      drawbezier(xctx->save_pixmap, xctx->gc[c], c, x, y, points, fill);
+    } else {
+      XDrawLines(display, xctx->save_pixmap, xctx->gc[c], p, points, CoordModeOrigin);
+    }
+  }
+  if(fill && !bezier) {
+    if(xctx->draw_window)
+       XFillPolygon(display, xctx->window, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
+    if(xctx->draw_pixmap)
+       XFillPolygon(display, xctx->save_pixmap, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
   }
   if(dash) {
     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
@@ -1742,13 +1756,14 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   my_free(_ALLOC_ID_, &p);
 }
 
-void drawtemppolygon(GC gc, int what, double *x, double *y, int points)
+void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flags)
 {
   double x1,y1,x2,y2;
   double sx1,sy1,sx2,sy2;
   XPoint *p;
   int i;
   short sx, sy;
+  int bezier;
   if(!has_x) return;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   sx1=X_TO_SCREEN(x1);
@@ -1757,18 +1772,25 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points)
   sy2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) ) {
 
+    bezier = flags && points == 4;
     if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-          x1, y1, x2, y2, x1, y1, xctx->lw);
+          x1 - cadhalfdotsize, y1 - cadhalfdotsize,
+          x2 + cadhalfdotsize, y2 + cadhalfdotsize,
+          x1 - cadhalfdotsize, y1 - cadhalfdotsize, xctx->lw);
     } else {
-      p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
-      for(i=0;i<points; ++i) {
-        clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
-        p[i].x = sx;
-        p[i].y = sy;
+      if(bezier) {
+        drawbezier(xctx->window, gc, 0, x, y, points, 0); 
+      } else {
+        p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
+        for(i=0;i<points; ++i) {
+          clip_xy_to_short(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), &sx, &sy);
+          p[i].x = sx;
+          p[i].y = sy;
+        }
+        XDrawLines(display, xctx->window, gc, p, points, CoordModeOrigin);
+        my_free(_ALLOC_ID_, &p);
       }
-      XDrawLines(display, xctx->window, gc, p, points, CoordModeOrigin);
-      my_free(_ALLOC_ID_, &p);
     }
   }
 }
@@ -4140,8 +4162,10 @@ void draw(void)
         drawarc(cc, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
       }
       if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
+        int bezier;
         xPoly *p = &xctx->poly[c][i];
-        drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash);
+        bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
+        drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash, bezier);
       }
       if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
       else i = -1;

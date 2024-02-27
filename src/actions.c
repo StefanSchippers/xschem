@@ -3299,7 +3299,7 @@ void new_polygon(int what)
      /* closed poly */
      if(what & END) {
        /* delete last rubber */
-       drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+       drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
        xctx->nl_polyx[xctx->nl_points] = xctx->nl_polyx[0];
        xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[0];
      /* add point */
@@ -3321,12 +3321,12 @@ void new_polygon(int what)
         ((what & ADD) && xctx->nl_polyx[xctx->nl_points-1] == xctx->nl_polyx[0] &&
          xctx->nl_polyy[xctx->nl_points-1] == xctx->nl_polyy[0]) ) {
      xctx->push_undo();
-     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
      /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
-     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points);
+     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0);
      xctx->ui_state &= ~STARTPOLYGON;
-     drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0);
+     drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0, 0);
      my_free(_ALLOC_ID_, &xctx->nl_polyx);
      my_free(_ALLOC_ID_, &xctx->nl_polyy);
      xctx->nl_maxpoints = xctx->nl_points = 0;
@@ -3334,10 +3334,10 @@ void new_polygon(int what)
    if(what & RUBBER)
    {
      /* fprintf(errfp, "new_poly: RUBBER\n"); */
-     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
      xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
-     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1);
+     drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
    }
 }
 

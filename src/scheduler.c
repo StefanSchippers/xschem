@@ -5212,7 +5212,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* test
      *   Testmode ... */
-    else if(0 && !strcmp(argv[1], "test") )
+    else if(1 && !strcmp(argv[1], "test") )
     {
       Iterator_ctx ctx;
       Objectentry *objectptr;
@@ -5264,7 +5264,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 3) {
-        drawbezier();
+        
       }
     }
 
