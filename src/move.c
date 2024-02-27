@@ -840,10 +840,10 @@ void copy_objects(int what)
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
         hash_names(xctx->instances, XINSERT);
-        symbol_bbox(xctx->instances,
-             &xctx->inst[xctx->instances].x1, &xctx->inst[xctx->instances].y1,
-             &xctx->inst[xctx->instances].x2, &xctx->inst[xctx->instances].y2);
-        xctx->instances++;
+        xctx->instances++; /* symbol_bbox calls translate and translate must have updated xctx->instances */
+        symbol_bbox(xctx->instances-1,
+             &xctx->inst[xctx->instances-1].x1, &xctx->inst[xctx->instances-1].y1,
+             &xctx->inst[xctx->instances-1].x2, &xctx->inst[xctx->instances-1].y2);
       } /* if(xctx->sel_array[i].type == ELEMENT) */
     }  /* for(i = 0; i < xctx->lastsel; ++i) */
     xctx->need_reb_sel_arr=1;
