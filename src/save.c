@@ -1041,9 +1041,10 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     xctx->extra_raw_n++;
   }
   /* **************** table_read ************* */
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "tablefile")) {
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "table")) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
+    dbg(1, "extra_rawfile: table_read: f=%s\n", f);
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if( !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) break;
     } 
@@ -1266,7 +1267,6 @@ int table_read(const char *f)
   char *line = NULL, *line_ptr, *line_save;
   const char *line_tok;
   Raw *raw;
-  
   if(xctx->raw) {
     dbg(0, "table_read(): must clear current data file before loading new\n");
     return 0;

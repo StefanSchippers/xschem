@@ -3525,7 +3525,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3 && !strcmp(argv[2], "table_read")) {
-        ret = extra_rawfile(1, argv[3], "tablefile", sweep1, sweep2);
+        ret = extra_rawfile(1, argv[3], "table", sweep1, sweep2);
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 3 && !strcmp(argv[2], "read")) {
         if(argc > 6) {
