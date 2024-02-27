@@ -1527,6 +1527,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
   
+  xctx->instances++;/* translate expects the correct balue of xctx->instances */
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name), S(name));
@@ -1535,7 +1536,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   set_inst_flags(&xctx->inst[n]);
   hash_names(n, XINSERT);
   if(first_call && (draw_sym & 3) ) bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
-  xctx->instances++; /* must be updated before calling symbol_bbox() */
   /* force these vars to 0 to trigger a prepare_netlist_structs(0) needed by symbol_bbox->translate
    * to translate @#n:net_name texts */
   xctx->prep_net_structs=0;

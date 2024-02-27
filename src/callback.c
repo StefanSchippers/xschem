@@ -2309,7 +2309,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      create_sch_from_sym();
      break;
    }
-   if(key=='l' && rstate == 0) /* start line */
+   if(key=='l' && !xctx->ui_state && rstate == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
      start_line(mx, my);
