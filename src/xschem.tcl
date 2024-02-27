@@ -2557,8 +2557,9 @@ proc graph_edit_properties {n} {
 
   # center right frame
   label .graphdialog.center.right.lab1 -text { Signals in graph }
+  label .graphdialog.center.right.lab2 -text {    Sim type:}
   if { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise table}  -width 4
+    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise table}  -width 9
   } else {
     entry .graphdialog.center.right.list -width 4
   }
@@ -2620,19 +2621,20 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.list .graphdialog.center.right.rawbut \
-       .graphdialog.center.right.rawentry -
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.lab2 .graphdialog.center.right.list \
+       .graphdialog.center.right.rawbut  .graphdialog.center.right.rawentry -
   grid configure .graphdialog.center.right.rawentry -sticky ew
-  grid .graphdialog.center.right.text1 - - - .graphdialog.center.right.yscroll -sticky nsew
-  grid .graphdialog.center.right.xscroll - - - - -sticky ew
+  grid .graphdialog.center.right.text1 - - - - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - - - - - -sticky ew
   grid rowconfig .graphdialog.center.right 0 -weight 0
   grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
   grid rowconfig .graphdialog.center.right 2 -weight 0
   grid columnconfig .graphdialog.center.right 0 -weight 0
   grid columnconfig .graphdialog.center.right 1 -weight 0
   grid columnconfig .graphdialog.center.right 2 -weight 0
-  grid columnconfig .graphdialog.center.right 3 -weight 1
-  grid columnconfig .graphdialog.center.right 4 -weight 0
+  grid columnconfig .graphdialog.center.right 3 -weight 0
+  grid columnconfig .graphdialog.center.right 4 -weight 1
+  grid columnconfig .graphdialog.center.right 5 -weight 0
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {

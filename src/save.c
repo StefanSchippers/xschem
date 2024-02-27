@@ -1041,7 +1041,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     xctx->extra_raw_n++;
   }
   /* **************** table_read ************* */
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && !strcmp(type, "table")) {
+  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && (type && !strcmp(type, "table"))) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     dbg(1, "extra_rawfile: table_read: f=%s\n", f);
