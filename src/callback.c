@@ -1623,7 +1623,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      hilight_net_pin_mismatches();
      break;
    }
-   if(key== 'W' && rstate == 0) {  /* create wire snapping to closest instance pin */
+   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
      double x, y;
      if(xctx->semaphore >= 2) break;
      if(!(xctx->ui_state & STARTWIRE)){
@@ -1641,7 +1641,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
      break;
    }
-   if(key == 'w' && rstate==0)    /* place wire. */
+   if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
    {
      int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
@@ -1999,7 +1999,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
     break;
    }
-   if(key=='C' && rstate == 0) /* place arc */
+   if(key=='C' /* && !xctx->ui_state */ && rstate == 0) /* place arc */
    {
      if(xctx->semaphore >= 2) break;
      xctx->mx_double_save=xctx->mousex_snap;
@@ -2008,7 +2008,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      new_arc(PLACE, 180.);
      break;
    }
-   if(key=='C' && rstate == ControlMask) /* place circle */
+   if(key=='C' /* && !xctx->ui_state */ && rstate == ControlMask) /* place circle */
    {
      if(xctx->semaphore >= 2) break;
      xctx->mx_double_save=xctx->mousex_snap;

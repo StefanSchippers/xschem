@@ -2823,7 +2823,7 @@ static void restore_selection(double x1, double y1, double x2, double y2)
   rebuild_selected_array();
   if(!xctx->lastsel) return;
   bbox(START,0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, xx1, yy1, xx2, yy2);
+  bbox(ADD, xx1-xctx->lw, yy1-xctx->lw, xx2+xctx->lw, yy2+xctx->lw);
   bbox(SET,0.0, 0.0, 0.0, 0.0);
   draw_selection(xctx->gc[SELLAYER], 0);
   bbox(END,0.0, 0.0, 0.0, 0.0);
