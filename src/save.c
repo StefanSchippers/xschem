@@ -1073,15 +1073,17 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** read ************* */
-  } else if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && type) {
+  } else if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file /* && type*/) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
-    if(!my_strcasecmp(type, "spectrum")) type = "ac";
-    if(!my_strcasecmp(type, "sp")) type = "ac";
+    if(type) {
+      if(!my_strcasecmp(type, "spectrum")) type = "ac";
+      if(!my_strcasecmp(type, "sp")) type = "ac";
+    }
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type && 
          !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
-         !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+         (!type || !strcmp(xctx->extra_raw_arr[i]->sim_type, type) )
         ) break;
     }
     if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
@@ -1097,7 +1099,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type);
+        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type ? type : "<unspecified>");
         xctx->raw = save; /* restore */
         xctx->extra_prev_idx = xctx->extra_idx;
       }
