@@ -1300,7 +1300,7 @@ int table_read(const char *f)
       }
       line_ptr = line;
       while(*line_ptr) { /* non empty line ? */
-        if(*line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') {
+        if(*line_ptr != ',' && *line_ptr != ' ' && *line_ptr != '\t' && *line_ptr != '\n') {
           empty = 0;
           break;
         }
