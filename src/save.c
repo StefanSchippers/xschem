@@ -550,6 +550,9 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       done_points = 0;
       ac = 0;
     }
+    else if(!strncmp(line, "Flags:", 6) && strstr(lowerline, "complex")) {
+      ac = 1;
+    }
     /* if type is given (not NULL) choose the simulation that matches type, else take the first one */
     /* if sim_type is set skip all datasets that do not match */
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "transient analysis")) {
@@ -685,7 +688,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         if(*ptr == ':') *ptr = '.';
         ++ptr;
       }
-      if(sim_type && !strcmp(sim_type, "ac")) { /* AC */
+      if(ac || (sim_type && !strcmp(sim_type, "ac")) ) { /* AC */
         my_strcat(_ALLOC_ID_, &raw->names[i << 1], varname);
         int_hash_lookup(&raw->table, raw->names[i << 1], (i << 1), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
