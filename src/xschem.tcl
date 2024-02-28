@@ -656,6 +656,123 @@ proc ev0 {args} {
   }
 } 
 
+# wraps provided table formatted text into a nice looking bordered table 
+proc tabulate {text} {
+  # define table characters
+  set top  {┌  ─  ┬ ┐}
+  set row  {│ { } │ │}
+  set mid  {├  ─  ┼ ┤}
+  set head {╞  ═  ╪ ╡}
+  set bot  {└  ─  ┴ ┘}
+
+  set maxlen 0  ;# max column width
+  set maxcols 0 ;# max number of columns
+  set nlines 0  ;# number of data lines
+  set chopped_text {}
+  set found_data 0
+  foreach line [split $text \n] {
+
+    # skip completely empty lines
+    if {[regexp {^$} $line]} { continue}
+    # skip leading lines with no data (only separators) 
+    if {!$found_data && [regexp {^[\t ,]*$} $line]} {
+      continue
+    }
+    set found_data 1
+
+    # cleanup leading and trailing runs of separators
+    # regsub {^[\t ,]+} $line {} line
+    # regsub {[\t ,]+$} $line {} line
+
+    # change separators to { }
+    regsub -all {[\t ,]} $line { } line
+
+    # transform resulting line into a proper list 
+    set line [split $line { }]
+    incr nlines
+    set ncols 0
+    # calculate max field width and number of columns
+    foreach field $line { 
+      incr ncols
+      if {$ncols > $maxcols} {set maxcols $ncols} 
+      set len [string length $field] 
+      if {$len > $maxlen} { set maxlen $len}
+    }
+    if { $chopped_text ne {}} {append chopped_text \n}
+    append chopped_text $line
+  }
+
+  set table {}
+  set l 0
+  foreach line [split $chopped_text \n] {
+    incr l
+
+    puts "$l $nlines"
+    # top table border
+    set rowsep {}
+    if {$l == 1} {
+      append rowsep [lindex $top 0] 
+      set c 0
+      for {set i 0} {$i < $maxcols} { incr i} {
+        set field [lindex $line $i]
+        incr c
+        append rowsep [string repeat [lindex $top 1] $maxlen]
+        if { $c == $ncols} {
+          append rowsep [lindex $top 3]
+        } else {
+          append rowsep [lindex $top 2]
+        }
+      }
+      append table $rowsep \n
+    }
+
+    set rowsep {}
+    append table [lindex $row 0]
+    if { $l == $nlines} {
+      append rowsep [lindex $bot 0]
+    } elseif {$l == 1} {
+      append rowsep [lindex $head 0]
+    } else {
+      append rowsep [lindex $mid 0]
+    }
+    set c 0
+    for {set i 0} {$i < $maxcols} { incr i} {
+      set field [lindex $line $i]
+      incr c
+      set pad [expr {$maxlen - [string length $field]}]
+      append table $field [string repeat { } $pad]
+      if { $l == $nlines} {
+        append rowsep [string repeat [lindex $bot 1] $maxlen]
+      } elseif {$l == 1}  {
+        append rowsep [string repeat [lindex $head 1] $maxlen]
+      } else {
+        append rowsep [string repeat [lindex $mid 1] $maxlen]
+      }
+      if { $c == $ncols} {
+        append table [lindex $row 3]
+        if { $l == $nlines} {
+          append rowsep [lindex $bot 3]
+        } elseif {$l == 1} {
+          append rowsep [lindex $head 3]
+        } else {
+          append rowsep [lindex $mid 3]
+        }
+      } else {
+        append table [lindex $row 2]
+        if { $l == $nlines} {
+          append rowsep [lindex $bot 2]
+        } elseif { $l == 1}  {
+          append rowsep [lindex $head 2]
+        } else {
+          append rowsep [lindex $mid 2]
+        }
+      }
+    }
+    append table \n $rowsep \n
+  }
+  return $table
+}
+
 # get pin ordering from included subcircuit
 # return empty string if not found.
 proc has_included_subcircuit {symname spice_sym_def} {

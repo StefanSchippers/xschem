@@ -1552,6 +1552,7 @@ void change_elem_order(int n)
   xInstance tmpinst;
   xRect tmpbox;
   xWire tmpwire;
+  xText tmptext;
   char tmp_txt[50]; /* overflow safe */
   int c, new_n, modified = 0;
 
@@ -1598,7 +1599,7 @@ void change_elem_order(int n)
       tmpbox=xctx->rect[c][new_n];
       xctx->rect[c][new_n]=xctx->rect[c][xctx->sel_array[0].n];
       xctx->rect[c][xctx->sel_array[0].n]=tmpbox;
-      dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
+      dbg(1, "change_elem_order(): selected rect %d\n", xctx->sel_array[0].n);
       if(c == GRIDLAYER) {
         if(xctx->graph_lastsel == new_n) xctx->graph_lastsel = xctx->sel_array[0].n;
         else if(xctx->graph_lastsel ==  xctx->sel_array[0].n) xctx->graph_lastsel = new_n;
@@ -1610,7 +1611,15 @@ void change_elem_order(int n)
       tmpwire=xctx->wire[new_n];
       xctx->wire[new_n]=xctx->wire[xctx->sel_array[0].n];
       xctx->wire[xctx->sel_array[0].n]=tmpwire;
-      dbg(1, "change_elem_order(): selected element %d\n", xctx->sel_array[0].n);
+      dbg(1, "change_elem_order(): selected wire %d\n", xctx->sel_array[0].n);
+    }
+    else if(xctx->sel_array[0].type==xTEXT)
+    {
+      if(new_n>=xctx->texts) new_n=xctx->texts-1;
+      tmptext=xctx->text[new_n];
+      xctx->text[new_n]=xctx->text[xctx->sel_array[0].n];
+      xctx->text[xctx->sel_array[0].n]=tmptext;
+      dbg(1, "change_elem_order(): selected text %d\n", xctx->sel_array[0].n);
     }
     xctx->need_reb_sel_arr = 1;
     if(modified) set_modify(1);
