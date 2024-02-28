@@ -707,7 +707,6 @@ proc tabulate {text} {
   foreach line [split $chopped_text \n] {
     incr l
 
-    puts "$l $nlines"
     # top table border
     set rowsep {}
     if {$l == 1} {
