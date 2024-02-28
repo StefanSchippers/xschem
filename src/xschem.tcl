@@ -657,7 +657,9 @@ proc ev0 {args} {
 } 
 
 # wraps provided table formatted text into a nice looking bordered table 
-proc tabulate {text} {
+# sep is the list of characters used as separators, default are { }, {,}, {\t}
+# if you want to tabulate data with spaces use only {,} as separator or any other character.
+proc tabulate {text {sep ",\t "}} {
   # define table characters
   set top  {┌  ─  ┬ ┐}
   set row  {│ { } │ │}
@@ -665,7 +667,9 @@ proc tabulate {text} {
   set head {╞  ═  ╪ ╡}
   set bot  {└  ─  ┴ ┘}
 
-  set maxlen 0  ;# max column width
+  # used_sep (first character of sep) will be used as separator after text cleanup
+  set used_sep [string range $sep 0 0]
+  set sep "\[$sep\]"
   set maxcols 0 ;# max number of columns
   set nlines 0  ;# number of data lines
   set chopped_text {}
@@ -675,28 +679,25 @@ proc tabulate {text} {
     # skip completely empty lines
     if {[regexp {^$} $line]} { continue}
     # skip leading lines with no data (only separators) 
-    if {!$found_data && [regexp {^[\t ,]*$} $line]} {
+    if {!$found_data && [regexp ^${sep}*\$ $line]} {
       continue
     }
     set found_data 1
 
-    # cleanup leading and trailing runs of separators
-    # regsub {^[\t ,]+} $line {} line
-    # regsub {[\t ,]+$} $line {} line
-
     # change separators to { }
-    regsub -all {[\t ,]} $line { } line
+    regsub -all $sep $line $used_sep line
 
     # transform resulting line into a proper list 
-    set line [split $line { }]
+    set line [split $line $used_sep]
     incr nlines
     set ncols 0
     # calculate max field width and number of columns
     foreach field $line { 
       incr ncols
+      if {![info exists maxlen($ncols)]} {set maxlen($ncols) 0}
       if {$ncols > $maxcols} {set maxcols $ncols} 
       set len [string length $field] 
-      if {$len > $maxlen} { set maxlen $len}
+      if {$len > $maxlen($ncols)} { set maxlen($ncols) $len}
     }
     if { $chopped_text ne {}} {append chopped_text \n}
     append chopped_text $line
@@ -715,7 +716,7 @@ proc tabulate {text} {
       for {set i 0} {$i < $maxcols} { incr i} {
         set field [lindex $line $i]
         incr c
-        append rowsep [string repeat [lindex $top 1] $maxlen]
+        append rowsep [string repeat [lindex $top 1] $maxlen($c)]
         if { $c == $ncols} {
           append rowsep [lindex $top 3]
         } else {
@@ -723,8 +724,9 @@ proc tabulate {text} {
         }
       }
       append table $rowsep \n
+    } else {
+      append table \n
     }
-
     set rowsep {}
     append table [lindex $row 0]
     if { $l == $nlines} {
@@ -738,14 +740,14 @@ proc tabulate {text} {
     for {set i 0} {$i < $maxcols} { incr i} {
       set field [lindex $line $i]
       incr c
-      set pad [expr {$maxlen - [string length $field]}]
+      set pad [expr {$maxlen($c) - [string length $field]}]
       append table $field [string repeat { } $pad]
       if { $l == $nlines} {
-        append rowsep [string repeat [lindex $bot 1] $maxlen]
+        append rowsep [string repeat [lindex $bot 1] $maxlen($c)]
       } elseif {$l == 1}  {
-        append rowsep [string repeat [lindex $head 1] $maxlen]
+        append rowsep [string repeat [lindex $head 1] $maxlen($c)]
       } else {
-        append rowsep [string repeat [lindex $mid 1] $maxlen]
+        append rowsep [string repeat [lindex $mid 1] $maxlen($c)]
       }
       if { $c == $ncols} {
         append table [lindex $row 3]
@@ -767,7 +769,7 @@ proc tabulate {text} {
         }
       }
     }
-    append table \n $rowsep \n
+    append table \n $rowsep 
   }
   return $table
 }
