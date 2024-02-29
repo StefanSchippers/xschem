@@ -1843,7 +1843,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
           x2 + xctx->cadhalfdotsize, y2 + xctx->cadhalfdotsize,
           x1 - xctx->cadhalfdotsize, y1 - xctx->cadhalfdotsize, xctx->lw);
     } else {
-      if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
+      if(gc == xctx->gc[SELLAYER] || gc == xctx->gctiled ) for(i = 0; i < points; i++) {
         if( POINTINSIDE(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), xctx->areax1, xctx->areay1,
                xctx->areax2, xctx->areay2)) {
           drawtemparc(gc, NOW, x[i], y[i], xctx->cadhalfdotsize, 0., 360.);
