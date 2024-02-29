@@ -1664,18 +1664,27 @@ void arc_bbox(double x, double y, double r, double a, double b,
 
 void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
 {
-  static int psize = 64;
+  enum { bez_points = 32 }; /* number of points a single bezier is approximated with */
+  static int psize = 512;
+  static double power[bez_points + 1]; /* cached values for t^2 values */
   static XPoint *p = NULL;
-  int b, i;
+  int b, i, j;
   double t;
   double xp, yp;
 
   double x0, x1, x2, y0, y1, y2;
 
   if(points == 0 && x == NULL && y == NULL) { /* cleanup */
-    my_free(_ALLOC_ID_, &p);
+    if(p) my_free(_ALLOC_ID_, &p);
   }
-  if(!p) p = my_malloc(_ALLOC_ID_, psize * sizeof(XPoint));
+  if(!p) {
+    p = my_malloc(_ALLOC_ID_, psize * sizeof(XPoint));
+    /* cache t^2 values for speed */
+    for(j = 0; j <= bez_points; j++) {
+      t = 1.0 / bez_points * j;
+      power[j] = pow(t, 2);
+    }
+  }
   if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
     drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
   }
@@ -1716,9 +1725,10 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
      * dbg(0, "x1=%g    y1=%g\n", x1, y1);
      * dbg(0, "x2=%g    y2=%g\n", x2, y2);
      */
-    for(t = 0; t <= 1.0; t += (1.0/32.0)) {
-      xp = pow(1-t, 2) * x0 + 2 * (1-t) * t * x1 + pow(t, 2) * x2;
-      yp = pow(1-t, 2) * y0 + 2 * (1-t) * t * y1 + pow(t, 2) * y2;
+    for(j = 0; j <= bez_points; j++) {
+      t = 1.0 / bez_points * j;
+      xp = power[bez_points - j] * x0 + 2 * (1-t) * t * x1 + power[j] * x2;
+      yp = power[bez_points - j] * y0 + 2 * (1-t) * t * y1 + power[j] * y2;
       if(i >= psize) {
         psize *= 2;
         my_realloc(_ALLOC_ID_, &p, psize * sizeof(XPoint));
