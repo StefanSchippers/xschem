@@ -1344,13 +1344,14 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
 
     redraw_w_a_l_r_p_rubbers();
-    /* start of a mouse area select. Button1 pressed. No shift pressed */
+    /* start of a mouse area select. Button1 pressed. No shift pressed
+     * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) &&
+       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->poly_point_selected
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
 
-      if(!xctx->poly_point_selected && (mx != xctx->mx_save || my != xctx->my_save)) {
+      if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
           xctx->onetime=1;
