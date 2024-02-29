@@ -1685,7 +1685,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->ui_state |= START_SYMPIN;
     break;
    }
-   if(key=='p' && !xctx->ui_state && rstate==0)              /* start polygon, 20171115 */
+   if(key=='p' /* && !xctx->ui_state */ && rstate==0)              /* start polygon, 20171115 */
    {
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): start polygon\n");
@@ -1820,7 +1820,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
      break;
    }
-   if(key=='r' && !xctx->ui_state && rstate==0)              /* start rect */
+   if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
    {
     dbg(1, "callback(): start rect\n");
     xctx->mx_double_save=xctx->mousex_snap;
@@ -2309,7 +2309,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      create_sch_from_sym();
      break;
    }
-   if(key=='l' && !xctx->ui_state && rstate == 0) /* start line */
+   if(key=='l' /* && !xctx->ui_state */ && rstate == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
      start_line(mx, my);

@@ -1662,13 +1662,79 @@ void arc_bbox(double x, double y, double r, double a, double b,
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
 
-static void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
+void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
 {
-  XPoint p[512];
-  int i = 0;
+  static int psize = 64;
+  static XPoint *p = NULL;
+  int b, i;
   double t;
   double xp, yp;
 
+  double x0, x1, x2, y0, y1, y2;
+
+  if(points == 0 && x == NULL && y == NULL) { /* cleanup */
+    my_free(_ALLOC_ID_, &p);
+  }
+  if(!p) p = my_malloc(_ALLOC_ID_, psize * sizeof(XPoint));
+  if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
+    drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
+  }
+  i = 0;
+  for(b = 0; b < points - 2; b++) {
+    if(points == 3) { /* 3 points: only one bezier */
+      x0 = x[0];
+      y0 = y[0];
+      x1 = x[1];
+      y1 = y[1];
+      x2 = x[2];
+      y2 = y[2];
+    } else if(b == points - 3) { /* last bezier */
+      x0 = (x[points - 3] + x[points - 2]) / 2.0;
+      y0 = (y[points - 3] + y[points - 2]) / 2.0;
+      x1 =  x[points - 2];
+      y1 =  y[points - 2];
+      x2 =  x[points - 1];
+      y2 =  y[points - 1];
+    } else if(b == 0) { /* first bezier */
+      x0 =  x[0];
+      y0 =  y[0];
+      x1 =  x[1];
+      y1 =  y[1];
+      x2 = (x[1] + x[2]) / 2.0;
+      y2 = (y[1] + y[2]) / 2.0;
+    } else { /* beziers in the middle */
+      x0 = (x[b] + x[b + 1]) / 2.0;
+      y0 = (y[b] + y[b + 1]) / 2.0;
+      x1 =  x[b + 1];
+      y1 =  y[b + 1];
+      x2 = (x[b + 1] + x[b + 2]) / 2.0;
+      y2 = (y[b + 1] + y[b + 2]) / 2.0;
+    }
+    /* 
+     * dbg(0, "\n--------   b=%d  points=%d  -----------\n", b, points);
+     * dbg(0, "x0=%g    y0=%g\n", x0, y0);
+     * dbg(0, "x1=%g    y1=%g\n", x1, y1);
+     * dbg(0, "x2=%g    y2=%g\n", x2, y2);
+     */
+    for(t = 0; t <= 1.0; t += (1.0/32.0)) {
+      xp = pow(1-t, 2) * x0 + 2 * (1-t) * t * x1 + pow(t, 2) * x2;
+      yp = pow(1-t, 2) * y0 + 2 * (1-t) * t * y1 + pow(t, 2) * y2;
+      if(i >= psize) {
+        psize *= 2;
+        my_realloc(_ALLOC_ID_, &p, psize * sizeof(XPoint));
+      }
+      p[i].x = (short)X_TO_SCREEN(xp);
+      p[i].y = (short)Y_TO_SCREEN(yp);
+      /* dbg(0, "i=%d, p[i].x=%d, p[i].y=%d\n", i, p[i].x, p[i].y); */
+      i++;
+    }
+  }
+  XDrawLines(display, w, gc, p, i, CoordModeOrigin);
+  if(fill) {
+    XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
+  }
+  /* example of cubic bezier */ 
+  #if 0
   if(points == 4) {
     if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
       drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
@@ -1686,7 +1752,7 @@ static void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int point
       XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
     }
   }
-
+  #endif
 }
 
 /* Unused 'what' parameter used in spice data draw_graph() 
@@ -1723,7 +1789,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   }
   fill = xctx->fill_pattern && xctx->fill_type[c] &&
          poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1]);
-  bezier = flags && points == 4;
+  bezier = flags && (points > 2);
   if(dash) {
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = (char)dash;
@@ -1772,7 +1838,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
   sy2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) ) {
 
-    bezier = flags && points == 4;
+    bezier = flags  && (points > 2);
     if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
           x1 - cadhalfdotsize, y1 - cadhalfdotsize,
