@@ -2207,6 +2207,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='g' && rstate==0)                         /* half snap factor */
    {
     set_snap(c_snap / 2.0);
+    draw();
     break;
    }
    if(key=='g' && rstate==ControlMask)              /* set snap factor 20161212 */
@@ -2220,6 +2221,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='G' && rstate == 0)                                    /* double snap factor */
    {
     set_snap(c_snap * 2.0);
+    draw();
     break;
    }
    if(key=='*' && EQUAL_MODMASK)         /* svg print , 20121108 */

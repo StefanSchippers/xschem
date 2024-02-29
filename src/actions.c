@@ -300,7 +300,6 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
     }
     xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 10. ? cs : 10.) / 10.;
     tclsetdoublevar("cadsnap", cs);
-    draw();
 }
 
 void set_grid(double newgrid)
