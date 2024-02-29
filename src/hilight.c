@@ -2045,12 +2045,14 @@ void draw_hilight_net(int on_window)
      else
        drawline(get_color(entry->value), NOW,
           xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
-     if(cadhalfdotsize*xctx->mooz>=0.7) {
+     if(xctx->cadhalfdotsize*xctx->mooz>=0.7) {
        if( xctx->wire[i].end1 >1 ) {
-         filledarc(get_color(entry->value), NOW, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
+         filledarc(get_color(entry->value), NOW, xctx->wire[i].x1, xctx->wire[i].y1,
+            xctx->cadhalfdotsize, 0, 360);
        }
        if( xctx->wire[i].end2 >1 ) {
-         filledarc(get_color(entry->value), NOW, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
+         filledarc(get_color(entry->value), NOW, xctx->wire[i].x2, xctx->wire[i].y2,
+            xctx->cadhalfdotsize, 0, 360);
        }
      }
    }

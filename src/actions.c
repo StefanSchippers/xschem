@@ -298,7 +298,9 @@ void set_snap(double newsnap) /*  20161212 set new snap factor and just notify n
         tclvareval(xctx->top_path, ".statusbar.3 configure -background OrangeRed", NULL);
       }
     }
+    xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 10. ? cs : 10.) / 10.;
     tclsetdoublevar("cadsnap", cs);
+    draw();
 }
 
 void set_grid(double newgrid)
@@ -2485,11 +2487,11 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
        !xctx->wire[i].node[0] || !bus_hilight_hash_lookup(xctx->wire[i].node, 0,XLOOKUP)) continue;
    }
    if(xctx->wire[i].bus){
-     ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
+     ov = INT_BUS_WIDTH(xctx->lw)> xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
      if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
      else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    } else {
-     ov = cadhalfdotsize;
+     ov = xctx->cadhalfdotsize;
      if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
      else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }
    }
@@ -2597,8 +2599,8 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   dbg(1, "zoom_full(): dr=%d sel=%d flags=%d areaw=%d, areah=%d\n", sel, dr, flags, xctx->areaw, xctx->areah);
   if(flags & 1) change_linewidth(-1.);
   /* we do this here since change_linewidth may not be called  if flags & 1 == 0*/
-  /* cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (tclgetdoublevar("cadsnap")-10); */
-  cadhalfdotsize = 4.0 * (cs < 10. ? cs : 10.) / 10.;
+  /* xctx->cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (tclgetdoublevar("cadsnap")-10); */
+  xctx->cadhalfdotsize = 4.0 * (cs < 10. ? cs : 10.) / 10.;
   if(dr && has_x) {
     draw();
     redraw_w_a_l_r_p_rubbers();

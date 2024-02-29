@@ -1036,7 +1036,7 @@ static int edit_wire_property(void)
       bus_ptr = get_tok_value(xctx->wire[k].prop_ptr,"bus",0);
       if(!strboolcmp(bus_ptr, "true")) {
         double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw) > cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
+        ov = INT_BUS_WIDTH(xctx->lw) > xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
         else { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
         bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
@@ -1044,7 +1044,7 @@ static int edit_wire_property(void)
       } else {
         if(oldbus){
           double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
+          ov = INT_BUS_WIDTH(xctx->lw)> xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
           if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
           else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
           bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
@@ -1190,7 +1190,8 @@ static int edit_polygon_property(void)
          if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
          if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
        }
-       bbox(ADD, x1-cadhalfdotsize, y1-cadhalfdotsize, x2+cadhalfdotsize, y2+cadhalfdotsize);
+       bbox(ADD, x1-xctx->cadhalfdotsize, y1-xctx->cadhalfdotsize,
+                    x2+xctx->cadhalfdotsize, y2+xctx->cadhalfdotsize);
      }
    }
    if(drw) {

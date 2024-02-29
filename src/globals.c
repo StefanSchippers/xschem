@@ -179,7 +179,6 @@ char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
 int tcp_port = 0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */
-double cadhalfdotsize = CADHALFDOTSIZE;
 char bus_char[3] = {0, 0, 0};
 int yyparse_error = 0;
 char *xschem_executable=NULL;

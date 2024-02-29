@@ -878,10 +878,10 @@ void svg_draw(void)
           color = get_color(entry->value);
         }
         if( xctx->wire[i].end1 >1 ) {
-          svg_drawcircle(color, 1, xctx->wire[i].x1, xctx->wire[i].y1, cadhalfdotsize, 0, 360);
+          svg_drawcircle(color, 1, xctx->wire[i].x1, xctx->wire[i].y1, xctx->cadhalfdotsize, 0, 360);
         }
         if( xctx->wire[i].end2 >1 ) {
-          svg_drawcircle(color, 1, xctx->wire[i].x2, xctx->wire[i].y2, cadhalfdotsize, 0, 360);
+          svg_drawcircle(color, 1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->cadhalfdotsize, 0, 360);
         }
       }
     }

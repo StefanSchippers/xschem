@@ -579,6 +579,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->nl_sel = xctx->nl_sem = xctx->nl_dir = 0;
 
   xctx->hilight_time = 0; /* timestamp for sims */
+  xctx->poly_point_selected = 0;
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
   for(i=0;i<CADMAXHIER; ++i) {
@@ -1998,8 +1999,8 @@ void change_linewidth(double w)
     double cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
-      cadhalfdotsize = CADHALFDOTSIZE * (cs < 10. ? cs : 10.) / 10.;
-      /* cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10); */
+      xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 10. ? cs : 10.) / 10.;
+      /* xctx->cadhalfdotsize = CADHALFDOTSIZE +  0.04 * (cs-10); */
     }
   /* explicitly set line width */
   } else {

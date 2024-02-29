@@ -1305,6 +1305,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       break;
     }
 
+    dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
         my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
@@ -1316,11 +1317,15 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
+
+    /* determine direction of a rectangle selection  (or unselection with ALT key) */
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
-      if( (state & Button1Mask)  && SET_MODMASK) { /* 20171026 added unselect by area  */
+      /* Unselect by area : determine direction */
+      if( (state & Button1Mask)  && SET_MODMASK) { 
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
         select_rect(RUBBER,0);
+      /* select by area : determine direction */
       } else if(state & Button1Mask) {
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
@@ -1339,12 +1344,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
 
     redraw_w_a_l_r_p_rubbers();
-    /* start of a mouse area select. No shift pressed */
+    /* start of a mouse area select. Button1 pressed. No shift pressed */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
-      if(mx != xctx->mx_save || my != xctx->my_save) {
+
+      if(!xctx->poly_point_selected && (mx != xctx->mx_save || my != xctx->my_save)) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
           xctx->onetime=1;
@@ -3128,13 +3134,45 @@ int rstate; /* (reduced state, without ShiftMask) */
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE)  ) {
        Selected sel;
        int prev_last_sel = xctx->lastsel;
+       int polygon_n = -1, polygon_c = -1;
+       xctx->poly_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
+
+       if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
+          dbg(1, "1 Polygon selected\n");
+          polygon_n = xctx->sel_array[0].n;
+          polygon_c = xctx->sel_array[0].col;
+       }
        if( !(state & ShiftMask) && !(SET_MODMASK) ) {
          unselect_all(1);
        }
-       sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       /* Check is user is clicking a control point of a polygon */
+       if(polygon_n >= 0) {
+         int i;
+         double ds = xctx->cadhalfdotsize;
+         xPoly *p = &xctx->poly[polygon_c][polygon_n];
+         for(i = 0; i < p->points; i++) {
+           if(
+               POINTINSIDE(xctx->mousex, xctx->mousey, p->x[i] - ds, p->y[i] - ds, 
+                             p->x[i] + ds, p->y[i] + ds)
+             ) {
+               dbg(1, "selecting point %d\n", i);
+               xctx->poly[polygon_c][polygon_n].selected_point[i] = 1;
+               xctx->poly_point_selected = 1;
+           }
+         }
+         if(xctx->poly_point_selected) { 
+           /* select_polygon(polygon_c, polygon_n, SELECTED1,1); */
+           xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
+           xctx->need_reb_sel_arr=1;
+           move_objects(START,0,0,0);
+          }
+       }
+       if(!xctx->poly_point_selected) {
+         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       }
        rebuild_selected_array();
        #ifndef __unix__
        draw_selection(xctx->gc[SELLAYER], 0);
@@ -3164,6 +3202,23 @@ int rstate; /* (reduced state, without ShiftMask) */
    } /* button==Button1 */
    break;
   case ButtonRelease:
+
+   /* if a polygon/bezier control point was clicked, end point move operation
+    * and set polygon state back to SELECTED from SELECTED1 */
+   if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->poly_point_selected) {
+     if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
+        int k;
+        int n = xctx->sel_array[0].n;
+        int c = xctx->sel_array[0].col;
+        move_objects(END,0,0,0);
+        xctx->poly[c][n].sel = SELECTED;
+        for(k=0; k<xctx->poly[c][n].points; ++k) {
+          xctx->poly[c][n].selected_point[k] = 0;
+        }
+        xctx->need_reb_sel_arr=1;
+     }
+   }
+
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
@@ -3186,8 +3241,11 @@ int rstate; /* (reduced state, without ShiftMask) */
        tclsetboolvar("enable_stretch", es);
        break;
      } else {
-       /* 20150927 filter out button4 and button5 events */
-       if(!(state&(Button4Mask|Button5Mask) ) ) select_rect(END,-1);
+       /* Button1 release: end of rectangle select */
+       if(!(state & (Button4Mask|Button5Mask) ) ) {
+ 
+         select_rect(END,-1);
+       }
      }
      if(draw_xhair) draw_crosshair(0);
      rebuild_selected_array();

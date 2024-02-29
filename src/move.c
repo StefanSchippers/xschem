@@ -882,6 +882,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xLine ** const line = xctx->line;
   xWire * const wire = xctx->wire;
  
+  dbg(1, "move_objects: what=%d, dx=%g, dy=%g\n", what, dx, dy);
   if(what & START)
   {
    xctx->rotatelocal=0;

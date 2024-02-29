@@ -1735,7 +1735,7 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
   #if 0
   if(points == 4) {
     if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
-      drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
+      drawtemparc(gc, NOW, x[i], y[i], xctx->cadhalfdotsize, 0., 360.);
     }
     i = 0;
     for(t = 0; t <= 1.0; t += bez_steps) {
@@ -1839,14 +1839,14 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
     bezier = flags  && (points > 2);
     if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-          x1 - cadhalfdotsize, y1 - cadhalfdotsize,
-          x2 + cadhalfdotsize, y2 + cadhalfdotsize,
-          x1 - cadhalfdotsize, y1 - cadhalfdotsize, xctx->lw);
+          x1 - xctx->cadhalfdotsize, y1 - xctx->cadhalfdotsize,
+          x2 + xctx->cadhalfdotsize, y2 + xctx->cadhalfdotsize,
+          x1 - xctx->cadhalfdotsize, y1 - xctx->cadhalfdotsize, xctx->lw);
     } else {
       if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
         if( POINTINSIDE(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), xctx->areax1, xctx->areay1,
                xctx->areax2, xctx->areay2)) {
-          drawtemparc(gc, NOW, x[i], y[i], cadhalfdotsize, 0., 360.);
+          drawtemparc(gc, NOW, x[i], y[i], xctx->cadhalfdotsize, 0., 360.);
         }
       }
       if(bezier) {
@@ -4158,13 +4158,17 @@ void draw(void)
   int cc, c, i = 0 /*, floaters = 0 */;
   xSymbol *symptr;
   int textlayer;
+  double cs;
   #if HAS_CAIRO==1
   const char *textfont;
   #endif
 
   dbg(1, "draw()\n");
 
+  
   if(!xctx || xctx->no_draw) return;
+  cs = tclgetdoublevar("cadsnap");
+  xctx->cadhalfdotsize = 4.0 * (cs < 10. ? cs : 10.) / 10.;
   xctx->crosshair_layer = tclgetintvar("crosshair_layer");
   if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;
   if(xctx->crosshair_layer >= cadlayers ) xctx->crosshair_layer = 2;

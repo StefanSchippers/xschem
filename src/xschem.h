@@ -983,7 +983,7 @@ typedef struct {
   Int_hashtable floater_inst_table;
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;
-
+  int poly_point_selected;
   int hilight_nets;
   int hilight_color;
   int hilight_time; /* timestamp for sims */
@@ -1123,6 +1123,7 @@ typedef struct {
   int draw_pixmap; /* pixmap used as 2nd buffer */
   int draw_window;  /* MIRRORED IN TCL */
   int do_copy_area;
+  double cadhalfdotsize;
   time_t time_last_modify;
   int undo_type; /* 0: on disk, 1: in memory */
   void (*push_undo)(void);
