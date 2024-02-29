@@ -594,7 +594,7 @@ void ask_new_file(void)
     if(xctx->modified) {
       if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
     }
-    tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
+    tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
     my_snprintf(f, S(f),"%s", tclresult());
     if(f[0]) {
       char win_path[WINDOW_PATH_SIZE];
@@ -2119,7 +2119,6 @@ int descend_schematic(int instnumber, int fallback, int alert)
  
      my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
      my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
-     /* my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} *.\\{sch,sym\\} INITIALLOADDIR {%s}", filename); */
      tcleval(cmd);
      my_strncpy(res, tclresult(), S(res));
      if(!res[0]) return 0;

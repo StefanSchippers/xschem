@@ -3793,7 +3793,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
   label .load.buttons_bot.srclab  -text { Search:}
-  entry .load.buttons_bot.src -width 12 -highlightcolor red -highlightthickness 2
+  entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2
   .load.buttons_bot.src delete 0 end
   .load.buttons_bot.src insert 0 $file_dialog_globfilter
   if { $file_dialog_save_initialfile ne {} } { 

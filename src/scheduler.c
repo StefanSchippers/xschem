@@ -2537,7 +2537,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval(f);
         my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
       } else {
-        tcleval("load_file_dialog {Load file} *.\\{sch,sym\\} INITIALLOADDIR");
+        tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
         if(tclresult()[0]) {
           my_snprintf(f, S(f), "%s", tclresult());
         } else {
