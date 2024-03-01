@@ -1557,7 +1557,7 @@ proc simconf_saveconf {scrollframe} {
 }
  
 proc simconf {} {
-  global sim USER_CONF_DIR simconf_default_geometry
+  global sim USER_CONF_DIR enter_textsimconf_default_geometry
 
   if {[winfo exists .sim]} {
     destroy .sim 
@@ -4303,7 +4303,7 @@ proc set_netlist_dir { change {dir {} }} {
 
 
 proc enter_text {textlabel {preserve_disabled disabled}} {
-  global retval has_cairo preserve_unchanged_attrs wm_fix props
+  global retval has_cairo preserve_unchanged_attrs wm_fix props enter_text_default_geometry
   set tctx::rcode {}
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
@@ -4312,12 +4312,18 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   set X [expr {[winfo pointerx .dialog] - 30}]
   set Y [expr {[winfo pointery .dialog] - 25}]
 
+  bind .dialog <Configure> {
+    # puts [wm geometry .dialog]
+    set enter_text_default_geometry [wm geometry .dialog]
+    regsub {\+.*} $enter_text_default_geometry {} enter_text_default_geometry
+  }
+
   # 20100203
   if { $wm_fix } { tkwait visibility .dialog }
-  wm geometry .dialog "+$X+$Y"
+  wm geometry .dialog "${enter_text_default_geometry}+$X+$Y"
   frame .dialog.f1
   label .dialog.f1.txtlab -text $textlabel
-  text .dialog.txt -width 100 -height 4
+  text .dialog.txt -width 120 -height 9
   .dialog.txt delete 1.0 end
   .dialog.txt insert 1.0 $retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
@@ -6821,7 +6827,8 @@ set tctx::global_list {
   delay_flag  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  filetmp fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_bus
+  enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
+  gaw_fd gaw_tcp_address graph_bus
   graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
@@ -8274,7 +8281,8 @@ set_ne file_dialog_ext {*}
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
-set_ne text_line_default_geometry 80x12
+set_ne text_line_default_geometry {}
+set_ne enter_text_default_geometry {}
 set_ne terminal xterm
 
 # xschem tcp port number (listen to port and execute commands from there if set) 

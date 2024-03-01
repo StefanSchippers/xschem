@@ -1347,7 +1347,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* start of a mouse area select. Button1 pressed. No shift pressed
      * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->poly_point_selected
+       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->poly_point_selected &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
 
