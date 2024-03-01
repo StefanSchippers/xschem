@@ -4241,8 +4241,9 @@ void draw(void)
         }
       }
       if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
-        xArc *a = &xctx->arc[c][i];
-        drawarc(cc, ADD, a->x, a->y, a->r, a->a, a->b, a->fill, a->dash);
+        xArc **arc = xctx->arc;
+        drawarc(cc, ADD, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b,
+                arc[c][i].fill, arc[c][i].dash);
       }
       if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
