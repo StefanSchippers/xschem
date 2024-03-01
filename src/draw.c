@@ -1717,12 +1717,6 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
       x2 = (x[b + 1] + x[b + 2]) / 2.0;
       y2 = (y[b + 1] + y[b + 2]) / 2.0;
     }
-    /* 
-     * dbg(0, "\n--------   b=%d  points=%d  -----------\n", b, points);
-     * dbg(0, "x0=%g    y0=%g\n", x0, y0);
-     * dbg(0, "x1=%g    y1=%g\n", x1, y1);
-     * dbg(0, "x2=%g    y2=%g\n", x2, y2);
-     */
     for(t = 0; t <= 1.0; t += bez_steps) {
       xp = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
       yp = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * y2;
@@ -1740,26 +1734,6 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
   if(fill) {
     XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
   }
-  /* example of cubic bezier */ 
-  #if 0
-  if(points == 4) {
-    if(gc == xctx->gc[SELLAYER]) for(i = 0; i < points; i++) {
-      drawtemparc(gc, NOW, x[i], y[i], xctx->cadhalfdotsize, 0., 360.);
-    }
-    i = 0;
-    for(t = 0; t <= 1.0; t += bez_steps) {
-      xp = pow(1-t, 3) * x[0] + 3 * pow(1-t, 2) * t * x[1] + 3 * (1-t) * pow(t, 2) * x[2] + pow(t, 3) * x[3];
-      yp = pow(1-t, 3) * y[0] + 3 * pow(1-t, 2) * t * y[1] + 3 * (1-t) * pow(t, 2) * y[2] + pow(t, 3) * y[3];
-      p[i].x = (short)X_TO_SCREEN(xp);
-      p[i].y = (short)Y_TO_SCREEN(yp);
-      i++;
-    }
-    XDrawLines(display, w, gc, p, i, CoordModeOrigin);
-    if(fill) {
-      XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
-    }
-  }
-  #endif
 }
 
 /* Unused 'what' parameter used in spice data draw_graph() 

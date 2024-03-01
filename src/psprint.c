@@ -422,14 +422,63 @@ static void ps_xfillrectange(int layer, double x1, double y1, double x2,
  /*fprintf(fd,"stroke\n"); */
 }
 
+static void ps_drawbezier(double *x, double *y, int points)
+{
+  const double bez_steps = 1.0/32.0; /* divide the t = [0,1] interval into 32 steps */
+  int b, i;
+  double t;
+  double xp, yp;
+  double x0, x1, x2, y0, y1, y2;
+
+  i = 0;
+  for(b = 0; b < points - 2; b++) {
+    if(points == 3) { /* 3 points: only one bezier */
+      x0 = x[0];
+      y0 = y[0];
+      x1 = x[1];
+      y1 = y[1];
+      x2 = x[2];
+      y2 = y[2];
+    } else if(b == points - 3) { /* last bezier */
+      x0 = (x[points - 3] + x[points - 2]) / 2.0;
+      y0 = (y[points - 3] + y[points - 2]) / 2.0;
+      x1 =  x[points - 2];
+      y1 =  y[points - 2];
+      x2 =  x[points - 1];
+      y2 =  y[points - 1];
+    } else if(b == 0) { /* first bezier */
+      x0 =  x[0];
+      y0 =  y[0];
+      x1 =  x[1];
+      y1 =  y[1];
+      x2 = (x[1] + x[2]) / 2.0;
+      y2 = (y[1] + y[2]) / 2.0;
+    } else { /* beziers in the middle */
+      x0 = (x[b] + x[b + 1]) / 2.0;
+      y0 = (y[b] + y[b + 1]) / 2.0;
+      x1 =  x[b + 1];
+      y1 =  y[b + 1];
+      x2 = (x[b + 1] + x[b + 2]) / 2.0;
+      y2 = (y[b + 1] + y[b + 2]) / 2.0;
+    }
+    for(t = 0; t <= 1.0; t += bez_steps) {
+      xp = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
+      yp = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * y2;
+      if(i==0) fprintf(fd, "NP\n%g %g MT\n",  X_TO_PS(xp), Y_TO_PS(yp));
+      else fprintf(fd, "%g %g LT\n",  X_TO_PS(xp), Y_TO_PS(yp));
+      i++;
+    }
+  }
+}
+
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
-static void ps_drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash)
+static void ps_drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, int flags)
 {
   double x1,y1,x2,y2;
   double xx, yy;
   double psdash;
-  int i;
+  int i, bezier;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_PS(x1);
   y1=Y_TO_PS(y1);
@@ -438,24 +487,26 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
-
   psdash = dash / xctx->zoom;
   if(dash) {
     fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
   }
-  for(i=0;i<points; ++i) {
-    xx = X_TO_PS(x[i]);
-    yy = Y_TO_PS(y[i]);
-    if(i==0) fprintf(fd, "NP\n%g %g MT\n", xx, yy);
-    else fprintf(fd, "%g %g LT\n", xx, yy);
+  bezier = flags && (points > 2);
+  if(bezier) {
+    ps_drawbezier(x, y, points);
+  } else {
+    for(i=0;i<points; ++i) {
+      xx = X_TO_PS(x[i]);
+      yy = Y_TO_PS(y[i]);
+      if(i==0) fprintf(fd, "NP\n%g %g MT\n", xx, yy);
+      else fprintf(fd, "%g %g LT\n", xx, yy);
+    }
   }
   if(xctx->fill_pattern && xctx->fill_type[c] && poly_fill) {
     fprintf(fd, "GS C F GR S\n");
   } else {
     fprintf(fd, "S\n");
   }
-
-
   if(dash) {
     fprintf(fd, "[] 0 setdash\n");
   }
@@ -782,7 +833,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
  xRect rect;
  xText text;
  xArc arc;
- xPoly polygon;
+ xPoly *polygon;
  xSymbol *symptr;
  char *textfont;
 
@@ -847,17 +898,18 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
   }
   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer]; ++j)
   {
-    polygon = ((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
+    polygon = &((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
     {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
-      int k;
-      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon.points);
-      for(k=0;k<polygon.points; ++k) {
-        ROTATION(rot, flip, 0.0,0.0,polygon.x[k],polygon.y[k],x[k],y[k]);
+      int k, bezier;
+      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+      for(k=0;k<polygon->points; ++k) {
+        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
       }
-      ps_drawpolygon(layer, NOW, x, y, polygon.points, polygon.fill, polygon.dash);
+      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+      ps_drawpolygon(layer, NOW, x, y, polygon->points, polygon->fill, polygon->dash, bezier);
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
@@ -1269,8 +1321,9 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
           xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
+        int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-          xctx->poly[c][i].fill, xctx->poly[c][i].dash);
+          xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
     } /* for(c=0;c<cadlayers; ++c) */
