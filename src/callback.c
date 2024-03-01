@@ -3164,6 +3164,7 @@ int rstate; /* (reduced state, without ShiftMask) */
                dbg(1, "selecting point %d\n", i);
                xctx->poly[polygon_c][polygon_n].selected_point[i] = 1;
                xctx->poly_point_selected = 1;
+               break;
            }
          }
          if(xctx->poly_point_selected) { 
