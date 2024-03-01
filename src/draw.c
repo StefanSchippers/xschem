@@ -1283,6 +1283,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
 {
  static int i=0;
  static XArc xarc[CADDRAWBUFFERSIZE];
+ static XRectangle xr[CADDRAWBUFFERSIZE];
  double x1, y1, x2, y2; /* arc bbox */
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
 
@@ -1293,6 +1294,7 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
   if(i>=CADDRAWBUFFERSIZE)
   {
    XDrawArcs(display, xctx->window, gc, xarc,i);
+   XDrawRectangles(display, xctx->window, gc, xr,i);
    i=0;
   }
   xx1=X_TO_SCREEN(x-r);
@@ -1312,6 +1314,10 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    xarc[i].height=(unsigned short)(yy2 - yy1);
    xarc[i].angle1 = (short)(a*64);
    xarc[i].angle2 = (short)(b*64);
+   xr[i].x=(short)x1;
+   xr[i].y=(short)y1;
+   xr[i].width=(unsigned short)(x2-xr[i].x);
+   xr[i].height=(unsigned short)(y2-xr[i].y);
    ++i;
   }
  }
@@ -1335,12 +1341,16 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
     } else {
       XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
                (int)(a*64), (int)(b*64));
+      XDrawRectangle(display, xctx->window, gc, (int)sx1, (int)sy1,
+        (unsigned int)x2 - (unsigned int)sx1,
+        (unsigned int)y2 - (unsigned int)sy1);
     }
   }
  }
  else if((what & END) && i)
  {
   XDrawArcs(display, xctx->window, gc, xarc,i);
+  XDrawRectangles(display, xctx->window, gc, xr,i);
   i=0;
  }
 }
@@ -1656,7 +1666,6 @@ void arc_bbox(double x, double y, double r, double a, double b,
       *by2 = y + r;
     }
   }
-  /* printf("arc_bbox(): bx1=%g by1=%g bx2=%g by2=%g\n", *bx1, *by1, *bx2, *by2); */
 }
 
 /* Convex Nonconvex Complex */
