@@ -1089,7 +1089,6 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   }
   if(xctx->arc[c][i].sel == SELECTED) set_first_sel(ARC, i, c);
 
-  /*if( xctx->arc[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->arc[c][i].sel = SELECTED; */
 
   xctx->need_reb_sel_arr=1;
 }
