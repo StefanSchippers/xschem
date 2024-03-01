@@ -47,12 +47,69 @@ static void find_closest_net(double mx,double my)
  }
 }
 
+static void find_closest_bezier(double mx, double my, int c, int i, int *l, int *col)
+{
+  const double bez_steps = 1.0/8.0; /* divide the t = [0,1] interval into 8 steps */
+  int b;
+  double t, t1, tmp;
+  double xp, yp, xp1, yp1;
+  double x0, x1, x2, y0, y1, y2;
+  double *x = xctx->poly[c][i].x;
+  double *y = xctx->poly[c][i].y;
+  int points = xctx->poly[c][i].points;
+
+  for(b = 0; b < points - 2; b++) {
+    if(points == 3) { /* 3 points: only one bezier */
+      x0 = x[0];
+      y0 = y[0];
+      x1 = x[1];
+      y1 = y[1];
+      x2 = x[2];
+      y2 = y[2];
+    } else if(b == points - 3) { /* last bezier */
+      x0 = (x[points - 3] + x[points - 2]) / 2.0;
+      y0 = (y[points - 3] + y[points - 2]) / 2.0;
+      x1 =  x[points - 2];
+      y1 =  y[points - 2];
+      x2 =  x[points - 1];
+      y2 =  y[points - 1];
+    } else if(b == 0) { /* first bezier */
+      x0 =  x[0];
+      y0 =  y[0];
+      x1 =  x[1];
+      y1 =  y[1];
+      x2 = (x[1] + x[2]) / 2.0;
+      y2 = (y[1] + y[2]) / 2.0;
+    } else { /* beziers in the middle */
+      x0 = (x[b] + x[b + 1]) / 2.0;
+      y0 = (y[b] + y[b + 1]) / 2.0;
+      x1 =  x[b + 1];
+      y1 =  y[b + 1];
+      x2 = (x[b + 1] + x[b + 2]) / 2.0;
+      y2 = (y[b + 1] + y[b + 2]) / 2.0;
+    }
+    for(t = 0; t < 1.0; t += bez_steps) {
+      xp = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
+      yp = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * y2;
+      t1 = t + bez_steps;
+      xp1 = (1 - t1) * (1 - t1) * x0 + 2 * (1 - t1) * t1 * x1 + t1 * t1 * x2;
+      yp1 = (1 - t1) * (1 - t1) * y0 + 2 * (1 - t1) * t1 * y1 + t1 * t1 * y2;
+      ORDER(xp, yp, xp1, yp1);
+      if( (tmp = dist(xp, yp, xp1, yp1, mx, my)) < distance )
+      {
+       *l = i; distance = tmp; *col = c;
+       dbg(1, "find_closest_bezier(): distance=%.16g  n=%d\n", distance, i);
+      }
+    }
+  }
+}
+
 static void find_closest_polygon(double mx,double my)
 /* returns the polygon that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
  double tmp;
- int i, c, j, l=-1, col = 0;
+ int i, c, j, l=-1, col = 0, bezier;
  double x1, y1, x2, y2;
  double threshold;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
@@ -61,17 +118,23 @@ static void find_closest_polygon(double mx,double my)
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->polygons[c]; ++i)
   {
-    /*fprintf(errfp, "points=%d\n", xctx->poly[c][i].points); */
-    for(j=0; j<xctx->poly[c][i].points-1; ++j) {
-      x1 = xctx->poly[c][i].x[j];
-      y1 = xctx->poly[c][i].y[j];
-      x2 = xctx->poly[c][i].x[j+1];
-      y2 = xctx->poly[c][i].y[j+1];
-      ORDER(x1,y1,x2,y2);
-      if( (tmp = dist(x1, y1, x2, y2, mx, my)) < distance )
-      {
-       l = i; distance = tmp;col = c;
-       dbg(1, "find_closest_polygon(): distance=%.16g  n=%d\n", distance, i);
+    bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+    bezier = bezier && (xctx->poly[c][i].points > 2);
+    
+    if(bezier) {
+       find_closest_bezier(mx, my, c, i, &l, &col);
+    } else {
+      for(j=0; j<xctx->poly[c][i].points-1; ++j) {
+        x1 = xctx->poly[c][i].x[j];
+        y1 = xctx->poly[c][i].y[j];
+        x2 = xctx->poly[c][i].x[j+1];
+        y2 = xctx->poly[c][i].y[j+1];
+        ORDER(x1,y1,x2,y2);
+        if( (tmp = dist(x1, y1, x2, y2, mx, my)) < distance )
+        {
+         l = i; distance = tmp;col = c;
+         dbg(1, "find_closest_polygon(): distance=%.16g  n=%d\n", distance, i);
+        }
       }
     }
   } /* end for i */
