@@ -1368,7 +1368,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* Unselect by area */
     if((state & Button1Mask)  && (SET_MODMASK) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN) && 
+       !(xctx->ui_state & STARTPAN) && !xctx->poly_point_selected &&
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
         select_rect(START,0);
@@ -1376,7 +1376,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) &&
-             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) &&
+             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->poly_point_selected &&
              !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
@@ -3148,6 +3148,7 @@ int rstate; /* (reduced state, without ShiftMask) */
           polygon_n = xctx->sel_array[0].n;
           polygon_c = xctx->sel_array[0].col;
        }
+       /* If no shift was pressed while Button1Press delete selection */
        if( !(state & ShiftMask) && !(SET_MODMASK) ) {
          unselect_all(1);
        }
@@ -3161,6 +3162,10 @@ int rstate; /* (reduced state, without ShiftMask) */
                POINTINSIDE(xctx->mousex, xctx->mousey, p->x[i] - ds, p->y[i] - ds, 
                              p->x[i] + ds, p->y[i] + ds)
              ) {
+
+               if( (state & ShiftMask) && !(SET_MODMASK) ) {
+                 unselect_all(1);
+               }
                dbg(1, "selecting point %d\n", i);
                xctx->poly[polygon_c][polygon_n].selected_point[i] = 1;
                xctx->poly_point_selected = 1;
@@ -3168,7 +3173,6 @@ int rstate; /* (reduced state, without ShiftMask) */
            }
          }
          if(xctx->poly_point_selected) { 
-           /* select_polygon(polygon_c, polygon_n, SELECTED1,1); */
            xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
            xctx->need_reb_sel_arr=1;
            move_objects(START,0,0,0);

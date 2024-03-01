@@ -904,6 +904,7 @@ void move_objects(int what, int merge, double dx, double dy)
   }
   if(what & RUBBER)                              /* abort operation */
   {
+   
    xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
@@ -1268,7 +1269,7 @@ void move_objects(int what, int merge, double dx, double dy)
    set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
    draw();
    xctx->rotatelocal=0;
-  }
+  } /* what & end */
   draw_selection(xctx->gc[SELLAYER], 0);
   if(tclgetboolvar("draw_crosshair")) draw_crosshair(0);
 }
