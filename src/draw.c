@@ -1342,8 +1342,8 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
       XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
                (int)(a*64), (int)(b*64));
       XDrawRectangle(display, xctx->window, gc, (int)sx1, (int)sy1,
-        (unsigned int)x2 - (unsigned int)sx1,
-        (unsigned int)y2 - (unsigned int)sy1);
+        (unsigned int)sx2 - (unsigned int)sx1,
+        (unsigned int)sy2 - (unsigned int)sy1);
     }
   }
  }
