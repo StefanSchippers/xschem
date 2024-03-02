@@ -1770,7 +1770,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   }
   fill = xctx->fill_pattern && xctx->fill_type[c] &&
          poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1]);
-  bezier = flags && (points > 2);
+  bezier = (flags & 1)  && (points > 2);
   if(dash) {
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = (char)dash;
@@ -1803,6 +1803,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   my_free(_ALLOC_ID_, &p);
 }
 
+/* flags: bit 0: bezier
+ *        bit 1: draw control point circles */
 void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flags)
 {
   double x1,y1,x2,y2;
@@ -1810,7 +1812,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
   XPoint *p;
   int i;
   short sx, sy;
-  int bezier;
+  int bezier, drawpoints;
   if(!has_x) return;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   sx1=X_TO_SCREEN(x1);
@@ -1819,14 +1821,15 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
   sy2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) ) {
 
-    bezier = flags  && (points > 2);
+    bezier = (flags & 1)   && (points > 2);
+    drawpoints = (flags & 2);
     if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
           x1 - xctx->cadhalfdotsize, y1 - xctx->cadhalfdotsize,
           x2 + xctx->cadhalfdotsize, y2 + xctx->cadhalfdotsize,
           x1 - xctx->cadhalfdotsize, y1 - xctx->cadhalfdotsize, xctx->lw);
     } else {
-      if(gc == xctx->gc[SELLAYER] || gc == xctx->gctiled ) for(i = 0; i < points; i++) {
+      if(drawpoints && (gc == xctx->gc[SELLAYER] || gc == xctx->gctiled) ) for(i = 0; i < points; i++) {
         if( POINTINSIDE(X_TO_SCREEN(x[i]), Y_TO_SCREEN(y[i]), xctx->areax1, xctx->areay1,
                xctx->areax2, xctx->areay2)) {
           drawtemparc(gc, NOW, x[i], y[i], xctx->cadhalfdotsize, 0., 360.);
@@ -4222,7 +4225,7 @@ void draw(void)
       if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
         xPoly *p = &xctx->poly[c][i];
-        bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
+        bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
         drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash, bezier);
       }
       if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
@@ -4400,7 +4403,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
   int intlw = INT_WIDTH(lw);
-  dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g)\n", sx1, sy1, sx2, sy2);
+  dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g, intlw=%d)\n", sx1, sy1, sx2, sy2, intlw);
   isx1=X_TO_SCREEN(sx1) - 2 * intlw;
   isy1=Y_TO_SCREEN(sy1) - 2 * intlw;
   isx2=X_TO_SCREEN(sx2) + 2 * intlw;

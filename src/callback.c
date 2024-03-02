@@ -3134,7 +3134,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        break;
      }
      /* Button1Press to select objects */
-     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE)  ) {
+     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
        Selected sel;
        int prev_last_sel = xctx->lastsel;
        int polygon_n = -1, polygon_c = -1;
@@ -3149,10 +3149,10 @@ int rstate; /* (reduced state, without ShiftMask) */
           polygon_c = xctx->sel_array[0].col;
        }
        /* If no shift was pressed while Button1Press delete selection */
-       if( !(state & ShiftMask) && !(SET_MODMASK) ) {
+       if( !(state & (ShiftMask | ControlMask)) && !(SET_MODMASK) ) {
          unselect_all(1);
        }
-       /* Check is user is clicking a control point of a polygon */
+       /* polygon point: Check is user is clicking a control point of a polygon */
        if(polygon_n >= 0) {
          int i;
          double ds = xctx->cadhalfdotsize;
@@ -3173,11 +3173,58 @@ int rstate; /* (reduced state, without ShiftMask) */
            }
          }
          if(xctx->poly_point_selected) { 
-           xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
-           xctx->need_reb_sel_arr=1;
-           move_objects(START,0,0,0);
-          }
-       }
+           int j;
+           int c = polygon_c;
+           int n = polygon_n;
+           int points = xctx->poly[c][n].points;
+
+           /* add a new polygon/bezier point after selected one and start moving it*/
+           if(state & ShiftMask) {
+             xctx->push_undo();
+             points++;
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].x, sizeof(double) * points);
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].y, sizeof(double) * points);
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].selected_point, sizeof(unsigned short) * points);
+             xctx->poly[c][n].selected_point[i] = 0;
+             for(j = points - 2; j > i; j--) {
+               xctx->poly[c][n].x[j + 1] = xctx->poly[c][n].x[j];
+               xctx->poly[c][n].y[j + 1] = xctx->poly[c][n].y[j];
+               xctx->poly[c][n].selected_point[j + 1] = xctx->poly[c][n].selected_point[j];
+             }
+             xctx->poly[c][n].selected_point[i + 1] = 1;
+             xctx->poly[c][n].x[i + 1] = xctx->poly[c][n].x[i];
+             xctx->poly[c][n].y[i + 1] = xctx->poly[c][n].y[i];
+             xctx->poly[c][n].points = points;
+             xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
+             xctx->need_reb_sel_arr=1;
+             move_objects(START,0,0,0);
+           }
+           /* delete polygon/bezier selected point */
+           else if(points > 2 && state & ControlMask) {
+             xctx->push_undo();
+             points--;
+             for(j = i ; j < points ; j++) {
+                xctx->poly[c][n].x[j] = xctx->poly[c][n].x[j + 1];
+                xctx->poly[c][n].y[j] = xctx->poly[c][n].y[j + 1];
+                xctx->poly[c][n].selected_point[j] = xctx->poly[c][n].selected_point[j + 1];
+             }
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].x, sizeof(double) * points);
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].y, sizeof(double) * points);
+             my_realloc(_ALLOC_ID_, &xctx->poly[c][n].selected_point, sizeof(unsigned short) * points);
+             xctx->poly[c][n].points = points;
+             xctx->poly[polygon_c][polygon_n].sel = SELECTED;
+             xctx->need_reb_sel_arr=1;
+             #ifdef __unix__
+             draw_selection(xctx->gc[SELLAYER], 0);
+             #endif
+           } else if(!(state & (ControlMask | ShiftMask))){
+             xctx->push_undo();
+             xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
+             xctx->need_reb_sel_arr=1;
+             move_objects(START,0,0,0);
+           }
+         } /* if(xctx->poly_point_selected) */
+       } /* if(polygon_n >= 0) */
        if(!xctx->poly_point_selected) {
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        }
@@ -3185,24 +3232,22 @@ int rstate; /* (reduced state, without ShiftMask) */
        #ifndef __unix__
        draw_selection(xctx->gc[SELLAYER], 0);
        #endif
-       if(sel.type && state == ControlMask) {
+       /* control-click on an instance: execute command */
+       if(sel.type && state == ControlMask && !xctx->poly_point_selected) {
          int savesem = xctx->semaphore;
          xctx->semaphore = 0;
          launcher();
          xctx->semaphore = savesem;
        }
-       if( !(state & ShiftMask) )  {
-         if(tclgetboolvar("auto_hilight") && xctx->hilight_nets && sel.type == 0 ) {
+       if(tclgetboolvar("auto_hilight") && !xctx->poly_point_selected) {
+         if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
            if(!prev_last_sel) {
              redraw_hilights(1); /* 1: clear all hilights, then draw */
            }
          }
-       }
-       if(tclgetboolvar("auto_hilight")) {
          hilight_net(0);
          if(xctx->lastsel) {
            redraw_hilights(0);
-           /* draw_hilight_net(1); */
          }
        }
        break;
@@ -3220,6 +3265,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         int c = xctx->sel_array[0].col;
         move_objects(END,0,0,0);
         xctx->poly[c][n].sel = SELECTED;
+        xctx->poly_point_selected = 0;
         for(k=0; k<xctx->poly[c][n].points; ++k) {
           xctx->poly[c][n].selected_point[k] = 0;
         }

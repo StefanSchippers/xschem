@@ -867,7 +867,7 @@ void unselect_all(int dr)
       if(xctx->poly[c][i].sel)
       {
        int k;
-       int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+       int bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
        for(k=0;k<xctx->poly[c][i].points; ++k) xctx->poly[c][i].selected_point[k] = 0;
        xctx->poly[c][i].sel = 0;
        if(dr) {
@@ -1108,7 +1108,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
    my_snprintf(str, S(str), "n=%4d x0 = %.16g  y0 = %.16g ...", i, xctx->poly[c][i].x[0], xctx->poly[c][i].y[0]);
    statusmsg(str,1);
   }
-  bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+  bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
     drawtemppolygon(xctx->gc[SELLAYER], NOW,

@@ -1715,21 +1715,30 @@ void launcher(void)
 {
   const char *url;
   char program[PATH_MAX];
-  int n;
+  int n, c;
+  char *prop_ptr;
   rebuild_selected_array();
   tcleval("update");
-  if(xctx->lastsel ==1 && xctx->sel_array[0].type==ELEMENT)
+  if(xctx->lastsel ==1)
   {
     double mx=xctx->mousex, my=xctx->mousey;
-    /* select_object(mx,my,SELECTED, 0); */
     n=xctx->sel_array[0].n;
-    my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"program",0), S(program)); /* handle backslashes */
-    url = get_tok_value(xctx->inst[n].prop_ptr,"url",0); /* handle backslashes */
+    c=xctx->sel_array[0].col;
+    if     (xctx->sel_array[0].type==ELEMENT) prop_ptr = xctx->inst[n].prop_ptr;
+    else if(xctx->sel_array[0].type==xRECT)   prop_ptr = xctx->rect[c][n].prop_ptr;
+    else if(xctx->sel_array[0].type==POLYGON) prop_ptr = xctx->poly[c][n].prop_ptr;
+    else if(xctx->sel_array[0].type==ARC)     prop_ptr = xctx->arc[c][n].prop_ptr;
+    else if(xctx->sel_array[0].type==LINE)    prop_ptr = xctx->line[c][n].prop_ptr;
+    else if(xctx->sel_array[0].type==WIRE)    prop_ptr = xctx->wire[n].prop_ptr;
+    else if(xctx->sel_array[0].type==xTEXT)   prop_ptr = xctx->text[n].prop_ptr;
+    /* select_object(mx,my,SELECTED, 0); */
+    my_strncpy(program, get_tok_value(prop_ptr,"program",0), S(program)); /* handle backslashes */
+    url = get_tok_value(prop_ptr,"url",0); /* handle backslashes */
     dbg(1, "launcher(): url=%s\n", url);
     if(url[0] || (program[0])) { /* open url with appropriate program */
       tclvareval("launcher {", url, "} {", program, "}", NULL);
     } else {
-      my_strncpy(program, get_tok_value(xctx->inst[n].prop_ptr,"tclcommand",0), S(program));
+      my_strncpy(program, get_tok_value(prop_ptr,"tclcommand",0), S(program));
       if(program[0]) { /* execute tcl command */
         tcleval(program);
       }
@@ -2818,12 +2827,13 @@ void draw_stuff(void)
 static void restore_selection(double x1, double y1, double x2, double y2)
 {
   double xx1,yy1,xx2,yy2;
+  int intlw = 2 * INT_WIDTH(xctx->lw) + (int)xctx->cadhalfdotsize;
   xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
   RECTORDER(xx1,yy1,xx2,yy2);
   rebuild_selected_array();
   if(!xctx->lastsel) return;
   bbox(START,0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, xx1-xctx->lw, yy1-xctx->lw, xx2+xctx->lw, yy2+xctx->lw);
+  bbox(ADD, xx1 - intlw, yy1 - intlw, xx2 + intlw, yy2 + intlw);
   bbox(SET,0.0, 0.0, 0.0, 0.0);
   draw_selection(xctx->gc[SELLAYER], 0);
   bbox(END,0.0, 0.0, 0.0, 0.0);
@@ -3106,7 +3116,8 @@ void new_arc(int what, double sweep)
       arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
-      if(xctx->nl_r>0.) drawtemparc(xctx->gc[xctx->rectcolor], NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
+      if(xctx->nl_r>0.) drawtemparc(xctx->gc[xctx->rectcolor], NOW,
+           xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
     }
   }
 }
@@ -3264,6 +3275,7 @@ void new_rect(int what)
    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+   restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
    xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
    xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3291,11 +3303,16 @@ void new_polygon(int what)
      xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[xctx->nl_points-1];
      /* fprintf(errfp, "added point: %.16g %.16g\n", xctx->nl_polyx[xctx->nl_points-1],
          xctx->nl_polyy[xctx->nl_points-1]); */
+     xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
      xctx->ui_state |= STARTPOLYGON;
      set_modify(1);
    }
    if( what & ADD)
    {
+     if(xctx->mousex_snap < xctx->nl_x1) xctx->nl_x1 = xctx->mousex_snap;
+     if(xctx->mousex_snap > xctx->nl_x2) xctx->nl_x2 = xctx->mousex_snap;
+     if(xctx->mousey_snap < xctx->nl_y1) xctx->nl_y1 = xctx->mousey_snap;
+     if(xctx->mousey_snap > xctx->nl_y2) xctx->nl_y2 = xctx->mousey_snap;
      /* closed poly */
      if(what & END) {
        /* delete last rubber */
@@ -3333,10 +3350,16 @@ void new_polygon(int what)
    }
    if(what & RUBBER)
    {
+     if(xctx->mousex_snap < xctx->nl_x1) xctx->nl_x1 = xctx->mousex_snap;
+     if(xctx->mousex_snap > xctx->nl_x2) xctx->nl_x2 = xctx->mousex_snap;
+     if(xctx->mousey_snap < xctx->nl_y1) xctx->nl_y1 = xctx->mousey_snap;
+     if(xctx->mousey_snap > xctx->nl_y2) xctx->nl_y2 = xctx->mousey_snap;
      /* fprintf(errfp, "new_poly: RUBBER\n"); */
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
      xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
+     restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+     /* xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap; */
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
    }
 }

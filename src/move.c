@@ -308,7 +308,7 @@ void draw_selection(GC g, int interruptable)
       int bezier;
       double *x = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
       double *y = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
-      bezier = !strboolcmp(get_tok_value(xctx->poly[c][n].prop_ptr, "bezier", 0), "true");
+      bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][n].prop_ptr, "bezier", 0), "true");
       if(xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].sel==SELECTED1) {
         for(k=0;k<xctx->poly[c][n].points; ++k) {
           if( xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].selected_point[k]) {
@@ -928,9 +928,10 @@ void move_objects(int what, int merge, double dx, double dy)
    int firsti, firstw;
  
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
-   /* no undo push for MERGE ad PLACE, already done before */
-   if( !xctx->kissing && !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
-     dbg(1, "move_objects(): push undo state\n");
+   /* no undo push for MERGE ad PLACE and polygon point drag, already done before */
+   if(!xctx->poly_point_selected && !xctx->kissing && 
+      !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
+     dbg(1, "move_objects(END): push undo state\n");
      xctx->push_undo();
    }
    if((xctx->ui_state & PLACE_SYMBOL)) {
