@@ -428,6 +428,18 @@ void draw_selection(GC g, int interruptable)
      if(xctx->arc[c][n].sel==SELECTED) {
        drawtemparc(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->arc[c][n].r, angle, xctx->arc[c][n].b);
+     } else if(xctx->arc[c][n].sel==SELECTED1) {
+       drawtemparc(g, ADD, xctx->rx1, xctx->ry1,
+                fabs(xctx->arc[c][n].r+xctx->deltax), angle, xctx->arc[c][n].b);
+     } else if(xctx->arc[c][n].sel==SELECTED3) {
+       angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+xctx->arc[c][n].b, 360.));
+       if(angle<0.) angle +=360.;
+       if(angle==0) angle=360.;
+       drawtemparc(g, ADD, xctx->rx1, xctx->ry1, xctx->arc[c][n].r, xctx->arc[c][n].a, angle);
+     } else if(xctx->arc[c][n].sel==SELECTED2) {
+       angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+angle, 360.));
+       if(angle<0.) angle +=360.;
+       drawtemparc(g, ADD, xctx->rx1, xctx->ry1, xctx->arc[c][n].r, angle, xctx->arc[c][n].b);
      }
      break;
     case ELEMENT:
@@ -1097,12 +1109,30 @@ void move_objects(int what, int merge, double dx, double dy)
        }
        angle = fmod(angle, 360.);
        if(angle<0.) angle+=360.;
- 
        if(xctx->arc[c][n].sel == SELECTED) {
          xctx->arc[c][n].x = xctx->rx1+xctx->deltax;
          xctx->arc[c][n].y = xctx->ry1+xctx->deltay;
          xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel == SELECTED1) {
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         if(xctx->arc[c][n].r+xctx->deltax) xctx->arc[c][n].r = fabs(xctx->arc[c][n].r+xctx->deltax);
+         xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel == SELECTED2) {
+         angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+angle, 360.));
+         if(angle<0.) angle +=360.;
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         xctx->arc[c][n].a = angle;
+       } else if(xctx->arc[c][n].sel==SELECTED3) {
+         angle = my_round(fmod(atan2(-xctx->deltay, xctx->deltax)*180./XSCH_PI+xctx->arc[c][n].b, 360.));
+         if(angle<0.) angle +=360.;
+         if(angle==0) angle=360.;
+         xctx->arc[c][n].x = xctx->rx1;
+         xctx->arc[c][n].y = xctx->ry1;
+         xctx->arc[c][n].b = angle;
        }
+
        break;
  
       case xRECT:

@@ -904,8 +904,8 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
     fclose(fd);
     if(has_x) {
       if(sch_waves_loaded() >= 0) {
-        tclvareval("set tctx::", xctx->current_win_path, "_waves LightGreen", NULL);
-        tclvareval(xctx->top_path, ".menubar.waves configure -bg LightGreen", NULL);
+        tclvareval("set tctx::", xctx->current_win_path, "_waves Green", NULL);
+        tclvareval(xctx->top_path, ".menubar.waves configure -bg Green", NULL);
       } else {
         tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
         tclvareval(xctx->top_path, ".menubar.waves configure -bg $simulate_bg", NULL);

@@ -2909,8 +2909,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } else {
         if(has_x) {
-          tclvareval(xctx->top_path, ".menubar.netlist configure -bg LightGreen", NULL);
-          tclvareval("set tctx::", xctx->current_win_path, "_netlist LightGreen", NULL);
+          tclvareval(xctx->top_path, ".menubar.netlist configure -bg Green", NULL);
+          tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
         }
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);

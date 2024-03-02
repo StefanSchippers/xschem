@@ -512,10 +512,14 @@ proc list_running_cmds {} {
   pack  $lb -side bottom  -fill both -expand true
 
   bind $lb <Double-Button-1> [list $frame3.b3 invoke]
-  button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" -bg yellow
-  button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" -bg red
-  button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" -bg PaleGreen
-  button $frame3.b4 -width 16 -text {Dismiss} -bg PaleGreen -command "
+  button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" \
+    -fg black -background yellow
+  button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" \
+    -fg black -background red
+  button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" \
+    -fg black -background PaleGreen
+  button $frame3.b4 -width 16 -text {Dismiss} \
+    -fg black -background PaleGreen -command "
     if {\[winfo exists .pstat\]} {
       after cancel [list update_process_status $lb]
       destroy .pstat
@@ -837,14 +841,14 @@ proc netlist {source_file show netlist_file} {
  global verilog_2001 debug_var OS has_x verilog_bitblast
 
  regsub {/$} $netlist_dir {} netlist_dir
- # if waves are loaded turn Waves button to yellow to indicate old waves are shown
+ # if waves are loaded turn Waves button to orange to indicate old waves are shown
  set win_path [xschem get current_win_path]
  set top_path [xschem get top_path]
  set waves_var tctx::${win_path}_waves
  set waves_button $top_path.menubar.waves
  if {[info exists has_x] && $waves_var ne $simulate_bg} {
-   set $waves_var yellow
-   $waves_button configure -bg yellow
+   set $waves_var orange
+   $waves_button configure -background orange
  }
  
  set netlist_type [xschem get netlist_type]
@@ -1581,7 +1585,7 @@ proc simconf {} {
   set toggle 0
   foreach tool $sim(tool_list) {
     frame ${scrollframe}.center.$tool
-    label ${scrollframe}.center.$tool.l -width 12 -text $tool  -bg $bg($toggle)
+    label ${scrollframe}.center.$tool.l -width 12 -text $tool  -background $bg($toggle) -fg black 
     frame ${scrollframe}.center.$tool.r
     pack ${scrollframe}.center.$tool -fill both -expand yes
     pack ${scrollframe}.center.$tool.l -fill y -side left
@@ -1589,13 +1593,16 @@ proc simconf {} {
     for {set i 0} { $i < $sim($tool,n)} {incr i} {
       frame ${scrollframe}.center.$tool.r.$i
       pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
-      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 -bg $bg($toggle)
-      radiobutton ${scrollframe}.center.$tool.r.$i.radio -bg $bg($toggle) \
+      entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 \
+         -background $bg($toggle) -fg black
+      radiobutton ${scrollframe}.center.$tool.r.$i.radio -background $bg($toggle) -fg black \
          -variable sim($tool,default) -value $i
-      text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -bg $bg($toggle)
+      text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -background $bg($toggle) -fg black
       ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
-      checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) -bg $bg($toggle)
-      checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) -bg $bg($toggle)
+      checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) \
+        -background $bg($toggle) -fg black
+      checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) \
+        -background $bg($toggle) -fg black
       pack ${scrollframe}.center.$tool.r.$i.lab -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.radio -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.cmd -side left -fill x -expand yes
@@ -1935,9 +1942,9 @@ proc sim_cmd {cmd} {
 proc simulate_from_button {{callback {}}} {
    global simulate_bg
    set simvar tctx::[xschem get current_win_path]_simulate
-   if {![info exists $simvar] || [set $simvar] ne {yellow}} {
+   if {![info exists $simvar] || [set $simvar] ne {orange}} {
      simulate $callback
-   } elseif {[info exists $simvar] && [set $simvar] eq {yellow}} {
+   } elseif {[info exists $simvar] && [set $simvar] eq {orange}} {
      set simulate_id tctx::[xschem get current_win_path]_simulate_id
      if { [info exists $simulate_id] } {
        set id [set $simulate_id]
@@ -1946,7 +1953,7 @@ proc simulate_from_button {{callback {}}} {
          # something went wrong. Forget about the process
          unset tctx::[xschem get current_win_path]_simulate_id
          set tctx::[xschem get current_win_path]_simulate $simulate_bg
-         [xschem get top_path].menubar.simulate configure -bg $simulate_bg
+         [xschem get top_path].menubar.simulate configure -background $simulate_bg
        }
      }
    }
@@ -2019,8 +2026,8 @@ proc simulate {{callback {}}} {
     if {[info exists has_x] && $id >= 0 } {
       set tctx::[xschem get current_win_path]_simulate_id $id
       set button_path [xschem get top_path].menubar.simulate
-      $button_path configure -bg yellow
-      set tctx::[xschem get current_win_path]_simulate yellow
+      $button_path configure -background orange
+      set tctx::[xschem get current_win_path]_simulate orange
     }
 
     puts "Simulation started: execution ID: $id"
@@ -2223,7 +2230,7 @@ proc graph_edit_wave {n n_wave} {
   }
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
   for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.f.r$i -value $i -bg [lindex $tctx::colors $i] \
+    radiobutton .graphdialog.f.r$i -value $i -background [lindex $tctx::colors $i] \
          -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
     pack .graphdialog.f.r$i -side left -fill both -expand yes
   }
@@ -2732,7 +2739,7 @@ proc graph_edit_properties {n} {
   }
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
-  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -bg grey70 -fg black \
+  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -background grey70 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
      -xscrollcommand {.graphdialog.center.right.xscroll set}
@@ -2800,7 +2807,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.cancel -side left
 
   for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.bottom.r$i -value $i -bg [lindex $tctx::colors $i] \
+    radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
       -variable graph_sel_color -command graph_change_wave_color
     pack .graphdialog.bottom.r$i -side left
   }
@@ -3122,8 +3129,8 @@ proc graph_show_measure {{action show}} {
   if {$action eq {stop}} { return }
   set measure_id [after 400 {
     unset measure_id
-    toplevel .measure -bg {}
-    label .measure.lab -text $measure_text -bg black -fg yellow -justify left
+    toplevel .measure -background {}
+    label .measure.lab -text $measure_text -background black -fg yellow -justify left
     pack .measure.lab
     wm overrideredirect .measure 1
     wm geometry .measure +[expr {[winfo pointerx .measure] +10}]+[expr {[winfo pointery .measure] -8}]
@@ -3348,7 +3355,7 @@ proc display {} {
     }
     set i $c_t(top)
     button $w.title -text Recent -pady 0 -padx 0 -state disabled -disabledforeground black \
-      -background grey60 -highlightthickness 0 -borderwidth 0 -font {TkDefaultFont 12 bold}
+      -background grey60 -borderwidth 0 -font {TkDefaultFont 12 bold}
     pack $w.title -side top -fill x
     while {1} {
       button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -takefocus 0
@@ -3704,7 +3711,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
   frame .load.l.paneleft -takefocus 0
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
-    -highlightcolor red -highlightthickness 2 \
+    -fg black -background {#d9d9d9} -highlightcolor red -highlightthickness 2 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3739,8 +3746,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 
 
-  listbox .load.l.paneright.f.list  -listvariable file_dialog_files2 -width 20 -height 12\
-    -highlightcolor red -highlightthickness 2 \
+  listbox .load.l.paneright.f.list  -background {#d9d9d9} -listvariable file_dialog_files2 -width 20 -height 12\
+    -fg black -background {#d9d9d9} -highlightcolor red -highlightthickness 2 \
     -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
@@ -3843,12 +3850,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   #     }
 
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
-  label .load.buttons.mkdirlab -text { New dir: } -fg blue
+  label .load.buttons.mkdirlab -text { New dir: } 
   entry .load.buttons.newdir -width 16 -takefocus 0
-  button .load.buttons.mkdir -width 5 -text Create -fg blue -takefocus 0 -command { 
+  button .load.buttons.mkdir -width 5 -text Create -takefocus 0 -command { 
     load_file_dialog_mkdir [.load.buttons.newdir get]
   }
-  button .load.buttons.rmdir -width 5 -text Delete -fg blue -takefocus 0 -command { 
+  button .load.buttons.rmdir -width 5 -text Delete -takefocus 0 -command { 
     if { [.load.buttons.newdir get] ne {} } {
       file delete "${file_dialog_dir1}/[.load.buttons.newdir get]"
       setglob ${file_dialog_dir1}
@@ -6061,12 +6068,12 @@ proc balloon_show {w arg pos} {
     if {[eval winfo containing  [winfo pointerxy .]]!=$w} {return}
     set top $w.balloon
     catch {destroy $top}
-    toplevel $top -bd 1 -bg black
+    toplevel $top -bd 1 -background black
     wm overrideredirect $top 1
     if {[string equal [tk windowingsystem] aqua]}  {
         ::tk::unsupported::MacWindowStyle style $top help none
     }   
-    pack [message $top.txt -aspect 10000 -bg lightyellow \
+    pack [message $top.txt -aspect 10000 -background lightyellow \
         -font fixed -text $arg]
     if { $pos } {
       set wmx [winfo rootx $w]
@@ -6095,84 +6102,84 @@ proc context_menu { } {
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   if { !$selection} {
     button .ctxmenu.b9 -text {Open most recent} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuRecent -compound left \
+       -image CtxmenuRecent -compound left \
       -font [subst $font] -command {set retval 9; destroy .ctxmenu} 
   }
   button .ctxmenu.b10 -text {Edit attributes} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -image CtxmenuEdit -compound left \
     -font [subst $font] -command {set retval 10; destroy .ctxmenu}
   button .ctxmenu.b11 -text {Edit attr in editor} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuEdit -compound left \
+     -image CtxmenuEdit -compound left \
     -font [subst $font] -command {set retval 11; destroy .ctxmenu}
   if {$selection} {
     button .ctxmenu.b12 -text {Descend schematic} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuDown -compound left \
+     -image CtxmenuDown -compound left \
       -font [subst $font] -command {set retval 12; destroy .ctxmenu}
     button .ctxmenu.b13 -text {Descend symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuDownSym -compound left \
+     -image CtxmenuDownSym -compound left \
       -font [subst $font] -command {set retval 13; destroy .ctxmenu}
     button .ctxmenu.b18 -text {Delete selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuDelete -compound left \
+     -image CtxmenuDelete -compound left \
       -font [subst $font] -command {set retval 18; destroy .ctxmenu}
     button .ctxmenu.b7 -text {Cut selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuCut -compound left \
+     -image CtxmenuCut -compound left \
       -font [subst $font] -command {set retval 7; destroy .ctxmenu}
     button .ctxmenu.b15 -text {Copy selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuCopy -compound left \
+     -image CtxmenuCopy -compound left \
       -font [subst $font] -command {set retval 15; destroy .ctxmenu}
     button .ctxmenu.b16 -text {Move selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuMove -compound left \
+       -image CtxmenuMove -compound left \
       -font [subst $font] -command {set retval 16; destroy .ctxmenu}
     button .ctxmenu.b17 -text {Duplicate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuDuplicate -compound left \
+       -image CtxmenuDuplicate -compound left \
       -font [subst $font] -command {set retval 17; destroy .ctxmenu}
     button .ctxmenu.b22 -text {Rotate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuRotate -compound left \
+       -image CtxmenuRotate -compound left \
       -font [subst $font] -command {xschem rotate; destroy .ctxmenu}
     button .ctxmenu.b23 -text {Flip selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuFlip -compound left \
+       -image CtxmenuFlip -compound left \
       -font [subst $font] -command {xschem flip; destroy .ctxmenu}
     button .ctxmenu.b24 -text {Rotate in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuRotate -compound left \
+       -image CtxmenuRotate -compound left \
       -font [subst $font] -command {xschem rotate_in_place; destroy .ctxmenu}
     button .ctxmenu.b25 -text {Flip in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuFlip -compound left \
+       -image CtxmenuFlip -compound left \
       -font [subst $font] -command {xschem flip_in_place; destroy .ctxmenu}
   }
   if {!$selection} {
     button .ctxmenu.b14 -text {Go to upper level} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuUp -compound left \
+       -image CtxmenuUp -compound left \
       -font [subst $font] -command {set retval 14; destroy .ctxmenu}
     button .ctxmenu.b1 -text {Insert symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuSymbol -compound left \
+       -image CtxmenuSymbol -compound left \
       -font [subst $font] -command {set retval 1; destroy .ctxmenu}
     button .ctxmenu.b2 -text {Insert wire} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuWire -compound left \
+       -image CtxmenuWire -compound left \
       -font [subst $font] -command {set retval 2; destroy .ctxmenu}
     button .ctxmenu.b3 -text {Insert line} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuLine -compound left \
+       -image CtxmenuLine -compound left \
       -font [subst $font] -command {set retval 3; destroy .ctxmenu}
     button .ctxmenu.b4 -text {Insert box} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuBox -compound left \
+       -image CtxmenuBox -compound left \
       -font [subst $font] -command {set retval 4; destroy .ctxmenu}
     button .ctxmenu.b5 -text {Insert polygon} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuPoly -compound left \
+       -image CtxmenuPoly -compound left \
       -font [subst $font] -command {set retval 5; destroy .ctxmenu}
     button .ctxmenu.b19 -text {Insert arc} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuArc -compound left \
+       -image CtxmenuArc -compound left \
       -font [subst $font] -command {set retval 19; destroy .ctxmenu}
     button .ctxmenu.b20 -text {Insert circle} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuCircle -compound left \
+       -image CtxmenuCircle -compound left \
       -font [subst $font] -command {set retval 20; destroy .ctxmenu}
     button .ctxmenu.b6 -text {Insert text} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuText -compound left \
+       -image CtxmenuText -compound left \
       -font [subst $font] -command {set retval 6; destroy .ctxmenu}
     button .ctxmenu.b8 -text {Paste selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuPaste -compound left \
+       -image CtxmenuPaste -compound left \
       -font [subst $font] -command {set retval 8; destroy .ctxmenu}
   }
   button .ctxmenu.b21 -text {Abort command} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuAbort -compound left \
+     -image CtxmenuAbort -compound left \
     -font [subst $font] -command {set retval 21; destroy .ctxmenu}
 
   pack .ctxmenu.b21 -fill x -expand true
@@ -6376,35 +6383,35 @@ proc tab_context_menu {tab_but} {
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   button .ctxmenu.b0 -text {Tab menu} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -fg black -bg white -highlightthickness 0 -state disabled -disabledforeground black -font [subst $font]
+     -fg black -background white -state disabled -disabledforeground black -font [subst $font]
   button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuCopy -compound left \
+     -image CtxmenuCopy -compound left \
     -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuOpendir -compound left \
+     -image CtxmenuOpendir -compound left \
     -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
   button .ctxmenu.b3 -text {Open circuit dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuTerm -compound left \
+     -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Open sim. dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuTerm -compound left \
+     -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image $img -compound left \
+       -image $img -compound left \
       -font [subst $font] \
       -command "set retval 6; tab_ctx_cmd $tab_but {open {$counterpart} $filetype} ; destroy .ctxmenu"
   }
   if {$filetype ne {symbol}} {
     button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -highlightthickness 0 -image CtxmenuEdit -compound left \
+       -image CtxmenuEdit -compound left \
       -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   }
   button .ctxmenu.b7 -text {Save} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuSave -compound left \
+     -image CtxmenuSave -compound left \
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
   button .ctxmenu.b8 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -highlightthickness 0 -image CtxmenuDelete -compound left \
+     -image CtxmenuDelete -compound left \
     -font [subst $font] -command "set retval 8; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
   pack .ctxmenu.b0 -fill x -expand true
@@ -6499,10 +6506,10 @@ proc setup_toolbar {} {
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -bg white 
+       frame $topwin.toolbar -relief raised -bd 0 -background white 
     }
-    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -bg white -fg white -height 24 \
-    -padx 0 -pady 0  -highlightthickness 0 -command $cmd
+    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background white -fg white -height 24 \
+    -padx 0 -pady 0 -command $cmd
     if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
 }
 
@@ -6516,7 +6523,7 @@ proc toolbar_show { { topwin {} } } {
     # puts "toolbar_show: $topwin"
     set toolbar_visible 1
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -bg white 
+       frame $topwin.toolbar -relief raised -bd 0 -background white 
     }
     if {[winfo ismapped $topwin.toolbar]} {return}
     if { $toolbar_horiz } { 
@@ -6535,10 +6542,10 @@ proc toolbar_show { { topwin {} } } {
     foreach b $toolbar_list {
         if { $b == "---" } {
             if { $toolbar_horiz } {
-                frame $topwin.toolbar.sep$toolbar_sepn -bg lightgrey -width 2
+                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -width 2
                 pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 1 -pady 0 -fill y
             } else {
-                frame $topwin.toolbar.sep$toolbar_sepn -bg lightgrey -height 2
+                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -height 2
                 pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 0 -pady 1 -fill x
             }
             incr toolbar_sepn
@@ -6600,7 +6607,8 @@ proc setup_tabbed_interface {} {
       bind .tabs.x0 <ButtonPress-3> {tab_context_menu %W}
       bind .tabs.x0 <ButtonPress-1> {swap_tabs %X %Y press}
       bind .tabs.x0 <ButtonRelease-1> {swap_tabs %X %Y release}
-      button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } -command "xschem new_schematic create"
+      button .tabs.add -padx 0 -pady 0  -takefocus 0 -text { + } \
+          -command "xschem new_schematic create"
       pack .tabs.x0 .tabs.add -side left
       balloon .tabs.add {Create a new tab}
       pack_tabs
@@ -6716,17 +6724,23 @@ proc next_tab {} {
 }
 
 proc set_tab_names {{mod {}}} {
-  global tabbed_interface has_x
+  global tabbed_interface has_x dark_gui_colorscheme
+
+  if {$dark_gui_colorscheme == 0} { 
+    set tab_color Palegreen
+  } else {
+     set tab_color DarkGreen
+  }
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
-    .tabs$tabname configure -text [file tail [xschem get schname]]$mod -bg Palegreen
+    .tabs$tabname configure -text [file tail [xschem get schname]]$mod -background $tab_color
     balloon .tabs$tabname [xschem get schname]
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
-         .tabs.x$i configure -bg $tctx::tab_bg
+         .tabs.x$i configure -background $tctx::tab_bg
       }
     }
   }
@@ -6824,7 +6838,8 @@ set tctx::global_list {
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name change_lw color_ps tctx::colors compare_sch constrained_move
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
-  delay_flag  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
+  dark_gui_colorscheme delay_flag  dim_bg dim_value disable_unique_names
+  do_all_inst draw_crosshair
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
@@ -6964,17 +6979,17 @@ proc set_simulate_button {top_path winpath} {
 
   if {![info exists execute(exitcode,last)]} {
     if { $current_win eq $winpath} {
-      $sim_button configure -bg $simulate_bg
+      $sim_button configure -background $simulate_bg
     }
     set $simvar $simulate_bg
   } elseif { $execute(exitcode,last) == 0} {
     if { $current_win eq $winpath} {
-      $sim_button configure -bg LightGreen
+      $sim_button configure -background Green
     }
-    set $simvar LightGreen
+    set $simvar Green
   } else {   
     if { $current_win eq $winpath} {
-      $sim_button configure -bg red
+      $sim_button configure -background red
     }
     set $simvar red
   }
@@ -6996,21 +7011,21 @@ proc set_sim_netlist_waves_buttons {} {
   set waves_var tctx::${win_path}_waves
   set waves_button $top_path.menubar.waves
   if {![info exists $netlist_var] || [set $netlist_var] eq $simulate_bg} {
-    $netlist_button configure -bg  $simulate_bg
+    $netlist_button configure -background  $simulate_bg
   } else { 
-    $netlist_button configure -bg [set $netlist_var]
+    $netlist_button configure -background [set $netlist_var]
   }
 
   if {![info exists $sim_var] || [set $sim_var] eq $simulate_bg} {
-    $sim_button configure -bg  $simulate_bg
+    $sim_button configure -background  $simulate_bg
   } else { 
-    $sim_button configure -bg [set $sim_var]
+    $sim_button configure -background [set $sim_var]
   }
 
   if {![info exists $waves_var] || [set $waves_var] eq $simulate_bg} {
-    $waves_button configure -bg  $simulate_bg
+    $waves_button configure -background  $simulate_bg
   } else { 
-    $waves_button configure -bg [set $waves_var]
+    $waves_button configure -background [set $waves_var]
   }
 }
 
@@ -7214,11 +7229,9 @@ proc build_widgets { {topwin {} } } {
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
-  set bbg {-highlightthickness 0}
 
   # if { $topwin ne {}} {
   #   set mbg {-bg gray50}
-  #   set bbg {-bg gray50 -highlightthickness 0}
   # }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
@@ -7476,12 +7489,12 @@ proc build_widgets { {topwin {} } } {
   toolbar_add EditPop "xschem go_back" "Pop" $topwin
 
 
-  # eval is needed here to expand $bbg before evaluating 'button'
-  # eval button $topwin.menubar.waves -text "Waves" -activebackground yellow  -takefocus 0 \
-  #  -padx 2 -pady 0 -command waves $bbg
+  # eval is needed here to expand before evaluating 'button'
+  # eval button $topwin.menubar.waves -text "Waves" -activebackground orange  -takefocus 0 \
+  #  -padx 2 -pady 0 -command waves 
 
-  eval menubutton $topwin.menubar.waves -text "Waves" -activebackground yellow  -takefocus 0 \
-   -padx 2 -pady 0 -menu $topwin.menubar.waves.menu
+  eval menubutton $topwin.menubar.waves -text "Waves" -activebackground orange  -takefocus 0 \
+   -padx 2 -pady 0 -bd 0 -relief raised -menu $topwin.menubar.waves.menu
   menu  $topwin.menubar.waves.menu -tearoff 0
   $topwin.menubar.waves.menu add command -label {External viewer} -command {waves external}
   $topwin.menubar.waves.menu add separator
@@ -7505,13 +7518,13 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves.menu add command -label Spectrum -command {waves ac}
 
 
-  eval button $topwin.menubar.simulate -text "Simulate"  -activebackground yellow  -takefocus 0 \
-   -padx 2 -pady 0 $bbg -command {
+  eval button $topwin.menubar.simulate -text "Simulate"  -activebackground orange  -takefocus 0 \
+   -padx 2 -pady 0 -bd 0 -command {
      simulate_from_button
    }
   set simulate_bg [$topwin.menubar.simulate cget -bg]
-  eval button $topwin.menubar.netlist -text "Netlist"  -activebackground yellow  -takefocus 0 \
-   -padx 2 -pady 0 -command \{xschem netlist -erc\} $bbg
+  eval button $topwin.menubar.netlist -text "Netlist"  -activebackground orange  -takefocus 0 \
+   -padx 2 -pady 0 -bd 0 -command \{xschem netlist -erc\}
 
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
@@ -7770,10 +7783,14 @@ proc build_widgets { {topwin {} } } {
     }
   }
   $topwin.menubar.simulation.menu add command -label {View last job data} -command {
-    viewdata $execute(data,last)
+    if { [info exists execute(data,last)] } {
+      viewdata $execute(data,last)
+    }
   }
   $topwin.menubar.simulation.menu add command -label {View last job errors} -command {
-    viewdata $execute(error,last)
+    if { [info exists execute(error,last)] } {
+      viewdata $execute(error,last)
+    }
   }
   $topwin.menubar.simulation.menu add command -label {Utile Stimuli Editor (GUI)} -command {
      inutile [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
@@ -7885,16 +7902,15 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   }
 
   frame $topwin.statusbar  
-  label $topwin.statusbar.1   -text "STATUS BAR 1"  
-  label $topwin.statusbar.2   -text "SNAP:"
-  entry $topwin.statusbar.3 -relief sunken -fg black -bg white \
+  label $topwin.statusbar.1 -text "STATUS BAR 1"  
+  label $topwin.statusbar.2 -text "SNAP:"
+  entry $topwin.statusbar.3 \
          -width 7 -foreground black -takefocus 0
-  label $topwin.statusbar.4   -text "GRID:"
-  entry $topwin.statusbar.5 -relief sunken -fg black -bg white \
+  label $topwin.statusbar.4 -text "GRID:"
+  entry $topwin.statusbar.5 \
          -width 7 -foreground black -takefocus 0
-  label $topwin.statusbar.6   -text "MODE:"
-  label $topwin.statusbar.7 -relief sunken -fg black -bg white \
-         -width 7 
+  label $topwin.statusbar.6 -text "MODE:"
+  label $topwin.statusbar.7 -width 7 
   label $topwin.statusbar.10 -text {Stretch:}
   label $topwin.statusbar.9 -textvariable enable_stretch
   label $topwin.statusbar.8 -activebackground red -text {} 
@@ -8111,18 +8127,31 @@ proc setup_tcp_bespice {} {
 ###   MAIN PROGRAM
 ###
 set_ne dark_colorscheme 1
-if { 1 } { ;# normal
+set_ne dark_gui_colorscheme 0
+if { $dark_gui_colorscheme == 0 } { ;# normal GUI
   option add *foreground black startupFile
-  option add *activeforeground black startupFile
+  option add *activeForeground black startupFile
   option add *background {#d9d9d9} startupFile
-  option add *activebackground {#ececec} startupFile
-  option add *disabledforeground {#a3a3a3} startupFile
-} else { ;# dark colorscheme
+  option add *activeBackground {#ececec} startupFile
+  option add *disabledForeground {black} startupFile
+  option add *disabledBackground {#d9d9d9} startupFile
+  option add *readonlyBackground {#d9d9d9} startupFile
+  option add *highlightBackground {white} startupFile
+  option add *highlightThickness 0 startupFile
+  option add *highlightColor {grey30} startupFile
+  option add *insertBackground {black} startupFile
+} else { ;# dark GUI colorscheme
   option add *foreground white startupFile
-  option add *activeforeground white startupFile
+  option add *activeForeground white startupFile
   option add *background {grey20} startupFile
-  option add *activebackground {grey40} startupFile
-  option add *disabledforeground {grey50} startupFile
+  option add *activeBackground {grey20} startupFile
+  option add *disabledForeground {white} startupFile
+  option add *disabledBackground {grey20} startupFile
+  option add *readonlyBackground {grey20} startupFile
+  option add *highlightBackground {grey20} startupFile
+  option add *highlightThickness 0 startupFile
+  option add *highlightColor {grey70} startupFile
+  option add *insertBackground {white} startupFile
 }
 
 set OS [lindex $tcl_platform(os) 0]

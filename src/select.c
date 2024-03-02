@@ -1440,6 +1440,21 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
        sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
      }
+     else if( sel && en_s && POINTINSIDE(x, y, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED1,1);
+     }
+     else if( sel && en_s && POINTINSIDE(xb, yb, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED3,1);
+     }
+     else if( sel && en_s && POINTINSIDE(xa, ya, x1, y1, x2, y2) )
+     {
+       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
+       select_arc(c, i,SELECTED2,1);
+     }
    }
    for(i=0;i<xctx->rects[c]; ++i)
    {
