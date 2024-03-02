@@ -221,6 +221,9 @@
 #### use the tclreadline package if available , Default: 1 (enabled).
 # set use_tclreadline 1
 
+#### use the dark color scheme (default: 1)
+# set dark_colorscheme 1
+
 #### disable some symbol layers. Default: none, all layers are visible.
 # set enable_layer(5) 0 ;# example to disable pin red boxes
 

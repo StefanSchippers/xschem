@@ -6376,7 +6376,7 @@ proc tab_context_menu {tab_but} {
   set x [expr {[winfo pointerx .ctxmenu] - 10}]
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   button .ctxmenu.b0 -text {Tab menu} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -bg white -highlightthickness 0 -state disabled -disabledforeground black -font [subst $font]
+     -fg black -bg white -highlightthickness 0 -state disabled -disabledforeground black -font [subst $font]
   button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -highlightthickness 0 -image CtxmenuCopy -compound left \
     -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
@@ -6499,7 +6499,7 @@ proc setup_toolbar {} {
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -bg white
+       frame $topwin.toolbar -relief raised -bd 0 -bg white 
     }
     button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -bg white -fg white -height 24 \
     -padx 0 -pady 0  -highlightthickness 0 -command $cmd
@@ -6516,7 +6516,7 @@ proc toolbar_show { { topwin {} } } {
     # puts "toolbar_show: $topwin"
     set toolbar_visible 1
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -bg white
+       frame $topwin.toolbar -relief raised -bd 0 -bg white 
     }
     if {[winfo ismapped $topwin.toolbar]} {return}
     if { $toolbar_horiz } { 
@@ -7887,13 +7887,13 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   frame $topwin.statusbar  
   label $topwin.statusbar.1   -text "STATUS BAR 1"  
   label $topwin.statusbar.2   -text "SNAP:"
-  entry $topwin.statusbar.3 -relief sunken -bg white \
+  entry $topwin.statusbar.3 -relief sunken -fg black -bg white \
          -width 7 -foreground black -takefocus 0
   label $topwin.statusbar.4   -text "GRID:"
-  entry $topwin.statusbar.5 -relief sunken -bg white \
+  entry $topwin.statusbar.5 -relief sunken -fg black -bg white \
          -width 7 -foreground black -takefocus 0
   label $topwin.statusbar.6   -text "MODE:"
-  label $topwin.statusbar.7 -relief sunken -bg white \
+  label $topwin.statusbar.7 -relief sunken -fg black -bg white \
          -width 7 
   label $topwin.statusbar.10 -text {Stretch:}
   label $topwin.statusbar.9 -textvariable enable_stretch
@@ -8110,6 +8110,7 @@ proc setup_tcp_bespice {} {
 ### 
 ###   MAIN PROGRAM
 ###
+set_ne dark_colorscheme 1
 if { 1 } { ;# normal
   option add *foreground black startupFile
   option add *activeforeground black startupFile
@@ -8336,7 +8337,6 @@ set_ne svg_font_name {Sans-Serif}
 # has_cairo set by c program if cairo enabled
 set has_cairo 0 
 set rotated_text {} ;#20171208
-set_ne dark_colorscheme 1
 set_ne enable_dim_bg 0
 set_ne dim_bg 0.0
 set_ne dim_value 0.0
