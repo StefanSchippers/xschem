@@ -927,9 +927,10 @@ void move_objects(int what, int merge, double dx, double dy)
   {
    int firsti, firstw;
  
+
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    /* no undo push for MERGE ad PLACE and polygon point drag, already done before */
-   if(!xctx->poly_point_selected && !xctx->kissing && 
+   if(!xctx->poly_point_selected && !xctx->kissing && !xctx->drag_elements &&
       !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
      dbg(1, "move_objects(END): push undo state\n");
      xctx->push_undo();
@@ -945,9 +946,13 @@ void move_objects(int what, int merge, double dx, double dy)
      xctx->deltax = dx;
      xctx->deltay = dy;
    }
- 
    /* calculate moving symbols bboxes before actually doing the move */
    firsti = firstw = 1;
+   /* button released after clicking elements, without moving... do nothing */
+   if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
+      xctx->ui_state &= ~STARTMOVE;
+      return;
+   }
    draw_selection(xctx->gctiled,0);
    update_symbol_bboxes(0, 0);
    for(k=0;k<cadlayers; ++k)
