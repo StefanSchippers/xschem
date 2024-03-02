@@ -2208,6 +2208,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='g' && rstate==0)                         /* half snap factor */
    {
     set_snap(c_snap / 2.0);
+    change_linewidth(-1.);
     draw();
     break;
    }
@@ -2222,6 +2223,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='G' && rstate == 0)                                    /* double snap factor */
    {
     set_snap(c_snap * 2.0);
+    change_linewidth(-1.);
     draw();
     break;
    }
