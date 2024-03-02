@@ -1202,9 +1202,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else
               Tcl_SetResult(interp, "", TCL_STATIC);
           }
+
           else if(!strcmp(argv[2], "instances")) { /* number of instances in schematic */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->instances), TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "intuitive_interface")) { /* ERC messages */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, my_itoa(xctx->intuitive_interface), TCL_VOLATILE);
           }
           break;
           case 'l':
@@ -4613,6 +4618,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
           }
+          else if(!strcmp(argv[2], "intuitive_interface")) { /* ERC messages */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            xctx->intuitive_interface = atoi(argv[3]);
+          }
+
         } else { /* argv[2][0] >= 'n' */
           if(!strcmp(argv[2], "netlist_name")) { /* set custom netlist name */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

@@ -458,6 +458,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->tail_undo_ptr = 0;
   xctx->undo_dirname = NULL;
   xctx->infowindow_text = NULL;
+  xctx->intuitive_interface = 0;
 
   if(!strcmp(tclgetvar("undo_type"), "disk")) {
     xctx->undo_type = 0;
@@ -580,6 +581,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 
   xctx->hilight_time = 0; /* timestamp for sims */
   xctx->poly_point_selected = 0;
+  xctx->drag_elements = 0;
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
   for(i=0;i<CADMAXHIER; ++i) {
@@ -2586,6 +2588,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_strncpy(xctx->plotfile, cli_opt_plotfile, S(xctx->plotfile));
  xctx->draw_window = tclgetintvar("draw_window");
  xctx->only_probes = tclgetintvar("only_probes");
+ xctx->intuitive_interface = tclgetboolvar("intuitive_interface");
 
  /* set global variables fetching data from tcl code */
 

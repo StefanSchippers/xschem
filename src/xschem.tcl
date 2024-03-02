@@ -6832,7 +6832,8 @@ set tctx::global_list {
   graph_change_done graph_digital graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
-  incr_hilight incremental_select infowindow_text keep_symbols launcher_default_program
+  incr_hilight incremental_select infowindow_text intuitive_interface 
+  keep_symbols launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
@@ -7207,7 +7208,7 @@ proc load_raw {{type {}}} {
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
-  global netlist_show flat_netlist split_files compare_sch
+  global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadsnap cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
@@ -7351,6 +7352,8 @@ proc build_widgets { {topwin {} } } {
          }
      }
   $topwin.menubar.option.menu add checkbutton -label "Persistent wire/line place command" -variable persistent_command
+  $topwin.menubar.option.menu add checkbutton -label "Intuitive Click & Drag interface" \
+    -variable intuitive_interface -command {xschem set intuitive_interface $intuitive_interface}
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
@@ -8231,6 +8234,7 @@ set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
+set_ne intuitive_interface 0
 set_ne autotrim_wires 0
 set_ne compare_sch 0
 set_ne disable_unique_names 0

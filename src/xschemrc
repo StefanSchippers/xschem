@@ -189,6 +189,12 @@
 #### default: 0
 # set persistent_command 1
 
+#### if set to 1 allow click & drag objects in the schematic 
+#### to move them without keyboard commands ('m')
+#### default: 0
+# set intuitive_interface 0
+
+
 #### if set to 1 at end of a move operation that stretches wires attached to
 #### moved objects these wires will be unselected.
 #### default: not enabled (0)

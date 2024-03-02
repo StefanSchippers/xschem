@@ -976,6 +976,7 @@ typedef struct {
   int crosshair_layer;
   char *undo_dirname;
   char *infowindow_text; /* ERC messages */
+  int intuitive_interface;
   int cur_undo_ptr;
   int tail_undo_ptr;
   int head_undo_ptr;
@@ -984,6 +985,7 @@ typedef struct {
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;
   int poly_point_selected;
+  int drag_elements;
   int hilight_nets;
   int hilight_color;
   int hilight_time; /* timestamp for sims */

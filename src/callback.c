@@ -1348,6 +1348,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->poly_point_selected &&
+       !xctx->drag_elements &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
 
@@ -1377,7 +1378,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) &&
              !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->poly_point_selected &&
-             !(xctx->ui_state & STARTPAN) ) {
+             !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
           select_rect(START,1);
@@ -3152,7 +3153,12 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
        /* If no shift was pressed while Button1Press delete selection */
        if( !(state & (ShiftMask | ControlMask)) && !(SET_MODMASK) ) {
-         unselect_all(1);
+         if(xctx->intuitive_interface) {
+           sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+           if(!sel.type) unselect_all(1);
+         } else {
+           unselect_all(1);
+         }
        }
        /* polygon point: Check is user is clicking a control point of a polygon */
        if(polygon_n >= 0) {
@@ -3231,6 +3237,21 @@ int rstate; /* (reduced state, without ShiftMask) */
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        }
        rebuild_selected_array();
+
+       /* intuitive interface: directly drag elements */
+       xctx->drag_elements = 0;
+       if(xctx->intuitive_interface && xctx->lastsel >= 1 &&
+          !(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) ) {
+          xctx->drag_elements = 1;
+
+          if( state == ControlMask && !tclgetboolvar("enable_stretch")) {
+            select_attached_nets(); /* stretch nets that land on selected instance pins */
+          }
+          if(state == ShiftMask) xctx->connect_by_kissing = 2;
+
+          move_objects(START,0,0,0);
+       }
+
        #ifndef __unix__
        draw_selection(xctx->gc[SELLAYER], 0);
        #endif
@@ -3260,7 +3281,11 @@ int rstate; /* (reduced state, without ShiftMask) */
 
    /* if a polygon/bezier control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
-   if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->poly_point_selected) {
+   if(xctx->drag_elements) {
+      move_objects(END,0,0,0);
+      xctx->drag_elements = 0;
+   }
+   else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->poly_point_selected) {
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
         int k;
         int n = xctx->sel_array[0].n;
