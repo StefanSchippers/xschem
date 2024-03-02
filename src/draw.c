@@ -758,7 +758,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  #if HAS_CAIRO==1
  int customfont;
  #endif
-
+ 
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
 
@@ -1283,7 +1283,6 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
 {
  static int i=0;
  static XArc xarc[CADDRAWBUFFERSIZE];
- static XRectangle xr[CADDRAWBUFFERSIZE];
  double x1, y1, x2, y2; /* arc bbox */
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
 
@@ -1294,7 +1293,6 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
   if(i>=CADDRAWBUFFERSIZE)
   {
    XDrawArcs(display, xctx->window, gc, xarc,i);
-   XDrawRectangles(display, xctx->window, gc, xr,i);
    i=0;
   }
   xx1=X_TO_SCREEN(x-r);
@@ -1314,10 +1312,6 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
    xarc[i].height=(unsigned short)(yy2 - yy1);
    xarc[i].angle1 = (short)(a*64);
    xarc[i].angle2 = (short)(b*64);
-   xr[i].x=(short)x1;
-   xr[i].y=(short)y1;
-   xr[i].width=(unsigned short)(x2-xr[i].x);
-   xr[i].height=(unsigned short)(y2-xr[i].y);
    ++i;
   }
  }
@@ -1341,16 +1335,12 @@ void drawtemparc(GC gc, int what, double x, double y, double r, double a, double
     } else {
       XDrawArc(display, xctx->window, gc, (int)xx1, (int)yy1, (int)(xx2-xx1), (int)(yy2-yy1),
                (int)(a*64), (int)(b*64));
-      XDrawRectangle(display, xctx->window, gc, (int)sx1, (int)sy1,
-        (unsigned int)sx2 - (unsigned int)sx1,
-        (unsigned int)sy2 - (unsigned int)sy1);
     }
   }
  }
  else if((what & END) && i)
  {
   XDrawArcs(display, xctx->window, gc, xarc,i);
-  XDrawRectangles(display, xctx->window, gc, xr,i);
   i=0;
  }
 }

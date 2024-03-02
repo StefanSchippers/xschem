@@ -3112,7 +3112,8 @@ void new_arc(int what, double sweep)
     else if(xctx->nl_state==1) {
       xctx->nl_x3 = xctx->mousex_snap;
       xctx->nl_y3 = xctx->mousey_snap;
-      if(xctx->nl_r>0.) drawtemparc(xctx->gctiled, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
+      if(xctx->nl_r>0.)
+          drawtemparc(xctx->gctiled, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
       arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
