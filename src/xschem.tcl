@@ -8110,6 +8110,20 @@ proc setup_tcp_bespice {} {
 ### 
 ###   MAIN PROGRAM
 ###
+if { 1 } { ;# normal
+  option add *foreground black startupFile
+  option add *activeforeground black startupFile
+  option add *background {#d9d9d9} startupFile
+  option add *activebackground {#ececec} startupFile
+  option add *disabledforeground {#a3a3a3} startupFile
+} else { ;# dark colorscheme
+  option add *foreground white startupFile
+  option add *activeforeground white startupFile
+  option add *background {grey20} startupFile
+  option add *activebackground {grey40} startupFile
+  option add *disabledforeground {grey50} startupFile
+}
+
 set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
