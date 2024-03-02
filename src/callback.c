@@ -3240,7 +3240,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        /* intuitive interface: directly drag elements */
        xctx->drag_elements = 0;
-       if(xctx->intuitive_interface && xctx->lastsel >= 1 &&
+       if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
           !(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) ) {
           xctx->drag_elements = 1;
 
