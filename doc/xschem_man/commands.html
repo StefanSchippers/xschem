@@ -310,6 +310,10 @@ set replace_key(w) Shift-W
  </p>
  <img src="commands3.png">
 
+ <p> Another way to move objects stretching attached wires is to press <kbd>Ctrl-m</kbd> instead of <kbd>m</kbd>
+     This way you don't have to remember to press <kbd>Ctrl</kbd> when doing the selection.</p>
+ <img src="commands10.png">
+
  <h3>PLACE WIRES SNAPPING TO CLOSEST PIN OT NET ENDPOINT</h3>
  <p>
   The (uppercase) <kbd>'W'</kbd> bindkey allows to place a wire putting start (and end point, later) to the 
@@ -329,6 +333,21 @@ set replace_key(w) Shift-W
  <p style="padding-top:0px;"> <i>
   Unconstrained move: objects follow the mouse pointer in X and Y direction.
  </i></p>
+ <h3>POLYGON EDITINC COMMANDS</h3>
+ <p> There are some specific editing modes for polygons. A polygon is created by pressing the <kbd>p</kbd> key.
+  After dragging the first segment a mouse button clock will create the second point and so on.
+  A double click ends the placement.<br>
+  If a polygon is selected the control points are shown with circles. These circles can be dragged with the
+  mouse directly.</p>
+ <img src="commands11.png">
+ <p> Clicking one control point with the <kbd>Shift</kbd> key will add a new point in the polygon shape:</p>
+ <img src="commands12.png">
+ <p> Clicking one control point with the <kbd>Ctrl</kbd> key will delete a point in the polygon shape.</p>
+ <p> Adding attribute <kbd>bezier=true</kbd> or  <kbd>bezier=1</kbd> will transform the polygon into a bezier
+  cuve with the polygon points acting as control points.</p>
+ <img src="commands13.png">
+
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
