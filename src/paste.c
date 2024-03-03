@@ -330,6 +330,8 @@ void merge_file(int selection_load, const char ext[])
       my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
     }
 
+    my_snprintf(sel_or_clip, S(sel_or_clip), name);
+
     if(is_generator(name)) generator = 1;
 
     if(generator) {

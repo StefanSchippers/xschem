@@ -4888,6 +4888,8 @@ void save_selection(int what)
  else /* what=2 */
    my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".clipboard");
 
+ my_snprintf(sel_or_clip, S(sel_or_clip), name);
+
  if(!(fd=fopen(name,"w")))
  {
     fprintf(errfp, "save_selection(): problems opening file %s \n", name);
