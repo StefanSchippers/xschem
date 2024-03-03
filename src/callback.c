@@ -3280,6 +3280,11 @@ int rstate; /* (reduced state, without ShiftMask) */
    break;
   case ButtonRelease:
 
+   if(waves_selected(event, key, state, button)) {
+     waves_callback(event, mx, my, key, button, aux, state);
+     break;
+   }
+
    /* if a polygon/bezier control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
    if(xctx->drag_elements) {
@@ -3301,10 +3306,6 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
    }
 
-   if(waves_selected(event, key, state, button)) {
-     waves_callback(event, mx, my, key, button, aux, state);
-     break;
-   }
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
      /* xctx->mx_save = mx; xctx->my_save = my; */
