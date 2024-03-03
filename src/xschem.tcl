@@ -1561,8 +1561,13 @@ proc simconf_saveconf {scrollframe} {
 }
  
 proc simconf {} {
-  global sim USER_CONF_DIR enter_textsimconf_default_geometry
+  global sim USER_CONF_DIR enter_textsimconf_default_geometry dark_gui_colorscheme
 
+   if { $dark_gui_colorscheme } {
+     set opts {white}
+   } else {
+     set opts {black}
+   }
   if {[winfo exists .sim]} {
     destroy .sim 
     xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -1596,13 +1601,13 @@ proc simconf {} {
       entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 \
          -background $bg($toggle) -fg black
       radiobutton ${scrollframe}.center.$tool.r.$i.radio -background $bg($toggle) -fg black \
-         -variable sim($tool,default) -value $i
+         -selectcolor $opts -variable sim($tool,default) -value $i
       text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -background $bg($toggle) -fg black
       ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
       checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) \
-        -background $bg($toggle) -fg black
+        -selectcolor $opts -background $bg($toggle) -fg black
       checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) \
-        -background $bg($toggle) -fg black
+        -selectcolor $opts -background $bg($toggle) -fg black
       pack ${scrollframe}.center.$tool.r.$i.lab -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.radio -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.cmd -side left -fill x -expand yes
@@ -7222,6 +7227,7 @@ proc load_raw {{type {}}} {
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
+  global dark_gui_colorscheme
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -7233,6 +7239,12 @@ proc build_widgets { {topwin {} } } {
   # if { $topwin ne {}} {
   #   set mbg {-bg gray50}
   # }
+
+  if { $dark_gui_colorscheme} {
+    set selectcolor white
+  } else {
+    set selectcolor black
+  }
   eval frame $topwin.menubar -relief raised -bd 2 $mbg
   eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
    -padx 3 -pady 0 $mbg
@@ -7342,40 +7354,44 @@ proc build_widgets { {topwin {} } } {
     quit_xschem
   }
   $topwin.menubar.option.menu add checkbutton -label "Color Postscript/SVG" -variable color_ps \
-     -command {
+     -selectcolor $selectcolor -command {
         if { $color_ps==1 } {xschem set color_ps 1} else { xschem set color_ps 0}
      }
-  $topwin.menubar.option.menu add checkbutton -label "Transparent SVG background" -variable transparent_svg
+  $topwin.menubar.option.menu add checkbutton -selectcolor $selectcolor  \
+     -label "Transparent SVG background" -variable transparent_svg
   $topwin.menubar.option.menu add checkbutton -label "Debug mode" -variable menu_debug_var \
-     -command {
+    -selectcolor $selectcolor  -command {
         if { $menu_debug_var==1 } {xschem debug 1} else { xschem debug 0}
      }
-  $topwin.menubar.option.menu add checkbutton -label "Undo buffer on Disk" -variable undo_type \
+  $topwin.menubar.option.menu add checkbutton -selectcolor $selectcolor \
+     -label "Undo buffer on Disk" -variable undo_type \
      -onvalue disk -offvalue memory -command {switch_undo}
   $topwin.menubar.option.menu add checkbutton -label "Enable stretch" -variable enable_stretch \
-     -accelerator Y 
+     -selectcolor $selectcolor  -accelerator Y 
   $topwin.menubar.option.menu add checkbutton -label "Unsel. partial sel. wires after stretch move" \
-     -variable unselect_partial_sel_wires
+     -selectcolor $selectcolor -variable unselect_partial_sel_wires
 
   $topwin.menubar.option.menu add checkbutton -label "Auto Join/Trim Wires" -variable autotrim_wires \
-     -command {
+     -selectcolor $selectcolor -command {
          if {$autotrim_wires == 1} {
            xschem trim_wires
            xschem redraw
          }
      }
-  $topwin.menubar.option.menu add checkbutton -label "Persistent wire/line place command" -variable persistent_command
+  $topwin.menubar.option.menu add checkbutton -selectcolor $selectcolor \
+    -label "Persistent wire/line place command" -variable persistent_command
   $topwin.menubar.option.menu add checkbutton -label "Intuitive Click & Drag interface" \
-    -variable intuitive_interface -command {xschem set intuitive_interface $intuitive_interface}
+    -variable intuitive_interface -selectcolor $selectcolor \
+    -command {xschem set intuitive_interface $intuitive_interface}
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set bus_replacement_char"
      }
   $topwin.menubar.option.menu add checkbutton \
-    -label "Group bus slices in Verilog instances" -variable verilog_bitblast
+    -selectcolor $selectcolor -label "Group bus slices in Verilog instances" -variable verilog_bitblast
   $topwin.menubar.option.menu add checkbutton -label "Draw grid" -variable draw_grid \
-     -accelerator {%} \
+     -selectcolor $selectcolor -accelerator {%} \
      -command {
        xschem redraw
      }
@@ -7386,17 +7402,17 @@ proc build_widgets { {topwin {} } } {
          xschem set cadsnap [expr {$cadsnap * 2.0} ]
        }
   $topwin.menubar.option.menu add checkbutton -label "Variable grid point size" -variable big_grid_points \
-     -command { xschem redraw }
+     -selectcolor $selectcolor -command { xschem redraw }
   $topwin.menubar.option.menu add separator
 
   $topwin.menubar.option.menu add checkbutton -label "No XCopyArea drawing model" -variable draw_window \
-         -accelerator {Ctrl+$} \
+         -selectcolor $selectcolor -accelerator {Ctrl+$} \
          -command {
            if { $draw_window == 1} { xschem set draw_window 1} else { xschem set draw_window 0}
          }
 
   $topwin.menubar.option.menu add checkbutton -label "Fix for GPUs with broken tiled fill" \
-         -variable fix_broken_tiled_fill \
+         -selectcolor $selectcolor -variable fix_broken_tiled_fill \
          -command {
            if { $fix_broken_tiled_fill == 1} {
              xschem set fix_broken_tiled_fill 1
@@ -7407,7 +7423,7 @@ proc build_widgets { {topwin {} } } {
            xschem redraw
          }
   $topwin.menubar.option.menu add checkbutton -label "Fix broken RDP mouse coordinates" \
-     -variable fix_mouse_coord -command {xschem set fix_mouse_coord $fix_mouse_coord}
+     -selectcolor $selectcolor -variable fix_mouse_coord -command {xschem set fix_mouse_coord $fix_mouse_coord}
 
   $topwin.menubar.option.menu add separator
 
@@ -7416,27 +7432,27 @@ proc build_widgets { {topwin {} } } {
   menu $topwin.menubar.option.menu.netlist -tearoff 0
 
   $topwin.menubar.option.menu.netlist add checkbutton -label "Flat netlist" -variable flat_netlist \
-     -accelerator : \
+     -selectcolor $selectcolor -accelerator : \
      -command {
         if { $flat_netlist==1 } {xschem set flat_netlist 1} else { xschem set flat_netlist 0} 
      }
   $topwin.menubar.option.menu.netlist add checkbutton -label "Split netlist" -variable split_files \
-     -accelerator {} 
+     -selectcolor $selectcolor -accelerator {} 
   $topwin.menubar.option.menu.netlist add radiobutton -label "Spice netlist"\
        -background grey60 -variable netlist_type -value spice -accelerator {Ctrl+Shift+V} \
-       -command "xschem set netlist_type spice; xschem redraw"
+       -selectcolor $selectcolor -command "xschem set netlist_type spice; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "VHDL netlist"\
        -background grey60 -variable netlist_type -value vhdl -accelerator {Ctrl+Shift+V} \
-       -command "xschem set netlist_type vhdl; xschem redraw"
+       -selectcolor $selectcolor -command "xschem set netlist_type vhdl; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Verilog netlist"\
        -background grey60 -variable netlist_type -value verilog -accelerator {Ctrl+Shift+V} \
-       -command "xschem set netlist_type verilog; xschem redraw"
+       -selectcolor $selectcolor -command "xschem set netlist_type verilog; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "tEDAx netlist" \
        -background grey60 -variable netlist_type -value tedax -accelerator {Ctrl+Shift+V} \
-       -command "xschem set netlist_type tedax; xschem redraw"
+       -selectcolor $selectcolor -command "xschem set netlist_type tedax; xschem redraw"
   $topwin.menubar.option.menu.netlist add radiobutton -label "Symbol global attrs" \
        -background grey60 -variable netlist_type -value symbol -accelerator {Ctrl+Shift+V} \
-       -command "xschem set netlist_type symbol; xschem redraw"
+       -selectcolor $selectcolor -command "xschem set netlist_type symbol; xschem redraw"
 
 
 
@@ -7476,11 +7492,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state normal \
       -command {xschem rotate} -accelerator {Shift-R}
   $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
-     -background grey60 -value 0 -command {xschem set constrained_move 0} 
+     -selectcolor $selectcolor -background grey60 -value 0 -command {xschem set constrained_move 0} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
-     -background grey60 -value 1 -accelerator H -command {xschem set constrained_move 1} 
+     -selectcolor $selectcolor -background grey60 -value 1 -accelerator H -command {xschem set constrained_move 1} 
   $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
-     -background grey60 -value 2 -accelerator V -command {xschem set constrained_move 2} 
+     -selectcolor $selectcolor -background grey60 -value 2 -accelerator V -command {xschem set constrained_move 2} 
   $topwin.menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -7568,21 +7584,21 @@ proc build_widgets { {topwin {} } } {
          }
 
   $topwin.menubar.view.menu add checkbutton -label "Toggle variable line width" -variable change_lw \
-     -accelerator {_}
+     -selectcolor $selectcolor -accelerator {_}
   $topwin.menubar.view.menu add command -label "Set line width" \
        -command {
          set change_lw 0
          input_line "Enter linewidth (float):" "xschem line_width"
        }
   $topwin.menubar.view.menu add checkbutton -label "Tabbed interface" -variable tabbed_interface \
-    -command setup_tabbed_interface
+    -selectcolor $selectcolor -command setup_tabbed_interface
 
   $topwin.menubar.view.menu add cascade -label "Show / Hide" \
        -menu $topwin.menubar.view.menu.show 
   menu $topwin.menubar.view.menu.show -tearoff 0
 
   $topwin.menubar.view.menu.show add checkbutton -label "Show ERC Info window" \
-    -variable show_infowindow -command {
+    -selectcolor $selectcolor -variable show_infowindow -command {
        if { $show_infowindow != 0 } {wm deiconify .infotext
        } else {wm withdraw .infotext}
      }
@@ -7592,21 +7608,22 @@ proc build_widgets { {topwin {} } } {
           xschem redraw
        }
   $topwin.menubar.view.menu.show add checkbutton -label "Symbol text" -variable sym_txt \
+     -selectcolor $selectcolor  \
      -accelerator {Ctrl+B} -command { xschem set sym_txt $sym_txt; xschem redraw }
   $topwin.menubar.view.menu.show add checkbutton -label "Show Toolbar" -variable toolbar_visible \
-     -command "
+     -selectcolor $selectcolor -command "
         if { \$toolbar_visible } \" toolbar_show $topwin\" else \"toolbar_hide $topwin\"
      "
   $topwin.menubar.view.menu.show add checkbutton -label "Horizontal Toolbar" -variable toolbar_horiz \
-     -command " 
+     -selectcolor $selectcolor -command " 
         if { \$toolbar_visible } \" toolbar_hide $topwin; toolbar_show $topwin \"
      "
   $topwin.menubar.view.menu.show add checkbutton -label "Show hidden texts"  -variable show_hidden_texts \
-         -command {xschem update_all_sym_bboxes; xschem redraw}
+         -selectcolor $selectcolor -command {xschem update_all_sym_bboxes; xschem redraw}
   $topwin.menubar.view.menu.show add checkbutton -label "Draw grid axes"  -variable draw_grid_axes \
-         -command {xschem redraw}
+         -selectcolor $selectcolor -command {xschem redraw}
   $topwin.menubar.view.menu.show add checkbutton -label "Show net names on symbol pins/floaters" \
-     -variable show_pin_net_names \
+     -selectcolor $selectcolor -variable show_pin_net_names \
      -command {
         xschem update_all_sym_bboxes
         xschem redraw
@@ -7622,13 +7639,13 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
   $topwin.menubar.sym.menu add radiobutton -label "Show symbols" \
-     -background grey60 -variable hide_symbols -value 0 \
+     -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 0 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
-     -background grey60 -variable hide_symbols -value 1 \
+     -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 1 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add radiobutton -label "Show instance Bounding boxes for all symbols" \
-     -background grey60 -variable hide_symbols -value 2 \
+     -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
   $topwin.menubar.sym.menu add command -label "Set symbol width" \
      -command {
@@ -7663,9 +7680,10 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym.menu add command -label "Create pins from highlight nets" \
           -command "xschem print_hilight_net 0" -accelerator Ctrl-J
   $topwin.menubar.sym.menu add checkbutton \
+     -selectcolor $selectcolor  \
      -label "Search all search-paths for schematic associated to symbol" -variable search_schematic
   $topwin.menubar.sym.menu add checkbutton -label "Allow duplicated instance names (refdes)" \
-      -variable disable_unique_names
+      -selectcolor $selectcolor -variable disable_unique_names
   $topwin.menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
   $topwin.menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
@@ -7716,14 +7734,14 @@ proc build_widgets { {topwin {} } } {
    -label {Swap compare schematics} -accelerator {Ctrl-Shift-X} \
    -command "swap_compare_schematics" 
   $topwin.menubar.hilight.menu add checkbutton \
-   -label {Compare schematics} \
+   -selectcolor $selectcolor -label {Compare schematics} \
    -command {
       xschem unselect_all
       xschem redraw } \
    -variable compare_sch \
    -accelerator {Alt-X}
   $topwin.menubar.hilight.menu add checkbutton -label "View only Probes" -variable only_probes \
-         -accelerator {5} \
+         -selectcolor $selectcolor -accelerator {5} \
          -command { xschem only_probes }
   $topwin.menubar.hilight.menu add command \
    -label {Highlight net-pin mismatches on sel. instances} \
@@ -7737,7 +7755,8 @@ proc build_widgets { {topwin {} } } {
      -command "xschem warning_overlapped_symbols 1; xschem redraw" -accelerator {}
   $topwin.menubar.hilight.menu add command -label {Propagate Highlight selected net/pins} \
      -command "xschem hilight drill" -accelerator {Ctrl+Shift+K}
-  $topwin.menubar.hilight.menu add checkbutton -label "Increment Hilight Color" -variable incr_hilight
+  $topwin.menubar.hilight.menu add checkbutton \
+     -selectcolor $selectcolor -label "Increment Hilight Color" -variable incr_hilight
   $topwin.menubar.hilight.menu add command -label {Highlight selected net/pins} \
      -command "xschem hilight" -accelerator K
   $topwin.menubar.hilight.menu add command -label {Send selected net/pins to Viewer} \
@@ -7750,9 +7769,10 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.hilight.menu add command -label {Un-highlight selected net/pins} \
      -command "xschem unhilight" -accelerator Ctrl+K
   # 20160413
-  $topwin.menubar.hilight.menu add checkbutton -label {Auto-highlight net/pins} -variable auto_hilight
+  $topwin.menubar.hilight.menu add checkbutton \
+     -selectcolor $selectcolor -label {Auto-highlight net/pins} -variable auto_hilight
   $topwin.menubar.hilight.menu add checkbutton -label {Enable highlight connected instances} \
-    -variable en_hilight_conn_inst
+    -selectcolor $selectcolor -variable en_hilight_conn_inst
 
   $topwin.menubar.simulation.menu add command -label "Set netlist Dir" \
     -command {
@@ -7764,16 +7784,16 @@ proc build_widgets { {topwin {} } } {
           input_line {Set netlist file name} {xschem set netlist_name} [xschem get netlist_name] 40
     }
   $topwin.menubar.simulation.menu add checkbutton -label "Show netlist after netlist command" \
-     -variable netlist_show -accelerator {Shift+A} 
+     -selectcolor $selectcolor -variable netlist_show -accelerator {Shift+A} 
   $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use netlist directory" \
     -background grey60 -variable local_netlist_dir -value 0 \
-    -command {set_netlist_dir 1 }
+    -selectcolor $selectcolor -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use 'simulation' dir in schematic dir" \
     -background grey60 -variable local_netlist_dir -value 1 \
-    -command {set_netlist_dir 1 }
+    -selectcolor $selectcolor -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use 'simulation/\[schname\]' dir in schematic dir" \
     -background grey60 -variable local_netlist_dir -value 2 \
-    -command {set_netlist_dir 1 }
+    -selectcolor $selectcolor -command {set_netlist_dir 1 }
   $topwin.menubar.simulation.menu add command -label {Configure simulators and tools} -command {simconf}
   if {$OS == {Windows}} {
     $topwin.menubar.simulation.menu add command -label {List running sub-processes} -state disabled
@@ -7832,15 +7852,15 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
        }
     }
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Live annotate probes with 'b' cursor" \
-         -variable live_cursor2_backannotate 
+     -selectcolor $selectcolor -variable live_cursor2_backannotate 
   $topwin.menubar.simulation.menu.graph add checkbutton -label "Hide graphs if no spice data loaded" \
-     -variable hide_empty_graphs -command {xschem redraw}
+     -selectcolor $selectcolor -variable hide_empty_graphs -command {xschem redraw}
 
 
   $topwin.menubar.simulation.menu add cascade -label "LVS" -menu $topwin.menubar.simulation.menu.lvs
   menu $topwin.menubar.simulation.menu.lvs -tearoff 0
   $topwin.menubar.simulation.menu.lvs add checkbutton -label "LVS netlist: Top level is a .subckt" \
-  -variable lvs_netlist -command {
+  -selectcolor $selectcolor -variable lvs_netlist -command {
     if {$lvs_netlist == 1} {
       xschem set format lvs_format 
     } else {
@@ -7848,9 +7868,10 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
     }
   }
   $topwin.menubar.simulation.menu.lvs add checkbutton -label "Set 'lvs_ignore' variable" \
+         -selectcolor $selectcolor \
          -variable lvs_ignore -command {xschem rebuild_connectivity; xschem unhilight_all}
   $topwin.menubar.simulation.menu.lvs add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
-         -command {xschem redraw} 
+         -selectcolor $selectcolor -command {xschem redraw} 
 
   toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
   toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
@@ -8136,10 +8157,11 @@ if { $dark_gui_colorscheme == 0 } { ;# normal GUI
   option add *disabledForeground {black} startupFile
   option add *disabledBackground {#d9d9d9} startupFile
   option add *readonlyBackground {#d9d9d9} startupFile
-  option add *highlightBackground {white} startupFile
+  option add *highlightBackground {#d9d9d9} startupFile
   option add *highlightThickness 0 startupFile
   option add *highlightColor {grey30} startupFile
   option add *insertBackground {black} startupFile
+  option add *selectColor {white} startupFile
 } else { ;# dark GUI colorscheme
   option add *foreground white startupFile
   option add *activeForeground white startupFile
@@ -8152,6 +8174,7 @@ if { $dark_gui_colorscheme == 0 } { ;# normal GUI
   option add *highlightThickness 0 startupFile
   option add *highlightColor {grey70} startupFile
   option add *insertBackground {white} startupFile
+  option add *selectColor {black} startupFile
 }
 
 set OS [lindex $tcl_platform(os) 0]
