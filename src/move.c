@@ -939,6 +939,7 @@ void move_objects(int what, int merge, double dx, double dy)
   {
    int firsti, firstw;
  
+   xunlink(sel_or_clip);
 
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    /* no undo push for MERGE ad PLACE and polygon point drag, already done before */

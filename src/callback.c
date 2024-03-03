@@ -1234,6 +1234,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->mouse_inside = 0;
     break;
   case EnterNotify:
+    dbg(2, "callback(): Enter event sel_or_clip=%s, ui_state=%d\n", sel_or_clip, xctx->ui_state);
     xctx->mouse_inside = 1;
     if(draw_xhair)
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
@@ -1242,7 +1243,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* xschem window *sending* selected objects
        when the pointer comes back in abort copy operation since it has been done
        in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
-    if( stat(sel_or_clip, &buf)  && (xctx->ui_state & STARTCOPY) )
+    if(stat(sel_or_clip, &buf) && (xctx->ui_state & STARTCOPY) )
     {
       copy_objects(ABORT); /* also unlinks sel_or_flip file */
       unselect_all(1);
@@ -1253,8 +1254,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /*xschem window *receiving* selected objects 
      * no selected objects and selection file exists --> start merge */
-    if(xctx->lastsel == 0  && !stat(sel_or_clip, &buf)) {
-      dbg(2, "callback(): Enter event\n");
+    if(xctx->lastsel == 0 && !stat(sel_or_clip, &buf)) {
       xctx->mousex_snap = 490;
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");

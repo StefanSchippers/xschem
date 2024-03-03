@@ -6227,6 +6227,10 @@ proc context_menu { } {
   wm geometry .ctxmenu "+$x+$y";# move away from screen edges
   bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu}}
   tkwait window .ctxmenu
+  # when context menu is destroyed an EnterNotify event is generated in the
+  # main xschem window. We want to process this event before taking 
+  # actions based on $retval.
+  update
   return $retval
 }
 
