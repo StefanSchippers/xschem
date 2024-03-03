@@ -6078,7 +6078,7 @@ proc balloon_show {w arg pos} {
     if {[string equal [tk windowingsystem] aqua]}  {
         ::tk::unsupported::MacWindowStyle style $top help none
     }   
-    pack [message $top.txt -aspect 10000 -background lightyellow \
+    pack [message $top.txt -aspect 10000 -fg black -background lightyellow \
         -font fixed -text $arg]
     if { $pos } {
       set wmx [winfo rootx $w]
