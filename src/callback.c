@@ -3250,8 +3250,8 @@ int rstate; /* (reduced state, without ShiftMask) */
          if( state == ControlMask && !tclgetboolvar("enable_stretch")) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
-         if(state == ShiftMask) xctx->connect_by_kissing = 2;
-         move_objects(START,0,0,0);
+         /* if(state == ShiftMask) xctx->connect_by_kissing = 2; */
+          move_objects(START,0,0,0);
        }
 
        #ifndef __unix__
