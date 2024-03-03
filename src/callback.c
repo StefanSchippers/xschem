@@ -3171,9 +3171,11 @@ int rstate; /* (reduced state, without ShiftMask) */
                              p->x[i] + ds, p->y[i] + ds)
              ) {
 
+               /* *** is this needed? ***
                if( (state & ShiftMask) && !(SET_MODMASK) ) {
                  unselect_all(1);
                }
+               */
                dbg(1, "selecting point %d\n", i);
                xctx->poly[polygon_c][polygon_n].selected_point[i] = 1;
                xctx->poly_point_selected = 1;
@@ -3222,9 +3224,7 @@ int rstate; /* (reduced state, without ShiftMask) */
              xctx->poly[c][n].points = points;
              xctx->poly[polygon_c][polygon_n].sel = SELECTED;
              xctx->need_reb_sel_arr=1;
-             #ifdef __unix__
-             draw_selection(xctx->gc[SELLAYER], 0);
-             #endif
+           /* move one polygon/bezier selected point */
            } else if(!(state & (ControlMask | ShiftMask))){
              xctx->push_undo();
              xctx->poly[polygon_c][polygon_n].sel = SELECTED1;
@@ -3233,9 +3233,13 @@ int rstate; /* (reduced state, without ShiftMask) */
            }
          } /* if(xctx->poly_point_selected) */
        } /* if(polygon_n >= 0) */
+
+
+       /* Button1 click selects object here */
        if(!xctx->poly_point_selected) {
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        }
+
        rebuild_selected_array();
 
        /* intuitive interface: directly drag elements */
@@ -3250,8 +3254,8 @@ int rstate; /* (reduced state, without ShiftMask) */
          if( state == ControlMask && !tclgetboolvar("enable_stretch")) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
-         /* if(state == ShiftMask) xctx->connect_by_kissing = 2; */
-          move_objects(START,0,0,0);
+         if(state == ShiftMask) copy_objects(START);
+         else move_objects(START,0,0,0);
        }
 
        #ifndef __unix__
@@ -3286,12 +3290,18 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
 
-   /* if a polygon/bezier control point was clicked, end point move operation
-    * and set polygon state back to SELECTED from SELECTED1 */
-   if(xctx->drag_elements) {
+   /* end intuitive_interface copy or move */
+   if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
+      copy_objects(END);
+      xctx->drag_elements = 0;
+   }
+   else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
       move_objects(END,0,0,0);
       xctx->drag_elements = 0;
    }
+
+   /* if a polygon/bezier control point was clicked, end point move operation
+    * and set polygon state back to SELECTED from SELECTED1 */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->poly_point_selected) {
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
         int k;

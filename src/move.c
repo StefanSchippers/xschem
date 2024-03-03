@@ -556,12 +556,20 @@ void copy_objects(int what)
 
     newpropcnt=0;
 
-    if( !xctx->kissing ) {
+    if( !xctx->kissing && !xctx->drag_elements) {
       dbg(1, "copy_objects(): push undo state\n");
       xctx->push_undo();
     }
 
     firstw = firsti = 1;
+
+
+    /* button released after clicking elements, without moving... do nothing */
+    if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
+       xctx->ui_state &= ~STARTCOPY;
+       return;
+    }        
+
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
 
