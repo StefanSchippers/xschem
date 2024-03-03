@@ -6179,7 +6179,7 @@ proc context_menu { } {
     button .ctxmenu.b6 -text {Insert text} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -image CtxmenuText -compound left \
       -font [subst $font] -command {set retval 6; destroy .ctxmenu}
-    button .ctxmenu.b8 -text {Paste selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
+    button .ctxmenu.b8 -text {Paste clipboard} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -image CtxmenuPaste -compound left \
       -font [subst $font] -command {set retval 8; destroy .ctxmenu}
   }
