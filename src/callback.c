@@ -3241,16 +3241,17 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* intuitive interface: directly drag elements */
        xctx->drag_elements = 0;
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
-          !(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) ) {
-          xctx->push_undo();
-          xctx->drag_elements = 1;
+          !xctx->poly_point_selected
+          /* !(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) */
+         ) {
+         xctx->push_undo();
+         xctx->drag_elements = 1;
 
-          if( state == ControlMask && !tclgetboolvar("enable_stretch")) {
-            select_attached_nets(); /* stretch nets that land on selected instance pins */
-          }
-          if(state == ShiftMask) xctx->connect_by_kissing = 2;
-
-          move_objects(START,0,0,0);
+         if( state == ControlMask && !tclgetboolvar("enable_stretch")) {
+           select_attached_nets(); /* stretch nets that land on selected instance pins */
+         }
+         if(state == ShiftMask) xctx->connect_by_kissing = 2;
+         move_objects(START,0,0,0);
        }
 
        #ifndef __unix__
