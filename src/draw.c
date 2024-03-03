@@ -1674,6 +1674,7 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
 
   if(points == 0 && x == NULL && y == NULL) { /* cleanup */
     my_free(_ALLOC_ID_, &p);
+    return;
   }
   if(!p) p = my_malloc(_ALLOC_ID_, psize * sizeof(XPoint));
   i = 0;

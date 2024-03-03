@@ -8153,34 +8153,36 @@ proc setup_tcp_bespice {} {
 ###
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
-if { $dark_gui_colorscheme == 0 } { ;# normal GUI
-  option add *foreground black startupFile
-  option add *activeForeground black startupFile
-  option add *background {#d9d9d9} startupFile
-  option add *activeBackground {#ececec} startupFile
-  option add *disabledForeground {black} startupFile
-  option add *disabledBackground {#d9d9d9} startupFile
-  option add *readonlyBackground {#d9d9d9} startupFile
-  option add *highlightBackground {#d9d9d9} startupFile
-  option add *highlightThickness 0 startupFile
-  option add *highlightColor {grey30} startupFile
-  option add *insertBackground {black} startupFile
-  option add *selectColor {white} startupFile
-} else { ;# dark GUI colorscheme
-  option add *foreground white startupFile
-  option add *activeForeground white startupFile
-  option add *background {grey20} startupFile
-  option add *activeBackground {grey20} startupFile
-  option add *disabledForeground {white} startupFile
-  option add *disabledBackground {grey20} startupFile
-  option add *readonlyBackground {grey20} startupFile
-  option add *highlightBackground {grey20} startupFile
-  option add *highlightThickness 0 startupFile
-  option add *highlightColor {grey70} startupFile
-  option add *insertBackground {white} startupFile
-  option add *selectColor {black} startupFile
-}
 
+if { [info exists has_x]} {
+  if { $dark_gui_colorscheme == 0 } { ;# normal GUI
+    option add *foreground black startupFile
+    option add *activeForeground black startupFile
+    option add *background {#d9d9d9} startupFile
+    option add *activeBackground {#ececec} startupFile
+    option add *disabledForeground {black} startupFile
+    option add *disabledBackground {#d9d9d9} startupFile
+    option add *readonlyBackground {#d9d9d9} startupFile
+    option add *highlightBackground {#d9d9d9} startupFile
+    option add *highlightThickness 0 startupFile
+    option add *highlightColor {grey30} startupFile
+    option add *insertBackground {black} startupFile
+    option add *selectColor {white} startupFile
+  } else { ;# dark GUI colorscheme
+    option add *foreground white startupFile
+    option add *activeForeground white startupFile
+    option add *background {grey20} startupFile
+    option add *activeBackground {grey20} startupFile
+    option add *disabledForeground {white} startupFile
+    option add *disabledBackground {grey20} startupFile
+    option add *readonlyBackground {grey20} startupFile
+    option add *highlightBackground {grey20} startupFile
+    option add *highlightThickness 0 startupFile
+    option add *highlightColor {grey70} startupFile
+    option add *insertBackground {white} startupFile
+    option add *selectColor {black} startupFile
+  }
+}
 set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc
