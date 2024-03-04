@@ -332,7 +332,6 @@ void merge_file(int selection_load, const char ext[])
     {
       name = clip_file;
       xctx->paste_from = 1;
-      here(1234);
     }
 
     if(is_generator(name)) generator = 1;

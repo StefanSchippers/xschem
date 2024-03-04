@@ -550,7 +550,7 @@ void copy_objects(int what)
   {
     int l, firstw, firsti;
 
-    dbg(0, "end copy: unlink sel_file\n");
+    dbg(1, "end copy: unlink sel_file\n");
     xunlink(sel_file);
     set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
@@ -948,7 +948,7 @@ void move_objects(int what, int merge, double dx, double dy)
   {
    int firsti, firstw;
 
-   dbg(0, "end move: unlink sel_file\n");
+   dbg(1, "end move: unlink sel_file\n");
    xunlink(sel_file);
    xctx->paste_from = 0; /* end of a paste from clipboard command */
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
