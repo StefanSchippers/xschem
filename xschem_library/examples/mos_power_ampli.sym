@@ -1,57 +1,11 @@
-v {xschem version=3.4.4 file_version=1.2
-*
-* This file is part of XSCHEM,
-* a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
-* simulation.
-* Copyright (C) 1998-2023 Stefan Frederik Schippers
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-}
-G {}
+v {xschem version=3.4.5 file_version=1.2}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-net_name=true
 }
-V {}
-S {}
-E {}
-L 4 -130 -50 130 -50 {}
-L 4 -130 50 130 50 {}
-L 4 -130 -50 -130 50 {}
-L 4 130 -50 130 50 {}
-L 4 -150 -40 -130 -40 {}
-L 4 -150 -20 -130 -20 {}
-L 4 -150 0 -130 0 {}
-L 4 130 -40 150 -40 {}
-L 4 -150 20 -130 20 {}
-L 4 -150 40 -130 40 {}
-B 5 -152.5 -42.5 -147.5 -37.5 {name=MINUS dir=in }
-B 5 -152.5 -22.5 -147.5 -17.5 {name=PLUS dir=in }
-B 5 -152.5 -2.5 -147.5 2.5 {name=VSS dir=in }
-B 5 147.5 -42.5 152.5 -37.5 {name=OUT dir=out }
-B 5 -152.5 17.5 -147.5 22.5 {name=VPP dir=in }
-B 5 -152.5 37.5 -147.5 42.5 {name=VNN dir=in }
 T {@symname} -85.5 -6 0 0 0.3 0.3 {}
-T {@name} 135 -62 0 0 0.2 0.2 {}
-T {MINUS} -125 -44 0 0 0.2 0.2 {}
-T {PLUS} -125 -24 0 0 0.2 0.2 {}
-T {VSS} -125 -4 0 0 0.2 0.2 {}
-T {OUT} 125 -44 0 1 0.2 0.2 {}
-T {VPP} -125 16 0 0 0.2 0.2 {}
-T {VNN} -125 36 0 0 0.2 0.2 {}
-T {( @#0:resolved_net )} -90 -45 0 0 0.2 0.2 {layer=15}
-T {( @#1:resolved_net )} -90 -25 0 0 0.2 0.2 {layer=15}
-T {( @#3:resolved_net )} 120 -25 0 1 0.2 0.2 {layer=15}
+T {@name} 135 -22 0 0 0.2 0.2 {}
+L 4 -130 -10 130 -10 {}
+L 4 -130 10 130 10 {}
+L 4 -130 -10 -130 10 {}
+L 4 130 -10 130 10 {}
