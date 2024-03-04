@@ -3714,9 +3714,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
-  frame .load.l.paneleft -takefocus 0
+  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {#d9d9d9}
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
-    -fg black -background {#d9d9d9} -highlightcolor red -highlightthickness 2 \
+    -fg black -background {#d9d9d9} -highlightthickness 0 -relief flat -borderwidth 0 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3727,7 +3727,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.list xview" -orient horiz -takefocus 0
   pack  .load.l.paneleft.yscroll -side right -fill y
   pack  .load.l.paneleft.xscroll -side bottom -fill x
-  pack  .load.l.paneleft.list -fill both -expand true
+  pack  .load.l.paneleft.list -fill both -expand true -padx 12
   bind .load.l.paneleft.list <<ListboxSelect>> { 
     set file_dialog_sel [.load.l.paneleft.list curselection]
     if { $file_dialog_sel ne {} } {
