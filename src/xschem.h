@@ -985,7 +985,7 @@ typedef struct {
   Int_hashtable floater_inst_table;
   Node_hashentry **node_table;
   Hilight_hashentry **hilight_table;
-  int poly_point_selected;
+  int shape_point_selected;
   int drag_elements;
   int hilight_nets;
   int hilight_color;

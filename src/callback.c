@@ -1268,7 +1268,49 @@ static int check_menu_start_commands(double c_snap)
   return 0;
 }
 
-/* sets xctx->poly_point_selected */
+
+/* sets xctx->shape_point_selected */
+static int edit_rect_point(int state)
+{
+   int rect_n = -1, rect_c = -1;
+   dbg(1, "1 Polygon selected\n");
+   rect_n = xctx->sel_array[0].n;
+   rect_c = xctx->sel_array[0].col;
+  /* rectangle point: Check is user is clicking a control point of a rectangle */
+  if(rect_n >= 0) {
+    double ds = xctx->cadhalfdotsize;
+    xRect *p = &xctx->rect[rect_c][rect_n];
+
+    xctx->need_reb_sel_arr=1;
+    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1 - ds, p->y1 - ds, p->x1 + ds, p->y1 + ds)) {
+      xctx->shape_point_selected = 1;
+      p->sel = SELECTED1;
+    }
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y1 - ds, p->x2 + ds, p->y1 + ds)) {
+      xctx->shape_point_selected = 1;
+      p->sel = SELECTED2;
+    }
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1 - ds, p->y2 - ds, p->x1 + ds, p->y2 + ds)) {
+      xctx->shape_point_selected = 1;
+      p->sel = SELECTED3;
+    }
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y2 - ds, p->x2 + ds, p->y2 + ds)) {
+      xctx->shape_point_selected = 1;
+      p->sel = SELECTED4;
+    }
+    if(xctx->shape_point_selected) { 
+      /* move one rectangle selected point */
+      if(!(state & (ControlMask | ShiftMask))){
+        xctx->push_undo();
+        move_objects(START,0,0,0);
+        return 1;
+      }
+    } /* if(xctx->shape_point_selected) */
+  } /* if(rect_n >= 0) */
+  return 0;
+}
+
+/* sets xctx->shape_point_selected */
 static int edit_polygon_point(int state)
 {
    int poly_n = -1, poly_c = -1;
@@ -1291,11 +1333,11 @@ static int edit_polygon_point(int state)
         ) {
           dbg(1, "selecting point %d\n", i);
           p->selected_point[i] = 1;
-          xctx->poly_point_selected = 1;
+          xctx->shape_point_selected = 1;
           break;
       }
     }
-    if(xctx->poly_point_selected) { 
+    if(xctx->shape_point_selected) { 
       int j;
       int points = p->points;
 
@@ -1338,11 +1380,11 @@ static int edit_polygon_point(int state)
       /* move one polygon/bezier selected point */
       } else if(!(state & (ControlMask | ShiftMask))){
         xctx->push_undo();
-        xctx->poly[poly_c][poly_n].sel = SELECTED1;
+        p->sel = SELECTED1;
         move_objects(START,0,0,0);
         return 1;
       }
-    } /* if(xctx->poly_point_selected) */
+    } /* if(xctx->shape_point_selected) */
   } /* if(poly_n >= 0) */
   return 0;
 }
@@ -1756,7 +1798,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* start of a mouse area select. Button1 pressed. No shift pressed
      * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->poly_point_selected &&
+       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->shape_point_selected &&
        !xctx->drag_elements &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
@@ -1778,7 +1820,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* Unselect by area */
     if((state & Button1Mask)  && (SET_MODMASK) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN) && !xctx->poly_point_selected &&
+       !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
         select_rect(START,0);
@@ -1786,7 +1828,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) &&
-             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->poly_point_selected &&
+             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->shape_point_selected &&
              !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
@@ -3249,7 +3291,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
        Selected sel;
        int prev_last_sel = xctx->lastsel;
-       xctx->poly_point_selected = 0;
+       xctx->shape_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
@@ -3269,18 +3311,21 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
        
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
-          if(edit_polygon_point(state)) break; /* sets xctx->poly_point_selected */
+          if(edit_polygon_point(state)) break; /* sets xctx->shape_point_selected */
+
+       if(xctx->lastsel == 1 && xctx->sel_array[0].type==xRECT)
+          if(edit_rect_point(state)) break; /* sets xctx->shape_point_selected */
 
        /* no single polygon was selected */
        /* Button1 click selects object here */
-       if(!xctx->poly_point_selected) {
+       if(!xctx->shape_point_selected) {
          sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        }
        rebuild_selected_array();
 
        /* intuitive interface: directly drag elements */
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
-          !xctx->poly_point_selected) {
+          !xctx->shape_point_selected) {
          xctx->push_undo();
          xctx->drag_elements = 1;
 
@@ -3295,13 +3340,13 @@ int rstate; /* (reduced state, without ShiftMask) */
        draw_selection(xctx->gc[SELLAYER], 0);
        #endif
        /* control-click on an instance: execute command */
-       if(sel.type && state == ControlMask && !xctx->poly_point_selected) {
+       if(sel.type && state == ControlMask && !xctx->shape_point_selected) {
          int savesem = xctx->semaphore;
          xctx->semaphore = 0;
          launcher();
          xctx->semaphore = savesem;
        }
-       if(tclgetboolvar("auto_hilight") && !xctx->poly_point_selected) {
+       if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
          if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
            if(!prev_last_sel) {
              redraw_hilights(1); /* 1: clear all hilights, then draw */
@@ -3333,21 +3378,30 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->drag_elements = 0;
    }
 
-   /* if a polygon/bezier control point was clicked, end point move operation
+   /* if a polygon/bezier/rectangle control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
-   else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->poly_point_selected) {
+   else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
         int k;
         int n = xctx->sel_array[0].n;
         int c = xctx->sel_array[0].col;
         move_objects(END,0,0,0);
         xctx->poly[c][n].sel = SELECTED;
-        xctx->poly_point_selected = 0;
+        xctx->shape_point_selected = 0;
         for(k=0; k<xctx->poly[c][n].points; ++k) {
           xctx->poly[c][n].selected_point[k] = 0;
         }
         xctx->need_reb_sel_arr=1;
      }
+     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==xRECT) {
+        int n = xctx->sel_array[0].n;
+        int c = xctx->sel_array[0].col;
+        move_objects(END,0,0,0);
+        xctx->rect[c][n].sel = SELECTED;
+        xctx->shape_point_selected = 0;
+        xctx->need_reb_sel_arr=1;
+     }
+
    }
 
    if(xctx->ui_state & STARTPAN) {

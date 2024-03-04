@@ -581,7 +581,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->nl_sel = xctx->nl_sem = xctx->nl_dir = 0;
 
   xctx->hilight_time = 0; /* timestamp for sims */
-  xctx->poly_point_selected = 0;
+  xctx->shape_point_selected = 0;
   xctx->drag_elements = 0;
   xctx->hilight_nets = 0;
   xctx->hilight_color = 0;
