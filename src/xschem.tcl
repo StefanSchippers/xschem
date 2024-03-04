@@ -7232,7 +7232,7 @@ proc load_raw {{type {}}} {
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
-  global dark_gui_colorscheme
+  global dark_gui_colorscheme draw_crosshair
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -7388,6 +7388,9 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option.menu add checkbutton -label "Intuitive Click & Drag interface" \
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
+
+  $topwin.menubar.option.menu add checkbutton -label "Draw crosshair" \
+    -variable draw_crosshair -selectcolor $selectcolor
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {

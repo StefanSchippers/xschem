@@ -1810,11 +1810,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
 
+#ifdef __unix__
       my_snprintf(res, S(res), "******* Xserver options: *******\n"); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "XMaxRequestSize=%ld\n", XMaxRequestSize(display));
       Tcl_AppendResult(interp, res, NULL); 
       my_snprintf(res, S(res), "XExtendedMaxRequestSize=%ld\n", XExtendedMaxRequestSize(display));
       Tcl_AppendResult(interp, res, NULL); 
+#endif
     
       my_snprintf(res, S(res), "******* Compile options:*******\n"); Tcl_AppendResult(interp, res, NULL);
       #ifdef HAS_DUP2

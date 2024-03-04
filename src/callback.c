@@ -3519,13 +3519,13 @@ int rstate; /* (reduced state, without ShiftMask) */
          select_rect(END,-1);
        }
      }
-     if(draw_xhair) draw_crosshair(0);
      rebuild_selected_array();
      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
 
    }
+   if(draw_xhair) draw_crosshair(0);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {

@@ -161,12 +161,12 @@ double dist_from_rect(double mx, double my, double x1, double y1, double x2, dou
 {/* return square of dist... */
  double dist, tmp;
 
- dist=mx-x1;
- tmp=x2-mx;
+ dist=fabs(mx-x1);
+ tmp=fabs(x2-mx);
  if(tmp < dist) dist=tmp;
- tmp=my-y1;
+ tmp=fabs(my-y1);
  if(tmp < dist) dist=tmp;
- tmp=y2-my;
+ tmp=fabs(y2-my);
  if(tmp < dist) dist=tmp;
 
  dbg(1, "dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);

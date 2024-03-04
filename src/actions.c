@@ -1716,7 +1716,7 @@ void launcher(void)
   const char *url;
   char program[PATH_MAX];
   int n, c;
-  char *prop_ptr;
+  char *prop_ptr=NULL;
   rebuild_selected_array();
   tcleval("update");
   if(xctx->lastsel ==1)
