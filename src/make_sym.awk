@@ -56,7 +56,6 @@ function beginfile(f)
    if(start) template=template symline "\n"
    if(symline ~ /\} *$/) start=0
   }
-  print "---> " template
   close(sym)
   
    
