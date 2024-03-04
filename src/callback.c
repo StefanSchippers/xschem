@@ -1347,19 +1347,19 @@ static int edit_rect_point(int state)
     xRect *p = &xctx->rect[rect_c][rect_n];
 
     xctx->need_reb_sel_arr=1;
-    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1, p->y1, p->x1 + ds, p->y1 + ds)) {
+    if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x1, p->y1, p->x1 + ds, p->y1 + ds)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED1;
     }
-    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y1, p->x2, p->y1 + ds)) {
+    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x2 - ds, p->y1, p->x2, p->y1 + ds)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED2;
     }
-    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1, p->y2 - ds, p->x1 + ds, p->y2)) {
+    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x1, p->y2 - ds, p->x1 + ds, p->y2)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED3;
     }
-    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y2 - ds, p->x2, p->y2)) {
+    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x2 - ds, p->y2 - ds, p->x2, p->y2)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED4;
     }
