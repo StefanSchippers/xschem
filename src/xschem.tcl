@@ -6958,13 +6958,14 @@ proc save_ctx {context} {
 
 proc housekeeping_ctx {} {
   global has_x simulate_bg show_hidden_texts case_insensitive draw_window hide_symbols
-  global netlist_type
+  global netlist_type intuitive_interface
   if {![info exists has_x]} {return}
   uplevel #0 {
   }
   # puts "housekeeping_ctx, path: [xschem get current_win_path]"
   xschem set hide_symbols $hide_symbols
   xschem set draw_window $draw_window
+  xschem set intuitive_interface  $intuitive_interface
   xschem case_insensitive $case_insensitive
   set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
