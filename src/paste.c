@@ -299,7 +299,8 @@ void merge_file(int selection_load, const char ext[])
     FILE *fd;
     int k=0, old;
     int endfile=0;
-    char name[PATH_MAX];
+    char *name;
+    char filename[PATH_MAX];
     char tag[1]; /* overflow safe */
     char tmp[256]; /* 20161122 overflow safe */
     char *aux_ptr=NULL;
@@ -314,20 +315,24 @@ void merge_file(int selection_load, const char ext[])
        my_snprintf(tmp, S(tmp), "load_file_dialog {Merge file} {} INITIALLOADDIR");
        tcleval(tmp);
        if(!strcmp(tclresult(),"")) return;
-       my_strncpy(name, (char *)tclresult(), S(name));
+       my_strncpy(filename, (char *)tclresult(), S(filename));
+       name = filename;
      }
      else {
-       my_strncpy(name, ext, S(name));
+       my_strncpy(filename, ext, S(filename));
+       name = filename;
      }
      dbg(1, "merge_file(): sch=%d name=%s\n",xctx->currsch,name);
     }
     else if(selection_load==1)
     {
-      my_snprintf(name, S(name), "%s/.selection.sch", user_conf_dir);
+      name = sel_file;
     }
-    else    /* clipboard load */
+    else    /* selection_load==2, clipboard load */
     {
-      my_snprintf(name, S(name), "%s/.clipboard.sch", user_conf_dir);
+      name = clip_file;
+      xctx->paste_from = 1;
+      here(1234);
     }
 
     if(is_generator(name)) generator = 1;

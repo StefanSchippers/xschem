@@ -520,6 +520,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->prep_hash_wires = 0;
   xctx->modified = 0;
   xctx->semaphore = 0;
+  xctx->paste_from = 0;
   xctx->current_name[0] = '\0';
   xctx->sch_to_compare[0] = '\0';
   xctx->tok_size = 0;
@@ -2463,8 +2464,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  /* END SOURCING xschemrc */
 
- if(!sel_or_clip[0]) {
-   my_snprintf(sel_or_clip, S(sel_or_clip), "%s/%s", user_conf_dir, ".selection.sch");
+ if(!sel_file[0]) {
+   my_snprintf(sel_file, S(sel_file), "%s/%s", user_conf_dir, ".selection.sch");
+ }
+
+ if(!clip_file[0]) {
+   my_snprintf(clip_file, S(clip_file), "%s/%s", user_conf_dir, ".clipboard.sch");
  }
 
  if(rainbow_colors) tclsetvar("rainbow_colors","1");

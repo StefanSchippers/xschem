@@ -174,7 +174,8 @@ int help=0; /* help option set to global scope, printing help is deferred */
 FILE *errfp = NULL;
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 char user_conf_dir[PATH_MAX];
-char sel_or_clip[PATH_MAX]="";
+char sel_file[PATH_MAX]="";
+char clip_file[PATH_MAX]="";
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
 int tcp_port = 0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */

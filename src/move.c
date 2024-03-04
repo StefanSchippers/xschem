@@ -550,7 +550,8 @@ void copy_objects(int what)
   {
     int l, firstw, firsti;
 
-    xunlink(sel_or_clip);
+    dbg(0, "end copy: unlink sel_file\n");
+    xunlink(sel_file);
     set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
 
@@ -946,9 +947,10 @@ void move_objects(int what, int merge, double dx, double dy)
   if(what & END)                                 /* move selected objects */
   {
    int firsti, firstw;
- 
-   xunlink(sel_or_clip);
 
+   dbg(0, "end move: unlink sel_file\n");
+   xunlink(sel_file);
+   xctx->paste_from = 0; /* end of a paste from clipboard command */
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    /* no undo push for MERGE ad PLACE and polygon point drag, already done before */
    if(!xctx->poly_point_selected && !xctx->kissing && !xctx->drag_elements &&

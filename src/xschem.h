@@ -947,6 +947,7 @@ typedef struct {
   int simdata_ninst;
   int modified;
   int semaphore;
+  int paste_from; /* set to non zero if paste from clipboard is called */
   size_t tok_size;
   char netlist_name[PATH_MAX];
   char current_dirname[PATH_MAX];
@@ -1178,7 +1179,8 @@ extern char *cad_icon[];
 extern FILE *errfp;
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
-extern char sel_or_clip[PATH_MAX];
+extern char sel_file[PATH_MAX];
+extern char clip_file[PATH_MAX];
 extern char pwd_dir[PATH_MAX]; /* obtained via getcwd() */
 extern int tcp_port;
 extern int text_svg;

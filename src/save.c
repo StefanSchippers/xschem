@@ -4880,13 +4880,13 @@ void save_selection(int what)
 {
  FILE *fd;
  int i, c, n, k;
- char name[PATH_MAX];
+ char *name;
 
  dbg(3, "save_selection():\n");
  if(what==1)
-   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".selection");
+   name = sel_file;
  else /* what=2 */
-   my_snprintf(name, S(name), "%s/%s.sch",user_conf_dir , ".clipboard");
+   name = clip_file;
 
  if(!(fd=fopen(name,"w")))
  {
