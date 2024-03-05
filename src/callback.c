@@ -3400,8 +3400,9 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
 
+       if(!xctx->intuitive_interface && !(state & (ShiftMask | ControlMask) )) unselect_all(1);
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-       if(!sel.type && !(state & (ShiftMask | ControlMask) ) )  unselect_all(1);
+       if(xctx->intuitive_interface && !sel.type && !(state & (ShiftMask | ControlMask) ) )  unselect_all(1);
        rebuild_selected_array();
 
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
