@@ -445,6 +445,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    /* closest_object
+     *   returns index of closest object to mouse coordinates
+     *   index = type layer n
+     *   type = wire | text | line | poly | rect | arc | inst
+     *   layer is the layer number the object is drawn with
+     *   (valid for line, poly, rect, arc)
+     *   n is the index of the object in the xschem array
+     *   example:
+     *      $  after 3000 {set obj [xschem closest_object]} 
+     *   (after 3s) 
+     *      $ puts $obj
+     *      line 4 19 */
+    else if(!strcmp(argv[1], "closest_object"))
+    {
+      char res[100];
+      const char *type;
+      Selected sel;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+
+      sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+      switch(sel.type)
+      {
+       case WIRE:    type="wire"; break;
+       case xTEXT:   type="text"; break;
+       case LINE:    type="line"; break;
+       case POLYGON: type="poly"; break;
+       case xRECT:   type="rect"; break;
+       case ARC:     type="arc" ; break;
+       case ELEMENT: type="inst"; break;
+       default: break;
+      } /*end switch */
+
+      if(sel.type) my_snprintf(res, S(res), "%s %d %d", type, sel.col, sel.n);
+      else my_snprintf(res, S(res), "nosel");
+      Tcl_SetResult(interp, res, TCL_VOLATILE);
+    }
 
     /* circle
      *   Start a GUI placement of a circle.

@@ -1166,11 +1166,15 @@ void select_line(int c, int i, unsigned short select_mode, int fast )
 }
 
 /* 20160503 return type field */
-Selected select_object(double mx,double my, unsigned short select_mode, int override_lock)
+Selected select_object(double mx,double my, unsigned short select_mode,
+                       int override_lock, Selected *selptr)
 {
    Selected sel;
    xctx->already_selected = 0;
-   sel = find_closest_obj(mx, my, override_lock);
+   if(!selptr) 
+     sel = find_closest_obj(mx, my, override_lock);
+   else
+     sel = *selptr;
    dbg(1, "select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type);
 
    switch(sel.type)

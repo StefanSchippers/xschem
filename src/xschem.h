@@ -1353,7 +1353,7 @@ extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
 #endif
 
 extern Selected select_object(double mx,double my, unsigned short sel_mode,
-                                    int override_lock); /*  return type 20160503 */
+                                    int override_lock, Selected *selptr);
 extern int set_first_sel(unsigned short type, int n, unsigned int col);
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);

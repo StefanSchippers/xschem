@@ -1942,7 +1942,7 @@ int rstate; /* (reduced state, without ShiftMask) */
            abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
           if(!xctx->already_selected) {
             select_object(X_TO_XSCHEM(xctx->mx_save),
-                          Y_TO_XSCHEM(xctx->my_save), 0, 0); /* remove near obj if dragging */
+                          Y_TO_XSCHEM(xctx->my_save), 0, 0, NULL); /* remove near obj if dragging */
           }
           rebuild_selected_array();
         }
@@ -3309,26 +3309,13 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
-     /* xctx->mx_save = mx; xctx->my_save = my; */
-     /* xctx->mx_double_save=xctx->mousex_snap; */
-     /* xctx->my_double_save=xctx->mousey_snap; */
      break;
    }
 
-  /*
-   * if(button == Button3 && tclgetvar("graph_selected")[0] && xctx->semaphore >=2 )
-   * {
-        Selected sel;
-   *    sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-   *    if(sel.type) send_net_to_graph(1);
-   *   
-   * }
-   * else
-   */
    if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
      Selected sel;
-     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      if(sel.type) select_connected_nets(1);
    }
    else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
@@ -3342,7 +3329,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
      Selected sel;
-     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      if(sel.type) select_connected_nets(0);
    }
    else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
@@ -3356,7 +3343,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->mx_save = mx; xctx->my_save = my;
      xctx->mx_double_save=xctx->mousex_snap;
      xctx->my_double_save=xctx->mousey_snap;
-     select_object(xctx->mousex, xctx->mousey, 0, 0);
+     select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
    else if(button==Button2 && (state == 0)) {
@@ -3373,7 +3360,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      } else if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
      } else if(button==Button1 && (state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
-       select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
        tclsetvar("preserve_unchanged_attrs", "1");
        rebuild_selected_array();
      }
@@ -3394,6 +3381,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      /* Button1Press to select objects */
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
        Selected sel;
+       int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
        int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
 
@@ -3403,8 +3391,23 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->my_double_save=xctx->mousey_snap;
 
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
-       sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+
        if(xctx->intuitive_interface && !sel.type && no_shift_no_ctrl )  unselect_all(1);
+
+       switch(sel.type)
+       {
+        case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
+        case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
+        case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
+        case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
+        case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
+        case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
+        case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
+        default: break;
+       } /*end switch */
+
+       if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
        rebuild_selected_array();
 
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
@@ -3524,7 +3527,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(!xctx->lastsel && xctx->ui_state ==  0) {
          /* Following 5 lines do again a selection overriding lock,
           * so locked instance attrs can be edited */
-         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1);
+         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1, NULL);
          if(sel.type) {
            xctx->ui_state = SELECTION;
            rebuild_selected_array();

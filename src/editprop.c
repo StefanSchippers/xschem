@@ -1811,7 +1811,7 @@ void edit_property(int x)
    modified |= edit_symbol_property(x, j);
    while( x == 0 && tclgetvar("edit_symbol_prop_new_sel")[0] == '1') {
      unselect_all(1);
-     select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      rebuild_selected_array();
 
      type = xctx->sel_array[0].type;

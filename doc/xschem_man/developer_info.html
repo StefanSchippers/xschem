@@ -525,11 +525,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
-
-
-
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -572,6 +567,18 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
    Check if all instances have a unique refdes (name attribute in xschem), 
    highlight such instances. If second parameter is '1' rename duplicates </pre>
+   <li><kbd>       closest_object</kbd></li><pre>
+   returns index of closest object to mouse coordinates
+   index = type layer n
+   type = wire | text | line | poly | rect | arc | inst
+   layer is the layer number the object is drawn with
+   (valid for line, poly, rect, arc)
+   n is the index of the object in the xschem array
+   example:
+      $  after 3000 {set obj [xschem closest_object]} 
+   (after 3s) 
+      $ puts $obj
+      line 4 19 </pre>
    <li><kbd>       circle</kbd></li><pre>
    Start a GUI placement of a circle.
    User should click 3 unaligned points to define the circle </pre>
@@ -713,6 +720,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> header_text </kbd> header metadata (license info etc) present in schematic </li>
      <li><kbd> infowindow_text </kbd> ERC messages </li>
      <li><kbd> instances </kbd> number of instances in schematic </li>
+     <li><kbd> intuitive_interface </kbd> ERC messages </li>
      <li><kbd> last_created_window </kbd> return win_path of last created tab or window </li>
      <li><kbd> lastsel </kbd> number of selected objects </li>
      <li><kbd> line_width </kbd> get line width </li>
@@ -1323,6 +1331,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> hide_symbols </kbd> set to 0,1,2 for various hiding level of symbols </li>
      <li><kbd> hilight_color </kbd> set hilight color for next hilight </li>
      <li><kbd> infowindow_text </kbd> ERC messages </li>
+     <li><kbd> intuitive_interface </kbd> ERC messages </li>
      <li><kbd> netlist_name </kbd> set custom netlist name </li>
      <li><kbd> netlist_type </kbd> set netlisting mode (spice, verilog, vhdl, tedax, symbol) </li>
      <li><kbd> no_draw </kbd> set no drawing flag (0 or 1) </li>
@@ -1512,6 +1521,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
+
+
+
+
+
 
 
 
