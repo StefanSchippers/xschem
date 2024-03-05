@@ -3395,14 +3395,16 @@ int rstate; /* (reduced state, without ShiftMask) */
      if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
        Selected sel;
        int prev_last_sel = xctx->lastsel;
+       int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
+
        xctx->shape_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
 
-       if(!xctx->intuitive_interface && !(state & (ShiftMask | ControlMask) )) unselect_all(1);
+       if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
        sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-       if(xctx->intuitive_interface && !sel.type && !(state & (ShiftMask | ControlMask) ) )  unselect_all(1);
+       if(xctx->intuitive_interface && !sel.type && no_shift_no_ctrl )  unselect_all(1);
        rebuild_selected_array();
 
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
