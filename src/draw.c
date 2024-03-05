@@ -1812,7 +1812,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
   sy2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&sx1,&sy1,&sx2,&sy2) ) {
 
-    bezier = (flags & 1)   && (points > 2);
+    bezier = (flags & 1) && (points > 2);
     drawpoints = (flags & 2);
     if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
       MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
