@@ -83,10 +83,27 @@ p{padding: 15px  30px 10px;}
  </p>
  <img src="instance_based_implementation_04.png"> 
 
- <p class="important">
-  Note: when creating alternate netlist files ensure the port order is identical to the base
-  circuit. The assumption for all alternate circuits created using the methods explained above is that the
-  alternate circuits have all the same interface as the base circuit (same input, output, inout pins, in the same order).
+ <h3> Automatic port order setting from provided subcircuit netlist (Spice netlists only) </h3>
+ <p>
+  If a <kbd>spice_sym_def</kbd> attribute is defined and has one of the following forms:
+ </p>
+ <pre class="code">
+spice_sym_def="
+.subckt opamp PLUS MINUS OUT VCC VSS
+...
+...
+...
+.ends
+" </pre>
+ 
+ <p> Or:</p>
+ <pre class="code">
+spice_sym_def=".include /path/to/subckt_file" </pre>
+ <p>
+ Xchem will use the port order provided in the subckt line, either by looking directly into the attribute value
+ or by loading the file specified by the .include line. This way there will not be inconsistencies
+ between instance line and subckt definition in the circuit netlist. If for some reason the port list can not be read or
+ pin names do not match xchem will use the port order drom the <kbd>.sym</kbd> file.
  </p><br><br>
 
  <p class="important">
