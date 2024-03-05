@@ -1783,11 +1783,13 @@ int rstate; /* (reduced state, without ShiftMask) */
  dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
  switch(event)
  {
+
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1);
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
+
   case EnterNotify:
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
     xctx->mouse_inside = 1;
@@ -1837,6 +1839,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     dbg(1, "callback(): Expose\n");
     break;
+
   case ConfigureNotify:
     dbg(1,"callback(): ConfigureNotify event\n");
     resetwin(1, 1, 0, 0, 0);
@@ -1844,7 +1847,6 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case MotionNotify:
-
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
@@ -1859,7 +1861,6 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
       break;
     }
-
     dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
@@ -1948,13 +1949,14 @@ int rstate; /* (reduced state, without ShiftMask) */
         }
       }
     }
-
     if(draw_xhair) {
       draw_crosshair(2);
     }
     break;
+
   case KeyRelease:
     break;
+
   case KeyPress:
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
@@ -3460,8 +3462,8 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
    } /* button==Button1 */
    break;
-  case ButtonRelease:
 
+  case ButtonRelease:
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      break;
@@ -3482,7 +3484,6 @@ int rstate; /* (reduced state, without ShiftMask) */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
      end_shape_point_edit();
    }
-
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
      /* xctx->mx_save = mx; xctx->my_save = my; */
@@ -3499,11 +3500,9 @@ int rstate; /* (reduced state, without ShiftMask) */
        tclsetboolvar("enable_stretch", !es);
        select_rect(END,-1);
        tclsetboolvar("enable_stretch", es);
-       break;
      } else {
        /* Button1 release: end of rectangle select */
        if(!(state & (Button4Mask|Button5Mask) ) ) {
- 
          select_rect(END,-1);
        }
      }
@@ -3511,7 +3510,6 @@ int rstate; /* (reduced state, without ShiftMask) */
      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
-
    }
    if(draw_xhair) draw_crosshair(0);
    break;
@@ -3548,6 +3546,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
      }
    }
+
 #ifndef __unix__
   case MOUSE_WHEEL_UP:  /* windows do not use button4 and button5 like X */
   {
