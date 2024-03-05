@@ -1347,19 +1347,19 @@ static int edit_rect_point(int state)
     xRect *p = &xctx->rect[rect_c][rect_n];
 
     xctx->need_reb_sel_arr=1;
-    if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x1, p->y1, p->x1 + ds, p->y1 + ds)) {
+    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1, p->y1, p->x1 + ds, p->y1 + ds)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED1;
     }
-    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x2 - ds, p->y1, p->x2, p->y1 + ds)) {
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y1, p->x2, p->y1 + ds)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED2;
     }
-    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x1, p->y2 - ds, p->x1 + ds, p->y2)) {
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1, p->y2 - ds, p->x1 + ds, p->y2)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED3;
     }
-    else if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, p->x2 - ds, p->y2 - ds, p->x2, p->y2)) {
+    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y2 - ds, p->x2, p->y2)) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED4;
     }
@@ -1623,6 +1623,45 @@ static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button,
     draw();
    }
    return 0;
+}
+
+static void end_shape_point_edit()
+{
+     if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
+        int k;
+        int n = xctx->sel_array[0].n;
+        int c = xctx->sel_array[0].col;
+        move_objects(END,0,0,0);
+        xctx->poly[c][n].sel = SELECTED;
+        xctx->shape_point_selected = 0;
+        for(k=0; k<xctx->poly[c][n].points; ++k) {
+          xctx->poly[c][n].selected_point[k] = 0;
+        }
+        xctx->need_reb_sel_arr=1;
+     }
+     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==xRECT) {
+        int n = xctx->sel_array[0].n;
+        int c = xctx->sel_array[0].col;
+        move_objects(END,0,0,0);
+        xctx->rect[c][n].sel = SELECTED;
+        xctx->shape_point_selected = 0;
+        xctx->need_reb_sel_arr=1;
+     }
+     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==LINE) {
+        int n = xctx->sel_array[0].n;
+        int c = xctx->sel_array[0].col;
+        move_objects(END,0,0,0);
+        xctx->line[c][n].sel = SELECTED;
+        xctx->shape_point_selected = 0;
+        xctx->need_reb_sel_arr=1;
+     }
+     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==WIRE) {
+        int n = xctx->sel_array[0].n;
+        move_objects(END,0,0,0);
+        xctx->wire[n].sel = SELECTED;
+        xctx->shape_point_selected = 0;
+        xctx->need_reb_sel_arr=1;
+     }
 }
 
 /* main window callback */
@@ -3339,7 +3378,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        rebuild_selected_array();
      }
    }
-   else if(button==Button1)
+   else if(button==Button1) /* MOD button is not pressed here. Processed above */
    {
      xctx->drag_elements = 0;
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
@@ -3361,21 +3400,10 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
 
-
-       /* If no shift was pressed while Button1Press delete selection */
-       if( !(state & (ShiftMask | ControlMask)) && !(SET_MODMASK) ) {
-         if(xctx->intuitive_interface) {
-           /* here we need to check if there is something under the mouse. */
-           sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-           if(!sel.type) unselect_all(1);
-         } else {
-           /* if no intuitive_interface is set always unselect all existing objects
-            * (unshifted)  on mouse click */
-           unselect_all(1);
-         }
-       }
-       select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
+       if(!(state & (ShiftMask | ControlMask) ) )  unselect_all(1);
+       sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
        rebuild_selected_array();
+
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
           if(edit_polygon_point(state)) break; /* sets xctx->shape_point_selected */
 
@@ -3387,15 +3415,6 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==WIRE)
           if(edit_wire_point(state)) break; /* sets xctx->shape_point_selected */
-
-       #if 0
-       /* no single polygon was selected */
-       /* Button1 click selects object here */
-       if(!xctx->shape_point_selected) {
-         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0);
-       }
-       rebuild_selected_array();
-       #endif
 
        /* intuitive interface: directly drag elements */
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
@@ -3417,7 +3436,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(sel.type && state == ControlMask && !xctx->shape_point_selected) {
          int savesem = xctx->semaphore;
          xctx->semaphore = 0;
-         launcher();
+         launcher(); /* works only if lastsel == 1 */
          xctx->semaphore = savesem;
        }
        if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
@@ -3455,44 +3474,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* if a polygon/bezier/rectangle control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
-     if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
-        int k;
-        int n = xctx->sel_array[0].n;
-        int c = xctx->sel_array[0].col;
-        move_objects(END,0,0,0);
-        xctx->poly[c][n].sel = SELECTED;
-        xctx->shape_point_selected = 0;
-        for(k=0; k<xctx->poly[c][n].points; ++k) {
-          xctx->poly[c][n].selected_point[k] = 0;
-        }
-        xctx->need_reb_sel_arr=1;
-     }
-     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==xRECT) {
-        int n = xctx->sel_array[0].n;
-        int c = xctx->sel_array[0].col;
-        move_objects(END,0,0,0);
-        xctx->rect[c][n].sel = SELECTED;
-        xctx->shape_point_selected = 0;
-        xctx->need_reb_sel_arr=1;
-     }
-     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==LINE) {
-        int n = xctx->sel_array[0].n;
-        int c = xctx->sel_array[0].col;
-        move_objects(END,0,0,0);
-        xctx->line[c][n].sel = SELECTED;
-        xctx->shape_point_selected = 0;
-        xctx->need_reb_sel_arr=1;
-     }
-     else if(xctx->lastsel == 1 && xctx->sel_array[0].type==WIRE) {
-        int n = xctx->sel_array[0].n;
-        move_objects(END,0,0,0);
-        xctx->wire[n].sel = SELECTED;
-        xctx->shape_point_selected = 0;
-        xctx->need_reb_sel_arr=1;
-     }
-
-
-
+     end_shape_point_edit();
    }
 
    if(xctx->ui_state & STARTPAN) {

@@ -118,17 +118,26 @@ static void find_closest_polygon(double mx,double my)
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->polygons[c]; ++i)
   {
-    bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
-    bezier = bezier && (xctx->poly[c][i].points > 2);
+    xPoly *p = &xctx->poly[c][i];
+    bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
+    bezier = bezier && (p->points > 2);
     
     if(bezier) {
-       find_closest_bezier(mx, my, c, i, &l, &col);
+      double ds = xctx->cadhalfdotsize;
+
+      find_closest_bezier(mx, my, c, i, &l, &col);
+      for(j = 0; j < p->points; j++) {
+        if( POINTINSIDE(mx, my, p->x[j] - ds, p->y[j] - ds, p->x[j] + ds, p->y[j] + ds)) {
+           l = i; distance = 0.0;col = c;
+           break;
+        }
+      }
     } else {
       for(j=0; j<xctx->poly[c][i].points-1; ++j) {
-        x1 = xctx->poly[c][i].x[j];
-        y1 = xctx->poly[c][i].y[j];
-        x2 = xctx->poly[c][i].x[j+1];
-        y2 = xctx->poly[c][i].y[j+1];
+        x1 = p->x[j];
+        y1 = p->y[j];
+        x2 = p->x[j+1];
+        y2 = p->y[j+1];
         ORDER(x1,y1,x2,y2);
         if( (tmp = dist(x1, y1, x2, y2, mx, my)) < distance )
         {
