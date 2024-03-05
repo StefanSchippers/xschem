@@ -6107,84 +6107,84 @@ proc context_menu { } {
   set y [expr {[winfo pointery .ctxmenu] - 10}]
   if { !$selection} {
     button .ctxmenu.b9 -text {Open most recent} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuRecent -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuRecent -compound left \
       -font [subst $font] -command {set retval 9; destroy .ctxmenu} 
   }
   button .ctxmenu.b10 -text {Edit attributes} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuEdit -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
     -font [subst $font] -command {set retval 10; destroy .ctxmenu}
   button .ctxmenu.b11 -text {Edit attr in editor} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuEdit -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
     -font [subst $font] -command {set retval 11; destroy .ctxmenu}
   if {$selection} {
     button .ctxmenu.b12 -text {Descend schematic} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuDown -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDown -compound left \
       -font [subst $font] -command {set retval 12; destroy .ctxmenu}
     button .ctxmenu.b13 -text {Descend symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuDownSym -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDownSym -compound left \
       -font [subst $font] -command {set retval 13; destroy .ctxmenu}
     button .ctxmenu.b18 -text {Delete selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuDelete -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDelete -compound left \
       -font [subst $font] -command {set retval 18; destroy .ctxmenu}
     button .ctxmenu.b7 -text {Cut selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuCut -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCut -compound left \
       -font [subst $font] -command {set retval 7; destroy .ctxmenu}
     button .ctxmenu.b15 -text {Copy selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuCopy -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCopy -compound left \
       -font [subst $font] -command {set retval 15; destroy .ctxmenu}
     button .ctxmenu.b16 -text {Move selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuMove -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuMove -compound left \
       -font [subst $font] -command {set retval 16; destroy .ctxmenu}
     button .ctxmenu.b17 -text {Duplicate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuDuplicate -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDuplicate -compound left \
       -font [subst $font] -command {set retval 17; destroy .ctxmenu}
     button .ctxmenu.b22 -text {Rotate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuRotate -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuRotate -compound left \
       -font [subst $font] -command {xschem rotate; destroy .ctxmenu}
     button .ctxmenu.b23 -text {Flip selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuFlip -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuFlip -compound left \
       -font [subst $font] -command {xschem flip; destroy .ctxmenu}
     button .ctxmenu.b24 -text {Rotate in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuRotate -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuRotate -compound left \
       -font [subst $font] -command {xschem rotate_in_place; destroy .ctxmenu}
     button .ctxmenu.b25 -text {Flip in-place sel.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuFlip -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuFlip -compound left \
       -font [subst $font] -command {xschem flip_in_place; destroy .ctxmenu}
   }
   if {!$selection} {
     button .ctxmenu.b14 -text {Go to upper level} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuUp -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuUp -compound left \
       -font [subst $font] -command {set retval 14; destroy .ctxmenu}
     button .ctxmenu.b1 -text {Insert symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuSymbol -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuSymbol -compound left \
       -font [subst $font] -command {set retval 1; destroy .ctxmenu}
     button .ctxmenu.b2 -text {Insert wire} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuWire -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuWire -compound left \
       -font [subst $font] -command {set retval 2; destroy .ctxmenu}
     button .ctxmenu.b3 -text {Insert line} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuLine -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuLine -compound left \
       -font [subst $font] -command {set retval 3; destroy .ctxmenu}
     button .ctxmenu.b4 -text {Insert box} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuBox -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuBox -compound left \
       -font [subst $font] -command {set retval 4; destroy .ctxmenu}
     button .ctxmenu.b5 -text {Insert polygon} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuPoly -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuPoly -compound left \
       -font [subst $font] -command {set retval 5; destroy .ctxmenu}
     button .ctxmenu.b19 -text {Insert arc} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuArc -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuArc -compound left \
       -font [subst $font] -command {set retval 19; destroy .ctxmenu}
     button .ctxmenu.b20 -text {Insert circle} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuCircle -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCircle -compound left \
       -font [subst $font] -command {set retval 20; destroy .ctxmenu}
     button .ctxmenu.b6 -text {Insert text} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuText -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuText -compound left \
       -font [subst $font] -command {set retval 6; destroy .ctxmenu}
     button .ctxmenu.b8 -text {Paste clipboard} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuPaste -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuPaste -compound left \
       -font [subst $font] -command {set retval 8; destroy .ctxmenu}
   }
   button .ctxmenu.b21 -text {Abort command} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuAbort -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuAbort -compound left \
     -font [subst $font] -command {set retval 21; destroy .ctxmenu}
 
   pack .ctxmenu.b21 -fill x -expand true
