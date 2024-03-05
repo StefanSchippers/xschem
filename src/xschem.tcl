@@ -6394,33 +6394,33 @@ proc tab_context_menu {tab_but} {
   button .ctxmenu.b0 -text {Tab menu} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -fg black -background white -state disabled -disabledforeground black -font [subst $font]
   button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuCopy -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCopy -compound left \
     -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuOpendir -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuOpendir -compound left \
     -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
   button .ctxmenu.b3 -text {Open circuit dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuTerm -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Open sim. dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuTerm -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuTerm -compound left \
     -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image $img -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image $img -compound left \
       -font [subst $font] \
       -command "set retval 6; tab_ctx_cmd $tab_but {open {$counterpart} $filetype} ; destroy .ctxmenu"
   }
   if {$filetype ne {symbol}} {
     button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-       -image CtxmenuEdit -compound left \
+       -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
       -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   }
   button .ctxmenu.b7 -text {Save} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuSave -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuSave -compound left \
     -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
   button .ctxmenu.b8 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
-     -image CtxmenuDelete -compound left \
+     -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDelete -compound left \
     -font [subst $font] -command "set retval 8; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
   pack .ctxmenu.b0 -fill x -expand true
@@ -6462,7 +6462,7 @@ proc tab_context_menu {tab_but} {
 # Code contributed by Neil Johnson (github: nejohnson)
 #
 proc setup_toolbar {} {
-  global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR
+  global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR dark_gui_colorscheme
   set_ne toolbar_visible 1
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
@@ -6514,10 +6514,17 @@ proc setup_toolbar {} {
 # Create a tool button which may be displayed
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
-    if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -background white 
+    global dark_gui_colorscheme
+
+    if { $dark_gui_colorscheme ==1} {
+      set bg black
+    } else {
+      set bg white
     }
-    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background white -fg white -height 24 \
+    if {![winfo exists  $topwin.toolbar]} {
+       frame $topwin.toolbar -relief raised -bd 0 -background $bg 
+    }
+    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
     -padx 0 -pady 0 -command $cmd
     if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
 }
