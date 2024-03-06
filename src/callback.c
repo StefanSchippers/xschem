@@ -1268,6 +1268,40 @@ static int check_menu_start_commands(double c_snap)
 }
 
 
+static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
+{
+  int res = 0;
+  int i, type = sel->type;
+  double pinx0, piny0;
+  if(type == ELEMENT) {
+    int n = sel->n;
+    xSymbol *symbol = xctx->sym + xctx->inst[n].ptr;
+    int npin = symbol->rects[PINLAYER];
+    for(i = 0; i < npin; ++i) {
+      get_inst_pin_coord(n, i, &pinx0, &piny0);
+      if(pinx0 == mx && piny0 == my) {
+        break;
+      }
+    }
+    if(i < npin) {
+      int save = xctx->modified;
+      dbg(1, "pin: %g %g\n", pinx0, piny0);
+      unselect_all(1);
+      xctx->push_undo();
+      storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
+      set_modify(save);
+      xctx->shape_point_selected = 1;
+      xctx->prep_hash_wires=0;
+      xctx->need_reb_sel_arr = 1;
+      xctx->kissing = 1;
+      rebuild_selected_array();
+      res = 1;
+    }
+  }
+  return res;
+}
+
+
 /* sets xctx->shape_point_selected */
 static int edit_line_point(int state)
 {
@@ -1307,7 +1341,7 @@ static int edit_wire_point(int state)
    int wire_n = -1;
    dbg(1, "1 Wire selected\n");
    wire_n = xctx->sel_array[0].n;
-  /* wireangle point: Check is user is clicking a control point of a wireangle */
+  /* wire point: Check is user is clicking a control point of a wire */
   if(wire_n >= 0) {
     double ds = xctx->cadhalfdotsize ;
     xWire *p = &xctx->wire[wire_n];
@@ -1322,7 +1356,7 @@ static int edit_wire_point(int state)
       p->sel = SELECTED2;
     }
     if(xctx->shape_point_selected) {
-      /* move one wireangle selected point */
+      /* move one wire selected point */
       if(!(state & (ControlMask | ShiftMask))){
         xctx->push_undo();
         move_objects(START,0,0,0);
@@ -1626,6 +1660,9 @@ static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button,
 
 static void end_shape_point_edit()
 {
+     int save = xctx->modified;
+     dbg(1, "%g %g %g %g\n",
+         xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
         int k;
         int n = xctx->sel_array[0].n;
@@ -1660,6 +1697,9 @@ static void end_shape_point_edit()
         xctx->wire[n].sel = SELECTED;
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
+     }
+     if(xctx->mx_double_save == xctx->mousex_snap && xctx->my_double_save == xctx->mousey_snap) {  
+       set_modify(save);
      }
 }
 
@@ -3385,6 +3425,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
        int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
+       int add_wire_to_pin = 0;
 
        xctx->shape_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
@@ -3406,6 +3447,22 @@ int rstate; /* (reduced state, without ShiftMask) */
         case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
         default: break;
        } /*end switch */
+
+
+
+       /* Clicking on an instance pin -> drag a new wire */
+       if(xctx->intuitive_interface && !already_selected) {
+         add_wire_to_pin = add_wire_from_inst_pin(&sel, xctx->mousex_snap, xctx->mousey_snap);
+      
+         if(add_wire_to_pin) {
+           move_objects(START,0,0,0);
+           break; /* addig a wire: nothing else to do */
+         }
+       }
+
+
+
+      
 
        if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
