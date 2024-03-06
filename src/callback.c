@@ -3394,7 +3394,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
        sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
 
-       if(xctx->intuitive_interface && !sel.type && no_shift_no_ctrl )  unselect_all(1);
+       if(xctx->intuitive_interface && /* !sel.type && */ no_shift_no_ctrl )  unselect_all(1);
 
        switch(sel.type)
        {
