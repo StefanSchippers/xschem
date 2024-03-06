@@ -3394,7 +3394,6 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
        sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
 
-       if(xctx->intuitive_interface && /* !sel.type && */ no_shift_no_ctrl )  unselect_all(1);
 
        switch(sel.type)
        {
@@ -3407,6 +3406,8 @@ int rstate; /* (reduced state, without ShiftMask) */
         case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
         default: break;
        } /*end switch */
+
+       if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
        if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
        rebuild_selected_array();
