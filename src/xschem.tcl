@@ -2625,7 +2625,7 @@ proc graph_edit_properties {n} {
   catch {destroy .graphdialog}
   toplevel .graphdialog -class Dialog ;# -width 1 -height 1
   wm withdraw .graphdialog
-  # wm transient .graphdialog [xschem get topwindow]
+  wm transient .graphdialog [xschem get topwindow]
   update idletasks
 
   set graph_selected $n
