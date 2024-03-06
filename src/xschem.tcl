@@ -2614,19 +2614,18 @@ proc raw_is_loaded {rawfile type} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color
-  global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
-  global graph_linewidth_mult graph_change_done has_x
+  global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow 
+  global graph_linewidth_mult graph_change_done has_x graph_dialog_default_geometry
 
   if { ![info exists has_x]} {return} 
   set graph_change_done 0
-  set geom {}
   if { [winfo exists .graphdialog]} {
-    set geom [winfo geometry .graphdialog]
+    set graph_dialog_default_geometry [winfo geometry .graphdialog]
   } 
   catch {destroy .graphdialog}
   toplevel .graphdialog -class Dialog ;# -width 1 -height 1
   wm withdraw .graphdialog
-  wm transient .graphdialog [xschem get topwindow]
+  # wm transient .graphdialog [xschem get topwindow]
   update idletasks
 
   set graph_selected $n
@@ -2764,6 +2763,7 @@ proc graph_edit_properties {n} {
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {
+    set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
     set graph_selected {}
     set graph_schname {}
@@ -2782,6 +2782,7 @@ proc graph_edit_properties {n} {
         xschem setprop rect 2 $graph_selected flags {graph} fast
       }
     }
+    set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
     set graph_selected {}
     set graph_schname {}
@@ -3114,7 +3115,7 @@ proc graph_edit_properties {n} {
   # .graphdialog.center.right.text1 insert {insert lineend + 1 char} foo\n
   # tkwait window .graphdialog
   wm deiconify .graphdialog
-  if {$geom ne {}} { wm geometry .graphdialog $geom}
+  if {$graph_dialog_default_geometry ne {}} { wm geometry .graphdialog $graph_dialog_default_geometry}
 }
 
 proc graph_show_measure {{action show}} {
@@ -6869,7 +6870,7 @@ set tctx::global_list {
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
   gaw_fd gaw_tcp_address graph_bus
-  graph_change_done graph_digital graph_linewidth_mult graph_logx
+  graph_change_done graph_digital graph_dialog_default_geometry graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
   incr_hilight incremental_select infowindow_text intuitive_interface 
@@ -8380,6 +8381,7 @@ set_ne file_dialog_ext {*}
 set_ne edit_prop_size 80x12
 set_ne text_line_default_geometry {}
 set_ne enter_text_default_geometry {}
+set_ne graph_dialog_default_geometry {}
 set_ne terminal xterm
 
 # xschem tcp port number (listen to port and execute commands from there if set) 
