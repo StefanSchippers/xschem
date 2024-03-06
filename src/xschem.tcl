@@ -1562,13 +1562,8 @@ proc simconf_saveconf {scrollframe} {
 }
  
 proc simconf {} {
-  global sim USER_CONF_DIR enter_textsimconf_default_geometry dark_gui_colorscheme
+  global sim USER_CONF_DIR enter_textsimconf_default_geometry
 
-   if { $dark_gui_colorscheme } {
-     set opts {white}
-   } else {
-     set opts {black}
-   }
   if {[winfo exists .sim]} {
     destroy .sim 
     xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -1602,13 +1597,13 @@ proc simconf {} {
       entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 \
          -background $bg($toggle) -fg black
       radiobutton ${scrollframe}.center.$tool.r.$i.radio -background $bg($toggle) -fg black \
-         -selectcolor $opts -variable sim($tool,default) -value $i
+         -selectcolor white -variable sim($tool,default) -value $i
       text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -background $bg($toggle) -fg black
       ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
       checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) \
-        -selectcolor $opts -background $bg($toggle) -fg black
+        -selectcolor white -background $bg($toggle) -fg black
       checkbutton ${scrollframe}.center.$tool.r.$i.st -text Status -variable sim($tool,$i,st) \
-        -selectcolor $opts -background $bg($toggle) -fg black
+        -selectcolor white -background $bg($toggle) -fg black
       pack ${scrollframe}.center.$tool.r.$i.lab -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.radio -side left -fill y 
       pack ${scrollframe}.center.$tool.r.$i.cmd -side left -fill x -expand yes
