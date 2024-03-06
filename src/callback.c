@@ -1298,6 +1298,26 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
       move_objects(START,0,0,0);
       res = 1;
     }
+  } else if(type == WIRE) {
+    int n = sel->n;
+    double x1 = xctx->wire[n].x1;
+    double y1 = xctx->wire[n].y1;
+    double x2 = xctx->wire[n].x2;
+    double y2 = xctx->wire[n].y2;
+    if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
+      int save = xctx->modified;
+      unselect_all(1); 
+      xctx->push_undo();
+      storeobject(-1, mx, my,  mx, my, WIRE, 0, SELECTED1, NULL);
+      set_modify(save);
+      xctx->shape_point_selected = 1;
+      xctx->prep_hash_wires=0;
+      xctx->need_reb_sel_arr = 1;
+      xctx->kissing = 1;
+      rebuild_selected_array();
+      move_objects(START,0,0,0);
+      res = 1;
+    }
   }
   return res;
 }
@@ -3426,7 +3446,6 @@ int rstate; /* (reduced state, without ShiftMask) */
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
        int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
-       int add_wire_to_pin = 0;
 
        xctx->shape_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
@@ -3436,8 +3455,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* Clicking on an instance pin -> drag a new wire
         * if an instance is already selected */
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
-         add_wire_to_pin = add_wire_from_inst_pin(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap);
-         if(add_wire_to_pin) break; /* adding a wire: nothing else to do */
+         if(add_wire_from_inst_pin(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
        }
 
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
@@ -3456,9 +3474,9 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        /* Clicking on an instance pin -> drag a new wire */
        if(xctx->intuitive_interface && !already_selected) {
-         add_wire_to_pin = add_wire_from_inst_pin(&sel, xctx->mousex_snap, xctx->mousey_snap);
-         if(add_wire_to_pin) break; /* adding a wire: nothing else to do */
+         if(add_wire_from_inst_pin(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;
        }
+
 
        if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
@@ -3522,6 +3540,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
 
+
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
       copy_objects(END);
@@ -3537,6 +3556,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
      end_shape_point_edit();
    }
+
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
      /* xctx->mx_save = mx; xctx->my_save = my; */
