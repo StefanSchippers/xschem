@@ -3066,14 +3066,14 @@ void change_layer()
    if(modified) set_modify(1);
 }
 
-void new_arc(int what, double sweep)
+void new_arc(int what, double sweep, double mousex_snap, double mousey_snap)
 {
   if(what & PLACE) {
     xctx->nl_state=0;
     xctx->nl_r = -1.;
     xctx->nl_sweep_angle=sweep;
-    xctx->nl_xx1 = xctx->nl_xx2 = xctx->nl_x1 = xctx->nl_x2 = xctx->nl_x3 = xctx->mousex_snap;
-    xctx->nl_yy1 = xctx->nl_yy2 = xctx->nl_y1 = xctx->nl_y2 = xctx->nl_y3 = xctx->mousey_snap;
+    xctx->nl_xx1 = xctx->nl_xx2 = xctx->nl_x1 = xctx->nl_x2 = xctx->nl_x3 = mousex_snap;
+    xctx->nl_yy1 = xctx->nl_yy2 = xctx->nl_y1 = xctx->nl_y2 = xctx->nl_y3 = mousey_snap;
     xctx->ui_state |= STARTARC;
   }
   if(what & SET) {
@@ -3081,6 +3081,7 @@ void new_arc(int what, double sweep)
       xctx->nl_x2 = xctx->mousex_snap;
       xctx->nl_y2 = xctx->mousey_snap;
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
       xctx->nl_state=1;
     } else if(xctx->nl_state==1) {
       xctx->nl_x3 = xctx->mousex_snap;
@@ -3101,9 +3102,10 @@ void new_arc(int what, double sweep)
   if(what & RUBBER) {
     if(xctx->nl_state==0) {
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+      restore_selection(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
+      xctx->nl_x2 = xctx->mousex_snap;xctx->nl_y2 = xctx->mousey_snap;
       xctx->nl_xx2 = xctx->mousex_snap;
       xctx->nl_yy2 = xctx->mousey_snap;
-      xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       drawtempline(xctx->gc[SELLAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     }
@@ -3114,6 +3116,9 @@ void new_arc(int what, double sweep)
           drawtemparc(xctx->gctiled, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
       arc_3_points(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2,
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
+      restore_selection(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
+      arc_bbox(xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b,
+                &xctx->nl_xx1, &xctx->nl_yy1, &xctx->nl_xx2, &xctx->nl_yy2);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
       if(xctx->nl_r>0.) drawtemparc(xctx->gc[xctx->rectcolor], NOW,
            xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b);
@@ -3121,9 +3126,11 @@ void new_arc(int what, double sweep)
   }
 }
 
-void new_line(int what)
+void new_line(int what, double mousex_snap, double mousey_snap)
 {
   int modified = 0;
+
+
   if( (what & PLACE) )
   {
     if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
@@ -3173,7 +3180,7 @@ void new_line(int what)
       }
       if(modified) set_modify(1);
     }
-    xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
+    xctx->nl_x1=xctx->nl_x2=mousex_snap;xctx->nl_y1=xctx->nl_y2=mousey_snap;
     xctx->ui_state |= STARTLINE;
   }
   if( what & END)
@@ -3184,16 +3191,16 @@ void new_line(int what)
   if(what & RUBBER)
   {
     if(xctx->manhattan_lines==1) {
-      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
-      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2;xctx->nl_yy2 = xctx->nl_y2;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
-      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+      xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
+      xctx->nl_xx2 = xctx->nl_x2;xctx->nl_yy2 = xctx->nl_y2;
       ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      xctx->nl_x2 = mousex_snap; xctx->nl_y2 = mousey_snap;
       if(!(what & CLEAR)) {
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3214,7 +3221,7 @@ void new_line(int what)
       ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
       restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      xctx->nl_x2 = mousex_snap; xctx->nl_y2 = mousey_snap;
       if(!(what & CLEAR)) {
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3231,7 +3238,7 @@ void new_line(int what)
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap;
+      xctx->nl_x2 = mousex_snap; xctx->nl_y2 = mousey_snap;
       if(!(what & CLEAR)) {
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3242,7 +3249,7 @@ void new_line(int what)
   }
 }
 
-void new_rect(int what)
+void new_rect(int what, double mousex_snap, double mousey_snap)
 {
   int modified = 0;
   if( (what & PLACE) )
@@ -3261,7 +3268,7 @@ void new_rect(int what)
     storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);
     modified = 1;
    }
-   xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
+   xctx->nl_x1 = xctx->nl_x2 = mousex_snap;xctx->nl_y1 = xctx->nl_y2 = mousey_snap;
    xctx->ui_state |= STARTRECT;
    if(modified) set_modify(1);
   }
@@ -3271,19 +3278,19 @@ void new_rect(int what)
   }
   if(what & RUBBER)
   {
-   xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+   xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;xctx->nl_xx2 = xctx->nl_x2;xctx->nl_yy2 = xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
    drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
    restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-   xctx->nl_x2=xctx->mousex_snap;xctx->nl_y2=xctx->mousey_snap;
-   xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
+   xctx->nl_x2 = xctx->mousex_snap;xctx->nl_y2 = xctx->mousey_snap;
+   xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;xctx->nl_xx2 = xctx->nl_x2;xctx->nl_yy2 = xctx->nl_y2;
    RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
    drawtemprect(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
   }
 }
 
 
-void new_polygon(int what)
+void new_polygon(int what, double mousex_snap, double mousey_snap)
 {
    if( what & PLACE ) xctx->nl_points=0; /*  start new polygon placement */
 
@@ -3295,14 +3302,14 @@ void new_polygon(int what)
    if( what & PLACE )
    {
      /* fprintf(errfp, "new_poly: PLACE, nl_points=%d\n", xctx->nl_points); */
-     xctx->nl_polyy[xctx->nl_points]=xctx->mousey_snap;
-     xctx->nl_polyx[xctx->nl_points]=xctx->mousex_snap;
+     xctx->nl_polyy[xctx->nl_points]=mousey_snap;
+     xctx->nl_polyx[xctx->nl_points]=mousex_snap;
      xctx->nl_points++;
      xctx->nl_polyx[xctx->nl_points]=xctx->nl_polyx[xctx->nl_points-1]; /* prepare next point for rubber */
      xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[xctx->nl_points-1];
      /* fprintf(errfp, "added point: %.16g %.16g\n", xctx->nl_polyx[xctx->nl_points-1],
          xctx->nl_polyy[xctx->nl_points-1]); */
-     xctx->nl_x1=xctx->nl_x2=xctx->mousex_snap;xctx->nl_y1=xctx->nl_y2=xctx->mousey_snap;
+     xctx->nl_x1=xctx->nl_x2=mousex_snap;xctx->nl_y1=xctx->nl_y2=mousey_snap;
      xctx->ui_state |= STARTPOLYGON;
      set_modify(1);
    }
@@ -3568,7 +3575,7 @@ int create_text(int draw_text, double x, double y, int rot, int flip, const char
   my_strdup(_ALLOC_ID_, &t->prop_ptr, props);
   /*  debug ... */
   /*  t->prop_ptr=NULL; */
-  dbg(1, "place_text(): done text input\n");
+  dbg(1, "create_text(): done text input\n");
   set_text_flags(t);
   textlayer = t->layer;
   if(textlayer < 0 || textlayer >= cadlayers) textlayer = TEXTLAYER;

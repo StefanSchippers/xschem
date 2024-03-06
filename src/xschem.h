@@ -1500,8 +1500,8 @@ extern void view_unzoom(double z);
 extern void view_zoom(double z);
 extern void draw_stuff(void);
 extern void new_wire(int what, double mx_snap, double my_snap);
-extern void new_line(int what);
-extern void new_arc(int what, double sweep);
+extern void new_line(int what, double mx_snap, double my_snap);
+extern void new_arc(int what, double sweep, double mousex_snap, double mousey_snap);
 extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, double y3,
          double *x, double *y, double *r, double *a, double *b);
 extern void move_objects(int what,int merge, double dx, double dy);
@@ -1514,8 +1514,8 @@ extern void zoom_rectangle(int what);
 extern void zoom_box(double x1, double y1, double x2, double y2, double factor);
 extern void save_restore_zoom(int save, Zoom_info *zi);
 extern void select_rect(int what, int select);
-extern void new_rect(int what);
-extern void new_polygon(int what);
+extern void new_rect(int what, double mousex_snap, double mousey_snap);
+extern void new_polygon(int what, double mousex_snap, double mousey_snap);
 extern void compile_font(void);
 extern void rebuild_selected_array(void);
 
