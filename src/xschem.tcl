@@ -3742,13 +3742,26 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       file_dialog_set_colors2
     }
   }
+
+
   panedwindow .load.l.paneright -orient vertical 
   frame .load.l.paneright.f -takefocus 0
   frame .load.l.paneright.draw -background white -height 3.8c -takefocus 0
   .load.l.paneright add .load.l.paneright.f
   .load.l.paneright add .load.l.paneright.draw -minsize 200
-  .load.l.paneright paneconfigure .load.l.paneright.f -stretch never
-  .load.l.paneright paneconfigure .load.l.paneright.draw -stretch always
+
+
+  if { ![catch {.load.l.paneright  panecget .load.l.paneright.f -stretch}]} {
+    set optnever {-stretch never}
+    set optalways {-stretch always}
+  } else {
+    set optnever {}
+    set optalways {}
+  }
+
+
+  eval .load.l.paneright paneconfigure .load.l.paneright.f $optnever
+  eval .load.l.paneright paneconfigure .load.l.paneright.draw $optalways
 
 
 
@@ -3768,8 +3781,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   .load.l  add .load.l.paneleft -minsize 40
   .load.l  add .load.l.paneright -minsize 300
-  .load.l paneconfigure .load.l.paneleft -stretch never
-  .load.l paneconfigure .load.l.paneright -stretch always
+  eval .load.l paneconfigure .load.l.paneleft $optnever
+  eval .load.l paneconfigure .load.l.paneright $optalways
   frame .load.buttons -takefocus 0
   frame .load.buttons_bot -takefocus 0
   button .load.buttons_bot.ok -width 5 -text OK -takefocus 0 -command "
