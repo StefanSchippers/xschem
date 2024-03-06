@@ -783,13 +783,14 @@ proc tabulate {text {sep ",\t "}} {
 proc has_included_subcircuit {symname spice_sym_def} {
   global has_x
   set include_found 0
-  # puts "has_included_subcircuit: spice_sym_def=$spice_sym_def"
   regsub -all {\n\+} $spice_sym_def { } spice_sym_def
+  # puts "has_included_subcircuit: spice_sym_def=$spice_sym_def"
   set pinlist {}
   # .include? get the file ...
-  if {[regexp -nocase {^ *\.include +} $spice_sym_def]} {
-    regsub -nocase {^ *\.include +} $spice_sym_def {} filename 
-    regsub -all {^"|"$} $filename {} filename
+  if {[regexp -nocase {^[ \t\n]*\.include +} $spice_sym_def]} {
+    regsub -nocase {^[ \t\n]*\.include +} $spice_sym_def {} filename 
+    regsub -all {^"|"$} $filename {} filename ;# remove double quotes at beginning and end
+    regsub -all {^\n*|\n*$} $filename {} filename ;# remove newlines at beginning and end
     set filename [abs_sym_path $filename]
     # puts "filename=$filename"
     set res [catch {open $filename r} fd]
