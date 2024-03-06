@@ -1295,6 +1295,7 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
       xctx->need_reb_sel_arr = 1;
       xctx->kissing = 1;
       rebuild_selected_array();
+      move_objects(START,0,0,0);
       res = 1;
     }
   }
@@ -3432,37 +3433,32 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
 
+       /* Clicking on an instance pin -> drag a new wire
+        * if an instance is already selected */
+       if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
+         add_wire_to_pin = add_wire_from_inst_pin(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap);
+         if(add_wire_to_pin) break; /* adding a wire: nothing else to do */
+       }
+
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
        sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
 
-
-       switch(sel.type)
-       {
-        case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
-        case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
-        case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
-        case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
-        case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
-        case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
-        case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
-        default: break;
+       switch(sel.type) {
+         case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
+         case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
+         case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
+         case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
+         case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
+         case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
+         case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
+         default: break;
        } /*end switch */
-
-
 
        /* Clicking on an instance pin -> drag a new wire */
        if(xctx->intuitive_interface && !already_selected) {
          add_wire_to_pin = add_wire_from_inst_pin(&sel, xctx->mousex_snap, xctx->mousey_snap);
-      
-         if(add_wire_to_pin) {
-           move_objects(START,0,0,0);
-           break; /* addig a wire: nothing else to do */
-         }
+         if(add_wire_to_pin) break; /* adding a wire: nothing else to do */
        }
-
-
-
-      
 
        if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
