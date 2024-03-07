@@ -1562,7 +1562,7 @@ proc simconf_saveconf {scrollframe} {
 }
  
 proc simconf {} {
-  global sim USER_CONF_DIR enter_textsimconf_default_geometry
+  global sim USER_CONF_DIR simconf_default_geometry
 
   if {[winfo exists .sim]} {
     destroy .sim 
@@ -1572,7 +1572,7 @@ proc simconf {} {
   set_sim_defaults
   toplevel .sim -class Dialog
   wm title .sim {Simulation Configuration}
-  wm geometry .sim 700x340
+  wm geometry .sim 790x370
   # wm transient .sim [xschem get topwindow]
   frame .sim.topf
   set scrollframe [sframe .sim.topf]
