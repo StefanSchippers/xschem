@@ -913,6 +913,7 @@ void move_objects(int what, int merge, double dx, double dy)
   }
   if(what & ABORT)                               /* draw objects while moving */
   {
+   xctx->paste_from = 0;
    draw_selection(xctx->gctiled,0);
    if(xctx->kissing) {
      pop_undo(0, 0);

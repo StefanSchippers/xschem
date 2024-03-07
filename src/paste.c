@@ -309,6 +309,7 @@ void merge_file(int selection_load, const char ext[])
 
     rubber = !(selection_load & 8);
     selection_load &= 7;
+    xctx->paste_from = 0;
     if(selection_load==0)
     {
      if(!strcmp(ext,"")) {
@@ -317,6 +318,7 @@ void merge_file(int selection_load, const char ext[])
        if(!strcmp(tclresult(),"")) return;
        my_strncpy(filename, (char *)tclresult(), S(filename));
        name = filename;
+       xctx->paste_from = 3;
      }
      else {
        my_strncpy(filename, ext, S(filename));
@@ -327,11 +329,12 @@ void merge_file(int selection_load, const char ext[])
     else if(selection_load==1)
     {
       name = sel_file;
+      xctx->paste_from = 1;
     }
     else    /* selection_load==2, clipboard load */
     {
       name = clip_file;
-      xctx->paste_from = 1;
+      xctx->paste_from = 2;
     }
 
     if(is_generator(name)) generator = 1;
@@ -431,14 +434,15 @@ void merge_file(int selection_load, const char ext[])
      else fclose(fd);
 
      xctx->ui_state |= STARTMERGE;
-     dbg(1, "merge_file(): loaded file:wire=%d inst=%d ui_state=%ld\n",
-             xctx->wires , xctx->instances, xctx->ui_state);
+     dbg(1, "End merge_file(): loaded file %s: wire=%d inst=%d ui_state=%ld\n",
+             name, xctx->wires , xctx->instances, xctx->ui_state);
      move_objects(START,0,0,0);
      xctx->mousex_snap = xctx->mx_double_save;
      xctx->mousey_snap = xctx->my_double_save;
      if(rubber) move_objects(RUBBER,0,0,0);
     } else {
       dbg(0, "merge_file(): can not open %s\n", name);
+      xctx->paste_from = 0;
     }
     set_modify(1);
 }

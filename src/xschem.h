@@ -948,7 +948,9 @@ typedef struct {
   int simdata_ninst;
   int modified;
   int semaphore;
-  int paste_from; /* set to non zero if paste from clipboard is called */
+  int paste_from; /* set to 1 if paste from clipboard is called ,
+                   *        2 if paste from selection
+                   *        3 if paste from user provided file */
   size_t tok_size;
   char netlist_name[PATH_MAX];
   char current_dirname[PATH_MAX];

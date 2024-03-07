@@ -1867,7 +1867,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       unselect_all(1);
     }
     /* xschem window *receiving* selected objects selection cleared --> abort */
-    else if(!xctx->paste_from && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
+    else if(xctx->paste_from == 1 && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
       abort_operation();
     }
     /*xschem window *receiving* selected objects 
