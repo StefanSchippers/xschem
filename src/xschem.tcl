@@ -3377,7 +3377,11 @@ proc add {f} {
     set ret 1
     set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
     set c_t($i,file) $f
-    set c_t($i,command) "xschem abort_operation; file_dialog_display_preview {$f}; xschem place_symbol {$f} "
+    set c_t($i,command) "
+      set file_dialog_retval {}
+      xschem abort_operation
+      file_dialog_display_preview {$f}
+      xschem place_symbol {$f} "
     set c_t($i,text)  [file tail [file rootname $f]]
     set c_t(top) $i
     if {$ret} {write_recent_file}
@@ -3589,10 +3593,10 @@ proc file_dialog_place_symbol {} {
   global file_dialog_retval
 
   set entry [.load.buttons_bot.entry get]
-  # puts "entry=$entry, file_dialog_retval=$file_dialog_retval"
+  # puts "entry=$entry"
   set file_dialog_retval  $entry
   set sym [file_dialog_getresult 2 0]
-  # puts "sym=$sym file_dialog_dir1=$file_dialog_dir1 file_dialog_dir2=$file_dialog_dir2"
+  # puts "sym=$sym"
   xschem abort_operation
   if {$sym ne {}} {
     xschem place_symbol "$sym"
