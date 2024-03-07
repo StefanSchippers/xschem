@@ -1,0 +1,27 @@
+.subckt comp3_pex2 PLUS MINUS OUT
+** parasitic netlist
+cparax1 net1 0 70f
+cparax2 net2 0 70f
+cparax3 net3 0 70f
+cparax4 net4 0 70f
+cparax5 net5 0 70f
+cparaxout out 0 80f
+M1 net1 GN1 0 0 nmos w=4u l=0.4u m=1
+M2 GN1 GN1 0 0 nmos w=4u l=0.4u m=1
+I0 VCC GN1 30u
+M3 net2 MINUS net1 0 nmos w=1.5u l=0.2u m=1
+M4 net3 PLUS net1 0 nmos w=1.5u l=0.2u m=1
+M5 net2 net2 VCC VCC pmos w=6u l=0.3u m=1
+M6 net3 net2 VCC VCC pmos w=6u l=0.3u m=1
+M14 net4 net3 VCC VCC pmos w=6u l=0.3u m=1
+.save v(gn1)
+.save v(net2)
+M7 net4 GN1 0 0 nmos w=4u l=0.4u m=1
+M8 net5 net4 0 0 nmos w=1u l=0.4u m=1
+M9 net5 net4 VCC VCC pmos w=2u l=0.4u m=1
+M10 OUT net5 0 0 nmos w=1u l=0.4u m=1
+M11 OUT net5 VCC VCC pmos w=2u l=0.4u m=1
+M13 net4 net4 net5 0 nmos w=2u l=0.1u m=1
+M12 net5 net5 net4 0 nmos w=2u l=0.1u m=1
+C2 GN1 0 200f m=1
+.ends

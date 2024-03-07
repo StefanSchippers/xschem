@@ -41,8 +41,9 @@ out2
 out3
 out4
 out5
-out6"
-color="7 8 9 10 11 12"
+out6
+out7"
+color="7 8 9 10 11 12 13"
 dataset=-1
 unitx=1
 logx=0
@@ -60,14 +61,15 @@ x1=-2.5e-09
 x2=4.75e-08
 divx=5
 subdivx=1
-node="plus
-minus"
-color="4 14"
+
+
 dataset=-1
 unitx=1
 logx=0
 logy=0
-hilight_wave=-1}
+hilight_wave=-1
+color="4 7"
+node="plus minus"}
 T {Default instance:
 Uses comp3.sch} 10 -1190 0 0 0.4 0.4 { layer=7}
 T {Alternate instance:
@@ -102,7 +104,7 @@ C {comp3.sym} 180 -870 0 0 {name=x2
 schematic=comp3_parax.sch}
 C {comp3.sym} 180 -600 0 0 {name=x3
 schematic=comp3_pex
-spice_sym_def=".subckt comp3_pex PLUS OUT MINUS
+spice_sym_def=".subckt comp3_pex MINUS PLUS OUT
 ** parasitic netlist
 cparax1 net1 0 20f
 cparax2 net2 0 20f
@@ -132,15 +134,15 @@ C2 GN1 0 200f m=1
 
 verilog_sym_def="verilog stuff"
 vhdl_sym_def="vhdl stuff"}
-C {comp3.sym} 180 -290 0 0 {name=x10
-schematic=comp3_pex
-spice_sym_def=".include comp3_pex2.cir"
+C {comp3.sym} 180 -290 0 0 {name=x4
+schematic=comp3_pex2
+spice_sym_def="tcleval(.include [abs_sym_path comp3_pex2.cir])"
 
 verilog_sym_def="verilog stuff"
 vhdl_sym_def="vhdl stuff"}
-C {comp3.sym} 490 -730 0 0 {name=x4
+C {comp3.sym} 490 -730 0 0 {name=x5
 schematic=comp3_empty.sch}
-C {comp3.sym} 490 -450 0 0 {name=x5
+C {comp3.sym} 490 -450 0 0 {name=x6
 schematic=comp3_file
 spice_sym_def="tcleval(
   [read_data_nonewline [abs_sym_path comp3_file.cir]]
@@ -150,7 +152,7 @@ vhdl_sym_def="tcleval(
   [read_data_nonewline [abs_sym_path comp3_file.cir]]
 )"
 tclcommand="textwindow [abs_sym_path comp3_file.cir]"}
-C {comp3_read.sym} 490 -230 0 0 {name=x6
+C {comp3_read.sym} 490 -230 0 0 {name=x7
 
 tclcommand="textwindow [abs_sym_path comp3_read.cir]"}
 C {lab_pin.sym} 240 -1080 0 1 {name=p2 lab=OUT1}
@@ -177,9 +179,10 @@ tclcommand="xschem raw_read $netlist_dir/test_instance_schematic_selection.raw t
 }
 C {code_shown.sym} 140 -170 0 0 {name=COMMANDS only_toplevel=false value=".control
   save all
-  tran 1n 50n
+  tran 0.05n 50n
   write test_instance_schematic_selection.raw
-.endc"}
+.endc
+"}
 C {lab_pin.sym} 120 -1110 0 0 {name=p1 lab=PLUS}
 C {lab_pin.sym} 430 -760 0 0 {name=p15 lab=PLUS}
 C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version released on 2/22/06
