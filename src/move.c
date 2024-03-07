@@ -205,6 +205,7 @@ void draw_selection(GC g, int interruptable)
   }
   for(i=0;i<xctx->movelastsel; ++i)
   {
+   short int tmp_rot;
    c = xctx->sel_array[i].col;n = xctx->sel_array[i].n;
    switch(xctx->sel_array[i].type)
    {
@@ -450,11 +451,11 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
                 xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      }
-
+     tmp_rot = (xctx->move_flip & xctx->inst[n].rot & 1) ?
+                0x3 & (xctx->move_rot + 2) : xctx->move_rot;
      for(k=0;k<cadlayers; ++k) {
        draw_temp_symbol(ADD, g, n, k, xctx->move_flip,
-         /* xctx->move_rot,  */
-         (( xctx->move_flip && (xctx->inst[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) & 0x3,
+         tmp_rot,
          xctx->rx1-xctx->inst[n].x0+xctx->deltax,xctx->ry1-xctx->inst[n].y0+xctx->deltay);
      }
      break;
