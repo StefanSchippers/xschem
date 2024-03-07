@@ -1822,6 +1822,7 @@ int rstate; /* (reduced state, without ShiftMask) */
  state &= ~LockMask; /* filter out Caps Lock */
  rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
+ rstate &= ~Button1Mask; /* ignore button-1 */
  if(xctx->semaphore >= 2)
  {
    if(debug_var>=2)
