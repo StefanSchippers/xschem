@@ -23,7 +23,9 @@ G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-spice_sym_def="tcleval([read_data_nonewline [abs_sym_path comp3_read.cir]])"}
+xspice_sym_def="tcleval([read_data_nonewline [abs_sym_path comp3_read.cir]])"
+
+spice_sym_def="tcleval(.include [abs_sym_path comp3_read.cir])"}
 V {}
 S {}
 E {}

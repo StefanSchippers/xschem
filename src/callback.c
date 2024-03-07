@@ -1689,6 +1689,8 @@ static void end_shape_point_edit()
         int n = xctx->sel_array[0].n;
         int c = xctx->sel_array[0].col;
         move_objects(END,0,0,0);
+        xctx->constr_mv=0;
+        tcleval("set constr_mv 0" );
         xctx->poly[c][n].sel = SELECTED;
         xctx->shape_point_selected = 0;
         for(k=0; k<xctx->poly[c][n].points; ++k) {
@@ -1700,6 +1702,8 @@ static void end_shape_point_edit()
         int n = xctx->sel_array[0].n;
         int c = xctx->sel_array[0].col;
         move_objects(END,0,0,0);
+        xctx->constr_mv=0;
+        tcleval("set constr_mv 0" );
         xctx->rect[c][n].sel = SELECTED;
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
@@ -1708,6 +1712,8 @@ static void end_shape_point_edit()
         int n = xctx->sel_array[0].n;
         int c = xctx->sel_array[0].col;
         move_objects(END,0,0,0);
+        xctx->constr_mv=0;
+        tcleval("set constr_mv 0" );
         xctx->line[c][n].sel = SELECTED;
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
@@ -1715,6 +1721,8 @@ static void end_shape_point_edit()
      else if(xctx->lastsel == 1 && xctx->sel_array[0].type==WIRE) {
         int n = xctx->sel_array[0].n;
         move_objects(END,0,0,0);
+        xctx->constr_mv=0;
+        tcleval("set constr_mv 0" );
         xctx->wire[n].sel = SELECTED;
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
@@ -3556,15 +3564,17 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
-
-
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
       copy_objects(END);
+      xctx->constr_mv=0;
+      tcleval("set constr_mv 0" );
       xctx->drag_elements = 0;
    }
    else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
       move_objects(END,0,0,0);
+      xctx->constr_mv=0;
+      tcleval("set constr_mv 0" );
       xctx->drag_elements = 0;
    }
 
