@@ -161,7 +161,6 @@ double nocairo_vert_correct=0.0;
 /* compared to the nocairo xschem version. */
 /* allowed values should be in the range [-4, 4] */
 double cairo_vert_correct=0.0;
-int constrained_move = 0;
 double cairo_font_scale=1.0; /* default: 1.0, allows to adjust font size */
 double cairo_font_line_spacing = 1.0; /* value taken from xschemrc / xschem.tcl */
 int debug_var=-10;  /* will be set to 0 in xinit.c */

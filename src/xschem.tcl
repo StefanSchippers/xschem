@@ -6866,7 +6866,7 @@ set tctx::global_list {
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
   add_all_windows_drives auto_hilight autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cairo_font_name change_lw color_ps tctx::colors compare_sch constrained_move
+  cadsnap cairo_font_name change_lw color_ps tctx::colors compare_sch constr_mv
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
   dark_gui_colorscheme delay_flag  dim_bg dim_value disable_unique_names
   do_all_inst draw_crosshair
@@ -7520,12 +7520,12 @@ proc build_widgets { {topwin {} } } {
      -command {xschem flip} -accelerator {Shift-F}
   $topwin.menubar.edit.menu add command -label "Rotate selected objects" -state normal \
       -command {xschem rotate} -accelerator {Shift-R}
-  $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constrained_move \
-     -selectcolor $selectcolor -background grey60 -value 0 -command {xschem set constrained_move 0} 
-  $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constrained_move \
-     -selectcolor $selectcolor -background grey60 -value 1 -accelerator H -command {xschem set constrained_move 1} 
-  $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constrained_move \
-     -selectcolor $selectcolor -background grey60 -value 2 -accelerator V -command {xschem set constrained_move 2} 
+  $topwin.menubar.edit.menu add radiobutton -label "Unconstrained move" -variable constr_mv \
+     -selectcolor $selectcolor -background grey60 -value 0 -command {xschem set constr_mv 0} 
+  $topwin.menubar.edit.menu add radiobutton -label "Constrained Horizontal move" -variable constr_mv \
+     -selectcolor $selectcolor -background grey60 -value 1 -accelerator H -command {xschem set constr_mv 1} 
+  $topwin.menubar.edit.menu add radiobutton -label "Constrained Vertical move" -variable constr_mv \
+     -selectcolor $selectcolor -background grey60 -value 2 -accelerator V -command {xschem set constr_mv 2} 
   $topwin.menubar.edit.menu add command -label "Push schematic" -command "xschem descend" -accelerator E
   toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit.menu add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
@@ -8318,7 +8318,7 @@ set_ne draw_window 0
 set_ne show_hidden_texts 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
-set_ne constrained_move 0
+set_ne constr_mv 0
 set_ne unselect_partial_sel_wires 0
 set_ne load_file_dialog_fullpath 1
 

@@ -142,7 +142,7 @@ ctrl        'o'         Load schematic
 ctrl        'm'         Move selected objects, stretching wires attached to them
 Alt         'm'         Move selected objects, insert wires when separating touching instance pins/wires
 shift       'M'         Move selected objects, insert wires when separating touching instance pins/wires
-                        Stretch wires that land on selected instance pins.
+ctrl+shift  'M'         Move selected objects, combine Shift-M and Ctrl-m
 shift       'N'         Top level only netlist
 -           'n'         Hierarchical Netlist
 ctrl        'n'         Clear schematic

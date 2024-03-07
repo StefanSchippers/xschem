@@ -1163,6 +1163,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(color_ps != 0 ) Tcl_SetResult(interp, "1",TCL_STATIC);
             else Tcl_SetResult(interp, "0",TCL_STATIC);
           }
+          else if(!strcmp(argv[2], "constr_mv")) { /* color postscript flag */
+            if(xctx->constr_mv != 0 ) Tcl_SetResult(interp, "1",TCL_STATIC);
+            else Tcl_SetResult(interp, "0",TCL_STATIC);
+          }
           else if(!strcmp(argv[2], "current_dirname")) { /* directory name of current design */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, xctx->current_dirname, TCL_VOLATILE);
@@ -4595,8 +4599,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
             color_ps=atoi(argv[3]);
           }
-          else if(!strcmp(argv[2], "constrained_move")) { /* set constrained move (1=horiz, 2=vert, 0=none) */
-            constrained_move = atoi(argv[3]);
+          else if(!strcmp(argv[2], "constr_mv")) { /* set constrained move (1=horiz, 2=vert, 0=none) */
+            xctx->constr_mv = atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "cursor1_x")) { /* set graph cursor1 position */
             xctx->graph_cursor1_x = atof_spice(argv[3]);

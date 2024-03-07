@@ -929,6 +929,7 @@ typedef struct {
   unsigned int ui_state;   /* this signals that we are doing a net place,panning etc.
                            * used to prevent nesting of some commands */
   unsigned int ui_state2; /* sub states of ui_state MENUSTART bit */ 
+  int constr_mv;          /* constrained move (vertical (2) / horizontal (1) )  */
   double mousex,mousey; /* mouse coord. */
   double mousex_snap,mousey_snap; /* mouse coord. snapped to grid */
   double mx_double_save, my_double_save;
