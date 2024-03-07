@@ -483,7 +483,10 @@ static void del_rect_line_arc_poly()
   }
   xctx->polygons[c] -= j;
  }
- if(deleted) set_modify(1);
+ if(deleted) {
+   set_modify(1);
+   xctx->need_reb_sel_arr = 1;
+ }
 }
 
 int delete_wires(int selected_flag)
@@ -607,7 +610,6 @@ void delete(int to_push_undo)
 void delete_only_rect_line_arc_poly(void)
 {
  del_rect_line_arc_poly();
- xctx->lastsel = 0;
  draw();
  xctx->ui_state &= ~SELECTION;
  set_first_sel(0, -1, 0);
