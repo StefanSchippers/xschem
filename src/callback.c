@@ -29,7 +29,7 @@
 static int waves_selected(int event, KeySym key, int state, int button)
 {
   int rstate; /* state without ShiftMask */
-  int i;
+  int i, check;
   int is_inside = 0, skip = 0;
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
@@ -49,9 +49,13 @@ static int waves_selected(int event, KeySym key, int state, int button)
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
-    if( (xctx->ui_state & GRAPHPAN) ||
-       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
-       POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10) ) {
+    check =
+      (event != -3 &&
+         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1+10,  r->x2 - 20,  r->y2 - 10)) ||
+      ( event == -3 &&
+        (POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
+         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10)));
+    if( (xctx->ui_state & GRAPHPAN) || check) {
        is_inside = 1;
        draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);

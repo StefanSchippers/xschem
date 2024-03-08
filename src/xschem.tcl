@@ -2232,7 +2232,8 @@ proc graph_edit_wave {n n_wave} {
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
   for {set i 4} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.f.r$i -value $i -background [lindex $tctx::colors $i] \
-         -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave }
+         -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave } \
+         -selectcolor white -foreground black
     pack .graphdialog.f.r$i -side left -fill both -expand yes
   }
   grid .graphdialog.f  - -sticky nsew
@@ -2739,7 +2740,7 @@ proc graph_edit_properties {n} {
   }
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
-  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -background grey70 -fg black \
+  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -background grey90 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
      -xscrollcommand {.graphdialog.center.right.xscroll set}
@@ -2810,7 +2811,7 @@ proc graph_edit_properties {n} {
 
   for {set i 4} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
-      -variable graph_sel_color -command graph_change_wave_color
+      -variable graph_sel_color -command graph_change_wave_color -selectcolor white -foreground black
     pack .graphdialog.bottom.r$i -side left
   }
 
@@ -2917,7 +2918,7 @@ proc graph_edit_properties {n} {
   # top frame
   label .graphdialog.top.labsearch -text Search:
   entry .graphdialog.top.search -width 10 
-  checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus
+  checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus 
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command graph_fill_listbox
   checkbutton .graphdialog.top.rainbow -text {Rainbow col.} -variable graph_rainbow \
@@ -8207,7 +8208,7 @@ if { [info exists has_x]} {
     option add *highlightThickness 0 startupFile
     option add *highlightColor {grey70} startupFile
     option add *insertBackground {white} startupFile
-    option add *selectColor {black} startupFile ;# checkbuttons, radiobuttons
+    option add *selectColor {grey10} startupFile ;# checkbuttons, radiobuttons
     option add *selectForeground black
     option add *selectBackground grey70
   }
