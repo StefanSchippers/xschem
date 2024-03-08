@@ -285,6 +285,12 @@ proc execute_fileevent {id} {
       }
       set execute(exitcode,last) $exit_status
       set execute(exitcode,$id) $exit_status
+      set execute(cmd,last) $execute(cmd,$id)
+      set execute(win_path,last) $execute(win_path,$id)
+      set execute(data,last) $execute(data,$id)
+      if { ![info exists err] } { set err {} }
+      set execute(error,last) $err
+      set execute(status,last) $execute(status,$id)
       if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
         # puts  $execute(callback,$id)
         # puts $execute(win_path,$id)
@@ -296,12 +302,6 @@ proc execute_fileevent {id} {
         }
       }
       catch {unset execute(callback,$id)} 
-      set execute(cmd,last) $execute(cmd,$id)
-      set execute(win_path,last) $execute(win_path,$id)
-      set execute(data,last) $execute(data,$id)
-      if { ![info exists err] } { set err {} }
-      set execute(error,last) $err
-      set execute(status,last) $execute(status,$id)
       if { ![info exists exit_status] } { set exit_status 0 }
       unset execute(pipe,$id)
       unset execute(data,$id)
@@ -2014,8 +2014,6 @@ proc simulate {{callback {}}} {
        set_simulate_button [list [xschem get top_path] [xschem get current_win_path]]
        $callback
     "
-    # puts $cmd
-
     if {$fg eq {execute_wait}} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
 
     set save [pwd]
@@ -7002,12 +7000,12 @@ proc set_simulate_button {top_path winpath} {
   set simvar tctx::${winpath}_simulate
   set sim_button $top_path.menubar.simulate
 
-  # puts "current_win=$current_win"
-  # puts "simvar=$simvar"
-  # puts "winpath=$winpath"
-  # puts "top_path=$top_path"
-  # puts "sim_button=$sim_button"
-  # puts "execute(exitcode,last)=$execute(exitcode,last)"
+  # puts "current_win=|$current_win|"
+  # puts "simvar=|$simvar|"
+  # puts "winpath=|$winpath|"
+  # puts "top_path=|$top_path|"
+  # puts "sim_button=|$sim_button|"
+  # puts "execute(exitcode,last)=|$execute(exitcode,last)|"
 
   if {![info exists execute(exitcode,last)]} {
     if { $current_win eq $winpath} {

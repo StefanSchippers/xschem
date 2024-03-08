@@ -143,7 +143,7 @@ const char *get_text_floater(int i)
 int set_modify(int mod)
 {
   int i, floaters = 0;
-
+  
   dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
   /* set modify state */
@@ -158,8 +158,8 @@ int set_modify(int mod)
       tclvareval("set tctx::", xctx->current_win_path, "_netlist $simulate_bg", NULL);
       my_snprintf(s, S(s), "tctx::%s_simulate_id", xctx->current_win_path);
       if(tclgetvar(s)) {
-        tclvareval(xctx->top_path, ".menubar.simulate configure -bg orange", NULL);
-        tclvareval("set tctx::", xctx->current_win_path, "_simulate orange", NULL);
+        tclvareval(xctx->top_path, ".menubar.simulate configure -bg ", tclresult(), NULL);
+        tclvareval("set tctx::", xctx->current_win_path, "_simulate ", tclresult(), NULL);
       } else {
         tclvareval(xctx->top_path, ".menubar.simulate configure -bg $simulate_bg", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
