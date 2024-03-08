@@ -3715,9 +3715,9 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
-  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {#d9d9d9}
+  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {grey90}
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
-    -fg black -background {#d9d9d9} -highlightthickness 0 -relief flat -borderwidth 0 \
+    -fg black -background {grey90} -highlightthickness 0 -relief flat -borderwidth 0 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -3765,8 +3765,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 
 
-  listbox .load.l.paneright.f.list  -background {#d9d9d9} -listvariable file_dialog_files2 -width 20 -height 12\
-    -fg black -background {#d9d9d9} -highlightcolor red -highlightthickness 2 \
+  listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
+    -fg black -highlightcolor red -highlightthickness 2 \
     -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
@@ -8183,16 +8183,18 @@ if { [info exists has_x]} {
   if { $dark_gui_colorscheme == 0 } { ;# normal GUI
     option add *foreground black startupFile
     option add *activeForeground black startupFile
-    option add *background {#d9d9d9} startupFile
+    option add *background {grey90} startupFile
     option add *activeBackground {#ececec} startupFile
     option add *disabledForeground {black} startupFile
-    option add *disabledBackground {#d9d9d9} startupFile
-    option add *readonlyBackground {#d9d9d9} startupFile
-    option add *highlightBackground {#d9d9d9} startupFile
+    option add *disabledBackground {grey70} startupFile
+    option add *readonlyBackground {grey70} startupFile
+    option add *highlightBackground {white} startupFile
     option add *highlightThickness 0 startupFile
     option add *highlightColor {grey30} startupFile
     option add *insertBackground {black} startupFile
-    option add *selectColor {white} startupFile
+    option add *selectColor {white} startupFile ;# checkbuttons, radiobuttons
+    option add *selectForeground black
+    option add *selectBackground grey70
   } else { ;# dark GUI colorscheme
     option add *foreground white startupFile
     option add *activeForeground white startupFile
@@ -8201,11 +8203,13 @@ if { [info exists has_x]} {
     option add *disabledForeground {white} startupFile
     option add *disabledBackground {grey20} startupFile
     option add *readonlyBackground {grey20} startupFile
-    option add *highlightBackground {grey20} startupFile
+    option add *highlightBackground {black} startupFile
     option add *highlightThickness 0 startupFile
     option add *highlightColor {grey70} startupFile
     option add *insertBackground {white} startupFile
-    option add *selectColor {black} startupFile
+    option add *selectColor {black} startupFile ;# checkbuttons, radiobuttons
+    option add *selectForeground black
+    option add *selectBackground grey70
   }
 }
 set OS [lindex $tcl_platform(os) 0]

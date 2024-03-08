@@ -968,7 +968,9 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
     }
 
     for(i = 0; i < xctx->extra_raw_n; i++) {
-      if( !strcmp(xctx->extra_raw_arr[i]->rawfile, name)) break;
+      if( !strcmp(xctx->extra_raw_arr[i]->rawfile, name) &&
+          !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
+        ) break;
     } 
     if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
       double t;
