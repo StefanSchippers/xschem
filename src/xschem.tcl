@@ -289,7 +289,7 @@ proc execute_fileevent {id} {
         # puts  $execute(callback,$id)
         # puts $execute(win_path,$id)
         eval uplevel #0 [list $execute(callback,$id)]
-      } 
+      }
       if { [info exists tctx::$execute(win_path,$id)_simulate_id] } {
         if { [set tctx::$execute(win_path,$id)_simulate_id] eq $id } {
           unset tctx::$execute(win_path,$id)_simulate_id
@@ -8112,7 +8112,7 @@ proc source_user_tcl_files {} {
 proc eval_postinit_commands {} {
   global postinit_commands
   if {[info exists postinit_commands]} {
-    catch {eval $postinit_commands}
+    catch {uplevel #0 $postinit_commands}
   }
 }
 
