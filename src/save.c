@@ -1534,7 +1534,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
   }
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
-  dbg(1, "plot_raw_custom_data(): expr=%s, first=%d, last=%d\n", expr, first, last);
+  dbg(0, "plot_raw_custom_data(): expr=%s, first=%d, last=%d\n", expr, first, last);
   while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
     if(stackptr1 >= STACKMAX -2) {
       dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
@@ -1622,24 +1622,28 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       stack1[stackptr1].idx = idx;
       stackptr1++;
     }
-    dbg(1, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
+    dbg(0, "  plot_raw_custom_data(): stack1= %d\n", stack1[stackptr1 - 1].i);
   } /* while(n = my_strtok_r(...) */
   my_free(_ALLOC_ID_, &ntok_copy);
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
     for(i = 0; i < stackptr1; ++i) {
+       dbg(0, "\n    stackptr1=%d, stack1[i]i.i=%d   stackptr2=%d\n", i, stack1[i].i, stackptr2);
       if(stack1[i].i == NUMBER) { /* number */
+        dbg(0, "stackptr2=%d, number=%g\n", stackptr2,  stack1[i].d);
         stack2[stackptr2++] = stack1[i].d;
       }
       else if(stack1[i].i == IDX) {
         stack2[stackptr2++] = (double)p;
       }
       else if(stack1[i].i == SPICE_NODE && stack1[i].idx < xctx->raw->nvars) { /* spice node */
+        dbg(0, "stackptr2=%d, spice_node=%g\n", stackptr2, xctx->raw->values[stack1[i].idx][p]);
         stack2[stackptr2++] =  xctx->raw->values[stack1[i].idx][p];
       }
       if(stackptr2 > 1) { /* 2 argument operators */
         switch(stack1[i].i) {
           case PLUS:
+            dbg(0, "stackptr2=%d, +: %g %g\n", stackptr2, stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
             stack2[stackptr2 - 2] = stack2[stackptr2 - 2] + stack2[stackptr2 - 1];
             stackptr2--;
             break;
@@ -1648,6 +1652,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             stackptr2--;
             break;
           case MULT:
+            dbg(0, "stackptr2=%d, *: %g %g\n", stackptr2, stack2[stackptr2 - 2], stack2[stackptr2 - 1]);
             stack2[stackptr2 - 2] = stack2[stackptr2 - 2] * stack2[stackptr2 - 1];
             stackptr2--;
             break;
@@ -1736,7 +1741,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             break;
         } /* switch(...) */
       } /* if(stackptr2 > 1) */
-      else if(stackptr2 > 0) { /* 1 argument operators */
+      if(stackptr2 > 0) { /* 1 argument operators */
         switch(stack1[i].i) {
           case AVG:
             if( p == first ) {
@@ -1933,6 +1938,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             stack2[stackptr2 - 1] =  mylog(stack2[stackptr2 - 1]);
             break;
           case LOG10:
+            dbg(0, "stackptr2=%d, log10(): %g\n", stackptr2, stack2[stackptr2 - 1]);
             stack2[stackptr2 - 1] =  mylog10(stack2[stackptr2 - 1]);
             break;
           case DB20:
