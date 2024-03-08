@@ -291,17 +291,20 @@ proc execute_fileevent {id} {
       if { ![info exists err] } { set err {} }
       set execute(error,last) $err
       set execute(status,last) $execute(status,$id)
-      if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
-        # puts  $execute(callback,$id)
-        # puts $execute(win_path,$id)
-        eval uplevel #0 [list $execute(callback,$id)]
-      }
+
       if { [info exists tctx::$execute(win_path,$id)_simulate_id] } {
         if { [set tctx::$execute(win_path,$id)_simulate_id] eq $id } {
           unset tctx::$execute(win_path,$id)_simulate_id
         }
       }
+
+      if {[info exists execute(callback,$id)] && $execute(callback,$id) ne {}} {
+        # puts  $execute(callback,$id)
+        # puts $execute(win_path,$id)
+        eval uplevel #0 [list $execute(callback,$id)]
+      }
       catch {unset execute(callback,$id)} 
+
       if { ![info exists exit_status] } { set exit_status 0 }
       unset execute(pipe,$id)
       unset execute(data,$id)
