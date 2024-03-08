@@ -470,18 +470,24 @@
 #   .menubar.simulate configure -command {xschem netlist -erc; simulate_from_button}
 # }
 #
+#
+#### example: if a raw file already exists re-run a tran simulation.
+#### and schedule a waveform load at the end.
 # set postinit_commands {
-#  xschem netlist
-#  set sim(spice,default) 1 ;# ngspice control mode (no xterminal) 
-#  set sim(spice,1,st) 0 ;# no status report
-#  set sim(spice,1,fg) 0 ;# background
-#  simulate {
-#     viewdata $execute(data,$execute(id))
-#     xschem raw read $netlist_dir/solar_panel.raw
-#     xschem redraw
-#  }
-#  viewdata $messages ro
+#   set rawfile $netlist_dir/[file rootname [xschem get current_name]].raw
+#   if {[file exists $rawfile]} {
+#     xschem netlist
+#     set sim(spice,default) 1 ;# ngspice control mode (no xterminal)
+#     set sim(spice,1,st) 0 ;# no status report
+#     set sim(spice,1,fg) 0 ;# background
+#     simulate_from_button {
+#        viewdata $execute(data,last)
+#        xschem raw read $rawfile tran
+#        xschem redraw
+#     }
+#   }
 # }
+
 
 
 ###########################################################################
