@@ -463,7 +463,27 @@
 ###########################################################################
 #### TCL COMMANDS TO BE EXECUTED AFTER COMPLETING STARTUP
 ###########################################################################
+#### some examples:
 # set postinit_commands {puts [xschem get version]}
+# set postinit_commands {
+#   .menubar.netlist configure -command {xschem netlist -erc; edit_netlist [xschem get netlist_name fallback]}
+#   .menubar.simulate configure -command {xschem netlist -erc; simulate_from_button}
+# }
+#
+# set postinit_commands {
+#  xschem netlist
+#  set sim(spice,default) 1 ;# ngspice control mode (no xterminal) 
+#  set sim(spice,1,st) 0 ;# no status report
+#  set sim(spice,1,fg) 0 ;# background
+#  simulate {
+#     viewdata $execute(data,$execute(id))
+#     xschem raw read $netlist_dir/solar_panel.raw
+#     xschem redraw
+#  }
+#  xschem raw read $netlist_dir/solar_panel.raw
+#  viewdata $messages ro
+# }
+
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
