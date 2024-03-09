@@ -60,9 +60,11 @@ static void svg_xfillrectangle(int layer, double x1, double y1, double x2, doubl
 {
   fprintf(fd,"<path class=\"l%d\" ", layer);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-  if(!fill) {
+  if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
-  } 
+  } else if(fill == 3) {
+   fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+  }
   fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
@@ -131,8 +133,10 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-  if(!fill) {
+  if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
+  } else if(fill == 3) {
+   fprintf(fd, "style=\"fill-opacity:1.0;\" ");
   }
   bezier = flags && (points > 2);
   if(bezier) {
@@ -205,7 +209,9 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
     if(b == 360.) {
       fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\" ", gc, xx, yy, rr);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-      if(!fillarc) fprintf(fd, "style=\"fill:none;\"");
+      if(fillarc == 0) fprintf(fd, "style=\"fill:none;\" ");
+      else if(fillarc == 3) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+
       fprintf(fd, "/>\n");
     } else {
       xx1 = rr * cos(a * XSCH_PI / 180.) + xx;
@@ -217,9 +223,12 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
 
       fprintf(fd,"<path class=\"l%d\" ", gc);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-      if(!fillarc) {
-        fprintf(fd,"style=\"fill:none;\" ");
-        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+      if(fillarc == 0) {
+         fprintf(fd,"style=\"fill:none;\" ");
+         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+      } else if(fillarc == 3) {
+        fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
       } else {
         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
      }
@@ -805,13 +814,14 @@ void svg_draw(void)
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
     if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0) 
-       fprintf(fd, "  fill: none;\n");
+      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.2;\n", 
+         svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else if( xctx->fill_pattern == 2 && xctx->fill_type[i]) 
-      fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+      fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else if( xctx->fill_pattern && xctx->fill_type[i] == 1) 
-      fprintf(fd, " fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
+      fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else 
-      fprintf(fd, " fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
+      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     fprintf(fd, "  stroke-linecap:round;\n");
