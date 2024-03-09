@@ -1351,7 +1351,7 @@ static int edit_line_point(int state)
     if(xctx->shape_point_selected) {
       /* move one lineangle selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        xctx->push_undo();
+        /* xctx->push_undo(); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -1383,7 +1383,7 @@ static int edit_wire_point(int state)
     if(xctx->shape_point_selected) {
       /* move one wire selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        xctx->push_undo();
+        /* xctx->push_undo(); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -1424,7 +1424,7 @@ static int edit_rect_point(int state)
     if(xctx->shape_point_selected) { 
       /* move one rectangle selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        xctx->push_undo();
+        /* xctx->push_undo(); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -1502,7 +1502,7 @@ static int edit_polygon_point(int state)
         return 1;
       /* move one polygon/bezier selected point */
       } else if(!(state & (ControlMask | ShiftMask))){
-        xctx->push_undo();
+        /* xctx->push_undo(); */
         p->sel = SELECTED1;
         move_objects(START,0,0,0);
         return 1;

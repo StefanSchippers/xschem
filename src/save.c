@@ -3255,7 +3255,7 @@ void push_undo(void)
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
     if(xctx->no_undo)return;
-    dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
+    dbg(0, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     init_undo();
     #if HAS_POPEN==1

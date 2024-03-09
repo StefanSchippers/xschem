@@ -955,7 +955,7 @@ void move_objects(int what, int merge, double dx, double dy)
    xctx->paste_from = 0; /* end of a paste from clipboard command */
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    /* no undo push for MERGE ad PLACE and polygon point drag, already done before */
-   if(!xctx->shape_point_selected && !xctx->kissing &&
+   if(!xctx->kissing &&
       !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
      dbg(1, "move_objects(END): push undo state\n");
      xctx->push_undo();
