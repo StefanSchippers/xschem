@@ -926,7 +926,7 @@ int raw_deletevar(const char *name)
 
   n = get_raw_index(name, &entry);
   if(n < 0) return ret;
-  dbg(0, "n=%d, %s \n", n, entry->token);
+  dbg(1, "n=%d, %s \n", n, entry->token);
   int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
   my_free(_ALLOC_ID_, &raw->names[n]);
   for(i = n + 1; i < raw->nvars; i++) {
@@ -3255,7 +3255,7 @@ void push_undo(void)
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
     if(xctx->no_undo)return;
-    dbg(0, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
+    dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     init_undo();
     #if HAS_POPEN==1
