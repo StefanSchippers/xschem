@@ -3522,7 +3522,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* intuitive interface: directly drag elements */
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
           !xctx->shape_point_selected) {
-         xctx->push_undo();
+         /* xctx->push_undo(); */
          xctx->drag_elements = 1;
 
          if( state  & ControlMask && !tclgetboolvar("enable_stretch")) {
