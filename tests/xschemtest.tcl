@@ -194,7 +194,7 @@ proc netlist_test {} {
     greycnt.sch             verilog    2899796185
     autozero_comp.sch       spice       751826850
     test_generators.sch     spice        49312823
-    inst_sch_select.sch     spice      2240134366
+    inst_sch_select.sch     spice      3684652626
     test_bus_tap.sch        spice       188702715
     loading.sch             vhdl       2975204502
     mos_power_ampli.sch     spice       125840804

@@ -1383,7 +1383,7 @@ extern void draw_symbol(int what,int c, int n,int layer,
 extern void drawrect(int c, int what, double rectx1,double recty1,
             double rectx2,double recty2, int dash);
 extern void filledrect(int c, int what, double rectx1,double recty1,
-            double rectx2,double recty2);
+            double rectx2,double recty2, int fill);
 
 
 extern void drawtempline(GC gc, int what, double x1,double y1,double x2,double y2);

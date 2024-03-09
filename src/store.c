@@ -133,7 +133,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectc, unsigned short sel, char *prop_ptr)
 {
   int n, j;
-  const char *dash;
+  const char *dash, *fill_ptr;
   check_arc_storage(rectc);
   if(pos==-1) n=xctx->arcs[rectc];
   else
@@ -153,7 +153,11 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   my_strdup(_ALLOC_ID_, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
   xctx->arc[rectc][n].sel = sel;
   if(sel == SELECTED) set_first_sel(ARC, n, rectc);
-  if( !strboolcmp(get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0),"true") )
+
+  fill_ptr = get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0);
+  if(!strcmp(fill_ptr, "full") )
+    xctx->arc[rectc][n].fill =3; /* bit 1: solid fill (not stippled) */
+  else if(!strboolcmp(fill_ptr, "true") )
     xctx->arc[rectc][n].fill =1;
   else
     xctx->arc[rectc][n].fill =0;
@@ -171,7 +175,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
                 unsigned short sel, char *prop_ptr)
 {
   int n, j;
-  const char *dash;
+  const char *dash, *fill_ptr;
   check_polygon_storage(rectc);
   if(pos==-1) n=xctx->polygons[rectc];
   else
@@ -200,7 +204,10 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   xctx->poly[rectc][n].sel = sel;
   if(sel == SELECTED) set_first_sel(POLYGON, n, rectc);
 
-  if( !strboolcmp(get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0),"true") )
+  fill_ptr = get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0);
+  if(!strcmp(fill_ptr, "full") )
+    xctx->poly[rectc][n].fill =3; /* bit 1: solid fill (not stippled) */
+  else if(!strboolcmp(fill_ptr, "true") )
     xctx->poly[rectc][n].fill =1;
   else
     xctx->poly[rectc][n].fill =0;
@@ -220,7 +227,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
                  unsigned short sel, const char *prop_ptr)
 {
  int n, j, modified = 0;
- const char *dash;
+ const char *dash, *fill_ptr;
     if(type == LINE)
     {
      check_line_storage(rectc);
@@ -282,7 +289,10 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->rect[rectc][n].dash = 0;
-     if(!strboolcmp(get_tok_value(xctx->rect[rectc][n].prop_ptr,"fill",0),"false") )
+     fill_ptr = get_tok_value(xctx->rect[rectc][n].prop_ptr, "fill", 0);
+     if(!strcmp(fill_ptr, "full") )
+       xctx->rect[rectc][n].fill =3;
+     else if(!strboolcmp(fill_ptr,"false") )
        xctx->rect[rectc][n].fill =0;
      else
        xctx->rect[rectc][n].fill =1;

@@ -2527,6 +2527,7 @@ static void load_inst(int k, FILE *fd)
 
 static void load_polygon(FILE *fd)
 {
+    const char *fill_ptr;
     int i,c, j, points;
     xPoly *ptr;
     const char *dash;
@@ -2565,7 +2566,10 @@ static void load_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+    else if( !strboolcmp(fill_ptr, "true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -2584,7 +2588,7 @@ static void load_arc(FILE *fd)
 {
     int n,i,c;
     xArc *ptr;
-    const char *dash;
+    const char *dash, *fill_ptr;
 
     dbg(3, "load_arc(): start\n");
     n = fscanf(fd, "%d",&c);
@@ -2605,7 +2609,11 @@ static void load_arc(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+    else if( !strboolcmp(fill_ptr, "true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -2623,7 +2631,7 @@ static void load_box(FILE *fd)
 {
     int i,n,c;
     xRect *ptr;
-    const char *dash;
+    const char *dash, *fill_ptr;
 
     dbg(3, "load_box(): start\n");
     n = fscanf(fd, "%d",&c);
@@ -2646,7 +2654,10 @@ static void load_box(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3;
+    else if( !strboolcmp(fill_ptr, "false") )
       ptr[i].fill =0;
     else
       ptr[i].fill =1;
@@ -3801,7 +3812,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   xText tmptext, *tt;
   int endfile;
   char *skip_line;
-  const char *dash;
+  const char *dash, *fill_ptr;
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
   char *cmd = NULL;
@@ -4056,7 +4067,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
      pp[c][i].prop_ptr = tmppoly.prop_ptr;
      pp[c][i].points = poly_points;
 
-     if( !strboolcmp(get_tok_value(pp[c][i].prop_ptr,"fill",0),"true") )
+     fill_ptr = get_tok_value(pp[c][i].prop_ptr,"fill",0);
+     if( !strcmp(fill_ptr, "full") )
+       pp[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+     else if( !strboolcmp(fill_ptr, "true") )
        pp[c][i].fill =1;
      else
        pp[c][i].fill =0;
@@ -4118,7 +4132,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].x = lcc[level].x0 + rx1;  aa[c][i].y = lcc[level].y0 + ry1;
        aa[c][i].a = angle;
      }
-     if( !strboolcmp(get_tok_value(aa[c][i].prop_ptr,"fill",0),"true") )
+     fill_ptr = get_tok_value(aa[c][i].prop_ptr,"fill",0);
+     if( !strcmp(fill_ptr, "full") )
+       aa[c][i].fill =3; /* bit 1: solid fill (not stiaaled) */
+     else if( !strboolcmp(fill_ptr, "true") )
        aa[c][i].fill =1;
      else
        aa[c][i].fill =0;
@@ -4178,7 +4195,10 @@ int load_sym_def(const char *name, FILE *embed_fd)
        continue;
      }
      dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
-     if( !strboolcmp(get_tok_value(bb[c][i].prop_ptr,"fill",0),"false") )
+     fill_ptr = get_tok_value(bb[c][i].prop_ptr,"fill",0);
+     if( !strcmp(fill_ptr, "full") )
+       bb[c][i].fill =3;
+     else if( !strboolcmp(fill_ptr, "false") )
        bb[c][i].fill =0;
      else
        bb[c][i].fill =1;

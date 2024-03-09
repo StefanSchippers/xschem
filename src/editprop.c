@@ -901,6 +901,7 @@ static int edit_rect_property(int x)
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     xctx->push_undo();
+    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
@@ -922,22 +923,26 @@ static int edit_rect_property(int x)
         xctx->rect[c][n].dash = 0;
 
       fill = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
-      if(!strboolcmp(fill, "false")) xctx->rect[c][n].fill = 0;
+      if(!strcmp(fill, "full")) xctx->rect[c][n].fill = 3;
+      else if(!strboolcmp(fill, "false")) xctx->rect[c][n].fill = 0;
       else xctx->rect[c][n].fill = 1;
 
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
           (!oldprop && xctx->rect[c][n].prop_ptr) || (oldprop && !xctx->rect[c][n].prop_ptr)) {
-         if(!drw) {
-           drw = 1;
-         }
+         modified = 1;
+         drw = 1;
          if( xctx->rect[c][n].flags & 1024) {
            draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
                          &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
          }
+         bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1,  xctx->rect[c][n].x2, xctx->rect[c][n].y2);
       }
     }
-    if(drw) draw();
-    modified = 1;
+    if(drw) {
+      bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
+      draw();
+      bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
+    }
   }
   my_free(_ALLOC_ID_, &oldprop);
   return modified;
@@ -1067,7 +1072,7 @@ static int edit_arc_property(void)
   double x1, y1, x2, y2;
   int c, i, ii, old_dash, drw = 0;
   char *oldprop = NULL;
-  const char *dash;
+  const char *dash, *fill_ptr;
   int preserve, modified = 0;
 
   my_strdup(_ALLOC_ID_, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
@@ -1096,7 +1101,10 @@ static int edit_arc_property(void)
         my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, (char *) tclgetvar("retval"));
      }
      old_fill = xctx->arc[c][i].fill;
-     if( !strboolcmp(get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0),"true") )
+     fill_ptr = get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0);
+     if( !strcmp(fill_ptr,"full") )
+       xctx->arc[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+     else if( !strboolcmp(fill_ptr,"true") )
        xctx->arc[c][i].fill =1;
      else
        xctx->arc[c][i].fill =0;
@@ -1130,6 +1138,7 @@ static int edit_arc_property(void)
 
 static int edit_polygon_property(void)
 {
+  const char *fill_ptr;
   int old_fill;
   int oldbezier, bezier;
   int k;
@@ -1169,7 +1178,11 @@ static int edit_polygon_property(void)
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     if( !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0),"true") )
+
+     fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
+     if( !strcmp(fill_ptr,"full") )
+       xctx->poly[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+     else if( !strboolcmp(fill_ptr,"true") )
        xctx->poly[c][i].fill =1;
      else
        xctx->poly[c][i].fill =0;

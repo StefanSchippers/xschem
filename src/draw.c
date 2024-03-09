@@ -662,7 +662,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       {
         RECTORDER(x1,y1,x2,y2);
         drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash);
-        if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2);
+        if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->fill);
       }
     }
   }
@@ -1449,6 +1449,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
  static XArc xarc[CADDRAWBUFFERSIZE];
  double x1, y1, x2, y2; /* arc bbox */
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
+ GC gc;
 
  if(arc_fill || dash) what = NOW;
 
@@ -1513,13 +1514,16 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
 
-   if(xctx->fill_pattern && xctx->fill_type[c]){
+   if(xctx->fill_pattern && (xctx->fill_type[c] || arc_fill == 3) ){
+
+     if(arc_fill & 2) gc = xctx->gc[c];
+     else             gc = xctx->gcstipple[c];
      if(arc_fill) {
        if(xctx->draw_window)
-         XFillArc(display, xctx->window, xctx->gcstipple[c], (int)xx1, (int)yy1, 
+         XFillArc(display, xctx->window, gc, (int)xx1, (int)yy1, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
        if(xctx->draw_pixmap)
-         XFillArc(display, xctx->save_pixmap, xctx->gcstipple[c], (int)xx1, (int)yy1, 
+         XFillArc(display, xctx->save_pixmap, gc, (int)xx1, (int)yy1, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
      }
    }
@@ -1536,14 +1540,28 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
  }
 }
 
-void filledrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2)
+void filledrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int fill)
 {
- static int i=0;
- static XRectangle r[CADDRAWBUFFERSIZE];
+ static int iif = 0, iis = 0;
+ int *i;
+ static XRectangle rf[CADDRAWBUFFERSIZE]; /* full fill */
+ static XRectangle rs[CADDRAWBUFFERSIZE]; /* stippled fill */
+ XRectangle *r;
  double x1,y1,x2,y2;
+ GC gc;
 
  if(!has_x) return;
- if(!xctx->fill_pattern || !xctx->fill_type[c]) return;
+ if(!xctx->fill_pattern) return;
+ if(fill != 3 && !xctx->fill_type[c]) return;
+ if(fill == 3) { /* full fill */
+   gc = xctx->gc[c];
+   r = rf;
+   i = &iif;
+ } else { /* stippled fill */
+   gc = xctx->gcstipple[c];
+   r = rs;
+   i = &iis;
+ }
  if(what & NOW)
  {
   x1=X_TO_SCREEN(rectx1);
@@ -1553,23 +1571,23 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   if(xctx->draw_window) XFillRectangle(display, xctx->window, xctx->gcstipple[c], (int)x1, (int)y1,
+   if(xctx->draw_window) XFillRectangle(display, xctx->window, gc, (int)x1, (int)y1,
     (unsigned int)x2 - (unsigned int)x1,
     (unsigned int)y2 - (unsigned int)y1);
    if(xctx->draw_pixmap)
-     XFillRectangle(display, xctx->save_pixmap,xctx->gcstipple[c],  (int)x1, (int)y1,
+     XFillRectangle(display, xctx->save_pixmap, gc,  (int)x1, (int)y1,
       (unsigned int)x2 - (unsigned int)x1,
       (unsigned int)y2 - (unsigned int)y1);
   }
  }
  else if(what & ADD)
  {
-  if(i>=CADDRAWBUFFERSIZE)
+  if(*i >= CADDRAWBUFFERSIZE)
   {
-   if(xctx->draw_window) XFillRectangles(display, xctx->window, xctx->gcstipple[c], r,i);
+   if(xctx->draw_window) XFillRectangles(display, xctx->window, gc, r, *i);
    if(xctx->draw_pixmap)
-     XFillRectangles(display, xctx->save_pixmap, xctx->gcstipple[c], r,i);
-   i=0;
+     XFillRectangles(display, xctx->save_pixmap, gc, r, *i);
+   *i=0;
   }
   x1=X_TO_SCREEN(rectx1);
   y1=Y_TO_SCREEN(recty1);
@@ -1578,18 +1596,26 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
   if(!xctx->only_probes && (x2-x1)< 3.0 && (y2-y1)< 3.0) return;
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   r[i].x=(short)x1;
-   r[i].y=(short)y1;
-   r[i].width=(unsigned short)(x2-r[i].x);
-   r[i].height=(unsigned short)(y2-r[i].y);
-   ++i;
+   r[*i].x=(short)x1;
+   r[*i].y=(short)y1;
+   r[*i].width=(unsigned short)(x2-r[*i].x);
+   r[*i].height=(unsigned short)(y2-r[*i].y);
+   ++(*i);
   }
  }
- else if((what & END) && i)
+ else if(what & END)
  {
-  if(xctx->draw_window) XFillRectangles(display, xctx->window, xctx->gcstipple[c], r,i);
-  if(xctx->draw_pixmap) XFillRectangles(display, xctx->save_pixmap, xctx->gcstipple[c], r,i);
-  i=0;
+  if(iis) {
+    if(xctx->draw_window) XFillRectangles(display, xctx->window, xctx->gcstipple[c], rs, iis);
+    if(xctx->draw_pixmap) XFillRectangles(display, xctx->save_pixmap, xctx->gcstipple[c], rs ,iis);
+    iis = 0;
+  }
+  if(iif) {
+    if(xctx->draw_window) XFillRectangles(display, xctx->window, xctx->gc[c], rf ,iif);
+    if(xctx->draw_pixmap) XFillRectangles(display, xctx->save_pixmap, xctx->gc[c], rf ,iif);
+    iif = 0;
+  }
+
  }
 }
 
@@ -1661,6 +1687,7 @@ void arc_bbox(double x, double y, double r, double a, double b,
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
 
+/* fill = 1: stippled fill, fill == 3: solid fill */
 void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
 {
   const double bez_steps = 1.0/32.0; /* divide the t = [0,1] interval into 32 steps */
@@ -1722,9 +1749,10 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
     }
   }
   XDrawLines(display, w, gc, p, i, CoordModeOrigin);
-  if(fill) {
+  if(fill == 1) 
     XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
-  }
+  else if(fill==3) 
+    XFillPolygon(display, w, xctx->gc[c], p, i, Polygontype, CoordModeOrigin);
 }
 
 /* Unused 'what' parameter used in spice data draw_graph() 
@@ -1736,8 +1764,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   XPoint *p;
   int i;
   short sx, sy;
+  GC gc;
   if(!has_x) return;
-
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
   x2=X_TO_SCREEN(x2);
@@ -1759,8 +1787,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
       for(i=0;i<points; ++i) p[i].x = (short)X_TO_SCREEN(x[i]);
       for(i=0;i<points; ++i) p[i].y = (short)Y_TO_SCREEN(y[i]);
   }
-  fill = xctx->fill_pattern && xctx->fill_type[c] &&
-         poly_fill && (x[0] == x[points-1]) && (y[0] == y[points-1]);
+  fill = xctx->fill_pattern && ((xctx->fill_type[c] && poly_fill == 1) || poly_fill == 3 ) &&
+         (x[0] == x[points-1]) && (y[0] == y[points-1]);
   bezier = (flags & 1)  && (points > 2);
   if(dash) {
     char dash_arr[2];
@@ -1770,23 +1798,25 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   }
   if(xctx->draw_window) {
     if(bezier) {
-      drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill);
+      drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill | (poly_fill & 2) );
     } else {
       XDrawLines(display, xctx->window, xctx->gc[c], p, points, CoordModeOrigin);
     }
   }
   if(xctx->draw_pixmap) {
     if(bezier) {
-      drawbezier(xctx->save_pixmap, xctx->gc[c], c, x, y, points, fill);
+      drawbezier(xctx->save_pixmap, xctx->gc[c], c, x, y, points, fill | (poly_fill & 2) );
     } else {
       XDrawLines(display, xctx->save_pixmap, xctx->gc[c], p, points, CoordModeOrigin);
     }
   }
+  if(poly_fill & 2) gc = xctx->gc[c];
+  else              gc = xctx->gcstipple[c];
   if(fill && !bezier) {
     if(xctx->draw_window)
-       XFillPolygon(display, xctx->window, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
+       XFillPolygon(display, xctx->window, gc, p, points, Polygontype, CoordModeOrigin);
     if(xctx->draw_pixmap)
-       XFillPolygon(display, xctx->save_pixmap, xctx->gcstipple[c], p, points, Polygontype, CoordModeOrigin);
+       XFillPolygon(display, xctx->save_pixmap, gc, p, points, Polygontype, CoordModeOrigin);
   }
   if(dash) {
     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
@@ -2604,7 +2634,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
 
   /* clipping everything outside container area */
   /* background */
-  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 3);
   /* graph bounding box */
   drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2);
 
@@ -2876,7 +2906,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
     else
        my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx));
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
-    filledrect(0, NOW,  tx1, ty1, tx2, ty2);
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
   }
 }
@@ -4205,7 +4235,7 @@ void draw(void)
         #endif
         {
           drawrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->dash);
-          if(r->fill) filledrect(cc, ADD, r->x1, r->y1, r->x2, r->y2);
+          if(r->fill) filledrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->fill);
         }
       }
       if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
@@ -4243,7 +4273,7 @@ void draw(void)
             draw_symbol(ADD, cc, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */
         }
       }
-      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0);
+      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 3); /* last parameter must be 3! */
       drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0);
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
@@ -4270,7 +4300,7 @@ void draw(void)
             xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
       }
       update_conn_cues(cc, 1, xctx->draw_window);
-      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0);
+      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 3); /* last parameter must be 3! */
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {

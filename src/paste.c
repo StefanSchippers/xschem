@@ -73,7 +73,7 @@ static void merge_box(FILE *fd)
 {
     int i,c,n;
     xRect *ptr;
-    const char *dash;
+    const char *dash, *fill_ptr;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -102,7 +102,10 @@ static void merge_box(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"false") )
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3;
+    else if( !strboolcmp(fill_ptr, "false") )
       ptr[i].fill =0;
     else
       ptr[i].fill =1;
@@ -115,7 +118,7 @@ static void merge_arc(FILE *fd)
 {
     int i,c,n;
     xArc *ptr;
-    const char *dash;
+    const char *dash, *fill_ptr;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -136,7 +139,12 @@ static void merge_arc(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+
+
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+    else if( !strboolcmp(fill_ptr, "true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
@@ -155,6 +163,7 @@ static void merge_arc(FILE *fd)
 
 static void merge_polygon(FILE *fd)
 {
+    const char *fill_ptr;
     int i,c, j, points;
     xPoly *ptr;
     const char *dash;
@@ -192,7 +201,10 @@ static void merge_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    if( !strboolcmp(get_tok_value(ptr[i].prop_ptr,"fill",0),"true") )
+    fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
+    if( !strcmp(fill_ptr, "full") )
+      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+    else if( !strboolcmp(fill_ptr, "true") )
       ptr[i].fill =1;
     else
       ptr[i].fill =0;
