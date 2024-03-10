@@ -2789,6 +2789,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(xctx->sch_to_compare, abs_sym_path(cli_opt_diff, ""), S(xctx->sch_to_compare));
    tclsetvar("compare_sch", "1");
  } 
+  
+ tcleval("simuldir"); /* set netlist_dir according to local_netlist_dir setting */
 
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
@@ -2817,7 +2819,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, f, !cli_opt_do_netlist, 1);
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
@@ -2833,7 +2834,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   if(cli_opt_do_netlist) tcleval("simuldir");
    load_schematic(1, fname, !cli_opt_do_netlist, 1);
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
