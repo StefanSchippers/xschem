@@ -327,26 +327,27 @@ void set_grid(double newgrid)
 
 /* 
  *
- * change==0: force creation of $netlist_dir (if netlist_dir variable not empty)
- *
- * change==1: if no dir given prompt user
- *            else set netlist_dir to dir
- *
- * Return 1 if netlist_dir is a valid directory and existing
- * Return 0 otherwise
- *
+ *   
+ * what==0: force creation of $netlist_dir (if netlist_dir variable not empty)
+ *           and return current setting.
+ * 
+ * what==1: if no dir given prompt user
+ *           else set netlist_dir to dir  
+ *   
+ * what==2: just set netlist_dir according to local_netlist_dir setting
  */
-int set_netlist_dir(int change, const char *dir)
+int set_netlist_dir(int what, const char *dir)
 {
   char cmd[PATH_MAX+200];
-  if(dir) my_snprintf(cmd, S(cmd), "set_netlist_dir %d {%s}", change, dir);
-  else    my_snprintf(cmd, S(cmd), "set_netlist_dir %d", change);
+  if(dir) my_snprintf(cmd, S(cmd), "set_netlist_dir %d {%s}", what, dir);
+  else    my_snprintf(cmd, S(cmd), "set_netlist_dir %d", what);
   tcleval(cmd);
   if(!strcmp("", tclresult()) ) {
     return 0;
   }
   return 1;
 }
+
 /* wrapper to TCL function */
 /* remove parameter section of symbol generator before calculating abs path : xxx(a,b) -> xxx */
 const char *sanitized_abs_sym_path(const char *s, const char *ext)

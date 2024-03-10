@@ -1274,7 +1274,7 @@ extern void dbg(int level, char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);
 extern void here(double i);
 extern void print_version(void);
-extern int set_netlist_dir(int change, const char *dir);
+extern int set_netlist_dir(int what, const char *dir);
 extern void netlist_options(int i);
 extern int  check_lib(int what, const char *s);
 extern int floaters_from_selected_inst();

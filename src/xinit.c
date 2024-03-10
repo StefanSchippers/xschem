@@ -2767,19 +2767,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  /* set tcl netlist_dir if netlist_dir given on cmdline */
  if(cli_opt_netlist_dir[0]) tclsetvar("netlist_dir", cli_opt_netlist_dir);
-
- /* 
-  * if(!set_netlist_dir(0, NULL)) {
-  *   const char *n;
-  *   n = tclgetvar("netlist_dir");
-  *   fprintf(errfp, "problems creating netlist directory %s\n", n ? n : "<NULL>");
-  * }
-  */
  if(cli_opt_initial_netlist_name[0])
     my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
-
  enable_layers();
-
  /* prefer using env(PWD) if existing since it does not dereference symlinks */
  if(tcleval("info exists env(PWD)")[0] == '1') {
    my_snprintf(pwd_dir, S(pwd_dir), "%s", tclgetvar("env(PWD)"));
@@ -2789,12 +2779,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(xctx->sch_to_compare, abs_sym_path(cli_opt_diff, ""), S(xctx->sch_to_compare));
    tclsetvar("compare_sch", "1");
  } 
-  
- tcleval("simuldir"); /* set netlist_dir according to local_netlist_dir setting */
 
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
 
+   /* check if local_netlist_dir is set and set netlist_dir accordingly
+    * following call is needed since load_schematic() may be called with 
+    * reset_undo=0 and will not call set_netlist_dir */
+   set_netlist_dir(2, NULL);
    #ifdef __unix__
    if(is_from_web(cli_opt_filename)) {
      my_snprintf(f, S(f), "%s", cli_opt_filename);
@@ -2845,14 +2837,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");
      tcleval("exit");
    }
-   if(tclgetintvar("local_netlist_dir")) {
-     set_netlist_dir(1, NULL);
-   }
-   if(debug_var>=1) {
-     if(tclgetboolvar("flat_netlist"))
-       fprintf(errfp, "xschem: flat netlist requested\n");
-   }
-   if(tclgetvar("netlist_dir")[0]) {
+   if(set_netlist_dir(0, NULL)) { /* necessary to create netlist dir if not existing */
+     if(debug_var>=1) {
+       if(tclgetboolvar("flat_netlist"))
+         fprintf(errfp, "xschem: flat netlist requested\n");
+     }
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
        global_spice_netlist(1);                  /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VHDL_NETLIST)

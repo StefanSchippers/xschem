@@ -4250,34 +4250,37 @@ proc simuldir {} {
 }
 
 #
-# change==0: force creation of $netlist_dir (if netlist_dir variable not empty)
+# what==0: force creation of $netlist_dir (if netlist_dir variable not empty)
 #           and return current setting.
 #
-# change==1: if no dir given prompt user
-#           else set netlist_dir to dir
+# what==1: if no dir given prompt user
+#           else set netlist_dir to dir  
+#
+# what==2: just set netlist_dir according to local_netlist_dir setting
 #
 # Return current netlist directory
 #
-proc set_netlist_dir { change {dir {} }} {
+proc set_netlist_dir { what {dir {} }} {
   global netlist_dir env OS has_x local_netlist_dir USER_CONF_DIR
 
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
   regsub {/$} $netlist_dir {} netlist_dir
-  # puts "-->$netlist_dir"
-  #### change == 0
-  if {$change == 0} {
+  if {$what == 2} { return $netlist_dir }
+
+  #### what == 0
+  if {$what == 0} {
     if {$netlist_dir ne {}} {
       if {![file exist $netlist_dir]} {
         if {[catch {file mkdir "$netlist_dir"} err]} {
-          puts $err
+          puts stderr $err
           if {[info exists has_x]} {
             tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
           } 
         }
       }
     } 
-  #### change == 1
+  #### what == 1
   } else {
     # if local_netlist_dir is set can not provide a dir, set dir to netlist_dir as set by proc simuldir
     if {$local_netlist_dir != 0} {
@@ -4310,7 +4313,7 @@ proc set_netlist_dir { change {dir {} }} {
     if {$new_dir ne {} } {
       if {![file exist $new_dir]} {
         if {[catch {file mkdir "$new_dir"} err]} {
-          puts $err
+          puts stderr $err
           if {[info exists has_x]} {
             tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
           } 
@@ -4319,7 +4322,7 @@ proc set_netlist_dir { change {dir {} }} {
       }
       set netlist_dir $new_dir  
     }
-  }
+  } ;# what == 1
   regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
   regsub {/$} $netlist_dir {} netlist_dir
   # return $netlist_dir if valid and existing, else return empty string
