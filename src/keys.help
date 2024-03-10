@@ -183,6 +183,7 @@ shift       'W'         Place wire, snapping to closest pin or net endpoint
 ctrl        'x'         Cut into clipboard
 -           'x'         New cad session
 shift       'X'         Highlight discrepancies between object ports and attached nets
+alt         'x'         Toggle draw crosshair at mouse position
 -           'y'         Toggle stretching wires
 -           'z'         Zoom box
 shift       'Z'         Zoom in

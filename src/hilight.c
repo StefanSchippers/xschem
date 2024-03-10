@@ -841,6 +841,65 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
    }
  }
 
+ if(sel) for(c = 0; c < cadlayers; ++c) for(i=0;i<xctx->arcs[c]; ++i) {
+   str = get_tok_value(xctx->arc[c][i].prop_ptr, tok,0);
+   if(xctx->tok_size) {
+     #ifdef __unix__
+     if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #else
+     if( (win_regexec(regexp_options, val, str) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #endif
+     {
+         if(sel==1) {
+           xctx->arc[c][i].sel = SELECTED;
+           set_first_sel(ARC, i, c);
+           xctx->need_reb_sel_arr=1;
+         }
+         if(sel==-1) {
+           xctx->arc[c][i].sel = 0;
+           xctx->need_reb_sel_arr=1;
+         }
+         found = 1;
+     }
+     else {
+       dbg(2, "search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
+                           i, c, tok, str, val);
+     }
+   }
+ }
+
+ if(sel) for(c = 0; c < cadlayers; ++c) for(i=0;i<xctx->polygons[c]; ++i) {
+   str = get_tok_value(xctx->poly[c][i].prop_ptr, tok,0);
+   if(xctx->tok_size) {
+     #ifdef __unix__
+     if( (!regexec(&re, str,0 , NULL, 0) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #else
+     if( (win_regexec(regexp_options, val, str) && !sub ) ||
+         ( !comparefn(str, val) &&  sub ))
+     #endif
+     {
+         if(sel==1) {
+           xctx->poly[c][i].sel = SELECTED;
+           set_first_sel(POLYGON, i, c);
+           xctx->need_reb_sel_arr=1;
+         }
+         if(sel==-1) {
+           xctx->poly[c][i].sel = 0;
+           xctx->need_reb_sel_arr=1;
+         }
+         found = 1;
+     }
+     else {
+       dbg(2, "search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
+                           i, c, tok, str, val);
+     }
+   }
+ }
+
+
  if(sel) for(i=0;i<xctx->texts; ++i) {
    str = get_tok_value(xctx->text[i].prop_ptr, tok,0);
    if(xctx->tok_size) {

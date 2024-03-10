@@ -911,6 +911,7 @@ static void drawgrid()
   int i=0;
   int big_gr = tclgetboolvar("big_grid_points");
   int axes = tclgetboolvar("draw_grid_axes");
+  double mult;
   
   #endif
   dbg(1, "drawgrid(): draw grid\n");
@@ -919,7 +920,16 @@ static void drawgrid()
   #if DRAW_ALL_CAIRO==1
   set_cairo_color(GRIDLAYER);
   #endif
-  while(delta < CADGRIDTHRESHOLD) delta*=CADGRIDMULTIPLY;  /* <-- to be improved,but works */
+
+
+  if(delta < CADGRIDTHRESHOLD) {
+    mult = ceil( (log(CADGRIDTHRESHOLD) - log(delta) ) / log(CADGRIDMULTIPLY) );
+    delta = delta * pow(CADGRIDMULTIPLY, mult);
+  }
+
+  /* while(delta < CADGRIDTHRESHOLD) delta *= CADGRIDMULTIPLY; */  /* <-- to be improved,but works */
+
+
   #if DRAW_ALL_CAIRO==1
   x =floor(xctx->xorigin*xctx->mooz) + 0.5; y = floor(xctx->yorigin*xctx->mooz) + 0.5;
   #else

@@ -7413,7 +7413,7 @@ proc build_widgets { {topwin {} } } {
     -command {xschem set intuitive_interface $intuitive_interface}
 
   $topwin.menubar.option.menu add checkbutton -label "Draw crosshair" \
-    -variable draw_crosshair -selectcolor $selectcolor
+    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
 
   $topwin.menubar.option.menu add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
@@ -7762,15 +7762,14 @@ proc build_widgets { {topwin {} } } {
    -label {Set schematic to compare and compare with} \
    -command "set compare_sch 1; xschem compare_schematics" 
   $topwin.menubar.hilight.menu add command \
-   -label {Swap compare schematics} -accelerator {Ctrl-Shift-X} \
+   -label {Swap compare schematics} \
    -command "swap_compare_schematics" 
   $topwin.menubar.hilight.menu add checkbutton \
    -selectcolor $selectcolor -label {Compare schematics} \
    -command {
       xschem unselect_all
       xschem redraw } \
-   -variable compare_sch \
-   -accelerator {Alt-X}
+   -variable compare_sch
   $topwin.menubar.hilight.menu add checkbutton -label "View only Probes" -variable only_probes \
          -selectcolor $selectcolor -accelerator {5} \
          -command { xschem only_probes }

@@ -2604,17 +2604,12 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
-   if(key=='X' && rstate == ControlMask) /* swap compare schematics */
+   if(key=='x' && EQUAL_MODMASK) /* toggle draw crosshair at mouse pos */
    {
-     tcleval("swap_compare_schematics");
-   }
-   if(key=='x' && EQUAL_MODMASK) /* compare schematics(must set first) */
-   {
-     unselect_all(0);
-     if(tclgetboolvar("compare_sch")) {
-       tclsetvar("compare_sch", "0");
+     if(tclgetboolvar("draw_crosshair")) {
+       tclsetvar("draw_crosshair", "0");
      } else {
-       tclsetvar("compare_sch", "1");
+       tclsetvar("draw_crosshair", "1");
      }
      draw();
    }
