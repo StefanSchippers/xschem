@@ -5906,7 +5906,7 @@ proc abs_sym_path {fname {ext {} } } {
     set found 1
     set tmpdirname [file dirname $tmpdirname]
   }
-  ## if tmpfname reducced to '..' return dirname of tmpdirname
+  ## if tmpfname reduced to '..' return dirname of tmpdirname
   if { $tmpfname eq {..}} { return "[file dirname $tmpdirname]" }
   ## if given file begins with './' or '../' and dir or file exists relative to curr_dirname 
   ## just return it.
