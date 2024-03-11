@@ -8340,7 +8340,7 @@ set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
-set_ne intuitive_interface 0
+set_ne intuitive_interface 1
 set_ne autotrim_wires 0
 set_ne compare_sch 0
 set_ne disable_unique_names 0

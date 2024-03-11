@@ -191,7 +191,7 @@
 
 #### if set to 1 allow click & drag objects in the schematic 
 #### to move them without keyboard commands ('m')
-#### default: 0
+#### default: enabled (1)
 # set intuitive_interface 0
 
 
