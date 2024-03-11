@@ -1136,6 +1136,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[2], "backlayer")) { /* number of background layer */
             Tcl_SetResult(interp, my_itoa(BACKLAYER), TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "bbox")) { /* bounding box schematic */
+            xRect boundbox;
+            char res[2048];
+            calc_drawing_bbox(&boundbox, 0);
+            my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+            Tcl_SetResult(interp, res, TCL_VOLATILE);
+          }
           else if(!strcmp(argv[2], "bbox_hilighted")) { /* bounding box of highlinhted objects */
             xRect boundbox;
             char res[2048];
