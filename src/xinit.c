@@ -709,7 +709,6 @@ static void delete_schematic_data(int delete_pixmap)
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     free_gc();
   }
-  create_memory_cairo_ctx(0); /* delete in-memory cairo data (used for text_bbox() when no X) */
   /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
    * inst & wire .node fields, instance name hash */
   remove_symbols();
@@ -1601,7 +1600,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   if(has_x) create_gc();
   enable_layers();
   build_colors(0.0, 0.0);
-  resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+  resetwin(1, 0, 1, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force, w, h) */
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
@@ -1711,7 +1710,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   if(has_x) create_gc();
   enable_layers();
   build_colors(0.0, 0.0);
-  resetwin(1, 0, 1, 0, 0);  /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
+  resetwin(1, 0, 1, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force, w, h) */
   tclvareval("housekeeping_ctx", NULL);
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
@@ -2229,6 +2228,12 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     }
     dbg(1, "resetwin(): Window reset\n");
   } /* end if(has_x) */
+  else {
+    /* in memory cairo_ctx if not already created. For text_bbox() when no X */
+    /* does something only if HAS_CAIRO is defined */
+    if(clear_pixmap) create_memory_cairo_ctx(0);
+    if(create_pixmap) create_memory_cairo_ctx(1);
+  }
 }
 
 static void tclmainloop(void)
@@ -2719,8 +2724,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
     if(build_colors(0.0, 0.0)) exit(-1);
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
     /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
-
-    resetwin(1, 0, 1, 0, 0);
+  }
+  resetwin(1, 0, 1, 0, 0);
+  if(has_x) {
     #if HAS_CAIRO==1
     /* load font from tcl 20171112 */
     tclsetvar("has_cairo","1");
@@ -2746,7 +2752,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
     set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
     set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
  } /* if(has_x) */
- create_memory_cairo_ctx(1); /* in memory cairo_ctx if not already created. For text_bbox() when no X */
  dbg(1, "Tcl_AppInit(): done X init\n");
 
 /* pass to tcl values of Alt, Shift, COntrol key masks so bind Alt-KeyPress events will work for windows */

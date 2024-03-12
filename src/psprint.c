@@ -296,7 +296,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   dbg(1, "width=%d, rwi=%d height=%d rhi=%d\n", xctx->xrect[0].width, rwi, xctx->xrect[0].height, rhi);
   #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
-      xctx->xrect[0].width, xctx->xrect[0].height);
+     xctx->xrect[0].width, xctx->xrect[0].height);
   #else
   /* pixmap doesn't work on windows
        Copy from cairo_save_sfc and use cairo
