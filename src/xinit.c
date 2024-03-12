@@ -925,6 +925,8 @@ static void xwin_exit(void)
    for(i = 0; i < cadlayers; ++i) Tk_FreePixmap(display, pixmap[i]);
    #endif
    my_free(_ALLOC_ID_, &pixmap);
+ } else { /* no X */
+   create_memory_cairo_ctx(0); /* clear in-memory created cairo_ctx if any */
  }
  dbg(1, "xwin_exit(): clearing drawing data structures\n");
 
@@ -2047,6 +2049,10 @@ static void resetcairo(int create, int clear, int force_or_resize)
     cairo_surface_destroy(xctx->cairo_save_sfc);
     cairo_destroy(xctx->cairo_ctx);
     cairo_surface_destroy(xctx->cairo_sfc);
+    xctx->cairo_save_ctx = NULL;
+    xctx->cairo_ctx = NULL;
+    xctx->cairo_save_sfc = NULL;
+    xctx->cairo_sfc = NULL;
   }
   if(create && force_or_resize) {
     cairo_font_options_t *options;
@@ -2719,6 +2725,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
     set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
     set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
  } /* if(has_x) */
+ else { /* no X */
+   if(!xctx->cairo_ctx) create_memory_cairo_ctx(1); /* in-memory cairo_ctx for text_bbox when no X is used */
+ }
  dbg(1, "Tcl_AppInit(): done X init\n");
 
 /* pass to tcl values of Alt, Shift, COntrol key masks so bind Alt-KeyPress events will work for windows */
