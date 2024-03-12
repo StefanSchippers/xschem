@@ -907,6 +907,7 @@ static void xwin_exit(void)
  }
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
+ else create_memory_cairo_ctx(0); /* clear in-memory created cairo_ctx if any */
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
  delete_schematic_data(1);
  if(has_x) {
@@ -925,8 +926,6 @@ static void xwin_exit(void)
    for(i = 0; i < cadlayers; ++i) Tk_FreePixmap(display, pixmap[i]);
    #endif
    my_free(_ALLOC_ID_, &pixmap);
- } else { /* no X */
-   create_memory_cairo_ctx(0); /* clear in-memory created cairo_ctx if any */
  }
  dbg(1, "xwin_exit(): clearing drawing data structures\n");
 

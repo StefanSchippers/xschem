@@ -3378,12 +3378,10 @@ void create_memory_cairo_ctx(int what)
 {
 #if HAS_CAIRO==1
   static int created = 0;
-  enum { w = 100, h = 64, bpp = 4 };
-  static unsigned char data[w * h * bpp];
+  enum { w = 200, h = 150};
 
   if(!created && what && !xctx->cairo_ctx) {
-    xctx->cairo_sfc = cairo_image_surface_create_for_data(data,
-                      CAIRO_FORMAT_RGB24, w, h, bpp * w);
+    xctx->cairo_sfc = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
     if(xctx->cairo_ctx) created = 1;
   }
