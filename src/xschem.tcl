@@ -7720,9 +7720,6 @@ proc build_widgets { {topwin {} } } {
       -selectcolor $selectcolor -variable disable_unique_names
   $topwin.menubar.tools.menu add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
   toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
-  $topwin.menubar.tools.menu add command -label "Insert wire label" -command "xschem net_label 1" -accelerator {Alt-L}
-  $topwin.menubar.tools.menu add command -label "Insert wire label 2" -command "xschem net_label 0" \
-     -accelerator {Alt-Shift-L}
   $topwin.menubar.tools.menu add command -label "Insert text" -command "xschem place_text" -accelerator T
   toolbar_add ToolInsertText "xschem place_text" "Insert Text" $topwin
   $topwin.menubar.tools.menu add command -label "Insert wire" -command "xschem wire" -accelerator W
