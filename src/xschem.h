@@ -1330,7 +1330,7 @@ extern int text_bbox(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter, 
             double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2, int *cairo_lines, double *longest_line);
-
+extern void close_temporary_x_connection(void);
 extern int get_color(int value);
 extern void incr_hilight_color(void);
 extern void get_inst_pin_coord(int i, int j, double *x, double *y);

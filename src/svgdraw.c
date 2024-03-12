@@ -958,6 +958,11 @@ void svg_draw(void)
   tclsetboolvar("draw_grid", old_grid);
   my_free(_ALLOC_ID_, &svg_colors);
   my_free(_ALLOC_ID_, &unused_layer);
+  /* if xschem started with no X connection, text_bbox() will
+   * try to open an X connection and create a cairo surface 
+   * that will be used to return more precise font metrics for
+   * text bbox calculation. so we close the temporary connection here. */
+  close_temporary_x_connection();
   Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

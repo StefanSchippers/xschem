@@ -3372,6 +3372,23 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
 }
 
 #if HAS_CAIRO==1
+static int temporary_x_connection = 0;
+#endif
+void close_temporary_x_connection(void)
+{
+   #if HAS_CAIRO==1
+   if(temporary_x_connection) {
+     cairo_destroy(xctx->cairo_ctx);
+     cairo_surface_destroy(xctx->cairo_sfc);
+     XDestroyWindow(display, xctx->window);
+     XCloseDisplay(display);
+     display = NULL;
+     temporary_x_connection = 0;
+   }
+   #endif
+}
+
+#if HAS_CAIRO==1
 int text_bbox(const char *str, double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
     double *rx2, double *ry2, int *cairo_lines, double *cairo_longest_line)
@@ -3383,8 +3400,28 @@ int text_bbox(const char *str, double xscale, double yscale,
   cairo_font_extents_t fext;
   double ww, hh, maxw;
   
+
+  /* try to create a cairo context so we get better font metric calculation (text bbox) */
+  if(!display) {
+    int screen;  
+    unsigned long white;
+    Visual *visual;
+    if((display = XOpenDisplay(NULL))) {
+      screen = DefaultScreen(display);
+      visual = DefaultVisual(display, screen);
+      white = WhitePixel(display, screen);
+      xctx->window = XCreateSimpleWindow(display, 
+                     DefaultRootWindow(display), 0, 0, 1, 1, CopyFromParent, white, white);
+      xctx->cairo_sfc = cairo_xlib_surface_create(display, xctx->window, visual, 1, 1);
+      xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
+      temporary_x_connection = 1;
+    }
+  }
+  /* if XOpenDisplay() failed display will be still NULL so we will go with
+   * text_bbox_nocairo() */
+
   /*                will not match exactly font metrics when doing ps/svg output , but better than nothing */
-  if(!has_x) return text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1, y1,
+  if(!has_x && !display) return text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1, y1,
                                       rx1, ry1, rx2, ry2, cairo_lines, cairo_longest_line);
   size = xscale*52.*cairo_font_scale;
 

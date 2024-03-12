@@ -26,7 +26,7 @@
 /* ------------------------------------------------ */
 /* X11 specific globals                             */
 /* ------------------------------------------------ */
-Display *display;
+Display *display = NULL;
 
 #ifdef HAS_XCB
 xcb_connection_t *xcb_conn;
