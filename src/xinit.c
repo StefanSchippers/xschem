@@ -709,6 +709,7 @@ static void delete_schematic_data(int delete_pixmap)
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     free_gc();
   }
+  create_memory_cairo_ctx(0); /* delete in-memory cairo data (used for text_bbox() when no X) */
   /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
    * inst & wire .node fields, instance name hash */
   remove_symbols();
@@ -907,7 +908,6 @@ static void xwin_exit(void)
  }
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
- else create_memory_cairo_ctx(0); /* clear in-memory created cairo_ctx if any */
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
  delete_schematic_data(1);
  if(has_x) {
@@ -2034,6 +2034,28 @@ void change_linewidth(double w)
   #endif
 }
 
+/* try to create a cairo context so we get better font metric calculation (text bbox)
+ * what = 1: create
+ * what = 0 : clear */
+void create_memory_cairo_ctx(int what)
+{
+#if HAS_CAIRO==1
+  enum { w = 200, h = 150};
+
+  if(what && !xctx->cairo_ctx) {
+    xctx->cairo_sfc = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
+    xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
+  }
+
+  if(!what && xctx->cairo_ctx ) {
+    cairo_destroy(xctx->cairo_ctx);
+    cairo_surface_destroy(xctx->cairo_sfc);
+    xctx->cairo_ctx = NULL;
+    xctx->cairo_sfc = NULL;
+  }
+#endif
+}
+
 /* clears and creates cairo_sfc, cairo_ctx, cairo_save_sfc, cairo_save_ctx
  * and sets some graphical attributes */
 static void resetcairo(int create, int clear, int force_or_resize)
@@ -2724,9 +2746,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
     set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
  } /* if(has_x) */
- else { /* no X */
-   if(!xctx->cairo_ctx) create_memory_cairo_ctx(1); /* in-memory cairo_ctx for text_bbox when no X is used */
- }
+ create_memory_cairo_ctx(1); /* in memory cairo_ctx if not already created. For text_bbox() when no X */
  dbg(1, "Tcl_AppInit(): done X init\n");
 
 /* pass to tcl values of Alt, Shift, COntrol key masks so bind Alt-KeyPress events will work for windows */

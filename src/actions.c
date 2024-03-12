@@ -3371,31 +3371,6 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
    }
 }
 
-/* try to create a cairo context so we get better font metric calculation (text bbox)
- * what = 1: create
- * what = 0 : clear */
-void create_memory_cairo_ctx(int what)
-{
-#if HAS_CAIRO==1
-  static int created = 0;
-  enum { w = 200, h = 150};
-
-  if(!created && what && !xctx->cairo_ctx) {
-    xctx->cairo_sfc = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
-    xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
-    if(xctx->cairo_ctx) created = 1;
-  }
-
-  if(created && !what && xctx->cairo_ctx ) {
-    cairo_destroy(xctx->cairo_ctx);
-    cairo_surface_destroy(xctx->cairo_sfc);
-    xctx->cairo_ctx = NULL;
-    xctx->cairo_sfc = NULL;
-    created = 0;
-  }
-#endif
-}
-
 #if HAS_CAIRO==1
 int text_bbox(const char *str, double xscale, double yscale,
     short rot, short flip, int hcenter, int vcenter, double x1,double y1, double *rx1, double *ry1,
