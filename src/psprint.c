@@ -77,7 +77,7 @@ static Ps_color *ps_colors;
 static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 
-void ps_drawPNG(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
+void ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   int i;
@@ -929,7 +929,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
      RECTORDER(x1,y1,x2,y2);
      if (rect.flags & 1024) /* image */
      {
-       ps_drawPNG(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
+       ps_embedded_image(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
        continue;
      }
      ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
@@ -1293,7 +1293,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
           xRect* r = &xctx->rect[c][i];
           /* PNG Code Here */
-          ps_drawPNG(r, r->x1, r->y1, r->x2, r->y2,0 ,0);
+          ps_embedded_image(r, r->x1, r->y1, r->x2, r->y2,0 ,0);
           continue;
         }
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */

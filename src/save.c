@@ -768,8 +768,10 @@ char *base64_from_file(const char *f, size_t *length)
   unsigned char *s = NULL;
   char *b64s = NULL;
   size_t len;
+  int stat_res;
 
-  if (stat(f, &st) == 0 && ( (st.st_mode & S_IFMT) == S_IFREG) ) {
+  stat_res = stat(f, &st);
+  if (stat_res == 0 && ( (st.st_mode & S_IFMT) == S_IFREG) ) {
     len = st.st_size;
     fd = fopen(f, fopen_read_mode);
     if(fd) {
