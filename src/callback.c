@@ -3529,7 +3529,7 @@ int rstate; /* (reduced state, without ShiftMask) */
            move_objects(START,0,0,0);
          }
          else if(state == ShiftMask) copy_objects(START);
-         else move_objects(START,0,0,0);
+         else if( !(state & ControlMask) ) move_objects(START,0,0,0);
        }
 
        #ifndef __unix__

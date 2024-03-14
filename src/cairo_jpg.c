@@ -375,8 +375,10 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_mem(void *data, size_t len
    (void) jpeg_finish_decompress(&cinfo);
    jpeg_destroy_decompress(&cinfo);
 
+   /* Stefan: commented out since this assumes static lifetime of 'data' buffer 
+    * that I don't assume. I consider this a bug */
    /*  set jpeg mime data */
-   cairo_surface_set_mime_data(sfc, CAIRO_MIME_TYPE_JPEG, data, len, free, data);
+   /* cairo_surface_set_mime_data(sfc, CAIRO_MIME_TYPE_JPEG, data, len, free, data);*/
 
    return sfc;
 }

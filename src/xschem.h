@@ -1349,6 +1349,7 @@ extern void hash_objects(void); /* hash all objects */
 
 #if HAS_CAIRO==1
 extern cairo_status_t png_reader(void* in_closure, unsigned char* out_data, unsigned int length);
+extern cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsigned int length);
 extern int text_bbox_nocairo(const char * str,double xscale, double yscale,
             short rot, short flip, int hcenter, int vcenter,
             double x1,double y1, double *rx1, double *ry1,

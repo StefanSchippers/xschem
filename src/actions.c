@@ -933,7 +933,9 @@ int set_rect_extraptr(int what, xRect *drptr)
     if(drptr->flags & 1024) { /* embedded image */
       if(drptr->extraptr) {
         xEmb_image *d = drptr->extraptr;
-        if(d->image) cairo_surface_destroy(d->image);
+        if(d->image) {
+           cairo_surface_destroy(d->image);
+        }
         my_free(_ALLOC_ID_, &drptr->extraptr);
       }
     }

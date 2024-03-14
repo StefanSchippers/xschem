@@ -220,13 +220,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* add_png
-     *   Ask user to choose a png file and start a GUI placement of the image */
+     *   Ask user to choose a png/jpg file and start a GUI placement of the image */
     else if(!strcmp(argv[1], "add_png"))
     {
       char str[PATH_MAX+100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       unselect_all(1);
-      tcleval("tk_getOpenFile -filetypes { {{Png} {.png}}   {{All files} *} }");
+      tcleval("tk_getOpenFile -filetypes {{{Png} {.png}} {{Jpg} {.jpg .jpeg}} {{All files} *} }");
       if(tclresult()[0]) {
         my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
         storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
