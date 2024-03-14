@@ -3879,6 +3879,28 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
 }
 #endif
 
+void inspect_image(cairo_surface_t* surface)
+{
+  unsigned char *data, *ptr;
+  int size_x, size_y, stride, x, y;
+  cairo_surface_flush(surface);
+  data = cairo_image_surface_get_data(surface);
+  size_x = cairo_image_surface_get_width(surface);
+  size_y = cairo_image_surface_get_height(surface);
+  stride = cairo_image_surface_get_stride(surface);
+
+  for(x = 0; x < size_x; x++) {
+    for(y = 0; y < size_y; y++) {
+      ptr = data + y *stride + x * 4;
+
+      if(x == 0) {
+        dbg(0, "R=%d G=%d B=%d A=%d\n", ptr[2], ptr[1], ptr[0], ptr[3]);
+      }
+    }
+  }
+
+  dbg(0, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
+}
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
@@ -3887,6 +3909,7 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
 void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
   #if HAS_CAIRO == 1
+  int jpeg_quality=75;
   const char *ptr;
   int w,h;
   double x, y, rw, rh;
@@ -3919,69 +3942,76 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
   }
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
   my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-
-  /* read PNG from in-memory buffer ... */
+  ptr = get_tok_value(r->prop_ptr, "quality", 0);
+  jpeg_quality = 75;
+  if(ptr[0]) jpeg_quality = atoi(ptr);
+  /* read image from in-memory buffer ... */
   if(emb_ptr && emb_ptr->image) {
     ; /* nothing to do, image is already created */
   /* ... or read PNG from image_data attribute */
   } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
     size_t data_size;
-    if(filter) {
-      size_t filtersize = 0;
-      char *filterdata = NULL;
-      dbg(1, "draw_image(): filter=%s, image_data=%s\n", filter, attr);
-      closure.buffer = NULL;
-      filterdata = (char *)base64_decode(attr, strlen(attr), &filtersize);
-      filter_data(filterdata, filtersize, (char **)&closure.buffer, &data_size, filter); 
-      my_free(_ALLOC_ID_, &filterdata);
-    } else {
-      if(!strncmp(attr, "/9j/4", 5)) jpg = 1;
-      else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
-      else jpg = -1; /* some invalid data */
-      closure.buffer = base64_decode(attr, strlen(attr), &data_size);
-    }
+    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    else jpg = -1; /* some invalid data */
+    closure.buffer = base64_decode(attr, strlen(attr), &data_size);
     closure.pos = 0;
     closure.size = data_size; /* should not be necessary */
     if(jpg == 0) {
       emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-    } else  {
+    } else if(jpg == 1) {
       emb_ptr->image = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
     }
-    if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+    if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+      dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
       my_free(_ALLOC_ID_, &filter);
       my_free(_ALLOC_ID_, &closure.buffer);
       return;
     }
-
     if(closure.buffer == NULL) dbg(0, "draw_image(): image creation failed\n");
     my_free(_ALLOC_ID_, &closure.buffer);
     dbg(1, "draw_image(): length2 = %d\n", closure.pos);
   /* ... or read PNG from file (image attribute) */
   } else if(filename[0] && !stat(filename, &buf)) {
-    char *image_data = NULL;
+    char *encoded_data = NULL;
     size_t olength;
     if(filter) {
-      size_t filtersize = 0;
-      char *filterdata = NULL;
-      size_t pngsize = 0;
-      char *pngdata = NULL;
+      size_t filesize = 0;
+      char *filedata = NULL;
+      size_t filtered_img_size = 0;
+      char *filtered_img_data = NULL;
       FILE *fd;
-      filtersize = (size_t)buf.st_size;
-      if(filtersize) {
+
+      filesize = (size_t)buf.st_size;
+      if(filesize) {
         fd = fopen(filename, "r");
         if(fd) {
-          filterdata = my_malloc(_ALLOC_ID_, filtersize);
-          fread(filterdata, filtersize, 1, fd);
+          filedata = my_malloc(_ALLOC_ID_, filesize);
+          fread(filedata, filesize, 1, fd);
           fclose(fd);
         }
       }
-      filter_data(filterdata, filtersize, &pngdata, &pngsize, filter);
-      closure.buffer = (unsigned char *)pngdata;
-      closure.size = pngsize;
+      filter_data(filedata, filesize, &filtered_img_data, &filtered_img_size, filter);
+      if(!strncmp(filtered_img_data, "\x89PNG", 4)) jpg = 0;
+      else if(!strncmp(filtered_img_data, "\xFF\xD8\xFF", 3)) jpg = 1;
+      else jpg = -1;
+      closure.buffer = (unsigned char *)filtered_img_data;
+      closure.size = filtered_img_size;
       closure.pos = 0;
-      emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-      image_data = base64_encode((unsigned char *)filterdata, filtersize, &olength, 0);
-      my_free(_ALLOC_ID_, &filterdata);
+      if(jpg == 0) {
+        emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+      } else if(jpg == 1) {
+        emb_ptr->image = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+      }
+      if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+        dbg(0, "draw_image(): failure creating image surface with filtered data from %s\n", filename);
+        my_free(_ALLOC_ID_, &filter);
+        my_free(_ALLOC_ID_, &filedata);
+        my_free(_ALLOC_ID_, &filtered_img_data);
+        return;
+      }
+      encoded_data = base64_encode((unsigned char *)filtered_img_data, filtered_img_size, &olength, 0);
+      my_free(_ALLOC_ID_, &filedata);
     } else {
       FILE *fd;
       size_t size = (size_t)buf.st_size >= 5 ? 5 : (size_t)buf.st_size;
@@ -3996,36 +4026,34 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       if(!strncmp(header, "\x89PNG", 4)) jpg = 0;
       else if(!strncmp(header, "\xFF\xD8\xFF", 3)) jpg = 1;
       else jpg = -1;
-      
-
       closure.buffer = NULL;
       closure.size = 0;
       closure.pos = 0;
       if(jpg == 0) {
         emb_ptr->image = cairo_image_surface_create_from_png(filename);
+      } else if(jpg == 1) {
+        emb_ptr->image = cairo_image_surface_create_from_jpeg(filename);
+      }
+      if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+        dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
+        my_free(_ALLOC_ID_, &filter);
+        return;
+      }
+      if(jpg == 0) {
         /* write PNG to in-memory buffer */
         cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
-      } else {
-        emb_ptr->image = cairo_image_surface_create_from_jpeg(filename);
+      } else if(jpg == 1) {
         /* write JPG to in-memory buffer */
-        cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, 75);
+        cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, jpeg_quality);
       }
-      image_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
+      encoded_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
       my_free(_ALLOC_ID_, &closure.buffer);
     }
-    /* put base64 encoded data to rect image_data attrinute */
-    my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", image_data));
-    my_free(_ALLOC_ID_, &image_data);
-    if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-      my_free(_ALLOC_ID_, &filter);
-      return;
-    }
+    /* put base64 encoded data to rect image_data attribute */
+    my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", encoded_data));
+    my_free(_ALLOC_ID_, &encoded_data);
     dbg(1, "draw_image(): length3 = %d\n", closure.pos);
   } else {
-    my_free(_ALLOC_ID_, &filter);
-    return;
-  }
-  if(cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
     my_free(_ALLOC_ID_, &filter);
     return;
   }
