@@ -901,7 +901,6 @@ static int edit_rect_property(int x)
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     xctx->push_undo();
-    bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
@@ -930,6 +929,9 @@ static int edit_rect_property(int x)
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
           (!oldprop && xctx->rect[c][n].prop_ptr) || (oldprop && !xctx->rect[c][n].prop_ptr)) {
          modified = 1;
+         if(!drw) {
+           bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
+         }
          drw = 1;
          if( xctx->rect[c][n].flags & 1024) {
            draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
