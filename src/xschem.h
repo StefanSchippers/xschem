@@ -120,7 +120,9 @@ extern char win_temp_dir[PATH_MAX];
 /* #define FIX_BROKEN_TILED_FILL 1 */
 
 #include <cairo.h>
+#if defined(HAS_LIBJPEG)
 #include "cairo_jpg.h"
+#endif
 #ifdef __unix__
 #include <cairo-xlib.h>
 #include "cairo-xlib-xrender.h"
