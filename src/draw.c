@@ -3997,7 +3997,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
         if(fd) {
           size_t bytes_read;
           filedata = my_malloc(_ALLOC_ID_, filesize);
-          if((bytes_read = fread(filedata, filesize, 1, fd)) < filesize) {
+          if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
             filesize = bytes_read;
             dbg(0, "draw_image(): less bytes read than expected from %s, got %ld bytes\n", filename, bytes_read);
           }
@@ -4037,7 +4037,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       fd = fopen(filename, "r");
       if(fd) {
         size_t bytes_read;
-        if((bytes_read = fread(header, size, 1, fd)) < size) {
+        if((bytes_read = fread(header, 1, size, fd)) < size) {
           size = bytes_read;
           dbg(0, "draw_image(): less bytes read than expected from %s, got %ld bytes\n", filename, bytes_read);
         }

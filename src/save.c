@@ -417,7 +417,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
     npoints = 0;
     filepos = xftell(fd); /* store file pointer position */
     for(p = 0; p < raw->npoints[raw->datasets]; p++) {
-      if(fread(tmp, sizeof(double) , raw->nvars, fd) != raw->nvars) {
+      if(fread(tmp, sizeof(double), raw->nvars, fd) != raw->nvars) {
          dbg(0, "Warning: binary block is not of correct size\n");
       }
       sweepvar = tmp[0];
@@ -438,7 +438,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
   /* read binary block */
   p = 0;
   for(i = 0; i < raw->npoints[raw->datasets]; i++) {
-    if(fread(tmp, sizeof(double) , raw->nvars, fd) != raw->nvars) {
+    if(fread(tmp, sizeof(double), raw->nvars, fd) != raw->nvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
 
@@ -777,7 +777,7 @@ char *base64_from_file(const char *f, size_t *length)
     if(fd) {
       size_t bytes_read;
       s = my_malloc(_ALLOC_ID_, len);
-      if((bytes_read = fread(s, len, 1, fd)) < len) {
+      if((bytes_read = fread(s, 1, len, fd)) < len) {
         dbg(0, "base64_from_file(): less bytes FROM %S, got %ld bytes\n", f, bytes_read);
       }
       fclose(fd);
