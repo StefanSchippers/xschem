@@ -457,7 +457,7 @@ void new_xschem_process(const char *cell, int symbol)
   } else {
     /* error */
     fprintf(errfp, "new_xschem_process(): fork error 2\n");
-    tcleval("exit");
+    tcleval("exit 1");
   }
 }
 #else

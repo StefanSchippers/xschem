@@ -43,7 +43,7 @@ static void sig_handler(int s){
              get_cell(xctx->sch[xctx->currsch], 0));
     if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
       fprintf(errfp, "xinit(): problems creating emergency save dir\n");
-      tcleval("exit");
+      tcleval("exit 1");
     }
   
     if(rename(xctx->undo_dirname, emergency_dir)) {
@@ -153,6 +153,6 @@ int main(int argc, char **argv)
     if(has_x) Tk_Main(1, argv, Tcl_AppInit);
     else     Tcl_Main(1, argv, Tcl_AppInit);
   }
-  return 0;
+  return(0);
 }
 

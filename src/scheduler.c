@@ -843,8 +843,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* exit [closewindow] [force]
+    /* exit [exit_code] [closewindow] [force]
      *   Exit the program, ask for confirm if current file modified.
+     *   if exit_code is given exit with its value, otherwise use 0 exit code
      *   if 'closewindow' is given close the window, otherwise leave with a blank schematic
      *   when closing the last remaining window
      *   if 'force' is given do not ask before closing modified schematic windows/tabs
@@ -853,11 +854,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int closewindow = 0;
       int force = 0;
+      const char *exit_status = "0";
+      
 
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "closewindow")) closewindow = 1;
         if(!strcmp(argv[i], "force")) force = 1;
+        if(strpbrk(argv[i], "0123456789-")) exit_status = argv[i];
       }     
       if(!strcmp(xctx->current_win_path, ".drw")) {
         /* non tabbed interface */
@@ -883,7 +887,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-               if(closewindow) tcleval("exit");
+               if(closewindow) tclvareval("exit ", exit_status, NULL);
                else clear_schematic(0, 0);
             }
           }
@@ -910,7 +914,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-               if(closewindow) tcleval("exit");
+               if(closewindow) tclvareval("exit ", exit_status, NULL);
                else clear_schematic(0, 0);
             }
           }
@@ -1449,7 +1453,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               if(ret_val > MAX_PATH || (ret_val == 0)) {
                 Tcl_SetResult(interp, "xschem get temp_dir failed\n", TCL_STATIC);
                 fprintf(errfp, "xschem get temp_dir: path error\n");
-                tcleval("exit");
+                tcleval("exit 1");
               }
               else {
                 char s[MAX_PATH];
@@ -1458,7 +1462,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 if(err != 0) {
                   Tcl_SetResult(interp, "xschem get temp_dir conversion failed\n", TCL_STATIC);
                   fprintf(errfp, "xschem get temp_dir: conversion error\n");
-                  tcleval("exit");
+                  tcleval("exit 1");
                 }
                 else {
                   change_to_unix_fn(s);

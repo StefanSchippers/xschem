@@ -2721,7 +2721,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     create_gc();
 
     dbg(1, "Tcl_AppInit(): done step c of xinit()\n");
-    if(build_colors(0.0, 0.0)) exit(-1);
+    if(build_colors(0.0, 0.0)) exit(1);
     dbg(1, "Tcl_AppInit(): done step e of xinit()\n");
     /* xctx->save_pixmap must be created as resetwin() frees it before recreating with new size. */
   }
@@ -2815,7 +2815,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
-
+    int file_loaded = 1;
    /* check if local_netlist_dir is set and set netlist_dir accordingly
     * following call is needed since load_schematic() may be called with 
     * reset_undo=0 and will not call set_netlist_dir */
@@ -2844,13 +2844,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, f, !cli_opt_do_netlist, 1);
+   file_loaded = load_schematic(1, f, !cli_opt_do_netlist, 1);
+   if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
  } else /* if(!cli_opt_tcl_script[0]) */
  {
    char * tmp;
    char fname[PATH_MAX];
+   int file_loaded = 1;
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
    #ifndef __unix__
    change_to_unix_fn(tmp);
@@ -2859,7 +2861,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   load_schematic(1, fname, !cli_opt_do_netlist, 1);
+   file_loaded = load_schematic(1, fname, !cli_opt_do_netlist, 1);
+   if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  /* Necessary to tell xschem the initial area to display */
@@ -2868,7 +2871,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");
-     tcleval("exit");
+     tcleval("exit 1");
    }
    if(set_netlist_dir(0, NULL)) { /* necessary to create netlist dir if not existing */
      if(debug_var>=1) {
@@ -2890,7 +2893,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_do_print) {
    if(!cli_opt_filename[0]) {
      dbg(0, "xschem: can't do a print without a filename\n");
-     tcleval("exit");
+     tcleval("exit 1");
    }
    if(cli_opt_do_print==1) {
 
@@ -2915,7 +2918,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
      }
    }
    else {
-     tcleval("tkwait visibility .drw");
      svg_draw();
    }
  }
@@ -2923,7 +2925,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_do_simulation) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: can't do a simulation without a filename\n");
-     tcleval("exit");
+     tcleval("exit 1");
    }
    tcleval( "simulate");
  }
@@ -2931,7 +2933,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_do_waves) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: can't show simulation waves without a filename\n");
-     tcleval("exit");
+     tcleval("exit 1");
    }
    tcleval( "waves [file tail \"[xschem get schname]\"]");
  }
@@ -2966,7 +2968,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tcleval("eval_postinit_commands");
 
  if(cli_opt_quit) {
-   tcleval("exit");
+   tcleval("exit 0");
  }
 
 

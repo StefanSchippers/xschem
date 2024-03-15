@@ -122,8 +122,7 @@ C {loading.sym} 160 -860 0 0 {name=x9}
 C {inv_bsource.sym} 880 -320 0 0 {name=B1 TABLE="1.4 3.0 1.6 0.0"}
 C {launcher.sym} 460 -140 0 0 {name=h1 
 descr="XSCHEM ON REPO.HU" 
-url="http://repo.hu/projects/xschem"
-program=x-www-browser}
+url="http://repo.hu/projects/xschem"}
 C {launcher.sym} 460 -90 0 0 {name=h3 
 descr="Toggle light/dark 
 colorscheme" 
@@ -132,7 +131,7 @@ tclcommand="xschem toggle_colorscheme"
 C {launcher.sym} 460 -190 0 0 {name=h2 
 descr="LOCAL DOCUMENTATION" 
 url="$\{XSCHEM_SHAREDIR\}/../doc/xschem/index.html"
-program=x-www-browser
+
 
 }
 C {rlc.sym} 160 -900 0 0 {name=x0}

@@ -3060,13 +3060,13 @@ void link_symbols_to_instances(int from)
 
 /* ALWAYS use absolute pathname for fname!!!
  * alert = 0 --> do not show alert if file not existing */
-void load_schematic(int load_symbols, const char *fname, int reset_undo, int alert)
+int load_schematic(int load_symbols, const char *fname, int reset_undo, int alert)
 {
   FILE *fd;
   char name[PATH_MAX];
   char msg[PATH_MAX+100];
   struct stat buf;
-  int i;
+  int i, ret = 1; /* success */
   
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
@@ -3122,7 +3122,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
 
     dbg(1, "load_schematic(): opening file for loading:%s, fname=%s\n", name, fname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
-    if(!name[0]) return; /* empty filename */
+    if(!name[0]) return 0; /* empty filename */
     if(reset_undo) {
       if(!stat(name, &buf)) { /* file exists */
         xctx->time_last_modify =  buf.st_mtime;
@@ -3141,10 +3141,13 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
     }
     else fd=fopen(name,fopen_read_mode);
     if( fd == NULL) {
+      ret = 0;
       if(alert) {
         fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
-        my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
-        tcleval(msg);
+        if(has_x) {
+          my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
+          tcleval(msg);
+        }
       }
       clear_drawing();
       if(reset_undo) set_modify(0);
@@ -3206,7 +3209,7 @@ void load_schematic(int load_symbols, const char *fname, int reset_undo, int ale
   }
   /* set local simulation directory if local_netlist_dir is set*/
   if(reset_undo) set_netlist_dir(2, NULL);
-
+  return ret;
 }
 
 void clear_undo(void)
