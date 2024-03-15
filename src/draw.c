@@ -3879,6 +3879,7 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
 }
 #endif
 
+#if HAS_CAIRO==1
 void inspect_image(cairo_surface_t* surface)
 {
   unsigned char *data, *ptr;
@@ -3901,6 +3902,7 @@ void inspect_image(cairo_surface_t* surface)
 
   dbg(0, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
 }
+#endif
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
