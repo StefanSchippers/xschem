@@ -3971,7 +3971,8 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       #endif
     }
     if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-      dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
+      if(jpg != 1)
+        dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
       my_free(_ALLOC_ID_, &filter);
       my_free(_ALLOC_ID_, &closure.buffer);
       return;
@@ -4018,7 +4019,8 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
         #endif
       }
       if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-        dbg(0, "draw_image(): failure creating image surface with filtered data from %s\n", filename);
+        if(jpg != 1)
+           dbg(0, "draw_image(): failure creating image surface with filtered data from %s\n", filename);
         my_free(_ALLOC_ID_, &filter);
         my_free(_ALLOC_ID_, &filedata);
         my_free(_ALLOC_ID_, &filtered_img_data);
@@ -4056,7 +4058,7 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
         #endif
       }
       if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
-        dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
+        if(jpg != 1) dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
         my_free(_ALLOC_ID_, &filter);
         return;
       }

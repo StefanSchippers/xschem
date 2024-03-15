@@ -558,20 +558,19 @@ void copy_objects(int what)
 
     newpropcnt=0;
 
-    if( !xctx->kissing ) {
-      dbg(1, "copy_objects(): push undo state\n");
-      xctx->push_undo();
-    }
-
-    firstw = firsti = 1;
-
-
     /* button released after clicking elements, without moving... do nothing */
     if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
        xctx->ui_state &= ~STARTCOPY;
        return;
     }        
 
+    if( !xctx->kissing ) {
+      dbg(1, "copy_objects(): push undo state\n");
+      xctx->push_undo();
+    }
+
+    /* calculate moving symbols bboxes before actually doing the copy */
+    firstw = firsti = 1;
     draw_selection(xctx->gctiled,0);
     update_symbol_bboxes(0, 0);
 
@@ -954,7 +953,14 @@ void move_objects(int what, int merge, double dx, double dy)
    xunlink(sel_file);
    xctx->paste_from = 0; /* end of a paste from clipboard command */
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
-   /* no undo push for MERGE ad PLACE and polygon point drag, already done before */
+
+   /* button released after clicking elements, without moving... do nothing */
+   if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
+      xctx->ui_state &= ~STARTMOVE;
+      return;
+   }
+
+   /* no undo push for MERGE ad PLACE, already done before */
    if(!xctx->kissing &&
       !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
      dbg(1, "move_objects(END): push undo state\n");
@@ -973,11 +979,6 @@ void move_objects(int what, int merge, double dx, double dy)
    }
    /* calculate moving symbols bboxes before actually doing the move */
    firsti = firstw = 1;
-   /* button released after clicking elements, without moving... do nothing */
-   if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
-      xctx->ui_state &= ~STARTMOVE;
-      return;
-   }
    draw_selection(xctx->gctiled,0);
    update_symbol_bboxes(0, 0);
    for(k=0;k<cadlayers; ++k)
