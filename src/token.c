@@ -1839,56 +1839,66 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                spice_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &symname);
-
     if(tclresult()[0]) {
-      char *pin, *save;
-      char *pinlist_ptr;
-      char *pinlist = NULL;
-      const char *net;
+      char *subckt_pin, *pin_save;
+      char *net, *net_save;
+      char *subckt_pinlist_ptr;
+      char *subckt_pinlist = NULL;
       char *tmp_result = NULL;
-      int i, no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER], multip; 
+      int i, no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; 
       int symbol_pins = 0;
       int instance_pins = 0;
-      Int_hashentry *entry;
-      Int_hashtable table = {NULL, 0};
-      int done_first = -1;
+      Str_hashentry *entry;
+      Str_hashtable table = {NULL, 0};
 
-      int_hash_init(&table, 6247);
-      my_strdup2(_ALLOC_ID_, &pinlist, tclresult());
-      dbg(1, "included subcircuit: pinlist=%s\n", pinlist);
+      str_hash_init(&table, 6247);
+      my_strdup2(_ALLOC_ID_, &subckt_pinlist, tclresult());
+      dbg(1, "included subcircuit: pinlist=%s\n", subckt_pinlist);
+
+
+      /* pin list from symbol */
       for(i = 0;i < no_of_pins; ++i) {
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
         int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
         const char *name = get_tok_value(prop, "name", 0);
         if(!spice_ignore) {
-          int mult;
-          char *name_expanded_ptr, *name_expanded = NULL;
-          my_strdup2(_ALLOC_ID_, &name_expanded, expandlabel(name, &mult));
-          name_expanded_ptr = name_expanded;
-          while((pin = my_strtok_r(name_expanded_ptr, ",", "", 0, &save))) {
-            int_hash_lookup(&table, pin, i, XINSERT_NOREPLACE);
-            name_expanded_ptr = NULL;
+          char *pin, *pin_save;
+          int pin_mult, net_mult;
+          char *pin_expanded_ptr, *pin_expanded = NULL;
+          char *net_expanded_ptr, *net_expanded = NULL;
+          my_strdup2(_ALLOC_ID_, &pin_expanded, expandlabel(name, &pin_mult));
+          my_strdup2(_ALLOC_ID_, &net_expanded, net_name(inst, i, &net_mult, 0, 1));
+          net_expanded_ptr = net_expanded;
+          pin_expanded_ptr = pin_expanded;
+          while((pin = my_strtok_r(pin_expanded_ptr, ",", "", 0, &pin_save))) {
+            net = my_strtok_r(net_expanded_ptr, ",", "", 0, &net_save);
+            str_hash_lookup(&table, pin, net ? net : "NULL", XINSERT_NOREPLACE);
+            dbg(1, "inserting pin: %s, net: %s\n", pin, net ? net : "NULL");
+            pin_expanded_ptr = NULL;
+            net_expanded_ptr = NULL;
           }
-          my_free(_ALLOC_ID_, &name_expanded);
+          my_free(_ALLOC_ID_, &pin_expanded);
+          my_free(_ALLOC_ID_, &net_expanded);
         }
       }
 
-      pinlist_ptr = pinlist;
-      while( (pin = my_strtok_r(pinlist_ptr, " ", "", 0, &save)) ) {
+      /* list from subcircuit netlist */
+      subckt_pinlist_ptr = subckt_pinlist;
+      while( (subckt_pin = my_strtok_r(subckt_pinlist_ptr, " ", "", 0, &pin_save)) ) {
         instance_pins++;
-        entry = int_hash_lookup(&table, pin, 0, XLOOKUP);
+        entry = str_hash_lookup(&table, subckt_pin, NULL, XLOOKUP);
         if(entry) {
-          i = entry->value;
+          const char *net;
+          net = entry->value;
           symbol_pins++;
-          if(done_first != i) {
-            net =  net_name(inst, i, &multip, 0, 1);
-            my_mstrcat(_ALLOC_ID_, &tmp_result, "?", my_itoa(multip), " ", net, " ", NULL);
-            done_first = i;
-          }
+          dbg(1, "subckt_pin=%s, net=%s\n", subckt_pin, net);
+          my_mstrcat(_ALLOC_ID_, &tmp_result, "?1", " ", net, " ", NULL);
         }
-        pinlist_ptr = NULL;
+        subckt_pinlist_ptr = NULL;
       }
-      int_hash_free(&table);
+      str_hash_free(&table);
+
+      /* check if they match */
       if(instance_pins == symbol_pins) {
         ret = 1;
         my_mstrcat(_ALLOC_ID_, result, tmp_result, NULL);
@@ -1899,7 +1909,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
                    "symbol and .subckt pins do not match. Discard .subckt port order}");
       }
       if(tmp_result) my_free(_ALLOC_ID_, &tmp_result);
-      my_free(_ALLOC_ID_, &pinlist);
+      my_free(_ALLOC_ID_, &subckt_pinlist);
     }
   }
   my_free(_ALLOC_ID_, &spice_sym_def);
