@@ -3910,8 +3910,10 @@ void inspect_image(cairo_surface_t* surface)
  */
 void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
-  #if HAS_CAIRO == 1
+  #if HAS_CAIRO==1
+  #if defined(HAS_LIBJPEG)
   int jpeg_quality=75;
+  #endif
   const char *ptr;
   int w,h;
   double x, y, rw, rh;
@@ -3944,9 +3946,11 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
   }
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
   my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+  #if defined(HAS_LIBJPEG)
   ptr = get_tok_value(r->prop_ptr, "quality", 0);
   jpeg_quality = 75;
   if(ptr[0]) jpeg_quality = atoi(ptr);
+  #endif
   /* read image from in-memory buffer ... */
   if(emb_ptr && emb_ptr->image) {
     ; /* nothing to do, image is already created */
@@ -3962,7 +3966,9 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
     if(jpg == 0) {
       emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
     } else if(jpg == 1) {
+      #if defined(HAS_LIBJPEG)
       emb_ptr->image = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+      #endif
     }
     if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
       dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
@@ -3988,8 +3994,12 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       if(filesize) {
         fd = fopen(filename, "r");
         if(fd) {
+          size_t bytes_read;
           filedata = my_malloc(_ALLOC_ID_, filesize);
-          fread(filedata, filesize, 1, fd);
+          if((bytes_read = fread(filedata, filesize, 1, fd)) < filesize) {
+            filesize = bytes_read;
+            dbg(0, "draw_image(): less bytes read than expected from %s, got %ld bytes\n", filename, bytes_read);
+          }
           fclose(fd);
         }
       }
@@ -4003,7 +4013,9 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       if(jpg == 0) {
         emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
       } else if(jpg == 1) {
+        #if defined(HAS_LIBJPEG)
         emb_ptr->image = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+        #endif
       }
       if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
         dbg(0, "draw_image(): failure creating image surface with filtered data from %s\n", filename);
@@ -4022,7 +4034,12 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       header[0] = '\0';
       fd = fopen(filename, "r");
       if(fd) {
-        fread(header, size, 1, fd);
+        size_t bytes_read;
+        if((bytes_read = fread(header, size, 1, fd)) < size) {
+          size = bytes_read;
+          dbg(0, "draw_image(): less bytes read than expected from %s, got %ld bytes\n", filename, bytes_read);
+        }
+
         fclose(fd);
       }
       if(!strncmp(header, "\x89PNG", 4)) jpg = 0;
@@ -4034,7 +4051,9 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
       if(jpg == 0) {
         emb_ptr->image = cairo_image_surface_create_from_png(filename);
       } else if(jpg == 1) {
+        #if defined(HAS_LIBJPEG)
         emb_ptr->image = cairo_image_surface_create_from_jpeg(filename);
+        #endif
       }
       if(! emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
         dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
@@ -4046,7 +4065,9 @@ void draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2
         cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
       } else if(jpg == 1) {
         /* write JPG to in-memory buffer */
+        #if defined(HAS_LIBJPEG)
         cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, jpeg_quality);
+        #endif
       }
       encoded_data = base64_encode(closure.buffer, closure.pos, &olength, 0);
       my_free(_ALLOC_ID_, &closure.buffer);

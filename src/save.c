@@ -76,8 +76,8 @@ int filter_data(const char *din,  const size_t ilen,
   }
 
   dbg(1, "filter_data(): ilen=%ld, cmd=%s\n", ilen, cmd);
-  pipe(p1);
-  pipe(p2);
+  if(pipe(p1) == -1) dbg(0, "filter_data(): pipe creation failed\n");
+  if(pipe(p2) == -1) dbg(0, "filter_data(): pipe creation failed\n");
 
   dbg(1, "p1[0] = %d\n", p1[0]);
   dbg(1, "p1[1] = %d\n", p1[1]);
@@ -104,10 +104,10 @@ int filter_data(const char *din,  const size_t ilen,
     close(p1[1]); /* only read from p1 */
     close(p2[0]); /* only write to p2 */
     close(0); /* dup2(p1[0],0); */  /* connect read side of read pipe to stdin */
-    dup(p1[0]);
+    if(dup(p1[0]) == -1) dbg(0, "filter_data(): dup() call failed\n");
     close(p1[0]);
     close(1); /* dup2(p2[1],1); */ /* connect write side of write pipe to stdout */
-    dup(p2[1]);
+    if(dup(p2[1]) == -1) dbg(0, "filter_data(): dup() call failed\n");
     close(p2[1]);
 
     #if 1
@@ -775,8 +775,11 @@ char *base64_from_file(const char *f, size_t *length)
     len = st.st_size;
     fd = fopen(f, fopen_read_mode);
     if(fd) {
+      size_t bytes_read;
       s = my_malloc(_ALLOC_ID_, len);
-      fread(s, len, 1, fd);
+      if((bytes_read = fread(s, len, 1, fd)) < len) {
+        dbg(0, "base64_from_file(): less bytes FROM %S, got %ld bytes\n", f, bytes_read);
+      }
       fclose(fd);
       b64s = base64_encode(s, len, length, 1);
       my_free(_ALLOC_ID_, &s);

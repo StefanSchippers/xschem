@@ -73,6 +73,7 @@ static void child_handler(int signum)
 int main(int argc, char **argv)
 {
   int i;
+  FILE *retval = 0;
   #ifdef __unix__
   int stdin_is_a_fifo = 0;
   struct stat statbuf;
@@ -137,8 +138,10 @@ int main(int argc, char **argv)
   if(cli_opt_detach) {
     fclose(stdin);
     #ifdef __unix__
-    freopen("/dev/null", "w", stdout);
-    freopen("/dev/null", "w", stderr);
+    retval = freopen("/dev/null", "w", stdout);
+    if(!retval) fprintf(stderr, "main(): freopen stdout to /dev/null failed\n");
+    retval = freopen("/dev/null", "w", stderr);
+    if(!retval) fprintf(stderr, "main(): freopen stderr to /dev/null failed\n");
     #else
     freopen("nul", "w", stdout);
     freopen("nul", "w", stderr);
