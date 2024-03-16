@@ -168,6 +168,9 @@
 #### initial geometry of load /save / insert component file selector
 # set file_dialog_default_geometry 800x600
 
+#### display full path (1) or only name (0) for component directories. Default: 1
+# set load_file_dialog_fullpath 1
+
 #### if set to 0, when zooming out allow the viewport do drift toward the mouse position,
 #### allowing to move away by zooming / unzooming with mouse wheel
 #### default setting: 0
@@ -185,6 +188,12 @@
 #### if set to 1 continue drawing lines / wires after click
 #### default: 0
 # set persistent_command 1
+
+#### if set to 1 allow click & drag objects in the schematic 
+#### to move them without keyboard commands ('m')
+#### default: enabled (1)
+# set intuitive_interface 0
+
 
 #### if set to 1 at end of a move operation that stretches wires attached to
 #### moved objects these wires will be unselected.
@@ -211,6 +220,13 @@
 
 #### use the tclreadline package if available , Default: 1 (enabled).
 # set use_tclreadline 1
+
+#### use the dark color scheme (default: 1)
+# set dark_colorscheme 1
+
+#### use the dark color scheme for GUI widgets (default: 0)
+#### *** This can not be changed after xschem startup ***
+# set dark_gui_colorscheme 0
 
 #### disable some symbol layers. Default: none, all layers are visible.
 # set enable_layer(5) 0 ;# example to disable pin red boxes
@@ -243,6 +259,10 @@
 #### allow searching the full search path for schematics associated to symbols
 #### instead of looking only in symbol directory. Default: disabled (0).
 # set search_schematic 0
+
+#### keep symbols encountered while netlisting / descending the hierarchy.
+#### Default: not enabled (0)
+# set keep_symbols 0
 
 #### focus the schematic window if mouse goes over it, even if a dialog box
 #### is displayed, without needing to click.

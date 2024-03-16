@@ -2131,13 +2131,13 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
 {
   unsigned int width = 0, height = 0;
   int status;
-  #ifndef __unix__
-  HWND hwnd = Tk_GetHWND(xctx->window);
-  RECT rct;
-  #else
-  XWindowAttributes wattr;
-  #endif
   if(has_x) {
+    #ifndef __unix__
+    HWND hwnd = Tk_GetHWND(xctx->window);
+    RECT rct;
+    #else
+    XWindowAttributes wattr;
+    #endif
     if(w && h) {
       width = w;
       height = h;

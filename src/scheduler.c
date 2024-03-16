@@ -460,7 +460,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "closest_object"))
     {
       char res[100];
-      const char *type;
+      const char *type=NULL;
       Selected sel;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
