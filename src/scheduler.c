@@ -2032,6 +2032,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'i': /*----------------------------------------------*/
+    #if HAS_CAIRO==1
     /* image [invert|white_transp|black_transp|transp_white|transp_black|write_back]
      *   Apply required changes to selected images
      *   invert: invert colors
@@ -2078,7 +2079,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       draw();
       Tcl_ResetResult(interp);
     }
-
+    else
+    #endif
     /* instance sym_name x y rot flip [prop] [n]
      *   Place a new instance of symbol 'sym_name' at position x,y,
      *   rotation and flip  set to 'rot', 'flip'
@@ -2087,7 +2089,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if 'n' is given it must be 0 on first call
      *   and non zero on following calls
      *   It is used only for efficiency reasons if placing multiple instances */
-    else if(!strcmp(argv[1], "instance"))
+    if(!strcmp(argv[1], "instance"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc==7) {

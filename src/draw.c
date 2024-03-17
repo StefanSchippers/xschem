@@ -4008,6 +4008,7 @@ int edit_image(int what, xRect *r)
 }
 #endif
 
+#if HAS_CAIRO==1
 static cairo_surface_t *get_surface_from_b64data(const char *attr)
 {
   int jpg = -1;
@@ -4041,6 +4042,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr)
   my_free(_ALLOC_ID_, &closure.buffer);
   return surface;
 }
+#endif
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
@@ -4075,10 +4077,6 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
   set_rect_extraptr(1, r); /* create r->extraptr pointing to a xEmb_image struct */
   emb_ptr = r->extraptr;
-  if(dr) {
-    cairo_save(xctx->cairo_ctx);
-    cairo_save(xctx->cairo_save_ctx);
-  }
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
   /******* read image from in-memory buffer ... *******/
   if(emb_ptr && emb_ptr->image) {
@@ -4087,8 +4085,6 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] && strlen(attr) > 5) {
     emb_ptr->image = get_surface_from_b64data(attr);
     if(!emb_ptr->image) {
-      if(jpg != 1)
-        dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
       return 0;
     }
   /******* ... or read PNG from file (image attribute) *******/
@@ -4188,6 +4184,10 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       scalex = rw/w * xctx->mooz;
       scaley = rh/h * xctx->mooz;
     }
+  }
+  if(dr) {
+    cairo_save(xctx->cairo_ctx);
+    cairo_save(xctx->cairo_save_ctx);
   }
   if(dr && xctx->draw_pixmap) {
     cairo_translate(xctx->cairo_save_ctx, x, y);
