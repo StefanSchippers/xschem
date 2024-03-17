@@ -488,10 +488,10 @@ static void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, dou
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
   if(ptr[0]) {
-    if(!strncmp(ptr, "/9j/4", 5)) jpg = 1; /* jpeg base64 header (30 bits checked) */
+    if(!strncmp(ptr, "/9j/", 4)) jpg = 1; /* jpeg base64 header (24 bits checked) */
     fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
                 "xlink:href=\"data:image/%s;base64,%s\"/>\n",
-                0.0, 0.0, w, h, transform, opacity, jpg ? "jpg" : "png", ptr);
+                0.0, 0.0, w, h, transform, opacity, jpg ? "jpeg" : "png", ptr);
   }
 }
 

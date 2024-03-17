@@ -1478,7 +1478,7 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spicewave,0,st) 0
    
     set_ne sim(spicewave,1,cmd) {$terminal -e ngspice}
-    set sim(spicewave,1,name) {Ngpice Viewer}
+    set sim(spicewave,1,name) {Ngspice Viewer}
     set_ne sim(spicewave,1,fg) 0
     set_ne sim(spicewave,1,st) 0
 

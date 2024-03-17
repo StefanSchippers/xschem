@@ -4006,10 +4006,6 @@ int edit_image(int what, xRect *r)
   dbg(1, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
   return 1;
 }
-#endif
-
-#if HAS_CAIRO==1
-
 
 /* returns a cairo surface.
  * `filename` should be a  png or jpeg image or anything else that can be converted to png 
@@ -4130,7 +4126,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr)
   my_free(_ALLOC_ID_, &closure.buffer);
   return surface;
 }
-#endif
+#endif /* HAS_CAIRO==1 */
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
@@ -4139,8 +4135,6 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr)
 int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
   #if HAS_CAIRO==1
-  #if defined(HAS_LIBJPEG)
-  #endif
   const char *ptr;
   int w,h;
   double x, y, rw, rh;
