@@ -545,7 +545,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin</kbd></li><pre>
@@ -862,6 +861,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname net</kbd></li><pre>
    Highlight net name 'net' </pre>
+   <li><kbd>       image [invert|white_transp|black_transp|transp_white|transp_black|write_back]</kbd></li><pre>
+   Apply required changes to selected images
+   invert: invert colors
+   white_transp: transform white to transparent color (alpha=0) after invert.
+   black_transp: transform black to transparent color (alpha=0) after invert.
+   transp_white: transform white to transparent color (alpha=0) after invert.
+   transp_black: transform black to transparent color (alpha=0) after invert.</pre>
    <li><kbd>       instance sym_name x y rot flip [prop] [n]</kbd></li><pre>
    Place a new instance of symbol 'sym_name' at position x,y,
    rotation and flip  set to 'rot', 'flip'
@@ -1545,6 +1551,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 

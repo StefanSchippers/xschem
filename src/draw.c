@@ -3880,15 +3880,34 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
 #endif
 
 #if HAS_CAIRO==1
-void inspect_image(cairo_surface_t **surface)
+/* what:
+ *    1: invert colors
+ *    2: set white to transparent
+ *    4: set black to transparent
+ *    8: set transparent to white 
+ *   16: set transparent to black
+ *  256: write back into `image_data` attribute
+ */
+int edit_image(int what, xRect *r)
 {
   cairo_t *ct;
   unsigned char *data;
   cairo_surface_t *newsfc;
   cairo_format_t format;
-  int size_x, size_y, stride, x, y;
+  int jpg, size_x, size_y, stride, x, y;
+  xEmb_image *emb_ptr = r->extraptr;
+  cairo_surface_t **surface = &emb_ptr->image;
+  const char *attr = get_tok_value(r->prop_ptr, "image_data", 0);
+      
   cairo_surface_flush(*surface);
-
+  if(attr[0]) {
+    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    else jpg = -1; /* some invalid data */
+  } else {
+   jpg = -1;
+  }
+  if(jpg == -1) return 0;
   format = cairo_image_surface_get_format(*surface);
   size_x = cairo_image_surface_get_width(*surface);
   size_y = cairo_image_surface_get_height(*surface);
@@ -3908,42 +3927,120 @@ void inspect_image(cairo_surface_t **surface)
   for(x = 0; x < size_x; x++) {
     for(y = 0; y < size_y; y++) {
       unsigned char *ptr = data + y * stride + x * 4;
-      unsigned int a = ptr[3];
-      unsigned int r = ptr[2];
-      unsigned int g = ptr[1];
-      unsigned int b = ptr[0];
+      unsigned char a = ptr[3];
+      unsigned char r = ptr[2];
+      unsigned char g = ptr[1];
+      unsigned char b = ptr[0];
 
-      if(0 && x == 100) {
-        dbg(0, "R=%d G=%d B=%d A=%d\n", r, g, b, a);
+      /* invert colors */
+      if(what & 1) {
+        r = a - r;
+        g = a - g;
+        b = a - b;
       }
 
-      #if 1  /* premultiplied data invert*/
-      r = a - r;
-      g = a - g;
-      b = a - b;
-      #endif
+      /* set white to transparent */
+      if(what & 2) {
+        if(r > 242  && g > 242 && b >242) {r = g = b = a = 0;} 
+      }
 
-      #if 1 /* set (almost) white to transparent */
-        if(r > 245  && g > 245 && b >245) {r = g = b = a = 0;} 
-      #endif
+      /* set black to transparent */
+      if(what & 4) {
+        if(r < 13 && g < 13 && b < 13) {r = g = b = a = 0;} 
+      }
 
-      #if 0 /* set (almost) black to transparent */
-        if(r < 10 && g < 10 && b < 10) {r = g = b = a = 0;} 
-      #endif
+      /* set transparent to white */
+      if(what & 8) {
+        if(a == 0) {r = g = b = a = 0xff;} 
+      }
+
+      /* set transparent to black */
+      if(what & 16) {
+        if(a == 0) {r = g = b = 0x00; a = 0xff;} 
+      }
 
       /* write result back */
-      #if 1
-      ptr[3] = (unsigned char) a;
-      ptr[2] = (unsigned char) r;
-      ptr[1] = (unsigned char) g;
-      ptr[0] = (unsigned char) b;
-      #endif
+      ptr[3] = a;
+      ptr[2] = r;
+      ptr[1] = g;
+      ptr[0] = b;
     }
   }
   cairo_surface_mark_dirty(*surface);
+
+
+  /* write back modified image to image_data attribute */
+  if(what & 256) {
+    char *encoded_data = NULL;
+    size_t olength;
+    png_to_byte_closure_t closure;
+    if(jpg == 0) {
+      /* write PNG to in-memory buffer */
+      closure.buffer = NULL;
+      closure.size = 0;
+      closure.pos = 0;
+      cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
+      closure.size = closure.pos;
+    } else if(jpg == 1) {
+      /* write JPG to in-memory buffer */
+      #if defined(HAS_LIBJPEG)
+      int jpeg_quality;
+      const char *ptr;
+      ptr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
+      jpeg_quality = 75;
+      if(ptr[0]) jpeg_quality = atoi(ptr);
+      closure.buffer = NULL;
+      closure.size = 0;
+      closure.pos = 0;
+      cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, jpeg_quality);
+      closure.size = closure.pos;
+      #endif 
+    }
+    
+    /* put base64 encoded data to rect image_data attribute */
+    encoded_data = base64_encode((unsigned char *)closure.buffer, closure.size, &olength, 0);
+    my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", encoded_data));
+    my_free(_ALLOC_ID_, &closure.buffer);
+    my_free(_ALLOC_ID_, &encoded_data);
+  }
   dbg(1, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
+  return 1;
 }
 #endif
+
+static cairo_surface_t *get_surface_from_b64data(const char *attr)
+{
+  int jpg = -1;
+  png_to_byte_closure_t closure;
+  size_t data_size;
+  cairo_surface_t *surface = NULL;
+
+  if(!strncmp(attr, "/9j/", 4)) jpg = 1;
+  else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+  else jpg = -1; /* some invalid data */
+  closure.buffer = base64_decode(attr, strlen(attr), &data_size);
+  closure.pos = 0;
+  closure.size = data_size; /* should not be necessary */
+  if(closure.buffer == NULL) {
+    dbg(0, "draw_image(): image creation failed\n");
+    return NULL;
+  }
+  if(jpg == 0) {
+    surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+  } else if(jpg == 1) {
+    #if defined(HAS_LIBJPEG)
+    surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+    #endif
+  }
+  if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+    if(jpg != 1)
+      dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
+    if(surface) cairo_surface_destroy(surface);
+    surface = NULL;
+  }
+  my_free(_ALLOC_ID_, &closure.buffer);
+  return surface;
+}
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
@@ -3953,9 +4050,6 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
 {
   #if HAS_CAIRO==1
   #if defined(HAS_LIBJPEG)
-  #ifdef INSPECT_IMAGE
-  int jpeg_quality=75;
-  #endif
   #endif
   const char *ptr;
   int w,h;
@@ -3986,46 +4080,17 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
     cairo_save(xctx->cairo_save_ctx);
   }
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
-  #if defined(HAS_LIBJPEG)
-  #ifdef INSPECT_IMAGE
-  ptr = get_tok_value(r->prop_ptr, "quality", 0);
-  jpeg_quality = 75;
-  if(ptr[0]) jpeg_quality = atoi(ptr);
-  #endif
-  #endif
   /******* read image from in-memory buffer ... *******/
   if(emb_ptr && emb_ptr->image) {
      /* nothing to do, image is already created */
   /******* ... or read PNG from image_data attribute *******/
-  } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] ) {
-    png_to_byte_closure_t closure;
-    size_t data_size;
-
-    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
-    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
-    else jpg = -1; /* some invalid data */
-    closure.buffer = base64_decode(attr, strlen(attr), &data_size);
-    closure.pos = 0;
-    closure.size = data_size; /* should not be necessary */
-    if(closure.buffer == NULL) {
-      dbg(0, "draw_image(): image creation failed\n");
-      return 0;
-    }
-    if(jpg == 0) {
-      emb_ptr->image = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-    } else if(jpg == 1) {
-      #if defined(HAS_LIBJPEG)
-      emb_ptr->image = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
-      #endif
-    }
-    if(!emb_ptr->image || cairo_surface_status(emb_ptr->image) != CAIRO_STATUS_SUCCESS) {
+  } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] && strlen(attr) > 5) {
+    emb_ptr->image = get_surface_from_b64data(attr);
+    if(!emb_ptr->image) {
       if(jpg != 1)
         dbg(0, "draw_image(): failure creating image surface from \"image_data\" attribute\n");
-      my_free(_ALLOC_ID_, &closure.buffer);
       return 0;
     }
-    my_free(_ALLOC_ID_, &closure.buffer);
-    dbg(1, "draw_image(): length2 = %d\n", closure.pos);
   /******* ... or read PNG from file (image attribute) *******/
   } else if(filename[0] && !stat(filename, &buf)) {
     png_to_byte_closure_t closure;
@@ -4090,37 +4155,12 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       my_free(_ALLOC_ID_, &closure.buffer);
       return 0;
     }
-
-    /* this code can be used to transfer an image surface back to a memory buffer
-     * closure.buffer will hold the data, closure.pos wil be set to the size */
-    #ifdef INSPECT_IMAGE
-    inspect_image(&emb_ptr->image);
-
-    if(jpg == 0) {
-      /* write PNG to in-memory buffer */
-      my_free(_ALLOC_ID_, &closure.buffer);
-      closure.size = 0;
-      closure.pos = 0;
-      cairo_surface_write_to_png_stream(emb_ptr->image, png_writer, &closure);
-      closure.size = closure.pos;
-    } else if(jpg == 1) {
-      /* write JPG to in-memory buffer */
-      #if defined(HAS_LIBJPEG)
-      my_free(_ALLOC_ID_, &closure.buffer);
-      closure.size = 0;
-      closure.pos = 0;
-      cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, jpeg_quality);
-      closure.size = closure.pos;
-      #endif
-    }
-    #endif
-
     /* put base64 encoded data to rect image_data attribute */
     encoded_data = base64_encode((unsigned char *)closure.buffer, closure.size, &olength, 0);
     my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", encoded_data));
     my_free(_ALLOC_ID_, &encoded_data);
     my_free(_ALLOC_ID_, &closure.buffer);
-  } else {
+  } else { /* no emb_ptr->image and no "image_data" attribute */
     return 0;
   }
   ptr = get_tok_value(r->prop_ptr, "alpha", 0);

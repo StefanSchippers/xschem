@@ -1227,6 +1227,7 @@ extern int cli_opt_load_initfile;
 extern Xschem_ctx *xctx;
 
 /*  FUNCTIONS */
+extern int edit_image(int what, xRect *r);
 extern int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip);
 extern int filter_data(const char *din, const size_t ilen,
            char **dout, size_t *olen, const char *cmd);

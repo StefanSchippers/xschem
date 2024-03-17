@@ -2032,6 +2032,53 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'i': /*----------------------------------------------*/
+    /* image [invert|white_transp|black_transp|transp_white|transp_black|write_back]
+     *   Apply required changes to selected images
+     *   invert: invert colors
+     *   white_transp: transform white to transparent color (alpha=0) after invert.
+     *   black_transp: transform black to transparent color (alpha=0) after invert.
+     *   transp_white: transform white to transparent color (alpha=0) after invert.
+     *   transp_black: transform black to transparent color (alpha=0) after invert.
+     */
+    if(!strcmp(argv[1], "image"))
+    {
+      int n, i, c;
+      int what = 0;
+      xRect *r;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      if(!strcmp(argv[2], "help")) {
+        Tcl_SetResult(interp,
+           "xschem image [invert|white_transp|black_transp|transp_white|transp_black|write_back]",
+            TCL_STATIC);
+        return TCL_OK;
+      }
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "invert"))       what |=   1;
+        if(!strcmp(argv[i], "white_transp")) what |=   2;
+        if(!strcmp(argv[i], "black_transp")) what |=   4;
+        if(!strcmp(argv[i], "transp_white")) what |=   8;
+        if(!strcmp(argv[i], "transp_black")) what |=  16;
+        if(!strcmp(argv[i], "write_back"))   what |= 256;
+      }
+      rebuild_selected_array();
+      for(n=0; n < xctx->lastsel; ++n) {
+        if(xctx->sel_array[n].type == xRECT) { 
+          i = xctx->sel_array[n].n;
+          c = xctx->sel_array[n].col;
+          r = &xctx->rect[c][i];
+          if(c == GRIDLAYER && r->flags & 1024) {
+            edit_image(what, &xctx->rect[c][i]);
+          }  
+        }
+      }
+      draw();
+      Tcl_ResetResult(interp);
+    }
+
     /* instance sym_name x y rot flip [prop] [n]
      *   Place a new instance of symbol 'sym_name' at position x,y,
      *   rotation and flip  set to 'rot', 'flip'
@@ -2040,7 +2087,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if 'n' is given it must be 0 on first call
      *   and non zero on following calls
      *   It is used only for efficiency reasons if placing multiple instances */
-    if(!strcmp(argv[1], "instance"))
+    else if(!strcmp(argv[1], "instance"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc==7) {
@@ -5330,13 +5377,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         del_object_table();
         Tcl_ResetResult(interp);
       }
-      /* test 2 inst text_n */
       else if(argc > 2 && atoi(argv[2]) == 2) {
-        dbg(0, "graph_flags=%d\n", xctx->graph_flags);
         Tcl_ResetResult(interp);
       }
-      else if(argc > 2 && atoi(argv[2]) == 3) {
-        
+      else if(argc > 3 && atoi(argv[2]) == 3) {
+        Tcl_ResetResult(interp);
       }
     }
 
