@@ -2065,18 +2065,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[i], "transp_black")) what |=  16;
         if(!strcmp(argv[i], "write_back"))   what |= 256;
       }
-      rebuild_selected_array();
-      for(n=0; n < xctx->lastsel; ++n) {
-        if(xctx->sel_array[n].type == xRECT) { 
-          i = xctx->sel_array[n].n;
-          c = xctx->sel_array[n].col;
-          r = &xctx->rect[c][i];
-          if(c == GRIDLAYER && r->flags & 1024) {
+      if(what) {
+        rebuild_selected_array();
+        if(what & 256) set_modify(1);
+        xctx->push_undo();
+        for(n=0; n < xctx->lastsel; ++n) {
+          if(xctx->sel_array[n].type == xRECT) { 
+            i = xctx->sel_array[n].n;
+            c = xctx->sel_array[n].col;
+            r = &xctx->rect[c][i];
+            if(c == GRIDLAYER && r->flags & 1024) {
             edit_image(what, &xctx->rect[c][i]);
-          }  
+            }  
+          }
         }
+        draw();
       }
-      draw();
       Tcl_ResetResult(interp);
     }
     else
