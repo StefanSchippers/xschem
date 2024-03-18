@@ -82,7 +82,7 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   int i, jpg;
   int size_x, size_y;
-  unsigned char *img_data = NULL, BG_r, BG_g, BG_b;
+  unsigned char *ptr = NULL;
   int invertImage;
   unsigned char* ascii85EncodedJpeg;
   const char* attr;
@@ -129,29 +129,30 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   cairo_paint(ct);
   cairo_destroy(ct);
 
-  img_data = cairo_image_surface_get_data(surface);
+  ptr = cairo_image_surface_get_data(surface);
 
-  /* jpeg has no alpha channel so blend transparency with white */
-  BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
   for (i = 0; i < (size_x * size_y * 4); i += 4)
   {
-    unsigned char png_r = img_data[i + 0];
-    unsigned char png_g = img_data[i + 1];
-    unsigned char png_b = img_data[i + 2];
-    unsigned char png_a = img_data[i + 3];
-    double ainv=((double)(0xFF - png_a)) / ((double)(0xFF));
-
+    unsigned char a = ptr[i + 3];
+    unsigned char r = ptr[i + 2];
+    unsigned char g = ptr[i + 1];
+    unsigned char b = ptr[i + 0];
+    /* invert colors */
     if(invertImage) {
-      img_data[i + 0] = (unsigned char)(0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
-      img_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
-      img_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
-      img_data[i + 3] = 0xFF;
-    } else {
-      img_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
-      img_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
-      img_data[i + 2] = png_b + (unsigned char)((double)BG_b * ainv);
-      img_data[i + 3] = 0xFF;
+      r = a - r;
+      g = a - g;
+      b = a - b;
     }
+    /* blend with white, remove alpha */
+    r += (unsigned char)(0xff - a);
+    g += (unsigned char)(0xff - a);
+    b += (unsigned char)(0xff - a);
+    a  = (unsigned char) 0xff;
+    /* write result back */
+    ptr[i + 3] = a;
+    ptr[i + 2] = r;
+    ptr[i + 1] = g;
+    ptr[i + 0] = b;
   }
   cairo_surface_mark_dirty(surface);
   if(invertImage || jpg == 0) {

@@ -2033,13 +2033,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'i': /*----------------------------------------------*/
     #if HAS_CAIRO==1
-    /* image [invert|white_transp|black_transp|transp_white|transp_black|write_back]
+    /* image [invert|white_transp|black_transp|transp_white|transp_black|write_back|
+     *        blend_white|blend_black]
      *   Apply required changes to selected images
      *   invert: invert colors
      *   white_transp: transform white to transparent color (alpha=0) after invert.
      *   black_transp: transform black to transparent color (alpha=0) after invert.
      *   transp_white: transform white to transparent color (alpha=0) after invert.
      *   transp_black: transform black to transparent color (alpha=0) after invert.
+     *   blend_white:  blend with white background and remove alpha
+     *   blend_black:  blend with black background and remove alpha
+     *   write_back:   write resulting image back into `image_data` attribute
      */
     if(!strcmp(argv[1], "image"))
     {
@@ -2053,9 +2057,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(!strcmp(argv[2], "help")) {
         Tcl_SetResult(interp,
-           "xschem image [invert|white_transp|black_transp|transp_white|transp_black|write_back]",
+           "xschem image [invert|white_transp|black_transp|transp_white|transp_black|\n"
+           "              blend_white|blend_black|write_back]",
             TCL_STATIC);
         return TCL_OK;
+      }
+      if(xctx->lastsel == 0) {
+        Tcl_SetResult(interp, "No images selected", TCL_STATIC);
+        return TCL_ERROR;
       }
       for(i = 2; i < argc; i++) {
         if(!strcmp(argv[i], "invert"))       what |=   1;

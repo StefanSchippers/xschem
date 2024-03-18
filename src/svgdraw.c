@@ -456,9 +456,10 @@ static void svg_drawgrid()
  }
 }
 
-static void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
+static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
 {
-  const char *ptr;
+  const char *attr;
+  size_t attr_len;
   double x1, y1, x2, y2, w, h, scalex = 1.0, scaley = 1.0;
   int jpg = 0;
   char opacity[100];
@@ -479,20 +480,29 @@ static void svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, dou
 
   if(flip && (rot == 0 || rot == 2)) scalex = -1.0;
   else if(flip && (rot == 1 || rot == 3)) scaley = -1.0;
-  ptr =  get_tok_value(r->prop_ptr, "alpha", 0);
-  if(ptr[0]) alpha = atof(ptr);
-  ptr =  get_tok_value(r->prop_ptr, "image_data", 0);
+  attr =  get_tok_value(r->prop_ptr, "alpha", 0);
+  if(attr[0]) alpha = atof(attr);
+  attr =  get_tok_value(r->prop_ptr, "image_data", 0);
+  attr_len = strlen(attr);
   
+  if(attr_len > 5) {
+    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    else jpg = -1; /* some invalid data */
+  } else {
+    jpg = -1;
+  }
+  if(jpg == -1) {
+    return 0;
+  }
   my_snprintf(transform, S(transform), 
     "transform=\"translate(%g,%g) scale(%g,%g) rotate(%d)\"", x1, y1, scalex, scaley, rot * 90);
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
-  if(ptr[0]) {
-    if(!strncmp(ptr, "/9j/", 4)) jpg = 1; /* jpeg base64 header (24 bits checked) */
-    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
-                "xlink:href=\"data:image/%s;base64,%s\"/>\n",
-                0.0, 0.0, w, h, transform, opacity, jpg ? "jpeg" : "png", ptr);
-  }
+  fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
+              "xlink:href=\"data:image/%s;base64,%s\"/>\n",
+              0.0, 0.0, w, h, transform, opacity, jpg ? "jpeg" : "png", attr);
+  return 1;
 }
 
 static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
