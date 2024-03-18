@@ -3557,10 +3557,6 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
    /* launcher, only if no movement has been done */
-   dbg(0, "state=%d\n", state);
-   dbg(0, "ui_state=%d\n", xctx->ui_state);
-   dbg(0, "shape_point_selected=%d\n", xctx->shape_point_selected);
-   dbg(0, "delta=%g %g\n", xctx->deltax, xctx->deltay);
    if(state == (Button1Mask | ControlMask) && !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
       xctx->deltax == 0 && xctx->deltay == 0) {
      int savesem = xctx->semaphore;
