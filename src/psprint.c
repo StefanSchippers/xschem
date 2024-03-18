@@ -77,90 +77,89 @@ static Ps_color *ps_colors;
 static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 
-void ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
+int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
-  int i;
-  size_t data_size = 0;
-  png_to_byte_closure_t closure = {NULL, 0, 0};
-  char* filter = NULL;
-  int png_size_x, png_size_y;
-  unsigned char *png_data = NULL, BG_r, BG_g, BG_b;
+  int i, jpg;
+  int size_x, size_y;
+  unsigned char *img_data = NULL, BG_r, BG_g, BG_b;
   int invertImage;
-  /* static char str[PATH_MAX];
-   * FILE* fp;
-   */
   unsigned char* ascii85EncodedJpeg;
-  char* image_data64_ptr = NULL;
-  cairo_surface_t* surface = NULL;
+  const char* attr;
+  cairo_surface_t *surface = NULL, *orig_sfc = NULL;
+  xEmb_image *emb_ptr;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
   int quality=40;
   const char *quality_attr;
-  size_t image_data_len;
-  size_t oLength;
+  size_t oLength, attr_len;
+  cairo_t *ct;
 
+  invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
+  if(!invertImage)
+    invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
   else {
     quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
     if(quality_attr[0]) quality = atoi(quality_attr);
   }
-  my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
-  image_data_len = my_strdup2(_ALLOC_ID_, &image_data64_ptr, get_tok_value(r->prop_ptr, "image_data", 0));
-
-  if (filter) {
-    size_t filtersize = 0;
-    char* filterdata = NULL;
-    closure.buffer = NULL;
-    filterdata = (char*)base64_decode(image_data64_ptr, image_data_len, &filtersize);
-    filter_data(filterdata, filtersize, (char**)&closure.buffer, &data_size, filter);
-    my_free(_ALLOC_ID_, &filterdata);
+  attr = get_tok_value(r->prop_ptr, "image_data", 0);
+  attr_len = strlen(attr);
+  if(attr_len > 5) {
+    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    else jpg = -1; /* some invalid data */
+  } else {
+    jpg = -1;
   }
-  else {
-    closure.buffer = base64_decode(image_data64_ptr, image_data_len, &data_size);
+  emb_ptr = r->extraptr;
+  if(jpg == -1 || !(emb_ptr && emb_ptr->image)) {
+    return 0;
   }
-  my_free(_ALLOC_ID_, &filter);
-  my_free(_ALLOC_ID_, &image_data64_ptr);
-  closure.pos = 0;
-  closure.size = data_size; /* should not be necessary */
-  surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+  orig_sfc = emb_ptr->image;
+  cairo_surface_flush(orig_sfc);
+  /* create a copy of image surface with no alpha */
+  size_x = cairo_image_surface_get_width(orig_sfc);
+  size_y = cairo_image_surface_get_height(orig_sfc);
+  surface = cairo_surface_create_similar_image(orig_sfc, CAIRO_FORMAT_RGB24, size_x, size_y);
+  ct = cairo_create(surface);
+  cairo_set_source_surface(ct, orig_sfc, 0, 0);
+  cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
+  cairo_paint(ct);
+  cairo_destroy(ct);
 
-  png_size_x = cairo_image_surface_get_width(surface);
-  png_size_y = cairo_image_surface_get_height(surface);
+  img_data = cairo_image_surface_get_data(surface);
 
-  cairo_surface_flush(surface);
-  my_free(_ALLOC_ID_, &closure.buffer);
-  png_data = cairo_image_surface_get_data(surface);
-
-  invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
-  if(!invertImage)
-    invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
+  /* jpeg has no alpha channel so blend transparency with white */
   BG_r = 0xFF; BG_g = 0xFF; BG_b = 0xFF;
-  for (i = 0; i < (png_size_x * png_size_y * 4); i += 4)
+  for (i = 0; i < (size_x * size_y * 4); i += 4)
   {
-    unsigned char png_r = png_data[i + 0];
-    unsigned char png_g = png_data[i + 1];
-    unsigned char png_b = png_data[i + 2];
-    unsigned char png_a = png_data[i + 3];
+    unsigned char png_r = img_data[i + 0];
+    unsigned char png_g = img_data[i + 1];
+    unsigned char png_b = img_data[i + 2];
+    unsigned char png_a = img_data[i + 3];
     double ainv=((double)(0xFF - png_a)) / ((double)(0xFF));
 
-    if(invertImage)
-    {
-      png_data[i + 0] = (unsigned char)(0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
-      png_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
-      png_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
-      png_data[i + 3] = 0xFF;
-    } else
-    {
-      png_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
-      png_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
-      png_data[i + 2] = png_b + (unsigned char)((double)BG_b * ainv);
-      png_data[i + 3] = 0xFF;
+    if(invertImage) {
+      img_data[i + 0] = (unsigned char)(0xFF-png_r) + (unsigned char)((double)BG_r * ainv);
+      img_data[i + 1] = (unsigned char)(0xFF-png_g) + (unsigned char)((double)BG_g * ainv);
+      img_data[i + 2] = (unsigned char)(0xFF-png_b) + (unsigned char)((double)BG_b * ainv);
+      img_data[i + 3] = 0xFF;
+    } else {
+      img_data[i + 0] = png_r + (unsigned char)((double)BG_r * ainv);
+      img_data[i + 1] = png_g + (unsigned char)((double)BG_g * ainv);
+      img_data[i + 2] = png_b + (unsigned char)((double)BG_b * ainv);
+      img_data[i + 3] = 0xFF;
     }
   }
   cairo_surface_mark_dirty(surface);
-  cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
+  if(invertImage || jpg == 0) {
+    cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
+  } else {
+    jpgData = base64_decode(attr, attr_len, &fileSize);
+  }
+  cairo_surface_destroy(surface);
   ascii85EncodedJpeg = ascii85_encode(jpgData, fileSize, &oLength);
   fprintf(fd, "gsave\n");
   fprintf(fd, "save\n");
@@ -173,29 +172,29 @@ void ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int
   fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*0.97, (Y_TO_PS(y2) - Y_TO_PS(y1))*0.97);
   fprintf(fd, "/DeviceRGB setcolorspace\n");
   fprintf(fd, "{ << /ImageType 1\n");
-  fprintf(fd, "     /Width %g\n", (double)png_size_x);
-  fprintf(fd, "     /Height %g\n", (double)png_size_y);
+  fprintf(fd, "     /Width %g\n", (double)size_x);
+  fprintf(fd, "     /Height %g\n", (double)size_y);
   
   if(!flip)
   {
     if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n",
-           (double)png_size_y, (double)png_size_x, (double)png_size_y);
+           (double)size_y, (double)size_x, (double)size_y);
     else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n",
-           (double)png_size_x, (double)png_size_y, (double)png_size_x, (double)png_size_y);
+           (double)size_x, (double)size_y, (double)size_x, (double)size_y);
     else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", 
-           (double)png_size_y, (double)png_size_x, (double)png_size_x);
-    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)png_size_x, (double)png_size_y); 
+           (double)size_y, (double)size_x, (double)size_x);
+    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)size_x, (double)size_y); 
   }
   else
   {
     if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n",
-          -(double)png_size_y, (double)png_size_x, (double)png_size_x, (double)png_size_y);
+          -(double)size_y, (double)size_x, (double)size_x, (double)size_y);
     else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n",
-          -(double)png_size_x, (double)png_size_y, (double)png_size_y);
+          -(double)size_x, (double)size_y, (double)size_y);
     else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n",
-          -(double)png_size_y, (double)png_size_x);
+          -(double)size_y, (double)size_x);
     else fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n",
-          -(double)png_size_x, (double)png_size_y, (double)png_size_x); 
+          -(double)size_x, (double)size_y, (double)size_x); 
   }
   fprintf(fd, "     /DataSource Data\n");
   fprintf(fd, "     /BitsPerComponent 8\n");
@@ -223,10 +222,10 @@ void ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int
   fprintf(fd, "~>\n");
   
   fprintf(fd, "grestore\n");
-  cairo_surface_destroy(surface);
   my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   free(jpgData);
   #endif
+  return 1;
 }
 
 void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)

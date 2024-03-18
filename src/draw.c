@@ -3896,9 +3896,12 @@ int edit_image(int what, xRect *r)
   cairo_format_t format;
   int jpg, size_x, size_y, stride, x, y;
   xEmb_image *emb_ptr = r->extraptr;
-  cairo_surface_t **surface = &emb_ptr->image;
-  const char *attr = get_tok_value(r->prop_ptr, "image_data", 0);
-      
+  cairo_surface_t **surface;
+  const char *attr;
+
+  if(!emb_ptr || !emb_ptr->image) return 0;
+  attr = get_tok_value(r->prop_ptr, "image_data", 0);
+  surface = &emb_ptr->image;
   cairo_surface_flush(*surface);
   if(attr[0]) {
     if(!strncmp(attr, "/9j/", 4)) jpg = 1;
@@ -4093,7 +4096,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
     return surface;
 }
 
-static cairo_surface_t *get_surface_from_b64data(const char *attr)
+static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_len)
 {
   int jpg = -1;
   png_to_byte_closure_t closure;
@@ -4103,7 +4106,9 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr)
   if(!strncmp(attr, "/9j/", 4)) jpg = 1;
   else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
   else jpg = -1; /* some invalid data */
-  closure.buffer = base64_decode(attr, strlen(attr), &data_size);
+  if(jpg == -1) return NULL;
+
+  closure.buffer = base64_decode(attr, attr_len, &data_size);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
   if(closure.buffer == NULL) {
@@ -4143,6 +4148,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   const char *attr ;
   double xx1, yy1, scalex, scaley;
   xEmb_image *emb_ptr;
+  size_t attr_len;
 
   if(xctx->only_probes) return 0;
   xx1 = *x1; yy1 = *y1; /* image anchor point */
@@ -4162,8 +4168,8 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   if(emb_ptr && emb_ptr->image) {
      /* nothing to do, image is already created */
   /******* ... or read PNG from image_data attribute *******/
-  } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] && strlen(attr) > 5) {
-    emb_ptr->image = get_surface_from_b64data(attr);
+  } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] && (attr_len = strlen(attr)) > 5) {
+    emb_ptr->image = get_surface_from_b64data(attr, attr_len);
     if(!emb_ptr->image) {
       return 0;
     }
