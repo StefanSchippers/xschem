@@ -3529,19 +3529,12 @@ int rstate; /* (reduced state, without ShiftMask) */
            move_objects(START,0,0,0);
          }
          else if(state == ShiftMask) copy_objects(START);
-         else if( !(state & ControlMask) ) move_objects(START,0,0,0);
+         else move_objects(START,0,0,0);
        }
 
        #ifndef __unix__
        draw_selection(xctx->gc[SELLAYER], 0);
        #endif
-       /* control-click on an instance: execute command */
-       if(sel.type && state == ControlMask && !xctx->shape_point_selected) {
-         int savesem = xctx->semaphore;
-         xctx->semaphore = 0;
-         launcher(); /* works only if lastsel == 1 */
-         xctx->semaphore = savesem;
-       }
        if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
          if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
            if(!prev_last_sel) {
@@ -3563,6 +3556,21 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
+   /* launcher, only if no movement has been done */
+   dbg(0, "state=%d\n", state);
+   dbg(0, "ui_state=%d\n", xctx->ui_state);
+   dbg(0, "shape_point_selected=%d\n", xctx->shape_point_selected);
+   dbg(0, "delta=%g %g\n", xctx->deltax, xctx->deltay);
+   if(state == (Button1Mask | ControlMask) && !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
+      xctx->deltax == 0 && xctx->deltay == 0) {
+     int savesem = xctx->semaphore;
+     dbg(0, "no move\n");
+     move_objects(ABORT,0,0,0);
+     xctx->semaphore = 0;
+     launcher(); /* works only if lastsel == 1 */
+     xctx->semaphore = savesem;
+   }
+
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
       copy_objects(END);
