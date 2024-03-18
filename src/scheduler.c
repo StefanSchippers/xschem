@@ -2063,6 +2063,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[i], "black_transp")) what |=   4;
         if(!strcmp(argv[i], "transp_white")) what |=   8;
         if(!strcmp(argv[i], "transp_black")) what |=  16;
+        if(!strcmp(argv[i], "blend_white"))  what |=  32;
+        if(!strcmp(argv[i], "blend_black"))  what |=  64;
         if(!strcmp(argv[i], "write_back"))   what |= 256;
       }
       if(what) {

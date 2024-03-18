@@ -3886,6 +3886,8 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
  *    4: set black to transparent
  *    8: set transparent to white 
  *   16: set transparent to black
+ *   32: blend with white, remove alpha
+ *   64: blend with black, remove alpha
  *  256: write back into `image_data` attribute
  */
 int edit_image(int what, xRect *r)
@@ -3960,6 +3962,19 @@ int edit_image(int what, xRect *r)
       /* set transparent to black */
       if(what & 16) {
         if(a == 0) {r = g = b = 0x00; a = 0xff;} 
+      }
+
+      /* remove alpha, blend with white */
+      if(what & 32) {
+        r += (unsigned char)(0xff - a);
+        g += (unsigned char)(0xff - a);
+        b += (unsigned char)(0xff - a);
+        a  = (unsigned char)0xff;
+      }
+
+      /* remove alpha, blend with black */
+      if(what & 64) {
+        a  = (unsigned char)0xff;
       }
 
       /* write result back */
