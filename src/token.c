@@ -2169,9 +2169,11 @@ int print_spice_element(FILE *fd, int inst)
            * instance attributes does not contain a modp=xxx, 
            * look up modp in **parent** instance prop_ptr and symbol template attribute */
 
+          dbg(1, "print_spice_element(): before translate3(): value=%s\n", value);
           value = translate3(val, xctx->inst[inst].prop_ptr,
                                   xctx->hier_attr[xctx->currsch - 1].prop_ptr,
                                   xctx->hier_attr[xctx->currsch - 1].templ);
+          dbg(1, "print_spice_element(): after translate3(): value=%s\n", value);
         }
         tok_val_len = strlen(value);
         if(!strcmp(token, "@spiceprefix") && value[0]) {
@@ -4358,7 +4360,7 @@ const char *translate3(const char *s, const char *s1, const char *s2, const char
   c=*s++;
   if(c=='\\') {
     escape=1;
-    c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping %) */
+    /* c=*s++; */ /* translate3 should not eat backslashes, to mitigate the quoting hell */
   }
   else escape=0;
   space=SPACE(c);
