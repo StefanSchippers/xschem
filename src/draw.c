@@ -3986,7 +3986,6 @@ int edit_image(int what, xRect *r)
   }
   cairo_surface_mark_dirty(*surface);
 
-
   /* write back modified image to image_data attribute */
   if(what & 256) {
     char *encoded_data = NULL;
