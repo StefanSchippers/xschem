@@ -4049,7 +4049,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
     }
     filesize = (size_t)buf.st_size;
     if(filesize > 0) {
-      fd = fopen(filename, "r");
+      fd = fopen(filename, fopen_read_mode);
       if(fd) {
         size_t bytes_read;
         filedata = my_malloc(_ALLOC_ID_, filesize);

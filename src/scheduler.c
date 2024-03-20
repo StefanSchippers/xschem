@@ -1907,6 +1907,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if((xctx->semaphore == 0)) go_back(1);
       Tcl_ResetResult(interp);
     }
+
+    /* grabscreen
+     *   grab root window */
+    else if(!strcmp(argv[1], "grabscreen"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      #if defined(__unix__) && HAS_CAIRO==1
+      xctx->ui_state |= GRABSCREEN;
+      tcleval("grab set -global [xschem get current_win_path]");
+      #endif
+      Tcl_ResetResult(interp);
+    }
     else { cmd_found = 0;}
     break;
     case 'h': /*----------------------------------------------*/
@@ -5397,7 +5409,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc > 2 && atoi(argv[2]) == 2) {
         Tcl_ResetResult(interp);
       }
-      else if(argc > 3 && atoi(argv[2]) == 3) {
+      else if(argc > 2 && atoi(argv[2]) == 3) {
         Tcl_ResetResult(interp);
       }
     }

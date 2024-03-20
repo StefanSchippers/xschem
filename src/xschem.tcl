@@ -7736,6 +7736,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.tools.menu add command -label "Insert circle" -command "xschem circle" -accelerator Ctrl+Shift+C
   toolbar_add ToolInsertCircle "xschem circle" "Insert Circle" $topwin
   $topwin.menubar.tools.menu add command -label "Insert JPG/PNG image" -command "xschem add_image"
+  $topwin.menubar.tools.menu add command -label "Grab screen area" -command "xschem grabscreen" \
+    -accelerator {Print Scrn}
   $topwin.menubar.tools.menu add command -label "Search" -accelerator Ctrl+F -command  property_search
   toolbar_add ToolSearch property_search "Search" $topwin
   $topwin.menubar.tools.menu add command -label "Align to Grid" -accelerator Alt+U -command  "xschem align"

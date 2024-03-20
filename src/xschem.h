@@ -229,6 +229,7 @@ extern char win_temp_dir[PATH_MAX];
 #define START_SYMPIN 16384U
 #define GRAPHPAN 32768U     /* bit 15 */
 #define MENUSTART 65536U    /* bit 16 */
+#define GRABSCREEN 131072   /* bit 17 */
 
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
@@ -348,6 +349,13 @@ extern char win_temp_dir[PATH_MAX];
   if(x2 < x1) {xxtmp = x1; x1 = x2; x2 = xxtmp;} \
   if(y2 < y1) {xxtmp = y1; y1 = y2; y2 = xxtmp;} \
 }
+
+#define INT_RECTORDER(x1,y1,x2,y2) { \
+  int xxtmp; \
+  if(x2 < x1) {xxtmp = x1; x1 = x2; x2 = xxtmp;} \
+  if(y2 < y1) {xxtmp = y1; y1 = y2; y2 = xxtmp;} \
+}
+
 
 #define LINE_OUTSIDE(xa,ya,xb,yb,x1,y1,x2,y2) \
  (xa>=x2 || xb<=x1 ||  ( (ya<yb)? (ya>=y2 || yb<=y1) : (yb>=y2 || ya<=y1) ) )

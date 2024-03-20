@@ -2551,6 +2551,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      tcleval(name);
    }
  }
+ if(debug_var==-10) debug_var=0;
  /*                                */
  /*  EXECUTE xschem.tcl            */
  /*                                */
@@ -2594,7 +2595,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  cadlayers=tclgetintvar("cadlayers");
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  fix_mouse_coord = tclgetboolvar("fix_mouse_coord");
- if(debug_var==-10) debug_var=0;
  my_snprintf(tmp, S(tmp), "%.16g",CADGRID);
  tclvareval("set_ne cadgrid ", tmp, NULL);
  my_snprintf(tmp, S(tmp), "%.16g",CADSNAP);

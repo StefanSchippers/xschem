@@ -1736,6 +1736,130 @@ static void end_shape_point_edit()
      }
 }
 
+#if defined(__unix__) && HAS_CAIRO==1
+static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key,
+                 int button, int aux, int state)
+{
+  static int grab_state = 0;
+  static int x1, y1, x2, y2;
+  int rmx, rmy, wmx, wmy;
+  unsigned int msq;
+  Window rw, cw;
+  XSetWindowAttributes winattr;
+  XGCValues gcv;
+  static GC gc = NULL;
+  static Window clientwin = 0;
+  static int first_motion = 1;
+  static int displayh = 0, displayw = 0;
+  static unsigned long white = 0;
+
+  if(grab_state == 0 && event == ButtonPress && button == Button1) {
+    unsigned long gcvm = GCFunction | GCForeground;
+
+    white = WhitePixel(display, screen_number);
+    displayh = DisplayHeight(display, screen_number);
+    displayw = DisplayWidth(display, screen_number);
+
+    XQueryPointer(display, xctx->window, &rw, &cw , &rmx, &rmy, &wmx, &wmy, &msq);
+    gcv.function = GXxor;
+    gcv.foreground = white;
+    gc = XCreateGC(display, rw, gcvm, &gcv);
+
+    winattr.override_redirect = True;
+    clientwin = XCreateWindow(display, rw, 0, 0, displayw, displayh, 0, screendepth,
+                InputOutput, visual, CWOverrideRedirect, &winattr);
+    XMapRaised(display,clientwin);
+
+    x1 = rmx;
+    y1 = rmy;
+    dbg(1, "grabscreen(): got point1: %d %d\n", x1, y1);
+    grab_state = 1;  
+  }
+
+  if(grab_state == 1 && event == MotionNotify) {
+    static int xx1, xx2, yy1, yy2;
+    xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
+    INT_RECTORDER(xx1, yy1, xx2, yy2);
+    dbg(1, "Motion: %d %d %d %d\n", xx1, yy1, xx2, yy2);
+    if(!first_motion) {
+      XDrawRectangle(display, clientwin, gc, xx1 - 1, yy1 - 1, xx2 - xx1 + 2, yy2 - yy1 + 2);
+    }
+    first_motion = 0;
+    XQueryPointer(display, xctx->window, &rw, &cw , &rmx, &rmy, &wmx, &wmy, &msq);
+    x2 = xx2 = rmx;
+    y2 = yy2 = rmy;
+    xx1 = x1; yy1 = y1;
+    INT_RECTORDER(xx1, yy1, xx2, yy2);
+    XDrawRectangle(display, clientwin, gc, xx1 - 1, yy1 - 1, xx2 - xx1 + 2, yy2 - yy1 + 2);
+  }
+
+  if(grab_state == 1 && event == ButtonRelease) {
+    int grab_w = 0, grab_h = 0;
+    cairo_surface_t *sfc = NULL, *subsfc = NULL;
+    png_to_byte_closure_t closure;
+    char *encoded_data = NULL;
+    size_t olength;
+    char *prop = NULL;
+    grab_state = 0;
+    first_motion = 1;
+    xctx->ui_state &= ~GRABSCREEN;
+    XQueryPointer(display, xctx->window, &rw, &cw , &rmx, &rmy, &wmx, &wmy, &msq);
+    x2 = rmx;
+    y2 = rmy;
+    INT_RECTORDER(x1, y1, x2, y2);
+    tcleval("grab release [xschem get current_win_path]");
+    if(x2 - x1 > 10 && y2 -y1 > 10) {
+      grab_w = (x2 - x1 + 1);
+      grab_h = (y2 - y1 + 1);
+      dbg(1, "grabscreen(): grab area: %d %d - %d %d\n", x1, y1, x2, y2);
+      dbg(1, "grabscreen(): root w=%d, h=%d\n", displayw, displayh);
+      sfc =  cairo_xlib_surface_create(display, rw, visual, displayw, displayh);
+      if(!sfc || cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS) {
+        dbg(0, "grabscreen(): failure creating sfc\n");
+        XFreeGC(display, gc);
+        XDestroyWindow(display, clientwin);
+        return 0;
+      }
+      dbg(1, "sfc: w=%d, h=%d\n", 
+            cairo_xlib_surface_get_width(sfc),
+            cairo_xlib_surface_get_height(sfc));
+      subsfc = cairo_surface_create_for_rectangle(sfc, x1, y1, grab_w, grab_h);
+      if(!subsfc || cairo_surface_status(subsfc) != CAIRO_STATUS_SUCCESS) {
+        dbg(0, "grabscreen(): failure creating subsfc\n");
+        cairo_surface_destroy(sfc);
+        XFreeGC(display, gc);
+        XDestroyWindow(display, clientwin);
+        return 0;
+      }
+      closure.buffer = NULL;
+      closure.size = 0;
+      closure.pos = 0;
+      cairo_surface_write_to_png_stream(subsfc, png_writer, &closure);
+      cairo_surface_destroy(subsfc);
+      cairo_surface_destroy(sfc);
+      closure.size = closure.pos;
+      dbg(1, "closure.size = %ld\n", closure.size);
+      encoded_data = base64_encode((unsigned char *)closure.buffer, closure.size, &olength, 0);
+      dbg(1, "olength = %ld\n", olength);
+      my_free(_ALLOC_ID_, &closure.buffer);
+      my_mstrcat(_ALLOC_ID_, &prop, "flags=image,unscaled\nalpha=0.8\nimage_data=", encoded_data, NULL);
+      my_free(_ALLOC_ID_, &encoded_data);
+      storeobject(-1, xctx->mousex_snap, xctx->mousey_snap, xctx->mousex_snap + grab_w, xctx->mousey_snap + grab_h,
+                  xRECT, GRIDLAYER, SELECTED, prop);
+      my_free(_ALLOC_ID_, &prop);
+      xctx->need_reb_sel_arr=1;
+      rebuild_selected_array();
+      move_objects(START,0,0,0);
+      xctx->ui_state |= START_SYMPIN;
+    }
+    XFreeGC(display, gc);
+    XDestroyWindow(display, clientwin);
+  }
+  return 1;
+}
+#endif
+
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -1854,6 +1978,12 @@ int rstate; /* (reduced state, without ShiftMask) */
  }
 
  dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
+
+ #if defined(__unix__) && HAS_CAIRO==1
+ if(xctx->ui_state & GRABSCREEN) {
+   grabscreen(winpath, event, mx, my, key, button, aux, state);
+ } else 
+ #endif
  switch(event)
  {
 
@@ -2708,6 +2838,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
+   #if defined(__unix__) && HAS_CAIRO==1
+   if(key == XK_Print) {
+     xctx->ui_state |= GRABSCREEN;
+     tcleval("grab set -global [xschem get current_win_path]");
+     break;
+   }
+   #endif
    if(key=='Q' && rstate == 0) /* edit attributes in editor */
    {
     if(xctx->semaphore >= 2) break;

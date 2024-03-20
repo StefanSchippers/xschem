@@ -840,6 +840,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Return various global variables used in the program </pre>
    <li><kbd>       go_back</kbd></li><pre>
    Go up one level (pop) in hierarchy </pre>
+   <li><kbd>       grabscreen</kbd></li><pre>
+   grab root window </pre>
    <li><kbd>       hash_file file [skip_path_lines]</kbd></li><pre>
    Do a simple hash of 'file'
    'skip_path_lines' is an integer (default: 0) passed to hash_file() </pre>
@@ -860,13 +862,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname net</kbd></li><pre>
    Highlight net name 'net' </pre>
-   <li><kbd>       image [invert|white_transp|black_transp|transp_white|transp_black|write_back]</kbd></li><pre>
+   <li><kbd>       image [invert|white_transp|black_transp|transp_white|transp_black|write_back|</kbd></li><pre>
+        blend_white|blend_black]
    Apply required changes to selected images
    invert: invert colors
    white_transp: transform white to transparent color (alpha=0) after invert.
    black_transp: transform black to transparent color (alpha=0) after invert.
    transp_white: transform white to transparent color (alpha=0) after invert.
-   transp_black: transform black to transparent color (alpha=0) after invert.</pre>
+   transp_black: transform black to transparent color (alpha=0) after invert.
+   blend_white:  blend with white background and remove alpha
+   blend_black:  blend with black background and remove alpha
+   write_back:   write resulting image back into `image_data` attribute</pre>
    <li><kbd>       instance sym_name x y rot flip [prop] [n]</kbd></li><pre>
    Place a new instance of symbol 'sym_name' at position x,y,
    rotation and flip  set to 'rot', 'flip'

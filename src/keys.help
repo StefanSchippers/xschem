@@ -63,6 +63,7 @@ LeftButton Double click Terminate Polygon placement
 -          BackSpace    Back to parent schematic
 -          Delete       Delete selected objects
 -          Insert       Insert element from library
+-          Print Scrn   Grab screen area
 -          Escape       Abort, redraw, unselect
 ctrl       Enter        Confirm closing dialog boxes
 -          Down         Move down
