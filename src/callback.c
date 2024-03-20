@@ -3697,7 +3697,6 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(state == (Button1Mask | ControlMask) && !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
       xctx->deltax == 0 && xctx->deltay == 0) {
      int savesem = xctx->semaphore;
-     dbg(0, "no move\n");
      move_objects(ABORT,0,0,0);
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
