@@ -3693,8 +3693,19 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
-   /* launcher, only if no movement has been done */
-   if(state == (Button1Mask | ControlMask) && !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
+
+
+   /* launcher, no intuitive interface */
+   if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask)) {
+     int savesem = xctx->semaphore;
+     xctx->semaphore = 0;
+     launcher(); /* works only if lastsel == 1 */
+     xctx->semaphore = savesem;
+   }
+
+   /* launcher, intuitive_interface, only if no movement has been done */
+   else if(xctx->intuitive_interface && state == (Button1Mask | ControlMask) &&
+      !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
       xctx->deltax == 0 && xctx->deltay == 0) {
      int savesem = xctx->semaphore;
      move_objects(ABORT,0,0,0);
