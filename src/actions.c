@@ -48,9 +48,14 @@ unsigned int hash_file(const char *f, int skip_path_lines)
   fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
     while((line = my_fgets(fd, &n))) {
-      /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...' */
+      /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...'
+       * skip also .include /path/to/some/file */
       if(skip_path_lines && n > 14) {
         if(!strncmp(line+2, " sch_path: ", 11) || !strncmp(line+2, " sym_path: ", 11) ) {
+          my_free(_ALLOC_ID_, &line);
+          continue;
+        }
+        if(!strncmp(line, ".include ", 9) || !strncmp(line, ".INCLUDE ", 9) ) {
           my_free(_ALLOC_ID_, &line);
           continue;
         }
