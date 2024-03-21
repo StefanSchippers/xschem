@@ -2164,7 +2164,7 @@ int print_spice_element(FILE *fd, int inst)
         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
         tok_size =  xctx->tok_size;
         value = val;
-        if(strchr(value, '@')) {
+        if(xctx->currsch > 0 && strchr(value, '@')) {
           /* Symbol format string contains model=@modp, 
            * instance attributes does not contain a modp=xxx, 
            * look up modp in **parent** instance prop_ptr and symbol template attribute */
