@@ -51,10 +51,16 @@ static int waves_selected(int event, KeySym key, int state, int button)
     if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
     check =
       (event != -3 &&
-         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1+10,  r->x2 - 20,  r->y2 - 10)) ||
+         (
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x1 + 20,  r->y1 + 8) ||
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x2 - 20,  r->y2 - 8,  r->x2,  r->y2)
+         )
+      ) ||
       ( event == -3 &&
         (POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
-         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10)));
+         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10))
+      );
     if( (xctx->ui_state & GRAPHPAN) || check) {
        is_inside = 1;
        draw_crosshair(1);
