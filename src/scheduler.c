@@ -1912,10 +1912,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   grab root window */
     else if(!strcmp(argv[1], "grabscreen"))
     {
+      char *top_path;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      top_path =  xctx->top_path[0] ? xctx->top_path : ".";
       #if defined(__unix__) && HAS_CAIRO==1
       xctx->ui_state |= GRABSCREEN;
-      tcleval("grab set -global [xschem get current_win_path]");
+      tclvareval("grab set -global ", top_path, "drw", NULL);
       #endif
       Tcl_ResetResult(interp);
     }
