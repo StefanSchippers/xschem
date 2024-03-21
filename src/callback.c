@@ -1800,7 +1800,6 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
   }
 
   if(grab_state == 1 && event == ButtonRelease) {
-    char *top_path;
     int grab_w = 0, grab_h = 0;
     cairo_surface_t *sfc = NULL, *subsfc = NULL;
     png_to_byte_closure_t closure;
@@ -1808,7 +1807,6 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
     size_t olength;
     char *prop = NULL;
 
-    top_path =  xctx->top_path[0] ? xctx->top_path : ".";
 
     grab_state = 0;
     first_motion = 1;
@@ -1817,7 +1815,7 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
     x2 = rmx;
     y2 = rmy;
     INT_RECTORDER(x1, y1, x2, y2);
-    tclvareval("grab release ", top_path, "drw", NULL);
+    tclvareval("grab release ", xctx->top_path, ".drw", NULL);
     if(x2 - x1 > 10 && y2 -y1 > 10) {
       grab_w = (x2 - x1 + 1);
       grab_h = (y2 - y1 + 1);
@@ -2850,10 +2848,8 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    #if defined(__unix__) && HAS_CAIRO==1
    if(key == XK_Print) {
-     char *top_path;
-     top_path =  xctx->top_path[0] ? xctx->top_path : ".";
      xctx->ui_state |= GRABSCREEN;
-     tclvareval("grab set -global ", top_path, "drw", NULL);
+     tclvareval("grab set -global ", xctx->top_path, ".drw", NULL);
      break;
    }
    #endif
