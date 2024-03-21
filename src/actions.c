@@ -3112,6 +3112,8 @@ void new_arc(int what, double sweep, double mousex_snap, double mousey_snap)
       drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       restore_selection(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
       xctx->nl_x2 = xctx->mousex_snap;xctx->nl_y2 = xctx->mousey_snap;
+      xctx->nl_xx1 = xctx->nl_x1; /* This **is** needed. Don't remove! */
+      xctx->nl_yy1 = xctx->nl_y1; /* This **is** needed. Don't remove! */
       xctx->nl_xx2 = xctx->mousex_snap;
       xctx->nl_yy2 = xctx->mousey_snap;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
