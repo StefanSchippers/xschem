@@ -2669,6 +2669,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
+        tclvareval("file normalize {", tclresult(), "}", NULL);
         my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
       } else {
         tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
@@ -2680,7 +2681,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(!cancel) {
         if(f[0]) {
-         dbg(0, "f=%s\n", f);
+         dbg(1, "f=%s\n", f);
          new_schematic("create", "noconfirm", f, 1);
          tclvareval("update_recent_file {", f, "}", NULL);
         } else {
