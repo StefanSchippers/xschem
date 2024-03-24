@@ -2545,19 +2545,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &res);
     }
 
-    /* list_hilights [sep]
-     *    Sorted list of highlight nets, separated by character 'sep' (default: space) */
+    /* list_hilights [sep | all | all_nets | all_inst]
+     *    Sorted list of non port or non top level current level highlight nets,
+     *    separated by character 'sep' (default: space)
+     *    if `all_inst` is given list all instance hilights
+     *    if `all_nets` is given list all net hilights
+     *    if `all` is given list all hash content */
     else if(!strcmp(argv[1], "list_hilights"))
     {
-      const char *sep;
+      const char *sep = "{ }";
+      int i, all = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) {
-        sep = argv[2];
-      } else {
-        sep = "{ }";
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "all")) all = 3;
+        else if(!strcmp(argv[i], "all_inst")) all = 2;
+        else if(!strcmp(argv[i], "all_nets")) all = 1;
+        else sep = argv[i];
       }
-      list_hilights();
-      tclvareval("join [lsort -decreasing -dictionary {", tclresult(), "}] ", sep, NULL);
+      list_hilights(all);
+      if(!all) tclvareval("join [lsort -decreasing -dictionary {", tclresult(), "}] ", sep, NULL);
     }
 
     /* list_nets
@@ -5409,6 +5415,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 2) {
+        prepare_netlist_structs(0);
+        hier_hilight_hash_lookup("LDCP_REF", 0, ".x17.xctrl.", XINSERT);
+        hier_hilight_hash_lookup(" x4", 1, ".x17.xctrl.", XINSERT);
+        propagate_hilights(1, 0, XINSERT_NOREPLACE);
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 3) {

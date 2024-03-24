@@ -4405,6 +4405,7 @@ void draw(void)
   
   if(!xctx || xctx->no_draw) return;
   cs = tclgetdoublevar("cadsnap");
+  cairo_font_scale  = tclgetdoublevar("cairo_font_scale");
   xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
   xctx->crosshair_layer = tclgetintvar("crosshair_layer");
   if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;

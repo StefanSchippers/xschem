@@ -1303,6 +1303,8 @@ extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
 /* wrapper function to hash highlighted instances, avoid clash with net names */
 extern Hilight_hashentry *inst_hilight_hash_lookup(int i, int value, int what);
+/* wrapper to bus_hilight_hash_lookup that provides a signal path instead of using xctx->sch_path */
+extern Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, char *path, int what);
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int search(const char *tok, const char *val, int sub, int sel, int match_case);
 extern int process_options(int argc, char **argv);
@@ -1709,7 +1711,7 @@ extern char *str_replace(const char *str, const char *rep, const char *with, int
 extern char *escape_chars(const char *source, const char *charset);
 extern int set_different_token(char **s,const char *new, const char *old);
 extern void print_hilight_net(int show);
-extern void list_hilights(void);
+extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *winpath);

@@ -194,6 +194,18 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   return ptr2;
 }
 
+Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, char *path, int what)
+{
+  Hilight_hashentry *entry;
+  char *oldpath = xctx->sch_path[xctx->currsch];
+  xctx->sch_path_hash[xctx->currsch] = 0;
+  xctx->sch_path[xctx->currsch] = path;
+  entry = bus_hilight_hash_lookup(token, value, what);
+  xctx->sch_path[xctx->currsch] = oldpath;
+  xctx->sch_path_hash[xctx->currsch] = 0;
+  return entry;
+}
+
 /* what:
  *  1: list only nets
  *  2: list only intances
@@ -2259,7 +2271,7 @@ void print_hilight_net(int show)
  my_free(_ALLOC_ID_, &filetmp2);
 }
 
-void list_hilights(void)
+void list_hilights(int all)
 {
  int i, first = 1;
  Hilight_hashentry *entry;
@@ -2268,6 +2280,17 @@ void list_hilights(void)
  Tcl_ResetResult(interp);
  prepare_netlist_structs(1); /* use full prepare_netlist_structs(1)  to recognize pin direction */
                              /* when creating pins from hilight nets 20171221 */
+ if(all) {
+   for(i=0;i<HASHSIZE; ++i) {
+     entry=xctx->hilight_table[i];
+     for( entry=xctx->hilight_table[i]; entry; entry = entry->next) {
+       if(all == 1 &&  entry->token[0] == ' ') continue;
+       if(all == 2 &&  entry->token[0] != ' ') continue;
+       Tcl_AppendResult(interp,  entry->path, "  ",
+          entry->token, "  ", my_itoa(entry->value), "\n", NULL);
+     }
+   }
+ } else 
  for(i=0;i<HASHSIZE; ++i) {
    entry=xctx->hilight_table[i];
    while(entry) {
@@ -2278,7 +2301,7 @@ void list_hilights(void)
           entry->token[0] == '#' ? entry->token + 1 : entry->token, NULL);
        first = 0;
      }
-     entry = entry ->next ;
+     entry = entry ->next;
    }
  }
 }

@@ -825,7 +825,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
         res = raw_read(tmp_filename, rawptr, type, sweep1, sweep2);
         unlink(tmp_filename);
       } else {
-        dbg(0, "read_rawfile_from_attr(): failed to open file %s for reading\n", tmp_filename);
+        dbg(0, "raw_read_from_attr(): failed to open file %s for reading\n", tmp_filename);
       }
     }
   }
