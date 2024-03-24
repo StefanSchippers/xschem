@@ -194,13 +194,15 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   return ptr2;
 }
 
-Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, char *path, int what)
+Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, const char *path, int what)
 {
   Hilight_hashentry *entry;
   char *oldpath = xctx->sch_path[xctx->currsch];
   xctx->sch_path_hash[xctx->currsch] = 0;
-  xctx->sch_path[xctx->currsch] = path;
+  xctx->sch_path[xctx->currsch] = NULL;
+  my_strdup2(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], path);
   entry = bus_hilight_hash_lookup(token, value, what);
+  my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch]);
   xctx->sch_path[xctx->currsch] = oldpath;
   xctx->sch_path_hash[xctx->currsch] = 0;
   return entry;

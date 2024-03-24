@@ -5414,10 +5414,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         del_object_table();
         Tcl_ResetResult(interp);
       }
-      else if(argc > 2 && atoi(argv[2]) == 2) {
+      else if(argc > 4 && atoi(argv[2]) == 2) {
         prepare_netlist_structs(0);
-        hier_hilight_hash_lookup("LDCP_REF", 0, ".x17.xctrl.", XINSERT);
-        hier_hilight_hash_lookup(" x4", 1, ".x17.xctrl.", XINSERT);
+        hier_hilight_hash_lookup(argv[4], 0, argv[3], XINSERT);
         propagate_hilights(1, 0, XINSERT_NOREPLACE);
         Tcl_ResetResult(interp);
       }

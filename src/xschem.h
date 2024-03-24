@@ -1304,7 +1304,7 @@ extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, 
 /* wrapper function to hash highlighted instances, avoid clash with net names */
 extern Hilight_hashentry *inst_hilight_hash_lookup(int i, int value, int what);
 /* wrapper to bus_hilight_hash_lookup that provides a signal path instead of using xctx->sch_path */
-extern Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, char *path, int what);
+extern Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, const char *path, int what);
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
 extern int search(const char *tok, const char *val, int sub, int sel, int match_case);
 extern int process_options(int argc, char **argv);
