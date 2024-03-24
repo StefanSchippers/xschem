@@ -325,7 +325,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   double longest_line;
 
   if(str==NULL) return;
-  size = xscale*52.;
+  size = xscale*52. * cairo_font_scale;
   height =  size*xctx->mooz * 1.147;
   ascent =  size*xctx->mooz * 0.908;
   descent = size*xctx->mooz * 0.219;
