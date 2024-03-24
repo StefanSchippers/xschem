@@ -389,6 +389,8 @@ static void old_svg_draw_string(int layer, const char *str,
  double longest_line;
 
  if(str==NULL) return;
+ xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
+ yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  #if HAS_CAIRO==1
  text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
                    x,y, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
@@ -396,8 +398,6 @@ static void old_svg_draw_string(int layer, const char *str,
  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
            &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
- xscale*=tclgetdoublevar("nocairo_font_xscale");
- yscale*=tclgetdoublevar("nocairo_font_yscale");
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
  x=rx1;y=ry1;
  if(rot&1) {y=ry2;rot=3;}

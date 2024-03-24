@@ -355,10 +355,10 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
    return;
  }
  else {
+  xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
+  yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
   text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
-  xscale*=tclgetdoublevar("nocairo_font_xscale");
-  yscale*=tclgetdoublevar("nocairo_font_yscale");
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,
                textx1,texty1,textx2,texty2)) return;
   x1=textx1;y1=texty1;
