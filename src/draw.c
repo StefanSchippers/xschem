@@ -3632,10 +3632,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         if(strpbrk(express, " \n\t")) {
           expression = 1;
         }
-        if(!expression && tclgetboolvar("auto_hilight_graph_nodes")) {
-          hilight_graph_node(express, wc);
+      }
+      if(raw && raw->values && tclgetboolvar("auto_hilight_graph_nodes")) {
+        if(!expression) {
+          if(!bus_msb) hilight_graph_node(express, wc);
+          else         hilight_graph_node(bus_msb, wc);
         }
       }
+      dbg(1, "express=%s, bus_msb=%s\n", express ? express : "NULL", bus_msb ? bus_msb : "NULL");
       /* quickly find index number of ntok_copy variable to be plotted */
       if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) {
         int p, dset, ofs, ofs_end;

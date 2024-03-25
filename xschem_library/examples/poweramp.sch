@@ -61,7 +61,7 @@ VPP
 VNN
 x1.VBOOST
 x0.VBOOST"
-color="4 15 6 12 7 4"
+color="4 15 10 12 7 4"
 unitx=m
 hilight_wave=-1
 linewidth_mult=2.3}

@@ -259,28 +259,48 @@ static int there_are_hilights()
 
 int hilight_graph_node(const char *node, int col)
 {
+  int current = 0;
   const char *path;
+  const char *path3;
+  char *path2 = NULL;
   char *n = NULL;
-  char *nptr, *ptr;
+  char *nptr, *ptr, *ptr2;
   Hilight_hashentry  *entry;
 
-  if(strchr(node, '.')) return 0;
   path = xctx->sch_path[xctx->currsch];
   my_strdup2(_ALLOC_ID_, &n, node);
   nptr = n;
   
-  if(strstr(n, "i(")) {nptr[1] = ' '; nptr += 1;}
-  else if(strstr(n, "I(")) {nptr[1] = ' '; nptr += 1;}
-  if((ptr = strchr(n, ')'))) *ptr = '\0';
+  dbg(1, "hilight_graph_node(): %s: %d\n", node, col);
+  if(strstr(n, "i(v.")) {current = 1; nptr += 4;}
+  else if(strstr(n, "I(V.")) {current = 1; nptr += 4;}
+  else if(strstr(n, "i(")) {current = 1; nptr += 2;}
+  else if(strstr(n, "I(")) {current = 1; nptr += 2;}
+  else if(strstr(n, "v(")) {nptr += 2;}
+  else if(strstr(n, "V(")) {nptr += 2;}
+  if((ptr = strrchr(n, ')'))) *ptr = '\0';
 
-  dbg(1, "hilight_graph_node(): %s: %d\n", n, col);
-  entry = hier_hilight_hash_lookup(nptr, -col, path, XLOOKUP);
+  if((ptr2 = strrchr(nptr, '.'))) {
+    *ptr2 = '\0';
+    path3 = nptr;
+    nptr = ptr2 + 1;
+    my_mstrcat(_ALLOC_ID_, &path2, path, path3, ".", NULL);
+  }
+  else {
+    my_strdup2(_ALLOC_ID_, &path2, path);
+  }
+  if(current) {
+    nptr--;
+    *nptr = ' ';
+  }
+  entry = hier_hilight_hash_lookup(nptr, -col, path2, XLOOKUP);
   if(!entry || entry->value != -col ) {
-    hier_hilight_hash_lookup(nptr, -col, path, XINSERT);
+    hier_hilight_hash_lookup(nptr, -col, path2, XINSERT);
     dbg(1, "hilight_graph_node(): propagate_hilights(), col=%d\n", col);
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
   }
   my_free(_ALLOC_ID_, &n);
+  my_free(_ALLOC_ID_, &path2);
   return 1;
 }
 

@@ -36,10 +36,10 @@ x1=2e-12
 x2=9e-06
 divx=5
 subdivx=1
-node="sig_in
-vref
-vcc"
-color="8 9 11"
+node="SIG_IN
+VREF
+VCC"
+color="8 9 4"
 dataset=0
 unitx=u
 }
@@ -55,14 +55,15 @@ x1=2e-12
 x2=9e-06
 divx=5
 subdivx=1
-node="CODE;code[5],code[4],code[3],code[2],code[1],code[0]
-ck
-rst
-x1.comp"
+node="CODE;CODE[5],CODE[4],CODE[3],CODE[2],CODE[1],CODE[0]
+CK
+RST
+x1.COMP"
 color="7 4 10 4"
 dataset=0
 unitx=u
-digital=1}
+digital=1
+}
 B 2 900 -970 1700 -630 {flags=graph
 y1=14.1924
 y2=54.9924
@@ -186,7 +187,7 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran
 "
 }
-C {launcher.sym} 870 -90 0 0 {name=h1 
+C {launcher.sym} 650 -870 0 0 {name=h1 
 descr="Netlist + Simulate
 Ctrl-Left-Click" 
 tclcommand="xschem netlist; simulate"
