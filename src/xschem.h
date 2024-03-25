@@ -1344,6 +1344,7 @@ extern int text_bbox(const char * str,double xscale, double yscale,
             double x1,double y1, double *rx1, double *ry1,
             double *rx2, double *ry2, int *cairo_lines, double *longest_line);
 extern void create_memory_cairo_ctx(int what);
+extern int hilight_graph_node(const char *node, int col);
 extern int get_color(int value);
 extern void incr_hilight_color(void);
 extern void get_inst_pin_coord(int i, int j, double *x, double *y);

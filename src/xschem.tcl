@@ -6869,7 +6869,7 @@ proc no_open_dialogs {} {
 set tctx::global_list {
   PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
-  add_all_windows_drives auto_hilight autofocus_mainwindow
+  add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
   autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
@@ -7867,6 +7867,8 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.simulation.menu add cascade -label "Graphs" -menu $topwin.menubar.simulation.menu.graph
   menu $topwin.menubar.simulation.menu.graph -tearoff 0
+  $topwin.menubar.simulation.menu.graph add checkbutton -label {Auto highlight plotted nets} \
+   -selectcolor $selectcolor  -variable auto_hilight_graph_nodes
   $topwin.menubar.simulation.menu.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.menu.graph add command -label {Add waveform reload launcher} -command {
       xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
@@ -8358,6 +8360,7 @@ if {$OS == "Windows"} {
   set_ne launcher_default_program {xdg-open}
 }
 set_ne auto_hilight 0
+set_ne auto_hilight_graph_nodes 0
 set_ne use_tclreadline 1
 set_ne en_hilight_conn_inst 0
 ## xpm to png conversion

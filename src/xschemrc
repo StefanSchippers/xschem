@@ -234,6 +234,9 @@
 #### enable drawing the grid. Default: enabled (1)
 # set draw_grid 1
 
+#### auto highlight nodes shown in graphs: default: not enabled (0)
+# set auto_hilight_graph_nodes 0
+
 #### enable stretch mode: when dragging a selection rectangle that cuts wires these are stretched
 #### to follow the selected objects when moved. Default: not enabled (0).
 #### This can be normally done by dragging with the Control key pressed.

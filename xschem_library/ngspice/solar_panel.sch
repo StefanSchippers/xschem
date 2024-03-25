@@ -91,15 +91,15 @@ subdivy=1
 x1=5e-10
 x2=0.001
 divx=8
-node="panel
-led" unitx=m
+node="PANEL
+LED" unitx=m
 color="7 4"
 jpeg_quality=30
 linewidth_mult=2.0
 hilight_wave=-1}
 B 2 1260 -390 1680 -220 {flags=graph 
-y1 = 3.35
-y2 = 10.05
+y1 = -0.0012
+y2 = 6.8
 divy = 4
 subdivy=1
 x1=5e-10
@@ -107,9 +107,9 @@ x2=0.001
 divx=8
   unitx=m
 color="7 4 6"
-node="i(vpanel)
-i(vled)
-\\"R.Avg. I(vpanel); i(vpanel) 20u ravg()\\""
+node="i(Vpanel)
+i(Vled)
+\\"R.Avg. I(VPANEL); i(VPANEL) 20u ravg()\\""
 jpeg_quality=30
 linewidth_mult=2.0}
 B 2 1260 -750 1680 -560 {flags=graph 
@@ -123,10 +123,10 @@ divx=9
 
  unitx=m subdivx=4
 color="7 4 6 10"
-node="\\"Panel power; i(vpanel) v(panel) *\\"
-\\"Led power; i(vled) v(led) *\\"
-\\"Avg.Pan. Pwr; i(vpanel) v(panel) * 20u ravg()\\"
-\\"SUN \\\\%; sun 100 *\\""
+node="\\"Panel power; i(Vpanel) v(PANEL) *\\"
+\\"Led power; i(Vled) v(LED) *\\"
+\\"Avg.Pan. Pwr; i(Vpanel) v(PANEL) * 20u ravg()\\"
+\\"SUN \\\\%; SUN 100 *\\""
 hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0}
@@ -141,8 +141,8 @@ divx=9
 
  unitx=u subdivx=4
 color="14 7"
-node="triang
-level"
+node="TRIANG
+LEVEL"
 hilight_wave=-1
 digital=0
 ypos1=0.00261891
@@ -167,7 +167,7 @@ digital=0
 ypos1=0.00261891
 ypos2=0.51596
 color=8
-node="\\"CTRL1 Duty cycle; ctrl1 20u ravg()\\""
+node="\\"CTRL1 Duty cycle; CTRL1 20u ravg()\\""
 jpeg_quality=30
 linewidth_mult=2.0}
 B 18 65 -960 320 -775 {}

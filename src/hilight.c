@@ -257,6 +257,33 @@ static int there_are_hilights()
   return 0;
 }
 
+int hilight_graph_node(const char *node, int col)
+{
+  const char *path;
+  char *n = NULL;
+  char *nptr, *ptr;
+  Hilight_hashentry  *entry;
+
+  if(strchr(node, '.')) return 0;
+  path = xctx->sch_path[xctx->currsch];
+  my_strdup2(_ALLOC_ID_, &n, node);
+  nptr = n;
+  
+  if(strstr(n, "i(")) {nptr[1] = ' '; nptr += 1;}
+  else if(strstr(n, "I(")) {nptr[1] = ' '; nptr += 1;}
+  if((ptr = strchr(n, ')'))) *ptr = '\0';
+
+  dbg(1, "hilight_graph_node(): %s: %d\n", n, col);
+  entry = hier_hilight_hash_lookup(nptr, -col, path, XLOOKUP);
+  if(!entry || entry->value != -col ) {
+    hier_hilight_hash_lookup(nptr, -col, path, XINSERT);
+    dbg(1, "hilight_graph_node(): propagate_hilights(), col=%d\n", col);
+    propagate_hilights(1, 0, XINSERT_NOREPLACE);
+  }
+  my_free(_ALLOC_ID_, &n);
+  return 1;
+}
+
 /* by default: 
  * xctx->active_layer[0] = 7
  * xctx->active_layer[1] = 8

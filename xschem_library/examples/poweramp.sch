@@ -55,12 +55,12 @@ divy = 12
 x1=0.0246194
 x2=0.0249318
 divx=10
-node="outp
-outm
-vpp
-vnn
-x1.vboost
-x0.vboost"
+node="OUTP
+OUTM
+VPP
+VNN
+x1.VBOOST
+x0.VBOOST"
 color="4 15 6 12 7 4"
 unitx=m
 hilight_wave=-1
