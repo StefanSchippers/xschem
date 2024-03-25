@@ -39,7 +39,7 @@ subdivx=1
 node="SIG_IN
 VREF
 VCC"
-color="8 9 4"
+color="12 9 4"
 dataset=0
 unitx=u
 }
@@ -59,7 +59,7 @@ node="CODE;CODE[5],CODE[4],CODE[3],CODE[2],CODE[1],CODE[0]
 CK
 RST
 x1.COMP"
-color="7 4 10 4"
+color="7 8 10 4"
 dataset=0
 unitx=u
 digital=1

@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -28,35 +28,35 @@ B 2 380 -820 1060 -660 {flags=graph
 y1 = 0
 y2 = 2
 divy = 4
-x1=2.6e-07
-x2=3.4e-07
+x1=2.44e-07
+x2=3.24e-07
 divx=8
-node="tcleval($\{path\}ldqi
-$\{path\}ldqib
-$\{path\}ldsali)"
-color="9 6 7"
+node="tcleval($\{path\}LDQI
+$\{path\}LDQIB
+$\{path\}LDSALI)"
+color="9 18 7"
 jpeg_quality=30}
 B 2 380 -940 1060 -830 {flags=graph
 y1 = 0
 y2 = 2
 divy = 2
-x1=2.6e-07
-x2=3.4e-07
+x1=2.44e-07
+x2=3.24e-07
 divx=8
 node="v(ldcp)
 v(ldprech)"
 color="12 10"
 jpeg_quality=30}
 B 2 380 -650 1060 -510 {flags=graph
-y1 = 0
-y2 = 2
+y1 = -0.02
+y2 = 1.6
 divy = 2
-x1=2.6e-07
-x2=3.4e-07
+x1=2.44e-07
+x2=3.24e-07
 divx=8
-node="tcleval($\{path\}ldqiii
-$\{path\}ldqii
-$\{path\}ldsali)"
+node="tcleval($\{path\}LDQIII
+$\{path\}LDQII
+$\{path\}LDSALI)"
 color="6 8 7"
 jpeg_quality=30}
 T {Was:

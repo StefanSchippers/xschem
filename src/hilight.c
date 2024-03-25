@@ -284,7 +284,10 @@ int hilight_graph_node(const char *node, int col)
     *ptr2 = '\0';
     path3 = nptr;
     nptr = ptr2 + 1;
-    my_mstrcat(_ALLOC_ID_, &path2, path, path3, ".", NULL);
+    if(!strstr(path, path3))
+      my_mstrcat(_ALLOC_ID_, &path2, path, path3, ".", NULL);
+    else 
+      my_strdup2(_ALLOC_ID_, &path2, path);
   }
   else {
     my_strdup2(_ALLOC_ID_, &path2, path);

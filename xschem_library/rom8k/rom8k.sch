@@ -76,12 +76,12 @@ x1=1.25008e-07
 x2=2.42972e-07
 divx=10
 subdivx=4
-node="ldcp
-ldyms[4]
-ldyms[5]
-ldyms[6]
-ldymsref
-xsa[14].ldqii"
+node="LDCP
+LDYMS[4]
+LDYMS[5]
+LDYMS[6]
+LDYMSREF
+xsa[14].LDQII"
 color="6 12 13 14 11 4"
 unitx=n
 
