@@ -281,7 +281,7 @@ int hilight_graph_node(const char *node, int col)
   my_strdup2(_ALLOC_ID_, &n, node);
   nptr = n;
   
-  dbg(0, "hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col);
+  dbg(1, "hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col);
   if(strstr(n, "i(v.")) {current = 1; nptr += 4;}
   else if(strstr(n, "I(V.")) {current = 1; nptr += 4;}
   else if(strstr(n, "i(")) {current = 1; nptr += 2;}
