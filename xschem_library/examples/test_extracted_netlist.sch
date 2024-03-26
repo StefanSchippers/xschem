@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -33,21 +33,21 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
-x2=0.0004
+x1=2e-05
+x2=0.00042
 divx=5
 subdivx=1
 
 
 dataset=0
 unitx=u
-color="7 8 12 4 9 9"
-node="out
+color="7 8 12 4 9 7"
+node="OUT
 \\"in*12; in 12 *\\"
-minus
-plus
-vpp
-vnn"
+MINUS
+PLUS
+VPP
+VNN"
 hilight_wave=-1}
 P 7 7 60 -700 60 -760 50 -760 60 -790 70 -760 60 -760 60 -700 {fill=true}
 T {actual value

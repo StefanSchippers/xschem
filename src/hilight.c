@@ -262,16 +262,26 @@ int hilight_graph_node(const char *node, int col)
   int current = 0;
   const char *path;
   const char *path3;
+  const char *path_skip;
+  int skip = 0;
   char *path2 = NULL;
   char *n = NULL;
   char *nptr, *ptr, *ptr2;
   Hilight_hashentry  *entry;
+  int start_level = sch_waves_loaded();
 
-  path = xctx->sch_path[xctx->currsch];
+  path_skip = path = xctx->sch_path[xctx->currsch];
+  path_skip++; /* skip initial '.' */
+  /* skip path components that are above the level where raw file was loaded */
+  while(*path_skip && skip < start_level) {
+    if(*path_skip == '.') skip++; 
+    ++path_skip;
+  } 
+
   my_strdup2(_ALLOC_ID_, &n, node);
   nptr = n;
   
-  dbg(1, "hilight_graph_node(): %s: %d\n", node, col);
+  dbg(0, "hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col);
   if(strstr(n, "i(v.")) {current = 1; nptr += 4;}
   else if(strstr(n, "I(V.")) {current = 1; nptr += 4;}
   else if(strstr(n, "i(")) {current = 1; nptr += 2;}
@@ -284,7 +294,7 @@ int hilight_graph_node(const char *node, int col)
     *ptr2 = '\0';
     path3 = nptr;
     nptr = ptr2 + 1;
-    if(!strstr(path, path3))
+    if(!strstr(path_skip, path3))
       my_mstrcat(_ALLOC_ID_, &path2, path, path3, ".", NULL);
     else 
       my_strdup2(_ALLOC_ID_, &path2, path);

@@ -25,12 +25,12 @@ V {}
 S {}
 E {}
 B 2 920 -580 1420 -190 {flags=graph 
-y1 = 0
-y2 = 7
+y1 = -26
+y2 = 12
 divy = 7
 subdivy=1
 x1=0
-x2=79.8
+x2=48
 divx=8
   unitx=1
 
@@ -38,15 +38,15 @@ divx=8
 dataset=4
 
 
-color=4
+color=7
 node=i(vload)}
 B 2 920 -820 1420 -580 {flags=graph 
 y1 = 0
-y2 = 400
+y2 = 410
 divy = 4
 subdivy=1
 x1=0
-x2=79.8
+x2=48
 divx=8
   unitx=1
 
