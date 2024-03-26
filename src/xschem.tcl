@@ -3205,6 +3205,7 @@ proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
 # opens indicated instance (or selected one) into a separate tab/window
 # keeping the hierarchy path, as it was descended into (as with 'e' key).
 proc open_sub_schematic {{inst {}} {inst_number 0}} {
+  set rawfile {}
   set one_sel [expr {[xschem get lastsel] == 1}]
   if { $inst eq {} && $one_sel} {
     set inst [lindex [xschem selected_set] 0]
@@ -3217,8 +3218,10 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
     if {[lsearch -exact $instlist $inst] == -1} {return 0}
   }
   # open a new top level in another window / tab
-  set rawfile [xschem raw_query rawfile]
-  set sim_type [xschem raw_query sim_type]
+  if {[xschem raw loaded] >= 0} {
+    set rawfile [xschem raw_query rawfile]
+    set sim_type [xschem raw_query sim_type]
+  }
   set res [xschem schematic_in_new_window force]
   # if successfull descend into indicated sub-schematic
   if {$res} {
