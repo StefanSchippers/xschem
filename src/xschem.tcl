@@ -8325,7 +8325,7 @@ set_ne unzoom_nodrift 0
 set_ne zoom_full_center 0
 set_ne change_lw 1
 set_ne line_width 0
-set_ne live_cursor2_backannotate 0
+set_ne live_cursor2_backannotate 1
 set_ne draw_window 0
 set_ne show_hidden_texts 0
 set_ne incr_hilight 1
