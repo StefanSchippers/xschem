@@ -3634,7 +3634,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         }
       }
       if(raw && raw->values && tclgetboolvar("auto_hilight_graph_nodes")) {
-        if(!expression) {
+        if(!expression && raw->sim_type && strcmp(raw->sim_type, "op") ) {
           if(!bus_msb) hilight_graph_node(express, wc);
           else         hilight_graph_node(bus_msb, wc);
         }
