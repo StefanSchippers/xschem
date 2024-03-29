@@ -2920,8 +2920,7 @@ static void draw_cursor(int active_cursor, int cursor_color, int i, Graph_ctx *g
     other_cursorx = xctx->graph_cursor1_x;
   }
   idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-  if(idx < 0) idx = 0;
-  if(idx) {
+  if(idx >= 0) {
     dbg(1, "draw_cursor(): idx=%d, cursor=%g\n", idx, xctx->raw->cursor_a_val[idx]);
     if(active_cursor == 1) {
       active_cursorx = xctx->raw->cursor_a_val[idx];
@@ -2931,6 +2930,7 @@ static void draw_cursor(int active_cursor, int cursor_color, int i, Graph_ctx *g
       other_cursorx = xctx->raw->cursor_a_val[idx];
     }
   }
+  if(idx < 0) idx = 0;
   xx = W_X(active_cursorx);
   flip = (other_cursorx > active_cursorx) ? 0 : 1;
   xoffs = flip ? 3 : -3;

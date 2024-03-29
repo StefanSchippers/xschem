@@ -429,11 +429,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           int idx;
           double cursorx;
           idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-          if(idx < 0) idx = 0;
           cursorx = xctx->graph_cursor1_x;
-          if(idx) {
+          if(idx >= 0 ) {
             cursorx = xctx->raw->cursor_a_val[idx];
           }
+          if(idx < 0) idx = 0;
           /* dragging cursors when mouse is very close */
           if( fabs(xctx->mousex - W_X(cursorx)) < 10) {
             xctx->graph_flags |= 16; /* Start move cursor1 */
@@ -443,11 +443,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           int idx;
           double cursorx;
           idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-          if(idx < 0) idx = 0;
           cursorx = xctx->graph_cursor2_x;
-          if(idx) {
+          if(idx >= 0) {
             cursorx = xctx->raw->cursor_b_val[idx];
           }
+          if(idx < 0) idx = 0;
           /* dragging cursors when mouse is very close */
           if(fabs(xctx->mousex - W_X(cursorx)) < 10) {
             xctx->graph_flags |= 32; /* Start move cursor2 */
