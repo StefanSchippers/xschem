@@ -2899,17 +2899,41 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
 }
 
-static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
+static void draw_cursor(int active_cursor, int cursor_color, int i, Graph_ctx *gr)
 {
 
-  double xx = W_X(active_cursorx);
+  double active_cursorx, other_cursorx;
+  double xx;
   double tx1, ty1, tx2, ty2, dtmp;
-  int tmp;
+  int tmp, idx;
   char tmpstr[100];
   double txtsize = gr->txtsizex;
-  short flip = (other_cursorx > active_cursorx) ? 0 : 1;
-  int xoffs = flip ? 3 : -3;
+  short flip;
+  int xoffs;
+  xRect *r = &xctx->rect[GRIDLAYER][i];
 
+  if(active_cursor == 1) {
+    active_cursorx = xctx->graph_cursor1_x;
+    other_cursorx = xctx->graph_cursor2_x;
+  } else {
+    active_cursorx = xctx->graph_cursor2_x;
+    other_cursorx = xctx->graph_cursor1_x;
+  }
+  idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
+  if(idx < 0) idx = 0;
+  if(idx) {
+    dbg(1, "draw_cursor(): idx=%d, cursor=%g\n", idx, xctx->raw->cursor_a_val[idx]);
+    if(active_cursor == 1) {
+      active_cursorx = xctx->raw->cursor_a_val[idx];
+      other_cursorx = xctx->raw->cursor_b_val[idx];
+    } else {
+      active_cursorx = xctx->raw->cursor_b_val[idx];
+      other_cursorx = xctx->raw->cursor_a_val[idx];
+    }
+  }
+  xx = W_X(active_cursorx);
+  flip = (other_cursorx > active_cursorx) ? 0 : 1;
+  xoffs = flip ? 3 : -3;
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1, NULL);
     if(gr->logx) active_cursorx = pow(10, active_cursorx);
@@ -3780,20 +3804,18 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &measure_p);
     my_free(_ALLOC_ID_, &measure_x);
     my_free(_ALLOC_ID_, &measure_prev_x);
-  } /* if(flags & 8) */
-  /* 
-   * bbox(START, 0.0, 0.0, 0.0, 0.0);
-   * bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-   * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-   */
-  if(flags & 8) {
+
+    bbox(START, 0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+    bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
     /* cursor1 */
-    if((flags & 2)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
+    if((flags & 2)) draw_cursor(1, 1, i, gr);
     /* cursor2 */
-    if((flags & 4)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
+    if((flags & 4)) draw_cursor(2, 3, i, gr);
     /* difference between cursors */
     if((flags & 2) && (flags & 4)) draw_cursor_difference(gr);
-  }
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  } /* if(flags & 8) */
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
       /* 
@@ -3805,7 +3827,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     
     }
   }
-  /* bbox(END, 0.0, 0.0, 0.0, 0.0); */
 }
 
 /* flags:

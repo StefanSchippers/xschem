@@ -790,6 +790,7 @@ typedef struct {
                    * need to interpolate the Y value between annot_p and annot_p + 1 */
   int annot_sweep_idx; /* index of sweep variable where cursor annotation has occurred */
   double *cursor_b_val;
+  double *cursor_a_val;
   /* when descending hierarchy xctx->current_name changes, xctx->raw_schname
    * holds the name of the top schematic from which the raw file was loaded */
   char *schname;
@@ -1382,7 +1383,7 @@ extern int select_dangling_nets(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern void draw_crosshair(int del);
-extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
+extern void backannotate_at_cursor_pos(int cursor, xRect *r, Graph_ctx *gr);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
