@@ -223,8 +223,9 @@ static double interpolate_yval(int idx, int point_not_last, int p, double x, int
   return val;
 }      
      
-void backannotate_at_cursor_pos(int cursor, xRect *r, Graph_ctx *gr)
+void backannotate_at_cursor_pos(int cursor, int i, Graph_ctx *gr)
 {
+  xRect *r = &xctx->rect[GRIDLAYER][i];
   if(sch_waves_loaded() >= 0) { 
     int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0, ofs_end;
     double start, end;
@@ -245,13 +246,13 @@ void backannotate_at_cursor_pos(int cursor, xRect *r, Graph_ctx *gr)
     else            cursorpos =  xctx->graph_cursor2_x;
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
-    dbg(1, "start=%g, end=%g\n", start, end);
+    dbg(1, "backannotate_at_cursor_pos(): start=%g, end=%g\n", start, end);
     if(gr->logx) {
       cursorpos = pow(10, cursorpos);
       start = pow(10, start);
       end = pow(10, end);
     }
-    dbg(1, "cursor%d pos: %g dataset=%d\n",  cursor, cursorpos, gr->dataset);
+    dbg(1, "backannotate_at_cursor_pos(): cursor%d pos: %g dataset=%d\n",  cursor, cursorpos, gr->dataset);
     if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
     dbg(1, "dataset=%d\n", dataset);
     ofs = 0;
@@ -323,9 +324,13 @@ void backannotate_at_cursor_pos(int cursor, xRect *r, Graph_ctx *gr)
         Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ vars", my_itoa( raw->nvars), TCL_GLOBAL_ONLY);
         Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ points", "1", TCL_GLOBAL_ONLY);
       } else { /* cursor == 1 */
+        dbg(1, "backannotate_at_cursor_pos(): updating cursor_a_val with sweep_idx=%d\n", sweep_idx);
+        dbg(1, "                            : cursorpos=%g\n", cursorpos);
+        dbg(1, "                            : p=%d\n", p);
         for(i = 0; i < raw->nvars; ++i) {
           raw->cursor_a_val[i] = interpolate_yval(i, (p < ofs_end), p, cursorpos, sweep_idx);
         }
+        dbg(1, "                            : cursor_a_val[0]=%g\n", raw->cursor_a_val[0]);
       }
     }
     if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
@@ -387,14 +392,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* set cursor position from master graph x-axis */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
         xctx->graph_cursor1_x = G_X(xctx->mousex);
-        backannotate_at_cursor_pos(1, r, gr);
+        backannotate_at_cursor_pos(1, i, gr);
       }
       /* move cursor2 */
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         int floaters = there_are_floaters();
         xctx->graph_cursor2_x = G_X(xctx->mousex);
-        backannotate_at_cursor_pos(2, r, gr);
+        backannotate_at_cursor_pos(2, i, gr);
         if(tclgetboolvar("live_cursor2_backannotate")) {
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
@@ -430,10 +435,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           double cursorx;
           idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
           cursorx = xctx->graph_cursor1_x;
-          if(idx >= 0 ) {
+          if(idx < 0) idx = 0;
+          if(xctx->raw && xctx->raw->cursor_a_val) {
             cursorx = xctx->raw->cursor_a_val[idx];
           }
-          if(idx < 0) idx = 0;
+          if(gr->logx) cursorx = log10(cursorx);
           /* dragging cursors when mouse is very close */
           if( fabs(xctx->mousex - W_X(cursorx)) < 10) {
             xctx->graph_flags |= 16; /* Start move cursor1 */
@@ -444,10 +450,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           double cursorx;
           idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
           cursorx = xctx->graph_cursor2_x;
-          if(idx >= 0) {
+          if(idx < 0) idx = 0;
+          if(xctx->raw && xctx->raw->cursor_b_val) {
             cursorx = xctx->raw->cursor_b_val[idx];
           }
-          if(idx < 0) idx = 0;
+          if(gr->logx) cursorx = log10(cursorx);
           /* dragging cursors when mouse is very close */
           if(fabs(xctx->mousex - W_X(cursorx)) < 10) {
             xctx->graph_flags |= 32; /* Start move cursor2 */
@@ -496,7 +503,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         need_all_redraw = 1;
         if(xctx->graph_flags & 2) {
           xctx->graph_cursor1_x = G_X(xctx->mousex);
-          backannotate_at_cursor_pos(1, r, gr);
+          dbg(0, "waves_callback(): graph_cursor1_x=%g\n", xctx->graph_cursor1_x);
+          backannotate_at_cursor_pos(1, i, gr);
         }
       }
       /* x cursor2 toggle */
@@ -505,7 +513,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_flags ^= 4;
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
-          backannotate_at_cursor_pos(2, r, gr);
+          backannotate_at_cursor_pos(2, i, gr);
           if(tclgetboolvar("live_cursor2_backannotate")) {
             if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
             redraw_all_at_end = 1;
@@ -526,8 +534,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         tmp = xctx->graph_cursor2_x;
         xctx->graph_cursor2_x = xctx->graph_cursor1_x;
         xctx->graph_cursor1_x = tmp;
-        backannotate_at_cursor_pos(1, r, gr);
-        backannotate_at_cursor_pos(2, r, gr);
+        backannotate_at_cursor_pos(1, i, gr);
+        backannotate_at_cursor_pos(2, i, gr);
         if(tclgetboolvar("live_cursor2_backannotate")) {
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
           redraw_all_at_end = 1;
@@ -793,12 +801,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           if((xctx->graph_flags & 2)) {
             if(i == xctx->graph_master) {
-              backannotate_at_cursor_pos(1, r, gr);
+              backannotate_at_cursor_pos(1, i, gr);
             }
           }
           if((xctx->graph_flags & 4)) {
             if(i == xctx->graph_master) {
-              backannotate_at_cursor_pos(2, r, gr);
+              backannotate_at_cursor_pos(2, i, gr);
             }
           }
           if((xctx->graph_flags & 4) && tclgetboolvar("live_cursor2_backannotate")) {
