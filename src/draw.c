@@ -3109,7 +3109,7 @@ static void show_node_measures(
     dbg(0, "show_node_measures(): no raw struct allocated\n");
     return;
   }
-  dbg(0, "show_node_measures(): bus_msb=%s, ntok=%s\n", bus_msb, ntok);
+  dbg(1, "show_node_measures(): bus_msb=%s, ntok=%s\n", bus_msb ? bus_msb : "NULL", ntok);
   /* draw node values in graph */
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3514,9 +3514,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
   int wcnt = 0, idx, expression;
-  int *measure_p = NULL;
-  double *measure_x = NULL;
-  double *measure_prev_x = NULL;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   Raw *raw = NULL;
@@ -3538,7 +3535,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
  
   /* draw stuff */
   if(flags & 8) {
-    int k;
     char *tmp_ptr = NULL;
     int save_datasets = -1, save_npoints = -1;
     #if !defined(__unix__) && HAS_CAIRO==1
@@ -3561,14 +3557,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     cptr = color;
     sptr = sweep;
     n_nodes = count_items(node, "\n\t ", "\"");
-    measure_p = my_malloc(_ALLOC_ID_, sizeof(int) * n_nodes);
-    measure_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
-    measure_prev_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
-    for(k = 0 ; k < n_nodes; k++) {
-      measure_p[k] = -1;
-      measure_x[k] = 0.0;
-      measure_prev_x[k] = 0.0;
-    }
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
 
@@ -3697,7 +3685,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < raw->datasets; dset++) {
-          double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = raw->values[sweep_idx];
             
@@ -3707,7 +3694,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           my_realloc(_ALLOC_ID_, &point, raw->npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
-          prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs_end; p++) {
             if(gr->logx) xx = mylog10(gv[p]);
@@ -3743,21 +3729,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = (short)S_X(xx);
-              if(dataset == -1 || dataset == sweepvar_wrap) {
-                /* cursor1: show measurements on nodes in graph */
-                if(measure_p[wcnt] == -1 && flags & 2 && cnt) {
-                  if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
-                    measure_p[wcnt] = p;
-                    measure_x[wcnt] = xx;
-                    measure_prev_x[wcnt] = prev_x;
-                  }
-                } /* if(measure_p[wcnt] == -1 && flags & 2 && p > ofs) */
-              } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
               ++cnt;
             } /* if(xx >= start && xx <= end) */
-            prev_x = xx;
           } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
@@ -3780,8 +3755,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(measure_p[wcnt] != -1)
-           show_node_measures(bus_msb, wave_color, idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
+        show_node_measures(bus_msb, wave_color, idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) */
@@ -3806,9 +3780,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
-    my_free(_ALLOC_ID_, &measure_p);
-    my_free(_ALLOC_ID_, &measure_x);
-    my_free(_ALLOC_ID_, &measure_prev_x);
 
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
