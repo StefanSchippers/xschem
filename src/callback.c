@@ -37,7 +37,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
   if(xctx->ui_state & excl) skip = 1;
   else if(sch_waves_loaded() < 0 ) skip = 1;
-  else if(key !='a' && SET_MODMASK) skip = 1;
+  else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
   else if(event == ButtonPress && button == Button2) skip = 1;
@@ -458,13 +458,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(!edit_wave_attributes(1, i, gr)) {
           tclvareval("graph_edit_properties ", my_itoa(i), NULL);
         }
-      }
-      /* backannotate node values at cursor b position */
-      else if(key == 'a' && EQUAL_MODMASK  && (xctx->graph_flags & 4)) {
-        int floaters = there_are_floaters();
-        backannotate_at_cursor_b_pos(r, gr);
-        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-        redraw_all_at_end = 1;
       }
       /* x cursor1 toggle */
       else if((key == 'a' && rstate == 0) ) {
@@ -2698,15 +2691,6 @@ int rstate; /* (reduced state, without ShiftMask) */
     go_back(1);break;
    }
 
-   if(key=='a' && EQUAL_MODMASK)   /* graph annotate dc point @cursor2 */
-   {
-    if(xctx->semaphore >= 2) break;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      break;
-    }
-    break;
-   }
    if(key=='a' && rstate == 0)   /* make symbol */
    {
     if(xctx->semaphore >= 2) break;

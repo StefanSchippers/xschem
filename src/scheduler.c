@@ -4700,6 +4700,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "cursor1_x")) { /* set graph cursor1 position */
             xctx->graph_cursor1_x = atof_spice(argv[3]);
 
+            #if 0
             if(xctx->rects[GRIDLAYER] > 0) {
               Graph_ctx *gr = &xctx->graph_struct;
               xRect *r = &xctx->rect[GRIDLAYER][0];
@@ -4707,6 +4708,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 backannotate_at_cursor_b_pos(r, gr); 
               }
             }
+            #endif
           }
           else if(!strcmp(argv[2], "cursor2_x")) { /* set graph cursor2 position */
             xctx->graph_cursor2_x = atof_spice(argv[3]);
