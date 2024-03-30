@@ -2164,15 +2164,19 @@ int print_spice_element(FILE *fd, int inst)
         my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
         tok_size =  xctx->tok_size;
         value = val;
-        if(xctx->currsch > 0 && strchr(value, '@')) {
+        if(strchr(value, '@')) {
           /* Symbol format string contains model=@modp, 
-           * instance attributes does not contain a modp=xxx, 
-           * look up modp in **parent** instance prop_ptr and symbol template attribute */
+           * resolve @modp looking in instance attributes ... */
+          char *parent_prop_ptr = NULL;
+          char *parent_templ = NULL;
 
+          if(xctx->currsch > 0) {
+            /* ... also look up modp also in **parent** instance prop_ptr and symbol template attribute */
+            parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
+            parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
+          }
           dbg(1, "print_spice_element(): before translate3(): value=%s\n", value);
-          value = translate3(val, xctx->inst[inst].prop_ptr,
-                                  xctx->hier_attr[xctx->currsch - 1].prop_ptr,
-                                  xctx->hier_attr[xctx->currsch - 1].templ);
+          value = translate3(val, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ);
           dbg(1, "print_spice_element(): after translate3(): value=%s\n", value);
         }
         tok_val_len = strlen(value);
