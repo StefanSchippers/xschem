@@ -105,7 +105,10 @@ p{padding: 15px  30px 10px;}
  </p>
  <pre class="code">
    ./configure --prefix=new/prefix/path
- </pre><br>
+ </pre>
+ <p>
+  DESTDIR is supported.
+ </p>
  <p class="important">
   For testing purposes <kbd>xschem</kbd> can be run and invoked from the build directory
   <kbd>xschem-&lt;version&gt;/src/</kbd> without installation.
@@ -128,14 +131,12 @@ p{padding: 15px  30px 10px;}
   If you need to override system settings, create a
   <kbd>~/.xschem/xschemrc</kbd>. The easiest way is to copy the system
   installed version from ${prefix}/share/xschem/xschemrc and then
-  make the necessary changes.
+  make the necessary changes
  </p> 
  <pre class="code">
   user:$ mkdir ~/.xschem
   user:$ cp &lt;install root&gt;/share/xschem/xschemrc ~/.xschem/xschemrc
  </pre><br>
- <p class="important"> When xschem is run the first time it will do the above operations, create a
-  <kbd>${HOME}/.xschem/</kbd> directory and place a <kbd>xschemrc</kbd> into it.</p>
  <br><br>
 
 

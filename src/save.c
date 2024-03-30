@@ -672,7 +672,6 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       /* get the list of lines with index and node name */
       if(!raw->names) raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
       if(!raw->cursor_b_val) raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
-      if(!raw->cursor_a_val) raw->cursor_a_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_realloc(_ALLOC_ID_, &varname, strlen(line) + 1) ;
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
@@ -738,7 +737,6 @@ void free_rawfile(Raw **rawptr, int dr)
     }
     my_free(_ALLOC_ID_, &raw->names);
     my_free(_ALLOC_ID_, &raw->cursor_b_val);
-    my_free(_ALLOC_ID_, &raw->cursor_a_val);
   }
   if(raw->values) {
     /* free also extra column for custom data plots */
@@ -845,9 +843,7 @@ int raw_add_vector(const char *varname, const char *expr)
     raw->nvars++;
     my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
     my_realloc(_ALLOC_ID_, &raw->cursor_b_val, raw->nvars * sizeof(double));
-    my_realloc(_ALLOC_ID_, &raw->cursor_a_val, raw->nvars * sizeof(double));
     raw->cursor_b_val[raw->nvars - 1] = 0.0;
-    raw->cursor_a_val[raw->nvars - 1] = 0.0;
     raw->names[raw->nvars - 1] = NULL;
     my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
     int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
@@ -1007,7 +1003,6 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       raw->values[1] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
       raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
       raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
-      raw->cursor_a_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_strdup2(_ALLOC_ID_, &raw->names[0], sweepvar);
       int_hash_lookup(&raw->table, raw->names[0], 0, XINSERT_NOREPLACE);
 
@@ -1393,7 +1388,6 @@ int table_read(const char *f)
       dbg(0, "table_read(): no useful data found\n");
     }
     raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
-    raw->cursor_a_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
     fclose(fd);
     return res;
   }

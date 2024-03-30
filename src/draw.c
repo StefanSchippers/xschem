@@ -2111,7 +2111,7 @@ int sch_waves_loaded(void)
   return -1;
 }
 
-static void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char *busval,
+static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int p, char *busval,
                    double vthl, double vthh)
 {
   double val;
@@ -2122,21 +2122,8 @@ static void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char 
   char hexstr[] = "084C2A6E195D3B7F"; /* mirrored (Left/right) hex */
   int x = 0;
   for(i = n_bits - 1; i >= 0; i--) {
-    if(p == -1) {
-      if(idx_arr && idx_arr[i] != -1 && xctx->raw && xctx->raw->cursor_a_val) {
-        val = xctx->raw->cursor_a_val[idx_arr[i]];
-      }
-      else {
-        val = 0.0; /* undefined bus element */
-      }
-    } else {
-      if(idx_arr && idx_arr[i] != -1) {
-         double *valptr = xctx->raw->values[idx_arr[i]];
-         val = valptr[p];
-      } else {
-        val = 0.0;
-      }
-    }
+    if(idx_arr[i]) val = idx_arr[i][p];
+    else val = 0.0; /* undefined bus element */
     if(val >= vthl && val <= vthh) { /* signal transitioning --> 'X' */
        x = 1; /* flag for 'X' value */
        i += bin - 3;
@@ -2168,17 +2155,19 @@ static void get_bus_value(int n_bits, int hex_digits, int *idx_arr, int p, char 
   }
   busval[hex_digits] = '\0';
 } 
+
+
 /* idx_arr malloc-ated and returned, caller must free! */
-static int *get_bus_idx_array(const char *ntok, int *n_bits)
+static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
 {
-  int *idx_arr =NULL;
+  SPICE_DATA **idx_arr =NULL;
   int p;
   char *saven, *nptr, *ntok_copy = NULL;
   const char *bit_name;
   *n_bits = count_items(ntok, ";,", "") - 1;
   dbg(1, "get_bus_idx_array(): ntok=%s\n", ntok);
   dbg(1, "get_bus_idx_array(): *n_bits=%d\n", *n_bits);
-  idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(int));
+  idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(SPICE_DATA *));
   p = 0;
   my_strdup2(_ALLOC_ID_, &ntok_copy, ntok);
   nptr = ntok_copy;
@@ -2186,8 +2175,11 @@ static int *get_bus_idx_array(const char *ntok, int *n_bits)
   while( (bit_name = my_strtok_r(NULL, ";, \n", "", 0, &saven)) ) {
     int idx;
     if(p >= *n_bits) break; /* security check to avoid out of bound writing */
-    idx = get_raw_index(bit_name, NULL);
-    idx_arr[p] = idx;
+    if( (idx = get_raw_index(bit_name, NULL)) != -1) {
+      idx_arr[p] = xctx->raw->values[idx];
+    } else {
+      idx_arr[p] = NULL;
+    }
     /* dbg(0, "get_bus_idx_array(): bit_name=%s, p=%d\n", bit_name, p); */
     ++p;
   }
@@ -2481,7 +2473,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
-static void draw_graph_bus_points(const char *ntok, int n_bits, int  *idx_arr, 
+static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx_arr, 
          int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
 {
   int p;
@@ -2907,44 +2899,17 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
 }
 
-static void draw_cursor(int active_cursor, int cursor_color, int i, Graph_ctx *gr)
+static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
 {
 
-  double active_cursorx, other_cursorx;
-  double xx;
+  double xx = W_X(active_cursorx);
   double tx1, ty1, tx2, ty2, dtmp;
-  int tmp, idx;
+  int tmp;
   char tmpstr[100];
   double txtsize = gr->txtsizex;
-  short flip;
-  int xoffs;
-  xRect *r = &xctx->rect[GRIDLAYER][i];
+  short flip = (other_cursorx > active_cursorx) ? 0 : 1;
+  int xoffs = flip ? 3 : -3;
 
-  if(active_cursor == 1) {
-    active_cursorx = xctx->graph_cursor1_x;
-    other_cursorx = xctx->graph_cursor2_x;
-  } else {
-    active_cursorx = xctx->graph_cursor2_x;
-    other_cursorx = xctx->graph_cursor1_x;
-  }
-  idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-  dbg(1, "draw_cursor(): before: idx=%d, cursor=%g\n", idx, active_cursorx);
-  if(idx < 0) idx = 0;
-  if(xctx->raw && xctx->raw->cursor_a_val &&  xctx->raw->cursor_b_val) {
-    if(active_cursor == 1) {
-      active_cursorx = xctx->raw->cursor_a_val[idx];
-      other_cursorx = xctx->raw->cursor_b_val[idx];
-    } else {
-      active_cursorx = xctx->raw->cursor_b_val[idx];
-      other_cursorx = xctx->raw->cursor_a_val[idx];
-    }
-  }
-  if(gr->logx) active_cursorx = log10(active_cursorx);
-  if(gr->logx) other_cursorx = log10(other_cursorx);
-  dbg(1, "draw_cursor(): after: idx=%d, cursor=%g\n", idx, active_cursorx);
-  xx = W_X(active_cursorx);
-  flip = (other_cursorx > active_cursorx) ? 0 : 1;
-  xoffs = flip ? 3 : -3;
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1, NULL);
     if(gr->logx) active_cursorx = pow(10, active_cursorx);
@@ -3097,8 +3062,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-static void show_node_measures(
-       const char *bus_msb, int wave_color, int idx, int *idx_arr,
+static void show_node_measures(int measure_p, double measure_x, double measure_prev_x,
+       const char *bus_msb, int wave_color, int idx, SPICE_DATA **idx_arr,
        int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr)
 {
   char tmpstr[1024];
@@ -3109,52 +3074,56 @@ static void show_node_measures(
     dbg(0, "show_node_measures(): no raw struct allocated\n");
     return;
   }
-  dbg(1, "show_node_measures(): bus_msb=%s, ntok=%s\n", bus_msb ? bus_msb : "NULL", ntok);
-  /* draw node values in graph */
-  bbox(START, 0.0, 0.0, 0.0, 0.0);
-  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-  if(!bus_msb) {
-    char *fmt1, *fmt2;
-    if(xctx->raw->cursor_a_val)
-      yy = xctx->raw->cursor_a_val[idx];
-    else 
-      yy = 0.0;
-    /* is below line necessary? */
-    /* if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-9 * fabs(gr->gh)) yy = 0.0; */
-    if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
-      fmt1="%.2e";
-      fmt2="%.2e%c";
+  if(measure_p >= 0) {
+   
+    /* draw node values in graph */
+    bbox(START, 0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+    bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+    if(!bus_msb) {
+      double diffy;
+      double diffx;
+      char *fmt1, *fmt2;
+      double yy1;
+      yy1 = xctx->raw->values[idx][measure_p-1];
+      diffy = xctx->raw->values[idx][measure_p] - yy1;
+      diffx = measure_x - measure_prev_x;
+      yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
+      if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
+      if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
+        fmt1="%.2e";
+        fmt2="%.2e%c";
+      } else {
+        fmt1="%.4g";
+        fmt2="%.4g%c";
+      }
+      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
+      else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
     } else {
-      fmt1="%.4g";
-      fmt2="%.4g%c";
+      double vthl, vthh;
+      int hex_digits = ((n_bits - 1) >> 2) + 1;
+      vthh = gr->gy1 * 0.2 + gr->gy2 * 0.8;
+      vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
+      get_bus_value(n_bits, hex_digits, idx_arr, measure_p - 1, tmpstr, vthl, vthh);
     }
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
-  } else {
-    double vthl, vthh;
-    int hex_digits = ((n_bits - 1) >> 2) + 1;
-    vthh = gr->gy1 * 0.2 + gr->gy2 * 0.8;
-    vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
-    get_bus_value(n_bits, hex_digits, idx_arr, -1,  tmpstr, vthl, vthh);
-  }
-  if(!bus_msb && !gr->digital) {
-    draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
-       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
-        gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
-    dbg(1, "node: %s, value=%g\n", ntok, yy);
-  }
-  else if(gr->digital) {
-    double xt = gr->x1 - 15 * gr->txtsizelab;
-    double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-    double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-    double yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
-    if(yt <= gr->ypos2 && yt >= gr->ypos1) {
-      draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
-         xt, DW_Y(yt) + gr->digtxtsizelab * 50, gr->digtxtsizelab * 0.8, gr->digtxtsizelab * 0.8);
+    if(!bus_msb && !gr->digital) {
+      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
+         gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
+          gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
+      dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_x, yy);
     }
-  }
-  bbox(END, 0.0, 0.0, 0.0, 0.0);
+    else if(gr->digital) {
+      double xt = gr->x1 - 15 * gr->txtsizelab;
+      double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+      double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+      double yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
+      if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+        draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
+           xt, DW_Y(yt) + gr->digtxtsizelab * 50, gr->digtxtsizelab * 0.8, gr->digtxtsizelab * 0.8);
+      }
+    }
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
+  } /* if(measure_p >= 0) */
 }
 
 int embed_rawfile(const char *rawfile)
@@ -3514,6 +3483,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
   int wcnt = 0, idx, expression;
+  int *measure_p = NULL;
+  double *measure_x = NULL;
+  double *measure_prev_x = NULL;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   Raw *raw = NULL;
@@ -3535,6 +3507,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
  
   /* draw stuff */
   if(flags & 8) {
+    int k;
     char *tmp_ptr = NULL;
     int save_datasets = -1, save_npoints = -1;
     #if !defined(__unix__) && HAS_CAIRO==1
@@ -3557,6 +3530,14 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     cptr = color;
     sptr = sweep;
     n_nodes = count_items(node, "\n\t ", "\"");
+    measure_p = my_malloc(_ALLOC_ID_, sizeof(int) * n_nodes);
+    measure_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
+    measure_prev_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
+    for(k = 0 ; k < n_nodes; k++) {
+      measure_p[k] = -1;
+      measure_x[k] = 0.0;
+      measure_prev_x[k] = 0.0;
+    }
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
 
@@ -3669,7 +3650,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         double start;
         double end;
         int n_bits = 1; 
-        int *idx_arr = NULL;
+        SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
         int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
@@ -3685,6 +3666,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
         for(dset = 0 ; dset < raw->datasets; dset++) {
+          double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = raw->values[sweep_idx];
             
@@ -3694,6 +3676,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           my_realloc(_ALLOC_ID_, &point, raw->npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
+          prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs_end; p++) {
             if(gr->logx) xx = mylog10(gv[p]);
@@ -3729,10 +3712,21 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = (short)S_X(xx);
+              if(dataset == -1 || dataset == sweepvar_wrap) {
+                /* cursor1: show measurements on nodes in graph */
+                if(measure_p[wcnt] == -1 && flags & 2 && cnt) {
+                  if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
+                    measure_p[wcnt] = p;
+                    measure_x[wcnt] = xx;
+                    measure_prev_x[wcnt] = prev_x;
+                  }
+                } /* if(measure_p[wcnt] == -1 && flags & 2 && p > ofs) */
+              } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
               ++cnt;
             } /* if(xx >= start && xx <= end) */
+            prev_x = xx;
           } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
@@ -3755,7 +3749,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        show_node_measures(bus_msb, wave_color, idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
+        if(measure_p[wcnt] != -1)
+           show_node_measures(measure_p[wcnt], measure_x[wcnt], measure_prev_x[wcnt], bus_msb, wave_color, 
+              idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
+
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) */
@@ -3780,18 +3777,23 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
-
-    bbox(START, 0.0, 0.0, 0.0, 0.0);
-    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-    bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+    my_free(_ALLOC_ID_, &measure_p);
+    my_free(_ALLOC_ID_, &measure_x);
+    my_free(_ALLOC_ID_, &measure_prev_x);
+  } /* if(flags & 8) */
+  /* 
+   * bbox(START, 0.0, 0.0, 0.0, 0.0);
+   * bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+   * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+   */
+  if(flags & 8) {
     /* cursor1 */
-    if((flags & 2)) draw_cursor(1, 1, i, gr);
+    if((flags & 2)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
     /* cursor2 */
-    if((flags & 4)) draw_cursor(2, 3, i, gr);
+    if((flags & 4)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
     /* difference between cursors */
     if((flags & 2) && (flags & 4)) draw_cursor_difference(gr);
-    bbox(END, 0.0, 0.0, 0.0, 0.0);
-  } /* if(flags & 8) */
+  }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
       /* 
@@ -3803,6 +3805,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     
     }
   }
+  /* bbox(END, 0.0, 0.0, 0.0, 0.0); */
 }
 
 /* flags:
