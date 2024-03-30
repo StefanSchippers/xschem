@@ -3120,8 +3120,8 @@ static void show_node_measures(
       yy = xctx->raw->cursor_a_val[idx];
     else 
       yy = 0.0;
-
-    if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
+    /* is below line necessary? */
+    /* if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-9 * fabs(gr->gh)) yy = 0.0; */
     if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
       fmt1="%.2e";
       fmt2="%.2e%c";

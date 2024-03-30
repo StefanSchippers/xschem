@@ -329,6 +329,7 @@ void backannotate_at_cursor_pos(int cursor, int i, Graph_ctx *gr)
         dbg(1, "                            : p=%d\n", p);
         for(i = 0; i < raw->nvars; ++i) {
           raw->cursor_a_val[i] = interpolate_yval(i, (p < ofs_end), p, cursorpos, sweep_idx);
+          dbg(1, "backannotate_at_cursor_pos(): cursor_a_val[%d] = %g\n", i, raw->cursor_a_val[i]);
         }
         dbg(1, "                            : cursor_a_val[0]=%g\n", raw->cursor_a_val[0]);
       }
