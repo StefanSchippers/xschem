@@ -271,7 +271,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
            cnt = 0;
         }
         if(xx >= start && xx <= end) {
-          if((dataset == -1 && sweepvar_wrap == 0) || (dataset == sweepvar_wrap)) {
+          if((dataset == sweepvar_wrap)) {
             dbg(1, "xx=%g cursor2=%g first=%d last=%d start=%g end=%g p=%d wrap=%d sweepvar_wrap=%d ofs=%d\n",
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
