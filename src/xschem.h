@@ -1098,8 +1098,6 @@ typedef struct {
    * 16: move cursor1
    * 32: move cursor2
    * 64: show measurement tooltip
-   * 128: cursor1 is log scale
-   * 256: cursor2 is log scale
    */
   int graph_flags;
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */

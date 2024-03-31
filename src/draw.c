@@ -2902,7 +2902,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
 {
 
-  double xx = W_X(active_cursorx);
+  double xx, pos = active_cursorx;
   double tx1, ty1, tx2, ty2, dtmp;
   int tmp;
   char tmpstr[100];
@@ -2910,9 +2910,10 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   short flip = (other_cursorx > active_cursorx) ? 0 : 1;
   int xoffs = flip ? 3 : -3;
 
+  if(gr->logx) pos = mylog10(pos);
+  xx = W_X(pos);
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1, NULL);
-    if(gr->logx) active_cursorx = pow(10, active_cursorx);
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
@@ -2929,9 +2930,11 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
   char tmpstr[100];
   double txtsize = gr->txtsizex;
   double tx1, ty1, tx2, ty2;
-  double aa = W_X(c1);
+  double cc1 = gr->logx ? mylog10(c1) : c1;
+  double cc2 = gr->logx ? mylog10(c2) : c2;
+  double aa = W_X(cc1);
   double a = CLIP(aa, gr->x1, gr->x2);
-  double bb = W_X(c2);
+  double bb = W_X(cc2);
   double b = CLIP(bb, gr->x1, gr->x2);
   double diff = fabs(b - a);
   double diffw;
@@ -2941,12 +2944,7 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
   double yline;
 
 
-  /* if(gr->logx) return; */
-  if(gr->logx) {
-    diffw = fabs(pow(10, c2) - pow(10, c1));
-  } else {
-    diffw = fabs(c2 - c1);
-  }
+  diffw = fabs(c2 - c1);
 
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
@@ -3085,10 +3083,11 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       double diffx;
       char *fmt1, *fmt2;
       double yy1;
+      double cursor1 = gr->logx ? mylog10(xctx->graph_cursor1_x) : xctx->graph_cursor1_x;
       yy1 = xctx->raw->values[idx][measure_p-1];
       diffy = xctx->raw->values[idx][measure_p] - yy1;
       diffx = measure_x - measure_prev_x;
-      yy = yy1 + diffy / diffx * (xctx->graph_cursor1_x - measure_prev_x);
+      yy = yy1 + diffy / diffx * (cursor1 - measure_prev_x);
       if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-4 * fabs(gr->gh)) yy = 0.0;
       if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
         fmt1="%.2e";
@@ -3471,8 +3470,6 @@ int find_closest_wave(int i, Graph_ctx *gr)
  * 2: draw x-cursor1
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
- * 128: cursor1 is log scale
- * 256: cursor2 is log scale
  * ct is a pointer used in windows for cairo
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
@@ -3717,7 +3714,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 /* cursor1: show measurements on nodes in graph */
                 if(measure_p[wcnt] == -1 && flags & 2 && cnt) {
-                  if(XSIGN(xx - xctx->graph_cursor1_x) != XSIGN(prev_x - xctx->graph_cursor1_x)) {
+                  double cursor1 =  xctx->graph_cursor1_x;
+                  if(gr->logx) cursor1 = mylog10(cursor1);
+                  if(XSIGN(xx - cursor1) != XSIGN(prev_x - cursor1)) {
                     measure_p[wcnt] = p;
                     measure_x[wcnt] = xx;
                     measure_prev_x[wcnt] = prev_x;
@@ -3789,33 +3788,19 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
    * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
    */
   if(flags & 8) {
-    double c1 = xctx->graph_cursor1_x;
-    double c2 = xctx->graph_cursor2_x;
-    if(flags & 6) {
-      if(!gr->logx && (xctx->graph_flags & 128)) {
-        c1 = pow(10, c1);
-      }
-      if(gr->logx && !(xctx->graph_flags & 128)) {
-        c1 = log10(c1);
-      }
-      if(!gr->logx && (xctx->graph_flags & 256)) {
-        c2 = pow(10, c2);
-      }
-      if(gr->logx && !(xctx->graph_flags & 256)) {
-        c2 = log10(c2);
-      }
-    }
+    double cursor1 = xctx->graph_cursor1_x;
+    double cursor2 = xctx->graph_cursor2_x;
     /* cursor1 */
     if((flags & 2)) {
-      draw_cursor(c1, c2, 1, gr);
+      draw_cursor(cursor1, cursor2, 1, gr);
     }
     /* cursor2 */
     if((flags & 4)) {
-      draw_cursor(c2, c1, 3, gr);
+      draw_cursor(cursor2, cursor1, 3, gr);
     }
     /* difference between cursors */
     if((flags & 2) && (flags & 4)) {
-      draw_cursor_difference(c1, c2, gr);
+      draw_cursor_difference(cursor1, cursor2, gr);
     }
   }
   if(flags & 1) { /* copy save buffer to screen */
@@ -4468,10 +4453,8 @@ void draw(void)
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     if(!xctx->only_probes) drawgrid();
     /* 2: draw cursor 1
-     * 4: draw cursor 2
-     * 128: cursor 1 is log scale
-     * 256: cursor 2 is log scale */
-    draw_graph_all((xctx->graph_flags & (2 | 4 | 128 | 256)) + 8); /* xctx->graph_flags for cursors */
+     * 4: draw cursor 2 */
+    draw_graph_all((xctx->graph_flags & (2 | 4)) + 8); /* xctx->graph_flags for cursors */
     draw_images_all();
 
     x1 = X_TO_XSCHEM(xctx->areax1);

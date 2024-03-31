@@ -246,7 +246,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
     dbg(1, "start=%g, end=%g\n", start, end);
     if(gr->logx) {
-      cursor2 = pow(10, cursor2);
+      /* cursor2 = pow(10, cursor2); */
       start = pow(10, start);
       end = pow(10, end);
     }
@@ -380,16 +380,14 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* set cursor position from master graph x-axis */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
         xctx->graph_cursor1_x = G_X(xctx->mousex);
-        xctx->graph_flags &= ~128;
-        if(xctx->graph_flags & 2) xctx->graph_flags |= 128 * gr->logx;
+        if(gr->logx) xctx->graph_cursor1_x = pow(10, xctx->graph_cursor1_x);
       }
       /* move cursor2 */
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         int floaters = there_are_floaters();
         xctx->graph_cursor2_x = G_X(xctx->mousex);
-        xctx->graph_flags &= ~256;
-        if(xctx->graph_flags & 2) xctx->graph_flags |= 256 * gr->logx;
+        if(gr->logx) xctx->graph_cursor2_x = pow(10, xctx->graph_cursor2_x);
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
@@ -421,55 +419,44 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(event == ButtonPress && button == Button1) {
         /* dragging cursors when mouse is very close */
         if(xctx->graph_flags & 2) {
-          double c = xctx->graph_cursor1_x;
-          if(!gr->logx && (xctx->graph_flags & 128)) {
-            c = pow(10, c);
+          double cursor1 = xctx->graph_cursor1_x;
+          if(gr->logx ) {
+            cursor1 = mylog10(cursor1);
           }
-          if(gr->logx && !(xctx->graph_flags & 128)) {
-            c = log10(c);
-          }
-          if(fabs(xctx->mousex - W_X(c)) < 10) {
+          if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
             xctx->graph_flags |= 16; /* Start move cursor1 */
           }
         }
         if(xctx->graph_flags & 4) {
-          double c = xctx->graph_cursor2_x;
-          if(!gr->logx && (xctx->graph_flags & 256)) {
-            c = pow(10, c);
+          double cursor2 = xctx->graph_cursor2_x;
+          if(gr->logx) {
+            cursor2 = mylog10(cursor2);
           }
-          if(gr->logx && !(xctx->graph_flags & 256)) {
-            c = log10(c);
-          }
-          if(fabs(xctx->mousex - W_X(c)) < 10) {
+          if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
             xctx->graph_flags |= 32; /* Start move cursor2 */
           }
         }
       }
       else if(event == ButtonPress && button == Button3) {
         /* Numerically set cursor position */
-        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
+        if(xctx->graph_flags & 2) {
+          double cursor1 = xctx->graph_cursor1_x;
           if(gr->logx) {
-            double pos = pow(10., xctx->graph_cursor1_x); 
-            tclvareval("input_line {Pos:} {} ", dtoa_eng(pos), NULL);
-            if(tclresult()[0]) {
-              pos = mylog10(atof_eng(tclresult()));
-              tclvareval("xschem set cursor1_x ", dtoa(pos), NULL);
-            }
-          } else {
+            cursor1 = mylog10(cursor1);
+          }
+          if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
             tclvareval("input_line {Pos:} {xschem set cursor1_x} ", dtoa_eng(xctx->graph_cursor1_x), NULL);
           }
           event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           redraw_all_at_end = 1;
         }
-        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
+
+        if(xctx->graph_flags & 4) {
+          double cursor2 = xctx->graph_cursor2_x;
           if(gr->logx) {
-            double pos = pow(10., xctx->graph_cursor2_x); 
-            tclvareval("input_line {Pos:} {} ", dtoa_eng(pos), NULL);
-            if(tclresult()[0]) {
-              pos = mylog10(atof_eng(tclresult()));
-              tclvareval("xschem set cursor2_x ", dtoa(pos), NULL);
-            }
-          } else {
+            cursor2 = mylog10(cursor2);
+          }
+          if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
             tclvareval("input_line {Pos:} {xschem set cursor2_x} ", dtoa_eng(xctx->graph_cursor2_x), NULL);
           }
           event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
@@ -484,19 +471,19 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* x cursor1 toggle */
       else if((key == 'a' && rstate == 0) ) {
         xctx->graph_flags ^= 2;
-        xctx->graph_flags &= ~128;
-        if(xctx->graph_flags & 2) xctx->graph_flags |= 128 * gr->logx;
         need_all_redraw = 1;
-        if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
+        if(xctx->graph_flags & 2) {
+          xctx->graph_cursor1_x = G_X(xctx->mousex);
+          if(gr->logx) xctx->graph_cursor1_x = pow(10, xctx->graph_cursor1_x);
+        }
       }
       /* x cursor2 toggle */
       else if((key == 'b') ) {
         int floaters = there_are_floaters();
         xctx->graph_flags ^= 4;
-        xctx->graph_flags &= ~256;
-        if(xctx->graph_flags & 4) xctx->graph_flags |= 256 * gr->logx;
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
+          if(gr->logx) xctx->graph_cursor2_x = pow(10, xctx->graph_cursor2_x);
           if(tclgetboolvar("live_cursor2_backannotate")) {
             backannotate_at_cursor_b_pos(r, gr);
             if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */

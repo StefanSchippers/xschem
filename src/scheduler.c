@@ -756,10 +756,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           flags = atoi(argv[3]);
         } else {
           /* 2: draw cursor 1
-           * 4: draw cursor 2
-           * 128: cursor 1 is log scale
-           * 256: cursor 2 is log scale */
-          flags = 1 + 8 + (xctx->graph_flags & (2 + 4 + 128 + 256));
+           * 4: draw cursor 2 */
+          flags = 1 + 8 + (xctx->graph_flags & (2 + 4));
         }
         setup_graph_data(i, 0,  &xctx->graph_struct);
         draw_graph(i, flags, &xctx->graph_struct, NULL);
