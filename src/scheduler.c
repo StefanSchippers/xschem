@@ -1196,13 +1196,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->currsch),TCL_VOLATILE);
           }
-          else if(!strcmp(argv[2], "cursor1_x")) {
+          else if(!strcmp(argv[2], "cursor1_x")) { /* cursor 1 position */
             char c[70];
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(c, S(c), "%g", xctx->graph_cursor1_x);
             Tcl_SetResult(interp, c, TCL_VOLATILE);
           }
-          else if(!strcmp(argv[2], "cursor2_x")) {
+          else if(!strcmp(argv[2], "cursor2_x")) { /* cursor 2 position */
             char c[70];
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(c, S(c), "%g", xctx->graph_cursor2_x);
