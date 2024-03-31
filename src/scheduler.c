@@ -755,7 +755,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 3) {
           flags = atoi(argv[3]);
         } else {
-          flags = 1 + 8 + (xctx->graph_flags & 6);
+          /* 2: draw cursor 1
+           * 4: draw cursor 2
+           * 128: cursor 1 is log scale
+           * 256: cursor 2 is log scale */
+          flags = 1 + 8 + (xctx->graph_flags & (2 + 4 + 128 + 256));
         }
         setup_graph_data(i, 0,  &xctx->graph_struct);
         draw_graph(i, flags, &xctx->graph_struct, NULL);
@@ -1193,6 +1197,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "currsch")) { /* hierarchy level of current schematic (start at 0) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->currsch),TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "cursor1_x")) {
+            char c[70];
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_snprintf(c, S(c), "%g", xctx->graph_cursor1_x);
+            Tcl_SetResult(interp, c, TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "cursor2_x")) {
+            char c[70];
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_snprintf(c, S(c), "%g", xctx->graph_cursor2_x);
+            Tcl_SetResult(interp, c, TCL_VOLATILE);
           }
           break;
           case 'd':

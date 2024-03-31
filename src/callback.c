@@ -380,12 +380,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* set cursor position from master graph x-axis */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
         xctx->graph_cursor1_x = G_X(xctx->mousex);
+        xctx->graph_flags &= ~128;
+        if(xctx->graph_flags & 2) xctx->graph_flags |= 128 * gr->logx;
       }
       /* move cursor2 */
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
         int floaters = there_are_floaters();
         xctx->graph_cursor2_x = G_X(xctx->mousex);
+        xctx->graph_flags &= ~256;
+        if(xctx->graph_flags & 2) xctx->graph_flags |= 256 * gr->logx;
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
@@ -416,11 +420,29 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
       if(event == ButtonPress && button == Button1) {
         /* dragging cursors when mouse is very close */
-        if( (xctx->graph_flags & 2) && fabs(xctx->mousex - W_X(xctx->graph_cursor1_x)) < 10) {
-          xctx->graph_flags |= 16; /* Start move cursor1 */
+        if(xctx->graph_flags & 2) {
+          double c = xctx->graph_cursor1_x;
+          if(!gr->logx && (xctx->graph_flags & 128)) {
+            c = pow(10, c);
+          }
+          if(gr->logx && !(xctx->graph_flags & 128)) {
+            c = log10(c);
+          }
+          if(fabs(xctx->mousex - W_X(c)) < 10) {
+            xctx->graph_flags |= 16; /* Start move cursor1 */
+          }
         }
-        if( (xctx->graph_flags & 4) && fabs(xctx->mousex - W_X(xctx->graph_cursor2_x)) < 10) {
-          xctx->graph_flags |= 32; /* Start move cursor2 */
+        if(xctx->graph_flags & 4) {
+          double c = xctx->graph_cursor2_x;
+          if(!gr->logx && (xctx->graph_flags & 256)) {
+            c = pow(10, c);
+          }
+          if(gr->logx && !(xctx->graph_flags & 256)) {
+            c = log10(c);
+          }
+          if(fabs(xctx->mousex - W_X(c)) < 10) {
+            xctx->graph_flags |= 32; /* Start move cursor2 */
+          }
         }
       }
       else if(event == ButtonPress && button == Button3) {
@@ -462,6 +484,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* x cursor1 toggle */
       else if((key == 'a' && rstate == 0) ) {
         xctx->graph_flags ^= 2;
+        xctx->graph_flags &= ~128;
+        if(xctx->graph_flags & 2) xctx->graph_flags |= 128 * gr->logx;
         need_all_redraw = 1;
         if(xctx->graph_flags & 2) xctx->graph_cursor1_x = G_X(xctx->mousex);
       }
@@ -469,6 +493,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if((key == 'b') ) {
         int floaters = there_are_floaters();
         xctx->graph_flags ^= 4;
+        xctx->graph_flags &= ~256;
+        if(xctx->graph_flags & 4) xctx->graph_flags |= 256 * gr->logx;
         if(xctx->graph_flags & 4) {
           xctx->graph_cursor2_x = G_X(xctx->mousex);
           if(tclgetboolvar("live_cursor2_backannotate")) {

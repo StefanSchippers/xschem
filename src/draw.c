@@ -2923,15 +2923,15 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   }
 }
 
-static void draw_cursor_difference(Graph_ctx *gr)
+static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
 {
   int tmp; 
   char tmpstr[100];
   double txtsize = gr->txtsizex;
   double tx1, ty1, tx2, ty2;
-  double aa = W_X(xctx->graph_cursor1_x);
+  double aa = W_X(c1);
   double a = CLIP(aa, gr->x1, gr->x2);
-  double bb = W_X(xctx->graph_cursor2_x);
+  double bb = W_X(c2);
   double b = CLIP(bb, gr->x1, gr->x2);
   double diff = fabs(b - a);
   double diffw;
@@ -2943,9 +2943,9 @@ static void draw_cursor_difference(Graph_ctx *gr)
 
   /* if(gr->logx) return; */
   if(gr->logx) {
-    diffw = fabs(pow(10, xctx->graph_cursor2_x) - pow(10, xctx->graph_cursor1_x));
+    diffw = fabs(pow(10, c2) - pow(10, c1));
   } else {
-    diffw = fabs(xctx->graph_cursor2_x - xctx->graph_cursor1_x);
+    diffw = fabs(c2 - c1);
   }
 
   if(gr->unitx != 1.0)
@@ -3471,6 +3471,8 @@ int find_closest_wave(int i, Graph_ctx *gr)
  * 2: draw x-cursor1
  * 4: draw x-cursor2
  * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
+ * 128: cursor1 is log scale
+ * 256: cursor2 is log scale
  * ct is a pointer used in windows for cairo
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
@@ -3787,12 +3789,34 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
    * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
    */
   if(flags & 8) {
+    double c1 = xctx->graph_cursor1_x;
+    double c2 = xctx->graph_cursor2_x;
+    if(flags & 6) {
+      if(!gr->logx && (xctx->graph_flags & 128)) {
+        c1 = pow(10, c1);
+      }
+      if(gr->logx && !(xctx->graph_flags & 128)) {
+        c1 = log10(c1);
+      }
+      if(!gr->logx && (xctx->graph_flags & 256)) {
+        c2 = pow(10, c2);
+      }
+      if(gr->logx && !(xctx->graph_flags & 256)) {
+        c2 = log10(c2);
+      }
+    }
     /* cursor1 */
-    if((flags & 2)) draw_cursor(xctx->graph_cursor1_x, xctx->graph_cursor2_x, 1, gr);
+    if((flags & 2)) {
+      draw_cursor(c1, c2, 1, gr);
+    }
     /* cursor2 */
-    if((flags & 4)) draw_cursor(xctx->graph_cursor2_x, xctx->graph_cursor1_x, 3, gr);
+    if((flags & 4)) {
+      draw_cursor(c2, c1, 3, gr);
+    }
     /* difference between cursors */
-    if((flags & 2) && (flags & 4)) draw_cursor_difference(gr);
+    if((flags & 2) && (flags & 4)) {
+      draw_cursor_difference(c1, c2, gr);
+    }
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
@@ -4443,7 +4467,11 @@ void draw(void)
                      xctx->areaw, xctx->areah);
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
     if(!xctx->only_probes) drawgrid();
-    draw_graph_all((xctx->graph_flags & 6) + 8); /* xctx->graph_flags for cursors */
+    /* 2: draw cursor 1
+     * 4: draw cursor 2
+     * 128: cursor 1 is log scale
+     * 256: cursor 2 is log scale */
+    draw_graph_all((xctx->graph_flags & (2 | 4 | 128 | 256)) + 8); /* xctx->graph_flags for cursors */
     draw_images_all();
 
     x1 = X_TO_XSCHEM(xctx->areax1);

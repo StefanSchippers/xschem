@@ -1089,8 +1089,7 @@ typedef struct {
 
   /*    */
   /* data related to all graphs, so not stored in per-graph graph_struct */
-  double graph_cursor1_x;
-  double graph_cursor2_x;
+  double graph_cursor1_x, graph_cursor2_x;
   /* graph_flags:
    *  1: dnu, reserved, used in draw_graphs()
    *  2: draw x-cursor1
@@ -1099,6 +1098,8 @@ typedef struct {
    * 16: move cursor1
    * 32: move cursor2
    * 64: show measurement tooltip
+   * 128: cursor1 is log scale
+   * 256: cursor2 is log scale
    */
   int graph_flags;
   int graph_master; /* graph where mouse operations are started, used to lock x-axis */
