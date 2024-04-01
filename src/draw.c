@@ -3482,9 +3482,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   const char *ntok, *ctok, *stok;
   char *bus_msb = NULL;
   int wcnt = 0, idx, expression;
-  int *measure_p = NULL;
-  double *measure_x = NULL;
-  double *measure_prev_x = NULL;
+  int measure_p;
+  double measure_x;
+  double measure_prev_x;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
   Raw *raw = NULL;
@@ -3506,7 +3506,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
  
   /* draw stuff */
   if(flags & 8) {
-    int k;
     char *tmp_ptr = NULL;
     int save_datasets = -1, save_npoints = -1;
     #if !defined(__unix__) && HAS_CAIRO==1
@@ -3529,16 +3528,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     cptr = color;
     sptr = sweep;
     n_nodes = count_items(node, "\n\t ", "\"");
-    if(flags & 2) {
-      measure_p = my_malloc(_ALLOC_ID_, sizeof(int) * n_nodes);
-      measure_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
-      measure_prev_x = my_malloc(_ALLOC_ID_, sizeof(double) * n_nodes);
-      for(k = 0 ; k < n_nodes; k++) {
-        measure_p[k] = -1;
-        measure_x[k] = 0.0;
-        measure_prev_x[k] = 0.0;
-      }
-    }
 
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
@@ -3546,6 +3535,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       char *nd = NULL;
       char str_extra_idx[30];
 
+      measure_p = -1;
+      measure_x = 0.0;
+      measure_prev_x = 0.0;
       if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
         extra_rawfile(1, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
       }
@@ -3716,15 +3708,15 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               point[poly_npoints].x = (short)S_X(xx);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 /* cursor1: show measurements on nodes in graph */
-                if(flags & 2 && measure_p[wcnt] == -1 && cnt) {
+                if(flags & 2 && measure_p == -1 && cnt) {
                   double cursor1 =  xctx->graph_cursor1_x;
                   if(gr->logx) cursor1 = mylog10(cursor1);
                   if(XSIGN(xx - cursor1) != XSIGN(prev_x - cursor1)) {
-                    measure_p[wcnt] = p;
-                    measure_x[wcnt] = xx;
-                    measure_prev_x[wcnt] = prev_x;
+                    measure_p = p;
+                    measure_x = xx;
+                    measure_prev_x = prev_x;
                   }
-                } /* if(flags & 2 && measure_p[wcnt] == -1 && cnt) */
+                } /* if(flags & 2 && measure_p == -1 && cnt) */
               } /* if(dataset == -1 || dataset == sweepvar_wrap) */
               last = p;
               poly_npoints++;
@@ -3753,8 +3745,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(flags & 2 && measure_p[wcnt] != -1)
-           show_node_measures(measure_p[wcnt], measure_x[wcnt], measure_prev_x[wcnt], bus_msb, wave_color, 
+        if(flags & 2 && measure_p != -1)
+           show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
               idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
 
         my_free(_ALLOC_ID_, &point);
@@ -3781,11 +3773,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
-    if(flags & 2) {
-      my_free(_ALLOC_ID_, &measure_p);
-      my_free(_ALLOC_ID_, &measure_x);
-      my_free(_ALLOC_ID_, &measure_prev_x);
-    }
   } /* if(flags & 8) */
   /* 
    * bbox(START, 0.0, 0.0, 0.0, 0.0);
