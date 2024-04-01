@@ -42,7 +42,7 @@ L 4 1420 -730 1440 -750 {dash=3}
 L 4 1420 -770 1420 -730 {dash=3}
 L 4 1420 -770 1440 -750 {dash=3}
 L 4 1350 -750 1420 -750 {dash=3}
-B 2 790 -490 1410 -260 {flags=graph 
+B 2 790 -490 1410 -260 {flags=graph,unlocked 
 y1 = 0
 y2 = 3
 divy = 6
@@ -52,17 +52,19 @@ divx=6
 node="a
 zz%0
 zz%1
-zzz"
-color="8 6 12 7"
+zzz
+xkeeper.y
+xkeeper.y%1"
+color="8 6 12 7 9 10"
 sweep="v(a)"
 dataset=0
-hilight_wave=-1}
-B 2 10 -1080 340 -730 {flags=graph 
+hilight_wave=2}
+B 2 10 -1080 340 -730 {flags=graph,unlocked 
 y1 = 0
 y2 = 3
 divy = 6
-x1=0.45178053
-x2=2.9999997
+x1=0
+x2=3
 divx=6
 node="a z"
 color="7 6"
@@ -198,7 +200,7 @@ C {vsource.sym} 50 -240 0 0 {name=V2 value=3
 savecurrent=1}
 C {lab_pin.sym} 50 -210 0 0 {name=p9 lab=0}
 C {res.sym} 410 -130 0 0 {name=R1
-value=20k
+value=80k
 footprint=1206
 device=resistor
 m=1}
@@ -209,7 +211,7 @@ C {lab_pin.sym} 50 -420 0 0 {name=p11 lab=HALF}
 C {lab_pin.sym} 50 -340 0 0 {name=p12 lab=0}
 C {lab_pin.sym} 120 -490 0 0 {name=p13 lab=A}
 C {res.sym} 420 -430 0 0 {name=R2
-value=20k
+value=80k
 footprint=1206
 device=resistor
 m=1}
@@ -217,7 +219,7 @@ C {lab_pin.sym} 420 -380 0 0 {name=p15 lab=HALF}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {cmos_inv.sch} 60 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
-C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
+C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=6u WP_FB=12u}
 C {lab_pin.sym} 740 -490 0 1 {name=p1 lab=ZZ}
 C {lab_pin.sym} 470 -860 0 0 {name=p14 lab=A}
 C {lab_pin.sym} 570 -890 0 1 {name=p2 lab=Z}
