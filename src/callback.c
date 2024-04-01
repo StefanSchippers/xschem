@@ -204,25 +204,23 @@ static void start_wire(double mx, double my)
      new_wire(PLACE,mx, my);
 }
 
-static double interpolate_yval(int idx, int point_not_last)
+static double interpolate_yval(int idx, int p, double x, int sweep_idx, int point_not_last)
 {          
-  double val = xctx->raw->values[idx][xctx->raw->annot_p];
+  double val = xctx->raw->values[idx][p];
   /* not operating point, annotate from 'b' cursor */
-  if((xctx->raw->allpoints > 1) && xctx->raw->annot_sweep_idx >= 0) {
+  if(point_not_last && (xctx->raw->allpoints > 1) && sweep_idx >= 0) {
     Raw *raw = xctx->raw;
-    SPICE_DATA *sweep_gv = raw->values[raw->annot_sweep_idx];
+    SPICE_DATA *sweep_gv = raw->values[sweep_idx];
     SPICE_DATA *gv = raw->values[idx];
-    if(point_not_last) {
-      double dx = sweep_gv[raw->annot_p + 1] - sweep_gv[raw->annot_p];
-      double dy = gv[raw->annot_p + 1] - gv[raw->annot_p];
-      double offset = raw->annot_x - sweep_gv[raw->annot_p];
-      double interp = dx != 0.0 ? offset * dy / dx : 0.0;
-      val += interp;
-    }
+    double dx = sweep_gv[p + 1] - sweep_gv[p];
+    double dy = gv[p + 1] - gv[p];
+    double offset = x - sweep_gv[p];
+    double interp = dx != 0.0 ? offset * dy / dx : 0.0;
+    val += interp;
   }  
   return val;
 }      
-     
+
 void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
   if(sch_waves_loaded() >= 0) { 
@@ -312,7 +310,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       raw->annot_sweep_idx = sweep_idx;
       for(i = 0; i < raw->nvars; ++i) {
         char s[100];
-        raw->cursor_b_val[i] =  interpolate_yval(i, (p < ofs_end));
+        raw->cursor_b_val[i] =  interpolate_yval(i, p, cursor2, sweep_idx, (p < ofs_end));
         my_snprintf(s, S(s), "%.5g", raw->cursor_b_val[i]);
         /* tclvareval("array set ngspice::ngspice_data [list {",  raw->names[i], "} ", s, "]", NULL); */
         Tcl_SetVar2(interp, "ngspice::ngspice_data", raw->names[i], s, TCL_GLOBAL_ONLY);

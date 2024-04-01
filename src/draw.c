@@ -3539,6 +3539,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         measure_prev_x[k] = 0.0;
       }
     }
+
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
 
@@ -3586,7 +3587,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         node_dataset = -1;
         my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
       }
-
 
       /* transform multiple OP points into a dc sweep */
       if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
@@ -3666,6 +3666,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
+
         for(dset = 0 ; dset < raw->datasets; dset++) {
           double prev_x;
           int cnt=0, wrap;
