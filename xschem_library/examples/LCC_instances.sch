@@ -50,24 +50,26 @@ x1=0
 x2=3
 divx=6
 node="a
-zz
+zz%0
 zz%1
 zzz"
 color="8 6 12 7"
 sweep="v(a)"
-dataset=0}
-B 2 10 -950 570 -720 {flags=graph 
+dataset=0
+hilight_wave=-1}
+B 2 10 -1080 340 -730 {flags=graph 
 y1 = 0
 y2 = 3
 divy = 6
-x1=0
-x2=3
+x1=0.45178053
+x2=2.9999997
 divx=6
-node="z
-a"
-color="4 6"
-sweep="v(a) v(z)"
+node="a z"
+color="7 6"
+sweep="z a"
 }
+B 8 255 -871.25 295 -831.25 {}
+B 8 113.75 -1002.5 153.75 -962.5 {}
 P 4 5 560 -700 560 -510 1350 -510 1350 -700 560 -700 {dash=3}
 P 4 5 820 -920 820 -730 1350 -730 1350 -920 820 -920 {dash=3}
 P 4 5 0 -1160 1840 -1160 1840 0 -0 0 0 -1160 {dash=4}
@@ -82,9 +84,9 @@ T {LCC schematics can be nested
 If only .sch is used there is
 no need for a .sym file at all} 840 -880 0 0 0.6 0.6 {}
 T {Select one or more graphs (and no other objects)
-and use arrow keys to zoom / pan waveforms} 20 -1000 0 0 0.3 0.3 {}
+and use arrow keys to zoom / pan waveforms} 10 -1150 0 0 0.3 0.3 {}
 T {Butterfly diagram
-of a cmos latch} 620 -950 0 0 0.4 0.4 {layer=8}
+of a sram cell} 460 -980 0 0 0.4 0.4 {layer=8}
 T {@symname
 @name} 1840 -1250 0 1 0.7 0.7 {}
 N 410 -100 410 -80 {lab=HALF}
@@ -96,8 +98,6 @@ N 420 -490 420 -460 {lab=ZZ}
 N 740 -240 1450 -240 {lab=#net1}
 N 320 -190 410 -190 {lab=ZZZ}
 N 330 -490 420 -490 {lab=ZZ}
-N 730 -860 730 -770 { lab=Z}
-N 650 -860 650 -770 { lab=A}
 N 740 -320 740 -240 {
 lab=#net1}
 N 740 -490 740 -380 {
@@ -108,25 +108,34 @@ N 50 -180 50 -140 {
 lab=A}
 N 50 -420 50 -400 {
 lab=HALF}
-C {vsource.sym} 50 -110 0 0 {name=V1 value="pwl 0 0 1u 0 5u 3"
+N 660 -860 680 -860 {lab=VDD}
+N 550 -860 600 -860 {
+lab=Z}
+N 570 -890 570 -860 {
+lab=Z}
+N 630 -820 680 -820 {
+lab=VDD}
+N 680 -860 680 -820 {
+lab=VDD}
+C {vsource.sym} 50 -110 0 0 {name=V1 value="dc 0 pwl 0 0 1u 0 5u 3"
 savecurrent=1}
 C {lab_pin.sym} 50 -180 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -80 0 0 {name=p5 lab=0}
-C {code_shown.sym} 480 -310 0 0 {name=STIMULI
+C {code_shown.sym} 470 -340 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
-value=".control
+value="* .ic v(L) = 3 v(R)=0
+.control
 save all
 dc v1 0 3 0.001
-* .tran 10n 10u uic
+* tran 10n 10u uic
 write LCC_instances.raw
-
 set appendwrite 
 dc v1 3 0 -0.001
 write LCC_instances.raw
 op
 write LCC_instances.raw
-quit 0
+* quit 0
 .endc
 "}
 C {code.sym} 840 -190 0 0 {name=MODEL
@@ -210,11 +219,10 @@ C {cmos_inv.sch} 60 -260 0 0 {name=Xinv WN=15u WP=45u LLN=3u LLP=3u}
 C {cmos_inv.sym} 280 -190 0 0 {name=Xinv2 WN=15u WP=45u LLN=3u LLP=3u}
 C {bus_keeper.sch} 1200 60 0 0 {name=Xkeeper WN_FB=3u WP_FB=5u}
 C {lab_pin.sym} 740 -490 0 1 {name=p1 lab=ZZ}
-C {lab_pin.sym} 650 -770 0 0 {name=p14 lab=A}
-C {cmos_inv.sym} 690 -860 0 1 {name=Xinv3 WN=3u WP=5u LLN=3u LLP=3u}
-C {lab_pin.sym} 730 -770 0 1 {name=p2 lab=Z}
-C {cmos_inv.sym} 690 -770 0 0 {name=Xinv1 WN=3u WP=5u LLN=3u LLP=3u}
-C {launcher.sym} 85 -1035 0 0 {name=h1 
+C {lab_pin.sym} 470 -860 0 0 {name=p14 lab=A}
+C {lab_pin.sym} 570 -890 0 1 {name=p2 lab=Z}
+C {cmos_inv.sym} 510 -860 0 0 {name=Xinv1 WN=1u WP=1u LLN=2u LLP=2u}
+C {launcher.sym} 655 -1115 0 0 {name=h1 
 descr="Select arrow and 
 Ctrl-Left-Click to load/unload waveforms" 
 tclcommand="
@@ -223,3 +231,6 @@ xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]
 }
 C {ammeter.sym} 740 -350 0 1 {name=Vmeas}
 C {vdd.sym} 50 -280 0 0 {name=l2 lab=VDD}
+C {nmos4.sym} 630 -840 3 0 {name=M1 model=n w=1u l=2u m=1 net_name=true}
+C {lab_pin.sym} 630 -860 3 1 {name=l4 sig_type=std_logic lab=0}
+C {vdd.sym} 680 -860 0 0 {name=l3 lab=VDD}

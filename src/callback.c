@@ -233,7 +233,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     Raw *raw = xctx->raw;
     int  save_datasets = -1, save_npoints = -1;
     /* transform multiple OP points into a dc sweep */
-    if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
+    if(raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
       save_datasets = raw->datasets;
       raw->datasets = 1;
       save_npoints = raw->npoints[0];
@@ -246,7 +246,6 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
     dbg(1, "start=%g, end=%g\n", start, end);
     if(gr->logx) {
-      /* cursor2 = pow(10, cursor2); */
       start = pow(10, start);
       end = pow(10, end);
     }
