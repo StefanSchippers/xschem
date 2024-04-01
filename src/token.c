@@ -3782,7 +3782,6 @@ const char *translate(int inst, const char* s)
          double val;
          const char *valstr;
          if(path) {
-           /* skip path components that are above the level where raw file was loaded */
            prepare_netlist_structs(0);
            if(xctx->inst[inst].lab) {
              my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
