@@ -1,6 +1,6 @@
 * example of a subcircuit contained in a file
 
-.subckt symbol_include Z Y[5] Y[4] Y[3] Y[2]
+.subckt xsymbol_include z y[5] y[4] y[3] y[2]
 + VCC VSS
 + A[2] A[1] A[0] B C W=10 L=1 
 ...

@@ -835,7 +835,7 @@ proc has_included_subcircuit {symname spice_sym_def} {
     }
   }  
   # puts $pinlist
-  return [join $pinlist]
+  return [string tolower [join $pinlist]]
 } 
 
 # should not be called directly by user 

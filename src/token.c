@@ -1868,6 +1868,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
           char *pin_expanded_ptr, *pin_expanded = NULL;
           char *net_expanded_ptr, *net_expanded = NULL;
           my_strdup2(_ALLOC_ID_, &pin_expanded, expandlabel(name, &pin_mult));
+          strtolower(pin_expanded);
           my_strdup2(_ALLOC_ID_, &net_expanded, net_name(inst, i, &net_mult, 0, 1));
           net_expanded_ptr = net_expanded;
           pin_expanded_ptr = pin_expanded;
