@@ -1836,6 +1836,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, xctx->sym[symbol].name);
     }
+    strtolower(symname);
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                spice_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &symname);
