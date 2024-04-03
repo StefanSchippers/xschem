@@ -14,10 +14,11 @@ C {lab_pin.sym} 260 -230 0 0 {name=p1 lab=XA[9:7]}
 C {lab_pin.sym} 260 -210 0 0 {name=p2 lab=XB}
 C {lab_pin.sym} 260 -190 0 0 {name=p3 lab=XC}
 C {lab_pin.sym} 560 -230 0 1 {name=p4 lab=XZ}
-C {lab_pin.sym} 260 -170 0 0 {name=p5 lab=XVCC}
-C {lab_pin.sym} 260 -150 0 0 {name=p6 lab=XVSS}
+C {lab_pin.sym} 260 -170 0 0 {name=p5 lab=XVCC
+}
+C {lab_pin.sym} 260 -150 0 0 {name=p6 lab=xvss}
 C {opin.sym} 120 -70 0 0 { name=p7 lab=XY[7:4]}
-C {ipin.sym} 80 -70 0 0 { name=p8 lab=XVSS }
+C {ipin.sym} 80 -70 0 0 { name=p8 lab=xvss }
 C {ipin.sym} 80 -90 0 0 { name=p9 lab=XVCC }
 C {ipin.sym} 80 -110 0 0 { name=p10 lab=XC }
 C {ipin.sym} 80 -130 0 0 { name=p11 lab=XB }
