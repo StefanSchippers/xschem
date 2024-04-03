@@ -1726,11 +1726,31 @@ proc simconf_add {tool} {
 proc bespice_getdata {sock} {
   global bespice_server_getdata
   if {[eof $sock] || [catch {gets $sock bespice_server_getdata(line,$sock)}]} {
-    close $sock
-    puts "Close $bespice_server_getdata(addr,$sock)"
+    puts "Closing connection $sock to bespice : $bespice_server_getdata(addr,$sock)"
     unset bespice_server_getdata(addr,$sock)
     unset bespice_server_getdata(line,$sock)
-    unset bespice_server_getdata(sock)
+    # we remove the closing socket from the list of clients
+    set search_index [ lsearch $bespice_server_getdata(clients) $sock]   
+    # puts " search_index for $sock in $bespice_server_getdata(clients) ==> $search_index"
+    if { $search_index >= 0 } { 
+      set bespice_server_getdata(clients) [ lreplace $bespice_server_getdata(clients) $search_index $search_index ]
+    }
+    set nb [ llength $bespice_server_getdata(clients) ]
+    if { $nb == 0 } {
+      # no more clients left => communication closed
+      unset bespice_server_getdata(sock)
+    } else {
+       # we have another client connection => use this one
+       set new_sock [lindex $bespice_server_getdata(clients) 0]
+       puts "Communicating to bespice over socket $new_sock"
+       set bespice_server_getdata(sock) [list $new_sock ]
+    }
+    close $sock
+
+    # puts "Clients = $bespice_server_getdata(clients)"
+    # set nb [ llength $bespice_server_getdata(clients) ]
+    # puts "number of Clients = $nb"
+
   } else {
     puts "bespice --> $bespice_server_getdata(line,$sock)"
     set bespice_server_getdata(last) $bespice_server_getdata(line,$sock)
@@ -1769,14 +1789,26 @@ proc xschem_getdata {sock} {
 proc bespice_server {sock addr port} {
   global bespice_server_getdata
   if { ![info exists bespice_server_getdata(sock)] } {
-    puts "Accept $sock from $addr port $port"
-    fconfigure $sock -buffering line
-    set bespice_server_getdata(addr,$sock) [list $addr $port]
-    set bespice_server_getdata(sock) [list $sock]
-    fileevent $sock readable [list bespice_getdata $sock]
-    # this informs bespice wave that it receives it's instructions from xschem. Some features will be adjusted for that.
-    puts $bespice_server_getdata(sock) "set_customer_specialization xschem"
+    puts "Accepting bespice connection $sock from $addr port $port"
+    set bespice_server_getdata(clients) [list $sock]
+  } else {
+    # we can' t handle more tha one socket at once 
+    #	however we put this socket to a list in case the 1st socket is closed. 
+    #	we can then use the 2nd socket
+    puts "Can't handle bespice connection $sock from $addr port $port"
+    lappend bespice_server_getdata(clients) [list $sock]
   }
+
+  fconfigure $sock -buffering line
+  set bespice_server_getdata(addr,$sock) [list $addr $port]
+  set bespice_server_getdata(sock) [list $sock]
+  fileevent $sock readable [list bespice_getdata $sock]
+  # this informs bespice wave that it receives it's instructions from xschem. Some features will be adjusted for that.
+  puts $bespice_server_getdata(sock) "set_customer_specialization xschem"
+
+  # puts "Clients = $bespice_server_getdata(clients)"
+  # set nb [ llength $bespice_server_getdata(clients) ]
+  # puts "number of Clients = $nb"
 }
 
 proc xschem_server {sock addr port} {
