@@ -3269,11 +3269,11 @@ void new_rect(int what, double mousex_snap, double mousey_snap)
     int save_draw;
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     xctx->push_undo();
-    drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0);
+    drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0, -1, -1);
     save_draw = xctx->draw_window;
     xctx->draw_window = 1;
     /* draw fill pattern even in xcopyarea mode */
-    filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 1);
+    filledrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 1, -1, -1);
     xctx->draw_window = save_draw;
     storeobject(-1, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2,xRECT,xctx->rectcolor, 0, NULL);
     modified = 1;

@@ -2585,7 +2585,6 @@ static void load_polygon(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-
     xctx->polygons[c]++;
 }
 
@@ -2636,7 +2635,7 @@ static void load_box(FILE *fd)
 {
     int i,n,c;
     xRect *ptr;
-    const char *dash, *fill_ptr;
+    const char *attr, *fill_ptr;
 
     dbg(3, "load_box(): start\n");
     n = fscanf(fd, "%d",&c);
@@ -2666,13 +2665,29 @@ static void load_box(FILE *fd)
       ptr[i].fill =0;
     else
       ptr[i].fill =1;
-    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
-    if(strcmp(dash, "")) {
-      int d = atoi(dash);
+    attr = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(attr, "")) {
+      int d = atoi(attr);
       ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
+
+    attr = get_tok_value(ptr[i].prop_ptr,"ellipse",0);
+    if(strcmp(attr, "")) {
+      int a;
+      int b;
+      if(sscanf(attr, "%d%*[ ,]%d", &a, &b) != 2) {
+        a = 0;
+        b = 360;
+      }
+      ptr[i].ellipse_a = a;
+      ptr[i].ellipse_b = b;
+    } else {
+      ptr[i].ellipse_a = -1;
+      ptr[i].ellipse_b = -1;
+    }
+
     set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     xctx->rects[c]++;
 }
@@ -3624,6 +3639,7 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   bb[PINLAYER][i].flags = 0;
   bb[PINLAYER][i].extraptr = 0;
   bb[PINLAYER][i].dash = 0;
+  bb[PINLAYER][i].ellipse_a =  bb[PINLAYER][i].ellipse_b = -1;
   bb[PINLAYER][i].sel = 0;
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
   my_strdup(_ALLOC_ID_, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
@@ -3821,7 +3837,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   xText tmptext, *tt;
   int endfile;
   char *skip_line;
-  const char *dash, *fill_ptr;
+  const char *attr, *fill_ptr;
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
   char *cmd = NULL;
@@ -4020,9 +4036,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
        ll[c][i].bus = 1;
      else
        ll[c][i].bus = 0;
-     dash = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") ) {
-       int d = atoi(dash);
+     attr = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
+     if( strcmp(attr, "") ) {
+       int d = atoi(attr);
        ll[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        ll[c][i].dash = 0;
@@ -4084,12 +4100,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
      else
        pp[c][i].fill =0;
 
-     dash = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") ) {
-       int d = atoi(dash);
+     attr = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
+     if( strcmp(attr, "") ) {
+       int d = atoi(attr);
        pp[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        pp[c][i].dash = 0;
+
      pp[c][i].sel = 0;
 
      dbg(2, "l_s_d(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
@@ -4148,9 +4165,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
        aa[c][i].fill =1;
      else
        aa[c][i].fill =0;
-     dash = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") ) {
-       int d = atoi(dash);
+     attr = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
+     if( strcmp(attr, "") ) {
+       int d = atoi(attr);
        aa[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        aa[c][i].dash = 0;
@@ -4211,11 +4228,27 @@ int load_sym_def(const char *name, FILE *embed_fd)
        bb[c][i].fill =0;
      else
        bb[c][i].fill =1;
-     dash = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
-     if( strcmp(dash, "") ) {
-       int d = atoi(dash);
+     attr = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
+     if( strcmp(attr, "") ) {
+       int d = atoi(attr);
        bb[c][i].dash = (short)(d >= 0 ? d : 0);
      } else bb[c][i].dash = 0;
+
+     attr = get_tok_value(bb[c][i].prop_ptr,"ellipse", 0);
+     if( strcmp(attr, "") ) {
+       int a;
+       int b;
+       if(sscanf(attr, "%d%*[ ,]%d", &a, &b) != 2) {
+         a = 0;
+         b = 360;
+       }
+       bb[c][i].ellipse_a = a;
+       bb[c][i].ellipse_b = b;
+     } else {
+       bb[c][i].ellipse_a = -1;
+       bb[c][i].ellipse_b = -1;
+     }
+
      bb[c][i].sel = 0;
      bb[c][i].extraptr = NULL;
      set_rect_flags(&bb[c][i]);

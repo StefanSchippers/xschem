@@ -73,7 +73,7 @@ static void merge_box(FILE *fd)
 {
     int i,c,n;
     xRect *ptr;
-    const char *dash, *fill_ptr;
+    const char *attr, *fill_ptr;
 
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
@@ -95,13 +95,29 @@ static void merge_box(FILE *fd)
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
-    dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
-    if(strcmp(dash, "")) {
-      int d = atoi(dash);
+    attr = get_tok_value(ptr[i].prop_ptr,"dash",0);
+    if(strcmp(attr, "")) {
+      int d = atoi(attr);
       ptr[i].dash = (short)(d >= 0 ? d : 0);
     } else {
       ptr[i].dash = 0;
     }
+
+    attr = get_tok_value(ptr[i].prop_ptr,"ellipse",0);
+    if(strcmp(attr, "")) {
+      int a;
+      int b;
+      if(sscanf(attr, "%d%*[ ,]%d", &a, &b) != 2) {
+        a = 0;
+        b = 360;
+      }
+      ptr[i].ellipse_a = a;
+      ptr[i].ellipse_b = b;
+    } else {
+      ptr[i].ellipse_a = -1;
+      ptr[i].ellipse_b = -1;
+    }
+
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill =3;

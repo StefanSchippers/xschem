@@ -56,14 +56,16 @@ divx=8
 node=i(vpanel) unitx=m
 color=4}
 B 4 890 -630 910 -570 {}
+B 6 810 -630 830 -570 {ellipse=0,360}
 B 7 850 -610 920 -590 {dash=4}
+B 7 850 -580 920 -560 {dash=4 fill=full}
 B 8 860 -630 880 -570 {}
 A 4 875 -215 35.35533905932738 8.13010235415598 360 {}
 A 6 940 -270 70.71067811865476 188.130102354156 89.99999999999997 {}
 A 7 884.1666666666666 -210 39.58991173406564 210.3432488842396 198.9246444160511 {}
-P 1 10 880 -490 870 -550 950 -530 910 -510 940 -480 920 -480 910 -460 890 -500 880 -480 880 -490 {dash=3}
-P 4 6 830 -470 830 -560 820 -510 780 -570 770 -530 810 -490 {bezier=1}
-P 15 11 870 -520 880 -560 900 -530 910 -550 920 -520 940 -530 920 -490 890 -500 860 -480 840 -530 870 -520 {fill=true}
+P 1 10 880 -480 870 -540 950 -520 910 -500 940 -470 920 -470 910 -450 890 -490 880 -470 880 -480 {dash=3}
+P 4 6 830 -460 830 -550 820 -500 780 -560 770 -520 810 -480 {bezier=1}
+P 15 11 870 -510 880 -550 900 -520 910 -540 920 -510 940 -520 920 -480 890 -490 860 -470 840 -520 870 -510 {fill=true}
 T {Welcome to XSCHEM!} 110 -1130 0 0 1 1 {layer=5}
 T {This is a test schematic window 
 
@@ -71,11 +73,12 @@ On the left you see some sample circuits. You may descend into any of these by s
 pressing the 'e' key, or by menu 'Edit -> Push Schematic'. You can return here after descending into a schematic by hitting 
 '<Ctrl>-e' or by menu 'Edit -> Pop'.} 60 -1060 0 0 0.4 0.4 {}
 T {Lines} 960 -680 0 0 0.6 0.6 {layer=4}
-T {Rectangles} 960 -620 0 0 0.6 0.6 {layer=4}
+T {Rectangles /
+Ellipses} 960 -640 0 0 0.6 0.6 {layer=4}
 T {Polygons /
-Beziers} 970 -560 0 0 0.6 0.6 {layer=4}
+Beziers} 970 -550 0 0 0.6 0.6 {layer=4}
 T {Electrical
-wires} 960 -450 0 0 0.6 0.6 {layer=4}
+wires} 960 -440 0 0 0.6 0.6 {layer=4}
 T {XSCHEM OBJECTS} 860 -840 0 0 0.6 0.6 {layer=7}
 T {Components} 960 -330 0 0 0.6 0.6 {layer=4}
 T {TEXT} 840 -740 0 0 0.5 0.5 {layer=8}
@@ -96,16 +99,16 @@ T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
 T {Bus rippers} 580 -380 0 0 0.6 0.6 {layer=4}
-N 910 -420 940 -420 {lab=#net1}
-N 860 -390 860 -370 {lab=#net2}
-N 860 -390 920 -390 {lab=#net2}
-N 880 -430 910 -420 {lab=#net1}
+N 910 -410 940 -410 {lab=#net1}
+N 860 -380 860 -360 {lab=#net2}
+N 860 -380 920 -380 {lab=#net2}
+N 880 -420 910 -410 {lab=#net1}
 N 380 -310 640 -310 {lab=BUS[4:0]}
 N 510 -400 510 -320 {lab=BUS[1]}
 N 410 -350 410 -320 {lab=BUS[2]}
 N 460 -400 460 -320 {lab=BUS[2:1]}
-N 860 -460 860 -390 {lab=#net2}
-N 820 -420 910 -420 {lab=#net1}
+N 860 -450 860 -380 {lab=#net2}
+N 820 -410 910 -410 {lab=#net1}
 C {poweramp.sym} 160 -140 0 0 {name=x1
 tclcommand="xschem descend"}
 C {tesla.sym} 160 -700 0 0 {name=x2}

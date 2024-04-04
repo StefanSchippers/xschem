@@ -876,7 +876,7 @@ static int edit_rect_property(int x)
 {
   int i, c, n;
   int drw = 0;
-  const char *dash, *fill;
+  const char *attr;
   int preserve, modified = 0;
   char *oldprop=NULL;
 
@@ -914,16 +914,32 @@ static int edit_rect_property(int x)
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
 
       set_rect_extraptr(0, &xctx->rect[c][n]);
-      dash = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
-      if( strcmp(dash, "") ) {
-        int d = atoi(dash);
+
+      attr = get_tok_value(xctx->rect[c][n].prop_ptr,"dash",0);
+      if( strcmp(attr, "") ) {
+        int d = atoi(attr);
         xctx->rect[c][n].dash = (short)(d >= 0? d : 0);
       } else
         xctx->rect[c][n].dash = 0;
 
-      fill = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
-      if(!strcmp(fill, "full")) xctx->rect[c][n].fill = 3;
-      else if(!strboolcmp(fill, "false")) xctx->rect[c][n].fill = 0;
+      attr = get_tok_value(xctx->rect[c][n].prop_ptr,"ellipse", 0);
+      if( strcmp(attr, "") ) {
+        int a;
+        int b;
+        if(sscanf(attr, "%d%*[ ,]%d", &a, &b) != 2) {
+          a = 0;
+          b = 360;
+        }
+        xctx->rect[c][n].ellipse_a = a;
+        xctx->rect[c][n].ellipse_b = b;
+      } else {
+        xctx->rect[c][n].ellipse_a = -1;
+        xctx->rect[c][n].ellipse_b = -1;
+      }
+
+      attr = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
+      if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 3;
+      else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
       else xctx->rect[c][n].fill = 1;
 
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||

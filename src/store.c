@@ -227,7 +227,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
                  unsigned short sel, const char *prop_ptr)
 {
  int n, j, modified = 0;
- const char *dash, *fill_ptr;
+ const char *attr, *fill_ptr;
     if(type == LINE)
     {
      check_line_storage(rectc);
@@ -254,8 +254,8 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->line[rectc][n].bus = 1;
      else
        xctx->line[rectc][n].bus = 0;
-     if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
-       int d = atoi(dash);
+     if(prop_ptr && (attr = get_tok_value(prop_ptr,"dash",0))[0]) {
+       int d = atoi(attr);
        xctx->line[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->line[rectc][n].dash = 0;
@@ -284,11 +284,27 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      my_strdup(_ALLOC_ID_, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
      if(sel == SELECTED) set_first_sel(xRECT, n, rectc);
-     if(prop_ptr && (dash = get_tok_value(prop_ptr,"dash",0))[0]) {
-       int d = atoi(dash);
+
+     if(prop_ptr && (attr = get_tok_value(prop_ptr,"dash",0))[0]) {
+       int d = atoi(attr);
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
      } else
        xctx->rect[rectc][n].dash = 0;
+
+     if(prop_ptr && (attr = get_tok_value(prop_ptr,"ellipse",0))[0]) {
+       int a;
+       int b;
+       if(sscanf(attr, "%d%*[ ,]%d", &a, &b) != 2) {
+         a = 0;
+         b = 360;
+       }
+       xctx->rect[rectc][n].ellipse_a = a;
+       xctx->rect[rectc][n].ellipse_b = b;
+     } else {
+       xctx->rect[rectc][n].ellipse_a = -1;
+       xctx->rect[rectc][n].ellipse_b = -1;
+     }
+
      fill_ptr = get_tok_value(xctx->rect[rectc][n].prop_ptr, "fill", 0);
      if(!strcmp(fill_ptr, "full") )
        xctx->rect[rectc][n].fill =3;

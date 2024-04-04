@@ -3982,8 +3982,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 8) draw = atoi(argv[8]);
         storeobject(pos, x1,y1,x2,y2,xRECT,xctx->rectcolor,0,prop_str);
         if(draw) {
+          int c = xctx->rectcolor;
+          int n = xctx->rects[c] - 1;
+          int e_a = xctx->rect[c][n].ellipse_a;
+          int e_b = xctx->rect[c][n].ellipse_b;
           save = xctx->draw_window; xctx->draw_window = 1;
-          drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0);
+          drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, e_a, e_b);
           xctx->draw_window = save;
         }
         set_modify(1);

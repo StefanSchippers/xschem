@@ -492,6 +492,7 @@ typedef struct
   void *extraptr; /* generic data pointer (images) */
   short fill;
   short dash;
+  int ellipse_a, ellipse_b;
   /* bit0=1 for graph function, bit1=1 for unlocked x axis
    * bit10: image embedding (png)
    */
@@ -1395,9 +1396,9 @@ extern void get_sym_text_size(int inst, int text_n, double *xscale, double *ysca
 extern void draw_symbol(int what,int c, int n,int layer,
             short tmp_flip, short tmp_rot, double xoffset, double yoffset);
 extern void drawrect(int c, int what, double rectx1,double recty1,
-            double rectx2,double recty2, int dash);
+            double rectx2,double recty2, int dash, int e_a, int e_b);
 extern void filledrect(int c, int what, double rectx1,double recty1,
-            double rectx2,double recty2, int fill);
+            double rectx2,double recty2, int fill, int e_a, int e_b);
 
 
 extern void drawtempline(GC gc, int what, double x1,double y1,double x2,double y2);
