@@ -1535,7 +1535,7 @@ extern void select_rect(int what, int select);
 extern void new_rect(int what, double mousex_snap, double mousey_snap);
 extern void new_polygon(int what, double mousex_snap, double mousey_snap);
 extern void compile_font(void);
-extern void flip_rotate_ellipse(int c, int n, int rot, int flip);
+extern void flip_rotate_ellipse(xRect *r, int rot, int flip);
 extern void rebuild_selected_array(void);
 
 extern int get_instance(const char *s);

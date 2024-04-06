@@ -23,9 +23,8 @@
 #include "xschem.h"
 
 
-void flip_rotate_ellipse(int c, int n, int rot, int flip)
+void flip_rotate_ellipse(xRect *r, int rot, int flip)
 {
-  xRect *r = &xctx->rect[c][n];
   if(r->ellipse_a == -1) return;
   else if(r->ellipse_b == 360) return;
   else {
@@ -38,14 +37,12 @@ void flip_rotate_ellipse(int c, int n, int rot, int flip)
     if(rot) {
       if(rot == 3) {
         r->ellipse_a += 90;
-        r->ellipse_a %= 360;
       } else if(rot == 2) {
         r->ellipse_a += 180;
-        r->ellipse_a %= 360;
       } else if(rot == 1) {
         r->ellipse_a += 270;
-        r->ellipse_a %= 360;
       }
+      r->ellipse_a %= 360;
       my_snprintf(str, S(str), "%d,%d", r->ellipse_a, r->ellipse_b);
       my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ellipse", str));
     }
@@ -775,7 +772,7 @@ void copy_objects(int what)
         storeobject(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay,xRECT, c, SELECTED, xctx->rect[c][n].prop_ptr);
         l = xctx->rects[c] - 1;
-        flip_rotate_ellipse(c, l, xctx->move_rot, xctx->move_flip);
+        flip_rotate_ellipse(&xctx->rect[c][l], xctx->move_rot, xctx->move_flip);
         break;
   
        case xTEXT:
@@ -1195,7 +1192,7 @@ void move_objects(int what, int merge, double dx, double dy)
             xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
        }
  
-       flip_rotate_ellipse(c, n, xctx->move_rot, xctx->move_flip);
+       flip_rotate_ellipse(&xctx->rect[c][n], xctx->move_rot, xctx->move_flip);
 
        if( xctx->rect[c][n].sel == SELECTED) {
          xctx->rx1+=xctx->deltax;

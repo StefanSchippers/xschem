@@ -660,10 +660,28 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       } else 
       #endif
       {
+        int ellipse_a = rect->ellipse_a;
+        int ellipse_b = rect->ellipse_b;
+
+        if(ellipse_a != -1 && ellipse_b != 360) {
+          if(flip) {
+            ellipse_a = 180 - ellipse_a - ellipse_b;
+          }
+          if(rot) {
+            if(rot == 3) {
+              ellipse_a += 90;
+            } else if(rot == 2) {
+              ellipse_a += 180;
+            } else if(rot == 1) {
+              ellipse_a += 270;
+            }
+            ellipse_a %= 360;
+          }
+        }
         RECTORDER(x1,y1,x2,y2);
-        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->ellipse_a, rect->ellipse_b);
+        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash, ellipse_a, ellipse_b);
         if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->fill,
-                                  rect->ellipse_a, rect->ellipse_b);
+                                  ellipse_a, ellipse_b);
       }
     }
   }
