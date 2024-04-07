@@ -1407,8 +1407,15 @@ int get_raw_index(const char *node, Int_hashentry **entry_ret)
   dbg(1, "get_raw_index(): node=%s\n", node);
   if(sch_waves_loaded() >= 0) {
     my_strncpy(inode, node, S(inode));
-    strtolower(inode);
     entry = int_hash_lookup(&xctx->raw->table, inode, 0, XLOOKUP);
+    if(!entry) {
+      strtoupper(inode);
+      entry = int_hash_lookup(&xctx->raw->table, inode, 0, XLOOKUP);
+    }
+    if(!entry) {
+      strtolower(inode);
+      entry = int_hash_lookup(&xctx->raw->table, inode, 0, XLOOKUP);
+    }
     if(!entry) {
       my_snprintf(vnode, S(vnode), "v(%s)", inode);
       entry = int_hash_lookup(&xctx->raw->table, vnode, 0, XLOOKUP);
