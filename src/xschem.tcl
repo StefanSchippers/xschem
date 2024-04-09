@@ -3077,11 +3077,15 @@ proc graph_edit_properties {n} {
            xschem setprop rect 2 $graph_selected subdivx 8 fast
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 8
+           xschem setprop rect 2 $graph_selected fullxzoom
+           xschem setprop rect 2 $graph_selected fullyzoom
          } else {
            graph_push_undo
            xschem setprop rect 2 $graph_selected subdivx 4 fast
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 4
+           xschem setprop rect 2 $graph_selected fullxzoom
+           xschem setprop rect 2 $graph_selected fullyzoom
          }
          xschem draw_graph $graph_selected
        }
@@ -3097,11 +3101,13 @@ proc graph_edit_properties {n} {
            xschem setprop rect 2 $graph_selected subdivy 8 fast
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 8
+           xschem setprop rect 2 $graph_selected fullyzoom
          } else {
            graph_push_undo
            xschem setprop rect 2 $graph_selected subdivy 4 fast
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 4
+           xschem setprop rect 2 $graph_selected fullyzoom
          }
          xschem draw_graph $graph_selected
        }
