@@ -2846,10 +2846,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    file_loaded = load_schematic(1, f, !cli_opt_do_netlist, 1);
-   if(!file_loaded) tcleval("exit 1");
+   if(cli_opt_do_netlist) if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
- } else /* if(!cli_opt_tcl_script[0]) */
+ } else /* if(!cli_opt_filename[0]) */
  {
    char * tmp;
    char fname[PATH_MAX];
