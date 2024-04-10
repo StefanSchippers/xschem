@@ -166,19 +166,46 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       abort_operation();
     }
 
-    /* add_symbol_pin
-     *   Start a GUI placement of a symbol pin */
+    /* add_symbol_pin [x y name dir [draw]]
+     *   place a symbol pin. 
+     *   x,y : pin coordinates
+     *   name = pin name
+     *   dir = in|out|inout
+     *   draw: 1 | 0 (draw or not the added pin immediately, default = 1)
+     *   if no parameters given start a GUI placement of a symbol pin */
     else if(!strcmp(argv[1], "add_symbol_pin"))
     {
+      int save, draw = 1;
+      double x = xctx->mousex_snap;
+      double y = xctx->mousey_snap;
+      const char *name = NULL;
+      const char *dir = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      unselect_all(1);
-      storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
-                  xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
-      xctx->need_reb_sel_arr=1;
-      rebuild_selected_array();
-      move_objects(START,0,0,0);
-      xctx->ui_state |= START_SYMPIN;
-      set_modify(1);
+      if(argc > 6) draw = atoi(argv[6]);
+      if(argc > 5) {
+        char *prop = NULL;
+        x = atof(argv[2]);
+        y = atof(argv[3]);
+        name = argv[4];
+        dir = argv[5];
+        my_mstrcat(_ALLOC_ID_, &prop, "name=", name, " dir=", dir, NULL);
+        storeobject(-1, x - 2.5, y - 2.5, x + 2.5, y + 2.5, xRECT, PINLAYER, 0, prop);
+        if(draw) {
+          save = xctx->draw_window; xctx->draw_window = 1;
+          drawrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0, -1, -1);
+          filledrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 1, -1, -1);
+          xctx->draw_window = save;
+        }
+        my_free(_ALLOC_ID_, &prop);
+      } else {
+        unselect_all(1);
+        storeobject(-1, x - 2.5, y - 2.5, x + 2.5, y + 2.5, xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
+        xctx->need_reb_sel_arr=1;
+        rebuild_selected_array();
+        move_objects(START,0,0,0);
+        xctx->ui_state |= START_SYMPIN;
+        set_modify(1);
+      }
       Tcl_ResetResult(interp);
     }
 

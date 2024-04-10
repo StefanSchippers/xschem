@@ -546,8 +546,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
-   <li><kbd>       add_symbol_pin</kbd></li><pre>
-   Start a GUI placement of a symbol pin </pre>
+   <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
+   place a symbol pin. 
+   x,y : pin coordinates
+   name = pin name
+   dir = in|out|inout
+   draw: 1 | 0 (draw or not the added pin immediately, default = 1)
+   if no parameters given start a GUI placement of a symbol pin </pre>
    <li><kbd>       add_graph</kbd></li><pre>
    Start a GUI placement of a graph object </pre>
    <li><kbd>       add_image</kbd></li><pre>
