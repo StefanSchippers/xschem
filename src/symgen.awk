@@ -323,9 +323,9 @@ END{
 
   for(l = 0; l < label["n"]; l++) {
     dbg("label: " l " : " label[l])
-    labx = (symbolx1 + symbolx2) / 2 - length(label[l]) * labelcharspacing /2 
+    labx = (symbolx1 + symbolx2) / 2
     laby = (symboly1 + symboly2) / 2 + ( l - label["n"] / 2 ) * labelspacing + labelcenteroffset
-    text(label[l], labx, laby, 0, 0, labeltextsize, "")
+    text(label[l], labx, laby, 0, 0, labeltextsize, "hcenter=1")
   }
 }  
 
@@ -388,7 +388,7 @@ function text(t, x, y, rot, flip, size, props)
 
 function attrs(a)
 {
-  print "G {" esc(a) "}"
+  print "K {" esc(a) "}"
 }
 
 function header()

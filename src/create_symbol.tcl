@@ -34,7 +34,7 @@ proc create_symbol {name {in {}} {out {}} {inout {}}} {
   set y 0
   foreach pin $in { ;# create all input pins on the left
     puts $fd "B 5 [expr {$x - 2.5}] [expr {$y - 2.5}] [expr {$x + 2.5}] [expr {$y + 2.5}] {name=$pin dir=in}"
-    puts $fd "T {$pin} [expr {$x + 25}] [expr {$y - 4}] 0 0 0.2 0.2 {}"
+    puts $fd "T {$pin} [expr {$x + 25}] [expr {$y - 6}] 0 0 0.2 0.2 {}"
     puts $fd "L 4 $x $y [expr {$x + 20}] $y {}"
     incr y 20
   }
@@ -42,13 +42,13 @@ proc create_symbol {name {in {}} {out {}} {inout {}}} {
   set y 0
   foreach pin $out { ;# create all out pins on the top right
     puts $fd "B 5 [expr {$x - 2.5}] [expr {$y - 2.5}] [expr {$x + 2.5}] [expr {$y + 2.5}] {name=$pin dir=out}"
-    puts $fd "T {$pin} [expr {$x - 25}] [expr {$y - 4}] 0 1 0.2 0.2 {}"
+    puts $fd "T {$pin} [expr {$x - 25}] [expr {$y - 6}] 0 1 0.2 0.2 {}"
     puts $fd "L 4 [expr {$x - 20}] $y $x $y {}"
     incr y 20
   }
   foreach pin $inout { ;# create all inout pins on the bottom right
     puts $fd "B 5 [expr {$x - 2.5}] [expr {$y - 2.5}] [expr {$x + 2.5}] [expr {$y + 2.5}] {name=$pin dir=inout}"
-    puts $fd "T {$pin} [expr {$x - 25}] [expr {$y - 4}] 0 1 0.2 0.2 {}"
+    puts $fd "T {$pin} [expr {$x - 25}] [expr {$y - 6}] 0 1 0.2 0.2 {}"
     puts $fd "L 7 [expr {$x - 20}] $y $x $y {}"
     incr y 20
   }
