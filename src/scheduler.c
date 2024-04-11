@@ -175,25 +175,42 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   if no parameters given start a GUI placement of a symbol pin */
     else if(!strcmp(argv[1], "add_symbol_pin"))
     {
-      int save, draw = 1;
+      int save, draw = 1, linecol = SYMLAYER;
       double x = xctx->mousex_snap;
       double y = xctx->mousey_snap;
       const char *name = NULL;
       const char *dir = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      xctx->push_undo();
       if(argc > 6) draw = atoi(argv[6]);
       if(argc > 5) {
         char *prop = NULL;
+        int flip = 0;
         x = atof(argv[2]);
         y = atof(argv[3]);
         name = argv[4];
         dir = argv[5];
+        if(!strcmp(dir, "inout") || !strcmp(dir, "out") ) flip = 1;
+        if(!strcmp(dir, "inout")) linecol = 7;
         my_mstrcat(_ALLOC_ID_, &prop, "name=", name, " dir=", dir, NULL);
         storeobject(-1, x - 2.5, y - 2.5, x + 2.5, y + 2.5, xRECT, PINLAYER, 0, prop);
+        if(flip) {
+          create_text(draw, x - 25, y - 5, 0, 1, name, NULL, 0.2, 0.2);
+          storeobject(-1, x - 20, y, x, y, LINE, linecol, 0, NULL);
+        } else {
+          create_text(draw, x + 25, y - 5, 0, 0, name, NULL, 0.2, 0.2);
+          storeobject(-1, x, y, x + 20, y, LINE, linecol, 0, NULL);
+        }
+        
         if(draw) {
           save = xctx->draw_window; xctx->draw_window = 1;
-          drawrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0, -1, -1);
+          drawrect(PINLAYER, NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0, -1, -1);
           filledrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 1, -1, -1);
+          if(flip) {
+            drawline(linecol, NOW, x -20, y, x, y, 0, NULL);
+          } else {
+            drawline(linecol, NOW, x, y, x + 20, y, 0, NULL);
+          }
           xctx->draw_window = save;
         }
         my_free(_ALLOC_ID_, &prop);
@@ -204,7 +221,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         rebuild_selected_array();
         move_objects(START,0,0,0);
         xctx->ui_state |= START_SYMPIN;
-        set_modify(1);
       }
       Tcl_ResetResult(interp);
     }

@@ -990,7 +990,7 @@ void move_objects(int what, int merge, double dx, double dy)
 
    /* no undo push for MERGE ad PLACE, already done before */
    if(!xctx->kissing &&
-      !(xctx->ui_state & (STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
+      !(xctx->ui_state & (START_SYMPIN | STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
      dbg(1, "move_objects(END): push undo state\n");
      xctx->push_undo();
    }

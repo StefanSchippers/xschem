@@ -1820,6 +1820,7 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
     INT_RECTORDER(x1, y1, x2, y2);
     tclvareval("grab release ", xctx->top_path, ".drw", NULL);
     if(x2 - x1 > 10 && y2 -y1 > 10) {
+      xctx->push_undo();
       grab_w = (x2 - x1 + 1);
       grab_h = (y2 - y1 + 1);
       dbg(1, "grabscreen(): grab area: %d %d - %d %d\n", x1, y1, x2, y2);
@@ -2455,6 +2456,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='p' && EQUAL_MODMASK)                           /* add symbol pin */
    {
+    xctx->push_undo();
     unselect_all(1);
     storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
                 xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
