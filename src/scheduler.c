@@ -3361,8 +3361,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "preview_window"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc == 3) preview_window(argv[2], "{}", "{}");
-      else if(argc == 4) preview_window(argv[2], argv[3], "{}");
+      if(argc == 3) preview_window(argv[2], "", NULL);
+      else if(argc == 4) preview_window(argv[2], argv[3], NULL);
       else if(argc == 5) {
         char f[PATH_MAX + 100];
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);

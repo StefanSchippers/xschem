@@ -1206,7 +1206,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     dbg(1, "preview_window() draw\n");
     save_xctx = xctx; /* save current schematic */
     xctx = preview_xctx;
-    if(!current_file || strcmp(fname, current_file) ) { 
+    if(fname && fname[0] && (!current_file || strcmp(fname, current_file)) ) { 
       if(current_file) {
         delete_schematic_data(1);
       }
@@ -1229,21 +1229,23 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     xctx = save_xctx;
   }
   else if(!strcmp(what, "destroy") || !strcmp(what, "close")) {
-    dbg(1, "preview_window() destroy\n");
-    save_xctx = xctx; /* save current schematic */
-    xctx = preview_xctx;
-    if(current_file) {
-      delete_schematic_data(1);
-      preview_xctx = NULL;
+    dbg(1, "preview_window(): %s\n", what);
+    if(preview_xctx) {
+      save_xctx = xctx; /* save current schematic */
+      xctx = preview_xctx;
+      if(current_file) {
+        delete_schematic_data(1);
+        preview_xctx = NULL;
+      }
+      my_free(_ALLOC_ID_, &current_file);
+      xctx = save_xctx; /* restore schematic */
+      save_xctx = NULL;
+      set_modify(-1);
     }
     if(!strcmp(what, "destroy")) {
       Tk_DestroyWindow(tkpre_window);
       tkpre_window = NULL;
     }
-    my_free(_ALLOC_ID_, &current_file);
-    xctx = save_xctx; /* restore schematic */
-    save_xctx = NULL;
-    set_modify(-1);
   }
   tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   semaphore--;
