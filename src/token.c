@@ -2178,7 +2178,7 @@ int print_spice_element(FILE *fd, int inst)
             parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
           }
           dbg(1, "print_spice_element(): before translate3(): value=%s\n", value);
-          value = translate3(val, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ);
+          value = translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ);
           dbg(1, "print_spice_element(): after translate3(): value=%s\n", value);
         }
         tok_val_len = strlen(value);
@@ -4339,7 +4339,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
 /* using s1, s2, s3 in turn to resolve @tokens */
 /* if no definition for @token is found return @token as is in s */
 /* if s==NULL return emty string */
-const char *translate3(const char *s, const char *s1, const char *s2, const char *s3)
+const char *translate3(const char *s, int eat_escapes, const char *s1, const char *s2, const char *s3)
 {
  static const char *empty="";
  static char *translated_tok = NULL;
@@ -4365,7 +4365,7 @@ const char *translate3(const char *s, const char *s1, const char *s2, const char
   c=*s++;
   if(c=='\\') {
     escape=1;
-    /* c=*s++; */ /* translate3 should not eat backslashes, to mitigate the quoting hell */
+    if(eat_escapes) c=*s++;
   }
   else escape=0;
   space=SPACE(c);
@@ -4381,6 +4381,7 @@ const char *translate3(const char *s, const char *s1, const char *s2, const char
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_SEP) {
    token[token_pos]='\0';
+   dbg(1, "translate3(): token=|%s|\n", token);
    value = get_tok_value(s1, token+1, 0);
    if(!xctx->tok_size && s2) {
      value=get_tok_value(s2, token+1, 0);
@@ -4422,6 +4423,7 @@ const char *translate3(const char *s, const char *s1, const char *s2, const char
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
+ dbg(1, "translate3(): result=|%s|\n", result);
  my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
  return translated_tok;
 }

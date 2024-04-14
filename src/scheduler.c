@@ -5588,18 +5588,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* translate3 str s1 [s2]
+    /* translate3 str eat_escapes s1 [s2] [s3]
      *   Translate string 'str' replacing @xxx tokens with values in string s1 or if 
-     *     not found in string s2
+     *     not found in string s2 or if not found in string s3
+     *     eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
      *     Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
      *     the voltage is 1.8 */
     else if(!strcmp(argv[1], "translate3") )
     {
       char *s = NULL;
+      int eat_escapes = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], argv[4], argv[5]));
-      if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], argv[4], NULL));
-      else if(argc > 3) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], argv[3], NULL, NULL));
+      if(argc > 3) eat_escapes = atoi(argv[3]);
+      if(argc > 6) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6]));
+      else if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL));
+      else if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL));
       else {
         Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
         return TCL_ERROR;
