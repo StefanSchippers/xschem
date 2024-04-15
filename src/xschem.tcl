@@ -8157,7 +8157,9 @@ proc source_user_tcl_files {} {
 proc eval_postinit_commands {} {
   global postinit_commands
   if {[info exists postinit_commands]} {
-    catch {uplevel #0 $postinit_commands}
+    if {[catch {uplevel #0 $postinit_commands} res]} {
+      puts "executing $postinit_commands:\n\n$res"
+    }
   }
 }
 
