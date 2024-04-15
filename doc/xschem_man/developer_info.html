@@ -664,6 +664,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Redraw graph rectangle number 'n'.
    If the optional 'flags' integer is given it will be used as the 
    flags bitmask to use while drawing (can be used to restrict what to redraw) </pre>
+   <li><kbd>       drc_check [i]</kbd></li><pre>
+   Perform DRC rulecheck of instances. 
+   if i is specified do check of specified instance
+   otherwise check all instances in current schematic. </pre>
    <li><kbd>       edit_file</kbd></li><pre>
    Edit xschem file of current schematic if nothing is selected.
    Edit .sym file if a component is selected. </pre>

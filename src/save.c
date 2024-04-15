@@ -3233,7 +3233,10 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   /* set local simulation directory if local_netlist_dir is set*/
-  if(reset_undo) set_netlist_dir(2, NULL);
+  if(reset_undo) {
+    set_netlist_dir(2, NULL);
+    drc_check(-1);
+  }
   return ret;
 }
 

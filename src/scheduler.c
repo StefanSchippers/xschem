@@ -807,6 +807,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+    /* drc_check [i]
+     *   Perform DRC rulecheck of instances. 
+     *   if i is specified do check of specified instance
+     *   otherwise check all instances in current schematic. */
+    else if(!strcmp(argv[1], "drc_check"))
+    {
+      int i = -1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2 && (i = get_instance(argv[2])) < 0 ) {
+        Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      } 
+      drc_check(i);
+    }
     else { cmd_found = 0;}
     break;
     case 'e': /*----------------------------------------------*/

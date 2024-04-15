@@ -1371,6 +1371,52 @@ static int edit_text_property(int x)
   return modified;
 }
 
+int drc_check(int i)
+{
+  int j, ret = 0;
+  char *drc = NULL, *res = NULL;
+  char *check_result = NULL;
+  int start = 0;
+  int end = xctx->instances;
+
+  if(i >= 0 && i < xctx->instances) {
+    start = i;
+    end = i + 1;
+  }
+  for(j = start; j < end; j++) {
+    my_strdup(_ALLOC_ID_, &drc, get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "drc", 2));
+    if(drc) {
+      my_strdup(_ALLOC_ID_, &res, translate3(drc, 1,
+                xctx->inst[j].prop_ptr, xctx->sym[xctx->inst[j].ptr].templ, NULL));
+      dbg(1, "drc_check(): res = |%s|, drc=|%s|\n", res, drc);
+      if(res) {
+        const char *result;
+        const char *replace_res;
+        
+        replace_res = str_replace(res, "@symname", xctx->sym[xctx->inst[j].ptr].name, '\\');
+        result = tcleval(replace_res);
+        if(result && result[0]) {
+          ret = 1;
+          my_mstrcat(_ALLOC_ID_, &check_result,  result, NULL);
+        }
+      }
+    }
+  }
+  if(drc) my_free(_ALLOC_ID_, &drc);
+  if(res) my_free(_ALLOC_ID_, &res);
+  if(check_result) {
+    if(has_x) {
+      /* tclvareval("alert_ {", check_result, "} {}", NULL); */
+      statusmsg(check_result, 3);
+      tcleval("show_infotext 1"); 
+    } else {
+      dbg(0, "%s\n", check_result);
+    }
+    my_free(_ALLOC_ID_, &check_result);
+  }
+  return ret;
+}
+
 /* x=0 use text widget   x=1 use vim editor */
 static int update_symbol(const char *result, int x, int selected_inst)
 {
@@ -1521,6 +1567,8 @@ static int update_symbol(const char *result, int x, int selected_inst)
     if(xctx->hilight_nets) {
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
+    /* DRC check */
+    drc_check(*ii);
   }
   /* redraw symbol with new props */
   set_modify(-2); /* reset floaters caches */

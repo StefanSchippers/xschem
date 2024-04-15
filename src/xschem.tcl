@@ -5493,8 +5493,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   } else {
     wm geometry .alert "+$X+$Y"
   }
-  label .alert.l1 -font {Sans 10 bold} \
-       -text "                              \n  ${txtlabel}  \n" -wraplength 750 
+  label .alert.l1 -font {Sans 10 bold} -justify left \
+       -text "                              \n${txtlabel}  \n" -wraplength 750 
   if { $yesno} {
     set oktxt Yes
   } else {
