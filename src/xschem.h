@@ -1013,6 +1013,7 @@ typedef struct {
   int already_selected; /* when clicking on an object that is already selected this will be 1 */
   int mx_save, my_save, last_command;
   int onetime;
+  int mouse_moved; /* set to 0 on button1 press, set to 1 if mouse moved */
   /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;

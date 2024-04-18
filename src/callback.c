@@ -2119,22 +2119,23 @@ int rstate; /* (reduced state, without ShiftMask) */
      * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
        !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->shape_point_selected &&
-       !xctx->drag_elements &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
-
       if(mx != xctx->mx_save || my != xctx->my_save) {
-        if( !(xctx->ui_state & STARTSELECT)) {
-          select_rect(START,1);
-          xctx->onetime=1;
-        }
-        if(abs(mx-xctx->mx_save) > 8 ||
-           abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
-          if(xctx->onetime) {
-            unselect_all(1); /* 20171026 avoid multiple calls of unselect_all() */
-            xctx->onetime=0;
+        xctx->mouse_moved = 1;
+        if(!xctx->drag_elements) {
+          if( !(xctx->ui_state & STARTSELECT)) {
+            select_rect(START,1);
+            xctx->onetime=1;
           }
-          xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all(1) clears it... */
+          if(abs(mx-xctx->mx_save) > 8 ||
+             abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
+            if(xctx->onetime) {
+              unselect_all(1); /* 20171026 avoid multiple calls of unselect_all() */
+              xctx->onetime=0;
+            }
+            xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all(1) clears it... */
+          }
         }
       }
     }
@@ -3573,16 +3574,17 @@ int rstate; /* (reduced state, without ShiftMask) */
      pan(START, mx, my);
      xctx->ui_state |= STARTPAN;
    }
-   else if(xctx->semaphore >= 2) { /* button1 click to select another instance while edit prop dialog open */
+   /* button1 click to select another instance while edit prop dialog open */
+   else if(button==Button1 && xctx->semaphore >= 2) {
      if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
        tcleval(".dialog.f1.b1 invoke");
        break;
      } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
        tcleval(".dialog.buttons.ok invoke");
        break;
-     } else if(button==Button1 && state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+     } else if(state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
-     } else if(button==Button1 && (state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+     } else if((state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
        tclsetvar("preserve_unchanged_attrs", "1");
        rebuild_selected_array();
@@ -3590,6 +3592,8 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    else if(button==Button1) /* MOD button is not pressed here. Processed above */
    {
+     xctx->onetime = 0;
+     xctx->mouse_moved = 0;
      xctx->drag_elements = 0;
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
@@ -3709,8 +3713,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
    /* launcher, intuitive_interface, only if no movement has been done */
    else if(xctx->intuitive_interface && state == (Button1Mask | ControlMask) &&
-      !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
-      xctx->deltax == 0 && xctx->deltay == 0) {
+      !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) && xctx->mouse_moved == 0) {
      int savesem = xctx->semaphore;
      move_objects(ABORT, 0, 0.0, 0.0);
      unselect_all(1);
