@@ -1498,3 +1498,4 @@ C {test_generators.sym} 480 -540 0 0 {name=x28}
 C {autozero_comp.sym} 480 -500 0 0 {name=x29}
 C {tb_symbol_include.sym} 480 -780 0 0 {name=x30}
 C {intuitive_interface_cheatsheet.sym} 1060 -100 0 0 {name=x31}
+C {test_nyquist.sym} 480 -460 0 0 {name=x32}
