@@ -144,13 +144,20 @@ static char *model_name(const char *m)
 {
   char *m_lower = NULL;
   char *modelname = NULL;
+  char *ptr;
   int n;
   size_t l = strlen(m) + 1;
   my_strdup(_ALLOC_ID_, &m_lower, m);
   strtolower(m_lower);
   my_realloc(_ALLOC_ID_, &modelname, l);
   my_realloc(_ALLOC_ID_, &model_name_result, l);
-  n = sscanf(m_lower, " %s %s", model_name_result, modelname);
+  if((ptr = strstr(m_lower, ".subckt"))) {
+    n = sscanf(ptr, ".subckt %s %s", model_name_result, modelname);
+  } else if((ptr = strstr(m_lower, ".model"))) {
+    n = sscanf(ptr, ".model %s %s", model_name_result, modelname);
+  } else {
+     n = sscanf(m_lower, " %s %s", model_name_result, modelname);
+  }
   if(n<2) my_strncpy(model_name_result, m_lower, l);
   else {
     /* build a hash key value with no spaces to make device_model attributes with different spaces equivalent*/

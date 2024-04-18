@@ -580,7 +580,7 @@ void copy_objects(int what)
 
     dbg(1, "end copy: unlink sel_file\n");
     xunlink(sel_file);
-    set_first_sel(0, -1, 0); /* reset first selected object */
+    if(xctx->deltax != 0 || xctx->deltay != 0) set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
 
     newpropcnt=0;

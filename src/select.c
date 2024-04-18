@@ -756,16 +756,19 @@ int set_first_sel(unsigned short type, int n, unsigned int col)
         }
       }
     }
+    dbg(1, "set_first_sel(): j=%d, i=%d\n", j, xctx->sel_array[j].n);
     if(j >= xctx->lastsel) j = 0;
     return j;
   } else if(n == -1) { /* reset first_sel */
     xctx->first_sel.type = 0;
     xctx->first_sel.n = -1;
     xctx->first_sel.col = 0;
+    dbg(1, "set_first_sel(): clearing\n");
   } else if(xctx->first_sel.n == -1) {
     xctx->first_sel.type = type;
     xctx->first_sel.n = n;
     xctx->first_sel.col = col;
+    dbg(1, "set_first_sel(): storing %d\n", n);
   }
   return 0;
 }
@@ -779,7 +782,7 @@ void unselect_all(int dr)
  #endif
   set_first_sel(0, -1, 0);
   if((xctx->ui_state & SELECTION) || xctx->lastsel) {
-    dbg(1, "unselect_all(1): start\n");
+    dbg(1, "unselect_all(%d): start\n", dr);
     xctx->ui_state = 0;
     xctx->lastsel = 0;
     for(i=0;i<xctx->wires; ++i)

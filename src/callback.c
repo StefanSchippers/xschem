@@ -3712,7 +3712,10 @@ int rstate; /* (reduced state, without ShiftMask) */
       !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) &&
       xctx->deltax == 0 && xctx->deltay == 0) {
      int savesem = xctx->semaphore;
-     move_objects(ABORT,0,0,0);
+     move_objects(ABORT, 0, 0.0, 0.0);
+     unselect_all(1);
+     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+     rebuild_selected_array();
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
      xctx->semaphore = savesem;
