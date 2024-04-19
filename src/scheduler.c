@@ -3680,9 +3680,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw datasets
      *     get number of datasets (simulation runs)
      *
-     *   xschem raw value node n [dataset]
+     *   xschem raw value node n [dset]
      *     return n-th value of 'node' in raw file
-     *     If n is given as empty string {} return value at cursor b, dataset not used in this case
+     *     dset is the dataset to look into in case of multiple runs (first run = 0).
+     *     if dset = -1 consider n as the absolute position into the whole data file
+     *     (all datasets combined).
+     *     If n is given as empty string {} return value at cursor b,
+     *     dset not used in this case
      *
      *   xschem raw loaded
      *     return hierarchy level where raw file was loaded or -1 if no raw loaded
@@ -3704,8 +3708,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw points [dset]
      *     print simulation points for dataset 'dset' (default: all dataset points combined)
      *
-     *   xschem raw set node n value [dataset]
+     *   xschem raw set node n value [dset]
      *     change loaded raw file data node[n] to value
+     *     dset is the dataset to look into in case of multiple runs (first run = 0)
+     *     dset = -1: consider n as the absolute position in the whole raw file
+     *     (all datasets combined)
      *
      *   xschem raw table_read tablefile
      *     read a tabular data file.
