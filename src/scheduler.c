@@ -3698,6 +3698,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *
      *   xschem raw values node [dset]
      *     print all simulation values of 'node' for dataset 'dset' (default dset=0)
+     *     dset= -1: print all values for all datasets
      *
      *   xschem raw points [dset]
      *     print simulation points for dataset 'dset' (default: all dataset points combined)
