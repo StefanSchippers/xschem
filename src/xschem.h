@@ -1209,7 +1209,8 @@ extern char old_winpath[PATH_MAX]; /* previously switched window, used in callba
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
-extern int cli_opt_argc;
+extern int cli_argc; /* copy of main argc */
+extern int cli_opt_argc; /* arguments after stripping off options */
 extern char **cli_opt_argv;
 extern int cli_opt_netlist_type;
 extern int cli_opt_flat_netlist;

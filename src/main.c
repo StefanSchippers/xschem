@@ -104,8 +104,8 @@ int main(int argc, char **argv)
     } else XCloseDisplay(display);
   }
 #endif
-  argc = process_options(argc, argv);
-
+  cli_argc = argc;
+  cli_opt_argc = process_options(argc, argv);
   #ifdef __unix__
   /* if invoked in background (and not invoked from a command pipeline) detach from console */
   if(!fstat(0, &statbuf)) {
@@ -125,9 +125,6 @@ int main(int argc, char **argv)
    * using cli_opt_detach if no windowing exists (has_x == 0) is non sense so do nothing
    */
 
-
-
-  cli_opt_argc = argc;
   cli_opt_argv = my_malloc(_ALLOC_ID_, cli_opt_argc * sizeof(char *));
   for(i = 0; i < cli_opt_argc; ++i) {
     cli_opt_argv[i] = NULL;

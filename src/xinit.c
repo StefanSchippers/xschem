@@ -2816,7 +2816,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(xctx->sch_to_compare, abs_sym_path(cli_opt_diff, ""), S(xctx->sch_to_compare));
    tclsetvar("compare_sch", "1");
  } 
-
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
     int file_loaded = 1;
@@ -2852,7 +2851,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
- } else /* if(!cli_opt_filename[0]) */
+ } else if(cli_argc == 1) /* if(!cli_opt_filename[0]) */
  {
    char * tmp;
    char fname[PATH_MAX];
