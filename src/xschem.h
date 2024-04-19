@@ -1720,7 +1720,7 @@ extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *winpath);
-extern void preview_window(const char *what, const char *tk_win_path, const char *fname);
+extern int preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname, int dr);
 extern void toggle_fullscreen(const char *topwin);
 extern void toggle_only_probes();

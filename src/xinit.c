@@ -1180,74 +1180,103 @@ static int source_tcl_file(char *s)
   return TCL_OK;
 }
 
-void preview_window(const char *what, const char *win_path, const char *fname)
+int preview_window(const char *what, const char *win_path, const char *fname)
 {
-  static char *current_file = NULL;
-  Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
-  static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
-  static Tk_Window tkpre_window = NULL;
+  int result = 0;
+  static int last_preview = 0;
+  static char *current_file[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+  /* save pointer to current schematic context structure */
+  Xschem_ctx *save_xctx = NULL;
+  /* save pointer to current schematic context structure */
+  static Xschem_ctx *preview_xctx[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+  static Tk_Window tkpre_window[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
   static int semaphore=0;
 
   /* avoid reentrant calls for example if an alert box is displayed while loading file to preview,
    * and an Expose event calls another preview draw */
-  if(semaphore) return;
+  if(semaphore) return 0;
   ++semaphore;
   dbg(1, "------\n");
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
-  if(!strcmp(what, "create")) {
+  if(!strcmp(what, "create") && last_preview < 4) {
+    int i;
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
-    tkpre_window = Tk_NameToWindow(interp, win_path, mainwindow);
-    if(tkpre_window) {
-      Tk_MakeWindowExist(tkpre_window);
+
+    for(i = 0; i < 10; i++) {
+      if(tkpre_window[i] == NULL) break;
+    }
+    if(i < 10) {
+      tkpre_window[i] = Tk_NameToWindow(interp, win_path, mainwindow);
+      if(tkpre_window[i]) {
+        Tk_MakeWindowExist(tkpre_window[i]);
+        result = 1;
+        last_preview++;
+      }
     }
   }
-  else if(tkpre_window && !strcmp(what, "draw") ) {
+  else if(!strcmp(what, "draw") ) {
+    int i;
     dbg(1, "preview_window() draw\n");
-    save_xctx = xctx; /* save current schematic */
-    xctx = preview_xctx;
-    if(fname && fname[0] && (!current_file || strcmp(fname, current_file)) ) { 
-      if(current_file) {
-        delete_schematic_data(1);
-      }
-      my_strdup(_ALLOC_ID_, &current_file, fname);
-      xctx = NULL;      /* reset for preview */
-      alloc_xschem_data(".dialog", ".dialog.drw"); /* alloc data into xctx */
-      init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
-      preview_xctx = xctx;
-      preview_xctx->window = Tk_WindowId(tkpre_window);
-      create_gc();
-      enable_layers();
-      build_colors(0.0, 0.0);
-      resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
-      dbg(1, "preview_window() draw, load schematic\n");
-      load_schematic(1,fname, 0, 1);
-    } else {
-      resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
+    for(i = 0; i < 10; i++) {
+      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i]) break;
     }
-    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
-    xctx = save_xctx;
+    if(i < 10) {
+      save_xctx = xctx; /* save current schematic */
+      xctx = preview_xctx[i];
+      if(fname && fname[0] && (!current_file[i] || strcmp(fname, current_file[i])) ) { 
+        if(current_file[i]) {
+          delete_schematic_data(1);
+        }
+        my_strdup(_ALLOC_ID_, &current_file[i], fname);
+        xctx = NULL;      /* reset for preview */
+        alloc_xschem_data(".dialog", ".dialog.drw"); /* alloc data into xctx */
+        init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
+        preview_xctx[i] = xctx;
+        preview_xctx[i]->window = Tk_WindowId(tkpre_window[i]);
+        create_gc();
+        enable_layers();
+        build_colors(0.0, 0.0);
+        resetwin(1, 0, 1, 0, 0);  /* create preview pixmap.  resetwin(create_pixmap, clear_pixmap, force) */
+        dbg(1, "preview_window() draw, load schematic\n");
+        load_schematic(1,fname, 0, 1);
+      } else {
+        resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
+      }
+      zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+      xctx = save_xctx;
+      result = 1;
+    }
   }
   else if(!strcmp(what, "destroy") || !strcmp(what, "close")) {
+    int i;
     dbg(1, "preview_window(): %s\n", what);
-    if(preview_xctx) {
-      save_xctx = xctx; /* save current schematic */
-      xctx = preview_xctx;
-      if(current_file) {
-        delete_schematic_data(1);
-        preview_xctx = NULL;
-      }
-      my_free(_ALLOC_ID_, &current_file);
-      xctx = save_xctx; /* restore schematic */
-      save_xctx = NULL;
-      set_modify(-1);
+    for(i = 0; i < 10; i++) {
+      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i]) break;
     }
-    if(!strcmp(what, "destroy")) {
-      Tk_DestroyWindow(tkpre_window);
-      tkpre_window = NULL;
+    if(i < 10) {
+      if(preview_xctx[i]) {
+        save_xctx = xctx; /* save current schematic */
+        xctx = preview_xctx[i];
+        if(current_file[i]) {
+          delete_schematic_data(1);
+          preview_xctx[i] = NULL;
+        }
+        my_free(_ALLOC_ID_, &current_file[i]);
+        tkpre_window[i] = NULL;
+        xctx = save_xctx; /* restore schematic */
+        save_xctx = NULL;
+        set_modify(-1);
+        result = 1;
+        if(!strcmp(what, "destroy")) {
+          Tk_DestroyWindow(tkpre_window[i]);
+        }
+        last_preview--;
+      }
     }
   }
   tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   semaphore--;
+  return result;
 }
 
 

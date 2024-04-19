@@ -3374,17 +3374,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "preview_window"))
     {
+      int res = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc == 3) preview_window(argv[2], "", NULL);
-      else if(argc == 4) preview_window(argv[2], argv[3], NULL);
+      if(argc == 3) res = preview_window(argv[2], "", NULL);
+      else if(argc == 4) res = preview_window(argv[2], argv[3], NULL);
       else if(argc == 5) {
         char f[PATH_MAX + 100];
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));  
-        preview_window(argv[2], argv[3], f);
+        res = preview_window(argv[2], argv[3], f);
       }
-      Tcl_ResetResult(interp);
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
 
 
