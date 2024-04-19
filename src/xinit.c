@@ -1185,7 +1185,6 @@ void preview_window(const char *what, const char *win_path, const char *fname)
   static char *current_file = NULL;
   Xschem_ctx *save_xctx = NULL; /* save pointer to current schematic context structure */
   static Xschem_ctx *preview_xctx = NULL; /* save pointer to current schematic context structure */
-  static Window pre_window;
   static Tk_Window tkpre_window = NULL;
   static int semaphore=0;
 
@@ -1200,7 +1199,6 @@ void preview_window(const char *what, const char *win_path, const char *fname)
     tkpre_window = Tk_NameToWindow(interp, win_path, mainwindow);
     if(tkpre_window) {
       Tk_MakeWindowExist(tkpre_window);
-      pre_window = Tk_WindowId(tkpre_window);
     }
   }
   else if(tkpre_window && !strcmp(what, "draw") ) {
@@ -1216,7 +1214,7 @@ void preview_window(const char *what, const char *win_path, const char *fname)
       alloc_xschem_data(".dialog", ".dialog.drw"); /* alloc data into xctx */
       init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
       preview_xctx = xctx;
-      preview_xctx->window = pre_window;
+      preview_xctx->window = Tk_WindowId(tkpre_window);
       create_gc();
       enable_layers();
       build_colors(0.0, 0.0);
@@ -2851,9 +2849,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
    tclvareval("update_recent_file {", f, "}", NULL);
- } else if(cli_argc == 1) /* if(!cli_opt_filename[0]) */
+ } else /* if(!cli_opt_filename[0]) */
  {
-   char * tmp;
+   char *tmp;
    char fname[PATH_MAX];
    int file_loaded = 1;
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
@@ -2861,7 +2859,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    change_to_unix_fn(tmp);
    #endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
-   my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
+   if(cli_argc > 1) 
+     my_strncpy(fname, "", S(fname)); /* no load XSCHEM_START_WINDOW if cli args given */
+   else
+     my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    file_loaded = load_schematic(1, fname, !cli_opt_do_netlist, 1);
