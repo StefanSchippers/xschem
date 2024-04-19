@@ -1262,7 +1262,6 @@ int preview_window(const char *what, const char *win_path, const char *fname)
           preview_xctx[i] = NULL;
         }
         my_free(_ALLOC_ID_, &current_file[i]);
-        tkpre_window[i] = NULL;
         xctx = save_xctx; /* restore schematic */
         save_xctx = NULL;
         set_modify(-1);
@@ -1270,6 +1269,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         if(!strcmp(what, "destroy")) {
           Tk_DestroyWindow(tkpre_window[i]);
         }
+        tkpre_window[i] = NULL;
         last_preview--;
       }
     }
