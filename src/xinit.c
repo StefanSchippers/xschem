@@ -1218,7 +1218,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
     int i;
     dbg(1, "preview_window() draw\n");
     for(i = 0; i < 10; i++) {
-      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i]) break;
+      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
     if(i < 10) {
       save_xctx = xctx; /* save current schematic */
