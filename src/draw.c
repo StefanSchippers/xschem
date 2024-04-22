@@ -4102,37 +4102,39 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
                         unsigned char **buffer, size_t *size)
 {
     int jpg = 0;
-    png_to_byte_closure_t closure;
+    png_to_byte_closure_t closure = {NULL, 0L, 0L};
     size_t filesize = 0;
     char *filedata = NULL;
     FILE *fd;
     struct stat buf;
     cairo_surface_t *surface = NULL;
 
-    if(stat(filename, &buf)) {
-      dbg(0, "get_surface_from_file(): file %s not found.\n", filename);
-      *buffer = NULL;
-      *size = 0;
-      return NULL;
-    }
-    filesize = (size_t)buf.st_size;
-    if(filesize > 0) {
-      fd = fopen(filename, fopen_read_mode);
-      if(fd) {
-        size_t bytes_read;
-        filedata = my_malloc(_ALLOC_ID_, filesize);
-        if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
-          filesize = bytes_read;
-          dbg(0, "get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
-              filename, bytes_read);
-        }
-        fclose(fd);
+    if(filename[0]) {
+      if(stat(filename, &buf)) {
+        dbg(0, "get_surface_from_file(): file %s not found.\n", filename);
+        *buffer = NULL;
+        *size = 0;
+        return NULL;
       }
-    } else {
-      dbg(0, "get_surface_from_file(): file %s has zero size\n", filename);
-      *buffer = NULL;
-      *size = 0;
-      return NULL;
+      filesize = (size_t)buf.st_size;
+      if(filesize > 0) {
+        fd = fopen(filename, fopen_read_mode);
+        if(fd) {
+          size_t bytes_read;
+          filedata = my_malloc(_ALLOC_ID_, filesize);
+          if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
+            filesize = bytes_read;
+            dbg(0, "get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
+                filename, bytes_read);
+          }
+          fclose(fd);
+        }
+      } else {
+        dbg(0, "get_surface_from_file(): file %s has zero size\n", filename);
+        *buffer = NULL;
+        *size = 0;
+        return NULL;
+      }
     }
     if(filter) {
       size_t filtered_img_size = 0;
@@ -4157,22 +4159,22 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
     } else {
       jpg = -1;
     }
-
-    if(jpg == 0) {
-      surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-    } else if(jpg == 1) {
-      #if defined(HAS_LIBJPEG)
-      surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
-      #endif
-    }
-
-    if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-      if(jpg != 1) dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
-      if(surface) cairo_surface_destroy(surface);
-      my_free(_ALLOC_ID_, &closure.buffer);
-      *buffer = NULL;
-      *size = 0;
-      return NULL;
+    if(closure.buffer) {
+      if(jpg == 0) {
+        surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+      } else if(jpg == 1) {
+        #if defined(HAS_LIBJPEG)
+        surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+        #endif
+      }
+      if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+        if(jpg != 1) dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
+        if(surface) cairo_surface_destroy(surface);
+        my_free(_ALLOC_ID_, &closure.buffer);
+        *buffer = NULL;
+        *size = 0;
+        return NULL;
+      }
     }
     *buffer = closure.buffer;
     *size = closure.size;
@@ -4257,7 +4259,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       return 0;
     }
   /******* ... or read PNG from file (image attribute) *******/
-  } else if(filename[0]) {
+  } else if(1 || filename[0]) {
     unsigned char *buffer = NULL;
     size_t size = 0;
     char *filter = NULL;

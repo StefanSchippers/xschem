@@ -69,7 +69,7 @@ int filter_data(const char *din,  const size_t ilen,
   pid_t pid;
   size_t bufsize = 32768, oalloc = 0, n = 0;
 
-  if(!din || !ilen || !cmd) { /* basic check */
+  if(!cmd) { /* basic check */
     *dout = NULL;
     *olen = 0;
     return 1;
@@ -136,9 +136,11 @@ int filter_data(const char *din,  const size_t ilen,
   /* parent */
   close(p1[0]); /*only write to p1 */
   close(p2[1]); /* only read from p2 */
-  if(write(p1[1], din, ilen) != ilen) { /* write input data to pipe */
-    fprintf(stderr, "filter_data() write to pipe failed or not completed\n");
-    ret = 1;
+  if(din && ilen) {
+    if(write(p1[1], din, ilen) != ilen) { /* write input data to pipe */
+      fprintf(stderr, "filter_data() write to pipe failed or not completed\n");
+      ret = 1;
+    }
   }
   fsync(p1[1]);
   close(p1[1]);

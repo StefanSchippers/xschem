@@ -911,7 +911,7 @@ static int edit_rect_property(int x)
         my_strdup(_ALLOC_ID_, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
-      set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from on attributes */
+      set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from attributes */
 
       set_rect_extraptr(0, &xctx->rect[c][n]);
 
