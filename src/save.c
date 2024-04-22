@@ -1513,6 +1513,13 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define IDX 38 /* index of point in raw file (0, 1, 2, ...) */
 #define REAL 39
 #define IMAG 40
+#define GT 41 /* greater than */
+#define LT 42 /* greater than */
+#define EQ 43
+#define NE 44
+#define GE 45
+#define LE 46
+#define COND 47 /* conditional expression: X cond Y ? --> X if conf == 1 else Y */
 
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -1558,10 +1565,17 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     ntok_ptr = NULL;
     dbg(1, "  plot_raw_custom_data(): n = %s\n", n);
     if(!strcmp(n, "+")) stack1[stackptr1++].i = PLUS;
+    else if(!strcmp(n, "==")) stack1[stackptr1++].i = EQ;
+    else if(!strcmp(n, "!=")) stack1[stackptr1++].i = NE;
+    else if(!strcmp(n, ">")) stack1[stackptr1++].i = GT;
+    else if(!strcmp(n, "<")) stack1[stackptr1++].i = LT;
+    else if(!strcmp(n, ">=")) stack1[stackptr1++].i = GE;
+    else if(!strcmp(n, "<=")) stack1[stackptr1++].i = LE;
     else if(!strcmp(n, "-")) stack1[stackptr1++].i = MINUS;
     else if(!strcmp(n, "*")) stack1[stackptr1++].i = MULT;
     else if(!strcmp(n, "/")) stack1[stackptr1++].i = DIVIS;
     else if(!strcmp(n, "**")) stack1[stackptr1++].i = POW;
+    else if(!strcmp(n, "?")) stack1[stackptr1++].i = COND; /* conditional expression */
     else if(!strcmp(n, "atan()")) stack1[stackptr1++].i = ATAN;
     else if(!strcmp(n, "asin()")) stack1[stackptr1++].i = ASIN;
     else if(!strcmp(n, "acos()")) stack1[stackptr1++].i = ACOS;
@@ -1618,9 +1632,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     }
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
-    else if(!strcmp(n, "idx()")) {
-      stack1[stackptr1++].i = IDX;
-    }
+    else if(!strcmp(n, "idx()")) stack1[stackptr1++].i = IDX;
     else if( (strtod(n, &endptr)), endptr > n) { /* NUMBER */
       stack1[stackptr1].i = NUMBER;
       stack1[stackptr1++].d = atof_spice(n);
@@ -1650,6 +1662,13 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       else if(stack1[i].i == SPICE_NODE && stack1[i].idx < xctx->raw->nvars) { /* spice node */
         stack2[stackptr2++] =  xctx->raw->values[stack1[i].idx][p];
       }
+      if(stackptr2 > 2) { /* 3 argument operators */
+        if(stack1[i].i == COND) { /*  X cond Y ? --> X if conf == 1 else Y */
+          dbg(0, "%g %g %g\n",  stack2[stackptr2 - 3],  stack2[stackptr2 - 2],  stack2[stackptr2 - 1]);
+          stack2[stackptr2 - 3] = stack2[stackptr2 - 2] ? stack2[stackptr2 - 3] : stack2[stackptr2 - 1];
+          stackptr2 -= 2;
+        }
+      }
       if(stackptr2 > 1) { /* 2 argument operators */
         switch(stack1[i].i) {
           case PLUS:
@@ -1658,6 +1677,30 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             break;
           case MINUS:
             stack2[stackptr2 - 2] = stack2[stackptr2 - 2] - stack2[stackptr2 - 1];
+            stackptr2--;
+            break;
+          case EQ:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] == stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case NE:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] != stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case GT:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] > stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case LT:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] < stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case GE:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] >= stack2[stackptr2 - 1]);
+            stackptr2--;
+            break;
+          case LE:
+            stack2[stackptr2 - 2] = (stack2[stackptr2 - 2] <= stack2[stackptr2 - 1]);
             stackptr2--;
             break;
           case MULT:

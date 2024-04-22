@@ -171,14 +171,30 @@ p{padding: 15px  30px 10px;}
   <img src="graphs15.png"><br>
   The optional <kbd>alias_name</kbd> is just a string to display as the wave label instead of the whole expression.
   The following operators are defined:<br>
+  3 argument operators: 
+ </p>
+  <ul>
+  <li><kbd>?</kbd> Conditional expression: X cond Y ? --&gt; return X if cond = 1 else Y</li>
+  </ul>
+ <p>
   2 argument operators: 
-  </p>
+ </p>
   <ul>
   <li><kbd>+</kbd> Addition</li>
   <li><kbd>-</kbd> Subtraction</li>
   <li><kbd>*</kbd> Multiplication</li>
   <li><kbd>/</kbd> Division</li>
+  <li><kbd>&lt;</kbd> Lower than</li>
+  <li><kbd>&gt;</kbd> Greater than</li>
+  <li><kbd>==</kbd> Equal</li>
+  <li><kbd>!=</kbd> Not equal</li>
+  <li><kbd>&lt;=</kbd> Lower or equal</li>
+  <li><kbd>&gt;=</kbd> Greater or equal</li>
+  <li><kbd>==</kbd> Equal</li>
+  <li><kbd>==</kbd> Equal</li>
   <li><kbd>**</kbd> Exponentiation</li>
+  <li><kbd>max()</kbd> Take the maximum of the two operators</li>
+  <li><kbd>min()</kbd> Take the minimum of the two operators</li>
   <li><kbd>exch()</kbd> Exchange top 2 operands on stack</li>
   <li><kbd>ravg()</kbd> Running average of over a specified time window</li>
   <li><kbd>del()</kbd> Delete waveform by specified quantity on the X-axis</li>
