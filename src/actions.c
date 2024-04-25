@@ -1747,7 +1747,11 @@ void launcher(void)
     } else {
       my_strncpy(program, get_tok_value(prop_ptr,"tclcommand",0), S(program));
       if(program[0]) { /* execute tcl command */
-        tcleval(program);
+        if(Tcl_GlobalEval(interp, program) != TCL_OK) {
+          dbg(0, "%s\n", tclresult());
+          if(has_x) tclvareval("alert_ {", tclresult(), "} {}", NULL);
+          Tcl_ResetResult(interp);
+        }
       }
     }
     tcleval("after 300");
