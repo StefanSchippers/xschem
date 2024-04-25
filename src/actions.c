@@ -1723,6 +1723,7 @@ void launcher(void)
 {
   const char *url;
   char program[PATH_MAX];
+  char *command = NULL;
   int n, c;
   char *prop_ptr=NULL;
   rebuild_selected_array();
@@ -1739,21 +1740,24 @@ void launcher(void)
     else if(xctx->sel_array[0].type==LINE)    prop_ptr = xctx->line[c][n].prop_ptr;
     else if(xctx->sel_array[0].type==WIRE)    prop_ptr = xctx->wire[n].prop_ptr;
     else if(xctx->sel_array[0].type==xTEXT)   prop_ptr = xctx->text[n].prop_ptr;
+    my_strdup2(_ALLOC_ID_, &command, get_tok_value(prop_ptr,"tclcommand",0));
     my_strncpy(program, get_tok_value(prop_ptr,"program",0), S(program)); /* handle backslashes */
     url = get_tok_value(prop_ptr,"url",0); /* handle backslashes */
     dbg(1, "launcher(): url=%s\n", url);
     if(url[0] || (program[0])) { /* open url with appropriate program */
       tclvareval("launcher {", url, "} {", program, "}", NULL);
-    } else {
-      my_strncpy(program, get_tok_value(prop_ptr,"tclcommand",0), S(program));
-      if(program[0]) { /* execute tcl command */
-        if(Tcl_GlobalEval(interp, program) != TCL_OK) {
-          dbg(0, "%s\n", tclresult());
-          if(has_x) tclvareval("alert_ {", tclresult(), "} {}", NULL);
-          Tcl_ResetResult(interp);
-        }
+    } else if(command && command[0]){
+      if(Tcl_GlobalEval(interp, command) != TCL_OK) {
+        dbg(0, "%s\n", tclresult());
+        if(has_x) tclvareval("alert_ {", tclresult(), "} {}", NULL);
+        Tcl_ResetResult(interp);
       }
+    } else { /* no action defined --> warning */
+      const char *msg = "No action on launcher is defined (url or tclcommand)";
+      dbg(0, "%s\n", msg);
+      if(has_x) tclvareval("alert_ {", msg, "} {}", NULL);
     }
+    my_free(_ALLOC_ID_, &command);
     tcleval("after 300");
     select_object(mx,my,0, 0, NULL);
   }
