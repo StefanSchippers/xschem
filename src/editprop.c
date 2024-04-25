@@ -1379,6 +1379,9 @@ int drc_check(int i)
   int start = 0;
   int end = xctx->instances;
 
+  if(!tcleval("info procs fet_drc")[0]) {
+    return ret;
+  }
   if(i >= 0 && i < xctx->instances) {
     start = i;
     end = i + 1;

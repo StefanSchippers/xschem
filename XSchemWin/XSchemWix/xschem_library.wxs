@@ -611,11 +611,11 @@
 		  <Component Id="cmpAC417054A34B278AF48BE51B20FE88B3" Guid="{3DB7EAE3-30F5-49CC-9186-04831B891250}">
 			<File Id="fil0C55EEE50124AC6C7381B57482E93745" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.cir" />
 		  </Component>
-		  <Component Id="cmp741741C1862E1D0B693AF2C0002D96F7" Guid="{CA12B3B1-D828-413F-AC9C-DDE1C9994CB4}">
-			<File Id="filF5381F5087C81A8902C7F08BD92D295F" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.sch" />
-		  </Component>
-		  <Component Id="cmp3236FC8ED918A4ED02A34F430DE91E68" Guid="{FEE5B5DF-A20F-4C64-AD9E-21B3EC2471E0}">
-			<File Id="fil887E2384312925F3AB14947D4B49DC82" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include.sym" />
+		  <Component Id="cmp14740910D94D226C947542D841BD0AC4" Guid="{4F709177-766C-437F-87F5-BD9F3E6FE010}">
+			<File Id="fil786609E57CB7926E8DFCBF9BA2E42D63" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\SYMBOL_include.sch" />
+	  	  </Component>
+		  <Component Id="cmp907503DF3B887066087EADAECE2E0A57" Guid="{3C9BA10D-5508-4C53-8720-E3BD7356059C}">
+			<File Id="fil15F2032CEC9856962645821DAFAF5F35" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\SYMBOL_include.sym" />
 		  </Component>
 		  <Component Id="cmp4A2AF395F8EB02E99ED04D4298201E9F" Guid="{193146A7-8E23-4C47-9099-7B653332B59A}">
 			<File Id="filF5015E7C6611837CD1ADA62381E34CE7" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\symbol_include2.cir" />
@@ -700,6 +700,12 @@
           </Component>
           <Component Id="cmp5AF7A46758E91CA41D0CD61668C9C69A" Guid="{634E9692-CB61-4E3B-B737-B518F81F186E}">
             <File Id="filB25827ED94A33D5DC277B4C249CF06EE" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_ne555.sym" />
+          </Component>
+	      <Component Id="cmp01AFA9D31901DDA4729A519C08CE42BB" Guid="{C906EFE4-5343-448A-9FC0-81C0ECE7C41D}">
+            <File Id="fil5B69DB929CC1C0BCCDE6B0AE7BBFF2BB" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_nyquist.sch" />
+          </Component>
+          <Component Id="cmpDD87EB6A88CDF186BCFA730E216F6B4F" Guid="{9AE36BC5-93BD-47E2-8ABE-2B1E9D0C6370}">
+            <File Id="fil4E475E769D19A436223322C21B94789D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_nyquist.sym" />
           </Component>
 		  <Component Id="cmpEFAFFD1076A33FD3287F885138EE6165" Guid="{868AAB27-5725-4838-B042-E67D495FC8CA}">
 			<File Id="fil0095CCBD2946347A79E66A4D70D9716E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\examples\test_short_option.sch" />
@@ -5780,8 +5786,8 @@
       <ComponentRef Id="cmp5CB70B5DBA3440F6171177580DE99A7B" />
       <ComponentRef Id="cmp577B194A8B435CC56C0C87F0CC411CBF" />
 	  <ComponentRef Id="cmpAC417054A34B278AF48BE51B20FE88B3" />
-	  <ComponentRef Id="cmp741741C1862E1D0B693AF2C0002D96F7" />
-	  <ComponentRef Id="cmp3236FC8ED918A4ED02A34F430DE91E68" />
+	  <ComponentRef Id="cmp14740910D94D226C947542D841BD0AC4" />
+	  <ComponentRef Id="cmp907503DF3B887066087EADAECE2E0A57" />
 	  <ComponentRef Id="cmp4A2AF395F8EB02E99ED04D4298201E9F" />
 	  <ComponentRef Id="cmpBB4C1B1060604D039E707F46CC40CEE1" />
 	  <ComponentRef Id="cmp45303D34449CB7DAB054313E9529F45E" />
@@ -5810,6 +5816,8 @@
 	  <ComponentRef Id="cmpCFB27E3068D6A36E1B659853B2C8EA28" />
       <ComponentRef Id="cmp7BBFD4FFD4BD205783E8852433FC5873" />
       <ComponentRef Id="cmp5AF7A46758E91CA41D0CD61668C9C69A" />
+	  <ComponentRef Id="cmp01AFA9D31901DDA4729A519C08CE42BB" />
+      <ComponentRef Id="cmpDD87EB6A88CDF186BCFA730E216F6B4F" />
 	  <ComponentRef Id="cmpEFAFFD1076A33FD3287F885138EE6165" />
 	  <ComponentRef Id="cmp20CC1F5F792F243F524CF483E923C64E" />
       <ComponentRef Id="cmp653D0A919716C77B0160A681BB3332EC" />
