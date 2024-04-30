@@ -2888,7 +2888,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    change_to_unix_fn(tmp);
    #endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
-   if(cli_argc > 1) 
+   if(0 && cli_argc > 1)  /* disabled */
      my_strncpy(fname, "", S(fname)); /* no load XSCHEM_START_WINDOW if cli args given */
    else
      my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
