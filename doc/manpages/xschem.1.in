@@ -130,6 +130,11 @@ Set flat netlist (for spice format only).
 Start without the tclreadline package ( this is necessary if stdin and stdout are to be redirected for example to /dev/null).
 .TP
 
+.B --pipe
+if stdin and stdout are to be redirected. This also prevents xschem
+from closing stdin / stdout / stderr even if invoked from pipes.
+.TP
+
 .B -c, --color_ps
 Set color postscript.
 .TP
