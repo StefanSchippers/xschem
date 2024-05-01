@@ -53,7 +53,7 @@ include $(SRC)/parsgen/Makefile.plugin
 include $(SRC)/gui/Makefile.plugin
 
 #  Comment this line if you do not need tty (nurses, slang, pty-related calls)
-#include $(SRC)/tty/Makefile.plugin
+include $(SRC)/tty/Makefile.plugin
 
 #  Comment this line if you do not need software utility libs (gen*, glib)
 #include $(SRC)/sul/Makefile.plugin

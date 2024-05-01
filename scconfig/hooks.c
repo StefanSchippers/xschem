@@ -297,6 +297,7 @@ int hook_detect_target()
 	require("fstools/awk",  0, 1);
 	require("libs/gui/xpm/*",  0, 1);
 	require("libs/gui/cairo/*",  0, 0);
+	require("libs/tty/readline/*",  0, 0);
 	require("libs/sul/libjpeg/*",  0, 0);
 	/* require("libs/types/stdint/*",  0, 0); */
         require("sys/types/size/4_u_int", 0, 1);
@@ -372,6 +373,7 @@ int hook_generate()
 		printf(" tcl:       %s\n", get("/target/libs/script/tcl/ldflags"));
 		printf(" tk:        %s\n", get("/target/libs/script/tk/ldflags"));
 		printf(" cairo:     %s\n", istrue(get("/target/libs/gui/cairo/presents")) ? "yes" : "no");
+		printf(" readline:  %s\n", istrue(get("/target/libs/tty/readline/presents")) ? "yes" : "no");
 		printf(" libjpeg:   %s\n", istrue(get("/target/libs/sul/libjpeg/presents")) ? "yes" : "no");
 		printf(" xcb:       %s\n", istrue(get("/target/libs/gui/xcb/presents")) ? "yes" : "no");
 
