@@ -8455,7 +8455,7 @@ set_ne keep_symbols 0 ;# if set loaded symbols will not be purged when descendin
 set_ne hide_symbols 0
 # show net names if symbol has attributes like @#n:net_name (where n = pin number or pin name) 
 # and net_name=true global attribute set on symbol or instance.
-set_ne show_pin_net_names 0
+set_ne show_pin_net_names 1
 # gaw tcp {host port} 
 set_ne gaw_tcp_address {localhost 2020}
 

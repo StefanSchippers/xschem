@@ -64,7 +64,7 @@ T {@name} -15 -13.75 0 1 0.2 0.2 {}
 T {@value} 15 -3.75 0 0 0.2 0.2 {}
 T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
-T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15}
-T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15 hide=instance}
 T {m=@m} -15 1.25 0 1 0.2 0.2 {}
 T {@spice_get_current} 12.5 -16.25 0 0 0.2 0.2 {layer=15}

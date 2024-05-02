@@ -41,6 +41,6 @@ A 4 -8.75 0 3.75 270 360 {}
 T {@model} 7.5 -17.5 0 0 0.2 0.2 {}
 T {@name} 7.5 5 0 0 0.2 0.2 {999}
 T {D} 25 20 0 0 0.15 0.15 {}
-T {@#2:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15}
-T {@#0:net_name} 25 32.5 0 0 0.15 0.15 {layer=15}
-T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15}
+T {@#2:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#0:net_name} 25 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15 hide=instance}

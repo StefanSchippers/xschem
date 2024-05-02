@@ -613,7 +613,8 @@ const char *get_sym_template(char *s,char *extra)
 }
 
 /* caller is responsible for freeing up storage for return value
- * return NULL if no matching token found */
+ * return NULL if no matching token found 
+ * caller is responsible for freeing up storage for pin_attr_value */
 static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 {
    size_t attr_size;
@@ -646,7 +647,7 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
        if(xctx->tok_size) my_strdup2(_ALLOC_ID_, &pin_attr_value, str);
      }
    }
-   return pin_attr_value; /* caller is responsible for freeing up storage for pin_attr_value */
+   return pin_attr_value;
 }
 
 int get_last_used_index(const char *old_basename, const char *brkt)
@@ -3489,7 +3490,7 @@ char *find_nth(const char *str, const char *sep, const char *quote, int keep_quo
 /* given a token like @#pin:attr get value of pin attribute 'attr'
  * if only @#pin is given return name of net attached to 'pin'
  * caller should free returned string */
-static char *get_pin_attr(const char *token, int inst, int s_pnetname)
+static char *get_pin_attr(const char *token, int inst)
 {
   char *value = NULL;
   int n;
@@ -3515,39 +3516,67 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
     /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
      * if 'net_name=true' attribute is set in instance or symbol */
     if(!pin_attr_value && is_net_name) {
-      char *instprop = xctx->inst[inst].prop_ptr;
-      char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
-      if(s_pnetname && (!strboolcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-         !strboolcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
-         prepare_netlist_structs(0);
-         my_strdup2(_ALLOC_ID_, &pin_attr_value,
-              xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
-      /* do not show net_name: set to empty string */
-      } else {
-         my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
+      prepare_netlist_structs(0);
+      my_strdup2(_ALLOC_ID_, &pin_attr_value,
+           xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "");
+    }
+    else if(!pin_attr_value && !is_net_name && !strcmp(pin_attr, "spice_get_voltage"))
+    {
+      int start_level; /* hierarchy level where waves were loaded */
+      int live = tclgetboolvar("live_cursor2_backannotate");
+      if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+        int multip;
+        char *fqnet = NULL;
+        const char *path =  xctx->sch_path[xctx->currsch] + 1;
+        char *net = NULL;
+        int idx;
+        double val;
+        const char *valstr;
+        if(path) {
+          prepare_netlist_structs(0);
+          my_strdup2(_ALLOC_ID_, &net, net_name(inst, n, &multip, 0, 0));
+          if(multip == 1 && net && net[0]) {
+            char *rn;
+            dbg(1, "translate() @spice_get_voltage: inst=%d\n", inst);
+            dbg(1, "                                net=%s\n", net);
+            rn = resolved_net(net);
+            if(rn) {
+              my_strdup2(_ALLOC_ID_, &fqnet, rn);
+              if(rn) my_free(_ALLOC_ID_, &rn);
+              strtolower(fqnet);
+              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
+              idx = get_raw_index(fqnet, NULL);
+              if(idx >= 0) {
+                val = xctx->raw->cursor_b_val[idx];
+              }
+              if(idx < 0) {
+                valstr = "";
+              } else {
+                valstr = dtoa_eng(val);
+              }
+              my_strdup2(_ALLOC_ID_, &pin_attr_value, valstr);
+              dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+              if(fqnet) my_free(_ALLOC_ID_, &fqnet);
+            }
+          }
+          if(net) my_free(_ALLOC_ID_, &net);
+        }
       }
     }
 
     /* @#n:resolved_net attribute (n = pin number or name) will translate to hierarchy-resolved net */
     if(!pin_attr_value && !strcmp(pin_attr, "resolved_net")) {
       char *rn = NULL;
-      char *instprop = xctx->inst[inst].prop_ptr;
-      char *symprop = (xctx->inst[inst].ptr + xctx->sym)->prop_ptr;
       dbg(1, "translate(): resolved_net: %s, symbol %s\n", xctx->current_name, xctx->inst[inst].name);
-      if(s_pnetname && (!strboolcmp(get_tok_value(symprop, "net_name", 0), "true") ||
-         !strboolcmp(get_tok_value(instprop, "net_name", 0), "true"))) {
-        prepare_netlist_structs(0);
-        if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
-          rn = resolved_net(xctx->inst[inst].node[n]);
-        }
-        my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "?");
-        if(rn) my_free(_ALLOC_ID_, &rn);
-      } else {
-         my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
+      prepare_netlist_structs(0);
+      if(xctx->inst[inst].node && xctx->inst[inst].node[n]) {
+        rn = resolved_net(xctx->inst[inst].node[n]);
       }
+      my_strdup2(_ALLOC_ID_, &pin_attr_value, rn ? rn : "");
+      if(rn) my_free(_ALLOC_ID_, &rn);
     }
 
-    if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+    if(!pin_attr_value ) my_strdup2(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
     my_strdup2(_ALLOC_ID_, &value, pin_attr_value);
     /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
     if(pin_attr_value[0] && !strcmp(pin_attr, "pinnumber") ) {
@@ -3565,8 +3594,8 @@ static char *get_pin_attr(const char *token, int inst, int s_pnetname)
       }
     }
     my_free(_ALLOC_ID_, &pin_attr_value);
-    my_free(_ALLOC_ID_, &pin_attr_value);
   }
+  /* just @#pin was given */
   else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
     const char *str_ptr=NULL;
     int multip;
@@ -3605,14 +3634,12 @@ const char *translate(int inst, const char* s)
  int escape=0;
  char date[200];
  int sp_prefix;
- int s_pnetname;
  int level;
  Lcc *lcc;
  char *value1 = NULL;
  int sim_is_xyce;
  char *instname = NULL;
 
- s_pnetname = tclgetboolvar("show_pin_net_names");
  sp_prefix = tclgetboolvar("spiceprefix");
  if(!s || !xctx || !xctx->inst) {
    my_free(_ALLOC_ID_, &result);
@@ -3706,7 +3733,7 @@ const char *translate(int inst, const char* s)
        }
      }
    } else if(inst >= 0 && token[0]=='@' && token[1]=='#') {
-     value = get_pin_attr(token, inst, s_pnetname);
+     value = get_pin_attr(token, inst);
      if(value) {
        tmp=strlen(value);
        STR_ALLOC(&result, tmp + result_pos, &size);

@@ -294,7 +294,7 @@ lab=#net4}
 C {nmos3.sym} 440 -770 0 0 {name=xm2 model=irf540 m=1
 program=evince
 url="https://www.vishay.com/docs/91021/irf540.pdf"
-net_name=true
+
 
 device_model=".SUBCKT irf540 1 2 3
 M1 9 7 8 8 MM L=100u W=100u
@@ -342,7 +342,7 @@ D4 0 6 MD3
 C {nmos3.sym} 440 -1090 0 0 {name=xm1 model=irf540 m=1
 program=xdg-open
 url="https://www.vishay.com/docs/91021/irf540.pdf"
-net_name=true
+
 
 device_model=".SUBCKT irf540 1 2 3
 M1 9 7 8 8 MM L=100u W=100u
@@ -388,15 +388,15 @@ D4 0 6 MD3
 .ENDS
 "}
 C {lab_pin.sym} 460 -640 0 0 {name=p18 lab=VNN}
-C {ammeter.sym} 460 -870 0 0 {name=vd  net_name=true current=0.2069}
-C {ammeter.sym} 460 -970 0 0 {name=vu  net_name=true current=0.2005}
+C {ammeter.sym} 460 -870 0 0 {name=vd}
+C {ammeter.sym} 460 -970 0 0 {name=vu}
 C {lab_pin.sym} 460 -1160 0 0 {name=p27 lab=VPP}
 C {lab_pin.sym} 460 -910 0 0 {name=p3 lab=OUT}
 C {comp_ngspice.sym} 550 -370 2 1 {name=x1 
 OFFSET=5
 AMPLITUDE=10}
 C {lab_pin.sym} 750 -370 0 1 {name=p6 lab=DRIVED}
-C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
+C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
 C {vsource.sym} 70 -540 0 0 {name=VVPP value=40}
 C {lab_pin.sym} 70 -490 0 0 {name=p9 lab=VSS}
 C {lab_pin.sym} 70 -590 0 0 {name=p10 lab=VPP}

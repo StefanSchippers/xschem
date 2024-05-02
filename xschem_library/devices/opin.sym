@@ -23,7 +23,7 @@ G {}
 K {type=opin
 format="*.opin @lab"
 template="name=p1 lab=xxx"
-net_name=true}
+}
 V {}
 S {}
 E {}

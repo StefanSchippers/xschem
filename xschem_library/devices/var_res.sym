@@ -60,6 +60,6 @@ T {@value} 15 1.25 0 0 0.2 0.2 {}
 T {@#2:pinnumber} -10 -28.75 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -10 18.75 0 1 0.2 0.2 {layer=13}
 T {@#0:pinnumber} -30 3.75 0 1 0.2 0.2 {layer=13}
-T {@#2:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
-T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}
-T {@#0:net_name} -35 -12.5 0 1 0.15 0.15 {layer=15}
+T {@#2:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#0:net_name} -35 -12.5 0 1 0.15 0.15 {layer=15 hide=instance}

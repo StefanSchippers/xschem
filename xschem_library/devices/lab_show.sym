@@ -22,7 +22,6 @@ v {xschem version=3.4.4 file_version=1.2
 G {}
 K {type=show_label
 template="name=l1"
-net_name=true
 highlight=true}
 V {}
 S {}

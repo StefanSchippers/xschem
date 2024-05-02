@@ -119,18 +119,18 @@ value="
   write  rlc.raw
 .endc
 "}
-C {capa.sym} 150 -510 0 0 {name=C1 m=1 value=50nF footprint=1206 device="ceramic capacitor" net_name=true}
+C {capa.sym} 150 -510 0 0 {name=C1 m=1 value=50nF footprint=1206 device="ceramic capacitor"}
 C {lab_pin.sym} 150 -290 2 1 {name=l2 sig_type=std_logic lab=C}
 C {lab_pin.sym} 150 -560 2 0 {name=l4 sig_type=std_logic lab=A}
 C {lab_pin.sym} 350 -200 2 0 {name=l5 sig_type=std_logic lab=0}
 C {res.sym} 350 -450 0 0 {name=R1 m=1 value=1k footprint=1206 device=resistor
-net_name=true}
-C {ind.sym} 150 -350 0 0 {name=L1 value=10mH net_name=true}
+}
+C {ind.sym} 150 -350 0 0 {name=L1 value=10mH}
 C {vsource.sym} 150 -230 0 0 {name=V1 
 xvalue="pwl 0 0 100u 0 101u 3" 
 value="pulse 0 3 0 100n 100n 9.9u 20u"
 
-net_name=true}
+}
 C {ammeter.sym} 350 -310 0 0 {name=Vmeas}
 C {lab_pin.sym} 150 -450 2 0 {name=l6 sig_type=std_logic lab=B}
 C {lab_pin.sym} 350 -380 2 0 {name=l7 sig_type=std_logic lab=D}

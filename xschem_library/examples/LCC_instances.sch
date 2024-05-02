@@ -291,7 +291,7 @@ xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]
 }
 C {ammeter.sym} 1350 -350 0 1 {name=Vmeas}
 C {vdd.sym} 50 -280 0 0 {name=l2 lab=VDD}
-C {nmos4.sym} 630 -840 3 0 {name=M1 model=n w=1u l=2u m=1 net_name=true}
+C {nmos4.sym} 630 -840 3 0 {name=M1 model=n w=1u l=2u m=1}
 C {lab_pin.sym} 630 -860 3 1 {name=l4 sig_type=std_logic lab=0}
 C {vdd.sym} 680 -860 0 0 {name=l3 lab=VDD}
 C {launcher.sym} 655 -1045 0 0 {name=h2 

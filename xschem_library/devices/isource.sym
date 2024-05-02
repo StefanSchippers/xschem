@@ -36,6 +36,6 @@ A 4 0 0 15 270 360 {}
 P 4 7 -0 -7.5 -0 2.5 2.5 2.5 -0 10 -2.5 2.5 0 2.5 -0 -7.5 {fill=true}
 T {@name
 @value} 20 -10 0 0 0.2 0.2 {}
-T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15}
-T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@spice_get_current} -4.375 15 0 1 0.2 0.2 {layer=15}

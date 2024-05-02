@@ -156,33 +156,33 @@ N 520 -610 560 -610 {
 lab=D}
 N 520 -570 560 -570 {
 lab=0}
-C {lab_pin.sym} 30 -150 0 0 {name=p17 lab=0  net_name=true}
-C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"  net_name=true}
-C {nmos4.sym} 430 -150 0 0 {name=m1 model=cmosn w=5u l=2u m=1  net_name=true}
-C {pmos4.sym} 500 -400 0 0 {name=mtop_2nd model=cmosp w=5u l=2u m=1  net_name=true}
-C {vsource.sym} 30 -180 0 0 {name=VVCC value=5  net_name=true}
-C {lab_pin.sym} 450 -90 0 0 {name=p1 lab=0  net_name=true}
-C {lab_pin.sym} 60 -240 0 1 {name=p2 lab=VCC  net_name=true}
-C {nmos4.sym} 210 -150 0 1 {name=m3 model=cmosn w=5u l=2u m=1  net_name=true}
-C {lab_pin.sym} 190 -90 0 0 {name=p3 lab=0  net_name=true}
-C {isource.sym} 190 -260 0 0 {name=IBIAS value=\{IBIAS\}  net_name=true}
-C {lab_pin.sym} 190 -290 0 0 {name=p4 lab=0  net_name=true}
-C {nmos4.sym} 360 -250 0 0 {name=m4 model=cmosn w=10u l=1u m=1  net_name=true}
-C {lab_pin.sym} 400 -250 0 1 {name=p5 lab=0  net_name=true}
-C {nmos4.sym} 540 -250 0 1 {name=m5 model=cmosn w=10u l=1u m=1  net_name=true}
-C {lab_pin.sym} 500 -250 0 0 {name=p0 lab=0  net_name=true}
-C {lab_pin.sym} 570 -400 0 1 {name=p6 lab=VCC  net_name=true}
-C {pmos4.sym} 400 -400 0 1 {name=mtop_1st model=cmosp w=5u l=2u m=1  net_name=true}
-C {lab_pin.sym} 330 -400 0 0 {name=p7 lab=VCC  net_name=true}
-C {lab_pin.sym} 450 -490 0 0 {name=p8 lab=VCC  net_name=true}
-C {lab_pin.sym} 320 -250 0 0 {name=p9 lab=PLUS  net_name=true}
-C {lab_pin.sym} 580 -240 0 1 {name=p10 lab=MINUS  net_name=true}
-C {lab_pin.sym} 900 -330 0 1 {name=p11 lab=DIFFOUT  net_name=true}
-C {lab_pin.sym} 190 -200 0 0 {name=p13 lab=GN  net_name=true}
-C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0  net_name=true}
+C {lab_pin.sym} 30 -150 0 0 {name=p17 lab=0}
+C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {nmos4.sym} 430 -150 0 0 {name=m1 model=cmosn w=5u l=2u m=1}
+C {pmos4.sym} 500 -400 0 0 {name=mtop_2nd model=cmosp w=5u l=2u m=1}
+C {vsource.sym} 30 -180 0 0 {name=VVCC value=5}
+C {lab_pin.sym} 450 -90 0 0 {name=p1 lab=0}
+C {lab_pin.sym} 60 -240 0 1 {name=p2 lab=VCC}
+C {nmos4.sym} 210 -150 0 1 {name=m3 model=cmosn w=5u l=2u m=1}
+C {lab_pin.sym} 190 -90 0 0 {name=p3 lab=0}
+C {isource.sym} 190 -260 0 0 {name=IBIAS value=\{IBIAS\}}
+C {lab_pin.sym} 190 -290 0 0 {name=p4 lab=0}
+C {nmos4.sym} 360 -250 0 0 {name=m4 model=cmosn w=10u l=1u m=1}
+C {lab_pin.sym} 400 -250 0 1 {name=p5 lab=0}
+C {nmos4.sym} 540 -250 0 1 {name=m5 model=cmosn w=10u l=1u m=1}
+C {lab_pin.sym} 500 -250 0 0 {name=p0 lab=0}
+C {lab_pin.sym} 570 -400 0 1 {name=p6 lab=VCC}
+C {pmos4.sym} 400 -400 0 1 {name=mtop_1st model=cmosp w=5u l=2u m=1}
+C {lab_pin.sym} 330 -400 0 0 {name=p7 lab=VCC}
+C {lab_pin.sym} 450 -490 0 0 {name=p8 lab=VCC}
+C {lab_pin.sym} 320 -250 0 0 {name=p9 lab=PLUS}
+C {lab_pin.sym} 580 -240 0 1 {name=p10 lab=MINUS}
+C {lab_pin.sym} 900 -330 0 1 {name=p11 lab=DIFFOUT}
+C {lab_pin.sym} 190 -200 0 0 {name=p13 lab=GN}
+C {lab_pin.sym} 30 -280 0 0 {name=p14 lab=0}
 C {vsource.sym} 30 -310 0 0 {name=VPLUS value="dc 2.5"
 }
-C {lab_pin.sym} 60 -370 0 1 {name=p15 lab=PLUS  net_name=true}
+C {lab_pin.sym} 60 -370 0 1 {name=p15 lab=PLUS}
 C {lab_pin.sym} 750 -610 0 0 {name=l18 lab=DIFFOUT}
 C {lab_pin.sym} 750 -570 0 0 {name=l19 lab=0}
 C {lab_pin.sym} 830 -540 0 0 {name=l20 lab=0}
@@ -194,10 +194,10 @@ C {lab_pin.sym} 520 -570 0 0 {name=l3 lab=0}
 C {lab_pin.sym} 600 -540 0 0 {name=l4 lab=0}
 C {lab_pin.sym} 600 -660 0 1 {name=l5 lab=D_L}
 C {vcvs.sym} 600 -590 0 0 {name=e2 value=1}
-C {nmos4.sym} 810 -420 0 1 {name=m7 model=cmosn w=10u l=1u m=1  net_name=true}
+C {nmos4.sym} 810 -420 0 1 {name=m7 model=cmosn w=10u l=1u m=1}
 C {lab_pin.sym} 790 -470 0 0 {name=l6 lab=DIFFOUT_L}
 C {lab_pin.sym} 790 -370 0 0 {name=l7 lab=D_L}
-C {lab_pin.sym} 790 -420 0 0 {name=p18 lab=0  net_name=true}
+C {lab_pin.sym} 790 -420 0 0 {name=p18 lab=0}
 C {vsource.sym} 690 -230 3 0 {name=VLOOP value="dc 0 ac 1 0"}
 C {launcher.sym} 1040 -580 0 0 {name=h2
 descr="View raw file"
@@ -837,7 +837,7 @@ tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw ac
 "
 }
-C {lab_pin.sym} 750 -140 0 0 {name=p12 lab=0  net_name=true}
+C {lab_pin.sym} 750 -140 0 0 {name=p12 lab=0}
 C {res.sym} 750 -190 0 0 {name=R2
 value=10G
 m=1}

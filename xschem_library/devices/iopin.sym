@@ -23,7 +23,7 @@ G {}
 K {type=iopin
 format="*.iopin @lab"
 template="name=p1 lab=xxx"
-net_name=true}
+}
 V {}
 S {}
 E {}

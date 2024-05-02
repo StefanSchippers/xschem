@@ -26,7 +26,7 @@ format="@name @pinlist @symname WN=@WN WP=@WP LLN=@LLN LLP=@LLP m=@m"
 verilog_primitive=true
 verilog_format="assign #80 @@Z = ~ @@A ;"
 template="name=X1 WN=15u WP=45u LLN=3u LLP=3u m=1"
-net_name=true}
+}
 V {}
 S {}
 E {}

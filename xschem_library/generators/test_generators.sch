@@ -66,7 +66,7 @@ value=1k
 footprint=1206
 device=resistor
 m=1
-net_name=true}
+}
 C {lab_show.sym} 180 -380 0 0 {name=l1}
 C {lab_show.sym} 180 -260 0 0 {name=l2}
 C {capa.sym} 460 -250 0 0 {name=C1
@@ -74,21 +74,21 @@ m=1
 value=1p
 footprint=1206
 device="ceramic capacitor"
-net_name=true}
+}
 C {capa.sym} 570 -250 0 0 {name=C2
 m=1
 value=1p
 footprint=1206
 device="ceramic capacitor"
-net_name=true}
+}
 C {tier.tcl(@lab\\)} 460 -220 0 0 {name=p3 sig_type=std_logic lab=VSS}
 C {tier.tcl(@lab\\)} 570 -220 0 0 {name=p4 sig_type=std_logic lab=VSS}
 C {res.tcl(@value\\)} 460 -390 0 0 {name=R2 value=100
-net_name=true
+
 tclcommand="edit_file [abs_sym_path res.tcl]"
 }
 C {res.tcl(@value\\)} 570 -390 0 0 {name=R3 value=0.1
-net_name=true
+
 tclcommand="edit_file [abs_sym_path res.tcl]"
 }
 C {lab_show.sym} 460 -290 0 0 {name=l3}

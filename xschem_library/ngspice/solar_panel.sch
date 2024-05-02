@@ -274,7 +274,7 @@ N 770 -1030 890 -1030 {
 lab=TRIANG}
 N 820 -330 820 -210 {
 lab=0}
-C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
+C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
 C {code_shown.sym} 170 -310 0 0 {name=CONTROL
 value="tcleval(
 .option savecurrents
@@ -290,18 +290,18 @@ value="tcleval(
 )
 " 
 
-net_name=true}
+}
 C {code.sym} 20 -240 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
 .MODEL swmod SW(VT=0.5 VH=0.01 RON=0.01 ROFF=10000000)
-" net_name=true}
+"}
 C {lab_pin.sym} 650 -530 0 1 {name=l4  lab=PANEL }
 C {lab_pin.sym} 800 -210 0 0 {name=l6  lab=0 }
-C {ammeter.sym} 1070 -440 3 0 {name=Vled net_name=true}
+C {ammeter.sym} 1070 -440 3 0 {name=Vled}
 C {ind.sym} 890 -610 3 1 {name=L2
 m=1
 value=40u
 footprint=1206
-device=inductor net_name=true
+device=inductor
 hide_texts=true}
 C {lab_pin.sym} 1140 -440 0 1 {name=l7  lab=LED }
 C {lab_pin.sym} 820 -550 0 1 {name=l9  lab=SW }
@@ -309,11 +309,11 @@ C {capa.sym} 1010 -280 0 0 {name=C1
 m=1
 value=500n
 footprint=1206
-device="ceramic capacitor" net_name=true
+device="ceramic capacitor"
 hide_texts=true}
 C {lab_pin.sym} 1010 -400 0 1 {name=l10  lab=VO }
 C {lab_pin.sym} 530 -610 0 0 {name=l3  lab=PANEL }
-C {ammeter.sym} 970 -610 3 0 {name=Vind net_name=true}
+C {ammeter.sym} 970 -610 3 0 {name=Vind}
 C {isource_table.sym} 1100 -330 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (0, 0)
 + (4.8, 5m)
@@ -329,9 +329,9 @@ C {isource_table.sym} 1100 -330 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (7.2, 395m)
 + (7.4, 470m)
 + (8.0, 750m)"
- net_name=true}
-C {ammeter.sym} 610 -610 3 0 {name=Vsw net_name=true}
-C {ammeter.sym} 820 -360 2 0 {name=Vdiode net_name=true}
+}
+C {ammeter.sym} 610 -610 3 0 {name=Vsw}
+C {ammeter.sym} 820 -360 2 0 {name=Vdiode}
 C {spice_probe.sym} 1120 -440 0 0 {name=p1 analysis=tran}
 C {spice_probe.sym} 650 -530 0 0 {name=p2 analysis=tran}
 C {spice_probe.sym} 820 -510 0 1 {name=p3 analysis=tran}
@@ -347,14 +347,14 @@ C {capa.sym} 500 -500 0 0 {name=C11
 m=1
 value=10u
 footprint=1206
-device="ceramic capacitor" net_name=true}
+device="ceramic capacitor"}
 C {lab_pin.sym} 500 -370 0 0 {name=l90  lab=0 }
-C {ammeter.sym} 430 -530 3 1 {name=Vpanel net_name=true}
+C {ammeter.sym} 430 -530 3 1 {name=Vpanel}
 C {diode_ngspice.sym} 820 -460 2 0 {name=X2  m=1 Roff=1e9 Ron=0.1}
 C {switch_ngspice.sym} 760 -610 1 0 {name=S1 model=swmod}
 C {lab_pin.sym} 740 -650 0 0 {name=l5  lab=0 }
-C {ammeter.sym} 560 -530 3 1 {name=Vpanel1 net_name=true}
-C {ammeter.sym} 500 -420 0 0 {name=Vcap net_name=true}
+C {ammeter.sym} 560 -530 3 1 {name=Vpanel1}
+C {ammeter.sym} 500 -420 0 0 {name=Vcap}
 C {vsource.sym} 160 -390 0 0 {name=Vfade value="pwl 0 1 1m 0"}
 C {lab_pin.sym} 160 -340 0 0 {name=l8  lab=0 }
 C {ngspice_get_expr.sym} 1120 -370 0 0 {name=r29 

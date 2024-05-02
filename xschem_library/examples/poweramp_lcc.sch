@@ -256,9 +256,9 @@ C {lab_pin.sym} 270 1050 0 1 {name=p19 lab=FB}
 C {lab_pin.sym} 250 -540 0 1 {name=p25 lab=FBN}
 C {title.sym} 180 1470 0 0 {name=l2 author="Stefan Schippers"}
 C {lab_pin.sym} 2200 -1100 0 0 {name=p27 lab=IN_INT}
-C {ammeter.sym} 2020 -1410 3 0 {name=vcurrvpp  net_name=true       }
-C {ammeter.sym} 2020 -1250 3 0 {name=vcurrvnn  net_name=true       }
-C {ammeter.sym} 2020 -1330 3 0 {name=vcurrvss  net_name=true       }
+C {ammeter.sym} 2020 -1410 3 0 {name=vcurrvpp}
+C {ammeter.sym} 2020 -1250 3 0 {name=vcurrvnn}
+C {ammeter.sym} 2020 -1330 3 0 {name=vcurrvss}
 C {launcher.sym} 60 -120 0 0 {name=h2
 descr="Ctrl-Click
 Clear all probes" 

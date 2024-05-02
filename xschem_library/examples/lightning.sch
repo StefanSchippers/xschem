@@ -208,7 +208,7 @@ C {var_res.sym} 580 -710 0 0 {name=R8
 value=9.5K
 footprint=1206
 m=1
-net_name=true}
+}
 C {code.sym} 40 -210 0 0 {name=MODELS value="
 ** you need to get the spice models for Q2N4401, Q2N4403 and D1N914
 ** and put them in file referenced below.

@@ -161,9 +161,9 @@ C {vsource.sym} 290 -170 0 0 {name=VNN value="dc 50"}
 C {lab_pin.sym} 530 -280 0 1 {name=p7 lab=VPP}
 C {lab_pin.sym} 530 -120 0 1 {name=p8 lab=VNN}
 C {lab_pin.sym} 530 -200 0 1 {name=p9 lab=VSS}
-C {ammeter.sym} 430 -280 3 0 {name=vcurrvpp  net_name=true       current=0.54}
-C {ammeter.sym} 430 -120 3 0 {name=vcurrvnn  net_name=true       current=-0.4526}
-C {ammeter.sym} 430 -200 3 0 {name=vcurrvss  net_name=true       current=-0.08742}
+C {ammeter.sym} 430 -280 3 0 {name=vcurrvpp}
+C {ammeter.sym} 430 -120 3 0 {name=vcurrvnn}
+C {ammeter.sym} 430 -200 3 0 {name=vcurrvss}
 C {ngspice_probe.sym} 370 -200 0 1 {name=p34}
 C {ngspice_probe.sym} 290 -280 0 1 {name=p35}
 C {ngspice_probe.sym} 290 -120 0 1 {name=p36}

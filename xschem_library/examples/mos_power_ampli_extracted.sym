@@ -23,7 +23,6 @@ G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-net_name=true
 xxxspice_sym_def = "
 * Ideal amplifier
 .subckt mos_power_ampli_extracted MINUS PLUS VSS OUT VPP VNN

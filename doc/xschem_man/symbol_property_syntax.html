@@ -606,6 +606,12 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <p> these expand to the full hierarchy name of the net attached to pin with name <kbd>pin_name</kbd> or with 
     sequence number <kbd>n</kbd>. </p>
 
+  <li><kbd>@#pin_name:spice_get_voltage</kbd></li>
+  <li><kbd>@#n:spice_get_voltage</kbd></li>
+  <p> these expand to the voltage of the net attached to the pin with name <kbd>pin_name</kbd> or with
+    sequence number <kbd>n</kbd>, extracted from simulation raw file (operating point or 
+    cursor <kbd>b</kbd> position)</p>
+
   <li><kbd>@sch_last_modified</kbd></li>
   <p>
    this indicates the last modification time of the <kbd>.sch</kbd> file of the symbol.

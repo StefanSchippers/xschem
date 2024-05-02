@@ -302,42 +302,42 @@ N 990 -430 990 -410 {
 lab=DIFFOUT}
 N 990 -490 990 -430 {
 lab=DIFFOUT}
-C {lab_pin.sym} 30 -220 0 0 {name=p17 lab=0  net_name=true}
-C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"  net_name=true}
-C {nmos4.sym} 550 -160 0 0 {name=m1 model=cmosn w=5u l=2u m=2  net_name=true
+C {lab_pin.sym} 30 -220 0 0 {name=p17 lab=0}
+C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {nmos4.sym} 550 -160 0 0 {name=m1 model=cmosn w=5u l=2u m=2
 }
-C {pmos4.sym} 670 -490 0 0 {name=m2 model=cmosp w=5u l=2u m=1  net_name=true
+C {pmos4.sym} 670 -490 0 0 {name=m2 model=cmosp w=5u l=2u m=1
 }
-C {vsource.sym} 30 -250 0 0 {name=VVCC value='VCC'  net_name=true
+C {vsource.sym} 30 -250 0 0 {name=VVCC value='VCC'
 }
-C {lab_pin.sym} 570 -100 0 0 {name=p1 lab=0  net_name=true}
-C {lab_pin.sym} 60 -310 0 1 {name=p2 lab=VCC  net_name=true}
-C {nmos4.sym} 280 -160 0 1 {name=m3 model=cmosn w=5u l=2u m=1  net_name=true
+C {lab_pin.sym} 570 -100 0 0 {name=p1 lab=0}
+C {lab_pin.sym} 60 -310 0 1 {name=p2 lab=VCC}
+C {nmos4.sym} 280 -160 0 1 {name=m3 model=cmosn w=5u l=2u m=1
 }
-C {lab_pin.sym} 260 -100 0 0 {name=p3 lab=0  net_name=true}
-C {isource.sym} 260 -270 0 0 {name=IBIAS value='IB'  net_name=true
+C {lab_pin.sym} 260 -100 0 0 {name=p3 lab=0}
+C {isource.sym} 260 -270 0 0 {name=IBIAS value='IB'
 }
-C {lab_pin.sym} 260 -300 0 0 {name=p4 lab=0  net_name=true}
-C {nmos4.sym} 480 -290 0 0 {name=m4 model=cmosn w=10u l=1u m=1  net_name=true
+C {lab_pin.sym} 260 -300 0 0 {name=p4 lab=0}
+C {nmos4.sym} 480 -290 0 0 {name=m4 model=cmosn w=10u l=1u m=1
 }
-C {lab_pin.sym} 520 -290 0 1 {name=p5 lab=0  net_name=true}
-C {nmos4.sym} 710 -290 0 1 {name=m5 model=cmosn w=10u l=1u m=1  net_name=true
+C {lab_pin.sym} 520 -290 0 1 {name=p5 lab=0}
+C {nmos4.sym} 710 -290 0 1 {name=m5 model=cmosn w=10u l=1u m=1
 }
-C {lab_pin.sym} 670 -290 0 0 {name=p0 lab=0  net_name=true}
-C {lab_pin.sym} 740 -490 0 1 {name=p6 lab=VCC  net_name=true}
-C {pmos4.sym} 520 -490 0 1 {name=m6 model=cmosp w=5u l=2u m=1  net_name=true
+C {lab_pin.sym} 670 -290 0 0 {name=p0 lab=0}
+C {lab_pin.sym} 740 -490 0 1 {name=p6 lab=VCC}
+C {pmos4.sym} 520 -490 0 1 {name=m6 model=cmosp w=5u l=2u m=1
 }
-C {lab_pin.sym} 450 -490 0 0 {name=p7 lab=VCC  net_name=true}
-C {lab_pin.sym} 570 -580 0 0 {name=p8 lab=VCC  net_name=true}
-C {lab_pin.sym} 750 -290 0 1 {name=p9 lab=PLUS  net_name=true}
-C {lab_pin.sym} 440 -290 0 0 {name=p10 lab=MINUS  net_name=true}
-C {lab_pin.sym} 840 -420 0 1 {name=p11 lab=DIFFOUT  net_name=true}
-C {lab_pin.sym} 260 -220 0 0 {name=p13 lab=GN  net_name=true}
-C {lab_pin.sym} 30 -500 0 0 {name=p16 lab=0  net_name=true}
-C {vsource.sym} 30 -530 0 0 {name=VPLUS value="dc 2.5 pwl 0 2.5 100n 2.5 100.1n 2.51"  net_name=true
+C {lab_pin.sym} 450 -490 0 0 {name=p7 lab=VCC}
+C {lab_pin.sym} 570 -580 0 0 {name=p8 lab=VCC}
+C {lab_pin.sym} 750 -290 0 1 {name=p9 lab=PLUS}
+C {lab_pin.sym} 440 -290 0 0 {name=p10 lab=MINUS}
+C {lab_pin.sym} 840 -420 0 1 {name=p11 lab=DIFFOUT}
+C {lab_pin.sym} 260 -220 0 0 {name=p13 lab=GN}
+C {lab_pin.sym} 30 -500 0 0 {name=p16 lab=0}
+C {vsource.sym} 30 -530 0 0 {name=VPLUS value="dc 2.5 pwl 0 2.5 100n 2.5 100.1n 2.51"
 }
-C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=PLUS  net_name=true}
-C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G  net_name=true}
+C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=PLUS}
+C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
 tclcommand="xschem annotate_op"
@@ -379,8 +379,8 @@ value=".temp 30
 
 "}
 C {ammeter.sym} 500 -370 0 1 {name=Vmeasl}
-C {lab_pin.sym} 570 -230 0 0 {name=p19 lab=S  net_name=true}
-C {nmos4.sym} 1140 -160 0 0 {name=m7 model=cmosn w=5u l=2u m=1  net_name=true
+C {lab_pin.sym} 570 -230 0 0 {name=p19 lab=S}
+C {nmos4.sym} 1140 -160 0 0 {name=m7 model=cmosn w=5u l=2u m=1
 device_model="
 *n-ch model
 .MODEL CMOSN NMOS (
@@ -418,9 +418,9 @@ device_model="
 +PRDSW   = -114.7860236   PK2     = -5.151187E-3   WKETA   = 5.687313E-3
 +LKETA   = -0.018518       )
 "}
-C {lab_pin.sym} 1160 -100 0 0 {name=p21 lab=0  net_name=true}
-C {lab_pin.sym} 1060 -160 0 0 {name=p22 lab=GN  net_name=true}
-C {pmos4.sym} 1140 -490 0 0 {name=m8 model=cmosp w=5u l=2u m=1  net_name=true
+C {lab_pin.sym} 1160 -100 0 0 {name=p21 lab=0}
+C {lab_pin.sym} 1060 -160 0 0 {name=p22 lab=GN}
+C {pmos4.sym} 1140 -490 0 0 {name=m8 model=cmosp w=5u l=2u m=1
 device_model="
 *p-ch model
 .MODEL CMOSP PMOS (
@@ -458,8 +458,8 @@ device_model="
 +PRDSW   = 52.7951169     PK2     = 9.714153E-4    WKETA   = 0.0109418
 +LKETA   = 7.702974E-3     )
 "}
-C {lab_pin.sym} 1210 -490 0 1 {name=p23 lab=VCC  net_name=true}
-C {lab_pin.sym} 1260 -330 0 1 {name=p24 lab=OUT  net_name=true
+C {lab_pin.sym} 1210 -490 0 1 {name=p23 lab=VCC}
+C {lab_pin.sym} 1260 -330 0 1 {name=p24 lab=OUT
 lock=1}
 C {launcher.sym} 2000 -100 0 0 {name=h5
 descr="load waves" 
@@ -483,7 +483,7 @@ m=1
 value=200f
 footprint=1206
 device="ceramic capacitor"}
-C {lab_pin.sym} 520 -790 0 0 {name=p20 lab=MINUS  net_name=true}
+C {lab_pin.sym} 520 -790 0 0 {name=p20 lab=MINUS}
 C {lab_pin.sym} 750 -1040 2 0 {name=l18 lab=S}
 C {lab_pin.sym} 710 -1040 2 0 {name=l19 lab=0}
 C {lab_pin.sym} 680 -980 1 0 {name=l20 lab=0}
@@ -492,9 +492,9 @@ C {lab_pin.sym} 750 -1180 2 0 {name=l2 lab=G}
 C {lab_pin.sym} 710 -1180 2 0 {name=l3 lab=0}
 C {lab_pin.sym} 680 -1120 1 0 {name=l4 lab=0}
 C {vcvs.sym} 730 -1120 1 0 {name=e2 value=1}
-C {lab_pin.sym} 900 -1050 0 0 {name=p25 lab=0  net_name=true}
-C {lab_pin.sym} 980 -790 0 1 {name=p27 lab=OUT  net_name=true}
-C {nmos4.sym} 920 -1050 0 1 {name=m10 model=cmosn w=10u l=1u m=1  net_name=true
+C {lab_pin.sym} 900 -1050 0 0 {name=p25 lab=0}
+C {lab_pin.sym} 980 -790 0 1 {name=p27 lab=OUT}
+C {nmos4.sym} 920 -1050 0 1 {name=m10 model=cmosn w=10u l=1u m=1
 }
 C {res.sym} 890 -790 1 0 {name=R3
 value=10G

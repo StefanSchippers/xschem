@@ -133,7 +133,7 @@ quit
 .endc
 "}
 C {iopin.sym} 640 -500 2 1 {name=p2 lab=minus}
-C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers" net_name=true}
+C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
 C {ipin.sym} 100 -840 2 1 {name=p2 lab=fade}
 C {ammeter.sym} 140 -750 3 0 {name=Vf}
 C {iopin.sym} 640 -880 2 1 {name=p1 lab=plus}

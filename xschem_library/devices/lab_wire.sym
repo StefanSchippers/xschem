@@ -23,7 +23,7 @@ G {}
 K {type=label
 format="*.alias @lab"
 template="name=p1 sig_type=std_logic lab=xxx"
-net_name=true}
+}
 V {}
 S {}
 E {}

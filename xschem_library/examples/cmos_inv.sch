@@ -59,8 +59,8 @@ C {opin.sym} 370 -230 0 0 {name=p2 lab=Z}
 C {ipin.sym} 60 -230 0 0 {name=p1 lab=A  goto=0}
 C {vdd.sym} 140 -400 0 0 {name=l1 lab=VDD}
 C {lab_pin.sym} 140 -120 0 0 {name=l2 sig_type=std_logic lab=0}
-C {pmos4.sym} 120 -350 0 0 {name=M2 model=p w=WP l=LLP m=1 net_name=true}
-C {nmos4.sym} 120 -170 0 0 {name=M1 model=n w=WN l=LLN m=1 net_name=true}
+C {pmos4.sym} 120 -350 0 0 {name=M2 model=p w=WP l=LLP m=1}
+C {nmos4.sym} 120 -170 0 0 {name=M1 model=n w=WN l=LLN m=1}
 C {lab_pin.sym} 200 -170 0 1 {name=l3 sig_type=std_logic lab=0}
 C {lab_pin.sym} 200 -350 0 1 {name=l4 sig_type=std_logic lab=VDD}
 C {title.sym} 160 -30 0 0 {name=l5 author="Stefan Schippers"}

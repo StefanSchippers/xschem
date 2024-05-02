@@ -23,7 +23,6 @@ G {}
 K {type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
-net_name=true
 }
 V {}
 S {}

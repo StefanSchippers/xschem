@@ -264,11 +264,11 @@ lab=BB}
 N 1920 -1450 1980 -1450 {
 lab=RRSSTT}
 C {doublepin.sym} 1230 -670 0 0 {name=x9
-net_name=true}
+}
 C {doublepin.sym} 810 -670 0 1 {name=x8
-net_name=true}
+}
 C {doublepin.sym} 780 -880 0 0 {name=x2
-net_name=true}
+}
 C {lab_wire.sym} 550 -890 0 0 {name=l2 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 510 -830 0 1 {name=p3 lab=ZZ[5]}
 C {lab_pin.sym} 960 -830 0 1 {name=p5 lab=ZZ[6]}
@@ -276,9 +276,9 @@ C {lab_wire.sym} 550 -930 0 0 {name=l3 sig_type=std_logic lab=RRSSTT}
 C {lab_wire.sym} 550 -910 0 0 {name=l4 sig_type=std_logic lab=CCKK}
 C {lab_wire.sym} 550 -870 0 0 {name=l5 sig_type=std_logic lab=BB}
 C {doublepin.sym} 330 -1110 0 0 {name=x3
-net_name=true}
+}
 C {doublepin.sym} 780 -1110 0 0 {name=x4
-net_name=true}
+}
 C {lab_pin.sym} 180 -1120 0 0 {name=l6 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 510 -1060 0 1 {name=p1 lab=ZZ[3]}
 C {lab_pin.sym} 960 -1060 0 1 {name=p2 lab=ZZ[4]}
@@ -290,9 +290,9 @@ C {lab_pin.sym} 930 -1160 0 1 {name=l11 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 930 -1140 0 1 {name=l12 sig_type=std_logic lab=CCKK}
 C {lab_pin.sym} 930 -1100 0 1 {name=l13 sig_type=std_logic lab=BB}
 C {doublepin.sym} 330 -1340 0 0 {name=x5
-net_name=true}
+}
 C {doublepin.sym} 780 -1340 0 0 {name=x6
-net_name=true}
+}
 C {lab_pin.sym} 180 -1350 0 0 {name=l14 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 510 -1290 0 1 {name=p4 lab=ZZ[1]}
 C {lab_pin.sym} 960 -1290 0 1 {name=p6 lab=ZZ[2]}
@@ -309,14 +309,14 @@ C {lab_wire.sym} 550 -1370 0 0 {name=l24 sig_type=std_logic lab=CCKK}
 C {lab_wire.sym} 550 -1330 0 0 {name=l25 sig_type=std_logic lab=BB}
 C {lab_pin.sym} 180 -660 0 0 {name=l33 sig_type=std_logic lab=BB}
 C {doublepin.sym} 330 -880 0 0 {name=x1
-net_name=true}
+}
 C {lab_pin.sym} 510 -620 0 1 {name=p7 lab=ZZ[7]}
 C {lab_pin.sym} 630 -620 0 0 {name=p8 lab=ZZ[8]}
 C {lab_pin.sym} 180 -680 0 0 {name=l30 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 180 -720 0 0 {name=l31 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 180 -700 0 0 {name=l32 sig_type=std_logic lab=CCKK}
 C {doublepin.sym} 330 -670 0 0 {name=x7
-net_name=true}
+}
 C {iopin.sym} 100 -80 0 0 { name=p9 lab=RRSSTT }
 C {iopin.sym} 100 -100 0 0 { name=p10 lab=CCKK }
 C {iopin.sym} 100 -120 0 0 { name=p11 lab=BB }
@@ -325,55 +325,55 @@ C {opin.sym} 270 -120 0 0 { name=p13 lab=ZZ[22:1]}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {lab_pin.sym} 1410 -620 0 1 {name=p8 lab=ZZ[9]}
 C {doublepin.sym} 1110 -460 0 0 {name=x10
-net_name=true}
+}
 C {doublepin.sym} 810 -460 0 1 {name=x11
-net_name=true}
+}
 C {lab_pin.sym} 440 -410 0 1 {name=p7 lab=ZZ[12]}
 C {lab_pin.sym} 630 -410 0 0 {name=p8 lab=ZZ[11]}
 C {doublepin.sym} 260 -460 0 0 {name=x12
-net_name=true}
+}
 C {lab_pin.sym} 1290 -410 0 1 {name=p1 lab=ZZ[10]}
 C {doublepin.sym} 1370 -1040 0 0 {name=x13
-net_name=true}
+}
 C {lab_pin.sym} 1550 -990 0 1 {name=p2 lab=ZZ[13]}
 C {lab_pin.sym} 1520 -1050 0 1 {name=l1 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 1520 -1090 0 1 {name=l11 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 1520 -1070 0 1 {name=l12 sig_type=std_logic lab=CCKK}
 C {lab_pin.sym} 1520 -1030 0 1 {name=l13 sig_type=std_logic lab=BB}
 C {doublepin.sym} 1370 -1300 0 1 {name=x14
-net_name=true}
+}
 C {lab_pin.sym} 1190 -1250 0 0 {name=p2 lab=ZZ[14]}
 C {lab_pin.sym} 1520 -1310 0 1 {name=l3 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 1520 -1350 0 1 {name=l11 sig_type=std_logic lab=RRSSTT}
 C {lab_pin.sym} 1520 -1330 0 1 {name=l12 sig_type=std_logic lab=CCKK}
 C {lab_pin.sym} 1520 -1290 0 1 {name=l13 sig_type=std_logic lab=BB}
 C {doublepin.sym} 330 -230 0 0 {name=x17[1:0]
-net_name=true}
+}
 C {doublepin.sym} 860 -230 0 1 {name=x16[1:0]
-net_name=true}
+}
 C {lab_pin.sym} 510 -180 0 1 {name=p7 lab=ZZ[17]}
 C {lab_pin.sym} 680 -180 0 0 {name=p8 lab=ZZ[16]}
 C {doublepin.sym} 1230 -230 0 0 {name=x22[1:0]
-net_name=true}
+}
 C {lab_pin.sym} 1410 -180 0 1 {name=p1 lab=ZZ[15]}
-C {inv_ngspice.sym} 80 -260 0 0 {name=x18 ROUT=1000 net_name=true}
-C {inv_ngspice.sym} 70 -450 0 0 {name=x19 ROUT=1000 net_name=true}
+C {inv_ngspice.sym} 80 -260 0 0 {name=x18 ROUT=1000}
+C {inv_ngspice.sym} 70 -450 0 0 {name=x19 ROUT=1000}
 C {doublepin.sym} 1590 -460 0 0 {name=x20
-net_name=true}
+}
 C {lab_pin.sym} 1770 -310 0 1 {name=p8 lab=ZZ[18]}
 C {doublepin.sym} 1890 -460 0 0 {name=x21
-net_name=true}
+}
 C {lab_pin.sym} 2070 -310 0 1 {name=p8 lab=ZZ[19]}
-C {inv_ngspice.sym} 770 -350 0 0 {name=x15 ROUT=1000 net_name=true}
+C {inv_ngspice.sym} 770 -350 0 0 {name=x15 ROUT=1000}
 C {doublepin.sym} 1410 -870 0 0 {name=x23
-net_name=true}
+}
 C {lab_wire.sym} 1180 -880 0 0 {name=l2 sig_type=std_logic lab=AA[3:0]}
 C {lab_pin.sym} 1590 -820 0 1 {name=p5 lab=ZZ[20]}
 C {lab_wire.sym} 1180 -920 0 0 {name=l3 sig_type=std_logic lab=RRSSTT}
 C {lab_wire.sym} 1180 -900 0 0 {name=l4 sig_type=std_logic lab=CCKK}
 C {lab_wire.sym} 1180 -860 0 0 {name=l5 sig_type=std_logic lab=BB}
 C {doublepin.sym} 1910 -870 0 1 {name=x24
-net_name=true}
+}
 C {lab_pin.sym} 1730 -820 0 0 {name=p5 lab=ZZ[21]}
 C {xcross.sym} 1900 -1370 0 0 {name=x25}
 C {xcross.sym} 2140 -1290 0 0 {name=x26}
@@ -381,7 +381,7 @@ C {xcross.sym} 1860 -1070 0 0 {name=x27}
 C {xcross.sym} 2020 -1070 0 0 {name=x28}
 C {xcross.sym} 2180 -990 0 0 {name=x29}
 C {doublepin.sym} 2510 -980 0 1 {name=x30
-net_name=true}
+}
 C {lab_pin.sym} 2330 -930 0 0 {name=p5 lab=ZZ[22]}
 C {xcross.sym} 2060 -1410 2 0 {name=x31}
 C {use.sym} 1590 -100 0 0 {------------------------------------------------
