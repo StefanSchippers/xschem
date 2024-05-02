@@ -1,0 +1,35 @@
+TTY_CFLAGS = -DPLUGIN_TTY
+TTY_OBJS = \
+  $(BIN)/tty/find_ncurses.o \
+  $(BIN)/tty/find_slang.o \
+  $(BIN)/tty/find_gpm.o \
+  $(BIN)/tty/find_pty.o \
+  $(BIN)/tty/find_ioctl.o \
+  $(BIN)/tty/find_term.o \
+  $(BIN)/tty/find_readline.o \
+  $(BIN)/tty/tty.o
+
+$(BIN)/tty/find_ncurses.o: $(SRC)/tty/find_ncurses.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_ncurses.c -o $(BIN)/tty/find_ncurses.o
+
+$(BIN)/tty/find_slang.o: $(SRC)/tty/find_slang.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_slang.c -o $(BIN)/tty/find_slang.o
+
+$(BIN)/tty/tty.o: $(SRC)/tty/tty.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/tty.c -o $(BIN)/tty/tty.o
+
+$(BIN)/tty/find_gpm.o: $(SRC)/tty/find_gpm.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_gpm.c -o $(BIN)/tty/find_gpm.o
+
+$(BIN)/tty/find_pty.o: $(SRC)/tty/find_pty.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_pty.c -o $(BIN)/tty/find_pty.o
+
+$(BIN)/tty/find_ioctl.o: $(SRC)/tty/find_ioctl.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_ioctl.c -o $(BIN)/tty/find_ioctl.o
+
+$(BIN)/tty/find_term.o: $(SRC)/tty/find_term.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_term.c -o $(BIN)/tty/find_term.o
+
+$(BIN)/tty/find_readline.o: $(SRC)/tty/find_readline.c
+	$(CC) $(CFLAGS) -c $(SRC)/tty/find_readline.c -o $(BIN)/tty/find_readline.o
+
