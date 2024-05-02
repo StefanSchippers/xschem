@@ -2855,9 +2855,8 @@ static void restore_selection(double x1, double y1, double x2, double y2)
 
 void new_wire(int what, double mx_snap, double my_snap)
 {
-  int s_pnetname, modified = 0;
+  int modified = 0;
   if( (what & PLACE) ) {
-    s_pnetname = tclgetboolvar("show_pin_net_names");
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
       xctx->push_undo();
       if(xctx->manhattan_lines==1) {
@@ -2909,14 +2908,12 @@ void new_wire(int what, double mx_snap, double my_snap)
       }
       xctx->prep_hi_structs = 0;
       if(tclgetboolvar("autotrim_wires")) trim_wires();
-      if(s_pnetname || xctx->hilight_nets) {
-        prepare_netlist_structs(0); /* since xctx->prep_hi_structs==0, do a delete_netlist_structs() first,
-                                     * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
-        if(xctx->hilight_nets) {
-          propagate_hilights(1, 1, XINSERT_NOREPLACE);
-        }
-        draw();
-      } else update_conn_cues(WIRELAYER, 1,1);
+      prepare_netlist_structs(0); /* since xctx->prep_hi_structs==0, do a delete_netlist_structs() first,
+                                   * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
+      if(xctx->hilight_nets) {
+        propagate_hilights(1, 1, XINSERT_NOREPLACE);
+      }
+      draw();
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
     }
     if(! (what &END)) {

@@ -6932,7 +6932,7 @@ set tctx::global_list {
   tctx::rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
   search_select search_value selected_tok show_hidden_texts show_infowindow
-  show_infowindow_after_netlist show_pin_net_names
+  show_infowindow_after_netlist
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
   text_replace_selection textwindow_fileid textwindow_filename textwindow_w
@@ -7303,7 +7303,7 @@ proc build_widgets { {topwin {} } } {
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
-  global cadsnap cadgrid draw_window show_pin_net_names toolbar_visible hide_symbols undo_type
+  global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   set mbg {}
@@ -7697,13 +7697,6 @@ proc build_widgets { {topwin {} } } {
          -selectcolor $selectcolor -command {xschem update_all_sym_bboxes; xschem redraw}
   $topwin.menubar.view.menu.show add checkbutton -label "Draw grid axes"  -variable draw_grid_axes \
          -selectcolor $selectcolor -command {xschem redraw}
-  $topwin.menubar.view.menu.show add checkbutton -label "Show net names on symbol pins/floaters" \
-     -selectcolor $selectcolor -variable show_pin_net_names \
-     -command {
-        xschem update_all_sym_bboxes
-        xschem redraw
-     }
-
   $topwin.menubar.prop.menu add command -label "Edit" -command "xschem edit_prop" -accelerator Q
   $topwin.menubar.prop.menu add command -label "Edit with editor" -command "xschem edit_vi_prop" -accelerator Shift+Q
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
@@ -8453,9 +8446,6 @@ set_ne keep_symbols 0 ;# if set loaded symbols will not be purged when descendin
 
 # hide instance details (show only bbox) 
 set_ne hide_symbols 0
-# show net names if symbol has attributes like @#n:net_name (where n = pin number or pin name) 
-# and net_name=true global attribute set on symbol or instance.
-set_ne show_pin_net_names 1
 # gaw tcp {host port} 
 set_ne gaw_tcp_address {localhost 2020}
 

@@ -2942,20 +2942,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc > 6) {
-        int i, s_pnetname, floaters;
+        int i;
         if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem move_instance: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
-        s_pnetname = tclgetboolvar("show_pin_net_names");
-        floaters = set_modify(1);
-        floaters |= s_pnetname;
-
         if(undo) xctx->push_undo();
-        if(dr && !floaters) {
-          bbox(START,0.0,0.0,0.0,0.0);
-          bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-        }
         if(strcmp(argv[3], "-")) xctx->inst[i].x0 = atof(argv[3]);
         if(strcmp(argv[4], "-")) xctx->inst[i].y0 = atof(argv[4]);
         if(strcmp(argv[5], "-")) xctx->inst[i].rot = (unsigned short)atoi(argv[5]);
@@ -2965,14 +2957,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
         if(dr) {
-          if(!floaters) {
-            bbox(ADD, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-            bbox(SET,0.0,0.0,0.0,0.0);
-          }
           draw();
-          if(!floaters) {
-            bbox(END,0.0,0.0,0.0,0.0);
-          }
         }
       }
     }
@@ -4204,9 +4189,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "reset_inst_prop"))
     {
       char *translated_sym = NULL;
-      int floaters = 0, sym_number = -1;
+      int sym_number = -1;
       char *subst = NULL;
-      int s_pnetname = tclgetboolvar("show_pin_net_names");
       int inst;
 
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -4218,12 +4202,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem reset_inst_prop: instance not found", TCL_STATIC);
         return TCL_ERROR;
       }
-      floaters = set_modify(1);
-      floaters |= s_pnetname;
-      if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-      if(!floaters)
-        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
       xctx->push_undo();
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
@@ -4245,16 +4224,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hash_names(inst, XINSERT);
       /* new symbol bbox after prop changes (may change due to text length) */
       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-      if(!floaters) {
-        bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-        /* redraw symbol with new props */
-        bbox(SET,0.0,0.0,0.0,0.0);
-      }
       set_modify(-2); /* reset floaters caches */
       draw();
-      if(!floaters) {
-        bbox(END,0.0,0.0,0.0,0.0);
-      }
       my_free(_ALLOC_ID_, &translated_sym);
       Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
     }
@@ -5036,16 +5007,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         } else {
           char *translated_sym = NULL;
-          int floaters = 0, sym_number = -1;
+          int sym_number = -1;
           char *subst = NULL;
-          int s_pnetname = tclgetboolvar("show_pin_net_names");
-          floaters = set_modify(1);
-          floaters |= s_pnetname;
           if(!fast) {
-            if(!floaters) bbox(START,0.0,0.0,0.0,0.0);
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            if(!floaters) 
-              bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
             xctx->push_undo();
           }
           xctx->prep_hash_inst=0;
@@ -5082,16 +5047,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            if(!floaters) {
-              bbox(ADD, xctx->inst[inst].x1, xctx->inst[inst].y1, xctx->inst[inst].x2, xctx->inst[inst].y2);
-              /* redraw symbol with new props */
-              bbox(SET,0.0,0.0,0.0,0.0);
-            }
             set_modify(-2); /* reset floaters caches */
             draw();
-            if(!floaters) {
-              bbox(END,0.0,0.0,0.0,0.0);
-            }
           }
           my_free(_ALLOC_ID_, &translated_sym);
           Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
@@ -5741,7 +5698,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* update_all_sym_bboxes
-     *   Update all symbol bounding boxes (useful if show_pin_net_names is set) */
+     *   Update all symbol bounding boxes */
     else if(!strcmp(argv[1], "update_all_sym_bboxes"))
     {
       int i;
