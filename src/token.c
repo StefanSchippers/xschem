@@ -3576,7 +3576,7 @@ static char *get_pin_attr(const char *token, int inst)
       if(rn) my_free(_ALLOC_ID_, &rn);
     }
 
-    if(!pin_attr_value ) my_strdup2(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+    if(!pin_attr_value ) my_strdup2(_ALLOC_ID_, &pin_attr_value, "");
     my_strdup2(_ALLOC_ID_, &value, pin_attr_value);
     /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
     if(pin_attr_value[0] && !strcmp(pin_attr, "pinnumber") ) {
