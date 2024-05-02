@@ -1381,6 +1381,7 @@ extern void select_inside(double x1,double y1, double x2, double y2, int sel);
 extern void select_touch(double x1,double y1, double x2, double y2, int sel);
 /*  Select all nets that are dangling, ie not attached to any non pin/port/probe components */
 extern int select_dangling_nets(void);
+extern void tclmainloop(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern void draw_crosshair(int del);

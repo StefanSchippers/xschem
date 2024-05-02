@@ -2267,7 +2267,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
   }
 }
 
-static void tclmainloop(void)
+void tclmainloop(void)
 {
   while(1) Tcl_DoOneEvent(TCL_ALL_EVENTS);
 }
@@ -2860,13 +2860,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    } else {
      my_snprintf(f, S(f), "%s", abs_sym_path(cli_opt_filename, ""));
    }
-   /*
-    * } else if(cli_opt_filename[0] !='/') {
-    *   my_snprintf(f, S(f), "%s/%s", pwd_dir, cli_opt_filename);
-    * } else {
-    *   my_snprintf(f, S(f), "%s", cli_opt_filename);
-    * }
-    */
    #else
    my_strncpy(f, abs_sym_path(cli_opt_filename, ""), S(f));
    #endif
@@ -3012,9 +3005,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(tclgetboolvar("use_tclreadline") && !cli_opt_detach && !cli_opt_no_readline) {
    tcleval( "if {![catch {package require tclreadline}] && $tcl_interactive} "
-     "{::tclreadline::readline builtincompleter 0;"
-      "::tclreadline::readline customcompleter completer;"
-      "::tclreadline::Loop }" 
+    "{"
+      "::tclreadline::readline builtincompleter 0; "
+      "::tclreadline::readline customcompleter completer; "
+      "::tclreadline::Loop"
+    "}" 
    );
  }
  /* set up a tcl event handler to serve events (tcp connections) if no other
