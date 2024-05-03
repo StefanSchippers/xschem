@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -50,3 +50,5 @@ T {@#0:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@#2:net_name} 25 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15 hide=instance}
 T {@#3:net_name} 25 0.625 0 0 0.15 0.15 {layer=15 hide=instance}
+T {tcleval(vgs=[to_eng \{@#1:spice_get_voltage - @#2:spice_get_voltage \}]
+vds=[to_eng \{@#0:spice_get_voltage - @#2:spice_get_voltage \}])} -17.5 20 0 0 0.05 0.05 {layer=15 hide=instance}

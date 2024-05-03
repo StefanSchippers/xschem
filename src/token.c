@@ -3530,7 +3530,7 @@ static char *get_pin_attr(const char *token, int inst)
         const char *path =  xctx->sch_path[xctx->currsch] + 1;
         char *net = NULL;
         int idx;
-        double val;
+        double val = 0.0;
         const char *valstr;
         if(path) {
           prepare_netlist_structs(0);
@@ -3549,8 +3549,9 @@ static char *get_pin_attr(const char *token, int inst)
               if(idx >= 0) {
                 val = xctx->raw->cursor_b_val[idx];
               }
-              if(idx < 0) {
-                valstr = "";
+              if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) valstr = "0.0";
+              else if(idx < 0) {
+                valstr = "UNDEF";
               } else {
                 valstr = dtoa_eng(val);
               }
@@ -3808,7 +3809,7 @@ const char *translate(int inst, const char* s)
          char *net = NULL;
          size_t len;
          int idx;
-         double val;
+         double val = 0.0;
          const char *valstr;
          if(path) {
            prepare_netlist_structs(0);
@@ -3832,10 +3833,14 @@ const char *translate(int inst, const char* s)
                if(idx >= 0) {
                  val = xctx->raw->cursor_b_val[idx];
                }
-               if(idx < 0) {
-                 valstr = "";
-                 xctx->tok_size = 0;
-                 len = 0;
+               if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
+                 valstr = "0.0";
+                 xctx->tok_size = 3;
+                 len = 3;
+               } else if(idx < 0) {
+                 valstr = "UNDEF";
+                 xctx->tok_size = 5;
+                 len = 5;
                } else {
                  valstr = dtoa_eng(val);
                  len = xctx->tok_size;
@@ -3902,10 +3907,14 @@ const char *translate(int inst, const char* s)
            if(idx >= 0) {
              val = xctx->raw->cursor_b_val[idx];
            }
-           if(idx < 0) {
-             valstr = "";
-             xctx->tok_size = 0;
-             len = 0;
+           if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
+             valstr = "0.0";
+             xctx->tok_size = 3;
+             len = 3;
+           } else if(idx < 0) {
+             valstr = "UNDEF";
+             xctx->tok_size = 5;
+             len = 5;
            } else {
              valstr = dtoa_eng(val);
              len = xctx->tok_size;
@@ -3973,9 +3982,9 @@ const char *translate(int inst, const char* s)
              val = xctx->raw->cursor_b_val[idx];
            }
            if(idx < 0) {
-             valstr = "";
-             xctx->tok_size = 0;
-             len = 0;
+             valstr = "undef";
+             xctx->tok_size = 5;
+             len = 5;
            } else {
              valstr = dtoa_eng(val);
              len = xctx->tok_size;
@@ -4008,6 +4017,7 @@ const char *translate(int inst, const char* s)
          double val = 0.0, val1 = 0.0, val2 = 0.0;
          const char *valstr;
          if(path) {
+           int gnd1 = 0, gnd2 = 0;
            int skip = 0;
            /* skip path components that are above the level where raw file was loaded */
            while(*path && skip < start_level) {
@@ -4029,14 +4039,18 @@ const char *translate(int inst, const char* s)
            strtolower(fqnet2);
            dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
            dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
+           if(!strcmp(fqnet1, "0") || !my_strcasecmp(fqnet1, "GND")) gnd1 = 1;
+           if(!strcmp(fqnet2, "0") || !my_strcasecmp(fqnet2, "GND")) gnd2 = 1;
            idx1 = get_raw_index(fqnet1, NULL);
            idx2 = get_raw_index(fqnet2, NULL);
-           if(idx1 < 0 || idx2 < 0) {
+           if( (!gnd1 && idx1 < 0) || (!gnd2 && idx2 < 0) ) {
              valstr = "";
              xctx->tok_size = 0;
              len = 0;
            } else {
-             val = xctx->raw->cursor_b_val[idx1] - xctx->raw->cursor_b_val[idx2];
+             double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
+             double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
+             val = val1 - val2;
              valstr = dtoa_eng(val);
              len = xctx->tok_size;
            }
