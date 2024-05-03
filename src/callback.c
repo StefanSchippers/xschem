@@ -310,7 +310,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       raw->annot_sweep_idx = sweep_idx;
       for(i = 0; i < raw->nvars; ++i) {
         char s[100];
-        raw->cursor_b_val[i] =  interpolate_yval(i, p, cursor2, sweep_idx, (p < ofs_end));
+        raw->cursor_b_val[i] = interpolate_yval(i, p, cursor2, sweep_idx, (p < ofs_end));
         my_snprintf(s, S(s), "%.5g", raw->cursor_b_val[i]);
         /* tclvareval("array set ngspice::ngspice_data [list {",  raw->names[i], "} ", s, "]", NULL); */
         Tcl_SetVar2(interp, "ngspice::ngspice_data", raw->names[i], s, TCL_GLOBAL_ONLY);

@@ -2069,18 +2069,14 @@ char *resolved_net(const char *net)
     my_strdup(_ALLOC_ID_, &rnet, net);
     return rnet;
   }
- 
   if(net) {
     char *n_s1, *n_s2;
-    int k, mult;
+    int k, mult, skip = 0;
     char *exp_net = NULL;
-    char *resolved_net;
+    char *resolved_net = NULL;
     int level = xctx->currsch;
     int start_level;
-    char *path = xctx->sch_path[level] + 1;
-    char *path2 = NULL;
-    char *path2_ptr;
-    int skip = 0;
+    char *path = xctx->sch_path[level] + 1, *path2 = NULL, *path2_ptr = NULL;
 
     start_level = sch_waves_loaded();
     if(start_level == -1) start_level = 0;
@@ -2099,12 +2095,21 @@ char *resolved_net(const char *net)
       char *net_name = my_strtok_r(n_s1, ",", "", 0, &n_s2);
       level = xctx->currsch;
       n_s1 = NULL;
-      resolved_net = net_name;
+      my_strdup2(_ALLOC_ID_, &resolved_net, net_name);
       dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
-      while(level > start_level) {
+      if(xctx->currsch > 0) { /* check if net passed by attribute instead of by port */
+        const char *ptr = get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, resolved_net, 0);
+        if(ptr && ptr[0]) {
+          my_strdup2(_ALLOC_ID_, &resolved_net, ptr);
+          level--;
+          dbg(1, "lcc[%d].prop_ptr=%s\n", xctx->currsch - 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr);
+          dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
+        }
+      }
+      while(level > start_level) { /* get net from parent nets attached to port if resolved_net is a port */
         entry = str_hash_lookup(&xctx->portmap[level], resolved_net, NULL, XLOOKUP);
         if(entry) {
-          resolved_net = entry->value;
+          my_strdup2(_ALLOC_ID_, &resolved_net, entry->value);
           dbg(1, "resolved_net(): while loop: resolved_net=%s\n", resolved_net);
         }
         else break;
@@ -2122,12 +2127,11 @@ char *resolved_net(const char *net)
         }
         path2_ptr++;
       }
-      dbg(1, "path2=%s\n", path2);
-      dbg(1, "level=%d start_level=%d\n", level, start_level);
-
+      dbg(1, "path2=%s level=%d start_level=%d\n", path2, level, start_level);
       my_mstrcat(_ALLOC_ID_, &rnet, path2, resolved_net, NULL);
       if(k < mult - 1) my_strcat(_ALLOC_ID_, &rnet, ",");
     }
+    if(resolved_net) my_free(_ALLOC_ID_, &resolved_net);
     my_free(_ALLOC_ID_, &path2);
     my_free(_ALLOC_ID_, &exp_net);
   }

@@ -3537,8 +3537,8 @@ static char *get_pin_attr(const char *token, int inst)
           my_strdup2(_ALLOC_ID_, &net, net_name(inst, n, &multip, 0, 0));
           if(multip == 1 && net && net[0]) {
             char *rn;
-            dbg(1, "translate() @spice_get_voltage: inst=%d\n", inst);
-            dbg(1, "                                net=%s\n", net);
+            dbg(1, "get_pin_attr() spice_get_voltage: inst=%d\n", inst);
+            dbg(1, "                                  net=%s\n", net);
             rn = resolved_net(net);
             if(rn) {
               my_strdup2(_ALLOC_ID_, &fqnet, rn);
@@ -3553,7 +3553,7 @@ static char *get_pin_attr(const char *token, int inst)
               else if(idx < 0) {
                 valstr = "UNDEF";
               } else {
-                valstr = dtoa_eng(val);
+                valstr = dtoa(val);
               }
               my_strdup2(_ALLOC_ID_, &pin_attr_value, valstr);
               dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
@@ -3610,6 +3610,7 @@ static char *get_pin_attr(const char *token, int inst)
   }
   my_free(_ALLOC_ID_, &pin_attr);
   my_free(_ALLOC_ID_, &pin_num_or_name);
+  dbg(1, "get_pin_attr(): returning value=%s\n", value);
   return value;
 }
 
@@ -3842,7 +3843,7 @@ const char *translate(int inst, const char* s)
                  xctx->tok_size = 5;
                  len = 5;
                } else {
-                 valstr = dtoa_eng(val);
+                 valstr = dtoa(val);
                  len = xctx->tok_size;
                }
                if(len) {
@@ -3916,7 +3917,7 @@ const char *translate(int inst, const char* s)
              xctx->tok_size = 5;
              len = 5;
            } else {
-             valstr = dtoa_eng(val);
+             valstr = dtoa(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -3986,7 +3987,7 @@ const char *translate(int inst, const char* s)
              xctx->tok_size = 5;
              len = 5;
            } else {
-             valstr = dtoa_eng(val);
+             valstr = dtoa(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -4051,7 +4052,7 @@ const char *translate(int inst, const char* s)
              double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
              double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
              val = val1 - val2;
-             valstr = dtoa_eng(val);
+             valstr = dtoa(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -4119,7 +4120,7 @@ const char *translate(int inst, const char* s)
            xctx->tok_size = 0;
            len = 0;
          } else {
-           valstr = dtoa_eng(val);
+           valstr = dtoa(val);
            len = xctx->tok_size;
          }
          if(len) {
