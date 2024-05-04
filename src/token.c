@@ -3490,7 +3490,7 @@ char *find_nth(const char *str, const char *sep, const char *quote, int keep_quo
 /* given a token like @#pin:attr get value of pin attribute 'attr'
  * if only @#pin is given return name of net attached to 'pin'
  * caller should free returned string */
-static char *get_pin_attr(const char *token, int inst)
+static char *get_pin_attr(const char *token, int inst, int engineering)
 {
   char *value = NULL;
   int n;
@@ -3544,7 +3544,7 @@ static char *get_pin_attr(const char *token, int inst)
               my_strdup2(_ALLOC_ID_, &fqnet, rn);
               if(rn) my_free(_ALLOC_ID_, &rn);
               strtolower(fqnet);
-              dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
+              dbg(1, "get_pin_attr() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
               idx = get_raw_index(fqnet, NULL);
               if(idx >= 0) {
                 val = xctx->raw->cursor_b_val[idx];
@@ -3553,7 +3553,7 @@ static char *get_pin_attr(const char *token, int inst)
               else if(idx < 0) {
                 valstr = "UNDEF";
               } else {
-                valstr = dtoa(val);
+                valstr = engineering? dtoa_eng(val) : dtoa(val);
               }
               my_strdup2(_ALLOC_ID_, &pin_attr_value, valstr);
               dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
@@ -3633,7 +3633,7 @@ const char *translate(int inst, const char* s)
  struct tm *tm;
  char file_name[PATH_MAX];
  const char *value;
- int escape=0;
+ int escape=0, engineering = 0;
  char date[200];
  int sp_prefix;
  int level;
@@ -3652,6 +3652,8 @@ const char *translate(int inst, const char* s)
    dbg(0, "translate(): instance number out of bounds: %d\n", inst);
    return empty;
  }
+ /* if spice_get_* token not processed by tcl use enginering notation (2m, 3u, ...)  */
+ if(!(strstr(s, "tcleval(") == s)) engineering = 1;
  instname = (inst >=0 && xctx->inst[inst].instname) ? xctx->inst[inst].instname : "";
  sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
  level = xctx->currsch;
@@ -3735,7 +3737,7 @@ const char *translate(int inst, const char* s)
        }
      }
    } else if(inst >= 0 && token[0]=='@' && token[1]=='#') {
-     value = get_pin_attr(token, inst);
+     value = get_pin_attr(token, inst, engineering);
      if(value) {
        tmp=strlen(value);
        STR_ALLOC(&result, tmp + result_pos, &size);
@@ -3843,7 +3845,7 @@ const char *translate(int inst, const char* s)
                  xctx->tok_size = 5;
                  len = 5;
                } else {
-                 valstr = dtoa(val);
+                 valstr = engineering ? dtoa_eng(val) : dtoa(val);
                  len = xctx->tok_size;
                }
                if(len) {
@@ -3917,7 +3919,9 @@ const char *translate(int inst, const char* s)
              xctx->tok_size = 5;
              len = 5;
            } else {
-             valstr = dtoa(val);
+             /* always use engineering as these tokens are generated from single
+              * @spice_get_voltage patterns */
+             valstr = dtoa_eng(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -3987,7 +3991,9 @@ const char *translate(int inst, const char* s)
              xctx->tok_size = 5;
              len = 5;
            } else {
-             valstr = dtoa(val);
+             /* always use engineering as these tokens are generated from single
+              * @spice_get_voltage patterns */
+             valstr = dtoa_eng(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -4052,7 +4058,7 @@ const char *translate(int inst, const char* s)
              double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
              double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
              val = val1 - val2;
-             valstr = dtoa(val);
+             valstr = engineering ? dtoa_eng(val) : dtoa(val);
              len = xctx->tok_size;
            }
            if(len) {
@@ -4120,7 +4126,7 @@ const char *translate(int inst, const char* s)
            xctx->tok_size = 0;
            len = 0;
          } else {
-           valstr = dtoa(val);
+           valstr = engineering ? dtoa_eng(val) : dtoa(val);
            len = xctx->tok_size;
          }
          if(len) {
