@@ -71,7 +71,7 @@ hilight_wave=-1
 color="4 7"
 node="plus minus"}
 T {Default instance:
-Uses comp3.sch} 320 -950 0 0 0.4 0.4 { layer=7}
+Uses comp3.sch} 320 -960 0 0 0.4 0.4 { layer=7}
 T {Alternate instance:
 Uses comp3_parax.sch} 10 -960 0 0 0.4 0.4 { layer=8}
 T {Alternate instance:
@@ -86,7 +86,7 @@ spice schematic attribute} 320 -750 0 0 0.4 0.4 { layer=11}
 T {Alternate instance:
 Uses spice_sym_def to read in 
 file comp3_file.cir
-no schematic used} 330 -450 0 0 0.4 0.4 { layer=12}
+no schematic used} 330 -460 0 0 0.4 0.4 { layer=12}
 T {The same symbol is simulated with 5 different implementations
 using instance 'schematic' and 'spice_sym_def ' attributes} 30 -1040 0 0 0.4 0.4 { layer=4 slant=oblique}
 T {Instance based
@@ -109,7 +109,7 @@ is provided either directly or by a .include
 line xschem will adapt port order of instances
 to match the port order of the provided
 netlists.} 620 -940 0 0 0.5 0.5 {}
-C {comp3.sym} 480 -840 0 0 {name=x1}
+C {comp3.sym} 480 -850 0 0 {name=x1}
 C {comp3.sym} 180 -850 0 0 {name=x2
 schematic=comp3_parax.sch}
 C {comp3.sym} 180 -580 0 0 {name=x3
@@ -152,7 +152,7 @@ verilog_sym_def="verilog stuff"
 vhdl_sym_def="vhdl stuff"}
 C {comp3.sym} 480 -580 0 0 {name=x5
 schematic=comp3_empty.sch}
-C {comp3.sym} 480 -280 0 0 {name=x6
+C {comp3.sym} 480 -290 0 0 {name=x6
 schematic=comp3_file
 spice_sym_def="tcleval(
   [read_data_nonewline [abs_sym_path comp3_file.cir]]
@@ -165,12 +165,12 @@ tclcommand="textwindow [abs_sym_path comp3_file.cir]"}
 C {comp3_read.sym} 890 -280 0 0 {name=x7
 
 tclcommand="textwindow [abs_sym_path comp3_read.cir]"}
-C {lab_pin.sym} 540 -840 0 1 {name=p2 lab=OUT1}
+C {lab_pin.sym} 540 -850 0 1 {name=p2 lab=OUT1}
 C {lab_pin.sym} 240 -850 0 1 {name=p5 lab=OUT2}
 C {lab_pin.sym} 240 -580 0 1 {name=p8 lab=OUT3}
 C {lab_pin.sym} 240 -290 0 1 {name=p35 lab=OUT4}
 C {lab_pin.sym} 540 -580 0 1 {name=p16 lab=OUT5}
-C {lab_pin.sym} 540 -280 0 1 {name=p19 lab=OUT6}
+C {lab_pin.sym} 540 -290 0 1 {name=p19 lab=OUT6}
 C {lab_pin.sym} 950 -280 0 1 {name=p23 lab=OUT7}
 C {lab_pin.sym} 120 -820 0 0 {name=p6 lab=MINUS}
 C {lab_pin.sym} 700 -90 0 0 {name=p10 lab=0}
@@ -193,7 +193,7 @@ C {code_shown.sym} 140 -170 0 0 {name=COMMANDS only_toplevel=false value=".contr
   write test_instance_schematic_selection.raw
 .endc
 "}
-C {lab_pin.sym} 420 -870 0 0 {name=p1 lab=PLUS}
+C {lab_pin.sym} 420 -880 0 0 {name=p1 lab=PLUS}
 C {lab_pin.sym} 420 -610 0 0 {name=p15 lab=PLUS}
 C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version released on 2/22/06
 
@@ -323,15 +323,15 @@ C {code.sym} 0 -200 0 0 {name=MODELS only_toplevel=false value="* Beta Version r
 "}
 C {lab_pin.sym} 420 -550 0 0 {name=p17 lab=MINUS}
 C {lab_pin.sym} 120 -880 0 0 {name=p4 lab=PLUS}
-C {lab_pin.sym} 420 -310 0 0 {name=p18 lab=PLUS}
+C {lab_pin.sym} 420 -320 0 0 {name=p18 lab=PLUS}
 C {vsource.sym} 700 -120 0 0 {name=V1 value=2
 savecurrent=true}
-C {lab_pin.sym} 420 -250 0 0 {name=p20 lab=MINUS}
+C {lab_pin.sym} 420 -260 0 0 {name=p20 lab=MINUS}
 C {lab_pin.sym} 120 -610 0 0 {name=p7 lab=PLUS}
 C {lab_pin.sym} 830 -310 0 0 {name=p22 lab=PLUS}
 C {lab_pin.sym} 700 -150 0 0 {name=p21 lab=VCC}
 C {lab_pin.sym} 830 -250 0 0 {name=p24 lab=MINUS}
-C {lab_pin.sym} 420 -810 0 0 {name=p3 lab=MINUS}
+C {lab_pin.sym} 420 -820 0 0 {name=p3 lab=MINUS}
 C {lab_pin.sym} 120 -320 0 0 {name=p34 lab=PLUS}
 C {lab_pin.sym} 120 -550 0 0 {name=p9 lab=MINUS}
 C {lab_pin.sym} 120 -260 0 0 {name=p36 lab=MINUS}

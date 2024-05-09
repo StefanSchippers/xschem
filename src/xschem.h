@@ -1191,6 +1191,7 @@ extern int fix_mouse_coord;
 extern int help;
 extern char *cad_icon[];
 extern FILE *errfp;
+extern int exit_code;
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
 extern char sel_file[PATH_MAX];
@@ -1482,7 +1483,7 @@ extern void clear_partial_selected_wires(void);
 extern int connect_by_kissing(void);
 extern int unselect_partial_sel_wires(void);
 extern void delete_files(void);
-extern int sym_vs_sch_pins(void);
+extern int sym_vs_sch_pins(int all);
 extern char *get_generator_command(const char *str);
 extern int match_symbol(const char name[]);
 extern int save_schematic(const char *); /*  20171020 added return value */

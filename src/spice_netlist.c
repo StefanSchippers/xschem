@@ -272,8 +272,12 @@ int global_spice_netlist(int global)  /* netlister driver */
  int save_prev_mod = xctx->prev_set_modify;
  struct stat buf;
  char *top_symbol_name = NULL;
- int found_top_symbol = 0; /* if top level has a symbol use it for pin ordering */
+ /* if top level has a symbol use it for pin ordering
+  * top_symbol_name == 1: a symbol file matching schematic has been found.
+  * top_symbol_name == 3: the found symbol has type=subcircuit and has ports */
+ int found_top_symbol = 0;
 
+ exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
  xctx->push_undo();
@@ -342,18 +346,20 @@ int global_spice_netlist(int global)  /* netlister driver */
  if(!stat(top_symbol_name, &buf)) { /* if top level has a symbol use the symbol for pin ordering */
    dbg(1, "found top level symbol %s\n", top_symbol_name);
    load_sym_def(top_symbol_name, NULL);
+   found_top_symbol = 1;
    /* only use the symbol if it has pins and is a subcircuit */
    if(xctx->sym[xctx->symbols - 1].type != NULL && 
      !strcmp(xctx->sym[xctx->symbols - 1].type, "subcircuit") &&
        xctx->sym[xctx->symbols - 1].rects[PINLAYER] > 0) {
      fprintf(fd," ");
      print_spice_subckt_nodes(fd, xctx->symbols - 1);
-     found_top_symbol = 1;
+     found_top_symbol = 3;
+     err |= sym_vs_sch_pins(xctx->symbols - 1);
    }
    remove_symbol(xctx->symbols - 1);
  }
  my_free(_ALLOC_ID_, &top_symbol_name);
- if(!found_top_symbol) {
+ if(found_top_symbol != 3) {
    for(i=0;i<xctx->instances; ++i) {
      if(skip_instance(i, 1, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
@@ -493,6 +499,8 @@ int global_spice_netlist(int global)  /* netlister driver */
    xctx->currsch--;
    unselect_all(1);
    dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
+   /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
+   err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
@@ -505,8 +513,6 @@ int global_spice_netlist(int global)  /* netlister driver */
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
-   /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
-   err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
  }
@@ -584,6 +590,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &place);
  xctx->netlist_count = 0;
  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
+ exit_code = err;
  return err;
 }
 

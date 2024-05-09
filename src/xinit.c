@@ -2994,7 +2994,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tcleval("eval_postinit_commands");
 
  if(cli_opt_quit) {
-   tcleval("exit 0");
+   tclvareval("exit ", my_itoa(exit_code), NULL);
  }
 
 

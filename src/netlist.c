@@ -1570,12 +1570,13 @@ int warning_overlapped_symbols(int sel)
   return err;
 }
 
-int sym_vs_sch_pins()
+/* all: -1: check all symbols, otherwise check only indicated symbol */
+int sym_vs_sch_pins(all)
 {
   int err = 0;
   char **lab_array =NULL;
   int lab_array_size = 0;
-  int i, j, k, symbol, n_syms, pin_cnt=0, pin_match, mult;
+  int i, j, k, symbol, pin_cnt=0, pin_match, mult;
   struct stat buf;
   char name[PATH_MAX];
   char *type = NULL;
@@ -1591,8 +1592,14 @@ int sym_vs_sch_pins()
   char tag[1];
   char filename[PATH_MAX];
   char f_version[100];
-  n_syms = xctx->symbols;
-  for(i=0;i<n_syms; ++i)
+  int start = 0;
+  int end = xctx->symbols;
+  int n_syms = xctx->symbols;
+  if(all >= 0 && all < xctx->symbols) {
+    start = all;
+    end = all + 1;
+  }
+  for(i = start; i < end; ++i)
   {
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
       int rects = xctx->sym[i].rects[PINLAYER];
@@ -1849,6 +1856,6 @@ int sym_vs_sch_pins()
     my_free(_ALLOC_ID_, &pin_dir);
   } /* for(i=0;i<n_syms; ++i) */
 
-  while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
+  if(all == -1) while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
   return err;
 }

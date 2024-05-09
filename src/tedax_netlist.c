@@ -137,6 +137,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  int lvs_ignore = tclgetboolvar("lvs_ignore");
  int save_prev_mod = xctx->prev_set_modify;
 
+ exit_code = 0; /* reset exit code */
  xctx->push_undo();
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, HASHSIZE);
@@ -244,6 +245,8 @@ int global_tedax_netlist(int global)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
+   /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
+   err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    xctx->pop_undo(4, 0);
    xctx->prev_set_modify = save_prev_mod;
@@ -256,8 +259,6 @@ int global_tedax_netlist(int global)  /* netlister driver */
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
 
-   /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
-   err |= sym_vs_sch_pins();
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
  }
@@ -287,6 +288,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
+ exit_code = err;
  return err;
 }
 
