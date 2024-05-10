@@ -1571,7 +1571,7 @@ int warning_overlapped_symbols(int sel)
 }
 
 /* all: -1: check all symbols, otherwise check only indicated symbol */
-int sym_vs_sch_pins(all)
+int sym_vs_sch_pins(int all)
 {
   int err = 0;
   char **lab_array =NULL;
