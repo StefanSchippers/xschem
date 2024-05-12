@@ -2744,10 +2744,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int cancel = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
-        tclvareval("file normalize {", tclresult(), "}", NULL);
-        my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
+        if(!is_from_web(argv[2])) {
+          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+          tcleval(f);
+          tclvareval("file normalize {", tclresult(), "}", NULL);
+          my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
+        } else {
+          my_strncpy(f, argv[2], S(f));
+        }
       } else {
         tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
         if(tclresult()[0]) {
