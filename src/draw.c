@@ -2368,6 +2368,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
   
       while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
+        int allow_wrap = 1;
         char *nd = NULL;
         char str_extra_idx[30];
 
@@ -2410,6 +2411,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
           save_datasets = raw->datasets;
           raw->datasets = 1;
+          allow_wrap = 0;
           save_npoints = raw->npoints[0];
           raw->npoints[0] = raw->allpoints;
         }
@@ -2463,7 +2465,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
               if(p == ofs) xx0 = gv0[p];
-              wrap = (cnt > 1 && gv0[p] == xx0);
+              wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
               if(wrap) {
                  sweepvar_wrap++;
                  cnt = 0;
@@ -3589,7 +3591,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
-
+      int allow_wrap = 1;
       char *nd = NULL;
       char str_extra_idx[30];
 
@@ -3642,6 +3644,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
         save_datasets = raw->datasets;
         raw->datasets = 1;
+        allow_wrap = 0;
         save_npoints = raw->npoints[0];
         raw->npoints[0] = raw->allpoints;
       }
@@ -3735,7 +3738,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
             if(p == ofs) xx0 = gv0[p];
-            wrap = (cnt > 1 && gv0[p] == xx0);
+            wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
+            dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p);
             if(first != -1) {                      /* there is something to plot ... */
               if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
