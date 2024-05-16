@@ -408,7 +408,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
  my_free(_ALLOC_ID_, &type);
  xctx->netlist_count = 0;
  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
- exit_code = err;
+ exit_code = err ? 10 : 0;
  return err;
 }
 

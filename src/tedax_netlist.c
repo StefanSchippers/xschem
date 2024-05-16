@@ -288,7 +288,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  if(!debug_var) xunlink(netl_filename);
  xctx->netlist_count = 0;
  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
- exit_code = err;
+ exit_code = err ? 10 : 0;
  return err;
 }
 
