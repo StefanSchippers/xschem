@@ -78,7 +78,20 @@ proc run_xschem_netlist {type output_dir fn fpath} {
   if {$type eq "vhdl"} {set opt V}
   if {$type eq "v"} {set opt w}
   if {$type eq "tdx"} {set opt t}
-  if {[catch {eval exec {$xschem_cmd $fpath -q -x -r -$opt -o $netlist_output_dir -n 2> $output}} msg]} {
+  set netlist_failed 0 ;# not used here but might be used in the future.
+  set general_failure 0
+  set catch_status [catch {eval exec {$xschem_cmd $fpath -q -x -r -$opt -o $netlist_output_dir -n 2> $output}} msg opt]
+  if {$catch_status} {
+    set error_code [dict get $opt -errorcode]
+    # in case of child process error $error_code will be {CHILDSTATUS 11731 10}, second item is processID, 
+    # 3rd item is child process exit code. In case of netlisting error xschem exit code is 10
+    if {[regexp {^CHILDSTATUS.* 10$} $error_code]} {
+      set netlist_failed 1
+    } elseif {$error_code ne {NONE}} {
+      set general_failure 1
+    }
+  }
+  if {$general_failure} {
     puts "FATAL: $xschem_cmd $fpath -q -x -r -$opt -o $netlist_output_dir -n 2> $output : $msg"
     incr num_fatals 
   } else {
