@@ -3151,11 +3151,11 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     my_strncpy(name, fname, S(name));
     dbg(1, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
-    if(is_from_web(fname)) {
+    if(is_from_web(fname) && xschem_web_dirname[0]) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
       tclvareval("download_url {", fname, "}", NULL);
       /* build local file name of downloaded object */
-      my_snprintf(name, S(name), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(fname, 0));
+      my_snprintf(name, S(name), "%s/%s",  xschem_web_dirname, get_cell_w_ext(fname, 0));
       /* build current_dirname by stripping off last filename from url */
       my_snprintf(msg, S(msg), "get_directory {%s}", fname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
@@ -3165,10 +3165,10 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
 
     /* local filename specified but coming (push, pop) from web object ... */
-    } else if(is_from_web(xctx->current_dirname)) {
+    } else if(is_from_web(xctx->current_dirname) && xschem_web_dirname[0]) {
       /* ... but not local file from web download --> reset current_dirname */
       char sympath[PATH_MAX];
-      my_snprintf(sympath, S(sympath), "%s/xschem_web",  tclgetvar("XSCHEM_TMP_DIR"));
+      my_snprintf(sympath, S(sympath), "%s",  xschem_web_dirname);
       /* fname does not begin with $XSCHEM_TMP_DIR/xschem_web and fname does not exist */
 
       if(strstr(fname, sympath) != fname /* && stat(fname, &buf)*/) { 
@@ -3831,16 +3831,12 @@ void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
 }
 
 /* return 1 if http or https url
- * return 2 if cached /tmp/xschem_web/... file/directory
  * return 0 otherwise
  */
 int is_from_web(const char *f)
 {
-  static char tmp[PATH_MAX] = "";
   int res = 0;
-  if(!tmp[0]) my_snprintf(tmp, S(tmp), "%s/xschem_web", tclgetvar("XSCHEM_TMP_DIR"));
   if(strstr(f, "http://") == f || strstr(f, "https://") == f) res = 1;
-  /* if(strstr(f, tmp) == f) res = 2; */
   dbg(1, "is_from_web(%s) = %d\n", f, res);
   return res;
 }
@@ -3935,9 +3931,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
       /* not found: try web URL */
       if(is_from_web(xctx->current_dirname)) {
-        my_snprintf(sympath, S(sympath), "%s/xschem_web/%s", tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(name, 0));
+        my_snprintf(sympath, S(sympath), "%s/%s", xschem_web_dirname, get_cell_w_ext(name, 0));
         if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
-          /* not already cached in .../xschem_web/ so download */
+          /* not already cached in .../xschem_web_xxxxx/ so download */
           tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
         }
         lcc[level].fd=fopen(sympath,fopen_read_mode);
@@ -4892,8 +4888,7 @@ void descend_symbol(void)
     /* ... we are in a schematic downloaded from web ... */
     if(web_url) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
-      my_mstrcat(_ALLOC_ID_, &sympath, tclgetvar("XSCHEM_TMP_DIR"),
-                 "/xschem_web/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
+      my_mstrcat(_ALLOC_ID_, &sympath, xschem_web_dirname, "/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
       my_strdup(_ALLOC_ID_, &current_dirname_save, xctx->current_dirname); /* save http url */
     }
     if(!sympath || stat(sympath, &buf)) { /* not found */

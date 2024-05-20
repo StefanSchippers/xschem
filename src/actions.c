@@ -2100,13 +2100,13 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   }
   if(sch) my_free(_ALLOC_ID_, &sch);
 
-  if(web_url && filename[0]) {
+  if(web_url && filename[0] && xschem_web_dirname[0]) {
     char sympath[PATH_MAX];
 
     /* build local cached filename of web_url */
-    my_snprintf(sympath, S(sympath), "%s/xschem_web/%s",  tclgetvar("XSCHEM_TMP_DIR"), get_cell_w_ext(filename, 0));
+    my_snprintf(sympath, S(sympath), "%s/%s",  xschem_web_dirname, get_cell_w_ext(filename, 0));
     if(stat(sympath, &buf)) { /* not found, download */
-      /* download item into ${XSCHEM_TMP_DIR}/xschem_web */
+      /* download item into ${XSCHEM_TMP_DIR}/xschem_web_xxxxx */
       tclvareval("try_download_url {", xctx->current_dirname, "} {", filename, "}", NULL);
     }
     if(stat(sympath, &buf)) { /* not found !!! build abs_sym_path to look into local fs and hope fror the best */

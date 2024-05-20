@@ -5821,20 +5821,21 @@ proc fix_symbols {n} {
 proc download_url {url} {
   global XSCHEM_TMP_DIR download_url_helper OS has_x
   # puts "download_url: $url"
-  if {![file exists ${XSCHEM_TMP_DIR}/xschem_web]} { 
-    if {[catch {file mkdir "${XSCHEM_TMP_DIR}/xschem_web"} err]} {
-      puts $err
-      if {[info exists has_x]} {
-        tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-      } 
-    }
-
+  # puts "xschem_web_dirname: $xschem_web_dirname"
+  set xschem_web_dirname [xschem get xschem_web_dirname]
+  if {![file exists $xschem_web_dirname]} { 
+    set msg {xschem_web_xxxxx directory was not created. Remote url download will not work}
+    puts stderr $msg
+    if {[info exists has_x]} {
+      alert_ $msg {} 0 0
+    }  
+    return 1 ;# fail
   }
   if {$OS eq "Windows"} {
-    set cmd "cmd /c \"cd ${XSCHEM_TMP_DIR}/xschem_web & $download_url_helper $url\""
+    set cmd "cmd /c \"cd ${xschem_web_dirname} & $download_url_helper $url\""
     set r [catch {eval exec $cmd } res]
   } else {
-    set r [catch {exec sh -c "cd ${XSCHEM_TMP_DIR}/xschem_web; $download_url_helper $url"} res]
+    set r [catch {exec sh -c "cd ${xschem_web_dirname}; $download_url_helper $url"} res]
   }
   # puts "download_url: url=$url, exit code=$r, res=$res"
   return $r
@@ -6000,7 +6001,7 @@ proc swap_compare_schematics {} {
     set current  [xschem get schname]
     # Use "file tail" to handle equality of
     # https://raw.githubusercon...tb_reram.sch and /tmp/xschem_web/tb_reram.sch
-    if {( [regexp "^${XSCHEM_TMP_DIR}/xschem_web/" $current] && [file tail $current] eq [file tail $sch2] ) || 
+    if {( [regexp "^${XSCHEM_TMP_DIR}/xschem_web_" $current] && [file tail $current] eq [file tail $sch2] ) || 
         ( $current eq $sch2 )} { ;# user did not cancel loading
       puts "swapping..."
       if {$compare_sch} {
@@ -8289,12 +8290,6 @@ if {$OS == "Windows"} {
   set_ne XSCHEM_TMP_DIR [xschem get temp_dir]
 } else {
   set_ne XSCHEM_TMP_DIR {/tmp}
-}
-
-# Remove temporary location for web objects
-if {[file exists ${XSCHEM_TMP_DIR}/xschem_web] } {
-  # -force deletes also if not empty
-  file delete -force ${XSCHEM_TMP_DIR}/xschem_web
 }
 
 # used in C code

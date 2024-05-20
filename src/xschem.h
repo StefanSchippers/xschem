@@ -1197,6 +1197,7 @@ extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
 extern char sel_file[PATH_MAX];
 extern char clip_file[PATH_MAX];
 extern char pwd_dir[PATH_MAX]; /* obtained via getcwd() */
+extern char xschem_web_dirname[PATH_MAX];
 extern int tcp_port;
 extern int text_svg;
 extern int text_ps;

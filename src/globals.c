@@ -177,6 +177,7 @@ char user_conf_dir[PATH_MAX];
 char sel_file[PATH_MAX]="";
 char clip_file[PATH_MAX]="";
 char pwd_dir[PATH_MAX];  /* obtained via getcwd() */
+char xschem_web_dirname[PATH_MAX]=""; /* cache dir for remote URLs */
 int tcp_port = 0;
 int text_svg=1; /* use <text> svg element for text instead of xschem's internal vector font */
 int text_ps=1;  /* use ps font for text instead of xschem's internal vector font */

@@ -1585,7 +1585,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'x':
-          if(!strcmp(argv[2], "xorigin")) { /* x coordinate of origin */
+          if(!strcmp(argv[2], "xschem_web_dirname")) {
+            Tcl_SetResult(interp, xschem_web_dirname, TCL_STATIC);
+          } else if(!strcmp(argv[2], "xorigin")) { /* x coordinate of origin */
             char s[128];
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_snprintf(s, S(s), "%.16g", xctx->xorigin);

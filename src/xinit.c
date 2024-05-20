@@ -965,6 +965,7 @@ static void xwin_exit(void)
  tcleval("if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }");
  tcleval("if {[info exists bespice_server_getdata(server)]} { close $bespice_server_getdata(server) }");
  if(!cli_opt_detach) printf("\n");
+ if(xschem_web_dirname[0]) tclvareval("file delete -force ", xschem_web_dirname, NULL);
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 
@@ -2274,6 +2275,7 @@ void tclmainloop(void)
 
 int Tcl_AppInit(Tcl_Interp *inter)
 {
+ const char *tmp_ptr;
  char name[PATH_MAX]; /* overflow safe 20161122 */
  char tmp[2*PATH_MAX+100]; /* 20161122 overflow safe */
 #ifndef __unix__
@@ -2456,7 +2458,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     Tcl_Exit(EXIT_FAILURE);
    }
  
-}
+ }
 
  /* Execute tcl script given on command line with --preinit, before sourcing xschemrc */
  if(cli_opt_preinit_command) {
@@ -2612,7 +2614,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  my_strdup(_ALLOC_ID_, &xschem_executable, get_file_path(xschem_executable));
  dbg(1, "Tcl_AppInit(): resolved xschem_executable=%s\n", xschem_executable);
 
-
  /* get xschem globals from tcl variables set in xschemrc/xschem.tcl */
  cairo_font_line_spacing = tclgetdoublevar("cairo_font_line_spacing");
 
@@ -2638,6 +2639,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  [m]allocate dynamic memory */
  /*                             */
  alloc_xschem_data("", ".drw");
+
+ /* create /tmp/xschem_web_xxx directory for remote objects */
+ tmp_ptr = create_tmpdir("xschem_web_");
+ if(!tmp_ptr) {
+   dbg(0, "xinit(): problems creating /tmp/xschem_web_xxxx dir\n");
+ } else {
+   my_strncpy(xschem_web_dirname, tmp_ptr, S(xschem_web_dirname));
+ }
+
  /* initialize current schematic name to empty string to avoid gazillion checks in the code for NULL */
  my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], "");
 
