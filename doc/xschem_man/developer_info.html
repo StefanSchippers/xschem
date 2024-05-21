@@ -545,6 +545,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -639,6 +640,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Create an xplot file in netlist/simulation directory with
    the list of highlighted nodes in a format the selected waveform
    viewer understands (bespice, gaw, ngspice) </pre>
+   <li><kbd>       cursor n e</kbd></li><pre>
+   enable or disable cursors.
+   cursor will be set at 0.0 position. use 'xschem set cursor[12]_x' to set position
+   n: cursor number (1 or 2, for a or b)
+   e: enable flag: 1: show, 0: hide </pre>
    <li><kbd>       cut</kbd></li><pre>
    Cut selection to clipboard </pre>
    <li><kbd>       debug n</kbd></li><pre>
@@ -785,6 +791,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> version </kbd> return xschem version </li>
      <li><kbd> wirelayer </kbd> layer used for wires </li>
      <li><kbd> wires </kbd> number of wires </li>
+     <li><kbd> xschem_web_dirname </kbd></li>
      <li><kbd> xorigin </kbd> x coordinate of origin </li>
      <li><kbd> yorigin </kbd> y coordinate of origin </li>
      <li><kbd> zoom </kbd> zoom level </li>
@@ -1462,6 +1469,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    When a symbol is selected edit it in a new tab/window if not already open.
    If nothing selected open another window of the second schematic (issues a warning).
    if 'new_process' is given start a new xschem process </pre>
+   <li><kbd>       swap_cursors </kbd></li><pre>
+   swap cursor A (1)  and cursor B (2) positions.</pre>
    <li><kbd>       swap_windows </kbd></li><pre>
    swap first and second window in window interface (internal command)</pre>
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
@@ -1541,7 +1550,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       unselect_all [draw]</kbd></li><pre>
    Unselect everything. If draw is given and set to '0' no drawing is done </pre>
    <li><kbd>       update_all_sym_bboxes</kbd></li><pre>
-   Update all symbol bounding boxes (useful if show_pin_net_names is set) </pre>
+   Update all symbol bounding boxes </pre>
    <li><kbd>       update_op</kbd></li><pre>
    update tcl ngspice::ngspice array data from raw file point 0 </pre>
    <li><kbd>       view_prop</kbd></li><pre>
@@ -1581,7 +1590,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 
