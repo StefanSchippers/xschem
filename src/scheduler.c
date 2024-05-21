@@ -683,6 +683,37 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* cursor n e
+     *   enable or disable cursors.
+     *   cursor will be set at 0.0 position. use 'xschem set cursor[12]_x' to set position
+     *   n: cursor number (1 or 2, for a or b)
+     *   e: enable flag: 1: show, 0: hide */
+    else if(!strcmp(argv[1], "cursor"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3) {
+        if(atoi(argv[2]) == 2) { /* cursor 2 */
+          if(atoi(argv[3]) == 1) 
+            xctx->graph_flags |= 4;
+          else
+            xctx->graph_flags &= ~4;
+
+          if(xctx->graph_flags & 4) {
+            xctx->graph_cursor2_x = 0.0;
+          }
+        } else { /* cursor 1 */
+          if(atoi(argv[3]) == 1) 
+            xctx->graph_flags |= 2;
+          else
+            xctx->graph_flags &= ~2;
+          if(xctx->graph_flags & 2) {
+            xctx->graph_cursor1_x = 0.0;
+          }
+        }
+      }
+      Tcl_ResetResult(interp);
+    }
+
     /* cut
      *   Cut selection to clipboard */
     else if(!strcmp(argv[1], "cut"))
