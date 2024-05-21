@@ -5352,7 +5352,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
         }                    
-        draw();
       }
     }
 
