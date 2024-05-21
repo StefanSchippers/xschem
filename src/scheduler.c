@@ -2246,7 +2246,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     {C1} {capa.sym} 150 150 1 1 */
     else if(!strcmp(argv[1], "instance_coord"))
     {
-    /* xschem instances_to_net PLUS */
       xSymbol *symbol;
       short flip, rot;
       double x0,y0;
@@ -2502,7 +2501,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *        { {Vpanel1} {minus} {600} {-440} } */
     else if(!strcmp(argv[1], "instances_to_net"))
     {
-    /* xschem instances_to_net PLUS */
       xSymbol *symbol;
       xRect *rct;
       double pinx0, piny0;
@@ -5300,6 +5298,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 && !strcmp(argv[2], "new_process")) new_process = 1;
       symbol_in_new_window(new_process);
       Tcl_ResetResult(interp);
+    }
+
+    /* swap_cursors 
+     *   swap cursor A (1)  and cursor B (2) positions.
+     */
+    else if(!strcmp(argv[1], "swap_cursors"))
+    {
+      xRect *r;
+      Graph_ctx *gr;
+      double tmp;
+      int floaters = there_are_floaters();
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(xctx->rects[GRIDLAYER] > 0) {
+        r =  &xctx->rect[GRIDLAYER][0];
+        gr = &xctx->graph_struct;
+        setup_graph_data(0, 0, gr);
+        tmp = xctx->graph_cursor2_x;
+        xctx->graph_cursor2_x = xctx->graph_cursor1_x;
+        xctx->graph_cursor1_x = tmp;
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+        }                    
+        draw();
+      }
     }
 
     /* swap_windows 
