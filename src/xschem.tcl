@@ -4376,6 +4376,7 @@ proc set_netlist_dir { what {dir {} }} {
 
 proc enter_text {textlabel {preserve_disabled disabled}} {
   global retval has_cairo preserve_unchanged_attrs wm_fix props enter_text_default_geometry
+  global text_tabs_setting tabstop
   set tctx::rcode {}
   toplevel .dialog -class Dialog
   wm title .dialog {Enter text}
@@ -4395,7 +4396,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   wm geometry .dialog "${enter_text_default_geometry}+$X+$Y"
   frame .dialog.f1
   label .dialog.f1.txtlab -text $textlabel
-  text .dialog.txt -width 120 -height 9
+  eval text .dialog.txt -width 120 -height 9 $text_tabs_setting
   .dialog.txt delete 1.0 end
   .dialog.txt insert 1.0 $retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
@@ -5078,7 +5079,8 @@ proc change_color {} {
 proc edit_prop {txtlabel} {
   global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
   global prev_symbol retval symbol no_change_attrs preserve_unchanged_attrs copy_cell debug_var
-  global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok
+  global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok text_tabs_setting
+  global tabstop
   set user_wants_copy_cell 0
   set tctx::rcode {}
   set retval_orig $retval
@@ -5108,8 +5110,8 @@ proc edit_prop {txtlabel} {
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
   entry .dialog.f4.symprop  -textvariable editprop_sympath -width 0 -state readonly
-  text .dialog.symprop   -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
-                  -xscrollcommand ".dialog.xscroll set" -wrap none
+  eval text .dialog.symprop   -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
+                  -xscrollcommand \".dialog.xscroll set\" -wrap none $text_tabs_setting
     .dialog.symprop delete 1.0 end
     .dialog.symprop insert 1.0 $retval
   scrollbar .dialog.yscroll -command  ".dialog.symprop yview"
@@ -5323,8 +5325,8 @@ proc write_data {data f} {
 }
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
-  global text_line_default_geometry preserve_unchanged_attrs wm_fix
-  global retval debug_var selected_tok retval_orig old_selected_tok
+  global text_line_default_geometry preserve_unchanged_attrs wm_fix tabstop
+  global retval debug_var selected_tok retval_orig old_selected_tok text_tabs_setting
   set retval_orig $retval
   if $clear==1 then {set retval ""}
   if {$debug_var <= -1}  {puts " text_line{}: clear=$clear"}
@@ -5353,8 +5355,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   frame .dialog.f0
   frame .dialog.f1
   label .dialog.f0.l1  -text $txtlabel
-  text .dialog.textinput -relief sunken -bd 2 -yscrollcommand ".dialog.yscroll set" -setgrid 1 \
-       -xscrollcommand ".dialog.xscroll set" -wrap none -width 90 -height 40
+  eval text .dialog.textinput -relief sunken -bd 2 -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
+       -xscrollcommand \".dialog.xscroll set\" -wrap none -width 90 -height 40 $text_tabs_setting
   scrollbar .dialog.yscroll -command  ".dialog.textinput yview"
   scrollbar .dialog.xscroll -command ".dialog.textinput xview" -orient horiz
   .dialog.textinput delete 1.0 end
@@ -5606,7 +5608,7 @@ proc textwindow {filename {ro {}}} {
   set textwindow_w .win$textwindow_wcounter
 
 
-  global textwindow_filename
+  global textwindow_filename text_tabs_setting tabstop
   global textwindow_fileid
   set textwindow_filename $filename
   toplevel $textwindow_w
@@ -5628,8 +5630,8 @@ proc textwindow {filename {ro {}}} {
     pack $textwindow_w.buttons.save  -side left -expand 1
   }
 
-  text $textwindow_w.text -relief sunken -bd 2 -yscrollcommand "$textwindow_w.yscroll set" -setgrid 1 \
-       -xscrollcommand "$textwindow_w.xscroll set" -wrap none -height 30
+  eval text $textwindow_w.text -relief sunken -bd 2 -yscrollcommand \"$textwindow_w.yscroll set\" -setgrid 1 \
+       -xscrollcommand \"$textwindow_w.xscroll set\" -wrap none -height 30 $text_tabs_setting
   scrollbar $textwindow_w.yscroll -command  "$textwindow_w.text yview" 
   scrollbar $textwindow_w.xscroll -command "$textwindow_w.text xview" -orient horiz
   pack $textwindow_w.yscroll -side right -fill y
@@ -5646,7 +5648,7 @@ proc textwindow {filename {ro {}}} {
 
 proc viewdata {data {ro {}} {win .view}} {
   global viewdata_wcounter viewdata_filename
-  global viewdata_w OS viewdata_fileid env has_x
+  global viewdata_w OS viewdata_fileid env has_x text_tabs_setting tabstop
   if {![info exists has_x]} {return}
   # set viewdata_w .view$viewdata_wcounter
   # catch {destroy $viewdata_w}
@@ -5682,8 +5684,8 @@ proc viewdata {data {ro {}} {win .view}} {
     pack $viewdata_w.buttons.saveas  -side left -expand 1
   }
 
-  text $viewdata_w.text -relief sunken -bd 2 -yscrollcommand "$viewdata_w.yscroll set" -setgrid 1 \
-       -xscrollcommand "$viewdata_w.xscroll set" -wrap none -height 30
+  eval text $viewdata_w.text -relief sunken -bd 2 -yscrollcommand \"$viewdata_w.yscroll set\" -setgrid 1 \
+       -xscrollcommand \"$viewdata_w.xscroll set\" -wrap none -height 30 $text_tabs_setting
   scrollbar $viewdata_w.yscroll -command  "$viewdata_w.text yview" 
   scrollbar $viewdata_w.xscroll -command "$viewdata_w.text xview" -orient horiz
   pack $viewdata_w.yscroll -side right -fill y
@@ -6936,7 +6938,7 @@ set tctx::global_list {
   show_infowindow_after_netlist
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
-  text_replace_selection textwindow_fileid textwindow_filename textwindow_w
+  text_replace_selection text_tabs_setting textwindow_fileid textwindow_filename textwindow_w
   toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
@@ -8400,6 +8402,7 @@ set_ne to_png {gm convert}
 set_ne to_pdf {ps2pdf}
 ## tab stop position
 set_ne tabstop 8
+set text_tabs_setting {-tabs "[expr {$tabstop * [font measure TkFixedFont 0]}] left" -tabstyle wordprocessor}
 
 # selected graph user is editing attributes with graph GUI
 set_ne graph_bus 0
