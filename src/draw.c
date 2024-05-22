@@ -261,6 +261,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   char c;
   int lineno=0;
   double size;
+  char *estr = NULL; /* expanded str: tabs replaced with spaces */
   cairo_font_extents_t fext;
   int llength=0, no_of_lines;
   double longest_line;
@@ -271,8 +272,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   /*fprintf(errfp, "size=%.16g\n", size*xctx->mooz); */
   if(size*xctx->mooz<3.0) return; /* too small */
   if(size*xctx->mooz>1600) return; /* too big */
-
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y, 
+  estr = my_expand(str, tclgetintvar("tabstop"));
+  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y, 
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
@@ -307,7 +308,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   dbg(1, "draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
        size * xctx->mooz, fext.height, fext.ascent, fext.descent);
   llength=0;
-  my_strdup2(_ALLOC_ID_, &sss, str);
+  my_strdup2(_ALLOC_ID_, &sss, estr);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -329,6 +330,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
     ++ss;
   }
   my_free(_ALLOC_ID_, &sss);
+  my_free(_ALLOC_ID_, &estr);
 }
 
 #else /* !HAS_CAIRO */
@@ -355,9 +357,10 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
    return;
  }
  else {
+  char *estr = my_expand(str, tclgetintvar("tabstop"));
   xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
   yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
+  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,
                textx1,texty1,textx2,texty2)) return;
@@ -366,8 +369,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   else rot=0;
   flip = 0; yy=y1;
   invxscale=1/xscale;
-  while(str[pos2]) {
-     cc = (unsigned char)str[pos2++];
+  while(estr[pos2]) {
+     cc = (unsigned char)estr[pos2++];
      if(cc>127) cc= '?';
      if(cc=='\n') {
         yy+=(FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)* yscale;
@@ -394,6 +397,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
      ++pos;
      a += FONTWIDTH+FONTWHITESPACE;
   }
+  my_free(_ALLOC_ID_, &estr);
  }
 }
 
@@ -405,12 +409,15 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  double textx1,textx2,texty1,texty2;
  int tmp;
  double dtmp;
+ char *estr = NULL;
  if(!has_x) return;
 
- dbg(2, "draw_string(): string=%s\n",str);
- if(!text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
+ estr = my_expand(str, tclgetintvar("tabstop"));
+ dbg(2, "draw_string(): string=%s\n",estr);
+ if(!text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
      &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) return;
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
+ my_free(_ALLOC_ID_, &estr);
 }
 
 

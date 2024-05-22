@@ -194,6 +194,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   return ptr2;
 }
 
+/* highlight an arbitrary hierarchic net */
 Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, const char *path, int what)
 {
   Hilight_hashentry *entry;

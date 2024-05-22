@@ -6935,7 +6935,7 @@ set tctx::global_list {
   search_select search_value selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
-  svg_font_name sym_txt symbol symbol_width tclcmd_txt tclstop text_line_default_geometry
+  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
   text_replace_selection textwindow_fileid textwindow_filename textwindow_w
   toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
@@ -8398,6 +8398,8 @@ set_ne en_hilight_conn_inst 0
 set_ne to_png {gm convert} 
 ## ps to pdf conversion
 set_ne to_pdf {ps2pdf}
+## tab stop position
+set_ne tabstop 8
 
 # selected graph user is editing attributes with graph GUI
 set_ne graph_bus 0

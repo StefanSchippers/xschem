@@ -5524,7 +5524,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 3) {
-        Tcl_ResetResult(interp);
+
+        char *s = "aa	bb	cc	dd\n"
+                  "eee	fff	ggg	hhh";
+             
+        char *t = my_expand(s, 8);
+
+        dbg(0, "%s\n----\n", s);
+        Tcl_SetResult(interp, t, TCL_VOLATILE);
+        my_free(_ALLOC_ID_, &t);
       }
     }
 

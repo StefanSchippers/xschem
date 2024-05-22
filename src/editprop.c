@@ -224,6 +224,38 @@ void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source 
  }
 }
 
+/* replace TABs with required number of spaces
+ * User must free returned string */
+char *my_expand(const char *s, int tabstop)
+{
+  char pad[200];
+  size_t spos = 0;
+  char *t = NULL;
+  const char *sptr = s;
+
+  if(!s) {
+    return NULL;
+  }
+  my_strcat2(_ALLOC_ID_, &t, "");
+  while(*sptr) {
+    if(*sptr == '\t') {
+      int i;
+      size_t npad = tabstop - spos % tabstop;
+      for(i = 0; i < npad; i++) pad[i] = ' ';
+      pad[i] = '\0';
+      spos += npad;
+    } else {
+      pad[0] = *sptr;
+      pad[1] = '\0';
+      spos++;
+    }
+    my_strcat2(_ALLOC_ID_, &t, pad);
+    if(*sptr == '\n') spos = 0;
+    sptr++;
+  }
+  return t;
+}
+
 void dbg(int level, char *fmt, ...)
 {
   if(debug_var>=level) {
@@ -589,6 +621,31 @@ size_t my_strcat(int id, char **str, const char *append_str)
     return a - 1;
   }
 }
+
+/* same as my_strcat, but appending "" to NULL returns "" instead of NULL */
+size_t my_strcat2(int id, char **str, const char *append_str)
+{     
+  size_t s, a;
+  dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id, *str, append_str);
+  if( *str != NULL)
+  { 
+    s = strlen(*str);
+    if(append_str == NULL || append_str[0]=='\0') return s;
+    a = strlen(append_str) + 1;
+    my_realloc(id, str, s + a );
+    memcpy(*str + s, append_str, a);
+    dbg(3,"my_strcat(%d,): reallocated string %s\n", id, *str);
+    return s + a - 1;
+  } else { /* str == NULL */
+    if(append_str == NULL ) return 0;
+    a = strlen(append_str) + 1;
+    *str = my_malloc(id, a );
+    memcpy(*str, append_str, a);
+    dbg(3,"my_strcat(%d,): allocated string %s\n", id, *str);
+    return a - 1;
+  }
+}
+
 
 size_t my_strncat(int id, char **str, size_t n, const char *append_str)
 {

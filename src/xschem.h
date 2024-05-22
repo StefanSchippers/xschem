@@ -1285,6 +1285,7 @@ extern void set_grid(double);
 extern void create_plot_cmd(void);
 extern int set_modify(int mod); /* return number of floaters */
 extern int there_are_floaters(void);
+extern char *my_expand(const char *s, int tabstop) ;
 extern void dbg(int level, char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);
 extern void here(double i);
@@ -1624,6 +1625,7 @@ extern void my_realloc(int id, void *ptr,size_t size);
 extern void *my_calloc(int id, size_t nmemb, size_t size);
 extern char *my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
+extern size_t my_strcat2(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
 extern char *my_itoa(int i);
 extern double atof_spice(const char *s);

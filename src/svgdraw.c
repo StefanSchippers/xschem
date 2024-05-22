@@ -323,13 +323,15 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   double size, height, ascent, descent;
   int llength=0, no_of_lines;
   double longest_line;
+  char *estr = NULL; /* expanded string: TABs replaced with spaces */
 
   if(str==NULL) return;
+  estr = my_expand(str, tclgetintvar("tabstop"));
   size = xscale*52. * cairo_font_scale;
   height =  size*xctx->mooz * 1.147;
   ascent =  size*xctx->mooz * 0.908;
   descent = size*xctx->mooz * 0.219;
-  text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
+  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
     return;
@@ -355,7 +357,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(_ALLOC_ID_, &sss, str);
+  my_strdup2(_ALLOC_ID_, &sss, estr);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -374,6 +376,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     ++ss;
   }
   my_free(_ALLOC_ID_, &sss);
+  my_free(_ALLOC_ID_, &estr);
 }
 
 
@@ -387,15 +390,17 @@ static void old_svg_draw_string(int layer, const char *str,
  int pos=0,cc,pos2=0;
  int i, no_of_lines;
  double longest_line;
+ char *estr = NULL;
 
  if(str==NULL) return;
+ estr = my_expand(str, tclgetintvar("tabstop"));
  xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
  yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  #if HAS_CAIRO==1
- text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter,
+ text_bbox_nocairo(estr, xscale, yscale, rot, flip, hcenter, vcenter,
                    x,y, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #else
- text_bbox(str, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
+ text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
            &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
@@ -403,9 +408,9 @@ static void old_svg_draw_string(int layer, const char *str,
  if(rot&1) {y=ry2;rot=3;}
  else rot=0;
  flip = 0; yy=y;
- while(str[pos2])
+ while(estr[pos2])
  {
-  cc = (unsigned char)str[pos2++];
+  cc = (unsigned char)estr[pos2++];
   if(cc>127) cc= '?';
   if(cc=='\n')
   {
@@ -427,6 +432,7 @@ static void old_svg_draw_string(int layer, const char *str,
   }
   ++pos;
  }
+ my_free(_ALLOC_ID_, &estr);
 }
 
 
