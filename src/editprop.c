@@ -1349,6 +1349,7 @@ static int edit_text_property(int x)
   }
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
+    char *estr = NULL;
     dbg(1, "edit_text_property(): tctx::rcode !=\"\"\n");
     if(text_changed || size_changed || props_changed) {
       modified = 1;
@@ -1364,10 +1365,12 @@ static int edit_text_property(int x)
       #if HAS_CAIRO==1
       customfont = set_text_custom_font(&xctx->text[sel]);
       #endif
-      text_bbox(get_text_floater(sel), xctx->text[sel].xscale,
+      estr = my_expand(get_text_floater(sel), tclgetintvar("tabstop"));
+      text_bbox(estr, xctx->text[sel].xscale,
                 xctx->text[sel].yscale, (short)rot, (short)flip, xctx->text[sel].hcenter,
                 xctx->text[sel].vcenter, xctx->text[sel].x0, xctx->text[sel].y0,
                 &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
+      my_free(_ALLOC_ID_, &estr);
       #if HAS_CAIRO==1
       if(customfont) {
         cairo_restore(xctx->cairo_ctx);

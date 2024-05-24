@@ -356,6 +356,7 @@ static void find_closest_text(double mx,double my)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ char *estr = NULL;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
   for(i=0;i<xctx->texts; ++i)
   {
@@ -364,11 +365,13 @@ static void find_closest_text(double mx,double my)
    #if HAS_CAIRO==1
    customfont = set_text_custom_font(&xctx->text[i]);
    #endif
-   text_bbox(get_text_floater(i),
+   estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
+   text_bbox(estr,
              xctx->text[i].xscale, xctx->text[i].yscale, rot, flip,
               xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmp, &dtmp);
+   my_free(_ALLOC_ID_, &estr);
    #if HAS_CAIRO==1
    if(customfont) {
      cairo_restore(xctx->cairo_ctx);

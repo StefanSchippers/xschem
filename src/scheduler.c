@@ -5219,11 +5219,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(START,0.0,0.0,0.0,0.0);
         }
         if(argc > 5) {
+         char *estr = NULL;
          if(!fast) {
-            text_bbox(get_text_floater(n), t->xscale,
+            estr = my_expand(get_text_floater(n), tclgetintvar("tabstop"));
+            text_bbox(estr, t->xscale,
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
+            my_free(_ALLOC_ID_, &estr);
             bbox(ADD, xx1, yy1, xx2, yy2);
           }
           /* verify if there is some difference */
@@ -5247,12 +5250,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
         if(change_done) {
+          char *estr = NULL;
           set_modify(1);
           set_text_flags(t);
-          text_bbox(get_text_floater(n), t->xscale,
+          estr = my_expand(get_text_floater(n), tclgetintvar("tabstop"));
+          text_bbox(estr, t->xscale,
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
+          my_free(_ALLOC_ID_, &estr);
           if(!fast) bbox(ADD, xx1, yy1, xx2, yy2);
         }
         if(!fast) {

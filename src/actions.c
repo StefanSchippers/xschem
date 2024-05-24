@@ -2433,6 +2433,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ char *estr = NULL;
 
  boundbox->x1=-100;
  boundbox->x2=100;
@@ -2533,7 +2534,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&xctx->text[i]);
      #endif
-     if(text_bbox(get_text_floater(i), xctx->text[i].xscale,
+     estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
+     if(text_bbox(estr, xctx->text[i].xscale,
            xctx->text[i].yscale,xctx->text[i].rot, xctx->text[i].flip,
            xctx->text[i].hcenter, xctx->text[i].vcenter,
            xctx->text[i].x0, xctx->text[i].y0,
@@ -2541,6 +2543,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
        ++count;
        updatebbox(count,boundbox,&rect);
      }
+     my_free(_ALLOC_ID_, &estr);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);

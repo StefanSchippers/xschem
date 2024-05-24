@@ -202,6 +202,7 @@ void hash_object(int what, int type, int n, int c)
   double x1, y1, x2, y2;
   int x1a, x2a, y1a, y2a;
   int skip = 0;
+  char *estr = NULL;
 
   switch(type) {
     case ELEMENT:
@@ -236,11 +237,13 @@ void hash_object(int what, int type, int n, int c)
               xctx->arc[c][n].a, xctx->arc[c][n].b, &x1, &y1, &x2, &y2);
       break;
     case xTEXT:
-      text_bbox(get_text_floater(n),
+      estr = my_expand(get_text_floater(n), tclgetintvar("tabstop"));
+      text_bbox(estr,
            xctx->text[n].xscale, xctx->text[n].yscale, xctx->text[n].rot, xctx->text[n].flip,
            xctx->text[n].hcenter, xctx->text[n].vcenter,
            xctx->text[n].x0, xctx->text[n].y0,
            &x1,&y1, &x2,&y2, &tmpi, &tmpd);
+      my_free(_ALLOC_ID_, &estr);
       break;
     default:
       skip = 1;

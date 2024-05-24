@@ -519,6 +519,7 @@ void copy_objects(int what)
   double angle, dtmp;
   int newpropcnt;
   double tmpx, tmpy;
+  char *estr = NULL;
  
   #if HAS_CAIRO==1
   int customfont;
@@ -813,11 +814,13 @@ void copy_objects(int what)
         #if HAS_CAIRO==1 /* bbox after copy */
         customfont = set_text_custom_font(&xctx->text[l]);
         #endif
-        text_bbox(get_text_floater(l), xctx->text[l].xscale,
+        estr = my_expand(get_text_floater(l), tclgetintvar("tabstop"));
+        text_bbox(estr, xctx->text[l].xscale,
           xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip, 
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &dtmp);
+        my_free(_ALLOC_ID_, &estr);
         #if HAS_CAIRO==1
         if(customfont) {
           cairo_restore(xctx->cairo_ctx);
@@ -913,6 +916,7 @@ void move_objects(int what, int merge, double dx, double dy)
   int c, i, n, k, tmpint;
   double angle, dtmp;
   double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
+  char *estr = NULL;
   #if HAS_CAIRO==1
   int customfont;
   #endif
@@ -1263,10 +1267,12 @@ void move_objects(int what, int merge, double dx, double dy)
        #if HAS_CAIRO==1  /* bbox before move */
        customfont = set_text_custom_font(&xctx->text[n]);
        #endif
-       text_bbox(get_text_floater(n), xctx->text[n].xscale,
+       estr = my_expand(get_text_floater(n), tclgetintvar("tabstop"));
+       text_bbox(estr, xctx->text[n].xscale,
           xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
           xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
+       my_free(_ALLOC_ID_, &estr);
        #if HAS_CAIRO==1
        if(customfont) {
          cairo_restore(xctx->cairo_ctx);
@@ -1288,10 +1294,12 @@ void move_objects(int what, int merge, double dx, double dy)
        #if HAS_CAIRO==1  /* bbox after move */
        customfont = set_text_custom_font(&xctx->text[n]);
        #endif
-       text_bbox(get_text_floater(n), xctx->text[n].xscale,
+       estr = my_expand(get_text_floater(n), tclgetintvar("tabstop"));
+       text_bbox(estr, xctx->text[n].xscale,
           xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
           xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
+       my_free(_ALLOC_ID_, &estr);
        #if HAS_CAIRO==1
        if(customfont) {
          cairo_restore(xctx->cairo_ctx);

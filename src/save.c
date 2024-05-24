@@ -3779,11 +3779,13 @@ static void calc_symbol_bbox(int pos)
 *
 *   for(i=0;i<lastt; ++i)
 *   {
-     int tmp;
+*    int tmp;
 *    count++;
 *    rot=tt[i].rot;flip=tt[i].flip;
-*    text_bbox(get_text_floater(i), tt[i].xscale, tt[i].yscale, rot, flip,
+*    estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
+*    text_bbox(estr, tt[i].xscale, tt[i].yscale, rot, flip,
 *    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2, &dtmp);
+*    my_free(_ALLOC_ID_, &estr);
 *    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
 *    updatebbox(count,&boundbox,&tmp);
 *  }

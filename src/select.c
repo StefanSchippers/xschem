@@ -353,7 +353,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->texts; ++j)
    {
      double xscale, yscale;
-
+     char *estr = NULL;
      get_sym_text_size(i, j, &xscale, &yscale);
 
      text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
@@ -367,12 +367,14 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      #if HAS_CAIRO==1
      customfont=set_text_custom_font(&text);
      #endif
-     text_bbox(tmp_txt, xscale, yscale,
+     estr = my_expand(tmp_txt, tclgetintvar("tabstop"));
+     text_bbox(estr, xscale, yscale,
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
      dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
      dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
+     my_free(_ALLOC_ID_, &estr);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);
@@ -1302,6 +1304,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ char *estr = NULL;
 
  en_s = tclgetboolvar("enable_stretch");
  for(i=0;i<xctx->wires; ++i)
@@ -1337,12 +1340,13 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
   #if HAS_CAIRO==1
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
-
-  text_bbox(get_text_floater(i),
+  estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
+  text_bbox(estr,
              xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
+  my_free(_ALLOC_ID_, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1526,6 +1530,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
  #if HAS_CAIRO==1
  int customfont;
  #endif
+ char *estr = NULL;
 
  for(i=0;i<xctx->wires; ++i)
  {
@@ -1547,11 +1552,13 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
   customfont = set_text_custom_font(&xctx->text[i]);
   #endif
 
-  text_bbox(get_text_floater(i),
+  estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
+  text_bbox(estr,
              xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
+  my_free(_ALLOC_ID_, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
