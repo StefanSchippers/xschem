@@ -5179,6 +5179,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(change_done) set_modify(1);
         set_rect_flags(r); /* set cached .flags bitmask from attributes */
+        if(argc > 5 && !strcmp(argv[5], "fill")) {
+          const char *attr = get_tok_value(r->prop_ptr,"fill", 0);
+          if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 3;
+          else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
+          else xctx->rect[c][n].fill = 1;
+        }
         set_rect_extraptr(0, &xctx->rect[c][n]);
         if(!fast) {
           bbox(ADD, r->x1, r->y1, r->x2, r->y2);
