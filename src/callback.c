@@ -443,8 +443,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
             tclvareval("input_line {Pos:} {xschem set cursor1_x} ", dtoa_eng(xctx->graph_cursor1_x), NULL);
+            event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           }
-          event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           redraw_all_at_end = 1;
         }
 
@@ -455,8 +455,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
             tclvareval("input_line {Pos:} {xschem set cursor2_x} ", dtoa_eng(xctx->graph_cursor2_x), NULL);
+            event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           }
-          event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           redraw_all_at_end = 1;
         }
       }

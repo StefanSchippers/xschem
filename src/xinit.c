@@ -2839,10 +2839,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  START PROCESSING USER OPTIONS */
  /*                                */
 
+ /* set netlist filename. Set also netlist_dir if a path is given */
+ if(cli_opt_initial_netlist_name[0]) {
+   my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
+   #ifdef __unix__
+   if(strchr(xctx->netlist_name, '/')) {
+     tclvareval("file dirname ", xctx->netlist_name, NULL);
+     tclsetvar("netlist_dir", tclresult());
+   }
+   #endif
+ }
  /* set tcl netlist_dir if netlist_dir given on cmdline */
  if(cli_opt_netlist_dir[0]) tclsetvar("netlist_dir", cli_opt_netlist_dir);
- if(cli_opt_initial_netlist_name[0])
-    my_strncpy(xctx->netlist_name, cli_opt_initial_netlist_name, S(cli_opt_initial_netlist_name));
  enable_layers();
  /* prefer using env(PWD) if existing since it does not dereference symlinks */
  if(tcleval("info exists env(PWD)")[0] == '1') {
