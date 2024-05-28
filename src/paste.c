@@ -345,7 +345,7 @@ void merge_file(int selection_load, const char ext[])
     if(selection_load==0)
     {
      if(!strcmp(ext,"")) {
-       my_snprintf(tmp, S(tmp), "load_file_dialog {Merge file} {} INITIALLOADDIR");
+       my_snprintf(tmp, S(tmp), "load_file_dialog {Merge file} {*} INITIALLOADDIR");
        tcleval(tmp);
        if(!strcmp(tclresult(),"")) return;
        my_strncpy(filename, (char *)tclresult(), S(filename));

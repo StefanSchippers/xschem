@@ -1459,7 +1459,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  char name1[PATH_MAX];
  char tclev = 0;
  if(symbol_name==NULL) {
-   tcleval("load_file_dialog {Choose symbol} *.sym INITIALINSTDIR");
+   tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
  } else {
    my_strncpy(name1, symbol_name, S(name1));

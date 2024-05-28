@@ -2862,7 +2862,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if((key==XK_Insert && state == ShiftMask) ||  (key == 'i' && rstate == ControlMask)) /* insert sym */
    {
-     tcleval("load_file_dialog {Insert symbol} {} INITIALINSTDIR 2");
+     tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
      break;
    }
    if((key==XK_Insert && state == 0) || (key == 'I' && rstate == 0) ) /* insert sym */
