@@ -1,3 +1,100 @@
+3.4.5:
+
+- If a full path is given with -N set netlist file name as well as destination path
+- Handle TABs in draw_string() (also ps and svg draw_string()),
+  tcl var tabstop (default = 8) sets the tab positions.
+- Added command `xschem cursor 1|0 1|0` to enable or disable cursors via cmdline
+- Add command `xschem swap_cursors`
+- If top level schematic has an associated symbol (.sym) file ensure their ports match, otherwise
+  issue an error. if netlisting fails return non zero exit code if netlisting from command line
+- Add @#pin:spice_get_voltage attribute for pin texts that displays voltage of net attached to pin.
+  Remove net_name=... attributes from symbols and instance global attributes since it is no more used.
+  set default value for show_pin_net_names to 1.
+- xschem image rectangles: allow to fetch urls using filter="tcleval(wget --quiet http://.... -O -)" and image=""
+- xschem wave processor: added <, >, <=, >=, ==, != and contitional ? (3 operands) operator
+- Added drc_check() function, that evaluates tcl scripts contained in symbol `drc` attribute.
+  Used for checking allowed dimensions, mostly
+- Add ellipses (rectangles with attr ellipse=1)
+- Add simulation->graph menu for auto_hilight_graph_nodes
+- Add `Tools->Grab screen area` function (unix only)
+- fill=solid in addition to fill=1 (stippled fill) or fill=0 (no fill) for rectangles,
+  polygon/beziers and circles
+- Added dark_gui_colorscheme (default: 0) for dark widget colorscheme configuration. 
+- Added intuitive_interface xschemrc and menu option: click and drag to quickly
+  Move objects without keyboard commands
+- Bezier shapes can be drawn (polygon with attribute `bezier=1`)
+- Add tcl tabulate procedure for pretty encapsulating tabular text into a nice ascii table frame.
+- Add `xschem raw del node` command
+- Add option `keep_symbols in xschemrc to avoid purging symbols when netlisting /descending hierarchy.
+- Add functions atan, asin,acos, cosh, sinh, atanh, acosh, asinh, idx  in wave processor
+- Added command `xschem raw new name type sweepvar start end step` that creates an
+  in-memory plot (like a loaded raw file) with only the sweep variable
+- Extend command `xschem raw_query add [expr]` for fast (C-speed) expression calculation
+- Add command `xschem raw_query add <node>` to add a vector <node> with all zeros to the
+  loaded raw file. This vector can then populated with programmatic values using  
+ `xschem raw_query set <node> point value` loop
+- Add command `xschem raw table_read table_file` to read an ascii table file without closing
+  other loaded raw files
+- Add xschem list_nets command
+- Preview window in file open dialog box is x/y resizable
+- Parametric models in subcircuits (model=@mod in instances, mod=xxx in parent instantiation)
+- Instance based schematic selection: if instance specified schematic=... not existing
+  Use base schematic (symbolname.sch)
+- Add verilog_extra_dir symbol attribute to allow specify "ports by attribute" directions:
+  verilog_extra_dir="VCC=input GND=input" verilog_extra="VCC GND" extra="VCC GND" ....
+instead of the default ~/.xschem/simulations. Changed background color of menu radiobuttons for clarity.
+- Allow parametric models in subcircuits. Symbol inv.sym contains template="... modp=cmos_p_10 ...",
+  pmos instance in inv.sch contains model=@modp, instance format string contains 
+  format="@name @pinlist @model w=@w l=@l, result is: "m2 y a VCCPIN VCCPIN cmos_p_10 w=wp l=lp"
+- pass instance `device_models=...` attribute through translate() so @vars are resolved
+- added `xschem fill_reset` command to reset fill patterns defined via tcl array pixdata(n)
+- add `hide=instance` attribute for in-symbol text objects (in addition to hide=true or hide=false).
+  If set the text is in visible in instantiated symbols, but is visible if descending into the symbol
+- When doing spice netlist, if a symbol has the spice_sym_def attribute set and is using @pinlist
+  in format string for port order, get the port order from the subckt given in spice_sym_def,
+  either directly or through a .include line
+- xschem raw_read: allow specifying t1 and t2 to load only a portion of simulation file
+- Implement vertical flip (shift-V) and vertical flip in place (alt-v)
+- Handle xyce y-devices in spice netlists
+- Setting line width in View menu will automatcally disable change line width with zoom
+- If selection is present when exporting pdf assume it is a bboxed pdf
+- Add xschemrc option ps_page_title (default: enabled, 1) to set or hide page title in ps/pdf exports,
+  more precise graph exports in svg and ps/pdf
+- Add `xschem set cursor[12]_x` commands for moving graph cursors
+- Add `xschem set hilight_color` command
+- Allow instance attribute `text_size_n=s` (where s is a double and n is an integer) to set
+  symbol text item `n` to size `s`
+- When doing spice netlisting if top level has a symbol (and the symbol has i/o ports) use the symbol
+  for printing the top level subckt port list. This ensures same port ordering when netlisting 
+  a testbench containing a component and netlisting the component itself.
+- Add tanh(), min() and max() clipping functions in wave calculator
+- Change Waves button to menu entry with various options (annotate OP, load tran, dc, ...)
+- Add make_sym_from_spice.awk, cut down from make_sch_from_spice.awk
+- Add command `xschem setprop text n txt_ptr value` to change a text object text field
+- Add tabs bar context menu
+- Add option --pipe (alias for -r / --no_readline)
+- Dragging to the right a selection rectangle will select objects fully enclosed.
+  Dragging to the left will select all objects intersected by the select rectangle.
+- Add context menu entries for rotate and flip selection,
+- Add basic sub-process control in Simulation menu.
+- add @symref attribute that resolves to the full symbol reference as specified
+  in instance: example: "sky130_fd_pr/pfet_01v8_lvt.sym"
+- Add the ability to load multiple raw files with different analyses in
+  a single schematic ( extra_rawfile() ).
+  Allow loading more and different analyses from the same raw file.
+- Transform multiple saved OP sims into a dc sweep.
+- Do interpolation when annotating "b" cursor values in schematic,
+  as done with measurements with "a" cursor.
+- Cursor `a` measurements in graph match the %n dataset specified on nodes
+  if any (or default to dataset 0)
+- Update live backannotation if "a" and "b" cursors are swapped, 
+- syntax node%n is now allowed to plot only dataset "n" of 
+  the node.
+- add `lock` attribute for rectangles: work the same as for instances
+  (can only double click to reset attributes, not selectable until lock reset to 0). 
+- Add commands "xschem selected_set rect" and "xschem select_inside x1 y1 x2 y2
+- Add rotate, flip menu entries in the Edit menu
+
 3.4.4:
 - First selected instance is now always the master (instead of the first in the
   xschem array order) when doing an edit attribute on a group of selected elements
