@@ -619,7 +619,7 @@ proc from_eng {i} {
 ## convert number to engineering form
 proc to_eng {args} {
   set suffix {}
-  set i [expr [join $args]]
+  set i [uplevel #0 expr [join $args]]
   set absi [expr {abs($i)}]
 
   if       {$absi == 0.0}  { set mult 1    ; set suffix {}
@@ -646,9 +646,10 @@ proc to_eng {args} {
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
 proc ev {args} {
   set i [join $args]
-  if {![catch {expr $i} res]} {
+  if {![catch {uplevel #0 expr $i} res]} {
     return [format %.4g $res]
   } else {
+    # puts stderr "proc ev: $res"
     return $args
   }
 }
@@ -656,9 +657,10 @@ proc ev {args} {
 ## evaluate expression. if expression has errors or does not evaluate return 0
 proc ev0 {args} {
   set i [join $args]
-  if {![catch {expr $i} res]} {
+  if {![catch {uplevel #0 expr $i} res]} {
     return [format %.4g $res]
   } else {
+    # puts stderr "proc ev0: $res"
     return 0
   }
 } 
