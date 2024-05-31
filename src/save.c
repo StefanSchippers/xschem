@@ -3019,6 +3019,100 @@ static void make_schematic(const char *schname)
   fclose(fd);
 }
 
+static int order_changed;
+static int pin_compare(const void *a, const void *b)
+{
+  int pinnumber_a, pinnumber_b;
+  const char *tmp;
+  int result;
+  
+  tmp = get_tok_value(((xRect *)a)->prop_ptr, "sim_pinnumber", 0);
+  pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
+  tmp = get_tok_value(((xRect *)b)->prop_ptr, "sim_pinnumber", 0);
+  pinnumber_b = tmp[0] ?atoi(tmp) : -1;
+  result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
+  if(result >= 0) order_changed = 1;
+  return result;
+}
+
+static int schpin_compare(const void *a, const void *b)
+{
+  int pinnumber_a, pinnumber_b;
+  int result;
+
+  pinnumber_a = ((Sch_pin_record *) a)->pinnumber;
+  pinnumber_b = ((Sch_pin_record *) b)->pinnumber;
+  result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
+  if(result >= 0) order_changed = 1;
+  return result;
+}
+
+
+static void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
+{
+  int j, do_sort = 0;
+  const char *pinnumber;
+  order_changed = 0;
+
+  if(npins > 0) do_sort = 1; /* no pins, no sort... */
+  /* do not sort if some pins don't have pinnumber attribute */
+  for(j = 0; j < npins; ++j) {
+    pinnumber = get_tok_value(pin_array[j].prop_ptr, "sim_pinnumber", 0);
+    if(!pinnumber[0]) do_sort = 0;
+  }
+  if(do_sort) {
+    qsort(pin_array, npins, sizeof(xRect), pin_compare);
+    if(order_changed) {
+      dbg(1, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", name);
+    }
+  }
+}
+
+/* Caller must free returned pointer (if not NULL)
+ * number of i/o ports found returned into npins */
+Sch_pin_record *sort_schematic_pins(int *npins)
+{                  
+  int i, do_sort = -1;
+  const char *pinnumber;
+  Sch_pin_record *pinnumber_list = NULL;
+  char *type;
+  int lvs_ignore = tclgetboolvar("lvs_ignore");
+
+  *npins = 0;
+  order_changed = 0;
+  for(i=0;i<xctx->instances; ++i) {
+    if(skip_instance(i, 1, lvs_ignore)) continue;
+    type = (xctx->inst[i].ptr + xctx->sym)->type;
+    if( type && IS_PIN(type)) {
+      (*npins)++;
+    }
+  }
+  pinnumber_list = my_malloc(_ALLOC_ID_, sizeof(Sch_pin_record) * *npins);
+  *npins = 0;
+  for(i=0;i<xctx->instances; ++i) {
+    if(skip_instance(i, 1, lvs_ignore)) continue;
+    type = (xctx->inst[i].ptr + xctx->sym)->type;
+    if( type && IS_PIN(type)) {
+      int n;
+      if(do_sort == -1) do_sort = 1;
+      pinnumber = get_tok_value(xctx->inst[i].prop_ptr, "sim_pinnumber", 0);
+      if(!pinnumber[0]) {
+        do_sort = 0;
+        n = 0;
+      } else {
+        n = atoi(pinnumber);
+      }
+      pinnumber_list[*npins].pinnumber = n;
+      pinnumber_list[*npins].n = i;
+      (*npins)++;
+    }
+  }
+  if(do_sort) {
+    qsort(pinnumber_list, *npins, sizeof(Sch_pin_record), schpin_compare);
+  }   
+  return pinnumber_list;
+}             
+
 /* ALWAYS call with absolute path in schname!!! */
 /* return value:
  *   0 : did not save
@@ -3794,42 +3888,6 @@ static void calc_symbol_bbox(int pos)
   xctx->sym[pos].maxx = boundbox.x2;
   xctx->sym[pos].miny = boundbox.y1;
   xctx->sym[pos].maxy = boundbox.y2;
-}
-
-static int order_changed;
-static int pin_compare(const void *a, const void *b)
-{
-  int pinnumber_a, pinnumber_b;
-  const char *tmp;
-  int result;
-  
-  tmp = get_tok_value(((xRect *)a)->prop_ptr, "sim_pinnumber", 0);
-  pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
-  tmp = get_tok_value(((xRect *)b)->prop_ptr, "sim_pinnumber", 0);
-  pinnumber_b = tmp[0] ?atoi(tmp) : -1;
-  result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
-  if(result >= 0) order_changed = 1;
-  return result;
-}
-
-void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
-{
-  int j, do_sort = 0;
-  const char *pinnumber;
-  order_changed = 0;
-
-  if(npins > 0) do_sort = 1; /* no pins, no sort... */
-  /* do not sort if some pins don't have pinnumber attribute */
-  for(j = 0; j < npins; ++j) {
-    pinnumber = get_tok_value(pin_array[j].prop_ptr, "sim_pinnumber", 0);
-    if(!pinnumber[0]) do_sort = 0;
-  }
-  if(do_sort) {
-    qsort(pin_array, npins, sizeof(xRect), pin_compare);
-    if(order_changed) {
-      dbg(1, "Symbol %s has pinnumber attributes on pins. Pins will be sorted\n", name);
-    }
-  }
 }
 
 /* return 1 if http or https url

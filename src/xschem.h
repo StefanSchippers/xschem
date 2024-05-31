@@ -637,6 +637,12 @@ typedef struct
   double zoom;
 } Zoom;
 
+typedef struct /* used to sort schematic pins (if no asssociated symbol exists) */
+{ 
+  int n;
+  int pinnumber;
+} Sch_pin_record;
+
 
 typedef struct
 {
@@ -1329,7 +1335,6 @@ extern const char *sanitize(const char *name);
 extern const char *add_ext(const char *f, const char *ext);
 extern void make_symbol(void);
 /* sort based on pinnumber pin attribute if present */
-extern void sort_symbol_pins(xRect *pin_array, int npins, const char *name);
 extern void make_schematic_symbol_from_sel(void);
 extern const char *get_sym_template(char *s, char *extra);
 /* bit0: invoke change_linewidth(), bit1: centered zoom */
@@ -1488,6 +1493,7 @@ extern void delete_files(void);
 extern int sym_vs_sch_pins(int all);
 extern char *get_generator_command(const char *str);
 extern int match_symbol(const char name[]);
+extern Sch_pin_record *sort_schematic_pins(int *npins);
 extern int save_schematic(const char *); /*  20171020 added return value */
 extern void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym);
 extern void push_undo(void);

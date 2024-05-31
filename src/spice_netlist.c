@@ -172,7 +172,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
 {
   int err = 0;
   int i, flag = 0;
-  char *type=NULL;
+  const char *type;
   int top_sub;
   int lvs_ignore = tclgetboolvar("lvs_ignore");
 
@@ -185,7 +185,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     type = (xctx->inst[i].ptr+ xctx->sym)->type;
      if( type && IS_PIN(type) ) {
        if(top_sub && !flag) {
          fprintf(fd, "*.PININFO ");
@@ -206,7 +206,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     type = (xctx->inst[i].ptr+ xctx->sym)->type;
  
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_spice_netlist */
@@ -242,7 +242,6 @@ static int spice_netlist(FILE *fd, int spice_stop )
        }
      }
     }
-    my_free(_ALLOC_ID_, &type);
   }
   if(!spice_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
   return err;
@@ -257,7 +256,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  int multip;
  unsigned int *stored_flags;
  int i;
- char *type=NULL;
+ const char *type;
  char *place=NULL;
  char netl_filename[PATH_MAX]; /* overflow safe 20161122 */
  char tcl_cmd_netlist[PATH_MAX + 100]; /* 20081211 overflow safe 20161122 */
@@ -276,6 +275,8 @@ int global_spice_netlist(int global)  /* netlister driver */
   * top_symbol_name == 1: a symbol file matching schematic has been found.
   * top_symbol_name == 3: the found symbol has type=subcircuit and has ports */
  int found_top_symbol = 0;
+ int npins = 0; /* top schematic number of i/o ports */
+ Sch_pin_record *pinnumber_list = NULL; /* list of top sch i/o ports ordered wrt sim_pinnumber attr */
 
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
@@ -314,7 +315,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=header' property */
  {
   if(skip_instance(i, 1, lvs_ignore)) continue;
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  type = (xctx->inst[i].ptr+ xctx->sym)->type;
   my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
   if( type && !strcmp(type,"netlist_commands") ) {
    if(!place) {
@@ -340,6 +341,7 @@ int global_spice_netlist(int global)  /* netlister driver */
  top_sub = tclgetboolvar("lvs_netlist");
  if(!top_sub) fprintf(fd,"**");
  fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
+ pinnumber_list = sort_schematic_pins(&npins); /* sort pins according to sim_pinnumber attr */
 
  /* print top subckt ipin/opins */
  my_strdup2(_ALLOC_ID_, &top_symbol_name, abs_sym_path(add_ext(xctx->current_name, ".sym"), ""));
@@ -360,16 +362,14 @@ int global_spice_netlist(int global)  /* netlister driver */
  }
  my_free(_ALLOC_ID_, &top_symbol_name);
  if(found_top_symbol != 3) {
-   for(i=0;i<xctx->instances; ++i) {
-     if(skip_instance(i, 1, lvs_ignore)) continue;
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-     if( type && IS_PIN(type)) {
-       str_tmp = expandlabel ( (xctx->inst[i].lab ? xctx->inst[i].lab : ""), &multip);
-       /*must handle  invalid node names */
-       fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
-     }
+   for(i=0;i<npins; ++i) {
+     int n = pinnumber_list[i].n;
+     str_tmp = expandlabel ( (xctx->inst[n].lab ? xctx->inst[n].lab : ""), &multip);
+     /*must handle  invalid node names */
+     fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
    }
  }
+ my_free(_ALLOC_ID_, &pinnumber_list);
  fprintf(fd,"\n");
 
  err |= spice_netlist(fd, 0);
@@ -379,7 +379,7 @@ int global_spice_netlist(int global)  /* netlister driver */
                                    and no place=header */
  {
   if(skip_instance(i, 1, lvs_ignore)) continue;
-  my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+  type = (xctx->inst[i].ptr+ xctx->sym)->type;
   my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
   if( type && !strcmp(type,"netlist_commands") ) {
    if(!place) {
@@ -534,7 +534,7 @@ int global_spice_netlist(int global)  /* netlister driver */
    for(i=0;i<xctx->instances; ++i) /* print netlist_commands of top level cell with 'place=end' property */
    {
     if(skip_instance(i, 1, lvs_ignore)) continue;
-    my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+    type = (xctx->inst[i].ptr+ xctx->sym)->type;
     my_strdup(_ALLOC_ID_, &place,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,"place",0));
     if( type && !strcmp(type,"netlist_commands") ) {
      if(place && !strcmp(place, "end" )) {
@@ -586,7 +586,6 @@ int global_spice_netlist(int global)  /* netlister driver */
    }
    if(!debug_var) xunlink(netl_filename);
  }
- my_free(_ALLOC_ID_, &type);
  my_free(_ALLOC_ID_, &place);
  xctx->netlist_count = 0;
  tclvareval("show_infotext ", my_itoa(err), NULL); /* critical error: force ERC window showing */
