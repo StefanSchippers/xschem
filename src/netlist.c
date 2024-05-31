@@ -1160,7 +1160,9 @@ static int instcheck(int n, int p)
   if(rects > 1 && bus_tap && p == 1) {
     char *node_base_name = NULL;
     const char *tap;
-    dbg(1, "instcheck: bus tap node: %s\n", inst[n].node[p]);
+    if(inst[n].node && inst[n].node[0] && inst[n].node[0][0] == '#') {
+      my_free(_ALLOC_ID_, &inst[n].node[0]); /* bus tap forces net name on pin 0 (the tap) */
+    }                                        /* delete any previously set unnamed net */
     if(!inst[n].node[0]) { /* still unnamed */
       /* tap = get_tok_value(inst[n].prop_ptr, "lab", 0); */
       tap = inst[n].lab;
@@ -1194,6 +1196,7 @@ static int instcheck(int n, int p)
     } else {
       if(for_netlist>0) err |= signal_short("Bus tap", inst[n].node[p], inst[n].node[0]);
     }
+    dbg(1, "instcheck: bus tap node: p=%d, %s, tap=%s\n", p, inst[n].node[p], inst[n].node[0]);
     my_free(_ALLOC_ID_, &node_base_name);
   }
 

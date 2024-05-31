@@ -223,12 +223,7 @@ m=1
 }
 C {title.sym} 160 -30 0 0 {name=l9 
 
-author="tcleval(Stefan Schippers[
-  if \{$show_pin_net_names == 0\} \{
-    set show_pin_net_names 1
-    xschem update_all_sym_bboxes
-  \}]
-)"}
+author="Stefan Schippers"}
 C {lab_pin.sym} 170 -790 0 0 {name=p11 sig_type=std_logic lab=DIN[15..0]
 }
 C {bus_tap.sym} 270 -790 1 0 {name=l10 lab=0
