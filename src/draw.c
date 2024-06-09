@@ -154,7 +154,7 @@ void print_image()
     my_snprintf(cmd, S(cmd), "convert_to_png {%s} {%s}", psfile, xctx->plotfile);
     tcleval(cmd);
   }
-  else tcleval("convert_to_png {%s} plot.png", psfile);
+  else tclvareval("convert_to_png {", psfile, "} plot.png", NULL);
   #endif
   #endif
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
