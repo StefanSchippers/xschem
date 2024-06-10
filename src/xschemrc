@@ -263,12 +263,6 @@
 #### instead of looking only in symbol directory. Default: disabled (0).
 # set search_schematic 0
 
-#### if set to 1 search symbols (if not in any of the XSCHEM_LIBRARY_PATH directories)
-#### in [pwd] instead of in the directory of currently loaded schematic.
-#### default: not set (0)
-# set_ne use_pwd_instead_of_current_dirname 0
-
-
 #### keep symbols encountered while netlisting / descending the hierarchy.
 #### Default: not enabled (0)
 # set keep_symbols 0

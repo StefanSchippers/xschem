@@ -2469,7 +2469,32 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*    SOURCE xschemrc file */
  /*                         */
  if(cli_opt_load_initfile) {
-   /* get xschemrc given om cmdline, in this case do *not* source any other xschemrc*/
+   /* get systemwide xschemrc ... */
+   if(tclgetvar("XSCHEM_SHAREDIR")) {
+     #ifndef __unix__
+     if (running_in_src_dir == 1) {
+       my_snprintf(name, S(name), "%s/../../XSchemWix/xschemrc", install_dir);
+       if (!stat(name, &buf)) {
+         fprintf(errfp, "Sourcing %s init file\n", name);
+         source_tcl_file(name);
+       }
+     }
+     else {
+       my_snprintf(name, S(name), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
+       if (!stat(name, &buf)) {
+         fprintf(errfp, "Tcl_AppInit(): sourcing %s\n", name);
+         source_tcl_file(name);
+       }
+     }
+     #else
+     my_snprintf(name, S(name), "%s/xschemrc",tclgetvar("XSCHEM_SHAREDIR"));
+     if(!stat(name, &buf)) {
+       fprintf(errfp, "Sourcing %s init file\n", name);
+       source_tcl_file(name);
+     }
+     #endif
+   }
+   /* get xschemrc given om cmdline */
    if(cli_opt_rcfile[0]) {
      my_snprintf(name, S(name), cli_opt_rcfile);
      if(stat(name, &buf) ) {
@@ -2480,47 +2505,22 @@ int Tcl_AppInit(Tcl_Interp *inter)
        return TCL_ERROR;
      }
      else {
-       dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
+       fprintf(errfp, "Sourcing %s init file\n", name);
        source_tcl_file(name);
      }
    }
    else {
-     /* get systemwide xschemrc ... */
-     if(tclgetvar("XSCHEM_SHAREDIR")) {
-#ifndef __unix__
-       if (running_in_src_dir == 1) {
-         my_snprintf(name, S(name), "%s/../../XSchemWix/xschemrc", install_dir);
-         if (!stat(name, &buf)) {
-           dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
-           source_tcl_file(name);
-         }
-       }
-       else {
-         my_snprintf(name, S(name), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
-         if (!stat(name, &buf)) {
-           dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
-           source_tcl_file(name);
-         }
-       }
-#else
-       my_snprintf(name, S(name), "%s/xschemrc",tclgetvar("XSCHEM_SHAREDIR"));
-       if(!stat(name, &buf)) {
-         dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
-         source_tcl_file(name);
-       }
-#endif
-     }
-     /* ... then source xschemrc in present directory if existing ... */
+     /* source xschemrc in present directory if existing ... */
      if(!running_in_src_dir) {
        my_snprintf(name, S(name), "%s/xschemrc",pwd_dir);
        if(!stat(name, &buf)) {
-         dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
+         fprintf(errfp, "Sourcing %s init file\n", name);
          source_tcl_file(name);
        } else {
          /* ... or look for (user_conf_dir)/xschemrc */
          my_snprintf(name, S(name), "%s/xschemrc", user_conf_dir);
          if(!stat(name, &buf)) {
-           dbg(1, "Tcl_AppInit(): sourcing %s\n", name);
+           fprintf(errfp, "Sourcing %s init file\n", name);
            source_tcl_file(name);
          }
        }

@@ -5871,16 +5871,9 @@ proc try_download_url {dirname sch_or_sym} {
 # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 #          devices/iopin.sym
 proc rel_sym_path {symbol} {
-  global OS pathlist use_pwd_instead_of_current_dirname
+  global OS pathlist
 
-  if { $use_pwd_instead_of_current_dirname != 1} {
-    #### consider as current directory the directory of currently loaded schematic ...
-    set curr_dirname [xschem get current_dirname]
-  } else {
-    #### .... or just use pwd.
-    set curr_dirname [pwd]
-  }
-
+  set curr_dirname [pwd]
   set name {}
   foreach path_elem $pathlist {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
@@ -5913,14 +5906,9 @@ proc rel_sym_path {symbol} {
 # Example: % abs_sym_path devices/iopin.sch
 #          /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 proc abs_sym_path {fname {ext {} } } {
-  global pathlist OS use_pwd_instead_of_current_dirname
-  if { $use_pwd_instead_of_current_dirname != 1} {
-    #### consider as current directory the directory of currently loaded schematic ...
-    set curr_dirname [xschem get current_dirname]
-  } else {
-    #### .... or just use pwd.
-    set curr_dirname [pwd]
-  }
+  global pathlist OS
+
+  set curr_dirname [pwd]
   ## empty: do nothing
   if {$fname eq {} } return {}
   ## add extension for 1.0 file format compatibility
@@ -5982,8 +5970,6 @@ proc abs_sym_path {fname {ext {} } } {
   ## if fname is present in one of the pathlist paths get the absolute path
   set name {}
   foreach path_elem $pathlist {
-    ## in xschem a . in pathlist means the directory of currently loaded  schematic/symbol
-    ## or [pwd] if use_pwd_instead_of_current_dirname is set to 1
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
@@ -6958,7 +6944,7 @@ set tctx::global_list {
   text_replace_selection text_tabs_setting textwindow_fileid textwindow_filename textwindow_w
   toolbar_horiz toolbar_list
   toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
-  use_label_prefix use_tclreadline use_pwd_instead_of_current_dirname
+  use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   tctx::vsize xschem_libs xschem_listen_port zoom_full_center
 }
@@ -8360,7 +8346,6 @@ set_ne verilog_bitblast 0
 set_ne search_schematic 0
 # if set to 1 search symbols (if not in any of the XSCHEM_LIBRARY_PATH directories) in [pwd] 
 # instead of in the directory of currently loaded schematic.
-set_ne use_pwd_instead_of_current_dirname 0
 set_ne split_files 0
 set_ne flat_netlist 0
 set_ne netlist_show 0
