@@ -1957,6 +1957,8 @@ void get_additional_symbols(int what)
       if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists and instance points to valid symbol */
         int j;
         char *sym = NULL;
+        char *templ = NULL;
+        char *symname_attr = NULL;
         int ignore_schematic = 0;
         xSymbol *symptr = xctx->inst[i].ptr + xctx->sym;
         my_strdup2(_ALLOC_ID_, &default_schematic, get_tok_value(symptr->prop_ptr,"default_schematic",0));
@@ -1973,6 +1975,14 @@ void get_additional_symbols(int what)
           my_strdup2(_ALLOC_ID_, &sym, add_ext(rel_sym_path(sch), ".sym"));
         }
 
+        my_strdup2(_ALLOC_ID_, &templ, get_tok_value(symptr->prop_ptr, "template", 0));
+        my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
+        my_strdup(_ALLOC_ID_, &spice_sym_def, 
+            translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
+                                         templ, 
+                                         symname_attr));
+        my_free(_ALLOC_ID_, &templ);
+        my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
          * the base symbol will not be netlisted by *_block_netlist() */
         found = ignore_schematic ? NULL : int_hash_lookup(&sym_table, sym, 0, XLOOKUP);

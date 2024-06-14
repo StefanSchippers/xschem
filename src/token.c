@@ -1845,7 +1845,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
       my_strdup2(_ALLOC_ID_, &symname, xctx->sym[symbol].name);
     }
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(symname, 0), NULL);
-    translated_sym_def = translate3(spice_sym_def, 1, "",
+    translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
                                                       templ,
                                                       symname_attr);
     strtolower(symname);
