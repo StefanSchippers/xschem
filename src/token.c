@@ -1822,14 +1822,21 @@ void print_tedax_subckt(FILE *fd, int symbol)
 static int has_included_subcircuit(int inst, int symbol, char **result)
 {
   char *spice_sym_def = NULL;
+  const char *translated_sym_def;
   int ret = 0;
+
 
   my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[inst].prop_ptr, "spice_sym_def", 0));
   if(!spice_sym_def[0]) {
     my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
   }
+
   if(xctx->tok_size) {
     char *symname = NULL;
+    char *templ = NULL;
+    char *symname_attr = NULL;
+    
+    my_strdup2(_ALLOC_ID_, &templ, get_tok_value(xctx->sym[symbol].prop_ptr, "template", 0));
     my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0));
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->sym[symbol].prop_ptr, "schematic", 0));
@@ -1837,10 +1844,16 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, xctx->sym[symbol].name);
     }
+    my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(symname, 0), NULL);
+    translated_sym_def = translate3(spice_sym_def, 1, "",
+                                                      templ,
+                                                      symname_attr);
     strtolower(symname);
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
-               spice_sym_def, "}", NULL);
+               translated_sym_def, "}", NULL);
+    my_free(_ALLOC_ID_, &templ);
     my_free(_ALLOC_ID_, &symname);
+    my_free(_ALLOC_ID_, &symname_attr);
     if(tclresult()[0]) {
       char *subckt_pin, *pin_save;
       char *net, *net_save;

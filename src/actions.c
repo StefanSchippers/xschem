@@ -1942,9 +1942,9 @@ void get_additional_symbols(int what)
       char symbol_base_sch[PATH_MAX] = "";
       
       /* copy instance based *_sym_def attributes to symbol */
-      my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",0));
-      my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",0));
-      my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",0));
+      my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",4));
+      my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
+      my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
          str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
            get_cell(xctx->inst[i].name, 0), '\\')));

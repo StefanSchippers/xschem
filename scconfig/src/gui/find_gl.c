@@ -94,16 +94,19 @@ int find_gl(const char *name, int logdepth, int fatal)
 
 int find_gl_vao(const char *name, int logdepth, int fatal)
 {
-	const char *test_c =
+	const char *test_c_templ =
 		NL "#include <stdio.h>"
+		NL "#include <%s/gl.h>"
 		NL "int main()"
 		NL "{"
 		NL "	glBindVertexArray(0);"
 		NL "	return 0;"
 		NL "}"
 		NL;
+	const char *incs_templ = "#define GL_GLEXT_PROTOTYPES\n%s\n#include <%s/gl.h>\n#include <%s/glext.h>";
+	char test_c[512], incs2[512];
 	const char *node = "libs/gui/gl/vao";
-	const char *cflags, *ldflags, *incs;
+	const char *cflags, *ldflags, *incs, *ip;
 
 	if (require("cc/cc", logdepth, fatal))
 		return try_fail(logdepth, node);
@@ -114,13 +117,23 @@ int find_gl_vao(const char *name, int logdepth, int fatal)
 	cflags = get("libs/gui/gl/cflags");
 	ldflags = get("libs/gui/gl/ldflags");
 	incs = get("libs/gui/gl/includes");
+	ip = get("libs/gui/gl/include_prefix");
 
 	report("Checking for gl vao... ");
 	logprintf(logdepth, "find_gl_vao...\n");
 	logdepth++;
 
+	sprintf(test_c, test_c_templ, ip);
+	logprintf(logdepth, "trying vao with includes '%s'\n", incs);
 	if (try_icl_norun(logdepth, node, test_c, incs, cflags, ldflags) != 0)
 		return 0;
+
+	if (strlen(ip) + strlen(incs)+ strlen(incs_templ) + 8 < sizeof(incs2)) {
+		sprintf(incs2, incs_templ, incs, ip, ip);
+		logprintf(logdepth, "trying vao with includes2 '%s'\n", incs2);
+		if (try_icl_norun(logdepth, node, test_c, incs2, cflags, ldflags) != 0)
+			return 0;
+	}
 
 	return try_fail(logdepth, node);
 }
@@ -137,7 +150,8 @@ int find_gl_fb_attachment(const char *name, int logdepth, int fatal)
 		NL "	return 0;"
 		NL "}"
 		NL;
-	char test_c[512];
+	const char *incs_templ = "#define GL_GLEXT_PROTOTYPES\n%s\n#include <%s/gl.h>\n#include <%s/glext.h>";
+	char test_c[512], incs2[512];
 	const char *node = "libs/gui/gl/fb_attachment";
 	const char *cflags, *ldflags, *incs, *ip;
 
@@ -157,9 +171,16 @@ int find_gl_fb_attachment(const char *name, int logdepth, int fatal)
 	logdepth++;
 
 	sprintf(test_c, test_c_templ, ip);
-
+	logprintf(logdepth, "trying fb_att* with includes '%s'\n", incs);
 	if (try_icl_norun(logdepth, node, test_c, incs, cflags, ldflags) != 0)
 		return 0;
+
+	if (strlen(ip) + strlen(incs)+ strlen(incs_templ) + 8 < sizeof(incs2)) {
+		sprintf(incs2, incs_templ, incs, ip, ip);
+		logprintf(logdepth, "trying fb_att* with includes2 '%s'\n", incs2);
+		if (try_icl_norun(logdepth, node, test_c, incs2, cflags, ldflags) != 0)
+			return 0;
+	}
 
 	return try_fail(logdepth, node);
 }
