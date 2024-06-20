@@ -1826,7 +1826,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
   int ret = 0;
 
 
-  my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[inst].prop_ptr, "spice_sym_def", 0));
+  my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[inst].prop_ptr, "spice_sym_def", 2));
   if(!spice_sym_def[0]) {
     my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->sym[symbol].prop_ptr, "spice_sym_def", 0));
   }
@@ -1849,8 +1849,9 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
                                                       templ,
                                                       symname_attr);
-    strtolower(symname);
     dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
+    dbg(1, "has_included_subcircuit(): symname=%s\n", symname);
+    strtolower(symname);
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                 translated_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &templ);
