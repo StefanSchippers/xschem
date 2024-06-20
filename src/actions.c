@@ -1977,10 +1977,12 @@ void get_additional_symbols(int what)
 
         my_strdup2(_ALLOC_ID_, &templ, get_tok_value(symptr->prop_ptr, "template", 0));
         my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
+        my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", abs_sym_path(get_sym_name(i, 9999, 1), ""), NULL);
         my_strdup(_ALLOC_ID_, &spice_sym_def, 
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
                                          templ, 
                                          symname_attr));
+        dbg(1, "get_additional_symbols(): spice_sym_def=%s\n", spice_sym_def);
         my_free(_ALLOC_ID_, &templ);
         my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since

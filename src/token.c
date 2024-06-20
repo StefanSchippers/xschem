@@ -1845,12 +1845,14 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
       my_strdup2(_ALLOC_ID_, &symname, xctx->sym[symbol].name);
     }
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(symname, 0), NULL);
+    my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", abs_sym_path(get_sym_name(inst, 9999, 1), ""), NULL);
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
                                                       templ,
                                                       symname_attr);
     strtolower(symname);
+    dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
-               translated_sym_def, "}", NULL);
+                translated_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &templ);
     my_free(_ALLOC_ID_, &symname);
     my_free(_ALLOC_ID_, &symname_attr);
