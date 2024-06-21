@@ -420,6 +420,27 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  my_free(_ALLOC_ID_, &estr);
 }
 
+void get_sym_text_layer(int inst, int text_n, int *layer)
+{
+  char attr[50];
+  const char *tl=NULL;
+  int lay;
+  int sym_n = xctx->inst[inst].ptr;
+
+  *layer = -1;
+  if(sym_n >= 0 && xctx->sym[sym_n].texts > text_n) {
+    if(xctx->inst[inst].prop_ptr && strstr(xctx->inst[inst].prop_ptr, "text_layer_")) {
+      my_snprintf(attr, S(attr), "text_layer_%d", text_n);
+      tl = get_tok_value(xctx->inst[inst].prop_ptr, attr, 0);
+    } else {
+      xctx->tok_size = 0;
+    }
+    if(xctx->tok_size) {
+      lay = atoi(tl);
+      if(lay >= 0 && lay < cadlayers) *layer = lay;
+    }
+  }
+}
 
 void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
 {
@@ -712,13 +733,16 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
-      if(disabled == 1) textlayer = GRIDLAYER;
+      if(xctx->only_probes) textlayer = GRIDLAYER;
+      else if(disabled == 1) textlayer = GRIDLAYER;
       else if(disabled == 2) textlayer = PINLAYER;
       else if( xctx->inst[n].color == -10000) {
-        textlayer = symptr->text[j].layer;
-        if(xctx->only_probes) textlayer = GRIDLAYER;
-        else if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
+        int lay;
+        get_sym_text_layer(n, j, &lay);
+        if(lay != -1) textlayer = lay;
+        else textlayer = symptr->text[j].layer;
       }
+      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
         char *txtptr = NULL;
