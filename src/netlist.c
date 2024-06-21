@@ -1761,7 +1761,7 @@ int sym_vs_sch_pins(int all)
                       statusmsg(str,2);
                       err |= 1;
                       for(j = 0; j < xctx->instances; ++j) {
-                        if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
+                        if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
                           xctx->inst[j].color = -PINLAYER;
                           xctx->hilight_nets=1;
                         }
@@ -1780,7 +1780,7 @@ int sym_vs_sch_pins(int all)
                   err |= 1;
                   for(j = 0; j < xctx->instances; ++j) {
                     dbg(1, "inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[i].name);
-                    if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
+                    if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
                       xctx->inst[j].color = -PINLAYER;
                       xctx->hilight_nets=1;
                     }
@@ -1814,7 +1814,7 @@ int sym_vs_sch_pins(int all)
           statusmsg(str,2);
           err |= 1;
           for(j = 0; j < xctx->instances; ++j) {
-            if(!xctx->x_strcmp(get_sym_name(j, 9999, 1), xctx->sym[i].name)) {
+            if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
               xctx->inst[j].color = -PINLAYER;
               xctx->hilight_nets=1;
             }
@@ -1838,7 +1838,7 @@ int sym_vs_sch_pins(int all)
             statusmsg(str,2);
             err |= 1;
             for(k = 0; k < xctx->instances; ++k) {
-              if(!xctx->x_strcmp(get_sym_name(k, 9999, 1), xctx->sym[i].name)) {
+              if(!xctx->x_strcmp(get_sym_name(k, 9999, 1, 0), xctx->sym[i].name)) {
                 xctx->inst[k].color = -PINLAYER;
                 xctx->hilight_nets=1;
               }

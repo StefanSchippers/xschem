@@ -1769,7 +1769,7 @@ void launcher(void)
  * or get it from inst[inst].name.
  * perform tcl substitution of the result and
  * return the last 'ndir' directory components of symbol reference. */
-const char *get_sym_name(int inst, int ndir, int ext)
+const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
 {
   const char *sym, *sch;
 
@@ -1778,10 +1778,16 @@ const char *get_sym_name(int inst, int ndir, int ext)
         get_cell(xctx->inst[inst].name, 0), '\\'));
 
   if(xctx->tok_size) { /* token exists */ 
-    sym = add_ext(rel_sym_path(sch), ".sym");
+    if(abs_path)
+      sym = abs_sym_path(sch, ".sym");
+    else
+      sym = add_ext(rel_sym_path(sch), ".sym");
   } 
   else {
-    sym = tcl_hook2(xctx->inst[inst].name);
+    if(abs_path)
+      sym = abs_sym_path(tcl_hook2(xctx->inst[inst].name), "");
+    else
+      sym = tcl_hook2(xctx->inst[inst].name);
   }
 
   if(ext) return get_cell_w_ext(sym, ndir);
@@ -1977,7 +1983,7 @@ void get_additional_symbols(int what)
 
         my_strdup2(_ALLOC_ID_, &templ, get_tok_value(symptr->prop_ptr, "template", 0));
         my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
-        my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", abs_sym_path(get_sym_name(i, 9999, 1), ""), NULL);
+        my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(i, 9999, 1, 1), NULL);
         my_strdup(_ALLOC_ID_, &spice_sym_def, 
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
                                          templ, 
