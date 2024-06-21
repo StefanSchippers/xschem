@@ -36,4 +36,4 @@ B 5 -2.5 27.5 2.5 32.5 {name=minus dir=inout propag=0}
 T {@name} 15 -18.75 0 0 0.2 0.2 {}
 T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15 hide=instance}
-T {@spice_get_current} 2.5 7.5 0 0 0.2 0.2 {layer=15}
+T {@spice_get_current} 2.5 7.5 0 0 0.2 0.2 {layer=12}
