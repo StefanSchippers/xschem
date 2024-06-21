@@ -1706,7 +1706,7 @@ extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern int prepare_netlist_structs(int for_netlist);
 extern int skip_instance(int i,  int skip_short, int lvs_ignore);
-extern int dis_shorted_instance(int i);
+extern int shorted_instance(int i, int lvs_ignore);
 extern int compare_schematics(const char *filename);
 extern void create_gc(void);
 extern void free_gc(void);

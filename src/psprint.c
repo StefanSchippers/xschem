@@ -819,7 +819,8 @@ static void ps_drawgrid()
 
 
 
-static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot, double xoffset, double yoffset)
+static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, short rot,
+        double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers; ++i)" loop */
  int j, hide = 0;
@@ -891,7 +892,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
    ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
    ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
    ORDER(x1,y1,x2,y2);
-   ps_drawline(layer, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
+   ps_drawline(c, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
   }
   for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->polygons[layer]; ++j)
   {
@@ -906,7 +907,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
         y[k] += y0;
       }
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
-      ps_drawpolygon(layer, NOW, x, y, polygon->points, polygon->fill, polygon->dash, bezier);
+      ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash, bezier);
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
@@ -925,7 +926,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
     angle = fmod(angle, 360.);
     if(angle<0.) angle+=360.;
     ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-    ps_drawarc(layer, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
+    ps_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
   }
   if( xctx->enable_layer[layer] ) for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer]; ++j)
   {
@@ -938,7 +939,7 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
        ps_embedded_image(&rect, x0 + x1, y0 + y1, x0 + x2, y0 + y2, rot, flip);
        continue;
      }
-     ps_filledrect(layer, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
+     ps_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect.dash, rect.fill);
   }
   if(
       !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
@@ -960,11 +961,11 @@ static void ps_draw_symbol(int n,int layer, int what, short tmp_flip, short rot,
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-      textlayer = layer;
+      textlayer = c;
       /* do not allow custom text color on PINLAYER hilighted instances */
       if( !(xctx->inst[n].color == -PINLAYER)) {
         textlayer = (xctx->inst[n].ptr+ xctx->sym)->text[j].layer;
-        if(textlayer < 0 || textlayer >= cadlayers) textlayer = layer;
+        if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       }
        /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
@@ -1040,6 +1041,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   int old_grid;
   const char *textfont;
   static Zoom_info zi;
+  Hilight_hashentry *entry;
 
   dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
   if(tcleval("info exists ps_paper_size")[0] == '1') {
@@ -1327,14 +1329,22 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
     /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
     for(c=0;c<cadlayers; ++c) {
-      set_ps_colors(c);
-      for(i=0;i<xctx->instances; ++i)
-        ps_draw_symbol(i,c,what,0,0,0.0,0.0);
+      for(i=0;i<xctx->instances; ++i) {
+        int color = c;
+        if(xctx->inst[i].color != -10000) color = get_color(xctx->inst[i].color);
+        set_ps_colors(color);
+        ps_draw_symbol(color, i,c,what,0,0,0.0,0.0);
+      }
     }
-    set_ps_colors(WIRELAYER);
+    prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */
     for(i=0;i<xctx->wires; ++i)
     {
-      ps_drawline(WIRELAYER, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+      int color = WIRELAYER;
+      if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
+        color = get_color(entry->value);
+      }
+      set_ps_colors(color);
+      ps_drawline(color, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
     }
   
     {
