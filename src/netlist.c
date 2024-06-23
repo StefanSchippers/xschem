@@ -1315,7 +1315,10 @@ static int name_nodes_of_pins_labels_and_propagate()
       }
       else {
         /* handle global nodes (global=1 set as symbol property) 28032003 */
-        my_strdup(_ALLOC_ID_, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
+        my_strdup(_ALLOC_ID_, &global_node,get_tok_value(inst[i].prop_ptr,"global",0));
+        if(!xctx->tok_size) {
+          my_strdup(_ALLOC_ID_, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
+        }
         /*20071204 if instance is a label dont define a dir property for more precise erc checking */
       }
       /* obtain ipin/opin/label signal type (default: std_logic) */
