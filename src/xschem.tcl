@@ -6946,7 +6946,7 @@ set tctx::global_list {
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
-  gaw_fd gaw_tcp_address graph_bus
+  gaw_fd gaw_tcp_address graph_autoload graph_bus
   graph_change_done graph_digital graph_dialog_default_geometry graph_linewidth_mult graph_logx
   graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
