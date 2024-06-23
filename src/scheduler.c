@@ -327,7 +327,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tclsetboolvar("live_cursor2_backannotate", 1);
       /* clear all raw files */
       extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-      free_rawfile(&xctx->raw, 1);
+      /* free_rawfile(&xctx->raw, 1); */
+      draw();
       raw_read(f, &xctx->raw, "op", -1.0, -1.0);
       if(level >= 0) {
         xctx->raw->level = level;
@@ -3934,7 +3935,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       extra_rawfile(3, NULL, NULL, -1.0, -1.0); /* unload additional raw files */
-      free_rawfile(&xctx->raw, 1); /* unload base (current) raw file */
+      /* free_rawfile(&xctx->raw, 1); */ /* unload base (current) raw file */
+      draw();
       Tcl_ResetResult(interp);
     }
 
@@ -3960,7 +3962,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         double sweep1 = -1.0, sweep2 = -1.0;
         tcleval("array unset ngspice::ngspice_data");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(&xctx->raw, 0);
+        /* free_rawfile(&xctx->raw, 0); */
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
@@ -3988,10 +3990,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(&xctx->raw, 1);
+        /* free_rawfile(&xctx->raw, 1); */
+        draw();
       } else {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(&xctx->raw, 0);
+        /* free_rawfile(&xctx->raw, 0); */
         if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2], -1.0, -1.0);
         else  raw_read_from_attr(&xctx->raw, NULL, -1.0, -1.0);
         if(sch_waves_loaded() >= 0) {
@@ -5466,13 +5469,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(&xctx->raw, 1);
+        /* free_rawfile(&xctx->raw, 1); */
+        draw();
       } else if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));  
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(&xctx->raw, 0);
+        /* free_rawfile(&xctx->raw, 0); */
         table_read(f);
         if(sch_waves_loaded() >= 0) {
           draw();

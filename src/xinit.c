@@ -719,7 +719,7 @@ static void delete_schematic_data(int delete_pixmap)
   sanitize(NULL);
   is_generator(NULL);
   extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-  free_rawfile(&xctx->raw, 0);
+  /* free_rawfile(&xctx->raw, 0); */
   statusmsg("", 1); /* clear allocated string */
   record_global_node(2, NULL, NULL); /* delete global node array */
   free_xschem_data(); /* delete the xctx struct */

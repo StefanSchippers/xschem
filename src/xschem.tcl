@@ -2567,22 +2567,24 @@ proc graph_fill_listbox {} {
   global graph_selected
   set retval [.graphdialog.top.search get]
 
+  set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
   set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
+  if {$autoload ne {} && $autoload } { set autoload read} else {set autoload switch}
   # puts "graph_fill_listbox: $rawfile $sim_type"
   if {$rawfile ne {}} {
     if {$sim_type eq {table}} {
       set res [xschem raw table_read $rawfile $sim_type]
     } else {
-      set res [xschem raw read $rawfile $sim_type]
+      set res [xschem raw $autoload $rawfile $sim_type]
     }
     if {$res} {
       set retval [graph_get_signal_list [xschem raw_query list] $retval]
+      xschem raw switch_back
     } else {
       set retval  {}
     }
     # puts "switch back"
-    xschem raw switch_back
   } else {
     set retval [graph_get_signal_list [xschem raw_query list] $retval]
   }
@@ -2652,6 +2654,7 @@ proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow 
   global graph_linewidth_mult graph_change_done has_x graph_dialog_default_geometry
+  global graph_autoload
 
   if { ![info exists has_x]} {return} 
   set graph_change_done 0
@@ -2676,10 +2679,18 @@ proc graph_edit_properties {n} {
   if {[xschem getprop rect 2 $n logy] == 1} {set graph_logy 1}
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
+
   if {[regexp {unlocked} [xschem getprop rect 2 $n flags]]} {
     set graph_unlocked 1
   } else {
     set graph_unlocked 0
+  }
+
+  set autoload [xschem getprop rect 2 $n autoload]
+  if {$autoload ne {} && $autoload} {
+    set graph_autoload 1
+  } else {
+    set graph_autoload 0
   }
   
   frame .graphdialog.top
@@ -2698,7 +2709,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom -side top -fill x 
 
   # center-left frame
-  label .graphdialog.center.left.lab1 -text {Signal list}
+  label .graphdialog.center.left.lab1 -text {Sig. list}
   button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
@@ -2717,7 +2728,15 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
-  label .graphdialog.center.right.lab1 -text { Signals in graph }
+  label .graphdialog.center.right.lab1 -text { Signals }
+  checkbutton .graphdialog.center.right.autoload -text {Auto load}  -variable graph_autoload \
+    -command {
+      if {$graph_autoload} {
+        xschem setprop rect 2 $graph_selected autoload 1 fast
+      } else {
+        xschem setprop rect 2 $graph_selected autoload 0 fast
+      } 
+    } 
   label .graphdialog.center.right.lab2 -text {    Sim type:}
   if { [info tclversion] > 8.4} {
     ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise table}  -width 9
@@ -2782,11 +2801,12 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.lab2 .graphdialog.center.right.list \
+  grid .graphdialog.center.right.lab1 .graphdialog.center.right.autoload \
+       .graphdialog.center.right.lab2 .graphdialog.center.right.list \
        .graphdialog.center.right.rawbut  .graphdialog.center.right.rawentry -
   grid configure .graphdialog.center.right.rawentry -sticky ew
-  grid .graphdialog.center.right.text1 - - - - .graphdialog.center.right.yscroll -sticky nsew
-  grid .graphdialog.center.right.xscroll - - - - - -sticky ew
+  grid .graphdialog.center.right.text1 - - - - - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - - - - - - -sticky ew
   grid rowconfig .graphdialog.center.right 0 -weight 0
   grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
   grid rowconfig .graphdialog.center.right 2 -weight 0
@@ -2794,8 +2814,9 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 1 -weight 0
   grid columnconfig .graphdialog.center.right 2 -weight 0
   grid columnconfig .graphdialog.center.right 3 -weight 0
-  grid columnconfig .graphdialog.center.right 4 -weight 1
-  grid columnconfig .graphdialog.center.right 5 -weight 0
+  grid columnconfig .graphdialog.center.right 4 -weight 0
+  grid columnconfig .graphdialog.center.right 5 -weight 1
+  grid columnconfig .graphdialog.center.right 6 -weight 0
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {

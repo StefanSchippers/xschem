@@ -531,7 +531,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
              "Use binary format in ngspice (set filetype=binary)}");
       extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-      free_rawfile(rawptr, 0);
+      /* free_rawfile(rawptr, 0); */
       exit_status = 0;
       goto read_dataset_done;
     }
@@ -614,7 +614,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(rawptr, 0);
+        /* free_rawfile(rawptr, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -643,7 +643,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(rawptr, 0);
+        /* free_rawfile(rawptr, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -656,7 +656,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(rawptr, 0);
+        /* free_rawfile(rawptr, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -679,7 +679,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        free_rawfile(rawptr, 0);
+        /* free_rawfile(rawptr, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -728,6 +728,7 @@ void free_rawfile(Raw **rawptr, int dr)
 
   Raw *raw;
   if(!rawptr || !*rawptr) {
+    dbg(0, "free_rawfile(): no raw file to clear\n");
     if(dr) draw();
     return;
   }
