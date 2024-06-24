@@ -229,7 +229,7 @@ x1 VSS TRIG OUT VSUPPLY CTRL TRIG DIS VSUPPLY ne555
  </p>
  </li>
 
- <li><h3>Completely specify a subcircuit in the <kbd>format</kbd> section of the symbol</h3>
+ <li><h3>Completely specify a subcircuit in the <kbd>format</kbd> attribute of the symbol</h3>
  <p>
   The following set of symbol attrtibutes:
  </p>
@@ -245,7 +245,7 @@ template="name=B1 FUNC="pow(V(in),2)""
   (which is indeed unique). This allows to build subcircuits with arbitrary parameters (a math expression in the example).
   <br><br>
   The problem of this approach is that it works by creating nested .subckt inside the parent schematic
-  (which could itself be a .subckt). Not all simulators support this (although ngspice seems to work OK with this).
+  (which could itself be a .subckt). Not all simulators support this (although Ngspice  and Xyce seem to work OK with this).
  </p>
  </li>
  </ol>
