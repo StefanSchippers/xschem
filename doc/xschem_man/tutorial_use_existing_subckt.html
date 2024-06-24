@@ -198,6 +198,7 @@ x1 XZ XVCC XVSS XA XB XC symbol_include
  </p>
  <img src="tutorial_use_existing_subckt06.png">
  </li>
+
  <li><h3>Use a <kbd>spice_sym_def=".include &lt;file&gt;"</kbd> line in the symbol</h3>
  <p>
   The second method is to declare the symbol <kbd>type</kbd> as <kbd>subcircuit</kbd> and
@@ -226,6 +227,28 @@ x1 VSS TRIG OUT VSUPPLY CTRL TRIG DIS VSUPPLY ne555
   and if the symbol is reused in another design the .include line travels with the symbol and you
   don't have to add the line in the top level.
  </p>
+ </li>
+
+ <li><h3>Completely specify a subcircuit in the <kbd>format</kbd> section of the symbol</h3>
+ <p>
+  The following set of symbol attrtibutes:
+ </p>
+ <pre class="code">
+type=source
+format="X@name @@in @@out sub_@name
+.subckt sub_@name in out
+@name out 0 V=@func
+.ends sub_@name"
+template="name=B1 FUNC="pow(V(in),2)""
+ </pre>
+ <p> will create a sub_xxx subcircuit with a unique name for every symbol instance using the @name attribute 
+  (which is indeed unique). This allows to build subcircuits with arbitrary parameters (a math expression in the example).
+  <br><br>
+  The problem of this approach is that it works by creating nested .subckt inside the parent schematic
+  (which could itself be a .subckt). Not all simulators support this (although ngspice seems to work OK with this).
+ </p>
+ </li>
+ </ol>
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
