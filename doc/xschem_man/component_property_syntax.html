@@ -73,7 +73,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
     else, provided the names are different. XSCHEM enforces this, 
     unless <kbd>Options -&gt; allow duplicated instance names</kbd> is set. If a name is given that already
     exist in the current schematic it will be renamed. Normally the template string defines a default
-    name for a given component, and expecially for SPICE compatibility, the first character must NOT 
+    name for a given component, and especially for SPICE compatibility, the first character must NOT 
     be changed. For example, the default name for a MOS transistor is <kbd>m1</kbd>, it can be renamed
     for example to <kbd>mcurr_source</kbd> but not for example to <kbd>dcurr_source</kbd>. XSCHEM 
     does not enforce that the first character is preserved, it's up to the designer to keep it 
@@ -94,7 +94,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   </p>
   <li><kbd>url</kbd></li>
   <p> This attribute defines a location (web page, file) that can be viewed when hitting the
-    <kbd>&lt;shift&gt;H</kbd> key (or <kbd>&lt;Alt&gt; left mouse buttoni</kbd>) on a selected component. 
+    <kbd>&lt;shift&gt;H</kbd> key (or <kbd>&lt;Alt&gt; left mouse button</kbd>) on a selected component. 
     This is very useful to link a datasheet to a
     component, for example. The default program used to open the url is <kbd>xdg-open</kbd>. 
     this can be changed in the <kbd>~/xschemrc</kbd> configuration file with the <kbd>launcher_default_program</kbd>
@@ -113,9 +113,9 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <img src="component_properties3.png">
   <li><kbd>only_toplevel</kbd></li>
   <p>this attribute is valid only on <kbd>netlist_commands</kbd> type symbols and specifies that the 
-    symbol should be netlisted only if it is instantiated in the top-most hierarchy. This is very usefull
+    symbol should be netlisted only if it is instantiated in the top-most hierarchy. This is very useful
     for spice commands. Spice commands are placed in a special <kbd>netlist</kbd> component as we will see
-    and are meaningfull only when simulating the block, but should be skipped if the component
+    and are meaningful only when simulating the block, but should be skipped if the component
     is simulated as part of a bigger system which has its own (at higher hierarchy level)
     <kbd>netlist</kbd>component for Spice commands.</p>
   <img src="component_properties0.png">
@@ -175,7 +175,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
    <kbd>lvs_ignore</kbd> is set to <kbd>1</kbd>. This can be done in the Simulation menu:
    <kbd>Set 'lvs_ignore' variable</kbd>. If this <kbd>lvs_ignore</kbd> is set on the instance
    it will be shorted / ignored or kept as is depending on its <kbd>lvs_ignore</kbd> attribute
-   and will be effective in all netlising formats. This is mostly used to modify the produced netlist
+   and will be effective in all netlisting formats. This is mostly used to modify the produced netlist
    automatically when doing schematic vs layout (LVS) comparison.</p>
 
   <p> By using the <kbd>*_ignore</kbd> attributes you can modify the circuit depending on the value of a tcl variable:</p>
@@ -201,7 +201,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <p>
    In this example a <kbd>verilog_include_file.v</kbd> is included using the verilog <kbd>`include</kbd> directive.
    In order to generate a full path for it the <kbd>abs_sym_path</kbd> TCL function is used that searches for this file
-   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrappend into a tcleval(...),<br>
+   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrapped into a tcleval(...),<br>
    The following will appear in the generated netlist:
    <pre class="code">
 // expanding   symbol:  verilog_include.sym # of pins=3 

@@ -60,7 +60,7 @@ p{padding: 15px  30px 10px;}
   The following shell script fragment shows the commands to be used to negotiate with xschem another tcp port.<br>
   The <kbd>nc</kbd> (netcat) utility is used to pipe the commands to the tcp socket.<br>
   When starting xschem a fixed initial port number is always used (2021 by default), so it is always possible to
-  remotely communicate with xschem using this TCP port. Then the following comands can be sent to setup a new port number
+  remotely communicate with xschem using this TCP port. Then the following commands can be sent to setup a new port number
   for further communications, freeing the initial (2021) port number. If another xschem process is started it will 
   again use the initial port number, so no port number collisions occur.
  </p>
@@ -77,7 +77,7 @@ schippes@asus:~$ b=$(echo 'xschem get current_name' |nc localhost "$a")
 schippes@asus:~$ echo "$b"
 untitled.sch
 
-## repeat above steps if you want additional xschem instances each listenng to a different free tcp port.
+## repeat above steps if you want additional xschem instances each listening to a different free tcp port.
 
  </pre>
 

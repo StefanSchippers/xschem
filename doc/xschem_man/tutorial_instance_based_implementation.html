@@ -57,7 +57,7 @@ p{padding: 15px  30px 10px;}
  <h3> spice_sym_def attribute on instance </h3>
  <p>
   A <kbd>spice_sym_def=&lt;...text...&gt;</kbd> attribute attached to an instance will specify some text that describes 
-  the subcircuit (it can be a simplified spice subcircuit netlist or a spice .include line that gets the  subcircuit from
+  the subcircuit (it can be a simplified spice subcircuit netlist or a spice .include line that gets the subcircuit from
   an external file). This attribute on an instance must always be paired with a matching <kbd>schematic</kbd> attribute
   that specifies the subcircuit name the instance is linked to. 
  </p>
@@ -100,10 +100,10 @@ spice_sym_def="
  <pre class="code">
 spice_sym_def=".include /path/to/subckt_file" </pre>
  <p>
- Xchem will use the port order provided in the subckt line, either by looking directly into the attribute value
+ Xschem will use the port order provided in the subckt line, either by looking directly into the attribute value
  or by loading the file specified by the .include line. This way there will not be inconsistencies
  between instance line and subckt definition in the circuit netlist. If for some reason the port list can not be read or
- pin names do not match xchem will use the port order drom the <kbd>.sym</kbd> file.
+ pin names do not match xschem will use the port order drom the <kbd>.sym</kbd> file.
  </p><br><br>
 
  <p class="important">
