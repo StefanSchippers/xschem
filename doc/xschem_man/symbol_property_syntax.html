@@ -45,14 +45,14 @@ p{padding: 15px  30px 10px;}
      file even if it exists. Xschem will not allow to descend into an existing schematic.</li>
     <li><kbd>label</kbd>: the symbol is used to label a net. These type of symbols must have
      one and only one pin, and the template string must define a <kbd>lab</kbd> attribute
-     that is passed at component instantiationi to name the net it is attached to. </li>
+     that is passed at component instantiation to name the net it is attached to. </li>
     <li><kbd>probe</kbd>: this denotes a probe symbol that may be backannotated with a
      backannotation script (example: ngspice_backannotate.tcl).</li>
     <li><kbd>ngprobe</kbd>: This is a probe element that uses a 'pull' method to fetch simulation 
      data and display it in current schematic. The data displayed is thus dynamic, multiple
-     instancs of the same symbol with annotators will display operating point data for that particular
+     instances of the same symbol with annotators will display operating point data for that particular
      instance without the need to update the backannotation as is required for annotators 
-     using the 'push' annotation methid.</li>
+     using the 'push' annotation method.</li>
     <li><kbd>netlist_commands</kbd>: the symbol is used to place SPICE commands into a spice netlist.
      It should also have a <kbd>value</kbd> attribute that may contain arbitrary text that is 
      copied verbatim into the netlist. More on this in the <a href="...">netlist</a> slide.</li>
@@ -174,7 +174,7 @@ type=nmos
    <kbd>lvs_ignore</kbd> is set to <kbd>1</kbd>. This can be done in the Simulation menu:
    <kbd>Set 'lvs_ignore' variable</kbd>. If this <kbd>lvs_ignore</kbd> is set on the symbol
    it will be shorted / ignored or kept as is depending on its <kbd>lvs_ignore</kbd> attribute
-   and will be effective in all netlising formats. This is mostly used to modify the produced netlist
+   and will be effective in all netlisting formats. This is mostly used to modify the produced netlist
    automatically when doing schematic vs layout (LVS) comparison.</p>
 
 
@@ -199,7 +199,7 @@ type=nmos
   <li><kbd>default_schematic</kbd></li>
   <p> If set to <kbd>ignore</kbd> xschem will not descend into the symbol associated schematic and will
    not complain if this schematic does not exists. To descend into a schematic instances must specify a 
-   <kbd>schematic</kbd> attribute, otherwise no descendng and expansion occurs.</p>
+   <kbd>schematic</kbd> attribute, otherwise no descending and expansion occurs.</p>
 
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>
@@ -219,7 +219,7 @@ type=nmos
   <p>
    In this example a <kbd>verilog_include_file.v</kbd> is included using the verilog <kbd>`include</kbd> directive.
    In order to generate a full path for it the <kbd>abs_sym_path</kbd> TCL function is used that searches for this file
-   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrappend into a tcleval(...),<br>
+   in any of the <kbd>XCHEM_LIBRARY_PATH</kbd> directories. Since TCL is used the attribute is wrapped into a tcleval(...),<br>
    The following will appear in the generated netlist:
    <pre class="code">
 // expanding   symbol:  verilog_include.sym # of pins=3
@@ -236,7 +236,7 @@ type=nmos
   <p> This attribute is only useable in <kbd>netlist_commands</kbd> type symbols (<kbd>netlist.sym, code.sym,...</kbd>) 
     if set to <kbd>end</kbd> it tells XSCHEM that 
     the component instance of that symbol must be netlisted at the end, after all the other elements.
-    This is sometimes needed for SPICE commands that must ge given at the end of the netlist.
+    This is sometimes needed for SPICE commands that must given at the end of the netlist.
     This will be explained more in detail in the <a href="...">netlisting</a> slide.
     <br>
     The <kbd>place=header</kbd> attribute is only valid only for netlist_commands
@@ -359,7 +359,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   <li><kbd>verilog_extra</kbd></li>
   <p> 
   This attribute is similar to the <kbd>extra</kbd> attribute and is used for verilog netlist. Nodes
-  listed in this atrribute value will be used as additional pin connections.
+  listed in this attribute value will be used as additional pin connections.
   </p>
   <p class="important">
   the <kbd>extra</kbd> attribute is still used in verilog netlist as a list of attributes NOT to pass as
@@ -438,7 +438,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   <p>
   This attribute is used in the xschem embedded digital simulation engine: propagate logic simulation
   to the output pins <kbd>n,[m,...]</kbd>. The logic function is defined via the 'function<kbd>n</kbd>'
-  global attribute. There is one 'funtion<kbd>n</kbd>' for each <kbd>n</kbd> output pin.
+  global attribute. There is one 'function<kbd>n</kbd>' for each <kbd>n</kbd> output pin.
   see 'function<kbd>n</kbd>' attribute for more info.
   </p>
    <img src="symbol_property_syntax4.png">
@@ -476,7 +476,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
      <li> <kbd>m</kbd>: same as above, but don't update if 'm' not 1 or 0. Used to avoid deadlocks.</li>
      <li> <kbd>z</kbd>: preceeded by 2 elements, 'a', 'e', return 'a' if 'e' == 1 else Z (hi-Z)</li>
      <li> <kbd>d</kbd>: Duplicates top element on the stack</li>
-     <li> <kbd>x</kbd>: Exhanges the 2 top elements on the stack</li>
+     <li> <kbd>x</kbd>: Exchanges the 2 top elements on the stack</li>
      <li> <kbd>r</kbd>: Rotate down: bottom element of stack goes to top</li>
      <li> <kbd>H</kbd>: Puts a Logic '1' on the stack</li>
      <li> <kbd>L</kbd>: Puts a Logic '0' on the stack</li>
@@ -642,19 +642,19 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   </p>
   <li><kbd>@prop_ptr</kbd></li>
   <p>
-   this expandes to the <b>entire</b> property string passed to the component.
+   this expands to the <b>entire</b> property string passed to the component.
   </p>
   <li><kbd>@schprop</kbd></li>
   <p>
-   this expandes to the <b>spice</b> global property string of the schematic containing the symbol
+   this expands to the <b>spice</b> global property string of the schematic containing the symbol
   </p>
   <li><kbd>@schvhdlprop</kbd></li>
   <p>
-   this expandes to the <b>VHDL</b> global property string of the schematic containing the symbol
+   this expands to the <b>VHDL</b> global property string of the schematic containing the symbol
   </p>
   <li><kbd>@schverilogprop</kbd></li>
   <p>
-   this expandes to the <b>Verilog</b> global property string of the schematic containing the symbol
+   this expands to the <b>Verilog</b> global property string of the schematic containing the symbol
   </p>
  </ul><br>
  <h3>TCL ATTRIBUTE SUBSTITUTION</h3>
