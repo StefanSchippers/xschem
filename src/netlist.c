@@ -1749,8 +1749,19 @@ int sym_vs_sch_pins(int all)
                   my_strdup(_ALLOC_ID_, &pin_name, 
                     expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
                   my_strdup(_ALLOC_ID_, &pin_dir, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
+
+
                   if( pin_name && !strcmp(pin_name, lab)) {
-                    if(!(
+                    if(!pin_dir) {
+                      char str[2048];
+                      my_snprintf(str, S(str), "Error: Symbol %s: No direction given for pin %s",
+                                xctx->sym[i].name, lab);
+                      statusmsg(str,2);
+                      my_snprintf(str, S(str), "    %s <--> ???", type);
+                      statusmsg(str,2);
+                      err |= 1;
+                    }
+                    else if(!(
                           ( !strcmp(type, "ipin") && !strcmp(pin_dir, "in") ) ||
                           ( !strcmp(type, "opin") && !strcmp(pin_dir, "out") ) ||
                           ( !strcmp(type, "iopin") && !strcmp(pin_dir, "inout") )
