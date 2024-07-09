@@ -36,17 +36,16 @@ set xschem_library_path "../xschem_library"
 
 proc netlisting {dir fn} {
   global xschem_library_path testname pathlist xschem_cmd
-  set fpath "$dir/$fn"
   if { [regexp {\.sch$} $fn ] } {
-    puts "Testing ($testname) $fpath"  
+    puts "Testing ($testname) $dir/$fn"  
     set output_dir $dir
     regsub -all $xschem_library_path $output_dir {} output_dir
     regsub {^/} $output_dir {} output_dir
     # Spice Netlist
-    run_xschem_netlist vhdl $output_dir $fn $fpath
-    run_xschem_netlist v $output_dir $fn $fpath
-    run_xschem_netlist tdx $output_dir $fn $fpath
-    run_xschem_netlist spice $output_dir $fn $fpath
+    run_xschem_netlist vhdl $output_dir $dir $fn
+    run_xschem_netlist v $output_dir $dir $fn
+    run_xschem_netlist tdx $output_dir $dir $fn
+    run_xschem_netlist spice $output_dir $dir $fn
   }
 }
 
@@ -65,14 +64,15 @@ proc netlisting_dir {dir} {
   }
 }
 
-proc run_xschem_netlist {type output_dir fn fpath} {
+proc run_xschem_netlist {type output_dir dir fn} {
   global testname pathlist xschem_cmd num_fatals
+  set cwd [pwd]
   set fn_debug [join [list $output_dir , [regsub {\.} $fn {_}] "_${type}_debug.txt"] ""]
   regsub {./} $fn_debug {_} fn_debug
   set sch_name [regsub {\.sch} $fn {}]
   set fn_netlist [join [list $sch_name "." $type] ""]
-  set output [join [list $testname / results / $fn_debug] ""]
-  set netlist_output_dir [join [list $testname / results ] ""]
+  set output [join [list $cwd / $testname / results / $fn_debug] ""]
+  set netlist_output_dir [join [list $cwd / $testname / results ] ""]
   puts "Output: $fn_debug"
   set opt s
   if {$type eq "vhdl"} {set opt V}
@@ -80,7 +80,10 @@ proc run_xschem_netlist {type output_dir fn fpath} {
   if {$type eq "tdx"} {set opt t}
   set netlist_failed 0 ;# not used here but might be used in the future.
   set general_failure 0
-  set catch_status [catch {eval exec {$xschem_cmd $fpath -q -x -r -$opt -o $netlist_output_dir -n 2> $output}} msg opt]
+  
+  cd $dir
+  set catch_status [catch {eval exec {$xschem_cmd $fn -q -x -r -$opt -o $netlist_output_dir -n 2> $output}} msg opt]
+  cd $cwd
   if {$catch_status} {
     set error_code [dict get $opt -errorcode]
     # in case of child process error $error_code will be {CHILDSTATUS 11731 10}, second item is processID, 
@@ -92,7 +95,7 @@ proc run_xschem_netlist {type output_dir fn fpath} {
     }
   }
   if {$general_failure} {
-    puts "FATAL: $xschem_cmd $fpath -q -x -r -$opt -o $netlist_output_dir -n 2> $output : $msg"
+    puts "FATAL: $xschem_cmd $fn -q -x -r -$opt -o $netlist_output_dir -n 2> $output : $msg"
     incr num_fatals 
   } else {
     lappend pathlist $fn_debug

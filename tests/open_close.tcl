@@ -46,8 +46,12 @@ proc open_close {dir fn} {
     set fn_debug [join [list $output_dir , [regsub {\.} $fn {_}] "_debug.txt"] ""]
     set output [join [list $testname / results / $fn_debug] ""]
     puts "Output: $fn_debug"
-    if {[catch {eval exec {$xschem_cmd $fpath -q -x -r -d 1 2> $output}} msg]} {
-      puts "FATAL: $xschem_cmd $fpath -q -x -r -d 1 2> $output : $msg"
+    set cwd [pwd]
+    cd $dir
+    set catch_status [catch {eval exec {$xschem_cmd $fn -q -x -r -d 1 2> $cwd/$output}} msg]
+    cd $cwd
+    if {$catch_status} {
+      puts "FATAL: $xschem_cmd $fn -q -x -r -d 1 2> $cwd/$output : $msg"
       incr num_fatals
     } else {
       lappend pathlist $fn_debug

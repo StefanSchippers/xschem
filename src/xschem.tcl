@@ -5825,9 +5825,10 @@ proc get_directory {f} {
 }
 
 # set 'n' last directory components to every symbol
-proc fix_symbols {n} {
+proc fix_symbols {n {pattern {}}} {
   xschem push_undo
   foreach {i s t} [xschem instance_list] {
+    if {$pattern ne {} && ![regexp $pattern $s]} {continue}
     if {![regexp {\(.*\)$} $s param]} { set param {}}
     regsub {\([^)]*\)$} $s {} s
     set sympath  [find_file_first [file tail $s]]

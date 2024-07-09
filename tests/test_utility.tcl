@@ -21,11 +21,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 set OS [lindex $tcl_platform(os) 0]
-if {$::OS == "Windows"} {
-  set xschem_cmd "xschem"
-} else {
-  set xschem_cmd "../src/xschem"
-}
+set xschem_cmd "xschem"
 
 # From Glenn Jackman (Stack Overflow answer)
 proc comp_file {file1 file2} {
