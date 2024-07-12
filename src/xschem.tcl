@@ -5572,7 +5572,7 @@ proc show_infotext {{err 0}} {
     if {[info exists has_x]} {
       wm deiconify .infotext
     } else {
-      puts stderr [xschem get infowindow_text]
+      xschem log_write  [xschem get infowindow_text]
     }
   }
 }

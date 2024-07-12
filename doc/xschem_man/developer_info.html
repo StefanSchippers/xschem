@@ -546,6 +546,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -991,6 +995,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'f' is given output stderr messages to file 'f'
    if 'f' is not given and a file log is open, close log
    file and resume logging to stderr </pre>
+   <li><kbd>       log_write text</kbd></li><pre>
+   write given string to log file, so tcl can write messages on the log file</pre>
    <li><kbd>       logic_get_net net_name</kbd></li><pre>
    Get logic state of net named 'net_name'
    Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.</pre>
@@ -1590,6 +1596,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

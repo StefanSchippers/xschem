@@ -2824,6 +2824,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
+    /* log_write text
+     *   write given string to log file, so tcl can write messages on the log file
+     */
+    else if(!strcmp(argv[1], "log_write"))
+    {
+      if(argc > 2) {
+        dbg(0, "%s\n", argv[2]);
+      }
+    }
+
     /* logic_get_net net_name
      *   Get logic state of net named 'net_name'
      *   Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.
