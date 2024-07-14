@@ -42,8 +42,8 @@ B 2 350 -1020 810 -860 {flags=graph
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=1.02182e-07
-x2=4.39927e-07
+x1=1.0574372e-07
+x2=4.3554617e-07
 divx=5
 subdivx=4
 unitx=n
@@ -60,8 +60,8 @@ B 2 350 -1160 810 -1030 {flags=graph
 y1 = 0.647319
 y2 = 0.652563
 
-x1=1.02182e-07
-x2=4.39927e-07
+x1=1.0574372e-07
+x2=4.3554617e-07
 unitx=n
 divx=5
 subdivx=2
@@ -76,8 +76,8 @@ B 2 350 -1320 810 -1160 {flags=graph
 y1 = 0
 y2 = 0.9
 divy = 5
-x1=1.02182e-07
-x2=4.39927e-07
+x1=1.0574372e-07
+x2=4.3554617e-07
 unitx=n
 divx=5
 subdivx=4
@@ -100,8 +100,8 @@ B 2 350 -1450 810 -1330 {flags=graph
 y1 = -8.54414e-05
 y2 = 2.7198e-05
 divy = 5
-x1=1.02182e-07
-x2=4.39927e-07
+x1=1.0574372e-07
+x2=4.3554617e-07
 divx=5
 subdivx=4
 unitx=n
@@ -127,7 +127,7 @@ Output on SAOUT
 Gaussian Threshold variation (via delvto parameter) is added to all MOS transistors.} 1110 -240 0 0 0.6 0.6 {}
 T {.param ABSVAR=0.05
 delvto='agauss(0,ABSVAR,3)'} 1390 -120 0 0 0.6 0.6 {layer=8}
-T {tcleval(Dataset=\\n[xschem getprop rect 2 0 dataset])} 340 -850 0 0 0.7 0.7 {floater=xxx}
+T {tcleval(Dataset=[xschem getprop rect 2 0 dataset])} 340 -850 0 0 0.7 0.7 {floater=xxx}
 N 120 -470 120 -450 {lab=TEMPERAT}
 N 360 -530 390 -530 {lab=VSS}
 N 360 -500 360 -480 {lab=VSS}
