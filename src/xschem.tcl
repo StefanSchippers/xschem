@@ -5920,7 +5920,13 @@ proc rel_sym_path {symbol} {
   if {$name eq {} } {
     # no known lib, so return full path
     set name ${symbol}
+    if {[file dirname $name] eq $curr_dirname} {
+      # remove path if file is in pwd
+      set name [file tail $name]
+    }
+
   }
+
   return $name
 }
 
