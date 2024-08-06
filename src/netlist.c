@@ -618,6 +618,14 @@ void netlist_options(int i)
     if(!strboolcmp(str, "true")) tclsetintvar("lvs_netlist", 1);
     else tclsetintvar("lvs_netlist", 0);
   }
+
+  str = get_tok_value(xctx->inst[i].prop_ptr, "top_is_subckt", 0);
+  if(str[0]) {
+    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
+    if(!strboolcmp(str, "true")) tclsetintvar("top_is_subckt", 1);
+    else tclsetintvar("top_is_subckt", 0);
+  }   
+
   str = get_tok_value(xctx->inst[i].prop_ptr, "spiceprefix", 0);
   if(str[0]) {
     /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */

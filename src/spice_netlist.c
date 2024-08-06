@@ -176,7 +176,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
   int top_sub;
   int lvs_ignore = tclgetboolvar("lvs_ignore");
 
-  top_sub = tclgetboolvar("lvs_netlist");
+  top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
   if(!spice_stop) {
     dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
@@ -338,7 +338,7 @@ int global_spice_netlist(int global)  /* netlister driver */
      netlist_options(i);
    }
  }
- top_sub = tclgetboolvar("lvs_netlist");
+ top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
  if(!top_sub) fprintf(fd,"**");
  fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
  pinnumber_list = sort_schematic_pins(&npins); /* sort pins according to sim_pinnumber attr */

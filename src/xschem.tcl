@@ -6960,7 +6960,7 @@ set tctx::global_list {
   incr_hilight incremental_select infowindow_text intuitive_interface 
   keep_symbols launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
-  lvs_netlist  measure_text netlist_dir netlist_show netlist_type no_ask_save
+  lvs_netlist measure_text netlist_dir netlist_show netlist_type no_ask_save
   no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   tctx::rcode recentfile
@@ -6971,7 +6971,7 @@ set tctx::global_list {
   svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
   text_replace_selection text_tabs_setting textwindow_fileid textwindow_filename textwindow_w
   toolbar_horiz toolbar_list
-  toolbar_visible transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
+  toolbar_visible top_is_subckt transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
   tctx::vsize xschem_libs xschem_listen_port zoom_full_center
@@ -7961,7 +7961,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 
   $topwin.menubar.simulation.menu add cascade -label "LVS" -menu $topwin.menubar.simulation.menu.lvs
   menu $topwin.menubar.simulation.menu.lvs -tearoff 0
-  $topwin.menubar.simulation.menu.lvs add checkbutton -label "LVS netlist: Top level is a .subckt" \
+  $topwin.menubar.simulation.menu.lvs add checkbutton -label "LVS netlist + Top level is a .subckt" \
   -selectcolor $selectcolor -variable lvs_netlist -command {
     if {$lvs_netlist == 1} {
       xschem set format lvs_format 
@@ -7969,6 +7969,10 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
       xschem set format {}
     }
   }
+
+  $topwin.menubar.simulation.menu.lvs add checkbutton -label "Top level is a .subckt" \
+  -selectcolor $selectcolor -variable top_is_subckt
+
   $topwin.menubar.simulation.menu.lvs add checkbutton -label "Set 'lvs_ignore' variable" \
          -selectcolor $selectcolor \
          -variable lvs_ignore -command {xschem rebuild_connectivity; xschem unhilight_all}
@@ -8366,6 +8370,7 @@ set_ne netlist_type spice
 set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and sims
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne lvs_netlist 0
+set_ne top_is_subckt 0
 set_ne lvs_ignore 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne spiceprefix 1
