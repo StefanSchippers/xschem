@@ -105,10 +105,7 @@ p{padding: 15px  30px 10px;}
  </p>
  <pre class="code">
    ./configure --prefix=new/prefix/path
- </pre>
- <p>
-  DESTDIR is supported.
- </p>
+ </pre><br>
  <p class="important">
   For testing purposes <kbd>xschem</kbd> can be run and invoked from the build directory
   <kbd>xschem-&lt;version&gt;/src/</kbd> without installation.
@@ -131,12 +128,14 @@ p{padding: 15px  30px 10px;}
   If you need to override system settings, create a
   <kbd>~/.xschem/xschemrc</kbd>. The easiest way is to copy the system
   installed version from ${prefix}/share/xschem/xschemrc and then
-  make the necessary changes
+  make the necessary changes.
  </p> 
  <pre class="code">
   user:$ mkdir ~/.xschem
   user:$ cp &lt;install root&gt;/share/xschem/xschemrc ~/.xschem/xschemrc
  </pre><br>
+ <p class="important"> When xschem is run the first time it will do the above operations, create a
+  <kbd>${HOME}/.xschem/</kbd> directory and place a <kbd>xschemrc</kbd> into it.</p>
  <br><br>
 
 
@@ -163,18 +162,21 @@ export LD_LIBRARY_PATH=/home/schippes/x/tcltk/lib
  <h2> -Technical information - Detailed XSCHEM startup sequence </h2>
  <p class="important"> Information here under is not meant to be executed by the user </p><br>
  <ol>
+ <li>Source system-wide xschemrc if existing: <kbd>XSCHEM_SHAREDIR/xschemrc</kbd>.
+     This file is by default all commented so it does nothing.
+     See below how <kbd>XSCHEM_SHAREDIR</kbd> path is generated.</li>
  <li>If <kbd>--rcfile=&lt;rcfile&gt;</kbd> is given then source the specified rcfile. Do not load any other rcfile.</li>
  <li>If <kbd>../src/xchem.tcl</kbd> with respect to current dir is existing and
      <kbd>../xschem_library</kbd> is also existing then we are starting
      from a build directory, set <kbd>XSCHEM_SHAREDIR</kbd> to <kbd>&lt;current dir&gt;</kbd> and
-     also set <br><kbd>XSCHEM_LIBRARY_PATH</kbd> to <kbd>../xschem_library/devices</kbd>.</li>
+     also set <kbd>XSCHEM_LIBRARY_PATH</kbd> to <kbd>../xschem_library/devices</kbd>.</li>
  <li>Else use compile-time (generated from configure script) provided <kbd>XSCHEM_SHAREDIR</kbd>.
- <li>Source system-wide xschemrc if existing: <kbd>XSCHEM_SHAREDIR/xschemrc</kbd></li>
+     (default is <kbd>/usr/local/share/xschem</kbd>).</li>
  <li>If in current dir there is a <kbd>xschemrc</kbd> file source it.</li>
  <li>Else if there is a <kbd>USER_CONF_DIR/xschemrc</kbd> file source it.
      <kbd>XSCHEM_SHAREDIR</kbd>  and <kbd>USER_CONF_DIR</kbd> are preprocessor macros
      passed at compile time by the configure script.
-     The first one will be overridden only if executing from a build directory, see item 2.</li>
+     The first one will be overridden only if executing from a build directory, see item 3.</li>
  <li>If <kbd>XSCHEM_SHAREDIR</kbd> not defined --&gt; error and quit.</li>
  <li>Start loading user provided schematic file or start with empty window  (or filename
      specified in <kbd>XSCHEM_START_WINDOW</kbd> tcl variable).</li>
