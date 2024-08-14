@@ -1441,7 +1441,7 @@ static int name_unlabeled_instances()
           err |= set_unnamed_inst(i, j);
         }
       }
-      if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count == 0) {
+      if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count > 0) {
         char str[2048];
         my_snprintf(str, S(str), "Error: %s all pins disconnected,", inst[i].instname);
         statusmsg(str,2);
