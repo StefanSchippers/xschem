@@ -1423,7 +1423,7 @@ static int name_unlabeled_instances()
   int i, j;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
-  int rects;
+  int rects, all_unconn;
     
   /* name nets that do not touch ipin opin alias instances */
   dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
@@ -1433,11 +1433,20 @@ static int name_unlabeled_instances()
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     if(inst[i].ptr != -1) {
       rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+      all_unconn = 0;
       for(j = 0; j < rects; ++j) {
         if(inst[i].node[j] == NULL)
         {
+          all_unconn++;
           err |= set_unnamed_inst(i, j);
         }
+      }
+      if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count == 0) {
+        char str[2048];
+        my_snprintf(str, S(str), "Error: %s all pins disconnected,", inst[i].instname);
+        statusmsg(str,2);
+        xctx->inst[i].color = -PINLAYER;
+        xctx->hilight_nets=1;
       }
     }
   }
