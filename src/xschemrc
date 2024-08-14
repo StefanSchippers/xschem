@@ -200,6 +200,10 @@
 #### default: not enabled (0)
 # set unselect_partial_sel_wires 0
 
+#### if set select objects if touched by selection rectangle while dragging to the left
+#### Default: enabled (1)
+# set select_touch 0
+
 #### if set show selected elements while dragging the selection rectangle.
 #### once selected these can not be unselected by retracting the selection rectangle
 #### if not set show selected items at end of drag. Default: enabled (1)

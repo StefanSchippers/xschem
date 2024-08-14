@@ -6965,7 +6965,7 @@ set tctx::global_list {
   persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
   tctx::rcode recentfile
   retval retval_orig rotated_text search_case search_exact search_found search_schematic
-  search_select search_value selected_tok show_hidden_texts show_infowindow
+  search_select search_value select_touch selected_tok show_hidden_texts show_infowindow
   show_infowindow_after_netlist
   simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
   svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
@@ -8406,6 +8406,7 @@ set_ne load_file_dialog_fullpath 1
 # once selected these can not be unselected by retracting the selection rectangle
 # if not set show selected items at end of drag.
 set_ne incremental_select 1
+set_ne select_touch 1
 
 set_ne draw_crosshair 0
 set_ne draw_grid 1

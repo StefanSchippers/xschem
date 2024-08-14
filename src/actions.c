@@ -3739,6 +3739,7 @@ void fix_restore_rect(double x1, double y1, double x2, double y2)
 void select_rect(int what, int select)
 {
  int incremental_select = tclgetboolvar("incremental_select");
+ int sel_touch = tclgetboolvar("select_touch");
  dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex_snap=%g mousey_snap=%g\n", 
         what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
  if(what & RUBBER)
@@ -3756,10 +3757,10 @@ void select_rect(int what, int select)
     rebuild_selected_array();
     draw_selection(xctx->gc[SELLAYER], 0);
     
-    if(incremental_select || !xctx->nl_sel) {
-      if(xctx->nl_dir == 0) select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
-      else select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
-    }
+    if(!xctx->nl_sel || (incremental_select && xctx->nl_dir == 0))
+       select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
+    else if(incremental_select && xctx->nl_dir == 1 && sel_touch)
+       select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     drawtemprect(xctx->gc[SELLAYER],NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3789,9 +3790,10 @@ void select_rect(int what, int select)
  {
     RECTORDER(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
-    if(!incremental_select || xctx->nl_dir == 0)
+
+    if(!sel_touch || xctx->nl_dir == 0)
       select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
-    else
+    else 
       select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
     draw_selection(xctx->gc[SELLAYER], 0);
