@@ -27,8 +27,6 @@ E {}
 L 7 930 -250 1110 -250 {}
 P 4 7 330 -690 330 -610 320 -610 330 -590 340 -610 330 -610 330 -690 {}
 P 4 7 650 -600 600 -600 600 -610 580 -600 600 -590 600 -600 650 -600 {}
-T {Title symbol has embedded TCL command
-to enable show_pin_net_names.} 160 -120 0 0 0.4 0.4 { layer=6}
 T {Set tcl variable IGNORE to 1 or 0 to
 enable / disable / short  some components} 50 -940 0 0 1 1 {}
 T {tcleval(IGNORE=$IGNORE)} 930 -290 0 0 0.6 0.6 {name=l1}
@@ -47,41 +45,41 @@ depending on IGNORE} 1310 -540 0 0 0.4 0.4 { layer=1}
 N 130 -290 180 -290 {
 lab=NET_A}
 N 480 -290 530 -290 {
-lab=NET_A}
+lab=NET_B}
 N 180 -390 180 -290 {
 lab=NET_A}
 N 480 -390 480 -290 {
-lab=NET_A}
+lab=NET_B}
 N 180 -390 300 -390 {
 lab=NET_A}
 N 360 -390 480 -390 {
-lab=NET_A}
+lab=NET_B}
 N 160 -480 180 -480 {
-lab=NET_D}
+lab=NET_C}
 N 480 -480 530 -480 {
-lab=#net1}
+lab=NET_C}
 N 180 -580 180 -480 {
-lab=NET_D}
+lab=NET_C}
 N 480 -580 480 -480 {
-lab=#net1}
+lab=NET_C}
 N 180 -580 300 -580 {
-lab=NET_D}
+lab=NET_C}
 N 360 -580 480 -580 {
-lab=#net1}
+lab=NET_C}
 N 380 -480 480 -480 {
-lab=#net1}
+lab=NET_C}
 N 180 -480 300 -480 {
-lab=NET_D}
+lab=NET_C}
 N 380 -290 480 -290 {
-lab=NET_A}
+lab=NET_B}
 N 180 -290 300 -290 {
 lab=NET_A}
 N 610 -480 660 -480 {
-lab=NET_E}
+lab=#net1}
 N 660 -460 660 -400 {
-lab=NET_E}
+lab=#net1}
 N 660 -400 750 -400 {
-lab=NET_E}
+lab=#net1}
 N 660 -360 750 -360 {
 lab=NET_B}
 N 660 -360 660 -290 {
@@ -91,21 +89,21 @@ lab=NET_B}
 N 980 -380 1020 -380 {
 lab=NET_E}
 N 660 -460 760 -460 {
-lab=NET_E}
+lab=#net1}
 N 820 -460 980 -460 {
 lab=NET_E}
 N 980 -460 980 -380 {
 lab=NET_E}
 N 660 -480 660 -460 {
-lab=NET_E}
+lab=#net1}
 N 120 -420 160 -420 {
-lab=NET_D}
+lab=NET_C}
 N 160 -480 160 -420 {
-lab=NET_D}
+lab=NET_C}
 N 1560 -590 1680 -590 {
-lab=NET_B}
+lab=#net2}
 N 120 -480 160 -480 {
-lab=NET_D}
+lab=NET_C}
 N 1760 -590 1820 -590 {
 lab=NET_F}
 N 1210 -590 1480 -590 {
@@ -115,14 +113,7 @@ lab=NET_E}
 C {lab_pin.sym} 130 -290 0 0 {name=p3 sig_type=std_logic lab=NET_A}
 C {ipin.sym} 100 -190 0 0 { name=p4 lab=NET_D }
 C {title.sym} 160 -30 0 0 {name=l1
-author="tcleval([
-  if \{$show_pin_net_names == 0\} \{
-    set IGNORE 1
-    set show_pin_net_names 1
-    xschem update_all_sym_bboxes
-  \}
-  return \{Stefan Schippers\}
-])"
+author="Stefan Schippers"
 }
 C {short.sym} 330 -390 1 0 {name=x2
 spice_ignore="tcleval([if \{$IGNORE == 1\} \{return \{false\}\} else \{return \{true\}\}])"

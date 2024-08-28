@@ -4427,11 +4427,12 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
 
  while(1) {
   c=*s++;
+
   if(c=='\\') {
     escape=1;
     if(eat_escapes) c=*s++;
   }
-  else escape=0;
+
   space=SPACE(c);
   if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
   else if(state==TOK_TOKEN && token_pos > 1 &&
@@ -4440,6 +4441,8 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
        ( (!space && c != '%' && c != '@') && escape  )
      )                          
     ) state=TOK_SEP;
+
+  if( c != '\\' && escape ) escape = 0;
 
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;

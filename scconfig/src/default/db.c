@@ -201,6 +201,7 @@ static char *readq(FILE *f, char *str, long strmax, int quote, int do_esc, int *
 		}
 
 		/* get the next chunk */
+		*str = '\0';
 		fgets(str, strmax, f);
 	}
 

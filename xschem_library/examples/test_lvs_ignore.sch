@@ -26,8 +26,6 @@ S {}
 E {}
 L 7 980 -150 1160 -150 {}
 P 4 7 210 -290 210 -370 220 -370 210 -390 200 -370 210 -370 210 -290 {}
-T {Title symbol has embedded TCL command
-to enable show_pin_net_names.} 130 -130 0 0 0.4 0.4 { layer=7}
 T {Set tcl variable lvs_ignore to:
 - 1 to short elements with lvs_ignore=short attribute set
     to disable elements with lvs_ignore=open attribute set
@@ -76,14 +74,7 @@ lab=STARTUP}
 N 550 -520 700 -520 {
 lab=STARTUP}
 C {title.sym} 160 -30 0 0 {name=l1
-author="tcleval([
-  if \{$show_pin_net_names == 0\} \{
-    set lvs_ignore 0
-    set show_pin_net_names 1
-    xschem update_all_sym_bboxes
-  \}
-  return \{Stefan Schippers\}
-])"
+author="Stefan Schippers"
 }
 C {launcher.sym} 750 -90 0 0 {name=h1
 descr="Toggle lvs_ignore variable and

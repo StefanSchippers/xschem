@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.5 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -38,8 +38,6 @@ it becomes a short} 720 -410 0 0 0.4 0.4 { layer=4}
 T {Tier generator (tier.tcl) 
 if 'lab' matches VDD | VCC | VPP shows 
 as supply node, else show as ground node} 240 -640 0 0 0.4 0.4 { layer=4}
-T {Title symbol has embedded TCL command
-to enable show_pin_net_names.} 160 -120 0 0 0.4 0.4 { layer=6}
 N 180 -300 180 -240 {
 lab=VSS}
 N 180 -480 180 -360 {
@@ -94,11 +92,5 @@ tclcommand="edit_file [abs_sym_path res.tcl]"
 C {lab_show.sym} 460 -290 0 0 {name=l3}
 C {lab_show.sym} 570 -290 0 0 {name=l4}
 C {title.sym} 160 -30 0 0 {name=l5
-author="tcleval([
-  if \{$show_pin_net_names == 0\} \{
-    set show_pin_net_names 1
-    xschem update_all_sym_bboxes
-  \}
-  return \{Stefan Schippers\}
-])"
+author="Stefan Schippers"
 }
