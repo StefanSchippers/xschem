@@ -4415,6 +4415,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
  const char *value;
  int escape=0;
  char *value1 = NULL;
+ const char *escape_pos = NULL;
 
 
  if(!s || !xctx) {
@@ -4426,11 +4427,12 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
  my_strdup2(_ALLOC_ID_, &result, "");
 
  while(1) {
-  c=*s++;
+  c=*s;
 
   if(c=='\\') {
     escape=1;
-    if(eat_escapes) c=*s++;
+    escape_pos = s;
+    if(eat_escapes) { s++; c=*s; }
   }
 
   space=SPACE(c);
@@ -4442,7 +4444,9 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
      )                          
     ) state=TOK_SEP;
 
-  if( c != '\\' && escape ) escape = 0;
+  if( s > escape_pos ) escape = 0;
+
+  s++;
 
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
@@ -4465,7 +4469,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
      my_free(_ALLOC_ID_, &value1);
    }
    token_pos = 0;
-   if(c == '@' || c == '%') s--;
+   if(c == '@' || c == '%') s--; /* these token separators are also identifiers for next token: push them back */
    else {
      char ch[2];
      ch[0] = (char)c;
