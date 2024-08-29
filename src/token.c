@@ -4485,7 +4485,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
    my_strcat(_ALLOC_ID_, &result, ch);
   }
   if(c=='\0') {
-   my_strcat(_ALLOC_ID_, &result, "");
+   /* my_strcat(_ALLOC_ID_, &result, ""); */
    break;
   }
  } /* while(1) */
