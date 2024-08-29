@@ -2079,6 +2079,7 @@ char *resolved_net(const char *net)
     int start_level;
     char *path = xctx->sch_path[level] + 1, *path2 = NULL, *path2_ptr = NULL;
 
+    dbg(1, "resolved_net(): net=%s\n", net);
     start_level = sch_waves_loaded();
     if(start_level == -1) start_level = 0;
     if(net[0] == '#') net++;
@@ -2129,13 +2130,19 @@ char *resolved_net(const char *net)
         path2_ptr++;
       }
       dbg(1, "path2=%s level=%d start_level=%d\n", path2, level, start_level);
-      my_mstrcat(_ALLOC_ID_, &rnet, path2, resolved_net, NULL);
+
+      if(record_global_node(3, NULL, resolved_net)) {
+        my_strdup2(_ALLOC_ID_, &rnet, resolved_net);
+      } else {
+        my_mstrcat(_ALLOC_ID_, &rnet, path2, resolved_net, NULL);
+      }
       if(k < mult - 1) my_strcat(_ALLOC_ID_, &rnet, ",");
     }
     if(resolved_net) my_free(_ALLOC_ID_, &resolved_net);
     my_free(_ALLOC_ID_, &path2);
     my_free(_ALLOC_ID_, &exp_net);
   }
+  dbg(1, "resolved_net(): got %s, return %s\n", net, rnet);
   return rnet;
 }
 
