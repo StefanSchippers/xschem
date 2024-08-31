@@ -1233,7 +1233,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         }
         my_strdup(_ALLOC_ID_, &current_file[i], fname);
         xctx = NULL;      /* reset for preview */
-        alloc_xschem_data(".dialog", ".dialog.drw"); /* alloc data into xctx */
+        alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path); /* alloc data into xctx */
         init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
         preview_xctx[i] = xctx;
         preview_xctx[i]->window = Tk_WindowId(tkpre_window[i]);
