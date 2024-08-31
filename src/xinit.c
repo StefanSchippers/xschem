@@ -1197,6 +1197,8 @@ int preview_window(const char *what, const char *win_path, const char *fname)
    * and an Expose event calls another preview draw */
   if(semaphore) return 0;
   ++semaphore;
+  dbg(1, "preview_window(): what=%s, win_path=%s, fname=%s\n", 
+     what, win_path ? win_path : "NULL", fname ? fname : "NULL");
   dbg(1, "------\n");
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   if(!strcmp(what, "create") && last_preview < 4) {
@@ -1206,6 +1208,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
     for(i = 0; i < 10; i++) {
       if(tkpre_window[i] == NULL) break;
     }
+    dbg(1, "preview_window(): create slot %d\n", i);
     if(i < 10) {
       tkpre_window[i] = Tk_NameToWindow(interp, win_path, mainwindow);
       if(tkpre_window[i]) {
@@ -1217,10 +1220,10 @@ int preview_window(const char *what, const char *win_path, const char *fname)
   }
   else if(!strcmp(what, "draw") ) {
     int i;
-    dbg(1, "preview_window() draw\n");
     for(i = 0; i < 10; i++) {
       if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
+    dbg(1, "preview_window(): draw slot %d\n", i);
     if(i < 10) {
       save_xctx = xctx; /* save current schematic */
       xctx = preview_xctx[i];
@@ -1252,8 +1255,9 @@ int preview_window(const char *what, const char *win_path, const char *fname)
     int i;
     dbg(1, "preview_window(): %s\n", what);
     for(i = 0; i < 10; i++) {
-      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i]) break;
+      if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
+    dbg(1, "preview_window(): destroy slot %d\n", i);
     if(i < 10) {
       if(preview_xctx[i]) {
         save_xctx = xctx; /* save current schematic */

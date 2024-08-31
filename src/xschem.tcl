@@ -3853,15 +3853,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   frame .load.buttons_bot -takefocus 0
   button .load.buttons_bot.ok -width 5 -text OK -takefocus 0 -command "
     set file_dialog_retval \[.load.buttons_bot.entry get\]
+    xschem preview_window destroy .load.l.paneright.draw {}
     destroy .load
-    xschem preview_window destroy {} {}
     set $global_initdir \"\$file_dialog_dir1\"
   "
   button .load.buttons_bot.cancel -width 5 -text Cancel -takefocus 0 -command "
     set file_dialog_retval {}
-    destroy .load
     if {\$file_dialog_loadfile == 2} {xschem abort_operation}
-    xschem preview_window destroy {} {}
+    xschem preview_window destroy .load.l.paneright.draw {}
+    destroy .load
     set $global_initdir \"\$file_dialog_dir1\"
   "
   wm protocol .load WM_DELETE_WINDOW {.load.buttons_bot.cancel invoke}
@@ -3978,8 +3978,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
+        xschem preview_window destroy .load.l.paneright.draw {}
         destroy .load
-        xschem preview_window destroy {} {}
         set $global_initdir \"\$file_dialog_dir1\"
       }
     "
@@ -3988,17 +3988,17 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
+        xschem preview_window destroy .load.l.paneright.draw {}
         destroy .load
-        xschem preview_window destroy {} {}
         set $global_initdir \"\$file_dialog_dir1\"
       }
     "
   }
   bind .load <Escape> "
     set file_dialog_retval {}
-    destroy .load
     if {\$file_dialog_loadfile == 2} {xschem abort_operation}
-    xschem preview_window destroy {} {}
+    xschem preview_window destroy .load.l.paneright.draw {}
+    destroy .load
     set $global_initdir \"\$file_dialog_dir1\"
   "
 
