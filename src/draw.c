@@ -3158,7 +3158,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
 
 static void show_node_measures(int measure_p, double measure_x, double measure_prev_x,
        const char *bus_msb, int wave_color, int idx, SPICE_DATA **idx_arr,
-       int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr)
+       int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr, xRect *r, double cursor1)
 {
   char tmpstr[1024];
   double yy;
@@ -3179,7 +3179,8 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       double diffx;
       char *fmt1, *fmt2;
       double yy1;
-      double cursor1 = gr->logx ? mylog10(xctx->graph_cursor1_x) : xctx->graph_cursor1_x;
+
+      if( gr->logx) cursor1 = mylog10(cursor1);
       yy1 = xctx->raw->values[idx][measure_p-1];
       diffy = xctx->raw->values[idx][measure_p] - yy1;
       diffx = measure_x - measure_prev_x;
@@ -3594,11 +3595,35 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
   char *sim_type = NULL;
   int save_extra_idx = -1;
-  
+  double cursor1, cursor2;
+ 
+
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
   
+  if(r->flags & 4) { /* private_cursor */
+    const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+    if(s[0]) {
+      cursor1 = atof(s);
+    } else { 
+      cursor1 = xctx->graph_cursor1_x;
+    }
+  } else {
+    cursor1 = xctx->graph_cursor1_x;
+  }
+
+  if(r->flags & 4) { /* private_cursor */
+    const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+    if(s[0]) {
+      cursor2 = atof(s);
+    } else {
+      cursor2 = xctx->graph_cursor2_x;
+    }
+  } else {
+    cursor2 = xctx->graph_cursor2_x;
+  }
+
   #if 0
   dbg(0, "draw_graph(): window: %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
   dbg(0, "draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
@@ -3824,9 +3849,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 /* cursor1: show measurements on nodes in graph */
                 if(flags & 2 && measure_p == -1 && cnt) {
-                  double cursor1 =  xctx->graph_cursor1_x;
-                  if(gr->logx) cursor1 = mylog10(cursor1);
-                  if(XSIGN(xx - cursor1) != XSIGN(prev_x - cursor1)) {
+                  double curs1;
+
+                  curs1 = cursor1;
+                  if(gr->logx) curs1 = mylog10(cursor1);
+                  if(XSIGN(xx - curs1) != XSIGN(prev_x - curs1)) {
                     measure_p = p;
                     measure_x = xx;
                     measure_prev_x = prev_x;
@@ -3862,7 +3889,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(END, 0.0, 0.0, 0.0, 0.0);
         if(flags & 2 && measure_p != -1)
            show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
-              idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr);
+              idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr, r, cursor1);
 
         my_free(_ALLOC_ID_, &point);
         if(idx_arr) my_free(_ALLOC_ID_, &idx_arr);
@@ -3895,8 +3922,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
    * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
    */
   if(flags & 8) {
-    double cursor1 = xctx->graph_cursor1_x;
-    double cursor2 = xctx->graph_cursor2_x;
     /* cursor1 */
     if((flags & 2)) {
       draw_cursor(cursor1, cursor2, 1, gr);

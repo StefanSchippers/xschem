@@ -743,10 +743,11 @@ void remove_symbols(void)
 }
 
 /* set cached rect .flags bitmask based on attributes, currently:
- * graph              1
- * graph_unlocked     1 + 2
- * image           1024
- * image_unscaled  1024 + 2048
+ * graph                1
+ *   unlocked           2
+ *   private_cursor     4
+ * image             1024
+ *   unscaled        2048
  */
 int set_rect_flags(xRect *r)
 {
@@ -754,10 +755,15 @@ int set_rect_flags(xRect *r)
   unsigned short f = 0;
   if(r->prop_ptr && r->prop_ptr[0]) {
     flags = get_tok_value(r->prop_ptr,"flags",0);
-    if(strstr(flags, "unscaled")) f |= 3072;
-    else if(strstr(flags, "image")) f |= 1024;
-    else if(strstr(flags, "unlocked")) f |= 3;
-    else if(strstr(flags, "graph")) f |= 1;
+    if(strstr(flags, "graph")) {
+      f |= 1;
+      if(strstr(flags, "unlocked")) f |= 2;
+      if(strstr(flags, "private_cursor")) f |= 4;
+    }
+    if(strstr(flags, "image")) {
+      f |= 1024;
+      if(strstr(flags, "unscaled")) f |= 2048;
+    }
   }
   r->flags = f;
   dbg(1, "set_rect_flags(): flags=%d\n", f);

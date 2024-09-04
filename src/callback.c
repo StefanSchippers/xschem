@@ -239,7 +239,16 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     }
     sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
     if(sweep_idx < 0) sweep_idx = 0;
-    cursor2 =  xctx->graph_cursor2_x;
+    if(r->flags & 4) { /* private_cursor */
+      const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+      if(s[0]) {
+        cursor2 = atof(s);
+      } else {
+        cursor2 = xctx->graph_cursor2_x;
+      } 
+    } else {
+      cursor2 = xctx->graph_cursor2_x; 
+    } 
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
     dbg(1, "start=%g, end=%g\n", start, end);
@@ -376,15 +385,29 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-        xctx->graph_cursor1_x = G_X(xctx->mousex);
-        if(gr->logx) xctx->graph_cursor1_x = pow(10, xctx->graph_cursor1_x);
+        double c;
+
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor1_x = c;
+        }
       }
       /* move cursor2 */
       /* set cursor position from master graph x-axis */
       else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+        double c;
         int floaters = there_are_floaters();
-        xctx->graph_cursor2_x = G_X(xctx->mousex);
-        if(gr->logx) xctx->graph_cursor2_x = pow(10, xctx->graph_cursor2_x);
+
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor2_x = c; 
+        }       
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
@@ -416,7 +439,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(event == ButtonPress && button == Button1) {
         /* dragging cursors when mouse is very close */
         if(xctx->graph_flags & 2) {
-          double cursor1 = xctx->graph_cursor1_x;
+          double cursor1;
+          if(r->flags & 4) { /* private_cursor */
+            const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+            if(s[0]) {
+              cursor1 = atof(s);
+            } else {
+              cursor1 = xctx->graph_cursor1_x;
+            }
+          } else {
+            cursor1 = xctx->graph_cursor1_x;
+          }
           if(gr->logx ) {
             cursor1 = mylog10(cursor1);
           }
@@ -425,7 +458,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
         if(xctx->graph_flags & 4) {
-          double cursor2 = xctx->graph_cursor2_x;
+          double cursor2;
+          if(r->flags & 4) { /* private_cursor */
+            const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+            if(s[0]) {
+              cursor2 = atof(s);
+            } else {
+              cursor2 = xctx->graph_cursor2_x;
+            }
+          } else { 
+            cursor2 = xctx->graph_cursor2_x;
+          }
           if(gr->logx) {
             cursor2 = mylog10(cursor2);
           }
@@ -437,24 +480,60 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       else if(event == ButtonPress && button == Button3) {
         /* Numerically set cursor position */
         if(xctx->graph_flags & 2) {
-          double cursor1 = xctx->graph_cursor1_x;
-          if(gr->logx) {
+          double cursor1;
+          if(r->flags & 4) { /* private_cursor */
+            const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+            if(s[0]) {
+              cursor1 = atof(s);
+            } else {
+              cursor1 = xctx->graph_cursor1_x;
+            }
+          } else {
+            cursor1 = xctx->graph_cursor1_x;
+          }
+          if(gr->logx ) {
             cursor1 = mylog10(cursor1);
           }
           if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-            tclvareval("input_line {Pos:} {xschem set cursor1_x} ", dtoa_eng(xctx->graph_cursor1_x), NULL);
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
+            cursor1 = atof_spice(tclresult());
+            here(cursor1);
+            if(r->flags & 4) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+            } else {
+              xctx->graph_cursor1_x = cursor1;
+            }
+
+
             event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           }
           redraw_all_at_end = 1;
         }
 
         if(xctx->graph_flags & 4) {
-          double cursor2 = xctx->graph_cursor2_x;
+          double cursor2;
+          if(r->flags & 4) { /* private_cursor */
+            const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+            if(s[0]) {
+              cursor2 = atof(s);
+            } else {
+              cursor2 = xctx->graph_cursor2_x;
+            }
+          } else {
+            cursor2 = xctx->graph_cursor2_x;
+          }
           if(gr->logx) {
             cursor2 = mylog10(cursor2);
           }
           if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-            tclvareval("input_line {Pos:} {xschem set cursor2_x} ", dtoa_eng(xctx->graph_cursor2_x), NULL);
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor2), NULL);
+            cursor2 = atof_spice(tclresult());
+            if(r->flags & 4) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+            } else {
+              xctx->graph_cursor2_x = cursor2;
+            }
+
             event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
           }
           redraw_all_at_end = 1;
@@ -470,17 +549,34 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         xctx->graph_flags ^= 2;
         need_all_redraw = 1;
         if(xctx->graph_flags & 2) {
-          xctx->graph_cursor1_x = G_X(xctx->mousex);
-          if(gr->logx) xctx->graph_cursor1_x = pow(10, xctx->graph_cursor1_x);
+          double c = G_X(xctx->mousex);
+
+          if(gr->logx) c = pow(10, c);
+          if(r->flags & 4) {
+            if(!get_tok_value(r->prop_ptr, "cursor1_x", 0)[0]) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+            }
+          } else {
+            xctx->graph_cursor1_x = c;
+          }
         }
       }
       /* x cursor2 toggle */
       else if((key == 'b') ) {
         int floaters = there_are_floaters();
+
         xctx->graph_flags ^= 4;
         if(xctx->graph_flags & 4) {
-          xctx->graph_cursor2_x = G_X(xctx->mousex);
-          if(gr->logx) xctx->graph_cursor2_x = pow(10, xctx->graph_cursor2_x);
+          double c = G_X(xctx->mousex);
+
+          if(gr->logx) c = pow(10, c);
+          if(r->flags & 4) {
+            if(!get_tok_value(r->prop_ptr, "cursor2_x", 0)[0]) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+            }
+          } else {
+            xctx->graph_cursor2_x = c;
+          }
           if(tclgetboolvar("live_cursor2_backannotate")) {
             backannotate_at_cursor_b_pos(r, gr);
             if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
@@ -497,11 +593,45 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* swap cursors */
       else if((key == 's') ) {
-        double tmp;
+        double tmp, cursor1, cursor2;
         int floaters = there_are_floaters();
-        tmp = xctx->graph_cursor2_x;
-        xctx->graph_cursor2_x = xctx->graph_cursor1_x;
-        xctx->graph_cursor1_x = tmp;
+
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+          if(s[0]) {
+            cursor1 = atof(s);
+          } else {
+            cursor1 = xctx->graph_cursor1_x;
+          }
+        } else {
+          cursor1 = xctx->graph_cursor1_x;
+        }
+
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+          if(s[0]) { 
+            cursor2 = atof(s);
+          } else { 
+            cursor2 = xctx->graph_cursor2_x;
+          } 
+        } else { 
+          cursor2 = xctx->graph_cursor2_x;
+        }
+
+        tmp = cursor2;
+        cursor2 = cursor1;
+        cursor1 = tmp;
+
+        if(r->flags & 4) {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+        } else {
+          xctx->graph_cursor1_x = cursor1;
+        }
+        if(r->flags & 4) {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+        } else {
+          xctx->graph_cursor2_x = cursor2;
+        }
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
@@ -753,7 +883,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       else if((key == 't') ) {
         if(track_dset != -2) {
+          /* 
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
+          */
+          int unlocked = r->flags & 2;
           int floaters = there_are_floaters();
           if(i == xctx->graph_master || !unlocked) {
             gr->dataset = track_dset;

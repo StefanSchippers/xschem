@@ -2565,7 +2565,7 @@ proc graph_update_nodelist {} {
 
 proc graph_fill_listbox {} {
   global graph_selected
-  set retval [.graphdialog.top.search get]
+  set retval [.graphdialog.center.left.search get]
 
   set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
   set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
@@ -2649,12 +2649,27 @@ proc raw_is_loaded {rawfile type} {
   }
   return $loaded
 }
+proc set_rect_flags {graph_selected} {
+      global graph_private_cursor graph_unlocked
+      
+      if {$graph_private_cursor} {
+        set private_cursor {,private_cursor}
+      } else {
+        set private_cursor {}
+      }
+      if {$graph_unlocked} {
+        set unlocked {,unlocked}
+      } else {
+        set unlocked {}
+      }
+      xschem setprop rect 2 $graph_selected flags "graph$unlocked$private_cursor" fast
+  }
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow 
   global graph_linewidth_mult graph_change_done has_x graph_dialog_default_geometry
-  global graph_autoload
+  global graph_autoload graph_private_cursor
 
   if { ![info exists has_x]} {return} 
   set graph_change_done 0
@@ -2679,6 +2694,12 @@ proc graph_edit_properties {n} {
   if {[xschem getprop rect 2 $n logy] == 1} {set graph_logy 1}
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
+
+  if {[regexp {private_cursor} [xschem getprop rect 2 $n flags]]} {
+    set graph_private_cursor 1
+  } else {
+    set graph_private_cursor 0
+  }
 
   if {[regexp {unlocked} [xschem getprop rect 2 $n flags]]} {
     set graph_unlocked 1
@@ -2709,7 +2730,8 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom -side top -fill x 
 
   # center-left frame
-  label .graphdialog.center.left.lab1 -text {Sig. list}
+  label .graphdialog.center.left.labsearch -text Search:
+  entry .graphdialog.center.left.search -width 10 
   button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
@@ -2719,16 +2741,15 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.left.yscroll -command {.graphdialog.center.left.list1 yview}
   scrollbar .graphdialog.center.left.xscroll -orient horiz -command {.graphdialog.center.left.list1 xview}
 
-  grid .graphdialog.center.left.lab1 .graphdialog.center.left.add
-  grid .graphdialog.center.left.list1 - .graphdialog.center.left.yscroll -sticky nsew
-  grid .graphdialog.center.left.xscroll - -sticky nsew
+  grid .graphdialog.center.left.labsearch .graphdialog.center.left.search .graphdialog.center.left.add
+  grid .graphdialog.center.left.list1 - - .graphdialog.center.left.yscroll -sticky nsew
+  grid .graphdialog.center.left.xscroll - - -sticky nsew
   grid rowconfig .graphdialog.center.left 0 -weight 0
   grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 2c
   grid columnconfig .graphdialog.center.left 0 -weight 1
   grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
-  label .graphdialog.center.right.lab1 -text { Signals }
   checkbutton .graphdialog.center.right.autoload -text {Auto load}  -variable graph_autoload \
     -command {
       if {$graph_autoload} {
@@ -2772,7 +2793,7 @@ proc graph_edit_properties {n} {
   }
 
 
-  entry .graphdialog.center.right.rawentry -width 30
+  entry .graphdialog.center.right.rawentry -width 20
   button .graphdialog.center.right.rawbut -text {Raw file:} -command {
     regsub {/$} $netlist_dir {} netlist_dir
    .graphdialog.center.right.rawentry delete 0 end
@@ -2801,12 +2822,12 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.right.yscroll -command {.graphdialog.center.right.text1 yview}
   scrollbar .graphdialog.center.right.xscroll -orient horiz -command {.graphdialog.center.right.text1 xview}
 
-  grid .graphdialog.center.right.lab1 .graphdialog.center.right.autoload \
+  grid .graphdialog.center.right.autoload \
        .graphdialog.center.right.lab2 .graphdialog.center.right.list \
        .graphdialog.center.right.rawbut  .graphdialog.center.right.rawentry -
   grid configure .graphdialog.center.right.rawentry -sticky ew
-  grid .graphdialog.center.right.text1 - - - - - .graphdialog.center.right.yscroll -sticky nsew
-  grid .graphdialog.center.right.xscroll - - - - - - -sticky ew
+  grid .graphdialog.center.right.text1 - - - - .graphdialog.center.right.yscroll -sticky nsew
+  grid .graphdialog.center.right.xscroll - - - - - -sticky ew
   grid rowconfig .graphdialog.center.right 0 -weight 0
   grid rowconfig .graphdialog.center.right 1 -weight 1 -minsize 3c
   grid rowconfig .graphdialog.center.right 2 -weight 0
@@ -2814,9 +2835,8 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 1 -weight 0
   grid columnconfig .graphdialog.center.right 2 -weight 0
   grid columnconfig .graphdialog.center.right 3 -weight 0
-  grid columnconfig .graphdialog.center.right 4 -weight 0
-  grid columnconfig .graphdialog.center.right 5 -weight 1
-  grid columnconfig .graphdialog.center.right 6 -weight 0
+  grid columnconfig .graphdialog.center.right 4 -weight 1
+  grid columnconfig .graphdialog.center.right 5 -weight 0
 
   # bottom frame
   button .graphdialog.bottom.cancel -text Cancel -command {
@@ -2833,11 +2853,7 @@ proc graph_edit_properties {n} {
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
-      if {$graph_unlocked} {
-        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
-      } else {
-        xschem setprop rect 2 $graph_selected flags {graph} fast
-      }
+      set_rect_flags $graph_selected
     }
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
@@ -2852,11 +2868,7 @@ proc graph_edit_properties {n} {
       xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
       xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
       xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
-      if {$graph_unlocked} {
-        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
-      } else {
-        xschem setprop rect 2 $graph_selected flags {graph} fast
-      }
+      set_rect_flags $graph_selected
     }
   }
 
@@ -2916,15 +2928,6 @@ proc graph_edit_properties {n} {
     xschem draw_graph $graph_selected
   }
   
-  label .graphdialog.top2.labdset -text {  Dataset}
-  entry .graphdialog.top2.dset -width 4
-  bind .graphdialog.top2.dset <KeyRelease> {
-    graph_push_undo
-    xschem setprop rect 2 $graph_selected dataset [.graphdialog.top2.dset get]
-    xschem draw_graph $graph_selected
-  }
-  .graphdialog.top2.dset insert 0 [xschem getprop rect 2 $graph_selected dataset]
-  
   label .graphdialog.top2.labsweep -text {  Sweep}
   entry .graphdialog.top2.sweep -width 10 
 
@@ -2967,13 +2970,10 @@ proc graph_edit_properties {n} {
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
        .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
-       .graphdialog.top2.labdset .graphdialog.top2.dset \
        .graphdialog.top2.labsweep -side left
   pack .graphdialog.top2.sweep -side left -fill x -expand yes
 
   # top frame
-  label .graphdialog.top.labsearch -text Search:
-  entry .graphdialog.top.search -width 10 
   checkbutton .graphdialog.top.bus -text Bus -padx 2 -variable graph_bus 
   checkbutton .graphdialog.top.incr -text {Incr. sort} -variable graph_sort -indicatoron 1 \
     -command graph_fill_listbox
@@ -2997,14 +2997,22 @@ proc graph_edit_properties {n} {
   } else {
     .graphdialog.top.lwe insert 0 $custom_lw
   }
-  checkbutton .graphdialog.top.unlocked -text {Unlock. X axis} -variable graph_unlocked \
-  -command {
-      if {$graph_unlocked} {
-        xschem setprop rect 2 $graph_selected flags {graph,unlocked} fast
-      } else {
-        xschem setprop rect 2 $graph_selected flags {graph} fast
-      }
+
+  label .graphdialog.top.labdset -text {  Dataset}
+  entry .graphdialog.top.dset -width 4
+  bind .graphdialog.top.dset <KeyRelease> {
+    graph_push_undo
+    xschem setprop rect 2 $graph_selected dataset [.graphdialog.top.dset get]
+    xschem draw_graph $graph_selected
   }
+  .graphdialog.top.dset insert 0 [xschem getprop rect 2 $graph_selected dataset]
+  
+  checkbutton .graphdialog.top.priv_curs -text {Priv. Cursor} -variable graph_private_cursor \
+  -command {set_rect_flags $graph_selected }
+
+  checkbutton .graphdialog.top.unlocked -text {Unlock. X axis} -variable graph_unlocked \
+  -command {set_rect_flags $graph_selected }
+
   checkbutton .graphdialog.top.dig -text {Digital} -variable graph_digital -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
@@ -3062,20 +3070,16 @@ proc graph_edit_properties {n} {
   }
 
 
-  button .graphdialog.top.clear -text Clear -padx 2 -command {
-    .graphdialog.top.search delete 0 end
-    graph_fill_listbox 
-  }
-  pack .graphdialog.top.labsearch -side left
-  pack .graphdialog.top.search -side left -expand yes -fill x
-  pack .graphdialog.top.clear -side left
   pack .graphdialog.top.incr -side left
   pack .graphdialog.top.bus -side left
+  pack .graphdialog.top.priv_curs -side left
   pack .graphdialog.top.dig -side left
   pack .graphdialog.top.unlocked -side left
   pack .graphdialog.top.rainbow -side left
   pack .graphdialog.top.lw -side left
   pack .graphdialog.top.lwe -side left
+  pack .graphdialog.top.labdset -side left
+  pack .graphdialog.top.dset -side left
   .graphdialog.top3.ymin insert 0 [xschem getprop rect 2 $graph_selected y1]
   .graphdialog.top3.ymax insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
@@ -3141,7 +3145,7 @@ proc graph_edit_properties {n} {
    .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag \
    -fill x -expand yes -side left
   # binding
-  bind .graphdialog.top.search <KeyRelease> {
+  bind .graphdialog.center.left.search <KeyRelease> {
     graph_fill_listbox
   }
   bind .graphdialog.center.left.list1 <Double-Button-1> {
@@ -6955,7 +6959,7 @@ set tctx::global_list {
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
   gaw_fd gaw_tcp_address graph_autoload graph_bus
   graph_change_done graph_digital graph_dialog_default_geometry graph_linewidth_mult graph_logx
-  graph_logy graph_rainbow graph_schname graph_sel_color graph_sel_wave
+  graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
   incr_hilight incremental_select infowindow_text intuitive_interface 
   keep_symbols launcher_default_program
@@ -8445,6 +8449,7 @@ set text_tabs_setting {-tabs "[expr {$tabstop * [font measure TkFixedFont 0]}] l
 
 # selected graph user is editing attributes with graph GUI
 set_ne graph_bus 0
+set_ne graph_private_cursor 0
 set_ne graph_logx 0
 set_ne graph_logy 0
 set_ne graph_rainbow 0
