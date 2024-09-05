@@ -3605,7 +3605,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
     if(s[0]) {
-      cursor1 = atof(s);
+      cursor1 = atof_spice(s);
     } else { 
       cursor1 = xctx->graph_cursor1_x;
     }
@@ -3616,7 +3616,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
     if(s[0]) {
-      cursor2 = atof(s);
+      cursor2 = atof_spice(s);
     } else {
       cursor2 = xctx->graph_cursor2_x;
     }
