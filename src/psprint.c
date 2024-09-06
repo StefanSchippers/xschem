@@ -686,6 +686,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
+    my_free(_ALLOC_ID_, &estr);
     return;
   }
   if(hcenter) {
@@ -755,7 +756,10 @@ static void old_ps_draw_string(int gctext,  const char *str,
            x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
 
- if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
+ if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) {
+   my_free(_ALLOC_ID_, &estr);
+   return;
+ }
  set_ps_colors(gctext);
  x1=rx1;y1=ry1;
  if(rot&1) {y1=ry2;rot=3;}

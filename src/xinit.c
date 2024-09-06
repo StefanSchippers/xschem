@@ -943,6 +943,7 @@ static void xwin_exit(void)
  list_tokens(NULL, 0); /* clear static data in function */
  translate(0, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
+ translate3(NULL, 0, NULL, NULL, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
  find_nth(NULL, "", "", 0, 0); /* clear static data in function */
  trim_chars(NULL, ""); /* clear static data in function */
@@ -959,13 +960,13 @@ static void xwin_exit(void)
    my_free(_ALLOC_ID_, &cli_opt_argv[i]);
  }
  my_free(_ALLOC_ID_, &cli_opt_argv);
+ if(xschem_web_dirname[0]) tclvareval("file delete -force ", xschem_web_dirname, NULL);
  if(errfp!=stderr) fclose(errfp);
  errfp=stderr;
  dbg(1, "xwin_exit(): closing tcp servers\n");
  tcleval("if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }");
  tcleval("if {[info exists bespice_server_getdata(server)]} { close $bespice_server_getdata(server) }");
  if(!cli_opt_detach) printf("\n");
- if(xschem_web_dirname[0]) tclvareval("file delete -force ", xschem_web_dirname, NULL);
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 

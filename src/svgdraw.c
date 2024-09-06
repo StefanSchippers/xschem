@@ -334,6 +334,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
+    my_free(_ALLOC_ID_, &estr);
     return;
   }
   if(hcenter) {
@@ -403,7 +404,10 @@ static void old_svg_draw_string(int layer, const char *str,
  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
            &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
- if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) return;
+ if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) {
+   my_free(_ALLOC_ID_, &estr);
+   return;
+ }
  x=rx1;y=ry1;
  if(rot&1) {y=ry2;rot=3;}
  else rot=0;

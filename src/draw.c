@@ -277,6 +277,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
+    my_free(_ALLOC_ID_, &estr);
     return;
   }
   
@@ -363,7 +364,10 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,
-               textx1,texty1,textx2,texty2)) return;
+               textx1,texty1,textx2,texty2)) {
+    my_free(_ALLOC_ID_, &estr);
+    return;
+  }
   x1=textx1;y1=texty1;
   if(rot&1) {y1=texty2;rot=3;}
   else rot=0;
@@ -415,7 +419,10 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  estr = my_expand(str, tclgetintvar("tabstop"));
  dbg(2, "draw_string(): string=%s\n",estr);
  if(!text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
-     &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) return;
+     &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) {
+   my_free(_ALLOC_ID_, &estr);
+   return;
+ }
  drawtemprect(gctext,what, textx1,texty1,textx2,texty2);
  my_free(_ALLOC_ID_, &estr);
 }
