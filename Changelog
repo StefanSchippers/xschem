@@ -1,5 +1,42 @@
-3.4.5:
+3.4.6:
+- Graphs will autoload (if autoload checked) raw data even if no raw file is specified in
+  graph dialog box (use current loaded raw file, usually with a different analysis)
+- Save 4 vars ( node, ph(node), re(node, im(node) ) instead of 2 ( node, ph(node )for ac plots
+- Add "private cursor" check box in graph dialog box. This allow the related graph to have
+  separate "a" and "b" cursors. These cursor positions are saved with the schematic and
+  are thus persistent when reloading the schematic.
+- Fix a bug in preview symbol displaying when inserting components. Toplevel .load widget was
+  destroyed before cleaning preview data in preview_window(), so after some insertion preview
+  was no more displayed.
+- Port ordering for a schematic .subckt line will always be deduced from the symbol if it exists,
+  even if the symbol type is not "subcircuit" (so it will be used for also "primitive" type symbols).
+- Add tcl xschemrc variable "select_touch" that enables selecting objects touched by the
+  selection rectangle if dragging to the left. Previously this behavior was enabled by
+  "incremental_select" that shows selected elements while dragging.
+  These two optional behaviors are now enabled/disabled by separate variables 
+- Issue a netlist error (and report message) if instances with pins have *all* pins disconnected.
+  This is in 99.999% of the cases an error.
+- Added tcl variable top_is_subckt and related Simulation->LVS menu, that keeps top level wrapped
+  inside a .subckt / .ends, as lvs_netlist does. However top_is_subckt does only that and will not
+  enable lvs_format to differentiate device lines in netlist (usually used for LVS comparison).
+- Add autoload checkbutton in graph properties to automatically load or not
+  custom graph-specified raw files
+- Allow `global` atttributes on instances of gnd.sym and vdd.sym to override symbol `global`
+  setting. This allows also to set global=1 to net labels (lab_net.sym, lab_pin.sym)
+  to make the net global.
+- ps/pdf export: use highlight colors on instances / wires that are highlighted
+- Add attribute text_layer_n=lay, where n = text object inside symbol instance to change its layer
+- Enhance spice_sym_def used in instances (with schematic=...) by substituting @param
+  with values defined in instance if any (param=xxx)
+- Allow @symname, @symref, @param (param defined in symbol template string) translation in
+  instance or symbol spice_sym_def attributes
+- A `.` in search path is always assumed to be [pwd] and not the directory of the currently
+  opened schematic. This will hopefully fix an endless list of user complains when using
+  symbols from dirs not listed in XSCHEM_LIBRARY_PATH.
+- sim_pinnumber attribute on schematic pins will be used for top level .subckt pin
+  ordering if no corresponding symbol exists when creating a spice netlist
 
+3.4.5:
 - If a full path is given with -N set netlist file name as well as destination path
 - Handle TABs in draw_string() (also ps and svg draw_string()),
   tcl var tabstop (default = 8) sets the tab positions.

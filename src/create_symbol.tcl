@@ -28,7 +28,7 @@ proc create_symbol {name {in {}} {out {}} {inout {}}} {
   set symname [file rootname $name].sym
   set res [catch {open $symname {WRONLY CREAT EXCL}} fd]
   if {$res} {puts $fd; return 0} ;# Error. Print reason and exit.
-  puts $fd {v {xschem version=3.4.5 file_version=1.2}}
+  puts $fd {v {xschem version=3.4.6 file_version=1.2}}
   puts $fd {K {type=subcircuit format="@name @pinlist @symname" template="name=X1"}}
   set x -150
   set y 0
