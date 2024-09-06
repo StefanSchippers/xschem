@@ -402,15 +402,17 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
     __int3264 filepos;
   #endif 
   int npoints;
-
+  int rawvars = raw->nvars;
 
   if(!raw) {
     dbg(0, "read_binary_block() no raw struct allocated\n");
     return;
   }
 
+  /* we store 4 variables (mag, phase, real and imag) but raw file has only real and imag */
+  if(ac) rawvars >>= 1;
   /* read buffer */
-  tmp = my_calloc(_ALLOC_ID_, raw->nvars, (sizeof(double *) ));
+  tmp = my_calloc(_ALLOC_ID_, rawvars, (sizeof(double *) ));
 
   /* if sweep1 and sweep2 are given calculate actual npoints that will be loaded */
   npoints = raw->npoints[raw->datasets];
@@ -419,7 +421,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
     npoints = 0;
     filepos = xftell(fd); /* store file pointer position */
     for(p = 0; p < raw->npoints[raw->datasets]; p++) {
-      if(fread(tmp, sizeof(double), raw->nvars, fd) != raw->nvars) {
+      if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
          dbg(0, "Warning: binary block is not of correct size\n");
       }
       sweepvar = tmp[0];
@@ -440,7 +442,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
   /* read binary block */
   p = 0;
   for(i = 0; i < raw->npoints[raw->datasets]; i++) {
-    if(fread(tmp, sizeof(double), raw->nvars, fd) != raw->nvars) {
+    if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
        dbg(0, "Warning: binary block is not of correct size\n");
     }
 
@@ -451,18 +453,23 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
 
     /* assign to xschem struct, memory aligned per variable, for cache locality */
     if(ac) {
-      for(v = 0; v < raw->nvars; v += 2) { /*AC analysis: calculate magnitude */
+      int vv = 0;
+      for(v = 0; v < raw->nvars; v += 4) { /*AC analysis: calculate magnitude */
+        vv = v >> 1;
         if( v == 0 )  /* sweep var */
-          raw->values[v][offset + p] = (SPICE_DATA)sqrt( tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
+          raw->values[v][offset + p] = (SPICE_DATA)sqrt( tmp[vv] * tmp[vv] + tmp[vv + 1] * tmp[vv + 1]);
         else /* magnitude */
           /* avoid 0 for dB calculations */
-          if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) raw->values[v][offset + p] = 1e-35f;
+          if(tmp[vv] == 0.0 && tmp[vv + 1] == 0.0) raw->values[v][offset + p] = 1e-35f;
           else raw->values[v][offset + p] = 
-                  (SPICE_DATA)sqrt(tmp[v] * tmp[v] + tmp[v + 1] * tmp[v + 1]);
+                  (SPICE_DATA)sqrt(tmp[vv] * tmp[vv] + tmp[vv + 1] * tmp[vv + 1]);
         /* AC analysis: calculate phase */
-        if(tmp[v] == 0.0 && tmp[v + 1] == 0.0) raw->values[v + 1] [offset + p] = 0.0; 
+        if(tmp[vv] == 0.0 && tmp[vv + 1] == 0.0) raw->values[v + 1] [offset + p] = 0.0; 
         else raw->values[v + 1] [offset + p] =
-                (SPICE_DATA)(atan2(tmp[v + 1], tmp[v]) * 180.0 / XSCH_PI);
+                (SPICE_DATA)(atan2(tmp[vv + 1], tmp[vv]) * 180.0 / XSCH_PI);
+
+        raw->values[v + 2] [offset + p] = (SPICE_DATA)tmp[vv];     /* real part */
+        raw->values[v + 3] [offset + p] = (SPICE_DATA)tmp[vv + 1]; /* imaginary part */
       }
     } 
     else for(v = 0; v < raw->nvars; v++) {
@@ -629,11 +636,15 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       done_points = 1;
     }
     else if(!strncmp(line, "No. Variables:", 14)) {
+      int multiplier = 1;
       n = sscanf(line, "No. Variables: %d", &nvars);
       dbg(dbglev, "read_dataset(): nvars=%d\n", nvars);
 
-      if(ac) nvars <<= 1;
-      if(raw->datasets > 0  && raw->nvars != nvars && sim_type) {
+      if(ac) {
+        nvars <<= 1;
+        multiplier = 2; /* we store 4 vars (mag, ph, re, im) for each raw file var (re, im) */
+      }
+      if(raw->datasets > 0  && raw->nvars != nvars * multiplier && sim_type) {
         dbg(0, "Xschem requires all datasets to be saved with identical and same number of variables\n");
         dbg(0, "There is a mismatch, so this and following datasets will not be read\n");
         /* exit_status = 1; */ /* do not set, if something useful has been read keep exit status as is */
@@ -649,6 +660,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       }
       if(sim_type) {
         raw->nvars = nvars;
+        if(ac) raw->nvars <<= 1; /* we store mag, phase, real and imag from raw real and imag */
       }
     }
     else if(!done_points && !strncmp(line, "No. Points:", 11)) {
@@ -691,13 +703,29 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
         ++ptr;
       }
       if(ac || (sim_type && !strcmp(sim_type, "ac")) ) { /* AC */
-        my_strcat(_ALLOC_ID_, &raw->names[i << 1], varname);
-        int_hash_lookup(&raw->table, raw->names[i << 1], (i << 1), XINSERT_NOREPLACE);
-        if(strstr(varname, "v(") == varname || strstr(varname, "i(") == varname)
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 1) + 1], "ph(", varname + 2, NULL);
-        else
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 1) + 1], "ph(", varname, ")", NULL);
-        int_hash_lookup(&raw->table, raw->names[(i << 1) + 1], (i << 1) + 1, XINSERT_NOREPLACE);
+        my_strcat(_ALLOC_ID_, &raw->names[i << 2], varname);
+        int_hash_lookup(&raw->table, raw->names[i << 2], (i << 2), XINSERT_NOREPLACE);
+        if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 1], "ph(", varname + 2, NULL);
+        } else {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 1], "ph(", varname, ")", NULL);
+        }
+        int_hash_lookup(&raw->table, raw->names[(i << 2) + 1], (i << 2) + 1, XINSERT_NOREPLACE);
+
+        if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 2], "re(", varname + 2, NULL);
+        } else {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 2], "re(", varname, ")", NULL);
+        }
+        int_hash_lookup(&raw->table, raw->names[(i << 2) + 2], (i << 2) + 2, XINSERT_NOREPLACE);
+
+        if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 3], "im(", varname + 2, NULL);
+        } else {
+          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 3], "im(", varname, ")", NULL);
+        }
+        int_hash_lookup(&raw->table, raw->names[(i << 2) + 3], (i << 2) + 3, XINSERT_NOREPLACE);
+
       } else {
         my_strcat(_ALLOC_ID_, &raw->names[i], varname);
         int_hash_lookup(&raw->table, raw->names[i], i, XINSERT_NOREPLACE);

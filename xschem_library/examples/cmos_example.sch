@@ -39,7 +39,8 @@ node="\\"GAIN @ 2uA;diffout deriv() % 0\\"
 \\"GAIN @ 10uA;diffout deriv() % 1\\"
 \\"GAIN @ 100uA;diffout deriv() % 2\\""
 color="8 7 6"
-dataset=-1}
+dataset=-1
+autoload=1}
 B 2 190 -760 327 -700 {flags=image
 alpha=0.6
 InvertOnExport=true
@@ -63,9 +64,9 @@ subdivx=1
 node="diffout@2uA;v(diffout)%0
 diffout@10uA;v(diffout)%1
 diffout@100uA;v(diffout)%2"
-color="8 7 6"
+color="8 7 6 4 4 4"
 dataset=-1
-}
+autoload=1}
 B 2 1050 -470 1680 -190 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=tran
@@ -86,7 +87,8 @@ node="\\"diffout 2uA; diffout%0\\"
 \\"diffout 10uA; diffout%1\\"
 \\"diffout 100uA; diffout%2\\""
 hilight_wave=-1
-xlabmag=1.4}
+xlabmag=1.4
+autoload=1}
 B 2 1050 -740 1680 -530 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=ac
@@ -110,7 +112,8 @@ hilight_wave=-1
 logx=1
 xlabmag=1.4
 divy=5
-ylabmag=1.2}
+ylabmag=1.2
+autoload=1}
 B 2 1050 -960 1680 -750 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=ac
@@ -132,7 +135,8 @@ node="\\"phase 2uA; ph(diffout)%0\\"
 \\"phase 100uA; ph(diffout)%2\\""
 hilight_wave=-1
 logx=1
-xlabmag=1.4}
+xlabmag=1.4
+autoload=1}
 B 2 1690 -290 2250 -20 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=dc
@@ -140,15 +144,15 @@ y1=2.3
 y2=2.7
 divy=4
 subdivy=1
-x1=2.3
-x2=2.7
+x1=2.3088075
+x2=2.7088075
 divx=6
 subdivx=1
 node="minus;minus%0
 plus;plus%0"
 color="7 8"
 dataset=-1
-}
+autoload=1}
 B 2 1050 -180 1680 -60 {flags=graph,unlocked
 rawfile=$netlist_dir/cmos_example_ngspice.raw
 sim_type=tran
@@ -169,7 +173,8 @@ node="minus;minus%0
 plus;plus%0"
 hilight_wave=-1
 ylabmag=1.4
-xlabmag=1.4}
+xlabmag=1.4
+autoload=1}
 T {CMOS DIFFERENTIAL AMPLIFIER
 EXAMPLE. DC simulation} 30 -680 0 0 0.4 0.4 {}
 T {tcleval([xschem raw info])} 20 -960 0 0 0.4 0.4 {floater=true layer=16}
