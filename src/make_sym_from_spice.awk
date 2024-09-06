@@ -401,7 +401,7 @@ function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin
 
 
  print "start print symbol: " sym
- print "v {xschem version=3.4.6 file_version=1.2}" > sym
+ print "v {xschem version=3.4.6RC file_version=1.2}" > sym
  print "K {type=" sym_type > sym
  # print "format=\"@name @pinlist @symname " format_translate(template)  "\"" > sym
  iii = format_translate(template, extra)
