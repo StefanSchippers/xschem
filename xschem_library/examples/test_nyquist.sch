@@ -48,7 +48,9 @@ logx=1
 logy=0
 divx=10
 rainbow=0
-lock=0}
+lock=0
+autoload=1
+sim_type=ac}
 B 2 1340 -1200 2310 -670 {flags=graph,unlocked
 y1=-38
 y2=180
@@ -73,7 +75,9 @@ logy=0
 divx=10
 rainbow=0
 lock=0
-dataset=-1}
+dataset=-1
+autoload=1
+sim_type=ac}
 B 2 2330 -725 3150 -10 {flags=graph,unlocked
 y1=-5.4178481
 y2=4.8134072
@@ -101,7 +105,9 @@ divx=10
 sweep=re_out
 divy=10
 lock=0
-rainbow=0}
+rainbow=0
+autoload=1
+sim_type=ac}
 B 2 2330 -1460 3150 -745 {flags=graph,unlocked
 y1=-9400
 y2=9400
@@ -130,7 +136,9 @@ sweep=re_out
 divy=10
 lock=0
 rainbow=0
-dataset=1}
+dataset=1
+autoload=1
+sim_type=ac}
 B 4 930 -440 1050 -260 {fill=0 dash=6}
 A 6 2450 -1100 40 0 360 {}
 A 7 3020 -382.5 3.952847075210474 18.43494882292201 360 {fill=full}
@@ -340,7 +348,14 @@ C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=PLUS}
 C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
-tclcommand="xschem annotate_op"
+tclcommand="
+xschem raw_read $netlist_dir/test_nyquist.raw ac
+xschem raw add re_out \{out ph(out) re() -1 *\}
+xschem raw add im_out \{out ph(out) im() -1 *\}
+xschem raw read $netlist_dir/test_nyquist.raw op
+xschem update_op
+xschem redraw
+"
 }
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"

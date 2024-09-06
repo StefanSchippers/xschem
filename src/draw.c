@@ -2305,10 +2305,17 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     int k, save_datasets = -1, save_npoints = -1;
     int autoload = 0;
     Raw *raw = NULL;
+    const char *ptr;
 
     autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
     if(autoload == 0) autoload = 2;
-    my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
+    ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+    if(!ptr[0]) {
+      if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+      else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+    } else {
+      my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+    }
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
     if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
@@ -2317,8 +2324,15 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
     if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
-      my_strdup2(_ALLOC_ID_, &custom_rawfile,
-        get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0));
+
+      ptr = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0);
+      if(!ptr[0]) {
+        if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+        else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+      } else {
+        my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+      }
+
       my_strdup2(_ALLOC_ID_, &sim_type,
         get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"sim_type",0));
       if(custom_rawfile[0]) {
@@ -2389,6 +2403,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       char *tmp_ptr = NULL;
       int save_extra_idx = -1;
       int autoload = 0, save_datasets = -1, save_npoints = -1;
+      const char *ptr;
 
       autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
       if(autoload == 0) autoload = 2;
@@ -2396,7 +2411,14 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
       my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
 
-      my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
+      ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+      if(!ptr[0]) {
+        if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+        else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+      } else {
+        my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+      }
+
       my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
 
       save_extra_idx = xctx->extra_idx;
@@ -3424,6 +3446,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
   Raw *raw = NULL;
   char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
   char *sim_type = NULL;
+  const char *ptr;
 
   if(!xctx->raw) {
     dbg(0, "find_closest_wave(): no raw struct allocated\n");
@@ -3439,7 +3462,14 @@ int find_closest_wave(int i, Graph_ctx *gr)
   my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
   my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
 
-  my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
+  ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+  if(!ptr[0]) {
+    if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+    else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+  } else { 
+    my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+  }   
+
   my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
     extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
@@ -3589,7 +3619,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   double measure_prev_x;
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
-  Raw *raw = NULL;
   int node_dataset = -1; /* dataset specified as %<n> after node/bus/expression name */
   char *ntok_copy = NULL; /* copy of ntok without %<n> */
   char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
@@ -3635,6 +3664,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     int autoload = 0;
     char *tmp_ptr = NULL;
     int save_datasets = -1, save_npoints = -1;
+    const char *ptr;
     #if !defined(__unix__) && HAS_CAIRO==1
     double sw = (gr->sx2 - gr->sx1);
     double sh = (gr->sy2 - gr->sy1);
@@ -3649,8 +3679,17 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
     my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
     my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
-    my_strdup2(_ALLOC_ID_, &custom_rawfile, get_tok_value(r->prop_ptr,"rawfile",0));
+
+    ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+    if(!ptr[0]) {
+      if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
+      else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+    } else { 
+      my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+    }   
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
+    dbg(1, "draw_graph(): graph %d: custom_rawfile=%s autoload=%d sim_type=%s\n",
+        i, custom_rawfile, autoload, sim_type);
     save_extra_idx = xctx->extra_idx;
 
     nptr = node;
@@ -3673,8 +3712,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           continue;
         }
       }
-      raw = xctx->raw;
-
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
       if(wcnt >= n_nodes) {
         dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
@@ -3687,7 +3724,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(nd[0]) {
         int pos = 1;
         if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
-        if(raw && raw->values) {
+        if(xctx->raw && xctx->raw->values) {
           char *node_rawfile = NULL;
           char *node_sim_type = NULL;
           tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
@@ -3703,7 +3740,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               my_free(_ALLOC_ID_, &nd);
               continue;
             }
-            raw = xctx->raw;
           }
           my_free(_ALLOC_ID_, &node_rawfile);
           my_free(_ALLOC_ID_, &node_sim_type);
@@ -3718,12 +3754,13 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       }
 
       /* transform multiple OP points into a dc sweep */
-      if(raw && raw->sim_type && !strcmp(raw->sim_type, "op") && raw->datasets > 1 && raw->npoints[0] == 1) {
-        save_datasets = raw->datasets;
-        raw->datasets = 1;
+      if(xctx->raw && xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "op")
+         && xctx->raw->datasets > 1 && xctx->raw->npoints[0] == 1) {
+        save_datasets = xctx->raw->datasets;
+        xctx->raw->datasets = 1;
         allow_wrap = 0;
-        save_npoints = raw->npoints[0];
-        raw->npoints[0] = raw->allpoints;
+        save_npoints = xctx->raw->npoints[0];
+        xctx->raw->npoints[0] = xctx->raw->allpoints;
       }
 
       my_free(_ALLOC_ID_, &nd);
@@ -3753,7 +3790,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       /* if ntok_copy following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
       expression = 0;
-      if(raw && raw->values && !bus_msb) {
+      if(xctx->raw && xctx->raw->values && !bus_msb) {
         if(strstr(ntok_copy, ";")) {
           my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
         } else {
@@ -3764,8 +3801,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           expression = 1;
         }
       }
-      if(raw && raw->values && tclgetboolvar("auto_hilight_graph_nodes")) {
-        if(!expression && raw->sim_type && strcmp(raw->sim_type, "op") ) {
+      if(xctx->raw && xctx->raw->values && tclgetboolvar("auto_hilight_graph_nodes")) {
+        if(!expression && xctx->raw->sim_type && strcmp(xctx->raw->sim_type, "op") ) {
           if(!bus_msb) hilight_graph_node(express, wc);
           else         hilight_graph_node(bus_msb, wc);
         }
@@ -3776,7 +3813,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         int p, dset, ofs, ofs_end;
         int poly_npoints;
         int first, last;
-        double xx; /* the p-th sweep variable value:  raw->values[sweep_idx][p] */
+        double xx; /* the p-th sweep variable value:  xctx->raw->values[sweep_idx][p] */
         double xx0 = 0.0; /* the first sweep value */
         double start;
         double end;
@@ -3797,16 +3834,16 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
 
-        for(dset = 0 ; dset < raw->datasets; dset++) {
+        for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
           double prev_x;
           int cnt=0, wrap;
-          register SPICE_DATA *gv = raw->values[sweep_idx];
-          SPICE_DATA *gv0 = raw->values[0]; /* spice sweep variable, used to determine wrap arounds */
+          register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
+          SPICE_DATA *gv0 = xctx->raw->values[0]; /* spice sweep variable, used to determine wrap arounds */
             
-          ofs_end = ofs + raw->npoints[dset];
+          ofs_end = ofs + xctx->raw->npoints[dset];
           first = -1;
           poly_npoints = 0;
-          my_realloc(_ALLOC_ID_, &point, raw->npoints[dset] * sizeof(XPoint));
+          my_realloc(_ALLOC_ID_, &point, xctx->raw->npoints[dset] * sizeof(XPoint));
           /* Process "npoints" simulation items 
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_x = 0;
@@ -3865,7 +3902,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               ++cnt;
             } /* if(xx >= start && xx <= end) */
             prev_x = xx;
-          } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
+          } /* for(p = ofs ; p < ofs + xctx->raw->npoints[dset]; p++) */
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               /* plot graph. Bus bundles are not plotted if graph is not digital.*/
@@ -3897,13 +3934,12 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
       if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
-        raw->datasets = save_datasets;
-        raw->npoints[0] = save_npoints;
+        xctx->raw->datasets = save_datasets;
+        xctx->raw->npoints[0] = save_npoints;
       }
       if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
         my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
         extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
-        raw = xctx->raw;
       }
 
     } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */

@@ -1058,7 +1058,8 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
   return ret;
 }
 
-/* what == 1: read another raw file and switch to it (make it the current one)
+/* what == 0: do nothing and return 0
+ * what == 1: read another raw file and switch to it (make it the current one)
  *            if type == table use table_read() to read an ascii table
  * what == 2: switch raw file. If filename given switch to that one, 
  * else if filename is an integer switch to that raw file index,
@@ -1075,7 +1076,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   char f[PATH_MAX];
   dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
       what, file ? file : "NULL", type ? type : "NULL");
-
+  if(what == 0) return 0;
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
@@ -1134,6 +1135,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = NULL;
       read_ret = raw_read(f, &xctx->raw, type, sweep1, sweep2);
       if(read_ret) {
+        dbg(1, "extra_rawfile(): read %s %s, switch to it. raw->sim_type=%s\n", f, type, xctx->raw->sim_type);
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
