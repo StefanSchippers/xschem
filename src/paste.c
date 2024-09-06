@@ -65,7 +65,7 @@ static void merge_wire(FILE *fd)
     }
     load_ascii_string( &ptr, fd);
     storeobject(-1, x1,y1,x2,y2,WIRE,0,SELECTED,ptr);
-    my_free(991, &ptr);
+    my_free(_ALLOC_ID_, &ptr);
     select_wire(i, SELECTED, 1);
 }
 
@@ -201,17 +201,17 @@ static void merge_polygon(FILE *fd)
     ptr[i].y=NULL;
     ptr[i].selected_point=NULL;
     ptr[i].prop_ptr=NULL;
-    ptr[i].x = my_calloc(992, points, sizeof(double));
-    ptr[i].y = my_calloc(993, points, sizeof(double));
-    ptr[i].selected_point= my_calloc(994, points, sizeof(unsigned short));
+    ptr[i].x = my_calloc(_ALLOC_ID_, points, sizeof(double));
+    ptr[i].y = my_calloc(_ALLOC_ID_, points, sizeof(double));
+    ptr[i].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
     ptr[i].points=points;
     ptr[i].sel=0;
     for(j=0;j<points; ++j) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
         fprintf(errfp,"merge_polygon(): WARNING: missing fields for POLYGON points, ignoring.\n");
-        my_free(995, &ptr[i].x);
-        my_free(996, &ptr[i].y);
-        my_free(997, &ptr[i].selected_point);
+        my_free(_ALLOC_ID_, &ptr[i].x);
+        my_free(_ALLOC_ID_, &ptr[i].y);
+        my_free(_ALLOC_ID_, &ptr[i].selected_point);
         read_line(fd, 0);
         return;
       }
@@ -286,12 +286,12 @@ static void merge_inst(int k,FILE *fd)
     load_ascii_string(&tmp, fd);
     /* avoid as much as possible calls to rel_sym_path (slow) */
     #ifdef __unix__
-    if(tmp[0] == '/') my_strdup(998, &xctx->inst[i].name, rel_sym_path(tmp));
-    else my_strdup(999, &xctx->inst[i].name,tmp);
+    if(tmp[0] == '/') my_strdup(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(tmp));
+    else my_strdup(_ALLOC_ID_, &xctx->inst[i].name,tmp);
     #else
-    my_strdup(1000, &xctx->inst[i].name, rel_sym_path(tmp));
+    my_strdup(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(tmp));
     #endif
-    my_free(1001, &tmp);
+    my_free(_ALLOC_ID_, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd",&xctx->inst[i].x0, &xctx->inst[i].y0,&xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
@@ -305,14 +305,14 @@ static void merge_inst(int k,FILE *fd)
     xctx->inst[i].lab=NULL;  /* assigned in link_symbols_to_instances */
     xctx->inst[i].node=NULL;
     load_ascii_string(&prop_ptr,fd);
-    my_strdup(1002, &xctx->inst[i].prop_ptr, prop_ptr);
+    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
     set_inst_flags(&xctx->inst[i]);
     if(!k) hash_names(-1, XINSERT);
     new_prop_string(i, prop_ptr, tclgetboolvar("disable_unique_names")); /* will also assign .instname */
     /* the final tmp argument is zero for the 1st call and used in */
     /* new_prop_string() for cleaning some internal caches. */
     hash_names(i, XINSERT);
-    my_free(1003, &prop_ptr);
+    my_free(_ALLOC_ID_, &prop_ptr);
     xctx->instances++;
 }
 
@@ -376,7 +376,7 @@ void merge_file(int selection_load, const char ext[])
       cmd = get_generator_command(name);
       if(cmd) {
         fd = popen(cmd, "r");
-        my_free(1004, &cmd);
+        my_free(_ALLOC_ID_, &cmd);
       } else fd = NULL;
     } else {
       fd=fopen(name, fopen_read_mode);
@@ -460,7 +460,7 @@ void merge_file(int selection_load, const char ext[])
        xctx->mousex_snap = 0.;
        xctx->mousey_snap = 0.;
      }
-     my_free(1005, &aux_ptr);
+     my_free(_ALLOC_ID_, &aux_ptr);
      link_symbols_to_instances(old); /* in case of paste/merge will set instances .sel to SELECTED */
      if(generator) pclose(fd);
      else fclose(fd);

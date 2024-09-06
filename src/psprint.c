@@ -223,7 +223,7 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   fprintf(fd, "~>\n");
   
   fprintf(fd, "grestore\n");
-  my_free(1006, &ascii85EncodedJpeg);
+  my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   free(jpgData);
   #endif
   return 1;
@@ -368,7 +368,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   
   fprintf(fd, "grestore\n");
 
-  my_free(1007, &ascii85EncodedJpeg);
+  my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   
   #endif
 }
@@ -686,7 +686,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
-    my_free(1008, &estr);
+    my_free(_ALLOC_ID_, &estr);
     return;
   }
   if(hcenter) {
@@ -710,7 +710,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(1009, &sss, estr);
+  my_strdup2(_ALLOC_ID_, &sss, estr);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -728,8 +728,8 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     }
     ++ss;
   }
-  my_free(1010, &sss);
-  my_free(1011, &estr);
+  my_free(_ALLOC_ID_, &sss);
+  my_free(_ALLOC_ID_, &estr);
 }
 
 static void old_ps_draw_string(int gctext,  const char *str,
@@ -757,7 +757,7 @@ static void old_ps_draw_string(int gctext,  const char *str,
  #endif
 
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) {
-   my_free(1012, &estr);
+   my_free(_ALLOC_ID_, &estr);
    return;
  }
  set_ps_colors(gctext);
@@ -790,7 +790,7 @@ static void old_ps_draw_string(int gctext,  const char *str,
   }
   ++pos;
  }
- my_free(1013, &estr);
+ my_free(_ALLOC_ID_, &estr);
 }
 
 static void ps_drawgrid()
@@ -903,8 +903,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     polygon = &((xctx->inst[n].ptr+ xctx->sym)->poly[layer])[j];
     {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
       int k, bezier;
-      double *x = my_malloc(1014, sizeof(double) * polygon->points);
-      double *y = my_malloc(1015, sizeof(double) * polygon->points);
+      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       for(k=0;k<polygon->points; ++k) {
         ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
@@ -912,8 +912,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
       }
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash, bezier);
-      my_free(1016, &x);
-      my_free(1017, &y);
+      my_free(_ALLOC_ID_, &x);
+      my_free(_ALLOC_ID_, &y);
     }
 
   }
@@ -1067,7 +1067,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     }
   }
   setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
-  ps_colors=my_calloc(1018, cadlayers, sizeof(Ps_color));
+  ps_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
     fprintf(errfp, "create_ps(): calloc error\n");
     return;
@@ -1393,7 +1393,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     fclose(fd);
   }
   tclsetboolvar("draw_grid", old_grid);
-  my_free(1019, &ps_colors);
+  my_free(_ALLOC_ID_, &ps_colors);
 
 
   /* restore original size and zoom factor */

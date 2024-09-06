@@ -175,7 +175,7 @@ int select_dangling_nets(void)
   char *type;
   double x0, y0, x1, y1, x2, y2;
 
-  table = my_calloc(1371, xctx->wires, sizeof(int));
+  table = my_calloc(_ALLOC_ID_, xctx->wires, sizeof(int));
   
   hash_instances();
   hash_wires();
@@ -315,7 +315,7 @@ int select_dangling_nets(void)
   xctx->need_reb_sel_arr = 1;
   rebuild_selected_array();
   draw_selection(xctx->gc[SELLAYER], 0);
-  my_free(1372, &table);
+  my_free(_ALLOC_ID_, &table);
   return ret;
 }
 
@@ -374,7 +374,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
      dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
      dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
-     my_free(1373, &estr);
+     my_free(_ALLOC_ID_, &estr);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);
@@ -404,7 +404,7 @@ static void del_rect_line_arc_poly()
    {
     if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     ++j;
-    my_free(1374, &xctx->rect[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
     set_rect_extraptr(0, &xctx->rect[c][i]);
     deleted = 1;
     continue;
@@ -422,7 +422,7 @@ static void del_rect_line_arc_poly()
    {
     ++j;
     deleted = 1;
-    my_free(1375, &xctx->line[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
     continue;
    }
    if(j)
@@ -445,7 +445,7 @@ static void del_rect_line_arc_poly()
     else
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    my_free(1376, &xctx->arc[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr);
     deleted = 1;
     continue;
    }
@@ -470,10 +470,10 @@ static void del_rect_line_arc_poly()
       if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
     ++j;
-    my_free(1377, &xctx->poly[c][i].prop_ptr);
-    my_free(1378, &xctx->poly[c][i].x);
-    my_free(1379, &xctx->poly[c][i].y);
-    my_free(1380, &xctx->poly[c][i].selected_point);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
+    my_free(_ALLOC_ID_, &xctx->poly[c][i].selected_point);
     /*fprintf(errfp, "bbox: %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2); */
     deleted = 1;
     continue;
@@ -499,8 +499,8 @@ int delete_wires(int selected_flag)
     if(xctx->wire[i].sel == selected_flag) {
       ++j;
       /* hash_wire(XDELETE, i, 0); */ /* can not be done since wire deletions change wire idexes in array */
-      my_free(1381, &xctx->wire[i].prop_ptr);
-      my_free(1382, &xctx->wire[i].node);
+      my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->wire[i].node);
 
       deleted = 1;
       continue;
@@ -546,11 +546,11 @@ void delete(int to_push_undo)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      my_free(1383, &xctx->text[i].prop_ptr);
-      my_free(1384, &xctx->text[i].font);
-      my_free(1385, &xctx->text[i].floater_instname);
-      my_free(1386, &xctx->text[i].floater_ptr);
-      my_free(1387, &xctx->text[i].txt_ptr);
+      my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
+      my_free(_ALLOC_ID_, &xctx->text[i].font);
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);
+      my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr);
+      my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
       deleted = 1;
       ++j;
       continue;
@@ -572,12 +572,12 @@ void delete(int to_push_undo)
       deleted = 1;
       if(xctx->inst[i].prop_ptr != NULL)
       {
-        my_free(1388, &xctx->inst[i].prop_ptr);
+        my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
       }
       delete_inst_node(i);
-      my_free(1389, &xctx->inst[i].name);
-      my_free(1390, &xctx->inst[i].instname);
-      my_free(1391, &xctx->inst[i].lab);
+      my_free(_ALLOC_ID_, &xctx->inst[i].name);
+      my_free(_ALLOC_ID_, &xctx->inst[i].instname);
+      my_free(_ALLOC_ID_, &xctx->inst[i].lab);
       ++j;
       continue;
     }
@@ -1346,7 +1346,7 @@ void select_inside(double x1,double y1, double x2, double y2, int sel) /*added u
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
-  my_free(1392, &estr);
+  my_free(_ALLOC_ID_, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1558,7 +1558,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
-  my_free(1393, &estr);
+  my_free(_ALLOC_ID_, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1683,7 +1683,7 @@ int floaters_from_selected_inst()
         set_modify(1);
         first = 0;
       }
-      my_strdup2(1394, &xctx->inst[i].prop_ptr,
+      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
            subst_token(xctx->inst[i].prop_ptr, "hide_texts", "true"));
       set_inst_flags(&xctx->inst[i]);
       for(t = 0; t < sym->texts; t++) {

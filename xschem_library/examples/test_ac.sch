@@ -45,8 +45,9 @@ unitx=1
 divx=10
 
 logx=1
-rawfile=$netlist_dir/test_ac.raw
-sim_type=ac}
+
+sim_type=ac
+autoload=1}
 B 2 1030 -550 1570 -350 {flags=graph
 y1=-180
 y2=180
@@ -69,9 +70,10 @@ divx=10
 
 divy=5
 logx=1
-rawfile=$netlist_dir/test_ac.raw
+
 sim_type=ac
-subdivy=4}
+subdivy=4
+autoload=1}
 B 2 1430 -620 1567 -560 {flags=image
 alpha=0.6
 filter="gm convert png:- -transparent black png:-"
