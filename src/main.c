@@ -118,17 +118,17 @@ int main(int argc, char **argv)
   }
   #endif
 
-  my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
+  my_strdup(835, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
     fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
   /* if cli_opt_detach is 1 no interactive command shell is created ...
    * using cli_opt_detach if no windowing exists (has_x == 0) is non sense so do nothing
    */
 
-  cli_opt_argv = my_malloc(_ALLOC_ID_, cli_opt_argc * sizeof(char *));
+  cli_opt_argv = my_malloc(836, cli_opt_argc * sizeof(char *));
   for(i = 0; i < cli_opt_argc; ++i) {
     cli_opt_argv[i] = NULL;
-    my_strdup(_ALLOC_ID_, &cli_opt_argv[i], argv[i]);
+    my_strdup(837, &cli_opt_argv[i], argv[i]);
   }
 
 

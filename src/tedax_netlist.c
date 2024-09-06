@@ -37,7 +37,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     for(i=0;i<xctx->instances; ++i) /* print first ipin/opin defs ... */
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     my_strdup(1514, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if( type && IS_PIN(type) ) {
        print_tedax_element(fd, i) ;  /* this is the element line  */
      }
@@ -45,7 +45,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
-     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
+     my_strdup(1515, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
      if(!strcmp(type,"noconn")) continue;
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_tedax_netlist */
@@ -63,7 +63,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
        }
      }
     }
-    my_free(_ALLOC_ID_, &type);
+    my_free(1516, &type);
   }
   if(!tedax_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
   return err;
@@ -97,7 +97,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "begin netlist v1 %s\n",sanitize(get_cell(xctx->sym[i].name, 0)));
   print_tedax_subckt(fd, i);
 
-  my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
+  my_strdup(1517, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
   /* this is now done in print_spice_subckt */
   /*
    * fprintf(fd, "%s ", extra ? extra : "" );
@@ -105,7 +105,7 @@ static int tedax_block_netlist(FILE *fd, int i)
 
   /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
-  my_free(_ALLOC_ID_, &extra);
+  my_free(1518, &extra);
   fprintf(fd, "\n");
   load_schematic(1,filename, 0, 1);
   get_additional_symbols(1);
@@ -190,7 +190,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
  /* warning if two symbols perfectly overlapped */
  err |= warning_overlapped_symbols(0);
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
- stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
+ stored_flags = my_calloc(1519, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
 
  if(global) /* was if(global) ... 20180901 no hierarchical tEDAx netlist for now */
@@ -205,8 +205,8 @@ int global_tedax_netlist(int global)  /* netlister driver */
    /* reload data without popping undo stack, this populates embedded symbols if any */
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
-   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   my_strdup(1520, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+   my_strcat(1521, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    subckt_name=NULL;
@@ -217,7 +217,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
     if(xctx->sym[i].flags & (TEDAX_IGNORE | TEDAX_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
-    my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
+    my_strdup2(1522, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       if(!web_url) {
@@ -225,7 +225,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
         my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
       }
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
-      my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
+      my_strdup(1523, &subckt_name, get_cell(xctx->sym[i].name, 0));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
@@ -236,13 +236,13 @@ int global_tedax_netlist(int global)  /* netlister driver */
       }
     }
    }
-   my_free(_ALLOC_ID_, &abs_path);
+   my_free(1524, &abs_path);
    /* can not free additional syms since *_block_netlist() may have loaded additional syms */
    /* get_additional_symbols(0); */
    str_hash_free(&subckt_table);
-   my_free(_ALLOC_ID_, &subckt_name);
+   my_free(1525, &subckt_name);
    /*clear_drawing(); */
-   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
+   my_free(1526, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
@@ -260,14 +260,14 @@ int global_tedax_netlist(int global)  /* netlister driver */
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
 
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
-   my_free(_ALLOC_ID_, &current_dirname_save);
+   my_free(1527, &current_dirname_save);
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; ++i) if(!xctx->inst[i].color) xctx->inst[i].color = stored_flags[i];
 
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
- my_free(_ALLOC_ID_, &stored_flags);
+ my_free(1528, &stored_flags);
 
  /* print globals nodes found in netlist 28032003 */
  record_global_node(0,fd,NULL);

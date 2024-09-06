@@ -32,7 +32,7 @@ void flip_rotate_ellipse(xRect *r, int rot, int flip)
     if(flip) {
       r->ellipse_a = 180 - r->ellipse_a - r->ellipse_b;
       my_snprintf(str, S(str), "%d,%d", r->ellipse_a, r->ellipse_b);
-      my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ellipse", str));
+      my_strdup2(838, &r->prop_ptr, subst_token(r->prop_ptr, "ellipse", str));
     }
     if(rot) {
       if(rot == 3) {
@@ -44,7 +44,7 @@ void flip_rotate_ellipse(xRect *r, int rot, int flip)
       }
       r->ellipse_a %= 360;
       my_snprintf(str, S(str), "%d,%d", r->ellipse_a, r->ellipse_b);
-      my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ellipse", str));
+      my_strdup2(839, &r->prop_ptr, subst_token(r->prop_ptr, "ellipse", str));
     }
   }
 }
@@ -133,8 +133,8 @@ void check_collapsing_objects()
   {
    if(xctx->wire[i].x1==xctx->wire[i].x2 && xctx->wire[i].y1 == xctx->wire[i].y2)
    {
-    my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-    my_free(_ALLOC_ID_, &xctx->wire[i].node);
+    my_free(840, &xctx->wire[i].prop_ptr);
+    my_free(841, &xctx->wire[i].node);
     found=1;
     ++j;
     continue;
@@ -154,7 +154,7 @@ void check_collapsing_objects()
     {
      if(xctx->line[c][i].x1==xctx->line[c][i].x2 && xctx->line[c][i].y1 == xctx->line[c][i].y2)
      {
-      my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
+      my_free(842, &xctx->line[c][i].prop_ptr);
       found=1;
       ++j;
       continue;
@@ -173,7 +173,7 @@ void check_collapsing_objects()
     {
      if(xctx->rect[c][i].x1==xctx->rect[c][i].x2 || xctx->rect[c][i].y1 == xctx->rect[c][i].y2)
      {
-      my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
+      my_free(843, &xctx->rect[c][i].prop_ptr);
       set_rect_extraptr(0, &xctx->rect[c][i]);
       found=1;
       ++j;
@@ -334,8 +334,8 @@ void draw_selection(GC g, int interruptable)
     case POLYGON:
      {
       int bezier;
-      double *x = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
-      double *y = my_malloc(_ALLOC_ID_, sizeof(double) *xctx->poly[c][n].points);
+      double *x = my_malloc(844, sizeof(double) *xctx->poly[c][n].points);
+      double *y = my_malloc(845, sizeof(double) *xctx->poly[c][n].points);
       bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][n].prop_ptr, "bezier", 0), "true");
       if(xctx->poly[c][n].sel==SELECTED || xctx->poly[c][n].sel==SELECTED1) {
         for(k=0;k<xctx->poly[c][n].points; ++k) {
@@ -356,8 +356,8 @@ void draw_selection(GC g, int interruptable)
         }
         drawtemppolygon(g, NOW, x, y, xctx->poly[c][n].points, bezier);
       }
-      my_free(_ALLOC_ID_, &x);
-      my_free(_ALLOC_ID_, &y);
+      my_free(846, &x);
+      my_free(847, &y);
      }
      break;
 
@@ -698,8 +698,8 @@ void copy_objects(int what)
         {
           xPoly *p = &xctx->poly[c][n];
           double bx1 = 0.0, by1 = 0.0, bx2 = 0.0, by2 = 0.0;
-          double *x = my_malloc(_ALLOC_ID_, sizeof(double) *p->points);
-          double *y = my_malloc(_ALLOC_ID_, sizeof(double) *p->points);
+          double *x = my_malloc(848, sizeof(double) *p->points);
+          double *y = my_malloc(849, sizeof(double) *p->points);
           int j;
           for(j=0; j<p->points; ++j) {
             if( p->sel==SELECTED || p->selected_point[j]) {
@@ -722,8 +722,8 @@ void copy_objects(int what)
           xctx->sel_array[i].n=xctx->polygons[c];
           store_poly(-1, x, y, p->points, c, p->sel, p->prop_ptr);
           p->sel=0;
-          my_free(_ALLOC_ID_, &x);
-          my_free(_ALLOC_ID_, &y);
+          my_free(850, &x);
+          my_free(851, &y);
         }
         break;
        case ARC:
@@ -787,7 +787,7 @@ void copy_objects(int what)
              xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
         }
         xctx->text[xctx->texts].txt_ptr=NULL;
-        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
+        my_strdup2(852, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
         xctx->text[n].sel=0;
          dbg(2, "copy_objects(): current str=%s\n",
           xctx->text[xctx->texts].txt_ptr);
@@ -802,9 +802,9 @@ void copy_objects(int what)
         xctx->text[xctx->texts].font=NULL;
         xctx->text[xctx->texts].floater_instname=NULL;
         xctx->text[xctx->texts].floater_ptr=NULL;
-        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
-        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
-        my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].floater_instname, xctx->text[n].floater_instname);
+        my_strdup2(853, &xctx->text[xctx->texts].prop_ptr, xctx->text[n].prop_ptr);
+        my_strdup2(854, &xctx->text[xctx->texts].floater_ptr, xctx->text[n].floater_ptr);
+        my_strdup2(855, &xctx->text[xctx->texts].floater_instname, xctx->text[n].floater_instname);
         set_text_flags(&xctx->text[xctx->texts]);
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
@@ -820,7 +820,7 @@ void copy_objects(int what)
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &dtmp);
-        my_free(_ALLOC_ID_, &estr);
+        my_free(856, &estr);
         #if HAS_CAIRO==1
         if(customfont) {
           cairo_restore(xctx->cairo_ctx);
@@ -858,9 +858,9 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].lab=NULL;
         xctx->inst[xctx->instances].node=NULL;
         xctx->inst[xctx->instances].name=NULL;
-        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
-        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
-        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
+        my_strdup2(857, &xctx->inst[xctx->instances].name, xctx->inst[n].name);
+        my_strdup2(858, &xctx->inst[xctx->instances].prop_ptr, xctx->inst[n].prop_ptr);
+        my_strdup2(859, &xctx->inst[xctx->instances].lab, xctx->inst[n].lab);
         xctx->inst[n].sel=0;
         xctx->inst[xctx->instances].embed = xctx->inst[n].embed;
         xctx->inst[xctx->instances].flags = xctx->inst[n].flags;
@@ -872,7 +872,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot + ( (xctx->move_flip && 
            (xctx->inst[xctx->instances].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
         xctx->inst[xctx->instances].flip = (xctx->move_flip? !xctx->inst[n].flip:xctx->inst[n].flip);
-        my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, xctx->inst[n].instname);
+        my_strdup2(860, &xctx->inst[xctx->instances].instname, xctx->inst[n].instname);
         /* the newpropcnt argument is zero for the 1st call and used in  */
         /* new_prop_string() for cleaning some internal caches. */
         if(!newpropcnt) hash_names(-1, XINSERT);
@@ -1272,7 +1272,7 @@ void move_objects(int what, int merge, double dx, double dy)
           xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
           xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
-       my_free(_ALLOC_ID_, &estr);
+       my_free(861, &estr);
        #if HAS_CAIRO==1
        if(customfont) {
          cairo_restore(xctx->cairo_ctx);
@@ -1299,7 +1299,7 @@ void move_objects(int what, int merge, double dx, double dy)
           xctx->text[n].yscale, xctx->text[n].rot,xctx->text[n].flip, xctx->text[n].hcenter,
           xctx->text[n].vcenter, xctx->text[n].x0, xctx->text[n].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpint, &dtmp);
-       my_free(_ALLOC_ID_, &estr);
+       my_free(862, &estr);
        #if HAS_CAIRO==1
        if(customfont) {
          cairo_restore(xctx->cairo_ctx);

@@ -217,14 +217,14 @@ void trim_wires(void)
             xctx->wire[j].sel = 0;
           }
           xctx->wire[xctx->wires].prop_ptr=NULL;
-          my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
+          my_strdup(267, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
           if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
             xctx->wire[xctx->wires].bus=1;
           else
             xctx->wire[xctx->wires].bus=0;
           xctx->wire[xctx->wires].node=NULL;
 
-          my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
+          my_strdup(268, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
           xctx->wire[j].x1 = x0;
           xctx->wire[j].y1 = y0;
           hash_wire(XINSERT, xctx->wires, 0);
@@ -240,7 +240,7 @@ void trim_wires(void)
     }
     /* dbg(1, "trim_wires(): break: %g\n", timer(1)); */
     /* reduce included wires */
-    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
+    my_realloc(269, &wireflag, xctx->wires*sizeof(unsigned short));
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
     for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
@@ -283,8 +283,8 @@ void trim_wires(void)
       if(wireflag[i]) {
         ++j;
         /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
-        my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-        my_free(_ALLOC_ID_, &xctx->wire[i].node);
+        my_free(270, &xctx->wire[i].prop_ptr);
+        my_free(271, &xctx->wire[i].node);
         continue;
       }
       if(j) {
@@ -301,7 +301,7 @@ void trim_wires(void)
     /* after wire deletions full rehash is needed */
     hash_wires();
 
-    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
+    my_realloc(272, &wireflag, xctx->wires*sizeof(unsigned short));
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
     /* dbg(1, "trim_wires(): hash_wires_2: %g\n", timer(1)); */
 
@@ -380,8 +380,8 @@ void trim_wires(void)
       if(wireflag[i]) {
         ++j;
         /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
-        my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-        my_free(_ALLOC_ID_, &xctx->wire[i].node);
+        my_free(273, &xctx->wire[i].prop_ptr);
+        my_free(274, &xctx->wire[i].node);
         continue;
       }
       if(j) {
@@ -403,7 +403,7 @@ void trim_wires(void)
     }
   } while(changed);
   dbg(1, "trim_wires(): doloops=%d changed=%d\n", doloops, changed);
-  my_free(_ALLOC_ID_, &wireflag);
+  my_free(275, &wireflag);
   update_conn_cues(WIRELAYER, 0, 0);
 }
 
@@ -499,7 +499,7 @@ void break_wires_at_point(double x0, double y0, int align)
         xctx->wire[xctx->wires].y2=y0;
         xctx->wire[xctx->wires].sel=0;
         xctx->wire[xctx->wires].prop_ptr=NULL;
-        my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+        my_strdup(276, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
         if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
           xctx->wire[xctx->wires].bus=1;
         else
@@ -509,7 +509,7 @@ void break_wires_at_point(double x0, double y0, int align)
         dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
             xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
                          xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
-        my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
+        my_strdup(277, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
         xctx->need_reb_sel_arr=1;
         xctx->wires++;
         xctx->wire[i].x1 = x0;
@@ -576,7 +576,7 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].y2=y0;
                 xctx->wire[xctx->wires].sel=xctx->wire[i].sel;
                 xctx->wire[xctx->wires].prop_ptr=NULL;
-                my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+                my_strdup(278, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
                 if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
                   xctx->wire[xctx->wires].bus=1;
                 else
@@ -586,7 +586,7 @@ void break_wires_at_pins(int remove)
                 dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
                     xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
                                  xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
-                my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
+                my_strdup(279, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
                 xctx->need_reb_sel_arr=1;
                 xctx->wires++;
               } else {
@@ -672,7 +672,7 @@ void break_wires_at_pins(int remove)
             xctx->wire[xctx->wires].sel=SELECTED;
             set_first_sel(WIRE, xctx->wires, 0);
             xctx->wire[xctx->wires].prop_ptr=NULL;
-            my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
+            my_strdup(280, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
             if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
               xctx->wire[xctx->wires].bus=1;
             else
