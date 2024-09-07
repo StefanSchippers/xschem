@@ -36,7 +36,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
   if(xctx->ui_state & excl) skip = 1;
-  else if(sch_waves_loaded() < 0 ) skip = 1;
+  else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1;
   else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
@@ -357,7 +357,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
 
-  if(!xctx->raw) return 0;
+  if(event != -3 && !xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
 
@@ -584,7 +584,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           } else {
             need_all_redraw = 1;
           }
-        } else {
+        } else if(xctx->raw) {
           xctx->raw->annot_p = -1;
           xctx->raw->annot_sweep_idx = -1;
           /* need_all_redraw = 1; */
@@ -688,7 +688,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   dbg(1, "graph_master=%d\n", xctx->graph_master);
 
   /* parameters for absolute positioning by mouse drag in bottom graph area */
-  if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
+  if( xctx->raw && event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
     int idx;
     int dset;
     double wwx1, wwx2, pp, delta, ccx, ddx;

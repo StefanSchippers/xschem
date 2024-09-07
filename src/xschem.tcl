@@ -2565,8 +2565,8 @@ proc graph_update_nodelist {} {
 
 proc graph_fill_listbox {} {
   global graph_selected
+  if { [xschem raw loaded] == -1 } return
   set retval [.graphdialog.center.left.search get]
-
   set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
   set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
@@ -2728,7 +2728,6 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top3 -side top -fill x 
   pack .graphdialog.center -side top -fill both -expand yes
   pack .graphdialog.bottom -side top -fill x 
-
   # center-left frame
   label .graphdialog.center.left.labsearch -text Search:
   entry .graphdialog.center.left.search -width 10 
