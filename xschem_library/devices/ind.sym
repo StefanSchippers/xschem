@@ -50,4 +50,4 @@ T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@name} 15 -18.75 0 0 0.2 0.2 {}
 T {@value} 15 -3.75 0 0 0.2 0.2 {}
 T {m=@m} 15 11.25 0 0 0.2 0.2 {}
-T {@spice_get_current} -12.5 5 0 1 0.2 0.2 {layer=12}
+T {@spice_get_current} -12.5 5 0 1 0.2 0.2 {layer=17}
