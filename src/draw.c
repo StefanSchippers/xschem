@@ -3679,7 +3679,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
     #endif
     autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
-    if(autoload == 0) autoload = 2; 
+    if(autoload == 0) autoload = 2;  /* 2: switch */
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */
@@ -3714,8 +3714,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       measure_p = -1;
       measure_x = 0.0;
       measure_prev_x = 0.0;
-      if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-        if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0) == 0) {
+      if(custom_rawfile[0]) {
+        if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : 
+           (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
           continue;
         }
       }

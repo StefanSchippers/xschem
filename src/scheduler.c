@@ -328,7 +328,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* clear all raw files */
       extra_rawfile(3, NULL, NULL, -1.0, -1.0);
       /* free_rawfile(&xctx->raw, 1); */
-      draw();
       raw_read(f, &xctx->raw, "op", -1.0, -1.0);
       if(level >= 0) {
         xctx->raw->level = level;

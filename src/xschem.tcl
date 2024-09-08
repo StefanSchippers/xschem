@@ -2565,8 +2565,8 @@ proc graph_update_nodelist {} {
 
 proc graph_fill_listbox {} {
   global graph_selected
-  if { [xschem raw loaded] == -1 } return
-  set retval [.graphdialog.center.left.search get]
+  set pattern [.graphdialog.center.left.search get]
+  set retval {}
   set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
   set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
@@ -2579,14 +2579,12 @@ proc graph_fill_listbox {} {
       set res [xschem raw $autoload $rawfile $sim_type]
     }
     if {$res} {
-      set retval [graph_get_signal_list [xschem raw_query list] $retval]
+      set retval [graph_get_signal_list [xschem raw_query list] $pattern]
       xschem raw switch_back
-    } else {
-      set retval  {}
     }
     # puts "switch back"
-  } else {
-    set retval [graph_get_signal_list [xschem raw_query list] $retval]
+  } elseif {[xschem raw loaded] != -1} {
+    set retval [graph_get_signal_list [xschem raw_query list] $pattern]
   }
   .graphdialog.center.left.list1 delete 0 end
   eval .graphdialog.center.left.list1 insert 0 $retval
@@ -2766,9 +2764,7 @@ proc graph_edit_properties {n} {
   if { [info tclversion] > 8.4} {
     bind .graphdialog.center.right.list <<ComboboxSelected>> {
       xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-      if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
-        graph_fill_listbox
-      }
+      graph_fill_listbox
     }
     if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
       .graphdialog.center.right.list set [xschem getprop rect 2 $graph_selected sim_type 2]
@@ -2786,9 +2782,7 @@ proc graph_edit_properties {n} {
 
   bind .graphdialog.center.right.list <KeyRelease> {
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
-      graph_fill_listbox
-    }
+    graph_fill_listbox
   }
 
 
@@ -2799,18 +2793,14 @@ proc graph_edit_properties {n} {
    .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
-      graph_fill_listbox
-    }
+    graph_fill_listbox
 
   }
 
   bind .graphdialog.center.right.rawentry <KeyRelease> {
     xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
     xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    if {[raw_is_loaded [.graphdialog.center.right.rawentry get] [.graphdialog.center.right.list get]]} {
-      graph_fill_listbox
-    }
+    graph_fill_listbox
   }
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
@@ -3168,7 +3158,6 @@ proc graph_edit_properties {n} {
   wm protocol .graphdialog  WM_DELETE_WINDOW {
     .graphdialog.bottom.cancel invoke
   }
-  
   # fill data in left listbox
   graph_fill_listbox
 

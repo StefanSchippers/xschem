@@ -1074,6 +1074,9 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   int i;
   int ret = 1;
   char f[PATH_MAX];
+
+  if(type && !type[0]) type = NULL; /* empty string as type will be considered NULL */
+
   dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
       what, file ? file : "NULL", type ? type : "NULL");
   if(what == 0) return 0;
@@ -1104,7 +1107,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type);
+        dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type);
         xctx->raw = save; /* restore */
         xctx->extra_prev_idx = xctx->extra_idx;
       }
@@ -1135,14 +1138,15 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = NULL;
       read_ret = raw_read(f, &xctx->raw, type, sweep1, sweep2);
       if(read_ret) {
-        dbg(1, "extra_rawfile(): read %s %s, switch to it. raw->sim_type=%s\n", f, type, xctx->raw->sim_type);
+        dbg(1, "extra_rawfile(): read %s %s, switch to it. raw->sim_type=%s\n", f,
+          type ? type : "NULL", xctx->raw->sim_type ? xctx->raw->sim_type : "NULL");
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
         xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s not found or no %s analysis\n", f, type ? type : "<unspecified>");
+        dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
         xctx->raw = save; /* restore */
         xctx->extra_prev_idx = xctx->extra_idx;
       }

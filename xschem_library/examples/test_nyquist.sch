@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -41,7 +41,7 @@ ylabmag=1.0
 node="\\"dB(out) comp; out db20() %0\\"
 \\"dB(out) uncomp; out db20() %1\\"
 \\"0 dB; 0"
-color="4 5 8"
+color="4 5 8 4 4"
 dataset=-1
 unitx=1
 logx=1
@@ -49,7 +49,7 @@ logy=0
 divx=10
 rainbow=0
 lock=0
-autoload=1
+autoload=0
 sim_type=ac}
 B 2 1340 -1200 2310 -670 {flags=graph,unlocked
 y1=-38
@@ -76,7 +76,7 @@ divx=10
 rainbow=0
 lock=0
 dataset=-1
-autoload=1
+autoload=0
 sim_type=ac}
 B 2 2330 -725 3150 -10 {flags=graph,unlocked
 y1=-5.4178481
@@ -104,9 +104,9 @@ logy=0
 divx=10
 sweep=re_out
 divy=10
-lock=0
+lock=1
 rainbow=0
-autoload=1
+autoload=0
 sim_type=ac}
 B 2 2330 -1460 3150 -745 {flags=graph,unlocked
 y1=-9400
@@ -116,8 +116,8 @@ ypos2=2
 
 subdivy=1
 unity=1
-x1=-323.03335
-x2=18222.877
+x1=-323.03362
+x2=18222.875
 
 subdivx=1
 xlabmag=1.4
@@ -134,10 +134,10 @@ logy=0
 divx=10
 sweep=re_out
 divy=10
-lock=0
+lock=1
 rainbow=0
 dataset=1
-autoload=1
+autoload=0
 sim_type=ac}
 B 4 930 -440 1050 -260 {fill=0 dash=6}
 A 6 2450 -1100 40 0 360 {}
@@ -156,7 +156,8 @@ Unstable} 1950 -1280 0 0 0.6 0.6 { layer=5}
 T {Compensated
 Stable} 1480 -1280 0 0 0.6 0.6 { layer=4}
 T {Some graphs are locked (lock=1) 
-Double click and set lock=0 to edit} 1370 -1410 0 0 0.8 0.8 {}
+Double click close to the inner border
+and set lock=0 to edit} 1370 -1450 0 0 0.8 0.8 {}
 T {AC signal
 gen} 530 -770 0 0 0.4 0.4 {}
 N 30 -310 30 -280 {
@@ -349,7 +350,7 @@ C {lab_pin.sym} 500 -430 0 0 {name=p12 lab=G}
 C {launcher.sym} 700 -60 0 0 {name=h1
 descr=Backannotate
 tclcommand="
-xschem raw_read $netlist_dir/test_nyquist.raw ac
+xschem raw read $netlist_dir/test_nyquist.raw ac
 xschem raw add re_out \{out ph(out) re() -1 *\}
 xschem raw add im_out \{out ph(out) im() -1 *\}
 xschem raw read $netlist_dir/test_nyquist.raw op

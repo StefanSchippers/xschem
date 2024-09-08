@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -88,22 +88,28 @@ y1 = -0.00068
 y2 = 22
 divy = 6
 subdivy=1
-x1=5e-10
-x2=0.001
+x1=2.9358714e-05
+x2=0.0010293582
 divx=8
 node="PANEL
 LED" unitx=m
 color="7 4"
 jpeg_quality=30
 linewidth_mult=2.0
-hilight_wave=-1}
+hilight_wave=-1
+
+
+
+autoload=1
+rawfile=$netlist_dir/solar_panel.raw
+sim_type=tran}
 B 2 1260 -390 1680 -220 {flags=graph 
 y1 = -0.0012
 y2 = 6.8
 divy = 4
 subdivy=1
-x1=5e-10
-x2=0.001
+x1=2.9358714e-05
+x2=0.0010293582
 divx=8
   unitx=m
 color="7 4 6"
@@ -111,14 +117,17 @@ node="i(Vpanel)
 i(Vled)
 \\"R.Avg. I(VPANEL); i(VPANEL) 20u ravg()\\""
 jpeg_quality=30
-linewidth_mult=2.0}
+linewidth_mult=2.0
+autoload=1
+rawfile=$netlist_dir/solar_panel.raw
+sim_type=tran}
 B 2 1260 -750 1680 -560 {flags=graph 
 y1 = -2.7e-05
 y2 = 100
 divy = 5
 subdivy=1
-x1=5e-10
-x2=0.001
+x1=2.9358714e-05
+x2=0.0010293582
 divx=9
 
  unitx=m subdivx=4
@@ -129,14 +138,17 @@ node="\\"Panel power; i(Vpanel) v(PANEL) *\\"
 \\"SUN \\\\%; SUN 100 *\\""
 hilight_wave=-1
 jpeg_quality=30
-linewidth_mult=2.0}
+linewidth_mult=2.0
+autoload=1
+rawfile=$netlist_dir/solar_panel.raw
+sim_type=tran}
 B 2 1260 -940 1680 -750 {flags=graph 
 y1 = 0
 y2 = 1
 divy = 5
 subdivy=1
-x1=5e-10
-x2=0.001
+x1=2.9358714e-05
+x2=0.0010293582
 divx=9
 
  unitx=u subdivx=4
@@ -149,14 +161,16 @@ ypos1=0.00261891
 ypos2=0.51596
 jpeg_quality=30
 linewidth_mult=2.0
-}
+autoload=1
+rawfile=$netlist_dir/solar_panel.raw
+sim_type=tran}
 B 2 1260 -1140 1680 -950 {flags=graph 
 y1 = 0
 y2 = 1
 divy = 5
 subdivy=1
-x1=5e-10
-x2=0.001
+x1=2.9358714e-05
+x2=0.0010293582
 divx=9
 
  unitx=u subdivx=4
@@ -169,7 +183,10 @@ ypos2=0.51596
 color=8
 node="\\"CTRL1 Duty cycle; CTRL1 20u ravg()\\""
 jpeg_quality=30
-linewidth_mult=2.0}
+linewidth_mult=2.0
+autoload=1
+rawfile=$netlist_dir/solar_panel.raw
+sim_type=tran}
 B 18 65 -960 320 -775 {}
 A 5 320 -960 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 395 -775 340 -931.25 335 -945 322.5 -960 310 -965 65 -975 {}
