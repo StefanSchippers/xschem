@@ -182,6 +182,7 @@ C {code_shown.sym} 510 -450 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value="* .options SRCSTEPS=0
+.option savecurrents
 .control
 save all
 dc v1 0 3 0.001
