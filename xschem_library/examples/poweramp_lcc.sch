@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -38,8 +38,8 @@ B 2 2520 -210 3200 -20 {flags=graph
 y1 = -0.0035
 y2 = 11
 divy = 6
-x1=0.0176314
-x2=0.0183299
+x1=0.0097330137
+x2=0.010324865
 divx=10
 node="i(v.x1.vu)
 i(v.x0.vu)
@@ -51,8 +51,8 @@ B 2 2520 -540 3200 -230 {flags=graph
 y1 = -49
 y2 = 59
 divy = 12
-x1=0.0176314
-x2=0.0183299
+x1=0.0097330137
+x2=0.010324865
 divx=10
 node="outp
 outm
@@ -67,8 +67,8 @@ B 2 2520 -730 3200 -540 {flags=graph
 y1 = 0
 y2 = 840
 divy = 6
-x1=0.0176314
-x2=0.0183299
+x1=0.0097330137
+x2=0.010324865
 divx=10
 
 
@@ -81,8 +81,8 @@ B 2 2520 -20 3200 170 {flags=graph
 y1 = 0
 y2 = 850
 divy = 6
-x1=0.0176314
-x2=0.0183299
+x1=0.0097330137
+x2=0.010324865
 divx=10
 
 
@@ -348,8 +348,9 @@ vvss vss 0 dc 0
 .control
 save all
 op
-write poweramp_lcc_op.raw
-tran  8e-7 0.07 uic
+write poweramp_lcc.raw
+set appendwrite
+tran  8e-7 0.02 uic
 * .FOUR 20k v(outm,outp)
 * .probe i(*) 
 plot outp outm
