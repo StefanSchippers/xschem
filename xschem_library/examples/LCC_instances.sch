@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -52,7 +52,7 @@ divx=6
 node="a z"
 color="7 6"
 sweep="z a"
-rawfile=$netlist_dir/LCC_instances.raw
+
 sim_type=dc
 dataset=0}
 B 2 850 -270 1150 -60 {flags=graph
@@ -63,7 +63,7 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
+x1=-3.9128648e-09
 x2=3
 divx=5
 subdivx=1
@@ -82,7 +82,7 @@ color="7 8 6"
 node="zz%0
 zz%1
 a%0"
-rawfile=$netlist_dir/LCC_instances.raw
+
 sim_type=tran
 hilight_wave=-1}
 B 2 850 -480 1150 -270 {flags=graph
@@ -93,7 +93,7 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
+x1=-3.9128648e-09
 x2=3
 divx=5
 subdivx=1
@@ -112,7 +112,7 @@ color="7 8 6"
 node="zz%0
 zz%1
 a%0"
-rawfile=$netlist_dir/LCC_instances.raw
+
 sim_type=dc
 hilight_wave=-1}
 B 8 255 -871.25 295 -831.25 {}

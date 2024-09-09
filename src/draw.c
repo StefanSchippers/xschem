@@ -3706,6 +3706,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
     while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
+      int valid_rawfile = 1;
       int allow_wrap = 1;
       char *nd = NULL;
       char str_extra_idx[30];
@@ -3717,7 +3718,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(custom_rawfile[0]) {
         if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : 
            (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
-          continue;
+          valid_rawfile = 0;
         }
       }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
@@ -3746,7 +3747,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               my_free(_ALLOC_ID_, &node_rawfile);
               my_free(_ALLOC_ID_, &node_sim_type);
               my_free(_ALLOC_ID_, &nd);
-              continue;
+              valid_rawfile = 0;
             }
           }
           my_free(_ALLOC_ID_, &node_rawfile);
@@ -3798,7 +3799,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       /* if ntok_copy following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
       expression = 0;
-      if(xctx->raw && xctx->raw->values && !bus_msb) {
+      if(!bus_msb) {
         if(strstr(ntok_copy, ";")) {
           my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
         } else {
@@ -3809,7 +3810,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           expression = 1;
         }
       }
-      if(xctx->raw && xctx->raw->values && tclgetboolvar("auto_hilight_graph_nodes")) {
+      if(sch_waves_loaded() != -1 && tclgetboolvar("auto_hilight_graph_nodes")) {
         if(!expression && xctx->raw->sim_type && strcmp(xctx->raw->sim_type, "op") ) {
           if(!bus_msb) hilight_graph_node(express, wc);
           else         hilight_graph_node(bus_msb, wc);
@@ -3817,7 +3818,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       }
       dbg(1, "express=%s, bus_msb=%s\n", express ? express : "NULL", bus_msb ? bus_msb : "NULL");
       /* quickly find index number of ntok_copy variable to be plotted */
-      if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) {
+      if(sch_waves_loaded() != -1 && valid_rawfile &&
+         (expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1)) {
         int p, dset, ofs, ofs_end;
         int poly_npoints;
         int first, last;
@@ -3842,7 +3844,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
 
-        for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
+        if(sch_waves_loaded() != -1) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
           double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
@@ -3932,7 +3934,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(flags & 2 && measure_p != -1)
+        if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1)
            show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
               idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr, r, cursor1);
 
@@ -3941,7 +3943,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       } /* if( expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1 ) */
       ++wcnt;
       if(bus_msb) my_free(_ALLOC_ID_, &bus_msb);
-      if(save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
+      if(sch_waves_loaded()!= -1 && save_npoints != -1) { /* restore multiple OP points from artificial dc sweep */
         xctx->raw->datasets = save_datasets;
         xctx->raw->npoints[0] = save_npoints;
       }
