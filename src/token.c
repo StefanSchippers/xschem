@@ -351,7 +351,7 @@ const char *list_tokens(const char *s, int with_quotes)
   }
 }
 
-int get_sym_pin_number(int sym, const char *pin_name)
+static int get_sym_pin_number(int sym, const char *pin_name)
 { 
   int n = -1;
   if(isonlydigit(pin_name)) {
@@ -3567,7 +3567,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
               }
               if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) valstr = "0.0";
               else if(idx < 0) {
-                valstr = "UNDEF";
+                valstr = "-";
               } else {
                 valstr = engineering? dtoa_eng(val) : dtoa(val);
               }
@@ -3857,7 +3857,7 @@ const char *translate(int inst, const char* s)
                  xctx->tok_size = 3;
                  len = 3;
                } else if(idx < 0) {
-                 valstr = "UNDEF";
+                 valstr = "-";
                  xctx->tok_size = 5;
                  len = 5;
                } else {
@@ -3931,7 +3931,7 @@ const char *translate(int inst, const char* s)
              xctx->tok_size = 3;
              len = 3;
            } else if(idx < 0) {
-             valstr = "UNDEF";
+             valstr = "-";
              xctx->tok_size = 5;
              len = 5;
            } else {
