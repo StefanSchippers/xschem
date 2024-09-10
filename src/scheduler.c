@@ -979,7 +979,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                if(closewindow) {
                  char s[40];
-                 my_snprintf(s, S(s), "exit %d", exit_status);
+                 my_snprintf(s, S(s), "exit %s", exit_status);
                  tcleval(s);
                }
                else clear_schematic(0, 0);
@@ -1010,7 +1010,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                if(closewindow) {
                  char s[40];
-                 my_snprintf(s, S(s), "exit %d", exit_status);
+                 my_snprintf(s, S(s), "exit %s", exit_status);
                  tcleval(s);
                }
                else clear_schematic(0, 0);
