@@ -5212,8 +5212,12 @@ proc edit_prop {txtlabel} {
   if  { [info tclversion] > 8.4} {
     ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
   }
-  pack .dialog.f1.l2 .dialog.f1.e2 .dialog.f1.b1 .dialog.f1.b2 .dialog.f1.b3 \
-       .dialog.f1.b4 .dialog.f1.b5 -side left -expand 1
+  pack .dialog.f1.l2 -side left
+  pack .dialog.f1.e2 -side left -fill x -expand yes
+  pack .dialog.f1.b1 -side left
+  pack .dialog.f1.b2 -side left
+  pack .dialog.f1.b3 -side left
+  pack .dialog.f1.b4 .dialog.f1.b5 -side left
   pack .dialog.f4 -side top  -anchor nw
   #pack .dialog.f4.path .dialog.f4.symprop .dialog.f4.l1 -side left -fill x 
   pack .dialog.f4.path -side left
