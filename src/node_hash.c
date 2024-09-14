@@ -380,8 +380,12 @@ void list_nets(char **result)
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if(type && xctx->inst[i].node && IS_PIN(type)) {
+      /* 
+       * my_mstrcat(_ALLOC_ID_, result, 
+       *  "{", get_tok_value(xctx->inst[i].prop_ptr, "lab", 0), " ", type, "}\n", NULL);
+       */
       my_mstrcat(_ALLOC_ID_, result, 
-        "{", get_tok_value(xctx->inst[i].prop_ptr, "lab", 0), " ", type, "}\n", NULL);
+        "{", xctx->inst[i].lab, " ", type, "}\n", NULL);
     }
   }
   if(type) my_free(_ALLOC_ID_, &type);
