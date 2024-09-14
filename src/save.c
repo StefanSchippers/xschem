@@ -3986,7 +3986,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   const char *attr, *fill_ptr;
   xSymbol * symbol;
   int symbols, sym_n_pins=0, generator;
-  char *cmd = NULL;
+  char *transl_name = NULL;
   char *translated_cmd = NULL;
   int is_floater = 0;
 
@@ -4000,16 +4000,15 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbols = xctx->symbols;
   dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
-  dbg(1, "l_s_d(): loading name=%s\n", name);
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-  my_strdup2(_ALLOC_ID_, &cmd, tcl_hook2(name));
-  dbg(1, "l_s_d(): cmd=%s\n", cmd);
-  generator = is_generator(cmd);
+  my_strdup2(_ALLOC_ID_, &transl_name, tcl_hook2(name));
+  dbg(1, "l_s_d(): transl_name=%s\n", transl_name);
+  generator = is_generator(transl_name);
   if(generator) {
-    translated_cmd = get_generator_command(cmd);
-    dbg(1, "l_s_d(): generator: cmd=|%s|\n", cmd);
+    translated_cmd = get_generator_command(transl_name);
+    dbg(1, "l_s_d(): generator: transl_name=|%s|\n", transl_name);
     dbg(1, "l_s_d(): generator: translated_cmd=|%s|\n", translated_cmd);
     if(translated_cmd) {
       lcc[level].fd = popen(translated_cmd, "r"); /* execute ss="/path/to/xxx par1 par2 ..." and pipe in the stdout */
@@ -4019,17 +4018,17 @@ int load_sym_def(const char *name, FILE *embed_fd)
     my_free(_ALLOC_ID_, &translated_cmd);
   } else if(!embed_fd) { /* regular symbol: open file */
     if(!strcmp(xctx->file_version,"1.0")) {
-      my_strncpy(sympath, abs_sym_path(name, ".sym"), S(sympath));
+      my_strncpy(sympath, abs_sym_path(transl_name, ".sym"), S(sympath));
     } else {
-      my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
+      my_strncpy(sympath, abs_sym_path(transl_name, ""), S(sympath));
     }
     if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
       /* not found: try web URL */
       if(is_from_web(xctx->current_dirname)) {
-        my_snprintf(sympath, S(sympath), "%s/%s", xschem_web_dirname, get_cell_w_ext(name, 0));
+        my_snprintf(sympath, S(sympath), "%s/%s", xschem_web_dirname, get_cell_w_ext(transl_name, 0));
         if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
           /* not already cached in .../xschem_web_xxxxx/ so download */
-          tclvareval("try_download_url {", xctx->current_dirname, "} {", name, "}", NULL);
+          tclvareval("try_download_url {", xctx->current_dirname, "} {", transl_name, "}", NULL);
         }
         lcc[level].fd=fopen(sympath,fopen_read_mode);
       }
@@ -4039,10 +4038,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
     dbg(1, "l_s_d(): getting embed_fd, level=%d\n", level);
     lcc[level].fd = embed_fd;
   }
-  my_free(_ALLOC_ID_, &cmd);
   if(lcc[level].fd==NULL) {
     /* issue warning only on top level symbol loading */
-    if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n", name);
+    if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n", transl_name);
     my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
     if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
     {
@@ -4075,8 +4073,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbol[symbols].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   symbol[symbols].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
 
-
-  my_strdup2(_ALLOC_ID_, &symbol[symbols].name,name);
+  my_strdup2(_ALLOC_ID_, &symbol[symbols].name,transl_name);
   /* read symbol from file */
   while(1)
   {
@@ -4695,7 +4692,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     if(generator) pclose(lcc[0].fd);
     else fclose(lcc[0].fd);
   }
-  if(embed_fd || strstr(name, ".xschem_embedded_")) {
+  if(embed_fd || strstr(transl_name, ".xschem_embedded_")) {
     symbol[symbols].flags |= EMBEDDED;
   } else {
     symbol[symbols].flags &= ~EMBEDDED;
@@ -4717,7 +4714,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   calc_symbol_bbox(symbols);
   /* given a .sch file used as instance in LCC schematics, order its pin
    * as in corresponding .sym file if it exists */
-  align_sch_pins_with_sym(name, symbols);
+  align_sch_pins_with_sym(transl_name, symbols);
   my_free(_ALLOC_ID_, &prop_ptr);
   my_free(_ALLOC_ID_, &lastl);
   my_free(_ALLOC_ID_, &lastr);
@@ -4736,6 +4733,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
                    xctx->sym[xctx->symbols].rects[PINLAYER],
                    xctx->sym[xctx->symbols].name);
   xctx->symbols++;
+  my_free(_ALLOC_ID_, &transl_name);
   return 1;
 }
 
