@@ -1726,7 +1726,8 @@ int sym_vs_sch_pins(int all)
               break;
             case 'C':
               load_ascii_string(&tmp, fd);
-              my_strncpy(name, tmp, S(name));
+              /* my_strncpy(name, tmp, S(name)); */
+              my_strncpy(name, tcl_hook2(tmp), S(name));
 
               if(!strcmp(f_version,"1.0") ) {
                 dbg(1, "sym_vs_sch_pins(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") );
