@@ -43,7 +43,7 @@ C {lab_pin.sym} 450 -120 0 0 {name=p35 lab=0}
 C {bsource.sym} 450 -150 0 1 {name=B1 VAR=V FUNC="\{OFFSET + AMPLITUDE/2*(tanh(V(IPLUS,IMINUS)*GAIN*2/AMPLITUDE))\}"
 }
 C {title.sym} 160 -30 0 0 {name=l3 author="Stefan Schippers"}
-C {tcleval(res.sym)} 570 -240 1 0 {name=R1
+C {res.sym} 570 -240 1 0 {name=R1
 value=\{ROUT\}
 m=1}
 C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value=\{COUT\} m=1}
