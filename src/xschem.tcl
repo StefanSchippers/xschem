@@ -5120,7 +5120,7 @@ proc edit_prop {txtlabel} {
   }
   wm geometry .dialog "${edit_prop_size}+$X+$Y"
   set prev_symbol $symbol
-  set editprop_sympath [get_directory [abs_sym_path $symbol]]
+  set editprop_sympath [get_directory [abs_sym_path [tclpropeval2 $symbol]]]
   frame .dialog.f4
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
