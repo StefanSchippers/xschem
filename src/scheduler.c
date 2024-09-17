@@ -3139,7 +3139,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
-        if(argc > 2) {
+        if( (argc ==3 && strcmp(argv[2], "-erc") ) || argc > 3) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
         }
       }
