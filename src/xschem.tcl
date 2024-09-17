@@ -643,6 +643,18 @@ proc to_eng {args} {
   return $s
 }
 
+## evaluate expression with 7 significant digits.
+## if expression has errors or does not evaluate return expression as is
+proc ev7 {args} {
+  set i [join $args]
+  if {![catch {uplevel #0 expr $i} res]} {
+    return [format %.7g $res]
+  } else { 
+    # puts stderr "proc ev: $res"
+    return $args
+  }
+}   
+
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
 proc ev {args} {
   set i [join $args]
