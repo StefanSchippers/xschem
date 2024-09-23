@@ -4451,6 +4451,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
      * cairo_stroke(xctx->cairo_save_ctx); */
     cairo_clip(xctx->cairo_save_ctx);
     cairo_paint_with_alpha(xctx->cairo_save_ctx, alpha);
+    cairo_surface_flush(xctx->cairo_save_sfc);
   }
   if(dr && xctx->draw_window) {
     cairo_translate(xctx->cairo_ctx, x, y);
@@ -4464,6 +4465,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
      * cairo_stroke(xctx->cairo_ctx); */
     cairo_clip(xctx->cairo_ctx);
     cairo_paint_with_alpha(xctx->cairo_ctx, alpha);
+    cairo_surface_flush(xctx->cairo_sfc);
   }
   if(dr) {
     cairo_restore(xctx->cairo_ctx);

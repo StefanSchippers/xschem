@@ -2747,6 +2747,7 @@ void zoom_box(double x1, double y1, double x2, double y2, double factor)
   xctx->mooz=1/xctx->zoom;
   xctx->xorigin=xctx->xorigin+xctx->areaw*xctx->zoom*(1-1/factor)/2;
   xctx->yorigin=xctx->yorigin+xctx->areah*xctx->zoom*(1-1/factor)/2;
+  dbg(1, "zoom_box(): zoom=%g\n", xctx->zoom);
 }
 
 void zoom_rectangle(int what)

@@ -1,4 +1,15 @@
 3.4.6:
+- do not reset xctx->netlist_name after doing `Netlist` from gui (xschem netlist -erc)
+- process tcleval(....) (if present) in symbol `name` argument
+- let symbol name entry box in component edit property dialog box expand in X direction
+  if dialog box is enlarged
+- replace "UNDEF" with "-" in backannotated nodes that have no value in raw file.
+- draw node names in graphs even if specified file / analysis (graph rawfile or sim_type
+  attributes) is not loaded
+- if autoload is set in graph and a filename is given (rawfile graph attr) load raw file immediately
+   when drawing graph. Don`t wait for user to load an intiial raw file to trigger auto loading
+- double clicking in the center of a graph will now bring up the graph edit attributes
+  dialog box even if no raw file is loaded
 - Graphs will autoload (if autoload checked) raw data even if no raw file is specified in
   graph dialog box (use current loaded raw file, usually with a different analysis)
 - Save 4 vars ( node, ph(node), re(node, im(node) ) instead of 2 ( node, ph(node )for ac plots
