@@ -170,7 +170,7 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   if(rot==1) fprintf(fd, "90 rotate\n");
   if(rot==2) fprintf(fd, "180 rotate\n");
   if(rot==3) fprintf(fd, "270 rotate\n");
-  fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*0.97, (Y_TO_PS(y2) - Y_TO_PS(y1))*0.97);
+  fprintf(fd, "%g %g scale\n", (X_TO_PS(x2) - X_TO_PS(x1))*1., (Y_TO_PS(y2) - Y_TO_PS(y1))*1.);
   fprintf(fd, "/DeviceRGB setcolorspace\n");
   fprintf(fd, "{ << /ImageType 1\n");
   fprintf(fd, "     /Width %g\n", (double)size_x);
@@ -1255,44 +1255,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
     set_lw();
     ps_drawgrid();
-  
-    for(i=0;i<xctx->texts; ++i)
-    {
-      textlayer = xctx->text[i].layer;
-      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
-      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-  
-      my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
-      my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
-      textfont = xctx->text[i].font;
-      if( (textfont && textfont[0])) {
-        my_snprintf(ps_font_family, S(ps_font_family), textfont);
-        my_snprintf(ps_font_name, S(ps_font_name), textfont);
-      }
-      if( xctx->text[i].flags & TEXT_BOLD) { 
-        if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
-          my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
-        } else {
-          my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
-        }
-      }
-      else if( xctx->text[i].flags & TEXT_ITALIC)
-        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-      else if( xctx->text[i].flags & TEXT_OBLIQUE)
-        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-  
-      if(text_ps) {
-        ps_draw_string(textlayer, get_text_floater(i),
-          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-          xctx->text[i].x0,xctx->text[i].y0,
-          xctx->text[i].xscale, xctx->text[i].yscale);
-      } else {
-        old_ps_draw_string(textlayer, get_text_floater(i),
-          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-          xctx->text[i].x0,xctx->text[i].y0,
-          xctx->text[i].xscale, xctx->text[i].yscale);
-      }
-    }
+
     for(c=0;c<cadlayers; ++c)
     {
       set_ps_colors(c);
@@ -1377,6 +1340,45 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         }
       }
     }
+
+    for(i=0;i<xctx->texts; ++i)
+    {
+      textlayer = xctx->text[i].layer;
+      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+  
+      my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
+      my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
+      textfont = xctx->text[i].font;
+      if( (textfont && textfont[0])) {
+        my_snprintf(ps_font_family, S(ps_font_family), textfont);
+        my_snprintf(ps_font_name, S(ps_font_name), textfont);
+      }
+      if( xctx->text[i].flags & TEXT_BOLD) { 
+        if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
+        } else {
+          my_snprintf(ps_font_family, S(ps_font_family), "%s-Bold", ps_font_name);
+        }
+      }
+      else if( xctx->text[i].flags & TEXT_ITALIC)
+        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+      else if( xctx->text[i].flags & TEXT_OBLIQUE)
+        my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
+  
+      if(text_ps) {
+        ps_draw_string(textlayer, get_text_floater(i),
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
+      } else {
+        old_ps_draw_string(textlayer, get_text_floater(i),
+          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+          xctx->text[i].x0,xctx->text[i].y0,
+          xctx->text[i].xscale, xctx->text[i].yscale);
+      }
+    }
+
     dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), xctx->plotfile);
     fprintf(fd, "showpage\n\n");
   }

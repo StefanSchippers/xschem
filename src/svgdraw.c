@@ -857,121 +857,123 @@ void svg_draw(void)
   fprintf(fd, "text {font-family: %s;}\n", tclgetvar("svg_font_name"));
   fprintf(fd, "</style>\n");
  
-    /* background */
-    fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"/>\n", 0.0, 0.0, dx, dy);
-    svg_drawgrid();
-    for(i=0;i<xctx->texts; ++i)
-    {
-      textlayer = xctx->text[i].layer;
-      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
-      if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-      my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
-      my_snprintf(svg_font_style, S(svg_font_style), "normal");
-      my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
-      textfont = xctx->text[i].font;
-      if( (textfont && textfont[0])) {
-        my_snprintf(svg_font_family, S(svg_font_family), textfont);
-      }
-      if( xctx->text[i].flags & TEXT_BOLD)
-        my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
-      if( xctx->text[i].flags & TEXT_ITALIC)
-        my_snprintf(svg_font_style, S(svg_font_style), "italic");
-      if( xctx->text[i].flags & TEXT_OBLIQUE)
-        my_snprintf(svg_font_style, S(svg_font_style), "oblique");
- 
-      if(text_svg) 
-        svg_draw_string(textlayer, get_text_floater(i),
-          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-          xctx->text[i].x0,xctx->text[i].y0,
-          xctx->text[i].xscale, xctx->text[i].yscale);
-      else
-        old_svg_draw_string(textlayer, get_text_floater(i),
-          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-          xctx->text[i].x0,xctx->text[i].y0,
-          xctx->text[i].xscale, xctx->text[i].yscale);
-    }
+  /* background */
+  fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"/>\n", 0.0, 0.0, dx, dy);
+  svg_drawgrid();
 
+  /* do first graphs as these require draw() which clobbers xctx->inst[n].flags bit 0 */
+  for(c=0;c<cadlayers; ++c)
+  {
+   for(i=0;i<xctx->rects[c]; ++i)
+   {
+     if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
+       xRect *r = &xctx->rect[c][i];
+       svg_embedded_graph(fd, r, r->x1, r->y1, r->x2, r->y2);
+     }
+   }
+  }
+  for(c=0;c<cadlayers; ++c)
+  {
+   for(i=0;i<xctx->lines[c]; ++i)
+    svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
+                    xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
+   for(i=0;i<xctx->rects[c]; ++i)
+   {
+     if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
+       /* do nothing, done above */
+     } else if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1024) ) { /* image */
+        xRect *r = &xctx->rect[c][i];
+        svg_embedded_image(r, r->x1, r->y1, r->x2, r->y2, 0, 0);
+     } else {
+       svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+                         xctx->rect[c][i].x2, xctx->rect[c][i].y2,
+                         xctx->rect[c][i].dash,  xctx->rect[c][i].fill);
+     }
+   }
+   for(i=0;i<xctx->arcs[c]; ++i)
+   {
+     svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
+                  xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+   }
+   for(i=0;i<xctx->polygons[c]; ++i) {
+     int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+     svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
+                     xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
+   }
+   for(i=0;i<xctx->instances; ++i) {
+     color = c;
+     if(xctx->inst[i].color != -10000) color = get_color(xctx->inst[i].color);
+     svg_draw_symbol(color,i,c,0,0,0.0,0.0);
+   }
+  }
+  prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */
+  for(i=0;i<xctx->wires; ++i)
+  {
+    color = WIRELAYER;
+    if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
+      color = get_color(entry->value);
+    }
+    svg_drawline(color, xctx->wire[i].bus, xctx->wire[i].x1, 
+     xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+  }
 
-    /* do first graphs as these require draw() which clobbers xctx->inst[n].flags bit 0 */
-    for(c=0;c<cadlayers; ++c)
-    {
-     for(i=0;i<xctx->rects[c]; ++i)
-     {
-       if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
-         xRect *r = &xctx->rect[c][i];
-         svg_embedded_graph(fd, r, r->x1, r->y1, r->x2, r->y2);
-       }
-     }
-    }
-    for(c=0;c<cadlayers; ++c)
-    {
-     for(i=0;i<xctx->lines[c]; ++i)
-      svg_drawline(c, xctx->line[c][i].bus, xctx->line[c][i].x1, xctx->line[c][i].y1,
-                      xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
-     for(i=0;i<xctx->rects[c]; ++i)
-     {
-       if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
-         /* do nothing, done above */
-       } else if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1024) ) { /* image */
-          xRect *r = &xctx->rect[c][i];
-          svg_embedded_image(r, r->x1, r->y1, r->x2, r->y2, 0, 0);
-       } else {
-         svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
-                           xctx->rect[c][i].x2, xctx->rect[c][i].y2,
-                           xctx->rect[c][i].dash,  xctx->rect[c][i].fill);
-       }
-     }
-     for(i=0;i<xctx->arcs[c]; ++i)
-     {
-       svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
-                    xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
-     }
-     for(i=0;i<xctx->polygons[c]; ++i) {
-       int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
-       svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-                       xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
-     }
-     for(i=0;i<xctx->instances; ++i) {
-       color = c;
-       if(xctx->inst[i].color != -10000) color = get_color(xctx->inst[i].color);
-       svg_draw_symbol(color,i,c,0,0,0.0,0.0);
-     }
-    }
-    prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */
-    for(i=0;i<xctx->wires; ++i)
-    {
+  {
+    double x1, y1, x2, y2;
+    Wireentry *wireptr;
+    int i;
+    Iterator_ctx ctx;
+    update_conn_cues(WIRELAYER, 0, 0);
+    /* draw connecting dots */
+    x1 = X_TO_XSCHEM(xctx->areax1);
+    y1 = Y_TO_XSCHEM(xctx->areay1);
+    x2 = X_TO_XSCHEM(xctx->areax2);
+    y2 = Y_TO_XSCHEM(xctx->areay2);
+    for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
+      i = wireptr->n;
       color = WIRELAYER;
       if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
         color = get_color(entry->value);
       }
-      svg_drawline(color, xctx->wire[i].bus, xctx->wire[i].x1, 
-       xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
-    }
-    {
-      double x1, y1, x2, y2;
-      Wireentry *wireptr;
-      int i;
-      Iterator_ctx ctx;
-      update_conn_cues(WIRELAYER, 0, 0);
-      /* draw connecting dots */
-      x1 = X_TO_XSCHEM(xctx->areax1);
-      y1 = Y_TO_XSCHEM(xctx->areay1);
-      x2 = X_TO_XSCHEM(xctx->areax2);
-      y2 = Y_TO_XSCHEM(xctx->areay2);
-      for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
-        i = wireptr->n;
-        color = WIRELAYER;
-        if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
-          color = get_color(entry->value);
-        }
-        if( xctx->wire[i].end1 >1 ) {
-          svg_drawcircle(color, 1, xctx->wire[i].x1, xctx->wire[i].y1, xctx->cadhalfdotsize, 0, 360);
-        }
-        if( xctx->wire[i].end2 >1 ) {
-          svg_drawcircle(color, 1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->cadhalfdotsize, 0, 360);
-        }
+      if( xctx->wire[i].end1 >1 ) {
+        svg_drawcircle(color, 1, xctx->wire[i].x1, xctx->wire[i].y1, xctx->cadhalfdotsize, 0, 360);
+      }
+      if( xctx->wire[i].end2 >1 ) {
+        svg_drawcircle(color, 1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->cadhalfdotsize, 0, 360);
       }
     }
+  }
+
+  for(i=0;i<xctx->texts; ++i)
+  {
+    textlayer = xctx->text[i].layer;
+    if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+    if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+    my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
+    my_snprintf(svg_font_style, S(svg_font_style), "normal");
+    my_snprintf(svg_font_weight, S(svg_font_weight), "normal");
+    textfont = xctx->text[i].font;
+    if( (textfont && textfont[0])) {
+      my_snprintf(svg_font_family, S(svg_font_family), textfont);
+    }
+    if( xctx->text[i].flags & TEXT_BOLD)
+      my_snprintf(svg_font_weight, S(svg_font_weight), "bold");
+    if( xctx->text[i].flags & TEXT_ITALIC)
+      my_snprintf(svg_font_style, S(svg_font_style), "italic");
+    if( xctx->text[i].flags & TEXT_OBLIQUE)
+      my_snprintf(svg_font_style, S(svg_font_style), "oblique");
+ 
+    if(text_svg) 
+      svg_draw_string(textlayer, get_text_floater(i),
+        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+        xctx->text[i].x0,xctx->text[i].y0,
+        xctx->text[i].xscale, xctx->text[i].yscale);
+    else
+      old_svg_draw_string(textlayer, get_text_floater(i),
+        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+        xctx->text[i].x0,xctx->text[i].y0,
+        xctx->text[i].xscale, xctx->text[i].yscale);
+  }
+
   dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
   fprintf(fd, "</svg>\n");
   fclose(fd);
