@@ -3555,6 +3555,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
+          dbg(1, "w=%d h=%d, lw=%g bbox=%g %g %g %g\n", w, h, xctx->lw, x1, y1, x2, y2);
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw); 
           zoom_box(x1, y1, x2, y2, 1.0);

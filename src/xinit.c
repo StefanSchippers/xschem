@@ -2120,6 +2120,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
     #ifdef __unix__
     xctx->cairo_save_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap,
          visual, xctx->xrect[0].width, xctx->xrect[0].height);
+    dbg(1, "resetcairo: create cairo_save_sfc: %d %d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     #else
     xctx->cairo_save_sfc = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24,
          xctx->xrect[0].width, xctx->xrect[0].height);

@@ -4363,8 +4363,8 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   size_t attr_len;
 
   if(xctx->only_probes) return 0;
-  xx1 = *x1; yy1 = *y1; /* image anchor point */
   RECTORDER(*x1, *y1, *x2, *y2);
+  xx1 = *x1; yy1 = *y1; /* image anchor point */
 
   /* screen position */
   sx1=X_TO_SCREEN(*x1);
@@ -4414,6 +4414,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   dbg(1, "draw_image() w=%d, h=%d\n", w, h);
   x = X_TO_SCREEN(xx1);
   y = Y_TO_SCREEN(yy1);
+  dbg(1, "draw_image() x=%g, y=%g\n", x, y);
   if(r->flags & 2048) { /* resize container rectangle to fit image */
     *x2 = *x1 + w;
     *y2 = *y1 + h;
@@ -4432,6 +4433,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       scaley = rh/h * xctx->mooz;
     }
   }
+  dbg(1, "draw_image() : rectangle coords: %g %g %g %g\n", *x1, *y1, *x2, *y2);
   if(dr) {
     cairo_save(xctx->cairo_ctx);
     cairo_save(xctx->cairo_save_ctx);
@@ -4442,7 +4444,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
     if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
     else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_save_ctx, -scalex, scaley);
     else cairo_scale(xctx->cairo_save_ctx, scalex, scaley);
-    
+
     cairo_set_source_surface(xctx->cairo_save_ctx, emb_ptr->image, 0. , 0.);
     cairo_rectangle(xctx->cairo_save_ctx, 0, 0, w , h );
     /* cairo_fill(xctx->cairo_save_ctx);
