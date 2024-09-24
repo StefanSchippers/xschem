@@ -111,8 +111,8 @@ static void svg_drawbezier(double *x, double *y, int points)
     for(t = 0; t <= 1.0; t += bez_steps) {
       xp = (1 - t) * (1 - t) * x0 + 2 * (1 - t) * t * x1 + t * t * x2;
       yp = (1 - t) * (1 - t) * y0 + 2 * (1 - t) * t * y1 + t * t * y2;
-      if(i==0) fprintf(fd, "M%g %g", X_TO_SVG(xp), Y_TO_SVG(yp));
-      else fprintf(fd, "L%g %g", X_TO_SVG(xp), Y_TO_SVG(yp));
+      if(i==0) fprintf(fd, "M%g %g", X_TO_SCREEN(xp), Y_TO_SCREEN(yp));
+      else fprintf(fd, "L%g %g", X_TO_SCREEN(xp), Y_TO_SCREEN(yp));
       i++;
     }
   }
@@ -124,10 +124,10 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   double xx, yy;
   int bezier, i;
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
-  x1=X_TO_SVG(x1);
-  y1=Y_TO_SVG(y1);
-  x2=X_TO_SVG(x2);
-  y2=Y_TO_SVG(y2);
+  x1=X_TO_SCREEN(x1);
+  y1=Y_TO_SCREEN(y1);
+  x2=X_TO_SCREEN(x2);
+  y2=Y_TO_SCREEN(y2);
   if( !rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) ) {
     return;
   }
@@ -144,8 +144,8 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   } else {
     fprintf(fd, "d=\"");
     for(i=0;i<points; ++i) {
-      xx = X_TO_SVG(x[i]);
-      yy = Y_TO_SVG(y[i]);
+      xx = X_TO_SCREEN(x[i]);
+      yy = Y_TO_SCREEN(y[i]);
       if(i==0) fprintf(fd, "M%g %g", xx, yy);
       else fprintf(fd, "L%g %g", xx, yy);
     }
@@ -158,10 +158,10 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
 {
  double x1,y1,x2,y2;
 
-  x1=X_TO_SVG(rectx1);
-  y1=Y_TO_SVG(recty1);
-  x2=X_TO_SVG(rectx2);
-  y2=Y_TO_SVG(recty2);
+  x1=X_TO_SCREEN(rectx1);
+  y1=Y_TO_SCREEN(recty1);
+  x2=X_TO_SCREEN(rectx2);
+  y2=Y_TO_SCREEN(recty2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    svg_xfillrectangle(gc, x1,y1,x2,y2, dash, fill);
@@ -173,14 +173,14 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
  double xx,yy,rr;
  double x1, y1, x2, y2;
 
-  xx=X_TO_SVG(x);
-  yy=Y_TO_SVG(y);
+  xx=X_TO_SCREEN(x);
+  yy=Y_TO_SCREEN(y);
   rr=r*xctx->mooz;
   arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
-  x1=X_TO_SVG(x1);
-  y1=Y_TO_SVG(y1);
-  x2=X_TO_SVG(x2);
-  y2=Y_TO_SVG(y2);
+  x1=X_TO_SCREEN(x1);
+  y1=Y_TO_SCREEN(y1);
+  x2=X_TO_SCREEN(x2);
+  y2=Y_TO_SCREEN(y2);
 
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
@@ -195,14 +195,14 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
  double xx1, yy1, xx2, yy2;
  int fs, fa;
 
-  xx=X_TO_SVG(x);
-  yy=Y_TO_SVG(y);
+  xx=X_TO_SCREEN(x);
+  yy=Y_TO_SCREEN(y);
   rr=r*xctx->mooz;
   arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
-  x1=X_TO_SVG(x1);
-  y1=Y_TO_SVG(y1);
-  x2=X_TO_SVG(x2);
-  y2=Y_TO_SVG(y2);
+  x1=X_TO_SCREEN(x1);
+  y1=Y_TO_SCREEN(y1);
+  x2=X_TO_SCREEN(x2);
+  y2=Y_TO_SCREEN(y2);
 
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
@@ -240,10 +240,10 @@ static void svg_drawline(int gc, int bus, double linex1,double liney1,double lin
 {
  double x1,y1,x2,y2;
 
-  x1=X_TO_SVG(linex1);
-  y1=Y_TO_SVG(liney1);
-  x2=X_TO_SVG(linex2);
-  y2=Y_TO_SVG(liney2);
+  x1=X_TO_SCREEN(linex1);
+  y1=Y_TO_SCREEN(liney1);
+  x2=X_TO_SCREEN(linex2);
+  y2=Y_TO_SCREEN(liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
    svg_xdrawline(gc, bus, x1, y1, x2, y2, dash);
@@ -272,8 +272,8 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   line_delta = lineno*fontheight;
   lines = (no_of_lines-1)*fontheight;
   
-  ix=X_TO_SVG(x);
-  iy=Y_TO_SVG(y);
+  ix=X_TO_SCREEN(x);
+  iy=Y_TO_SCREEN(y);
   if(rot&1) {
     rot1=3;
   } else rot1=0;
@@ -476,10 +476,16 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   char transform[150];
   double alpha = 1.0;
 
-  x1=X_TO_SVG(rx1);
-  y1=Y_TO_SVG(ry1);
-  x2=X_TO_SVG(rx2);
-  y2=Y_TO_SVG(ry2);
+  x1=X_TO_SCREEN(rx1);
+  y1=Y_TO_SCREEN(ry1);
+  x2=X_TO_SCREEN(rx2);
+  y2=Y_TO_SCREEN(ry2);
+
+  /* screen position */
+  if(RECT_OUTSIDE(x1, y1, x2, y2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
+     
+
   if(rot == 1 || rot == 3) {
     w = fabs(y2 - y1);
     h = fabs(x2 - x1);
@@ -541,10 +547,10 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   }
 
   if(layer==0) {
-    x1=X_TO_SVG(xctx->inst[n].x1);
-    x2=X_TO_SVG(xctx->inst[n].x2);
-    y1=Y_TO_SVG(xctx->inst[n].y1);
-    y2=Y_TO_SVG(xctx->inst[n].y2);
+    x1=X_TO_SCREEN(xctx->inst[n].x1);
+    x2=X_TO_SCREEN(xctx->inst[n].x2);
+    y1=Y_TO_SCREEN(xctx->inst[n].y1);
+    y2=Y_TO_SCREEN(xctx->inst[n].y2);
     if(RECT_OUTSIDE(x1,y1,x2,y2,xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) {
       xctx->inst[n].flags|=1;
       return;
@@ -864,9 +870,9 @@ void svg_draw(void)
   /* do first graphs as these require draw() which clobbers xctx->inst[n].flags bit 0 */
   for(c=0;c<cadlayers; ++c)
   {
-   for(i=0;i<xctx->rects[c]; ++i)
+   if(c == GRIDLAYER) for(i=0;i<xctx->rects[c]; ++i)
    {
-     if(c == GRIDLAYER && (xctx->rect[c][i].flags & 1) ) { /* graph */
+     if(xctx->rect[c][i].flags & 1) { /* graph */
        xRect *r = &xctx->rect[c][i];
        svg_embedded_graph(fd, r, r->x1, r->y1, r->x2, r->y2);
      }

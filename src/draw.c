@@ -4504,6 +4504,15 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   const double max_size = 3000.0;
 
   if(!has_x) return;
+
+  /* screen position */
+  x1=X_TO_SCREEN(rx1);
+  y1=Y_TO_SCREEN(ry1);
+  x2=X_TO_SCREEN(rx2);
+  y2=Y_TO_SCREEN(ry2);
+  if(RECT_OUTSIDE(x1, y1, x2, y2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return;
+
   rw = fabs(rx2 -rx1);
   rh = fabs(ry2 - ry1);
   scale = 3.0;
@@ -4567,10 +4576,6 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   save_restore_zoom(0, &zi);
   resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
 
-  x1=X_TO_SVG(rx1);
-  y1=Y_TO_SVG(ry1);
-  x2=X_TO_SVG(rx2);
-  y2=Y_TO_SVG(ry2);
   h = fabs(y2 - y1);
   w = fabs(x2 - x1);
 

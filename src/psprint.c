@@ -77,7 +77,7 @@ static Ps_color *ps_colors;
 static char ps_font_name[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol */
 
-int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
+static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   int i, jpg;
@@ -94,6 +94,15 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   const char *quality_attr;
   size_t oLength, attr_len;
   cairo_t *ct;
+  double sx1, sy1, sx2, sy2;
+
+  /* screen position */
+  sx1=X_TO_SCREEN(x1);
+  sy1=Y_TO_SCREEN(y1); 
+  sx2=X_TO_SCREEN(x2);
+  sy2=Y_TO_SCREEN(y2);
+  if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
 
   invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
   if(!invertImage)
@@ -229,7 +238,7 @@ int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int 
   return 1;
 }
 
-void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
+static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   Zoom_info zi;
@@ -249,6 +258,15 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   const char *quality_attr;
   size_t oLength;
   int i;
+  double sx1, sy1, sx2, sy2;
+
+  /* screen position */
+  sx1=X_TO_SCREEN(rx1);
+  sy1=Y_TO_SCREEN(ry1);
+  sx2=X_TO_SCREEN(rx2);
+  sy2=Y_TO_SCREEN(ry2);
+  if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
+                  xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
 
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
@@ -257,7 +275,8 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
     if(quality_attr[0]) quality = atoi(quality_attr);
   }
   if(quality_attr[0]) quality = atoi(quality_attr);
-  if (!has_x) return;
+  if (!has_x) return 0;
+
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
   scale = 3.0;
@@ -371,6 +390,7 @@ void ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
   my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   
   #endif
+  return 1;
 }
 static void set_lw(void)
 {

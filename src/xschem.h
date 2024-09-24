@@ -385,10 +385,6 @@ extern char win_temp_dir[PATH_MAX];
 #define X_TO_XSCHEM(x) ( (x) * xctx->zoom - xctx->xorigin )
 #define Y_TO_XSCHEM(y) ( (y) * xctx->zoom - xctx->yorigin )
 
-#define X_TO_SVG(x) ( (x+xctx->xorigin)* xctx->mooz )
-#define Y_TO_SVG(y) ( (y+xctx->yorigin)* xctx->mooz )
-
-
 /* coordinate transformations graph to xschem */
 #define W_X(x) (gr->cx * (x) + gr->dx)
 #define W_Y(y) (gr->cy * (y) + gr->dy)

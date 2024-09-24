@@ -1,4 +1,6 @@
 3.4.6:
+- svgdraw and psprint: draw text after images as done in screen draw. Correct postscript / pdf
+  image zoom factor to match scaling with other xschem elements.
 - do not reset xctx->netlist_name after doing `Netlist` from gui (xschem netlist -erc)
 - process tcleval(....) (if present) in symbol `name` argument
 - let symbol name entry box in component edit property dialog box expand in X direction
