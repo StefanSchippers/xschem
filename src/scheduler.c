@@ -3430,6 +3430,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]
      *   If img_x and img_y are set to 0 (recommended for svg and ps/pdf) 
      *   they will be calculated by xschem automatically
+     *   if img_x and img_y are given they will set the bitmap size, if
+     *   area to export is not given then use the selection boundbox if
+     *   a selection exists or do a full zoom.
      *   Export current schematic to image.
      *                            img x   y size    xschem area to export
      *      0     1    2    3         4   5             6    7   8   9
@@ -3464,15 +3467,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(eps && xctx->lastsel == 0) {
           if(has_x) tcleval("alert_ {EPS export works only on a selection} {}");
           else  dbg(0, "EPS export works only on a selection\n");
-        } else if(argc == 6 && xctx->lastsel == 0 && eps == 0) {
-          fullzoom = 2;
+        } else if(argc == 6 && eps == 0) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+          } else {
+            fullzoom = 2; /* 2: set paper size to bounding box instead of a4/letter */
+          }
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
-          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          if(xctx->lastsel) {
+            zoom_box(x1, y1, x2, y2, 1.0);
+            unselect_all(0);
+          }
+          else zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
           ps_draw(7, fullzoom, eps);
           save_restore_zoom(0, &zi);
@@ -3521,14 +3537,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         double save_lw = xctx->lw;
         int w = 0, h = 0;
         double x1, y1, x2, y2;
-        if(argc == 6 && xctx->lastsel == 0) {
+        if(argc == 6) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+          }
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
-          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          if(xctx->lastsel) {
+            zoom_box(x1, y1, x2, y2, 1.0);
+            unselect_all(0);
+          }
+          else zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0, &zi);
@@ -3572,14 +3600,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         double save_lw = xctx->lw;
         int w = 0, h = 0;
         double x1, y1, x2, y2;
-        if(argc == 6 && xctx->lastsel == 0) {
+        if(argc == 6) {
+          if(xctx->lastsel) {
+            xRect boundbox;
+            calc_drawing_bbox(&boundbox, 1);
+            x1 =boundbox.x1;
+            y1 =boundbox.y1;
+            x2 =boundbox.x2;
+            y2 =boundbox.y2;
+          }
           w = atoi(argv[4]);
           h = atoi(argv[5]);
           if(w == 0) w = xctx->xrect[0].width;
           if(h == 0) h = xctx->xrect[0].height;
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
-          zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          if(xctx->lastsel) {
+            zoom_box(x1, y1, x2, y2, 1.0);
+            unselect_all(0);
+          }
+          else zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
           svg_draw();
           save_restore_zoom(0, &zi);
         } else if(argc == 10 || xctx->lastsel) {
