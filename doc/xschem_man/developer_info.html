@@ -550,6 +550,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -1119,6 +1120,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]</kbd></li><pre>
    If img_x and img_y are set to 0 (recommended for svg and ps/pdf) 
    they will be calculated by xschem automatically
+   if img_x and img_y are given they will set the bitmap size, if
+   area to export is not given then use the selection boundbox if
+   a selection exists or do a full zoom.
    Export current schematic to image.
                             img x   y size    xschem area to export
       0     1    2    3         4   5             6    7   8   9
