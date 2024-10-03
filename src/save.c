@@ -1173,7 +1173,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = i;
       } else {
-        dbg(1, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
+        dbg(1, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type ? type : "<NULL>");
         ret = 0;
       }
     } else if(file && isonlydigit(file) ) {
@@ -1185,7 +1185,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_prev_idx = xctx->extra_idx; 
         xctx->extra_idx = i;
       } else {
-        dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type);
+        dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type ? type : "<NULL>");
         ret = 0;
       }
     } else { /* switch to next */

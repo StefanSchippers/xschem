@@ -140,9 +140,12 @@ proc inutile_translate {f} {
   cd $savedir
 }
 
-proc inutile { {filename {}}} {
+proc inutile { {filename {}} {wait {}} } {
   global XSCHEM_SHAREDIR retval netlist_dir
 
+  if {$wait ne {}} {
+    xschem set semaphore [expr {[xschem get semaphore] +1}]
+  }
   if { ![string compare $filename  ""]  } then {
    tk_messageBox -type ok -message "Please give a file name as argument"
    return
@@ -195,6 +198,10 @@ proc inutile { {filename {}}} {
     inutile_alias_window .inutile.tw$i [lindex $tmp 1] 
    }
   } 
+  if {$wait ne {}} {
+    tkwait window .inutile
+    xschem set semaphore [expr {[xschem get semaphore] -1}]
+  }
 }
 
 ### End INUTILE integration

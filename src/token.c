@@ -4215,14 +4215,17 @@ const char *translate(int inst, const char* s)
      } else {
        int i = level;
        my_strdup2(_ALLOC_ID_, &value1, value);
-       /* recursive substitution of value using parent level prop_str attributes */
+       /* recursive substitution of value using parent level prop_ptr attributes */
        while(i > 0) {
-         const char *tok = get_tok_value(lcc[i-1].prop_ptr, value1, 0);
+         char *v = value1;
+         const char *tok;
+         if(v && v[0] == '@') v++;
+         tok = get_tok_value(lcc[i-1].prop_ptr, v, 0);
          if(xctx->tok_size && tok[0]) {
            dbg(1, "tok=%s\n", tok);
            my_strdup2(_ALLOC_ID_, &value1, tok);
          } else {
-           tok = get_tok_value(lcc[i-1].templ,  value1, 0);
+           tok = get_tok_value(lcc[i-1].templ,  v, 0);
            if(xctx->tok_size && tok[0]) {
              dbg(1, "from parent template: tok=%s\n", tok);
              my_strdup2(_ALLOC_ID_, &value1, tok);
