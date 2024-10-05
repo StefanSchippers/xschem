@@ -1204,6 +1204,11 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     my_strdup2(_ALLOC_ID_, &result, s);
     return result;
   }
+  if( (!s || s[0] == '\0') && tok && new_val) {
+    my_strdup2(_ALLOC_ID_, &result, tok);
+    my_mstrcat(_ALLOC_ID_, &result, "=", new_val, NULL);
+    return result;
+  }
   /* quote new_val if it contains newlines and not "name" token */
   if(new_val) {
     new_val_len = strlen(new_val);
