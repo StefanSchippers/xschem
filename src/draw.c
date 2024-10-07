@@ -740,14 +740,16 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
-      if(xctx->only_probes) textlayer = GRIDLAYER;
-      else if(disabled == 1) textlayer = GRIDLAYER;
+      if(disabled == 1) textlayer = GRIDLAYER;
       else if(disabled == 2) textlayer = PINLAYER;
       else if( xctx->inst[n].color == -10000) {
         int lay;
-        get_sym_text_layer(n, j, &lay);
-        if(lay != -1) textlayer = lay;
-        else textlayer = symptr->text[j].layer;
+        if(xctx->only_probes) textlayer = GRIDLAYER;
+        else {
+          get_sym_text_layer(n, j, &lay);
+          if(lay != -1) textlayer = lay;
+          else textlayer = symptr->text[j].layer;
+        }
       }
       if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
