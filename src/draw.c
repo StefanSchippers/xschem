@@ -3748,7 +3748,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
               my_free(_ALLOC_ID_, &node_rawfile);
               my_free(_ALLOC_ID_, &node_sim_type);
-              my_free(_ALLOC_ID_, &nd);
               valid_rawfile = 0;
             }
           }
@@ -3763,7 +3762,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         node_dataset = -1;
         my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
       }
-
+      if(nd) my_free(_ALLOC_ID_, &nd);
       /* transform multiple OP points into a dc sweep */
       if(xctx->raw && xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "op")
          && xctx->raw->datasets > 1 && xctx->raw->npoints[0] == 1) {
