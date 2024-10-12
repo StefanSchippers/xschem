@@ -3837,7 +3837,8 @@ int rstate; /* (reduced state, without ShiftMask) */
 
 
    /* launcher, no intuitive interface */
-   if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask)) {
+   if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask) && 
+      !xctx->shape_point_selected && xctx->mouse_moved == 0) {
      int savesem = xctx->semaphore;
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
