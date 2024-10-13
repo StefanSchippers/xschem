@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -102,32 +102,28 @@ V {integer n = 0;
 initial begin
   $dumpfile("dumpfile.vcd");
   $dumpvars(0, testbench);
-  A=0;
-  B=0;
+  RST=1;
+  A = 0;
+  B = 0;
   #1000;
-  A=1;
-  #1000;
-  B=1;
-  #1000;
-  A=0;
-  #1000;
-  B=0;
-  #1000;
-  B=1;
-  #1000;
-  B=0;
-  A=0;
-  #1000;
-  B=1;
-  #1000;
-  A=1;
-  #20000;
-  A=0;
+  RST=0;
+end
+
+
+
+always begin
+  #1013;
+  A = ~A;
+end
+
+always begin
+  #717;
+  B = ~B;
 end
 
 always begin
   if(n ==0 ) CK = 0;
-  if(n == 23) $finish;
+  if(n == 213) $finish;
   n = n + 1;
   #5000;
   CK = !CK;
@@ -185,6 +181,7 @@ end
 }
 S {}
 E {}
+T {Double edge triggered Flip FLop} 1090 -660 0 0 0.5 0.5 {}
 N 440 -350 470 -350 {lab=A}
 N 440 -310 470 -310 {lab=B}
 N 570 -330 600 -330 {lab=Y_NOR}
@@ -200,6 +197,18 @@ N 810 -360 840 -360 {lab=A}
 N 920 -360 950 -360 {lab=Y_BUF}
 N 780 -90 810 -90 {lab=B}
 N 890 -90 920 -90 {lab=BN}
+N 1300 -430 1310 -430 {lab=#net1}
+N 1300 -570 1310 -570 {lab=#net2}
+N 1350 -550 1380 -550 {lab=AL1}
+N 1350 -610 1350 -550 {lab=AL1}
+N 1300 -610 1350 -610 {lab=AL1}
+N 1350 -510 1380 -510 {lab=AL2}
+N 1350 -510 1350 -470 {lab=AL2}
+N 1300 -470 1350 -470 {lab=AL2}
+N 1080 -570 1170 -570 {lab=CK}
+N 1080 -610 1160 -610 {lab=A}
+N 1110 -470 1160 -470 {lab=A}
+N 1110 -610 1110 -470 {lab=A}
 C {title.sym} 160 -30 0 0 {name=l2}
 C {nr2.sym} 510 -330 0 0 {name=x1 }
 C {lab_pin.sym} 440 -350 2 1 {name=p20 lab=A}
@@ -281,3 +290,20 @@ C {adc_bridge.sym} 190 -260 0 0 {name=v6 delay=1}
 C {adc_bridge.sym} 190 -240 0 0 {name=v7 delay=1}
 C {adc_bridge.sym} 190 -220 0 0 {name=v8 delay=1}
 C {adc_bridge.sym} 190 -200 0 0 {name=v9 delay=1}
+C {mux21.sym} 1430 -530 0 0 {name=x10 del=200}
+C {lab_pin.sym} 1480 -530 0 1 {name=p57 lab=ZMUX}
+C {lab_pin.sym} 1430 -480 0 0 {name=p59 lab=CK}
+C {latch.sym} 1230 -590 0 0 {name=x11 del=200}
+C {latch.sym} 1230 -450 0 0 {name=x12 del=200}
+C {iv.sym} 1120 -430 0 0 {name=x13 del=1}
+C {lab_pin.sym} 1080 -570 0 0 {name=p60 lab=CK verilog_type=reg}
+C {lab_pin.sym} 1080 -430 0 0 {name=p61 lab=CK verilog_type=reg}
+C {lab_pin.sym} 220 -430 2 0 {name=p62 lab=RST verilog_type=reg}
+C {lab_pin.sym} 160 -430 2 1 {name=p63 lab=RST_A verilog_type=reg}
+C {adc_bridge.sym} 190 -430 0 0 {name=v10 delay=1
+lab=RST_A}
+C {lab_pin.sym} 1080 -610 0 0 {name=p64 lab=A}
+C {lab_pin.sym} 1230 -540 2 1 {name=p56 lab=RST verilog_type=reg}
+C {lab_pin.sym} 1230 -400 2 1 {name=p58 lab=RST verilog_type=reg}
+C {lab_pin.sym} 1350 -610 0 1 {name=p65 lab=AL1}
+C {lab_pin.sym} 1350 -470 0 1 {name=p66 lab=AL2}

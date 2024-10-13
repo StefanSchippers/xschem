@@ -1,0 +1,49 @@
+v {xschem version=3.4.6RC file_version=1.2
+*
+* This file is part of XSCHEM,
+* a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
+* simulation.
+* Copyright (C) 1998-2023 Stefan Frederik Schippers
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+}
+G {}
+K {type=subcircuit
+vhdl_stop=true
+verilog_stop=true
+format="@name @pinlist @symname"
+template="name=x1 delay=\\"200 ps\\" del=200"
+generic_type="delay=time"}
+V {}
+S {}
+E {}
+L 4 -30 -30 30 -20 {}
+L 4 -30 30 30 20 {}
+L 4 -30 -30 -30 30 {}
+L 4 30 -20 30 20 {}
+L 4 -50 -20 -30 -20 {}
+L 4 30 0 50 0 {}
+L 4 -50 20 -30 20 {}
+L 4 0 25 0 50 {}
+B 5 -52.5 -22.5 -47.5 -17.5 {name=A dir=in}
+B 5 47.5 -2.5 52.5 2.5 {name=Z dir=out}
+B 5 -52.5 17.5 -47.5 22.5 {name=B dir=in}
+B 5 -2.5 47.5 2.5 52.5 {name=S dir=in}
+T {@symname} -62.5 -56 0 0 0.3 0.3 {}
+T {@name} 35 -42 0 0 0.2 0.2 {}
+T {A} -25 -24 0 0 0.2 0.2 {}
+T {Z} 25 -4 0 1 0.2 0.2 {}
+T {B} -25 16 0 0 0.2 0.2 {}
+T {S} -5 11 0 0 0.2 0.2 {}
