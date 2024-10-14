@@ -720,8 +720,8 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
   if(token==NULL || size == 0 || table == NULL) return NULL;
   hashcode=str_hash(token);
   idx=hashcode % size;
-  entry=table[idx];
   preventry=&table[idx];
+  entry=*preventry;
   while(1)
   {
     if( !entry )          /* empty slot */
@@ -821,8 +821,8 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
   if(token==NULL || size == 0 || table == NULL) return NULL;
   hashcode=str_hash(token);
   idx=hashcode % size;
-  entry=table[idx];
   preventry=&table[idx];
+  entry=*preventry;
   while(1)
   {
     if( !entry )          /* empty slot */
@@ -921,8 +921,8 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
   if(token==NULL || size == 0 || table == NULL) return NULL;
   hashcode=str_hash(token);
   idx=hashcode % size;
-  entry=table[idx];
   preventry=&table[idx];
+  entry=*preventry;
   while(1)
   {
     if( !entry )          /* empty slot */

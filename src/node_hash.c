@@ -50,8 +50,8 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  d.port=port;
  hashcode=str_hash(token);
  index=hashcode % HASHSIZE;
- entry=xctx->node_table[index];
  preventry=&xctx->node_table[index];
+ entry=*preventry;
  while(1)
  {
   if( !entry )                  /* empty slot */

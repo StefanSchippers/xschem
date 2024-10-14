@@ -84,8 +84,8 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
   if(token==NULL) return NULL;
   hashcode=hi_hash(token);
   index=hashcode % HASHSIZE;
-  entry=xctx->hilight_table[index];
   preventry=&xctx->hilight_table[index];
+  entry=*preventry;
   while(1) {
     if( !entry ) { /* empty slot */
       size_t lent = strlen(token) + 1;
