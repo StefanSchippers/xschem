@@ -78,19 +78,19 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
  */
 {
   unsigned int hashcode, index;
-  Hilight_hashentry *entry, *saveptr, **preventry;
+  Hilight_hashentry **preventry;
   int s ;
  
   if(token==NULL) return NULL;
   hashcode=hi_hash(token);
   index=hashcode % HASHSIZE;
   preventry=&xctx->hilight_table[index];
-  entry=*preventry;
   while(1) {
-    if( !entry ) { /* empty slot */
+    if( !(*preventry) ) { /* empty slot */
       size_t lent = strlen(token) + 1;
       size_t lenp = strlen(xctx->sch_path[xctx->currsch]) + 1;
       if( what==XINSERT || what == XINSERT_NOREPLACE) { /* insert data */
+        Hilight_hashentry *entry;
         s=sizeof( Hilight_hashentry );
         entry= (Hilight_hashentry *)my_malloc(_ALLOC_ID_, s );
         entry->next = NULL;
@@ -107,23 +107,23 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
       }
       return NULL; /* whether inserted or not return NULL since it was not in */
     }
-    if( entry -> hash==hashcode && !strcmp(token,entry->token) &&
-         !strcmp(xctx->sch_path[xctx->currsch], entry->path)  ) { /* found matching tok */
+    if( (*preventry) -> hash==hashcode && !strcmp(token,(*preventry)->token) &&
+         !strcmp(xctx->sch_path[xctx->currsch], (*preventry)->path)  ) { /* found matching tok */
       if(what==XDELETE) {              /* remove token from the hash table ... */
-        saveptr=entry->next;
-        my_free(_ALLOC_ID_, &entry->token);
-        my_free(_ALLOC_ID_, &entry->path);
-        my_free(_ALLOC_ID_, &entry);
+        Hilight_hashentry *saveptr;
+        saveptr=(*preventry)->next;
+        my_free(_ALLOC_ID_, &(*preventry)->token);
+        my_free(_ALLOC_ID_, &(*preventry)->path);
+        my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
       } else if(what == XINSERT ) {
-        entry->oldvalue = entry->value;
-        entry->value = value;
-        entry->time=xctx->hilight_time;
+        (*preventry)->oldvalue =(*preventry)->value;
+        (*preventry)->value = value;
+        (*preventry)->time=xctx->hilight_time;
       }
-      return entry; /* found matching entry, return the address */
+      return (*preventry); /* found matching entry, return the address */
     }
-    preventry=&entry->next; /* descend into the list. */
-    entry = entry->next;
+    preventry=&(*preventry)->next; /* descend into the list. */
   }
 }
 

@@ -34,7 +34,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  * "whatever"     whatever      1,XLOOKUP  only look up element, dont insert */
 {
  unsigned int hashcode, index;
- Node_hashentry *entry, *saveptr, **preventry;
+ Node_hashentry **preventry;
  int s ;
  Drivers d;
 
@@ -51,13 +51,13 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  hashcode=str_hash(token);
  index=hashcode % HASHSIZE;
  preventry=&xctx->node_table[index];
- entry=*preventry;
  while(1)
  {
-  if( !entry )                  /* empty slot */
+  if( !(*preventry) )                  /* empty slot */
   {
    if( what==XINSERT )          /* insert data */
    {
+    Node_hashentry *entry;
     s=sizeof( Node_hashentry );
     entry=(Node_hashentry *)my_malloc(_ALLOC_ID_, s);
     entry->next = NULL;
@@ -82,11 +82,11 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
    }
    return NULL; /* whether inserted or not return NULL since it was not in */
   }
-  if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found matching tok */
+  if( (*preventry) -> hash==hashcode && strcmp(token,(*preventry)->token)==0 ) /* found matching tok */
   {
    if(what==XDELETE)                /* remove token from the hash table ... */
    {
-    saveptr=entry->next;
+    Node_hashentry *saveptr=(*preventry)->next, *entry = *preventry;
     my_free(_ALLOC_ID_, &entry->token);
     my_free(_ALLOC_ID_, &entry->verilog_type);
     my_free(_ALLOC_ID_, &entry->sig_type);
@@ -99,6 +99,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
    }
    else /* found matching entry, return the address and update in/out count */
    {
+    Node_hashentry *entry = *preventry;
     entry->d.port+=port;
     entry->d.in+=d.in;
     entry->d.out+=d.out;
@@ -114,8 +115,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     return entry;
    }
   }
-  preventry=&entry->next; /* descend into the list. */
-  entry = entry->next;
+  preventry=&(*preventry)->next; /* descend into the list. */
  }
 }
 

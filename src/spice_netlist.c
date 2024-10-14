@@ -712,7 +712,7 @@ int spice_block_netlist(FILE *fd, int i)
 Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, const char *value, int what)
 {
   unsigned int hashcode, idx;
-  Str_hashentry *entry, *saveptr, **preventry;
+  Str_hashentry **preventry;
   int s ;
   int size = hashtable->size;
   Str_hashentry **table = hashtable->table;
@@ -721,13 +721,13 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
   hashcode=str_hash(token);
   idx=hashcode % size;
   preventry=&table[idx];
-  entry=*preventry;
   while(1)
   {
-    if( !entry )          /* empty slot */
+    if( !(*preventry) )          /* empty slot */
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
+        Str_hashentry *entry;
         s=sizeof( Str_hashentry );
         entry=(Str_hashentry *)my_malloc(_ALLOC_ID_, s);
         entry->next=NULL;
@@ -740,23 +740,23 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
       }
       return NULL; /* if element inserted return NULL since it was not in table */
     }
-    if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found a matching token */
+    if( (*preventry) -> hash==hashcode && strcmp(token,(*preventry)->token)==0 ) /* found a matching token */
     {
       if(what==XDELETE)             /* remove token from the hash table ... */
       {
-        saveptr=entry->next;
-        my_free(_ALLOC_ID_, &entry->token);
-        my_free(_ALLOC_ID_, &entry->value);
-        my_free(_ALLOC_ID_, &entry);
+        Str_hashentry *saveptr;
+        saveptr=(*preventry)->next;
+        my_free(_ALLOC_ID_, &(*preventry)->token);
+        my_free(_ALLOC_ID_, &(*preventry)->value);
+        my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
       }
       else if(value && what == XINSERT ) {
-        my_strdup2(_ALLOC_ID_, &entry->value, value);
+        my_strdup2(_ALLOC_ID_, &(*preventry)->value, value);
       }
-      return entry;   /* found matching entry, return the address */
+      return (*preventry);   /* found matching entry, return the address */
     }
-    preventry=&entry->next; /* descend into the list. */
-    entry = entry->next;
+    preventry=&(*preventry)->next; /* descend into the list. */
   }
 }
 
@@ -813,7 +813,7 @@ void str_hash_free(Str_hashtable *hashtable)
 Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, const int value, int what)
 {
   unsigned int hashcode, idx;
-  Int_hashentry *entry, *saveptr, **preventry;
+  Int_hashentry **preventry;
   int s ;
   int size = hashtable->size;
   Int_hashentry **table = hashtable->table;
@@ -822,13 +822,13 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
   hashcode=str_hash(token);
   idx=hashcode % size;
   preventry=&table[idx];
-  entry=*preventry;
   while(1)
   {
-    if( !entry )          /* empty slot */
+    if( !(*preventry) )          /* empty slot */
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
+        Int_hashentry *entry;
         s=sizeof( Int_hashentry );
         entry=(Int_hashentry *)my_malloc(_ALLOC_ID_, s);
         entry->next=NULL;
@@ -840,22 +840,22 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
       }
       return NULL; /* if element inserted return NULL since it was not in table */
     }
-    if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found a matching token */
+    if( (*preventry) -> hash==hashcode && strcmp(token,(*preventry)->token)==0 ) /* found a matching token */
     {
       if(what==XDELETE)             /* remove token from the hash table ... */
       {
-        saveptr=entry->next;
-        my_free(_ALLOC_ID_, &entry->token);
-        my_free(_ALLOC_ID_, &entry);
+        Int_hashentry *saveptr;
+        saveptr=(*preventry)->next;
+        my_free(_ALLOC_ID_, &(*preventry)->token);
+        my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
       }
       else if(what == XINSERT ) {
-        entry->value = value;
+        (*preventry)->value = value;
       }
-      return entry;   /* found matching entry, return the address */
+      return *preventry;   /* found matching entry, return the address */
     }
-    preventry=&entry->next; /* descend into the list. */
-    entry = entry->next;
+    preventry=&(*preventry)->next; /* descend into the list. */
   }
 }
 
@@ -913,7 +913,7 @@ void int_hash_free(Int_hashtable *hashtable)
 Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void *const value, int what)
 {
   unsigned int hashcode, idx;
-  Ptr_hashentry *entry, *saveptr, **preventry;
+  Ptr_hashentry **preventry;
   int s ;
   int size = hashtable->size;
   Ptr_hashentry **table = hashtable->table;
@@ -922,13 +922,13 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
   hashcode=str_hash(token);
   idx=hashcode % size;
   preventry=&table[idx];
-  entry=*preventry;
   while(1)
   {
-    if( !entry )          /* empty slot */
+    if( !(*preventry) )          /* empty slot */
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
+        Ptr_hashentry *entry;
         s=sizeof( Ptr_hashentry );
         entry=(Ptr_hashentry *)my_malloc(_ALLOC_ID_, s);
         entry->next=NULL;
@@ -940,22 +940,22 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
       }
       return NULL; /* if element inserted return NULL since it was not in table */
     }
-    if( entry -> hash==hashcode && strcmp(token,entry->token)==0 ) /* found a matching token */
+    if( (*preventry) -> hash==hashcode && strcmp(token,(*preventry)->token)==0 ) /* found a matching token */
     {
       if(what==XDELETE)             /* remove token from the hash table ... */
       {
-        saveptr=entry->next;
-        my_free(_ALLOC_ID_, &entry->token);
-        my_free(_ALLOC_ID_, &entry);
+        Ptr_hashentry *saveptr;
+        saveptr=(*preventry)->next;
+        my_free(_ALLOC_ID_, &(*preventry)->token);
+        my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
       }
       else if(what == XINSERT ) {
-        entry->value = value;
+        (*preventry)->value = value;
       }
-      return entry;   /* found matching entry, return the address */
+      return (*preventry);   /* found matching entry, return the address */
     }
-    preventry=&entry->next; /* descend into the list. */
-    entry = entry->next;
+    preventry=&(*preventry)->next; /* descend into the list. */
   }
 }
 
