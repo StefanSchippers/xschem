@@ -713,7 +713,6 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
 {
   unsigned int hashcode, idx;
   Str_hashentry **preventry;
-  int s ;
   int size = hashtable->size;
   Str_hashentry **table = hashtable->table;
 
@@ -727,9 +726,7 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        Str_hashentry *entry;
-        s=sizeof( Str_hashentry );
-        entry=(Str_hashentry *)my_malloc(_ALLOC_ID_, s);
+        Str_hashentry *entry = (Str_hashentry *)my_malloc(_ALLOC_ID_, sizeof( Str_hashentry ));
         entry->next=NULL;
         entry->token=NULL;
         entry->value=NULL;
@@ -814,7 +811,6 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
 {
   unsigned int hashcode, idx;
   Int_hashentry **preventry;
-  int s ;
   int size = hashtable->size;
   Int_hashentry **table = hashtable->table;
 
@@ -828,9 +824,7 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        Int_hashentry *entry;
-        s=sizeof( Int_hashentry );
-        entry=(Int_hashentry *)my_malloc(_ALLOC_ID_, s);
+        Int_hashentry *entry = (Int_hashentry *)my_malloc(_ALLOC_ID_, sizeof( Int_hashentry ));
         entry->next=NULL;
         entry->token=NULL;
         my_strdup2(_ALLOC_ID_, &entry->token, token);
@@ -914,7 +908,6 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
 {
   unsigned int hashcode, idx;
   Ptr_hashentry **preventry;
-  int s ;
   int size = hashtable->size;
   Ptr_hashentry **table = hashtable->table;
 
@@ -928,9 +921,7 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
     {
       if(what==XINSERT || what == XINSERT_NOREPLACE)            /* insert data */
       {
-        Ptr_hashentry *entry;
-        s=sizeof( Ptr_hashentry );
-        entry=(Ptr_hashentry *)my_malloc(_ALLOC_ID_, s);
+        Ptr_hashentry *entry = (Ptr_hashentry *)my_malloc(_ALLOC_ID_, sizeof( Ptr_hashentry ));
         entry->next=NULL;
         entry->token=NULL;
         my_strdup2(_ALLOC_ID_, &entry->token, token);
