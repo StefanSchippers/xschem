@@ -1706,19 +1706,23 @@ void change_elem_order(int n)
       my_snprintf(tmp_txt, S(tmp_txt), "%d",xctx->sel_array[0].n);
       tclsetvar("retval",tmp_txt);
       xctx->semaphore++;
-      tcleval("text_line {Object Sequence number} 0");
+      tclvareval("input_line {Object Sequence number} {} ", tmp_txt, NULL);
       xctx->semaphore--;
-      if(strcmp(tclgetvar("tctx::rcode"),"") )
+      if(strcmp(tclgetvar("retval"),"") )
       {
+        int c = 0; 
         xctx->push_undo();
         modified = 1;
         xctx->prep_hash_inst=0;
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
         xctx->prep_hash_wires=0;
+        c = sscanf(tclgetvar("retval"), "%d",&new_n);
+        if(c != 1 ) return;
+        if(new_n < 0) new_n = 0;
+      } else {
+        return; /* no data or Cancel */
       }
-      sscanf(tclgetvar("retval"), "%d",&new_n);
-      if(new_n < 0) new_n = 0;
     } else {
       new_n = n;
       xctx->push_undo();
