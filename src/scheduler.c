@@ -436,12 +436,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int n = atoi(argv[2]);
-        if(n >= 0) {
+        if(n >= 0 || n == -1) {
           change_elem_order(n);
-          xctx->prep_hash_wires=0;
-          xctx->prep_hash_inst=0;
-          xctx->prep_net_structs=0;
-          xctx->prep_hi_structs=0;
         }
       }
     }

@@ -7751,6 +7751,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.prop.menu add command -label "View" -command "xschem view_prop" -accelerator Ctrl+Shift+Q
   $topwin.menubar.prop.menu add command -label "Toggle *_ignore attribute on selected instances" \
      -command "xschem toggle_ignore" -accelerator Shift+T
+  $topwin.menubar.prop.menu add command -label "Change selected object insertion order" \
+     -command { xschem change_elem_order -1 } -accelerator Shift+S
   $topwin.menubar.prop.menu add command -label "Edit Header/License text" \
      -command { update_schematic_header } -accelerator Shift+B
   $topwin.menubar.prop.menu add command -background red -label "Edit file (danger!)" \

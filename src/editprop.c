@@ -1715,6 +1715,7 @@ void change_elem_order(int n)
         xctx->prep_hash_inst=0;
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
+        xctx->prep_hash_wires=0;
       }
       sscanf(tclgetvar("retval"), "%d",&new_n);
       if(new_n < 0) new_n = 0;
@@ -1725,6 +1726,7 @@ void change_elem_order(int n)
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
+      xctx->prep_hash_wires=0;
     }
 
     if(xctx->sel_array[0].type==ELEMENT)
