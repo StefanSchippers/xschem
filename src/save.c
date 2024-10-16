@@ -1557,6 +1557,7 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define GE 45
 #define LE 46
 #define COND 47 /* conditional expression: X cond Y ? --> X if conf == 1 else Y */
+#define CPH 48 /* continuous phase. Instead of -180..+180 avoid discontinuities */
 
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -1614,6 +1615,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "**")) stack1[stackptr1++].i = POW;
     else if(!strcmp(n, "?")) stack1[stackptr1++].i = COND; /* conditional expression */
     else if(!strcmp(n, "atan()")) stack1[stackptr1++].i = ATAN;
+    else if(!strcmp(n, "cph()")) stack1[stackptr1++].i = CPH;
     else if(!strcmp(n, "asin()")) stack1[stackptr1++].i = ASIN;
     else if(!strcmp(n, "acos()")) stack1[stackptr1++].i = ACOS;
     else if(!strcmp(n, "tan()")) stack1[stackptr1++].i = TAN;
@@ -1968,6 +1970,17 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
               result =  stack1[i].prev;
             }
             stack1[i].prev =  stack2[stackptr2 - 1];
+            stack2[stackptr2 - 1] =  result;
+            break;
+          case CPH:
+            if(p == first) {
+              result = stack2[stackptr2 - 1];
+            } else {
+              double ph = stack2[stackptr2 - 1];
+              double prev_ph = stack1[i].prev;
+              result = ph - (360.) * floor((ph - prev_ph)/(360.) + 0.5);
+            }
+            stack1[i].prev =  result;
             stack2[stackptr2 - 1] =  result;
             break;
           case SQRT:

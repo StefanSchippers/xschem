@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -25,10 +25,11 @@ spice_ignore=true
 verilog_ignore=true
 tedax_ignore=true
 vhdl_ignore=true
-template=" nothing here, use global schematic properties "}
+template="code=ARCHITECTURE 
+\\"Use global schematic properties for code\\""}
 V {}
 S {}
 E {}
 L 4 0 -10 355 -10 {}
-T {ARCHITECTURE} 5 -30 0 0 0.3 0.3 {}
+T {@code} 5 -30 0 0 0.3 0.3 {}
 T {@schprop@schverilogprop@schvhdlprop@schsymbolprop} 45 5 0 0 0.3 0.3 {font=monospace layer=8}
