@@ -934,7 +934,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
       dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
              raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "NULL");
     } else {
-      free_rawfile(rawptr, 0);
+      /* free_rawfile(rawptr, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
       dbg(0, "raw_read(): no useful data found\n");
     }
     fclose(fd);
@@ -1108,8 +1108,10 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       } else {
         ret = 0; /* not found so did not switch */
         dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type);
-        xctx->raw = save; /* restore */
-        xctx->extra_prev_idx = xctx->extra_idx;
+        if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
+          xctx->raw = save; /* restore */
+          xctx->extra_prev_idx = xctx->extra_idx;
+        }
       }
     } else { /* file found: switch to it */
       dbg(1, "extra_rawfile() %d read: found: switch to it\n", i);
@@ -1147,8 +1149,10 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       } else {
         ret = 0; /* not found so did not switch */
         dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
-        xctx->raw = save; /* restore */
-        xctx->extra_prev_idx = xctx->extra_idx;
+        if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
+          xctx->raw = save; /* restore */
+          xctx->extra_prev_idx = xctx->extra_idx;
+        }
       }
     } else { /* file found: switch to it */
       dbg(1, "extra_rawfile() %d read: found: switch to it\n", i);
