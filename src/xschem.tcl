@@ -2587,7 +2587,12 @@ proc graph_fill_listbox {} {
   set pattern [.graphdialog.center.left.search get]
   set retval {}
   set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
-  set rawfile [uplevel #0 {subst [xschem getprop rect 2 $graph_selected rawfile 2]}]
+  set rawfile [xschem getprop rect 2 $graph_selected rawfile]
+  if {$rawfile ne {}} {
+    if {![catch {eval uplevel #0 {subst $rawfile}} res]} {
+      set rawfile $res
+    }
+  }
   set sim_type [uplevel #0 {subst [xschem getprop rect 2 $graph_selected sim_type 2]}]
   if {$autoload ne {} && $autoload } { set autoload read} else {set autoload switch}
   # puts "graph_fill_listbox: $rawfile $sim_type"
