@@ -4364,8 +4364,8 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   size_t attr_len;
 
   if(xctx->only_probes) return 0;
-  RECTORDER(*x1, *y1, *x2, *y2);
   xx1 = *x1; yy1 = *y1; /* image anchor point */
+  RECTORDER(*x1, *y1, *x2, *y2);
 
   /* screen position */
   sx1=X_TO_SCREEN(*x1);
