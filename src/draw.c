@@ -4221,6 +4221,32 @@ int edit_image(int what, xRect *r)
   return 1;
 }
 
+/*
+ * The memmem() function finds the start of the first occurrence of the
+ * substring 'needle' of length 'nlen' in the memory area 'haystack' of
+ * length 'hlen'.
+ *
+ * The return value is a pointer to the beginning of the sub-string, or
+ * NULL if the substring is not found.
+ */
+static void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
+{
+    int needle_first;
+    const char *p = haystack;
+    size_t plen = hlen;
+
+    if (!nlen) return NULL;
+    needle_first = *(unsigned char *)needle;
+
+    while (plen >= nlen && (p = memchr(p, needle_first, plen - nlen + 1)))
+    {
+        if (!memcmp(p, needle, nlen)) return (void *)p;
+        p++;
+        plen = hlen - (p - (char *)haystack);
+    }
+    return NULL;
+}
+
 /* returns a cairo surface.
  * `filename` should be a  png or jpeg image or anything else that can be converted to png 
  * or jpeg via a `filter` pipeline. (example: filter="gm convert - png:-")
@@ -4235,6 +4261,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
     char *filedata = NULL;
     FILE *fd;
     struct stat buf;
+    int svg = 0;
     cairo_surface_t *surface = NULL;
 
     if(filename[0]) {
@@ -4264,15 +4291,19 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         return NULL;
       }
     }
+    if(my_memmem(filedata, filesize, "<svg", 4) &&
+       my_memmem(filedata, filesize, "xmlns", 5)) { 
+      if(filter) svg = 1;
+    }
+
     if(filter) {
       size_t filtered_img_size = 0;
       char *filtered_img_data = NULL;
       filter_data(filedata, filesize, &filtered_img_data, &filtered_img_size, filter);
-      my_free(_ALLOC_ID_, &filedata);
+      if(!svg) my_free(_ALLOC_ID_, &filedata);
       closure.buffer = (unsigned char *)filtered_img_data;
       closure.size = filtered_img_size;
       closure.pos = 0;
-      my_free(_ALLOC_ID_, &filter);
     } else { /* no filter attribute */
       closure.buffer = (unsigned char *)filedata;
       filedata = NULL;
@@ -4304,36 +4335,62 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         return NULL;
       }
     }
-    *buffer = closure.buffer;
-    *size = closure.size;
+    if(svg) { /* if the file type is SVG return in buffer the plain file, 
+               * not the filtered content, This way we don't lose resolution */
+      *buffer = (unsigned char *)filedata;
+      *size = filesize;
+      my_free(_ALLOC_ID_, &closure.buffer);
+    } else {
+      *buffer = closure.buffer;
+      *size = closure.size;
+    }
     return surface;
 }
 
-static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_len)
+static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_len, const char *filter)
 {
-  int jpg = -1;
+  int jpg = -1; /* 0: png, 1: jpg, 2: svg, -1: invalid data */
   png_to_byte_closure_t closure;
   size_t data_size;
   cairo_surface_t *surface = NULL;
 
-  if(!strncmp(attr, "/9j/", 4)) jpg = 1;
-  else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
-  else jpg = -1; /* some invalid data */
-  if(jpg == -1) return NULL;
-
   closure.buffer = base64_decode(attr, attr_len, &data_size);
   closure.pos = 0;
   closure.size = data_size; /* should not be necessary */
+
+  if(!strncmp(attr, "/9j/", 4)) jpg = 1; /* jpg */
+  else if(!strncmp(attr, "iVBOR", 5)) jpg = 0; /* png */
+  else if(my_memmem(closure.buffer, closure.size, "<svg", 4) &&
+          my_memmem(closure.buffer, closure.size, "xmlns", 5)) {
+    if(filter) jpg = 2; /* svg */
+  }
+  else jpg = -1; /* some invalid data */
+
+  if(jpg == -1) {
+    my_free(_ALLOC_ID_, &closure.buffer);
+    return NULL;
+  }
+   
   if(closure.buffer == NULL) {
     dbg(0, "get_surface_from_b64data(): decoding base64 data for image failed\n");
     return NULL;
   }
-  if(jpg == 0) {
+
+  if(jpg == 0) { /* png */
     surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-  } else if(jpg == 1) {
+  } else if(jpg == 1) { /* jpg */
     #if defined(HAS_LIBJPEG)
     surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
     #endif
+  } else if(jpg == 2) { /* svg */
+    size_t filtered_img_size = 0;
+    char *filtered_img_data = NULL;
+    filter_data((char *)closure.buffer, closure.size, &filtered_img_data, &filtered_img_size, filter);
+    my_free(_ALLOC_ID_, &closure.buffer);
+    closure.buffer = (unsigned char *)filtered_img_data;
+    closure.size = filtered_img_size;
+    closure.pos = 0;
+    surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
   }
   if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
     if(jpg != 1)
@@ -4362,6 +4419,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   double xx1, yy1, scalex, scaley;
   xEmb_image *emb_ptr;
   size_t attr_len;
+  char *filter = NULL;
 
   if(xctx->only_probes) return 0;
   xx1 = *x1; yy1 = *y1; /* image anchor point */
@@ -4377,26 +4435,28 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   set_rect_extraptr(1, r); /* create r->extraptr pointing to a xEmb_image struct */
   emb_ptr = r->extraptr;
   my_strncpy(filename, get_tok_value(r->prop_ptr, "image", 0), S(filename));
+  my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
   /******* read image from in-memory buffer ... *******/
   if(emb_ptr && emb_ptr->image) {
      /* nothing to do, image is already created */
   /******* ... or read PNG from image_data attribute *******/
   } else if( (attr = get_tok_value(r->prop_ptr, "image_data", 0))[0] && (attr_len = strlen(attr)) > 5) {
-    emb_ptr->image = get_surface_from_b64data(attr, attr_len);
+    emb_ptr->image = get_surface_from_b64data(attr, attr_len, filter);
     if(!emb_ptr->image) {
+      my_free(_ALLOC_ID_, &filter);
       return 0;
     }
   /******* ... or read PNG from file (image attribute) *******/
-  } else if(1 || filename[0]) {
+  } else if(filename[0]) {
     unsigned char *buffer = NULL;
     size_t size = 0;
-    char *filter = NULL;
     char *encoded_data = NULL;
     size_t olength;
 
-    my_strdup(_ALLOC_ID_, &filter, get_tok_value(r->prop_ptr, "filter", 0));
+    /* if filename is a SVG file buffer will be the plain svg file content, not the filtered data */
     emb_ptr->image = get_surface_from_file(filename, filter, &buffer, &size);
     if(!emb_ptr->image) {
+      my_free(_ALLOC_ID_, &filter);
       return 0;
     }
     /* put base64 encoded data to rect image_data attribute */
@@ -4472,6 +4532,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
     cairo_restore(xctx->cairo_ctx);
     cairo_restore(xctx->cairo_save_ctx);
   }
+  my_free(_ALLOC_ID_, &filter);
   #endif
   return 1;
 }
