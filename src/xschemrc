@@ -309,6 +309,15 @@
 # set to_pdf ps2pdf
 # set to_pdf {ps2pdf -dAutoRotatePages=/None}
 
+###########################################################################
+#### IMPORT SVG IMAGES
+###########################################################################
+#### this is a filter command that processes svg files and writes png data
+#### listed in my personal order of preference.
+#### filter must read stdin and write to stdout.
+# set svg_to_png {rsvg-convert}
+# set svg_to_png {inkscape --pipe --export-type=png --export-filename=-}
+# set svg_to_png {convert - png:-}
 
 ###########################################################################
 #### UNDO: SAVE ON DISK OR KEEP IN MEMORY

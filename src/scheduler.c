@@ -266,19 +266,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Ask user to choose a png/jpg file and start a GUI placement of the image */
     else if(!strcmp(argv[1], "add_image"))
     {
-      char str[PATH_MAX+100];
+      char *f = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       unselect_all(1);
-      tcleval("tk_getOpenFile -filetypes {{{Images} {.jpg .jpeg .png}} {{All files} *} }");
+      tcleval("tk_getOpenFile -filetypes {{{Images} {.jpg .jpeg .png .svg}} {{All files} *} }");
+
       if(tclresult()[0]) {
-        my_snprintf(str, S(str), "flags=image,unscaled\nalpha=0.8\nimage=%s\n", tclresult());
+        char *str = NULL;
+        my_strdup2(_ALLOC_ID_, &f, tclresult());
+        my_mstrcat(_ALLOC_ID_, &str, "flags=image,unscaled\nalpha=0.8\nimage=", f, "\n", NULL);
+
+        if(strstr(f, ".svg") == f + strlen(f) - 4 ) {
+          if(tcleval("info exists svg_to_png")[0] == '1') {
+             my_mstrcat(_ALLOC_ID_, &str, "filter=\"", tclgetvar("svg_to_png"), "\"\n", NULL);
+          }
+        }
         storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
                     xRECT, GRIDLAYER, SELECTED, str);
+
+        my_free(_ALLOC_ID_, &str);
         xctx->need_reb_sel_arr=1;
         rebuild_selected_array();
         move_objects(START,0,0,0);
         xctx->ui_state |= START_SYMPIN;
       }
+      if(f) my_free(_ALLOC_ID_, &f);
       Tcl_ResetResult(interp);
     }
 
