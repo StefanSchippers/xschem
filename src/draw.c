@@ -4255,47 +4255,51 @@ static void *my_memmem(const void *haystack, size_t hlen, const void *needle, si
 static cairo_surface_t *get_surface_from_file(const char *filename, const char *filter,
                         unsigned char **buffer, size_t *size)
 {
-    int jpg = 0;
-    png_to_byte_closure_t closure = {NULL, 0L, 0L};
-    size_t filesize = 0;
-    char *filedata = NULL;
-    FILE *fd;
-    struct stat buf;
-    int svg = 0;
-    cairo_surface_t *surface = NULL;
+  int jpg = 0;
+  png_to_byte_closure_t closure = {NULL, 0L, 0L};
+  size_t filesize = 0;
+  char *filedata = NULL;
+  FILE *fd;
+  struct stat buf;
+  int svg = 0;
+  cairo_surface_t *surface = NULL;
 
-    if(filename[0]) {
-      if(stat(filename, &buf)) {
-        dbg(0, "get_surface_from_file(): file %s not found.\n", filename);
-        *buffer = NULL;
-        *size = 0;
-        return NULL;
-      }
-      filesize = (size_t)buf.st_size;
-      if(filesize > 0) {
-        fd = fopen(filename, fopen_read_mode);
-        if(fd) {
-          size_t bytes_read;
-          filedata = my_malloc(_ALLOC_ID_, filesize);
-          if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
-            filesize = bytes_read;
-            dbg(0, "get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
-                filename, bytes_read);
-          }
-          fclose(fd);
-        }
-      } else {
-        dbg(0, "get_surface_from_file(): file %s has zero size\n", filename);
-        *buffer = NULL;
-        *size = 0;
-        return NULL;
-      }
+  *buffer = NULL;
+  *size = 0;
+  if(filename && filename[0]) {
+    if(stat(filename, &buf)) {
+      dbg(0, "get_surface_from_file(): file %s not found.\n", filename);
+      return NULL;
     }
-    if(my_memmem(filedata, filesize, "<svg", 4) &&
+    filesize = (size_t)buf.st_size;
+    if(filesize > 0) {
+      fd = fopen(filename, fopen_read_mode);
+      if(fd) {
+        size_t bytes_read;
+        filedata = my_malloc(_ALLOC_ID_, filesize);
+        if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
+          filesize = bytes_read;
+          dbg(0, "get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
+              filename, bytes_read);
+        }
+        fclose(fd);
+      }
+    } else {
+      dbg(0, "get_surface_from_file(): file %s has zero size\n", filename);
+      return NULL;
+    }
+    if(filedata && my_memmem(filedata, filesize, "<svg", 4) &&
        my_memmem(filedata, filesize, "xmlns", 5)) { 
       if(filter) svg = 1;
+      else {
+        dbg(0, "get_surface_from_file():\n");
+        dbg(0, "  A SVG file is specified but no 'filter' attribute to convert to png was given\n");
+        dbg(0, "  May be no 'svg_to_png' variable was specified in xschemrc\n");
+        my_free(_ALLOC_ID_, &filedata);
+        return NULL;
+      }
     }
-
+  
     if(filter) {
       size_t filtered_img_size = 0;
       char *filtered_img_data = NULL;
@@ -4310,7 +4314,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
       closure.size = filesize;
       closure.pos = 0;
     }
-
+  
     if(closure.size > 4) {
       if(!strncmp((char *)closure.buffer, "\x89PNG", 4)) jpg = 0;
       else if(!strncmp((char *)closure.buffer, "\xFF\xD8\xFF", 3)) jpg = 1;
@@ -4344,7 +4348,12 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
       *buffer = closure.buffer;
       *size = closure.size;
     }
-    return surface;
+  } /* if(filename...) */
+  else {
+    dbg(0, "get_surface_from_file(): no filename was given\n");
+  }
+
+  return surface;
 }
 
 static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_len, const char *filter)
