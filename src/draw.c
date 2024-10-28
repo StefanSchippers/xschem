@@ -4385,16 +4385,22 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
   } else if(jpg == 2) { /* svg */
     size_t filtered_img_size = 0;
     char *filtered_img_data = NULL;
-    filter_data((char *)closure.buffer, closure.size, &filtered_img_data, &filtered_img_size, filter);
+    int ret = 
+      filter_data((char *)closure.buffer, closure.size, &filtered_img_data, &filtered_img_size, filter);
     my_free(_ALLOC_ID_, &closure.buffer);
     closure.buffer = (unsigned char *)filtered_img_data;
     closure.size = filtered_img_size;
     closure.pos = 0;
-    surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+    if(!ret) {
+      surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+    } else {
+      surface = NULL;
+      if(closure.buffer) my_free(_ALLOC_ID_, &closure.buffer);
+      return NULL;;
+    }
   }
   if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-    if(jpg != 1)
-      dbg(0, "get_surface_from_b64data(): failure creating image surface from \"image_data\" attribute\n");
+    dbg(0, "get_surface_from_b64data(): failure creating image surface from \"image_data\" attribute\n");
     if(surface) cairo_surface_destroy(surface);
     surface = NULL;
   }
