@@ -4229,7 +4229,7 @@ int edit_image(int what, xRect *r)
  * The return value is a pointer to the beginning of the sub-string, or
  * NULL if the substring is not found.
  */
-static void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
+void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
 {
     int needle_first;
     const char *p = haystack;

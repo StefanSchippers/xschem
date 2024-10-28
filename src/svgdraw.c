@@ -468,13 +468,16 @@ static void svg_drawgrid()
 
 static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, double ry2, int rot, int flip)
 {
-  const char *attr;
+  char *attr = NULL;
+  const char *alpha_str, *filter;
   size_t attr_len;
   double x1, y1, x2, y2, w, h, scalex = 1.0, scaley = 1.0;
   int jpg = 0;
   char opacity[100];
   char transform[150];
   double alpha = 1.0;
+  unsigned char *buffer = NULL;
+  size_t buffer_size;
 
   x1=X_TO_SCREEN(rx1);
   y1=Y_TO_SCREEN(ry1);
@@ -496,28 +499,46 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
 
   if(flip && (rot == 0 || rot == 2)) scalex = -1.0;
   else if(flip && (rot == 1 || rot == 3)) scaley = -1.0;
-  attr =  get_tok_value(r->prop_ptr, "alpha", 0);
-  if(attr[0]) alpha = atof(attr);
-  attr =  get_tok_value(r->prop_ptr, "image_data", 0);
-  attr_len = strlen(attr);
-  
+  alpha_str = get_tok_value(r->prop_ptr, "alpha", 0);
+  if(alpha_str[0]) alpha = atof(alpha_str);
+  attr_len = my_strdup2(_ALLOC_ID_, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
+  buffer = base64_decode(attr, attr_len, &buffer_size);
+  filter = get_tok_value(r->prop_ptr, "filter", 0);
   if(attr_len > 5) {
     if(!strncmp(attr, "/9j/", 4)) jpg = 1;
     else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+
+    else if(my_memmem(buffer, buffer_size, "<svg", 4) && 
+            my_memmem(buffer, buffer_size, "xmlns", 5)) {
+      if(filter) {
+        jpg = 2; /* svg */ 
+      }
+    } 
     else jpg = -1; /* some invalid data */
   } else {
     jpg = -1;
   }
   if(jpg == -1) {
+    my_free(_ALLOC_ID_, &buffer);
+    my_free(_ALLOC_ID_, &attr);
     return 0;
   }
   my_snprintf(transform, S(transform), 
     "transform=\"translate(%g,%g) scale(%g,%g) rotate(%d)\"", x1, y1, scalex, scaley, rot * 90);
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
-  fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
-              "xlink:href=\"data:image/%s;base64,%s\"/>\n",
-              0.0, 0.0, w, h, transform, opacity, jpg ? "jpeg" : "png", attr);
+  /*    png         jpg */
+  if(jpg == 0 || jpg == 1)  {
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
+                "xlink:href=\"data:image/%s;base64,%s\"/>\n",
+                0.0, 0.0, w, h, transform, opacity, jpg ? "jpeg" : "png", attr);
+  } else if(jpg == 2) { /* svg */
+    fprintf(fd, "<image x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\" %s %s "
+                "xlink:href=\"data:image/svg+xml;base64,%s\"/>\n",
+                0.0, 0.0, w, h, transform, opacity, attr);
+  }
+  my_free(_ALLOC_ID_, &buffer);
+  my_free(_ALLOC_ID_, &attr);
   return 1;
 }
 

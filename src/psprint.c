@@ -85,14 +85,15 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   unsigned char *ptr = NULL;
   int invertImage;
   unsigned char* ascii85EncodedJpeg;
-  const char* attr;
+  char *attr = NULL;
+  unsigned char *buffer = NULL;
   cairo_surface_t *surface = NULL, *orig_sfc = NULL;
   xEmb_image *emb_ptr;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
   int quality=40;
-  const char *quality_attr;
-  size_t oLength, attr_len;
+  const char *quality_attr, *filter;
+  size_t oLength, attr_len, buffer_size;
   cairo_t *ct;
   double sx1, sy1, sx2, sy2;
 
@@ -113,17 +114,26 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
     quality_attr = get_tok_value(r->prop_ptr, "jpg_quality", 0);
     if(quality_attr[0]) quality = atoi(quality_attr);
   }
-  attr = get_tok_value(r->prop_ptr, "image_data", 0);
-  attr_len = strlen(attr);
+  attr_len = my_strdup2(_ALLOC_ID_, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
+  filter = get_tok_value(r->prop_ptr, "filter", 0);
+  buffer = base64_decode(attr, attr_len, &buffer_size);
   if(attr_len > 5) {
-    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
-    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    if(!strncmp(attr, "/9j/", 4)) jpg = 1; /* jpg */
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0; /* png */
+    else if(my_memmem(buffer, buffer_size, "<svg", 4) &&
+            my_memmem(buffer, buffer_size, "xmlns", 5)) {
+      if(filter) {
+        jpg = 2; /* svg */
+      }
+    } 
     else jpg = -1; /* some invalid data */
   } else {
     jpg = -1;
   }
   emb_ptr = r->extraptr;
   if(jpg == -1 || !(emb_ptr && emb_ptr->image)) {
+    my_free(_ALLOC_ID_, &buffer);
+    my_free(_ALLOC_ID_, &attr);
     return 0;
   }
   orig_sfc = emb_ptr->image;
@@ -164,7 +174,7 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
     ptr[i + 0] = b;
   }
   cairo_surface_mark_dirty(surface);
-  if(invertImage || jpg == 0) {
+  if(invertImage || jpg != 1) {
     cairo_image_surface_write_to_jpeg_mem(surface, &jpgData, &fileSize, quality);
   } else {
     jpgData = base64_decode(attr, attr_len, &fileSize);
@@ -234,6 +244,8 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   fprintf(fd, "grestore\n");
   my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   free(jpgData);
+  my_free(_ALLOC_ID_, &buffer);
+  my_free(_ALLOC_ID_, &attr);
   #endif
   return 1;
 }

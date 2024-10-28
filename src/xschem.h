@@ -1630,6 +1630,7 @@ extern char *my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_strcat2(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
+extern void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 extern char *my_itoa(int i);
 extern double atof_spice(const char *s);
 extern double atof_eng(const char *s); /* same as atof_spice, but recognizes 'M' as Mega and 'm' as Milli */
