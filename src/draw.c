@@ -4076,6 +4076,32 @@ cairo_status_t png_writer(void *in_closure, const unsigned char *in_data, unsign
 }
 #endif
 
+/*
+ * The memmem() function finds the start of the first occurrence of the
+ * substring 'needle' of length 'nlen' in the memory area 'haystack' of
+ * length 'hlen'.
+ *
+ * The return value is a pointer to the beginning of the sub-string, or
+ * NULL if the substring is not found.
+ */
+void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
+{
+    int needle_first;
+    const char *p = haystack;
+    size_t plen = hlen;
+
+    if (!nlen) return NULL;
+    needle_first = *(unsigned char *)needle;
+
+    while (plen >= nlen && (p = memchr(p, needle_first, plen - nlen + 1)))
+    {
+        if (!memcmp(p, needle, nlen)) return (void *)p;
+        p++;
+        plen = hlen - (p - (char *)haystack);
+    }
+    return NULL;
+}
+
 #if HAS_CAIRO==1
 /* what:
  *    1: invert colors
@@ -4219,32 +4245,6 @@ int edit_image(int what, xRect *r)
   }
   dbg(1, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
   return 1;
-}
-
-/*
- * The memmem() function finds the start of the first occurrence of the
- * substring 'needle' of length 'nlen' in the memory area 'haystack' of
- * length 'hlen'.
- *
- * The return value is a pointer to the beginning of the sub-string, or
- * NULL if the substring is not found.
- */
-void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
-{
-    int needle_first;
-    const char *p = haystack;
-    size_t plen = hlen;
-
-    if (!nlen) return NULL;
-    needle_first = *(unsigned char *)needle;
-
-    while (plen >= nlen && (p = memchr(p, needle_first, plen - nlen + 1)))
-    {
-        if (!memcmp(p, needle, nlen)) return (void *)p;
-        p++;
-        plen = hlen - (p - (char *)haystack);
-    }
-    return NULL;
 }
 
 /* returns a cairo surface.
