@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -99,6 +99,7 @@ T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
 T {Bus rippers} 580 -380 0 0 0.6 0.6 {layer=4}
+T {Verilog-A example} 800 -940 0 0 0.4 0.4 {}
 N 910 -410 940 -410 {lab=#net1}
 N 860 -380 860 -360 {lab=#net2}
 N 860 -380 920 -380 {lab=#net2}
@@ -1499,3 +1500,4 @@ C {autozero_comp.sym} 480 -500 0 0 {name=x29}
 C {tb_symbol_include.sym} 480 -780 0 0 {name=x30}
 C {intuitive_interface_cheatsheet.sym} 1060 -100 0 0 {name=x31}
 C {test_nyquist.sym} 480 -460 0 0 {name=x32}
+C {tb_diff_amp.sym} 890 -890 0 0 {name=x33}

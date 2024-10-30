@@ -1,0 +1,38 @@
+v {xschem version=3.4.6RC file_version=1.2
+}
+G {}
+K {type=opamp_va
+format="@spiceprefix@name @@OUT @@IN1 @@IN2 @model"
+
+template="name=U1 model=diff_amp_cell spiceprefix=X"
+
+device_model="tcleval(
+.subckt diff_amp_cell OUT IN1 IN2
+N1 out in1 in2 diff_amp_model
+.ends diff_amp_cell
+
+.model diff_amp_model diff_amp
+
+.control
+* following line specifies the location for the .osdi file so ngspice can use it.
+pre_osdi $USER_CONF_DIR/xschem_library/diff_amp.osdi
+.endc
+)"
+}
+V {}
+S {}
+E {}
+L 4 -100 -40 -80 -40 {}
+L 4 80 0 100 0 {}
+L 4 -100 40 -80 40 {}
+B 5 97.5 -2.5 102.5 2.5 {name=OUT dir=out}
+B 5 -102.5 -42.5 -97.5 -37.5 {name=IN1 dir=in}
+B 5 -102.5 37.5 -97.5 42.5 {name=IN2 dir=in}
+P 4 4 -80 80 -80 -80 80 -0 -80 80 {}
+T {@symname} -64 -6 0 0 0.3 0.3 {}
+T {@name} 85 -22 0 0 0.2 0.2 {}
+T {IN1} -75 -44 0 0 0.2 0.2 {}
+T {OUT} 65 -4 0 1 0.2 0.2 {}
+T {IN2} -75 36 0 0 0.2 0.2 {}
+T {Ensure port order matches the
+order in the verilog-A file.} -30 -70 0 0 0.1 0.1 {hide=instance}
