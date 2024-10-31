@@ -4303,13 +4303,9 @@ const char *translate2(Lcc *lcc, int level, char* s)
     }
     else escape = 0;
     space = SPACE(c);
-    if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN;
+    if( state==TOK_BEGIN && (c=='@' || c=='%' ) ) state=TOK_TOKEN;
     else if(state==TOK_TOKEN && token_pos > 1 &&
-       (
-         ( (space  || c == '%' || c == '@') && !escape ) ||
-         ( (!space && c != '%' && c != '@') && escape  )
-       )   
-      ) state = TOK_SEP;
+       ( ( (space || c == '%' || c == '@') ) || escape) ) state = TOK_SEP;
     STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
     if (state == TOK_TOKEN) token[token_pos++] = (char)c;

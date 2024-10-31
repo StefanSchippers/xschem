@@ -404,7 +404,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
   int npoints;
   int rawvars = raw->nvars;
 
-  if(!raw) {
+  if(!raw || !raw->npoints) {
     dbg(0, "read_binary_block() no raw struct allocated\n");
     return;
   }
