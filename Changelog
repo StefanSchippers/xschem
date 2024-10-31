@@ -1,16 +1,36 @@
 3.4.6:
+
+- When importing svg images with a svg->png filter (like rsvg-convert) keep source
+  svg data in the image_data attribute instead of the rasterized data.
+  This will make these images scalable and schematics will be smaller (if using
+  small vector SVGs) when inserting a svg image automatically set the filter attribute
+  to rasterize svg to png (if tcl variable svg_to_png is set in xschemrc),
+  "rsvg-convert" or "inkscape" or imagemagick "convert" can be used. see template
+  xschemrc in src/
+- Add ic.sym for setting initial condition on nets
+- Add current annotators in cccs and vccs symbols
+- Fix crash if multiple raw files are loaded and last one fails loading due to
+  corrupt raw file
+- Added operator "cph()" to transform discontinuous phase ph(xxx) in AC analyses to
+  continuous phase, like ngspice cph() function.
+  Usage: instead of ph(out) use "ph(out) cph()"
+- Add "Properties" menu for "Change selected object insertion order" (Shift-S)
+- Avoid triggering tclcommand -> launcher() when dragging mouse with ctrl key
+- switch_ngspice.sym: add "device_model" attribute in template string, so a
+  template model is given when placing the symbol
+  around objects with such attribute
 - svgdraw and psprint: draw text after images as done in screen draw. Correct postscript / pdf
   image zoom factor to match scaling with other xschem elements.
-- do not reset xctx->netlist_name after doing `Netlist` from gui (xschem netlist -erc)
+- Do not reset xctx->netlist_name after doing `Netlist` from gui (xschem netlist -erc)
 - process tcleval(....) (if present) in symbol `name` argument
-- let symbol name entry box in component edit property dialog box expand in X direction
+- Let symbol name entry box in component edit property dialog box expand in X direction
   if dialog box is enlarged
-- replace "UNDEF" with "-" in backannotated nodes that have no value in raw file.
-- draw node names in graphs even if specified file / analysis (graph rawfile or sim_type
+- Replace "UNDEF" with "-" in backannotated nodes that have no value in raw file.
+- Draw node names in graphs even if specified file / analysis (graph rawfile or sim_type
   attributes) is not loaded
-- if autoload is set in graph and a filename is given (rawfile graph attr) load raw file immediately
+- If autoload is set in graph and a filename is given (rawfile graph attr) load raw file immediately
    when drawing graph. Don`t wait for user to load an intiial raw file to trigger auto loading
-- double clicking in the center of a graph will now bring up the graph edit attributes
+- Double clicking in the center of a graph will now bring up the graph edit attributes
   dialog box even if no raw file is loaded
 - Graphs will autoload (if autoload checked) raw data even if no raw file is specified in
   graph dialog box (use current loaded raw file, usually with a different analysis)
