@@ -873,31 +873,39 @@ void check_unique_names(int rename)
 
 static int is_quoted(const char *s)
 {
+  size_t len = strlen(s);
+
+  if(s[0] == '"' && s[len - 1] == '"') return 1;
+  return 0;
+}
+
+int xis_quoted(const char *s)
+{
   int c, escape = 0;
   int openquote = 0;
   int closequote = 0;
 
   while( (c = *s++) ) {
-
+    escape = 0;
     if(c == '\\' && !escape) {
       escape = 1;
       c = *s++;
-    } else escape = 0;
-
+    }
     if(c == '"' && !escape && !openquote ) {
       openquote = 1;
-      continue;
     }
     else if(c == '"' && !escape && openquote && !closequote) {
       closequote = 1;
-      continue;
     }
     else if(c == '"' && !escape ) {
       return 0;
     }
-
-    if(!isspace(c) && !openquote) return 0;
-    if(!isspace(c) && openquote && closequote) return 0;
+    else if(!isspace(c) && !openquote) {
+      return 0;
+    }
+    else if(!isspace(c) && openquote && closequote) {
+      return 0;
+    }
   }
   if(openquote && closequote) return 1;
   return 0;
