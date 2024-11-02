@@ -2143,8 +2143,50 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
+int change_sch_path(int instnumber, int dr)
+{
+  int level = xctx->currsch - 1;
+  char *instname = NULL;
+  char *expanded_instname = NULL;
+  int inst_mult;
+  char *path = NULL;
+  char *ptr;
+  size_t pathlen;
+  int res = 0;
+  if(level <= 0 ) return 0;
+  my_strdup2(_ALLOC_ID_, &instname, get_tok_value(xctx->hier_attr[level].prop_ptr, "name", 0));
+  my_strdup2(_ALLOC_ID_, &expanded_instname, expandlabel(instname, &inst_mult));
+  my_strdup2(_ALLOC_ID_, &path, xctx->sch_path[xctx->currsch]);
+  if(instnumber < 0 ) instnumber += inst_mult+1;
+  /* any invalid number->descend to leftmost inst */
+  if(instnumber <1 || instnumber > inst_mult) instnumber = 1;
+  pathlen = strlen(path);
+  if(pathlen == 0) goto end;
+  path[pathlen - 1] = '\0';
+  ptr = strrchr(path, '.');
+  if(!ptr) goto end;
+  *(ptr+1) = '\0';
+  my_free(_ALLOC_ID_, &xctx->sch_path[xctx->currsch]);
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], path);
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], find_nth(expanded_instname, ",", "", 0, instnumber));
+  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
+  xctx->sch_path_hash[xctx->currsch] = 0;
+  xctx->sch_inst_number[level] = instnumber;
+  dbg(0, "instname=%s, path=%s\n", instname, path);
+  path[pathlen - 1] = '.';
+  res = 1;
+  if(dr && has_x) {
+    draw();
+  }
+  end:
+  my_free(_ALLOC_ID_, &instname);
+  my_free(_ALLOC_ID_, &path);
+  my_free(_ALLOC_ID_, &expanded_instname);
+  return res;
+}
+
 /* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic */
-int descend_schematic(int instnumber, int fallback, int alert)
+int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 {
  char *str = NULL;
  char filename[PATH_MAX];
@@ -2297,7 +2339,7 @@ int descend_schematic(int instnumber, int fallback, int alert)
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   load_schematic(1, filename, 1, alert);
+   load_schematic(1, filename, set_title, alert);
    if(xctx->hilight_nets) {
      prepare_netlist_structs(0);
      propagate_hilights(1, 0, XINSERT_NOREPLACE);
@@ -2317,7 +2359,7 @@ int descend_schematic(int instnumber, int fallback, int alert)
  return 1;
 }
 
-void go_back(int confirm) /*  20171006 add confirm */
+void go_back(int confirm, int set_title) /*  20171006 add confirm */
 {
  int save_ok;
  int from_embedded_sym;
@@ -2363,7 +2405,7 @@ void go_back(int confirm) /*  20171006 add confirm */
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-  load_schematic(1, filename, 1, 1);
+  load_schematic(1, filename, set_title, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */

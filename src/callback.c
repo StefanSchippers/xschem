@@ -1727,13 +1727,13 @@ static void context_menu_action(double mx, double my)
       edit_property(1);
       break;
     case 12:
-      descend_schematic(0, 1, 1);
+      descend_schematic(0, 1, 1, 1);
       break;
     case 13:
       descend_symbol();
       break;
     case 14:
-      go_back(1);
+      go_back(1, 1);
       break;
     case 15: /* copy selection into clipboard */
       rebuild_selected_array();
@@ -2791,7 +2791,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='e' && rstate == 0)           /* descend to schematic */
    {
     if(xctx->semaphore >= 2) break;
-    descend_schematic(0, 1, 1);break;
+    descend_schematic(0, 1, 1, 1);break;
    }
    if(key=='e' && EQUAL_MODMASK)            /* edit schematic in new window */
    {
@@ -2834,7 +2834,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
    {
     if(xctx->semaphore >= 2) break;
-    go_back(1);break;
+    go_back(1, 1);break;
    }
 
    if(key=='a' && rstate == 0)   /* make symbol */

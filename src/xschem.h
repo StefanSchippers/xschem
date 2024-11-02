@@ -1520,8 +1520,9 @@ extern void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallbac
 extern const char *get_sym_name(int inst, int ndir, int ext, int abs_path);
 extern void toggle_ignore(void);
 extern void get_additional_symbols(int what);
-extern int descend_schematic(int instnumber, int fallback, int alert);
-extern void go_back(int confirm);
+extern int change_sch_path(int instnumber, int dr);
+extern int descend_schematic(int instnumber, int fallback, int alert, int set_title);
+extern void go_back(int confirm, int set_title);
 extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);
 extern void view_zoom(double z);

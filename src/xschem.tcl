@@ -3574,8 +3574,13 @@ proc setglob {dir} {
         if {$OS == "Windows"} {
           regsub {:} $file_dialog_globfilter {\:} file_dialog_globfilter
         }
-        set file_dialog_files2 ${file_dialog_files2}\ [lsort [
-           glob -nocomplain -directory $dir -tails -type {f} $file_dialog_globfilter]]
+
+        if {![catch {glob -nocomplain -directory $dir -tails -type {f} $file_dialog_globfilter} res]} {
+          set flist $res
+        } else {
+          set flist [glob -nocomplain -directory $dir -tails -type {f} {*}]
+        }
+        set file_dialog_files2 ${file_dialog_files2}\ [lsort $flist]
       }
 }
 

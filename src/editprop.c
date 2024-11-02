@@ -703,10 +703,10 @@ void *my_malloc(int id, size_t size)
 void my_realloc(int id, void *ptr,size_t size)
 {
  void *a;
- char old[100];
+ char old[100] = "";
  void *tmp;
  a = *(void **)ptr;
- my_snprintf(old, S(old), "%p", a);
+ if(debug_var > 2) my_snprintf(old, S(old), "%p", a);
  if(size == 0) {
    free(*(void **)ptr);
    dbg(3, "\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr);

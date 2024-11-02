@@ -454,6 +454,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* change_sch_path n <draw>
+     *   if descended into a vector instance change inst number we are into to 'n',
+     *   (same rules as 'descend' command) without going up and descending again
+     *   if 'draw' string is given redraw screen */
+    else if(!strcmp(argv[1], "change_sch_path"))
+    {
+      int dr = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 3 && !strcmp(argv[3], "draw")) dr = 1;
+      if(argc > 2) {
+        int n = atoi(argv[2]);
+        change_sch_path(n, dr);
+      }
+    }
+
     /* check_symbols
      *   List all used symbols in current schematic and warn if some symbol is newer */
     else if(!strcmp(argv[1], "check_symbols"))
@@ -763,19 +778,27 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       delete_files();
     }
 
-    /* descend [n]
+    /* descend [n] [notitle]
      *   Descend into selected component instance. Optional number 'n' specifies the 
-     *   instance number to descend into for vector instances (default: 0). */
+     *   instance number to descend into for vector instances (default: 0).
+     *   0 or 1: leftmost instance, 2: second leftmost instance, ...
+     *  -1: rightmost instance,-2: second rightmost instance, ...
+     *  if string 'notitle' is given do not update window title (slow) */
     else if(!strcmp(argv[1], "descend"))
     {
       int ret=0;
+      int set_title = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(xctx->semaphore == 0) {
+         
+        if(argc > 3 && !strcmp(argv[3], "notitle")) {
+          set_title = 0;
+        }
         if(argc > 2) {
           int n = atoi(argv[2]);
-          ret = descend_schematic(n, 0, 0);
+          ret = descend_schematic(n, 0, 0, set_title);
         } else {
-          ret = descend_schematic(0, 0, 0);
+          ret = descend_schematic(0, 0, 0, set_title);
         }
       }
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);
@@ -2019,12 +2042,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #endif
     }
 
-    /* go_back
-     *   Go up one level (pop) in hierarchy */
+    /* go_back [notitle]
+     *   Go up one level (pop) in hierarchy
+     *   if string 'notitle' is given do not update window title (slow) */
     else if(!strcmp(argv[1], "go_back"))
     {
+      int set_title = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if((xctx->semaphore == 0)) go_back(1);
+      if(argc > 2 && !strcmp(argv[2], "notitle")) {
+        set_title = 0;
+      }
+      if((xctx->semaphore == 0)) go_back(1, set_title);
       Tcl_ResetResult(interp);
     }
 
@@ -5765,8 +5793,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'u': /*----------------------------------------------*/
-    /* undo
-         Undo last action */
+    /* undo  [redo [set_modify]
+         Undo last action. Optional integers redo and set_modify are passed to pop_undo() */
     if(!strcmp(argv[1], "undo"))
     {
       int redo = 0, set_modify = 1;
