@@ -2143,6 +2143,9 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
+/* When descended into an i-th instance of a vector instance this function allows 
+ * to change the path to the j-hj instance. the instnumber parameters follows the same rules
+ * as descend_schematic() */
 int change_sch_path(int instnumber, int dr)
 {
   int level = xctx->currsch - 1;
