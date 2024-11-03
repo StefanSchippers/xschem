@@ -73,7 +73,7 @@ proc hier_traversal {fd {level 0} only_subckts} {
       set ninst [lindex [split [xschem expandlabel $instname] { }] 1]
       for {set n 1} {$n <= $ninst} { incr n} {
         # set dp 0
-        xschem select instance $i
+        xschem select instance $i fast
         # descending ninst times is extremely inefficient
         set descended [xschem descend $n notitle]
         # ensure previous descend was successful

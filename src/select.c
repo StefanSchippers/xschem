@@ -976,14 +976,16 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   }
   xctx->inst[i].sel = select_mode;
   if(select_mode == SELECTED) set_first_sel(ELEMENT, i, 0);
-  if(select_mode) {
-    for(c=0;c<cadlayers; ++c) {
-      draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);
-    }
-  } else {
-    symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2 );
-    for(c=0;c<cadlayers; ++c) {
-      draw_temp_symbol(NOW, xctx->gctiled, i,c,0,0,0.0,0.0);
+  if(!fast) {
+    if(select_mode) {
+      for(c=0;c<cadlayers; ++c) {
+        draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);
+      }
+    } else {
+      symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2 );
+      for(c=0;c<cadlayers; ++c) {
+        draw_temp_symbol(NOW, xctx->gctiled, i,c,0,0,0.0,0.0);
+      }
     }
   }
   xctx->need_reb_sel_arr=1;
