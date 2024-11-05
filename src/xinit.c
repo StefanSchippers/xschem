@@ -2382,15 +2382,15 @@ int Tcl_AppInit(Tcl_Interp *inter)
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
    /*1*/  "xschem_library",
    /*2*/  "xschem_library/devices", 
-   /*3*/  "xschem_library/examples", 
-   /*4*/  "xschem_library/ngspice", 
-   /*5*/  "xschem_library/logic", 
-   /*6*/  "xschem_library/xschem_simulator",
-   /*7*/  "xschem_library/generators", 
-   /*8*/  "xschem_library/inst_sch_select", 
-   /*9*/  "xschem_library/binto7seg", 
-   /*10*/ "xschem_library/pcb", 
-   /*11*/ "xschem_library/rom8k" };
+   /*3*/  "examples",  /* See i==2 with WIN_XSCHEM_LIBRARY_PATH_NUM below */
+   /*4*/  "ngspice", 
+   /*5*/  "logic", 
+   /*6*/  "xschem_simulator",
+   /*7*/  "generators", 
+   /*8*/  "inst_sch_select", 
+   /*9*/  "binto7seg", 
+   /*10*/ "pcb", 
+   /*11*/ "rom8k" };
  GetModuleFileNameA(NULL, install_dir, MAX_PATH);
  change_to_unix_fn(install_dir);
  size_t dir_len=strlen(install_dir);
@@ -2405,9 +2405,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
    running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
    my_strdup(_ALLOC_ID_, &up_hier, "../../..");
  }
- else my_strdup(_ALLOC_ID_, &up_hier, "..");
+ else my_strdup(_ALLOC_ID_, &up_hier, "../share/xschem");
  /* my_strcat(_ALLOC_ID_, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
+   if (running_in_src_dir==0 && i==2)
+   {
+     my_free(_ALLOC_ID_, &up_hier);
+     my_strdup(_ALLOC_ID_, &up_hier, "../share/doc/xschem");    
+   }
    my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
    if (i > 0) my_strcat(_ALLOC_ID_, &win_xschem_library_path, "\;"); 
    my_strcat(_ALLOC_ID_, &win_xschem_library_path, tmp);
@@ -2431,7 +2436,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      my_snprintf(tmp, S(tmp), "%s/../../../src", install_dir);
    }
    else {
-     my_snprintf(tmp, S(tmp), "%s/../share", install_dir);
+     my_snprintf(tmp, S(tmp), "%s/../share/xschem", install_dir);
    }
    tclsetvar("XSCHEM_SHAREDIR", tmp);
  }

@@ -63,17 +63,23 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/gschem_import/sym
 
 #### For Windows, use ; instead of :, and enclosed pathname with ""
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/ngspice"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/generators"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/inst_sch_select"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/xschem_library"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/xschem_library/devices"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/examples"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/ngspice"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/logic"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xschem_simulator"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/generators"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/inst_sch_select"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/binto7seg"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/pcb"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/rom8k"
+#### Optional, often not needed...
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/symgen"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xTAG"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/rulz-r8c33"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/gschem_import"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/gschem_import/sym"
 
 ###########################################################################
 #### SET CUSTOM COLORS FOR XSCHEM LIBRARIES MATCHING CERTAIN PATTERNS

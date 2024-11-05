@@ -63,17 +63,23 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/gschem_import/sym
 
 #### For Windows, use ; instead of :, and enclosed pathname with ""
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/devices"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/examples"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/ngspice"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/logic"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/xschem_simulator"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/generators"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/inst_sch_select"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/binto7seg"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/pcb"
-# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/../xschem_library/rom8k"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/xschem_library"
+# append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/xschem_library/devices"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/examples"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/ngspice"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/logic"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xschem_simulator"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/generators"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/inst_sch_select"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/binto7seg"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/pcb"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/rom8k"
+#### Optional, often not needed...
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/symgen"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xTAG"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/rulz-r8c33"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/gschem_import"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/gschem_import/sym"
 
 ###########################################################################
 #### SET CUSTOM COLORS FOR XSCHEM LIBRARIES MATCHING CERTAIN PATTERNS
@@ -200,6 +206,10 @@
 #### default: not enabled (0)
 # set unselect_partial_sel_wires 0
 
+#### if set select objects if touched by selection rectangle while dragging to the left
+#### Default: enabled (1)
+# set select_touch 0
+
 #### if set show selected elements while dragging the selection rectangle.
 #### once selected these can not be unselected by retracting the selection rectangle
 #### if not set show selected items at end of drag. Default: enabled (1)
@@ -233,6 +243,9 @@
 
 #### enable drawing the grid. Default: enabled (1)
 # set draw_grid 1
+
+#### auto highlight nodes shown in graphs: default: not enabled (0)
+# set auto_hilight_graph_nodes 0
 
 #### enable stretch mode: when dragging a selection rectangle that cuts wires these are stretched
 #### to follow the selected objects when moved. Default: not enabled (0).
@@ -302,6 +315,15 @@ set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 # set to_pdf ps2pdf
 # set to_pdf {ps2pdf -dAutoRotatePages=/None}
 
+###########################################################################
+#### IMPORT SVG IMAGES
+###########################################################################
+#### this is a filter command that processes svg files and writes png data
+#### listed in my personal order of preference.
+#### filter must read stdin and write to stdout.
+# set svg_to_png {rsvg-convert}
+# set svg_to_png {inkscape --pipe --export-type=png --export-filename=-}
+# set svg_to_png {convert - png:-}
 
 ###########################################################################
 #### UNDO: SAVE ON DISK OR KEEP IN MEMORY
@@ -340,6 +362,25 @@ set to_pdf {gswin64c -sDEVICE=pdfwrite -o}
 #   "#ff00ff" "#00ff00" "#0000cc" "#aaaa00" "#aaccaa"
 #   "#ff7777" "#bfff81" "#00ffcc" "#ce0097" "#d2d46b"
 #   "#ef6158" "#fdb200" }
+
+###########################################################################
+#### CUSTOM FILL PATTERNS  MAY BE DEFINED HERE
+###########################################################################
+#### every 0x#### hex data represents one 16 bit row of the 16x16 bit fill bitmap
+#### of the specified layer number.
+#### following examples set a checkerboard fill pattern
+#### for symbol shape drawing layer (layer 4)
+#### and for pin layer (layer 5)
+#
+# set pixdata(4) {
+#   0x8888 0x0000 0x0000 0x0000 0x2222 0x0000 0x0000 0x0000
+#   0x8888 0x0000 0x0000 0x0000 0x2222 0x0000 0x0000 0x0000
+# }
+
+# set pixdata(5) {
+#   0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa
+#   0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa 0x5555 0xaaaa
+# }
 
 ###########################################################################
 #### CAIRO STUFF
@@ -444,7 +485,32 @@ set editor {notepad.exe}
 ###########################################################################
 #### TCL COMMANDS TO BE EXECUTED AFTER COMPLETING STARTUP
 ###########################################################################
+#### some examples:
 # set postinit_commands {puts [xschem get version]}
+# set postinit_commands {
+#   .menubar.netlist configure -command {xschem netlist -erc; edit_netlist [xschem get netlist_name fallback]}
+#   .menubar.simulate configure -command {xschem netlist -erc; simulate_from_button}
+# }
+#
+#
+#### example: if a raw file already exists re-run a tran simulation.
+#### and schedule a waveform load at the end.
+# set postinit_commands {
+#   set rawfile $netlist_dir/[file rootname [xschem get current_name]].raw
+#   if {[file exists $rawfile]} {
+#     xschem netlist
+#     set sim(spice,default) 1 ;# ngspice control mode (no xterminal)
+#     set sim(spice,1,st) 0 ;# no status report
+#     set sim(spice,1,fg) 0 ;# background
+#     simulate_from_button {
+#        viewdata $execute(data,last)
+#        xschem raw read $rawfile tran
+#        xschem redraw
+#     }
+#   }
+# }
+
+
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
@@ -498,7 +564,7 @@ set editor {notepad.exe}
 #### LIVE BACKANNOTATION OF DATA AT CURSOR 2 (B) POSITION
 ###########################################################################
 #### if enabled will backannotate values in schematic at cursor 'b' position
-#### in graph. Default: not enabled (0)
+#### in graph. Default: enabled (1)
 # set live_cursor2_backannotate 1
 
 ###########################################################################

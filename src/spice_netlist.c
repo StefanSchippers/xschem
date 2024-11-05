@@ -91,7 +91,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
       get_sch_from_sym(filename, xctx->sym + i, -1, 0);
-      if (str_hash_lookup(&subckt_table, filename, "", XLOOKUP)==NULL)
+      if (str_hash_lookup(&subckt_table, subckt_name, "", XINSERT_NOREPLACE)==NULL)
       {
         const char *default_schematic;
         /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
@@ -100,27 +100,27 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         if(!strcmp(default_schematic, "ignore")) {
           continue;
         }
-        str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-
         if(is_generator(filename) || !stat(filename, &buf)) {
-          /* for printing we go down to bottom regardless of spice_stop attribute */
-          dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
-          load_schematic(1,filename, 0, 1);
-          get_additional_symbols(1);
-          zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
-          if(what & 1) ps_draw(2, 1, 0); /* page */
-          if(what & 2) { /* print cellname */
-            my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
-            my_strcat(_ALLOC_ID_, res, "  {");
-            my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
-            my_strcat(_ALLOC_ID_, res, "}\n");
+          if(str_hash_lookup(&subckt_table, get_cell_w_ext(filename, 0), "", XINSERT_NOREPLACE)==NULL) {
+            /* for printing we go down to bottom regardless of spice_stop attribute */
+            dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
+            load_schematic(1,filename, 0, 1);
+            get_additional_symbols(1);
+            zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+            if(what & 1) ps_draw(2, 1, 0); /* page */
+            if(what & 2) { /* print cellname */
+              my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
+              my_strcat(_ALLOC_ID_, res, "  {");
+              my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
+              my_strcat(_ALLOC_ID_, res, "}\n");
+            }
+            dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
           }
-          dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
         }
       }
     }
   }
-  /* can not free additional syms since *_block_netlist() may have loaded additional syms */
+  /* can not free additional syms since load_schematic() above may have loaded additional syms */
   /* get_additional_symbols(0); */
   my_free(_ALLOC_ID_, &abs_path);
   str_hash_free(&subckt_table);
@@ -702,7 +702,7 @@ int spice_block_netlist(FILE *fd, int i)
  * --------------------------------------------------------------------------
  * "whatever"    "whatever"  XINSERT     insert in hash table if not in.
  *                                      if already present update value if not NULL,
- *                                      return entry address.
+ *                                      return entry address if found and updated, else NULL.
  * "whatever"    "whatever"  XINSERT_NOREPLACE   same as XINSERT but do not replace existing value
  *                                      return NULL if not found.
  * "whatever"    "whatever"  XLOOKUP     lookup in hash table,return entry addr.

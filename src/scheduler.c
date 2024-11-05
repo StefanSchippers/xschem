@@ -783,7 +783,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   instance number to descend into for vector instances (default: 0).
      *   0 or 1: leftmost instance, 2: second leftmost instance, ...
      *  -1: rightmost instance,-2: second rightmost instance, ...
-     *  if string 'notitle' is given do not update window title (slow) */
+     *  if integer 'notitle' is given pass it to descend_schematic() */
     else if(!strcmp(argv[1], "descend"))
     {
       int ret=0;
@@ -791,8 +791,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(xctx->semaphore == 0) {
          
-        if(argc > 3 && !strcmp(argv[3], "notitle")) {
-          set_title = 0;
+        if(argc > 3 ) {
+          set_title = atoi(argv[3]);
         }
         if(argc > 2) {
           int n = atoi(argv[2]);
@@ -878,7 +878,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int i = -1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && (i = get_instance(argv[2])) < 0 ) {
-        Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
+        Tcl_SetResult(interp, "xschem drc_check: instance not found", TCL_STATIC);
         return TCL_ERROR;
       } 
       drc_check(i);
@@ -1687,6 +1687,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* get_additional_symbols what
+     *   create new symbols for instance based implementation selection */
+    else if(!strcmp(argv[1], "get_additional_symbols") )
+    {
+      if(argc > 2) {
+        get_additional_symbols(atoi(argv[2]));
+      }
+      Tcl_ResetResult(interp);
+    }
+
     /* get_cell cell n_dirs
      *   return result of get_cell function */
     else if(!strcmp(argv[1], "get_cell") )
@@ -1883,23 +1893,36 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     
-    /* get_sch_from_sym inst
-     *   get schematic associated with instance 'inst' */
+    /* get_sch_from_sym inst [symbol]
+     *   get schematic associated with instance 'inst' 
+     *   if inst==-1 and a 'symbol' name is given get sch associated with symbol */
     else if(!strcmp(argv[1], "get_sch_from_sym") )
     {
       int inst = -1;
+      int sym = -1;
       char filename[PATH_MAX];
       my_strncpy(filename,  "", S(filename));
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+
       if(argc > 2) {
-        if((inst = get_instance(argv[2])) < 0 ) {
-          Tcl_SetResult(interp, "xschem get_sch_from_sym: instance not found", TCL_STATIC);
-          return TCL_ERROR;
-        } else {
-          if( xctx->inst[inst].ptr >= 0 ) {
-            get_sch_from_sym(filename, xctx->inst[inst].ptr+ xctx->sym, inst, 0);
+        if(argc > 3 && atoi(argv[2]) == -1) {
+          sym = get_symbol(argv[3]);
+          if(sym < 0) {
+            Tcl_SetResult(interp, "xschem get_sch_from_sym: symbol not found", TCL_STATIC);
+            return TCL_ERROR;
           }
         }
+        else {
+          inst = get_instance(argv[2]);
+          if(inst < 0) {
+            Tcl_SetResult(interp, "xschem get_sch_from_sym: instance not found", TCL_STATIC);
+            return TCL_ERROR;
+          }
+        }
+        if( xctx->inst[inst].ptr >= 0  && sym == -1) {
+          sym = xctx->inst[inst].ptr;
+        }
+        if(sym >= 0) get_sch_from_sym(filename, sym + xctx->sym, inst, 0);
       }
       Tcl_SetResult(interp, filename, TCL_VOLATILE);
     }
@@ -2611,7 +2634,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* is_symgen symbol
-     *   tell if 'symbol' is agenerator (symbol(param1,param2,...) */
+     *   tell if 'symbol' is a generator (symbol(param1,param2,...) */
     else if(!strcmp(argv[1], "is_symgen"))
     {       
       char s[30];
@@ -5092,6 +5115,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * setprop symbol name tok [val]
      *   Set attribute 'tok' of symbol name 'name' to 'val'
      *   If 'val' not given (no attribute value) delete attribute from symbol
+     *   This command is not very useful since changes are not saved into symbol
+     *   and netlisters reload symbols, so changes are lost anyway.
      *
      * setprop rect lay n tok [val] [fast|fastundo]
      *   Set attribute 'tok' of rectangle number'n' on layer 'lay'

@@ -84,17 +84,16 @@ INSTRUCTIONS TO COMPILE XSCHEM IN VISUAL STUDIO 2022
           Outputs: expandlabel.c
 
 3. Compiling
-
     - config.h can be edited to change default's XSCHEM_LIBRARY_PATH.
       It's defaulted to include the following directories:
-        C:/Program Files/XSchem/xschem_library/devices
-        C:/Program Files/XSchem/xschem_library/examples
-        C:/Program Files/XSchem/xschem_library/ngspice
-        C:/Program Files/XSchem/xschem_library/logic
-        C:/Program Files/XSchem/xschem_library/binto7seg
-        C:/Program Files/XSchem/xschem_library/generators
-        C:/Program Files/XSchem/xschem_library/pcb
-        C:/Program Files/XSchem/xschem_library/rom8k
+        C:/Program Files/XSchem/share/xschem/xschem_library/devices
+        C:/Program Files/XSchem/share/doc/examples
+        C:/Program Files/XSchem/share/doc/ngspice
+        C:/Program Files/XSchem/share/doc/logic
+        C:/Program Files/XSchem/share/doc/binto7seg
+        C:/Program Files/XSchem/share/doc/generators
+        C:/Program Files/XSchem/share/doc/pcb
+        C:/Program Files/XSchem/share/doc/rom8k
 
      Ctrl-b
      - After compiling the first time, add expandlabel.c, expandlabel.h, parselabel.c into the project.

@@ -53,6 +53,8 @@ function replace_pattern(old, new)
   replace_pattern("draw_string()[:(:][:):]:.*$", "draw_string(): ***Removed***")
   replace_pattern("find_best_color.*$", "find_best_color ***Removed***")
   replace_pattern("trim_wires.*$", "trim_wires ***Removed***")
+  replace_pattern("symbol_bbox.*$", "symbol_bbox ***Removed***")
+  replace_pattern("symbol bbox.*$", "symbol bbox ***Removed***")
   __a[__lines++] = $0
 }
 

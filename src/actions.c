@@ -1953,6 +1953,8 @@ void get_additional_symbols(int what)
       char *sch = NULL;
       char symbol_base_sch[PATH_MAX] = "";
       
+      const char *sch_ptr = 
+      if(xctx->inst[i].ptr < 0) continue;
       /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
@@ -1961,12 +1963,13 @@ void get_additional_symbols(int what)
          str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
            get_cell(xctx->inst[i].name, 0), '\\')));
       dbg(1, "get_additional_symbols(): inst=%d sch=%s\n",i,  sch);
-      if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {/* schematic does not exist */
+      /* schematic does not exist */
+      if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {
         my_snprintf(symbol_base_sch, PATH_MAX, "%s.sch", get_cell(xctx->sym[xctx->inst[i].ptr].name, 9999));
         dbg(1, "get_additional_symbols(): schematic not existing\n");
         dbg(1, "using: %s\n", symbol_base_sch);
       }
-      if(xctx->tok_size && xctx->inst[i].ptr>= 0) { /* token exists and instance points to valid symbol */
+      if(xctx->tok_size && sch[0]) { /* "schematic" token exists  and a schematic is specified */
         int j;
         char *sym = NULL;
         char *templ = NULL;
@@ -1976,7 +1979,8 @@ void get_additional_symbols(int what)
         my_strdup2(_ALLOC_ID_, &default_schematic, get_tok_value(symptr->prop_ptr,"default_schematic",0));
         ignore_schematic = !strcmp(default_schematic, "ignore");
 
-        dbg(1, "get_additional_symbols(): inst=%d, sch=%s\n", i, sch);
+        dbg(1, "get_additional_symbols(): inst=%d, sch=%s instname=%s\n", i, sch, xctx->inst[i].instname);
+        dbg(1, "get_additional_symbols(): current_name=%s\n", xctx->current_name);
 
         is_gen = is_generator(sch);
 
@@ -2039,12 +2043,12 @@ void get_additional_symbols(int what)
         }
         my_free(_ALLOC_ID_, &sym);
         my_free(_ALLOC_ID_, &default_schematic);
-      }
+      } /* if(xctx->tok_size && sch[0]) */
       my_free(_ALLOC_ID_, &sch);
       my_free(_ALLOC_ID_, &spice_sym_def);
       my_free(_ALLOC_ID_, &vhdl_sym_def);
       my_free(_ALLOC_ID_, &verilog_sym_def);
-    }
+    } /* for(i=0;i<xctx->instances; ++i) */
     int_hash_free(&sym_table);
   } else { /* end */
     for(i = xctx->symbols - 1; i >= num_syms; --i) {
@@ -2144,7 +2148,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 }
 
 /* When descended into an i-th instance of a vector instance this function allows 
- * to change the path to the j-hj instance. the instnumber parameters follows the same rules
+ * to change the path to the j-th instance. the instnumber parameters follows the same rules
  * as descend_schematic() */
 int change_sch_path(int instnumber, int dr)
 {
@@ -2175,7 +2179,7 @@ int change_sch_path(int instnumber, int dr)
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
   xctx->sch_path_hash[xctx->currsch] = 0;
   xctx->sch_inst_number[level] = instnumber;
-  dbg(0, "instname=%s, path=%s\n", instname, path);
+  dbg(1, "instname=%s, path=%s\n", instname, path);
   path[pathlen - 1] = '.';
   res = 1;
   if(dr && has_x) {
@@ -2188,7 +2192,14 @@ int change_sch_path(int instnumber, int dr)
   return res;
 }
 
-/* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic */
+/* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic
+ * instnumber: instance to descend into in case of vector instances (1 = leftmost, -1=rightmost)
+ * if set_title == 0 do not set window title (faster)
+ *              == 1 do set_title
+ *              == 2 do not process instance pins/nets
+ *              == 4 do not descend into i-th instance of vecrtor instance. just 
+ *                 concatenate instance name as is to path and descend.
+ *              above flags can be ORed together */
 int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 {
  char *str = NULL;
@@ -2247,7 +2258,13 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
  
    if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
-     my_strdup2(_ALLOC_ID_, &str, expandlabel(xctx->inst[n].instname, &inst_mult));
+     if(set_title & 4)  {
+       my_strdup2(_ALLOC_ID_, &str, xctx->inst[n].instname);
+       inst_mult = 1;
+       instnumber = 1;
+     } else {
+       my_strdup2(_ALLOC_ID_, &str, expandlabel(xctx->inst[n].instname, &inst_mult));
+     }
    } else {
      my_strdup2(_ALLOC_ID_, &str, "");
      inst_mult = 1;
@@ -2283,7 +2300,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
    str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
 
-   for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
+   if(set_title & 2) for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
      const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
      char *pin_node = NULL, *net_node = NULL;
      int k, mult, net_mult;
@@ -2342,7 +2359,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   load_schematic(1, filename, set_title, alert);
+   load_schematic(1, filename, (set_title & 1), alert);
    if(xctx->hilight_nets) {
      prepare_netlist_structs(0);
      propagate_hilights(1, 0, XINSERT_NOREPLACE);
@@ -2408,7 +2425,7 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-  load_schematic(1, filename, set_title, 1);
+  load_schematic(1, filename, (set_title & 1), 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */
