@@ -1953,7 +1953,6 @@ void get_additional_symbols(int what)
       char *sch = NULL;
       char symbol_base_sch[PATH_MAX] = "";
       
-      const char *sch_ptr = 
       if(xctx->inst[i].ptr < 0) continue;
       /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
