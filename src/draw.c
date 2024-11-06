@@ -2815,7 +2815,8 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   if(!gr->digital) {
     deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, gr->logy);
     starty = axis_start(gr->gy1, deltay, gr->divy);
-    for(j = -1;; ++j) { /* start one interval before to allow sub grids at beginning */
+    /* start one interval before to allow sub grids at beginning */
+    for(j = -1; gr->gy1 == gr->gy1 && gr->gy2 == gr->gy2; ++j) { /* gy1 and gy2 are not NaN */
       wy = starty + j * deltay;
       if(gr->subdivy > 0) for(k = 1; k <=gr->subdivy; ++k) {
         double subwy;
