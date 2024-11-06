@@ -1,407 +1,407 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.5" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.6" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-    <WixVariable Id="WixUILicenseRtf" 
-                 Value="License.rtf" />
-    <!-- 
+		<WixVariable Id="WixUILicenseRtf"
+					 Value="License.rtf" />
+		<!-- 
     <WixVariable Id="WixUIDialogBmp" Value="xschem_logo.bmp" /> 
     -->
-    <Icon Id="xschem_icon.ico" SourceFile="xschem_icon.ico"/>
-    <Property Id="ARPPRODUCTICON" Value="xschem_icon.ico" />
-    <UIRef Id="WixUI_InstallDir" />
-		
-    <Media Id="1" Cabinet="xschemMedia1.cab" EmbedCab="yes" />
-    
-    <Condition Message="A newer version of [ProductName] is 
+		<Icon Id="xschem_icon.ico" SourceFile="xschem_icon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="xschem_icon.ico" />
+		<UIRef Id="WixUI_InstallDir" />
+
+		<Media Id="1" Cabinet="xschemMedia1.cab" EmbedCab="yes" />
+
+		<Condition Message="A newer version of [ProductName] is 
        already installed.  Exiting installation.">
-       <![CDATA[Installed OR NOT NEWER_VERSION_FOUND]]>
-    </Condition>
-    
-    <Upgrade Id="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
-      <UpgradeVersion
-         Property="OLD_VERSION_FOUND"
-         Minimum="2.9.0"
-         Maximum="3.0.0"
-         IncludeMinimum="yes"
-         IncludeMaximum="no"
-         OnlyDetect="no"
-         IgnoreRemoveFailure="yes"
-         MigrateFeatures="yes"  />
-      <UpgradeVersion
-        Property="NEWER_VERSION_FOUND"
-        Minimum="3.0.0"
-        IncludeMinimum="no"
-        OnlyDetect="yes" />
-    </Upgrade>
-    
+			<![CDATA[Installed OR NOT NEWER_VERSION_FOUND]]>
+		</Condition>
+
+		<Upgrade Id="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+			<UpgradeVersion
+			   Property="OLD_VERSION_FOUND"
+			   Minimum="2.9.0"
+			   Maximum="3.0.0"
+			   IncludeMinimum="yes"
+			   IncludeMaximum="no"
+			   OnlyDetect="no"
+			   IgnoreRemoveFailure="yes"
+			   MigrateFeatures="yes"  />
+			<UpgradeVersion
+			  Property="NEWER_VERSION_FOUND"
+			  Minimum="3.0.0"
+			  IncludeMinimum="no"
+			  OnlyDetect="yes" />
+		</Upgrade>
+
 		<Feature Id="MainProduct" Title="Xschem" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
-      <ComponentGroupRef Id="src" />
-      <ComponentGroupRef Id="share" />
-      <ComponentGroupRef Id="doc" />
-      <ComponentGroupRef Id="xschem_library" />
-      <ComponentRef Id="CMP_ApplicationShortcut" />
+			<ComponentGroupRef Id="src" />
+			<ComponentGroupRef Id="share" />
+			<ComponentGroupRef Id="doc" />
+			<ComponentGroupRef Id="xschem_library" />
+			<ComponentRef Id="CMP_ApplicationShortcut" />
 		</Feature>
-  
-  <Directory Id="TARGETDIR" Name="SourceDir">
-		  <Directory Id="ProgramFiles64Folder">
+
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder">
 				<Directory Id="INSTALLFOLDER" Name="Xschem">
-          <Directory Id="BINFOLDER" Name="bin" />
-          <Directory Id="DOCFOLDER" Name="doc" />
-          <Directory Id="SHAREFOLDER" Name="share" />
-        </Directory>
+					<Directory Id="BINFOLDER" Name="bin" />
+					<Directory Id="DOCFOLDER" Name="doc" />
+					<Directory Id="SHAREFOLDER" Name="share" />
+				</Directory>
 			</Directory>
 
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="ApplicationProgramsFolder" Name="Xschem"/>
-      </Directory>
-      
+			<Directory Id="ProgramMenuFolder">
+				<Directory Id="ApplicationProgramsFolder" Name="Xschem"/>
+			</Directory>
+
 		</Directory>
-  <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-      
-  <DirectoryRef Id="ApplicationProgramsFolder">
-    <Component Id="CMP_ApplicationShortcut" Guid="3f598b68-fa90-4e61-8c84-ad7401175fcf">
-      <Shortcut Id="ApplicationStartMenuShortcut"
-                Name="Xschem"
-                Description="A schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit simulation."
-                Target="[BINFOLDER]/Xschem.exe"
-                WorkingDirectory="PersonalFolder"
-                Icon="xschem_icon.ico"/>    
-      <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
-      <Shortcut Id="DocumentationStartMenuShortcut"
-                Name="Xschem Documentation"
-                Description="Helpful Xschem Documentation"
-                Target="[SHAREFOLDER]/doc/xschem/xschem_man/xschem_manual.pdf" />
-      <RegistryValue Root="HKCU" Key="Software\CoralEDA\Xschem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
-    </Component>
-  </DirectoryRef>
-  <ComponentGroup Id="ProductComponents" Directory="BINFOLDER">
-    <Component Id="ProductComponent">
-      <File Id='XschemEXE' Name='Xschem.exe' Source="$(var.XSchemWin.TargetPath)" />
-        
-        <ProgId Id='Xschem.schfile' Description='Xschem schematic data file'>
-          <Extension Id='sch' ContentType='application/sch'>
-            <Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
-          </Extension>
-        </ProgId>
-        
-        <ProgId Id='Xschem.symfile' Description='Xschem symbol data file'>
-          <Extension Id='sym' ContentType='application/sym'>
-            <Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
-          </Extension>
-        </ProgId>
-      </Component>      
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+		<DirectoryRef Id="ApplicationProgramsFolder">
+			<Component Id="CMP_ApplicationShortcut" Guid="3f598b68-fa90-4e61-8c84-ad7401175fcf">
+				<Shortcut Id="ApplicationStartMenuShortcut"
+						  Name="Xschem"
+						  Description="A schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit simulation."
+						  Target="[BINFOLDER]/Xschem.exe"
+						  WorkingDirectory="PersonalFolder"
+						  Icon="xschem_icon.ico"/>
+				<RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+				<Shortcut Id="DocumentationStartMenuShortcut"
+						  Name="Xschem Documentation"
+						  Description="Helpful Xschem Documentation"
+						  Target="[SHAREFOLDER]/doc/xschem/xschem_man/xschem_manual.pdf" />
+				<RegistryValue Root="HKCU" Key="Software\CoralEDA\Xschem" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+			</Component>
+		</DirectoryRef>
+		<ComponentGroup Id="ProductComponents" Directory="BINFOLDER">
+			<Component Id="ProductComponent">
+				<File Id='XschemEXE' Name='Xschem.exe' Source="$(var.XSchemWin.TargetPath)" />
+
+				<ProgId Id='Xschem.schfile' Description='Xschem schematic data file'>
+					<Extension Id='sch' ContentType='application/sch'>
+						<Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
+					</Extension>
+				</ProgId>
+
+				<ProgId Id='Xschem.symfile' Description='Xschem symbol data file'>
+					<Extension Id='sym' ContentType='application/sym'>
+						<Verb Id='open' Command='Open' TargetFile='XschemEXE' Argument='"%1"' />
+					</Extension>
+				</ProgId>
+			</Component>
 		</ComponentGroup>
-    <Property Id='ACTIVE_TCL_VERSION'>
-      <RegistrySearch Id='ActiveTCL_version'
-                      Root='HKLM'
-                      Key='SOFTWARE\WOW6432Node\ActiveState\ActiveTcl'
-                      Name='CurrentVersion'
-                      Type='raw' />
-    </Property>
-    <Condition Message='ActiveTcl v8.6 must be installed'>
-      <![CDATA[Installed or ACTIVE_TCL_VERSION >= "8.6"]]>
-    </Condition>
-    
-  <InstallExecuteSequence>
-      <RemoveExistingProducts After="InstallFinalize" />
-    </InstallExecuteSequence>
+		<Property Id='ACTIVE_TCL_VERSION'>
+			<RegistrySearch Id='ActiveTCL_version'
+							Root='HKLM'
+							Key='SOFTWARE\WOW6432Node\ActiveState\ActiveTcl'
+							Name='CurrentVersion'
+							Type='raw' />
+		</Property>
+		<Condition Message='ActiveTcl v8.6 must be installed'>
+			<![CDATA[Installed or ACTIVE_TCL_VERSION >= "8.6"]]>
+		</Condition>
+
+		<InstallExecuteSequence>
+			<RemoveExistingProducts After="InstallFinalize" />
+		</InstallExecuteSequence>
 	</Product>
 
-  <Fragment>
-    <DirectoryRef Id="SHAREFOLDER">
-		<Directory Id="sharexschemFA1F463296CEB32195C7A4F214DF" Name="xschem">
-			<Component Id="CMPBREAKAWK">
-				<File Id="BREAKAWK" KeyPath="yes" Source="../../src/break.awk" />
-			</Component>
-			<Component Id="CMPCHANGEINDEXTCL">
-				<File Id="CHANGEINDEXTCL" KeyPath="yes" Source="../../src/change_index.tcl" />
-			</Component>
-			<Component Id="CMPEXPAWK">
-				<File Id="EXPAWK" KeyPath="yes" Source="../../src/convert_to_verilog2001.awk" />
-			</Component>
-			<Component Id="CMPFLATTENAWK">
-				<File Id="FLATTENAWK" KeyPath="yes" Source="../../src/flatten.awk" />
-			</Component>
-			<Component Id="CMPFLATTENSAVENODEASAWK">
-				<File Id="FLATTENSAVENODEASAWK" KeyPath="yes" Source="../../src/flatten_savenodes.awk" />
-			</Component>
-			<Component Id="CMPGSCHEMTOXSCHEMAWK">
-				<File Id="GSCHEMTOXSCHEMAWK" KeyPath="yes" Source="../../src/gschemtoxschem.awk" />
-			</Component>
-			<Component Id="CMPHSPICEBACKANNOTATE">
-				<File Id="HSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/hspice_backannotate.tcl" />
-			</Component>
-			<Component Id="CMPADDCUSTOMMENU">
-				<File Id="ADDCUSTOMMENU" KeyPath="yes" Source="../../src/add_custom_menu.tcl" />
-			</Component>
-			<Component Id="CMPMOUSEBINDINGS">
-				<File Id="MOUSEBINDINGS" KeyPath="yes" Source="../../src/mouse_bindings.tcl" />
-			</Component>
-			<Component Id="CMPKEYSHELP">
-				<File Id="KEYSHELP" KeyPath="yes" Source="../../src/keys.help" />
-			</Component>
-			<Component Id="CMPMAKESYMAWK">
-				<File Id="MAKESYMAWK" KeyPath="yes" Source="../../src/make_sym.awk" />
-			</Component>
-			<Component Id="CMPMAKESYMLCCAWK">
-				<File Id="MAKESYMLCCAWK" KeyPath="yes" Source="../../src/make_sym_lcc.awk" />
-			</Component>
-			<Component Id="CMPNGSPICEBACKANNOTATE">
-				<File Id="NGSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/ngspice_backannotate.tcl" />
-			</Component>
-			<Component Id="CMPTRAVERSAL">
-				<File Id="TRAVERSAL" KeyPath="yes" Source="../../src/traversal.tcl" />
-			</Component>
-			<Component Id="CMPORDERLABELSAWK">
-				<File Id="ORDERLABELSAWK" KeyPath="yes" Source="../../src/order_labels.awk" />
-			</Component>
-			<Component Id="CMPSRCRESOURCESTCL">
-				<File Id="RESOURCESTCL" KeyPath="yes" Source="../../src/resources.tcl" />
-			</Component>
-			<Component Id="CMPSRCADDCUSTOMBUTTONTCL">
-				<File Id="ADDCUSTOMBUTTONTCL" KeyPath="yes" Source="../../src/add_custom_button.tcl" />
-			</Component>
-			<Component Id="CMPSORTLABELSAWK">
-				<File Id="SORTLABELSAWK" KeyPath="yes" Source="../../src/sort_labels.awk" />
-			</Component>
-			<Component Id="CMPSPICEAWK">
-				<File Id="SPICEAWK" KeyPath="yes" Source="../../src/spice.awk" />
-			</Component>
-			<Component Id="CMPSYMGENAWK">
-				<File Id="SYMGENAWK" KeyPath="yes" Source="../../src/symgen.awk" />
-			</Component>
-			<Component Id="CMPTEDAXAWK">
-				<File Id="TEDAXAWK" KeyPath="yes" Source="../../src/tedax.awk" />
-			</Component>
-			<Component Id="CMPFLATTENTEDAXAWK">
-				<File Id="FLATTENTEDAXAWK" KeyPath="yes" Source="../../src/flatten_tedax.awk" />
-			</Component>
-			<Component Id="CMPVERILOGAWK">
-				<File Id="VERILOGAWK" KeyPath="yes" Source="../../src/verilog.awk" />
-			</Component>
-			<Component Id="CMPVHDLAWK">
-				<File Id="VHDLAWK" KeyPath="yes" Source="../../src/vhdl.awk" />
-			</Component>
-			<Component Id="CMPXSCHEMHELP">
-				<File Id="XSCHEMHELP" KeyPath="yes" Source="../../src/xschem.help" />
-			</Component>
-			<Component Id="CMPSRCXSCHEMRC">
-				<File Id="XSCHEMRC" KeyPath="yes" Source="xschemrc" />
-			</Component>
-			<Component Id="CMPSRCXSCHEMTCL">
-				<File Id="XSCHEMTCL" KeyPath="yes" Source="../../src/xschem.tcl" />
-			</Component>
-			<Component Id="CMPSRCCREATEGRAPHMTCL">
-				<File Id="CREATEGRAPHMTCL" KeyPath="yes" Source="../../src/create_graph.tcl" />
-			</Component>
-			<Component Id="CMPMAKESCHFROMVHDLAWK">
-				<File Id="MAKESCHFROMVHDLAWK" KeyPath="yes" Source="../../src/make_sch_from_vhdl.awk" />
-			</Component>
-			<Component Id="CMPCHANGEREFAWK">
-				<File Id="CHANGEREFAWK" KeyPath="yes" Source="../../src/change_ref.awk" />
-			</Component>
-			<Component Id="CMPHERCULESTOSPICEAWK">
-				<File Id="HERCULESTOSPICEAWK" KeyPath="yes" Source="../../src/herculestospice.awk" />
-			</Component>
-			<Component Id="CMPIMPORTOPUSSYMBOLSAWK">
-				<File Id="IMPORTOPUSSYMBOLSAWK" KeyPath="yes" Source="../../src/import_opus_symbols.awk" />
-			</Component>
-			<Component Id="CMPLABELCOMPACTORAWK">
-				<File Id="LABELCOMPACTORAWK" KeyPath="yes" Source="../../src/label_compactor.awk" />
-			</Component>
-			<Component Id="CMPMAKEEDITAWK">
-				<File Id="MAKEEDITAWK" KeyPath="yes" Source="../../src/make_edif.awk" />
-			</Component>
-			<Component Id="CMPMAKESCHFROMCADENCEPINAWK">
-				<File Id="MAKESCHFROMCADENCEPINAWK" KeyPath="yes" Source="../../src/make_sch_from_cadence_pin.awk" />
-			</Component>
-			<Component Id="CMPMAKESCHFROMSPICEAWK">
-				<File Id="MAKESCHFROMSPICEAWK" KeyPath="yes" Source="../../src/make_sch_from_spice.awk" />
-			</Component>
-			<Component Id="CMPMAKESYMFROMSPICEAWK">
-				<File Id="MAKESYMFROMSPICE" KeyPath="yes" Source="../../src/make_sym_from_spice.awk" />
-			</Component>
-			<Component Id="CMPMAKEVHDLFROMSPICEAWK">
-				<File Id="MAKEVHDLFROMSPICEAWK" KeyPath="yes" Source="../../src/make_vhdl_from_spice.awk" />
-			</Component>
-			<Component Id="CMPNETLISTCOMPACTORAWK">
-				<File Id="NETLISTCOMPACTORAWK" KeyPath="yes" Source="../../src/netlist_compactor.awk" />
-			</Component>
-			<Component Id="CMPPARSESYNOPSYSVHDLAWK">
-				<File Id="PARSESYNOPSYSVHDLAWK" KeyPath="yes" Source="../../src/parse_synopsys_vhdl.awk" />
-			</Component>
-			<Component Id="CMPREDUCEEVENODDARRAYLABELSAWK">
-				<File Id="REDUCEEVENODDARRAYLABELSAWK" KeyPath="yes" Source="../../src/reduce_even_odd_array_labels.awk" />
-			</Component>
-			<Component Id="CMPRESCALEAWK">
-				<File Id="RESCALEAWK" KeyPath="yes" Source="../../src/rescale.awk" />
-			</Component>
-			<Component Id="CMPSUPERGREPAWK">
-				<File Id="SUPERGREPAWK" KeyPath="yes" Source="../../src/supergrep.awk" />
-			</Component>
-			<Component Id="CMPTRACKMEMORYAWK">
-				<File Id="TRACKMEMORYAWK" KeyPath="yes" Source="../../src/track_memory.awk" />
-			</Component>
-			<Component Id="CMPTRADUCIAWK">
-				<File Id="TRADUCIAWK" KeyPath="yes" Source="../../src/traduci.awk" />
-			</Component>
-			<Component Id="CMPPLACEPLINS">
-				<File Id="PLACEPLINS" KeyPath="yes" Source="../../src/place_pins.tcl" />
-			</Component>
-			<Component Id="CMPPLACESYMPINS">
-				<File Id="PLACESYMPINS" KeyPath="yes" Source="../../src/place_sym_pins.tcl" />
-			</Component>
-			<Component Id="CMPCREATESYMBOL">
-				<File Id="CREATESYMBOL" KeyPath="yes" Source="../../src/create_symbol.tcl" />
-			</Component>
-
-			<Directory Id="SYSTEMLIBFOLDER" Name="systemlib">
-				<Component Id="CMPSYSTEMLIBFONTSCH">
-					<File Id="FONTSCH" KeyPath="yes" Source="../../src/systemlib/font.sch" />
+	<Fragment>
+		<DirectoryRef Id="SHAREFOLDER">
+			<Directory Id="sharexschemFA1F463296CEB32195C7A4F214DF" Name="xschem">
+				<Component Id="CMPBREAKAWK">
+					<File Id="BREAKAWK" KeyPath="yes" Source="../../src/break.awk" />
 				</Component>
-				<Component Id="CMPSYSTEMLIBMISSINGSYM">
-					<File Id="MISSINGSYM" KeyPath="yes" Source="../../src/systemlib/missing.sym" />
+				<Component Id="CMPCHANGEINDEXTCL">
+					<File Id="CHANGEINDEXTCL" KeyPath="yes" Source="../../src/change_index.tcl" />
 				</Component>
-				<Component Id="CMPSYSTEMLIBIOPINLCCSYM">
-					<File Id="IOPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/iopin_lcc.sym" />
+				<Component Id="CMPEXPAWK">
+					<File Id="EXPAWK" KeyPath="yes" Source="../../src/convert_to_verilog2001.awk" />
+				</Component>
+				<Component Id="CMPFLATTENAWK">
+					<File Id="FLATTENAWK" KeyPath="yes" Source="../../src/flatten.awk" />
+				</Component>
+				<Component Id="CMPFLATTENSAVENODEASAWK">
+					<File Id="FLATTENSAVENODEASAWK" KeyPath="yes" Source="../../src/flatten_savenodes.awk" />
+				</Component>
+				<Component Id="CMPGSCHEMTOXSCHEMAWK">
+					<File Id="GSCHEMTOXSCHEMAWK" KeyPath="yes" Source="../../src/gschemtoxschem.awk" />
+				</Component>
+				<Component Id="CMPHSPICEBACKANNOTATE">
+					<File Id="HSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/hspice_backannotate.tcl" />
+				</Component>
+				<Component Id="CMPADDCUSTOMMENU">
+					<File Id="ADDCUSTOMMENU" KeyPath="yes" Source="../../src/add_custom_menu.tcl" />
+				</Component>
+				<Component Id="CMPMOUSEBINDINGS">
+					<File Id="MOUSEBINDINGS" KeyPath="yes" Source="../../src/mouse_bindings.tcl" />
+				</Component>
+				<Component Id="CMPKEYSHELP">
+					<File Id="KEYSHELP" KeyPath="yes" Source="../../src/keys.help" />
+				</Component>
+				<Component Id="CMPMAKESYMAWK">
+					<File Id="MAKESYMAWK" KeyPath="yes" Source="../../src/make_sym.awk" />
+				</Component>
+				<Component Id="CMPMAKESYMLCCAWK">
+					<File Id="MAKESYMLCCAWK" KeyPath="yes" Source="../../src/make_sym_lcc.awk" />
+				</Component>
+				<Component Id="CMPNGSPICEBACKANNOTATE">
+					<File Id="NGSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/ngspice_backannotate.tcl" />
+				</Component>
+				<Component Id="CMPTRAVERSAL">
+					<File Id="TRAVERSAL" KeyPath="yes" Source="../../src/traversal.tcl" />
+				</Component>
+				<Component Id="CMPORDERLABELSAWK">
+					<File Id="ORDERLABELSAWK" KeyPath="yes" Source="../../src/order_labels.awk" />
+				</Component>
+				<Component Id="CMPSRCRESOURCESTCL">
+					<File Id="RESOURCESTCL" KeyPath="yes" Source="../../src/resources.tcl" />
+				</Component>
+				<Component Id="CMPSRCADDCUSTOMBUTTONTCL">
+					<File Id="ADDCUSTOMBUTTONTCL" KeyPath="yes" Source="../../src/add_custom_button.tcl" />
+				</Component>
+				<Component Id="CMPSORTLABELSAWK">
+					<File Id="SORTLABELSAWK" KeyPath="yes" Source="../../src/sort_labels.awk" />
+				</Component>
+				<Component Id="CMPSPICEAWK">
+					<File Id="SPICEAWK" KeyPath="yes" Source="../../src/spice.awk" />
+				</Component>
+				<Component Id="CMPSYMGENAWK">
+					<File Id="SYMGENAWK" KeyPath="yes" Source="../../src/symgen.awk" />
+				</Component>
+				<Component Id="CMPTEDAXAWK">
+					<File Id="TEDAXAWK" KeyPath="yes" Source="../../src/tedax.awk" />
+				</Component>
+				<Component Id="CMPFLATTENTEDAXAWK">
+					<File Id="FLATTENTEDAXAWK" KeyPath="yes" Source="../../src/flatten_tedax.awk" />
+				</Component>
+				<Component Id="CMPVERILOGAWK">
+					<File Id="VERILOGAWK" KeyPath="yes" Source="../../src/verilog.awk" />
+				</Component>
+				<Component Id="CMPVHDLAWK">
+					<File Id="VHDLAWK" KeyPath="yes" Source="../../src/vhdl.awk" />
+				</Component>
+				<Component Id="CMPXSCHEMHELP">
+					<File Id="XSCHEMHELP" KeyPath="yes" Source="../../src/xschem.help" />
+				</Component>
+				<Component Id="CMPSRCXSCHEMRC">
+					<File Id="XSCHEMRC" KeyPath="yes" Source="xschemrc" />
+				</Component>
+				<Component Id="CMPSRCXSCHEMTCL">
+					<File Id="XSCHEMTCL" KeyPath="yes" Source="../../src/xschem.tcl" />
+				</Component>
+				<Component Id="CMPSRCCREATEGRAPHMTCL">
+					<File Id="CREATEGRAPHMTCL" KeyPath="yes" Source="../../src/create_graph.tcl" />
+				</Component>
+				<Component Id="CMPMAKESCHFROMVHDLAWK">
+					<File Id="MAKESCHFROMVHDLAWK" KeyPath="yes" Source="../../src/make_sch_from_vhdl.awk" />
+				</Component>
+				<Component Id="CMPCHANGEREFAWK">
+					<File Id="CHANGEREFAWK" KeyPath="yes" Source="../../src/change_ref.awk" />
+				</Component>
+				<Component Id="CMPHERCULESTOSPICEAWK">
+					<File Id="HERCULESTOSPICEAWK" KeyPath="yes" Source="../../src/herculestospice.awk" />
+				</Component>
+				<Component Id="CMPIMPORTOPUSSYMBOLSAWK">
+					<File Id="IMPORTOPUSSYMBOLSAWK" KeyPath="yes" Source="../../src/import_opus_symbols.awk" />
+				</Component>
+				<Component Id="CMPLABELCOMPACTORAWK">
+					<File Id="LABELCOMPACTORAWK" KeyPath="yes" Source="../../src/label_compactor.awk" />
+				</Component>
+				<Component Id="CMPMAKEEDITAWK">
+					<File Id="MAKEEDITAWK" KeyPath="yes" Source="../../src/make_edif.awk" />
+				</Component>
+				<Component Id="CMPMAKESCHFROMCADENCEPINAWK">
+					<File Id="MAKESCHFROMCADENCEPINAWK" KeyPath="yes" Source="../../src/make_sch_from_cadence_pin.awk" />
+				</Component>
+				<Component Id="CMPMAKESCHFROMSPICEAWK">
+					<File Id="MAKESCHFROMSPICEAWK" KeyPath="yes" Source="../../src/make_sch_from_spice.awk" />
+				</Component>
+				<Component Id="CMPMAKESYMFROMSPICEAWK">
+					<File Id="MAKESYMFROMSPICE" KeyPath="yes" Source="../../src/make_sym_from_spice.awk" />
+				</Component>
+				<Component Id="CMPMAKEVHDLFROMSPICEAWK">
+					<File Id="MAKEVHDLFROMSPICEAWK" KeyPath="yes" Source="../../src/make_vhdl_from_spice.awk" />
+				</Component>
+				<Component Id="CMPNETLISTCOMPACTORAWK">
+					<File Id="NETLISTCOMPACTORAWK" KeyPath="yes" Source="../../src/netlist_compactor.awk" />
+				</Component>
+				<Component Id="CMPPARSESYNOPSYSVHDLAWK">
+					<File Id="PARSESYNOPSYSVHDLAWK" KeyPath="yes" Source="../../src/parse_synopsys_vhdl.awk" />
+				</Component>
+				<Component Id="CMPREDUCEEVENODDARRAYLABELSAWK">
+					<File Id="REDUCEEVENODDARRAYLABELSAWK" KeyPath="yes" Source="../../src/reduce_even_odd_array_labels.awk" />
+				</Component>
+				<Component Id="CMPRESCALEAWK">
+					<File Id="RESCALEAWK" KeyPath="yes" Source="../../src/rescale.awk" />
+				</Component>
+				<Component Id="CMPSUPERGREPAWK">
+					<File Id="SUPERGREPAWK" KeyPath="yes" Source="../../src/supergrep.awk" />
+				</Component>
+				<Component Id="CMPTRACKMEMORYAWK">
+					<File Id="TRACKMEMORYAWK" KeyPath="yes" Source="../../src/track_memory.awk" />
+				</Component>
+				<Component Id="CMPTRADUCIAWK">
+					<File Id="TRADUCIAWK" KeyPath="yes" Source="../../src/traduci.awk" />
+				</Component>
+				<Component Id="CMPPLACEPLINS">
+					<File Id="PLACEPLINS" KeyPath="yes" Source="../../src/place_pins.tcl" />
+				</Component>
+				<Component Id="CMPPLACESYMPINS">
+					<File Id="PLACESYMPINS" KeyPath="yes" Source="../../src/place_sym_pins.tcl" />
+				</Component>
+				<Component Id="CMPCREATESYMBOL">
+					<File Id="CREATESYMBOL" KeyPath="yes" Source="../../src/create_symbol.tcl" />
 				</Component>
 
-				<Component Id="CMPSYSTEMLIBIOPINLCCTOPSYM">
-					<File Id="IOPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/iopin_lcc_top.sym" />
-				</Component>
+				<Directory Id="SYSTEMLIBFOLDER" Name="systemlib">
+					<Component Id="CMPSYSTEMLIBFONTSCH">
+						<File Id="FONTSCH" KeyPath="yes" Source="../../src/systemlib/font.sch" />
+					</Component>
+					<Component Id="CMPSYSTEMLIBMISSINGSYM">
+						<File Id="MISSINGSYM" KeyPath="yes" Source="../../src/systemlib/missing.sym" />
+					</Component>
+					<Component Id="CMPSYSTEMLIBIOPINLCCSYM">
+						<File Id="IOPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/iopin_lcc.sym" />
+					</Component>
 
-				<Component Id="CMPSYSTEMLIBIPINLCCSYM">
-					<File Id="IPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/ipin_lcc.sym" />
-				</Component>
+					<Component Id="CMPSYSTEMLIBIOPINLCCTOPSYM">
+						<File Id="IOPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/iopin_lcc_top.sym" />
+					</Component>
 
-				<Component Id="CMPSYSTEMLIBIPINLCCTOPSYM">
-					<File Id="IPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/ipin_lcc_top.sym" />
-				</Component>
+					<Component Id="CMPSYSTEMLIBIPINLCCSYM">
+						<File Id="IPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/ipin_lcc.sym" />
+					</Component>
 
-				<Component Id="CMPSYSTEMLIBOPINLCCSYM">
-					<File Id="OPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/opin_lcc.sym" />
-				</Component>
-				<Component Id="CMPSYSTEMLIBOPINLCCTOPSYM">
-					<File Id="OPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/opin_lcc_top.sym" />
-				</Component>
+					<Component Id="CMPSYSTEMLIBIPINLCCTOPSYM">
+						<File Id="IPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/ipin_lcc_top.sym" />
+					</Component>
+
+					<Component Id="CMPSYSTEMLIBOPINLCCSYM">
+						<File Id="OPINLCCSYM" KeyPath="yes" Source="../../src/systemlib/opin_lcc.sym" />
+					</Component>
+					<Component Id="CMPSYSTEMLIBOPINLCCTOPSYM">
+						<File Id="OPINLCCTOPSYM" KeyPath="yes" Source="../../src/systemlib/opin_lcc_top.sym" />
+					</Component>
+				</Directory>
+				<Directory Id="UTILEFOLDER" Name="utile">
+					<Component Id="CMPCLOCKAWK">
+						<File Id="CLOCKAWK" KeyPath="yes" Source="../../src/utile/clock.awk" />
+					</Component>
+					<Component Id="CMPEXPANDALIASAWK">
+						<File Id="EXPANDALIASAWK" KeyPath="yes" Source="../../src/utile/expand_alias.awk" />
+					</Component>
+					<Component Id="CMPPARAMAWK">
+						<File Id="PARAMAWK" KeyPath="yes" Source="../../src/utile/param.awk" />
+					</Component>
+					<Component Id="CMPPREPROCESSAWK">
+						<File Id="PREPROCESSAWK" KeyPath="yes" Source="../../src/utile/preprocess.awk" />
+					</Component>
+					<Component Id="CMPSTIMULIAWK">
+						<File Id="STIMULIAWK" KeyPath="yes" Source="../../src/utile/stimuli.awk" />
+					</Component>
+					<Component Id="CMPTEMPLATESTIMULI">
+						<File Id="TEMPLATESTIMULI" KeyPath="yes" Source="../../src/utile/template.stimuli" />
+					</Component>
+					<Component Id="CMPUTILE">
+						<File Id="UTILE" KeyPath="yes" Source="../../src/utile/utile" />
+					</Component>
+					<Component Id="CMPUTILE3">
+						<File Id="UTILE3" KeyPath="yes" Source="../../src/utile/utile3" />
+					</Component>
+					<Component Id="CMPUTILEBAT">
+						<File Id="UTILEBAT" KeyPath="yes" Source="../../src/utile/utile.bat" />
+					</Component>
+					<Component Id="CMPUTILE3BAT">
+						<File Id="UTILE3BAT" KeyPath="yes" Source="../../src/utile/utile3.bat" />
+					</Component>
+					<Component Id="CMPUTILETCL">
+						<File Id="UTILETCL" KeyPath="yes" Source="../../src/utile/utile.tcl" />
+					</Component>
+					<Component Id="CMPUTILETXT">
+						<File Id="UTILETXT" KeyPath="yes" Source="../../src/utile/utile.txt" />
+					</Component>
+
+				</Directory>
 			</Directory>
-			<Directory Id="UTILEFOLDER" Name="utile">
-				<Component Id="CMPCLOCKAWK">
-					<File Id="CLOCKAWK" KeyPath="yes" Source="../../src/utile/clock.awk" />
-				</Component>
-				<Component Id="CMPEXPANDALIASAWK">
-					<File Id="EXPANDALIASAWK" KeyPath="yes" Source="../../src/utile/expand_alias.awk" />
-				</Component>
-				<Component Id="CMPPARAMAWK">
-					<File Id="PARAMAWK" KeyPath="yes" Source="../../src/utile/param.awk" />
-				</Component>
-				<Component Id="CMPPREPROCESSAWK">
-					<File Id="PREPROCESSAWK" KeyPath="yes" Source="../../src/utile/preprocess.awk" />
-				</Component>
-				<Component Id="CMPSTIMULIAWK">
-					<File Id="STIMULIAWK" KeyPath="yes" Source="../../src/utile/stimuli.awk" />
-				</Component>
-				<Component Id="CMPTEMPLATESTIMULI">
-					<File Id="TEMPLATESTIMULI" KeyPath="yes" Source="../../src/utile/template.stimuli" />
-				</Component>
-				<Component Id="CMPUTILE">
-					<File Id="UTILE" KeyPath="yes" Source="../../src/utile/utile" />
-				</Component>
-				<Component Id="CMPUTILE3">
-					<File Id="UTILE3" KeyPath="yes" Source="../../src/utile/utile3" />
-				</Component>
-				<Component Id="CMPUTILEBAT">
-					<File Id="UTILEBAT" KeyPath="yes" Source="../../src/utile/utile.bat" />
-				</Component>
-				<Component Id="CMPUTILE3BAT">
-					<File Id="UTILE3BAT" KeyPath="yes" Source="../../src/utile/utile3.bat" />
-				</Component>
-				<Component Id="CMPUTILETCL">
-					<File Id="UTILETCL" KeyPath="yes" Source="../../src/utile/utile.tcl" />
-				</Component>
-				<Component Id="CMPUTILETXT">
-					<File Id="UTILETXT" KeyPath="yes" Source="../../src/utile/utile.txt" />
-				</Component>
-
-			</Directory>
-		</Directory>
-    </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <ComponentGroup Id="src">
-      <ComponentRef Id="CMPSRCXSCHEMTCL" />
-	  <ComponentRef Id="CMPSRCCREATEGRAPHMTCL" />
-      <ComponentRef Id="CMPSRCXSCHEMRC" />
-    </ComponentGroup>
-    <ComponentGroup Id="share">
-      <ComponentRef Id="CMPSRCRESOURCESTCL" />
-      <ComponentRef Id="CMPSRCADDCUSTOMBUTTONTCL" />
-	  <ComponentRef Id="CMPSRCXSCHEMRC" />
-      <ComponentRef Id="CMPBREAKAWK" />
-      <ComponentRef Id="CMPCHANGEINDEXTCL" />
-      <ComponentRef Id="CMPCHANGEREFAWK" />
-      <ComponentRef Id="CMPKEYSHELP" />
-      <ComponentRef Id="CMPEXPAWK" />
-      <ComponentRef Id="CMPFLATTENAWK" />
-      <ComponentRef Id="CMPFLATTENSAVENODEASAWK" />
-      <ComponentRef Id="CMPGSCHEMTOXSCHEMAWK" />
-      <ComponentRef Id="CMPHSPICEBACKANNOTATE" />
-      <ComponentRef Id="CMPADDCUSTOMMENU" />
-	  <ComponentRef Id="CMPMOUSEBINDINGS" />
-	  <ComponentRef Id="CMPHERCULESTOSPICEAWK" />
-      <ComponentRef Id="CMPIMPORTOPUSSYMBOLSAWK" />
-      <ComponentRef Id="CMPLABELCOMPACTORAWK" />
-      <ComponentRef Id="CMPMAKEEDITAWK" />
-      <ComponentRef Id="CMPMAKESCHFROMCADENCEPINAWK" />
-      <ComponentRef Id="CMPMAKESCHFROMSPICEAWK" />
-	  <ComponentRef Id="CMPMAKESYMFROMSPICEAWK" />
-      <ComponentRef Id="CMPMAKESCHFROMVHDLAWK" />
-      <ComponentRef Id="CMPMAKESYMAWK" />
-      <ComponentRef Id="CMPMAKESYMLCCAWK" />
-      <ComponentRef Id="CMPNGSPICEBACKANNOTATE" />
-      <ComponentRef Id="CMPTRAVERSAL" />
-      <ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
-      <ComponentRef Id="CMPNETLISTCOMPACTORAWK" />
-      <ComponentRef Id="CMPORDERLABELSAWK" />
-      <ComponentRef Id="CMPPARSESYNOPSYSVHDLAWK" />
-      <ComponentRef Id="CMPREDUCEEVENODDARRAYLABELSAWK" />
-      <ComponentRef Id="CMPRESCALEAWK" />
-      <ComponentRef Id="CMPSORTLABELSAWK" />
-      <ComponentRef Id="CMPSPICEAWK" />
-      <ComponentRef Id="CMPSUPERGREPAWK" />
-      <ComponentRef Id="CMPSYMGENAWK" />
-      <ComponentRef Id="CMPTEDAXAWK" />
-      <ComponentRef Id="CMPFLATTENTEDAXAWK" />
-      <ComponentRef Id="CMPTRACKMEMORYAWK" />
-      <ComponentRef Id="CMPTRADUCIAWK" />
-	  <ComponentRef Id="CMPPLACEPLINS" />
-	  <ComponentRef Id="CMPPLACESYMPINS" />
-	  <ComponentRef Id="CMPCREATESYMBOL" />
-      <ComponentRef Id="CMPVERILOGAWK" />
-      <ComponentRef Id="CMPVHDLAWK" />
-      <ComponentRef Id="CMPXSCHEMHELP" />
-      <ComponentRef Id="CMPSYSTEMLIBFONTSCH" />
-      <ComponentRef Id="CMPSYSTEMLIBMISSINGSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBIOPINLCCSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBIOPINLCCTOPSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBIPINLCCSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBIPINLCCTOPSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBOPINLCCSYM" />
-      <ComponentRef Id="CMPSYSTEMLIBOPINLCCTOPSYM" />
-      <ComponentRef Id="CMPCLOCKAWK" />
-      <ComponentRef Id="CMPEXPANDALIASAWK" />
-      <ComponentRef Id="CMPPARAMAWK" />
-      <ComponentRef Id="CMPPREPROCESSAWK" />
-      <ComponentRef Id="CMPSTIMULIAWK" />
-      <ComponentRef Id="CMPTEMPLATESTIMULI" />
-      <ComponentRef Id="CMPUTILE" />
-      <ComponentRef Id="CMPUTILE3" />
-      <ComponentRef Id="CMPUTILEBAT" />
-      <ComponentRef Id="CMPUTILE3BAT" />
-      <ComponentRef Id="CMPUTILETCL" />
-      <ComponentRef Id="CMPUTILETXT" />
-    </ComponentGroup>
-  </Fragment>
+		</DirectoryRef>
+	</Fragment>
+	<Fragment>
+		<ComponentGroup Id="src">
+			<ComponentRef Id="CMPSRCXSCHEMTCL" />
+			<ComponentRef Id="CMPSRCCREATEGRAPHMTCL" />
+			<ComponentRef Id="CMPSRCXSCHEMRC" />
+		</ComponentGroup>
+		<ComponentGroup Id="share">
+			<ComponentRef Id="CMPSRCRESOURCESTCL" />
+			<ComponentRef Id="CMPSRCADDCUSTOMBUTTONTCL" />
+			<ComponentRef Id="CMPSRCXSCHEMRC" />
+			<ComponentRef Id="CMPBREAKAWK" />
+			<ComponentRef Id="CMPCHANGEINDEXTCL" />
+			<ComponentRef Id="CMPCHANGEREFAWK" />
+			<ComponentRef Id="CMPKEYSHELP" />
+			<ComponentRef Id="CMPEXPAWK" />
+			<ComponentRef Id="CMPFLATTENAWK" />
+			<ComponentRef Id="CMPFLATTENSAVENODEASAWK" />
+			<ComponentRef Id="CMPGSCHEMTOXSCHEMAWK" />
+			<ComponentRef Id="CMPHSPICEBACKANNOTATE" />
+			<ComponentRef Id="CMPADDCUSTOMMENU" />
+			<ComponentRef Id="CMPMOUSEBINDINGS" />
+			<ComponentRef Id="CMPHERCULESTOSPICEAWK" />
+			<ComponentRef Id="CMPIMPORTOPUSSYMBOLSAWK" />
+			<ComponentRef Id="CMPLABELCOMPACTORAWK" />
+			<ComponentRef Id="CMPMAKEEDITAWK" />
+			<ComponentRef Id="CMPMAKESCHFROMCADENCEPINAWK" />
+			<ComponentRef Id="CMPMAKESCHFROMSPICEAWK" />
+			<ComponentRef Id="CMPMAKESYMFROMSPICEAWK" />
+			<ComponentRef Id="CMPMAKESCHFROMVHDLAWK" />
+			<ComponentRef Id="CMPMAKESYMAWK" />
+			<ComponentRef Id="CMPMAKESYMLCCAWK" />
+			<ComponentRef Id="CMPNGSPICEBACKANNOTATE" />
+			<ComponentRef Id="CMPTRAVERSAL" />
+			<ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
+			<ComponentRef Id="CMPNETLISTCOMPACTORAWK" />
+			<ComponentRef Id="CMPORDERLABELSAWK" />
+			<ComponentRef Id="CMPPARSESYNOPSYSVHDLAWK" />
+			<ComponentRef Id="CMPREDUCEEVENODDARRAYLABELSAWK" />
+			<ComponentRef Id="CMPRESCALEAWK" />
+			<ComponentRef Id="CMPSORTLABELSAWK" />
+			<ComponentRef Id="CMPSPICEAWK" />
+			<ComponentRef Id="CMPSUPERGREPAWK" />
+			<ComponentRef Id="CMPSYMGENAWK" />
+			<ComponentRef Id="CMPTEDAXAWK" />
+			<ComponentRef Id="CMPFLATTENTEDAXAWK" />
+			<ComponentRef Id="CMPTRACKMEMORYAWK" />
+			<ComponentRef Id="CMPTRADUCIAWK" />
+			<ComponentRef Id="CMPPLACEPLINS" />
+			<ComponentRef Id="CMPPLACESYMPINS" />
+			<ComponentRef Id="CMPCREATESYMBOL" />
+			<ComponentRef Id="CMPVERILOGAWK" />
+			<ComponentRef Id="CMPVHDLAWK" />
+			<ComponentRef Id="CMPXSCHEMHELP" />
+			<ComponentRef Id="CMPSYSTEMLIBFONTSCH" />
+			<ComponentRef Id="CMPSYSTEMLIBMISSINGSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBIOPINLCCSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBIOPINLCCTOPSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBIPINLCCSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBIPINLCCTOPSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBOPINLCCSYM" />
+			<ComponentRef Id="CMPSYSTEMLIBOPINLCCTOPSYM" />
+			<ComponentRef Id="CMPCLOCKAWK" />
+			<ComponentRef Id="CMPEXPANDALIASAWK" />
+			<ComponentRef Id="CMPPARAMAWK" />
+			<ComponentRef Id="CMPPREPROCESSAWK" />
+			<ComponentRef Id="CMPSTIMULIAWK" />
+			<ComponentRef Id="CMPTEMPLATESTIMULI" />
+			<ComponentRef Id="CMPUTILE" />
+			<ComponentRef Id="CMPUTILE3" />
+			<ComponentRef Id="CMPUTILEBAT" />
+			<ComponentRef Id="CMPUTILE3BAT" />
+			<ComponentRef Id="CMPUTILETCL" />
+			<ComponentRef Id="CMPUTILETXT" />
+		</ComponentGroup>
+	</Fragment>
 </Wix>

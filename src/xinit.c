@@ -2408,10 +2408,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
  else my_strdup(_ALLOC_ID_, &up_hier, "../share/xschem");
  /* my_strcat(_ALLOC_ID_, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
-   if (running_in_src_dir==0 && i==2)
+   if (i==2)
    {
      my_free(_ALLOC_ID_, &up_hier);
-     my_strdup(_ALLOC_ID_, &up_hier, "../share/doc/xschem");    
+     if (running_in_src_dir==0)
+       my_strdup(_ALLOC_ID_, &up_hier, "../share/doc/xschem");    
+     else
+       my_strdup(_ALLOC_ID_, &up_hier, "../../../xschem_library");    
    }
    my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
    if (i > 0) my_strcat(_ALLOC_ID_, &win_xschem_library_path, "\;"); 

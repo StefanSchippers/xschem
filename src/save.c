@@ -385,13 +385,88 @@ void transpose_matrix(double *a, int r, int c)
   my_free(_ALLOC_ID_, &done);
 }
 
+static void skip_raw_ascii_points(int npoints, FILE *fd)
+{
+  char line[1024];
+  int i;
+  for(i = 0; i < npoints; i++) {
+    while(1) {
+      if(!fgets(line, 1024, fd)) {
+        dbg(1, "premature end of ascii block\n");
+        return;
+      }
+      if(line[0] == '\n') {
+        dbg(1, "found empty line --> break\n");
+        break;
+      }
+    }   
+  }
+}     
+
+static int read_raw_ascii_point(int ac, double *tmp, FILE *fd)
+{
+  char line[1024];
+  int lines = 0;
+  double d, id; /* id = imaginary part for AC */
+  int p;
+  while(1) {
+    if(!fgets(line, 1024, fd)) {
+      dbg(1, "premature end of ascii block\n");
+      return lines;
+    }
+    if(line[0] == '\n') {
+      dbg(1, "found empty line --> return\n");
+      break;
+    }
+    if(lines == 0) {
+      if(ac) {
+        if(sscanf(line,"%d %lf,%lg", &p, &d, &id) != 3) {
+          dbg(1, "missing field on first line of ascii data block\n");
+          return lines;
+        }
+        tmp[lines] = d;
+        lines++;
+        tmp[lines] = id;
+      } else {
+        if(sscanf(line,"%d %lf", &p, &d) != 2) {
+          dbg(1, "missing field on first line of ascii data block\n");
+          return lines;
+        }
+        tmp[lines] = d;
+      }
+    } else {
+      if(ac) {
+        if(sscanf(line,"%lf,%lf", &d, &id) != 2) {
+          dbg(1, "missing field of ascii data block\n");
+          return lines;
+        }
+        tmp[lines] = d;
+        lines++;
+        tmp[lines] = id;
+      } else {
+        #if 0
+        if(sscanf(line,"%lf", &d) != 1) {
+          dbg(1, "missing field of ascii data block\n");
+          return lines;
+        }
+        tmp[lines] = d;
+        #else /* faster */
+        tmp[lines] = my_atof(line);
+        #endif
+      }
+    }
+    lines++;
+  }
+  dbg(1, "read_raw_ascii_point() return %d\n", lines);
+  return lines;
+}
 
 /* SPICE RAWFILE ROUTINES */
-/* read the binary portion of a ngspice raw simulation file
+/* read the ascii / binary portion of a ngspice raw simulation file
  * data layout in memory arranged to maximize cache locality 
  * when looking up data 
  */
-static void read_binary_block(FILE *fd, Raw *raw, int ac)
+static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
 {
   int i, p, v;
   double *tmp;
@@ -405,7 +480,7 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
   int rawvars = raw->nvars;
 
   if(!raw || !raw->npoints) {
-    dbg(0, "read_binary_block() no raw struct allocated\n");
+    dbg(0, "read_raw_data_block() no raw struct allocated\n");
     return;
   }
 
@@ -421,8 +496,14 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
     npoints = 0;
     filepos = xftell(fd); /* store file pointer position */
     for(p = 0; p < raw->npoints[raw->datasets]; p++) {
-      if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
-         dbg(0, "Warning: binary block is not of correct size\n");
+      if(binary) {
+        if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
+           dbg(0, "Warning: binary block is not of correct size\n");
+        }
+      } else {
+        if(read_raw_ascii_point(ac, tmp, fd) != rawvars) {
+           dbg(0, "Warning: ascii block is not of correct size\n");
+        }
       }
       sweepvar = tmp[0];
       if(sweepvar < raw->sweep1 || sweepvar >= raw->sweep2) continue;
@@ -442,10 +523,15 @@ static void read_binary_block(FILE *fd, Raw *raw, int ac)
   /* read binary block */
   p = 0;
   for(i = 0; i < raw->npoints[raw->datasets]; i++) {
-    if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
-       dbg(0, "Warning: binary block is not of correct size\n");
+    if(binary) {
+      if(fread(tmp, sizeof(double), rawvars, fd) != rawvars) {
+        dbg(0, "Warning: binary block is not of correct size\n");
+      }
+    } else {
+      if(read_raw_ascii_point(ac, tmp, fd) != rawvars) {
+         dbg(0, "Warning: ascii block is not of correct size\n");
+      }
     }
-
     if(!(raw->sweep1 == raw->sweep2 && raw->sweep1 == -1.0)) {
       double sweepvar = tmp[0];
       if(sweepvar < raw->sweep1 || sweepvar >= raw->sweep2) continue;
@@ -531,29 +617,38 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
   while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
     strtolower(lowerline);
-    /* this is an ASCII raw file. We don't handle this (yet) */
+
+    /* after this line comes the ascii or binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Values:\n") || !strcmp(line, "Values:\r\n")) {
-      dbg(dbglev, "read_dataset(): ASCII raw files can not be read. "
-             "Use binary format in ngspice (set filetype=binary)\n");
-      tcleval("alert_ {read_dataset(): ASCII raw files can not be read. "
-             "Use binary format in ngspice (set filetype=binary)}");
-      extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-      /* free_rawfile(rawptr, 0); */
-      exit_status = 0;
-      goto read_dataset_done;
-    }
-    /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
-    if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
       if(sim_type) {
         my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
-        read_binary_block(fd, raw, ac); 
+        read_raw_data_block(0, fd, raw, ac); 
+        raw->datasets++;
+        exit_status = 1;
+      } else {
+        dbg(dbglev, "read_dataset(): skip ascii block, nvars=%d npoints=%d\n", nvars, npoints);
+        /* skip ascii block */
+        skip_raw_ascii_points(npoints, fd);
+      }
+      sim_type = NULL; /* ready for next header */
+      done_points = 0;
+      ac = 0;
+    } 
+
+    /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
+    else if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
+      if(sim_type) {
+        my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
+        done_header = 1;
+        dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
+        read_raw_data_block(1, fd, raw, ac); 
         raw->datasets++;
         exit_status = 1;
       } else { 
         dbg(dbglev, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", nvars, npoints);
-        fseek(fd, nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
+        xfseek(fd, nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
       }
       sim_type = NULL; /* ready for next header */
       done_points = 0;

@@ -6116,11 +6116,15 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
 
 proc launcher {launcher_var {launcher_program {} } } {
   # env, XSCHEM_SHAREDIR and netlist_dir not used directly but useful in paths passed thru launcher_var
-  global launcher_default_program env XSCHEM_SHAREDIR netlist_dir
+  global launcher_default_program env XSCHEM_SHAREDIR netlist_dir OS
   
   regsub {/$} $netlist_dir {} netlist_dir
   if { ![string compare $launcher_program {}] } { set launcher_program $launcher_default_program}
-  eval exec  [subst $launcher_program] {[subst $launcher_var]} &
+  if {$OS == "Windows"} {
+    eval exec $launcher_program \"\" {[subst $launcher_var]}
+  } else {
+    eval exec  [subst $launcher_program] {[subst $launcher_var]} &
+  }
 }
 
 proc reconfigure_layers_button { { topwin {} } } {
@@ -8454,7 +8458,7 @@ set_ne rainbow_colors 0
 set_ne initial_geometry {900x600}
 set_ne edit_symbol_prop_new_sel {}
 if {$OS == "Windows"} {
-  set_ne launcher_default_program {start}
+  set_ne launcher_default_program [auto_execok start]
 } else {
   set_ne launcher_default_program {xdg-open}
 }
