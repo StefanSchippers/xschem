@@ -3808,8 +3808,8 @@ void select_rect(int what, int select)
 {
  int incremental_select = tclgetboolvar("incremental_select");
  int sel_touch = tclgetboolvar("select_touch");
- dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex_snap=%g mousey_snap=%g\n", 
-        what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
+ dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex=%g mousey=%g\n", 
+        what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex, xctx->mousey);
  if(what & RUBBER)
  {
     if(xctx->nl_sem==0) {
@@ -3819,7 +3819,7 @@ void select_rect(int what, int select)
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
     RECTORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     drawtemprect(xctx->gctiled,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    xctx->nl_xr2=xctx->mousex_snap;xctx->nl_yr2=xctx->mousey_snap;
+    xctx->nl_xr2=xctx->mousex;xctx->nl_yr2=xctx->mousey;
 
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();

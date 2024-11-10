@@ -3747,8 +3747,8 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        xctx->shape_point_selected = 0;
        xctx->mx_save = mx; xctx->my_save = my;
-       xctx->mx_double_save=xctx->mousex_snap;
-       xctx->my_double_save=xctx->mousey_snap;
+       xctx->mx_double_save=xctx->mousex;
+       xctx->my_double_save=xctx->mousey;
 
        /* Clicking on an instance pin -> drag a new wire
         * if an instance is already selected */
