@@ -21,7 +21,7 @@
  */
 
 #include "xschem.h"
-
+#include <stdarg.h>
 /* n=1: messages in status bar
  * n=2: append str in ERC window messages
  * n=3: set ERC messages to str */
