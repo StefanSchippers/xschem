@@ -1,5 +1,14 @@
 3.4.6:
 
+- Select rectangles (click and mouse drag to select) are unsnapped.
+  Much easier to select small objects
+- Add ability to read ASCII raw files
+- "xschem change_sch_path" command for changing the current path we are descended in.
+- update svgdraw and psprint to recognize svg embedded images. svgdraw exports it
+  as embedded svg
+- When inserting a svg image automatically set the filter attribute to rasterize
+  svg to png (if tcl variable svg_to_png is set in xschemrc), "rsvg-convert" or
+  "inkscape" or imagemagick "convert" can be used. see template xschemrc in src/
 - When importing svg images with a svg->png filter (like rsvg-convert) keep source
   svg data in the image_data attribute instead of the rasterized data.
   This will make these images scalable and schematics will be smaller (if using
