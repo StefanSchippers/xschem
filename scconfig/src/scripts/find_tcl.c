@@ -23,7 +23,7 @@
 #include "scripts.h"
 #include <unistd.h>
 
-static int all_vers[] = { 90, 86, 85, 84, 0, -1 };
+static int all_vers[] = { 86, 85, 84, 0, 90, -1 };
 
 int find_script_tcl_(const char *name, int logdepth, int fatal, int *vers, int fallback)
 {
@@ -32,14 +32,14 @@ int find_script_tcl_(const char *name, int logdepth, int fatal, int *vers, int f
 
 	char *tclshs[] = {
 		"tclsh",
-		"tclsh90",
 		"tclsh86",
 		"tclsh85",
 		"tclsh84",
-		"tclsh9.0",
+		"tclsh90",
 		"tclsh8.6",
 		"tclsh8.5",
 		"tclsh8.4",
+		"tclsh9.0",
 		NULL
 	};
 
