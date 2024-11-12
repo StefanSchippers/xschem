@@ -3,7 +3,7 @@ v {xschem version=3.4.6RC file_version=1.2
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 * simulation.
-* Copyright (C) 1998-2023 Stefan Frederik Schippers
+* Copyright (C) 1998-2024 Stefan Frederik Schippers
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by

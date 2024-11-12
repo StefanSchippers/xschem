@@ -3,7 +3,7 @@
  * This file is part of XSCHEM,
  * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
- * Copyright (C) 1998-2023 Stefan Frederik Schippers
+ * Copyright (C) 1998-2024 Stefan Frederik Schippers
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2589,8 +2589,13 @@ static void write_xschem_file(FILE *fd)
   char *header_ptr = xctx->header_text ? xctx->header_text : "";
   tmpstring_size = strlen(header_ptr) + 100;
   tmpstring = my_malloc(_ALLOC_ID_, tmpstring_size);
-  my_snprintf(tmpstring, tmpstring_size, "xschem version=%s file_version=%s\n%s",
-      XSCHEM_VERSION, XSCHEM_FILE_VERSION, header_ptr);
+  if(xctx->header_text && xctx->header_text[0]) {
+    my_snprintf(tmpstring, tmpstring_size, "xschem version=%s file_version=%s\n%s",
+        XSCHEM_VERSION, XSCHEM_FILE_VERSION, header_ptr);
+  } else {
+    my_snprintf(tmpstring, tmpstring_size, "xschem version=%s file_version=%s",
+        XSCHEM_VERSION, XSCHEM_FILE_VERSION);
+  }
   fprintf(fd, "v ");
   save_ascii_string(tmpstring, fd, 1);
   my_free(_ALLOC_ID_, &tmpstring);
