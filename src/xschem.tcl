@@ -3383,7 +3383,7 @@ namespace eval c_toolbar {
   variable c_t
   variable i
   set c_t(w) .load.l.recent
-  set c_t(hash) [xschem hash_string $XSCHEM_LIBRARY_PATH]
+  set c_t(hash) [xschem hash_string $::XSCHEM_LIBRARY_PATH]
   set c_t(n) 25
   set c_t(top) 0
   for {set i 0} {$i < $c_t(n)} {incr i} {
@@ -7217,6 +7217,18 @@ global env has_x OS autofocus_mainwindow
       # $topwin configure -cursor {}
     "
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
+
+    # transform mousewheel events into button4/5 events
+    if {[info tclversion] > 8.7} {
+      bind $topwin <MouseWheel> {
+        if {%D > 0} {
+          xschem callback %W 4 %x %y 0 4 0 %s
+        } else {
+          xschem callback %W 4 %x %y 0 5 0 %s
+        }
+      }
+    }
+ 
     bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
