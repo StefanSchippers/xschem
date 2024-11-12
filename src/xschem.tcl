@@ -3621,7 +3621,10 @@ proc file_dialog_getresult {loadfile confirm_overwrt} {
     } elseif { [regexp {^/} $file_dialog_retval]} {
       set fname $file_dialog_retval
     } else {
-      set fname "$file_dialog_dir1/$file_dialog_retval"
+      if {![regexp {/$} $file_dialog_dir1]} {
+        append file_dialog_dir1 /
+      }
+      set fname "${file_dialog_dir1}${file_dialog_retval}"
     }
     if {![file exists "$fname"] } {
       return "$fname"
@@ -6026,7 +6029,10 @@ proc abs_sym_path {fname {ext {} } } {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
-    set fullpath "$path_elem/$fname"
+    if {![regexp {/$} $path_elem]} {
+      append path_elem /
+    } 
+    set fullpath "${path_elem}${fname}"
     if { [file exists $fullpath] } {
       set name $fullpath
       break
