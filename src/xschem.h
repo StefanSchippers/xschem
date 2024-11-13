@@ -1741,7 +1741,7 @@ extern int pending_events(void);
 #endif
 extern void get_square(double x, double y, int *xx, int *yy);
 extern const char *create_tmpdir(char *prefix);
-extern FILE *open_tmpfile(char *prefix, char **filename);
+extern FILE *open_tmpfile(char *prefix, char *suffix, char **filename);
 extern void create_ps(char** psfile, int what, int fullzoom, int eps);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
 #endif /*CADGLOBALS */

@@ -2254,13 +2254,13 @@ void print_hilight_net(int show)
 
  prepare_netlist_structs(1); /* use full prepare_netlist_structs(1)  to recognize pin direction */
                              /* when creating pins from hilight nets 20171221 */
- if(!(fd = open_tmpfile("hilight2_", &filename_ptr)) ) {
+ if(!(fd = open_tmpfile("hilight2_", "", &filename_ptr)) ) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    return;
  }
  my_strdup(_ALLOC_ID_, &filetmp2, filename_ptr);
  fclose(fd);
- if(!(fd = open_tmpfile("hilight1_", &filename_ptr))) {
+ if(!(fd = open_tmpfile("hilight1_", "", &filename_ptr))) {
    fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    my_free(_ALLOC_ID_, &filetmp2);
    return;

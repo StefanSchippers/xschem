@@ -1093,7 +1093,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   }
   if(what & 1) { /* prolog */
     numpages = 0;
-    if(!(fd = open_tmpfile("psplot_", psfile)) ) {
+    if(!(fd = open_tmpfile("psplot_", ".ps", psfile)) ) {
       fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
       return;
     }

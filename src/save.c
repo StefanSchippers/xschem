@@ -943,7 +943,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
     size_t length;
     if(i->prop_ptr && (b64_spice_data = get_tok_value(i->prop_ptr, "spice_data", 0))[0]) {
       length = strlen(b64_spice_data);
-      if( (fd = open_tmpfile("embedded_rawfile_", &tmp_filename)) ) {
+      if( (fd = open_tmpfile("embedded_rawfile_", ".raw", &tmp_filename)) ) {
         s = base64_decode(b64_spice_data, length, &decoded_length);
         fwrite(s, decoded_length, 1, fd);
         fclose(fd);
@@ -2301,14 +2301,14 @@ const char *create_tmpdir(char *prefix)
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
-FILE *open_tmpfile(char *prefix, char **filename)
+FILE *open_tmpfile(char *prefix, char *suffix, char **filename)
 {
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
   int i;
   FILE *fd;
   struct stat buf;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
+    my_snprintf(str, S(str), "%s%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix), suffix);
     *filename = str;
     if(stat(str, &buf) && (fd = fopen(str, "w")) ) { /* file must not exist */
       dbg(1, "open_tmpfile(): created file: %s\n", str);
