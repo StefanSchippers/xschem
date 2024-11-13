@@ -551,6 +551,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -593,6 +594,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       change_elem_order n</kbd></li><pre>
    set selected object (instance, wire, line, rect, ...) to
    position 'n' in its respective array </pre>
+   <li><kbd>       change_sch_path n &lt;draw&gt;</kbd></li><pre>
+   if descended into a vector instance change inst number we are into to 'n',
+   (same rules as 'descend' command) without going up and descending again
+   if 'draw' string is given redraw screen </pre>
    <li><kbd>       check_symbols</kbd></li><pre>
    List all used symbols in current schematic and warn if some symbol is newer </pre>
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
@@ -659,9 +664,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Delete selection </pre>
    <li><kbd>       delete_files</kbd></li><pre>
    Bring up a file selector the user can use to delete files </pre>
-   <li><kbd>       descend [n]</kbd></li><pre>
+   <li><kbd>       descend [n] [notitle]</kbd></li><pre>
    Descend into selected component instance. Optional number 'n' specifies the 
-   instance number to descend into for vector instances (default: 0). </pre>
+   instance number to descend into for vector instances (default: 0).
+   0 or 1: leftmost instance, 2: second leftmost instance, ...
+  -1: rightmost instance,-2: second rightmost instance, ...
+  if integer 'notitle' is given pass it to descend_schematic() </pre>
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
    <li><kbd>       destroy_all [force]</kbd></li><pre>
@@ -801,6 +809,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> yorigin </kbd> y coordinate of origin </li>
      <li><kbd> zoom </kbd> zoom level </li>
    </ul>
+   <li><kbd>       get_additional_symbols what</kbd></li><pre>
+   create new symbols for instance based implementation selection </pre>
    <li><kbd>       get_cell cell n_dirs</kbd></li><pre>
    return result of get_cell function </pre>
    <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
@@ -852,8 +862,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
     
        ('inst' can be an instance name or instance number)
        ('pin' can be a pin name or pin number)</pre>
-   <li><kbd>       get_sch_from_sym inst</kbd></li><pre>
-   get schematic associated with instance 'inst' </pre>
+   <li><kbd>       get_sch_from_sym inst [symbol]</kbd></li><pre>
+   get schematic associated with instance 'inst' 
+   if inst==-1 and a 'symbol' name is given get sch associated with symbol </pre>
    <li><kbd>       get_tok str tok [with_quotes]</kbd></li><pre>
    get value of token 'tok' in string 'str'
    'with_quotes' (default:0) is an integer passed to get_tok_value() </pre>
@@ -862,8 +873,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if returned value is 0 it means that last searched attribute did not exist </pre>
    <li><kbd>       globals</kbd></li><pre>
    Return various global variables used in the program </pre>
-   <li><kbd>       go_back</kbd></li><pre>
-   Go up one level (pop) in hierarchy </pre>
+   <li><kbd>       go_back [notitle]</kbd></li><pre>
+   Go up one level (pop) in hierarchy
+   if string 'notitle' is given do not update window title (slow) </pre>
    <li><kbd>       grabscreen</kbd></li><pre>
    grab root window </pre>
    <li><kbd>       hash_file file [skip_path_lines]</kbd></li><pre>
@@ -949,7 +961,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
     --&gt; { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
         { {Vpanel1} {minus} {600} {-440} } </pre>
    <li><kbd>       is_symgen symbol</kbd></li><pre>
-   tell if 'symbol' is agenerator (symbol(param1,param2,...) </pre>
+   tell if 'symbol' is a generator (symbol(param1,param2,...) </pre>
    <li><kbd>       line [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
    if 'x1 y1 x2 y2'is given place line on current
    layer (rectcolor) at indicated coordinates.
@@ -1442,6 +1454,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        setprop symbol name tok [val]
    Set attribute 'tok' of symbol name 'name' to 'val'
    If 'val' not given (no attribute value) delete attribute from symbol
+   This command is not very useful since changes are not saved into symbol
+   and netlisters reload symbols, so changes are lost anyway.
       
        setprop rect lay n tok [val] [fast|fastundo]
    Set attribute 'tok' of rectangle number'n' on layer 'lay'
@@ -1548,8 +1562,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Remove leading and trailing chars matching any character in 'sep' from str </pre>
    <li><kbd>       trim_wires</kbd></li><pre>
    Remove operlapping wires, join lines, trim wires at intersections </pre>
-   <li><kbd>       undo</kbd></li><pre>
-   Undo last action </pre>
+   <li><kbd>       undo  [redo [set_modify]</kbd></li><pre>
+   Undo last action. Optional integers redo and set_modify are passed to pop_undo() </pre>
    <li><kbd>       undo_type disk|memory</kbd></li><pre>
    Use disk file ('disk') or RAM ('memory') for undo bufer</pre>
    <li><kbd>       unhilight_all [fast]</kbd></li><pre>
@@ -1600,6 +1614,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 
