@@ -2299,7 +2299,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
    str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
 
-   if(set_title & 2) for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
+   if(!(set_title & 2)) for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
      const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
      char *pin_node = NULL, *net_node = NULL;
      int k, mult, net_mult;
