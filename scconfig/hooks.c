@@ -296,16 +296,6 @@ int hook_detect_target()
         require("parsgen/flex/presents",  0, 1);
         require("parsgen/bison/presents",  0, 1);
         require("libs/script/tk/*",  0, 1); /* this will also bring libs/script/tcl/* */
-
-        /* 
-         * if(!strstr(get("/host/libs/script/tcl/ldflags"),"-ltcl9.") && istrue(get("/local/xschem/debug"))) {
-         *   if(require("cc/argstd/std_c89",  0, 0) == 0) {
-         *     append("cc/cflags", " ");
-         *     append("cc/cflags", get("cc/argstd/std_c89"));
-         *   }
-         * }
-         */
-
         require("fstools/awk",  0, 1);
         require("libs/gui/xpm/*",  0, 1);
         require("libs/gui/cairo/*",  0, 0);
