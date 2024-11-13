@@ -1,8 +1,8 @@
+#   @?libs/tty/readline/cflags@
 put /local/xschem/cflags [@
   @cc/cflags@
   @?libs/sul/libjpeg/cflags@
   @?libs/gui/cairo/cflags@
-  @?libs/tty/readline/cflags@
   @?libs/gui/xrender/cflags@
   @?libs/gui/xcb/cflags@
   @?libs/gui/xcb_render/cflags@
@@ -12,12 +12,12 @@ put /local/xschem/cflags [@
   @libs/script/tcl/cflags@
 @]
 
+#  @?libs/tty/readline/ldflags@
 put /local/xschem/ldflags [@
   @cc/ldflags@
   -lm
   @?libs/sul/libjpeg/ldflags@
   @?libs/gui/cairo/ldflags@
-  @?libs/tty/readline/ldflags@
   @?libs/gui/xrender/ldflags@
   @?libs/gui/xcb/ldflags@
   @?libs/gui/xcb_render/ldflags@

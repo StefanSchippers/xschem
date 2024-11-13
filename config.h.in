@@ -25,8 +25,8 @@ print {\n\n/* Uncomment following line to work around some GPU problems in graph
 print {/* with tiled fill pattern. Restore of damaged content will use XCopyArea() */\n}
 print {/* #define FIX_BROKEN_TILED_FILL 1 */}
 
-print {\n\n/* Define this var if libreadline is available and is to be used */\n}
-print_ternary ?libs/tty/readline/presents {#define HAS_LIBREADLINE 1} {/*#undef HAS_LIBREADLINE */}
+# print {\n\n/* Define this var if libreadline is available and is to be used */\n}
+# print_ternary ?libs/tty/readline/presents {#define HAS_LIBREADLINE 1} {/*#undef HAS_LIBREADLINE */}
 
 print {\n\n/* Define this var if libjpeg is available and is to be used */\n}
 print_ternary ?libs/sul/libjpeg/presents {#define HAS_LIBJPEG 1} {/*#undef HAS_LIBJPEG */}
