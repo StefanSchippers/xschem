@@ -2212,7 +2212,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.16g h=%.16g",
+        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
           xctx->mousex_snap, xctx->mousey_snap,
           xctx->lastsel ,
           xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
