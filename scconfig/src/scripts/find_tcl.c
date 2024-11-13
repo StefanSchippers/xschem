@@ -23,7 +23,7 @@
 #include "scripts.h"
 #include <unistd.h>
 
-static int all_vers[] = { 86, 85, 84, 0, 90, -1 };
+static int all_vers[] = { 86, 85, 84, 90, 0, -1 };
 
 int find_script_tcl_(const char *name, int logdepth, int fatal, int *vers, int fallback)
 {
@@ -283,6 +283,7 @@ int find_script_tk(const char *name, int logdepth, int fatal)
 		sprintf(lfl, "-ltk%d.%d", major, minor);
 		if (try_icl_tk(logdepth, "libs/script/tk", test_c, NULL, NULL, lfl, *v)) return 0;
 
+		/* this seems to happen on some systems starting from 9.0 */
 		sprintf(lfl, "-ltcl%dtk%d.%d", major, major, minor);
 		if (try_icl_tk(logdepth, "libs/script/tk", test_c, NULL, NULL, lfl, *v)) return 0;
 	}
