@@ -2998,7 +2998,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
      break;
    }
-   if((key==XK_Insert && state == 0) || (key == 'I' && rstate == 0) ) /* insert sym */
+   if((key==XK_Insert) || (key == 'I' && rstate == 0) ) /* insert sym */
    {
     if(xctx->semaphore >= 2) break;
     start_place_symbol();

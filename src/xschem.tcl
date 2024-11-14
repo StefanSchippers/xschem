@@ -3392,65 +3392,65 @@ namespace eval c_toolbar {
     set c_t($i,file) {}
   }
   
-proc cleanup {} {
-    variable c_t 
-    if {![info exists c_t(n)]} return
-    set j 0
-    set n $c_t(n)
-    set top $c_t(top)
-    set i $top
-    while {1} {
-      set f [abs_sym_path $c_t($i,file)]
-      if { $c_t($i,text) eq {} } {break}
-      if { $j } {
-        set k [expr {$i - $j}]
-        if {$k < 0 } { set k [expr {$k + $n}]}
-        set c_t($k,text) $c_t($i,text)
-        set c_t($k,command) $c_t($i,command)
-        set c_t($k,file) $c_t($i,file)
-        set c_t($i,text) {}
-        set c_t($i,command) {}
-        set c_t($i,file) {}
+  proc cleanup {} {
+      variable c_t 
+      if {![info exists c_t(n)]} return
+      set j 0
+      set n $c_t(n)
+      set top $c_t(top)
+      set i $top
+      while {1} {
+        set f [abs_sym_path $c_t($i,file)]
+        if { $c_t($i,text) eq {} } {break}
+        if { $j } {
+          set k [expr {$i - $j}]
+          if {$k < 0 } { set k [expr {$k + $n}]}
+          set c_t($k,text) $c_t($i,text)
+          set c_t($k,command) $c_t($i,command)
+          set c_t($k,file) $c_t($i,file)
+          set c_t($i,text) {}
+          set c_t($i,command) {}
+          set c_t($i,file) {}
+        }
+        if {$f ne {} && ![file exists $f]} {
+          incr j
+        } elseif {[array names files -exact $f] ne {}} {
+          incr j
+        }
+        set files($f) 1
+        set i [expr {($i + 1) % $n} ]
+        if {$i == $top} break
       }
-      if {$f ne {} && ![file exists $f]} {
-        incr j
-      } elseif {[array names files -exact $f] ne {}} {
-        incr j
-      }
-      set files($f) 1
-      set i [expr {($i + 1) % $n} ]
-      if {$i == $top} break
-    }
-}
+  }
 
-proc display {} {
-  global has_x
-  variable c_t
+  proc display {} {
+    global has_x
+    variable c_t
+    
+    if {![info exists has_x]} {return}
   
-  if {![info exists has_x]} {return}
-
-  if { [winfo exists $c_t(w)]} {
-    set w $c_t(w)
-    set n $c_t(n)
-    cleanup
-    destroy $w.title
-    for {set i 0} {$i < $n} {incr i} {
-      destroy $w.b$i
-    }
-    set i $c_t(top)
-    button $w.title -text Recent -pady 0 -padx 0 -state disabled -disabledforeground black \
-      -background grey60 -borderwidth 0 -font {TkDefaultFont 12 bold}
-    pack $w.title -side top -fill x
-    while {1} {
-      button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -takefocus 0
-      pack $w.b$i -side top -fill x
-      set i [expr {($i + 1) % $n}]
-      if { $i == $c_t(top) } break
+    if { [winfo exists $c_t(w)]} {
+      set w $c_t(w)
+      set n $c_t(n)
+      cleanup
+      destroy $w.title
+      for {set i 0} {$i < $n} {incr i} {
+        destroy $w.b$i
+      }
+      set i $c_t(top)
+      button $w.title -text Recent -pady 0 -padx 0 -state disabled -disabledforeground black \
+        -background grey60 -borderwidth 0 -font {TkDefaultFont 12 bold}
+      pack $w.title -side top -fill x
+      while {1} {
+        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -takefocus 0
+        pack $w.b$i -side top -fill x
+        set i [expr {($i + 1) % $n}]
+        if { $i == $c_t(top) } break
+      }
     }
   }
-}
 
-proc add {f} {
+  proc add {f} {
     variable c_t
     for {set i 0} {$i < $c_t(n)} {incr i} {
       if {  $c_t($i,file) eq $f } { return 0}
@@ -3470,7 +3470,7 @@ proc add {f} {
     return $ret
   }
 }
-## end Recent component toolbar
+## end c_toolbar namespace
 
 proc file_dialog_set_colors1 {} {
   global file_dialog_files1 dircolor
@@ -7266,6 +7266,7 @@ global env has_x OS autofocus_mainwindow
       bind $topwin <Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$Mod1Mask}]}
       bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
       bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
+      bind $topwin <Shift-Insert> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask}]}
       bind $topwin <MouseWheel> {
         if {%D<0} {
           xschem callback %W 4 %x %y 0 5 0 %s
