@@ -414,7 +414,7 @@ static int read_raw_ascii_point(int ac, double *tmp, FILE *fd)
       dbg(1, "premature end of ascii block\n");
       return lines;
     }
-    if(line[0] == '\n') {
+    if(line[0] == '\n' || (line[0] == '\r' && line[1] == '\n')) {
       dbg(1, "found empty line --> return\n");
       break;
     }

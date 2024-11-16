@@ -3810,9 +3810,6 @@ int rstate; /* (reduced state, without ShiftMask) */
          else move_objects(START,0,0,0);
        }
 
-       #ifndef __unix__
-       draw_selection(xctx->gc[SELLAYER], 0);
-       #endif
        if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
          if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
            if(!prev_last_sel) {
@@ -3940,16 +3937,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
      }
    }
-
-#ifndef __unix__
-  case MOUSE_WHEEL_UP:  /* windows do not use button4 and button5 like X */
-  {
-    xctx->xorigin += -CADMOVESTEP * xctx->zoom / 2.;
-    draw();
-  }
-#endif
    break;
-
   default:
    dbg(1, "callback(): Event:%d\n",event);
    break;

@@ -971,11 +971,11 @@ static void drawgrid()
 {
   double x,y;
   double delta,tmp;
+  double mult;
   #if DRAW_ALL_CAIRO==0
   int i=0;
   int big_gr = tclgetboolvar("big_grid_points");
   int axes = tclgetboolvar("draw_grid_axes");
-  double mult;
   
   #endif
   dbg(1, "drawgrid(): draw grid\n");
@@ -1178,9 +1178,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
         XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
       if (xctx->draw_pixmap)
         XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
-      #if HAS_CAIRO==1
-      check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
-      #endif
     }
 #endif
    i=0;
@@ -1217,9 +1214,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
-   #if !defined(__unix__) && HAS_CAIRO==1
-   check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
-   #endif
   }
  }
 
@@ -1240,9 +1234,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
-   #if !defined(__unix__) && HAS_CAIRO==1
-   check_cairo_drawline(ct, c, x1, y1, x2, y2, dash);
-   #endif
    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
  }
@@ -1257,9 +1248,6 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
        XDrawLine(display, xctx->window, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
      if (xctx->draw_pixmap)
        XDrawLine(display, xctx->save_pixmap, xctx->gc[c], rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2);
-     #if HAS_CAIRO==1
-     check_cairo_drawline(ct, c, rr[j].x1, rr[j].y1, rr[j].x2, rr[j].y2, 0);
-     #endif
    }
 #endif
   i=0;
@@ -2751,9 +2739,6 @@ static void draw_graph_points(int idx, int first, int last,
       }
       /*XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);*/
     }
-    #if !defined(__unix__) && HAS_CAIRO==1
-    check_cairo_drawpoints(ct, wave_col, point, poly_npoints);
-    #endif
     set_thick_waves(0, wcnt, wave_col, gr);
   } else dbg(1, "skipping wave: %s\n", raw->names[idx]);
   for(p=0;p<cadlayers; ++p) {
@@ -4882,7 +4867,7 @@ void draw(void)
     }
     /* do_copy_area is zero only when doing png hardcopy to avoid video flickering */
     if(xctx->do_copy_area) {
-      if(!xctx->draw_window && xctx->save_pixmap) {
+      if(!xctx->draw_window && xctx->draw_pixmap) {
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
       }
