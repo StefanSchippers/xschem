@@ -2676,13 +2676,13 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
 static void draw_graph_points(int idx, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
 {
-  int p;
+  int p, x;
   register double yy;
   register int digital;
   int poly_npoints = 0;
   double s1;
   double s2;
-  double c = 0, c1;
+  double c = 0 /* , c1 */;
   Raw *raw = xctx->raw;
   register SPICE_DATA *gv;
 
@@ -2703,44 +2703,44 @@ static void draw_graph_points(int idx, int first, int last,
     s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
     s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
     c = (n_nodes - wcnt) * s1 * gr->gh - gr->gy1 * s2; /* trace baseline */
-    c1 = c + gr->gh * 0.5 * s2; /* trace y-center, used for clipping */
+    /* c1 = c + gr->gh * 0.5 * s2; */ /* trace y-center, used for clipping */
   }
-  if( !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) {
-    int x;
-    for(p = first ; p <= last; p++) {
-      yy = gv[p];
-      if(digital) {
-        yy = c + yy *s2;
-        /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-        point[poly_npoints].y = (short)CLIP(DS_Y(yy), -30000, 30000);
-      } else {
-        /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-        if(gr->logy) yy = mylog10(yy);
-        point[poly_npoints].y = (short)CLIP(S_Y(yy), -30000, 30000);
-      }
-      poly_npoints++;
+  /* below condition seems no more necessary as a clip is set via bbox(SET...) */
+  /* if( 1 || !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) { */
+  for(p = first ; p <= last; p++) {
+    yy = gv[p];
+    if(digital) {
+      yy = c + yy *s2;
+      /* Build poly y array. Translate from graph coordinates to screen coordinates  */
+      point[poly_npoints].y = (short)CLIP(DS_Y(yy), -30000, 30000);
+    } else {
+      /* Build poly y array. Translate from graph coordinates to screen coordinates  */
+      if(gr->logy) yy = mylog10(yy);
+      point[poly_npoints].y = (short)CLIP(S_Y(yy), -30000, 30000);
     }
-    set_thick_waves(1, wcnt, wave_col, gr);
-    for(x = 0; x < 2; x++) {
-      Drawable  w;
-      int offset = 0, size;
-      XPoint *pt = point;
-      if(x == 0 && xctx->draw_window) w = xctx->window;
-      else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
-      else continue;
-      while(1) {
-        pt =  point + offset;
-        size = poly_npoints - offset;
-        if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
-        /* dbg(0, "draw_graph_points(): drawing from %d, size %d\n", offset, size);*/
-        XDrawLines(display, w, xctx->gc[wave_col], pt, size, CoordModeOrigin);
-        if(offset + size >= poly_npoints) break;
-        offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
-      }
-      /*XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);*/
+    poly_npoints++;
+  }
+  set_thick_waves(1, wcnt, wave_col, gr);
+  for(x = 0; x < 2; x++) {
+    Drawable  w;
+    int offset = 0, size;
+    XPoint *pt = point;
+    if(x == 0 && xctx->draw_window) w = xctx->window;
+    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    while(1) {
+      pt =  point + offset;
+      size = poly_npoints - offset;
+      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+      /* dbg(0, "draw_graph_points(): drawing from %d, size %d\n", offset, size);*/
+      XDrawLines(display, w, xctx->gc[wave_col], pt, size, CoordModeOrigin);
+      if(offset + size >= poly_npoints) break;
+      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
     }
-    set_thick_waves(0, wcnt, wave_col, gr);
-  } else dbg(1, "skipping wave: %s\n", raw->names[idx]);
+    /*XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);*/
+  }
+  set_thick_waves(0, wcnt, wave_col, gr);
+  /* } else dbg(1, "skipping wave: %s\n", raw->names[idx]); */
   for(p=0;p<cadlayers; ++p) {
     XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
