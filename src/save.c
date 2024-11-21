@@ -612,7 +612,8 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
   dbg(1, "read_dataset(): type=%s\n", type ? type : "<NULL>");
   if(type) {
     if(!my_strcasecmp(type, "spectrum")) type = "ac";
-    if(!my_strcasecmp(type, "sp")) type = "ac";
+    else if(!my_strcasecmp(type, "sp")) type = "ac";
+    else if(!my_strcasecmp(type, "constants")) type = "ac";
   }
   while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
@@ -690,6 +691,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     else if(!strncmp(line, "Plotname:", 9) &&
             ( strstr(lowerline, "ac analysis") ||
               strstr(lowerline, "spectrum") ||
+              strstr(lowerline, "constants") ||
               strstr(lowerline, "sp analysis")) ) {
       ac = 1;
       if(!type) type = "ac";
@@ -1220,7 +1222,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     my_strncpy(f, tclresult(), S(f));
     if(type) {
       if(!my_strcasecmp(type, "spectrum")) type = "ac";
-      if(!my_strcasecmp(type, "sp")) type = "ac";
+      else if(!my_strcasecmp(type, "sp")) type = "ac";
+      else if(!my_strcasecmp(type, "constants")) type = "ac";
     }
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type && 

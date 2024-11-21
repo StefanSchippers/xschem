@@ -2781,7 +2781,8 @@ proc graph_edit_properties {n} {
     } 
   label .graphdialog.center.right.lab2 -text {    Sim type:}
   if { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.center.right.list -values {dc ac tran op sp spectrum noise table}  -width 9
+    ttk::combobox .graphdialog.center.right.list \
+      -values {dc ac tran op sp spectrum noise constants table}  -width 9
   } else {
     entry .graphdialog.center.right.list -width 4
   }
