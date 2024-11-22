@@ -377,11 +377,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         if(!strcmp(argv[2], "end")) {
-          bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
-          draw();
           bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
-        } else if(!strcmp(argv[2], "begin")) {
+        } else if(!strcmp(argv[2], "start")) {
           bbox(START,0.0, 0.0, 0.0, 0.0);
+        } else if(!strcmp(argv[2], "set")) {
+          bbox(SET,0.0, 0.0, 0.0, 0.0);
+        } else if(argc > 6 && !strcmp(argv[2], "add")) {
+          bbox(ADD, atof(argv[3]),  atof(argv[4]), atof(argv[5]), atof(argv[6]));
         }
       }
       Tcl_ResetResult(interp);
