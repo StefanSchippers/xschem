@@ -104,10 +104,10 @@ void print_image()
   }
   #if 0
   *  for(tmp=0;tmp<cadlayers;tmp++) {
-  *    XSetClipRectangles(display, xctx->gc[tmp], 0,0, xctx->xrect, 1, Unsorted);
-  *    XSetClipRectangles(display, xctx->gcstipple[tmp], 0,0, xctx->xrect, 1, Unsorted);
+  *    XSetClipRectangles(display, xctx->gc[tmp], 0, 0, xctx->xrect, 1, Unsorted);
+  *    XSetClipRectangles(display, xctx->gcstipple[tmp], 0, 0, xctx->xrect, 1, Unsorted);
   *  }
-  *  XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+  *  XSetClipRectangles(display, xctx->gctiled, 0, 0, xctx->xrect, 1, Unsorted);
   #endif
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
@@ -141,7 +141,7 @@ void print_image()
   }
   #else /* no cairo */
   #ifdef __unix__
-  XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap,0, NULL ); /* .gz ???? */
+  XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap, 0, NULL ); /* .gz ???? */
   dbg(1, "print_image(): Window image saved\n");
   if(xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
@@ -247,7 +247,7 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
   cairo_translate(c_ctx, ix, iy);
   cairo_rotate(c_ctx, XSCH_PI/2*rot1);
 
-  cairo_move_to(c_ctx, 0,0);
+  cairo_move_to(c_ctx, 0, 0);
   cairo_show_text(c_ctx, s);
   cairo_restore(c_ctx);
 }
@@ -633,8 +633,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       int dash;
       line = &(symptr->line[layer])[j];
       dash = (disabled == 1) ? 3 : line->dash;
-      ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
+      ROTATION(rot, flip, 0.0, 0.0,line->x1,line->y1,x1,y1);
+      ROTATION(rot, flip, 0.0, 0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line->bus)
         drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, dash, NULL);
@@ -651,7 +651,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       for(k=0;k<polygon->points; ++k) {
-        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
+        ROTATION(rot, flip, 0.0, 0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
         x[k]+= x0;
         y[k] += y0;
       }
@@ -671,7 +671,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       }
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
-      ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
+      ROTATION(rot, flip, 0.0, 0.0,arc->x,arc->y,x1,y1);
       drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, dash);
     }
   } /* if(!hide) */
@@ -683,8 +683,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       int dash;
       rect = &(symptr->rect[layer])[j];
       dash = (disabled == 1) ? 3 : rect->dash;
-      ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
-      ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
+      ROTATION(rot, flip, 0.0, 0.0,rect->x1,rect->y1,x1,y1);
+      ROTATION(rot, flip, 0.0, 0.0,rect->x2,rect->y2,x2,y2);
       #if HAS_CAIRO == 1
       if(layer == GRIDLAYER && rect->flags & 1024) {
         double xx1 = x0 + x1;
@@ -737,7 +737,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
       if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
-      ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
+      ROTATION(rot, flip, 0.0, 0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
       /* do not allow custom text color on hilighted instances */
       if(disabled == 1) textlayer = GRIDLAYER;
@@ -862,8 +862,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
       * y0=xctx->inst[n].y0;
       * x0 += xoffset;
       * y0 += yoffset;
-      * ROTATION(rot, flip, 0.0,0.0,symptr->minx, symptr->miny,x1,y1);
-      * ROTATION(rot, flip, 0.0,0.0,symptr->maxx, symptr->maxy,x2,y2);
+      * ROTATION(rot, flip, 0.0, 0.0,symptr->minx, symptr->miny,x1,y1);
+      * ROTATION(rot, flip, 0.0, 0.0,symptr->maxx, symptr->maxy,x2,y2);
       * RECTORDER(x1,y1,x2,y2);
       * drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
       */
@@ -882,8 +882,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    for(j=0;j< symptr->lines[layer]; ++j)
    {
     line = &(symptr->line[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
+    ROTATION(rot, flip, 0.0, 0.0,line->x1,line->y1,x1,y1);
+    ROTATION(rot, flip, 0.0, 0.0,line->x2,line->y2,x2,y2);
     ORDER(x1,y1,x2,y2);
     if(line->bus)
       drawtempline(gc,THICK, x0+x1, y0+y1, x0+x2, y0+y2);
@@ -900,7 +900,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
        double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
        for(k=0;k<polygon->points; ++k) {
-         ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
+         ROTATION(rot, flip, 0.0, 0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
          x[k] += x0;
          y[k] += y0;
        }
@@ -913,8 +913,8 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    for(j=0;j< symptr->rects[layer]; ++j)
    {
     rect = &(symptr->rect[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
+    ROTATION(rot, flip, 0.0, 0.0,rect->x1,rect->y1,x1,y1);
+    ROTATION(rot, flip, 0.0, 0.0,rect->x2,rect->y2,x2,y2);
     RECTORDER(x1,y1,x2,y2);
     drawtemprect(gc,what, x0+x1, y0+y1, x0+x2, y0+y2);
    }
@@ -928,7 +928,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      }
      angle = fmod(angle, 360.);
      if(angle<0.) angle+=360.;
-     ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
+     ROTATION(rot, flip, 0.0, 0.0,arc->x,arc->y,x1,y1);
      drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
    }
  
@@ -943,7 +943,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      text = symptr->text[j];
      if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
      if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
-     ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
+     ROTATION(rot, flip, 0.0, 0.0,text.x0,text.y0,x1,y1);
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&text);
      #endif
@@ -2304,16 +2304,16 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     Raw *raw = NULL;
     const char *ptr;
 
-    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
+    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
     if(autoload == 0) autoload = 2;
-    ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+    ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
     if(!ptr[0]) {
       if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
       else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
     } else {
       my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
     }
-    my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
+    my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
     if((i == xctx->graph_master) && custom_rawfile[0]) {
       extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
     }
@@ -2322,7 +2322,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
 
-      ptr = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile",0);
+      ptr = get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"rawfile", 0);
       if(!ptr[0]) {
         if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
         else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
@@ -2331,7 +2331,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       }
 
       my_strdup2(_ALLOC_ID_, &sim_type,
-        get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"sim_type",0));
+        get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr,"sim_type", 0));
       if(custom_rawfile[0]) {
         extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
       }
@@ -2402,13 +2402,13 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       int autoload = 0, save_datasets = -1, save_npoints = -1;
       const char *ptr;
 
-      autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
+      autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
       if(autoload == 0) autoload = 2;
       dbg(1, "graph_fullyzoom(): graph_dataset=%d\n", graph_dataset);
-      my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-      my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0));
+      my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+      my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
 
-      ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+      ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
       if(!ptr[0]) {
         if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
         else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
@@ -2416,7 +2416,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
       }
 
-      my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
+      my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
 
       save_extra_idx = xctx->extra_idx;
       nptr = node;
@@ -2859,9 +2859,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(!skip) {
     gr->gx1 = 0;
     gr->gx2 = 1e-6;
-    val = get_tok_value(r->prop_ptr,"x1",0);
+    val = get_tok_value(r->prop_ptr,"x1", 0);
     if(val[0]) gr->gx1 = atof_spice(val);
-    val = get_tok_value(r->prop_ptr,"x2",0);
+    val = get_tok_value(r->prop_ptr,"x2", 0);
     if(val[0]) gr->gx2 = atof_spice(val);
     if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
     gr->gw = gr->gx2 - gr->gx1;
@@ -2895,15 +2895,20 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->rh = gr->ry2 - gr->ry1;
 
   /* wave to display in bold, -1=none */
-  val=get_tok_value(r->prop_ptr,"hilight_wave",0);
+  val=get_tok_value(r->prop_ptr,"hilight_wave", 0);
   if(val[0]) gr->hilight_wave = atoi(val);
   else gr->hilight_wave = -1;
 
+  /* legend */
+  gr->legend = 1;
+  val = get_tok_value(r->prop_ptr,"legend", 0);
+  if(val[0]) gr->legend = atoi(val);
+
   /* get x/y range, grid info etc */
-  val = get_tok_value(r->prop_ptr,"unitx",0);
+  val = get_tok_value(r->prop_ptr,"unitx", 0);
   gr->unitx_suffix = val[0];
   gr->unitx = get_unit(val);
-  val = get_tok_value(r->prop_ptr,"unity",0);
+  val = get_tok_value(r->prop_ptr,"unity", 0);
   if(gr->logx) { /* AC */
     gr->unity_suffix = '1';
     gr->unity = 1.0;
@@ -2911,46 +2916,46 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
     gr->unity_suffix = val[0];
     gr->unity = get_unit(val);
   }
-  val = get_tok_value(r->prop_ptr,"xlabmag",0);
+  val = get_tok_value(r->prop_ptr,"xlabmag", 0);
   if(val[0]) gr->magx = atof(val);
-  val = get_tok_value(r->prop_ptr,"ylabmag",0);
+  val = get_tok_value(r->prop_ptr,"ylabmag", 0);
   if(val[0]) gr->magy = atof(val);
-  val = get_tok_value(r->prop_ptr,"subdivx",0);
+  val = get_tok_value(r->prop_ptr,"subdivx", 0);
   if(val[0]) gr->subdivx = atoi(val);
-  val = get_tok_value(r->prop_ptr,"subdivy",0);
+  val = get_tok_value(r->prop_ptr,"subdivy", 0);
   if(val[0]) gr->subdivy = atoi(val);
-  val = get_tok_value(r->prop_ptr,"divx",0);
+  val = get_tok_value(r->prop_ptr,"divx", 0);
   if(val[0]) gr->divx = atoi(val);
   if(gr->divx < 1) gr->divx = 1;
-  val = get_tok_value(r->prop_ptr,"divy",0);
+  val = get_tok_value(r->prop_ptr,"divy", 0);
   if(val[0]) gr->divy = atoi(val);
   if(gr->divy < 1) gr->divy = 1;
-  val = get_tok_value(r->prop_ptr,"linewidth_mult",0);
+  val = get_tok_value(r->prop_ptr,"linewidth_mult", 0);
   if(val[0]) gr->linewidth_mult = atof(val);
-  val = get_tok_value(r->prop_ptr,"rainbow",0);
+  val = get_tok_value(r->prop_ptr,"rainbow", 0);
   if(val[0] == '1') gr->rainbow = 1;
-  val = get_tok_value(r->prop_ptr,"logx",0);
+  val = get_tok_value(r->prop_ptr,"logx", 0);
   if(val[0] == '1') gr->logx = 1;
-  val = get_tok_value(r->prop_ptr,"logy",0);
+  val = get_tok_value(r->prop_ptr,"logy", 0);
   if(val[0] == '1') gr->logy = 1;
-  val = get_tok_value(r->prop_ptr,"y1",0);
+  val = get_tok_value(r->prop_ptr,"y1", 0);
   if(val[0]) gr->gy1 = atof_spice(val);
-  val = get_tok_value(r->prop_ptr,"y2",0);
+  val = get_tok_value(r->prop_ptr,"y2", 0);
   if(val[0]) gr->gy2 = atof_spice(val);
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
-  val = get_tok_value(r->prop_ptr,"digital",0);
+  val = get_tok_value(r->prop_ptr,"digital", 0);
   if(val[0]) gr->digital = atoi(val);
   if(gr->digital) {
-    val = get_tok_value(r->prop_ptr,"ypos1",0);
+    val = get_tok_value(r->prop_ptr,"ypos1", 0);
     if(val[0]) gr->ypos1 = atof_spice(val);
-    val = get_tok_value(r->prop_ptr,"ypos2",0);
+    val = get_tok_value(r->prop_ptr,"ypos2", 0);
     if(val[0]) gr->ypos2 = atof_spice(val);
     if(gr->ypos2 == gr->ypos1) gr->ypos2 += 1.0;
   }
   gr->posh = gr->ypos2 - gr->ypos1;
 
   /* plot single dataset */
-  val = get_tok_value(r->prop_ptr,"dataset",0);
+  val = get_tok_value(r->prop_ptr,"dataset", 0);
   if(val[0]) gr->dataset = atoi(val);
   gr->gh = gr->gy2 - gr->gy1;
   /* set margins */
@@ -3093,40 +3098,64 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
        gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-5, gr->txtsizelab, gr->txtsizelab);
   }
-  /* draw node labels in graph */
-  if(bus_msb) {
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", 
-         find_nth(ntok, ";,", "\"", 0, 1), gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", "\"", 0, 1));
-  } else {
-    char *ntok_ptr = NULL;
-    char *alias_ptr = NULL;
-    dbg(1, "ntok=%s\n", ntok);
-    if(strstr(ntok, ";")) {
-       my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
-       my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
-    }
-    else {
-       my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
-       my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
-    }
-      
-    if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
-    else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
-    my_free(_ALLOC_ID_, &alias_ptr);
-    my_free(_ALLOC_ID_, &ntok_ptr);
-  }
-  if(gr->digital) {
-    double xt = gr->x1 - 15 * gr->txtsizelab;
-    double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-    double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-    double yt;
-    if(flags & 2)  /* cursor1 with measures */
-      yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
-    else
-      yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.1 * s2;
 
-    if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+  if(gr->legend || gr->digital) {
+    /* draw node labels in graph */
+    if(bus_msb) {
+      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", 
+           find_nth(ntok, ";,", "\"", 0, 1), gr->unity_suffix);
+      else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", "\"", 0, 1));
+    } else {
+      char *ntok_ptr = NULL;
+      char *alias_ptr = NULL;
+      dbg(1, "ntok=%s\n", ntok);
+      if(strstr(ntok, ";")) {
+         my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
+         my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
+      }
+      else {
+         my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
+         my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
+      }
+        
+      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
+      else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
+      my_free(_ALLOC_ID_, &alias_ptr);
+      my_free(_ALLOC_ID_, &ntok_ptr);
+    }
+    if(gr->digital) {
+      double xt = gr->x1 - 15 * gr->txtsizelab;
+      double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+      double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+      double yt;
+      if(flags & 2)  /* cursor1 with measures */
+        yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
+      else
+        yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.1 * s2;
+  
+      if(yt <= gr->ypos2 && yt >= gr->ypos1) {
+        #if HAS_CAIRO == 1
+        if(gr->hilight_wave == wcnt) {
+          xctx->cairo_font =
+                cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+          cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+          cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+          cairo_font_face_destroy(xctx->cairo_font);
+        }
+        #endif
+        draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
+          xt, DW_Y(yt), gr->digtxtsizelab * gr->magy, gr->digtxtsizelab * gr->magy);
+        #if HAS_CAIRO == 1
+        if(gr->hilight_wave == wcnt) {
+          xctx->cairo_font =
+                cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+          cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+          cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+          cairo_font_face_destroy(xctx->cairo_font);
+        }
+        #endif
+      }
+    } else {
       #if HAS_CAIRO == 1
       if(gr->hilight_wave == wcnt) {
         xctx->cairo_font =
@@ -3136,8 +3165,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         cairo_font_face_destroy(xctx->cairo_font);
       }
       #endif
-      draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
-        xt, DW_Y(yt), gr->digtxtsizelab * gr->magy, gr->digtxtsizelab * gr->magy);
+      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
+          gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
       #if HAS_CAIRO == 1
       if(gr->hilight_wave == wcnt) {
         xctx->cairo_font =
@@ -3148,28 +3177,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       }
       #endif
     }
-  } else {
-    #if HAS_CAIRO == 1
-    if(gr->hilight_wave == wcnt) {
-      xctx->cairo_font =
-            cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-      cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-      cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-      cairo_font_face_destroy(xctx->cairo_font);
-    }
-    #endif
-    draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
-        gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
-    #if HAS_CAIRO == 1
-    if(gr->hilight_wave == wcnt) {
-      xctx->cairo_font =
-            cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-      cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-      cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-      cairo_font_face_destroy(xctx->cairo_font);
-    }
-    #endif
-  }
+  } /* if(gr->legend) */
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
@@ -3185,6 +3193,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
     dbg(0, "show_node_measures(): no raw struct allocated\n");
     return;
   }
+  if(!gr->legend && !gr->digital) return;
   if(measure_p >= 0) {
    
     /* draw node values in graph */
@@ -3276,9 +3285,9 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
   /* get plot data */
-  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-  my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
-  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+  my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0)); 
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
   nptr = node;
   cptr = color;
   sptr = sweep;
@@ -3449,15 +3458,15 @@ int find_closest_wave(int i, Graph_ctx *gr)
   }   
   if(gr->digital) return -1;
 
-  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
   if(autoload == 0) autoload = 2; 
   yval = G_Y(xctx->mousey);
   xval = G_X(xctx->mousex);
   /* get data to plot */
-  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
 
-  ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+  ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
   if(!ptr[0]) {
     if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
     else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
@@ -3465,7 +3474,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
     my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
   }   
 
-  my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
+  my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
     extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
   }
@@ -3666,23 +3675,23 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     clear_cairo_surface(xctx->cairo_save_ctx, gr->sx1, gr->sy1, sw, sh);
     clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
     #endif
-    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload",0), "1");
+    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
     if(autoload == 0) autoload = 2;  /* 2: switch */
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */
-    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node",0));
-    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color",0)); 
-    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep",0)); 
+    my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0)); 
+    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
 
-    ptr = get_tok_value(r->prop_ptr,"rawfile",0);
+    ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
     if(!ptr[0]) {
       if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
       else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
     } else { 
       my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
     }   
-    my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type",0));
+    my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
     dbg(1, "draw_graph(): graph %d: custom_rawfile=%s autoload=%d sim_type=%s\n",
         i, custom_rawfile, autoload, sim_type);
     save_extra_idx = xctx->extra_idx;
@@ -4771,7 +4780,7 @@ void draw(void)
             symptr->polygons[c] ||
             ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
         {
-            draw_symbol(ADD, cc, i,c,0,0,0.0,0.0);     /* ... then draw current layer      */
+            draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0);     /* ... then draw current layer      */
         }
       }
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 3, -1, -1); /* last parameter must be 3! */

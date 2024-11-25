@@ -2688,7 +2688,7 @@ proc set_rect_flags {graph_selected} {
   }
 
 proc graph_edit_properties {n} {
-  global graph_bus graph_sort graph_digital graph_selected graph_sel_color
+  global graph_bus graph_sort graph_digital graph_selected graph_sel_color graph_legend
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow 
   global graph_linewidth_mult graph_change_done has_x graph_dialog_default_geometry
   global graph_autoload graph_private_cursor
@@ -2714,6 +2714,8 @@ proc graph_edit_properties {n} {
   if {[xschem getprop rect 2 $n logx] == 1} {set graph_logx 1}
   set graph_logy 0
   if {[xschem getprop rect 2 $n logy] == 1} {set graph_logy 1}
+  set graph_legend 1
+  if {[xschem getprop rect 2 $n legend] == 0} {set graph_legend 0}
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
 
@@ -2898,6 +2900,14 @@ proc graph_edit_properties {n} {
   }
 
   # top2 frame
+  checkbutton .graphdialog.top.legend -text {Legend} -variable graph_legend -indicatoron 1 \
+    -command {
+       if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
+         xschem setprop rect 2 $graph_selected legend $graph_legend fast
+         xschem draw_graph $graph_selected
+       }
+     }
   label .graphdialog.top2.labunitx -text {X units}
   spinbox .graphdialog.top2.unitx -values {f p n u m 1 k M G T} -width 2 \
    -command {
@@ -3084,6 +3094,7 @@ proc graph_edit_properties {n} {
   }
 
 
+  pack .graphdialog.top.legend -side left
   pack .graphdialog.top.incr -side left
   pack .graphdialog.top.bus -side left
   pack .graphdialog.top.priv_curs -side left
@@ -6984,7 +6995,8 @@ set tctx::global_list {
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
   gaw_fd gaw_tcp_address graph_autoload graph_bus
-  graph_change_done graph_digital graph_dialog_default_geometry graph_linewidth_mult graph_logx
+  graph_change_done graph_digital graph_dialog_default_geometry 
+  graph_legend graph_linewidth_mult graph_logx
   graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked hide_empty_graphs hide_symbols tctx::hsize
   incr_hilight incremental_select infowindow_text intuitive_interface 
