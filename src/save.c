@@ -613,7 +613,6 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
   if(type) {
     if(!my_strcasecmp(type, "spectrum")) type = "ac";
     else if(!my_strcasecmp(type, "sp")) type = "ac";
-    else if(!my_strcasecmp(type, "constants")) type = "ac";
   }
   while((line = my_fgets(fd, NULL))) {
     my_strdup2(_ALLOC_ID_, &lowerline, line);
@@ -691,7 +690,6 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
     else if(!strncmp(line, "Plotname:", 9) &&
             ( strstr(lowerline, "ac analysis") ||
               strstr(lowerline, "spectrum") ||
-              strstr(lowerline, "constants") ||
               strstr(lowerline, "sp analysis")) ) {
       ac = 1;
       if(!type) type = "ac";
@@ -707,7 +705,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(name[0]) {
         if(!type) type = name;
         if(!strcmp(type, name)) sim_type = name;
-        dbg(dbglev, "read_dataset(): ac sim_type=%s\n", sim_type ? sim_type : "<NULL>");
+        dbg(dbglev, "read_dataset(): sim_type=%s\n", sim_type ? sim_type : "<NULL>");
       }
     }
     /* points and vars are needed for all sections (also ones we are not interested in)
@@ -1223,7 +1221,6 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     if(type) {
       if(!my_strcasecmp(type, "spectrum")) type = "ac";
       else if(!my_strcasecmp(type, "sp")) type = "ac";
-      else if(!my_strcasecmp(type, "constants")) type = "ac";
     }
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type && 
