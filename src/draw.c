@@ -2722,10 +2722,7 @@ static void draw_graph_points(int idx, int first, int last,
     poly_npoints++;
   }
   set_thick_waves(1, wcnt, wave_col, gr);
-  /* if XCopyArea drawing model is enable no need to draw on window
-   *             |
-   *            \|/                                                 */
-  for(x = (xctx->draw_window ? 0 : 1); x < 2; x++) {
+  for(x = 0; x < 2; x++) {
     Drawable  w;
     int offset = 0, size;
     XPoint *pt = point;
