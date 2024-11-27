@@ -2671,6 +2671,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
     XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
   }
 }
+
 #define MAX_POLY_POINTS 4096*16
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
 static void draw_graph_points(int idx, int first, int last,
@@ -2721,7 +2722,10 @@ static void draw_graph_points(int idx, int first, int last,
     poly_npoints++;
   }
   set_thick_waves(1, wcnt, wave_col, gr);
-  for(x = 0; x < 2; x++) {
+  /* if XCopyArea drawing model is enable no need to draw on window
+   *             |
+   *            \|/                                                 */
+  for(x = (xctx->draw_window ? 0 : 1); x < 2; x++) {
     Drawable  w;
     int offset = 0, size;
     XPoint *pt = point;
@@ -4945,7 +4949,6 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   
   width = (unsigned int)isx2 - (unsigned int)isx1;
   height = (unsigned int)isy2 - (unsigned int)isy1;
-  dbg(1, "%g %g %g %g  --> %g %g\n", isx1, isy1, isx2, isy2, idx1, idy1);
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, (int)isx1, (int)isy1, width, height, (int)idx1, (int)idy1);
   #if HAS_CAIRO==1

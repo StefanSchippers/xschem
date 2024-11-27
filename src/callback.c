@@ -33,6 +33,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   int is_inside = 0, skip = 0;
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
+  int draw_xhair = tclgetboolvar("draw_crosshair");
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
   if(xctx->ui_state & excl) skip = 1;
@@ -63,12 +64,12 @@ static int waves_selected(int event, KeySym key, int state, int button)
       );
     if( (xctx->ui_state & GRAPHPAN) || check) {
        is_inside = 1;
-       draw_crosshair(1);
+       if(draw_xhair) draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
     }
   }
   if(!is_inside) {
-    if(tclgetboolvar("draw_crosshair"))
+    if(draw_xhair)
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
     else
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
