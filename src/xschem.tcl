@@ -3848,7 +3848,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   frame .load.l.paneright.f -takefocus 0
   frame .load.l.paneright.draw -background white -height 3.8c -takefocus 0
   .load.l.paneright add .load.l.paneright.f
-  .load.l.paneright add .load.l.paneright.draw -minsize 200
+  .load.l.paneright add .load.l.paneright.draw -minsize 150
 
 
   if { ![catch {.load.l.paneright  panecget .load.l.paneright.f -stretch}]} {
@@ -3880,7 +3880,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     c_toolbar::display
   }
   .load.l  add .load.l.paneleft -minsize 40
-  .load.l  add .load.l.paneright -minsize 300
+  .load.l  add .load.l.paneright -minsize 150
   eval .load.l paneconfigure .load.l.paneleft $optnever
   eval .load.l paneconfigure .load.l.paneright $optalways
   frame .load.buttons -takefocus 0
@@ -4040,34 +4040,34 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   if { [info exists file_dialog_v_sp0] } {
     eval .load.l.paneright sash mark 0 [.load.l.paneright sash coord 0]
-    eval .load.l.paneright sash dragto 0 [subst $file_dialog_v_sp0]
+    eval .load.l.paneright sash dragto 0 [subst {1 $file_dialog_v_sp0}]
   }
 
   if { [info exists file_dialog_sp0] } {
     if { $file_dialog_loadfile == 2} {
       eval .load.l sash mark 1 [.load.l sash coord 1]
-      eval .load.l sash dragto 1 [subst $file_dialog_sp0]
+      eval .load.l sash dragto 1 [subst {$file_dialog_sp0 1}]
     } else {
       eval .load.l sash mark 0 [.load.l sash coord 0]
-      eval .load.l sash dragto 0 [subst $file_dialog_sp0]
+      eval .load.l sash dragto 0 [subst {$file_dialog_sp0 1}]
     }
   }
   if { $file_dialog_loadfile == 2 && [info exists file_dialog_sp1] } {
     eval .load.l sash mark 0 [.load.l sash coord 0]
-    eval .load.l sash dragto 0 [subst $file_dialog_sp1]
+    eval .load.l sash dragto 0 [subst {$file_dialog_sp1 1}]
   }
   ### update
   .load.l.paneleft.list xview moveto 1
 
   bind .load <Configure> {
-    set file_dialog_v_sp0 [.load.l.paneright sash coord 0]
+    set file_dialog_v_sp0 [lindex [.load.l.paneright sash coord 0] 1]
     if { $file_dialog_loadfile == 2} {
-      set file_dialog_sp0 [.load.l sash coord 1]
+      set file_dialog_sp0 [lindex [.load.l sash coord 1] 0]
     } else {
-      set file_dialog_sp0 [.load.l sash coord 0]
+      set file_dialog_sp0 [lindex [.load.l sash coord 0] 0]
     }
     if {$file_dialog_loadfile == 2} {
-      set file_dialog_sp1 [.load.l sash coord 0]
+      set file_dialog_sp1 [lindex [.load.l sash coord 0] 0]
     }
     set file_dialog_default_geometry [wm geometry .load]
     .load.l.paneleft.list xview moveto 1

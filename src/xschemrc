@@ -171,8 +171,14 @@
 #### this is the default:
 # set initial_geometry {900x600}
 
-#### initial geometry of load /save / insert component file selector
-# set file_dialog_default_geometry 800x600
+#### initial size of the load_file_dialog (the file selector) dialog box
+# set file_dialog_default_geometry 700x680+100+40
+#### load_file_dialog directory list (+ recent if shown) X width in pixels
+# set file_dialog_sp0 350
+#### load_file_dialog recent components list X width in pixels
+# set file_dialog_sp1 100
+#### load_file_dialog components list Y height in pixels
+# set file_dialog_v_sp0 420
 
 #### display full path (1) or only name (0) for component directories. Default: 1
 # set load_file_dialog_fullpath 1
