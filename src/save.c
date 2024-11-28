@@ -837,7 +837,9 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
 
 
   /* no analysis was found: delete */
-  if(exit_status != 1) extra_rawfile(3, NULL, NULL, -1.0, -1.0);
+  if(exit_status != 1) {
+    free_rawfile(rawptr, 0);
+  }
   read_dataset_done:
   if(line) my_free(_ALLOC_ID_, &line);
   if(lowerline) my_free(_ALLOC_ID_, &lowerline);
