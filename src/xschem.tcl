@@ -3787,7 +3787,7 @@ proc file_dialog_right_listboxselect {dirselect} {
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}} 
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
   global file_dialog_index1 file_dialog_files2 file_dialog_files1 file_dialog_retval file_dialog_dir1 pathlist OS
-  global file_dialog_default_geometry file_dialog_sash_pos file_dialog_yview 
+  global file_dialog_default_geometry file_dialog_sp0 file_dialog_sp1 file_dialog_v_sp0 file_dialog_yview 
   global file_dialog_names1 tcl_version file_dialog_globfilter file_dialog_dir2
   global file_dialog_save_initialfile file_dialog_loadfile file_dialog_ext
 
@@ -4037,14 +4037,38 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   "
 
   ### update
-  if { [info exists file_dialog_sash_pos] } {
+
+  if { [info exists file_dialog_v_sp0] } {
+    eval .load.l.paneright sash mark 0 [.load.l.paneright sash coord 0]
+    eval .load.l.paneright sash dragto 0 [subst $file_dialog_v_sp0]
+  }
+
+  if { [info exists file_dialog_sp0] } {
+    if { $file_dialog_loadfile == 2} {
+      eval .load.l sash mark 1 [.load.l sash coord 1]
+      eval .load.l sash dragto 1 [subst $file_dialog_sp0]
+    } else {
+      eval .load.l sash mark 0 [.load.l sash coord 0]
+      eval .load.l sash dragto 0 [subst $file_dialog_sp0]
+    }
+  }
+  if { $file_dialog_loadfile == 2 && [info exists file_dialog_sp1] } {
     eval .load.l sash mark 0 [.load.l sash coord 0]
-    eval .load.l sash dragto 0 [subst $file_dialog_sash_pos]
+    eval .load.l sash dragto 0 [subst $file_dialog_sp1]
   }
   ### update
   .load.l.paneleft.list xview moveto 1
+
   bind .load <Configure> {
-    set file_dialog_sash_pos [.load.l sash coord 0]
+    set file_dialog_v_sp0 [.load.l.paneright sash coord 0]
+    if { $file_dialog_loadfile == 2} {
+      set file_dialog_sp0 [.load.l sash coord 1]
+    } else {
+      set file_dialog_sp0 [.load.l sash coord 0]
+    }
+    if {$file_dialog_loadfile == 2} {
+      set file_dialog_sp1 [.load.l sash coord 0]
+    }
     set file_dialog_default_geometry [wm geometry .load]
     .load.l.paneleft.list xview moveto 1
     # regsub {\+.*} $file_dialog_default_geometry {} file_dialog_default_geometry
