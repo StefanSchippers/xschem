@@ -321,6 +321,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "annotate_op"))
     {
       int level = -1;
+      int res = 0;
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
@@ -340,13 +341,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* clear all raw files */
       extra_rawfile(3, NULL, NULL, -1.0, -1.0);
       /* free_rawfile(&xctx->raw, 1); */
-      raw_read(f, &xctx->raw, "op", -1.0, -1.0);
-      if(level >= 0) {
-        xctx->raw->level = level;
-        my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[level]);
+      res = raw_read(f, &xctx->raw, "op", -1.0, -1.0);
+      if(res != 1) {
+        /* Xyce uses a 1-point dc transfer characteristic for operating point data */
+        res = raw_read(f, &xctx->raw, "dc", -1.0, -1.0);
       }
-      update_op();
-      draw();
+      if(res == 1) {
+        if(level >= 0) {
+          xctx->raw->level = level;
+          my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[level]);
+        }
+        update_op();
+        draw();
+      }
     }
 
     /* arc
