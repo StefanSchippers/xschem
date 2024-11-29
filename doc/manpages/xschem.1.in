@@ -95,7 +95,7 @@ Set output for netlist.
 .TP
 
 .B -N, --netlist_filename
-Set name (only name, not path) of top level netlist file.
+Set name (only name or full path) of top level netlist file.
 .TP
 
 .B -t, --tedax

@@ -560,6 +560,14 @@
 # set show_hidden_texts 1
 
 ###########################################################################
+#### USE CTRL MODIFIER TO OPERATE ON GRAPHS WITH MOUSE & KEYBOARD
+###########################################################################
+#### if enabled forces to hold Control key pressed to operate on graphs
+#### to prevent "graph event stealing to schematic"
+#### Default: 0 (not set)
+# set graph_use_ctrl_key 1
+
+###########################################################################
 #### HIDE GRAPHS IF NO SPICE DATA LOADED
 ###########################################################################
 #### if enabled graphs will be hidden if no data is loaded.

@@ -21,7 +21,7 @@ Options:
   --netlist_path <path>
   -o <path>            Set output path for netlist.
   --netlist_filename <file>    
-  -N <file>            Set name (only name, not path) of top level netlist file.
+  -N <file>            Set name (only name or full path) of top level netlist file.
   -t  --tedax          Set netlist type to tEDAx.
   -s  --spice          Set netlist type to SPICE.
   -y  --symbol         Set netlist type to SYMBOL (used when drawing symbols)

@@ -30,14 +30,16 @@ static int waves_selected(int event, KeySym key, int state, int button)
 {
   int rstate; /* state without ShiftMask */
   int i, check;
+  int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
   int is_inside = 0, skip = 0;
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   int draw_xhair = tclgetboolvar("draw_crosshair");
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
-  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
+  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   if(xctx->ui_state & excl) skip = 1;
   else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1;
+  else if(graph_use_ctrl_key && !(state & ControlMask)) skip = 1;
   else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
@@ -350,6 +352,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 {
   Graph_ctx *gr;
   int rstate; /* reduced state wit ShiftMask bit filtered out */
+  int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
   int i, redraw_all_at_end = 0, need_all_redraw = 0, need_redraw = 0, dataset = 0;
   double xx1 = 0.0, xx2 = 0.0, yy1, yy2;
   double delta_threshold = 0.25;
@@ -357,11 +360,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
+  int access_cond = !graph_use_ctrl_key || ( (state & ControlMask) && !(state & ShiftMask) );
 
   if(event != -3 && !xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
-
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -498,7 +501,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
             tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
             cursor1 = atof_spice(tclresult());
-            here(cursor1);
             if(r->flags & 4) {
               my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
             } else {
@@ -546,7 +548,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       /* x cursor1 toggle */
-      else if((key == 'a' && rstate == 0) ) {
+      else if(key == 'a' && access_cond) {
         xctx->graph_flags ^= 2;
         need_all_redraw = 1;
         if(xctx->graph_flags & 2) {
@@ -563,7 +565,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       /* x cursor2 toggle */
-      else if((key == 'b') ) {
+      else if(key == 'b'  && access_cond) {
         int floaters = there_are_floaters();
 
         xctx->graph_flags ^= 4;
@@ -593,7 +595,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       /* swap cursors */
-      else if((key == 's') ) {
+      else if((key == 's' && access_cond) ) {
         double tmp, cursor1, cursor2;
         int floaters = there_are_floaters();
 
@@ -641,13 +643,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         else need_all_redraw = 1;
       }
       /* measurement tooltip */
-      else if((key == 'm') ) {
+      else if((key == 'm') && access_cond) {
         xctx->graph_flags ^= 64;
         if(!(xctx->graph_flags & 64)) {
           tcleval("graph_show_measure stop");
         }
       }
-      else if((key == 't') ) {
+      else if(key == 't' && access_cond) {
         if(!gr->digital) {
             const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
           if(d[0]) {
@@ -882,7 +884,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
-      else if((key == 't') ) {
+      else if(key == 't' && access_cond ) {
         if(track_dset != -2) {
           /* 
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
@@ -1100,7 +1102,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
-      else if(key == 'f') {
+      else if(key == 'f' && access_cond) {
         if(xctx->raw && xctx->raw->values) {
           if(xctx->graph_left) { /* full Y zoom*/
             if(i == xctx->graph_master) {
@@ -1782,12 +1784,14 @@ static void context_menu_action(double mx, double my)
 /* Mouse wheel events */
 static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
+   int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
    if(button==Button5 && state == 0 ) {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       return 1;
     }
      view_unzoom(CADZOOMSTEP);
+     return 0;
    }
    else if(button==Button4 && state == 0 ) {
     if(waves_selected(event, key, state, button)) {
@@ -1795,33 +1799,37 @@ static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button,
       return 1;
     }
      view_zoom(CADZOOMSTEP);
+     return 0;
    }
-   else if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return 1;
-    }
-    xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
-    draw();
-    redraw_w_a_l_r_p_rubbers();
-   }
-   else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return 1;
-    }
-    xctx->xorigin-=-CADMOVESTEP*xctx->zoom/2.;
-    draw();
-    redraw_w_a_l_r_p_rubbers();
-   }
-   else if(button==Button4 && (state & ControlMask) && !(state & Button2Mask)) {
-    xctx->yorigin+=-CADMOVESTEP*xctx->zoom/2.;
-    draw();
-    redraw_w_a_l_r_p_rubbers();
-   }
-   else if(button==Button5 && (state & ControlMask) && !(state & Button2Mask)) {
-    xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
-    draw();
+   if(!graph_use_ctrl_key) {
+     if(button==Button4 && (state & ShiftMask) && !(state & Button2Mask)) {
+      if(waves_selected(event, key, state, button)) {
+        waves_callback(event, mx, my, key, button, aux, state);
+        return 1;
+      }
+      xctx->xorigin+=-CADMOVESTEP*xctx->zoom/2.;
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+     }
+     else if(button==Button5 && (state & ShiftMask) && !(state & Button2Mask)) {
+      if(waves_selected(event, key, state, button)) {
+        waves_callback(event, mx, my, key, button, aux, state);
+        return 1;
+      }
+      xctx->xorigin-=-CADMOVESTEP*xctx->zoom/2.;
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+     }
+     else if(button==Button4 && (state & ControlMask) && !(state & Button2Mask)) {
+      xctx->yorigin+=-CADMOVESTEP*xctx->zoom/2.;
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+     }
+     else if(button==Button5 && (state & ControlMask) && !(state & Button2Mask)) {
+      xctx->yorigin-=-CADMOVESTEP*xctx->zoom/2.;
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+     }
    }
    return 0;
 }
@@ -2343,6 +2351,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key == 'b' && rstate==ControlMask)         /* toggle show text in symbol */
    {
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }     
     xctx->sym_txt =!xctx->sym_txt;
     if(xctx->sym_txt) {
         /* tcleval("alert_ { enabling text in symbol} {}"); */
@@ -2736,6 +2748,14 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
      break;
    }
+   if(key=='t' && (rstate & ControlMask)) 
+   {
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break; 
+     }
+     break;
+   }  
    if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
    {
     dbg(1, "callback(): start rect\n");
@@ -2769,6 +2789,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='s' && rstate == ControlMask )      /* save 20121201 */
    {
      if(xctx->semaphore >= 2) break;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }     
      /* check if unnamed schematic, use saveas in this case */
      if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
        saveas(NULL, SCHEMATIC);
@@ -2856,6 +2880,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='a' && rstate == ControlMask)         /* select all */
    {
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }     
     select_all();
     break;
    }
@@ -3385,6 +3413,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='m' && rstate == ControlMask &&
        !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
    {        
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }     
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     if(!tclgetboolvar("enable_stretch")) 
@@ -3619,6 +3651,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='f' && rstate == ControlMask)         /* search */
    {
     if(xctx->semaphore >= 2) break;
+    if(waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      break;
+    }     
     tcleval("property_search");
     break;
    }
