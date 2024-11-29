@@ -22,7 +22,7 @@
 
 # This script traverses the hierarchy and prints all instances in design.
 
-proc traversal {file {only_subckts {}}} {
+proc traversal {file {only_subckts {0}}} {
   global keep_symbols
   if { $file eq {} || [file exists $file] } {
     puts stderr "empty or existing file..."

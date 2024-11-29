@@ -530,6 +530,7 @@ void copy_objects(int what)
    xctx->rotatelocal=0;
    dbg(1, "copy_objects(): START copy\n");
    rebuild_selected_array();
+   if(xctx->lastsel==0) return;
    update_symbol_bboxes(0, 0);
    if(xctx->connect_by_kissing == 2) xctx->kissing = connect_by_kissing();
    else xctx->kissing = 0;
@@ -929,6 +930,7 @@ void move_objects(int what, int merge, double dx, double dy)
    xctx->rotatelocal=0;
    xctx->deltax = xctx->deltay = 0.0;
    rebuild_selected_array();
+   if(xctx->lastsel==0) return;
    update_symbol_bboxes(0, 0);
    /* if connect_by_kissing==2 it was set in callback.c ('M' command) */
    if(xctx->connect_by_kissing == 2) xctx->kissing = connect_by_kissing();
