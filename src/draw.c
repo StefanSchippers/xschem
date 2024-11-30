@@ -3856,13 +3856,30 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           prev_x = 0;
           last = ofs; 
           for(p = ofs ; p < ofs_end; p++) {
+            double xxprevious, xxfollowing;
+
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
+
+
+            xxprevious = xxfollowing = xx;
+            #if 1 /* plot one point before start and one point after end so
+                   * waves will extend to whole graph area even if there are few points */
+            if( p > ofs) {
+              if(gr->logx) xxprevious = mylog10(gv[p - 1]);
+              else  xxprevious = gv[p - 1];
+            }
+
+            if( p < ofs_end - 1) {
+              if(gr->logx) xxfollowing = mylog10(gv[p + 1]);
+              else  xxfollowing = gv[p + 1];
+            }
+            #endif
             if(p == ofs) xx0 = gv0[p];
             wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
             dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p);
             if(first != -1) {                      /* there is something to plot ... */
-              if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
+              if(xxprevious > end || xxfollowing < start ||         /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
                 if(dataset == -1 || dataset == sweepvar_wrap) {
                   /* plot graph */
@@ -3870,8 +3887,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                   else wave_color = wc;
                   if(bus_msb) {
                     if(digital) {
-                      draw_graph_bus_points(ntok_copy, n_bits, idx_arr, first, last, wave_color,
-                                   sweep_idx, wcnt, n_nodes, gr, ct);
+                       draw_graph_bus_points(ntok_copy, n_bits, idx_arr, first, last, wave_color,
+                                    sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
                     if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
@@ -3886,7 +3903,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                sweepvar_wrap++;
                cnt = 0;
             }
-            if(xx >= start && xx <= end) {
+            if(xxfollowing >= start && xxprevious <= end) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = (short)S_X(xx);
