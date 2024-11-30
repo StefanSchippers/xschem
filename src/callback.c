@@ -38,7 +38,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   if(xctx->ui_state & excl) skip = 1;
-  else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1;
+  /* else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1; */
   else if(graph_use_ctrl_key && !(state & ControlMask)) skip = 1;
   else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
