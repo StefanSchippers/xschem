@@ -3008,6 +3008,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    #if defined(__unix__) && HAS_CAIRO==1
    if(key == XK_Print) {
      xctx->ui_state |= GRABSCREEN;
+     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
      tclvareval("grab set -global ", xctx->top_path, ".drw", NULL);
      break;
    }
