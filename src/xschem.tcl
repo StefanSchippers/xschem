@@ -30,6 +30,7 @@ proc inutile_line {txtlabel} {
    wm transient .inutile_line [xschem get topwindow]
    label .inutile_line.l1  -text $txtlabel
    entry .inutile_line.e1   -width 60
+   entry_replace_selection .inutile_line.e1
    .inutile_line.e1 delete 0 end
    .inutile_line.e1 insert 0 $retval
    button .inutile_line.b1 -text "OK" -command  \
@@ -94,7 +95,7 @@ proc inutile_alias_window {w filename} {
  close $fileid
  frame $w.buttons
  pack $w.buttons -side bottom -fill x -pady 2m
- text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
+ text $w.text -undo 1 -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30
  scrollbar $w.scroll -command "$w.text yview"
  button $w.buttons.dismiss -text Dismiss -command "destroy $w"
@@ -120,7 +121,7 @@ proc inutile_help_window {w filename} {
  button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\""
  pack $w.buttons.dismiss  $w.buttons.save -side left -expand 1
  
- text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
+ text $w.text -undo 1 -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30 -width 90
  scrollbar $w.scroll -command "$w.text yview"
  pack $w.scroll -side right -fill y
@@ -164,7 +165,7 @@ proc inutile { {filename {}} {wait {}} } {
     inutile_get_time"
   button .inutile.buttons.dismiss -text Dismiss -command "destroy .inutile"
   button .inutile.buttons.code -text "Help" -command "inutile_help_window .inutile.help $utile_path/utile.txt"
-  text .inutile.text -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
+  text .inutile.text -undo 1 -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
   scrollbar .inutile.scroll -command {.inutile.text yview}
   button .inutile.buttons.save -text Save -command "
     set retval \"$filename\"
@@ -179,6 +180,7 @@ proc inutile { {filename {}} {wait {}} } {
       inutile_template  .inutile.text  $utile_path/template.stimuli}"
   label .inutile.buttons.timelab -text "time:"
   entry .inutile.buttons.time  -width  11
+  entry_replace_selection .inutile.buttons.time
   pack .inutile.buttons.dismiss .inutile.buttons.code \
        .inutile.buttons.load .inutile.buttons.save .inutile.buttons.translate \
        .inutile.buttons.send .inutile.buttons.timelab \
@@ -1620,9 +1622,10 @@ proc simconf {} {
       pack ${scrollframe}.center.$tool.r.$i -fill x -expand yes
       entry ${scrollframe}.center.$tool.r.$i.lab -textvariable sim($tool,$i,name) -width 18 \
          -background $bg($toggle) -fg black
+      entry_replace_selection  ${scrollframe}.center.$tool.r.$i.lab
       radiobutton ${scrollframe}.center.$tool.r.$i.radio -background $bg($toggle) -fg black \
          -selectcolor white -variable sim($tool,default) -value $i
-      text ${scrollframe}.center.$tool.r.$i.cmd -width 20 -height 3 -wrap none -background $bg($toggle) -fg black
+      text ${scrollframe}.center.$tool.r.$i.cmd -undo 1 -width 20 -height 3 -wrap none -background $bg($toggle) -fg black
       ${scrollframe}.center.$tool.r.$i.cmd insert 1.0 $sim($tool,$i,cmd)
       checkbutton ${scrollframe}.center.$tool.r.$i.fg -text Fg -variable sim($tool,$i,fg) \
         -selectcolor white -background $bg($toggle) -fg black
@@ -2755,6 +2758,7 @@ proc graph_edit_properties {n} {
   # center-left frame
   label .graphdialog.center.left.labsearch -text Search:
   entry .graphdialog.center.left.search -width 10 
+  entry_replace_selection .graphdialog.center.left.search
   button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
@@ -2787,6 +2791,7 @@ proc graph_edit_properties {n} {
       -values {dc ac tran op sp spectrum noise constants table}  -width 9
   } else {
     entry .graphdialog.center.right.list -width 4
+    entry_replace_selection .graphdialog.center.right.list
   }
   if { [info tclversion] > 8.4} {
     bind .graphdialog.center.right.list <<ComboboxSelected>> {
@@ -2814,6 +2819,7 @@ proc graph_edit_properties {n} {
 
 
   entry .graphdialog.center.right.rawentry -width 20
+  entry_replace_selection .graphdialog.center.right.rawentry
   button .graphdialog.center.right.rawbut -text {Raw file:} -command {
     regsub {/$} $netlist_dir {} netlist_dir
    .graphdialog.center.right.rawentry delete 0 end
@@ -2831,7 +2837,7 @@ proc graph_edit_properties {n} {
   }
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
-  text .graphdialog.center.right.text1 -wrap none -width 50 -height 5 -background grey90 -fg black \
+  text .graphdialog.center.right.text1 -undo 1 -wrap none -width 50 -height 5 -background grey90 -fg black \
      -insertbackground grey40 -exportselection 1 \
      -yscrollcommand {.graphdialog.center.right.yscroll set} \
      -xscrollcommand {.graphdialog.center.right.xscroll set}
@@ -2926,18 +2932,21 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labdivx -text {  X div.}
   entry .graphdialog.top2.divx -width 2
+  entry_replace_selection .graphdialog.top2.divx
   bind .graphdialog.top2.divx <KeyRelease> {
     graph_update_div $graph_selected divx
   }
 
   label .graphdialog.top2.labdivy -text {  Y div.}
   entry .graphdialog.top2.divy -width 2
+  entry_replace_selection .graphdialog.top2.divy
   bind .graphdialog.top2.divy <KeyRelease> {
     graph_update_div $graph_selected divy
   }
 
   label .graphdialog.top2.labsubdivx -text {  X subdiv.}
   entry .graphdialog.top2.subdivx  -width 2
+  entry_replace_selection .graphdialog.top2.subdivx
   bind .graphdialog.top2.subdivx <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivx [.graphdialog.top2.subdivx get]
@@ -2946,6 +2955,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labsubdivy -text {  Y subdiv.}
   entry .graphdialog.top2.subdivy -width 2
+  entry_replace_selection .graphdialog.top2.subdivy
   bind .graphdialog.top2.subdivy <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected subdivy [.graphdialog.top2.subdivy get]
@@ -2954,6 +2964,7 @@ proc graph_edit_properties {n} {
   
   label .graphdialog.top2.labsweep -text {  Sweep}
   entry .graphdialog.top2.sweep -width 10 
+  entry_replace_selection .graphdialog.top2.sweep
 
   # bind .graphdialog.top2.sweep <KeyRelease> {
   #   graph_push_undo
@@ -3011,6 +3022,7 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top.lw -text "  Line width:"
   entry .graphdialog.top.lwe -width 4 
+  entry_replace_selection .graphdialog.top.lwe
   bind .graphdialog.top.lwe <KeyRelease> {
     graph_set_linewidth $graph_selected
     xschem draw_graph $graph_selected
@@ -3024,6 +3036,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top.labdset -text {  Dataset}
   entry .graphdialog.top.dset -width 4
+  entry_replace_selection .graphdialog.top.dset
   bind .graphdialog.top.dset <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected dataset [.graphdialog.top.dset get]
@@ -3047,6 +3060,7 @@ proc graph_edit_properties {n} {
      }
   label .graphdialog.top3.xlabmin -text { X min:}
   entry .graphdialog.top3.xmin -width 7
+  entry_replace_selection .graphdialog.top3.xmin
   bind .graphdialog.top3.xmin <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get]
@@ -3054,6 +3068,7 @@ proc graph_edit_properties {n} {
   }
   label .graphdialog.top3.xlabmax -text { X max:}
   entry .graphdialog.top3.xmax -width 7
+  entry_replace_selection .graphdialog.top3.xmax
   bind .graphdialog.top3.xmax <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
@@ -3063,6 +3078,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmin -text { Y min:}
   entry .graphdialog.top3.ymin -width 7
+  entry_replace_selection .graphdialog.top3.ymin
   bind .graphdialog.top3.ymin <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
@@ -3071,6 +3087,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmax -text { Y max:}
   entry .graphdialog.top3.ymax -width 7
+  entry_replace_selection .graphdialog.top3.ymax
   bind .graphdialog.top3.ymax <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
@@ -3079,6 +3096,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
   entry .graphdialog.top3.xmag -width 4
+  entry_replace_selection .graphdialog.top3.xmag
   bind .graphdialog.top3.xmag <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
@@ -3087,6 +3105,7 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top3.ylabmag -text { }
   entry .graphdialog.top3.ymag -width 4
+  entry_replace_selection .graphdialog.top3.ymag
   bind .graphdialog.top3.ymag <KeyRelease> {
     graph_push_undo
     xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
@@ -3918,8 +3937,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
+  entry_replace_selection .load.buttons_bot.entry
   label .load.buttons_bot.srclab  -text { Search:}
   entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2
+  entry_replace_selection .load.buttons_bot.src
   .load.buttons_bot.src delete 0 end
   .load.buttons_bot.src insert 0 $file_dialog_globfilter
   if { $file_dialog_save_initialfile ne {} } { 
@@ -3971,6 +3992,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
   label .load.buttons.mkdirlab -text { New dir: } 
   entry .load.buttons.newdir -width 16 -takefocus 0
+  entry_replace_selection .load.buttons.newdir
   button .load.buttons.mkdir -width 5 -text Create -takefocus 0 -command { 
     load_file_dialog_mkdir [.load.buttons.newdir get]
   }
@@ -4477,7 +4499,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   wm geometry .dialog "${enter_text_default_geometry}+$X+$Y"
   frame .dialog.f1
   label .dialog.f1.txtlab -text $textlabel
-  eval text .dialog.txt -width 120 -height 9 $text_tabs_setting
+  eval text .dialog.txt -undo 1 -width 120 -height 9 $text_tabs_setting
   .dialog.txt delete 1.0 end
   .dialog.txt insert 1.0 $retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
@@ -4497,11 +4519,14 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   pack .dialog.edit  -side top  -fill x 
   if {$has_cairo } {
     entry .dialog.edit.hsize.hsize -relief sunken -textvariable tctx::vsize -width 20
+    entry_replace_selection .dialog.edit.hsize.hsize
   } else {
     entry .dialog.edit.hsize.hsize -relief sunken -textvariable tctx::hsize -width 20
+    entry_replace_selection .dialog.edit.hsize.hsize
   }
   entry .dialog.edit.vsize.vsize -relief sunken -textvariable tctx::vsize -width 20
-  text .dialog.edit.props.props -width 70 -height 3
+  entry_replace_selection .dialog.edit.vsize.vsize
+  text .dialog.edit.props.props -undo 1 -width 70 -height 3
   .dialog.edit.props.props insert 1.0 $props
   label .dialog.edit.hsize.hlab -text "hsize:"
   label .dialog.edit.vsize.vlab -text "vsize:"
@@ -4624,9 +4649,9 @@ proc tclcmd {} {
   # wm transient .tclcmd [xschem get topwindow]
   label .tclcmd.txtlab -text {Enter TCL expression. Shift-Return will evaluate}
   panedwindow .tclcmd.p -orient vert
-  text .tclcmd.t -width 100 -height 3
+  text .tclcmd.t -undo 1 -width 100 -height 3
   frame .tclcmd.r
-  text .tclcmd.r.r -width 100 -height 8 -yscrollcommand ".tclcmd.r.yscroll set"
+  text .tclcmd.r.r -undo 1 -width 100 -height 8 -yscrollcommand ".tclcmd.r.yscroll set"
   scrollbar .tclcmd.r.yscroll -command  ".tclcmd.r.r yview"
   .tclcmd.p add .tclcmd.t .tclcmd.r
   .tclcmd.t insert 1.0 $tclcmd_txt
@@ -4803,11 +4828,13 @@ proc property_search {} {
     frame .dialog.custom 
     label .dialog.custom.l -text "Token"
     entry .dialog.custom.e -width 32
+    entry_replace_selection .dialog.custom.e
     .dialog.custom.e insert 0 $custom_token
     pack .dialog.custom.e .dialog.custom.l -side right
     frame .dialog.val 
     label .dialog.val.l -text "Value"
     entry .dialog.val.e -width 32
+    entry_replace_selection .dialog.val.e
     .dialog.val.e insert 0 $search_value
     pack .dialog.val.e .dialog.val.l -side right
     frame .dialog.but
@@ -4934,6 +4961,7 @@ proc attach_labels_to_inst {} {
   frame .dialog.custom 
   label .dialog.custom.l -text "Prefix"
   entry .dialog.custom.e -width 32
+  entry_replace_selection .dialog.custom.e
   .dialog.custom.e insert 0 $custom_label_prefix
   pack .dialog.custom.e .dialog.custom.l -side right
 
@@ -4950,6 +4978,7 @@ proc attach_labels_to_inst {} {
   checkbutton .dialog.but.do_all -text {Do all} -variable do_all_inst
   label .dialog.but.rot -text {Rotated Text}
   entry .dialog.but.rotated -textvariable rotated_text -width 2
+  entry_replace_selection .dialog.but.rotated
   checkbutton .dialog.but.prefix -text {use prefix} -variable use_label_prefix
   pack .dialog.but.ok  -anchor w -side left
   pack .dialog.but.prefix  -side left
@@ -5191,7 +5220,8 @@ proc edit_prop {txtlabel} {
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
   entry .dialog.f4.symprop  -textvariable editprop_sympath -width 0 -state readonly
-  eval text .dialog.symprop   -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
+  entry_replace_selection .dialog.f4.symprop
+  eval text .dialog.symprop -undo 1 -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
                   -xscrollcommand \".dialog.xscroll set\" -wrap none $text_tabs_setting
     .dialog.symprop delete 1.0 end
     .dialog.symprop insert 1.0 $retval
@@ -5201,6 +5231,7 @@ proc edit_prop {txtlabel} {
   frame .dialog.f2
   label .dialog.f1.l2 -text "Symbol"
   entry .dialog.f1.e2 -width 30
+  entry_replace_selection .dialog.f1.e2
   .dialog.f1.e2 insert 0 $symbol
   button .dialog.f1.b5 -text "Browse" -command {
     set r [tk_getOpenFile -parent .dialog -initialdir $INITIALINSTDIR ]
@@ -5440,7 +5471,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   frame .dialog.f0
   frame .dialog.f1
   label .dialog.f0.l1  -text $txtlabel
-  eval text .dialog.textinput -relief sunken -bd 2 -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
+  eval text .dialog.textinput -undo 1 -relief sunken -bd 2 -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
        -xscrollcommand \".dialog.xscroll set\" -wrap none -width 90 -height 40 $text_tabs_setting
   scrollbar .dialog.yscroll -command  ".dialog.textinput yview"
   scrollbar .dialog.xscroll -command ".dialog.textinput xview" -orient horiz
@@ -5660,7 +5691,7 @@ proc infowindow {} {
     #  button $z.dismiss -text Dismiss -command  "destroy $z"
     frame $z.f1
     frame $z.f2
-    text $z.f1.text -relief sunken -bd 2 -yscrollcommand "$z.f1.yscroll set" -setgrid 1 \
+    text $z.f1.text -undo 1 -relief sunken -bd 2 -yscrollcommand "$z.f1.yscroll set" -setgrid 1 \
          -height 6 -width 50  -xscrollcommand "$z.f1.xscroll set" -wrap none
     scrollbar $z.f1.yscroll -command "$z.f1.text yview" -orient v 
     scrollbar $z.f1.xscroll -command "$z.f1.text xview" -orient h 
@@ -5715,7 +5746,7 @@ proc textwindow {filename {ro {}}} {
     pack $textwindow_w.buttons.save  -side left -expand 1
   }
 
-  eval text $textwindow_w.text -relief sunken -bd 2 -yscrollcommand \"$textwindow_w.yscroll set\" -setgrid 1 \
+  eval text $textwindow_w.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$textwindow_w.yscroll set\" -setgrid 1 \
        -xscrollcommand \"$textwindow_w.xscroll set\" -wrap none -height 30 $text_tabs_setting
   scrollbar $textwindow_w.yscroll -command  "$textwindow_w.text yview" 
   scrollbar $textwindow_w.xscroll -command "$textwindow_w.text xview" -orient horiz
@@ -5769,7 +5800,7 @@ proc viewdata {data {ro {}} {win .view}} {
     pack $viewdata_w.buttons.saveas  -side left -expand 1
   }
 
-  eval text $viewdata_w.text -relief sunken -bd 2 -yscrollcommand \"$viewdata_w.yscroll set\" -setgrid 1 \
+  eval text $viewdata_w.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$viewdata_w.yscroll set\" -setgrid 1 \
        -xscrollcommand \"$viewdata_w.xscroll set\" -wrap none -height 30 $text_tabs_setting
   scrollbar $viewdata_w.yscroll -command  "$viewdata_w.text yview" 
   scrollbar $viewdata_w.xscroll -command "$viewdata_w.text xview" -orient horiz
@@ -6122,6 +6153,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   frame .dialog.f1
   label .dialog.f1.l -text $txt
   entry .dialog.f1.e -width $w
+  entry_replace_selection .dialog.f1.e
   .dialog.f1.e insert 0 $preset
   .dialog.f1.e selection range 0 end
   
@@ -8115,9 +8147,11 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   label $topwin.statusbar.2 -text "SNAP:"
   entry $topwin.statusbar.3 \
          -width 7 -foreground black -takefocus 0
+  entry_replace_selection $topwin.statusbar.3
   label $topwin.statusbar.4 -text "GRID:"
   entry $topwin.statusbar.5 \
          -width 7 -foreground black -takefocus 0
+  entry_replace_selection $topwin.statusbar.5
   label $topwin.statusbar.6 -text "MODE:"
   label $topwin.statusbar.7 -width 7 
   label $topwin.statusbar.10 -text {Stretch:}
@@ -8399,6 +8433,14 @@ if {$text_replace_selection && $OS != "Windows"} {
         $w configure -autoseparators 1
       }
     }
+  }
+}
+
+## this proc must be called for any created entry widgets
+proc entry_replace_selection {w} {
+  global text_replace_selection OS
+  if {$text_replace_selection && $OS != "Windows"} {
+    bind $w <<Paste>> {if {[%W selection present]} {%W delete sel.first sel.last}}
   }
 }
 
