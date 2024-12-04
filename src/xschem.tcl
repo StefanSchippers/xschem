@@ -2359,7 +2359,7 @@ proc graph_add_nodes_from_list {nodelist} {
         set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
         xschem setprop rect 2 $graph_selected color $col fastundo
         graph_update_nodelist
-        regsub -all {[\\"]} $node "\\\\&" node_quoted
+        regsub -all {[\\"]} $node {\\&} node_quoted
         xschem setprop rect 2 $graph_selected node $node_quoted fast
         xschem draw_graph $graph_selected
       }
@@ -2392,7 +2392,7 @@ proc graph_add_nodes_from_list {nodelist} {
         append nnn "\n"
       } 
       append nnn $sel
-      regsub -all {[\\"]} $nnn "\\\\&" node_quoted
+      regsub -all {[\\"]} $nnn {\\&} node_quoted
       xschem setprop rect 2 [xschem get graph_lastsel] node $node_quoted fast
       xschem draw_graph [xschem get graph_lastsel]
     }
@@ -2621,7 +2621,7 @@ proc graph_update_node {node} {
   graph_update_nodelist
   # add a backslash before " and \ characters
   # note the double escaping for regsub replace string
-  regsub -all {[\\"]} $node "\\\\&" node_quoted
+  regsub -all {[\\"]} $node {\\&} node_quoted
   graph_push_undo
   xschem setprop rect 2 $graph_selected node $node_quoted fast
   xschem draw_graph $graph_selected
