@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -49,8 +49,9 @@ divy = 6
 x1=2.7755576e-17
 x2=3
 divx=6
-node="a z"
-color="7 6"
+node="a
+z"
+color="7 4"
 sweep="z a"
 
 sim_type=dc

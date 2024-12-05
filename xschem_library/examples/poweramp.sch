@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -81,9 +81,9 @@ divx=10
 
 
 unitx=m
-color="4 7"
-node="\\"supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +\\"
-\\"running average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + 200u ravg()\\""
+color="19 7"
+node="supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * +
+running average supply power;i(vcurrvnn) vnn * i(vcurrvpp) vpp * + 200u ravg()"
 linewidth_mult=2.3
 
 autoload=0

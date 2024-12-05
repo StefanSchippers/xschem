@@ -136,15 +136,37 @@ char *my_fgets(FILE *fd, size_t *line_len)
 }
 
 /* split a string into tokens like standard strtok_r,
- * if quote string is not empty any character matching quote is considered a quoting
- * character, removed from input and all characters before next quote are considered
- * as part of the token. backslash can be used to enter literal quoting characters and
- * literal backslashes.
- * behavior described above can be changed if keep_quote is not zero:
- * keep_quote == 1: keep quotes and backslahes
- * keep_quote == 4: remove surrounding "...", keep everything in between
- * if quote is empty no backslash is removed from input and behavior is identical
+ * if keep_quote == 0: 
+ *   if quote string is not empty any character matching quote is considered a quoting
+ *   character, removed from input and all characters before next quote are considered
+ *   as part of the token. backslash can be used to enter literal quoting characters and
+ *   literal backslashes. Escaping backslash is removed from tokens.
+ * if keep_quote == 1:
+ *   keep quotes and backslahes
+ * if keep_quote == 4:
+ *   remove quoting characters, keep backslashes
+ * if quote is empty no backslash/quote is removed from input and behavior is identical
  * to strtok_r
+ *
+ * Example:
+ * my_strtok_r("aaa \\\"bbb\\\" \"ccc ddd\" eee", " ", "\"", 0);
+ * aaa
+ * "bbb"
+ * ccc ddd
+ * eee
+ * 
+ * my_strtok_r("aaa \\\"bbb\\\" \"ccc ddd\" eee", " ", "\"", 1);
+ * aaa
+ * \"bbb\"
+ * "ccc ddd"
+ * eee
+ * 
+ * my_strtok_r("aaa \\\"bbb\\\" \"ccc ddd\" eee", " ", "\"", 4);
+ * aaa
+ * \"bbb\"
+ * ccc ddd
+ * eee
+ *
  */
 char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quote, char **saveptr)
 {
@@ -163,11 +185,11 @@ char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quot
     if(ne) *(*saveptr - ne) = **saveptr; /* shift back eating escapes / quotes */
     if(!e && strchr(quote, **saveptr)) {
       q = !q;
-      if(keep_quote != 1) ++ne;
+      if(!(keep_quote & 1)) ++ne; /* remove quoting character */
     }
-    if(!e && **saveptr == '\\') { /* do not skip backslashes either */
+    if(quote[0] && !e && **saveptr == '\\') { /* do not skip backslashes either */
       e = 1;
-      if(keep_quote == 0) ++ne;
+      if(!(keep_quote & 5)) ++ne; /* remove escaping backslash */
     } else e = 0;
     ++(*saveptr);
   }

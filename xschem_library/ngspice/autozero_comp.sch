@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -83,11 +83,11 @@ divx=5
 subdivx=4
 node="en%0
 cal%0
-\\"SAOUT#3; vss,saout%3\\"
+SAOUT#3; vss,saout%3
 --slow--
-\\"SAOUT#15; vss,saout%15\\"
+SAOUT#15; vss,saout%15
 --failure--
-\\"SAOUT#70; vss,saout%70\\""
+SAOUT#70; vss,saout%70"
 color="4 4 4 8 8 7 7"
 dataset=-1
 digital=1
@@ -109,8 +109,8 @@ unitx=n
 
 dataset=-1
 color="4 7"
-node="\\"power dset 97 ; i(vvcc) vcc * % 23\\"
-\\"power dset 70 ; i(vvcc) vcc * % 70\\""
+node="power dset 97 ; i(vvcc) vcc * % 23
+power dset 70 ; i(vvcc) vcc * % 70"
 subdivy=4
 linewidth_mult=1.0}
 T {CAL} 140 -180 0 1 0.4 0.4 {}

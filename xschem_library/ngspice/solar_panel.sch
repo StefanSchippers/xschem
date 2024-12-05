@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -131,11 +131,12 @@ x2=0.0010293582
 divx=9
 
  unitx=m subdivx=4
-color="7 4 6 10"
-node="\\"Panel power; i(Vpanel) v(PANEL) *\\"
-\\"Led power; i(Vled) v(LED) *\\"
-\\"Avg.Pan. Pwr; i(Vpanel) v(PANEL) * 20u ravg()\\"
-\\"SUN \\\\%; SUN 100 *\\""
+color="7 4 6 8 4"
+node="Panel power; i(Vpanel)\\\\
+ v(PANEL) *
+Led power; i(Vled) v(LED) *
+Avg.Pan. Pwr; i(Vpanel) v(PANEL) * 20u ravg()
+SUN \\\\%; SUN 100 *"
 hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0

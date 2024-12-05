@@ -2424,7 +2424,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
   
-      while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
+      while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
         int allow_wrap = 1;
         char *nd = NULL;
         char str_extra_idx[30];
@@ -3292,9 +3292,9 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   nptr = node;
   cptr = color;
   sptr = sweep;
-  n_nodes = count_items(node, " \t\n", "\"");
+  n_nodes = count_items(node, "\n", "\"");
   /* process each node given in "node" attribute, get also associated color/sweep var if any */
-  while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 0, &saven)) ) {
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 0, &saven)) ) {
     ctok = my_strtok_r(cptr, " ", "", 0, &savec);
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = cptr = sptr = NULL;
@@ -3484,7 +3484,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
   nptr = node;
   sptr = sweep;
   /* process each node given in "node" attribute, get also associated sweep var if any*/
-  while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 0, &saven)) ) {
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 0, &saven)) ) {
     if(strstr(ntok, ",")) {
       if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
     }
@@ -3700,10 +3700,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     nptr = node;
     cptr = color;
     sptr = sweep;
-    n_nodes = count_items(node, "\n\t ", "\"");
+    n_nodes = count_items(node, "\n", "\"");
 
     /* process each node given in "node" attribute, get also associated color/sweep var if any*/
-    while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 4, &saven)) ) {
+    while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
       int valid_rawfile = 1;
       int allow_wrap = 1;
       char *nd = NULL;

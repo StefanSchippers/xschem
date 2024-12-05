@@ -2268,7 +2268,7 @@ proc graph_edit_wave {n n_wave} {
   set graph_selected $n
   set graph_sel_wave $n_wave
   set col  [xschem getprop rect 2 $graph_selected color]
-  set node [xschem getprop rect 2 $graph_selected node]
+  set node [xschem my_strtok_r [xschem getprop rect 2 $graph_selected node] \n \" 0]
   # add default colors if unspecified in col
   set i 0
   foreach graph_node $node {
@@ -2536,16 +2536,22 @@ proc graph_tag_nodes {txt} {
     set col  [xschem getprop rect 2 $graph_selected color]
     set col [string trim $col " \n"]
   }
-  # non capturing `tcleval(` at beginning and `)` at end
-  set regx {(?:tcleval\(\n*)?("[^"]+"|[^ \t\n)]+)(?:\))?}
+
+
+  set start 0
+  if {[regexp {^tcleval\(} $txt]} {
+    set start 8
+    regsub {\)[ \n]*$} $txt {} txt
+  }
+  set regx {("[^"]+")|([^\n]+)}
+  
   set tt {}
   set cc {}
-  set start 0
-
-  while {[regexp -indices -start $start $regx $txt idxall idx]} {
-    lappend tt [lindex $idx 0]
-    set start [expr {[lindex $idx 1] + 1}]
-    lappend cc $start
+  while {[regexp -indices -start $start $regx $txt idxall]} {
+    lappend tt [lindex $idxall 0]
+    set ccc [lindex $idxall 1]
+    lappend cc $ccc
+    set start [expr {$ccc + 1}]
   }
   if { [winfo exists .graphdialog.center.right.text1] } {
     set n 0
@@ -2558,7 +2564,7 @@ proc graph_tag_nodes {txt} {
           lappend col $graph_sel_color
         }
         set b [lindex $tctx::colors $col_idx]
-        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
+        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.1 + $c chars"
         if { [info tclversion] > 8.4} {
           .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
         } else {

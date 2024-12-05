@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -84,8 +84,8 @@ dataset=0
 unitx=m
 
 color="8 7"
-node="tcleval(\\"Xm2 Power;$\{path\}outi vnn - i(v.$\{path\}vd) *\\"
-\\"Average;$\{path\}outi vnn - i(v.$\{path\}vd) * 200u ravg()\\")"
+node="tcleval(Xm2 Power;$\{path\}outi vnn - i(v.$\{path\}vd) *
+Average;$\{path\}outi vnn - i(v.$\{path\}vd) * 200u ravg())"
 jpeg_quality=30
 xlabmag=1.4}
 B 2 960 -1050 1094 -987 {flags=image
