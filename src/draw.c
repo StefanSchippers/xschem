@@ -102,13 +102,6 @@ void print_image()
     }
     else return;
   }
-  #if 0
-  *  for(tmp=0;tmp<cadlayers;tmp++) {
-  *    XSetClipRectangles(display, xctx->gc[tmp], 0, 0, xctx->xrect, 1, Unsorted);
-  *    XSetClipRectangles(display, xctx->gcstipple[tmp], 0, 0, xctx->xrect, 1, Unsorted);
-  *  }
-  *  XSetClipRectangles(display, xctx->gctiled, 0, 0, xctx->xrect, 1, Unsorted);
-  #endif
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
   save_draw_window = xctx->draw_window;
@@ -2710,6 +2703,15 @@ static void draw_graph_points(int idx, int first, int last,
   /* if( 1 || !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) { */
   for(p = first ; p <= last; p++) {
     yy = gv[p];
+    /* clamps y-value of waves to be inside graph area. Not a clean solution
+     * but avoids drawing outside of graph area when moving vertically on Windows
+     * platform where is no XSetClipRectangles()
+     * waveform points outise graph are drawn as a line on top or bottom of graph
+     * <<<<< FIXME: remove these points completely
+     */
+    #if !defined(__unix__)
+    yy = CLIP(yy, gr->gy1, gr->gy2);
+    #endif
     if(digital) {
       yy = c + yy *s2;
       /* Build poly y array. Translate from graph coordinates to screen coordinates  */

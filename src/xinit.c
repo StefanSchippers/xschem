@@ -1057,10 +1057,14 @@ void set_clip_mask(int what)
   if(what == SET) {
     for(i=0;i<cadlayers; ++i)
     {
+      #if 1 /* set to 0 to emulate Windows that does not have this function */
       XSetClipRectangles(display, xctx->gc[i], 0,0, xctx->xrect, 1, Unsorted);
       XSetClipRectangles(display, xctx->gcstipple[i], 0,0, xctx->xrect, 1, Unsorted);
+      #endif
     }
+    #if 1 /* set to 0 to emulate Windows that does not have this function */
     XSetClipRectangles(display, xctx->gctiled, 0,0, xctx->xrect, 1, Unsorted);
+    #endif
     #if HAS_CAIRO==1
     cairo_rectangle(xctx->cairo_ctx, xctx->xrect[0].x, xctx->xrect[0].y,
                     xctx->xrect[0].width, xctx->xrect[0].height);
