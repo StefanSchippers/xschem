@@ -861,6 +861,7 @@ typedef struct {
   double sx1, sy1, sx2, sy2; /* screen coordinates of above */
   /* graph box (smaller than rect container due to margins) */
   double x1, y1, x2, y2, w, h;
+  /* the following are the x1,x2, y1, y2 rectangle attributes */
   double gx1, gy1, gx2, gy2, gw, gh;
   double master_gx1, master_gx2, master_gw, master_cx;
   /* y area range for digital graphs */

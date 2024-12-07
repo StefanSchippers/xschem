@@ -2703,23 +2703,32 @@ static void draw_graph_points(int idx, int first, int last,
   /* if( 1 || !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) { */
   for(p = first ; p <= last; p++) {
     yy = gv[p];
-    /* clamps y-value of waves to be inside graph area. Not a clean solution
+     
+    /* Below CLIP calls (for digital and non digital graphs) for Windows
+     * clamp y-value of waves to be inside graph area. Not a clean solution
      * but avoids drawing outside of graph area when moving vertically on Windows
      * platform where is no XSetClipRectangles()
      * waveform points outise graph are drawn as a line on top or bottom of graph
      * <<<<< FIXME: remove these points completely
      */
-    #if !defined(__unix__)
-    yy = CLIP(yy, gr->gy1, gr->gy2);
-    #endif
     if(digital) {
       yy = c + yy *s2;
+      #if !defined(__unix__)
+      yy = CLIP(DS_Y(yy), Y_TO_SCREEN(gr->y1), Y_TO_SCREEN(gr->y2));
+      #else 
+      yy = CLIP(DS_Y(yy), -30000, 30000); /* only clip to 16 bit signed short limits */
+      #endif
       /* Build poly y array. Translate from graph coordinates to screen coordinates  */
-      point[poly_npoints].y = (short)CLIP(DS_Y(yy), -30000, 30000);
+      point[poly_npoints].y = (short)yy;
     } else {
       /* Build poly y array. Translate from graph coordinates to screen coordinates  */
       if(gr->logy) yy = mylog10(yy);
-      point[poly_npoints].y = (short)CLIP(S_Y(yy), -30000, 30000);
+      #if !defined(__unix__)
+      yy = CLIP(S_Y(yy), Y_TO_SCREEN(gr->y1), Y_TO_SCREEN(gr->y2));
+      #else 
+      yy = CLIP(S_Y(yy), -30000, 30000); /* only clip to 16 bit signed short limits */
+      #endif
+      point[poly_npoints].y = (short)yy;
     }
     poly_npoints++;
   }
