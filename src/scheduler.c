@@ -3884,9 +3884,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *         0.1     0.0     1.5    0.6
      *         ...     ...     ...    ...
      *    
-     *   xschem raw add varname [expr]
+     *   xschem raw add varname [expr] [sweep_var]
      *     add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
      *     otherwise initialize data with values calculated from expr.
+     *     if expr is given and also sweep_var is given use indicated sweep_var for expressions
+     *     that need it. If sweep_var not given use first raw file variable as sweep variable.
      *     If varname is already existing and expr given recalculate data
      *     Example: xschem raw add power {outm outp - i(@r1[i]) *}
      *     
@@ -3991,10 +3993,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else if(argc > 3 && !strcmp(argv[2], "add")) {
           int res = 0;
+          int sweep_idx = 0;
+          if(argc > 5) { /* provided sweep variable */
+            sweep_idx =  get_raw_index(argv[5], NULL);
+            if(sweep_idx <= 0) sweep_idx = 0;
+          }
           if(argc > 4) {
-            res = raw_add_vector(argv[3], argv[4]);
+            #if 0 /* seems not necessary... */
+            int save_datasets = -1, save_npoints = -1;
+            /* transform multiple OP points into a dc sweep */
+            if(sch_waves_loaded()!= -1 && xctx->raw && xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "op")
+               && xctx->raw->datasets > 1 && xctx->raw->npoints[0] == 1) {
+              save_datasets = xctx->raw->datasets;
+              xctx->raw->datasets = 1;
+              save_npoints = xctx->raw->npoints[0];
+              xctx->raw->npoints[0] = xctx->raw->allpoints;
+            }
+            #endif
+            res = raw_add_vector(argv[3], argv[4], sweep_idx);
+
+            #if 0
+            if(sch_waves_loaded()!= -1 && save_npoints != -1) { /* restore multiple OP points */
+              xctx->raw->datasets = save_datasets;
+              xctx->raw->npoints[0] = save_npoints;
+            } 
+            #endif
           } else {
-            res = raw_add_vector(argv[3], NULL);
+            res = raw_add_vector(argv[3], NULL, 0);
           }
           Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE); 
         } else if(argc > 2 && !strcmp(argv[2], "datasets")) {

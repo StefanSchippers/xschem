@@ -552,6 +552,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -1259,9 +1261,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
          0.1     0.0     1.5    0.6
          ...     ...     ...    ...
     
-   xschem raw add varname [expr]
+   xschem raw add varname [expr] [sweep_var]
      add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
      otherwise initialize data with values calculated from expr.
+     if expr is given and also sweep_var is given use indicated sweep_var for expressions
+     that need it. If sweep_var not given use first raw file variable as sweep variable.
      If varname is already existing and expr given recalculate data
      Example: xschem raw add power {outm outp - i(@r1[i]) *}
      </pre>
@@ -1614,6 +1618,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

@@ -18,6 +18,7 @@ int find_script_mruby(const char *name, int logdepth, int fatal);
 int find_script_python(const char *name, int logdepth, int fatal);
 int find_script_python3(const char *name, int logdepth, int fatal);
 int find_script_perl(const char *name, int logdepth, int fatal);
+int find_script_perl_with_IXpv(const char *name, int logdepth, int fatal);
 int find_script_mawk(const char *name, int logdepth, int fatal);
 int find_script_lua(const char *name, int logdepth, int fatal);
 int find_script_guile(const char *name, int logdepth, int fatal);

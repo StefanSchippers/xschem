@@ -22,11 +22,12 @@
 
 #include "scripts.h"
 
-int find_script_perl(const char *name, int logdepth, int fatal)
+static int find_script_perl_(const char *name, int logdepth, int fatal, char *extra)
 {
 	char *cflags, *ldflags, *s;
 	int res;
-	char *test_c =
+	char test_c[256];
+	char *test_c_in =
 		NL "#include <stdio.h>"
 		NL "#include <EXTERN.h>"
 		NL "#include <perl.h>"
@@ -34,10 +35,13 @@ int find_script_perl(const char *name, int logdepth, int fatal)
 		NL "	PerlInterpreter *interp;"
 		NL
 		NL "	interp = perl_alloc();"
+		NL "%s"
 		NL "	puts(\"OK\");"
 		NL "	return 0;"
 		NL "}"
 		NL;
+
+	sprintf(test_c, test_c_in, extra);
 
 	require("sys/class", logdepth, fatal);
 	require("cc/cc", logdepth, fatal);
@@ -83,3 +87,16 @@ int find_script_perl(const char *name, int logdepth, int fatal)
 
 	return try_fail(logdepth, "libs/script/perl");
 }
+
+int find_script_perl(const char *name, int logdepth, int fatal)
+{
+	return find_script_perl_(name, logdepth, fatal, "");
+}
+
+int find_script_perl_with_IXpv(const char *name, int logdepth, int fatal)
+{
+	int res = find_script_perl_(name, logdepth, fatal, "(void)interp->IXpv;");
+	put("libs/script/perl_with_IXpv", "tried");
+	return res;
+}
+

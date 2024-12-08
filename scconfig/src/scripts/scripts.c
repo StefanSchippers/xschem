@@ -34,6 +34,7 @@ void deps_scripts_init()
 	dep_add("libs/script/python/*",         find_script_python);
 	dep_add("libs/script/python3/*",        find_script_python3);
 	dep_add("libs/script/perl/*",           find_script_perl);
+	dep_add("libs/script/perl_with_IXpv",   find_script_perl_with_IXpv);
 	dep_add("libs/script/mawk/*",           find_script_mawk);
 	dep_add("libs/script/lua/*",            find_script_lua);
 	dep_add("libs/script/guile/*",          find_script_guile);
@@ -58,7 +59,7 @@ int brute_force_include(int logdepth, const char *language, const char *test_c, 
 {
 	char **files, *cflags, *ldflags;
 	char nodename[1024], deflink[sizeof(nodename)];
-	int fileno, n, res;
+	int fileno, n, res, tries = 0;
 	size_t llen;
 
 	if (ldflags_base == NULL)
@@ -78,11 +79,25 @@ int brute_force_include(int logdepth, const char *language, const char *test_c, 
 				sprintf(ldflags, "%s -l%s", ldflags_base, files[n]);
 				cflags = malloc(strlen(files[n]) + strlen(basedir) + 16);
 				sprintf(cflags, "-I%s/%s", basedir, files[n]);
-				if (try_icl(logdepth, nodename, test_c, NULL, cflags, ldflags) || try_icl(logdepth, nodename, test_c, NULL, cflags, deflink)) {
+				retry:;
+				tries++;
+				if ((tries < 4) && (try_icl(logdepth, nodename, test_c, NULL, cflags, ldflags) || try_icl(logdepth, nodename, test_c, NULL, cflags, deflink))) {
 					filelist_free(&fileno, &files);
 					free(cflags);
 					free(ldflags);
 					return 1;
+				}
+				if ((files[n])[llen] == '-') {
+					char *s;
+
+					/* on OpenBSD 7.2 the include dir is called lua-5.2 but -llua5.2
+					   is used for linking; if '-' follows lang name and the first attempt
+					   with that failed, try removing the '-' and rebuild the -l and
+					   retry */
+					for(s = files[n]+llen; *s != '\0'; s++)
+						s[0] = s[1];
+					sprintf(ldflags, "%s -l%s", ldflags_base, files[n]); /* no need to allocate new, it's shorter */
+					goto retry;
 				}
 				free(cflags);
 				free(ldflags);

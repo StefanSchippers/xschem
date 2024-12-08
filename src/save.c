@@ -964,7 +964,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
   return res;
 }
 
-int raw_add_vector(const char *varname, const char *expr)
+int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
 {
   int f;
   int res = 0;
@@ -985,7 +985,7 @@ int raw_add_vector(const char *varname, const char *expr)
     res = 1;
   }
   if(expr) {
-    plot_raw_custom_data(0, 0, raw->allpoints -1, expr, varname);
+    plot_raw_custom_data(sweep_idx, 0, raw->allpoints -1, expr, varname);
   } else if(res == 1) {
     for(f = 0; f < raw->allpoints; f++) {
       raw->values[raw->nvars - 1][f] = 0.0;
@@ -1689,6 +1689,9 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
   SPICE_DATA *x = xctx->raw->values[sweep_idx];
   SPICE_DATA *sweepx = xctx->raw->values[0];
 
+  /* dbg(0, "sweep_idx=%d first=%d last=%d expr=%s, yname=%s\n",
+   *    sweep_idx, first, last, expr ? expr : "<NULL>", yname ? yname: "<NULL>");
+   */
   y = xctx->raw->values[xctx->raw->nvars]; /* custom plot data column */
   if(yname != NULL) {
     int yidx = get_raw_index(yname, NULL);
