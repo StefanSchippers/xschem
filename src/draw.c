@@ -2753,14 +2753,14 @@ static void draw_graph_points(int idx, int first, int last,
     }
   }
   else if(gr->mode == 1) { /* HistoV */
-    int y2 = (int)Y_TO_SCREEN(gr->y2);
+    int y2 = (int)S_Y(0.0);
     for(x = 0; x < 2; x++) {
       Drawable  w;
       if(x == 0 && xctx->draw_window) w = xctx->window;
       else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
       else continue;
       for(p = 0; p < poly_npoints; p++) {
-        if(point[p].y != y2) {
+        if(point[p].y < y2) {
           XDrawLine(display, w, xctx->gc[wave_col], point[p].x, point[p].y, point[p].x, y2);
         }
       }
@@ -2768,15 +2768,16 @@ static void draw_graph_points(int idx, int first, int last,
   }
 
   else if(gr->mode == 2) { /* HistoH */
-    int x1 = (int)X_TO_SCREEN(gr->x1);
+    int x1 = (int)S_X(0.0);
     for(x = 0; x < 2; x++) {
       Drawable  w;
       if(x == 0 && xctx->draw_window) w = xctx->window;
       else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
       else continue;
       for(p = 0; p < poly_npoints; p++) {
-        if(point[p].x != x1) {
-          XDrawLine(display, w, xctx->gc[wave_col], 0, point[p].y, point[p].x, point[p].y);
+        dbg(0, "%d:  %d %d\n", p, point[p].x,point[p].y);
+        if(point[p].x > x1) {
+          XDrawLine(display, w, xctx->gc[wave_col], x1, point[p].y, point[p].x, point[p].y);
         }
       }
     }
@@ -3926,8 +3927,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             if(p == ofs) xx0 = gv0[p];
             wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
             dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p);
-            if(first != -1) {                      /* there is something to plot ... */
-              if(xxprevious > end || xxfollowing < start ||         /* ... and we ran out of graph area ... */
+            /* if gr->mode == 2 (HistH) don't wrap */
+            if((gr->mode != 2) && first != -1) {               /* there is something to plot ... */
+              if(xxprevious > end || xxfollowing < start ||    /* ... and we ran out of graph area ... */
                 wrap) {                          /* ... or sweep variable changed direction */
                 if(dataset == -1 || dataset == sweepvar_wrap) {
                   /* plot graph */
@@ -3951,7 +3953,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
                sweepvar_wrap++;
                cnt = 0;
             }
-            if(xxfollowing >= start && xxprevious <= end) {
+            /* for HistH get all points */
+            if((gr->mode == 2) || (xxfollowing >= start && xxprevious <= end)) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
               point[poly_npoints].x = (short)S_X(xx);
