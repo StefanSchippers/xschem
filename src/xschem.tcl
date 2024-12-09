@@ -2972,6 +2972,15 @@ proc graph_edit_properties {n} {
   entry .graphdialog.top2.sweep -width 10 
   entry_replace_selection .graphdialog.top2.sweep
 
+  label .graphdialog.top2.labmode -text {Mode}
+  spinbox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6 \
+   -command {
+      graph_push_undo
+      xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
+      xschem draw_graph $graph_selected
+    }
+
+
   # bind .graphdialog.top2.sweep <KeyRelease> {
   #   graph_push_undo
   #   xschem setprop rect 2 $graph_selected sweep [.graphdialog.top2.sweep get]
@@ -2989,29 +2998,39 @@ proc graph_edit_properties {n} {
   set graph_divx [xschem getprop rect 2 $graph_selected divx]
   if {$graph_divx eq {}} { set graph_divx 5}
   .graphdialog.top2.divx insert 0 $graph_divx
+
   set graph_divy [xschem getprop rect 2 $graph_selected divy]
   if {$graph_divy eq {}} { set graph_divy 5}
   .graphdialog.top2.divy insert 0 $graph_divy
+
   set graph_subdivx [xschem getprop rect 2 $graph_selected subdivx]
   if {$graph_subdivx eq {}} { set graph_subdivx 1}
   .graphdialog.top2.subdivx insert 0 $graph_subdivx
+
   set graph_subdivy [xschem getprop rect 2 $graph_selected subdivy]
   if {$graph_subdivy eq {}} { set graph_subdivy 1}
   .graphdialog.top2.subdivy insert 0 $graph_subdivy
+
   set graph_unitx [xschem getprop rect 2 $graph_selected unitx]
   if {$graph_unitx eq {}} { set graph_unitx 1}
   .graphdialog.top2.unitx set $graph_unitx
+
   set graph_unity [xschem getprop rect 2 $graph_selected unity]
   if {$graph_unity eq {}} { set graph_unity 1}
   .graphdialog.top2.unity set $graph_unity
+
+  set graph_mode [xschem getprop rect 2 $graph_selected mode]
+  if {$graph_mode eq {}} { set graph_mode Line}
+  .graphdialog.top2.mode set $graph_mode
+
   pack .graphdialog.top2.labunitx .graphdialog.top2.unitx \
        .graphdialog.top2.labunity .graphdialog.top2.unity -side left
 
   pack .graphdialog.top2.labdivx .graphdialog.top2.divx \
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
-       .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy \
-       .graphdialog.top2.labsweep -side left
+       .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy -side left 
+  pack .graphdialog.top2.labmode .graphdialog.top2.mode .graphdialog.top2.labsweep -side left 
   pack .graphdialog.top2.sweep -side left -fill x -expand yes
 
   # top frame

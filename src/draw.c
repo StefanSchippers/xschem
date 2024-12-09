@@ -2733,24 +2733,55 @@ static void draw_graph_points(int idx, int first, int last,
     poly_npoints++;
   }
   set_thick_waves(1, wcnt, wave_col, gr);
-  for(x = 0; x < 2; x++) {
-    Drawable  w;
-    int offset = 0, size;
-    XPoint *pt = point;
-    if(x == 0 && xctx->draw_window) w = xctx->window;
-    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
-    else continue;
-    while(1) {
-      pt =  point + offset;
-      size = poly_npoints - offset;
-      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
-      /* dbg(0, "draw_graph_points(): drawing from %d, size %d\n", offset, size);*/
-      XDrawLines(display, w, xctx->gc[wave_col], pt, size, CoordModeOrigin);
-      if(offset + size >= poly_npoints) break;
-      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+  if(digital || gr->mode == 0) { /* Line */
+    for(x = 0; x < 2; x++) {
+      Drawable  w;
+      int offset = 0, size;
+      XPoint *pt = point;
+      if(x == 0 && xctx->draw_window) w = xctx->window;
+      else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      while(1) {
+        pt =  point + offset;
+        size = poly_npoints - offset;
+        if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+        /* dbg(0, "draw_graph_points(): drawing from %d, size %d\n", offset, size);*/
+        XDrawLines(display, w, xctx->gc[wave_col], pt, size, CoordModeOrigin);
+        if(offset + size >= poly_npoints) break;
+        offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+      }
     }
-    /*XDrawLines(display, xctx->window, xctx->gc[wave_col], point, poly_npoints, CoordModeOrigin);*/
   }
+  else if(gr->mode == 1) { /* HistoV */
+    int y2 = (int)Y_TO_SCREEN(gr->y2);
+    for(x = 0; x < 2; x++) {
+      Drawable  w;
+      if(x == 0 && xctx->draw_window) w = xctx->window;
+      else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      for(p = 0; p < poly_npoints; p++) {
+        if(point[p].y != y2) {
+          XDrawLine(display, w, xctx->gc[wave_col], point[p].x, point[p].y, point[p].x, y2);
+        }
+      }
+    }
+  }
+
+  else if(gr->mode == 2) { /* HistoH */
+    int x1 = (int)X_TO_SCREEN(gr->x1);
+    for(x = 0; x < 2; x++) {
+      Drawable  w;
+      if(x == 0 && xctx->draw_window) w = xctx->window;
+      else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      for(p = 0; p < poly_npoints; p++) {
+        if(point[p].x != x1) {
+          XDrawLine(display, w, xctx->gc[wave_col], 0, point[p].y, point[p].x, point[p].y);
+        }
+      }
+    }
+  }
+
   set_thick_waves(0, wcnt, wave_col, gr);
   /* } else dbg(1, "skipping wave: %s\n", raw->names[idx]); */
   for(p=0;p<cadlayers; ++p) {
@@ -2915,6 +2946,12 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->legend = 1;
   val = get_tok_value(r->prop_ptr,"legend", 0);
   if(val[0]) gr->legend = atoi(val);
+
+  /* draw mode (0: Line, 1: Histo. Default: Line) */
+  val = get_tok_value(r->prop_ptr,"mode", 0);
+  if(!strcmp(val, "HistoV")) gr->mode = 1;
+  else if(!strcmp(val, "HistoH")) gr->mode = 2;
+  else gr->mode = 0;
 
   /* get x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx", 0);
