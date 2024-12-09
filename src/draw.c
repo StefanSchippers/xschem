@@ -2775,7 +2775,6 @@ static void draw_graph_points(int idx, int first, int last,
       else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
       else continue;
       for(p = 0; p < poly_npoints; p++) {
-        dbg(0, "%d:  %d %d\n", p, point[p].x,point[p].y);
         if(point[p].x > x1) {
           XDrawLine(display, w, xctx->gc[wave_col], x1, point[p].y, point[p].x, point[p].y);
         }
