@@ -2973,13 +2973,21 @@ proc graph_edit_properties {n} {
   entry_replace_selection .graphdialog.top2.sweep
 
   label .graphdialog.top2.labmode -text {Mode}
-  spinbox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6 \
-   -command {
+  if  { [info tclversion] > 8.4} {
+    ttk::combobox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6
+    bind .graphdialog.top2.mode <<ComboboxSelected>> {
       graph_push_undo
       xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
       xschem draw_graph $graph_selected
     }
-
+  } else {
+    spinbox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6 \
+     -command {
+        graph_push_undo
+        xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
+        xschem draw_graph $graph_selected
+      }
+  }
 
   # bind .graphdialog.top2.sweep <KeyRelease> {
   #   graph_push_undo
@@ -8398,7 +8406,6 @@ proc setup_tcp_bespice {} {
 ###
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
-
 if { [info exists has_x]} {
   if { $dark_gui_colorscheme == 0 } { ;# normal GUI
     option add *foreground black startupFile
@@ -8415,6 +8422,9 @@ if { [info exists has_x]} {
     option add *selectColor {white} startupFile ;# checkbuttons, radiobuttons
     option add *selectForeground black
     option add *selectBackground grey70
+    if { [info tclversion] > 8.4} {
+      ttk::style configure TCombobox -fieldbackground grey90
+    }
   } else { ;# dark GUI colorscheme
     option add *foreground white startupFile
     option add *activeForeground white startupFile
@@ -8430,6 +8440,9 @@ if { [info exists has_x]} {
     option add *selectColor {grey10} startupFile ;# checkbuttons, radiobuttons
     option add *selectForeground black
     option add *selectBackground grey70
+    if { [info tclversion] > 8.4} {
+      ttk::style configure TCombobox -fieldbackground grey20
+    }
   }
 }
 set OS [lindex $tcl_platform(os) 0]
