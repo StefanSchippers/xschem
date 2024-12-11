@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -24,21 +24,21 @@ K {}
 V {}
 S {}
 E {}
-L 4 120 -540 120 -480 {}
-L 4 120 -480 130 -480 {}
-L 4 120 -460 130 -480 {}
-L 4 110 -480 120 -460 {}
-L 4 110 -480 120 -480 {}
+L 4 110 -270 110 -210 {}
+L 4 110 -210 120 -210 {}
+L 4 110 -190 120 -210 {}
+L 4 100 -210 110 -190 {}
+L 4 100 -210 110 -210 {}
 B 2 590 -550 1390 -150 {flags=graph
 y1=-0.0011
-y2=0.0011
+y2=0.0014
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.000675077
-x2=0.000778653
+x1=1e-10
+x2=0.0008
 divx=5
 subdivx=1
 node="\\"Cap. power; i(v1) a b - *\\"
@@ -50,15 +50,15 @@ logx=0
 logy=0
 }
 B 2 590 -810 1390 -550 {flags=graph
-y1=-0.0007
+y1=-0.0019
 y2=0.0007
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.000675077
-x2=0.000778653
+x1=1e-10
+x2=0.0008
 divx=5
 subdivx=1
 
@@ -72,13 +72,13 @@ node=i(v1)}
 B 2 590 -1070 1390 -810 {flags=graph
 y1=-0.7
 y2=3
-ypos1=0
-ypos2=2
+ypos1=0.22808833
+ypos2=1.7756503
 divy=5
 subdivy=1
 unity=1
-x1=0.000675077
-x2=0.000778653
+x1=1e-10
+x2=0.0008
 divx=5
 subdivx=1
 
@@ -88,10 +88,14 @@ unitx=1
 logx=0
 logy=0
 
-color="4 6 7 12"
-node="a b c d"
-hilight_wave=2}
-T {I(V1)} 60 -520 0 0 0.4 0.4 {}
+color="4 8 6 7"
+node="c
+b
+a
+d"
+hilight_wave=-1
+digital=1}
+T {I(V1)} 50 -250 0 0 0.4 0.4 {}
 N 150 -480 150 -380 {lab=B}
 N 150 -200 350 -200 {lab=0}
 N 150 -320 150 -260 {lab=C}
