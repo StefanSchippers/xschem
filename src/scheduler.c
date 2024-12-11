@@ -338,16 +338,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
       }
       tclsetboolvar("live_cursor2_backannotate", 1);
-      if(xctx->raw && xctx->raw->rawfile) {
-        res = extra_rawfile(3, xctx->raw->rawfile, "op", -1.0, -1.0);
-        if(res != 1 && xctx->raw && xctx->raw->rawfile) {
-          extra_rawfile(3, xctx->raw->rawfile, "dc", -1.0, -1.0); /* Xyce OP is saved as a 1-point DC */
-        }
+      /* delete previously loaded OP */
+      if(xctx->raw && xctx->raw->rawfile && xctx->raw->allpoints == 1 &&
+         (!strcmp(xctx->raw->sim_type, "op") || !strcmp(xctx->raw->sim_type, "dc"))) {
+        res = extra_rawfile(3, xctx->raw->rawfile, xctx->raw->sim_type, -1.0, -1.0);
       }
       tcleval("array unset ngspice::ngspice_data");
       res = extra_rawfile(1, f, "op", -1.0, -1.0);
       if(res != 1) {
-        /* Xyce uses a 1-point dc transfer characteristic for operating point data */
+        /* Xyce uses a 1-point DC transfer characteristic for operating point (OP) data */
         res = extra_rawfile(1, f, "dc", -1.0, -1.0);
       }
       if(res == 1) {
