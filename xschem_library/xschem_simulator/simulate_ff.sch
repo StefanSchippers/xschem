@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -42,7 +42,7 @@ L 4 1750 -1530 1750 -1520 {}
 L 4 1750 -1530 1770 -1520 {}
 L 4 1750 -1510 1770 -1520 {}
 L 4 1750 -1520 1750 -1510 {}
-B 12 3920 -2840 4640 -1540 {}
+B 12 3920 -2840 4640 -1540 {fill=full}
 P 5 9 1800 -300 1800 -220 1790 -230 1810 -180 1830 -230 1820 -220 1820 -300 1810 -290 1800 -300 {fill=true}
 T {7 Segment Display driver
 and base-10 counter} 1540 -3130 0 0 2.5 2.5 {}
