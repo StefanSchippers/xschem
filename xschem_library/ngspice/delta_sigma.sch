@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -149,21 +149,21 @@ value="pwl
 C {lab_pin.sym} 270 -480 0 0 {name=p1 lab=0}
 C {lab_pin.sym} 270 -570 0 0 {name=p2 lab=SIG_IN}
 C {vsource.sym} 520 -510 0 0 {name=v1 
-value="pulse 0 VCC 100n 100p 100p 9.9n 20n" 
+value="pulse 0 'VCC' 100n 100p 100p 9.9n 20n" 
 xvalue="sin 0.2 1.8 1u 0"
 }
 C {lab_pin.sym} 520 -480 0 0 {name=p6 lab=0}
 C {lab_pin.sym} 520 -570 0 0 {name=p7 lab=CK}
-C {vsource.sym} 390 -660 0 0 {name=v5 value=VCC}
+C {vsource.sym} 390 -660 0 0 {name=v5 value='VCC'}
 C {lab_pin.sym} 390 -630 0 0 {name=p17 lab=0}
 C {lab_pin.sym} 390 -570 0 0 {name=p18 lab=VSS}
 C {vsource.sym} 390 -510 0 0 {name=v6 value=0}
 C {lab_pin.sym} 390 -480 0 0 {name=p19 lab=0}
 C {lab_pin.sym} 520 -720 0 0 {name=p55 lab=RST}
-C {vsource.sym} 520 -660 0 0 {name=v7 value="pwl 0 VCC 
-+ 1u VCC 1.001u 0 3u 0 3.001u VCC
-+ 4u VCC 4.001u 0 6u 0 6.001u VCC
-+ 7u VCC 7.001u 0 9u 0 9.001u VCC"
+C {vsource.sym} 520 -660 0 0 {name=v7 value="pwl 0 'VCC' 
++ 1u 'VCC' 1.001u 0 3u 0 3.001u 'VCC'
++ 4u 'VCC' 4.001u 0 6u 0 6.001u 'VCC'
++ 7u 'VCC' 7.001u 0 9u 0 9.001u 'VCC'"
 
 }
 C {lab_pin.sym} 520 -630 0 0 {name=p56 lab=0}
