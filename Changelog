@@ -1,5 +1,29 @@
 3.4.6:
-
+- "xschem annotate_op" command only deletes loaded OP raw file (if any),
+  does no more delete all loaded raw files.
+- HistogramH and HistogramV graph modes (plot graph bars)
+- Allow wave expressions with spaces on a single line without quotes ("....").
+  Quotes can be used for wave expression on multiple lines.
+  Side effect: multiple nodes can no more be specified on a single line separated with spaces,
+  use newlines.
+- If text_replace_selection is enabled replace selection when pasting also in entry
+  widgets as done with text widgets
+- Enable Undo in text widgets. 
+- Screen grab: if draw crosshair is enabled and a screen grab is done show default mouse pointer
+- Graphs: always plot one point before x1 and one point after x2 of simulation waves so they will
+  extend to full graph area even if there are few simulation points.
+- Add graph_use_ctrl_key variable (default 0) to force holding Control key to interact with graphs.
+  This avoid graphs "stealing" events that are expected to work on the schematic
+- Allow full specification of file selector window geometry and pane sizes. examples in xschemrc
+- Fully remember panedwindow (vertical and horizontal) sash positions in load_file_dialog
+- Xschem annotate_op command: if no OP analysis is found in raw file try to load a DC
+  sweep and use first point for schematic annotation. This is done because Xyce stores
+  OP data as a 1-point DC sweep
+- Added `legend` checkbutton in graph dialog box to switch off signal legend in analog graph
+- Add `constants` plot type in graph sim type drop down menu
+- Fix <insert> and <shift>-<insert> to work on Windows
+- Remove check for libreadline (not used)
+- Insert symbols should tolerate paths in XSCHEM_LIBRARY_PATH ending with `/`
 - Select rectangles (click and mouse drag to select) are unsnapped.
   Much easier to select small objects
 - Add ability to read ASCII raw files
