@@ -1520,13 +1520,21 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spicewave,n) 4
     set_ne sim(spicewave,default) 0
     
-    ### verilog
+    ### icarus verilog
     set_ne sim(verilog,0,cmd) {sh -c "iverilog -o .verilog_object -g2012 '$N' && vvp .verilog_object"}
     set sim(verilog,0,name) {Icarus verilog}
     set_ne sim(verilog,0,fg) 0
     set_ne sim(verilog,0,st) 1
+
+    ### verilator
+    set_ne sim(verilog,1,cmd) {sh -c "verilator -Wno-fatal --binary --timing --cc --Mdir obj_$s -o $s '$N' --trace \
+                                     && ./obj_$s/$s"}
+    set sim(verilog,1,name) {Verilator}
+    set_ne sim(verilog,1,fg) 0
+    set_ne sim(verilog,1,st) 1
+
     # number of configured verilog simulators, and default one
-    set_ne sim(verilog,n) 1
+    set_ne sim(verilog,n) 2
     set_ne sim(verilog,default) 0
     
     ### verilog wave view
