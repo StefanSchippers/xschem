@@ -386,6 +386,7 @@ void mem_push_undo(void)
 
 /* redo:
  * 0: undo (with push current state for allowing following redo) 
+ * 4: undo, do not push state for redo
  * 1: redo
  * 2: read top data from undo stack without changing undo stack
  */
@@ -400,13 +401,15 @@ void mem_pop_undo(int redo, int set_modify_status)
     } else {
       return;
     }
-  } else if(redo == 0) {  /* undo */
+  } else if(redo == 0 || redo == 4) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
       xctx->push_undo();
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }
+    /* was incremented by a previous push_undo() in netlisting code, so restore */
+    if(redo == 4 && xctx->head_undo_ptr == xctx->cur_undo_ptr) xctx->head_undo_ptr--;
     if(xctx->cur_undo_ptr<= 0) return; /* check undo tail */
     xctx->cur_undo_ptr--;
   } else { /* redo == 2, get data without changing undo stack */
@@ -428,22 +431,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   }
 
   remove_symbols();
-
-
-  for(i = 0;i<xctx->maxs; ++i) {
-    my_free(_ALLOC_ID_, &xctx->sym[i].line);
-    my_free(_ALLOC_ID_, &xctx->sym[i].rect);
-    my_free(_ALLOC_ID_, &xctx->sym[i].arc);
-    my_free(_ALLOC_ID_, &xctx->sym[i].poly);
-    my_free(_ALLOC_ID_, &xctx->sym[i].lines);
-    my_free(_ALLOC_ID_, &xctx->sym[i].polygons);
-    my_free(_ALLOC_ID_, &xctx->sym[i].arcs);
-    my_free(_ALLOC_ID_, &xctx->sym[i].rects);
-  }
-
-
   my_free(_ALLOC_ID_, &xctx->sym);
-
 
   my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[slot].gptr);
   my_strdup(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[slot].vptr);
