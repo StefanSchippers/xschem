@@ -3990,7 +3990,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               np = raw->npoints[dataset];
             Tcl_ResetResult(interp);
             for(p = 0; p < np; p++) {
-              sprintf(n, "%.8g", get_raw_value(dataset, idx, p));
+              sprintf(n, "%.16g", get_raw_value(dataset, idx, p));
               Tcl_AppendResult(interp, n, " ", NULL);
             }
           }
