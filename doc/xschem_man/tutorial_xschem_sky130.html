@@ -98,12 +98,13 @@ sudo make install </pre><br>
   </li>
 
   <li> After completing the above steps you can do a test run of xschem and use the Sky130 devices.
-       You need to create a new empty drectory, copy the provided xschemrc
-       (<kbd>&lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) into it and run xschem:<br><br></li>
+       You need to create a new empty drectory, create  a new xschemrc file
+       with the following content:
+       (<kbd>source &lt;prefix&gt;/share/pdk/sky130B/libs.tech/xschem/xschemrc</kbd>) and run xschem:<br><br></li>
        <pre class="code">
 mkdir test_xschem_sky130
 cd test_xschem_sky130
-cp /usr/local/share/pdk/sky130B/libs.tech/xschem/xschemrc .
+echo 'source /usr/local/share/pdk/sky130B/libs.tech/xschem/xschemrc' > ./xschemrc
 xschem
        </pre><br><br>
   <li> If all went well the following welcome page will be shown.  The page contains some example
@@ -112,9 +113,14 @@ xschem
        meaning they are selected) and press the <kbd>e</kbd> key or by menu <kbd>Edit-&gt;Push schematic</kbd>.
        You can return to the parent level by pressing <kbd>Ctrl-e</kbd> or by menu <kbd>Edit-&gt;Pop</kbd>.
        <br><br><img src="tutorial_xschem_sky130_01.png"><br><br>
-       You can disable the welcome page by commenting the following line in the xschemrc file:<br><br></li>
+       You can disable the welcome page by commenting the following line in the xschemrc file:<br><br>
        <pre class="code">
 set XSCHEM_START_WINDOW {sky130_tests/top.sch} </pre>
+       or:
+       <pre class="code">
+unset XSCHEM_START_WINDOW </pre> </li>
+
+
  </ul><br><br>
 
  <h2> PDK_ROOT and PDK environment variables </h2>
