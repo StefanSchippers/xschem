@@ -826,7 +826,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* destroy_all [force]
-     *   Close all additional windows/.tabs. If 'force' is given do not ask for
+     *   Close all additional windows/tabs. If 'force' is given do not ask for
      *   confirmation for changed schematics
      *   Returns the remaining # of windows/tabs in addition to main window/tab */
     else if(!strcmp(argv[1], "destroy_all"))
@@ -1556,7 +1556,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else x = xctx->currsch;
             if(x < 0 ) x = xctx->currsch + x;
             if(x<=xctx->currsch && x >= 0) {
-              Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE);
+              Tcl_SetResult(interp, xctx->sch[x], TCL_VOLATILE); /* if xctx->sch[x]==NULL return empty string */
             }
           }
           else if(!strcmp(argv[2], "schprop")) /* get schematic "spice" global attributes */

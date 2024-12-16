@@ -6982,10 +6982,11 @@ proc set_tab_names {{mod {}}} {
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
+    set currsch [xschem get schname]
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
-    .tabs$tabname configure -text [file tail [xschem get schname]]$mod -background $tab_color
-    balloon .tabs$tabname [xschem get schname]
+    .tabs$tabname configure -text [file tail $currsch]$mod -background $tab_color
+    balloon .tabs$tabname $currsch
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
          .tabs.x$i configure -background $tctx::tab_bg
