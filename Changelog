@@ -1,4 +1,9 @@
 3.4.6:
+- Fix spurious change in tab name when netlisting if Trim Wires option enabled
+- Xschem raw values now returns full precision, no more 8 digit rounding, as this is
+  undesirable for transient noise sims
+- bus_tap.sym: show annotated voltage (remove hidden text attribute)
+- Add verilator in addition to icarus verilog simulator
 - "xschem annotate_op" command only deletes loaded OP raw file (if any),
   does no more delete all loaded raw files.
 - HistogramH and HistogramV graph modes (plot graph bars)
