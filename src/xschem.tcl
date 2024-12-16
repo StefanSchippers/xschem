@@ -6986,6 +6986,7 @@ proc set_tab_names {{mod {}}} {
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
     .tabs$tabname configure -text [file tail $currsch]$mod -background $tab_color
+    # puts ".tabs$tabname --> name=[file tail $currsch]$mod"
     balloon .tabs$tabname $currsch
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
