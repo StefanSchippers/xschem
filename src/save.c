@@ -3567,7 +3567,7 @@ void delete_undo(void)
 /* create undo directory in XSCHEM_TEMP_DIR */
 static void init_undo(void)
 {
-  if(!xctx->undo_initialized) {
+  if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
       dbg(0, "xinit(): problems creating tmp undo dir, Undo will be disabled\n");
@@ -3588,10 +3588,10 @@ void push_undo(void)
     FILE *fd;
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
-    if(xctx->no_undo)return;
     dbg(1, "push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
        xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr);
     init_undo();
+    if(xctx->no_undo)return;
     #if HAS_POPEN==1
     my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d",
          xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
