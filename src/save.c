@@ -3397,8 +3397,10 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
-  if(reset_undo) xctx->clear_undo();
-  if(reset_undo) xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
+  if(reset_undo) {
+    xctx->clear_undo();
+    xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
+  }
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
   if(fname && fname[0]) {
     int generator = 0;
@@ -3527,7 +3529,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();
-  if(tclgetboolvar("autotrim_wires")) trim_wires();
+  if(reset_undo && tclgetboolvar("autotrim_wires")) trim_wires();
   update_conn_cues(WIRELAYER, 0, 0);
   if(xctx->hilight_nets && load_symbols) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);

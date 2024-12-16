@@ -207,6 +207,7 @@ int set_modify(int mod)
         tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
         tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
       }
+      dbg(1, "modified=%d, schname=%s\n", xctx->modified, xctx->current_name);
       if(xctx->modified) tcleval("set_tab_names *");
       else tcleval("set_tab_names");
     }
