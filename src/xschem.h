@@ -1082,6 +1082,7 @@ typedef struct {
   /* in_memory_undo */
   Undo_slot uslot[MAX_UNDO];
   int undo_initialized;
+  int mem_undo_initialized;
   /* graph context struct */
   Graph_ctx graph_struct;
 

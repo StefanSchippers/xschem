@@ -203,8 +203,8 @@ static void mem_init_undo(void)
 {
   int slot;
 
-  dbg(1, "mem_init_undo(): undo_initialized = %d\n", xctx->undo_initialized);
-  if(!xctx->undo_initialized) {
+  dbg(1, "mem_init_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
+  if(!xctx->mem_undo_initialized) {
     for(slot = 0;slot<MAX_UNDO; slot++) {
       xctx->uslot[slot].lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
       xctx->uslot[slot].rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
@@ -215,7 +215,7 @@ static void mem_init_undo(void)
       xctx->uslot[slot].aptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
       xctx->uslot[slot].pptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
     }
-    xctx->undo_initialized = 1;
+    xctx->mem_undo_initialized = 1;
   }
 }
 
@@ -223,11 +223,11 @@ static void mem_init_undo(void)
 void mem_clear_undo(void)
 {
   int slot;
-  dbg(1, "mem_clear_undo(): undo_initialized = %d\n", xctx->undo_initialized);
+  dbg(1, "mem_clear_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
-  if(!xctx->undo_initialized) return;
+  if(!xctx->mem_undo_initialized) return;
   for(slot = 0; slot<MAX_UNDO; slot++) {
     free_undo_lines(slot);
     free_undo_rects(slot);
@@ -244,8 +244,8 @@ void mem_clear_undo(void)
 void mem_delete_undo(void)
 {
   int slot;
-  dbg(1, "mem_delete_undo(): undo_initialized = %d\n", xctx->undo_initialized);
-  if(!xctx->undo_initialized) return;
+  dbg(1, "mem_delete_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
+  if(!xctx->mem_undo_initialized) return;
   mem_clear_undo();
   for(slot = 0;slot<MAX_UNDO; slot++) {
     my_free(_ALLOC_ID_, &xctx->uslot[slot].lines);
@@ -257,7 +257,7 @@ void mem_delete_undo(void)
     my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr);
   }
-  xctx->undo_initialized = 0;
+  xctx->mem_undo_initialized = 0;
 }
 
 void mem_push_undo(void)
