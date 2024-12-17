@@ -1275,7 +1275,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         my_free(_ALLOC_ID_, &current_file[i]);
         xctx = save_xctx; /* restore schematic */
         save_xctx = NULL;
-        set_modify(-1);
+        /* set_modify(-1); */ /* no more needed as load_schematic() called with reset_undo=0 */
         result = 1;
         if(!strcmp(what, "destroy")) {
           Tk_DestroyWindow(tkpre_window[i]);
