@@ -557,7 +557,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
-   place a symbol pin. 
+   place a symbol pin.
    x,y : pin coordinates
    name = pin name
    dir = in|out|inout
@@ -570,7 +570,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       align</kbd></li><pre>
    Align currently selected objects to current snap setting </pre>
    <li><kbd>       annotate_op [raw_file] [level]</kbd></li><pre>
-   Annotate operating point data into current schematic. 
+   Annotate operating point data into current schematic.
    use &lt;schematic name&gt;.raw or use supplied argument as raw file to open
    look for operating point data and annotate voltages/currents into schematic.
    The optional 'level' integer specifies the hierarchy level the raw file refers to.
@@ -583,7 +583,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Attach net labels to selected component(s) instance(s) </pre>
    <li><kbd>       bbox begin|end</kbd></li><pre>
    Start/end bounding box calculation: parameter is either 'begin' or 'end' </pre>
-   <li><kbd>       break_wires [remove] </kbd></li><pre>
+   <li><kbd>       break_wires [remove]</kbd></li><pre>
    Break wires at selected instance pins
    if '1' is given as 'remove' parameter broken wires that are
    all inside selected instances will be deleted </pre>
@@ -603,7 +603,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       check_symbols</kbd></li><pre>
    List all used symbols in current schematic and warn if some symbol is newer </pre>
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
-   Check if all instances have a unique refdes (name attribute in xschem), 
+   Check if all instances have a unique refdes (name attribute in xschem),
    highlight such instances. If second parameter is '1' rename duplicates </pre>
    <li><kbd>       closest_object</kbd></li><pre>
    returns index of closest object to mouse coordinates
@@ -613,8 +613,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    (valid for line, poly, rect, arc)
    n is the index of the object in the xschem array
    example:
-      $  after 3000 {set obj [xschem closest_object]} 
-   (after 3s) 
+      $  after 3000 {set obj [xschem closest_object]}
+   (after 3s)
       $ puts $obj
       line 4 19 </pre>
    <li><kbd>       circle</kbd></li><pre>
@@ -660,14 +660,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       cut</kbd></li><pre>
    Cut selection to clipboard </pre>
    <li><kbd>       debug n</kbd></li><pre>
-   Set xschem in debug mode.'n' is the debug level 
+   Set xschem in debug mode.'n' is the debug level
    (0=no debug). Higher levels yield more debug info.</pre>
    <li><kbd>       delete</kbd></li><pre>
    Delete selection </pre>
    <li><kbd>       delete_files</kbd></li><pre>
    Bring up a file selector the user can use to delete files </pre>
    <li><kbd>       descend [n] [notitle]</kbd></li><pre>
-   Descend into selected component instance. Optional number 'n' specifies the 
+   Descend into selected component instance. Optional number 'n' specifies the
    instance number to descend into for vector instances (default: 0).
    0 or 1: leftmost instance, 2: second leftmost instance, ...
   -1: rightmost instance,-2: second rightmost instance, ...
@@ -675,7 +675,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
    <li><kbd>       destroy_all [force]</kbd></li><pre>
-   Close all additional windows/.tabs. If 'force' is given do not ask for
+   Close all additional windows/tabs. If 'force' is given do not ask for
    confirmation for changed schematics
    Returns the remaining # of windows/tabs in addition to main window/tab </pre>
    <li><kbd>       display_hilights [nets|instances]</kbd></li><pre>
@@ -684,10 +684,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'nets' is specified list only net highlights </pre>
    <li><kbd>       draw_graph [n] [flags]</kbd></li><pre>
    Redraw graph rectangle number 'n'.
-   If the optional 'flags' integer is given it will be used as the 
+   If the optional 'flags' integer is given it will be used as the
    flags bitmask to use while drawing (can be used to restrict what to redraw) </pre>
    <li><kbd>       drc_check [i]</kbd></li><pre>
-   Perform DRC rulecheck of instances. 
+   Perform DRC rulecheck of instances.
    if i is specified do check of specified instance
    otherwise check all instances in current schematic. </pre>
    <li><kbd>       edit_file</kbd></li><pre>
@@ -730,15 +730,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       find_nth string sep quote keep_quote n</kbd></li><pre>
    Find n-th field string separated by characters in sep. 1st field is in position 1
    do not split quoted fields (if quote characters are given) and return unquoted.
-   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --&gt; bbb 
+   xschem find_nth {aaa,bbb,ccc,ddd} {,} 2  --&gt; bbb
    xschem find_nth {aaa, "bbb, ccc" , ddd} { ,} {"} 2  --&gt; bbb, ccc</pre>
    <li><kbd>       flip [x0 y0]</kbd></li><pre>
-   Flip selection horizontally around point x0 y0. 
+   Flip selection horizontally around point x0 y0.
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       flip_in_place</kbd></li><pre>
    Flip selection horizontally, each object around its center </pre>
    <li><kbd>       flipv [x0 y0]</kbd></li><pre>
-   Flip selection vertically around point x0 y0. 
+   Flip selection vertically around point x0 y0.
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       flipv_in_place</kbd></li><pre>
    Flip selection vertically, each object around its center </pre>
@@ -817,7 +817,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    return result of get_cell function </pre>
    <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
    return result of get_cell_w_ext function </pre>
-   <li><kbd>       getprop instance|instance_pin|symbol|text ref </kbd></li><pre>
+   <li><kbd>       getprop instance|instance_pin|symbol|text ref</kbd></li><pre>
       
        getprop instance inst
    Get the full attribute string of 'inst'
@@ -861,17 +861,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       
        getprop wire num attr
    Get attribute 'attr' of wire number 'num'
-    
+      
        ('inst' can be an instance name or instance number)
        ('pin' can be a pin name or pin number)</pre>
    <li><kbd>       get_sch_from_sym inst [symbol]</kbd></li><pre>
-   get schematic associated with instance 'inst' 
+   get schematic associated with instance 'inst'
    if inst==-1 and a 'symbol' name is given get sch associated with symbol </pre>
    <li><kbd>       get_tok str tok [with_quotes]</kbd></li><pre>
    get value of token 'tok' in string 'str'
    'with_quotes' (default:0) is an integer passed to get_tok_value() </pre>
    <li><kbd>       get_tok_size</kbd></li><pre>
-   Get length of last looked up attribute name (not its value) 
+   Get length of last looked up attribute name (not its value)
    if returned value is 0 it means that last searched attribute did not exist </pre>
    <li><kbd>       globals</kbd></li><pre>
    Return various global variables used in the program </pre>
@@ -895,8 +895,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'drill' is given propagate net highlights through conducting elements
    (elements that have the 'propag' attribute on pins ) </pre>
    <li><kbd>       hilight_instname inst [fast]</kbd></li><pre>
-   Highlight instance 'inst' 
-       if 'fast' is specified do not redraw 
+   Highlight instance 'inst'
+       if 'fast' is specified do not redraw
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname net</kbd></li><pre>
    Highlight net name 'net' </pre>
@@ -904,10 +904,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
         blend_white|blend_black]
    Apply required changes to selected images
    invert: invert colors
-   white_transp: transform white to transparent color (alpha=0) after invert.
-   black_transp: transform black to transparent color (alpha=0) after invert.
-   transp_white: transform white to transparent color (alpha=0) after invert.
-   transp_black: transform black to transparent color (alpha=0) after invert.
+   white_transp: transform white color to transparent (alpha=0)
+   black_transp: transform black color to transparent (alpha=0)
+   transp_white: transform transparent to white color
+   transp_black: transform transparent to black color
    blend_white:  blend with white background and remove alpha
    blend_black:  blend with black background and remove alpha
    write_back:   write resulting image back into `image_data` attribute</pre>
@@ -924,14 +924,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'inst' can be an instance name or number </pre>
    <li><kbd>       instance_coord [instance]</kbd></li><pre>
    Return instance name, symbol name, x placement coord, y placement coord, rotation and flip
-   of selected instances 
-   if 'instance' is given (instance name or number) return data about specified instance 
+   of selected instances
+   if 'instance' is given (instance name or number) return data about specified instance
    Example:
-     xschem [~] xschem instance_coord   
+     xschem [~] xschem instance_coord
      {R5} {res.sym} 260 260 0 0
      {C1} {capa.sym} 150 150 1 1 </pre>
    <li><kbd>       instance_list</kbd></li><pre>
-   Return a list of 3-items. Each 3-item is 
+   Return a list of 3-items. Each 3-item is
    an instance name followed by the symbol reference and symbol type.
    Example: xschem instance_list --&gt;
      {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
@@ -945,10 +945,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    instance x3 pin PLUS is attached to net LED, pin OUT to net LEVEL and so on...
    If 'pin' is given restrict map to only that pin </pre>
    <li><kbd>       instance_number inst [n]</kbd></li><pre>
-   Return the position of instance 'inst' in the instance array 
+   Return the position of instance 'inst' in the instance array
    If 'n' is given set indicated instance position to 'n' </pre>
    <li><kbd>       instance_pin_coord inst attr value</kbd></li><pre>
-   Return the name and coordinates of pin with 
+   Return the name and coordinates of pin with
    attribute 'attr' set to 'value' of instance 'inst'
    'inst can be an instance name or a number
    Example: xschem instance_pin_coord x3 name MINUS --&gt; {MINUS} 600 -840 </pre>
@@ -958,7 +958,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       instance_pos inst</kbd></li><pre>
    Get number (position) of instance name 'inst' </pre>
    <li><kbd>       instances_to_net net</kbd></li><pre>
-   Return list of instances names and pins attached to net 'net' 
+   Return list of instances names and pins attached to net 'net'
    Example: xschem instances_to_net PANEL
     --&gt; { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
         { {Vpanel1} {minus} {600} {-440} } </pre>
@@ -1004,7 +1004,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
    'nofullzoom': do not do a full zoom on new schematic.</pre>
    <li><kbd>       load_new_window [f]</kbd></li><pre>
-   Load schematic in a new tab/window. If 'f' not given prompt user 
+   Load schematic in a new tab/window. If 'f' not given prompt user
    if 'f' is given as empty '{}' then open untitled.sch </pre>
    <li><kbd>       log f</kbd></li><pre>
    If 'f' is given output stderr messages to file 'f'
@@ -1017,7 +1017,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Returns 0, 1, 2, 3 for logic levels 0, 1, X, Z or nothing if no net found.</pre>
    <li><kbd>       logic_set_net net_name n [num]</kbd></li><pre>
    set 'net_name' to logic level 'n' 'num' times.
-   'n': 
+   'n':
        0  set to logic value 0
        1  set to logic value 1
        2  set to logic value X
@@ -1026,7 +1026,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    the 'num' parameter is essentially useful only with 'toggle' (-1)  value</pre>
    <li><kbd>       logic_set n [num]</kbd></li><pre>
    set selected nets, net labels or pins to logic level 'n' 'num' times.
-   'n': 
+   'n':
        0  set to logic value 0
        1  set to logic value 1
        2  set to logic value X
@@ -1035,11 +1035,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    the 'num' parameter is essentially useful only with 'toggle' (-1)  value</pre>
    <li><kbd>       make_sch</kbd></li><pre>
    Make a schematic from selected symbol </pre>
-   <li><kbd>       make_sch_from_sel </kbd></li><pre>
+   <li><kbd>       make_sch_from_sel</kbd></li><pre>
    Create an LCC instance from selection and place it instead of selection
    also ask if a symbol (.sym) file needs to be created </pre>
    <li><kbd>       make_symbol</kbd></li><pre>
-   From current schematic (circuit.sch) create a symbol (circuit.sym) 
+   From current schematic (circuit.sch) create a symbol (circuit.sym)
    using ipin.sym, opin.sym, iopin.sym in schematic
    to deduce symbol interface pins. </pre>
    <li><kbd>       merge [f]</kbd></li><pre>
@@ -1051,7 +1051,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       move_objects [dx dy] [kissing] [stretch]</kbd></li><pre>
    Start a move operation on selection and let user terminate the operation in the GUI
    if kissing is given add nets to pins that touch other instances or nets
-   if stretch is given stretch connected nets to follow instace pins 
+   if stretch is given stretch connected nets to follow instace pins
    if dx and dy are given move by that amount. </pre>
    <li><kbd>       my_strtok_r str delim quote keep_quote</kbd></li><pre>
        test for my_strtok_r() function </pre>
@@ -1064,7 +1064,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Highlight nets attached to selected symbols with
    a different name than symbol pin </pre>
    <li><kbd>       netlist [-messages] [filename]</kbd></li><pre>
-   do a netlist of current schematic in currently defined netlist format 
+   do a netlist of current schematic in currently defined netlist format
    if 'filename'is given use specified name for the netlist
    if 'filename' contains path components place the file in specified path location.
    if only a name is given and no path ('/') components are given use the
@@ -1072,13 +1072,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    This means that 'xschem netlist test.spice' and 'xschem netlist ./test.spice'
    will create the netlist in different places.
    netlisting directory is reset to previous setting after completing this command
-   If -messages is given return the ERC messages instead of just a fail (1) 
+   If -messages is given return the ERC messages instead of just a fail (1)
    or no fail (0) code. </pre>
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
    <li><kbd>       new_schematic create|destroy|destroy_all|switch winpath file [draw]</kbd></li><pre>
-   Open/destroy a new tab or window 
+   Open/destroy a new tab or window
      create: create new empty window or with 'file' loaded if 'file' given.
              The winpath must be given (even {} is ok).
              non empty winpath ({1}) will avoid warnings if opening the
@@ -1108,7 +1108,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       paste [x y]</kbd></li><pre>
    Paste clipboard. If 'x y' not given user should complete placement in the GUI </pre>
    <li><kbd>       pinlist inst [attr]</kbd></li><pre>
-   List all pins of instance 'inst' 
+   List all pins of instance 'inst'
    if no 'attr' is given return full attribute string,
    else return value for attribute 'attr'.
    Example: xschem pinlist x3 name
@@ -1123,7 +1123,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'sym_name' not given prompt user
    'prop' is the attribute string of the symbol.
    If not given take from symbol template attribute.</pre>
-   <li><kbd>       place_text </kbd></li><pre>
+   <li><kbd>       place_text</kbd></li><pre>
    Start a GUI placement of a text object </pre>
    <li><kbd>       polygon</kbd></li><pre>
    Start a GUI placement of a polygon </pre>
@@ -1132,7 +1132,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    close: same as destroy but leave the container window.
    Used in fileselector to show a schematic preview.</pre>
    <li><kbd>       print png|svg|ps|pdf|ps_full|pdf_full img_file [img_x img_y] [x1 y1 x2 y2]</kbd></li><pre>
-   If img_x and img_y are set to 0 (recommended for svg and ps/pdf) 
+   If img_x and img_y are set to 0 (recommended for svg and ps/pdf)
    they will be calculated by xschem automatically
    if img_x and img_y are given they will set the bitmap size, if
    area to export is not given then use the selection boundbox if
@@ -1159,7 +1159,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    of created objects </pre>
    <li><kbd>       print_spice_element inst</kbd></li><pre>
    Print spice raw netlist line for instance (number or name) 'inst' </pre>
-   <li><kbd>       propagate_hilights [set clear] </kbd></li><pre>
+   <li><kbd>       propagate_hilights [set clear]</kbd></li><pre>
    Debug: wrapper to propagate_hilights() function </pre>
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
@@ -1176,7 +1176,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem raw clear [rawfile [type]]
      unload given file and type. If type not given delete all type sfrom rawfile
      if no file is given unload all raw files.
-       
+      
    xschem raw del name
      delete named vector from current raw file
       
@@ -1216,13 +1216,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      return hierarchy level where raw file was loaded or -1 if no raw loaded
       
    xschem raw rawfile
-      return raw filename 
+      return raw filename
       
    xschem raw sim_type
-      return raw loaded simulation type (ac, op, tran, ...) 
+      return raw loaded simulation type (ac, op, tran, ...)
       
    xschem raw index node
-     get index of simulation variable 'node'. 
+     get index of simulation variable 'node'.
      Example:  raw index v(led) --&gt; 46
       
    xschem raw values node [dset]
@@ -1244,7 +1244,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      data is presented in column format after the header line
      First column is sweep (x-axis) variable
      Double empty lines start a new dataset
-     Single empty lines are ignored 
+     Single empty lines are ignored
      Datasets can have different # of lines.
      new dataset do not start with a header row.
      Lines beginning with '#' are comments and ignored
@@ -1260,7 +1260,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
          0.0     0.0     1.8    0.3
          0.1     0.0     1.5    0.6
          ...     ...     ...    ...
-    
+      
    xschem raw add varname [expr] [sweep_var]
      add a 'varname' vector with all values set to 0 to loaded raw file if expr not given
      otherwise initialize data with values calculated from expr.
@@ -1268,8 +1268,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      that need it. If sweep_var not given use first raw file variable as sweep variable.
      If varname is already existing and expr given recalculate data
      Example: xschem raw add power {outm outp - i(@r1[i]) *}
-     </pre>
-   <li><kbd>       raw_clear </kbd></li><pre>
+      </pre>
+   <li><kbd>       raw_clear</kbd></li><pre>
    Unload all simulation raw files
    You can use xschem raw clear as well.</pre>
    <li><kbd>       raw_read [file] [sim] [sweep1 sweep2]</kbd></li><pre>
@@ -1284,11 +1284,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    of base64 encoded data from a 'spice_data'
    attribute of selected instance
    If sim not given read first section found </pre>
-   <li><kbd>       rebuild_connectivity </kbd></li><pre>
+   <li><kbd>       rebuild_connectivity</kbd></li><pre>
    Rebuild logical connectivity abstraction of schematic </pre>
-   <li><kbd>       rebuild_selection </kbd></li><pre>
+   <li><kbd>       rebuild_selection</kbd></li><pre>
    Rebuild selection list</pre>
-   <li><kbd>       record_global_node n node </kbd></li><pre>
+   <li><kbd>       record_global_node n node</kbd></li><pre>
    call the record_global_node function (list of netlist global nodes) </pre>
    <li><kbd>       rect [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
    if 'x1 y1 x2 y2'is given place recangle on current
@@ -1330,7 +1330,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    else returns the topmost full hierarchy name of selected net/pin/label.
    Nets connected to I/O ports are mapped to upper level recursively </pre>
    <li><kbd>       rotate [x0 y0]</kbd></li><pre>
-   Rotate selection around point x0 y0. 
+   Rotate selection around point x0 y0.
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       rotate_in_place</kbd></li><pre>
    Rotate selected objects around their 0,0 coordinate point </pre>
@@ -1361,15 +1361,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Search instances / wires / rects / texts with attribute string containing 'tok'
    and value 'val'
    search can be exact ('exact') or as a regular expression ('regex')
-   select: 
+   select:
       0 : highlight matching instances
       1 : select matching instances
-     -1 : unselect matching instances 
+     -1 : unselect matching instances
    'tok' set as:
-       propstring : will search for 'val' in the entire 
+       propstring : will search for 'val' in the entire
        *instance* attribute string.
        cell::propstring : will search for 'val' in the entire
-       *symbol* attribute string. 
+       *symbol* attribute string.
        cell::name : will search for 'val' in the symbol name
        cell::&lt;attr&gt; will search for 'val' in symbol attribute 'attr'
          example: xschem search regex 0 cell::template GAIN=100
@@ -1388,7 +1388,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        returns 1 if something selected, 0 otherwise </pre>
    <li><kbd>       select_all</kbd></li><pre>
    Selects all objects in schematic </pre>
-   <li><kbd>       select_dangling_nets </kbd></li><pre>
+   <li><kbd>       select_dangling_nets</kbd></li><pre>
    Select all nets/labels that are dangling, ie not attached to any non pin/port/probe components
    Returns number of selected items (wires,labels) if danglings found, 0 otherwise </pre>
    <li><kbd>       select_hilight_net</kbd></li><pre>
@@ -1453,7 +1453,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'tok' set to 'allprops' replace whole instance prop_str with 'val'
    If 'val' not given (no attribute value) delete attribute from instance
    If 'tok' not given clear completely instance attribute string
-   If 'fast' argument if given does not redraw and is not undoable 
+   If 'fast' argument if given does not redraw and is not undoable
       
        setprop symbol name tok [val]
    Set attribute 'tok' of symbol name 'name' to 'val'
@@ -1480,16 +1480,16 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'fastundo' s given same as above but action is undoable.</pre>
    <li><kbd>       simulate [callback]</kbd></li><pre>
    Run a simulation (start simulator configured as default in
-   Tools -&gt; Configure simulators and tools) 
+   Tools -&gt; Configure simulators and tools)
    If 'callback' procedure name is given execute the procedure when simulation
    is finished. all execute(..., id) data is available (id = execute(id) )
    A callback prodedure is useful if simulation is launched in background mode
    ( set sim(spice,1,fg) 0 ) </pre>
-   <li><kbd>       snap_wire </kbd></li><pre>
+   <li><kbd>       snap_wire</kbd></li><pre>
    Start a GUI start snapped wire placement (click to start a
    wire to closest pin/net endpoint) </pre>
    <li><kbd>       str_replace str rep with [escape]</kbd></li><pre>
-   replace 'rep' with 'with' in string 'str' 
+   replace 'rep' with 'with' in string 'str'
    if rep not preceeded by an 'escape' character </pre>
    <li><kbd>       subst_tok str tok newval</kbd></li><pre>
    Return string 'str' with 'tok' attribute value replaced with 'newval' </pre>
@@ -1497,9 +1497,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    When a symbol is selected edit it in a new tab/window if not already open.
    If nothing selected open another window of the second schematic (issues a warning).
    if 'new_process' is given start a new xschem process </pre>
-   <li><kbd>       swap_cursors </kbd></li><pre>
+   <li><kbd>       swap_cursors</kbd></li><pre>
    swap cursor A (1)  and cursor B (2) positions.</pre>
-   <li><kbd>       swap_windows </kbd></li><pre>
+   <li><kbd>       swap_windows</kbd></li><pre>
    swap first and second window in window interface (internal command)</pre>
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
    Switch context to indicated window path or schematic name
@@ -1507,7 +1507,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    (no tabs/windows present or no matching winpath / schematic name
    found).</pre>
    <li><kbd>       symbols [n]</kbd></li><pre>
-   if 'n' given list symbol with name or number 'n', else 
+   if 'n' given list symbol with name or number 'n', else
    list all used symbols </pre>
    <li><kbd>       tab_list</kbd></li><pre>
    list all windows / tabs with window pathname and associated filename </pre>
@@ -1557,7 +1557,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      Example: xschem translate vref {the voltage is @value}
      the voltage is 1.8 </pre>
    <li><kbd>       translate3 str eat_escapes s1 [s2] [s3]</kbd></li><pre>
-   Translate string 'str' replacing @xxx tokens with values in string s1 or if 
+   Translate string 'str' replacing @xxx tokens with values in string s1 or if
      not found in string s2 or if not found in string s3
      eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
      Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
@@ -1602,15 +1602,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       xcb_info</kbd></li><pre>
    For debug </pre>
    <li><kbd>       zoom_box [x1 y1 x2 y2] [factor]</kbd></li><pre>
-   Zoom to specified coordinates, if 'factor' is given reduce view (factor &lt; 1.0) 
+   Zoom to specified coordinates, if 'factor' is given reduce view (factor &lt; 1.0)
    or add border (factor &gt; 1.0)
    If no coordinates are given start GUI zoom box operation </pre>
    <li><kbd>       zoom_full [center|nodraw|nolinewidth]</kbd></li><pre>
-   Set full view. 
+   Set full view.
    If 'center' is given center vire instead of lower-left align
    If 'nodraw' is given don't redraw
    If 'nolinewidth]' is given don't reset line widths. </pre>
-   <li><kbd>       zoom_hilighted </kbd></li><pre>
+   <li><kbd>       zoom_hilighted</kbd></li><pre>
    Zoom to highlighted objects </pre>
    <li><kbd>       zoom_in</kbd></li><pre>
    Zoom in drawing </pre>
@@ -1618,6 +1618,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

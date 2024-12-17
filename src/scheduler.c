@@ -2232,10 +2232,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *        blend_white|blend_black]
      *   Apply required changes to selected images
      *   invert: invert colors
-     *   white_transp: transform white to transparent color (alpha=0) after invert.
-     *   black_transp: transform black to transparent color (alpha=0) after invert.
-     *   transp_white: transform white to transparent color (alpha=0) after invert.
-     *   transp_black: transform black to transparent color (alpha=0) after invert.
+     *   white_transp: transform white color to transparent (alpha=0)
+     *   black_transp: transform black color to transparent (alpha=0)
+     *   transp_white: transform transparent to white color
+     *   transp_black: transform transparent to black color
      *   blend_white:  blend with white background and remove alpha
      *   blend_black:  blend with black background and remove alpha
      *   write_back:   write resulting image back into `image_data` attribute
