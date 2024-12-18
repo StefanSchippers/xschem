@@ -1,13 +1,13 @@
 
 unit n
-voltage 5
+voltage 3
 slope 1
 format hspice_simple
 
 buswidth A 8 [ ]
 
 beginfile stimuli_greycnt.cir
-set VDD 5
+set VDD 3
 ; set GND 0
 s 100
 set A 00
@@ -26,9 +26,28 @@ set A 06
 s 100
 set A 07
 s 100
-
-
-
+set A 08
+s 100
+set A 09
+s 100
+set A 0A
+s 100
+set A 0B
+s 100
+set A 0C
+s 100
+set A 0D
+s 100
+set A 0E
+s 100
+set A 0F
+s 100
+set A 10
+s 100
+set A 11
+s 100
+set A 12
+s 100
 endfile
 
 
