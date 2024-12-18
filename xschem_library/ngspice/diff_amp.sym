@@ -21,9 +21,9 @@ v {xschem version=3.4.6 file_version=1.2
 }
 G {}
 K {type=opamp_va
-format="@spiceprefix@name @@OUT @@IN1 @@IN2 @model"
+format="@name @@OUT @@IN1 @@IN2 @model"
 
-template="name=U1 model=diff_amp_cell spiceprefix=X"
+template="name=X1 model=diff_amp_cell"
 
 device_model="tcleval(
 .subckt diff_amp_cell OUT IN1 IN2
