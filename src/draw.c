@@ -3909,27 +3909,28 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             if(gr->logx) xx = mylog10(gv[p]);
             else  xx = gv[p];
 
-
             xxprevious = xxfollowing = xx;
+            if(p == ofs) xx0 = gv0[p];
+            wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
             #if 1 /* plot one point before start and one point after end so
-                   * waves will extend to whole graph area even if there are few points */
-            if( p > ofs) {
+                   * waves will extend to whole graph area even if there are few points
+                   * but NOT if we are about to wrap (missing 1st/last point in 2-var dc sweeps) */
+            if(!wrap && p > ofs) {
               if(gr->logx) xxprevious = mylog10(gv[p - 1]);
               else  xxprevious = gv[p - 1];
             }
-
-            if( p < ofs_end - 1) {
+            /*                    .................<-- next point will not wrap.  */
+            if(p < ofs_end - 1 && gv0[p + 1] != xx0) {
               if(gr->logx) xxfollowing = mylog10(gv[p + 1]);
               else  xxfollowing = gv[p + 1];
             }
             #endif
-            if(p == ofs) xx0 = gv0[p];
-            wrap = allow_wrap && (cnt > 1 && gv0[p] == xx0);
             dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p);
             /* if gr->mode == 2 (HistH) don't wrap */
-            if((gr->mode != 2) && first != -1) {               /* there is something to plot ... */
-              if(xxprevious > end || xxfollowing < start ||    /* ... and we ran out of graph area ... */
-                wrap) {                          /* ... or sweep variable changed direction */
+            if((gr->mode != 2) && first != -1) { /* there is something to plot ... */
+              /* ... and we ran out of graph area ... */
+              /* ... or sweep variable changed direction */
+              if(xxprevious > end || xxfollowing < start || wrap) {
                 if(dataset == -1 || dataset == sweepvar_wrap) {
                   /* plot graph */
                   if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
