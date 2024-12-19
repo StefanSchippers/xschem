@@ -1538,6 +1538,42 @@ int table_read(const char *f)
   return 0;
 }
 
+int raw_get_pos(const char *node, double value, int dset, int from_start, int to_end)
+{
+  int x = -1;
+  Raw *raw = xctx->raw;
+  int idx = -1;
+
+  if(sch_waves_loaded() >= 0) {
+    if(dset >= raw->datasets) dset = raw->datasets - 1;
+    if(dset < 0) dset = 0;
+    idx = get_raw_index(node, NULL);
+    if(idx >= 0) {
+      double vx;
+      int start, end;
+
+      start = from_start >= 0 ? from_start : 0;
+      end = to_end >= 0 ? to_end : raw->npoints[dset] - 1;
+      double vstart = get_raw_value(dset, idx, start);
+      double vend = get_raw_value(dset, idx, end);
+      int sign = (vend > vstart) ? 1 : -1;
+      dbg(0, "%d %d\n", start, end);
+
+      if(start >= end) start = end;
+      if( sign * value >= sign * vstart && sign * value <= sign * vend) {
+        while(1) {
+          x = (start + end ) / 2;
+          vx = get_raw_value(dset, idx, x);
+          if(end - start <= 1) break;
+          if( sign * vx > sign * value) end = x;
+          else start = x;
+        }
+      }
+    }
+  }
+
+  return x;
+}
 /* given a node XXyy try XXyy , xxyy, XXYY, v(XXyy), v(xxyy), V(XXYY) */
 int get_raw_index(const char *node, Int_hashentry **entry_ret)
 {

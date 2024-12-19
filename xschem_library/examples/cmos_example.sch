@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -31,8 +31,8 @@ y1=-160
 y2=0
 divy=4
 subdivy=1
-x1=2.3
-x2=2.7
+x1=2.4
+x2=2.6
 divx=6
 subdivx=1
 node="\\"GAIN @ 2uA;diffout deriv() % 0\\"
@@ -57,8 +57,8 @@ y1=0.875402
 y2=5.6754
 divy=4
 subdivy=1
-x1=2.3
-x2=2.7
+x1=2.4
+x2=2.6
 divx=6
 subdivx=1
 node="diffout@2uA;v(diffout)%0
@@ -144,8 +144,8 @@ y1=2.3
 y2=2.7
 divy=4
 subdivy=1
-x1=2.3088075
-x2=2.7088075
+x1=2.4
+x2=2.6
 divx=6
 subdivx=1
 node="minus;minus%0
@@ -344,7 +344,7 @@ value=".temp 30
   settype power power
   write cmos_example_ngspice.raw
   set appendwrite
-  dc vminus 2.3 2.7 0.001
+  dc vminus 2.4 2.6 0.001
   write cmos_example_ngspice.raw
   tran 0.5n 5u
   write cmos_example_ngspice.raw
@@ -366,7 +366,7 @@ value=".temp 30
   alterparam IB=100u
   reset
   save all
-  dc vminus 2.3 2.7 0.001
+  dc vminus 2.4 2.6 0.001
   write cmos_example_ngspice.raw
   tran 0.5n 5u
   write cmos_example_ngspice.raw

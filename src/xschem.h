@@ -1267,6 +1267,7 @@ extern int set_rect_extraptr(int what, xRect *drptr);
 extern unsigned char *base64_decode(const char *data, const size_t input_length, size_t *output_length);
 extern char *base64_encode(const unsigned char *data, const size_t input_length, size_t *output_length, int brk);
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
+extern int raw_get_pos(const char *node, double value, int dset, int from_start, int to_end);
 extern int  get_raw_index(const char *node, Int_hashentry **entry_ret);
 extern void free_rawfile(Raw **rawptr, int dr);
 extern int update_op();

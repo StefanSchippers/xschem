@@ -1165,7 +1165,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Push current state on undo stack </pre>
    <li><kbd>       raw what ...</kbd></li><pre>
      what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
-            read | set | sim_type | switch | switch_back | table_read | value | values | vars |
+            read | set | sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
       
    xschem raw read filename [type [sweep1 sweep2]]
      if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
@@ -1228,6 +1228,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    xschem raw values node [dset]
      print all simulation values of 'node' for dataset 'dset' (default dset=0)
      dset= -1: print all values for all datasets
+      
+   xschem raw pos_at node value [dset] [from_start] [to_end]
+     returns the position, starting from 0 or from_start if given, to the end of dataset
+     or to_end if given of the first point 'p' where node[p] and node[p+1] bracket value.
+     If dset not given assume dset 0 (first one)
+     This is usually done on the sweep (time) variable in transient sims where timestep is
+     not uniform
       
    xschem raw points [dset]
      print simulation points for dataset 'dset' (default: all dataset points combined)
@@ -1618,6 +1625,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

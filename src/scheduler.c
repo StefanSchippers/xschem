@@ -3791,7 +3791,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* raw what ...
      *     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
-     *            read | set | sim_type | switch | switch_back | table_read | value | values | vars |
+     *            read | set | sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
      *
      *   xschem raw read filename [type [sweep1 sweep2]]
      *     if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
@@ -3854,6 +3854,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   xschem raw values node [dset]
      *     print all simulation values of 'node' for dataset 'dset' (default dset=0)
      *     dset= -1: print all values for all datasets
+     *
+     *   xschem raw pos_at node value [dset] [from_start] [to_end]
+     *     returns the position, starting from 0 or from_start if given, to the end of dataset
+     *     or to_end if given of the first point 'p' where node[p] and node[p+1] bracket value.
+     *     If dset not given assume dset 0 (first one)
+     *     This is usually done on the sweep (time) variable in transient sims where timestep is
+     *     not uniform
      *
      *   xschem raw points [dset]
      *     print simulation points for dataset 'dset' (default: all dataset points combined)
@@ -3994,6 +4001,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_AppendResult(interp, n, " ", NULL);
             }
           }
+        } else if(argc > 4 && !strcmp(argv[2], "pos_at")) {
+          /* xschem raw pos_at node value [dset] [from_start] [to_end] */
+          int dset = 0;
+          int from_start = -1;
+          int to_end = -1;
+          int pos = -1;
+          double value = 0.0;
+          if(argc > 5) {
+            dset = atoi(argv[5]);
+          }
+          if(argc > 6) {
+            from_start = atoi(argv[6]);
+          }
+          if(argc > 7) {
+            to_end = atoi(argv[7]);
+          }
+          value = atof_spice(argv[4]);
+          pos = raw_get_pos(argv[3], value, dset, from_start, to_end);
+          Tcl_SetResult(interp, my_itoa(pos), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "add")) {
           int res = 0;
           int sweep_idx = 0;
