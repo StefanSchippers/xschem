@@ -3931,7 +3931,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           ret = extra_rawfile(2, NULL, NULL, -1.0, -1.0);
         }
-        update_op();
+        /* only update_op() if switching into a 1-point OP or DC */
+        if(ret && raw && raw->rawfile && raw->allpoints == 1 &&
+           (!strcmp(xctx->raw->sim_type, "op") || !strcmp(xctx->raw->sim_type, "dc"))) {
+          update_op();
+        }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc ==9 && !strcmp(argv[2], "new")) {
         ret = new_rawfile(argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]),atof(argv[8]));
@@ -3940,7 +3944,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         ret = extra_rawfile(4, NULL, NULL, -1.0, -1.0);
       } else if(argc > 2 && !strcmp(argv[2], "switch_back")) {
         ret = extra_rawfile(5, NULL, NULL, -1.0, -1.0);
-        update_op();
+        /* only update_op() if switching into a 1-point OP or DC */
+        if(ret && raw && raw->rawfile && raw->allpoints == 1 &&
+           (!strcmp(xctx->raw->sim_type, "op") || !strcmp(xctx->raw->sim_type, "dc"))) {
+          update_op();
+        }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 3 && !strcmp(argv[2], "del")) {
         ret = raw_deletevar(argv[3]);

@@ -38,30 +38,31 @@ L 4 410 -150 570 -150 {}
 L 4 570 -170 570 -150 {}
 L 4 570 -170 690 -170 {}
 L 7 1090 -260 2520 -260 {}
-B 2 350 -1020 810 -860 {flags=graph
+B 2 270 -1020 680 -860 {flags=graph,unlocked
 y1 = 0
 y2 = 0.93
 divy = 5
-x1=1.0574372e-07
-x2=4.3554617e-07
+x1=1.1411925e-07
+x2=4.2357466e-07
 divx=5
 subdivx=4
 unitx=n
 node="cal%0
-saout
-saout%70
-saout%3"
-color="8 19 7 12"
+saout"
+color="8 6"
 
 linewidth_mult=1.0
 hilight_wave=-1
-dataset=-1}
-B 2 350 -1160 810 -1030 {flags=graph
+dataset=-1
+rawfile=$netlist_dir/autozero_comp.raw
+sim_type=tran
+rainbow=0}
+B 2 270 -1160 680 -1030 {flags=graph,unlocked
 y1 = 0.647319
 y2 = 0.652563
 
-x1=1.0574372e-07
-x2=4.3554617e-07
+x1=1.1411925e-07
+x2=4.2357466e-07
 unitx=n
 divx=5
 subdivx=2
@@ -71,48 +72,68 @@ color="4 5"
 dataset=-1
 linewidth_mult=1.0
 divy=3
-subdivy=1}
-B 2 350 -1320 810 -1160 {flags=graph
+subdivy=1
+rawfile=$netlist_dir/autozero_comp.raw
+sim_type=tran}
+B 2 270 -1320 680 -1160 {flags=graph,unlocked
+y1 = 0.647319
+y2 = 0.652563
+
+x1=1.1411925e-07
+x2=4.2357466e-07
+unitx=n
+divx=5
+subdivx=2
+node="plus%0
+minus%0"
+color="4 5"
+dataset=-1
+linewidth_mult=1.0
+divy=3
+subdivy=1
+rawfile=$netlist_dir/autozero_comp.raw
+sim_type=tran}
+B 2 270 -1450 680 -1330 {flags=graph,unlocked
+y1 = 0.647319
+y2 = 0.652563
+
+x1=1.1411925e-07
+x2=4.2357466e-07
+unitx=n
+divx=5
+subdivx=2
+node="plus%0
+minus%0"
+color="4 5"
+dataset=-1
+linewidth_mult=1.0
+divy=3
+subdivy=1
+rawfile=$netlist_dir/autozero_comp.raw
+sim_type=tran}
+B 2 690 -1020 870 -860 {flags=graph,unlocked
 y1 = 0
 y2 = 0.9
 divy = 5
-x1=1.0574372e-07
-x2=4.3554617e-07
-unitx=n
+x1=0
+x2=58
 divx=5
 subdivx=4
-node="en%0
-cal%0
-SAOUT#3; vss,saout%3
---slow--
-SAOUT#15; vss,saout%15
---failure--
-SAOUT#70; vss,saout%70"
-color="4 4 4 8 8 7 7"
-dataset=-1
-digital=1
-ypos1=0.0825406
-ypos2=0.767045
-ylabmag=1.2
-linewidth_mult=1.0
-subdivy=0}
-B 2 350 -1450 810 -1330 {flags=graph
-y1 = -8.54414e-05
-y2 = 2.7198e-05
-divy = 5
-x1=1.0574372e-07
-x2=4.3554617e-07
-divx=5
-subdivx=4
-unitx=n
+unitx=1
 
 
+
+linewidth_mult=2
+hilight_wave=-1
 dataset=-1
+rawfile=distrib
+sim_type=distrib
 color="4 7"
-node="power dset 97 ; i(vvcc) vcc * % 23
-power dset 70 ; i(vvcc) vcc * % 70"
-subdivy=4
-linewidth_mult=1.0}
+node="saout
+ 0.45"
+sweep=freq
+mode=HistoH
+xlabmag=2.3}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION
@@ -306,7 +327,7 @@ C {ipin.sym} 110 -810 0 0 { name=p97 lab=VCC }
 C {vsource_arith.sym} 120 -420 0 0 {name=E5 VOL=temper MAX=200 MIN=-200}
 C {lab_pin.sym} 120 -470 0 1 {name=p113 lab=TEMPERAT}
 C {lab_pin.sym} 120 -390 0 0 {name=p114 lab=VSS}
-C {opin.sym} 230 -900 0 0 { name=p116 lab=SAOUT }
+C {opin.sym} 180 -880 0 0 { name=p116 lab=SAOUT }
 C {lab_pin.sym} 200 -570 0 1 {name=p126 lab=CALB}
 C {lab_pin.sym} 120 -570 0 0 {name=l50 lab=CAL}
 C {code.sym} 840 -190 0 0 {name=STIMULI 
@@ -478,12 +499,58 @@ tclcommand="xschem netlist; xschem simulate"}
 C {parax_cap.sym} 1060 -1150 0 0 {name=c4  value=5f}
 C {parax_cap.sym} 1550 -1150 0 0 {name=c6  value=5f}
 C {parax_cap.sym} 2040 -1150 0 0 {name=c7  value=5f}
-C {launcher.sym} 65 -1075 0 0 {name=h1 
-descr="Select arrow and 
-Ctrl-Left-Click to
-load/unload waveforms" 
+C {launcher.sym} 75 -1075 0 0 {name=h1 
+descr="Reload
+Waves" 
 tclcommand="
 xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw
+
+proc get_histo \{varname varlist mean min max step\} \{
+  xschem raw switch 0
+  proc xround \{a size\} \{ return [expr \{round($a/$size) * $size\}]\}
+  #### get rounded data
+  catch \{unset freq\}
+  foreach v1 $varlist \{
+    set v1 [xround [expr \{$v1 - $mean\}] $step]
+    if \{![info exists freq($v1)]\} \{ set freq($v1) 1\} else \{incr freq($v1)\}
+  \}
+  #### create histogram raw data in memory
+  xschem raw new distrib distrib $varname $min $max $step
+  xschem raw add freq
+  set j 0
+  for \{set i $min\} \{$i <= $max\} \{set i [expr \{$i + $step\}] \} \{
+    set ii  [xround $i $step]
+    set v1 0
+    if \{[info exists freq($ii)]\} \{ set v1 $freq($ii) \}
+    xschem raw set freq $j $v1
+    incr j
+  \}
+\}
+
+proc get_values \{\} \{
+  set l \{\}
+  set dset [xschem raw datasets]
+  set p [xschem raw pos_at time 259n]
+  for \{set i 0\} \{ $i < $dset\} \{ incr i\} \{
+     set v [xschem raw value saout $p $i]
+     lappend l $v
+  \}
+
+  set p [xschem raw pos_at time 339n]
+  for \{set i 0\} \{ $i < $dset\} \{ incr i\} \{
+     set v [xschem raw value saout $p $i]
+     lappend l $v
+  \}
+  get_histo saout $l 0 0 0.9 0.01
+  xschem raw switch 0
+
+\}
+
+
+get_values
+xschem redraw
+
+
 "
 }
 C {ammeter.sym} 660 -710 0 0 {name=vdiffp}
