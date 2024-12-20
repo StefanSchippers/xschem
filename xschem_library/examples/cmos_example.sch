@@ -312,8 +312,6 @@ tclcommand="xschem annotate_op $\{netlist_dir\}/cmos_example_ngspice.raw"
 C {launcher.sym} 700 -110 0 0 {name=h2
 descr="View raw file"
 tclcommand="textwindow $netlist_dir/cmos_example_ngspice.raw"}
-C {ngspice_get_value.sym} 610 -180 0 0 {name=r5 node=i(@$\{path\}m1[id])
-descr="I="}
 C {launcher.sym} 475 -695 0 0 {name=h3 
 descr="Load NGSPICE waveforms (ctrl-left-click)" 
 tclcommand="
@@ -394,16 +392,12 @@ value="* .temp 30
 ** referenced file in netlist/simulation directory.
 ** http://bwrcs.eecs.berkeley.edu/Classes/icdesign/ee241_s00/ASSIGNMENTS/TSMC035-n96g-params.txt
 .include \\"models_cmos_example.txt\\"
-.print dc format=raw file=cmos_example_xyce.raw
-+ v(*) i(*)
 .op
+.print dc format=raw file=cmos_example_xyce.raw v(*) i(*)
 .dc vplus 2.3 2.7 0.001
+.print dc format=raw file=cmos_example_xyce.raw v(*) i(*)
 
 "}
-C {ngspice_get_value.sym} 480 -320 0 1 {name=r6 node=i(@$\{path\}m4[id])
-descr="I="}
-C {ngspice_get_value.sym} 710 -320 0 0 {name=r7 node=i(@$\{path\}m5[id])
-descr="I="}
 C {ngspice_get_expr.sym} 160 -150 0 0 {name=r8 node="[to_eng [expr \{[ngspice::get_voltage gn] * [ngspice::get_current \{m3[id]\}]\}]]"
 descr="Power="
 }
@@ -415,8 +409,6 @@ tclcommand="
 xschem raw switch; xschem redraw"
 
 }
-C {ngspice_get_value.sym} 210 -200 0 1 {name=r1 node=i(@$\{path\}m3[id])
-descr="I="}
 C {ngspice_get_value.sym} 470 -230 0 1 {name=r2 node=@$\{path\}m4[gm]
 descr="gm="}
 C {ngspice_get_value.sym} 720 -230 0 0 {name=r3 node=@$\{path\}m5[gm]
