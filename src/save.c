@@ -1557,8 +1557,6 @@ int raw_get_pos(const char *node, double value, int dset, int from_start, int to
       double vstart = get_raw_value(dset, idx, start);
       double vend = get_raw_value(dset, idx, end);
       int sign = (vend > vstart) ? 1 : -1;
-      dbg(0, "%d %d\n", start, end);
-
       if(start >= end) start = end;
       if( sign * value >= sign * vstart && sign * value <= sign * vend) {
         while(1) {
