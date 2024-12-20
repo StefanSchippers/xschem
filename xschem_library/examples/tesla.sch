@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -25,15 +25,15 @@ V {}
 S {}
 E {}
 B 2 10 -270 390 -110 {flags=graph
-y1=-5400
-y2=5400
+y1=-6800
+y2=6800
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=k
-x1=0.000952652
-x2=0.000957538
+x1=4e-10
+x2=0.001
 divx=5
 subdivx=1
 node=hv
@@ -42,15 +42,15 @@ dataset=0
 unitx=u
 }
 B 2 10 -440 390 -280 {flags=graph
-y1=-0.9
+y1=-0.8
 y2=13
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.000952652
-x2=0.000957538
+x1=4e-10
+x2=0.001
 divx=5
 subdivx=1
 
@@ -130,12 +130,12 @@ N 860 -610 860 -600 {lab=HV}
 N 880 -610 880 -600 {lab=HV}
 N 860 -620 860 -610 {lab=HV}
 N 880 -620 880 -610 {lab=HV}
-N 810 -430 810 -400 {lab=#net1}
-N 810 -490 870 -490 {lab=HV}
+N 790 -430 790 -400 {lab=#net1}
+N 790 -490 870 -490 {lab=HV}
 N 580 -430 580 -400 {lab=#net2}
 N 520 -430 520 -340 {lab=#net3}
 N 520 -340 720 -340 {lab=#net3}
-N 810 -340 870 -340 {lab=FB}
+N 790 -340 870 -340 {lab=FB}
 N 520 -490 580 -490 {lab=VCC}
 N 580 -680 580 -490 {lab=VCC}
 N 870 -530 870 -490 {lab=HV}
@@ -158,7 +158,7 @@ C {code.sym} 1140 -170 0 0 {
 name=STIMULI 
 value=".option SCALE=1e-6 PARHIER=LOCAL RUNLVL=6 post MODMONTE=1
 .option sampling_method = SRS
-.option method=gear
+.option method=gear savecurrents
 vvss vss 0 dc 0
 
 .save all
@@ -199,9 +199,9 @@ C {lab_pin.sym} 870 -560 0 1 {name=p4 lab=HV}
 C {capa.sym} 1010 -450 0 0 {name=C1 m=1 value=1p}
 C {lab_pin.sym} 1010 -250 0 0 {name=p3 lab=VSS}
 C {ind.sym} 580 -460 2 1 {name=L1 value=9.8u}
-C {ind.sym} 810 -460 0 1 {name=L2 value=9.1m}
+C {ind.sym} 790 -460 0 1 {name=L2 value=9.1m}
 C {k.sym} 700 -460 0 0 {name=K0 K=0.15 L1=L1 L2=L2}
-C {res.sym} 810 -370 0 0 {name=R0 m=1 value=.32}
+C {res.sym} 790 -370 0 0 {name=R0 m=1 value=.32}
 C {capa.sym} 870 -460 0 1 {name=C0 m=1 value=4.1p}
 C {res.sym} 580 -370 0 1 {name=R3 m=1 value=0.22}
 C {capa.sym} 520 -460 0 0 {name=C5 m=1 value=13p}

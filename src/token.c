@@ -4001,6 +4001,8 @@ const char *translate(int inst, const char* s)
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
              if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
+             else if(prefix == 'q')
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[ic])", prefix, path, instname, dev);
              else if(prefix == 'd' || prefix == 'm')
                my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, instname, dev);
              else if(prefix == 'i')
@@ -4132,11 +4134,13 @@ const char *translate(int inst, const char* s)
            int vsource = (prefix == 'v') || (prefix == 'e');
            if(path[0]) {
              if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+             else if(prefix=='q') my_snprintf(fqdev, len, "i(@%c.%s%s[ic])", prefix, path, dev);
              else if(prefix=='d' || prefix == 'm') my_snprintf(fqdev, len, "i(@%c.%s%s[id])", prefix, path, dev);
              else if(prefix=='i') my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
              else my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
            } else {
              if(vsource) my_snprintf(fqdev, len, "i(%s)", dev);
+             else if(prefix == 'q') my_snprintf(fqdev, len, "i(@%s[ic])", dev);
              else if(prefix == 'd' || prefix == 'm') my_snprintf(fqdev, len, "i(@%s[id])", dev);
              else if(prefix == 'i') my_snprintf(fqdev, len, "i(@%s[current])", dev);
              else my_snprintf(fqdev, len, "i(@%s[i])", dev);
