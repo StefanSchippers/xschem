@@ -128,10 +128,11 @@ hilight_wave=-1
 dataset=-1
 rawfile=distrib
 sim_type=distrib
-color="4 7"
+color="4 7 8"
 node="saout
+saout 
  0.45"
-sweep=freq
+sweep="freq freq1 freq"
 mode=HistoH
 xlabmag=2.3}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
@@ -354,18 +355,18 @@ value="* .option SCALE=1e-6
 * .tran 0.1n 900n uic
 
 .control
-  setseed 17
-  reset
-  echo Seed=$rndseed
+  * setseed 17
+  * reset
+  * echo Seed=$rndseed
   let run=1
-  dowhile run <= 100
+  dowhile run <= 300
     if run > 1
       set appendwrite
       reset
     end
     * save saout cal i(vvcc) en plus minus saoutf outdiff
     save all
-    tran 0.3n 900n uic
+    tran 0.5n 900n uic
     write autozero_comp.raw
     let run = run + 1
   end
@@ -527,21 +528,45 @@ proc get_histo \{varname varlist mean min max step\} \{
   \}
 \}
 
+proc add_histo \{varname varlist mean min max step\} \{
+  xschem raw switch 1
+  proc xround \{a size\} \{ return [expr \{round($a/$size) * $size\}]\}
+  #### get rounded data
+  catch \{unset freq\}
+  foreach v1 $varlist \{
+    set v1 [xround [expr \{$v1 - $mean\}] $step]
+    if \{![info exists freq($v1)]\} \{ set freq($v1) 1\} else \{incr freq($v1)\}
+  \}
+  #### create histogram raw data in memory
+  xschem raw add freq1
+  set j 0
+  for \{set i $min\} \{$i <= $max\} \{set i [expr \{$i + $step\}] \} \{
+    set ii  [xround $i $step]
+    set v1 0
+    if \{[info exists freq($ii)]\} \{ set v1 $freq($ii) \}
+    xschem raw set freq1 $j $v1
+    incr j
+  \}
+\}
+
+
 proc get_values \{\} \{
-  set l \{\}
+  set l0 \{\}
   set dset [xschem raw datasets]
   set p [xschem raw pos_at time 259n]
   for \{set i 0\} \{ $i < $dset\} \{ incr i\} \{
      set v [xschem raw value saout $p $i]
-     lappend l $v
+     lappend l0 $v
   \}
 
+  set l1 \{\}
   set p [xschem raw pos_at time 339n]
   for \{set i 0\} \{ $i < $dset\} \{ incr i\} \{
      set v [xschem raw value saout $p $i]
-     lappend l $v
+     lappend l1 $v
   \}
-  get_histo saout $l 0 0 0.9 0.01
+  get_histo saout $l0 0 0 0.9 0.01
+  add_histo saout $l1 0 0 0.9 0.01
   xschem raw switch 0
 
 \}
