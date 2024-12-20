@@ -40,10 +40,10 @@ L 4 570 -170 690 -170 {}
 L 7 1090 -260 2520 -260 {}
 B 2 270 -1020 680 -860 {flags=graph,unlocked
 y1 = 0
-y2 = 0.93
+y2 = 0.9
 divy = 5
-x1=1.1411925e-07
-x2=4.2357466e-07
+x1=1.9099218e-07
+x2=3.4920522e-07
 divx=5
 subdivx=4
 unitx=n
@@ -61,8 +61,8 @@ B 2 270 -1160 680 -1030 {flags=graph,unlocked
 y1 = 0.647319
 y2 = 0.652563
 
-x1=1.1411925e-07
-x2=4.2357466e-07
+x1=1.9099218e-07
+x2=3.4920522e-07
 unitx=n
 divx=5
 subdivx=2
@@ -79,8 +79,8 @@ B 2 270 -1320 680 -1160 {flags=graph,unlocked
 y1 = 0.647319
 y2 = 0.652563
 
-x1=1.1411925e-07
-x2=4.2357466e-07
+x1=1.9099218e-07
+x2=3.4920522e-07
 unitx=n
 divx=5
 subdivx=2
@@ -97,8 +97,8 @@ B 2 270 -1450 680 -1330 {flags=graph,unlocked
 y1 = 0.647319
 y2 = 0.652563
 
-x1=1.1411925e-07
-x2=4.2357466e-07
+x1=1.9099218e-07
+x2=3.4920522e-07
 unitx=n
 divx=5
 subdivx=2
@@ -116,25 +116,25 @@ y1 = 0
 y2 = 0.9
 divy = 5
 x1=0
-x2=58
+x2=148
 divx=5
 subdivx=4
 unitx=1
 
 
 
-linewidth_mult=2
+linewidth_mult=1.5
 hilight_wave=-1
 dataset=-1
 rawfile=distrib
 sim_type=distrib
 color="4 7 8"
 node="saout
-saout 
+saout
  0.45"
-sweep="freq freq1 freq"
+sweep="freq0 freq1 freq0"
 mode=HistoH
-xlabmag=2.3}
+xlabmag=2.0}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION
@@ -517,13 +517,13 @@ proc get_histo \{varname varlist mean min max step\} \{
   \}
   #### create histogram raw data in memory
   xschem raw new distrib distrib $varname $min $max $step
-  xschem raw add freq
+  xschem raw add freq0
   set j 0
   for \{set i $min\} \{$i <= $max\} \{set i [expr \{$i + $step\}] \} \{
     set ii  [xround $i $step]
     set v1 0
     if \{[info exists freq($ii)]\} \{ set v1 $freq($ii) \}
-    xschem raw set freq $j $v1
+    xschem raw set freq0 $j $v1
     incr j
   \}
 \}
@@ -558,7 +558,6 @@ proc get_values \{\} \{
      set v [xschem raw value saout $p $i]
      lappend l0 $v
   \}
-
   set l1 \{\}
   set p [xschem raw pos_at time 339n]
   for \{set i 0\} \{ $i < $dset\} \{ incr i\} \{
@@ -568,7 +567,6 @@ proc get_values \{\} \{
   get_histo saout $l0 0 0 0.9 0.01
   add_histo saout $l1 0 0 0.9 0.01
   xschem raw switch 0
-
 \}
 
 
