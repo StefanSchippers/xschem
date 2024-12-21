@@ -92,7 +92,7 @@ proc hier_traversal {fd {level 0} only_subckts} {
       if {$descended} {
         incr level
         set dp [hier_traversal $fd $level $only_subckts]
-        xschem go_back notitle
+        xschem go_back 1
         incr level -1
       }
     }

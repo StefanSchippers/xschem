@@ -2079,13 +2079,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* go_back [notitle]
      *   Go up one level (pop) in hierarchy
-     *   if string 'notitle' is given do not update window title (slow) */
+     *   if integer 'notitle' given pass it to the go_back() function (1=do not update window title) */
     else if(!strcmp(argv[1], "go_back"))
     {
       int set_title = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2 && !strcmp(argv[2], "notitle")) {
-        set_title = 0;
+      if(argc > 2 ) {
+        set_title = atoi(argv[2]);
       }
       if((xctx->semaphore == 0)) go_back(1, set_title);
       Tcl_ResetResult(interp);
