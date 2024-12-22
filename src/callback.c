@@ -3836,10 +3836,9 @@ int rstate; /* (reduced state, without ShiftMask) */
          /* xctx->push_undo(); */
          xctx->drag_elements = 1;
 
-         if( state  & ControlMask && !tclgetboolvar("enable_stretch")) {
+         if( (state & ControlMask) && !(state & ShiftMask) && !tclgetboolvar("enable_stretch")) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
- 
          if(state == (ShiftMask | ControlMask) ) {
            xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
            move_objects(START,0,0,0);
