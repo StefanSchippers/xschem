@@ -5429,13 +5429,13 @@ proc edit_prop {txtlabel} {
 
   tkwait visibility .dialog
   # select text after value= or lab= and place cursor just before selection
-  set regx {value *= *("[^"]+"|[^ \t\n"]+)}   ;# vim syntax fix "
+  set regx {value *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
   set regx1 {value *= *[^ \n]}
   set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
   .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
   incr len -1
   if {$idx eq {} } { 
-    set regx {lab *= *("[^"]+"|[^ \t\n"]+)} ;# vim syntax fix "
+    set regx {lab *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
     set regx1 {lab *= *[^ \n]}
     set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
     .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
