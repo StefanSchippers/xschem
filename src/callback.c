@@ -1445,6 +1445,7 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
       xctx->kissing = 1;
       rebuild_selected_array();
       move_objects(START,0,0,0);
+      xctx->ui_state |= START_SYMPIN; /* avoid double push_undo() in move_objects() */
       res = 1;
     }
   } else if(type == WIRE) {
@@ -1465,6 +1466,7 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
       xctx->kissing = 1;
       rebuild_selected_array();
       move_objects(START,0,0,0);
+      xctx->ui_state |= START_SYMPIN; /* avoid double push_undo() in move_objects() */
       res = 1;
     }
   }
