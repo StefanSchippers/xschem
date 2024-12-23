@@ -5724,6 +5724,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 5 && atoi(argv[2]) == 2) {
+        /* example: xschem test 2 .xctrl. LDCP_REF 8 */
         prepare_netlist_structs(0);
         hier_hilight_hash_lookup(argv[4], atoi(argv[5]), argv[3], XINSERT);
         propagate_hilights(1, 0, XINSERT_NOREPLACE);

@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -115,8 +115,8 @@ x1=1e-09
 x2=0.002
 divx=5
 subdivx=1
-node="out
-out_lpf
+node="OUT
+OUT_LPF
 \\"Expected;in 5 - 9 *\\""
 color="7 8 6"
 dataset=0
@@ -141,10 +141,10 @@ dataset=0
 unitx=u
 digital=1
 color="7 4 4 7"
-node="\\"out;out 8 / \\"
-driveu
-drived
-ref"
+node="\\"out;OUT 8 / \\"
+DRIVEU
+DRIVED
+REF"
 jpeg_quality=25}
 B 2 1060 -990 2040 -680 {flags=graph
 y1=-0.1
@@ -165,9 +165,9 @@ unitx=u
 digital=0
 
 color="6 8 7"
-node="refu
-refd
-in"
+node="REFU
+REFD
+IN"
 jpeg_quality=25}
 B 2 600 -780 996 -635 {flags=image,unscaled
 alpha=0.6
