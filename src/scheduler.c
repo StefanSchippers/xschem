@@ -5723,6 +5723,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         del_object_table();
         Tcl_ResetResult(interp);
       }
+      else if(argc > 2 && atoi(argv[2]) == 5) {
+        xctx->prep_hash_inst=0;
+        hash_instances();
+      }
+      else if(argc > 2 && atoi(argv[2]) == 4) {
+        xctx->prep_hash_object=0;
+        hash_objects();
+      }
+      else if(argc > 2 && atoi(argv[2]) == 6) {
+        xctx->prep_hash_wires=0;
+        hash_wires();
+      }
       else if(argc > 5 && atoi(argv[2]) == 2) {
         /* example: xschem test 2 .xctrl. LDCP_REF 8 */
         prepare_netlist_structs(0);
