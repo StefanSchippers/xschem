@@ -1760,6 +1760,8 @@ proc simconf_add {tool} {
   incr sim($tool,n)
 }
 
+# this proc prints symbol bindings (default binding or "schematic" attr in symbol)
+# of all symbols used in current and sub schematics.
 proc cellview {} {
   global keep_symbols
 
@@ -1858,27 +1860,81 @@ proc cellview {} {
 
 ############ traversal
 # This proc traverses the hierarchy and prints all instances in design.
-proc traversal {file {only_subckts {0}}} {
-  global keep_symbols
-  if { $file eq {} || [file exists $file] } {
-    puts stderr "empty or existing file..."
-    return
+
+proc traversal_conf_color {w sch} {
+  global traversal_cnt
+  set sf .cv.center.f.scrl
+  if {[$w get] ne {$sch}} {
+    if { [file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg cyan
+    } else {
+      $w configure -bg red
+    }
+  } else {
+    if { [file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg grey90
+    } else {
+      $w configure -bg red
+    }
   }
+}
+
+proc traversal {{only_subckts {0}}} {
+  global keep_symbols traversal_cnt
+  set traversal_cnt 0
+  set save_keep $keep_symbols
   set keep_symbols 1
   xschem unselect_all
   xschem set no_draw 1 ;# disable screen update
   xschem set no_undo 1 ;# disable undo 
-  set fd [open $file "w"]
-  hier_traversal $fd 0 $only_subckts
+
+  if {[info tclversion] >= 8.5} {
+    set font Monospace
+  } else {
+    set font fixed
+  }
+
+  toplevel .cv
+  wm geometry .cv 800x200
+
+  frame .cv.top
+  label .cv.top.inst -text {INSTANCE} -width 20 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sym  -text {SYMBOL} -width 12 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch  -text SCHEMATIC -width 20 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.pad  -text {        } -bg grey60 -font $font
+  pack .cv.top.inst .cv.top.sym .cv.top.sch -side left -fill x -expand 1
+  pack .cv.top.pad -side left -fill x
+  frame .cv.center
+  set sf [sframe .cv.center]
+  hier_traversal 0 $only_subckts
   xschem set no_draw 0
   xschem set no_undo 0
-  set keep_symbols 0
-  close $fd
+  set keep_symbols $save_keep
+
+  frame .cv.bottom
+  label .cv.bottom.status -text {STATUS LINE}
+  pack .cv.bottom.status -fill x -expand yes
+  pack .cv.top -side top -fill x -expand no
+  pack .cv.center -side top -fill both -expand yes
+  pack .cv.bottom -side top -fill x -expand no
+  sframeyview .cv.center place
+  set maxsize [expr {[winfo height ${sf}] + [winfo height .cv.top] + [winfo height .cv.bottom]}]
+  wm maxsize .cv 9999 $maxsize
+  bind .cv.center.f <Configure> {sframeyview .cv.center}
+  bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
+  bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
+
 }
 
 # recursive procedure
-proc hier_traversal {fd {level 0} only_subckts} {
-  global nolist_libs
+proc hier_traversal {{level 0} only_subckts} {
+  global nolist_libs traversal_cnt
+  if {[info tclversion] >= 8.5} {
+    set font Monospace
+  } else { 
+    set font fixed
+  } 
+  set sf .cv.center.f.scrl
   set done_print 0
   set schpath [xschem get sch_path]
   set instances  [xschem get instances]
@@ -1904,22 +1960,53 @@ proc hier_traversal {fd {level 0} only_subckts} {
       }
     }
     if {$skip} { continue }
-    puts $fd "[spaces $level]$schpath$instname  $type"
-    puts -nonewline $fd "[spaces  $level]  $symbol"
+    incr traversal_cnt
+
+    puts "building frame $sf.f$traversal_cnt"
+    frame $sf.f$traversal_cnt
+    pack $sf.f$traversal_cnt -side top -fill x
+    label  $sf.f$traversal_cnt.i -text "[spaces $level]$schpath$instname" \
+        -width 20 -anchor w -padx 4 -borderwidth 1 \
+        -relief sunken -pady 1 -bg grey80 -font $font
+    label  $sf.f$traversal_cnt.l -text $symbol -width 12 -anchor w -padx 4 -borderwidth 1 \
+        -relief sunken -pady 1 -bg grey80 -font $font
+    entry $sf.f$traversal_cnt.s -width 20 -borderwidth 1 -relief sunken -font $font
 
     if {$type eq {subcircuit}} {
-      puts -nonewline $fd { ---> }
-      if {$inst_spice_sym_def ne {}} {puts $fd "$sch_rootname defined in instance spice_sym_def"
-      } elseif {$sym_spice_sym_def ne {}}  {puts $fd "$sch_rootname defined in symbol spice_sym_def"
-      } else { puts $fd "$sch_tail $sch_exists" }
-    } else { puts $fd {} }
+      if {$inst_spice_sym_def ne {}} {
+        $sf.f$traversal_cnt.s insert 0 "$sch_rootname defined in instance spice_sym_def"
+      } elseif {$sym_spice_sym_def ne {}} {
+        $sf.f$traversal_cnt.s insert 0 "$sch_rootname defined in symbol spice_sym_def"
+      } else {
+        $sf.f$traversal_cnt.s insert 0 "$sch_tail"
+      }
+    }
+    button $sf.f$traversal_cnt.bsym -text {Sym} -padx 4 -borderwidth 1 -pady 0 -font $font \
+           -command "
+              xschem load_new_window \[$sf.f$traversal_cnt.l cget -text\]
+            "
+    button $sf.f$traversal_cnt.bsch -text {Sch} -padx 4 -borderwidth 1 -pady 0 -font $font \
+           -command "
+              if { {$sym_spice_sym_def} eq {} && {$inst_spice_sym_def} eq {}} {
+                xschem load_new_window \[$sf.f$traversal_cnt.s get\]
+              } elseif {{$sym_spice_sym_def} ne {}} {
+                viewdata {$sym_spice_sym_def}
+              } else {
+                viewdata {$inst_spice_sym_def}
+              }"
+    if { $sym_spice_sym_def eq {} && $inst_spice_sym_def eq {}} {
+      bind $sf.f$traversal_cnt.s <KeyRelease> "traversal_conf_color %W $sch_tail"
+    }
+    pack $sf.f$traversal_cnt.i $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x -expand 1
+    pack $sf.f$traversal_cnt.bsch $sf.f$traversal_cnt.bsym -side left
+
     set done_print 1
     if {$type eq {subcircuit}} {
       xschem select instance $i fast
       set descended [xschem descend 1 6]
       if {$descended} {
         incr level
-        set dp [hier_traversal $fd $level $only_subckts]
+        set dp [hier_traversal $level $only_subckts]
         xschem go_back 1
         incr level -1
       }
@@ -1927,8 +2014,6 @@ proc hier_traversal {fd {level 0} only_subckts} {
   }
   return $done_print
 }
-
-
 ############ /traversal
 
 proc bespice_getdata {sock} {
