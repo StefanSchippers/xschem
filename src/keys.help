@@ -24,9 +24,9 @@ shift + LeftButton drag Select objects by area, without clearing
 Shift +                 Select objects by area without unselecting
 Ctrl + LeftButton drag  to perform a subsequent   'stretch'  move operation
 
-Shift + Right Button    Select all connected wires/labels/pins
+Shift + RightButton     Select all connected wires/labels/pins
 
-Ctrl + Right Button     Select all connected wires/labels/pins, stopping at 
+Ctrl + RightButton      Select all connected wires/labels/pins, stopping at 
                         wire junctions
 
 Alt + RightButton       Cut wire at mouse position (creates 2 adjacent wires)
@@ -46,14 +46,10 @@ Alt + LeftButton        Unselect selected object
 Alt + LeftButton drag  
                         Unselect objects by area
 
-RightButton             Context menu
+RightButton drag        Zoom area
 
-Shift + RightButton     Select object under the mouse and if label/pin
-                        select attached nets
-                        
-Ctrl + RightButton      Select object under the mouse and if label/pin
-                        select attached nets up to net junctions
-                        
+RightButton Release     Context menu
+
 LeftButton Double click Terminate Polygon placement
                         Edit object attributes
 

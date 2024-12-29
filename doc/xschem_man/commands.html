@@ -57,6 +57,7 @@ p{padding: 15px  30px 10px;}
   This list is available in XSCHEM in the <kbd>Help</kbd> menu
  </p>
  <pre class="code" style="height: 600px;">
+
                         XSCHEM MOUSE BINDINGS
 ----------------------------------------------------------------------
 LeftButton              Clear selection and select a graphic object 
@@ -83,9 +84,9 @@ shift + LeftButton drag Select objects by area, without clearing
 Shift +                 Select objects by area without unselecting
 Ctrl + LeftButton drag  to perform a subsequent   'stretch'  move operation
 
-Shift + Right Button    Select all connected wires/labels/pins
+Shift + RightButton     Select all connected wires/labels/pins
 
-Ctrl + Right Button     Select all connected wires/labels/pins, stopping at 
+Ctrl + RightButton      Select all connected wires/labels/pins, stopping at 
                         wire junctions
 
 Alt + RightButton       Cut wire at mouse position (creates 2 adjacent wires)
@@ -105,14 +106,10 @@ Alt + LeftButton        Unselect selected object
 Alt + LeftButton drag  
                         Unselect objects by area
 
-RightButton             Context menu
+RightButton drag        Zoom area
 
-Shift + RightButton     Select object under the mouse and if label/pin
-                        select attached nets
-                        
-Ctrl + RightButton      Select object under the mouse and if label/pin
-                        select attached nets up to net junctions
-                        
+RightButton Release     Context menu
+
 LeftButton Double click Terminate Polygon placement
                         Edit object attributes
 
@@ -145,7 +142,7 @@ ctrl        '0-9'       set current layer (4 -13)
             '1'         set selected net or label to logic value '1'
             '2'         set selected net or label to logic value 'X'
             '3'         set selected net or label to logic value 'Z'
-            '4'         toggle selected net or label: 1-&gt;0, 0-&gt;1, X-&gt;X
+            '4'         toggle selected net or label: 1->gt;0, 0->gt;1, X->gt;X
 -           'a'         Make symbol from pin list of current schematic
 ctrl        'a'         Select all
 shift       'A'         Toggle show netlist
@@ -172,7 +169,7 @@ shift+ctrl  'F'         Zoom full selected elements
 shift       'G'         Double snap factor
 -           'g'         Half snap factor
 ctrl        'g'         Set snap factor
-alt         'g'         Highlight selected nets and send to gaw waveform viewer
+alt         'g'         Hilight selected nets and send to gaw waveform viewer
 -           'h'         Constrained horizontal move/copy of objects
 alt         'h'         create symbol pins from schematic pins
 ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
@@ -189,8 +186,8 @@ shift       'J'         create xplot plot file for ngspice in simulation directo
 -           'j'         Print list of highlighted nets/pins
 -           'k'         Hilight selected nets
 ctrl+shift  'K'         highlight net passing through elements with 'propag' property set on pins
-shift       'K'         Unhighlight all nets
-ctrl        'k'         Unhighlight selected nets
+shift       'K'         Unhilight all nets
+ctrl        'k'         Unhilight selected nets
 alt         'k'         Select all nets attached to selected wire / label / pin.
 -           'l'         Start line
 ctrl        'l'         Make schematic view from selected symbol
@@ -263,6 +260,7 @@ ctrl        '='         Toggle fill rectangles
 -           '$'         Toggle pixmap  saving
 ctrl        '$'         Toggle use XCopyArea vs drawing primitives for drawing the screen
 -           ':'         Toggle flat netlist
+
  </pre><br>
 
  <h3>KEYBIND CUSTOMIZATION</h3>
