@@ -2015,7 +2015,10 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
 }
 #endif
 
-
+/* Global Variable to indicate if the right-side mouse button is pressed down. 
+ * Required to determine whether to zoom or show ctx action menu */
+int rmb_pressed_down;
+int mx_rmb_init, my_rmb_init;/* Remembers mouse position when RMB button is pressed down */
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -3730,7 +3733,14 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(sel.type) select_connected_nets(0);
    }
    else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
-     context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+     /* Instead of displaying the context action menu 
+      * immediately upon RMB-press-down, display it after the 
+      * button is released. */
+     // context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+      rmb_pressed_down = 1;
+      mx_rmb_init = mx;
+      my_rmb_init = my;
+      zoom_rectangle(START);
    }
    /* Mouse wheel events */
    else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
@@ -3870,6 +3880,20 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
+
+   if(rmb_pressed_down == 1){
+     rmb_pressed_down = 0;
+     if((mx - mx_rmb_init)*(mx - mx_rmb_init) != 0){
+       zoom_rectangle(END);
+     }
+     else{
+       xctx->ui_state &= ~STARTZOOM;
+       draw();
+       redraw_w_a_l_r_p_rubbers();
+       context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+       dbg(1, "clear zoom state: STARTZOOM state cleared!\n");
+     }
+    }
 
 
    /* launcher, no intuitive interface */
