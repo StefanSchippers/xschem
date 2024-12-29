@@ -1898,9 +1898,9 @@ proc traversal {{only_subckts {0}}} {
   wm geometry .cv 800x200
 
   frame .cv.top
-  label .cv.top.inst -text {INSTANCE} -width 20 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sym  -text {SYMBOL} -width 12 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch  -text SCHEMATIC -width 20 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sym  -text {SYMBOL} -width 10 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch  -text SCHEMATIC -width 10 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.pad  -text {        } -bg grey60 -font $font
   pack .cv.top.inst .cv.top.sym .cv.top.sch -side left -fill x -expand 1
   pack .cv.top.pad -side left -fill x
@@ -1946,7 +1946,7 @@ proc hier_traversal {{level 0} only_subckts} {
     set type [xschem getprop symbol $symbol type]
     set schematic [xschem get_sch_from_sym $i]
     set sch_exists [expr {[file exists $schematic] ? {} : {**missing**}}]
-    set sch_tail [file tail $schematic]
+    set sch_tail [rel_sym_path $schematic]
     set sch_rootname [file rootname [file tail $schematic]]
     set inst_spice_sym_def [xschem getprop instance $i spice_sym_def]
     set sym_spice_sym_def [xschem getprop instance $i cell::spice_sym_def]
@@ -1965,12 +1965,12 @@ proc hier_traversal {{level 0} only_subckts} {
     puts "building frame $sf.f$traversal_cnt"
     frame $sf.f$traversal_cnt
     pack $sf.f$traversal_cnt -side top -fill x
-    label  $sf.f$traversal_cnt.i -text "[spaces $level]$schpath$instname" \
-        -width 20 -anchor w -padx 4 -borderwidth 1 \
+    label  $sf.f$traversal_cnt.i -text "[spaces $level 2]$schpath$instname" \
+        -width 25 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -bg grey80 -font $font
-    label  $sf.f$traversal_cnt.l -text $symbol -width 12 -anchor w -padx 4 -borderwidth 1 \
+    label  $sf.f$traversal_cnt.l -text $symbol -width 10 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -bg grey80 -font $font
-    entry $sf.f$traversal_cnt.s -width 20 -borderwidth 1 -relief sunken -font $font
+    entry $sf.f$traversal_cnt.s -width 10 -borderwidth 1 -relief sunken -font $font
 
     if {$type eq {subcircuit}} {
       if {$inst_spice_sym_def ne {}} {
@@ -1998,7 +1998,7 @@ proc hier_traversal {{level 0} only_subckts} {
       bind $sf.f$traversal_cnt.s <KeyRelease> "traversal_conf_color %W $sch_tail"
     }
     pack $sf.f$traversal_cnt.i $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x -expand 1
-    pack $sf.f$traversal_cnt.bsch $sf.f$traversal_cnt.bsym -side left
+    pack $sf.f$traversal_cnt.bsym $sf.f$traversal_cnt.bsch -side left
 
     set done_print 1
     if {$type eq {subcircuit}} {

@@ -1262,6 +1262,9 @@ static int end_place_move_copy_zoom()
 {
   if(xctx->ui_state & STARTZOOM) {
     zoom_rectangle(END);
+    if( xctx->nl_x1 == xctx->nl_x2 && xctx->nl_y1 == xctx->nl_y2) {
+      return 0;
+    }
     return 1;
   }
   else if(xctx->ui_state & STARTWIRE) {
@@ -3729,9 +3732,16 @@ int rstate; /* (reduced state, without ShiftMask) */
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      if(sel.type) select_connected_nets(0);
    }
-   else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
-     context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+   /* moved to Button3 release */
+   /* 
+    * else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
+    *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+    * }
+    */
+   else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
+     zoom_rectangle(START);break;
    }
+     
    /* Mouse wheel events */
    else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
    /* Alt - Button1 click to unselect */
@@ -3871,6 +3881,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
 
+   if(state == Button3Mask && xctx->semaphore <2) {
+     if(!end_place_move_copy_zoom()) {
+       context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+     }
+   }
 
    /* launcher, no intuitive interface */
    if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask) && 
