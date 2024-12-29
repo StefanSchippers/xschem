@@ -2822,6 +2822,11 @@ void zoom_rectangle(int what)
   if( what & END)
   {
     xctx->ui_state &= ~STARTZOOM;
+    if((xctx->nl_x2 - xctx->nl_x1)*(xctx->nl_y2 - xctx->nl_y1) == 0) {
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+      return; /* Prevents zooming to infinity, if the area enclosed by the rectangle is zero */
+    }
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
     xctx->xorigin=-xctx->nl_x1;xctx->yorigin=-xctx->nl_y1;
