@@ -41,8 +41,7 @@ proc traversal {file {only_subckts {0}}} {
 }
 
 # return "$n * $indent" spaces
-proc spaces {n} {
-  set indent 4
+proc spaces {n {indent 4}} {
   set n [expr {$n * $indent}]
   # return [format %${n}s {}]
   return [string repeat { } $n]

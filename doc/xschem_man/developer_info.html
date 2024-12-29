@@ -553,7 +553,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -798,6 +797,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> schtedaxprop </kbd> get schematic "tedax" global attributes </li>
      <li><kbd> sch_path </kbd> get hierarchy path. if 'n' given get hierpath of level 'n' </li>
      <li><kbd> sch_to_compare </kbd> if set return schematic current design is compared with </li>
+     <li><kbd> symbols </kbd> number of loaded symbols </li>
      <li><kbd> temp_dir </kbd> get windows temporary dir </li>
      <li><kbd> text_svg </kbd> return 1 if using &lt;text&gt; elements in svg export </li>
      <li><kbd> textlayer </kbd> layer number for texts </li>
@@ -1513,9 +1513,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    returns 0 if switch was successfull or 1 in case of errors
    (no tabs/windows present or no matching winpath / schematic name
    found).</pre>
-   <li><kbd>       symbols [n]</kbd></li><pre>
-   if 'n' given list symbol with name or number 'n', else
-   list all used symbols </pre>
+   <li><kbd>       symbols [n | 'derived_symbols']</kbd></li><pre>
+   if 'n' given list symbol with name or number 'n', else list all
+   if 'derived_symbols' is given list also symbols derived from base symbol
+   due to instance based implementation selection. This option must be used
+   after a netlist operation with 'keep_symbols' TCL variable set to 1 </pre>
    <li><kbd>       tab_list</kbd></li><pre>
    list all windows / tabs with window pathname and associated filename </pre>
    <li><kbd>       table_read [table_file]</kbd></li><pre>
@@ -1625,6 +1627,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
+
 
 
 

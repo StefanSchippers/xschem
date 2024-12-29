@@ -2823,17 +2823,19 @@ void zoom_rectangle(int what)
   {
     xctx->ui_state &= ~STARTZOOM;
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
-    drawtemprect(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-    xctx->xorigin=-xctx->nl_x1;xctx->yorigin=-xctx->nl_y1;
-    xctx->zoom=(xctx->nl_x2-xctx->nl_x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
-    xctx->nl_yy1=(xctx->nl_y2-xctx->nl_y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
-    if(xctx->nl_yy1>xctx->zoom) xctx->zoom=xctx->nl_yy1;
-    xctx->mooz=1/xctx->zoom;
-    change_linewidth(-1.);
-    draw();
-    redraw_w_a_l_r_p_rubbers();
-    dbg(1, "zoom_rectangle(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
-      xctx->nl_x1,xctx->nl_y1,xctx->mousex_snap, xctx->mousey_snap,xctx->zoom);
+    drawtemprect(xctx->gctiled, NOW, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
+    if( xctx->nl_x1 != xctx->nl_x2 || xctx->nl_y1 != xctx->nl_y2) {
+      xctx->xorigin = -xctx->nl_x1; xctx->yorigin = -xctx->nl_y1;
+      xctx->zoom = (xctx->nl_x2 - xctx->nl_x1) / (xctx->areaw - 4 * INT_WIDTH(xctx->lw));
+      xctx->nl_yy1=(xctx->nl_y2 - xctx->nl_y1) / (xctx->areah - 4 * INT_WIDTH(xctx->lw));
+      if(xctx->nl_yy1 > xctx->zoom) xctx->zoom = xctx->nl_yy1;
+      xctx->mooz = 1 / xctx->zoom;
+      change_linewidth(-1.);
+      draw();
+      redraw_w_a_l_r_p_rubbers();
+      dbg(1, "zoom_rectangle(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
+        xctx->nl_x1, xctx->nl_y1, xctx->mousex_snap, xctx->mousey_snap, xctx->zoom);
+    }
   }
   if(what & RUBBER)
   {

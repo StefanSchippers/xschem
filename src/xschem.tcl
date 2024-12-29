@@ -686,6 +686,13 @@ proc ev0 {args} {
   }
 } 
 
+# return "$n * $indent" spaces
+proc spaces {n {indent 4}} {
+  set n [expr {$n * $indent}]
+  # return [format %${n}s {}]
+  return [string repeat { } $n]
+}
+
 # wraps provided table formatted text into a nice looking bordered table 
 # sep is the list of characters used as separators, default are { }, {,}, {\t}
 # if you want to tabulate data with spaces use only {,} as separator or any other character.
@@ -1610,10 +1617,8 @@ proc simconf {} {
   # wm transient .sim [xschem get topwindow]
   frame .sim.topf
   set scrollframe [sframe .sim.topf]
-  frame ${scrollframe}.top
   frame ${scrollframe}.center
   frame .sim.bottom
-  pack ${scrollframe}.top -fill x 
   pack ${scrollframe}.center -fill both -expand yes
   set bg(0) {#dddddd}
   set bg(1) {#aaaaaa}
@@ -1754,6 +1759,177 @@ proc simconf_add {tool} {
   set sim($tool,$n,st) 0
   incr sim($tool,n)
 }
+
+proc cellview {} {
+  global keep_symbols
+
+  if {[info tclversion] >= 8.5} {
+    set font Monospace
+  } else {
+    set font fixed
+  }
+  toplevel .cv
+  set save_keep $keep_symbols
+  set keep_symbols 1 ;# keep all symbols when doing a hierarchic netlist
+  xschem netlist ;# traverse the hierarchy and retain all encountered symbols
+  set keep_symbols $save_keep
+  wm geometry .cv 800x200
+  update
+  raise .cv
+  frame .cv.top
+  label .cv.top.sym -text {   SYMBOL} -width 20 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch -text SCHEMATIC -width 50 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.pad -text {      } -width 1 -bg grey60 -font $font
+  pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
+  pack .cv.top.pad -side left -fill x
+  frame .cv.center
+  set sf [sframe .cv.center]
+  # puts sf=$sf
+  set syms [join [lsort -index 1 [xschem symbols]]]
+  foreach {i sym} $syms {
+    set abs_sch [xschem get_sch_from_sym -1 $sym]
+    set sch [rel_sym_path $abs_sch]
+    set default_sch [add_ext $sym .sch]
+    set type [xschem getprop symbol $sym type]
+    set spice_sym_def [xschem getprop symbol $sym spice_sym_def]
+    if {$type eq {subcircuit}} {
+      frame $sf.f$i
+      pack $sf.f$i -side top -fill x
+      label  $sf.f$i.l -text $sym -width 20 -anchor w -padx 4 -borderwidth 1 \
+        -relief sunken -pady 1 -bg grey80 -font $font
+      # puts $sf.f$i.s
+      entry $sf.f$i.s -width 50 -borderwidth 1 -relief sunken -font $font
+      if { $spice_sym_def eq {}} {
+        if {![file exists $abs_sch]} {
+          $sf.f$i.s configure -bg red
+        } elseif {$default_sch ne $sch} {
+          $sf.f$i.s configure -bg cyan
+        }
+      }
+      balloon $sf.f$i.s $abs_sch
+      button $sf.f$i.b -text Open -padx 4 -borderwidth 1 -pady 0 -font $font \
+             -command "
+                if { {$spice_sym_def} eq {}} {
+                  xschem load_new_window \[$sf.f$i.s get\]
+                } else {
+                  viewdata {$spice_sym_def}
+                }"
+      if {$spice_sym_def eq {}} {
+        $sf.f$i.s insert 0 $sch
+      } else {
+        $sf.f$i.s insert 0 {<<spice_sym_def>>}
+      }
+      bind $sf.f$i.s <KeyRelease> "
+        if {\[$sf.f$i.s get\] ne {$sch}} {
+          if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
+            $sf.f$i.s configure -bg cyan
+          } else {
+            puts \"$sch --- \[$sf.f$i.s get\]\"
+            $sf.f$i.s configure -bg red
+          }
+        } else {
+          if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
+            $sf.f$i.s configure -bg grey90
+          } else {
+            $sf.f$i.s configure -bg red
+          }
+        }
+      "
+      pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
+      pack $sf.f$i.b -side left
+    }
+  }
+  frame .cv.bottom
+  label .cv.bottom.status -text {STATUS LINE}
+  pack .cv.bottom.status -fill x -expand yes
+  pack .cv.top -side top -fill x -expand no
+  pack .cv.center -side top -fill both -expand yes
+  pack .cv.bottom -side top -fill x -expand no
+  sframeyview .cv.center place
+  set maxsize [expr {[winfo height ${sf}] + [winfo height .cv.top] + [winfo height .cv.bottom]}]
+  wm maxsize .cv 9999 $maxsize
+  bind .cv.center.f <Configure> {sframeyview .cv.center}
+  bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.2}
+  bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.2}
+  xschem reload_symbols ;# purge all symbols used in below hierarchies
+}
+
+
+
+############ traversal
+# This proc traverses the hierarchy and prints all instances in design.
+proc traversal {file {only_subckts {0}}} {
+  global keep_symbols
+  if { $file eq {} || [file exists $file] } {
+    puts stderr "empty or existing file..."
+    return
+  }
+  set keep_symbols 1
+  xschem unselect_all
+  xschem set no_draw 1 ;# disable screen update
+  xschem set no_undo 1 ;# disable undo 
+  set fd [open $file "w"]
+  hier_traversal $fd 0 $only_subckts
+  xschem set no_draw 0
+  xschem set no_undo 0
+  set keep_symbols 0
+  close $fd
+}
+
+# recursive procedure
+proc hier_traversal {fd {level 0} only_subckts} {
+  global nolist_libs
+  set done_print 0
+  set schpath [xschem get sch_path]
+  set instances  [xschem get instances]
+  set current_level [xschem get currsch]
+  for {set i 0} { $i < $instances} { incr i} {
+    set instname [xschem getprop instance $i name]
+    set symbol [xschem getprop instance $i cell::name]
+    set abs_symbol [abs_sym_path $symbol]
+    set type [xschem getprop symbol $symbol type]
+    set schematic [xschem get_sch_from_sym $i]
+    set sch_exists [expr {[file exists $schematic] ? {} : {**missing**}}]
+    set sch_tail [file tail $schematic]
+    set sch_rootname [file rootname [file tail $schematic]]
+    set inst_spice_sym_def [xschem getprop instance $i spice_sym_def]
+    set sym_spice_sym_def [xschem getprop instance $i cell::spice_sym_def]
+    if {$only_subckts && ($type ne {subcircuit})} { continue }
+
+    set skip 0
+    foreach j $nolist_libs {
+      if {[regexp $j $abs_symbol]} {
+        set skip 1
+        break
+      }
+    }
+    if {$skip} { continue }
+    puts $fd "[spaces $level]$schpath$instname  $type"
+    puts -nonewline $fd "[spaces  $level]  $symbol"
+
+    if {$type eq {subcircuit}} {
+      puts -nonewline $fd { ---> }
+      if {$inst_spice_sym_def ne {}} {puts $fd "$sch_rootname defined in instance spice_sym_def"
+      } elseif {$sym_spice_sym_def ne {}}  {puts $fd "$sch_rootname defined in symbol spice_sym_def"
+      } else { puts $fd "$sch_tail $sch_exists" }
+    } else { puts $fd {} }
+    set done_print 1
+    if {$type eq {subcircuit}} {
+      xschem select instance $i fast
+      set descended [xschem descend 1 6]
+      if {$descended} {
+        incr level
+        set dp [hier_traversal $fd $level $only_subckts]
+        xschem go_back 1
+        incr level -1
+      }
+    }
+  }
+  return $done_print
+}
+
+
+############ /traversal
 
 proc bespice_getdata {sock} {
   global bespice_server_getdata
@@ -2704,6 +2880,13 @@ proc set_rect_flags {graph_selected} {
       xschem setprop rect 2 $graph_selected flags "graph$unlocked$private_cursor" fast
   }
 
+proc graphdialog_set_raw_props {} {
+  global graph_selected
+  xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
+  xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+  graph_fill_listbox
+}
+
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color graph_legend
   global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow 
@@ -2838,17 +3021,12 @@ proc graph_edit_properties {n} {
     regsub {/$} $netlist_dir {} netlist_dir
    .graphdialog.center.right.rawentry delete 0 end
    .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
-    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
-    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    graph_fill_listbox
-
+    graphdialog_set_raw_props
   }
 
-  bind .graphdialog.center.right.rawentry <KeyRelease> {
-    xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
-    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
-    graph_fill_listbox
-  }
+  bind .graphdialog.center.right.rawentry <KeyRelease> graphdialog_set_raw_props
+  bind .graphdialog.center.right.rawentry <Leave> graphdialog_set_raw_props
+
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
   text .graphdialog.center.right.text1 -undo 1 -wrap none -width 50 -height 5 -background grey90 -fg black \
@@ -8042,6 +8220,8 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.simulation.menu add checkbutton -label "Show netlist after netlist command" \
      -selectcolor $selectcolor -variable netlist_show -accelerator {Shift+A} 
+  $topwin.menubar.simulation.menu add checkbutton -label "Keep symbols when traversing hierarchy" \
+     -selectcolor $selectcolor -variable keep_symbols 
   $topwin.menubar.simulation.menu add radiobutton -indicatoron 1 -label "Use netlist directory" \
     -background grey60 -variable local_netlist_dir -value 0 \
     -selectcolor $selectcolor -command {set_netlist_dir 1 }

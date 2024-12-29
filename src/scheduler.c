@@ -1595,6 +1595,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, xctx->sch_to_compare, TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "symbols")) { /* number of loaded symbols */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, my_itoa(xctx->symbols), TCL_VOLATILE);
+          } 
+
           break;
           case 't':
           #ifndef __unix__
@@ -2857,7 +2862,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!is_from_web(argv[2])) {
           my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
           tcleval(f);
-          tclvareval("file normalize {", tclresult(), "}", NULL);
+          /* tclvareval("file normalize {", tclresult(), "}", NULL); */
           my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
         } else {
           my_strncpy(f, argv[2], S(f));
@@ -5585,20 +5590,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(r), TCL_VOLATILE);
     }
 
-    /* symbols [n]
-     *   if 'n' given list symbol with name or number 'n', else
-     *   list all used symbols */
+    /* symbols [n | 'derived_symbols']
+     *   if 'n' given list symbol with name or number 'n', else list all
+     *   if 'derived_symbols' is given list also symbols derived from base symbol
+     *   due to instance based implementation selection. This option must be used
+     *   after a netlist operation with 'keep_symbols' TCL variable set to 1 */
     else if(!strcmp(argv[1], "symbols"))
     {
       int i;
+      int derived_symbols = 0;
+      int one_symbol = 0;
       char n[100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) {
+      if(argc > 2 && !strcmp(argv[2], "derived_symbols")) derived_symbols = 1;
+      else if(argc > 2) {
+        one_symbol = 1;
         i = get_symbol(argv[2]);
-        Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);
-      } else for(i=0; i<xctx->symbols; ++i) {
-        my_snprintf(n , S(n), "%d", i);
-        Tcl_AppendResult(interp, "  {", n, " ", "{", xctx->sym[i].name, "}", "}\n", NULL);
+        if(i >=0) Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);
+        else Tcl_SetResult(interp, "", TCL_STATIC);
+      }
+      if(!one_symbol) {
+        for(i=0; i<xctx->symbols; ++i) {
+          const char *base_name = xctx->sym[i].base_name;
+          if(base_name && !derived_symbols) continue;
+          my_snprintf(n , S(n), "%d", i);
+          Tcl_AppendResult(interp, "  {", n, " ", "{", xctx->sym[i].name, "}", "}\n", NULL);
+        }
       }
     }
     else { cmd_found = 0;}
