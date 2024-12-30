@@ -1766,7 +1766,7 @@ proc cellview {} {
   global keep_symbols
 
   if {[info tclversion] >= 8.5} {
-    set font Monospace
+    set font {TkDefaultFont 10 bold} ;# Monospace
   } else {
     set font fixed
   }
@@ -1890,7 +1890,7 @@ proc traversal {{only_subckts {0}}} {
   xschem set no_undo 1 ;# disable undo 
 
   if {[info tclversion] >= 8.5} {
-    set font {TkDefaultFont 8 bold} ;# Monospace
+    set font {TkDefaultFont 10 bold} ;# Monospace
   } else {
     set font fixed
   }
@@ -1932,7 +1932,7 @@ proc traversal {{only_subckts {0}}} {
 proc hier_traversal {{level 0} only_subckts} {
   global nolist_libs traversal_cnt
   if {[info tclversion] >= 8.5} {
-    set font {TkDefaultFont 8 bold} ;# Monospace
+    set font {TkDefaultFont 10 bold} ;# Monospace
   } else { 
     set font fixed
   } 
