@@ -7775,51 +7775,36 @@ proc build_widgets { {topwin {} } } {
   global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type
   global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
-  set mbg {}
-
-  # if { $topwin ne {}} {
-  #   set mbg {-bg gray50}
-  # }
-
   if { $dark_gui_colorscheme} {
     set selectcolor white
   } else {
     set selectcolor black
   }
-  eval frame $topwin.menubar -relief raised -bd 2 $mbg
-  eval menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu \
-   -padx 3 -pady 0 $mbg
+  frame $topwin.menubar -relief raised -bd 2
+  menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu
   menu $topwin.menubar.file.menu -tearoff 0
-  eval menubutton $topwin.menubar.edit -text "Edit" -menu $topwin.menubar.edit.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.edit -text "Edit" -menu $topwin.menubar.edit.menu
   menu $topwin.menubar.edit.menu -tearoff 0
-  eval menubutton $topwin.menubar.option -text "Options" -menu $topwin.menubar.option.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.option -text "Options" -menu $topwin.menubar.option.menu
   menu $topwin.menubar.option.menu -tearoff 0
-  eval menubutton $topwin.menubar.view -text "View" -menu $topwin.menubar.view.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.view -text "View" -menu $topwin.menubar.view.menu
   menu $topwin.menubar.view.menu -tearoff 0
-  eval menubutton $topwin.menubar.prop -text "Properties" -menu $topwin.menubar.prop.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.prop -text "Properties" -menu $topwin.menubar.prop.menu
   menu $topwin.menubar.prop.menu -tearoff 0
-  eval menubutton $topwin.menubar.layers -text "Layers" -menu $topwin.menubar.layers.menu \
-   -padx 3 -pady 0 -background [lindex $tctx::colors 4]
+  menubutton $topwin.menubar.layers -text "Layers" -menu $topwin.menubar.layers.menu
   menu $topwin.menubar.layers.menu -tearoff 0
-  eval menubutton $topwin.menubar.tools -text "Tools" -menu $topwin.menubar.tools.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.tools -text "Tools" -menu $topwin.menubar.tools.menu
   menu $topwin.menubar.tools.menu -tearoff 0
-  eval menubutton $topwin.menubar.sym -text "Symbol" -menu $topwin.menubar.sym.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.sym -text "Symbol" -menu $topwin.menubar.sym.menu
   menu $topwin.menubar.sym.menu -tearoff 0
-  eval menubutton $topwin.menubar.hilight -text "Highlight" -menu $topwin.menubar.hilight.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.hilight -text "Highlight" -menu $topwin.menubar.hilight.menu
   menu $topwin.menubar.hilight.menu -tearoff 0
-  eval menubutton $topwin.menubar.simulation -text "Simulation" -menu $topwin.menubar.simulation.menu \
-   -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.simulation -text "Simulation" -menu $topwin.menubar.simulation.menu
   menu $topwin.menubar.simulation.menu -tearoff 0
-  eval menubutton $topwin.menubar.help -text "Help" -menu $topwin.menubar.help.menu \
-  -padx 3 -pady 0 $mbg
+  menubutton $topwin.menubar.help -text "Help" -menu $topwin.menubar.help.menu
   menu $topwin.menubar.help.menu -tearoff 0
+
+
   $topwin.menubar.help.menu add command -label "Help" -command "textwindow \"${XSCHEM_SHAREDIR}/xschem.help\" ro" \
        -accelerator {?}
   $topwin.menubar.help.menu add command -label "Keys" -command "textwindow \"${XSCHEM_SHAREDIR}/keys.help\" ro"
