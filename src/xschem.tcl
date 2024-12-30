@@ -7766,6 +7766,22 @@ proc load_raw {{type {}}} {
   }
 }
 
+# modified binding for button-1 clicks on menubuttons. Clicking on posted menu will unpost it
+proc tk::menubutton1 {w x y} {
+    # puts $w
+    # puts "--> [array get tk::Priv] "
+    if {[winfo ismapped [$w cget -menu ]]} {
+      MenuUnpost {}
+      return
+    }
+    if {$tk::Priv(inMenubutton) ne ""} {
+	tk::MbPost $tk::Priv(inMenubutton) $x $y
+    }
+}
+
+bind Menubutton <Button-1> {tk::menubutton1 %W %X %Y}
+
+
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
   global dark_gui_colorscheme draw_crosshair
