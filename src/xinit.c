@@ -2381,6 +2381,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("XSCHEM_SHAREDIR",XSCHEM_SHAREDIR);
    /* ... else give up searching, may set later after loading xschemrc */
  }
+ tclsetintvar("running_in_src_dir", running_in_src_dir);
 #else
  char *up_hier=NULL, *win_xschem_library_path=NULL;
  #define WIN_XSCHEM_LIBRARY_PATH_NUM 11
@@ -2411,6 +2412,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strdup(_ALLOC_ID_, &up_hier, "../../..");
  }
  else my_strdup(_ALLOC_ID_, &up_hier, "../share/xschem");
+ tclsetintvar("running_in_src_dir", running_in_src_dir);
  /* my_strcat(_ALLOC_ID_, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
    if (i==2)

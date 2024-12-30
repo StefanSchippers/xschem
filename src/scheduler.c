@@ -5919,7 +5919,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'u': /*----------------------------------------------*/
-    /* undo  [redo [set_modify]
+    /* undo  [redo [set_modify]]
          Undo last action. Optional integers redo and set_modify are passed to pop_undo() */
     if(!strcmp(argv[1], "undo"))
     {

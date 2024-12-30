@@ -1861,10 +1861,11 @@ proc cellview {} {
 ############ traversal
 # This proc traverses the hierarchy and prints all instances in design.
 
-proc traversal_conf_color {w sch} {
+proc traversal_editfile {w parent_sch sch} {
   global traversal_cnt
+  # puts "parent sch: $parent_sch"
   set sf .cv.center.f.scrl
-  if {[$w get] ne {$sch}} {
+  if {[$w get] ne $sch} {
     if { [file exists [abs_sym_path [$w get]]] } {
       $w configure -bg cyan
     } else {
@@ -1889,20 +1890,21 @@ proc traversal {{only_subckts {0}}} {
   xschem set no_undo 1 ;# disable undo 
 
   if {[info tclversion] >= 8.5} {
-    set font Monospace
+    set font {TkDefaultFont 8 bold} ;# Monospace
   } else {
     set font fixed
   }
 
   toplevel .cv
-  wm geometry .cv 800x200
+  wm geometry .cv 1200x400
 
   frame .cv.top
   label .cv.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sym  -text {SYMBOL} -width 10 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch  -text SCHEMATIC -width 10 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sym  -text {SYMBOL} -width 35 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch  -text SCHEMATIC -width 35 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.pad  -text {        } -bg grey60 -font $font
-  pack .cv.top.inst .cv.top.sym .cv.top.sch -side left -fill x -expand 1
+  pack .cv.top.inst -side left -fill x -expand 1
+  pack .cv.top.sym .cv.top.sch -side left -fill x
   pack .cv.top.pad -side left -fill x
   frame .cv.center
   set sf [sframe .cv.center]
@@ -1930,10 +1932,12 @@ proc traversal {{only_subckts {0}}} {
 proc hier_traversal {{level 0} only_subckts} {
   global nolist_libs traversal_cnt
   if {[info tclversion] >= 8.5} {
-    set font Monospace
+    set font {TkDefaultFont 8 bold} ;# Monospace
   } else { 
     set font fixed
   } 
+  set parent_sch [xschem get current_name]
+  # puts $parent_sch
   set sf .cv.center.f.scrl
   set done_print 0
   set schpath [xschem get sch_path]
@@ -1962,15 +1966,15 @@ proc hier_traversal {{level 0} only_subckts} {
     if {$skip} { continue }
     incr traversal_cnt
 
-    puts "building frame $sf.f$traversal_cnt"
+    # puts "building frame $sf.f$traversal_cnt"
     frame $sf.f$traversal_cnt
     pack $sf.f$traversal_cnt -side top -fill x
     label  $sf.f$traversal_cnt.i -text "[spaces $level 2]$schpath$instname" \
         -width 25 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -bg grey80 -font $font
-    label  $sf.f$traversal_cnt.l -text $symbol -width 10 -anchor w -padx 4 -borderwidth 1 \
+    label  $sf.f$traversal_cnt.l -text $symbol -width 35 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -bg grey80 -font $font
-    entry $sf.f$traversal_cnt.s -width 10 -borderwidth 1 -relief sunken -font $font
+    entry $sf.f$traversal_cnt.s -width 35 -borderwidth 1 -relief sunken -font $font
 
     if {$type eq {subcircuit}} {
       if {$inst_spice_sym_def ne {}} {
@@ -1995,9 +1999,10 @@ proc hier_traversal {{level 0} only_subckts} {
                 viewdata {$inst_spice_sym_def}
               }"
     if { $sym_spice_sym_def eq {} && $inst_spice_sym_def eq {}} {
-      bind $sf.f$traversal_cnt.s <KeyRelease> "traversal_conf_color %W $sch_tail"
+      bind $sf.f$traversal_cnt.s <KeyRelease> "traversal_editfile %W $parent_sch $sch_tail"
     }
-    pack $sf.f$traversal_cnt.i $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x -expand 1
+    pack $sf.f$traversal_cnt.i -side left -fill x -expand 1
+    pack $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x
     pack $sf.f$traversal_cnt.bsym $sf.f$traversal_cnt.bsch -side left
 
     set done_print 1
@@ -5071,7 +5076,7 @@ proc color_dim {} {
 
 # show xschem about dialog
 proc about {} {
-  global OS
+  global OS running_in_src_dir
   if [winfo exists .about] { 
     bind .about.link <Button-1> {}
     bind .about.link2 <Button-1> {}
@@ -5102,12 +5107,24 @@ proc about {} {
     bind .about.link <Button-1> {eval start http://repo.hu/projects/xschem}
     bind .about.link2 <Button-1> {eval start https://github.com/StefanSchippers/xschem}
     bind .about.link3 <Button-1> {eval start http://repo.hu/projects/xschem/index.html}
-    bind .about.link4 <Button-1> {eval start $XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html}
+    bind .about.link4 <Button-1> {
+      if {$running_in_src_dir} {
+        eval start [pwd]/../doc/xschem_man/xschem_man.html
+      } else {
+        eval start $XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html
+      }
+    }
   } else {
     bind .about.link <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem}
     bind .about.link2 <Button-1> {execute 0 xdg-open https://github.com/StefanSchippers/xschem}
     bind .about.link3 <Button-1> {execute 0 xdg-open http://repo.hu/projects/xschem/index.html}
-    bind .about.link4 <Button-1> {execute 0 xdg-open file://$XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html}
+    bind .about.link4 <Button-1> {
+      if {$running_in_src_dir} {
+        execute 0 xdg-open file://$XSCHEM_SHAREDIR/../doc/xschem_man/xschem_man.html
+      } else {
+        execute 0 xdg-open file://$XSCHEM_SHAREDIR/../doc/xschem/xschem_man/xschem_man.html
+      }
+    }
   }
 }
 
@@ -8679,6 +8696,13 @@ proc setup_tcp_bespice {} {
 ### 
 ###   MAIN PROGRAM
 ###
+
+# This variable is set in xinit.c
+# set running_in_src_dir 0
+# if {[file exists ./systemlib] && [file exists ./xschem.tcl] && [file exists ./xschem]} {
+#   set running_in_src_dir 1
+# }
+
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
 if { [info exists has_x]} {
