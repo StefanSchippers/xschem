@@ -7780,6 +7780,7 @@ proc build_widgets { {topwin {} } } {
   } else {
     set selectcolor black
   }
+
   frame $topwin.menubar -relief raised -bd 2
   menubutton $topwin.menubar.file -text "File" -menu $topwin.menubar.file.menu
   menu $topwin.menubar.file.menu -tearoff 0
@@ -7804,6 +7805,8 @@ proc build_widgets { {topwin {} } } {
   menubutton $topwin.menubar.help -text "Help" -menu $topwin.menubar.help.menu
   menu $topwin.menubar.help.menu -tearoff 0
 
+  # activate menus when hovering the mouse, even without button pressed
+  bind Menubutton <Motion> { tk::MbMotion %W down %X %Y} 
 
   $topwin.menubar.help.menu add command -label "Help" -command "textwindow \"${XSCHEM_SHAREDIR}/xschem.help\" ro" \
        -accelerator {?}
