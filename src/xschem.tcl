@@ -8696,8 +8696,8 @@ if { [info exists has_x]} {
   if { $dark_gui_colorscheme == 0 } { ;# normal GUI
     option add *foreground black startupFile
     option add *activeForeground black startupFile
-    option add *background {grey90} startupFile
-    option add *activeBackground {#ececec} startupFile
+    option add *background {grey80} startupFile
+    option add *activeBackground {#f8f8f8} startupFile
     option add *disabledForeground {black} startupFile
     option add *disabledBackground {grey70} startupFile
     option add *readonlyBackground {grey70} startupFile
@@ -8715,7 +8715,7 @@ if { [info exists has_x]} {
     option add *foreground white startupFile
     option add *activeForeground white startupFile
     option add *background {grey20} startupFile
-    option add *activeBackground {grey20} startupFile
+    option add *activeBackground {grey10} startupFile
     option add *disabledForeground {white} startupFile
     option add *disabledBackground {grey20} startupFile
     option add *readonlyBackground {grey20} startupFile
