@@ -3504,13 +3504,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     if(err) {
       if(has_x) {
-        tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
       }
 
     } else {
       if(has_x) {
-        tclvareval(xctx->top_path, ".menubar.netlist configure -bg Green", NULL);
+        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
       }
     }
@@ -3544,12 +3544,12 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     if(err) {
       if(has_x) {
-        tclvareval(xctx->top_path, ".menubar.netlist configure -bg red", NULL);
+        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
       }
     } else {
       if(has_x) {
-        tclvareval(xctx->top_path, ".menubar.netlist configure -bg Green", NULL);
+        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
       }
     }

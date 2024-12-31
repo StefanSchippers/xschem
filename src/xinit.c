@@ -1129,12 +1129,10 @@ void toggle_fullscreen(const char *topwin)
       tclvareval("toolbar_hide ", xctx->top_path, NULL);
     }
     tclvareval("pack forget ", xctx->top_path, ".tabs", NULL);
-    tclvareval("pack forget ", xctx->top_path, ".menubar", NULL);
     tclvareval("pack forget ", xctx->top_path, ".statusbar", NULL);
     xctx->menu_removed |= 1; /* menu_removed bit 0 == 1: other bars were removed */
   } else if(xctx->menu_removed) { /* bars were removed so pack them back */
     tclvareval("pack forget ", xctx->top_path, ".drw", NULL);
-    tclvareval("pack ", xctx->top_path, ".menubar -side top -fill x", NULL);
     tclvareval("pack ", xctx->top_path, ".statusbar  -side bottom -fill x", NULL);
     tclvareval("pack ", xctx->top_path, ".drw  -side right -fill both -expand true", NULL);
     if(tclgetboolvar("tabbed_interface")) {
@@ -1604,8 +1602,8 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
   if(has_x) {
-    tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-    tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+    tclvareval("[xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg", NULL);
+    tcleval(".menubar.view entryconfigure {Tabbed interface} -state disabled");
   }
   n = -1;
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
@@ -1706,8 +1704,8 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
   if(has_x) {
-    tclvareval("[xschem get top_path].menubar.simulate configure -bg $simulate_bg", NULL);
-    tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state disabled");
+    tclvareval("[xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg", NULL);
+    tcleval(".menubar.view entryconfigure {Tabbed interface} -state disabled");
   }
   for(i = 1; i < MAX_NEW_WINDOWS; ++i) { /* search 1st free slot */
     if(save_xctx[i] == NULL) {
@@ -1821,7 +1819,7 @@ static void destroy_window(int *window_count, const char *win_path)
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
         if(has_x && *window_count == 0)
-          tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+          tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
       }
     }
     /* following 3 lines must be done also if window not closed */
@@ -1877,7 +1875,7 @@ static void destroy_tab(int *window_count, const char *win_path)
         my_strncpy(window_path[n], "", S(window_path[n]));
         /* delete Tcl context of deleted schematic window */
         (*window_count)--;
-        if(*window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+        if(*window_count == 0) tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
       }
       xctx = save_xctx[0]; /* restore main (.drw) schematic */
 
@@ -1941,7 +1939,7 @@ static void destroy_all_windows(int *window_count, int force)
             my_strncpy(window_path[i], "", S(window_path[i]));
             (*window_count)--;
             if(has_x && *window_count == 0)
-               tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+               tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
           }
         }
       }
@@ -1984,7 +1982,7 @@ static void destroy_all_tabs(int *window_count, int force)
           save_xctx[i] = NULL;
           my_strncpy(window_path[i], "", S(window_path[i]));
           (*window_count)--;
-          if(has_x && *window_count == 0) tcleval(".menubar.view.menu entryconfigure {Tabbed interface} -state normal");
+          if(has_x && *window_count == 0) tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
         }
       }
     }
