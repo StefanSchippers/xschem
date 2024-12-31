@@ -7035,9 +7035,11 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
     if {![winfo exists  $topwin.toolbar]} {
        frame $topwin.toolbar -relief raised -bd 0 -background $bg 
     }
-    button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
-    -padx 0 -pady 0 -command $cmd
-    if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
+    if { ![winfo exists $topwin.toolbar.b$name]} {
+      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
+      -padx 0 -pady 0 -command $cmd
+      if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
+    }
 }
 
 #
@@ -7777,6 +7779,50 @@ proc load_raw {{type {}}} {
 # 
 # bind Menubutton <Button-1> {tk::menubutton1 %W %X %Y}
 
+proc add_toolbuttons {{topwin {}}} {
+  # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
+  # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
+  toolbar_add FileOpen "xschem load" "Open File" $topwin
+  toolbar_add FileSave "xschem save" "Save File" $topwin
+  # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
+  toolbar_add FileReload {
+      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
+        xschem reload
+      }
+    } "Reload File" $topwin
+  toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
+  toolbar_add EditRedo "xschem redo; xschem redraw" "Redo" $topwin
+  toolbar_add EditCut "xschem cut" "Cut" $topwin
+  toolbar_add EditCopy "xschem copy" "Copy" $topwin
+  toolbar_add EditPaste "xschem paste" "Paste" $topwin
+  toolbar_add EditDelete "xschem delete" "Delete" $topwin
+  toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
+  toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
+  toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
+  toolbar_add EditPushSym "xschem descend_symbol" "Push symbol" $topwin
+  toolbar_add EditPop "xschem go_back" "Pop" $topwin
+  toolbar_add ViewRedraw "xschem redraw" "Redraw" $topwin
+  # toolbar_add ViewZoomIn "xschem zoom_in" "Zoom In" $topwin
+  # toolbar_add ViewZoomOut "xschem zoom_out" "Zoom Out" $topwin
+  # toolbar_add ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
+  toolbar_add ViewToggleColors {
+          xschem toggle_colorscheme
+       } "Toggle Color Scheme" $topwin
+  toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
+  toolbar_add ToolInsertText "xschem place_text" "Insert Text" $topwin
+  toolbar_add ToolInsertWire "xschem wire" "Insert Wire" $topwin
+  toolbar_add ToolInsertLine "xschem line" "Insert Line" $topwin
+  toolbar_add ToolInsertRect "xschem rect" "Insert Rectangle" $topwin
+  toolbar_add ToolInsertPolygon "xschem polygon" "Insert Polygon" $topwin
+  toolbar_add ToolInsertArc "xschem arc" "Insert Arc" $topwin
+  toolbar_add ToolInsertCircle "xschem circle" "Insert Circle" $topwin
+  toolbar_add ToolSearch property_search "Search" $topwin
+  toolbar_add ToolJoinTrim "xschem trim_wires" "Join/Trim Wires" $topwin
+  toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
+  toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
+  toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
+  toolbar_add Waves { waves } "View results" $topwin
+}
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
@@ -7838,12 +7884,10 @@ proc build_widgets { {topwin {} } } {
     -command {
       xschem clear schematic
     }
-  # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
   $topwin.menubar.file add command -label "Clear Symbol" -accelerator Ctrl+Shift+N \
     -command {
       xschem clear symbol
     }
-  # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
   $topwin.menubar.file add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
       load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
@@ -7855,7 +7899,6 @@ proc build_widgets { {topwin {} } } {
   menu $topwin.menubar.file.recent -tearoff 0
   setup_recent_menu $topwin
   $topwin.menubar.file add command -label {Create new window/tab} -command "xschem new_schematic create"
-  toolbar_add FileOpen "xschem load" "Open File" $topwin
 
   $topwin.menubar.file add command -label "Open schematic in new window/tab" \
       -command "open_sub_schematic" -accelerator Alt+E
@@ -7865,20 +7908,13 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.file add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
   $topwin.menubar.file add command -label "Save" -command "xschem save" -accelerator {Ctrl+S}
-  toolbar_add FileSave "xschem save" "Save File" $topwin
   $topwin.menubar.file add command -label "Merge" -command "xschem merge" -accelerator {B}
-  # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
   $topwin.menubar.file add command -label "Reload" -accelerator {Alt+S} \
     -command {
       if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
         xschem reload
       }
     }
-  toolbar_add FileReload {
-      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
-        xschem reload
-      }
-    } "Reload File" $topwin
   $topwin.menubar.file add command -label "Save as" -command "xschem saveas" -accelerator {Ctrl+Shift+S}
   $topwin.menubar.file add command -label "Save as symbol" \
      -command "xschem saveas {} symbol" -accelerator {Ctrl+Alt+S}
@@ -8007,26 +8043,18 @@ proc build_widgets { {topwin {} } } {
        -background grey60 -variable netlist_type -value symbol -accelerator {Ctrl+Shift+V} \
        -selectcolor $selectcolor -command "xschem set netlist_type symbol; xschem redraw"
   $topwin.menubar.edit add command -label "Undo" -command "xschem undo; xschem redraw" -accelerator U
-  toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
   $topwin.menubar.edit add command -label "Redo" -command "xschem redo; xschem redraw" -accelerator {Shift+U}
-  toolbar_add EditRedo "xschem redo; xschem redraw" "Redo" $topwin
-  toolbar_add EditCut "xschem cut" "Cut" $topwin
   $topwin.menubar.edit add command -label "Copy" -command "xschem copy" -accelerator Ctrl+C
-  toolbar_add EditCopy "xschem copy" "Copy" $topwin
   $topwin.menubar.edit add command -label "Cut" -command "xschem cut"   -accelerator Ctrl+X
   $topwin.menubar.edit add command -label "Paste" -command "xschem paste" -accelerator Ctrl+V
-  toolbar_add EditPaste "xschem paste" "Paste" $topwin
   $topwin.menubar.edit add command -label "Delete" -command "xschem delete" -accelerator Del
-  toolbar_add EditDelete "xschem delete" "Delete" $topwin
   $topwin.menubar.edit add command -label "Select all" -command "xschem select_all" -accelerator Ctrl+A
   $topwin.menubar.edit add command -label "Duplicate objects" -command "xschem copy_objects" -accelerator C
-  toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
   $topwin.menubar.edit add command -label "Move objects" -command "xschem move_objects" -accelerator M
   $topwin.menubar.edit add command -label "Move objects stretching attached wires" \
       -command "xschem move_objects stretch" -accelerator Control+M
   $topwin.menubar.edit add command -label "Move objects adding wires to connected pins" \
       -command "xschem move_objects kissing" -accelerator Shift+M
-  toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
   $topwin.menubar.edit add command -label "Horizontal Flip in place selected objects" -state normal \
      -command {xschem flip_in_place} -accelerator {Alt-F}
   $topwin.menubar.edit add command -label "Vertical Flip in place selected objects" -state normal \
@@ -8046,11 +8074,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.edit add radiobutton -label "Constrained Vertical move" -variable constr_mv \
      -selectcolor $selectcolor -background grey60 -value 2 -accelerator V -command {xschem set constr_mv 2} 
   $topwin.menubar.edit add command -label "Push schematic" -command "xschem descend" -accelerator E
-  toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
   $topwin.menubar.edit add command -label "Push symbol" -command "xschem descend_symbol" -accelerator I
-  toolbar_add EditPushSym "xschem descend_symbol" "Push symbol" $topwin
   $topwin.menubar.edit add command -label "Pop" -command "xschem go_back" -accelerator Ctrl+E
-  toolbar_add EditPop "xschem go_back" "Pop" $topwin
 
   $topwin.menubar add command -label { - } -state disabled
   $topwin.menubar add command -label Netlist -background {#888888} \
@@ -8090,7 +8115,6 @@ proc build_widgets { {topwin {} } } {
   # create  $topwin.menubar.layers.menu
   create_layers_menu $topwin
   $topwin.menubar.view add command -label "Redraw" -command "xschem redraw" -accelerator Esc
-  toolbar_add ViewRedraw "xschem redraw" "Redraw" $topwin
   $topwin.menubar.view add command -label "Fullscreen" \
      -accelerator "\\" -command "
         if {\$fullscreen == 1} {set fullscreen 2} ;# avoid hiding menu in true fullscreen
@@ -8098,11 +8122,8 @@ proc build_widgets { {topwin {} } } {
      "
   $topwin.menubar.view add command -label "Zoom Full" -command "xschem zoom_full" -accelerator F
   $topwin.menubar.view add command -label "Zoom In" -command "xschem zoom_in" -accelerator Shift+Z
-  # toolbar_add ViewZoomIn "xschem zoom_in" "Zoom In" $topwin
   $topwin.menubar.view add command -label "Zoom Out" -command "xschem zoom_out" -accelerator Ctrl+Z
-  # toolbar_add ViewZoomOut "xschem zoom_out" "Zoom Out" $topwin
   $topwin.menubar.view add command -label "Zoom box" -command "xschem zoom_box" -accelerator Z
-  # toolbar_add ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
   $topwin.menubar.view add command -label "Set snap value" \
          -command {
          input_line "Enter snap value (float):" "xschem set cadsnap" $cadsnap
@@ -8114,9 +8135,6 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.view add command -label "Toggle colorscheme"  -accelerator {Shift+O} -command {
           xschem toggle_colorscheme
        }
-   toolbar_add ViewToggleColors {
-          xschem toggle_colorscheme
-       } "Toggle Color Scheme" $topwin
   $topwin.menubar.view add command -label "Dim colors"  -accelerator {} -command {
           color_dim
        }
@@ -8225,32 +8243,22 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.sym add checkbutton -label "Allow duplicated instance names (refdes)" \
       -selectcolor $selectcolor -variable disable_unique_names
   $topwin.menubar.tools add command -label "Insert symbol" -command "xschem place_symbol" -accelerator {Ins, Shift-I}
-  toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
   $topwin.menubar.tools add command -label "Insert text" -command "xschem place_text" -accelerator T
-  toolbar_add ToolInsertText "xschem place_text" "Insert Text" $topwin
   $topwin.menubar.tools add command -label "Insert wire" -command "xschem wire" -accelerator W
-  toolbar_add ToolInsertWire "xschem wire" "Insert Wire" $topwin
   $topwin.menubar.tools add command -label "Insert snap wire" -command "xschem snap_wire" -accelerator Shift+W
   $topwin.menubar.tools add command -label "Insert line" -command "xschem line" -accelerator L
-  toolbar_add ToolInsertLine "xschem line" "Insert Line" $topwin
   $topwin.menubar.tools add command -label "Insert rect" -command "xschem rect" -accelerator R
-  toolbar_add ToolInsertRect "xschem rect" "Insert Rectangle" $topwin
   $topwin.menubar.tools add command -label "Insert polygon" -command "xschem polygon" -accelerator Ctrl+P
-  toolbar_add ToolInsertPolygon "xschem polygon" "Insert Polygon" $topwin
   $topwin.menubar.tools add command -label "Insert arc" -command "xschem arc" -accelerator Shift+C
-  toolbar_add ToolInsertArc "xschem arc" "Insert Arc" $topwin
   $topwin.menubar.tools add command -label "Insert circle" -command "xschem circle" -accelerator Ctrl+Shift+C
-  toolbar_add ToolInsertCircle "xschem circle" "Insert Circle" $topwin
   $topwin.menubar.tools add command -label "Insert JPG/PNG/SVG image" -command "xschem add_image"
   $topwin.menubar.tools add command -label "Grab screen area" -command "xschem grabscreen" \
     -accelerator {Print Scrn}
   $topwin.menubar.tools add command -label "Search" -accelerator Ctrl+F -command  property_search
-  toolbar_add ToolSearch property_search "Search" $topwin
   $topwin.menubar.tools add command -label "Align to Grid" -accelerator Alt+U -command  "xschem align"
   $topwin.menubar.tools add command -label "Execute TCL command" -command  "tclcmd"
   $topwin.menubar.tools add command -label "Join/Trim wires" \
      -command "xschem trim_wires" -accelerator {&}
-   toolbar_add ToolJoinTrim "xschem trim_wires" "Join/Trim Wires" $topwin
   $topwin.menubar.tools add command -label "Break wires at selected instance pins" \
      -command "xschem break_wires" -accelerator {!}
   $topwin.menubar.tools add command -label "Remove wires running through selected inst. pins" \
@@ -8259,7 +8267,6 @@ proc build_widgets { {topwin {} } } {
      -command "xschem wire_cut noalign" -accelerator {Alt-Shift-Right Butt.}
   $topwin.menubar.tools add command -label "Break wires at mouse position, align cut point" \
      -command "xschem wire_cut" -accelerator {Alt-Right Butt.}
-   toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
   $topwin.menubar.tools add command -label "Select all connected wires/labels/pins" \
      -accelerator {Shift-Right Butt.} \
      -command { xschem connected_nets}
@@ -8419,9 +8426,6 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   $topwin.menubar.simulation.lvs add checkbutton -label "Use 'spiceprefix' attribute" -variable spiceprefix \
          -selectcolor $selectcolor -command {xschem redraw} 
 
-  toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
-  toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
-  toolbar_add Waves { waves } "View results" $topwin
 
   # used to check status of Simulate button later. This variable is constant, never changed
   frame $topwin.drw -background {} -takefocus 1
@@ -8469,6 +8473,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   label $topwin.statusbar.10 -text {Stretch:}
   label $topwin.statusbar.9 -textvariable enable_stretch
   label $topwin.statusbar.8 -activebackground red -text {} 
+  add_toolbuttons $topwin
 }
 
 proc set_initial_dirs {} {
