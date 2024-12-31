@@ -7112,6 +7112,52 @@ proc toolbar_hide { { topwin {} } } {
     set toolbar_visible 0
 }
 
+
+proc add_toolbuttons {{topwin {}}} {
+  # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
+  # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
+  toolbar_add FileOpen "xschem load" "Open File" $topwin
+  toolbar_add FileSave "xschem save" "Save File" $topwin
+  # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
+  toolbar_add FileReload {
+      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
+        xschem reload
+      }
+    } "Reload File" $topwin
+  toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
+  toolbar_add EditRedo "xschem redo; xschem redraw" "Redo" $topwin
+  toolbar_add EditCut "xschem cut" "Cut" $topwin
+  toolbar_add EditCopy "xschem copy" "Copy" $topwin
+  toolbar_add EditPaste "xschem paste" "Paste" $topwin
+  toolbar_add EditDelete "xschem delete" "Delete" $topwin
+  toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
+  toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
+  toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
+  toolbar_add EditPushSym "xschem descend_symbol" "Push symbol" $topwin
+  toolbar_add EditPop "xschem go_back" "Pop" $topwin
+  toolbar_add ViewRedraw "xschem redraw" "Redraw" $topwin
+  # toolbar_add ViewZoomIn "xschem zoom_in" "Zoom In" $topwin
+  # toolbar_add ViewZoomOut "xschem zoom_out" "Zoom Out" $topwin
+  # toolbar_add ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
+  toolbar_add ViewToggleColors {
+     xschem toggle_colorscheme
+  } "Toggle Color Scheme" $topwin
+  toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
+  toolbar_add ToolInsertText "xschem place_text" "Insert Text" $topwin
+  toolbar_add ToolInsertWire "xschem wire" "Insert Wire" $topwin
+  toolbar_add ToolInsertLine "xschem line" "Insert Line" $topwin
+  toolbar_add ToolInsertRect "xschem rect" "Insert Rectangle" $topwin
+  toolbar_add ToolInsertPolygon "xschem polygon" "Insert Polygon" $topwin
+  toolbar_add ToolInsertArc "xschem arc" "Insert Arc" $topwin
+  toolbar_add ToolInsertCircle "xschem circle" "Insert Circle" $topwin
+  toolbar_add ToolSearch property_search "Search" $topwin
+  toolbar_add ToolJoinTrim "xschem trim_wires" "Join/Trim Wires" $topwin
+  toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
+  toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
+  toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
+  toolbar_add Waves { waves } "View results" $topwin
+}
+
 proc pack_tabs {} {
   global toolbar_horiz
   if {[winfo exists .toolbar] && [winfo ismapped .toolbar] } {
@@ -7778,51 +7824,6 @@ proc load_raw {{type {}}} {
 # }
 # 
 # bind Menubutton <Button-1> {tk::menubutton1 %W %X %Y}
-
-proc add_toolbuttons {{topwin {}}} {
-  # toolbar_add FileNew {xschem clear schematic} "New Schematic" $topwin
-  # toolbar_add FileNewSym {xschem clear symbol} "New Symbol" $topwin
-  toolbar_add FileOpen "xschem load" "Open File" $topwin
-  toolbar_add FileSave "xschem save" "Save File" $topwin
-  # toolbar_add FileMerge "xschem merge" "Merge File" $topwin
-  toolbar_add FileReload {
-      if {[alert_ "Are you sure you want to reload?" {} 0 1] == 1} {
-        xschem reload
-      }
-    } "Reload File" $topwin
-  toolbar_add EditUndo "xschem undo; xschem redraw" "Undo" $topwin
-  toolbar_add EditRedo "xschem redo; xschem redraw" "Redo" $topwin
-  toolbar_add EditCut "xschem cut" "Cut" $topwin
-  toolbar_add EditCopy "xschem copy" "Copy" $topwin
-  toolbar_add EditPaste "xschem paste" "Paste" $topwin
-  toolbar_add EditDelete "xschem delete" "Delete" $topwin
-  toolbar_add EditDuplicate "xschem copy_objects" "Duplicate objects" $topwin
-  toolbar_add EditMove "xschem move_objects" "Move objects" $topwin
-  toolbar_add EditPushSch "xschem descend" "Push schematic" $topwin
-  toolbar_add EditPushSym "xschem descend_symbol" "Push symbol" $topwin
-  toolbar_add EditPop "xschem go_back" "Pop" $topwin
-  toolbar_add ViewRedraw "xschem redraw" "Redraw" $topwin
-  # toolbar_add ViewZoomIn "xschem zoom_in" "Zoom In" $topwin
-  # toolbar_add ViewZoomOut "xschem zoom_out" "Zoom Out" $topwin
-  # toolbar_add ViewZoomBox "xschem zoom_box" "Zoom Box" $topwin
-  toolbar_add ViewToggleColors {
-          xschem toggle_colorscheme
-       } "Toggle Color Scheme" $topwin
-  toolbar_add ToolInsertSymbol "xschem place_symbol" "Insert Symbol" $topwin
-  toolbar_add ToolInsertText "xschem place_text" "Insert Text" $topwin
-  toolbar_add ToolInsertWire "xschem wire" "Insert Wire" $topwin
-  toolbar_add ToolInsertLine "xschem line" "Insert Line" $topwin
-  toolbar_add ToolInsertRect "xschem rect" "Insert Rectangle" $topwin
-  toolbar_add ToolInsertPolygon "xschem polygon" "Insert Polygon" $topwin
-  toolbar_add ToolInsertArc "xschem arc" "Insert Arc" $topwin
-  toolbar_add ToolInsertCircle "xschem circle" "Insert Circle" $topwin
-  toolbar_add ToolSearch property_search "Search" $topwin
-  toolbar_add ToolJoinTrim "xschem trim_wires" "Join/Trim Wires" $topwin
-  toolbar_add ToolBreak "xschem break_wires" "Break wires at selected\ninstance pin intersections" $topwin
-  toolbar_add Netlist { xschem netlist -erc } "Create netlist" $topwin
-  toolbar_add Simulate "simulate_from_button" "Run simulation" $topwin
-  toolbar_add Waves { waves } "View results" $topwin
-}
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
