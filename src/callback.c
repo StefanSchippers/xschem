@@ -2816,7 +2816,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Run circuit simulation?}");
      if(strcmp(tclresult(),"ok")==0) {
-       tcleval("[xschem get top_path].menubar.simulate invoke");
+       tcleval("[xschem get top_path].menubar invoke Simulate");
      }
      break;
    }
