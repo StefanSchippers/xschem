@@ -1879,7 +1879,7 @@ proc traversal_editfile {w parent_sch sch} {
   }
 }
 
-proc traversal {{only_subckts {0}}} {
+proc traversal {{only_subckts 0} {all_hierarchy 1}} {
   global keep_symbols traversal_cnt
   set traversal_cnt 0
   set save_keep $keep_symbols
@@ -1907,7 +1907,7 @@ proc traversal {{only_subckts {0}}} {
   pack .cv.top.pad -side left -fill x
   frame .cv.center
   set sf [sframe .cv.center]
-  hier_traversal 0 $only_subckts
+  hier_traversal 0 $only_subckts $all_hierarchy
   xschem set no_draw 0
   xschem set no_undo 0
   set keep_symbols $save_keep
@@ -1928,7 +1928,7 @@ proc traversal {{only_subckts {0}}} {
 }
 
 # recursive procedure
-proc hier_traversal {{level 0} only_subckts} {
+proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
   global nolist_libs traversal_cnt
   if {[info tclversion] >= 8.5} {
     set font {TkDefaultFont 10 bold} ;# Monospace
@@ -2005,7 +2005,7 @@ proc hier_traversal {{level 0} only_subckts} {
     pack $sf.f$traversal_cnt.bsym $sf.f$traversal_cnt.bsch -side left
 
     set done_print 1
-    if {$type eq {subcircuit}} {
+    if {$type eq {subcircuit} && $all_hierarchy} {
       xschem select instance $i fast
       set descended [xschem descend 1 6]
       if {$descended} {
