@@ -1797,14 +1797,14 @@ proc cellview {} {
       frame $sf.f$i
       pack $sf.f$i -side top -fill x
       label  $sf.f$i.l -text $sym -width 20 -anchor w -padx 4 -borderwidth 1 \
-        -relief sunken -pady 1 -bg grey80 -font $font
+        -relief sunken -pady 1 -font $font
       # puts $sf.f$i.s
       entry $sf.f$i.s -width 50 -borderwidth 1 -relief sunken -font $font
       if { $spice_sym_def eq {}} {
         if {![file exists $abs_sch]} {
           $sf.f$i.s configure -bg red
         } elseif {$default_sch ne $sch} {
-          $sf.f$i.s configure -bg cyan
+          $sf.f$i.s configure -bg green
         }
       }
       balloon $sf.f$i.s $abs_sch
@@ -1823,14 +1823,14 @@ proc cellview {} {
       bind $sf.f$i.s <KeyRelease> "
         if {\[$sf.f$i.s get\] ne {$sch}} {
           if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
-            $sf.f$i.s configure -bg cyan
+            $sf.f$i.s configure -bg green
           } else {
             puts \"$sch --- \[$sf.f$i.s get\]\"
             $sf.f$i.s configure -bg red
           }
         } else {
           if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
-            $sf.f$i.s configure -bg grey90
+            $sf.f$i.s configure -bg [option get . background {}]
           } else {
             $sf.f$i.s configure -bg red
           }
@@ -1858,27 +1858,53 @@ proc cellview {} {
 
 
 ############ traversal
-# This proc traverses the hierarchy and prints all instances in design.
-
-proc traversal_editfile {w parent_sch sch} {
-  global traversal_cnt
-  # puts "parent sch: $parent_sch"
-  set sf .cv.center.f.scrl
-  if {[$w get] ne $sch} {
-    if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg cyan
+proc traversal_update_schematic {w parent_sch instname default_sch} {
+  if {$parent_sch eq {}} {return}
+  puts "traversal_update_schematic: $w $parent_sch $instname--> [$w get]"
+  set current [xschem get current_name]
+  xschem load $parent_sch noundoreset nodraw
+  set sch [xschem getprop instance $instname schematic]
+  if { $sch ne [$w get]} {
+    if { [$w get] eq  $default_sch} {
+      xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
     } else {
+      xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
+    }
+    xschem set_modify 1
+    xschem save
+  }
+  xschem load $current  noundoreset nodraw
+}
+
+proc traversal_setlabels {w parent_sch sch instname default_sch inst_spice_sym_def sym_spice_sym_def} {
+  global traversal_cnt
+  set sf .cv.center.f.scrl
+  puts "traversal_setlabels $w $parent_sch $sch $instname"
+  traversal_update_schematic $w $parent_sch $instname $default_sch
+  if {[$w get] ne $default_sch} {
+    if { $sym_spice_sym_def ne {}} {
+      $w configure -fg green
+      $w configure -bg [option get . background {}]
+    } elseif {$inst_spice_sym_def ne {}} {
+      $w configure -fg red
+      $w configure -bg [option get . background {}]
+    } elseif { [file exists [abs_sym_path [$w get]]] } {
+      $w configure -fg [option get . foreground {}]
+      $w configure -bg green
+    } else {
+      $w configure -fg [option get . foreground {}]
       $w configure -bg red
     }
   } else {
     if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg grey90
+      $w configure -bg [option get . background {}]
     } else {
       $w configure -bg red
     }
   }
 }
 
+# This proc traverses the hierarchy and prints all instances in design.
 proc traversal {{only_subckts 0} {all_hierarchy 1}} {
   global keep_symbols traversal_cnt
   set traversal_cnt 0
@@ -1899,8 +1925,8 @@ proc traversal {{only_subckts 0} {all_hierarchy 1}} {
 
   frame .cv.top
   label .cv.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sym  -text {SYMBOL} -width 35 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch  -text SCHEMATIC -width 35 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sym  -text {SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch  -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.pad  -text {        } -bg grey60 -font $font
   pack .cv.top.inst -side left -fill x -expand 1
   pack .cv.top.sym .cv.top.sch -side left -fill x
@@ -1924,12 +1950,12 @@ proc traversal {{only_subckts 0} {all_hierarchy 1}} {
   bind .cv.center.f <Configure> {sframeyview .cv.center}
   bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
   bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
-
+  bind .cv <Escape> {destroy .cv}
 }
 
 # recursive procedure
 proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
-  global nolist_libs traversal_cnt
+  global nolist_libs traversal_cnt retval
   if {[info tclversion] >= 8.5} {
     set font {TkDefaultFont 10 bold} ;# Monospace
   } else { 
@@ -1945,12 +1971,13 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
   for {set i 0} { $i < $instances} { incr i} {
     set instname [xschem getprop instance $i name]
     set symbol [xschem getprop instance $i cell::name]
+    set default_sch [add_ext $symbol .sch]
     set abs_symbol [abs_sym_path $symbol]
     set type [xschem getprop symbol $symbol type]
     set schematic [xschem get_sch_from_sym $i]
     set sch_exists [expr {[file exists $schematic] ? {} : {**missing**}}]
     set sch_tail [rel_sym_path $schematic]
-    set sch_rootname [file rootname [file tail $schematic]]
+    set sch_rootname [file tail [file rootname $sch_tail]]
     set inst_spice_sym_def [xschem getprop instance $i spice_sym_def]
     set sym_spice_sym_def [xschem getprop instance $i cell::spice_sym_def]
     if {$only_subckts && ($type ne {subcircuit})} { continue }
@@ -1970,10 +1997,10 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
     pack $sf.f$traversal_cnt -side top -fill x
     label  $sf.f$traversal_cnt.i -text "[spaces $level 2]$schpath$instname" \
         -width 25 -anchor w -padx 4 -borderwidth 1 \
-        -relief sunken -pady 1 -bg grey80 -font $font
-    label  $sf.f$traversal_cnt.l -text $symbol -width 35 -anchor w -padx 4 -borderwidth 1 \
-        -relief sunken -pady 1 -bg grey80 -font $font
-    entry $sf.f$traversal_cnt.s -width 35 -borderwidth 1 -relief sunken -font $font
+        -relief sunken -pady 1 -font $font
+    label  $sf.f$traversal_cnt.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
+        -relief sunken -pady 1 -font $font
+    entry $sf.f$traversal_cnt.s -width 45 -borderwidth 1 -relief sunken -font $font
 
     if {$type eq {subcircuit}} {
       if {$inst_spice_sym_def ne {}} {
@@ -1993,13 +2020,18 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
               if { {$sym_spice_sym_def} eq {} && {$inst_spice_sym_def} eq {}} {
                 xschem load_new_window \[$sf.f$traversal_cnt.s get\]
               } elseif {{$sym_spice_sym_def} ne {}} {
-                viewdata {$sym_spice_sym_def}
+                editdata {$sym_spice_sym_def} {Symbol spice_sym_def attribute}
               } else {
-                viewdata {$inst_spice_sym_def}
+                editdata {$inst_spice_sym_def} {Instance spice_sym_def attribute}
               }"
     if { $sym_spice_sym_def eq {} && $inst_spice_sym_def eq {}} {
-      bind $sf.f$traversal_cnt.s <KeyRelease> "traversal_editfile %W $parent_sch $sch_tail"
+      bind $sf.f$traversal_cnt.s <KeyRelease> "
+        traversal_setlabels %W {$parent_sch} $sch_tail {$instname} {$default_sch} \
+                            {$inst_spice_sym_def} {$sym_spice_sym_def}
+      "
     }
+    traversal_setlabels $sf.f$traversal_cnt.s {} $sch_tail $instname $default_sch \
+                        $inst_spice_sym_def $sym_spice_sym_def
     pack $sf.f$traversal_cnt.i -side left -fill x -expand 1
     pack $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x
     pack $sf.f$traversal_cnt.bsym $sf.f$traversal_cnt.bsch -side left
@@ -6035,6 +6067,40 @@ proc infowindow {} {
   return {}
 }
 
+proc editdata {{data {}} {title {Edit data}} } {
+  global text_tabs_setting tabstop retval
+  set window .editdata
+  set retval $data
+  xschem set semaphore [expr {[xschem get semaphore] +1}]
+  toplevel $window
+  wm title $window $title
+  wm iconname $window $title
+  # wm transient $window [xschem get topwindow]
+  frame $window.buttons
+  pack $window.buttons -side bottom -fill x -pady 2m
+  button $window.buttons.ok -text OK -command "
+     set retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
+  "
+  button $window.buttons.cancel -text Cancel -command "destroy $window"
+  pack $window.buttons.ok -side left -expand 1
+  pack $window.buttons.cancel -side left -expand 1
+  
+  eval text $window.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$window.yscroll set\" -setgrid 1 \
+       -xscrollcommand \"$window.xscroll set\" -wrap none -height 30 $text_tabs_setting
+  scrollbar $window.yscroll -command  "$window.text yview"
+  scrollbar $window.xscroll -command "$window.text xview" -orient horiz
+  pack $window.yscroll -side right -fill y
+  pack $window.text -expand yes -fill both
+  pack $window.xscroll -side bottom -fill x
+  bind $window <Escape> "$window.buttons.cancel invoke"
+
+  # 20171103 insert at insertion cursor(insert tag) instead of 0.0
+  $window.text insert insert $data
+  tkwait window $window
+  xschem set semaphore [expr {[xschem get semaphore] -1}]
+  return $retval
+}
+
 proc textwindow {filename {ro {}}} {
   global textwindow_wcounter
   global textwindow_w
@@ -8704,7 +8770,7 @@ if { [info exists has_x]} {
     option add *activeForeground black startupFile
     option add *background {grey80} startupFile
     option add *activeBackground {#f8f8f8} startupFile
-    option add *disabledForeground {black} startupFile
+    option add *disabledForeground {grey50} startupFile
     option add *disabledBackground {grey70} startupFile
     option add *readonlyBackground {grey70} startupFile
     option add *highlightBackground {white} startupFile
@@ -8722,7 +8788,7 @@ if { [info exists has_x]} {
     option add *activeForeground white startupFile
     option add *background {grey20} startupFile
     option add *activeBackground {grey10} startupFile
-    option add *disabledForeground {white} startupFile
+    option add *disabledForeground {grey50} startupFile
     option add *disabledBackground {grey20} startupFile
     option add *readonlyBackground {grey20} startupFile
     option add *highlightBackground {black} startupFile

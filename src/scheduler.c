@@ -1797,7 +1797,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         }
         if((i = get_instance(argv[3])) < 0 ) {
-          Tcl_SetResult(interp, "xschem getprop: instance not found", TCL_STATIC);
+          Tcl_AppendResult(interp, "xschem getprop: instance not found:", argv[3], NULL);
           return TCL_ERROR;
         }
         if(!strcmp(argv[2], "instance_notcl")) with_quotes = 2;
@@ -2035,6 +2035,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "ui_state2=%d\n", xctx->ui_state2); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "last_command=%d\n", xctx->last_command); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);
@@ -2697,6 +2698,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         set_modify(1);
       }
       else {
+        xctx->last_command = 0;
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTLINE;
       }
@@ -2784,10 +2786,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   'noundoreset': do not reset the undo history
      *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
      *   'nofullzoom': do not do a full zoom on new schematic.
+     *   'nodraw': do not draw.
      */
     else if(!strcmp(argv[1], "load") )
     {
-      int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0;
+      int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
       size_t i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) {
@@ -2796,6 +2799,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[i], "gui")) force = 0;
           if(!strcmp(argv[i], "noundoreset")) undo_reset = 0;
           if(!strcmp(argv[i], "nofullzoom")) nofullzoom = 1;
+          if(!strcmp(argv[i], "nodraw")) {nofullzoom = 1; nodraw = 1;}
         }
       }
       if(argc>2) {
@@ -2820,9 +2824,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else dbg(0, "xschem load: %s already open: %s\n", f, win_path);
           }
           if(!skip) {
+            int ret;
             clear_all_hilights();
             unselect_all(1);
-            if(!undo_reset) xctx->push_undo();
+            /* no implicit undo: if needed do it before loading */
+            /* if(!undo_reset) xctx->push_undo(); */
             xctx->currsch = 0;
             remove_symbols();
             if(!nofullzoom) {
@@ -2832,15 +2838,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               xctx->yorigin=CADINITIALY;
             }
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
-            load_schematic(load_symbols, f, undo_reset, !force);
+            ret = load_schematic(load_symbols, f, undo_reset, !force);
+            dbg(1, "xschem load: ret=%d\n", ret);
             tclvareval("update_recent_file {", f, "}", NULL);
             my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
             if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
             str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
             xctx->sch_path_hash[xctx->currsch] = 0;
             xctx->sch_inst_number[xctx->currsch] = 1;
-            if(nofullzoom) draw();
-            else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+            if(nofullzoom) {
+              if(!nodraw) draw();
+            } else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
           }
         }
       }
@@ -6110,6 +6118,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         set_modify(1);
       }
       else {
+        xctx->last_command = 0;
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTWIRE;
       }

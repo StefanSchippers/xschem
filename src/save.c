@@ -3493,7 +3493,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         /* xctx->time_last_modify = time(NULL); */ /* file does not exist, set mtime to current time */
         xctx->time_last_modify = 0; /* file does not exist, set mtime to 0 (undefined)*/
       }
-    }
+    } else {xctx->time_last_modify = 0;} /* undefined */
     if(generator) {
       char *cmd;
       cmd = get_generator_command(fname);
