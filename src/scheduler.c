@@ -2829,7 +2829,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
             /* if(!undo_reset) xctx->push_undo(); */
-            xctx->currsch = 0;
+            if(undo_reset) xctx->currsch = 0;
             remove_symbols();
             if(!nofullzoom) {
               xctx->zoom=CADINITIALZOOM;
@@ -2840,12 +2840,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
             ret = load_schematic(load_symbols, f, undo_reset, !force);
             dbg(1, "xschem load: ret=%d\n", ret);
-            tclvareval("update_recent_file {", f, "}", NULL);
-            my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
-            if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
-            str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
-            xctx->sch_path_hash[xctx->currsch] = 0;
-            xctx->sch_inst_number[xctx->currsch] = 1;
+            if(undo_reset) {
+              tclvareval("update_recent_file {", f, "}", NULL);
+              my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
+              if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
+              str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
+              xctx->sch_path_hash[xctx->currsch] = 0;
+              xctx->sch_inst_number[xctx->currsch] = 1;
+            }
             if(nofullzoom) {
               if(!nodraw) draw();
             } else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);

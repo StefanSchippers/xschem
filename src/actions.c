@@ -2403,7 +2403,10 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
       save_ok = save_schematic(xctx->sch[xctx->currsch]);
     }
   }
-  if(save_ok==0) return;
+  if(save_ok==0) {
+    fprintf(errfp, "go_back(): file opening for write failed! %s \n", xctx->current_name);
+    tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {}", NULL);
+  }
   unselect_all(1);
   if(!tclgetboolvar("keep_symbols")) remove_symbols();
   from_embedded_sym=0;
