@@ -7731,6 +7731,7 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.6 -side left 
     pack $topwin.statusbar.7 -side left 
     pack $topwin.statusbar.10 -side left 
+    pack $topwin.statusbar.11 -side left
     pack $topwin.statusbar.9 -side left 
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
@@ -8471,7 +8472,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   entry_replace_selection $topwin.statusbar.5
   label $topwin.statusbar.6 -text "MODE:"
   label $topwin.statusbar.7 -width 7 
-  label $topwin.statusbar.10 -text {Stretch:}
+  label $topwin.statusbar.11 -text {Stretch:}
+  label $topwin.statusbar.10 -activebackground blue -text {}
   label $topwin.statusbar.9 -textvariable enable_stretch
   label $topwin.statusbar.8 -activebackground red -text {} 
   add_toolbuttons $topwin

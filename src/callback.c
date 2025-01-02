@@ -2070,6 +2070,11 @@ int rstate; /* (reduced state, without ShiftMask) */
  }
 #endif
 
+ if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) { 
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {WIRE READY TO DRAW! }", NULL);
+ } else {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
+ }
  tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
  tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
                      xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
