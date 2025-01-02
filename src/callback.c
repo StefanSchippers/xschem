@@ -2577,10 +2577,12 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
-     start_wire(xctx->mousex_snap, xctx->mousey_snap);
      if(prev_state == STARTWIRE) {
+       start_wire(xctx->mousex_snap, xctx->mousey_snap);
        tcleval("set constr_mv 0" );
        xctx->constr_mv=0;
+     } else{
+       tcleval("xschem wire");
      }
      break;
    }
