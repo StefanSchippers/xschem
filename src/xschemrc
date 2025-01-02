@@ -221,6 +221,11 @@
 #### if not set show selected items at end of drag. Default: enabled (1)
 # set incremental_select 0
 
+#### if set to 1, pressing 'w' will immediately place a wire at current cursor
+#### position without waiting for Button1 (LMB) click. Can be disabled via menu
+#### default: 0
+# set infix_wire 1
+
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
 #### default: 0

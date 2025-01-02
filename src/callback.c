@@ -2611,12 +2611,16 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
-     if(prev_state == STARTWIRE) {
+     if(tclgetboolvar("infix_wire")) {
        start_wire(xctx->mousex_snap, xctx->mousey_snap);
-       tcleval("set constr_mv 0" );
-       xctx->constr_mv=0;
-     } else{
+     } else if(prev_state == STARTWIRE) {
+       start_wire(xctx->mousex_snap, xctx->mousey_snap);
+     } else {
        tcleval("xschem wire");
+     }
+     if(prev_state == STARTWIRE) {
+       tcleval("set constr_mv 0");
+       xctx->constr_mv = 0;
      }
      break;
    }
