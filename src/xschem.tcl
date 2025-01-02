@@ -813,7 +813,7 @@ proc tabulate {text {sep ",\t "}} {
 
 # get pin ordering from included subcircuit
 # return empty string if not found.
-proc has_included_subcircuit {symname spice_sym_def} {
+proc has_included_subcircuit {symname spice_sym_def no_of_pins} {
   global has_x
   set include_found 0
   regsub -all {\n\+} $spice_sym_def { } spice_sym_def
@@ -852,6 +852,13 @@ proc has_included_subcircuit {symname spice_sym_def} {
        set last [expr {[llength $line] -1}]
      } else {
        set last [expr {$last -1}]
+     }
+     # if spice_sym_def has more ports than symbol (no_of_pins) assume these are extra ports 
+     # assigned via attributes ('extra' symbol attribute, usually power rails), these extra
+     # ports are not returned as @pinlist and correspondence with symbol format string
+     # is not checked. user must ensure these additional ports are in the right order.
+     if { $last >= $no_of_pins + 1 } {
+       set last [expr {$no_of_pins + 1}]
      }
      set pinlist [lrange $line 2 $last]
      break
@@ -1766,7 +1773,7 @@ proc simconf_add {tool} {
 proc cellview_setlabels {w sch} {
   if {[$w get] ne $sch} {
     if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg PaleGreen
+      $w configure -bg green
     } else {
       # puts "$sch --- [$sf.f$i.s get]"
       $w configure -bg red
@@ -1823,7 +1830,7 @@ proc cellview {} {
         if {![file exists $abs_sch]} {
           $sf.f$i.s configure -bg red
         } elseif {$default_sch ne $sch} {
-          $sf.f$i.s configure -bg PaleGreen
+          $sf.f$i.s configure -bg green
         }
       } else {
         $sf.f$i.s configure -fg red
@@ -1900,14 +1907,14 @@ proc traversal_setlabels {w parent_sch sch instname default_sch inst_spice_sym_d
 
   if {[$w get] ne $default_sch} {
     if { $sym_spice_sym_def ne {}} {
-      $w configure -fg PaleGreen
+      $w configure -fg green
       $w configure -bg [option get . background {}]
     } elseif {$inst_spice_sym_def ne {}} {
       $w configure -fg red
       $w configure -bg [option get . background {}]
     } elseif { [file exists [abs_sym_path [$w get]]] } {
       $w configure -fg [option get . foreground {}]
-      $w configure -bg PaleGreen
+      $w configure -bg green
     } else {
       $w configure -fg [option get . foreground {}]
       $w configure -bg red
