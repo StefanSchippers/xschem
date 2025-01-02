@@ -1002,7 +1002,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    open file or opening a new(not existing) file.
    'noundoreset': do not reset the undo history
    'symbol': do not load symbols (used if loading a symbol instead of a schematic)
-   'nofullzoom': do not do a full zoom on new schematic.</pre>
+   'nofullzoom': do not do a full zoom on new schematic.
+   'nodraw': do not draw.</pre>
    <li><kbd>       load_new_window [f]</kbd></li><pre>
    Load schematic in a new tab/window. If 'f' not given prompt user
    if 'f' is given as empty '{}' then open untitled.sch </pre>
@@ -1575,7 +1576,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Remove leading and trailing chars matching any character in 'sep' from str </pre>
    <li><kbd>       trim_wires</kbd></li><pre>
    Remove operlapping wires, join lines, trim wires at intersections </pre>
-   <li><kbd>       undo  [redo [set_modify]</kbd></li><pre>
+   <li><kbd>       undo  [redo [set_modify]]</kbd></li><pre>
    Undo last action. Optional integers redo and set_modify are passed to pop_undo() </pre>
    <li><kbd>       undo_type disk|memory</kbd></li><pre>
    Use disk file ('disk') or RAM ('memory') for undo bufer</pre>

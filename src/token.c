@@ -1868,7 +1868,6 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                 translated_sym_def, "}", NULL);
     my_free(_ALLOC_ID_, &templ);
-    my_free(_ALLOC_ID_, &symname);
     my_free(_ALLOC_ID_, &symname_attr);
     if(tclresult()[0]) {
       char *subckt_pin, *pin_save;
@@ -1935,14 +1934,16 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
         ret = 1;
         my_mstrcat(_ALLOC_ID_, result, tmp_result, NULL);
       } else {
-        dbg(0, "has_included_subcircuit(): symbol and .subckt pins do not match. Discard .subckt port order\n");
+        dbg(0, "has_included_subcircuit(): %s symbol and .subckt pins do not match. Discard port order\n",
+                symname);
         if(has_x)
-           tcleval("alert_ {has_included_subcircuit(): "
-                   "symbol and .subckt pins do not match. Discard .subckt port order}");
+           tclvareval("alert_ {has_included_subcircuit(): ", symname, 
+                   " symbol and .subckt pins do not match. Discard .subckt port order}", NULL);
       }
       if(tmp_result) my_free(_ALLOC_ID_, &tmp_result);
       my_free(_ALLOC_ID_, &subckt_pinlist);
     }
+    my_free(_ALLOC_ID_, &symname);
   }
   my_free(_ALLOC_ID_, &spice_sym_def);
   return ret;

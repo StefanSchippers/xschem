@@ -190,6 +190,8 @@ static void start_line(double mx, double my)
 
 static void start_wire(double mx, double my)
 {
+     dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
+         xctx->ui_state, xctx->ui_state2, xctx->last_command);
      xctx->last_command = STARTWIRE;
      if(xctx->ui_state & STARTWIRE) {
        if(xctx->constr_mv != 2) {
@@ -1340,6 +1342,9 @@ static int end_place_move_copy_zoom()
 
 static int check_menu_start_commands(double c_snap)
 {
+  dbg(1, "check_menu_start_commands(): ui_state=%d, ui_state2=%d last_command=%d\n", 
+      xctx->ui_state, xctx->ui_state2, xctx->last_command);
+
   if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT)) {
     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
     xctx->ui_state &=~MENUSTART;
@@ -1360,10 +1365,22 @@ static int check_menu_start_commands(double c_snap)
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) {
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
-    new_wire(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+    int prev_state = xctx->ui_state;
+    if(xctx->semaphore >= 2) return 0;
+    start_wire(xctx->mousex_snap, xctx->mousey_snap);
+    if(prev_state == STARTWIRE) {
+      tcleval("set constr_mv 0" );
+      xctx->constr_mv=0;
+    }
     xctx->ui_state &=~MENUSTART;
+    xctx->ui_state2  = 0;
+
+    /* 
+     * xctx->mx_double_save=xctx->mousex_snap;
+     * xctx->my_double_save=xctx->mousey_snap;
+     * new_wire(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+     * xctx->ui_state &=~MENUSTART;
+     */
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTSNAPWIRE)) {
@@ -1377,10 +1394,22 @@ static int check_menu_start_commands(double c_snap)
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTLINE)) {
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
-    new_line(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+    int prev_state = xctx->ui_state;
+    if(xctx->semaphore >= 2) return 0;
+    start_line(xctx->mousex_snap, xctx->mousey_snap);
+    if(prev_state == STARTLINE) {
+      tcleval("set constr_mv 0" );
+      xctx->constr_mv=0;
+    }
     xctx->ui_state &=~MENUSTART;
+    xctx->ui_state2 = 0;
+
+    /*
+     * xctx->mx_double_save=xctx->mousex_snap;
+     * xctx->my_double_save=xctx->mousey_snap;
+     * new_line(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+     * xctx->ui_state &=~MENUSTART;
+     */
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTRECT)) {
@@ -2794,7 +2823,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Run circuit simulation?}");
      if(strcmp(tclresult(),"ok")==0) {
-       tcleval("[xschem get top_path].menubar.simulate invoke");
+       tcleval("[xschem get top_path].menubar invoke Simulate");
      }
      break;
    }
