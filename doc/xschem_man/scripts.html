@@ -38,13 +38,13 @@ p{padding: 15px  30px 10px;}
   </li>
 
   <li>
-    In the xschemrc you may set the <kbd>tcl_files</kbd> tcl variable with a list of files
+    In the <kbd>xschemrc</kbd> you may set the <kbd>tcl_files</kbd> tcl variable with a list of files
     to read in and execute after xschem is started:
     <br><br><pre>set tcl_files {/path/to/file1.tcl  /path/to/file2.tcl}</pre><br>
   </li>
 
   <li>
-    the <kbd>postinit_commands</kbd> variable in xschemrc can be filled with tcl code ,
+    the <kbd>postinit_commands</kbd> variable in <kbd>xschemrc</kbd> can be filled with tcl code ,
     it is executed when starting xschem:
     <br><br><pre>set postinit_commands {
   puts hello
@@ -54,15 +54,15 @@ p{padding: 15px  30px 10px;}
   </li>
 
   <li>
-    On the unix shell command line with <kbd>--tcl</kbd> (this code is executed after reading xschemrc,
-    this is usually done to override xschemrc settings:
+    On the unix shell command line with <kbd>--tcl</kbd> (this code is executed after reading
+    <kbd>xschemrc</kbd>, this is usually done to override <kbd>xschemrc</kbd> settings:
     <br><br><pre>xschem --tcl 'set intuitive_interface 0'</pre><br>
   </li>
 
   <li>
     On the unix shell command line with <kbd>--preinit</kbd>. Same as <kbd>--tcl</kbd>,
     but the commands are executed
-    at the very beginning of xschem startup, before reading xschemrc.
+    at the very beginning of xschem startup, before reading <kbd>xschemrc</kbd>.
     Usually done to change some internal variables for testing
     <br><br><pre>xschem --preinit 'some_weird_tcl_code'</pre><br>
   </li>
@@ -70,9 +70,9 @@ p{padding: 15px  30px 10px;}
   <li>
     On the unix shell command line with <kbd>--command</kbd>.
     The specified tcl code is executed after complete startup so all extended
-     xschem commands are available:
+     <kbd>xschem</kbd> commands are available:
     <br><br><pre>
-xschem solar_panel.sch --command 'simulate'  #there are other ways to do this, just an example
+xschem solar_panel.sch --command 'xschem netlist; simulate'  #there are other ways to do this, just an example
     </pre><br>
   </li>
 
