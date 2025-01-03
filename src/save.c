@@ -3456,7 +3456,6 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], name);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
-
     /* local filename specified but coming (push, pop) from web object ... */
     } else if(is_from_web(xctx->current_dirname) && xschem_web_dirname[0]) {
       /* ... but not local file from web download --> reset current_dirname */
@@ -3468,7 +3467,6 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         my_snprintf(msg, S(msg), "get_directory {%s}", fname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       } 
-
       /* local file name */
       my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], fname);
       /* local relative reference */

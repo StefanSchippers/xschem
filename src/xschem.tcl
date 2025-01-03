@@ -813,7 +813,7 @@ proc tabulate {text {sep ",\t "}} {
 
 # get pin ordering from included subcircuit
 # return empty string if not found.
-proc has_included_subcircuit {symname spice_sym_def} {
+proc has_included_subcircuit {symname spice_sym_def no_of_pins} {
   global has_x
   set include_found 0
   regsub -all {\n\+} $spice_sym_def { } spice_sym_def
@@ -852,6 +852,13 @@ proc has_included_subcircuit {symname spice_sym_def} {
        set last [expr {[llength $line] -1}]
      } else {
        set last [expr {$last -1}]
+     }
+     # if spice_sym_def has more ports than symbol (no_of_pins) assume these are extra ports 
+     # assigned via attributes ('extra' symbol attribute, usually power rails), these extra
+     # ports are not returned as @pinlist and correspondence with symbol format string
+     # is not checked. user must ensure these additional ports are in the right order.
+     if { $last >= $no_of_pins + 1 } {
+       set last [expr {$no_of_pins + 1}]
      }
      set pinlist [lrange $line 2 $last]
      break
@@ -1759,8 +1766,27 @@ proc simconf_add {tool} {
   incr sim($tool,n)
 }
 
+
+############ cellview
 # this proc prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
+proc cellview_setlabels {w sch} {
+  if {[$w get] ne $sch} {
+    if { [file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg green
+    } else {
+      # puts "$sch --- [$sf.f$i.s get]"
+      $w configure -bg red
+    }
+  } else {
+    if { [file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg [option get . background {}]
+    } else {
+      $w configure -bg red
+    }
+  }
+}
+
 proc cellview {} {
   global keep_symbols
 
@@ -1806,36 +1832,23 @@ proc cellview {} {
         } elseif {$default_sch ne $sch} {
           $sf.f$i.s configure -bg green
         }
+      } else {
+        $sf.f$i.s configure -fg red
       }
       balloon $sf.f$i.s $abs_sch
-      button $sf.f$i.b -text Open -padx 4 -borderwidth 1 -pady 0 -font $font \
+      button $sf.f$i.b -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
              -command "
-                if { {$spice_sym_def} eq {}} {
+                if { [list $spice_sym_def] eq {}} {
                   xschem load_new_window \[$sf.f$i.s get\]
                 } else {
-                  viewdata {$spice_sym_def}
+                  editdata [list $spice_sym_def] {Symbol spice_sym_def attribute}
                 }"
       if {$spice_sym_def eq {}} {
         $sf.f$i.s insert 0 $sch
       } else {
-        $sf.f$i.s insert 0 {<<spice_sym_def>>}
+        $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
       }
-      bind $sf.f$i.s <KeyRelease> "
-        if {\[$sf.f$i.s get\] ne {$sch}} {
-          if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
-            $sf.f$i.s configure -bg green
-          } else {
-            puts \"$sch --- \[$sf.f$i.s get\]\"
-            $sf.f$i.s configure -bg red
-          }
-        } else {
-          if { \[file exists \[abs_sym_path \[$sf.f$i.s get\]\]\] } {
-            $sf.f$i.s configure -bg [option get . background {}]
-          } else {
-            $sf.f$i.s configure -bg red
-          }
-        }
-      "
+      bind $sf.f$i.s <KeyRelease> "cellview_setlabels %W [list $sch]"
       pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
       pack $sf.f$i.b -side left
     }
@@ -1850,37 +1863,48 @@ proc cellview {} {
   set maxsize [expr {[winfo height ${sf}] + [winfo height .cv.top] + [winfo height .cv.bottom]}]
   wm maxsize .cv 9999 $maxsize
   bind .cv.center.f <Configure> {sframeyview .cv.center}
-  bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.2}
-  bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.2}
+  bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
+  bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
+  bind .cv <Escape> {destroy .cv}
   xschem reload_symbols ;# purge all symbols used in below hierarchies
 }
-
-
+############ /cellview
 
 ############ traversal
-proc traversal_update_schematic {w parent_sch instname default_sch} {
-  if {$parent_sch eq {}} {return}
-  puts "traversal_update_schematic: $w $parent_sch $instname--> [$w get]"
-  set current [xschem get current_name]
-  xschem load $parent_sch noundoreset nodraw
-  set sch [xschem getprop instance $instname schematic]
-  if { $sch ne [$w get]} {
-    if { [$w get] eq  $default_sch} {
-      xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
-    } else {
-      xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
-    }
-    xschem set_modify 1
-    xschem save
-  }
-  xschem load $current  noundoreset nodraw
-}
-
 proc traversal_setlabels {w parent_sch sch instname default_sch inst_spice_sym_def sym_spice_sym_def} {
   global traversal_cnt
-  set sf .cv.center.f.scrl
-  puts "traversal_setlabels $w $parent_sch $sch $instname"
-  traversal_update_schematic $w $parent_sch $instname $default_sch
+  set sf .trav.center.f.scrl
+  # puts "traversal_setlabels $w $parent_sch $sch $instname"
+
+  # update schematic
+  if {$parent_sch ne {}} {
+    set current [xschem get current_name]
+    puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $default_sch $sch --> [$w get]"
+    if { $sch ne [$w get] } {
+      puts "update attr"
+      xschem load $parent_sch noundoreset nodraw
+      set sch [xschem getprop instance $instname schematic]
+      if { $sch ne [$w get]} {
+        if { [$w get] eq  $default_sch} {
+          xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
+        } else {
+          xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
+        } 
+        xschem set_modify 1
+        xschem save
+        set sch [$w get]
+        puts "sch set to: $sch"
+      }
+      xschem load $current  noundoreset nodraw
+  
+      bind $w <KeyRelease> "
+        traversal_setlabels $w [list $parent_sch] [list $sch] [list $instname] [list $default_sch] \
+                            [list $inst_spice_sym_def] [list $sym_spice_sym_def]
+      "
+    }
+  }
+  # /update schematic
+
   if {[$w get] ne $default_sch} {
     if { $sym_spice_sym_def ne {}} {
       $w configure -fg green
@@ -1920,37 +1944,37 @@ proc traversal {{only_subckts 0} {all_hierarchy 1}} {
     set font fixed
   }
 
-  toplevel .cv
-  wm geometry .cv 1200x400
+  toplevel .trav
+  wm geometry .trav 1200x400
 
-  frame .cv.top
-  label .cv.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sym  -text {SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch  -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.pad  -text {        } -bg grey60 -font $font
-  pack .cv.top.inst -side left -fill x -expand 1
-  pack .cv.top.sym .cv.top.sch -side left -fill x
-  pack .cv.top.pad -side left -fill x
-  frame .cv.center
-  set sf [sframe .cv.center]
+  frame .trav.top
+  label .trav.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
+  label .trav.top.sym  -text {SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
+  label .trav.top.sch  -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
+  label .trav.top.pad  -text {        } -bg grey60 -font $font
+  pack .trav.top.inst -side left -fill x -expand 1
+  pack .trav.top.sym .trav.top.sch -side left -fill x
+  pack .trav.top.pad -side left -fill x
+  frame .trav.center
+  set sf [sframe .trav.center]
   hier_traversal 0 $only_subckts $all_hierarchy
   xschem set no_draw 0
   xschem set no_undo 0
   set keep_symbols $save_keep
 
-  frame .cv.bottom
-  label .cv.bottom.status -text {STATUS LINE}
-  pack .cv.bottom.status -fill x -expand yes
-  pack .cv.top -side top -fill x -expand no
-  pack .cv.center -side top -fill both -expand yes
-  pack .cv.bottom -side top -fill x -expand no
-  sframeyview .cv.center place
-  set maxsize [expr {[winfo height ${sf}] + [winfo height .cv.top] + [winfo height .cv.bottom]}]
-  wm maxsize .cv 9999 $maxsize
-  bind .cv.center.f <Configure> {sframeyview .cv.center}
-  bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
-  bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
-  bind .cv <Escape> {destroy .cv}
+  frame .trav.bottom
+  label .trav.bottom.status -text {STATUS LINE}
+  pack .trav.bottom.status -fill x -expand yes
+  pack .trav.top -side top -fill x -expand no
+  pack .trav.center -side top -fill both -expand yes
+  pack .trav.bottom -side top -fill x -expand no
+  sframeyview .trav.center place
+  set maxsize [expr {[winfo height ${sf}] + [winfo height .trav.top] + [winfo height .trav.bottom]}]
+  wm maxsize .trav 9999 $maxsize
+  bind .trav.center.f <Configure> {sframeyview .trav.center}
+  bind .trav <ButtonPress-4> { sframeyview .trav.center scroll -0.1}
+  bind .trav <ButtonPress-5> { sframeyview .trav.center scroll 0.1}
+  bind .trav <Escape> {destroy .trav}
 }
 
 # recursive procedure
@@ -1963,7 +1987,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
   } 
   set parent_sch [xschem get current_name]
   # puts $parent_sch
-  set sf .cv.center.f.scrl
+  set sf .trav.center.f.scrl
   set done_print 0
   set schpath [xschem get sch_path]
   set instances  [xschem get instances]
@@ -2017,17 +2041,17 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
             "
     button $sf.f$traversal_cnt.bsch -text {Sch} -padx 4 -borderwidth 1 -pady 0 -font $font \
            -command "
-              if { {$sym_spice_sym_def} eq {} && {$inst_spice_sym_def} eq {}} {
+              if { [list $sym_spice_sym_def] eq {} && [list $inst_spice_sym_def] eq {}} {
                 xschem load_new_window \[$sf.f$traversal_cnt.s get\]
-              } elseif {{$sym_spice_sym_def} ne {}} {
-                editdata {$sym_spice_sym_def} {Symbol spice_sym_def attribute}
+              } elseif {[list $sym_spice_sym_def] ne {}} {
+                editdata [list $sym_spice_sym_def] {Symbol spice_sym_def attribute}
               } else {
-                editdata {$inst_spice_sym_def} {Instance spice_sym_def attribute}
+                editdata [list $inst_spice_sym_def] {Instance spice_sym_def attribute}
               }"
     if { $sym_spice_sym_def eq {} && $inst_spice_sym_def eq {}} {
       bind $sf.f$traversal_cnt.s <KeyRelease> "
-        traversal_setlabels %W {$parent_sch} $sch_tail {$instname} {$default_sch} \
-                            {$inst_spice_sym_def} {$sym_spice_sym_def}
+        traversal_setlabels %W [list $parent_sch] [list $sch_tail] [list $instname] [list $default_sch] \
+                            [list $inst_spice_sym_def] [list $sym_spice_sym_def]
       "
     }
     traversal_setlabels $sf.f$traversal_cnt.s {} $sch_tail $instname $default_sch \
@@ -7656,7 +7680,7 @@ proc set_sim_netlist_waves_buttons {} {
   if {![info exists $netlist_var] || [set $netlist_var] eq $simulate_bg} {
     $top_path.menubar entryconfigure Netlist -background  $simulate_bg
   } else { 
-     $top_path.menubar entryconfigure -background [set $netlist_var]
+     $top_path.menubar entryconfigure Netlist -background [set $netlist_var]
   }
 
   if {![info exists $sim_var] || [set $sim_var] eq $simulate_bg} {
@@ -8807,6 +8831,7 @@ if { [info exists has_x]} {
     }
   }
 }
+
 set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
 # tcl variable XSCHEM_LIBRARY_PATH  should already be set in xschemrc

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SCRIPTS</title>
+<link rel="stylesheet" type="text/css" href="xschem_man.css" />
+<style type="text/css">
+/* Local styling goes here */
+p{padding: 15px  30px 10px;}
+
+</style>
+
+</head>
+<body>
+
+<!-- start of slide -->
+<div class="content">   
+<!-- navigation buttons -->
+<a href="simulation.html" class="prev">PREV</a>
+<a href="xschem_man.html" class="home">UP</a>
+<a href="graphs.html" class="next">NEXT</a>
+ <!-- slide title -->
+ <h1>XSCHEM SCRIPTS</h1><br>
+
+ <p>
+  Xschem is a tcl interpreter and as such TCL scripts and commands can be executed.
+  Xschem adds its own extension commands, mostly with the <kbd>xschem</kbd> TCL command.
+  See this <a href="developer_info.html">manual page</a>.
+  The same procedure as tcl is used to load and execute a script:
+  <br><br><pre>     source /path/to/script.tcl</pre>
+ </p>
+ <p>
+  there are various ways to run a script in xschem:
+ </p>
+ <ol>
+  <li>
+    On the xschem command prompt:
+    <br><br><pre>source myscript.tcl</pre><br>
+  </li>
+
+  <li>
+    In the <kbd>xschemrc</kbd> you may set the <kbd>tcl_files</kbd> tcl variable with a list of files
+    to read in and execute after xschem is started:
+    <br><br><pre>set tcl_files {/path/to/file1.tcl  /path/to/file2.tcl}</pre><br>
+  </li>
+
+  <li>
+    the <kbd>postinit_commands</kbd> variable in <kbd>xschemrc</kbd> can be filled with tcl code ,
+    it is executed when starting xschem:
+    <br><br><pre>set postinit_commands {
+  puts hello
+  puts world
+}
+    </pre><br>
+  </li>
+
+  <li>
+    On the unix shell command line with <kbd>--tcl</kbd> (this code is executed after reading
+    <kbd>xschemrc</kbd>, this is usually done to override <kbd>xschemrc</kbd> settings:
+    <br><br><pre>xschem --tcl 'set intuitive_interface 0'</pre><br>
+  </li>
+
+  <li>
+    On the unix shell command line with <kbd>--preinit</kbd>. Same as <kbd>--tcl</kbd>,
+    but the commands are executed
+    at the very beginning of xschem startup, before reading <kbd>xschemrc</kbd>.
+    Usually done to change some internal variables for testing
+    <br><br><pre>xschem --preinit 'some_weird_tcl_code'</pre><br>
+  </li>
+
+  <li>
+    On the unix shell command line with <kbd>--command</kbd>.
+    The specified tcl code is executed after complete startup so all extended
+     <kbd>xschem</kbd> commands are available:
+    <br><br><pre>
+xschem solar_panel.sch --command 'xschem netlist; simulate'  #there are other ways to do this, just an example
+    </pre><br>
+  </li>
+
+  <li>
+
+    On the unix shell command line with <kbd>--script</kbd>. Specify a file to source,
+    it will be executed after complete startup.
+    <br><br><pre>xschem --script myscript.tcl</pre><br>
+  </li>
+
+ </ol>
+
+ <!-- end of slide -->
+ <div class="filler"></div>
+</div>
+
+<!-- frame footer -->
+<iframe seamless src="xschem_footer.html"  class="footer_iframe" >
+</body>
+</html>
+
