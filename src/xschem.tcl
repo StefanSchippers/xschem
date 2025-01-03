@@ -8565,7 +8565,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   label $topwin.statusbar.6 -text "MODE:"
   label $topwin.statusbar.7 -width 7 
   label $topwin.statusbar.11 -text {Stretch:}
-  label $topwin.statusbar.10 -activebackground blue -text {}
+  label $topwin.statusbar.10 -activebackground green -text {}
   label $topwin.statusbar.9 -textvariable enable_stretch
   label $topwin.statusbar.8 -activebackground red -text {} 
   add_toolbuttons $topwin

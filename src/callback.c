@@ -2099,8 +2099,8 @@ int rstate; /* (reduced state, without ShiftMask) */
  }
 #endif
 
- if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) { 
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {WIRE READY TO DRAW! }", NULL);
+ if((xctx->ui_state & STARTWIRE) || (xctx->ui_state2 & MENUSTARTWIRE) || (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE))) { 
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
  } else {
     tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
  }
