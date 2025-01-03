@@ -8830,17 +8830,18 @@ if { [info exists has_x]} {
 
 # This is a dirty hack to make a click on an open menu close it.
 # not guaranteed to work on future tk versions
-bind Menu <Button> {
-    if {$tk::Priv(menuBar) ne {}} {
-        tk::MenuEscape %W
-        set Priv(menuBar) {}
-        set Priv(focus) {}
-        unset -nocomplain Priv(menuActivated)
-        %W activate none
-    } else {
-        tk::MenuButtonDown %W
-    }
-}
+
+# bind Menu <Button> {
+#     if {$tk::Priv(menuBar) ne {}} {
+#         tk::MenuEscape %W
+#         set Priv(menuBar) {}
+#         set Priv(focus) {}
+#         unset -nocomplain Priv(menuActivated)
+#         %W activate none
+#     } else {
+#         tk::MenuButtonDown %W
+#     }
+# }
 
 set OS [lindex $tcl_platform(os) 0]
 set env(LC_ALL) C
