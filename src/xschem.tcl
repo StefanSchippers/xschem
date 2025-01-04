@@ -1770,25 +1770,34 @@ proc simconf_add {tool} {
 ############ cellview
 # this proc prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
-proc cellview_setlabels {w sch} {
-  if {[$w get] ne $sch} {
-    if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg green
-    } else {
-      # puts "$sch --- [$sf.f$i.s get]"
-      $w configure -bg red
-    }
+proc cellview_setlabels {w sym_sch default_sch sym_spice_sym_def} {
+  global dark_gui_colorscheme
+  if {$dark_gui_colorscheme} {
+    set symfg SeaGreen1
+    set symbg SeaGreen4
+    set missingbg IndianRed4
+  } else { 
+    set symfg SeaGreen4
+    set symbg SeaGreen1
+    set missingbg IndianRed1 
+  }     
+  $w configure -fg [option get . foreground {}]
+  $w configure -bg [option get . background {}]
+  if { $sym_spice_sym_def ne {}} {
+    $w configure -fg $symfg
+  } elseif { ![file exists [abs_sym_path [$w get]]] } {
+    $w configure -bg $missingbg
   } else {
-    if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg [option get . background {}]
-    } else {
-      $w configure -bg red
+    if {[$w get] eq $default_sch} {
+      # ....
+    } elseif {[$w get] eq $sym_sch} {
+      $w configure -bg $symbg
     }
   }
 }
 
 proc cellview {} {
-  global keep_symbols
+  global keep_symbols nolist_libs
 
   if {[info tclversion] >= 8.5} {
     set font {TkDefaultFont 10 bold} ;# Monospace
@@ -1813,42 +1822,46 @@ proc cellview {} {
   set sf [sframe .cv.center]
   # puts sf=$sf
   set syms [join [lsort -index 1 [xschem symbols]]]
-  foreach {i sym} $syms {
-    set abs_sch [xschem get_sch_from_sym -1 $sym]
-    set sch [rel_sym_path $abs_sch]
-    set default_sch [add_ext $sym .sch]
-    set type [xschem getprop symbol $sym type]
-    set spice_sym_def [xschem getprop symbol $sym spice_sym_def]
+  foreach {i symbol} $syms {
+    set abs_sch [xschem get_sch_from_sym -1 $symbol]
+    set abs_sym [abs_sym_path $symbol]
+    set default_sch [add_ext $symbol .sch]
+    set skip 0
+    foreach j $nolist_libs {
+      if {[regexp $j $abs_sym]} { 
+        set skip 1
+        break
+      }
+    }
+    if {$skip} { continue }
+    set sym_sch [rel_sym_path $abs_sch]
+    set default_sch [add_ext $symbol .sch]
+    set type [xschem getprop symbol $symbol type]
+    set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def]
     if {$type eq {subcircuit}} {
       frame $sf.f$i
       pack $sf.f$i -side top -fill x
-      label  $sf.f$i.l -text $sym -width 20 -anchor w -padx 4 -borderwidth 1 \
+      label  $sf.f$i.l -text $symbol -width 20 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -font $font
       # puts $sf.f$i.s
       entry $sf.f$i.s -width 50 -borderwidth 1 -relief sunken -font $font
-      if { $spice_sym_def eq {}} {
-        if {![file exists $abs_sch]} {
-          $sf.f$i.s configure -bg red
-        } elseif {$default_sch ne $sch} {
-          $sf.f$i.s configure -bg green
-        }
-      } else {
-        $sf.f$i.s configure -fg red
-      }
       balloon $sf.f$i.s $abs_sch
       button $sf.f$i.b -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
              -command "
-                if { [list $spice_sym_def] eq {}} {
+                if { [list $sym_spice_sym_def] eq {}} {
                   xschem load_new_window \[$sf.f$i.s get\]
                 } else {
-                  editdata [list $spice_sym_def] {Symbol spice_sym_def attribute}
+                  editdata [list $sym_spice_sym_def] {Symbol spice_sym_def attribute}
                 }"
-      if {$spice_sym_def eq {}} {
-        $sf.f$i.s insert 0 $sch
+      if {$sym_spice_sym_def eq {}} {
+        $sf.f$i.s insert 0 $sym_sch
       } else {
         $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
       }
-      bind $sf.f$i.s <KeyRelease> "cellview_setlabels %W [list $sch]"
+      bind $sf.f$i.s <KeyRelease> "
+        cellview_setlabels %W [list $sym_sch] [list $default_sch] [list $sym_spice_sym_def]
+      "
+      cellview_setlabels $sf.f$i.s $sym_sch $default_sch $sym_spice_sym_def
       pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
       pack $sf.f$i.b -side left
     }
@@ -1871,59 +1884,64 @@ proc cellview {} {
 ############ /cellview
 
 ############ traversal
-proc traversal_setlabels {w parent_sch sch instname default_sch inst_spice_sym_def sym_spice_sym_def} {
-  global traversal_cnt
+proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch inst_spice_sym_def sym_spice_sym_def} {
+  global traversal_cnt dark_gui_colorscheme
   set sf .trav.center.f.scrl
-  # puts "traversal_setlabels $w $parent_sch $sch $instname"
+  # puts "traversal_setlabels $w $parent_sch $inst_sch $instname"
 
   # update schematic
   if {$parent_sch ne {}} {
     set current [xschem get current_name]
-    puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $default_sch $sch --> [$w get]"
-    if { $sch ne [$w get] } {
+    puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $sym_sch $inst_sch --> [$w get]"
+    if { $inst_sch ne [$w get] } {
       puts "update attr"
       xschem load $parent_sch noundoreset nodraw
-      set sch [xschem getprop instance $instname schematic]
-      if { $sch ne [$w get]} {
-        if { [$w get] eq  $default_sch} {
-          xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
-        } else {
-          xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
-        } 
-        xschem set_modify 1
-        xschem save
-        set sch [$w get]
-        puts "sch set to: $sch"
-      }
+      if { [$w get] eq  $sym_sch} {
+        xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
+      } else {
+        xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
+      } 
+      xschem set_modify 1
+      xschem save
+      set inst_sch [$w get]
+      puts "inst_sch set to: $inst_sch"
       xschem load $current  noundoreset nodraw
   
       bind $w <KeyRelease> "
-        traversal_setlabels $w [list $parent_sch] [list $sch] [list $instname] [list $default_sch] \
-                            [list $inst_spice_sym_def] [list $sym_spice_sym_def]
+        traversal_setlabels $w [list $parent_sch] [list $instname] [list $inst_sch] [list $sym_sch] \
+                               [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def]
       "
     }
   }
   # /update schematic
-
-  if {[$w get] ne $default_sch} {
-    if { $sym_spice_sym_def ne {}} {
-      $w configure -fg green
-      $w configure -bg [option get . background {}]
-    } elseif {$inst_spice_sym_def ne {}} {
-      $w configure -fg red
-      $w configure -bg [option get . background {}]
-    } elseif { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -fg [option get . foreground {}]
-      $w configure -bg green
-    } else {
-      $w configure -fg [option get . foreground {}]
-      $w configure -bg red
-    }
+  if {$dark_gui_colorscheme} {
+    set instfg orange1
+    set symfg SeaGreen1
+    set instbg orange4
+    set symbg SeaGreen4
+    set missingbg IndianRed4
   } else {
-    if { [file exists [abs_sym_path [$w get]]] } {
-      $w configure -bg [option get . background {}]
-    } else {
-      $w configure -bg red
+    set instfg orange4
+    set symfg SeaGreen4
+    set instbg Orange1
+    set symbg SeaGreen1
+    set missingbg IndianRed1
+  }
+  $w configure -fg [option get . foreground {}]
+  $w configure -bg [option get . background {}]
+  if { $sym_spice_sym_def ne {}} {
+    $w configure -fg $symfg
+  } elseif {$inst_spice_sym_def ne {}} {
+    $w configure -fg $instfg
+  } elseif { ![file exists [abs_sym_path [$w get]]] } {
+    $w configure -bg $missingbg
+  } else {
+    if {[$w get] eq $default_sch} {
+      # ....
+    } elseif {[$w get] eq $sym_sch} {
+      $w configure -bg $symbg
+    } elseif {[$w get] eq $inst_sch} {
+      $w configure -bg $instbg
     }
   }
 }
@@ -1996,12 +2014,13 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
     set instname [xschem getprop instance $i name]
     set symbol [xschem getprop instance $i cell::name]
     set default_sch [add_ext $symbol .sch]
+    set sym_sch [rel_sym_path [xschem get_sch_from_sym -1 $symbol]]
     set abs_symbol [abs_sym_path $symbol]
     set type [xschem getprop symbol $symbol type]
     set schematic [xschem get_sch_from_sym $i]
     set sch_exists [expr {[file exists $schematic] ? {} : {**missing**}}]
-    set sch_tail [rel_sym_path $schematic]
-    set sch_rootname [file tail [file rootname $sch_tail]]
+    set inst_sch [rel_sym_path $schematic]
+    set sch_rootname [file tail [file rootname $inst_sch]]
     set inst_spice_sym_def [xschem getprop instance $i spice_sym_def]
     set sym_spice_sym_def [xschem getprop instance $i cell::spice_sym_def]
     if {$only_subckts && ($type ne {subcircuit})} { continue }
@@ -2032,7 +2051,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
       } elseif {$sym_spice_sym_def ne {}} {
         $sf.f$traversal_cnt.s insert 0 "$sch_rootname defined in symbol spice_sym_def"
       } else {
-        $sf.f$traversal_cnt.s insert 0 "$sch_tail"
+        $sf.f$traversal_cnt.s insert 0 "$inst_sch"
       }
     }
     button $sf.f$traversal_cnt.bsym -text {Sym} -padx 4 -borderwidth 1 -pady 0 -font $font \
@@ -2050,12 +2069,12 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
               }"
     if { $sym_spice_sym_def eq {} && $inst_spice_sym_def eq {}} {
       bind $sf.f$traversal_cnt.s <KeyRelease> "
-        traversal_setlabels %W [list $parent_sch] [list $sch_tail] [list $instname] [list $default_sch] \
-                            [list $inst_spice_sym_def] [list $sym_spice_sym_def]
+        traversal_setlabels %W [list $parent_sch] [list $instname] [list $inst_sch] [list $sym_sch] \
+                               [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def]
       "
     }
-    traversal_setlabels $sf.f$traversal_cnt.s {} $sch_tail $instname $default_sch \
-                        $inst_spice_sym_def $sym_spice_sym_def
+    traversal_setlabels $sf.f$traversal_cnt.s {} $instname $inst_sch $sym_sch \
+                        $default_sch $inst_spice_sym_def $sym_spice_sym_def
     pack $sf.f$traversal_cnt.i -side left -fill x -expand 1
     pack $sf.f$traversal_cnt.l $sf.f$traversal_cnt.s -side left -fill x
     pack $sf.f$traversal_cnt.bsym $sf.f$traversal_cnt.bsch -side left
@@ -8855,6 +8874,14 @@ if {$text_replace_selection && $OS != "Windows"} {
       }
     }
   }
+}
+
+## allow to unpost menu entries when clicking a posted menu
+bind Menu <Button> {
+   if { [%W cget -type] eq "menubar" && [info exists tk::Priv(menuActivated)]} {
+     %W activate none
+   }
+   tk::MenuButtonDown %W
 }
 
 ## this proc must be called for any created entry widgets
