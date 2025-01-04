@@ -8877,13 +8877,16 @@ if {$text_replace_selection && $OS != "Windows"} {
 }
 
 ## allow to unpost menu entries when clicking a posted menu
-bind Menu <Button> {
-   if { [%W cget -type] eq "menubar" && [info exists tk::Priv(menuActivated)]} {
-     %W activate none
-   } else {
-     %W activate @%x,%y
-   }
-   tk::MenuButtonDown %W
+
+if { [info tclversion] >= 8.6 } {
+  bind Menu <Button> {
+     if { [%W cget -type] eq "menubar" && [info exists tk::Priv(menuActivated)]} {
+       %W activate none
+     } else {
+       %W activate @%x,%y
+     }
+     tk::MenuButtonDown %W
+  }
 }
 
 ## this proc must be called for any created entry widgets
