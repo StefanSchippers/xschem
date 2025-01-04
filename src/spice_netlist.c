@@ -366,7 +366,7 @@ int global_spice_netlist(int global)  /* netlister driver */
      int n = pinnumber_list[i].n;
      str_tmp = expandlabel ( (xctx->inst[n].lab ? xctx->inst[n].lab : ""), &multip);
      /*must handle  invalid node names */
-     fprintf(fd, " %s", str_tmp ? str_tmp : "(NULL)" );
+     fprintf(fd, " %s", str_tmp ? str_tmp : "<NULL>" );
    }
  }
  my_free(_ALLOC_ID_, &pinnumber_list);

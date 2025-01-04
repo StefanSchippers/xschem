@@ -73,7 +73,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     entry->hash=hashcode;
     *preventry=entry;
     dbg(3, "node_hash_lookup(): hashing %s : value=%s\n\n",
-           entry->token, entry->value? entry->value:"NULL");
+           entry->token, entry->value? entry->value:"<NULL>");
     dbg(3, "node_hash_lookup(): hashing %s in=%d out=%d inout=%d port=%d\n",
                 token, d.in, d.out, d.inout, d.port);
    }
@@ -108,7 +108,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     if(value && value[0] !='\0')
       my_strdup(_ALLOC_ID_,  &(entry->value), value);
     dbg(3, "node_hash_lookup(): hashing %s : value=%s\n\n",
-           entry->token, entry->value? entry->value:"NULL");
+           entry->token, entry->value? entry->value:"<NULL>");
     return entry;
    }
   }
@@ -275,7 +275,7 @@ void print_vhdl_signals(FILE *fd)
           mult=1;
         }
         dbg(2, "print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
-              ptr->token,mult, ptr->value?ptr->value:"NULL");
+              ptr->token,mult, ptr->value?ptr->value:"<NULL>");
         if( ptr->class && ptr->class[0] )
           my_strdup(_ALLOC_ID_, &class, ptr->class);
         else
@@ -334,7 +334,7 @@ void print_verilog_signals(FILE *fd)
          mult=1;
         }
         dbg(2, " print_verilog_signals(): node: %s mult: %d value=%s \n\n",
-               ptr->token,mult, ptr->value?ptr->value:"NULL");
+               ptr->token,mult, ptr->value?ptr->value:"<NULL>");
         if(mult>1) {
           for(j=mult-1;j>=0;j--) {
             if(ptr->verilog_type && ptr->verilog_type[0]) {

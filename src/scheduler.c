@@ -5179,8 +5179,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &s);
     }
 
-    /* set_modify
-     *   Force modify status on current schematic */
+    /* set_modify [n]
+     *   Force modify status on current schematic
+     *   integer 'n':
+     *   0 : clear modified flag, update title and tab names, upd. simulation button colors.
+     *   1 : set modified flag, update title and tab names, upd. simulation button colors, rst floater caches.
+     *   2 : clear modified flag, do nothing else.
+     *   3 : set modified flag, do nothing else.
+     *  -1 : set title, rst floater caches.
+     *  -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).
+     */
     else if(!strcmp(argv[1], "set_modify"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -5533,7 +5541,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *s=NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
+      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "<NULL>") ? argv[4] : NULL));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &s);
     }

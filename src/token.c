@@ -408,8 +408,8 @@ static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **p
     my_strdup2(_ALLOC_ID_, pin_attr, "");
   }
   dbg(1, "get_pin_and_attr(): token=%s, name=%s, attr=%s\n", token,
-      *pin_num_or_name ? *pin_num_or_name : "NULL", 
-      *pin_attr ? *pin_attr: "NULL");
+      *pin_num_or_name ? *pin_num_or_name : "<NULL>", 
+      *pin_attr ? *pin_attr: "<NULL>");
 }
 
 /* state machine that parses a string made up of <token>=<value> ... */
@@ -544,7 +544,7 @@ const char *get_sym_template(char *s,char *extra)
 /* 2: eat backslashes */
 /* 3: 1+2  :) */
 
- dbg(1, "get_sym_template(): s=%s, extra=%s\n", s ? s : "NULL", extra ? extra : "NULL");
+ dbg(1, "get_sym_template(): s=%s, extra=%s\n", s ? s : "<NULL>", extra ? extra : "<NULL>");
  if(s==NULL) {
    my_free(_ALLOC_ID_, &result);
    return "";
@@ -683,7 +683,7 @@ void hash_names(int inst, int action)
     stop = inst + 1;
   }
   if(inst != -1) dbg(1, "hash_names(): start=%d, stop=%d, instname=%s\n",
-        start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "NULL");
+        start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "<NULL>");
   for(i = start; i < stop; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, &xmult));
@@ -1904,8 +1904,8 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
           pin_expanded_ptr = pin_expanded;
           while((pin = my_strtok_r(pin_expanded_ptr, ",", "", 0, &pin_save))) {
             net = my_strtok_r(net_expanded_ptr, ",", "", 0, &net_save);
-            str_hash_lookup(&table, pin, net ? net : "NULL", XINSERT_NOREPLACE);
-            dbg(1, "inserting pin: %s, net: %s\n", pin, net ? net : "NULL");
+            str_hash_lookup(&table, pin, net ? net : "<NULL>", XINSERT_NOREPLACE);
+            dbg(1, "inserting pin: %s, net: %s\n", pin, net ? net : "<NULL>");
             pin_expanded_ptr = NULL;
             net_expanded_ptr = NULL;
           }
@@ -3693,7 +3693,7 @@ const char *translate(int inst, const char* s)
  my_realloc(_ALLOC_ID_, &result,size);
  result[0]='\0';
 
- dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "NULL" , instname);
+ dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "<NULL>" , instname);
 
  while(1)
  {

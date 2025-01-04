@@ -140,9 +140,14 @@ const char *get_text_floater(int i)
   return txt_ptr;
 } 
 
-/* mod=-1 used to force set title 
- * mod=-2 used to reset floaters cache 
- * if floaters are present set_modify(1) (after a modify opration) must be done before draw()
+/* mod:
+ *   0 : clear modified flag, update title and tab names, upd. simulation button colors.
+ *   1 : set modified flag, update title and tab names, upd. simulation button colors, rst floater caches.
+ *   2 : clear modified flag, do nothing else.
+ *   3 : set modified flag, do nothing else.
+ *  -1 : set title, rst floater caches.
+ *  -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).
+ * If floaters are present set_modify(1) (after a modify operation) must be done before draw()
  * to invalidate cached floater string values  before redrawing
  * return 1 if floaters are found (mod==-2 or mod == 1 or mod == -1) */
 int set_modify(int mod)
@@ -152,8 +157,8 @@ int set_modify(int mod)
   dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
   /* set modify state */
-  if(mod == 0 || mod == 1) {
-    xctx->modified = mod;
+  if(mod == 0 || mod == 1 || mod == 2 || mod == 3) {
+    xctx->modified = (mod & 1);
   }
   if(mod == 1 || (mod == 0  && xctx->prev_set_modify) || mod == -2) {
     /*                Do not configure buttons if displaying in preview window */

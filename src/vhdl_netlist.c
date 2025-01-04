@@ -218,7 +218,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  /*   str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : ""; */
  /*   if(!tmp)  fprintf(fd,"generic (\n"); */
  /*   if(tmp) fprintf(fd," ;\n"); */
- /*   fprintf(fd, "  %s : %s", str_tmp ? str_tmp : "(NULL)", sig_type ); */
+ /*   fprintf(fd, "  %s : %s", str_tmp ? str_tmp : "<NULL>", sig_type ); */
  /*   if(port_value &&port_value[0]) */
  /*      fprintf(fd," := %s", port_value); */
  /* */
@@ -243,7 +243,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    if(!tmp)  fprintf(fd,"port(\n");
    if(tmp) fprintf(fd," ;\n");
-   fprintf(fd, "  %s : out %s", str_tmp ? str_tmp : "(NULL)", sig_type );
+   fprintf(fd, "  %s : out %s", str_tmp ? str_tmp : "<NULL>", sig_type );
    tmp=1;
   }
  }
@@ -260,7 +260,7 @@ int global_vhdl_netlist(int global)  /* netlister driver */
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
    if(!tmp)  fprintf(fd,"port(\n");
    if(tmp) fprintf(fd," ;\n");
-   fprintf(fd, "  %s : inout %s", str_tmp ? str_tmp : "(NULL)", sig_type );
+   fprintf(fd, "  %s : inout %s", str_tmp ? str_tmp : "<NULL>", sig_type );
    tmp=1;
   }
  }

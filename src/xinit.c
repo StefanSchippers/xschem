@@ -1202,7 +1202,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
   if(semaphore) return 0;
   ++semaphore;
   dbg(1, "preview_window(): what=%s, win_path=%s, fname=%s\n", 
-     what, win_path ? win_path : "NULL", fname ? fname : "NULL");
+     what, win_path ? win_path : "<NULL>", fname ? fname : "<NULL>");
   dbg(1, "------\n");
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   if(!strcmp(what, "create") && last_preview < 4) {
@@ -2579,7 +2579,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  dbg(1, "Tcl_AppInit(): XSCHEM_SHAREDIR=%s  XSCHEM_LIBRARY_PATH=%s\n",
        tclgetvar("XSCHEM_SHAREDIR"),
-       tclgetvar("XSCHEM_LIBRARY_PATH") ? tclgetvar("XSCHEM_LIBRARY_PATH") : "NULL"
+       tclgetvar("XSCHEM_LIBRARY_PATH") ? tclgetvar("XSCHEM_LIBRARY_PATH") : "<NULL>"
  );
  dbg(1, "Tcl_AppInit(): done step a of xinit()\n");
 
@@ -2917,7 +2917,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    #ifndef __unix__
    change_to_unix_fn(tmp);
    #endif
-   dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "NULL");
+   dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "<NULL>");
    if(0 && cli_argc > 1)  /* disabled */
      my_strncpy(fname, "", S(fname)); /* no load XSCHEM_START_WINDOW if cli args given */
    else

@@ -140,7 +140,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
       str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "verilog_format", 2);
 
    my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
-   fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "(NULL)");
+   fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "<NULL>");
   }
  }
 
@@ -168,7 +168,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
    if(tmp) fprintf(fd, " ,\n");
    ++tmp;
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
-   fprintf(fd, "  %s", str_tmp ? str_tmp : "(NULL)");
+   fprintf(fd, "  %s", str_tmp ? str_tmp : "<NULL>");
   }
  }
 
@@ -182,7 +182,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
    if(tmp) fprintf(fd, " ,\n");
    ++tmp;
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
-   fprintf(fd, "  %s", str_tmp ? str_tmp : "(NULL)");
+   fprintf(fd, "  %s", str_tmp ? str_tmp : "<NULL>");
   }
  }
 
@@ -225,8 +225,8 @@ int global_verilog_netlist(int global)  /* netlister driver */
    my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
    if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"wire"); /* 20070720 changed reg to wire */
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
-   fprintf(fd, "  output %s ;\n", str_tmp ? str_tmp : "(NULL)");
-   fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "(NULL)");
+   fprintf(fd, "  output %s ;\n", str_tmp ? str_tmp : "<NULL>");
+   fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "<NULL>");
 
    if(port_value && port_value[0]) fprintf(fd," = %s", port_value);
    fprintf(fd, ";\n");
@@ -244,8 +244,8 @@ int global_verilog_netlist(int global)  /* netlister driver */
    my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
    if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"wire");
    str_tmp = xctx->inst[i].lab ? xctx->inst[i].lab : "";
-   fprintf(fd, "  inout %s ;\n", str_tmp ? str_tmp : "(NULL)");
-   fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "(NULL)");
+   fprintf(fd, "  inout %s ;\n", str_tmp ? str_tmp : "<NULL>");
+   fprintf(fd, "  %s %s ", sig_type, str_tmp ? str_tmp : "<NULL>");
 
    if(port_value && port_value[0]) fprintf(fd," = %s", port_value);
    fprintf(fd, ";\n");
@@ -483,7 +483,7 @@ int verilog_block_netlist(FILE *fd, int i)
       if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format")) 
          str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_format", 2);
       my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
-      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "(NULL)");
+      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "<NULL>");
      }
     }
  

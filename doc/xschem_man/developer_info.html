@@ -1452,8 +1452,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       set_different_tok str new_str old_str</kbd></li><pre>
    Return string 'str' replacing/adding/removing tokens that are
    different between 'new_str' and 'old_str' </pre>
-   <li><kbd>       set_modify</kbd></li><pre>
-   Force modify status on current schematic </pre>
+   <li><kbd>       set_modify [n]</kbd></li><pre>
+   Force modify status on current schematic
+   integer 'n':
+   0 : clear modified flag, update title and tab names, upd. simulation button colors.
+   1 : set modified flag, update title and tab names, upd. simulation button colors, rst floater caches.
+   2 : clear modified flag, do nothing else.
+   3 : set modified flag, do nothing else.
+  -1 : set title, rst floater caches.
+  -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).</pre>
    <li><kbd>       setprop instance|symbol|text|rect ref tok [val] [fast]</kbd></li><pre>
       
        setprop instance inst [tok] [val] [fast]
@@ -1628,6 +1635,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

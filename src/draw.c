@@ -771,7 +771,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         dbg(1, "draw_symbol(): drawing string: before translate(): text.txt_ptr=%s\n", text.txt_ptr);
         my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
         /* do another round of substitutions if some @var are found, but if not found leave @var as is */
-        dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n", txtptr, text.prop_ptr ?  text.prop_ptr : "NULL");
+        dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n",
+                txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>");
          my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 1, xctx->inst[n].prop_ptr, 
            xctx->sym[xctx->inst[n].ptr].templ, NULL ));
         dbg(1, "draw_symbol(): after translate3: str=%s\n", txtptr);
@@ -2478,7 +2479,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           /* also trim spaces */
           my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
         }
-        dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "NULL");
+        dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
         stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
         nptr = sptr = NULL;
         if(stok && stok[0]) {
@@ -3352,7 +3353,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
     ctok = my_strtok_r(cptr, " ", "", 0, &savec);
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = cptr = sptr = NULL;
-    dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "NULL");
+    dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "<NULL>");
     if(stok && stok[0]) {
       sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) sweep_idx = 0;
@@ -3828,11 +3829,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
         /* also trim spaces */
         my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
       }
-      dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "NULL");
+      dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
       stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
       cptr = sptr = NULL;
-      dbg(1, "ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "NULL");
+      dbg(1, "ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "<NULL>");
       if(ctok && ctok[0]) wc = atoi(ctok);
       if(wc < 0) wc = 4;
       if(wc >= cadlayers) wc = cadlayers - 1;
@@ -3863,7 +3864,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           else         hilight_graph_node(bus_msb, wc);
         }
       }
-      dbg(1, "express=%s, bus_msb=%s\n", express ? express : "NULL", bus_msb ? bus_msb : "NULL");
+      dbg(1, "express=%s, bus_msb=%s\n", express ? express : "<NULL>", bus_msb ? bus_msb : "<NULL>");
       /* quickly find index number of ntok_copy variable to be plotted */
       if(sch_waves_loaded() != -1 && valid_rawfile &&
          (expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1)) {

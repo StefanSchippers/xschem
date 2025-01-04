@@ -36,7 +36,7 @@ char **parse_cmd_string(const char *cmd, int *argc)
   static char *cmd_copy = NULL;
   static char *argv[PARSE_SIZE];
   char *cmd_ptr, *cmd_save;
-  dbg(1, "parse_cmd_string(): cmd=|%s|\n", cmd ? cmd : "NULL");
+  dbg(1, "parse_cmd_string(): cmd=|%s|\n", cmd ? cmd : "<NULL>");
   if(!cmd || !cmd[0]) {
     if(cmd_copy) my_free(_ALLOC_ID_, &cmd_copy);
     return NULL;
@@ -1009,7 +1009,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
     dbg(0, "raw_read(): must clear current raw file before loading new\n");
     return res;
   }
-  dbg(1, "raw_read(): type=%s\n", type ? type : "NULL");
+  dbg(1, "raw_read(): type=%s\n", type ? type : "<NULL>");
   *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
   raw = *rawptr;
   raw->level = -1; 
@@ -1033,7 +1033,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
       }
       dbg(0, "Raw file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
-             raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "NULL");
+             raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "<NULL>");
     } else {
       /* free_rawfile(rawptr, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
       dbg(0, "raw_read(): no useful data found\n");
@@ -1179,7 +1179,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   if(type && !type[0]) type = NULL; /* empty string as type will be considered NULL */
 
   dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
-      what, file ? file : "NULL", type ? type : "NULL");
+      what, file ? file : "<NULL>", type ? type : "<NULL>");
   if(what == 0) return 0;
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
@@ -1242,7 +1242,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       read_ret = raw_read(f, &xctx->raw, type, sweep1, sweep2);
       if(read_ret) {
         dbg(1, "extra_rawfile(): read %s %s, switch to it. raw->sim_type=%s\n", f,
-          type ? type : "NULL", xctx->raw->sim_type ? xctx->raw->sim_type : "NULL");
+          type ? type : "<NULL>", xctx->raw->sim_type ? xctx->raw->sim_type : "<NULL>");
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
@@ -1359,7 +1359,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
       for(i = 0; i < xctx->extra_raw_n; i++) {
         Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->rawfile, " ", 
-            xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "NULL", "\n",  NULL);
+            xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "<NULL>", "\n",  NULL);
       }
     }
   } else {
@@ -3322,11 +3322,12 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   xRect *rect;
   int rects;
   char msg[PATH_MAX + 100];
+  int same_name = 0;
 
   if(!schname || !strcmp(schname, "")) return 0;
 
   dbg(1, "save_schematic(): currsch=%d schname=%s\n",xctx->currsch, schname);
-  dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch] ? xctx->sch[xctx->currsch] : "NULL");
+  dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch] ? xctx->sch[xctx->currsch] : "<NULL>");
 
   if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
@@ -3337,6 +3338,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     set_modify(-1); /* set title to new filename */
   }
   else { /* user asks to save to same filename */
+    same_name = 1;
     if(!stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("ask_save_optional \"Schematic file: ", xctx->sch[xctx->currsch],
@@ -3372,7 +3374,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
    * xctx->prep_hash_wires=0;
    */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
-     set_modify(0);
+     if(same_name) set_modify(2); /* clear only modified flag, do not set window title etc */
+     else set_modify(0);
   }
   tclvareval(xctx->top_path, ".menubar entryconfigure Simulate -background $simulate_bg", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
@@ -3839,7 +3842,7 @@ static void get_sym_type(const char *symname, char **type,
     }
   }
   if( !found ) {
-    dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "null");
+    dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "<NULL>");
     /* ... if not found open file and look for 'type' into the global attributes. */
 
     if(embed_fd) fd = embed_fd;
@@ -4656,7 +4659,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
        my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
        my_strcat(_ALLOC_ID_, &tt[i].prop_ptr, lay);
      }
-     dbg(1, "l_s_d(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "NULL");
+     dbg(1, "l_s_d(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "<NULL>");
      set_text_flags(&tt[i]);
      ++lastt;
      break;

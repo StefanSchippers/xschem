@@ -624,7 +624,8 @@ size_t my_mstrcat(int id, char **str, const char *add, ...)
 size_t my_strcat(int id, char **str, const char *append_str)
 {
   size_t s, a;
-  dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id, *str, append_str);
+  dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id,
+    *str? *str : "<NULL>", append_str ? append_str : "<NULL>");
   if( *str != NULL)
   {
     s = strlen(*str);
@@ -648,7 +649,8 @@ size_t my_strcat(int id, char **str, const char *append_str)
 size_t my_strcat2(int id, char **str, const char *append_str)
 {     
   size_t s, a;
-  dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id, *str, append_str);
+  dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id,
+    *str? *str : "<NULL>", append_str ? append_str : "<NULL>");
   if( *str != NULL)
   { 
     s = strlen(*str);
@@ -672,7 +674,8 @@ size_t my_strcat2(int id, char **str, const char *append_str)
 size_t my_strncat(int id, char **str, size_t n, const char *append_str)
 {
  size_t s, a;
- dbg(3,"my_strncat(%d,): str=%s  append_str=%s\n", id, *str, append_str);
+ dbg(3,"my_strncat(%d,): str=%s  append_str=%s\n", id,
+    *str? *str : "<NULL>", append_str ? append_str : "<NULL>");
  a = strlen(append_str) + 1;
  if(a > n + 1) a = n + 1;
  if( *str != NULL)
@@ -1581,7 +1584,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
             dbg(1, "update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop);
             if(!pushed) { xctx->push_undo(); pushed=1;}
-            dbg(1, "update_symbol(): *ii=%d, new_prop=%s\n", *ii, new_prop ? new_prop : "NULL");
+            dbg(1, "update_symbol(): *ii=%d, new_prop=%s\n", *ii, new_prop ? new_prop : "<NULL>");
             my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, new_prop);
           }
         }  else {
