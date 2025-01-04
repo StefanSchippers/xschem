@@ -1901,7 +1901,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
       } else {
         xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
       } 
-      xschem set_modify 1
+      xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
       xschem save
       set inst_sch [$w get]
       puts "inst_sch set to: $inst_sch"
