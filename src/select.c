@@ -360,7 +360,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
      sym_flip = flip;
      sym_rot = rot;
-     dbg(1, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"NULL");
+     dbg(1, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"<NULL>");
      tmp_txt = translate(i, text.txt_ptr);
      dbg(1, "symbol_bbox(): translated text: %s\n", tmp_txt);
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
@@ -904,7 +904,7 @@ void select_wire(int i,unsigned short select_mode, int fast)
   {
     my_snprintf(str, S(str), "Info: selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
            xctx->wire[i].end1, xctx->wire[i].end2,
-           xctx->wire[i].prop_ptr? xctx->wire[i].prop_ptr: "(null)");
+           xctx->wire[i].prop_ptr? xctx->wire[i].prop_ptr: "<NULL>");
     statusmsg(str,3);
     tcleval("infowindow");
 

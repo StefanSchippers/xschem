@@ -921,7 +921,7 @@ static int name_attached_inst_to_net(int k, int sqx, int sqy)
     if(touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x0, y0)) {
       if(!inst[n].node[p]) {
         dbg(1, "name_attached_inst_to_net(): inst %s, pin %d <-- %s\n", 
-              inst[n].instname, p, wire[k].node ? wire[k].node : "NULL");
+              inst[n].instname, p, wire[k].node ? wire[k].node : "<NULL>");
         set_inst_node(n, p, wire[k].node);
         err |= instcheck(n, p);
       } else {

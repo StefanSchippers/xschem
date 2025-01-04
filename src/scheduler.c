@@ -5533,7 +5533,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *s=NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "NULL") ? argv[4] : NULL));
+      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "<NULL>") ? argv[4] : NULL));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &s);
     }

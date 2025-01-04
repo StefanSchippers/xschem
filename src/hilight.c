@@ -153,7 +153,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   int mult;
  
   dbg(1, "bus_hilight_hash_lookup(): token=%s value=%d what=%d\n",
-       token ? token : "NULL", value, what);
+       token ? token : "<NULL>", value, what);
   xctx->some_nets_added = 0;
   if(token==NULL) return NULL;
   /* if( token[0] == '#' || !strpbrk(token, "*[],.:")) { */
@@ -1478,7 +1478,7 @@ static int eval_logic_expr(int inst, int output)
 
   stack[0] = 2; /* default if nothing is calculated: LOGIC_X */
   str = xctx->simdata[inst].pin[output].function;
-  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "NULL");
+  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "<NULL>");
   if(!str) return 2; /* no logic function defined, return LOGIC_X */
   while(str[pos]) {
     switch(str[pos]) {

@@ -61,11 +61,11 @@ static void check_opt(char *opt, char *optval, int type)
         cli_opt_do_print = 1;
 
     } else if( (type == LONG && !strcmp("plotfile", opt)) ) {
-        dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "NULL");
+        dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "<NULL>");
         if(optval) my_strncpy(cli_opt_plotfile, optval, S(cli_opt_plotfile));
 
     } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
-        dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "NULL");
+        dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "<NULL>");
         if(optval) my_strncpy(cli_opt_rcfile, optval, S(cli_opt_rcfile));
 
     } else if( (type == LONG && !strcmp("png", opt)) ) {
