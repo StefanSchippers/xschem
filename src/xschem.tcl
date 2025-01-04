@@ -8880,6 +8880,8 @@ if {$text_replace_selection && $OS != "Windows"} {
 bind Menu <Button> {
    if { [%W cget -type] eq "menubar" && [info exists tk::Priv(menuActivated)]} {
      %W activate none
+   } else {
+     %W activate @%x,%y
    }
    tk::MenuButtonDown %W
 }
