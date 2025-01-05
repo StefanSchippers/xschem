@@ -1904,7 +1904,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
         xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
       } 
       xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
-      xschem save
+      xschem save fast
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
       xschem load $current  noundoreset nodraw
@@ -2083,7 +2083,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
 
     set done_print 1
     if {$type eq {subcircuit} && $all_hierarchy} {
-      xschem select instance $i fast
+      xschem select instance $i fast nodraw
       set descended [xschem descend 1 6]
       if {$descended} {
         incr level

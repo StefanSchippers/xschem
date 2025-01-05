@@ -3315,7 +3315,7 @@ Sch_pin_record *sort_schematic_pins(int *npins)
  *   0 : did not save
  *   1 : schematic saved
  */
-int save_schematic(const char *schname) /* 20171020 added return value */
+int save_schematic(const char *schname, int fast) /* 20171020 added return value */
 {
   FILE *fd;
   struct stat buf;
@@ -3372,7 +3372,8 @@ int save_schematic(const char *schname) /* 20171020 added return value */
    * xctx->prep_hash_wires=0;
    */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
-    set_modify(0);
+    if(fast) set_modify(2); /* only clear modified flag, no title/tab/sim buttons update */
+    else     set_modify(0);
   }
   tclvareval(xctx->top_path, ".menubar entryconfigure Simulate -background $simulate_bg", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
@@ -5067,7 +5068,7 @@ void descend_symbol(void)
     if(xctx->modified)
     {
       int ret;
-      ret = save(1);
+      ret = save(1, 1);
       /* if circuit is changed but not saved before descending
        * state will be inconsistent when returning, can not propagare hilights
        * save() return value:

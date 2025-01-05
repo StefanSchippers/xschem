@@ -914,7 +914,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       rebuild_selected_array();
       if(xctx->lastsel==0 ) {
-        save_schematic(xctx->sch[xctx->currsch]); /* sync data with disk file before editing file */
+        save_schematic(xctx->sch[xctx->currsch], 0); /* sync data with disk file before editing file */
         my_snprintf(name, S(name), "edit_file {%s}",
             abs_sym_path(xctx->sch[xctx->currsch], ""));
         tcleval(name);
@@ -2815,7 +2815,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
-        if(force || !has_x || !xctx->modified  || save(1) != -1 ) { /* save(1)==-1 --> user cancel */
+        if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
@@ -3049,7 +3049,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(has_x) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
                         "-message {do you want to make symbol view ?}");
       if(!has_x || strcmp(tclresult(), "ok")==0) {
-        save_schematic(xctx->sch[xctx->currsch]);
+        save_schematic(xctx->sch[xctx->currsch], 0);
         make_symbol();
       }
       Tcl_ResetResult(interp);
@@ -4590,16 +4590,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 's': /*----------------------------------------------*/
-    /* save
-     *   Save schematic if modified. Does not ask confirmation! */
+    /* save [fast]
+     *   Save schematic if modified. Does not ask confirmation!
+     *   if 'fast' is given it is passed to save_schematic() to avoid
+     *   updating window/tab/sim button states */
     if(!strcmp(argv[1], "save"))
     {
+      int fast = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       dbg(1, "scheduler(): saving: current schematic\n");
+      for(i = 2; i < argc; i++) {
+        if(!strcmp(argv[i], "fast")) fast |= 1;
+      }
+
       if(!strcmp(xctx->sch[xctx->currsch], "")) {   /* check if unnamed schematic, use saveas in this case... */
         saveas(NULL, SCHEMATIC);
       } else {
-        save(0);
+        save(0, fast);
       }
     }
 
@@ -4745,6 +4752,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * for all other objects 'id' is the position in the respective arrays
      * if 'clear' is specified does an unselect operation
      * if 'fast' is specified avoid sending information to infowindow and status bar
+     * if 'nodraw' is given on select instance do not draw selection
      * returns 1 if something selected, 0 otherwise */
     else if(!strcmp(argv[1], "select"))
     {
@@ -4766,7 +4774,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        int i;
        for(i = 4; i < argc; i++) {
          if(!strcmp(argv[i], "clear")) sel = 0;
-         if(!strcmp(argv[i], "fast")) fast = 1;
+         if(!strcmp(argv[i], "fast")) fast |= 1;
+         if(!strcmp(argv[i], "nodraw") && !strcmp(argv[2], "instance")) fast |= 2;
        }
       }
       if(!strcmp(argv[2], "instance") && argc > 3) {

@@ -536,8 +536,9 @@ const char *get_file_path(char *f)
  *  1 : file saved or not needed to save since no change
  * -1 : user cancel
  *  0 : file not saved due to errors or per user request
+ *  confirm: 
  */
-int save(int confirm)
+int save(int confirm, int fast)
 {
   struct stat buf;
   char *name = xctx->sch[xctx->currsch];
@@ -556,10 +557,10 @@ int save(int confirm)
     if(confirm) {
       tcleval("ask_save_optional");
       if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
-      else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch]);
+      else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch], fast);
       else return 0; /* user clicks "no" */
     } else {
-      return save_schematic(xctx->sch[xctx->currsch]);
+      return save_schematic(xctx->sch[xctx->currsch], fast);
     }
   }
   return 1; /* circuit not changed: always succeeed */
@@ -592,7 +593,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
 
     if(!res[0]) return;
     dbg(1, "saveas(): res = %s\n", res);
-    save_schematic(res);
+    save_schematic(res, 0);
     tclvareval("update_recent_file {", res,"}",  NULL);
     return;
 }
@@ -603,7 +604,7 @@ void ask_new_file(void)
 
     if(!has_x) return;
     if(xctx->modified) {
-      if(save(1) == -1 ) return; /*  user cancels save, so do nothing. */
+      if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
     my_snprintf(f, S(f),"%s", tclresult());
@@ -2231,7 +2232,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      my_strncpy(res, tclresult(), S(res));
      if(!res[0]) return 0;
      dbg(1, "descend_schematic(): saving: %s\n",res);
-     save_ok = save_schematic(res);
+     save_ok = save_schematic(res, 0);
      if(save_ok==0) return 0;
    }
    n = xctx->sel_array[0].n;
@@ -2248,7 +2249,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(xctx->modified) {
      int ret;
  
-     ret = save(1);
+     ret = save(1, 0);
      /* if circuit is changed but not saved before descending
       * state will be inconsistent when returning, can not propagare hilights
       * save() return value:
@@ -2402,10 +2403,10 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
   {
     if(confirm) {
       tcleval("ask_save_optional");
-      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch]);
+      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
       else if(!strcmp(tclresult(), "") ) return;
     } else {
-      save_ok = save_schematic(xctx->sch[xctx->currsch]);
+      save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
     }
   }
   if(save_ok==0) {
@@ -2458,7 +2459,7 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
 
 void clear_schematic(int cancel, int symbol)
 {
-      if(cancel == 1) cancel=save(1);
+      if(cancel == 1) cancel=save(1, 0);
       if(cancel != -1) { /* -1 means user cancel save request */
         char name[PATH_MAX];
         struct stat buf;

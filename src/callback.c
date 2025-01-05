@@ -2831,7 +2831,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
        saveas(NULL, SCHEMATIC);
      } else {
-       save(1);
+       save(1, 0);
      }
      break;
    }
@@ -2907,7 +2907,7 @@ int rstate; /* (reduced state, without ShiftMask) */
             "-message {do you want to make symbol view ?}");
     if(strcmp(tclresult(),"ok")==0)
     {
-     save_schematic(xctx->sch[xctx->currsch]);
+     save_schematic(xctx->sch[xctx->currsch], 0);
      make_symbol();
     }
     break;
