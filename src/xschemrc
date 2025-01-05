@@ -226,6 +226,12 @@
 #### default: 0
 # set infix_wire 1
 
+#### wires are drawn in free-form mode with this mode enabled (default).
+#### if set to 0, wires drawn on the schematic will no longer strictly
+#### follow orthogonal routes to connect two distinct points toegther.
+#### default: 1
+# set orthogonal_wiring 0
+
 #### if set to 1 automatically join/trim wires while editing
 #### this may slow down on rally big designs. Can be disabled via menu 
 #### default: 0

@@ -7521,7 +7521,7 @@ set tctx::global_list {
   PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
   add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
-  autotrim_wires infix_wire bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
+  autotrim_wires infix_wire orthogonal_wiring bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
   copy_cell crosshair_layer custom_label_prefix custom_token dark_colors dark_colorscheme
   dark_gui_colorscheme delay_flag  dim_bg dim_value disable_unique_names
@@ -7942,7 +7942,7 @@ proc build_widgets { {topwin {} } } {
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
   global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type
-  global disable_unique_names persistent_command autotrim_wires infix_wire en_hilight_conn_inst
+  global disable_unique_names persistent_command autotrim_wires infix_wire orthogonal_wiring en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   if { $dark_gui_colorscheme} {
     set selectcolor white
@@ -8067,6 +8067,8 @@ proc build_widgets { {topwin {} } } {
      -selectcolor $selectcolor  -accelerator Y 
   $topwin.menubar.option add checkbutton -label "Enable infix-wire" -variable infix_wire \
      -selectcolor $selectcolor
+  $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring mode" -variable orthogonal_wiring \
+     -selectcolor $selectcolor  -accelerator Shift+L
   $topwin.menubar.option add checkbutton -label "Unsel. partial sel. wires after stretch move" \
      -selectcolor $selectcolor -variable unselect_partial_sel_wires
 
@@ -8998,6 +9000,7 @@ set_ne persistent_command 0
 set_ne intuitive_interface 1
 set_ne autotrim_wires 0
 set_ne infix_wire 0
+set_ne orthogonal_wiring 1
 set_ne compare_sch 0
 set_ne disable_unique_names 0
 set_ne sym_txt 1
