@@ -11,6 +11,7 @@ install: FORCE
 
 uninstall: FORCE
 	$(SCCBOX) rm -f "$(XSHAREDIR)"/utile/*
+	$(SCCBOX) rm -f "$(XSHAREDIR)"/utile
 
 clean:
 

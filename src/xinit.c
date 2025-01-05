@@ -2285,6 +2285,7 @@ void tclmainloop(void)
 int Tcl_AppInit(Tcl_Interp *inter)
 {
  const char *tmp_ptr;
+ char *xschem_sharedir=NULL;
  char name[PATH_MAX]; /* overflow safe 20161122 */
  char tmp[2*PATH_MAX+100]; /* 20161122 overflow safe */
 #ifndef __unix__
@@ -2296,6 +2297,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  int running_in_src_dir;
  int fs;
 
+ char xschemtcl[PATH_MAX];
+ char systemlib[PATH_MAX];
+ char xschemexec[PATH_MAX];
 #ifdef __unix__
  const char* home_buff;
 #endif
@@ -2324,6 +2328,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  Tcl_CreateExitHandler(tclexit, 0);
 #ifdef __unix__
+ /* XSCHEM_SHAREDIR set in shell variable */
+ if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL && !stat(xschem_sharedir, &buf)) {
+   tclsetvar("XSCHEM_SHAREDIR", xschem_sharedir);
+ /* running in ./src/ directory */
+ } else if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
+    tclsetvar("XSCHEM_SHAREDIR",pwd_dir);
+ /* compile-time set XSCHEM_SHAREDIR */
+ } else /* if(!stat(XSCHEM_SHAREDIR, &buf)) */ {
+   tclsetvar("XSCHEM_SHAREDIR", XSCHEM_SHAREDIR);
+ }
+ /* if still not found rely on xschemrc for setting this needed path */
+ 
  my_snprintf(tmp, S(tmp),"regsub -all {~/} {%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
  tcleval(tmp);
  tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
@@ -2336,51 +2352,60 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("USER_CONF_DIR", user_conf_dir);
 
  /* test if running xschem in src/ dir (usually for testing) */
+ my_snprintf(xschemtcl, S(xschemtcl), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "xschem.tcl");
+ my_snprintf(systemlib, S(systemlib), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib");
+ my_snprintf(xschemexec, S(xschemexec), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "xschem");
  running_in_src_dir = 0;
- if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
+ if( !stat(xschemtcl, &buf) && !stat(systemlib, &buf) && !stat(xschemexec, &buf)) {
    running_in_src_dir = 1;
-   tclsetvar("XSCHEM_SHAREDIR",pwd_dir); /* for testing xschem builds in src dir*/
 
    /* set builtin library path if running in src/ */
    my_snprintf(tmp, S(tmp), 
       "set XSCHEM_LIBRARY_PATH %s/xschem_library", user_conf_dir);
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/devices", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/devices",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/examples", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/examples",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/ngspice", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/ngspice",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/logic", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/logic",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/xschem_simulator", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/xschem_simulator",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/generators", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/generators",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/inst_sch_select", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/inst_sch_select",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/binto7seg", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/binto7seg",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/pcb", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/pcb",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
-      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/rom8k", pwd_dir);
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/rom8k",
+       tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
- } else if( !stat(XSCHEM_SHAREDIR, &buf) ) {
-   tclsetvar("XSCHEM_SHAREDIR",XSCHEM_SHAREDIR);
-   /* ... else give up searching, may set later after loading xschemrc */
  }
  tclsetintvar("running_in_src_dir", running_in_src_dir);
-#else
+#else /* windows */
  char *up_hier=NULL, *win_xschem_library_path=NULL;
  #define WIN_XSCHEM_LIBRARY_PATH_NUM 11
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
@@ -2432,7 +2457,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
  my_free(_ALLOC_ID_, &win_xschem_library_path);
  my_free(_ALLOC_ID_, &up_hier);
- char *xschem_sharedir=NULL;
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {
      tclsetvar("XSCHEM_SHAREDIR", xschem_sharedir);
@@ -2478,7 +2502,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    }
  
  }
-
+ fprintf(errfp, "Using run time directory XSCHEM_SHAREDIR = %s\n", tclgetvar("XSCHEM_SHAREDIR"));
  /* Execute tcl script given on command line with --preinit, before sourcing xschemrc */
  if(cli_opt_preinit_command) {
    tcleval(cli_opt_preinit_command);
@@ -2547,6 +2571,17 @@ int Tcl_AppInit(Tcl_Interp *inter)
    }
  }
  /* END SOURCING xschemrc */
+
+
+ /* test again if running xschem in src/ dir after xschemrc settings */
+ my_snprintf(xschemtcl, S(xschemtcl), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "xschem.tcl");
+ my_snprintf(systemlib, S(systemlib), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib");
+ my_snprintf(xschemexec, S(xschemexec), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "xschem");
+ running_in_src_dir = 0;
+ if( !stat(xschemtcl, &buf) && !stat(systemlib, &buf) && !stat(xschemexec, &buf)) {
+   running_in_src_dir = 1;
+ }
+ tclsetintvar("running_in_src_dir", running_in_src_dir);
 
  if(!sel_file[0]) {
    my_snprintf(sel_file, S(sel_file), "%s/%s", user_conf_dir, ".selection.sch");
