@@ -102,6 +102,12 @@ foreach /local/n in /local/install_shares
 end
 
 print [@
+	$(SCCBOX) rm "$(XSHAREDIR)"/systemlib
+	$(SCCBOX) rm "$(XSHAREDIR)"/xschem_library
+	$(SCCBOX) rm "$(XSHAREDIR)"
+@]
+
+print [@
 
 FORCE:
 
