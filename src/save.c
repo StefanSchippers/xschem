@@ -3322,7 +3322,6 @@ int save_schematic(const char *schname) /* 20171020 added return value */
   xRect *rect;
   int rects;
   char msg[PATH_MAX + 100];
-  int same_name = 0;
 
   if(!schname || !strcmp(schname, "")) return 0;
 
@@ -3338,7 +3337,6 @@ int save_schematic(const char *schname) /* 20171020 added return value */
     set_modify(-1); /* set title to new filename */
   }
   else { /* user asks to save to same filename */
-    same_name = 1;
     if(!stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("ask_save_optional \"Schematic file: ", xctx->sch[xctx->currsch],
@@ -3374,8 +3372,7 @@ int save_schematic(const char *schname) /* 20171020 added return value */
    * xctx->prep_hash_wires=0;
    */
   if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
-     if(same_name) set_modify(2); /* clear only modified flag, do not set window title etc */
-     else set_modify(0);
+    set_modify(0);
   }
   tclvareval(xctx->top_path, ".menubar entryconfigure Simulate -background $simulate_bg", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
