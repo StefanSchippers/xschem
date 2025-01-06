@@ -85,16 +85,20 @@ static int waves_selected(int event, KeySym key, int state, int button)
 void redraw_w_a_l_r_p_rubbers(void)
 {
   if(xctx->ui_state & STARTWIRE) {
-    if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-    if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
     if(tclgetboolvar("orthogonal_wiring")) {
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
       int tmp_x2 = xctx->nl_x2 - xctx->nl_x1, tmp_y2 = xctx->nl_y2 - xctx->nl_y1;
-      if(tmp_x2*tmp_x2 > tmp_y2*tmp_y2) xctx->manhattan_lines = 1;
-      else xctx->manhattan_lines = 2;
-      new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+      if(tmp_x2*tmp_x2 > tmp_y2*tmp_y2){
+        tcleval("set constr_mv 1");
+        xctx->constr_mv = 1;
+      } else {
+        tcleval("set constr_mv 2");
+        xctx->constr_mv = 2;
+      }
     }
-    else new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+    if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+    if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+    new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
   }
   if(xctx->ui_state & STARTARC) {
     if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
@@ -3333,10 +3337,11 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='L' && rstate == 0) {                         /* toggle orthogonal routing */
     if(tclgetboolvar("orthogonal_wiring")){
       tclsetboolvar("orthogonal_wiring", 0);
+      tcleval("set constr_mv 0");
+      xctx->constr_mv = 0;
     } else {
       tclsetboolvar("orthogonal_wiring", 1);
     }
-    xctx->manhattan_lines = 0;
     redraw_w_a_l_r_p_rubbers();
     break;
    }

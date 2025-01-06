@@ -8067,7 +8067,7 @@ proc build_widgets { {topwin {} } } {
      -selectcolor $selectcolor  -accelerator Y 
   $topwin.menubar.option add checkbutton -label "Enable infix-wire" -variable infix_wire \
      -selectcolor $selectcolor
-  $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring mode" -variable orthogonal_wiring \
+  $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring" -variable orthogonal_wiring \
      -selectcolor $selectcolor  -accelerator Shift+L
   $topwin.menubar.option add checkbutton -label "Unsel. partial sel. wires after stretch move" \
      -selectcolor $selectcolor -variable unselect_partial_sel_wires
