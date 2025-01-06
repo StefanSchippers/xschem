@@ -97,13 +97,16 @@ int get_instance(const char *s)
 static void xschem_cmd_help(int argc, const char **argv)
 {
   char prog[PATH_MAX];
+  const char *xschem_sharedir=tclgetvar("XSCHEM_SHAREDIR");
+  #ifdef __unix__
+  int running_in_src_dir = tclgetintvar("running_in_src_dir");
+  #endif
   if( get_file_path("x-www-browser")[0] == '/' ) goto done;
   if( get_file_path("firefox")[0] == '/' ) goto done;
   if( get_file_path("chromium")[0] == '/' ) goto done;
   if( get_file_path("chrome")[0] == '/' ) goto done;
   if( get_file_path("xdg-open")[0] == '/' ) goto done;
   #ifndef __unix__
-  const char *xschem_sharedir=tclgetvar("XSCHEM_SHAREDIR");
   wchar_t app[MAX_PATH] = {0};
   wchar_t w_url[PATH_MAX];
   char url[PATH_MAX]="", url2[PATH_MAX]="";
@@ -123,8 +126,13 @@ static void xschem_cmd_help(int argc, const char **argv)
   done:
   my_strncpy(prog, tclresult(), S(prog));
   #ifdef __unix__
-  tclvareval("launcher {", "file://", XSCHEM_SHAREDIR,
-             "/../doc/xschem/xschem_man/developer_info.html#cmdref", "} ", prog, NULL);
+  if(running_in_src_dir) {
+    tclvareval("launcher {", "file://", xschem_sharedir,
+               "/../doc/xschem_man/developer_info.html#cmdref", "} ", prog, NULL);
+  } else {
+    tclvareval("launcher {", "file://", xschem_sharedir,
+               "/../doc/xschem/xschem_man/developer_info.html#cmdref", "} ", prog, NULL);
+  }
   #else
   my_snprintf(url2, S(url2), "file://%s#cmdref", url);
   MultiByteToWideChar(CP_ACP, 0, url2, -1, w_url, S(w_url));

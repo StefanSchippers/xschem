@@ -17,6 +17,7 @@ uninstall: FORCE
 	$(SCCBOX) rm -f "$(XDOCDIR)"/xschem_man/*
 	$(SCCBOX) rm -f "$(XDOCDIR)"/*
 	$(SCCBOX) rm -f "$(MANDIR)"/man1/xschem.1
+	$(SCCBOX) rm -f "$(XDOCDIR)"
 
 clean:
 

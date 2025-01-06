@@ -1768,9 +1768,9 @@ proc simconf_add {tool} {
 
 
 ############ cellview
-# this proc prints symbol bindings (default binding or "schematic" attr in symbol)
+# proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
-proc cellview_setlabels {w sym_sch default_sch sym_spice_sym_def} {
+proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
   global dark_gui_colorscheme
   if {$dark_gui_colorscheme} {
     set symfg SeaGreen1
@@ -1792,6 +1792,8 @@ proc cellview_setlabels {w sym_sch default_sch sym_spice_sym_def} {
       # ....
     } elseif {[$w get] eq $sym_sch} {
       $w configure -bg $symbg
+    } else {
+      puts "need to update:[$w get] --> $sym_sch"
     }
   }
 }
@@ -1813,8 +1815,8 @@ proc cellview {} {
   update
   raise .cv
   frame .cv.top
-  label .cv.top.sym -text {   SYMBOL} -width 20 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch -text SCHEMATIC -width 50 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
+  label .cv.top.sch -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.pad -text {      } -width 1 -bg grey60 -font $font
   pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
   pack .cv.top.pad -side left -fill x
@@ -1841,10 +1843,10 @@ proc cellview {} {
     if {$type eq {subcircuit}} {
       frame $sf.f$i
       pack $sf.f$i -side top -fill x
-      label  $sf.f$i.l -text $symbol -width 20 -anchor w -padx 4 -borderwidth 1 \
+      label  $sf.f$i.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -font $font
       # puts $sf.f$i.s
-      entry $sf.f$i.s -width 50 -borderwidth 1 -relief sunken -font $font
+      entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
       balloon $sf.f$i.s $abs_sch
       button $sf.f$i.b -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
              -command "
@@ -1859,9 +1861,9 @@ proc cellview {} {
         $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
       }
       bind $sf.f$i.s <KeyRelease> "
-        cellview_setlabels %W [list $sym_sch] [list $default_sch] [list $sym_spice_sym_def]
+        cellview_setlabels %W [list $symbol] [list $sym_sch] [list $default_sch] [list $sym_spice_sym_def]
       "
-      cellview_setlabels $sf.f$i.s $sym_sch $default_sch $sym_spice_sym_def
+      cellview_setlabels $sf.f$i.s $symbol $sym_sch $default_sch $sym_spice_sym_def
       pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
       pack $sf.f$i.b -side left
     }
@@ -1892,7 +1894,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
   # update schematic
   if {$parent_sch ne {}} {
     set current [xschem get current_name]
-    puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $sym_sch $inst_sch --> [$w get]"
+    # puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $sym_sch $inst_sch --> [$w get]"
     if { $inst_sch ne [$w get] } {
       puts "update attr"
       xschem load $parent_sch noundoreset nodraw
@@ -1904,7 +1906,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
       xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
       xschem save
       set inst_sch [$w get]
-      puts "inst_sch set to: $inst_sch"
+      # puts "inst_sch set to: $inst_sch"
       xschem load $current  noundoreset nodraw
   
       bind $w <KeyRelease> "
@@ -8884,7 +8886,7 @@ if {$text_replace_selection && $OS != "Windows"} {
 
 ## allow to unpost menu entries when clicking a posted menu
 
-if { [info tclversion] >= 8.6 } {
+if { [info exists has_x] && [info tclversion] >= 8.6 } {
   bind Menu <Button> {
      if { [%W cget -type] eq "menubar" && [info exists tk::Priv(menuActivated)]} {
        %W activate none

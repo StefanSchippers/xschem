@@ -44,14 +44,16 @@ install: FORCE
 	$(SCCBOX) install -f -d gschem_import/sym/*.sym "$(XDOCDIR)"/gschem_import/sym
 
 uninstall: FORCE
-	$(SCCBOX) rm -f "$(system_library_dir)"/* "$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
-                        "$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
-                        "$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/* "$(XDOCDIR)"/binto7seg/* \
-                        "$(XDOCDIR)"/rulz-r8c33/* "$(XDOCDIR)"/generators/* "$(XDOCDIR)"/inst_sch_select/* \
-                        "$(XDOCDIR)"/gschem_import/*.sym \
-                        "$(XDOCDIR)"/gschem_import/*.sch \
-                        "$(XDOCDIR)"/gschem_import/sym/*.sym \
-                        "$(XDOCDIR)"/gschem_import/sym
+	$(SCCBOX) rm -f "$(system_library_dir)"/* \
+			"$(system_library_dir)" \
+			"$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
+			"$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
+			"$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/* "$(XDOCDIR)"/binto7seg/* \
+			"$(XDOCDIR)"/rulz-r8c33/* "$(XDOCDIR)"/generators/* "$(XDOCDIR)"/inst_sch_select/* \
+			"$(XDOCDIR)"/gschem_import/*.sym \
+			"$(XDOCDIR)"/gschem_import/*.sch \
+			"$(XDOCDIR)"/gschem_import/sym/*.sym \
+			"$(XDOCDIR)"/gschem_import/sym
 clean:
 
 distclean:
