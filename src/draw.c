@@ -3136,6 +3136,37 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
   }
 }
 
+static void draw_hcursor(double active_cursory, double other_cursory, int cursor_color, Graph_ctx *gr)
+{   
+  double yy, pos = active_cursory;
+  double tx1, ty1, tx2, ty2, dtmp;
+  int tmp;
+  char tmpstr[100];
+  double txtsize = gr->txtsizey;
+  double th;
+  
+  if(gr->logy) pos = mylog10(pos);
+  yy = W_Y(pos);
+  if(yy >= gr->y1 && yy <= gr->y2) {
+    drawline(cursor_color, NOW, gr->rx1, yy, gr->rx2, yy, 1, NULL);
+    if(gr->unity != 1.0)
+       my_snprintf(tmpstr, S(tmpstr), " %.5g%c ", gr->unity * active_cursory , gr->unity_suffix);
+    else
+       my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(active_cursory));
+    text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 0, gr->rx1 + 5, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
+    th = (ty2 - ty1) / 2.; /* half text height */
+    ty1 -= th;
+    ty2 -= th;
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    draw_string(cursor_color, NOW, tmpstr, 0, 0, 0, 0, gr->rx1 + 5, yy - th, txtsize, txtsize);
+  }
+}
+
+static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
+{
+ /* <<<<< */
+}
+
 /* sweep variables on x-axis, node labels */
 static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int sweep_idx,
         int flags, const char *ntok, const char *stok, const char *bus_msb, Graph_ctx *gr)
@@ -3654,12 +3685,14 @@ int find_closest_wave(int i, Graph_ctx *gr)
 
 
 /* flags:
- * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
- *    If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
- *    This makes drawing faster and removes a 'tearing' effect when moving around.
- * 2: draw x-cursor1
- * 4: draw x-cursor2
- * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
+ *  1: do final XCopyArea (copy 2nd buffer areas to screen) 
+ *     If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
+ *     This makes drawing faster and removes a 'tearing' effect when moving around.
+ *  2: draw x-cursor1
+ *  4: draw x-cursor2
+ * 128: draw y-cursor1
+ * 256: draw y-cursor2
+ *  8: all drawing, if not set do only XCopyArea / x-cursor if specified
  * ct is a pointer used in windows for cairo
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
@@ -4036,17 +4069,17 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
    */
   if(flags & 8) {
     /* cursor1 */
-    if((flags & 2)) {
-      draw_cursor(cursor1, cursor2, 1, gr);
-    }
+    if((flags & 2)) draw_cursor(cursor1, cursor2, 1, gr);
     /* cursor2 */
-    if((flags & 4)) {
-      draw_cursor(cursor2, cursor1, 3, gr);
-    }
+    if((flags & 4)) draw_cursor(cursor2, cursor1, 3, gr);
     /* difference between cursors */
-    if((flags & 2) && (flags & 4)) {
-      draw_cursor_difference(cursor1, cursor2, gr);
-    }
+    if((flags & 2) && (flags & 4)) draw_cursor_difference(cursor1, cursor2, gr);
+    /* hcursor1 */
+    if(flags & 128) draw_hcursor(9.012345, 15.0, 15, gr);
+    /* hcursor2 */
+    if(flags & 256) draw_hcursor(15.0, 9.012345, 16, gr);
+    /* difference between hcursors */
+    if((flags & 128) && (flags & 256)) draw_hcursor_difference(9.012345, 15.00, gr);
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {

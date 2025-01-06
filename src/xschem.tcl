@@ -1785,15 +1785,16 @@ proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
   $w configure -bg [option get . background {}]
   if { $sym_spice_sym_def ne {}} {
     $w configure -fg $symfg
-  } elseif { ![file exists [abs_sym_path [$w get]]] } {
-    $w configure -bg $missingbg
   } else {
     if {[$w get] eq $default_sch} {
-      # ....
+        puts "need to clear schematic attr in symbol"
     } elseif {[$w get] eq $sym_sch} {
       $w configure -bg $symbg
     } else {
       puts "need to update:[$w get] --> $sym_sch"
+    }
+    if { ![file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg $missingbg
     }
   }
 }

@@ -346,9 +346,13 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
  *  2: draw x-cursor1
  *  4: draw x-cursor2
  *  8: dnu, reserved, used in draw_graphs()
- * 16: move cursor1
- * 32: move cursor2
+ * 16: move x-cursor1
+ * 32: move x-cursor2
  * 64: show measurement tooltip
+ * 128: draw y-cursor1 (hcursor)
+ * 256: draw y-cursor2 (hcursor)
+ * 512: move y-cursor1
+ * 1024: move y-cursor2
  */
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
