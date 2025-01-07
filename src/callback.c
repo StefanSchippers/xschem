@@ -46,7 +46,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   else if(event == ButtonPress && button == Button2) skip = 1;
   else if(event == ButtonPress && button == Button1 && (state & ShiftMask) ) skip = 1;
   else if(event == ButtonRelease && button == Button2) skip = 1;
-  else if(event == KeyPress && (state & ShiftMask)) skip = 1;
+  /* else if(event == KeyPress && (state & ShiftMask)) skip = 1; */
   else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
@@ -68,6 +68,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
        is_inside = 1;
        if(draw_xhair) draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
+       break;
     }
   }
   if(!is_inside) {
@@ -366,7 +367,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
-  int access_cond = !graph_use_ctrl_key || ( (state & ControlMask) && !(state & ShiftMask) );
+  int access_cond = !graph_use_ctrl_key || (state & ControlMask);
 
   if(event != -3 && !xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
@@ -392,9 +393,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       dbg(1, "mouse inside: %d\n", i);
       setup_graph_data(i, 0, gr);
 
+      /* move hcursor1 */
+      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 512 )) {
+        double c;
+        
+        c = G_Y(xctx->mousey);
+        if(gr->logy) c = pow(10, c);
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(c)));
+      }   
+
+      /* move hcursor2 */
+      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 1024 )) {
+        double c;
+      
+        c = G_Y(xctx->mousey);
+        if(gr->logy) c = pow(10, c);
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(c)));
+      }   
+
       /* move cursor1 */
       /* set cursor position from master graph x-axis */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
         double c;
 
         c = G_X(xctx->mousex);
@@ -448,7 +467,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       zoom_m = (xctx->mousex  - gr->x1) / gr->w;
       if(event == ButtonPress && button == Button1) {
         /* dragging cursors when mouse is very close */
-        if(xctx->graph_flags & 2) {
+        if(xctx->graph_flags & 128) { /* hcursor1 */
+          double cursor;
+          cursor = gr->hcursor1_y;
+          if(gr->logy ) { 
+            cursor = mylog10(cursor);
+          } 
+          if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            xctx->graph_flags |= 512; /* Start move hcursor1 */
+          }
+        } 
+        if(xctx->graph_flags & 256) { /* hcursor2 */
+          double cursor;
+          cursor = gr->hcursor2_y;
+          if(gr->logy ) {
+            cursor = mylog10(cursor);
+          }
+          if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            xctx->graph_flags |= 1024; /* Start move hcursor2 */
+          }
+        }
+        if(xctx->graph_flags & 2) { /* cursor1 */
           double cursor1;
           if(r->flags & 4) { /* private_cursor */
             const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
@@ -467,7 +506,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             xctx->graph_flags |= 16; /* Start move cursor1 */
           }
         }
-        if(xctx->graph_flags & 4) {
+        if(xctx->graph_flags & 4) { /* cursor2 */
           double cursor2;
           if(r->flags & 4) { /* private_cursor */
             const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
@@ -518,7 +557,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           redraw_all_at_end = 1;
         }
-
+        /* Numerically set cursor position */
         if(xctx->graph_flags & 4) {
           double cursor2;
           if(r->flags & 4) { /* private_cursor */
@@ -678,7 +717,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   /* check if user clicked on a wave label -> draw wave in bold */
   if(event == ButtonPress && button == Button3 &&
            edit_wave_attributes(2, i, gr)) {
-    draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in graph box */
+    draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
     return 0;
   }
   /* save mouse position when doing pan operations */
@@ -800,7 +839,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     dbg(1, "%g %g %g %g - %d %d\n", gr->gx1, gr->gy1, gr->gx2, gr->gy2, gr->divx, gr->divy);
     if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
       /* move cursor1 */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16)) {
+        need_redraw = 1;
+      }
+      /* move hcursor1 or hcursor2 */
+      else if(event == MotionNotify && i == xctx->graph_master && 
+        (state & Button1Mask) && (xctx->graph_flags & (512 | 1024) )) {
         need_redraw = 1;
       }
       /* move cursor2 */
@@ -811,7 +855,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         else  need_redraw = 1;
       }
       else /* drag waves with mouse */
-      if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
+      if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom && 
+        !(xctx->graph_flags & (16 | 32 | 512 | 1024))) {
         double delta;
         if(xctx->graph_left) {
           if(i == xctx->graph_master) {
@@ -856,6 +901,36 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
+      else if(event == ButtonPress && button == Button3) {
+        /* Numerically set hcursor position */
+        if(xctx->graph_flags & 128) {
+          double cursor;
+          cursor = gr->hcursor1_y;
+          if(gr->logy ) {
+            cursor = mylog10(cursor);
+          }
+          if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+            cursor = atof_spice(tclresult());
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
+          }
+          need_redraw = 1;
+        }
+        /* Numerically set hcursor position */
+        if(xctx->graph_flags & 256) {
+          double cursor;
+          cursor = gr->hcursor2_y;
+          if(gr->logy ) {
+            cursor = mylog10(cursor);
+          }
+          if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+            cursor = atof_spice(tclresult());
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
+          }
+          need_redraw = 1;
+        }
+      }
       else if((button == Button5 && !(state & ShiftMask))) {
         double delta;
         if(xctx->graph_left) {
@@ -888,6 +963,30 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
+        }
+      }
+      /* y hcursor1 toggle */
+      else if(key == 'A' && access_cond && i == xctx->graph_master) {
+        xctx->graph_flags ^= 128;
+        need_redraw = 1;
+        if(xctx->graph_flags & 128) {
+          double c = G_Y(xctx->mousey);
+          if(gr->logy) c = pow(10, c);
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(c)));
+        } else {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", NULL));
+        }
+      }
+      /* y hcursor2 toggle */
+      else if(key == 'B' && access_cond && i == xctx->graph_master) {
+        xctx->graph_flags ^= 256;
+        need_redraw = 1;
+        if(xctx->graph_flags & 256) {
+          double c = G_Y(xctx->mousey);
+          if(gr->logy) c = pow(10, c);
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(c)));
+        } else {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", NULL));
         }
       }
       else if(key == 't' && access_cond ) {
@@ -1161,7 +1260,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     else if( event == ButtonRelease) { 
       if(button != Button3) {
         xctx->ui_state &= ~GRAPHPAN;
-        xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
+        xctx->graph_flags &= ~(16 | 32 | 512 | 1024); /* clear move cursor flags */
       }
       /* zoom area by mouse drag */
       else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && 
@@ -1191,7 +1290,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     } /* else if( event == ButtonRelease) */
     if(need_redraw || need_all_redraw) {
       setup_graph_data(i, 0, gr);
-      draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in each graph box */
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), gr, NULL); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
 
@@ -2699,17 +2798,27 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key==XK_Right && state == ControlMask) {
      int save = xctx->semaphore;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(xctx->semaphore >= 2) break;
      xctx->semaphore = 0;
      tcleval("next_tab");
      xctx->semaphore = save;
+     break;
    }
    if(key==XK_Left && state == ControlMask) {
      int save = xctx->semaphore;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(xctx->semaphore >= 2) break;
      xctx->semaphore = 0;
      tcleval("prev_tab");
      xctx->semaphore = save;
+     break;
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
@@ -3589,20 +3698,32 @@ int rstate; /* (reduced state, without ShiftMask) */
 
     break;
    }
+   if(key=='A' && rstate == ControlMask) /* only for graph (toggle hcursor1 if graph_use_ctrl_key set) */
+   {
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
+     break;
+   }
    if(key=='A' && rstate == 0)                             /* toggle show netlist */
    {
-    int net_s;
-    net_s = tclgetboolvar("netlist_show");
-    net_s = !net_s;
-    if(net_s) {
-        tcleval("alert_ { enabling show netlist window} {}");
-        tclsetvar("netlist_show","1");
-    }
-    else {
-        tcleval("alert_ { disabling show netlist window } {}");
-        tclsetvar("netlist_show","0");
-    }
-    break;
+     int net_s;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
+     net_s = tclgetboolvar("netlist_show");
+     net_s = !net_s;
+     if(net_s) {
+       tcleval("alert_ { enabling show netlist window} {}");
+       tclsetvar("netlist_show","1");
+     }
+     else {
+       tcleval("alert_ { disabling show netlist window } {}");
+       tclsetvar("netlist_show","0");
+     }
+     break;
    }
    if(key=='>') {
      if(xctx->semaphore >= 2) break;
@@ -3628,8 +3749,20 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
+   if(key=='B' && rstate == ControlMask) /* only for graph (toggle hcursor2 if graph_use_ctrl_key set) */
+   { 
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     } 
+     break;
+   }
    if(key=='B' && rstate == 0)    /* edit schematic header/license */
    {
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      tcleval("update_schematic_header");
    }
    if(key=='b' && rstate==0)                     /* merge schematic */

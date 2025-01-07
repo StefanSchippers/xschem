@@ -877,14 +877,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int i = atoi(argv[2]);
+        setup_graph_data(i, 0,  &xctx->graph_struct);
         if(argc > 3) {
           flags = atoi(argv[3]);
         } else {
           /* 2: draw cursor 1
-           * 4: draw cursor 2 */
-          flags = 1 + 8 + (xctx->graph_flags & (2 + 4));
+           * 4: draw cursor 2
+           * 128: draw hcursor 1
+           * 256: draw hcursor 2 */
+          flags = 1 + 8 + (xctx->graph_flags & (2 + 4 + 128 + 256));
         }
-        setup_graph_data(i, 0,  &xctx->graph_struct);
         draw_graph(i, flags, &xctx->graph_struct, NULL);
       }
       Tcl_ResetResult(interp);

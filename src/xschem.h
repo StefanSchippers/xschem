@@ -888,6 +888,7 @@ typedef struct {
   int logx, logy;
   int rainbow; /* draw multiple datasets with incrementing colors */
   double linewidth_mult; /* multiply factor for waveforms line width */
+  double hcursor1_y, hcursor2_y; /* hcursor positions */
 } Graph_ctx;
 
 typedef struct {
