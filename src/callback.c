@@ -52,7 +52,9 @@ static int waves_selected(int event, KeySym key, int state, int button)
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
+
     check =
+      (xctx->ui_state & GRAPHPAN) ||
       (event != -3 &&
          (
            POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
@@ -64,7 +66,8 @@ static int waves_selected(int event, KeySym key, int state, int button)
         (POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
          POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10))
       );
-    if( (xctx->ui_state & GRAPHPAN) || check) {
+
+    if(check) {
        is_inside = 1;
        if(draw_xhair) draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
@@ -389,10 +392,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(!(r->flags & 1) ) continue;
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-    if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
-      dbg(1, "mouse inside: %d\n", i);
+    if( (xctx->ui_state & GRAPHPAN) || POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
+      dbg(1, "mouse inside: %d mousex=%g\n", i, xctx->mousex);
       setup_graph_data(i, 0, gr);
-
       /* move hcursor1 */
       if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 512 )) {
         double c;
@@ -1302,7 +1304,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   /* update saved mouse position after processing all graphs */
   if(save_mouse_at_end) {
     if( fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->master_cx * gr->master_gw) * delta_threshold) {
-      dbg(1, "save mose pos\n");
+      dbg(1, "save mouse pos\n");
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
     }
