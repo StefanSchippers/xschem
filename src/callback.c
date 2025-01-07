@@ -389,11 +389,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_font_face_destroy(xctx->cairo_font);
   #endif
   gr = &xctx->graph_struct;
-  for(i=0; i < xctx->rects[GRIDLAYER]; ++i) {
-    if(i != xctx->graph_master) continue;
-    r = &xctx->rect[GRIDLAYER][i];
-    /* process only graph boxes */
-    if(!(r->flags & 1) ) continue;
+  if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) {
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     dbg(1, "mouse inside: %d mousex=%g\n", i, xctx->mousex);
@@ -452,7 +448,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     gr->master_gx2 = gr->gx2;
     gr->master_gw = gr->gw;
     gr->master_cx = gr->cx;
-    if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
+    if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
     if(xctx->mousey_snap < W_Y(gr->gy2)) {
       xctx->graph_top = 1;
     } else {
@@ -704,17 +700,17 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(d[0]) {
           track_dset = atoi(d);
         } else {
-          track_dset = -1;
+          track_dset = -1; /* all datasets */
         }
         if(track_dset < 0) {
           track_dset = find_closest_wave(i, gr);
         } else {
-          track_dset = -1;
+          track_dset = -1; /* all datasets */
         }
       }
     } /* key == 't' */
-    break;
-  } /* for(i=0; i <  xctx->rects[GRIDLAYER]; ++i) */
+  } /* if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) */
+  finish:
   dbg(1, "out of 1st loop: i=%d\n", i);
 
   /* check if user clicked on a wave label -> draw wave in bold */
@@ -789,7 +785,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   }
 
 
-  /* second loop: after having determined the master graph do the others */
+  /* loop: after having operated on the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
@@ -993,7 +989,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
       else if(key == 't' && access_cond ) {
-        if(track_dset != -2) {
+        if(track_dset != -2) { /* -2 means no dataset selection ('t' key) was started */
           /* 
           const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
           */
