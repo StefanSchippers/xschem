@@ -6571,7 +6571,7 @@ proc swap_compare_schematics {} {
 }
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   global wm_fix retval
-  set retval {}
+  set retval $preset
   if { [winfo exists .dialog] } {return}
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
