@@ -400,8 +400,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) {
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-    dbg(1, "mouse inside: %d mousex=%g\n", i, xctx->mousex);
     setup_graph_data(i, 0, gr);
+
+    gr->master_gx1 = gr->gx1;
+    gr->master_gx2 = gr->gx2;
+    gr->master_gw = gr->gw;
+    gr->master_cx = gr->cx;
     /* move hcursor1 */
     if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 512 )) {
       double c;
@@ -457,10 +461,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         need_all_redraw = 1;
       }
     }
-    gr->master_gx1 = gr->gx1;
-    gr->master_gx2 = gr->gx2;
-    gr->master_gw = gr->gw;
-    gr->master_cx = gr->cx;
     if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
     if(xctx->mousey_snap < W_Y(gr->gy2)) {
       xctx->graph_top = 1;
