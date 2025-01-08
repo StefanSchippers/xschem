@@ -729,10 +729,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   }
   /* save mouse position when doing pan operations */
   else if(
-      (
-        (event == ButtonPress && (button == Button1 || button == Button3)) ||
-        (event == MotionNotify && (state & (Button1Mask | Button3Mask)))
-      ) &&
+      ( event == ButtonPress && (button == Button1 || button == Button3)) &&
       !(xctx->ui_state & GRAPHPAN) && 
       !xctx->graph_top /* && !xctx->graph_bottom */
     ) {
