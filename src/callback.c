@@ -384,9 +384,10 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   xRect *r = NULL;
   int access_cond = !graph_use_ctrl_key || (state & ControlMask);
 
+  dbg(0, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   if(event != -3 && !xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
-  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
+  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -905,12 +906,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         /* Numerically set hcursor position */
         if(xctx->graph_flags & 128) {
           double cursor;
-          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
           cursor = gr->hcursor1_y;
           if(gr->logy ) {
             cursor = mylog10(cursor);
           }
           if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
             tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
             cursor = atof_spice(tclresult());
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
@@ -920,12 +921,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         /* Numerically set hcursor position */
         if(xctx->graph_flags & 256) {
           double cursor;
-          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
           cursor = gr->hcursor2_y;
           if(gr->logy ) {
             cursor = mylog10(cursor);
           }
           if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+            xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
             tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
             cursor = atof_spice(tclresult());
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
