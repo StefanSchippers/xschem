@@ -4803,7 +4803,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1) {
         setup_graph_data(i, 0, &xctx->graph_struct);
-        draw_graph(i, 8, &xctx->graph_struct, (void *)ct);
+        draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
       }
     }
 #endif
