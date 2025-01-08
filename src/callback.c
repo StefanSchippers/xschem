@@ -403,6 +403,47 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     setup_graph_data(i, 0, gr);
 
+    /* check if user clicked on a wave label -> draw wave in bold */
+    if(event == ButtonPress && button == Button3 &&
+             edit_wave_attributes(2, i, gr)) {
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
+      return 0;
+    }
+
+    /* destroy / show measurement widget */
+    if(xctx->graph_flags & 64) {
+      char sx[100], sy[100];
+      double xval, yval;
+      if(gr->digital) { 
+        double deltag = gr->gy2 - gr->gy1;
+        double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+        double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+        double c = s1 * deltag;
+        deltag = deltag * s1 / s2;
+        yval=(DG_Y(xctx->mousey) - c) / s2;
+        yval=fmod(yval, deltag ) +  gr->gy1;
+        if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
+      } else {
+        yval = G_Y(xctx->mousey);
+      }
+
+      xval = G_X(xctx->mousex);
+      if(gr->logx) xval = pow(10, xval);
+      if(gr->logy) yval = pow(10, yval);
+      if(gr->unitx != 1.0) 
+        my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
+      else
+        my_strncpy(sx, dtoa_eng(xval), S(sx));
+
+      if(gr->unitx != 1.0)
+        my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
+      else
+        my_strncpy(sy, dtoa_eng(yval), S(sy));
+  
+      tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
+      tcleval("graph_show_measure");
+    } /* if(xctx->graph_flags & 64) */
+
     gr->master_gx1 = gr->gx1;
     gr->master_gx2 = gr->gx2;
     gr->master_gw = gr->gw;
@@ -416,7 +457,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(c)));
       need_redraw_master = 1;
     }   
-
     /* move hcursor2 */
     else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 1024 )) {
       double c;
@@ -426,7 +466,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(c)));
       need_redraw_master = 1;
     }   
-
     /* move cursor1 */
     /* set cursor position from master graph x-axis */
     else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
@@ -721,13 +760,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
     } /* key == 't' */
   } /* if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) */
-
-  /* check if user clicked on a wave label -> draw wave in bold */
-  if(event == ButtonPress && button == Button3 &&
-           edit_wave_attributes(2, i, gr)) {
-    draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
-    return 0;
-  }
   /* save mouse position when doing pan operations */
   else if(
       ( event == ButtonPress && (button == Button1 || button == Button3)) &&
@@ -800,45 +832,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     setup_graph_data(i, 1, gr); /* skip flag set, no reload x1 and x2 fields */
     if(gr->dataset >= 0 /* && gr->dataset < xctx->raw->datasets */) dataset =gr->dataset;
     else dataset = -1;
-    /* destroy / show measurement widget */
-    if(i == xctx->graph_master) {
-      if(xctx->graph_flags & 64) {
-        if( POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2, gr->y2)) {
-          char sx[100], sy[100];
-          double xval, yval;
-          if(gr->digital) { 
-            double deltag = gr->gy2 - gr->gy1;
-            double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-            double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-            double c = s1 * deltag;
-            deltag = deltag * s1 / s2;
-            yval=(DG_Y(xctx->mousey) - c) / s2;
-            yval=fmod(yval, deltag ) +  gr->gy1;
-            if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
-          } else {
-            yval = G_Y(xctx->mousey);
-          }
-
-          xval = G_X(xctx->mousex);
-          if(gr->logx) xval = pow(10, xval);
-          if(gr->logy) yval = pow(10, yval);
-          if(gr->unitx != 1.0) 
-            my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
-          else
-            my_strncpy(sx, dtoa_eng(xval), S(sx));
-
-          if(gr->unitx != 1.0)
-            my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
-          else
-            my_strncpy(sy, dtoa_eng(yval), S(sy));
-  
-          tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
-          tcleval("graph_show_measure");
-        } else {
-          tcleval("graph_show_measure stop");
-        }
-      } /* if(xctx->graph_flags & 64) */
-    } /* if(i == xctx->graph_master) */
     dbg(1, "%g %g %g %g - %d %d\n", gr->gx1, gr->gy1, gr->gx2, gr->gy2, gr->divx, gr->divy);
 
 
