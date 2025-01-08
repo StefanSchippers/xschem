@@ -282,6 +282,10 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       first = -1;
       prev_prev_x = prev_x = 0;
       last = ofs;
+
+      /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+      if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+
       for(p = ofs ; p < ofs_end; p++) {
         xx = gv[p];
         wrap = ( cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
@@ -295,13 +299,13 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
             if(p == first) {
-              if(xx == cursor2) {goto done;}
+              if(xx == cursor2) {goto found;}
               s = XSIGN0(xx - cursor2);
               dbg(1, "s=%d\n", s);
             } else {
               int ss =  XSIGN0(xx -  cursor2);
               dbg(1, "s=%d, ss=%d\n", s, ss);
-              if(ss != s) {goto done;}
+              if(ss != s) {goto found;}
             }
             last = p;
           }
@@ -311,10 +315,13 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         prev_x = xx;
       } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
       /* offset pointing to next dataset */
+
+      done:
+
       ofs = ofs_end;
       sweepvar_wrap++;
     } /* for(dset...) */
-    done:
+    found:
     if(first != -1) {
       if(p > last) {
         double sweep0, sweep1;

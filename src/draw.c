@@ -2514,6 +2514,9 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             int cnt=0, wrap;
             register SPICE_DATA *gv = raw->values[sweep_idx];
             ofs_end = ofs + raw->npoints[dset];
+
+            /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+            if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
             for(p = ofs ; p < ofs_end; p++) {
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
@@ -2539,6 +2542,9 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                 ++cnt;
               }
             } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
+  
+            done:
+
             /* offset pointing to next dataset */
             ofs = ofs_end;
             sweepvar_wrap++;
@@ -3528,6 +3534,9 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     ofs_end = ofs + raw->npoints[dset];
     first = -1;
     last = ofs; 
+
+    /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+    if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
     for(p = ofs ; p < ofs_end; p++) {
       if(gr->logx) 
         xx = mylog10(gv[p]);
@@ -3560,6 +3569,9 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
       }
     }
+ 
+    done:
+
     /* offset pointing to next dataset */
     ofs = ofs_end;
     sweepvar_wrap++;
@@ -3984,6 +3996,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_x = 0;
           last = ofs; 
+
+          /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+          if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+
           for(p = ofs ; p < ofs_end; p++) {
             double xxprevious, xxfollowing;
 
@@ -4059,6 +4075,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             } /* if(xx >= start && xx <= end) */
             prev_x = xx;
           } /* for(p = ofs ; p < ofs + xctx->raw->npoints[dset]; p++) */
+
+
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               /* plot graph. Bus bundles are not plotted if graph is not digital.*/
@@ -4075,6 +4093,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               }
             }
           }
+
+          done:
+
           /* offset pointing to next dataset */
           ofs = ofs_end;
           sweepvar_wrap++;
