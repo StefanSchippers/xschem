@@ -3739,6 +3739,15 @@ const char *translate(int inst, const char* s)
     result_pos+=tmp;
    } else if(strcmp(token,"@path")==0) {
     const char *path = xctx->sch_path[xctx->currsch] + 1;
+    int start_level = sch_waves_loaded(), skip = 0;
+    if(start_level == -1) start_level = 0;
+
+    /* skip path components that are above the level where raw file was loaded */
+    while(*path && skip < start_level) {
+      if(*path == '.') skip++;
+      ++path;
+    }
+
     tmp=strlen(path);
     STR_ALLOC(&result, tmp + result_pos, &size);
     memcpy(result+result_pos, path, tmp+1);
@@ -4367,11 +4376,13 @@ const char *translate2(Lcc *lcc, int level, char* s)
       }
       else if(strcmp(token,"@path")==0) {
         char *path = NULL;
+        here(level);
         my_strdup2(_ALLOC_ID_, &path, "@path@name\\.");
         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
           int i;
           for(i = 1; i <level; ++i) {
             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
+            dbg(0, "adding %s to %s\n", instname, path);
             my_strcat(_ALLOC_ID_, &path, instname);
             my_strcat(_ALLOC_ID_, &path, ".");
           }
