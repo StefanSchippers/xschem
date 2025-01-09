@@ -888,6 +888,7 @@ typedef struct {
   int logx, logy;
   int rainbow; /* draw multiple datasets with incrementing colors */
   double linewidth_mult; /* multiply factor for waveforms line width */
+  double hcursor1_y, hcursor2_y; /* hcursor positions */
 } Graph_ctx;
 
 typedef struct {
@@ -1310,7 +1311,7 @@ extern void new_xschem_process(const char *cell, int symbol);
 extern void ask_new_file(void);
 extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
-extern int save(int confirm);
+extern int save(int confirm, int fast);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
 extern Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int what) ;
 /* wrapper function to hash highlighted instances, avoid clash with net names */
@@ -1496,7 +1497,7 @@ extern int sym_vs_sch_pins(int all);
 extern char *get_generator_command(const char *str);
 extern int match_symbol(const char name[]);
 extern Sch_pin_record *sort_schematic_pins(int *npins);
-extern int save_schematic(const char *); /*  20171020 added return value */
+extern int save_schematic(const char *, int fast); /*  20171020 added return value */
 extern void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym);
 extern void push_undo(void);
 extern void pop_undo(int redo, int set_modify_status);

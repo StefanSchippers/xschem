@@ -53,10 +53,12 @@ color="8 6"
 
 linewidth_mult=1.0
 hilight_wave=-1
-dataset=-1
+dataset=188
 rawfile=$netlist_dir/autozero_comp.raw
 sim_type=tran
-rainbow=0}
+rainbow=0
+hcursor1_y=0.13350312
+hcursor2_y=0.58853305}
 B 2 270 -1160 680 -1030 {flags=graph,unlocked
 y1 = 0.647319
 y2 = 0.652563
@@ -135,6 +137,27 @@ saout
 sweep="freq0 freq1 freq0"
 mode=HistoH
 xlabmag=2.0}
+B 2 270 -1610 680 -1450 {flags=graph,unlocked
+y1 = 0
+y2 = 0.9
+divy = 5
+x1=1.9099218e-07
+x2=3.4920522e-07
+divx=5
+subdivx=4
+unitx=n
+node="zero0
+zero1
+zero2"
+color="12 4 7"
+
+linewidth_mult=0.1
+hilight_wave=-1
+
+rawfile=$netlist_dir/autozero_comp.raw
+sim_type=tran
+rainbow=0
+dataset=235}
 T {CAL} 140 -180 0 1 0.4 0.4 {}
 T {EN} 140 -130 0 1 0.4 0.4 {}
 T {CALIBRATION

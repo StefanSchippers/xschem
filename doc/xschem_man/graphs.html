@@ -66,9 +66,6 @@ p{padding: 15px  30px 10px;}
   <kbd>Waves-&gt;Op | Ac | Dc | Tran | Tran | Noise | Sp </kbd>. This command loads  the user selected
   .raw file produced by a ngspice/Xyce simulation.
  </p>
- <p class="important">
-   Ensure the <kbd>circuit.raw</kbd> is saved in binary format (no <kbd>set filetype=ascii</kbd> in your testbench)
- </p>
  <p>
   The raw file is usually located in the simulation/netlisting directory 
   <kbd>Simulation -&gt;set netlist dir</kbd>.<br>
@@ -80,6 +77,17 @@ p{padding: 15px  30px 10px;}
   Then, select a node or a net label, press 'Alt-G', the net will be added to the graph. Here after a
   list of commands you can perform in a graph to modify the viewport. These commands are active when
   the mouse is Inside the graph (you will notice the mouse pointer changing from an arrow to a <kbd>+</kbd>).
+ </p>
+ <p class="important">
+  if <kbd>set graph_use_ctrl_key 1</kbd> is set in the <kbd>xschemrc</kbd> file all bind keys shown
+  below will need the <kbd>Control</kbd> key pressed to operate on the graphs. This setting can be used
+  to make it more explicit when the user wants to operate on graphs. Without the <kbd>Control</kbd>
+  key pressed the usual functions on schematic are performed instead of graph functions.<br>
+  Example: the key <kbd>a</kbd> will create a symbol if used in a schematic while it shows a cursor 
+  if done when the mouse pointer is inside a graph. With the <kbd>set graph_use_ctrl_key 1</kbd> option
+  you will need to press <kbd>Control-a</kbd> with the mouse pointer inside a graph to show a cursor.
+ </p>
+ <p>
   if the mouse is outside the graph the usual Xschem functions will be available to operate on schematics:
  </p>
  <ul>
@@ -87,13 +95,14 @@ p{padding: 15px  30px 10px;}
   <li>Pressing <kbd>f</kbd> with the mouse on the left of the Y axis will do a full Y-axis zoom.</li>
   <li>Pressing <kbd>Left/Right</kbd> or <kbd>Up/Down</kbd> arrow keys while the mouse is inside a graph will
       move the waveforms to the left/right or zoom in/zoom out respectively.</li>
-  <li>Pressing <kbd>Left/Right</kbd> or <kbd>Up/Down</kbd> arrow keys while the mouse is on the left of the Y-axis
-      will move the waveforms or zoom in/zoom out in the Y direction respectively.</li>
+  <li>Pressing <kbd>Left/Right</kbd> arrow keys while the mouse is on the left of the Y-axis
+      will zoom in/zoom out in the Y direction.</li>
   <li>Pressing the <kbd>left</kbd> mouse button while the pointer is in the center of the graph
       will move the waves left or right following the pointer X movement.</li>
   <li>Pressing the <kbd>left</kbd> mouse button while the pointer is on the left of the Y-axis
       will move the waves high or low following the pointer Y movement.</li>
-  <li> Doing the above with the <kbd>Shift</kbd> key pressed will zoom in/out instead of moving.</li>
+  <li> pressing <kbd>A</kbd> and/or <kbd>B</kbd> will show a horizontal cursor. 
+       The difference between the <kbd>A</kbd> and the <kbd>B</kbd> cursor is shown.</li>
   <li> pressing <kbd>a</kbd> and/or <kbd>b</kbd> will show a vertical cursor. 
        The sweep variable difference between the <kbd>a</kbd> and the <kbd>b</kbd> cursor is shown and
        the values of all signals at the X position of the <kbd>a</kbd> cursor is shown. </li>
@@ -104,6 +113,8 @@ p{padding: 15px  30px 10px;}
        configuration dialog box, where you can change many graph parameters.</li>
   <li> Pressing the <kbd>right</kbd> mouse button in the graph area and dragging some distance in the X direction 
        will zoom in the waveforms to that X range.</li>
+  <li> Pressing the <kbd>right</kbd> mouse button to the left of the Y axis and dragging some distance in the Y direction 
+       will zoom in the waveforms to that Y range.</li>
  </ul>
  <p>
   <img src="graphs07.png"><br>

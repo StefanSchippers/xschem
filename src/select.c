@@ -937,6 +937,10 @@ void select_wire(int i,unsigned short select_mode, int fast)
   xctx->need_reb_sel_arr=1;
 }
 
+/* fast == 1: do not update status line
+ * fast == 2: do not draw / undraw selected elements
+ * fast == 3: 1 + 2
+ */
 void select_element(int i,unsigned short select_mode, int fast, int override_lock)
 {
   int c, j;
@@ -946,7 +950,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   if(!strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
-  if( !fast )
+  if( !(fast & 1) )
   {
     my_snprintf(str, S(str), "Info: selected element %d: %s\nproperties:\n%s", i,
       xctx->inst[i].name ? xctx->inst[i].name : "<NULL>" , s);
@@ -976,7 +980,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   }
   xctx->inst[i].sel = select_mode;
   if(select_mode == SELECTED) set_first_sel(ELEMENT, i, 0);
-  if(!fast) {
+  if(!(fast & 2) ) {
     if(select_mode) {
       for(c=0;c<cadlayers; ++c) {
         draw_temp_symbol(ADD, xctx->gc[SELLAYER], i,c,0,0,0.0,0.0);

@@ -39,20 +39,24 @@ static int waves_selected(int event, KeySym key, int state, int button)
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   if(xctx->ui_state & excl) skip = 1;
   /* else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1; */
-  else if(graph_use_ctrl_key && !(state & ControlMask)) skip = 1;
+  /* allow to work on graphs even if ctrl released while in GRAPHPAN mode
+   * This is useful on touchpads with TappingDragLock enabled */
+  else if(graph_use_ctrl_key && !(state & ControlMask) && !(xctx->ui_state & GRAPHPAN)) skip = 1;
   else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
   else if(event == ButtonPress && button == Button2) skip = 1;
   else if(event == ButtonPress && button == Button1 && (state & ShiftMask) ) skip = 1;
   else if(event == ButtonRelease && button == Button2) skip = 1;
-  else if(event == KeyPress && (state & ShiftMask)) skip = 1;
+  /* else if(event == KeyPress && (state & ShiftMask)) skip = 1; */
   else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
     if(!(r->flags & 1) ) continue;
     if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
+
     check =
+      (xctx->ui_state & GRAPHPAN) ||
       (event != -3 &&
          (
            POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
@@ -64,13 +68,20 @@ static int waves_selected(int event, KeySym key, int state, int button)
         (POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
          POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10))
       );
-    if( (xctx->ui_state & GRAPHPAN) || check) {
+
+    if(check) {
        is_inside = 1;
+       if(! (xctx->ui_state & GRAPHPAN) ) { 
+         xctx->graph_master = i;
+       }
        if(draw_xhair) draw_crosshair(1);
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
+       break;
     }
   }
   if(!is_inside) {
+    xctx->graph_master = -1;
+    xctx->ui_state &= ~GRAPHPAN; /* terminate ongoing GRAPHPAN to avoid deadlocks */
     if(draw_xhair)
       tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
     else
@@ -290,6 +301,10 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       first = -1;
       prev_prev_x = prev_x = 0;
       last = ofs;
+
+      /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+      if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+
       for(p = ofs ; p < ofs_end; p++) {
         xx = gv[p];
         wrap = ( cnt > 1 && XSIGN(xx - prev_x) != XSIGN(prev_x - prev_prev_x));
@@ -303,13 +318,13 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
             if(p == first) {
-              if(xx == cursor2) {goto done;}
+              if(xx == cursor2) {goto found;}
               s = XSIGN0(xx - cursor2);
               dbg(1, "s=%d\n", s);
             } else {
               int ss =  XSIGN0(xx -  cursor2);
               dbg(1, "s=%d, ss=%d\n", s, ss);
-              if(ss != s) {goto done;}
+              if(ss != s) {goto found;}
             }
             last = p;
           }
@@ -319,10 +334,13 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         prev_x = xx;
       } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
       /* offset pointing to next dataset */
+
+      done:
+
       ofs = ofs_end;
       sweepvar_wrap++;
     } /* for(dset...) */
-    done:
+    found:
     if(first != -1) {
       if(p > last) {
         double sweep0, sweep1;
@@ -362,27 +380,33 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
  *  2: draw x-cursor1
  *  4: draw x-cursor2
  *  8: dnu, reserved, used in draw_graphs()
- * 16: move cursor1
- * 32: move cursor2
+ * 16: move x-cursor1
+ * 32: move x-cursor2
  * 64: show measurement tooltip
+ * 128: draw y-cursor1 (hcursor)
+ * 256: draw y-cursor2 (hcursor)
+ * 512: move y-cursor1
+ * 1024: move y-cursor2
  */
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   Graph_ctx *gr;
   int rstate; /* reduced state wit ShiftMask bit filtered out */
   int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
-  int i, redraw_all_at_end = 0, need_all_redraw = 0, need_redraw = 0, dataset = 0;
+  int i, dataset = 0;
+  int need_fullredraw = 0, need_all_redraw = 0, need_redraw = 0, need_redraw_master = 0;
   double xx1 = 0.0, xx2 = 0.0, yy1, yy2;
   double delta_threshold = 0.25;
   double zoom_m = 0.5;
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
-  int access_cond = !graph_use_ctrl_key || ( (state & ControlMask) && !(state & ShiftMask) );
+  int access_cond = !graph_use_ctrl_key || (state & ControlMask);
 
+  dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   if(event != -3 && !xctx->raw) return 0;
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
-  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
+  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
@@ -393,230 +417,203 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_font_face_destroy(xctx->cairo_font);
   #endif
   gr = &xctx->graph_struct;
-  for(i=0; i < xctx->rects[GRIDLAYER]; ++i) {
-    if( (xctx->ui_state & GRAPHPAN) && i != xctx->graph_master) continue;
-    r = &xctx->rect[GRIDLAYER][i];
-    /* process only graph boxes */
-    if(!(r->flags & 1) ) continue;
+  if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) {
     /* check if this is the master graph (the one containing the mouse pointer) */
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
-    if( POINTINSIDE(xctx->mousex, xctx->mousey, r->x1, r->y1, r->x2, r->y2)) {
-      dbg(1, "mouse inside: %d\n", i);
-      setup_graph_data(i, 0, gr);
+    setup_graph_data(i, 0, gr);
 
-      /* move cursor1 */
-      /* set cursor position from master graph x-axis */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-        double c;
 
-        c = G_X(xctx->mousex);
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) { /* private_cursor */
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
-        } else {
-          xctx->graph_cursor1_x = c;
-        }
-      }
-      /* move cursor2 */
-      /* set cursor position from master graph x-axis */
-      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        double c;
-        int floaters = there_are_floaters();
 
-        c = G_X(xctx->mousex);
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) { /* private_cursor */
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
-        } else {
-          xctx->graph_cursor2_x = c; 
-        }       
-        if(tclgetboolvar("live_cursor2_backannotate")) {
-          backannotate_at_cursor_b_pos(r, gr);
-          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-          redraw_all_at_end = 1;
-        }
-      }
-      gr->master_gx1 = gr->gx1;
-      gr->master_gx2 = gr->gx2;
-      gr->master_gw = gr->gw;
-      gr->master_cx = gr->cx;
-      if(xctx->ui_state & GRAPHPAN) break; /* After GRAPHPAN only need to check Motion events for cursors */
-      if(xctx->mousey_snap < W_Y(gr->gy2)) {
-        xctx->graph_top = 1;
+
+
+   /* check if user clicked on a wave label -> draw wave in bold */
+    if(event == ButtonPress && button == Button3 &&
+             edit_wave_attributes(2, i, gr)) {
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
+      return 0;
+    }
+
+    /* destroy / show measurement widget */
+    if(xctx->graph_flags & 64) {
+      char sx[100], sy[100];
+      double xval, yval;
+      if(gr->digital) { 
+        double deltag = gr->gy2 - gr->gy1;
+        double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+        double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+        double c = s1 * deltag;
+        deltag = deltag * s1 / s2;
+        yval=(DG_Y(xctx->mousey) - c) / s2;
+        yval=fmod(yval, deltag ) +  gr->gy1;
+        if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
       } else {
-        xctx->graph_top = 0;
+        yval = G_Y(xctx->mousey);
       }
-      if(xctx->mousex_snap < W_X(gr->gx1)) {
-        xctx->graph_left = 1;
+
+      xval = G_X(xctx->mousex);
+      if(gr->logx) xval = pow(10, xval);
+      if(gr->logy) yval = pow(10, yval);
+      if(gr->unitx != 1.0) 
+        my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
+      else
+        my_strncpy(sx, dtoa_eng(xval), S(sx));
+
+      if(gr->unitx != 1.0)
+        my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
+      else
+        my_strncpy(sy, dtoa_eng(yval), S(sy));
+  
+      tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
+      tcleval("graph_show_measure");
+    } /* if(xctx->graph_flags & 64) */
+
+
+
+
+
+
+
+    gr->master_gx1 = gr->gx1;
+    gr->master_gx2 = gr->gx2;
+    gr->master_gw = gr->gw;
+    gr->master_cx = gr->cx;
+    /* move hcursor1 */
+    if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 512 )) {
+      double c;
+      
+      c = G_Y(xctx->mousey);
+      if(gr->logy) c = pow(10, c);
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(c)));
+      need_redraw_master = 1;
+    }   
+
+    /* move hcursor2 */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 1024 )) {
+      double c;
+    
+      c = G_Y(xctx->mousey);
+      if(gr->logy) c = pow(10, c);
+      my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(c)));
+      need_redraw_master = 1;
+    }   
+
+    /* move cursor1 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      double c;
+
+      c = G_X(xctx->mousex);
+      if(gr->logx) c = pow(10, c);
+      if(r->flags & 4) { /* private_cursor */
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
       } else {
-        xctx->graph_left = 0;
+        xctx->graph_cursor1_x = c;
       }
-      if(xctx->mousey_snap > W_Y(gr->gy1)) {
-        xctx->graph_bottom = 1;
+      need_all_redraw = 1;
+    }
+    /* move cursor2 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+      double c;
+      int floaters = there_are_floaters();
+
+      c = G_X(xctx->mousex);
+      if(gr->logx) c = pow(10, c);
+      if(r->flags & 4) { /* private_cursor */
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
       } else {
-        xctx->graph_bottom = 0;
-      }
-      xctx->graph_master = i;
-      zoom_m = (xctx->mousex  - gr->x1) / gr->w;
-      if(event == ButtonPress && button == Button1) {
-        /* dragging cursors when mouse is very close */
-        if(xctx->graph_flags & 2) {
-          double cursor1;
-          if(r->flags & 4) { /* private_cursor */
-            const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
-            if(s[0]) {
-              cursor1 = atof(s);
-            } else {
-              cursor1 = xctx->graph_cursor1_x;
-            }
-          } else {
-            cursor1 = xctx->graph_cursor1_x;
-          }
-          if(gr->logx ) {
-            cursor1 = mylog10(cursor1);
-          }
-          if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-            xctx->graph_flags |= 16; /* Start move cursor1 */
-          }
-        }
-        if(xctx->graph_flags & 4) {
-          double cursor2;
-          if(r->flags & 4) { /* private_cursor */
-            const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
-            if(s[0]) {
-              cursor2 = atof_spice(s);
-            } else {
-              cursor2 = xctx->graph_cursor2_x;
-            }
-          } else { 
-            cursor2 = xctx->graph_cursor2_x;
-          }
-          if(gr->logx) {
-            cursor2 = mylog10(cursor2);
-          }
-          if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-            xctx->graph_flags |= 32; /* Start move cursor2 */
-          }
-        }
-      }
-      else if(event == ButtonPress && button == Button3) {
-        /* Numerically set cursor position */
-        if(xctx->graph_flags & 2) {
-          double cursor1;
-          if(r->flags & 4) { /* private_cursor */
-            const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
-            if(s[0]) {
-              cursor1 = atof_spice(s);
-            } else {
-              cursor1 = xctx->graph_cursor1_x;
-            }
-          } else {
-            cursor1 = xctx->graph_cursor1_x;
-          }
-          if(gr->logx ) {
-            cursor1 = mylog10(cursor1);
-          }
-          if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
-            cursor1 = atof_spice(tclresult());
-            if(r->flags & 4) {
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
-            } else {
-              xctx->graph_cursor1_x = cursor1;
-            }
-
-
-            event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
-          }
-          redraw_all_at_end = 1;
-        }
-
-        if(xctx->graph_flags & 4) {
-          double cursor2;
-          if(r->flags & 4) { /* private_cursor */
-            const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
-            if(s[0]) {
-              cursor2 = atof_spice(s);
-            } else {
-              cursor2 = xctx->graph_cursor2_x;
-            }
-          } else {
-            cursor2 = xctx->graph_cursor2_x;
-          }
-          if(gr->logx) {
-            cursor2 = mylog10(cursor2);
-          }
-          if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-            tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor2), NULL);
-            cursor2 = atof_spice(tclresult());
-            if(r->flags & 4) {
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
-            } else {
-              xctx->graph_cursor2_x = cursor2;
-            }
-
-            event = 0; /* avoid further processing ButtonPress that might set GRAPHPAH */
-          }
-          redraw_all_at_end = 1;
-        }
-      }
-      else if(event == -3 && button == Button1) {
-        if(!edit_wave_attributes(1, i, gr)) {
-          tclvareval("graph_edit_properties ", my_itoa(i), NULL);
-        }
-      }
-      /* x cursor1 toggle */
-      else if(key == 'a' && access_cond) {
-        xctx->graph_flags ^= 2;
+        xctx->graph_cursor2_x = c; 
+      }       
+      if(tclgetboolvar("live_cursor2_backannotate")) {
+        backannotate_at_cursor_b_pos(r, gr);
+        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+        need_fullredraw = 1;
+      } else {
         need_all_redraw = 1;
-        if(xctx->graph_flags & 2) {
-          double c = G_X(xctx->mousex);
-
-          if(gr->logx) c = pow(10, c);
-          if(r->flags & 4) {
-            if(!get_tok_value(r->prop_ptr, "cursor1_x", 0)[0]) {
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
-            }
-          } else {
-            xctx->graph_cursor1_x = c;
-          }
+      }
+    }
+    if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
+    if(xctx->mousey_snap < W_Y(gr->gy2)) {
+      xctx->graph_top = 1;
+    } else {
+      xctx->graph_top = 0;
+    }
+    if(xctx->mousex_snap < W_X(gr->gx1)) {
+      xctx->graph_left = 1;
+    } else {
+      xctx->graph_left = 0;
+    }
+    if(xctx->mousey_snap > W_Y(gr->gy1)) {
+      xctx->graph_bottom = 1;
+    } else {
+      xctx->graph_bottom = 0;
+    }
+    zoom_m = (xctx->mousex  - gr->x1) / gr->w;
+    if(event == ButtonPress && button == Button1) {
+      /* dragging cursors when mouse is very close */
+      if(xctx->graph_flags & 128) { /* hcursor1 */
+        double cursor;
+        cursor = gr->hcursor1_y;
+        if(gr->logy ) { 
+          cursor = mylog10(cursor);
+        } 
+        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+          xctx->graph_flags |= 512; /* Start move hcursor1 */
+        }
+      } 
+      if(xctx->graph_flags & 256) { /* hcursor2 */
+        double cursor;
+        cursor = gr->hcursor2_y;
+        if(gr->logy ) {
+          cursor = mylog10(cursor);
+        }
+        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+          xctx->graph_flags |= 1024; /* Start move hcursor2 */
         }
       }
-      /* x cursor2 toggle */
-      else if(key == 'b'  && access_cond) {
-        int floaters = there_are_floaters();
-
-        xctx->graph_flags ^= 4;
-        if(xctx->graph_flags & 4) {
-          double c = G_X(xctx->mousex);
-
-          if(gr->logx) c = pow(10, c);
-          if(r->flags & 4) {
-            if(!get_tok_value(r->prop_ptr, "cursor2_x", 0)[0]) {
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
-            }
+      if(xctx->graph_flags & 2) { /* cursor1 */
+        double cursor1;
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+          if(s[0]) {
+            cursor1 = atof(s);
           } else {
-            xctx->graph_cursor2_x = c;
+            cursor1 = xctx->graph_cursor1_x;
           }
-          if(tclgetboolvar("live_cursor2_backannotate")) {
-            backannotate_at_cursor_b_pos(r, gr);
-            if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-            redraw_all_at_end = 1;
-          } else {
-            need_all_redraw = 1;
-          }
-        } else if(xctx->raw) {
-          xctx->raw->annot_p = -1;
-          xctx->raw->annot_sweep_idx = -1;
-          /* need_all_redraw = 1; */
-          redraw_all_at_end = 1;
+        } else {
+          cursor1 = xctx->graph_cursor1_x;
+        }
+        if(gr->logx ) {
+          cursor1 = mylog10(cursor1);
+        }
+        if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
+          xctx->graph_flags |= 16; /* Start move cursor1 */
         }
       }
-      /* swap cursors */
-      else if((key == 's' && access_cond) ) {
-        double tmp, cursor1, cursor2;
-        int floaters = there_are_floaters();
-
+      if(xctx->graph_flags & 4) { /* cursor2 */
+        double cursor2;
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+          if(s[0]) {
+            cursor2 = atof_spice(s);
+          } else {
+            cursor2 = xctx->graph_cursor2_x;
+          }
+        } else { 
+          cursor2 = xctx->graph_cursor2_x;
+        }
+        if(gr->logx) {
+          cursor2 = mylog10(cursor2);
+        }
+        if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
+          xctx->graph_flags |= 32; /* Start move cursor2 */
+        }
+      }
+    }
+    else if(event == ButtonPress && button == Button3) {
+      /* Numerically set cursor position */
+      if(xctx->graph_flags & 2) {
+        double cursor1;
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
           if(s[0]) {
@@ -627,78 +624,177 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         } else {
           cursor1 = xctx->graph_cursor1_x;
         }
-
+        if(gr->logx ) {
+          cursor1 = mylog10(cursor1);
+        }
+        if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
+          cursor1 = atof_spice(tclresult());
+          if(r->flags & 4) {
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+          } else {
+            xctx->graph_cursor1_x = cursor1;
+          }
+          event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
+        }
+        need_fullredraw = 1;
+      }
+      /* Numerically set cursor position */
+      if(xctx->graph_flags & 4) {
+        double cursor2;
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
-          if(s[0]) { 
+          if(s[0]) {
             cursor2 = atof_spice(s);
-          } else { 
+          } else {
             cursor2 = xctx->graph_cursor2_x;
-          } 
-        } else { 
+          }
+        } else {
           cursor2 = xctx->graph_cursor2_x;
         }
-
-        tmp = cursor2;
-        cursor2 = cursor1;
-        cursor1 = tmp;
-
-        if(r->flags & 4) {
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
-        } else {
-          xctx->graph_cursor1_x = cursor1;
+        if(gr->logx) {
+          cursor2 = mylog10(cursor2);
         }
+        if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor2), NULL);
+          cursor2 = atof_spice(tclresult());
+          if(r->flags & 4) {
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+          } else {
+            xctx->graph_cursor2_x = cursor2;
+          }
+          event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
+        }
+        need_fullredraw = 1;
+      }
+    }
+    else if(event == -3 && button == Button1) {
+      if(!edit_wave_attributes(1, i, gr)) {
+        tclvareval("graph_edit_properties ", my_itoa(i), NULL);
+      }
+    }
+    /* x cursor1 toggle */
+    else if(key == 'a' && access_cond) {
+      xctx->graph_flags ^= 2;
+      need_all_redraw = 1;
+      if(xctx->graph_flags & 2) {
+        double c = G_X(xctx->mousex);
+
+        if(gr->logx) c = pow(10, c);
         if(r->flags & 4) {
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+          if(!get_tok_value(r->prop_ptr, "cursor1_x", 0)[0]) {
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+          }
         } else {
-          xctx->graph_cursor2_x = cursor2;
+          xctx->graph_cursor1_x = c;
+        }
+      }
+    }
+    /* x cursor2 toggle */
+    else if(key == 'b'  && access_cond) {
+      int floaters = there_are_floaters();
+
+      xctx->graph_flags ^= 4;
+      if(xctx->graph_flags & 4) {
+        double c = G_X(xctx->mousex);
+
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) {
+          if(!get_tok_value(r->prop_ptr, "cursor2_x", 0)[0]) {
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+          }
+        } else {
+          xctx->graph_cursor2_x = c;
         }
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
           if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-          redraw_all_at_end = 1;
+          need_fullredraw = 1;
+        } else {
+          need_all_redraw = 1;
         }
-        else need_all_redraw = 1;
+      } else if(xctx->raw) {
+        xctx->raw->annot_p = -1;
+        xctx->raw->annot_sweep_idx = -1;
+        /* need_all_redraw = 1; */
+        need_fullredraw = 1;
       }
-      /* measurement tooltip */
-      else if((key == 'm') && access_cond) {
-        xctx->graph_flags ^= 64;
-        if(!(xctx->graph_flags & 64)) {
-          tcleval("graph_show_measure stop");
-        }
-      }
-      else if(key == 't' && access_cond) {
-        if(!gr->digital) {
-            const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
-          if(d[0]) {
-            track_dset = atoi(d);
-          } else {
-            track_dset = -1;
-          }
-          if(track_dset < 0) {
-            track_dset = find_closest_wave(i, gr);
-          } else {
-            track_dset = -1;
-          }
-        }
-      } /* key == 't' */
-      break;
-    } /* if( POINTINSIDE(...) */
-  } /* for(i=0; i <  xctx->rects[GRIDLAYER]; ++i) */
-  dbg(1, "out of 1st loop: i=%d\n", i);
+    }
+    /* swap cursors */
+    else if((key == 's' && access_cond) ) {
+      double tmp, cursor1, cursor2;
+      int floaters = there_are_floaters();
 
-  /* check if user clicked on a wave label -> draw wave in bold */
-  if(event == ButtonPress && button == Button3 &&
-           edit_wave_attributes(2, i, gr)) {
-    draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in graph box */
-    return 0;
-  }
+      if(r->flags & 4) { /* private_cursor */
+        const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+        if(s[0]) {
+          cursor1 = atof_spice(s);
+        } else {
+          cursor1 = xctx->graph_cursor1_x;
+        }
+      } else {
+        cursor1 = xctx->graph_cursor1_x;
+      }
+
+      if(r->flags & 4) { /* private_cursor */
+        const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+        if(s[0]) { 
+          cursor2 = atof_spice(s);
+        } else { 
+          cursor2 = xctx->graph_cursor2_x;
+        } 
+      } else { 
+        cursor2 = xctx->graph_cursor2_x;
+      }
+
+      tmp = cursor2;
+      cursor2 = cursor1;
+      cursor1 = tmp;
+
+      if(r->flags & 4) {
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+      } else {
+        xctx->graph_cursor1_x = cursor1;
+      }
+      if(r->flags & 4) {
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+      } else {
+        xctx->graph_cursor2_x = cursor2;
+      }
+      if(tclgetboolvar("live_cursor2_backannotate")) {
+        backannotate_at_cursor_b_pos(r, gr);
+        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+        need_fullredraw = 1;
+      }
+      else need_all_redraw = 1;
+    }
+    /* measurement tooltip */
+    else if((key == 'm') && access_cond) {
+      xctx->graph_flags ^= 64;
+      if(!(xctx->graph_flags & 64)) {
+        tcleval("graph_show_measure stop");
+      }
+    }
+    else if(key == 't' && access_cond) {
+      if(!gr->digital) {
+          const char *d = get_tok_value(r->prop_ptr, "dataset", 0);
+        if(d[0]) {
+          track_dset = atoi(d);
+        } else {
+          track_dset = -1; /* all datasets */
+        }
+        if(track_dset < 0) {
+          track_dset = find_closest_wave(i, gr);
+        } else {
+          track_dset = -1; /* all datasets */
+        }
+      }
+    } /* key == 't' */
+  } /* if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) */
+
   /* save mouse position when doing pan operations */
-  else if(
-      (
-        (event == ButtonPress && (button == Button1 || button == Button3)) ||
-        (event == MotionNotify && (state & (Button1Mask | Button3Mask)))
-      ) &&
+  if(
+      ( event == ButtonPress && (button == Button1 || button == Button3)) &&
       !(xctx->ui_state & GRAPHPAN) && 
       !xctx->graph_top /* && !xctx->graph_bottom */
     ) {
@@ -708,6 +804,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   }
   dbg(1, "graph_master=%d\n", xctx->graph_master);
 
+  finish:
+  
   /* parameters for absolute positioning by mouse drag in bottom graph area */
   if( xctx->raw && event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
     int idx;
@@ -741,9 +839,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     pp = (xctx->mousex_snap - ddx) / ccx;
     xx1 = pp - delta / 2.0;
     xx2 = pp + delta / 2.0;
-
     if(switched) extra_rawfile(5, NULL, NULL, -1.0, -1.0); /* switch back to previous raw file */
-
   }
   else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && !xctx->graph_left && !xctx->graph_top) {
     /* parameters for zoom area by mouse drag */
@@ -757,9 +853,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
     if(xx1 == xx2) xx2 += 1e-6;
   }
-
-
-  /* second loop: after having determined the master graph do the others */
+  /* loop: after having operated on the master graph do the others */
   for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
@@ -770,242 +864,152 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     setup_graph_data(i, 1, gr); /* skip flag set, no reload x1 and x2 fields */
     if(gr->dataset >= 0 /* && gr->dataset < xctx->raw->datasets */) dataset =gr->dataset;
     else dataset = -1;
-    /* destroy / show measurement widget */
-    if(i == xctx->graph_master) {
-      if(xctx->graph_flags & 64) {
-        if( POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2, gr->y2)) {
-          char sx[100], sy[100];
-          double xval, yval;
-          if(gr->digital) { 
-            double deltag = gr->gy2 - gr->gy1;
-            double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-            double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-            double c = s1 * deltag;
-            deltag = deltag * s1 / s2;
-            yval=(DG_Y(xctx->mousey) - c) / s2;
-            yval=fmod(yval, deltag ) +  gr->gy1;
-            if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
-          } else {
-            yval = G_Y(xctx->mousey);
-          }
 
-          xval = G_X(xctx->mousex);
-          if(gr->logx) xval = pow(10, xval);
-          if(gr->logy) yval = pow(10, yval);
-          if(gr->unitx != 1.0) 
-            my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
-          else
-            my_strncpy(sx, dtoa_eng(xval), S(sx));
-
-          if(gr->unitx != 1.0)
-            my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
-          else
-            my_strncpy(sy, dtoa_eng(yval), S(sy));
-  
-          tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
-          tcleval("graph_show_measure");
-        } else {
-          tcleval("graph_show_measure stop");
-        }
-      } /* if(xctx->graph_flags & 64) */
-    } /* if(i == xctx->graph_master) */
-    dbg(1, "%g %g %g %g - %d %d\n", gr->gx1, gr->gy1, gr->gx2, gr->gy2, gr->divx, gr->divy);
-    if( event == KeyPress || event == ButtonPress || event == MotionNotify ) {
-      /* move cursor1 */
-      if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-        need_redraw = 1;
-      }
-      /* move cursor2 */
-      else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-        if(tclgetboolvar("live_cursor2_backannotate")) {
-          redraw_all_at_end = 1;
-        }
-        else  need_redraw = 1;
-      }
-      else /* drag waves with mouse */
-      if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom) {
-        double delta;
-        if(xctx->graph_left) {
-          if(i == xctx->graph_master) {
-            if(gr->digital) {
-              delta = gr->posh;
-              delta_threshold = 0.01;
-              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->dcy * delta) * delta_threshold) {
-                yy1 = gr->ypos1 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
-                yy2 = gr->ypos2 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
-                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
-                xctx->my_double_save = xctx->mousey_snap;
-                need_redraw = 1;
-              }
-            } else {
-              delta = gr->gh / gr->divy;
-              delta_threshold = 0.01;
-              if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->cy * delta) * delta_threshold) {
-                yy1 = gr->gy1 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
-                yy2 = gr->gy2 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
-                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-                my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
-                xctx->my_double_save = xctx->mousey_snap;
-                need_redraw = 1;
-              }
-            }
-          }
-        } else {
-          save_mouse_at_end = 1;
-          delta = gr->gw;
-          delta_threshold = 0.01;
-          /* selected or locked or master */
-          if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            dbg(1, "moving waves: %d\n", i);
-            if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
-              xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
-              xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-              need_redraw = 1;
-            }
-          }
-        }
-      }
-      else if((button == Button5 && !(state & ShiftMask))) {
-        double delta;
-        if(xctx->graph_left) {
-          if(i == xctx->graph_master) {
-            if(gr->digital) {
-              delta = gr->posh * 0.05;
-              yy1 = gr->ypos1 + delta;
-              yy2 = gr->ypos2 + delta;
+    if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom && 
+      !(xctx->graph_flags & (16 | 32 | 512 | 1024))) {
+      double delta;
+      /* vertical move of waveforms */
+      if(xctx->graph_left) {
+        if(i == xctx->graph_master) {
+          if(gr->digital) {
+            delta = gr->posh;
+            delta_threshold = 0.01;
+            if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->dcy * delta) * delta_threshold) {
+              yy1 = gr->ypos1 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
+              yy2 = gr->ypos2 + (xctx->my_double_save - xctx->mousey_snap) / gr->dcy;
               my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
               my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+              xctx->my_double_save = xctx->mousey_snap;
               need_redraw = 1;
-            } else {
-              delta = gr->gh/ gr->divy;
-              delta_threshold = 1.0;
-              yy1 = gr->gy1 + delta * delta_threshold;
-              yy2 = gr->gy2 + delta * delta_threshold;
+            }
+          } else {
+            delta = gr->gh / gr->divy;
+            delta_threshold = 0.01;
+            if(fabs(xctx->my_double_save - xctx->mousey_snap) > fabs(gr->cy * delta) * delta_threshold) {
+              yy1 = gr->gy1 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
+              yy2 = gr->gy2 + (xctx->my_double_save - xctx->mousey_snap) / gr->cy;
               my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
               my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+              xctx->my_double_save = xctx->mousey_snap;
               need_redraw = 1;
             }
           }
-        } else {
-          /* selected or locked or master */
-          if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = gr->gw;
-            delta_threshold = 0.05;
-            xx1 = gr->gx1 - delta * delta_threshold;
-            xx2 =gr->gx2 - delta * delta_threshold;
+        }
+      }
+      /* horizontal move of waveforms */
+      else {
+        save_mouse_at_end = 1;
+        delta = gr->gw;
+        delta_threshold = 0.01;
+        /* selected or locked or master */
+        if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+          dbg(1, "moving waves: %d\n", i);
+          if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
+            xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
+            xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
           }
         }
       }
-      else if(key == 't' && access_cond ) {
-        if(track_dset != -2) {
-          /* 
-          const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
-          */
-          int unlocked = r->flags & 2;
-          int floaters = there_are_floaters();
-          if(i == xctx->graph_master || !unlocked) {
-            gr->dataset = track_dset;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
-            
-          }
-         /* do this here to update texts printing current dataset in graph
-          *     tcleval([xschem getprop rect 2 n dataset]) */
-          if(i == xctx->graph_master && floaters) {
-            set_modify(-2); /* update floater caches to reflect actual backannotation */
-            redraw_all_at_end = 1;
-          }
-          if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
-            if(i == xctx->graph_master) {
-              backannotate_at_cursor_b_pos(r, gr);
-            }
-            redraw_all_at_end = 1;
-          } else {
-            if(!redraw_all_at_end) need_redraw = 1;
-          }
-
+    }
+    else if(event == ButtonPress && button == Button3) {
+      /* Numerically set hcursor position */
+      if(xctx->graph_flags & 128) {
+        double cursor;
+        cursor = gr->hcursor1_y;
+        if(gr->logy ) {
+          cursor = mylog10(cursor);
         }
-      } /* key == 't' */
-      else if(key == XK_Left) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!gr->digital && i == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - gr->gy1;
-            double b = gr->gy2 -m;
-            double delta = gr->gh;
-            double var = delta * 0.2;
-            yy2 = gr->gy2 + var * b / delta;
-            yy1 = gr->gy1 - var * a / delta;
+        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_spice(tclresult());
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
+        }
+        need_redraw = 1;
+      }
+      /* Numerically set hcursor position */
+      if(xctx->graph_flags & 256) {
+        double cursor;
+        cursor = gr->hcursor2_y;
+        if(gr->logy ) {
+          cursor = mylog10(cursor);
+        }
+        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_spice(tclresult());
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
+        }
+        need_redraw = 1;
+      }
+    }
+    else if(event == ButtonPress && button == Button5 && !(state & ShiftMask)) {
+      double delta;
+      /* vertical move of waveforms with mouse wheel */
+      if(xctx->graph_left) {
+        if(i == xctx->graph_master) {
+          if(gr->digital) {
+            delta = gr->posh * 0.05;
+            yy1 = gr->ypos1 + delta;
+            yy2 = gr->ypos2 + delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+            need_redraw = 1;
+          } else {
+            delta = gr->gh/ gr->divy;
+            delta_threshold = 1.0;
+            yy1 = gr->gy1 + delta * delta_threshold;
+            yy2 = gr->gy2 + delta * delta_threshold;
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
             need_redraw = 1;
           }
-        } else {
+        }
+      }
+      /* horizontal move of waveforms with mouse wheel */
+      else {
+        /* selected or locked or master */
+        if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
           delta = gr->gw;
           delta_threshold = 0.05;
           xx1 = gr->gx1 - delta * delta_threshold;
-          xx2 = gr->gx2 - delta * delta_threshold;
+          xx2 =gr->gx2 - delta * delta_threshold;
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
           need_redraw = 1;
         }
       }
-      else if(button == Button4 && !(state & ShiftMask))  {
-        double delta;
-        if(xctx->graph_left) {
-          if(i == xctx->graph_master) {
-            if(gr->digital) {
-              delta = gr->posh * 0.05;
-              yy1 = gr->ypos1 - delta;
-              yy2 = gr->ypos2 - delta;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
-              need_redraw = 1;
-            } else {
-              delta = gr->gh / gr->divy;
-              delta_threshold = 1.0;
-              yy1 = gr->gy1 - delta * delta_threshold;
-              yy2 = gr->gy2 - delta * delta_threshold;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
-              need_redraw = 1;
-            }
-          }
-        } else {
-          /* selected or locked or master */
-          if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            delta = gr->gw;
-            delta_threshold = 0.05;
-            xx1 = gr->gx1 + delta * delta_threshold;
-            xx2 = gr->gx2 + delta * delta_threshold;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+    }
+    else if(event == ButtonPress && button == Button4 && !(state & ShiftMask))  {
+      double delta;
+      /* vertical move of waveforms with mouse wheel */
+      if(xctx->graph_left) {
+        if(i == xctx->graph_master) {
+          if(gr->digital) {
+            delta = gr->posh * 0.05;
+            yy1 = gr->ypos1 - delta;
+            yy2 = gr->ypos2 - delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
             need_redraw = 1;
-          }
-        }
-      }
-      else if(key == XK_Right) {
-        double delta;
-        if(xctx->graph_left) {
-          if(!gr->digital && i == xctx->graph_master) {
-            double m = G_Y(xctx->mousey);
-            double a = m - gr->gy1;
-            double b = gr->gy2 -m;
-            double delta = gr->gh;
-            double var = delta * 0.2;
-            yy2 = gr->gy2 - var * b / delta;
-            yy1 = gr->gy1 + var * a / delta;
+          } else {
+            delta = gr->gh / gr->divy;
+            delta_threshold = 1.0;
+            yy1 = gr->gy1 - delta * delta_threshold;
+            yy2 = gr->gy2 - delta * delta_threshold;
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
             need_redraw = 1;
           }
-        } else {
+        }
+      }
+      /* horizontal move of waveforms with mouse wheel */
+      else {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
           delta = gr->gw;
           delta_threshold = 0.05;
           xx1 = gr->gx1 + delta * delta_threshold;
@@ -1015,167 +1019,250 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           need_redraw = 1;
         }
       }
-      else if(button == Button5 && (state & ShiftMask)) {
-        if(xctx->graph_left) {
+    }
+    else if(event == ButtonPress && button == Button5 && (state & ShiftMask)) {
+      if(xctx->graph_left) {
+        if(i == xctx->graph_master) {
+          if(gr->digital) {
+            double m = DG_Y(xctx->mousey);
+            double a = m - gr->ypos1;
+            double b = gr->ypos2 -m;
+            double delta = gr->posh;
+            double var = delta * 0.05;
+            yy2 = gr->ypos2 + var * b / delta;
+            yy1 = gr->ypos1 - var * a / delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+            need_redraw = 1;
+
+          } else {
+            double m = G_Y(xctx->mousey);
+            double a = m - gr->gy1;
+            double b = gr->gy2 -m;
+            double delta = (gr->gy2 - gr->gy1);
+            double var = delta * 0.2;
+            yy2 = gr->gy2 + var * b / delta;
+            yy1 = gr->gy1 - var * a / delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            need_redraw = 1;
+          }
+        }
+      } else {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+          double var = 0.2 * gr->gw;
+          xx2 = gr->gx2 + var * (1 - zoom_m);
+          xx1 = gr->gx1 - var * zoom_m;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          need_redraw = 1;
+        }
+      }
+    }
+    else if(event == ButtonPress && button == Button4 && (state & ShiftMask)) {
+      if(xctx->graph_left) {
+        if(i == xctx->graph_master) {
+          if(gr->digital) {
+            double m = DG_Y(xctx->mousey);
+            double a = m - gr->ypos1;
+            double b = gr->ypos2 -m;
+            double delta = (gr->ypos2 - gr->ypos1);
+            double var = delta * 0.05;
+            yy2 = gr->ypos2 - var * b / delta;
+            yy1 = gr->ypos1 + var * a / delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+            need_redraw = 1;
+          } else {
+            double m = G_Y(xctx->mousey);
+            double a = m - gr->gy1;
+            double b = gr->gy2 -m;
+            double delta = (gr->gy2 - gr->gy1);
+            double var = delta * 0.2;
+            yy2 = gr->gy2 - var * b / delta;
+            yy1 = gr->gy1 + var * a / delta;
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            need_redraw = 1;
+          }
+        }
+      } else {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+          double var = 0.2 * gr->gw;
+          xx2 = gr->gx2 - var * (1 - zoom_m);
+          xx1 = gr->gx1 + var * zoom_m;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          need_redraw = 1;
+        }
+      }
+    }
+    /* y hcursor1 toggle */
+    else if(event == KeyPress && key == 'A' && access_cond && i == xctx->graph_master) {
+      xctx->graph_flags ^= 128;
+      need_redraw = 1;
+      if(xctx->graph_flags & 128) {
+        double c = G_Y(xctx->mousey);
+        if(gr->logy) c = pow(10, c);
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(c)));
+      } else {
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", NULL));
+      }
+    }
+    /* y hcursor2 toggle */
+    else if(event == KeyPress && key == 'B' && access_cond && i == xctx->graph_master) {
+      xctx->graph_flags ^= 256;
+      need_redraw = 1;
+      if(xctx->graph_flags & 256) {
+        double c = G_Y(xctx->mousey);
+        if(gr->logy) c = pow(10, c);
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(c)));
+      } else {
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", NULL));
+      }
+    }
+    else if(event == KeyPress && key == 't' && access_cond ) {
+      if(track_dset != -2) { /* -2 means no dataset selection ('t' key) was started */
+        /* 
+        const char *unlocked = strstr(get_tok_value(r->prop_ptr, "flags", 0), "unlocked");
+        */
+        int unlocked = r->flags & 2;
+        int floaters = there_are_floaters();
+        if(i == xctx->graph_master || !unlocked) {
+          gr->dataset = track_dset;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "dataset", my_itoa(track_dset)));
+          
+        }
+       /* do this here to update texts printing current dataset in graph
+        *     tcleval([xschem getprop rect 2 n dataset]) */
+        if(i == xctx->graph_master && floaters) {
+          set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        }
+        if((xctx->graph_flags & 4)  && tclgetboolvar("live_cursor2_backannotate")) {
           if(i == xctx->graph_master) {
-            if(gr->digital) {
-              double m = DG_Y(xctx->mousey);
-              double a = m - gr->ypos1;
-              double b = gr->ypos2 -m;
-              double delta = gr->posh;
-              double var = delta * 0.05;
-              yy2 = gr->ypos2 + var * b / delta;
-              yy1 = gr->ypos1 - var * a / delta;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
-              need_redraw = 1;
-
-            } else {
-              double m = G_Y(xctx->mousey);
-              double a = m - gr->gy1;
-              double b = gr->gy2 -m;
-              double delta = (gr->gy2 - gr->gy1);
-              double var = delta * 0.2;
-              yy2 = gr->gy2 + var * b / delta;
-              yy1 = gr->gy1 - var * a / delta;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
-              need_redraw = 1;
-            }
+            backannotate_at_cursor_b_pos(r, gr);
           }
+          need_fullredraw = 1;
         } else {
-          /* selected or locked or master */
-          if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->gw;
-            xx2 = gr->gx2 + var * (1 - zoom_m);
-            xx1 = gr->gx1 - var * zoom_m;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-            need_redraw = 1;
-          }
+          if(!need_fullredraw) need_redraw = 1;
+        }
+
+      }
+    } /* key == 't' */
+    else if(event == KeyPress && key == XK_Left) {
+      double delta;
+      if(xctx->graph_left) {
+        if(!gr->digital && i == xctx->graph_master) {
+          double m = G_Y(xctx->mousey);
+          double a = m - gr->gy1;
+          double b = gr->gy2 -m;
+          double delta = gr->gh;
+          double var = delta * 0.2;
+          yy2 = gr->gy2 + var * b / delta;
+          yy1 = gr->gy1 - var * a / delta;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+          need_redraw = 1;
+        }
+      } else {
+        delta = gr->gw;
+        delta_threshold = 0.05;
+        xx1 = gr->gx1 - delta * delta_threshold;
+        xx2 = gr->gx2 - delta * delta_threshold;
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+        need_redraw = 1;
+      }
+    }
+    else if(event == KeyPress && key == XK_Right) {
+      double delta;
+      if(xctx->graph_left) {
+        if(!gr->digital && i == xctx->graph_master) {
+          double m = G_Y(xctx->mousey);
+          double a = m - gr->gy1;
+          double b = gr->gy2 -m;
+          double delta = gr->gh;
+          double var = delta * 0.2;
+          yy2 = gr->gy2 - var * b / delta;
+          yy1 = gr->gy1 + var * a / delta;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+          need_redraw = 1;
+        }
+      } else {
+        delta = gr->gw;
+        delta_threshold = 0.05;
+        xx1 = gr->gx1 + delta * delta_threshold;
+        xx2 = gr->gx2 + delta * delta_threshold;
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+        need_redraw = 1;
+      }
+    }
+    else if(event == KeyPress && key == XK_Down) {
+      if(!xctx->graph_left) {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+          double var = 0.2 * gr->gw;
+          xx2 = gr->gx2 + var * (1 - zoom_m);
+          xx1 = gr->gx1 - var * zoom_m;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          need_redraw = 1;
         }
       }
-      else if(key == XK_Down) {
-        if(!xctx->graph_left) {
-          /* selected or locked or master */
-          if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->gw;
-            xx2 = gr->gx2 + var * (1 - zoom_m);
-            xx1 = gr->gx1 - var * zoom_m;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-            need_redraw = 1;
-          }
+    }
+    else if(event == KeyPress && key == XK_Up) {
+      if(!xctx->graph_left) {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+          double var = 0.2 * gr->gw;
+          xx2 = gr->gx2 - var * (1 - zoom_m);
+          xx1 = gr->gx1 + var * zoom_m;
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          need_redraw = 1;
         }
       }
-      else if(button == Button4 && (state & ShiftMask)) {
-        if(xctx->graph_left) {
+    }
+    else if(event == KeyPress && key == 'f' && access_cond) {
+      if(xctx->raw && xctx->raw->values) {
+        if(xctx->graph_left) { /* full Y zoom*/
           if(i == xctx->graph_master) {
-            if(gr->digital) {
-              double m = DG_Y(xctx->mousey);
-              double a = m - gr->ypos1;
-              double b = gr->ypos2 -m;
-              double delta = (gr->ypos2 - gr->ypos1);
-              double var = delta * 0.05;
-              yy2 = gr->ypos2 - var * b / delta;
-              yy1 = gr->ypos1 + var * a / delta;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
-              need_redraw = 1;
-            } else {
-              double m = G_Y(xctx->mousey);
-              double a = m - gr->gy1;
-              double b = gr->gy2 -m;
-              double delta = (gr->gy2 - gr->gy1);
-              double var = delta * 0.2;
-              yy2 = gr->gy2 - var * b / delta;
-              yy1 = gr->gy1 + var * a / delta;
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
-              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
-              need_redraw = 1;
-            }
-          }
-        } else {
+            need_redraw = graph_fullyzoom(r, gr, dataset);
+          } /* graph_master */
+        } else { /* not graph_left, full X zoom*/ 
           /* selected or locked or master */
           if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->gw;
-            xx2 = gr->gx2 - var * (1 - zoom_m);
-            xx1 = gr->gx1 + var * zoom_m;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-            need_redraw = 1;
+            need_redraw = graph_fullxzoom(i, gr, dataset);
           }
         }
-      }
-      else if(key == XK_Up) {
-        if(!xctx->graph_left) {
-          /* selected or locked or master */
-          if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-            double var = 0.2 * gr->gw;
-            xx2 = gr->gx2 - var * (1 - zoom_m);
-            xx1 = gr->gx1 + var * zoom_m;
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-            need_redraw = 1;
-          }
+      } /* raw->values */
+    } /* key == 'f' */
+    /* absolute positioning by mouse drag in bottom graph area */
+    else if(event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
+      if(xctx->raw && xctx->raw->values) {
+        /* selected or locked or master */
+        if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+
+          /* xx1 and xx2 calculated for master graph above */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
+          need_redraw = 1;
         }
       }
-      else if(key == 'f' && access_cond) {
-        if(xctx->raw && xctx->raw->values) {
-          if(xctx->graph_left) { /* full Y zoom*/
-            if(i == xctx->graph_master) {
-              need_redraw = graph_fullyzoom(r, gr, dataset);
-            } /* graph_master */
-          } else { /* not graph_left, full X zoom*/ 
-            /* selected or locked or master */
-            if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-              need_redraw = graph_fullxzoom(i, gr, dataset);
-            }
-          }
-        } /* raw->values */
-      } /* key == 'f' */
-      /* absolute positioning by mouse drag in bottom graph area */
-      else if( event == MotionNotify && (state & Button1Mask) && xctx->graph_bottom ) {
+    }
 
-        if(xctx->raw && xctx->raw->values) {
-          /* selected or locked or master */
-          if(r->sel || !(r->flags & 2) || i == xctx->graph_master) {
 
-            /*
-             * this calculation is done in 1st loop, only for master graph 
-             * and applied to all locked graphs 
-            int idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-            int dset = dataset == -1 ? 0 : dataset;
-            double wwx1, wwx2, pp, delta, ccx, ddx;
-
-            if(idx < 0 ) idx = 0;
-            delta = gr->gw;
-            wwx1 =  get_raw_value(dset, idx, 0);
-            wwx2 = get_raw_value(dset, idx, xctx->raw->npoints[dset] - 1);
-            if(gr->logx) {
-              wwx1 = mylog10(wwx1);
-              wwx2 = mylog10(wwx2);
-            }
-            ccx = (gr->x2 - gr->x1) / (wwx2 - wwx1);
-            ddx = gr->x1 - wwx1 * ccx;
-            pp = (xctx->mousex_snap - ddx) / ccx;
-            xx1 = pp - delta / 2.0;
-            xx2 = pp + delta / 2.0;
-            */
-
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
-            need_redraw = 1;
-          }
-        }
-      }
-    } /* if( event == KeyPress || event == ButtonPress || event == MotionNotify ) */
-    else if( event == ButtonRelease) { 
+    else if(event == ButtonRelease) { 
       if(button != Button3) {
         xctx->ui_state &= ~GRAPHPAN;
-        xctx->graph_flags &= ~(16 | 32); /* clear move cursor flags */
+        xctx->graph_flags &= ~(16 | 32 | 512 | 1024); /* clear move cursor flags */
       }
-      /* zoom area by mouse drag */
+      /* zoom X area by mouse drag */
       else if(button == Button3 && (xctx->ui_state & GRAPHPAN) && 
               !xctx->graph_left && !xctx->graph_top) {
         /* selected or locked or master */
@@ -1183,15 +1270,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(xctx->mx_double_save != xctx->mousex_snap) {
             clear_graphpan_at_end = 1;
 
-            /* 
-             * this calculation is done in 1st loop above,
-             * only for graph master and applied to all locked  graphs
-            xx1 = G_X(xctx->mx_double_save);
-            xx2 = G_X(xctx->mousex_snap);
-            if(xx2 < xx1) { tmp = xx1; xx1 = xx2; xx2 = tmp; }
-            if(xx1 == xx2) xx2 += 1e-6;
-            */
-            if(xx1 == xx2) xx2 += 1e-6;
+            /* xx1 and xx2 calculated for master graph above */
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
             need_redraw = 1;
@@ -1200,22 +1279,57 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
         }
       }
+      /* zoom Y area by mouse drag */
+      else if(button == Button3 && (xctx->ui_state & GRAPHPAN) &&
+              xctx->graph_left && !xctx->graph_top) {
+        /* Only on master */
+        if(i == xctx->graph_master) {
+          if(xctx->my_double_save != xctx->mousey_snap) {
+            double yy1, yy2;
+            clear_graphpan_at_end = 1;
+            if(!gr->digital) {
+              yy1 = G_Y(xctx->my_double_save);
+              yy2 = G_Y(xctx->mousey_snap);
+              if(state & ShiftMask) {
+                if(yy1 < yy2) { double tmp; tmp = yy1; yy1 = yy2; yy2 = tmp; }
+              } else {
+                if(yy2 < yy1) { double tmp; tmp = yy1; yy1 = yy2; yy2 = tmp; }
+              }
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(yy2)));
+            } else {
+              yy1 = DG_Y(xctx->my_double_save);
+              yy2 = DG_Y(xctx->mousey_snap);
+              if(state & ShiftMask) {
+                if(yy1 < yy2) { double tmp; tmp = yy1; yy1 = yy2; yy2 = tmp; }
+              } else {
+                if(yy2 < yy1) { double tmp; tmp = yy1; yy1 = yy2; yy2 = tmp; }
+              }
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos1", dtoa(yy1)));
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "ypos2", dtoa(yy2)));
+            }
+            need_redraw = 1;
+          } else if(i == xctx->graph_master) {
+            clear_graphpan_at_end = 1;
+          }
+        }
+      }
     } /* else if( event == ButtonRelease) */
-    if(need_redraw || need_all_redraw) {
+    if(need_redraw || need_all_redraw || ( i == xctx->graph_master && need_redraw_master) ) {
       setup_graph_data(i, 0, gr);
-      draw_graph(i, 1 + 8 + (xctx->graph_flags & 6), gr, NULL); /* draw data in each graph box */
+      draw_graph(i, 1 + 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), gr, NULL); /* draw data in each graph box */
     }
   } /* for(i=0; i< xctx->rects[GRIDLAYER]; i++ */
 
-  if(redraw_all_at_end ==1) {
+  if(need_fullredraw ==1) {
     draw();
-    redraw_all_at_end = 0;
+    need_fullredraw = 0;
   }
   if(clear_graphpan_at_end) xctx->ui_state &= ~GRAPHPAN;
   /* update saved mouse position after processing all graphs */
   if(save_mouse_at_end) {
     if( fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->master_cx * gr->master_gw) * delta_threshold) {
-      dbg(1, "save mose pos\n");
+      dbg(1, "save mouse pos\n");
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
     }
@@ -2725,17 +2839,27 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key==XK_Right && state == ControlMask) {
      int save = xctx->semaphore;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(xctx->semaphore >= 2) break;
      xctx->semaphore = 0;
      tcleval("next_tab");
      xctx->semaphore = save;
+     break;
    }
    if(key==XK_Left && state == ControlMask) {
      int save = xctx->semaphore;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      if(xctx->semaphore >= 2) break;
      xctx->semaphore = 0;
      tcleval("prev_tab");
      xctx->semaphore = save;
+     break;
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
@@ -2861,7 +2985,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
        saveas(NULL, SCHEMATIC);
      } else {
-       save(1);
+       save(1, 0);
      }
      break;
    }
@@ -2937,7 +3061,7 @@ int rstate; /* (reduced state, without ShiftMask) */
             "-message {do you want to make symbol view ?}");
     if(strcmp(tclresult(),"ok")==0)
     {
-     save_schematic(xctx->sch[xctx->currsch]);
+     save_schematic(xctx->sch[xctx->currsch], 0);
      make_symbol();
     }
     break;
@@ -3625,20 +3749,32 @@ int rstate; /* (reduced state, without ShiftMask) */
 
     break;
    }
+   if(key=='A' && rstate == ControlMask) /* only for graph (toggle hcursor1 if graph_use_ctrl_key set) */
+   {
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
+     break;
+   }
    if(key=='A' && rstate == 0)                             /* toggle show netlist */
    {
-    int net_s;
-    net_s = tclgetboolvar("netlist_show");
-    net_s = !net_s;
-    if(net_s) {
-        tcleval("alert_ { enabling show netlist window} {}");
-        tclsetvar("netlist_show","1");
-    }
-    else {
-        tcleval("alert_ { disabling show netlist window } {}");
-        tclsetvar("netlist_show","0");
-    }
-    break;
+     int net_s;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
+     net_s = tclgetboolvar("netlist_show");
+     net_s = !net_s;
+     if(net_s) {
+       tcleval("alert_ { enabling show netlist window} {}");
+       tclsetvar("netlist_show","1");
+     }
+     else {
+       tcleval("alert_ { disabling show netlist window } {}");
+       tclsetvar("netlist_show","0");
+     }
+     break;
    }
    if(key=='>') {
      if(xctx->semaphore >= 2) break;
@@ -3664,8 +3800,20 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
+   if(key=='B' && rstate == ControlMask) /* only for graph (toggle hcursor2 if graph_use_ctrl_key set) */
+   { 
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     } 
+     break;
+   }
    if(key=='B' && rstate == 0)    /* edit schematic header/license */
    {
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
      tcleval("update_schematic_header");
    }
    if(key=='b' && rstate==0)                     /* merge schematic */

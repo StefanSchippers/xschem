@@ -1785,15 +1785,16 @@ proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
   $w configure -bg [option get . background {}]
   if { $sym_spice_sym_def ne {}} {
     $w configure -fg $symfg
-  } elseif { ![file exists [abs_sym_path [$w get]]] } {
-    $w configure -bg $missingbg
   } else {
     if {[$w get] eq $default_sch} {
-      # ....
+        puts "need to clear schematic attr in symbol"
     } elseif {[$w get] eq $sym_sch} {
       $w configure -bg $symbg
     } else {
       puts "need to update:[$w get] --> $sym_sch"
+    }
+    if { ![file exists [abs_sym_path [$w get]]] } {
+      $w configure -bg $missingbg
     }
   }
 }
@@ -1904,7 +1905,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
         xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
       } 
       xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
-      xschem save
+      xschem save fast
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
       xschem load $current  noundoreset nodraw
@@ -2083,7 +2084,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
 
     set done_print 1
     if {$type eq {subcircuit} && $all_hierarchy} {
-      xschem select instance $i fast
+      xschem select instance $i fast nodraw
       set descended [xschem descend 1 6]
       if {$descended} {
         incr level
@@ -6570,7 +6571,7 @@ proc swap_compare_schematics {} {
 }
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   global wm_fix retval
-  set retval {}
+  set retval $preset
   if { [winfo exists .dialog] } {return}
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog

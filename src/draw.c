@@ -2514,6 +2514,9 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             int cnt=0, wrap;
             register SPICE_DATA *gv = raw->values[sweep_idx];
             ofs_end = ofs + raw->npoints[dset];
+
+            /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+            if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
             for(p = ofs ; p < ofs_end; p++) {
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
@@ -2539,6 +2542,9 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                 ++cnt;
               }
             } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
+  
+            done:
+
             /* offset pointing to next dataset */
             ofs = ofs_end;
             sweepvar_wrap++;
@@ -2905,7 +2911,18 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->digital = 0;
   gr->rainbow = 0;
   gr->linewidth_mult = tclgetdoublevar("graph_linewidth_mult");
-
+  xctx->graph_flags &= ~(128 | 256); /* clear hcursor flags */
+  gr->hcursor1_y = gr->hcursor2_y = 0.0;
+  val = get_tok_value(r->prop_ptr,"hcursor1_y", 0);
+  if(val[0]) {
+    gr->hcursor1_y = atof_spice(val);
+    xctx->graph_flags |= 128;
+  }
+  val = get_tok_value(r->prop_ptr,"hcursor2_y", 0);
+  if(val[0]) {
+    gr->hcursor2_y = atof_spice(val);
+    xctx->graph_flags |= 256;
+  }
   if(!skip) {
     gr->gx1 = 0;
     gr->gx2 = 1e-6;
@@ -3016,9 +3033,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->gh = gr->gy2 - gr->gy1;
   /* set margins */
   tmp = gr->rw * 0.14;
-  gr->marginx = tmp < 30 ? 30 : tmp;
+  gr->marginx = tmp < 50 ? 50 : tmp;
   tmp = gr->rh * 0.14;
-  gr->marginy = tmp < 35 ? 35 : tmp;
+  gr->marginy = tmp < 40 ? 40 : tmp;
 
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
@@ -3031,7 +3048,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->h = gr->y2 - gr->y1;
 
   /* label text size calculations */
-  gr->txtsizelab = gr->marginy * 0.007;
+  gr->txtsizelab = gr->marginy * 0.006;
   /* 
    * tmp =  gr->w * 0.00044;
    * if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
@@ -3042,8 +3059,8 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
     gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
 
   /* x axis, y axis text sizes */
-  gr->txtsizey = gr->h / gr->divy * 0.009;
-  tmp = gr->marginx * 0.005;
+  gr->txtsizey = gr->h / gr->divy * 0.0095;
+  tmp = gr->marginx * 0.003;
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
   tmp = gr->marginy * 0.02;
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
@@ -3134,6 +3151,72 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
     if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1, NULL);
     if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1, NULL);
   }
+}
+
+static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
+{   
+  double yy, pos = active_cursory;
+  double tx1, ty1, tx2, ty2, dtmp;
+  int tmp;
+  char tmpstr[100];
+  double txtsize = gr->txtsizey;
+  double th;
+  
+  if(gr->digital) return;
+  if(gr->logy) pos = mylog10(pos);
+  yy = W_Y(pos);
+  if(yy >= gr->y1 && yy <= gr->y2) {
+    drawline(cursor_color, NOW, gr->rx1 + 10, yy, gr->rx2 - 10, yy, 1, NULL);
+    if(gr->unity != 1.0)
+       my_snprintf(tmpstr, S(tmpstr), " %.5g%c ", gr->unity * active_cursory , gr->unity_suffix);
+    else
+       my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(active_cursory));
+    text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 0, gr->rx1 + 5, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
+    th = (ty2 - ty1) / 2.; /* half text height */
+    ty1 -= th;
+    ty2 -= th;
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    draw_string(cursor_color, NOW, tmpstr, 0, 0, 0, 0, gr->rx1 + 5, yy - th, txtsize, txtsize);
+  }
+}
+
+static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
+{
+  int tmp;
+  char tmpstr[100];
+  double txtsize = gr->txtsizey;
+  double tx1, ty1, tx2, ty2;
+  double cc1 = gr->logy ? mylog10(c1) : c1;
+  double cc2 = gr->logy ? mylog10(c2) : c2;
+  double aa = W_Y(cc1);
+  double a = CLIP(aa, gr->y1, gr->y2);
+  double bb = W_Y(cc2);
+  double b = CLIP(bb, gr->y1, gr->y2);
+  double diff = fabs(b - a);
+  double diffh;
+  double yy = ( a + b ) * 0.5;
+  double xx = gr->rx1 + 5;
+  double dtmp;
+  double xline;
+
+  if(gr->digital) return;
+  diffh = fabs(c2 - c1);
+  if(gr->unity != 1.0)
+     my_snprintf(tmpstr, S(tmpstr), " %.4g%c ", gr->unity * diffh , gr->unity_suffix);
+  else
+     my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(diffh));
+  text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 1, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
+  if( 2 * (ty2 - ty1) < diff ) {
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    draw_string(3, NOW, tmpstr, 0, 0, 0, 1, xx, yy, txtsize, txtsize);
+    if( a > b) {
+      dtmp = a; a = b; b = dtmp;
+    }
+    xline = tx1 + 10;
+    if( ty1 - a > 4.0) drawline(3, NOW, xline, a + 2, xline, ty1 - 2, 1, NULL);
+    if( b - ty2 > 4.0) drawline(3, NOW, xline, ty2 + 2, xline, b - 2, 1, NULL);
+  }
+
 }
 
 /* sweep variables on x-axis, node labels */
@@ -3451,6 +3534,9 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     ofs_end = ofs + raw->npoints[dset];
     first = -1;
     last = ofs; 
+
+    /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+    if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
     for(p = ofs ; p < ofs_end; p++) {
       if(gr->logx) 
         xx = mylog10(gv[p]);
@@ -3483,6 +3569,9 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
       }
     }
+ 
+    done:
+
     /* offset pointing to next dataset */
     ofs = ofs_end;
     sweepvar_wrap++;
@@ -3654,12 +3743,14 @@ int find_closest_wave(int i, Graph_ctx *gr)
 
 
 /* flags:
- * 1: do final XCopyArea (copy 2nd buffer areas to screen) 
- *    If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
- *    This makes drawing faster and removes a 'tearing' effect when moving around.
- * 2: draw x-cursor1
- * 4: draw x-cursor2
- * 8: all drawing, if not set do only XCopyArea / x-cursor if specified
+ *  1: do final XCopyArea (copy 2nd buffer areas to screen) 
+ *     If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
+ *     This makes drawing faster and removes a 'tearing' effect when moving around.
+ *  2: draw x-cursor1
+ *  4: draw x-cursor2
+ * 128: draw y-cursor1
+ * 256: draw y-cursor2
+ *  8: all drawing, if not set do only XCopyArea / x-cursor if specified
  * ct is a pointer used in windows for cairo
  */
 void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
@@ -3714,7 +3805,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   #if 0
   dbg(0, "draw_graph(): window: %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
   dbg(0, "draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
-  dbg(0, "draw_graph(): i = %d, flags = %d\n", i, flags);
+  dbg(0, "draw_graph(): i = %d, flags = %d graph_flags=%d\n", i, flags, xctx->graph_flags);
   #endif
  
   /* draw stuff */
@@ -3905,6 +3996,10 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_x = 0;
           last = ofs; 
+
+          /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
+          if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+
           for(p = ofs ; p < ofs_end; p++) {
             double xxprevious, xxfollowing;
 
@@ -3980,6 +4075,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             } /* if(xx >= start && xx <= end) */
             prev_x = xx;
           } /* for(p = ofs ; p < ofs + xctx->raw->npoints[dset]; p++) */
+
+
           if(first != -1) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               /* plot graph. Bus bundles are not plotted if graph is not digital.*/
@@ -3996,6 +4093,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               }
             }
           }
+
+          done:
+
           /* offset pointing to next dataset */
           ofs = ofs_end;
           sweepvar_wrap++;
@@ -4036,17 +4136,17 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
    */
   if(flags & 8) {
     /* cursor1 */
-    if((flags & 2)) {
-      draw_cursor(cursor1, cursor2, 1, gr);
-    }
+    if((flags & 2)) draw_cursor(cursor1, cursor2, 1, gr);
     /* cursor2 */
-    if((flags & 4)) {
-      draw_cursor(cursor2, cursor1, 3, gr);
-    }
+    if((flags & 4)) draw_cursor(cursor2, cursor1, 3, gr);
     /* difference between cursors */
-    if((flags & 2) && (flags & 4)) {
-      draw_cursor_difference(cursor1, cursor2, gr);
-    }
+    if((flags & 2) && (flags & 4)) draw_cursor_difference(cursor1, cursor2, gr);
+    /* difference between hcursors */
+    if((flags & 128) && (flags & 256)) draw_hcursor_difference(gr->hcursor1_y, gr->hcursor2_y, gr);
+    /* hcursor1 */
+    if(flags & 128) draw_hcursor(gr->hcursor1_y, 15, gr);
+    /* hcursor2 */
+    if(flags & 256) draw_hcursor(gr->hcursor2_y, 19, gr);
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
@@ -4097,8 +4197,10 @@ static void draw_graph_all(int flags)
       if(xctx->enable_layer[GRIDLAYER]) for(i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
         xRect *r = &xctx->rect[GRIDLAYER][i];
         if(r->flags & 1) {
+          int flags2;
           setup_graph_data(i, 0, &xctx->graph_struct);
-          draw_graph(i, flags, &xctx->graph_struct, NULL); /* draw data in each graph box */
+          flags2 = flags | (xctx->graph_flags & (128 | 256)); /* include drawing hcursors if enabled */
+          draw_graph(i, flags2, &xctx->graph_struct, NULL); /* draw data in each graph box */
         }
       }
     }
@@ -4701,7 +4803,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
       xRect *r = &xctx->rect[GRIDLAYER][i];
       if(r->flags & 1) {
         setup_graph_data(i, 0, &xctx->graph_struct);
-        draw_graph(i, 8, &xctx->graph_struct, (void *)ct);
+        draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
       }
     }
 #endif

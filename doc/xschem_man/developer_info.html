@@ -1342,8 +1342,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       rotate_in_place</kbd></li><pre>
    Rotate selected objects around their 0,0 coordinate point </pre>
-   <li><kbd>       save</kbd></li><pre>
-   Save schematic if modified. Does not ask confirmation! </pre>
+   <li><kbd>       save [fast]</kbd></li><pre>
+   Save schematic if modified. Does not ask confirmation!
+   if 'fast' is given it is passed to save_schematic() to avoid
+   updating window/tab/sim button states </pre>
    <li><kbd>       saveas [file] [type]</kbd></li><pre>
    save current schematic as 'file'
    if file is empty ({}) use current schematic name
@@ -1393,6 +1395,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        for all other objects 'id' is the position in the respective arrays
        if 'clear' is specified does an unselect operation
        if 'fast' is specified avoid sending information to infowindow and status bar
+       if 'nodraw' is given on select instance do not draw selection
        returns 1 if something selected, 0 otherwise </pre>
    <li><kbd>       select_all</kbd></li><pre>
    Selects all objects in schematic </pre>
