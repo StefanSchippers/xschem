@@ -1969,7 +1969,7 @@ void get_additional_symbols(int what)
       dbg(1, "schematic=%s\n", get_tok_value(xctx->inst[i].prop_ptr,"schematic",2));
       /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
       my_strdup2(_ALLOC_ID_, &sch,
-          translate3(get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), 1,
+          translate3(get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6), 1,
             xctx->inst[i].prop_ptr, NULL, NULL));
       dbg(1, "sch=%s\n", sch);
     
@@ -2093,7 +2093,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   if(inst >= 0) {
      /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
      my_strdup2(_ALLOC_ID_, &str_tmp,
-        translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic",2), 1,
+        translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6), 1,
           xctx->inst[inst].prop_ptr, NULL, NULL));
   }
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
