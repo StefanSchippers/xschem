@@ -839,12 +839,12 @@ static void name_generics()
                   bus_node_hash_lookup(inst[n].node[p],"", XINSERT, 1, sig_type,"", "","");
                 } else {
                   my_strdup(_ALLOC_ID_, &sig_type,
-                    get_tok_value((inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "sig_type", 0));
+                    get_tok_value(xctx->sym[inst[i].ptr].rect[GENERICLAYER][j-rects].prop_ptr, "sig_type", 0));
                   /* insert generic label in hash table as a port so it will not */
                   /* be declared as a signal in the vhdl netlist. this is a workaround */
                   /* that should be fixed 25092001 */
                   bus_node_hash_lookup(inst[n].node[p],
-                    get_tok_value((inst[i].ptr+ xctx->sym)->rect[GENERICLAYER][j-rects].prop_ptr, "dir",0),
+                    get_tok_value(xctx->sym[inst[i].ptr].rect[GENERICLAYER][j-rects].prop_ptr, "dir",0),
                     XINSERT, 1, sig_type,"", "","");
                 }
               } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
@@ -1276,7 +1276,7 @@ static int name_nodes_of_pins_labels_and_propagate()
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
     if(print_erc && (!inst[i].instname || !inst[i].instname[0]) &&
-      !get_tok_value((inst[i].ptr+ xctx->sym)->templ, "name", 0)[0]
+      !get_tok_value(xctx->sym[inst[i].ptr].templ, "name", 0)[0]
         ) {
       char str[2048];
       if(  type &&  /* list of devices that do not have a name= in template attribute */
@@ -1319,13 +1319,13 @@ static int name_nodes_of_pins_labels_and_propagate()
         /* 20071204 only define a dir property if instance is not a label */
         if(for_netlist)
           my_strdup2(_ALLOC_ID_, &dir,
-              get_tok_value( (inst[i].ptr+ xctx->sym)->rect[PINLAYER][0].prop_ptr, "dir",0));
+              get_tok_value(xctx->sym[inst[i].ptr].rect[PINLAYER][0].prop_ptr, "dir",0));
       }
       else {
         /* handle global nodes (global=1 set as symbol property) 28032003 */
         my_strdup(_ALLOC_ID_, &global_node,get_tok_value(inst[i].prop_ptr,"global",0));
         if(!xctx->tok_size) {
-          my_strdup(_ALLOC_ID_, &global_node,get_tok_value((inst[i].ptr+ xctx->sym)->prop_ptr,"global",0));
+          my_strdup(_ALLOC_ID_, &global_node,get_tok_value(xctx->sym[inst[i].ptr].prop_ptr,"global",0));
         }
         /*20071204 if instance is a label dont define a dir property for more precise erc checking */
       }
@@ -1338,7 +1338,7 @@ static int name_nodes_of_pins_labels_and_propagate()
       }
       my_strdup(_ALLOC_ID_, &inst[i].node[0], inst[i].lab);
       if(!(inst[i].node[0])) {
-        my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value((inst[i].ptr+ xctx->sym)->templ, "lab",0));
+        my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value(xctx->sym[inst[i].ptr].templ, "lab",0));
         dbg(1, "name_nodes_of_pins_labels_and_propagate(): no lab attr on instance, pick from symbol: %s\n",
                 inst[i].node[0]);
       }

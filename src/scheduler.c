@@ -1817,7 +1817,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           tmp = xctx->inst[i].name;
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else if(strstr(argv[4], "cell::") ) {
-          tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, argv[4]+6, with_quotes);
+          tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, argv[4]+6, with_quotes);
           dbg(1, "scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else {
@@ -1853,7 +1853,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               value = get_tok_value(xctx->inst[inst].prop_ptr,subtok,0);
             }
             if(!value[0]) {
-              value = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr,argv[5],0);
+              value = get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr,argv[5],0);
             }
             if(value[0] != 0) {
               char *ss;
@@ -2450,7 +2450,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       prepare_netlist_structs(0);
       no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       for(p=0;p<no_of_pins;p++) {
-        if(!strcmp(get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0), argv[3])) {
+        if(!strcmp(get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][p].prop_ptr, "name",0), argv[3])) {
           str_ptr =  net_name(i,p, &multip, 0, 1);
           break;
         }
@@ -2482,7 +2482,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           no_of_pins= (xctx->inst[inst].ptr+ xctx->sym)->rects[PINLAYER];
           for(p=0;p<no_of_pins;p++) {
             const char *pin;
-            pin = get_tok_value((xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
+            pin = get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][p].prop_ptr, "name",0);
             if(!pin[0]) pin = "--ERROR--";
             if(argc > 3 && strcmp(argv[3], pin)) continue;
             if(first == 0) Tcl_AppendResult(interp, " ", NULL);
@@ -2596,7 +2596,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         no_of_pins= (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
         for(p=0;p<no_of_pins;p++) {
           const char *pin;
-          pin = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, "name",0);
+          pin = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][p].prop_ptr, "name",0);
           if(!pin[0]) pin = "--ERROR--";
           my_mstrcat(_ALLOC_ID_, &pins, "{", pin, "}", NULL);
           if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
@@ -3423,7 +3423,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(first == 0) Tcl_AppendResult(interp, " ", NULL);
           if(argc > 3 && argv[3][0]) {
             Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
-              get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][p].prop_ptr, argv[3], 0),
+              get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][p].prop_ptr, argv[3], 0),
               "} }", NULL);
           } else {
             Tcl_AppendResult(interp, "{ {", my_itoa(p), "} {",
@@ -4397,7 +4397,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_free(_ALLOC_ID_, &sym);
         if(sym_number>=0)
         {
-          prefix=(get_tok_value( (xctx->sym+sym_number)->templ , "name",0))[0]; /* get new symbol prefix  */
+          prefix=(get_tok_value(xctx->sym[sym_number].templ , "name",0))[0]; /* get new symbol prefix  */
         }
         else prefix = 'x';
         delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */

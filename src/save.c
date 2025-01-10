@@ -3222,10 +3222,12 @@ static int pin_compare(const void *a, const void *b)
   int pinnumber_a, pinnumber_b;
   const char *tmp;
   int result;
+  xRect *aa = (xRect *)a;
+  xRect *bb = (xRect *)b;
   
-  tmp = get_tok_value(((xRect *)a)->prop_ptr, "sim_pinnumber", 0);
+  tmp = get_tok_value(aa->prop_ptr, "sim_pinnumber", 0);
   pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
-  tmp = get_tok_value(((xRect *)b)->prop_ptr, "sim_pinnumber", 0);
+  tmp = get_tok_value(bb->prop_ptr, "sim_pinnumber", 0);
   pinnumber_b = tmp[0] ?atoi(tmp) : -1;
   result =  pinnumber_a < pinnumber_b ? -1 : pinnumber_a == pinnumber_b ? 0 : 1;
   if(result >= 0) order_changed = 1;
@@ -4967,7 +4969,7 @@ void create_sch_from_sym(void)
     if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
     {
       my_strdup2(_ALLOC_ID_, &sch,
-        get_tok_value((xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym)->prop_ptr, "schematic",0 ));
+        get_tok_value(xctx->sym[xctx->inst[xctx->sel_array[0].n].ptr].prop_ptr, "schematic", 0));
       my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
       my_free(_ALLOC_ID_, &sch);
       if(!schname[0]) {
@@ -5101,7 +5103,7 @@ void descend_symbol(void)
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
             xctx->inst[n].prop_ptr);
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
-            get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
+            get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "template", 0));
 
   if(!xctx->inst[n].embed)
     /* use -1 to keep track we are descending into symbol from instance with no embed attr

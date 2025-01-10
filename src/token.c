@@ -424,6 +424,7 @@ static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **p
 /* bit 1: */
 /* 1: do not perform tcl_hook2 substitution */
 /* bit: 2 = 1: same as bit 0 = 1, but remove surrounding "..." quotes, keep everything in between */
+/* with_quotes values used in xschem: 0  1  2  4  6 */
 
 
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
@@ -626,7 +627,7 @@ static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
    dbg(1, "get_pin_attr_from_inst(): inst=%d pin=%d attr=%s\n", inst, pin, attr);
    if(xctx->inst[inst].ptr < 0 ) return NULL;
    pin_attr_value = NULL;
-   str = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][pin].prop_ptr,"name",0);
+   str = get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][pin].prop_ptr,"name",0);
    if(str[0]) {
      size_t tok_val_len;
      tok_val_len = strlen(str);
@@ -934,13 +935,13 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
  /* get netlist format rule from symbol */
  if(!xctx->tok_size)
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2));
  /* allow format string override in instance */
  if(xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
  /* get netlist format rule from symbol */
  if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2));
+   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "vhdl_format", 2));
  if((name==NULL) || (format==NULL) ) {
    my_free(_ALLOC_ID_, &template);
    my_free(_ALLOC_ID_, &name);
@@ -1093,7 +1094,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
          /* get pin_attr from instance pin attribute string */
          if(!pin_attr_value) {
           my_strdup(_ALLOC_ID_, &pin_attr_value,
-             get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+             get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
          }
        }
        /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
@@ -1454,13 +1455,13 @@ void print_vhdl_element(FILE *fd, int inst)
   fmt = get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2);
   /* get netlist format rule from symbol */
   if(!xctx->tok_size)
-    fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+    fmt = get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2);
   /* allow format string override in instance */
   if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format") )
     fmt = get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2);
   /* get netlist format rule from symbol */
   if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))
-    fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "vhdl_format", 2);
+    fmt = get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "vhdl_format", 2);
 
   if(fmt[0]) {
    print_vhdl_primitive(fd, inst);
@@ -1491,7 +1492,7 @@ void print_vhdl_element(FILE *fd, int inst)
 
   tmp=0;
   /* 20080213 use generic_type property to decide if some properties are strings, see later */
-  my_strdup(_ALLOC_ID_, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type", 0));
+  my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr,"generic_type", 0));
 
   while(1)
   {
@@ -1558,12 +1559,12 @@ void print_vhdl_element(FILE *fd, int inst)
      {
        if(!xctx->inst[inst].node || !xctx->inst[inst].node[no_of_pins+i]) continue;
        my_strdup(_ALLOC_ID_, &generic_type,
-         get_tok_value( (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"type",0));
+         get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[GENERICLAYER][i].prop_ptr,"type",0));
        my_strdup(_ALLOC_ID_, &generic_value,   xctx->inst[inst].node[no_of_pins+i] );
        /*my_strdup(_ALLOC_ID_, &generic_value, get_tok_value( */
        /*  (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"value") ); */
        str_ptr =
-         get_tok_value( (xctx->inst[inst].ptr + xctx->sym)->rect[GENERICLAYER][i].prop_ptr,"name",0);
+         get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[GENERICLAYER][i].prop_ptr,"name",0);
     if(generic_value) {                  /*03062002 dont print generics if unassigned */
        if(tmp) fprintf(fd, " ,\n");
        if(!tmp) fprintf(fd, "generic map (\n");
@@ -1589,7 +1590,7 @@ void print_vhdl_element(FILE *fd, int inst)
         {
           if(tmp) fprintf(fd, " ,\n");
           fprintf(fd, "   %s => %s",
-            get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+            get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"name",0),
             str_ptr);
           tmp=1;
         }
@@ -2137,13 +2138,13 @@ int print_spice_element(FILE *fd, int inst)
   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   /* get netlist format rule from symbol */
   if(!xctx->tok_size)
-    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2));
   /* allow format string override in instance */
   if(!xctx->tok_size && strcmp(fmt_attr, "format") )
     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "format", 2));
   /* get netlist format rule from symbol */
   if(!xctx->tok_size && strcmp(fmt_attr, "format"))
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "format", 2));
+     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "format", 2));
   if ((name==NULL) || (format==NULL)) {
     my_free(_ALLOC_ID_, &template);
     my_free(_ALLOC_ID_, &format);
@@ -2359,7 +2360,7 @@ int print_spice_element(FILE *fd, int inst)
             /* get pin_attr from instance pin attribute string */
             if(!pin_attr_value) {
              my_strdup(_ALLOC_ID_, &pin_attr_value,
-                get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+                get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
             }
           }
           /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
@@ -2516,10 +2517,10 @@ void print_tedax_element(FILE *fd, int inst)
  int no_of_pins=0;
  int subcircuit = 0;
 
- my_strdup(_ALLOC_ID_, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra",0));
+ my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr,"extra",0));
  my_strdup(_ALLOC_ID_, &extra_pinnumber, get_tok_value(xctx->inst[inst].prop_ptr,"extra_pinnumber",0));
  if(!extra_pinnumber) my_strdup(_ALLOC_ID_, &extra_pinnumber,
-         get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"extra_pinnumber",0));
+         get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr,"extra_pinnumber",0));
  my_strdup(_ALLOC_ID_, &template,
      (xctx->inst[inst].ptr + xctx->sym)->templ);
  my_strdup(_ALLOC_ID_, &numslots, get_tok_value(xctx->inst[inst].prop_ptr,"numslots",0));
@@ -2533,7 +2534,7 @@ void print_tedax_element(FILE *fd, int inst)
  /* allow format string override in instance */
  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr,"tedax_format",2));
  if(!format || !format[0])
-   my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"tedax_format",2));
+   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr,"tedax_format",2));
 
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
  if( !format && !strcmp((xctx->inst[inst].ptr + xctx->sym)->type, "subcircuit") ) {
@@ -2553,7 +2554,7 @@ void print_tedax_element(FILE *fd, int inst)
    for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
      my_strdup2(_ALLOC_ID_, &pinname, 
-       get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0));
+       get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"name",0));
      my_strdup2(_ALLOC_ID_, &pin, expandlabel(pinname, &pin_mult));
      if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
        dbg(1, "#net=%s pinname=%s pin=%s net_mult=%d pin_mult=%d\n", net, pinname, pin, net_mult, pin_mult);
@@ -2592,7 +2593,7 @@ void print_tedax_element(FILE *fd, int inst)
      pinnumber = get_pin_attr_from_inst(inst, i, "pinnumber");
      if(!pinnumber) {
        my_strdup2(_ALLOC_ID_, &pinnumber,
-              get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"pinnumber",0));
+              get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"pinnumber",0));
      }
      if(!xctx->tok_size) my_strdup(_ALLOC_ID_, &pinnumber, "--UNDEF--");
      tmp = net_name(inst,i, &multip, 0, 1);
@@ -2600,7 +2601,7 @@ void print_tedax_element(FILE *fd, int inst)
        fprintf(fd, "conn %s %s %s %s %d\n",
              name,
              tmp,
-             get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+             get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"name",0),
              pinnumber,
              i+1);
      }
@@ -2724,7 +2725,7 @@ void print_tedax_element(FILE *fd, int inst)
     else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
      for(i=0;i<no_of_pins; ++i) {
       if(!strcmp(
-           get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr,"name",0),
+           get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"name",0),
            token+2
           )
         ) {
@@ -2760,7 +2761,7 @@ void print_tedax_element(FILE *fd, int inst)
           /* get pin_attr from instance pin attribute string */
           if(!pin_attr_value) {
            my_strdup(_ALLOC_ID_, &pin_attr_value,
-              get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+              get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
           }
         }
         /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
@@ -2866,13 +2867,13 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
   /* get netlist format rule from symbol */
   if(!xctx->tok_size)
-    my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2));
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2));
   /* allow format string override in instance */
   if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format") )
     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2));
   /* get netlist format rule from symbol */
   if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
-     my_strdup(_ALLOC_ID_, &format, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2));
+     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilog_format", 2));
   if((name==NULL) || (format==NULL) ) {
     my_free(_ALLOC_ID_, &template);
     my_free(_ALLOC_ID_, &name);
@@ -3021,7 +3022,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
           /* get pin_attr from instance pin attribute string */
           if(!pin_attr_value) {
            my_strdup(_ALLOC_ID_, &pin_attr_value,
-              get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+              get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
           }
         }
         /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
@@ -3150,13 +3151,13 @@ void print_verilog_element(FILE *fd, int inst)
  fmt = get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2);
  /* get netlist format rule from symbol */
  if(!xctx->tok_size)
-   fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, fmt_attr, 2);
+   fmt = get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2);
  /* allow format string override in instance */
  if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format") )
    fmt = get_tok_value(xctx->inst[inst].prop_ptr, "verilog_format", 2);
  /* get netlist format rule from symbol */
  if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
-   fmt = get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_format", 2);
+   fmt = get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilog_format", 2);
 
  if(fmt[0]) {
   print_verilog_primitive(fd, inst);
@@ -3170,11 +3171,11 @@ void print_verilog_element(FILE *fd, int inst)
    return;
  }
  /* verilog_extra is the list of additional nodes passed as attributes */
- my_strdup(_ALLOC_ID_, &v_extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilog_extra", 0));
+ my_strdup(_ALLOC_ID_, &v_extra, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilog_extra", 0));
  /* extra is the list of attributes NOT to consider as instance parameters */
- my_strdup(_ALLOC_ID_, &extra, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "extra", 0));
+ my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "extra", 0));
  my_strdup(_ALLOC_ID_, &verilogprefix, 
-    get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr, "verilogprefix", 0));
+    get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilogprefix", 0));
  if(verilogprefix) {
    my_strdup(_ALLOC_ID_, &symname, verilogprefix);
    my_strcat(_ALLOC_ID_, &symname, get_sym_name(inst, 0, 0, 0));
@@ -3186,7 +3187,7 @@ void print_verilog_element(FILE *fd, int inst)
  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
 
  /* 20080915 use generic_type property to decide if some properties are strings, see later */
- my_strdup(_ALLOC_ID_, &generic_type, get_tok_value((xctx->inst[inst].ptr + xctx->sym)->prop_ptr,"generic_type",0));
+ my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr,"generic_type",0));
  s=xctx->inst[inst].prop_ptr;
 /* print instance  subckt */
  dbg(2, "print_verilog_element(): printing inst name & subcircuit name\n");
@@ -3386,13 +3387,13 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
          my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j])+1 );
      }
      expandlabel(
-        get_tok_value( (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
+        get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0), multip);
      return expandlabel(str_node, &tmp);
    }
    else
    {
      expandlabel(
-        get_tok_value( (xctx->inst[i].ptr + xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0), multip);
+        get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0), multip);
      return expandlabel(xctx->inst[i].node[j], &tmp);
    }
  }
@@ -3541,7 +3542,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
       /* get pin_attr from instance pin attribute string */
       if(!pin_attr_value) {
        my_strdup(_ALLOC_ID_, &pin_attr_value,
-          get_tok_value((xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+          get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
       }
     }
     /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin
@@ -4305,7 +4306,7 @@ const char *translate(int inst, const char* s)
    } else if(inst >= 0) {
      value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
      if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
-       value=get_tok_value((xctx->inst[inst].ptr + xctx->sym)->templ, token+1, 0);
+       value=get_tok_value(xctx->sym[xctx->inst[inst].ptr].templ, token+1, 0);
      }
      if(!xctx->tok_size) { /* above lines did not find a value for token */
        if(token[0] =='%') {

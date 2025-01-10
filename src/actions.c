@@ -2358,7 +2358,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
              xctx->inst[n].prop_ptr);
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
-             get_tok_value((xctx->inst[n].ptr+ xctx->sym)->prop_ptr, "template", 0));
+             get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "template", 0));
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
