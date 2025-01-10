@@ -3446,7 +3446,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     int generator = 0;
     if(is_generator(fname)) generator = 1;
     my_strncpy(name, fname, S(name));
-    dbg(0, "load_schematic(): fname=%s\n", fname);
+    dbg(1, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
     if(is_from_web(fname) && xschem_web_dirname[0]) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
