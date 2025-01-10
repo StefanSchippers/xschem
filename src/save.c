@@ -3446,7 +3446,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     int generator = 0;
     if(is_generator(fname)) generator = 1;
     my_strncpy(name, fname, S(name));
-    dbg(1, "load_schematic(): fname=%s\n", fname);
+    dbg(0, "load_schematic(): fname=%s\n", fname);
     /* remote web object specified */
     if(is_from_web(fname) && xschem_web_dirname[0]) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
@@ -5152,7 +5152,11 @@ void descend_symbol(void)
     }
     if(!sympath || stat(sympath, &buf)) { /* not found */
       dbg(1, "descend_symbol: not found: %s\n", sympath);
-      my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
+      if(is_generator(name)) {
+        my_strdup2(_ALLOC_ID_, &sympath, tcl_hook2(name));
+      } else {
+        my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
+      }
     }
     dbg(1, "descend_symbol(): name=%s, sympath=%s, dirname=%s\n", name, sympath, xctx->current_dirname);
     ++xctx->currsch; /* increment level counter */
