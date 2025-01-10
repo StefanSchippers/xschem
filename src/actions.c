@@ -2092,7 +2092,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d web_url=%d\n", sym->name, inst, web_url);
   if(inst >= 0) {
      /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
-     my_strdup2(_ALLOC_ID_, &str_tmp,
+     my_strdup(_ALLOC_ID_, &str_tmp,
         translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6), 1,
           xctx->inst[inst].prop_ptr, NULL, NULL));
   }
