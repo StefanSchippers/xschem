@@ -1551,15 +1551,16 @@ int raw_get_pos(const char *node, double value, int dset, int from_start, int to
     if(idx >= 0) {
       double vx;
       int start, end;
-      int lastpoint = raw->npoints[dset] - 1;
+      int sign, lastpoint = raw->npoints[dset] - 1;
+      double vstart, vend;
 
       start = from_start >= 0 ? from_start : 0;
       end = to_end >= 0 ? to_end : lastpoint;
       if(start > lastpoint) start = lastpoint;
       if(end > lastpoint) end = lastpoint;
-      double vstart = get_raw_value(dset, idx, start);
-      double vend = get_raw_value(dset, idx, end);
-      int sign = (vend > vstart) ? 1 : -1;
+      vstart = get_raw_value(dset, idx, start);
+      vend = get_raw_value(dset, idx, end);
+      sign = (vend > vstart) ? 1 : -1;
       if( sign * value >= sign * vstart && sign * value <= sign * vend) {
         while(1) {
           x = (start + end ) / 2;
