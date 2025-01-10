@@ -554,20 +554,20 @@ char *dtoa_eng(double i)
   size_t n;
   int suffix = 0;
   double absi = fabs(i);
-
-  if     (absi == 0.0)  { suffix = 0;}
-  else if(absi < 1e-23) { i = 0; suffix = 0;}
-  else if(absi >=1e12)  { i /= 1e12; suffix = 'T';}
-  else if(absi >=1e9)   { i /= 1e9 ; suffix = 'G';}
-  else if(absi >=1e6)   { i /= 1e6 ; suffix = 'M';}
-  else if(absi >=1e3)   { i /= 1e3 ; suffix = 'k';}
-  else if(absi >=0.1)   { suffix = 0;}
-  else if(absi >=1e-3)  { i *= 1e3 ; suffix = 'm';}
-  else if(absi >=1e-6)  { i *= 1e6 ; suffix = 'u';}
-  else if(absi >=1e-9)  { i *= 1e9 ; suffix = 'n';}
-  else if(absi >=1e-12) { i *= 1e12; suffix = 'p';}
-  else if(absi >=1e-15) { i *= 1e15; suffix = 'f';}
-  else                  { i *= 1e18; suffix = 'a';}
+  dbg(1,  "dtoa_eng(): i=%.17g, absi=%.17g\n", i, absi);
+  if     (absi == 0.0)        {            suffix =  0 ;}
+  else if(absi < 0.999999e-23) { i  = 0.0 ; suffix =  0 ;}
+  else if(absi > 0.999999e12)  { i /= 1e12; suffix = 'T';}
+  else if(absi > 0.999999e9)   { i /= 1e9 ; suffix = 'G';}
+  else if(absi > 0.999999e6)   { i /= 1e6 ; suffix = 'M';}
+  else if(absi > 0.999999e3)   { i /= 1e3 ; suffix = 'k';}
+  else if(absi > 0.999999e-1)  {            suffix = 0;  }
+  else if(absi > 0.999999e-3)  { i *= 1e3 ; suffix = 'm';}
+  else if(absi > 0.999999e-6)  { i *= 1e6 ; suffix = 'u';}
+  else if(absi > 0.999999e-9)  { i *= 1e9 ; suffix = 'n';}
+  else if(absi > 0.999999e-12) { i *= 1e12; suffix = 'p';}
+  else if(absi > 0.999999e-15) { i *= 1e15; suffix = 'f';}
+  else                        { i *= 1e18; suffix = 'a';}
   if(suffix) {
     n = my_snprintf(s, S(s), "%.5g%c", i, suffix);
   } else {
@@ -1481,7 +1481,7 @@ int drc_check(int i)
         const char *result;
         const char *replace_res;
         
-        replace_res = str_replace(res, "@symname", xctx->sym[xctx->inst[j].ptr].name, '\\');
+        replace_res = str_replace(res, "@symname", xctx->sym[xctx->inst[j].ptr].name, '\\', -1);
         result = tcleval(replace_res);
         if(result && result[0]) {
           ret = 1;
@@ -1799,8 +1799,10 @@ void change_elem_order(int n)
     if(modified) set_modify(1);
   }
 }
-/* replace substring 'rep' in 'str' with 'with', if 'rep' not preceeded by an 'escape' char */
-char *str_replace(const char *str, const char *rep, const char *with, int escape)
+/* replace substring 'rep' in 'str' with 'with', if 'rep' not preceeded by an 'escape' char 
+ * 'count' indicates the number of replacements to do or all if -1
+ */
+char *str_replace(const char *str, const char *rep, const char *with, int escape, int count)
 {
   static char *result = NULL;
   static size_t size=0;
@@ -1809,6 +1811,7 @@ char *str_replace(const char *str, const char *rep, const char *with, int escape
   size_t with_len;
   const char *s = str;
   int cond;
+  int replacements = 0;
 
   if(s==NULL || rep == NULL || with == NULL || rep[0] == '\0') {
     my_free(_ALLOC_ID_, &result);
@@ -1825,11 +1828,14 @@ char *str_replace(const char *str, const char *rep, const char *with, int escape
   while(*s) {
     STR_ALLOC(&result, result_pos + with_len + 1, &size);
 
-    cond = ((s == str) || ((*(s - 1) != escape))) && (!strncmp(s, rep, rep_len));
+    cond = (count == -1 || replacements < count)  && 
+           ((s == str) || ((*(s - 1) != escape))) &&
+           (!strncmp(s, rep, rep_len));
     if(cond) {
       my_strncpy(result + result_pos, with, with_len + 1);
       result_pos += with_len;
       s += rep_len;
+      replacements++;
     } else {
       result[result_pos++] = *s++;
     }

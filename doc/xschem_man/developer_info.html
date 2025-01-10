@@ -1342,6 +1342,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if x0, y0 not given use mouse coordinates </pre>
    <li><kbd>       rotate_in_place</kbd></li><pre>
    Rotate selected objects around their 0,0 coordinate point </pre>
+   <li><kbd>       round_to_n_digits i n</kbd></li><pre>
+   round number 'i' to 'n' digits </pre>
    <li><kbd>       save [fast]</kbd></li><pre>
    Save schematic if modified. Does not ask confirmation!
    if 'fast' is given it is passed to save_schematic() to avoid
@@ -1506,7 +1508,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       snap_wire</kbd></li><pre>
    Start a GUI start snapped wire placement (click to start a
    wire to closest pin/net endpoint) </pre>
-   <li><kbd>       str_replace str rep with [escape]</kbd></li><pre>
+   <li><kbd>       str_replace str rep with [escape] [count]</kbd></li><pre>
    replace 'rep' with 'with' in string 'str'
    if rep not preceeded by an 'escape' character </pre>
    <li><kbd>       subst_tok str tok newval</kbd></li><pre>

@@ -3,1171 +3,1174 @@
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">
             <Directory Id="dir6311FA1F463296CEB32195C7A4F214DF" Name="doc">
-                <Component Id="cmpC12E745643934EE6CA5BC04C80E8C88A" Guid="{2FA319DA-C3D2-4197-B164-AFDF205EED06}">
+                <Component Id="cmpC12E745643934EE6CA5BC04C80E8C88A" Guid="{C1FEF4A8-C7EF-47D0-AC43-4A570B7ABFA4}">
                     <File Id="fil085001B7F30A31864CEC9088D61CE569" KeyPath="yes" Source="$(var.docSrcDir)\bg4.svg" />
                 </Component>
-                <Component Id="cmp8D9434F0D2AB1D96460E63AC7DC06FF9" Guid="{1FE7F8A6-981E-4F55-8889-C424A980652E}">
+                <Component Id="cmp8D9434F0D2AB1D96460E63AC7DC06FF9" Guid="{E9617793-177A-499B-9B85-4979A080B448}">
                     <File Id="fil136E78BFA6223DF4AAA61CFA24E593AD" KeyPath="yes" Source="$(var.docSrcDir)\bg5.svg" />
                 </Component>
-                <Component Id="cmp867691F3B10C018A781A21B717E125CC" Guid="{DDDA460E-4604-4768-9E51-C7FA7B799ED0}">
+                <Component Id="cmp867691F3B10C018A781A21B717E125CC" Guid="{07F418CF-E729-40B6-90EC-991FF55FA37D}">
                     <File Id="filAEF3D766B869F4BF25C246868209BAC0" KeyPath="yes" Source="$(var.docSrcDir)\debian-swirl.svg" />
                 </Component>
-                <Component Id="cmp7EE651E0BECF6D82D2A9A97C692DC829" Guid="{2EF07730-0F1C-4E46-B566-59B1B8D11DAF}">
+                <Component Id="cmp7EE651E0BECF6D82D2A9A97C692DC829" Guid="{0DA7F234-6300-4FE1-A161-96F633E2E41B}">
                     <File Id="fil80522C9DC7E67024EC749AF5972EEA0C" KeyPath="yes" Source="$(var.docSrcDir)\index.html" />
                 </Component>
-                <Component Id="cmpB859306DD95239C4C3436B74D01EBD5D" Guid="{BE5C2CBB-B5F7-4F02-9C88-F5B33774C0FC}">
+                <Component Id="cmpB859306DD95239C4C3436B74D01EBD5D" Guid="{BD6B0B7D-F0A5-447B-83F9-4454D7B27AFC}">
                     <File Id="filA9E7E9707CD31F2BD4320A62FC0BF363" KeyPath="yes" Source="$(var.docSrcDir)\Makefile" />
                 </Component>
-                <Component Id="cmp8C61DC5591CC602FCD6377240984E2E6" Guid="{7AE141E0-6686-4B6B-811B-128A604CEC12}">
+                <Component Id="cmp8C61DC5591CC602FCD6377240984E2E6" Guid="{F57BB282-5CB4-4980-BD23-13E20465377D}">
                     <File Id="fil858485ECD5550EC7EF4CA77D7D7B1C09" KeyPath="yes" Source="$(var.docSrcDir)\menu_xschem.html" />
                 </Component>
-                <Component Id="cmpACD502025F21AD04E50DF1AF3BE7B5EF" Guid="{11A1F1A9-7F75-4575-A73A-412169D2CA2C}">
+                <Component Id="cmpACD502025F21AD04E50DF1AF3BE7B5EF" Guid="{8F4D8DAF-1E8E-473C-B4CB-9BAFD7C225FB}">
                     <File Id="fil1F47713E48E0593C4B37B0F13576DC2E" KeyPath="yes" Source="$(var.docSrcDir)\style.css" />
                 </Component>
-                <Component Id="cmp25A043AB41EF230E1E934445514477D5" Guid="{61634662-9859-47CC-A600-5E7C111742C7}">
+                <Component Id="cmp25A043AB41EF230E1E934445514477D5" Guid="{CE5EC953-3181-4248-BE53-0024F86B954B}">
                     <File Id="filBAC54F00DD92FBD5CCADF835F3677E8D" KeyPath="yes" Source="$(var.docSrcDir)\xschem.png" />
                 </Component>
-                <Component Id="cmp3EE12729C368AAE386D9F87D123AF8B1" Guid="{4837C9AC-3A8B-4E01-B52D-617D28A2BAB3}">
+                <Component Id="cmp3EE12729C368AAE386D9F87D123AF8B1" Guid="{247B9087-A3AB-4EA4-B64A-079B56F42EB7}">
                     <File Id="filFD5D3066FDC5AB311163BF92D3238BC7" KeyPath="yes" Source="$(var.docSrcDir)\xschem1.png" />
                 </Component>
-                <Component Id="cmpDB2679E4A9AD23987A0D7CA88533A656" Guid="{74058EC3-8FDC-4D7B-AB2E-03A6838E3AEE}">
+                <Component Id="cmpDB2679E4A9AD23987A0D7CA88533A656" Guid="{19226671-E578-4A9F-9426-58AA3B3EB6CD}">
                     <File Id="filB5BAB18CD952C15145D612E191ECB3D5" KeyPath="yes" Source="$(var.docSrcDir)\xschem2.png" />
                 </Component>
                 <Directory Id="dir56824767C511B5A8BDE9AD99F23EBEB0" Name="manpages">
-                    <Component Id="cmp9825A377AC374CFEE6EB63CFA6BE0BF6" Guid="{144A95C3-8A60-4CF3-8042-D1C176DB1AB8}">
+                    <Component Id="cmp9825A377AC374CFEE6EB63CFA6BE0BF6" Guid="{E7039CF3-EFA8-49A7-B466-A9EE47C8D094}">
                         <File Id="filBD354E9C342F6AB2EBF466996BFA6597" KeyPath="yes" Source="$(var.docSrcDir)\manpages\xschem.1.in" />
                     </Component>
                 </Directory>
                 <Directory Id="dir1A6EF3F3B7E2263922A60443E341E4CD" Name="xschem_man">
-                    <Component Id="cmpC4B67FB1F80BFA9664189B56CE8DAEC6" Guid="{E4134008-A4E7-48D3-92F3-D53D97B9D41C}">
+                    <Component Id="cmpC4B67FB1F80BFA9664189B56CE8DAEC6" Guid="{DFDF6D5C-0B0A-4B04-9A04-F799D9564A04}">
                         <File Id="filF259594CF3E31DB955EB1E42D27DE13F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\attribute_substitution.obj.gz" />
                     </Component>
-                    <Component Id="cmp9DD9B6DEAB0CD49429098E1026944E4F" Guid="{82EEE84B-1D5D-4777-95B1-56762337C9DB}">
+                    <Component Id="cmp9DD9B6DEAB0CD49429098E1026944E4F" Guid="{ADB631BB-12BA-4AFE-A5EB-0B26F15A8464}">
                         <File Id="fil85685915453B1F3769CA0C90B080AF26" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\attribute_substitution.png" />
                     </Component>
-                    <Component Id="cmpAF690A4E0D904C1CEF0448A03FFFF50F" Guid="{72615A7D-9E51-417B-AB8F-4FA403C4505A}">
+                    <Component Id="cmpAF690A4E0D904C1CEF0448A03FFFF50F" Guid="{9E9C765F-F2BE-46BE-A946-0DBD62BF5543}">
                         <File Id="fil08580CCFA2BB78C95FC7B5C8FEF2F52B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\auto_wiring1.png" />
                     </Component>
-                    <Component Id="cmpFC6D3A6A746A5CF17C26E4C8A40868A6" Guid="{2B72C1FA-EDB6-4C69-B349-C89D10AB30CB}">
+                    <Component Id="cmpFC6D3A6A746A5CF17C26E4C8A40868A6" Guid="{AF793022-E519-4A6E-BFAC-A3C165E4255C}">
                         <File Id="fil549D495BCE6511A9E52796063F1DF3F0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\auto_wiring2.png" />
                     </Component>
-                    <Component Id="cmp7BA9FF5B93AA3B794F8CDBC55C4D96E9" Guid="{51A0B917-90FF-48C1-8BE0-F4B631D8EBA8}">
+                    <Component Id="cmp7BA9FF5B93AA3B794F8CDBC55C4D96E9" Guid="{9FC4258D-AD1A-4224-B9D2-852E4D21E2EB}">
                         <File Id="fil339DAADDCEB66D3163EDFEF4A1F3C020" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation1.png" />
                     </Component>
-                    <Component Id="cmp92FCD98D3EE579C25785A73D0D7ED11A" Guid="{345B9ED8-2FD8-4EBC-AEFF-C082FA49D533}">
+                    <Component Id="cmp92FCD98D3EE579C25785A73D0D7ED11A" Guid="{7F0FE70E-F610-40ED-82DC-1CC9247FA871}">
                         <File Id="fil4ACD15E227786476642CB8F88E28F762" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation10.png" />
                     </Component>
-                    <Component Id="cmp864BDE830197C5FE482638E18A9C3652" Guid="{D42C55A8-442C-42CE-BC1D-6698923734F1}">
+                    <Component Id="cmp864BDE830197C5FE482638E18A9C3652" Guid="{C2C138DD-6FD0-4D2F-9AC4-4D4C937573E6}">
                         <File Id="fil1D86F595CEE0DD02275989F9D27E9C8E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation11.png" />
                     </Component>
-                    <Component Id="cmp899AB8B9ABE11F20A0C7BC767419FC1B" Guid="{5F604E8F-4A65-4D2D-8A86-7119594EBBC9}">
+                    <Component Id="cmp899AB8B9ABE11F20A0C7BC767419FC1B" Guid="{9FDAB9C4-2DE7-4481-BFDF-1DDD963A9C86}">
                         <File Id="fil4399695F0D271808F2146E9C078FE782" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation12.png" />
                     </Component>
-                    <Component Id="cmp5C7893CE9CAC7172186A19D4F7C9B3F6" Guid="{C8F8C9F2-158D-4538-8072-00BAC72E4856}">
+                    <Component Id="cmp5C7893CE9CAC7172186A19D4F7C9B3F6" Guid="{C48A7AD5-A41E-4FD7-B945-D4B442E4ADE0}">
                         <File Id="filB1D1B653FBB05BC5BD212DBD02C5A11C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation13.png" />
                     </Component>
-                    <Component Id="cmp830D9797AC395079C02810A4A8D445E4" Guid="{76B18EDE-4190-44C6-A708-5220B40F0049}">
+                    <Component Id="cmp830D9797AC395079C02810A4A8D445E4" Guid="{474578AF-6A17-4E21-B457-B87A09001969}">
                         <File Id="fil1A2489071686F8984790BF5501FA50E1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation14.png" />
                     </Component>
-                    <Component Id="cmp46766002C824318846B83CDF4DBAD182" Guid="{434BDE95-8166-4E40-A73C-83876CD496F0}">
+                    <Component Id="cmp46766002C824318846B83CDF4DBAD182" Guid="{0C6D9858-540F-4B5A-844D-904D8FA60849}">
                         <File Id="filF1C29484942CC82FB2E9F30C7401501C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation15.png" />
                     </Component>
-                    <Component Id="cmpD6A28746EC2D28A8FBAAAACA17ED987B" Guid="{4992705F-4CD2-4D3F-9B00-767548B22382}">
+                    <Component Id="cmpD6A28746EC2D28A8FBAAAACA17ED987B" Guid="{A6068E2A-2FB2-4F53-A677-A6392CCA959D}">
                         <File Id="fil218EB066431BDA2A9C6ACA3EE7F4C040" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation2.png" />
                     </Component>
-                    <Component Id="cmp582FBF503439D78BC069B234036D9E89" Guid="{4AD0EC38-D0EC-4118-B484-13C8D5C73129}">
+                    <Component Id="cmp582FBF503439D78BC069B234036D9E89" Guid="{DA0A7F37-0E7A-4685-8825-F61C1DC906BD}">
                         <File Id="filBAF17814687873F7A5922B740DE8A958" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation3.png" />
                     </Component>
-                    <Component Id="cmp00B6516520113473361C8E8DF1C8141B" Guid="{B262184D-990E-41E7-8EC8-71D27666E780}">
+                    <Component Id="cmp00B6516520113473361C8E8DF1C8141B" Guid="{21AA3F85-5825-458E-8AA0-79BED8C79E5D}">
                         <File Id="fil01686B626893AC36C53EFD17A9B0D0F0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\backannotation9.png" />
                     </Component>
-                    <Component Id="cmp2211334633C86C7FD8FB44CD2B513095" Guid="{D8438B16-4CEB-41AD-A1CE-462AD052559E}">
+                    <Component Id="cmp2211334633C86C7FD8FB44CD2B513095" Guid="{345E73A1-66ED-4340-ACB4-168805B87074}">
                         <File Id="fil079574D0AFA4272A01756ABADA72DED1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\big_design.obj.gz" />
                     </Component>
-                    <Component Id="cmp57CBA7F2D8CABC805E262E532C0D3F90" Guid="{E631F78D-4A5F-4007-8D92-82BE88EE6E14}">
+                    <Component Id="cmp57CBA7F2D8CABC805E262E532C0D3F90" Guid="{8C9BB474-43F1-4DA7-BA2A-E42170CD8E45}">
                         <File Id="filC4741ED64D4B3A44DE261E9DFE4032DF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\big_design.png" />
                     </Component>
-                    <Component Id="cmpB4C70B1DD39DCFC45E1E8D114A155238" Guid="{DDD3E30B-EBC0-4EDD-B1CA-609F5CA37A31}">
+                    <Component Id="cmpB4C70B1DD39DCFC45E1E8D114A155238" Guid="{FC112A52-26BC-4977-BBBF-2BE19B1464EA}">
                         <File Id="filE08922FF1BF0FDAB10BE18DA02B671E2" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\building_symbol_01.png" />
                     </Component>
-                    <Component Id="cmp243AC4102A219CF9B1E625B24306206A" Guid="{79D254C2-75B7-4E5B-9CA8-6E3C2DA1EA14}">
+                    <Component Id="cmp243AC4102A219CF9B1E625B24306206A" Guid="{9A6A9CC0-B868-4264-90AC-5440A6D6B8A0}">
                         <File Id="fil0E552BD028384FC73390EF32ACC2E898" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\building_symbol_02.png" />
                     </Component>
-                    <Component Id="cmp47D4CB5C48B2591C2C696A65E79F9DBB" Guid="{B7EB2FA0-FE2C-49B1-86BF-288EC5BBF97B}">
+                    <Component Id="cmp47D4CB5C48B2591C2C696A65E79F9DBB" Guid="{665FA6FA-64FA-45C9-A805-DE6C9A2DDA66}">
                         <File Id="fil45C9F79C258AEAF9C90381F4ECD14FAE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\building_symbol_03.png" />
                     </Component>
-                    <Component Id="cmp362D4FB6E8386F724E4855A3660C5DC5" Guid="{EBCFF6AB-DF5C-4655-BB7D-9AFE5846D3D6}">
+                    <Component Id="cmp362D4FB6E8386F724E4855A3660C5DC5" Guid="{1943AB94-B393-46D9-972E-D2B5C3BB4CFF}">
                         <File Id="fil65260F64C5547B7C1924AE24436B0D2B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\building_xschem_symbol.html" />
                     </Component>
-                    <Component Id="cmpE58F27D6BBB3BAA26F452B319D57AFD6" Guid="{3EA0BEB0-0D49-4BFC-91B9-2ECB61F34D4D}">
+                    <Component Id="cmpE58F27D6BBB3BAA26F452B319D57AFD6" Guid="{310EE323-24C9-42CC-BA2F-ED14EC66B593}">
                         <File Id="filD3B687CD8D3E152EDA69BC0F073E55D0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses0.png" />
                     </Component>
-                    <Component Id="cmp5EBD402900C682E1450A66E4E517B871" Guid="{264C5FF1-7983-4422-8107-708219A28BB1}">
+                    <Component Id="cmp5EBD402900C682E1450A66E4E517B871" Guid="{7E9D655B-3FB5-43CB-82DC-987A8047B5D6}">
                         <File Id="filCFA86197F77D576731B4A8C28A295A38" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses1.png" />
                     </Component>
-                    <Component Id="cmpA8F006A1010B7C3BA88B9E4849C82340" Guid="{0355E11F-9115-46F0-8F77-DC1EA421BA2E}">
+                    <Component Id="cmpA8F006A1010B7C3BA88B9E4849C82340" Guid="{7CE95095-BD2A-475C-BE8B-D5EB80B62E8D}">
                         <File Id="filCA5FB0D9C4E33E127B58684C9EAD32DF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses2.png" />
                     </Component>
-                    <Component Id="cmp6D354145B37A6C2A69DE69A16C8651A8" Guid="{C8A52A80-D914-4FCB-B634-D4A5017088D5}">
+                    <Component Id="cmp6D354145B37A6C2A69DE69A16C8651A8" Guid="{968096CC-ABA0-45ED-9448-60046DB15715}">
                         <File Id="fil68C4E6BD7190A06AEBA8E05EA1E02BDA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses3.png" />
                     </Component>
-                    <Component Id="cmp15AB585898B739D28C38577333DE6664" Guid="{9EED730B-A458-4A9F-BE4B-61797D942CB3}">
+                    <Component Id="cmp15AB585898B739D28C38577333DE6664" Guid="{5C3E6768-D8D2-45EF-8CA4-D2F8E3254A0D}">
                         <File Id="fil8CA9E97720B6AEE7E044ADE67044D376" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses4.png" />
                     </Component>
-                    <Component Id="cmp39F0981B2376C8DD273D8C5A1B4A56FC" Guid="{8D04B168-3782-4365-A3ED-D744F9CCB62C}">
+                    <Component Id="cmp39F0981B2376C8DD273D8C5A1B4A56FC" Guid="{C233D863-3BFC-45E6-A548-0F00607A5E9F}">
                         <File Id="fil82E84138D42BBED4CF981F391A942D99" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses5.png" />
                     </Component>
-                    <Component Id="cmpE3D43CAAD367DC5DC13E04524A89C888" Guid="{B8DE0755-7BBD-4959-BEDA-639CFDD53CAA}">
+                    <Component Id="cmpE3D43CAAD367DC5DC13E04524A89C888" Guid="{06E86A38-D951-4535-9EC8-8AAC29C6D8B0}">
                         <File Id="fil37526641F7755DFEAA6D2C58DB0ED07B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\busses6.png" />
                     </Component>
-                    <Component Id="cmpA6AB78B04BBC707FE694C5FD48F835BB" Guid="{D953C283-ECA0-406B-82D9-14CF9FC62E33}">
+                    <Component Id="cmpA6AB78B04BBC707FE694C5FD48F835BB" Guid="{963018C4-D296-4E5E-A305-6EA4925C2FCE}">
                         <File Id="filCC1A2B64517E9CA43452D1BA34093ACC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands.html" />
                     </Component>
-                    <Component Id="cmp5F2A45E78EBD02CB7779C16BF4C03932" Guid="{0F594BCE-E949-43D8-80BC-E2BF236C7654}">
+                    <Component Id="cmp5F2A45E78EBD02CB7779C16BF4C03932" Guid="{5FD0AAF9-D640-4875-90A3-482256C93C0A}">
                         <File Id="fil8EF2CE33BBBC466A43CBD7B77B17F725" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands1.png" />
                     </Component>
-                    <Component Id="cmp3C2AB4925B1306E7CFBC2F46FE89BDAF" Guid="{A2BD95D2-0587-4CAB-95C9-2C795230E180}">
+                    <Component Id="cmp3C2AB4925B1306E7CFBC2F46FE89BDAF" Guid="{E88E9D45-0C2A-4C02-9514-F41CB288C641}">
                         <File Id="filC0FCD4F20A4DBA001A4341E0905B2747" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands10.png" />
                     </Component>
-                    <Component Id="cmp648D5098787E8EC0C8547AC0DF5B339E" Guid="{4FB991CD-B256-4DFA-84EF-207734D6A174}">
+                    <Component Id="cmp648D5098787E8EC0C8547AC0DF5B339E" Guid="{BC9628FE-88F7-4F44-9461-374C45D16C01}">
                         <File Id="filEF1FD053FEECBEF588DBA58BA7C10B8E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands11.png" />
                     </Component>
-                    <Component Id="cmp84B60C50A44DFE2D8F0121C9C242FC86" Guid="{DBC5E210-EEE1-4334-B2B4-4E9DD37F2299}">
+                    <Component Id="cmp84B60C50A44DFE2D8F0121C9C242FC86" Guid="{468B307B-4CC1-4300-B2FA-C92E4DFF91B8}">
                         <File Id="fil77BF466037C1C04928A7095A2035C1A5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands12.png" />
                     </Component>
-                    <Component Id="cmp47F7B1BA609C8374B9BA9B140BC3867B" Guid="{49FCCB6F-58CF-43DE-96F3-8B1DB9AB43EE}">
+                    <Component Id="cmp47F7B1BA609C8374B9BA9B140BC3867B" Guid="{6D90F15E-06D8-4254-8A0F-257E73787D03}">
                         <File Id="filE931FD781DFDA5FEDE021F11DF666FCA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands13.png" />
                     </Component>
-                    <Component Id="cmp97D06DE87400946AFDDF51F3042AB7AF" Guid="{A5E47170-D0E1-4CEA-9576-9A7197C1E45F}">
+                    <Component Id="cmp97D06DE87400946AFDDF51F3042AB7AF" Guid="{EC6223E7-25F4-429B-9FA3-19BEF4A69CEE}">
                         <File Id="fil5203C6CDF9157BDF3BF197D63D5455C9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands14.png" />
                     </Component>
-                    <Component Id="cmp35239CC60E8A28DF0814C1E2C8AED814" Guid="{CE1A230E-61B7-4D1A-80CD-66FF7F48210A}">
+                    <Component Id="cmp35239CC60E8A28DF0814C1E2C8AED814" Guid="{9833552F-421E-4968-B222-F7AF431A95FB}">
                         <File Id="filE3F956C2E2CC4DF4A6D6798066F75F89" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands2.png" />
                     </Component>
-                    <Component Id="cmp2EA5ABF0232607FE2B60946F461AB4C8" Guid="{AF5AC2D5-E9C4-443D-9B20-CCD947A731C6}">
+                    <Component Id="cmp2EA5ABF0232607FE2B60946F461AB4C8" Guid="{1AC9DDCE-D60C-4B86-80A6-E34329FC9355}">
                         <File Id="filE8B171B419E138F9E305831947A0C5F3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands3.png" />
                     </Component>
-                    <Component Id="cmpEF190926FE94250EAD5B7813D4CB078D" Guid="{27DCD816-A8B3-4CCC-BDA8-D018155D476D}">
+                    <Component Id="cmpEF190926FE94250EAD5B7813D4CB078D" Guid="{678A4766-3F2A-40DC-97DD-35C797BF726A}">
                         <File Id="fil327258B4B717F6FB329EE15A186BD88B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands4.png" />
                     </Component>
-                    <Component Id="cmp74F21FF343DE290DFDEE33310BE585E1" Guid="{A02E31B7-0B33-42CE-8333-B7831A20F135}">
+                    <Component Id="cmp74F21FF343DE290DFDEE33310BE585E1" Guid="{3931CFC8-6398-4413-A028-3D99ACD20D14}">
                         <File Id="filFB4AD56AFFDF1F1C7FC68FA4D1DEC4F8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands5.png" />
                     </Component>
-                    <Component Id="cmp09E38EB19A0FE87BCEEC21CA7364F723" Guid="{1025BCFE-33BB-4689-BD44-E3F3521FE7F0}">
+                    <Component Id="cmp09E38EB19A0FE87BCEEC21CA7364F723" Guid="{33F05380-DAF8-45E4-9D1E-51C3C9257BAF}">
                         <File Id="fil7C5F15C1D2049C00F1B8918FAFEB83B5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands6.png" />
                     </Component>
-                    <Component Id="cmp6ADE2A2D330812ABB718A3118C89B3F3" Guid="{4CF7315F-A5BE-4879-9ABB-DC68FA2140D6}">
+                    <Component Id="cmp6ADE2A2D330812ABB718A3118C89B3F3" Guid="{74E72A51-DEC2-4494-886F-ACBD1E404DED}">
                         <File Id="fil281339A552574A3520080EAA0ABE39EA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands7.png" />
                     </Component>
-                    <Component Id="cmpC4CC987EDB3814BF6CDA06AD166E1AA5" Guid="{8987C53E-A1F4-4D9E-AAA9-2171DD20ABFC}">
+                    <Component Id="cmpC4CC987EDB3814BF6CDA06AD166E1AA5" Guid="{D242E525-774B-4427-BAF5-0AD6C4E72EF1}">
                         <File Id="fil0C23CA94E58AEA01129014CBB119942E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands8.png" />
                     </Component>
-                    <Component Id="cmpF7D3EF7C7886FBF551B10FB97DAAD596" Guid="{B1D8F6F1-9FA7-4594-A94B-115C6EFE6CFB}">
+                    <Component Id="cmpF7D3EF7C7886FBF551B10FB97DAAD596" Guid="{F2CFE58E-CBB4-46EB-82ED-4E9DF7A26B75}">
                         <File Id="fil0151E12F7C0C313E5B32262C736794A4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\commands9.png" />
                     </Component>
-                    <Component Id="cmpBE23AC11FA02835A80FA838229BC8687" Guid="{326374F9-5875-422D-8B87-7738AA1BAF11}">
+                    <Component Id="cmpBE23AC11FA02835A80FA838229BC8687" Guid="{8C2927FD-2B85-4B6C-8C94-68215030C33E}">
                         <File Id="fil1551C1BC526F6F31EE155426A2003D21" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_instantiation.html" />
                     </Component>
-                    <Component Id="cmp6554BF7593A105E9B2BA2EE07C4D931C" Guid="{4C47D607-5CEC-4F21-AA81-3AB8942C84BF}">
+                    <Component Id="cmp6554BF7593A105E9B2BA2EE07C4D931C" Guid="{5770E096-24FF-470E-8184-96B949E276A8}">
                         <File Id="fil48DD6DE364010D21A9D248652CBC8A8D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties.png" />
                     </Component>
-                    <Component Id="cmp327F0BACA71CBC62C20CA0DE456D4ECD" Guid="{899F3239-8E42-4CD4-A238-52F271ABBB32}">
+                    <Component Id="cmp327F0BACA71CBC62C20CA0DE456D4ECD" Guid="{764D78D8-5095-4BF2-94C4-3846895F7CCF}">
                         <File Id="fil1A38721BC0EA7324783FB395B16E06FC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties0.png" />
                     </Component>
-                    <Component Id="cmpC2BA7471EAC342F862EC10E60571EEA0" Guid="{60AA32AF-59C4-48D9-B97C-51B9E12529F5}">
+                    <Component Id="cmpC2BA7471EAC342F862EC10E60571EEA0" Guid="{C0E10CBE-CC53-46F3-BF4C-7D36A923DC32}">
                         <File Id="fil052D386A389DB02142B23787677FCA21" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties1.png" />
                     </Component>
-                    <Component Id="cmpB7D5287722959EC8990DBDF38AA1ABA3" Guid="{68A6F74D-1029-4B1A-9D10-D06FC4C6CDD7}">
+                    <Component Id="cmpB7D5287722959EC8990DBDF38AA1ABA3" Guid="{2A4A5665-2C20-45CB-99FA-87E9578CB42E}">
                         <File Id="fil15B7AD6F3A6E6424B4123BD6B3B4CE55" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties2.png" />
                     </Component>
-                    <Component Id="cmpACAE24F8830429FF208A400371B5F728" Guid="{656E6266-95AD-411E-81EA-D8CB7374BB84}">
+                    <Component Id="cmpACAE24F8830429FF208A400371B5F728" Guid="{1F80D730-2495-4744-89EC-EB20C6074EA6}">
                         <File Id="fil64B5E0E387234882D00CF308631875E1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties3.png" />
                     </Component>
-                    <Component Id="cmp3F5AB13CB02CD274FA199E43CA1A51BD" Guid="{4F32E924-A478-4A50-82EB-2D2B56B42A6C}">
+                    <Component Id="cmp3F5AB13CB02CD274FA199E43CA1A51BD" Guid="{73F262C3-10EC-473F-B85E-DC89EC864697}">
                         <File Id="filDCE466949ED07B397A62B8499453446A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties4.png" />
                     </Component>
-                    <Component Id="cmpBE392274DD6284AF13F4E26BB2BDBA1C" Guid="{FC1FD5B2-679D-47D8-B0B9-C86BE6FDC45E}">
+                    <Component Id="cmpBE392274DD6284AF13F4E26BB2BDBA1C" Guid="{A0AFE758-6250-4D4D-B935-A43CA310C7F8}">
                         <File Id="fil9E8C464E5005468627F319312FAF9310" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties5.png" />
                     </Component>
-                    <Component Id="cmpBE66AFEC67348822895658713C4BE69F" Guid="{42B43AFD-FD2C-434E-A280-6CCA64369461}">
+                    <Component Id="cmpBE66AFEC67348822895658713C4BE69F" Guid="{E004E156-E664-48E8-8A79-4ECCA260BE85}">
                         <File Id="fil7BA81AA56B1FA7D8CFC6A5DC8D2B840D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_properties6.png" />
                     </Component>
-                    <Component Id="cmpCA9A73716F7708C2A678DC897F965278" Guid="{FA1D9160-7811-4584-99CE-9C5024B13E60}">
+                    <Component Id="cmpCA9A73716F7708C2A678DC897F965278" Guid="{D2685E74-1E0E-4FF5-AB9E-F4C0BC2400B8}">
                         <File Id="filD3891317904BED9707EE559D42CD3C67" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\component_property_syntax.html" />
                     </Component>
-                    <Component Id="cmp2C7952A1BE2DA799AEE6789B6562DC0C" Guid="{BAC46092-35D0-400D-BAD2-BAD7EADDA72B}">
+                    <Component Id="cmp2C7952A1BE2DA799AEE6789B6562DC0C" Guid="{C26DAF72-867C-4D33-8C00-656DBCF6C0D5}">
                         <File Id="fil4ABA99A981E89316203A456383D4091F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\create_pdf_man" />
                     </Component>
-                    <Component Id="cmp5E7A8606369FC2174BCDFB9DB702A480" Guid="{A4381C2B-E17A-44B7-BB40-5A0885688D09}">
+                    <Component Id="cmp5E7A8606369FC2174BCDFB9DB702A480" Guid="{D57AA5C1-FB0E-492E-9975-599BCFC3FC95}">
                         <File Id="filFCEA86D390B4F12CBE9033A494627FB6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic.html" />
                     </Component>
-                    <Component Id="cmp49AEABD580BB96AD02273EC655160B3A" Guid="{B02096D5-90EA-4FF6-9B77-592F4FCE1B04}">
+                    <Component Id="cmp49AEABD580BB96AD02273EC655160B3A" Guid="{E676DBCB-946C-4A69-B8EE-25E44A1B0D61}">
                         <File Id="fil763AFBA311015B689B8362650F54638D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic1.png" />
                     </Component>
-                    <Component Id="cmpD1F33DFE7BEE84728568BBE55FC588ED" Guid="{352D3E9A-4076-48D6-8CB9-C78AACB1E7A2}">
+                    <Component Id="cmpD1F33DFE7BEE84728568BBE55FC588ED" Guid="{9BB3BCD4-6750-40F2-A21A-84F5350F6284}">
                         <File Id="fil44D41C7258C8666C314A1F22A54576A0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic10.png" />
                     </Component>
-                    <Component Id="cmpE6DC2F353FF9A5BF1C29EBF5684AE313" Guid="{FD2F74E6-A219-4104-B267-80F2185936B7}">
+                    <Component Id="cmpE6DC2F353FF9A5BF1C29EBF5684AE313" Guid="{562677B6-5A66-45A4-A4B6-397ACF5EFC19}">
                         <File Id="fil716937DD6BCD8B9B9D4ADAFE82638DED" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic11.png" />
                     </Component>
-                    <Component Id="cmp5234B37F1FF0D73FC203FC02F02957A7" Guid="{15756D93-084B-44F0-A46A-3AE15988753B}">
+                    <Component Id="cmp5234B37F1FF0D73FC203FC02F02957A7" Guid="{E1B43F4C-10E2-4596-9D4E-D850F3A19181}">
                         <File Id="filCCCD7077064B197CA502E05E1B813B96" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic12.png" />
                     </Component>
-                    <Component Id="cmp42596AEDDD9560C22B8816F507DF172C" Guid="{41899CBB-FD12-4DF9-8D2A-EDF8287A67DC}">
+                    <Component Id="cmp42596AEDDD9560C22B8816F507DF172C" Guid="{E3A46624-2B1A-4052-B45E-7C7482FBF704}">
                         <File Id="filA844C0FB09D782092E15820E87E3434B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic13.png" />
                     </Component>
-                    <Component Id="cmp6808EBE4B562AF9A632011D078EFC27F" Guid="{8662E7C9-1EA8-41EB-9B62-43452986327A}">
+                    <Component Id="cmp6808EBE4B562AF9A632011D078EFC27F" Guid="{64FFAF69-8C04-4EAB-8A54-61A804BF57E1}">
                         <File Id="fil8FD5E18805E0022E7D644B01452DF8D4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic14.obj.gz" />
                     </Component>
-                    <Component Id="cmp3493EB779FE7989F873A2194CAC70FF2" Guid="{326E3D05-5409-4175-B39A-3F5F20BC98EC}">
+                    <Component Id="cmp3493EB779FE7989F873A2194CAC70FF2" Guid="{F71E781B-BD9E-4C4D-B75C-471BCE196C95}">
                         <File Id="fil1BCFE7A191FCC40D4A1AE208F765DD42" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic14.png" />
                     </Component>
-                    <Component Id="cmpEE6B5FEBFFF2D01BE06B308A98952489" Guid="{35AF08B9-C7EE-4788-B688-A64A83CAF055}">
+                    <Component Id="cmpEE6B5FEBFFF2D01BE06B308A98952489" Guid="{F6B438EF-4962-448F-B367-E545D6967BCD}">
                         <File Id="fil04D9647CE477544F7A373D217909C1B6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic2.png" />
                     </Component>
-                    <Component Id="cmp6210FC61110F7B67D9A61BFEE43425EE" Guid="{2B2F9E20-EF2B-4D6A-8381-23B9CC7DDD21}">
+                    <Component Id="cmp6210FC61110F7B67D9A61BFEE43425EE" Guid="{0FEEB417-7A8E-4074-98A8-3DB64FF2D27A}">
                         <File Id="filF6638F795307DBF6070A3325D7B23027" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic3.png" />
                     </Component>
-                    <Component Id="cmp212DA14344FE349F38DD179984E9B754" Guid="{625CA44F-8F6F-4840-B5FB-29F203DE7F1C}">
+                    <Component Id="cmp212DA14344FE349F38DD179984E9B754" Guid="{4C80B771-CE27-4A5C-AA50-62E95951AA42}">
                         <File Id="filC44E9AF87B4EB4D7EDA1A50BF9C30B45" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic4.png" />
                     </Component>
-                    <Component Id="cmp4D302C87A7273D33DE8813F48D66862A" Guid="{26022177-8482-4D15-B56C-5B66CDA045F2}">
+                    <Component Id="cmp4D302C87A7273D33DE8813F48D66862A" Guid="{BA1C856A-97A0-4616-899E-FD5C1C838709}">
                         <File Id="fil01466DFF53B454D6290D5F5949F6C775" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic5.png" />
                     </Component>
-                    <Component Id="cmpD8D4F751C3267945B148303DD8DF812B" Guid="{4C238A99-3BCA-461E-BD26-7D258583B040}">
+                    <Component Id="cmpD8D4F751C3267945B148303DD8DF812B" Guid="{C66D8EFA-D74D-450B-A873-49852834C78F}">
                         <File Id="filDA0E70C698FC95AA8D5554B15C121D58" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic6.png" />
                     </Component>
-                    <Component Id="cmp7EE34B8453493B719A72BEBCBEBA3C0E" Guid="{E5197316-EB8C-4214-A425-1647A742AAA5}">
+                    <Component Id="cmp7EE34B8453493B719A72BEBCBEBA3C0E" Guid="{0FE8A480-23AE-4E25-8781-FF983A2CCA6F}">
                         <File Id="fil76DBE14F81591FBF2F46496D260F6482" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic7.png" />
                     </Component>
-                    <Component Id="cmpABDCC985D1FD673CB13D433818935B79" Guid="{C40FA269-EC87-4B36-BD6A-A21552CFE651}">
+                    <Component Id="cmpABDCC985D1FD673CB13D433818935B79" Guid="{394CBB20-F6DD-48A2-87F4-EFAF446AF21E}">
                         <File Id="fil6EF08578D798231CDEA848FCE81A3E38" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic8.png" />
                     </Component>
-                    <Component Id="cmp7482C0543A4B66DCE8740B75329D9679" Guid="{5E4F8F06-2A6C-48D5-9476-13DA78A5DA5A}">
+                    <Component Id="cmp7482C0543A4B66DCE8740B75329D9679" Guid="{5901684C-C91A-457D-A06C-F92CEDD8E2BD}">
                         <File Id="fil3BE8C299848DF20FEE544DCB770D3DAC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_schematic9.png" />
                     </Component>
-                    <Component Id="cmp832CF685C20985ADAF93B6E50EF43634" Guid="{B35F1D9D-2BAD-4CB8-AE4C-412BEE9DB10C}">
+                    <Component Id="cmp832CF685C20985ADAF93B6E50EF43634" Guid="{30E2460D-4AE2-4303-BA58-8B77C856520A}">
                         <File Id="fil6BB01A9C2DE73CAC7B96190DB7B4AE2E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols.html" />
                     </Component>
-                    <Component Id="cmpA9E1C79841E4241453CDED0F59D88B5B" Guid="{9F18FCC0-A343-40C7-AF92-189E496CA5FE}">
+                    <Component Id="cmpA9E1C79841E4241453CDED0F59D88B5B" Guid="{2A9623F5-9FD1-46E5-A8D0-88D7E686A9F6}">
                         <File Id="filF7F7F1117E3D266BEC0BCFE8C6219B11" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols01.png" />
                     </Component>
-                    <Component Id="cmpB177A982C745B304269F13DA4DFA640A" Guid="{D107C5C5-3C16-480A-8633-930601DC9BE8}">
+                    <Component Id="cmpB177A982C745B304269F13DA4DFA640A" Guid="{68D9D4C6-018E-4BCE-81E1-BC7AEF110CB6}">
                         <File Id="fil826E21777B713F65A9AFAD1618CA04B0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols02.png" />
                     </Component>
-                    <Component Id="cmpC9B401E1B10DA4759644CBCE8B474FD9" Guid="{D30297D6-FBC2-45EE-8680-DE6310A0D54E}">
+                    <Component Id="cmpC9B401E1B10DA4759644CBCE8B474FD9" Guid="{E8E76B8F-94A7-4D3D-8A38-8AE0849DB1A4}">
                         <File Id="filFAC1979B686965083D423928203DEB33" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols03.png" />
                     </Component>
-                    <Component Id="cmp2489ACAA2DEC63BE314270F9E34F5F5E" Guid="{117658A5-6F93-4BCD-BD88-A3F043C9898E}">
+                    <Component Id="cmp2489ACAA2DEC63BE314270F9E34F5F5E" Guid="{B842EBE9-13AF-4F0C-A155-24E985BD7120}">
                         <File Id="filC7D440530CA672A277EAE47AD5E43043" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols04.png" />
                     </Component>
-                    <Component Id="cmp27EA70EE75120443227A036EE10144A6" Guid="{5A080B60-E511-4CF0-9267-C29C790D23D7}">
+                    <Component Id="cmp27EA70EE75120443227A036EE10144A6" Guid="{D2446C9B-78C9-44AB-B5C7-2DDEB59B4D02}">
                         <File Id="filE2A6FC3955AA4ADACA43B8D30589493D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols05.png" />
                     </Component>
-                    <Component Id="cmp1684216B65FC6898622C2B7A579C25F7" Guid="{51B638E5-22B6-44AC-83D2-9E65EA90BC11}">
+                    <Component Id="cmp1684216B65FC6898622C2B7A579C25F7" Guid="{36031688-524A-478C-9898-4CB8B68BD200}">
                         <File Id="fil12FC2F0BF1D6F7D96597495EB421178F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols06.png" />
                     </Component>
-                    <Component Id="cmp05C6DC435B04CE0919BB38732100F605" Guid="{BFF255DF-9FB1-4C53-BCD3-2EA80F4F1B92}">
+                    <Component Id="cmp05C6DC435B04CE0919BB38732100F605" Guid="{E9DC7D2B-81DE-4C7E-9FDD-2C2144EB586F}">
                         <File Id="fil96A1856E0E353370DC1D5A7176A4F0B7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\creating_symbols07.png" />
                     </Component>
-                    <Component Id="cmp6C9DE118A056AEF1555AE64C4419DAF9" Guid="{C80A4435-5642-4D86-970F-454BCB67E7E2}">
+                    <Component Id="cmp6C9DE118A056AEF1555AE64C4419DAF9" Guid="{46338473-D9AD-41AA-AC2F-7E024C0BD9EF}">
                         <File Id="fil9F26F3EA05B72C37C0FBE78BB5953155" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\dashes.png" />
                     </Component>
-                    <Component Id="cmp5F0C3B27B45BC1CB74EC4116EA919F92" Guid="{A1840227-735C-47BD-9964-6E0DB2EE4EE8}">
+                    <Component Id="cmp5F0C3B27B45BC1CB74EC4116EA919F92" Guid="{634C8EE9-D007-4BA2-B9A0-EEE9D4810B99}">
                         <File Id="filA42D791AEB77D16C2575440362FC405C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info.html" />
                     </Component>
-                    <Component Id="cmp31B6696E8003859D1FEC28F081B05A27" Guid="{84B74391-2C9F-475A-B3E1-E7491A18DFDF}">
+                    <Component Id="cmp31B6696E8003859D1FEC28F081B05A27" Guid="{763697CC-DD23-42EB-B302-FBD5C112BB86}">
                         <File Id="filBB288F87D69E0F812288808A05C8921B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_01.png" />
                     </Component>
-                    <Component Id="cmpC57D5897B56DF5CBEDC980E10433AF81" Guid="{A9E6C5B6-5879-4567-AB67-659647CC557E}">
+                    <Component Id="cmpC57D5897B56DF5CBEDC980E10433AF81" Guid="{3E7E34C8-CFC4-465C-9781-14541CB63A92}">
                         <File Id="fil0662BA7503748D583A74C0360D40D221" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_02.png" />
                     </Component>
-                    <Component Id="cmp7DAA78F03CF1FD3C453534BF4ECBE220" Guid="{2868359E-745D-4769-89A9-142856C0E023}">
+                    <Component Id="cmp7DAA78F03CF1FD3C453534BF4ECBE220" Guid="{90BE9762-2A9F-462B-A3F9-6FDD9DE23989}">
                         <File Id="fil24D0A34F7BBA3483B0D8F55F82E2B5D0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_03.png" />
                     </Component>
-                    <Component Id="cmp4D23B9F9CB96C3A4AFB4B5F92AC96FD9" Guid="{FC9BA21F-5022-4A00-BFF8-DB45039F2597}">
+                    <Component Id="cmp4D23B9F9CB96C3A4AFB4B5F92AC96FD9" Guid="{3325FB64-4D8F-4239-8B5B-902975531E86}">
                         <File Id="fil04AD84996D63D52927852C87E34ACF43" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_04.png" />
                     </Component>
-                    <Component Id="cmp72A7DFD2AB2DC4734E2CE4F5F2C0710D" Guid="{793EC910-E2C9-4342-8E9D-7F8B7B5FCAE6}">
+                    <Component Id="cmp72A7DFD2AB2DC4734E2CE4F5F2C0710D" Guid="{B493A3DE-3429-414E-A469-FA2474D09EF9}">
                         <File Id="fil1852026C651993B5C9D90143E31FCD6F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_05.png" />
                     </Component>
-                    <Component Id="cmp022AA6C97DC6CEB9BE6BF0758392CECF" Guid="{85B3BE30-A342-48CD-96E3-75F14356A711}">
+                    <Component Id="cmp022AA6C97DC6CEB9BE6BF0758392CECF" Guid="{9F4F3F84-7F2E-45CC-9FF0-1C5B0620CADB}">
                         <File Id="fil370137B870ABABBC9B9B127999CD4CA0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_06.png" />
                     </Component>
-                    <Component Id="cmp60AF36208CBD15BA02F3C0D627A5257E" Guid="{4535A1E7-5BAA-4D57-AC37-D16F1CEF0EFC}">
+                    <Component Id="cmp60AF36208CBD15BA02F3C0D627A5257E" Guid="{03BB9398-6E0A-4789-AD12-47B9B219A8B2}">
                         <File Id="fil63388A5AD4430AA19F242BCF0992C6E8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_07.png" />
                     </Component>
-                    <Component Id="cmpC1611210F3DE39EC7DA6A1AD578F4C9C" Guid="{14564501-7AFE-4597-9F50-8BF5F2E69821}">
+                    <Component Id="cmpC1611210F3DE39EC7DA6A1AD578F4C9C" Guid="{60116039-D757-443F-923D-5A375F157D65}">
                         <File Id="fil5454231E0AAECC044F5A6EA7DA917A82" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_08.png" />
                     </Component>
-                    <Component Id="cmp75181867BDAEE7803166832A69E2CC8E" Guid="{85AD14EC-62CC-44D4-87D7-469DB309EA37}">
+                    <Component Id="cmp75181867BDAEE7803166832A69E2CC8E" Guid="{94C18382-EDF4-4BF1-ACCD-E847C99318AD}">
                         <File Id="filFE06911014644C94E7D46582F3004C8E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_09.png" />
                     </Component>
-                    <Component Id="cmpC3EC30D1EC4924083BFB4189291A42C6" Guid="{EE3B5FB4-DBFC-4C06-9635-3C840A88F450}">
+                    <Component Id="cmpC3EC30D1EC4924083BFB4189291A42C6" Guid="{79B841B7-30BC-453E-9108-BB9400F6BEAF}">
                         <File Id="filD52AC6BC3838F6039B31C162A2DF5C7E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_10.png" />
                     </Component>
-                    <Component Id="cmpAB21779D120D473110B732BEB07C762F" Guid="{E896BFED-26FD-4415-A6D9-FC98F9F6732A}">
+                    <Component Id="cmpAB21779D120D473110B732BEB07C762F" Guid="{A536EC88-8A52-4072-BACE-3E0D5283085B}">
                         <File Id="filF040EA8EA49F426A3319B3DAC1909512" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_11.png" />
                     </Component>
-                    <Component Id="cmp7EB8DA33BBC3C9A99BFA78638ED396D9" Guid="{59A5654D-CE46-491B-832D-4ECD26C1AF0C}">
+                    <Component Id="cmp7EB8DA33BBC3C9A99BFA78638ED396D9" Guid="{412B25A5-604E-437D-AA23-A9175CB3CDEC}">
                         <File Id="filA14F39628896EEB4D42AF69D07607D9D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_12.png" />
                     </Component>
-                    <Component Id="cmp97C413201270EA088D6C173DC617CF14" Guid="{AA4DDD12-BE92-450B-B5EE-BF8FF15F330E}">
+                    <Component Id="cmp97C413201270EA088D6C173DC617CF14" Guid="{3033D477-D98C-4949-93FB-177E79B6BE6E}">
                         <File Id="fil7C777464119FDB2F630262BCB5DB2A07" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_13.png" />
                     </Component>
-                    <Component Id="cmp81ACF48B40CE3E85A7C39C40DE19CF55" Guid="{75750260-E429-4AED-800E-53A925A8BAC0}">
+                    <Component Id="cmp81ACF48B40CE3E85A7C39C40DE19CF55" Guid="{63784A72-C4BA-4B76-8CD1-F392A9674E70}">
                         <File Id="fil6762980CE8956618314DC59E07E28873" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_14.png" />
                     </Component>
-                    <Component Id="cmpF84728030B4EE42514850A231F168042" Guid="{CAFAC8B3-E476-4D8C-BE0D-96410A5A10C8}">
+                    <Component Id="cmpF84728030B4EE42514850A231F168042" Guid="{9DA0A29F-D658-485A-AEAE-464AFCEEE6CD}">
                         <File Id="filF9EEE08F58DE77328300B1BDFD56184F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_15.png" />
                     </Component>
-                    <Component Id="cmp9104A3FD3DC82DAF49728222AF268F62" Guid="{1DD428EF-B095-4383-818A-612723E43F03}">
+                    <Component Id="cmp9104A3FD3DC82DAF49728222AF268F62" Guid="{FDD9F833-FE78-45DE-BE58-5AC9E39B067E}">
                         <File Id="fil58250208CFA3A770BFB22E63E41899DD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_16.png" />
                     </Component>
-                    <Component Id="cmp6B4C56FB3870DF5DC1B49F99C91930DB" Guid="{B033F7D0-F873-4DFA-A0DF-527F45321FE4}">
+                    <Component Id="cmp6B4C56FB3870DF5DC1B49F99C91930DB" Guid="{FB83DDDE-2E92-4766-82F8-DED6EC563EB6}">
                         <File Id="fil0A2C74E4456904F3210B5924046A2C4E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_17.png" />
                     </Component>
-                    <Component Id="cmp0837546F252AC65289A6A3A23F2A50E2" Guid="{8437F58D-C4D5-437F-8358-F576E14C6B2E}">
+                    <Component Id="cmp0837546F252AC65289A6A3A23F2A50E2" Guid="{605DDDDE-0DFB-4BEE-A152-3231BAC5586B}">
                         <File Id="fil84CE5DF2938366BB8FFB85187801E10B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_18.png" />
                     </Component>
-                    <Component Id="cmpA116A33246A97DA4DF60C00ADB6688EB" Guid="{156246C2-172F-4C59-A809-07AB73B84302}">
+                    <Component Id="cmpA116A33246A97DA4DF60C00ADB6688EB" Guid="{97868E7C-B087-4DE2-A37B-79048B289188}">
                         <File Id="fil2F99B7AF24D4DBAF8C14C2C4C2F74CAD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_19.png" />
                     </Component>
-                    <Component Id="cmp60D60FB4EC3A301E71E5F1F94229255A" Guid="{87F12DC9-C023-460D-95CF-3A217A92A884}">
+                    <Component Id="cmp60D60FB4EC3A301E71E5F1F94229255A" Guid="{2F897ABF-7335-463F-BD9F-19103D3CE174}">
                         <File Id="fil2951A82DC40B21BA2158E9001A5E10CF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_20.png" />
                     </Component>
-                    <Component Id="cmpC639C095BEAE6D2BE870E835934115C7" Guid="{AE4306A2-2D7D-4452-8FBD-DC7500EFFB07}">
+                    <Component Id="cmpC639C095BEAE6D2BE870E835934115C7" Guid="{5F9EB27A-A09D-4CF0-B9F3-F4E71E188F21}">
                         <File Id="fil11DDECD94C26CF746EBDBFD2FF4C109A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_21.png" />
                     </Component>
-                    <Component Id="cmpA12CC59D029394163F1A842AD0765496" Guid="{32AED9E2-F3A0-4CA5-B04E-95F7D0103A15}">
+                    <Component Id="cmpA12CC59D029394163F1A842AD0765496" Guid="{EFA65A02-EE8F-4E36-A4BA-B945535D925C}">
                         <File Id="filCD5DE099377C9FD7934B8C0FDE488E9D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_22.png" />
                     </Component>
-                    <Component Id="cmp6739825AD0CC89BF61CC30B4C8B282D2" Guid="{5D60EFA7-2071-43C6-908F-386130A30345}">
+                    <Component Id="cmp6739825AD0CC89BF61CC30B4C8B282D2" Guid="{0EEFC38B-EBE7-4ECC-89D7-1164D2ECE0B9}">
                         <File Id="filDF959CA0D4CC8D33C29A1143BB910EF8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_23.png" />
                     </Component>
-                    <Component Id="cmp12BCAF79264E8F1593813CB4F5C294E8" Guid="{B010484E-F777-4B84-B886-A83383118AD5}">
+                    <Component Id="cmp12BCAF79264E8F1593813CB4F5C294E8" Guid="{C4EE53F9-B1C3-4916-B73E-7CF66DA8CBDE}">
                         <File Id="fil097FCAEE411DEE506B3308C69F798591" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_24.png" />
                     </Component>
-                    <Component Id="cmpE9942F10950977E208A095223DA24EDE" Guid="{4BF0E192-C1AD-402D-BEA8-95B632C2A713}">
+                    <Component Id="cmpE9942F10950977E208A095223DA24EDE" Guid="{B68CA132-C048-4CE7-AC8A-DFA2F7AD0D65}">
                         <File Id="fil907F993ACD60D6F0148ADED99DF08303" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_25.png" />
                     </Component>
-                    <Component Id="cmpBCBE13810CD080207EFBB4EAEE4CDDF0" Guid="{82B064D7-EF91-4B66-9FBF-F2886AC83408}">
+                    <Component Id="cmpBCBE13810CD080207EFBB4EAEE4CDDF0" Guid="{45FD2C63-0FAF-45CB-8AD8-15DBF7E417F1}">
                         <File Id="filDC431FB8714EC80CE25E2EFB38D6763E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_26.png" />
                     </Component>
-                    <Component Id="cmp2E02C4FE568B986260DCD0D359214084" Guid="{EB848F1D-AFA6-4DBA-82E1-FDA0CF7E420D}">
+                    <Component Id="cmp2E02C4FE568B986260DCD0D359214084" Guid="{C4DA968A-804F-4C8E-9FBB-CAA2AA3EACB9}">
                         <File Id="fil5C74FE5E6BF6AB2AB730FEE593145FA8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_27.png" />
                     </Component>
-                    <Component Id="cmpE6CC9E5F13791F9665CABA1235C0F007" Guid="{BE11DE6E-1A68-4919-8E21-7092904A86E7}">
+                    <Component Id="cmpE6CC9E5F13791F9665CABA1235C0F007" Guid="{F8AC8ABE-3631-4CF3-A552-F40C67BED7BF}">
                         <File Id="fil21C678CB6E2264B35D057C0BA6DD887F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_28.png" />
                     </Component>
-                    <Component Id="cmpE96F140D570B4836346AE012D9E83C05" Guid="{AA0AC899-E247-47B0-A8DE-28447CF979C9}">
+                    <Component Id="cmpE96F140D570B4836346AE012D9E83C05" Guid="{C94CECA5-542C-4B55-9D71-D946387892C2}">
                         <File Id="fil505A2CA4438558124B25C35CA6CE345E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_29.png" />
                     </Component>
-                    <Component Id="cmpE1BDE486E5C4840AF089AB02DF8998EF" Guid="{321DFA6D-E899-4CBA-BEDB-2B9154DE34EA}">
+                    <Component Id="cmpE1BDE486E5C4840AF089AB02DF8998EF" Guid="{34D8F623-AED4-4B98-9051-346234D202D8}">
                         <File Id="fil8D666FDA1DBBB66FD45690ADA7E355A9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_30.png" />
                     </Component>
-                    <Component Id="cmpE5820623598A137567B414338F7B0B7D" Guid="{CBE8BEF4-CD35-478E-AC3C-FEE2AE51EE4A}">
+                    <Component Id="cmpE5820623598A137567B414338F7B0B7D" Guid="{97BD95C7-90B3-4875-A2F1-1163A730D16F}">
                         <File Id="fil6E10056698DBA0F0ED64C225B5E995F4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_31.png" />
                     </Component>
-                    <Component Id="cmp3CB26373574445A2D88AFFC64F7944F7" Guid="{73AEA023-51FE-47E1-9D3B-CBCCB07DD458}">
+                    <Component Id="cmp3CB26373574445A2D88AFFC64F7944F7" Guid="{C9CFCA0F-5ABC-443D-9054-E8ABFC8CEA68}">
                         <File Id="fil3B90FE480967B0B2D960D92612C73F4B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_32.png" />
                     </Component>
-                    <Component Id="cmp6CFDC6645817F8F0319929D0497A2366" Guid="{B6DBC126-A937-4861-A20A-75C18C9C5E1E}">
+                    <Component Id="cmp6CFDC6645817F8F0319929D0497A2366" Guid="{DFF8F8C7-4262-4903-9945-70F1E59D5563}">
                         <File Id="filD115CA7FE2244DD332AA01A87AA1B4F1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_33.png" />
                     </Component>
-                    <Component Id="cmpECEFE7E0CF7B8773179AC1F8809F3A75" Guid="{1DA91EF5-1154-4501-9A74-1FBA62BE8C71}">
+                    <Component Id="cmpECEFE7E0CF7B8773179AC1F8809F3A75" Guid="{F489BC8D-6012-409E-9EFD-65520922BF2B}">
                         <File Id="fil83EAA7420E7F1F283F60DEE1ADAB24A1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\developer_info_34.png" />
                     </Component>
-                    <Component Id="cmp2C66755C98411F1273A4C9DE7215BEDC" Guid="{5412FE60-D5F3-4FC0-ABBE-5A4D09853CAD}">
+                    <Component Id="cmp2C66755C98411F1273A4C9DE7215BEDC" Guid="{52C21D40-0148-41D3-A7CC-51AEF2601516}">
                         <File Id="fil10B07CB7CD456A24ACE1A248B3A3523E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\edit_property.png" />
                     </Component>
-                    <Component Id="cmp7C169D8B7D8E4FF9954B9D9CDDD570CC" Guid="{31D94228-C974-4BE6-8EC1-31018FA38F58}">
+                    <Component Id="cmp7C169D8B7D8E4FF9954B9D9CDDD570CC" Guid="{64B091FE-DC0E-4040-8442-21026393F840}">
                         <File Id="fil5C3B7EF3CB7E52EC2666DA64C3475CF4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\edit_property2.png" />
                     </Component>
-                    <Component Id="cmp49DDB67C54D11E163D7D7DFC0FB7DF30" Guid="{56427A36-9032-4F14-8837-BD313C4CB2B0}">
+                    <Component Id="cmp49DDB67C54D11E163D7D7DFC0FB7DF30" Guid="{A01E3475-4B16-430C-8005-35A26AD042D7}">
                         <File Id="filAC7DEBF82AD7D0D62E1ECB69286A7B6C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\esotheric_xschem_01.png" />
                     </Component>
-                    <Component Id="cmp5200FA445D9B11D07541D616D8542B9C" Guid="{97ED4D96-91B2-4446-A0BC-767CDBB7FE39}">
+                    <Component Id="cmp5200FA445D9B11D07541D616D8542B9C" Guid="{7180609E-1ED9-4710-8541-F5FC5A19917E}">
                         <File Id="fil10E9BD63A5810B35AA5CAC581D7D72D7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\esotheric_xschem_02.png" />
                     </Component>
-                    <Component Id="cmp27780F5B1FFEDC319E889A22E584681F" Guid="{9C5FBC8C-7489-48E8-AAB2-4061D611ED81}">
+                    <Component Id="cmp27780F5B1FFEDC319E889A22E584681F" Guid="{44530F19-7BE7-485E-A89B-38479FEC134B}">
                         <File Id="filCA5915DEF58E3B0AB024A7CA0316A603" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\faq.html" />
                     </Component>
-                    <Component Id="cmpA3E75755A8AAFBE672AE99E92C4BBF8E" Guid="{4986330F-8F1B-4475-A853-03095DA42326}">
+                    <Component Id="cmpA3E75755A8AAFBE672AE99E92C4BBF8E" Guid="{25EAC797-CBF7-463B-B3FF-F4B47009621B}">
                         <File Id="filF6D184D623850576FA8753930106E3F1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\faq00.png" />
                     </Component>
-                    <Component Id="cmpFDD3D37AEDD41E4A735CC0D0B06FF0E7" Guid="{F2EFF043-BB6E-4D03-9CE4-655FE0E8F799}">
+                    <Component Id="cmpFDD3D37AEDD41E4A735CC0D0B06FF0E7" Guid="{95558187-EB50-41AF-8C45-82FF0A57C4D7}">
                         <File Id="fil9DE38DEAA969CAFF256B22DF913B21DA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\faq01.png" />
                     </Component>
-                    <Component Id="cmpE04977F0950425CA6A35D7443890FEDA" Guid="{C3C9114A-3B4B-4492-9B13-2669F80890DC}">
+                    <Component Id="cmpE04977F0950425CA6A35D7443890FEDA" Guid="{8739738E-0C1C-4CE6-8CD0-97FD7E4D7BA8}">
                         <File Id="fil8B7F6EAACBB8C4F0B6E99A7214B5E024" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\general_rules.png" />
                     </Component>
-                    <Component Id="cmp9C61E6C73B92F631D2F4921DBC7E27AA" Guid="{5DA03074-DA4A-4AB9-BF59-4E4AF61141D8}">
+                    <Component Id="cmp9C61E6C73B92F631D2F4921DBC7E27AA" Guid="{3FEEB103-390D-49BB-B788-4EE8ECD93891}">
                         <File Id="fil8D7933E7D123C25695CC78C1148017A9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\global_property.png" />
                     </Component>
-                    <Component Id="cmp740874B224A56CFE2CCF34DF58E60FD0" Guid="{98723678-0F89-4E9C-80D0-7BCAEFAF3207}">
+                    <Component Id="cmp740874B224A56CFE2CCF34DF58E60FD0" Guid="{91381BE9-7296-4057-ACE7-17E41D355C36}">
                         <File Id="filFABFA28AE6A48C24358CBBA3588306CB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs.html" />
                     </Component>
-                    <Component Id="cmpC813583375804396B97AED14720B5626" Guid="{0307EB2B-7407-41F3-A497-C8661763681C}">
+                    <Component Id="cmpC813583375804396B97AED14720B5626" Guid="{2610D7B2-C1D4-4DD9-ADA2-9B0F4E4F7969}">
                         <File Id="filD674B9C36FC8FC7540A8F39A53224E43" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs01.png" />
                     </Component>
-                    <Component Id="cmp230FF209E9F582A4F1E7648DE73456CB" Guid="{973215D8-3640-4E22-BD58-8C00E92F4DA7}">
+                    <Component Id="cmp230FF209E9F582A4F1E7648DE73456CB" Guid="{F8E28841-A5A5-434B-A31E-73AD78CE7648}">
                         <File Id="fil7773B42F33BFE9332820D40733863C14" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs02.png" />
                     </Component>
-                    <Component Id="cmp5A9CD2054A04C919AE72DE3D1F353CFE" Guid="{CB3022D9-D5F7-4152-B327-F6319E80AAF8}">
+                    <Component Id="cmp5A9CD2054A04C919AE72DE3D1F353CFE" Guid="{B4B0881B-260C-4BD4-8DFB-A63D6DB4F6EC}">
                         <File Id="filB457E827354F127DA98F8DCD47733AA2" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs03.png" />
                     </Component>
-                    <Component Id="cmpB7FFDE35B0ABD817CB7911FF1EA95EBF" Guid="{71826EB1-ADAC-493A-8537-BF7953C58E23}">
+                    <Component Id="cmpB7FFDE35B0ABD817CB7911FF1EA95EBF" Guid="{F83FE693-150A-46F2-8898-426E4D31638F}">
                         <File Id="filD9D670302F61B3C48E80E43A46E114B0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs04.png" />
                     </Component>
-                    <Component Id="cmp5BD82B4625C5DDDFD12CA154246CEEBD" Guid="{E9E0A510-524B-4CA4-A423-2FE49475AA5E}">
+                    <Component Id="cmp5BD82B4625C5DDDFD12CA154246CEEBD" Guid="{0DC5F164-5AA7-4D7F-893F-3E09D6F14B03}">
                         <File Id="fil5A95EA74DE26FD2DBCEEB19E406EBF8B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs05.png" />
                     </Component>
-                    <Component Id="cmpE93F45A345CBCE6CE0BFB45A0B8A1CFE" Guid="{0F637C35-7293-4138-B100-F405DEFE0054}">
+                    <Component Id="cmpE93F45A345CBCE6CE0BFB45A0B8A1CFE" Guid="{EBEA7880-49B1-4FC7-8F9D-2E0A55C3AF5D}">
                         <File Id="filF9EACF3BBD6AFC5E2B516EDE4CFD19CD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs06.png" />
                     </Component>
-                    <Component Id="cmp51DB9959998196E893263640FEB98E34" Guid="{BFCE3023-6846-4A20-888F-104779111CAD}">
+                    <Component Id="cmp51DB9959998196E893263640FEB98E34" Guid="{9AE3F744-C558-41EB-878D-6B998C62C573}">
                         <File Id="fil8DBF11E3DB65C1FBB2C28F8467D9A91D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs07.png" />
                     </Component>
-                    <Component Id="cmpDF1717CE9FBAD9506F3230EBCF486304" Guid="{7A4864C3-EBB3-4EDA-B437-A9001DB2D0D6}">
+                    <Component Id="cmpDF1717CE9FBAD9506F3230EBCF486304" Guid="{946E0EA5-7CDA-4CA0-A682-A9EB9AE3E517}">
                         <File Id="fil70A651707CB61D244A0E2AEBF8BB18B3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs08.png" />
                     </Component>
-                    <Component Id="cmp85DFC1BFDBD576871E2F52C6F43B78E6" Guid="{CF13AE87-4411-4413-AC49-76D8EB0156D0}">
+                    <Component Id="cmp85DFC1BFDBD576871E2F52C6F43B78E6" Guid="{BBCB99F8-86B2-44C6-8A90-1219F32E6CDC}">
                         <File Id="fil1C6DD758E0BE985AF7F2C3CD7FCFA125" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs09.png" />
                     </Component>
-                    <Component Id="cmp14AEDEF10B42CBCD0FCDB294E7D40813" Guid="{5E0633D1-2D0D-4951-ABAB-1FD5BB725696}">
+                    <Component Id="cmp14AEDEF10B42CBCD0FCDB294E7D40813" Guid="{6C478CB9-8BDE-4584-8E44-A315D65DEE20}">
                         <File Id="filA8DD27097EEA145C9FD6912B91142EC8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs10.png" />
                     </Component>
-                    <Component Id="cmpD3F50248B5661D0762D1937C118E395E" Guid="{98DDC343-36C5-44B7-A6E8-13FE50C0B312}">
+                    <Component Id="cmpD3F50248B5661D0762D1937C118E395E" Guid="{DAF76DD7-46CD-43AB-A362-807263590677}">
                         <File Id="fil3C2EE361B66A1E6337E4223BE26200DB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs11.png" />
                     </Component>
-                    <Component Id="cmpE98EB455E6D39076B1A40C1CAB3D835E" Guid="{1F39A35B-98DD-496C-9E45-AC12160E8844}">
+                    <Component Id="cmpE98EB455E6D39076B1A40C1CAB3D835E" Guid="{4F2B17B1-EB1B-4BC8-BD73-59F09E528884}">
                         <File Id="fil23F611BD2A702D7E3820AD7C74811351" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs12.png" />
                     </Component>
-                    <Component Id="cmp5D66F2AD13E998B64847AB8B0624EE21" Guid="{24DB84A4-8827-4ACD-A5EC-A84CC12DFCB1}">
+                    <Component Id="cmp5D66F2AD13E998B64847AB8B0624EE21" Guid="{200AF4B8-BA66-4084-8375-1E52F3B6ACAF}">
                         <File Id="fil94720C4E20330274DB4C89C8EBE7B2FC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs13.png" />
                     </Component>
-                    <Component Id="cmp99C532DCC5EF9E1CD1D26BED58B2934E" Guid="{569099D8-E977-43B8-B042-344E809144DC}">
+                    <Component Id="cmp99C532DCC5EF9E1CD1D26BED58B2934E" Guid="{251F5207-8C19-4825-9DBB-BA86E3910B18}">
                         <File Id="fil04166376BFA25115160171891B16FB23" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs14.png" />
                     </Component>
-                    <Component Id="cmpA41BECAFCCD0A01F5DAD18A949FF2827" Guid="{55A6AF37-B4F1-49C2-B8B2-41173D654C7D}">
+                    <Component Id="cmpA41BECAFCCD0A01F5DAD18A949FF2827" Guid="{A8DFC3F1-8E92-48A1-AAE3-19DC01451E3E}">
                         <File Id="fil52A4BE0CB79D0FD8C836704442CBDD88" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs15.png" />
                     </Component>
-                    <Component Id="cmp2122C826D84E0925566AEC470A7CFABD" Guid="{1DBFF4EA-8DAB-47D8-97F9-F546E50733A9}">
+                    <Component Id="cmp2122C826D84E0925566AEC470A7CFABD" Guid="{7F6F32BD-CF95-4DDE-959A-5EAA061FA4EA}">
                         <File Id="fil02B785B7CCDC980D09CDB2BB23484767" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs16.png" />
                     </Component>
-                    <Component Id="cmpB581F83F49E5962AD7E37BC077F24E1E" Guid="{A6CDE0AB-562E-4DCA-AEAA-0310BBC8ED7F}">
+                    <Component Id="cmpB581F83F49E5962AD7E37BC077F24E1E" Guid="{67125116-3CB9-4D36-8F1E-1DB1E0D9F05D}">
                         <File Id="fil95E27FFA9242E70A7E36BDA2753AF06E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs17.png" />
                     </Component>
-                    <Component Id="cmp9F2896DC4627DF350F685875FC198171" Guid="{95D214F8-E2F4-4F0C-A0AC-E004BEB32D66}">
+                    <Component Id="cmp9F2896DC4627DF350F685875FC198171" Guid="{2D4F309E-3172-4743-9CFE-557F645F0185}">
                         <File Id="fil2043A12E55A7FD920B4497F543F3566D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs18.png" />
                     </Component>
-                    <Component Id="cmp2E04033BEABEC724FC52D75E042EBBC6" Guid="{8C852E58-C807-44BF-AB3B-1545D234B585}">
+                    <Component Id="cmp2E04033BEABEC724FC52D75E042EBBC6" Guid="{D8CE7D7C-AA49-458C-8181-F1D6ED62BB61}">
                         <File Id="fil1407A9E0E3573D9579B328DE12CA9DCF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs19.png" />
                     </Component>
-                    <Component Id="cmpA78C8D6823DB9F7E898D8016BD40E1F2" Guid="{BBCB8F76-1ED2-4E48-9AF8-6D358831F349}">
+                    <Component Id="cmpA78C8D6823DB9F7E898D8016BD40E1F2" Guid="{B3D43B88-C9EC-49F2-8B20-5B06E0418E21}">
                         <File Id="fil2A148FC6F10E4CD50F923332EE90DAA8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs20.png" />
                     </Component>
-                    <Component Id="cmp625D2F5BCB3E2EBC29528813B3BD9B47" Guid="{D98680CE-6D55-4F19-9C17-EE5A8F59798F}">
+                    <Component Id="cmp625D2F5BCB3E2EBC29528813B3BD9B47" Guid="{1632781C-134A-41D8-91D1-74A19AAE13DE}">
                         <File Id="filA623141DA521B8058953290CF76F0D38" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs21.png" />
                     </Component>
-                    <Component Id="cmpC55E1C6560FA9273A1C807CC6556DC2A" Guid="{A898C3D0-9644-4DA3-9FF3-969FA86FC3EA}">
+                    <Component Id="cmpC55E1C6560FA9273A1C807CC6556DC2A" Guid="{B7621D8E-41AA-4E27-8DD7-90C3237143E4}">
                         <File Id="filD1D8B41D343379847BF7F895156183FE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\graphs22.png" />
                     </Component>
-                    <Component Id="cmp7D84114D6FDF0E09CB66A982B3C581C3" Guid="{156798A0-596D-4243-912C-FF796AE3A1D3}">
+                    <Component Id="cmp7D84114D6FDF0E09CB66A982B3C581C3" Guid="{67E23F58-8B5C-49C9-BB10-EA965AA724E7}">
                         <File Id="fil00E7CE2F76CC18FC1618A1670E025C42" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\gschemtoxschem.png" />
                     </Component>
-                    <Component Id="cmpDB80566B13B66B2A92E91DA0585404A9" Guid="{D1E2C76E-BF2D-4C04-A2E3-1EEDFD0BE1E5}">
+                    <Component Id="cmpDB80566B13B66B2A92E91DA0585404A9" Guid="{62DDBDCC-AEE8-4A4D-B4DC-88C379898348}">
                         <File Id="fil85DFE16AE9319CA971C2DAD1CDE6ED4B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\icon.xpm" />
                     </Component>
-                    <Component Id="cmp8C7AB373FA963AF5F88C8B394FB28B19" Guid="{04D66D09-5019-406C-9E38-887E833203F2}">
+                    <Component Id="cmp8C7AB373FA963AF5F88C8B394FB28B19" Guid="{F4AF9BC7-3E1F-4AD3-89EA-384DAEA000A4}">
                         <File Id="fil4477B2695680604C6F6AA9F5E0E2FFB1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\install_xschem.html" />
                     </Component>
-                    <Component Id="cmp9D7115210A8866197FB4C7594E7CB7CF" Guid="{9715FFCC-D808-43FA-8CE3-93D94218F36E}">
+                    <Component Id="cmp9D7115210A8866197FB4C7594E7CB7CF" Guid="{FAD8B58B-CE6A-4143-8155-CC683F3A02B3}">
                         <File Id="fil2F1C2868A0660CBF692C20795D28F0B6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_01.png" />
                     </Component>
-                    <Component Id="cmp72EFAE4CB2B8A2B5ED8A785D4C565C68" Guid="{EEBE222B-A5E9-4AD7-9211-636597DE6FE4}">
+                    <Component Id="cmp72EFAE4CB2B8A2B5ED8A785D4C565C68" Guid="{CEDE1B57-5310-4B2D-8898-FB8AA58CAA87}">
                         <File Id="fil9673B620CC067BC8BC1EAB6F89B58DC5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_02.png" />
                     </Component>
-                    <Component Id="cmp5C04C95A67E090E0421B204F319D4216" Guid="{08A0DA81-3237-471B-BD72-7974A693A462}">
+                    <Component Id="cmp5C04C95A67E090E0421B204F319D4216" Guid="{DCC07150-0B63-47E1-B92A-613DAFA3F334}">
                         <File Id="fil2B3AB07BDBC11B1A8D30C3F688474716" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_03.png" />
                     </Component>
-                    <Component Id="cmpE415804152519EC8DE1A4531549F43A1" Guid="{2918CD16-8890-4438-9631-43F472B7AF3F}">
+                    <Component Id="cmpE415804152519EC8DE1A4531549F43A1" Guid="{91511822-7B09-4296-95B5-51D4C71002BB}">
                         <File Id="fil257D69C3B519AEDA7869DB9500C1FE75" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_04.png" />
                     </Component>
-                    <Component Id="cmpEDAC1244E967444579C4681EB1E5D5A1" Guid="{884C95F3-5C50-4BD7-883A-516F8DCCEACB}">
+                    <Component Id="cmpEDAC1244E967444579C4681EB1E5D5A1" Guid="{B108E631-4D6D-457D-866D-4CE6D2F57589}">
                         <File Id="fil8BED5827C286DDB6B4B73C486D04122E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_05.png" />
                     </Component>
-                    <Component Id="cmp4F8EBCFD3FCC2EE67599BD99BAF81196" Guid="{35D6593A-CB7A-41BD-94D4-B79DD8363A9C}">
+                    <Component Id="cmp4F8EBCFD3FCC2EE67599BD99BAF81196" Guid="{97447C20-D95F-4666-8EB1-7C12BFB6EFF3}">
                         <File Id="fil1BE4FBFFD73B48E7D89C50741B2DE121" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_06.png" />
                     </Component>
-                    <Component Id="cmp35CB7F24BA6C29E60BADCE9359242A3A" Guid="{356275F0-9C02-4311-B066-A5170ACB6E37}">
+                    <Component Id="cmp35CB7F24BA6C29E60BADCE9359242A3A" Guid="{73266867-DE53-4865-B4C7-33714C345C86}">
                         <File Id="filEBD3D384DBED0C5969236F3E3EB13072" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_07.png" />
                     </Component>
-                    <Component Id="cmp6084035E82570D640BF9FF87754F0E7C" Guid="{34A667F4-B62A-4696-B70C-2DBF1961625E}">
+                    <Component Id="cmp6084035E82570D640BF9FF87754F0E7C" Guid="{9F4501DE-3213-43E9-8757-EACA7BD536C0}">
                         <File Id="filAB4008AB65841BD3A64172EFC07D322F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_08.png" />
                     </Component>
-                    <Component Id="cmp0503EE00B33899016CEC48856BD7F184" Guid="{499928FF-8DA6-4E91-A479-AA5FC0BB16F6}">
+                    <Component Id="cmp0503EE00B33899016CEC48856BD7F184" Guid="{74753EFC-292A-4D3A-944B-057570BA7346}">
                         <File Id="filAD359FE39EDBB818AB74D2059C4B891E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_09.png" />
                     </Component>
-                    <Component Id="cmpDC6E8A887D9032EAE0B87F596925555D" Guid="{F331DA06-FF42-4BC8-AB8E-34198336AD75}">
+                    <Component Id="cmpDC6E8A887D9032EAE0B87F596925555D" Guid="{719F26AF-11C9-40DF-BCBE-9B5606AF178A}">
                         <File Id="filFDD063242FFA510C6446B04290D04354" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_10.png" />
                     </Component>
-                    <Component Id="cmpCF93F0540C1DF04295C65AD62D3035FE" Guid="{2DF69D37-13F4-4E0B-8565-10AA14A3BFE4}">
+                    <Component Id="cmpCF93F0540C1DF04295C65AD62D3035FE" Guid="{89D555A6-069D-4081-B3BC-7A184BE1F58B}">
                         <File Id="fil4D160B5732D51D0AE53D5A0637FC5D40" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\instance_based_implementation_11.png" />
                     </Component>
-                    <Component Id="cmpC3F23EE0BA14BD2D6229990763D66D41" Guid="{04D36B86-E133-473D-A871-3817E0164FEB}">
+                    <Component Id="cmpC3F23EE0BA14BD2D6229990763D66D41" Guid="{85431736-E97A-4C7F-B02D-DD06C1D59A0A}">
                         <File Id="fil4F7320B80D70815E284D2B8337409E41" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\intuitive_interface_cheatsheet.svg" />
                     </Component>
-                    <Component Id="cmp2DB8618704C7034B543BD78F8410CB70" Guid="{1A35635F-F3BD-4489-AA2C-0E34EC5357AA}">
+                    <Component Id="cmp2DB8618704C7034B543BD78F8410CB70" Guid="{884CCB9B-7C0B-4DAF-A584-A2AABE20D786}">
                         <File Id="filABBDDFFF90735804749ED6C5727372C5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\load_schematic.png" />
                     </Component>
-                    <Component Id="cmp8A2095B0FF09EA0F68B73AAAC60EA69B" Guid="{3DAAF80C-2C5E-4286-8D26-57E65C85994D}">
+                    <Component Id="cmp8A2095B0FF09EA0F68B73AAAC60EA69B" Guid="{CDBDBED7-52DA-4B7D-8A3C-1147C6F3AF22}">
                         <File Id="filE32C94FFB215B5FED1A82D784DE1690B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\netlisting.html" />
                     </Component>
-                    <Component Id="cmp97047CA23E73FCF9A2A774BE2B268856" Guid="{631E6B17-0196-475E-8192-B49CDF5C4E59}">
+                    <Component Id="cmp97047CA23E73FCF9A2A774BE2B268856" Guid="{1BF1BCAE-22DF-4FC7-9AEC-8829D47934CF}">
                         <File Id="fil2D7E016DFAA7BA65F8B39676F86468BE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\netlisting1.png" />
                     </Component>
-                    <Component Id="cmpFA35BC7AF9A1F28B80C988CDD4DF98D2" Guid="{6E400B3A-BFA4-4D3B-B03D-BC19B234B6AA}">
+                    <Component Id="cmpFA35BC7AF9A1F28B80C988CDD4DF98D2" Guid="{0D745BDB-94EC-452A-A45C-3F0D62ACF77B}">
                         <File Id="filE7EEF6BFEA357CBA60951710999C6FF5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\netlist_commands.obj.gz" />
                     </Component>
-                    <Component Id="cmp1036EBB0532070976C4FDF5B6B6B2144" Guid="{9AEC3141-7992-415E-9196-1D7800340F51}">
+                    <Component Id="cmp1036EBB0532070976C4FDF5B6B6B2144" Guid="{D048750C-7242-4FF2-9432-0CEDF61E4B01}">
                         <File Id="fil6B062352CDABA0002966199F7771D227" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\netlist_commands.png" />
                     </Component>
-                    <Component Id="cmp0EDAD19E92D7265080FBF350BD3CB6B9" Guid="{33A469E5-C7DE-4DD4-9D4A-DA83CA02DF5D}">
+                    <Component Id="cmp0EDAD19E92D7265080FBF350BD3CB6B9" Guid="{B3433C98-9746-4206-804D-2545EAD32F52}">
                         <File Id="fil7C78140E3C11AB2BBCC514FBDA6423AD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nets_pins.png" />
                     </Component>
-                    <Component Id="cmp29B637F3610EC35C09AB885BC63F49BA" Guid="{45E3A7A8-93E3-4169-B416-CAFC56191657}">
+                    <Component Id="cmp29B637F3610EC35C09AB885BC63F49BA" Guid="{8CB96BC7-3897-4868-8ABC-C605EC5ED9A5}">
                         <File Id="fil1B03F5C95889966585AEA25E030A488C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\net_probes.html" />
                     </Component>
-                    <Component Id="cmpC8145C8950A9D458F7C1B5997BDD121F" Guid="{F563768D-7E94-485A-B88B-958B04420679}">
+                    <Component Id="cmpC8145C8950A9D458F7C1B5997BDD121F" Guid="{2B6D1DA8-039B-47AF-97E6-2D3E3CF3EEA4}">
                         <File Id="filEACC6FA44B98EBD99ABEBED5B00F87AF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_editprop.png" />
                     </Component>
-                    <Component Id="cmp5B21FE1C933166701740347617BCA747" Guid="{10DC2D9C-91E7-4159-B2FC-AD2D5F358B7E}">
+                    <Component Id="cmp5B21FE1C933166701740347617BCA747" Guid="{5427F1E9-F6DA-43B3-B14A-29AADCF690B2}">
                         <File Id="filC04B942F5E70934BE196CCD1E5F11B82" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_editprop2.png" />
                     </Component>
-                    <Component Id="cmpFA279093489CB06BB7FB240299D3929F" Guid="{6488DB07-35B5-4C2E-966F-349087A48269}">
+                    <Component Id="cmpFA279093489CB06BB7FB240299D3929F" Guid="{C977958D-78F1-4270-AAC7-24F877A67B9C}">
                         <File Id="filD909FDCEC7250485C03AA5700110858C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_editprop3.png" />
                     </Component>
-                    <Component Id="cmpF840B9FB44A98472C35B4E0FF008F9F4" Guid="{588105EF-246D-411C-A996-F9353F8950FD}">
+                    <Component Id="cmpF840B9FB44A98472C35B4E0FF008F9F4" Guid="{A40CA2EE-63B2-4153-80E9-49651C6963B2}">
                         <File Id="fil11C603F76D98470EABBF55BC964CD57F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_labels.png" />
                     </Component>
-                    <Component Id="cmp9897A40EE403F9CF61A88D47B0E71B85" Guid="{75CF5CF4-8585-4B1F-8F69-9A88A6E7B7B8}">
+                    <Component Id="cmp9897A40EE403F9CF61A88D47B0E71B85" Guid="{BA809F96-1430-4B9F-BBF3-5E3EF9EDFA78}">
                         <File Id="filB4D2852FDB881C90150E36C9AFF64DDD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_labels2.png" />
                     </Component>
-                    <Component Id="cmp937F4814C3DA19218496F4F48D2A5A4A" Guid="{8BCEC31E-9136-4A78-8510-EA33A65F9CBD}">
+                    <Component Id="cmp937F4814C3DA19218496F4F48D2A5A4A" Guid="{976E41FB-98EB-4640-9FAB-29F714D06F96}">
                         <File Id="filD7D28F1A0C996BAB4559E249B7784933" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_symbol.png" />
                     </Component>
-                    <Component Id="cmpF6DBE7406349A81C1488ACA8CF1C82A3" Guid="{0DC3DA27-17E5-424C-B480-990A61DA6618}">
+                    <Component Id="cmpF6DBE7406349A81C1488ACA8CF1C82A3" Guid="{EDFD6332-C2E2-4B2A-AFA3-69F2172CFAB7}">
                         <File Id="fil6C23B3C1C88E2F6CF80BF529837E02A7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos4_wires.png" />
                     </Component>
-                    <Component Id="cmpC398F4A1D718E9B56EC6D199D60C5DF6" Guid="{1D1EBB16-ED56-4A17-94B1-F543A0E32BC5}">
+                    <Component Id="cmpC398F4A1D718E9B56EC6D199D60C5DF6" Guid="{6B05538A-B327-4280-884F-485731C79B74}">
                         <File Id="fil7A096435EA4A6858CB6D82E4AEE22FA0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos_properties.png" />
                     </Component>
-                    <Component Id="cmp6E5A32BFA18F62931036DCBA384F1050" Guid="{3726FD86-E268-4550-A7CD-55CF9C27ECE6}">
+                    <Component Id="cmp6E5A32BFA18F62931036DCBA384F1050" Guid="{BACD65A1-669B-4753-947C-D777FED00740}">
                         <File Id="fil9D786F1EC430FCC7D156C56D7C56AC7A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos_properties2.png" />
                     </Component>
-                    <Component Id="cmpA5FDD4433F3CCA1331A8EAF6ED2EC5D8" Guid="{FFC77139-CA13-45DA-A11D-E2C3EE83245E}">
+                    <Component Id="cmpA5FDD4433F3CCA1331A8EAF6ED2EC5D8" Guid="{A9F94F14-DF52-40DB-AA83-D9E67A9E497E}">
                         <File Id="fil3C5460E61ABE8A8635E116724DDC79B0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\nmos_properties3.png" />
                     </Component>
-                    <Component Id="cmp8DEFD1096D40F72D6F26423D5BD18333" Guid="{EF19137F-FB6E-4F98-B51C-A50262241405}">
+                    <Component Id="cmp8DEFD1096D40F72D6F26423D5BD18333" Guid="{0CD610A4-4C66-46A9-9830-8B5FEEE44ED2}">
                         <File Id="filEDE31BD8828A6FEB8B18F527BE510698" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters.html" />
                     </Component>
-                    <Component Id="cmp9D0911B1564E7A5F997BA80D0386ECDB" Guid="{F1ED50F9-C59D-44F6-AAD9-9842EC3FD64C}">
+                    <Component Id="cmp9D0911B1564E7A5F997BA80D0386ECDB" Guid="{0FBA1C96-7AA4-4A5B-AE0F-A6321BB6207D}">
                         <File Id="filE489B6695191181E907DA7268755B98A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters1.png" />
                     </Component>
-                    <Component Id="cmp7D9DD96B845CB9CDF8BCBA651A29AD94" Guid="{A0A164A0-7571-41D0-A777-E218D5CBEA7E}">
+                    <Component Id="cmp7D9DD96B845CB9CDF8BCBA651A29AD94" Guid="{E27519FB-3438-4B3D-A7F1-A524B1845820}">
                         <File Id="fil4A691730241C653E9E5A11481771588B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters2.png" />
                     </Component>
-                    <Component Id="cmpAECDF107C3FE6FD35BC09EEC6AE27ACE" Guid="{3A395F64-DA2A-413B-A2EC-191A265EE6E3}">
+                    <Component Id="cmpAECDF107C3FE6FD35BC09EEC6AE27ACE" Guid="{9EA18E54-C01E-4282-8848-B38843296499}">
                         <File Id="fil36F4C95F7017AE0A3EA24A976392EAD5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters3.png" />
                     </Component>
-                    <Component Id="cmpF9280278155042E1B4DC007B03E1CCE6" Guid="{1817F4E1-804C-4853-B445-21AE42F7C497}">
+                    <Component Id="cmpF9280278155042E1B4DC007B03E1CCE6" Guid="{DC40B2E4-CD26-421D-9AB1-C0625C57BE77}">
                         <File Id="filD40B491201C3B1EA1477850EBB923E18" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters4.png" />
                     </Component>
-                    <Component Id="cmp8737C923A2CD6802ED6E13112BBB6599" Guid="{6BBCAA19-FFE8-4E09-A2AB-4E605906B75D}">
+                    <Component Id="cmp8737C923A2CD6802ED6E13112BBB6599" Guid="{89C154E0-80A7-49E9-8171-44F8F38923A0}">
                         <File Id="fil83A14303B262D912AD5C9C01585CD7E3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters5.png" />
                     </Component>
-                    <Component Id="cmp4FDAD50274CE6105999BB73BF884DD1D" Guid="{4B27063A-B4D4-434C-941D-D070660E4614}">
+                    <Component Id="cmp4FDAD50274CE6105999BB73BF884DD1D" Guid="{A12B1B36-CC9E-451C-B813-D8154BB8D9DF}">
                         <File Id="fil324E6B620A90FA83D90F966DBBDA2AB8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\parameters6.png" />
                     </Component>
-                    <Component Id="cmpD4BAB551EED6B4F1DDA2816CC5E5C849" Guid="{1069F44E-3281-4E84-B0D7-9AC448CE0B53}">
+                    <Component Id="cmpD4BAB551EED6B4F1DDA2816CC5E5C849" Guid="{E8B98AA6-ACCE-4F26-88A3-5A42221602B7}">
                         <File Id="filF9B1D56918A6A02DAD7D2AE210589750" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\performance.html" />
                     </Component>
-                    <Component Id="cmp9C9646BA969959CDB04692029FCBCFB1" Guid="{6BE6099E-14B0-44AF-86FA-856E8A1B2A1B}">
+                    <Component Id="cmp9C9646BA969959CDB04692029FCBCFB1" Guid="{D3F92C7B-8B9F-404D-B569-0CCF6A33451B}">
                         <File Id="filEE7774C6FBEC9BEBE6D13D916B101DE1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\pinnumber1.png" />
                     </Component>
-                    <Component Id="cmp7D05C60DDE4C4E276B03CA0BFA79AA8E" Guid="{7E05C877-553D-4A48-812F-D387CA56467E}">
+                    <Component Id="cmp7D05C60DDE4C4E276B03CA0BFA79AA8E" Guid="{FE407B86-4614-44E9-89C1-2F185891C5DF}">
                         <File Id="filD67E8930C63B1E2CEA3EE6AB431A5A86" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\pinnumber2.png" />
                     </Component>
-                    <Component Id="cmp80E23E69F6BFD335D5BE2C38F9C1FE2C" Guid="{AA7C5CCD-21AC-46ED-8B71-B2B60B2B7FB0}">
+                    <Component Id="cmp80E23E69F6BFD335D5BE2C38F9C1FE2C" Guid="{46581AE7-46D0-4872-A75E-347A0DA41AA3}">
                         <File Id="filC0DB531BC8215434E171272739A2B064" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\pin_order.png" />
                     </Component>
-                    <Component Id="cmpAF74F1FEB750C2B9BFD37D44390B6691" Guid="{FDE7B0C4-1F30-44EF-82AA-8D604F33BD79}">
+                    <Component Id="cmpAF74F1FEB750C2B9BFD37D44390B6691" Guid="{C84AC670-4294-4C86-A405-F23E66E2C664}">
                         <File Id="fil9CB8DB4516A81D927C9C6F49E6F325B2" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\place_pin.png" />
                     </Component>
-                    <Component Id="cmpFB983E1BFC83DD89C4A99D9057D8C389" Guid="{BC61FF4C-1602-4CCA-9BAE-813538A8C271}">
+                    <Component Id="cmpFB983E1BFC83DD89C4A99D9057D8C389" Guid="{02848165-A098-4E6E-B7CE-E99D81236B4B}">
                         <File Id="filA7DD925B3D1EBE02397C1AECBB1CC9B1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes1.png" />
                     </Component>
-                    <Component Id="cmp4566BBCF269EC6BCF88C4BFB2B2B6C80" Guid="{CEF5381E-4A75-4830-AE13-64163E56F638}">
+                    <Component Id="cmp4566BBCF269EC6BCF88C4BFB2B2B6C80" Guid="{F413A8B0-C85C-4387-88A9-3CA413218815}">
                         <File Id="fil0846A786394B64E90ECF024DF63B9061" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes2.png" />
                     </Component>
-                    <Component Id="cmpA758271C8568D1608929092609C3B506" Guid="{E9DE7CA6-D8FD-4E34-AB26-852C1E85AA0A}">
+                    <Component Id="cmpA758271C8568D1608929092609C3B506" Guid="{9692FDD0-46D3-424C-B4AE-90004B40375E}">
                         <File Id="fil1343AF18DB9E132769E45AE2CB4857BB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes3.png" />
                     </Component>
-                    <Component Id="cmp99BC50A7724BDC92ECCC3639C4F5CF1C" Guid="{97397221-C55C-40E2-997B-2F49130B28E6}">
+                    <Component Id="cmp99BC50A7724BDC92ECCC3639C4F5CF1C" Guid="{00B233B9-75B1-4BC5-8AA4-07FBD85A54CD}">
                         <File Id="filC47B5FC9EB9261E65BBFA24D8F428CD9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes4.png" />
                     </Component>
-                    <Component Id="cmp29BDE54D164B728761F361AB46051EC7" Guid="{A97A80CA-3CF5-47F5-8ACE-6F170CBEFF5D}">
+                    <Component Id="cmp29BDE54D164B728761F361AB46051EC7" Guid="{0B75DCEF-F0F9-466A-911B-CE4E8198A9FF}">
                         <File Id="fil87ED9B54CAB463732CA0EACAB6586CA5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes5.png" />
                     </Component>
-                    <Component Id="cmp9371E40CA907E1224653D3D613F428FA" Guid="{3CA2FBBA-5D5A-4089-9752-96C7958BADE9}">
+                    <Component Id="cmp9371E40CA907E1224653D3D613F428FA" Guid="{8170F72C-9DA8-46BF-B347-BA2CAA5D5A27}">
                         <File Id="fil35A28728FD78919339B92265C3E95122" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes6.png" />
                     </Component>
-                    <Component Id="cmp812DFB322D7E50599455E4EFB783814D" Guid="{7DD4138A-248D-4557-A8B3-11705D3C3055}">
+                    <Component Id="cmp812DFB322D7E50599455E4EFB783814D" Guid="{07D3D1E3-A42C-4029-8F1E-B91588360998}">
                         <File Id="filE8D412923336B27AA4B62F7A4E2772D1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\probes7.png" />
                     </Component>
-                    <Component Id="cmp9B3A7686BB046FC570A7F71F4AD981E3" Guid="{F1C0F2C2-B929-4B60-B051-B305FEF4230F}">
+                    <Component Id="cmp9B3A7686BB046FC570A7F71F4AD981E3" Guid="{3025EB91-31A5-4362-AB17-0D4AB3966594}">
                         <File Id="filF381476E0AE82A64645BB3564E35B9FF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\properties.obj.gz" />
                     </Component>
-                    <Component Id="cmp87920616631BEEA016176533E5C41578" Guid="{38E82F67-625A-41C2-AF3A-340AA9C6CF41}">
+                    <Component Id="cmp87920616631BEEA016176533E5C41578" Guid="{DB4704BD-0BF4-4EF0-B178-50CD9176FE9E}">
                         <File Id="fil956458A20E4B3A9B4FAD4831F7FD2BF1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\properties.png" />
                     </Component>
-                    <Component Id="cmp5B62A7CAE8EECF932F98EB403B5CDD29" Guid="{60636167-C2CC-4AEE-B1BF-18F83A3C456C}">
+                    <Component Id="cmp5B62A7CAE8EECF932F98EB403B5CDD29" Guid="{C22A9F66-7A4D-40E7-B21E-EAD764917FEA}">
                         <File Id="fil1CACDA915CAC17ACE7F7A3B476C083FF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\run_xschem.html" />
                     </Component>
-                    <Component Id="cmp9540E3F9B5835A06B30F0AE43A00BDCA" Guid="{9999F9D6-B56C-4230-9FF1-2D623E850D88}">
+                    <Component Id="cmp814223FC22DFF7462DCE79B3829E6FBF" Guid="{A4D4F6D8-9F43-41F4-8EC5-89F2428D95BE}">
+                        <File Id="fil5DD06C43623DA708411D23E907EEEA81" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\scripts.html" />
+                    </Component>
+                    <Component Id="cmp9540E3F9B5835A06B30F0AE43A00BDCA" Guid="{FE10E090-66CA-41D7-B16B-C13C802311BD}">
                         <File Id="fil2934B2FC856C8A8D86E4B92EF92AD1B9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation.html" />
                     </Component>
-                    <Component Id="cmp5DB828CEC70D5904EB1C1A5DC881F321" Guid="{C06B4C77-19E5-4633-9816-B6879E8B1313}">
+                    <Component Id="cmp5DB828CEC70D5904EB1C1A5DC881F321" Guid="{87F10301-EAFC-4413-877A-B88BF87CF2E8}">
                         <File Id="filE385A22A513F0A8A2C2F6EFB9F7326C0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation1.png" />
                     </Component>
-                    <Component Id="cmp6506097EF307EF163BD976300B67E723" Guid="{8B242611-D3CF-4CE9-8591-0C0330811A6C}">
+                    <Component Id="cmp6506097EF307EF163BD976300B67E723" Guid="{F2A1CFBD-9314-4BA9-AEF6-FC052F052275}">
                         <File Id="fil8B8716150B07BAFCB76371AE18CBF9FD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation10.png" />
                     </Component>
-                    <Component Id="cmp586706D51A4C65AC07C3CBA723106DAC" Guid="{1375974B-12FC-4B3E-97C3-5B036A38B9EC}">
+                    <Component Id="cmp586706D51A4C65AC07C3CBA723106DAC" Guid="{A2392643-8611-4D6B-BB89-94ABCFAA662E}">
                         <File Id="fil0D687864A1749293F429709034CAFD6D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation11.png" />
                     </Component>
-                    <Component Id="cmpC6BDA118BD458506C6AE68FB08C9E6F4" Guid="{91014DC5-29A2-4FFC-96DE-FD7AA0A303B2}">
+                    <Component Id="cmpC6BDA118BD458506C6AE68FB08C9E6F4" Guid="{AFAD4BEF-71F1-42B5-AB3C-8F7859C4E3AF}">
                         <File Id="filD0562B12A55B121FC5929D7999E473A4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation2.png" />
                     </Component>
-                    <Component Id="cmp4F4705CC5CF73A7A489868380F7C5AED" Guid="{EE5C877C-664B-45E9-A864-A6101D85ACF3}">
+                    <Component Id="cmp4F4705CC5CF73A7A489868380F7C5AED" Guid="{25AE4241-046E-486D-B837-D1FDDB079B6D}">
                         <File Id="fil6DCEFC2B190A7ED12C1835EEAB179A4B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation3.png" />
                     </Component>
-                    <Component Id="cmpB93DAC8800191B30844F8E147A61F228" Guid="{5326D7C0-ABBA-49CC-9FCF-E16A79BC80B7}">
+                    <Component Id="cmpB93DAC8800191B30844F8E147A61F228" Guid="{C9ABE66C-6970-4517-8276-EA6A1FD7CDA8}">
                         <File Id="filD1C64349ABF18BD5961F5EC3034AE6AD" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation4.png" />
                     </Component>
-                    <Component Id="cmp10FC1FFBFBCD6271A357D774785D48AF" Guid="{0696A34A-86AB-4B22-B764-0312472F85B2}">
+                    <Component Id="cmp10FC1FFBFBCD6271A357D774785D48AF" Guid="{04DB9144-94F3-4597-98A0-63EF5742CF23}">
                         <File Id="fil9522C1B5EAEBCF1AE787162B5DF45240" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation5.png" />
                     </Component>
-                    <Component Id="cmp7DA3BD7375D1974B0057AE3368ED6383" Guid="{462E6200-9F73-452B-86BF-E3742CDE9FE0}">
+                    <Component Id="cmp7DA3BD7375D1974B0057AE3368ED6383" Guid="{50B76058-DFEA-4D6F-9B48-00DFF0BF6D5D}">
                         <File Id="fil794B040FA5E6C35A877A418A45176AD8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation6.png" />
                     </Component>
-                    <Component Id="cmp5E1A3303614CCB4D3B2F28FFA9F105F1" Guid="{BC7FA522-1714-4F51-B523-F8CFA6038DDB}">
+                    <Component Id="cmp5E1A3303614CCB4D3B2F28FFA9F105F1" Guid="{231F6DFE-B3D0-47C8-86D4-3EB55858CCE6}">
                         <File Id="fil62BA63B9620D182F8CADE8A64540B95A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation7.png" />
                     </Component>
-                    <Component Id="cmp3D757DA33A5CF5AF0170728CE7879945" Guid="{0E23D454-1B28-432F-A132-FF0BF65E9F22}">
+                    <Component Id="cmp3D757DA33A5CF5AF0170728CE7879945" Guid="{3A75490E-1712-467F-9DAD-72641C328B4D}">
                         <File Id="fil3E37B6F6FDFF279D7928A95164FF7E6B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation8.png" />
                     </Component>
-                    <Component Id="cmp69527BCF2EAC90D1F29B66558588F18B" Guid="{39D6A736-0631-4499-85C0-CAA483E97763}">
+                    <Component Id="cmp69527BCF2EAC90D1F29B66558588F18B" Guid="{FB0DF00E-476E-4066-9AA4-1211DED938E3}">
                         <File Id="filC92AF9E88132F6E5054A58E700AA5105" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\simulation9.png" />
                     </Component>
-                    <Component Id="cmp5DE5BF3A93CF32E9741EE29282B2D837" Guid="{17DD0C0A-016C-4FF8-8426-39A2CB2655BC}">
+                    <Component Id="cmp5DE5BF3A93CF32E9741EE29282B2D837" Guid="{0E953D15-1C82-4B4F-8E17-9A0511073DC2}">
                         <File Id="fil04CBEA9A72CEDC2677EC59B8D8334A60" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\special1.png" />
                     </Component>
-                    <Component Id="cmpC7B56D2632EEBF106FA79FA33B3C75B7" Guid="{D158F247-3847-4C34-93F9-B042908BE0F5}">
+                    <Component Id="cmpC7B56D2632EEBF106FA79FA33B3C75B7" Guid="{EFE5437F-19CF-4369-B36F-9563E4751B2C}">
                         <File Id="fil70F18A5DDE2501CADC984FBA7B4903AB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\spiceprefix.png" />
                     </Component>
-                    <Component Id="cmpD26202FAF4841795B6A741328CB6A67B" Guid="{64A836F9-8E2F-4EB1-9983-4DE381AE102B}">
+                    <Component Id="cmpD26202FAF4841795B6A741328CB6A67B" Guid="{A2989520-64E7-457B-8794-9DF07C3CA4A2}">
                         <File Id="fil04059F87A12DD86AC2F4D7D04EDF2509" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\spice_backannotate.png" />
                     </Component>
-                    <Component Id="cmpFCCC97C98C208E2AD8D77D0E602DCCB5" Guid="{7BC22127-0034-42E0-BDF0-F6A25CD4C5CA}">
+                    <Component Id="cmpFCCC97C98C208E2AD8D77D0E602DCCB5" Guid="{9FDE4587-6AB3-4DED-BA52-251BBB402D62}">
                         <File Id="fil86078E1882AA8C8E213CC6E73715F770" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters.html" />
                     </Component>
-                    <Component Id="cmp86B15C77A8299391AB325D60FE0DF00B" Guid="{775537E3-943D-4908-A7B6-A312336985BA}">
+                    <Component Id="cmp86B15C77A8299391AB325D60FE0DF00B" Guid="{AAC3620B-1267-47EA-851E-A32A8C0F371A}">
                         <File Id="fil7C341E8EECF059A23CB41B8681D858B8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters01.png" />
                     </Component>
-                    <Component Id="cmp1216112358A36C49D8502C1490913BFA" Guid="{7DFE8330-36F6-45B6-8A60-B4493423C833}">
+                    <Component Id="cmp1216112358A36C49D8502C1490913BFA" Guid="{894E1568-744A-4868-AC82-7C288BB6A89D}">
                         <File Id="fil8074FA9C4C1D1805628B66558A72E253" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters02.png" />
                     </Component>
-                    <Component Id="cmp7361D09B42DD785D86E85494B40CB7E5" Guid="{A2B905B3-3C58-401D-BD7D-4722A1936A96}">
+                    <Component Id="cmp7361D09B42DD785D86E85494B40CB7E5" Guid="{A59AB7F5-EB51-4036-85DA-85271DC6E988}">
                         <File Id="fil43936C413EB9D19DB383F88975C352A7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\subckt_with_parameters03.png" />
                     </Component>
-                    <Component Id="cmpFD4E64677B8277F8F66B179CC7D77CBF" Guid="{7CE34989-CA54-40ED-8EE3-A6DF11288830}">
+                    <Component Id="cmpFD4E64677B8277F8F66B179CC7D77CBF" Guid="{C66E7633-3E57-41E5-BF84-00716B7ED380}">
                         <File Id="fil02E6440D43CE38B206156921E6E06E4E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generation5.png" />
                     </Component>
-                    <Component Id="cmp80D71431189149660F707A733ED9DC48" Guid="{17EF4E0C-161C-4B34-9DA6-3C1D483D5235}">
+                    <Component Id="cmp80D71431189149660F707A733ED9DC48" Guid="{C27123B6-695A-4286-A812-C7F2ED887C4D}">
                         <File Id="fil357970DD2C11943DF6420EF42642EB1C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generation6.png" />
                     </Component>
-                    <Component Id="cmp14C7D96F77333525B6BDFBCBF7AB9CA3" Guid="{0CFC36D8-A681-40A4-A71E-A8E24FE23448}">
+                    <Component Id="cmp14C7D96F77333525B6BDFBCBF7AB9CA3" Guid="{38B1D48E-F4AB-49BE-BD29-E43852A5F0A7}">
                         <File Id="fil769446F0F3B253C5050DCAB87CCDDD41" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators01.png" />
                     </Component>
-                    <Component Id="cmpDE7F31AEB44A68034AA9A9FC61A10273" Guid="{06508C6C-CBE5-4159-BD01-C2808AD2F221}">
+                    <Component Id="cmpDE7F31AEB44A68034AA9A9FC61A10273" Guid="{FD9C125A-6689-400F-AE83-2491AEBA7A9D}">
                         <File Id="fil6ADBC78007047FC155237D4ACC26C98B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators02.png" />
                     </Component>
-                    <Component Id="cmp64456081A2F7796762FBF32E72BD32E8" Guid="{EDF2DCAD-2BB8-4B1B-BD38-342FD6F39D61}">
+                    <Component Id="cmp64456081A2F7796762FBF32E72BD32E8" Guid="{4E50BDA6-38CE-4D70-9F8C-6CCB8F3C44DA}">
                         <File Id="fil3BCC9EA97E466FEBC43573FD37F99938" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators03.png" />
                     </Component>
-                    <Component Id="cmpA0D0513EEFCD10FCE5D2F5C2A826A652" Guid="{CA996AEC-40DB-478E-85B0-C0F1BBC9A215}">
+                    <Component Id="cmpA0D0513EEFCD10FCE5D2F5C2A826A652" Guid="{F2402E2A-D67F-4755-BBE5-EF5F52DB509E}">
                         <File Id="fil8EF5E76A6AEDE295D8B575F0E73E6B59" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_generators04.png" />
                     </Component>
-                    <Component Id="cmp4E173EB8A7B4151CF229043A306A5618" Guid="{85337113-8779-4B66-8A3C-6C1E79B9594D}">
+                    <Component Id="cmp4E173EB8A7B4151CF229043A306A5618" Guid="{BA0A1B74-D931-449C-BB78-BE3ACF2FBB11}">
                         <File Id="filCA3BA0C82FEE664384F4C8ADA0482FE9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_properties1.png" />
                     </Component>
-                    <Component Id="cmpB389126DA86CA574DE924B2998CB8630" Guid="{B9A18F06-F011-4715-8B87-206B27062F39}">
+                    <Component Id="cmpB389126DA86CA574DE924B2998CB8630" Guid="{A3FB330E-691D-40C2-9684-555BF4B138FC}">
                         <File Id="fil309C5B107815F1C8BF1F676968F9970F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax.html" />
                     </Component>
-                    <Component Id="cmp6D2ED59DF2340D1122FD7F1D589EF887" Guid="{B79307F8-009D-4D18-8F41-3AFCCB3452BE}">
+                    <Component Id="cmp6D2ED59DF2340D1122FD7F1D589EF887" Guid="{4B41AF84-20DB-46DB-B0A9-163B455D9053}">
                         <File Id="fil17B785A67D043CC2CBC92B833F8AE0CB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax1.png" />
                     </Component>
-                    <Component Id="cmp5C29C1D986EFE74BCDC1524B14AA8C8D" Guid="{E7B673AF-AB56-4B4F-B616-3F582A554864}">
+                    <Component Id="cmp5C29C1D986EFE74BCDC1524B14AA8C8D" Guid="{C2210846-1752-4CC3-BD2E-E42780868DC0}">
                         <File Id="fil207BCD420D6D457604DED271A171DE67" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax2.png" />
                     </Component>
-                    <Component Id="cmp9F6E802F56EEA72A1473FA788F20FBE5" Guid="{E9DAAF70-6635-4B30-81E6-C4DCB74E7D08}">
+                    <Component Id="cmp9F6E802F56EEA72A1473FA788F20FBE5" Guid="{FF0B00ED-54BD-4FEB-B854-69D2244FF5A9}">
                         <File Id="filF1ED18E7F4F67D529E56D9B00B050CAC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax3.png" />
                     </Component>
-                    <Component Id="cmp531EA85E335C3D3E948CB16A872837A6" Guid="{6813499A-D284-40CE-A62C-AAEC6FE58250}">
+                    <Component Id="cmp531EA85E335C3D3E948CB16A872837A6" Guid="{72464DE5-A708-4961-B00E-E66A73969FFB}">
                         <File Id="filF046A5CD15470FBE36F3CD60AF03B9F4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax4.png" />
                     </Component>
-                    <Component Id="cmpE918044EAD1A5F238F1B2A2DCEAE702C" Guid="{321B7D02-99FC-4064-9DBA-5D8C739743A3}">
+                    <Component Id="cmpE918044EAD1A5F238F1B2A2DCEAE702C" Guid="{BEB344B5-D8DA-483F-9BC8-931249FD31C0}">
                         <File Id="fil7B22FD4ED48963FA2B408FBB7C90D8D1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symbol_property_syntax5.png" />
                     </Component>
-                    <Component Id="cmp30FF303E2BEC5A123613729EAFAF6576" Guid="{5DDB2774-2124-4E33-992B-F8F3E5903BA7}">
+                    <Component Id="cmp30FF303E2BEC5A123613729EAFAF6576" Guid="{5578C5DD-1B14-4707-BDC7-338E24763B2A}">
                         <File Id="filCCAC9D72DA84033404DE8E2EC5F8900A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\symgen_vs_djboxsym.png" />
                     </Component>
-                    <Component Id="cmp160D310A1499755F8452C664AB1882FF" Guid="{43B810C3-BD7E-42AD-9F7B-4EDD617A1B4D}">
+                    <Component Id="cmp160D310A1499755F8452C664AB1882FF" Guid="{5D192EDF-2600-4BE3-A391-6513FB377F73}">
                         <File Id="fil56DD33FFAE144A1CBCA96D7E1BBA0900" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\text_property.png" />
                     </Component>
-                    <Component Id="cmp94BBC0CDFCEEBAF38436152C69968121" Guid="{9FC9DA7B-A19B-414B-92C1-01760B7ECABD}">
+                    <Component Id="cmp94BBC0CDFCEEBAF38436152C69968121" Guid="{5AD3B8AF-A21D-445B-862C-344EE54CF07E}">
                         <File Id="fil94DACC23AD5D78042F5DC25A93C6CB25" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_busses.html" />
                     </Component>
-                    <Component Id="cmp40D76DC73F81D8F5BD4F14F1E30940D0" Guid="{8C07110A-7346-4D79-A2F2-A6D8A7877CBA}">
+                    <Component Id="cmp40D76DC73F81D8F5BD4F14F1E30940D0" Guid="{FC335C73-C93F-47C4-9015-39C30C5586E6}">
                         <File Id="filEEDB457224FD62BE6182844208BBB7EF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol.html" />
                     </Component>
-                    <Component Id="cmp4FF524F42F947CABD5F6FD3BD84DC1DA" Guid="{F0209BFB-A3CC-44D2-B842-A8CDDF119AB2}">
+                    <Component Id="cmp4FF524F42F947CABD5F6FD3BD84DC1DA" Guid="{4CBEC2C4-F380-467D-AF2E-D06D8BB74735}">
                         <File Id="fil3873DBB621BF55DD33EE496ACD9FF1B9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_00.png" />
                     </Component>
-                    <Component Id="cmp84692DFACCECD0F047FA5D03878AECB7" Guid="{BCBA38E5-ADD1-4902-96BC-E80775B25F47}">
+                    <Component Id="cmp84692DFACCECD0F047FA5D03878AECB7" Guid="{90EA98C2-947A-44E8-BD14-ED5B316BCE0D}">
                         <File Id="filAD56E54FD28F5C568D7A9756144D8AD7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_000.png" />
                     </Component>
-                    <Component Id="cmp2DB450D1EC41E3AD8A6C1171E2FF8CEE" Guid="{C40C3797-99CD-4E1B-B462-F5D1095AE84B}">
+                    <Component Id="cmp2DB450D1EC41E3AD8A6C1171E2FF8CEE" Guid="{BEE5A3E0-D785-44D4-BBF8-C284CC23308C}">
                         <File Id="filED7585DA00B352CE66A7B47CC89B9B92" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_001.png" />
                     </Component>
-                    <Component Id="cmpA272FD58834D3669C760324EAD32C35B" Guid="{E0A4C861-5A56-445F-9CC2-224207240328}">
+                    <Component Id="cmpA272FD58834D3669C760324EAD32C35B" Guid="{4C59EFB8-DE55-413B-AA67-21116758A066}">
                         <File Id="filA7841A65C5D8A7D8782373A804610099" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_01.png" />
                     </Component>
-                    <Component Id="cmpE6DF23E618E96503EBDEA9B25F651159" Guid="{B93C4D63-72F3-4A90-8850-153E3B97F09D}">
+                    <Component Id="cmpE6DF23E618E96503EBDEA9B25F651159" Guid="{EF9F594E-671D-4CF7-AD51-34AC445092CD}">
                         <File Id="fil660305D812DA5416AE9938EE4C786E97" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_02.png" />
                     </Component>
-                    <Component Id="cmp4A224F8FDEB0CA2511880D989A214C10" Guid="{E6BD5910-5390-4637-A262-699F0369AD8B}">
+                    <Component Id="cmp4A224F8FDEB0CA2511880D989A214C10" Guid="{CAC446F7-4C57-41F5-9EE6-FC5267BA2EA7}">
                         <File Id="fil901AB573CD07784D56B26A6A8973CA57" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_03.png" />
                     </Component>
-                    <Component Id="cmp2155DA6423AC435020BEF8E0D221EE94" Guid="{D33132B6-C446-4817-8AD4-182CD67E9BA2}">
+                    <Component Id="cmp2155DA6423AC435020BEF8E0D221EE94" Guid="{DECC1AED-2242-40EA-9A52-7BF0DA7150D2}">
                         <File Id="fil8A4BD8F9978AFBBC3BCBBA485FB444C1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_04.png" />
                     </Component>
-                    <Component Id="cmpA7A4A66632119F9EC34104CC612FD7D9" Guid="{2D79DADA-037D-446A-A293-CD2944A4D0EC}">
+                    <Component Id="cmpA7A4A66632119F9EC34104CC612FD7D9" Guid="{5E4303FF-AE7C-466B-8DDF-B18AAE09575F}">
                         <File Id="filC91D9B4698223B3F587CE11215EECE4C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_05.png" />
                     </Component>
-                    <Component Id="cmpA16C35256E5D41179D5CECE61FDED23A" Guid="{65B49D01-B6BB-4C02-BD80-3821F3028C07}">
+                    <Component Id="cmpA16C35256E5D41179D5CECE61FDED23A" Guid="{3DCD5B51-63EE-4E58-895B-32A7C4BAE098}">
                         <File Id="filE5A326DE7E7BB286C1A00762406ED589" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_06.png" />
                     </Component>
-                    <Component Id="cmp195429ED4471B6A02A4FAF762159968C" Guid="{94DF2ED7-B9DE-47D9-836C-B2893EB38C28}">
+                    <Component Id="cmp195429ED4471B6A02A4FAF762159968C" Guid="{8C7350D8-01BC-4499-AE0A-5640BC1E5CEB}">
                         <File Id="fil6764237B7041E1894723477E709959B3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_07.png" />
                     </Component>
-                    <Component Id="cmp22615544E6B7395726B9A4B0CB4BB6A2" Guid="{0CD21C3A-F5D8-419C-A93F-9188C8B0D81E}">
+                    <Component Id="cmp22615544E6B7395726B9A4B0CB4BB6A2" Guid="{EAECFB7A-A20F-477B-A197-1EE805C65002}">
                         <File Id="fil5D6DE4E12DC9D14483C267E120B615F0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_08.png" />
                     </Component>
-                    <Component Id="cmp27BD1D4E7BF0E3262BA8FB817656F73B" Guid="{8C517A76-A69A-4A66-8A3F-4EC3C42D912D}">
+                    <Component Id="cmp27BD1D4E7BF0E3262BA8FB817656F73B" Guid="{750C0843-ACBA-433C-9D84-44813B36D247}">
                         <File Id="fil1D06CCBC6BBCFFD4453C240DB58F51A5" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_09.png" />
                     </Component>
-                    <Component Id="cmp8C39ADC65700FE2E1F1A3179247F635A" Guid="{2956B7D1-2528-4500-B574-ADF3D3163000}">
+                    <Component Id="cmp8C39ADC65700FE2E1F1A3179247F635A" Guid="{23845F12-0EB9-4469-93BF-42D28310346C}">
                         <File Id="fil28AD7EA4C997195CE1CB287009CC7BCB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_10.png" />
                     </Component>
-                    <Component Id="cmpCC23BC0BC4A0067547ABCBF6AD43DAD4" Guid="{1FECE355-8C22-429F-B2E2-3C2928435532}">
+                    <Component Id="cmpCC23BC0BC4A0067547ABCBF6AD43DAD4" Guid="{8BA9FDDA-4315-4440-B5EF-9236FFDB707A}">
                         <File Id="fil502F9DD7BE42C265AD9D41B1A7AF513A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_11.png" />
                     </Component>
-                    <Component Id="cmp0BA107C0CECD62AC315574CBF7E4138E" Guid="{A08A8168-3D33-4714-AAE8-D189F0AAF45A}">
+                    <Component Id="cmp0BA107C0CECD62AC315574CBF7E4138E" Guid="{D7679999-B316-4456-80DB-F53C5246809B}">
                         <File Id="filF9D06AC0AD7DC3D28B9C65EB1BC6667F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_12.png" />
                     </Component>
-                    <Component Id="cmp58E432C3A25CEA26CB4A4370CC7E6045" Guid="{B2105B74-FD3C-4794-BF76-C745561496B7}">
+                    <Component Id="cmp58E432C3A25CEA26CB4A4370CC7E6045" Guid="{B852D420-048D-4547-91AF-00F39519AD8C}">
                         <File Id="fil7FD6C8738E0479F362B00515C2274979" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_create_symbol_13.png" />
                     </Component>
-                    <Component Id="cmp4A824D463A9E60355C93DD5D929E58EC" Guid="{88A4755B-689A-4D40-9717-2F3873564D08}">
+                    <Component Id="cmp4A824D463A9E60355C93DD5D929E58EC" Guid="{02B6C813-53C3-4418-A518-4CF28062BCE4}">
                         <File Id="fil8D6D7FD490B3C95B214D7C8D892A7123" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_gschemtoxschem.html" />
                     </Component>
-                    <Component Id="cmpB98D1D0F9B93AB40F002D3EE781518E9" Guid="{CEC4DF41-2C8E-492E-9542-0A526AD95F11}">
+                    <Component Id="cmpB98D1D0F9B93AB40F002D3EE781518E9" Guid="{6CF439A7-8A5E-41F8-B778-47E44E3E3C1B}">
                         <File Id="filBE7AEE6C36D18B17CB2605BA5B2A7AE1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_gschemtoxschem_01.png" />
                     </Component>
-                    <Component Id="cmpFEBDDFBC91B45D7739A346A5B78B9FD0" Guid="{2E93F521-EDDF-4AD9-9791-71211640DBE1}">
+                    <Component Id="cmpFEBDDFBC91B45D7739A346A5B78B9FD0" Guid="{B300D3E6-5882-48A2-BF2E-C25FAA188F76}">
                         <File Id="fil1F0033CC2A9BFC1E078180ECC940083B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_gschemtoxschem_02.png" />
                     </Component>
-                    <Component Id="cmpB1E8B60AADD74ADBDC3C5C8465AF37C3" Guid="{7AEB568A-A104-414A-84E2-4C63F685F520}">
+                    <Component Id="cmpB1E8B60AADD74ADBDC3C5C8465AF37C3" Guid="{58293485-DC95-4CC8-98C4-FEB37C2A6837}">
                         <File Id="filBE21D2B8B5DA1EBF7EB82931A5CF8A6C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_gschemtoxschem_03.png" />
                     </Component>
-                    <Component Id="cmpC372B57A8C14757C54DB897D66581131" Guid="{166CC19F-5DCB-4A84-AC8D-DD277107628B}">
+                    <Component Id="cmpC372B57A8C14757C54DB897D66581131" Guid="{3ED54855-25D9-4950-A039-11C790EE6D6E}">
                         <File Id="filFB5B1ACD8610FACD2EF4FACC073FFF77" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem.html" />
                     </Component>
-                    <Component Id="cmp9D0B89DCF5397D521839F61334021BDF" Guid="{F685E1F8-FD5A-474F-A4DD-2576A965EFF8}">
+                    <Component Id="cmp9D0B89DCF5397D521839F61334021BDF" Guid="{6CDA8FB1-A58E-4EFD-87B5-E308C46F5F91}">
                         <File Id="fil99210CCDC62F9ECE81A17B1017CD333E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_00.png" />
                     </Component>
-                    <Component Id="cmp767471F6FC5F67822922D1E12ADE0822" Guid="{65193B7E-2510-4971-8ACB-90A0ADF35E5C}">
+                    <Component Id="cmp767471F6FC5F67822922D1E12ADE0822" Guid="{D8F151FA-5C5D-4DEF-9C53-84AC1F16E52D}">
                         <File Id="filA8BB2340D07FA956BE04D3D332637E02" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_01.png" />
                     </Component>
-                    <Component Id="cmp08A18A8F2204CA1A75EF228F26BD6557" Guid="{E24EDD6A-242C-49E0-89A2-F4564B69EF64}">
+                    <Component Id="cmp08A18A8F2204CA1A75EF228F26BD6557" Guid="{1E8FD3D6-EBAF-479A-85C0-9BF0DCC3DA78}">
                         <File Id="fil6CA2DCA37C444E1D79585A72443AF8A3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_02.png" />
                     </Component>
-                    <Component Id="cmpF1E797C25A67CA90E185252E8AEF245D" Guid="{565C6931-993A-4C37-A39A-17766E020558}">
+                    <Component Id="cmpF1E797C25A67CA90E185252E8AEF245D" Guid="{AD828EB3-9778-4EDA-AB72-1C5191D66DA2}">
                         <File Id="fil6869059EF074E1EEF879163F3BF4F7C7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_03.png" />
                     </Component>
-                    <Component Id="cmpABF84AFB79B9DC2F71B1B34EE257F128" Guid="{4EFA92A7-8E04-4521-8026-C0106BC2FC8D}">
+                    <Component Id="cmpABF84AFB79B9DC2F71B1B34EE257F128" Guid="{73937161-53E3-4463-8F03-941AB9E0530E}">
                         <File Id="fil707F29992EE5C3E84A8140E993EAA77A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_04.png" />
                     </Component>
-                    <Component Id="cmp05DA340928390AC3EA6192FF96B40DA4" Guid="{81285A06-5E03-4765-90BB-68C18EC35B3A}">
+                    <Component Id="cmp05DA340928390AC3EA6192FF96B40DA4" Guid="{DAFA37F9-4F14-4CB1-AEFD-1596D114576E}">
                         <File Id="fil0601362F9885C8F86B144B8EEA82757E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_05.png" />
                     </Component>
-                    <Component Id="cmp6A1BCE97DD92E0A30A5D8DAD84D591F4" Guid="{7EB6399E-192A-44CC-BD50-B84BC5C3C34B}">
+                    <Component Id="cmp6A1BCE97DD92E0A30A5D8DAD84D591F4" Guid="{D98EAD6A-33E0-4803-AACA-9079B4D92D65}">
                         <File Id="filC38738280C06EA1AECB5D43B6FD265B0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_06.png" />
                     </Component>
-                    <Component Id="cmpEE12CCF297358B1AF755776D9B8FBDB5" Guid="{0065D167-A2A3-4ED6-A0D9-300981DA898B}">
+                    <Component Id="cmpEE12CCF297358B1AF755776D9B8FBDB5" Guid="{CE20B5C5-6CBF-4982-8E42-276C52469096}">
                         <File Id="filA80A863188FA717222DD4AF6D6CA8EBE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_07.png" />
                     </Component>
-                    <Component Id="cmp710F4F002ED6F6CB0E9862784C453AF1" Guid="{3E685832-E7CE-43B2-A3E0-3EA40FC9802F}">
+                    <Component Id="cmp710F4F002ED6F6CB0E9862784C453AF1" Guid="{2D819B6B-1B61-40F2-B152-FA8AEADBFF6B}">
                         <File Id="fil49C6CAB497D75426F4739CA274CA05DB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_08.png" />
                     </Component>
-                    <Component Id="cmp651906A147E90D0C461D5C5590A9A51D" Guid="{DCD4F734-4D72-4940-ABE5-98DAFA8D3535}">
+                    <Component Id="cmp651906A147E90D0C461D5C5590A9A51D" Guid="{B6C71F19-0A47-472A-863F-AF7C952DD7D8}">
                         <File Id="fil733EA6F2FDB659185289BE8AFD0C01C6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_09.png" />
                     </Component>
-                    <Component Id="cmp985E62F77AD4CAB5BAD58A8FB1DDE01C" Guid="{8CD863B0-FBEA-4FA8-8D8D-A1E6C39246D4}">
+                    <Component Id="cmp985E62F77AD4CAB5BAD58A8FB1DDE01C" Guid="{29961AA0-7E54-4041-BB96-52715D53087C}">
                         <File Id="filCE8F73D37564708A2A7577F6572AB436" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_install_xschem_10.png" />
                     </Component>
-                    <Component Id="cmp1FDDA235D8F5FB7FE4A87DB567130688" Guid="{A0DED7E1-444C-451B-8B6A-1DC3BCF8DADF}">
+                    <Component Id="cmp1FDDA235D8F5FB7FE4A87DB567130688" Guid="{A0A139BE-1FC2-455B-BE5B-18D90D7E59EC}">
                         <File Id="fil69F1DF47B740420085B90CDA4B817E6E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_instance_based_implementation.html" />
                     </Component>
-                    <Component Id="cmpE446C6E6AE8E31BAB020041B768CE39F" Guid="{8344D4E9-A46D-4F3F-A42B-3332621565D1}">
+                    <Component Id="cmpE446C6E6AE8E31BAB020041B768CE39F" Guid="{8CE193B0-4B53-436D-AF6F-DDD77396DB30}">
                         <File Id="fil053FE6DA638A1B0E61F3A31E35D7802F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_ngspice_backannotation.html" />
                     </Component>
-                    <Component Id="cmp15745350561238600071BBE2E3F27222" Guid="{B86BB649-79E7-4CE2-B452-3B4D84140AF1}">
+                    <Component Id="cmp15745350561238600071BBE2E3F27222" Guid="{A0BCC6C5-2026-4918-B2DF-C87B74871DBB}">
                         <File Id="fil419E868E3CBFE011F0BA698691212872" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation.html" />
                     </Component>
-                    <Component Id="cmp52C11CD4D51DFF7449A091F7881DA4B1" Guid="{78456A83-5786-46C9-8A4B-FF33CCEAEC4E}">
+                    <Component Id="cmp52C11CD4D51DFF7449A091F7881DA4B1" Guid="{F18D7CAB-14A8-4995-8003-0F92B03619A7}">
                         <File Id="fil29C33A2C7BC79F9774D94DC49D5FCCFC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_01.png" />
                     </Component>
-                    <Component Id="cmpB72D81CAEA3E84EFA4198DF20FB36179" Guid="{5D384266-539F-4E02-B067-EF87CE21E31F}">
+                    <Component Id="cmpB72D81CAEA3E84EFA4198DF20FB36179" Guid="{F543369A-6FCF-4AFC-996B-E82BFCDBE5AF}">
                         <File Id="fil465D83CAEF89BEACAB1B55B8DF987C22" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_02.png" />
                     </Component>
-                    <Component Id="cmpB77D89C150E1A7E1FCB0BBD23E819785" Guid="{06D7BF69-E0AE-4649-BC19-A0D2EA197C55}">
+                    <Component Id="cmpB77D89C150E1A7E1FCB0BBD23E819785" Guid="{D53DA3D6-19F3-48A0-A47C-71A2CC22E15B}">
                         <File Id="fil414BBD0C5027E586357D756E5E3DB0BE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_03.png" />
                     </Component>
-                    <Component Id="cmp25F1E3E70721FC799633135753AC175F" Guid="{295FEEED-4B6E-48D2-8F48-11D5FFFD0113}">
+                    <Component Id="cmp25F1E3E70721FC799633135753AC175F" Guid="{C7CF6E11-20D0-46EC-8564-DFAFBB57EB81}">
                         <File Id="filF7FF31749BEABA3E623C0565B0017909" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_04.png" />
                     </Component>
-                    <Component Id="cmpE9FD90F1CF5641A148B21BC14B793B76" Guid="{0FCEB09F-430D-4767-A4A1-0E643313F90C}">
+                    <Component Id="cmpE9FD90F1CF5641A148B21BC14B793B76" Guid="{EF345A61-1FFB-4198-B4C7-E4534920E6E0}">
                         <File Id="fil0CB03B2DD172ACA1B7D5F887834FF33C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_05.png" />
                     </Component>
-                    <Component Id="cmpDBD6B33479873DD3B6A18345B8A796BB" Guid="{70FDFA9A-79F1-464F-A14B-35D186EBDDE8}">
+                    <Component Id="cmpDBD6B33479873DD3B6A18345B8A796BB" Guid="{4349452C-DB7D-4173-8A1D-1CBDD20DDADA}">
                         <File Id="filEC6ED4D161F3DB557E492FB75B9B326E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_06.png" />
                     </Component>
-                    <Component Id="cmp34DB34B8CE7A11DBF95184D13665C7A3" Guid="{0841376E-2A71-4B08-BA19-50814DCAECF8}">
+                    <Component Id="cmp34DB34B8CE7A11DBF95184D13665C7A3" Guid="{27DB127F-63E2-465B-962D-83E1D35872F9}">
                         <File Id="fil451B1F7E116F604E40531B784F48ED7B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_07.png" />
                     </Component>
-                    <Component Id="cmpF30BEF86E910B592533E88B56DEEF496" Guid="{28B3EE94-206C-415F-B149-F953836E6B42}">
+                    <Component Id="cmpF30BEF86E910B592533E88B56DEEF496" Guid="{13930927-658B-46C4-9EB2-201AC311C756}">
                         <File Id="filCF931501F7F7EC19C0FA482BCE608697" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_08.png" />
                     </Component>
-                    <Component Id="cmpB914BD58B465D9996191A52C41981288" Guid="{6AFCF5C7-342C-4AF6-809F-9BEEE39DAC9D}">
+                    <Component Id="cmpB914BD58B465D9996191A52C41981288" Guid="{9A59FE74-5607-4CF0-B9B7-D14D1DF74169}">
                         <File Id="fil1EE9C10FAABCB2DD071A8B17FC5BFCEB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_09.png" />
                     </Component>
-                    <Component Id="cmpF6C3D9737087F3D9B2228B21C6734980" Guid="{5754AD1B-5377-40F5-BCA5-8EA55EF45B2C}">
+                    <Component Id="cmpF6C3D9737087F3D9B2228B21C6734980" Guid="{0A9096CF-696C-4FDF-A9FB-7D09C2E1EB23}">
                         <File Id="fil4FA1C5C00C93E9729B1D42AAF2DC8786" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_run_simulation_10.png" />
                     </Component>
-                    <Component Id="cmp774E63A5CA21989193C0A5221E254967" Guid="{5C4D924F-A6C1-44E2-B055-D1512253DA3B}">
+                    <Component Id="cmp774E63A5CA21989193C0A5221E254967" Guid="{E08B4259-EF05-4AB3-9C28-F147971AF4AD}">
                         <File Id="fil26E89D7E68D72A1CB270E2D55FE2FE46" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_symbol_generators.html" />
                     </Component>
-                    <Component Id="cmpA1AF34A5AB0E46E83E2489246BC02E35" Guid="{7E75D676-6144-4F13-B86E-F5DFC90CE8C5}">
+                    <Component Id="cmpA1AF34A5AB0E46E83E2489246BC02E35" Guid="{AA17EA1B-9C40-43B4-B0AD-1A8E4DFDDAA2}">
                         <File Id="filAE2DADB4EC5D12FB0073EC1A86C9BB29" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_symgen.html" />
                     </Component>
-                    <Component Id="cmp89BE8EF1B2B36CB950714E6DDEC886BB" Guid="{B4B0C743-03A2-46C9-BE4C-14E79C93CC91}">
+                    <Component Id="cmp89BE8EF1B2B36CB950714E6DDEC886BB" Guid="{BF5584D2-A43C-42AA-B945-ED99530985CB}">
                         <File Id="fil5CD1E212B7B582D79F8D04184CDA2D88" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_symgen_02.png" />
                     </Component>
-                    <Component Id="cmp24AB399EEF91852024CB83CD0A4EF749" Guid="{E5CCBEDE-F515-4B65-AF39-84324B91C0B8}">
+                    <Component Id="cmp24AB399EEF91852024CB83CD0A4EF749" Guid="{AC2D3534-0BF3-4615-B80D-128E1B18088C}">
                         <File Id="fil45DCB5B9DF486CFA015F93E38A972E15" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt.html" />
                     </Component>
-                    <Component Id="cmp97B7734742CE69199C349409D98FEB6F" Guid="{20237F06-8D5F-4FB0-BF80-261ABBFA51F6}">
+                    <Component Id="cmp97B7734742CE69199C349409D98FEB6F" Guid="{7CD7F97D-41C5-4B90-9704-0BB4B11E21B0}">
                         <File Id="fil45DE57728139B6FFAE1A58E39547F347" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt00.png" />
                     </Component>
-                    <Component Id="cmpC3D4EC73230C6AC07E8194BC3757FC41" Guid="{712B9C42-04C7-47B8-ACE1-7568A36D1C90}">
+                    <Component Id="cmpC3D4EC73230C6AC07E8194BC3757FC41" Guid="{20919A6F-3E86-4730-9815-D1C9C3B5645B}">
                         <File Id="fil9A15A60CC26B8F1BE0ADC27329C27098" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt01.png" />
                     </Component>
-                    <Component Id="cmp376282B9962A9D56861EE6DEC1861CAC" Guid="{1B58B47B-916C-43CB-9937-812E9725F876}">
+                    <Component Id="cmp376282B9962A9D56861EE6DEC1861CAC" Guid="{F5A8AE51-D1F3-4F6E-AC25-A8900A776CF0}">
                         <File Id="filF2C79781DFCBE52069500BB38580C0B6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt02.png" />
                     </Component>
-                    <Component Id="cmp64749469DE632D7DA54D2EBB7A3AE60B" Guid="{37509446-0D82-49CB-877F-AD930B2C36CC}">
+                    <Component Id="cmp64749469DE632D7DA54D2EBB7A3AE60B" Guid="{3E13733C-E5F4-465D-9B2F-4A90B18EB300}">
                         <File Id="filCA6F2997FBE46DBDC9D674FE109F2E1F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt03.png" />
                     </Component>
-                    <Component Id="cmpF18143BE546D526859F1C5471E11F2FB" Guid="{EA17F357-D252-42D6-AC70-B0AFD1E0E44B}">
+                    <Component Id="cmpF18143BE546D526859F1C5471E11F2FB" Guid="{411C88B9-ECFD-4008-8BC3-3889CB0B6F64}">
                         <File Id="fil59D02C4764779462F9998AC4C9EAB3DA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt04.png" />
                     </Component>
-                    <Component Id="cmp8CB8AE85C605D9520D284D02A40D7A0E" Guid="{28FC862F-F6F7-4CA8-8BEA-0262D7449AFE}">
+                    <Component Id="cmp8CB8AE85C605D9520D284D02A40D7A0E" Guid="{881487C4-DDA5-4D01-A7F0-DD41BFB2A328}">
                         <File Id="filD8B7762B2F764BE530254430D5E292C2" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt05.png" />
                     </Component>
-                    <Component Id="cmp641101E8D1E9AEADC4198F95BA7BD96F" Guid="{0A7A7FDE-E9F2-4B48-ADE0-163441A42DEB}">
+                    <Component Id="cmp641101E8D1E9AEADC4198F95BA7BD96F" Guid="{AC9640F7-7115-4FCF-90E2-60B0291F23BA}">
                         <File Id="fil54F283D0C324204B7C99E097B8BEC07E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt06.png" />
                     </Component>
-                    <Component Id="cmp0A38E2FC1C828C9008B61E8F3719ECCC" Guid="{F0A6445A-F39D-431C-8626-48C98713119C}">
+                    <Component Id="cmp0A38E2FC1C828C9008B61E8F3719ECCC" Guid="{93383475-251A-4CA0-AAAA-8B0BD143D309}">
                         <File Id="fil613E0E9D05EBA27B050044509EAA87EE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt07.png" />
                     </Component>
-                    <Component Id="cmp32B0CA60A5FB00569F758EAA9081F26C" Guid="{67311D96-EB9A-40FD-B0FF-C3412AB1931A}">
+                    <Component Id="cmp32B0CA60A5FB00569F758EAA9081F26C" Guid="{2B23FD8C-8C9B-4BD7-87C1-44E9ED8F9C5E}">
                         <File Id="fil21156D26CC781506C3F2ECC0E7F114E4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt08.png" />
                     </Component>
-                    <Component Id="cmpB349F3F3BB0FC366E3CBDB36997A2C68" Guid="{5C630112-F8EA-47A5-9A8D-D1B3E7C6A6EF}">
+                    <Component Id="cmpB349F3F3BB0FC366E3CBDB36997A2C68" Guid="{40B8BC7C-7F68-44EE-99CB-849DFB4665BE}">
                         <File Id="filE6B14BFA8DA4D8B849B6D4677CD65104" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_use_existing_subckt09.png" />
                     </Component>
-                    <Component Id="cmp1887EC93042A8F0C854E00EEC32380FD" Guid="{E9EA9FB5-A1EF-4A46-8B48-FAE46F400843}">
+                    <Component Id="cmp1887EC93042A8F0C854E00EEC32380FD" Guid="{228F46B9-E0B4-495E-BF50-B5E885A1ABC1}">
                         <File Id="filD8D64C42C0EC471FA21B778DAE92DF5D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_libraries.html" />
                     </Component>
-                    <Component Id="cmpF79E68A44B6D276CD4FD94243C7638EB" Guid="{8E7F119F-DDA4-438E-A86A-CB0699C70F3F}">
+                    <Component Id="cmpF79E68A44B6D276CD4FD94243C7638EB" Guid="{C8247DC3-E0C6-46CD-88EA-102ED2271113}">
                         <File Id="fil85D5D71C171C7E75B40D36EF9393ACCB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130.html" />
                     </Component>
-                    <Component Id="cmp789D1388A55CE9AADEAAE762DC494821" Guid="{4B6CB0BB-897E-4F16-85CC-3AB2E4000BFB}">
+                    <Component Id="cmp789D1388A55CE9AADEAAE762DC494821" Guid="{69B4ADA7-FCFC-47BF-A0D0-02295358A218}">
                         <File Id="fil64801DDEA7EE347873B81CE68A4D318E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_01.png" />
                     </Component>
-                    <Component Id="cmp27CCFCA8735FEA1F70696E4CC11B2245" Guid="{31BC10F1-94D8-474B-A1C0-A48BBA1ADE89}">
+                    <Component Id="cmp27CCFCA8735FEA1F70696E4CC11B2245" Guid="{C34C1879-5BA9-495E-ABD5-2D10FE862709}">
                         <File Id="fil12D725EFF278F1C79AA2ED8ED8BDC286" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_02.png" />
                     </Component>
-                    <Component Id="cmp3CF52F67544072F25918CEA2F1A53102" Guid="{30D954E5-613D-4362-8A6C-AC24943F3A18}">
+                    <Component Id="cmp3CF52F67544072F25918CEA2F1A53102" Guid="{171F6387-59BC-4970-9772-91BBC11676F4}">
                         <File Id="fil2461CD8E802030397F78C8330D680FCE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_03.png" />
                     </Component>
-                    <Component Id="cmpC0909817135C078311BA958292379CC4" Guid="{9AE85092-0408-43FA-9B97-D11B61FF7C51}">
+                    <Component Id="cmpC0909817135C078311BA958292379CC4" Guid="{43EB9881-9A57-451D-B6D3-94BE0B08C6FF}">
                         <File Id="filE63659CA430413BC74267CACBD3AB1E2" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_04.png" />
                     </Component>
-                    <Component Id="cmpA3B864C71585ACAC196B4E961B5DB437" Guid="{CE0AEEAF-C72D-4673-8034-E8CAE1BE1416}">
+                    <Component Id="cmpA3B864C71585ACAC196B4E961B5DB437" Guid="{A851B954-9B08-4985-801F-17F37A4D0B96}">
                         <File Id="filD31AA7BD32998C1DFD4B996137A429AF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_05.png" />
                     </Component>
-                    <Component Id="cmp01895B909BF869B3E0579B007FF33C51" Guid="{B934A062-A366-49F1-9111-0AFA02CD8D79}">
+                    <Component Id="cmp01895B909BF869B3E0579B007FF33C51" Guid="{74667491-B38F-43E0-9B68-BB794ED63A99}">
                         <File Id="filD18805ABBFB42E91E4539E3F9DEFDA4A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_06.png" />
                     </Component>
-                    <Component Id="cmpACC84A8CADF454A45B82E0DB194474A7" Guid="{E489AF18-53FE-46F8-9B31-F2892B5C0B69}">
+                    <Component Id="cmpACC84A8CADF454A45B82E0DB194474A7" Guid="{53556603-9AD4-4283-98BF-2B5A885F55F3}">
                         <File Id="fil5485CFB92C9706326101E81D7162781C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_07.png" />
                     </Component>
-                    <Component Id="cmpB18E1C5C0C0279347B011EC72ACB36CB" Guid="{D3B06F4E-11D5-45D5-AF5D-A2E81D4A98D2}">
+                    <Component Id="cmpB18E1C5C0C0279347B011EC72ACB36CB" Guid="{762EB795-A3E0-4314-9206-18AD1B2E38C4}">
                         <File Id="fil15D2FBC0F996F9B0115BD73DF5D5A235" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_08.png" />
                     </Component>
-                    <Component Id="cmp03435CD38825723564A3160E6C0420A9" Guid="{6FA8FECC-C5B8-4520-A093-8EBA45816B38}">
+                    <Component Id="cmp03435CD38825723564A3160E6C0420A9" Guid="{39434B86-6A39-46D7-B0BB-FA87A047A93B}">
                         <File Id="fil31E1B8BCF830FDC0762F19C2CEFFFDAF" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_sky130_09.png" />
                     </Component>
-                    <Component Id="cmp02F36C6BCDFD4EAC97D7A1D83514BB74" Guid="{796BCDC8-226D-4840-A5E3-A1E036DC8228}">
+                    <Component Id="cmp02F36C6BCDFD4EAC97D7A1D83514BB74" Guid="{5350CB63-DDEC-4179-93D5-F163C49F8947}">
                         <File Id="fil9BF9BD4FC2F1EF71EE446FB4AEAB90EB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides.html" />
                     </Component>
-                    <Component Id="cmp5353727D96EF1D42BC670B9B5B643C85" Guid="{0D4C59BD-D7E9-437C-9C7A-06440413DC49}">
+                    <Component Id="cmp5353727D96EF1D42BC670B9B5B643C85" Guid="{36990F68-EC23-4CC1-909E-D0CC14D00ACB}">
                         <File Id="filEEFA7C18C981AAAC7920C572EDD9540D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides01.html" />
                     </Component>
-                    <Component Id="cmp08FFB226D6198AABF0A1D621D72E893B" Guid="{7DEA51A9-7789-452E-8ED6-0F622626022B}">
+                    <Component Id="cmp08FFB226D6198AABF0A1D621D72E893B" Guid="{219BB394-1861-47DB-B02D-3C677A9A4AC6}">
                         <File Id="fil159E3BBB12A401294C6B66807E374268" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides01.png" />
                     </Component>
-                    <Component Id="cmp3F88D77861D9694D198F90E3D77AE00D" Guid="{D062C3D1-1ED9-42EC-B553-1122691C410C}">
+                    <Component Id="cmp3F88D77861D9694D198F90E3D77AE00D" Guid="{98E2B866-EC78-48BD-BB8A-245AD031728B}">
                         <File Id="fil8321C085991A7C913039F7FEE59BB4E1" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides02.html" />
                     </Component>
-                    <Component Id="cmp3B5D9FAEC192FF9A71ED378341511CBC" Guid="{E934CE41-C10B-4C00-88EE-C8CA3BDC58D3}">
+                    <Component Id="cmp3B5D9FAEC192FF9A71ED378341511CBC" Guid="{0CFC5F15-CBBC-46CC-A3D8-79D2ABF761D6}">
                         <File Id="fil74A28A569E0F8E3CB88BAAB839A31805" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides02.png" />
                     </Component>
-                    <Component Id="cmpC341B0B7FB289A571F2C60E4A0E25D42" Guid="{EE0060C3-54FA-4296-9AB2-1DD1E50C5600}">
+                    <Component Id="cmpC341B0B7FB289A571F2C60E4A0E25D42" Guid="{1266D550-B81B-4C50-BF89-82C14B347F59}">
                         <File Id="fil5736432F62AB3C0676D7E6AA7118101C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides03.html" />
                     </Component>
-                    <Component Id="cmp33B126A7BACF2F87E466B14394B4B068" Guid="{F127C269-26EB-4466-B241-14D2580EA474}">
+                    <Component Id="cmp33B126A7BACF2F87E466B14394B4B068" Guid="{2ADB6F12-1136-4E6C-9ED7-2A8F589576D2}">
                         <File Id="filEB0975C3A1349508DA9C9B0F89010FED" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides03.png" />
                     </Component>
-                    <Component Id="cmp9620EC7E6D4D435F9837294614BDA09B" Guid="{0E176E96-DDED-4DA6-BF4A-10D728EC851B}">
+                    <Component Id="cmp9620EC7E6D4D435F9837294614BDA09B" Guid="{9466B5A6-A97A-4D45-824E-AF167A4B3542}">
                         <File Id="filD9F08EF604A5C6CFB39361BEF625E5F7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides04.html" />
                     </Component>
-                    <Component Id="cmp17B24650D8F1DD4B5A9476118BD44B10" Guid="{78DC3FE8-C6F2-4EA5-B302-3C0F2F34F536}">
+                    <Component Id="cmp17B24650D8F1DD4B5A9476118BD44B10" Guid="{0546BEEF-7417-45DA-92F9-6DF3AAFEA019}">
                         <File Id="filA9F9922E7ACBC5263DE45D25F9D7F32E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides04.png" />
                     </Component>
-                    <Component Id="cmp6F89FD0143CB07414A0818F32096F4C1" Guid="{A146F1C5-869B-4450-A35B-22E595B8B877}">
+                    <Component Id="cmp6F89FD0143CB07414A0818F32096F4C1" Guid="{80A24214-CF62-4B4A-ACE2-FBD037C43A87}">
                         <File Id="fil9630A4B1190ED68D1416A98A3E240359" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides05.html" />
                     </Component>
-                    <Component Id="cmp6AF977DFB8E2272A4BAE5CD13A5EAE16" Guid="{0D761659-B3A9-4AEF-9DE2-37B839FCC2D5}">
+                    <Component Id="cmp6AF977DFB8E2272A4BAE5CD13A5EAE16" Guid="{0A3D2EE2-386E-4B71-A766-A64C59EABAC4}">
                         <File Id="fil7FF64BB2284E9EF1C5C31BDC2864F687" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides05.png" />
                     </Component>
-                    <Component Id="cmp8B4A51AF9975A630BCF1685B72EBA8C0" Guid="{0AD5FC5C-992D-4C55-8F05-5A8817D7ADBA}">
+                    <Component Id="cmp8B4A51AF9975A630BCF1685B72EBA8C0" Guid="{D725E44A-F47B-4ED5-8CD6-3E703F7FA2CE}">
                         <File Id="fil623DEFC612B187B3851D0EBD8830F955" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides06.html" />
                     </Component>
-                    <Component Id="cmp13CFD4E45FE5082225FF1A4818E10B4C" Guid="{F835AEB7-6DB9-4CE4-9322-0548DD313E6B}">
+                    <Component Id="cmp13CFD4E45FE5082225FF1A4818E10B4C" Guid="{988734CB-945F-4F87-95A5-3A35734DF97A}">
                         <File Id="filDE867458C3D015583CC907EA234D5A70" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides06.png" />
                     </Component>
-                    <Component Id="cmp86489E83A62729ACE84BF02CD97E9D8D" Guid="{190064C5-6726-430C-BF9B-D7A7CB48DD1D}">
+                    <Component Id="cmp86489E83A62729ACE84BF02CD97E9D8D" Guid="{C360569A-04EB-41D4-B5FC-44C74E47FBEF}">
                         <File Id="fil7309CE031B5BF9267CDD3BE1F6969F64" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides061.html" />
                     </Component>
-                    <Component Id="cmpB098B2375E66D87101702795823BCA35" Guid="{80ABAB71-40C0-41D9-8A91-A6778E986E7D}">
+                    <Component Id="cmpB098B2375E66D87101702795823BCA35" Guid="{81CD4418-783B-47BB-BA80-51E3ED81F27E}">
                         <File Id="fil6613BE746B385FA4F89CA44C8FE045A7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides07.html" />
                     </Component>
-                    <Component Id="cmp6E086C4BF5D217C9C16885E46E316AFD" Guid="{D2CFDE24-DA2C-4FB4-B54D-18FBFB8DD5AE}">
+                    <Component Id="cmp6E086C4BF5D217C9C16885E46E316AFD" Guid="{F1394903-003B-46D7-BBC6-9F884DB07395}">
                         <File Id="fil8269A98E9446E5256476AFC93DE00482" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides07.png" />
                     </Component>
-                    <Component Id="cmpA1355E8E1F54E719A97716E71063D572" Guid="{ECCEB792-274F-4894-9463-E1160C268BF8}">
+                    <Component Id="cmpA1355E8E1F54E719A97716E71063D572" Guid="{AA1FECCC-5E7A-41EE-81A1-1E9E6E16957D}">
                         <File Id="filD31008D63C373A6791126873BD2152D8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides071.html" />
                     </Component>
-                    <Component Id="cmp32900AB6CD1FA77AF7230CF267D6D23E" Guid="{7339B2D8-AEB5-472B-A032-4A84F049FC0B}">
+                    <Component Id="cmp32900AB6CD1FA77AF7230CF267D6D23E" Guid="{A359865D-9638-4485-8A13-C62E4E80362E}">
                         <File Id="fil55E550FDE846EC5A020B6CEBC4E9F24E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides08.html" />
                     </Component>
-                    <Component Id="cmp345E1BBF10A3BA0B5CDD15539A4F2CA9" Guid="{5374F7DA-D6CE-46FF-89BC-6C70F659672C}">
+                    <Component Id="cmp345E1BBF10A3BA0B5CDD15539A4F2CA9" Guid="{3E96B7D8-7C97-46CB-8C42-7EA0243E7081}">
                         <File Id="fil1FD0BD0280D2BB1A1C4C0B4C40697384" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides08.png" />
                     </Component>
-                    <Component Id="cmpDFD615AED8252A4643F6CD5CCA81E43F" Guid="{F62D8B85-30E3-466C-A7A0-D1D49AF9B4B2}">
+                    <Component Id="cmpDFD615AED8252A4643F6CD5CCA81E43F" Guid="{2999565A-11CB-4222-92A0-A2BE20E4DD38}">
                         <File Id="fil801D9265D8DE9C434F2DC420771B2E2E" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides081.html" />
                     </Component>
-                    <Component Id="cmpAAFAC577840296567AE39EC857468CD8" Guid="{196EDA19-56A6-4A5C-B0CE-E69A39288CE7}">
+                    <Component Id="cmpAAFAC577840296567AE39EC857468CD8" Guid="{0C006BE9-A262-45B8-9EB9-D984D56C6C22}">
                         <File Id="fil5E28FC6603881D32B5E201AC2C3F8E15" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides0812.html" />
                     </Component>
-                    <Component Id="cmp9E8FC6D3F4D0BAEA49D60599C5B9679C" Guid="{9ACDEA23-46E7-4A09-A503-0C46D2A112A0}">
+                    <Component Id="cmp9E8FC6D3F4D0BAEA49D60599C5B9679C" Guid="{44575526-FC08-450B-A4F1-6095FE34E571}">
                         <File Id="fil1A67B7CDCC2D6FE924000D32F90EBF43" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides083.html" />
                     </Component>
-                    <Component Id="cmp372B72F0070B27C3917E4D4EF5B3AA96" Guid="{B06417C7-8F79-4E48-82E1-5BDBFAE62017}">
+                    <Component Id="cmp372B72F0070B27C3917E4D4EF5B3AA96" Guid="{179A6131-A3AE-4092-AA67-8BFF6C0A8682}">
                         <File Id="fil8BCA6F58E08521D4A207CCD4201C447A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides084.html" />
                     </Component>
-                    <Component Id="cmpE0730B3DCCC559E42C0979B05EB89CC2" Guid="{BF082824-32A4-4EEA-89AF-E072919BCA3C}">
+                    <Component Id="cmpE0730B3DCCC559E42C0979B05EB89CC2" Guid="{75BC6118-E7E8-495B-A2A0-4E84D222AA74}">
                         <File Id="filB7FFAA6EB9C163E5B17EA5B73DA21392" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides085.html" />
                     </Component>
-                    <Component Id="cmp9869F211F2586C19C8CD064C09659F56" Guid="{F8BE5F0A-9306-4861-89EA-B2914E34C697}">
+                    <Component Id="cmp9869F211F2586C19C8CD064C09659F56" Guid="{1654E302-CA18-477F-AFC0-B8820C716290}">
                         <File Id="fil5FDEC9156FDA72B9D51614931896738D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides09.html" />
                     </Component>
-                    <Component Id="cmp7A89D091242031A87D9E2A41006F172D" Guid="{2907ED51-FC41-4F81-A90E-7A8F0AF5F126}">
+                    <Component Id="cmp7A89D091242031A87D9E2A41006F172D" Guid="{29B266C7-DDD4-4976-8CDF-0D02335F3BCD}">
                         <File Id="filD410FF2FAB7AAE4A19FD4F2B4A7A3B4D" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides09.png" />
                     </Component>
-                    <Component Id="cmpE7FE6FCF7B3C7E5B89E4B37A05E4E669" Guid="{C1DD94D1-3CE3-4E47-A41C-EFC34DA881EF}">
+                    <Component Id="cmpE7FE6FCF7B3C7E5B89E4B37A05E4E669" Guid="{4E1CF314-723B-4C08-ACC6-FA27EF8D41ED}">
                         <File Id="fil89D956FBDFE1D39A6C2CC0338C58C077" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides10.html" />
                     </Component>
-                    <Component Id="cmpEF24AD7B3EC642B2723BB65723DFE220" Guid="{3A67FF70-B28D-499E-8001-AD1B651D5F56}">
+                    <Component Id="cmpEF24AD7B3EC642B2723BB65723DFE220" Guid="{5F3DF2BA-347D-44D4-A514-63897C63DE55}">
                         <File Id="filFE38050D9BB7A117FA8DF627D9911F65" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides10.png" />
                     </Component>
-                    <Component Id="cmp7CE1CD7D78F4BAD70FF7744DD9E18E49" Guid="{3AD56172-E9EC-4FF1-9A2F-40A3BF8794E6}">
+                    <Component Id="cmp7CE1CD7D78F4BAD70FF7744DD9E18E49" Guid="{BA9D8533-8AA8-459F-8280-194E5A58807A}">
                         <File Id="fil64ACF00E7B923539A5F9B00FD56BB0DA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides11.png" />
                     </Component>
-                    <Component Id="cmpA05832D4F7CD74AACC138004B141022D" Guid="{55EF1E12-EF9E-44CA-88CE-241F83E17801}">
+                    <Component Id="cmpA05832D4F7CD74AACC138004B141022D" Guid="{9C6BDFA5-BE53-4321-BBC8-8F0C0A01D0F8}">
                         <File Id="fil26CB66DC30AD8725033BAD670841DBA0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides12.png" />
                     </Component>
-                    <Component Id="cmp852F22994D0DA6F7DC680637CD2651DD" Guid="{592D0B2D-2226-4720-A0CD-75F0FD1D9140}">
+                    <Component Id="cmp852F22994D0DA6F7DC680637CD2651DD" Guid="{41109990-D6CA-4970-9A27-F1F94D9C1FCD}">
                         <File Id="filEF431DBBC74E24988C98F05F4C90F1B7" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides13.png" />
                     </Component>
-                    <Component Id="cmpAA76FC6DCE1AFA54E98382C659E37649" Guid="{C38F3808-4BF1-46A9-B128-01F700245064}">
+                    <Component Id="cmpAA76FC6DCE1AFA54E98382C659E37649" Guid="{99669CCE-18BB-42C5-A2E7-0CF4A7A2C2F5}">
                         <File Id="filAB549DDEEC489DA46E8754C886AADE69" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides14.png" />
                     </Component>
-                    <Component Id="cmpA8B5D6F30644BE780DC08BBCC4216DA4" Guid="{8236CC1F-358D-4B54-BD3C-A0D13F219CF4}">
+                    <Component Id="cmpA8B5D6F30644BE780DC08BBCC4216DA4" Guid="{AE58820C-7394-4FCE-8686-586DAF4DA952}">
                         <File Id="fil7D6BD627C972BDE0D0FF090F8F3428E4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides15.png" />
                     </Component>
-                    <Component Id="cmp0C12D41FF80DC346726FF608A3D00B41" Guid="{A7392E81-F5FD-472C-AD25-19993C8F09EA}">
+                    <Component Id="cmp0C12D41FF80DC346726FF608A3D00B41" Guid="{AB366725-F923-4428-AE5E-FAF4E98709C4}">
                         <File Id="fil09612F2658D96922E07455FCC7541FA4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides16.png" />
                     </Component>
-                    <Component Id="cmpF66560404ECC028EEB74854EF5B964D4" Guid="{80957432-13D0-4156-A0A3-AF0EB6BFF3C5}">
+                    <Component Id="cmpF66560404ECC028EEB74854EF5B964D4" Guid="{CC76291C-7B6B-409D-B9AA-4F19F83EE8FB}">
                         <File Id="fil4F7B6C2C12CF5E7B8F76AA2D9BFF620B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides17.png" />
                     </Component>
-                    <Component Id="cmpA15CD5ADF7C13EF9A0B6D51AB9D6E1A6" Guid="{929E1D92-AF48-4CB8-B3EB-D674BBEB4692}">
+                    <Component Id="cmpA15CD5ADF7C13EF9A0B6D51AB9D6E1A6" Guid="{093F0FC0-AAD0-4ABD-92A3-A9AE963C72BB}">
                         <File Id="fil1C24492C83FB766BF8688946A46A148C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides18.png" />
                     </Component>
-                    <Component Id="cmpED62CECF0C026BF9ADB0981B193E1B31" Guid="{C8A5BFCF-62C1-4F75-9443-6511863760E5}">
+                    <Component Id="cmpED62CECF0C026BF9ADB0981B193E1B31" Guid="{83DB7D61-A70F-41FE-A756-ED2C3BB41B1B}">
                         <File Id="fil70CAD54C6CE5BE360E213086F8F43865" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides19.png" />
                     </Component>
-                    <Component Id="cmpE47BD7E4872B9D6BAFA2FE2D1AB53B3D" Guid="{5191560D-FF05-4CD4-A9D5-6F6C1B805BE4}">
+                    <Component Id="cmpE47BD7E4872B9D6BAFA2FE2D1AB53B3D" Guid="{C8F1AD66-272D-4757-9094-75E2F2F841D1}">
                         <File Id="fil96EDA0070AB3D4961F736B4C4B2D6E9C" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides20.png" />
                     </Component>
-                    <Component Id="cmp7F5ECC4EF31F2231E700463039B84A41" Guid="{7FCFC2C9-ED90-4480-9BAC-7D91E01C336F}">
+                    <Component Id="cmp7F5ECC4EF31F2231E700463039B84A41" Guid="{07FFF95E-684D-4234-BE4C-818B5E8E5054}">
                         <File Id="fil9524BA989C3B645DEE949869560F9F24" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides21.png" />
                     </Component>
-                    <Component Id="cmp9FB8501417C4C3FEA991339E15926F58" Guid="{14B6BE56-FD63-4739-A707-4539D7A752E0}">
+                    <Component Id="cmp9FB8501417C4C3FEA991339E15926F58" Guid="{D60F8FA6-47E2-4391-BEB6-F5C32EAB49F8}">
                         <File Id="fil8D9EFBFAC9FA6B98E8597A48BF1E2D97" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides22.png" />
                     </Component>
-                    <Component Id="cmpB9B9A571BDF784AE8314A3BA9D438819" Guid="{EEE66A46-2CC1-419E-990E-D1082BF070C2}">
+                    <Component Id="cmpB9B9A571BDF784AE8314A3BA9D438819" Guid="{C8CE2D75-A5AD-47F0-9B97-86FAACE6DCFB}">
                         <File Id="filDDB82195B52BC7ACAAB7C46590364C62" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\tutorial_xschem_slides23.png" />
                     </Component>
-                    <Component Id="cmp279E57E17AB43F22E6C821819A91C85F" Guid="{17B5D396-443C-4346-BB23-3470759D167B}">
+                    <Component Id="cmp279E57E17AB43F22E6C821819A91C85F" Guid="{00C601F6-D0AE-45F9-8FA2-3EB3A6154F0F}">
                         <File Id="filE414DDB12AEC3DBD5F196AC553EADA87" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\underconstr.png" />
                     </Component>
-                    <Component Id="cmp08DDC145FFF8AB898C637C06495B0D65" Guid="{96AB2696-880C-4B39-A56E-B780720BE460}">
+                    <Component Id="cmp08DDC145FFF8AB898C637C06495B0D65" Guid="{C597C8CC-A069-4286-A280-8F6CD1A34D12}">
                         <File Id="filFCE4FF2AB78CD3379C41682BE12C9BD4" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\what_is_xschem.html" />
                     </Component>
-                    <Component Id="cmp1A207E9C1A5AF157E751AAC52AD2E5BB" Guid="{B1A2C7AD-6D48-456D-91C2-38B70FC10172}">
+                    <Component Id="cmp1A207E9C1A5AF157E751AAC52AD2E5BB" Guid="{132E0193-8B18-440B-AEEC-6A85883DF88D}">
                         <File Id="fil70D2418AFC94BC84222D90AFA3553BEC" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem.gif" />
                     </Component>
-                    <Component Id="cmpCCBF63930F2543BBFA634A646CC92A7F" Guid="{A05D0FD2-2306-466A-B128-009894455C77}">
+                    <Component Id="cmpCCBF63930F2543BBFA634A646CC92A7F" Guid="{617B777B-969E-473C-B68B-E5A1B1C83727}">
                         <File Id="fil079D33B80447240D01313163EBFC76BE" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_all_selected.png" />
                     </Component>
-                    <Component Id="cmpF71FB2B0412C9E3893E361A1FB197194" Guid="{7FF79D34-4C34-4F48-94C1-FC7094B5CDFF}">
+                    <Component Id="cmpF71FB2B0412C9E3893E361A1FB197194" Guid="{FAA039E8-079E-4E2D-8231-3C67C81A9FD1}">
                         <File Id="filD92A545F1ABF66264152DE08BA1BA0D0" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_bg.png" />
                     </Component>
-                    <Component Id="cmp9746E572A30350C06F7F06EF3B388160" Guid="{8ADD3D3D-804C-4220-B63B-9C85B24D4182}">
+                    <Component Id="cmp9746E572A30350C06F7F06EF3B388160" Guid="{38223E70-0F1F-4194-B4BF-06417B269CE8}">
                         <File Id="filA3712E2CA47D0206EF6EB78C41392DB9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_bg2.png" />
                     </Component>
-                    <Component Id="cmp7BE97CD3CBF0884C1C1C25E0A92B0596" Guid="{C9E90A3D-CC3E-43FC-AFF6-353D9A604C8E}">
+                    <Component Id="cmp7BE97CD3CBF0884C1C1C25E0A92B0596" Guid="{44D4D8B0-55A9-422E-B493-A63DCB5BC3A5}">
                         <File Id="fil18BE8ED3D969FBD9283F282DB0A75E44" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_bus.png" />
                     </Component>
-                    <Component Id="cmp70D0CD57A086ED306152EDE13A905984" Guid="{C14F0DD1-2C23-45D4-AC4D-ABF016105178}">
+                    <Component Id="cmp70D0CD57A086ED306152EDE13A905984" Guid="{5D7F8A2A-38A8-4834-9C93-7921F2666094}">
                         <File Id="fil95EDF49A30E6F6120B493F6163DC44C8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_elements.html" />
                     </Component>
-                    <Component Id="cmp6B48AA7094D53B6FF3383551D59EA480" Guid="{2A465D86-D11A-49F3-9F0C-05EF694860AE}">
+                    <Component Id="cmp6B48AA7094D53B6FF3383551D59EA480" Guid="{A154317D-783F-487C-9BDD-0A7A1B8F9BFC}">
                         <File Id="filDC4F570939972B6B4B7CDE734E8B3AC8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_elements_01.png" />
                     </Component>
-                    <Component Id="cmp5ABEE6DB981819B015E47A17446A7A5E" Guid="{9042DF4C-B2AF-4CB9-9156-164C77AAF82E}">
+                    <Component Id="cmp5ABEE6DB981819B015E47A17446A7A5E" Guid="{0C66D73B-A87A-421C-8991-DEE189542D6E}">
                         <File Id="fil0662BFF6D7EA9E768E639C60B71E37DB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_elements_02.png" />
                     </Component>
-                    <Component Id="cmp687A244FDAB260B85C16868A46F882E8" Guid="{A7D3C9CB-66DC-4158-B1AF-8598F1FB2DD1}">
+                    <Component Id="cmp687A244FDAB260B85C16868A46F882E8" Guid="{4DED6F86-78BA-4883-9A67-275E680B1F61}">
                         <File Id="filFFD395DFF6C8CF5B2C8E05ED6B7307F3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_footer.html" />
                     </Component>
-                    <Component Id="cmp2FB1D710C101A964468578F44650A633" Guid="{D8ADADCE-701F-45BB-B44A-0A1681E014B5}">
+                    <Component Id="cmp2FB1D710C101A964468578F44650A633" Guid="{7BAAE421-B7DE-4529-B885-3784E58A7222}">
                         <File Id="fil911D80CB2C5D19EBECB69D9D29FA8FBA" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_home.png" />
                     </Component>
-                    <Component Id="cmpDB6E9745FFE6EB75FE2C455C4E6BF40B" Guid="{5CABBBB1-6508-4830-85FE-21738E7B39A5}">
+                    <Component Id="cmpDB6E9745FFE6EB75FE2C455C4E6BF40B" Guid="{0923CC4A-8804-4C40-BBA6-1271F11CFBA1}">
                         <File Id="fil03956E8F1A2B682605AAD08B5DDC2FBB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_home1.png" />
                     </Component>
-                    <Component Id="cmpA45E2A5AA597D55FF4F5DDB11069D676" Guid="{D5A74A7A-7B84-4C49-9354-9ADE866250B0}">
+                    <Component Id="cmpA45E2A5AA597D55FF4F5DDB11069D676" Guid="{CE9CA04B-2E74-4058-8AB6-527EE046DC35}">
                         <File Id="filC860D7CA9A50DD9584EEFC656C91D4E9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_insert.png" />
                     </Component>
-                    <Component Id="cmp98569F5795715F019544B3B53E27B7AD" Guid="{7A7FA7E0-2352-433D-B5D6-830F18B550B8}">
+                    <Component Id="cmp98569F5795715F019544B3B53E27B7AD" Guid="{C4127E3B-09E8-48D5-9841-E44ABFA85107}">
                         <File Id="fil0F24F7D6E9CE8C82A78A6252031DC79B" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_lines.png" />
                     </Component>
-                    <Component Id="cmpA3ECA3EE56C7667AE0D9502499270E35" Guid="{84672370-C75B-4024-939D-D63FAB7E1E45}">
+                    <Component Id="cmpA3ECA3EE56C7667AE0D9502499270E35" Guid="{C38CF613-63B4-4983-88D2-7BADA761CF5D}">
                         <File Id="fil27451C478B43890F36BED78E106F5395" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_logo.png" />
                     </Component>
-                    <Component Id="cmpC47D2E68F93BDFE7A1A9A46EF787C84B" Guid="{7606B775-4AC4-48F0-95D7-762050F297A8}">
+                    <Component Id="cmpC47D2E68F93BDFE7A1A9A46EF787C84B" Guid="{2B46557A-3E48-441E-A660-F63C4236360A}">
                         <File Id="fil125238C91EF489D015DED971D4E58397" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_man.bck.css" />
                     </Component>
-                    <Component Id="cmp09A41567E4D242D52AA78A2EB221CC11" Guid="{A312662E-4B05-45E4-BCCF-DD275B1367C1}">
+                    <Component Id="cmp09A41567E4D242D52AA78A2EB221CC11" Guid="{102A4BAF-0387-4318-AD3F-80B97B07B936}">
                         <File Id="fil23A98138CED345BA6F0F8741351F8C7A" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_man.css" />
                     </Component>
-                    <Component Id="cmpD3405252BBE8BE0E89FF98C796E886D2" Guid="{ECB6B2C0-8F15-4942-B77A-7A463BA61692}">
+                    <Component Id="cmpD3405252BBE8BE0E89FF98C796E886D2" Guid="{FCCE569E-871C-4F7D-9A1A-93A1A2A83A59}">
                         <File Id="filB83C74655F954E6751386E9C458D6B50" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_man.html" />
                     </Component>
-                    <Component Id="cmp79D078894A1E9865B1FAA6D6E3A67E41" Guid="{DAD000C8-034B-4A0D-9A73-806A0F81B45D}">
+                    <Component Id="cmp79D078894A1E9865B1FAA6D6E3A67E41" Guid="{CCB28D25-F656-41F4-8A7F-3C0D5B67ABD0}">
                         <File Id="filDBD6D15AFF1AF414C301B4C8A208D722" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_manual.pdf" />
                     </Component>
-                    <Component Id="cmp32DBC6F4737AABC6CA5CDB21A1BFB39B" Guid="{7B5C565C-F02C-4B80-91F7-CE172C05E5A0}">
+                    <Component Id="cmp32DBC6F4737AABC6CA5CDB21A1BFB39B" Guid="{5AF974BB-7D2C-4FC9-8C4C-01C16EA528DE}">
                         <File Id="filFA6A6237EC8CF4CB0F26019613DAEC53" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_new_file.png" />
                     </Component>
-                    <Component Id="cmp364E784B2508A89E6EE1B209FDA34BE8" Guid="{76A8778A-95E1-4D49-9A19-285D2F718364}">
+                    <Component Id="cmp364E784B2508A89E6EE1B209FDA34BE8" Guid="{33775BD1-CB9F-4C1C-9688-030AABFA5FDA}">
                         <File Id="filAE7639E8C18C2C241B76DB8C3CC29FB6" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_ngspice.png" />
                     </Component>
-                    <Component Id="cmp42E13A00B2A3155255BC2BBF3F4F3663" Guid="{9F151C75-82D3-487C-A0D2-FA4EAA072637}">
+                    <Component Id="cmp42E13A00B2A3155255BC2BBF3F4F3663" Guid="{BAB89936-6BDA-4FEC-AF4C-3C534307A22C}">
                         <File Id="fil42F8D21D70D1F1CE6CECF6137CAB21EB" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_polygons.png" />
                     </Component>
-                    <Component Id="cmp9D3C617DC8C7C285152842BEB40A58B0" Guid="{D3EB61C9-102B-422B-A29C-60AFD4FD7D9C}">
+                    <Component Id="cmp9D3C617DC8C7C285152842BEB40A58B0" Guid="{5E55FB56-F3A9-43D9-B475-ABC66238B9E3}">
                         <File Id="fil6E561FE037D0F06F144FEC5785F15740" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_properties.html" />
                     </Component>
-                    <Component Id="cmp11AC5BB5892B12CA0D0FDC3702442FC3" Guid="{A8C7D2E7-AE90-4E0F-B77B-899A68CAAC08}">
+                    <Component Id="cmp11AC5BB5892B12CA0D0FDC3702442FC3" Guid="{B71C375C-74E6-43E1-95E7-7CD9045F7528}">
                         <File Id="fil9C8DE9BEE5663AA3EF8D0736A9D3D64F" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_rectangles.png" />
                     </Component>
-                    <Component Id="cmp876F621EA35578C847E5FA63BFBF07FB" Guid="{6CC45FBE-C0EE-4A77-81E1-A343B967F929}">
+                    <Component Id="cmp876F621EA35578C847E5FA63BFBF07FB" Guid="{FDE1C476-54BE-45DD-9155-D72629037A11}">
                         <File Id="fil516922E2D2DBF0257D5875222309AF59" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_remote.html" />
                     </Component>
-                    <Component Id="cmpCDCC1313725B9ED0DF98CE9E7E29487B" Guid="{E03C55DA-E686-4882-B24D-8AEA69F696BD}">
+                    <Component Id="cmpCDCC1313725B9ED0DF98CE9E7E29487B" Guid="{F3D0E0EB-C2B2-4943-8C7F-E5A764D453BD}">
                         <File Id="fil540B84177873AD3937F1F368E2F380F3" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_saveas.png" />
                     </Component>
-                    <Component Id="cmp5AB8D09A8D24743292EAC3F53B5EF7D9" Guid="{ED05C8FE-3D51-4B00-BDFD-CFE4F236F37F}">
+                    <Component Id="cmp5AB8D09A8D24743292EAC3F53B5EF7D9" Guid="{359E7E83-3345-4D0D-AD98-0B572BD39E88}">
                         <File Id="fil0CB0DA7B72B200A99309732F64D80160" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_symbols.png" />
                     </Component>
-                    <Component Id="cmp2203F3A301C2F6D068A8E45F9DA1FCC9" Guid="{5D256F6A-CA08-44D3-98F7-17CBD280A221}">
+                    <Component Id="cmp2203F3A301C2F6D068A8E45F9DA1FCC9" Guid="{1FF198AA-F3F7-4510-8602-07C5E54C9EC3}">
                         <File Id="fil5658EA166D0DECDAE5F2756A77F381D9" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_texts.png" />
                     </Component>
-                    <Component Id="cmpE07D671B6F1CD6B50BFFE2377596657F" Guid="{0F1DE51E-1E67-4408-8D15-191E3A13B331}">
+                    <Component Id="cmpE07D671B6F1CD6B50BFFE2377596657F" Guid="{AE9CBA73-F320-4FE8-A6BF-F177506F12B1}">
                         <File Id="filAF034478CAA6B3483E094264F129F3C8" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_texts1.png" />
                     </Component>
-                    <Component Id="cmpAC92D4EA651950349917C00C3E9B6F7B" Guid="{D5A30109-6FA8-4339-9572-FC28E956EDC4}">
+                    <Component Id="cmpAC92D4EA651950349917C00C3E9B6F7B" Guid="{5F84C47E-430A-4DBB-8A20-77DEF140EA9A}">
                         <File Id="fil19C655E1F2E0B4E7F7DEDD0706A69392" KeyPath="yes" Source="$(var.docSrcDir)\xschem_man\xschem_wires.png" />
                     </Component>
                 </Directory>
@@ -1386,6 +1389,7 @@
             <ComponentRef Id="cmp9B3A7686BB046FC570A7F71F4AD981E3" />
             <ComponentRef Id="cmp87920616631BEEA016176533E5C41578" />
             <ComponentRef Id="cmp5B62A7CAE8EECF932F98EB403B5CDD29" />
+            <ComponentRef Id="cmp814223FC22DFF7462DCE79B3829E6FBF" />
             <ComponentRef Id="cmp9540E3F9B5835A06B30F0AE43A00BDCA" />
             <ComponentRef Id="cmp5DB828CEC70D5904EB1C1A5DC881F321" />
             <ComponentRef Id="cmp6506097EF307EF163BD976300B67E723" />

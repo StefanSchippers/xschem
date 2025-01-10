@@ -560,7 +560,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
           if(s[0]) {
-            cursor1 = atof(s);
+            cursor1 = atof_eng(s);
           } else {
             cursor1 = xctx->graph_cursor1_x;
           }
@@ -579,7 +579,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
           if(s[0]) {
-            cursor2 = atof_spice(s);
+            cursor2 = atof_eng(s);
           } else {
             cursor2 = xctx->graph_cursor2_x;
           }
@@ -597,27 +597,28 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     else if(event == ButtonPress && button == Button3) {
       /* Numerically set cursor position */
       if(xctx->graph_flags & 2) {
-        double cursor1;
+        double logcursor, cursor;
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
           if(s[0]) {
-            cursor1 = atof_spice(s);
+            cursor = atof_spice(s);
           } else {
-            cursor1 = xctx->graph_cursor1_x;
+            cursor = xctx->graph_cursor1_x;
           }
         } else {
-          cursor1 = xctx->graph_cursor1_x;
+          cursor = xctx->graph_cursor1_x;
         }
+        logcursor = cursor;
         if(gr->logx ) {
-          cursor1 = mylog10(cursor1);
+          logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
-          cursor1 = atof_spice(tclresult());
+        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
           if(r->flags & 4) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor)));
           } else {
-            xctx->graph_cursor1_x = cursor1;
+            xctx->graph_cursor1_x = cursor;
           }
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
         }
@@ -625,27 +626,28 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       }
       /* Numerically set cursor position */
       if(xctx->graph_flags & 4) {
-        double cursor2;
+        double logcursor, cursor;
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
           if(s[0]) {
-            cursor2 = atof_spice(s);
+            cursor = atof_spice(s);
           } else {
-            cursor2 = xctx->graph_cursor2_x;
+            cursor = xctx->graph_cursor2_x;
           }
         } else {
-          cursor2 = xctx->graph_cursor2_x;
+          cursor = xctx->graph_cursor2_x;
         }
+        logcursor = cursor;
         if(gr->logx) {
-          cursor2 = mylog10(cursor2);
+          logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor2), NULL);
-          cursor2 = atof_spice(tclresult());
+        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
           if(r->flags & 4) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor)));
           } else {
-            xctx->graph_cursor2_x = cursor2;
+            xctx->graph_cursor2_x = cursor;
           }
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
         }
@@ -901,30 +903,30 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     else if(event == ButtonPress && button == Button3) {
       /* Numerically set hcursor position */
       if(xctx->graph_flags & 128) {
-        double cursor;
-        cursor = gr->hcursor1_y;
+        double logcursor, cursor;
+        logcursor = cursor = gr->hcursor1_y;
         if(gr->logy ) {
-          cursor = mylog10(cursor);
+          logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+        if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
           xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
           tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
-          cursor = atof_spice(tclresult());
+          cursor = atof_eng(tclresult());
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
         }
         need_redraw = 1;
       }
       /* Numerically set hcursor position */
       if(xctx->graph_flags & 256) {
-        double cursor;
-        cursor = gr->hcursor2_y;
+        double logcursor, cursor;
+        logcursor = cursor = gr->hcursor2_y;
         if(gr->logy ) {
-          cursor = mylog10(cursor);
+          logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
+        if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
           xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
           tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
-          cursor = atof_spice(tclresult());
+          cursor = atof_eng(tclresult());
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
         }
         need_redraw = 1;

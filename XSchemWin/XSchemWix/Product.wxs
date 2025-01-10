@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.6" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.6.1" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 		<WixVariable Id="WixUILicenseRtf"
 					 Value="License.rtf" />
@@ -150,9 +150,6 @@
 				</Component>
 				<Component Id="CMPNGSPICEBACKANNOTATE">
 					<File Id="NGSPICEBACKANNOTATE" KeyPath="yes" Source="../../src/ngspice_backannotate.tcl" />
-				</Component>
-				<Component Id="CMPTRAVERSAL">
-					<File Id="TRAVERSAL" KeyPath="yes" Source="../../src/traversal.tcl" />
 				</Component>
 				<Component Id="CMPORDERLABELSAWK">
 					<File Id="ORDERLABELSAWK" KeyPath="yes" Source="../../src/order_labels.awk" />
@@ -361,7 +358,6 @@
 			<ComponentRef Id="CMPMAKESYMAWK" />
 			<ComponentRef Id="CMPMAKESYMLCCAWK" />
 			<ComponentRef Id="CMPNGSPICEBACKANNOTATE" />
-			<ComponentRef Id="CMPTRAVERSAL" />
 			<ComponentRef Id="CMPMAKEVHDLFROMSPICEAWK" />
 			<ComponentRef Id="CMPNETLISTCOMPACTORAWK" />
 			<ComponentRef Id="CMPORDERLABELSAWK" />
