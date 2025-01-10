@@ -481,41 +481,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       need_redraw_master = 1;
     }   
 
-    /* move cursor1 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-      double c;
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
-      } else {
-        xctx->graph_cursor1_x = c;
-      }
-      need_all_redraw = 1;
-    }
-    /* move cursor2 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-      double c;
-      int floaters = there_are_floaters();
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
-      } else {
-        xctx->graph_cursor2_x = c; 
-      }       
-      if(tclgetboolvar("live_cursor2_backannotate")) {
-        backannotate_at_cursor_b_pos(r, gr);
-        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-        need_fullredraw = 1;
-      } else {
-        need_all_redraw = 1;
-      }
-    }
+
+
+
+
     if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
     if(xctx->mousey_snap < W_Y(gr->gy2)) {
       xctx->graph_top = 1;
@@ -930,6 +901,54 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     }
+
+
+
+    /* move cursor1 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      double c;
+
+      /* selected or locked or master */
+      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor1_x = c;
+        }
+        need_all_redraw = 1;
+      }
+    }
+    /* move cursor2 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+      double c;
+      int floaters = there_are_floaters();
+
+      /* selected or locked or master */
+      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor2_x = c; 
+        }       
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        } else {
+          need_all_redraw = 1;
+        }
+      }
+    }
+
+
+
+
     else if(event == ButtonPress && button == Button5 && !(state & ShiftMask)) {
       double delta;
       /* vertical move of waveforms with mouse wheel */
