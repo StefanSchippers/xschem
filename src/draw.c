@@ -2915,21 +2915,21 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->hcursor1_y = gr->hcursor2_y = 0.0;
   val = get_tok_value(r->prop_ptr,"hcursor1_y", 0);
   if(val[0]) {
-    gr->hcursor1_y = atof_spice(val);
+    gr->hcursor1_y = atof_eng(val);
     xctx->graph_flags |= 128;
   }
   val = get_tok_value(r->prop_ptr,"hcursor2_y", 0);
   if(val[0]) {
-    gr->hcursor2_y = atof_spice(val);
+    gr->hcursor2_y = atof_eng(val);
     xctx->graph_flags |= 256;
   }
   if(!skip) {
     gr->gx1 = 0;
     gr->gx2 = 1e-6;
     val = get_tok_value(r->prop_ptr,"x1", 0);
-    if(val[0]) gr->gx1 = atof_spice(val);
+    if(val[0]) gr->gx1 = atof_eng(val);
     val = get_tok_value(r->prop_ptr,"x2", 0);
-    if(val[0]) gr->gx2 = atof_spice(val);
+    if(val[0]) gr->gx2 = atof_eng(val);
     if(gr->gx1 == gr->gx2) gr->gx2 += 1e-6;
     gr->gw = gr->gx2 - gr->gx1;
   }
@@ -3012,17 +3012,17 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"logy", 0);
   if(val[0] == '1') gr->logy = 1;
   val = get_tok_value(r->prop_ptr,"y1", 0);
-  if(val[0]) gr->gy1 = atof_spice(val);
+  if(val[0]) gr->gy1 = atof_eng(val);
   val = get_tok_value(r->prop_ptr,"y2", 0);
-  if(val[0]) gr->gy2 = atof_spice(val);
+  if(val[0]) gr->gy2 = atof_eng(val);
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
   val = get_tok_value(r->prop_ptr,"digital", 0);
   if(val[0]) gr->digital = atoi(val);
   if(gr->digital) {
     val = get_tok_value(r->prop_ptr,"ypos1", 0);
-    if(val[0]) gr->ypos1 = atof_spice(val);
+    if(val[0]) gr->ypos1 = atof_eng(val);
     val = get_tok_value(r->prop_ptr,"ypos2", 0);
-    if(val[0]) gr->ypos2 = atof_spice(val);
+    if(val[0]) gr->ypos2 = atof_eng(val);
     if(gr->ypos2 == gr->ypos1) gr->ypos2 += 1.0;
   }
   gr->posh = gr->ypos2 - gr->ypos1;
@@ -3057,6 +3057,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
     gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh ); 
   else
     gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
+  gr->txtsizelab *= gr->magx;
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.0095;
@@ -3783,7 +3784,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
     if(s[0]) {
-      cursor1 = atof_spice(s);
+      cursor1 = atof_eng(s);
     } else { 
       cursor1 = xctx->graph_cursor1_x;
     }
@@ -3794,7 +3795,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
     if(s[0]) {
-      cursor2 = atof_spice(s);
+      cursor2 = atof_eng(s);
     } else {
       cursor2 = xctx->graph_cursor2_x;
     }

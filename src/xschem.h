@@ -1601,6 +1601,7 @@ extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
 extern char *trim_chars(const char *str, const char *sep);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
+extern const char *spice_get_node(const char *token);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);
 extern const char *translate3(const char* s, int eat_escapes, const char *s1, const char *s2, const char *s3);
@@ -1728,7 +1729,7 @@ extern int drc_check(int i);
 extern void change_elem_order(int n);
 extern int is_generator(const char *name);
 extern char *str_chars_replace(const char *str, const char *replace_set, const char with);
-extern char *str_replace(const char *str, const char *rep, const char *with, int escape);
+extern char *str_replace(const char *str, const char *rep, const char *with, int escape, int count);
 extern char *escape_chars(const char *source, const char *charset);
 extern int set_different_token(char **s,const char *new, const char *old);
 extern void print_hilight_net(int show);

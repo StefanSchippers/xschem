@@ -67,7 +67,7 @@ const char *tcl_hook2(const char *cmd)
     return empty;
   }
   if(strstr(cmd, "tcleval(") == cmd) {
-    unescaped_res = str_replace(cmd, "\\}", "}", 0);
+    unescaped_res = str_replace(cmd, "\\}", "}", 0, -1);
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
     my_strdup2(_ALLOC_ID_, &result, tclresult());
     /* dbg(0, "tcl_hook2: return: %s\n", result);*/
@@ -1972,7 +1972,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
 
  /* can not do this, since @symname is used as a token later in format parser */
  /* my_strdup(_ALLOC_ID_, &format1,
-  * str_replace(format1, "@symname", get_cell(xctx->sym[symbol].name, 0), '\\')); */
+  * str_replace(format1, "@symname", get_cell(xctx->sym[symbol].name, 0), '\\', -1)); */
 
  if(format1 && strstr(format1, "tcleval(") == format1) {
     tclres = tcl_hook2(format1);
@@ -3645,6 +3645,57 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
   return value;
 }
 
+const char *spice_get_node(const char *token)
+{
+  const char *pos;
+
+  if((pos = strstr(token, "@spice_get_node "))) {
+    char *node = NULL;
+    char *token2 = NULL;
+    int idx;
+    char sp;
+    int n;
+    size_t len;
+    double val = 0.0;
+    const char *valstr;
+    const char *s;
+
+    dbg(1, "token=%s\n", token);
+    node = my_malloc(_ALLOC_ID_, strlen(token) + 1);
+    n = sscanf(pos, "%*[^ ] %[^ ]%c", node, &sp);
+    len = strlen(node);
+    dbg(1, "node=%s, n=%d, sp=|%c|\n", node, n, sp);
+    idx = get_raw_index(node, NULL);
+    if(idx >= 0) {
+      val = xctx->raw->cursor_b_val[idx];
+    }
+    if(!strcmp(node, "0") || !my_strcasecmp(node, "GND")) {
+      valstr = "0.0";
+    } else if(idx < 0) {
+      valstr = "-";
+    } else {
+      /* always use engineering as these tokens are generated from single
+       * @spice_get_node(...) patterns */
+      valstr = dtoa_eng(val);
+    }
+    dbg(1, "valstr=%s\n", valstr);
+    my_strdup2(_ALLOC_ID_, &token2, str_replace(token, "@spice_get_node ", "", 0, 1));
+    dbg(1, "token2=%s\n", token2);
+    if(n == 2 && sp == ' ') {
+      node[len] = ' ';
+      node[len + 1] = '\0';
+    }
+    s = str_replace(token2, node, valstr, 0, 1);
+    dbg(1, "s=%s\n", s);
+    my_free(_ALLOC_ID_, &token2);
+    my_free(_ALLOC_ID_, &node);
+    return s;
+  } else {
+    return token;
+  }
+}
+
+
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
@@ -3902,6 +3953,31 @@ const char *translate(int inst, const char* s)
        }
      }
    }
+
+   /* copy as is: processed by spice_get_node() later
+    * the format is "some_text@spice_get_node <spice_node> some_additional_text"
+    * Examples:
+    *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id])
+    *     will translate to: 
+    *   Id=6.6177u
+    *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id]) A
+    *     will translate to: 
+    *   Id=6.6177uA
+    * note the required separator spaces around the spice node. Spaces are used here as
+    * separators since spice nodes don't allow spaces.
+    * escapes are used for 2 reasons:
+    * mark a @ as a literal character instead of a the start of a @var token to be substituted
+    * mark the end of a @var, like for example @var\iable. In this case @var will
+    * be substituted by xschem instead of @variable
+    *
+    * caveats: only one @spice_get_node is allowed in a string
+    */
+   else if(strcmp(token,"@spice_get_node")==0 )
+   {
+     STR_ALLOC(&result, 15 + result_pos, &size);
+     memcpy(result+result_pos, token, 16);
+     result_pos += 15;
+   }
    else if(strncmp(token,"@spice_get_voltage(", 19)==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
@@ -3914,7 +3990,7 @@ const char *translate(int inst, const char* s)
        char *global_net;
        size_t len;
        int idx, n, multip;
-       double val;
+       double val = 0.0;
        const char *valstr;
        tmp = strlen(token) + 1;
        if(path) {
@@ -3956,8 +4032,8 @@ const char *translate(int inst, const char* s)
              len = 3;
            } else if(idx < 0) {
              valstr = "-";
-             xctx->tok_size = 5;
-             len = 5;
+             xctx->tok_size = 1;
+             len = 1;
            } else {
              /* always use engineering as these tokens are generated from single
               * @spice_get_voltage patterns */
@@ -3986,7 +4062,7 @@ const char *translate(int inst, const char* s)
        char *dev = NULL;
        size_t len;
        int idx, n;
-       double val;
+       double val = 0.0;
        const char *valstr;
        tmp = strlen(token) + 1;
        if(path) {
@@ -4029,9 +4105,9 @@ const char *translate(int inst, const char* s)
              val = xctx->raw->cursor_b_val[idx];
            }
            if(idx < 0) {
-             valstr = "undef";
-             xctx->tok_size = 5;
-             len = 5;
+             valstr = "-";
+             xctx->tok_size = 1;
+             len = 1;
            } else {
              /* always use engineering as these tokens are generated from single
               * @spice_get_voltage patterns */
@@ -4093,9 +4169,9 @@ const char *translate(int inst, const char* s)
            idx1 = get_raw_index(fqnet1, NULL);
            idx2 = get_raw_index(fqnet2, NULL);
            if( (!gnd1 && idx1 < 0) || (!gnd2 && idx2 < 0) ) {
-             valstr = "";
-             xctx->tok_size = 0;
-             len = 0;
+             valstr = "-";
+             xctx->tok_size = 1;
+             len = 1;
            } else {
              double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
              double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
@@ -4126,7 +4202,7 @@ const char *translate(int inst, const char* s)
        char *dev = NULL;
        size_t len;
        int idx;
-       double val;
+       double val = 0.0;
        const char *valstr;
        if(path) {
          int skip = 0;
@@ -4166,9 +4242,9 @@ const char *translate(int inst, const char* s)
            val = xctx->raw->cursor_b_val[idx];
          }
          if(idx < 0) {
-           valstr = "";
-           xctx->tok_size = 0;
-           len = 0;
+           valstr = "-";
+           xctx->tok_size = 1;
+           len = 1;
          } else {
            valstr = engineering ? dtoa_eng(val) : dtoa(val);
            len = xctx->tok_size;
@@ -4286,7 +4362,8 @@ const char *translate(int inst, const char* s)
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
- my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+ my_strdup2(_ALLOC_ID_, &translated_tok, spice_get_node(tcl_hook2(result)));
+ 
  return translated_tok;
 }
 

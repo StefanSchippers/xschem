@@ -497,41 +497,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       need_redraw_master = 1;
     }   
 
-    /* move cursor1 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-      double c;
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
-      } else {
-        xctx->graph_cursor1_x = c;
-      }
-      need_all_redraw = 1;
-    }
-    /* move cursor2 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-      double c;
-      int floaters = there_are_floaters();
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
-      } else {
-        xctx->graph_cursor2_x = c; 
-      }       
-      if(tclgetboolvar("live_cursor2_backannotate")) {
-        backannotate_at_cursor_b_pos(r, gr);
-        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-        need_fullredraw = 1;
-      } else {
-        need_all_redraw = 1;
-      }
-    }
+
+
+
+
     if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
     if(xctx->mousey_snap < W_Y(gr->gy2)) {
       xctx->graph_top = 1;
@@ -576,7 +547,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
           if(s[0]) {
-            cursor1 = atof(s);
+            cursor1 = atof_eng(s);
           } else {
             cursor1 = xctx->graph_cursor1_x;
           }
@@ -595,7 +566,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
           if(s[0]) {
-            cursor2 = atof_spice(s);
+            cursor2 = atof_eng(s);
           } else {
             cursor2 = xctx->graph_cursor2_x;
           }
@@ -613,59 +584,91 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     else if(event == ButtonPress && button == Button3) {
       /* Numerically set cursor position */
       if(xctx->graph_flags & 2) {
-        double cursor1;
+        double logcursor, cursor;
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
           if(s[0]) {
-            cursor1 = atof_spice(s);
+            cursor = atof_spice(s);
           } else {
-            cursor1 = xctx->graph_cursor1_x;
+            cursor = xctx->graph_cursor1_x;
           }
         } else {
-          cursor1 = xctx->graph_cursor1_x;
+          cursor = xctx->graph_cursor1_x;
         }
+        logcursor = cursor;
         if(gr->logx ) {
-          cursor1 = mylog10(cursor1);
+          logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor1), NULL);
-          cursor1 = atof_spice(tclresult());
+        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
           if(r->flags & 4) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor)));
           } else {
-            xctx->graph_cursor1_x = cursor1;
+            xctx->graph_cursor1_x = cursor;
+          }
+          event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
+        }
+        need_all_redraw = 1;
+      }
+      /* Numerically set cursor position  *** DO NOT PUT AN `else if` BELOW *** */
+      if(xctx->graph_flags & 4) {
+        double logcursor, cursor;
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+          if(s[0]) {
+            cursor = atof_spice(s);
+          } else {
+            cursor = xctx->graph_cursor2_x;
+          }
+        } else {
+          cursor = xctx->graph_cursor2_x;
+        }
+        logcursor = cursor;
+        if(gr->logx) {
+          logcursor = mylog10(cursor);
+        }
+        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
+          if(r->flags & 4) {
+            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor)));
+          } else {
+            xctx->graph_cursor2_x = cursor;
           }
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
         }
         need_fullredraw = 1;
       }
-      /* Numerically set cursor position */
-      if(xctx->graph_flags & 4) {
-        double cursor2;
-        if(r->flags & 4) { /* private_cursor */
-          const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
-          if(s[0]) {
-            cursor2 = atof_spice(s);
-          } else {
-            cursor2 = xctx->graph_cursor2_x;
-          }
-        } else {
-          cursor2 = xctx->graph_cursor2_x;
+      /* Numerically set hcursor position  *** DO NOT PUT AN `else if` BELOW *** */
+      if(xctx->graph_flags & 128) {
+        double logcursor, cursor;
+        logcursor = cursor = gr->hcursor1_y;
+        if(gr->logy ) {
+          logcursor = mylog10(cursor);
         }
-        if(gr->logx) {
-          cursor2 = mylog10(cursor2);
-        }
-        if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor2), NULL);
-          cursor2 = atof_spice(tclresult());
-          if(r->flags & 4) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
-          } else {
-            xctx->graph_cursor2_x = cursor2;
-          }
+        if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
         }
-        need_fullredraw = 1;
+        need_redraw_master = 1;
+      }
+      /* Numerically set hcursor position *** DO NOT PUT AN `else if` BELOW *** */
+      if(xctx->graph_flags & 256) {
+        double logcursor, cursor;
+        logcursor = cursor = gr->hcursor2_y;
+        if(gr->logy ) {
+          logcursor = mylog10(cursor);
+        }
+        if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          cursor = atof_eng(tclresult());
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
+          event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
+        }
+        need_redraw_master = 1;
       }
     }
     else if(event == -3 && button == Button1) {
@@ -914,38 +917,54 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     }
-    else if(event == ButtonPress && button == Button3) {
-      /* Numerically set hcursor position */
-      if(xctx->graph_flags & 128) {
-        double cursor;
-        cursor = gr->hcursor1_y;
-        if(gr->logy ) {
-          cursor = mylog10(cursor);
+
+
+
+    /* move cursor1 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      double c;
+
+      /* selected or locked or master */
+      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor1_x = c;
         }
-        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
-          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
-          cursor = atof_spice(tclresult());
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
-        }
-        need_redraw = 1;
-      }
-      /* Numerically set hcursor position */
-      if(xctx->graph_flags & 256) {
-        double cursor;
-        cursor = gr->hcursor2_y;
-        if(gr->logy ) {
-          cursor = mylog10(cursor);
-        }
-        if(fabs(xctx->mousey - W_Y(cursor)) < 10) {
-          xctx->ui_state &= ~GRAPHPAN; /* we are setting a cursor so clear GRAPHPAN set before */
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
-          cursor = atof_spice(tclresult());
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
-        }
-        need_redraw = 1;
+        need_all_redraw = 1;
       }
     }
+    /* move cursor2 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+      double c;
+      int floaters = there_are_floaters();
+
+      /* selected or locked or master */
+      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor2_x = c; 
+        }       
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        } else {
+          need_all_redraw = 1;
+        }
+      }
+    }
+
+
+
+
     else if(event == ButtonPress && button == Button5 && !(state & ShiftMask)) {
       double delta;
       /* vertical move of waveforms with mouse wheel */

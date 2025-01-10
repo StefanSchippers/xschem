@@ -4589,6 +4589,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* round_to_n_digits i n
+     *   round number 'i' to 'n' digits */
+    else if(!strcmp(argv[1], "round_to_n_digits"))
+    {
+      double r;
+      if(argc > 3) {
+        r = round_to_n_digits(atof(argv[2]), atoi(argv[3]));
+        Tcl_SetResult(interp, dtoa(r), TCL_VOLATILE);
+      }
+    }
+
     else { cmd_found = 0;}
     break;
     case 's': /*----------------------------------------------*/
@@ -5538,15 +5549,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state2 = MENUSTARTSNAPWIRE;
     }
 
-    /* str_replace str rep with [escape]
+    /* str_replace str rep with [escape] [count]
      *   replace 'rep' with 'with' in string 'str'
      *   if rep not preceeded by an 'escape' character */
     else if(!strcmp(argv[1], "str_replace"))
     {
-      int escape = 0;
+      int escape = 0, count = -1;
       if(argc > 5) escape = argv[5][0];
+      if(argc > 6) count = atoi(argv[6]);
       if(argc > 4) {
-        Tcl_AppendResult(interp, str_replace(argv[2], argv[3], argv[4], escape), NULL);
+        Tcl_AppendResult(interp, str_replace(argv[2], argv[3], argv[4], escape, count), NULL);
       } else {
         Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);
         return TCL_ERROR;

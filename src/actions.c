@@ -1482,7 +1482,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  /* remove tcleval( given in file selector, if any ... */
  if(strstr(name1, "tcleval(")) {
    tclev = 1;
-   my_snprintf(name1, S(name1), "%s", str_replace(name1, "tcleval(", "", 0));
+   my_snprintf(name1, S(name1), "%s", str_replace(name1, "tcleval(", "", 0, -1));
  }
  dbg(1, "place_symbol(): 2: name1=%s\n",name1);
 
@@ -1788,7 +1788,7 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
 
   /* instance based symbol selection */
   sch = tcl_hook2(str_replace(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 2), "@symname",
-        get_cell(xctx->inst[inst].name, 0), '\\'));
+        get_cell(xctx->inst[inst].name, 0), '\\', -1));
 
   if(xctx->tok_size) { /* token exists */ 
     if(abs_path)
@@ -1965,9 +1965,17 @@ void get_additional_symbols(int what)
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
+
+      dbg(1, "schematic=%s\n", get_tok_value(xctx->inst[i].prop_ptr,"schematic",2));
+      /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
+      my_strdup2(_ALLOC_ID_, &sch,
+          translate3(get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), 1,
+            xctx->inst[i].prop_ptr, NULL, NULL));
+      dbg(1, "sch=%s\n", sch);
+    
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
-         str_replace( get_tok_value(xctx->inst[i].prop_ptr,"schematic",2), "@symname",
-           get_cell(xctx->inst[i].name, 0), '\\')));
+         str_replace(sch, "@symname", get_cell(xctx->inst[i].name, 0), '\\', -1)));
+
       dbg(1, "get_additional_symbols(): inst=%d sch=%s\n",i,  sch);
       /* schematic does not exist */
       if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {
@@ -1982,6 +1990,7 @@ void get_additional_symbols(int what)
         char *symname_attr = NULL;
         int ignore_schematic = 0;
         xSymbol *symptr = xctx->inst[i].ptr + xctx->sym;
+
         my_strdup2(_ALLOC_ID_, &default_schematic, get_tok_value(symptr->prop_ptr,"default_schematic",0));
         ignore_schematic = !strcmp(default_schematic, "ignore");
 
@@ -2081,12 +2090,17 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   }
   dbg(1, "get_sch_from_sym(): current_dirname= %s\n", xctx->current_dirname);
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d web_url=%d\n", sym->name, inst, web_url);
-  if(inst >= 0) my_strdup(_ALLOC_ID_, &str_tmp,  get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 2));
+  if(inst >= 0) {
+     /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
+     my_strdup2(_ALLOC_ID_, &str_tmp,
+        translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic",2), 1,
+          xctx->inst[inst].prop_ptr, NULL, NULL));
+  }
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 2));
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
     /* @symname in schematic attribute will be replaced with symbol name */
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(str_replace(str_tmp, "@symname",
-       get_cell(sym->name, 0), '\\')));
+       get_cell(sym->name, 0), '\\', -1)));
     if(is_generator(sch)) { /* generator: return as is */
       my_strncpy(filename, sch, PATH_MAX);
       is_gen = 1;
