@@ -3184,7 +3184,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hilight_net_pin_mismatches();
     }
 
-    /* netlist [-messages] [filename]
+    /* netlist [-messages | -erc | -nohier] [filename]
      *   do a netlist of current schematic in currently defined netlist format
      *   if 'filename'is given use specified name for the netlist
      *   if 'filename' contains path components place the file in specified path location.
@@ -3194,51 +3194,62 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   will create the netlist in different places.
      *   netlisting directory is reset to previous setting after completing this command
      *   If -messages is given return the ERC messages instead of just a fail (1)
+     *   If -erc is given it means netlister is called from gui, enable show infowindow
+     *   If -nohier is given netlist only current level
      *   or no fail (0) code. */
     else if(!strcmp(argv[1], "netlist") )
     {
       char *saveshow = NULL;
       int err = 0;
-      int messages = 0;
+      int hier_netlist = 1;
+      int i, messages = 0;
+      int erc = 0;
       const char *fname = NULL;
       const char *path;
+      char savedir[PATH_MAX];
       int done_netlist = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
-      if(argc <= 2 || (argc > 2 && strcmp(argv[2], "-erc"))) { /* xschem netlist NOT invoked from GUI */
-        tclsetvar("show_infowindow_after_netlist", "never");
-      }
-      if(argc > 2) {
-        if(!strcmp(argv[2], "-messages")) {
-          messages = 1;
-          if(argc > 3) fname = argv[3];
-        } else if(strcmp(argv[2], "-erc")) {
-          fname = argv[2];
-        }
-        if(fname) {
-          my_strncpy(xctx->netlist_name, get_cell_w_ext(fname, 0), S(xctx->netlist_name));
-          tclvareval("file dirname ", fname, NULL);
-          path = tclresult();
-          if(strchr(fname, '/')) {
-            set_netlist_dir(1, path);
+
+      my_strncpy(savedir, tclgetvar("netlist_dir"), S(savedir));
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-messages")) {
+            messages = 1;
+          } else if(!strcmp(argv[i], "-erc")) {
+            erc = 1;
+          } else if(!strcmp(argv[i], "-nohier")) {
+            hier_netlist = 0;
           }
+        } else {
+          fname = argv[i];
+          break;
+        }
+      }
+      if(erc == 0) tclsetvar("show_infowindow_after_netlist", "never");
+      if(fname) {
+        my_strncpy(xctx->netlist_name, get_cell_w_ext(fname, 0), S(xctx->netlist_name));
+        tclvareval("file dirname ", fname, NULL);
+        path = tclresult();
+        if(strchr(fname, '/')) {
+          set_netlist_dir(1, path);
         }
       }
       if(set_netlist_dir(0, NULL) ) {
         done_netlist = 1;
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
-          err = global_spice_netlist(1);                  /* 1 means global netlist */
+          err = global_spice_netlist(hier_netlist);                  /* 1 means global netlist */
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-          err = global_vhdl_netlist(1);
+          err = global_vhdl_netlist(hier_netlist);
         else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-          err = global_verilog_netlist(1);
+          err = global_verilog_netlist(hier_netlist);
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-          global_tedax_netlist(1);
+          global_tedax_netlist(hier_netlist);
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
-        if( (argc ==3 && strcmp(argv[2], "-erc") ) || argc > 3) {
+        if( (erc == 0) ) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
         }
       }
@@ -3259,6 +3270,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);
+      set_netlist_dir(1, savedir);
       if(done_netlist) {
         if(messages) {
           Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);

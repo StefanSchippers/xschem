@@ -1787,7 +1787,7 @@ proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
     $w configure -fg $symfg
   } else {
     if {[$w get] eq $default_sch} {
-        puts "need to clear schematic attr in symbol"
+        puts "$symbol: need to clear schematic attr in symbol"
     } elseif {[$w get] eq $sym_sch} {
       $w configure -bg $symbg
     } else {
