@@ -1850,7 +1850,6 @@ proc cellview {{derived_symbols {}}} {
     }
     if {$skip} { continue }
     set sym_sch [rel_sym_path $abs_sch]
-    set default_sch [add_ext $symbol .sch]
     set type [xschem getprop symbol $symbol type]
     set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def]
     if {$type eq {subcircuit}} {

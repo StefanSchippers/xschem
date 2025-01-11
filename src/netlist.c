@@ -1433,12 +1433,26 @@ static int name_unlabeled_instances()
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     if(inst[i].ptr != -1) {
       rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+      for(j = 0; j < rects; ++j) {
+        if(inst[i].node[j] == NULL)
+        {
+          err |= set_unnamed_inst(i, j);
+        }
+      }
+    }
+  }
+
+  for (i = 0; i < instances; ++i)
+  {
+    if(!inst[i].node) continue;
+    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
+    if(inst[i].ptr != -1) {
+      rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
       all_unconn = 0;
       for(j = 0; j < rects; ++j) {
         if(inst[i].node[j] == NULL)
         {
           all_unconn++;
-          err |= set_unnamed_inst(i, j);
         }
       }
       if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count > 0) {
@@ -1450,6 +1464,9 @@ static int name_unlabeled_instances()
       }
     }
   }
+
+
+
   return err;
 } 
 
