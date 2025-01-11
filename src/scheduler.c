@@ -2413,7 +2413,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Return a list of 3-items. Each 3-item is
      *   an instance name followed by the symbol reference and symbol type.
      *   Example: xschem instance_list -->
-     *     {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... */
+     *     {x1}  {sky130_tests/bandgap.sym} {subcircuit}
+     *     {...} {...}                      {...}
+     *     ...
+     */
     else if(!strcmp(argv[1], "instance_list"))
     {
       int i;

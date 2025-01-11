@@ -2073,6 +2073,7 @@ void get_additional_symbols(int what)
   }
 }
 /* fallback = 1: if schematic attribute is set but file not existing fallback
+ * if inst == -1 use only symbol reference
  * to defaut symbol schematic (symname.sym -> symname.sch) */
 void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 {
@@ -2084,17 +2085,29 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   int cancel = 0;
   int is_gen = 0;
 
+  my_strncpy(filename, "", PATH_MAX);
+
+  if(inst != -1 || inst >= xctx->instances) {
+    dbg(0, "get_sch_from_sym() error: called with invalid inst=%d\n", inst);
+    return;
+  }
+
+  if(!sym) {
+    dbg(0, "get_sch_from_sym() error: called with NULL sym", inst);
+    return;
+  }
+
   /* get sch/sym name from parent schematic downloaded from web */
   if(is_from_web(xctx->current_dirname)) {
     web_url = 1;
   }
+
   dbg(1, "get_sch_from_sym(): current_dirname= %s\n", xctx->current_dirname);
   dbg(1, "get_sch_from_sym(): symbol %s inst=%d web_url=%d\n", sym->name, inst, web_url);
-  if(inst >= 0) {
-     /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
-     my_strdup(_ALLOC_ID_, &str_tmp,
-        translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6), 1,
-          xctx->inst[inst].prop_ptr, NULL, NULL));
+  /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
+  if(inst >=0 ) {
+    my_strdup(_ALLOC_ID_, &str_tmp, translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6),
+              1, xctx->inst[inst].prop_ptr, NULL, NULL));
   }
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 6));
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
@@ -2111,17 +2124,14 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
       if(web_url) my_strncpy(filename, sch, PATH_MAX);
       else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
     }
-  } else {
-    my_strncpy(filename, "", PATH_MAX);
   }
   
   if(has_x && fallback && !is_gen && filename[0]) {
     file_exists = !stat(filename, &buf);
     if(!file_exists) {
       tclvareval("ask_save {Schematic ", filename, "\ndoes not exist.\nDescend into base schematic?}", NULL);
-      if(strcmp(tclresult(), "yes") ) fallback = 0;
-       if(!strcmp(tclresult(), "") ) {
-         my_strncpy(filename, "", PATH_MAX);
+      if(strcmp(tclresult(), "yes") ) fallback = 0; /* 'no' or 'cancel' */
+       if(!strcmp(tclresult(), "") ) { /* 'cancel' */
          cancel = 1;
        }
     }

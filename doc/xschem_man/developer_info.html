@@ -934,7 +934,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Return a list of 3-items. Each 3-item is
    an instance name followed by the symbol reference and symbol type.
    Example: xschem instance_list --&gt;
-     {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
+     {x1}  {sky130_tests/bandgap.sym} {subcircuit}
+     {...} {...}                      {...}
+     ...</pre>
    <li><kbd>       instance_net inst pin</kbd></li><pre>
    Return the name of the net attached to pin 'pin' of instance 'inst'
    Example: xschem instance_net x3 MINUS --&gt; REF </pre>
