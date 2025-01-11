@@ -5655,7 +5655,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char n[100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && !strcmp(argv[2], "derived_symbols")) derived_symbols = 1;
-      else if(argc > 2) {
+      else if(argc > 2 && argv[2][0]) {
         one_symbol = 1;
         i = get_symbol(argv[2]);
         if(i >=0) Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);

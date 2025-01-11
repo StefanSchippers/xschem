@@ -1799,7 +1799,19 @@ proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
   }
 }
 
-proc cellview {} {
+proc cellview_edit_item {w sym_spice_sym_def} {
+  if {[xschem is_generator [$w get]]} {
+    set f [$w get]
+    regsub {\(.*} $f {} f
+    textwindow [abs_sym_path $f]
+  } elseif { $sym_spice_sym_def eq {}} {
+    xschem load_new_window [$w get]
+  } else {
+    editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}
+  }
+}
+
+proc cellview {{derived_symbols {}}} {
   global keep_symbols nolist_libs
 
   if {[info tclversion] >= 8.5} {
@@ -1824,7 +1836,7 @@ proc cellview {} {
   frame .cv.center
   set sf [sframe .cv.center]
   # puts sf=$sf
-  set syms [join [lsort -index 1 [xschem symbols]]]
+  set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
   foreach {i symbol} $syms {
     set abs_sch [xschem get_sch_from_sym -1 $symbol]
     set abs_sym [abs_sym_path $symbol]
@@ -1850,12 +1862,7 @@ proc cellview {} {
       entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
       balloon $sf.f$i.s $abs_sch
       button $sf.f$i.b -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "
-                if { [list $sym_spice_sym_def] eq {}} {
-                  xschem load_new_window \[$sf.f$i.s get\]
-                } else {
-                  editdata [list $sym_spice_sym_def] {Symbol spice_sym_def attribute}
-                }"
+             -command "cellview_edit_item $sf.f$i.s [list $sym_spice_sym_def]"
       if {$sym_spice_sym_def eq {}} {
         $sf.f$i.s insert 0 $sym_sch
       } else {
