@@ -2087,7 +2087,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 
   my_strncpy(filename, "", PATH_MAX);
 
-  if(inst != -1 || inst >= xctx->instances) {
+  if(inst >= xctx->instances) {
     dbg(0, "get_sch_from_sym() error: called with invalid inst=%d\n", inst);
     return;
   }
