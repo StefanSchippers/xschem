@@ -165,7 +165,7 @@ char *get_generator_command(const char *str)
   #endif
   dbg(1, "get_generator_command(): cmd_filename=%s\n", cmd_filename);
   dbg(1, "get_generator_command(): gen_cmd=%s\n", gen_cmd);
-  dbg(1, "get_generator_command(): is_symgen=%d\n", is_generator(str));
+  dbg(1, "get_generator_command(): is_generator=%d\n", is_generator(str));
 
   end:
   my_free(_ALLOC_ID_, &cmd);

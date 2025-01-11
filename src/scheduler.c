@@ -2666,7 +2666,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* is_symgen symbol
      *   tell if 'symbol' is a generator (symbol(param1,param2,...) */
-    else if(!strcmp(argv[1], "is_symgen"))
+    else if(!strcmp(argv[1], "is_generator"))
     {
       char s[30];
       if(argc > 2) {
