@@ -1441,7 +1441,7 @@ static int name_unlabeled_instances()
       }
     }
   }
-
+  #if 0 /* should never happen */
   for (i = 0; i < instances; ++i)
   {
     if(!inst[i].node) continue;
@@ -1464,7 +1464,7 @@ static int name_unlabeled_instances()
       }
     }
   }
-
+  #endif
 
 
   return err;
