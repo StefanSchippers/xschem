@@ -3646,6 +3646,27 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
   return value;
 }
 
+/* This routine processes the entire string returned by translate, looks 
+ * for "@spice_get_node <spice_node> " patterns and replaces with the 
+ * Spice simulated value for that node.
+ * the format is "some_text@spice_get_node <spice_node> some_additional_text"
+ * Examples:
+ *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id])
+ *     will translate to: 
+ *   Id=6.6177u
+ *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id]) A
+ *     will translate to: 
+ *   Id=6.6177uA
+ * note the required separator spaces around the spice node. Spaces are used here as
+ * separators since spice nodes don't allow spaces.
+ * escapes are used for 2 reasons:
+ * mark a @ as a literal character instead of a the start of a @var token to be substituted
+ * mark the end of a @var, like for example @var\iable. In this case @var will
+ * be substituted by xschem instead of @variable
+ *
+ * caveats: only one @spice_get_node is allowed in a string for now.
+ */
+
 const char *spice_get_node(const char *token)
 {
   const char *pos;

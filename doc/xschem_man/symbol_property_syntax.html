@@ -568,7 +568,10 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <p> This expands to the net that connect to symbol pin named <kbd>pin</kbd>. This substitution
    takes place only when producing a netlist (Spice, Verilog, VHDL, tEDAx) so it is allowed to use this
    value only in <kbd>format</kbd>,<kbd>vhdl_format</kbd>, <kbd>tedax_format</kbd> or <kbd>verilog_format</kbd>
-   attributes (see <a href="netlisting.html">Netlisting slide)</a></p>
+   attributes (see <a href="netlisting.html">Netlisting slide)</a><br>
+   The @#pin attribute is expanded to <kbd>?m net</kbd> where <kbd>m</kbd> is the pin multiplicity and
+   <kbd>net</kbd> is the name of the net attached to the symbol <kbd>pin</kbd>. This information is needed 
+   by the xschem netlister.</p>
   <li><kbd>@#n</kbd></li>
   <p>
    This expands to the net that connect to symbol pin at position <kbd>n</kbd> in the XSCHEM internal storage. This substitution
@@ -577,6 +580,10 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    attributes (see <a href="netlisting.html">Netlisting slide)</a><br>
    This method of accessing a net that connects to a pin is much faster than previous one since XSCHEM does not need to 
    loop through symbol pin names looking for a match.<br>
+   The @#n attribute is expanded to <kbd>?m net</kbd> where <kbd>m</kbd> is the <kbd>n-th</kbd> pin multiplicity and
+   <kbd>net</kbd> is the name of the net attached to the symbol <kbd>cwn-thpin</kbd> pin. This information is needed 
+   by the xschem netlister.</p>
+
    Example: <kbd>@#2</kbd>: return net name that connects to the third pin of the symbol (position 2).
   </p>
   <li><kbd>@#n:pin_attribute</kbd></li>
@@ -611,6 +618,27 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <p> these expand to the voltage of the net attached to the pin with name <kbd>pin_name</kbd> or with
     sequence number <kbd>n</kbd>, extracted from simulation raw file (operating point or 
     cursor <kbd>b</kbd> position)</p>
+
+  <li><kbd>@spice_get_node spice_node </kbd></li>
+  <p>
+   <kbd>spice_node</kbd> Will be replaced with the Spice simulated value for that node.<br>
+   Examples:<br>
+     <kbd>Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id])</kbd><br>
+       will translate to: <br>
+     <kbd>Id=6.6177u</kbd><br>
+   and:<br>
+     <kbd>Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id]) A</kbd><br>
+       will translate to: <br>
+     <kbd>Id=6.6177uA</kbd><br>
+   note the required separator spaces around the spice node. Spaces are used here as
+   separators since spice nodes don't allow spaces.
+   escapes are used for 2 reasons:
+   mark a @ as a literal character instead of a the start of a @var token to be substituted
+   mark the end of a @var, like for example @var\iable. In this case @var will
+   be substituted by xschem instead of @variable.<br>
+   Caveats: only one @spice_get_node is allowed in a string for now.
+  </p>
+
 
   <li><kbd>@sch_last_modified</kbd></li>
   <p>
