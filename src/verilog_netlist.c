@@ -135,9 +135,9 @@ int global_verilog_netlist(int global)  /* netlister driver */
   my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
-   str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr , fmt_attr, 2);
+   str_tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr , fmt_attr, 2);
    if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))               
-      str_tmp = get_tok_value( (xctx->inst[i].ptr+ xctx->sym)->prop_ptr, "verilog_format", 2);
+      str_tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "verilog_format", 2);
 
    my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
    fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string) : "<NULL>");
@@ -479,9 +479,9 @@ int verilog_block_netlist(FILE *fd, int i)
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
      if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
      {
-      str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, fmt_attr, 2);
+      str_tmp = get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, fmt_attr, 2);
       if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format")) 
-         str_tmp = get_tok_value( (xctx->inst[j].ptr+ xctx->sym)->prop_ptr, "verilog_format", 2);
+         str_tmp = get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "verilog_format", 2);
       my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
       fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "<NULL>");
      }

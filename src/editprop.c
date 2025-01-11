@@ -1561,7 +1561,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
     dbg(1, "update_symbol(): for k loop: k=%d\n", k);
     if(xctx->sel_array[k].type != ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
-    old_prefix=(get_tok_value((xctx->sym + xctx->inst[*ii].ptr)->templ, "name",0))[0];
+    old_prefix=(get_tok_value(xctx->sym[xctx->inst[*ii].ptr].templ, "name",0))[0];
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
     symbol_bbox(*ii, &xctx->inst[*ii].x1, &xctx->inst[*ii].y1, &xctx->inst[*ii].x2, &xctx->inst[*ii].y2);
@@ -1604,7 +1604,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
         ( !strcmp(symbol, xctx->inst[*ii].name) &&  strcmp(translated_sym, old_translated_sym) ) ) { 
       sym_number=match_symbol(translated_sym); /* check if exist */
       if(sym_number>=0) {
-        prefix=(get_tok_value((xctx->sym+sym_number)->templ, "name",0))[0]; /* get new symbol prefix  */
+        prefix=(get_tok_value(xctx->sym[sym_number].templ, "name",0))[0]; /* get new symbol prefix  */
       }
     }
 

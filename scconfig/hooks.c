@@ -253,12 +253,12 @@ int hook_detect_target()
                                 append("cc/cflags", " ");
                                 append("cc/cflags", get("cc/argstd/Wall"));
                         }
-                        /* 
-                         * if (require("cc/argstd/std_c89",  0, 0) == 0) {
-                         *        append("cc/cflags", " ");
-                         *        append("cc/cflags", get("cc/argstd/std_c89"));
-                         * }
-                         */
+                        
+                        if (require("cc/argstd/std_c89",  0, 0) == 0) {
+                               append("cc/cflags", " ");
+                               append("cc/cflags", get("cc/argstd/std_c89"));
+                        }
+                        
                         if (require("cc/argstd/pedantic",  0, 0) == 0) {
                                 append("cc/cflags", " ");
                                 append("cc/cflags", get("cc/argstd/pedantic"));

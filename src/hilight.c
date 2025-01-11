@@ -591,7 +591,7 @@ void hilight_parent_pins(void)
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
-  pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
+  pin_name = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0);
   dbg(1, "pin_name=%s\n", pin_name);
   if(!pin_name[0]) continue;
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
@@ -659,7 +659,7 @@ void hilight_child_pins(void)
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_child_pins(): net_node=%s\n", net_node);
-  pin_name = get_tok_value((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER][j].prop_ptr,"name",0);
+  pin_name = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0);
   if(!pin_name[0]) continue;
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
   dbg(1, "hilight_child_pins(): pin_node=%s\n", pin_node);
@@ -771,7 +771,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
    } else if(!strcmp(tok,"cell::propstring")) {
      has_token = (str = (xctx->inst[i].ptr+ xctx->sym)->prop_ptr) ? 1 : 0;
    } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
-     my_strdup(_ALLOC_ID_, &tmpname,get_tok_value((xctx->inst[i].ptr+ xctx->sym)->prop_ptr,tok+6,0));
+     my_strdup(_ALLOC_ID_, &tmpname,get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr,tok+6,0));
      has_token = xctx->tok_size;
      if(tmpname) {
        str = tmpname;
