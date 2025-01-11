@@ -3860,7 +3860,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(custom_rawfile[0]) {
         if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : 
            (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
-          valid_rawfile = 0;
+          valid_rawfile = 0; 
         }
       }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
