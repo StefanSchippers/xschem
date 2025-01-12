@@ -934,7 +934,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Return a list of 3-items. Each 3-item is
    an instance name followed by the symbol reference and symbol type.
    Example: xschem instance_list --&gt;
-     {x1} {sky130_tests/bandgap.sym} {subcircuit}} {...} {...} {...} ... </pre>
+     {x1}  {sky130_tests/bandgap.sym} {subcircuit}
+     {...} {...}                      {...}
+     ...</pre>
    <li><kbd>       instance_net inst pin</kbd></li><pre>
    Return the name of the net attached to pin 'pin' of instance 'inst'
    Example: xschem instance_net x3 MINUS --&gt; REF </pre>
@@ -1064,7 +1066,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       net_pin_mismatch</kbd></li><pre>
    Highlight nets attached to selected symbols with
    a different name than symbol pin </pre>
-   <li><kbd>       netlist [-messages] [filename]</kbd></li><pre>
+   <li><kbd>       netlist [-messages | -erc | -nohier] [filename]</kbd></li><pre>
    do a netlist of current schematic in currently defined netlist format
    if 'filename'is given use specified name for the netlist
    if 'filename' contains path components place the file in specified path location.
@@ -1074,6 +1076,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    will create the netlist in different places.
    netlisting directory is reset to previous setting after completing this command
    If -messages is given return the ERC messages instead of just a fail (1)
+   If -erc is given it means netlister is called from gui, enable show infowindow
+   If -nohier is given netlist only current level
    or no fail (0) code. </pre>
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.

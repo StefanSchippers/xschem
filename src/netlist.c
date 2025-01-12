@@ -1423,10 +1423,12 @@ static int name_unlabeled_instances()
   int i, j;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
-  int rects, all_unconn;
+  int rects;
     
   /* name nets that do not touch ipin opin alias instances */
-  dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
+
+  #if 0 /* does not work */
+  int all_unconn;
   for (i = 0; i < instances; ++i)
   {
     if(!inst[i].node) continue;
@@ -1438,7 +1440,6 @@ static int name_unlabeled_instances()
         if(inst[i].node[j] == NULL)
         {
           all_unconn++;
-          err |= set_unnamed_inst(i, j);
         }
       }
       if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count > 0) {
@@ -1447,6 +1448,23 @@ static int name_unlabeled_instances()
         statusmsg(str,2);
         xctx->inst[i].color = -PINLAYER;
         xctx->hilight_nets=1;
+      }
+    }
+  }
+  #endif
+
+  dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
+  for (i = 0; i < instances; ++i)
+  {
+    if(!inst[i].node) continue;
+    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
+    if(inst[i].ptr != -1) {
+      rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+      for(j = 0; j < rects; ++j) {
+        if(inst[i].node[j] == NULL)
+        {
+          err |= set_unnamed_inst(i, j);
+        }
       }
     }
   }

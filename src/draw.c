@@ -2303,6 +2303,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     Raw *raw = NULL;
     const char *ptr;
 
+    raw = xctx->raw;
     autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
     if(autoload == 0) autoload = 2;
     ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
@@ -2336,7 +2337,6 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       }
     }
 
-    raw = xctx->raw;
     /* if doing double variable DC sweeps raw->datasets == 1 but there are multiple curves.
      * find_closest_wave() may return a dataset number that is > 0 but its a "virtual" dataset
      * since double DC sweeps just do multiple sweeps by wrapping the sweep variable 
@@ -2360,6 +2360,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       xx1 = mylog10(xx1);
       xx2 = mylog10(xx2);
     }
+    dbg(1, "graph_fullxzoom(): xx1=%g, xx2=%g\n");
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
 
@@ -2409,7 +2410,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
 
       ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
       if(!ptr[0]) {
-        if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+        if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
         else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
       } else {
         my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
@@ -2431,7 +2432,6 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
         }
         raw = xctx->raw;
-
         my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
         /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
         if(nd[0]) {
@@ -3860,7 +3860,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
       if(custom_rawfile[0]) {
         if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : 
            (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
-          valid_rawfile = 0;
+          valid_rawfile = 0; 
         }
       }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
