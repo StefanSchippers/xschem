@@ -3991,6 +3991,7 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   bb[PINLAYER][i].dash = 0;
   bb[PINLAYER][i].ellipse_a =  bb[PINLAYER][i].ellipse_b = -1;
   bb[PINLAYER][i].sel = 0;
+  bb[PINLAYER][i].fill = 1;
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
   my_strdup(_ALLOC_ID_, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
   my_strcat(_ALLOC_ID_, &bb[PINLAYER][i].prop_ptr, pin_label);
