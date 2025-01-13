@@ -4773,6 +4773,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          /* replace i/o/iopin.sym filename with better looking (for LCC symbol) pins */
          use_lcc_pins(level, symtype, &sympath);
   
+         dbg(1, "l_s_d(): fopen2(%s), level=%d\n",sympath, level);
          /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
          if ((fd_tmp = fopen(sympath, fopen_read_mode)) == NULL) {
            char c;
