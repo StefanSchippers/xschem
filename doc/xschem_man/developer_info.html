@@ -1517,6 +1517,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if rep not preceeded by an 'escape' character </pre>
    <li><kbd>       subst_tok str tok newval</kbd></li><pre>
    Return string 'str' with 'tok' attribute value replaced with 'newval' </pre>
+   <li><kbd>       symbol_base_name n</kbd></li><pre>
+   Return the base_name field of a symbol with name or number `n`
+   Normally this is empty. It is set for overloaded symbols, that is symbols
+   derived from the base symbol due to instance based implementation selection
+   (the instance "schematic" attribute) </pre>
    <li><kbd>       symbol_in_new_window [new_process]</kbd></li><pre>
    When a symbol is selected edit it in a new tab/window if not already open.
    If nothing selected open another window of the second schematic (issues a warning).
