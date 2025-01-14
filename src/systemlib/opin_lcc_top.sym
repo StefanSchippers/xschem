@@ -1,5 +1,6 @@
-v {xschem version=2.9.7 file_version=1.2}
-G {type=lcc_opin
+v {xschem version=3.4.6 file_version=1.2}
+G {}
+K {type=lcc_opin
 format="*.opin @lab"
 template="name=p1 lab=xxx"
 }

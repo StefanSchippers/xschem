@@ -614,6 +614,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       /* Numerically set cursor position  *** DO NOT PUT AN `else if` BELOW *** */
       if(xctx->graph_flags & 4) {
         double logcursor, cursor;
+        int floaters = there_are_floaters();
         if(r->flags & 4) { /* private_cursor */
           const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
           if(s[0]) {
@@ -638,7 +639,13 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           }
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
         }
-        need_fullredraw = 1;
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        } else {
+          need_all_redraw = 1;
+        }
       }
       /* Numerically set hcursor position  *** DO NOT PUT AN `else if` BELOW *** */
       if(xctx->graph_flags & 128) {
