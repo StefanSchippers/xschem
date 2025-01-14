@@ -4432,9 +4432,7 @@ const char *translate2(Lcc *lcc, int level, char* s)
       if(!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
         if(value) my_free(_ALLOC_ID_, &value);
         xctx->tok_size = 0;
-
-      } else if(!strstr(token, "spice_get_voltage") && 
-                token[0] == '@' && (token[1] == '@' || token[1] == '#')) { /* get rid of pin attribute info */
+      } else if(token[0] == '@' && (token[1] == '@' || token[1] == '#')) { /* get rid of pin attribute info */
         if(value) my_free(_ALLOC_ID_, &value);
         xctx->tok_size = 0;
       } else {
@@ -4470,13 +4468,6 @@ const char *translate2(Lcc *lcc, int level, char* s)
       }
       else if (strncmp(token, "@spice_get_voltage", 18) == 0 ||
                strncmp(token, "@spice_get_current", 18) == 0) { /* return unchanged */
-        tmp = strlen(token);
-        STR_ALLOC(&result, tmp + result_pos, &size);
-        memcpy(result + result_pos, token, tmp + 1);
-        result_pos += tmp;
-      }
-      /* @#n:spice_get_voltage tokens */
-      else if (strstr(token, "spice_get_voltage")) {
         tmp = strlen(token);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result + result_pos, token, tmp + 1);
