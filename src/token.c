@@ -4105,12 +4105,12 @@ const char *translate(int inst, const char* s)
            ++path;
          }
          dev = my_malloc(_ALLOC_ID_, tmp);
-         dbg(0, "%s\n", token);
+         dbg(1, "%s\n", token);
          if(!strncmp(token, "@spice_get_current(", 19)) {
            n = sscanf(token + 19, "%[^)]", dev);
          } else {
            n = sscanf(token, "@spice_get_current%d(%[^)]", &ncurrent, dev);
-           dbg(0, "ncurrent=%d, dev=%s\n", ncurrent, dev);
+           dbg(1, "ncurrent=%d, dev=%s\n", ncurrent, dev);
          }
          if(n >= 1) {
            strtolower(dev);
