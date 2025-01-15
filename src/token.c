@@ -3723,6 +3723,7 @@ const char *spice_get_node(const char *token)
 /* if s==NULL return emty string */
 const char *translate(int inst, const char* s)
 {
+ static regex_t *get_sp_cur = NULL; 
  static const char *empty="";
  static char *translated_tok = NULL;
  static char *result=NULL; /* safe to keep even with multiple schematics */
@@ -3746,10 +3747,16 @@ const char *translate(int inst, const char* s)
  int sim_is_xyce;
  char *instname = NULL;
 
+ if(!get_sp_cur) {
+   get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
+   regcomp(get_sp_cur, "^@spice_get_current[0-9]*\\(", REG_NOSUB | REG_EXTENDED);
+ }
+
  sp_prefix = tclgetboolvar("spiceprefix");
  if(!s || !xctx || !xctx->inst) {
    my_free(_ALLOC_ID_, &result);
    my_free(_ALLOC_ID_, &translated_tok);
+   regfree(get_sp_cur);
    return empty;
  }
  if(inst >= xctx->instances) {
@@ -3770,6 +3777,7 @@ const char *translate(int inst, const char* s)
 
  while(1)
  {
+  
   c=*s++;
   if(c=='\\') {
     escape=1;
@@ -4074,7 +4082,8 @@ const char *translate(int inst, const char* s)
        }
      }
    }
-   else if(strncmp(token,"@spice_get_current(", 19)==0 )
+   /* @spice_get_current(...) or @spice_get_current<n>(...) */
+   else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -4082,6 +4091,7 @@ const char *translate(int inst, const char* s)
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
+       int ncurrent = 1;
        size_t len;
        int idx, n;
        double val = 0.0;
@@ -4095,8 +4105,14 @@ const char *translate(int inst, const char* s)
            ++path;
          }
          dev = my_malloc(_ALLOC_ID_, tmp);
-         n = sscanf(token + 19, "%[^)]", dev);
-         if(n == 1) {
+         dbg(0, "%s\n", token);
+         if(!strncmp(token, "@spice_get_current(", 19)) {
+           n = sscanf(token + 19, "%[^)]", dev);
+         } else {
+           n = sscanf(token, "@spice_get_current%d(%[^)]", &ncurrent, dev);
+           dbg(0, "ncurrent=%d, dev=%s\n", ncurrent, dev);
+         }
+         if(n >= 1) {
            strtolower(dev);
            len = strlen(path) + strlen(instname) +
                  strlen(dev) + 21; /* some extra chars for i(..) wrapper */
@@ -4109,14 +4125,19 @@ const char *translate(int inst, const char* s)
              else prefix=dev[0];
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
-             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
-             else if(prefix == 'q')
-               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[ic])", prefix, path, instname, dev);
-             else if(prefix == 'd' || prefix == 'm')
-               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, instname, dev);
-             else if(prefix == 'i')
+             if(vsource) {
+               my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
+             } else if(prefix == 'q') {
+               const char *current[] = {"ic", "ic", "ib", "ie"};
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, current[ncurrent]);
+             } else if(prefix == 'd' || prefix == 'm') {
+               const char *current[] = {"id", "id", "ig", "is", "ib"};
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, current[ncurrent]);
+             } else if(prefix == 'i') {
                my_snprintf(fqdev, len, "i(@%c.%s%s.%s[current])", prefix, path, instname, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
+             } else {
+              my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
+             }
            } else {
              my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
            }
@@ -4214,7 +4235,7 @@ const char *translate(int inst, const char* s)
        }
      }
    }
-   else if(strcmp(token,"@spice_get_current")==0 )
+   else if(strncmp(token,"@spice_get_current", 18)==0 )
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
@@ -4222,6 +4243,7 @@ const char *translate(int inst, const char* s)
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
        char *dev = NULL;
+       int ncurrent = 1;
        size_t len;
        int idx;
        double val = 0.0;
@@ -4233,6 +4255,9 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            ++path;
          }
+         if(strcmp(token, "@spice_get_current")) {
+           if(sscanf(token, "@spice_get_current%d", &ncurrent) != 1) ncurrent = 1;
+         }
          my_strdup2(_ALLOC_ID_, &dev, instname);
          strtolower(dev);
          len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
@@ -4242,17 +4267,33 @@ const char *translate(int inst, const char* s)
            int prefix=dev[0];
            int vsource = (prefix == 'v') || (prefix == 'e');
            if(path[0]) {
-             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
-             else if(prefix=='q') my_snprintf(fqdev, len, "i(@%c.%s%s[ic])", prefix, path, dev);
-             else if(prefix=='d' || prefix == 'm') my_snprintf(fqdev, len, "i(@%c.%s%s[id])", prefix, path, dev);
-             else if(prefix=='i') my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
+             if(vsource) {
+               my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+             } else if(prefix=='q') {
+               const char *current[] = {"ic", "ic", "ib", "ie"};
+               my_snprintf(fqdev, len, "i(@%c.%s%s[%s])", prefix, path, dev, current[ncurrent]);
+             } else if(prefix=='d' || prefix == 'm') {
+               const char *current[] = {"id", "id", "ig", "is", "ib"};
+               my_snprintf(fqdev, len, "i(@%c.%s%s[%s])", prefix, path, dev, current[ncurrent]);
+             } else if(prefix=='i') {
+               my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
+             } else {
+               my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
+             }
            } else {
-             if(vsource) my_snprintf(fqdev, len, "i(%s)", dev);
-             else if(prefix == 'q') my_snprintf(fqdev, len, "i(@%s[ic])", dev);
-             else if(prefix == 'd' || prefix == 'm') my_snprintf(fqdev, len, "i(@%s[id])", dev);
-             else if(prefix == 'i') my_snprintf(fqdev, len, "i(@%s[current])", dev);
-             else my_snprintf(fqdev, len, "i(@%s[i])", dev);
+             if(vsource) {
+               my_snprintf(fqdev, len, "i(%s)", dev);
+             } else if(prefix == 'q') {
+               const char *current[] = {"ic", "ic", "ib", "ie"};
+               my_snprintf(fqdev, len, "i(@%s[%s])", dev, current[ncurrent]);
+             } else if(prefix == 'd' || prefix == 'm') {
+               const char *current[] = {"id", "id", "ig", "is", "ib"};
+               my_snprintf(fqdev, len, "i(@%s[%s])", dev, current[ncurrent]);
+             } else if(prefix == 'i') {
+               my_snprintf(fqdev, len, "i(@%s[current])");
+             } else {
+               my_snprintf(fqdev, len, "i(@%s[i])", dev);
+             }
            }
          } else {
            my_snprintf(fqdev, len, "i(%s%s)", path, dev);
