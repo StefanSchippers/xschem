@@ -4297,7 +4297,7 @@ const char *translate(int inst, const char* s)
            char *ipostfix = modelparam == 1 ? "" : ")";
            my_strdup2(_ALLOC_ID_, &dev, instname);
            strtolower(dev);
-           len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
+           len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
            dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
            fqdev = my_malloc(_ALLOC_ID_, len);
            if(!sim_is_xyce) {
@@ -4325,7 +4325,7 @@ const char *translate(int inst, const char* s)
                } else if(prefix == 'd' || prefix == 'm') {
                  my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "id", ipostfix);
                } else if(prefix == 'i') {
-                 my_snprintf(fqdev, len, "i(@%s[current])");
+                 my_snprintf(fqdev, len, "i(@%s[current])", dev);
                } else {
                  my_snprintf(fqdev, len, "i(@%s[i])", dev);
                }
