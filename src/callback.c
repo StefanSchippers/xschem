@@ -1985,9 +1985,10 @@ static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button,
    return 0;
 }
 
-static void end_shape_point_edit()
+static void end_shape_point_edit(double c_snap)
 {
      int save = xctx->modified;
+     double sx, sy;
      dbg(1, "%g %g %g %g\n",
          xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
@@ -2033,7 +2034,10 @@ static void end_shape_point_edit()
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
      }
-     if(xctx->mx_double_save == xctx->mousex_snap && xctx->my_double_save == xctx->mousey_snap) {  
+     sx = my_round(xctx->mx_double_save / c_snap) * c_snap;
+     sy = my_round(xctx->my_double_save / c_snap) * c_snap;
+
+     if(sx == xctx->mousex_snap && sy == xctx->mousey_snap) {  
        set_modify(save);
      }
 }
@@ -4106,7 +4110,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* if a polygon/bezier/rectangle control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
-     end_shape_point_edit();
+     end_shape_point_edit(c_snap);
    }
 
    if(xctx->ui_state & STARTPAN) {
