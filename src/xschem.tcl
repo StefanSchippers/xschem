@@ -5129,7 +5129,7 @@ proc tclcmd {} {
 
 proc select_layers {} {
   global dark_colorscheme enable_layer
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
+  # xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .sl -class Dialog
   wm transient .sl [xschem get topwindow]
   if { $dark_colorscheme == 1 } {
@@ -5182,6 +5182,7 @@ proc select_layers {} {
        -selectcolor $ind_bg -anchor w -foreground $layfg -background $i -activebackground $i \
        -command { 
            xschem enable_layers
+           xschem redraw
         }
     pack .sl.f0.f$f.cb$j -side top -fill x
     incr j
@@ -5191,8 +5192,8 @@ proc select_layers {} {
       pack .sl.f0.f$f -side left  -fill y
     }
   }
-  tkwait window .sl
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
+  # tkwait window .sl
+  # xschem set semaphore [expr {[xschem get semaphore] -1}]
 }
 
 proc color_dim {} {
