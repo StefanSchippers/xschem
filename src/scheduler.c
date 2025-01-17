@@ -5591,6 +5591,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, s, TCL_VOLATILE);
       my_free(_ALLOC_ID_, &s);
     }
+    /* symbol_base_name n
+     *   Return the base_name field of a symbol with name or number `n`
+     *   Normally this is empty. It is set for overloaded symbols, that is symbols
+     *   derived from the base symbol due to instance based implementation selection
+     *   (the instance "schematic" attribute) */
+    else if(!strcmp(argv[1], "symbol_base_name"))
+    {
+      int i = -1, found = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2 && argv[2][0]) {
+        i = get_symbol(argv[2]);
+        if(i >=0) {
+          found = 1;
+        }
+      }
+      if(found) {
+        Tcl_AppendResult(interp, xctx->sym[i].base_name, NULL);
+      } else {
+        Tcl_SetResult(interp, "Missing arguments or symbol not found", TCL_STATIC);
+        return TCL_ERROR;
+      }
+    }
+
 
     /* symbol_in_new_window [new_process]
      *   When a symbol is selected edit it in a new tab/window if not already open.

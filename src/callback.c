@@ -467,12 +467,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       tcleval("graph_show_measure");
     } /* if(xctx->graph_flags & 64) */
 
-
-
-
-
-
-
     gr->master_gx1 = gr->gx1;
     gr->master_gx2 = gr->gx2;
     gr->master_gw = gr->gw;
@@ -497,11 +491,41 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       need_redraw_master = 1;
     }   
 
+    /* move cursor1 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
+      double c;
 
+      c = G_X(xctx->mousex);
+      if(gr->logx) c = pow(10, c);
+      if(r->flags & 4) { /* private_cursor */
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+      } else {
+        xctx->graph_cursor1_x = c;
+      }
+      need_all_redraw = 1;
+    }
+    /* move cursor2 */
+    /* set cursor position from master graph x-axis */
+    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
+      double c;
+      int floaters = there_are_floaters();
 
-
-
-
+      c = G_X(xctx->mousex);
+      if(gr->logx) c = pow(10, c);
+      if(r->flags & 4) { /* private_cursor */
+        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+      } else {
+        xctx->graph_cursor2_x = c; 
+      }       
+      if(tclgetboolvar("live_cursor2_backannotate")) {
+        backannotate_at_cursor_b_pos(r, gr);
+        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+        need_fullredraw = 1;
+      } else {
+        need_all_redraw = 1;
+      }
+    }
 
     if(xctx->ui_state & GRAPHPAN) goto finish; /* After GRAPHPAN only need to check Motion events for cursors */
     if(xctx->mousey_snap < W_Y(gr->gy2)) {
@@ -924,53 +948,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
       }
     }
-
-
-
-    /* move cursor1 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-      double c;
-
-      /* selected or locked or master */
-      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-        c = G_X(xctx->mousex);
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) { /* private_cursor */
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
-        } else {
-          xctx->graph_cursor1_x = c;
-        }
-        need_all_redraw = 1;
-      }
-    }
-    /* move cursor2 */
-    /* set cursor position from master graph x-axis */
-    else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-      double c;
-      int floaters = there_are_floaters();
-
-      /* selected or locked or master */
-      if( r->sel || !(r->flags & 2) || i == xctx->graph_master) {
-        c = G_X(xctx->mousex);
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) { /* private_cursor */
-          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
-        } else {
-          xctx->graph_cursor2_x = c; 
-        }       
-        if(tclgetboolvar("live_cursor2_backannotate")) {
-          backannotate_at_cursor_b_pos(r, gr);
-          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-          need_fullredraw = 1;
-        } else {
-          need_all_redraw = 1;
-        }
-      }
-    }
-
-
-
 
     else if(event == ButtonPress && button == Button5 && !(state & ShiftMask)) {
       double delta;
@@ -2024,9 +2001,10 @@ static int handle_mouse_wheel(int event, int mx, int my, KeySym key, int button,
    return 0;
 }
 
-static void end_shape_point_edit()
+static void end_shape_point_edit(double c_snap)
 {
      int save = xctx->modified;
+     double sx, sy;
      dbg(1, "%g %g %g %g\n",
          xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
@@ -2072,7 +2050,10 @@ static void end_shape_point_edit()
         xctx->shape_point_selected = 0;
         xctx->need_reb_sel_arr=1;
      }
-     if(xctx->mx_double_save == xctx->mousex_snap && xctx->my_double_save == xctx->mousey_snap) {  
+     sx = my_round(xctx->mx_double_save / c_snap) * c_snap;
+     sy = my_round(xctx->my_double_save / c_snap) * c_snap;
+
+     if(sx == xctx->mousex_snap && sy == xctx->mousey_snap) {  
        set_modify(save);
      }
 }
@@ -4169,7 +4150,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* if a polygon/bezier/rectangle control point was clicked, end point move operation
     * and set polygon state back to SELECTED from SELECTED1 */
    else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
-     end_shape_point_edit();
+     end_shape_point_edit(c_snap);
    }
 
    if(xctx->ui_state & STARTPAN) {

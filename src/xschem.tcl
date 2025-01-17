@@ -1770,29 +1770,31 @@ proc simconf_add {tool} {
 ############ cellview
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
-proc cellview_setlabels {w symbol sym_sch default_sch sym_spice_sym_def} {
+proc cellview_setlabels {w symbol sym_sch sym_spice_sym_def derived_symbol} {
   global dark_gui_colorscheme
   if {$dark_gui_colorscheme} {
+    set instfg orange1
     set symfg SeaGreen1
     set symbg SeaGreen4
     set missingbg IndianRed4
   } else { 
+    set instfg orange4
     set symfg SeaGreen4
     set symbg SeaGreen1
     set missingbg IndianRed1 
   }     
   $w configure -fg [option get . foreground {}]
   $w configure -bg [option get . background {}]
-  if { $sym_spice_sym_def ne {}} {
+  if { $derived_symbol} {
+    $w configure -fg $instfg
+  } elseif {$sym_spice_sym_def ne {} } {
     $w configure -fg $symfg
-  } else {
-    if {[$w get] eq $default_sch} {
-        puts "$symbol: need to clear schematic attr in symbol"
-    } elseif {[$w get] eq $sym_sch} {
-      $w configure -bg $symbg
-    } else {
-      puts "need to update:[$w get] --> $sym_sch"
-    }
+  } 
+  puts ===============
+  puts sym_sch=$sym_sch
+  puts symbol=$symbol
+
+  if { $sym_spice_sym_def eq {}} {
     if { ![file exists [abs_sym_path [$w get]]] } {
       $w configure -bg $missingbg
     }
@@ -1811,8 +1813,31 @@ proc cellview_edit_item {w sym_spice_sym_def} {
   }
 }
 
+proc cellview_edit_sym {w} {
+  set sym [$w cget -text]
+  set res [catch {xschem symbol_base_name $sym} base_name]
+  if {$res == 0} {
+    if {$base_name ne {}} {
+      set sym $base_name
+    }
+  }
+  xschem load_new_window $sym
+}
+
 proc cellview {{derived_symbols {}}} {
-  global keep_symbols nolist_libs
+  global keep_symbols nolist_libs dark_gui_colorscheme
+
+  if {$dark_gui_colorscheme} { 
+    set instfg orange1
+    set symfg SeaGreen1
+    set symbg SeaGreen4
+    set missingbg IndianRed4
+  } else { 
+    set instfg orange4
+    set symfg SeaGreen4
+    set symbg SeaGreen1
+    set missingbg IndianRed1 
+  }     
 
   if {[info tclversion] >= 8.5} {
     set font {TkDefaultFont 10 bold} ;# Monospace
@@ -1820,6 +1845,7 @@ proc cellview {{derived_symbols {}}} {
     set font fixed
   }
   toplevel .cv
+  xschem reload_symbols ;# purge unused symbols
   set save_keep $keep_symbols
   set keep_symbols 1 ;# keep all symbols when doing a hierarchic netlist
   xschem netlist ;# traverse the hierarchy and retain all encountered symbols
@@ -1830,7 +1856,7 @@ proc cellview {{derived_symbols {}}} {
   frame .cv.top
   label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.sch -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.pad -text {      } -width 1 -bg grey60 -font $font
+  label .cv.top.pad -text {      } -width 4 -bg grey60 -font $font
   pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
   pack .cv.top.pad -side left -fill x
   frame .cv.center
@@ -1838,9 +1864,17 @@ proc cellview {{derived_symbols {}}} {
   # puts sf=$sf
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
   foreach {i symbol} $syms {
+    set base_name [xschem symbol_base_name $symbol]
+    set derived_symbol 0
+    if {$base_name ne {}} {
+      set derived_symbol 1
+    }
     set abs_sch [xschem get_sch_from_sym -1 $symbol]
-    set abs_sym [abs_sym_path $symbol]
-    set default_sch [add_ext $symbol .sch]
+    if {$derived_symbol} {
+      set abs_sym [abs_sym_path $base_name]
+    } else {
+      set abs_sym [abs_sym_path $symbol]
+    }
     set skip 0
     foreach j $nolist_libs {
       if {[regexp $j $abs_sym]} { 
@@ -1851,28 +1885,53 @@ proc cellview {{derived_symbols {}}} {
     if {$skip} { continue }
     set sym_sch [rel_sym_path $abs_sch]
     set type [xschem getprop symbol $symbol type]
-    set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def]
+    set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     if {$type eq {subcircuit}} {
       frame $sf.f$i
       pack $sf.f$i -side top -fill x
       label  $sf.f$i.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -font $font
+      if {$derived_symbol} { 
+        $sf.f$i.l configure -fg $instfg
+      }
       # puts $sf.f$i.s
       entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
-      balloon $sf.f$i.s $abs_sch
-      button $sf.f$i.b -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
+      button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
+             -command "cellview_edit_sym $sf.f$i.l"
+      button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
              -command "cellview_edit_item $sf.f$i.s [list $sym_spice_sym_def]"
       if {$sym_spice_sym_def eq {}} {
         $sf.f$i.s insert 0 $sym_sch
       } else {
-        $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
+        if {$derived_symbol} {
+          $sf.f$i.s insert 0 {defined in instance spice_sym_def}
+        } else {
+          $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
+        }
       }
+      if {[xschem is_generator [ $sf.f$i.s get]]} {
+        set f [ $sf.f$i.s get]
+        regsub {\(.*} $f {} f
+      } elseif { $sym_spice_sym_def eq {}} {
+        set f [abs_sym_path [$sf.f$i.s get]]
+      } else {
+        set ff [split $sym_spice_sym_def \n]
+        puts ff=$ff
+        if {[llength $ff] > 5} {
+          set ff [lrange $ff 0 4]
+          lappend ff ...
+        }   
+        set f [join $ff \n]
+        puts f=$f
+      }
+      balloon $sf.f$i.s $f
+
       bind $sf.f$i.s <KeyRelease> "
-        cellview_setlabels %W [list $symbol] [list $sym_sch] [list $default_sch] [list $sym_spice_sym_def]
+        cellview_setlabels %W [list $symbol] [list $sym_sch] [list $sym_spice_sym_def] $derived_symbol
       "
-      cellview_setlabels $sf.f$i.s $symbol $sym_sch $default_sch $sym_spice_sym_def
+      cellview_setlabels $sf.f$i.s $symbol $sym_sch $sym_spice_sym_def $derived_symbol
       pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
-      pack $sf.f$i.b -side left
+      pack $sf.f$i.sch $sf.f$i.sym -side left
     }
   }
   frame .cv.bottom
@@ -1888,7 +1947,6 @@ proc cellview {{derived_symbols {}}} {
   bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
   bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
   bind .cv <Escape> {destroy .cv}
-  xschem reload_symbols ;# purge all symbols used in below hierarchies
 }
 ############ /cellview
 
@@ -5071,7 +5129,7 @@ proc tclcmd {} {
 
 proc select_layers {} {
   global dark_colorscheme enable_layer
-  xschem set semaphore [expr {[xschem get semaphore] +1}]
+  # xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .sl -class Dialog
   wm transient .sl [xschem get topwindow]
   if { $dark_colorscheme == 1 } {
@@ -5124,6 +5182,7 @@ proc select_layers {} {
        -selectcolor $ind_bg -anchor w -foreground $layfg -background $i -activebackground $i \
        -command { 
            xschem enable_layers
+           xschem redraw
         }
     pack .sl.f0.f$f.cb$j -side top -fill x
     incr j
@@ -5133,8 +5192,8 @@ proc select_layers {} {
       pack .sl.f0.f$f -side left  -fill y
     }
   }
-  tkwait window .sl
-  xschem set semaphore [expr {[xschem get semaphore] -1}]
+  # tkwait window .sl
+  # xschem set semaphore [expr {[xschem get semaphore] -1}]
 }
 
 proc color_dim {} {

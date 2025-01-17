@@ -619,6 +619,29 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
     sequence number <kbd>n</kbd>, extracted from simulation raw file (operating point or 
     cursor <kbd>b</kbd> position)</p>
 
+  <li><kbd>@spice_get_voltage</kbd></li>
+  <p> This attribute will be replaced by the voltage of the net attached to the first pin (pin number 0) 
+    of the symbol </p>
+
+  <li><kbd>@spice_get_current</kbd></li>
+  <p> This attribute will be replaced by the current through the first pin of the primitive symbol
+    according to the SPICE syntax. This can be used for elementary devices like voltage sources,
+    resistors, mosfets, bjts and so on. For example <kbd>@spice_get_current</kbd> will display the 
+    drain current of a mosfet if this attribute is placed inside a MOS symbol.</p>
+
+  <li><kbd>@spice_get_current_param</kbd></li>
+  <p> This will specify in <kbd>param</kbd> the current to display, for example: <br>
+    <kbd>@spice_get_current_ibs</kbd> to get the body-source current in a Mosfet,
+    <kbd>@spice_get_current_ie</kbd> to get the emitter current in a Bjt.</p>
+
+  <li><kbd>@spice_get_modelvoltage_param</kbd></li>
+  <p> This will specify in <kbd>param</kbd> the voltage to display, for example: <br>
+    <kbd>@spice_get_modelvoltage_vth</kbd> to get the Vth in a Mosfet</p>
+
+  <li><kbd>@spice_get_modelparam_param</kbd></li>
+  <p> This will specify in <kbd>param</kbd> the model parameter to display, for example: <br>
+    <kbd>@spice_get_modelparam_gm</kbd> to get the transconductance in a Mosfet</p>
+
   <li><kbd>@spice_get_node spice_node </kbd></li>
   <p>
    <kbd>spice_node</kbd> Will be replaced with the Spice simulated value for that node.<br>

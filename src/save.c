@@ -4629,10 +4629,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
             my_free(_ALLOC_ID_, &path);
             dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
           }
-          if(!strcmp(tt[i].txt_ptr, "@spice_get_current")) {
+          /* @spice_get_current or @spice_get_current<n> */
+          if(!strncmp(tt[i].txt_ptr, "@spice_get_current", 18)) {
             /* prop_ptr is the attribute string of last loaded LCC component */
             const char *dev;
             size_t new_size = 0;
+            char *txt_ptr = NULL;
             char *path = NULL;
             if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
               int i;
@@ -4644,11 +4646,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
             } 
             if(path) new_size += strlen(path);
             dev = get_tok_value(prop_ptr, "name", 0);
-            new_size += strlen(dev) + 21; /* @spice_get_current(<dev>) */
-            my_realloc(_ALLOC_ID_, &tt[i].txt_ptr, new_size);
-            my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_current(%s%s)", path ? path : "", dev);
+            new_size += strlen(tt[i].txt_ptr) + strlen(dev) + 2 + 1; /* tok(<dev>) */
+            my_realloc(_ALLOC_ID_, &txt_ptr, new_size);
+            my_snprintf(txt_ptr, new_size, "%s(%s%s)", tt[i].txt_ptr, path ? path : "", dev);
+            my_free(_ALLOC_ID_, &tt[i].txt_ptr);
+            tt[i].txt_ptr = txt_ptr;
             my_free(_ALLOC_ID_, &path);
-            dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
+            dbg(1, "--> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
           } 
           ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
           tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;

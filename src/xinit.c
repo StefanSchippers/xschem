@@ -1990,6 +1990,7 @@ static void destroy_all_tabs(int *window_count, int force)
     xctx = savectx; /* restore previous schematic or main if old is destroyed */
     tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
+    draw();
   }
 }
 

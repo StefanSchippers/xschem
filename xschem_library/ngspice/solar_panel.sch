@@ -295,7 +295,7 @@ lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
 C {code_shown.sym} 170 -310 0 0 {name=CONTROL
 value="tcleval(
-.option savecurrents
+.probe alli
 .control
   * example of tcl evaluation of code blocks:
   *   current path: $path 

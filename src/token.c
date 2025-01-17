@@ -3723,6 +3723,7 @@ const char *spice_get_node(const char *token)
 /* if s==NULL return emty string */
 const char *translate(int inst, const char* s)
 {
+ static regex_t *get_sp_cur = NULL; 
  static const char *empty="";
  static char *translated_tok = NULL;
  static char *result=NULL; /* safe to keep even with multiple schematics */
@@ -3746,10 +3747,20 @@ const char *translate(int inst, const char* s)
  int sim_is_xyce;
  char *instname = NULL;
 
+ if(!get_sp_cur) {
+   get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
+   /* @spice_get_current_param(...) or @spice_get_modelparam_param(...) */
+   /* @spice_get_current(...) or @spice_get_modelparam(...) */
+   /* @spice_get_modelvoltage(...) or @spice_get_modelvoltage_param(...) */
+   regcomp(get_sp_cur,
+       "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
+ }
+
  sp_prefix = tclgetboolvar("spiceprefix");
  if(!s || !xctx || !xctx->inst) {
    my_free(_ALLOC_ID_, &result);
    my_free(_ALLOC_ID_, &translated_tok);
+   regfree(get_sp_cur);
    return empty;
  }
  if(inst >= xctx->instances) {
@@ -3770,6 +3781,7 @@ const char *translate(int inst, const char* s)
 
  while(1)
  {
+  
   c=*s++;
   if(c=='\\') {
     escape=1;
@@ -4074,16 +4086,22 @@ const char *translate(int inst, const char* s)
        }
      }
    }
-   else if(strncmp(token,"@spice_get_current(", 19)==0 )
+   /* @spice_get_current(...) or @spice_get_current_param(...)
+    * @spice_get_modelparam(...) or @spice_get_modelparam_param(...)
+    * @spice_get_modelvoltage(...) or @spice_get_modelvoltage_param(...)
+    * 
+    * Only @spice_get_current(...) and @spice_get_current_param(...) are processed
+    * the other types are ignored */
+   else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
      if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
-       char *dev = NULL;
+       char *dev = NULL, *param = NULL;
        size_t len;
-       int idx, n;
+       int idx, n = 0;
        double val = 0.0;
        const char *valstr;
        tmp = strlen(token) + 1;
@@ -4095,8 +4113,18 @@ const char *translate(int inst, const char* s)
            ++path;
          }
          dev = my_malloc(_ALLOC_ID_, tmp);
-         n = sscanf(token + 19, "%[^)]", dev);
-         if(n == 1) {
+         dbg(1, "%s\n", token);
+         if(!strncmp(token, "@spice_get_current(", 19)) {
+           n = sscanf(token + 19, "%[^)]", dev);
+         } else {
+           param = my_malloc(_ALLOC_ID_, tmp);
+           n = sscanf(token, "@spice_get_current_%s(%[^)]", param, dev);
+           if(n < 2) {
+             my_free(_ALLOC_ID_, &param);
+             n = sscanf(token, "@spice_get_current[^(](%[^)]", dev);
+           }
+         }
+         if(n >= 1) {
            strtolower(dev);
            len = strlen(path) + strlen(instname) +
                  strlen(dev) + 21; /* some extra chars for i(..) wrapper */
@@ -4109,14 +4137,17 @@ const char *translate(int inst, const char* s)
              else prefix=dev[0];
              dbg(1, "prefix=%c, path=%s\n", prefix, path);
              vsource = (prefix == 'v') || (prefix == 'e');
-             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
-             else if(prefix == 'q')
-               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[ic])", prefix, path, instname, dev);
-             else if(prefix == 'd' || prefix == 'm')
-               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[id])", prefix, path, instname, dev);
-             else if(prefix == 'i')
+             if(vsource) {
+               my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
+             } else if(prefix == 'q') {
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "ic");
+             } else if(prefix == 'd' || prefix == 'm') {
+               my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "id");
+             } else if(prefix == 'i') {
                my_snprintf(fqdev, len, "i(@%c.%s%s.%s[current])", prefix, path, instname, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
+             } else {
+              my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
+             }
            } else {
              my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
            }
@@ -4144,6 +4175,7 @@ const char *translate(int inst, const char* s)
            dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
            my_free(_ALLOC_ID_, &fqdev);
          } /* if(n == 1) */
+         if(param) my_free(_ALLOC_ID_, &param);
          my_free(_ALLOC_ID_, &dev);
        } /* if(path) */
      } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
@@ -4214,16 +4246,22 @@ const char *translate(int inst, const char* s)
        }
      }
    }
-   else if(strcmp(token,"@spice_get_current")==0 )
+   else if(
+            strncmp(token,"@spice_get_current", 18)==0 ||
+            strncmp(token,"@spice_get_modelparam", 21)==0 ||
+            strncmp(token,"@spice_get_modelvoltage", 23)==0
+          )
    {
      int start_level; /* hierarchy level where waves were loaded */
      int live = tclgetboolvar("live_cursor2_backannotate");
      if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
        char *fqdev = NULL;
        const char *path =  xctx->sch_path[xctx->currsch] + 1;
-       char *dev = NULL;
+       char *dev = NULL, *param = NULL;
+       int modelparam = 0; /* 0: current, 1: modelparam, 2: modelvoltage */
        size_t len;
        int idx;
+       int error = 0;
        double val = 0.0;
        const char *valstr;
        if(path) {
@@ -4233,54 +4271,94 @@ const char *translate(int inst, const char* s)
            if(*path == '.') skip++;
            ++path;
          }
-         my_strdup2(_ALLOC_ID_, &dev, instname);
-         strtolower(dev);
-         len = strlen(path) + strlen(dev) + 21; /* some extra chars for i(..) wrapper */
-         dbg(1, "dev=%s\n", dev);
-         fqdev = my_malloc(_ALLOC_ID_, len);
-         if(!sim_is_xyce) {
-           int prefix=dev[0];
-           int vsource = (prefix == 'v') || (prefix == 'e');
-           if(path[0]) {
-             if(vsource) my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
-             else if(prefix=='q') my_snprintf(fqdev, len, "i(@%c.%s%s[ic])", prefix, path, dev);
-             else if(prefix=='d' || prefix == 'm') my_snprintf(fqdev, len, "i(@%c.%s%s[id])", prefix, path, dev);
-             else if(prefix=='i') my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
-             else my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
-           } else {
-             if(vsource) my_snprintf(fqdev, len, "i(%s)", dev);
-             else if(prefix == 'q') my_snprintf(fqdev, len, "i(@%s[ic])", dev);
-             else if(prefix == 'd' || prefix == 'm') my_snprintf(fqdev, len, "i(@%s[id])", dev);
-             else if(prefix == 'i') my_snprintf(fqdev, len, "i(@%s[current])", dev);
-             else my_snprintf(fqdev, len, "i(@%s[i])", dev);
+         /* token contans _param after @spice_get_current or @spice_get_modelparam
+          * or  @spice_get_modelvoltage */
+         if(strcmp(token, "@spice_get_current") &&
+            strcmp(token, "@spice_get_modelparam") && 
+            strcmp(token, "@spice_get_modelvoltage")) {
+           int n = 0;
+           param = my_malloc(_ALLOC_ID_, strlen(token) + 1);
+           n = sscanf(token, "@spice_get_current_%s", param);
+           if(n == 0) {
+             n = sscanf(token, "@spice_get_modelparam_%s", param);
+             modelparam = 1;
            }
-         } else {
-           my_snprintf(fqdev, len, "i(%s%s)", path, dev);
+           if(n == 0) {
+             n = sscanf(token, "@spice_get_modelvoltage_%s", param);
+             modelparam = 2;
+           }
+           if(n == 0) {
+             my_free(_ALLOC_ID_, &param);
+             error = 1;
+           }
          }
-         dbg(1, "fqdev=%s\n", fqdev);
-         strtolower(fqdev);
-         idx = get_raw_index(fqdev, NULL);
-         if(idx >= 0) {
-           val = xctx->raw->cursor_b_val[idx];
-         }
-         if(idx < 0) {
-           valstr = "-";
-           xctx->tok_size = 1;
-           len = 1;
-         } else {
-           valstr = engineering ? dtoa_eng(val) : dtoa(val);
-           len = xctx->tok_size;
-         }
-         if(len) {
-           STR_ALLOC(&result, len + result_pos, &size);
-           memcpy(result+result_pos, valstr, len+1);
-           result_pos += len;
-         }
-         dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
-         my_free(_ALLOC_ID_, &fqdev);
-         my_free(_ALLOC_ID_, &dev);
-       }
-     }
+         if(!error) {
+           char *iprefix = modelparam == 0 ? "i(" : modelparam == 1 ? "" : "v(";
+           char *ipostfix = modelparam == 1 ? "" : ")";
+           my_strdup2(_ALLOC_ID_, &dev, instname);
+           strtolower(dev);
+           len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
+           dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
+           fqdev = my_malloc(_ALLOC_ID_, len);
+           if(!sim_is_xyce) {
+             int prefix=dev[0];
+             int vsource = (prefix == 'v') || (prefix == 'e');
+             if(path[0]) {
+               if(vsource) {
+                 my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+               } else if(prefix=='q') {
+                 my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                             iprefix, prefix, path, dev, param ? param : "ic", ipostfix);
+               } else if(prefix=='d' || prefix == 'm') {
+                 my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                             iprefix, prefix, path, dev, param ? param : "id", ipostfix);
+               } else if(prefix=='i') {
+                 my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
+               } else {
+                 my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
+               }
+             } else {
+               if(vsource) {
+                 my_snprintf(fqdev, len, "i(%s)", dev);
+               } else if(prefix == 'q') {
+                 my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "ic", ipostfix);
+               } else if(prefix == 'd' || prefix == 'm') {
+                 my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "id", ipostfix);
+               } else if(prefix == 'i') {
+                 my_snprintf(fqdev, len, "i(@%s[current])", dev);
+               } else {
+                 my_snprintf(fqdev, len, "i(@%s[i])", dev);
+               }
+             }
+           } else {
+             my_snprintf(fqdev, len, "i(%s%s)", path, dev);
+           }
+           if(param) my_free(_ALLOC_ID_, &param);
+           dbg(1, "fqdev=%s\n", fqdev);
+           strtolower(fqdev);
+           idx = get_raw_index(fqdev, NULL);
+           if(idx >= 0) {
+             val = xctx->raw->cursor_b_val[idx];
+           }
+           if(idx < 0) {
+             valstr = "-";
+             xctx->tok_size = 1;
+             len = 1;
+           } else {
+             valstr = engineering ? dtoa_eng(val) : dtoa(val);
+             len = xctx->tok_size;
+           }
+           if(len) {
+             STR_ALLOC(&result, len + result_pos, &size);
+             memcpy(result+result_pos, valstr, len+1);
+             result_pos += len;
+           }
+           dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
+           my_free(_ALLOC_ID_, &fqdev);
+           my_free(_ALLOC_ID_, &dev);
+         } /* if(!error) */
+       } /* if(path) */
+     } /* (live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
    }
    else if(strcmp(token,"@schvhdlprop")==0 && xctx->schvhdlprop)
    {

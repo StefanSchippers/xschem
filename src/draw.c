@@ -561,7 +561,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     disabled = 1;
   }
 
-  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
   if(!has_x) return;
   if( (xctx->inst[n].flags & HIDE_INST) ||
       (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
@@ -620,6 +619,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
+
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
+
   if(!hide) {
     for(j=0;j< symptr->lines[layer]; ++j)
     {
@@ -713,6 +715,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       }
     }
   }
+
+  draw_texts:
+
   if(
       !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
       (
