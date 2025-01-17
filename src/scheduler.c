@@ -1455,6 +1455,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
           break;
+          case 'm':
+          if(!strcmp(argv[2], "modified")) { /* schematic is in modified state (needs a save) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, my_itoa(xctx->modified),TCL_VOLATILE);
+          }
+          break;
           case 'n':
           if(!strcmp(argv[2], "netlist_name")) { /* netlist name if set. If 'fallback' given get default name */
             if(argc > 3 &&  !strcmp(argv[3], "fallback")) {
@@ -2103,7 +2109,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 ) {
         set_title = atoi(argv[2]);
       }
-      if((xctx->semaphore == 0)) go_back(1, set_title);
+      if((xctx->semaphore == 0)) go_back(0, set_title);
       Tcl_ResetResult(interp);
     }
 
