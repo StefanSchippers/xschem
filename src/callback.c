@@ -1887,7 +1887,7 @@ static void context_menu_action(double mx, double my)
       descend_symbol();
       break;
     case 14:
-      go_back(1, 1);
+      go_back(1);
       break;
     case 15: /* copy selection into clipboard */
       rebuild_selected_array();
@@ -3043,7 +3043,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
    {
     if(xctx->semaphore >= 2) break;
-    go_back(1, 1);break;
+    go_back(1);break;
    }
 
    if(key=='a' && rstate == 0)   /* make symbol */

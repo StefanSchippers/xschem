@@ -1528,7 +1528,7 @@ extern void toggle_ignore(void);
 extern void get_additional_symbols(int what);
 extern int change_sch_path(int instnumber, int dr);
 extern int descend_schematic(int instnumber, int fallback, int alert, int set_title);
-extern void go_back(int confirm, int set_title);
+extern void go_back(int what); /* what == 1: confirm save; what == 2: do not reset window title */
 extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);
 extern void view_zoom(double z);
