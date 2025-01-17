@@ -2772,6 +2772,9 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* stuff that can be done reentrantly ... */
     tclsetvar("tclstop", "1"); /* stop simulation if any running */
+    if(xctx->ui_state2 & MENUSTARTWIRE) {
+      xctx->ui_state2 &= ~MENUSTARTWIRE;
+    }
     if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE)) {
       xctx->last_command &= ~STARTWIRE;
     }
