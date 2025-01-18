@@ -249,6 +249,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTMOVE 256U
 #define MENUSTARTWIRECUT 512U 
 #define MENUSTARTWIRECUT2 1024U /* do not align cut point to snap */
+#define MENUSTARTCOPY 2048U
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2

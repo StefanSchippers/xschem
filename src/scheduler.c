@@ -683,29 +683,37 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
-    /* copy_objects [deltax deltay [rot flip]]
-     *   if deltax and deltay (and optionally rot and flip) are given copy selection
+    /* copy_objects [dx dy] [kissing] [stretch]
+     *   if kissing is given add nets to pins that touch other instances or nets
+     *   if stretch is given stretch connected nets to follow instace pins
+     *   if dx and dy are given copy selection
      *   to specified offset, otherwise start a GUI copy operation */
     else if(!strcmp(argv[1], "copy_objects"))
     {
+      int nparam = 0;
+      int kissing= 0;
+      int stretch = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 3) {
+      if(argc > 2) {
+        int i;
+        for(i = 2; i < argc; i++) {
+          if(!strcmp(argv[i], "kissing")) {kissing = 1; nparam++;}
+          if(!strcmp(argv[i], "stretch")) {stretch = 1; nparam++;}
+        }
+      }
+      if(stretch) select_attached_nets();
+      if(kissing) xctx->connect_by_kissing = 2;
+      if(argc > 3 + nparam) {
         copy_objects(START);
         xctx->deltax = atof(argv[2]);
         xctx->deltay = atof(argv[3]);
-        if(argc > 4) {
-          xctx->move_rot = (short int)atoi(argv[4]);
-        }
-        if(argc > 5) {
-          xctx->move_flip = (short int)atoi(argv[5]);
-        }
         copy_objects(END);
       } else {
-        copy_objects(START);
+        xctx->ui_state |= MENUSTART;
+        xctx->ui_state2 = MENUSTARTCOPY;
       }
       Tcl_ResetResult(interp);
     }
-
     /* count_items string separator quoting_chars
          Debug command */
     else if(!strcmp(argv[1], "count_items"))
