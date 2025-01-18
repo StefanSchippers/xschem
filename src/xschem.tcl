@@ -7603,7 +7603,7 @@ set tctx::global_list {
   graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color graph_sel_wave
   graph_selected graph_sort graph_unlocked graph_use_ctrl_key
   hide_empty_graphs hide_symbols tctx::hsize
-  incr_hilight incremental_select infowindow_text intuitive_interface 
+  incr_hilight incremental_select infix_interface infowindow_text intuitive_interface 
   keep_symbols launcher_default_program
   light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
   lvs_netlist measure_text netlist_dir netlist_show netlist_type no_ask_save
@@ -9066,6 +9066,7 @@ set_ne big_grid_points 0
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1
+set_ne infix_interface 1
 set_ne autotrim_wires 0
 set_ne infix_interface 0
 set_ne orthogonal_wiring 1

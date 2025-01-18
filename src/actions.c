@@ -2409,13 +2409,20 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  return 1;
 }
 
-void go_back(int confirm, int set_title) /*  20171006 add confirm */
+/* 
+ * what: 
+ * 1: ask gui user confirm if schematic modified
+ * 2: do *NOT* reset window title
+ */
+void go_back(int what)
 {
  int save_ok;
  int from_embedded_sym;
  int save_modified;
  char filename[PATH_MAX];
  int prev_sch_type;
+ int confirm = what & 1;
+ int set_title = !(confirm & 2);
 
  save_ok=1;
  dbg(1,"go_back(): sch[xctx->currsch]=%s\n", xctx->sch[xctx->currsch]);
@@ -2429,9 +2436,13 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
       tcleval("ask_save_optional");
       if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
       else if(!strcmp(tclresult(), "") ) return;
-    } else {
-      save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
     }
+    /* do not automatically save if confirm==0. Script developers should take care of this */
+    /* 
+     * else {
+     *   save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
+     * }
+     */
   }
   if(save_ok==0) {
     fprintf(errfp, "go_back(): file opening for write failed! %s \n", xctx->current_name);
@@ -2458,7 +2469,7 @@ void go_back(int confirm, int set_title) /*  20171006 add confirm */
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-  load_schematic(1, filename, (set_title & 1), 1);
+  load_schematic(1, filename, set_title, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */

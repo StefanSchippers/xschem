@@ -590,7 +590,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
  *         157     i(v1)   current
  * Binary:
  */
-static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
+static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning)
 { 
   int variables = 0, i, done_points = 0;
   char *line = NULL, *varname = NULL, *lowerline = NULL;
@@ -716,7 +716,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(rawptr, 0); */
+        /* free_rawfile(rawptr, 0, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -749,7 +749,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(rawptr, 0); */
+        /* free_rawfile(rawptr, 0, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -763,7 +763,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 1) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(rawptr, 0); */
+        /* free_rawfile(rawptr, 0, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -786,7 +786,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(rawptr, 0); */
+        /* free_rawfile(rawptr, 0, 0); */
         exit_status = 0;
         goto read_dataset_done;
       }
@@ -838,7 +838,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
 
   /* no analysis was found: delete */
   if(exit_status != 1) {
-    free_rawfile(rawptr, 0);
+    free_rawfile(rawptr, 0, no_warning);
   }
   read_dataset_done:
   if(line) my_free(_ALLOC_ID_, &line);
@@ -851,18 +851,22 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type)
   return exit_status;
 }
 
-void free_rawfile(Raw **rawptr, int dr)
+void free_rawfile(Raw **rawptr, int dr, int no_warning)
 {
   int i;
 
   Raw *raw;
   if(!rawptr || !*rawptr) {
-    dbg(0, "free_rawfile(): no raw file to clear\n");
+    if(!no_warning) {
+      dbg(0, "free_rawfile(): no raw file to clear\n");
+    }
     if(dr) draw();
     return;
   }
   raw = *rawptr;
-  dbg(0, "free_rawfile(): clearing data\n");
+  if(!no_warning) {
+    dbg(0, "free_rawfile(): clearing data\n");
+  }
   if(raw->names) {
     for(i = 0 ; i < raw->nvars; ++i) {
       my_free(_ALLOC_ID_, &raw->names[i]);
@@ -954,7 +958,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
         fwrite(s, decoded_length, 1, fd);
         fclose(fd);
         my_free(_ALLOC_ID_, &s);
-        res = raw_read(tmp_filename, rawptr, type, sweep1, sweep2);
+        res = raw_read(tmp_filename, rawptr, type, 0, sweep1, sweep2);
         unlink(tmp_filename);
       } else {
         dbg(0, "raw_read_from_attr(): failed to open file %s for reading\n", tmp_filename);
@@ -995,7 +999,7 @@ int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
 }
 
 /* read a ngspice raw file (with data portion in binary format) */
-int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2)
+int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, double sweep1, double sweep2)
 {
   int res = 0;
   FILE *fd;
@@ -1021,7 +1025,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
   int_hash_init(&raw->table, HASHSIZE);
   fd = fopen(f, fopen_read_mode);
   if(fd) {
-    if((res = read_dataset(fd, rawptr, type)) == 1) {
+    if((res = read_dataset(fd, rawptr, type, no_warning)) == 1) {
       int i;
       set_modify(-2); /* clear text floater caches */
       my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
@@ -1035,8 +1039,10 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
       dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
              raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "<NULL>");
     } else {
-      /* free_rawfile(rawptr, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
-      dbg(0, "raw_read(): no useful data found\n");
+      /* free_rawfile(rawptr, 0, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
+      if(!no_warning) {
+        dbg(0, "raw_read(): no useful data found\n");
+      }
     }
     fclose(fd);
     if(has_x) {
@@ -1050,7 +1056,9 @@ int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, doubl
     }
     return res;
   }
-  dbg(0, "raw_read(): failed to open file %s for reading\n", f);
+  if(!no_warning) {
+    dbg(0, "raw_read(): failed to open file %s for reading\n", f);
+  }
   return 0;
 }
 
@@ -1168,6 +1176,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
  * what == 3: remove a raw file. If no filename given remove all
  * what == 4: print info
  * what == 5: switch back to previous
+ * if bit 5 (32) of what is set do not issue warnings
  * return 1 if sucessfull, 0 otherwise
  */
 int extra_rawfile(int what, const char *file, const char *type, double sweep1, double sweep2)
@@ -1175,11 +1184,13 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   int i;
   int ret = 1;
   char f[PATH_MAX];
+  int no_warning = what & 32;
 
+  what &= 0xf; /* remove warning bit */
   if(type && !type[0]) type = NULL; /* empty string as type will be considered NULL */
 
-  dbg(1, "extra_rawfile(): what=%d, file=%s, type=%s\n",
-      what, file ? file : "<NULL>", type ? type : "<NULL>");
+  dbg(1, "extra_rawfile(): what=%d, no_warning=%d, file=%s, type=%s\n",
+      what, no_warning, file ? file : "<NULL>", type ? type : "<NULL>");
   if(what == 0) return 0;
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
@@ -1208,7 +1219,9 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type);
+        if(!no_warning) {
+          dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type);
+        }
         if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
           xctx->raw = save; /* restore */
           xctx->extra_prev_idx = xctx->extra_idx;
@@ -1239,7 +1252,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       Raw *save;
       save = xctx->raw;
       xctx->raw = NULL;
-      read_ret = raw_read(f, &xctx->raw, type, sweep1, sweep2);
+      read_ret = raw_read(f, &xctx->raw, type, no_warning, sweep1, sweep2);
       if(read_ret) {
         dbg(1, "extra_rawfile(): read %s %s, switch to it. raw->sim_type=%s\n", f,
           type ? type : "<NULL>", xctx->raw->sim_type ? xctx->raw->sim_type : "<NULL>");
@@ -1249,7 +1262,9 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_raw_n++;
       } else {
         ret = 0; /* not found so did not switch */
-        dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
+        if(!no_warning) {
+          dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
+        }
         if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
           xctx->raw = save; /* restore */
           xctx->extra_prev_idx = xctx->extra_idx;
@@ -1290,7 +1305,9 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         xctx->extra_prev_idx = xctx->extra_idx; 
         xctx->extra_idx = i;
       } else {
-        dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type ? type : "<NULL>");
+        if(!no_warning) {
+          dbg(0, "extra_rawfile() switch: %s not found or no %s analysis\n", f, type ? type : "<NULL>");
+        }
         ret = 0;
       }
     } else { /* switch to next */
@@ -1310,7 +1327,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     if(!file) { /* clear all */
       if(xctx->extra_raw_n == 0) ret = 0;
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        free_rawfile(&xctx->extra_raw_arr[i], 0);
+        free_rawfile(&xctx->extra_raw_arr[i], 0, no_warning);
       }
       tcleval("array unset ngspice::ngspice_data");
       xctx->raw = NULL;
@@ -1327,11 +1344,11 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
               !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
               !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
               ) {
-            free_rawfile(&xctx->extra_raw_arr[i], 0);
+            free_rawfile(&xctx->extra_raw_arr[i], 0, no_warning);
             found++;
             continue;
           } else if( !(type && type[0]) && !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) {
-            free_rawfile(&xctx->extra_raw_arr[i], 0);
+            free_rawfile(&xctx->extra_raw_arr[i], 0, no_warning);
             found++;
             continue;
           }

@@ -21,8 +21,8 @@ v {xschem version=3.4.6 file_version=1.2
 }
 G {}
 K {type=source
-format="@name @pinlist @VAR = @FUNC "
-template="name=B1 VAR=I FUNC=\\"pwl(V(plus,minus),0,0, 1,10m, 2, 100m)\\""}
+format="@name @pinlist @VAR = @FUNC m=@m"
+template="name=B1 VAR=I FUNC=\\"'pwl(V(plus,minus),0,0, 1,10m, 2, 100m)'\\" m=1"}
 V {}
 S {}
 E {}

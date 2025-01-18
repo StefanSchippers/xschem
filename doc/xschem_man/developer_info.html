@@ -779,6 +779,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> lastsel </kbd> number of selected objects </li>
      <li><kbd> line_width </kbd> get line width </li>
      <li><kbd> lines </kbd> (xschem get lines n) number of lines on layer 'n' </li>
+     <li><kbd> modified </kbd> schematic is in modified state (needs a save) </li>
      <li><kbd> netlist_name </kbd> netlist name if set. If 'fallback' given get default name </li>
      <li><kbd> netlist_type </kbd> get current netlist type (spice/vhdl/verilog/tedax) </li>
      <li><kbd> no_draw </kbd> disable drawing </li>
@@ -875,9 +876,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if returned value is 0 it means that last searched attribute did not exist </pre>
    <li><kbd>       globals</kbd></li><pre>
    Return various global variables used in the program </pre>
-   <li><kbd>       go_back [notitle]</kbd></li><pre>
+   <li><kbd>       go_back [what]</kbd></li><pre>
    Go up one level (pop) in hierarchy
-   if integer 'notitle' given pass it to the go_back() function (1=do not update window title) </pre>
+   if integer 'what' given pass it to the go_back() function
+   what = 1: ask confirm save if current schematic modified.
+   what = 2: do not reset window title </pre>
    <li><kbd>       grabscreen</kbd></li><pre>
    grab root window </pre>
    <li><kbd>       hash_file file [skip_path_lines]</kbd></li><pre>

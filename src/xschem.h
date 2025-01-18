@@ -1270,10 +1270,10 @@ extern char *base64_encode(const unsigned char *data, const size_t input_length,
 extern unsigned char *ascii85_encode(const unsigned char *data, const size_t input_length, size_t *output_length);
 extern int raw_get_pos(const char *node, double value, int dset, int from_start, int to_end);
 extern int  get_raw_index(const char *node, Int_hashentry **entry_ret);
-extern void free_rawfile(Raw **rawptr, int dr);
+extern void free_rawfile(Raw **rawptr, int dr, int no_warning);
 extern int update_op();
 extern int extra_rawfile(int what, const char *f, const char *type, double sweep1, double sweep2);
-extern int raw_read(const char *f, Raw **rawptr, const char *type, double sweep1, double sweep2);
+extern int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, double sweep1, double sweep2);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
 extern int plot_raw_custom_data(int sweep_idx, int first, int last, const char *ntok, const char *yname);
@@ -1528,7 +1528,7 @@ extern void toggle_ignore(void);
 extern void get_additional_symbols(int what);
 extern int change_sch_path(int instnumber, int dr);
 extern int descend_schematic(int instnumber, int fallback, int alert, int set_title);
-extern void go_back(int confirm, int set_title);
+extern void go_back(int what); /* what == 1: confirm save; what == 2: do not reset window title */
 extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);
 extern void view_zoom(double z);
