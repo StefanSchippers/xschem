@@ -4295,13 +4295,14 @@ const char *translate(int inst, const char* s)
          if(!error) {
            char *iprefix = modelparam == 0 ? "i(" : modelparam == 1 ? "" : "v(";
            char *ipostfix = modelparam == 1 ? "" : ")";
+           int prefix;
            my_strdup2(_ALLOC_ID_, &dev, instname);
            strtolower(dev);
+           prefix=dev[0];
            len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
            dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
            fqdev = my_malloc(_ALLOC_ID_, len);
            if(!sim_is_xyce) {
-             int prefix=dev[0];
              int vsource = (prefix == 'v') || (prefix == 'e');
              if(path[0]) {
                if(vsource) {
@@ -4339,6 +4340,21 @@ const char *translate(int inst, const char* s)
            idx = get_raw_index(fqdev, NULL);
            if(idx >= 0) {
              val = xctx->raw->cursor_b_val[idx];
+           }
+           /* special handling for resistors that are converted to b sources: 
+            * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
+            */
+           if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
+             if(path[0]) {
+               my_snprintf(fqdev, len, "i(@b.%sb%s[i])", path, dev);
+             } else {
+               my_snprintf(fqdev, len, "i(@b%s[i])", dev);
+             }
+             dbg(1, "fqdev=%s\n", fqdev);
+             idx = get_raw_index(fqdev, NULL);
+             if(idx >= 0) {
+               val = xctx->raw->cursor_b_val[idx];
+             }
            }
            if(idx < 0) {
              valstr = "-";

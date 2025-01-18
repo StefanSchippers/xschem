@@ -1331,20 +1331,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
-/* del == 0 : delete and draw
- * del == 1 : delete
- * del == 2 : draw */
-void draw_crosshair(int del)
+/* what == 0 : delete and draw
+ * what == 1 : delete
+ * what == 2 : draw */
+void draw_crosshair(int what)
 {
   int sdw, sdp;
-  dbg(1, "draw_crosshair(): del=%d\n", del);
+  dbg(1, "draw_crosshair(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(del != 2) {
+  if(what != 2) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
            0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
@@ -1362,7 +1362,7 @@ void draw_crosshair(int del)
            xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
     }
   }
-  if(del != 1) {
+  if(what != 1) {
     drawline(xctx->crosshair_layer, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
        X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
     drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),

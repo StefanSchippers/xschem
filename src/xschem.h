@@ -1394,7 +1394,7 @@ extern int select_dangling_nets(void);
 extern void tclmainloop(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
-extern void draw_crosshair(int del);
+extern void draw_crosshair(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
