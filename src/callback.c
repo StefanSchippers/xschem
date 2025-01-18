@@ -2202,6 +2202,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  XKeyboardState kbdstate;
 #endif
 int draw_xhair = tclgetboolvar("draw_crosshair");
+int infix_interface = tclgetboolvar("infix_interface");
 int rstate; /* (reduced state, without ShiftMask) */
 
  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
@@ -2748,16 +2749,17 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
-     if(tclgetboolvar("infix_wire")) {
+     
+     if(infix_interface) {
        start_wire(xctx->mousex_snap, xctx->mousey_snap);
-     } else if(prev_state == STARTWIRE) {
-       start_wire(xctx->mousex_snap, xctx->mousey_snap);
+       if(prev_state == STARTWIRE) {
+         tcleval("set constr_mv 0");
+         xctx->constr_mv = 0;
+       } 
      } else {
-       tcleval("xschem wire");
-     }
-     if(prev_state == STARTWIRE) {
-       tcleval("set constr_mv 0");
-       xctx->constr_mv = 0;
+       xctx->last_command = 0;
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTWIRE;
      }
      break;
    }
@@ -2805,10 +2807,15 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): start polygon\n");
-     xctx->mx_double_save=xctx->mousex_snap;
-     xctx->my_double_save=xctx->mousey_snap;
-     xctx->last_command = 0;
-     new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+     if(infix_interface) {
+       xctx->mx_double_save = xctx->mousex_snap;
+       xctx->my_double_save = xctx->mousey_snap;
+       xctx->last_command = 0;
+       new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+     } else {
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTPOLYGON;
+     }
      break;
    }
    if(key=='P' && rstate == 0)                   /* pan, other way to. */
@@ -2957,10 +2964,15 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
    {
     dbg(1, "callback(): start rect\n");
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
-    xctx->last_command = 0;
-    new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      xctx->last_command = 0;
+      new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
+    } else{
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTRECT;
+    }
     break;
    }
    if(key=='V' && rstate == ControlMask)                     /* toggle spice/vhdl netlist  */
@@ -3130,19 +3142,29 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='C' /* && !xctx->ui_state */ && rstate == 0) /* place arc */
    {
      if(xctx->semaphore >= 2) break;
-     xctx->mx_double_save=xctx->mousex_snap;
-     xctx->my_double_save=xctx->mousey_snap;
-     xctx->last_command = 0;
-     new_arc(PLACE, 180., xctx->mousex_snap, xctx->mousey_snap);
+     if(infix_interface) {
+       xctx->mx_double_save=xctx->mousex_snap;
+       xctx->my_double_save=xctx->mousey_snap;
+       xctx->last_command = 0;
+       new_arc(PLACE, 180., xctx->mousex_snap, xctx->mousey_snap);
+     } else {
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTARC;
+     }
      break;
    }
    if(key=='C' /* && !xctx->ui_state */ && rstate == ControlMask) /* place circle */
    {
      if(xctx->semaphore >= 2) break;
-     xctx->mx_double_save=xctx->mousex_snap;
-     xctx->my_double_save=xctx->mousey_snap;
-     xctx->last_command = 0;
-     new_arc(PLACE, 360., xctx->mousex_snap, xctx->mousey_snap);
+     if(infix_interface) {
+       xctx->mx_double_save=xctx->mousex_snap;
+       xctx->my_double_save=xctx->mousey_snap;
+       xctx->last_command = 0;
+       new_arc(PLACE, 360., xctx->mousex_snap, xctx->mousey_snap);
+     } else {
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTCIRCLE;
+     }
      break;
    }
    if(key=='O' && rstate == ControlMask )   /* load most recent tile */
@@ -3452,10 +3474,17 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='l' /* && !xctx->ui_state */ && rstate == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
-     start_line(xctx->mousex_snap, xctx->mousey_snap);
-     if(prev_state == STARTLINE) {
-       tcleval("set constr_mv 0" );
-       xctx->constr_mv=0;
+     if(xctx->semaphore>=2) break;
+     if(infix_interface) {
+       start_line(xctx->mousex_snap, xctx->mousey_snap);
+       if(prev_state == STARTLINE) {
+         tcleval("set constr_mv 0" );
+         xctx->constr_mv=0;
+       }
+     } else {
+       xctx->last_command = 0;
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTLINE;
      }
      break;
    }
