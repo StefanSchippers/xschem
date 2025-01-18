@@ -1455,6 +1455,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
           break;
+          case 'm':
+          if(!strcmp(argv[2], "modified")) { /* schematic is in modified state (needs a save) */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, my_itoa(xctx->modified),TCL_VOLATILE);
+          }
+          break;
           case 'n':
           if(!strcmp(argv[2], "netlist_name")) { /* netlist name if set. If 'fallback' given get default name */
             if(argc > 3 &&  !strcmp(argv[3], "fallback")) {
@@ -2093,17 +2099,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #endif
     }
 
-    /* go_back [notitle]
+    /* go_back [what]
      *   Go up one level (pop) in hierarchy
-     *   if integer 'notitle' given pass it to the go_back() function (1=do not update window title) */
+     *   if integer 'what' given pass it to the go_back() function
+     *   what = 1: ask confirm save if current schematic modified.
+     *   what = 2: do not reset window title */
     else if(!strcmp(argv[1], "go_back"))
     {
-      int set_title = 1;
+      int what = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 ) {
-        set_title = atoi(argv[2]);
+        what = atoi(argv[2]);
       }
-      if((xctx->semaphore == 0)) go_back(1, set_title);
+      if((xctx->semaphore == 0)) go_back(what);
       Tcl_ResetResult(interp);
     }
 
@@ -4163,7 +4171,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       extra_rawfile(3, NULL, NULL, -1.0, -1.0); /* unload additional raw files */
-      /* free_rawfile(&xctx->raw, 1); */ /* unload base (current) raw file */
+      /* free_rawfile(&xctx->raw, 1, 0); */ /* unload base (current) raw file */
       draw();
       Tcl_ResetResult(interp);
     }
@@ -4183,14 +4191,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       * if(sch_waves_loaded() >= 0) {
       *   tcleval("array unset ngspice::ngspice_data");
       *   extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-      *   free_rawfile(&xctx->raw, 1);
+      *   free_rawfile(&xctx->raw, 1, 0);
       * } else
       */
       if(argc > 2) {
         double sweep1 = -1.0, sweep2 = -1.0;
         tcleval("array unset ngspice::ngspice_data");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(&xctx->raw, 0); */
+        /* free_rawfile(&xctx->raw, 0, 0); */
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
@@ -4198,8 +4206,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           sweep1 = atof_spice(argv[4]);
           sweep2 = atof_spice(argv[5]);
         }
-        if(argc > 3) res = raw_read(f, &xctx->raw, argv[3], sweep1, sweep2);
-        else res = raw_read(f, &xctx->raw, NULL, -1.0, -1.0);
+        if(argc > 3) res = raw_read(f, &xctx->raw, argv[3], 0, sweep1, sweep2);
+        else res = raw_read(f, &xctx->raw, NULL, 0, -1.0, -1.0);
         if(sch_waves_loaded() >= 0) {
           draw();
         }
@@ -4218,11 +4226,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(&xctx->raw, 1); */
+        /* free_rawfile(&xctx->raw, 1, 0); */
         draw();
       } else {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(&xctx->raw, 0); */
+        /* free_rawfile(&xctx->raw, 0, 0); */
         if(argc > 2) raw_read_from_attr(&xctx->raw, argv[2], -1.0, -1.0);
         else  raw_read_from_attr(&xctx->raw, NULL, -1.0, -1.0);
         if(sch_waves_loaded() >= 0) {
@@ -5763,14 +5771,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(sch_waves_loaded() >= 0) {
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(&xctx->raw, 1); */
+        /* free_rawfile(&xctx->raw, 1, 0); */
         draw();
       } else if(argc > 2) {
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        /* free_rawfile(&xctx->raw, 0); */
+        /* free_rawfile(&xctx->raw, 0, 0); */
         table_read(f);
         if(sch_waves_loaded() >= 0) {
           draw();

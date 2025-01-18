@@ -3827,7 +3827,8 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
     clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
     #endif
     autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "1");
-    if(autoload == 0) autoload = 2;  /* 2: switch */
+    if(autoload == 0) autoload = 2; /* 2: switch */
+    else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
     /* graph box, gridlines and axes */
     draw_graph_grid(gr, ct);
     /* get data to plot */

@@ -1903,7 +1903,7 @@ static void context_menu_action(double mx, double my)
       descend_symbol();
       break;
     case 14:
-      go_back(1, 1);
+      go_back(1);
       break;
     case 15: /* copy selection into clipboard */
       rebuild_selected_array();
@@ -2749,6 +2749,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      int prev_state = xctx->ui_state;
      if(xctx->semaphore >= 2) break;
+<<<<<<< HEAD
      
      if(infix_interface) {
        start_wire(xctx->mousex_snap, xctx->mousey_snap);
@@ -2756,6 +2757,15 @@ int rstate; /* (reduced state, without ShiftMask) */
          tcleval("set constr_mv 0");
          xctx->constr_mv = 0;
        } 
+=======
+
+     if(infix_interface) {
+       start_wire(xctx->mousex_snap, xctx->mousey_snap);
+       if(prev_state == STARTWIRE) {
+         tcleval("set constr_mv 0" );
+         xctx->constr_mv=0;
+       }
+>>>>>>> 025823f14c8ca1f9562a1c452fffe267c7120905
      } else {
        xctx->last_command = 0;
        xctx->ui_state |= MENUSTART;
@@ -2808,8 +2818,13 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(xctx->semaphore >= 2) break;
      dbg(1, "callback(): start polygon\n");
      if(infix_interface) {
+<<<<<<< HEAD
        xctx->mx_double_save = xctx->mousex_snap;
        xctx->my_double_save = xctx->mousey_snap;
+=======
+       xctx->mx_double_save=xctx->mousex_snap;
+       xctx->my_double_save=xctx->mousey_snap;
+>>>>>>> 025823f14c8ca1f9562a1c452fffe267c7120905
        xctx->last_command = 0;
        new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
      } else {
@@ -2964,12 +2979,20 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
    {
     dbg(1, "callback(): start rect\n");
+<<<<<<< HEAD
+=======
+    if(xctx->semaphore >= 2) break;
+>>>>>>> 025823f14c8ca1f9562a1c452fffe267c7120905
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
       xctx->last_command = 0;
       new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
+<<<<<<< HEAD
     } else{
+=======
+    } else {
+>>>>>>> 025823f14c8ca1f9562a1c452fffe267c7120905
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTRECT;
     }
@@ -3069,7 +3092,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
    {
     if(xctx->semaphore >= 2) break;
-    go_back(1, 1);break;
+    go_back(1);break;
    }
 
    if(key=='a' && rstate == 0)   /* make symbol */
@@ -3474,7 +3497,11 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='l' /* && !xctx->ui_state */ && rstate == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
+<<<<<<< HEAD
      if(xctx->semaphore>=2) break;
+=======
+     if(xctx->semaphore >= 2) break;
+>>>>>>> 025823f14c8ca1f9562a1c452fffe267c7120905
      if(infix_interface) {
        start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(prev_state == STARTLINE) {
