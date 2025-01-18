@@ -2175,6 +2175,24 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
 }
 #endif
 
+static void snapped_wire(double c_snap)
+{
+  double x, y;
+  if(!(xctx->ui_state & STARTWIRE)){
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    xctx->mx_double_save = my_round(x / c_snap) * c_snap;
+    xctx->my_double_save = my_round(y / c_snap) * c_snap;
+    new_wire(PLACE, x, y);
+    new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
+  }
+  else {
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    new_wire(RUBBER, x, y);
+    new_wire(PLACE|END, x, y);
+    xctx->constr_mv=0;
+    tcleval("set constr_mv 0" );
+  }
+}
 
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
@@ -2714,21 +2732,8 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
    if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
-     double x, y;
      if(xctx->semaphore >= 2) break;
-     if(!(xctx->ui_state & STARTWIRE)){
-       find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = my_round(x / c_snap) * c_snap;
-       xctx->my_double_save = my_round(y / c_snap) * c_snap;
-       new_wire(PLACE, x, y);
-     }
-     else {
-       find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       new_wire(RUBBER, x, y);
-       new_wire(PLACE|END, x, y);
-       xctx->constr_mv=0;
-       tcleval("set constr_mv 0" );
-     }
+     snapped_wire(c_snap);
      break;
    }
    if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
@@ -4005,6 +4010,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      
    /* Mouse wheel events */
    else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
+
+   /* terminate wire placement in snap mode */
+   else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
+     snapped_wire(c_snap);
+   }
    /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
      xctx->last_command = 0;
