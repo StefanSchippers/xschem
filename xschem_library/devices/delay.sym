@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -19,7 +19,8 @@ v {xschem version=3.4.4 file_version=1.2
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 }
-G {type=delay_eldo
+G {}
+K {type=delay_eldo
 format="del@name @pinlist @del"
 template="name=d1 del=2e-9"}
 V {}
@@ -35,3 +36,5 @@ B 5 -42.5 -2.5 -37.5 2.5 {name=inp dir=in}
 B 5 37.5 -2.5 42.5 2.5 {name=outp dir=out}
 T {del=@del} -27.5 -3.75 0 0 0.15 0.15 {}
 T {@name} -25 -22.5 0 0 0.2 0.2 {}
+T {@#0:net_name} -40 -5 3 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 30 -5 3 0 0.15 0.15 {layer=15 hide=instance}

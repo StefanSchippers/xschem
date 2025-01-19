@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -19,7 +19,8 @@ v {xschem version=3.4.4 file_version=1.2
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 }
-G {type=nmos
+G {}
+K {type=nmos
 format="@name @pinlist @substrate @model w=@w l=@l m=@m"
 template="name=M1 model=nmos substrate=VSS w=5u l=0.18u m=1"}
 V {}
@@ -43,4 +44,7 @@ B 5 17.5 27.5 22.5 32.5 {name=s dir=inout}
 T {@w\\/@l\\/@m} 7.5 -17.5 0 0 0.2 0.2 {}
 T {@name} 7.5 6.25 0 0 0.2 0.2 {}
 T {D} 25 -27.5 0 0 0.15 0.15 {}
-T {@substrate} 22.5 -3.125 0 0 0.1 0.1 {layer=4}
+T {@substrate} 22.5 -3.125 0 0 0.1 0.1 {layer=1}
+T {@#0:net_name} 25 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#2:net_name} 25 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} -25 -12.5 0 1 0.15 0.15 {layer=15 hide=instance}

@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -19,7 +19,8 @@ v {xschem version=3.4.4 file_version=1.2
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 }
-G {type=resistor
+G {}
+K {type=resistor
 format="@name @pinlist 0.01 m=@m"
 template="name=R1 m=1"}
 V {}
@@ -43,3 +44,5 @@ L 4 -5 15 5 5 {}
 L 4 0 15 5 10 {}
 B 5 -2.5 -32.5 2.5 -27.5 {name=p dir=out propag=1}
 B 5 -2.5 27.5 2.5 32.5 {name=m dir=in propag=0}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15 hide=instance}

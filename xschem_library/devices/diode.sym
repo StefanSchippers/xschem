@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -45,6 +45,6 @@ T {@#0:pinnumber} -5 -26.25 0 1 0.2 0.2 {layer=13}
 T {@#1:pinnumber} -5 17.5 0 1 0.2 0.2 {layer=13}
 T {@name} 15 -18.75 0 0 0.2 0.2 {}
 T {@model} 15 -6.25 0 0 0.2 0.2 {}
-T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15 hide=instance}
-T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#0:net_name} 5 -28.75 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 5 20 0 0 0.15 0.15 {layer=15 hide=instance}
 T {@spice_get_current} -12.5 -2.5 0 1 0.2 0.2 {layer=17}
