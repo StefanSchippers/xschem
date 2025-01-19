@@ -146,6 +146,7 @@ void abort_operation(void)
      xctx->ui_state &= ~PLACE_SYMBOL;
      xctx->ui_state &= ~PLACE_TEXT;
    }
+   return;
   }
   if(xctx->ui_state & STARTCOPY)
   {
