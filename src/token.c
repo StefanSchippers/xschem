@@ -3633,6 +3633,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
     const char *str_ptr=NULL;
     int multip;
     size_t tmp;
+    prepare_netlist_structs(0);
     str_ptr =  net_name(inst,n, &multip, 0, 1);
     tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
                                   * so 1-char writes to result do not need reallocs */
