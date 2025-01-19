@@ -75,7 +75,7 @@ static int verilog_netlist(FILE *fd , int verilog_stop)
  return err;
 }
 
-int global_verilog_netlist(int global)  /* netlister driver */
+int global_verilog_netlist(int global, int alert)  /* netlister driver */
 {
  int err = 0;
  FILE *fd;
@@ -350,11 +350,11 @@ int global_verilog_netlist(int global)  /* netlister driver */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
-          err |= vhdl_block_netlist(fd, i);
+          err |= vhdl_block_netlist(fd, i, alert);
         else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
-          err |= spice_block_netlist(fd, i);
+          err |= spice_block_netlist(fd, i, alert);
         else if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), "true"))
-          err |= verilog_block_netlist(fd, i);
+          err |= verilog_block_netlist(fd, i, alert);
       }
     }
    }
@@ -413,7 +413,7 @@ int global_verilog_netlist(int global)  /* netlister driver */
 }
 
 
-int verilog_block_netlist(FILE *fd, int i)
+int verilog_block_netlist(FILE *fd, int i, int alert)
 {
   int err = 0;
   int j, l, tmp;
@@ -469,7 +469,7 @@ int verilog_block_netlist(FILE *fd, int i)
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     my_strdup(_ALLOC_ID_, &extra2, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     fprintf(fd, "// sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
-    verilog_stop? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
+    verilog_stop? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
     get_additional_symbols(1);
     /* print verilog timescale  and preprocessor directives 10102004 */
     fmt_attr = xctx->format ? xctx->format : "verilog_format";

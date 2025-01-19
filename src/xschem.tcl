@@ -1770,7 +1770,7 @@ proc simconf_add {tool} {
 ############ cellview
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
-proc cellview_setlabels {w symbol sym_sch sym_spice_sym_def derived_symbol} {
+proc cellview_setlabels {w symbol derived_symbol} {
   global dark_gui_colorscheme
   if {$dark_gui_colorscheme} {
     set instfg orange1
@@ -1783,6 +1783,12 @@ proc cellview_setlabels {w symbol sym_sch sym_spice_sym_def derived_symbol} {
     set symbg SeaGreen1
     set missingbg IndianRed1 
   }     
+  set current [xschem get current_name]
+  set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
+  set abs_sch [xschem get_sch_from_sym -1 $symbol]
+  set sym_sch [rel_sym_path $abs_sch]
+  set default_sch [add_ext $symbol .sch]
+  set new_sch [$w get]
   $w configure -fg [option get . foreground {}]
   $w configure -bg [option get . background {}]
   if { $derived_symbol} {
@@ -1790,18 +1796,31 @@ proc cellview_setlabels {w symbol sym_sch sym_spice_sym_def derived_symbol} {
   } elseif {$sym_spice_sym_def ne {} } {
     $w configure -fg $symfg
   } 
-  puts ===============
-  puts sym_sch=$sym_sch
-  puts symbol=$symbol
-
   if { $sym_spice_sym_def eq {}} {
     if { ![file exists [abs_sym_path [$w get]]] } {
       $w configure -bg $missingbg
     }
   }
+  puts ===============
+  if {$sym_sch ne $new_sch && $sym_spice_sym_def eq {}} {
+    puts "Changing schematic attribute in symbol"
+    xschem load $symbol noundoreset nodraw
+    set oldprop [xschem get schsymbolprop]
+    set newprop [xschem subst_tok $oldprop schematic $new_sch]
+    xschem set schsymbolprop $newprop
+    xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
+    xschem save fast
+    xschem load $current noundoreset nodraw
+    xschem reload_symbols ;# update in-memory symbol data
+  }
+  puts sym_sch=$sym_sch
+  puts default_sch=$default_sch
+  puts new_sch=$new_sch
+  puts symbol=$symbol
 }
 
-proc cellview_edit_item {w sym_spice_sym_def} {
+proc cellview_edit_item {symbol w} {
+  set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
   if {[xschem is_generator [$w get]]} {
     set f [$w get]
     regsub {\(.*} $f {} f
@@ -1809,7 +1828,21 @@ proc cellview_edit_item {w sym_spice_sym_def} {
   } elseif { $sym_spice_sym_def eq {}} {
     xschem load_new_window [$w get]
   } else {
-    editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}
+    puts $symbol
+    set current [xschem get current_name]
+    set old_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
+    set new_sym_def [editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}]
+    if {$new_sym_def ne $old_sym_def} {
+      xschem load $symbol noundoreset nodraw
+      set oldprop [xschem get schsymbolprop]
+      set newprop [xschem subst_tok $oldprop spice_sym_def $new_sym_def]
+      xschem set schsymbolprop $newprop
+      xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
+      xschem save fast
+      puts "$symbol: updated spice_sym_def attribute"
+      xschem load $current noundoreset nodraw
+      xschem reload_symbols ;# update in-memory symbol data
+    }
   }
 }
 
@@ -1848,7 +1881,7 @@ proc cellview {{derived_symbols {}}} {
   xschem reload_symbols ;# purge unused symbols
   set save_keep $keep_symbols
   set keep_symbols 1 ;# keep all symbols when doing a hierarchic netlist
-  xschem netlist ;# traverse the hierarchy and retain all encountered symbols
+  xschem netlist -noalert;# traverse the hierarchy and retain all encountered symbols
   set keep_symbols $save_keep
   wm geometry .cv 800x200
   update
@@ -1899,7 +1932,7 @@ proc cellview {{derived_symbols {}}} {
       button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
              -command "cellview_edit_sym $sf.f$i.l"
       button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "cellview_edit_item $sf.f$i.s [list $sym_spice_sym_def]"
+             -command "cellview_edit_item $symbol $sf.f$i.s"
       if {$sym_spice_sym_def eq {}} {
         $sf.f$i.s insert 0 $sym_sch
       } else {
@@ -1916,20 +1949,18 @@ proc cellview {{derived_symbols {}}} {
         set f [abs_sym_path [$sf.f$i.s get]]
       } else {
         set ff [split $sym_spice_sym_def \n]
-        puts ff=$ff
         if {[llength $ff] > 5} {
           set ff [lrange $ff 0 4]
           lappend ff ...
         }   
         set f [join $ff \n]
-        puts f=$f
       }
       balloon $sf.f$i.s $f
 
       bind $sf.f$i.s <KeyRelease> "
-        cellview_setlabels %W [list $symbol] [list $sym_sch] [list $sym_spice_sym_def] $derived_symbol
+        cellview_setlabels %W [list $symbol] $derived_symbol
       "
-      cellview_setlabels $sf.f$i.s $symbol $sym_sch $sym_spice_sym_def $derived_symbol
+      cellview_setlabels $sf.f$i.s $symbol $derived_symbol
       pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
       pack $sf.f$i.sch $sf.f$i.sym -side left
     }
@@ -2014,7 +2045,7 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
 }
 
 # This proc traverses the hierarchy and prints all instances in design.
-proc traversal {{only_subckts 0} {all_hierarchy 1}} {
+proc traversal {{only_subckts 1} {all_hierarchy 1}} {
   global keep_symbols traversal_cnt
   set traversal_cnt 0
   set save_keep $keep_symbols

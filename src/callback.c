@@ -3716,13 +3716,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(set_netlist_dir(0, NULL)) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(1);
+        err = global_spice_netlist(1, 1);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(1);
+        err = global_vhdl_netlist(1, 1);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(1);
+        err = global_verilog_netlist(1, 1);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(1);
+        err = global_tedax_netlist(1, 1);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");
@@ -3757,13 +3757,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(0);
+        err = global_spice_netlist(0, 1);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(0);
+        err = global_vhdl_netlist(0, 1);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(0);
+        err = global_verilog_netlist(0, 1);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(0);
+        err = global_tedax_netlist(0, 1);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");

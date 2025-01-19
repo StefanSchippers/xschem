@@ -537,6 +537,10 @@ const char *get_file_path(char *f)
  * -1 : user cancel
  *  0 : file not saved due to errors or per user request
  *  confirm: 
+ *    0 : do not ask user to save
+ *    1 : ask user to save
+ *  fast:
+ *    passed to save_schematic
  */
 int save(int confirm, int fast)
 {
@@ -544,8 +548,11 @@ int save(int confirm, int fast)
   char *name = xctx->sch[xctx->currsch];
   int force = 0;
 
+  /* current schematic exists on disk ... */
   if(!stat(name, &buf)) {
+    /* ... and modification time on disk has changed since file loaded ... */
     if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+      /* ... so force a save */
       force = 1;
       confirm = 0;
     }
@@ -2073,8 +2080,8 @@ void get_additional_symbols(int what)
   }
 }
 /* fallback = 1: if schematic attribute is set but file not existing fallback
- * if inst == -1 use only symbol reference
- * to defaut symbol schematic (symname.sym -> symname.sch) */
+ * to defaut symbol schematic (symname.sym -> symname.sch)
+ * if inst == -1 use only symbol reference */
 void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 {
   char *sch = NULL;

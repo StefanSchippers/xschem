@@ -3200,7 +3200,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hilight_net_pin_mismatches();
     }
 
-    /* netlist [-messages | -erc | -nohier] [filename]
+    /* netlist [-noalert -messages | -erc | -nohier] [filename]
      *   do a netlist of current schematic in currently defined netlist format
      *   if 'filename'is given use specified name for the netlist
      *   if 'filename' contains path components place the file in specified path location.
@@ -3219,6 +3219,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int err = 0;
       int hier_netlist = 1;
       int i, messages = 0;
+      int alert = 1;
       int erc = 0;
       const char *fname = NULL;
       const char *path;
@@ -3235,6 +3236,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             messages = 1;
           } else if(!strcmp(argv[i], "-erc")) {
             erc = 1;
+          } else if(!strcmp(argv[i], "-noalert")) {
+            alert = 0;
           } else if(!strcmp(argv[i], "-nohier")) {
             hier_netlist = 0;
           }
@@ -3255,13 +3258,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(set_netlist_dir(0, NULL) ) {
         done_netlist = 1;
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
-          err = global_spice_netlist(hier_netlist);                  /* 1 means global netlist */
+          err = global_spice_netlist(hier_netlist, alert);                  /* 1 means global netlist */
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-          err = global_vhdl_netlist(hier_netlist);
+          err = global_vhdl_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-          err = global_verilog_netlist(hier_netlist);
+          err = global_verilog_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-          global_tedax_netlist(hier_netlist);
+          global_tedax_netlist(hier_netlist, alert);
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
