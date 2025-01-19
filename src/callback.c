@@ -1347,20 +1347,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
-/* del == 0 : delete and draw
- * del == 1 : delete
- * del == 2 : draw */
-void draw_crosshair(int del)
+/* what == 0 : delete and draw
+ * what == 1 : delete
+ * what == 2 : draw */
+void draw_crosshair(int what)
 {
   int sdw, sdp;
-  dbg(1, "draw_crosshair(): del=%d\n", del);
+  dbg(1, "draw_crosshair(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(del != 2) {
+  if(what != 2) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
            0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
@@ -1378,7 +1378,7 @@ void draw_crosshair(int del)
            xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
     }
   }
-  if(del != 1) {
+  if(what != 1) {
     drawline(xctx->crosshair_layer, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
        X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
     drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
@@ -1475,7 +1475,7 @@ static int end_place_move_copy_zoom()
 
 static int check_menu_start_commands(double c_snap)
 {
-  dbg(1, "check_menu_start_commands(): ui_state=%d, ui_state2=%d last_command=%d\n", 
+  dbg(1, "check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n", 
       xctx->ui_state, xctx->ui_state2, xctx->last_command);
 
   if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT)) {
@@ -1497,6 +1497,13 @@ static int check_menu_start_commands(double c_snap)
     xctx->ui_state &=~MENUSTART;
     return 1;
   }
+  else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTCOPY)) {
+    xctx->mx_double_save=xctx->mousex_snap;
+    xctx->my_double_save=xctx->mousey_snap;
+    copy_objects(START);
+    xctx->ui_state &=~MENUSTART;
+    return 1;
+  }    
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) {
     int prev_state = xctx->ui_state;
     if(xctx->semaphore >= 2) return 0;
@@ -2184,6 +2191,24 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
 }
 #endif
 
+static void snapped_wire(double c_snap)
+{
+  double x, y;
+  if(!(xctx->ui_state & STARTWIRE)){
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    xctx->mx_double_save = my_round(x / c_snap) * c_snap;
+    xctx->my_double_save = my_round(y / c_snap) * c_snap;
+    new_wire(PLACE, x, y);
+    new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
+  }
+  else {
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    new_wire(RUBBER, x, y);
+    new_wire(PLACE|END, x, y);
+    xctx->constr_mv=0;
+    tcleval("set constr_mv 0" );
+  }
+}
 
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
@@ -2728,21 +2753,8 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
    if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
-     double x, y;
      if(xctx->semaphore >= 2) break;
-     if(!(xctx->ui_state & STARTWIRE)){
-       find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       xctx->mx_double_save = my_round(x / c_snap) * c_snap;
-       xctx->my_double_save = my_round(y / c_snap) * c_snap;
-       new_wire(PLACE, x, y);
-     }
-     else {
-       find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-       new_wire(RUBBER, x, y);
-       new_wire(PLACE|END, x, y);
-       xctx->constr_mv=0;
-       tcleval("set constr_mv 0" );
-     }
+     snapped_wire(c_snap);
      break;
    }
    if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
@@ -3625,64 +3637,93 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     break;
    }
-   if(key=='m' && rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+   /* Move selection */
+   if(key=='m' && rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
     if(tclgetboolvar("enable_stretch")) 
       select_attached_nets(); /* stretch nets that land on selected instance pins */
-    move_objects(START,0,0,0);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      move_objects(START,0,0,0);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTMOVE;
+    }
     break;
    }
+   /* Move selection adding wires to moved pins */
    if(((key == 'M' && rstate == 0) || (key == 'm' && EQUAL_MODMASK)) &&
-     !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+     !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
     xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
-    move_objects(START,0,0,0);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
+      move_objects(START,0,0,0);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTMOVE;
+    }
     break;
    }
+   /* move selection stretching attached nets */
    if(key=='m' && rstate == ControlMask &&
-       !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+       !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {        
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }     
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
     if(!tclgetboolvar("enable_stretch")) 
       select_attached_nets(); /* stretch nets that land on selected instance pins */
-    move_objects(START,0,0,0);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      move_objects(START,0,0,0);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTMOVE;
+    }
     break;
-   }    
+   }
+   
+   /* move selection, stretch attached nets, create new wires on pin-to-moved-pin connections */
    if(key=='M' && state == (ControlMask | ShiftMask) &&  
-       !(xctx->ui_state & (STARTMOVE | STARTCOPY))) /* move selection */
+       !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
     if(!tclgetboolvar("enable_stretch"))
       select_attached_nets(); /* stretch nets that land on selected instance pins */
     xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    move_objects(START,0,0,0);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      move_objects(START,0,0,0);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTMOVE;
+    }
     break;
    }
-
 
    if(key=='c' && EQUAL_MODMASK &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(xctx->semaphore >= 2) break;
     xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
-    copy_objects(START);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      copy_objects(START);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTCOPY;
+    }
     break;
    }
 
@@ -3690,9 +3731,14 @@ int rstate; /* (reduced state, without ShiftMask) */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(xctx->semaphore >= 2) break;
-    xctx->mx_double_save=xctx->mousex_snap;
-    xctx->my_double_save=xctx->mousey_snap;
-    copy_objects(START);
+    if(infix_interface) {
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      copy_objects(START);
+    } else {
+      xctx->ui_state |= MENUSTART;
+      xctx->ui_state2 = MENUSTARTCOPY;
+    }
     break;
    }
    if(key=='n' && rstate == ControlMask)              /* clear schematic */
@@ -4000,6 +4046,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      
    /* Mouse wheel events */
    else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
+
+   /* terminate wire placement in snap mode */
+   else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
+     snapped_wire(c_snap);
+   }
    /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
      xctx->last_command = 0;
@@ -4039,7 +4090,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
        break;
      }
-     /* handle all object insertions started from Tools menu */
+     /* handle all object insertions started from Tools/Edit menu */
      if(check_menu_start_commands(c_snap)) break;
      /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
      if(end_place_move_copy_zoom()) break;

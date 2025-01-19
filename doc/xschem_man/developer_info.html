@@ -642,8 +642,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       copy_hierarchy to from</kbd></li><pre>
    Copy hierarchy info from tab/window "from" to tab/window "to"
    Example: xschem copy_hierarchy .drw .x1.drw </pre>
-   <li><kbd>       copy_objects [deltax deltay [rot flip]]</kbd></li><pre>
-   if deltax and deltay (and optionally rot and flip) are given copy selection
+   <li><kbd>       copy_objects [dx dy] [kissing] [stretch]</kbd></li><pre>
+   if kissing is given add nets to pins that touch other instances or nets
+   if stretch is given stretch connected nets to follow instace pins
+   if dx and dy are given copy selection
    to specified offset, otherwise start a GUI copy operation </pre>
    <li><kbd>       count_items string separator quoting_chars</kbd></li><pre>
    Debug command </pre>

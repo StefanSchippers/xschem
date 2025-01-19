@@ -1,0 +1,22 @@
+v {xschem version=3.4.6 file_version=1.2}
+G {}
+K {type=stop
+format="
+.control
+  stop when time @timecond when @@node @nodecond
+.endc"
+template="name=s1 timecond=\\"> 1u\\" nodecond=\\"< 3\\""}
+V {}
+S {}
+E {}
+L 4 -80 0 -60 0 {}
+L 4 -60 -20 -60 20 {}
+L 4 -60 -20 60 -20 {}
+L 4 60 -20 60 20 {}
+L 4 -60 20 60 20 {}
+B 5 -82.5 -2.5 -77.5 2.5 {name=node
+dir=in}
+T {STOP} -60 -35 0 0 0.2 0.2 {}
+T {@@node @nodecond} -57.5 -15 0 0 0.2 0.2 {}
+T {time @timecond} -47.5 5 0 0 0.2 0.2 {}
+T {@name} 60 -35 0 1 0.2 0.2 {}
