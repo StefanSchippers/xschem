@@ -4207,9 +4207,9 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
-   else if(xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {
-     if(end_place_move_copy_zoom()) break;
-   }
+   /*else if(xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {*/
+   /*  if(end_place_move_copy_zoom()) break;*/
+   /*}*/
 
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
