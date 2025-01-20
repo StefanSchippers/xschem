@@ -1393,6 +1393,51 @@ void draw_crosshair(int what)
   xctx->draw_pixmap = sdp;
 }
 
+/* cursor_type == 0 : only erase drawn cursor
+ * cursor_type == 1 : erase and draw a normal grid-snapping cursor
+ * cursor_type == 2 : erase and draw a diamond-shaped cursor that snaps to a component endpoint */
+void draw_snap_cursor(int cursor_type)
+{
+  int sdw, sdp;
+  dbg(1, "draw_snap_cursor(): cursor_type=%d\n", cursor_type);
+  sdw = xctx->draw_window;
+  sdp = xctx->draw_pixmap;
+
+  if(!xctx->mouse_inside) return;
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+  if(fix_broken_tiled_fill || !_unix) {
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
+         xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
+         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0,
+         4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+  }  else {
+    drawtemparc(xctx->gctiled, NOW, xctx->prev_crossx, xctx->prev_crossy, 1, 0, 360);
+  }
+  if(cursor_type != 1) {
+    /*drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, xctx->mousey_snap, xctx->mousex_snap, xctx->mousey_snap, 0, NULL);*/
+    double x, y;
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    drawarc(xctx->crosshair_layer, NOW, x, y, 1, 1, 360, 1, 0);
+    draw_selection(xctx->gc[SELLAYER], 0);
+    xctx->prev_crossx = x;
+    xctx->prev_crossy = y;
+  } else {
+    drawarc(xctx->crosshair_layer, NOW, xctx->mousex_snap, xctx->mousey_snap, 1, 1, 360, 1, 0);
+    draw_selection(xctx->gc[SELLAYER], 0);
+    xctx->prev_crossx = xctx->mousex_snap;
+    xctx->prev_crossy = xctx->mousey_snap;
+  }
+  
+  xctx->draw_window = sdw;
+  xctx->draw_pixmap = sdp;
+}
+
 /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
 static int end_place_move_copy_zoom()
 {
@@ -2218,6 +2263,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 #endif
 int draw_xhair = tclgetboolvar("draw_crosshair");
 int infix_interface = tclgetboolvar("infix_interface");
+int snap_cursor = tclgetboolvar("snap_cursor");
 int rstate; /* (reduced state, without ShiftMask) */
 
  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
@@ -2335,6 +2381,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1);
+    if(snap_cursor) draw_snap_cursor(0);
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -2403,11 +2450,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(draw_xhair) {
       draw_crosshair(1);
     }
+    if(snap_cursor) draw_snap_cursor(0);
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
     if(xctx->semaphore >= 2) {
       if(draw_xhair) {
         draw_crosshair(2);
       }
+      if(snap_cursor) draw_snap_cursor(2);
       break;
     }
     dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
@@ -2502,6 +2551,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(draw_xhair) {
       draw_crosshair(2);
     }
+    if(snap_cursor) draw_snap_cursor(2);
     break;
 
   case KeyRelease:
@@ -4259,6 +4309,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      statusmsg(str,1);
    }
    if(draw_xhair) draw_crosshair(0);
+   if(snap_cursor) draw_snap_cursor(2);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {

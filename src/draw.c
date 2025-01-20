@@ -1601,6 +1601,104 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
  }
 }
 
+void draw_snap_point(int c, int what, double x, double y, double r, double a, double b, int arc_fill, int dash)
+{
+ static int i=0;
+ static XArc xarc[CADDRAWBUFFERSIZE];
+ double x1, y1, x2, y2; /* arc bbox */
+ double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
+ GC gc;
+
+ if(arc_fill || dash) what = NOW;
+
+ if(!has_x) return;
+ if(what & ADD)
+ {
+  if(i>=CADDRAWBUFFERSIZE)
+  {
+   if(xctx->draw_window) XDrawArcs(display, xctx->window, xctx->gc[c], xarc,i);
+   if(xctx->draw_pixmap) XDrawArcs(display, xctx->save_pixmap, xctx->gc[c], xarc,i);
+   i=0;
+  }
+  xx1=X_TO_SCREEN(x-r);
+  yy1=Y_TO_SCREEN(y-r);
+  xx2=X_TO_SCREEN(x+r);
+  yy2=Y_TO_SCREEN(y+r);
+  arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
+  x1=X_TO_SCREEN(x1);
+  y1=Y_TO_SCREEN(y1);
+  x2=X_TO_SCREEN(x2);
+  y2=Y_TO_SCREEN(y2);
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
+  {
+   xarc[i].x=(short)xx1;
+   xarc[i].y=(short)yy1;
+   xarc[i].width =(unsigned short)(xx2 - xx1);
+   xarc[i].height=(unsigned short)(yy2 - yy1);
+   xarc[i].angle1 = (short)(a*64);
+   xarc[i].angle2 = (short)(b*64);
+   ++i;
+  }
+ }
+ else if(what & NOW)
+ {
+  xx1=X_TO_SCREEN(x-r);
+  yy1=Y_TO_SCREEN(y-r);
+  xx2=X_TO_SCREEN(x+r);
+  yy2=Y_TO_SCREEN(y+r);
+  if(arc_fill)
+    arc_bbox(x, y, r, 0, 360, &x1,&y1,&x2,&y2);
+  else
+    arc_bbox(x, y, r, a, b, &x1,&y1,&x2,&y2);
+  x1=X_TO_SCREEN(x1);
+  y1=Y_TO_SCREEN(y1);
+  x2=X_TO_SCREEN(x2);
+  y2=Y_TO_SCREEN(y2);
+  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
+  {
+   if(dash) {
+     char dash_arr[2];
+     dash_arr[0] = dash_arr[1] = (char)dash;
+     XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
+   }
+
+   if(xctx->draw_window) {
+     XDrawArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
+   }
+   if(xctx->draw_pixmap) {
+     XDrawArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
+   }
+
+   if(xctx->fill_pattern && (xctx->fill_type[c] || arc_fill == 3) ){
+
+     if(arc_fill & 2) gc = xctx->gc[c];
+     else             gc = xctx->gcstipple[c];
+     if(arc_fill) {
+       if(xctx->draw_window)
+         XFillArc(display, xctx->window, gc, (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
+       if(xctx->draw_pixmap)
+         XFillArc(display, xctx->save_pixmap, gc, (int)xx1, (int)yy1, 
+              (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
+     }
+   }
+   if(dash) {
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+   }
+  }
+ }
+ else if((what & END) && i)
+ {
+  if(xctx->draw_window) XDrawArcs(display, xctx->window, xctx->gc[c], xarc,i);
+  if(xctx->draw_pixmap) XDrawArcs(display, xctx->save_pixmap, xctx->gc[c], xarc,i);
+  i=0;
+ }
+}
+
+
 void filledrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int fill,
                 int e_a, int e_b)
 {
