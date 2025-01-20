@@ -1869,7 +1869,7 @@ static void context_menu_action(double mx, double my)
       merge_file(2,".sch");
       break;
     case 9: /* load most recent file */
-      tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
+      tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
       break;
     case 10: /* edit attributes */
       edit_property(0);
@@ -3145,7 +3145,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='O' && rstate == ControlMask )   /* load most recent tile */
    {
-     tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
+     tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
      break;
    }
    if(key=='O' && rstate == 0)   /* toggle light/dark colorscheme 20171113 */

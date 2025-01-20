@@ -1189,8 +1189,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
 /* given a string <s> with multiple "token=value ..." assignments */
 /* substitute <tok>'s value with <new_val> */
 /* if tok not found in s and new_val!=NULL add tok=new_val at end.*/
-/* if new_val is empty ('\0') set token value to "" (token="") */
-/* if new_val is NULL *remove* 'token (and =val if any)' from s */
+/* if new_val is NULL *OR* empty *remove* 'token (and =val if any)' from s */
 /* return the updated string */
 {
   static char *result=NULL;
@@ -1225,8 +1224,11 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
       new_val_copy = my_malloc(_ALLOC_ID_, new_val_len+3);
       my_snprintf(new_val_copy, new_val_len+3, "\"%s\"", new_val);
     }
-    else my_strdup(_ALLOC_ID_, &new_val_copy, new_val);
+    else my_strdup(_ALLOC_ID_, &new_val_copy, new_val); /* new_val_copy is NULL if new_val empty */
   } else new_val_copy = NULL;
+
+  /* if new_val is NULL or empty new_val_copy will be NULL */
+
   dbg(1, "subst_token(): %s, %s, %s\n", s ? s : "<NULL>", tok ? tok : "<NULL>", new_val ? new_val : "<NULL>");
   sizetok = size = CADCHUNKALLOC;
   my_realloc(_ALLOC_ID_, &result, size);

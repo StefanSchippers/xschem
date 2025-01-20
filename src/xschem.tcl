@@ -1189,7 +1189,7 @@ proc setup_recent_menu { { topwin {} } } {
   if { [info exists recentfile] } {
     foreach i $recentfile {
       $topwin.menubar.file.recent add command \
-        -command "xschem load {$i} gui" \
+        -command "xschem load -gui {$i}" \
         -label [file tail $i]
     }
   }
@@ -1804,14 +1804,19 @@ proc cellview_setlabels {w symbol derived_symbol} {
   puts ===============
   if {$sym_sch ne $new_sch && $sym_spice_sym_def eq {}} {
     puts "Changing schematic attribute in symbol"
-    xschem load $symbol noundoreset nodraw
+    xschem load -keep_symbols -nodraw -noundoreset $symbol
     set oldprop [xschem get schsymbolprop]
-    set newprop [xschem subst_tok $oldprop schematic $new_sch]
+    if { $new_sch eq $default_sch } {
+      set newprop [xschem subst_tok $oldprop schematic {}] ;# delete schematic attr in symbol
+    } else {
+      set newprop [xschem subst_tok $oldprop schematic $new_sch]
+    }
     xschem set schsymbolprop $newprop
     xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
     xschem save fast
-    xschem load $current noundoreset nodraw
-    xschem reload_symbols ;# update in-memory symbol data
+    xschem remove_symbols ;# purge all symbols to force a reload from disk 
+    xschem load -keep_symbols -nodraw -noundoreset $current
+    xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
   }
   puts sym_sch=$sym_sch
   puts default_sch=$default_sch
@@ -1833,14 +1838,14 @@ proc cellview_edit_item {symbol w} {
     set old_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     set new_sym_def [editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}]
     if {$new_sym_def ne $old_sym_def} {
-      xschem load $symbol noundoreset nodraw
+      xschem load -keep_symbols -nodraw -noundoreset $symbol
       set oldprop [xschem get schsymbolprop]
       set newprop [xschem subst_tok $oldprop spice_sym_def $new_sym_def]
       xschem set schsymbolprop $newprop
       xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
       xschem save fast
       puts "$symbol: updated spice_sym_def attribute"
-      xschem load $current noundoreset nodraw
+      xschem load -keep_symbols -nodraw -noundoreset $current
       xschem reload_symbols ;# update in-memory symbol data
     }
   }
@@ -1879,10 +1884,7 @@ proc cellview {{derived_symbols {}}} {
   }
   toplevel .cv
   xschem reload_symbols ;# purge unused symbols
-  set save_keep $keep_symbols
-  set keep_symbols 1 ;# keep all symbols when doing a hierarchic netlist
-  xschem netlist -noalert;# traverse the hierarchy and retain all encountered symbols
-  set keep_symbols $save_keep
+  xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
   wm geometry .cv 800x200
   update
   raise .cv
@@ -1993,17 +1995,17 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch ins
     # puts "traversal_update_schematic: $w parent: $parent_sch $instname def: $sym_sch $inst_sch --> [$w get]"
     if { $inst_sch ne [$w get] } {
       puts "update attr"
-      xschem load $parent_sch noundoreset nodraw
+      xschem load -undoreset -nodraw $parent_sch 
       if { [$w get] eq  $sym_sch} {
-        xschem setprop instance $instname schematic fast ;# remove schematic attr on instance
+        xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
       } else {
-        xschem setprop instance $instname schematic [$w get] fast ;# set schematic attr on instance
+        xschem setprop -fast instance $instname schematic [$w get]  ;# set schematic attr on instance
       } 
       xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
       xschem save fast
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
-      xschem load $current  noundoreset nodraw
+      xschem load -undoreset -nodraw $current
   
       bind $w <KeyRelease> "
         traversal_setlabels $w [list $parent_sch] [list $instname] [list $inst_sch] [list $sym_sch] \
@@ -2724,7 +2726,7 @@ proc graph_edit_wave {n n_wave} {
   # remove excess colors
   set col [lrange $col 0 [expr {$i - 1}]]
   set graph_sel_color [lindex $col $graph_sel_wave]
-  xschem setprop rect 2 $graph_selected color $col fast
+  xschem setprop -fast rect 2 $graph_selected color $col 
   xschem draw_graph  $graph_selected
   toplevel .graphdialog -class Dialog
   wm transient .graphdialog [xschem get topwindow]
@@ -2806,10 +2808,10 @@ proc graph_add_nodes_from_list {nodelist} {
       .graphdialog.center.right.text1 insert end $sel
       if { [xschem get schname] eq $graph_schname } {
         set node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-        xschem setprop rect 2 $graph_selected color $col fastundo
+        xschem setprop -fastundo rect 2 $graph_selected color $col
         graph_update_nodelist
         regsub -all {[\\"]} $node {\\&} node_quoted
-        xschem setprop rect 2 $graph_selected node $node_quoted fast
+        xschem setprop -fast rect 2 $graph_selected node $node_quoted
         xschem draw_graph $graph_selected
       }
     }
@@ -2836,13 +2838,13 @@ proc graph_add_nodes_from_list {nodelist} {
     }
 
     if {$change_done} {
-      xschem setprop rect 2 [xschem get graph_lastsel] color $col fastundo
+      xschem setprop -fastundo rect 2 [xschem get graph_lastsel] color $col
       if {[string length $nnn] > 0 && ![regexp "\n$" $nnn]} {
         append nnn "\n"
       } 
       append nnn $sel
       regsub -all {[\\"]} $nnn {\\&} node_quoted
-      xschem setprop rect 2 [xschem get graph_lastsel] node $node_quoted fast
+      xschem setprop -fast rect 2 [xschem get graph_lastsel] node $node_quoted
       xschem draw_graph [xschem get graph_lastsel]
     }
   }
@@ -2945,7 +2947,7 @@ proc graph_change_wave_color {{wave {}}} {
           set index [string range $tag 1 end]
           set col  [xschem getprop rect 2 $graph_selected color]
           set col [lreplace $col $index $index  $graph_sel_color]
-          xschem setprop rect 2 $graph_selected color $col fast
+          xschem setprop -fast rect 2 $graph_selected color $col 
         }
       }
       graph_update_nodelist
@@ -2957,7 +2959,7 @@ proc graph_change_wave_color {{wave {}}} {
         set index [string range $tag 1 end]
         set col  [xschem getprop rect 2 $graph_selected color]
         set col [lreplace $col $index $index  $graph_sel_color]
-        xschem setprop rect 2 $graph_selected color $col fast
+        xschem setprop -fast rect 2 $graph_selected color $col 
         graph_update_nodelist
         xschem draw_graph $graph_selected
       }
@@ -2966,7 +2968,7 @@ proc graph_change_wave_color {{wave {}}} {
   } else {
     set col  [xschem getprop rect 2 $graph_selected color]
     set col [lreplace $col $wave $wave  $graph_sel_color]
-    xschem setprop rect 2 $graph_selected color $col fast
+    xschem setprop -fast rect 2 $graph_selected color $col 
     xschem draw_graph $graph_selected
   }
 }
@@ -3023,7 +3025,7 @@ proc graph_tag_nodes {txt} {
     } else {
       set col {}
     }
-    xschem setprop rect 2 $graph_selected color $col fast
+    xschem setprop -fast rect 2 $graph_selected color $col 
   }
   return [list $tt $cc] 
 }
@@ -3078,7 +3080,7 @@ proc graph_update_node {node} {
   # note the double escaping for regsub replace string
   regsub -all {[\\"]} $node {\\&} node_quoted
   graph_push_undo
-  xschem setprop rect 2 $graph_selected node $node_quoted fast
+  xschem setprop -fast rect 2 $graph_selected node $node_quoted 
   xschem draw_graph $graph_selected
 }
 
@@ -3139,13 +3141,13 @@ proc set_rect_flags {graph_selected} {
       } else {
         set unlocked {}
       }
-      xschem setprop rect 2 $graph_selected flags "graph$unlocked$private_cursor" fast
+      xschem setprop -fast rect 2 $graph_selected flags "graph$unlocked$private_cursor" 
   }
 
 proc graphdialog_set_raw_props {} {
   global graph_selected
-  xschem setprop rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] fast
-  xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+  xschem setprop -fast rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] 
+  xschem setprop -fast rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] 
   graph_fill_listbox
 }
 
@@ -3239,9 +3241,9 @@ proc graph_edit_properties {n} {
   checkbutton .graphdialog.center.right.autoload -text {Auto load}  -variable graph_autoload \
     -command {
       if {$graph_autoload} {
-        xschem setprop rect 2 $graph_selected autoload 1 fast
+        xschem setprop -fast rect 2 $graph_selected autoload 1 
       } else {
-        xschem setprop rect 2 $graph_selected autoload 0 fast
+        xschem setprop -fast rect 2 $graph_selected autoload 0 
       } 
     } 
   label .graphdialog.center.right.lab2 -text {    Sim type:}
@@ -3254,7 +3256,7 @@ proc graph_edit_properties {n} {
   }
   if { [info tclversion] > 8.4} {
     bind .graphdialog.center.right.list <<ComboboxSelected>> {
-      xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+      xschem setprop -fast rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] 
       graph_fill_listbox
     }
     if { [xschem getprop rect 2 $graph_selected sim_type 2] ne {}} {
@@ -3272,7 +3274,7 @@ proc graph_edit_properties {n} {
   }
 
   bind .graphdialog.center.right.list <KeyRelease> {
-    xschem setprop rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] fast
+    xschem setprop -fast rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] 
     graph_fill_listbox
   }
 
@@ -3325,10 +3327,10 @@ proc graph_edit_properties {n} {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
-      xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
+      xschem setprop -fast rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] 
+      xschem setprop -fast rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] 
+      xschem setprop -fast rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] 
+      xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] 
       set_rect_flags $graph_selected
     }
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
@@ -3340,10 +3342,10 @@ proc graph_edit_properties {n} {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
-      xschem setprop rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] fast
-      xschem setprop rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] fast
-      xschem setprop rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] fast
-      xschem setprop rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] fast
+      xschem setprop -fast rect 2 $graph_selected x1 [.graphdialog.top3.xmin get] 
+      xschem setprop -fast rect 2 $graph_selected x2 [.graphdialog.top3.xmax get] 
+      xschem setprop -fast rect 2 $graph_selected y1 [.graphdialog.top3.ymin get] 
+      xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get] 
       set_rect_flags $graph_selected
     }
   }
@@ -3364,7 +3366,7 @@ proc graph_edit_properties {n} {
     -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
-         xschem setprop rect 2 $graph_selected legend $graph_legend fast
+         xschem setprop -fast rect 2 $graph_selected legend $graph_legend 
          xschem draw_graph $graph_selected
        }
      }
@@ -3497,7 +3499,7 @@ proc graph_edit_properties {n} {
     -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
-         xschem setprop rect 2 $graph_selected rainbow $graph_rainbow fast
+         xschem setprop -fast rect 2 $graph_selected rainbow $graph_rainbow 
          xschem draw_graph $graph_selected
        }
      }
@@ -3535,7 +3537,7 @@ proc graph_edit_properties {n} {
     -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
-         xschem setprop rect 2 $graph_selected digital $graph_digital fast
+         xschem setprop -fast rect 2 $graph_selected digital $graph_digital 
          xschem draw_graph $graph_selected
        }
      }
@@ -3623,17 +3625,17 @@ proc graph_edit_properties {n} {
      -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
-         xschem setprop rect 2 $graph_selected logx $graph_logx fast
+         xschem setprop -fast rect 2 $graph_selected logx $graph_logx 
          if { $graph_logx eq 1} {
            graph_push_undo
-           xschem setprop rect 2 $graph_selected subdivx 8 fast
+           xschem setprop -fast rect 2 $graph_selected subdivx 8 
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 8
            xschem setprop rect 2 $graph_selected fullxzoom
            xschem setprop rect 2 $graph_selected fullyzoom
          } else {
            graph_push_undo
-           xschem setprop rect 2 $graph_selected subdivx 4 fast
+           xschem setprop -fast rect 2 $graph_selected subdivx 4 
            .graphdialog.top2.subdivx delete 0 end
            .graphdialog.top2.subdivx insert 0 4
            xschem setprop rect 2 $graph_selected fullxzoom
@@ -3647,16 +3649,16 @@ proc graph_edit_properties {n} {
      -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
-         xschem setprop rect 2 $graph_selected logy $graph_logy fast
+         xschem setprop -fast rect 2 $graph_selected logy $graph_logy 
          if { $graph_logy eq 1} {
            graph_push_undo
-           xschem setprop rect 2 $graph_selected subdivy 8 fast
+           xschem setprop -fast rect 2 $graph_selected subdivy 8 
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 8
            xschem setprop rect 2 $graph_selected fullyzoom
          } else {
            graph_push_undo
-           xschem setprop rect 2 $graph_selected subdivy 4 fast
+           xschem setprop -fast rect 2 $graph_selected subdivy 4 
            .graphdialog.top2.subdivy delete 0 end
            .graphdialog.top2.subdivy insert 0 4
            xschem setprop rect 2 $graph_selected fullyzoom
@@ -6650,7 +6652,7 @@ proc swap_compare_schematics {} {
   }
   puts "swap_compare_schematics:\n  sch1=$sch1\n  sch2=$sch2"
   if {$sch2 ne {}} {
-    xschem load $sch2 nofullzoom gui
+    xschem load -nofullzoom -gui $sch2
     set current  [xschem get schname]
     # Use "file tail" to handle equality of
     # https://raw.githubusercon...tb_reram.sch and /tmp/xschem_web/tb_reram.sch
@@ -8103,7 +8105,7 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.file add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file add command -label "Open Most Recent" \
-    -command {xschem load [lindex "$recentfile" 0] gui} -accelerator {Ctrl+Shift+O}
+    -command {xschem load -gui [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
   menu $topwin.menubar.file.recent -tearoff 0
   setup_recent_menu $topwin
