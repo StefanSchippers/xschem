@@ -1817,6 +1817,7 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
+    puts "get netlist"
   }
   puts sym_sch=$sym_sch
   puts default_sch=$default_sch
@@ -1862,7 +1863,7 @@ proc cellview_edit_sym {w} {
   xschem load_new_window $sym
 }
 
-proc cellview {{derived_symbols {}}} {
+proc cellview { {derived_symbols {}} {upd 0} } {
   global keep_symbols nolist_libs dark_gui_colorscheme
 
   if {$dark_gui_colorscheme} { 
@@ -1882,29 +1883,42 @@ proc cellview {{derived_symbols {}}} {
   } else {
     set font fixed
   }
-  toplevel .cv
-  xschem reload_symbols ;# purge unused symbols
-  xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
-  wm geometry .cv 800x200
-  update
-  raise .cv
-  frame .cv.top
-  label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.sch -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.pad -text {      } -width 4 -bg grey60 -font $font
-  pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
-  pack .cv.top.pad -side left -fill x
-  frame .cv.center
-  set sf [sframe .cv.center]
-  # puts sf=$sf
+
+  if {!$upd} {
+
+    xschem reload_symbols ;# purge unused symbols
+    xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
+    puts "get netlist"
+
+    catch {destroy .cv}
+    toplevel .cv
+    wm geometry .cv 800x200
+    update
+    raise .cv
+    frame .cv.top
+    label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
+    label .cv.top.sch -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
+    label .cv.top.pad -text {      } -width 4 -bg grey60 -font $font
+    pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
+    pack .cv.top.pad -side left -fill x
+    frame .cv.center
+    set sf [sframe .cv.center]
+  } else {
+    set sf .cv.center.f.scrl
+  }
+  
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
   foreach {i symbol} $syms {
-    set base_name [xschem symbol_base_name $symbol]
+    if { [catch {set base_name [xschem symbol_base_name $symbol]}] } {
+      set base_name $symbol
+    }
     set derived_symbol 0
     if {$base_name ne {}} {
       set derived_symbol 1
     }
-    set abs_sch [xschem get_sch_from_sym -1 $symbol]
+    if { [catch {set abs_sch [xschem get_sch_from_sym -1 $symbol]} ]} {
+      set abs_sch [abs_sym_path [add_ext $symbol .sch]]
+    }
     if {$derived_symbol} {
       set abs_sym [abs_sym_path $base_name]
     } else {
@@ -1922,28 +1936,32 @@ proc cellview {{derived_symbols {}}} {
     set type [xschem getprop symbol $symbol type]
     set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     if {$type eq {subcircuit}} {
-      frame $sf.f$i
-      pack $sf.f$i -side top -fill x
-      label  $sf.f$i.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
-        -relief sunken -pady 1 -font $font
-      if {$derived_symbol} { 
-        $sf.f$i.l configure -fg $instfg
-      }
-      # puts $sf.f$i.s
-      entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
-      button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "cellview_edit_sym $sf.f$i.l"
-      button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "cellview_edit_item $symbol $sf.f$i.s"
-      if {$sym_spice_sym_def eq {}} {
-        $sf.f$i.s insert 0 $sym_sch
-      } else {
-        if {$derived_symbol} {
-          $sf.f$i.s insert 0 {defined in instance spice_sym_def}
+
+      if {!$upd} {
+        frame $sf.f$i
+        pack $sf.f$i -side top -fill x
+        label  $sf.f$i.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
+          -relief sunken -pady 1 -font $font
+        if {$derived_symbol} { 
+          $sf.f$i.l configure -fg $instfg
+        }
+        # puts $sf.f$i.s
+        entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
+        button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
+               -command "cellview_edit_sym $sf.f$i.l"
+        button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
+               -command "cellview_edit_item $symbol $sf.f$i.s"
+        if {$sym_spice_sym_def eq {}} {
+          $sf.f$i.s insert 0 $sym_sch
         } else {
-          $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
+          if {$derived_symbol} {
+            $sf.f$i.s insert 0 {defined in instance spice_sym_def}
+          } else {
+            $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
+          }
         }
       }
+
       if {[xschem is_generator [ $sf.f$i.s get]]} {
         set f [ $sf.f$i.s get]
         regsub {\(.*} $f {} f
@@ -1959,15 +1977,19 @@ proc cellview {{derived_symbols {}}} {
       }
       balloon $sf.f$i.s $f
 
-      bind $sf.f$i.s <KeyRelease> "
-        cellview_setlabels %W [list $symbol] $derived_symbol
-      "
       cellview_setlabels $sf.f$i.s $symbol $derived_symbol
-      pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
-      pack $sf.f$i.sch $sf.f$i.sym -side left
+      if {!$upd} {
+        pack $sf.f$i.l $sf.f$i.s -side left -fill x -expand 1
+        pack $sf.f$i.sch $sf.f$i.sym -side left
+      }
     }
   }
+
+  if {$upd} {return}
+
   frame .cv.bottom
+  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1"
+  pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
   pack .cv.top -side top -fill x -expand no

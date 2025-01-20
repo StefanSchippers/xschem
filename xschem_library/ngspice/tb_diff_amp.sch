@@ -80,7 +80,7 @@ module diff_amp(
   input electrical in2);
 
 parameter real gain = 40; // setting gain to 40 of the differential amplifier
-parameter real vcc = 3;   // swing from -vcc to +vcc
+parameter real vcc = 3;   // swing from -vcc/2 to +vcc/2
 parameter real offset = 3;// added offset
 
 analog begin
