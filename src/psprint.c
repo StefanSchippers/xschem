@@ -906,7 +906,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
           "/Subtype /Link "
           "/ANN pdfmark\n",
           x1, y1, x2, y2,
-          sanitize(get_cell_w_ext(fname, 0)));
+          get_cell_w_ext(sanitize(fname), 0));
       }
     }
   }

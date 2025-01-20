@@ -116,6 +116,11 @@ const char *sanitize(const char *name)
 {
   static char *s = NULL;
   static char *empty="";
+
+  if(!is_generator(name)) {
+    my_strdup2(_ALLOC_ID_, &s, name);
+    return s;
+  }
   if(name == NULL) {
     my_free(_ALLOC_ID_, &s);
     return empty;
@@ -1634,7 +1639,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   my_strdup(_ALLOC_ID_, &generic_type, get_tok_value(xctx->sym[symbol].prop_ptr,"generic_type",0));
   dbg(2, "print_generic(): symbol=%d template=%s \n", symbol, template);
 
-  fprintf(fd, "%s %s ",ent_or_comp, sanitize(get_cell(xctx->sym[symbol].name, 0)));
+  fprintf(fd, "%s %s ",ent_or_comp, get_cell(sanitize(xctx->sym[symbol].name), 0));
   if(!strcmp(ent_or_comp,"entity"))
    fprintf(fd, "is\n");
   else
