@@ -2808,38 +2808,54 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* load f [symbol|gui|noundoreset|nofullzoom]
+    /* load [-nosymbols|-gui|-noundoreset|-nofullzoom|-keep_symbols] f
      *   Load a new file 'f'.
-     *   'gui': ask to save modified file or warn if opening an already
-     *   open file or opening a new(not existing) file.
-     *   'noundoreset': do not reset the undo history
-     *   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
-     *   'nofullzoom': do not do a full zoom on new schematic.
-     *   'nodraw': do not draw.
+     *   '-gui': ask to save modified file or warn if opening an already
+     *       open file or opening a new(not existing) file.
+     *   '-noundoreset': do not reset the undo history
+     *   '-nosymbols': do not load symbols (used if loading a symbol instead of
+     *       a schematic)
+     *   '-nofullzoom': do not do a full zoom on new schematic.
+     *   '-nodraw': do not draw.
+     *   '-keep_symbols': retain symbols that are already loaded.
      */
     else if(!strcmp(argv[1], "load") )
     {
       int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
+      int keep_symbols = 0;
       size_t i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 3) {
-        for(i = 3; i < argc; ++i) {
-          if(!strcmp(argv[i], "symbol")) load_symbols = 0;
-          if(!strcmp(argv[i], "gui")) force = 0;
-          if(!strcmp(argv[i], "noundoreset")) undo_reset = 0;
-          if(!strcmp(argv[i], "nofullzoom")) nofullzoom = 1;
-          if(!strcmp(argv[i], "nodraw")) {nofullzoom = 1; nodraw = 1;}
+
+
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-nosymbols")) { 
+            load_symbols = 0 ;
+          } else if(!strcmp(argv[i], "-gui")) {
+            force = 0;
+          } else if(!strcmp(argv[i], "-noundoreset")) {
+            undo_reset = 0;
+          } else if(!strcmp(argv[i], "-nofullzoom")) {
+            nofullzoom = 1;
+          } else if(!strcmp(argv[i], "-nodraw")) {
+            nofullzoom = 1; nodraw = 1;
+          } else if(!strcmp(argv[i], "-keep_symbols")) {
+            keep_symbols = 1;
+          }
+        } else {
+          break;
         }
       }
-      if(argc>2) {
+
+      if(argc>i) {
         char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
+        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
         tcleval(f);
         my_strncpy(f, tclresult(), S(f));
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
-          dbg(1, "scheduler(): load: filename=%s\n", argv[2]);
+          dbg(1, "scheduler(): load: filename=%s\n", argv[i]);
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
           if(!force && f[0] && check_loaded(f, win_path) ) {
             char msg[PATH_MAX + 100];
@@ -2859,7 +2875,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             /* no implicit undo: if needed do it before loading */
             /* if(!undo_reset) xctx->push_undo(); */
             if(undo_reset) xctx->currsch = 0;
-            remove_symbols();
+            if(!keep_symbols) remove_symbols();
             if(!nofullzoom) {
               xctx->zoom=CADINITIALZOOM;
               xctx->mooz=1/CADINITIALZOOM;
@@ -3200,7 +3216,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hilight_net_pin_mismatches();
     }
 
-    /* netlist [-messages | -erc | -nohier] [filename]
+    /* netlist [-keep_symbols|-noalert|-messages|-erc | -nohier] [filename]
      *   do a netlist of current schematic in currently defined netlist format
      *   if 'filename'is given use specified name for the netlist
      *   if 'filename' contains path components place the file in specified path location.
@@ -3210,15 +3226,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   will create the netlist in different places.
      *   netlisting directory is reset to previous setting after completing this command
      *   If -messages is given return the ERC messages instead of just a fail (1)
+     *   or no fail (0) code. 
      *   If -erc is given it means netlister is called from gui, enable show infowindow
      *   If -nohier is given netlist only current level
-     *   or no fail (0) code. */
+     *   If -keep_symbols is given no not purge symbols encountered traversing the
+     *   design hierarchy */
     else if(!strcmp(argv[1], "netlist") )
     {
       char *saveshow = NULL;
       int err = 0;
       int hier_netlist = 1;
       int i, messages = 0;
+      int alert = 1;
+      int keep_symbols=0, save_keep;
       int erc = 0;
       const char *fname = NULL;
       const char *path;
@@ -3235,6 +3255,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             messages = 1;
           } else if(!strcmp(argv[i], "-erc")) {
             erc = 1;
+          } else if(!strcmp(argv[i], "-keep_symbols")) {
+            keep_symbols = 1;
+          } else if(!strcmp(argv[i], "-noalert")) {
+            alert = 0;
           } else if(!strcmp(argv[i], "-nohier")) {
             hier_netlist = 0;
           }
@@ -3254,17 +3278,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(set_netlist_dir(0, NULL) ) {
         done_netlist = 1;
+
+        save_keep = tclgetboolvar("keep_symbols");
+        tclsetboolvar("keep_symbols", keep_symbols);
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
-          err = global_spice_netlist(hier_netlist);                  /* 1 means global netlist */
+          err = global_spice_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-          err = global_vhdl_netlist(hier_netlist);
+          err = global_vhdl_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-          err = global_verilog_netlist(hier_netlist);
+          err = global_verilog_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-          global_tedax_netlist(hier_netlist);
+          global_tedax_netlist(hier_netlist, alert);
         else
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
+        tclsetboolvar("keep_symbols", save_keep);
+
         if( (erc == 0) ) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
         }
@@ -5258,14 +5287,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* setprop instance|symbol|text|rect ref tok [val] [fast]
+    /* setprop [-fast|-fastundo] instance|symbol|text|rect ref tok [val]
      *
-     * setprop instance inst [tok] [val] [fast]
+     * setprop [-fast] instance inst [tok] [val]
      *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
      *   If 'tok' set to 'allprops' replace whole instance prop_str with 'val'
      *   If 'val' not given (no attribute value) delete attribute from instance
      *   If 'tok' not given clear completely instance attribute string
-     *   If 'fast' argument if given does not redraw and is not undoable
+     *   If '-fast' argument if given does not redraw and is not undoable
      *
      * setprop symbol name tok [val]
      *   Set attribute 'tok' of symbol name 'name' to 'val'
@@ -5273,43 +5302,52 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   This command is not very useful since changes are not saved into symbol
      *   and netlisters reload symbols, so changes are lost anyway.
      *
-     * setprop rect lay n tok [val] [fast|fastundo]
+     * setprop rect [-fast|-fastundo] lay n tok [val]
      *   Set attribute 'tok' of rectangle number'n' on layer 'lay'
      *   If 'val' not given (no attribute value) delete attribute from rect
-     *   If 'fast' argument is given does not redraw and is not undoable
-     *   If 'fastundo' s given same as above but action is undoable.
+     *   If '-fast' argument is given does not redraw and is not undoable
+     *   If '-fastundo' s given same as above but action is undoable.
      *
      * setprop rect 2 n fullxzoom
      * setprop rect 2 n fullyzoom
      *   These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
      *
-     * setprop text n [tok] [val] [fast|fastundo]
+     * setprop [-fast|-fastundo] text n [tok] [val]
      *   Set attribute 'tok' of text number 'n'
      *   If 'tok' not specified set text string (txt_ptr) to value
      *   If "txt_ptr" is given as token replace the text txt_ptr ("the text")
      *   If 'val' not given (no attribute value) delete attribute from text
-     *   If 'fast' argument is given does not redraw and is not undoable
-     *   If 'fastundo' s given same as above but action is undoable.
+     *   If '-fast' argument is given does not redraw and is not undoable
+     *   If '-fastundo' is given same as above but action is undoable.
      */
     else if(!strcmp(argv[1], "setprop"))
     {
+      int i, fast = 0, shift = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-    /*   0       1       2     3    4     5    6
-     * xschem setprop instance R4 value [30k] [fast] */
+
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-fast")) {
+            fast = 1; shift++;
+          } else if(!strcmp(argv[i], "-fastundo")) {
+            fast = 3; shift++;
+          }
+        } else {
+          break;
+        }
+      }
+      /* remove option (-xxx) arguments and shift remaining */
+      if(shift) for(; i < argc; i++) {
+        argv[i - shift] = argv[i];
+      }
+      argc -= shift;
+
+
+    /*   0       1       2     3    4     5  
+     * xschem setprop instance R4 value [30k]  */
       if(argc > 2 && !strcmp(argv[2], "instance")) {
-        int inst, fast=0;
-        if(argc > 6) {
-          if(!strcmp(argv[6], "fast")) {
-            fast = 1;
-            argc = 6;
-          }
-        }
-        else if(argc > 5) {
-          if(!strcmp(argv[5], "fast")) {
-            fast = 1;
-            argc = 5;
-          }
-        }
+        int inst;
+
         if(argc < 4) {
           Tcl_SetResult(interp, "xschem setprop instance needs 1 or more additional arguments", TCL_STATIC);
           return TCL_ERROR;
@@ -5387,10 +5425,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], NULL)); /* delete attr */
 
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
-      /*  0       1      2   3 4   5    6      7
-       * xschem setprop rect c n token [value] [fast|fastundo] */
+      /*  0       1      2   3 4   5    6     
+       * xschem setprop rect c n token [value] */
         int change_done = 0;
-        int fast = 0;
         xRect *r;
         int c = atoi(argv[3]);
         int n = atoi(argv[4]);
@@ -5399,26 +5436,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         }
         r = &xctx->rect[c][n];
-        if(argc > 7) {
-          if(!strcmp(argv[7], "fast")) {
-            fast = 1;
-            argc = 7;
-          }
-          if(!strcmp(argv[7], "fastundo")) {
-            fast = 3;
-            argc = 7;
-          }
-        }
-        else if(argc > 6) {
-          if(!strcmp(argv[6], "fast")) {
-            fast = 1;
-            argc = 6;
-          }
-          if(!strcmp(argv[6], "fastundo")) {
-            fast = 3;
-            argc = 6;
-          }
-        }
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
         }
@@ -5477,7 +5494,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        * xschem setprop text n [token] value [fast|fastundo]
        * if "txt_ptr" is given as token replace the text txt_ptr ("the text") */
         int change_done = 0;
-        int argc_copy, i, tmp, fast = 0;
+        int tmp;
         double xx1, xx2, yy1, yy2, dtmp;
         xText *t;
         int n = atoi(argv[3]);
@@ -5487,17 +5504,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         t = &xctx->text[n];
 
-        argc_copy = argc;
-        for(i = 5; i < argc_copy; i++) {
-          if(!strcmp(argv[i], "fast")) {
-            fast = 1;
-            argc--;
-          }
-          if(!strcmp(argv[i], "fastundo")) {
-            fast = 3;
-            argc--;
-          }
-        }
         if(!fast) {
           bbox(START,0.0,0.0,0.0,0.0);
         }

@@ -1473,13 +1473,13 @@ extern void store_arc(int pos, double x, double y, double r, double a, double b,
                unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 
 extern void hier_psprint(char **res, int what);
-extern int global_spice_netlist(int global);
-extern int global_tedax_netlist(int global);
-extern int global_vhdl_netlist(int global);
-extern int global_verilog_netlist(int global);
-extern int vhdl_block_netlist(FILE *fd, int i);
-extern int verilog_block_netlist(FILE *fd, int i);
-extern int spice_block_netlist(FILE *fd, int i);
+extern int global_spice_netlist(int global, int alert);
+extern int global_tedax_netlist(int global, int alert);
+extern int global_vhdl_netlist(int global, int alert);
+extern int global_verilog_netlist(int global, int alert);
+extern int vhdl_block_netlist(FILE *fd, int i, int alert);
+extern int verilog_block_netlist(FILE *fd, int i, int alert);
+extern int spice_block_netlist(FILE *fd, int i, int alert);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);

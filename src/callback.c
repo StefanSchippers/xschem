@@ -155,6 +155,7 @@ void abort_operation(void)
      xctx->ui_state &= ~PLACE_SYMBOL;
      xctx->ui_state &= ~PLACE_TEXT;
    }
+   return;
   }
   if(xctx->ui_state & STARTCOPY)
   {
@@ -1592,6 +1593,7 @@ static int check_menu_start_commands(double c_snap)
 static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
 {
   int res = 0;
+  int prev_state = xctx->ui_state;
   int i, type = sel->type;
   double pinx0, piny0;
   if(type == ELEMENT) {
@@ -1605,19 +1607,13 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
       }
     }
     if(i < npin) {
-      int save = xctx->modified;
       dbg(1, "pin: %g %g\n", pinx0, piny0);
       unselect_all(1);
-      xctx->push_undo();
-      storeobject(-1, pinx0, piny0,  pinx0, piny0, WIRE, 0, SELECTED1, NULL);
-      set_modify(save);
-      xctx->shape_point_selected = 1;
-      xctx->prep_hash_wires=0;
-      xctx->need_reb_sel_arr = 1;
-      xctx->kissing = 1;
-      rebuild_selected_array();
-      move_objects(START,0,0,0);
-      xctx->ui_state |= START_SYMPIN; /* avoid double push_undo() in move_objects() */
+      start_wire(xctx->mousex_snap, xctx->mousey_snap); 
+      if(prev_state == STARTWIRE) {
+        tcleval("set constr_mv 0" );
+        xctx->constr_mv=0;
+      }
       res = 1;
     }
   } else if(type == WIRE) {
@@ -1627,18 +1623,12 @@ static int add_wire_from_inst_pin(Selected *sel, double mx, double my)
     double x2 = xctx->wire[n].x2;
     double y2 = xctx->wire[n].y2;
     if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
-      int save = xctx->modified;
       unselect_all(1); 
-      xctx->push_undo();
-      storeobject(-1, mx, my,  mx, my, WIRE, 0, SELECTED1, NULL);
-      set_modify(save);
-      xctx->shape_point_selected = 1;
-      xctx->prep_hash_wires=0;
-      xctx->need_reb_sel_arr = 1;
-      xctx->kissing = 1;
-      rebuild_selected_array();
-      move_objects(START,0,0,0);
-      xctx->ui_state |= START_SYMPIN; /* avoid double push_undo() in move_objects() */
+      start_wire(xctx->mousex_snap, xctx->mousey_snap); 
+      if(prev_state == STARTWIRE) {
+        tcleval("set constr_mv 0" );
+        xctx->constr_mv=0;
+      }
       res = 1;
     }
   }
@@ -1895,7 +1885,7 @@ static void context_menu_action(double mx, double my)
       merge_file(2,".sch");
       break;
     case 9: /* load most recent file */
-      tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
+      tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
       break;
     case 10: /* edit attributes */
       edit_property(0);
@@ -3181,7 +3171,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='O' && rstate == ControlMask )   /* load most recent tile */
    {
-     tclvareval("xschem load [lindex $recentfile 0] gui", NULL);
+     tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
      break;
    }
    if(key=='O' && rstate == 0)   /* toggle light/dark colorscheme 20171113 */
@@ -3762,13 +3752,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(set_netlist_dir(0, NULL)) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(1);
+        err = global_spice_netlist(1, 1);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(1);
+        err = global_vhdl_netlist(1, 1);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(1);
+        err = global_verilog_netlist(1, 1);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(1);
+        err = global_tedax_netlist(1, 1);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");
@@ -3803,13 +3793,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
       if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(0);
+        err = global_spice_netlist(0, 1);
       else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(0);
+        err = global_vhdl_netlist(0, 1);
       else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(0);
+        err = global_verilog_netlist(0, 1);
       else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(0);
+        err = global_tedax_netlist(0, 1);
       else
         tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                 "-message {Please Set netlisting mode (Options menu)}");
@@ -4214,6 +4204,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
      xctx->semaphore = savesem;
+   }
+
+   /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
+   else if(xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {
+     if(end_place_move_copy_zoom()) break;
    }
 
    /* end intuitive_interface copy or move */

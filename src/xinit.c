@@ -2978,13 +2978,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
          fprintf(errfp, "xschem: flat netlist requested\n");
      }
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
-       global_spice_netlist(1);                  /* 1 means global netlist */
+       global_spice_netlist(1, 1);                  /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-       global_vhdl_netlist(1);                   /* 1 means global netlist */
+       global_vhdl_netlist(1, 1);                   /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-       global_verilog_netlist(1);                /* 1 means global netlist */
+       global_verilog_netlist(1, 1);                /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-       global_tedax_netlist(1);                  /* 1 means global netlist */
+       global_tedax_netlist(1, 1);                  /* 1 means global netlist */
    } else {
     fprintf(errfp, "xschem: please set netlist_dir in xschemrc\n");
    }

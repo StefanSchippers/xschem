@@ -1003,14 +1003,16 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    0: eat non escaped quotes (")
    1: return unescaped quotes as part of the token value if they are present
    2: eat backslashes </pre>
-   <li><kbd>       load f [symbol|gui|noundoreset|nofullzoom]</kbd></li><pre>
+   <li><kbd>       load [-nosymbols|-gui|-noundoreset|-nofullzoom|-keep_symbols] f</kbd></li><pre>
    Load a new file 'f'.
-   'gui': ask to save modified file or warn if opening an already
-   open file or opening a new(not existing) file.
-   'noundoreset': do not reset the undo history
-   'symbol': do not load symbols (used if loading a symbol instead of a schematic)
-   'nofullzoom': do not do a full zoom on new schematic.
-   'nodraw': do not draw.</pre>
+   '-gui': ask to save modified file or warn if opening an already
+       open file or opening a new(not existing) file.
+   '-noundoreset': do not reset the undo history
+   '-nosymbols': do not load symbols (used if loading a symbol instead of
+       a schematic)
+   '-nofullzoom': do not do a full zoom on new schematic.
+   '-nodraw': do not draw.
+   '-keep_symbols': retain symbols that are already loaded.</pre>
    <li><kbd>       load_new_window [f]</kbd></li><pre>
    Load schematic in a new tab/window. If 'f' not given prompt user
    if 'f' is given as empty '{}' then open untitled.sch </pre>
@@ -1071,7 +1073,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       net_pin_mismatch</kbd></li><pre>
    Highlight nets attached to selected symbols with
    a different name than symbol pin </pre>
-   <li><kbd>       netlist [-messages | -erc | -nohier] [filename]</kbd></li><pre>
+   <li><kbd>       netlist [-keep_symbols|-noalert|-messages|-erc | -nohier] [filename]</kbd></li><pre>
    do a netlist of current schematic in currently defined netlist format
    if 'filename'is given use specified name for the netlist
    if 'filename' contains path components place the file in specified path location.
@@ -1081,9 +1083,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    will create the netlist in different places.
    netlisting directory is reset to previous setting after completing this command
    If -messages is given return the ERC messages instead of just a fail (1)
+   or no fail (0) code. 
    If -erc is given it means netlister is called from gui, enable show infowindow
    If -nohier is given netlist only current level
-   or no fail (0) code. </pre>
+   If -keep_symbols is given no not purge symbols encountered traversing the
+   design hierarchy </pre>
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
@@ -1475,14 +1479,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    3 : set modified flag, do nothing else.
   -1 : set title, rst floater caches.
   -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).</pre>
-   <li><kbd>       setprop instance|symbol|text|rect ref tok [val] [fast]</kbd></li><pre>
+   <li><kbd>       setprop [-fast|-fastundo] instance|symbol|text|rect ref tok [val]</kbd></li><pre>
       
-       setprop instance inst [tok] [val] [fast]
+       setprop [-fast] instance inst [tok] [val]
    set attribute 'tok' of instance (name or number) 'inst' to value 'val'
    If 'tok' set to 'allprops' replace whole instance prop_str with 'val'
    If 'val' not given (no attribute value) delete attribute from instance
    If 'tok' not given clear completely instance attribute string
-   If 'fast' argument if given does not redraw and is not undoable
+   If '-fast' argument if given does not redraw and is not undoable
       
        setprop symbol name tok [val]
    Set attribute 'tok' of symbol name 'name' to 'val'
@@ -1490,23 +1494,23 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    This command is not very useful since changes are not saved into symbol
    and netlisters reload symbols, so changes are lost anyway.
       
-       setprop rect lay n tok [val] [fast|fastundo]
+       setprop rect [-fast|-fastundo] lay n tok [val]
    Set attribute 'tok' of rectangle number'n' on layer 'lay'
    If 'val' not given (no attribute value) delete attribute from rect
-   If 'fast' argument is given does not redraw and is not undoable
-   If 'fastundo' s given same as above but action is undoable.
+   If '-fast' argument is given does not redraw and is not undoable
+   If '-fastundo' s given same as above but action is undoable.
       
        setprop rect 2 n fullxzoom
        setprop rect 2 n fullyzoom
    These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
       
-       setprop text n [tok] [val] [fast|fastundo]
+       setprop [-fast|-fastundo] text n [tok] [val]
    Set attribute 'tok' of text number 'n'
    If 'tok' not specified set text string (txt_ptr) to value
    If "txt_ptr" is given as token replace the text txt_ptr ("the text")
    If 'val' not given (no attribute value) delete attribute from text
-   If 'fast' argument is given does not redraw and is not undoable
-   If 'fastundo' s given same as above but action is undoable.</pre>
+   If '-fast' argument is given does not redraw and is not undoable
+   If '-fastundo' is given same as above but action is undoable.</pre>
    <li><kbd>       simulate [callback]</kbd></li><pre>
    Run a simulation (start simulator configured as default in
    Tools -&gt; Configure simulators and tools)

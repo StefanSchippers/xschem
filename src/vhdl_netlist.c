@@ -101,7 +101,8 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  return err;
 }
 
-int global_vhdl_netlist(int global)  /* netlister driver */
+/* alert: if set show alert if file missing */
+int global_vhdl_netlist(int global, int alert)  /* netlister driver */
 {
  int err = 0;
  FILE *fd;
@@ -439,11 +440,11 @@ int global_vhdl_netlist(int global)  /* netlister driver */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
-          err |= verilog_block_netlist(fd, i);
+          err |= verilog_block_netlist(fd, i, alert);
         else if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
-          err |= spice_block_netlist(fd, i);
+          err |= spice_block_netlist(fd, i, alert);
         else if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_primitive",0),"true"))
-          err |= vhdl_block_netlist(fd, i);
+          err |= vhdl_block_netlist(fd, i, alert);
       }
     }
    }
@@ -499,7 +500,8 @@ int global_vhdl_netlist(int global)  /* netlister driver */
  return err;
 }
 
-int vhdl_block_netlist(FILE *fd, int i)
+/* alert: if set show alert if file missing */
+int vhdl_block_netlist(FILE *fd, int i, int alert)
 {
   int err = 0;
   int j,k,l, tmp, found;
@@ -550,7 +552,7 @@ int vhdl_block_netlist(FILE *fd, int i)
   } else {
     Int_hashtable table = {NULL, 0};
     fprintf(fd, "-- sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
-    load_schematic(1,filename, 0, 1);
+    load_schematic(1,filename, 0, alert);
     get_additional_symbols(1);
     dbg(1, "vhdl_block_netlist():       packages\n");
     for(l=0;l<xctx->instances; ++l)

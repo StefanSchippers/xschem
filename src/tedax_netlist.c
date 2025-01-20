@@ -69,7 +69,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
   return err;
 }
 
-static int tedax_block_netlist(FILE *fd, int i)
+static int tedax_block_netlist(FILE *fd, int i, int alert)
 {
   int err = 0;
   int tedax_stop=0;
@@ -107,7 +107,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
-  load_schematic(1,filename, 0, 1);
+  load_schematic(1,filename, 0, alert);
   get_additional_symbols(1);
   err |= tedax_netlist(fd, tedax_stop);
   xctx->netlist_count++;
@@ -121,7 +121,7 @@ static int tedax_block_netlist(FILE *fd, int i)
   return err;
 }
 
-int global_tedax_netlist(int global)  /* netlister driver */
+int global_tedax_netlist(int global, int alert)  /* netlister driver */
 {
  int err = 0;
  FILE *fd;
@@ -232,7 +232,7 @@ int global_tedax_netlist(int global)  /* netlister driver */
          * will not be processed by *_block_netlist() */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        err |= tedax_block_netlist(fd, i);
+        err |= tedax_block_netlist(fd, i, alert);
       }
     }
    }

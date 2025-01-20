@@ -247,7 +247,8 @@ static int spice_netlist(FILE *fd, int spice_stop )
   return err;
 }
 
-int global_spice_netlist(int global)  /* netlister driver */
+/* alert: if set show alert if file missing */
+int global_spice_netlist(int global, int alert)  /* netlister driver */
 {
  int err = 0;
  int first;
@@ -478,12 +479,12 @@ int global_spice_netlist(int global)  /* netlister driver */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
-          err |= vhdl_block_netlist(fd, i);
+          err |= vhdl_block_netlist(fd, i, alert);
         else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
-          err |= verilog_block_netlist(fd, i);
+          err |= verilog_block_netlist(fd, i, alert);
         else
           if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") )
-            err |= spice_block_netlist(fd, i);
+            err |= spice_block_netlist(fd, i, alert);
       }
     }
    }
@@ -593,7 +594,8 @@ int global_spice_netlist(int global)  /* netlister driver */
  return err;
 }
 
-int spice_block_netlist(FILE *fd, int i)
+/* alert: if set show alert if file missing */
+int spice_block_netlist(FILE *fd, int i, int alert)
 {
   int err = 0;
   int spice_stop=0;
@@ -667,7 +669,7 @@ int spice_block_netlist(FILE *fd, int i)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
   
-    spice_stop ? load_schematic(0,filename, 0, 1) : load_schematic(1,filename, 0, 1);
+    spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
     get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
     err |= warning_overlapped_symbols(0);
