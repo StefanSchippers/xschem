@@ -1797,6 +1797,7 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   sch = tcl_hook2(str_replace(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6), "@symname",
         get_cell(xctx->inst[inst].name, 0), '\\', -1));
 
+  dbg(1, "get_sym_name(): sch=%s\n", sch);
   if(xctx->tok_size) { /* token exists */ 
     if(abs_path)
       sym = abs_sym_path(sch, ".sym");

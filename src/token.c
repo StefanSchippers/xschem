@@ -120,9 +120,11 @@ const char *sanitize(const char *name)
     my_free(_ALLOC_ID_, &s);
     return empty;
   }
-  tclvareval("regsub -all { *[(),] *} {", name, "} _", NULL);
+  dbg(1, "sanitize(): name=%s\n", name);
+  tclvareval("regsub -all { *[.(),] *} {", name, "} _", NULL);
   tclvareval("regsub  {_$} {", tclresult(), "} {}", NULL);
   my_strdup2(_ALLOC_ID_, &s, tclresult());
+  dbg(1, "sanitize(): s=%s\n", s);
   return s;
 }
 
