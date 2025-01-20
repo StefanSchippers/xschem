@@ -297,8 +297,8 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
 
  fprintf(fd,"end %s ;\n\n", get_cell( xctx->sch[xctx->currsch], 0) );
  fprintf(fd,"architecture arch_%s of %s is\n\n",
-        sanitize(get_cell( xctx->sch[xctx->currsch], 0)),
-        sanitize(get_cell( xctx->sch[xctx->currsch], 0)));
+        get_cell( sanitize(xctx->sch[xctx->currsch]), 0),
+        get_cell( sanitize(xctx->sch[xctx->currsch]), 0));
 
  dbg(1, "global_vhdl_netlist(): printing top level used components\n");
  /* print all components */
@@ -615,12 +615,12 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
       if(xctx->inst[l].prop_ptr) fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
      }
     }
-    fprintf(fd,"end %s ;\n\n", sanitize(get_cell(xctx->sym[i].name, 0)) );
+    fprintf(fd,"end %s ;\n\n", get_cell(sanitize(xctx->sym[i].name), 0) );
   
     dbg(1, "vhdl_block_netlist():       architecture\n");
     fprintf(fd,"architecture arch_%s of %s is\n\n",
-       sanitize(get_cell(xctx->sym[i].name, 0)),
-       sanitize(get_cell(xctx->sym[i].name, 0)) );
+       get_cell(sanitize(xctx->sym[i].name), 0),
+       get_cell(sanitize(xctx->sym[i].name), 0) );
     /*    get_cell( xctx->sch[xctx->currsch], 0), get_cell( xctx->sch[xctx->currsch], 0)); */
     /* load current schematic to print used components */
   
@@ -704,7 +704,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     }
   
     if(xctx->schvhdlprop && xctx->schvhdlprop[0]) fprintf(fd, "%s\n", xctx->schvhdlprop);
-    fprintf(fd, "end arch_%s ;\n\n", sanitize(get_cell(xctx->sym[i].name, 0)) );
+    fprintf(fd, "end arch_%s ;\n\n", get_cell(sanitize(xctx->sym[i].name), 0) );
     my_free(_ALLOC_ID_, &sig_type);
     my_free(_ALLOC_ID_, &port_value);
     my_free(_ALLOC_ID_, &type);

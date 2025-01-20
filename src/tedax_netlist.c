@@ -94,7 +94,7 @@ static int tedax_block_netlist(FILE *fd, int i, int alert)
   else fprintf(fd, "## sym_path: %s\n", sanitized_abs_sym_path(xctx->sym[i].name, ""));
   fprintf(fd, "## sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
 
-  fprintf(fd, "begin netlist v1 %s\n",sanitize(get_cell(xctx->sym[i].name, 0)));
+  fprintf(fd, "begin netlist v1 %s\n",get_cell(sanitize(xctx->sym[i].name), 0));
   print_tedax_subckt(fd, i);
 
   my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );

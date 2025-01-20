@@ -653,7 +653,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);
   } else {
-    const char *s = sanitize(get_cell(name, 0));
+    const char *s = get_cell(sanitize(name), 0);
     fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     fprintf(fd, ".subckt %s ", s);
     print_spice_subckt_nodes(fd, i);
