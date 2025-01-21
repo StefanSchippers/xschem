@@ -5081,8 +5081,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
             color_ps=atoi(argv[3]);
           }
+          else if(!strcmp(argv[2], "crosshair_layer")) { /* set layer for mouse crosshair */
+             int c = atoi(argv[3]);
+             tclsetintvar("crosshair_layer", c);
+             xctx->crosshair_layer = c;
+             if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;
+             if(xctx->crosshair_layer >= cadlayers ) xctx->crosshair_layer = 2;
+          }
           else if(!strcmp(argv[2], "constr_mv")) { /* set constrained move (1=horiz, 2=vert, 0=none) */
             xctx->constr_mv = atoi(argv[3]);
+            if(xctx->constr_mv < 0 || xctx->constr_mv > 2) xctx->constr_mv = 0;
           }
           else if(!strcmp(argv[2], "cursor1_x")) { /* set graph cursor1 position */
             xctx->graph_cursor1_x = atof_spice(argv[3]);
