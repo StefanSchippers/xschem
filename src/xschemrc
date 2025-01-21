@@ -277,13 +277,13 @@
 # set enable_stretch 0
 
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
-# set draw_crosshair 1
+set draw_crosshair 1
 
 #### set crosshair layer; Default 3 (TEXTLAYER)
-# set crosshair_layer 3
+set crosshair_layer 8
 
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
-# set crosshair_size 5
+set crosshair_size 4
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
