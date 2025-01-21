@@ -3818,9 +3818,19 @@ proc save_file_dialog { msg ext global_initdir {initialf {}} {overwrt 1} } {
 # opens indicated instance (or selected one) into a separate tab/window
 # keeping the hierarchy path, as it was descended into (as with 'e' key).
 proc open_sub_schematic {{inst {}} {inst_number 0}} {
+  global search_schematic
   set rawfile {}
-  set one_sel [expr {[xschem get lastsel] == 1}]
-  if { $inst eq {} && $one_sel} {
+  set n_sel [xschem get lastsel]
+ 
+  if { $inst eq {} && $n_sel == 0} {
+    if {$search_schematic == 1} {
+      set f [abs_sym_path [xschem get current_name] {.sch}]
+    } else {
+      set f [file rootname [xschem get schname]].sch
+    }
+    xschem new_schematic create {} $f
+    return 1
+  } elseif { $inst eq {} && $n_sel == 1} {
     set inst [lindex [xschem selected_set] 0]
     xschem unselect_all
   } else {
@@ -7084,9 +7094,9 @@ proc tab_ctx_cmd {tab_but what} {
   }
   # puts $filename
 }
+
 proc tab_context_menu {tab_but} {
   global retval search_schematic
-
 
   # find filename associated with tab button
   set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw

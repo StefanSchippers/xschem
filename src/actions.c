@@ -1604,7 +1604,11 @@ void symbol_in_new_window(int new_process)
   rebuild_selected_array();
   
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
-    my_strncpy(filename,  xctx->sch[xctx->currsch], S(filename));
+    if(tclgetboolvar("search_schematic")) {
+      my_strncpy(filename, abs_sym_path(xctx->current_name, ".sym"), S(filename));
+    } else {
+      my_strncpy(filename, add_ext(xctx->sch[xctx->currsch], ".sym"), S(filename));
+    }
     if(new_process) new_xschem_process(filename, 1);
     else new_schematic("create", NULL, filename, 1);
   }
