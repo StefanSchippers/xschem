@@ -1380,25 +1380,25 @@ void draw_crosshair(int what)
     } else {
       if(xhair_size) {
         draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size);
+            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
+            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size);
         draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size,
+            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
         draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
+            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
         draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
-            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
-            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
+            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
+            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
       } else { /* full screen span xhair */
         drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
              xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);

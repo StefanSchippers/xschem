@@ -1196,17 +1196,14 @@ void draw_xhair_line(GC gc, int size, double linex1, double liney1, double linex
           0, size ? LineSolid : xDashType, xCap, xJoin);
     } else {
       XSetLineAttributes (display, gc,
-          XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
+          size ? 0 : XLINEWIDTH(xctx->lw), size ? LineSolid : xDashType, xCap, xJoin);
     }
- 
     if(xctx->draw_window)
        XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
     if(xctx->draw_pixmap)
       XDrawLine(display, xctx->save_pixmap, gc, (int)x1, (int)y1, (int)x2, (int)y2);
-    if(!big_gr) {
-      XSetLineAttributes (display, gc,
-          XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
-    }
+    XSetLineAttributes (display, gc,
+        XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
 }
 
