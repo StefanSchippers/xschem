@@ -9096,7 +9096,7 @@ set_ne netlist_show 0
 set_ne color_ps 1
 set_ne ps_page_title 1 ;# add a title in the top left page corner
 set_ne crosshair_layer 3 ;# TEXTLAYER
-set_ne crosshair_size 3
+set_ne crosshair_size 0
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
