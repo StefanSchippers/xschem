@@ -1433,6 +1433,33 @@ void draw_snap_cursor(int cursor_type)
   xctx->draw_pixmap = sdp;
 }
 
+/* what == 0 : erase and draw a new cursor
+ * what == 1 : erase the cursor
+ * what == 2 : draw a dot-cursor that snaps to a nearest grid-point */
+void draw_grid_cursor(int what)
+{
+  int sdw, sdp;
+  dbg(1, "draw_grid_cursor(): what=%d\n", what);
+  sdw = xctx->draw_window;
+  sdp = xctx->draw_pixmap;
+
+  if(!xctx->mouse_inside) return;
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+  if(what != 2) {
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
+  }
+  if(what != 1) {
+    filledrect(8, NOW, xctx->prev_crossx-1, xctx->prev_crossy-1, xctx->prev_crossx+1, xctx->prev_crossy+1, 3, -1, -1);
+  }
+  draw_selection(xctx->gc[SELLAYER], 0);
+  xctx->prev_crossx = xctx->mousex_snap;
+  xctx->prev_crossy = xctx->mousey_snap;
+  
+  xctx->draw_window = sdw;
+  xctx->draw_pixmap = sdp;
+}
+
 /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
 static int end_place_move_copy_zoom()
 {
@@ -2377,6 +2404,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1);
+    else draw_grid_cursor(1);
     if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
@@ -2445,13 +2473,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     if(draw_xhair) {
       draw_crosshair(1);
-    }
+    } else draw_grid_cursor(1);
     if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
     if(xctx->semaphore >= 2) {
       if(draw_xhair) {
         draw_crosshair(2);
-      }
+      } else draw_grid_cursor(2);
       if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
       break;
     }
@@ -2546,7 +2574,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     if(draw_xhair) {
       draw_crosshair(2);
-    }
+    } else draw_grid_cursor(2);
     if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
     break;
 
@@ -4305,6 +4333,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      statusmsg(str,1);
    }
    if(draw_xhair) draw_crosshair(0);
+   else draw_grid_cursor(0);
    if(snap_cursor && wire_draw_active) draw_snap_cursor(0);
    break;
   case -3:  /* double click  : edit prop */
