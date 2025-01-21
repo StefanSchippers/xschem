@@ -1404,6 +1404,7 @@ extern Selected find_closest_obj(double mx,double my, int override_lock);
 extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
 extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash, void *ct);
+extern void draw_xhair_line(int c, double linex1, double liney1, double linex2, double liney2);
 extern void draw_string(int layer,int what, const char *str, short rot, short flip, int hcenter, int vcenter,
        double x1, double y1, double xscale, double yscale);
 extern void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale);

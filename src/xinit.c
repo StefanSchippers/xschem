@@ -2037,7 +2037,6 @@ int new_schematic(const char *what, const char *win_path, const char *fname, int
 void change_linewidth(double w)
 {
   int i, linew;
-
   /* choose line width automatically based on zoom */
   dbg(1, "change_linewidth(): w = %g, win_path=%s lw=%g\n", w, xctx->current_win_path, xctx->lw);
   if(w<0. || xctx->lw == -1.0) {
@@ -2054,8 +2053,8 @@ void change_linewidth(double w)
     linew = INT_WIDTH(xctx->lw);
     dbg(1, "Line width = %d\n", linew);
     for(i=0;i<cadlayers; ++i) {
-        XSetLineAttributes (display, xctx->gc[i], linew, LineSolid, LINECAP , LINEJOIN);
-    }
+      XSetLineAttributes(display, xctx->gc[i], linew, LineSolid, LINECAP , LINEJOIN);
+    }   
     XSetLineAttributes (display, xctx->gctiled, linew, LineSolid, LINECAP , LINEJOIN);
   }
   if(!xctx->only_probes) {

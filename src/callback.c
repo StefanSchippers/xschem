@@ -1356,7 +1356,7 @@ void draw_crosshair(int what)
            (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
            4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
            (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
-    }  else {
+    } else {
       drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
            xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
       drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
@@ -1364,10 +1364,10 @@ void draw_crosshair(int what)
     }
   }
   if(what != 1) {
-    drawline(xctx->crosshair_layer, NOW,X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
-       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap, 3, NULL);
-    drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
-       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2), 3, NULL);
+    draw_xhair_line(xctx->crosshair_layer, X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
+       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap);
+    draw_xhair_line(xctx->crosshair_layer, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
+       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2));
   }
   draw_selection(xctx->gc[SELLAYER], 0);
   xctx->prev_crossx = xctx->mousex_snap;
