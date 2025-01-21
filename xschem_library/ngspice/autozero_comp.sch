@@ -53,7 +53,7 @@ color="8 6"
 
 linewidth_mult=1.0
 hilight_wave=-1
-dataset=188
+dataset=-1
 rawfile=$netlist_dir/autozero_comp.raw
 sim_type=tran
 rainbow=0
@@ -136,7 +136,7 @@ saout
  0.45"
 sweep="freq0 freq1 freq0"
 mode=HistoH
-xlabmag=2.0}
+xlabmag=1.3}
 B 2 270 -1610 680 -1450 {flags=graph,unlocked
 y1 = 0
 y2 = 0.9
