@@ -82,9 +82,11 @@ static int waves_selected(int event, KeySym key, int state, int button)
   if(!is_inside) {
     xctx->graph_master = -1;
     xctx->ui_state &= ~GRAPHPAN; /* terminate ongoing GRAPHPAN to avoid deadlocks */
-    if(draw_xhair)
-      tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
-    else
+    if(draw_xhair) {
+      if(tclgetintvar("crosshair_size") == 0) {
+        tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+      }
+    } else
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     if(xctx->graph_flags & 64) {
       tcleval("graph_show_measure stop");
@@ -1338,36 +1340,103 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 void draw_crosshair(int what)
 {
   int sdw, sdp;
+  int xhair_size = tclgetintvar("crosshair_size");;
   dbg(1, "draw_crosshair(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   if(!xctx->mouse_inside) return;
+
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(what != 2) {
+  if(what != 2) { /* delete previous */
     if(fix_broken_tiled_fill || !_unix) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-           0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
-           xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
-           0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+      if(xhair_size) {
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
+             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
+             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size, 
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size);
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
+             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
+             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size);
+      } else { /* full screen span xhair */
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
+             xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
+             4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+      }
   
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-           (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
-           4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-           (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
     } else {
-      drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
-           xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
-      drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
-           xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
+      if(xhair_size) {
+        draw_xhair_line(xctx->gctiled, xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size);
+        draw_xhair_line(xctx->gctiled, xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+        draw_xhair_line(xctx->gctiled, xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+        draw_xhair_line(xctx->gctiled, xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+            X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+            Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+      } else { /* full screen span xhair */
+        drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
+             xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
+        drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
+             xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
+      }
     }
   }
-  if(what != 1) {
-    draw_xhair_line(xctx->crosshair_layer, X_TO_XSCHEM( xctx->areax1), xctx->mousey_snap,
-       X_TO_XSCHEM(xctx->areax2), xctx->mousey_snap);
-    draw_xhair_line(xctx->crosshair_layer, xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay1),
-       xctx->mousex_snap, Y_TO_XSCHEM(xctx->areay2));
+  if(what != 1) { /* draw new */
+    if(xhair_size) {
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) - xhair_size);
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) + xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) - xhair_size,
+          X_TO_SCREEN(xctx->mousex_snap) + xhair_size,
+          Y_TO_SCREEN(xctx->mousey_snap) + xhair_size);
+    } else { /* full screen span xhair */
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+         xctx->areax1, Y_TO_SCREEN(xctx->mousey_snap),
+         xctx->areax2, Y_TO_SCREEN(xctx->mousey_snap));
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+         X_TO_SCREEN(xctx->mousex_snap), xctx->areay1,
+         X_TO_SCREEN(xctx->mousex_snap), xctx->areay2);
+    }
   }
   draw_selection(xctx->gc[SELLAYER], 0);
   xctx->prev_crossx = xctx->mousex_snap;
@@ -2321,9 +2390,11 @@ int rstate; /* (reduced state, without ShiftMask) */
   case EnterNotify:
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
     xctx->mouse_inside = 1;
-    if(draw_xhair)
-      tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
-    else 
+    if(draw_xhair) {
+      if(tclgetintvar("crosshair_size") == 0) {
+        tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+      }
+    } else 
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     /* xschem window *sending* selected objects
        when the pointer comes back in abort copy operation since it has been done
@@ -4171,7 +4242,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
-   else if(xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {
+   else if(state == Button1Mask && xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {
      if(end_place_move_copy_zoom()) break;
    }
 

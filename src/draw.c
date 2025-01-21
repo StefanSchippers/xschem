@@ -1178,33 +1178,33 @@ static void check_cairo_drawpoints(void *cr, int layer, XPoint *points, int npoi
 #endif
 
 
-void draw_xhair_line(int c, double linex1, double liney1, double linex2, double liney2)
+void draw_xhair_line(GC gc, int size, double linex1, double liney1, double linex2, double liney2)
 {
   int big_gr = tclgetboolvar("big_grid_points");
   char dash_arr[2];
   double x1, y1, x2, y2;
-  x1=X_TO_SCREEN(linex1);
-  y1=Y_TO_SCREEN(liney1);
-  x2=X_TO_SCREEN(linex2);
-  y2=Y_TO_SCREEN(liney2);
+  x1=/* X_TO_SCREEN */ (linex1);
+  y1=/* Y_TO_SCREEN */ (liney1);
+  x2=/* X_TO_SCREEN */ (linex2);
+  y2=/* Y_TO_SCREEN */ (liney2);
   if( clip(&x1,&y1,&x2,&y2) )
   {
     dash_arr[0] = dash_arr[1] = (char) 3;
-    XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+    XSetDashes(display, gc, 0, dash_arr, 1);
     if(!big_gr) {
-      XSetLineAttributes (display, xctx->gc[c],
-          0, xDashType, xCap, xJoin);
+      XSetLineAttributes (display, gc,
+          0, size ? LineSolid : xDashType, xCap, xJoin);
     } else {
-      XSetLineAttributes (display, xctx->gc[c],
+      XSetLineAttributes (display, gc,
           XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
     }
  
     if(xctx->draw_window)
-       XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
+       XDrawLine(display, xctx->window, gc, (int)x1, (int)y1, (int)x2, (int)y2);
     if(xctx->draw_pixmap)
-      XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
+      XDrawLine(display, xctx->save_pixmap, gc, (int)x1, (int)y1, (int)x2, (int)y2);
     if(!big_gr) {
-      XSetLineAttributes (display, xctx->gc[c],
+      XSetLineAttributes (display, gc,
           XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
     }
   }
