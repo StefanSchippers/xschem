@@ -21,6 +21,7 @@
  */
 
 #include "xschem.h"
+#include <X11/X.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -1393,9 +1394,9 @@ void draw_crosshair(int what)
   xctx->draw_pixmap = sdp;
 }
 
-/* cursor_type == 0 : only erase drawn cursor
- * cursor_type == 1 : erase and draw a normal grid-snapping cursor
- * cursor_type == 2 : erase and draw a diamond-shaped cursor that snaps to a component endpoint */
+/* cursor_type == 0 : erase and draw a new cursor
+ * cursor_type == 1 : erase the cursor
+ * cursor_type == 2 : draw a diamond-shaped cursor that snaps to a component endpoint */
 void draw_snap_cursor(int cursor_type)
 {
   int sdw, sdp;
@@ -1406,33 +1407,27 @@ void draw_snap_cursor(int cursor_type)
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(fix_broken_tiled_fill || !_unix) {
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
-         xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
-         0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
-
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0,
-         4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-         (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
-  }  else {
-    drawtemparc(xctx->gctiled, NOW, xctx->prev_crossx, xctx->prev_crossy, 1, 0, 360);
+  if(cursor_type != 2) {
+    if(fix_broken_tiled_fill || !_unix) {
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
+    }  else {
+      double prev_x = xctx->prev_crossx;
+      double prev_y = xctx->prev_crossy;
+      double points_x[5] = {prev_x, prev_x+3, prev_x, prev_x-3, prev_x};
+      double points_y[5] = {prev_y-3, prev_y, prev_y+3, prev_y, prev_y-3};
+      drawtemppolygon(xctx->gctiled, NOW, points_x, points_y, 5, 0);
+    }
   }
   if(cursor_type != 1) {
-    /*drawline(xctx->crosshair_layer, NOW, xctx->mousex_snap, xctx->mousey_snap, xctx->mousex_snap, xctx->mousey_snap, 0, NULL);*/
     double x, y;
     find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-    drawarc(xctx->crosshair_layer, NOW, x, y, 1, 1, 360, 1, 0);
-    draw_selection(xctx->gc[SELLAYER], 0);
+    double points_x[5] = {x, x+3, x, x-3, x};
+    double points_y[5] = {y-3, y, y+3, y, y-3};
+    drawpolygon(8, NOW, points_x, points_y, 5, 0, 0, 0);
     xctx->prev_crossx = x;
     xctx->prev_crossy = y;
-  } else {
-    drawarc(xctx->crosshair_layer, NOW, xctx->mousex_snap, xctx->mousey_snap, 1, 1, 360, 1, 0);
-    draw_selection(xctx->gc[SELLAYER], 0);
-    xctx->prev_crossx = xctx->mousex_snap;
-    xctx->prev_crossy = xctx->mousey_snap;
   }
+  draw_selection(xctx->gc[SELLAYER], 0);
   
   xctx->draw_window = sdw;
   xctx->draw_pixmap = sdp;
@@ -2264,6 +2259,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 int draw_xhair = tclgetboolvar("draw_crosshair");
 int infix_interface = tclgetboolvar("infix_interface");
 int snap_cursor = tclgetboolvar("snap_cursor");
+int wire_draw_active = (xctx->ui_state & STARTWIRE) || (xctx->ui_state2 & MENUSTARTWIRE) || (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
 int rstate; /* (reduced state, without ShiftMask) */
 
  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
@@ -2298,7 +2294,7 @@ int rstate; /* (reduced state, without ShiftMask) */
  }
 #endif
 
- if((xctx->ui_state & STARTWIRE) || (xctx->ui_state2 & MENUSTARTWIRE) || (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE))) { 
+ if(wire_draw_active) {
     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
  } else {
     tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
@@ -2381,7 +2377,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1);
-    if(snap_cursor) draw_snap_cursor(0);
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -2450,13 +2446,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(draw_xhair) {
       draw_crosshair(1);
     }
-    if(snap_cursor) draw_snap_cursor(0);
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
     if(xctx->semaphore >= 2) {
       if(draw_xhair) {
         draw_crosshair(2);
       }
-      if(snap_cursor) draw_snap_cursor(2);
+      if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
       break;
     }
     dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
@@ -2551,7 +2547,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(draw_xhair) {
       draw_crosshair(2);
     }
-    if(snap_cursor) draw_snap_cursor(2);
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
     break;
 
   case KeyRelease:
@@ -2792,7 +2788,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      hilight_net_pin_mismatches();
      break;
    }
-   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
+   if(key== 's' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
      if(xctx->semaphore >= 2) break;
      snapped_wire(c_snap);
      break;
@@ -3034,7 +3030,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
     break;
    }
-   if(key=='s' && rstate == 0 )      /* simulate */
+   if(key=='r' && rstate == ControlMask )      /* simulate */
    {
      if(xctx->semaphore >= 2) break;
      if(waves_selected(event, key, state, button)) {
@@ -4309,7 +4305,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      statusmsg(str,1);
    }
    if(draw_xhair) draw_crosshair(0);
-   if(snap_cursor) draw_snap_cursor(2);
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(0);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
