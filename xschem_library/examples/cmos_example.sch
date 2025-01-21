@@ -27,7 +27,7 @@ E {}
 B 2 1690 -960 2250 -630 {flags=graph,unlocked
 
 sim_type=dc
-y1=-160
+y1=-190
 y2=0
 divy=4
 subdivy=1
@@ -58,8 +58,8 @@ y1=0.875402
 y2=5.6754
 divy=4
 subdivy=1
-x1=2.4
-x2=2.6
+x1=2.4088074
+x2=2.6088074
 divx=6
 subdivx=1
 node="diffout@2uA;v(diffout)%0
@@ -94,8 +94,8 @@ autoload=1}
 B 2 1050 -740 1680 -530 {flags=graph,unlocked
 
 sim_type=ac
-y1=-34
-y2=43
+y1=-32
+y2=46
 
 subdivy=1
 x1=0
@@ -120,7 +120,7 @@ xrawfile=$netlist_dir/cmos_example_ngspice.raw}
 B 2 1050 -960 1680 -750 {flags=graph,unlocked
 
 sim_type=ac
-y1=21
+y1=18
 y2=180
 divy=4
 subdivy=1
@@ -148,8 +148,8 @@ y1=2.3
 y2=2.7
 divy=4
 subdivy=1
-x1=2.4
-x2=2.6
+x1=2.4088074
+x2=2.6088074
 divx=6
 subdivx=1
 node="minus;minus%0
@@ -277,7 +277,7 @@ only_toplevel=false value="
 ** https://sourceforge.net/p/ngspice/ngspice/ci/master/tree/examples/mos/modelcard.pmos
 
 .model cmosn NMOS
-+Level=        9 version=3.3.0
++Level=        49 version=3.3.0
 +Tnom=27.0
 +Nch= 2.498E+17  Tox=9E-09 Xj=1.00000E-07
 +Lint=9.36e-8 Wint=1.47e-7
@@ -311,7 +311,7 @@ only_toplevel=false value="
 +vgs_max=4 vds_max=4 vbs_max=4
 
 .model cmosp PMOS
-+Level=        9 version=3.3.0
++Level=        49 version=3.3.0
 +Tnom=27.0
 +Nch= 3.533024E+17  Tox=9E-09 Xj=1.00000E-07
 +Lint=6.23e-8 Wint=1.22e-7
@@ -460,7 +460,7 @@ value="* .temp 30
 
 .op
 .print dc format=raw file=cmos_example_xyce.raw v(*) i(*)
-.dc vplus 2.3 2.7 0.001
+.dc vminus 2.4 2.6 0.001
 .print dc format=raw file=cmos_example_xyce.raw v(*) i(*)
 
 "}

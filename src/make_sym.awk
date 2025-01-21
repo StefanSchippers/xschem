@@ -236,14 +236,15 @@ function endfile(f) {
  y=-m*space
  x=-width
  print "T {@name}",-x-lwidth+5, y-space/2-8-lab_voffset,0,0,labsize, labsize,"{}" >sym
- print "L 4 " (x+lwidth) ,y-space/2,(-x-lwidth) , y-space/2,"{}" >sym
- print "L 4 " (x+lwidth) ,y+n*space-space/2,(-x-lwidth) , y+n*space-space/2,"{}" >sym
- print "L 4 " (x+lwidth) ,y-space/2,(x+lwidth) , y+n*space-space/2,"{}" >sym
- print "L 4 " (-x-lwidth) ,y-space/2,(-x-lwidth) , y+n*space-space/2,"{}" >sym
 
-
+ print "P 4 5", \
+    (-x-lwidth) ,y-space/2, \
+    (x+lwidth) , y-space/2, \
+    (x+lwidth), y+n*space-space/2, \
+    (-x-lwidth), y+n*space-space/2, \
+    (-x-lwidth) ,y-space/2, \
+    "{}" > sym
  hsort_key(index_pin, y_pin, n_pin)   # 20140519
-
  num_i = num_o = 0 #20140519
 
  for(ii=0;ii<n_pin;ii++)

@@ -3523,6 +3523,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     }
     else fd=fopen(name,fopen_read_mode);
     if( fd == NULL) {
+      size_t len;
       ret = 0;
       if(alert) {
         fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
@@ -3530,6 +3531,13 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
           my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
           tcleval(msg);
         }
+      }
+      len = strlen(name);
+      if(!strcmp(name + len - 4, ".sym")) {
+        xctx->save_netlist_type = xctx->netlist_type;
+        xctx->netlist_type = CAD_SYMBOL_ATTRS;
+        set_tcl_netlist_type();
+        xctx->loaded_symbol = 1;
       }
       clear_drawing();
       if(reset_undo) set_modify(0);

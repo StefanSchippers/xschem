@@ -4350,6 +4350,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int e_b = xctx->rect[c][n].ellipse_b;
           save = xctx->draw_window; xctx->draw_window = 1;
           drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, e_a, e_b);
+          filledrect(xctx->rectcolor, NOW, x1, y1, x2, y2, 1, -1, -1);
           xctx->draw_window = save;
         }
         set_modify(1);
