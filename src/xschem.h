@@ -773,9 +773,6 @@ struct hilight_hashentry
   int time; /*delta-time for sims */
 };
 
-
-
-
 typedef struct {
   /* spice raw file specific data */
   char **names;
@@ -800,9 +797,6 @@ typedef struct {
   int level;  /* hierarchy level where raw file has been read */
   double sweep1, sweep2;
 } Raw;
-
-
-
 
 /*  for netlist.c */
 typedef struct instpinentry Instpinentry;
