@@ -2953,6 +2953,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->last_command = 0;
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTWIRE;
+       if(prev_state & STARTWIRE) start_wire(xctx->mousex_snap, xctx->mousey_snap);
      }
      break;
    }
