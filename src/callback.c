@@ -1357,7 +1357,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 void draw_crosshair(int what)
 {
   int sdw, sdp;
-  int xhair_size = tclgetintvar("crosshair_size");;
+  int xhair_size = tclgetintvar("crosshair_size");
   dbg(1, "draw_crosshair(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
@@ -2598,7 +2598,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     /* Select by area. Shift pressed */
-    else if((state&Button1Mask) && (state & ShiftMask) &&
+    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & STARTWIRE) &&
              !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->shape_point_selected &&
              !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
@@ -2616,7 +2616,19 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     if(draw_xhair) {
-      draw_crosshair(2);
+      if(/* (xctx->ui_state & STARTWIRE) && */ (state & ShiftMask) ) {
+        double x, y, sx, sy;
+        sx = xctx->mousex_snap;
+        sy = xctx->mousey_snap;
+        find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+        xctx->mousex_snap = x;
+        xctx->mousey_snap = y;
+        draw_crosshair(2);
+        xctx->mousex_snap = sx;
+        xctx->mousey_snap = sy;
+      } else {
+        draw_crosshair(2);
+      }
     }
     if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
     break;

@@ -279,8 +279,8 @@
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
 # set draw_crosshair 1
 
-#### set crosshair layer; Default 3 (TEXTLAYER)
-# set crosshair_layer 3
+#### set crosshair layer; Default 8 (Yellow)
+# set crosshair_layer 8
 
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
 # set crosshair_size 5

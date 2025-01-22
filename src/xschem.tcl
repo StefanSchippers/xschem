@@ -9103,7 +9103,8 @@ set_ne flat_netlist 0
 set_ne netlist_show 0
 set_ne color_ps 1
 set_ne ps_page_title 1 ;# add a title in the top left page corner
-set_ne crosshair_layer 3 ;# TEXTLAYER
+set_ne draw_crosshair 0
+set_ne crosshair_layer 8 ;# Yellow
 set_ne crosshair_size 0
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
@@ -9128,7 +9129,6 @@ set_ne load_file_dialog_fullpath 1
 set_ne incremental_select 1
 set_ne select_touch 1
 
-set_ne draw_crosshair 0
 set_ne draw_grid 1
 set_ne big_grid_points 0
 set_ne draw_grid_axes 1
