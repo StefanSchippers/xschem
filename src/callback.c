@@ -2549,6 +2549,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         }
       }
     }
+    /* snap crosshair to closest pin or net endpoint */
     if(draw_xhair) {
       if( ( (xctx->ui_state & STARTWIRE) || xctx->ui_state == 0 ) && (state & ShiftMask) ) {
         double x, y, sx, sy;
