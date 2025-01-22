@@ -283,7 +283,7 @@
 # set crosshair_layer 8
 
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
-# set crosshair_size 5
+set crosshair_size 2
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
