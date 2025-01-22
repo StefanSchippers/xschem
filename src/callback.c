@@ -2550,7 +2550,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     if(draw_xhair) {
-      if(/* (xctx->ui_state & STARTWIRE) && */ (state & ShiftMask) ) {
+      if( ( (xctx->ui_state & STARTWIRE) || xctx->ui_state == 0 ) && (state & ShiftMask) ) {
         double x, y, sx, sy;
         sx = xctx->mousex_snap;
         sy = xctx->mousey_snap;
@@ -4087,6 +4087,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* terminate wire placement in snap mode */
    else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
      snapped_wire(c_snap);
+     here(1111);
    }
    /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
