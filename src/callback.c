@@ -21,7 +21,6 @@
  */
 
 #include "xschem.h"
-#include <X11/X.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -1463,20 +1462,20 @@ void draw_crosshair(int what)
   xctx->draw_pixmap = sdp;
 }
 
-/* cursor_type == 0 : erase and draw a new cursor
- * cursor_type == 1 : erase the cursor
- * cursor_type == 2 : draw a diamond-shaped cursor that snaps to a component endpoint */
-void draw_snap_cursor(int cursor_type)
+/* what == 0 : erase and draw a new cursor
+ * what == 1 : erase the cursor
+ * what == 2 : draw a diamond-shaped cursor that snaps to a component endpoint */
+void draw_snap_cursor(int what)
 {
   int sdw, sdp;
-  dbg(1, "draw_snap_cursor(): cursor_type=%d\n", cursor_type);
+  dbg(1, "draw_snap_cursor(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(cursor_type != 2) {
+  if(what != 2) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
     }  else {
@@ -1487,7 +1486,7 @@ void draw_snap_cursor(int cursor_type)
       drawtemppolygon(xctx->gctiled, NOW, points_x, points_y, 5, 0);
     }
   }
-  if(cursor_type != 1) {
+  if(what != 1) {
     double x, y;
     find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     double points_x[5] = {x, x+3, x, x-3, x};
