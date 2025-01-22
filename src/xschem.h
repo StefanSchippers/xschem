@@ -1049,6 +1049,7 @@ typedef struct {
   double p_xx1,p_xx2,p_yy1,p_yy2;
   /* draw_crosshair */
   double prev_crossx, prev_crossy;
+  double prev_snapx, prev_snapy;
   int mouse_inside;
   /* set_modify */
   int prev_set_modify;

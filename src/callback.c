@@ -1353,7 +1353,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 /* what == 0 : delete and draw
  * what == 1 : delete
  * what == 2 : draw */
-void draw_crosshair(int what)
+void draw_crosshair_old(int what)
 {
   int sdw, sdp;
   int xhair_size = tclgetintvar("crosshair_size");
@@ -1462,6 +1462,70 @@ void draw_crosshair(int what)
   xctx->draw_pixmap = sdp;
 }
 
+/* what == 0 : delete and draw
+ * what == 1 : delete
+ * what == 2 : draw */
+void draw_crosshair(int what) /* For drawing the grid-snapping cursor with constant pixel-size */
+{
+  int sdw, sdp;
+  int xhair_size = tclgetintvar("crosshair_size");
+  dbg(1, "draw_crosshair_constpixel(): what=%d\n", what);
+  sdw = xctx->draw_window;
+  sdp = xctx->draw_pixmap;
+
+  if(!xctx->mouse_inside) return;
+
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+  if(what != 2) { /* delete previous */
+    if(fix_broken_tiled_fill || !_unix) {
+      if(xhair_size) {
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
+      } else { /* full screen span xhair */
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
+             xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
+             4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+      }
+    } else {
+      if(xhair_size) {
+        drawtemprect(xctx->gctiled, NOW, 
+                     xctx->prev_crossx - xhair_size, xctx->prev_crossy - xhair_size, 
+                     xctx->prev_crossx + xhair_size, xctx->prev_crossy + xhair_size);
+      } else { /* full screen span xhair */
+        drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
+             xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
+        drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
+             xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
+      }
+    }
+  }
+  if(what != 1) { /* draw new */
+    if(xhair_size) {
+      drawrect(xctx->crosshair_layer, NOW, xctx->prev_crossx - xhair_size, xctx->prev_crossy - xhair_size, 
+                 xctx->prev_crossx + xhair_size, xctx->prev_crossy + xhair_size, 
+                 0, -1, -1);
+    } else { /* full screen span xhair */
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+         xctx->areax1, Y_TO_SCREEN(xctx->mousey_snap),
+         xctx->areax2, Y_TO_SCREEN(xctx->mousey_snap));
+      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
+         X_TO_SCREEN(xctx->mousex_snap), xctx->areay1,
+         X_TO_SCREEN(xctx->mousex_snap), xctx->areay2);
+    }
+  }
+  draw_selection(xctx->gc[SELLAYER], 0);
+  xctx->prev_crossx = xctx->mousex_snap;
+  xctx->prev_crossy = xctx->mousey_snap;
+
+  xctx->draw_window = sdw;
+  xctx->draw_pixmap = sdp;
+}
+
 /* what == 0 : erase and draw a new cursor
  * what == 1 : erase the cursor
  * what == 2 : draw a diamond-shaped cursor that snaps to a component endpoint */
@@ -1479,8 +1543,8 @@ void draw_snap_cursor(int what)
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
     }  else {
-      double prev_x = xctx->prev_crossx;
-      double prev_y = xctx->prev_crossy;
+      double prev_x = xctx->prev_snapx;
+      double prev_y = xctx->prev_snapy;
       double points_x[5] = {prev_x, prev_x+3, prev_x, prev_x-3, prev_x};
       double points_y[5] = {prev_y-3, prev_y, prev_y+3, prev_y, prev_y-3};
       drawtemppolygon(xctx->gctiled, NOW, points_x, points_y, 5, 0);
@@ -1492,8 +1556,8 @@ void draw_snap_cursor(int what)
     double points_x[5] = {x, x+3, x, x-3, x};
     double points_y[5] = {y-3, y, y+3, y, y-3};
     drawpolygon(8, NOW, points_x, points_y, 5, 0, 0, 0);
-    xctx->prev_crossx = x;
-    xctx->prev_crossy = y;
+    xctx->prev_snapx = x;
+    xctx->prev_snapy = y;
   }
   draw_selection(xctx->gc[SELLAYER], 0);
   
