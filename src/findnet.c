@@ -183,36 +183,77 @@ static void find_closest_line(double mx, double my)
 }
 
 
-/* sample code: find all inst and wire endpoints around (mx, my) */
-#if 0
-static void xfind_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
-{
-  int sqx, sqy;
-  Instpinentry *iptr;
-  Wireentry *wptr;
-  double xx, yy;
-
-  get_square(mx, my, &sqx, &sqy);
-  for(iptr = xctx->instpin_spatial_table[sqx][sqy]; iptr; iptr = iptr->next) {
-    int n = iptr->n;
-    if( !((xctx->inst[n].ptr + xctx->sym)->type) ) continue;
-    xx = iptr->x0;
-    yy = iptr->y0;
-  }
-  for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
-    int n = wptr->n;
-    xWire *w = &xctx->wire[n];
-    xx = w->x1;
-    yy = w->y1;
-
-    xx = w->x2;
-    yy = w->y2; 
-  }
-}
-#endif
-
-/* 20171022 snap wire to closest pin or net endpoint */
+/* snap wire to closest pin or net endpoint (if it is inside the current screen viewport) */
+/* use spatial hash table iterators to avoid O(N) */
 void find_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
+{
+  double x1, y1, x2, y2;
+  Iterator_ctx ctx;
+  Instentry *instanceptr;
+  Wireentry *wireptr;
+  double curr_dist = DBL_MAX;
+  double xx, yy, dist, min_dist_x = xctx->mousex_snap, min_dist_y = xctx->mousey_snap;
+
+  x1 = X_TO_XSCHEM(xctx->areax1);
+  y1 = Y_TO_XSCHEM(xctx->areay1);
+  x2 = X_TO_XSCHEM(xctx->areax2); 
+  y2 = Y_TO_XSCHEM(xctx->areay2);
+
+  hash_instances();
+  hash_wires();
+
+  init_inst_iterator(&ctx, x1, y1, x2, y2);
+  while(1) {
+    int i, j, rects;
+    xInstance * const inst = xctx->inst;
+    if( !(instanceptr = inst_iterator_next(&ctx))) break;
+    i = instanceptr->n;
+    if(!((inst[i].ptr+ xctx->sym)->type)) continue;
+    rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
+    for(j = 0; j < rects; j++) {
+      get_inst_pin_coord(i, j,  &xx, &yy);
+      if(!POINTINSIDE(xx, yy, x1, y1, x2, y2)) continue;
+      dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
+      if(dist < curr_dist) {
+        curr_dist = dist;
+        min_dist_x = xx;
+        min_dist_y = yy;
+      }
+    }
+  }
+
+  init_wire_iterator(&ctx, x1, y1, x2, y2);
+  while(1) {
+    int i;
+    xWire * const wire = xctx->wire;
+    if( !(wireptr = wire_iterator_next(&ctx))) break;
+    i = wireptr->n;
+    xx = wire[i].x1;
+    yy = wire[i].y1;
+    if(!POINTINSIDE(xx, yy, x1, y1, x2, y2)) continue;
+    dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
+    if(dist < curr_dist) {
+      curr_dist = dist;
+      min_dist_x = xx;
+      min_dist_y = yy;
+    }
+    xx = wire[i].x2;
+    yy = wire[i].y2;
+    if(!POINTINSIDE(xx, yy, x1, y1, x2, y2)) continue;
+    dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
+    if(dist < curr_dist) {
+      curr_dist = dist;
+      min_dist_x = xx;
+      min_dist_y = yy;
+    }
+  }
+
+  *x = min_dist_x;
+  *y = min_dist_y;
+}
+
+#if 0
+void xfind_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
 {
   int i, j, no_of_pin_rects;
   double x0, x1, x2, y0, y1, y2, xx, yy, dist, min_dist_x = 0, min_dist_y = 0;
@@ -272,6 +313,7 @@ void find_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
   *y = min_dist_y;
   my_free(_ALLOC_ID_, &type);
 }
+#endif
 
 static void find_closest_arc(double mx, double my)
 {
