@@ -102,8 +102,10 @@ void redraw_w_a_l_r_p_rubbers(void)
     if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
     if(tclgetboolvar("orthogonal_wiring")) {
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-      int tmp_x2 = xctx->nl_x2 - xctx->nl_x1, tmp_y2 = xctx->nl_y2 - xctx->nl_y1;
-      if(tmp_x2*tmp_x2 > tmp_y2*tmp_y2){
+      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+      int origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+      /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+      if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
         xctx->manhattan_lines = 1;
       } else {
         xctx->manhattan_lines = 2;
