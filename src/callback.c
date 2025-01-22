@@ -4272,7 +4272,14 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->drag_elements = 0;
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
-       if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
+       if(xctx->last_command == STARTWIRE){
+         if(tclgetboolvar("snap_cursor") && (xctx->prev_snapx == xctx->mousex_snap && xctx->prev_snapy == xctx->mousey_snap)){
+           new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
+           xctx->last_command &= ~STARTWIRE;
+         }
+         else
+           start_wire(xctx->mousex_snap, xctx->mousey_snap);
+       }
        break;
      }
      /* handle all object insertions started from Tools/Edit menu */

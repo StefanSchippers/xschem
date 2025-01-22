@@ -8200,7 +8200,7 @@ proc build_widgets { {topwin {} } } {
      -selectcolor $selectcolor  -accelerator Y 
   $topwin.menubar.option add checkbutton -label "Enable infix-interface" -variable infix_interface \
      -selectcolor $selectcolor
-  $topwin.menubar.option add checkbutton -label "Enable snap cursor" -variable snap_cursor \
+  $topwin.menubar.option add checkbutton -label "Display snap cursor" -variable snap_cursor \
      -selectcolor $selectcolor
   $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring" -variable orthogonal_wiring \
      -selectcolor $selectcolor  -accelerator Shift+L
