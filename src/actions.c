@@ -3019,7 +3019,7 @@ void new_wire(int what, double mx_snap, double my_snap)
   if( (what & PLACE) ) {
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
       xctx->push_undo();
-      if(xctx->manhattan_lines==1) {
+      if(xctx->manhattan_lines & 1) {
         if(xctx->nl_xx2!=xctx->nl_xx1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3038,7 +3038,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
-      } else if(xctx->manhattan_lines==2) {
+      } else if(xctx->manhattan_lines & 2) {
         if(xctx->nl_yy2!=xctx->nl_yy1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3076,6 +3076,8 @@ void new_wire(int what, double mx_snap, double my_snap)
       draw();
       /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
     }
+
+#if 0
     if(! (what &END)) {
       xctx->nl_x1=mx_snap;
       xctx->nl_y1=my_snap;
@@ -3085,7 +3087,7 @@ void new_wire(int what, double mx_snap, double my_snap)
       xctx->nl_yy1=xctx->nl_y1;
       xctx->nl_xx2=xctx->mousex_snap;
       xctx->nl_yy2=xctx->mousey_snap;
-      if(xctx->manhattan_lines==1) {
+      if(xctx->manhattan_lines & 1) {
         xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3095,7 +3097,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
         drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      } else if(xctx->manhattan_lines==2) {
+      } else if(xctx->manhattan_lines & 2) {
         xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
         xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3113,6 +3115,8 @@ void new_wire(int what, double mx_snap, double my_snap)
         drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
     }
+#endif
+    xctx->nl_x1 = xctx->nl_x2=mx_snap; xctx->nl_y1 = xctx->nl_y2=my_snap;
     xctx->ui_state |= STARTWIRE;
     if(modified) set_modify(1);
   }
@@ -3120,7 +3124,7 @@ void new_wire(int what, double mx_snap, double my_snap)
     xctx->ui_state &= ~STARTWIRE;
   }
   if( (what & RUBBER)  ) {
-    if(xctx->manhattan_lines==1) {
+    if(xctx->manhattan_lines & 1) {
       xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
       xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
@@ -3141,7 +3145,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
         drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
-    } else if(xctx->manhattan_lines==2) {
+    } else if(xctx->manhattan_lines & 2) {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
       xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
@@ -3311,7 +3315,7 @@ void new_line(int what, double mousex_snap, double mousey_snap)
     if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
     {
       xctx->push_undo();
-      if(xctx->manhattan_lines==1) {
+      if(xctx->manhattan_lines & 1) {
         if(xctx->nl_xx2!=xctx->nl_xx1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3328,7 +3332,7 @@ void new_line(int what, double mousex_snap, double mousey_snap)
           modified = 1;
           drawline(xctx->rectcolor,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
-      } else if(xctx->manhattan_lines==2) {
+      } else if(xctx->manhattan_lines & 2) {
         if(xctx->nl_yy2!=xctx->nl_yy1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
@@ -3365,7 +3369,7 @@ void new_line(int what, double mousex_snap, double mousey_snap)
 
   if(what & RUBBER)
   {
-    if(xctx->manhattan_lines==1) {
+    if(xctx->manhattan_lines & 1) {
       xctx->nl_xx1 = xctx->nl_x1;xctx->nl_yy1 = xctx->nl_y1;
       xctx->nl_xx2 = xctx->nl_x2;xctx->nl_yy2 = xctx->nl_y2;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
@@ -3386,7 +3390,7 @@ void new_line(int what, double mousex_snap, double mousey_snap)
         ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
         drawtempline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
       }
-    } else if(xctx->manhattan_lines==2) {
+    } else if(xctx->manhattan_lines & 2) {
       xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
       xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
       ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
