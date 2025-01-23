@@ -285,6 +285,9 @@
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
 set crosshair_size 2
 
+#### set snap_cursor size; Default: 3 (Diamond-shaped cursor that snaps to nearest circuit endpoint)
+# set snap_cursor size 3
+
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 

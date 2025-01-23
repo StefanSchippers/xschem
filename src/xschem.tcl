@@ -7656,7 +7656,7 @@ set tctx::global_list {
   add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
   autotrim_wires orthogonal_wiring snap_cursor bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
-  copy_cell crosshair_layer crosshair_size custom_label_prefix custom_token dark_colors dark_colorscheme
+  copy_cell crosshair_layer crosshair_size snap_cursor_size custom_label_prefix custom_token dark_colors dark_colorscheme
   dark_gui_colorscheme delay_flag  dim_bg dim_value disable_unique_names
   do_all_inst draw_crosshair
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
@@ -8200,10 +8200,8 @@ proc build_widgets { {topwin {} } } {
      -selectcolor $selectcolor  -accelerator Y 
   $topwin.menubar.option add checkbutton -label "Enable infix-interface" -variable infix_interface \
      -selectcolor $selectcolor
-  $topwin.menubar.option add checkbutton -label "Display snap cursor" -variable snap_cursor \
-     -selectcolor $selectcolor
   $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring" -variable orthogonal_wiring \
-     -selectcolor $selectcolor  -accelerator Shift+L
+     -selectcolor $selectcolor  -accelerator Shift-L
   $topwin.menubar.option add checkbutton -label "Unsel. partial sel. wires after stretch move" \
      -selectcolor $selectcolor -variable unselect_partial_sel_wires
 
@@ -8222,6 +8220,8 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.option add checkbutton -label "Draw crosshair" \
     -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
+  $topwin.menubar.option add checkbutton -label "Draw persistent snap cursor" -variable snap_cursor \
+     -selectcolor $selectcolor  -accelerator {Alt-Z}
 
   $topwin.menubar.option add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
@@ -9106,6 +9106,7 @@ set_ne ps_page_title 1 ;# add a title in the top left page corner
 set_ne draw_crosshair 0
 set_ne crosshair_layer 8 ;# Yellow
 set_ne crosshair_size 0
+set_ne snap_cursor_size 3
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
