@@ -9106,7 +9106,7 @@ set_ne ps_page_title 1 ;# add a title in the top left page corner
 set_ne draw_crosshair 0
 set_ne crosshair_layer 8 ;# Yellow
 set_ne crosshair_size 0
-set_ne snap_cursor_size 3
+set_ne snap_cursor_size 6
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112

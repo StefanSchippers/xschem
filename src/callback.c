@@ -1498,9 +1498,29 @@ void draw_snap_cursor(int what)
     } else { /* Only search for nearest pin if the grid-snap-point has changed */
       find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     }
-    double points_x[5] = {x, x+snapcursor_size, x, x-snapcursor_size, x};
-    double points_y[5] = {y-snapcursor_size, y, y+snapcursor_size, y, y-snapcursor_size};
-    drawpolygon(xctx->crosshair_layer, NOW, points_x, points_y, 5, 0, 0, 0);
+    /*double points_x[5] = {x, x+snapcursor_size, x, x-snapcursor_size, x};*/
+    /*double points_y[5] = {y-snapcursor_size, y, y+snapcursor_size, y, y-snapcursor_size};*/
+    /*drawpolygon(xctx->crosshair_layer, NOW, points_x, points_y, 5, 0, 0, 0);*/
+    draw_xhair_line(xctx->gc[xctx->crosshair_layer], snapcursor_size,
+        X_TO_SCREEN(x),
+        Y_TO_SCREEN(y) - snapcursor_size,
+        X_TO_SCREEN(x) + snapcursor_size,
+        Y_TO_SCREEN(y));
+    draw_xhair_line(xctx->gc[xctx->crosshair_layer], snapcursor_size,
+        X_TO_SCREEN(x) + snapcursor_size,
+        Y_TO_SCREEN(y),
+        X_TO_SCREEN(x),
+        Y_TO_SCREEN(y) + snapcursor_size);
+    draw_xhair_line(xctx->gc[xctx->crosshair_layer], snapcursor_size,
+        X_TO_SCREEN(x),
+        Y_TO_SCREEN(y) + snapcursor_size,
+        X_TO_SCREEN(x) - snapcursor_size,
+        Y_TO_SCREEN(y));
+    draw_xhair_line(xctx->gc[xctx->crosshair_layer], snapcursor_size,
+        X_TO_SCREEN(x) - snapcursor_size,
+        Y_TO_SCREEN(y),
+        X_TO_SCREEN(x),
+        Y_TO_SCREEN(y) - snapcursor_size);
     xctx->prev_gridx = xctx->mousex_snap;
     xctx->prev_gridy = xctx->mousey_snap;
     xctx->prev_snapx = x;
