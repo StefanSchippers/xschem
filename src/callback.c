@@ -4230,9 +4230,10 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(xctx->last_command == STARTWIRE){
-         if(tclgetboolvar("snap_cursor") && (xctx->prev_snapx == xctx->mousex_snap && xctx->prev_snapy == xctx->mousey_snap)){
+         if(tclgetboolvar("snap_cursor") && (xctx->prev_snapx == xctx->mousex_snap && xctx->prev_snapy == xctx->mousey_snap)
+            && (xctx->ui_state & STARTWIRE)){
            new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
-           xctx->last_command &= ~STARTWIRE;
+           xctx->ui_state &= ~STARTWIRE;
          }
          else
            start_wire(xctx->mousex_snap, xctx->mousey_snap);
