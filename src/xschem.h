@@ -1393,6 +1393,7 @@ extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern void draw_crosshair(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
+/* extern void snapped_wire(double c_snap); */
 extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);

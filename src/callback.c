@@ -1593,6 +1593,25 @@ static int end_place_move_copy_zoom()
   return 0;
 }
 
+void snapped_wire(double c_snap)
+{
+  double x, y;
+  if(!(xctx->ui_state & STARTWIRE)){
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    xctx->mx_double_save = my_round(x / c_snap) * c_snap;
+    xctx->my_double_save = my_round(y / c_snap) * c_snap;
+    new_wire(PLACE, x, y);
+    new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
+  }
+  else {
+    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+    new_wire(RUBBER, x, y);
+    new_wire(PLACE|END, x, y);
+    xctx->constr_mv=0;
+    tcleval("set constr_mv 0" );
+  }
+}
+
 static int check_menu_start_commands(double c_snap)
 {
   dbg(1, "check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n", 
@@ -1600,12 +1619,10 @@ static int check_menu_start_commands(double c_snap)
 
   if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT)) {
     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT2)) {
     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTMOVE)) {
@@ -1614,14 +1631,12 @@ static int check_menu_start_commands(double c_snap)
     /* stretch nets that land on selected instance pins if connect_by_kissing == 2 */
     /* select_attached_nets(); */
     move_objects(START,0,0,0);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTCOPY)) {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     copy_objects(START);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }    
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) {
@@ -1632,8 +1647,6 @@ static int check_menu_start_commands(double c_snap)
       tcleval("set constr_mv 0" );
       xctx->constr_mv=0;
     }
-    xctx->ui_state &=~MENUSTART;
-    xctx->ui_state2  = 0;
 
     /* 
      * xctx->mx_double_save=xctx->mousex_snap;
@@ -1644,13 +1657,7 @@ static int check_menu_start_commands(double c_snap)
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTSNAPWIRE)) {
-    double x, y;
-
-    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-    xctx->mx_double_save = my_round(x / c_snap) * c_snap;
-    xctx->my_double_save = my_round(y / c_snap) * c_snap;
-    new_wire(PLACE, x, y);
-    xctx->ui_state &=~MENUSTART;
+    snapped_wire(c_snap);
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTLINE)) {
@@ -1661,8 +1668,6 @@ static int check_menu_start_commands(double c_snap)
       tcleval("set constr_mv 0" );
       xctx->constr_mv=0;
     }
-    xctx->ui_state &=~MENUSTART;
-    xctx->ui_state2 = 0;
 
     /*
      * xctx->mx_double_save=xctx->mousex_snap;
@@ -1676,33 +1681,28 @@ static int check_menu_start_commands(double c_snap)
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTPOLYGON)) {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTARC)) {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     new_arc(PLACE, 180., xctx->mousex_snap, xctx->mousey_snap);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTCIRCLE)) {
     xctx->mx_double_save=xctx->mousex_snap;
     xctx->my_double_save=xctx->mousey_snap;
     new_arc(PLACE, 360., xctx->mousex_snap, xctx->mousey_snap);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTZOOM)) {
     zoom_rectangle(START);
-    xctx->ui_state &=~MENUSTART;
     return 1;
   }
   return 0;
@@ -2300,25 +2300,6 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
 }
 #endif
 
-static void snapped_wire(double c_snap)
-{
-  double x, y;
-  if(!(xctx->ui_state & STARTWIRE)){
-    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-    xctx->mx_double_save = my_round(x / c_snap) * c_snap;
-    xctx->my_double_save = my_round(y / c_snap) * c_snap;
-    new_wire(PLACE, x, y);
-    new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
-  }
-  else {
-    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
-    new_wire(RUBBER, x, y);
-    new_wire(PLACE|END, x, y);
-    xctx->constr_mv=0;
-    tcleval("set constr_mv 0" );
-  }
-}
-
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -2627,7 +2608,8 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     /* snap crosshair to closest pin or net endpoint */
     if(draw_xhair) {
-      if( ( (xctx->ui_state & STARTWIRE) || xctx->ui_state == 0 ) && (state & ShiftMask) ) {
+      if( ( (xctx->ui_state & (MENUSTART | STARTWIRE) ) || xctx->ui_state == 0 ) &&
+            (state == ShiftMask) ) {
         double x, y, sx, sy;
         sx = xctx->mousex_snap;
         sy = xctx->mousey_snap;
@@ -2655,7 +2637,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->manhattan_lines %=3;
        new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
 
-     } else if(xctx->ui_state==STARTLINE) {
+     } else if(xctx->ui_state & STARTLINE) {
        new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
        xctx->manhattan_lines++;
        xctx->manhattan_lines %=3;
@@ -2884,7 +2866,12 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
      if(xctx->semaphore >= 2) break;
-     snapped_wire(c_snap);
+     if(infix_interface) {
+       snapped_wire(c_snap);
+     } else {
+       xctx->ui_state |= MENUSTART;
+       xctx->ui_state2 = MENUSTARTSNAPWIRE;
+     }
      break;
    }
    if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
@@ -4191,7 +4178,6 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* terminate wire placement in snap mode */
    else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
      snapped_wire(c_snap);
-     here(1111);
    }
    /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
@@ -4365,11 +4351,12 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->semaphore = savesem;
    }
 
-   /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
-   else if(state == Button1Mask && xctx->intuitive_interface && (xctx->ui_state & STARTWIRE)) {
+   /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
+   else if(state == Button1Mask && xctx->intuitive_interface &&
+           (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
      if(end_place_move_copy_zoom()) break;
    }
-
+ 
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
       copy_objects(END);
@@ -4417,6 +4404,13 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
    }
+
+   /* clear start from menu flag or infix_interface=0 start commands */
+   if(xctx->ui_state & MENUSTART) {
+     xctx->ui_state &= ~MENUSTART;
+     break;
+   }
+
    if(draw_xhair) draw_crosshair(0);
    if(snap_cursor && wire_draw_active) draw_snap_cursor(0);
    break;
