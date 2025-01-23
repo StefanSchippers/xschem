@@ -2864,7 +2864,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      hilight_net_pin_mismatches();
      break;
    }
-   if(key== 's' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
+   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
      if(xctx->semaphore >= 2) break;
      if(infix_interface) {
        snapped_wire(c_snap);
@@ -4352,10 +4352,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
-   /*else if(state == Button1Mask && xctx->intuitive_interface &&*/
-   /*        (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {*/
-   /*  if(end_place_move_copy_zoom()) break;*/
-   /*}*/
+   else if(state == Button1Mask && xctx->intuitive_interface &&
+           (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
+     if(end_place_move_copy_zoom()) break;
+   }
  
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
