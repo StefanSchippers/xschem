@@ -903,8 +903,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Highlight instance 'inst'
        if 'fast' is specified do not redraw
    'inst' can be an instance name or number </pre>
-   <li><kbd>       hilight_netname net</kbd></li><pre>
-   Highlight net name 'net' </pre>
+   <li><kbd>       hilight_netname [-fast] net </kbd></li><pre>
+   Highlight net name 'net'
+   if '-fast' is given do not redraw hilights after operation </pre>
    <li><kbd>       image [invert|white_transp|black_transp|transp_white|transp_black|write_back|</kbd></li><pre>
         blend_white|blend_black]
    Apply required changes to selected images
@@ -1596,7 +1597,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       translate n str</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      Example: xschem translate vref {the voltage is @value}
-     the voltage is 1.8 </pre>
+     the voltage is 1.8
+   If -1 is given as the instance number try to translate the string without using any
+   instance specific data </pre>
    <li><kbd>       translate3 str eat_escapes s1 [s2] [s3]</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in string s1 or if
      not found in string s2 or if not found in string s3

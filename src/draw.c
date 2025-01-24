@@ -2577,6 +2577,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             double xx, xx0 = 0.0; /* gcc gives false warnings if xx0 not initialized here */
             int cnt=0, wrap;
             register SPICE_DATA *gv = raw->values[sweep_idx];
+            register SPICE_DATA *gv0 = raw->values[0];
             ofs_end = ofs + raw->npoints[dset];
 
             /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
@@ -2584,8 +2585,8 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             for(p = ofs ; p < ofs_end; p++) {
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
-              if(p == ofs) xx0 = gv[p];
-              wrap = (cnt > 1 && gv[p] == xx0);
+              if(p == ofs) xx0 = gv0[p];
+              wrap = (cnt > 1 && gv0[p] == xx0);
               if(wrap) {
                  sweepvar_wrap++;
                  cnt = 0;
@@ -3596,6 +3597,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   for(dset = 0 ; dset < raw->datasets; dset++) {
     int cnt=0, wrap;
     register SPICE_DATA *gv = raw->values[sweep_idx];
+    register SPICE_DATA *gv0 = raw->values[0];
     ofs_end = ofs + raw->npoints[dset];
     first = -1;
     last = ofs; 
@@ -3608,8 +3610,8 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
       else
         xx = gv[p];
 
-      if(p == ofs) xx0 = gv[p];
-      wrap = ( cnt > 1 && gv[p] == xx0);
+      if(p == ofs) xx0 = gv0[p];
+      wrap = ( cnt > 1 && gv0[p] == xx0);
       if(first != -1) {                      /* there is something to plot ... */
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
@@ -3737,6 +3739,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
         double prev_x = 0.0;
         int cnt=0, wrap;
         register SPICE_DATA *gvx = raw->values[sweep_idx];
+        register SPICE_DATA *gv0 = raw->values[0];
         register SPICE_DATA *gvy;
         ofs_end = ofs + raw->npoints[dset];
         if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL);
@@ -3750,10 +3753,10 @@ int find_closest_wave(int i, Graph_ctx *gr)
         for(p = ofs ; p < ofs_end; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
           else xx = gvx[p];
-          if(p == ofs) xx0 = gvx[p];
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
-          wrap = (cnt > 1 && gvx[p] == xx0);
+          if(p == ofs) xx0 = gv0[p];
+          wrap = (cnt > 1 && gv0[p] == xx0);
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
               dbg(1, "find_closest_wave(): last=%d\n", last);
@@ -4053,6 +4056,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
           double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
+          register SPICE_DATA *gv0 = xctx->raw->values[0];
             
           ofs_end = ofs + xctx->raw->npoints[dset];
           first = -1;
@@ -4073,8 +4077,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             else  xx = gv[p];
 
             xxprevious = xxfollowing = xx;
-            if(p == ofs) xx0 = gv[p];
-            wrap = cnt > 1 && gv[p] == xx0;
+            /* do not use sweep variable for wrap detection. sweep variables other that simulation sweep var
+             * are simulated and thos no equality test can be done, and any "approx equal" test si going
+             * to do unexpected things (liek in simulations with very dense steps) */
+            if(p == ofs) xx0 = gv0[p]; /* gv[p];*/
+            wrap = cnt > 1 && gv0[p] == xx0;
             #if 1 /* plot one point before start and one point after end so
                    * waves will extend to whole graph area even if there are few points
                    * but NOT if we are about to wrap (missing 1st/last point in 2-var dc sweeps) */

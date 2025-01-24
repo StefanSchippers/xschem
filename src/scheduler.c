@@ -2245,14 +2245,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* hilight_netname net
-     *   Highlight net name 'net' */
+    /* hilight_netname [-fast] net 
+     *   Highlight net name 'net'
+     *   if '-fast' is given do not redraw hilights after operation */
     else if(!strcmp(argv[1], "hilight_netname"))
     {
-      int ret = 0;
+      int ret = 0, fast = 0, i;
+      const char *net = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) {
-        ret = hilight_netname(argv[2]);
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-fast")) {
+            fast = 1;
+          }
+        } else {
+          net = argv[i];
+          break;
+        }
+      }
+      if(net) {
+        ret = hilight_netname(net,  fast);
       }
       Tcl_SetResult(interp, ret ? "1" : "0" , TCL_STATIC);
     }
@@ -5972,14 +5984,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* translate n str
      *   Translate string 'str' replacing @xxx tokens with values in instance 'n' attributes
      *     Example: xschem translate vref {the voltage is @value}
-     *     the voltage is 1.8 */
+     *     the voltage is 1.8
+     *   If -1 is given as the instance number try to translate the string without using any
+     *   instance specific data */
     else if(!strcmp(argv[1], "translate") )
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc>3) {
         int i;
         char *s = NULL;
-        if((i = get_instance(argv[2])) < 0 ) {
+        if(!strcmp(argv[2], "-1")) i = -1;
+        else if((i = get_instance(argv[2])) < 0 ) {
           Tcl_SetResult(interp, "xschem translate: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }

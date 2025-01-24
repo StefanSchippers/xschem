@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -524,3 +524,7 @@ simswap
 
 "
 }
+C {spice_probe.sym} 190 -790 2 0 {name=p92 analysis=tran}
+C {spice_probe.sym} 90 -790 2 0 {name=p102 analysis=tran}
+C {spice_probe.sym} 90 -890 2 0 {name=p103 analysis=tran}
+C {spice_probe.sym} 150 -400 2 0 {name=p104 analysis=tran}
