@@ -582,6 +582,16 @@
 #### default: not enabled (0)
 # set hide_empty_graphs 0
 
+
+###########################################################################
+#### ATTACH HOOK FUNCTION TO CURSOR 2 MOVEMENT 
+###########################################################################
+#### if enabled whenever the cursor2 is moved the specified script is
+#### executed. Examples:
+####  set cursor_2_hook {conducting_devices 10e-3 nodraw}
+####  set cursor_2_hook {hilight_high_nets 0 1.8 nodraw}
+#### this can be used to add backannotation actions.
+
 ###########################################################################
 #### LIVE BACKANNOTATION OF DATA AT CURSOR 2 (B) POSITION
 ###########################################################################

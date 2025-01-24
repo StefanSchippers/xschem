@@ -687,6 +687,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Redraw graph rectangle number 'n'.
    If the optional 'flags' integer is given it will be used as the
    flags bitmask to use while drawing (can be used to restrict what to redraw) </pre>
+   <li><kbd>       draw_hilight_net [1|0]</kbd></li><pre>
+   Redraw only hilight colors on nets and instances
+   the parameter specifies if drawing on window or only on back buffer </pre>
    <li><kbd>       drc_check [i]</kbd></li><pre>
    Perform DRC rulecheck of instances.
    if i is specified do check of specified instance
@@ -800,6 +803,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> schtedaxprop </kbd> get schematic "tedax" global attributes </li>
      <li><kbd> sch_path </kbd> get hierarchy path. if 'n' given get hierpath of level 'n' </li>
      <li><kbd> sch_to_compare </kbd> if set return schematic current design is compared with </li>
+     <li><kbd> sim_sch_path </kbd> get sim hier path. start from level where raw was loaded </li>
      <li><kbd> symbols </kbd> number of loaded symbols </li>
      <li><kbd> temp_dir </kbd> get windows temporary dir </li>
      <li><kbd> text_svg </kbd> return 1 if using &lt;text&gt; elements in svg export </li>
@@ -899,9 +903,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Highlight selected element/pins/labels/nets
    if 'drill' is given propagate net highlights through conducting elements
    (elements that have the 'propag' attribute on pins ) </pre>
-   <li><kbd>       hilight_instname inst [fast]</kbd></li><pre>
+   <li><kbd>       hilight_instname [-fast] inst</kbd></li><pre>
    Highlight instance 'inst'
-       if 'fast' is specified do not redraw
+       if '-fast' is specified do not redraw
    'inst' can be an instance name or number </pre>
    <li><kbd>       hilight_netname [-fast] net </kbd></li><pre>
    Highlight net name 'net'

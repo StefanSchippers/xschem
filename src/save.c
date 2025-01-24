@@ -1388,7 +1388,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
 int update_op()
 {
   int res = 0, p = 0, i;
-  tcleval("array unset ngspice::ngspice_data");
+  Tcl_UnsetVar(interp, "ngspice::ngspice_data", TCL_GLOBAL_ONLY);
   if(xctx->raw && xctx->raw->values) {
     xctx->raw->annot_p = 0;
     dbg(1, "update_op(): nvars=%d\n", xctx->raw->nvars);
@@ -1398,10 +1398,10 @@ int update_op()
       xctx->raw->cursor_b_val[i] =  xctx->raw->values[i][p];
       my_snprintf(s, S(s), "%.4g", xctx->raw->values[i][p]);
       dbg(1, "%s = %g\n", xctx->raw->names[i], xctx->raw->values[i][p]);
-      tclvareval("array set ngspice::ngspice_data [list {",  xctx->raw->names[i], "} ", s, "]", NULL);
+      Tcl_SetVar2(interp, "ngspice::ngspice_data", xctx->raw->names[i], s, TCL_GLOBAL_ONLY);
     }
-    tclvareval("set ngspice::ngspice_data(n\\ vars) ", my_itoa( xctx->raw->nvars), NULL);
-    tclvareval("set ngspice::ngspice_data(n\\ points) 1", NULL);
+    Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ vars", my_itoa( xctx->raw->nvars), TCL_GLOBAL_ONLY);
+    Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ points", "1", TCL_GLOBAL_ONLY);
   } 
   return res;
 }

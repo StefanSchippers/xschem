@@ -1104,6 +1104,7 @@ static void drill_hilight(int mode)
   if(propagate_str) my_free(_ALLOC_ID_, &propagate_str);
 }
 
+/* if fast is set you need to do a propagate_hilights() at the end to finalize the operation */
 int hilight_netname(const char *name, int fast)
 {
   Node_hashentry *node_entry;
@@ -1113,8 +1114,8 @@ int hilight_netname(const char *name, int fast)
   node_entry = bus_node_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
                     /* sets xctx->hilight_nets=1 */
   if(node_entry && !bus_hilight_hash_lookup(name, xctx->hilight_color, XINSERT_NOREPLACE)) {
-    propagate_hilights(1, 0, XINSERT_NOREPLACE);
     if(!fast) {
+      propagate_hilights(1, 0, XINSERT_NOREPLACE);
       if(tclgetboolvar("incr_hilight")) incr_hilight_color();
       redraw_hilights(0);
     }

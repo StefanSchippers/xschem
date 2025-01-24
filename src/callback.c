@@ -242,6 +242,7 @@ static double interpolate_yval(int idx, int p, double x, int sweep_idx, int poin
 
 void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 {
+  tcleval("catch {eval $cursor_2_hook}");
   if(sch_waves_loaded() >= 0) { 
     int dset, first = -1, last, dataset = gr->dataset, i, p, ofs = 0, ofs_end;
     double start, end;
