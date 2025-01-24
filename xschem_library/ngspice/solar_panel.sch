@@ -100,9 +100,10 @@ hilight_wave=-1
 
 
 
-autoload=1
-rawfile=$netlist_dir/solar_panel.raw
-sim_type=tran}
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw}
 B 2 1260 -390 1680 -220 {flags=graph 
 y1 = -0.0012
 y2 = 6.8
@@ -118,9 +119,10 @@ i(Vled)
 \\"R.Avg. I(VPANEL); i(VPANEL) 20u ravg()\\""
 jpeg_quality=30
 linewidth_mult=2.0
-autoload=1
-rawfile=$netlist_dir/solar_panel.raw
-sim_type=tran}
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw}
 B 2 1260 -750 1680 -560 {flags=graph 
 y1 = -2.7e-05
 y2 = 100
@@ -140,9 +142,10 @@ SUN \\\\%; SUN 100 *"
 hilight_wave=-1
 jpeg_quality=30
 linewidth_mult=2.0
-autoload=1
-rawfile=$netlist_dir/solar_panel.raw
-sim_type=tran}
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw}
 B 2 1260 -940 1680 -750 {flags=graph 
 y1 = 0
 y2 = 1
@@ -162,9 +165,10 @@ ypos1=0.00261891
 ypos2=0.51596
 jpeg_quality=30
 linewidth_mult=2.0
-autoload=1
-rawfile=$netlist_dir/solar_panel.raw
-sim_type=tran}
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw}
 B 2 1260 -1140 1680 -950 {flags=graph 
 y1 = 0
 y2 = 1
@@ -185,9 +189,10 @@ color=8
 node="\\"CTRL1 Duty cycle; CTRL1 20u ravg()\\""
 jpeg_quality=30
 linewidth_mult=2.0
-autoload=1
-rawfile=$netlist_dir/solar_panel.raw
-sim_type=tran}
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw}
 B 18 65 -960 320 -775 {}
 A 5 320 -960 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 395 -775 340 -931.25 335 -945 322.5 -960 310 -965 65 -975 {}

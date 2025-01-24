@@ -1104,7 +1104,7 @@ static void drill_hilight(int mode)
   if(propagate_str) my_free(_ALLOC_ID_, &propagate_str);
 }
 
-int hilight_netname(const char *name)
+int hilight_netname(const char *name, int fast)
 {
   Node_hashentry *node_entry;
   prepare_netlist_structs(0);
@@ -1113,9 +1113,11 @@ int hilight_netname(const char *name)
   node_entry = bus_node_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
                     /* sets xctx->hilight_nets=1 */
   if(node_entry && !bus_hilight_hash_lookup(name, xctx->hilight_color, XINSERT_NOREPLACE)) {
-    if(tclgetboolvar("incr_hilight")) incr_hilight_color();
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
-    redraw_hilights(0);
+    if(!fast) {
+      if(tclgetboolvar("incr_hilight")) incr_hilight_color();
+      redraw_hilights(0);
+    }
   }
   return node_entry ? 1 : 0;
 }
