@@ -1479,15 +1479,46 @@ void draw_snap_cursor(int what)
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
+  double prev_x = xctx->prev_snapx;
+  double prev_y = xctx->prev_snapy;
   if(what != 2) {
     if(fix_broken_tiled_fill || !_unix) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);
-    }  else {
-      double prev_x = xctx->prev_snapx;
-      double prev_y = xctx->prev_snapy;
-      double points_x[5] = {prev_x, prev_x+snapcursor_size, prev_x, prev_x-snapcursor_size, prev_x};
-      double points_y[5] = {prev_y-snapcursor_size, prev_y, prev_y+snapcursor_size, prev_y, prev_y-snapcursor_size};
-      drawtemppolygon(xctx->gctiled, NOW, points_x, points_y, 5, 0);
+      /*MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);*/
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
+           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
+           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size);
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
+           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
+           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size);
+    } else {
+      draw_xhair_line(xctx->gctiled, snapcursor_size,
+          X_TO_SCREEN(prev_x),
+          Y_TO_SCREEN(prev_y) - snapcursor_size,
+          X_TO_SCREEN(prev_x) + snapcursor_size,
+          Y_TO_SCREEN(prev_y));
+      draw_xhair_line(xctx->gctiled, snapcursor_size,
+          X_TO_SCREEN(prev_x) + snapcursor_size,
+          Y_TO_SCREEN(prev_y),
+          X_TO_SCREEN(prev_x),
+          Y_TO_SCREEN(prev_y) + snapcursor_size);
+      draw_xhair_line(xctx->gctiled, snapcursor_size,
+          X_TO_SCREEN(prev_x),
+          Y_TO_SCREEN(prev_y) + snapcursor_size,
+          X_TO_SCREEN(prev_x) - snapcursor_size,
+          Y_TO_SCREEN(prev_y));
+      draw_xhair_line(xctx->gctiled, snapcursor_size,
+          X_TO_SCREEN(prev_x) - snapcursor_size,
+          Y_TO_SCREEN(prev_y),
+          X_TO_SCREEN(prev_x),
+          Y_TO_SCREEN(prev_y) - snapcursor_size);
     }
   }
   if(what != 1) {
@@ -1496,11 +1527,8 @@ void draw_snap_cursor(int what)
       x = xctx->prev_snapx;
       y = xctx->prev_snapy;
     } else { /* Only search for nearest pin if the grid-snap-point has changed */
-      find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
+      xctx->closest_pin_found = find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     }
-    /*double points_x[5] = {x, x+snapcursor_size, x, x-snapcursor_size, x};*/
-    /*double points_y[5] = {y-snapcursor_size, y, y+snapcursor_size, y, y-snapcursor_size};*/
-    /*drawpolygon(xctx->crosshair_layer, NOW, points_x, points_y, 5, 0, 0, 0);*/
     draw_xhair_line(xctx->gc[xctx->crosshair_layer], snapcursor_size,
         X_TO_SCREEN(x),
         Y_TO_SCREEN(y) - snapcursor_size,
@@ -4250,8 +4278,11 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(xctx->last_command == STARTWIRE){
-         if(tclgetboolvar("snap_cursor") && (xctx->prev_snapx == xctx->mousex_snap && xctx->prev_snapy == xctx->mousey_snap)
-            && (xctx->ui_state & STARTWIRE)){
+         if(tclgetboolvar("snap_cursor") 
+              && (xctx->prev_snapx == xctx->mousex_snap 
+              && xctx->prev_snapy == xctx->mousey_snap) 
+              && (xctx->ui_state & STARTWIRE) 
+              && xctx->closest_pin_found){
            new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
            xctx->ui_state &= ~STARTWIRE;
          }
