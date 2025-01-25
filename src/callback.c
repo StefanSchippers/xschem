@@ -1335,7 +1335,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
-/* what == 0 : delete and draw
+/* what == 3 : delete and draw
  * what == 1 : delete
  * what == 2 : draw */
 void draw_crosshair(int what)
@@ -1350,7 +1350,7 @@ void draw_crosshair(int what)
 
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(what != 2) { /* delete previous */
+  if(what & 1) { /* delete previous */
     if(fix_broken_tiled_fill || !_unix) {
       if(xhair_size) {
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
@@ -1408,7 +1408,7 @@ void draw_crosshair(int what)
       }
     }
   }
-  if(what != 1) { /* draw new */
+  if(what & 2) { /* draw new */
     if(xhair_size) {
       draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
           X_TO_SCREEN(xctx->mousex_snap) - xhair_size,
@@ -1439,7 +1439,7 @@ void draw_crosshair(int what)
          X_TO_SCREEN(xctx->mousex_snap), xctx->areay2);
     }
   }
-  draw_selection(xctx->gc[SELLAYER], 0);
+  if(what) draw_selection(xctx->gc[SELLAYER], 0);
   xctx->prev_crossx = xctx->mousex_snap;
   xctx->prev_crossy = xctx->mousey_snap;
 
@@ -4302,7 +4302,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
 
-   if(draw_xhair) draw_crosshair(0);
+   if(draw_xhair) draw_crosshair(3);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
