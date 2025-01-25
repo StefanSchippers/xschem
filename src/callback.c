@@ -4301,7 +4301,8 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
 
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
-       sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+       if(draw_xhair) sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
+       else sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
 
        switch(sel.type) {
          case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
