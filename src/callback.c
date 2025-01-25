@@ -2955,6 +2955,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE)) {
       xctx->last_command &= ~STARTWIRE;
+      if(snap_cursor) draw_snap_cursor(1);
     }
     break;
    }
