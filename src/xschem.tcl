@@ -7656,9 +7656,9 @@ set tctx::global_list {
   add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
   autotrim_wires orthogonal_wiring snap_cursor bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
   cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
-  copy_cell crosshair_layer crosshair_size snap_cursor_size custom_label_prefix custom_token dark_colors dark_colorscheme
-  dark_gui_colorscheme delay_flag  dim_bg dim_value disable_unique_names
-  do_all_inst draw_crosshair
+  copy_cell crosshair_layer crosshair_size cursor_2_hook snap_cursor_size custom_label_prefix custom_token
+  dark_colors dark_colorscheme dark_gui_colorscheme delay_flag  
+  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
   draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
   edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
   enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
@@ -9116,6 +9116,7 @@ set_ne zoom_full_center 0
 set_ne change_lw 1
 set_ne line_width 0
 set_ne live_cursor2_backannotate 1
+set_ne cursor_2_hook {}
 set_ne draw_window 0
 set_ne show_hidden_texts 0
 set_ne incr_hilight 1

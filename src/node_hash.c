@@ -368,24 +368,30 @@ void print_verilog_signals(FILE *fd)
 void list_nets(char **result)
 {
   Node_hashentry *ptr;
-  char *type = NULL;
   int i;
   int netlist_lvs_ignore=tclgetboolvar("lvs_ignore");
+  char *type = NULL;
+  int mult, k;
+  char *pin_node = NULL;
+  char *p_n_s1, *p_n_s2, *lab;
 
   prepare_netlist_structs(1);
   for(i = 0; i < xctx->instances; i++) {
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if(type && xctx->inst[i].node && IS_PIN(type)) {
-      /* 
-       * my_mstrcat(_ALLOC_ID_, result, 
-       *  "{", get_tok_value(xctx->inst[i].prop_ptr, "lab", 0), " ", type, "}\n", NULL);
-       */
-      my_mstrcat(_ALLOC_ID_, result, 
-        "{", xctx->inst[i].lab, " ", type, "}\n", NULL);
+      my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(xctx->inst[i].lab, &mult));
+      p_n_s1 = pin_node;
+      for(k = 1; k <= mult; ++k) {
+        lab = my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2);
+        p_n_s1 = NULL;
+        my_mstrcat(_ALLOC_ID_, result, "{", lab, " ", type, "}\n", NULL);
+      }
     }
+    if(pin_node) my_free(_ALLOC_ID_, &pin_node);
   }
   if(type) my_free(_ALLOC_ID_, &type);
+
   for(i=0;i<HASHSIZE; ++i) {
     ptr = xctx->node_table[i];
     while(ptr) {

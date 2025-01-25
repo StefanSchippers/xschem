@@ -899,6 +899,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
+
+    /* draw_hilight_net [1|0]
+     *   Redraw only hilight colors on nets and instances
+     *   the parameter specifies if drawing on window or only on back buffer */
+    else if(!strcmp(argv[1], "draw_hilight_net")) {
+      int on_window = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) {
+        on_window = atoi(argv[2]);
+      }
+      draw_hilight_net(on_window);
+      Tcl_ResetResult(interp);
+    }
+
     /* drc_check [i]
      *   Perform DRC rulecheck of instances.
      *   if i is specified do check of specified instance
@@ -1619,6 +1633,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, xctx->sch_to_compare, TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "sim_sch_path")) /* get sim hier path. start from level where raw was loaded */
+          {
+            int x = xctx->currsch;
+            char *path = xctx->sch_path[x] + 1;
+            int skip = 0;
+            int start_level;
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            start_level = sch_waves_loaded();
+            /* skip path components that are above the level where raw file was loaded */
+            while(*path && skip < start_level) {
+              if(*path == '.') skip++;
+              ++path;
+            }
+            Tcl_SetResult(interp, path, TCL_VOLATILE);
+          }
           else if(!strcmp(argv[2], "symbols")) { /* number of loaded symbols */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->symbols), TCL_VOLATILE);
@@ -2202,23 +2231,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       redraw_hilights(0);
       Tcl_ResetResult(interp);
     }
-    /* hilight_instname inst [fast]
+    /* hilight_instname [-fast] inst
      *   Highlight instance 'inst'
-     * if 'fast' is specified do not redraw
+     * if '-fast' is specified do not redraw
      *   'inst' can be an instance name or number */
     else if(!strcmp(argv[1], "hilight_instname"))
     {
+      const char *instname=NULL;
+      int i, fast = 0;
+      
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) {
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-fast")) {
+            fast = 1;
+          }
+        } else { 
+          instname = argv[i];
+          break;
+        }
+      } 
+      if(instname) {
         int inst;
         char *type;
         int incr_hi;
-        int fast = 0;
-        if(argc > 3 && !strcmp(argv[3], "fast")) fast = 1;
         xctx->enable_drill=0;
         incr_hi = tclgetboolvar("incr_hilight");
         prepare_netlist_structs(0);
-        if((inst = get_instance(argv[2])) < 0 ) {
+        if((inst = get_instance(instname)) < 0 ) {
           Tcl_SetResult(interp, "xschem hilight_instname: instance not found", TCL_STATIC);
           return TCL_ERROR;
         } else {
