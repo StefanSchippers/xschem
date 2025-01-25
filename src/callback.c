@@ -2251,6 +2251,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
 #else
  XKeyboardState kbdstate;
 #endif
+int enable_stretch = tclgetboolvar("enable_stretch");
 int draw_xhair = tclgetboolvar("draw_crosshair");
 int crosshair_size = tclgetintvar("crosshair_size");
 int infix_interface = tclgetboolvar("infix_interface");
@@ -2462,12 +2463,12 @@ int rstate; /* (reduced state, without ShiftMask) */
       if( (state & Button1Mask)  && SET_MODMASK) { 
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
-        select_rect(RUBBER,0);
+        select_rect(enable_stretch, RUBBER,0);
       /* select by area : determine direction */
       } else if(state & Button1Mask) {
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
-        select_rect(RUBBER,1);
+        select_rect(enable_stretch, RUBBER,1);
       }
     }
     if(xctx->ui_state & STARTMOVE) {
@@ -2492,7 +2493,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         xctx->mouse_moved = 1;
         if(!xctx->drag_elements) {
           if( !(xctx->ui_state & STARTSELECT)) {
-            select_rect(START,1);
+            select_rect(enable_stretch, START,1);
             xctx->onetime=1;
           }
           if(abs(mx-xctx->mx_save) > 8 ||
@@ -2511,7 +2512,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
       if( !(xctx->ui_state & STARTSELECT)) {
-        select_rect(START,0);
+        select_rect(enable_stretch, START,0);
       }
     }
     /* Select by area. Shift pressed */
@@ -2520,7 +2521,7 @@ int rstate; /* (reduced state, without ShiftMask) */
              !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
-          select_rect(START,1);
+          select_rect(enable_stretch, START,1);
         }
         if(abs(mx-xctx->mx_save) > 8 || 
            abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
@@ -3148,16 +3149,8 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='y' && rstate == 0)                           /* toggle stretching */
    {
-    int en_s;
-    en_s = tclgetboolvar("enable_stretch");
-    en_s = !en_s;
-
-    if(en_s) {
-        tclsetvar("enable_stretch","1");
-    }
-    else {
-        tclsetvar("enable_stretch","0");
-    }
+    enable_stretch = !enable_stretch;
+    tclsetboolvar("enable_stretch", enable_stretch);
     break;
    }
    if(key=='x' && EQUAL_MODMASK) /* toggle draw crosshair at mouse pos */
@@ -3671,8 +3664,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }
-    if(tclgetboolvar("enable_stretch")) 
-      select_attached_nets(); /* stretch nets that land on selected instance pins */
+    if(enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
@@ -3707,8 +3699,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       waves_callback(event, mx, my, key, button, aux, state);
       break;
     }     
-    if(!tclgetboolvar("enable_stretch")) 
-      select_attached_nets(); /* stretch nets that land on selected instance pins */
+    if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
@@ -3724,8 +3715,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='M' && state == (ControlMask | ShiftMask) &&  
        !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
-    if(!tclgetboolvar("enable_stretch"))
-      select_attached_nets(); /* stretch nets that land on selected instance pins */
+    if(enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
     xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
@@ -4187,7 +4177,7 @@ int rstate; /* (reduced state, without ShiftMask) */
          /* xctx->push_undo(); */
          xctx->drag_elements = 1;
 
-         if( (state & ControlMask) && !(state & ShiftMask) && !tclgetboolvar("enable_stretch")) {
+         if( (state & ControlMask) && !(state & ShiftMask) && !enable_stretch) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
          if(state == (ShiftMask | ControlMask) ) {
@@ -4286,14 +4276,11 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(xctx->semaphore >= 2) break;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
-       int es = tclgetboolvar("enable_stretch");
-       tclsetboolvar("enable_stretch", !es);
-       select_rect(END,-1);
-       tclsetboolvar("enable_stretch", es);
+       select_rect(!enable_stretch, END,-1);
      } else {
        /* Button1 release: end of rectangle select */
        if(!(state & (Button4Mask|Button5Mask) ) ) {
-         select_rect(END,-1);
+         select_rect(enable_stretch, END,-1);
        }
      }
      rebuild_selected_array();

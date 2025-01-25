@@ -5018,7 +5018,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       y1 = atof(argv[3]);
       x2 = atof(argv[4]);
       y2 = atof(argv[5]);
-      select_inside(x1, y1, x2, y2, sel);
+      select_inside(tclgetboolvar("enable_stretch"), x1, y1, x2, y2, sel);
       Tcl_ResetResult(interp);
     }
 

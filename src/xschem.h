@@ -1382,7 +1382,7 @@ extern Selected select_object(double mx,double my, unsigned short sel_mode,
 extern int set_first_sel(unsigned short type, int n, unsigned int col);
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);
-extern void select_inside(double x1,double y1, double x2, double y2, int sel);
+extern void select_inside(int stretch, double x1,double y1, double x2, double y2, int sel);
 extern void select_touch(double x1,double y1, double x2, double y2, int sel);
 /*  Select all nets that are dangling, ie not attached to any non pin/port/probe components */
 extern int select_dangling_nets(void);
@@ -1545,7 +1545,7 @@ extern void pan(int what, int mx, int my);
 extern void zoom_rectangle(int what);
 extern void zoom_box(double x1, double y1, double x2, double y2, double factor);
 extern void save_restore_zoom(int save, Zoom_info *zi);
-extern void select_rect(int what, int select);
+extern void select_rect(int stretch, int what, int select);
 extern void new_rect(int what, double mousex_snap, double mousey_snap);
 extern void new_polygon(int what, double mousex_snap, double mousey_snap);
 extern void compile_font(void);

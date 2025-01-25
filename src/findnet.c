@@ -378,14 +378,14 @@ static void find_closest_box(double mx ,double my, int override_lock)
  int i, c, r=-1, col = 0;
 
  /* correction for very small boxes */
- double min = MINOR(xctx->rect[c][i].x2 - xctx->rect[c][i].x1,
-                    xctx->rect[c][i].y2 - xctx->rect[c][i].y1);
- ds = (ds * 8 <= min ) ? ds : min / 8;
  for(c=0;c<cadlayers; ++c)
  {
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->rects[c]; ++i)
   {
+   double min = MINOR(xctx->rect[c][i].x2 - xctx->rect[c][i].x1,
+                      xctx->rect[c][i].y2 - xctx->rect[c][i].y1);
+   ds = (xctx->cadhalfdotsize * 8 <= min ) ? xctx->cadhalfdotsize : min / 8;
    if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - ds, xctx->rect[c][i].y1 - ds,
                          xctx->rect[c][i].x2 + ds, xctx->rect[c][i].y2 + ds) )
    {

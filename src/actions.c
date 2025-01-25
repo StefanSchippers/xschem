@@ -3879,7 +3879,7 @@ void fix_restore_rect(double x1, double y1, double x2, double y2)
 
 
 /*  20150927 select=1: select objects, select=0: unselect objects */
-void select_rect(int what, int select)
+void select_rect(int stretch, int what, int select)
 {
  int incremental_select = tclgetboolvar("incremental_select");
  int sel_touch = tclgetboolvar("select_touch");
@@ -3901,7 +3901,7 @@ void select_rect(int what, int select)
     draw_selection(xctx->gc[SELLAYER], 0);
     
     if(!xctx->nl_sel || (incremental_select && xctx->nl_dir == 0))
-       select_inside(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
+       select_inside(stretch, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     else if(incremental_select && xctx->nl_dir == 1 && sel_touch)
        select_touch(xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2, xctx->nl_sel);
     xctx->nl_xx1=xctx->nl_xr;xctx->nl_xx2=xctx->nl_xr2;xctx->nl_yy1=xctx->nl_yr;xctx->nl_yy2=xctx->nl_yr2;
@@ -3935,7 +3935,7 @@ void select_rect(int what, int select)
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
 
     if(!sel_touch || xctx->nl_dir == 0)
-      select_inside(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
+      select_inside(stretch, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else 
       select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
