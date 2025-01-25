@@ -4301,8 +4301,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->ui_state &= ~MENUSTART;
      break;
    }
-
-   if(draw_xhair) draw_crosshair(3);
+   if(draw_xhair) draw_crosshair(3); /* restore crosshair when selecting / unselecting */
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
