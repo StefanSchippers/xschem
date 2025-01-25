@@ -1169,12 +1169,14 @@ static int source_tcl_file(char *s)
 {
   char tmp[1024];
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) {
+    
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
+    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
     fprintf(errfp, "%s", tclresult());
     fprintf(errfp, "\n");
     my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
-       {Tcl_AppInit() err 1: can not execute %s, please fix:\n %s}",
-       s, tclresult());
+       {Tcl_AppInit() err 1: can not execute %s, please fix:\n%s\nLine No: %d\n}",
+       s, tclresult(), Tcl_GetErrorLine(interp));
     if(has_x) {
       tcleval( "wm withdraw .");
       tcleval( tmp);
