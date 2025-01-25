@@ -1354,28 +1354,28 @@ void draw_crosshair(int what)
     if(fix_broken_tiled_fill || !_unix) {
       if(xhair_size) {
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
-             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
-             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size, 
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size);
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
+             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
+             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size, 
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size);
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
-             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
-             4 * INT_WIDTH(xctx->lw) + 4 * xhair_size,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw) - xhair_size);
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
+             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
+             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
+             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size);
       } else { /* full screen span xhair */
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw),
-             xctx->xrect[0].width, 4 * INT_WIDTH(xctx->lw),
-             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 2 * INT_WIDTH(xctx->lw));
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw),
+             xctx->xrect[0].width, 2 * INT_WIDTH(xctx->lw),
+             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw));
         MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0, 
-             4 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 2 * INT_WIDTH(xctx->lw), 0);
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw), 0, 
+             2 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
+             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw), 0);
       }
   
     } else {

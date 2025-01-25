@@ -1396,7 +1396,8 @@ extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
 extern Selected find_closest_obj(double mx,double my, int override_lock);
-extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
+/*extern void find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);*/
+extern int find_closest_net_or_symbol_pin(double mx,double my, double *x, double *y);
 
 extern void drawline(int c, int what, double x1,double y1,double x2,double y2, int dash, void *ct);
 extern void draw_xhair_line(GC gc, int size, double linex1, double liney1, double linex2, double liney2);
