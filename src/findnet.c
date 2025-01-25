@@ -375,8 +375,12 @@ static void find_closest_box(double mx ,double my, int override_lock)
 {
  double tmp;
  double ds = xctx->cadhalfdotsize;
-
  int i, c, r=-1, col = 0;
+
+ /* correction for very small boxes */
+ double min = MINOR(xctx->rect[c][i].x2 - xctx->rect[c][i].x1,
+                    xctx->rect[c][i].y2 - xctx->rect[c][i].y1);
+ ds = (ds * 8 <= min ) ? ds : min / 8;
  for(c=0;c<cadlayers; ++c)
  {
   if(!xctx->enable_layer[c]) continue;
@@ -471,6 +475,7 @@ Selected find_closest_obj(double mx, double my, int override_lock)
  distance = DBL_MAX;
  find_closest_line(mx, my);
  find_closest_polygon(mx, my);
+ dbg(0, "find_closest_obj(): mx=%g, my=%g\n", mx, my);
  /* dbg(1, "1 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_box(mx, my, override_lock);
  find_closest_arc(mx, my);

@@ -2252,6 +2252,7 @@ int callback(const char *winpath, int event, int mx, int my, KeySym key,
  XKeyboardState kbdstate;
 #endif
 int draw_xhair = tclgetboolvar("draw_crosshair");
+int crosshair_size = tclgetintvar("crosshair_size");
 int infix_interface = tclgetboolvar("infix_interface");
 int rstate; /* (reduced state, without ShiftMask) */
 
@@ -2373,7 +2374,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
     xctx->mouse_inside = 1;
     if(draw_xhair) {
-      if(tclgetintvar("crosshair_size") == 0) {
+      if(crosshair_size == 0) {
         tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
       }
     } else 
@@ -4140,7 +4141,12 @@ int rstate; /* (reduced state, without ShiftMask) */
        }
 
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
-       sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+
+       if(draw_xhair && crosshair_size == 0) {
+         sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
+       } else {
+         sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+       }
 
        switch(sel.type) {
          case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
