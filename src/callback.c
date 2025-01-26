@@ -1753,7 +1753,7 @@ static int edit_line_point(int state)
 static int edit_wire_point(int state)
 {       
    int wire_n = -1;
-   dbg(1, "edit_wire_point\n");
+   dbg(1, "edit_wire_point, ds = %g\n", xctx->cadhalfdotsize);
    wire_n = xctx->sel_array[0].n;
   /* wire point: Check is user is clicking a control point of a wire */
   if(wire_n >= 0) {
