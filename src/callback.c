@@ -4193,9 +4193,13 @@ int rstate; /* (reduced state, without ShiftMask) */
         *  unselect everything... we do it here */
        if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
+
+       /* select the object under the mouse */
        if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
        rebuild_selected_array();
 
+
+       /* if clicking on some object endpoints or vertices set shape_point_selected */
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) 
           if(edit_polygon_point(state)) break; /* sets xctx->shape_point_selected */
 
@@ -4224,6 +4228,7 @@ int rstate; /* (reduced state, without ShiftMask) */
            xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
            move_objects(START,0,0,0);
          }
+         /* dragging away an object with Shift pressed is a copy (duplicate object) */
          else if(state == ShiftMask) copy_objects(START);
          else move_objects(START,0,0,0);
        }
