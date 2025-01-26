@@ -1018,7 +1018,7 @@ typedef struct {
   /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;
-  double x1, y_1, x2, y_2, deltax, deltay;
+  double x1, y1, x2, y2, deltax, deltay;
   /* connect by kissing enable flag */
   int connect_by_kissing;
   /* redraw_w_a_l_r_p_z_rubbers() */

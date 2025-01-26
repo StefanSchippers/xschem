@@ -241,7 +241,7 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0, 
          xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
      }
      #if HAS_CAIRO==1
@@ -267,9 +267,9 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
          xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
      }
      if(xctx->rect[c][n].sel==SELECTED)
@@ -344,7 +344,7 @@ void draw_selection(GC g, int interruptable)
               ROTATION(xctx->move_rot, xctx->move_flip, xctx->poly[c][n].x[0], xctx->poly[c][n].y[0],
                        xctx->poly[c][n].x[k], xctx->poly[c][n].y[k], xctx->rx1,xctx->ry1);
             } else {
-              ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+              ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->poly[c][n].x[k], xctx->poly[c][n].y[k], xctx->rx1,xctx->ry1);
             }
             x[k] = xctx->rx1 + xctx->deltax;
@@ -368,9 +368,9 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
          xctx->wire[n].x2, xctx->wire[n].y2, xctx->rx2,xctx->ry2);
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->wire[n].x1, xctx->wire[n].y1, xctx->rx1,xctx->ry1);
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->wire[n].x2, xctx->wire[n].y2, xctx->rx2,xctx->ry2);
      }
 
@@ -406,9 +406,9 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
          xctx->line[c][n].x2, xctx->line[c][n].y2, xctx->rx2,xctx->ry2);
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->rx1,xctx->ry1);
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->line[c][n].x2, xctx->line[c][n].y2, xctx->rx2,xctx->ry2);
      }
      ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
@@ -442,7 +442,7 @@ void draw_selection(GC g, int interruptable)
        xctx->rx1 = xctx->arc[c][n].x;
        xctx->ry1 = xctx->arc[c][n].y;
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->rx1,xctx->ry1);
      }
      angle = xctx->arc[c][n].a;
@@ -475,7 +475,7 @@ void draw_selection(GC g, int interruptable)
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
          xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      } else {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
                 xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
      }
      tmp_rot = (xctx->move_flip & xctx->inst[n].rot & 1) ?
@@ -538,7 +538,7 @@ void copy_objects(int what)
    save_selection(1);
    xctx->deltax = xctx->deltay = 0.0;
    xctx->movelastsel = xctx->lastsel;
-   xctx->x1=xctx->mousex_snap;xctx->y_1=xctx->mousey_snap;
+   xctx->x1=xctx->mousex_snap;xctx->y1=xctx->mousey_snap;
    xctx->move_flip = 0;xctx->move_rot = 0;
    xctx->ui_state|=STARTCOPY;
   }
@@ -558,9 +558,9 @@ void copy_objects(int what)
   }
   if(what & RUBBER)                              /* draw objects while moving */
   {
-   xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
+   xctx->x2=xctx->mousex_snap;xctx->y2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
-   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
+   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y2 - xctx->y1;
   }
   if(what & ROTATELOCAL ) {
    xctx->rotatelocal=1;
@@ -617,9 +617,9 @@ void copy_objects(int what)
           ROTATION(xctx->move_rot, xctx->move_flip, xctx->wire[n].x1, xctx->wire[n].y1,
             xctx->wire[n].x2, xctx->wire[n].y2, xctx->rx2,xctx->ry2);
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->wire[n].x1, xctx->wire[n].y1, xctx->rx1,xctx->ry1);
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->wire[n].x2, xctx->wire[n].y2, xctx->rx2,xctx->ry2);
         }
         if( xctx->wire[n].sel & (SELECTED|SELECTED1) )
@@ -663,9 +663,9 @@ void copy_objects(int what)
           ROTATION(xctx->move_rot, xctx->move_flip, xctx->line[c][n].x1, xctx->line[c][n].y1,
             xctx->line[c][n].x2, xctx->line[c][n].y2, xctx->rx2,xctx->ry2);
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->line[c][n].x1, xctx->line[c][n].y1, xctx->rx1,xctx->ry1);
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->line[c][n].x2, xctx->line[c][n].y2, xctx->rx2,xctx->ry2);
         }
         if( xctx->line[c][n].sel & (SELECTED|SELECTED1) )
@@ -707,7 +707,7 @@ void copy_objects(int what)
               if(xctx->rotatelocal) {
                 ROTATION(xctx->move_rot, xctx->move_flip, p->x[0], p->y[0], p->x[j], p->y[j], xctx->rx1,xctx->ry1);
               } else {
-                ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j], xctx->rx1,xctx->ry1);
+                ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1, p->x[j], p->y[j], xctx->rx1,xctx->ry1);
               }
               x[j] = xctx->rx1+xctx->deltax;
               y[j] = xctx->ry1+xctx->deltay;
@@ -734,7 +734,7 @@ void copy_objects(int what)
           xctx->rx1 = xctx->arc[c][n].x;
           xctx->ry1 = xctx->arc[c][n].y;
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->rx1,xctx->ry1);
         }
         angle = xctx->arc[c][n].a;
@@ -762,9 +762,9 @@ void copy_objects(int what)
           ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
             xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
         }
         RECTORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
@@ -784,7 +784,7 @@ void copy_objects(int what)
           ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
            xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
         }
         xctx->text[xctx->texts].txt_ptr=NULL;
@@ -850,7 +850,7 @@ void copy_objects(int what)
           ROTATION(xctx->move_rot, xctx->move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
              xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
         } else {
-          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
              xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
         }
         xctx->inst[xctx->instances] = xctx->inst[n];
@@ -900,7 +900,7 @@ void copy_objects(int what)
       propagate_hilights(1, 1, XINSERT_NOREPLACE);
     }
     xctx->ui_state &= ~STARTCOPY;
-    xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0;
+    xctx->x1 = xctx->y1 = xctx->x2 = xctx->y2 = xctx->deltax = xctx->deltay = 0;
     xctx->move_rot = xctx->move_flip = 0;
     set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
     draw();
@@ -939,8 +939,8 @@ void move_objects(int what, int merge, double dx, double dy)
    if(xctx->lastsel==1 && xctx->sel_array[0].type==ARC &&
            xctx->arc[c=xctx->sel_array[0].col][n=xctx->sel_array[0].n].sel!=SELECTED) {
      xctx->x1 = xctx->arc[c][n].x;
-     xctx->y_1 = xctx->arc[c][n].y;
-   } else {xctx->x1=xctx->mousex_snap;xctx->y_1=xctx->mousey_snap;}
+     xctx->y1 = xctx->arc[c][n].y;
+   } else {xctx->x1=xctx->mousex_snap;xctx->y1=xctx->mousey_snap;}
    xctx->move_flip = 0;xctx->move_rot = 0;
    xctx->ui_state|=STARTMOVE;
   }
@@ -960,9 +960,9 @@ void move_objects(int what, int merge, double dx, double dy)
   }
   if(what & RUBBER)  /* draw objects while moving */
   {
-   xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
+   xctx->x2=xctx->mousex_snap;xctx->y2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
-   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;
+   xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y2 - xctx->y1;
   }
   if(what & ROTATELOCAL) {
    xctx->rotatelocal=1;
@@ -1031,9 +1031,9 @@ void move_objects(int what, int merge, double dx, double dy)
            ROTATION(xctx->move_rot, xctx->move_flip, wire[n].x1, wire[n].y1,
               wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
          } else {
-           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
               wire[n].x1, wire[n].y1, xctx->rx1,xctx->ry1);
-           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+           ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
               wire[n].x2, wire[n].y2, xctx->rx2,xctx->ry2);
          }
          if( wire[n].sel & (SELECTED|SELECTED1) )
@@ -1069,9 +1069,9 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, line[c][n].x1, line[c][n].y1,
             line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
        } else {
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             line[c][n].x1, line[c][n].y1, xctx->rx1,xctx->ry1);
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
        }
  
@@ -1119,7 +1119,7 @@ void move_objects(int what, int merge, double dx, double dy)
                ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j],
                         xctx->rx1,xctx->ry1);
              } else {
-               ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1, p->x[j], p->y[j],
+               ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1, p->x[j], p->y[j],
                         xctx->rx1,xctx->ry1);
              }
  
@@ -1145,7 +1145,7 @@ void move_objects(int what, int merge, double dx, double dy)
          xctx->rx1 = xctx->arc[c][n].x;
          xctx->ry1 = xctx->arc[c][n].y;
        } else {
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->arc[c][n].x, xctx->arc[c][n].y, xctx->rx1,xctx->ry1);
        }
        angle = xctx->arc[c][n].a;
@@ -1191,9 +1191,9 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, xctx->rect[c][n].x1, xctx->rect[c][n].y1,
            xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
        } else {
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->rect[c][n].x1, xctx->rect[c][n].y1, xctx->rx1,xctx->ry1);
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
        }
  
@@ -1283,7 +1283,7 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
            xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
        } else {
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
        }
        xctx->text[n].x0=xctx->rx1+xctx->deltax;
@@ -1324,7 +1324,7 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, xctx->inst[n].x0, xctx->inst[n].y0,
             xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
        } else {
-         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y_1,
+         ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->inst[n].x0, xctx->inst[n].y0, xctx->rx1,xctx->ry1);
        }
        xctx->inst[n].x0 = xctx->rx1+xctx->deltax;
@@ -1354,7 +1354,7 @@ void move_objects(int what, int merge, double dx, double dy)
    if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
    xctx->ui_state &= ~STARTMERGE;
    xctx->move_rot=xctx->move_flip=0;
-   xctx->x1=xctx->y_1=xctx->x2=xctx->y_2=xctx->deltax=xctx->deltay=0.;
+   xctx->x1=xctx->y1=xctx->x2=xctx->y2=xctx->deltax=xctx->deltay=0.;
    set_modify(1); /* must be done before draw() if floaters are present to force cached values update */
    draw();
    xctx->rotatelocal=0;

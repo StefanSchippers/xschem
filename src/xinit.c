@@ -566,7 +566,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->manhattan_lines = 0;
   xctx->kissing = 0;
   xctx->connect_by_kissing = 0;
-  xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0.0;
+  xctx->x1 = xctx->y1 = xctx->x2 = xctx->y2 = xctx->deltax = xctx->deltay = 0.0;
   xctx->movelastsel = 0;
   xctx->rotatelocal=0;
   /* new_wire */
