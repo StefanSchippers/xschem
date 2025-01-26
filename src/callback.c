@@ -4524,7 +4524,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    
    if(draw_xhair) draw_crosshair(3); /* restore crosshair when selecting / unselecting */
-   if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
