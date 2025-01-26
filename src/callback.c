@@ -74,7 +74,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
        if(! (xctx->ui_state & GRAPHPAN) ) { 
          xctx->graph_master = i;
        }
-       if(draw_xhair) draw_crosshair(1);
+       if(draw_xhair) draw_crosshair(1); /* remove crosshair, re-enable mouse cursor */
        tclvareval(xctx->top_path, ".drw configure -cursor tcross" , NULL);
        break;
     }
@@ -2366,7 +2366,7 @@ int rstate; /* (reduced state, without ShiftMask) */
  {
 
   case LeaveNotify:
-    if(draw_xhair) draw_crosshair(1);
+    if(draw_xhair) draw_crosshair(1); /* clear crosshair when exiting window */
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -2435,16 +2435,20 @@ int rstate; /* (reduced state, without ShiftMask) */
       break;
     }
     if(draw_xhair) {
-      draw_crosshair(1);
+      draw_crosshair(1); /* when moving mouse: first action is delete crosshair, will be drawn later */
     }
+    /* pan schematic */
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
+
     if(xctx->semaphore >= 2) {
       if(draw_xhair) {
-        draw_crosshair(2);
+        draw_crosshair(2); /* locked UI: draw new crosshair and break out */
       }
       break;
     }
     dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
+
+    /* update status bar messages */
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
         my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
@@ -2455,6 +2459,8 @@ int rstate; /* (reduced state, without ShiftMask) */
         statusmsg(str,1);
       }
     }
+    
+    /* update zoom rectangle drag */
     if(xctx->ui_state & STARTZOOM)   zoom_rectangle(RUBBER);
 
     /* determine direction of a rectangle selection  (or unselection with ALT key) */
@@ -2471,18 +2477,24 @@ int rstate; /* (reduced state, without ShiftMask) */
         select_rect(enable_stretch, RUBBER,1);
       }
     }
+    /* draw objects being moved */
     if(xctx->ui_state & STARTMOVE) {
       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
       move_objects(RUBBER,0,0,0);
     }
+    
+    /* draw objects being copied */
     if(xctx->ui_state & STARTCOPY) {
       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
       copy_objects(RUBBER);
     }
 
+    
+    /* draw moving objects being inserted, wires, arcs, lines, rectangles, polygons */
     redraw_w_a_l_r_p_rubbers();
+
     /* start of a mouse area select. Button1 pressed. No shift pressed
      * Do not start an area select if user is dragging a polygon/bezier point */
     if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
