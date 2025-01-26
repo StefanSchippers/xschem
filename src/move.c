@@ -944,7 +944,7 @@ void move_objects(int what, int merge, double dx, double dy)
    xctx->move_flip = 0;xctx->move_rot = 0;
    xctx->ui_state|=STARTMOVE;
   }
-  if(what & ABORT)                               /* draw objects while moving */
+  if(what & ABORT)  /* abort operation */
   {
    xctx->paste_from = 0;
    draw_selection(xctx->gctiled,0);
@@ -958,9 +958,8 @@ void move_objects(int what, int merge, double dx, double dy)
    xctx->ui_state &= ~STARTMOVE;
    update_symbol_bboxes(0, 0);
   }
-  if(what & RUBBER)                              /* abort operation */
+  if(what & RUBBER)  /* draw objects while moving */
   {
-   
    xctx->x2=xctx->mousex_snap;xctx->y_2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y_2 - xctx->y_1;

@@ -2472,7 +2472,6 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
       break;
     }
-    dbg(1, "ui_state=%d deltax=%g\n", xctx->ui_state, xctx->deltax);
 
     /* update status bar messages */
     if(xctx->ui_state) {
