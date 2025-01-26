@@ -319,7 +319,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
            cnt = 0;
         }
         if(xx >= start && xx <= end) {
-          if((dataset == sweepvar_wrap)) {
+          if(dataset == sweepvar_wrap) {
             dbg(1, "xx=%g cursor2=%g first=%d last=%d start=%g end=%g p=%d wrap=%d sweepvar_wrap=%d ofs=%d\n",
               xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
             if(first == -1) first = p;
@@ -1465,7 +1465,7 @@ void draw_crosshair(int what)
   xctx->draw_pixmap = sdp;
 }
 
-/* what == 0 : erase and draw a new cursor
+/* what == 3 : erase and draw a new cursor
  * what == 1 : erase the cursor
  * what == 2 : draw a diamond-shaped cursor that snaps to a component endpoint */
 void draw_snap_cursor(int what)
@@ -1482,9 +1482,8 @@ void draw_snap_cursor(int what)
   xctx->draw_window = 1;
   double prev_x = xctx->prev_snapx;
   double prev_y = xctx->prev_snapy;
-  if(what != 2) {
+  if(what & 1) {
     if(fix_broken_tiled_fill || !_unix) {
-      /*MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 0, 0, xctx->xrect[0].width, xctx->xrect[0].height, 0, 0);*/
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
            (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
            (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
@@ -1522,7 +1521,7 @@ void draw_snap_cursor(int what)
           Y_TO_SCREEN(prev_y) - snapcursor_size);
     }
   }
-  if(what != 1) {
+  if(what & 1) {
     double x, y;
     if(!pos_changed) {
       x = xctx->prev_snapx;
@@ -2996,7 +2995,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        draw_snap_cursor(1);
      } else {
        tclsetvar("snap_cursor", "1");
-       if(wire_draw_active) draw_snap_cursor(0);
+       if(wire_draw_active) draw_snap_cursor(3);
      }
    }
    if(key=='p' && EQUAL_MODMASK)                           /* add symbol pin */
@@ -4525,7 +4524,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    
    if(draw_xhair) draw_crosshair(3); /* restore crosshair when selecting / unselecting */
-   if(snap_cursor && wire_draw_active) draw_snap_cursor(0);
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
