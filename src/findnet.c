@@ -375,13 +375,17 @@ static void find_closest_box(double mx ,double my, int override_lock)
 {
  double tmp;
  double ds = xctx->cadhalfdotsize;
-
  int i, c, r=-1, col = 0;
+
+ /* correction for very small boxes */
  for(c=0;c<cadlayers; ++c)
  {
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->rects[c]; ++i)
   {
+   double min = MINOR(xctx->rect[c][i].x2 - xctx->rect[c][i].x1,
+                      xctx->rect[c][i].y2 - xctx->rect[c][i].y1);
+   ds = (xctx->cadhalfdotsize * 8 <= min ) ? xctx->cadhalfdotsize : min / 8;
    if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - ds, xctx->rect[c][i].y1 - ds,
                          xctx->rect[c][i].x2 + ds, xctx->rect[c][i].y2 + ds) )
    {
@@ -402,25 +406,25 @@ static void find_closest_box(double mx ,double my, int override_lock)
 
 static void find_closest_element(double mx, double my, int override_lock)
 {
- double tmp;
- int i, r=-1;
- for(i=0;i<xctx->instances; ++i)
- {
-  dbg(2, "find_closest_element(): %s: %g %g %g %g\n",
-         xctx->inst[i].instname, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
-  if( POINTINSIDE(mx, my, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2) )
+  double tmp;
+  int i, r=-1;
+  for(i = 0;i < xctx->instances; ++i)
   {
-   tmp=pow(mx-(xctx->inst[i].xx1 + xctx->inst[i].xx2)/2, 2)+pow(my-(xctx->inst[i].yy1 + xctx->inst[i].yy2)/2, 2);
-   if(tmp*0.1 < distance)
-   {
-    r = i; distance = tmp*0.1;
-   }
-    dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n", i, tmp);
+    dbg(1, "find_closest_element(): %s: %g %g %g %g\n",
+           xctx->inst[i].instname, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
+    if( POINTINSIDE(mx, my, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2) )
+    {
+      tmp=dist_from_rect(mx, my, xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
+      if(tmp < distance)
+      {
+        r = i; distance = tmp;
+      }
+      dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n", i, tmp);
+    }
+  } /* end for i */
+  if( r != -1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true")) ) {
+    sel.n = r; sel.type = ELEMENT;
   }
- } /* end for i */
- if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true")) ) {
-   sel.n = r; sel.type = ELEMENT;
- }
 }
 
 static void find_closest_text(double mx, double my)
