@@ -475,7 +475,6 @@ Selected find_closest_obj(double mx, double my, int override_lock)
  distance = DBL_MAX;
  find_closest_line(mx, my);
  find_closest_polygon(mx, my);
- dbg(0, "find_closest_obj(): mx=%g, my=%g\n", mx, my);
  /* dbg(1, "1 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_box(mx, my, override_lock);
  find_closest_arc(mx, my);

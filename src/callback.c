@@ -4026,25 +4026,31 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
+   /* terminate a schematic pan action */
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
      break;
    }
 
+   /* select instance and connected nets stopping at wire junctions */
    if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
    {
      Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      if(sel.type) select_connected_nets(1);
    }
+   
+   /* break wire at mouse coordinates, move break point to nearest grid point */
    else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
    }
+   /* break wire at mouse coordinates */
    else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }
+   /* select instance and connected nets NOT stopping at wire junctions */
    else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
    {
      Selected sel;
@@ -4057,6 +4063,8 @@ int rstate; /* (reduced state, without ShiftMask) */
     *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
     * }
     */
+
+   /* zoom rectangle by right clicking and drag */
    else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
      zoom_rectangle(START);break;
    }
@@ -4109,6 +4117,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      }
      /* handle all object insertions started from Tools/Edit menu */
      if(check_menu_start_commands(c_snap)) break;
+
      /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
      if(end_place_move_copy_zoom()) break;
 
@@ -4174,12 +4183,15 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* intuitive interface: directly drag elements */
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
           !xctx->shape_point_selected) {
-         /* xctx->push_undo(); */
+         int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
          xctx->drag_elements = 1;
 
-         if( (state & ControlMask) && !(state & ShiftMask) && !enable_stretch) {
+         /* select attached nets depending on ControlMask and enable_stretch */
+         if(stretch && !(state & ShiftMask)) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
+
+         /* if dragging instances with Ctrl and Shift down add wires to pins attached to something */
          if(state == (ShiftMask | ControlMask) ) {
            xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
            move_objects(START,0,0,0);
