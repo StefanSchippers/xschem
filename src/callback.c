@@ -2569,8 +2569,8 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(draw_xhair) {
       draw_crosshair(1); /* when moving mouse: first action is delete crosshair, will be drawn later */
     }
-    /* pan schematic */
     if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
+    /* pan schematic */
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
 
     if(xctx->semaphore >= 2) {

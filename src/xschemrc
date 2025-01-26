@@ -285,6 +285,9 @@
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
 set crosshair_size 2
 
+#### enable drawing a diamond-shaped cursor at the closest circuit endpoint. Default: disabled (0)
+# set snap_cursor 1
+
 #### set snap_cursor_size; Default: 3 (Diamond-shaped cursor that snaps to nearest circuit endpoint)
 # set snap_cursor_size 3
 
