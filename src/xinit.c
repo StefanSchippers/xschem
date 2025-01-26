@@ -646,6 +646,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->enable_drill = 0;
   xctx->prev_set_modify = -1;
   xctx->prev_crossx = xctx->prev_crossy = 0.0;
+  xctx->prev_gridx = xctx->prev_gridy = 0.0;
+  xctx->prev_snapx = xctx->prev_snapy = 0.0;
+  xctx->closest_pin_found = 0;
   xctx->mouse_inside = 0;
   xctx->pending_fullzoom = 0;
   my_strncpy(xctx->hiersep, ".", S(xctx->hiersep));
