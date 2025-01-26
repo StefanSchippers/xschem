@@ -4032,7 +4032,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    break;
 
-  case ButtonPress:                     /* end operation */
+  case ButtonPress:
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
@@ -4097,10 +4097,13 @@ int rstate; /* (reduced state, without ShiftMask) */
      select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
    }
+   
+   /* Middle button press (Button2) will pan the schematic. */
    else if(button==Button2 && (state == 0)) {
      pan(START, mx, my);
      xctx->ui_state |= STARTPAN;
    }
+
    /* button1 click to select another instance while edit prop dialog open */
    else if(button==Button1 && xctx->semaphore >= 2) {
      if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
@@ -4117,11 +4120,15 @@ int rstate; /* (reduced state, without ShiftMask) */
        rebuild_selected_array();
      }
    }
+
+   /* Handle the remaining Button1Press events */
    else if(button==Button1) /* MOD button is not pressed here. Processed above */
    {
      xctx->onetime = 0;
      xctx->mouse_moved = 0;
      xctx->drag_elements = 0;
+
+     /* start another wire or line in persistent mode */
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
@@ -4130,7 +4137,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      /* handle all object insertions started from Tools/Edit menu */
      if(check_menu_start_commands(c_snap)) break;
 
-     /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
+     /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
      if(end_place_move_copy_zoom()) break;
 
      /* Button1Press to select objects */
@@ -4145,20 +4152,27 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->mx_double_save=xctx->mousex;
        xctx->my_double_save=xctx->mousey;
 
-       /* Clicking on an instance pin -> drag a new wire
-        * if an instance is already selected */
+       /* Clicking on an instance pin or wire endpoint -> drag a new wire
+        * if no other elements are selected */
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
          if(add_wire_from_inst_pin(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
        }
 
+
+       /* In *NON* intuitive interface a button1 press with no modifiers will
+        * first unselect everything... 
+        * For intuitive interface unselection see below... */
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
 
+
+       /* find closest object. Use snap coordinates if full crosshair is enabled
+        * since the mouse pointer is obscured and crosshair is snapped to grid points */
        if(draw_xhair && crosshair_size == 0) {
          sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
        }
-
+       /* determine if closest object was already selected when button1 was pressed */
        switch(sel.type) {
          case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
          case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
@@ -4175,6 +4189,8 @@ int rstate; /* (reduced state, without ShiftMask) */
          if(add_wire_from_inst_pin(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;
        }
 
+       /* In intuitive interface a button1 press with no modifiers will
+        *  unselect everything... we do it here */
        if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
 
        if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
