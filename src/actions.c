@@ -2781,7 +2781,7 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
   if(dr && has_x) {
     draw();
-    redraw_w_a_l_r_p_rubbers();
+    redraw_w_a_l_r_p_z_rubbers(1);
   }
 }
 
@@ -2797,7 +2797,7 @@ void view_zoom(double z)
   change_linewidth(-1.);
 
   draw();
-  redraw_w_a_l_r_p_rubbers();
+  redraw_w_a_l_r_p_z_rubbers(1);
 }
 
 void view_unzoom(double z)
@@ -2818,7 +2818,7 @@ void view_unzoom(double z)
   }
   change_linewidth(-1.);
   draw();
-  redraw_w_a_l_r_p_rubbers();
+  redraw_w_a_l_r_p_z_rubbers(1);
 }
 
 void set_viewport_size(int w, int h, double lw)
@@ -2900,7 +2900,7 @@ void zoom_rectangle(int what)
       xctx->mooz = 1 / xctx->zoom;
       change_linewidth(-1.);
       draw();
-      redraw_w_a_l_r_p_rubbers();
+      redraw_w_a_l_r_p_z_rubbers(1);
       dbg(1, "zoom_rectangle(): coord: %.16g %.16g %.16g %.16g zoom=%.16g\n",
         xctx->nl_x1, xctx->nl_y1, xctx->mousex_snap, xctx->mousey_snap, xctx->zoom);
     }
