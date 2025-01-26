@@ -4333,12 +4333,10 @@ int rstate; /* (reduced state, without ShiftMask) */
         * first unselect everything... 
         * For intuitive interface unselection see below... */
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
-       if(draw_xhair) sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
-       else sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
         * since the mouse pointer is obscured and crosshair is snapped to grid points */
-       if(draw_xhair && crosshair_size == 0) {
+       if(draw_xhair) {
          sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
