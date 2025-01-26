@@ -542,7 +542,7 @@ void copy_objects(int what)
    xctx->move_flip = 0;xctx->move_rot = 0;
    xctx->ui_state|=STARTCOPY;
   }
-  if(what & ABORT)                               /* draw objects while moving */
+  if(what & ABORT)                               /* abort operation */
   {
    draw_selection(xctx->gctiled,0);
 
@@ -558,6 +558,7 @@ void copy_objects(int what)
   }
   if(what & RUBBER)                              /* draw objects while moving */
   {
+   if(xctx->mousex_snap == xctx->x2 && xctx->mousey_snap == xctx->y2) return;
    xctx->x2=xctx->mousex_snap;xctx->y2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y2 - xctx->y1;
@@ -960,6 +961,7 @@ void move_objects(int what, int merge, double dx, double dy)
   }
   if(what & RUBBER)  /* draw objects while moving */
   {
+   if(xctx->mousex_snap == xctx->x2 && xctx->mousey_snap == xctx->y2) return;
    xctx->x2=xctx->mousex_snap;xctx->y2=xctx->mousey_snap;
    draw_selection(xctx->gctiled,0);
    xctx->deltax = xctx->x2-xctx->x1; xctx->deltay = xctx->y2 - xctx->y1;
