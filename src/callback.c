@@ -1725,15 +1725,14 @@ static int edit_line_point(int state)
    line_c = xctx->sel_array[0].col;
   /* lineangle point: Check is user is clicking a control point of a lineangle */
   if(line_n >= 0) {
-    double ds = xctx->cadhalfdotsize ;
     xLine *p = &xctx->line[line_c][line_n];
 
     xctx->need_reb_sel_arr=1;
-    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1 - ds, p->y1 - ds, p->x1 + ds, p->y1 + ds)) {
+    if(xctx->mousex_snap == p->x1 && xctx->mousey_snap == p->y1) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED1;
     }
-    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y2 - ds, p->x2 + ds, p->y2 + ds)) {
+    else if(xctx->mousex_snap == p->x2 && xctx->mousey_snap == p->y2) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED2;
     }
@@ -1757,15 +1756,14 @@ static int edit_wire_point(int state)
    wire_n = xctx->sel_array[0].n;
   /* wire point: Check is user is clicking a control point of a wire */
   if(wire_n >= 0) {
-    double ds = xctx->cadhalfdotsize ;
     xWire *p = &xctx->wire[wire_n];
         
     xctx->need_reb_sel_arr=1;
-    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x1 - ds, p->y1 - ds, p->x1 + ds, p->y1 + ds)) {
+    if(xctx->mousex_snap == p->x1 && xctx->mousey_snap == p->y1) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED1;
     }
-    else if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x2 - ds, p->y2 - ds, p->x2 + ds, p->y2 + ds)) {
+    else if(xctx->mousex_snap == p->x2 && xctx->mousey_snap == p->y2) {
       xctx->shape_point_selected = 1;
       p->sel = SELECTED2;
     }
