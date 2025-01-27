@@ -230,7 +230,7 @@ static void start_wire(double mx, double my)
        if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
          xctx->constr_mv = xctx->manhattan_lines;
          new_wire(CLEAR, mx, my);
-         redraw_w_a_l_r_p_rubbers();
+         redraw_w_a_l_r_p_z_rubbers(1);
        }
        if(xctx->constr_mv != 2) {
          xctx->mx_double_save = mx;
@@ -1504,19 +1504,19 @@ void draw_snap_cursor(int what)
   if(what & 1) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
-           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
-           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size);
+           (int)X_TO_SCREEN(prev_x) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+           2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+           (int)X_TO_SCREEN(prev_x) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size);
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
-           4 * INT_WIDTH(xctx->lw) + 4 * snapcursor_size,
-           (int)X_TO_SCREEN(prev_x) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size,
-           (int)Y_TO_SCREEN(prev_y) - 2 * INT_WIDTH(xctx->lw) - snapcursor_size);
+           (int)X_TO_SCREEN(prev_x) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+           2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+           (int)X_TO_SCREEN(prev_x) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size,
+           (int)Y_TO_SCREEN(prev_y) - 1 * INT_WIDTH(xctx->lw) - snapcursor_size);
     } else {
       draw_xhair_line(xctx->gctiled, snapcursor_size,
           X_TO_SCREEN(prev_x),
@@ -3708,7 +3708,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     } else {
       tclsetboolvar("orthogonal_wiring", 1);
     }
-    redraw_w_a_l_r_p_rubbers();
+    redraw_w_a_l_r_p_z_rubbers(1);
     break;
    }
    if(key=='F' && rstate == 0)                     /* flip */
@@ -4526,7 +4526,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      break;
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
-   if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
    break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
@@ -4550,7 +4550,7 @@ int rstate; /* (reduced state, without ShiftMask) */
          edit_property(0);
        } else {
          if(xctx->ui_state & STARTWIRE) {
-           redraw_w_a_l_r_p_rubbers();
+           redraw_w_a_l_r_p_z_rubbers(1);
            start_wire(mx, my);
            xctx->ui_state &= ~STARTWIRE;
          }
