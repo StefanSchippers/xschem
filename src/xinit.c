@@ -566,7 +566,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->manhattan_lines = 0;
   xctx->kissing = 0;
   xctx->connect_by_kissing = 0;
-  xctx->x1 = xctx->y_1 = xctx->x2 = xctx->y_2 = xctx->deltax = xctx->deltay = 0.0;
+  xctx->x1 = xctx->y1 = xctx->x2 = xctx->y2 = xctx->deltax = xctx->deltay = 0.0;
   xctx->movelastsel = 0;
   xctx->rotatelocal=0;
   /* new_wire */
@@ -646,6 +646,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->enable_drill = 0;
   xctx->prev_set_modify = -1;
   xctx->prev_crossx = xctx->prev_crossy = 0.0;
+  xctx->prev_rubberx = xctx->prev_rubbery = 0.0;
   xctx->prev_gridx = xctx->prev_gridy = 0.0;
   xctx->prev_snapx = xctx->prev_snapy = 0.0;
   xctx->closest_pin_found = 0;

@@ -1018,13 +1018,15 @@ typedef struct {
   /* move.c */
   double rx1, rx2, ry1, ry2;
   short move_rot;
+  double x1, y1, x2, y2, deltax, deltay;
   /* connect by kissing enable flag */
   int connect_by_kissing;
+  /* redraw_w_a_l_r_p_z_rubbers() */
+  double prev_rubberx, prev_rubbery;
   /* a wire was created while separating a component frm a net or another component */
   int kissing;
   short move_flip;
   int manhattan_lines;
-  double x1, y_1, x2, y_2, deltax, deltay;
   int movelastsel;
   short rotatelocal;
   /* new_wire, new_line, new_rect*/
@@ -1392,7 +1394,7 @@ extern int select_dangling_nets(void);
 extern void tclmainloop(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
-extern void draw_crosshair(int what);
+extern void draw_crosshair(int what, int state);
 extern void draw_snap_cursor(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 /* extern void snapped_wire(double c_snap); */
@@ -1542,7 +1544,7 @@ extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, 
          double *x, double *y, double *r, double *a, double *b);
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void check_collapsing_objects();
-extern void redraw_w_a_l_r_p_rubbers(void); /* redraw wire, arcs, line, polygon rubbers */
+extern void redraw_w_a_l_r_p_z_rubbers(int force); /* redraw wire, arcs, line, polygon rubbers */
 extern void copy_objects(int what);
 extern void find_inst_to_be_redrawn(int what);
 extern void pan(int what, int mx, int my);

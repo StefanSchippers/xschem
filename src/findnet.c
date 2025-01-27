@@ -25,7 +25,7 @@
 static double distance; /* safe to keep even with multiple schematics */
 static Selected sel; /* safe to keep even with multiple schematics */
 
-static void find_closest_net(double mx, double my)
+static void find_closest_wire(double mx, double my)
 /* returns the net that is closest to the mouse pointer */
 /* if there are nets and distance < CADWIREMINDIST */
 {
@@ -480,7 +480,7 @@ Selected find_closest_obj(double mx, double my, int override_lock)
  find_closest_arc(mx, my);
  /* dbg(1, "2 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_text(mx, my);
- find_closest_net(mx, my);
+ find_closest_wire(mx, my);
  find_closest_element(mx, my, override_lock);
  return sel;    /*sel.type = 0 if nothing found */
 }
