@@ -5137,7 +5137,7 @@ void draw(void)
     } else {
       draw_selection(xctx->gc[SELLAYER], 0); /* 20181009 moved outside of cadlayers loop */
     }
-    if(tclgetboolvar("draw_crosshair")) draw_crosshair(3, 0); /* what = 1(clear) + 2(draw) */
+    if(tclgetboolvar("draw_crosshair")) draw_crosshair(7, 0); /* what = 1(clear) + 2(draw) */
   } /* if(has_x) */
 }
 
