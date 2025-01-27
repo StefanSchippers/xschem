@@ -85,6 +85,8 @@ static int waves_selected(int event, KeySym key, int state, int button)
     if(draw_xhair) {
       if(tclgetintvar("crosshair_size") == 0) {
         tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+      } else {
+        tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
       }
     } else
       tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
