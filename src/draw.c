@@ -2592,7 +2592,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                  cnt = 0;
               }
               if(dataset == -1 || dataset == sweepvar_wrap) {
-                dbg(1, "graph_fullyzoom(): dataset=%d node=%s\n", dataset, raw->names[v]);
+                /* dbg(1, "graph_fullyzoom(): dataset=%d node=%s\n", dataset, raw->names[v]); */
                 if( xx >= start && xx <= end) {
                   if(gr->logy)
                     val =mylog10(raw->values[v][p]);
@@ -4095,7 +4095,9 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
               else  xxfollowing = gv[p + 1];
             }
             #endif
-            dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p);
+            /* comment dbg() calls since we are in a deep, deep nested loop */
+            /* dbg(1, "draw_graph(): wrap=%d, xx=%g, xx0=%g, p=%d\n", wrap, xx, xx0, p); */
+
             /* if gr->mode == 2 (HistH) don't wrap */
             if((gr->mode != 2) && first != -1) { /* there is something to plot ... */
               /* ... and we ran out of graph area ... */
