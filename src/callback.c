@@ -1737,7 +1737,7 @@ static int edit_line_point(int state)
       p->sel = SELECTED2;
     }
     if(xctx->shape_point_selected) {
-      /* move one lineangle selected point */
+      /* move one line selected point */
       if(!(state & (ControlMask | ShiftMask))){
         /* xctx->push_undo(); */
         move_objects(START,0,0,0);
@@ -3730,7 +3730,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    
    /* move selection, stretch attached nets, create new wires on pin-to-moved-pin connections */
-   if(key=='M' && state == (ControlMask | ShiftMask) &&  
+   if(key=='M' && rstate == ControlMask &&  
        !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
