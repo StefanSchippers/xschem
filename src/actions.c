@@ -2262,6 +2262,10 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  int save_ok = 0;
  int i, n = 0;
 
+ if(xctx->currsch + 1 >= CADMAXHIER) {
+   dbg(0, "descend_schematic(): max hierarchy depth reached: %d", CADMAXHIER);
+   return 0;
+ }
  rebuild_selected_array();
  if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
    dbg(1, "descend_schematic(): wrong selection\n");

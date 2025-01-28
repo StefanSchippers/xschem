@@ -1484,7 +1484,7 @@ extern void remove_symbol(int i);
 extern void clear_drawing(void);
 extern int is_from_web(const char *f);
 extern int load_sym_def(const char name[], FILE *embed_fd);
-extern void descend_symbol(void);
+extern int descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);
 extern void place_net_label(int type);
