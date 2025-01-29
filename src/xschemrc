@@ -234,7 +234,7 @@
 
 #### wires are drawn in free-form mode with this mode enabled (default).
 #### if set to 0, wires drawn on the schematic will no longer strictly
-#### follow orthogonal routes to connect two distinct points toegther.
+#### follow orthogonal routes to connect two distinct points together.
 #### default: 1
 # set orthogonal_wiring 0
 
