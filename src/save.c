@@ -5087,7 +5087,7 @@ void create_sch_from_sym(void)
   my_free(_ALLOC_ID_, &generic_pin);
 }
 
-void descend_symbol(void)
+int descend_symbol(void)
 {
   char *str=NULL;
   FILE *fd;
@@ -5095,8 +5095,13 @@ void descend_symbol(void)
   char name_embedded[PATH_MAX];
   int n = 0;
   struct stat buf;
+  if(xctx->currsch + 1 >= CADMAXHIER) {
+    dbg(0, "descend_symbol(): max hierarchy depth reached: %d", CADMAXHIER);
+    return 0;
+  }
+
   rebuild_selected_array();
-  if(xctx->lastsel > 1)  return;
+  if(xctx->lastsel > 1)  return 0;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     n =xctx->sel_array[0].n;
     if(xctx->modified)
@@ -5111,14 +5116,14 @@ void descend_symbol(void)
        *  0 : file not saved due to errors or per user request
        */
       if(ret == 0) clear_all_hilights();
-      if(ret == -1) return; /* user cancel */
+      if(ret == -1) return 0; /* user cancel */
     }
     my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name));
     /* dont allow descend in the default missing symbol */
     if((xctx->inst[n].ptr+ xctx->sym)->type &&
-       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return;
+       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return 0;
   }
-  else return;
+  else return 0;
 
   /* build up current hierarchy path */
   my_strdup(_ALLOC_ID_,  &str, xctx->inst[n].instname);
@@ -5200,6 +5205,7 @@ void descend_symbol(void)
     my_free(_ALLOC_ID_, &sympath);
   }
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+  return 1;
 }
 
 /* 20111023 align selected object to current grid setting */
