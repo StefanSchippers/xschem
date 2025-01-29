@@ -935,7 +935,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     #endif
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      drawrect(c, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, -1, -1);
+      ps_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -944,7 +944,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
-      drawrect(color, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, -1, -1);
+      ps_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0);
     }
     /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
     if(what != 7) {
@@ -1031,7 +1031,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
 
   if( (!hide && xctx->enable_layer[layer]) ||
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
-    for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->rects[layer]; ++j)
+    for(j=0;j< symptr->rects[layer]; ++j)
     {
        int dash;
        rect = &(symptr->rect[layer])[j];
