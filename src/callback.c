@@ -102,6 +102,7 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
 {
   double mx = xctx->mousex_snap;
   double my = xctx->mousey_snap;
+  double origin_shifted_x2, origin_shifted_y2;
 
   if(!force && xctx->mousex_snap == xctx->prev_rubberx && xctx->mousey_snap == xctx->prev_rubbery) return;
 
@@ -112,7 +113,8 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
     if(tclgetboolvar("orthogonal_wiring")) {
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
       /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-      int origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+      origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1;
+      origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
       /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
       if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
         xctx->manhattan_lines = 1;
@@ -1494,6 +1496,8 @@ void draw_snap_cursor(int what)
   int sdw, sdp;
   int snapcursor_size = tclgetintvar("snap_cursor_size");
   int pos_changed = (xctx->mousex_snap - xctx->prev_gridx) || (xctx->mousey_snap - xctx->prev_gridy);
+  double prev_x = xctx->prev_snapx;
+  double prev_y = xctx->prev_snapy;
   dbg(1, "draw_snap_cursor(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
@@ -1501,8 +1505,6 @@ void draw_snap_cursor(int what)
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  double prev_x = xctx->prev_snapx;
-  double prev_y = xctx->prev_snapy;
   if(what & 1) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
