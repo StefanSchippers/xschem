@@ -3771,6 +3771,7 @@ const char *translate(int inst, const char* s)
    my_free(_ALLOC_ID_, &result);
    my_free(_ALLOC_ID_, &translated_tok);
    regfree(get_sp_cur);
+   get_sp_cur = NULL;
    return empty;
  }
  if(inst >= xctx->instances) {
