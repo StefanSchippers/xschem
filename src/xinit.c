@@ -947,7 +947,7 @@ static void xwin_exit(void)
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
- translate(0, NULL); /* clear static data in function */
+ translate(-1, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
  translate3(NULL, 0, NULL, NULL, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */

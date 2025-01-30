@@ -3757,6 +3757,19 @@ const char *translate(int inst, const char* s)
  int sim_is_xyce;
  char *instname = NULL;
 
+ if(!s && inst == -1) {
+   if(result) my_free(_ALLOC_ID_, &result);
+   if(translated_tok) my_free(_ALLOC_ID_, &translated_tok);
+   if(get_sp_cur) {
+     regfree(get_sp_cur);
+     get_sp_cur = NULL;
+   }
+ }
+
+ if(!s || !xctx || !xctx->inst) {
+   return empty;
+ }
+
  if(!get_sp_cur) {
    get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
    /* @spice_get_current_param(...) or @spice_get_modelparam_param(...) */
@@ -3767,12 +3780,7 @@ const char *translate(int inst, const char* s)
  }
 
  sp_prefix = tclgetboolvar("spiceprefix");
- if(!s || !xctx || !xctx->inst) {
-   my_free(_ALLOC_ID_, &result);
-   my_free(_ALLOC_ID_, &translated_tok);
-   regfree(get_sp_cur);
-   return empty;
- }
+
  if(inst >= xctx->instances) {
    dbg(0, "translate(): instance number out of bounds: %d\n", inst);
    return empty;
