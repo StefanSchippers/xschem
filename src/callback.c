@@ -1375,6 +1375,7 @@ void draw_crosshair(int what, int state)
   int sdw, sdp;
   int xhair_size = tclgetintvar("crosshair_size");
   double mx, my;
+  int changed = 0;
   dbg(1, "draw_crosshair(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
@@ -1384,9 +1385,25 @@ void draw_crosshair(int what, int state)
   my = xctx->mousey_snap;
   if( ( (xctx->ui_state & (MENUSTART | STARTWIRE) ) || xctx->ui_state == 0 ) &&
         (state == ShiftMask) ) {
-    find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &mx, &my);
+    /* mouse not changed so closest net or symbol pin unchanged too */
+    if(mx == xctx->prev_m_crossx && my == xctx->prev_m_crossy) {
+      mx = xctx->prev_crossx; /* get previous one */
+      my = xctx->prev_crossy;
+    } else {
+      /* mouse position changed, so find new closest net or pin */
+      find_closest_net_or_symbol_pin(xctx->mousex_snap, xctx->mousey_snap, &mx, &my);
+      changed = 1; /* we force a cursor redraw */
+      dbg(1, "find\n");
+    }
   }
-  if(!(what & 4) && mx == xctx->prev_crossx && my == xctx->prev_crossy) return;
+  
+  /* no changed closest pin/net, no force, mx,my is not changed. --> do nothing
+         |             _____________|                |
+         |            |         _____________________|____________________________ */
+  if(!changed && !(what & 4) && mx == xctx->prev_crossx && my == xctx->prev_crossy) {
+    return;
+  }
+  dbg(1, "draw %d\n", what);
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   if(what & 1) { /* delete previous */
@@ -1479,9 +1496,15 @@ void draw_crosshair(int what, int state)
     }
   }
   if(what) draw_selection(xctx->gc[SELLAYER], 0);
+
   if(what & 2) {
+    /* previous closest pin or net position (if snap wire or Shift pressed) */
     xctx->prev_crossx = mx;
     xctx->prev_crossy = my;
+    /* previous mouse_snap position */
+    xctx->prev_m_crossx = xctx->mousex_snap;
+    xctx->prev_m_crossy = xctx->mousey_snap;
+    dbg(0, "update prev\n");
   }
 
   xctx->draw_window = sdw;
