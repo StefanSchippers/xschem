@@ -1484,7 +1484,6 @@ void draw_crosshair(int what, int state)
     /* previous mouse_snap position */
     xctx->prev_m_crossx = xctx->mousex_snap;
     xctx->prev_m_crossy = xctx->mousey_snap;
-    dbg(0, "update prev\n");
   }
 
   xctx->draw_window = sdw;
