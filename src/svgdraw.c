@@ -546,7 +546,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         double xoffset, double yoffset)
                             /* draws current layer only, should be called within  */
 {                           /* a "for(i=0;i<cadlayers; ++i)" loop */
-  int j, hide = 0;
+  int j, hide = 0, disabled = 0;
   double x0,y0,x1,y1,x2,y2;
   short flip;
   int textlayer;
@@ -556,17 +556,42 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   xArc arc;
   xPoly *polygon;
   xSymbol *symptr;
+  char *type;
+  int lvs_ignore = 0;
   char *textfont;
 
+  type = xctx->sym[xctx->inst[n].ptr].type;
+  lvs_ignore=tclgetboolvar("lvs_ignore");
   if(xctx->inst[n].ptr == -1) return;
-  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
-  if( (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
-      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) || (xctx->hide_symbols == 2) ) {
+  if(layer == 0) { 
+    xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
+    if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
+        strcmp(type, "probe") &&
+        strcmp(type, "architecture") && strcmp(type, "noconn")) {
+      if(skip_instance(n, 1, lvs_ignore)) {
+        xctx->inst[n].flags |= IGNORE_INST;
+      }
+    }
+  }
+
+  if(shorted_instance(n, lvs_ignore)) {
+    c = PINLAYER;
+    disabled = 2;
+  }
+  else if(xctx->inst[n].flags & IGNORE_INST) {
+    c = GRIDLAYER;
+    disabled = 1;
+  }
+  if(xctx->inst[n].color != -10000) c = get_color(xctx->inst[n].color);
+
+  if( (xctx->inst[n].flags & HIDE_INST) ||
+      ((xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") )) ||
+      (xctx->hide_symbols == 2) ) {
     hide = 1;
   } else {
     hide = 0;
   }
-
   if(layer==0) {
     x1=X_TO_SCREEN(xctx->inst[n].x1);
     x2=X_TO_SCREEN(xctx->inst[n].x2);
@@ -576,8 +601,18 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       xctx->inst[n].flags|=1;
       return;
     }
+    else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
+                       (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
+      svg_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0);
+      xctx->inst[n].flags|=1;
+      return;
+    }
     else {
       xctx->inst[n].flags&=~1;
+    }
+    if(hide) {
+      int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
+      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0);
     }
   }
   else if(xctx->inst[n].flags&1) {
@@ -586,63 +621,84 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
   rot = (xctx->inst[n].rot + rot ) & 0x3;
+
   x0=xctx->inst[n].x0 + xoffset;
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
-  for(j=0;j< symptr->lines[layer]; ++j) {
-    line = (symptr->line[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
-    ORDER(x1,y1,x2,y2);
-    svg_drawline(c, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, line.dash);
-  }
-  for(j=0;j< symptr->polygons[layer]; ++j) {
-    polygon =&(symptr->poly[layer])[j];
-    { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
-      int k, bezier;
-      double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-      double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
-      for(k=0;k<polygon->points; ++k) {
-        ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
-        x[k]+= x0;
-        y[k] += y0;
-      }
+
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
+
+  if(!hide) {
+    for(j=0;j< symptr->lines[layer]; ++j) {
+      int dash;
+      line = (symptr->line[layer])[j];
+      dash = (disabled == 1) ? 3 : line.dash;
+      ROTATION(rot, flip, 0.0,0.0,line.x1,line.y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,line.x2,line.y2,x2,y2);
+      ORDER(x1,y1,x2,y2);
+      svg_drawline(c, line.bus, x0+x1, y0+y1, x0+x2, y0+y2, dash);
+    }
+    for(j=0;j< symptr->polygons[layer]; ++j) {
+      int dash;
+      int bezier;
+      polygon =&(symptr->poly[layer])[j];
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
-      svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, polygon->dash, bezier);
-      my_free(_ALLOC_ID_, &x);
-      my_free(_ALLOC_ID_, &y);
+      dash = (disabled == 1) ? 3 : polygon->dash;
+      { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
+        int k;
+        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+        double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+        for(k=0;k<polygon->points; ++k) {
+          ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
+          x[k]+= x0;
+          y[k] += y0;
+        }
+        svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier);
+        my_free(_ALLOC_ID_, &x);
+        my_free(_ALLOC_ID_, &y);
+      }
     }
-  }
-  for(j=0;j< symptr->arcs[layer]; ++j) {
-    double angle;
-    arc = (symptr->arc[layer])[j];
-    if(flip) {
-      angle = 270.*rot+180.-arc.b-arc.a;
-    } else {
-      angle = arc.a+rot*270.;
+    for(j=0;j< symptr->arcs[layer]; ++j) {
+      int dash;
+      double angle;
+      arc = (symptr->arc[layer])[j];
+      dash = (disabled == 1) ? 3 : arc.dash;
+      if(flip) {
+        angle = 270.*rot+180.-arc.b-arc.a;
+      } else {
+        angle = arc.a+rot*270.;
+      }
+      angle = fmod(angle, 360.);
+      if(angle<0.) angle+=360.;
+      ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
+      svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, dash);
     }
-    angle = fmod(angle, 360.);
-    if(angle<0.) angle+=360.;
-    ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-    svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.dash);
-  }
+  } /* if(!hide) */
 
-  if( xctx->enable_layer[layer] ) for(j=0;j< symptr->rects[layer]; ++j) {
-    rect = &(symptr->rect[layer])[j];
-    ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
-    ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
 
-    if(layer == GRIDLAYER && rect->flags & 1024) {
-      double xx1 = x0 + x1;
-      double yy1 = y0 + y1;
-      double xx2 = x0 + x2;
-      double yy2 = y0 + y2;
-      svg_embedded_image(rect, xx1, yy1, xx2, yy2, rot, flip);
-    } else {
+  if( (!hide && xctx->enable_layer[layer]) ||
+      (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
+    for(j=0;j< symptr->rects[layer]; ++j)
+    {
+      int dash;
+      rect = &(symptr->rect[layer])[j];
+      dash = (disabled == 1) ? 3 : rect->dash;
+      ROTATION(rot, flip, 0.0,0.0,rect->x1,rect->y1,x1,y1);
+      ROTATION(rot, flip, 0.0,0.0,rect->x2,rect->y2,x2,y2);
       RECTORDER(x1,y1,x2,y2);
-      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->dash, rect->fill);
+      if(layer == GRIDLAYER && rect->flags & 1024) {
+        double xx1 = x0 + x1;
+        double yy1 = y0 + y1;
+        double xx2 = x0 + x2;
+        double yy2 = y0 + y2;
+        svg_embedded_image(rect, xx1, yy1, xx2, yy2, rot, flip);
+        continue;
+      }
+      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->fill);
     }
   }
+
+  draw_texts:
 
   if(
       !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
@@ -664,11 +720,17 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c;
-      /* do not allow custom text color on PINLAYER hilighted instances */
-      if( !(xctx->inst[n].color == PINLAYER)) {
-        textlayer = symptr->text[j].layer;
-        if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
+      /* do not allow custom text color on hilighted instances */
+      if(disabled == 1) textlayer = GRIDLAYER;
+      else if(disabled == 2) textlayer = PINLAYER;
+      else if( xctx->inst[n].color == -10000) {
+        int lay;
+        get_sym_text_layer(n, j, &lay);
+        if(lay != -1) textlayer = lay;
+        else textlayer = symptr->text[j].layer;
       }
+      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
+
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == PINLAYER ||  xctx->enable_layer[textlayer]) {
         my_snprintf(svg_font_family, S(svg_font_family), tclgetvar("svg_font_name"));
@@ -928,9 +990,7 @@ void svg_draw(void)
                      xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
    }
    for(i=0;i<xctx->instances; ++i) {
-     color = c;
-     if(xctx->inst[i].color != -10000) color = get_color(xctx->inst[i].color);
-     svg_draw_symbol(color,i,c,0,0,0.0,0.0);
+     svg_draw_symbol(c,i,c,0,0,0.0,0.0);
    }
   }
   prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */

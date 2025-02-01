@@ -32,18 +32,20 @@ static void find_closest_wire(double mx, double my)
  double tmp;
  int i, w=-1;
  double threshold;
+ double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
-
+  
  for(i=0;i<xctx->wires; ++i)
  {
-  if( (tmp = dist(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, mx, my)) < distance )
+  if( (tmp = dist(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, mx, my)) < d )
   {
-   w = i; distance = tmp;
+   w = i; d = tmp;
   }
  }
- if( distance <= threshold && w!=-1)
+ if( d <= threshold && w!=-1)
  {
-  sel.n = w; sel.type = WIRE;
+  sel.n = w; sel.type = WIRE; 
+  distance = d;
  }
 }
 
@@ -112,6 +114,7 @@ static void find_closest_polygon(double mx, double my)
  int i, c, j, l=-1, col = 0, bezier;
  double x1, y1, x2, y2;
  double threshold;
+ double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
  for(c=0;c<cadlayers; ++c)
  {
@@ -128,7 +131,7 @@ static void find_closest_polygon(double mx, double my)
       find_closest_bezier(mx, my, c, i, &l, &col);
       for(j = 0; j < p->points; j++) {
         if( POINTINSIDE(mx, my, p->x[j] - ds, p->y[j] - ds, p->x[j] + ds, p->y[j] + ds)) {
-           l = i; distance = 0.0;col = c;
+           l = i; d = 0.0;col = c;
            break;
         }
       }
@@ -139,18 +142,19 @@ static void find_closest_polygon(double mx, double my)
         x2 = p->x[j+1];
         y2 = p->y[j+1];
         ORDER(x1, y1, x2, y2);
-        if( (tmp = dist(x1, y1, x2, y2, mx, my)) < distance )
+        if( (tmp = dist(x1, y1, x2, y2, mx, my)) < d )
         {
-         l = i; distance = tmp;col = c;
-         dbg(1, "find_closest_polygon(): distance=%.16g  n=%d\n", distance, i);
+         l = i; d = tmp;col = c;
+         dbg(1, "find_closest_polygon(): d=%.16g  n=%d\n", d, i);
         }
       }
     }
   } /* end for i */
  } /* end for c */
- if( distance <= threshold && l!=-1)
+ if( d <= threshold && l!=-1)
  {
   sel.n = l; sel.type = POLYGON; sel.col = col;
+  distance = d;
  }
 }
 
@@ -162,6 +166,7 @@ static void find_closest_line(double mx, double my)
  double tmp;
  int i, c, l = -1, col = 0;
  double threshold;
+ double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
  for(c=0;c<cadlayers; ++c)
  {
@@ -169,16 +174,17 @@ static void find_closest_line(double mx, double my)
   for(i=0;i<xctx->lines[c]; ++i)
   {
    if( (tmp = dist(xctx->line[c][i].x1, xctx->line[c][i].y1, xctx->line[c][i].x2, xctx->line[c][i].y2, mx, my))
-         < distance )
+         < d )
    {
-    l = i; distance = tmp;col = c;
-    dbg(1, "find_closest_line(): distance=%.16g  n=%d\n", distance, i);
+    l = i; d = tmp;col = c;
+    dbg(1, "find_closest_line(): d=%.16g  n=%d\n", d, i);
    }
   } /* end for i */
  } /* end for c */
- if( distance <= threshold && l!=-1)
+ if( d <= threshold && l!=-1)
  {
   sel.n = l; sel.type = LINE; sel.col = col;
+  distance = d;
  }
 }
 
@@ -326,6 +332,7 @@ static void find_closest_arc(double mx, double my)
  int i, c, r=-1, col;
  int match;
  double threshold;
+ double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
 
  for(c=0;c<cadlayers; ++c)
@@ -334,14 +341,14 @@ static void find_closest_arc(double mx, double my)
   for(i=0;i<xctx->arcs[c]; ++i)
   {
     dist = sqrt(pow(mx-xctx->arc[c][i].x, 2) + pow(my-xctx->arc[c][i].y, 2)) - xctx->arc[c][i].r;
-    dist *= dist; /* square distance */
+    dist *= dist; /* square d */
     angle = fmod(atan2(xctx->arc[c][i].y-my, mx-xctx->arc[c][i].x)*180./XSCH_PI, 360.);
     if(angle<0.) angle +=360.;
     angle1 = xctx->arc[c][i].a;
     angle2 = fmod(xctx->arc[c][i].a + xctx->arc[c][i].b, 360.);
 
     match=0;
-    if(dist < distance) {
+    if(dist < d) {
       if(xctx->arc[c][i].b==360.) match=1;
       if(angle2<angle1) {
         if(angle >= angle1 || angle<= angle2) {
@@ -359,14 +366,15 @@ static void find_closest_arc(double mx, double my)
     if(match ) {
       dbg(1, "find_closest_arc(): i = %d\n", i);
       r = i;
-      distance = dist;
+      d = dist;
       col = c;
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && distance <= threshold ) /*  * pow(xctx->arc[col][r].r, 2)) */
+ if( r!=-1 && d <= threshold ) /*  * pow(xctx->arc[col][r].r, 2)) */
  {
   sel.n = r; sel.type = ARC; sel.col = col;
+  distance = d;
  }
 }
 
@@ -376,6 +384,7 @@ static void find_closest_box(double mx ,double my, int override_lock)
  double tmp;
  double ds = xctx->cadhalfdotsize;
  int i, c, r=-1, col = 0;
+ double d = distance;
 
  /* correction for very small boxes */
  for(c=0;c<cadlayers; ++c)
@@ -391,16 +400,17 @@ static void find_closest_box(double mx ,double my, int override_lock)
    {
     tmp=dist_from_rect(mx, my, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
-    if(tmp < distance)
+    if(tmp < d)
     {
-     r = i; distance = tmp;col = c;
+     r = i; d = tmp;col = c;
     }
    }
   } /* end for i */
  } /* end for c */
- dbg(1, "find_closest_box(): distance=%.16g\n", distance);
+ dbg(1, "find_closest_box(): d=%.16g\n", d);
  if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->rect[col][r].prop_ptr, "lock", 0), "true"))) {
   sel.n = r; sel.type = xRECT; sel.col = col;
+  distance = d;
  }
 }
 
@@ -408,6 +418,7 @@ static void find_closest_element(double mx, double my, int override_lock)
 {
   double tmp;
   int i, r=-1;
+  double d = distance;
   for(i = 0;i < xctx->instances; ++i)
   {
     dbg(1, "find_closest_element(): %s: %g %g %g %g\n",
@@ -415,14 +426,15 @@ static void find_closest_element(double mx, double my, int override_lock)
     if( POINTINSIDE(mx, my, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2) )
     {
       tmp=dist_from_rect(mx, my, xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
-      if(tmp < distance)
+      if(tmp < d)
       {
-        r = i; distance = tmp;
+        r = i; d = tmp;
       }
       dbg(2, "find_closest_element(): finding closest element, instances=%d, dist=%.16g\n", i, tmp);
     }
   } /* end for i */
   if( r != -1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true")) ) {
+    distance = d;
     sel.n = r; sel.type = ELEMENT;
   }
 }
@@ -437,6 +449,7 @@ static void find_closest_text(double mx, double my)
  int customfont;
  #endif
  char *estr = NULL;
+ double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom;
   for(i=0;i<xctx->texts; ++i)
   {
@@ -459,13 +472,14 @@ static void find_closest_text(double mx, double my)
    #endif
    if(POINTINSIDE(mx, my, xx1, yy1, xx2, yy2))
    {
-    r = i; distance = 0;
-     dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, distance);
+    r = i; d = 0;
+     dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, d);
    }
   } /* end for i */
- if( distance <= threshold && r!=-1)
+ if( d <= threshold && r!=-1)
  {
   sel.n = r; sel.type = xTEXT;
+  distance = d;
  }
 }
 

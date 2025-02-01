@@ -1050,7 +1050,8 @@ typedef struct {
   double xpan,ypan,xpan2,ypan2;
   double p_xx1,p_xx2,p_yy1,p_yy2;
   /* draw_crosshair */
-  double prev_crossx, prev_crossy;
+  double prev_crossx, prev_crossy; /* previous closest net/pin found by draw_crosshair() */
+  double prev_m_crossx, prev_m_crossy; /* previous snap mouse position processed by draw_crosshair() */
   double prev_gridx, prev_gridy;
   double prev_snapx, prev_snapy;
   int closest_pin_found;

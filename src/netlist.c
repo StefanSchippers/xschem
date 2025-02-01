@@ -1040,7 +1040,8 @@ int shorted_instance(int i, int lvs_ignore)
   if(inst[i].ptr < 0) shorted = 0;
   else if(lvs_ignore) {
     if((inst[i].flags & LVS_IGNORE_SHORT) || (sym[inst[i].ptr].flags & LVS_IGNORE_SHORT) ) shorted = 1;
-  } else if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+  }
+  if(xctx->netlist_type == CAD_SPICE_NETLIST) {
     if((inst[i].flags & SPICE_SHORT) || (sym[inst[i].ptr].flags & SPICE_SHORT) ) shorted = 1;
   } else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
     if((inst[i].flags & VERILOG_SHORT) || (sym[inst[i].ptr].flags & VERILOG_SHORT) ) shorted = 1;
@@ -1703,8 +1704,8 @@ int sym_vs_sch_pins(int all)
                  fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
                  read_line(fd, 0);
                  break;
-               }
-               load_ascii_string(&tmp, fd);
+              }
+              load_ascii_string(&tmp, fd);
               break;
             case 'P':
               if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {

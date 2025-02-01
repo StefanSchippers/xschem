@@ -646,6 +646,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->enable_drill = 0;
   xctx->prev_set_modify = -1;
   xctx->prev_crossx = xctx->prev_crossy = 0.0;
+  xctx->prev_m_crossx = xctx->prev_m_crossy = 0.0;
   xctx->prev_rubberx = xctx->prev_rubbery = 0.0;
   xctx->prev_gridx = xctx->prev_gridy = 0.0;
   xctx->prev_snapx = xctx->prev_snapy = 0.0;
@@ -946,7 +947,7 @@ static void xwin_exit(void)
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
- translate(0, NULL); /* clear static data in function */
+ translate(-1, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
  translate3(NULL, 0, NULL, NULL, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */

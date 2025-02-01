@@ -898,7 +898,7 @@ int set_text_flags(xText *t)
   t->flags = 0;
   t->hcenter = 0;
   t->vcenter = 0;
-  t->layer = -1;
+  t->layer = -1; /* -1 means default TEXTLAYER is to be used */
   if(t->prop_ptr) {
     my_strdup(_ALLOC_ID_, &t->font, get_tok_value(t->prop_ptr, "font", 0));
     str = get_tok_value(t->prop_ptr, "hcenter", 0);

@@ -490,63 +490,23 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   xPoly *polygon;
   xText text;
   register xSymbol *symptr;
-  double angle;
   char *type;
   int lvs_ignore = 0;
   #if HAS_CAIRO==1
   const char *textfont;
   #endif
 
+  type = xctx->sym[xctx->inst[n].ptr].type;
   lvs_ignore=tclgetboolvar("lvs_ignore");
+  if(!has_x) return;
   if(xctx->inst[n].ptr == -1) return;
   if(layer == 0) { 
-    char *type = xctx->sym[xctx->inst[n].ptr].type;
-    
     xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
         strcmp(type, "architecture") && strcmp(type, "noconn")) {
-      if(
-          (
-            xctx->netlist_type == CAD_SPICE_NETLIST &&
-            (
-              (xctx->inst[n].flags & SPICE_IGNORE) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & SPICE_IGNORE)
-            )
-          ) || 
-  
-          (
-            xctx->netlist_type == CAD_VERILOG_NETLIST &&
-            (
-              (xctx->inst[n].flags & VERILOG_IGNORE) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & VERILOG_IGNORE)
-            )
-          ) ||
-  
-          (
-            xctx->netlist_type == CAD_VHDL_NETLIST &&
-            (
-              (xctx->inst[n].flags & VHDL_IGNORE) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & VHDL_IGNORE)
-            )
-          ) ||
-  
-          (
-            xctx->netlist_type == CAD_TEDAX_NETLIST &&
-            (
-              (xctx->inst[n].flags & TEDAX_IGNORE) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & TEDAX_IGNORE)
-            )
-          ) ||
-          (
-            lvs_ignore &&
-            (
-              (xctx->inst[n].flags & LVS_IGNORE_OPEN) ||
-              (xctx->sym[xctx->inst[n].ptr].flags & LVS_IGNORE_OPEN)
-            )
-          )
-        ) {
-         xctx->inst[n].flags |= IGNORE_INST; /* *_IGNORE_INST in current netlisting mode as evaluated above */
+      if(skip_instance(n, 1, lvs_ignore)) {
+        xctx->inst[n].flags |= IGNORE_INST;
       }
     }
   }
@@ -560,8 +520,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     what = NOW;
     disabled = 1;
   }
-
-  if(!has_x) return;
   if( (xctx->inst[n].flags & HIDE_INST) ||
       (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) ||
@@ -570,7 +528,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   } else {
     hide = 0;
   }
-  type = (xctx->inst[n].ptr+ xctx->sym)->type;
   if(layer==0) {
     x1=X_TO_SCREEN(xctx->inst[n].x1+xoffset);  /* 20150729 added xoffset, yoffset */
     x2=X_TO_SCREEN(xctx->inst[n].x2+xoffset);
@@ -611,7 +568,6 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
     return;
   }
-
   flip = xctx->inst[n].flip;
   if(tmp_flip) flip = !flip;
   rot = (xctx->inst[n].rot + rot ) & 0x3;
@@ -657,6 +613,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->arcs[layer]; ++j)
     {
       int dash;
+      double angle;
       arc = &(symptr->arc[layer])[j];
       dash = (disabled == 1) ? 3 : arc->dash;
       if(flip) {
@@ -671,7 +628,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     }
   } /* if(!hide) */
 
-  if( (!hide && xctx->enable_layer[layer])  ||
+  if( (!hide && xctx->enable_layer[layer]) ||
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
     for(j=0;j< symptr->rects[layer]; ++j)
     {
@@ -714,7 +671,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
                                   ellipse_a, ellipse_b);
       }
     }
-  }
+  } /* if( (!hide && xctx->enable_layer[layer]) || ... */
 
   draw_texts:
 
@@ -814,7 +771,6 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  xArc *arc;
  xText text;
  register xSymbol *symptr;
- double angle;
 
  #if HAS_CAIRO==1
  int customfont;
@@ -919,6 +875,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    }
    for(j=0;j< symptr->arcs[layer]; ++j)
    {
+     double angle;
      arc = &(symptr->arc[layer])[j];
      if(flip) {
        angle = 270.*rot+180.-arc->b-arc->a;
