@@ -7702,7 +7702,7 @@ set tctx::global_list {
   INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
   add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
   autotrim_wires orthogonal_wiring snap_cursor bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
+  cadsnap cadence_compat cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
   copy_cell crosshair_layer crosshair_size cursor_2_hook snap_cursor_size custom_label_prefix custom_token
   dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
   dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
@@ -8120,7 +8120,7 @@ proc build_widgets { {topwin {} } } {
   global dark_gui_colorscheme draw_crosshair
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
-  global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
+  global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width cadence_compat
   global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type snap_cursor
   global disable_unique_names persistent_command autotrim_wires infix_interface orthogonal_wiring en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
@@ -9184,9 +9184,10 @@ set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1
 set_ne autotrim_wires 0
-set_ne infix_interface 0
+set_ne cadence_compat 0
+set_ne infix_interface 1
 set_ne snap_cursor 0
-set_ne orthogonal_wiring 1
+set_ne orthogonal_wiring 0
 set_ne compare_sch 0
 set_ne disable_unique_names 0
 set_ne sym_txt 1

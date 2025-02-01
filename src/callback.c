@@ -21,6 +21,7 @@
  */
 
 #include "xschem.h"
+#include <X11/X.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -102,6 +103,7 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
 {
   double mx = xctx->mousex_snap;
   double my = xctx->mousey_snap;
+  double origin_shifted_x2, origin_shifted_y2;
 
   if(!force && xctx->mousex_snap == xctx->prev_rubberx && xctx->mousey_snap == xctx->prev_rubbery) return;
 
@@ -112,7 +114,8 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
     if(tclgetboolvar("orthogonal_wiring")) {
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
       /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-      int origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+      origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1;
+      origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
       /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
       if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
         xctx->manhattan_lines = 1;
@@ -1516,6 +1519,8 @@ void draw_snap_cursor(int what)
   int sdw, sdp;
   int snapcursor_size = tclgetintvar("snap_cursor_size");
   int pos_changed = (xctx->mousex_snap - xctx->prev_gridx) || (xctx->mousey_snap - xctx->prev_gridy);
+  double prev_x = xctx->prev_snapx;
+  double prev_y = xctx->prev_snapy;
   dbg(1, "draw_snap_cursor(): what=%d\n", what);
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
@@ -1523,8 +1528,6 @@ void draw_snap_cursor(int what)
   if(!xctx->mouse_inside) return;
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  double prev_x = xctx->prev_snapx;
-  double prev_y = xctx->prev_snapy;
   if(what & 1) {
     if(fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
@@ -2418,6 +2421,7 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 int crosshair_size = tclgetintvar("crosshair_size");
 int infix_interface = tclgetboolvar("infix_interface");
 int snap_cursor = tclgetboolvar("snap_cursor");
+int cadence_compat = tclgetboolvar("cadence_compat");
 int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
                        ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
                        (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
@@ -2958,7 +2962,12 @@ int rstate; /* (reduced state, without ShiftMask) */
      hilight_net_pin_mismatches();
      break;
    }
-   if(key== 's' /* && !xctx->ui_state */ && rstate == 0) {  /* create wire snapping to closest instance pin */
+   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {  /* create wire snapping to closest instance pin (original keybind) */
+     if(xctx->semaphore >= 2) break;
+     snapped_wire(c_snap);
+     break;
+   }
+   if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {  /* create wire snapping to closest instance pin (cadence keybind) */
      if(xctx->semaphore >= 2) break;
      snapped_wire(c_snap);
      break;
@@ -3016,6 +3025,9 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(tclgetboolvar("snap_cursor")) {
        tclsetvar("snap_cursor", "0");
        draw_snap_cursor(1);
+       xctx->closest_pin_found = 0;
+       xctx->prev_snapx = 0.0;
+       xctx->prev_snapy = 0.0;
      } else {
        tclsetvar("snap_cursor", "1");
        if(wire_draw_active) draw_snap_cursor(3);
@@ -3213,7 +3225,21 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
     break;
    }
-   if(key=='r' && rstate == ControlMask )      /* simulate */
+   if((key=='s' && rstate == 0) && !cadence_compat)      /* simulate (original keybind) */
+   {
+     if(xctx->semaphore >= 2) break;
+     if(waves_selected(event, key, state, button)) {
+       waves_callback(event, mx, my, key, button, aux, state);
+       break;
+     }
+     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+             "-message {Run circuit simulation?}");
+     if(strcmp(tclresult(),"ok")==0) {
+       tcleval("[xschem get top_path].menubar invoke Simulate");
+     }
+     break;
+   }
+   if((key=='r' && rstate == ControlMask) && cadence_compat)      /* simulate (for cadence users) */
    {
      if(xctx->semaphore >= 2) break;
      if(waves_selected(event, key, state, button)) {
