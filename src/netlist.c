@@ -1704,8 +1704,8 @@ int sym_vs_sch_pins(int all)
                  fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
                  read_line(fd, 0);
                  break;
-               }
-               load_ascii_string(&tmp, fd);
+              }
+              load_ascii_string(&tmp, fd);
               break;
             case 'P':
               if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {
