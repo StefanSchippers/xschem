@@ -21,7 +21,6 @@
  */
 
 #include "xschem.h"
-#include <X11/X.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
