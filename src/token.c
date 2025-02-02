@@ -1856,7 +1856,6 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
 
   if(xctx->tok_size) {
     char *symname = NULL;
-    char *templ = NULL;
     char *symname_attr = NULL;
     int no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
     int i;
@@ -1865,7 +1864,6 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     Str_hashentry *entry;
     Str_hashtable table = {NULL, 0};
     
-    my_strdup2(_ALLOC_ID_, &templ, get_tok_value(xctx->sym[symbol].prop_ptr, "template", 0));
     my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0));
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->sym[symbol].prop_ptr, "schematic", 0));
@@ -1876,7 +1874,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(symname, 0), NULL);
     my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(inst, 9999, 1, 1), NULL);
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
-                                                      templ,
+                                                      xctx->sym[symbol].templ,
                                                       symname_attr);
     dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
     dbg(1, "has_included_subcircuit(): symname=%s\n", symname);
@@ -1915,7 +1913,6 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                 translated_sym_def, "} ", my_itoa(exp_no_of_pins), NULL);
 
-    my_free(_ALLOC_ID_, &templ);
     my_free(_ALLOC_ID_, &symname_attr);
     if(tclresult()[0]) { /* a valid spice_sym_def netlist was found */
       char *subckt_pin, *pin_save;
