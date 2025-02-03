@@ -3003,7 +3003,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     if(xctx->ui_state2 & MENUSTARTWIRE) {
       xctx->ui_state2 &= ~MENUSTARTWIRE;
     }
-    if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE)) {
+    if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE) && cadence_compat) {
       xctx->last_command &= ~STARTWIRE;
       if(snap_cursor) draw_snap_cursor(1);
     }
