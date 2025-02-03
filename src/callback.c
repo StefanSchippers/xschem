@@ -4519,10 +4519,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
-   /*else if(state == Button1Mask && xctx->intuitive_interface 
-    *     && (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {*/
-   /*  if(end_place_move_copy_zoom()) break;*/
-   /*}*/
+   else if(state == Button1Mask && xctx->intuitive_interface && !tclgetboolvar("persistent_command")
+        && (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
+     if(end_place_move_copy_zoom()) break;
+   }
 
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
