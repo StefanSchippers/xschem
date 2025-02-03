@@ -1174,9 +1174,18 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
   if(c=='\0')
   {
-   if(result && strstr(result, "tcleval(")== result) {
+   /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+   if(result) {
      dbg(1, "print_vhdl_primitive(): before translate() result=%s\n", result);
-     my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+     if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+        /* since netlist_commands often have @ characters in spice node save / plot commands, do
+        * not pass through translate, unless a tcleval(...) is present */
+       if(strstr(result, "tcleval(")== result) {
+         my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+       }
+     } else {
+       my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+     }
      dbg(1, "print_vhdl_primitive(): after  translate() result=%s\n", result);
    }
    if(result) fprintf(fd, "%s", result);
@@ -2470,32 +2479,20 @@ int print_spice_element(FILE *fd, int inst)
   /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
 
-  /* do one level of substitutions to resolve @params and equations*/
-  if(result && strstr(result, "tcleval(")== result) {
+  /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+  if(result) {
     dbg(1, "print_spice_element(): before translate() result=%s\n", result);
-    my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+    if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+      /* since netlist_commands often have @ characters in spice node save / plot commands, do
+       * not pass through translate, unless a tcleval(...) is present */
+      if(strstr(result, "tcleval(")== result) {
+        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      }
+    } else {
+      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+    }
     dbg(1, "print_spice_element(): after  translate() result=%s\n", result);
   }
-
-
-  /* can't remember what the f**k this is supposed to do. 
-     why eval( and not tcleval( ? 
-     disable until some regression pops out
-  */
-  #if 0
-  *  /* do a second round of substitutions, but without calling tcl */
-  *  if(result && strstr(result, "eval(") == result) {
-  *    char *c = strrchr(result, ')');
-  *    if(c) while(1) { /* shift following characters back 1 char */
-  *      *c = (char)c[1];
-  *      c++;
-  *      if(!*c) break;
-  *    }
-  *    my_strdup2(_ALLOC_ID_, &result, translate(inst, result+5));
-  *  }
-  #endif
-
-
   if(result) fprintf(fd, "%s", result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
@@ -3104,10 +3101,18 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    }
    if(c=='\0')
    {
-    /* do one level of substitutions to resolve @params and equations*/
-    if(result && strstr(result, "tcleval(")== result) {
+    /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+    if(result) {
       dbg(1, "print_verilog_primitive(): before translate() result=%s\n", result);
-      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+         /* since netlist_commands often have @ characters in spice node save / plot commands, do
+         * not pass through translate, unless a tcleval(...) is present */
+        if(strstr(result, "tcleval(")== result) {
+          my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+        }
+      } else {
+        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      }
       dbg(1, "print_verilog_primitive(): after  translate() result=%s\n", result);
     }
     if(result) fprintf(fd, "%s", result);
