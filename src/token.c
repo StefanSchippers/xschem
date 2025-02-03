@@ -1174,9 +1174,18 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
   if(c=='\0')
   {
-   if(result && strstr(result, "tcleval(")== result) {
+   /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+   if(result) {
      dbg(1, "print_vhdl_primitive(): before translate() result=%s\n", result);
-     my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+     if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+        /* since netlist_commands often have @ characters in spice node save / plot commands, do
+        * not pass through translate, unless a tcleval(...) is present */
+       if(strstr(result, "tcleval(")== result) {
+         my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+       }
+     } else {
+       my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+     }
      dbg(1, "print_vhdl_primitive(): after  translate() result=%s\n", result);
    }
    if(result) fprintf(fd, "%s", result);
@@ -1856,11 +1865,14 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
 
   if(xctx->tok_size) {
     char *symname = NULL;
-    char *templ = NULL;
     char *symname_attr = NULL;
     int no_of_pins = (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+    int i;
+    int exp_no_of_pins = 0; /* number of single bit ports, ie all buses expanded */
+    char *net, *net_save;
+    Str_hashentry *entry;
+    Str_hashtable table = {NULL, 0};
     
-    my_strdup2(_ALLOC_ID_, &templ, get_tok_value(xctx->sym[symbol].prop_ptr, "template", 0));
     my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0));
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->sym[symbol].prop_ptr, "schematic", 0));
@@ -1871,58 +1883,57 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(symname, 0), NULL);
     my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(inst, 9999, 1, 1), NULL);
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
-                                                      templ,
+                                                      xctx->sym[symbol].templ,
                                                       symname_attr);
     dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
     dbg(1, "has_included_subcircuit(): symname=%s\n", symname);
+
+    /* pin list from symbol. Calculate also exp_no_of_pins */
+    str_hash_init(&table, 6247);
+    for(i = 0;i < no_of_pins; ++i) {
+      char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+      int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+      const char *name = get_tok_value(prop, "name", 0);
+      if(!spice_ignore) {
+        char *pin, *pin_save;
+        int pin_mult, net_mult;
+        char *pin_expanded_ptr, *pin_expanded = NULL;
+        char *net_expanded_ptr, *net_expanded = NULL;
+        my_strdup2(_ALLOC_ID_, &pin_expanded, expandlabel(name, &pin_mult));
+        exp_no_of_pins += pin_mult;
+        strtolower(pin_expanded);
+        my_strdup2(_ALLOC_ID_, &net_expanded, net_name(inst, i, &net_mult, 0, 1));
+        net_expanded_ptr = net_expanded;
+        pin_expanded_ptr = pin_expanded;
+        while((pin = my_strtok_r(pin_expanded_ptr, ",", "", 0, &pin_save))) {
+          net = my_strtok_r(net_expanded_ptr, ",", "", 0, &net_save);
+          str_hash_lookup(&table, pin, net ? net : "<NULL>", XINSERT_NOREPLACE);
+          dbg(1, "inserting pin: %s, net: %s\n", pin, net ? net : "<NULL>");
+          pin_expanded_ptr = NULL;
+          net_expanded_ptr = NULL;
+        }
+        my_free(_ALLOC_ID_, &pin_expanded);
+        my_free(_ALLOC_ID_, &net_expanded);
+      }
+    }
+    dbg(1, "exp_no_of_pins=%d\n", exp_no_of_pins);
+    /* process spice_sym_def spice netlist */
     strtolower(symname);
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
-                translated_sym_def, "} ", my_itoa(no_of_pins), NULL);
-    my_free(_ALLOC_ID_, &templ);
+                translated_sym_def, "} ", my_itoa(exp_no_of_pins), NULL);
+
     my_free(_ALLOC_ID_, &symname_attr);
-    if(tclresult()[0]) {
+    if(tclresult()[0]) { /* a valid spice_sym_def netlist was found */
       char *subckt_pin, *pin_save;
-      char *net, *net_save;
       char *subckt_pinlist_ptr;
       char *subckt_pinlist = NULL;
       char *tmp_result = NULL;
-      int i;
       int symbol_pins = 0;
       int instance_pins = 0;
-      Str_hashentry *entry;
-      Str_hashtable table = {NULL, 0};
 
-      str_hash_init(&table, 6247);
       my_strdup2(_ALLOC_ID_, &subckt_pinlist, tclresult());
       dbg(1, "included subcircuit: pinlist=%s\n", subckt_pinlist);
 
-
-      /* pin list from symbol */
-      for(i = 0;i < no_of_pins; ++i) {
-        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-        int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
-        const char *name = get_tok_value(prop, "name", 0);
-        if(!spice_ignore) {
-          char *pin, *pin_save;
-          int pin_mult, net_mult;
-          char *pin_expanded_ptr, *pin_expanded = NULL;
-          char *net_expanded_ptr, *net_expanded = NULL;
-          my_strdup2(_ALLOC_ID_, &pin_expanded, expandlabel(name, &pin_mult));
-          strtolower(pin_expanded);
-          my_strdup2(_ALLOC_ID_, &net_expanded, net_name(inst, i, &net_mult, 0, 1));
-          net_expanded_ptr = net_expanded;
-          pin_expanded_ptr = pin_expanded;
-          while((pin = my_strtok_r(pin_expanded_ptr, ",", "", 0, &pin_save))) {
-            net = my_strtok_r(net_expanded_ptr, ",", "", 0, &net_save);
-            str_hash_lookup(&table, pin, net ? net : "<NULL>", XINSERT_NOREPLACE);
-            dbg(1, "inserting pin: %s, net: %s\n", pin, net ? net : "<NULL>");
-            pin_expanded_ptr = NULL;
-            net_expanded_ptr = NULL;
-          }
-          my_free(_ALLOC_ID_, &pin_expanded);
-          my_free(_ALLOC_ID_, &net_expanded);
-        }
-      }
 
       /* list from subcircuit netlist */
       subckt_pinlist_ptr = subckt_pinlist;
@@ -1934,11 +1945,10 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
           net = entry->value;
           symbol_pins++;
           dbg(1, "subckt_pin=%s, net=%s\n", subckt_pin, net);
-          my_mstrcat(_ALLOC_ID_, &tmp_result, "?1", " ", net, " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &tmp_result, "?1 ", net, " ", NULL);
         }
         subckt_pinlist_ptr = NULL;
       }
-      str_hash_free(&table);
 
       /* check if they match */
       if(instance_pins == symbol_pins) {
@@ -1955,6 +1965,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
       my_free(_ALLOC_ID_, &subckt_pinlist);
     }
     my_free(_ALLOC_ID_, &symname);
+    str_hash_free(&table);
   }
   my_free(_ALLOC_ID_, &spice_sym_def);
   return ret;
@@ -2468,32 +2479,20 @@ int print_spice_element(FILE *fd, int inst)
   /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
 
-  /* do one level of substitutions to resolve @params and equations*/
-  if(result && strstr(result, "tcleval(")== result) {
+  /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+  if(result) {
     dbg(1, "print_spice_element(): before translate() result=%s\n", result);
-    my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+    if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+      /* since netlist_commands often have @ characters in spice node save / plot commands, do
+       * not pass through translate, unless a tcleval(...) is present */
+      if(strstr(result, "tcleval(")== result) {
+        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      }
+    } else {
+      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+    }
     dbg(1, "print_spice_element(): after  translate() result=%s\n", result);
   }
-
-
-  /* can't remember what the f**k this is supposed to do. 
-     why eval( and not tcleval( ? 
-     disable until some regression pops out
-  */
-  #if 0
-  *  /* do a second round of substitutions, but without calling tcl */
-  *  if(result && strstr(result, "eval(") == result) {
-  *    char *c = strrchr(result, ')');
-  *    if(c) while(1) { /* shift following characters back 1 char */
-  *      *c = (char)c[1];
-  *      c++;
-  *      if(!*c) break;
-  *    }
-  *    my_strdup2(_ALLOC_ID_, &result, translate(inst, result+5));
-  *  }
-  #endif
-
-
   if(result) fprintf(fd, "%s", result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
@@ -3102,10 +3101,18 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    }
    if(c=='\0')
    {
-    /* do one level of substitutions to resolve @params and equations*/
-    if(result && strstr(result, "tcleval(")== result) {
+    /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+    if(result) {
       dbg(1, "print_verilog_primitive(): before translate() result=%s\n", result);
-      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+         /* since netlist_commands often have @ characters in spice node save / plot commands, do
+         * not pass through translate, unless a tcleval(...) is present */
+        if(strstr(result, "tcleval(")== result) {
+          my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+        }
+      } else {
+        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      }
       dbg(1, "print_verilog_primitive(): after  translate() result=%s\n", result);
     }
     if(result) fprintf(fd, "%s", result);
