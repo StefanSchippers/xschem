@@ -229,7 +229,10 @@ extern char win_temp_dir[PATH_MAX];
 #define START_SYMPIN 16384U
 #define GRAPHPAN 32768U     /* bit 15 */
 #define MENUSTART 65536U    /* bit 16 */
-#define GRABSCREEN 131072   /* bit 17 */
+#define GRABSCREEN 131072U   /* bit 17 */
+#define WAIT_DESELECT_CLICK 262144U /* bit 18 */
+#define STARTDESELECT 524288U   /* bit 19 */
+#define WAIT_DESELECT_END 1048576U   /* bit 20 */
 
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
