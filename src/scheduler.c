@@ -1008,6 +1008,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+
+    /* eval_expr str
+     *   debug function: evaluate arithmetic expression in str */
+    else if(!strcmp(argv[1], "eval_expr"))
+    {
+      if(argc > 2) {
+        Tcl_SetResult(interp, eval_expr(argv[2]), TCL_VOLATILE);
+      }
+    }
+
     /* exit [exit_code] [closewindow] [force]
      *   Exit the program, ask for confirm if current file modified.
      *   if exit_code is given exit with its value, otherwise use 0 exit code
