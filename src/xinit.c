@@ -955,6 +955,7 @@ static void xwin_exit(void)
  trim_chars(NULL, ""); /* clear static data in function */
  tcl_hook2(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
+ eval_expr_clear_table(); /* clear expression parser data */
  dbg(1, "xwin_exit(): removing font\n");
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);
  dbg(1, "xwin_exit(): closed display\n");
@@ -2310,6 +2311,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #ifdef __unix__
  const char* home_buff;
 #endif
+ eval_expr_init_table();
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
    fprintf(errfp, "Tcl_AppInit(): getcwd() failed\n");
