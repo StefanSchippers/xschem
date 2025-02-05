@@ -2410,6 +2410,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    grabscreen(winpath, event, mx, my, key, button, aux, state);
  } else 
  #endif
+
  switch(event)
  {
 
@@ -2510,7 +2511,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* determine direction of a rectangle selection  (or unselection with ALT key) */
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
       /* Unselect by area : determine direction */
-      if( (state & Button1Mask)  && SET_MODMASK) { 
+      if( ( (state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & STARTDESELECT) ) { 
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
         select_rect(enable_stretch, RUBBER,0);
@@ -3985,6 +3986,26 @@ int rstate; /* (reduced state, without ShiftMask) */
     delete_files();
     break;
    }
+
+   if( key == 'd' && rstate == ControlMask){
+     xctx->ui_state = WAIT_DESELECT_CLICK | STARTDESELECT;
+     break;
+   }
+
+   if( key=='d' && rstate == 0)
+   {
+     xctx->last_command = 0;
+     xctx->mx_save = mx; xctx->my_save = my;
+     xctx->mx_double_save=xctx->mousex_snap;
+     xctx->my_double_save=xctx->mousey_snap;
+     if(infix_interface) {
+      select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
+      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
+     } else {
+      xctx->ui_state |= WAIT_DESELECT_CLICK;
+     }
+     break;
+   }
    if(key=='x' && rstate == 0 )                  /* new cad session */
    {
     new_xschem_process(NULL ,0);
@@ -4194,6 +4215,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* In *NON* intuitive interface a button1 press with no modifiers will
         * first unselect everything... 
         * For intuitive interface unselection see below... */
+
        if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
@@ -4228,7 +4250,9 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        /* In intuitive interface a button1 press with no modifiers will
         *  unselect everything... we do it here */
-       if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
+       if( !(xctx->ui_state & (WAIT_DESELECT_CLICK|WAIT_DESELECT_END))) {
+          if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
+       }
 
        /* select the object under the mouse and rebuild the selected array */
        if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
@@ -4359,6 +4383,28 @@ int rstate; /* (reduced state, without ShiftMask) */
      end_shape_point_edit(c_snap);
    }
 
+   if( (xctx->ui_state & WAIT_DESELECT_CLICK) && 
+      (xctx->ui_state & STARTDESELECT) && button == Button1 && !(state & (ShiftMask | ControlMask))) {
+     xctx->ui_state &= ~WAIT_DESELECT_CLICK;
+     xctx->ui_state |= WAIT_DESELECT_END;
+     xctx->last_command = 0;
+     xctx->mx_save = mx; xctx->my_save = my;
+     xctx->mx_double_save=xctx->mousex_snap;
+     xctx->my_double_save=xctx->mousey_snap;
+     select_rect(enable_stretch, START,0);
+     rebuild_selected_array();
+     break;
+   }
+
+    /* deselect objects one at a time using 'd'*/
+   if( xctx->ui_state & WAIT_DESELECT_CLICK && !(xctx->ui_state & STARTDESELECT) 
+        && button == Button1 && !(state & (ShiftMask | ControlMask)) ){
+     select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
+     rebuild_selected_array();
+     xctx->ui_state &= ~WAIT_DESELECT_CLICK;
+     break;
+   }
+
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
      /* xctx->mx_save = mx; xctx->my_save = my; */
@@ -4369,7 +4415,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(xctx->semaphore >= 2) break;
-   if(xctx->ui_state & STARTSELECT) {
+   if( xctx->ui_state & WAIT_DESELECT_END){
+     xctx->ui_state &= ~(WAIT_DESELECT_END|STARTDESELECT);
+     select_rect(enable_stretch, END,-1);
+   } else if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
        select_rect(!enable_stretch, END,-1);
      } else {
