@@ -2246,6 +2246,13 @@ int print_spice_element(FILE *fd, int inst)
         if (!xctx->tok_size) value=get_tok_value(template, token+1, 0);
         token_exists = xctx->tok_size;
 
+        if(strstr(value, "expr(") == value) {
+          char *ptr;
+          my_strdup(_ALLOC_ID_, &val, value);
+          ptr = strrchr(val + 5, ')');
+          *ptr = '\0';
+          value = eval_expr(translate3(val + 5, 1, xctx->inst[inst].prop_ptr, template, NULL));
+        }
         if(!strcmp("@savecurrent", token)) {
           token_exists = 0; /* processed later */
           value = NULL;
@@ -4478,6 +4485,13 @@ const char *translate(int inst, const char* s)
          }
          dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
          i--;
+       }
+       if(strstr(value1, "expr(") == value1) {
+         char *ptr = strrchr(value1 + 5, ')');
+         dbg(0, "translate(): expr():%s\n", value1); 
+         *ptr = '\0';
+         my_strdup2(_ALLOC_ID_, &value1, eval_expr(
+            translate3(value1 + 5, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
        }
        tmp=strlen(value1);
        STR_ALLOC(&result, tmp + result_pos, &size);
