@@ -3988,7 +3988,17 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
 
    if( key == 'd' && rstate == ControlMask){
-     xctx->ui_state = WAIT_DESELECT_CLICK | STARTDESELECT;
+     if(infix_interface) {
+      xctx->ui_state = WAIT_DESELECT_END | STARTDESELECT;
+      xctx->last_command = 0;
+      xctx->mx_save = mx; xctx->my_save = my;
+      xctx->mx_double_save=xctx->mousex_snap;
+      xctx->my_double_save=xctx->mousey_snap;
+      select_rect(enable_stretch, START,0);
+      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
+     } else {
+      xctx->ui_state = WAIT_DESELECT_CLICK | STARTDESELECT;
+     }
      break;
    }
 
