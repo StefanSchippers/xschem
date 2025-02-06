@@ -524,7 +524,10 @@
 #   }
 # }
 
-
+###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER GENERATING NETLIST
+###########################################################################
+# set netlist_postprocess {textfile $netlist_dir/[xschem get netlist_name fallback]}
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION

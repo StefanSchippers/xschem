@@ -3377,6 +3377,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);
+      tcleval("eval_netlist_postprocess");
       set_netlist_dir(1, savedir);
       if(done_netlist) {
         if(messages) {

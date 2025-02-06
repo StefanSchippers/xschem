@@ -1216,7 +1216,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
   size_t token_pos=0, result_pos=0, result_save_pos = 0, tmp;
   int quote=0;
   int done_subst=0;
-  int escape=0, matched_tok=0;
+  int escape=0, matched_tok=0, removed_tok = 0;
   char *new_val_copy = NULL;
   size_t new_val_len;
 
@@ -1299,6 +1299,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
         } else { /* remove token (and value if any) */
           result_pos = result_save_pos;
           done_subst = 1;
+          removed_tok = 1;
         }
       }
       result_save_pos = result_pos;
@@ -1335,11 +1336,13 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
         } else { /* remove token (and value if any) */
           result_pos = result_save_pos;
           done_subst = 1;
+          removed_tok = 1;
         }
       }
       state=TOK_VALUE;
     } else if( state == TOK_VALUE && space && !quote && !escape) {
       state=TOK_BEGIN;
+      if(matched_tok && removed_tok && (c == '\n' || c == ' ') ) continue;
     }
     /* state actions */
     if(state == TOK_BEGIN) {
