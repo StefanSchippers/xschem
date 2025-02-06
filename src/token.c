@@ -4488,7 +4488,7 @@ const char *translate(int inst, const char* s)
        }
        if(strstr(value1, "expr(") == value1) {
          char *ptr = strrchr(value1 + 5, ')');
-         dbg(0, "translate(): expr():%s\n", value1); 
+         dbg(1, "translate(): expr():%s\n", value1); 
          *ptr = '\0';
          my_strdup2(_ALLOC_ID_, &value1, eval_expr(
             translate3(value1 + 5, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
@@ -4514,11 +4514,18 @@ const char *translate(int inst, const char* s)
  } /* while(1) */
  dbg(2, "translate(): returning %s\n", result);
  my_free(_ALLOC_ID_, &token);
-
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
  my_strdup2(_ALLOC_ID_, &translated_tok, spice_get_node(tcl_hook2(result)));
  
+ if(strstr(translated_tok, "expr(") == translated_tok) {
+   char *ptr = strrchr(translated_tok + 5, ')');
+   dbg(1, "translate(): expr():%s\n", translated_tok);
+   *ptr = '\0';
+   my_strdup2(_ALLOC_ID_, &translated_tok, eval_expr(
+      translate3(translated_tok + 5, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
+ }
+
  return translated_tok;
 }
 
