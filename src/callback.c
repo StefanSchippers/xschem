@@ -3980,14 +3980,14 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if(key=='D' && rstate == 0)                     /* delete files */
+   if(key=='d' && rstate == ControlMask)                     /* delete files */
    {
     if(xctx->semaphore >= 2) break;
     delete_files();
     break;
    }
 
-   if( key == 'd' && rstate == ControlMask){
+   if( key == 'D' && rstate == 0){
      if(infix_interface) {
       xctx->ui_state = WAIT_DESELECT_END | STARTDESELECT;
       xctx->last_command = 0;
