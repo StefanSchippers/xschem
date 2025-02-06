@@ -1005,7 +1005,7 @@ proc convert_to_png {filename dest} {
 #                          Alt-Key-c
 #                          ButtonPress-4
 #
-proc key_binding {  s  d { topwin {} } } { 
+proc key_binding {  s  d { win_path {.drw} } } { 
   regsub {.*-} $d {} key
 
 
@@ -1039,14 +1039,14 @@ proc key_binding {  s  d { topwin {} } } {
   if { [regexp ButtonPress-3 $d] } { set state [expr {$state +0x400}] }
   # puts "$state $key <${s}>"
   if {[regexp ButtonPress- $d]} {
-    bind $topwin.drw "<${s}>" "xschem callback %W %T %x %y 0 $key 0 $state"
+    bind $win_path "<${s}>" "xschem callback %W %T %x %y 0 $key 0 $state"
   } else {
     if {![string compare $d {} ] } {
       # puts  "bind .drw  <${s}> {}"
-      bind $topwin.drw "<${s}>" {}
+      bind $win_path "<${s}>" {}
     } else {
       # puts  "bind .drw  <${s}> xschem callback %W %T %x %y $keysym 0 0 $state"
-      bind $topwin.drw  "<${s}>" "xschem callback %W %T %x %y $keysym 0 0 $state"
+      bind $win_path  "<${s}>" "xschem callback %W %T %x %y $keysym 0 0 $state"
     }
   }
 
@@ -7831,33 +7831,33 @@ proc housekeeping_ctx {} {
 }
 
 # callback that resets simulate button color at end of simulation
-proc set_simulate_button {top_path winpath} {
+proc set_simulate_button {top_path win_path} {
   global simulate_bg execute has_x
 
   if {![info exists has_x]} return
   set current_win [xschem get current_win_path]
-  set simvar tctx::${winpath}_simulate
+  set simvar tctx::${win_path}_simulate
   set sim_button $top_path.menubar
 
   # puts "current_win=|$current_win|"
   # puts "simvar=|$simvar|"
-  # puts "winpath=|$winpath|"
+  # puts "win_path=|$win_path|"
   # puts "top_path=|$top_path|"
   # puts "sim_button=|$sim_button|"
   # puts "execute(exitcode,last)=|$execute(exitcode,last)|"
 
   if {![info exists execute(exitcode,last)]} {
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background $simulate_bg
     }
     set $simvar $simulate_bg
   } elseif { $execute(exitcode,last) == 0} {
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background Green
     }
     set $simvar Green
   } else {   
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background red
     }
     set $simvar red
@@ -8892,11 +8892,11 @@ proc create_layers_menu { {topwin {} } } {
   }
 }   
 
-proc set_replace_key_binding {} {
+proc set_replace_key_binding { {win_path {.drw}}} {
   global replace_key
   if {[array exists replace_key]} {
     foreach i [array names replace_key] {
-      key_binding "$i" "$replace_key($i)"
+      key_binding "$i" "$replace_key($i)" $win_path
     }
   }
 }

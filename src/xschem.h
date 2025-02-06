@@ -1212,7 +1212,7 @@ extern int yyparse_error;
 extern char *xschem_executable;
 extern Tcl_Interp *interp;
 extern double *character[256];
-extern char old_winpath[PATH_MAX]; /* previously switched window, used in callback() */
+extern char old_win_path[PATH_MAX]; /* previously switched window, used in callback() */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
@@ -1395,7 +1395,7 @@ extern void abort_operation(void);
 extern void draw_crosshair(int what, int state);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 /* extern void snapped_wire(double c_snap); */
-extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
+extern int callback(const char *win_path, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
 extern Selected find_closest_obj(double mx,double my, int override_lock);
@@ -1740,7 +1740,7 @@ extern void print_hilight_net(int show);
 extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
-extern void windowid(const char *winpath);
+extern void windowid(const char *win_path);
 extern int preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname, int dr);
 extern void toggle_fullscreen(const char *topwin);

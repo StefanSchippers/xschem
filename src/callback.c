@@ -2158,7 +2158,7 @@ static void end_shape_point_edit(double c_snap)
 }
 
 #if defined(__unix__) && HAS_CAIRO==1
-static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key,
+static int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
   static int grab_state = 0;
@@ -2285,8 +2285,8 @@ static int grabscreen(const char *winpath, int event, int mx, int my, KeySym key
 
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
-/* winpath: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
-int callback(const char *winpath, int event, int mx, int my, KeySym key,
+/* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
+int callback(const char *win_path, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
  char str[PATH_MAX + 100];
@@ -2310,9 +2310,9 @@ int rstate; /* (reduced state, without ShiftMask) */
   * on such events */
  if(fix_mouse_coord) {
    if(event == KeyPress || event == KeyRelease) {
-     tclvareval("getmousex ", winpath, NULL);
+     tclvareval("getmousex ", win_path, NULL);
      mx = atoi(tclresult());
-     tclvareval("getmousey ", winpath, NULL);
+     tclvareval("getmousey ", win_path, NULL);
      my = atoi(tclresult());
      dbg(1, "mx = %d  my=%d\n", mx, my);
    }
@@ -2348,21 +2348,21 @@ int rstate; /* (reduced state, without ShiftMask) */
  #if 0
  /* exclude Motion and Expose events */
  if(event!=6 /* && event!=12 */) {
-   dbg(0, "callback(): state=%d event=%d, winpath=%s, old_winpath=%s, semaphore=%d\n",
-           state, event, winpath, old_winpath, xctx->semaphore+1);
+   dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
+           state, event, win_path, old_win_path, xctx->semaphore+1);
  }
  #endif
  
  /* Schematic window context switch */
  redraw_only =0;
- if(strcmp(old_winpath, winpath) ) {
+ if(strcmp(old_win_path, win_path) ) {
    if( xctx->semaphore >= 1  || event == Expose) {
-     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_winpath, winpath);
+     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
      redraw_only = 1;
-     new_schematic("switch_no_tcl_ctx", winpath, "", 1);
+     new_schematic("switch_no_tcl_ctx", win_path, "", 1);
    } else {
-     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_winpath, winpath, xctx->semaphore);
-     new_schematic("switch", winpath, "", 1);
+     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_win_path, win_path, xctx->semaphore);
+     new_schematic("switch", win_path, "", 1);
    }
    tclvareval("housekeeping_ctx", NULL);
  }
@@ -2407,7 +2407,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
  #if defined(__unix__) && HAS_CAIRO==1
  if(xctx->ui_state & GRABSCREEN) {
-   grabscreen(winpath, event, mx, my, key, button, aux, state);
+   grabscreen(win_path, event, mx, my, key, button, aux, state);
  } else 
  #endif
  switch(event)
@@ -2450,7 +2450,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case Expose:
-    dbg(1, "callback: Expose, winpath=%s, %dx%d+%d+%d\n", winpath, button, aux, mx, my);
+    dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
     {
       XRectangle xr[1];
@@ -2931,10 +2931,10 @@ int rstate; /* (reduced state, without ShiftMask) */
     tclvareval("xschem set rectcolor ", n, NULL);
 
     if(has_x) {
-      if(!strcmp(winpath, ".drw")) {
+      if(!strcmp(win_path, ".drw")) {
         tclvareval("reconfigure_layers_button {}", NULL);
       } else {
-        tclvareval("reconfigure_layers_button [winfo parent ", winpath, "]", NULL);
+        tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
       }
     }
     dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
@@ -3652,8 +3652,8 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(key=='\\' && state==0)          /* fullscreen */
    {
     
-    dbg(1, "callback(): toggle fullscreen, winpath=%s\n", winpath);
-    toggle_fullscreen(winpath);
+    dbg(1, "callback(): toggle fullscreen, win_path=%s\n", win_path);
+    toggle_fullscreen(win_path);
     break;
    }
    if(key=='f' && EQUAL_MODMASK)              /* flip objects around their anchor points 20171208 */
@@ -4433,13 +4433,13 @@ int rstate; /* (reduced state, without ShiftMask) */
  if(xctx->semaphore > 0) xctx->semaphore--;
  if(redraw_only) {
    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
-   dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_winpath, winpath);
-   if(old_winpath[0]) new_schematic("switch_no_tcl_ctx", old_winpath, "", 1);
+   dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
+   if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
  }
  else
- if(strcmp(old_winpath, winpath)) {
-   if(old_winpath[0]) dbg(1, "callback(): reset old_winpath: %s <- %s\n", old_winpath, winpath);
-   my_strncpy(old_winpath, winpath, S(old_winpath));
+ if(strcmp(old_win_path, win_path)) {
+   if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
+   my_strncpy(old_win_path, win_path, S(old_win_path));
  }
  return 0;
 }

@@ -187,7 +187,7 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 /* ----------------------------------------------------------------------- */
 
 /* used to set icon */
-void windowid(const char *winpath)
+void windowid(const char *win_path)
 {
 #ifdef __unix__
   int i;
@@ -200,11 +200,11 @@ void windowid(const char *winpath)
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
 
-  dbg(1, "windowid(): winpath=%s\n", winpath);
+  dbg(1, "windowid(): win_path=%s\n", win_path);
   framewindow_nchildren =0;
   mainwindow=Tk_MainWindow(interp);
   display = Tk_Display(mainwindow);
-  tclvareval("winfo id ", winpath, NULL);
+  tclvareval("winfo id ", win_path, NULL);
   sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
   framewin = ww;
   XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
@@ -1443,7 +1443,7 @@ void swap_windows(int dr)
     new_schematic("switch", wp_j, "", 0);
     resetwin(1, 1, 1, 0, 0);
 
-    my_snprintf(old_winpath, S(old_winpath), "");
+    my_snprintf(old_win_path, S(old_win_path), "");
     if(dr) draw();
   }
 }
@@ -1653,6 +1653,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   load_schematic(1, fname, 1, confirm);
   if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
+  tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   /* restore previous context,
    * because the Expose event after new window creation does a context switch prev win -> new win 

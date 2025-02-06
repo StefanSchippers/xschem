@@ -431,7 +431,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'c': /*----------------------------------------------*/
-    /* callback winpath event mx my key button aux state
+    /* callback win_path event mx my key button aux state
      *   Invoke the callback event dispatcher with a software event */
     if(!strcmp(argv[1], "callback") )
     {
@@ -3404,22 +3404,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* new_schematic create|destroy|destroy_all|switch winpath file [draw]
+    /* new_schematic create|destroy|destroy_all|switch win_path file [draw]
      *   Open/destroy a new tab or window
      *     create: create new empty window or with 'file' loaded if 'file' given.
-     *             The winpath must be given (even {} is ok).
-     *             non empty winpath ({1}) will avoid warnings if opening the
+     *             The win_path must be given (even {} is ok).
+     *             non empty win_path ({1}) will avoid warnings if opening the
      *             same file multiple times.
-     *     destroy: destroy tab/window identified by winpath. Example:
+     *     destroy: destroy tab/window identified by win_path. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
      *              if the 'force'argument is given do not issue a warning if modified
      *              tabs are about to be closed.
-     *     switch: switch context to specified 'winpath' window or specified schematic name
+     *     switch: switch context to specified 'win_path' window or specified schematic name
      *              If 'draw' is given and set to 0 do not redraw after switching tab
      *              (only tab i/f)
-     *   Main window/tab has winpath set to .drw,
-     *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...
+     *   Main window/tab has win_path set to .drw,
+     *   Additional windows/tabs have win_path set to .x1.drw, .x2.drw and so on...
      */
     else if(!strcmp(argv[1], "new_schematic"))
     {
@@ -3623,7 +3623,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state2 = MENUSTARTPOLYGON;
     }
 
-    /* preview_window create|draw|destroy|close [winpath] [file]
+    /* preview_window create|draw|destroy|close [win_path] [file]
      *   destroy: will delete preview schematic data and destroy container window
      *   close: same as destroy but leave the container window.
      *   Used in fileselector to show a schematic preview.
@@ -5759,7 +5759,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* switch [window_path |schematic_name]
      *   Switch context to indicated window path or schematic name
      *   returns 0 if switch was successfull or 1 in case of errors
-     *   (no tabs/windows present or no matching winpath / schematic name
+     *   (no tabs/windows present or no matching win_path / schematic name
      *   found).
      */
     else if(!strcmp(argv[1], "switch"))
