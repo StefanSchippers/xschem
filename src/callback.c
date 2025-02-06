@@ -4010,43 +4010,8 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='n' && rstate==0)              /* hierarchical netlist */
    {
-    int err = 0;
-    yyparse_error = 0;
     if(xctx->semaphore >= 2) break;
-    unselect_all(1);
-    if(set_netlist_dir(0, NULL)) {
-      dbg(1, "callback(): -------------\n");
-      if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(1, 1);
-      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(1, 1);
-      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(1, 1);
-      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(1, 1);
-      else
-        tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
-                "-message {Please Set netlisting mode (Options menu)}");
-
-      dbg(1, "callback(): -------------\n");
-    }
-    else {
-       if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
-       else dbg(0, "Can not write into the netlist directory. Please check");
-       err = 1;
-    }
-    if(err) {
-      if(has_x) {
-        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
-        tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
-      }
-
-    } else {
-      if(has_x) {
-        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
-        tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
-      }
-    }
+    tcleval("xschem netlist -erc");
     break;
    }
    if(key=='N' && rstate == 0)              /* current level only netlist */

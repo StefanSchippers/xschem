@@ -1216,7 +1216,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
   size_t token_pos=0, result_pos=0, result_save_pos = 0, tmp;
   int quote=0;
   int done_subst=0;
-  int escape=0, matched_tok=0;
+  int escape=0, matched_tok=0, removed_tok = 0;
   char *new_val_copy = NULL;
   size_t new_val_len;
 
@@ -1299,6 +1299,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
         } else { /* remove token (and value if any) */
           result_pos = result_save_pos;
           done_subst = 1;
+          removed_tok = 1;
         }
       }
       result_save_pos = result_pos;
@@ -1335,11 +1336,13 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
         } else { /* remove token (and value if any) */
           result_pos = result_save_pos;
           done_subst = 1;
+          removed_tok = 1;
         }
       }
       state=TOK_VALUE;
     } else if( state == TOK_VALUE && space && !quote && !escape) {
       state=TOK_BEGIN;
+      if(matched_tok && removed_tok && (c == '\n' || c == ' ') ) continue;
     }
     /* state actions */
     if(state == TOK_BEGIN) {
@@ -4488,7 +4491,7 @@ const char *translate(int inst, const char* s)
        }
        if(strstr(value1, "expr(") == value1) {
          char *ptr = strrchr(value1 + 5, ')');
-         dbg(0, "translate(): expr():%s\n", value1); 
+         dbg(1, "translate(): expr():%s\n", value1); 
          *ptr = '\0';
          my_strdup2(_ALLOC_ID_, &value1, eval_expr(
             translate3(value1 + 5, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
@@ -4514,11 +4517,18 @@ const char *translate(int inst, const char* s)
  } /* while(1) */
  dbg(2, "translate(): returning %s\n", result);
  my_free(_ALLOC_ID_, &token);
-
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
  my_strdup2(_ALLOC_ID_, &translated_tok, spice_get_node(tcl_hook2(result)));
  
+ if(strstr(translated_tok, "expr(") == translated_tok) {
+   char *ptr = strrchr(translated_tok + 5, ')');
+   dbg(1, "translate(): expr():%s\n", translated_tok);
+   *ptr = '\0';
+   my_strdup2(_ALLOC_ID_, &translated_tok, eval_expr(
+      translate3(translated_tok + 5, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
+ }
+
  return translated_tok;
 }
 

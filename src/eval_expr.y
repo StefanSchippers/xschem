@@ -93,7 +93,7 @@ exp:      NUM                { $$ = $1;}
 static void get_expr(double x)
 {
   char xx[100];
-  my_snprintf(xx, S(xx), "%.16g", x);
+  my_snprintf(xx, S(xx), "%.15g", x);
   my_mstrcat(_ALLOC_ID_, &ret, xx, NULL);
   strptr = str;
 }

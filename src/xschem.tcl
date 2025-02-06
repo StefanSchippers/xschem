@@ -8925,6 +8925,15 @@ proc eval_postinit_commands {} {
   }
 }
 
+proc eval_netlist_postprocess {} {
+  global netlist_postprocess
+  if {[info exists netlist_postprocess]} {
+    if {[catch {uplevel #0 $netlist_postprocess} res]} {
+      puts "executing $netlist_postprocess:\n\n$res"
+    } 
+  }
+}
+
 proc setup_tcp_xschem { {port_number {}} } {
   global xschem_listen_port xschem_server_getdata
 
