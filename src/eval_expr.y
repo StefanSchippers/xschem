@@ -10,6 +10,8 @@
 static const char *str, *strptr;
 static char *ret = NULL;
 
+static int dbglev = 1;
+
 /* Data type for links in the chain of functions. */
 struct symrec
 {
@@ -29,13 +31,14 @@ static int kklex();
 static void kkerror(char *s);
 static double toint(double x);
 static void get_expr(double x);
+static void get_char(int c);
 
 struct fn
 {
   char *fname;
   double (*fnct)();
 };
-
+static int lex_state = 0;
 struct fn fn_array[]
   = {
       {"int" , toint},
@@ -54,11 +57,14 @@ struct fn fn_array[]
 
 %define api.prefix {kk}
 %union {
+int          c;
 double     val; /* For returning numbers. */
 symrec  *tptr; /* For returning symbol-table pointers */
 }
 
 %token STREND 0
+%token <c> CHAR
+%token EXPR       /* expr( */
 %token <val>  NUM /* Simple double precision number */
 %token <tptr> FNCT /* Variable and Function */
 %type  <val>  exp
@@ -70,29 +76,45 @@ symrec  *tptr; /* For returning symbol-table pointers */
 
 /* Grammar follows */
 %%
-
-line:   
-        |      exp STREND        {get_expr($1);}
-        | '\'' exp '\'' STREND   {get_expr($2);}
+input:
+        | input line 
 ;
 
-exp:      NUM                { $$ = $1;}
-        | FNCT '(' exp ')'   { $$ = $1 ? (*($1->fnctptr))($3) : 0.0;}
-        | exp '+' exp        { $$ = $1 + $3;		 }
-        | exp '-' exp        { $$ = $1 - $3;}
-        | exp '*' exp        { $$ = $1 * $3;}
-        | exp '%' exp        { $$ = (int)$1 % (int)$3;}
-        | exp '/' exp        { $$ = $1 / $3;}
-        | '-' exp  %prec NEG { $$ = -$2;}
-        | exp '^' exp        { $$ = pow ($1, $3);}
-        | '(' exp ')'        { $$ = $2;}
+line:   
+          CHAR                    {get_char($1);}
+        | EXPR exp ')'            {get_expr($2);lex_state = 0;}
+        | EXPR '\'' exp '\'' ')'  {get_expr($3);lex_state = 0;}
+        | EXPR exp error          
+;
+
+exp:      NUM                     {$$ = $1;}
+        | FNCT '(' exp ')'        {$$ = $1 ? (*($1->fnctptr))($3) : 0.0;}
+        | exp '+' exp             {$$ = $1 + $3;		 }
+        | exp '-' exp             {$$ = $1 - $3;}
+        | exp '*' exp             {$$ = $1 * $3;}
+        | exp '%' exp             {$$ = (int)$1 % (int)$3;}
+        | exp '/' exp             {$$ = $1 / $3;}
+        | '-' exp %prec NEG       {$$ = -$2;}
+        | exp '^' exp             {$$ = pow ($1, $3);}
+        | '(' exp ')'             {$$ = $2;}
 ;
 /* End of grammar */
 %%
 
+static void get_char(int c)
+{
+  char s[2];
+  dbg(dbglev, "get_char: %c |%s|\n", c, str);
+  s[0] = (char)c;
+  s[1] = '\0';
+  my_mstrcat(_ALLOC_ID_, &ret, s, NULL);
+  strptr = str;
+}
+
 static void get_expr(double x)
 {
   char xx[100];
+  dbg(dbglev,"get_expr(): x=%g\n", x);
   my_snprintf(xx, S(xx), "%.15g", x);
   my_mstrcat(_ALLOC_ID_, &ret, xx, NULL);
   strptr = str;
@@ -104,10 +126,39 @@ static double toint(double x)
   return floor(x);
 }
 
+/* ad=expr(3*xa) pd=expr(2*(3+xa)) --> ad=3*xa pd=2*(3+xa) */
+static void remove_expr(char *s)
+{
+  char *ptr = s;
+  int plev = 0;
+  while(*ptr) {
+    if(strstr(ptr, "expr(") == ptr) {
+      ptr += 5;
+      plev++;
+    }
+    if(*ptr == '(') plev++;
+    if(*ptr == ')') {
+      plev--;
+      if(plev == 0) ptr++;
+      if(!ptr) break;
+    }
+    *s = *ptr;
+    ptr++;
+    s++;
+  }
+  *s = *ptr;
+}
+
+
 static void kkerror(char *s)  /* Called by kkparse on error */
 {
-  /* printf("error: |%s|\n\n   |%s|\n", s, strptr); */
-  my_mstrcat(_ALLOC_ID_, &ret, strptr, NULL);
+  char *ss = NULL;
+  dbg(dbglev, "error: |%s|\n\n   |%s|\n", s, str ? str : "<NULL>");
+  my_strdup2(_ALLOC_ID_, &ss, strptr);
+  remove_expr(ss);
+  my_mstrcat(_ALLOC_ID_, &ret, ss, NULL);
+  my_free(_ALLOC_ID_, &ss);
+  lex_state = 0;
 }
 
 static symrec *getsym(char *sym_name)
@@ -155,6 +206,23 @@ static int kklex()
   int c;
 
   if(!str) { return 0; }
+  if(strstr(str, "expr(") == str) {
+     lex_state = 1; 
+     str += 5;
+     dbg(dbglev, "lex(): EXPR\n");
+     return EXPR;
+  }
+  if(!lex_state) {
+    c = *str++;
+    if(c) {
+      kklval.c = c;
+      dbg(dbglev, "lex(): CHAR; %c\n", c);
+      return CHAR;
+    } else {
+     dbg(dbglev, "lex(): STREND\n");
+     return STREND;
+    }
+  }
   /* Ignore whitespace, get first nonwhite character.  */
   while ((c = *str++) == ' ' || c == '\t' || c == '\n');
   if (c == 0) {
@@ -171,7 +239,7 @@ static int kklex()
     sscanf(str, "%99[.0-9a-zA-Z_]%n", s, &rd);
     kklval.val = atof_spice(s);
     str += rd;
-    /* printf("yylex: NUM: %s\n", s); */
+    dbg(dbglev, "lex(): NUM: %s\n", s);
     return NUM;
   }
   /* Char starts an identifier => read the name.       */
@@ -192,7 +260,7 @@ static int kklex()
     symbuf[i] = '\0';
     s = getsym (symbuf);
     kklval.tptr = s;
-    /* printf("yylex: FNCT=%s\n", symbuf); */
+    dbg(dbglev, "ylex: FNCT=%s\n", symbuf);
     return FNCT;
   }
   /* Any other character is a token by itself.        */
@@ -201,6 +269,7 @@ static int kklex()
 
 char *eval_expr(const char *s)
 {
+  lex_state = 0;
   if(ret) my_free(_ALLOC_ID_, &ret);
   strptr = str = s;
   kkparse();
