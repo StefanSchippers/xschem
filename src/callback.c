@@ -1571,6 +1571,16 @@ static int end_place_move_copy_zoom()
   return 0;
 }
 
+static void unselect_at_mouse_pos(int mx, int my)
+{
+       xctx->last_command = 0;
+       xctx->mx_save = mx; xctx->my_save = my;
+       xctx->mx_double_save=xctx->mousex_snap;
+       xctx->my_double_save=xctx->mousey_snap;
+       select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
+       rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
+}
+
 void snapped_wire(double c_snap)
 {
   double x, y;
@@ -1590,11 +1600,22 @@ void snapped_wire(double c_snap)
   }
 }
 
-static int check_menu_start_commands(double c_snap)
+static int check_menu_start_commands(double c_snap, int mx, int my)
 {
   dbg(1, "check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n", 
       xctx->ui_state, xctx->ui_state2, xctx->last_command);
 
+  if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTDESEL) ) {
+    if(xctx->ui_state & DESEL_CLICK) {
+      unselect_at_mouse_pos(mx, my);
+    } else { /* unselect by area */
+      xctx->mx_save = mx; xctx->my_save = my;
+      xctx->mx_double_save=xctx->mousex;
+      xctx->my_double_save=xctx->mousey;
+      xctx->ui_state |= DESEL_AREA;
+    }
+    return 1;
+  }
   if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRECUT)) {
     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
     return 1;
@@ -2510,7 +2531,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /* determine direction of a rectangle selection  (or unselection with ALT key) */
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
       /* Unselect by area : determine direction */
-      if( (state & Button1Mask)  && SET_MODMASK) { 
+      if( ((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) { 
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
         select_rect(enable_stretch, RUBBER,0);
@@ -2563,12 +2584,13 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     /* Unselect by area */
-    if((state & Button1Mask)  && (SET_MODMASK) && !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
+    if( (((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) &&
+       !(state & ShiftMask) &&
+       !(xctx->ui_state & STARTPAN) &&
+       !xctx->shape_point_selected &&
+       !(xctx->ui_state & STARTSELECT) &&
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
-      if( !(xctx->ui_state & STARTSELECT)) {
-        select_rect(enable_stretch, START,0);
-      }
+      select_rect(enable_stretch, START,0);
     }
     /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & STARTWIRE) &&
@@ -3979,7 +4001,33 @@ int rstate; /* (reduced state, without ShiftMask) */
     draw();
     break;
    }
-   if(key=='D' && rstate == 0)                     /* delete files */
+   if(key=='d' && rstate == 0) /* unselect object under the mouse */
+   {
+     if(infix_interface) {
+       unselect_at_mouse_pos(mx, my);
+     } else {
+       xctx->ui_state |= (MENUSTART | DESEL_CLICK);
+       xctx->ui_state2 = MENUSTARTDESEL;
+     }
+     break;
+   }
+   if(key=='D' && rstate == 0)          /* unselect by area */
+   {
+       if( !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
+         !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !(xctx->ui_state & STARTSELECT)) {
+         if(infix_interface) {
+           xctx->mx_save = mx; xctx->my_save = my;
+           xctx->mx_double_save=xctx->mousex;
+           xctx->my_double_save=xctx->mousey;
+           xctx->ui_state |= DESEL_AREA;
+         } else {
+           xctx->ui_state |= MENUSTART;
+           xctx->ui_state2 = MENUSTARTDESEL;
+         }
+       }
+     break;
+   }
+   if(key=='d' && rstate == ControlMask)          /* delete files */
    {
     if(xctx->semaphore >= 2) break;
     delete_files();
@@ -4120,12 +4168,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    /* Alt - Button1 click to unselect */
    else if(button==Button1 && (SET_MODMASK) ) {
-     xctx->last_command = 0;
-     xctx->mx_save = mx; xctx->my_save = my;
-     xctx->mx_double_save=xctx->mousex_snap;
-     xctx->my_double_save=xctx->mousey_snap;
-     select_object(xctx->mousex, xctx->mousey, 0, 0, NULL);
-     rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
+     unselect_at_mouse_pos(mx, my);
    }
    
    /* Middle button press (Button2) will pan the schematic. */
@@ -4165,7 +4208,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        break;
      }
      /* handle all object insertions started from Tools/Edit menu */
-     if(check_menu_start_commands(c_snap)) break;
+     if(check_menu_start_commands(c_snap, mx, my)) break;
 
      /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
      if(end_place_move_copy_zoom()) break;
@@ -4303,6 +4346,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      waves_callback(event, mx, my, key, button, aux, state);
      break;
    }
+   xctx->ui_state &= ~DESEL_CLICK;
    dbg(1, "release: shape_point_selected=%d\n", xctx->shape_point_selected);
    /* bring up context menu if no pending operation */
    if(state == Button3Mask && xctx->semaphore <2) {
@@ -4378,6 +4422,7 @@ int rstate; /* (reduced state, without ShiftMask) */
          select_rect(enable_stretch, END,-1);
        }
      }
+     xctx->ui_state &= ~DESEL_AREA;
      rebuild_selected_array();
      my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );

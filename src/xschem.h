@@ -229,7 +229,9 @@ extern char win_temp_dir[PATH_MAX];
 #define START_SYMPIN 16384U
 #define GRAPHPAN 32768U     /* bit 15 */
 #define MENUSTART 65536U    /* bit 16 */
-#define GRABSCREEN 131072   /* bit 17 */
+#define GRABSCREEN 131072U  /* bit 17 */
+#define DESEL_CLICK 262144U /* bit 18 */
+#define DESEL_AREA 524288U  /* bit 19 */
 
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
@@ -238,6 +240,7 @@ extern char win_temp_dir[PATH_MAX];
 #define SELECTED4 16U
 
 /* sub states encoded in global ui_state2 to reduce ui_state bits usage */
+/* also used when infix_interface=0 */
 #define MENUSTARTWIRE 1U /*  start wire invoked from menu */
 #define MENUSTARTLINE 2U /*  start line invoked from menu */
 #define MENUSTARTRECT 4U /*  start rect invoked from menu */
@@ -250,6 +253,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTWIRECUT 512U 
 #define MENUSTARTWIRECUT2 1024U /* do not align cut point to snap */
 #define MENUSTARTCOPY 2048U
+#define MENUSTARTDESEL 4096U
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2
