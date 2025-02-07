@@ -645,7 +645,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     char *symname_attr = NULL;
     const char *translated_sym_def;
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(name, 0), NULL);
-    translated_sym_def = translate3(sym_def, 1, "", xctx->sym[i].templ, symname_attr);
+    translated_sym_def = translate3(sym_def, 1, xctx->sym[i].templ, symname_attr, NULL, NULL);
     my_free(_ALLOC_ID_, &symname_attr);
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);
