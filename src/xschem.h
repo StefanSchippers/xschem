@@ -1613,7 +1613,8 @@ extern int isonlydigit(const char *s);
 extern const char *spice_get_node(const char *token);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);
-extern const char *translate3(const char* s, int eat_escapes, const char *s1, const char *s2, const char *s3);
+extern const char *translate3(const char* s, int eat_escapes, const char *s1,
+                              const char *s2, const char *s3, const char *s4);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
 extern void print_spice_subckt_nodes(FILE *fd, int symbol);

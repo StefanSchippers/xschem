@@ -1994,7 +1994,7 @@ void get_additional_symbols(int what)
       /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
       my_strdup2(_ALLOC_ID_, &sch,
           translate3(get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6), 1,
-            xctx->inst[i].prop_ptr, NULL, NULL));
+            xctx->inst[i].prop_ptr, NULL, NULL, NULL));
       dbg(1, "sch=%s\n", sch);
     
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
@@ -2034,7 +2034,7 @@ void get_additional_symbols(int what)
         my_strdup(_ALLOC_ID_, &spice_sym_def, 
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
                                          symptr->templ, 
-                                         symname_attr));
+                                         symname_attr, NULL));
         dbg(1, "get_additional_symbols(): spice_sym_def=%s\n", spice_sym_def);
         my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
@@ -2128,7 +2128,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
   if(inst >=0 ) {
     my_strdup(_ALLOC_ID_, &str_tmp, translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6),
-              1, xctx->inst[inst].prop_ptr, NULL, NULL));
+              1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
   }
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 6));
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */

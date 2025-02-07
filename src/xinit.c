@@ -949,7 +949,7 @@ static void xwin_exit(void)
  list_tokens(NULL, 0); /* clear static data in function */
  translate(-1, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
- translate3(NULL, 0, NULL, NULL, NULL); /* clear static data in function */
+ translate3(NULL, 0, NULL, NULL, NULL, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
  find_nth(NULL, "", "", 0, 0); /* clear static data in function */
  trim_chars(NULL, ""); /* clear static data in function */

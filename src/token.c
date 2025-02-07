@@ -1887,7 +1887,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(inst, 9999, 1, 1), NULL);
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
                                                       xctx->sym[symbol].templ,
-                                                      symname_attr);
+                                                      symname_attr, NULL);
     dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
     dbg(1, "has_included_subcircuit(): symname=%s\n", symname);
 
@@ -2397,7 +2397,7 @@ int print_spice_element(FILE *fd, int inst)
             parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
           }
           dbg(1, "print_spice_element(): before translate3(): value=%s\n", value);
-          value = translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ);
+          value = translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL);
           dbg(1, "print_spice_element(): after translate3(): value=%s\n", value);
         }
         tok_val_len = strlen(value);
@@ -2412,7 +2412,7 @@ int print_spice_element(FILE *fd, int inst)
 
         if(strstr(value, "expr(") ) {
           my_strdup2(_ALLOC_ID_, &val, value);
-          value = eval_expr(translate3(val, 1, xctx->inst[inst].prop_ptr, template, NULL));
+          value = eval_expr(translate3(val, 1, xctx->inst[inst].prop_ptr, template, NULL, NULL));
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
         if(!token_exists && token[0] =='%') {
@@ -4493,7 +4493,8 @@ const char *translate(int inst, const char* s)
   if(strstr(result, "expr(")) {
     dbg(1, "translate(): expr():%s\n", result);
     my_strdup2(_ALLOC_ID_, &result, eval_expr(
-       translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ, NULL)));
+       translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
+                              NULL, NULL)));
   }
   return result;
 }
@@ -4640,7 +4641,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
 /* using s1, s2, s3 in turn to resolve @tokens */
 /* if no definition for @token is found return @token as is in s */
 /* if s==NULL return emty string */
-const char *translate3(const char *s, int eat_escapes, const char *s1, const char *s2, const char *s3)
+const char *translate3(const char *s, int eat_escapes, const char *s1,
+                       const char *s2, const char *s3, const char *s4)
 {
  static const char *empty="";
  static char *translated_tok = NULL;
@@ -4659,7 +4661,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
    my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
- dbg(2, "translate3():\n   s=%s\n   s1=%s\n   s2=%s\n   s3=%s\n", s, s1, s2, s3);
+ dbg(2, "translate3():\n   s=%s\n   s1=%s\n   s2=%s\n   s3=%s   s4=%s\n", s, s1, s2, s3, s4);
  my_strdup2(_ALLOC_ID_, &result, "");
 
  while(1) {
@@ -4696,6 +4698,9 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
    if(!xctx->tok_size && s3) {
      value=get_tok_value(s3, token+1, 0);
    }
+
+
+
    if(!xctx->tok_size) { /* above lines did not find a value for token */
      /* no definition found -> keep token */
      my_strcat(_ALLOC_ID_, &result, token);
