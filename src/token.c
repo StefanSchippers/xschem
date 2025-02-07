@@ -2212,14 +2212,6 @@ int print_spice_element(FILE *fd, int inst)
       token[token_pos]='\0';
       token_pos=0;
 
-
-
-
-
-
-
-
-
       if(strcmp(token,"@symref")==0) 
       {
         const char *s = get_sym_name(inst, 9999, 1, 0);
@@ -2375,9 +2367,6 @@ int print_spice_element(FILE *fd, int inst)
         value=NULL;
       /* else tcl var spiceprefix is enabled  */
       }
-
-
-
 
       else {
         /* here a @token in format string will be replaced by value in instance prop_ptr
@@ -4662,7 +4651,6 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
  size_t token_pos=0;
  const char *value;
  int escape=0;
- char *value1 = NULL;
  const char *escape_pos = NULL;
 
 
@@ -4684,7 +4672,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
   }
 
   space=SPACE(c);
-  if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
+  if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN;
   else if(state==TOK_TOKEN && token_pos > 1 &&
      (
        ( (space  || c == '%' || c == '@') && !escape ) ||
@@ -4712,9 +4700,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1, const cha
      /* no definition found -> keep token */
      my_strcat(_ALLOC_ID_, &result, token);
    } else {
-     my_strdup2(_ALLOC_ID_, &value1, value);
-     my_strcat(_ALLOC_ID_, &result, value1);
-     my_free(_ALLOC_ID_, &value1);
+     my_strcat(_ALLOC_ID_, &result, value);
    }
    token_pos = 0;
    if(c == '@' || c == '%') s--; /* these token separators are also identifiers for next token: push them back */

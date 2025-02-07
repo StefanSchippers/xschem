@@ -455,11 +455,13 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     /* store parent symbol template attr (before descending into it) and parent instance prop_ptr
+     * into xctx->hier_attr[0].templ and xctx->hier_attr[0.prop_ptr,
      * to resolve subschematic instances with model=@modp in format string,
      * modp will be first looked up in instance prop_ptr string, and if not found
      * in parent symbol template string */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ,
               tcl_hook2(xctx->sym[i].templ));
+    /* only additional symbols (created with instance schematic=... attr) will have this attribute */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
               tcl_hook2(xctx->sym[i].parent_prop_ptr));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
