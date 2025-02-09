@@ -2742,7 +2742,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &pins);
     }
 
-    /* is_symgen symbol
+    /* is_generator symbol
      *   tell if 'symbol' is a generator (symbol(param1,param2,...) */
     else if(!strcmp(argv[1], "is_generator"))
     {

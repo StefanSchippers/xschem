@@ -2372,37 +2372,69 @@ int print_spice_element(FILE *fd, int inst)
         /* here a @token in format string will be replaced by value in instance prop_ptr
          * or symbol template */
         size_t tok_val_len;
-        size_t tok_size;
+        char *parent_prop_ptr = NULL;
+        char *parent_templ = NULL;
+
+        if(xctx->currsch > 0) {
+          parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
+          parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
+        }
         dbg(1, "print_spice_element(): token: |%s|\n", token);
-        my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
 
-        /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes
-         * so try to get from symbol template */
-        if (!xctx->tok_size) {
-          my_strdup2(_ALLOC_ID_, &val, get_tok_value(template, token+1, 0));
-        }
-        token_exists = xctx->tok_size;
-
-        tok_size =  xctx->tok_size;
-        value = val;
-        if(strchr(value, '@')) {
-          /* Symbol format string contains model=@modp, 
-           * resolve @modp looking in instance attributes ... */
-          char *parent_prop_ptr = NULL;
-          char *parent_templ = NULL;
-
-          if(xctx->currsch > 0) {
-            /* ... look up modp also in **parent** instance prop_ptr and symbol template attribute */
-            parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
-            parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
+        /* consider this scenario:
+         * instance of passgate.sym: W_N=5 L_N=0.2 W_P=10 L_P=0.3 m=1
+         * instance based schematic (schematic=mypippo attr) will have also modeln=pippon
+         *    passgate.sym:
+         *      format="@name @pinlist @symname W_N=@W_N L_N=@L_N W_P=@W_P L_P=@L_P m=@m"
+         *      template=" ... modeln=nfet_01v8 modelp=pfet_01v8 m=1"
+         *    passgate.sch:
+         *       instance of nmos.sym: L=L_N W=W_N nf=1 m=1 model=@modeln
+         *         nmos.sym:
+         *           format="@name @pinlist @model L=@L W=@W nf=@nf 
+         *           + ad=@ad as=@as pd=@pd .... m=@m
+         *           template="name=M1 W=1 L=0.15 m=1 
+         *             ad=\"expr('int((@nf + 1)/2) * @W / @nf * 0.29')\"
+         *             ..."
+         *           model=nfet_01v8
+         */
+        my_strdup2(_ALLOC_ID_, &val, 
+               translate3(token, 2, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+        /* nmos instance format string: @model --> @modeln */
+        dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
+        if(strchr(val, '@')) {
+          if(parent_prop_ptr) {
+            my_strdup2(_ALLOC_ID_, &val,
+                   translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
+            /* instance based passgate.sym placement, nmos instance format string: @modeln --> pippon */
+            /* ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" */
+            if(strchr(val, '@')) {
+              my_strdup2(_ALLOC_ID_, &val,
+                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
+              /* ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" --> ad="expr('int((1 + 1)/2) * 5 / 1 * 0.29')" */
+            }
+          } else {
+            my_strdup2(_ALLOC_ID_, &val,
+                   translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+            dbg(1, "print_spice_element(): 2nd round: val: |%s|\n", val);
+            /* normal passgate.sym placement, nmos instance format string:
+                 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
+            if(strchr(val, '@')) {
+              my_strdup2(_ALLOC_ID_, &val,
+                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL));
+              dbg(1, "print_spice_element(): 3nd round: val: |%s|\n", val);
+              /* normal passgate.sym placement, nmos instance format string:
+               *   @modeln --> nfet_01v8 */
+            }
           }
-          dbg(1, "print_spice_element(): before translate3(): value=%s\n", value);
-          value = translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL);
-          dbg(1, "print_spice_element(): after translate3(): value=%s\n", value);
+          dbg(1, "print_spice_element(): final: val: |%s|\n", val);
         }
+        value = val;
+        /* xctx->tok_size==0 (set in translate3()) indicates that token(+1) does not exist
+         *  in instance attributes so try to get from symbol template */
+        dbg(1, "print_spice_element(): val: %s\n", val);
+        token_exists = xctx->tok_size;
+        value = val;
         tok_val_len = strlen(value);
-        xctx->tok_size = tok_size;
-
         /* @spiceprefix needs a special tag for postprocessing */
         if(!strcmp(token, "@spiceprefix") && value[0]) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
@@ -2411,8 +2443,7 @@ int print_spice_element(FILE *fd, int inst)
         }
 
         if(strstr(value, "expr(") ) {
-          my_strdup2(_ALLOC_ID_, &val, value);
-          value = eval_expr(translate3(val, 1, xctx->inst[inst].prop_ptr, template, NULL, NULL));
+          value = eval_expr(value);
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
         if(!token_exists && token[0] =='%') {
@@ -2463,25 +2494,14 @@ int print_spice_element(FILE *fd, int inst)
 
   /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
-
-  /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
   if(result) {
-    dbg(1, "print_spice_element(): before translate() result=%s\n", result);
-    if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
-      /* since netlist_commands often have @ characters in spice node save / plot commands, do
-       * not pass through translate, unless a tcleval(...) is present */
-      if(strstr(result, "tcleval(")== result) {
-        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
-      }
-    } else {
-      my_strdup(_ALLOC_ID_, &result, translate(inst, result));
-    }
-    dbg(1, "print_spice_element(): after  translate() result=%s\n", result);
+     my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
   }
   if(strstr(result, "expr(") ) {
     result = eval_expr(result);
   }
   if(result) fprintf(fd, "%s", result);
+  dbg(1, "print_spice_element(): returning |%s|\n", result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
   my_free(_ALLOC_ID_, &name);
@@ -4636,11 +4656,17 @@ const char *translate2(Lcc *lcc, int level, char* s)
 
 
 
-/* substitute given tokens in a string with their corresponding values */
-/* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
-/* using s1, s2, s3 in turn to resolve @tokens */
-/* if no definition for @token is found return @token as is in s */
-/* if s==NULL return emty string */
+/* substitute given tokens in a string with their corresponding values
+ * ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6
+ * using s1, s2, s3 in turn to resolve @tokens
+ * if no definition for @token is found return @token as is in s
+ * if s==NULL return emty string 
+ * eat_escapes: 
+ *   bit0 == 0 --> keep escapes
+ *        == 1 --> remove escapes
+ *   bit1 == 0 --> return unchanged token if no value found in s* strings
+ *        == 1 --> return empty token if no definition found in s* strings
+ */
 const char *translate3(const char *s, int eat_escapes, const char *s1,
                        const char *s2, const char *s3, const char *s4)
 {
@@ -4652,27 +4678,27 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
  size_t sizetok=0;
  size_t token_pos=0;
  const char *value;
- int escape=0;
+ int i, escape=0; 
+ size_t found_value = 0;
  const char *escape_pos = NULL;
-
+ const char *sptr[5]; /* 1...4 used */
 
  if(!s || !xctx) {
    my_free(_ALLOC_ID_, &result);
    my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
- dbg(2, "translate3():\n   s=%s\n   s1=%s\n   s2=%s\n   s3=%s   s4=%s\n", s, s1, s2, s3, s4);
+ xctx->tok_size = 0;
+ dbg(1, "---\ntranslate3():\n   s=%s\n   s1=%s\n   s2=%s\n   s3=%s\n   s4=%s\n---\n", s, s1, s2, s3, s4);
  my_strdup2(_ALLOC_ID_, &result, "");
-
+ sptr[1] = s1; sptr[2] = s2; sptr[3] = s3; sptr[4] = s4;
  while(1) {
   c=*s;
-
   if(c=='\\') {
     escape=1;
     escape_pos = s;
-    if(eat_escapes) { s++; c=*s; }
+    if(eat_escapes & 1) { s++; c=*s; }
   }
-
   space=SPACE(c);
   if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN;
   else if(state==TOK_TOKEN && token_pos > 1 &&
@@ -4681,29 +4707,39 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
        ( (!space && c != '%' && c != '@') && escape  )
      )                          
     ) state=TOK_SEP;
-
   if( s > escape_pos ) escape = 0;
-
   s++;
-
   STR_ALLOC(&token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_SEP) {
+   found_value = 0;
    token[token_pos]='\0';
    dbg(1, "translate3(): token=|%s|\n", token);
-   value = get_tok_value(s1, token+1, 0);
-   if(!xctx->tok_size && s2) {
-     value=get_tok_value(s2, token+1, 0);
+   value = NULL;
+
+   for(i = 1; i <= 4; i++) {
+     if(!found_value && sptr[i]) {
+       value=get_tok_value(sptr[i], token+1, 0);
+       dbg(1, "translate3(): i=%d, value=%s\n", i, value);
+       if(xctx->tok_size) found_value = xctx->tok_size;
+     }
+     else if( sptr[i]) {
+       char *v = NULL;
+       const char *newval;
+       my_strdup2(_ALLOC_ID_, &v, value);
+       newval = get_tok_value(sptr[i], v, 0);
+       if(xctx->tok_size) {
+         value = newval;
+       }
+       my_free(_ALLOC_ID_, &v);
+     }
    }
-   if(!xctx->tok_size && s3) {
-     value=get_tok_value(s3, token+1, 0);
-   }
 
-
-
-   if(!xctx->tok_size) { /* above lines did not find a value for token */
-     /* no definition found -> keep token */
-     my_strcat(_ALLOC_ID_, &result, token);
+   if(!found_value) { /* above lines did not find a value for token */
+     if((eat_escapes & 2) == 0) {
+       /* no definition found -> keep token */
+       my_strcat(_ALLOC_ID_, &result, token);
+     }
    } else {
      my_strcat(_ALLOC_ID_, &result, value);
    }
@@ -4724,7 +4760,6 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
    my_strcat(_ALLOC_ID_, &result, ch);
   }
   if(c=='\0') {
-   /* my_strcat(_ALLOC_ID_, &result, ""); */
    break;
   }
  } /* while(1) */
@@ -4735,6 +4770,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
   * can be calculated */
  dbg(1, "translate3(): result=|%s|\n", result);
  my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+ xctx->tok_size = found_value;
  return translated_tok;
 }
 
