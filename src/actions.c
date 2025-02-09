@@ -2592,6 +2592,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  #endif
  char *estr = NULL;
 
+ xctx->show_hidden_texts = tclgetboolvar("show_hidden_texts");
  boundbox->x1=-100;
  boundbox->x2=100;
  boundbox->y1=-100;
