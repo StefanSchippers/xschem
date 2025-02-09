@@ -1482,7 +1482,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
  } else {
-   my_strncpy(name1, symbol_name, S(name1));
+   my_strncpy(name1, trim_chars(symbol_name, " \t\n"), S(name1));
  }
 
  dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
