@@ -4253,7 +4253,7 @@ proc file_dialog_place_symbol {} {
 
 proc file_dialog_display_preview {f} {
   set type [is_xschem_file $f]
-  if { $type ne {0} && $type ne {GENERATOR} } {
+  if { $type ne {0} } {
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"

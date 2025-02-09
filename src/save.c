@@ -3446,6 +3446,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
 {
   FILE *fd;
   char name[PATH_MAX];
+  char *ffname = NULL; /*copy of fname so I can change it */
   char msg[PATH_MAX+100];
   struct stat buf;
   int i, ret = 1; /* success */
@@ -3454,24 +3455,31 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
+  my_strdup2(_ALLOC_ID_, &ffname, trim_chars(fname, " \t\n"));
   if(reset_undo) {
     xctx->clear_undo();
     xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   }
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
-  if(fname && fname[0]) {
+  if(ffname && ffname[0]) {
     int generator = 0;
-    if(is_generator(fname)) generator = 1;
-    my_strncpy(name, fname, S(name));
-    dbg(1, "load_schematic(): fname=%s\n", fname);
+    /* if ffname is a generator add () at end of filename if not already present */
+    tclvareval("is_xschem_file {", ffname, "}", NULL);
+    if(!strcmp(tclresult(), "GENERATOR")) {
+      size_t len = strlen(ffname);
+      if( ffname[len - 1] != ')') my_strcat(_ALLOC_ID_, &ffname, "()");
+    }
+    if(is_generator(ffname)) generator = 1;
+    my_strncpy(name, ffname, S(name));
+    dbg(1, "load_schematic(): name=%s generator=%d\n", name, generator);
     /* remote web object specified */
-    if(is_from_web(fname) && xschem_web_dirname[0]) {
+    if(is_from_web(ffname) && xschem_web_dirname[0]) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
-      tclvareval("download_url {", fname, "}", NULL);
+      tclvareval("download_url {", ffname, "}", NULL);
       /* build local file name of downloaded object */
-      my_snprintf(name, S(name), "%s/%s",  xschem_web_dirname, get_cell_w_ext(fname, 0));
+      my_snprintf(name, S(name), "%s/%s",  xschem_web_dirname, get_cell_w_ext(ffname, 0));
       /* build current_dirname by stripping off last filename from url */
-      my_snprintf(msg, S(msg), "get_directory {%s}", fname);
+      my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
       my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], name);
@@ -3482,29 +3490,32 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       /* ... but not local file from web download --> reset current_dirname */
       char sympath[PATH_MAX];
       my_snprintf(sympath, S(sympath), "%s",  xschem_web_dirname);
-      /* fname does not begin with $XSCHEM_TMP_DIR/xschem_web and fname does not exist */
+      /* ffname does not begin with $XSCHEM_TMP_DIR/xschem_web and ffname does not exist */
 
-      if(strstr(fname, sympath) != fname /* && stat(fname, &buf)*/) { 
-        my_snprintf(msg, S(msg), "get_directory {%s}", fname);
+      if(strstr(ffname, sympath) != ffname /* && stat(ffname, &buf)*/) { 
+        my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       } 
       /* local file name */
-      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], fname);
+      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], ffname);
       /* local relative reference */
-      my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
+      my_strncpy(xctx->current_name, rel_sym_path(ffname), S(xctx->current_name));
     } else { /* local file specified and not coming from web url */
       /* build current_dirname by stripping off last filename from url */
-      my_snprintf(msg, S(msg), "get_directory {%s}", fname);
+      my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], fname);
+      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], ffname);
       /* local relative reference */
-      my_strncpy(xctx->current_name, rel_sym_path(fname), S(xctx->current_name));
+      my_strncpy(xctx->current_name, rel_sym_path(ffname), S(xctx->current_name));
     }
 
-    dbg(1, "load_schematic(): opening file for loading:%s, fname=%s\n", name, fname);
+    dbg(1, "load_schematic(): opening file for loading:%s, ffname=%s\n", name, ffname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
-    if(!name[0]) return 0; /* empty filename */
+    if(!name[0]) {
+      my_free(_ALLOC_ID_, &ffname);
+      return 0; /* empty filename */
+    }
     if(reset_undo) {
       if(!stat(name, &buf)) { /* file exists */
         xctx->time_last_modify =  buf.st_mtime;
@@ -3515,7 +3526,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     } else {xctx->time_last_modify = 0;} /* undefined */
     if(generator) {
       char *cmd;
-      cmd = get_generator_command(fname);
+      cmd = get_generator_command(ffname);
       if(cmd) {
         fd = popen(cmd, "r");
         my_free(_ALLOC_ID_, &cmd);
@@ -3526,9 +3537,9 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       size_t len;
       ret = 0;
       if(alert) {
-        fprintf(errfp, "load_schematic(): unable to open file: %s, fname=%s\n", name, fname );
+        fprintf(errfp, "load_schematic(): unable to open file: %s, ffname=%s\n", name, ffname );
         if(has_x) {
-          my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", fname);
+          my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", ffname);
           tcleval(msg);
         }
       }
@@ -3567,7 +3578,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       }
     }
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
-  } else { /* fname == NULL or empty */
+  } else { /* ffname == NULL or empty */
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
     if(reset_undo) xctx->time_last_modify = 0; /* no file given, set mtime to 0 (undefined) */
     clear_drawing();
@@ -3602,6 +3613,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     set_netlist_dir(2, NULL);
     drc_check(-1);
   }
+  my_free(_ALLOC_ID_, &ffname);
   return ret;
 }
 
