@@ -1986,7 +1986,7 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   if {$upd} {return}
 
   frame .cv.bottom
-  button .cv.bottom.update -text Update -command "cellview $derived_symbols 1"
+  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1"
   pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
