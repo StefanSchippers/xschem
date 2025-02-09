@@ -3872,6 +3872,7 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
 
 
 proc is_xschem_file {f} {
+  regsub {\(.*} $f {} f ;# remove trailing generator args (gen.tcl(....))  if any
   if { ![file exists $f] } { return 0 
   } elseif { [file isdirectory $f] } { return 0 }
   set a [catch {open "$f" r} fd]
