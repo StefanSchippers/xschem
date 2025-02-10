@@ -421,10 +421,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     setup_graph_data(i, 0, gr);
 
-
-
-
-
    /* check if user clicked on a wave label -> draw wave in bold */
     if(event == ButtonPress && button == Button3 &&
              edit_wave_attributes(2, i, gr)) {

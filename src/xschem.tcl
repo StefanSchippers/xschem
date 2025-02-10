@@ -1771,7 +1771,7 @@ proc simconf_add {tool} {
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
 proc cellview_setlabels {w symbol derived_symbol} {
-  global dark_gui_colorscheme
+  global dark_gui_colorscheme netlist_type
   if {$dark_gui_colorscheme} {
     set instfg orange1
     set symfg SeaGreen1
@@ -1783,6 +1783,7 @@ proc cellview_setlabels {w symbol derived_symbol} {
     set symbg SeaGreen1
     set missingbg IndianRed1 
   }     
+  set save_netlist_type [xschem get netlist_type]
   set current [xschem get current_name]
   set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
   set abs_sch [xschem get_sch_from_sym -1 $symbol]
@@ -1818,6 +1819,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem save fast
     # xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
+    set netlist_type $save_netlist_type 
+    xschem set netlist_type $netlist_type
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
   }
@@ -1828,6 +1831,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
 }
 
 proc cellview_edit_item {symbol w} {
+  global netlist_type
+  set save_netlist_type [xschem get netlist_type]
   set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
   if {[xschem is_generator [$w get]]} {
     set f [$w get]
@@ -1848,6 +1853,8 @@ proc cellview_edit_item {symbol w} {
       xschem save fast
       puts "$symbol: updated spice_sym_def attribute"
       xschem load -keep_symbols -nodraw -noundoreset $current
+      set netlist_type $save_netlist_type 
+      xschem set netlist_type $netlist_type
       xschem reload_symbols ;# update in-memory symbol data
     }
   }
@@ -1864,8 +1871,10 @@ proc cellview_edit_sym {w} {
   xschem load_new_window $sym
 }
 
-proc cellview { {derived_symbols {}} {upd 0} } {
-  global keep_symbols nolist_libs dark_gui_colorscheme
+proc cellview { {derived_symbols {}} {upd 0}} {
+  global keep_symbols nolist_libs dark_gui_colorscheme netlist_type
+
+  set save_netlist_type [xschem get netlist_type]
 
   if {$dark_gui_colorscheme} { 
     set instfg orange1
@@ -1885,6 +1894,8 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   }
 
   if {!$upd} {
+    set netlist_type $save_netlist_type 
+    xschem set netlist_type $netlist_type
     xschem reload_symbols ;# purge unused symbols
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
@@ -2012,9 +2023,10 @@ proc cellview { {derived_symbols {}} {upd 0} } {
 ############ traversal
 proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
                           inst_spice_sym_def sym_spice_sym_def} {
-  global traversal dark_gui_colorscheme
+  global traversal dark_gui_colorscheme netlist_type
   set sf .trav.center.f.scrl
 
+  set save_netlist_type [xschem get netlist_type]
   # puts "traversal_setlabels: $w parent: |$parent_sch| inst: $instname def: $sym_sch $inst_sch --> [$w get]"
   # update schematic
   if {$parent_sch ne {}} {
@@ -2032,6 +2044,8 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
       xschem load -undoreset -nodraw $current
+      set netlist_type $save_netlist_type 
+      xschem set netlist_type $netlist_type
     }
   }
   # /update schematic
