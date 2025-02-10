@@ -2313,6 +2313,125 @@ static int grabscreen(const char *win_path, int event, int mx, int my, KeySym ke
 }
 #endif
 
+void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
+  double mx, double my, int aux, int draw_xhair, char *str, int enable_stretch)
+{
+    if( waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      return;
+    }
+    if(draw_xhair) {
+      draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
+    }
+    /* pan schematic */
+    if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
+
+    if(xctx->semaphore >= 2) {
+      if(draw_xhair) {
+        draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
+      }
+      return;
+    }
+
+    /* update status bar messages */
+    if(xctx->ui_state) {
+      if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
+        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
+          xctx->mousex_snap, xctx->mousey_snap,
+          xctx->lastsel ,
+          xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
+        );
+        statusmsg(str,1);
+      }
+    }
+    
+    /* determine direction of a rectangle selection  (or unselection with ALT key) */
+    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
+      /* Unselect by area : determine direction */
+      if( ((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) { 
+        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
+        else  xctx->nl_dir = 1;
+        select_rect(enable_stretch, RUBBER,0);
+      /* select by area : determine direction */
+      } else if(state & Button1Mask) {
+        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
+        else  xctx->nl_dir = 1;
+        select_rect(enable_stretch, RUBBER,1);
+      }
+    }
+    /* draw objects being moved */
+    if(xctx->ui_state & STARTMOVE) {
+      if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+      if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+      move_objects(RUBBER,0,0,0);
+    }
+    
+    /* draw objects being copied */
+    if(xctx->ui_state & STARTCOPY) {
+      if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+      if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+      copy_objects(RUBBER);
+    }
+    
+    /* draw moving objects being inserted, wires, arcs, lines, rectangles, polygons or zoom box */
+    redraw_w_a_l_r_p_z_rubbers(0);
+
+    /* start of a mouse area select. Button1 pressed. No shift pressed
+     * Do not start an area select if user is dragging a polygon/bezier point */
+    if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
+       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->shape_point_selected &&
+       !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
+    {
+      if(mx != xctx->mx_save || my != xctx->my_save) {
+        xctx->mouse_moved = 1;
+        if(!xctx->drag_elements) {
+          if( !(xctx->ui_state & STARTSELECT)) {
+            select_rect(enable_stretch, START,1);
+            xctx->onetime=1;
+          }
+          if(abs(mx-xctx->mx_save) > 8 ||
+             abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
+            if(xctx->onetime) {
+              unselect_all(1); /* 20171026 avoid multiple calls of unselect_all() */
+              xctx->onetime=0;
+            }
+            xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all(1) clears it... */
+          }
+        }
+      }
+    }
+    /* Unselect by area */
+    if( (((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) &&
+       !(state & ShiftMask) &&
+       !(xctx->ui_state & STARTPAN) &&
+       !xctx->shape_point_selected &&
+       !(xctx->ui_state & STARTSELECT) &&
+       !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
+      select_rect(enable_stretch, START,0);
+    }
+    /* Select by area. Shift pressed */
+    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & STARTWIRE) &&
+             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->shape_point_selected &&
+             !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
+      if(mx != xctx->mx_save || my != xctx->my_save) {
+        if( !(xctx->ui_state & STARTSELECT)) {
+          select_rect(enable_stretch, START,1);
+        }
+        if(abs(mx-xctx->mx_save) > 8 || 
+           abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
+          if(!xctx->already_selected) {
+            select_object(X_TO_XSCHEM(xctx->mx_save),
+                          Y_TO_XSCHEM(xctx->my_save), 0, 0, NULL); /* remove near obj if dragging */
+          }
+          rebuild_selected_array();
+        }
+      }
+    }
+    if(draw_xhair) {
+      draw_crosshair(2, state); /* what = 2(draw) */
+    }
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -2508,120 +2627,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case MotionNotify:
-    if( waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      break;
-    }
-    if(draw_xhair) {
-      draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
-    }
-    /* pan schematic */
-    if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
-
-    if(xctx->semaphore >= 2) {
-      if(draw_xhair) {
-        draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
-      }
-      break;
-    }
-
-    /* update status bar messages */
-    if(xctx->ui_state) {
-      if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
-          xctx->mousex_snap, xctx->mousey_snap,
-          xctx->lastsel ,
-          xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
-        );
-        statusmsg(str,1);
-      }
-    }
-    
-    /* determine direction of a rectangle selection  (or unselection with ALT key) */
-    if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
-      /* Unselect by area : determine direction */
-      if( ((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) { 
-        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
-        else  xctx->nl_dir = 1;
-        select_rect(enable_stretch, RUBBER,0);
-      /* select by area : determine direction */
-      } else if(state & Button1Mask) {
-        if(mx >= xctx->mx_save) xctx->nl_dir = 0;
-        else  xctx->nl_dir = 1;
-        select_rect(enable_stretch, RUBBER,1);
-      }
-    }
-    /* draw objects being moved */
-    if(xctx->ui_state & STARTMOVE) {
-      if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-      if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-      move_objects(RUBBER,0,0,0);
-    }
-    
-    /* draw objects being copied */
-    if(xctx->ui_state & STARTCOPY) {
-      if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-      if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-      copy_objects(RUBBER);
-    }
-    
-    /* draw moving objects being inserted, wires, arcs, lines, rectangles, polygons or zoom box */
-    redraw_w_a_l_r_p_z_rubbers(0);
-
-    /* start of a mouse area select. Button1 pressed. No shift pressed
-     * Do not start an area select if user is dragging a polygon/bezier point */
-    if(!(xctx->ui_state & STARTPOLYGON) && (state&Button1Mask) && !(xctx->ui_state & STARTWIRE) && 
-       !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->shape_point_selected &&
-       !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
-    {
-      if(mx != xctx->mx_save || my != xctx->my_save) {
-        xctx->mouse_moved = 1;
-        if(!xctx->drag_elements) {
-          if( !(xctx->ui_state & STARTSELECT)) {
-            select_rect(enable_stretch, START,1);
-            xctx->onetime=1;
-          }
-          if(abs(mx-xctx->mx_save) > 8 ||
-             abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
-            if(xctx->onetime) {
-              unselect_all(1); /* 20171026 avoid multiple calls of unselect_all() */
-              xctx->onetime=0;
-            }
-            xctx->ui_state|=STARTSELECT; /* set it again cause unselect_all(1) clears it... */
-          }
-        }
-      }
-    }
-    /* Unselect by area */
-    if( (((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) &&
-       !(state & ShiftMask) &&
-       !(xctx->ui_state & STARTPAN) &&
-       !xctx->shape_point_selected &&
-       !(xctx->ui_state & STARTSELECT) &&
-       !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
-      select_rect(enable_stretch, START,0);
-    }
-    /* Select by area. Shift pressed */
-    else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & STARTWIRE) &&
-             !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !xctx->shape_point_selected &&
-             !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
-      if(mx != xctx->mx_save || my != xctx->my_save) {
-        if( !(xctx->ui_state & STARTSELECT)) {
-          select_rect(enable_stretch, START,1);
-        }
-        if(abs(mx-xctx->mx_save) > 8 || 
-           abs(my-xctx->my_save) > 8 ) {  /* set reasonable threshold before unsel */
-          if(!xctx->already_selected) {
-            select_object(X_TO_XSCHEM(xctx->mx_save),
-                          Y_TO_XSCHEM(xctx->my_save), 0, 0, NULL); /* remove near obj if dragging */
-          }
-          rebuild_selected_array();
-        }
-      }
-    }
-    if(draw_xhair) {
-      draw_crosshair(2, state); /* what = 2(draw) */
-    }
+    handle_motion_notify(event, key, state, rstate, button, mx, my, aux, draw_xhair, str, enable_stretch);
     break;
 
   case KeyRelease:
