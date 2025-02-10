@@ -2313,6 +2313,37 @@ static int grabscreen(const char *win_path, int event, int mx, int my, KeySym ke
 }
 #endif
 
+void handle_enter_notify(int draw_xhair, int crosshair_size, struct stat *buf)
+{
+    dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
+    xctx->mouse_inside = 1;
+    if(draw_xhair) {
+      if(crosshair_size == 0) {
+        tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
+      }
+    } else 
+      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
+    /* xschem window *sending* selected objects
+       when the pointer comes back in abort copy operation since it has been done
+       in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
+    if(stat(sel_file, buf) && (xctx->ui_state & STARTCOPY) )
+    {
+      copy_objects(ABORT);
+      unselect_all(1);
+    }
+    /* xschem window *receiving* selected objects selection cleared --> abort */
+    else if(xctx->paste_from == 1 && stat(sel_file, buf) && (xctx->ui_state & STARTMERGE)) {
+      abort_operation();
+    }
+    /*xschem window *receiving* selected objects 
+     * no selected objects and selection file exists --> start merge */
+    else if(xctx->lastsel == 0 && !stat(sel_file, buf)) {
+      xctx->mousex_snap = 490;
+      xctx->mousey_snap = -340;
+      merge_file(1, ".sch");
+    }
+}
+
 void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
   int mx, int my, int aux, int draw_xhair, char *str, int enable_stretch)
 {
@@ -4359,7 +4390,7 @@ int rstate; /* (reduced state, without ShiftMask) */
  state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
  state &= ~LockMask; /* filter out Caps Lock */
  rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
- rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
+ rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
  rstate &= ~Button1Mask; /* ignore button-1 */
  if(xctx->semaphore >= 2)
  {
@@ -4396,33 +4427,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case EnterNotify:
-    dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
-    xctx->mouse_inside = 1;
-    if(draw_xhair) {
-      if(crosshair_size == 0) {
-        tclvareval(xctx->top_path, ".drw configure -cursor none" , NULL);
-      }
-    } else 
-      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
-    /* xschem window *sending* selected objects
-       when the pointer comes back in abort copy operation since it has been done
-       in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
-    if(stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY) )
-    {
-      copy_objects(ABORT);
-      unselect_all(1);
-    }
-    /* xschem window *receiving* selected objects selection cleared --> abort */
-    else if(xctx->paste_from == 1 && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
-      abort_operation();
-    }
-    /*xschem window *receiving* selected objects 
-     * no selected objects and selection file exists --> start merge */
-    else if(xctx->lastsel == 0 && !stat(sel_file, &buf)) {
-      xctx->mousex_snap = 490;
-      xctx->mousey_snap = -340;
-      merge_file(1, ".sch");
-    }
+    handle_enter_notify(draw_xhair, crosshair_size, &buf);
     break;
 
   case Expose:
@@ -4477,6 +4482,7 @@ int rstate; /* (reduced state, without ShiftMask) */
   case -3:  /* double click  : edit prop */
    handle_double_click(event, state, key, button, mx, my, aux);
    break;
+   
   default:
    dbg(1, "callback(): Event:%d\n",event);
    break;
