@@ -133,9 +133,9 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
-  if(what & 1) ps_draw(4, 1, 0); /* trailer */
   zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   draw();
+  if(what & 1) ps_draw(4, 1, 0); /* trailer */
 }
 
 static char *model_name_result = NULL; /* safe even with multiple schematics */

@@ -1799,6 +1799,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
   if { $sym_spice_sym_def eq {}} {
     if { ![file exists [abs_sym_path [$w get]]] } {
       $w configure -bg $missingbg
+    } elseif {$new_sch ne $default_sch } {
+      $w configure -bg $symbg
     }
   }
   puts ===============
@@ -1814,7 +1816,7 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem set schsymbolprop $newprop
     xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
     xschem save fast
-    xschem remove_symbols ;# purge all symbols to force a reload from disk 
+    # xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
@@ -1834,7 +1836,6 @@ proc cellview_edit_item {symbol w} {
   } elseif { $sym_spice_sym_def eq {}} {
     xschem load_new_window [$w get]
   } else {
-    puts $symbol
     set current [xschem get current_name]
     set old_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     set new_sym_def [editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}]
@@ -1906,15 +1907,17 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   }
   
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
+  # puts "syms=$syms"
   foreach {i symbol} $syms {
     if { [catch {set base_name [xschem symbol_base_name $symbol]}] } {
       set base_name $symbol
     }
+    # puts "i=$i, symbol=$symbol"
     set derived_symbol 0
     if {$base_name ne {}} {
       set derived_symbol 1
     }
-    if { [catch {set abs_sch [xschem get_sch_from_sym -1 $symbol]} ]} {
+    if { [catch {xschem get_sch_from_sym -1 $symbol} abs_sch ]} {
       set abs_sch [abs_sym_path [add_ext $symbol .sch]]
     }
     if {$derived_symbol} {
@@ -1931,6 +1934,9 @@ proc cellview { {derived_symbols {}} {upd 0} } {
     }
     if {$skip} { continue }
     set sym_sch [rel_sym_path $abs_sch]
+    if {[catch {xschem getprop symbol $symbol type} type]} {
+      puts "error: $symbol not found: $type"
+    }
     set type [xschem getprop symbol $symbol type]
     set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     if {$type eq {subcircuit}} {
@@ -1986,7 +1992,7 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   if {$upd} {return}
 
   frame .cv.bottom
-  button .cv.bottom.update -text Update -command "cellview $derived_symbols 1"
+  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1"
   pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
@@ -2955,6 +2961,14 @@ proc touches {sel tag} {
   return $res
 }
 
+proc set_graph_default_colors {} {
+  global graph_selected graph_schname
+  if { [xschem get schname] ne $graph_schname } return
+  xschem setprop -fast rect 2 $graph_selected color "4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
+  graph_update_nodelist
+  xschem draw_graph $graph_selected
+}
+
 # change color of selected wave in text widget and redraw graph
 # OR
 # change color attribute of wave given as parameter, redraw graph
@@ -3346,13 +3360,13 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 5 -weight 0
 
   # bottom frame
-  button .graphdialog.bottom.cancel -text Cancel -command {
+  button .graphdialog.bottom.cancel -padx 1 -borderwidth 1 -pady 0 -text Cancel -command {
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.ok -text OK -command {
+  button .graphdialog.bottom.ok -padx 1 -borderwidth 1 -pady 0 -text OK -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3367,7 +3381,7 @@ proc graph_edit_properties {n} {
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.apply -text Apply -command {
+  button .graphdialog.bottom.apply -padx 1 -borderwidth 1 -pady 0 -text Apply -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3384,9 +3398,16 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.apply -side left
   pack .graphdialog.bottom.cancel -side left
 
-  for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
-      -variable graph_sel_color -command graph_change_wave_color -selectcolor white -foreground black
+  for {set i 4} {$i <= $cadlayers} {incr i} {
+    if {$i == $cadlayers } {
+      button .graphdialog.bottom.r$i -padx 1 -borderwidth 1 -pady 0 \
+        -command "set_graph_default_colors" \
+        -text {AUTO SET}
+    } else {
+      radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
+        -variable graph_sel_color -command graph_change_wave_color \
+        -selectcolor white -foreground black
+    }
     pack .graphdialog.bottom.r$i -side left
   }
 
@@ -4247,7 +4268,7 @@ proc file_dialog_place_symbol {} {
 
 proc file_dialog_display_preview {f} {
   set type [is_xschem_file $f]
-  if { $type ne {0} && $type ne {GENERATOR} } {
+  if { $type ne {0} } {
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"

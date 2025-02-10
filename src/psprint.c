@@ -257,7 +257,7 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
-  const double max_size = 3000.0;
+  const double max_size = 2500.0;
   int d_c;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
@@ -292,10 +292,10 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   rw = fabs(rx2 - rx1);
   rh = fabs(ry2 - ry1);
   scale = 3.0;
-  if (rw > rh && rw > max_size) {
+  if (rw > rh && rw * scale  > max_size) {
     scale = max_size / rw;
   }
-  else if (rh > max_size) {
+  else if (rh * scale  > max_size) {
     scale = max_size / rh;
   }
   rwi = (int)(rw * scale + 1.0);
