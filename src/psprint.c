@@ -301,6 +301,7 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
   dbg(1, "graph size: %dx%d\n", rwi, rhi);
+  dbg(1, "ps_embedded_graph: saving zoom\n");
   save_restore_zoom(1, &zi);
   set_viewport_size(rwi, rhi, xctx->lw);
 
@@ -353,8 +354,9 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   cairo_surface_destroy(png_sfc);
   xctx->draw_pixmap = 1;
   tclsetboolvar("draw_grid", save_draw_grid);
+  dbg(1, "ps_embedded_graph: restoring zoom\n");
   save_restore_zoom(0, &zi);
-  resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
+  resetwin(1, 1, 1, 0, 0);
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
@@ -1178,8 +1180,8 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
       return;
     }
+    setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
   }
-  setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
   ps_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
     fprintf(errfp, "create_ps(): calloc error\n");
@@ -1190,78 +1192,83 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   old_grid=tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
 
-  /* xschem window aspect ratio decides if portrait or landscape */
-  boundbox.x1 = xctx->areax1;
-  boundbox.x2 = xctx->areax2;
-  boundbox.y1 = xctx->areay1;
-  boundbox.y2 = xctx->areay2;
-  dx=boundbox.x2-boundbox.x1;
-  dy=boundbox.y2-boundbox.y1;
-
-  /* xschem drawing bbox decides if portrait or landscape */
-  if(fullzoom == 1) {
-    calc_drawing_bbox(&boundbox, 0);
-    dx=boundbox.x2-boundbox.x1;
-    dy=boundbox.y2-boundbox.y1;
-  }
-  if(dx >= dy) {
-    landscape = 1;
-  } else {
-    landscape = 0;
-  }
-  dbg(1, "dx=%g, dy=%g\n", dx, dy);
 
 
-  if(fullzoom == 1) {
-    /* save size and zoom factor */
-    save_restore_zoom(1, &zi);
-    /* this zoom only done to reset lw */
-    zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
-    /* adjust aspect ratio to paper size */
-    if(landscape) 
-      xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
-    else
-      xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
-    dbg(1, "xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
-    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
-    xctx->areaw = xctx->areax2-xctx->areax1;
-    xctx->areah = xctx->areay2 - xctx->areay1;
-    dbg(1, "dx=%g, dy=%g\n", dx, dy);
-    /* fit schematic into adjusted size */
-    zoom_full(0, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+  if(!(what & 4)) {
+    /* xschem window aspect ratio decides if portrait or landscape */
     boundbox.x1 = xctx->areax1;
     boundbox.x2 = xctx->areax2;
     boundbox.y1 = xctx->areay1;
     boundbox.y2 = xctx->areay2;
     dx=boundbox.x2-boundbox.x1;
     dy=boundbox.y2-boundbox.y1;
-  }
-
-  if(!landscape) { /* decide paper orientation for best schematic fit */
-    double tmp;
-    tmp = pagex;
-    pagex = pagey;
-    pagey = tmp;
-  }
-  if(fullzoom == 2) { /* set media size to bbox */
-    double sc;
-    my_strncpy(papername, "bbox", S(papername));
-    pagex = xctx->xrect[0].width;
-    pagey = xctx->xrect[0].height;
-    if(pagex > pagey) {
-      sc = 842. / pagex;
-      pagex = my_round(pagex * sc);
-      pagey = my_round(pagey * sc);
-    } else {
-      sc = 842. / pagey;
-      pagex = my_round(pagex * sc);
-      pagey = my_round(pagey * sc);
+  
+    /* xschem drawing bbox decides if portrait or landscape */
+    if(fullzoom == 1) {
+      calc_drawing_bbox(&boundbox, 0);
+      dx=boundbox.x2-boundbox.x1;
+      dy=boundbox.y2-boundbox.y1;
     }
-    margin = 0.0;
-  }
+    if(dx >= dy) {
+      landscape = 1;
+    } else {
+      landscape = 0;
+    }
+    dbg(1, "dx=%g, dy=%g\n", dx, dy);
+  
+  
+    if(fullzoom == 1) {
+      /* save size and zoom factor */
+      dbg(1, "create_ps: saving zoom\n");
+      save_restore_zoom(1, &zi);
+      /* this zoom only done to reset lw */
+      zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+      /* adjust aspect ratio to paper size */
+      if(landscape) 
+        xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
+      else
+        xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
+      dbg(1, "xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+      xctx->areax1 = -2*INT_WIDTH(xctx->lw);
+      xctx->areay1 = -2*INT_WIDTH(xctx->lw);
+      xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
+      xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+      xctx->areaw = xctx->areax2-xctx->areax1;
+      xctx->areah = xctx->areay2 - xctx->areay1;
+      dbg(1, "dx=%g, dy=%g\n", dx, dy);
+      /* fit schematic into adjusted size */
+      zoom_full(0, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+      boundbox.x1 = xctx->areax1;
+      boundbox.x2 = xctx->areax2;
+      boundbox.y1 = xctx->areay1;
+      boundbox.y2 = xctx->areay2;
+      dx=boundbox.x2-boundbox.x1;
+      dy=boundbox.y2-boundbox.y1;
+    }
+  
+    if(!landscape) { /* decide paper orientation for best schematic fit */
+      double tmp;
+      tmp = pagex;
+      pagex = pagey;
+      pagey = tmp;
+    }
+    if(fullzoom == 2) { /* set media size to bbox */
+      double sc;
+      my_strncpy(papername, "bbox", S(papername));
+      pagex = xctx->xrect[0].width;
+      pagey = xctx->xrect[0].height;
+      if(pagex > pagey) {
+        sc = 842. / pagex;
+        pagex = my_round(pagex * sc);
+        pagey = my_round(pagey * sc);
+      } else {
+        sc = 842. / pagey;
+        pagex = my_round(pagex * sc);
+        pagey = my_round(pagey * sc);
+      }
+      margin = 0.0;
+    }
+  } /* if(!(what & 4)) */
     
   if(what & 1) {/* prolog */
     dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
@@ -1333,7 +1340,6 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     fprintf(fd,"/RF {rectfill} bind def\n");
     fprintf(fd, "%%%%EndProlog\n");
   }
-
 
   if(what & 2) { /* page */
     ++numpages;
@@ -1491,7 +1497,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
     dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), xctx->plotfile);
     fprintf(fd, "showpage\n\n");
-  }
+  } /* if(what & 2) */
   if(what & 4) { /* trailer */
     fprintf(fd, "%%%%trailer\n");
     fprintf(fd, "%%%%Pages: %d\n", numpages);
@@ -1509,10 +1515,10 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
 
   /* restore original size and zoom factor */
-  if(fullzoom == 1) {
+  if(!(what & 4) && fullzoom == 1) {
+    dbg(1, "create_ps: restoring zoom\n");
     save_restore_zoom(0, &zi);
   }
-
 }
 
 int ps_draw(int what, int fullzoom, int eps)
