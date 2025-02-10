@@ -18,6 +18,7 @@
 # bison output
 src/expandlabel.c
 src/expandlabel.h
+src/eval_expr.c
 # flex output
 src/parselabel.c
 src/parselabel.h
