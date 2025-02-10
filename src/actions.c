@@ -2845,6 +2845,7 @@ void set_viewport_size(int w, int h, double lw)
 void save_restore_zoom(int save, Zoom_info *zi)
 {
   if(save) {
+    dbg(1, "save_restore_zoom: save width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     zi->savew = xctx->xrect[0].width;
     zi->saveh = xctx->xrect[0].height;
     zi->savelw = xctx->lw;
@@ -2856,6 +2857,7 @@ void save_restore_zoom(int save, Zoom_info *zi)
     xctx->xrect[0].y = 0;
     xctx->xrect[0].width = (unsigned short)zi->savew;
     xctx->xrect[0].height = (unsigned short)zi->saveh;
+    dbg(1, "save_restore_zoom: restore width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->areax2 = zi->savew+2*INT_WIDTH(zi->savelw);
     xctx->areay2 = zi->saveh+2*INT_WIDTH(zi->savelw);
     xctx->areax1 = -2*INT_WIDTH(zi->savelw);
