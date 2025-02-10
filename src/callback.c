@@ -2313,8 +2313,9 @@ static int grabscreen(const char *win_path, int event, int mx, int my, KeySym ke
 }
 #endif
 
-void handle_enter_notify(int draw_xhair, int crosshair_size, struct stat *buf)
+static void handle_enter_notify(int draw_xhair, int crosshair_size)
 {
+    struct stat buf;
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
     xctx->mouse_inside = 1;
     if(draw_xhair) {
@@ -2326,25 +2327,25 @@ void handle_enter_notify(int draw_xhair, int crosshair_size, struct stat *buf)
     /* xschem window *sending* selected objects
        when the pointer comes back in abort copy operation since it has been done
        in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
-    if(stat(sel_file, buf) && (xctx->ui_state & STARTCOPY) )
+    if(stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY) )
     {
       copy_objects(ABORT);
       unselect_all(1);
     }
     /* xschem window *receiving* selected objects selection cleared --> abort */
-    else if(xctx->paste_from == 1 && stat(sel_file, buf) && (xctx->ui_state & STARTMERGE)) {
+    else if(xctx->paste_from == 1 && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
       abort_operation();
     }
     /*xschem window *receiving* selected objects 
      * no selected objects and selection file exists --> start merge */
-    else if(xctx->lastsel == 0 && !stat(sel_file, buf)) {
+    else if(xctx->lastsel == 0 && !stat(sel_file, &buf)) {
       xctx->mousex_snap = 490;
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
     }
 }
 
-void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
+static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
   int mx, int my, int aux, int draw_xhair, char *str, int enable_stretch)
 {
     if( waves_selected(event, key, state, button)) {
@@ -2367,7 +2368,7 @@ void handle_motion_notify(int event, KeySym key, int state, int rstate, int butt
     /* update status bar messages */
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
+        my_snprintf(str, PATH_MAX + 100, "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
           xctx->mousex_snap, xctx->mousey_snap,
           xctx->lastsel ,
           xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
@@ -2463,7 +2464,7 @@ void handle_motion_notify(int event, KeySym key, int state, int rstate, int butt
     }
 }
 
-void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
+static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
      int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap, char *str )
 {
    if(key==' ') {
@@ -3167,11 +3168,11 @@ void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int 
     if(xctx->semaphore >= 2) return;
     rebuild_selected_array();
     if(xctx->lastsel==0 ) {
-      my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
+      my_snprintf(str, PATH_MAX + 100, "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
       tcleval(str);
     }
     else if(xctx->sel_array[0].type==ELEMENT) {
-      my_snprintf(str, S(str), "edit_file {%s}",
+      my_snprintf(str, PATH_MAX + 100, "edit_file {%s}",
          abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
       tcleval(str);
 
@@ -3294,7 +3295,7 @@ void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int 
      if(exists) {
        if(!tool) {
          tool = tclgetintvar("sim(spicewave,default)");
-         my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
+         my_snprintf(str, PATH_MAX + 100, "sim(spicewave,%d,name)", tool);
          my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
          dbg(1,"callback(): tool_name=%s\n", tool_name);
          if(strstr(tool_name, "Gaw")) tool=GAW;
@@ -3318,7 +3319,7 @@ void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int 
    }
    if(key=='g' && rstate==ControlMask)              /* set snap factor 20161212 */
    {
-    my_snprintf(str, S(str),
+    my_snprintf(str,  PATH_MAX + 100,
      "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
      CADSNAP, c_snap, c_snap);
     tcleval(str);
@@ -3922,7 +3923,7 @@ void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int 
    }
 }
 
-void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
+static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
 		 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux  )
 {
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
@@ -4155,7 +4156,7 @@ void handle_button_press(int event, int state, int rstate, KeySym key, int butto
    } /* button==Button1 */
 }
 
-void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
+static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
               int aux, double c_snap, int enable_stretch, int draw_xhair, char *str)
 {
    if(waves_selected(event, key, state, button)) {
@@ -4240,7 +4241,7 @@ void handle_button_release(int event, KeySym key, int state, int button, int mx,
      }
      xctx->ui_state &= ~DESEL_AREA;
      rebuild_selected_array();
-     my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
+     my_snprintf(str, PATH_MAX + 100, "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
    }
@@ -4253,7 +4254,7 @@ void handle_button_release(int event, KeySym key, int state, int button, int mx,
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
 }
 
-void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux )
+static void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux )
 {
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
@@ -4297,7 +4298,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key,
                  int button, int aux, int state)
 {
  char str[PATH_MAX + 100];
- struct stat buf;
  int redraw_only;
  double c_snap;
 #ifndef __unix__
@@ -4427,7 +4427,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case EnterNotify:
-    handle_enter_notify(draw_xhair, crosshair_size, &buf);
+    handle_enter_notify(draw_xhair, crosshair_size);
     break;
 
   case Expose:
