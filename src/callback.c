@@ -4222,6 +4222,43 @@ void handle_button_release(int event, KeySym key, int state, int button, int mx,
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
 }
 
+void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux )
+{
+    if( waves_selected(event, key, state, button)) {
+      waves_callback(event, mx, my, key, button, aux, state);
+      return;
+    } else {
+     if(xctx->semaphore >= 2) return;
+     dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
+     if(button==Button1) {
+       Selected sel;
+       if(!xctx->lastsel && xctx->ui_state ==  0) {
+         /* Following 5 lines do again a selection overriding lock,
+          * so locked instance attrs can be edited */
+         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1, NULL);
+         if(sel.type) {
+           xctx->ui_state = SELECTION;
+           rebuild_selected_array();
+         }
+       }
+       if(xctx->ui_state ==  0 || xctx->ui_state == SELECTION) {
+         edit_property(0);
+       } else {
+         if(xctx->ui_state & STARTWIRE) {
+           xctx->ui_state &= ~STARTWIRE;
+         }
+         if(xctx->ui_state & STARTLINE) {
+           xctx->ui_state &= ~STARTLINE;
+         }
+         if( (xctx->ui_state & STARTPOLYGON) && (state ==0 ) ) {
+           new_polygon(SET, xctx->mousex_snap, xctx->mousey_snap);
+         }
+       }
+     }
+    }
+}
+
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -4438,38 +4475,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case -3:  /* double click  : edit prop */
-    if( waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      break;
-    } else {
-     if(xctx->semaphore >= 2) break;
-     dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
-     if(button==Button1) {
-       Selected sel;
-       if(!xctx->lastsel && xctx->ui_state ==  0) {
-         /* Following 5 lines do again a selection overriding lock,
-          * so locked instance attrs can be edited */
-         sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 1, NULL);
-         if(sel.type) {
-           xctx->ui_state = SELECTION;
-           rebuild_selected_array();
-         }
-       }
-       if(xctx->ui_state ==  0 || xctx->ui_state == SELECTION) {
-         edit_property(0);
-       } else {
-         if(xctx->ui_state & STARTWIRE) {
-           xctx->ui_state &= ~STARTWIRE;
-         }
-         if(xctx->ui_state & STARTLINE) {
-           xctx->ui_state &= ~STARTLINE;
-         }
-         if( (xctx->ui_state & STARTPOLYGON) && (state ==0 ) ) {
-           new_polygon(SET, xctx->mousex_snap, xctx->mousey_snap);
-         }
-       }
-     }
-   }
+   handle_double_click(event, state, key, button, mx, my, aux);
    break;
   default:
    dbg(1, "callback(): Event:%d\n",event);
