@@ -2961,6 +2961,14 @@ proc touches {sel tag} {
   return $res
 }
 
+proc set_graph_default_colors {} {
+  global graph_selected graph_schname
+  if { [xschem get schname] ne $graph_schname } return
+  xschem setprop -fast rect 2 $graph_selected color "4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
+  graph_update_nodelist
+  xschem draw_graph $graph_selected
+}
+
 # change color of selected wave in text widget and redraw graph
 # OR
 # change color attribute of wave given as parameter, redraw graph
@@ -3352,13 +3360,13 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 5 -weight 0
 
   # bottom frame
-  button .graphdialog.bottom.cancel -text Cancel -command {
+  button .graphdialog.bottom.cancel -padx 1 -borderwidth 1 -pady 0 -text Cancel -command {
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.ok -text OK -command {
+  button .graphdialog.bottom.ok -padx 1 -borderwidth 1 -pady 0 -text OK -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3373,7 +3381,7 @@ proc graph_edit_properties {n} {
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.apply -text Apply -command {
+  button .graphdialog.bottom.apply -padx 1 -borderwidth 1 -pady 0 -text Apply -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3390,9 +3398,16 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.apply -side left
   pack .graphdialog.bottom.cancel -side left
 
-  for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
-      -variable graph_sel_color -command graph_change_wave_color -selectcolor white -foreground black
+  for {set i 4} {$i <= $cadlayers} {incr i} {
+    if {$i == $cadlayers } {
+      button .graphdialog.bottom.r$i -padx 1 -borderwidth 1 -pady 0 \
+        -command "set_graph_default_colors" \
+        -text {AUTO SET}
+    } else {
+      radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
+        -variable graph_sel_color -command graph_change_wave_color \
+        -selectcolor white -foreground black
+    }
     pack .graphdialog.bottom.r$i -side left
   }
 
