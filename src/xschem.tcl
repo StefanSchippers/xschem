@@ -1817,7 +1817,7 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem set schsymbolprop $newprop
     xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
     xschem save fast
-    # xschem remove_symbols ;# purge all symbols to force a reload from disk 
+    xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
     set netlist_type $save_netlist_type 
     xschem set netlist_type $netlist_type

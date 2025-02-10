@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -19,7 +19,8 @@ v {xschem version=3.4.4 file_version=1.2
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 }
-G {type=subcircuit
+G {}
+K {type=subcircuit
 vhdl_stop=true
 verilog_stop=true
 format="@name @pinlist @VCCPIN @VSSPIN @symname wna=@wna lna=@lna wpa=@wpa lpa=@lpa wnb=@wnb lnb=@lnb wpb=@wpb lpb=@lpb m=@m"
