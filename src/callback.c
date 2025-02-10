@@ -3891,6 +3891,337 @@ void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int 
    }
 }
 
+void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
+		 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux  )
+{
+   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
+   if(waves_selected(event, key, state, button)) {
+     waves_callback(event, mx, my, key, button, aux, state);
+     return;
+   }
+   /* terminate a schematic pan action */
+   if(xctx->ui_state & STARTPAN) {
+     xctx->ui_state &=~STARTPAN;
+     return;
+   }
+
+   /* select instance and connected nets stopping at wire junctions */
+   if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
+   {
+     Selected sel;
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+     if(sel.type) select_connected_nets(1);
+   }
+   
+   /* break wire at mouse coordinates, move break point to nearest grid point */
+   else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
+   {
+     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
+   }
+   /* break wire at mouse coordinates */
+   else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
+   {
+     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
+   }
+   /* select instance and connected nets NOT stopping at wire junctions */
+   else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
+   {
+     Selected sel;
+     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+     if(sel.type) select_connected_nets(0);
+   }
+   /* moved to Button3 release */
+   /* 
+    * else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
+    *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+    * }
+    */
+
+   /* zoom rectangle by right clicking and drag */
+   else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
+     zoom_rectangle(START);return;
+   }
+     
+   /* Mouse wheel events */
+   else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) return;
+
+   /* terminate wire placement in snap mode */
+   else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
+     snapped_wire(c_snap);
+   }
+   /* Alt - Button1 click to unselect */
+   else if(button==Button1 && (SET_MODMASK) ) {
+     unselect_at_mouse_pos(mx, my);
+   }
+   
+   /* Middle button press (Button2) will pan the schematic. */
+   else if(button==Button2 && (state == 0)) {
+     pan(START, mx, my);
+     xctx->ui_state |= STARTPAN;
+   }
+
+   /* button1 click to select another instance while edit prop dialog open */
+   else if(button==Button1 && xctx->semaphore >= 2) {
+     if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
+       tcleval(".dialog.f1.b1 invoke");
+       return;
+     } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
+       tcleval(".dialog.buttons.ok invoke");
+       return;
+     } else if(state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+       tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
+     } else if((state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
+       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+       tclsetvar("preserve_unchanged_attrs", "1");
+       rebuild_selected_array();
+     }
+   }
+
+   /* Handle the remaining Button1Press events */
+   else if(button==Button1) /* MOD button is not pressed here. Processed above */
+   {
+     xctx->onetime = 0;
+     xctx->mouse_moved = 0;
+     xctx->drag_elements = 0;
+
+     /* start another wire or line in persistent mode */
+     if(tclgetboolvar("persistent_command") && xctx->last_command) {
+       if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
+       if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
+       return;
+     }
+     /* handle all object insertions started from Tools/Edit menu */
+     if(check_menu_start_commands(c_snap, mx, my)) return;
+
+     /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
+     if(end_place_move_copy_zoom()) return;
+
+     /* Button1Press to select objects */
+     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
+       Selected sel;
+       int already_selected = 0;
+       int prev_last_sel = xctx->lastsel;
+       int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
+
+       xctx->shape_point_selected = 0;
+       xctx->mx_save = mx; xctx->my_save = my;
+       xctx->mx_double_save=xctx->mousex;
+       xctx->my_double_save=xctx->mousey;
+
+       #if 0 /* disabled */
+       /* Clicking and dragging from a **selected** instance pin will start a new wire
+        * if no other elements are selected */
+       if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
+         if(add_wire_from_wire(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
+         if(add_wire_from_inst(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
+       }
+       #endif
+
+       /* In *NON* intuitive interface a button1 press with no modifiers will
+        * first unselect everything... 
+        * For intuitive interface unselection see below... */
+       if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
+
+       /* find closest object. Use snap coordinates if full crosshair is enabled
+        * since the mouse pointer is obscured and crosshair is snapped to grid points */
+       if(draw_xhair && crosshair_size == 0) {
+         sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
+       } else {
+         sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
+       }
+       dbg(1, "sel.type=%d\n", sel.type);
+       /* determine if closest object was already selected when button1 was pressed */
+       switch(sel.type) {
+         case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
+         case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
+         case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
+         case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
+         case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
+         case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
+         case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
+         default: break;
+       } /*end switch */
+
+       /* Clicking and drag on an instance pin -> drag a new wire */
+       if(xctx->intuitive_interface && !already_selected) {
+         if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
+       }
+  
+       /* Clicking and drag on a wire end -> drag a new wire */
+       if(xctx->intuitive_interface && !already_selected) {
+         if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
+       }
+
+       /* In intuitive interface a button1 press with no modifiers will
+        *  unselect everything... we do it here */
+       if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
+
+       /* select the object under the mouse and rebuild the selected array */
+       if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
+       rebuild_selected_array();
+       dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
+
+       /* if clicking on some object endpoints or vertices set shape_point_selected
+        * this information will be used in Motion events to draw the stretched vertices */
+       if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
+         if(edit_polygon_point(state)) return; /* sets xctx->shape_point_selected */
+       }
+       if(xctx->lastsel == 1 && xctx->intuitive_interface) {
+         int cond = already_selected;
+
+         if(cond && xctx->sel_array[0].type==xRECT) {
+           if(edit_rect_point(state)) return; /* sets xctx->shape_point_selected */
+         }
+
+         if(cond && xctx->sel_array[0].type==LINE) {
+           if(edit_line_point(state)) return; /* sets xctx->shape_point_selected */
+         }
+
+         if(cond && xctx->sel_array[0].type==WIRE) {
+          if(edit_wire_point(state)) return; /* sets xctx->shape_point_selected */
+         }
+       }
+       dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
+
+       /* intuitive interface: directly drag elements */
+       if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
+          !xctx->shape_point_selected) {
+         /* enable_stretch (from TCL variable) reverses command if enabled:
+          * - move --> stretch move
+          * - stretch move (with ctrl key) --> move
+          */
+         int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
+         xctx->drag_elements = 1;
+         /* select attached nets depending on ControlMask and enable_stretch */
+         if(stretch) {
+           select_attached_nets(); /* stretch nets that land on selected instance pins */
+         }
+         /* if dragging instances with stretch enabled and Shift down add wires to pins
+          * attached to something */
+         if((state & ShiftMask) && stretch) {
+           xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+           move_objects(START,0,0,0);
+         }
+         /* dragging away an object with Shift pressed is a copy (duplicate object) */
+         else if(state & ShiftMask) copy_objects(START);
+         /* else it is a normal move */
+         else move_objects(START,0,0,0);
+       }
+
+       if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
+         if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
+           if(!prev_last_sel) {
+             redraw_hilights(1); /* 1: clear all hilights, then draw */
+           }
+         }
+         hilight_net(0);
+         if(xctx->lastsel) {
+           redraw_hilights(0);
+         }
+       }
+       return;
+     }
+   } /* button==Button1 */
+}
+
+void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
+              int aux, double c_snap, int enable_stretch, int draw_xhair, char *str)
+{
+   if(waves_selected(event, key, state, button)) {
+     waves_callback(event, mx, my, key, button, aux, state);
+     return;
+   }
+   xctx->ui_state &= ~DESEL_CLICK;
+   dbg(1, "release: shape_point_selected=%d\n", xctx->shape_point_selected);
+   /* bring up context menu if no pending operation */
+   if(state == Button3Mask && xctx->semaphore <2) {
+     if(!end_place_move_copy_zoom()) {
+       context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
+     }
+   }
+
+   /* launcher, no intuitive interface */
+   if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask) && 
+      !xctx->shape_point_selected && xctx->mouse_moved == 0) {
+     int savesem = xctx->semaphore;
+     xctx->semaphore = 0;
+     launcher(); /* works only if lastsel == 1 */
+     xctx->semaphore = savesem;
+   }
+
+   /* launcher, intuitive_interface, only if no movement has been done */
+   else if(xctx->intuitive_interface && state == (Button1Mask | ControlMask) &&
+      !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) && xctx->mouse_moved == 0) {
+     int savesem = xctx->semaphore;
+     move_objects(ABORT, 0, 0.0, 0.0);
+     unselect_all(1);
+     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+     rebuild_selected_array();
+     xctx->semaphore = 0;
+     launcher(); /* works only if lastsel == 1 */
+     xctx->semaphore = savesem;
+   }
+
+   /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
+   else if(state == Button1Mask && xctx->intuitive_interface &&
+           (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
+     if(end_place_move_copy_zoom()) return;
+   }
+ 
+   /* end intuitive_interface copy or move */
+   if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
+      copy_objects(END);
+      xctx->constr_mv=0;
+      tcleval("set constr_mv 0" );
+      xctx->drag_elements = 0;
+   }
+   else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
+      move_objects(END,0,0,0);
+      xctx->constr_mv=0;
+      tcleval("set constr_mv 0" );
+      xctx->drag_elements = 0;
+   }
+
+   /* if a polygon/bezier/rectangle control point was clicked, end point move operation
+    * and set polygon state back to SELECTED from SELECTED1 */
+   else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
+     end_shape_point_edit(c_snap);
+   }
+
+   if(xctx->ui_state & STARTPAN) {
+     xctx->ui_state &=~STARTPAN;
+     /* xctx->mx_save = mx; xctx->my_save = my; */
+     /* xctx->mx_double_save=xctx->mousex_snap; */
+     /* xctx->my_double_save=xctx->mousey_snap; */
+     redraw_w_a_l_r_p_z_rubbers(1);
+     return;
+   }
+   dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
+   if(xctx->semaphore >= 2) return;
+   if(xctx->ui_state & STARTSELECT) {
+     if(state & ControlMask) {
+       select_rect(!enable_stretch, END,-1);
+     } else {
+       /* Button1 release: end of rectangle select */
+       if(!(state & (Button4Mask|Button5Mask) ) ) {
+         select_rect(enable_stretch, END,-1);
+       }
+     }
+     xctx->ui_state &= ~DESEL_AREA;
+     rebuild_selected_array();
+     my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
+       xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
+     statusmsg(str,1);
+   }
+
+   /* clear start from menu flag or infix_interface=0 start commands */
+   if(xctx->ui_state & MENUSTART) {
+     xctx->ui_state &= ~MENUSTART;
+     return;
+   }
+   if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -4098,331 +4429,14 @@ int rstate; /* (reduced state, without ShiftMask) */
    break;
 
   case ButtonPress:
-   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
-   if(waves_selected(event, key, state, button)) {
-     waves_callback(event, mx, my, key, button, aux, state);
-     break;
-   }
-   /* terminate a schematic pan action */
-   if(xctx->ui_state & STARTPAN) {
-     xctx->ui_state &=~STARTPAN;
-     break;
-   }
-
-   /* select instance and connected nets stopping at wire junctions */
-   if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
-   {
-     Selected sel;
-     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-     if(sel.type) select_connected_nets(1);
-   }
-   
-   /* break wire at mouse coordinates, move break point to nearest grid point */
-   else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
-   {
-     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
-   }
-   /* break wire at mouse coordinates */
-   else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
-   {
-     break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
-   }
-   /* select instance and connected nets NOT stopping at wire junctions */
-   else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
-   {
-     Selected sel;
-     sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-     if(sel.type) select_connected_nets(0);
-   }
-   /* moved to Button3 release */
-   /* 
-    * else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
-    *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
-    * }
-    */
-
-   /* zoom rectangle by right clicking and drag */
-   else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
-     zoom_rectangle(START);break;
-   }
-     
-   /* Mouse wheel events */
-   else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
-
-   /* terminate wire placement in snap mode */
-   else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
-     snapped_wire(c_snap);
-   }
-   /* Alt - Button1 click to unselect */
-   else if(button==Button1 && (SET_MODMASK) ) {
-     unselect_at_mouse_pos(mx, my);
-   }
-   
-   /* Middle button press (Button2) will pan the schematic. */
-   else if(button==Button2 && (state == 0)) {
-     pan(START, mx, my);
-     xctx->ui_state |= STARTPAN;
-   }
-
-   /* button1 click to select another instance while edit prop dialog open */
-   else if(button==Button1 && xctx->semaphore >= 2) {
-     if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
-       tcleval(".dialog.f1.b1 invoke");
-       break;
-     } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
-       tcleval(".dialog.buttons.ok invoke");
-       break;
-     } else if(state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
-       tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
-     } else if((state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
-       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-       tclsetvar("preserve_unchanged_attrs", "1");
-       rebuild_selected_array();
-     }
-   }
-
-   /* Handle the remaining Button1Press events */
-   else if(button==Button1) /* MOD button is not pressed here. Processed above */
-   {
-     xctx->onetime = 0;
-     xctx->mouse_moved = 0;
-     xctx->drag_elements = 0;
-
-     /* start another wire or line in persistent mode */
-     if(tclgetboolvar("persistent_command") && xctx->last_command) {
-       if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
-       if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
-       break;
-     }
-     /* handle all object insertions started from Tools/Edit menu */
-     if(check_menu_start_commands(c_snap, mx, my)) break;
-
-     /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
-     if(end_place_move_copy_zoom()) break;
-
-     /* Button1Press to select objects */
-     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
-       Selected sel;
-       int already_selected = 0;
-       int prev_last_sel = xctx->lastsel;
-       int no_shift_no_ctrl = !(state & (ShiftMask | ControlMask));
-
-       xctx->shape_point_selected = 0;
-       xctx->mx_save = mx; xctx->my_save = my;
-       xctx->mx_double_save=xctx->mousex;
-       xctx->my_double_save=xctx->mousey;
-
-       #if 0 /* disabled */
-       /* Clicking and dragging from a **selected** instance pin will start a new wire
-        * if no other elements are selected */
-       if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
-         if(add_wire_from_wire(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
-         if(add_wire_from_inst(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
-       }
-       #endif
-
-       /* In *NON* intuitive interface a button1 press with no modifiers will
-        * first unselect everything... 
-        * For intuitive interface unselection see below... */
-       if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
-
-       /* find closest object. Use snap coordinates if full crosshair is enabled
-        * since the mouse pointer is obscured and crosshair is snapped to grid points */
-       if(draw_xhair && crosshair_size == 0) {
-         sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
-       } else {
-         sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
-       }
-       dbg(1, "sel.type=%d\n", sel.type);
-       /* determine if closest object was already selected when button1 was pressed */
-       switch(sel.type) {
-         case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
-         case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
-         case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
-         case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
-         case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
-         case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
-         case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
-         default: break;
-       } /*end switch */
-
-       /* Clicking and drag on an instance pin -> drag a new wire */
-       if(xctx->intuitive_interface && !already_selected) {
-         if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;  
-       }
-  
-       /* Clicking and drag on a wire end -> drag a new wire */
-       if(xctx->intuitive_interface && !already_selected) {
-         if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;  
-       }
-
-       /* In intuitive interface a button1 press with no modifiers will
-        *  unselect everything... we do it here */
-       if(xctx->intuitive_interface && !already_selected && no_shift_no_ctrl )  unselect_all(1);
-
-       /* select the object under the mouse and rebuild the selected array */
-       if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
-       rebuild_selected_array();
-       dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
-
-       /* if clicking on some object endpoints or vertices set shape_point_selected
-        * this information will be used in Motion events to draw the stretched vertices */
-       if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
-         if(edit_polygon_point(state)) break; /* sets xctx->shape_point_selected */
-       }
-       if(xctx->lastsel == 1 && xctx->intuitive_interface) {
-         int cond = already_selected;
-
-         if(cond && xctx->sel_array[0].type==xRECT) {
-           if(edit_rect_point(state)) break; /* sets xctx->shape_point_selected */
-         }
-
-         if(cond && xctx->sel_array[0].type==LINE) {
-           if(edit_line_point(state)) break; /* sets xctx->shape_point_selected */
-         }
-
-         if(cond && xctx->sel_array[0].type==WIRE) {
-          if(edit_wire_point(state)) break; /* sets xctx->shape_point_selected */
-         }
-       }
-       dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
-
-       /* intuitive interface: directly drag elements */
-       if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
-          !xctx->shape_point_selected) {
-         /* enable_stretch (from TCL variable) reverses command if enabled:
-          * - move --> stretch move
-          * - stretch move (with ctrl key) --> move
-          */
-         int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
-         xctx->drag_elements = 1;
-         /* select attached nets depending on ControlMask and enable_stretch */
-         if(stretch) {
-           select_attached_nets(); /* stretch nets that land on selected instance pins */
-         }
-         /* if dragging instances with stretch enabled and Shift down add wires to pins
-          * attached to something */
-         if((state & ShiftMask) && stretch) {
-           xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-           move_objects(START,0,0,0);
-         }
-         /* dragging away an object with Shift pressed is a copy (duplicate object) */
-         else if(state & ShiftMask) copy_objects(START);
-         /* else it is a normal move */
-         else move_objects(START,0,0,0);
-       }
-
-       if(tclgetboolvar("auto_hilight") && !xctx->shape_point_selected) {
-         if(!(state & ShiftMask) && xctx->hilight_nets && sel.type == 0 ) {
-           if(!prev_last_sel) {
-             redraw_hilights(1); /* 1: clear all hilights, then draw */
-           }
-         }
-         hilight_net(0);
-         if(xctx->lastsel) {
-           redraw_hilights(0);
-         }
-       }
-       break;
-     }
-   } /* button==Button1 */
-   break;
+    handle_button_press(event, state, rstate, key, button, mx, my,
+           c_snap, draw_xhair, crosshair_size, enable_stretch, aux);
+    break;
 
   case ButtonRelease:
-   if(waves_selected(event, key, state, button)) {
-     waves_callback(event, mx, my, key, button, aux, state);
-     break;
-   }
-   xctx->ui_state &= ~DESEL_CLICK;
-   dbg(1, "release: shape_point_selected=%d\n", xctx->shape_point_selected);
-   /* bring up context menu if no pending operation */
-   if(state == Button3Mask && xctx->semaphore <2) {
-     if(!end_place_move_copy_zoom()) {
-       context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
-     }
-   }
+    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair, str);
+    break;
 
-   /* launcher, no intuitive interface */
-   if(!xctx->intuitive_interface && state == (Button1Mask | ControlMask) && 
-      !xctx->shape_point_selected && xctx->mouse_moved == 0) {
-     int savesem = xctx->semaphore;
-     xctx->semaphore = 0;
-     launcher(); /* works only if lastsel == 1 */
-     xctx->semaphore = savesem;
-   }
-
-   /* launcher, intuitive_interface, only if no movement has been done */
-   else if(xctx->intuitive_interface && state == (Button1Mask | ControlMask) &&
-      !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) && xctx->mouse_moved == 0) {
-     int savesem = xctx->semaphore;
-     move_objects(ABORT, 0, 0.0, 0.0);
-     unselect_all(1);
-     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
-     rebuild_selected_array();
-     xctx->semaphore = 0;
-     launcher(); /* works only if lastsel == 1 */
-     xctx->semaphore = savesem;
-   }
-
-   /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
-   else if(state == Button1Mask && xctx->intuitive_interface &&
-           (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
-     if(end_place_move_copy_zoom()) break;
-   }
- 
-   /* end intuitive_interface copy or move */
-   if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
-      copy_objects(END);
-      xctx->constr_mv=0;
-      tcleval("set constr_mv 0" );
-      xctx->drag_elements = 0;
-   }
-   else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
-      move_objects(END,0,0,0);
-      xctx->constr_mv=0;
-      tcleval("set constr_mv 0" );
-      xctx->drag_elements = 0;
-   }
-
-   /* if a polygon/bezier/rectangle control point was clicked, end point move operation
-    * and set polygon state back to SELECTED from SELECTED1 */
-   else if((xctx->ui_state & (STARTMOVE | SELECTION)) && xctx->shape_point_selected) {
-     end_shape_point_edit(c_snap);
-   }
-
-   if(xctx->ui_state & STARTPAN) {
-     xctx->ui_state &=~STARTPAN;
-     /* xctx->mx_save = mx; xctx->my_save = my; */
-     /* xctx->mx_double_save=xctx->mousex_snap; */
-     /* xctx->my_double_save=xctx->mousey_snap; */
-     redraw_w_a_l_r_p_z_rubbers(1);
-     break;
-   }
-   dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
-   if(xctx->semaphore >= 2) break;
-   if(xctx->ui_state & STARTSELECT) {
-     if(state & ControlMask) {
-       select_rect(!enable_stretch, END,-1);
-     } else {
-       /* Button1 release: end of rectangle select */
-       if(!(state & (Button4Mask|Button5Mask) ) ) {
-         select_rect(enable_stretch, END,-1);
-       }
-     }
-     xctx->ui_state &= ~DESEL_AREA;
-     rebuild_selected_array();
-     my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-       xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
-     statusmsg(str,1);
-   }
-
-   /* clear start from menu flag or infix_interface=0 start commands */
-   if(xctx->ui_state & MENUSTART) {
-     xctx->ui_state &= ~MENUSTART;
-     break;
-   }
-   if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
-   break;
   case -3:  /* double click  : edit prop */
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
