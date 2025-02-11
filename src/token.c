@@ -1174,26 +1174,34 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
   if(c=='\0')
   {
-   /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
-   if(result) {
-     dbg(1, "print_vhdl_primitive(): before translate() result=%s\n", result);
-     if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
-        /* since netlist_commands often have @ characters in spice node save / plot commands, do
-        * not pass through translate, unless a tcleval(...) is present */
-       if(strstr(result, "tcleval(")== result) {
-         my_strdup(_ALLOC_ID_, &result, translate(inst, result));
-       }
-     } else {
-       my_strdup(_ALLOC_ID_, &result, translate(inst, result));
-     }
-     dbg(1, "print_vhdl_primitive(): after  translate() result=%s\n", result);
-   }
-   if(result) fprintf(fd, "%s", result);
-   fputc('\n',fd);
-   fprintf(fd, "---- end primitive\n");
-   break ;
+    /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+     * can be calculated. Before that do also a round of translation to remove remaining @params */
+    if(result) {
+      dbg(1, "print_verilog_primitive(): before translate3() result=%s\n", result);
+      if(strchr(result, '@')) { 
+        /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
+        if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+          my_strdup2(_ALLOC_ID_, &result, translate3(result, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+          /* can not put template in above translate3: ------------------------------------^^^^
+           * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
+           * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
+          if(strchr(result, '@')) {
+             my_strdup2(_ALLOC_ID_, &result, translate3(result, 2, template, NULL, NULL, NULL));
+          }
+        } 
+      }
+      my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
+      if(strstr(result, "expr(") ) {
+        result = eval_expr(result);
+      }
+      dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
+    } 
+    if(result) fprintf(fd, "%s", result);
+    fputc('\n',fd);
+    fprintf(fd, "---- end primitive\n");
+    break ;
   }
- }
+ } /* while(1) */
  my_free(_ALLOC_ID_, &result);
  my_free(_ALLOC_ID_, &template);
  my_free(_ALLOC_ID_, &format);
@@ -2398,7 +2406,13 @@ int print_spice_element(FILE *fd, int inst)
          *           model=nfet_01v8
          */
         my_strdup2(_ALLOC_ID_, &val, 
-               translate3(token, 2, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+               translate3(token, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
+        /* can not put template in above translate3: ---------------------------^^^^
+         * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
+         * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
+        if(strchr(val, '@')) {
+           my_strdup2(_ALLOC_ID_, &val, translate3(val, 0, template, NULL, NULL, NULL));
+        }
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
         if(strchr(val, '@')) {
@@ -2428,12 +2442,10 @@ int print_spice_element(FILE *fd, int inst)
           }
           dbg(1, "print_spice_element(): final: val: |%s|\n", val);
         }
-        value = val;
-        /* xctx->tok_size==0 (set in translate3()) indicates that token(+1) does not exist
-         *  in instance attributes so try to get from symbol template */
-        dbg(1, "print_spice_element(): val: %s\n", val);
+        /* still unresolved: set to empty */
+        if(val[0] == '@') value = "";
+        else value = val;
         token_exists = xctx->tok_size;
-        value = val;
         tok_val_len = strlen(value);
         /* @spiceprefix needs a special tag for postprocessing */
         if(!strcmp(token, "@spiceprefix") && value[0]) {
@@ -3109,26 +3121,35 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    }
    if(c=='\0')
    {
-    /* do one level of substitutions to resolve remaining @params and/or tcl expr/code */
+    /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+     * can be calculated. Before that do also a round of translation to remove remaining @params */
     if(result) {
-      dbg(1, "print_verilog_primitive(): before translate() result=%s\n", result);
-      if(!strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
-         /* since netlist_commands often have @ characters in spice node save / plot commands, do
-         * not pass through translate, unless a tcleval(...) is present */
-        if(strstr(result, "tcleval(")== result) {
-          my_strdup(_ALLOC_ID_, &result, translate(inst, result));
+      dbg(1, "print_verilog_primitive(): before translate3() result=%s\n", result);
+      if(strchr(result, '@')) { 
+        /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
+        if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+          my_strdup2(_ALLOC_ID_, &result, translate3(result, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+          /* can not put template in above translate3: ------------------------------------^^^^
+           * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
+           * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
+          if(strchr(result, '@')) {
+             my_strdup2(_ALLOC_ID_, &result, translate3(result, 2, template, NULL, NULL, NULL));
+          }
+
         }
-      } else {
-        my_strdup(_ALLOC_ID_, &result, translate(inst, result));
       }
-      dbg(1, "print_verilog_primitive(): after  translate() result=%s\n", result);
+      my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
+      if(strstr(result, "expr(") ) {
+        result = eval_expr(result);
+      }
+      dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
     }
     if(result) fprintf(fd, "%s", result);
     fputc('\n',fd);
     fprintf(fd, "---- end primitive\n");
     break ;
    }
-  }
+  } /* while(1) */
   my_free(_ALLOC_ID_, &result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
@@ -3789,7 +3810,7 @@ const char *translate(int inst, const char* s)
     /* @spice_get_current(...) or @spice_get_modelparam(...) */
     /* @spice_get_modelvoltage(...) or @spice_get_modelvoltage_param(...) */
     regcomp(get_sp_cur,
-        "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
+        "^@spice_get_(current|modelparam|modelvoltage)([_a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
   }
  
   sp_prefix = tclgetboolvar("spiceprefix");
