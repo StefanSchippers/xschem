@@ -2346,8 +2346,9 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 }
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
-  int mx, int my, int aux, int draw_xhair, char *str, int enable_stretch)
+  int mx, int my, int aux, int draw_xhair, int enable_stretch)
 {
+    char str[PATH_MAX + 100];
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       return;
@@ -2368,7 +2369,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     /* update status bar messages */
     if(xctx->ui_state) {
       if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-        my_snprintf(str, PATH_MAX + 100, "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
+        my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d w=%.6g h=%.6g",
           xctx->mousex_snap, xctx->mousey_snap,
           xctx->lastsel ,
           xctx->mousex_snap-xctx->mx_double_save, xctx->mousey_snap-xctx->my_double_save
@@ -2465,8 +2466,9 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
 }
 
 static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
-     int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap, char *str )
+     int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap)
 {
+   char str[PATH_MAX + 100];
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -3168,11 +3170,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     if(xctx->semaphore >= 2) return;
     rebuild_selected_array();
     if(xctx->lastsel==0 ) {
-      my_snprintf(str, PATH_MAX + 100, "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
+      my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
       tcleval(str);
     }
     else if(xctx->sel_array[0].type==ELEMENT) {
-      my_snprintf(str, PATH_MAX + 100, "edit_file {%s}",
+      my_snprintf(str, S(str), "edit_file {%s}",
          abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
       tcleval(str);
 
@@ -3279,7 +3281,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
      int tool = 0;
      int exists = 0;
      char *tool_name = NULL;
-     char str[200];
 
      if(xctx->semaphore >= 2) return;
      tcleval("winfo exists .graphdialog");
@@ -3319,7 +3320,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    }
    if(key=='g' && rstate==ControlMask)              /* set snap factor 20161212 */
    {
-    my_snprintf(str,  PATH_MAX + 100,
+    my_snprintf(str,  S(str),
      "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
      CADSNAP, c_snap, c_snap);
     tcleval(str);
@@ -4157,8 +4158,9 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 }
 
 static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
-              int aux, double c_snap, int enable_stretch, int draw_xhair, char *str)
+              int aux, double c_snap, int enable_stretch, int draw_xhair)
 {
+   char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
@@ -4241,7 +4243,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      }
      xctx->ui_state &= ~DESEL_AREA;
      rebuild_selected_array();
-     my_snprintf(str, PATH_MAX + 100, "mouse = %.16g %.16g - selected: %d path: %s",
+     my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
    }
@@ -4459,7 +4461,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case MotionNotify:
-    handle_motion_notify(event, key, state, rstate, button, mx, my, aux, draw_xhair, str, enable_stretch);
+    handle_motion_notify(event, key, state, rstate, button, mx, my, aux, draw_xhair, enable_stretch);
     break;
 
   case KeyRelease:
@@ -4467,7 +4469,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
   case KeyPress:
    handle_key_press(event, key, state, rstate, mx, my, button, aux, 
-                      infix_interface, enable_stretch, win_path, c_snap, str);
+                      infix_interface, enable_stretch, win_path, c_snap);
    break;
 
   case ButtonPress:
@@ -4476,7 +4478,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case ButtonRelease:
-    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair, str);
+    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair);
     break;
 
   case -3:  /* double click  : edit prop */
