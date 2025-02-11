@@ -110,6 +110,17 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
   if(xctx->ui_state & STARTWIRE) {
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
+    if(tclgetboolvar("orthogonal_wiring")) {
+      new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
+   /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+      int origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+   /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+      if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
+          xctx->manhattan_lines = 1;
+      } else {
+          xctx->manhattan_lines = 2;
+      }
+      }   
     new_wire(RUBBER, mx, my);
   }
   if(xctx->ui_state & STARTARC) {
@@ -220,6 +231,11 @@ static void start_wire(double mx, double my)
          xctx->ui_state, xctx->ui_state2, xctx->last_command);
      xctx->last_command = STARTWIRE;
      if(xctx->ui_state & STARTWIRE) {
+       if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+        xctx->constr_mv = xctx->manhattan_lines;
+        new_wire(CLEAR, mx, my);
+        redraw_w_a_l_r_p_z_rubbers(1);
+       }  
        if(xctx->constr_mv != 2) {
          xctx->mx_double_save = mx;
        }
@@ -233,6 +249,10 @@ static void start_wire(double mx, double my)
        xctx->my_double_save=my;
      }
      new_wire(PLACE,mx, my);
+     if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+    	xctx->constr_mv = 0;
+	   }
+
 }
 
 static double interpolate_yval(int idx, int p, double x, int sweep_idx, int point_not_last)
@@ -1690,6 +1710,7 @@ void snapped_wire(double c_snap)
     new_wire(PLACE|END, x, y);
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
+    if((xctx->ui_state & MENUSTART) && !tclgetboolvar("persistent_command") ) xctx->ui_state &= ~MENUSTART; /*CD*/
   }
 }
 
@@ -2430,7 +2451,7 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 }
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
-  int mx, int my, int aux, int draw_xhair, int enable_stretch)
+  int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active)
 {
     char str[PATH_MAX + 100];
     if( waves_selected(event, key, state, button)) {
@@ -2439,6 +2460,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     }
     if(draw_xhair) {
       draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
+      if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     }
     /* pan schematic */
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
@@ -2447,6 +2469,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
       if(draw_xhair) {
         draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
       }
+      if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
       return;
     }
 
@@ -2547,6 +2570,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     if(draw_xhair) {
       draw_crosshair(2, state); /* what = 2(draw) */
     }
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
 }
 
 static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
@@ -4138,8 +4162,19 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      /* start another wire or line in persistent mode */
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
-       if(xctx->last_command == STARTWIRE)  start_wire(xctx->mousex_snap, xctx->mousey_snap);
-       return;
+       if(xctx->last_command == STARTWIRE){
+        if(tclgetboolvar("snap_cursor")
+             && (xctx->prev_snapx == xctx->mousex_snap
+             && xctx->prev_snapy == xctx->mousey_snap)
+             && (xctx->ui_state & STARTWIRE)
+             && xctx->closest_pin_found){
+          new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
+          xctx->ui_state &= ~STARTWIRE;
+        }
+        else
+          start_wire(xctx->mousex_snap, xctx->mousey_snap);
+      }
+        return;
      }
      /* handle all object insertions started from Tools/Edit menu */
      if(check_menu_start_commands(c_snap, mx, my)) return;
@@ -4276,7 +4311,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 }
 
 static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
-              int aux, double c_snap, int enable_stretch, int draw_xhair)
+              int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active)
 {
    char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
@@ -4315,8 +4350,8 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
-   else if(state == Button1Mask && xctx->intuitive_interface &&
-           (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
+   else if(state == Button1Mask && xctx->intuitive_interface && !tclgetboolvar("persistent_command")
+        && (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
      if(end_place_move_copy_zoom()) return;
    }
  
@@ -4372,9 +4407,10 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      return;
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
 }
 
-static void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux )
+static void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux, int cadence_compat )
 {
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
@@ -4397,6 +4433,10 @@ static void handle_double_click(int event, int state, KeySym key, int button, in
          edit_property(0);
        } else {
          if(xctx->ui_state & STARTWIRE) {
+           if( cadence_compat ) {
+            redraw_w_a_l_r_p_z_rubbers(1);
+            start_wire(mx, my);
+           }
            xctx->ui_state &= ~STARTWIRE;
          }
          if(xctx->ui_state & STARTLINE) {
@@ -4431,6 +4471,11 @@ int draw_xhair = tclgetboolvar("draw_crosshair");
 int crosshair_size = tclgetintvar("crosshair_size");
 int infix_interface = tclgetboolvar("infix_interface");
 int rstate; /* (reduced state, without ShiftMask) */
+int snap_cursor = tclgetboolvar("snap_cursor");
+int cadence_compat = tclgetboolvar("cadence_compat");
+int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
+                       ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
+                       (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
 
  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
   * events. Some remote connection softwares do not generate the correct coordinates
@@ -4542,6 +4587,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -4579,7 +4625,8 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case MotionNotify:
-    handle_motion_notify(event, key, state, rstate, button, mx, my, aux, draw_xhair, enable_stretch);
+    handle_motion_notify(event, key, state, rstate, button, mx, my,
+             aux, draw_xhair, enable_stretch, snap_cursor, wire_draw_active);
     break;
 
   case KeyRelease:
@@ -4596,11 +4643,11 @@ int rstate; /* (reduced state, without ShiftMask) */
     break;
 
   case ButtonRelease:
-    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair);
+    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair, snap_cursor, wire_draw_active);
     break;
 
   case -3:  /* double click  : edit prop */
-   handle_double_click(event, state, key, button, mx, my, aux);
+   handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
    break;
    
   default:
