@@ -25,8 +25,8 @@ V {}
 S {}
 E {}
 B 2 840 -580 1640 -170 {flags=graph
-y1=0
-y2=6
+y1=6.3e-14
+y2=5
 ypos1=0
 ypos2=2
 divy=5
@@ -49,7 +49,7 @@ logy=0
 }
 B 2 840 -990 1640 -580 {flags=graph
 y1=0
-y2=40
+y2=100
 ypos1=0
 ypos2=2
 divy=5
@@ -68,10 +68,9 @@ unitx=1
 logx=0
 logy=0
 }
-P 4 5 140 -600 140 -880 710 -880 710 -600 140 -600 {}
+P 4 5 30 -600 30 -880 740 -880 740 -600 30 -600 {}
 P 4 7 410 -600 410 -560 420 -560 410 -540 400 -560 410 -560 410 -600 {}
 T {// importing libs
-
 `include "discipline.h"
 
 module diff_amp(
@@ -79,17 +78,17 @@ module diff_amp(
   input electrical in1,
   input electrical in2);
 
-parameter real gain = 40; // setting gain to 40 of the differential amplifier
-parameter real vcc = 3;   // swing from -vcc/2 to +vcc/2
-parameter real offset = 3;// added offset
+(* desc="gain", units="", type="instance" *)   parameter real gain = 40 from [-inf: inf];
+(* desc="amplitude", units="", type="instance" *)    parameter real amplitude = 3 from [-inf: inf];
+(* desc="offset", units="", type="instance" *) parameter real offset = 1.5 from [-inf: inf];
 
 analog begin
 
-    V(out) <+ offset / 2 + vcc / 2 * tanh( gain / vcc * 2 * V(in1, in2));
+    V(out) <+ offset + amplitude / 2 * tanh( gain / amplitude * 2 * V(in1, in2));
 
 end
 endmodule
-} 150 -870 0 0 0.2 0.2 {font=monospace}
+} 40 -870 0 0 0.2 0.2 {font=monospace}
 T {create a diff_amp.va file with following code 
 and compile it into a .osdi file with openvaf.} 190 -940 0 0 0.4 0.4 {}
 N 180 -450 320 -450 {lab=B}
@@ -100,7 +99,6 @@ N 180 -330 180 -290 {lab=0}
 N 80 -330 80 -290 {lab=0}
 N 80 -530 80 -390 {lab=A}
 N 180 -450 180 -390 {lab=B}
-C {diff_amp.sym} 420 -490 0 0 {name=X1}
 C {lab_pin.sym} 640 -490 0 1 {name=p1 sig_type=std_logic lab=Z}
 C {lab_pin.sym} 80 -530 0 0 {name=p2 sig_type=std_logic lab=A}
 C {lab_pin.sym} 180 -450 0 0 {name=p3 sig_type=std_logic lab=B}
@@ -118,7 +116,7 @@ C {code_shown.sym} 240 -320 0 0 {name=COMMANDS only_toplevel=false value="
   set appendwrite
   remzerovec
   write tb_diff_amp.raw
-  quit 0
+  * quit 0
 .endc
 "}
 C {launcher.sym} 670 -120 0 0 {name=h5
@@ -130,3 +128,4 @@ C {launcher.sym} 670 -170 0 0 {name=h1
 descr="OP annotate" 
 tclcommand="xschem annotate_op"
 }
+C {diff_amp.sym} 420 -490 0 0 {name=X1 model=diff_amp_cell gain=100 amplitude=5 offset=2.5}
