@@ -63,7 +63,7 @@ symrec  *tptr; /* For returning symbol-table pointers */
 }
 
 %token STREND 0
-%token <c> CHAR
+%token <c> XCHAR
 %token EXPR       /* expr( */
 %token <val>  NUM /* Simple double precision number */
 %token <tptr> FNCT /* Variable and Function */
@@ -81,7 +81,7 @@ input:
 ;
 
 line:   
-          CHAR                    {get_char($1);}
+          XCHAR                   {get_char($1);}
         | EXPR exp ')'            {get_expr($2);lex_state = 0;}
         | EXPR '\'' exp '\'' ')'  {get_expr($3);lex_state = 0;}
         | EXPR exp error          
@@ -216,8 +216,8 @@ static int kklex()
     c = *str++;
     if(c) {
       kklval.c = c;
-      dbg(dbglev, "lex(): CHAR; %c\n", c);
-      return CHAR;
+      dbg(dbglev, "lex(): XCHAR; %c\n", c);
+      return XCHAR;
     } else {
      dbg(dbglev, "lex(): STREND\n");
      return STREND;

@@ -1177,12 +1177,20 @@ static int source_tcl_file(char *s)
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) {
     
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
-    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
     fprintf(errfp, "%s", tclresult());
+    #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
+    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
+    #endif
     fprintf(errfp, "\n");
+    #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
     my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
        {Tcl_AppInit() err 1: can not execute %s, please fix:\n%s\nLine No: %d\n}",
        s, tclresult(), Tcl_GetErrorLine(interp));
+    #else
+    my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
+       {Tcl_AppInit() err 1: can not execute %s, please fix:\n%s\n}",
+       s, tclresult());
+    #endif
     if(has_x) {
       tcleval( "wm withdraw .");
       tcleval( tmp);
