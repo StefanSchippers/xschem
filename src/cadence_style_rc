@@ -1,0 +1,10 @@
+# run with $> xschem --script /path/to/cadence_style_rc
+set draw_crosshair 1
+set crosshair_size 2
+set infix_interface 0
+set cadence_compat 1
+set orthogonal_wiring 1
+set snap_cursor 1
+set snap_cursor_size 4
+set persistent_command 1
+set use_cursor_for_selection 1
