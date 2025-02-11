@@ -3927,6 +3927,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
 		 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux  )
 {
+   int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
@@ -4057,7 +4058,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
         * since the mouse pointer is obscured and crosshair is snapped to grid points */
-       if(draw_xhair && crosshair_size == 0) {
+       if(draw_xhair && (use_cursor_for_sel || crosshair_size == 0)) {
          sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);

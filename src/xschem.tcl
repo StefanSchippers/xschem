@@ -7768,7 +7768,8 @@ set tctx::global_list {
   toolbar_visible top_is_subckt transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  tctx::vsize xschem_libs xschem_listen_port zoom_full_center
+  tctx::vsize xschem_libs xschem_listen_port zoom_full_center orthogonal_wiring snap_cursor
+  snap_cursor_size cadence_compat use_cursor_for_selection
 }
 
 ## list of global arrays to save/restore on context switching
@@ -9220,6 +9221,11 @@ set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1
 set_ne infix_interface 1
+set_ne orthogonal_wiring 0
+set_ne snap_cursor 0
+set_ne snap_cursor_size 6
+set_ne cadence_compat 0
+set_ne use_cursor_for_selection 0
 set_ne autotrim_wires 0
 set_ne compare_sch 0
 set_ne disable_unique_names 0
