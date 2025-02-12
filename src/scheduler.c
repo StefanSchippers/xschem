@@ -2158,7 +2158,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 ) {
         what = atoi(argv[2]);
       }
-      if((xctx->semaphore == 0)) go_back(what);
+      if(xctx->semaphore == 0) go_back(what);
       Tcl_ResetResult(interp);
     }
 
@@ -3356,7 +3356,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                             "-message {Please Set netlisting mode (Options menu)}");
         tclsetboolvar("keep_symbols", save_keep);
 
-        if( (erc == 0) ) {
+        if(erc == 0) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
         }
       }

@@ -16,7 +16,7 @@ static int dbglev = 1;
 struct symrec
 {
   char *name;  /* name of symbol */
-  double (*fnctptr)();  /* value of a FNCT */
+  double (*fnctptr)(double);  /* value of a FNCT */
   struct symrec *next;    /* link field */
 };
 
