@@ -639,3 +639,6 @@
 #### Default: not enabled (0)
 # set fix_mouse_coord 0
 
+#### redefine some variables to emulate Cadence UI / bindkeys
+# source /home/schippes/share/xschem/cadence_style_rc
+

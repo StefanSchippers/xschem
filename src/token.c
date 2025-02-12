@@ -1174,19 +1174,26 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
 
   if(c=='\0')
   {
+    char *parent_prop_ptr = NULL;
+
+    if(xctx->currsch > 0) {
+      parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
+    }
     /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
      * can be calculated. Before that do also a round of translation to remove remaining @params */
     if(result) {
-      dbg(1, "print_verilog_primitive(): before translate3() result=%s\n", result);
+      dbg(1, "print_vhdl_primitive(): before translate3() result=%s\n", result);
       if(strchr(result, '@')) { 
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
-          my_strdup2(_ALLOC_ID_, &result, translate3(result, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-          /* can not put template in above translate3: ------------------------------------^^^^
+          my_strdup2(_ALLOC_ID_, &result,
+            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
+          /* can not put template in above translate3: -----------------------^^^^
            * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
            * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
-          if(strchr(result, '@')) {
-             my_strdup2(_ALLOC_ID_, &result, translate3(result, 2, template, NULL, NULL, NULL));
+          if(strchr(result, '@')) { 
+             my_strdup2(_ALLOC_ID_, &result,
+                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
           }
         } 
       }
@@ -1194,7 +1201,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
       if(strstr(result, "expr(") ) {
         result = eval_expr(result);
       }
-      dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
+      dbg(1, "print_vhdl_primitive(): after  translate3() result=%s\n", result);
     } 
     if(result) fprintf(fd, "%s", result);
     fputc('\n',fd);
@@ -3122,6 +3129,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    }
    if(c=='\0')
    {
+    char *parent_prop_ptr = NULL;
+                   
+    if(xctx->currsch > 0) {
+      parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
+    }   
+
     /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
      * can be calculated. Before that do also a round of translation to remove remaining @params */
     if(result) {
@@ -3129,14 +3142,15 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       if(strchr(result, '@')) { 
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
-          my_strdup2(_ALLOC_ID_, &result, translate3(result, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-          /* can not put template in above translate3: ------------------------------------^^^^
+          my_strdup2(_ALLOC_ID_, &result,
+            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
+          /* can not put template in above translate3: -----------------------^^^^
            * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
            * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
           if(strchr(result, '@')) {
-             my_strdup2(_ALLOC_ID_, &result, translate3(result, 2, template, NULL, NULL, NULL));
+             my_strdup2(_ALLOC_ID_, &result,
+                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
           }
-
         }
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
