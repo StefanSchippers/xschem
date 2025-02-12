@@ -21,7 +21,6 @@
  */
 
 #include "xschem.h"
-#include <stdbool.h>
 
 /* allow to use the Windows keys as alternate for Alt */
 #define SET_MODMASK ( (rstate & Mod1Mask) || (rstate & Mod4Mask) ) 
@@ -111,10 +110,11 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     if(tclgetboolvar("orthogonal_wiring")) {
+      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+      double origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-   /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-      int origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
-   /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+      /* Draw whichever component of the resulting orthogonal-wire is bigger
+       * (either horizontal or vertical), first */
       if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
           xctx->manhattan_lines = 1;
       } else {
@@ -1520,7 +1520,7 @@ void draw_crosshair(int what, int state)
   xctx->draw_pixmap = sdp;
 }
 
-void find_snap_position(double *x, double *y, bool pos_changed) {
+void find_snap_position(double *x, double *y, int pos_changed) {
   if (!pos_changed) {
       *x = xctx->prev_snapx;
       *y = xctx->prev_snapy;
@@ -1531,24 +1531,22 @@ void find_snap_position(double *x, double *y, bool pos_changed) {
 }
 
 void draw_snap_cursor_shape(GC gc, double x, double y, int snapcursor_size) {
-  // Convert coordinates to screen space
+  /* Convert coordinates to screen space */
   double screen_x = X_TO_SCREEN(x);
   double screen_y = Y_TO_SCREEN(y);
   double left = screen_x - snapcursor_size;
   double right = screen_x + snapcursor_size;
   double top = screen_y - snapcursor_size;
   double bottom = screen_y + snapcursor_size;
-
-  // Define crosshair lines
-  double lines[4][4] = {
-      {screen_x, top, right, screen_y},    // Top to right
-      {right, screen_y, screen_x, bottom}, // Right to bottom
-      {screen_x, bottom, left, screen_y},  // Bottom to left
-      {left, screen_y, screen_x, top}      // Left to top
-  };
-
-  // Draw crosshair lines
-  for (int i = 0; i < 4; i++) {
+  int i;
+  /* Define crosshair lines */
+  double lines[4][4];
+  lines[0][0] = screen_x; lines[0][1] = top;      lines[0][2] = right;    lines[0][3] = screen_y;
+  lines[1][0] = right;    lines[1][1] = screen_y; lines[1][2] = screen_x; lines[1][3] = bottom;
+  lines[2][0] = screen_x; lines[2][1] = bottom;   lines[2][2] = left;     lines[2][3] = screen_y;
+  lines[3][0] = left;     lines[3][1] = screen_y; lines[3][2] = screen_x; lines[3][3] = top;
+  /* Draw crosshair lines */
+  for (i = 0; i < 4; i++) {
       draw_xhair_line(gc, snapcursor_size, lines[i][0], lines[i][1], lines[i][2], lines[i][3]);
   }
 }
@@ -1567,29 +1565,28 @@ void erase_snap_cursor(double prev_x, double prev_y, int snapcursor_size) {
   }
 }
 
-
 /* action = 1 => erase */
 void draw_snap_cursor(int action) {
-  if (!xctx->mouse_inside) return;  // Early exit if mouse is outside
-
-  int snapcursor_size = tclgetintvar("snap_cursor_size");
-  bool pos_changed = (xctx->mousex_snap != xctx->prev_gridx) || (xctx->mousey_snap != xctx->prev_gridy);
-
-  // Save current drawing context
+  int snapcursor_size;
+  int pos_changed;
   int prev_draw_window = xctx->draw_window;
   int prev_draw_pixmap = xctx->draw_pixmap;
+  
+  if (!xctx->mouse_inside) return;  /* Early exit if mouse is outside */
+  snapcursor_size = tclgetintvar("snap_cursor_size");
+  pos_changed = (xctx->mousex_snap != xctx->prev_gridx) || (xctx->mousey_snap != xctx->prev_gridy);
+  /* Save current drawing context */
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-
-  // Erase and redraw the cursor if needed
+  /* Erase and redraw the cursor if needed */
   if (action & 1) {
+      double new_x, new_y;
       erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
 
-      double new_x, new_y;
       find_snap_position(&new_x, &new_y, pos_changed);
       draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
 
-      // Update previous position tracking
+      /* Update previous position tracking */
       xctx->prev_gridx = xctx->mousex_snap;
       xctx->prev_gridy = xctx->mousey_snap;
       xctx->prev_snapx = new_x;
@@ -1598,7 +1595,7 @@ void draw_snap_cursor(int action) {
 
   draw_selection(xctx->gc[SELLAYER], 0);
 
-  // Restore previous drawing context
+  /* Restore previous drawing context */
   xctx->draw_window = prev_draw_window;
   xctx->draw_pixmap = prev_draw_pixmap;
 }
