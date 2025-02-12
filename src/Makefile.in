@@ -50,7 +50,7 @@ expandlabel.c expandlabel.h: expandlabel.y
 	bison -d -o expandlabel.c  expandlabel.y
 
 eval_expr.c: eval_expr.y
-	bison -o eval_expr.c eval_expr.y
+	bison -p kk -o eval_expr.c eval_expr.y
 
 parselabel.o: expandlabel.h
 

@@ -55,7 +55,7 @@ struct fn fn_array[]
     };
 %}
 
-%define api.prefix {kk}
+/* %define api.prefix {kk} */
 %union {
 int          c;
 double     val; /* For returning numbers. */
