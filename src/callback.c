@@ -120,7 +120,7 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
       } else {
           xctx->manhattan_lines = 2;
       }
-      }   
+    }   
     new_wire(RUBBER, mx, my);
   }
   if(xctx->ui_state & STARTARC) {
@@ -227,32 +227,31 @@ static void start_line(double mx, double my)
 
 static void start_wire(double mx, double my)
 {
-     dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
-         xctx->ui_state, xctx->ui_state2, xctx->last_command);
-     xctx->last_command = STARTWIRE;
-     if(xctx->ui_state & STARTWIRE) {
-       if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
-        xctx->constr_mv = xctx->manhattan_lines;
-        new_wire(CLEAR, mx, my);
-        redraw_w_a_l_r_p_z_rubbers(1);
-       }  
-       if(xctx->constr_mv != 2) {
-         xctx->mx_double_save = mx;
-       }
-       if(xctx->constr_mv != 1) {
-         xctx->my_double_save = my;
-       }
-       if(xctx->constr_mv == 1) my = xctx->my_double_save;
-       if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
-     } else {
-       xctx->mx_double_save=mx;
-       xctx->my_double_save=my;
-     }
-     new_wire(PLACE,mx, my);
-     if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
-    	xctx->constr_mv = 0;
-	   }
-
+  dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
+      xctx->ui_state, xctx->ui_state2, xctx->last_command);
+  xctx->last_command = STARTWIRE;
+  if(xctx->ui_state & STARTWIRE) {
+    if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+      xctx->constr_mv = xctx->manhattan_lines;
+      new_wire(CLEAR, mx, my);
+      redraw_w_a_l_r_p_z_rubbers(1);
+    }  
+    if(xctx->constr_mv != 2) {
+      xctx->mx_double_save = mx;
+    }
+    if(xctx->constr_mv != 1) {
+      xctx->my_double_save = my;
+    }
+    if(xctx->constr_mv == 1) my = xctx->my_double_save;
+    if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
+  } else {
+    xctx->mx_double_save=mx;
+    xctx->my_double_save=my;
+  }
+  new_wire(PLACE,mx, my);
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")) {
+    xctx->constr_mv = 0;
+  }
 }
 
 static double interpolate_yval(int idx, int p, double x, int sweep_idx, int point_not_last)
@@ -1522,11 +1521,11 @@ void draw_crosshair(int what, int state)
 
 void find_snap_position(double *x, double *y, int pos_changed) {
   if (!pos_changed) {
-      *x = xctx->prev_snapx;
-      *y = xctx->prev_snapy;
+    *x = xctx->prev_snapx;
+    *y = xctx->prev_snapy;
   } else {
-      xctx->closest_pin_found = find_closest_net_or_symbol_pin(
-          xctx->mousex, xctx->mousey, x, y);
+    xctx->closest_pin_found = find_closest_net_or_symbol_pin(
+      xctx->mousex, xctx->mousey, x, y);
   }
 }
 
@@ -1580,21 +1579,19 @@ void draw_snap_cursor(int action) {
   xctx->draw_window = 1;
   /* Erase and redraw the cursor if needed */
   if (action & 1) {
-      double new_x, new_y;
-      erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
+    double new_x, new_y;
+    erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
 
-      find_snap_position(&new_x, &new_y, pos_changed);
-      draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
+    find_snap_position(&new_x, &new_y, pos_changed);
+    draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
 
-      /* Update previous position tracking */
-      xctx->prev_gridx = xctx->mousex_snap;
-      xctx->prev_gridy = xctx->mousey_snap;
-      xctx->prev_snapx = new_x;
-      xctx->prev_snapy = new_y;
+    /* Update previous position tracking */
+    xctx->prev_gridx = xctx->mousex_snap;
+    xctx->prev_gridy = xctx->mousey_snap;
+    xctx->prev_snapx = new_x;
+    xctx->prev_snapy = new_y;
   }
-
   draw_selection(xctx->gc[SELLAYER], 0);
-
   /* Restore previous drawing context */
   xctx->draw_window = prev_draw_window;
   xctx->draw_pixmap = prev_draw_pixmap;
