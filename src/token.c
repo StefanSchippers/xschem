@@ -2411,7 +2411,8 @@ int print_spice_element(FILE *fd, int inst)
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
          * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
         if(strchr(val, '@')) {
-           my_strdup2(_ALLOC_ID_, &val, translate3(val, 0, template, NULL, NULL, NULL));
+           my_strdup2(_ALLOC_ID_, &val,
+              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
         }
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
