@@ -3784,7 +3784,9 @@ const char *spice_get_node(const char *token)
 /* if s==NULL return emty string */
 const char *translate(int inst, const char* s)
 {
+  #ifdef __unix__
   static regex_t *get_sp_cur = NULL; 
+  #endif
   static const char *empty="";
   static char *result=NULL; /* safe to keep even with multiple schematics */
   size_t size=0;
@@ -3809,16 +3811,19 @@ const char *translate(int inst, const char* s)
  
   if(!s && inst == -1) {
     if(result) my_free(_ALLOC_ID_, &result);
+    #ifdef __unix__
     if(get_sp_cur) {
       regfree(get_sp_cur);
       get_sp_cur = NULL;
     }
+    #endif
   }
  
   if(!s || !xctx || !xctx->inst) {
     return empty;
   }
  
+  #ifdef __unix__
   if(!get_sp_cur) {
     get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
     /* @spice_get_current_param(...) or @spice_get_modelparam_param(...) */
@@ -3827,6 +3832,7 @@ const char *translate(int inst, const char* s)
     regcomp(get_sp_cur,
         "^@spice_get_(current|modelparam|modelvoltage)([_a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
   }
+  #endif
  
   sp_prefix = tclgetboolvar("spiceprefix");
  
@@ -4158,7 +4164,11 @@ const char *translate(int inst, const char* s)
        * 
        * Only @spice_get_current(...) and @spice_get_current_param(...) are processed
        * the other types are ignored */
+      #ifdef __unix__
       else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
+      # else
+      else if(0)  /* FIXME: windows workaround for missing regex* functions */
+      #endif
       {
         int start_level; /* hierarchy level where waves were loaded */
         int live = tclgetboolvar("live_cursor2_backannotate");
