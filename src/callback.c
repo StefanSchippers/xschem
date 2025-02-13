@@ -1624,11 +1624,11 @@ static int end_place_move_copy_zoom()
     }
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTARC) {
     new_arc(SET, 0, xctx->mousex_snap, xctx->mousey_snap);
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTLINE) {
     if(tclgetboolvar("persistent_command")) {
@@ -1646,11 +1646,11 @@ static int end_place_move_copy_zoom()
     }
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTRECT) {
     new_rect(PLACE|END,xctx->mousex_snap, xctx->mousey_snap);
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTPOLYGON) {
     if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
@@ -1660,8 +1660,9 @@ static int end_place_move_copy_zoom()
     xctx->my_double_save=xctx->mousey_snap;
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
+  #if 0 /* this code never executed */
   else if(xctx->ui_state & STARTMOVE) {
     move_objects(END,0,0,0);
     xctx->ui_state &=~START_SYMPIN;
@@ -1675,6 +1676,7 @@ static int end_place_move_copy_zoom()
     tcleval("set constr_mv 0" );
     return 1;
   }
+  #endif
   return 0;
 }
 
@@ -4063,6 +4065,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 		 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux  )
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
+   int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
@@ -4075,7 +4078,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
    }
 
    /* select instance and connected nets stopping at wire junctions */
-   if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
+   if(!excl && button == Button3 && state == ControlMask && xctx->semaphore <2)
    {
      Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4083,17 +4086,19 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
    }
    
    /* break wire at mouse coordinates, move break point to nearest grid point */
-   else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
+   else if(!excl && button == Button3 && EQUAL_MODMASK &&
+           !(state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
    }
    /* break wire at mouse coordinates */
-   else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
+   else if(!excl && button == Button3 && EQUAL_MODMASK &&
+           (state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }
    /* select instance and connected nets NOT stopping at wire junctions */
-   else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
+   else if(!excl && button == Button3 && state == ShiftMask && xctx->semaphore <2)
    {
      Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4101,13 +4106,13 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
    }
    /* moved to Button3 release */
    /* 
-    * else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
+    * else if(button == Button3 && state == 0 && xctx->semaphore <2) {
     *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
     * }
     */
 
    /* zoom rectangle by right clicking and drag */
-   else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
+   else if(!excl && button == Button3 && state == 0 && xctx->semaphore < 2) {
      zoom_rectangle(START);return;
    }
      
@@ -4404,7 +4409,8 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
    if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
 }
 
-static void handle_double_click(int event, int state, KeySym key, int button, int mx, int my, int aux, int cadence_compat )
+static void handle_double_click(int event, int state, KeySym key, int button,
+                                int mx, int my, int aux, int cadence_compat )
 {
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
