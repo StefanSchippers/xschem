@@ -1662,7 +1662,6 @@ static int end_place_move_copy_zoom()
     tcleval("set constr_mv 0" );
     return 0;
   }
-  #if 0 /* this code never executed */
   else if(xctx->ui_state & STARTMOVE) {
     move_objects(END,0,0,0);
     xctx->ui_state &=~START_SYMPIN;
@@ -1676,7 +1675,6 @@ static int end_place_move_copy_zoom()
     tcleval("set constr_mv 0" );
     return 1;
   }
-  #endif
   return 0;
 }
 
