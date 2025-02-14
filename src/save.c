@@ -3545,7 +3545,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       }
       len = strlen(name);
       if(!strcmp(name + len - 4, ".sym")) {
-        xctx->save_netlist_type = xctx->netlist_type;
+        if(xctx->netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = xctx->netlist_type;
         xctx->netlist_type = CAD_SYMBOL_ATTRS;
         set_tcl_netlist_type();
         xctx->loaded_symbol = 1;
@@ -3564,7 +3564,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       if(reset_undo) {
         tclvareval("is_xschem_file {", xctx->sch[xctx->currsch], "}", NULL);
         if(!strcmp(tclresult(), "SYMBOL") || xctx->instances == 0) {
-          xctx->save_netlist_type = xctx->netlist_type;
+          if(xctx->netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
           set_tcl_netlist_type();
           xctx->loaded_symbol = 1;
@@ -5217,7 +5217,7 @@ int descend_symbol(void)
     }
     my_free(_ALLOC_ID_, &sympath);
   }
-  xctx->save_netlist_type = save_netlist_type;
+  if(save_netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = save_netlist_type;
   xctx->loaded_symbol = 1;
   xctx->netlist_type = CAD_SYMBOL_ATTRS;
   set_tcl_netlist_type();
