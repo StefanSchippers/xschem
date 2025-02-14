@@ -5107,6 +5107,7 @@ int descend_symbol(void)
   char name_embedded[PATH_MAX];
   int n = 0;
   struct stat buf;
+  int save_netlist_type = xctx->netlist_type;
   if(xctx->currsch + 1 >= CADMAXHIER) {
     dbg(0, "descend_symbol(): max hierarchy depth reached: %d", CADMAXHIER);
     return 0;
@@ -5216,6 +5217,10 @@ int descend_symbol(void)
     }
     my_free(_ALLOC_ID_, &sympath);
   }
+  xctx->save_netlist_type = save_netlist_type;
+  xctx->loaded_symbol = 1;
+  xctx->netlist_type = CAD_SYMBOL_ATTRS;
+  set_tcl_netlist_type();
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   return 1;
 }
