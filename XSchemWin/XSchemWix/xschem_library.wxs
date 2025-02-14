@@ -293,6 +293,9 @@
 						<Component Id="cmpC76DA8327344C4B4AB04EF665B72B736" Guid="{2ACADB68-D803-40D4-BCA3-ECA604ED7AE9}">
 							<File Id="filCC0547DA9E32AACF4F88B5E7AD58DEC0" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\sqwsource.sym" />
 						</Component>
+						<Component Id="cmp57911CE62A560E61564C339A78C10282" Guid="{62F8D0F6-D4FF-4255-8B5B-FC912F25C3BB}">
+							<File Id="fil4085D9852FFDBCA1DA05DFA41B6B63A2" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\stop.sym" />
+						</Component>
 						<Component Id="cmpA4CE7D272C69DDD6A95DF0D02AC0D3C0" Guid="{C1242779-E7D6-43A3-B210-D631DEFDF56B}">
 							<File Id="filEB57C82FF4DA64043A496E5A9ABF6802" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\switch.sym" />
 						</Component>
@@ -457,6 +460,7 @@
 			<ComponentRef Id="cmpC0CDD9987356F9D8308F1F96CAA35403" />
 			<ComponentRef Id="cmp530072B273A8627AFC7F2E628B5116CE" />
 			<ComponentRef Id="cmpC76DA8327344C4B4AB04EF665B72B736" />
+			<ComponentRef Id="cmp57911CE62A560E61564C339A78C10282" />
 			<ComponentRef Id="cmpA4CE7D272C69DDD6A95DF0D02AC0D3C0" />
 			<ComponentRef Id="cmp92D378095B64443F3454801FDB1FBF50" />
 			<ComponentRef Id="cmpB88C8475423DC9A430B279627C98B455" />

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>  /* For math functions, cos(), sin(), etc. */
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <ctype.h>
 #include "xschem.h"
@@ -193,13 +192,15 @@ void eval_expr_init_table(void)  /* puts arithmetic functions in table. */
 
 void eval_expr_clear_table(void)
 {
-  symrec *ptr;
-  for (ptr = sym_table; ptr; ptr = ptr->next) {
+  symrec *ptr = sym_table;
+  while(ptr) {
     symrec *tmp = ptr;
+    ptr = ptr->next;
     my_free(_ALLOC_ID_, &(tmp->name));
     my_free(_ALLOC_ID_, &tmp);
   }
 }
+    
 
 static int kklex()
 {

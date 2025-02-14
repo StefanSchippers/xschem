@@ -1764,4 +1764,5 @@ extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char *suffix, char **filename);
 extern void create_ps(char** psfile, int what, int fullzoom, int eps);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
+extern int win_regexec(const char *options, const char *pattern, const char *name);
 #endif /*CADGLOBALS */

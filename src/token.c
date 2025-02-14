@@ -4167,7 +4167,7 @@ const char *translate(int inst, const char* s)
       #ifdef __unix__
       else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
       # else
-      else if(0)  /* FIXME: windows workaround for missing regex* functions */
+      else if ((win_regexec(NULL/*options*/, "^@spice_get_(current|modelparam|modelvoltage)([_a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
       #endif
       {
         int start_level; /* hierarchy level where waves were loaded */
