@@ -3826,11 +3826,11 @@ const char *translate(int inst, const char* s)
   #ifdef __unix__
   if(!get_sp_cur) {
     get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
-    /* @spice_get_current_param(...) or @spice_get_modelparam_param(...) */
+    /* @spice_get_current_<param>(...) or @spice_get_modelparam_<param>(...) */
     /* @spice_get_current(...) or @spice_get_modelparam(...) */
-    /* @spice_get_modelvoltage(...) or @spice_get_modelvoltage_param(...) */
+    /* @spice_get_modelvoltage(...) or @spice_get_modelvoltage_<param>(...) */
     regcomp(get_sp_cur,
-        "^@spice_get_(current|modelparam|modelvoltage)([_a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
+        "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
   }
   #endif
  
@@ -4158,16 +4158,16 @@ const char *translate(int inst, const char* s)
           }
         }
       }
-      /* @spice_get_current(...) or @spice_get_current_param(...)
-       * @spice_get_modelparam(...) or @spice_get_modelparam_param(...)
-       * @spice_get_modelvoltage(...) or @spice_get_modelvoltage_param(...)
+      /* @spice_get_current(...) or @spice_get_current_<param>(...)
+       * @spice_get_modelparam(...) or @spice_get_modelparam_<param>(...)
+       * @spice_get_modelvoltage(...) or @spice_get_modelvoltage_<param>(...)
        * 
-       * Only @spice_get_current(...) and @spice_get_current_param(...) are processed
+       * Only @spice_get_current(...) and @spice_get_current_<param>(...) are processed
        * the other types are ignored */
       #ifdef __unix__
       else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
       # else
-      else if ((win_regexec(NULL/*options*/, "^@spice_get_(current|modelparam|modelvoltage)([_a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
+      else if ((win_regexec(NULL/*options*/, "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
       #endif
       {
         int start_level; /* hierarchy level where waves were loaded */
@@ -4194,7 +4194,8 @@ const char *translate(int inst, const char* s)
               n = sscanf(token + 19, "%[^)]", dev);
             } else {
               param = my_malloc(_ALLOC_ID_, tmp);
-              n = sscanf(token, "@spice_get_current_%s(%[^)]", param, dev);
+              n = sscanf(token, "@spice_get_current_%[^(](%[^)]", param, dev);
+              dbg(1, "token=%s, param=%s, dev=%s\n", token, param, dev);
               if(n < 2) {
                 my_free(_ALLOC_ID_, &param);
                 n = sscanf(token, "@spice_get_current[^(](%[^)]", dev);
@@ -4219,6 +4220,7 @@ const char *translate(int inst, const char* s)
                   my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "ic");
                 } else if(prefix == 'd' || prefix == 'm') {
                   my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "id");
+                  dbg(1, "translate(): fqdev=%s\n", fqdev);
                 } else if(prefix == 'i') {
                   my_snprintf(fqdev, len, "i(@%c.%s%s.%s[current])", prefix, path, instname, dev);
                 } else {
