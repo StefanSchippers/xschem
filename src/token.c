@@ -4653,7 +4653,6 @@ const char *translate2(Lcc *lcc, int level, char* s)
       }
       else if(strcmp(token,"@path")==0) {
         char *path = NULL;
-        here(level);
         my_strdup2(_ALLOC_ID_, &path, "@path@name\\.");
         if(level > 1) { /* add parent LCC instance names (X1, Xinv etc) */
           int i;
