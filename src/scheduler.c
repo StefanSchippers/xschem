@@ -3024,6 +3024,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
+    /* load_symbol [symbol_file]
+     *   Load specified symbol_file  */
+    else if(!strcmp(argv[1], "load_symbol") )
+    {
+      int res = -1;
+      struct stat buf;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) { 
+        int i = get_symbol(rel_sym_path(argv[2]));
+        if(i < 0 ) {
+          if(!stat(argv[2], &buf)) { /* file exists */
+            res = load_sym_def(rel_sym_path(argv[2]), NULL);
+          }
+        }
+      }
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
+    }
+
     /* log_write text
      *   write given string to log file, so tcl can write messages on the log file
      */

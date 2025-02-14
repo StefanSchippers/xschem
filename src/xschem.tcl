@@ -6631,8 +6631,12 @@ proc try_download_url {dirname sch_or_sym} {
 # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 #          devices/iopin.sym
 proc rel_sym_path {symbol} {
-  global OS pathlist
+  global OS pathlist env
 
+  regsub {^~/} $symbol ${env(HOME)}/ symbol
+  if {![regexp {^/} $symbol]} {
+    set symbol [pwd]/$symbol
+  }
   set curr_dirname [pwd]
   set name {}
   foreach path_elem $pathlist {

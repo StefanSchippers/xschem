@@ -3487,10 +3487,12 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
           } else {
              if(gr->hilight_wave == wcnt) {
                gr->hilight_wave = -1;
-               my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+               my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                          subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              } else {
                gr->hilight_wave = wcnt;
-               my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+               my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                          subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
              }
           }
         }
@@ -3512,10 +3514,12 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
         } else {
           if(gr->hilight_wave == wcnt) {
             gr->hilight_wave = -1;
-            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                       subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           } else {
             gr->hilight_wave = wcnt;
-            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                       subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
           }
         }
       }

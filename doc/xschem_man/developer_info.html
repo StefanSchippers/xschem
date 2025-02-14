@@ -553,6 +553,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
+
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -588,7 +589,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    all inside selected instances will be deleted </pre>
    <li><kbd>       build_colors</kbd></li><pre>
    Rebuild color palette using values of tcl vars dim_value and dim_bg </pre>
-   <li><kbd>       callback winpath event mx my key button aux state</kbd></li><pre>
+   <li><kbd>       callback win_path event mx my key button aux state</kbd></li><pre>
    Invoke the callback event dispatcher with a software event </pre>
    <li><kbd>       case_insensitive 1|0</kbd></li><pre>
    Set case insensitive symbol lookup. Use only on case insensitive filesystems </pre>
@@ -713,6 +714,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       escape_chars source [charset]</kbd></li><pre>
    escape tcl special characters with backslash
    if charset is given escape characters in charset </pre>
+   <li><kbd>       eval_expr str</kbd></li><pre>
+   debug function: evaluate arithmetic expression in str </pre>
    <li><kbd>       exit [exit_code] [closewindow] [force]</kbd></li><pre>
    Exit the program, ask for confirm if current file modified.
    if exit_code is given exit with its value, otherwise use 0 exit code
@@ -974,7 +977,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Example: xschem instances_to_net PANEL
     --&gt; { {Vsw} {plus} {580} {-560} } { {p2} {p} {660} {-440} }
         { {Vpanel1} {minus} {600} {-440} } </pre>
-   <li><kbd>       is_symgen symbol</kbd></li><pre>
+   <li><kbd>       is_generator symbol</kbd></li><pre>
    tell if 'symbol' is a generator (symbol(param1,param2,...) </pre>
    <li><kbd>       line [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
    if 'x1 y1 x2 y2'is given place line on current
@@ -1025,6 +1028,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'f' is given output stderr messages to file 'f'
    if 'f' is not given and a file log is open, close log
    file and resume logging to stderr </pre>
+   <li><kbd>       load_symbol [symbol_file]</kbd></li><pre>
+   Load specified symbol_file  </pre>
    <li><kbd>       log_write text</kbd></li><pre>
    write given string to log file, so tcl can write messages on the log file</pre>
    <li><kbd>       logic_get_net net_name</kbd></li><pre>
@@ -1096,22 +1101,22 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
    If 'f' is given load specified schematic. </pre>
-   <li><kbd>       new_schematic create|destroy|destroy_all|switch winpath file [draw]</kbd></li><pre>
+   <li><kbd>       new_schematic create|destroy|destroy_all|switch win_path file [draw]</kbd></li><pre>
    Open/destroy a new tab or window
      create: create new empty window or with 'file' loaded if 'file' given.
-             The winpath must be given (even {} is ok).
-             non empty winpath ({1}) will avoid warnings if opening the
+             The win_path must be given (even {} is ok).
+             non empty win_path ({1}) will avoid warnings if opening the
              same file multiple times.
-     destroy: destroy tab/window identified by winpath. Example:
+     destroy: destroy tab/window identified by win_path. Example:
               xschem new_schematic destroy .x1.drw
      destroy_all: close all tabs/additional windows
               if the 'force'argument is given do not issue a warning if modified
               tabs are about to be closed.
-     switch: switch context to specified 'winpath' window or specified schematic name
+     switch: switch context to specified 'win_path' window or specified schematic name
               If 'draw' is given and set to 0 do not redraw after switching tab
               (only tab i/f)
-   Main window/tab has winpath set to .drw,
-   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...</pre>
+   Main window/tab has win_path set to .drw,
+   Additional windows/tabs have win_path set to .x1.drw, .x2.drw and so on...</pre>
    <li><kbd>       only_probes</kbd></li><pre>
        dim schematic to better show highlights </pre>
    <li><kbd>       origin x y [zoom]</kbd></li><pre>
@@ -1146,7 +1151,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Start a GUI placement of a text object </pre>
    <li><kbd>       polygon</kbd></li><pre>
    Start a GUI placement of a polygon </pre>
-   <li><kbd>       preview_window create|draw|destroy|close [winpath] [file]</kbd></li><pre>
+   <li><kbd>       preview_window create|draw|destroy|close [win_path] [file]</kbd></li><pre>
    destroy: will delete preview schematic data and destroy container window
    close: same as destroy but leave the container window.
    Used in fileselector to show a schematic preview.</pre>
@@ -1548,7 +1553,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
    Switch context to indicated window path or schematic name
    returns 0 if switch was successfull or 1 in case of errors
-   (no tabs/windows present or no matching winpath / schematic name
+   (no tabs/windows present or no matching win_path / schematic name
    found).</pre>
    <li><kbd>       symbols [n | 'derived_symbols']</kbd></li><pre>
    if 'n' given list symbol with name or number 'n', else list all
@@ -1666,7 +1671,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
-
 
 
 
