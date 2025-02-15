@@ -3025,10 +3025,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* load_symbol [symbol_file]
-     *   Load specified symbol_file  */
+     *   Load specified symbol_file
+     *   Returns:
+     *     >= 0: symbol is already loaded or has been loaded
+     *     <  0: symbol was not loaded
+     */
     else if(!strcmp(argv[1], "load_symbol") )
     {
-      int res = -1;
+      int res = -2;
       struct stat buf;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) { 
@@ -3036,7 +3040,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(i < 0 ) {
           if(!stat(argv[2], &buf)) { /* file exists */
             res = load_sym_def(rel_sym_path(argv[2]), NULL);
+            if(res == 0) res = -1;
+          } else {
+            res = -3;
           }
+        } else {
+          res = 1;
         }
       }
       Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);

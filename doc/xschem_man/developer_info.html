@@ -1029,7 +1029,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'f' is not given and a file log is open, close log
    file and resume logging to stderr </pre>
    <li><kbd>       load_symbol [symbol_file]</kbd></li><pre>
-   Load specified symbol_file  </pre>
+   Load specified symbol_file
+   Returns:
+     &gt;= 0: symbol is already loaded or has been loaded
+     &lt;  0: symbol was not loaded</pre>
    <li><kbd>       log_write text</kbd></li><pre>
    write given string to log file, so tcl can write messages on the log file</pre>
    <li><kbd>       logic_get_net net_name</kbd></li><pre>
