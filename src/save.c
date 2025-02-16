@@ -1038,6 +1038,18 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
       dbg(0, "Raw file data read: %s\n", f);
       dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
              raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "<NULL>");
+
+      if(xctx->graph_flags & 4) { /* if cursor2 is enabled in first graph setup schematic annotation */
+        if(xctx->rects[GRIDLAYER] > 0)  {
+          xRect *r;
+          r = &xctx->rect[GRIDLAYER][0];
+          if(r->flags & 1) {
+            setup_graph_data(0, 0, &xctx->graph_struct);
+            backannotate_at_cursor_b_pos(r, &xctx->graph_struct);
+          }
+        }
+      }
+
     } else {
       /* free_rawfile(rawptr, 0, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
       if(!no_warning) {
