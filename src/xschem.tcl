@@ -6047,10 +6047,10 @@ proc symbolParse {file} {
     while {[regexp -start $start $pattern $content -> name quotedValue unquotedValue]} {
         # Determine the value (quoted or unquoted)
         if {[string length $quotedValue] > 0} {
-            # outer quotes are not part of quotedValue,
-            # remove escaping of internal backslashes and doublequotes
             set value $quotedValue
-            dict append tokens $name [string map {\\\\ \\ \\\" \" } $value]
+            # outer quotes are removed from value,
+            # remove escaping of internal backslashes and doublequotes
+            dict append tokens $name [string map {\\\\ \\ \\\" \" } $value] 
         } else {
             set value $unquotedValue
             dict append tokens $name $value
