@@ -6021,6 +6021,50 @@ proc edit_prop {txtlabel} {
   return $tctx::rcode
 }
 
+# reads metadata tokens from header component of the symbol inside `v {data}` element
+# and returns dictionary in name of the token as key and value of the token as value in dictionary
+# Courtesy @georgtree
+proc symbolParse {file} {
+    try {
+        set file [open $file r]
+    } on error {errmsg erropts} {
+        puts stderr "Error while reading symbol file '$file': $errmsg"
+        return
+    }
+    set data [read $file]
+    close $file
+    # pattern to find v {} and extract content inside brackets
+    set pattern {(?:^|\n)v\s+\{((?:[^{}]|\\[{}])*)\}}
+    if {![regexp $pattern $data -> content]} {
+        return
+    }
+    # outer braces {...} are not part of content, so remove escaping of inner {, } and \ .
+    set content [string map { \\\{ \{ \\\} \} \\\\ \\ } $content]
+    # pattern to find: name="value" or name=value or name = "value" or name = value
+    set pattern {(\w+)\s*=\s*(?:"((?:[^"]|\\["])*)"|(\S+))}
+    set start 0
+    # 'match' variable holds the complete matched pattern, used for searching next one
+    while {[regexp -start $start $pattern $content -> name quotedValue unquotedValue]} {
+        # Determine the value (quoted or unquoted)
+        if {[string length $quotedValue] > 0} {
+            # outer quotes are not part of quotedValue,
+            # remove escaping of internal backslashes and doublequotes
+            set value $quotedValue
+            dict append tokens $name [string map {\\\\ \\ \\\" \" } $value]
+        } else {
+            set value $unquotedValue
+            dict append tokens $name $value
+        }
+        # Update the start index to continue searching after this match
+        set start [expr {[string first $value $content $start] + [string length $value]}]
+        # Safety check to prevent infinite loops
+        if {$start <= 0} {
+            break
+        }
+    }
+    return $tokens
+}
+
 proc read_data_nonewline {f} {
   set fid [open $f r]
   set data [read -nonewline $fid]
