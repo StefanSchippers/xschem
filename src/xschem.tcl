@@ -693,6 +693,61 @@ proc spaces {n {indent 4}} {
   return [string repeat { } $n]
 }
 
+# complex number operators
+# a + b
+proc cadd {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra + $rb}] [expr {$ia + $ib}]]
+  return $c
+}
+
+# a - b
+proc csub {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra - $rb}] [expr {$ia - $ib}]]
+  return $c
+}
+
+# a * b
+proc cmul {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra * $rb - $ia * $ib}] [expr {$ra * $ib + $rb * $ia}]]
+  return $c
+}
+
+# a / b
+proc cdiv {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set ra [expr {double($ra)}]
+  set ia [expr {double($ia)}]
+  set rb [expr {double($rb)}]
+  set ib [expr {double($ib)}]
+  set m [expr {$rb * $rb + $ib * $ib}]
+  set c [list [expr {($ra * $rb + $ia * $ib) / $m}] [expr {($rb * $ia - $ra * $ib) / $m}]]
+  return $c
+}
+
+# return real component
+proc creal {a} {
+  lassign $a ra ia
+  return $ra
+}
+
+# return imaginary component
+proc cimag {a} {
+  lassign $a ra ia
+  return $ia
+}
+
+# return resulting impedance of parallel connected impedances a and b
+proc cparallel {a b} {
+  return [cdiv [cmul $a $b] [cadd $a $b]]
+}
+
 # wraps provided table formatted text into a nice looking bordered table 
 # sep is the list of characters used as separators, default are { }, {,}, {\t}
 # if you want to tabulate data with spaces use only {,} as separator or any other character.
