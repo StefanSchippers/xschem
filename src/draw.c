@@ -4534,7 +4534,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         #endif
       }
       if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-        if(jpg != 1) dbg(0, "draw_image(): failure creating image surface from %s\n", filename);
+        if(jpg != 1) dbg(0, "get_surface_from_file(): failure creating image surface from %s\n", filename);
         if(surface) cairo_surface_destroy(surface);
         my_free(_ALLOC_ID_, &closure.buffer);
         *buffer = NULL;
@@ -4736,7 +4736,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
     cairo_translate(xctx->cairo_ctx, x, y);
     cairo_rotate(xctx->cairo_ctx, rot * XSCH_PI * 0.5);
     if(flip && (rot == 0 || rot == 2)) cairo_scale(xctx->cairo_ctx, -scalex, scaley);
-    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_ctx, scalex, -scaley);
+    else if(flip && (rot == 1 || rot == 3)) cairo_scale(xctx->cairo_ctx, -scalex, scaley);
     else cairo_scale(xctx->cairo_ctx, scalex, scaley);
     cairo_set_source_surface(xctx->cairo_ctx, emb_ptr->image, 0. , 0.);
     cairo_rectangle(xctx->cairo_ctx, 0, 0, w , h );

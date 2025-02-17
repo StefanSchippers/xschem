@@ -513,6 +513,7 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   double alpha = 1.0;
   unsigned char *buffer = NULL;
   size_t buffer_size;
+  double xorig, yorig; /* image anchor point, upper left corner in SVG */
 
   x1=X_TO_SCREEN(rx1);
   y1=Y_TO_SCREEN(ry1);
@@ -523,7 +524,6 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   if(RECT_OUTSIDE(x1, y1, x2, y2,
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
      
-
   if(rot == 1 || rot == 3) {
     w = fabs(y2 - y1);
     h = fabs(x2 - x1);
@@ -533,7 +533,8 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   }
 
   if(flip && (rot == 0 || rot == 2)) scalex = -1.0;
-  else if(flip && (rot == 1 || rot == 3)) scaley = -1.0;
+  else if(flip && (rot == 1 || rot == 3)) scalex = -1.0;
+
   alpha_str = get_tok_value(r->prop_ptr, "alpha", 0);
   if(alpha_str[0]) alpha = atof(alpha_str);
   attr_len = my_strdup2(_ALLOC_ID_, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
@@ -558,8 +559,32 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
     my_free(_ALLOC_ID_, &attr);
     return 0;
   }
+
+  xorig = x1;
+  yorig = y1;
+  if(rot == 0) {
+    if(flip) xorig += w;
+  } else if(rot == 1) {
+    if(flip) {
+      xorig += h;
+      yorig += w;
+    } else xorig += h;
+  } else if(rot == 2) {
+    if(flip) {
+      yorig += h;
+    } else {
+      xorig += w;
+      yorig += h;
+    }
+  } else if(rot == 3) {
+    if(flip) {
+    } else {
+      yorig += w;
+    }
+  }
+
   my_snprintf(transform, S(transform), 
-    "transform=\"translate(%g,%g) scale(%g,%g) rotate(%d)\"", x1, y1, scalex, scaley, rot * 90);
+    "transform=\"translate(%g,%g) rotate(%d) scale(%g,%g)\"", xorig, yorig, rot * 90, scalex, scaley);
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
   /*    png         jpg */
