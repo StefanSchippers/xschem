@@ -2763,12 +2763,12 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    {
     int x;
     xctx->fill_pattern++;
-    if(xctx->fill_pattern==3) xctx->fill_pattern=0;
+    if(xctx->fill_pattern==2) xctx->fill_pattern=0;
 
     if(xctx->fill_pattern==1) {
      tcleval("alert_ { Stippled pattern fill} {}");
      for(x=0;x<cadlayers;x++) {
-       if(xctx->fill_type[x]==1) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
+       if(xctx->fill_type[x]==2) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
        else XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
      }
     }
@@ -4182,7 +4182,8 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      if(end_place_move_copy_zoom()) return;
 
      /* Button1Press to select objects */
-     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
+     if( !(xctx->ui_state & STARTPOLYGON) && !(xctx->ui_state & STARTSELECT) &&
+         !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
        Selected sel;
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;

@@ -1591,9 +1591,9 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
 
-   if(xctx->fill_pattern && (xctx->fill_type[c] || arc_fill == 3) ){
+   if(xctx->fill_pattern && (xctx->fill_type[c] || arc_fill == 2) ){
 
-     if(arc_fill & 2) gc = xctx->gc[c];
+     if(arc_fill == 2) gc = xctx->gc[c];
      else             gc = xctx->gcstipple[c];
      if(arc_fill) {
        if(xctx->draw_window)
@@ -1631,8 +1631,8 @@ void filledrect(int c, int what, double rectx1,double recty1,double rectx2,doubl
 
  if(!has_x) return;
  if(!xctx->fill_pattern) return;
- if(fill != 3 && !xctx->fill_type[c]) return;
- if(fill == 3) { /* full fill */
+ if(fill != 2 && !xctx->fill_type[c]) return;
+ if(fill == 2) { /* full fill */
    gc = xctx->gc[c];
    r = rf;
    i = &iif;
@@ -1782,7 +1782,7 @@ void arc_bbox(double x, double y, double r, double a, double b,
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
 
-/* fill = 1: stippled fill, fill == 3: solid fill */
+/* fill = 1: stippled fill, fill == 2: solid fill */
 void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill)
 {
   const double bez_steps = 1.0/32.0; /* divide the t = [0,1] interval into 32 steps */
@@ -1846,7 +1846,7 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
   XDrawLines(display, w, gc, p, i, CoordModeOrigin);
   if(fill == 1) 
     XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
-  else if(fill==3) 
+  else if(fill==2) 
     XFillPolygon(display, w, xctx->gc[c], p, i, Polygontype, CoordModeOrigin);
 }
 
@@ -1882,7 +1882,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
       for(i=0;i<points; ++i) p[i].x = (short)X_TO_SCREEN(x[i]);
       for(i=0;i<points; ++i) p[i].y = (short)Y_TO_SCREEN(y[i]);
   }
-  fill = xctx->fill_pattern && ((xctx->fill_type[c] && poly_fill == 1) || poly_fill == 3 ) &&
+  fill = xctx->fill_pattern && ((xctx->fill_type[c] && poly_fill == 1) || poly_fill == 2 ) &&
          (x[0] == x[points-1]) && (y[0] == y[points-1]);
   bezier = (flags & 1)  && (points > 2);
   if(dash) {
@@ -1893,19 +1893,19 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   }
   if(xctx->draw_window) {
     if(bezier) {
-      drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill | (poly_fill & 2) );
+      drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill ? poly_fill : 0 );
     } else {
       XDrawLines(display, xctx->window, xctx->gc[c], p, points, CoordModeOrigin);
     }
   }
   if(xctx->draw_pixmap) {
     if(bezier) {
-      drawbezier(xctx->save_pixmap, xctx->gc[c], c, x, y, points, fill | (poly_fill & 2) );
+      drawbezier(xctx->save_pixmap, xctx->gc[c], c, x, y, points, fill ? poly_fill : 0);
     } else {
       XDrawLines(display, xctx->save_pixmap, xctx->gc[c], p, points, CoordModeOrigin);
     }
   }
-  if(poly_fill & 2) gc = xctx->gc[c];
+  if(poly_fill == 2) gc = xctx->gc[c];
   else              gc = xctx->gcstipple[c];
   if(fill && !bezier) {
     if(xctx->draw_window)
@@ -2836,9 +2836,9 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
 
   /* clipping everything outside container area */
   /* background */
-  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 3, -1, -1);
+  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
   /* graph bounding box */
-  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
+  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0, -1, -1);
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3133,7 +3133,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
     else
        my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx));
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
-    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 2, -1, -1);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
   }
 }
@@ -3198,7 +3198,7 @@ static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
     th = (ty2 - ty1) / 2.; /* half text height */
     ty1 -= th;
     ty2 -= th;
-    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 2, -1, -1);
     draw_string(cursor_color, NOW, tmpstr, 0, 0, 0, 0, gr->rx1 + 5, yy - th, txtsize, txtsize);
   }
 }
@@ -3230,7 +3230,7 @@ static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
      my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(diffh));
   text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 1, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
   if( 2 * (ty2 - ty1) < diff ) {
-    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 3, -1, -1);
+    filledrect(0, NOW,  tx1, ty1, tx2, ty2, 2, -1, -1);
     draw_string(3, NOW, tmpstr, 0, 0, 0, 1, xx, yy, txtsize, txtsize);
     if( a > b) {
       dtmp = a; a = b; b = dtmp;
@@ -4476,7 +4476,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
     }
     filesize = (size_t)buf.st_size;
     if(filesize > 0) {
-      fd = fopen(filename, fopen_read_mode);
+      fd = my_fopen(filename, fopen_read_mode);
       if(fd) {
         size_t bytes_read;
         filedata = my_malloc(_ALLOC_ID_, filesize);
@@ -4990,7 +4990,7 @@ void draw(void)
             draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0);     /* ... then draw current layer      */
         }
       }
-      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 3, -1, -1); /* last parameter must be 3! */
+      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
@@ -5017,7 +5017,7 @@ void draw(void)
             xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
       }
       update_conn_cues(cc, 1, xctx->draw_window);
-      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 3, -1, -1); /* fill parameter must be 3! */
+      filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {

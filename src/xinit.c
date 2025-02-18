@@ -361,10 +361,10 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
      if(pixdata[i][j]!=0xff) full=0;
      if(pixdata[i][j]!=0x00) empty=0;
    }
-   if(full) xctx->fill_type[i] = 1;
+   if(full) xctx->fill_type[i] = 2;
    else if(empty) xctx->fill_type[i] = 0;
-   else xctx->fill_type[i]=2;
-   if(rainbow_colors && i>5) xctx->fill_type[i]=1; /* 20171212 solid fill style */
+   else xctx->fill_type[i]=1;
+   if(rainbow_colors && i>5) xctx->fill_type[i]=2; /* 20171212 solid fill style */
    /*fprintf(errfp, "fill_type[%d]= %d\n", i, xctx->fill_type[i]); */
  }
 }
@@ -434,7 +434,7 @@ void create_gc(void)
     xctx->gc[i] = XCreateGC(display,xctx->window,0L,NULL);
     xctx->gcstipple[i] = XCreateGC(display,xctx->window,0L,NULL);
     XSetStipple(display,xctx->gcstipple[i],pixmap[i]);
-    if(xctx->fill_type[i]==1)  XSetFillStyle(display,xctx->gcstipple[i],FillSolid);
+    if(xctx->fill_type[i]==2)  XSetFillStyle(display,xctx->gcstipple[i],FillSolid);
     else XSetFillStyle(display,xctx->gcstipple[i],FillStippled);
   }
 }

@@ -909,7 +909,7 @@ char *base64_from_file(const char *f, size_t *length)
   stat_res = stat(f, &st);
   if (stat_res == 0 && ( (st.st_mode & S_IFMT) == S_IFREG) ) {
     len = st.st_size;
-    fd = fopen(f, fopen_read_mode);
+    fd = my_fopen(f, fopen_read_mode);
     if(fd) {
       size_t bytes_read;
       s = my_malloc(_ALLOC_ID_, len);
@@ -1023,7 +1023,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
   raw->annot_sweep_idx = -1;
 
   int_hash_init(&raw->table, HASHSIZE);
-  fd = fopen(f, fopen_read_mode);
+  fd = my_fopen(f, fopen_read_mode);
   if(fd) {
     if((res = read_dataset(fd, rawptr, type, no_warning)) == 1) {
       int i;
@@ -1467,7 +1467,7 @@ int table_read(const char *f)
   close(ufd);
 
   int_hash_init(&raw->table, HASHSIZE);
-  fd = fopen(f, fopen_read_mode);
+  fd = my_fopen(f, fopen_read_mode);
   if(fd) {
     int nline = 0;
     int field;
@@ -2852,11 +2852,11 @@ static void load_polygon(FILE *fd)
     load_ascii_string( &ptr[i].prop_ptr, fd);
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+      ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
     else if( !strboolcmp(fill_ptr, "true") )
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     else
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -2895,11 +2895,11 @@ static void load_arc(FILE *fd)
 
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+      ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
     else if( !strboolcmp(fill_ptr, "true") )
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     else
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -2939,11 +2939,11 @@ static void load_box(FILE *fd)
     load_ascii_string( &ptr[i].prop_ptr, fd);
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3;
+      ptr[i].fill = 2;
     else if( !strboolcmp(fill_ptr, "false") )
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     else
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     attr = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(attr, "")) {
       int d = atoi(attr);
@@ -3544,7 +3544,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         my_free(_ALLOC_ID_, &cmd);
       } else fd = NULL;
     }
-    else fd=fopen(name,fopen_read_mode);
+    else fd=my_fopen(name,fopen_read_mode);
     if( fd == NULL) {
       size_t len;
       ret = 0;
@@ -3823,7 +3823,7 @@ void pop_undo(int redo, int set_modify_status)
   fd=fdopen(pd[0],"r");
   #else /* uncompressed undo */
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
-  fd=fopen(diff_name, "r");
+  fd=my_fopen(diff_name, fopen_read_mode);
   if(!fd) {
     fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
@@ -3894,9 +3894,9 @@ static void get_sym_type(const char *symname, char **type,
   if( !found ) {
     dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "<NULL>");
     /* ... if not found open file and look for 'type' into the global attributes. */
-
+    
     if(embed_fd) fd = embed_fd;
-    else fd=fopen(name,fopen_read_mode);
+    else fd=my_fopen(name,fopen_read_mode);
 
     if(fd==NULL) {
       dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
@@ -4238,15 +4238,15 @@ int load_sym_def(const char *name, FILE *embed_fd)
     } else {
       my_strncpy(sympath, abs_sym_path(transl_name, ""), S(sympath));
     }
-    if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
+    if((lcc[level].fd=my_fopen(sympath,fopen_read_mode))==NULL) {
       /* not found: try web URL */
       if(is_from_web(xctx->current_dirname)) {
         my_snprintf(sympath, S(sympath), "%s/%s", xschem_web_dirname, get_cell_w_ext(transl_name, 0));
-        if((lcc[level].fd=fopen(sympath,fopen_read_mode))==NULL) {
+        if((lcc[level].fd=my_fopen(sympath,fopen_read_mode))==NULL) {
           /* not already cached in .../xschem_web_xxxxx/ so download */
           tclvareval("try_download_url {", xctx->current_dirname, "} {", transl_name, "}", NULL);
         }
-        lcc[level].fd=fopen(sympath,fopen_read_mode);
+        lcc[level].fd=my_fopen(sympath,fopen_read_mode);
       }
     }
     dbg(1, "l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd);
@@ -4258,7 +4258,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     /* issue warning only on top level symbol loading */
     if(recursion_counter == 1) dbg(0, "l_s_d(): Symbol not found: %s\n", transl_name);
     my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
-    if((lcc[level].fd=fopen(sympath, fopen_read_mode))==NULL)
+    if((lcc[level].fd=my_fopen(sympath, fopen_read_mode))==NULL)
     {
      fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
      tcleval("exit");
@@ -4453,11 +4453,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
   
         fill_ptr = get_tok_value(pp[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
-          pp[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+          pp[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
         else if( !strboolcmp(fill_ptr, "true") )
-          pp[c][i].fill =1;
+          pp[c][i].fill = 1;
         else
-          pp[c][i].fill =0;
+          pp[c][i].fill = 0;
   
         attr = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
         if( strcmp(attr, "") ) {
@@ -4519,11 +4519,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         fill_ptr = get_tok_value(aa[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
-          aa[c][i].fill =3; /* bit 1: solid fill (not stiaaled) */
+          aa[c][i].fill = 2; /* bit 1: solid fill (not stiaaled) */
         else if( !strboolcmp(fill_ptr, "true") )
-          aa[c][i].fill =1;
+          aa[c][i].fill = 1;
         else
-          aa[c][i].fill =0;
+          aa[c][i].fill = 0;
         attr = get_tok_value(aa[c][i].prop_ptr,"dash", 0);
         if( strcmp(attr, "") ) {
           int d = atoi(attr);
@@ -4582,11 +4582,11 @@ int load_sym_def(const char *name, FILE *embed_fd)
         dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
         fill_ptr = get_tok_value(bb[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
-          bb[c][i].fill =3;
+          bb[c][i].fill = 2;
         else if( !strboolcmp(fill_ptr, "false") )
-          bb[c][i].fill =0;
+          bb[c][i].fill = 0;
         else
-          bb[c][i].fill =1;
+          bb[c][i].fill = 1;
         attr = get_tok_value(bb[c][i].prop_ptr,"dash", 0);
         if( strcmp(attr, "") ) {
           int d = atoi(attr);
@@ -4799,6 +4799,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
          
          if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
+             !symtype ||
              !strcmp(symtype, "logo") ||
              !strcmp(symtype, "netlist_commands") ||
              !strcmp(symtype, "netlist_options") ||
@@ -4829,7 +4830,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
   
          dbg(1, "l_s_d(): fopen2(%s), level=%d\n",sympath, level);
          /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
-         if ((fd_tmp = fopen(sympath, fopen_read_mode)) == NULL) {
+         if ((fd_tmp = my_fopen(sympath, fopen_read_mode)) == NULL) {
            char c;
            fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
            if(!generator) {

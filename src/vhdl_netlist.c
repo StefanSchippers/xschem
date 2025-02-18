@@ -538,6 +538,11 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
        tclgetvar("netlist_dir"), get_cell(xctx->sym[i].name, 0), getpid());
     dbg(1, "vhdl_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
+    if(!fd) {
+      dbg(0, "vhdl_block_netlist(): unable to write file %s\n", netl_filename);
+      err = 1;
+      goto err;
+    }
     my_snprintf(cellname, S(cellname), "%s.vhdl", get_cell(xctx->sym[i].name, 0) );
   }
 
@@ -721,6 +726,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
+  err:
   xctx->netlist_count++;
   return err;
 }

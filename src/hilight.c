@@ -2226,7 +2226,7 @@ void draw_hilight_net(int on_window)
           ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
         draw_symbol(ADD, col, i,c,0,0,0.0,0.0);
       }
-      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 3, -1, -1); /* last parameter must be 3! */
+      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);

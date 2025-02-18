@@ -62,7 +62,7 @@ static void svg_xfillrectangle(int layer, double x1, double y1, double x2, doubl
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 3) {
+  } else if(fill == 2) {
    fprintf(fd, "style=\"fill-opacity:1.0;\" ");
   }
   fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
@@ -135,7 +135,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 3) {
+  } else if(fill == 2) {
    fprintf(fd, "style=\"fill-opacity:1.0;\" ");
   }
   bezier = flags && (points > 2);
@@ -175,7 +175,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
         fprintf(fd, "<ellipse class=\"l%d\" cx=\"%g\" cy=\"%g\" rx=\"%g\" ry=\"%g\" ", gc, cx, cy, rx, ry);
         if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
         if(fill == 0) fprintf(fd, "style=\"fill:none;\" ");
-        else if(fill == 3) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+        else if(fill == 2) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
         fprintf(fd, "/>\n");
       } else {
         double xx1 = rx * cos(e_a * XSCH_PI / 180.) + cx;
@@ -190,7 +190,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
         if(fill == 0) {
            fprintf(fd,"style=\"fill:none;\" ");
            fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2);
-        } else if(fill == 3) {
+        } else if(fill == 2) {
           fprintf(fd, "style=\"fill-opacity:1.0;\" ");
           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
         } else {
@@ -245,7 +245,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\" ", gc, xx, yy, rr);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
       if(fillarc == 0) fprintf(fd, "style=\"fill:none;\" ");
-      else if(fillarc == 3) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+      else if(fillarc == 2) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
 
       fprintf(fd, "/>\n");
     } else {
@@ -261,7 +261,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       if(fillarc == 0) {
          fprintf(fd,"style=\"fill:none;\" ");
          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
-      } else if(fillarc == 3) {
+      } else if(fillarc == 2) {
         fprintf(fd, "style=\"fill-opacity:1.0;\" ");
         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
       } else {

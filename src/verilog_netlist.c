@@ -453,6 +453,11 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
        tclgetvar("netlist_dir"),  get_cell(name, 0), getpid());
     dbg(1, "global_vhdl_netlist(): split_files: netl_filename=%s\n", netl_filename);
     fd=fopen(netl_filename, "w");
+    if(!fd) {
+      dbg(0, "verilog_block_netlist(): unable to write file %s\n", netl_filename);
+      err = 1;
+      goto err;
+    }
     my_snprintf(cellname, S(cellname), "%s.v", get_cell(name, 0));
 
   }
@@ -619,6 +624,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     set_tcl_netlist_type();
     if(debug_var==0) xunlink(netl_filename);
   }
+  err:
   xctx->netlist_count++;
   my_free(_ALLOC_ID_, &name);
   return err;
