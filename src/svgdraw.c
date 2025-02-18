@@ -994,8 +994,8 @@ void svg_draw(void)
    * 2 : solid fill
    * fill_type[i]: 
    * 0 : no fill
-   * 1 : solid fill
-   * 2 : patterned (stippled) fill
+   * 1 : patterned (stippled) fill
+   * 2 : solid fill
    */
   for(i=0;i<cadlayers; ++i){
     if(unused_layer[i]) continue;
@@ -1005,7 +1005,7 @@ void svg_draw(void)
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else if( xctx->fill_pattern == 2 && xctx->fill_type[i]) 
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if( xctx->fill_pattern && xctx->fill_type[i] == 1) 
+    else if( xctx->fill_pattern && xctx->fill_type[i] == 2) 
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else 
       fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
