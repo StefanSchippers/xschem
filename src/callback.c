@@ -150,6 +150,8 @@ void abort_operation(void)
   tcleval("set constr_mv 0" );
   dbg(1, "abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command);
   xctx->constr_mv=0;
+
+  if(xctx->ui_state & STARTPOLYGON) new_polygon(END, xctx->mousex_snap, xctx->mousey_snap);
   if(xctx->last_command && xctx->ui_state & (STARTWIRE | STARTLINE)) {
     if(xctx->ui_state & STARTWIRE) new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
     if(xctx->ui_state & STARTLINE) new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -4182,8 +4184,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      if(end_place_move_copy_zoom()) return;
 
      /* Button1Press to select objects */
-     if( !(xctx->ui_state & STARTPOLYGON) && !(xctx->ui_state & STARTSELECT) &&
-         !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
+     if(!excl) {
        Selected sel;
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
@@ -4306,7 +4307,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
          }
        }
        return;
-     }
+     } /* if(!excl) */
    } /* button==Button1 */
 }
 
