@@ -731,6 +731,17 @@ proc cdiv {a b} {
   return $c
 }
 
+# 1/b
+proc cinv {b} {
+
+  lassign $b rb ib
+  set rb [expr {double($rb)}]
+  set ib [expr {double($ib)}]
+  set m [expr {$rb * $rb + $ib * $ib}]
+  set c [list [expr {$rb / $m}] [expr {-$ib / $m}]]
+  return $c
+}
+
 # return real component
 proc creal {a} {
   lassign $a ra ia

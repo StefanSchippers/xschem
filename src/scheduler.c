@@ -1344,6 +1344,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
             Tcl_SetResult(interp, res, TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "build_date")) { /* time and date this file was built. */
+            char date[] =  __DATE__ " : "  __TIME__;
+            Tcl_SetResult(interp, date,  TCL_STATIC);
+          }
           break;
           case 'c':
           if(!strcmp(argv[2], "cadlayers")) { /* number of layers */
