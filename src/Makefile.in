@@ -5,7 +5,7 @@ put /local/src {
  select.c font.c editprop.c save.c paste.c token.c psprint.c node_hash.c
  hilight.c options.c vhdl_netlist.c svgdraw.c spice_netlist.c
  tedax_netlist.c verilog_netlist.c parselabel.c expandlabel.c
- in_memory_undo.c cairo_jpg.c
+ eval_expr.c in_memory_undo.c cairo_jpg.c
 }
 
 # list all files that need to be installed in "$(XSHAREDIR)"
@@ -49,12 +49,15 @@ parselabel.c: parselabel.l expandlabel.h
 expandlabel.c expandlabel.h: expandlabel.y
 	bison -d -o expandlabel.c  expandlabel.y
 
+eval_expr.c: eval_expr.y
+	bison -o eval_expr.c eval_expr.y
+
 parselabel.o: expandlabel.h
 
 $(OBJ): xschem.h ../config.h Makefile
 
 clean: FORCE
-	rm -rf rawtovcd xschem *.o expandlabel.[ch] parselabel.c
+	rm -rf rawtovcd xschem *.o eval_expr.c expandlabel.[ch] parselabel.c
 
 # Explicit rule for each object:
 @]

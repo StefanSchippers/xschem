@@ -229,7 +229,9 @@ extern char win_temp_dir[PATH_MAX];
 #define START_SYMPIN 16384U
 #define GRAPHPAN 32768U     /* bit 15 */
 #define MENUSTART 65536U    /* bit 16 */
-#define GRABSCREEN 131072   /* bit 17 */
+#define GRABSCREEN 131072U  /* bit 17 */
+#define DESEL_CLICK 262144U /* bit 18 */
+#define DESEL_AREA 524288U  /* bit 19 */
 
 #define SELECTED 1U         /*  used in the .sel field for selected objs. */
 #define SELECTED1 2U        /*  first point selected... */
@@ -238,6 +240,7 @@ extern char win_temp_dir[PATH_MAX];
 #define SELECTED4 16U
 
 /* sub states encoded in global ui_state2 to reduce ui_state bits usage */
+/* also used when infix_interface=0 */
 #define MENUSTARTWIRE 1U /*  start wire invoked from menu */
 #define MENUSTARTLINE 2U /*  start line invoked from menu */
 #define MENUSTARTRECT 4U /*  start rect invoked from menu */
@@ -250,6 +253,7 @@ extern char win_temp_dir[PATH_MAX];
 #define MENUSTARTWIRECUT 512U 
 #define MENUSTARTWIRECUT2 1024U /* do not align cut point to snap */
 #define MENUSTARTCOPY 2048U
+#define MENUSTARTDESEL 4096U
 
 #define WIRE 1              /*  types of defined objects */
 #define xRECT  2
@@ -1215,7 +1219,7 @@ extern int yyparse_error;
 extern char *xschem_executable;
 extern Tcl_Interp *interp;
 extern double *character[256];
-extern char old_winpath[PATH_MAX]; /* previously switched window, used in callback() */
+extern char old_win_path[PATH_MAX]; /* previously switched window, used in callback() */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/
@@ -1399,7 +1403,7 @@ extern void draw_crosshair(int what, int state);
 extern void draw_snap_cursor(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 /* extern void snapped_wire(double c_snap); */
-extern int callback(const char *winpath, int event, int mx, int my, KeySym key,
+extern int callback(const char *win_path, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
 extern Selected find_closest_obj(double mx,double my, int override_lock);
@@ -1609,7 +1613,8 @@ extern int isonlydigit(const char *s);
 extern const char *spice_get_node(const char *token);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);
-extern const char *translate3(const char* s, int eat_escapes, const char *s1, const char *s2, const char *s3);
+extern const char *translate3(const char* s, int eat_escapes, const char *s1,
+                              const char *s2, const char *s3, const char *s4);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
 extern void print_spice_subckt_nodes(FILE *fd, int symbol);
@@ -1675,6 +1680,9 @@ extern void check_box_storage(int c);
 extern void check_arc_storage(int c);
 extern void check_line_storage(int c);
 extern void check_polygon_storage(int c);
+extern void eval_expr_init_table(void);
+extern void eval_expr_clear_table(void);
+extern char *eval_expr(const char *s);
 extern const char *expandlabel(const char *s, int *m);
 extern void parse(const char *s);
 extern void clear_expandlabel_data(void);
@@ -1741,7 +1749,7 @@ extern void print_hilight_net(int show);
 extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
-extern void windowid(const char *winpath);
+extern void windowid(const char *win_path);
 extern int preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname, int dr);
 extern void toggle_fullscreen(const char *topwin);

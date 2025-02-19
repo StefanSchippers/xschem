@@ -133,9 +133,9 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
-  if(what & 1) ps_draw(4, 1, 0); /* trailer */
   zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   draw();
+  if(what & 1) ps_draw(4, 1, 0); /* trailer */
 }
 
 static char *model_name_result = NULL; /* safe even with multiple schematics */
@@ -455,11 +455,13 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
     /* store parent symbol template attr (before descending into it) and parent instance prop_ptr
+     * into xctx->hier_attr[0].templ and xctx->hier_attr[0.prop_ptr,
      * to resolve subschematic instances with model=@modp in format string,
      * modp will be first looked up in instance prop_ptr string, and if not found
      * in parent symbol template string */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ,
               tcl_hook2(xctx->sym[i].templ));
+    /* only additional symbols (created with instance schematic=... attr) will have this attribute */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
               tcl_hook2(xctx->sym[i].parent_prop_ptr));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
@@ -641,14 +643,9 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   my_strdup(_ALLOC_ID_, &sym_def, get_tok_value(xctx->sym[i].prop_ptr,"spice_sym_def",0));
   if(sym_def) {
     char *symname_attr = NULL;
-    char *templ = NULL;
     const char *translated_sym_def;
-    my_strdup2(_ALLOC_ID_, &templ, get_tok_value(xctx->sym[i].prop_ptr, "template", 0));
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(name, 0), NULL);
-    translated_sym_def = translate3(sym_def, 1, "",
-                                                templ,
-                                                symname_attr);
-    my_free(_ALLOC_ID_, &templ);
+    translated_sym_def = translate3(sym_def, 1, xctx->sym[i].templ, symname_attr, NULL, NULL);
     my_free(_ALLOC_ID_, &symname_attr);
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);

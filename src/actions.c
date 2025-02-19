@@ -1482,7 +1482,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
  } else {
-   my_strncpy(name1, symbol_name, S(name1));
+   my_strncpy(name1, trim_chars(symbol_name, " \t\n"), S(name1));
  }
 
  dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
@@ -1495,7 +1495,9 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 
  tclvareval("is_xschem_file {", name1, "}", NULL);
  if(!strcmp(tclresult(), "GENERATOR")) {
-   my_snprintf(name, S(name), "%s()", name1);
+   size_t len = strlen(name1);
+   if( name1[len - 1] != ')') my_snprintf(name, S(name), "%s()", name1);
+   else my_strncpy(name, name1, S(name));
  } else {
    my_strncpy(name, name1, S(name));
  }
@@ -1983,34 +1985,34 @@ void get_additional_symbols(int what)
       char *default_schematic = NULL;
       char *sch = NULL;
       char symbol_base_sch[PATH_MAX] = "";
+      size_t schematic_token_found = 0;
       
       if(xctx->inst[i].ptr < 0) continue;
+      dbg(1, "get_additional_symbols(): inst=%d (%s) sch=%s\n",i, xctx->inst[i].name,  sch);
       /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
 
-      dbg(1, "schematic=%s\n", get_tok_value(xctx->inst[i].prop_ptr,"schematic",6));
+      dbg(1, "get_additional_symbols(): schematic=%s\n", get_tok_value(xctx->inst[i].prop_ptr,"schematic",6));
       /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
-      my_strdup2(_ALLOC_ID_, &sch,
-          translate3(get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6), 1,
-            xctx->inst[i].prop_ptr, NULL, NULL));
-      dbg(1, "sch=%s\n", sch);
+      my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6));
+      schematic_token_found = xctx->tok_size;
+      my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL));
+      dbg(1, "get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size);
     
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
          str_replace(sch, "@symname", get_cell(xctx->inst[i].name, 0), '\\', -1)));
 
-      dbg(1, "get_additional_symbols(): inst=%d sch=%s\n",i,  sch);
       /* schematic does not exist */
       if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {
         my_snprintf(symbol_base_sch, PATH_MAX, "%s.sch", get_cell(xctx->sym[xctx->inst[i].ptr].name, 9999));
         dbg(1, "get_additional_symbols(): schematic not existing\n");
         dbg(1, "using: %s\n", symbol_base_sch);
       }
-      if(xctx->tok_size && sch[0]) { /* "schematic" token exists  and a schematic is specified */
+      if(schematic_token_found && sch[0]) { /* "schematic" token exists  and a schematic is specified */
         int j;
         char *sym = NULL;
-        char *templ = NULL;
         char *symname_attr = NULL;
         int ignore_schematic = 0;
         xSymbol *symptr = xctx->inst[i].ptr + xctx->sym;
@@ -2030,15 +2032,13 @@ void get_additional_symbols(int what)
           my_strdup2(_ALLOC_ID_, &sym, add_ext(rel_sym_path(sch), ".sym"));
         }
 
-        my_strdup2(_ALLOC_ID_, &templ, get_tok_value(symptr->prop_ptr, "template", 0));
         my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
         my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(i, 9999, 1, 1), NULL);
         my_strdup(_ALLOC_ID_, &spice_sym_def, 
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
-                                         templ, 
-                                         symname_attr));
+                                         symptr->templ, 
+                                         symname_attr, NULL));
         dbg(1, "get_additional_symbols(): spice_sym_def=%s\n", spice_sym_def);
-        my_free(_ALLOC_ID_, &templ);
         my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
          * the base symbol will not be netlisted by *_block_netlist() */
@@ -2131,7 +2131,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
   if(inst >=0 ) {
     my_strdup(_ALLOC_ID_, &str_tmp, translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6),
-              1, xctx->inst[inst].prop_ptr, NULL, NULL));
+              1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
   }
   if(!str_tmp) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 6));
   if(str_tmp[0]) { /* schematic attribute in symbol or instance was given */
@@ -2395,8 +2395,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
              xctx->inst[n].prop_ptr);
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
-             get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "template", 0));
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ, xctx->sym[xctx->inst[n].ptr].templ);
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
@@ -2593,6 +2592,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  #endif
  char *estr = NULL;
 
+ xctx->show_hidden_texts = tclgetboolvar("show_hidden_texts");
  boundbox->x1=-100;
  boundbox->x2=100;
  boundbox->y1=-100;
@@ -2689,6 +2689,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      int no_of_lines; 
      double longest_line;
      if(selected == 1 && !xctx->text[i].sel) continue;
+
+     if(!xctx->show_hidden_texts && xctx->text[i].flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED)) continue;
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&xctx->text[i]);
      #endif
@@ -2843,6 +2845,7 @@ void set_viewport_size(int w, int h, double lw)
 void save_restore_zoom(int save, Zoom_info *zi)
 {
   if(save) {
+    dbg(1, "save_restore_zoom: save width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     zi->savew = xctx->xrect[0].width;
     zi->saveh = xctx->xrect[0].height;
     zi->savelw = xctx->lw;
@@ -2854,6 +2857,7 @@ void save_restore_zoom(int save, Zoom_info *zi)
     xctx->xrect[0].y = 0;
     xctx->xrect[0].width = (unsigned short)zi->savew;
     xctx->xrect[0].height = (unsigned short)zi->saveh;
+    dbg(1, "save_restore_zoom: restore width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->areax2 = zi->savew+2*INT_WIDTH(zi->savelw);
     xctx->areay2 = zi->saveh+2*INT_WIDTH(zi->savelw);
     xctx->areax1 = -2*INT_WIDTH(zi->savelw);

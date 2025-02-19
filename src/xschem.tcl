@@ -1005,7 +1005,7 @@ proc convert_to_png {filename dest} {
 #                          Alt-Key-c
 #                          ButtonPress-4
 #
-proc key_binding {  s  d { topwin {} } } { 
+proc key_binding {  s  d { win_path {.drw} } } { 
   regsub {.*-} $d {} key
 
 
@@ -1039,14 +1039,14 @@ proc key_binding {  s  d { topwin {} } } {
   if { [regexp ButtonPress-3 $d] } { set state [expr {$state +0x400}] }
   # puts "$state $key <${s}>"
   if {[regexp ButtonPress- $d]} {
-    bind $topwin.drw "<${s}>" "xschem callback %W %T %x %y 0 $key 0 $state"
+    bind $win_path "<${s}>" "xschem callback %W %T %x %y 0 $key 0 $state"
   } else {
     if {![string compare $d {} ] } {
       # puts  "bind .drw  <${s}> {}"
-      bind $topwin.drw "<${s}>" {}
+      bind $win_path "<${s}>" {}
     } else {
       # puts  "bind .drw  <${s}> xschem callback %W %T %x %y $keysym 0 0 $state"
-      bind $topwin.drw  "<${s}>" "xschem callback %W %T %x %y $keysym 0 0 $state"
+      bind $win_path  "<${s}>" "xschem callback %W %T %x %y $keysym 0 0 $state"
     }
   }
 
@@ -1771,7 +1771,7 @@ proc simconf_add {tool} {
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
 proc cellview_setlabels {w symbol derived_symbol} {
-  global dark_gui_colorscheme
+  global dark_gui_colorscheme netlist_type
   if {$dark_gui_colorscheme} {
     set instfg orange1
     set symfg SeaGreen1
@@ -1783,6 +1783,7 @@ proc cellview_setlabels {w symbol derived_symbol} {
     set symbg SeaGreen1
     set missingbg IndianRed1 
   }     
+  set save_netlist_type [xschem get netlist_type]
   set current [xschem get current_name]
   set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
   set abs_sch [xschem get_sch_from_sym -1 $symbol]
@@ -1799,6 +1800,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
   if { $sym_spice_sym_def eq {}} {
     if { ![file exists [abs_sym_path [$w get]]] } {
       $w configure -bg $missingbg
+    } elseif {$new_sch ne $default_sch } {
+      $w configure -bg $symbg
     }
   }
   puts ===============
@@ -1816,6 +1819,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem save fast
     xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
+    set netlist_type $save_netlist_type 
+    xschem set netlist_type $netlist_type
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
   }
@@ -1826,6 +1831,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
 }
 
 proc cellview_edit_item {symbol w} {
+  global netlist_type
+  set save_netlist_type [xschem get netlist_type]
   set sym_spice_sym_def  [xschem getprop symbol $symbol spice_sym_def 2]
   if {[xschem is_generator [$w get]]} {
     set f [$w get]
@@ -1834,7 +1841,6 @@ proc cellview_edit_item {symbol w} {
   } elseif { $sym_spice_sym_def eq {}} {
     xschem load_new_window [$w get]
   } else {
-    puts $symbol
     set current [xschem get current_name]
     set old_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     set new_sym_def [editdata $sym_spice_sym_def {Symbol spice_sym_def attribute}]
@@ -1847,6 +1853,8 @@ proc cellview_edit_item {symbol w} {
       xschem save fast
       puts "$symbol: updated spice_sym_def attribute"
       xschem load -keep_symbols -nodraw -noundoreset $current
+      set netlist_type $save_netlist_type 
+      xschem set netlist_type $netlist_type
       xschem reload_symbols ;# update in-memory symbol data
     }
   }
@@ -1863,8 +1871,10 @@ proc cellview_edit_sym {w} {
   xschem load_new_window $sym
 }
 
-proc cellview { {derived_symbols {}} {upd 0} } {
-  global keep_symbols nolist_libs dark_gui_colorscheme
+proc cellview { {derived_symbols {}} {upd 0}} {
+  global keep_symbols nolist_libs dark_gui_colorscheme netlist_type
+
+  set save_netlist_type [xschem get netlist_type]
 
   if {$dark_gui_colorscheme} { 
     set instfg orange1
@@ -1884,6 +1894,8 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   }
 
   if {!$upd} {
+    set netlist_type $save_netlist_type 
+    xschem set netlist_type $netlist_type
     xschem reload_symbols ;# purge unused symbols
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
@@ -1906,15 +1918,17 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   }
   
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
+  # puts "syms=$syms"
   foreach {i symbol} $syms {
     if { [catch {set base_name [xschem symbol_base_name $symbol]}] } {
       set base_name $symbol
     }
+    # puts "i=$i, symbol=$symbol"
     set derived_symbol 0
     if {$base_name ne {}} {
       set derived_symbol 1
     }
-    if { [catch {set abs_sch [xschem get_sch_from_sym -1 $symbol]} ]} {
+    if { [catch {xschem get_sch_from_sym -1 $symbol} abs_sch ]} {
       set abs_sch [abs_sym_path [add_ext $symbol .sch]]
     }
     if {$derived_symbol} {
@@ -1931,6 +1945,9 @@ proc cellview { {derived_symbols {}} {upd 0} } {
     }
     if {$skip} { continue }
     set sym_sch [rel_sym_path $abs_sch]
+    if {[catch {xschem getprop symbol $symbol type} type]} {
+      puts "error: $symbol not found: $type"
+    }
     set type [xschem getprop symbol $symbol type]
     set sym_spice_sym_def [xschem getprop symbol $symbol spice_sym_def 2]
     if {$type eq {subcircuit}} {
@@ -1986,7 +2003,7 @@ proc cellview { {derived_symbols {}} {upd 0} } {
   if {$upd} {return}
 
   frame .cv.bottom
-  button .cv.bottom.update -text Update -command "cellview $derived_symbols 1"
+  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1"
   pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
@@ -2006,9 +2023,10 @@ proc cellview { {derived_symbols {}} {upd 0} } {
 ############ traversal
 proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
                           inst_spice_sym_def sym_spice_sym_def} {
-  global traversal dark_gui_colorscheme
+  global traversal dark_gui_colorscheme netlist_type
   set sf .trav.center.f.scrl
 
+  set save_netlist_type [xschem get netlist_type]
   # puts "traversal_setlabels: $w parent: |$parent_sch| inst: $instname def: $sym_sch $inst_sch --> [$w get]"
   # update schematic
   if {$parent_sch ne {}} {
@@ -2026,6 +2044,8 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
       xschem load -undoreset -nodraw $current
+      set netlist_type $save_netlist_type 
+      xschem set netlist_type $netlist_type
     }
   }
   # /update schematic
@@ -2955,6 +2975,14 @@ proc touches {sel tag} {
   return $res
 }
 
+proc set_graph_default_colors {} {
+  global graph_selected graph_schname
+  if { [xschem get schname] ne $graph_schname } return
+  xschem setprop -fast rect 2 $graph_selected color "4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
+  graph_update_nodelist
+  xschem draw_graph $graph_selected
+}
+
 # change color of selected wave in text widget and redraw graph
 # OR
 # change color attribute of wave given as parameter, redraw graph
@@ -3346,13 +3374,13 @@ proc graph_edit_properties {n} {
   grid columnconfig .graphdialog.center.right 5 -weight 0
 
   # bottom frame
-  button .graphdialog.bottom.cancel -text Cancel -command {
+  button .graphdialog.bottom.cancel -padx 1 -borderwidth 1 -pady 0 -text Cancel -command {
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.ok -text OK -command {
+  button .graphdialog.bottom.ok -padx 1 -borderwidth 1 -pady 0 -text OK -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3367,7 +3395,7 @@ proc graph_edit_properties {n} {
     set graph_selected {}
     set graph_schname {}
   }
-  button .graphdialog.bottom.apply -text Apply -command {
+  button .graphdialog.bottom.apply -padx 1 -borderwidth 1 -pady 0 -text Apply -command {
     if { [xschem get schname] eq $graph_schname } {
       graph_push_undo
       graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
@@ -3384,9 +3412,16 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.apply -side left
   pack .graphdialog.bottom.cancel -side left
 
-  for {set i 4} {$i < $cadlayers} {incr i} {
-    radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
-      -variable graph_sel_color -command graph_change_wave_color -selectcolor white -foreground black
+  for {set i 4} {$i <= $cadlayers} {incr i} {
+    if {$i == $cadlayers } {
+      button .graphdialog.bottom.r$i -padx 1 -borderwidth 1 -pady 0 \
+        -command "set_graph_default_colors" \
+        -text {AUTO SET}
+    } else {
+      radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
+        -variable graph_sel_color -command graph_change_wave_color \
+        -selectcolor white -foreground black
+    }
     pack .graphdialog.bottom.r$i -side left
   }
 
@@ -3872,6 +3907,7 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
 
 
 proc is_xschem_file {f} {
+  regsub {\(.*} $f {} f ;# remove trailing generator args (gen.tcl(....))  if any
   if { ![file exists $f] } { return 0 
   } elseif { [file isdirectory $f] } { return 0 }
   set a [catch {open "$f" r} fd]
@@ -4246,7 +4282,7 @@ proc file_dialog_place_symbol {} {
 
 proc file_dialog_display_preview {f} {
   set type [is_xschem_file $f]
-  if { $type ne {0} && $type ne {GENERATOR} } {
+  if { $type ne {0} } {
     if { [winfo exists .load] } {
       .load.l.paneright.draw configure -background {}
       xschem preview_window draw .load.l.paneright.draw "$f"
@@ -7831,33 +7867,33 @@ proc housekeeping_ctx {} {
 }
 
 # callback that resets simulate button color at end of simulation
-proc set_simulate_button {top_path winpath} {
+proc set_simulate_button {top_path win_path} {
   global simulate_bg execute has_x
 
   if {![info exists has_x]} return
   set current_win [xschem get current_win_path]
-  set simvar tctx::${winpath}_simulate
+  set simvar tctx::${win_path}_simulate
   set sim_button $top_path.menubar
 
   # puts "current_win=|$current_win|"
   # puts "simvar=|$simvar|"
-  # puts "winpath=|$winpath|"
+  # puts "win_path=|$win_path|"
   # puts "top_path=|$top_path|"
   # puts "sim_button=|$sim_button|"
   # puts "execute(exitcode,last)=|$execute(exitcode,last)|"
 
   if {![info exists execute(exitcode,last)]} {
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background $simulate_bg
     }
     set $simvar $simulate_bg
   } elseif { $execute(exitcode,last) == 0} {
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background Green
     }
     set $simvar Green
   } else {   
-    if { $current_win eq $winpath} {
+    if { $current_win eq $win_path} {
       $sim_button entryconfigure Simulate -background red
     }
     set $simvar red
@@ -8900,11 +8936,11 @@ proc create_layers_menu { {topwin {} } } {
   }
 }   
 
-proc set_replace_key_binding {} {
+proc set_replace_key_binding { {win_path {.drw}}} {
   global replace_key
   if {[array exists replace_key]} {
     foreach i [array names replace_key] {
-      key_binding "$i" "$replace_key($i)"
+      key_binding "$i" "$replace_key($i)" $win_path
     }
   }
 }
@@ -8922,6 +8958,15 @@ proc eval_postinit_commands {} {
     if {[catch {uplevel #0 $postinit_commands} res]} {
       puts "executing $postinit_commands:\n\n$res"
     }
+  }
+}
+
+proc eval_netlist_postprocess {} {
+  global netlist_postprocess
+  if {[info exists netlist_postprocess]} {
+    if {[catch {uplevel #0 $netlist_postprocess} res]} {
+      puts "executing $netlist_postprocess:\n\n$res"
+    } 
   }
 }
 

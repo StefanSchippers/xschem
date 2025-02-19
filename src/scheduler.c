@@ -431,7 +431,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else { cmd_found = 0;}
     break;
     case 'c': /*----------------------------------------------*/
-    /* callback winpath event mx my key button aux state
+    /* callback win_path event mx my key button aux state
      *   Invoke the callback event dispatcher with a software event */
     if(!strcmp(argv[1], "callback") )
     {
@@ -1005,6 +1005,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, escape_chars(argv[2], argv[3]), TCL_VOLATILE);
       } else if(argc > 2) {
         Tcl_SetResult(interp, escape_chars(argv[2], ""), TCL_VOLATILE);
+      }
+    }
+
+
+    /* eval_expr str
+     *   debug function: evaluate arithmetic expression in str */
+    else if(!strcmp(argv[1], "eval_expr"))
+    {
+      if(argc > 2) {
+        Tcl_SetResult(interp, eval_expr(argv[2]), TCL_VOLATILE);
       }
     }
 
@@ -2732,7 +2742,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_free(_ALLOC_ID_, &pins);
     }
 
-    /* is_symgen symbol
+    /* is_generator symbol
      *   tell if 'symbol' is a generator (symbol(param1,param2,...) */
     else if(!strcmp(argv[1], "is_generator"))
     {
@@ -3367,6 +3377,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       tclsetvar("show_infowindow_after_netlist", saveshow);
+      tcleval("eval_netlist_postprocess");
       set_netlist_dir(1, savedir);
       if(done_netlist) {
         if(messages) {
@@ -3394,22 +3405,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* new_schematic create|destroy|destroy_all|switch winpath file [draw]
+    /* new_schematic create|destroy|destroy_all|switch win_path file [draw]
      *   Open/destroy a new tab or window
      *     create: create new empty window or with 'file' loaded if 'file' given.
-     *             The winpath must be given (even {} is ok).
-     *             non empty winpath ({1}) will avoid warnings if opening the
+     *             The win_path must be given (even {} is ok).
+     *             non empty win_path ({1}) will avoid warnings if opening the
      *             same file multiple times.
-     *     destroy: destroy tab/window identified by winpath. Example:
+     *     destroy: destroy tab/window identified by win_path. Example:
      *              xschem new_schematic destroy .x1.drw
      *     destroy_all: close all tabs/additional windows
      *              if the 'force'argument is given do not issue a warning if modified
      *              tabs are about to be closed.
-     *     switch: switch context to specified 'winpath' window or specified schematic name
+     *     switch: switch context to specified 'win_path' window or specified schematic name
      *              If 'draw' is given and set to 0 do not redraw after switching tab
      *              (only tab i/f)
-     *   Main window/tab has winpath set to .drw,
-     *   Additional windows/tabs have winpath set to .x1.drw, .x2.drw and so on...
+     *   Main window/tab has win_path set to .drw,
+     *   Additional windows/tabs have win_path set to .x1.drw, .x2.drw and so on...
      */
     else if(!strcmp(argv[1], "new_schematic"))
     {
@@ -3613,7 +3624,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state2 = MENUSTARTPOLYGON;
     }
 
-    /* preview_window create|draw|destroy|close [winpath] [file]
+    /* preview_window create|draw|destroy|close [win_path] [file]
      *   destroy: will delete preview schematic data and destroy container window
      *   close: same as destroy but leave the container window.
      *   Used in fileselector to show a schematic preview.
@@ -5749,7 +5760,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* switch [window_path |schematic_name]
      *   Switch context to indicated window path or schematic name
      *   returns 0 if switch was successfull or 1 in case of errors
-     *   (no tabs/windows present or no matching winpath / schematic name
+     *   (no tabs/windows present or no matching win_path / schematic name
      *   found).
      */
     else if(!strcmp(argv[1], "switch"))
@@ -5773,7 +5784,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char n[100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2 && !strcmp(argv[2], "derived_symbols")) derived_symbols = 1;
-      else if(argc > 2 && argv[2][0]) {
+      else if(argc > 2 && argv[2][0] && isonlydigit(argv[2])) {
         one_symbol = 1;
         i = get_symbol(argv[2]);
         if(i >=0) Tcl_AppendResult(interp,  my_itoa(i), " {", xctx->sym[i].name, "}", NULL);
@@ -6057,9 +6068,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int eat_escapes = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) eat_escapes = atoi(argv[3]);
-      if(argc > 6) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6]));
-      else if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL));
-      else if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL));
+      if(argc > 6) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL));
+      else if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL));
+      else if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL));
       else {
         Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
         return TCL_ERROR;

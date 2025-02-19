@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -30,7 +30,8 @@ template="name=x1 m=1
 + VCCPIN=VCC VSSPIN=VSS"
 extra="VCCPIN VSSPIN"
 generic_type="m=integer wn=real lln=real wp=real lp=real VCCPIN=string VSSPIN=string"
-verilog_stop=true}
+verilog_stop=true
+}
 V {}
 S {}
 E {}

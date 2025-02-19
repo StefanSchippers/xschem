@@ -187,7 +187,7 @@ static int window_state (Display *disp, Window win, char *arg) {/*{{{*/
 /* ----------------------------------------------------------------------- */
 
 /* used to set icon */
-void windowid(const char *winpath)
+void windowid(const char *win_path)
 {
 #ifdef __unix__
   int i;
@@ -200,11 +200,11 @@ void windowid(const char *winpath)
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
 
-  dbg(1, "windowid(): winpath=%s\n", winpath);
+  dbg(1, "windowid(): win_path=%s\n", win_path);
   framewindow_nchildren =0;
   mainwindow=Tk_MainWindow(interp);
   display = Tk_Display(mainwindow);
-  tclvareval("winfo id ", winpath, NULL);
+  tclvareval("winfo id ", win_path, NULL);
   sscanf(tclresult(), "0x%x", (unsigned int *) &ww);
   framewin = ww;
   XQueryTree(display, framewin, &rootwindow, &parent_of_topwindow, &framewin_child_ptr, &framewindow_nchildren);
@@ -949,12 +949,13 @@ static void xwin_exit(void)
  list_tokens(NULL, 0); /* clear static data in function */
  translate(-1, NULL); /* clear static data in function */
  translate2(NULL, 0, NULL); /* clear static data in function */
- translate3(NULL, 0, NULL, NULL, NULL); /* clear static data in function */
+ translate3(NULL, 0, NULL, NULL, NULL, NULL); /* clear static data in function */
  subst_token(NULL, NULL, NULL); /* clear static data in function */
  find_nth(NULL, "", "", 0, 0); /* clear static data in function */
  trim_chars(NULL, ""); /* clear static data in function */
  tcl_hook2(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
+ eval_expr_clear_table(); /* clear expression parser data */
  dbg(1, "xwin_exit(): removing font\n");
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);
  dbg(1, "xwin_exit(): closed display\n");
@@ -1445,7 +1446,7 @@ void swap_windows(int dr)
     new_schematic("switch", wp_j, "", 0);
     resetwin(1, 1, 1, 0, 0);
 
-    my_snprintf(old_winpath, S(old_winpath), "");
+    my_snprintf(old_win_path, S(old_win_path), "");
     if(dr) draw();
   }
 }
@@ -1655,6 +1656,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   load_schematic(1, fname, 1, confirm);
   if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
+  tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   /* restore previous context,
    * because the Expose event after new window creation does a context switch prev win -> new win 
@@ -2186,6 +2188,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     #else
     XWindowAttributes wattr;
     #endif
+    dbg(1, "resetwin(): create=%d, clear=%d, force=%d, w=%d, h=%d\n", 
+            create_pixmap, clear_pixmap, force, w, h);
     if(w && h) {
       width = w;
       height = h;
@@ -2310,6 +2314,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #ifdef __unix__
  const char* home_buff;
 #endif
+ eval_expr_init_table();
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
    fprintf(errfp, "Tcl_AppInit(): getcwd() failed\n");

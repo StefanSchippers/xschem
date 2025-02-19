@@ -736,7 +736,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n",
                 txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>");
          my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 1, xctx->inst[n].prop_ptr, 
-           xctx->sym[xctx->inst[n].ptr].templ, NULL ));
+           xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL));
         dbg(1, "draw_symbol(): after translate3: str=%s\n", txtptr);
         draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
@@ -906,7 +906,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
       /* do another round of substitutions if some @var are found, but if not found leave @var as is */
       my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 1, xctx->inst[n].prop_ptr, 
-        xctx->sym[xctx->inst[n].ptr].templ, NULL ));
+        xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL));
      dbg(1, "draw_temp_symbol(): after translate3: str=%s\n", txtptr);
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
@@ -2543,7 +2543,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
               if(p == ofs) xx0 = gv0[p];
-              wrap = (cnt > 1 && gv0[p] == xx0);
+              wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
               if(wrap) {
                  sweepvar_wrap++;
                  cnt = 0;
@@ -3568,7 +3568,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         xx = gv[p];
 
       if(p == ofs) xx0 = gv0[p];
-      wrap = ( cnt > 1 && gv0[p] == xx0);
+      wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
       if(first != -1) {                      /* there is something to plot ... */
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
@@ -3713,7 +3713,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
           if(p == ofs) xx0 = gv0[p];
-          wrap = (cnt > 1 && gv0[p] == xx0);
+          wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
               dbg(1, "find_closest_wave(): last=%d\n", last);
@@ -4026,7 +4026,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
 
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
-
           for(p = ofs ; p < ofs_end; p++) {
             double xxprevious, xxfollowing;
 
@@ -4038,7 +4037,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
              * are simulated and thos no equality test can be done, and any "approx equal" test si going
              * to do unexpected things (liek in simulations with very dense steps) */
             if(p == ofs) xx0 = gv0[p]; /* gv[p];*/
-            wrap = cnt > 1 && gv0[p] == xx0;
+            wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
             #if 1 /* plot one point before start and one point after end so
                    * waves will extend to whole graph area even if there are few points
                    * but NOT if we are about to wrap (missing 1st/last point in 2-var dc sweeps) */
@@ -4778,7 +4777,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   cairo_surface_t *png_sfc;
   int save, save_draw_window, save_draw_grid, rwi, rhi;
   size_t olength;
-  const double max_size = 3000.0;
+  const double max_size = 2500.0;
 
   if(!has_x) return;
 
@@ -4793,9 +4792,9 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   rw = fabs(rx2 -rx1);
   rh = fabs(ry2 - ry1);
   scale = 3.0;
-  if(rw > rh && rw > max_size) {
+  if(rw > rh && rw * scale > max_size) {
     scale = max_size / rw;
-  } else if(rh > max_size) {
+  } else if(rh * scale > max_size) {
     scale = max_size / rh;
   }
   rwi = (int) (rw * scale + 1.0);
@@ -4851,7 +4850,7 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->do_copy_area=save;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
-  resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
+  resetwin(1, 1, 1, 0, 0);
 
   h = fabs(y2 - y1);
   w = fabs(x2 - x1);
@@ -4883,7 +4882,6 @@ void draw(void)
   #endif
 
   dbg(1, "draw()\n");
-
   
   if(!xctx || xctx->no_draw) return;
   cs = tclgetdoublevar("cadsnap");
