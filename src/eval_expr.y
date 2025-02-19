@@ -16,6 +16,7 @@ struct symrec
 {
   char *name;  /* name of symbol */
   double (*fnctptr)(double);  /* value of a FNCT */
+  double value;
   struct symrec *next;    /* link field */
 };
 
@@ -31,28 +32,40 @@ static void kkerror(char *s);
 static double toint(double x);
 static void get_expr(double x);
 static void get_char(int c);
+static double rnd6(double x) {return round_to_n_digits(x, 6);}
 
 struct fn
 {
   char *fname;
   double (*fnct)();
+  double value;
 };
 static int lex_state = 0;
 struct fn fn_array[]
   = {
-      {"int" , toint},
-      {"sin" , sin},
-      {"cos" , cos},
-      {"asin", asin},
-      {"acos", acos},
-      {"atan", atan},
-      {"log"  , log10},
-      {"ln"  , log},
-      {"exp" , exp},
-      {"sqrt", sqrt},
-      {0     , 0}
+      {"int"      , toint, 0},
+      {"sin"      , sin, 0},
+      {"cos"      , cos, 0},
+      {"exp"      , exp, 0},
+      {"asin"     , asin, 0},
+      {"acos"     , acos, 0},
+      {"atan"     , atan, 0},
+      {"log"      , log10, 0},
+      {"ln"       , log, 0},
+      {"exp"      , exp, 0},
+      {"sqrt"     , sqrt, 0},
+      {"round"    , rnd6, 0},
+      {"pi"       , NULL, 3.141592653589793},
+      {"e"        , NULL, 2.718281828459045},
+      {"k"        , NULL, 1.380649e-23},
+      {"h"        , NULL, 6.62607e-34},
+      {"echarge"  , NULL, 1.60217646e-19},
+      {"abszero"  , NULL, 273.15},
+      {"c"        , NULL, 2.99792458e8},
+      {0          , 0, 0}
     };
 %}
+
 
 /* %define api.prefix {kk} */
 %union {
@@ -87,7 +100,8 @@ line:
 ;
 
 exp:      NUM                     {$$ = $1;}
-        | FNCT '(' exp ')'        {$$ = $1 ? (*($1->fnctptr))($3) : 0.0;}
+        | FNCT '(' exp ')'        {$$ = $1 ? ($1->fnctptr ? (*($1->fnctptr))($3) : 0.0) : 0.0;}
+        | FNCT                    {$$ = $1 ? $1->value : 0.0;}
         | exp '+' exp             {$$ = $1 + $3;		 }
         | exp '-' exp             {$$ = $1 - $3;}
         | exp '*' exp             {$$ = $1 * $3;}
@@ -187,6 +201,7 @@ void eval_expr_init_table(void)  /* puts arithmetic functions in table. */
   {
     ptr = putsym (fn_array[i].fname);
     ptr->fnctptr = fn_array[i].fnct;
+    ptr->value = fn_array[i].value;
   }
 }
 
@@ -238,7 +253,7 @@ static int kklex()
     str--; 
 
     sscanf(str, "%99[.0-9a-zA-Z_]%n", s, &rd);
-    kklval.val = atof_spice(s);
+    kklval.val = atof_eng(s);
     str += rd;
     dbg(dbglev, "lex(): NUM: %s\n", s);
     return NUM;
