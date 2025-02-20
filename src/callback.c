@@ -1703,6 +1703,7 @@ void snapped_wire(double c_snap)
     find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     xctx->mx_double_save = my_round(x / c_snap) * c_snap;
     xctx->my_double_save = my_round(y / c_snap) * c_snap;
+    xctx->manhattan_lines = 1;
     new_wire(PLACE, x, y);
     new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
   }
@@ -2812,12 +2813,14 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     draw();
     return;
    }
-   if(key == 'X' && rstate == 0) /* highlight discrepanciens between selected instance pin and net names */
+   /* highlight discrepanciens between selected instance pin and net names */
+   if(key == 'X' && rstate == 0)
    {
      hilight_net_pin_mismatches();
      return;
    }
-   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {  /* create wire snapping to closest instance pin */
+   /* create wire snapping to closest instance pin */
+   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {
      if(xctx->semaphore >= 2) return;
      if(infix_interface) {
        snapped_wire(c_snap);
@@ -2827,7 +2830,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
      }
      return;
    }
-   if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {  /* create wire snapping to closest instance pin (cadence keybind) */
+   /* create wire snapping to closest instance pin (cadence keybind) */
+   if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {
     if(xctx->semaphore >= 2) return;
     snapped_wire(c_snap);
     return;
