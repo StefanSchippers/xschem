@@ -226,9 +226,9 @@
 #### if not set show selected items at end of drag. Default: enabled (1)
 # set incremental_select 0
 
-#### wires are drawn in free-form mode with this mode enabled (default).
-#### if set to 0, wires drawn on the schematic will no longer strictly
-#### follow orthogonal routes to connect two distinct points together.
+#### wires are drawn in free-form mode with this mode disabled (default).
+#### if set to 1, wires drawn on the schematic will strictly follow
+#### orthogonal routes to connect two distinct points together.
 #### default: 0
 # set orthogonal_wiring 1
 
