@@ -2838,7 +2838,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   /* background */
   filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
   /* graph bounding box */
-  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0, -1, -1);
+  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
