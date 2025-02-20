@@ -586,6 +586,19 @@ char *dtoa_prec(double i)
   return s;
 }
 
+FILE *my_fopen(const char *f, const char *m)
+{
+  struct stat buf;
+  FILE *fd = NULL;
+  int st;
+
+  st = stat(f, &buf);
+  if(st) return NULL; /* not existing or error */
+  if(!S_ISREG(buf.st_mode)) return NULL; /* not a regular file/symlink to a regular file */
+  fd = fopen(f, m);
+  return fd;
+}
+
 size_t my_mstrcat(int id, char **str, const char *add, ...)
 {
   va_list args;
@@ -1020,7 +1033,7 @@ static int edit_rect_property(int x)
       }
 
       attr = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
-      if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 3;
+      if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 2;
       else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
       else xctx->rect[c][n].fill = 1;
 
@@ -1203,11 +1216,11 @@ static int edit_arc_property(void)
      old_fill = xctx->arc[c][i].fill;
      fill_ptr = get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
-       xctx->arc[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+       xctx->arc[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
      else if( !strboolcmp(fill_ptr,"true") )
-       xctx->arc[c][i].fill =1;
+       xctx->arc[c][i].fill = 1;
      else
-       xctx->arc[c][i].fill =0;
+       xctx->arc[c][i].fill = 0;
      old_dash = xctx->arc[c][i].dash;
      dash = get_tok_value(xctx->arc[c][i].prop_ptr,"dash",0);
      if( strcmp(dash, "") ) {
@@ -1281,11 +1294,11 @@ static int edit_polygon_property(void)
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
-       xctx->poly[c][i].fill =3; /* bit 1: solid fill (not stippled) */
+       xctx->poly[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
      else if( !strboolcmp(fill_ptr,"true") )
-       xctx->poly[c][i].fill =1;
+       xctx->poly[c][i].fill = 1;
      else
-       xctx->poly[c][i].fill =0;
+       xctx->poly[c][i].fill = 0;
      dash = get_tok_value(xctx->poly[c][i].prop_ptr,"dash",0);
      if( strcmp(dash, "") ) {
        int d = atoi(dash);

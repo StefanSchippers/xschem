@@ -151,6 +151,8 @@ void abort_operation(void)
   tcleval("set constr_mv 0" );
   dbg(1, "abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command);
   xctx->constr_mv=0;
+
+  if(xctx->ui_state & STARTPOLYGON) new_polygon(END, xctx->mousex_snap, xctx->mousey_snap);
   if(xctx->last_command && xctx->ui_state & (STARTWIRE | STARTLINE)) {
     if(xctx->ui_state & STARTWIRE) new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
     if(xctx->ui_state & STARTLINE) new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -220,6 +222,7 @@ static void start_line(double mx, double my)
       if(xctx->constr_mv == 1) my = xctx->my_double_save;
       if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     } else {
+      xctx->manhattan_lines = 0;
       xctx->mx_double_save=mx;
       xctx->my_double_save=my;
     }
@@ -228,30 +231,31 @@ static void start_line(double mx, double my)
 
 static void start_wire(double mx, double my)
 {
-     dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n", xctx->ui_state, xctx->ui_state2, xctx->last_command);
-     xctx->last_command = STARTWIRE;
-     if(xctx->ui_state & STARTWIRE) {
-       if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
-         xctx->constr_mv = xctx->manhattan_lines;
-         new_wire(CLEAR, mx, my);
-         redraw_w_a_l_r_p_z_rubbers(1);
-       }
-       if(xctx->constr_mv != 2) {
-         xctx->mx_double_save = mx;
-       }
-       if(xctx->constr_mv != 1) {
-         xctx->my_double_save = my;
-       }
-       if(xctx->constr_mv == 1) my = xctx->my_double_save;
-       if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
-     } else {
-       xctx->mx_double_save=mx;
-       xctx->my_double_save=my;
-     }
-     new_wire(PLACE,mx, my);
-     if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
-         xctx->constr_mv = 0;
-     }
+  dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
+      xctx->ui_state, xctx->ui_state2, xctx->last_command);
+  xctx->last_command = STARTWIRE;
+  if(xctx->ui_state & STARTWIRE) {
+    if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+      xctx->constr_mv = xctx->manhattan_lines;
+      new_wire(CLEAR, mx, my);
+      redraw_w_a_l_r_p_z_rubbers(1);
+    }
+    if(xctx->constr_mv != 2) {
+      xctx->mx_double_save = mx;
+    }
+    if(xctx->constr_mv != 1) {
+      xctx->my_double_save = my;
+    }
+    if(xctx->constr_mv == 1) my = xctx->my_double_save;
+    if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
+  } else {
+    xctx->mx_double_save=mx;
+    xctx->my_double_save=my;
+  }
+  new_wire(PLACE,mx, my);
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+      xctx->constr_mv = 0;
+  }
 }
 
 static double interpolate_yval(int idx, int p, double x, int sweep_idx, int point_not_last)
@@ -1641,11 +1645,11 @@ static int end_place_move_copy_zoom()
     }
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTARC) {
     new_arc(SET, 0, xctx->mousex_snap, xctx->mousey_snap);
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTLINE) {
     if(tclgetboolvar("persistent_command")) {
@@ -1663,11 +1667,11 @@ static int end_place_move_copy_zoom()
     }
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTRECT) {
     new_rect(PLACE|END,xctx->mousex_snap, xctx->mousey_snap);
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTPOLYGON) {
     if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
@@ -1677,7 +1681,7 @@ static int end_place_move_copy_zoom()
     xctx->my_double_save=xctx->mousey_snap;
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    return 1;
+    return 0;
   }
   else if(xctx->ui_state & STARTMOVE) {
     move_objects(END,0,0,0);
@@ -1721,7 +1725,7 @@ void snapped_wire(double c_snap)
     new_wire(PLACE|END, x, y);
     xctx->constr_mv=0;
     tcleval("set constr_mv 0" );
-    if((xctx->ui_state & MENUSTART) && !tclgetboolvar("persistent_command") ) xctx->ui_state &= ~MENUSTART;
+    if((xctx->ui_state & MENUSTART) && !tclgetboolvar("persistent_command") ) xctx->ui_state &= ~MENUSTART; /*CD*/
   }
 }
 
@@ -2429,154 +2433,9 @@ static int grabscreen(const char *win_path, int event, int mx, int my, KeySym ke
 }
 #endif
 
-/* main window callback */
-/* mx and my are set to the mouse coord. relative to window  */
-/* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
-int callback(const char *win_path, int event, int mx, int my, KeySym key,
-                 int button, int aux, int state)
+static void handle_enter_notify(int draw_xhair, int crosshair_size)
 {
- char str[PATH_MAX + 100];
- struct stat buf;
- int redraw_only;
- double c_snap;
-#ifndef __unix__
- short cstate = GetKeyState(VK_CAPITAL);
- short nstate = GetKeyState(VK_NUMLOCK);
-#else
- XKeyboardState kbdstate;
-#endif
-int enable_stretch = tclgetboolvar("enable_stretch");
-int draw_xhair = tclgetboolvar("draw_crosshair");
-int crosshair_size = tclgetintvar("crosshair_size");
-int infix_interface = tclgetboolvar("infix_interface");
-int snap_cursor = tclgetboolvar("snap_cursor");
-int cadence_compat = tclgetboolvar("cadence_compat");
-int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
-                       ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
-                       (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
-int rstate; /* (reduced state, without ShiftMask) */
-
- /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
-  * events. Some remote connection softwares do not generate the correct coordinates
-  * on such events */
- if(fix_mouse_coord) {
-   if(event == KeyPress || event == KeyRelease) {
-     tclvareval("getmousex ", win_path, NULL);
-     mx = atoi(tclresult());
-     tclvareval("getmousey ", win_path, NULL);
-     my = atoi(tclresult());
-     dbg(1, "mx = %d  my=%d\n", mx, my);
-   }
- }
-
-#ifndef __unix__
- if(cstate & 0x0001) { /* caps lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
- } else if (nstate & 0x0001) { /* num lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
- } else { /* normal state */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
- }
-#else
- XGetKeyboardControl(display, &kbdstate);
- if(kbdstate.led_mask & 1) { /* caps lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
- } else if(kbdstate.led_mask & 2) { /* num lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
- } else { /* normal state */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
- }
-#endif
-
- if(wire_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
- } else {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
- }
- tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
- tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
-                     xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
-                     NULL);
- tclvareval(xctx->top_path, ".statusbar.5 delete 0 end;",
-                     xctx->top_path, ".statusbar.5 insert 0 $cadgrid",
-                     NULL);
-
- #if 0
- /* exclude Motion and Expose events */
- if(event!=6 /* && event!=12 */) {
-   dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
-           state, event, win_path, old_win_path, xctx->semaphore+1);
- }
- #endif
- 
- /* Schematic window context switch */
- redraw_only =0;
- if(strcmp(old_win_path, win_path) ) {
-   if( xctx->semaphore >= 1  || event == Expose) {
-     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
-     redraw_only = 1;
-     new_schematic("switch_no_tcl_ctx", win_path, "", 1);
-   } else {
-     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_win_path, win_path, xctx->semaphore);
-     new_schematic("switch", win_path, "", 1);
-   }
-   tclvareval("housekeeping_ctx", NULL);
- }
- /* artificially set semaphore to allow only redraw operations in switched schematic,
-  * so we don't need  to switch tcl context which is costly performance-wise
-  */
- if(redraw_only) {
-   dbg(1, "callback(): incrementing semaphore for redraw_only\n");
-   xctx->semaphore++;
- }
-
- xctx->semaphore++; /* to recognize recursive callback() calls */
-
- c_snap = tclgetdoublevar("cadsnap");
- #ifdef __unix__
- state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
- #endif
- state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
- state &= ~LockMask; /* filter out Caps Lock */
- rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
- rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sifficient */
- rstate &= ~Button1Mask; /* ignore button-1 */
- if(xctx->semaphore >= 2)
- {
-   if(debug_var>=2)
-     if(event != MotionNotify) 
-       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
-               xctx->semaphore, event, xctx->ui_state);
- }
- xctx->mousex=X_TO_XSCHEM(mx);
- xctx->mousey=Y_TO_XSCHEM(my);
- xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
- xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
-
- if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-   my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-     xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
-   statusmsg(str,1);
- }
-
- dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
-
- #if defined(__unix__) && HAS_CAIRO==1
- if(xctx->ui_state & GRABSCREEN) {
-   grabscreen(win_path, event, mx, my, key, button, aux, state);
- } else 
- #endif
- switch(event)
- {
-
-  case LeaveNotify:
-    if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
-    tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
-    xctx->mouse_inside = 0;
-    break;
-
-  case EnterNotify:
+    struct stat buf;
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
     xctx->mouse_inside = 1;
     if(draw_xhair) {
@@ -2604,43 +2463,21 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
     }
-    break;
+    
+    return;
+}
 
-  case Expose:
-    dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
-    {
-      XRectangle xr[1];
-      xr[0].x=(short)mx;
-      xr[0].y=(short)my;
-      xr[0].width=(unsigned short)button;
-      xr[0].height=(unsigned short)aux;
-      /* redraw selection on expose, needed if no backing store available on the server 20171112 */
-      XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
-      rebuild_selected_array();
-      if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
-        compare_schematics("");
-      } else {
-        draw_selection(xctx->gc[SELLAYER],0);
-      }
-      XSetClipMask(display, xctx->gc[SELLAYER], None);
-    }
-    dbg(1, "callback(): Expose\n");
-    break;
-
-  case ConfigureNotify:
-    dbg(1,"callback(): ConfigureNotify event\n");
-    resetwin(1, 1, 0, 0, 0);
-    draw();
-    break;
-
-  case MotionNotify:
+static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button,
+                                 int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active)
+{
+    char str[PATH_MAX + 100];
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     if(draw_xhair) {
       draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
+      if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     }
     if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     /* pan schematic */
@@ -2651,7 +2488,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
       }
       if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
-      break;
+      return;
     }
 
     /* update status bar messages */
@@ -2752,12 +2589,15 @@ int rstate; /* (reduced state, without ShiftMask) */
       draw_crosshair(2, state); /* what = 2(draw) */
     }
     if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
-    break;
 
-  case KeyRelease:
-    break;
+    return;
+}
 
-  case KeyPress:
+static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my,
+                             int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap,
+                             int cadence_compat, int wire_draw_active, int snap_cursor)
+{
+   char str[PATH_MAX + 100];
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -2777,7 +2617,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        pan(START, mx, my);
        xctx->ui_state |= STARTPAN;
      }
-     break;
+     return;
    }
    if(key == '_' )              /* toggle change line width */
    {
@@ -2789,13 +2629,13 @@ int rstate; /* (reduced state, without ShiftMask) */
         tcleval("alert_ { disabling change line width} {}");
         tclsetvar("change_lw","0");
     }
-    break;
+    return;
    }
    if(key == 'b' && rstate==ControlMask)         /* toggle show text in symbol */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }     
     xctx->sym_txt =!xctx->sym_txt;
     if(xctx->sym_txt) {
@@ -2808,7 +2648,7 @@ int rstate; /* (reduced state, without ShiftMask) */
         tclsetvar("sym_txt","0");
         draw();
     }
-    break;
+    return;
    }
    if(key == '%' )              /* toggle draw grid */
    {
@@ -2825,31 +2665,31 @@ int rstate; /* (reduced state, without ShiftMask) */
         tclsetvar("draw_grid","0");
         draw();
     }
-    break;
+    return;
    }
    if(key == 'j'  && rstate==0 )                 /* print list of highlight nets */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      print_hilight_net(1);
-     break;
+     return;
    }
    if(key == 'j'  && rstate==ControlMask)        /* create ipins from highlight nets */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      print_hilight_net(0);
-     break;
+     return;
    }
    if(key == 'j'  && EQUAL_MODMASK)   /* create labels without i prefix from hilight nets */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      print_hilight_net(4);
-     break;
+     return;
    }
    if(key == 'J'  && SET_MODMASK ) /* create labels with i prefix from hilight nets */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      print_hilight_net(2);
-     break;
+     return;
    }
    if(key == 'h'  && rstate==ControlMask )       /* go to http link */
    {
@@ -2857,12 +2697,12 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->semaphore = 0;
      launcher();
      xctx->semaphore = savesem;
-     break;
+     return;
    }
    if(key == 'h'  && EQUAL_MODMASK)   /* create symbol pins from schematic pins 20171208 */
    {
      tcleval("schpins_to_sympins");
-     break;
+     return;
    }
    if(key == 'h' && rstate == 0) {
      /* horizontally constrained drag 20171023 */
@@ -2883,15 +2723,15 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
      }
-     break;
+     return;
    }
    if(key=='H' && rstate == 0) {           /* attach labels to selected instances */
      attach_labels_to_inst(1);
-     break;
+     return;
    }
    if (key == 'H' && rstate == ControlMask) { /* create schematic and symbol from selected components */
      make_schematic_symbol_from_sel();
-     break;
+     return;
    }
    if(key == 'v' && rstate==0) {
      /* vertically constrained drag 20171023 */
@@ -2912,23 +2752,23 @@ int rstate; /* (reduced state, without ShiftMask) */
        if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
        new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
      }
-     break;
+     return;
    }
    if(key == 'j'  && SET_MODMASK && (state & ControlMask) )  /* print list of highlight net with label expansion */
    {
      print_hilight_net(3);
-     break;
+     return;
    }
    if(key == 'J' && rstate == 0) {
     create_plot_cmd();
-    break;
+    return;
    }
    if(key == '$' &&  rstate == 0 )            /* toggle pixmap  saving */
    {
     xctx->draw_pixmap =!xctx->draw_pixmap;
     if(xctx->draw_pixmap) tcleval("alert_ { enabling draw pixmap} {}");
     else tcleval("alert_ { disabling draw pixmap} {}");
-    break;
+    return;
    }
    if(key == '$' && (state &ControlMask) )              /* toggle window  drawing */
    {
@@ -2940,18 +2780,18 @@ int rstate; /* (reduced state, without ShiftMask) */
       tcleval("alert_ { disabling draw window} {}");
       tclsetvar("draw_window","0");
     }
-    break;
+    return;
    }
    if(key == '='  && (state &ControlMask))              /* toggle fill rectangles */
    {
     int x;
     xctx->fill_pattern++;
-    if(xctx->fill_pattern==3) xctx->fill_pattern=0;
+    if(xctx->fill_pattern==2) xctx->fill_pattern=0;
 
     if(xctx->fill_pattern==1) {
      tcleval("alert_ { Stippled pattern fill} {}");
      for(x=0;x<cadlayers;x++) {
-       if(xctx->fill_type[x]==1) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
+       if(xctx->fill_type[x]==2) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
        else XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
      }
     }
@@ -2967,7 +2807,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
 
     draw();
-    break;
+    return;
    }
    if(key == '+'  && state & ControlMask)         /* change line width */
    {
@@ -2975,7 +2815,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     change_linewidth(xctx->lw);
     tclsetboolvar("change_lw", 0);
     draw();
-    break;
+    return;
    }
 
    if(key == '-'  && state & ControlMask)         /* change line width */
@@ -2985,27 +2825,28 @@ int rstate; /* (reduced state, without ShiftMask) */
     change_linewidth(xctx->lw);
     tclsetboolvar("change_lw", 0);
     draw();
-    break;
+    return;
    }
    if(key == 'X' && rstate == 0) /* highlight discrepanciens between selected instance pin and net names */
    {
      hilight_net_pin_mismatches();
-     break;
+     return;
    }
    if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {  /* create wire snapping to closest instance pin (original keybind) */
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      snapped_wire(c_snap);
-     break;
+     return;
    }
    if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {  /* create wire snapping to closest instance pin (cadence keybind) */
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      snapped_wire(c_snap);
-     break;
+     return;
    }
    if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
    {
      int prev_state = xctx->ui_state;
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
+
      if(infix_interface) {
        start_wire(xctx->mousex_snap, xctx->mousey_snap);
        if(prev_state == STARTWIRE) {
@@ -3018,11 +2859,11 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state2 = MENUSTARTWIRE;
        if(prev_state & STARTWIRE) start_wire(xctx->mousex_snap, xctx->mousey_snap);
      }
-     break;
+     return;
    }
    if(key == XK_Return && (state == 0 ) && xctx->ui_state & STARTPOLYGON) { /* close polygon */
     new_polygon(ADD|END, xctx->mousex_snap, xctx->mousey_snap);
-    break;
+    return;
    }
    if(key == XK_Escape) /* abort & redraw */
    {
@@ -3038,19 +2879,19 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->last_command &= ~STARTWIRE;
       if(snap_cursor) draw_snap_cursor(1);
     }
-    break;
+    return;
    }
    if(key=='z' && rstate == 0 &&
      !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) /* zoom box */
    {
     dbg(1, "callback(): zoom_rectangle call\n");
-    zoom_rectangle(START);break;
+    zoom_rectangle(START);return;
    }
    if(key=='Z' && rstate == 0)                   /* zoom in */
    {
-    view_zoom(0.0); break;
+    view_zoom(0.0); return;
    }
-   if(key=='z' && EQUAL_MODMASK) /* toggle snap-cursor option */
+   if(key=='z' && EQUAL_MODMASK && cadence_compat) /* toggle snap-cursor option */
    {
      if(tclgetboolvar("snap_cursor")) {
        tclsetvar("snap_cursor", "0");
@@ -3073,11 +2914,11 @@ int rstate; /* (reduced state, without ShiftMask) */
     rebuild_selected_array();
     move_objects(START,0,0,0);
     xctx->ui_state |= START_SYMPIN;
-    break;
+    return;
    }
    if(key=='p' && !(xctx->ui_state & STARTPOLYGON) && rstate==0)              /* start polygon */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      dbg(1, "callback(): start polygon\n");
      if(infix_interface) {
        xctx->mx_double_save=xctx->mousex_snap;
@@ -3088,7 +2929,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTPOLYGON;
      }
-     break;
+     return;
    }
    if(key=='P' && rstate == 0)                   /* pan, other way to. */
    {
@@ -3096,13 +2937,13 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->yorigin=-xctx->mousey_snap+xctx->areah*xctx->zoom/2.0;
     draw();
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key=='5' && rstate == 0) { /* 20110112 display only probes */
     xctx->only_probes = !xctx->only_probes;
     tclsetboolvar("only_probes", xctx->only_probes);
     toggle_only_probes();
-    break;
+    return;
    }  /* /20110112 */
    if(key<='9' && key >='0' && state==ControlMask)              /* choose layer */
    {
@@ -3119,89 +2960,89 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
     dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
-    break;
+    return;
    }
    if(key==XK_Delete && (xctx->ui_state & SELECTION) ) /* delete selection */
    {
-     if(xctx->semaphore >= 2) break;
-     delete(1/* to_push_undo */);break;
+     if(xctx->semaphore >= 2) return;
+     delete(1/* to_push_undo */);return;
    }
    if(key==XK_Right && state == ControlMask) {
      int save = xctx->semaphore;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      xctx->semaphore = 0;
      tcleval("next_tab");
      xctx->semaphore = save;
-     break;
+     return;
    }
    if(key==XK_Left && state == ControlMask) {
      int save = xctx->semaphore;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      xctx->semaphore = 0;
      tcleval("prev_tab");
      xctx->semaphore = save;
-     break;
+     return;
    }
    if(key==XK_Right && !(state & ControlMask))   /* left */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key==XK_Left && !(state & ControlMask))   /* right */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key==XK_Down)                     /* down */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key==XK_Up)                       /* up */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
     draw();
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key=='w' && rstate == ControlMask) /* close current schematic */
    {
      int save_sem;
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      save_sem = xctx->semaphore;
      tcleval("xschem exit");
      xctx->semaphore = save_sem;
-     break;
+     return;
    }
    /* toggle spice_ignore, verilog_ignore, ... flag on selected instances. */
    if(key == 'T' && rstate == 0) {
@@ -3211,9 +3052,9 @@ int rstate; /* (reduced state, without ShiftMask) */
    {
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      xctx->last_command = 0;
      xctx->mx_double_save = xctx->mousex_snap;
      xctx->my_double_save = xctx->mousey_snap;
@@ -3223,20 +3064,20 @@ int rstate; /* (reduced state, without ShiftMask) */
        move_objects(START,0,0,0);
        xctx->ui_state |= PLACE_TEXT;
      }
-     break;
+     return;
    }
    if(key=='t' && (rstate & ControlMask)) 
    {
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break; 
+       return; 
      }
-     break;
+     return;
    }  
    if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
    {
     dbg(1, "callback(): start rect\n");
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
@@ -3246,49 +3087,49 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTRECT;
     }
-    break;
+    return;
    }
    if(key=='V' && rstate == ControlMask)                     /* toggle spice/vhdl netlist  */
    {
     xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
     set_tcl_netlist_type();
     draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
-    break;
+    return;
    }
    if((key=='s' && rstate == 0) && !cadence_compat)      /* simulate (original keybind) */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Run circuit simulation?}");
      if(strcmp(tclresult(),"ok")==0) {
        tcleval("[xschem get top_path].menubar invoke Simulate");
      }
-     break;
+     return;
    }
    if((key=='r' && rstate == ControlMask) && cadence_compat)      /* simulate (for cadence users) */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Run circuit simulation?}");
      if(strcmp(tclresult(),"ok")==0) {
        tcleval("[xschem get top_path].menubar invoke Simulate");
      }
-     break;
+     return;
    }
    if(key=='s' && rstate == ControlMask )      /* save 20121201 */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }     
      /* check if unnamed schematic, use saveas in this case */
      if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
@@ -3296,24 +3137,24 @@ int rstate; /* (reduced state, without ShiftMask) */
      } else {
        save(1, 0);
      }
-     break;
+     return;
    }
    if(key=='s' && SET_MODMASK && (state & ControlMask) )           /* save as symbol */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      saveas(NULL, SYMBOL);
-     break;
+     return;
    }
    if(key=='S' && rstate == ControlMask) /* save as schematic */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      saveas(NULL, SCHEMATIC);
-     break;
+     return;
    }
    if(key=='e' && rstate == 0)           /* descend to schematic */
    {
-    if(xctx->semaphore >= 2) break;
-    descend_schematic(0, 1, 1, 1);break;
+    if(xctx->semaphore >= 2) return;
+    descend_schematic(0, 1, 1, 1);return;
    }
    if(key=='e' && EQUAL_MODMASK)            /* edit schematic in new window */
    {
@@ -3322,7 +3163,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     /*  schematic_in_new_window(0, 1, 0); */
     tcleval("open_sub_schematic");
     xctx->semaphore = save;
-    break;
+    return;
    }
 
    if(key=='E' && EQUAL_MODMASK)          /* edit schematic in new window - new xschem process */
@@ -3331,7 +3172,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
     schematic_in_new_window(1, 1, 0);
     xctx->semaphore = save;
-    break;
+    return;
    }
 
    if(key=='i' && EQUAL_MODMASK)            /* edit symbol in new window */
@@ -3340,7 +3181,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
     symbol_in_new_window(0);
     xctx->semaphore = save;
-    break;
+    return;
    }
 
    if(key=='I' && EQUAL_MODMASK)            /* edit symbol in new window - new xschem process */
@@ -3349,22 +3190,22 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
     symbol_in_new_window(1);
     xctx->semaphore = save;
-    break;
+    return;
    }
 
 
    if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
    {
-    if(xctx->semaphore >= 2) break;
-    go_back(1);break;
+    if(xctx->semaphore >= 2) return;
+    go_back(1);return;
    }
 
    if(key=='a' && rstate == 0)   /* make symbol */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
             "-message {do you want to make symbol view ?}");
@@ -3373,22 +3214,22 @@ int rstate; /* (reduced state, without ShiftMask) */
      save_schematic(xctx->sch[xctx->currsch], 0);
      make_symbol();
     }
-    break;
+    return;
    }
    if(key=='a' && rstate == ControlMask)         /* select all */
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }     
     select_all();
-    break;
+    return;
    }
    if(key=='y' && rstate == 0)                           /* toggle stretching */
    {
     enable_stretch = !enable_stretch;
     tclsetboolvar("enable_stretch", enable_stretch);
-    break;
+    return;
    }
    if(key=='x' && EQUAL_MODMASK) /* toggle draw crosshair at mouse pos */
    {
@@ -3401,26 +3242,26 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    if(key=='x' && rstate == ControlMask) /* cut selection into clipboard */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     rebuild_selected_array();
     if(xctx->lastsel) {  /* 20071203 check if something selected */
       save_selection(2);
       delete(1/* to_push_undo */);
     }
-    break;
+    return;
    }
    if(key=='c' && rstate == ControlMask) /* copy selection into clipboard */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      rebuild_selected_array();
      if(xctx->lastsel) {  /* 20071203 check if something selected */
        save_selection(2);
      }
-    break;
+    return;
    }
    if(key=='C' /* && !xctx->ui_state */ && rstate == 0) /* place arc */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(infix_interface) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
@@ -3430,11 +3271,11 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTARC;
      }
-     break;
+     return;
    }
    if(key=='C' /* && !xctx->ui_state */ && rstate == ControlMask) /* place circle */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(infix_interface) {
        xctx->mx_double_save=xctx->mousex_snap;
        xctx->my_double_save=xctx->mousey_snap;
@@ -3444,12 +3285,12 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTCIRCLE;
      }
-     break;
+     return;
    }
    if(key=='O' && rstate == ControlMask )   /* load most recent tile */
    {
      tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
-     break;
+     return;
    }
    if(key=='O' && rstate == 0)   /* toggle light/dark colorscheme 20171113 */
    {
@@ -3461,36 +3302,36 @@ int rstate; /* (reduced state, without ShiftMask) */
      tclsetdoublevar("dim_bg", 0.0);
      build_colors(0.0, 0.0);
      draw();
-     break;
+     return;
    }
    if(key=='v' && rstate == ControlMask)   /* paste from clipboard */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     merge_file(2,".sch");
-    break;
+    return;
    }
    if(key=='Q' && rstate == ControlMask ) /* view attributes */
    {
-    edit_property(2);break;
+    edit_property(2);return;
    }
    if(key=='q' && rstate==ControlMask) /* quit xschem */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     /* must be set to zero, otherwise switch_tab/switch_win does not proceed
      * and these are necessary when closing tabs/windows */
     xctx->semaphore = 0;
     tcleval("quit_xschem");
-    break;
+    return;
    }
    if(key=='q' && rstate==0) /* edit attributes */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     edit_property(0);
-    break;
+    return;
    }
    if(key=='q' && EQUAL_MODMASK)                      /* edit .sch file (DANGER!!) */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     rebuild_selected_array();
     if(xctx->lastsel==0 ) {
       my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
@@ -3502,41 +3343,41 @@ int rstate; /* (reduced state, without ShiftMask) */
       tcleval(str);
 
     }
-    break;
+    return;
    }
    #if defined(__unix__) && HAS_CAIRO==1
    if(key == XK_Print) {
      xctx->ui_state |= GRABSCREEN;
      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
      tclvareval("grab set -global ", xctx->top_path, ".drw", NULL);
-     break;
+     return;
    }
    #endif
    if(key=='Q' && rstate == 0) /* edit attributes in editor */
    {
-    if(xctx->semaphore >= 2) break;
-    edit_property(1);break;
+    if(xctx->semaphore >= 2) return;
+    edit_property(1);return;
    }
    if(key=='i' && rstate==0) /* descend to  symbol */
    {
-    if(xctx->semaphore >= 2) break;
-    descend_symbol();break;
+    if(xctx->semaphore >= 2) return;
+    descend_symbol();return;
    }
    if((key==XK_Insert && state == ShiftMask) ||  (key == 'i' && rstate == ControlMask)) /* insert sym */
    {
      tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
-     break;
+     return;
    }
    if((key==XK_Insert) || (key == 'I' && rstate == 0) ) /* insert sym */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     start_place_symbol();
 
-    break;
+    return;
    }
    if(key=='s' && SET_MODMASK)                     /* reload */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
      tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
              "-message {Are you sure you want to reload from disk?}");
      if(strcmp(tclresult(),"ok")==0) {
@@ -3547,66 +3388,65 @@ int rstate; /* (reduced state, without ShiftMask) */
         load_schematic(1, filename, 1, 1);
         draw();
      }
-     break;
+     return;
    }
    if(key=='o' && rstate == ControlMask)   /* load */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     ask_new_file();
-    break;
+    return;
    }
    if(key=='S' && rstate == 0)   /* change element order */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     change_elem_order(-1);
-    break;
+    return;
    }
    if(key=='k' && EQUAL_MODMASK)        /* select whole net (all attached wires/labels/pins) */
    {
      select_hilight_net();
-     break;
+     return;
    }
    if(key=='k' && rstate==ControlMask)                           /* unhilight net */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     unhilight_net();
-    break;
+    return;
    }
    if(key=='K' && rstate == ControlMask)       /* hilight net drilling thru elements  */
                                                         /* with 'propag=' prop set on pins */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->enable_drill=1;
     hilight_net(0);
     redraw_hilights(0);
     /* draw_hilight_net(1); */
-    break;
+    return;
    }
    if(key=='k' && rstate==0)                             /* hilight net */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->enable_drill=0;
     hilight_net(0);
     redraw_hilights(0);
     /* draw_hilight_net(1); */
-    break;
+    return;
    }
    if(key=='K' && rstate == 0)                           /* delete hilighted nets */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->enable_drill=0;
     clear_all_hilights();
     /* undraw_hilight_net(1); */
     draw();
-    break;
+    return;
    }
    if(key=='g' && EQUAL_MODMASK) { /* highlight net and send to viewer */
      int tool = 0;
      int exists = 0;
      char *tool_name = NULL;
-     char str[200];
 
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      tcleval("winfo exists .graphdialog");
      if(tclresult()[0] == '1') tool = XSCHEM_GRAPH;
      else if(xctx->graph_lastsel >=0 &&
@@ -3620,7 +3460,7 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(exists) {
        if(!tool) {
          tool = tclgetintvar("sim(spicewave,default)");
-         my_snprintf(str, S(str), "sim(spicewave,%d,name)", tool);
+         my_snprintf(str, PATH_MAX + 100, "sim(spicewave,%d,name)", tool);
          my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
          dbg(1,"callback(): tool_name=%s\n", tool_name);
          if(strstr(tool_name, "Gaw")) tool=GAW;
@@ -3633,51 +3473,51 @@ int rstate; /* (reduced state, without ShiftMask) */
        redraw_hilights(0);
      }
      Tcl_ResetResult(interp);
-     break;
+     return;
    }
    if(key=='g' && rstate==0)                         /* half snap factor */
    {
     set_snap(c_snap / 2.0);
     change_linewidth(-1.);
     draw();
-    break;
+    return;
    }
    if(key=='g' && rstate==ControlMask)              /* set snap factor 20161212 */
    {
-    my_snprintf(str, S(str),
+    my_snprintf(str,  S(str),
      "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
      CADSNAP, c_snap, c_snap);
     tcleval(str);
-    break;
+    return;
    }
    if(key=='G' && rstate == 0)                                    /* double snap factor */
    {
     set_snap(c_snap * 2.0);
     change_linewidth(-1.);
     draw();
-    break;
+    return;
    }
    if(key=='*' && EQUAL_MODMASK)         /* svg print , 20121108 */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     svg_draw();
-    break;
+    return;
    }
    if(key=='*' && rstate == 0 )                    /* postscript print */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     ps_draw(7, 0, 0);
-    break;
+    return;
    }
    if(key=='*' && rstate == ControlMask)      /* xpm print */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     print_image();
-    break;
+    return;
    }
    if(key=='u' && EQUAL_MODMASK)                      /* align to grid */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->push_undo();
     round_schematic_to_grid(c_snap);
     set_modify(1);
@@ -3688,7 +3528,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     xctx->prep_hi_structs=0;
 
     draw();
-    break;
+    return;
    }
    if(0 && (key=='u') && rstate==ControlMask)                   /* testmode */
    {
@@ -3721,39 +3561,39 @@ int rstate; /* (reduced state, without ShiftMask) */
     }
     x++;
     x %= 2;
-    break;
+    return;
    }
    if(key=='u' && rstate==0)                             /* undo */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->pop_undo(0, 1);  /* 2nd parameter: set_modify_status */
     draw();
-    break;
+    return;
    }
    if(key=='U' && rstate == 0)                     /* redo */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->pop_undo(1, 1); /* 2nd parameter: set_modify_status */
     draw();
-    break;
+    return;
    }
    if(key=='&')                         /* check wire connectivity */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->push_undo();
     trim_wires();
     draw();
-    break;
+    return;
    }
    if(key=='l' && rstate == ControlMask) { /* create schematic from selected symbol 20171004 */
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      create_sch_from_sym();
-     break;
+     return;
    }
    if(key=='l' /* && !xctx->ui_state */ && rstate == 0) /* start line */
    {
      int prev_state = xctx->ui_state;
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(infix_interface) {
        start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(prev_state == STARTLINE) {
@@ -3765,21 +3605,21 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTLINE;
      }
-     break;
+     return;
    }
    if(key=='l' && EQUAL_MODMASK) {                         /* add pin label*/
      place_net_label(1);
-     break;
+     return;
    }
    if(key >= '0' && key <= '4' && state == 0) {  /* toggle pin logic level */
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(key == '4') logic_set(-1, 1, NULL);
      else logic_set((int)key - '0', 1, NULL);
-     break;
+     return;
    }
    if(key=='L' && EQUAL_MODMASK ) {                         /* add pin label*/
     place_net_label(0);
-    break;
+    return;
    }
    if(key=='L' && rstate == 0) {                         /* toggle orthogonal routing */
     if(tclgetboolvar("orthogonal_wiring")){
@@ -3789,7 +3629,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       tclsetboolvar("orthogonal_wiring", 1);
     }
     redraw_w_a_l_r_p_z_rubbers(1);
-    break;
+    return;
    }
    if(key=='F' && rstate == 0)                     /* flip */
    {
@@ -3803,7 +3643,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(FLIP,0,0,0);
       move_objects(END,0,0,0);
     }
-    break;
+    return;
    }
    if(key=='V' && rstate == 0)                     /* vertical flip */
    {
@@ -3827,7 +3667,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(FLIP,0,0,0);
       move_objects(END,0,0,0);
     } 
-    break;
+    return;
    }
    if(key=='v' && EQUAL_MODMASK)  /* vertical flip objects around their anchor points */
    {
@@ -3851,7 +3691,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(FLIP|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
     }
-    break;
+    return;
    }
 
    if(key=='\\' && state==0)          /* fullscreen */
@@ -3859,7 +3699,7 @@ int rstate; /* (reduced state, without ShiftMask) */
     
     dbg(1, "callback(): toggle fullscreen, win_path=%s\n", win_path);
     toggle_fullscreen(win_path);
-    break;
+    return;
    }
    if(key=='f' && EQUAL_MODMASK)              /* flip objects around their anchor points 20171208 */
    {
@@ -3873,7 +3713,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(FLIP|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
     }
-    break;
+    return;
    }
    if(key=='R' && rstate == 0)             /* rotate */
    {
@@ -3888,7 +3728,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(END,0,0,0);
     }
 
-    break;
+    return;
    }
    if(key=='r' && EQUAL_MODMASK)              /* rotate objects around their anchor points 20171208 */
    {
@@ -3902,14 +3742,14 @@ int rstate; /* (reduced state, without ShiftMask) */
       move_objects(ROTATE|ROTATELOCAL,0,0,0);
       move_objects(END,0,0,0);
     }
-    break;
+    return;
    }
    /* Move selection */
    if(key=='m' && rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     if(enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
     if(infix_interface) {
@@ -3920,7 +3760,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTMOVE;
     }
-    break;
+    return;
    }
    /* Move selection adding wires to moved pins */
    if(((key == 'M' && rstate == 0) || (key == 'm' && EQUAL_MODMASK)) &&
@@ -3936,7 +3776,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTMOVE;
     }
-    break;
+    return;
    }
    /* move selection stretching attached nets */
    if(key=='m' && rstate == ControlMask &&
@@ -3944,7 +3784,7 @@ int rstate; /* (reduced state, without ShiftMask) */
    {        
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }     
     if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
     if(infix_interface) {
@@ -3955,7 +3795,7 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTMOVE;
     }
-    break;
+    return;
    }
    
    /* move selection, stretch attached nets, create new wires on pin-to-moved-pin connections */
@@ -3972,13 +3812,13 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTMOVE;
     }
-    break;
+    return;
    }
 
    if(key=='c' && EQUAL_MODMASK &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
@@ -3988,13 +3828,13 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTCOPY;
     }
-    break;
+    return;
    }
 
    if(key=='c' && rstate==0 &&           /* duplicate selection */
      !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     if(infix_interface) {
       xctx->mx_double_save=xctx->mousex_snap;
       xctx->my_double_save=xctx->mousey_snap;
@@ -4003,31 +3843,31 @@ int rstate; /* (reduced state, without ShiftMask) */
       xctx->ui_state |= MENUSTART;
       xctx->ui_state2 = MENUSTARTCOPY;
     }
-    break;
+    return;
    }
    if(key=='n' && rstate == ControlMask)              /* clear schematic */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      tcleval("xschem clear SCHEMATIC");
-     break;
+     return;
    }
    if(key=='N' && rstate == ControlMask )    /* clear symbol */
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      tcleval("xschem clear SYMBOL");
-     break;
+     return;
    }
    if(key=='n' && rstate==0)              /* hierarchical netlist */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     tcleval("xschem netlist -erc");
-    break;
+    return;
    }
    if(key=='N' && rstate == 0)              /* current level only netlist */
    {
     int err = 0;
     yyparse_error = 0;
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     unselect_all(1);
     if( set_netlist_dir(0, NULL) ) {
       dbg(1, "callback(): -------------\n");
@@ -4061,22 +3901,22 @@ int rstate; /* (reduced state, without ShiftMask) */
       }
     }
 
-    break;
+    return;
    }
    if(key=='A' && rstate == ControlMask) /* only for graph (toggle hcursor1 if graph_use_ctrl_key set) */
    {
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
-     break;
+     return;
    }
    if(key=='A' && rstate == 0)                             /* toggle show netlist */
    {
      int net_s;
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
      net_s = tclgetboolvar("netlist_show");
      net_s = !net_s;
@@ -4088,19 +3928,19 @@ int rstate; /* (reduced state, without ShiftMask) */
        tcleval("alert_ { disabling show netlist window } {}");
        tclsetvar("netlist_show","0");
      }
-     break;
+     return;
    }
    if(key=='>') {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(xctx->draw_single_layer< cadlayers-1) xctx->draw_single_layer++;
      draw();
-     break;
+     return;
    }
    if(key=='<') {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      if(xctx->draw_single_layer>=0 ) xctx->draw_single_layer--;
      draw();
-     break;
+     return;
    }
    if(key==':')                         /* toggle flat netlist (only spice)  */
    {
@@ -4112,42 +3952,42 @@ int rstate; /* (reduced state, without ShiftMask) */
         tcleval("alert_ { set hierarchical netlist } {}");
         tclsetvar("flat_netlist","0");
     }
-    break;
+    return;
    }
    if(key=='B' && rstate == ControlMask) /* only for graph (toggle hcursor2 if graph_use_ctrl_key set) */
    { 
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      } 
-     break;
+     return;
    }
    if(key=='B' && rstate == 0)    /* edit schematic header/license */
    {
      if(waves_selected(event, key, state, button)) {
        waves_callback(event, mx, my, key, button, aux, state);
-       break;
+       return;
      }
      tcleval("update_schematic_header");
    }
    if(key=='b' && rstate==0)                     /* merge schematic */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
-    break;
+    return;
    }
    if(key=='b' && EQUAL_MODMASK)                     /* hide/show instance details */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     xctx->hide_symbols++;
     if(xctx->hide_symbols >= 3) xctx->hide_symbols = 0;
     tclsetintvar("hide_symbols", xctx->hide_symbols);
     draw();
-    break;
+    return;
    }
    if(key=='d' && rstate == 0) /* unselect object under the mouse */
    {
@@ -4157,7 +3997,7 @@ int rstate; /* (reduced state, without ShiftMask) */
        xctx->ui_state |= (MENUSTART | DESEL_CLICK);
        xctx->ui_state2 = MENUSTARTDESEL;
      }
-     break;
+     return;
    }
    if(key=='D' && rstate == 0)          /* unselect by area */
    {
@@ -4173,105 +4013,111 @@ int rstate; /* (reduced state, without ShiftMask) */
            xctx->ui_state2 = MENUSTARTDESEL;
          }
        }
-     break;
+     return;
    }
    if(key=='d' && rstate == ControlMask)          /* delete files */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     delete_files();
-    break;
+    return;
    }
    if(key=='x' && rstate == 0 )                  /* new cad session */
    {
     new_xschem_process(NULL ,0);
-    break;
+    return;
    }
    if((key=='#') && !(state & ControlMask) )
    {
     check_unique_names(0);
-    break;
+    return;
    }
    if((key=='#') && (state & ControlMask) )
    {
     check_unique_names(1);
-    break;
+    return;
    }
    if( 0 && (key==';') && (state & ControlMask) )    /* testmode */
    {
-    break;
+    return;
    }
    if(0 && key=='~' && (state & ControlMask)) {  /* testmode */
-    break;
+    return;
    }
    if(0 && key=='|' && !(state & ControlMask)) {            /* testmode */
-    break;
+    return;
    }
    if(0 && key=='|' && (state & ControlMask))      /* testmode */
    {
-    break;
+    return;
    }
 
    if(key=='f' && rstate == ControlMask)         /* search */
    {
-    if(xctx->semaphore >= 2) break;
+    if(xctx->semaphore >= 2) return;
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }     
     tcleval("property_search");
-    break;
+    return;
    }
    if(key=='F' && rstate == ControlMask )   /* full zoom selection */
    {
     if(xctx->ui_state == SELECTION) {
       zoom_full(1, 1, 3, 0.97);
     }
-    break;
+    return;
    }
    if(key=='f' && rstate == 0 )                  /* full zoom */
    { 
     int flags = 1;
     if(waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     }
     if(tclgetboolvar("zoom_full_center")) flags |= 2;
     zoom_full(1, 0, flags, 0.97);
-    break;
+    return;
    }
    if((key=='z' && rstate==ControlMask))                         /* zoom out */
    {
      view_unzoom(0.0);
-     break;
+     return;
    }
    if(key=='!' && !(state & ControlMask))
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      break_wires_at_pins(0);
-     break;
+     return;
    }
    if(key=='!' && (state & ControlMask))
    {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      break_wires_at_pins(1);
-     break;
+     return;
    }
-   break;
+   
+   return;
+}
 
-  case ButtonPress:
+static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
+                                double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux)
+{
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
+   int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
+   int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
-     break;
+     return;
    }
    /* terminate a schematic pan action */
    if(xctx->ui_state & STARTPAN) {
      xctx->ui_state &=~STARTPAN;
-     break;
+     return;
    }
 
    /* select instance and connected nets stopping at wire junctions */
-   if(button == Button3 &&  state == ControlMask && xctx->semaphore <2)
+   if(!excl && button == Button3 && state == ControlMask && xctx->semaphore <2)
    {
      Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4279,17 +4125,19 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    
    /* break wire at mouse coordinates, move break point to nearest grid point */
-   else if(button == Button3 &&  EQUAL_MODMASK && !(state & ShiftMask) && xctx->semaphore <2)
+   else if(!excl && button == Button3 && EQUAL_MODMASK &&
+           !(state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 1);
    }
    /* break wire at mouse coordinates */
-   else if(button == Button3 && EQUAL_MODMASK && (state & ShiftMask) && xctx->semaphore <2)
+   else if(!excl && button == Button3 && EQUAL_MODMASK &&
+           (state & ShiftMask) && xctx->semaphore <2)
    {
      break_wires_at_point(xctx->mousex_snap, xctx->mousey_snap, 0);
    }
    /* select instance and connected nets NOT stopping at wire junctions */
-   else if(button == Button3 &&  state == ShiftMask && xctx->semaphore <2)
+   else if(!excl && button == Button3 && state == ShiftMask && xctx->semaphore <2)
    {
      Selected sel;
      sel = select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
@@ -4297,18 +4145,18 @@ int rstate; /* (reduced state, without ShiftMask) */
    }
    /* moved to Button3 release */
    /* 
-    * else if(button == Button3 &&  state == 0 && xctx->semaphore <2) {
+    * else if(button == Button3 && state == 0 && xctx->semaphore <2) {
     *   context_menu_action(xctx->mousex_snap, xctx->mousey_snap);
     * }
     */
 
    /* zoom rectangle by right clicking and drag */
-   else if(button == Button3 && state == 0 && xctx->semaphore < 2) {
-     zoom_rectangle(START);break;
+   else if(!excl && button == Button3 && state == 0 && xctx->semaphore < 2) {
+     zoom_rectangle(START);return;
    }
      
    /* Mouse wheel events */
-   else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) break;
+   else if(handle_mouse_wheel(event, mx, my, key, button, aux, state)) return;
 
    /* terminate wire placement in snap mode */
    else if(button==Button1 && (state & ShiftMask) && (xctx->ui_state & STARTWIRE) ) {
@@ -4329,10 +4177,10 @@ int rstate; /* (reduced state, without ShiftMask) */
    else if(button==Button1 && xctx->semaphore >= 2) {
      if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
        tcleval(".dialog.f1.b1 invoke");
-       break;
+       return;
      } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
        tcleval(".dialog.buttons.ok invoke");
-       break;
+       return;
      } else if(state==0 && tclgetvar("edit_symbol_prop_new_sel")[0]) {
        tcleval("set edit_symbol_prop_new_sel 1; .dialog.f1.b1 invoke"); /* invoke 'OK' of edit prop dialog */
      } else if((state & ShiftMask) && tclgetvar("edit_symbol_prop_new_sel")[0]) {
@@ -4353,27 +4201,27 @@ int rstate; /* (reduced state, without ShiftMask) */
      if(tclgetboolvar("persistent_command") && xctx->last_command) {
        if(xctx->last_command == STARTLINE)  start_line(xctx->mousex_snap, xctx->mousey_snap);
        if(xctx->last_command == STARTWIRE){
-         if(tclgetboolvar("snap_cursor") 
-              && (xctx->prev_snapx == xctx->mousex_snap 
-              && xctx->prev_snapy == xctx->mousey_snap) 
-              && (xctx->ui_state & STARTWIRE) 
-              && xctx->closest_pin_found){
-           new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
-           xctx->ui_state &= ~STARTWIRE;
-         }
-         else
-           start_wire(xctx->mousex_snap, xctx->mousey_snap);
-       }
-       break;
+        if(tclgetboolvar("snap_cursor")
+             && (xctx->prev_snapx == xctx->mousex_snap
+             && xctx->prev_snapy == xctx->mousey_snap)
+             && (xctx->ui_state & STARTWIRE)
+             && xctx->closest_pin_found){
+          new_wire(PLACE|END, xctx->mousex_snap, xctx->mousey_snap);
+          xctx->ui_state &= ~STARTWIRE;
+        }
+        else
+          start_wire(xctx->mousex_snap, xctx->mousey_snap);
+      }
+        return;
      }
      /* handle all object insertions started from Tools/Edit menu */
-     if(check_menu_start_commands(c_snap, mx, my)) break;
+     if(check_menu_start_commands(c_snap, mx, my)) return;
 
      /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
-     if(end_place_move_copy_zoom()) break;
+     if(end_place_move_copy_zoom()) return;
 
      /* Button1Press to select objects */
-     if( !(xctx->ui_state & STARTSELECT) && !(xctx->ui_state & STARTWIRE) && !(xctx->ui_state & STARTLINE) ) {
+     if(!excl) {
        Selected sel;
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
@@ -4388,8 +4236,8 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* Clicking and dragging from a **selected** instance pin will start a new wire
         * if no other elements are selected */
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
-         if(add_wire_from_wire(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
-         if(add_wire_from_inst(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) break;
+         if(add_wire_from_wire(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
+         if(add_wire_from_inst(&xctx->sel_array[0], xctx->mousex_snap, xctx->mousey_snap)) return;
        }
        #endif
 
@@ -4400,7 +4248,7 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
         * since the mouse pointer is obscured and crosshair is snapped to grid points */
-       if(draw_xhair) {
+       if(draw_xhair && (use_cursor_for_sel || crosshair_size == 0)) {
          sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
@@ -4420,12 +4268,12 @@ int rstate; /* (reduced state, without ShiftMask) */
 
        /* Clicking and drag on an instance pin -> drag a new wire */
        if(xctx->intuitive_interface && !already_selected) {
-         if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;  
+         if(add_wire_from_inst(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
        }
   
        /* Clicking and drag on a wire end -> drag a new wire */
        if(xctx->intuitive_interface && !already_selected) {
-         if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) break;  
+         if(add_wire_from_wire(&sel, xctx->mousex_snap, xctx->mousey_snap)) return;  
        }
 
        /* In intuitive interface a button1 press with no modifiers will
@@ -4440,21 +4288,21 @@ int rstate; /* (reduced state, without ShiftMask) */
        /* if clicking on some object endpoints or vertices set shape_point_selected
         * this information will be used in Motion events to draw the stretched vertices */
        if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
-         if(edit_polygon_point(state)) break; /* sets xctx->shape_point_selected */
+         if(edit_polygon_point(state)) return; /* sets xctx->shape_point_selected */
        }
        if(xctx->lastsel == 1 && xctx->intuitive_interface) {
          int cond = already_selected;
 
          if(cond && xctx->sel_array[0].type==xRECT) {
-           if(edit_rect_point(state)) break; /* sets xctx->shape_point_selected */
+           if(edit_rect_point(state)) return; /* sets xctx->shape_point_selected */
          }
 
          if(cond && xctx->sel_array[0].type==LINE) {
-           if(edit_line_point(state)) break; /* sets xctx->shape_point_selected */
+           if(edit_line_point(state)) return; /* sets xctx->shape_point_selected */
          }
 
          if(cond && xctx->sel_array[0].type==WIRE) {
-          if(edit_wire_point(state)) break; /* sets xctx->shape_point_selected */
+          if(edit_wire_point(state)) return; /* sets xctx->shape_point_selected */
          }
        }
        dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
@@ -4495,15 +4343,20 @@ int rstate; /* (reduced state, without ShiftMask) */
            redraw_hilights(0);
          }
        }
-       break;
-     }
+       return;
+     } /* if(!excl) */
    } /* button==Button1 */
-   break;
+   
+   return;
+}
 
-  case ButtonRelease:
+static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my, 
+                                  int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active)
+{
+   char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
-     break;
+     return;
    }
    xctx->ui_state &= ~DESEL_CLICK;
    dbg(1, "release: shape_point_selected=%d\n", xctx->shape_point_selected);
@@ -4536,12 +4389,12 @@ int rstate; /* (reduced state, without ShiftMask) */
      xctx->semaphore = savesem;
    }
 
-   /* end wire creation when dragging in intuitive interface from an inst pin ow wire endpoint */
+   /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
    else if(state == Button1Mask && xctx->intuitive_interface && !tclgetboolvar("persistent_command")
         && (xctx->ui_state & STARTWIRE) && !(xctx->ui_state & MENUSTART)) {
-     if(end_place_move_copy_zoom()) break;
+     if(end_place_move_copy_zoom()) return;
    }
-
+ 
    /* end intuitive_interface copy or move */
    if(xctx->ui_state & STARTCOPY && xctx->drag_elements) {
       copy_objects(END);
@@ -4568,10 +4421,10 @@ int rstate; /* (reduced state, without ShiftMask) */
      /* xctx->mx_double_save=xctx->mousex_snap; */
      /* xctx->my_double_save=xctx->mousey_snap; */
      redraw_w_a_l_r_p_z_rubbers(1);
-     break;
+     return;
    }
    dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
-   if(xctx->semaphore >= 2) break;
+   if(xctx->semaphore >= 2) return;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
        select_rect(!enable_stretch, END,-1);
@@ -4591,17 +4444,22 @@ int rstate; /* (reduced state, without ShiftMask) */
    /* clear start from menu flag or infix_interface=0 start commands */
    if(xctx->ui_state & MENUSTART) {
      xctx->ui_state &= ~MENUSTART;
-     break;
+     return;
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
    if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
-   break;
-  case -3:  /* double click  : edit prop */
+
+   return;
+}
+
+static void handle_double_click(int event, int state, KeySym key, int button,
+                                int mx, int my, int aux, int cadence_compat)
+{
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
-      break;
+      return;
     } else {
-     if(xctx->semaphore >= 2) break;
+     if(xctx->semaphore >= 2) return;
      dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
      if(button==Button1) {
        Selected sel;
@@ -4630,8 +4488,218 @@ int rstate; /* (reduced state, without ShiftMask) */
          }
        }
      }
+    }
+}
+
+
+/* main window callback */
+/* mx and my are set to the mouse coord. relative to window  */
+/* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
+int callback(const char *win_path, int event, int mx, int my, KeySym key,
+                 int button, int aux, int state)
+{
+ char str[PATH_MAX + 100];
+ int redraw_only;
+ double c_snap;
+#ifndef __unix__
+ short cstate = GetKeyState(VK_CAPITAL);
+ short nstate = GetKeyState(VK_NUMLOCK);
+#else
+ XKeyboardState kbdstate;
+#endif
+int enable_stretch = tclgetboolvar("enable_stretch");
+int draw_xhair = tclgetboolvar("draw_crosshair");
+int crosshair_size = tclgetintvar("crosshair_size");
+int infix_interface = tclgetboolvar("infix_interface");
+int rstate; /* (reduced state, without ShiftMask) */
+int snap_cursor = tclgetboolvar("snap_cursor");
+int cadence_compat = tclgetboolvar("cadence_compat");
+int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
+                       ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
+                       (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
+
+ /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+  * events. Some remote connection softwares do not generate the correct coordinates
+  * on such events */
+ if(fix_mouse_coord) {
+   if(event == KeyPress || event == KeyRelease) {
+     tclvareval("getmousex ", win_path, NULL);
+     mx = atoi(tclresult());
+     tclvareval("getmousey ", win_path, NULL);
+     my = atoi(tclresult());
+     dbg(1, "mx = %d  my=%d\n", mx, my);
    }
-   break;
+ }
+
+#ifndef __unix__
+ if(cstate & 0x0001) { /* caps lock */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+ } else if (nstate & 0x0001) { /* num lock */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+ } else { /* normal state */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+ }
+#else
+ XGetKeyboardControl(display, &kbdstate);
+ if(kbdstate.led_mask & 1) { /* caps lock */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+ } else if(kbdstate.led_mask & 2) { /* num lock */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+ } else { /* normal state */
+   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+ }
+#endif
+
+ if(wire_draw_active) {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
+ } else {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
+ }
+
+ tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
+ tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
+                     xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
+                     NULL);
+ tclvareval(xctx->top_path, ".statusbar.5 delete 0 end;",
+                     xctx->top_path, ".statusbar.5 insert 0 $cadgrid",
+                     NULL);
+
+ #if 0
+ /* exclude Motion and Expose events */
+ if(event!=6 /* && event!=12 */) {
+   dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
+           state, event, win_path, old_win_path, xctx->semaphore+1);
+ }
+ #endif
+ 
+ /* Schematic window context switch */
+ redraw_only =0;
+ if(strcmp(old_win_path, win_path) ) {
+   if( xctx->semaphore >= 1  || event == Expose) {
+     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
+     redraw_only = 1;
+     new_schematic("switch_no_tcl_ctx", win_path, "", 1);
+   } else {
+     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n", old_win_path, win_path, xctx->semaphore);
+     new_schematic("switch", win_path, "", 1);
+   }
+   tclvareval("housekeeping_ctx", NULL);
+ }
+ /* artificially set semaphore to allow only redraw operations in switched schematic,
+  * so we don't need  to switch tcl context which is costly performance-wise
+  */
+ if(redraw_only) {
+   dbg(1, "callback(): incrementing semaphore for redraw_only\n");
+   xctx->semaphore++;
+ }
+
+ xctx->semaphore++; /* to recognize recursive callback() calls */
+
+ c_snap = tclgetdoublevar("cadsnap");
+ #ifdef __unix__
+ state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
+ #endif
+ state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
+ state &= ~LockMask; /* filter out Caps Lock */
+ rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
+ rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
+ rstate &= ~Button1Mask; /* ignore button-1 */
+ if(xctx->semaphore >= 2)
+ {
+   if(debug_var>=2)
+     if(event != MotionNotify) 
+       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
+               xctx->semaphore, event, xctx->ui_state);
+ }
+ xctx->mousex=X_TO_XSCHEM(mx);
+ xctx->mousey=Y_TO_XSCHEM(my);
+ xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
+ xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
+
+ if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
+   my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
+     xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
+   statusmsg(str,1);
+ }
+
+ dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
+
+ #if defined(__unix__) && HAS_CAIRO==1
+ if(xctx->ui_state & GRABSCREEN) {
+   grabscreen(win_path, event, mx, my, key, button, aux, state);
+ } else 
+ #endif
+ switch(event)
+ {
+
+  case LeaveNotify:
+    if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
+    tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
+    xctx->mouse_inside = 0;
+    break;
+
+  case EnterNotify:
+    handle_enter_notify(draw_xhair, crosshair_size);
+    break;
+
+  case Expose:
+    dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
+    {
+      XRectangle xr[1];
+      xr[0].x=(short)mx;
+      xr[0].y=(short)my;
+      xr[0].width=(unsigned short)button;
+      xr[0].height=(unsigned short)aux;
+      /* redraw selection on expose, needed if no backing store available on the server 20171112 */
+      XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
+      rebuild_selected_array();
+      if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
+        compare_schematics("");
+      } else {
+        draw_selection(xctx->gc[SELLAYER],0);
+      }
+      XSetClipMask(display, xctx->gc[SELLAYER], None);
+    }
+    dbg(1, "callback(): Expose\n");
+    break;
+
+  case ConfigureNotify:
+    dbg(1,"callback(): ConfigureNotify event\n");
+    resetwin(1, 1, 0, 0, 0);
+    draw();
+    break;
+
+  case MotionNotify:
+    handle_motion_notify(event, key, state, rstate, button, mx, my,
+                         aux, draw_xhair, enable_stretch, 
+                         snap_cursor, wire_draw_active);
+    break;
+
+  case KeyRelease:
+    break;
+
+  case KeyPress:
+    handle_key_press(event, key, state, rstate, mx, my, button, aux,
+                     infix_interface, enable_stretch, win_path, c_snap,
+                     cadence_compat, wire_draw_active, snap_cursor);
+    break;
+
+  case ButtonPress:
+    handle_button_press(event, state, rstate, key, button, mx, my,
+                        c_snap, draw_xhair, crosshair_size, enable_stretch, aux);
+    break;
+
+  case ButtonRelease:
+    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
+                          draw_xhair, snap_cursor, wire_draw_active);
+    break;
+   
+  case -3:  /* double click  : edit prop */
+    handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
+    break;
+   
   default:
    dbg(1, "callback(): Event:%d\n",event);
    break;
@@ -4648,6 +4716,6 @@ int rstate; /* (reduced state, without ShiftMask) */
    if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
    my_strncpy(old_win_path, win_path, S(old_win_path));
  }
- return 0;
+  return 0;
 }
 

@@ -226,15 +226,9 @@
 #### if not set show selected items at end of drag. Default: enabled (1)
 # set incremental_select 0
 
-#### if set to 1, pressing 'w', 'l', 'r', 'C', or 'Ctrl+C' will immediately place the
-#### corresponding component at current cursor position without waiting for Button1 (LMB) click. 
-#### This setting can be disabled via the Options menu
-#### default: 0
-# set infix_interface 1
-
-#### wires are drawn in free-form mode with this mode enabled (default).
-#### if set to 0, wires drawn on the schematic will no longer strictly
-#### follow orthogonal routes to connect two distinct points together.
+#### wires are drawn in free-form mode with this mode disabled (default).
+#### if set to 1, wires drawn on the schematic will strictly follow
+#### orthogonal routes to connect two distinct points together.
 #### default: 0
 # set orthogonal_wiring 1
 
@@ -293,6 +287,10 @@
 
 #### set cadence_compat; Default: 0 (Cadence-style keybinds are not used by default)
 # set cadence_compat 1
+
+#### if set, then, when cursor (regardless of style) is on an object, and user clicks (though mouse pointer is not on the object),
+#### the object is selected. Default: 0
+# set use_cursor_for_selection 1
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
@@ -646,4 +644,7 @@
 #### objects ('w', 'l', 't', 'r', ...) try to set this to 1.
 #### Default: not enabled (0)
 # set fix_mouse_coord 0
+
+#### redefine some variables to emulate Cadence UI / bindkeys
+# source /home/schippes/share/xschem/cadence_style_rc
 

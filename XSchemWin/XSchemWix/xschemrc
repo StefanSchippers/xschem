@@ -171,8 +171,14 @@
 #### this is the default:
 # set initial_geometry {900x600}
 
-#### initial geometry of load /save / insert component file selector
-# set file_dialog_default_geometry 800x600
+#### initial size of the load_file_dialog (the file selector) dialog box
+# set file_dialog_default_geometry 700x680+100+40
+#### load_file_dialog directory list (+ recent if shown) X width in pixels
+# set file_dialog_sp0 350
+#### load_file_dialog recent components list X width in pixels
+# set file_dialog_sp1 100
+#### load_file_dialog components list Y height in pixels
+# set file_dialog_v_sp0 420
 
 #### display full path (1) or only name (0) for component directories. Default: 1
 # set load_file_dialog_fullpath 1
@@ -194,6 +200,11 @@
 #### if set to 1 continue drawing lines / wires after click
 #### default: 0
 # set persistent_command 1
+
+#### if set to 0 users must click a point after hitting a command key
+#### like 'w(ire)', 'l(ine)' and so on.
+#### default is 1 (hitting the command key sets also the first point).
+# set infix_interface 0
 
 #### if set to 1 allow click & drag objects in the schematic 
 #### to move them without keyboard commands ('m')
@@ -256,8 +267,24 @@
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
 # set draw_crosshair 1
 
-#### set crosshair layer; Default 3 (TEXTLAYER)
-# set crosshair_layer 3
+#### set crosshair layer; Default 8 (Yellow)
+# set crosshair_layer 8
+
+#### set crosshair size; Default: 0 (full screen spanning crosshair) 
+# set crosshair_size 5
+
+#### enable drawing a diamond-shaped cursor at the closest circuit endpoint. Default: disabled (0)
+# set snap_cursor 1
+
+#### set snap_cursor_size; Default: 6 (Diamond-shaped cursor that snaps to nearest circuit endpoint)
+# set snap_cursor_size 6
+
+#### set cadence_compat; Default: 0 (Cadence-style keybinds are not used by default)
+# set cadence_compat 1
+
+#### if set, then, when cursor (regardless of style) is on an object, and user clicks (though mouse pointer is not on the object),
+#### the object is selected. Default: 0
+# set use_cursor_for_selection 1
 
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
@@ -510,7 +537,10 @@ set editor {notepad.exe}
 #   }
 # }
 
-
+###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER GENERATING NETLIST
+###########################################################################
+# set netlist_postprocess {textfile $netlist_dir/[xschem get netlist_name fallback]}
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION
@@ -554,11 +584,29 @@ set editor {notepad.exe}
 # set show_hidden_texts 1
 
 ###########################################################################
+#### USE CTRL MODIFIER TO OPERATE ON GRAPHS WITH MOUSE & KEYBOARD
+###########################################################################
+#### if enabled forces to hold Control key pressed to operate on graphs
+#### to prevent "graph event stealing to schematic"
+#### Default: 0 (not set)
+# set graph_use_ctrl_key 1
+
+###########################################################################
 #### HIDE GRAPHS IF NO SPICE DATA LOADED
 ###########################################################################
 #### if enabled graphs will be hidden if no data is loaded.
 #### default: not enabled (0)
 # set hide_empty_graphs 0
+
+
+###########################################################################
+#### ATTACH HOOK FUNCTION TO CURSOR 2 MOVEMENT 
+###########################################################################
+#### if enabled whenever the cursor2 is moved the specified script is
+#### executed. Examples:
+####  set cursor_2_hook {conducting_devices 10e-3 nodraw}
+####  set cursor_2_hook {hilight_high_nets 0 1.8 nodraw}
+#### this can be used to add backannotation actions.
 
 ###########################################################################
 #### LIVE BACKANNOTATION OF DATA AT CURSOR 2 (B) POSITION
@@ -590,4 +638,7 @@ set editor {notepad.exe}
 #### objects ('w', 'l', 't', 'r', ...) try to set this to 1.
 #### Default: not enabled (0)
 # set fix_mouse_coord 0
+
+#### redefine some variables to emulate Cadence UI / bindkeys
+# source /home/schippes/share/xschem/cadence_style_rc
 

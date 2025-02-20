@@ -491,7 +491,7 @@ typedef struct
   unsigned short sel;
   char *prop_ptr;
   void *extraptr; /* generic data pointer (images) */
-  short fill;
+  short fill; /* 0: no fill, 1: stippled fill, 2: solid fill */
   short dash;
   int ellipse_a, ellipse_b;
   /* bit0=1 for graph function, bit1=1 for unlocked x axis
@@ -1648,6 +1648,7 @@ extern char *my_free(int id, void *ptr);
 extern size_t my_strcat(int id, char **, const char *);
 extern size_t my_strcat2(int id, char **, const char *);
 extern size_t my_mstrcat(int id, char **str, const char *append_str, ...);
+extern FILE * my_fopen(const char *f, const char *m);
 extern void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen);
 extern char *my_itoa(int i);
 extern double atof_spice(const char *s);
@@ -1764,4 +1765,5 @@ extern const char *create_tmpdir(char *prefix);
 extern FILE *open_tmpfile(char *prefix, char *suffix, char **filename);
 extern void create_ps(char** psfile, int what, int fullzoom, int eps);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
+extern int win_regexec(const char *options, const char *pattern, const char *name);
 #endif /*CADGLOBALS */

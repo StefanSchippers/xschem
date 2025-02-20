@@ -460,7 +460,7 @@ cairo_surface_t *cairo_image_surface_create_from_jpeg_stream(cairo_read_func_t r
  * @return Returns a pointer to a cairo_surface_t structure. It should be
  * checked with cairo_surface_status() for errors.
  * @note If the returned surface is invalid you can use errno to determine
- * further reasons. Errno is set according to fopen(3) and malloc(3). If you
+ * further reasons. Errno is set according to my_fopen(3) and malloc(3). If you
  * intend to check errno you shall set it to 0 before calling this function
  * because it does not modify errno itself.
  */
@@ -520,7 +520,7 @@ static cairo_status_t cj_read(void *closure, unsigned char *data, unsigned int l
  * @return Returns a pointer to a cairo_surface_t structure. It should be
  * checked with cairo_surface_status() for errors.
  * @note If the returned surface is invalid you can use errno to determine
- * further reasons. Errno is set according to fopen(3) and malloc(3). If you
+ * further reasons. Errno is set according to my_fopen(3) and malloc(3). If you
  * intend to check errno you shall set it to 0 before calling this function
  * because it does not modify errno itself.
  */

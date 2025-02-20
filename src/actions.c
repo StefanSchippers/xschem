@@ -45,7 +45,7 @@ unsigned int hash_file(const char *f, int skip_path_lines)
   int cr = 0;
   unsigned int h=5381;
   char *line = NULL;
-  fd = fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
+  fd = my_fopen(f, "r"); /* windows won't return \r in the lines and we chop them out anyway in the code */
   if(fd) {
     while((line = my_fgets(fd, &n))) {
       /* skip lines of type: '** sch_path: ...' or '-- sch_path: ...' or '// sym_path: ...'

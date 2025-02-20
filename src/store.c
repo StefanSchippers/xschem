@@ -156,11 +156,11 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
 
   fill_ptr = get_tok_value(xctx->arc[rectc][n].prop_ptr,"fill",0);
   if(!strcmp(fill_ptr, "full") )
-    xctx->arc[rectc][n].fill =3; /* bit 1: solid fill (not stippled) */
+    xctx->arc[rectc][n].fill = 2; /* bit 1: solid fill (not stippled) */
   else if(!strboolcmp(fill_ptr, "true") )
-    xctx->arc[rectc][n].fill =1;
+    xctx->arc[rectc][n].fill = 1;
   else
-    xctx->arc[rectc][n].fill =0;
+    xctx->arc[rectc][n].fill = 0;
   dash = get_tok_value(xctx->arc[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
@@ -206,11 +206,11 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
 
   fill_ptr = get_tok_value(xctx->poly[rectc][n].prop_ptr,"fill",0);
   if(!strcmp(fill_ptr, "full") )
-    xctx->poly[rectc][n].fill =3; /* bit 1: solid fill (not stippled) */
+    xctx->poly[rectc][n].fill = 2; /* bit 1: solid fill (not stippled) */
   else if(!strboolcmp(fill_ptr, "true") )
-    xctx->poly[rectc][n].fill =1;
+    xctx->poly[rectc][n].fill = 1;
   else
-    xctx->poly[rectc][n].fill =0;
+    xctx->poly[rectc][n].fill = 0;
   dash = get_tok_value(xctx->poly[rectc][n].prop_ptr,"dash",0);
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
@@ -307,11 +307,11 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
 
      fill_ptr = get_tok_value(xctx->rect[rectc][n].prop_ptr, "fill", 0);
      if(!strcmp(fill_ptr, "full") )
-       xctx->rect[rectc][n].fill =3;
+       xctx->rect[rectc][n].fill = 2;
      else if(!strboolcmp(fill_ptr,"false") )
-       xctx->rect[rectc][n].fill =0;
+       xctx->rect[rectc][n].fill = 0;
      else
-       xctx->rect[rectc][n].fill =1;
+       xctx->rect[rectc][n].fill = 1;
      set_rect_flags(&xctx->rect[rectc][n]); /* set cached .flags bitmask from on attributes */
      if(rectc == GRIDLAYER && (xctx->rect[rectc][n].flags & 1024)) {
         xRect *r = &xctx->rect[GRIDLAYER][n];
