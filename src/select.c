@@ -735,7 +735,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
 
 /* n = -1 : clear first selected info 
  * n = -2 : return first selected element if still selected, or get first from 
- *          selected list. Id no elements selected return first selected item (j = 0) 
+ *          selected list. If no elements selected return first selected item (j = 0) 
  * n >= 0 : store indicated element as first selected
  */
 int set_first_sel(unsigned short type, int n, unsigned int col)

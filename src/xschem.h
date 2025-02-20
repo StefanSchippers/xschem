@@ -954,7 +954,7 @@ typedef struct {
   int lastsel;
   int maxsel;
   Selected *sel_array;
-  Selected first_sel; /* first selected instance (used as master when editing multile pbjects) */
+  Selected first_sel; /* first selected instance (used as master when editing multiple objects) */
   int prep_net_structs;
   int prep_hi_structs;
   int prep_hash_inst;
