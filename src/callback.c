@@ -1568,8 +1568,11 @@ void erase_snap_cursor(double prev_x, double prev_y, int snapcursor_size) {
   }
 }
 
-/* action = 1 => erase */
-void draw_snap_cursor(int action) {
+/* action == 3 : delete and draw
+ * action == 1 : delete
+ * action == 2 : draw
+ */
+static void draw_snap_cursor(int action) {
   int snapcursor_size;
   int pos_changed;
   int prev_draw_window = xctx->draw_window;
@@ -1581,21 +1584,22 @@ void draw_snap_cursor(int action) {
   /* Save current drawing context */
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  /* Erase and redraw the cursor if needed */
+  /* Erase the cursor */
   if (action & 1) {
-    double new_x, new_y;
     erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
-
+    draw_selection(xctx->gc[SELLAYER], 0);
+  }
+  /* Redraw the cursor */
+  if (action & 2) {
+    double new_x, new_y;
     find_snap_position(&new_x, &new_y, pos_changed);
     draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
-
     /* Update previous position tracking */
     xctx->prev_gridx = xctx->mousex_snap;
     xctx->prev_gridy = xctx->mousey_snap;
     xctx->prev_snapx = new_x;
     xctx->prev_snapy = new_y;
   }
-  draw_selection(xctx->gc[SELLAYER], 0);
   /* Restore previous drawing context */
   xctx->draw_window = prev_draw_window;
   xctx->draw_pixmap = prev_draw_pixmap;
@@ -2446,6 +2450,7 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
     }
+    return;
 }
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
@@ -2458,8 +2463,8 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     }
     if(draw_xhair) {
       draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
-      if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
     }
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* clear */
     /* pan schematic */
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
 
@@ -2467,7 +2472,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
       if(draw_xhair) {
         draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
       }
-      if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
+      if(snap_cursor && wire_draw_active) draw_snap_cursor(2); /* redraw */
       return;
     }
 
@@ -2568,11 +2573,12 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     if(draw_xhair) {
       draw_crosshair(2, state); /* what = 2(draw) */
     }
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(2);
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(2); /* redraw */
 }
 
 static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
-     int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap)
+     int button, int aux, int infix_interface, int enable_stretch,
+     int wire_draw_active, const char *win_path, double c_snap)
 {
    char str[PATH_MAX + 100];
    int cadence_compat = tclgetboolvar("cadence_compat");
@@ -2858,9 +2864,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     if(xctx->ui_state2 & MENUSTARTWIRE) {
       xctx->ui_state2 &= ~MENUSTARTWIRE;
     }
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* erase */
     if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE) && cadence_compat) {
       xctx->last_command &= ~STARTWIRE;
-      if(snap_cursor) draw_snap_cursor(1);
     }
     return;
    }
@@ -4408,7 +4414,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      return;
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
-   if(snap_cursor && wire_draw_active) draw_snap_cursor(3);
+   if(snap_cursor && wire_draw_active) draw_snap_cursor(3); /* erase & redraw */
 }
 
 static void handle_double_click(int event, int state, KeySym key, int button,
@@ -4595,7 +4601,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(1);
+    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* erase */
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -4642,7 +4648,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
   case KeyPress:
    handle_key_press(event, key, state, rstate, mx, my, button, aux, 
-                      infix_interface, enable_stretch, win_path, c_snap);
+                      infix_interface, enable_stretch, wire_draw_active, win_path, c_snap);
    break;
 
   case ButtonPress:

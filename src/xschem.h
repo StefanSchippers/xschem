@@ -1400,7 +1400,6 @@ extern void tclmainloop(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern void draw_crosshair(int what, int state);
-extern void draw_snap_cursor(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 /* extern void snapped_wire(double c_snap); */
 extern int callback(const char *win_path, int event, int mx, int my, KeySym key,
