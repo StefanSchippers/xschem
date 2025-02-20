@@ -439,7 +439,7 @@ static void del_rect_line_arc_poly()
    {
     ++j;
 
-    if(xctx->arc[c][i].fill & 1) /* .fill: 1: stippled fill, 3: solid fill */
+    if(xctx->arc[c][i].fill) /* .fill: 1: stippled fill, 2: solid fill */
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, 0, 360,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
     else

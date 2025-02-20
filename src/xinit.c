@@ -361,10 +361,10 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
      if(pixdata[i][j]!=0xff) full=0;
      if(pixdata[i][j]!=0x00) empty=0;
    }
-   if(full) xctx->fill_type[i] = 1;
+   if(full) xctx->fill_type[i] = 2;
    else if(empty) xctx->fill_type[i] = 0;
-   else xctx->fill_type[i]=2;
-   if(rainbow_colors && i>5) xctx->fill_type[i]=1; /* 20171212 solid fill style */
+   else xctx->fill_type[i]=1;
+   if(rainbow_colors && i>5) xctx->fill_type[i]=2; /* 20171212 solid fill style */
    /*fprintf(errfp, "fill_type[%d]= %d\n", i, xctx->fill_type[i]); */
  }
 }
@@ -434,7 +434,7 @@ void create_gc(void)
     xctx->gc[i] = XCreateGC(display,xctx->window,0L,NULL);
     xctx->gcstipple[i] = XCreateGC(display,xctx->window,0L,NULL);
     XSetStipple(display,xctx->gcstipple[i],pixmap[i]);
-    if(xctx->fill_type[i]==1)  XSetFillStyle(display,xctx->gcstipple[i],FillSolid);
+    if(xctx->fill_type[i]==2)  XSetFillStyle(display,xctx->gcstipple[i],FillSolid);
     else XSetFillStyle(display,xctx->gcstipple[i],FillStippled);
   }
 }
@@ -1177,12 +1177,20 @@ static int source_tcl_file(char *s)
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) {
     
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
-    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
     fprintf(errfp, "%s", tclresult());
+    #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
+    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
+    #endif
     fprintf(errfp, "\n");
+    #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
     my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
        {Tcl_AppInit() err 1: can not execute %s, please fix:\n%s\nLine No: %d\n}",
        s, tclresult(), Tcl_GetErrorLine(interp));
+    #else
+    my_snprintf(tmp, S(tmp), "tk_messageBox -icon error -type ok -message \
+       {Tcl_AppInit() err 1: can not execute %s, please fix:\n%s\n}",
+       s, tclresult());
+    #endif
     if(has_x) {
       tcleval( "wm withdraw .");
       tcleval( tmp);

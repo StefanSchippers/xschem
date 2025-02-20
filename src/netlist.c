@@ -1665,8 +1665,7 @@ int sym_vs_sch_pins(int all)
       /* pass through symbols, duplicated pins: do not check with schematic */
       if(rects > unique_pins) continue;
       get_sch_from_sym(filename, xctx->sym + i, -1, 0);
-      if(!stat(filename, &buf)) {
-        fd = fopen(filename, "r");
+      if(!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode))) {
         pin_cnt = 0;
         endfile = 0;
         f_version[0] = '\0';

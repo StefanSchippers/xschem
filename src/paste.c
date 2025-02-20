@@ -120,11 +120,11 @@ static void merge_box(FILE *fd)
 
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3;
+      ptr[i].fill = 2;
     else if( !strboolcmp(fill_ptr, "false") )
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     else
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     set_rect_flags(&xctx->rect[c][i]); /* set cached .flags bitmask from on attributes */
     select_box(c,i, SELECTED, 1, 1);
     xctx->rects[c]++;
@@ -159,11 +159,11 @@ static void merge_arc(FILE *fd)
 
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+      ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
     else if( !strboolcmp(fill_ptr, "true") )
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     else
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -219,11 +219,11 @@ static void merge_polygon(FILE *fd)
     load_ascii_string( &ptr[i].prop_ptr, fd);
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
-      ptr[i].fill =3; /* bit 1: solid fill (not stippled) */
+      ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
     else if( !strboolcmp(fill_ptr, "true") )
-      ptr[i].fill =1;
+      ptr[i].fill = 1;
     else
-      ptr[i].fill =0;
+      ptr[i].fill = 0;
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -379,7 +379,7 @@ void merge_file(int selection_load, const char ext[])
         my_free(_ALLOC_ID_, &cmd);
       } else fd = NULL;
     } else {
-      fd=fopen(name, fopen_read_mode);
+      fd=my_fopen(name, fopen_read_mode);
     }
     if(fd) {
      xctx->prep_hi_structs=0;

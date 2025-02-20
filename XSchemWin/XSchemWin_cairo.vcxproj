@@ -254,6 +254,7 @@
     <ClCompile Include="..\src\verilog_netlist.c" />
     <ClCompile Include="..\src\vhdl_netlist.c" />
     <ClCompile Include="..\src\xinit.c" />
+    <ClCompile Include="eval_expr.c" />
     <ClCompile Include="expandlabel.c" />
     <ClCompile Include="parselabel.c" />
   </ItemGroup>
@@ -261,6 +262,7 @@
     <ClInclude Include="..\src\cairo_jpg.h" />
     <ClInclude Include="..\src\xschem.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="eval_expr.h" />
     <ClInclude Include="expandlabel.h" />
   </ItemGroup>
   <ItemGroup>
@@ -284,6 +286,11 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="..\src\eval_expr.y">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bison -p kk -o eval_expr.c ..\src\eval_expr.y </Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">eval_expr.c</Outputs>
+    </CustomBuild>
     <None Include="..\src\xschem.tcl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

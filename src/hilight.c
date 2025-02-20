@@ -696,7 +696,7 @@ static int bus_search(const char*s)
 }
 
 #ifndef __unix__
-static int win_regexec(const char *options, const char *pattern, const char *name) 
+int win_regexec(const char *options, const char *pattern, const char *name) 
 {
   if (options!=NULL)
     tclvareval("regexp {", options,"} {", pattern, "} {", name, "}", NULL);
@@ -754,7 +754,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
  if(regcomp(&re, val , cflags)) return TCL_ERROR;
  #else 
  if(!match_case) {
-   regexp_options = "-nocase";
+   my_strdup(_ALLOC_ID_, &regexp_options, "-nocase");
  }
  #endif
  dbg(1, "search():val=%s\n", val);
@@ -1014,6 +1014,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
  }
  #ifdef __unix__
  regfree(&re);
+#else
+ my_free(_ALLOC_ID_, &regexp_options);
  #endif
  xctx->draw_window = save_draw;
  my_free(_ALLOC_ID_, &tmpname);
@@ -2224,7 +2226,7 @@ void draw_hilight_net(int on_window)
           ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts)) {
         draw_symbol(ADD, col, i,c,0,0,0.0,0.0);
       }
-      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 3, -1, -1); /* last parameter must be 3! */
+      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
       drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);

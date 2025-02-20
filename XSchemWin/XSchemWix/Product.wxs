@@ -250,10 +250,7 @@
 				<Component Id="CMPPLACESYMPINS">
 					<File Id="PLACESYMPINS" KeyPath="yes" Source="../../src/place_sym_pins.tcl" />
 				</Component>
-				<Component Id="CMPCREATESYMBOL">
-					<File Id="CREATESYMBOL" KeyPath="yes" Source="../../src/create_symbol.tcl" />
-				</Component>
-
+				
 				<Directory Id="SYSTEMLIBFOLDER" Name="systemlib">
 					<Component Id="CMPSYSTEMLIBFONTSCH">
 						<File Id="FONTSCH" KeyPath="yes" Source="../../src/systemlib/font.sch" />
@@ -374,7 +371,6 @@
 			<ComponentRef Id="CMPTRADUCIAWK" />
 			<ComponentRef Id="CMPPLACEPLINS" />
 			<ComponentRef Id="CMPPLACESYMPINS" />
-			<ComponentRef Id="CMPCREATESYMBOL" />
 			<ComponentRef Id="CMPVERILOGAWK" />
 			<ComponentRef Id="CMPVHDLAWK" />
 			<ComponentRef Id="CMPXSCHEMHELP" />

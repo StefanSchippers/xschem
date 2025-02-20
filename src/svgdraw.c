@@ -62,7 +62,7 @@ static void svg_xfillrectangle(int layer, double x1, double y1, double x2, doubl
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 3) {
+  } else if(fill == 2) {
    fprintf(fd, "style=\"fill-opacity:1.0;\" ");
   }
   fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
@@ -135,7 +135,7 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
   if(fill == 0) {
     fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 3) {
+  } else if(fill == 2) {
    fprintf(fd, "style=\"fill-opacity:1.0;\" ");
   }
   bezier = flags && (points > 2);
@@ -154,7 +154,8 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   fprintf(fd, "\"/>\n");
 }
 
-static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2, int dash, int fill)
+static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2,
+                           int dash, int fill, int e_a, int e_b)
 {
  double x1,y1,x2,y2;
 
@@ -164,7 +165,41 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
   y2=Y_TO_SCREEN(recty2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   svg_xfillrectangle(gc, x1,y1,x2,y2, dash, fill);
+    if(e_a != -1) {
+      double rx = (x2 - x1) / 2.0;
+      double ry = (y2 - y1) / 2.0;
+      double cx = (x2 + x1) / 2.0;
+      double cy = (y2 + y1) / 2.0;
+
+      if(e_b == 360.) {
+        fprintf(fd, "<ellipse class=\"l%d\" cx=\"%g\" cy=\"%g\" rx=\"%g\" ry=\"%g\" ", gc, cx, cy, rx, ry);
+        if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
+        if(fill == 0) fprintf(fd, "style=\"fill:none;\" ");
+        else if(fill == 2) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+        fprintf(fd, "/>\n");
+      } else {
+        double xx1 = rx * cos(e_a * XSCH_PI / 180.) + cx;
+        double yy1 = -ry * sin(e_a * XSCH_PI / 180.) + cy;
+        double xx2 = rx * cos((e_a + e_b) * XSCH_PI / 180.) + cx;
+        double yy2 = -ry * sin((e_a + e_b) * XSCH_PI / 180.) + cy;
+        int fa = e_b > 180 ? 1 : 0;
+        int fs = e_b > 0 ? 0 : 1;
+
+        fprintf(fd,"<path class=\"l%d\" ", gc);
+        if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
+        if(fill == 0) {
+           fprintf(fd,"style=\"fill:none;\" ");
+           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2);
+        } else if(fill == 2) {
+          fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
+        } else {
+          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
+        }
+      }
+    } else {
+      svg_xfillrectangle(gc, x1,y1,x2,y2, dash, fill);
+    }
   }
 }
 
@@ -210,7 +245,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       fprintf(fd, "<circle class=\"l%d\" cx=\"%g\" cy=\"%g\" r=\"%g\" ", gc, xx, yy, rr);
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
       if(fillarc == 0) fprintf(fd, "style=\"fill:none;\" ");
-      else if(fillarc == 3) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+      else if(fillarc == 2) fprintf(fd, "style=\"fill-opacity:1.0;\" ");
 
       fprintf(fd, "/>\n");
     } else {
@@ -226,12 +261,12 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       if(fillarc == 0) {
          fprintf(fd,"style=\"fill:none;\" ");
          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
-      } else if(fillarc == 3) {
+      } else if(fillarc == 2) {
         fprintf(fd, "style=\"fill-opacity:1.0;\" ");
         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
       } else {
         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
-     }
+      }
     }
   }
 }
@@ -478,6 +513,7 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   double alpha = 1.0;
   unsigned char *buffer = NULL;
   size_t buffer_size;
+  double xorig, yorig; /* image anchor point, upper left corner in SVG */
 
   x1=X_TO_SCREEN(rx1);
   y1=Y_TO_SCREEN(ry1);
@@ -488,7 +524,6 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   if(RECT_OUTSIDE(x1, y1, x2, y2,
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
      
-
   if(rot == 1 || rot == 3) {
     w = fabs(y2 - y1);
     h = fabs(x2 - x1);
@@ -498,7 +533,8 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   }
 
   if(flip && (rot == 0 || rot == 2)) scalex = -1.0;
-  else if(flip && (rot == 1 || rot == 3)) scaley = -1.0;
+  else if(flip && (rot == 1 || rot == 3)) scalex = -1.0;
+
   alpha_str = get_tok_value(r->prop_ptr, "alpha", 0);
   if(alpha_str[0]) alpha = atof(alpha_str);
   attr_len = my_strdup2(_ALLOC_ID_, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
@@ -523,8 +559,32 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
     my_free(_ALLOC_ID_, &attr);
     return 0;
   }
+
+  xorig = x1;
+  yorig = y1;
+  if(rot == 0) {
+    if(flip) xorig += w;
+  } else if(rot == 1) {
+    if(flip) {
+      xorig += h;
+      yorig += w;
+    } else xorig += h;
+  } else if(rot == 2) {
+    if(flip) {
+      yorig += h;
+    } else {
+      xorig += w;
+      yorig += h;
+    }
+  } else if(rot == 3) {
+    if(flip) {
+    } else {
+      yorig += w;
+    }
+  }
+
   my_snprintf(transform, S(transform), 
-    "transform=\"translate(%g,%g) scale(%g,%g) rotate(%d)\"", x1, y1, scalex, scaley, rot * 90);
+    "transform=\"translate(%g,%g) rotate(%d) scale(%g,%g)\"", xorig, yorig, rot * 90, scalex, scaley);
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
   /*    png         jpg */
@@ -603,7 +663,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      svg_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0);
+      svg_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -612,7 +672,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
-      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0);
+      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0, -1, -1);
     }
   }
   else if(xctx->inst[n].flags&1) {
@@ -692,9 +752,27 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
         double xx2 = x0 + x2;
         double yy2 = y0 + y2;
         svg_embedded_image(rect, xx1, yy1, xx2, yy2, rot, flip);
-        continue;
+      } else {
+        int ellipse_a = rect->ellipse_a;
+        int ellipse_b = rect->ellipse_b;
+
+        if(ellipse_a != -1 && ellipse_b != 360) {
+          if(flip) {
+            ellipse_a = 180 - ellipse_a - ellipse_b;
+          }
+          if(rot) {
+            if(rot == 3) {
+              ellipse_a += 90;
+            } else if(rot == 2) {
+              ellipse_a += 180;
+            } else if(rot == 1) {
+              ellipse_a += 270;
+            }
+            ellipse_a %= 360;
+          }
+        }
+        svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->fill, ellipse_a, ellipse_b);
       }
-      svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->fill);
     }
   }
 
@@ -916,8 +994,8 @@ void svg_draw(void)
    * 2 : solid fill
    * fill_type[i]: 
    * 0 : no fill
-   * 1 : solid fill
-   * 2 : patterned (stippled) fill
+   * 1 : patterned (stippled) fill
+   * 2 : solid fill
    */
   for(i=0;i<cadlayers; ++i){
     if(unused_layer[i]) continue;
@@ -927,7 +1005,7 @@ void svg_draw(void)
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else if( xctx->fill_pattern == 2 && xctx->fill_type[i]) 
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if( xctx->fill_pattern && xctx->fill_type[i] == 1) 
+    else if( xctx->fill_pattern && xctx->fill_type[i] == 2) 
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     else 
       fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
@@ -976,7 +1054,8 @@ void svg_draw(void)
      } else {
        svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                          xctx->rect[c][i].x2, xctx->rect[c][i].y2,
-                         xctx->rect[c][i].dash,  xctx->rect[c][i].fill);
+                         xctx->rect[c][i].dash,  xctx->rect[c][i].fill,
+                         xctx->rect[c][i].ellipse_a, xctx->rect[c][i].ellipse_b);
      }
    }
    for(i=0;i<xctx->arcs[c]; ++i)

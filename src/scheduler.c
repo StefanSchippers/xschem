@@ -1344,6 +1344,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_snprintf(res, S(res), "%g %g %g %g", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
             Tcl_SetResult(interp, res, TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "build_date")) { /* time and date this file was built. */
+            char date[] =  __DATE__ " : "  __TIME__;
+            Tcl_SetResult(interp, date,  TCL_STATIC);
+          }
           break;
           case 'c':
           if(!strcmp(argv[2], "cadlayers")) { /* number of layers */
@@ -2158,7 +2162,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2 ) {
         what = atoi(argv[2]);
       }
-      if((xctx->semaphore == 0)) go_back(what);
+      if(xctx->semaphore == 0) go_back(what);
       Tcl_ResetResult(interp);
     }
 
@@ -3024,6 +3028,33 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
 
+    /* load_symbol [symbol_file]
+     *   Load specified symbol_file
+     *   Returns:
+     *     >= 0: symbol is already loaded or has been loaded
+     *     <  0: symbol was not loaded
+     */
+    else if(!strcmp(argv[1], "load_symbol") )
+    {
+      int res = -2;
+      struct stat buf;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) { 
+        int i = get_symbol(rel_sym_path(argv[2]));
+        if(i < 0 ) {
+          if(!stat(argv[2], &buf)) { /* file exists */
+            res = load_sym_def(rel_sym_path(argv[2]), NULL);
+            if(res == 0) res = -1;
+          } else {
+            res = -3;
+          }
+        } else {
+          res = 1;
+        }
+      }
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
+    }
+
     /* log_write text
      *   write given string to log file, so tcl can write messages on the log file
      */
@@ -3356,7 +3387,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                             "-message {Please Set netlisting mode (Options menu)}");
         tclsetboolvar("keep_symbols", save_keep);
 
-        if( (erc == 0) ) {
+        if(erc == 0) {
           my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
         }
       }
@@ -5547,7 +5578,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         set_rect_flags(r); /* set cached .flags bitmask from attributes */
         if(argc > 5 && !strcmp(argv[5], "fill")) {
           const char *attr = get_tok_value(r->prop_ptr,"fill", 0);
-          if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 3;
+          if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 2;
           else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
           else xctx->rect[c][n].fill = 1;
         }

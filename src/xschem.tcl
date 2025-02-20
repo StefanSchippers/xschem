@@ -693,6 +693,72 @@ proc spaces {n {indent 4}} {
   return [string repeat { } $n]
 }
 
+# complex number operators
+# a + b
+proc cadd {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra + $rb}] [expr {$ia + $ib}]]
+  return $c
+}
+
+# a - b
+proc csub {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra - $rb}] [expr {$ia - $ib}]]
+  return $c
+}
+
+# a * b
+proc cmul {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set c [list [expr {$ra * $rb - $ia * $ib}] [expr {$ra * $ib + $rb * $ia}]]
+  return $c
+}
+
+# a / b
+proc cdiv {a b} {
+  lassign $a ra ia
+  lassign $b rb ib
+  set ra [expr {double($ra)}]
+  set ia [expr {double($ia)}]
+  set rb [expr {double($rb)}]
+  set ib [expr {double($ib)}]
+  set m [expr {$rb * $rb + $ib * $ib}]
+  set c [list [expr {($ra * $rb + $ia * $ib) / $m}] [expr {($rb * $ia - $ra * $ib) / $m}]]
+  return $c
+}
+
+# 1/b
+proc cinv {b} {
+
+  lassign $b rb ib
+  set rb [expr {double($rb)}]
+  set ib [expr {double($ib)}]
+  set m [expr {$rb * $rb + $ib * $ib}]
+  set c [list [expr {$rb / $m}] [expr {-$ib / $m}]]
+  return $c
+}
+
+# return real component
+proc creal {a} {
+  lassign $a ra ia
+  return $ra
+}
+
+# return imaginary component
+proc cimag {a} {
+  lassign $a ra ia
+  return $ia
+}
+
+# return resulting impedance of parallel connected impedances a and b
+proc cparallel {a b} {
+  return [cdiv [cmul $a $b] [cadd $a $b]]
+}
+
 # wraps provided table formatted text into a nice looking bordered table 
 # sep is the list of characters used as separators, default are { }, {,}, {\t}
 # if you want to tabulate data with spaces use only {,} as separator or any other character.
@@ -6021,6 +6087,50 @@ proc edit_prop {txtlabel} {
   return $tctx::rcode
 }
 
+# reads metadata tokens from header component of the symbol inside `v {data}` element
+# and returns dictionary in name of the token as key and value of the token as value in dictionary
+# Courtesy @georgtree
+proc symbolParse {file} {
+    try {
+        set file [open $file r]
+    } on error {errmsg erropts} {
+        puts stderr "Error while reading symbol file '$file': $errmsg"
+        return
+    }
+    set data [read $file]
+    close $file
+    # pattern to find v {} and extract content inside brackets
+    set pattern {(?:^|\n)v\s+\{((?:[^{}]|\\[{}])*)\}}
+    if {![regexp $pattern $data -> content]} {
+        return
+    }
+    # outer braces {...} are not part of content, so remove escaping of inner {, } and \ .
+    set content [string map { \\\{ \{ \\\} \} \\\\ \\ } $content]
+    # pattern to find: name="value" or name=value or name = "value" or name = value
+    set pattern {(\w+)\s*=\s*(?:"((?:[^"]|\\["])*)"|(\S+))}
+    set start 0
+    # 'match' variable holds the complete matched pattern, used for searching next one
+    while {[regexp -start $start $pattern $content -> name quotedValue unquotedValue]} {
+        # Determine the value (quoted or unquoted)
+        if {[string length $quotedValue] > 0} {
+            set value $quotedValue
+            # outer quotes are removed from value,
+            # remove escaping of internal backslashes and doublequotes
+            dict append tokens $name [string map {\\\\ \\ \\\" \" } $value] 
+        } else {
+            set value $unquotedValue
+            dict append tokens $name $value
+        }
+        # Update the start index to continue searching after this match
+        set start [expr {[string first $value $content $start] + [string length $value]}]
+        # Safety check to prevent infinite loops
+        if {$start <= 0} {
+            break
+        }
+    }
+    return $tokens
+}
+
 proc read_data_nonewline {f} {
   set fid [open $f r]
   set data [read -nonewline $fid]
@@ -6631,8 +6741,12 @@ proc try_download_url {dirname sch_or_sym} {
 # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 #          devices/iopin.sym
 proc rel_sym_path {symbol} {
-  global OS pathlist
+  global OS pathlist env
 
+  regsub {^~/} $symbol ${env(HOME)}/ symbol
+  if {![regexp {^/} $symbol]} {
+    set symbol [pwd]/$symbol
+  }
   set curr_dirname [pwd]
   set name {}
   foreach path_elem $pathlist {
@@ -7768,7 +7882,8 @@ set tctx::global_list {
   toolbar_visible top_is_subckt transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
   use_label_prefix use_tclreadline
   user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  tctx::vsize xschem_libs xschem_listen_port zoom_full_center
+  tctx::vsize xschem_libs xschem_listen_port zoom_full_center orthogonal_wiring snap_cursor
+  snap_cursor_size cadence_compat use_cursor_for_selection
 }
 
 ## list of global arrays to save/restore on context switching
@@ -8056,7 +8171,7 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.6 -side left 
     pack $topwin.statusbar.7 -side left 
     pack $topwin.statusbar.10 -side left 
-    pack $topwin.statusbar.11 -side left
+    pack $topwin.statusbar.11 -side left 
     pack $topwin.statusbar.9 -side left 
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
@@ -9228,6 +9343,7 @@ set_ne big_grid_points 0
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1
+set_ne use_cursor_for_selection 0
 set_ne autotrim_wires 0
 set_ne cadence_compat 0
 set_ne infix_interface 1

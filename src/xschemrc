@@ -294,6 +294,19 @@
 #### set cadence_compat; Default: 0 (Cadence-style keybinds are not used by default)
 # set cadence_compat 1
 
+#### enable drawing a diamond-shaped cursor at the closest circuit endpoint. Default: disabled (0)
+# set snap_cursor 1
+
+#### set snap_cursor_size; Default: 6 (Diamond-shaped cursor that snaps to nearest circuit endpoint)
+# set snap_cursor_size 6
+
+#### set cadence_compat; Default: 0 (Cadence-style keybinds are not used by default)
+# set cadence_compat 1
+
+#### if set, then, when cursor (regardless of style) is on an object, and user clicks (though mouse pointer is not on the object),
+#### the object is selected. Default: 0
+# set use_cursor_for_selection 1
+
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 
@@ -646,4 +659,7 @@
 #### objects ('w', 'l', 't', 'r', ...) try to set this to 1.
 #### Default: not enabled (0)
 # set fix_mouse_coord 0
+
+#### redefine some variables to emulate Cadence UI / bindkeys
+# source /home/schippes/share/xschem/cadence_style_rc
 
