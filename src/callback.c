@@ -1379,232 +1379,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   return 0;
 }
 
-/* what == 3 (+4) : delete and draw (force)
- * what == 1 (+4) : delete (force)
- * what == 2 (+4) : draw (force)
- * what == 4 : force (re)clear and/or (re)draw even if on same point */
-void draw_crosshair(int what, int state)
-{
-  int sdw, sdp;
-  int xhair_size = tclgetintvar("crosshair_size");
-  double mx, my;
-  int changed = 0;
-  dbg(1, "draw_crosshair(): what=%d\n", what);
-  sdw = xctx->draw_window;
-  sdp = xctx->draw_pixmap;
-
-  if(!xctx->mouse_inside) return;
-  mx = xctx->mousex_snap;
-  my = xctx->mousey_snap;
-  if( ( (xctx->ui_state & (MENUSTART | STARTWIRE) ) || xctx->ui_state == 0 ) &&
-        (state == ShiftMask) ) {
-    /* mouse not changed so closest net or symbol pin unchanged too */
-    if(mx == xctx->prev_m_crossx && my == xctx->prev_m_crossy) {
-      mx = xctx->prev_crossx; /* get previous one */
-      my = xctx->prev_crossy;
-    } else {
-      /* mouse position changed, so find new closest net or pin */
-      find_closest_net_or_symbol_pin(xctx->mousex_snap, xctx->mousey_snap, &mx, &my);
-      changed = 1; /* we force a cursor redraw */
-      dbg(1, "find\n");
-    }
-  }
-  
-  /* no changed closest pin/net, no force, mx,my is not changed. --> do nothing
-         |             _____________|                |
-         |            |         _____________________|____________________________ */
-  if(!changed && !(what & 4) && mx == xctx->prev_crossx && my == xctx->prev_crossy) {
-    return;
-  }
-  dbg(1, "draw %d\n", what);
-  xctx->draw_pixmap = 0;
-  xctx->draw_window = 1;
-  if(what & 1) { /* delete previous */
-    if(fix_broken_tiled_fill || !_unix) {
-      if(xhair_size) {
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
-             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
-             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size, 
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size);
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
-             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
-             2 * INT_WIDTH(xctx->lw) + 2 * xhair_size,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw) - xhair_size,
-             (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw) - xhair_size);
-      } else { /* full screen span xhair */
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw),
-             xctx->xrect[0].width, 2 * INT_WIDTH(xctx->lw),
-             0, (int)Y_TO_SCREEN(xctx->prev_crossy) - 1 * INT_WIDTH(xctx->lw));
-        MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw), 0, 
-             2 * INT_WIDTH(xctx->lw), xctx->xrect[0].height,
-             (int)X_TO_SCREEN(xctx->prev_crossx) - 1 * INT_WIDTH(xctx->lw), 0);
-      }
-  
-    } else {
-      if(xhair_size) {
-        draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size);
-        draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
-        draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) - xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
-        draw_xhair_line(xctx->gctiled, xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) - xhair_size,
-            X_TO_SCREEN(xctx->prev_crossx) + xhair_size,
-            Y_TO_SCREEN(xctx->prev_crossy) + xhair_size);
-      } else { /* full screen span xhair */
-        drawtempline(xctx->gctiled, NOW, X_TO_XSCHEM(xctx->areax1),
-             xctx->prev_crossy, X_TO_XSCHEM(xctx->areax2), xctx->prev_crossy);
-        drawtempline(xctx->gctiled, NOW, xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay1),
-             xctx->prev_crossx, Y_TO_XSCHEM(xctx->areay2));
-      }
-    }
-  }
-  if(what & 2) { /* draw new */
-    if(xhair_size) {
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-          X_TO_SCREEN(mx) - xhair_size,
-          Y_TO_SCREEN(my) - xhair_size,
-          X_TO_SCREEN(mx) + xhair_size,
-          Y_TO_SCREEN(my) - xhair_size);
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-          X_TO_SCREEN(mx) - xhair_size,
-          Y_TO_SCREEN(my) + xhair_size,
-          X_TO_SCREEN(mx) + xhair_size,
-          Y_TO_SCREEN(my) + xhair_size);
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-          X_TO_SCREEN(mx) - xhair_size,
-          Y_TO_SCREEN(my) - xhair_size,
-          X_TO_SCREEN(mx) - xhair_size,
-          Y_TO_SCREEN(my) + xhair_size);
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-          X_TO_SCREEN(mx) + xhair_size,
-          Y_TO_SCREEN(my) - xhair_size,
-          X_TO_SCREEN(mx) + xhair_size,
-          Y_TO_SCREEN(my) + xhair_size);
-    } else { /* full screen span xhair */
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-         xctx->areax1, Y_TO_SCREEN(my),
-         xctx->areax2, Y_TO_SCREEN(my));
-      draw_xhair_line(xctx->gc[xctx->crosshair_layer], xhair_size,
-         X_TO_SCREEN(mx), xctx->areay1,
-         X_TO_SCREEN(mx), xctx->areay2);
-    }
-  }
-  if(what) draw_selection(xctx->gc[SELLAYER], 0);
-
-  if(what & 2) {
-    /* previous closest pin or net position (if snap wire or Shift pressed) */
-    xctx->prev_crossx = mx;
-    xctx->prev_crossy = my;
-    /* previous mouse_snap position */
-    xctx->prev_m_crossx = xctx->mousex_snap;
-    xctx->prev_m_crossy = xctx->mousey_snap;
-  }
-
-  xctx->draw_window = sdw;
-  xctx->draw_pixmap = sdp;
-}
-
-void find_snap_position(double *x, double *y, int pos_changed) {
-  if (!pos_changed) {
-    *x = xctx->prev_snapx;
-    *y = xctx->prev_snapy;
-  } else {
-    xctx->closest_pin_found = find_closest_net_or_symbol_pin(
-      xctx->mousex, xctx->mousey, x, y);
-  }
-}
-
-void draw_snap_cursor_shape(GC gc, double x, double y, int snapcursor_size) {
-  /* Convert coordinates to screen space */
-  double screen_x = X_TO_SCREEN(x);
-  double screen_y = Y_TO_SCREEN(y);
-  double left = screen_x - snapcursor_size;
-  double right = screen_x + snapcursor_size;
-  double top = screen_y - snapcursor_size;
-  double bottom = screen_y + snapcursor_size;
-  int i;
-  /* Define crosshair lines */
-  double lines[4][4];
-  lines[0][0] = screen_x; lines[0][1] = top;      lines[0][2] = right;    lines[0][3] = screen_y;
-  lines[1][0] = right;    lines[1][1] = screen_y; lines[1][2] = screen_x; lines[1][3] = bottom;
-  lines[2][0] = screen_x; lines[2][1] = bottom;   lines[2][2] = left;     lines[2][3] = screen_y;
-  lines[3][0] = left;     lines[3][1] = screen_y; lines[3][2] = screen_x; lines[3][3] = top;
-  /* Draw crosshair lines */
-  for (i = 0; i < 4; i++) {
-      draw_xhair_line(gc, snapcursor_size, lines[i][0], lines[i][1], lines[i][2], lines[i][3]);
-  }
-}
-
-void erase_snap_cursor(double prev_x, double prev_y, int snapcursor_size) {
-  if (fix_broken_tiled_fill || !_unix) {
-      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
-          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
-          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size);
-  } else {
-      draw_snap_cursor_shape(xctx->gctiled, prev_x, prev_y, snapcursor_size);
-  }
-}
-
-/* action == 3 : delete and draw
- * action == 1 : delete
- * action == 2 : draw
- */
-static void draw_snap_cursor(int action) {
-  int snapcursor_size;
-  int pos_changed;
-  int prev_draw_window = xctx->draw_window;
-  int prev_draw_pixmap = xctx->draw_pixmap;
-  
-  if (!xctx->mouse_inside) return;  /* Early exit if mouse is outside */
-  snapcursor_size = tclgetintvar("snap_cursor_size");
-  pos_changed = (xctx->mousex_snap != xctx->prev_gridx) || (xctx->mousey_snap != xctx->prev_gridy);
-  /* Save current drawing context */
-  xctx->draw_pixmap = 0;
-  xctx->draw_window = 1;
-  /* Erase the cursor */
-  if (action & 1) {
-    erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
-    draw_selection(xctx->gc[SELLAYER], 0);
-  }
-  /* Redraw the cursor */
-  if (action & 2) {
-    double new_x, new_y;
-    find_snap_position(&new_x, &new_y, pos_changed);
-    draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
-    /* Update previous position tracking */
-    xctx->prev_gridx = xctx->mousex_snap;
-    xctx->prev_gridy = xctx->mousey_snap;
-    xctx->prev_snapx = new_x;
-    xctx->prev_snapy = new_y;
-  }
-  /* Restore previous drawing context */
-  xctx->draw_window = prev_draw_window;
-  xctx->draw_pixmap = prev_draw_pixmap;
-}
-
 /* complete the STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
 static int end_place_move_copy_zoom()
 {
@@ -1686,6 +1460,194 @@ static int end_place_move_copy_zoom()
   return 0;
 }
 
+static void draw_snap_cursor_shape(GC gc, double x, double y, int snapcursor_size) {
+  /* Convert coordinates to screen space */
+  double screen_x = X_TO_SCREEN(x);
+  double screen_y = Y_TO_SCREEN(y);
+  double left = screen_x - snapcursor_size;
+  double right = screen_x + snapcursor_size;
+  double top = screen_y - snapcursor_size;
+  double bottom = screen_y + snapcursor_size;
+  int i;
+  /* Define crosshair lines */
+  double lines[4][4];
+  lines[0][0] = screen_x; lines[0][1] = top;      lines[0][2] = right;    lines[0][3] = screen_y;
+  lines[1][0] = right;    lines[1][1] = screen_y; lines[1][2] = screen_x; lines[1][3] = bottom;
+  lines[2][0] = screen_x; lines[2][1] = bottom;   lines[2][2] = left;     lines[2][3] = screen_y;
+  lines[3][0] = left;     lines[3][1] = screen_y; lines[3][2] = screen_x; lines[3][3] = top;
+  /* Draw crosshair lines */
+  for (i = 0; i < 4; i++) {
+      draw_xhair_line(gc, snapcursor_size, lines[i][0], lines[i][1], lines[i][2], lines[i][3]);
+  }
+}
+
+static void erase_snap_cursor(double prev_x, double prev_y, int snapcursor_size) {
+  if (fix_broken_tiled_fill || !_unix) {
+      MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
+          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size,
+          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
+          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
+          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size);
+  } else {
+      draw_snap_cursor_shape(xctx->gctiled, prev_x, prev_y, snapcursor_size);
+  }
+}
+
+static void find_snap_position(double *x, double *y, int pos_changed) {
+  if (!pos_changed) {
+    *x = xctx->prev_snapx;
+    *y = xctx->prev_snapy;
+  } else {
+    xctx->closest_pin_found = find_closest_net_or_symbol_pin(
+      xctx->mousex, xctx->mousey, x, y);
+  }
+}
+
+/* action == 3 : delete and draw
+ * action == 1 : delete
+ * action == 2 : draw
+ */
+static void draw_snap_cursor(int action) {
+  int snapcursor_size;
+  int pos_changed;
+  int prev_draw_window = xctx->draw_window;
+  int prev_draw_pixmap = xctx->draw_pixmap;
+  
+  if (!xctx->mouse_inside) return;  /* Early exit if mouse is outside */
+  snapcursor_size = tclgetintvar("snap_cursor_size");
+  pos_changed = (xctx->mousex_snap != xctx->prev_gridx) || (xctx->mousey_snap != xctx->prev_gridy);
+  /* Save current drawing context */
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+  if(pos_changed) {
+    /* Erase the cursor */
+    if (action & 1) {
+      erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
+      draw_selection(xctx->gc[SELLAYER], 0);
+    }
+    /* Redraw the cursor */
+    if (action & 2) {
+      double new_x, new_y;
+      find_snap_position(&new_x, &new_y, pos_changed);
+      draw_snap_cursor_shape(xctx->gc[xctx->crosshair_layer],new_x, new_y, snapcursor_size);
+      /* Update previous position tracking */
+      xctx->prev_gridx = xctx->mousex_snap;
+      xctx->prev_gridy = xctx->mousey_snap;
+      xctx->prev_snapx = new_x;
+      xctx->prev_snapy = new_y;
+    }
+  }
+  /* Restore previous drawing context */
+  xctx->draw_window = prev_draw_window;
+  xctx->draw_pixmap = prev_draw_pixmap;
+}
+
+static void erase_crosshair(int size) {
+
+  int prev_cr_x = (int)X_TO_SCREEN(xctx->prev_crossx);
+  int prev_cr_y = (int)Y_TO_SCREEN(xctx->prev_crossy);
+  int lw = INT_WIDTH(xctx->lw);
+  if(size) {
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         prev_cr_x - 1 * lw - size, prev_cr_y - 1 * lw - size, 2 * lw + 2 * size, 2 * lw + 2 * size,
+         prev_cr_x - 1 * lw - size, prev_cr_y - 1 * lw - size);
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         prev_cr_x - 1 * lw - size, prev_cr_y - 1 * lw - size, 2 * lw + 2 * size, 2 * lw + 2 * size,
+         prev_cr_x - 1 * lw - size, prev_cr_y - 1 * lw - size);
+  } else { /* full screen span xhair */
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         0, prev_cr_y - 1 * lw, xctx->xrect[0].width, 2 * lw, 0, prev_cr_y - 1 * lw);
+    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
+         prev_cr_x - 1 * lw, 0, 2 * lw, xctx->xrect[0].height, prev_cr_x - 1 * lw, 0);
+  }
+}
+
+static void draw_crosshair_shape(GC gc, double x, double y, int size)
+{
+  double screen_x = X_TO_SCREEN(x);
+  double screen_y = Y_TO_SCREEN(y);
+  if(size) {
+    draw_xhair_line(gc, size, screen_x - size, screen_y - size, screen_x + size, screen_y - size);
+    draw_xhair_line(gc, size, screen_x - size, screen_y + size, screen_x + size, screen_y + size);
+    draw_xhair_line(gc, size, screen_x - size, screen_y - size, screen_x - size, screen_y + size);
+    draw_xhair_line(gc, size, screen_x + size, screen_y - size, screen_x + size, screen_y + size);
+  } else { /* full screen span xhair */
+    draw_xhair_line(gc, size, xctx->areax1, screen_y, xctx->areax2, screen_y);
+    draw_xhair_line(gc, size, screen_x, xctx->areay1, screen_x, xctx->areay2);
+  }
+}
+
+/* what == 3 (+4) : delete and draw (force)
+ * what == 1 (+4) : delete (force)
+ * what == 2 (+4) : draw (force)
+ * what == 4 : force (re)clear and/or (re)draw even if on same point */
+void draw_crosshair(int what, int state)
+{
+  int sdw, sdp;
+  int xhair_size = tclgetintvar("crosshair_size");
+  int snap_cursor = tclgetintvar("snap_cursor");
+  double mx, my;
+  int changed = 0;
+  dbg(1, "draw_crosshair(): what=%d\n", what);
+  sdw = xctx->draw_window;
+  sdp = xctx->draw_pixmap;
+
+  if(!xctx->mouse_inside) return;
+  mx = xctx->mousex_snap;
+  my = xctx->mousey_snap;
+  if( ( (xctx->ui_state & (MENUSTART | STARTWIRE) ) || xctx->ui_state == 0 ) &&
+        (state == ShiftMask)) {
+    if(!snap_cursor) {
+      /* mouse not changed so closest net or symbol pin unchanged too */
+      if(mx == xctx->prev_m_crossx && my == xctx->prev_m_crossy) {
+        mx = xctx->prev_crossx; /* get previous one */
+        my = xctx->prev_crossy;
+      } else {
+        /* mouse position changed, so find new closest net or pin */
+        find_closest_net_or_symbol_pin(xctx->mousex_snap, xctx->mousey_snap, &mx, &my);
+        changed = 1; /* we force a cursor redraw */
+        dbg(1, "find\n");
+      }
+    } else {
+      draw_snap_cursor(what);
+    }
+  }
+  
+  /* no changed closest pin/net, no force, mx,my is not changed. --> do nothing
+         |             _____________|                |
+         |            |         _____________________|____________________________ */
+  if(!changed && !(what & 4) && mx == xctx->prev_crossx && my == xctx->prev_crossy) {
+    return;
+  }
+  dbg(1, "draw %d\n", what);
+  xctx->draw_pixmap = 0;
+  xctx->draw_window = 1;
+  if(what & 1) { /* delete previous */
+    if(fix_broken_tiled_fill || !_unix) {
+      erase_crosshair(xhair_size);
+    } else {
+      draw_crosshair_shape(xctx->gctiled, xctx->prev_crossx, xctx->prev_crossy, xhair_size);
+    }
+  }
+  if(what & 2) { /* draw new */
+    draw_crosshair_shape(xctx->gc[xctx->crosshair_layer], mx, my, xhair_size);
+  }
+  if(what) draw_selection(xctx->gc[SELLAYER], 0);
+
+  if(what & 2) {
+    /* previous closest pin or net position (if snap wire or Shift pressed) */
+    xctx->prev_crossx = mx;
+    xctx->prev_crossy = my;
+    /* previous mouse_snap position */
+    xctx->prev_m_crossx = xctx->mousex_snap;
+    xctx->prev_m_crossy = xctx->mousey_snap;
+  }
+  xctx->draw_window = sdw;
+  xctx->draw_pixmap = sdp;
+}
+
 static void unselect_at_mouse_pos(int mx, int my)
 {
        xctx->last_command = 0;
@@ -1696,7 +1658,7 @@ static void unselect_at_mouse_pos(int mx, int my)
        rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
 }
 
-void snapped_wire(double c_snap)
+static void snapped_wire(double c_snap)
 {
   double x, y;
   if(!(xctx->ui_state & STARTWIRE)){
@@ -4413,7 +4375,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
    }
 
    /* clear start from menu flag or infix_interface=0 start commands */
-   if(xctx->ui_state & MENUSTART) {
+   if( state == Button1Mask && xctx->ui_state & MENUSTART) {
      xctx->ui_state &= ~MENUSTART;
      return;
    }
