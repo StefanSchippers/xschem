@@ -226,12 +226,6 @@
 #### if not set show selected items at end of drag. Default: enabled (1)
 # set incremental_select 0
 
-#### if set to 1, pressing 'w', 'l', 'r', 'C', or 'Ctrl+C' will immediately place the
-#### corresponding component at current cursor position without waiting for Button1 (LMB) click. 
-#### This setting can be disabled via the Options menu
-#### default: 0
-# set infix_interface 1
-
 #### wires are drawn in free-form mode with this mode enabled (default).
 #### if set to 0, wires drawn on the schematic will no longer strictly
 #### follow orthogonal routes to connect two distinct points together.
@@ -284,15 +278,6 @@
 
 #### set crosshair size; Default: 0 (full screen spanning crosshair) 
 # set crosshair_size 2
-
-#### enable drawing a diamond-shaped cursor at the closest circuit endpoint. Default: disabled (0)
-# set snap_cursor 1
-
-#### set snap_cursor_size; Default: 6 (Diamond-shaped cursor that snaps to nearest circuit endpoint)
-# set snap_cursor_size 6
-
-#### set cadence_compat; Default: 0 (Cadence-style keybinds are not used by default)
-# set cadence_compat 1
 
 #### enable drawing a diamond-shaped cursor at the closest circuit endpoint. Default: disabled (0)
 # set snap_cursor 1

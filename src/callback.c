@@ -2468,8 +2468,9 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 }
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button,
-                                 int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active, char *str)
+                                 int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active)
 {
+    char str[PATH_MAX + 100];
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       return;
@@ -2594,8 +2595,9 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
 
 static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my,
                              int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap,
-                             int cadence_compat, int wire_draw_active, int snap_cursor, char *str)
+                             int cadence_compat, int wire_draw_active, int snap_cursor)
 {
+   char str[PATH_MAX + 100];
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -4349,8 +4351,9 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 }
 
 static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my, 
-                                  int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active, char *str)
+                                  int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active)
 {
+   char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
@@ -4671,7 +4674,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
   case MotionNotify:
     handle_motion_notify(event, key, state, rstate, button, mx, my,
                          aux, draw_xhair, enable_stretch, 
-                         snap_cursor, wire_draw_active, str);
+                         snap_cursor, wire_draw_active);
     break;
 
   case KeyRelease:
@@ -4680,7 +4683,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
   case KeyPress:
     handle_key_press(event, key, state, rstate, mx, my, button, aux,
                      infix_interface, enable_stretch, win_path, c_snap,
-                     cadence_compat, wire_draw_active, snap_cursor, str);
+                     cadence_compat, wire_draw_active, snap_cursor);
     break;
 
   case ButtonPress:
@@ -4690,7 +4693,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
   case ButtonRelease:
     handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
-                          draw_xhair, snap_cursor, wire_draw_active, str);
+                          draw_xhair, snap_cursor, wire_draw_active);
     break;
    
   case -3:  /* double click  : edit prop */
