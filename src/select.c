@@ -1053,7 +1053,9 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
       }
     }
   }
-  select_attached_items(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+  if(!fast && select_mode == SELECTED) {
+    select_attached_items(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+  }
   xctx->need_reb_sel_arr=1;
 }
 

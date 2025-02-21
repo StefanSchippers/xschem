@@ -513,6 +513,81 @@ void draw_selection(GC g, int interruptable)
   xctx->movelastsel = i;
 }
 
+static void update_attached_object_refs(int from, int to)
+{
+  int i, c;
+  char *to_name = xctx->inst[to].instname;
+  char *from_name = xctx->inst[from].instname;
+  const char *attach = get_tok_value(xctx->inst[to].prop_ptr, "attach", 0);
+  char *new_attach;
+
+  if(!from_name || !from_name[0]) return;
+  if(!to_name || !to_name[0]) return;
+  if(!attach[0]) return;
+
+     new_attach = str_replace(attach, from_name, to_name, 1, 1);
+     my_strdup(_ALLOC_ID_, &xctx->inst[to].prop_ptr,
+               subst_token(xctx->inst[to].prop_ptr, "attach", new_attach) );
+ 
+     for(c = 0; c < cadlayers; c++) {
+      for(i = 0; i < xctx->rects[c]; i++) {
+        if(xctx->rect[c][i].sel == SELECTED) {
+          if( !strcmp(from_name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
+            my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
+                      subst_token(xctx->rect[c][i].prop_ptr, "name", to_name) );
+          }
+          if(c == GRIDLAYER) {
+            const char *node = get_tok_value(xctx->rect[c][i].prop_ptr, "node", 2);
+            if(node && node[0]) {
+              const char *new_node = str_replace(node, from_name, to_name, 1, 1);
+              my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
+                   subst_token(xctx->rect[c][i].prop_ptr, "node", new_node));
+            }
+          }
+        }
+      }
+      for(i = 0; i < xctx->lines[c]; i++) {
+        if(xctx->line[c][i].sel == SELECTED && 
+           !strcmp(from_name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, 
+                    subst_token(xctx->line[c][i].prop_ptr, "name", to_name) );
+        }
+      }
+  
+      for(i = 0; i < xctx->polygons[c]; i++) {
+        if(xctx->poly[c][i].sel == SELECTED && 
+           !strcmp(from_name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, 
+                    subst_token(xctx->poly[c][i].prop_ptr, "name", to_name) );
+
+        }
+      }
+      for(i = 0; i < xctx->arcs[c]; i++) {
+        if(xctx->arc[c][i].sel == SELECTED && 
+           !strcmp(from_name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, 
+                    subst_token(xctx->arc[c][i].prop_ptr, "name", to_name) );
+        }
+      }
+    }
+    for(i = 0; i < xctx->wires; i++) {
+      if(xctx->wire[i].sel == SELECTED && 
+           !strcmp(from_name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, 
+                    subst_token(xctx->wire[i].prop_ptr, "name", to_name) );
+      }
+    }
+    for(i = 0; i < xctx->texts; i++) {
+      if(xctx->text[i].sel == SELECTED && 
+           !strcmp(from_name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, 
+                    subst_token(xctx->text[i].prop_ptr, "name", to_name) );
+        set_text_flags(&xctx->text[i]);
+      }
+    }
+}
+
+
 void copy_objects(int what)
 {
   int tmpi, c, i, n, k /*, tmp */ ;
@@ -881,6 +956,9 @@ void copy_objects(int what)
         newpropcnt++;
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
+
+        update_attached_object_refs(n, xctx->instances);
+
         hash_names(xctx->instances, XINSERT);
         xctx->instances++; /* symbol_bbox calls translate and translate must have updated xctx->instances */
         symbol_bbox(xctx->instances-1,
