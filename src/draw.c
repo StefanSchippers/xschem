@@ -3055,10 +3055,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->gh = gr->gy2 - gr->gy1;
   /* set margins */
   tmp = gr->rw * 0.14;
-  gr->marginx = tmp < 50 ? 50 : tmp;
+  gr->marginx = tmp;
   tmp = gr->rh * 0.14;
-  gr->marginy = tmp < 40 ? 40 : tmp;
-
+  gr->marginy = tmp;
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
   gr->x1 =  gr->rx1 + gr->marginx;
@@ -3089,8 +3088,8 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
   gr->txtsizey *= gr->magy;
 
-  gr->txtsizex = gr->w / gr->divx * 0.0033;
-  tmp = gr->marginy * 0.0063;
+  gr->txtsizex = gr->w / gr->divx * 0.0040;
+  tmp = gr->marginy * 0.0075;
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
   gr->txtsizex *= gr->magx;
 
@@ -3258,7 +3257,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
     draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
-       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-5, gr->txtsizelab, gr->txtsizelab);
+       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-2, gr->txtsizelab, gr->txtsizelab);
   }
 
   if(gr->legend || gr->digital) {
