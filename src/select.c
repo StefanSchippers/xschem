@@ -937,6 +937,68 @@ void select_wire(int i,unsigned short select_mode, int fast)
   xctx->need_reb_sel_arr=1;
 }
 
+
+static int select_attached_items(int inst, const char *name)
+{ 
+  int i, c;
+  int found = 0;
+  char *attach = NULL;
+  char *att_save, *att_ptr;
+  if(!name || !name[0]) return found;
+  my_strdup2(_ALLOC_ID_, &attach, name);
+  att_ptr = attach;
+  while( (name = my_strtok_r(att_ptr, " \n", "\"", 0, &att_save)) ) {
+    att_ptr = NULL;
+    for(c = 0; c < cadlayers; c++) {
+      for(i = 0; i < xctx->rects[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_box(c, i, SELECTED, 1,  0);
+        }
+      }
+      for(i = 0; i < xctx->lines[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_line(c, i, SELECTED, 1);
+        }
+      }
+  
+      for(i = 0; i < xctx->polygons[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_polygon(c, i, SELECTED, 1);
+        }
+      }
+      for(i = 0; i < xctx->arcs[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_arc(c, i, SELECTED, 1);
+        }
+      } 
+    }
+    for(i = 0; i < xctx->wires; i++) {
+      if(!strcmp(name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
+       found = 1;
+       select_wire(i, SELECTED, 1);
+      }
+    } 
+    for(i = 0; i < xctx->texts; i++) {
+      if(!strcmp(name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
+       found = 1;
+       select_text(i, SELECTED, 1);
+      }
+    }
+    for(i = 0; i < xctx->instances; i++) {
+      if(i != inst && !strcmp(name, xctx->inst[i].instname)) {
+       found = 1;
+       select_element(i, SELECTED, 1, 0);
+      }
+    }
+  }
+  my_free(_ALLOC_ID_, &attach);
+  return found;
+}
+
 /* fast == 1: do not update status line
  * fast == 2: do not draw / undraw selected elements
  * fast == 3: 1 + 2
@@ -991,6 +1053,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
       }
     }
   }
+  select_attached_items(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
   xctx->need_reb_sel_arr=1;
 }
 
@@ -1688,6 +1751,8 @@ int floaters_from_selected_inst()
       }
       my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
            subst_token(xctx->inst[i].prop_ptr, "hide_texts", "true"));
+      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
+           subst_token(xctx->inst[i].prop_ptr, "attach", xctx->inst[i].instname));
       set_inst_flags(&xctx->inst[i]);
       for(t = 0; t < sym->texts; t++) {
         double txtx0, txty0;
