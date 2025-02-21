@@ -8412,9 +8412,20 @@ proc build_widgets { {topwin {} } } {
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
 
-  $topwin.menubar.option add checkbutton -label "Draw crosshair" \
-    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
 
+  $topwin.menubar.option add cascade -label "Crosshair" \
+       -menu $topwin.menubar.option.crosshair
+  menu $topwin.menubar.option.crosshair -tearoff 0
+
+  $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
+    -variable snap_cursor -selectcolor $selectcolor
+  $topwin.menubar.option.crosshair add checkbutton -label "Draw crosshair" \
+    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
+  $topwin.menubar.option.crosshair add command -label "Crosshair size" \
+    -command {
+      input_line "Enter crosshair size (int, 0 = full screen width):" \
+          "set crosshair_size" $crosshair_size
+    }
   $topwin.menubar.option add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set bus_replacement_char"

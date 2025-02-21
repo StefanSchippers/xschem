@@ -4770,8 +4770,11 @@ static void draw_images_all(void)
   #endif
 }
 
-void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
+void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, double ry2)
 {
+  #ifndef __unix__
+  xRect *r = &xctx->rect[GRIDLAYER][i];
+  #endif
   #if HAS_CAIRO==1
   Zoom_info zi;
   char *ptr = NULL;
@@ -4821,7 +4824,9 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->draw_pixmap=1;
   save = xctx->do_copy_area;
   xctx->do_copy_area=0;
-  draw();
+  setup_graph_data(i, 0, &xctx->graph_struct);
+  draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, NULL);
+
 #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
@@ -4834,12 +4839,9 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
     cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
     cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
     cairo_paint(ct);
-    for(int i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
-      xRect *r = &xctx->rect[GRIDLAYER][i];
-      if(r->flags & 1) {
-        setup_graph_data(i, 0, &xctx->graph_struct);
-        draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
-      }
+    if(r->flags & 1) {
+      setup_graph_data(i, 0, &xctx->graph_struct);
+      draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
     }
 #endif
   closure.buffer = NULL;

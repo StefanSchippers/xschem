@@ -1035,7 +1035,7 @@ void svg_draw(void)
    {
      if(xctx->rect[c][i].flags & 1) { /* graph */
        xRect *r = &xctx->rect[c][i];
-       svg_embedded_graph(fd, r, r->x1, r->y1, r->x2, r->y2);
+       svg_embedded_graph(fd, i, r->x1, r->y1, r->x2, r->y2);
      }
    }
   }
