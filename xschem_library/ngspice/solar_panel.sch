@@ -193,6 +193,31 @@ autoload=0
 
 sim_type=tran
 xrawfile=$netlist_dir/solar_panel.raw}
+B 2 390 -720 500 -640 {name=l21
+flags=graph 
+y1 = 0.00033
+y2 = 21
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+
+ unitx=u subdivx=4
+
+
+hilight_wave=-1
+digital=0
+ypos1=0.00261891
+ypos2=0.51596
+color=8
+node="tcleval([xschem translate l21 @#0:net_name])"
+jpeg_quality=30
+autoload=0
+
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw
+linewidth_mult=0.4}
 B 18 65 -960 320 -775 {}
 A 5 320 -960 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 395 -775 340 -931.25 335 -945 322.5 -960 310 -965 65 -975 {}
@@ -232,13 +257,14 @@ T {Floater text
 example} 870 -440 0 0 0.4 0.4 {}
 T {@spice_get_current} 875 -598.75 0 0 0.3 0.3 {layer=7 name=L2}
 T {@spice_get_current} 1015 -268.75 0 0 0.3 0.3 {layer=7 name=C1}
+T {@spice_get_voltage} 427.5 -750 0 0 0.4 0.4 {name=l21}
 N 1010 -210 1100 -210 {lab=0}
 N 1100 -300 1100 -210 {lab=0}
 N 640 -610 730 -610 {lab=#net1}
 N 1010 -440 1040 -440 {lab=VO}
 N 1010 -440 1010 -310 {lab=VO}
 N 1010 -250 1010 -210 {lab=0}
-N 530 -610 580 -610 {lab=PANEL}
+N 360 -610 580 -610 {lab=PANEL}
 N 1010 -610 1010 -440 {lab=VO}
 N 820 -610 860 -610 {lab=SW}
 N 820 -610 820 -490 {lab=SW}
@@ -300,7 +326,7 @@ lab=0}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
 C {code_shown.sym} 170 -310 0 0 {name=CONTROL
 value="tcleval(
-.probe alli
+.option savecurrents
 .control
   * example of tcl evaluation of code blocks:
   *   current path: $path 
@@ -325,7 +351,8 @@ m=1
 value=40u
 footprint=1206
 device=inductor
-hide_texts=true}
+hide_texts=true
+attach=L2}
 C {lab_pin.sym} 1140 -440 0 1 {name=l7  lab=LED }
 C {lab_pin.sym} 820 -550 0 1 {name=l9  lab=SW }
 C {capa.sym} 1010 -280 0 0 {name=C1
@@ -333,9 +360,10 @@ m=1
 value=500n
 footprint=1206
 device="ceramic capacitor"
-hide_texts=true}
+hide_texts=true
+attach=C1}
 C {lab_pin.sym} 1010 -400 0 1 {name=l10  lab=VO }
-C {lab_pin.sym} 530 -610 0 0 {name=l3  lab=PANEL }
+C {lab_pin.sym} 360 -610 0 0 {name=l3  lab=PANEL }
 C {ammeter.sym} 970 -610 3 0 {name=Vind}
 C {isource_table.sym} 1100 -330 0 0 {name=G2[9..0] CTRL="V(LED)" TABLE="
 + (0, 0)
@@ -403,3 +431,5 @@ C {spice_probe.sym} 850 -1030 0 1 {name=p4 analysis=tran}
 C {spice_probe.sym} 810 -890 0 1 {name=p5 analysis=tran}
 C {spice_probe.sym} 760 -670 0 0 {name=p6 analysis=tran}
 C {spice_probe.sym} 160 -450 0 0 {name=p7 analysis=tran}
+C {lab_show.sym} 520 -610 0 0 {name=l21
+attach=l21}

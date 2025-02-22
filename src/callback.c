@@ -50,8 +50,12 @@ static int waves_selected(int event, KeySym key, int state, int button)
   else if(event == ButtonRelease && button == Button2) skip = 1;
   /* else if(event == KeyPress && (state & ShiftMask)) skip = 1; */
   else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
+    double lmargin;
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
+    lmargin = (r->x2 - r->x1) / 20.;
+    lmargin = lmargin < 3. ? 3. : lmargin;
+    lmargin = lmargin > 20. ? 20. : lmargin;
     if(!(r->flags & 1) ) continue;
     if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
 
@@ -59,7 +63,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
       (xctx->ui_state & GRAPHPAN) ||
       (event != -3 &&
          (
-           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + lmargin,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
            POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x1 + 20,  r->y1 + 8) ||
            POINTINSIDE(xctx->mousex, xctx->mousey, r->x2 - 20,  r->y2 - 8,  r->x2,  r->y2)
          )
