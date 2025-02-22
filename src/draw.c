@@ -3082,14 +3082,15 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.0095;
-  tmp = gr->marginx * 0.003;
+  tmp = gr->marginx * 0.004;
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
-  tmp = gr->marginy * 0.02;
-  if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+  /* tmp = gr->marginy * 0.02;
+   * if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+   */
   gr->txtsizey *= gr->magy;
 
-  gr->txtsizex = gr->w / gr->divx * 0.0040;
-  tmp = gr->marginy * 0.0075;
+  gr->txtsizex = gr->w / gr->divx * 0.0070;
+  tmp = gr->marginy * 0.0065;
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
   gr->txtsizex *= gr->magx;
 

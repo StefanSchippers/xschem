@@ -57,7 +57,8 @@ static int waves_selected(int event, KeySym key, int state, int button)
     lmargin = lmargin < 3. ? 3. : lmargin;
     lmargin = lmargin > 20. ? 20. : lmargin;
     if(!(r->flags & 1) ) continue;
-    if(!strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
+    if( !graph_use_ctrl_key && !(state & ControlMask) && 
+       !strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
 
     check =
       (xctx->ui_state & GRAPHPAN) ||
@@ -2394,7 +2395,7 @@ void unselect_attached_floaters(void)
     for(i = 0; i < xctx->rects[c]; i++) {
       if(get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0)[0]) {
         found = 1;
-        select_box(c, i, 0, 1,  0);
+        select_box(c, i, 0, 1,  1);
       }
     }
     for(i = 0; i < xctx->lines[c]; i++) {

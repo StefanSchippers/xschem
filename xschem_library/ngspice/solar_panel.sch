@@ -217,7 +217,8 @@ autoload=0
 
 sim_type=tran
 xrawfile=$netlist_dir/solar_panel.raw
-linewidth_mult=0.4}
+linewidth_mult=0.4
+lock=1}
 B 18 65 -960 320 -775 {}
 A 5 320 -960 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 395 -775 340 -931.25 335 -945 322.5 -960 310 -965 65 -975 {}

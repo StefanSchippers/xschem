@@ -953,7 +953,7 @@ static int select_attached_items(int inst, const char *name)
       for(i = 0; i < xctx->rects[c]; i++) {
         if(!strcmp(name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
           found = 1;
-          select_box(c, i, SELECTED, 1,  0);
+          select_box(c, i, SELECTED, 1,  1);
         }
       }
       for(i = 0; i < xctx->lines[c]; i++) {
