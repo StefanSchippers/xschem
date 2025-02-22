@@ -49,7 +49,7 @@ static void find_closest_wire(double mx, double my)
  }
 }
 
-static void find_closest_bezier(double mx, double my, int c, int i, int *l, int *col)
+static double find_closest_bezier(double mx, double my, double d, int c, int i, int *l, int *col)
 {
   const double bez_steps = 1.0/8.0; /* divide the t = [0,1] interval into 8 steps */
   int b;
@@ -97,13 +97,14 @@ static void find_closest_bezier(double mx, double my, int c, int i, int *l, int 
       xp1 = (1 - t1) * (1 - t1) * x0 + 2 * (1 - t1) * t1 * x1 + t1 * t1 * x2;
       yp1 = (1 - t1) * (1 - t1) * y0 + 2 * (1 - t1) * t1 * y1 + t1 * t1 * y2;
       ORDER(xp, yp, xp1, yp1);
-      if( (tmp = dist(xp, yp, xp1, yp1, mx, my)) < distance )
+      if( (tmp = dist(xp, yp, xp1, yp1, mx, my)) < d )
       {
-       *l = i; distance = tmp; *col = c;
-       dbg(1, "find_closest_bezier(): distance=%.16g  n=%d\n", distance, i);
+       *l = i; d = tmp; *col = c;
       }
     }
   }
+  dbg(1, "find_closest_bezier(): d=%.16g  n=%d\n", d, i);
+  return d;
 }
 
 static void find_closest_polygon(double mx, double my)
@@ -126,15 +127,7 @@ static void find_closest_polygon(double mx, double my)
     bezier = bezier && (p->points > 2);
     
     if(bezier) {
-      double ds = xctx->cadhalfdotsize;
-
-      find_closest_bezier(mx, my, c, i, &l, &col);
-      for(j = 0; j < p->points; j++) {
-        if( POINTINSIDE(mx, my, p->x[j] - ds, p->y[j] - ds, p->x[j] + ds, p->y[j] + ds)) {
-           l = i; d = 0.0;col = c;
-           break;
-        }
-      }
+      d = find_closest_bezier(mx, my, d, c, i, &l, &col);
     } else {
       for(j=0; j<xctx->poly[c][i].points-1; ++j) {
         x1 = p->x[j];
@@ -145,9 +138,9 @@ static void find_closest_polygon(double mx, double my)
         if( (tmp = dist(x1, y1, x2, y2, mx, my)) < d )
         {
          l = i; d = tmp;col = c;
-         dbg(1, "find_closest_polygon(): d=%.16g  n=%d\n", d, i);
         }
       }
+      dbg(1, "find_closest_polygon(): d=%.16g  n=%d\n", d, i);
     }
   } /* end for i */
  } /* end for c */
