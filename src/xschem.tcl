@@ -8680,6 +8680,8 @@ proc build_widgets { {topwin {} } } {
           -command "xschem net_label 0" -accelerator Alt-Shift-L
   $topwin.menubar.sym add command -label "Change selected inst. texts to floaters" \
           -command "xschem floaters_from_selected_inst"
+  $topwin.menubar.sym add command -label "Unselect attached floaters" \
+          -command "xschem unselect_attached_floaters"
   $topwin.menubar.sym add command -label "Print list of highlight nets" \
           -command "xschem print_hilight_net 1" -accelerator J
   $topwin.menubar.sym add command -label "Print list of highlight nets, with buses expanded" \

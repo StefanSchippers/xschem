@@ -1282,7 +1282,7 @@ Selected select_object(double mx,double my, unsigned short select_mode,
      break;
     case ELEMENT:
      if(xctx->inst[sel.n].sel) xctx->already_selected = 1;
-     select_element(sel.n,select_mode,0, override_lock);
+     select_element(sel.n, select_mode,0, override_lock);
      break;
     default:
      break;

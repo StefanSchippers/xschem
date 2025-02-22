@@ -2383,6 +2383,54 @@ static int grabscreen(const char *win_path, int event, int mx, int my, KeySym ke
 }
 #endif
 
+void unselect_attached_floaters(void)
+{
+  int c, i, found = 0;
+  for(c = 0; c < cadlayers; c++) {
+    for(i = 0; i < xctx->rects[c]; i++) {
+      if(get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0)[0]) {
+        found = 1;
+        select_box(c, i, 0, 1,  0);
+      }
+    }
+    for(i = 0; i < xctx->lines[c]; i++) {
+      if(get_tok_value(xctx->line[c][i].prop_ptr, "name", 0)[0]) {
+        found = 1;
+        select_line(c, i, 0, 1);
+      }
+    }
+
+    for(i = 0; i < xctx->polygons[c]; i++) {
+      if(get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0)[0]) {
+        found = 1;
+        select_polygon(c, i, 0, 1);
+      }
+    }
+    for(i = 0; i < xctx->arcs[c]; i++) {
+      if(get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0)[0]) {
+        found = 1;
+        select_arc(c, i, 0, 1);
+      }
+    }
+  }
+  for(i = 0; i < xctx->wires; i++) {
+    if(get_tok_value(xctx->wire[i].prop_ptr, "name", 0)[0]) {
+     found = 1;
+     select_wire(i, 0, 1);
+    }
+  }
+  for(i = 0; i < xctx->texts; i++) {
+    if(get_tok_value(xctx->text[i].prop_ptr, "name", 0)[0]) {
+     found = 1;
+     select_text(i, 0, 1);
+    }
+  }
+  if(found) {
+    rebuild_selected_array();
+    draw_selection(xctx->gc[SELLAYER],0);
+  }
+}
+
 static void handle_enter_notify(int draw_xhair, int crosshair_size)
 {
     struct stat buf;
@@ -3477,7 +3525,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     draw();
     return;
    }
-   if(0 && (key=='u') && rstate==ControlMask)                   /* testmode */
+   if(key=='u' && rstate==ControlMask) /* unselect attached floater elements */
+   {
+     unselect_attached_floaters();
+   }
+   if(0 && (key=='|') && rstate==ControlMask)                   /* testmode */
    {
     static int x = 0;
 
@@ -3973,21 +4025,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     check_unique_names(1);
     return;
    }
-   if( 0 && (key==';') && (state & ControlMask) )    /* testmode */
-   {
-    return;
-   }
-   if(0 && key=='~' && (state & ControlMask)) {  /* testmode */
-    return;
-   }
-   if(0 && key=='|' && !(state & ControlMask)) {            /* testmode */
-    return;
-   }
-   if(0 && key=='|' && (state & ControlMask))      /* testmode */
-   {
-    return;
-   }
-
    if(key=='f' && rstate == ControlMask)         /* search */
    {
     if(xctx->semaphore >= 2) return;

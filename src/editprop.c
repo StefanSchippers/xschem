@@ -1637,6 +1637,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
     /* preserve backslashes in name ---------0---------------------------------->. */
     my_strdup(_ALLOC_ID_, &name, get_tok_value(xctx->inst[*ii].prop_ptr, "name", 1));
     if(name && name[0] ) {
+      char *old_name = NULL;
       dbg(1, "update_symbol(): prefix!='\\0', name=%s\n", name);
       /* change prefix if changing symbol type; */
       if(prefix && old_prefix && old_prefix != prefix) {
@@ -1649,11 +1650,14 @@ static int update_symbol(const char *result, int x, int selected_inst)
       if(!pushed) { xctx->push_undo(); pushed=1;}
       if(!k) hash_names(-1, XINSERT);
       hash_names(*ii, XDELETE);
-      dbg(1, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
+      dbg(0, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
+      my_strdup2(_ALLOC_ID_, &old_name, xctx->inst[*ii].instname);
       new_prop_string(*ii, ptr,               /* sets also inst[].instname */
          tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
       hash_names(*ii, XINSERT);
-      dbg(1, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
+      update_attached_object_refs(old_name, *ii, 1);
+      dbg(0, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
+      my_free(_ALLOC_ID_, &old_name);
     }
     set_inst_flags(&xctx->inst[*ii]);
   }  /* end for(k=0;k<xctx->lastsel; ++k) */

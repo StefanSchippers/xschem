@@ -513,12 +513,13 @@ void draw_selection(GC g, int interruptable)
   xctx->movelastsel = i;
 }
 
-static void update_attached_object_refs(int from, int to)
+/* sel: if set to 1 change references only on selected items, like in a copy operation.
+ * If set to 0 operate on all objects with matching name=... attribute */
+void update_attached_object_refs(const char *from_name, int inst, int sel)
 {
   int i, c;
-  char *to_name = xctx->inst[to].instname;
-  char *from_name = xctx->inst[from].instname;
-  const char *attach = get_tok_value(xctx->inst[to].prop_ptr, "attach", 0);
+  char *to_name = xctx->inst[inst].instname;
+  const char *attach = get_tok_value(xctx->inst[inst].prop_ptr, "attach", 0);
   char *new_attach;
 
   if(!from_name || !from_name[0]) return;
@@ -526,12 +527,12 @@ static void update_attached_object_refs(int from, int to)
   if(!attach[0]) return;
 
      new_attach = str_replace(attach, from_name, to_name, 1, 1);
-     my_strdup(_ALLOC_ID_, &xctx->inst[to].prop_ptr,
-               subst_token(xctx->inst[to].prop_ptr, "attach", new_attach) );
+     my_strdup(_ALLOC_ID_, &xctx->inst[inst].prop_ptr,
+               subst_token(xctx->inst[inst].prop_ptr, "attach", new_attach) );
  
      for(c = 0; c < cadlayers; c++) {
       for(i = 0; i < xctx->rects[c]; i++) {
-        if(xctx->rect[c][i].sel == SELECTED) {
+        if(!sel || xctx->rect[c][i].sel == SELECTED) {
           if( !strcmp(from_name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
             my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
                       subst_token(xctx->rect[c][i].prop_ptr, "name", to_name) );
@@ -547,7 +548,7 @@ static void update_attached_object_refs(int from, int to)
         }
       }
       for(i = 0; i < xctx->lines[c]; i++) {
-        if(xctx->line[c][i].sel == SELECTED && 
+        if((!sel || xctx->line[c][i].sel == SELECTED) && 
            !strcmp(from_name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
           my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, 
                     subst_token(xctx->line[c][i].prop_ptr, "name", to_name) );
@@ -555,7 +556,7 @@ static void update_attached_object_refs(int from, int to)
       }
   
       for(i = 0; i < xctx->polygons[c]; i++) {
-        if(xctx->poly[c][i].sel == SELECTED && 
+        if((!sel || xctx->poly[c][i].sel == SELECTED) && 
            !strcmp(from_name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
           my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, 
                     subst_token(xctx->poly[c][i].prop_ptr, "name", to_name) );
@@ -563,7 +564,7 @@ static void update_attached_object_refs(int from, int to)
         }
       }
       for(i = 0; i < xctx->arcs[c]; i++) {
-        if(xctx->arc[c][i].sel == SELECTED && 
+        if((!sel || xctx->arc[c][i].sel == SELECTED) && 
            !strcmp(from_name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
           my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, 
                     subst_token(xctx->arc[c][i].prop_ptr, "name", to_name) );
@@ -571,14 +572,14 @@ static void update_attached_object_refs(int from, int to)
       }
     }
     for(i = 0; i < xctx->wires; i++) {
-      if(xctx->wire[i].sel == SELECTED && 
+      if((!sel || xctx->wire[i].sel == SELECTED) && 
            !strcmp(from_name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
           my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, 
                     subst_token(xctx->wire[i].prop_ptr, "name", to_name) );
       }
     }
     for(i = 0; i < xctx->texts; i++) {
-      if(xctx->text[i].sel == SELECTED && 
+      if((!sel || xctx->text[i].sel == SELECTED) && 
            !strcmp(from_name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
           my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, 
                     subst_token(xctx->text[i].prop_ptr, "name", to_name) );
@@ -957,7 +958,7 @@ void copy_objects(int what)
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
 
-        update_attached_object_refs(n, xctx->instances);
+        update_attached_object_refs(xctx->inst[n].instname, xctx->instances, 1);
 
         hash_names(xctx->instances, XINSERT);
         xctx->instances++; /* symbol_bbox calls translate and translate must have updated xctx->instances */

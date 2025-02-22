@@ -5461,7 +5461,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           char *translated_sym = NULL;
           int sym_number = -1;
-          char *subst = NULL;
+          char *subst = NULL, *old_name = NULL;;
+   
           if(!fast) {
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
             xctx->push_undo();
@@ -5469,7 +5470,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
-          if(argc > 4 && !strcmp(argv[4], "name") && fast == 0) hash_names(-1, XINSERT);
+          if(argc > 4 && !strcmp(argv[4], "name")) {
+            if(fast == 0) {
+              hash_names(-1, XINSERT);
+            }
+            my_strdup2(_ALLOC_ID_, &old_name, xctx->inst[inst].instname);
+          }
           if(argc > 5) {
             if(!strcmp(argv[4], "allprops")) {
               hash_names(-1, XINSERT);
@@ -5486,7 +5492,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           hash_names(inst, XDELETE);
           new_prop_string(inst, subst, tclgetboolvar("disable_unique_names"));
-
+          if(old_name) {
+            update_attached_object_refs(old_name, inst, 0);
+          }
           my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
           sym_number=match_symbol(translated_sym);
 
@@ -5495,6 +5503,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->inst[inst].ptr=sym_number;
           }
           if(subst) my_free(_ALLOC_ID_, &subst);
+          if(old_name) my_free(_ALLOC_ID_, &old_name);
           set_inst_flags(&xctx->inst[inst]);
           hash_names(inst, XINSERT);
           if(!fast) {
@@ -6215,6 +6224,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* unselect_attached_floaters
+     *   Unselect objects (not symbol instances) attached to some instance with a 
+     *   non empty name=... attribute */
+    else if(!strcmp(argv[1], "unselect_attached_floaters"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      unselect_attached_floaters();
+    }
     /* update_all_sym_bboxes
      *   Update all symbol bounding boxes */
     else if(!strcmp(argv[1], "update_all_sym_bboxes"))
