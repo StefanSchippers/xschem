@@ -5493,7 +5493,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           hash_names(inst, XDELETE);
           new_prop_string(inst, subst, tclgetboolvar("disable_unique_names"));
           if(old_name) {
-            update_attached_floater_refs(old_name, inst, 0);
+            update_attached_floaters(old_name, inst, 0);
           }
           my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
           sym_number=match_symbol(translated_sym);
