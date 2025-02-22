@@ -4960,7 +4960,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atoi(argv[3]);
         int valid = n < xctx->wires && n >= 0;
         if(valid) {
-          select_wire(n, sel, fast);
+          select_wire(n, sel, fast, 1);
           xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
@@ -4970,7 +4970,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atoi(argv[4]);
         int valid = n < xctx->lines[c] && n >= 0 && c < cadlayers && c >= 0;
         if(valid) {
-          select_line(c, n, sel, fast);
+          select_line(c, n, sel, fast, 0);
           xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
@@ -4990,7 +4990,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atoi(argv[4]);
         int valid = n < xctx->arcs[c] && n >= 0 && c < cadlayers && c >= 0;
         if(valid) {
-          select_arc(c, n, sel, fast);
+          select_arc(c, n, sel, fast, 0);
           xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
@@ -5000,7 +5000,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atoi(argv[4]);
         int valid = n < xctx->polygons[c] && n >= 0 && c < cadlayers && c >= 0;
         if(valid) {
-          select_polygon(c, n, sel, fast);
+          select_polygon(c, n, sel, fast, 0);
           xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
@@ -5009,7 +5009,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n=atoi(argv[3]);
         int valid = n < xctx->texts && n >= 0;
         if(valid) {
-          select_text(n, sel, fast);
+          select_text(n, sel, fast, 0);
           xctx->ui_state |= SELECTION;
         }
         Tcl_SetResult(interp, valid ? "1" : "0" , TCL_STATIC);
@@ -5936,22 +5936,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               select_element(n, SELECTED, 1, 1);
               break;
             case WIRE:
-              select_wire(n, SELECTED, 1);
+              select_wire(n, SELECTED, 1, 1);
               break;
             case xTEXT:
-              select_text(n, SELECTED, 1);
+              select_text(n, SELECTED, 1, 1);
               break;
             case xRECT:
-              select_box(c, n, SELECTED, 1, 0);
+              select_box(c, n, SELECTED, 1, 1);
               break;
             case LINE:
-              select_line(c, n, SELECTED, 1);
+              select_line(c, n, SELECTED, 1, 1);
               break;
             case POLYGON:
-              select_polygon(c, n, SELECTED, 1);
+              select_polygon(c, n, SELECTED, 1, 1);
               break;
             case ARC:
-              select_arc(c, n, SELECTED, 1);
+              select_arc(c, n, SELECTED, 1, 1);
               break;
           }
         }

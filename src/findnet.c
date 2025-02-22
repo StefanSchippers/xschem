@@ -25,7 +25,7 @@
 static double distance; /* safe to keep even with multiple schematics */
 static Selected sel; /* safe to keep even with multiple schematics */
 
-static void find_closest_wire(double mx, double my)
+static void find_closest_wire(double mx, double my, int override_lock)
 /* returns the net that is closest to the mouse pointer */
 /* if there are nets and distance < CADWIREMINDIST */
 {
@@ -42,7 +42,8 @@ static void find_closest_wire(double mx, double my)
    w = i; d = tmp;
   }
  }
- if( d <= threshold && w!=-1)
+ if( w != -1 && d <= threshold &&
+   (override_lock || strboolcmp(get_tok_value(xctx->wire[w].prop_ptr, "lock", 0), "true")) )
  {
   sel.n = w; sel.type = WIRE; 
   distance = d;
@@ -107,7 +108,7 @@ static double find_closest_bezier(double mx, double my, double d, int c, int i, 
   return d;
 }
 
-static void find_closest_polygon(double mx, double my)
+static void find_closest_polygon(double mx, double my, int override_lock)
 /* returns the polygon that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -144,7 +145,8 @@ static void find_closest_polygon(double mx, double my)
     }
   } /* end for i */
  } /* end for c */
- if( d <= threshold && l!=-1)
+ if( d <= threshold && l!=-1 &&
+   (override_lock || strboolcmp(get_tok_value(xctx->poly[col][l].prop_ptr, "lock", 0), "true")))
  {
   sel.n = l; sel.type = POLYGON; sel.col = col;
   distance = d;
@@ -152,7 +154,7 @@ static void find_closest_polygon(double mx, double my)
 }
 
 
-static void find_closest_line(double mx, double my)
+static void find_closest_line(double mx, double my, int override_lock)
 /* returns the line that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -174,7 +176,8 @@ static void find_closest_line(double mx, double my)
    }
   } /* end for i */
  } /* end for c */
- if( d <= threshold && l!=-1)
+ if( d <= threshold && l!=-1 &&
+   (override_lock || strboolcmp(get_tok_value(xctx->line[col][l].prop_ptr, "lock", 0), "true")))
  {
   sel.n = l; sel.type = LINE; sel.col = col;
   distance = d;
@@ -319,7 +322,7 @@ void xfind_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
 }
 #endif
 
-static void find_closest_arc(double mx, double my)
+static void find_closest_arc(double mx, double my, int override_lock)
 {
  double dist, angle, angle1, angle2;
  int i, c, r=-1, col;
@@ -364,7 +367,8 @@ static void find_closest_arc(double mx, double my)
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && d <= threshold ) /*  * pow(xctx->arc[col][r].r, 2)) */
+ if(r!=-1 && d <= threshold &&
+    strboolcmp(get_tok_value(xctx->arc[col][r].prop_ptr, "lock", 0), "true"))
  {
   sel.n = r; sel.type = ARC; sel.col = col;
   distance = d;
@@ -432,7 +436,7 @@ static void find_closest_element(double mx, double my, int override_lock)
   }
 }
 
-static void find_closest_text(double mx, double my)
+static void find_closest_text(double mx, double my, int override_lock)
 {
  short rot, flip;
  double xx1, xx2, yy1, yy2;
@@ -469,7 +473,9 @@ static void find_closest_text(double mx, double my)
      dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, d);
    }
   } /* end for i */
- if( d <= threshold && r!=-1)
+
+ if( r != -1 && d <= threshold &&
+   (override_lock || strboolcmp(get_tok_value(xctx->text[r].prop_ptr, "lock", 0), "true")) )
  {
   sel.n = r; sel.type = xTEXT;
   distance = d;
@@ -480,14 +486,14 @@ Selected find_closest_obj(double mx, double my, int override_lock)
 {
  sel.n = 0L; sel.col = 0; sel.type = 0;
  distance = DBL_MAX;
- find_closest_line(mx, my);
- find_closest_polygon(mx, my);
+ find_closest_line(mx, my, override_lock);
+ find_closest_polygon(mx, my, override_lock);
  /* dbg(1, "1 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_box(mx, my, override_lock);
- find_closest_arc(mx, my);
+ find_closest_arc(mx, my, override_lock);
  /* dbg(1, "2 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
- find_closest_text(mx, my);
- find_closest_wire(mx, my);
+ find_closest_text(mx, my, override_lock);
+ find_closest_wire(mx, my, override_lock);
  find_closest_element(mx, my, override_lock);
  return sel;    /*sel.type = 0 if nothing found */
 }

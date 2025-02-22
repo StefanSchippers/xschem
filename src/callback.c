@@ -2401,33 +2401,33 @@ void unselect_attached_floaters(void)
     for(i = 0; i < xctx->lines[c]; i++) {
       if(get_tok_value(xctx->line[c][i].prop_ptr, "name", 0)[0]) {
         found = 1;
-        select_line(c, i, 0, 1);
+        select_line(c, i, 0, 1, 1);
       }
     }
 
     for(i = 0; i < xctx->polygons[c]; i++) {
       if(get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0)[0]) {
         found = 1;
-        select_polygon(c, i, 0, 1);
+        select_polygon(c, i, 0, 1, 1);
       }
     }
     for(i = 0; i < xctx->arcs[c]; i++) {
       if(get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0)[0]) {
         found = 1;
-        select_arc(c, i, 0, 1);
+        select_arc(c, i, 0, 1, 1);
       }
     }
   }
   for(i = 0; i < xctx->wires; i++) {
     if(get_tok_value(xctx->wire[i].prop_ptr, "name", 0)[0]) {
      found = 1;
-     select_wire(i, 0, 1);
+     select_wire(i, 0, 1, 1);
     }
   }
   for(i = 0; i < xctx->texts; i++) {
     if(get_tok_value(xctx->text[i].prop_ptr, "name", 0)[0]) {
      found = 1;
-     select_text(i, 0, 1);
+     select_text(i, 0, 1, 1);
     }
   }
   if(found) {

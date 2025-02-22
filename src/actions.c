@@ -1066,7 +1066,7 @@ void clear_partial_selected_wires(void)
   rebuild_selected_array();
   for(j=0; j < xctx->lastsel; ++j) if(xctx->sel_array[j].type == WIRE) {
     int wire = xctx->sel_array[j].n;
-    select_wire(wire, 0, 1);
+    select_wire(wire, 0, 1, 1);
   }
   xctx->need_reb_sel_arr = 1;
   rebuild_selected_array();
@@ -1229,7 +1229,7 @@ int unselect_partial_sel_wires(void)
       while(wptr) {
         xWire *w = &xctx->wire[wptr->n];
         if(touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0) && w->sel && w->sel != SELECTED) {
-          select_wire(wptr->n, 0, 1);
+          select_wire(wptr->n, 0, 1, 1);
           changed = 1;
         }
         wptr = wptr->next;
@@ -1258,7 +1258,7 @@ int unselect_partial_sel_wires(void)
         }
         if(touch(w->x1, w->y1, w->x2, w->y2, x0, y0) && w->sel && w->sel != SELECTED) {
           xctx->wire[wptr->n].sel = 0;
-          select_wire(wptr->n, 0, 1);
+          select_wire(wptr->n, 0, 1, 1);
           changed = 1;
         }
         wptr = wptr->next;
@@ -3830,7 +3830,7 @@ int place_text(int draw_text, double mx, double my)
   dbg(1,"props=%s, txt=%s\n", props, txt);
 
   create_text(draw_text, mx, my, 0, 0, txt, props, atof(hsize), atof(vsize));
-  select_text(xctx->texts - 1, SELECTED, 0);
+  select_text(xctx->texts - 1, SELECTED, 0, 1);
   rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
   drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

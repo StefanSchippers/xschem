@@ -48,7 +48,7 @@ static void merge_text(FILE *fd)
      xctx->text[i].sel=0;
      load_ascii_string(&xctx->text[i].prop_ptr,fd);
      set_text_flags(&xctx->text[i]);
-     select_text(i,SELECTED, 1);
+     select_text(i,SELECTED, 1, 1);
      xctx->texts++;
 }
 
@@ -66,7 +66,7 @@ static void merge_wire(FILE *fd)
     load_ascii_string( &ptr, fd);
     storeobject(-1, x1,y1,x2,y2,WIRE,0,SELECTED,ptr);
     my_free(_ALLOC_ID_, &ptr);
-    select_wire(i, SELECTED, 1);
+    select_wire(i, SELECTED, 1, 1);
 }
 
 static void merge_box(FILE *fd)
@@ -172,7 +172,7 @@ static void merge_arc(FILE *fd)
       ptr[i].dash = 0;
     }
 
-    select_arc(c,i, SELECTED, 1);
+    select_arc(c,i, SELECTED, 1, 1);
     xctx->arcs[c]++;
 }
 
@@ -232,7 +232,7 @@ static void merge_polygon(FILE *fd)
       ptr[i].dash = 0;
     }
 
-    select_polygon(c,i, SELECTED, 1);
+    select_polygon(c,i, SELECTED, 1, 1);
     xctx->polygons[c]++;
 }
 
@@ -271,7 +271,7 @@ static void merge_line(FILE *fd)
       ptr[i].bus = 1;
     else
       ptr[i].bus = 0;
-    select_line(c,i, SELECTED, 1);
+    select_line(c,i, SELECTED, 1, 1);
     xctx->lines[c]++;
 }
 
