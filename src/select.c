@@ -940,7 +940,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
 }
 
 
-static int select_attached_items(int inst, const char *name)
+static int select_attached_floaters(int inst, const char *name)
 { 
   int i, c;
   int found = 0;
@@ -1056,7 +1056,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
     }
   }
   if(!fast && select_mode == SELECTED) {
-    select_attached_items(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+    select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
   }
   xctx->need_reb_sel_arr=1;
 }
@@ -1809,7 +1809,7 @@ void select_all(void)
  {
    select_element(i, SELECTED, 1, 0);
    /* following not done in select_element() due to fast=1 argument */
-   select_attached_items(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+   select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
  }
  for(c=0;c<cadlayers; ++c)
  {

@@ -515,7 +515,7 @@ void draw_selection(GC g, int interruptable)
 
 /* sel: if set to 1 change references only on selected items, like in a copy operation.
  * If set to 0 operate on all objects with matching name=... attribute */
-void update_attached_object_refs(const char *from_name, int inst, int sel)
+void update_attached_floater_refs(const char *from_name, int inst, int sel)
 {
   int i, c;
   char *to_name = xctx->inst[inst].instname;
@@ -958,7 +958,7 @@ void copy_objects(int what)
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
 
-        update_attached_object_refs(xctx->inst[n].instname, xctx->instances, 1);
+        update_attached_floater_refs(xctx->inst[n].instname, xctx->instances, 1);
 
         hash_names(xctx->instances, XINSERT);
         xctx->instances++; /* symbol_bbox calls translate and translate must have updated xctx->instances */

@@ -1548,7 +1548,7 @@ extern void new_arc(int what, double sweep, double mousex_snap, double mousey_sn
 extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, double y3,
          double *x, double *y, double *r, double *a, double *b);
 /* sel: if set to 1 change references only on selected items, like in a copy operation */
-extern void update_attached_object_refs(const char *from_name, int inst, int sel);
+extern void update_attached_floater_refs(const char *from_name, int inst, int sel);
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void check_collapsing_objects();
 extern void redraw_w_a_l_r_p_z_rubbers(int force); /* redraw wire, arcs, line, polygon rubbers */

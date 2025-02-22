@@ -1655,7 +1655,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
       new_prop_string(*ii, ptr,               /* sets also inst[].instname */
          tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
       hash_names(*ii, XINSERT);
-      update_attached_object_refs(old_name, *ii, 1);
+      update_attached_floater_refs(old_name, *ii, 1);
       dbg(0, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
       my_free(_ALLOC_ID_, &old_name);
     }
