@@ -2103,6 +2103,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "ui_state2=%d\n", xctx->ui_state2); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "drag_elements=%d\n", xctx->drag_elements); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "last_command=%d\n", xctx->last_command); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "prep_net_structs=%d\n", xctx->prep_net_structs); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "prep_hi_structs=%d\n", xctx->prep_hi_structs); Tcl_AppendResult(interp, res, NULL);

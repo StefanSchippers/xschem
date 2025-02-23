@@ -4359,6 +4359,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      int savesem = xctx->semaphore;
      move_objects(ABORT, 0, 0.0, 0.0);
      unselect_all(1);
+     xctx->drag_elements = 0; /* after ctrl-Button1Press on a launcher need to clear this */
      select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
      rebuild_selected_array();
      xctx->semaphore = 0;
