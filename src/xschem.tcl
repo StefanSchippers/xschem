@@ -6744,8 +6744,14 @@ proc rel_sym_path {symbol} {
   global OS pathlist env
 
   regsub {^~/} $symbol ${env(HOME)}/ symbol
-  if {![regexp {^/} $symbol]} {
-    set symbol [pwd]/$symbol
+  if {$OS eq "Windows"} {
+    if {![regexp {^[A-Za-z]\:/} $symbol]} {
+      set symbol [pwd]/$symbol
+    }
+  } else {
+    if {![regexp {^/} $symbol]} {
+      set symbol [pwd]/$symbol
+    }
   }
   set curr_dirname [pwd]
   set name {}

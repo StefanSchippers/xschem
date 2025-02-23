@@ -2783,7 +2783,8 @@ static void load_inst(int k, FILE *fd)
     if(name[0] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
     else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
     #else 
-    my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
+    if(isupper(name[0]) && name[1] == ':' && name[1] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
+    else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
     #endif
     my_free(_ALLOC_ID_, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,

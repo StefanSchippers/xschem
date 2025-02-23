@@ -594,7 +594,11 @@ FILE *my_fopen(const char *f, const char *m)
 
   st = stat(f, &buf);
   if(st) return NULL; /* not existing or error */
+#ifdef __unix__
   if(!S_ISREG(buf.st_mode)) return NULL; /* not a regular file/symlink to a regular file */
+#else
+  /* TBD */
+#endif
   fd = fopen(f, m);
   return fd;
 }
