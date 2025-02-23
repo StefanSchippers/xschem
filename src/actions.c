@@ -1484,7 +1484,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  } else {
    my_strncpy(name1, trim_chars(symbol_name, " \t\n"), S(name1));
  }
-
+ if(!name1[0]) return 0;
  dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
  /* remove tcleval( given in file selector, if any ... */
  if(strstr(name1, "tcleval(")) {
@@ -1575,6 +1575,47 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
                     &xctx->inst[n].x2, &xctx->inst[n].y2);
   if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
   /* xctx->prep_hash_inst=0; */
+
+
+
+  if(xctx->sym[i].type && !strcmp(xctx->sym[i].type, "scope")) {
+    char *prop = NULL;
+    /*
+name=l21
+flags=graph,unlocked 
+y1 = 0.00033
+y2 = 21
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+unitx=u subdivx=4
+hilight_wave=-1
+digital=0
+ypos1=0.00261891
+ypos2=0.51596
+color=8
+node="tcleval([xschem translate l21 @#0:net_name])"
+jpeg_quality=30
+autoload=0
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw
+linewidth_mult=0.4
+lock=1
+cursor2_x=0.00052215
+*/
+
+
+    my_mstrcat(_ALLOC_ID_, &prop, "name=", xctx->inst[n].instname, NULL);
+    
+    dbg(0, "name=%s\n", xctx->inst[n].instname);
+    storeobject(-1, x-130, y-120, x - 20, y - 40, xRECT, 2, SELECTED, prop);
+    my_free(_ALLOC_ID_, &prop);
+  }
+
+
+
 
   if(draw_sym & 3) {
     bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
