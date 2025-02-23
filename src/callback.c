@@ -926,7 +926,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(gr->dataset >= 0 /* && gr->dataset < xctx->raw->datasets */) dataset =gr->dataset;
     else dataset = -1;
 
-    if(!strcmp(curr_sim_type,
+    /* if master graph has unlocked X axis do not zoom/pan any other graphs: same_sim_type = 0 */
+    if(!(xctx->rect[GRIDLAYER][xctx->graph_master].flags & 2) &&
+       !strcmp(curr_sim_type,
           get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr, "sim_type", 0))) {
       same_sim_type = 1;
     }
