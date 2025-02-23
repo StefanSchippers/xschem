@@ -88,8 +88,8 @@ y1 = -0.00068
 y2 = 22
 divy = 6
 subdivy=1
-x1=0.00043584075
-x2=0.00062432018
+x1=0.00044137417
+x2=0.0006298536
 divx=8
 node="PANEL
 LED" unitx=m
@@ -109,8 +109,8 @@ y1 = -0.0012
 y2 = 6.8
 divy = 4
 subdivy=1
-x1=0.00043584075
-x2=0.00062432018
+x1=0.00044137417
+x2=0.0006298536
 divx=8
   unitx=m
 color="7 4 6"
@@ -128,8 +128,8 @@ y1 = -2.7e-05
 y2 = 100
 divy = 5
 subdivy=1
-x1=0.00043584075
-x2=0.00062432018
+x1=0.00044137417
+x2=0.0006298536
 divx=9
 
  unitx=m subdivx=4
@@ -151,8 +151,8 @@ y1 = 0
 y2 = 1
 divy = 5
 subdivy=1
-x1=0.00043584075
-x2=0.00062432018
+x1=0.00044137417
+x2=0.0006298536
 divx=9
 
  unitx=u subdivx=4
@@ -174,8 +174,8 @@ y1 = 0
 y2 = 1
 divy = 5
 subdivy=1
-x1=0.00043584075
-x2=0.00062432018
+x1=0.00044137417
+x2=0.0006298536
 divx=9
 
  unitx=u subdivx=4
@@ -194,18 +194,15 @@ autoload=0
 sim_type=tran
 xrawfile=$netlist_dir/solar_panel.raw}
 B 2 360 -730 470 -650 {name=l21
-flags=graph,unlocked,private_cursor 
-y1 = 19
+flags=graph,unlocked 
+y1 = 0.00033
 y2 = 21
 divy = 5
 subdivy=1
-x1=0.00045143494
-x2=0.00063991437
+x1=5e-10
+x2=0.001
 divx=9
-
- unitx=u subdivx=4
-
-
+unitx=u subdivx=4
 hilight_wave=-1
 digital=0
 ypos1=0.00261891
@@ -214,11 +211,56 @@ color=8
 node="tcleval([xschem translate l21 @#0:net_name])"
 jpeg_quality=30
 autoload=0
-
 sim_type=tran
 xrawfile=$netlist_dir/solar_panel.raw
 linewidth_mult=0.4
-lock=0
+lock=1
+cursor2_x=0.00052215}
+B 2 1210 -560 1320 -480 {name=l22
+flags=graph,unlocked 
+y1 = -0.59
+y2 = 7.3
+divy = 5
+subdivy=1
+x1=5e-10
+x2=0.001
+divx=9
+unitx=u subdivx=4
+hilight_wave=-1
+digital=0
+ypos1=0.00261891
+ypos2=0.51596
+color=8
+node="tcleval([xschem translate l22 @#0:net_name])"
+jpeg_quality=30
+autoload=0
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw
+linewidth_mult=0.4
+lock=1
+cursor2_x=0.00052215}
+B 2 760 -1200 870 -1120 {name=l23
+flags=graph,unlocked 
+y1 = 4.9e-10
+y2 = 1
+divy = 5
+subdivy=1
+x1=0.00051506091
+x2=0.00053874392
+divx=9
+unitx=u subdivx=4
+hilight_wave=-1
+digital=0
+ypos1=0.00261891
+ypos2=0.51596
+color=8
+node="tcleval([xschem translate l23 @#0:net_name])"
+jpeg_quality=30
+autoload=0
+sim_type=tran
+xrawfile=$netlist_dir/solar_panel.raw
+linewidth_mult=0.4
+lock=1
 cursor2_x=0.00052215}
 B 18 55 -1060 310 -875 {}
 A 5 310 -1060 5.590169943749475 243.434948822922 360 {fill=true}
@@ -434,3 +476,8 @@ C {spice_probe.sym} 760 -670 0 0 {name=p6 analysis=tran}
 C {spice_probe.sym} 160 -450 0 0 {name=p7 analysis=tran}
 C {scope.sym} 490 -610 0 0 {name=l21
 attach=l21}
+C {scope.sym} 1190 -440 0 1 {name=l22
+attach=l22}
+C {scope.sym} 740 -1080 0 1 {name=l23
+attach=l23}
+C {lab_show.sym} 440 -610 2 0 {name=l24}

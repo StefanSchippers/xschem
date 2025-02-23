@@ -375,7 +375,7 @@ extern char win_temp_dir[PATH_MAX];
  * show_label also used on metal option type symbols (pass-through symbols) 
  * to optionally short two nets (using *_ignore=[true|false] attribute) */
 #define IS_LABEL_SH_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && \
-                                 strcmp(type,"show_label") && strcmp(type,"iopin") && strcmp(type,"bus_tap")))
+      strcmp(type,"scope") && strcmp(type,"show_label") && strcmp(type,"iopin") && strcmp(type,"bus_tap")))
 #define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && \
                                  strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
