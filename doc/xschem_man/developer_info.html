@@ -553,7 +553,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -828,6 +827,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    return result of get_cell function </pre>
    <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
    return result of get_cell_w_ext function </pre>
+   <li><kbd>       get_fqdevice instname param modelparam</kbd></li><pre>
+   get the full pathname of "instname" device
+   modelparam: 
+     0: current, 1: modelparam, 2: modelvoltage
+   param: device parameter, like ib, gm, vth
+   set param to {} (empty str) for just branch current of 2 terminal device
+   for parameters like "vth" modelparam must be 2
+   for parameters like "ib" modelparam must be 0
+   for parameters like "gm" modelparam must be 1</pre>
    <li><kbd>       getprop instance|instance_pin|symbol|text ref</kbd></li><pre>
       
        getprop instance inst
@@ -1678,6 +1686,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

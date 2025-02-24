@@ -1450,7 +1450,6 @@ void delete_files(void)
 
 void place_net_label(int type)
 {
-  unselect_all(1);
   if(type == 1) {
       const char *lab = tcleval("rel_sym_path [find_file_first lab_pin.sym]");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
@@ -1478,6 +1477,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  char name[PATH_MAX];
  char name1[PATH_MAX];
  char tclev = 0;
+
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
@@ -1562,7 +1562,11 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name), S(name));
-  i = match_symbol(name);
+  /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
+  if(strcmp(name, name1)) {
+    remove_symbol(i);
+    i = match_symbol(name);
+  }
   xctx->inst[n].ptr = i;
   set_inst_flags(&xctx->inst[n]);
   hash_names(n, XINSERT);
@@ -1579,15 +1583,44 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /* embed a (locked) graph object floater inside the symbol */
   if(xctx->sym[i].type && !strcmp(xctx->sym[i].type, "scope")) {
     char *prop = NULL;
+
     my_strdup(_ALLOC_ID_, &xctx->inst[n].prop_ptr,
           subst_token(xctx->inst[n].prop_ptr, "attach", xctx->inst[n].instname));
     my_mstrcat(_ALLOC_ID_, &prop, "name=", xctx->inst[n].instname, "\n", NULL);
     my_mstrcat(_ALLOC_ID_, &prop, "flags=graph,unlocked\n", NULL);
     my_mstrcat(_ALLOC_ID_, &prop, "lock=1\n", NULL);
     my_mstrcat(_ALLOC_ID_, &prop, "color=8\n", NULL);
-    my_mstrcat(_ALLOC_ID_, &prop, "node=\"tcleval([xschem translate ",
-          xctx->inst[n].instname, " @#0:net_name])\"", NULL);
-    storeobject(-1, x-130, y-120, x - 20, y - 40, xRECT, 2, SELECTED, prop);
+    if(xctx->sym[i].rects[PINLAYER] == 0) {
+      if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
+        my_mstrcat(_ALLOC_ID_, &prop, "node=\"tcleval([xschem get_fqdevice [xschem translate ",
+                                       xctx->inst[n].instname, " @device]])\"\n", NULL);
+        my_strdup(_ALLOC_ID_, &xctx->inst[n].prop_ptr,
+            subst_token(xctx->inst[n].prop_ptr, "device", xctx->inst[xctx->sel_array[0].n].instname));
+      } else {
+        const char msg[]="scope_ammeter is being inserted but no selected ammeter device/vsource to link to\n";
+        dbg(0, "%s", msg);
+        if(has_x) tclvareval("alert_ {", msg, "} {}", NULL);
+        if(xctx->inst[n].instname) my_free(_ALLOC_ID_, &xctx->inst[n].instname);       
+        if(xctx->inst[n].name) my_free(_ALLOC_ID_, &xctx->inst[n].name);       
+        if(xctx->inst[n].prop_ptr) my_free(_ALLOC_ID_, &xctx->inst[n].prop_ptr);       
+        if(xctx->inst[n].lab) my_free(_ALLOC_ID_, &xctx->inst[n].lab);       
+        if(prop) my_free(_ALLOC_ID_, &prop);
+        xctx->instances--;
+        return 0;
+      }
+    } else if(xctx->sym[i].rects[PINLAYER] == 1) {
+      my_mstrcat(_ALLOC_ID_, &prop,
+        "node=\"tcleval(",
+        "[xschem translate ", xctx->inst[n].instname, " @#0:net_name]",
+        ")\"\n", NULL);
+    } else {
+      my_mstrcat(_ALLOC_ID_, &prop,
+        "node=\"tcleval(",
+        "[xschem translate ", xctx->inst[n].instname, " @#0:net_name] ",
+        "[xschem translate ", xctx->inst[n].instname, " @#1:net_name] -",
+        ")\"\n", NULL);
+    }
+    storeobject(-1, x + 20, y-125, x + 130 , y - 25, xRECT, 2, SELECTED, prop);
     my_free(_ALLOC_ID_, &prop);
   }
 
@@ -1602,6 +1635,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /*   hilight new element 24122002 */
 
   if(draw_sym & 4 ) {
+    unselect_all(1);
     select_element(n, SELECTED,0, 1);
     drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

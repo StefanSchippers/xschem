@@ -540,7 +540,7 @@ void update_attached_floaters(const char *from_name, int inst, int sel)
           if(c == GRIDLAYER) {
             const char *node = get_tok_value(xctx->rect[c][i].prop_ptr, "node", 2);
             if(node && node[0]) {
-              const char *new_node = str_replace(node, from_name, to_name, 1, 1);
+              const char *new_node = str_replace(node, from_name, to_name, 1, -1);
               my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
                    subst_token(xctx->rect[c][i].prop_ptr, "node", new_node));
             }

@@ -193,16 +193,16 @@ autoload=0
 
 sim_type=tran
 xrawfile=$netlist_dir/solar_panel.raw}
-B 2 270 -730 380 -650 {name=l21
+B 2 1210 -605 1320 -505 {name=l21
 flags=graph,unlocked
 lock=1
 color=8
-node="tcleval([xschem translate l21 @#0:net_name])"
-y1=0.00033
-y2=21
+node="tcleval([xschem translate l21 @#0:net_name] [xschem translate l21 @#1:net_name] -)"
 x1=5e-10
-x2=0.001}
-B 2 1230 -560 1340 -480 {name=l22
+x2=0.001
+y1=-4.8
+y2=15}
+B 2 400 -735 510 -635 {name=l22
 flags=graph,unlocked
 lock=1
 color=8
@@ -211,15 +211,24 @@ y1=0.00033
 y2=21
 x1=5e-10
 x2=0.001}
-B 2 780 -1200 890 -1120 {name=l23
+B 2 600 -485 710 -385 {name=l23
 flags=graph,unlocked
 lock=1
 color=8
-node="tcleval([xschem translate l23 @#0:net_name])"
-y1=-0.55990715
-y2=1.5136929
-x1=0.00048981872
-x2=0.0005150806}
+node="tcleval([xschem get_fqdevice [xschem translate l23 @device]])"
+x1=5e-10
+x2=0.001
+y1=-2.9
+y2=6.8}
+B 2 640 -295 750 -195 {name=l26
+flags=graph,unlocked
+lock=1
+color=8
+node="tcleval([xschem get_fqdevice [xschem translate l26 @device]])"
+x1=5e-10
+x2=0.001
+y1=-2.9
+y2=6.8}
 B 18 55 -1060 310 -875 {}
 A 5 310 -1060 5.590169943749475 243.434948822922 360 {fill=true}
 P 7 6 385 -875 330 -1031.25 325 -1045 312.5 -1060 300 -1065 55 -1075 {}
@@ -259,19 +268,19 @@ T {Floater text
 example} 870 -440 0 0 0.4 0.4 {}
 T {@spice_get_current} 875 -598.75 0 0 0.3 0.3 {layer=7 name=L2}
 T {@spice_get_current} 1015 -268.75 0 0 0.3 0.3 {layer=7 name=C1}
-N 1010 -210 1100 -210 {lab=0}
-N 1100 -300 1100 -210 {lab=0}
+N 1010 -180 1100 -180 {lab=0}
+N 1100 -300 1100 -180 {lab=0}
 N 640 -610 730 -610 {lab=#net1}
 N 1010 -440 1040 -440 {lab=VO}
 N 1010 -440 1010 -310 {lab=VO}
-N 1010 -250 1010 -210 {lab=0}
+N 1010 -250 1010 -180 {lab=0}
 N 360 -610 580 -610 {lab=PANEL}
 N 1010 -610 1010 -440 {lab=VO}
 N 820 -610 860 -610 {lab=SW}
 N 820 -610 820 -490 {lab=SW}
 N 790 -610 820 -610 {lab=SW}
-N 820 -210 1010 -210 {lab=0}
-N 800 -210 820 -210 {lab=0}
+N 820 -180 1010 -180 {lab=0}
+N 800 -180 820 -180 {lab=0}
 N 1000 -610 1010 -610 {lab=VO}
 N 1100 -440 1280 -440 {lab=LED}
 N 1100 -440 1100 -360 {lab=LED}
@@ -322,10 +331,12 @@ N 770 -1080 770 -1030 {
 lab=TRIANG}
 N 770 -1030 890 -1030 {
 lab=TRIANG}
-N 820 -330 820 -210 {
+N 820 -330 820 -180 {
 lab=0}
+N 1190 -480 1190 -440 {lab=LED}
+N 1190 -670 1190 -640 {lab=PANEL}
 C {title.sym} 160 -40 0 0 {name=l1 author="Stefan Schippers"}
-C {code_shown.sym} 170 -310 0 0 {name=CONTROL
+C {code_shown.sym} 180 -310 0 0 {name=CONTROL
 value="tcleval(
 .option savecurrents
 .control
@@ -345,7 +356,7 @@ C {code.sym} 20 -240 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99
 .MODEL swmod SW(VT=0.5 VH=0.01 RON=0.01 ROFF=10000000)
 "}
 C {lab_pin.sym} 650 -530 0 1 {name=l4  lab=PANEL }
-C {lab_pin.sym} 800 -210 0 0 {name=l6  lab=0 }
+C {lab_pin.sym} 800 -180 0 0 {name=l6  lab=0 }
 C {ammeter.sym} 1070 -440 3 0 {name=Vled}
 C {ind.sym} 890 -610 3 1 {name=L2
 m=1
@@ -433,9 +444,14 @@ C {spice_probe.sym} 810 -890 0 1 {name=p5 analysis=tran}
 C {spice_probe.sym} 760 -670 0 0 {name=p6 analysis=tran}
 C {spice_probe.sym} 160 -450 0 0 {name=p7 analysis=tran}
 C {lab_show.sym} 440 -610 2 0 {name=l24}
-C {scope.sym} 400 -610 0 0 {name=l21
+C {lab_pin.sym} 1190 -670 0 0 {name=l25  lab=PANEL }
+C {scope2.sym} 1190 -480 0 0 {name=l21
 attach=l21}
-C {scope.sym} 1210 -440 0 1 {name=l22
+C {scope.sym} 380 -610 0 0 {name=l22
 attach=l22}
-C {scope.sym} 760 -1080 0 1 {name=l23
-attach=l23}
+C {scope_ammeter.sym} 580 -360 0 0 {name=l23
+attach=l23
+device=Vcap}
+C {scope_ammeter.sym} 620 -170 0 0 {name=l26
+attach=l26
+device=Vdiode}

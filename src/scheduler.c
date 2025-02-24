@@ -1798,8 +1798,34 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, (char *)get_cell_w_ext(argv[2], atoi(argv[3])), TCL_VOLATILE);
       }
     }
-
     /************ end xschem get subcommands *************/
+
+
+    /* get_fqdevice instname param modelparam
+     *   get the full pathname of "instname" device
+     *   modelparam: 
+     *     0: current, 1: modelparam, 2: modelvoltage
+     *   param: device parameter, like ib, gm, vth
+     *   set param to {} (empty str) for just branch current of 2 terminal device
+     *   for parameters like "vth" modelparam must be 2
+     *   for parameters like "ib" modelparam must be 0
+     *   for parameters like "gm" modelparam must be 1
+     */
+    else if(!strcmp(argv[1], "get_fqdevice"))
+    {
+      char *fqdev;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 4) {
+        fqdev = get_fqdevice(argv[3], atoi(argv[4]), argv[2]);
+        Tcl_SetResult(interp, fqdev, TCL_VOLATILE);
+        my_free(_ALLOC_ID_, &fqdev);
+      } else if(argc > 2) {
+        fqdev = get_fqdevice("", 0, argv[2]);
+        Tcl_SetResult(interp, fqdev, TCL_VOLATILE);
+        my_free(_ALLOC_ID_, &fqdev);
+      }
+    }
+
     /* getprop instance|instance_pin|symbol|text ref
      *
      * getprop instance inst
@@ -3605,7 +3631,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tclvareval("set INITIALINSTDIR [file dirname {",
              abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), "}]", NULL);
       }
-      unselect_all(1);
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
       if(argc > 3) {
