@@ -28,4 +28,4 @@ S {}
 E {}
 P 4 5 10 -20 10 -140 140 -140 140 -20 10 -20 {}
 T {@device} 12.5 -18.125 0 0 0.2 0.2 {layer=4}
-T {tcleval(@spice_get_node [xschem get_fqdevice @device ] )} 12.5 -139.375 0 0 0.15 0.15 {layer=15}
+T {tcleval(@spice_get_node [xschem get_fqdevice @device ] )} 12.5 -139.375 0 0 0.15 0.15 {layer=17}
