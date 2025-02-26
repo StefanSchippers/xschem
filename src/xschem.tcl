@@ -628,6 +628,9 @@ proc from_eng {i} {
 ## convert number to engineering form
 proc to_eng {args} {
   set suffix {}
+  if { [catch {[uplevel #0 expr [join $args]]} i] } {
+    return $args
+  }
   set i [uplevel #0 expr [join $args]]
   set absi [expr {abs($i)}]
 
