@@ -6451,12 +6451,17 @@ proc editdata {{data {}} {title {Edit data}} } {
   # wm transient $window [xschem get topwindow]
   frame $window.buttons
   pack $window.buttons -side bottom -fill x -pady 2m
+  button $window.buttons.copy -text Copy -command "
+     clipboard clear
+     clipboard append \[$window.text get 1.0 {end - 1 chars}\]
+  "
   button $window.buttons.ok -text OK -command "
      set retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
   "
   button $window.buttons.cancel -text Cancel -command "destroy $window"
   pack $window.buttons.ok -side left -expand 1
   pack $window.buttons.cancel -side left -expand 1
+  pack $window.buttons.copy -side left -expand 1
   
   eval text $window.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$window.yscroll set\" -setgrid 1 \
        -xscrollcommand \"$window.xscroll set\" -wrap none -height 30 $text_tabs_setting
