@@ -2263,7 +2263,7 @@ int change_sch_path(int instnumber, int dr)
   char *ptr;
   size_t pathlen;
   int res = 0;
-  if(level <= 0 ) return 0;
+  if(level < 0 ) return 0;
   my_strdup2(_ALLOC_ID_, &instname, get_tok_value(xctx->hier_attr[level].prop_ptr, "name", 0));
   my_strdup2(_ALLOC_ID_, &expanded_instname, expandlabel(instname, &inst_mult));
   my_strdup2(_ALLOC_ID_, &path, xctx->sch_path[xctx->currsch]);
@@ -2498,7 +2498,7 @@ void go_back(int what)
  char filename[PATH_MAX];
  int prev_sch_type;
  int confirm = what & 1;
- int set_title = !(confirm & 2);
+ int set_title = !(what & 2);
 
  save_ok=1;
  dbg(1,"go_back(): sch[xctx->currsch]=%s\n", xctx->sch[xctx->currsch]);
