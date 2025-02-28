@@ -2310,6 +2310,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  int inst_mult, inst_number;
  int save_ok = 0;
  int i, n = 0;
+ int descend_ok = 1;
 
  if(xctx->currsch + 1 >= CADMAXHIER) {
    dbg(0, "descend_schematic(): max hierarchy depth reached: %d", CADMAXHIER);
@@ -2465,24 +2466,25 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   load_schematic(1, filename, (set_title & 1), alert);
-   if(xctx->hilight_nets) {
-     prepare_netlist_structs(0);
-     propagate_hilights(1, 0, XINSERT_NOREPLACE);
-   }
-   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-
-   if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
-     Graph_ctx *gr = &xctx->graph_struct;
-     xRect *r = &xctx->rect[GRIDLAYER][0];
-     if(r->flags & 1) {
-       backannotate_at_cursor_b_pos(r, gr);
+   descend_ok = load_schematic(1, filename, (set_title & 1), alert);
+   if(descend_ok) {
+     if(xctx->hilight_nets) {
+       prepare_netlist_structs(0);
+       propagate_hilights(1, 0, XINSERT_NOREPLACE);
+     }
+     dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
+  
+     if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
+       Graph_ctx *gr = &xctx->graph_struct;
+       xRect *r = &xctx->rect[GRIDLAYER][0];
+       if(r->flags & 1) {
+         backannotate_at_cursor_b_pos(r, gr);
+       }
      }
    }
-
    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
- return 1;
+ return descend_ok;
 }
 
 /* 
