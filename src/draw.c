@@ -3782,7 +3782,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  *  8: all drawing, if not set do only XCopyArea / x-cursor if specified
  * ct is a pointer used in windows for cairo
  */
-void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
+void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 {
   int wc = 4, wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
@@ -3804,12 +3804,11 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   int save_extra_idx = -1;
   double cursor1, cursor2;
  
-
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
   
-  if(r->flags & 4) { /* private_cursor */
+  if(r->flags & 2) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
     if(s[0]) {
       cursor1 = atof_eng(s);

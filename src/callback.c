@@ -431,7 +431,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int access_cond = !graph_use_ctrl_key || (state & ControlMask);
 
   dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
-  if(event != -3 && !xctx->raw) return 0;
+  /* if(event != -3 && !xctx->raw) return 0; */
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   #if HAS_CAIRO==1
