@@ -1044,8 +1044,10 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
           xRect *r;
           r = &xctx->rect[GRIDLAYER][0];
           if(r->flags & 1) {
-            setup_graph_data(0, 0, &xctx->graph_struct);
-            backannotate_at_cursor_b_pos(r, &xctx->graph_struct);
+            /* don't overwrite xctx->graph_struct, being used in draw_graph() which calls raw_read() */
+            Graph_ctx gr_ctx;
+            setup_graph_data(0, 0, &gr_ctx);
+            backannotate_at_cursor_b_pos(r, &gr_ctx);
           }
         }
       }
