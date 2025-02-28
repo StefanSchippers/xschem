@@ -3808,7 +3808,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
   
-  if(r->flags & 2) { /* private_cursor */
+  if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
     if(s[0]) {
       cursor1 = atof_eng(s);
