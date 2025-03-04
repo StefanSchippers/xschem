@@ -2154,7 +2154,7 @@ int print_spice_element(FILE *fd, int inst)
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
   const char *lab; 
-  char *value = NULL;
+  const char *value = NULL;
   /* char *translatedvalue = NULL; */
   size_t sizetok=0;
   size_t token_pos=0;
@@ -2465,7 +2465,7 @@ int print_spice_element(FILE *fd, int inst)
         }
 
         if(strstr(value, "expr(")) {
-          my_strdup2(_ALLOC_ID_, &value, eval_expr(value));
+          value =  eval_expr(value);
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
         if(!token_exists && token[0] =='%') {
