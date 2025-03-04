@@ -1200,7 +1200,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
       if(strstr(result, "expr(")) {
-        result = eval_expr(result);
+        my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_vhdl_primitive(): after  translate3() result=%s\n", result);
     } 
@@ -2153,7 +2153,8 @@ int print_spice_element(FILE *fd, int inst)
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
-  const char *lab, *value = NULL;
+  const char *lab; 
+  char *value = NULL;
   /* char *translatedvalue = NULL; */
   size_t sizetok=0;
   size_t token_pos=0;
@@ -2464,7 +2465,7 @@ int print_spice_element(FILE *fd, int inst)
         }
 
         if(strstr(value, "expr(")) {
-          value = eval_expr(value);
+          my_strdup2(_ALLOC_ID_, &value, eval_expr(value));
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
         if(!token_exists && token[0] =='%') {
@@ -2519,7 +2520,7 @@ int print_spice_element(FILE *fd, int inst)
      my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
   }
   if(strstr(result, "expr(")) {
-    result = eval_expr(result);
+    my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
   }
   if(result) fprintf(fd, "%s", result);
   dbg(1, "print_spice_element(): returning |%s|\n", result);
@@ -3156,7 +3157,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
       if(strstr(result, "expr(")) {
-        result = eval_expr(result);
+        my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
     }
