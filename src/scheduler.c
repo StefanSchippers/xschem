@@ -2915,10 +2915,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "load") )
     {
       int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
-      int keep_symbols = 0;
-      size_t i;
+      int keep_symbols = 0, first;
+      int i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-
 
       for(i = 2; i < argc; i++) {
         if(argv[i][0] == '-') {
@@ -2939,8 +2938,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           break;
         }
       }
-
-      if(argc>i) {
+      first = i;
+      if(argc==2) {
+        ask_new_file();
+      } else
+      for(i = first; i < argc; i++) {
         char f[PATH_MAX + 100];
         my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
         tcleval(f);
@@ -2967,33 +2969,40 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
             /* if(!undo_reset) xctx->push_undo(); */
-            if(undo_reset) xctx->currsch = 0;
-            if(!keep_symbols) remove_symbols();
-            if(!nofullzoom) {
-              xctx->zoom=CADINITIALZOOM;
-              xctx->mooz=1/CADINITIALZOOM;
-              xctx->xorigin=CADINITIALX;
-              xctx->yorigin=CADINITIALY;
+            if(i == first) {
+              if(undo_reset) xctx->currsch = 0;
+              if(!keep_symbols) remove_symbols();
+              if(!nofullzoom) {
+                xctx->zoom=CADINITIALZOOM;
+                xctx->mooz=1/CADINITIALZOOM;
+                xctx->xorigin=CADINITIALX;
+                xctx->yorigin=CADINITIALY;
+              }
             }
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
-            ret = load_schematic(load_symbols, f, undo_reset, !force);
-            dbg(1, "xschem load: ret=%d\n", ret);
-            if(undo_reset) {
-              tclvareval("update_recent_file {", f, "}", NULL);
-              my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
-              if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
-              str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
-              xctx->sch_path_hash[xctx->currsch] = 0;
-              xctx->sch_inst_number[xctx->currsch] = 1;
+
+            if(i > first) {
+              ret = new_schematic("create", "noconfirm", f, 1);
+              if(undo_reset) {
+                tclvareval("update_recent_file {", f, "}", NULL);
+              }
+            } else {
+              ret = load_schematic(load_symbols, f, undo_reset, !force);
+              dbg(1, "xschem load: f=%s, ret=%d\n", f, ret);
+              if(undo_reset) {
+                tclvareval("update_recent_file {", f, "}", NULL);
+                my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
+                if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
+                str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
+                xctx->sch_path_hash[xctx->currsch] = 0;
+                xctx->sch_inst_number[xctx->currsch] = 1;
+              }
+              if(nofullzoom) {
+                if(!nodraw) draw();
+              } else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
             }
-            if(nofullzoom) {
-              if(!nodraw) draw();
-            } else zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
           }
         }
-      }
-      else if(argc==2) {
-        ask_new_file();
       }
       Tcl_SetResult(interp, xctx->sch[xctx->currsch], TCL_STATIC);
     }
