@@ -1014,17 +1014,16 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
     return res;
   }
   dbg(1, "raw_read(): type=%s\n", type ? type : "<NULL>");
-  *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
-  raw = *rawptr;
-  raw->level = -1; 
-  raw->annot_p = -1;
-  raw->sweep1 = sweep1;
-  raw->sweep2 = sweep2;
-  raw->annot_sweep_idx = -1;
-
-  int_hash_init(&raw->table, HASHSIZE);
   fd = my_fopen(f, fopen_read_mode);
   if(fd) {
+    *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+    raw = *rawptr;
+    raw->level = -1;
+    raw->annot_p = -1;
+    raw->sweep1 = sweep1;
+    raw->sweep2 = sweep2;
+    raw->annot_sweep_idx = -1;
+    int_hash_init(&raw->table, HASHSIZE);
     if((res = read_dataset(fd, rawptr, type, no_warning)) == 1) {
       int i;
       set_modify(-2); /* clear text floater caches */
@@ -1051,7 +1050,6 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
           }
         }
       }
-
     } else {
       /* free_rawfile(rawptr, 0, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
       if(!no_warning) {
@@ -1208,6 +1206,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   if(what == 0) return 0;
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
+    dbg(1, "insert extra_raw_arr[0]\n");
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
@@ -1279,7 +1278,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         if(!no_warning) {
           dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
         }
-        if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
+        if(xctx->extra_raw_n) { /* only restore if raw files were not deleted due to a failure in read_raw() */
+          dbg(1, "extra_rawfile(): read: restore previous, extra_idx=%d\n",  xctx->extra_idx);
           xctx->raw = save; /* restore */
           xctx->extra_prev_idx = xctx->extra_idx;
         }
