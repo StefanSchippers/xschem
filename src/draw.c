@@ -1015,7 +1015,7 @@ static void drawgrid()
   #if DRAW_ALL_CAIRO==0
   if(grid_point_size != -1) {
       XSetLineAttributes (display, xctx->gc[GRIDLAYER],
-          grid_point_size, LineSolid, LINECAP, LINEJOIN);
+          grid_point_size, LineSolid, CapProjecting, LINEJOIN);
   } else if(!big_gr) {
     XSetLineAttributes (display, xctx->gc[GRIDLAYER],
         0, LineSolid, LINECAP, LINEJOIN);
