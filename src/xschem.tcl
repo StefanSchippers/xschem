@@ -7863,42 +7863,34 @@ proc no_open_dialogs {} {
 ## "file_dialog_*" only one load_file_dialog window is allowed
 
 set tctx::global_list {
-  PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
-  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
-  add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
-  autotrim_wires bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
-  copy_cell crosshair_layer crosshair_size cursor_2_hook custom_label_prefix custom_token
-  dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
-  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
-  draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
-  edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
-  gaw_fd gaw_tcp_address graph_autoload graph_bus
-  graph_change_done graph_digital graph_dialog_default_geometry 
-  graph_legend graph_linewidth_mult graph_logx
-  graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color graph_sel_wave
-  graph_selected graph_sort graph_unlocked graph_use_ctrl_key
-  hide_empty_graphs hide_symbols tctx::hsize
-  incr_hilight incremental_select infix_interface infowindow_text intuitive_interface 
-  keep_symbols launcher_default_program
-  light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
-  lvs_netlist measure_text netlist_dir netlist_show netlist_type no_ask_save
-  no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
-  persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  tctx::rcode recentfile
-  retval retval_orig rotated_text search_case search_exact search_found search_schematic
-  search_select search_value select_touch selected_tok show_hidden_texts show_infowindow
-  show_infowindow_after_netlist
-  simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
-  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
-  text_replace_selection text_tabs_setting textwindow_fileid textwindow_filename textwindow_w
-  toolbar_horiz toolbar_list
-  toolbar_visible top_is_subckt transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
-  use_label_prefix use_tclreadline
-  user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  tctx::vsize xschem_libs xschem_listen_port zoom_full_center orthogonal_wiring snap_cursor
-  snap_cursor_size cadence_compat use_cursor_for_selection
+ INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
+ SKYWATER_STDCELLS XSCHEM_LIBRARY_PATH add_all_windows_drives auto_hilight
+ auto_hilight_graph_nodes autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points
+ bus_replacement_char cadence_compat cadgrid cadlayers cadsnap cairo_font_name cairo_font_scale
+ change_lw color_ps compare_sch constr_mv copy_cell crosshair_layer crosshair_size cursor_2_hook
+ custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
+ dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
+ draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
+ en_hilight_conn_inst enable_dim_bg enable_stretch enter_text_default_geometry filetmp
+ fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
+ graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
+ graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
+ graph_sel_wave graph_selected graph_sort graph_unlocked graph_use_ctrl_key hide_empty_graphs
+ hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
+ keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
+ local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
+ no_ask_save no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
+ orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
+ ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
+ search_found search_schematic search_select search_value select_touch selected_tok
+ show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
+ simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
+ svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
+ tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
+ textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
+ top_is_subckt transparent_svg undo_type unselect_partial_sel_wires use_cursor_for_selection
+ use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell verilog_2001 verilog_bitblast
+ viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port zoom_full_center
 }
 
 ## list of global arrays to save/restore on context switching
@@ -8283,7 +8275,7 @@ proc load_raw {{type {}}} {
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
-  global dark_gui_colorscheme draw_crosshair
+  global dark_gui_colorscheme draw_crosshair grid_point_size
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
@@ -8620,6 +8612,10 @@ proc build_widgets { {topwin {} } } {
        -command {
          set change_lw 0
          input_line "Enter linewidth (float):" "xschem line_width"
+       }
+  $topwin.menubar.view add command -label "Set grid point size" \
+       -command {
+         input_line "Enter Grid point size (int or -1: $grid_point_size)" "set grid_point_size" $grid_point_size
        }
   $topwin.menubar.view add checkbutton -label "Tabbed interface" -variable tabbed_interface \
     -selectcolor $selectcolor -command setup_tabbed_interface
@@ -9361,6 +9357,7 @@ set_ne select_touch 1
 
 set_ne draw_grid 1
 set_ne big_grid_points 0
+set_ne grid_point_size -1 ;# grid point size (>=0) or unspecified (-1)
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1

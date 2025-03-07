@@ -930,10 +930,14 @@ static void drawgrid()
   double mult;
   #if DRAW_ALL_CAIRO==0
   int i=0;
+  const char *psize_ptr;
   int big_gr = tclgetboolvar("big_grid_points");
+  int grid_point_size = -1;
   char dash_arr[2];
   int axes = tclgetboolvar("draw_grid_axes");
  
+  psize_ptr = tclgetvar("grid_point_size"); 
+  if(psize_ptr[0]) grid_point_size = atoi(psize_ptr);
   if(axes) {
     dash_arr[0] = dash_arr[1] = (char) 3;
     XSetDashes(display, xctx->gc[GRIDLAYER], 0, dash_arr, 1);
@@ -959,9 +963,8 @@ static void drawgrid()
     delta = delta * pow(CADGRIDMULTIPLY, mult);
   }
 
-  /* while(delta < CADGRIDTHRESHOLD) delta *= CADGRIDMULTIPLY; */  /* <-- to be improved,but works */
 
-
+  /* ************************ Draw axes ****************** */
   #if DRAW_ALL_CAIRO==1
   xax =floor(xctx->xorigin*xctx->mooz) + 0.5; yax = floor(xctx->yorigin*xctx->mooz) + 0.5;
   #else
@@ -1007,12 +1010,22 @@ static void drawgrid()
       #endif
     }
   }
+  /* ************************ /Draw axes ****************** */
+
   #if DRAW_ALL_CAIRO==0
-  if(axes) {
+  if(grid_point_size != -1) {
+      XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+          grid_point_size, LineSolid, LINECAP, LINEJOIN);
+  } else if(!big_gr) {
+    XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+        0, LineSolid, LINECAP, LINEJOIN);
+  } else {
     XSetLineAttributes (display, xctx->gc[GRIDLAYER],
         XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
   #endif
+
+  if(grid_point_size >= 0) big_gr = 1;
 
   tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz, delta);
   for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz, delta); x < xctx->areax2; x += delta) {
@@ -1020,13 +1033,13 @@ static void drawgrid()
     #if DRAW_ALL_CAIRO==1
     xx = floor(x) + 0.5;
     #endif
-    if((int)xx == (int)xax) continue;
+    if(axes && (int)xx == (int)xax) continue;
     for(y=tmp; y < xctx->areay2; y += delta) {
       yy = y;
       #if DRAW_ALL_CAIRO==1
       yy = floor(y) + 0.5;
       #endif
-      if((int)yy == (int)yax) continue;
+      if(axes && (int)yy == (int)yax) continue;
       #if DRAW_ALL_CAIRO==1
       if(xctx->draw_window) {
         cairo_move_to(xctx->cairo_ctx, xx, yy) ;
@@ -1087,6 +1100,12 @@ static void drawgrid()
   if(xctx->draw_pixmap) cairo_stroke(xctx->cairo_save_ctx);
   if(xctx->draw_window) cairo_stroke(xctx->cairo_ctx);
   #endif
+
+  #if DRAW_ALL_CAIRO==0
+  XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+      XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+  #endif
+
 }
 
 #if !defined(__unix__) && HAS_CAIRO==1
