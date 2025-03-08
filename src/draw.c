@@ -4107,7 +4107,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
             if((gr->mode == 2) || (xxfollowing >= start && xxprevious <= end)) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
-              point[poly_npoints].x = (short)S_X(xx);
+              point[poly_npoints].x = (short)CLIP(S_X(xx), -30000, 30000);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 /* cursor1: show measurements on nodes in graph */
                 if(flags & 2 && measure_p == -1 && cnt) {
