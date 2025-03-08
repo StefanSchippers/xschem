@@ -1074,6 +1074,22 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
   return 0;
 }
 
+int raw_renamevar(const char *old_name, const char *new_name)
+{       
+  int n, ret = 0;
+  Raw *raw = xctx->raw; 
+  Int_hashentry *entry;
+      
+  n = get_raw_index(old_name, &entry);
+  if(n < 0) return ret;
+  dbg(1, "n=%d, %s \n", n, entry->token);
+  int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
+  my_strdup2(_ALLOC_ID_, &raw->names[n], new_name);
+  int_hash_lookup(&raw->table, raw->names[n], n, XINSERT); /* update hash table */
+  ret = 1;
+  return ret; 
+}         
+
 int raw_deletevar(const char *name)
 {
   int ret = 0;

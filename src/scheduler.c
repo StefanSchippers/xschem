@@ -4004,8 +4004,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     case 'r': /*----------------------------------------------*/
 
     /* raw what ...
-     *     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
-     *            read | set | sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
+     *     what = add | clear | datasets | index | info | loaded | list |
+     *            new | points | rawfile | del | read | set | rename |
+     *            sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
      *
      *   xschem raw read filename [type [sweep1 sweep2]]
      *     if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
@@ -4019,6 +4020,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *
      *   xschem raw del name
      *     delete named vector from current raw file
+     *
+     *   xschem raw rename old_name new_name
+     *     rename a node in the loaded raw file.
      *
      *   xschem raw info
      *     print information about loaded raw files and show the currently active one.
@@ -4096,7 +4100,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     new dataset do not start with a header row.
      *     Lines beginning with '#' are comments and ignored
      *
-     *        time    var_a   var_b   var_c
+     *        time    var_a   var_b   var_cnode in the loaded raw file.
      *     # this is a comment, ignored
      *         0.0     0.0     1.8    0.3
      *       <single empty line: ignored>
@@ -4164,9 +4168,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           update_op();
         }
         Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
-      } else if(argc > 3 && !strcmp(argv[2], "del")) {
-        ret = raw_deletevar(argv[3]);
-        Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
       } else if(argc > 2 && !strcmp(argv[2], "clear")) {
         if(argc > 4)  {
           ret = extra_rawfile(3, argv[3], argv[4], -1.0, -1.0);
@@ -4199,6 +4200,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               Tcl_SetResult(interp, dtoa(val), TCL_VOLATILE);
             }
           }
+        } else if(argc > 3 && !strcmp(argv[2], "del")) {
+          ret = raw_deletevar(argv[3]);
+          Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
+        } else if(argc > 4 && !strcmp(argv[2], "rename")) {
+          ret = raw_renamevar(argv[3], argv[4]);
+          Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
         } else if(argc > 3 && !strcmp(argv[2], "index")) {
           /* xschem raw index v(ldcp) */
           int idx;
