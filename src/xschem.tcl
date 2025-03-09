@@ -4533,11 +4533,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   eval .load.l.paneright paneconfigure .load.l.paneright.f $optnever
   eval .load.l.paneright paneconfigure .load.l.paneright.draw $optalways
 
-
+  if {$global_initdir eq {INITIALINSTDIR}} {
+    set selmode browse
+  } else {
+    set selmode extended
+  }
 
   listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
     -fg black -highlightcolor red -highlightthickness 2 \
-    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode extended \
+    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode $selmode \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
