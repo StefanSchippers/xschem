@@ -4369,8 +4369,10 @@ proc file_dialog_display_preview {f} {
 proc file_dialog_right_listboxselect {dirselect} {
     global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval file_dialog_sel
     global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1 file_dialog_globfilter
+    global file_dialog_others
     set file_dialog_yview [.load.l.paneright.f.list yview] 
-    set file_dialog_sel [.load.l.paneright.f.list curselection]
+    set file_dialog_sel [lindex [.load.l.paneright.f.list curselection] 0]
+    
     if { $file_dialog_sel ne {} } {
       set curr_dir [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
       set curr_item [.load.l.paneright.f.list get $file_dialog_sel]
@@ -4403,6 +4405,17 @@ proc file_dialog_right_listboxselect {dirselect} {
 
       set file_dialog_dir1 $curr_dir
       set file_dialog_dir2 $curr_item
+
+      set file_dialog_others {}
+      if {$file_dialog_loadfile == 1} {
+        foreach i [lrange [.load.l.paneright.f.list curselection] 1 end] {
+          set file_dialog_retval [.load.l.paneright.f.list get $i]
+          lappend file_dialog_others [file_dialog_getresult 1 0]
+        }
+      }
+      set file_dialog_retval {} ;# we used this variable above to communicate with file_dialog_getresult
+
+
       if { [file isdirectory $file_dialog_d]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
@@ -4423,6 +4436,16 @@ proc file_dialog_right_listboxselect {dirselect} {
       # set to something different to any file to force a new placement in file_dialog_place_symbol
       set file_dialog_retval  {   }
     }
+}
+
+proc load_additional_files {} {
+  global file_dialog_others
+
+  if {$file_dialog_others ne {} } {
+    foreach i $file_dialog_others {
+      xschem load_new_window $i
+    }
+  }
 }
 
 # global_initdir: name of global variable containing the initial directory
@@ -4514,7 +4537,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
     -fg black -highlightcolor red -highlightthickness 2 \
-    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
+    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode extended \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
@@ -9348,6 +9371,7 @@ set_ne enable_stretch 0
 set_ne constr_mv 0
 set_ne unselect_partial_sel_wires 0
 set_ne load_file_dialog_fullpath 1
+set_ne file_dialog_others {} ;# contains 2nd, 3rd, ... selected filenames on mult. selections in load file
 
 # if set show selected elements while dragging the selection rectangle.
 # once selected these can not be unselected by retracting the selection rectangle

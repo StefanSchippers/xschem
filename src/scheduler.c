@@ -2941,6 +2941,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       first = i;
       if(argc==2) {
         ask_new_file();
+        tcleval("load_additional_files");
       } else
       for(i = first; i < argc; i++) {
         char f[PATH_MAX + 100];
@@ -3016,13 +3017,32 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int cancel = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        if(!is_from_web(argv[2])) {
-          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-          tcleval(f);
-          /* tclvareval("file normalize {", tclresult(), "}", NULL); */
-          my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
-        } else {
-          my_strncpy(f, argv[2], S(f));
+        int i;
+        for(i = 2; i < argc; i++) {
+          if(!is_from_web(argv[i])) {
+            my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
+            tcleval(f);
+            /* tclvareval("file normalize {", tclresult(), "}", NULL); */
+            my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
+          } else {
+            my_strncpy(f, argv[i], S(f));
+          }
+          if(f[0]) {
+           char win_path[WINDOW_PATH_SIZE];
+           dbg(1, "f=%s\n", f);
+           if(check_loaded(f, win_path)) {
+             char msg[PATH_MAX + 100];
+             my_snprintf(msg, S(msg),
+                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
+                "-message {Warning: %s already open.}", f);
+             tcleval(msg);
+             if(strcmp(tclresult(), "ok")) continue;
+           }
+           new_schematic("create", "noconfirm", f, 1);
+           tclvareval("update_recent_file {", f, "}", NULL);
+          } else {
+            new_schematic("create", NULL, NULL, 1);
+          }
         }
       } else {
         tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
@@ -3031,14 +3051,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           cancel = 1;
         }
-      }
-      if(!cancel) {
-        if(f[0]) {
-         dbg(1, "f=%s\n", f);
-         new_schematic("create", "noconfirm", f, 1);
-         tclvareval("update_recent_file {", f, "}", NULL);
-        } else {
-          new_schematic("create", NULL, NULL, 1);
+        if(!cancel) {
+          if(f[0]) {
+           dbg(1, "f=%s\n", f);
+           new_schematic("create", "noconfirm", f, 1);
+           tclvareval("update_recent_file {", f, "}", NULL);
+          } else {
+            new_schematic("create", NULL, NULL, 1);
+          }
         }
       }
       Tcl_ResetResult(interp);

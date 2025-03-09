@@ -3395,6 +3395,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    {
     if(xctx->semaphore >= 2) return;
     ask_new_file();
+    xctx->semaphore--;
+    tcleval("load_additional_files");
+    xctx->semaphore++;
     return;
    }
    if(key=='S' && rstate == 0)   /* change element order */
