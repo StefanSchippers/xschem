@@ -1514,6 +1514,7 @@ static void find_snap_position(double *x, double *y, int pos_changed) {
 /* action == 3 : delete and draw
  * action == 1 : delete
  * action == 2 : draw
+ * action == 5 : delete even if pos not changed
  */
 static void draw_snap_cursor(int action) {
   int snapcursor_size;
@@ -1527,7 +1528,7 @@ static void draw_snap_cursor(int action) {
   /* Save current drawing context */
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
-  if(pos_changed) {
+  if(pos_changed || action == 5) {
     /* Erase the cursor */
     if (action & 1) {
       erase_snap_cursor(xctx->prev_snapx, xctx->prev_snapy, snapcursor_size);
@@ -1617,7 +1618,7 @@ void draw_crosshair(int what, int state)
         dbg(1, "find\n");
       }
     } else {
-      draw_snap_cursor(what);
+      /* draw_snap_cursor(what); */
     }
   }
   
@@ -1685,7 +1686,7 @@ static void snapped_wire(double c_snap)
   }
 }
 
-static int check_menu_start_commands(double c_snap, int mx, int my)
+static int check_menu_start_commands(int state, double c_snap, int mx, int my)
 {
   dbg(1, "check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n", 
       xctx->ui_state, xctx->ui_state2, xctx->last_command);
@@ -1726,10 +1727,14 @@ static int check_menu_start_commands(double c_snap, int mx, int my)
   else if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTWIRE)) {
     int prev_state = xctx->ui_state;
     if(xctx->semaphore >= 2) return 0;
-    start_wire(xctx->mousex_snap, xctx->mousey_snap);
-    if(prev_state == STARTWIRE) {
-      tcleval("set constr_mv 0" );
-      xctx->constr_mv=0;
+    if( state & ShiftMask) {
+      snapped_wire(c_snap);
+    } else {
+      start_wire(xctx->mousex_snap, xctx->mousey_snap);
+      if(prev_state == STARTWIRE) {
+        tcleval("set constr_mv 0" );
+        xctx->constr_mv=0;
+      }
     }
 
     /* 
@@ -2481,7 +2486,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     if(draw_xhair) {
       draw_crosshair(1, state); /* when moving mouse: first action is delete crosshair, will be drawn later */
     }
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* clear */
+    if(snap_cursor) draw_snap_cursor(1); /* clear */
     /* pan schematic */
     if(xctx->ui_state & STARTPAN) pan(RUBBER, mx, my);
 
@@ -2489,7 +2494,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
       if(draw_xhair) {
         draw_crosshair(2, state); /* locked UI: draw new crosshair and break out */
       }
-      if(snap_cursor && wire_draw_active) draw_snap_cursor(2); /* redraw */
+      if(snap_cursor && ((state == ShiftMask) || wire_draw_active)) draw_snap_cursor(2); /* redraw */
       return;
     }
 
@@ -2590,7 +2595,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     if(draw_xhair) {
       draw_crosshair(2, state); /* what = 2(draw) */
     }
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(2); /* redraw */
+    if(snap_cursor && ((state == ShiftMask) || wire_draw_active)) draw_snap_cursor(2); /* redraw */
 }
 
 static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
@@ -2884,7 +2889,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     if(xctx->ui_state2 & MENUSTARTWIRE) {
       xctx->ui_state2 &= ~MENUSTARTWIRE;
     }
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* erase */
+    if(snap_cursor) draw_snap_cursor(1); /* erase */
     if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE) && cadence_compat) {
       xctx->last_command &= ~STARTWIRE;
     }
@@ -4196,7 +4201,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
         return;
      }
      /* handle all object insertions started from Tools/Edit menu */
-     if(check_menu_start_commands(c_snap, mx, my)) return;
+     if(check_menu_start_commands(state, c_snap, mx, my)) return;
 
      /* complete the pending STARTWIRE, STARTRECT, STARTZOOM, STARTCOPY ... operations */
      if(end_place_move_copy_zoom()) return;
@@ -4427,7 +4432,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      return;
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
-   if(snap_cursor && wire_draw_active) draw_snap_cursor(3); /* erase & redraw */
+   if(snap_cursor && ((state == ShiftMask) || wire_draw_active)) draw_snap_cursor(3); /* erase & redraw */
 }
 
 static void handle_double_click(int event, int state, KeySym key, int button,
@@ -4614,7 +4619,7 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
   case LeaveNotify:
     if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
-    if(snap_cursor && wire_draw_active) draw_snap_cursor(1); /* erase */
+    if(snap_cursor) draw_snap_cursor(1); /* erase */
     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
     xctx->mouse_inside = 0;
     break;
@@ -4657,6 +4662,8 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
     break;
 
   case KeyRelease:
+    /* force clear (even if mouse pos not changed) */
+    /* if(snap_cursor && (key == XK_Shift_L || key == XK_Shift_R) ) draw_snap_cursor(5); */
     break;
 
   case KeyPress:
