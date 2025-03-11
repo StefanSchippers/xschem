@@ -2605,1502 +2605,1498 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
                              int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap,
                              int cadence_compat, int wire_draw_active, int snap_cursor)
 {
-   char str[PATH_MAX + 100];
-   if(key==' ') {
-     if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
-       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-       xctx->manhattan_lines++;
-       xctx->manhattan_lines %=3;
-       new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-
-     } else if(xctx->ui_state & STARTLINE) {
-       new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-       xctx->manhattan_lines++;
-       xctx->manhattan_lines %=3;
-       new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-     } else {
-       if(xctx->semaphore<2) {
-         rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
-       }
-       pan(START, mx, my);
-       xctx->ui_state |= STARTPAN;
-     }
-     return;
-   }
-   if(key == '_' )              /* toggle change line width */
-   {
-    if(!tclgetboolvar("change_lw")) {
-        tcleval("alert_ { enabling change line width} {}");
-        tclsetvar("change_lw","1");
-    }
-    else {
-        tcleval("alert_ { disabling change line width} {}");
-        tclsetvar("change_lw","0");
-    }
-    return;
-   }
-   if(key == 'b' && rstate==ControlMask)         /* toggle show text in symbol */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }     
-    xctx->sym_txt =!xctx->sym_txt;
-    if(xctx->sym_txt) {
-        /* tcleval("alert_ { enabling text in symbol} {}"); */
-        tclsetvar("sym_txt","1");
-        draw();
-    }
-    else {
-        /* tcleval("alert_ { disabling text in symbol} {}"); */
-        tclsetvar("sym_txt","0");
-        draw();
-    }
-    return;
-   }
-   if(key == '%' )              /* toggle draw grid */
-   {
-    int dr_gr;
-    dr_gr = tclgetboolvar("draw_grid");
-    dr_gr =!dr_gr;
-    if(dr_gr) {
-        /* tcleval("alert_ { enabling draw grid} {}"); */
-        tclsetvar("draw_grid","1");
-        draw();
-    }
-    else {
-        /* tcleval("alert_ { disabling draw grid} {}"); */
-        tclsetvar("draw_grid","0");
-        draw();
-    }
-    return;
-   }
-   if(key == 'j'  && rstate==0 )                 /* print list of highlight nets */
-   {
-     if(xctx->semaphore >= 2) return;
-     print_hilight_net(1);
-     return;
-   }
-   if(key == 'j'  && rstate==ControlMask)        /* create ipins from highlight nets */
-   {
-     if(xctx->semaphore >= 2) return;
-     print_hilight_net(0);
-     return;
-   }
-   if(key == 'j'  && EQUAL_MODMASK)   /* create labels without i prefix from hilight nets */
-   {
-     if(xctx->semaphore >= 2) return;
-     print_hilight_net(4);
-     return;
-   }
-   if(key == 'J'  && SET_MODMASK ) /* create labels with i prefix from hilight nets */
-   {
-     if(xctx->semaphore >= 2) return;
-     print_hilight_net(2);
-     return;
-   }
-   if(key == 'h'  && rstate==ControlMask )       /* go to http link */
-   {
-     int savesem = xctx->semaphore;
-     xctx->semaphore = 0;
-     launcher();
-     xctx->semaphore = savesem;
-     return;
-   }
-   if(key == 'h'  && EQUAL_MODMASK)   /* create symbol pins from schematic pins 20171208 */
-   {
-     tcleval("schpins_to_sympins");
-     return;
-   }
-   if(key == 'h' && rstate == 0) {
-     /* horizontally constrained drag 20171023 */
-     if ( xctx->constr_mv == 1 ) {
-       tcleval("set constr_mv 0" );
-       xctx->constr_mv = 0;
-     } else {
-       tcleval("set constr_mv 1" );
-       xctx->constr_mv = 1;
-     }
-     if(xctx->ui_state & STARTWIRE) {
-       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-       new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-     }
-     if(xctx->ui_state & STARTLINE) {
-       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-       new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-     }
-     return;
-   }
-   if(key=='H' && rstate == 0) {           /* attach labels to selected instances */
-     attach_labels_to_inst(1);
-     return;
-   }
-   if (key == 'H' && rstate == ControlMask) { /* create schematic and symbol from selected components */
-     make_schematic_symbol_from_sel();
-     return;
-   }
-   if(key == 'v' && rstate==0) {
-     /* vertically constrained drag 20171023 */
-     if ( xctx->constr_mv == 2 ) {
-       tcleval("set constr_mv 0" );
-       xctx->constr_mv = 0;
-     } else {
-       tcleval("set constr_mv 2" );
-       xctx->constr_mv = 2;
-     }
-     if(xctx->ui_state & STARTWIRE) {
-       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-       new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-     }
-     if(xctx->ui_state & STARTLINE) {
-       if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
-       if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
-       new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-     }
-     return;
-   }
-   if(key == 'j'  && SET_MODMASK && (state & ControlMask) )  /* print list of highlight net with label expansion */
-   {
-     print_hilight_net(3);
-     return;
-   }
-   if(key == 'J' && rstate == 0) {
-    create_plot_cmd();
-    return;
-   }
-   if(key == '$' &&  rstate == 0 )            /* toggle pixmap  saving */
-   {
-    xctx->draw_pixmap =!xctx->draw_pixmap;
-    if(xctx->draw_pixmap) tcleval("alert_ { enabling draw pixmap} {}");
-    else tcleval("alert_ { disabling draw pixmap} {}");
-    return;
-   }
-   if(key == '$' && (state &ControlMask) )              /* toggle window  drawing */
-   {
-    xctx->draw_window =!xctx->draw_window;
-    if(xctx->draw_window) {
-      tcleval("alert_ { enabling draw window} {}");
-      tclsetvar("draw_window","1");
-    } else {
-      tcleval("alert_ { disabling draw window} {}");
-      tclsetvar("draw_window","0");
-    }
-    return;
-   }
-   if(key == '='  && (state &ControlMask))              /* toggle fill rectangles */
-   {
-    int x;
-    xctx->fill_pattern++;
-    if(xctx->fill_pattern==2) xctx->fill_pattern=0;
-
-    if(xctx->fill_pattern==1) {
-     tcleval("alert_ { Stippled pattern fill} {}");
-     for(x=0;x<cadlayers;x++) {
-       if(xctx->fill_type[x]==2) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
-       else XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
-     }
-    }
-    else if(xctx->fill_pattern==2) {
-     tcleval("alert_ { solid pattern fill} {}");
-     for(x=0;x<cadlayers;x++)
-      XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
-    }
-    else  {
-     tcleval("alert_ { No pattern fill} {}");
-     for(x=0;x<cadlayers;x++)
-      XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
-    }
-
-    draw();
-    return;
-   }
-   if(key == '+'  && state & ControlMask)         /* change line width */
-   {
-    xctx->lw = round_to_n_digits(xctx->lw + 0.5, 2);
-    change_linewidth(xctx->lw);
-    tclsetboolvar("change_lw", 0);
-    draw();
-    return;
-   }
-
-   if(key == '-'  && state & ControlMask)         /* change line width */
-   {
-    xctx->lw = round_to_n_digits(xctx->lw - 0.5, 2);
-    if(xctx->lw < 0.0) xctx->lw = 0.0;
-    change_linewidth(xctx->lw);
-    tclsetboolvar("change_lw", 0);
-    draw();
-    return;
-   }
-   /* highlight discrepanciens between selected instance pin and net names */
-   if(key == 'X' && rstate == 0)
-   {
-     hilight_net_pin_mismatches();
-     return;
-   }
-   /* create wire snapping to closest instance pin */
-   if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {
-     if(xctx->semaphore >= 2) return;
-     snapped_wire(c_snap);
-     return;
-   }
-   /* create wire snapping to closest instance pin (cadence keybind) */
-   if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {
-    if(xctx->semaphore >= 2) return;
-    snapped_wire(c_snap);
-    return;
-   }
-   if(key == 'w' /* && !xctx->ui_state */ && rstate==0)    /* place wire. */
-   {
-     int prev_state = xctx->ui_state;
-     if(xctx->semaphore >= 2) return;
-
-     if(infix_interface) {
-       start_wire(xctx->mousex_snap, xctx->mousey_snap);
-       if(prev_state == STARTWIRE) {
-         tcleval("set constr_mv 0" );
-         xctx->constr_mv=0;
-       }
-     } else {
-       xctx->last_command = 0;
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTWIRE;
-       if(prev_state & STARTWIRE) start_wire(xctx->mousex_snap, xctx->mousey_snap);
-     }
-     return;
-   }
-   if(key == XK_Return && (state == 0 ) && xctx->ui_state & STARTPOLYGON) { /* close polygon */
-    new_polygon(ADD|END, xctx->mousex_snap, xctx->mousey_snap);
-    return;
-   }
-   if(key == XK_Escape) /* abort & redraw */
-   {
-    if(xctx->semaphore < 2) {
-      abort_operation();
-    }
-    /* stuff that can be done reentrantly ... */
-    tclsetvar("tclstop", "1"); /* stop simulation if any running */
-    if(xctx->ui_state2 & MENUSTARTWIRE) {
-      xctx->ui_state2 &= ~MENUSTARTWIRE;
-    }
-    if(snap_cursor) draw_snap_cursor(1); /* erase */
-    if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE) && cadence_compat) {
-      xctx->last_command &= ~STARTWIRE;
-    }
-    return;
-   }
-   if(key=='z' && rstate == 0 &&
-     !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) /* zoom box */
-   {
-    dbg(1, "callback(): zoom_rectangle call\n");
-    zoom_rectangle(START);return;
-   }
-   if(key=='Z' && rstate == 0)                   /* zoom in */
-   {
-    view_zoom(0.0); return;
-   }
-   if(key=='z' && EQUAL_MODMASK && cadence_compat) /* toggle snap-cursor option */
-   {
-     if(tclgetboolvar("snap_cursor")) {
-       tclsetvar("snap_cursor", "0");
-       draw_snap_cursor(1);
-       xctx->closest_pin_found = 0;
-       xctx->prev_snapx = 0.0;
-       xctx->prev_snapy = 0.0;
-     } else {
-       tclsetvar("snap_cursor", "1");
-       if(wire_draw_active) draw_snap_cursor(3);
-     }
-   }
-   if(key=='p' && EQUAL_MODMASK)                           /* add symbol pin */
-   {
-    xctx->push_undo();
-    unselect_all(1);
-    storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
-                xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
-    xctx->need_reb_sel_arr=1;
-    rebuild_selected_array();
-    move_objects(START,0,0,0);
-    xctx->ui_state |= START_SYMPIN;
-    return;
-   }
-   if(key=='p' && !(xctx->ui_state & STARTPOLYGON) && rstate==0)              /* start polygon */
-   {
-     if(xctx->semaphore >= 2) return;
-     dbg(1, "callback(): start polygon\n");
-     if(infix_interface) {
-       xctx->mx_double_save=xctx->mousex_snap;
-       xctx->my_double_save=xctx->mousey_snap;
-       xctx->last_command = 0;
-       new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
-     } else {
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTPOLYGON;
-     }
-     return;
-   }
-   if(key=='P' && rstate == 0)                   /* pan, other way to. */
-   {
-    xctx->xorigin=-xctx->mousex_snap+xctx->areaw*xctx->zoom/2.0;
-    xctx->yorigin=-xctx->mousey_snap+xctx->areah*xctx->zoom/2.0;
-    draw();
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key=='5' && rstate == 0) { /* 20110112 display only probes */
-    xctx->only_probes = !xctx->only_probes;
-    tclsetboolvar("only_probes", xctx->only_probes);
-    toggle_only_probes();
-    return;
-   }  /* /20110112 */
-   if(key<='9' && key >='0' && state==ControlMask)              /* choose layer */
-   {
-    char n[30];
-    xctx->rectcolor = (int)key - '0'+4;
-    my_snprintf(n, S(n), "%d", xctx->rectcolor);
-    tclvareval("xschem set rectcolor ", n, NULL);
-
-    if(has_x) {
-      if(!strcmp(win_path, ".drw")) {
-        tclvareval("reconfigure_layers_button {}", NULL);
-      } else {
-        tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
+  char str[PATH_MAX + 100];
+  switch (key) {
+    case '0' ... '4': 
+      if(state == 0) {                                  /* toggle pin logic level */
+        if(xctx->semaphore >= 2) break;
+        if(key == '4') logic_set(-1, 1, NULL);
+        else logic_set((int)key - '0', 1, NULL);
       }
-    }
-    dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
-    return;
-   }
-   if(key==XK_Delete && (xctx->ui_state & SELECTION) ) /* delete selection */
-   {
-     if(xctx->semaphore >= 2) return;
-     delete(1/* to_push_undo */);return;
-   }
-   if(key==XK_Right && state == ControlMask) {
-     int save = xctx->semaphore;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     if(xctx->semaphore >= 2) return;
-     xctx->semaphore = 0;
-     tcleval("next_tab");
-     xctx->semaphore = save;
-     return;
-   }
-   if(key==XK_Left && state == ControlMask) {
-     int save = xctx->semaphore;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     if(xctx->semaphore >= 2) return;
-     xctx->semaphore = 0;
-     tcleval("prev_tab");
-     xctx->semaphore = save;
-     return;
-   }
-   if(key==XK_Right && !(state & ControlMask))   /* left */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
-    draw();
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key==XK_Left && !(state & ControlMask))   /* right */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
-    draw();
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key==XK_Down)                     /* down */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
-    draw();
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key==XK_Up)                       /* up */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
-    draw();
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key=='w' && rstate == ControlMask) /* close current schematic */
-   {
-     int save_sem;
-     if(xctx->semaphore >= 2) return;
-     save_sem = xctx->semaphore;
-     tcleval("xschem exit");
-     xctx->semaphore = save_sem;
-     return;
-   }
-   /* toggle spice_ignore, verilog_ignore, ... flag on selected instances. */
-   if(key == 'T' && rstate == 0) {
-     toggle_ignore();
-   }
-   if(key=='t' && rstate == 0)                        /* place text */
-   {
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     if(xctx->semaphore >= 2) return;
-     xctx->last_command = 0;
-     xctx->mx_double_save = xctx->mousex_snap;
-     xctx->my_double_save = xctx->mousey_snap;
-     if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) { /* 1 = draw text 24122002 */
-       xctx->mousey_snap = xctx->my_double_save;
-       xctx->mousex_snap = xctx->mx_double_save;
-       move_objects(START,0,0,0);
-       xctx->ui_state |= PLACE_TEXT;
-     }
-     return;
-   }
-   if(key=='t' && (rstate & ControlMask)) 
-   {
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return; 
-     }
-     return;
-   }  
-   if(key=='r' /* && !xctx->ui_state */ && rstate==0)              /* start rect */
-   {
-    dbg(1, "callback(): start rect\n");
-    if(xctx->semaphore >= 2) return;
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      xctx->last_command = 0;
-      new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTRECT;
-    }
-    return;
-   }
-   if(key=='V' && rstate == ControlMask)                     /* toggle spice/vhdl netlist  */
-   {
-    xctx->netlist_type++; if(xctx->netlist_type==6) xctx->netlist_type=1;
-    set_tcl_netlist_type();
-    draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
-    return;
-   }
-   if((key=='s' && rstate == 0) && !cadence_compat)      /* simulate (original keybind) */
-   {
-     if(xctx->semaphore >= 2) return;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
-             "-message {Run circuit simulation?}");
-     if(strcmp(tclresult(),"ok")==0) {
-       tcleval("[xschem get top_path].menubar invoke Simulate");
-     }
-     return;
-   }
-   if((key=='r' && rstate == ControlMask) && cadence_compat)      /* simulate (for cadence users) */
-   {
-     if(xctx->semaphore >= 2) return;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
-             "-message {Run circuit simulation?}");
-     if(strcmp(tclresult(),"ok")==0) {
-       tcleval("[xschem get top_path].menubar invoke Simulate");
-     }
-     return;
-   }
-   if(key=='s' && rstate == ControlMask )      /* save 20121201 */
-   {
-     if(xctx->semaphore >= 2) return;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }     
-     /* check if unnamed schematic, use saveas in this case */
-     if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
-       saveas(NULL, SCHEMATIC);
-     } else {
-       save(1, 0);
-     }
-     return;
-   }
-   if(key=='s' && SET_MODMASK && (state & ControlMask) )           /* save as symbol */
-   {
-     if(xctx->semaphore >= 2) return;
-     saveas(NULL, SYMBOL);
-     return;
-   }
-   if(key=='S' && rstate == ControlMask) /* save as schematic */
-   {
-     if(xctx->semaphore >= 2) return;
-     saveas(NULL, SCHEMATIC);
-     return;
-   }
-   if(key=='e' && rstate == 0)           /* descend to schematic */
-   {
-    if(xctx->semaphore >= 2) return;
-    descend_schematic(0, 1, 1, 1);return;
-   }
-   if(key=='e' && EQUAL_MODMASK)            /* edit schematic in new window */
-   {
-    int save = xctx->semaphore;
-    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    /*  schematic_in_new_window(0, 1, 0); */
-    tcleval("open_sub_schematic");
-    xctx->semaphore = save;
-    return;
-   }
+      else if(state==ControlMask) {                     /* choose layer */
+        char n[30];
+        xctx->rectcolor = (int)key - '0'+4;
+        my_snprintf(n, S(n), "%d", xctx->rectcolor);
+        tclvareval("xschem set rectcolor ", n, NULL);
 
-   if(key=='E' && EQUAL_MODMASK)          /* edit schematic in new window - new xschem process */
-   { 
-    int save = xctx->semaphore;
-    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    schematic_in_new_window(1, 1, 0);
-    xctx->semaphore = save;
-    return;
-   }
-
-   if(key=='i' && EQUAL_MODMASK)            /* edit symbol in new window */
-   {
-    int save =  xctx->semaphore;
-    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    symbol_in_new_window(0);
-    xctx->semaphore = save;
-    return;
-   }
-
-   if(key=='I' && EQUAL_MODMASK)            /* edit symbol in new window - new xschem process */
-   {
-    int save =  xctx->semaphore;
-    xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
-    symbol_in_new_window(1);
-    xctx->semaphore = save;
-    return;
-   }
-
-
-   if( (key=='e' && rstate == ControlMask) || (key==XK_BackSpace))  /* back */
-   {
-    if(xctx->semaphore >= 2) return;
-    go_back(1);return;
-   }
-
-   if(key=='a' && rstate == 0)   /* make symbol */
-   {
-    if(xctx->semaphore >= 2) return;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
-            "-message {do you want to make symbol view ?}");
-    if(strcmp(tclresult(),"ok")==0)
-    {
-     save_schematic(xctx->sch[xctx->currsch], 0);
-     make_symbol();
-    }
-    return;
-   }
-   if(key=='a' && rstate == ControlMask)         /* select all */
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }     
-    select_all();
-    return;
-   }
-   if(key=='y' && rstate == 0)                           /* toggle stretching */
-   {
-    enable_stretch = !enable_stretch;
-    tclsetboolvar("enable_stretch", enable_stretch);
-    return;
-   }
-   if(key=='x' && EQUAL_MODMASK) /* toggle draw crosshair at mouse pos */
-   {
-     if(tclgetboolvar("draw_crosshair")) {
-       tclsetvar("draw_crosshair", "0");
-     } else {
-       tclsetvar("draw_crosshair", "1");
-     }
-     draw();
-   }
-   if(key=='x' && rstate == ControlMask) /* cut selection into clipboard */
-   {
-    if(xctx->semaphore >= 2) return;
-    rebuild_selected_array();
-    if(xctx->lastsel) {  /* 20071203 check if something selected */
-      save_selection(2);
-      delete(1/* to_push_undo */);
-    }
-    return;
-   }
-   if(key=='c' && rstate == ControlMask) /* copy selection into clipboard */
-   {
-     if(xctx->semaphore >= 2) return;
-     rebuild_selected_array();
-     if(xctx->lastsel) {  /* 20071203 check if something selected */
-       save_selection(2);
-     }
-    return;
-   }
-   if(key=='C' /* && !xctx->ui_state */ && rstate == 0) /* place arc */
-   {
-     if(xctx->semaphore >= 2) return;
-     if(infix_interface) {
-       xctx->mx_double_save=xctx->mousex_snap;
-       xctx->my_double_save=xctx->mousey_snap;
-       xctx->last_command = 0;
-       new_arc(PLACE, 180., xctx->mousex_snap, xctx->mousey_snap);
-     } else {
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTARC;
-     }
-     return;
-   }
-   if(key=='C' /* && !xctx->ui_state */ && rstate == ControlMask) /* place circle */
-   {
-     if(xctx->semaphore >= 2) return;
-     if(infix_interface) {
-       xctx->mx_double_save=xctx->mousex_snap;
-       xctx->my_double_save=xctx->mousey_snap;
-       xctx->last_command = 0;
-       new_arc(PLACE, 360., xctx->mousex_snap, xctx->mousey_snap);
-     } else {
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTCIRCLE;
-     }
-     return;
-   }
-   if(key=='O' && rstate == ControlMask )   /* load most recent tile */
-   {
-     tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
-     return;
-   }
-   if(key=='O' && rstate == 0)   /* toggle light/dark colorscheme 20171113 */
-   {
-     int d_c;
-     d_c = tclgetboolvar("dark_colorscheme");
-     d_c = !d_c;
-     tclsetboolvar("dark_colorscheme", d_c);
-     tclsetdoublevar("dim_value", 0.0);
-     tclsetdoublevar("dim_bg", 0.0);
-     build_colors(0.0, 0.0);
-     draw();
-     return;
-   }
-   if(key=='v' && rstate == ControlMask)   /* paste from clipboard */
-   {
-    if(xctx->semaphore >= 2) return;
-    merge_file(2,".sch");
-    return;
-   }
-   if(key=='Q' && rstate == ControlMask ) /* view attributes */
-   {
-    edit_property(2);return;
-   }
-   if(key=='q' && rstate==ControlMask) /* quit xschem */
-   {
-    if(xctx->semaphore >= 2) return;
-    /* must be set to zero, otherwise switch_tab/switch_win does not proceed
-     * and these are necessary when closing tabs/windows */
-    xctx->semaphore = 0;
-    tcleval("quit_xschem");
-    return;
-   }
-   if(key=='q' && rstate==0) /* edit attributes */
-   {
-    if(xctx->semaphore >= 2) return;
-    edit_property(0);
-    return;
-   }
-   if(key=='q' && EQUAL_MODMASK)                      /* edit .sch file (DANGER!!) */
-   {
-    if(xctx->semaphore >= 2) return;
-    rebuild_selected_array();
-    if(xctx->lastsel==0 ) {
-      my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
-      tcleval(str);
-    }
-    else if(xctx->sel_array[0].type==ELEMENT) {
-      my_snprintf(str, S(str), "edit_file {%s}",
-         abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
-      tcleval(str);
-
-    }
-    return;
-   }
-   #if defined(__unix__) && HAS_CAIRO==1
-   if(key == XK_Print) {
-     xctx->ui_state |= GRABSCREEN;
-     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
-     tclvareval("grab set -global ", xctx->top_path, ".drw", NULL);
-     return;
-   }
-   #endif
-   if(key=='Q' && rstate == 0) /* edit attributes in editor */
-   {
-    if(xctx->semaphore >= 2) return;
-    edit_property(1);return;
-   }
-   if(key=='i' && rstate==0) /* descend to  symbol */
-   {
-    if(xctx->semaphore >= 2) return;
-    descend_symbol();return;
-   }
-   if((key==XK_Insert && state == ShiftMask) ||  (key == 'i' && rstate == ControlMask)) /* insert sym */
-   {
-     tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
-     return;
-   }
-   if((key==XK_Insert) || (key == 'I' && rstate == 0) ) /* insert sym */
-   {
-    if(xctx->semaphore >= 2) return;
-    start_place_symbol();
-
-    return;
-   }
-   if(key=='s' && SET_MODMASK)                     /* reload */
-   {
-    if(xctx->semaphore >= 2) return;
-     tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
-             "-message {Are you sure you want to reload from disk?}");
-     if(strcmp(tclresult(),"ok")==0) {
-        char filename[PATH_MAX];
-        unselect_all(1);
-        remove_symbols();
-        my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
-        load_schematic(1, filename, 1, 1);
-        draw();
-     }
-     return;
-   }
-   if(key=='o' && rstate == ControlMask)   /* load */
-   {
-    if(xctx->semaphore >= 2) return;
-    ask_new_file();
-    xctx->semaphore--;
-    tcleval("load_additional_files");
-    xctx->semaphore++;
-    return;
-   }
-   if(key=='S' && rstate == 0)   /* change element order */
-   {
-    if(xctx->semaphore >= 2) return;
-    change_elem_order(-1);
-    return;
-   }
-   if(key=='k' && EQUAL_MODMASK)        /* select whole net (all attached wires/labels/pins) */
-   {
-     select_hilight_net();
-     return;
-   }
-   if(key=='k' && rstate==ControlMask)                           /* unhilight net */
-   {
-    if(xctx->semaphore >= 2) return;
-    unhilight_net();
-    return;
-   }
-   if(key=='K' && rstate == ControlMask)       /* hilight net drilling thru elements  */
-                                                        /* with 'propag=' prop set on pins */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->enable_drill=1;
-    hilight_net(0);
-    redraw_hilights(0);
-    /* draw_hilight_net(1); */
-    return;
-   }
-   if(key=='k' && rstate==0)                             /* hilight net */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->enable_drill=0;
-    hilight_net(0);
-    redraw_hilights(0);
-    /* draw_hilight_net(1); */
-    return;
-   }
-   if(key=='K' && rstate == 0)                           /* delete hilighted nets */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->enable_drill=0;
-    clear_all_hilights();
-    /* undraw_hilight_net(1); */
-    draw();
-    return;
-   }
-   if(key=='g' && EQUAL_MODMASK) { /* highlight net and send to viewer */
-     int tool = 0;
-     int exists = 0;
-     char *tool_name = NULL;
-
-     if(xctx->semaphore >= 2) return;
-     tcleval("winfo exists .graphdialog");
-     if(tclresult()[0] == '1') tool = XSCHEM_GRAPH;
-     else if(xctx->graph_lastsel >=0 &&
-         xctx->rects[GRIDLAYER] > xctx->graph_lastsel &&
-         xctx->rect[GRIDLAYER][xctx->graph_lastsel].flags & 1) {
-       tool = XSCHEM_GRAPH;
-     }
-     tcleval("info exists sim");
-     if(tclresult()[0] == '1') exists = 1;
-     xctx->enable_drill = 0;
-     if(exists) {
-       if(!tool) {
-         tool = tclgetintvar("sim(spicewave,default)");
-         my_snprintf(str, PATH_MAX + 100, "sim(spicewave,%d,name)", tool);
-         my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
-         dbg(1,"callback(): tool_name=%s\n", tool_name);
-         if(strstr(tool_name, "Gaw")) tool=GAW;
-         else if(strstr(tool_name, "Bespice")) tool=BESPICE;
-         my_free(_ALLOC_ID_, &tool_name);
-       }
-     }
-     if(tool) {
-       hilight_net(tool);
-       redraw_hilights(0);
-     }
-     Tcl_ResetResult(interp);
-     return;
-   }
-   if(key=='g' && rstate==0)                         /* half snap factor */
-   {
-    set_snap(c_snap / 2.0);
-    change_linewidth(-1.);
-    draw();
-    return;
-   }
-   if(key=='g' && rstate==ControlMask)              /* set snap factor 20161212 */
-   {
-    my_snprintf(str,  S(str),
-     "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
-     CADSNAP, c_snap, c_snap);
-    tcleval(str);
-    return;
-   }
-   if(key=='G' && rstate == 0)                                    /* double snap factor */
-   {
-    set_snap(c_snap * 2.0);
-    change_linewidth(-1.);
-    draw();
-    return;
-   }
-   if(key=='*' && EQUAL_MODMASK)         /* svg print , 20121108 */
-   {
-    if(xctx->semaphore >= 2) return;
-    svg_draw();
-    return;
-   }
-   if(key=='*' && rstate == 0 )                    /* postscript print */
-   {
-    if(xctx->semaphore >= 2) return;
-    ps_draw(7, 0, 0);
-    return;
-   }
-   if(key=='*' && rstate == ControlMask)      /* xpm print */
-   {
-    if(xctx->semaphore >= 2) return;
-    print_image();
-    return;
-   }
-   if(key=='u' && EQUAL_MODMASK)                      /* align to grid */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->push_undo();
-    round_schematic_to_grid(c_snap);
-    set_modify(1);
-    if(tclgetboolvar("autotrim_wires")) trim_wires();
-    xctx->prep_hash_inst=0;
-    xctx->prep_hash_wires=0;
-    xctx->prep_net_structs=0;
-    xctx->prep_hi_structs=0;
-
-    draw();
-    return;
-   }
-   if(key=='u' && rstate==ControlMask) /* unselect attached floater elements */
-   {
-     unselect_attached_floaters();
-   }
-   if(0 && (key=='|') && rstate==ControlMask)                   /* testmode */
-   {
-    static int x = 0;
-
-    if(x == 0) {
-      int i;
-      XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
-            xctx->areaw, xctx->areah);
-      XFlush(display);
-      sleep_ms(400);
-      for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
-        XDrawLine(display, xctx->window,  xctx->gctiled,
-           i, xctx->xrect[0].y, i, xctx->xrect[0].height);
-        XFlush(display);
-        sleep_ms(4);
+        if(has_x) {
+          if(!strcmp(win_path, ".drw")) {
+            tclvareval("reconfigure_layers_button {}", NULL);
+          } else {
+            tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
+          }
+        }
+        dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
       }
-    } else if(x == 1) {
-      int i;
-      XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
-            xctx->areaw, xctx->areah);
-      XFlush(display);
-      sleep_ms(400);
-      for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
-        XDrawLine(display, xctx->window,  xctx->gctiled,
-           i, xctx->xrect[0].y, i+1, xctx->xrect[0].height);
-        XFlush(display);
-        sleep_ms(4);
-      }
-    }
-    x++;
-    x %= 2;
-    return;
-   }
-   if(key=='u' && rstate==0)                             /* undo */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->pop_undo(0, 1);  /* 2nd parameter: set_modify_status */
-    draw();
-    return;
-   }
-   if(key=='U' && rstate == 0)                     /* redo */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->pop_undo(1, 1); /* 2nd parameter: set_modify_status */
-    draw();
-    return;
-   }
-   if(key=='&')                         /* check wire connectivity */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->push_undo();
-    trim_wires();
-    draw();
-    return;
-   }
-   if(key=='l' && rstate == ControlMask) { /* create schematic from selected symbol 20171004 */
-     if(xctx->semaphore >= 2) return;
-     create_sch_from_sym();
-     return;
-   }
-   if(key=='l' /* && !xctx->ui_state */ && rstate == 0) /* start line */
-   {
-     int prev_state = xctx->ui_state;
-     if(xctx->semaphore >= 2) return;
-     if(infix_interface) {
-       start_line(xctx->mousex_snap, xctx->mousey_snap);
-       if(prev_state == STARTLINE) {
-         tcleval("set constr_mv 0" );
-         xctx->constr_mv=0;
-       }
-     } else {
-       xctx->last_command = 0;
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTLINE;
-     }
-     return;
-   }
-   if(key=='l' && EQUAL_MODMASK) {                         /* add pin label*/
-     place_net_label(1);
-     return;
-   }
-   if(key >= '0' && key <= '4' && state == 0) {  /* toggle pin logic level */
-     if(xctx->semaphore >= 2) return;
-     if(key == '4') logic_set(-1, 1, NULL);
-     else logic_set((int)key - '0', 1, NULL);
-     return;
-   }
-   if(key=='L' && EQUAL_MODMASK ) {                         /* add pin label*/
-    place_net_label(0);
-    return;
-   }
-   if(key=='L' && rstate == 0) {                         /* toggle orthogonal routing */
-    if(tclgetboolvar("orthogonal_wiring")){
-      tclsetboolvar("orthogonal_wiring", 0);
-      xctx->manhattan_lines = 0;
-    } else {
-      tclsetboolvar("orthogonal_wiring", 1);
-    }
-    redraw_w_a_l_r_p_z_rubbers(1);
-    return;
-   }
-   if(key=='F' && rstate == 0)                     /* flip */
-   {
-    if(xctx->ui_state & STARTMOVE) move_objects(FLIP,0,0,0);
-    else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP);
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-      move_objects(FLIP,0,0,0);
-      move_objects(END,0,0,0);
-    }
-    return;
-   }
-   if(key=='V' && rstate == 0)                     /* vertical flip */
-   {
-    if(xctx->ui_state & STARTMOVE) {
-      move_objects(ROTATE,0,0,0);
-      move_objects(ROTATE,0,0,0);
-      move_objects(FLIP,0,0,0);
-    }
-    else if(xctx->ui_state & STARTCOPY) {
-      copy_objects(ROTATE);
-      copy_objects(ROTATE);
-      copy_objects(FLIP);
-    }
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;    
-      move_objects(START,0,0,0);
-      move_objects(ROTATE,0,0,0);
-      move_objects(ROTATE,0,0,0);
-      move_objects(FLIP,0,0,0);
-      move_objects(END,0,0,0);
-    } 
-    return;
-   }
-   if(key=='v' && EQUAL_MODMASK)  /* vertical flip objects around their anchor points */
-   {
-    if(xctx->ui_state & STARTMOVE) {
-      move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      move_objects(FLIP|ROTATELOCAL,0,0,0);
-    }
-    else if(xctx->ui_state & STARTCOPY) {
-      copy_objects(ROTATE|ROTATELOCAL);
-      copy_objects(ROTATE|ROTATELOCAL);
-      copy_objects(FLIP|ROTATELOCAL);
-    }
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-      move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      move_objects(FLIP|ROTATELOCAL,0,0,0);
-      move_objects(END,0,0,0);
-    }
-    return;
-   }
+      break;
 
-   if(key=='\\' && state==0)          /* fullscreen */
-   {
+    case '5':
+      if(rstate == 0) {                               /* 20110112 display only probes */
+        xctx->only_probes = !xctx->only_probes;
+        tclsetboolvar("only_probes", xctx->only_probes);
+        toggle_only_probes();
+      }  /* /20110112 */
+      break;
+
+    case '6' ... '9': 
+      if(state==ControlMask) {                        /* choose layer */
+        char n[30];
+        xctx->rectcolor = (int)key - '0'+4;
+        my_snprintf(n, S(n), "%d", xctx->rectcolor);
+        tclvareval("xschem set rectcolor ", n, NULL);
+
+        if(has_x) {
+          if(!strcmp(win_path, ".drw")) {
+            tclvareval("reconfigure_layers_button {}", NULL);
+          } else {
+            tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
+          }
+        }
+        dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
+      }
+      break;
     
-    dbg(1, "callback(): toggle fullscreen, win_path=%s\n", win_path);
-    toggle_fullscreen(win_path);
-    return;
-   }
-   if(key=='f' && EQUAL_MODMASK)              /* flip objects around their anchor points 20171208 */
-   {
-    if(xctx->ui_state & STARTMOVE) move_objects(FLIP|ROTATELOCAL,0,0,0);
-    else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP|ROTATELOCAL);
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-      move_objects(FLIP|ROTATELOCAL,0,0,0);
-      move_objects(END,0,0,0);
-    }
-    return;
-   }
-   if(key=='R' && rstate == 0)             /* rotate */
-   {
-    if(xctx->ui_state & STARTMOVE) move_objects(ROTATE,0,0,0);
-    else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE);
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-      move_objects(ROTATE,0,0,0);
-      move_objects(END,0,0,0);
-    }
-
-    return;
-   }
-   if(key=='r' && EQUAL_MODMASK)              /* rotate objects around their anchor points 20171208 */
-   {
-    if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
-    else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
-    else {
-      rebuild_selected_array();
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-      move_objects(ROTATE|ROTATELOCAL,0,0,0);
-      move_objects(END,0,0,0);
-    }
-    return;
-   }
-   /* Move selection */
-   if(key=='m' && rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    if(enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTMOVE;
-    }
-    return;
-   }
-   /* Move selection adding wires to moved pins */
-   if(((key == 'M' && rstate == 0) || (key == 'm' && EQUAL_MODMASK)) &&
-     !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {
-    xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
-      move_objects(START,0,0,0);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTMOVE;
-    }
-    return;
-   }
-   /* move selection stretching attached nets */
-   if(key=='m' && rstate == ControlMask &&
-       !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {        
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }     
-    if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTMOVE;
-    }
-    return;
-   }
-   
-   /* move selection, stretch attached nets, create new wires on pin-to-moved-pin connections */
-   if(key=='M' && rstate == ControlMask &&  
-       !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {
-    if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
-    xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      move_objects(START,0,0,0);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTMOVE;
-    }
-    return;
-   }
-
-   if(key=='c' && EQUAL_MODMASK &&           /* duplicate selection */
-     !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      copy_objects(START);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTCOPY;
-    }
-    return;
-   }
-
-   if(key=='c' && rstate==0 &&           /* duplicate selection */
-     !(xctx->ui_state & (STARTMOVE | STARTCOPY)))
-   {
-    if(xctx->semaphore >= 2) return;
-    if(infix_interface) {
-      xctx->mx_double_save=xctx->mousex_snap;
-      xctx->my_double_save=xctx->mousey_snap;
-      copy_objects(START);
-    } else {
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTCOPY;
-    }
-    return;
-   }
-   if(key=='n' && rstate == ControlMask)              /* clear schematic */
-   {
-     if(xctx->semaphore >= 2) return;
-     tcleval("xschem clear SCHEMATIC");
-     return;
-   }
-   if(key=='N' && rstate == ControlMask )    /* clear symbol */
-   {
-     if(xctx->semaphore >= 2) return;
-     tcleval("xschem clear SYMBOL");
-     return;
-   }
-   if(key=='n' && rstate==0)              /* hierarchical netlist */
-   {
-    if(xctx->semaphore >= 2) return;
-    tcleval("xschem netlist -erc");
-    return;
-   }
-   if(key=='N' && rstate == 0)              /* current level only netlist */
-   {
-    int err = 0;
-    yyparse_error = 0;
-    if(xctx->semaphore >= 2) return;
-    unselect_all(1);
-    if( set_netlist_dir(0, NULL) ) {
-      dbg(1, "callback(): -------------\n");
-      if(xctx->netlist_type == CAD_SPICE_NETLIST)
-        err = global_spice_netlist(0, 1);
-      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
-        err = global_vhdl_netlist(0, 1);
-      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
-        err = global_verilog_netlist(0, 1);
-      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
-        err = global_tedax_netlist(0, 1);
-      else
-        tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
-                "-message {Please Set netlisting mode (Options menu)}");
-      dbg(1, "callback(): -------------\n");
-    }
-    else {
-       if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
-       else dbg(0, "Can not write into the netlist directory. Please check");
-       err = 1;
-    }
-    if(err) {
-      if(has_x) {
-        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
-        tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
+    case 'a':
+      if(rstate == 0) {                               /* make symbol */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                "-message {do you want to make symbol view ?}");
+        if(strcmp(tclresult(),"ok")==0)
+        {
+         save_schematic(xctx->sch[xctx->currsch], 0);
+         make_symbol();
+        }
       }
-    } else {
-      if(has_x) {
-        tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
-        tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
+      else if(rstate == ControlMask) {                    /* select all */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }     
+        select_all();
       }
-    }
+      break;
 
-    return;
-   }
-   if(key=='A' && rstate == ControlMask) /* only for graph (toggle hcursor1 if graph_use_ctrl_key set) */
-   {
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     return;
-   }
-   if(key=='A' && rstate == 0)                             /* toggle show netlist */
-   {
-     int net_s;
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     net_s = tclgetboolvar("netlist_show");
-     net_s = !net_s;
-     if(net_s) {
-       tcleval("alert_ { enabling show netlist window} {}");
-       tclsetvar("netlist_show","1");
-     }
-     else {
-       tcleval("alert_ { disabling show netlist window } {}");
-       tclsetvar("netlist_show","0");
-     }
-     return;
-   }
-   if(key=='>') {
-     if(xctx->semaphore >= 2) return;
-     if(xctx->draw_single_layer< cadlayers-1) xctx->draw_single_layer++;
-     draw();
-     return;
-   }
-   if(key=='<') {
-     if(xctx->semaphore >= 2) return;
-     if(xctx->draw_single_layer>=0 ) xctx->draw_single_layer--;
-     draw();
-     return;
-   }
-   if(key==':')                         /* toggle flat netlist (only spice)  */
-   {
-    if(!tclgetboolvar("flat_netlist")) {
-        tcleval("alert_ { enabling flat netlist} {}");
-        tclsetvar("flat_netlist","1");
-    }
-    else {
-        tcleval("alert_ { set hierarchical netlist } {}");
-        tclsetvar("flat_netlist","0");
-    }
-    return;
-   }
-   if(key=='B' && rstate == ControlMask) /* only for graph (toggle hcursor2 if graph_use_ctrl_key set) */
-   { 
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     } 
-     return;
-   }
-   if(key=='B' && rstate == 0)    /* edit schematic header/license */
-   {
-     if(waves_selected(event, key, state, button)) {
-       waves_callback(event, mx, my, key, button, aux, state);
-       return;
-     }
-     tcleval("update_schematic_header");
-   }
-   if(key=='b' && rstate==0)                     /* merge schematic */
-   {
-    if(xctx->semaphore >= 2) return;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
-    return;
-   }
-   if(key=='b' && EQUAL_MODMASK)                     /* hide/show instance details */
-   {
-    if(xctx->semaphore >= 2) return;
-    xctx->hide_symbols++;
-    if(xctx->hide_symbols >= 3) xctx->hide_symbols = 0;
-    tclsetintvar("hide_symbols", xctx->hide_symbols);
-    draw();
-    return;
-   }
-   if(key=='d' && rstate == 0) /* unselect object under the mouse */
-   {
-     if(infix_interface) {
-       unselect_at_mouse_pos(mx, my);
-     } else {
-       xctx->ui_state |= (MENUSTART | DESEL_CLICK);
-       xctx->ui_state2 = MENUSTARTDESEL;
-     }
-     return;
-   }
-   if(key=='D' && rstate == 0)          /* unselect by area */
-   {
-       if( !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
-         !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !(xctx->ui_state & STARTSELECT)) {
-         if(infix_interface) {
-           xctx->mx_save = mx; xctx->my_save = my;
-           xctx->mx_double_save=xctx->mousex;
-           xctx->my_double_save=xctx->mousey;
-           xctx->ui_state |= DESEL_AREA;
-         } else {
-           xctx->ui_state |= MENUSTART;
-           xctx->ui_state2 = MENUSTARTDESEL;
+    case 'A':
+      if(rstate == 0) {                           /* toggle show netlist */
+        int net_s;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        net_s = tclgetboolvar("netlist_show");
+        net_s = !net_s;
+        if(net_s) {
+          tcleval("alert_ { enabling show netlist window} {}");
+          tclsetvar("netlist_show","1");
+        }
+        else {
+          tcleval("alert_ { disabling show netlist window } {}");
+          tclsetvar("netlist_show","0");
+        }
+      }
+      else if(rstate == ControlMask) {                      /* only for graph (toggle hcursor1 if graph_use_ctrl_key set) */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+      }
+      break;
+
+    case 'b':
+      if(rstate==0) {                                               /* merge schematic */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        merge_file(0, ""); /* 2nd parameter not used any more for merge 25122002 */
+      }
+      else if(rstate==ControlMask) {                            /* toggle show text in symbol */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }     
+        xctx->sym_txt =!xctx->sym_txt;
+        if(xctx->sym_txt) {
+            /* tcleval("alert_ { enabling text in symbol} {}"); */
+            tclsetvar("sym_txt","1");
+            draw();
+        }
+        else {
+            /* tcleval("alert_ { disabling text in symbol} {}"); */
+            tclsetvar("sym_txt","0");
+            draw();
+        }
+      }
+      else if(EQUAL_MODMASK) {                                /* hide/show instance details */
+        if(xctx->semaphore >= 2) break;
+        xctx->hide_symbols++;
+        if(xctx->hide_symbols >= 3) xctx->hide_symbols = 0;
+        tclsetintvar("hide_symbols", xctx->hide_symbols);
+        draw();
+      }
+      break;
+
+    case 'B':
+      if(rstate == 0) {                                       /* edit schematic header/license */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        tcleval("update_schematic_header");
+      }
+      else if(rstate == ControlMask) {                      /* only for graph (toggle hcursor2 if graph_use_ctrl_key set) */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        } 
+      }
+      break;
+
+    case 'c':
+      /* duplicate selection */
+      if(rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        if(xctx->semaphore >= 2) break;
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          copy_objects(START);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTCOPY;
+        }
+      }
+      /* copy selection into clipboard */
+      else if(rstate == ControlMask) {
+        if(xctx->semaphore >= 2) break;
+        rebuild_selected_array();
+        if(xctx->lastsel) {  /* 20071203 check if something selected */
+          save_selection(2);
+        }
+      }
+      /* duplicate selection */
+      else if(EQUAL_MODMASK && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        if(xctx->semaphore >= 2) break;
+        xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          copy_objects(START);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTCOPY;
+        }
+      }
+      break;
+
+    case 'C':
+      if(/* !xctx->ui_state && */ rstate == 0) {                              /* place arc */
+        if(xctx->semaphore >= 2) break;
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_arc(PLACE, 180., xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTARC;
+        }
+      }
+      else if(/* !xctx->ui_state && */ rstate == ControlMask) {             /* place circle */
+        if(xctx->semaphore >= 2) break;
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_arc(PLACE, 360., xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTCIRCLE;
+        }
+      }
+      break;
+
+    case 'd':
+      if(rstate == 0) {                                           /* unselect object under the mouse */
+        if(infix_interface) {
+          unselect_at_mouse_pos(mx, my);
+        } else {
+          xctx->ui_state |= (MENUSTART | DESEL_CLICK);
+          xctx->ui_state2 = MENUSTARTDESEL;
+        }
+      }
+      else if(rstate == ControlMask) {                                      /* delete files */
+        if(xctx->semaphore >= 2) break;
+        delete_files();
+      }
+      break;
+
+    case 'D':
+      if(rstate == 0) {                                                     /* unselect by area */
+        if( !(xctx->ui_state & STARTPAN) && !xctx->shape_point_selected &&
+          !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)) && !(xctx->ui_state & STARTSELECT)) {
+          if(infix_interface) {
+            xctx->mx_save = mx; xctx->my_save = my;
+            xctx->mx_double_save=xctx->mousex;
+            xctx->my_double_save=xctx->mousey;
+            xctx->ui_state |= DESEL_AREA;
+          } else {
+            xctx->ui_state |= MENUSTART;
+            xctx->ui_state2 = MENUSTARTDESEL;
+          }
+        }
+      }
+      break;
+
+    case 'e':
+      if(rstate == 0) {                                                 /* descend to schematic */
+        if(xctx->semaphore >= 2) break;
+        descend_schematic(0, 1, 1, 1);
+      }
+      else if(rstate == ControlMask) {
+        if(xctx->semaphore >= 2) break;
+        go_back(1);
+      }
+      else if(EQUAL_MODMASK) {                                        /* edit schematic in new window */
+        int save = xctx->semaphore;
+        xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+        /*  schematic_in_new_window(0, 1, 0); */
+        tcleval("open_sub_schematic");
+        xctx->semaphore = save;
+      }
+      break;
+
+    case 'E':
+      if(EQUAL_MODMASK) {                                   /* edit schematic in new window - new xschem process */
+        int save = xctx->semaphore;
+        xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+        schematic_in_new_window(1, 1, 0);
+        xctx->semaphore = save;
+      }
+      break;
+
+    case 'f':
+      if(rstate == 0) {                                                   /* full zoom */
+        int flags = 1;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        if(tclgetboolvar("zoom_full_center")) flags |= 2;
+        zoom_full(1, 0, flags, 0.97);
+      }
+      else if(rstate == ControlMask) {                                    /* search */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }     
+        tcleval("property_search");
+      }
+      else if(EQUAL_MODMASK) {                                /* flip objects around their anchor points 20171208 */
+        if(xctx->ui_state & STARTMOVE) move_objects(FLIP|ROTATELOCAL,0,0,0);
+        else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP|ROTATELOCAL);
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+          move_objects(FLIP|ROTATELOCAL,0,0,0);
+          move_objects(END,0,0,0);
+        }
+      }
+      break;
+
+    case 'F':
+      if(rstate == 0) {                                                   /* flip */
+        if(xctx->ui_state & STARTMOVE) move_objects(FLIP,0,0,0);
+        else if(xctx->ui_state & STARTCOPY) copy_objects(FLIP);
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+          move_objects(FLIP,0,0,0);
+          move_objects(END,0,0,0);
+        }
+      }
+      else if(rstate == ControlMask ) {                               /* full zoom selection */
+        if(xctx->ui_state == SELECTION) {
+          zoom_full(1, 1, 3, 0.97);
+        }
+      }
+      break;
+
+    case 'g':
+      if(rstate==0) {                                                 /* half snap factor */
+        set_snap(c_snap / 2.0);
+        change_linewidth(-1.);
+        draw();
+      }
+      else if(rstate==ControlMask) {                              /* set snap factor 20161212 */
+        my_snprintf(str,  S(str), 
+                    "input_line {Enter snap value (default: %.16g current: %.16g)}  {xschem set cadsnap} {%g} 10",
+                    CADSNAP, c_snap, c_snap);
+        tcleval(str);
+      }
+      else if(EQUAL_MODMASK) {                                /* highlight net and send to viewer */
+        int tool = 0;
+        int exists = 0;
+        char *tool_name = NULL;
+
+        if(xctx->semaphore >= 2) break;
+        tcleval("winfo exists .graphdialog");
+        if(tclresult()[0] == '1') tool = XSCHEM_GRAPH;
+        else if(xctx->graph_lastsel >=0 &&
+            xctx->rects[GRIDLAYER] > xctx->graph_lastsel &&
+            xctx->rect[GRIDLAYER][xctx->graph_lastsel].flags & 1) {
+          tool = XSCHEM_GRAPH;
+        }
+        tcleval("info exists sim");
+        if(tclresult()[0] == '1') exists = 1;
+        xctx->enable_drill = 0;
+        if(exists) {
+          if(!tool) {
+            tool = tclgetintvar("sim(spicewave,default)");
+            my_snprintf(str, PATH_MAX + 100, "sim(spicewave,%d,name)", tool);
+            my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
+            dbg(1,"callback(): tool_name=%s\n", tool_name);
+            if(strstr(tool_name, "Gaw")) tool=GAW;
+            else if(strstr(tool_name, "Bespice")) tool=BESPICE;
+            my_free(_ALLOC_ID_, &tool_name);
+          }
+        }
+        if(tool) {
+          hilight_net(tool);
+          redraw_hilights(0);
+        }
+        Tcl_ResetResult(interp);
+      }
+      break;
+      
+    case 'G':
+      if(rstate == 0) {                                             /* double snap factor */
+        set_snap(c_snap * 2.0);
+        change_linewidth(-1.);
+        draw();
+      }
+      break;
+
+    case 'h': 
+      if(rstate==ControlMask ) {                                    /* go to http link */
+        int savesem = xctx->semaphore;
+        xctx->semaphore = 0;
+        launcher();
+        xctx->semaphore = savesem;
+      }
+      else if (rstate == 0) {                             /* horizontally constrained drag 20171023 */
+        if ( xctx->constr_mv == 1 ) {
+          tcleval("set constr_mv 0" );
+          xctx->constr_mv = 0;
+        } else {
+          tcleval("set constr_mv 1" );
+          xctx->constr_mv = 1;
+        }
+        if(xctx->ui_state & STARTWIRE) {
+          if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+          if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+          new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+        }
+        if(xctx->ui_state & STARTLINE) {
+          if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+          if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+          new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+        }
+      }
+      else if (EQUAL_MODMASK) {
+        tcleval("schpins_to_sympins");
+      }
+      break;
+
+    case 'H': 
+      if(rstate == 0) {                                     /* attach labels to selected instances */
+        attach_labels_to_inst(1);
+      }
+      else if (rstate == ControlMask) {               /* create schematic and symbol from selected components */
+        make_schematic_symbol_from_sel();
+      }
+      break;
+
+    case 'i':
+      if(rstate==0) {                                             /* descend to  symbol */
+        if(xctx->semaphore >= 2) break;
+        descend_symbol();
+      }
+      else if(rstate == ControlMask) {                                                  /* insert sym */
+        tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+      }
+      else if(EQUAL_MODMASK) {                                  /* edit symbol in new window */
+        int save =  xctx->semaphore;
+        xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+        symbol_in_new_window(0);
+        xctx->semaphore = save;
+      }
+      break;
+
+    case 'I':
+      if(rstate == 0) {                                             /* insert sym */
+        if(xctx->semaphore >= 2) break;
+        start_place_symbol();
+      }
+      else if(EQUAL_MODMASK) {                          /* edit symbol in new window - new xschem process */
+        int save =  xctx->semaphore;
+        xctx->semaphore--; /* so semaphore for current context wll be saved correctly */
+        symbol_in_new_window(1);
+        xctx->semaphore = save;
+      }
+      break;
+
+    case 'j':
+      if(rstate==0 ) {                                      /* print list of highlight nets */
+        if(xctx->semaphore >= 2) break;
+        print_hilight_net(1);
+      }
+      else if(rstate==ControlMask) {                    /* create ipins from highlight nets */
+        if(xctx->semaphore >= 2) break;
+        print_hilight_net(0);
+      }
+      else if(EQUAL_MODMASK) {                      /* create labels without i prefix from hilight nets */
+        if(xctx->semaphore >= 2) break;
+        print_hilight_net(4);
+      }
+      else if( SET_MODMASK && (state & ControlMask) ) {   /* print list of highlight net with label expansion */
+        print_hilight_net(3);
+      }
+      break;
+
+    case 'J':
+      if(rstate == 0) {
+        create_plot_cmd();
+      }
+      else if(SET_MODMASK ) {                           /* create labels with i prefix from hilight nets */
+        if(xctx->semaphore >= 2) break;
+        print_hilight_net(2);
+      }
+      break;
+
+    case 'k':
+      if(rstate==0) {                                             /* hilight net */
+        if(xctx->semaphore >= 2) break;
+        xctx->enable_drill=0;
+        hilight_net(0);
+        redraw_hilights(0);
+        /* draw_hilight_net(1); */
+      }
+      else if(EQUAL_MODMASK) {                        /* select whole net (all attached wires/labels/pins) */
+        select_hilight_net();
+      }
+      else if(rstate==ControlMask) {                            /* unhilight net */
+        if(xctx->semaphore >= 2) break;
+        unhilight_net();
+      }
+      break;
+
+    case 'K':
+      if(rstate == 0) {                                     /* delete hilighted nets */
+        if(xctx->semaphore >= 2) break;
+        xctx->enable_drill=0;
+        clear_all_hilights();
+        /* undraw_hilight_net(1); */
+        draw();
+      }
+      else if(rstate == ControlMask) {            /* hilight net drilling thru elements with 'propag=' prop set on pins */
+        if(xctx->semaphore >= 2) break;
+        xctx->enable_drill=1;
+        hilight_net(0);
+        redraw_hilights(0);
+        /* draw_hilight_net(1); */
+      }
+      break;
+
+    case 'l':
+      if(/* !xctx->ui_state && */ rstate == 0) {                /* start line */
+        int prev_state = xctx->ui_state;
+        if(xctx->semaphore >= 2) break;
+        if(infix_interface) {
+          start_line(xctx->mousex_snap, xctx->mousey_snap);
+          if(prev_state == STARTLINE) {
+            tcleval("set constr_mv 0" );
+            xctx->constr_mv=0;
+          }
+        } else {
+          xctx->last_command = 0;
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTLINE;
+        }
+      }
+      else if(rstate == ControlMask) {                /* create schematic from selected symbol 20171004 */
+        if(xctx->semaphore >= 2) break;
+        create_sch_from_sym();
+      }
+      else if(EQUAL_MODMASK) {                                /* add pin label*/
+        place_net_label(1);
+      }
+      break;
+  
+    case 'L':
+      if(rstate == 0) {                                   /* toggle orthogonal routing */
+        if(tclgetboolvar("orthogonal_wiring")){
+          tclsetboolvar("orthogonal_wiring", 0);
+          xctx->manhattan_lines = 0;
+        } else {
+          tclsetboolvar("orthogonal_wiring", 1);
+        }
+        redraw_w_a_l_r_p_z_rubbers(1);
+      }
+      else if(EQUAL_MODMASK ) {                               /* add pin label*/
+        place_net_label(0);
+      }
+      break;
+
+    case 'm':
+      /* Move selection */
+      if(rstate==0 && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        if(enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTMOVE;
+        }
+      }
+      /* move selection stretching attached nets */
+      else if(rstate == ControlMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }     
+        if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTMOVE;
+        }
+      }
+      /* Move selection adding wires to moved pins */
+      else if(EQUAL_MODMASK && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
+          move_objects(START,0,0,0);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTMOVE;
+        }
+      }
+      break;
+
+    case 'M':
+      /* Move selection adding wires to moved pins */
+      if((rstate == 0) && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          /* select_attached_nets(); */ /* stretch nets that land on selected instance pins */
+          move_objects(START,0,0,0);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTMOVE;
+        }
+      }
+      /* move selection, stretch attached nets, create new wires on pin-to-moved-pin connections */
+      else if(rstate == ControlMask && !(xctx->ui_state & (STARTMOVE | STARTCOPY))) {
+        if(!enable_stretch) select_attached_nets(); /* stretch nets that land on selected instance pins */
+        xctx->connect_by_kissing = 2; /* 2 will be used to reset var to 0 at end of move */
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTMOVE;
+        }
+      }
+      break;
+
+    case 'n':
+      if(rstate==0) {                                   /* hierarchical netlist */
+        if(xctx->semaphore >= 2) break;
+        tcleval("xschem netlist -erc");
+      }
+      else if(rstate == ControlMask) {                  /* clear schematic */
+        if(xctx->semaphore >= 2) break;
+        tcleval("xschem clear SCHEMATIC");
+      }
+      break;
+
+    case 'N':
+      if(rstate == 0) {                             /* current level only netlist */
+        int err = 0;
+        yyparse_error = 0;
+        if(xctx->semaphore >= 2) break;
+        unselect_all(1);
+        if( set_netlist_dir(0, NULL) ) {
+          dbg(1, "callback(): -------------\n");
+          if(xctx->netlist_type == CAD_SPICE_NETLIST)
+            err = global_spice_netlist(0, 1);
+          else if(xctx->netlist_type == CAD_VHDL_NETLIST)
+            err = global_vhdl_netlist(0, 1);
+          else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
+            err = global_verilog_netlist(0, 1);
+          else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
+            err = global_tedax_netlist(0, 1);
+          else
+            tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
+                    "-message {Please Set netlisting mode (Options menu)}");
+          dbg(1, "callback(): -------------\n");
+        }
+        else {
+           if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
+           else dbg(0, "Can not write into the netlist directory. Please check");
+           err = 1;
+        }
+        if(err) {
+          if(has_x) {
+            tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
+            tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
+          }
+        } else {
+          if(has_x) {
+            tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
+            tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
+          }
+        }
+
+      }
+      else if(rstate == ControlMask ) {                 /* clear symbol */
+        if(xctx->semaphore >= 2) break;
+        tcleval("xschem clear SYMBOL");
+      }
+      break;
+
+    case 'o':
+      if(rstate == ControlMask) {                           /* load */
+        if(xctx->semaphore >= 2) break;
+        ask_new_file();
+        xctx->semaphore--;
+        tcleval("load_additional_files");
+        xctx->semaphore++;
+      }
+      break;
+
+    case 'O':
+      if(rstate == ControlMask ) {                    /* load most recent tile */
+        tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
+      }
+      else if(rstate == 0) {                    /* toggle light/dark colorscheme 20171113 */
+        int d_c;
+        d_c = tclgetboolvar("dark_colorscheme");
+        d_c = !d_c;
+        tclsetboolvar("dark_colorscheme", d_c);
+        tclsetdoublevar("dim_value", 0.0);
+        tclsetdoublevar("dim_bg", 0.0);
+        build_colors(0.0, 0.0);
+        draw();
+      }
+      break;
+
+    case 'p':
+      if(EQUAL_MODMASK) {                               /* add symbol pin */
+        xctx->push_undo();
+        unselect_all(1);
+        storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
+                    xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
+        xctx->need_reb_sel_arr=1;
+        rebuild_selected_array();
+        move_objects(START,0,0,0);
+        xctx->ui_state |= START_SYMPIN;
+      }
+      else if( !(xctx->ui_state & STARTPOLYGON) && rstate==0) {          /* start polygon */
+        if(xctx->semaphore >= 2) break;
+        dbg(1, "callback(): start polygon\n");
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTPOLYGON;
+        }
+      }
+      break;
+
+    case 'P':
+      if(rstate == 0) {                                               /* pan, other way to. */
+        xctx->xorigin=-xctx->mousex_snap+xctx->areaw*xctx->zoom/2.0;
+        xctx->yorigin=-xctx->mousey_snap+xctx->areah*xctx->zoom/2.0;
+        draw();
+        redraw_w_a_l_r_p_z_rubbers(1);
+      }
+      break;
+
+    case 'q':
+      if(rstate==ControlMask) {                                           /* quit xschem */
+        if(xctx->semaphore >= 2) break;
+        /* must be set to zero, otherwise switch_tab/switch_win does not proceed
+         * and these are necessary when closing tabs/windows */
+        xctx->semaphore = 0;
+        tcleval("quit_xschem");
+      }
+      else if(rstate==0) {                                            /* edit attributes */
+        if(xctx->semaphore >= 2) break;
+        edit_property(0);
+      }
+      else if(EQUAL_MODMASK) {                                      /* edit .sch file (DANGER!!) */
+        if(xctx->semaphore >= 2) break;
+        rebuild_selected_array();
+        if(xctx->lastsel==0 ) {
+          my_snprintf(str, S(str), "edit_file {%s}", abs_sym_path(xctx->sch[xctx->currsch], ""));
+          tcleval(str);
+        }
+        else if(xctx->sel_array[0].type==ELEMENT) {
+          my_snprintf(str, S(str), "edit_file {%s}",
+             abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""));
+          tcleval(str);
+
+        }
+      }
+      break;
+
+    case 'Q':
+      if(rstate == 0) {                                       /* edit attributes in editor */
+        if(xctx->semaphore >= 2) break;
+        edit_property(1);
+      }
+      else if(rstate == ControlMask) {                           /* view attributes */
+        edit_property(2);
+      }
+      break;
+
+    case 'r':
+      if(/* !xctx->ui_state && */ rstate==0) {             /* start rect */
+        dbg(1, "callback(): start rect\n");
+        if(xctx->semaphore >= 2) break;
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTRECT;
+        }
+      }
+      else if((rstate == ControlMask) && cadence_compat) {    /* simulate (for cadence users) */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                "-message {Run circuit simulation?}");
+        if(strcmp(tclresult(),"ok")==0) {
+          tcleval("[xschem get top_path].menubar invoke Simulate");
+        }
+      }
+      else if(SET_MODMASK) {                                        /* reload */
+        if(xctx->semaphore >= 2) break;
+        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                 "-message {Are you sure you want to reload from disk?}");
+        if(strcmp(tclresult(),"ok")==0) {
+          char filename[PATH_MAX];
+          unselect_all(1);
+          remove_symbols();
+          my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
+          load_schematic(1, filename, 1, 1);
+          draw();
+        }
+      }
+      else if(EQUAL_MODMASK) {                        /* rotate objects around their anchor points 20171208 */
+        if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
+        else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+          move_objects(ROTATE|ROTATELOCAL,0,0,0);
+          move_objects(END,0,0,0);
+        }
+      }
+      break;
+
+    case 'R':
+      if(rstate == 0) {                                                 /* rotate */
+        if(xctx->ui_state & STARTMOVE) move_objects(ROTATE,0,0,0);
+        else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE);
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+          move_objects(ROTATE,0,0,0);
+          move_objects(END,0,0,0);
+        }
+
+      }
+      break;
+
+    case 's':
+      if((rstate == 0) && !cadence_compat) {                   /* simulate (original keybind) */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                "-message {Run circuit simulation?}");
+        if(strcmp(tclresult(),"ok")==0) {
+          tcleval("[xschem get top_path].menubar invoke Simulate");
+        }
+      }
+      else if(/* !xctx->ui_state && */ (rstate == 0) && cadence_compat) {       /* create wire snapping to closest instance pin (cadence keybind) */
+        if(xctx->semaphore >= 2) break;
+        snapped_wire(c_snap);
+      }
+      else if(rstate == ControlMask ){                              /* save 20121201 */
+        if(xctx->semaphore >= 2) break;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }     
+        /* check if unnamed schematic, use saveas in this case */
+        if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
+          saveas(NULL, SCHEMATIC);
+        } else {
+          save(1, 0);
+        }
+      }
+      else if(SET_MODMASK && (state & ControlMask) ) {          /* save as symbol */
+        if(xctx->semaphore >= 2) break;
+        saveas(NULL, SYMBOL);
+      }
+      break;
+
+    case 'S':
+      if(rstate == 0) {                                   /* change element order */
+        if(xctx->semaphore >= 2) break;
+        change_elem_order(-1);
+      }
+      else if(rstate == ControlMask) {                    /* save as schematic */
+        if(xctx->semaphore >= 2) break;
+        saveas(NULL, SCHEMATIC);
+      }
+      break;
+
+    case 't':
+      if(rstate == 0) {                                     /* place text */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        if(xctx->semaphore >= 2) break;
+        xctx->last_command = 0;
+        xctx->mx_double_save = xctx->mousex_snap;
+        xctx->my_double_save = xctx->mousey_snap;
+        if(place_text(0, xctx->mousex_snap, xctx->mousey_snap)) {   /* 1 = draw text 24122002 */
+          xctx->mousey_snap = xctx->my_double_save;
+          xctx->mousex_snap = xctx->mx_double_save;
+          move_objects(START,0,0,0);
+          xctx->ui_state |= PLACE_TEXT;
+        }
+      }
+      else if(rstate & ControlMask) {
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break; 
+        }
+      }
+      break;
+
+    case 'T':
+      if(rstate == 0) {                   /* toggle spice_ignore, verilog_ignore, ... flag on selected instances. */
+        toggle_ignore();
+      }
+      break;
+
+    case 'u':
+      if(rstate==0) {                                                       /* undo */
+        if(xctx->semaphore >= 2) break;
+        xctx->pop_undo(0, 1);  /* 2nd parameter: set_modify_status */
+        draw();
+      }
+      else if(EQUAL_MODMASK) {                                        /* align to grid */
+        if(xctx->semaphore >= 2) break;
+        xctx->push_undo();
+        round_schematic_to_grid(c_snap);
+        set_modify(1);
+        if(tclgetboolvar("autotrim_wires")) trim_wires();
+        xctx->prep_hash_inst=0;
+        xctx->prep_hash_wires=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+
+        draw();
+      }
+      else if(rstate==ControlMask) { /* testmode */
+        unselect_attached_floaters();
+      }
+      
+      break;
+  
+    case 'U':
+      if(rstate == 0) {                                                 /* redo */
+        if(xctx->semaphore >= 2) break;
+        xctx->pop_undo(1, 1); /* 2nd parameter: set_modify_status */
+        draw();
+      }
+      break;
+
+    case 'v':
+      if(rstate==0) {                                 /* vertically constrained drag 20171023 */
+        if ( xctx->constr_mv == 2 ) {
+          tcleval("set constr_mv 0" );
+          xctx->constr_mv = 0;
+        } else {
+          tcleval("set constr_mv 2" );
+          xctx->constr_mv = 2;
+        }
+        if(xctx->ui_state & STARTWIRE) {
+          if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+          if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+          new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+        }
+        if(xctx->ui_state & STARTLINE) {
+          if(xctx->constr_mv == 1) xctx->mousey_snap = xctx->my_double_save;
+          if(xctx->constr_mv == 2) xctx->mousex_snap = xctx->mx_double_save;
+          new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+        }
+      }
+      else if(rstate == ControlMask) {                      /* paste from clipboard */
+        if(xctx->semaphore >= 2) break;
+        merge_file(2,".sch");
+      }
+      else if(EQUAL_MODMASK) {                      /* vertical flip objects around their anchor points */
+        if(xctx->ui_state & STARTMOVE) {
+          move_objects(ROTATE|ROTATELOCAL,0,0,0);
+          move_objects(ROTATE|ROTATELOCAL,0,0,0);
+          move_objects(FLIP|ROTATELOCAL,0,0,0);
+        }
+        else if(xctx->ui_state & STARTCOPY) {
+          copy_objects(ROTATE|ROTATELOCAL);
+          copy_objects(ROTATE|ROTATELOCAL);
+          copy_objects(FLIP|ROTATELOCAL);
+        }
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          move_objects(START,0,0,0);
+          move_objects(ROTATE|ROTATELOCAL,0,0,0);
+          move_objects(ROTATE|ROTATELOCAL,0,0,0);
+          move_objects(FLIP|ROTATELOCAL,0,0,0);
+          move_objects(END,0,0,0);
+        }
+      }
+      break;
+
+    case 'V':
+      if(rstate == 0) {                                       /* vertical flip */
+        if(xctx->ui_state & STARTMOVE) {
+          move_objects(ROTATE,0,0,0);
+          move_objects(ROTATE,0,0,0);
+          move_objects(FLIP,0,0,0);
+        }
+        else if(xctx->ui_state & STARTCOPY) {
+          copy_objects(ROTATE);
+          copy_objects(ROTATE);
+          copy_objects(FLIP);
+        }
+        else {
+          rebuild_selected_array();
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;    
+          move_objects(START,0,0,0);
+          move_objects(ROTATE,0,0,0);
+          move_objects(ROTATE,0,0,0);
+          move_objects(FLIP,0,0,0);
+          move_objects(END,0,0,0);
+        } 
+      }
+      else if(rstate == ControlMask) {                   /* toggle spice/vhdl netlist */
+        xctx->netlist_type++;
+        if(xctx->netlist_type==6) xctx->netlist_type=1;
+        set_tcl_netlist_type();
+        draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
+      }
+      break;
+
+    case 'w':
+      if(/* !xctx->ui_state && */ rstate==0) {                  /* place wire. */
+        int prev_state = xctx->ui_state;
+        if(xctx->semaphore >= 2) break;
+
+        if(infix_interface) {
+          start_wire(xctx->mousex_snap, xctx->mousey_snap);
+          if(prev_state == STARTWIRE) {
+            tcleval("set constr_mv 0" );
+            xctx->constr_mv=0;
+          }
+        } else {
+          xctx->last_command = 0;
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTWIRE;
+          if(prev_state & STARTWIRE) start_wire(xctx->mousex_snap, xctx->mousey_snap);
+        }
+      }
+      else if(rstate == ControlMask) {                    /* close current schematic */
+        int save_sem;
+        if(xctx->semaphore >= 2) break;
+        save_sem = xctx->semaphore;
+        tcleval("xschem exit");
+        xctx->semaphore = save_sem;
+      }
+      break;
+
+    case 'W':
+      if(/* !xctx->ui_state && */ (rstate == 0) && !cadence_compat) {  /* create wire snapping to closest instance pin (original keybind) */
+        if(xctx->semaphore >= 2) break;
+        snapped_wire(c_snap);
+      }
+      break;
+
+    case 'x':
+      if(rstate == 0) {                                           /* new cad session */
+        new_xschem_process(NULL ,0);
+      }
+      else if(EQUAL_MODMASK) {                          /* toggle draw crosshair at mouse pos */
+        if(tclgetboolvar("draw_crosshair")) {
+          tclsetvar("draw_crosshair", "0");
+        } else {
+          tclsetvar("draw_crosshair", "1");
+        }
+        draw();
+      }
+      else if(rstate == ControlMask) {                      /* cut selection into clipboard */
+        if(xctx->semaphore >= 2) break;
+        rebuild_selected_array();
+        if(xctx->lastsel) {  /* 20071203 check if something selected */
+          save_selection(2);
+          delete(1/* to_push_undo */);
+        }
+      }
+      break;
+
+    case 'X':
+      if(rstate == 0) {                         /* highlight discrepanciens between selected instance pin and net names */
+        hilight_net_pin_mismatches();
+      }
+      break;
+
+    case 'y':
+      if(rstate == 0) {                                       /* toggle stretching */
+        enable_stretch = !enable_stretch;
+        tclsetboolvar("enable_stretch", enable_stretch);
+      }
+      break;
+
+    case 'z':
+      if(rstate == 0 && !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) { /* zoom box */
+        dbg(1, "callback(): zoom_rectangle call\n");
+        zoom_rectangle(START);
+      }
+      else if(rstate==ControlMask) {                            /* zoom out */
+        view_unzoom(0.0);
+      }
+      else if(EQUAL_MODMASK && cadence_compat) {              /* toggle snap-cursor option */
+        if(tclgetboolvar("snap_cursor")) {
+          tclsetvar("snap_cursor", "0");
+          draw_snap_cursor(1);
+          xctx->closest_pin_found = 0;
+          xctx->prev_snapx = 0.0;
+          xctx->prev_snapy = 0.0;
+        } else {
+          tclsetvar("snap_cursor", "1");
+          if(wire_draw_active) draw_snap_cursor(3);
+        }
+      }
+      break;
+
+    case 'Z': 
+      if(rstate == 0) {                                       /* zoom in */
+        view_zoom(0.0);
+      }
+      break;
+
+    case ' ':
+      if(xctx->ui_state & STARTWIRE) {  /*  & instead of == 20190409 */
+        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
+        xctx->manhattan_lines++;
+        xctx->manhattan_lines %=3;
+        new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+
+      } else if(xctx->ui_state & STARTLINE) {
+        new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
+        xctx->manhattan_lines++;
+        xctx->manhattan_lines %=3;
+        new_line(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
+      } else {
+        if(xctx->semaphore<2) {
+          rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
+        }
+        pan(START, mx, my);
+        xctx->ui_state |= STARTPAN;
+      }
+      break;
+
+    case '_':                                         /* toggle change line width */
+      if(!tclgetboolvar("change_lw")) {
+          tcleval("alert_ { enabling change line width} {}");
+          tclsetvar("change_lw","1");
+      }
+      else {
+          tcleval("alert_ { disabling change line width} {}");
+          tclsetvar("change_lw","0");
+      }
+      break;
+
+    case '%':                                           /* toggle draw grid */
+      int dr_gr;
+      dr_gr = tclgetboolvar("draw_grid");
+      dr_gr =!dr_gr;
+      if(dr_gr) {
+          /* tcleval("alert_ { enabling draw grid} {}"); */
+          tclsetvar("draw_grid","1");
+          draw();
+      }
+      else {
+          /* tcleval("alert_ { disabling draw grid} {}"); */
+          tclsetvar("draw_grid","0");
+          draw();
+      }
+      break;
+      
+    case '$': 
+      if( rstate == 0 ) {                             /* toggle pixmap  saving */
+        xctx->draw_pixmap =!xctx->draw_pixmap;
+        if(xctx->draw_pixmap) tcleval("alert_ { enabling draw pixmap} {}");
+        else tcleval("alert_ { disabling draw pixmap} {}");
+      }
+      else if(state & ControlMask) {                  /* toggle window  drawing */
+        xctx->draw_window =!xctx->draw_window;
+        if(xctx->draw_window) {
+          tcleval("alert_ { enabling draw window} {}");
+          tclsetvar("draw_window","1");
+        } else {
+          tcleval("alert_ { disabling draw window} {}");
+          tclsetvar("draw_window","0");
+        }
+      }
+      break;
+
+    case '=': 
+      if(state & ControlMask) {                     /* toggle fill rectangles */
+        int x;
+        xctx->fill_pattern++;
+        if(xctx->fill_pattern==2) xctx->fill_pattern=0;
+
+        if(xctx->fill_pattern==1) {
+         tcleval("alert_ { Stippled pattern fill} {}");
+         for(x=0;x<cadlayers;x++) {
+           if(xctx->fill_type[x]==2) XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
+           else XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
          }
-       }
-     return;
-   }
-   if(key=='d' && rstate == ControlMask)          /* delete files */
-   {
-    if(xctx->semaphore >= 2) return;
-    delete_files();
-    return;
-   }
-   if(key=='x' && rstate == 0 )                  /* new cad session */
-   {
-    new_xschem_process(NULL ,0);
-    return;
-   }
-   if((key=='#') && !(state & ControlMask) )
-   {
-    check_unique_names(0);
-    return;
-   }
-   if((key=='#') && (state & ControlMask) )
-   {
-    check_unique_names(1);
-    return;
-   }
-   if(key=='f' && rstate == ControlMask)         /* search */
-   {
-    if(xctx->semaphore >= 2) return;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }     
-    tcleval("property_search");
-    return;
-   }
-   if(key=='F' && rstate == ControlMask )   /* full zoom selection */
-   {
-    if(xctx->ui_state == SELECTION) {
-      zoom_full(1, 1, 3, 0.97);
-    }
-    return;
-   }
-   if(key=='f' && rstate == 0 )                  /* full zoom */
-   { 
-    int flags = 1;
-    if(waves_selected(event, key, state, button)) {
-      waves_callback(event, mx, my, key, button, aux, state);
-      return;
-    }
-    if(tclgetboolvar("zoom_full_center")) flags |= 2;
-    zoom_full(1, 0, flags, 0.97);
-    return;
-   }
-   if((key=='z' && rstate==ControlMask))                         /* zoom out */
-   {
-     view_unzoom(0.0);
-     return;
-   }
-   if(key=='!' && !(state & ControlMask))
-   {
-     if(xctx->semaphore >= 2) return;
-     break_wires_at_pins(0);
-     return;
-   }
-   if(key=='!' && (state & ControlMask))
-   {
-     if(xctx->semaphore >= 2) return;
-     break_wires_at_pins(1);
-     return;
-   }
-   
-   return;
+        }
+        else if(xctx->fill_pattern==2) {
+         tcleval("alert_ { solid pattern fill} {}");
+         for(x=0;x<cadlayers;x++)
+          XSetFillStyle(display,xctx->gcstipple[x],FillSolid);
+        }
+        else  {
+         tcleval("alert_ { No pattern fill} {}");
+         for(x=0;x<cadlayers;x++)
+          XSetFillStyle(display,xctx->gcstipple[x],FillStippled);
+        }
+
+        draw();
+      }
+      break;
+
+    case '+': 
+      if(state & ControlMask) {                           /* change line width */
+        xctx->lw = round_to_n_digits(xctx->lw + 0.5, 2);
+        change_linewidth(xctx->lw);
+        tclsetboolvar("change_lw", 0);
+        draw();
+      }
+      break;
+
+    case '-':
+      if(state & ControlMask) {                           /* change line width */
+        xctx->lw = round_to_n_digits(xctx->lw - 0.5, 2);
+        if(xctx->lw < 0.0) xctx->lw = 0.0;
+        change_linewidth(xctx->lw);
+        tclsetboolvar("change_lw", 0);
+        draw();
+      }
+      break;
+    
+    case XK_Return: 
+      if((state == 0 ) && xctx->ui_state & STARTPOLYGON) {            /* close polygon */
+        new_polygon(ADD|END, xctx->mousex_snap, xctx->mousey_snap);
+      }
+      break;
+
+    case XK_Escape:                                       /* abort & redraw */
+      if(xctx->semaphore < 2) {
+        abort_operation();
+      }
+      /* stuff that can be done reentrantly ... */
+      tclsetvar("tclstop", "1"); /* stop simulation if any running */
+      if(xctx->ui_state2 & MENUSTARTWIRE) {
+        xctx->ui_state2 &= ~MENUSTARTWIRE;
+      }
+      if(snap_cursor) draw_snap_cursor(1); /* erase */
+      if(tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE) && cadence_compat) {
+        xctx->last_command &= ~STARTWIRE;
+      }
+      break;
+
+    case XK_Delete:
+      if(xctx->ui_state & SELECTION) {              /* delete selection */
+        if(xctx->semaphore >= 2) break;
+        delete(1/* to_push_undo */);
+      }
+      break;
+
+    case XK_Right:
+      if(state == ControlMask) {
+        int save = xctx->semaphore;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0;
+        tcleval("next_tab");
+        xctx->semaphore = save;
+      }
+      else {   /* left */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        xctx->xorigin+=-CADMOVESTEP*xctx->zoom;
+        draw();
+        redraw_w_a_l_r_p_z_rubbers(1);
+      }
+      break;
+
+    case XK_Left:
+      if(state == ControlMask) {
+        int save = xctx->semaphore;
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0;
+        tcleval("prev_tab");
+        xctx->semaphore = save;
+      }
+      else {  /* right */
+        if(waves_selected(event, key, state, button)) {
+          waves_callback(event, mx, my, key, button, aux, state);
+          break;
+        }
+        xctx->xorigin-=-CADMOVESTEP*xctx->zoom;
+        draw();
+        redraw_w_a_l_r_p_z_rubbers(1);
+      }
+      break;
+
+    case XK_Down:          /* down */
+      if(waves_selected(event, key, state, button)) {
+        waves_callback(event, mx, my, key, button, aux, state);
+        break;
+      }
+      xctx->yorigin+=-CADMOVESTEP*xctx->zoom;
+      draw();
+      redraw_w_a_l_r_p_z_rubbers(1);
+      break;
+
+    case XK_Up:           /* up */
+      if(waves_selected(event, key, state, button)) {
+        waves_callback(event, mx, my, key, button, aux, state);
+        break;
+      }
+      xctx->yorigin-=-CADMOVESTEP*xctx->zoom;
+      draw();
+      redraw_w_a_l_r_p_z_rubbers(1);
+      break;
+    
+    case XK_BackSpace:  /* back */
+      if(xctx->semaphore >= 2) break;
+      go_back(1);
+      break;
+    
+#if defined(__unix__) && HAS_CAIRO==1
+    case XK_Print:
+      xctx->ui_state |= GRABSCREEN;
+      tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
+      tclvareval("grab set -global ", xctx->top_path, ".drw", NULL);
+      break;
+#endif
+    
+    case XK_Insert:
+      if(state == ShiftMask) { /* insert sym */
+        tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+      }
+      else {
+        if(xctx->semaphore >= 2) break;
+        start_place_symbol();
+      }
+      break;
+
+    case '*':
+      if(rstate == 0 ) { /* postscript print */
+        if(xctx->semaphore >= 2) break;
+        ps_draw(7, 0, 0);
+      }
+      else if(rstate == ControlMask) {/* xpm print */
+        if(xctx->semaphore >= 2) break;
+        print_image();
+      }
+      else if(EQUAL_MODMASK) { /* svg print , 20121108 */
+        if(xctx->semaphore >= 2) break;
+        svg_draw();
+      }
+      break;
+
+    case '&':                               /* check wire connectivity */
+      if(xctx->semaphore >= 2) break;
+      xctx->push_undo();
+      trim_wires();
+      draw();
+      break;
+    
+    case '\\':
+      if(state==0) {                            /* fullscreen */
+        dbg(1, "callback(): toggle fullscreen, win_path=%s\n", win_path);
+        toggle_fullscreen(win_path);
+      }
+      break;
+    
+    case '>':
+      if(xctx->semaphore >= 2) break;
+      if(xctx->draw_single_layer< cadlayers-1) xctx->draw_single_layer++;
+      draw();
+      break;
+
+    case '<':
+      if(xctx->semaphore >= 2) break;
+      if(xctx->draw_single_layer>=0 ) xctx->draw_single_layer--;
+      draw();
+      break;
+
+    /* toggle flat netlist (only spice)  */
+    case ':':
+      if(!tclgetboolvar("flat_netlist")) {
+          tcleval("alert_ { enabling flat netlist} {}");
+          tclsetvar("flat_netlist","1");
+      }
+      else {
+          tcleval("alert_ { set hierarchical netlist } {}");
+          tclsetvar("flat_netlist","0");
+      }
+      break;
+    
+    case '#':
+      if((state & ControlMask)) {
+        check_unique_names(1);
+      }
+      else {
+        check_unique_names(0);
+      }
+      break;
+
+    case ';':
+      if(0 && (state & ControlMask)) {   /* testmode */
+      }
+      break;
+
+    case '~':
+      if(0 && (state & ControlMask)) {  /* testmode */
+      }
+      break;
+
+    case '|':
+      if(0 && (state & ControlMask)) {  /* testmode */
+        static int x = 0;
+
+        if(x == 0) {
+          int i;
+          XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                xctx->areaw, xctx->areah);
+          XFlush(display);
+          sleep_ms(400);
+          for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
+            XDrawLine(display, xctx->window,  xctx->gctiled,
+               i, xctx->xrect[0].y, i, xctx->xrect[0].height);
+            XFlush(display);
+            sleep_ms(4);
+          }
+        } else if(x == 1) {
+          int i;
+          XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
+                xctx->areaw, xctx->areah);
+          XFlush(display);
+          sleep_ms(400);
+          for(i = xctx->xrect[0].x; i < xctx->xrect[0].width; i++) {
+            XDrawLine(display, xctx->window,  xctx->gctiled,
+               i, xctx->xrect[0].y, i+1, xctx->xrect[0].height);
+            XFlush(display);
+            sleep_ms(4);
+          }
+        }
+        x++;
+        x %= 2;
+      }
+      break;
+    
+    case '!':
+      if((state & ControlMask)) {
+        if(xctx->semaphore >= 2) break;
+        break_wires_at_pins(1);
+      }
+      else {
+        if(xctx->semaphore >= 2) break;
+        break_wires_at_pins(0);
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  return;
 }
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
