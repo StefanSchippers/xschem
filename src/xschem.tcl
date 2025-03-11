@@ -1840,6 +1840,7 @@ proc simconf_add {tool} {
 ############ cellview
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
+# the derived_symbols parameter of cellview should be either empty or 'derived_symbols'
 proc cellview_setlabels {w symbol derived_symbol} {
   global dark_gui_colorscheme netlist_type
   if {$dark_gui_colorscheme} {
@@ -1941,6 +1942,8 @@ proc cellview_edit_sym {w} {
   xschem load_new_window $sym
 }
 
+# derived_symbols: empty or 'derived_symbols'
+# upd: never set by caller (used iinternally to update)
 proc cellview { {derived_symbols {}} {upd 0}} {
   global keep_symbols nolist_libs dark_gui_colorscheme netlist_type
 
@@ -2099,10 +2102,9 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
   set save_netlist_type [xschem get netlist_type]
   # puts "traversal_setlabels: $w parent: |$parent_sch| inst: $instname def: $sym_sch $inst_sch --> [$w get]"
   # update schematic
-  if {$parent_sch ne {}} {
+  if {$parent_sch ne {} && $sym_spice_sym_def eq {} &&  $inst_spice_sym_def eq {} } {
     set current [xschem get current_name]
     if { $inst_sch ne [$w get] } {
-      puts "update attr"
       xschem load -undoreset -nodraw $parent_sch 
       if { [$w get] eq  $sym_sch} {
         xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
@@ -2228,6 +2230,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
   set instances  [xschem get instances]
   set current_level [xschem get currsch]
   for {set i 0} { $i < $instances} { incr i} {
+    # puts "hier_traversal: i=$i, current_level=$current_level, parent_sch=$parent_sch"
     set instname [xschem getprop instance $i name]
     set symbol [xschem getprop instance $i cell::name]
     set default_sch [add_ext $symbol .sch]
@@ -2305,8 +2308,10 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
       if {$descended} {
         incr level
         set dp [hier_traversal $level $only_subckts 1]
-        xschem go_back 1
+        xschem go_back 2
         incr level -1
+      } else { ;# descended into a blank schematic. Go back.
+        xschem go_back 2
       }
     }
   }
