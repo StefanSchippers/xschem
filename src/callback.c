@@ -107,6 +107,7 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
 {
   double mx = xctx->mousex_snap;
   double my = xctx->mousey_snap;
+  double origin_shifted_x2, origin_shifted_y2;
 
   if(!force && xctx->mousex_snap == xctx->prev_rubberx && xctx->mousey_snap == xctx->prev_rubbery) return;
 
@@ -115,17 +116,17 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     if(tclgetboolvar("orthogonal_wiring")) {
-      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-      double origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1, origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-      /* Draw whichever component of the resulting orthogonal-wire is bigger
-       * (either horizontal or vertical), first */
+      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+      origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1;
+      origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+      /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
       if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
-          xctx->manhattan_lines = 1;
+        xctx->manhattan_lines = 1;
       } else {
-          xctx->manhattan_lines = 2;
+        xctx->manhattan_lines = 2;
       }
-    }   
+    }
     new_wire(RUBBER, mx, my);
   }
   if(xctx->ui_state & STARTARC) {
@@ -242,7 +243,7 @@ static void start_wire(double mx, double my)
       xctx->constr_mv = xctx->manhattan_lines;
       new_wire(CLEAR, mx, my);
       redraw_w_a_l_r_p_z_rubbers(1);
-    }  
+    }
     if(xctx->constr_mv != 2) {
       xctx->mx_double_save = mx;
     }
@@ -252,13 +253,12 @@ static void start_wire(double mx, double my)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
   } else {
-    xctx->manhattan_lines = 1;
     xctx->mx_double_save=mx;
     xctx->my_double_save=my;
   }
   new_wire(PLACE,mx, my);
-  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")) {
-    xctx->constr_mv = 0;
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+      xctx->constr_mv = 0;
   }
 }
 
@@ -2472,11 +2472,12 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
     }
+
     return;
 }
 
-static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button, 
-  int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active)
+static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button,
+                                 int mx, int my, int aux, int draw_xhair, int enable_stretch, int snap_cursor, int wire_draw_active)
 {
     char str[PATH_MAX + 100];
     if( waves_selected(event, key, state, button)) {
@@ -2596,15 +2597,15 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
       draw_crosshair(2, state); /* what = 2(draw) */
     }
     if(snap_cursor && ((state == ShiftMask) || wire_draw_active)) draw_snap_cursor(2); /* redraw */
+
+    return;
 }
 
-static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my, 
-     int button, int aux, int infix_interface, int enable_stretch,
-     int wire_draw_active, const char *win_path, double c_snap)
+static void handle_key_press(int event, KeySym key, int state, int rstate, int mx, int my,
+                             int button, int aux, int infix_interface, int enable_stretch, const char *win_path, double c_snap,
+                             int cadence_compat, int wire_draw_active, int snap_cursor)
 {
    char str[PATH_MAX + 100];
-   int cadence_compat = tclgetboolvar("cadence_compat");
-   int snap_cursor = tclgetboolvar("snap_cursor");
    if(key==' ') {
      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
        new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
@@ -2843,12 +2844,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    /* create wire snapping to closest instance pin */
    if(key== 'W' /* && !xctx->ui_state */ && rstate == 0 && !cadence_compat) {
      if(xctx->semaphore >= 2) return;
-     if(infix_interface) {
-       snapped_wire(c_snap);
-     } else {
-       xctx->ui_state |= MENUSTART;
-       xctx->ui_state2 = MENUSTARTSNAPWIRE;
-     }
+     snapped_wire(c_snap);
      return;
    }
    /* create wire snapping to closest instance pin (cadence keybind) */
@@ -2872,6 +2868,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
        xctx->last_command = 0;
        xctx->ui_state |= MENUSTART;
        xctx->ui_state2 = MENUSTARTWIRE;
+       if(prev_state & STARTWIRE) start_wire(xctx->mousex_snap, xctx->mousey_snap);
      }
      return;
    }
@@ -2904,6 +2901,19 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    if(key=='Z' && rstate == 0)                   /* zoom in */
    {
     view_zoom(0.0); return;
+   }
+   if(key=='z' && EQUAL_MODMASK && cadence_compat) /* toggle snap-cursor option */
+   {
+     if(tclgetboolvar("snap_cursor")) {
+       tclsetvar("snap_cursor", "0");
+       draw_snap_cursor(1);
+       xctx->closest_pin_found = 0;
+       xctx->prev_snapx = 0.0;
+       xctx->prev_snapy = 0.0;
+     } else {
+       tclsetvar("snap_cursor", "1");
+       if(wire_draw_active) draw_snap_cursor(3);
+     }
    }
    if(key=='p' && EQUAL_MODMASK)                           /* add symbol pin */
    {
@@ -3097,12 +3107,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
     return;
    }
-   if(key== 's' /* && !xctx->ui_state */ && rstate == 0 && cadence_compat) {  /* create wire snapping to closest instance pin (cadence keybind) */
-    if(xctx->semaphore >= 2) return;
-    snapped_wire(c_snap);
-    return;
-   }
-   if((key=='s' && rstate == 0) && !cadence_compat)      /* simulate, original binding for s */
+   if((key=='s' && rstate == 0) && !cadence_compat)      /* simulate (original keybind) */
    {
      if(xctx->semaphore >= 2) return;
      if(waves_selected(event, key, state, button)) {
@@ -3634,6 +3639,16 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     place_net_label(0);
     return;
    }
+   if(key=='L' && rstate == 0) {                         /* toggle orthogonal routing */
+    if(tclgetboolvar("orthogonal_wiring")){
+      tclsetboolvar("orthogonal_wiring", 0);
+      xctx->manhattan_lines = 0;
+    } else {
+      tclsetboolvar("orthogonal_wiring", 1);
+    }
+    redraw_w_a_l_r_p_z_rubbers(1);
+    return;
+   }
    if(key=='F' && rstate == 0)                     /* flip */
    {
     if(xctx->ui_state & STARTMOVE) move_objects(FLIP,0,0,0);
@@ -4084,14 +4099,16 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
      break_wires_at_pins(1);
      return;
    }
+   
+   return;
 }
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
-		 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux  )
+                                double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux)
 {
+   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
-   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
@@ -4332,10 +4349,12 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        return;
      } /* if(!excl) */
    } /* button==Button1 */
+   
+   return;
 }
 
-static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my,
-              int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active)
+static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my, 
+                                  int aux, double c_snap, int enable_stretch, int draw_xhair, int snap_cursor, int wire_draw_active)
 {
    char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
@@ -4425,7 +4444,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
        xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
      statusmsg(str,1);
    }
-
+   
    /* clear start from menu flag or infix_interface=0 start commands */
    if( state == Button1Mask && xctx->ui_state & MENUSTART) {
      xctx->ui_state &= ~MENUSTART;
@@ -4433,10 +4452,11 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
    }
    if(draw_xhair) draw_crosshair(3, state); /* restore crosshair when selecting / unselecting */
    if(snap_cursor && ((state == ShiftMask) || wire_draw_active)) draw_snap_cursor(3); /* erase & redraw */
+   return;
 }
 
 static void handle_double_click(int event, int state, KeySym key, int button,
-                                int mx, int my, int aux, int cadence_compat )
+                                int mx, int my, int aux, int cadence_compat)
 {
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
@@ -4459,10 +4479,8 @@ static void handle_double_click(int event, int state, KeySym key, int button,
          edit_property(0);
        } else {
          if(xctx->ui_state & STARTWIRE) {
-           if( cadence_compat ) {
-            redraw_w_a_l_r_p_z_rubbers(1);
-            start_wire(mx, my);
-           }
+           redraw_w_a_l_r_p_z_rubbers(1);
+           start_wire(mx, my);
            xctx->ui_state &= ~STARTWIRE;
          }
          if(xctx->ui_state & STARTLINE) {
@@ -4658,7 +4676,8 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
   case MotionNotify:
     handle_motion_notify(event, key, state, rstate, button, mx, my,
-             aux, draw_xhair, enable_stretch, snap_cursor, wire_draw_active);
+                         aux, draw_xhair, enable_stretch, 
+                         snap_cursor, wire_draw_active);
     break;
 
   case KeyRelease:
@@ -4667,22 +4686,24 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
     break;
 
   case KeyPress:
-   handle_key_press(event, key, state, rstate, mx, my, button, aux, 
-                      infix_interface, enable_stretch, wire_draw_active, win_path, c_snap);
-   break;
+    handle_key_press(event, key, state, rstate, mx, my, button, aux,
+                     infix_interface, enable_stretch, win_path, c_snap,
+                     cadence_compat, wire_draw_active, snap_cursor);
+    break;
 
   case ButtonPress:
     handle_button_press(event, state, rstate, key, button, mx, my,
-           c_snap, draw_xhair, crosshair_size, enable_stretch, aux);
+                        c_snap, draw_xhair, crosshair_size, enable_stretch, aux);
     break;
 
   case ButtonRelease:
-    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch, draw_xhair, snap_cursor, wire_draw_active);
+    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
+                          draw_xhair, snap_cursor, wire_draw_active);
     break;
-
+   
   case -3:  /* double click  : edit prop */
-   handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
-   break;
+    handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
+    break;
    
   default:
    dbg(1, "callback(): Event:%d\n",event);
@@ -4700,6 +4721,6 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
    if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
    my_strncpy(old_win_path, win_path, S(old_win_path));
  }
- return 0;
+  return 0;
 }
 
