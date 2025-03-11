@@ -989,13 +989,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       is_generator symbol</kbd></li><pre>
    tell if 'symbol' is a generator (symbol(param1,param2,...) </pre>
    <li><kbd>       line [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
+       line
+       line gui
    if 'x1 y1 x2 y2'is given place line on current
    layer (rectcolor) at indicated coordinates.
-   if 'pos' is given insert at given position in rectangle array.
+   if 'pos' is given insert at given position in line array.
    if 'pos' set to -1 append to last element in line array.
    'propstring' is the attribute string. Set to empty if not given.
    if 'draw' is set to 1 (default) draw the new object, else don't
-   If no coordinates are given start a GUI operation of line placement </pre>
+   If no coordinates are given start a GUI operation of line placement
+   if `gui` argument is given start a line GUI placement with 1st point
+   set to current mouse coordinates </pre>
    <li><kbd>       line_width n</kbd></li><pre>
    set line width to floating point number 'n' </pre>
    <li><kbd>       list_hierarchy</kbd></li><pre>
@@ -1161,8 +1165,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If not given take from symbol template attribute.</pre>
    <li><kbd>       place_text</kbd></li><pre>
    Start a GUI placement of a text object </pre>
-   <li><kbd>       polygon</kbd></li><pre>
-   Start a GUI placement of a polygon </pre>
+   <li><kbd>       polygon [gui]</kbd></li><pre>
+   Start a GUI placement of a polygon
+   if `gui` argument is given start a polygon GUI placement with 1st point
+   set to current mouse coordinates </pre>
    <li><kbd>       preview_window create|draw|destroy|close [win_path] [file]</kbd></li><pre>
    destroy: will delete preview schematic data and destroy container window
    close: same as destroy but leave the container window.
@@ -1337,14 +1343,19 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Rebuild selection list</pre>
    <li><kbd>       record_global_node n node</kbd></li><pre>
    call the record_global_node function (list of netlist global nodes) </pre>
-   <li><kbd>       rect [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
-   if 'x1 y1 x2 y2'is given place recangle on current
-   layer (rectcolor) at indicated coordinates.
-   if 'pos' is given insert at given position in rectangle array.
-   if 'pos' set to -1 append rectangle to last element in rectangle array.
-   'propstring' is the attribute string. Set to empty if not given.
-   if 'draw' is set to 1 (default) draw the new object, else don't
-   If no coordinates are given start a GUI operation of rectangle placement </pre>
+   <li><kbd>       rect ...</kbd></li><pre>
+   rect [x1 y1 x2 y2] [pos] [propstring] [draw]
+     if 'x1 y1 x2 y2'is given place recangle on current
+     layer (rectcolor) at indicated coordinates.
+     if 'pos' is given insert at given position in rectangle array.
+     if 'pos' set to -1 append rectangle to last element in rectangle array.
+     'propstring' is the attribute string. Set to empty if not given.
+     if 'draw' is set to 1 (default) draw the new object, else don't
+   rect
+     If no coordinates are given start a GUI operation of rectangle placement
+   rect gui
+     if `gui` argument is given start a GUI placement of a rectangle with 1st
+     point starting from current mouse coordinates </pre>
    <li><kbd>       redo</kbd></li><pre>
    Redo last undone action </pre>
    <li><kbd>       redraw</kbd></li><pre>
@@ -1664,8 +1675,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       wire_coord n</kbd></li><pre>
    return 4 coordinates of wire[n] </pre>
    <li><kbd>       wire [x1 y1 x2 y2] [pos] [prop] [sel]</kbd></li><pre>
+   wire
+   wire gui
    Place a new wire
-   if no coordinates are given start a GUI wire placement </pre>
+   if no coordinates are given start a GUI wire placement
+   if `gui` argument is given start a GUI placement of a wire with 1st point
+   starting from current mouse coordinates </pre>
    <li><kbd>       wire_cut [x y] [noalign]</kbd></li><pre>
    start a wire cut operation. Point the mouse in the middle of a wire and
    Alt-click right button.

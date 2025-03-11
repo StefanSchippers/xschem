@@ -4490,7 +4490,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
-  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {grey90}
+  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {grey90} \
+    -highlightbackground [option get . background {}]
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
     -fg black -background {grey90} -highlightthickness 0 -relief flat -borderwidth 0 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
@@ -4518,13 +4519,11 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     }
   }
 
-
   panedwindow .load.l.paneright -orient vertical 
   frame .load.l.paneright.f -takefocus 0
   frame .load.l.paneright.draw -background white -height 3.8c -takefocus 0
   .load.l.paneright add .load.l.paneright.f
   .load.l.paneright add .load.l.paneright.draw -minsize 150
-
 
   if { ![catch {.load.l.paneright  panecget .load.l.paneright.f -stretch}]} {
     set optnever {-stretch never}
@@ -4546,6 +4545,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
     -fg black -highlightcolor red -highlightthickness 2 \
+    -highlightbackground [option get . background {}] \
     -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode $selmode \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
@@ -4596,10 +4596,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.l.paneleft.list selection set $file_dialog_index1
   }
   label .load.buttons_bot.label  -text { File:}
-  entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2
+  entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 \
+    -highlightbackground [option get . background {}]
   entry_replace_selection .load.buttons_bot.entry
   label .load.buttons_bot.srclab  -text { Search:}
-  entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2
+  entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2 \
+    -highlightbackground [option get . background {}]
   entry_replace_selection .load.buttons_bot.src
   .load.buttons_bot.src delete 0 end
   .load.buttons_bot.src insert 0 $file_dialog_globfilter
@@ -4626,28 +4628,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     # set to something different to any file to force a new placement in file_dialog_place_symbol
     set file_dialog_retval {   }
   }
-
-  # radiobutton .load.buttons_bot.all -text All -variable file_dialog_globfilter -value {*} -takefocus 0 \
-  #    -command {
-  #       set file_dialog_ext $file_dialog_globfilter
-  #       setglob $file_dialog_dir1
-  #       .load.buttons_bot.src delete 0 end
-  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
-  #     }
-  # radiobutton .load.buttons_bot.sym -text .sym -variable file_dialog_globfilter -value {*.sym} -takefocus 0 \
-  #    -command {
-  #       set file_dialog_ext $file_dialog_globfilter
-  #       setglob $file_dialog_dir1
-  #       .load.buttons_bot.src delete 0 end
-  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
-  #     }
-  # radiobutton .load.buttons_bot.sch -text .sch -variable file_dialog_globfilter -value {*.sch} -takefocus 0 \
-  #    -command {
-  #       set file_dialog_ext $file_dialog_globfilter
-  #       setglob $file_dialog_dir1
-  #       .load.buttons_bot.src delete 0 end
-  #       .load.buttons_bot.src insert 0 $file_dialog_globfilter
-  #     }
 
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
   label .load.buttons.mkdirlab -text { New dir: } 
@@ -4717,7 +4697,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     destroy .load
     set $global_initdir \"\$file_dialog_dir1\"
   "
-
+  bind .load <KeyPress-H> {.load.buttons.home invoke }
+  bind .load <KeyPress-U> {.load.buttons.up invoke }
   ### update
 
   if { [info exists file_dialog_v_sp0] } {
@@ -4805,6 +4786,133 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   return [file_dialog_getresult $loadfile $confirm_overwrt]
 }
+
+
+
+#### Display preview of selected symbol
+proc insert_symbol_focusin {} {
+  puts insert_symbol_focusin
+  set sel [.ins.center.left.l curselection]
+  if {$sel eq {}} {
+    set sel [.ins.center.left.l index active]
+    .ins.center.left.l selection set active
+  } 
+}
+
+proc insert_symbol_preview {} {
+  puts insert_symbol_preview
+  global insert_symbol
+  xschem preview_window close .ins.center.right {}
+  .ins.center.right configure -bg white
+  bind .ins.center.right <Expose> {}
+  bind .ins.center.right <Configure> {}
+  set sel [.ins.center.left.l curselection]
+  if {$sel eq {}} {
+    set sel [.ins.center.left.l index active]
+    .ins.center.left.l selection set active
+  }
+  if {$sel ne {}} {
+    set f [lindex $insert_symbol(fullpathlist) $sel 0]
+    if {$f ne {}} {
+      set type [is_xschem_file $f]
+      if {$type ne {0}} {
+        .ins.center.right configure -bg {}
+        xschem preview_window create .ins.center.right {}
+        xschem preview_window draw .ins.center.right [list $f]
+        bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
+        bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+      }
+    }
+  }
+}
+
+# new alternate insert_symbol browser
+#### fill list of files matching pattern
+proc insert_symbol_filelist {paths {maxdepth 1}} {
+  puts insert_symbol_filelist
+  global insert_symbol
+  set insert_symbol(regex) [.ins.top.pat_e get]
+  set f [match_file $insert_symbol(regex) $paths $maxdepth]
+  set insert_symbol(list) {}
+  set insert_symbol(fullpathlist) {}
+  .ins.center.left.l activate 0
+  foreach i $f {
+    set fname [rel_sym_path $i]
+    lappend insert_symbol(list) $fname
+    lappend insert_symbol(fullpathlist) $i
+  }
+}
+
+proc insert_symbol_place {} {
+  puts insert_symbol_place
+  global insert_symbol
+  set sel [.ins.center.left.l curselection]
+  if {$sel eq {}} {
+    set sel [.ins.center.left.l index active]
+    .ins.center.left.l selection set active
+  }
+  if {$sel ne {}} {
+    set f [lindex $insert_symbol(fullpathlist) $sel 0]
+    if {$f ne {}} {
+      set type [is_xschem_file $f]
+      if {$type ne {0}} {
+        xschem place_symbol $f
+      }
+    }
+  }
+}
+
+#### paths: list of paths to use for listing symbols
+#### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
+proc insert_symbol {{paths {}} {maxdepth 1}} {
+  global insert_symbol
+  # xschem set semaphore [expr {[xschem get semaphore] +1}]
+  toplevel .ins
+  frame .ins.top -takefocus 0
+  panedwindow  .ins.center -orient horizontal -height 8c
+  frame .ins.center.left  -takefocus 0
+  frame .ins.center.right -width 300 -height 250 -bg white -takefocus 0
+  .ins.center add .ins.center.left
+  .ins.center add .ins.center.right
+  frame .ins.bottom  -takefocus 0
+  pack .ins.top -side top -fill x
+  pack .ins.center -side top -expand 1 -fill both
+  pack .ins.bottom -side top -fill x
+  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 50 -height 20 \
+    -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
+    -activestyle underline -highlightbackground [option get . background {}] \
+    -exportselection 0
+  scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
+  pack .ins.center.left.l -expand 1 -fill both -side left
+  pack .ins.center.left.s -fill y -side left
+  label .ins.top.pat_l -text Pattern:
+  entry .ins.top.pat_e -width 20 -highlightcolor red -highlightthickness 2 \
+     -highlightbackground [option get . background {}]
+  if {[info exists insert_symbol(regex)]} { 
+    .ins.top.pat_e insert 0 $insert_symbol(regex)
+  }
+  bind .ins.top.pat_e <KeyRelease> "
+    if {{%K} ne {Tab}} {
+      insert_symbol_filelist [list $paths] [list $maxdepth]
+    }
+  "
+  bind .ins.center.left.l <<ListboxSelect>> { insert_symbol_preview }
+  bind .ins.center.left.l <FocusIn> { insert_symbol_focusin }
+  button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
+    xschem preview_window close .ins.center.right {}
+    destroy .ins
+  }
+  button .ins.bottom.insert -takefocus 0 -text Insert -command {
+    insert_symbol_place
+  }
+  pack .ins.bottom.insert .ins.bottom.dismiss -side left
+  pack .ins.top.pat_l -side left
+  pack .ins.top.pat_e -side left
+  insert_symbol_filelist $paths $maxdepth
+  # tkwait window .ins
+  # xschem set semaphore [expr {[xschem get semaphore] -1}]
+}
+# /new alternate insert_symbol browser
 
 # get last n path components: example , n=1 --> /aaa/bbb/ccc/ddd.sch -> ccc/ddd.sch
 proc get_cell {s n } {
@@ -6608,24 +6716,24 @@ proc viewdata {data {ro {}} {win .view}} {
   return $tctx::rcode
 }
 
-proc sub_match_file { f {paths {}} } {
-  global pathlist match_file_dir_arr
+proc sub_match_file { f {paths {}} {maxdepth -1} } {
+  global pathlist match_file_dir_arr match_file_level
   set res {}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
-      # puts "--> $j  $f"
-      # set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
       if {[file isdirectory $j] && [file readable $j]} {
-        set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
-        if {[array names match_file_dir_arr -exact $jj] == {}} {
-          set match_file_dir_arr($jj) 1
-          # puts "********** directory $jj"
-          set sub_res [sub_match_file $f $j] ;# recursive call
-          if {$sub_res != {} } {set res [concat $res $sub_res]}
+        if { $maxdepth == -1 || $match_file_level < $maxdepth} {
+          set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
+          if {[array names match_file_dir_arr -exact $jj] == {}} {
+            set match_file_dir_arr($jj) 1
+            incr match_file_level
+            set sub_res [sub_match_file $f $j $maxdepth] ;# recursive call
+            incr match_file_level -1
+            if {$sub_res != {} } {set res [concat $res $sub_res]}
+          }
         }
       } else {
-        # set fname [file tail $j]
         set fname $j
         if {[regexp $f $fname]} {
           lappend res $j
@@ -6639,30 +6747,33 @@ proc sub_match_file { f {paths {}} } {
 # find files into $paths directories matching $f
 # use $pathlist global search path if $paths empty
 # recursively descend directories
-proc match_file  { f {paths {}} } {
-  global match_file_dir_arr
+proc match_file  { f {paths {}} {maxdepth -1}  } {
+  global match_file_dir_arr match_file_level
+  set match_file_level 0
   catch {unset match_file_dir_arr}
-  set res  [sub_match_file $f $paths]
+  set res  [sub_match_file $f $paths $maxdepth]
   catch {unset match_file_dir_arr}
   return $res
 }
 
-proc sub_find_file { f {paths {}} {first 0} } {
-  global pathlist match_file_dir_arr
+proc sub_find_file { f {paths {}} {first 0} {maxdepth -1}} {
+  global pathlist match_file_dir_arr match_file_level
   set res {}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
-      # puts "--> $j  $f"
       if {[file isdirectory $j]  && [file readable $j]} {
-        set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
-        if {[array names match_file_dir_arr -exact $jj] == {}} {
-          set match_file_dir_arr($jj) 1
-          # puts "********** directory $jj"
-          set sub_res [sub_find_file $f $j $first] ;# recursive call
-          if {$sub_res != {} } {
-            set res [concat $res $sub_res]
-            if {$first} {return $res}
+        if { $maxdepth == -1 || $match_file_level < $maxdepth} {
+          set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
+          if {[array names match_file_dir_arr -exact $jj] == {}} {
+            set match_file_dir_arr($jj) 1
+            incr match_file_level
+            set sub_res [sub_find_file $f $j $first $maxdepth] ;# recursive call
+            incr match_file_level -1
+            if {$sub_res != {} } {
+              set res [concat $res $sub_res]
+              if {$first} {return $res}
+            }
           }
         }
       } else {
@@ -6680,10 +6791,11 @@ proc sub_find_file { f {paths {}} {first 0} } {
 # find given file $f into $paths directories 
 # use $pathlist global search path if $paths empty
 # recursively descend directories
-proc find_file  { f {paths {}} } {
-  global match_file_dir_arr
+proc find_file { f {paths {}} {maxdepth -1}} {
+  global match_file_dir_arr match_file_level
+  set match_file_level 0
   catch {unset match_file_dir_arr}
-  set res  [sub_find_file $f $paths 0]
+  set res  [sub_find_file $f $paths 0 $maxdepth]
   catch {unset match_file_dir_arr}
   return $res
 }
@@ -6692,10 +6804,11 @@ proc find_file  { f {paths {}} } {
 # use $pathlist global search path if $paths empty
 # recursively descend directories
 # only return FIRST FOUND
-proc find_file_first  { f {paths {}} } {
-  global match_file_dir_arr
+proc find_file_first  { f {paths {}} {maxdepth -1}} {
+  global match_file_dir_arr match_file_level
+  set match_file_level 0
   catch {unset match_file_dir_arr}
-  set res  [sub_find_file $f $paths 1] 
+  set res  [sub_find_file $f $paths 1 $maxdepth] 
   catch {unset match_file_dir_arr}
   return $res
 }        

@@ -2787,13 +2787,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     break;
     case 'l': /*----------------------------------------------*/
     /* line [x1 y1 x2 y2] [pos] [propstring] [draw]
+     * line
+     * line gui
      *   if 'x1 y1 x2 y2'is given place line on current
      *   layer (rectcolor) at indicated coordinates.
-     *   if 'pos' is given insert at given position in rectangle array.
+     *   if 'pos' is given insert at given position in line array.
      *   if 'pos' set to -1 append to last element in line array.
      *   'propstring' is the attribute string. Set to empty if not given.
      *   if 'draw' is set to 1 (default) draw the new object, else don't
-     *   If no coordinates are given start a GUI operation of line placement */
+     *   If no coordinates are given start a GUI operation of line placement
+     *   if `gui` argument is given start a line GUI placement with 1st point
+     *   set to current mouse coordinates */
     if(!strcmp(argv[1], "line"))
     {
       double x1,y1,x2,y2;
@@ -2818,6 +2822,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->draw_window = save;
         }
         set_modify(1);
+      }
+      else if(argc == 3 && !strcmp(argv[2], "gui")) {
+        int prev_state = xctx->ui_state;
+        int infix_interface = tclgetboolvar("infix_interface");
+        if(infix_interface) {
+          start_line(xctx->mousex_snap, xctx->mousey_snap);
+          if(prev_state == STARTLINE) {
+            tcleval("set constr_mv 0" );
+            xctx->constr_mv=0;
+          }
+        } else {
+          xctx->last_command = 0;
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTLINE;
+        }
       }
       else {
         xctx->last_command = 0;
@@ -3701,13 +3720,28 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* polygon
-     *   Start a GUI placement of a polygon */
+    /* polygon [gui]
+     *   Start a GUI placement of a polygon
+     *   if `gui` argument is given start a polygon GUI placement with 1st point
+     *   set to current mouse coordinates */
     else if(!strcmp(argv[1], "polygon"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTPOLYGON;
+      if(argc > 2 && !strcmp(argv[2], "gui")) {
+        int infix_interface = tclgetboolvar("infix_interface");
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_polygon(PLACE, xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTPOLYGON;
+        }
+      } else {
+        xctx->ui_state |= MENUSTART;
+        xctx->ui_state2 = MENUSTARTPOLYGON;
+      }
     }
 
     /* preview_window create|draw|destroy|close [win_path] [file]
@@ -4434,7 +4468,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* rebuild_connectivity
-         Rebuild logical connectivity abstraction of schematic */
+     *   Rebuild logical connectivity abstraction of schematic */
     else if(!strcmp(argv[1], "rebuild_connectivity"))
     {
       int err = 0;
@@ -4473,14 +4507,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
-    /* rect [x1 y1 x2 y2] [pos] [propstring] [draw]
-     *   if 'x1 y1 x2 y2'is given place recangle on current
-     *   layer (rectcolor) at indicated coordinates.
-     *   if 'pos' is given insert at given position in rectangle array.
-     *   if 'pos' set to -1 append rectangle to last element in rectangle array.
-     *   'propstring' is the attribute string. Set to empty if not given.
-     *   if 'draw' is set to 1 (default) draw the new object, else don't
-     *   If no coordinates are given start a GUI operation of rectangle placement */
+    /* rect ...
+     *   rect [x1 y1 x2 y2] [pos] [propstring] [draw]
+     *     if 'x1 y1 x2 y2'is given place recangle on current
+     *     layer (rectcolor) at indicated coordinates.
+     *     if 'pos' is given insert at given position in rectangle array.
+     *     if 'pos' set to -1 append rectangle to last element in rectangle array.
+     *     'propstring' is the attribute string. Set to empty if not given.
+     *     if 'draw' is set to 1 (default) draw the new object, else don't
+     *   rect
+     *     If no coordinates are given start a GUI operation of rectangle placement
+     *   rect gui
+     *     if `gui` argument is given start a GUI placement of a rectangle with 1st
+     *     point starting from current mouse coordinates */
     else if(!strcmp(argv[1], "rect"))
     {
       double x1,y1,x2,y2;
@@ -4510,8 +4549,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->draw_window = save;
         }
         set_modify(1);
-      }
-      else {
+      } else if(argc > 2 && !strcmp(argv[2], "gui")) {
+        int infix_interface = tclgetboolvar("infix_interface");
+        if(infix_interface) {
+          xctx->mx_double_save=xctx->mousex_snap;
+          xctx->my_double_save=xctx->mousey_snap;
+          xctx->last_command = 0;
+          new_rect(PLACE,xctx->mousex_snap, xctx->mousey_snap);
+        } else {
+          xctx->ui_state |= MENUSTART;
+          xctx->ui_state2 = MENUSTARTRECT;
+        } 
+      } else {
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTRECT;
       }
@@ -6374,8 +6423,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
     /* wire [x1 y1 x2 y2] [pos] [prop] [sel]
+     *   wire
+     *   wire gui
      *   Place a new wire
-     *   if no coordinates are given start a GUI wire placement */
+     *   if no coordinates are given start a GUI wire placement
+     *   if `gui` argument is given start a GUI placement of a wire with 1st point
+     *   starting from current mouse coordinates */
     else if(!strcmp(argv[1], "wire"))
     {
       double x1,y1,x2,y2;
@@ -6403,7 +6456,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(tclgetboolvar("autotrim_wires")) trim_wires();
         set_modify(1);
       }
-      else {
+      else if(argc > 2 && !strcmp(argv[2], "gui")) {
+        int prev_state = xctx->ui_state;
+        int infix_interface = tclgetboolvar("infix_interface");
+        if(infix_interface) {
+          start_wire(xctx->mousex_snap, xctx->mousey_snap);
+          if(prev_state == STARTWIRE) {
+            tcleval("set constr_mv 0" );
+            xctx->constr_mv=0;
+          }
+        } else {
+          xctx->last_command = 0;
+          xctx->ui_state |= MENUSTART;                   
+          xctx->ui_state2 = MENUSTARTWIRE;
+        }
+      } else {
         xctx->last_command = 0;
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTWIRE;

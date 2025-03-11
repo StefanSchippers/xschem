@@ -1179,7 +1179,7 @@ static int source_tcl_file(char *s)
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
     fprintf(errfp, "%s", tclresult());
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
-    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
+    fprintf(errfp, "\nLine No: %d\n", Tcl_GetErrorLine(interp));
     #endif
     fprintf(errfp, "\n");
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6

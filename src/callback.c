@@ -212,7 +212,7 @@ static void start_place_symbol(void)
     }
 }
 
-static void start_line(double mx, double my)
+void start_line(double mx, double my)
 {
     xctx->last_command = STARTLINE;
     if(xctx->ui_state & STARTLINE) {
@@ -232,7 +232,7 @@ static void start_line(double mx, double my)
     new_line(PLACE, mx, my);
 }
 
-static void start_wire(double mx, double my)
+void start_wire(double mx, double my)
 {
   dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
       xctx->ui_state, xctx->ui_state2, xctx->last_command);
