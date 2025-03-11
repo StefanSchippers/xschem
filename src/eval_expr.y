@@ -274,10 +274,11 @@ static int kklex()
     while (c != 0 && isalnum(c) && i < length);
     str--;
     symbuf[i] = '\0';
-    s = getsym (symbuf);
+    s = getsym(symbuf);
     kklval.tptr = s;
     dbg(dbglev, "ylex: FNCT=%s\n", symbuf);
-    return FNCT;
+    if(s) return FNCT;
+    return 0; /* error : undefined identifier */
   }
   /* Any other character is a token by itself.        */
   return c;

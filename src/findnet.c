@@ -25,7 +25,7 @@
 static double distance; /* safe to keep even with multiple schematics */
 static Selected sel; /* safe to keep even with multiple schematics */
 
-static void find_closest_wire(double mx, double my)
+static void find_closest_wire(double mx, double my, int override_lock)
 /* returns the net that is closest to the mouse pointer */
 /* if there are nets and distance < CADWIREMINDIST */
 {
@@ -42,14 +42,15 @@ static void find_closest_wire(double mx, double my)
    w = i; d = tmp;
   }
  }
- if( d <= threshold && w!=-1)
+ if( w != -1 && d <= threshold &&
+   (override_lock || strboolcmp(get_tok_value(xctx->wire[w].prop_ptr, "lock", 0), "true")) )
  {
   sel.n = w; sel.type = WIRE; 
   distance = d;
  }
 }
 
-static void find_closest_bezier(double mx, double my, int c, int i, int *l, int *col)
+static double find_closest_bezier(double mx, double my, double d, int c, int i, int *l, int *col)
 {
   const double bez_steps = 1.0/8.0; /* divide the t = [0,1] interval into 8 steps */
   int b;
@@ -97,16 +98,17 @@ static void find_closest_bezier(double mx, double my, int c, int i, int *l, int 
       xp1 = (1 - t1) * (1 - t1) * x0 + 2 * (1 - t1) * t1 * x1 + t1 * t1 * x2;
       yp1 = (1 - t1) * (1 - t1) * y0 + 2 * (1 - t1) * t1 * y1 + t1 * t1 * y2;
       ORDER(xp, yp, xp1, yp1);
-      if( (tmp = dist(xp, yp, xp1, yp1, mx, my)) < distance )
+      if( (tmp = dist(xp, yp, xp1, yp1, mx, my)) < d )
       {
-       *l = i; distance = tmp; *col = c;
-       dbg(1, "find_closest_bezier(): distance=%.16g  n=%d\n", distance, i);
+       *l = i; d = tmp; *col = c;
       }
     }
   }
+  dbg(1, "find_closest_bezier(): d=%.16g  n=%d\n", d, i);
+  return d;
 }
 
-static void find_closest_polygon(double mx, double my)
+static void find_closest_polygon(double mx, double my, int override_lock)
 /* returns the polygon that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -126,15 +128,7 @@ static void find_closest_polygon(double mx, double my)
     bezier = bezier && (p->points > 2);
     
     if(bezier) {
-      double ds = xctx->cadhalfdotsize;
-
-      find_closest_bezier(mx, my, c, i, &l, &col);
-      for(j = 0; j < p->points; j++) {
-        if( POINTINSIDE(mx, my, p->x[j] - ds, p->y[j] - ds, p->x[j] + ds, p->y[j] + ds)) {
-           l = i; d = 0.0;col = c;
-           break;
-        }
-      }
+      d = find_closest_bezier(mx, my, d, c, i, &l, &col);
     } else {
       for(j=0; j<xctx->poly[c][i].points-1; ++j) {
         x1 = p->x[j];
@@ -145,13 +139,14 @@ static void find_closest_polygon(double mx, double my)
         if( (tmp = dist(x1, y1, x2, y2, mx, my)) < d )
         {
          l = i; d = tmp;col = c;
-         dbg(1, "find_closest_polygon(): d=%.16g  n=%d\n", d, i);
         }
       }
+      dbg(1, "find_closest_polygon(): d=%.16g  n=%d\n", d, i);
     }
   } /* end for i */
  } /* end for c */
- if( d <= threshold && l!=-1)
+ if( d <= threshold && l!=-1 &&
+   (override_lock || strboolcmp(get_tok_value(xctx->poly[col][l].prop_ptr, "lock", 0), "true")))
  {
   sel.n = l; sel.type = POLYGON; sel.col = col;
   distance = d;
@@ -159,7 +154,7 @@ static void find_closest_polygon(double mx, double my)
 }
 
 
-static void find_closest_line(double mx, double my)
+static void find_closest_line(double mx, double my, int override_lock)
 /* returns the line that is closest to the mouse pointer */
 /* if there are lines and distance < CADWIREMINDIST */
 {
@@ -181,7 +176,8 @@ static void find_closest_line(double mx, double my)
    }
   } /* end for i */
  } /* end for c */
- if( d <= threshold && l!=-1)
+ if( d <= threshold && l!=-1 &&
+   (override_lock || strboolcmp(get_tok_value(xctx->line[col][l].prop_ptr, "lock", 0), "true")))
  {
   sel.n = l; sel.type = LINE; sel.col = col;
   distance = d;
@@ -326,7 +322,7 @@ void xfind_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
 }
 #endif
 
-static void find_closest_arc(double mx, double my)
+static void find_closest_arc(double mx, double my, int override_lock)
 {
  double dist, angle, angle1, angle2;
  int i, c, r=-1, col;
@@ -371,7 +367,8 @@ static void find_closest_arc(double mx, double my)
     }
   } /* end for i */
  } /* end for c */
- if( r!=-1 && d <= threshold ) /*  * pow(xctx->arc[col][r].r, 2)) */
+ if(r!=-1 && d <= threshold &&
+    strboolcmp(get_tok_value(xctx->arc[col][r].prop_ptr, "lock", 0), "true"))
  {
   sel.n = r; sel.type = ARC; sel.col = col;
   distance = d;
@@ -439,7 +436,7 @@ static void find_closest_element(double mx, double my, int override_lock)
   }
 }
 
-static void find_closest_text(double mx, double my)
+static void find_closest_text(double mx, double my, int override_lock)
 {
  short rot, flip;
  double xx1, xx2, yy1, yy2;
@@ -476,7 +473,9 @@ static void find_closest_text(double mx, double my)
      dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, d);
    }
   } /* end for i */
- if( d <= threshold && r!=-1)
+
+ if( r != -1 && d <= threshold &&
+   (override_lock || strboolcmp(get_tok_value(xctx->text[r].prop_ptr, "lock", 0), "true")) )
  {
   sel.n = r; sel.type = xTEXT;
   distance = d;
@@ -487,14 +486,14 @@ Selected find_closest_obj(double mx, double my, int override_lock)
 {
  sel.n = 0L; sel.col = 0; sel.type = 0;
  distance = DBL_MAX;
- find_closest_line(mx, my);
- find_closest_polygon(mx, my);
+ find_closest_line(mx, my, override_lock);
+ find_closest_polygon(mx, my, override_lock);
  /* dbg(1, "1 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
  find_closest_box(mx, my, override_lock);
- find_closest_arc(mx, my);
+ find_closest_arc(mx, my, override_lock);
  /* dbg(1, "2 find_closest_obj(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type); */
- find_closest_text(mx, my);
- find_closest_wire(mx, my);
+ find_closest_text(mx, my, override_lock);
+ find_closest_wire(mx, my, override_lock);
  find_closest_element(mx, my, override_lock);
  return sel;    /*sel.type = 0 if nothing found */
 }

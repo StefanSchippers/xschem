@@ -628,6 +628,10 @@ proc from_eng {i} {
 ## convert number to engineering form
 proc to_eng {args} {
   set suffix {}
+
+  if {[ catch {uplevel #0 expr [join $args]} i]} {
+    return [join $args]
+  }
   set i [uplevel #0 expr [join $args]]
   set absi [expr {abs($i)}]
 
@@ -1836,6 +1840,7 @@ proc simconf_add {tool} {
 ############ cellview
 # proc cellview prints symbol bindings (default binding or "schematic" attr in symbol)
 # of all symbols used in current and sub schematics.
+# the derived_symbols parameter of cellview should be either empty or 'derived_symbols'
 proc cellview_setlabels {w symbol derived_symbol} {
   global dark_gui_colorscheme netlist_type
   if {$dark_gui_colorscheme} {
@@ -1937,6 +1942,8 @@ proc cellview_edit_sym {w} {
   xschem load_new_window $sym
 }
 
+# derived_symbols: empty or 'derived_symbols'
+# upd: never set by caller (used iinternally to update)
 proc cellview { {derived_symbols {}} {upd 0}} {
   global keep_symbols nolist_libs dark_gui_colorscheme netlist_type
 
@@ -2095,10 +2102,9 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
   set save_netlist_type [xschem get netlist_type]
   # puts "traversal_setlabels: $w parent: |$parent_sch| inst: $instname def: $sym_sch $inst_sch --> [$w get]"
   # update schematic
-  if {$parent_sch ne {}} {
+  if {$parent_sch ne {} && $sym_spice_sym_def eq {} &&  $inst_spice_sym_def eq {} } {
     set current [xschem get current_name]
     if { $inst_sch ne [$w get] } {
-      puts "update attr"
       xschem load -undoreset -nodraw $parent_sch 
       if { [$w get] eq  $sym_sch} {
         xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
@@ -2224,6 +2230,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
   set instances  [xschem get instances]
   set current_level [xschem get currsch]
   for {set i 0} { $i < $instances} { incr i} {
+    # puts "hier_traversal: i=$i, current_level=$current_level, parent_sch=$parent_sch"
     set instname [xschem getprop instance $i name]
     set symbol [xschem getprop instance $i cell::name]
     set default_sch [add_ext $symbol .sch]
@@ -2301,8 +2308,10 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
       if {$descended} {
         incr level
         set dp [hier_traversal $level $only_subckts 1]
-        xschem go_back 1
+        xschem go_back 2
         incr level -1
+      } else { ;# descended into a blank schematic. Go back.
+        xschem go_back 2
       }
     }
   }
@@ -4365,8 +4374,10 @@ proc file_dialog_display_preview {f} {
 proc file_dialog_right_listboxselect {dirselect} {
     global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval file_dialog_sel
     global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1 file_dialog_globfilter
+    global file_dialog_others
     set file_dialog_yview [.load.l.paneright.f.list yview] 
-    set file_dialog_sel [.load.l.paneright.f.list curselection]
+    set file_dialog_sel [lindex [.load.l.paneright.f.list curselection] 0]
+    
     if { $file_dialog_sel ne {} } {
       set curr_dir [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
       set curr_item [.load.l.paneright.f.list get $file_dialog_sel]
@@ -4399,6 +4410,17 @@ proc file_dialog_right_listboxselect {dirselect} {
 
       set file_dialog_dir1 $curr_dir
       set file_dialog_dir2 $curr_item
+
+      set file_dialog_others {}
+      if {$file_dialog_loadfile == 1} {
+        foreach i [lrange [.load.l.paneright.f.list curselection] 1 end] {
+          set file_dialog_retval [.load.l.paneright.f.list get $i]
+          lappend file_dialog_others [file_dialog_getresult 1 0]
+        }
+      }
+      set file_dialog_retval {} ;# we used this variable above to communicate with file_dialog_getresult
+
+
       if { [file isdirectory $file_dialog_d]} {
         bind .load.l.paneright.draw <Expose> {}
         bind .load.l.paneright.draw <Configure> {}
@@ -4419,6 +4441,16 @@ proc file_dialog_right_listboxselect {dirselect} {
       # set to something different to any file to force a new placement in file_dialog_place_symbol
       set file_dialog_retval  {   }
     }
+}
+
+proc load_additional_files {} {
+  global file_dialog_others
+
+  if {$file_dialog_others ne {} } {
+    foreach i $file_dialog_others {
+      xschem load_new_window $i
+    }
+  }
 }
 
 # global_initdir: name of global variable containing the initial directory
@@ -4506,11 +4538,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   eval .load.l.paneright paneconfigure .load.l.paneright.f $optnever
   eval .load.l.paneright paneconfigure .load.l.paneright.draw $optalways
 
-
+  if {$global_initdir eq {INITIALINSTDIR}} {
+    set selmode browse
+  } else {
+    set selmode extended
+  }
 
   listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
     -fg black -highlightcolor red -highlightthickness 2 \
-    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode browse \
+    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode $selmode \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
@@ -6447,12 +6483,17 @@ proc editdata {{data {}} {title {Edit data}} } {
   # wm transient $window [xschem get topwindow]
   frame $window.buttons
   pack $window.buttons -side bottom -fill x -pady 2m
+  button $window.buttons.copy -text Copy -command "
+     clipboard clear
+     clipboard append \[$window.text get 1.0 {end - 1 chars}\]
+  "
   button $window.buttons.ok -text OK -command "
      set retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
   "
   button $window.buttons.cancel -text Cancel -command "destroy $window"
   pack $window.buttons.ok -side left -expand 1
   pack $window.buttons.cancel -side left -expand 1
+  pack $window.buttons.copy -side left -expand 1
   
   eval text $window.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$window.yscroll set\" -setgrid 1 \
        -xscrollcommand \"$window.xscroll set\" -wrap none -height 30 $text_tabs_setting
@@ -6744,8 +6785,14 @@ proc rel_sym_path {symbol} {
   global OS pathlist env
 
   regsub {^~/} $symbol ${env(HOME)}/ symbol
-  if {![regexp {^/} $symbol]} {
-    set symbol [pwd]/$symbol
+  if {$OS eq "Windows"} {
+    if {![regexp {^[A-Za-z]\:/} $symbol]} {
+      set symbol [pwd]/$symbol
+    }
+  } else {
+    if {![regexp {^/} $symbol]} {
+      set symbol [pwd]/$symbol
+    }
   }
   set curr_dirname [pwd]
   set name {}
@@ -7848,42 +7895,34 @@ proc no_open_dialogs {} {
 ## "file_dialog_*" only one load_file_dialog window is allowed
 
 set tctx::global_list {
-  PDK_ROOT PDK SKYWATER_MODELS SKYWATER_STDCELLS 
-  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR XSCHEM_LIBRARY_PATH
-  add_all_windows_drives auto_hilight auto_hilight_graph_nodes autofocus_mainwindow
-  autotrim_wires orthogonal_wiring snap_cursor bespice_listen_port big_grid_points bus_replacement_char cadgrid cadlayers
-  cadsnap cadence_compat cairo_font_name cairo_font_scale change_lw color_ps tctx::colors compare_sch constr_mv
-  copy_cell crosshair_layer crosshair_size cursor_2_hook snap_cursor_size custom_label_prefix custom_token
-  dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
-  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair
-  draw_grid draw_grid_axes draw_window edit_prop_pos edit_prop_size
-  edit_symbol_prop_new_sel editprop_sympath en_hilight_conn_inst enable_dim_bg enable_stretch
-  enter_text_default_geometry filetmp fix_broken_tiled_fill flat_netlist fullscreen
-  gaw_fd gaw_tcp_address graph_autoload graph_bus
-  graph_change_done graph_digital graph_dialog_default_geometry 
-  graph_legend graph_linewidth_mult graph_logx
-  graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color graph_sel_wave
-  graph_selected graph_sort graph_unlocked graph_use_ctrl_key
-  hide_empty_graphs hide_symbols tctx::hsize
-  incr_hilight incremental_select infix_interface infowindow_text intuitive_interface 
-  keep_symbols launcher_default_program
-  light_colors line_width live_cursor2_backannotate local_netlist_dir lvs_ignore
-  lvs_netlist measure_text netlist_dir netlist_show netlist_type no_ask_save
-  no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes path pathlist
-  persistent_command preserve_unchanged_attrs prev_symbol ps_colors ps_paper_size rainbow_colors
-  tctx::rcode recentfile
-  retval retval_orig rotated_text search_case search_exact search_found search_schematic
-  search_select search_value select_touch selected_tok show_hidden_texts show_infowindow
-  show_infowindow_after_netlist
-  simconf_default_geometry simconf_vpos simulate_bg spiceprefix split_files svg_colors
-  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop text_line_default_geometry
-  text_replace_selection text_tabs_setting textwindow_fileid textwindow_filename textwindow_w
-  toolbar_horiz toolbar_list
-  toolbar_visible top_is_subckt transparent_svg undo_type use_lab_wire unselect_partial_sel_wires
-  use_label_prefix use_tclreadline
-  user_wants_copy_cell verilog_2001 verilog_bitblast viewdata_fileid viewdata_filename viewdata_w
-  tctx::vsize xschem_libs xschem_listen_port zoom_full_center orthogonal_wiring snap_cursor
-  snap_cursor_size cadence_compat use_cursor_for_selection
+ INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
+ SKYWATER_STDCELLS XSCHEM_LIBRARY_PATH add_all_windows_drives auto_hilight
+ auto_hilight_graph_nodes autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points
+ bus_replacement_char cadence_compat cadgrid cadlayers cadsnap cairo_font_name cairo_font_scale
+ change_lw color_ps compare_sch constr_mv copy_cell crosshair_layer crosshair_size cursor_2_hook
+ custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
+ dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
+ draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
+ en_hilight_conn_inst enable_dim_bg enable_stretch enter_text_default_geometry filetmp
+ fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
+ graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
+ graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
+ graph_sel_wave graph_selected graph_sort graph_unlocked graph_use_ctrl_key hide_empty_graphs
+ hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
+ keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
+ local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
+ no_ask_save no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
+ orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
+ ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
+ search_found search_schematic search_select search_value select_touch selected_tok
+ show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
+ simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
+ svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
+ tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
+ textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
+ top_is_subckt transparent_svg undo_type unselect_partial_sel_wires use_cursor_for_selection
+ use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell verilog_2001 verilog_bitblast
+ viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port zoom_full_center
 }
 
 ## list of global arrays to save/restore on context switching
@@ -8268,7 +8307,7 @@ proc load_raw {{type {}}} {
 
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
-  global dark_gui_colorscheme draw_crosshair
+  global dark_gui_colorscheme draw_crosshair grid_point_size
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width cadence_compat
@@ -8421,6 +8460,19 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option add checkbutton -label "Draw persistent snap cursor" -variable snap_cursor \
      -selectcolor $selectcolor  -accelerator {Alt-Z}
 
+  $topwin.menubar.option add cascade -label "Crosshair" \
+       -menu $topwin.menubar.option.crosshair
+  menu $topwin.menubar.option.crosshair -tearoff 0
+
+  $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
+    -variable snap_cursor -selectcolor $selectcolor
+  $topwin.menubar.option.crosshair add checkbutton -label "Draw crosshair" \
+    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
+  $topwin.menubar.option.crosshair add command -label "Crosshair size" \
+    -command {
+      input_line "Enter crosshair size (int, 0 = full screen width):" \
+          "set crosshair_size" $crosshair_size
+    }
   $topwin.menubar.option add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set bus_replacement_char"
@@ -8601,6 +8653,10 @@ proc build_widgets { {topwin {} } } {
          set change_lw 0
          input_line "Enter linewidth (float):" "xschem line_width"
        }
+  $topwin.menubar.view add command -label "Set grid point size" \
+       -command {
+         input_line "Enter Grid point size (int or -1: $grid_point_size)" "set grid_point_size" $grid_point_size
+       }
   $topwin.menubar.view add checkbutton -label "Tabbed interface" -variable tabbed_interface \
     -selectcolor $selectcolor -command setup_tabbed_interface
 
@@ -8675,6 +8731,8 @@ proc build_widgets { {topwin {} } } {
           -command "xschem net_label 0" -accelerator Alt-Shift-L
   $topwin.menubar.sym add command -label "Change selected inst. texts to floaters" \
           -command "xschem floaters_from_selected_inst"
+  $topwin.menubar.sym add command -label "Unselect attached floaters" \
+          -command "xschem unselect_attached_floaters"
   $topwin.menubar.sym add command -label "Print list of highlight nets" \
           -command "xschem print_hilight_net 1" -accelerator J
   $topwin.menubar.sym add command -label "Print list of highlight nets, with buses expanded" \
@@ -9331,6 +9389,7 @@ set_ne enable_stretch 0
 set_ne constr_mv 0
 set_ne unselect_partial_sel_wires 0
 set_ne load_file_dialog_fullpath 1
+set_ne file_dialog_others {} ;# contains 2nd, 3rd, ... selected filenames on mult. selections in load file
 
 # if set show selected elements while dragging the selection rectangle.
 # once selected these can not be unselected by retracting the selection rectangle
@@ -9340,6 +9399,7 @@ set_ne select_touch 1
 
 set_ne draw_grid 1
 set_ne big_grid_points 0
+set_ne grid_point_size -1 ;# grid point size (>=0) or unspecified (-1)
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1

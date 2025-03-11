@@ -553,7 +553,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -828,6 +827,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    return result of get_cell function </pre>
    <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
    return result of get_cell_w_ext function </pre>
+   <li><kbd>       get_fqdevice instname param modelparam</kbd></li><pre>
+   get the full pathname of "instname" device
+   modelparam: 
+     0: current, 1: modelparam, 2: modelvoltage
+   param: device parameter, like ib, gm, vth
+   set param to {} (empty str) for just branch current of 2 terminal device
+   for parameters like "vth" modelparam must be 2
+   for parameters like "ib" modelparam must be 0
+   for parameters like "gm" modelparam must be 1</pre>
    <li><kbd>       getprop instance|instance_pin|symbol|text ref</kbd></li><pre>
       
        getprop instance inst
@@ -1192,8 +1200,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
    <li><kbd>       raw what ...</kbd></li><pre>
-     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
-            read | set | sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
+     what = add | clear | datasets | index | info | loaded | list |
+            new | points | rawfile | del | read | set | rename |
+            sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
       
    xschem raw read filename [type [sweep1 sweep2]]
      if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
@@ -1207,6 +1216,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       
    xschem raw del name
      delete named vector from current raw file
+      
+   xschem raw rename old_name new_name
+     rename a node in the loaded raw file.
       
    xschem raw info
      print information about loaded raw files and show the currently active one.
@@ -1284,7 +1296,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      new dataset do not start with a header row.
      Lines beginning with '#' are comments and ignored
       
-        time    var_a   var_b   var_c
+        time    var_a   var_b   var_cnode in the loaded raw file.
      # this is a comment, ignored
          0.0     0.0     1.8    0.3
        &lt;single empty line: ignored&gt;
@@ -1634,6 +1646,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Unhighlight selected nets/pins </pre>
    <li><kbd>       unselect_all [draw]</kbd></li><pre>
    Unselect everything. If draw is given and set to '0' no drawing is done </pre>
+   <li><kbd>       unselect_attached_floaters</kbd></li><pre>
+   Unselect objects (not symbol instances) attached to some instance with a 
+   non empty name=... attribute </pre>
    <li><kbd>       update_all_sym_bboxes</kbd></li><pre>
    Update all symbol bounding boxes </pre>
    <li><kbd>       update_op</kbd></li><pre>
@@ -1675,6 +1690,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

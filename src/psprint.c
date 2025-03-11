@@ -250,8 +250,9 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   return 1;
 }
 
-static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, double ry2)
+static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double ry2)
 {
+  xRect *r = &xctx->rect[GRIDLAYER][i];
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
   Zoom_info zi;
   double  rw, rh, scale;
@@ -269,7 +270,7 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   int quality=40;
   const char *quality_attr;
   size_t oLength;
-  int i;
+  int j;
   double sx1, sy1, sx2, sy2;
 
   /* screen position */
@@ -323,7 +324,9 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   d_c = tclgetboolvar("dark_colorscheme");
   tclsetboolvar("dark_colorscheme", 0);
   build_colors(0, 0);
-  draw();
+  setup_graph_data(i, 0, &xctx->graph_struct);
+  draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, NULL);
+
   dbg(1, "width=%d, rwi=%d height=%d rhi=%d\n", xctx->xrect[0].width, rwi, xctx->xrect[0].height, rhi);
   #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
@@ -337,13 +340,8 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
   cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
   cairo_paint(ct);
-  for (i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
-    xRect* r2 = &xctx->rect[GRIDLAYER][i];
-    if (r2->flags & 1) {
-      setup_graph_data(i, 0, &xctx->graph_struct); 
-      draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
-    }
-  }
+  setup_graph_data(i, 0, &xctx->graph_struct); 
+  draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
   #endif
   cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
 
@@ -382,10 +380,10 @@ static int ps_embedded_graph(xRect* r, double rx1, double ry1, double rx2, doubl
   fprintf(fd, "} exec\n");
 
   #if 1 /* break lines */
-  for (i = 0; i < oLength; ++i)
+  for (j = 0; j < oLength; ++j)
   {
-    fputc(ascii85EncodedJpeg[i],fd);
-    if(i > 0 && (i % 64) == 0) 
+    fputc(ascii85EncodedJpeg[j],fd);
+    if(j > 0 && (j % 64) == 0) 
     {
       fputc('\n',fd);
       /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
@@ -1449,8 +1447,8 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
           continue;
         }
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1)) { /* graph */
-          xRect* r = &xctx->rect[c][i];
-          ps_embedded_graph(r, r->x1, r->y1, r->x2, r->y2);
+          xRect *r = &xctx->rect[c][i];
+          ps_embedded_graph(i, r->x1, r->y1, r->x2, r->y2);
         }
         if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,

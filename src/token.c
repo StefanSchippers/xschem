@@ -184,6 +184,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
   int i,found;
  
   found=0;
+  dbg(1, "match_symbol(): name=%s\n", name);
   for(i=0;i<xctx->symbols; ++i) {
     /* dbg(1, "match_symbol(): name=%s, sym[i].name=%s\n",name, xctx->sym[i].name);*/
     if(xctx->x_strcmp(name, xctx->sym[i].name) == 0)
@@ -1198,8 +1199,8 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
         } 
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
-      if(strstr(result, "expr(") ) {
-        result = eval_expr(result);
+      if(strstr(result, "expr(")) {
+        my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_vhdl_primitive(): after  translate3() result=%s\n", result);
     } 
@@ -2152,7 +2153,8 @@ int print_spice_element(FILE *fd, int inst)
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
-  const char *lab, *value = NULL;
+  const char *lab; 
+  const char *value = NULL;
   /* char *translatedvalue = NULL; */
   size_t sizetok=0;
   size_t token_pos=0;
@@ -2462,8 +2464,8 @@ int print_spice_element(FILE *fd, int inst)
           value = spiceprefixtag;
         }
 
-        if(strstr(value, "expr(") ) {
-          value = eval_expr(value);
+        if(strstr(value, "expr(")) {
+          value =  eval_expr(value);
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
         if(!token_exists && token[0] =='%') {
@@ -2517,8 +2519,8 @@ int print_spice_element(FILE *fd, int inst)
   if(result) {
      my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
   }
-  if(strstr(result, "expr(") ) {
-    result = eval_expr(result);
+  if(strstr(result, "expr(")) {
+    my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
   }
   if(result) fprintf(fd, "%s", result);
   dbg(1, "print_spice_element(): returning |%s|\n", result);
@@ -3154,8 +3156,8 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         }
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
-      if(strstr(result, "expr(") ) {
-        result = eval_expr(result);
+      if(strstr(result, "expr(")) {
+        my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
     }
@@ -3777,6 +3779,99 @@ const char *spice_get_node(const char *token)
     return token;
   }
 }
+
+
+
+
+/* caller must free returned value
+ * get the full pathname of "instname" device
+ * modelparam: 
+ *   0: current, 1: modelparam, 2: modelvoltage
+ * param: device parameter, like "ib", "gm", "vth"
+ * set param to {} (empty str) for just branch current of 2 terminal device
+ * for parameters like "vth" modelparam must be 2
+ * for parameters like "ib" modelparam must be 0
+ * for parameters like "gm" modelparam must be 1
+ */
+char *get_fqdevice(const char *param, int modelparam, const char *instname)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  char *fqdev = NULL;
+  const char *path =  xctx->sch_path[xctx->currsch] + 1;
+  char *dev = NULL;
+  size_t len;
+  int idx;
+  int sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
+  int skip = 0;
+  char *iprefix = modelparam == 0 ? "i(" : modelparam == 1 ? "" : "v(";
+  char *ipostfix = modelparam == 1 ? "" : ")";
+  int prefix;
+
+  start_level = sch_waves_loaded();
+  /* skip path components that are above the level where raw file was loaded */
+  while(*path && skip < start_level) {
+    if(*path == '.') skip++;
+    ++path;
+  }
+  my_strdup2(_ALLOC_ID_, &dev, instname);
+  strtolower(dev);
+  prefix=dev[0];
+  len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
+  fqdev = my_malloc(_ALLOC_ID_, len);
+  if(!sim_is_xyce) {
+    int vsource = (prefix == 'v') || (prefix == 'e');
+    if(path[0]) {
+      if(vsource) {
+        my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+      } else if(prefix=='q') {
+        my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                    iprefix, prefix, path, dev, param ? param : "ic", ipostfix);
+      } else if(prefix=='d' || prefix == 'm') {
+        my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                    iprefix, prefix, path, dev, param ? param : "id", ipostfix);
+      } else if(prefix=='i') {
+        my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
+      } else {
+        my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
+      }
+    } else {
+      if(vsource) {
+        my_snprintf(fqdev, len, "i(%s)", dev);
+      } else if(prefix == 'q') {
+        my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "ic", ipostfix);
+      } else if(prefix == 'd' || prefix == 'm') {
+        my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "id", ipostfix);
+      } else if(prefix == 'i') {
+        my_snprintf(fqdev, len, "i(@%s[current])", dev);
+      } else {
+        my_snprintf(fqdev, len, "i(@%s[i])", dev);
+      }
+    }
+  } else {
+    my_snprintf(fqdev, len, "i(%s%s)", path, dev);
+  }
+  dbg(1, "fqdev=%s\n", fqdev);
+  strtolower(fqdev);
+  idx = get_raw_index(fqdev, NULL);
+  /* special handling for resistors that are converted to b sources: 
+   * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
+   */
+  if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
+    if(path[0]) {
+      my_snprintf(fqdev, len, "i(@b.%sb%s[i])", path, dev);
+    } else {
+      my_snprintf(fqdev, len, "i(@b%s[i])", dev);
+    }
+    dbg(1, "fqdev=%s\n", fqdev);
+  }
+
+
+  my_free(_ALLOC_ID_, &dev);
+  return fqdev;
+
+}
+
+
 
 
 /* substitute given tokens in a string with their corresponding values */

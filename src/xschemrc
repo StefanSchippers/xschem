@@ -295,6 +295,9 @@
 #### enable to scale grid point size as done with lines at close zoom, default: 0
 # set big_grid_points 0
 
+#### explicitly set grid point size in pixels. Default: -1 (not set)
+# set grid_point_size 2
+
 #### enable drawing grid axes. Default: enabled (1)
 # set draw_grid_axes 1
 

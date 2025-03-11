@@ -2060,6 +2060,7 @@ void change_linewidth(double w)
     double cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
+      if(xctx->lw > 100.) xctx->lw = 100.;
       xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
     }
   /* explicitly set line width */

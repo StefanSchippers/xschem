@@ -163,8 +163,8 @@ extern char win_temp_dir[PATH_MAX];
 #define CADINITIALY -870
 #define CADZOOMSTEP 1.2
 #define CADMOVESTEP 200
-#define CADMAXZOOM 1000000.0
-#define CADMINZOOM 0.000001
+#define CADMAXZOOM 10000.0
+#define CADMINZOOM 0.005
 #define CADHALFDOTSIZE 3.7
 #define CADNULLNODE -1      /*  no valid node number */
 #define CADWIREMINDIST 8.0
@@ -375,7 +375,7 @@ extern char win_temp_dir[PATH_MAX];
  * show_label also used on metal option type symbols (pass-through symbols) 
  * to optionally short two nets (using *_ignore=[true|false] attribute) */
 #define IS_LABEL_SH_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && strcmp(type,"opin") && \
-                                 strcmp(type,"show_label") && strcmp(type,"iopin") && strcmp(type,"bus_tap")))
+      strcmp(type,"scope") && strcmp(type,"show_label") && strcmp(type,"iopin") && strcmp(type,"bus_tap")))
 #define IS_LABEL_OR_PIN(type) (!(strcmp(type,"label") && strcmp(type,"ipin") && \
                                  strcmp(type,"opin") && strcmp(type,"iopin")))
 #define IS_PIN(type) (!(strcmp(type,"ipin") && strcmp(type,"opin") && strcmp(type,"iopin")))
@@ -954,7 +954,7 @@ typedef struct {
   int lastsel;
   int maxsel;
   Selected *sel_array;
-  Selected first_sel; /* first selected instance (used as master when editing multile pbjects) */
+  Selected first_sel; /* first selected instance (used as master when editing multiple objects) */
   int prep_net_structs;
   int prep_hi_structs;
   int prep_hash_inst;
@@ -1259,6 +1259,7 @@ extern int embed_rawfile(const char *rawfile);
 extern int read_rawfile_from_attr(const char *b64s, size_t length, const char *type);
 extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double sweep2);
 extern int raw_add_vector(const char *varname, const char *expr, int sweep_idx);
+extern int raw_renamevar(const char *old_name, const char *new_name);
 extern int raw_deletevar(const char *name);
 extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double end, double step);
@@ -1329,7 +1330,7 @@ extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
 extern int ps_draw(int what, int fullzoom, int eps);
 extern void svg_draw(void);
-extern void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2);
+extern void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, double ry2);
 extern void set_viewport_size(int w, int h, double lw);
 extern void print_image();
 extern const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext);
@@ -1400,9 +1401,9 @@ extern void tclmainloop(void);
 extern int Tcl_AppInit(Tcl_Interp *interp);
 extern void abort_operation(void);
 extern void draw_crosshair(int what, int state);
-extern void draw_snap_cursor(int what);
 extern void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr);
 /* extern void snapped_wire(double c_snap); */
+extern void unselect_attached_floaters(void);
 extern int callback(const char *win_path, int event, int mx, int my, KeySym key,
                         int button, int aux, int state);
 extern void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h);
@@ -1547,6 +1548,8 @@ extern void new_line(int what, double mx_snap, double my_snap);
 extern void new_arc(int what, double sweep, double mousex_snap, double mousey_snap);
 extern void arc_3_points(double x1, double y1, double x2, double y2, double x3, double y3,
          double *x, double *y, double *r, double *a, double *b);
+/* sel: if set to 1 change references only on selected items, like in a copy operation */
+extern void update_attached_floaters(const char *from_name, int inst, int sel);
 extern void move_objects(int what,int merge, double dx, double dy);
 extern void check_collapsing_objects();
 extern void redraw_w_a_l_r_p_z_rubbers(int force); /* redraw wire, arcs, line, polygon rubbers */
@@ -1611,6 +1614,7 @@ extern char *trim_chars(const char *str, const char *sep);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
 extern const char *spice_get_node(const char *token);
+extern char *get_fqdevice(const char *param, int modelparam, const char *instname);
 extern const char *translate(int inst, const char* s);
 extern const char* translate2(Lcc *lcc, int level, char* s);
 extern const char *translate3(const char* s, int eat_escapes, const char *s1,
@@ -1688,13 +1692,13 @@ extern const char *expandlabel(const char *s, int *m);
 extern void parse(const char *s);
 extern void clear_expandlabel_data(void);
 extern void merge_file(int selection_load, const char ext[]);
-extern void select_wire(int i, unsigned short select_mode, int fast);
+extern void select_wire(int i, unsigned short select_mode, int fast, int override_lock);
 extern void select_element(int i, unsigned short select_mode, int fast, int override_lock);
-extern void select_text(int i, unsigned short select_mode, int fast);
+extern void select_text(int i, unsigned short select_mode, int fast, int override_lock);
 extern void select_box(int c, int i, unsigned short select_mode, int fast, int override_lock);
-extern void select_arc(int c, int i, unsigned short select_mode, int fast);
-extern void select_line(int c, int i, unsigned short select_mode, int fast);
-extern void select_polygon(int c, int i, unsigned short select_mode, int fast );
+extern void select_arc(int c, int i, unsigned short select_mode, int fast, int override_lock);
+extern void select_line(int c, int i, unsigned short select_mode, int fast, int override_lock);
+extern void select_polygon(int c, int i, unsigned short select_mode, int fast, int override_lock );
 extern const char *net_name(int i, int j, int *mult, int hash_prefix_unnamed_net, int erc);
 extern int record_global_node(int what, FILE *fp, const char *node);
 extern int count_items(const char *s, const char *sep, const char *quote);

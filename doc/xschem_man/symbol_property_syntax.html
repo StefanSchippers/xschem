@@ -551,6 +551,19 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
  </ul>
  <h3>PREDEFINED SYMBOL VALUES</h3>
  <ul>
+  <li><kbd>@name</kbd></li>
+  <p> This expands to the instance name of the symbol (like C1, R2, X3, ...)
+   It is replaced with the value of the <kbd>name=...</kbd> attribute given when placing an instance of the symbol
+   in a schematic.</p>
+  <li><kbd>#pattern#@name</kbd></li>
+  <p> This is a variation of the above where <kbd>pattern</kbd> is prefixed to all substituted <kbd>@name</kbd>
+   patterns. The difference with <kbd>pattern@name</kbd> is that in case of vector instances (this means
+   a placement of an instance with <kbd>name=R2[3:0]</kbd>, for example) the <kbd>pattern</kbd> string
+   is added to all single instances when expanding the name. see below examples.<br>
+   <kbd>pattern@name</kbd> where <kbd>name=R2[2:0]</kbd> is given in the instance placement,
+   expands to <kbd>patternR2[2],R2[1],R2[0]</kbd><br>
+   <kbd>#pattern#@name</kbd> where <kbd>name=R2[2:0]</kbd> is given in the instance placement,
+   expands to <kbd>patternR2[2],patternR2[1],patternR2[0]</kbd><br>
   <li><kbd>@symname</kbd></li>
   <p> This expands to the name of the symbol</p>
   <li><kbd>@symref</kbd></li>

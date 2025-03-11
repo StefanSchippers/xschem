@@ -1014,17 +1014,16 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
     return res;
   }
   dbg(1, "raw_read(): type=%s\n", type ? type : "<NULL>");
-  *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
-  raw = *rawptr;
-  raw->level = -1; 
-  raw->annot_p = -1;
-  raw->sweep1 = sweep1;
-  raw->sweep2 = sweep2;
-  raw->annot_sweep_idx = -1;
-
-  int_hash_init(&raw->table, HASHSIZE);
   fd = my_fopen(f, fopen_read_mode);
   if(fd) {
+    *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+    raw = *rawptr;
+    raw->level = -1;
+    raw->annot_p = -1;
+    raw->sweep1 = sweep1;
+    raw->sweep2 = sweep2;
+    raw->annot_sweep_idx = -1;
+    int_hash_init(&raw->table, HASHSIZE);
     if((res = read_dataset(fd, rawptr, type, no_warning)) == 1) {
       int i;
       set_modify(-2); /* clear text floater caches */
@@ -1044,12 +1043,13 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
           xRect *r;
           r = &xctx->rect[GRIDLAYER][0];
           if(r->flags & 1) {
-            setup_graph_data(0, 0, &xctx->graph_struct);
-            backannotate_at_cursor_b_pos(r, &xctx->graph_struct);
+            /* don't overwrite xctx->graph_struct, being used in draw_graph() which calls raw_read() */
+            Graph_ctx gr_ctx;
+            setup_graph_data(0, 0, &gr_ctx);
+            backannotate_at_cursor_b_pos(r, &gr_ctx);
           }
         }
       }
-
     } else {
       /* free_rawfile(rawptr, 0, 0); */ /* do not free: already done in read_dataset()->extra_rawfile() */
       if(!no_warning) {
@@ -1073,6 +1073,22 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
   }
   return 0;
 }
+
+int raw_renamevar(const char *old_name, const char *new_name)
+{       
+  int n, ret = 0;
+  Raw *raw = xctx->raw; 
+  Int_hashentry *entry;
+      
+  n = get_raw_index(old_name, &entry);
+  if(n < 0) return ret;
+  dbg(1, "n=%d, %s \n", n, entry->token);
+  int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
+  my_strdup2(_ALLOC_ID_, &raw->names[n], new_name);
+  int_hash_lookup(&raw->table, raw->names[n], n, XINSERT); /* update hash table */
+  ret = 1;
+  return ret; 
+}         
 
 int raw_deletevar(const char *name)
 {
@@ -1206,6 +1222,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   if(what == 0) return 0;
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
+    dbg(1, "insert extra_raw_arr[0]\n");
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
@@ -1277,7 +1294,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
         if(!no_warning) {
           dbg(0, "extra_rawfile() read: %s not found or no \"%s\" analysis\n", f, type ? type : "<unspecified>");
         }
-        if(xctx->extra_raw_n) { /* only restore if raw wiles were not deleted due to a failure in read_raw() */
+        if(xctx->extra_raw_n) { /* only restore if raw files were not deleted due to a failure in read_raw() */
+          dbg(1, "extra_rawfile(): read: restore previous, extra_idx=%d\n",  xctx->extra_idx);
           xctx->raw = save; /* restore */
           xctx->extra_prev_idx = xctx->extra_idx;
         }
@@ -2783,7 +2801,8 @@ static void load_inst(int k, FILE *fd)
     if(name[0] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
     else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
     #else 
-    my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
+    if(isupper(name[0]) && name[1] == ':' && name[1] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
+    else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
     #endif
     my_free(_ALLOC_ID_, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,

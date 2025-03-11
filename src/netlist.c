@@ -678,7 +678,7 @@ static void print_wires(void)
  ptr=xctx->wire_spatial_table[0][1];
  while(ptr)
  {
-  select_wire(ptr->n,SELECTED, 1);
+  select_wire(ptr->n,SELECTED, 1, 1);
   rebuild_selected_array();
   ptr=ptr->next;
  }
