@@ -4791,16 +4791,17 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 #### Display preview of selected symbol
 proc insert_symbol_focusin {} {
-  puts insert_symbol_focusin
+  # puts insert_symbol_focusin
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
     set sel [.ins.center.left.l index active]
     .ins.center.left.l selection set active
+    insert_symbol_preview
   } 
 }
 
 proc insert_symbol_preview {} {
-  puts insert_symbol_preview
+  # puts insert_symbol_preview
   global insert_symbol
   xschem preview_window close .ins.center.right {}
   .ins.center.right configure -bg white
@@ -4816,35 +4817,48 @@ proc insert_symbol_preview {} {
     if {$f ne {}} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
+        .ins.top.dir_e configure -state normal
+        .ins.top.dir_e delete 0 end
+        .ins.top.dir_e insert 0 [file dirname [rel_sym_path $f]]
+        .ins.top.dir_e configure -state readonly
         .ins.center.right configure -bg {}
         xschem preview_window create .ins.center.right {}
         xschem preview_window draw .ins.center.right [list $f]
         bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
         bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
       }
+      insert_symbol_place
     }
   }
 }
 
 # new alternate insert_symbol browser
 #### fill list of files matching pattern
-proc insert_symbol_filelist {paths {maxdepth 1}} {
-  puts insert_symbol_filelist
+proc insert_symbol_filelist {paths {maxdepth -1}} {
+  # puts insert_symbol_filelist
   global insert_symbol
   set insert_symbol(regex) [.ins.top.pat_e get]
+
+  #check if regex is valid
+  set err [catch {regexp $insert_symbol(regex) {12345}} res]
+  if {$err} {return}
+
   set f [match_file $insert_symbol(regex) $paths $maxdepth]
   set insert_symbol(list) {}
   set insert_symbol(fullpathlist) {}
   .ins.center.left.l activate 0
   foreach i $f {
-    set fname [rel_sym_path $i]
-    lappend insert_symbol(list) $fname
-    lappend insert_symbol(fullpathlist) $i
+    set type [regexp $insert_symbol(ext) $i]
+    if {$type} {
+      set fname [rel_sym_path $i]
+      lappend insert_symbol(list) $fname
+      lappend insert_symbol(fullpathlist) $i
+    }
   }
 }
 
 proc insert_symbol_place {} {
-  puts insert_symbol_place
+  # puts insert_symbol_place
   global insert_symbol
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
@@ -4856,6 +4870,7 @@ proc insert_symbol_place {} {
     if {$f ne {}} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
+        xschem abort_operation
         xschem place_symbol $f
       }
     }
@@ -4864,9 +4879,10 @@ proc insert_symbol_place {} {
 
 #### paths: list of paths to use for listing symbols
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
-proc insert_symbol {{paths {}} {maxdepth 1}} {
+proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   global insert_symbol
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
+  set insert_symbol(ext) $ext
   toplevel .ins
   frame .ins.top -takefocus 0
   panedwindow  .ins.center -orient horizontal -height 8c
@@ -4888,26 +4904,34 @@ proc insert_symbol {{paths {}} {maxdepth 1}} {
   label .ins.top.pat_l -text Pattern:
   entry .ins.top.pat_e -width 20 -highlightcolor red -highlightthickness 2 \
      -highlightbackground [option get . background {}]
+  label .ins.top.dir_l -text Dir:
+  entry .ins.top.dir_e -width 50 -takefocus 0  -state readonly
   if {[info exists insert_symbol(regex)]} { 
     .ins.top.pat_e insert 0 $insert_symbol(regex)
   }
+  
+  bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   bind .ins.top.pat_e <KeyRelease> "
     if {{%K} ne {Tab}} {
       insert_symbol_filelist [list $paths] [list $maxdepth]
+    } else {
     }
   "
   bind .ins.center.left.l <<ListboxSelect>> { insert_symbol_preview }
-  bind .ins.center.left.l <FocusIn> { insert_symbol_focusin }
+  bind .ins.center.left.l <Enter> { insert_symbol_focusin }
   button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
-    xschem preview_window close .ins.center.right {}
-    destroy .ins
+    if { [xschem get ui_state] & 8192 } {
+      xschem abort_operation
+    } else {
+      xschem preview_window close .ins.center.right {}
+      destroy .ins
+    }
   }
-  button .ins.bottom.insert -takefocus 0 -text Insert -command {
-    insert_symbol_place
-  }
-  pack .ins.bottom.insert .ins.bottom.dismiss -side left
+  pack .ins.bottom.dismiss -side left
   pack .ins.top.pat_l -side left
   pack .ins.top.pat_e -side left
+  pack .ins.top.dir_l -side left
+  pack .ins.top.dir_e -side left
   insert_symbol_filelist $paths $maxdepth
   # tkwait window .ins
   # xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -6717,15 +6741,25 @@ proc viewdata {data {ro {}} {win .view}} {
 }
 
 proc sub_match_file { f {paths {}} {maxdepth -1} } {
-  global pathlist match_file_dir_arr match_file_level
+  global pathlist match_file_dir_arr match_file_level nolist_libs
   set res {}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
+      set skip 0
+      foreach k $nolist_libs {
+        if {[regexp $k $j]} {
+          set skip 1
+          break
+        }
+      }
+      if {$skip} { continue }
+  
       if {[file isdirectory $j] && [file readable $j]} {
         if { $maxdepth == -1 || $match_file_level < $maxdepth} {
           set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
-          if {[array names match_file_dir_arr -exact $jj] == {}} {
+          # if {[array names match_file_dir_arr -exact $jj] == {}} { ... }
+          if {![info exists match_file_dir_arr($jj)]} {
             set match_file_dir_arr($jj) 1
             incr match_file_level
             set sub_res [sub_match_file $f $j $maxdepth] ;# recursive call
@@ -6734,9 +6768,11 @@ proc sub_match_file { f {paths {}} {maxdepth -1} } {
           }
         }
       } else {
-        set fname $j
-        if {[regexp $f $fname]} {
-          lappend res $j
+        if {![info exists match_file_dir_arr($j)]} {
+         set match_file_dir_arr($j) 1
+          if {[regexp $f $j]} {
+            lappend res $j
+          }
         }
       }
     }
@@ -6757,15 +6793,26 @@ proc match_file  { f {paths {}} {maxdepth -1}  } {
 }
 
 proc sub_find_file { f {paths {}} {first 0} {maxdepth -1}} {
-  global pathlist match_file_dir_arr match_file_level
+  global pathlist match_file_dir_arr match_file_level nolist_libs
   set res {}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     foreach j [glob -nocomplain -directory $i *] {
+
+      set skip 0
+      foreach k $nolist_libs {
+        if {[regexp $k $j]} {
+          set skip 1
+          break
+        }
+      }
+      if {$skip} { continue }
+
       if {[file isdirectory $j]  && [file readable $j]} {
         if { $maxdepth == -1 || $match_file_level < $maxdepth} {
           set jj [regsub {/ $} [file normalize ${j}/\ ] {}]
-          if {[array names match_file_dir_arr -exact $jj] == {}} {
+          # if {[array names match_file_dir_arr -exact $jj] == {}} { ... }
+          if {![info exists match_file_dir_arr($jj)]} {
             set match_file_dir_arr($jj) 1
             incr match_file_level
             set sub_res [sub_find_file $f $j $first $maxdepth] ;# recursive call
@@ -6778,9 +6825,12 @@ proc sub_find_file { f {paths {}} {first 0} {maxdepth -1}} {
         }
       } else {
         set fname [file tail $j]
-        if {$fname == $f} {
-          lappend res $j
-          if {$first} {return $res}
+        if {![info exists match_file_dir_arr($j)]} {
+          set match_file_dir_arr($j) 1
+          if {$fname == $f} {
+            lappend res $j
+            if {$first} {return $res}
+          }
         }
       }
     }

@@ -1725,6 +1725,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             Tcl_SetResult(interp, top_path,TCL_VOLATILE);
           }
           break;
+          case 'u':
+          if(!strcmp(argv[2], "ui_state")) { /* return UI state */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp,  my_itoa(xctx->ui_state), TCL_VOLATILE);
+          }
+          break;
           case 'v':
           if(!strcmp(argv[2], "version")) { /* return xschem version */
             Tcl_SetResult(interp, XSCHEM_VERSION, TCL_VOLATILE);
