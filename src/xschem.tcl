@@ -4810,10 +4810,10 @@ proc insert_symbol_preview {{paths {}}} {
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
   set sel [.ins.center.left.l curselection]
-  # if {$sel eq {}} {
-  #   set sel [.ins.center.left.l index active]
-  #   .ins.center.left.l selection set active
-  # }
+  if {$sel eq {}} {
+    set sel [.ins.center.left.l index active]
+    .ins.center.left.l selection set active
+  }
   if {$sel ne {}} {
     set f [lindex $insert_symbol(fullpathlist) $sel 0]
     if {$f ne {}} {
