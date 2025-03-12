@@ -3982,6 +3982,7 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
 
 
 proc is_xschem_file {f} {
+  # puts "is_xschem_file $f"
   regsub {\(.*} $f {} f ;# remove trailing generator args (gen.tcl(....))  if any
   if { ![file exists $f] } { return 0 
   } elseif { [file isdirectory $f] } { return 0 }
@@ -4789,18 +4790,19 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
 
 
+#######################################################################
+##### new alternate insert_symbol browser
+#######################################################################
+
 #### Display preview of selected symbol
-proc insert_symbol_focusin {} {
-  # puts insert_symbol_focusin
-  set sel [.ins.center.left.l curselection]
-  if {$sel eq {}} {
-    set sel [.ins.center.left.l index active]
-    .ins.center.left.l selection set active
-    insert_symbol_preview
-  } 
+proc insert_symbol_focusin {{paths {}} {maxdepth -1}} {
+  global insert_symbol new_symbol_browser_ext
+  xschem abort_operation
+  set insert_symbol(ext) $new_symbol_browser_ext
+  insert_symbol_filelist $paths $maxdepth
 }
 
-proc insert_symbol_preview {} {
+proc insert_symbol_preview {{paths {}}} {
   # puts insert_symbol_preview
   global insert_symbol
   xschem preview_window close .ins.center.right {}
@@ -4808,19 +4810,26 @@ proc insert_symbol_preview {} {
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
   set sel [.ins.center.left.l curselection]
-  if {$sel eq {}} {
-    set sel [.ins.center.left.l index active]
-    .ins.center.left.l selection set active
-  }
+  # if {$sel eq {}} {
+  #   set sel [.ins.center.left.l index active]
+  #   .ins.center.left.l selection set active
+  # }
   if {$sel ne {}} {
     set f [lindex $insert_symbol(fullpathlist) $sel 0]
     if {$f ne {}} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
+        set dir [rel_sym_path $f $paths]
         .ins.top.dir_e configure -state normal
         .ins.top.dir_e delete 0 end
-        .ins.top.dir_e insert 0 [file dirname [rel_sym_path $f]]
+        .ins.top.dir_e  insert 0 $dir
         .ins.top.dir_e configure -state readonly
+
+
+        .ins.top2.dir_e configure -state normal
+        .ins.top2.dir_e delete 0 end
+        .ins.top2.dir_e insert 0 $f
+        .ins.top2.dir_e configure -state readonly
         .ins.center.right configure -bg {}
         xschem preview_window create .ins.center.right {}
         xschem preview_window draw .ins.center.right [list $f]
@@ -4831,11 +4840,9 @@ proc insert_symbol_preview {} {
     }
   }
 }
-
-# new alternate insert_symbol browser
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
-  # puts insert_symbol_filelist
+  # puts "insert_symbol_filelist: paths=$paths"
   global insert_symbol
   set insert_symbol(regex) [.ins.top.pat_e get]
 
@@ -4844,17 +4851,38 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
   if {$err} {return}
 
   set f [match_file $insert_symbol(regex) $paths $maxdepth]
-  set insert_symbol(list) {}
+  set filelist {}
   set insert_symbol(fullpathlist) {}
   .ins.center.left.l activate 0
   foreach i $f {
-    set type [regexp $insert_symbol(ext) $i]
-    if {$type} {
-      set fname [rel_sym_path $i]
-      lappend insert_symbol(list) $fname
+    
+    set err [catch {regexp $insert_symbol(ext) $i} type]
+    if {!$err && $type} {
+      set fname [rel_sym_path $i $paths]
+      lappend filelist $fname
       lappend insert_symbol(fullpathlist) $i
     }
   }
+  # sort lists using filelist as key
+  set files {}
+  foreach f $filelist ff $insert_symbol(fullpathlist) {
+    lappend files [list $f $ff]
+  }
+  set files [lsort -dictionary -index 0 $files]
+  set filelist {}
+  set insert_symbol(fullpathlist) {}
+  
+  foreach f $files {
+    lassign $f ff fff
+    lappend filelist $ff
+    lappend insert_symbol(fullpathlist) $fff
+  }
+
+  # assign listbox variable all at the end, it is faster...
+  set insert_symbol(list) $filelist
+  set insert_symbol(nitems) [llength $filelist]
+  # .ins.center.left.l selection clear 0 end
+  # .ins.center.left.l selection set 0
 }
 
 proc insert_symbol_place {} {
@@ -4881,10 +4909,16 @@ proc insert_symbol_place {} {
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
 proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   global insert_symbol
+  set paths [cleanup_paths $paths] ;# remove ~ and other strange path combinations
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   set insert_symbol(ext) $ext
+  if {[winfo exists .ins]} {
+    raise .ins
+    return
+  }
   toplevel .ins
   frame .ins.top -takefocus 0
+  frame .ins.top2 -takefocus 0
   panedwindow  .ins.center -orient horizontal -height 8c
   frame .ins.center.left  -takefocus 0
   frame .ins.center.right -width 300 -height 250 -bg white -takefocus 0
@@ -4892,6 +4926,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   .ins.center add .ins.center.right
   frame .ins.bottom  -takefocus 0
   pack .ins.top -side top -fill x
+  pack .ins.top2 -side top -fill x
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
   listbox .ins.center.left.l -listvariable insert_symbol(list) -width 50 -height 20 \
@@ -4901,24 +4936,32 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
   pack .ins.center.left.l -expand 1 -fill both -side left
   pack .ins.center.left.s -fill y -side left
+  label .ins.top2.dir_l -text {Full path:}
+  entry .ins.top2.dir_e -width 60 -state readonly \
+    -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.pat_l -text Pattern:
   entry .ins.top.pat_e -width 20 -highlightcolor red -highlightthickness 2 \
      -highlightbackground [option get . background {}]
-  label .ins.top.dir_l -text Dir:
-  entry .ins.top.dir_e -width 50 -takefocus 0  -state readonly
+  label .ins.top.dir_l -text { Symbol ref: }
+  entry .ins.top.dir_e -width 40 -state readonly \
+    -readonlybackground [option get . background {}] -takefocus 0
+  label .ins.top.ext_l -text Ext:
+  entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable new_symbol_browser_ext
   if {[info exists insert_symbol(regex)]} { 
     .ins.top.pat_e insert 0 $insert_symbol(regex)
   }
   
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
-  bind .ins.top.pat_e <KeyRelease> "
-    if {{%K} ne {Tab}} {
+  bind .ins <KeyRelease> "
+    if {{%K} eq {Tab} && {%W} eq {.ins.center.left.l}} {
       insert_symbol_filelist [list $paths] [list $maxdepth]
-    } else {
+      insert_symbol_preview [list $paths]
     }
   "
-  bind .ins.center.left.l <<ListboxSelect>> { insert_symbol_preview }
-  bind .ins.center.left.l <Enter> { insert_symbol_focusin }
+  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_preview [list $paths]"
+  bind .ins.center.left.l <Enter> "insert_symbol_focusin [list $paths] [list $maxdepth]"
+  label .ins.bottom.n -text { N. of items:}
+  label .ins.bottom.nitems -textvariable insert_symbol(nitems)
   button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
     if { [xschem get ui_state] & 8192 } {
       xschem abort_operation
@@ -4928,15 +4971,24 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     }
   }
   pack .ins.bottom.dismiss -side left
+  pack .ins.bottom.n -side left
+  pack .ins.bottom.nitems -side left
+  pack .ins.top2.dir_l -side left
+  pack .ins.top2.dir_e -side left -fill x -expand 1
   pack .ins.top.pat_l -side left
   pack .ins.top.pat_e -side left
   pack .ins.top.dir_l -side left
   pack .ins.top.dir_e -side left
+  pack .ins.top.ext_l -side left
+  pack .ins.top.ext_e -side left
   insert_symbol_filelist $paths $maxdepth
   # tkwait window .ins
   # xschem set semaphore [expr {[xschem get semaphore] -1}]
+  return {}
 }
-# /new alternate insert_symbol browser
+#######################################################################
+##### /new alternate insert_symbol browser
+#######################################################################
 
 # get last n path components: example , n=1 --> /aaa/bbb/ccc/ddd.sch -> ccc/ddd.sch
 proc get_cell {s n } {
@@ -6785,6 +6837,8 @@ proc sub_match_file { f {paths {}} {maxdepth -1} } {
 # recursively descend directories
 proc match_file  { f {paths {}} {maxdepth -1}  } {
   global match_file_dir_arr match_file_level
+  set err [catch {regexp $f {12345}} res]
+  if {$err} {return {}}
   set match_file_level 0
   catch {unset match_file_dir_arr}
   set res  [sub_match_file $f $paths $maxdepth]
@@ -6944,9 +6998,11 @@ proc try_download_url {dirname sch_or_sym} {
 # if file is in a library directory (a $pathlist dir)
 # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
 #          devices/iopin.sym
-proc rel_sym_path {symbol} {
+proc rel_sym_path {symbol {paths {}} } {
   global OS pathlist env
+  # puts "rel_sym_path: $symbol    $paths"
 
+  if { $paths eq {}} {set paths $pathlist}
   regsub {^~/} $symbol ${env(HOME)}/ symbol
   if {$OS eq "Windows"} {
     if {![regexp {^[A-Za-z]\:/} $symbol]} {
@@ -6959,7 +7015,7 @@ proc rel_sym_path {symbol} {
   }
   set curr_dirname [pwd]
   set name {}
-  foreach path_elem $pathlist {
+  foreach path_elem $paths {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
@@ -6993,9 +7049,10 @@ proc rel_sym_path {symbol} {
 # given a symbol reference 'sym' return its absolute path
 # Example: % abs_sym_path devices/iopin.sch
 #          /home/schippes/share/xschem/xschem_library/devices/iopin.sym
-proc abs_sym_path {fname {ext {} } } {
+proc abs_sym_path {fname {ext {} } {paths {}}} {
   global pathlist OS
 
+  if { $paths eq {}} {set paths $pathlist}
   set curr_dirname [pwd]
   ## empty: do nothing
   if {$fname eq {} } return {}
@@ -7055,9 +7112,9 @@ proc abs_sym_path {fname {ext {} } } {
     ## if file does not exists but directory does return anyway
     if { [file exists [file dirname "$tmpfname"]] } { return "$tmpfname" }
   }
-  ## if fname is present in one of the pathlist paths get the absolute path
+  ## if fname is present in one of the paths paths get the absolute path
   set name {}
-  foreach path_elem $pathlist {
+  foreach path_elem $paths {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
     }
@@ -8074,6 +8131,7 @@ set tctx::global_list {
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
+ new_symbol_browser new_symbol_browser_depth new_symbol_browser_ext new_symbol_browser_paths
  no_ask_save no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
@@ -8534,7 +8592,11 @@ proc build_widgets { {topwin {} } } {
     }
   $topwin.menubar.file add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
-      load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
+      if {$new_symbol_browser} {
+        insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext
+      } else {
+        load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
+      }
     }
   $topwin.menubar.file add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file add command -label "Open Most Recent" \
@@ -9160,12 +9222,27 @@ proc trace_set_paths {varname idxname op} {
     uplevel #0 set_paths
   }
 }
+proc cleanup_paths {paths} {
+  global env
+  set pathlist {}
+  foreach i $paths {
+    regsub {^~$} $i ${env(HOME)} i
+    regsub {^~/} $i ${env(HOME)}/ i
+    if { ![string compare $i .] } {
+      lappend pathlist $i
+    } elseif { [ regexp {\.\.\/} $i] } {
+      lappend pathlist [file normalize $i]
+    } elseif { [ file exists $i] } {
+      lappend pathlist $i
+    }
+  }
+  return $pathlist
+}
 
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
 # new library search path.
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH env pathlist OS add_all_windows_drives file_dialog_names1
-  set pathlist {}
+  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
@@ -9179,17 +9256,8 @@ proc set_paths {} {
     } else {
       set pathlist_orig [split $XSCHEM_LIBRARY_PATH :]
     }
-    foreach i $pathlist_orig {
-      regsub {^~$} $i ${env(HOME)} i
-      regsub {^~/} $i ${env(HOME)}/ i
-      if { ![string compare $i .] } {
-        lappend pathlist $i
-      } elseif { [ regexp {\.\.\/} $i] } {
-        lappend pathlist [file normalize $i]
-      } elseif { [ file exists $i] } {
-        lappend pathlist $i
-      }
-    }
+
+    set pathlist [cleanup_paths $pathlist_orig]
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
   set_initial_dirs
@@ -9613,6 +9681,12 @@ set_ne undo_type disk
 set_ne tabbed_interface 1
 ## case insensitive symbol lookup (on case insensitive filesystems only!)
 set_ne case_insensitive 0
+
+## New alternate symbol placement browser (default: not enabled).
+set_ne new_symbol_browser 0
+set_ne new_symbol_browser_paths {} ;# if empty use xschem search paths
+set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the search paths
+set_ne new_symbol_browser_ext {\.(sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
 

@@ -3371,14 +3371,21 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
    }
    if((key==XK_Insert && state == ShiftMask) ||  (key == 'i' && rstate == ControlMask)) /* insert sym */
    {
-     tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+     if(tclgetboolvar("new_symbol_browser")) {
+       tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+     } else {
+       tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+     }
      return;
    }
    if((key==XK_Insert) || (key == 'I' && rstate == 0) ) /* insert sym */
    {
     if(xctx->semaphore >= 2) return;
-    start_place_symbol();
-
+    if(tclgetboolvar("new_symbol_browser")) {
+      tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+    } else {
+      start_place_symbol();
+    }
     return;
    }
    if(key=='s' && SET_MODMASK)                     /* reload */
