@@ -573,6 +573,19 @@
 # set tabbed_interface 0
 
 ###########################################################################
+#### ALTERNATE SYMBOL PLACEMENT BROWSER
+###########################################################################
+#### uses a new symbol placement widget. Default: not enabled (0)
+# set new_symbol_browser 1
+#### defines a list of paths to search for. If empty uses all xschem
+#### XSCHEM_LIBRARY_PATH paths
+# set new_symbol_browser_paths [list ... ... ... ]
+#### defines the depth to descend into each path. default: 2
+# set new_symbol_browser_depth 3
+#### defines the extensions to search for. Default: {\.(sym|tcl)$}
+# set new_symbol_browser_ext {\.(sch|sym|tcl)$}
+
+###########################################################################
 #### CASE INSENSITIVE SYMBOL LOOKUP
 ###########################################################################
 #### this option might be useful on filesystems that are case insensitive and
