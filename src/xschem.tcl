@@ -9355,6 +9355,15 @@ proc source_user_tcl_files {} {
   }
 }
 
+proc eval_user_startup_commands {} {
+  global user_startup_commands
+  if {[info exists user_startup_commands]} {
+    if {[catch {uplevel #0 $user_startup_commands} res]} {
+      puts "executing $user_startup_commands:\n\n$res"
+    }
+  }         
+}           
+
 proc eval_postinit_commands {} {
   global postinit_commands
   if {[info exists postinit_commands]} {

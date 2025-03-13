@@ -1666,6 +1666,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
+  tcleval("eval_user_startup_commands");
   /* restore previous context,
    * because the Expose event after new window creation does a context switch prev win -> new win 
    * 
@@ -2892,6 +2893,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(has_x) {
    tclsetintvar("tctx::max_new_windows", MAX_NEW_WINDOWS);
    tcleval("pack_widgets; set_bindings .drw");
+   tcleval("eval_user_startup_commands");
  }
 
  fs=tclgetintvar("fullscreen");
