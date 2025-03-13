@@ -8533,9 +8533,9 @@ proc build_widgets { {topwin {} } } {
   global dark_gui_colorscheme draw_crosshair grid_point_size
   global recentfile color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
-  global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width
-  global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type
-  global disable_unique_names persistent_command autotrim_wires en_hilight_conn_inst
+  global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width cadence_compat
+  global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type snap_cursor
+  global disable_unique_names persistent_command autotrim_wires infix_interface orthogonal_wiring en_hilight_conn_inst
   global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
   if { $dark_gui_colorscheme} {
     set selectcolor white
@@ -8662,6 +8662,10 @@ proc build_widgets { {topwin {} } } {
      -onvalue disk -offvalue memory -command {switch_undo}
   $topwin.menubar.option add checkbutton -label "Enable stretch" -variable enable_stretch \
      -selectcolor $selectcolor  -accelerator Y 
+  $topwin.menubar.option add checkbutton -label "Enable infix-interface" -variable infix_interface \
+     -selectcolor $selectcolor
+  $topwin.menubar.option add checkbutton -label "Enable orthogonal wiring" -variable orthogonal_wiring \
+     -selectcolor $selectcolor  -accelerator Shift-L
   $topwin.menubar.option add checkbutton -label "Unsel. partial sel. wires after stretch move" \
      -selectcolor $selectcolor -variable unselect_partial_sel_wires
 
@@ -8678,6 +8682,10 @@ proc build_widgets { {topwin {} } } {
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
 
+  $topwin.menubar.option add checkbutton -label "Draw crosshair" \
+    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
+  $topwin.menubar.option add checkbutton -label "Draw persistent snap cursor" -variable snap_cursor \
+     -selectcolor $selectcolor  -accelerator {Alt-Z}
 
   $topwin.menubar.option add cascade -label "Crosshair" \
        -menu $topwin.menubar.option.crosshair
@@ -9596,6 +9604,7 @@ set_ne ps_page_title 1 ;# add a title in the top left page corner
 set_ne draw_crosshair 0
 set_ne crosshair_layer 8 ;# Yellow
 set_ne crosshair_size 0
+set_ne snap_cursor_size 6
 set_ne ps_paper_size {a4 842 595}
 set_ne transparent_svg 0
 set_ne only_probes 0  ; # 20110112
@@ -9627,13 +9636,12 @@ set_ne grid_point_size -1 ;# grid point size (>=0) or unspecified (-1)
 set_ne draw_grid_axes 1
 set_ne persistent_command 0
 set_ne intuitive_interface 1
-set_ne infix_interface 1
-set_ne orthogonal_wiring 0
-set_ne snap_cursor 0
-set_ne snap_cursor_size 6
-set_ne cadence_compat 0
 set_ne use_cursor_for_selection 0
 set_ne autotrim_wires 0
+set_ne cadence_compat 0
+set_ne infix_interface 1
+set_ne snap_cursor 0
+set_ne orthogonal_wiring 0
 set_ne compare_sch 0
 set_ne disable_unique_names 0
 set_ne sym_txt 1

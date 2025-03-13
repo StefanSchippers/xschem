@@ -23,6 +23,9 @@ src/eval_expr.c
 src/parselabel.c
 src/parselabel.h
 
+# Config file for C/C++ code formatter (clang-format)
+.clang-format
+
 # Executables
 *.exe
 src/rawtovcd
