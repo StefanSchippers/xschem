@@ -3032,7 +3032,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         descend_symbol();
       }
       else if(rstate == ControlMask) {                                                  /* insert sym */
-        tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+        if(tclgetboolvar("new_symbol_browser")) {
+          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        } else {
+          tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+        }
       }
       else if(EQUAL_MODMASK) {                                  /* edit symbol in new window */
         int save =  xctx->semaphore;
@@ -3045,7 +3049,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case 'I':
       if(rstate == 0) {                                             /* insert sym */
         if(xctx->semaphore >= 2) break;
-        start_place_symbol();
+        if(tclgetboolvar("new_symbol_browser")) {
+          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        } else {
+          start_place_symbol();
+        }
       }
       else if(EQUAL_MODMASK) {                          /* edit symbol in new window - new xschem process */
         int save =  xctx->semaphore;
@@ -3967,11 +3975,19 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     
     case XK_Insert:
       if(state == ShiftMask) { /* insert sym */
-        tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+        if(tclgetboolvar("new_symbol_browser")) {
+          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        } else {
+          tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
+        }
       }
       else {
         if(xctx->semaphore >= 2) break;
-        start_place_symbol();
+        if(tclgetboolvar("new_symbol_browser")) {
+          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        } else {
+          start_place_symbol();
+        }
       }
       break;
 
