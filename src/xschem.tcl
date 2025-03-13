@@ -4853,7 +4853,9 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
   set f [match_file $insert_symbol(regex) $paths $maxdepth]
   set filelist {}
   set insert_symbol(fullpathlist) {}
-  .ins.center.left.l activate 0
+  set sel [.ins.center.left.l curselection]
+  if {$sel eq {}} { set sel 0}
+  .ins.center.left.l activate $sel
   foreach i $f {
     
     set err [catch {regexp $insert_symbol(ext) $i} type]
