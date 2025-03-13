@@ -8146,8 +8146,9 @@ set tctx::global_list {
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
  tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
  textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
- top_is_subckt transparent_svg undo_type unselect_partial_sel_wires use_cursor_for_selection
- use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell verilog_2001 verilog_bitblast
+ top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt
+ use_cursor_for_selection use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell
+ verilog_2001 verilog_bitblast
  viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port zoom_full_center
 }
 
@@ -9144,7 +9145,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
       xschem set format {}
     }
   }
-
+  $topwin.menubar.simulation.lvs add checkbutton -label "Upper case .SUBCKT and .ENDS" \
+  -selectcolor $selectcolor -variable uppercase_subckt
   $topwin.menubar.simulation.lvs add checkbutton -label "Top level is a .subckt" \
   -selectcolor $selectcolor -variable top_is_subckt
 
@@ -9582,6 +9584,7 @@ set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and si
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne lvs_netlist 0
 set_ne top_is_subckt 0
+set_ne uppercase_subckt 0
 set_ne lvs_ignore 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne graph_use_ctrl_key 0;# if set forces to use Control key to operate on graphs
