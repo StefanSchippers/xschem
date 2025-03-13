@@ -7009,15 +7009,15 @@ proc rel_sym_path {symbol {paths {}} } {
 
   if { $paths eq {}} {set paths $pathlist}
   regsub {^~/} $symbol ${env(HOME)}/ symbol
-  if {$OS eq "Windows"} {
-    if {![regexp {^[A-Za-z]\:/} $symbol]} {
-      set symbol [pwd]/$symbol
-    }
-  } else {
-    if {![regexp {^/} $symbol]} {
-      set symbol [pwd]/$symbol
-    }
-  }
+  # if {$OS eq "Windows"} {
+  #   if {![regexp {^[A-Za-z]\:/} $symbol]} {
+  #     set symbol [pwd]/$symbol
+  #   }
+  # } else {
+  #   if {![regexp {^/} $symbol]} {
+  #     set symbol [pwd]/$symbol
+  #   }
+  # }
   set curr_dirname [pwd]
   set name {}
   foreach path_elem $paths {
