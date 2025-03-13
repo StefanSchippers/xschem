@@ -4503,9 +4503,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   file_dialog_set_colors1
   scrollbar .load.l.paneleft.yscroll -command ".load.l.paneleft.list yview" -takefocus 0
   scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.list xview" -orient horiz -takefocus 0
-  pack  .load.l.paneleft.yscroll -side right -fill y
-  pack  .load.l.paneleft.xscroll -side bottom -fill x
-  pack  .load.l.paneleft.list -fill both -expand true -padx 12
   bind .load.l.paneleft.list <<ListboxSelect>> { 
     set file_dialog_sel [.load.l.paneleft.list curselection]
     if { $file_dialog_sel ne {} } {
@@ -4551,9 +4548,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
-  pack  .load.l.paneright.f.yscroll -side right -fill y
-  pack  .load.l.paneright.f.xscroll -side bottom -fill x
-  pack  .load.l.paneright.f.list -side bottom  -fill both -expand true
 
   if { $loadfile == 2} {
     .load.l  add .load.l.recent
@@ -4598,7 +4592,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 \
-    -highlightbackground [option get . background {}]
+    -highlightbackground [option get . background {}] -takefocus 0
   entry_replace_selection .load.buttons_bot.entry
   label .load.buttons_bot.srclab  -text { Search:}
   entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2 \
@@ -4652,19 +4646,28 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       file_dialog_set_colors1
       .load.l.paneleft.list xview moveto 1
     }
+
+  pack .load.l -expand true -fill both
+  pack  .load.l.paneleft.yscroll -side right -fill y
+  pack  .load.l.paneleft.xscroll -side bottom -fill x
+  pack  .load.l.paneleft.list -fill both -expand true -padx 12
+
   pack .load.buttons.home .load.buttons.up .load.buttons.pwd .load.buttons.path -side left
   pack .load.buttons.mkdirlab -side left
   pack .load.buttons.newdir -expand true -fill x -side left
   pack .load.buttons.rmdir .load.buttons.mkdir -side right
-  # pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
   pack .load.buttons_bot.srclab -side left
   pack .load.buttons_bot.src -side left 
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
+
+  pack  .load.l.paneright.f.yscroll -side right -fill y
+  pack  .load.l.paneright.f.xscroll -side bottom -fill x
+  pack  .load.l.paneright.f.list -side bottom  -fill both -expand true
+
   pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
   pack .load.buttons_bot -side bottom -fill x
   pack .load.buttons -side bottom -fill x
-  pack .load.l -expand true -fill both
   if { [info exists file_dialog_default_geometry]} {
      wm geometry .load "${file_dialog_default_geometry}"
   }
