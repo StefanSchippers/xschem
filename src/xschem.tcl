@@ -3997,6 +3997,13 @@ proc is_xschem_file {f} {
   } else {
     fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
+ 
+      #### Can not use this. schematics may containg 8 bit extended characters
+      # if {[regexp {[^[:print:][:space:]]} $line]} { ;# line contains non ascii chars 
+      #   close $fd
+      #   return 0
+      #  }
+
       # this is a script. not an xschem file
       if { $nline == 0 && [regexp {^#!} $line] } { 
         #### too dangerous executing an arbitrary script...
@@ -4843,6 +4850,34 @@ proc insert_symbol_preview {{paths {}}} {
     }
   }
 }
+
+proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {level -1}} {
+  global pathlist
+  if {$level == -1} { set level 0}
+  if {$paths eq {}} {set paths $pathlist}
+
+  foreach i $paths {
+    set filelist [glob -nocomplain -directory $i -type f *]
+    set there_are_symbols 0
+    foreach f $filelist {
+      if {[regexp {\.(sch|sym|tcl)$} $f]} {
+      # if {[is_xschem_file $f] ne {0}} {  }
+        set there_are_symbols 1
+        break
+      }
+    }
+    if {$there_are_symbols} {
+      puts $i
+    }
+
+    set dirlist [glob -nocomplain -directory $i -type d *]
+    if {$levels >=0 && $level + 1 > $levels} {return}
+    foreach d $dirlist {
+      get_list_of_dirs_with_symbols $d $levels [expr {$level + 1} ]
+    }
+  }
+}
+
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
   # puts "insert_symbol_filelist: paths=$paths"
@@ -4925,8 +4960,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   frame .ins.top -takefocus 0
   frame .ins.top2 -takefocus 0
   panedwindow  .ins.center -orient horizontal -height 8c
+  frame .ins.center.leftdir  -takefocus 0
   frame .ins.center.left  -takefocus 0
-  frame .ins.center.right -width 300 -height 250 -bg white -takefocus 0
+  frame .ins.center.right -width 250 -height 250 -bg white -takefocus 0
+  .ins.center add .ins.center.leftdir
   .ins.center add .ins.center.left
   .ins.center add .ins.center.right
   frame .ins.bottom  -takefocus 0
@@ -4934,13 +4971,26 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.top2 -side top -fill x
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
-  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 50 -height 20 \
+
+  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirs) -width 20 -height 20 \
+    -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
+    -activestyle underline -highlightbackground [option get . background {}] \
+    -exportselection 0
+
+  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 40 -height 20 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
+
+  scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
+
   pack .ins.center.left.l -expand 1 -fill both -side left
   pack .ins.center.left.s -fill y -side left
+
+  pack .ins.center.leftdir.l -expand 1 -fill both -side left
+  pack .ins.center.leftdir.s -fill y -side left
+
   label .ins.top2.dir_l -text {Full path:}
   entry .ins.top2.dir_e -width 60 -state readonly \
     -readonlybackground [option get . background {}] -takefocus 0
@@ -9115,7 +9165,7 @@ proc build_widgets { {topwin {} } } {
    -selectcolor $selectcolor  -variable auto_hilight_graph_nodes
   $topwin.menubar.simulation.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.graph add command -label {Add waveform reload launcher} -command {
-      xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
+      xschem place_symbol [find_file_first launcher.sym] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
   }
