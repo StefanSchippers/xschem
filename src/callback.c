@@ -2607,7 +2607,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 {
   char str[PATH_MAX + 100];
   switch (key) {
-    case '0' ... '4': 
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
       if(state == 0) {                                  /* toggle pin logic level */
         if(xctx->semaphore >= 2) break;
         if(key == '4') logic_set(-1, 1, NULL);
@@ -2638,7 +2642,10 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }  /* /20110112 */
       break;
 
-    case '6' ... '9': 
+    case '6':
+    case '7':
+    case '8':
+    case '9':
       if(state==ControlMask) {                        /* choose layer */
         char n[30];
         xctx->rectcolor = (int)key - '0'+4;
