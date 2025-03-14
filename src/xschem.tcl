@@ -8736,17 +8736,12 @@ proc build_widgets { {topwin {} } } {
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
 
-  $topwin.menubar.option add checkbutton -label "Draw crosshair" \
-    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
-  $topwin.menubar.option add checkbutton -label "Draw persistent snap cursor" -variable snap_cursor \
-     -selectcolor $selectcolor  -accelerator {Alt-Z}
-
   $topwin.menubar.option add cascade -label "Crosshair" \
        -menu $topwin.menubar.option.crosshair
   menu $topwin.menubar.option.crosshair -tearoff 0
 
   $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
-    -variable snap_cursor -selectcolor $selectcolor
+    -variable snap_cursor -selectcolor $selectcolor  -accelerator {Alt-Z}
   $topwin.menubar.option.crosshair add checkbutton -label "Draw crosshair" \
     -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
   $topwin.menubar.option.crosshair add command -label "Crosshair size" \

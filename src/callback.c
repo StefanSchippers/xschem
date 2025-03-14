@@ -3764,12 +3764,16 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case ' ':
-      if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
+      if(xctx->ui_state & STARTMOVE) {
+        draw_selection(xctx->gctiled,0);
+        xctx->manhattan_lines++;
+        xctx->manhattan_lines %=3;
+        draw_selection(xctx->gc[SELLAYER], 0);
+      } else if(xctx->ui_state & STARTWIRE) { /*  & instead of == 20190409 */
         new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
         xctx->manhattan_lines++;
         xctx->manhattan_lines %=3;
         new_wire(RUBBER, xctx->mousex_snap, xctx->mousey_snap);
-
       } else if(xctx->ui_state & STARTLINE) {
         new_line(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
         xctx->manhattan_lines++;
