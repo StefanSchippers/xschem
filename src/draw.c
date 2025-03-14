@@ -1375,6 +1375,45 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
  }
 }
 
+void drawtemp_manhattanline(GC gc, int what, double x1, double y1, double x2, double y2)
+{
+  double origin_shifted_x2, origin_shifted_y2;
+  if(tclgetboolvar("orthogonal_wiring")) {
+    /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+    origin_shifted_x2 = x2 - x1;
+    origin_shifted_y2 = y2 - y1;
+    /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+    if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2)
+      xctx->manhattan_lines = 1;
+    else
+      xctx->manhattan_lines = 2;
+  }
+  if(xctx->manhattan_lines & 1) {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+  } else if(xctx->manhattan_lines & 2) {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+  } else {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+  }
+}
+
 void drawtemparc(GC gc, int what, double x, double y, double r, double a, double b)
 {
  static int i=0;
