@@ -107,6 +107,7 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
 {
   double mx = xctx->mousex_snap;
   double my = xctx->mousey_snap;
+  double origin_shifted_x2, origin_shifted_y2;
 
   if(!force && xctx->mousex_snap == xctx->prev_rubberx && xctx->mousey_snap == xctx->prev_rubbery) return;
 
@@ -115,12 +116,11 @@ void redraw_w_a_l_r_p_z_rubbers(int force)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     if(tclgetboolvar("orthogonal_wiring")) {
-      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-      double origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1;
-      double origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
       new_wire(RUBBER|CLEAR, xctx->mousex_snap, xctx->mousey_snap);
-      /* Draw whichever component of the resulting orthogonal-wire is bigger
-       * (either horizontal or vertical), first */
+      /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+      origin_shifted_x2 = xctx->nl_x2 - xctx->nl_x1;
+      origin_shifted_y2 = xctx->nl_y2 - xctx->nl_y1;
+      /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
       if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2){
         xctx->manhattan_lines = 1;
       } else {
@@ -257,7 +257,7 @@ void start_wire(double mx, double my)
     xctx->my_double_save=my;
   }
   new_wire(PLACE,mx, my);
-  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")) {
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
       xctx->constr_mv = 0;
   }
 }
@@ -3800,6 +3800,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case '%':                                           /* toggle draw grid */
+      int dr_gr;
       dr_gr = tclgetboolvar("draw_grid");
       dr_gr =!dr_gr;
       if(dr_gr) {
@@ -4131,9 +4132,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
                                 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux)
 {
+   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
-   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
@@ -4505,10 +4506,8 @@ static void handle_double_click(int event, int state, KeySym key, int button,
          edit_property(0);
        } else {
          if(xctx->ui_state & STARTWIRE) {
-           if( cadence_compat ) {
-             redraw_w_a_l_r_p_z_rubbers(1);
-             start_wire(mx, my);
-           }
+           redraw_w_a_l_r_p_z_rubbers(1);
+           start_wire(mx, my);
            xctx->ui_state &= ~STARTWIRE;
          }
          if(xctx->ui_state & STARTLINE) {
