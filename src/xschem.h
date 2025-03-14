@@ -1428,6 +1428,7 @@ extern void filledrect(int c, int what, double rectx1,double recty1,
 
 
 extern void drawtempline(GC gc, int what, double x1,double y1,double x2,double y2);
+extern void drawtemp_manhattanline(GC gc, int what, double x1,double y1,double x2,double y2);
 
 /* instead of doing a drawtemprect(xctx->gctiled, NOW, ....) do 4 
  * XCopy Area operations. Used if fix_broken_tiled_fill is set */

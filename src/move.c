@@ -378,25 +378,25 @@ void draw_selection(GC g, int interruptable)
      if(xctx->wire[n].sel==SELECTED)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
+        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
       else
-        drawtempline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
+        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
      }
      else if(xctx->wire[n].sel==SELECTED1)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
       else
-        drawtempline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
      }
      else if(xctx->wire[n].sel==SELECTED2)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
       else
-        drawtempline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
      }
      break;
     case LINE:
@@ -1135,10 +1135,66 @@ void move_objects(int what, int merge, double dx, double dy)
           if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
           else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
          }
-         wire[n].x1=xctx->rx1;
-         wire[n].y1=xctx->ry1;
-         wire[n].x2=xctx->rx2;
-         wire[n].y2=xctx->ry2;
+         
+         if(wire[n].sel & (SELECTED|SELECTED1))
+         {
+          if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
+          else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
+         }
+         wire[n].sel = SELECTED;
+         delete_wires(SELECTED);
+         if(xctx->manhattan_lines & 1) {
+           if(xctx->nl_xx2!=xctx->nl_xx1) {
+             xctx->nl_xx1 = xctx->rx1; xctx->nl_yy1 = xctx->ry1;
+             xctx->nl_xx2 = xctx->rx2; xctx->nl_yy2 = xctx->ry2;
+             ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+             storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1,WIRE,0,0,NULL);
+             hash_wire(XINSERT, xctx->wires-1, 1);
+             drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0, NULL);
+           }
+           if(xctx->nl_yy2!=xctx->nl_yy1) {
+             xctx->nl_xx1 = xctx->rx1; xctx->nl_yy1 = xctx->ry1;
+             xctx->nl_xx2 = xctx->rx2; xctx->nl_yy2 = xctx->ry2;
+             ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+             storeobject(-1, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+             hash_wire(XINSERT, xctx->wires-1, 1);
+             drawline(WIRELAYER,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
+           }
+         } else if(xctx->manhattan_lines & 2) {
+           if(xctx->nl_yy2!=xctx->nl_yy1) {
+             xctx->nl_xx1 = xctx->rx1; xctx->nl_yy1 = xctx->ry1;
+             xctx->nl_xx2 = xctx->rx2; xctx->nl_yy2 = xctx->ry2;
+             ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+             storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2,WIRE,0,0,NULL);
+             hash_wire(XINSERT, xctx->wires-1, 1);
+             drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0, NULL);
+           }
+           if(xctx->nl_xx2!=xctx->nl_xx1) {
+             xctx->nl_xx1 = xctx->rx1; xctx->nl_yy1 = xctx->ry1;
+             xctx->nl_xx2 = xctx->rx2; xctx->nl_yy2 = xctx->ry2;
+             ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+             storeobject(-1, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+             hash_wire(XINSERT, xctx->wires-1, 1);
+             drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
+           }
+         } else {
+           xctx->nl_xx1 = xctx->rx1; xctx->nl_yy1 = xctx->ry1;
+           xctx->nl_xx2 = xctx->rx2; xctx->nl_yy2 = xctx->ry2;
+           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+           storeobject(-1, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2,WIRE,0,0,NULL);
+           hash_wire(XINSERT, xctx->wires-1, 1);
+           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
+         }
+         xctx->prep_hi_structs = 0;
+         if(tclgetboolvar("autotrim_wires")) trim_wires();
+         prepare_netlist_structs(0); /* since xctx->prep_hi_structs==0, do a delete_netlist_structs() first,
+                              * this clears both xctx->prep_hi_structs and xctx->prep_net_structs. */
+         if(xctx->hilight_nets) {
+           propagate_hilights(1, 1, XINSERT_NOREPLACE);
+         }
+         draw();
+         /* draw_hilight_net(1);*/  /* for updating connection bubbles on hilight nets */
+         set_modify(1);
        }
        break;
  
