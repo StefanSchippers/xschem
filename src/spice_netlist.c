@@ -173,10 +173,9 @@ static int spice_netlist(FILE *fd, int spice_stop )
   int err = 0;
   int i, flag = 0;
   const char *type;
-  int top_sub;
+  int top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
   int lvs_ignore = tclgetboolvar("lvs_ignore");
-
-  top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
+  
   if(!spice_stop) {
     dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
@@ -278,6 +277,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  int found_top_symbol = 0;
  int npins = 0; /* top schematic number of i/o ports */
  Sch_pin_record *pinnumber_list = NULL; /* list of top sch i/o ports ordered wrt sim_pinnumber attr */
+ int uppercase_subckt = tclgetboolvar("uppercase_subckt");
 
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
@@ -341,7 +341,10 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  }
  top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
  if(!top_sub) fprintf(fd,"**");
- fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
+ if(uppercase_subckt) 
+   fprintf(fd,".SUBCKT %s", get_cell(xctx->sch[xctx->currsch], 0));
+ else
+   fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
  pinnumber_list = sort_schematic_pins(&npins); /* sort pins according to sim_pinnumber attr */
 
  /* print top subckt ipin/opins */
@@ -405,7 +408,10 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  /* /20100217 */
 
  if(!top_sub) fprintf(fd,"**");
- fprintf(fd, ".ends\n");
+ if(uppercase_subckt) 
+   fprintf(fd, ".ENDS\n");
+ else
+   fprintf(fd, ".ends\n");
 
 
  if(split_f) {
@@ -572,7 +578,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
 
 
  /* 20150922 added split_files check */
- if(!split_f) fprintf(fd, ".end\n");
+ if( !top_sub && !split_f) fprintf(fd, ".end\n");
 
  dbg(1, "global_spice_netlist(): starting awk on netlist!\n");
 
@@ -612,7 +618,8 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   char *sym_def = NULL;
   char *name = NULL;
   const char *default_schematic;
-
+  int uppercase_subckt = tclgetboolvar("uppercase_subckt");
+ 
   split_f = tclgetboolvar("split_files");
 
   if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
@@ -657,7 +664,10 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   } else {
     const char *s = get_cell(sanitize(name), 0);
     fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
-    fprintf(fd, ".subckt %s ", s);
+    if(uppercase_subckt)
+      fprintf(fd, ".SUBCKT %s ", s);
+     else
+      fprintf(fd, ".subckt %s ", s);
     print_spice_subckt_nodes(fd, i);
   
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
@@ -680,7 +690,10 @@ int spice_block_netlist(FILE *fd, int i, int alert)
       fprintf(fd, "%s\n", xctx->schprop);
       fprintf(fd,"**** end user architecture code\n");
     }
-    fprintf(fd, ".ends\n\n");
+    if(uppercase_subckt)
+      fprintf(fd, ".ENDS\n\n");
+    else
+      fprintf(fd, ".ends\n\n");
   }
   if(split_f) {
     int save;

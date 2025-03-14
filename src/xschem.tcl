@@ -3997,6 +3997,13 @@ proc is_xschem_file {f} {
   } else {
     fconfigure $fd -translation binary
     while { [gets $fd line] >=0 } {
+ 
+      #### Can not use this. schematics may containg 8 bit extended characters
+      # if {[regexp {[^[:print:][:space:]]} $line]} { ;# line contains non ascii chars 
+      #   close $fd
+      #   return 0
+      #  }
+
       # this is a script. not an xschem file
       if { $nline == 0 && [regexp {^#!} $line] } { 
         #### too dangerous executing an arbitrary script...
@@ -4503,9 +4510,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   file_dialog_set_colors1
   scrollbar .load.l.paneleft.yscroll -command ".load.l.paneleft.list yview" -takefocus 0
   scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.list xview" -orient horiz -takefocus 0
-  pack  .load.l.paneleft.yscroll -side right -fill y
-  pack  .load.l.paneleft.xscroll -side bottom -fill x
-  pack  .load.l.paneleft.list -fill both -expand true -padx 12
   bind .load.l.paneleft.list <<ListboxSelect>> { 
     set file_dialog_sel [.load.l.paneleft.list curselection]
     if { $file_dialog_sel ne {} } {
@@ -4551,9 +4555,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
-  pack  .load.l.paneright.f.yscroll -side right -fill y
-  pack  .load.l.paneright.f.xscroll -side bottom -fill x
-  pack  .load.l.paneright.f.list -side bottom  -fill both -expand true
 
   if { $loadfile == 2} {
     .load.l  add .load.l.recent
@@ -4598,7 +4599,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   }
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 \
-    -highlightbackground [option get . background {}]
+    -highlightbackground [option get . background {}] -takefocus 0
   entry_replace_selection .load.buttons_bot.entry
   label .load.buttons_bot.srclab  -text { Search:}
   entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2 \
@@ -4652,19 +4653,28 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       file_dialog_set_colors1
       .load.l.paneleft.list xview moveto 1
     }
+
+  pack .load.l -expand true -fill both
+  pack  .load.l.paneleft.yscroll -side right -fill y
+  pack  .load.l.paneleft.xscroll -side bottom -fill x
+  pack  .load.l.paneleft.list -fill both -expand true -padx 12
+
   pack .load.buttons.home .load.buttons.up .load.buttons.pwd .load.buttons.path -side left
   pack .load.buttons.mkdirlab -side left
   pack .load.buttons.newdir -expand true -fill x -side left
   pack .load.buttons.rmdir .load.buttons.mkdir -side right
-  # pack .load.buttons_bot.all .load.buttons_bot.sym .load.buttons_bot.sch -side left
   pack .load.buttons_bot.srclab -side left
   pack .load.buttons_bot.src -side left 
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
+
+  pack  .load.l.paneright.f.yscroll -side right -fill y
+  pack  .load.l.paneright.f.xscroll -side bottom -fill x
+  pack  .load.l.paneright.f.list -side bottom  -fill both -expand true
+
   pack .load.buttons_bot.cancel .load.buttons_bot.ok -side left
   pack .load.buttons_bot -side bottom -fill x
   pack .load.buttons -side bottom -fill x
-  pack .load.l -expand true -fill both
   if { [info exists file_dialog_default_geometry]} {
      wm geometry .load "${file_dialog_default_geometry}"
   }
@@ -4840,6 +4850,34 @@ proc insert_symbol_preview {{paths {}}} {
     }
   }
 }
+
+proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {level -1}} {
+  global pathlist
+  if {$level == -1} { set level 0}
+  if {$paths eq {}} {set paths $pathlist}
+
+  foreach i $paths {
+    set filelist [glob -nocomplain -directory $i -type f *]
+    set there_are_symbols 0
+    foreach f $filelist {
+      if {[regexp {\.(sch|sym|tcl)$} $f]} {
+      # if {[is_xschem_file $f] ne {0}} {  }
+        set there_are_symbols 1
+        break
+      }
+    }
+    if {$there_are_symbols} {
+      puts $i
+    }
+
+    set dirlist [glob -nocomplain -directory $i -type d *]
+    if {$levels >=0 && $level + 1 > $levels} {return}
+    foreach d $dirlist {
+      get_list_of_dirs_with_symbols $d $levels [expr {$level + 1} ]
+    }
+  }
+}
+
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
   # puts "insert_symbol_filelist: paths=$paths"
@@ -4922,8 +4960,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   frame .ins.top -takefocus 0
   frame .ins.top2 -takefocus 0
   panedwindow  .ins.center -orient horizontal -height 8c
+  frame .ins.center.leftdir  -takefocus 0
   frame .ins.center.left  -takefocus 0
-  frame .ins.center.right -width 300 -height 250 -bg white -takefocus 0
+  frame .ins.center.right -width 250 -height 250 -bg white -takefocus 0
+  .ins.center add .ins.center.leftdir
   .ins.center add .ins.center.left
   .ins.center add .ins.center.right
   frame .ins.bottom  -takefocus 0
@@ -4931,13 +4971,26 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.top2 -side top -fill x
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
-  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 50 -height 20 \
+
+  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirs) -width 20 -height 20 \
+    -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
+    -activestyle underline -highlightbackground [option get . background {}] \
+    -exportselection 0
+
+  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 40 -height 20 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
+
+  scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
+
   pack .ins.center.left.l -expand 1 -fill both -side left
   pack .ins.center.left.s -fill y -side left
+
+  pack .ins.center.leftdir.l -expand 1 -fill both -side left
+  pack .ins.center.leftdir.s -fill y -side left
+
   label .ins.top2.dir_l -text {Full path:}
   entry .ins.top2.dir_e -width 60 -state readonly \
     -readonlybackground [option get . background {}] -takefocus 0
@@ -7006,15 +7059,15 @@ proc rel_sym_path {symbol {paths {}} } {
 
   if { $paths eq {}} {set paths $pathlist}
   regsub {^~/} $symbol ${env(HOME)}/ symbol
-  if {$OS eq "Windows"} {
-    if {![regexp {^[A-Za-z]\:/} $symbol]} {
-      set symbol [pwd]/$symbol
-    }
-  } else {
-    if {![regexp {^/} $symbol]} {
-      set symbol [pwd]/$symbol
-    }
-  }
+  # if {$OS eq "Windows"} {
+  #   if {![regexp {^[A-Za-z]\:/} $symbol]} {
+  #     set symbol [pwd]/$symbol
+  #   }
+  # } else {
+  #   if {![regexp {^/} $symbol]} {
+  #     set symbol [pwd]/$symbol
+  #   }
+  # }
   set curr_dirname [pwd]
   set name {}
   foreach path_elem $paths {
@@ -8143,8 +8196,9 @@ set tctx::global_list {
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
  tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
  textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
- top_is_subckt transparent_svg undo_type unselect_partial_sel_wires use_cursor_for_selection
- use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell verilog_2001 verilog_bitblast
+ top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt
+ use_cursor_for_selection use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell
+ verilog_2001 verilog_bitblast
  viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port zoom_full_center
 }
 
@@ -9119,7 +9173,7 @@ proc build_widgets { {topwin {} } } {
    -selectcolor $selectcolor  -variable auto_hilight_graph_nodes
   $topwin.menubar.simulation.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.graph add command -label {Add waveform reload launcher} -command {
-      xschem place_symbol [rel_sym_path [find_file_first launcher.sym]] "name=h5\ndescr=\"load waves\" 
+      xschem place_symbol [find_file_first launcher.sym] "name=h5\ndescr=\"load waves\" 
 tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
 "
   }
@@ -9149,7 +9203,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
       xschem set format {}
     }
   }
-
+  $topwin.menubar.simulation.lvs add checkbutton -label "Upper case .SUBCKT and .ENDS" \
+  -selectcolor $selectcolor -variable uppercase_subckt
   $topwin.menubar.simulation.lvs add checkbutton -label "Top level is a .subckt" \
   -selectcolor $selectcolor -variable top_is_subckt
 
@@ -9357,6 +9412,15 @@ proc source_user_tcl_files {} {
     uplevel #0 [list source $i]
   }
 }
+
+proc eval_user_startup_commands {} {
+  global user_startup_commands
+  if {[info exists user_startup_commands]} {
+    if {[catch {uplevel #0 $user_startup_commands} res]} {
+      puts "executing $user_startup_commands:\n\n$res"
+    }
+  }         
+}           
 
 proc eval_postinit_commands {} {
   global postinit_commands
@@ -9587,6 +9651,7 @@ set_ne local_netlist_dir 0 ;# if set use <sch_dir>/simulation for netlist and si
 set_ne bus_replacement_char {} ;# use {<>} to replace [] with <> in bussed signals
 set_ne lvs_netlist 0
 set_ne top_is_subckt 0
+set_ne uppercase_subckt 0
 set_ne lvs_ignore 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne graph_use_ctrl_key 0;# if set forces to use Control key to operate on graphs

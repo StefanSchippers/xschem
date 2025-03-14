@@ -547,6 +547,17 @@
 # }
 
 ###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER ANY NEW WINDOW CREATION
+###########################################################################
+#### this hook is useful to execute user UI code (like event binding,
+#### new buttons / menu entries etc).
+# set user_startup_commands {
+#   bind [xschem get current_win_path] <Key-plus>  {
+#     puts Hello
+#   }
+# }
+
+###########################################################################
 #### TCL COMMANDS TO BE EXECUTED AFTER GENERATING NETLIST
 ###########################################################################
 # set netlist_postprocess {textfile $netlist_dir/[xschem get netlist_name fallback]}
