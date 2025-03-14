@@ -138,6 +138,11 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <li><kbd>text_layer_&lt;n&gt;</kbd></li>
   <p> This attribute sets the layer of symbol text item number <kbd>n</kbd>. This allows
    instance based symbol text color customization.</p>
+  <li><kbd>attach</kbd></li>
+  <p> An attribute <kbd>attach="x1 g3 p4"</kbd> will "attach" specified objects that have a matching <kbd>name=...</kbd>
+   attribute. These objects can be any xschem objects, like other elements, wires, rectangles, polygons, texts etc.<br>
+   Attached objects will be selected when selecting the component with this attribute set.
+   This allows to create "object groups"</p>
   <li><kbd>highlight</kbd></li>
   <p>If set to <kbd>true</kbd> the symbol will be highlighted when one of the nets attached to its pins are highlighted.</p>
   <li><kbd>net_name</kbd></li>

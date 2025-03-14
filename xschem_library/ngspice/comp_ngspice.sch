@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.6 file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -24,6 +24,15 @@ K {}
 V {}
 S {}
 E {}
+B 2 520 -415 630 -315 {name=l4
+flags=graph,unlocked
+lock=1
+color=8
+node="tcleval([xschem get_fqdevice [xschem translate l4 @device]])"
+y1=-0.00014
+y2=0.00013
+x1=0.00044464632
+x2=0.00046163671}
 T {( @#0:resolved_net )} 440 -265 0 1 0.2 0.2 {name=l2 layer=15}
 T {( @#0:resolved_net )} 100 -285 0 1 0.2 0.2 {name=p1 layer=15}
 T {( @#0:resolved_net )} 100 -235 0 1 0.2 0.2 {name=p2 layer=15}
@@ -49,3 +58,6 @@ m=1}
 C {parax_cap.sym} 630 -230 0 0 {name=C3 gnd=0 value=\{COUT\} m=1}
 C {vsource.sym} 150 -260 1 0 {name=V1 value=0}
 C {vsource.sym} 150 -210 1 0 {name=V2 value=0}
+C {scope_ammeter.sym} 500 -290 0 0 {name=l4
+attach=l4
+device=R1}

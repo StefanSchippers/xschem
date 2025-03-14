@@ -378,25 +378,25 @@ void draw_selection(GC g, int interruptable)
      if(xctx->wire[n].sel==SELECTED)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
+        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
       else
-        drawtempline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
+        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
      }
      else if(xctx->wire[n].sel==SELECTED1)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
       else
-        drawtempline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
      }
      else if(xctx->wire[n].sel==SELECTED2)
      {
       if(xctx->wire[n].bus)
-        drawtempline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
       else
-        drawtempline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
      }
      break;
     case LINE:
@@ -512,6 +512,82 @@ void draw_selection(GC g, int interruptable)
   drawtempline(g, END, 0.0, 0.0, 0.0, 0.0);
   xctx->movelastsel = i;
 }
+
+/* sel: if set to 1 change references only on selected items, like in a copy operation.
+ * If set to 0 operate on all objects with matching name=... attribute */
+void update_attached_floaters(const char *from_name, int inst, int sel)
+{
+  int i, c;
+  char *to_name = xctx->inst[inst].instname;
+  const char *attach = get_tok_value(xctx->inst[inst].prop_ptr, "attach", 0);
+  char *new_attach;
+
+  if(!from_name || !from_name[0]) return;
+  if(!to_name || !to_name[0]) return;
+  if(!attach[0]) return;
+
+     new_attach = str_replace(attach, from_name, to_name, 1, 1);
+     my_strdup(_ALLOC_ID_, &xctx->inst[inst].prop_ptr,
+               subst_token(xctx->inst[inst].prop_ptr, "attach", new_attach) );
+ 
+     for(c = 0; c < cadlayers; c++) {
+      for(i = 0; i < xctx->rects[c]; i++) {
+        if(!sel || xctx->rect[c][i].sel == SELECTED) {
+          if( !strcmp(from_name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
+            my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
+                      subst_token(xctx->rect[c][i].prop_ptr, "name", to_name) );
+          }
+          if(c == GRIDLAYER) {
+            const char *node = get_tok_value(xctx->rect[c][i].prop_ptr, "node", 2);
+            if(node && node[0]) {
+              const char *new_node = str_replace(node, from_name, to_name, 1, -1);
+              my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr,
+                   subst_token(xctx->rect[c][i].prop_ptr, "node", new_node));
+            }
+          }
+        }
+      }
+      for(i = 0; i < xctx->lines[c]; i++) {
+        if((!sel || xctx->line[c][i].sel == SELECTED) && 
+           !strcmp(from_name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, 
+                    subst_token(xctx->line[c][i].prop_ptr, "name", to_name) );
+        }
+      }
+  
+      for(i = 0; i < xctx->polygons[c]; i++) {
+        if((!sel || xctx->poly[c][i].sel == SELECTED) && 
+           !strcmp(from_name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, 
+                    subst_token(xctx->poly[c][i].prop_ptr, "name", to_name) );
+
+        }
+      }
+      for(i = 0; i < xctx->arcs[c]; i++) {
+        if((!sel || xctx->arc[c][i].sel == SELECTED) && 
+           !strcmp(from_name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, 
+                    subst_token(xctx->arc[c][i].prop_ptr, "name", to_name) );
+        }
+      }
+    }
+    for(i = 0; i < xctx->wires; i++) {
+      if((!sel || xctx->wire[i].sel == SELECTED) && 
+           !strcmp(from_name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, 
+                    subst_token(xctx->wire[i].prop_ptr, "name", to_name) );
+      }
+    }
+    for(i = 0; i < xctx->texts; i++) {
+      if((!sel || xctx->text[i].sel == SELECTED) && 
+           !strcmp(from_name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
+          my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, 
+                    subst_token(xctx->text[i].prop_ptr, "name", to_name) );
+        set_text_flags(&xctx->text[i]);
+      }
+    }
+}
+
 
 void copy_objects(int what)
 {
@@ -881,6 +957,9 @@ void copy_objects(int what)
         newpropcnt++;
         new_prop_string(xctx->instances, xctx->inst[n].prop_ptr, /* sets also inst[].instname */
           tclgetboolvar("disable_unique_names"));
+
+        update_attached_floaters(xctx->inst[n].instname, xctx->instances, 1);
+
         hash_names(xctx->instances, XINSERT);
         xctx->instances++; /* symbol_bbox calls translate and translate must have updated xctx->instances */
         symbol_bbox(xctx->instances-1,
@@ -1056,10 +1135,36 @@ void move_objects(int what, int merge, double dx, double dy)
           if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
           else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
          }
-         wire[n].x1=xctx->rx1;
-         wire[n].y1=xctx->ry1;
-         wire[n].x2=xctx->rx2;
-         wire[n].y2=xctx->ry2;
+         
+         if(wire[n].sel & (SELECTED|SELECTED1))
+         {
+          if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
+          else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
+         }
+         wire[n].x1 = xctx->rx1;
+         wire[n].y1 = xctx->ry1;
+         if(xctx->manhattan_lines&1)
+         {
+          wire[n].x2 = xctx->rx2;
+          wire[n].y2 = xctx->ry1;
+          storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+          hash_wire(XINSERT, xctx->wires-1, 1);
+          drawline(WIRELAYER,ADD, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2, 0, NULL);
+         }
+         else if(xctx->manhattan_lines&2)
+         {
+          wire[n].x2 = xctx->rx1;
+          wire[n].y2 = xctx->ry2;
+          storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+          hash_wire(XINSERT, xctx->wires-1, 1);
+          drawline(WIRELAYER,ADD, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2, 0, NULL);
+         }
+         else
+         {
+          wire[n].x2 = xctx->rx2;
+          wire[n].y2 = xctx->ry2;
+         }
+         
        }
        break;
  

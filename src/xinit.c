@@ -1179,7 +1179,7 @@ static int source_tcl_file(char *s)
     fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
     fprintf(errfp, "%s", tclresult());
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
-    fprintf(errfp, "Line No: %d\n", Tcl_GetErrorLine(interp));
+    fprintf(errfp, "\nLine No: %d\n", Tcl_GetErrorLine(interp));
     #endif
     fprintf(errfp, "\n");
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
@@ -1666,6 +1666,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
+  tcleval("eval_user_startup_commands");
   /* restore previous context,
    * because the Expose event after new window creation does a context switch prev win -> new win 
    * 
@@ -2060,6 +2061,7 @@ void change_linewidth(double w)
     double cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
       xctx->lw=xctx->mooz * 0.09 * cs;
+      if(xctx->lw > 100.) xctx->lw = 100.;
       xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
     }
   /* explicitly set line width */
@@ -2891,6 +2893,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(has_x) {
    tclsetintvar("tctx::max_new_windows", MAX_NEW_WINDOWS);
    tcleval("pack_widgets; set_bindings .drw");
+   tcleval("eval_user_startup_commands");
  }
 
  fs=tclgetintvar("fullscreen");

@@ -930,10 +930,14 @@ static void drawgrid()
   double mult;
   #if DRAW_ALL_CAIRO==0
   int i=0;
+  const char *psize_ptr;
   int big_gr = tclgetboolvar("big_grid_points");
+  int grid_point_size = -1;
   char dash_arr[2];
   int axes = tclgetboolvar("draw_grid_axes");
  
+  psize_ptr = tclgetvar("grid_point_size"); 
+  if(psize_ptr[0]) grid_point_size = atoi(psize_ptr);
   if(axes) {
     dash_arr[0] = dash_arr[1] = (char) 3;
     XSetDashes(display, xctx->gc[GRIDLAYER], 0, dash_arr, 1);
@@ -959,9 +963,8 @@ static void drawgrid()
     delta = delta * pow(CADGRIDMULTIPLY, mult);
   }
 
-  /* while(delta < CADGRIDTHRESHOLD) delta *= CADGRIDMULTIPLY; */  /* <-- to be improved,but works */
 
-
+  /* ************************ Draw axes ****************** */
   #if DRAW_ALL_CAIRO==1
   xax =floor(xctx->xorigin*xctx->mooz) + 0.5; yax = floor(xctx->yorigin*xctx->mooz) + 0.5;
   #else
@@ -1007,12 +1010,22 @@ static void drawgrid()
       #endif
     }
   }
+  /* ************************ /Draw axes ****************** */
+
   #if DRAW_ALL_CAIRO==0
-  if(axes) {
+  if(grid_point_size != -1) {
+      XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+          grid_point_size, LineSolid, CapProjecting, LINEJOIN);
+  } else if(!big_gr) {
+    XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+        0, LineSolid, LINECAP, LINEJOIN);
+  } else {
     XSetLineAttributes (display, xctx->gc[GRIDLAYER],
         XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
   #endif
+
+  if(grid_point_size >= 0) big_gr = 1;
 
   tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin*xctx->mooz, delta);
   for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin*xctx->mooz, delta); x < xctx->areax2; x += delta) {
@@ -1020,13 +1033,13 @@ static void drawgrid()
     #if DRAW_ALL_CAIRO==1
     xx = floor(x) + 0.5;
     #endif
-    if((int)xx == (int)xax) continue;
+    if(axes && (int)xx == (int)xax) continue;
     for(y=tmp; y < xctx->areay2; y += delta) {
       yy = y;
       #if DRAW_ALL_CAIRO==1
       yy = floor(y) + 0.5;
       #endif
-      if((int)yy == (int)yax) continue;
+      if(axes && (int)yy == (int)yax) continue;
       #if DRAW_ALL_CAIRO==1
       if(xctx->draw_window) {
         cairo_move_to(xctx->cairo_ctx, xx, yy) ;
@@ -1087,6 +1100,12 @@ static void drawgrid()
   if(xctx->draw_pixmap) cairo_stroke(xctx->cairo_save_ctx);
   if(xctx->draw_window) cairo_stroke(xctx->cairo_ctx);
   #endif
+
+  #if DRAW_ALL_CAIRO==0
+  XSetLineAttributes (display, xctx->gc[GRIDLAYER],
+      XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+  #endif
+
 }
 
 #if !defined(__unix__) && HAS_CAIRO==1
@@ -1354,6 +1373,45 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
 #endif
   i=0;
  }
+}
+
+void drawtemp_manhattanline(GC gc, int what, double x1, double y1, double x2, double y2)
+{
+  double origin_shifted_x2, origin_shifted_y2;
+  if(tclgetboolvar("orthogonal_wiring")) {
+    /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+    origin_shifted_x2 = x2 - x1;
+    origin_shifted_y2 = y2 - y1;
+    /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+    if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2)
+      xctx->manhattan_lines = 1;
+    else
+      xctx->manhattan_lines = 2;
+  }
+  if(xctx->manhattan_lines & 1) {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+  } else if(xctx->manhattan_lines & 2) {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
+  } else {
+    xctx->nl_xx1 = x1; xctx->nl_yy1 = y1;
+    xctx->nl_xx2 = x2; xctx->nl_yy2 = y2;
+    ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+    drawtempline(gc, what, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
+  }
 }
 
 void drawtemparc(GC gc, int what, double x, double y, double r, double a, double b)
@@ -2838,7 +2896,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   /* background */
   filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
   /* graph bounding box */
-  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0, -1, -1);
+  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3055,10 +3113,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->gh = gr->gy2 - gr->gy1;
   /* set margins */
   tmp = gr->rw * 0.14;
-  gr->marginx = tmp < 50 ? 50 : tmp;
+  gr->marginx = tmp;
   tmp = gr->rh * 0.14;
-  gr->marginy = tmp < 40 ? 40 : tmp;
-
+  gr->marginy = tmp;
   /* calculate graph bounding box (container - margin) 
    * This is the box where plot is done */
   gr->x1 =  gr->rx1 + gr->marginx;
@@ -3083,14 +3140,15 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.0095;
-  tmp = gr->marginx * 0.003;
+  tmp = gr->marginx * 0.004;
   if(tmp < gr->txtsizey) gr->txtsizey = tmp;
-  tmp = gr->marginy * 0.02;
-  if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+  /* tmp = gr->marginy * 0.02;
+   * if(tmp < gr->txtsizey) gr->txtsizey = tmp;
+   */
   gr->txtsizey *= gr->magy;
 
-  gr->txtsizex = gr->w / gr->divx * 0.0033;
-  tmp = gr->marginy * 0.0063;
+  gr->txtsizex = gr->w / gr->divx * 0.0070;
+  tmp = gr->marginy * 0.0065;
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
   gr->txtsizex *= gr->magx;
 
@@ -3258,7 +3316,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
     draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
-       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-5, gr->txtsizelab, gr->txtsizelab);
+       gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-2, gr->txtsizelab, gr->txtsizelab);
   }
 
   if(gr->legend || gr->digital) {
@@ -3782,7 +3840,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
  *  8: all drawing, if not set do only XCopyArea / x-cursor if specified
  * ct is a pointer used in windows for cairo
  */
-void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
+void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 {
   int wc = 4, wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
@@ -3804,7 +3862,6 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
   int save_extra_idx = -1;
   double cursor1, cursor2;
  
-
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
@@ -4089,7 +4146,7 @@ void draw_graph(int i, const int flags, Graph_ctx *gr, void *ct)
             if((gr->mode == 2) || (xxfollowing >= start && xxprevious <= end)) {
               if(first == -1) first = p;
               /* Build poly x array. Translate from graph coordinates to screen coords */
-              point[poly_npoints].x = (short)S_X(xx);
+              point[poly_npoints].x = (short)CLIP(S_X(xx), -30000, 30000);
               if(dataset == -1 || dataset == sweepvar_wrap) {
                 /* cursor1: show measurements on nodes in graph */
                 if(flags & 2 && measure_p == -1 && cnt) {
@@ -4770,8 +4827,11 @@ static void draw_images_all(void)
   #endif
 }
 
-void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, double ry2)
+void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, double ry2)
 {
+  #ifndef __unix__
+  xRect *r = &xctx->rect[GRIDLAYER][i];
+  #endif
   #if HAS_CAIRO==1
   Zoom_info zi;
   char *ptr = NULL;
@@ -4821,7 +4881,9 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
   xctx->draw_pixmap=1;
   save = xctx->do_copy_area;
   xctx->do_copy_area=0;
-  draw();
+  setup_graph_data(i, 0, &xctx->graph_struct);
+  draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, NULL);
+
 #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
@@ -4834,12 +4896,9 @@ void svg_embedded_graph(FILE *fd, xRect *r, double rx1, double ry1, double rx2, 
     cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
     cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
     cairo_paint(ct);
-    for(int i = 0; i < xctx->rects[GRIDLAYER]; ++i) {
-      xRect *r = &xctx->rect[GRIDLAYER][i];
-      if(r->flags & 1) {
-        setup_graph_data(i, 0, &xctx->graph_struct);
-        draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
-      }
+    if(r->flags & 1) {
+      setup_graph_data(i, 0, &xctx->graph_struct);
+      draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
     }
 #endif
   closure.buffer = NULL;

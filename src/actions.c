@@ -1066,7 +1066,7 @@ void clear_partial_selected_wires(void)
   rebuild_selected_array();
   for(j=0; j < xctx->lastsel; ++j) if(xctx->sel_array[j].type == WIRE) {
     int wire = xctx->sel_array[j].n;
-    select_wire(wire, 0, 1);
+    select_wire(wire, 0, 1, 1);
   }
   xctx->need_reb_sel_arr = 1;
   rebuild_selected_array();
@@ -1229,7 +1229,7 @@ int unselect_partial_sel_wires(void)
       while(wptr) {
         xWire *w = &xctx->wire[wptr->n];
         if(touch(w->x1, w->y1, w->x2, w->y2, pinx0, piny0) && w->sel && w->sel != SELECTED) {
-          select_wire(wptr->n, 0, 1);
+          select_wire(wptr->n, 0, 1, 1);
           changed = 1;
         }
         wptr = wptr->next;
@@ -1258,7 +1258,7 @@ int unselect_partial_sel_wires(void)
         }
         if(touch(w->x1, w->y1, w->x2, w->y2, x0, y0) && w->sel && w->sel != SELECTED) {
           xctx->wire[wptr->n].sel = 0;
-          select_wire(wptr->n, 0, 1);
+          select_wire(wptr->n, 0, 1, 1);
           changed = 1;
         }
         wptr = wptr->next;
@@ -1295,8 +1295,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   int use_label_prefix;
   int found=0;
 
-  my_strdup(_ALLOC_ID_, &symname_pin, tcleval("rel_sym_path [find_file_first lab_pin.sym]"));
-  my_strdup(_ALLOC_ID_, &symname_wire, tcleval("rel_sym_path [find_file_first lab_wire.sym]"));
+  my_strdup(_ALLOC_ID_, &symname_pin, tcleval("find_file_first lab_pin.sym"));
+  my_strdup(_ALLOC_ID_, &symname_wire, tcleval("find_file_first lab_wire.sym"));
   if(symname_pin && symname_wire) {
     rebuild_selected_array();
     k = xctx->lastsel;
@@ -1450,12 +1450,11 @@ void delete_files(void)
 
 void place_net_label(int type)
 {
-  unselect_all(1);
   if(type == 1) {
-      const char *lab = tcleval("rel_sym_path [find_file_first lab_pin.sym]");
+      const char *lab = tcleval("find_file_first lab_pin.sym");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   } else {
-      const char *lab = tcleval("rel_sym_path [find_file_first lab_wire.sym]");
+      const char *lab = tcleval("find_file_first lab_wire.sym");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   }
   move_objects(START,0,0,0);
@@ -1478,13 +1477,14 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  char name[PATH_MAX];
  char name1[PATH_MAX];
  char tclev = 0;
+
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
    my_strncpy(name1, tclresult(), S(name1));
  } else {
-   my_strncpy(name1, trim_chars(symbol_name, " \t\n"), S(name1));
+   my_strncpy(name1, abs_sym_path(trim_chars(symbol_name, " \t\n"), ""), S(name1));
  }
-
+ if(!name1[0]) return 0;
  dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
  /* remove tcleval( given in file selector, if any ... */
  if(strstr(name1, "tcleval(")) {
@@ -1562,7 +1562,11 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name), S(name));
-  i = match_symbol(name);
+  /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
+  if(strcmp(name, name1)) {
+    remove_symbol(i);
+    i = match_symbol(name);
+  }
   xctx->inst[n].ptr = i;
   set_inst_flags(&xctx->inst[n]);
   hash_names(n, XINSERT);
@@ -1576,6 +1580,50 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   if(xctx->prep_hash_inst) hash_inst(XINSERT, n); /* no need to rehash, add item */
   /* xctx->prep_hash_inst=0; */
 
+  /* embed a (locked) graph object floater inside the symbol */
+  if(xctx->sym[i].type && !strcmp(xctx->sym[i].type, "scope")) {
+    char *prop = NULL;
+
+    my_strdup(_ALLOC_ID_, &xctx->inst[n].prop_ptr,
+          subst_token(xctx->inst[n].prop_ptr, "attach", xctx->inst[n].instname));
+    my_mstrcat(_ALLOC_ID_, &prop, "name=", xctx->inst[n].instname, "\n", NULL);
+    my_mstrcat(_ALLOC_ID_, &prop, "flags=graph,unlocked\n", NULL);
+    my_mstrcat(_ALLOC_ID_, &prop, "lock=1\n", NULL);
+    my_mstrcat(_ALLOC_ID_, &prop, "color=8\n", NULL);
+    if(xctx->sym[i].rects[PINLAYER] == 0) {
+      if(xctx->lastsel == 1 && xctx->sel_array[0].type==ELEMENT) {
+        my_mstrcat(_ALLOC_ID_, &prop, "node=\"tcleval([xschem get_fqdevice [xschem translate ",
+                                       xctx->inst[n].instname, " @device]])\"\n", NULL);
+        my_strdup(_ALLOC_ID_, &xctx->inst[n].prop_ptr,
+            subst_token(xctx->inst[n].prop_ptr, "device", xctx->inst[xctx->sel_array[0].n].instname));
+      } else {
+        const char msg[]="scope_ammeter is being inserted but no selected ammeter device/vsource to link to\n";
+        dbg(0, "%s", msg);
+        if(has_x) tclvareval("alert_ {", msg, "} {}", NULL);
+        if(xctx->inst[n].instname) my_free(_ALLOC_ID_, &xctx->inst[n].instname);       
+        if(xctx->inst[n].name) my_free(_ALLOC_ID_, &xctx->inst[n].name);       
+        if(xctx->inst[n].prop_ptr) my_free(_ALLOC_ID_, &xctx->inst[n].prop_ptr);       
+        if(xctx->inst[n].lab) my_free(_ALLOC_ID_, &xctx->inst[n].lab);       
+        if(prop) my_free(_ALLOC_ID_, &prop);
+        xctx->instances--;
+        return 0;
+      }
+    } else if(xctx->sym[i].rects[PINLAYER] == 1) {
+      my_mstrcat(_ALLOC_ID_, &prop,
+        "node=\"tcleval(",
+        "[xschem translate ", xctx->inst[n].instname, " @#0:net_name]",
+        ")\"\n", NULL);
+    } else {
+      my_mstrcat(_ALLOC_ID_, &prop,
+        "node=\"tcleval(",
+        "[xschem translate ", xctx->inst[n].instname, " @#0:net_name] ",
+        "[xschem translate ", xctx->inst[n].instname, " @#1:net_name] -",
+        ")\"\n", NULL);
+    }
+    storeobject(-1, x + 20, y-125, x + 130 , y - 25, xRECT, 2, SELECTED, prop);
+    my_free(_ALLOC_ID_, &prop);
+  }
+
   if(draw_sym & 3) {
     bbox(ADD, xctx->inst[n].x1, xctx->inst[n].y1, xctx->inst[n].x2, xctx->inst[n].y2);
   }
@@ -1587,6 +1635,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   /*   hilight new element 24122002 */
 
   if(draw_sym & 4 ) {
+    unselect_all(1);
     select_element(n, SELECTED,0, 1);
     drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
@@ -2214,7 +2263,7 @@ int change_sch_path(int instnumber, int dr)
   char *ptr;
   size_t pathlen;
   int res = 0;
-  if(level <= 0 ) return 0;
+  if(level < 0 ) return 0;
   my_strdup2(_ALLOC_ID_, &instname, get_tok_value(xctx->hier_attr[level].prop_ptr, "name", 0));
   my_strdup2(_ALLOC_ID_, &expanded_instname, expandlabel(instname, &inst_mult));
   my_strdup2(_ALLOC_ID_, &path, xctx->sch_path[xctx->currsch]);
@@ -2261,6 +2310,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  int inst_mult, inst_number;
  int save_ok = 0;
  int i, n = 0;
+ int descend_ok = 1;
 
  if(xctx->currsch + 1 >= CADMAXHIER) {
    dbg(0, "descend_schematic(): max hierarchy depth reached: %d", CADMAXHIER);
@@ -2416,24 +2466,25 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, "descend_schematic(): filename=%s\n", filename);
    /* we are descending from a parent schematic downloaded from the web */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   load_schematic(1, filename, (set_title & 1), alert);
-   if(xctx->hilight_nets) {
-     prepare_netlist_structs(0);
-     propagate_hilights(1, 0, XINSERT_NOREPLACE);
-   }
-   dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-
-   if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
-     Graph_ctx *gr = &xctx->graph_struct;
-     xRect *r = &xctx->rect[GRIDLAYER][0];
-     if(r->flags & 1) {
-       backannotate_at_cursor_b_pos(r, gr);
+   descend_ok = load_schematic(1, filename, (set_title & 1), alert);
+   if(descend_ok) {
+     if(xctx->hilight_nets) {
+       prepare_netlist_structs(0);
+       propagate_hilights(1, 0, XINSERT_NOREPLACE);
+     }
+     dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
+  
+     if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
+       Graph_ctx *gr = &xctx->graph_struct;
+       xRect *r = &xctx->rect[GRIDLAYER][0];
+       if(r->flags & 1) {
+         backannotate_at_cursor_b_pos(r, gr);
+       }
      }
    }
-
    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
- return 1;
+ return descend_ok;
 }
 
 /* 
@@ -2449,7 +2500,7 @@ void go_back(int what)
  char filename[PATH_MAX];
  int prev_sch_type;
  int confirm = what & 1;
- int set_title = !(confirm & 2);
+ int set_title = !(what & 2);
 
  save_ok=1;
  dbg(1,"go_back(): sch[xctx->currsch]=%s\n", xctx->sch[xctx->currsch]);
@@ -3132,61 +3183,11 @@ void new_wire(int what, double mx_snap, double my_snap)
     xctx->ui_state &= ~STARTWIRE;
   }
   if( (what & RUBBER)  ) {
-    if(xctx->manhattan_lines & 1) {
-      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
-      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
-      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-      xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
-      xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
-      ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      drawtempline(xctx->gctiled, NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
-      if(!(what & CLEAR)) {
-        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
-        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-         xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-        ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      }
-    } else if(xctx->manhattan_lines & 2) {
-      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-      ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
-      if(!(what & CLEAR)) {
-        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
-        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-        ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
-      }
-    } else {
-      xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-      xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-      ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      drawtempline(xctx->gctiled, NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-      xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
-      if(!(what & CLEAR)) {
-        xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
-        xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
-        ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-        drawtempline(xctx->gc[WIRELAYER], NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
-      }
+    drawtemp_manhattanline(xctx->gctiled, NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+    restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+    xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
+    if(!(what & CLEAR)) {
+      drawtemp_manhattanline(xctx->gc[WIRELAYER], NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
     }
   }
 }
@@ -3830,7 +3831,7 @@ int place_text(int draw_text, double mx, double my)
   dbg(1,"props=%s, txt=%s\n", props, txt);
 
   create_text(draw_text, mx, my, 0, 0, txt, props, atof(hsize), atof(vsize));
-  select_text(xctx->texts - 1, SELECTED, 0);
+  select_text(xctx->texts - 1, SELECTED, 0, 1);
   rebuild_selected_array(); /* sets xctx->ui_state |= SELECTION */
   drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
   drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);

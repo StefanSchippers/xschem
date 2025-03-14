@@ -553,7 +553,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
 
 
 
-
    <li><kbd>       abort_operation</kbd></li><pre>
    Resets UI state, unselect all and abort any pending operation </pre>
    <li><kbd>       add_symbol_pin [x y name dir [draw]]</kbd></li><pre>
@@ -814,6 +813,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> textlayer </kbd> layer number for texts </li>
      <li><kbd> top_path </kbd> get top hier path of current window (always "" for tabbed if) </li>
      <li><kbd> topwindow </kbd> same as top_path but main window returned as "." </li>
+     <li><kbd> ui_state </kbd> return UI state </li>
      <li><kbd> version </kbd> return xschem version </li>
      <li><kbd> wirelayer </kbd> layer used for wires </li>
      <li><kbd> wires </kbd> number of wires </li>
@@ -828,6 +828,15 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    return result of get_cell function </pre>
    <li><kbd>       get_cell_w_ext cell n_dirs</kbd></li><pre>
    return result of get_cell_w_ext function </pre>
+   <li><kbd>       get_fqdevice instname param modelparam</kbd></li><pre>
+   get the full pathname of "instname" device
+   modelparam: 
+     0: current, 1: modelparam, 2: modelvoltage
+   param: device parameter, like ib, gm, vth
+   set param to {} (empty str) for just branch current of 2 terminal device
+   for parameters like "vth" modelparam must be 2
+   for parameters like "ib" modelparam must be 0
+   for parameters like "gm" modelparam must be 1</pre>
    <li><kbd>       getprop instance|instance_pin|symbol|text ref</kbd></li><pre>
       
        getprop instance inst
@@ -981,13 +990,17 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       is_generator symbol</kbd></li><pre>
    tell if 'symbol' is a generator (symbol(param1,param2,...) </pre>
    <li><kbd>       line [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
+       line
+       line gui
    if 'x1 y1 x2 y2'is given place line on current
    layer (rectcolor) at indicated coordinates.
-   if 'pos' is given insert at given position in rectangle array.
+   if 'pos' is given insert at given position in line array.
    if 'pos' set to -1 append to last element in line array.
    'propstring' is the attribute string. Set to empty if not given.
    if 'draw' is set to 1 (default) draw the new object, else don't
-   If no coordinates are given start a GUI operation of line placement </pre>
+   If no coordinates are given start a GUI operation of line placement
+   if `gui` argument is given start a line GUI placement with 1st point
+   set to current mouse coordinates </pre>
    <li><kbd>       line_width n</kbd></li><pre>
    set line width to floating point number 'n' </pre>
    <li><kbd>       list_hierarchy</kbd></li><pre>
@@ -1153,8 +1166,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If not given take from symbol template attribute.</pre>
    <li><kbd>       place_text</kbd></li><pre>
    Start a GUI placement of a text object </pre>
-   <li><kbd>       polygon</kbd></li><pre>
-   Start a GUI placement of a polygon </pre>
+   <li><kbd>       polygon [gui]</kbd></li><pre>
+   Start a GUI placement of a polygon
+   if `gui` argument is given start a polygon GUI placement with 1st point
+   set to current mouse coordinates </pre>
    <li><kbd>       preview_window create|draw|destroy|close [win_path] [file]</kbd></li><pre>
    destroy: will delete preview schematic data and destroy container window
    close: same as destroy but leave the container window.
@@ -1192,8 +1207,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       push_undo</kbd></li><pre>
    Push current state on undo stack </pre>
    <li><kbd>       raw what ...</kbd></li><pre>
-     what = add | clear | datasets | index | info | loaded | list | new | points | rawfile | del |
-            read | set | sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
+     what = add | clear | datasets | index | info | loaded | list |
+            new | points | rawfile | del | read | set | rename |
+            sim_type | switch | switch_back | table_read | value | values | pos_at | vars |
       
    xschem raw read filename [type [sweep1 sweep2]]
      if sweep1, sweep2 interval is given in 'read' subcommand load only the interval
@@ -1207,6 +1223,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
       
    xschem raw del name
      delete named vector from current raw file
+      
+   xschem raw rename old_name new_name
+     rename a node in the loaded raw file.
       
    xschem raw info
      print information about loaded raw files and show the currently active one.
@@ -1284,7 +1303,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      new dataset do not start with a header row.
      Lines beginning with '#' are comments and ignored
       
-        time    var_a   var_b   var_c
+        time    var_a   var_b   var_cnode in the loaded raw file.
      # this is a comment, ignored
          0.0     0.0     1.8    0.3
        &lt;single empty line: ignored&gt;
@@ -1325,14 +1344,19 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Rebuild selection list</pre>
    <li><kbd>       record_global_node n node</kbd></li><pre>
    call the record_global_node function (list of netlist global nodes) </pre>
-   <li><kbd>       rect [x1 y1 x2 y2] [pos] [propstring] [draw]</kbd></li><pre>
-   if 'x1 y1 x2 y2'is given place recangle on current
-   layer (rectcolor) at indicated coordinates.
-   if 'pos' is given insert at given position in rectangle array.
-   if 'pos' set to -1 append rectangle to last element in rectangle array.
-   'propstring' is the attribute string. Set to empty if not given.
-   if 'draw' is set to 1 (default) draw the new object, else don't
-   If no coordinates are given start a GUI operation of rectangle placement </pre>
+   <li><kbd>       rect ...</kbd></li><pre>
+   rect [x1 y1 x2 y2] [pos] [propstring] [draw]
+     if 'x1 y1 x2 y2'is given place recangle on current
+     layer (rectcolor) at indicated coordinates.
+     if 'pos' is given insert at given position in rectangle array.
+     if 'pos' set to -1 append rectangle to last element in rectangle array.
+     'propstring' is the attribute string. Set to empty if not given.
+     if 'draw' is set to 1 (default) draw the new object, else don't
+   rect
+     If no coordinates are given start a GUI operation of rectangle placement
+   rect gui
+     if `gui` argument is given start a GUI placement of a rectangle with 1st
+     point starting from current mouse coordinates </pre>
    <li><kbd>       redo</kbd></li><pre>
    Redo last undone action </pre>
    <li><kbd>       redraw</kbd></li><pre>
@@ -1634,6 +1658,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Unhighlight selected nets/pins </pre>
    <li><kbd>       unselect_all [draw]</kbd></li><pre>
    Unselect everything. If draw is given and set to '0' no drawing is done </pre>
+   <li><kbd>       unselect_attached_floaters</kbd></li><pre>
+   Unselect objects (not symbol instances) attached to some instance with a 
+   non empty name=... attribute </pre>
    <li><kbd>       update_all_sym_bboxes</kbd></li><pre>
    Update all symbol bounding boxes </pre>
    <li><kbd>       update_op</kbd></li><pre>
@@ -1649,8 +1676,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       wire_coord n</kbd></li><pre>
    return 4 coordinates of wire[n] </pre>
    <li><kbd>       wire [x1 y1 x2 y2] [pos] [prop] [sel]</kbd></li><pre>
+   wire
+   wire gui
    Place a new wire
-   if no coordinates are given start a GUI wire placement </pre>
+   if no coordinates are given start a GUI wire placement
+   if `gui` argument is given start a GUI placement of a wire with 1st point
+   starting from current mouse coordinates </pre>
    <li><kbd>       wire_cut [x y] [noalign]</kbd></li><pre>
    start a wire cut operation. Point the mouse in the middle of a wire and
    Alt-click right button.
@@ -1675,6 +1706,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

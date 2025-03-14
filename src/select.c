@@ -735,7 +735,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
 
 /* n = -1 : clear first selected info 
  * n = -2 : return first selected element if still selected, or get first from 
- *          selected list. Id no elements selected return first selected item (j = 0) 
+ *          selected list. If no elements selected return first selected item (j = 0) 
  * n >= 0 : store indicated element as first selected
  */
 int set_first_sel(unsigned short type, int n, unsigned int col)
@@ -896,10 +896,12 @@ void unselect_all(int dr)
   }
 }
 
-void select_wire(int i,unsigned short select_mode, int fast)
+void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
   /*my_strncpy(s,xctx->wire[i].prop_ptr!=NULL?xctx->wire[i].prop_ptr:"<NULL>",256); */
+  if(!strboolcmp(get_tok_value(xctx->wire[i].prop_ptr, "lock", 0), "true") &&
+      select_mode == SELECTED && !override_lock) return;
   if( !fast )
   {
     my_snprintf(str, S(str), "Info: selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
@@ -935,6 +937,68 @@ void select_wire(int i,unsigned short select_mode, int fast)
      drawtempline(xctx->gctiled, NOW, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
   }
   xctx->need_reb_sel_arr=1;
+}
+
+
+static int select_attached_floaters(int inst, const char *name)
+{ 
+  int i, c;
+  int found = 0;
+  char *attach = NULL;
+  char *att_save, *att_ptr;
+  if(!name || !name[0]) return found;
+  my_strdup2(_ALLOC_ID_, &attach, name);
+  att_ptr = attach;
+  while( (name = my_strtok_r(att_ptr, " \n", "\"", 0, &att_save)) ) {
+    att_ptr = NULL;
+    for(c = 0; c < cadlayers; c++) {
+      for(i = 0; i < xctx->rects[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->rect[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_box(c, i, SELECTED, 1,  1);
+        }
+      }
+      for(i = 0; i < xctx->lines[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_line(c, i, SELECTED, 1, 1);
+        }
+      }
+  
+      for(i = 0; i < xctx->polygons[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_polygon(c, i, SELECTED, 1, 1);
+        }
+      }
+      for(i = 0; i < xctx->arcs[c]; i++) {
+        if(!strcmp(name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
+          found = 1;
+          select_arc(c, i, SELECTED, 1, 1);
+        }
+      } 
+    }
+    for(i = 0; i < xctx->wires; i++) {
+      if(!strcmp(name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
+       found = 1;
+       select_wire(i, SELECTED, 1, 1);
+      }
+    } 
+    for(i = 0; i < xctx->texts; i++) {
+      if(!strcmp(name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
+       found = 1;
+       select_text(i, SELECTED, 1, 1);
+      }
+    }
+    for(i = 0; i < xctx->instances; i++) {
+      if(i != inst && !strcmp(name, xctx->inst[i].instname)) {
+       found = 1;
+       select_element(i, SELECTED, 1, 0);
+      }
+    }
+  }
+  my_free(_ALLOC_ID_, &attach);
+  return found;
 }
 
 /* fast == 1: do not update status line
@@ -991,16 +1055,21 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
       }
     }
   }
+  if(!fast && select_mode == SELECTED) {
+    select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+  }
   xctx->need_reb_sel_arr=1;
 }
 
-void select_text(int i,unsigned short select_mode, int fast)
+void select_text(int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
   #if HAS_CAIRO==1
   int customfont;
   #endif
+  if(!strboolcmp(get_tok_value(xctx->text[i].prop_ptr, "lock", 0), "true") &&
+      select_mode == SELECTED && !override_lock) return;
   if(!fast) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
     my_snprintf(str, S(str), "Info: selected text %d: properties: %s", i,s);
@@ -1075,7 +1144,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
 
 
 
-void select_arc(int c, int i, unsigned short select_mode, int fast)
+void select_arc(int c, int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];   /* overflow safe */
   char s[256];    /* overflow safe */
@@ -1105,11 +1174,14 @@ void select_arc(int c, int i, unsigned short select_mode, int fast)
   xctx->need_reb_sel_arr=1;
 }
 
-void select_polygon(int c, int i, unsigned short select_mode, int fast )
+void select_polygon(int c, int i, unsigned short select_mode, int fast, int override_lock )
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
   int bezier;
+
+  if(!strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "lock", 0), "true") &&
+      select_mode == SELECTED && !override_lock) return;
   if(!fast)
   {
    my_strncpy(s,xctx->poly[c][i].prop_ptr!=NULL?xctx->poly[c][i].prop_ptr:"<NULL>",S(s));
@@ -1134,10 +1206,13 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast )
   xctx->need_reb_sel_arr=1;
 }
 
-void select_line(int c, int i, unsigned short select_mode, int fast )
+void select_line(int c, int i, unsigned short select_mode, int fast, int override_lock )
 {
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
+
+  if(!strboolcmp(get_tok_value(xctx->line[c][i].prop_ptr, "lock", 0), "true") &&
+      select_mode == SELECTED && !override_lock) return;
   if(!fast)
   {
    my_strncpy(s,xctx->line[c][i].prop_ptr!=NULL?xctx->line[c][i].prop_ptr:"<NULL>",S(s));
@@ -1193,19 +1268,19 @@ Selected select_object(double mx,double my, unsigned short select_mode,
    {
     case WIRE:
      if(xctx->wire[sel.n].sel) xctx->already_selected = 1;
-     select_wire(sel.n, select_mode, 0);
+     select_wire(sel.n, select_mode, 0, override_lock);
      break;
     case xTEXT:
      if(xctx->text[sel.n].sel) xctx->already_selected = 1;
-     select_text(sel.n, select_mode, 0);
+     select_text(sel.n, select_mode, 0, override_lock);
      break;
     case LINE:
      if(xctx->line[sel.col][sel.n].sel) xctx->already_selected = 1;
-     select_line(sel.col, sel.n, select_mode,0);
+     select_line(sel.col, sel.n, select_mode,0, override_lock);
      break;
     case POLYGON:
      if(xctx->poly[sel.col][sel.n].sel) xctx->already_selected = 1;
-     select_polygon(sel.col, sel.n, select_mode,0);
+     select_polygon(sel.col, sel.n, select_mode,0, override_lock);
      break;
     case xRECT:
      if(xctx->rect[sel.col][sel.n].sel) xctx->already_selected = 1;
@@ -1213,11 +1288,11 @@ Selected select_object(double mx,double my, unsigned short select_mode,
      break;
     case ARC:
      if(xctx->arc[sel.col][sel.n].sel) xctx->already_selected = 1;
-     select_arc(sel.col,sel.n, select_mode,0);
+     select_arc(sel.col,sel.n, select_mode,0, override_lock);
      break;
     case ELEMENT:
      if(xctx->inst[sel.n].sel) xctx->already_selected = 1;
-     select_element(sel.n,select_mode,0, override_lock);
+     select_element(sel.n, select_mode,0, override_lock);
      break;
     default:
      break;
@@ -1260,10 +1335,10 @@ void select_attached_nets(void)
           for(wptr=xctx->wire_spatial_table[sqx][sqy]; wptr; wptr=wptr->next) {
             i = wptr->n;
             if(xctx->wire[i].x1 == x0 &&  xctx->wire[i].y1 == y0) {
-               select_wire(i,SELECTED1, 1);
+               select_wire(i,SELECTED1, 1, 0);
             }
             if(xctx->wire[i].x2 == x0 &&  xctx->wire[i].y2 == y0) {
-               select_wire(i,SELECTED2, 1);
+               select_wire(i,SELECTED2, 1, 0);
             }
           }
         }
@@ -1286,10 +1361,10 @@ void select_attached_nets(void)
           i = wptr->n;
           if(i == wire) continue;
           if(xctx->wire[i].x1 == x0 &&  xctx->wire[i].y1 == y0) {
-             select_wire(i,SELECTED1, 1);
+             select_wire(i,SELECTED1, 1, 0);
           }
           if(xctx->wire[i].x2 == x0 &&  xctx->wire[i].y2 == y0) {
-             select_wire(i,SELECTED2, 1);
+             select_wire(i,SELECTED2, 1, 0);
           }
         }
       }
@@ -1316,23 +1391,23 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
      if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
      {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       select_wire(i, SELECTED, 1);
+       select_wire(i, SELECTED, 1, 0);
      }
      else if(stretch && POINTINSIDE(xctx->wire[i].x1,xctx->wire[i].y1, x1,y1,x2,y2) )
      {
        xctx->ui_state |= SELECTION;
-       select_wire(i, SELECTED1, 1);
+       select_wire(i, SELECTED1, 1, 0);
      }
      else if(stretch && POINTINSIDE(xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2) )
      {
        xctx->ui_state |= SELECTION;
-       select_wire(i, SELECTED2, 1);
+       select_wire(i, SELECTED2, 1, 0);
      }
    } else {
      if(RECT_INSIDE(xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, x1,y1,x2,y2))
      {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       select_wire(i, 0, 1);
+       select_wire(i, 0, 1, 0);
      }
    }
  }
@@ -1358,7 +1433,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
   if(RECT_INSIDE(xx1,yy1, xx2, yy2,x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_text(i, SELECTED, 1): select_text(i, 0, 1);
+   sel ? select_text(i, SELECTED, 1, 0): select_text(i, 0, 1, 0);
   }
  }
  for(i=0;i<xctx->instances; ++i)
@@ -1367,9 +1442,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
    {
      xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
      if(sel) {
-       if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
-         select_element(i, SELECTED, 1, 1);
-       }
+       select_element(i, SELECTED, 1, 0);
      } else {
        select_element(i, 0, 1, 0);
      }
@@ -1403,14 +1476,14 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
      }
      if(flag) {
        if(selected_points==0) {
-         select_polygon(c, i, 0, 1);
+         select_polygon(c, i, 0, 1, 0);
        }
        if(selected_points==xctx->poly[c][i].points) {
          xctx->ui_state |= SELECTION;
-         select_polygon(c, i, SELECTED, 1);
+         select_polygon(c, i, SELECTED, 1, 0);
        } else if(selected_points) {
          /* for polygon, SELECTED1 means partial sel */
-         if(sel && stretch) select_polygon(c, i, SELECTED1,1);
+         if(sel && stretch) select_polygon(c, i, SELECTED1, 1, 0);
        }
      }
  
@@ -1421,23 +1494,23 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
        if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
        {
          xctx->ui_state |= SELECTION;
-         select_line(c,i,SELECTED,1);
+         select_line(c, i, SELECTED, 1, 0);
        }
        else if(stretch && POINTINSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1, x1,y1,x2,y2) )
        {
          xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-         select_line(c, i,SELECTED1,1);
+         select_line(c, i, SELECTED1, 1, 0);
        }
        else if(stretch && POINTINSIDE(xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2) )
        {
          xctx->ui_state |= SELECTION;
-         select_line(c, i,SELECTED2,1);
+         select_line(c, i, SELECTED2, 1, 0);
        }
      } else {
        if(RECT_INSIDE(xctx->line[c][i].x1,xctx->line[c][i].y1,xctx->line[c][i].x2,xctx->line[c][i].y2, x1,y1,x2,y2))
        {
          xctx->ui_state |= SELECTION;
-         select_line(c,i,0,1);
+         select_line(c, i, 0, 1, 0);
        }
      }
    }
@@ -1454,22 +1527,22 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
      arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
      if(RECT_INSIDE(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
+       sel? select_arc(c, i, SELECTED,1, 0): select_arc(c, i, 0,1, 0);
      }
      else if( sel && stretch && POINTINSIDE(x, y, x1, y1, x2, y2) )
      {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       select_arc(c, i,SELECTED1,1);
+       select_arc(c, i,SELECTED1,1, 0);
      }
      else if( sel && stretch && POINTINSIDE(xb, yb, x1, y1, x2, y2) )
      {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       select_arc(c, i,SELECTED3,1);
+       select_arc(c, i,SELECTED3,1, 0);
      }
      else if( sel && stretch && POINTINSIDE(xa, ya, x1, y1, x2, y2) )
      {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       select_arc(c, i,SELECTED2,1);
+       select_arc(c, i,SELECTED2,1, 0);
      }
    }
    for(i=0;i<xctx->rects[c]; ++i)
@@ -1480,9 +1553,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
 
 
       if(sel) {
-        if(strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true")) {
-          select_box(c,i, SELECTED, 1, 1);
-        }
+        select_box(c,i, SELECTED, 1, 0);
       } else {
         select_box(c,i, 0, 1, 0);
       }
@@ -1544,7 +1615,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
   ly2 = xctx->wire[i].y2;
   if(lineclip(&lx1, &ly1, &lx2, &ly2, x1,y1,x2,y2)) {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_wire(i,SELECTED, 1): select_wire(i,0, 1);
+   sel ? select_wire(i,SELECTED, 1, 0): select_wire(i,0, 1, 0);
   }
  }
  for(i=0;i<xctx->texts; ++i)
@@ -1570,7 +1641,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
   if(RECT_TOUCH(xx1, yy1, xx2, yy2,x1,y1,x2,y2))
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-   sel ? select_text(i, SELECTED, 1): select_text(i, 0, 1);
+   sel ? select_text(i, SELECTED, 1, 0): select_text(i, 0, 1, 0);
   }
  }
  for(i=0;i<xctx->instances; ++i)
@@ -1579,9 +1650,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
   {
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    if(sel) {
-     if(strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true")) {
-       select_element(i, SELECTED, 1, 1);
-     }
+     select_element(i, SELECTED, 1, 0);
    } else {
      select_element(i, 0, 1, 0);
    }
@@ -1605,7 +1674,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
        }
      }
      if(flag) {
-       sel ? select_polygon(c, i, SELECTED, 1):  select_polygon(c, i, 0, 1);
+       sel ? select_polygon(c, i, SELECTED, 1, 0):  select_polygon(c, i, 0, 1, 0);
      }
    }
    for(i=0;i<xctx->lines[c]; ++i)
@@ -1617,7 +1686,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
     ly2 = xctx->line[c][i].y2;
     if(lineclip(&lx1, &ly1, &lx2, &ly2, x1,y1,x2,y2)) {
      xctx->ui_state |= SELECTION;
-     sel? select_line(c,i,SELECTED,1): select_line(c,i,0,1);
+     sel? select_line(c, i, SELECTED, 1, 0): select_line(c, i, 0, 1, 0);
     }
    }
    for(i=0;i<xctx->arcs[c]; ++i) {
@@ -1633,7 +1702,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
      arc_bbox(x, y, r, a, b, &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
      if(RECT_TOUCH(tmp.x1, tmp.y1, tmp.x2, tmp.y2, x1,y1,x2,y2)) {
        xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
-       sel? select_arc(c, i, SELECTED,1): select_arc(c, i, 0,1);
+       sel? select_arc(c, i, SELECTED,1, 0): select_arc(c, i, 0,1, 0);
      }
    }
    for(i=0;i<xctx->rects[c]; ++i)
@@ -1642,9 +1711,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
     {
       xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
       if(sel) {
-        if(strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true")) {
-          select_box(c,i, SELECTED, 1, 1);
-        }
+        select_box(c,i, SELECTED, 1, 0);
       } else {
         select_box(c,i, 0, 1, 0);
       }
@@ -1688,6 +1755,8 @@ int floaters_from_selected_inst()
       }
       my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
            subst_token(xctx->inst[i].prop_ptr, "hide_texts", "true"));
+      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
+           subst_token(xctx->inst[i].prop_ptr, "attach", xctx->inst[i].instname));
       set_inst_flags(&xctx->inst[i]);
       for(t = 0; t < sym->texts; t++) {
         double txtx0, txty0;
@@ -1730,33 +1799,35 @@ void select_all(void)
 
  for(i=0;i<xctx->wires; ++i)
  {
-   select_wire(i,SELECTED, 1);
+   select_wire(i,SELECTED, 1, 0);
  }
  for(i=0;i<xctx->texts; ++i)
  {
-   select_text(i, SELECTED, 1);
+   select_text(i, SELECTED, 1, 0);
  }
  for(i=0;i<xctx->instances; ++i)
  {
-   select_element(i,SELECTED,1, 0);
+   select_element(i, SELECTED, 1, 0);
+   /* following not done in select_element() due to fast=1 argument */
+   select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
  }
  for(c=0;c<cadlayers; ++c)
  {
   for(i=0;i<xctx->polygons[c]; ++i)
   {
-    select_polygon(c,i,SELECTED,1);
+    select_polygon(c, i, SELECTED, 1, 0);
   }
   for(i=0;i<xctx->lines[c]; ++i)
   {
-    select_line(c,i,SELECTED,1);
+    select_line(c, i, SELECTED, 1, 0);
   }
   for(i=0;i<xctx->arcs[c]; ++i)
   {
-    select_arc(c,i, SELECTED, 1);
+    select_arc(c, i, SELECTED, 1, 0);
   }
   for(i=0;i<xctx->rects[c]; ++i)
   {
-    select_box(c,i, SELECTED, 1, 0);
+    select_box(c, i, SELECTED, 1, 0);
   }
  } /* end for c */
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
