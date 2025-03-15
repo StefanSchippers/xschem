@@ -2608,7 +2608,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
                              int cadence_compat, int wire_draw_active, int snap_cursor)
 {
   char str[PATH_MAX + 100];
-  int dr_gr;
   switch (key) {
     case '0': 
     case '1': 
@@ -3743,7 +3742,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else if(rstate==ControlMask) { /* zoom out */
         view_unzoom(0.0);
       }
-      else if(EQUAL_MODMASK && cadence_compat) { /* toggle snap-cursor option */
+      else if(EQUAL_MODMASK) { /* toggle snap-cursor option */
         if(tclgetboolvar("snap_cursor")) {
           tclsetvar("snap_cursor", "0");
           draw_snap_cursor(1);
