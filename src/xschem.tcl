@@ -4798,7 +4798,38 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   return [file_dialog_getresult $loadfile $confirm_overwrt]
 }
 
-
+# recursive procedure. Returns list of directories containing
+# files by extension 'ext' from a list of supplied 'paths'
+# if paths empty use XSCHEM_LIBRARY_PATH list.
+# 'levels' is set to the number of levels to descend into.
+# 'level' is used internally by the function and should not be set.
+proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+  global pathlist
+  set dir_with_symbols {}
+  if {$level == -1} { set level 0}
+  if {$paths eq {}} {set paths $pathlist}
+  foreach i $paths {
+    set filelist [glob -nocomplain -directory $i -type f *]
+    set there_are_symbols 0
+    foreach f $filelist {
+      if {[regexp $ext $f]} {
+      # if {[is_xschem_file $f] ne {0}} {  }
+        set there_are_symbols 1
+        break
+      }
+    }
+    if {$there_are_symbols} {
+      lappend dir_with_symbols $i
+    }
+    set dirlist [glob -nocomplain -directory $i -type d *]
+    if {$levels >=0 && $level + 1 > $levels} {return}
+    foreach d $dirlist {
+      set dirs [get_list_of_dirs_with_symbols $d $levels $ext [expr {$level + 1} ]]
+      if { $dirs ne {}} {set dir_with_symbols [concat $dir_with_symbols $dirs]}
+    }
+  }
+  return $dir_with_symbols
+}
 
 #######################################################################
 ##### new alternate insert_symbol browser
@@ -4851,44 +4882,26 @@ proc insert_symbol_preview {{paths {}}} {
   }
 }
 
-proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {level -1}} {
-  global pathlist
-  if {$level == -1} { set level 0}
-  if {$paths eq {}} {set paths $pathlist}
-
-  foreach i $paths {
-    set filelist [glob -nocomplain -directory $i -type f *]
-    set there_are_symbols 0
-    foreach f $filelist {
-      if {[regexp {\.(sch|sym|tcl)$} $f]} {
-      # if {[is_xschem_file $f] ne {0}} {  }
-        set there_are_symbols 1
-        break
-      }
-    }
-    if {$there_are_symbols} {
-      puts $i
-    }
-
-    set dirlist [glob -nocomplain -directory $i -type d *]
-    if {$levels >=0 && $level + 1 > $levels} {return}
-    foreach d $dirlist {
-      get_list_of_dirs_with_symbols $d $levels [expr {$level + 1} ]
-    }
-  }
-}
-
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
   # puts "insert_symbol_filelist: paths=$paths"
   global insert_symbol
-  set insert_symbol(regex) [.ins.top.pat_e get]
 
+  set paths [.ins.center.leftdir.l curselection]
+  if {$paths eq {}} { return}
+  set paths [lindex $insert_symbol(dirs) $paths]
+
+  .ins.top2.dir_e configure -state normal
+  .ins.top2.dir_e delete 0 end
+  .ins.top2.dir_e insert 0 $paths
+  .ins.top2.dir_e configure -state readonly
+
+  set insert_symbol(regex) [.ins.top.pat_e get]
   #check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
 
-  set f [match_file $insert_symbol(regex) $paths $maxdepth]
+  set f [match_file $insert_symbol(regex) $paths 0]
   set filelist {}
   set insert_symbol(fullpathlist) {}
   set sel [.ins.center.left.l curselection]
@@ -4918,11 +4931,9 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     lappend insert_symbol(fullpathlist) $fff
   }
 
+  set insert_symbol(nitems) [llength $filelist]
   # assign listbox variable all at the end, it is faster...
   set insert_symbol(list) $filelist
-  set insert_symbol(nitems) [llength $filelist]
-  # .ins.center.left.l selection clear 0 end
-  # .ins.center.left.l selection set 0
 }
 
 proc insert_symbol_place {} {
@@ -4972,7 +4983,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
 
-  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirs) -width 20 -height 20 \
+  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirtails) -width 20 -height 20 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5011,8 +5022,11 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     if {{%K} eq {Tab} && {%W} eq {.ins.center.left.l}} {
       insert_symbol_filelist [list $paths] [list $maxdepth]
       insert_symbol_preview [list $paths]
+    } elseif {{%K} eq {Tab} && {%W} eq {.ins.center.leftdir.l}} {
+      insert_symbol_filelist [list $paths] [list $maxdepth]
     }
   "
+  bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist [list $paths] [list $maxdepth]"
   bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_preview [list $paths]"
   bind .ins.center.left.l <Enter> "insert_symbol_focusin [list $paths] [list $maxdepth]"
   label .ins.bottom.n -text { N. of items:}
@@ -5036,6 +5050,28 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.top.dir_e -side left
   pack .ins.top.ext_l -side left
   pack .ins.top.ext_e -side left
+
+  set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $insert_symbol(ext)]
+  set insert_symbol(dirtails) {}
+  foreach i $insert_symbol(dirs) {
+    lappend insert_symbol(dirtails) [file tail $i]
+  }
+
+  # sort dirs using dirtails as key
+  set files {}
+  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
+    lappend files [list $f $ff]
+  }
+  set files [lsort -dictionary -index 0 $files]
+  set insert_symbol(dirtails) {}
+  set insert_symbol(dirs) {}
+  
+  foreach f $files {
+    lassign $f ff fff
+    lappend insert_symbol(dirtails) $ff
+    lappend insert_symbol(dirs) $fff
+  }
+
   insert_symbol_filelist $paths $maxdepth
   # tkwait window .ins
   # xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -9757,7 +9793,7 @@ set_ne case_insensitive 0
 set_ne new_symbol_browser 0
 set_ne new_symbol_browser_paths {} ;# if empty use xschem search paths
 set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the search paths
-set_ne new_symbol_browser_ext {\.(sym|tcl)$} ;# file extensions (a regex) to look for
+set_ne new_symbol_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
 
