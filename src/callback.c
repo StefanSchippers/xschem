@@ -253,6 +253,7 @@ void start_wire(double mx, double my)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
   } else {
+    xctx->manhattan_lines = 1;
     xctx->mx_double_save=mx;
     xctx->my_double_save=my;
   }
