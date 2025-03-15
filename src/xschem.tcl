@@ -4881,22 +4881,23 @@ proc insert_symbol_preview {} {
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
   global insert_symbol new_symbol_browser_ext
-  set paths [.ins.center.leftdir.l curselection]
-  if {$paths eq {}} {return}
-  set insert_symbol(dirindex) $paths
+  set sel [.ins.center.leftdir.l curselection]
+  if {![info exists insert_symbol(dirs)]} {return}
+  if {$sel eq {}} {
+    set sel [.ins.center.leftdir.l index active]
+    .ins.center.leftdir.l selection set active
+  }
+  set insert_symbol(dirindex) $sel
   # puts "set dirindex=$paths"
-  set paths [lindex $insert_symbol(dirs) $paths]
+  set paths [lindex $insert_symbol(dirs) $sel]
   # puts "insert_symbol_filelist: paths=$paths"
-
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
   .ins.top2.dir_e insert 0 $paths
   .ins.top2.dir_e configure -state readonly
-
   #check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
-
   set f [match_file $insert_symbol(regex) $paths 0]
   set filelist {}
   set insert_symbol(fullpathlist) {}
@@ -4908,7 +4909,6 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
   if {$sel eq {}} { set sel 0}
   .ins.center.left.l activate $sel
   foreach i $f {
-    
     set err [catch {regexp $new_symbol_browser_ext $i} type]
     if {!$err && $type} {
       set fname [file tail $i]
@@ -4924,13 +4924,11 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
   set files [lsort -dictionary -index 0 $files]
   set filelist {}
   set insert_symbol(fullpathlist) {}
-  
   foreach f $files {
     lassign $f ff fff
     lappend filelist $ff
     lappend insert_symbol(fullpathlist) $fff
   }
-
   set insert_symbol(nitems) [llength $filelist]
   # assign listbox variable all at the end, it is faster...
   set insert_symbol(list) $filelist
