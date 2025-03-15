@@ -4837,7 +4837,7 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
 
 #### Display preview of selected symbol and start sym placement
 proc insert_symbol_preview {} {
-  puts "insert_symbol_preview"
+  # puts "insert_symbol_preview"
   global insert_symbol
   xschem preview_window close .ins.center.right {}
   .ins.center.right configure -bg white
@@ -4886,7 +4886,7 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
   set insert_symbol(dirindex) $paths
   # puts "set dirindex=$paths"
   set paths [lindex $insert_symbol(dirs) $paths]
-  puts "insert_symbol_filelist: paths=$paths"
+  # puts "insert_symbol_filelist: paths=$paths"
 
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
@@ -4911,7 +4911,7 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     
     set err [catch {regexp $new_symbol_browser_ext $i} type]
     if {!$err && $type} {
-      set fname [rel_sym_path $i $paths]
+      set fname [file tail $i]
       lappend filelist $fname
       lappend insert_symbol(fullpathlist) $i
     }
@@ -4937,7 +4937,7 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
 }
 
 proc insert_symbol_place {} {
-  puts insert_symbol_place
+  # puts insert_symbol_place
   global insert_symbol
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
