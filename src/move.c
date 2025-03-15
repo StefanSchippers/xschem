@@ -1136,13 +1136,11 @@ void move_objects(int what, int merge, double dx, double dy)
           else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
          }
          
-         #if 0
-         if(wire[n].sel & (SELECTED|SELECTED1))
+         if((wire[n].sel & (SELECTED|SELECTED1)) && tclgetboolvar("orthogonal_wiring"))
          {
           if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
           else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
          }
-         #endif
          wire[n].x1 = xctx->rx1;
          wire[n].y1 = xctx->ry1;
          if(xctx->manhattan_lines&1)
