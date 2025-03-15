@@ -2893,7 +2893,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(has_x) {
    tclsetintvar("tctx::max_new_windows", MAX_NEW_WINDOWS);
    tcleval("pack_widgets; set_bindings .drw");
-   tcleval("eval_user_startup_commands");
  }
 
  fs=tclgetintvar("fullscreen");
@@ -3063,6 +3062,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
  /*                                    */
  tcleval("update; source_user_tcl_files");
+ tcleval("eval_user_startup_commands");
 
  /* source tcl file given on command line with --script */
  if(cli_opt_tcl_script[0]) {
