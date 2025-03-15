@@ -4911,7 +4911,7 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     
     set err [catch {regexp $new_symbol_browser_ext $i} type]
     if {!$err && $type} {
-      set fname [rel_sym_path $i $paths]
+      set fname [file tail $i]
       lappend filelist $fname
       lappend insert_symbol(fullpathlist) $i
     }
