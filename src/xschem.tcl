@@ -5024,6 +5024,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   "
   bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist [list $paths] [list $maxdepth]"
   bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_preview"
+  bind .ins.center.left.l <KeyPress-Return> "
+    xschem preview_window close .ins.center.right {}
+    destroy .ins
+  "
   bind .ins.center.left.l <Enter> "xschem abort_operation"
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable insert_symbol(nitems)
