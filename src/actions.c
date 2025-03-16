@@ -3079,7 +3079,7 @@ void new_wire(int what, double mx_snap, double my_snap)
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
       xctx->push_undo();
       if(xctx->manhattan_lines & 1) {
-        if(xctx->nl_xx2!=xctx->nl_xx1) {
+        if(xctx->nl_x2!=xctx->nl_x1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1);
@@ -3088,7 +3088,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy1, 0, NULL);
         }
-        if(xctx->nl_yy2!=xctx->nl_yy1) {
+        if(xctx->nl_y2!=xctx->nl_y1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1; 
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2);
@@ -3098,7 +3098,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           drawline(WIRELAYER,NOW, xctx->nl_xx2,xctx->nl_yy1,xctx->nl_xx2,xctx->nl_yy2, 0, NULL);
         }
       } else if(xctx->manhattan_lines & 2) {
-        if(xctx->nl_yy2!=xctx->nl_yy1) {
+        if(xctx->nl_y2!=xctx->nl_y1) {
           xctx->nl_xx1 = xctx->nl_x1; xctx->nl_yy1 = xctx->nl_y1;
           xctx->nl_xx2 = xctx->nl_x2; xctx->nl_yy2 = xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2);
@@ -3107,7 +3107,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,NOW, xctx->nl_xx1,xctx->nl_yy1,xctx->nl_xx1,xctx->nl_yy2, 0, NULL);
         }
-        if(xctx->nl_xx2!=xctx->nl_xx1) {
+        if(xctx->nl_x2!=xctx->nl_x1) {
           xctx->nl_xx1=xctx->nl_x1;xctx->nl_yy1=xctx->nl_y1;
           xctx->nl_xx2=xctx->nl_x2;xctx->nl_yy2=xctx->nl_y2;
           ORDER(xctx->nl_xx1,xctx->nl_yy2,xctx->nl_xx2,xctx->nl_yy2);
