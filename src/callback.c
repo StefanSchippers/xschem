@@ -166,7 +166,7 @@ void abort_operation(void)
     return;
   }
   xctx->last_command=0;
-  xctx->manhattan_lines = 0;
+  /* xctx->manhattan_lines = 0; */
   if(xctx->ui_state & STARTMOVE)
   {
    move_objects(ABORT,0,0,0);
@@ -226,7 +226,7 @@ void start_line(double mx, double my)
       if(xctx->constr_mv == 1) my = xctx->my_double_save;
       if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     } else {
-      xctx->manhattan_lines = 0;
+      /* xctx->manhattan_lines = 0; */
       xctx->mx_double_save=mx;
       xctx->my_double_save=my;
     }
@@ -253,6 +253,7 @@ void start_wire(double mx, double my)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
   } else {
+    /* xctx->manhattan_lines = 1; */
     xctx->mx_double_save=mx;
     xctx->my_double_save=my;
   }
@@ -1672,7 +1673,7 @@ static void snapped_wire(double c_snap)
     find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     xctx->mx_double_save = my_round(x / c_snap) * c_snap;
     xctx->my_double_save = my_round(y / c_snap) * c_snap;
-    xctx->manhattan_lines = 1;
+    /* xctx->manhattan_lines = 1; */
     new_wire(PLACE, x, y);
     new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
   }
@@ -4542,9 +4543,23 @@ int infix_interface = tclgetboolvar("infix_interface");
 int rstate; /* (reduced state, without ShiftMask) */
 int snap_cursor = tclgetboolvar("snap_cursor");
 int cadence_compat = tclgetboolvar("cadence_compat");
+int persistent_command = tclgetboolvar("persistent_command");
+
 int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
                        ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
-                       (tclgetboolvar("persistent_command") && (xctx->last_command & STARTWIRE));
+                       (persistent_command && (xctx->last_command & STARTWIRE));
+int line_draw_active = (xctx->ui_state & STARTLINE) || 
+                       ((xctx->ui_state2 & MENUSTARTLINE) && (xctx->ui_state & MENUSTART)) || 
+                       (persistent_command && (xctx->last_command & STARTLINE));
+int poly_draw_active = (xctx->ui_state & STARTPOLYGON) || 
+                       ((xctx->ui_state2 & MENUSTARTPOLYGON) && (xctx->ui_state & MENUSTART)) || 
+                       (persistent_command && (xctx->last_command & STARTPOLYGON));
+int arc_draw_active =  (xctx->ui_state & STARTARC) || 
+                       ((xctx->ui_state2 & MENUSTARTARC) && (xctx->ui_state & MENUSTART)) || 
+                       (persistent_command && (xctx->last_command & STARTARC));
+int rect_draw_active =  (xctx->ui_state & STARTRECT) || 
+                       ((xctx->ui_state2 & MENUSTARTRECT) && (xctx->ui_state & MENUSTART)) || 
+                       (persistent_command && (xctx->last_command & STARTRECT));
 
  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
   * events. Some remote connection softwares do not generate the correct coordinates
@@ -4580,6 +4595,14 @@ int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
 
  if(wire_draw_active) {
     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
+ } else if(line_draw_active) {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW LINE! }", NULL);
+ } else if(poly_draw_active) {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW POLYGON! }", NULL);
+ } else if(arc_draw_active) {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW ARC! }", NULL);
+ } else if(rect_draw_active) {
+    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW RECTANGLE! }", NULL);
  } else {
     tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
  }
