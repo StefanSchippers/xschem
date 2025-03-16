@@ -9068,7 +9068,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.tools add command -label "Insert snap wire" -command "xschem snap_wire" -accelerator Shift+W
   $topwin.menubar.tools add command -label "Insert line" -command "xschem line" -accelerator L
   $topwin.menubar.tools add command -label "Insert rect" -command "xschem rect" -accelerator R
-  $topwin.menubar.tools add command -label "Insert polygon" -command "xschem polygon" -accelerator Ctrl+P
+  $topwin.menubar.tools add command -label "Insert polygon" -command "xschem polygon" -accelerator P
   $topwin.menubar.tools add command -label "Insert arc" -command "xschem arc" -accelerator Shift+C
   $topwin.menubar.tools add command -label "Insert circle" -command "xschem circle" -accelerator Ctrl+Shift+C
   $topwin.menubar.tools add command -label "Insert JPG/PNG/SVG image" -command "xschem add_image"
