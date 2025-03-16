@@ -4507,8 +4507,8 @@ static void handle_double_click(int event, int state, KeySym key, int button,
        } else {
          if(xctx->ui_state & STARTWIRE) {
            if( cadence_compat ) {
-           redraw_w_a_l_r_p_z_rubbers(1);
-           start_wire(mx, my);
+             redraw_w_a_l_r_p_z_rubbers(1);
+             start_wire(mx, my);
            }
            xctx->ui_state &= ~STARTWIRE;
          }
