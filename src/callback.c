@@ -258,7 +258,7 @@ void start_wire(double mx, double my)
     xctx->my_double_save=my;
   }
   new_wire(PLACE,mx, my);
-  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")) {
       xctx->constr_mv = 0;
   }
 }
@@ -4132,9 +4132,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
                                 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux)
 {
-   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
+   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
