@@ -8774,13 +8774,12 @@ proc build_widgets { {topwin {} } } {
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
 
-
   $topwin.menubar.option add cascade -label "Crosshair" \
        -menu $topwin.menubar.option.crosshair
   menu $topwin.menubar.option.crosshair -tearoff 0
 
-  $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" -accelerator {Alt-Z} \
-    -variable snap_cursor -selectcolor $selectcolor
+  $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
+    -variable snap_cursor -selectcolor $selectcolor  -accelerator {Alt-Z}
   $topwin.menubar.option.crosshair add checkbutton -label "Draw crosshair" \
     -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
   $topwin.menubar.option.crosshair add command -label "Crosshair size" \
@@ -9069,7 +9068,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.tools add command -label "Insert snap wire" -command "xschem snap_wire" -accelerator Shift+W
   $topwin.menubar.tools add command -label "Insert line" -command "xschem line" -accelerator L
   $topwin.menubar.tools add command -label "Insert rect" -command "xschem rect" -accelerator R
-  $topwin.menubar.tools add command -label "Insert polygon" -command "xschem polygon" -accelerator Ctrl+P
+  $topwin.menubar.tools add command -label "Insert polygon" -command "xschem polygon" -accelerator P
   $topwin.menubar.tools add command -label "Insert arc" -command "xschem arc" -accelerator Shift+C
   $topwin.menubar.tools add command -label "Insert circle" -command "xschem circle" -accelerator Ctrl+Shift+C
   $topwin.menubar.tools add command -label "Insert JPG/PNG/SVG image" -command "xschem add_image"

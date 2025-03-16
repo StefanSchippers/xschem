@@ -1375,11 +1375,11 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
  }
 }
 
-void drawtemp_manhattanline(GC gc, int what, double x1, double y1, double x2, double y2)
+void drawtemp_manhattanline(GC gc, int what, double x1, double y1, double x2, double y2, int force_manhattan)
 {
   double nl_xx1, nl_yy1, nl_xx2, nl_yy2;
   double origin_shifted_x2, origin_shifted_y2;
-  if(tclgetboolvar("orthogonal_wiring")) {
+  if(tclgetboolvar("orthogonal_wiring") && force_manhattan) {
     /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
     origin_shifted_x2 = x2 - x1;
     origin_shifted_y2 = y2 - y1;

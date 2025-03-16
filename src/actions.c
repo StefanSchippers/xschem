@@ -3183,11 +3183,11 @@ void new_wire(int what, double mx_snap, double my_snap)
     xctx->ui_state &= ~STARTWIRE;
   }
   if( (what & RUBBER)  ) {
-    drawtemp_manhattanline(xctx->gctiled, NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+    drawtemp_manhattanline(xctx->gctiled, NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2, 0);
     restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
     xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
     if(!(what & CLEAR)) {
-      drawtemp_manhattanline(xctx->gc[WIRELAYER], NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
+      drawtemp_manhattanline(xctx->gc[WIRELAYER], NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2, 0);
     }
   }
 }
