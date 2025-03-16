@@ -379,24 +379,24 @@ void draw_selection(GC g, int interruptable)
      {
       if(xctx->wire[n].bus)
         drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
-                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
       else
         drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
-                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
      }
      else if(xctx->wire[n].sel==SELECTED1)
      {
       if(xctx->wire[n].bus)
-        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2, 1);
       else
-        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
+        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2, 1);
      }
      else if(xctx->wire[n].sel==SELECTED2)
      {
       if(xctx->wire[n].bus)
-        drawtemp_manhattanline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
       else
-        drawtemp_manhattanline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
+        drawtemp_manhattanline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
      }
      break;
     case LINE:
