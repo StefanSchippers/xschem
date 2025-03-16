@@ -258,7 +258,7 @@ void start_wire(double mx, double my)
     xctx->my_double_save=my;
   }
   new_wire(PLACE,mx, my);
-  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
+  if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")) {
       xctx->constr_mv = 0;
   }
 }
