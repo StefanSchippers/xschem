@@ -166,7 +166,7 @@ void abort_operation(void)
     return;
   }
   xctx->last_command=0;
-  xctx->manhattan_lines = 0;
+  /* xctx->manhattan_lines = 0; */
   if(xctx->ui_state & STARTMOVE)
   {
    move_objects(ABORT,0,0,0);
@@ -226,7 +226,7 @@ void start_line(double mx, double my)
       if(xctx->constr_mv == 1) my = xctx->my_double_save;
       if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
     } else {
-      xctx->manhattan_lines = 0;
+      /* xctx->manhattan_lines = 0; */
       xctx->mx_double_save=mx;
       xctx->my_double_save=my;
     }
@@ -253,7 +253,7 @@ void start_wire(double mx, double my)
     if(xctx->constr_mv == 1) my = xctx->my_double_save;
     if(xctx->constr_mv == 2) mx = xctx->mx_double_save;
   } else {
-    xctx->manhattan_lines = 1;
+    /* xctx->manhattan_lines = 1; */
     xctx->mx_double_save=mx;
     xctx->my_double_save=my;
   }
@@ -1673,7 +1673,7 @@ static void snapped_wire(double c_snap)
     find_closest_net_or_symbol_pin(xctx->mousex, xctx->mousey, &x, &y);
     xctx->mx_double_save = my_round(x / c_snap) * c_snap;
     xctx->my_double_save = my_round(y / c_snap) * c_snap;
-    xctx->manhattan_lines = 1;
+    /* xctx->manhattan_lines = 1; */
     new_wire(PLACE, x, y);
     new_wire(RUBBER, xctx->mousex_snap,xctx->mousey_snap);
   }
