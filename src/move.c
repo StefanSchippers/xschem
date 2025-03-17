@@ -1147,6 +1147,7 @@ void move_objects(int what, int merge, double dx, double dy)
          {
           wire[n].x2 = xctx->rx2;
           wire[n].y2 = xctx->ry1;
+          ORDER(xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2);
           storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,ADD, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2, 0, NULL);
@@ -1155,12 +1156,14 @@ void move_objects(int what, int merge, double dx, double dy)
          {
           wire[n].x2 = xctx->rx1;
           wire[n].y2 = xctx->ry2;
+          ORDER(xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2);
           storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
           hash_wire(XINSERT, xctx->wires-1, 1);
           drawline(WIRELAYER,ADD, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2, 0, NULL);
          }
          else
          {
+          /* no need for ordering coordinates - already done before */
           wire[n].x2 = xctx->rx2;
           wire[n].y2 = xctx->ry2;
          }
