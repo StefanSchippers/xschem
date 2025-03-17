@@ -377,26 +377,42 @@ void draw_selection(GC g, int interruptable)
      ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
      if(xctx->wire[n].sel==SELECTED)
      {
-      if(xctx->wire[n].bus)
-        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
-                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
-      else
-        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
-                xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
+      double x1 = xctx->rx1 + xctx->deltax;
+      double y1 = xctx->ry1 + xctx->deltay;
+      double x2 = xctx->rx2 + xctx->deltax;
+      double y2 = xctx->ry2 + xctx->deltay;
+      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      if(xctx->wire[n].bus) {
+        drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
+      } else {
+        drawtemp_manhattanline(g, ADD, x1, y1, x2, y2, 1);
+      }
      }
      else if(xctx->wire[n].sel==SELECTED1)
      {
-      if(xctx->wire[n].bus)
-        drawtemp_manhattanline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2, 1);
-      else
-        drawtemp_manhattanline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2, 1);
+      double x1 = xctx->rx1 + xctx->deltax;
+      double y1 = xctx->ry1 + xctx->deltay;
+      double x2 = xctx->rx2;
+      double y2 = xctx->ry2;
+      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      if(xctx->wire[n].bus) {
+        drawtemp_manhattanline(g, THICK, x2, y2, x1, y1, 1);
+      } else {
+        drawtemp_manhattanline(g, ADD, x2, y2, x1, y1, 1);
+      }
      }
      else if(xctx->wire[n].sel==SELECTED2)
      {
-      if(xctx->wire[n].bus)
-        drawtemp_manhattanline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
-      else
-        drawtemp_manhattanline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay, 1);
+      double x1 = xctx->rx1;
+      double y1 = xctx->ry1;
+      double x2 = xctx->rx2 + xctx->deltax;
+      double y2 = xctx->ry2 + xctx->deltay;
+      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      if(xctx->wire[n].bus) {
+        drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
+      } else {
+        drawtemp_manhattanline(g, ADD, x1, y1, x2, y2, 1);
+      }
      }
      break;
     case LINE:
@@ -991,6 +1007,145 @@ void copy_objects(int what)
 }
 
 
+/* order wire points and swap SELECTED1 / SELECTED2 if needed */
+static void order_wire_points(int n)
+{
+  xWire * const wire = xctx->wire;
+  double x1, y1;
+
+  x1=wire[n].x1;
+  y1=wire[n].y1;
+  ORDER(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2);
+  if( x1 == wire[n].x2 && y1 == wire[n].y2) /* wire points reversed, so swap SELECTEDn */
+  {
+   if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
+   else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
+  }
+}
+
+/* xctx->{rx1, ry1} and xctx->{rx2, ry2} are the two line points after the move.
+ * they are not guaranteed to be ordered (since only one of the two points may have changed)
+ * so this must be taken care for */
+static void place_moved_wire(int n, int orthogonal_wiring)
+{
+  xWire * const wire = xctx->wire;
+
+
+  /* FIXME: Chayan Deb: this needs to be updated
+   *        If things get too complicated a place_moved_wire_orthogonal() can be created 
+   */
+  if((wire[n].sel & (SELECTED|SELECTED1)) && orthogonal_wiring)
+  {
+   if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
+   else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
+  }
+
+  /* wire x1,y1 point was moved
+   *
+   *                          x1,y1(old)       rx2,ry2
+   *           -----------------o-----------------o
+   *          |       (H)
+   * selected |(V)
+   *          |
+   *          o
+   *       rx1,ry1(new)
+   */
+  if(wire[n].sel == SELECTED1 && (xctx->manhattan_lines & 1)) /* H - V */
+  {
+   int last;
+   wire[n].x1 = xctx->rx1;
+   wire[n].y1 = xctx->ry1;
+   wire[n].x2 = xctx->rx1;
+   wire[n].y2 = xctx->ry2;
+   order_wire_points(n);
+   storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+   last = xctx->wires-1;
+   order_wire_points(last);
+   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+  }
+
+  /* wire x2,y2 point was moved
+   *
+   *        rx1,ry1            x2,y2(old)
+   *           o-----------------o-----------------
+   *                                      (H)      |
+   *                                            (V)| selected
+   *                                               |
+   *                                               o
+   *                                            rx2,ry2(new)
+   */
+  else if(wire[n].sel == SELECTED2 && (xctx->manhattan_lines & 1)) /* H - V */
+  {
+   int last;
+   wire[n].x1 = xctx->rx2;
+   wire[n].y1 = xctx->ry1;
+   wire[n].x2 = xctx->rx2;
+   wire[n].y2 = xctx->ry2;
+   order_wire_points(n);
+   storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry1,WIRE,0,0,NULL);
+   last = xctx->wires-1;
+   order_wire_points(last);
+   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+  }
+
+  /* wire x1,y1 point was moved
+   *
+   *                           x1,y1(old)       rx2,ry2
+   *                             o-----------------o
+   *                                               |
+   *                                            (V)|
+   *                  (H) selected                 |
+   *           o----------------------------------- 
+   *        rx1,ry1(new)
+   */
+  else if(wire[n].sel == SELECTED1 && (xctx->manhattan_lines & 2)) /* V - H */
+  {
+   int last;
+   wire[n].x1 = xctx->rx1;
+   wire[n].y1 = xctx->ry1;
+   wire[n].x2 = xctx->rx2;
+   wire[n].y2 = xctx->ry1;
+   order_wire_points(n);
+   storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+   last = xctx->wires-1;
+   order_wire_points(last);
+   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+  }
+
+  /* wire x2,y2 point was moved
+   *
+   *        rx1,ry1            x2,y2(old)
+   *           o-----------------o
+   *           |
+   *           |(V)
+   *           |      (H) selected
+   *            -----------------------------------o
+   *                                            rx2,ry2(new)
+   */
+  else if(wire[n].sel == SELECTED2 && (xctx->manhattan_lines & 2)) /* V - H */
+  {
+   int last;
+   wire[n].x1 = xctx->rx1;
+   wire[n].y1 = xctx->ry2;
+   wire[n].x2 = xctx->rx2;
+   wire[n].y2 = xctx->ry2;
+   order_wire_points(n);
+   storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx1,xctx->ry2,WIRE,0,0,NULL);
+   last = xctx->wires-1;
+   order_wire_points(last);
+   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+  }
+
+  else /* no manhattan or traslation since both line points moved */
+  {
+   wire[n].x1 = xctx->rx1;
+   wire[n].y1 = xctx->ry1;
+   wire[n].x2 = xctx->rx2;
+   wire[n].y2 = xctx->ry2;
+   order_wire_points(n);
+  }
+}
+
 /* merge param unused, RFU */
 void move_objects(int what, int merge, double dx, double dy)
 {
@@ -998,6 +1153,7 @@ void move_objects(int what, int merge, double dx, double dy)
   double angle, dtmp;
   double tx1,ty1; /* temporaries for swapping coordinates 20070302 */
   char *estr = NULL;
+  int orthogonal_wiring = tclgetboolvar("orthogonal_wiring");
   #if HAS_CAIRO==1
   int customfont;
   #endif
@@ -1127,46 +1283,8 @@ void move_objects(int what, int merge, double dx, double dy)
           xctx->rx2+=xctx->deltax;
           xctx->ry2+=xctx->deltay;
          }
-         wire[n].x1=xctx->rx1;
-         wire[n].y1=xctx->ry1;
-         ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
-         if( wire[n].x1 == xctx->rx2 &&  wire[n].y1 == xctx->ry2)
-         {
-          if(wire[n].sel == SELECTED1) wire[n].sel = SELECTED2;
-          else if(wire[n].sel == SELECTED2) wire[n].sel = SELECTED1;
-         }
-         
-         if((wire[n].sel & (SELECTED|SELECTED1)) && tclgetboolvar("orthogonal_wiring"))
-         {
-          if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
-          else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
-         }
-         wire[n].x1 = xctx->rx1;
-         wire[n].y1 = xctx->ry1;
-         if(xctx->manhattan_lines&1)
-         {
-          wire[n].x2 = xctx->rx2;
-          wire[n].y2 = xctx->ry1;
-          ORDER(xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2);
-          storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
-          hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,ADD, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2, 0, NULL);
-         }
-         else if(xctx->manhattan_lines&2)
-         {
-          wire[n].x2 = xctx->rx1;
-          wire[n].y2 = xctx->ry2;
-          ORDER(xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2);
-          storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
-          hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,ADD, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2, 0, NULL);
-         }
-         else
-         {
-          /* no need for ordering coordinates - already done before */
-          wire[n].x2 = xctx->rx2;
-          wire[n].y2 = xctx->ry2;
-         }
+
+         place_moved_wire(n, orthogonal_wiring);
          
        }
        break;
@@ -1236,9 +1354,7 @@ void move_objects(int what, int merge, double dx, double dy)
              p->x[j] =  xctx->rx1+xctx->deltax;
              p->y[j] =  xctx->ry1+xctx->deltay;
            }
- 
          }
- 
          for(j=0; j<p->points; ++j) {
            if(j==0 || p->x[j] < bx1) bx1 = p->x[j];
            if(j==0 || p->y[j] < by1) by1 = p->y[j];
