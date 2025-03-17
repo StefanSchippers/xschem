@@ -4878,9 +4878,34 @@ proc insert_symbol_preview {} {
   }
 }
 
+proc insert_symbol_update_dirs {paths {maxdepth -1}} {
+  global insert_symbol new_symbol_browser_ext
+  # regenerate list of dirs
+  set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $new_symbol_browser_ext]
+  set insert_symbol(dirtails) {}
+  foreach i $insert_symbol(dirs) {
+    lappend insert_symbol(dirtails) [file tail $i]
+  }
+  # sort dirs using dirtails as key
+  set files {}
+  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
+    lappend files [list $f $ff]
+  }
+  set files [lsort -dictionary -index 0 $files]
+  set insert_symbol(dirtails) {}
+  set insert_symbol(dirs) {}
+  
+  foreach f $files {
+    lassign $f ff fff
+    lappend insert_symbol(dirtails) $ff
+    lappend insert_symbol(dirs) $fff
+  } 
+}
+
 #### fill list of files matching pattern
 proc insert_symbol_filelist {paths {maxdepth -1}} {
   global insert_symbol new_symbol_browser_ext
+
   set sel [.ins.center.leftdir.l curselection]
   if {![info exists insert_symbol(dirs)]} {return}
   if {$sel eq {}} {
@@ -5012,7 +5037,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.ext_l -text Ext:
   entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable new_symbol_browser_ext
-  
+  button .ins.top.upd -takefocus 0 -text Update -command "
+    insert_symbol_update_dirs [list $paths] [list $maxdepth]
+    insert_symbol_filelist [list $paths] [list $maxdepth]
+  "
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   bind .ins <KeyRelease> "
     if {{%K} eq {Tab} && {%W} eq {.ins.center.left.l}} {
@@ -5048,33 +5076,12 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.top.pat_e -side left
   pack .ins.top.dir_l -side left
   pack .ins.top.dir_e -side left
+  pack .ins.top.upd -side left
   pack .ins.top.ext_l -side left
   pack .ins.top.ext_e -side left
 
-  set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $new_symbol_browser_ext]
-  set insert_symbol(dirtails) {}
-  foreach i $insert_symbol(dirs) {
-    lappend insert_symbol(dirtails) [file tail $i]
-  }
+  insert_symbol_update_dirs $paths $maxdepth
 
-  # sort dirs using dirtails as key
-  set files {}
-  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
-    lappend files [list $f $ff]
-  }
-  set files [lsort -dictionary -index 0 $files]
-  set insert_symbol(dirtails) {}
-  set insert_symbol(dirs) {}
-  
-  foreach f $files {
-    lassign $f ff fff
-    lappend insert_symbol(dirtails) $ff
-    lappend insert_symbol(dirs) $fff
-  }
-
-  # insert_symbol_filelist $paths $maxdepth
-  # tkwait window .ins
-  # xschem set semaphore [expr {[xschem get semaphore] -1}]
   if {[info exists insert_symbol(dirindex)]} {.ins.center.leftdir.l selection set $insert_symbol(dirindex)}
   if {[info exists insert_symbol(fileindex)]} {.ins.center.left.l selection set $insert_symbol(fileindex)}
   return {}
