@@ -473,10 +473,11 @@ double atof_spice(const char *s)
   } else if(n == 1) {
     mul = 1.0;
   } else {
-    p = strpbrk(suffix, "tgmkunpfa");
+    p = strpbrk(suffix, "tgmxkunpfa");
     if(p != suffix ) mul = 1.0;
     else if(*p == 't') mul=1e12;
     else if(*p == 'g') mul=1e9;
+    else if(*p == 'x') mul=1e6; /* Xyce extension */
     else if(*p == 'm') {
       if(strstr(p, "meg") == p) mul=1e6;
       else if(strstr(p, "mil") == p) mul=25.4e-6;
@@ -495,12 +496,13 @@ double atof_spice(const char *s)
 }
 
 
-/* same as atof_spice, but recognizes 'M' ae Mega, and 'm' as Milli */
+/* same as atof_spice, but recognizes 'M' as Mega, and 'm' as Milli
+ * as long as not 'MEG' or 'meg' which is always Mega */
 double atof_eng(const char *s)
 {
   int n;
   double a = 0.0, mul=1.0;
-  char suffix[100]={0};
+  char suffix[100]={0, 0, 0, 0, 0};
   const char *p;
 
   if(!s) return 0.0;
@@ -510,10 +512,12 @@ double atof_eng(const char *s)
   } else if(n == 1) {
     mul = 1.0;
   } else {
-    p = strpbrk(suffix, "TGMKUNPFAtgmkunpfa");
+    p = strpbrk(suffix, "TGMXKUNPFAtgmxkunpfa");
     if(p != suffix ) mul = 1.0;
     else if(tolower(*p) == 't') mul=1e12;
     else if(tolower(*p) == 'g') mul=1e9;
+    else if(tolower(*p) == 'x') mul=1e6; /* Xyce extension */
+    else if(tolower(p[0]) == 'm' && tolower(p[1]) == 'e' && tolower(p[2]) == 'g') mul=1e6;
     else if(*p == 'M') mul=1e6;
     else if(*p == 'm') mul=1e-3;
     else if(tolower(*p) == 'k') mul=1e3;

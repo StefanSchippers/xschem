@@ -499,13 +499,21 @@ proc view_process_status {lb} {
   after 1000 "update_process_status $lb"
 }
 
+proc list_running_cmds_title {} {
+  if {[winfo exists .processlist]} {
+    wm title .processlist "List of running commands - [xschem get current_name]"
+    after 1000 "list_running_cmds_title"
+  }
+}
+
 # top level dialog displaying running sub-processes
 proc list_running_cmds {} {
   global has_x
   set top .processlist
   if {![info exists has_x]} {return}
-  if {[winfo exists $top]} {return}
+  if {[winfo exists $top]} {raise $top; return}
   toplevel $top -class Dialog
+  list_running_cmds_title
   # wm transient $top [xschem get topwindow]
   set frame1 $top.f1
   set frame2 $top.f2
@@ -617,6 +625,7 @@ proc from_eng {i} {
     u         { expr {1e-6}}
     m         { expr {1e-3}}
     k         { expr {1e3}}
+    x         { expr {1e6}} ;# Xyce extension
     meg       { expr {1e6}}
     g         { expr {1e9}}
     t         { expr {1e12}}
@@ -4806,6 +4815,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 # 'levels' is set to the number of levels to descend into.
 # 'level' is used internally by the function and should not be set.
 proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+  # puts "get_list_of_dirs_with_symbols paths=$paths"
   global pathlist
   set dir_with_symbols {}
   if {$level == -1} { set level 0}
@@ -4896,6 +4906,7 @@ proc insert_symbol_select_preview {} {
 }
 
 proc insert_symbol_update_dirs {paths {maxdepth -1}} {
+  # puts insert_symbol_update_dirs
   global insert_symbol new_symbol_browser_ext
   # regenerate list of dirs
   set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $new_symbol_browser_ext]
@@ -4930,14 +4941,13 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     .ins.center.leftdir.l selection set active
   }
   set insert_symbol(dirindex) $sel
-  # puts "set dirindex=$paths"
   set paths [lindex $insert_symbol(dirs) $sel]
   # puts "insert_symbol_filelist: paths=$paths"
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
   .ins.top2.dir_e insert 0 $paths
   .ins.top2.dir_e configure -state readonly
-  #check if regex is valid
+  # check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
   set f [match_file $insert_symbol(regex) $paths 0]
@@ -5110,6 +5120,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     .ins.center.left.l selection set $insert_symbol(fileindex)
     .ins.center.left.l see $insert_symbol(fileindex)
   }
+  insert_symbol_filelist $paths $maxdepth
   return {}
 }
 #######################################################################
@@ -7439,7 +7450,8 @@ proc context_menu { } {
 
   set retval 0
   if {[info tclversion] >= 8.5} {
-    set font {Sans 8 bold}
+    set font TkDefaultFont
+    # set font {Sans 8 bold}
   } else {
     set font fixed
   }
@@ -7806,6 +7818,7 @@ proc tab_context_menu {tab_but} {
 #
 proc setup_toolbar {} {
   global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR dark_gui_colorscheme
+  global toolbar_icon_zoom ctxmenu_icon_zoom
   set_ne toolbar_visible 1
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
@@ -7857,8 +7870,9 @@ proc setup_toolbar {} {
 # Create a tool button which may be displayed
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
-    global dark_gui_colorscheme
+    global dark_gui_colorscheme toolbar_icon_zoom
 
+    set toolbar_icon_size [expr {$toolbar_icon_zoom * 24}]
     if { $dark_gui_colorscheme ==1} {
       set bg black
     } else {
@@ -7868,8 +7882,8 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
        frame $topwin.toolbar -relief raised -bd 0 -background $bg 
     }
     if { ![winfo exists $topwin.toolbar.b$name]} {
-      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
-      -padx 0 -pady 0 -command $cmd
+      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 \
+      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd
       if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
     }
 }
@@ -9830,6 +9844,15 @@ set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the searc
 set_ne new_symbol_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
+
+#### toolbar icons are bitmaps. Their size is 24x24. This can be changed to
+#### accommodate UHD displays.
+#### the zoom factor is an integer that can be used to enlarge these icons
+#### Default value: 1
+set_ne toolbar_icon_zoom 1
+#### context menu icons are 16 x 16. they can be enlarged by the following integer
+#### default value: 1
+set_ne ctxmenu_icon_zoom 1
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
