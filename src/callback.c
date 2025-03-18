@@ -3433,19 +3433,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           tcleval("[xschem get top_path].menubar invoke Simulate");
         }
       }
-      else if(SET_MODMASK) { /* reload */
-        if(xctx->semaphore >= 2) break;
-        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
-                 "-message {Are you sure you want to reload from disk?}");
-        if(strcmp(tclresult(),"ok")==0) {
-          char filename[PATH_MAX];
-          unselect_all(1);
-          remove_symbols();
-          my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
-          load_schematic(1, filename, 1, 1);
-          draw();
-        }
-      }
       else if(EQUAL_MODMASK) { /* rotate objects around their anchor points 20171208 */
         if(xctx->ui_state & STARTMOVE) move_objects(ROTATE|ROTATELOCAL,0,0,0);
         else if(xctx->ui_state & STARTCOPY) copy_objects(ROTATE|ROTATELOCAL);
@@ -3489,7 +3476,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           tcleval("[xschem get top_path].menubar invoke Simulate");
         }
       }
-      else if(/* !xctx->ui_state && */ (rstate == 0) && cadence_compat) { /* create wire snapping to closest instance pin (cadence keybind) */
+      /* create wire snapping to closest instance pin (cadence keybind) */
+      else if(/* !xctx->ui_state && */ (rstate == 0) && cadence_compat) {
         if(xctx->semaphore >= 2) break;
         snapped_wire(c_snap);
       }
@@ -3506,6 +3494,21 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           save(1, 0);
         }
       }
+
+      else if(SET_MODMASK) { /* reload */
+        if(xctx->semaphore >= 2) break;
+        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+                 "-message {Are you sure you want to reload from disk?}");
+        if(strcmp(tclresult(),"ok")==0) {
+          char filename[PATH_MAX];
+          unselect_all(1);
+          remove_symbols();
+          my_strncpy(filename, abs_sym_path(xctx->sch[xctx->currsch], ""), S(filename));
+          load_schematic(1, filename, 1, 1);
+          draw();
+        }
+      }
+
       else if(SET_MODMASK && (state & ControlMask) ) { /* save as symbol */
         if(xctx->semaphore >= 2) break;
         saveas(NULL, SYMBOL);
