@@ -7441,7 +7441,8 @@ proc context_menu { } {
 
   set retval 0
   if {[info tclversion] >= 8.5} {
-    set font {Sans 8 bold}
+    set font TkDefaultFont
+    # set font {Sans 8 bold}
   } else {
     set font fixed
   }
