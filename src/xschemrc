@@ -245,6 +245,15 @@
 #### default: unset (tk uses its default) > 1.0 ==> bigger 
 # set tk_scaling 1.7
 
+#### toolbar icons are bitmaps. Their size is 24x24. This can be changed to
+#### accommodate UHD displays.
+#### the zoom factor is an integer that can be used to enlarge these icons
+#### Default value: 1
+# set toolbar_icon_zoom 2
+#### context menu icons are 16 x 16. they can be enlarged by the following
+#### integer. default value: 1
+# set ctxmenu_icon_zoom 2
+
 #### use the tclreadline package if available , Default: 1 (enabled).
 # set use_tclreadline 1
 

@@ -7806,6 +7806,7 @@ proc tab_context_menu {tab_but} {
 #
 proc setup_toolbar {} {
   global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR dark_gui_colorscheme
+  global toolbar_icon_zoom ctxmenu_icon_zoom
   set_ne toolbar_visible 1
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
@@ -7857,8 +7858,9 @@ proc setup_toolbar {} {
 # Create a tool button which may be displayed
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
-    global dark_gui_colorscheme
+    global dark_gui_colorscheme toolbar_icon_zoom
 
+    set toolbar_icon_size [expr {$toolbar_icon_zoom * 24}]
     if { $dark_gui_colorscheme ==1} {
       set bg black
     } else {
@@ -7868,8 +7870,8 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
        frame $topwin.toolbar -relief raised -bd 0 -background $bg 
     }
     if { ![winfo exists $topwin.toolbar.b$name]} {
-      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
-      -padx 0 -pady 0 -command $cmd
+      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 \
+      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd
       if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
     }
 }
@@ -9830,6 +9832,15 @@ set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the searc
 set_ne new_symbol_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
+
+#### toolbar icons are bitmaps. Their size is 24x24. This can be changed to
+#### accommodate UHD displays.
+#### the zoom factor is an integer that can be used to enlarge these icons
+#### Default value: 1
+set_ne toolbar_icon_zoom 1
+#### context menu icons are 16 x 16. they can be enlarged by the following integer
+#### default value: 1
+set_ne ctxmenu_icon_zoom 1
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
