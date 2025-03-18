@@ -2609,7 +2609,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
                              int cadence_compat, int wire_draw_active, int snap_cursor)
 {
   char str[PATH_MAX + 100];
-  int dr_gr;
   switch (key) {
     case '0': 
     case '1': 
@@ -3747,7 +3746,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else if(rstate==ControlMask) { /* zoom out */
         view_unzoom(0.0);
       }
-      else if(EQUAL_MODMASK && cadence_compat) { /* toggle snap-cursor option */
+      else if(EQUAL_MODMASK) { /* toggle snap-cursor option */
         if(tclgetboolvar("snap_cursor")) {
           tclsetvar("snap_cursor", "0");
           draw_snap_cursor(1);
@@ -3804,6 +3803,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case '%':                                           /* toggle draw grid */
+      int dr_gr;
       dr_gr = tclgetboolvar("draw_grid");
       dr_gr =!dr_gr;
       if(dr_gr) {
@@ -4509,10 +4509,8 @@ static void handle_double_click(int event, int state, KeySym key, int button,
          edit_property(0);
        } else {
          if(xctx->ui_state & STARTWIRE) {
-           if( cadence_compat ) {
-             redraw_w_a_l_r_p_z_rubbers(1);
-             start_wire(mx, my);
-           }
+           redraw_w_a_l_r_p_z_rubbers(1);
+           start_wire(mx, my);
            xctx->ui_state &= ~STARTWIRE;
          }
          if(xctx->ui_state & STARTLINE) {
