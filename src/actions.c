@@ -1599,7 +1599,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
       } else {
         const char msg[]="scope_ammeter is being inserted but no selected ammeter device/vsource to link to\n";
         dbg(0, "%s", msg);
-        if(has_x) tclvareval("alert_ {", msg, "} {} 0", NULL);
+        if(has_x) tclvareval("alert_ {", msg, "} {} 1", NULL);
         #if 1
         if(xctx->inst[n].instname) my_free(_ALLOC_ID_, &xctx->inst[n].instname);       
         if(xctx->inst[n].name) my_free(_ALLOC_ID_, &xctx->inst[n].name);       
