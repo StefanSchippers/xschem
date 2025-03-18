@@ -4806,6 +4806,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 # 'levels' is set to the number of levels to descend into.
 # 'level' is used internally by the function and should not be set.
 proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+  # puts "get_list_of_dirs_with_symbols paths=$paths"
   global pathlist
   set dir_with_symbols {}
   if {$level == -1} { set level 0}
@@ -4896,6 +4897,7 @@ proc insert_symbol_select_preview {} {
 }
 
 proc insert_symbol_update_dirs {paths {maxdepth -1}} {
+  # puts insert_symbol_update_dirs
   global insert_symbol new_symbol_browser_ext
   # regenerate list of dirs
   set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $new_symbol_browser_ext]
@@ -4930,14 +4932,13 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     .ins.center.leftdir.l selection set active
   }
   set insert_symbol(dirindex) $sel
-  # puts "set dirindex=$paths"
   set paths [lindex $insert_symbol(dirs) $sel]
   # puts "insert_symbol_filelist: paths=$paths"
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
   .ins.top2.dir_e insert 0 $paths
   .ins.top2.dir_e configure -state readonly
-  #check if regex is valid
+  # check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
   set f [match_file $insert_symbol(regex) $paths 0]
@@ -5110,6 +5111,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     .ins.center.left.l selection set $insert_symbol(fileindex)
     .ins.center.left.l see $insert_symbol(fileindex)
   }
+  insert_symbol_filelist $paths $maxdepth
   return {}
 }
 #######################################################################
