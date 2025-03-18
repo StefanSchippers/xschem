@@ -3867,3 +3867,18 @@ void select_rect(int stretch, int what, int select)
  }
 }
 
+/* needed to dynamically reassign the `manhattan_lines` value for wire-drawing */
+void recompute_orthogonal_manhattanline(double linex1, double liney1, double linex2, double liney2) {
+  double origin_shifted_x2, origin_shifted_y2;
+  /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+  origin_shifted_x2 = linex2 - linex1;
+  origin_shifted_y2 = liney2 - liney1;
+  /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+  if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2)
+    xctx->manhattan_lines = 1;
+  else
+    xctx->manhattan_lines = 2;
+
+  return;
+}
+
