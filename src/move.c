@@ -1058,10 +1058,11 @@ static void place_moved_wire(int n, int orthogonal_wiring)
    wire[n].x2 = xctx->rx1;
    wire[n].y2 = xctx->ry2;
    order_wire_points(n);
-   storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
-   last = xctx->wires-1;
-   order_wire_points(last);
-   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+   if( xctx->rx1 != xctx->rx2) {
+     storeobject(-1, xctx->rx1,xctx->ry2,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+     last = xctx->wires-1;
+     order_wire_points(last);
+   }
   }
 
   /* wire x2,y2 point was moved
@@ -1082,10 +1083,11 @@ static void place_moved_wire(int n, int orthogonal_wiring)
    wire[n].x2 = xctx->rx2;
    wire[n].y2 = xctx->ry2;
    order_wire_points(n);
-   storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry1,WIRE,0,0,NULL);
-   last = xctx->wires-1;
-   order_wire_points(last);
-   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+   if( xctx->rx1 != xctx->rx2) {
+     storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry1,WIRE,0,0,NULL);
+     last = xctx->wires-1;
+     order_wire_points(last);
+   }
   }
 
   /* wire x1,y1 point was moved
@@ -1106,10 +1108,11 @@ static void place_moved_wire(int n, int orthogonal_wiring)
    wire[n].x2 = xctx->rx2;
    wire[n].y2 = xctx->ry1;
    order_wire_points(n);
-   storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
-   last = xctx->wires-1;
-   order_wire_points(last);
-   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+   if( xctx->ry1 != xctx->ry2) {
+     storeobject(-1, xctx->rx2,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,0,NULL);
+     last = xctx->wires-1;
+     order_wire_points(last);
+   }
   }
 
   /* wire x2,y2 point was moved
@@ -1130,10 +1133,11 @@ static void place_moved_wire(int n, int orthogonal_wiring)
    wire[n].x2 = xctx->rx2;
    wire[n].y2 = xctx->ry2;
    order_wire_points(n);
-   storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx1,xctx->ry2,WIRE,0,0,NULL);
-   last = xctx->wires-1;
-   order_wire_points(last);
-   /* drawline(WIRELAYER,NOW, wire[last].x1, wire[last].y1, wire[last].x2, wire[last].y2, 0, NULL); */
+   if( xctx->ry1 != xctx->ry2) {
+     storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx1,xctx->ry2,WIRE,0,0,NULL);
+     last = xctx->wires-1;
+     order_wire_points(last);
+   }
   }
 
   else /* no manhattan or traslation since both line points moved */

@@ -499,13 +499,21 @@ proc view_process_status {lb} {
   after 1000 "update_process_status $lb"
 }
 
+proc list_running_cmds_title {} {
+  if {[winfo exists .processlist]} {
+    wm title .processlist "List of running commands - [xschem get current_name]"
+    after 1000 "list_running_cmds_title"
+  }
+}
+
 # top level dialog displaying running sub-processes
 proc list_running_cmds {} {
   global has_x
   set top .processlist
   if {![info exists has_x]} {return}
-  if {[winfo exists $top]} {return}
+  if {[winfo exists $top]} {raise $top; return}
   toplevel $top -class Dialog
+  list_running_cmds_title
   # wm transient $top [xschem get topwindow]
   set frame1 $top.f1
   set frame2 $top.f2
@@ -617,6 +625,7 @@ proc from_eng {i} {
     u         { expr {1e-6}}
     m         { expr {1e-3}}
     k         { expr {1e3}}
+    x         { expr {1e6}} ;# Xyce extension
     meg       { expr {1e6}}
     g         { expr {1e9}}
     t         { expr {1e12}}
@@ -4133,7 +4142,7 @@ namespace eval c_toolbar {
     set c_t($i,file) $f
     set c_t($i,command) "
       set file_dialog_retval {}
-      xschem abort_operation
+      if { \[xschem get ui_state\] & 8192 } { xschem abort_operation }
       file_dialog_display_preview {$f}
       xschem place_symbol {$f} "
     set c_t($i,text)  [file tail [file rootname $f]]
@@ -4357,7 +4366,9 @@ proc file_dialog_place_symbol {} {
   set file_dialog_retval  $entry
   set sym [file_dialog_getresult 2 0]
   # puts "sym=$sym"
-  xschem abort_operation
+  if { [xschem get ui_state] & 8192 } {
+    xschem abort_operation
+  }
   if {$sym ne {}} {
     xschem place_symbol "$sym"
   }
@@ -4804,6 +4815,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 # 'levels' is set to the number of levels to descend into.
 # 'level' is used internally by the function and should not be set.
 proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+  # puts "get_list_of_dirs_with_symbols paths=$paths"
   global pathlist
   set dir_with_symbols {}
   if {$level == -1} { set level 0}
@@ -4836,11 +4848,28 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
 #######################################################################
 
 #### Display preview of selected symbol and start sym placement
-proc insert_symbol_preview {} {
-  # puts "insert_symbol_preview"
+proc insert_symbol_draw_preview {f} {
+  # puts "insert_symbol_draw_preview"
+  if {[winfo exists .ins]} {
+    .ins.center.right configure -bg {}
+    xschem preview_window create .ins.center.right {}
+    xschem preview_window draw .ins.center.right [list $f]
+    bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
+    bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+    insert_symbol_place
+  }
+}
+
+
+proc insert_symbol_select_preview {} {
+  # puts "insert_symbol_select_preview"
   global insert_symbol
+  if {[info exists insert_symbol(f)]} {
+    after cancel ".ins.center.right configure -bg white"
+    after cancel "insert_symbol_draw_preview $insert_symbol(f)"
+    unset insert_symbol(f)
+  }
   xschem preview_window close .ins.center.right {}
-  .ins.center.right configure -bg white
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
   set sel [.ins.center.left.l curselection]
@@ -4854,6 +4883,7 @@ proc insert_symbol_preview {} {
     .ins.center.left.l see $sel
     set f [lindex $insert_symbol(fullpathlist) $sel]
     if {$f ne {}} {
+      set insert_symbol(f) $f
       set type [is_xschem_file $f]
       if {$type ne {0}} {
         set dir [rel_sym_path $f]
@@ -4866,21 +4896,46 @@ proc insert_symbol_preview {} {
         .ins.top2.dir_e delete 0 end
         .ins.top2.dir_e insert 0 $f
         .ins.top2.dir_e configure -state readonly
-
-        .ins.center.right configure -bg {}
-        xschem preview_window create .ins.center.right {}
-        xschem preview_window draw .ins.center.right [list $f]
-        bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
-        bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+        # global used to cancel delayed script
+        after 200 "insert_symbol_draw_preview $f"
+      } else {
+        after 200 {.ins.center.right configure -bg white}
       }
-      insert_symbol_place
     }
   }
 }
 
-#### fill list of files matching pattern
-proc insert_symbol_filelist {paths {maxdepth -1}} {
+proc insert_symbol_update_dirs {} {
+  # puts insert_symbol_update_dirs
   global insert_symbol new_symbol_browser_ext
+  # regenerate list of dirs
+  set insert_symbol(dirs) [
+    get_list_of_dirs_with_symbols $insert_symbol(paths) $insert_symbol(maxdepth) $new_symbol_browser_ext
+  ]
+  set insert_symbol(dirtails) {}
+  foreach i $insert_symbol(dirs) {
+    lappend insert_symbol(dirtails) [file tail $i]
+  }
+  # sort dirs using dirtails as key
+  set files {}
+  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
+    lappend files [list $f $ff]
+  }
+  set files [lsort -dictionary -index 0 $files]
+  set insert_symbol(dirtails) {}
+  set insert_symbol(dirs) {}
+  
+  foreach f $files {
+    lassign $f ff fff
+    lappend insert_symbol(dirtails) $ff
+    lappend insert_symbol(dirs) $fff
+  } 
+}
+
+#### fill list of files matching pattern
+proc insert_symbol_filelist {} {
+  global insert_symbol new_symbol_browser_ext
+
   set sel [.ins.center.leftdir.l curselection]
   if {![info exists insert_symbol(dirs)]} {return}
   if {$sel eq {}} {
@@ -4888,17 +4943,18 @@ proc insert_symbol_filelist {paths {maxdepth -1}} {
     .ins.center.leftdir.l selection set active
   }
   set insert_symbol(dirindex) $sel
-  # puts "set dirindex=$paths"
-  set paths [lindex $insert_symbol(dirs) $sel]
-  # puts "insert_symbol_filelist: paths=$paths"
+  set insert_symbol(paths) [lindex $insert_symbol(dirs) $sel]
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
-  .ins.top2.dir_e insert 0 $paths
+  .ins.top2.dir_e insert 0 $insert_symbol(paths)
   .ins.top2.dir_e configure -state readonly
-  #check if regex is valid
+  # check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
-  set f [match_file $insert_symbol(regex) $paths 0]
+  set f {}
+  if {$insert_symbol(paths) ne {} } {
+    set f [match_file $insert_symbol(regex) $insert_symbol(paths) 0]
+  }
   set filelist {}
   set insert_symbol(fullpathlist) {}
   set sel [.ins.center.left.l curselection]
@@ -4947,18 +5003,26 @@ proc insert_symbol_place {} {
     if {$f ne {}} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
-        xschem abort_operation
-        xschem place_symbol $f
+        if { [xschem get ui_state] & 8192 } {
+          xschem abort_operation
+        }
+        if {$insert_symbol(action) eq {symbol}} {
+          xschem place_symbol $f
+        } elseif {$insert_symbol(action) eq {load}} {
+          xschem load -gui $f
+        }
       }
     }
   }
 }
 
-#### paths: list of paths to use for listing symbols
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
-proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
+proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   global insert_symbol new_symbol_browser_ext
-  set paths [cleanup_paths $paths] ;# remove ~ and other strange path combinations
+  set insert_symbol(action) $action
+  
+  set insert_symbol(maxdepth) $maxdepth
+  set insert_symbol(paths) [cleanup_paths $paths] ;# remove ~ and other strange path combinations
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   set new_symbol_browser_ext $ext
   if {[winfo exists .ins]} {
@@ -5012,23 +5076,31 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.ext_l -text Ext:
   entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable new_symbol_browser_ext
-  
+  button .ins.top.upd -takefocus 0 -text Update -command {
+    set insert_symbol(paths) $new_symbol_browser_paths
+    insert_symbol_update_dirs
+    insert_symbol_filelist
+  }
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   bind .ins <KeyRelease> "
     if {{%K} eq {Tab} && {%W} eq {.ins.center.left.l}} {
-      insert_symbol_filelist [list $paths] [list $maxdepth]
-      insert_symbol_preview
+      insert_symbol_filelist
+      insert_symbol_select_preview
     } elseif {{%K} eq {Tab} && {%W} eq {.ins.center.leftdir.l}} {
-      insert_symbol_filelist [list $paths] [list $maxdepth]
+      insert_symbol_filelist
     }
   "
-  bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist [list $paths] [list $maxdepth]"
-  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_preview"
+  bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist"
+  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_select_preview"
   bind .ins.center.left.l <KeyPress-Return> "
     xschem preview_window close .ins.center.right {}
     destroy .ins
   "
-  bind .ins.center.left.l <Enter> "xschem abort_operation"
+  bind .ins.center.left.l <Enter> "
+    if { \[xschem get ui_state\] & 8192 } {
+      xschem abort_operation
+    }
+  "
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable insert_symbol(nitems)
   button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
@@ -5048,35 +5120,18 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   pack .ins.top.pat_e -side left
   pack .ins.top.dir_l -side left
   pack .ins.top.dir_e -side left
+  pack .ins.top.upd -side left
   pack .ins.top.ext_l -side left
   pack .ins.top.ext_e -side left
 
-  set insert_symbol(dirs) [get_list_of_dirs_with_symbols $paths $maxdepth $new_symbol_browser_ext]
-  set insert_symbol(dirtails) {}
-  foreach i $insert_symbol(dirs) {
-    lappend insert_symbol(dirtails) [file tail $i]
-  }
+  insert_symbol_update_dirs
 
-  # sort dirs using dirtails as key
-  set files {}
-  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
-    lappend files [list $f $ff]
-  }
-  set files [lsort -dictionary -index 0 $files]
-  set insert_symbol(dirtails) {}
-  set insert_symbol(dirs) {}
-  
-  foreach f $files {
-    lassign $f ff fff
-    lappend insert_symbol(dirtails) $ff
-    lappend insert_symbol(dirs) $fff
-  }
-
-  # insert_symbol_filelist $paths $maxdepth
-  # tkwait window .ins
-  # xschem set semaphore [expr {[xschem get semaphore] -1}]
   if {[info exists insert_symbol(dirindex)]} {.ins.center.leftdir.l selection set $insert_symbol(dirindex)}
-  if {[info exists insert_symbol(fileindex)]} {.ins.center.left.l selection set $insert_symbol(fileindex)}
+  if {[info exists insert_symbol(fileindex)]} {
+    .ins.center.left.l selection set $insert_symbol(fileindex)
+    .ins.center.left.l see $insert_symbol(fileindex)
+  }
+  insert_symbol_filelist
   return {}
 }
 #######################################################################
@@ -7406,7 +7461,8 @@ proc context_menu { } {
 
   set retval 0
   if {[info tclversion] >= 8.5} {
-    set font {Sans 8 bold}
+    set font TkDefaultFont
+    # set font {Sans 8 bold}
   } else {
     set font fixed
   }
@@ -7773,6 +7829,7 @@ proc tab_context_menu {tab_but} {
 #
 proc setup_toolbar {} {
   global toolbar_visible toolbar_horiz toolbar_list XSCHEM_SHAREDIR dark_gui_colorscheme
+  global toolbar_icon_zoom ctxmenu_icon_zoom
   set_ne toolbar_visible 1
   set_ne toolbar_horiz   1
   set_ne toolbar_list { 
@@ -7824,8 +7881,9 @@ proc setup_toolbar {} {
 # Create a tool button which may be displayed
 #
 proc toolbar_add {name cmd { help "" } {topwin {} } } {
-    global dark_gui_colorscheme
+    global dark_gui_colorscheme toolbar_icon_zoom
 
+    set toolbar_icon_size [expr {$toolbar_icon_zoom * 24}]
     if { $dark_gui_colorscheme ==1} {
       set bg black
     } else {
@@ -7835,8 +7893,8 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
        frame $topwin.toolbar -relief raised -bd 0 -background $bg 
     }
     if { ![winfo exists $topwin.toolbar.b$name]} {
-      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -background $bg -fg $bg -height 24 \
-      -padx 0 -pady 0 -command $cmd
+      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 \
+      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd
       if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
     }
 }
@@ -9797,6 +9855,15 @@ set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the searc
 set_ne new_symbol_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
+
+#### toolbar icons are bitmaps. Their size is 24x24. This can be changed to
+#### accommodate UHD displays.
+#### the zoom factor is an integer that can be used to enlarge these icons
+#### Default value: 1
+set_ne toolbar_icon_zoom 1
+#### context menu icons are 16 x 16. they can be enlarged by the following integer
+#### default value: 1
+set_ne ctxmenu_icon_zoom 1
 
 ## remember edit_prop widget size
 set_ne edit_prop_size 80x12
