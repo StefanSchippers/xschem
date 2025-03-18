@@ -4133,7 +4133,7 @@ namespace eval c_toolbar {
     set c_t($i,file) $f
     set c_t($i,command) "
       set file_dialog_retval {}
-      xschem abort_operation
+      if { \[xschem get ui_state\] & 8192 } { xschem abort_operation }
       file_dialog_display_preview {$f}
       xschem place_symbol {$f} "
     set c_t($i,text)  [file tail [file rootname $f]]
@@ -4357,7 +4357,9 @@ proc file_dialog_place_symbol {} {
   set file_dialog_retval  $entry
   set sym [file_dialog_getresult 2 0]
   # puts "sym=$sym"
-  xschem abort_operation
+  if { [xschem get ui_state] & 8192 } {
+    xschem abort_operation
+  }
   if {$sym ne {}} {
     xschem place_symbol "$sym"
   }
@@ -4836,11 +4838,25 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
 #######################################################################
 
 #### Display preview of selected symbol and start sym placement
-proc insert_symbol_preview {} {
-  # puts "insert_symbol_preview"
+proc insert_symbol_draw_preview {f} {
+  # puts "insert_symbol_draw_preview"
+  .ins.center.right configure -bg {}
+  xschem preview_window create .ins.center.right {}
+  xschem preview_window draw .ins.center.right [list $f]
+  bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
+  bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+  insert_symbol_place
+}
+
+
+proc insert_symbol_select_preview {} {
+  # puts "insert_symbol_select_preview"
   global insert_symbol
+  if {[info exists insert_symbol(f)]} {
+    after cancel "insert_symbol_draw_preview $insert_symbol(f)"
+    unset insert_symbol(f)
+  }
   xschem preview_window close .ins.center.right {}
-  .ins.center.right configure -bg white
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
   set sel [.ins.center.left.l curselection]
@@ -4866,14 +4882,12 @@ proc insert_symbol_preview {} {
         .ins.top2.dir_e delete 0 end
         .ins.top2.dir_e insert 0 $f
         .ins.top2.dir_e configure -state readonly
-
-        .ins.center.right configure -bg {}
-        xschem preview_window create .ins.center.right {}
-        xschem preview_window draw .ins.center.right [list $f]
-        bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
-        bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+        # global used to cancel delayed script
+        set insert_symbol(f) $f
+        after 200 "insert_symbol_draw_preview $f"
+      } else {
+        .ins.center.right configure -bg white
       }
-      insert_symbol_place
     }
   }
 }
@@ -4972,7 +4986,9 @@ proc insert_symbol_place {} {
     if {$f ne {}} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
-        xschem abort_operation
+        if { [xschem get ui_state] & 8192 } {
+          xschem abort_operation
+        }
         xschem place_symbol $f
       }
     }
@@ -5045,18 +5061,22 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   bind .ins <KeyRelease> "
     if {{%K} eq {Tab} && {%W} eq {.ins.center.left.l}} {
       insert_symbol_filelist [list $paths] [list $maxdepth]
-      insert_symbol_preview
+      insert_symbol_select_preview
     } elseif {{%K} eq {Tab} && {%W} eq {.ins.center.leftdir.l}} {
       insert_symbol_filelist [list $paths] [list $maxdepth]
     }
   "
   bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist [list $paths] [list $maxdepth]"
-  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_preview"
+  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_select_preview"
   bind .ins.center.left.l <KeyPress-Return> "
     xschem preview_window close .ins.center.right {}
     destroy .ins
   "
-  bind .ins.center.left.l <Enter> "xschem abort_operation"
+  bind .ins.center.left.l <Enter> "
+    if { \[xschem get ui_state\] & 8192 } {
+      xschem abort_operation
+    }
+  "
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable insert_symbol(nitems)
   button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
