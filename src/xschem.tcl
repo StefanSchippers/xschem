@@ -499,14 +499,21 @@ proc view_process_status {lb} {
   after 1000 "update_process_status $lb"
 }
 
+proc list_running_cmds_title {} {
+  if {[winfo exists .processlist]} {
+    wm title .processlist "List of running commands - [xschem get current_name]"
+    after 1000 "list_running_cmds_title"
+  }
+}
+
 # top level dialog displaying running sub-processes
 proc list_running_cmds {} {
   global has_x
   set top .processlist
   if {![info exists has_x]} {return}
-  if {[winfo exists $top]} {return}
+  if {[winfo exists $top]} {raise $top; return}
   toplevel $top -class Dialog
-  wm title $top "List of running commands -  started from [xschem get current_name]"
+  list_running_cmds_title
   # wm transient $top [xschem get topwindow]
   set frame1 $top.f1
   set frame2 $top.f2
