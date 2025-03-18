@@ -506,6 +506,7 @@ proc list_running_cmds {} {
   if {![info exists has_x]} {return}
   if {[winfo exists $top]} {return}
   toplevel $top -class Dialog
+  wm title $top "List of running commands -  started from [xschem get current_name]"
   # wm transient $top [xschem get topwindow]
   set frame1 $top.f1
   set frame2 $top.f2
