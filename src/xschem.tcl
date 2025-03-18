@@ -617,6 +617,7 @@ proc from_eng {i} {
     u         { expr {1e-6}}
     m         { expr {1e-3}}
     k         { expr {1e3}}
+    x         { expr {1e6}} ;# Xyce extension
     meg       { expr {1e6}}
     g         { expr {1e9}}
     t         { expr {1e12}}
