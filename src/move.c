@@ -1031,13 +1031,18 @@ static void place_moved_wire(int n, int orthogonal_wiring)
   xWire * const wire = xctx->wire;
 
 
-  /* FIXME: Chayan Deb: this needs to be updated
-   *        If things get too complicated a place_moved_wire_orthogonal() can be created 
-   */
-  if((wire[n].sel & (SELECTED|SELECTED1)) && orthogonal_wiring)
-  {
-   if(xctx->manhattan_lines & 1) xctx->manhattan_lines=2;
-   else if(xctx->manhattan_lines & 2) xctx->manhattan_lines=1;
+  /* Need to dynamically assign `manhattan_lines` to each wire. Otherwise, a single
+   * `manhattan_lines` value gets forced on all wires connected to a moved object*/
+  if(orthogonal_wiring) {
+    double origin_shifted_x2, origin_shifted_y2;
+    /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
+    origin_shifted_x2 = xctx->rx2 - xctx->rx1;
+    origin_shifted_y2 = xctx->ry2 - xctx->ry1;
+    /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
+    if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2)
+      xctx->manhattan_lines = 1;
+    else
+      xctx->manhattan_lines = 2;
   }
 
   /* wire x1,y1 point was moved
