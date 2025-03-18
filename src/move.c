@@ -1034,15 +1034,7 @@ static void place_moved_wire(int n, int orthogonal_wiring)
   /* Need to dynamically assign `manhattan_lines` to each wire. Otherwise, a single
    * `manhattan_lines` value gets forced on all wires connected to a moved object*/
   if(orthogonal_wiring) {
-    double origin_shifted_x2, origin_shifted_y2;
-    /* Origin shift the cartesian coordinate p2(x2,y2) w.r.t. p1(x1,y1) */
-    origin_shifted_x2 = xctx->rx2 - xctx->rx1;
-    origin_shifted_y2 = xctx->ry2 - xctx->ry1;
-    /* Draw whichever component of the resulting orthogonal-wire is bigger (either horizontal or vertical), first */
-    if(origin_shifted_x2*origin_shifted_x2 > origin_shifted_y2*origin_shifted_y2)
-      xctx->manhattan_lines = 1;
-    else
-      xctx->manhattan_lines = 2;
+    recompute_orthogonal_manhattanline(xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2);
   }
 
   /* wire x1,y1 point was moved
