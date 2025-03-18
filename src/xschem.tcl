@@ -4840,12 +4840,14 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
 #### Display preview of selected symbol and start sym placement
 proc insert_symbol_draw_preview {f} {
   # puts "insert_symbol_draw_preview"
-  .ins.center.right configure -bg {}
-  xschem preview_window create .ins.center.right {}
-  xschem preview_window draw .ins.center.right [list $f]
-  bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
-  bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
-  insert_symbol_place
+  if {[winfo exists .ins]} {
+    .ins.center.right configure -bg {}
+    xschem preview_window create .ins.center.right {}
+    xschem preview_window draw .ins.center.right [list $f]
+    bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
+    bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
+    insert_symbol_place
+  }
 }
 
 
@@ -4853,6 +4855,7 @@ proc insert_symbol_select_preview {} {
   # puts "insert_symbol_select_preview"
   global insert_symbol
   if {[info exists insert_symbol(f)]} {
+    after cancel ".ins.center.right configure -bg white"
     after cancel "insert_symbol_draw_preview $insert_symbol(f)"
     unset insert_symbol(f)
   }
@@ -4870,6 +4873,7 @@ proc insert_symbol_select_preview {} {
     .ins.center.left.l see $sel
     set f [lindex $insert_symbol(fullpathlist) $sel]
     if {$f ne {}} {
+      set insert_symbol(f) $f
       set type [is_xschem_file $f]
       if {$type ne {0}} {
         set dir [rel_sym_path $f]
@@ -4883,10 +4887,9 @@ proc insert_symbol_select_preview {} {
         .ins.top2.dir_e insert 0 $f
         .ins.top2.dir_e configure -state readonly
         # global used to cancel delayed script
-        set insert_symbol(f) $f
         after 200 "insert_symbol_draw_preview $f"
       } else {
-        .ins.center.right configure -bg white
+        after 200 {.ins.center.right configure -bg white}
       }
     }
   }
@@ -5103,7 +5106,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}}} {
   insert_symbol_update_dirs $paths $maxdepth
 
   if {[info exists insert_symbol(dirindex)]} {.ins.center.leftdir.l selection set $insert_symbol(dirindex)}
-  if {[info exists insert_symbol(fileindex)]} {.ins.center.left.l selection set $insert_symbol(fileindex)}
+  if {[info exists insert_symbol(fileindex)]} {
+    .ins.center.left.l selection set $insert_symbol(fileindex)
+    .ins.center.left.l see $insert_symbol(fileindex)
+  }
   return {}
 }
 #######################################################################
