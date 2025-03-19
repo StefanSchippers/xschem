@@ -4250,7 +4250,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
      if(end_place_move_copy_zoom()) return;
 
      /* Button1Press to select objects */
-     if(!excl) {
+     if(!excl && !(xctx->ui_state & STARTSELECT)) {
        Selected sel;
        int already_selected = 0;
        int prev_last_sel = xctx->lastsel;
