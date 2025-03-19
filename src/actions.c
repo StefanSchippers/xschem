@@ -2743,7 +2743,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      double longest_line;
      if(selected == 1 && !xctx->text[i].sel) continue;
 
-     if(!xctx->show_hidden_texts && xctx->text[i].flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED)) continue;
+     if(!xctx->show_hidden_texts && xctx->text[i].flags & (HIDE_TEXT /* | HIDE_TEXT_INSTANTIATED */)) continue;
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&xctx->text[i]);
      #endif
