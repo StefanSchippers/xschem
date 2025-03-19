@@ -5093,10 +5093,13 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   "
   bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist"
   bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_select_preview"
-  bind .ins.center.left.l <KeyPress-Return> "
+  bind .ins.center.left.l <KeyPress-Return> {
+    if {$insert_symbol(action) eq {load}} {
+      .ins.bottom.load invoke
+    }
     xschem preview_window close .ins.center.right {}
     destroy .ins
-  "
+  }
   bind .ins.center.left.l <Enter> "
     if { \[xschem get ui_state\] & 8192 } {
       xschem abort_operation
