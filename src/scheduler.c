@@ -2965,8 +2965,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       first = i;
       if(argc==2) {
-        ask_new_file();
-        tcleval("load_additional_files");
+        if(tclgetboolvar("new_file_browser")) {
+          tcleval(
+           "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
+          );
+        } else {
+          ask_new_file();
+          tcleval("load_additional_files");
+        }
       } else
       for(i = first; i < argc; i++) {
         char f[PATH_MAX + 100];

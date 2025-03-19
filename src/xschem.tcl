@@ -4849,6 +4849,7 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
 
 #### Display preview of selected symbol and start sym placement
 proc insert_symbol_draw_preview {f} {
+  global insert_symbol
   # puts "insert_symbol_draw_preview"
   if {[winfo exists .ins]} {
     .ins.center.right configure -bg {}
@@ -4856,10 +4857,11 @@ proc insert_symbol_draw_preview {f} {
     xschem preview_window draw .ins.center.right [list $f]
     bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right [list $f]"
     bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right [list $f]"
-    insert_symbol_place
+    if {$insert_symbol(action) eq {symbol}} {
+      insert_symbol_place symbol
+    }
   }
 }
-
 
 proc insert_symbol_select_preview {} {
   # puts "insert_symbol_select_preview"
@@ -4907,10 +4909,10 @@ proc insert_symbol_select_preview {} {
 
 proc insert_symbol_update_dirs {} {
   # puts insert_symbol_update_dirs
-  global insert_symbol new_symbol_browser_ext
+  global insert_symbol
   # regenerate list of dirs
   set insert_symbol(dirs) [
-    get_list_of_dirs_with_symbols $insert_symbol(paths) $insert_symbol(maxdepth) $new_symbol_browser_ext
+    get_list_of_dirs_with_symbols $insert_symbol(paths) $insert_symbol(maxdepth) $insert_symbol(ext)
   ]
   set insert_symbol(dirtails) {}
   foreach i $insert_symbol(dirs) {
@@ -4934,7 +4936,7 @@ proc insert_symbol_update_dirs {} {
 
 #### fill list of files matching pattern
 proc insert_symbol_filelist {} {
-  global insert_symbol new_symbol_browser_ext
+  global insert_symbol
 
   set sel [.ins.center.leftdir.l curselection]
   if {![info exists insert_symbol(dirs)]} {return}
@@ -4943,17 +4945,17 @@ proc insert_symbol_filelist {} {
     .ins.center.leftdir.l selection set active
   }
   set insert_symbol(dirindex) $sel
-  set insert_symbol(paths) [lindex $insert_symbol(dirs) $sel]
+  set paths [lindex $insert_symbol(dirs) $sel]
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
-  .ins.top2.dir_e insert 0 $insert_symbol(paths)
+  .ins.top2.dir_e insert 0 $paths
   .ins.top2.dir_e configure -state readonly
   # check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
   set f {}
-  if {$insert_symbol(paths) ne {} } {
-    set f [match_file $insert_symbol(regex) $insert_symbol(paths) 0]
+  if {$paths ne {} } {
+    set f [match_file $insert_symbol(regex) $paths 0]
   }
   set filelist {}
   set insert_symbol(fullpathlist) {}
@@ -4965,7 +4967,7 @@ proc insert_symbol_filelist {} {
   if {$sel eq {}} { set sel 0}
   .ins.center.left.l activate $sel
   foreach i $f {
-    set err [catch {regexp $new_symbol_browser_ext $i} type]
+    set err [catch {regexp $insert_symbol(ext) $i} type]
     if {!$err && $type} {
       set fname [file tail $i]
       lappend filelist $fname
@@ -4990,7 +4992,7 @@ proc insert_symbol_filelist {} {
   set insert_symbol(list) $filelist
 }
 
-proc insert_symbol_place {} {
+proc insert_symbol_place {action} {
   # puts insert_symbol_place
   global insert_symbol
   set sel [.ins.center.left.l curselection]
@@ -5006,9 +5008,9 @@ proc insert_symbol_place {} {
         if { [xschem get ui_state] & 8192 } {
           xschem abort_operation
         }
-        if {$insert_symbol(action) eq {symbol}} {
+        if {$action eq {symbol}} {
           xschem place_symbol $f
-        } elseif {$insert_symbol(action) eq {load}} {
+        } elseif {$action eq {load}} {
           xschem load -gui $f
         }
       }
@@ -5018,13 +5020,13 @@ proc insert_symbol_place {} {
 
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
 proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
-  global insert_symbol new_symbol_browser_ext
+  global insert_symbol
   set insert_symbol(action) $action
   
   set insert_symbol(maxdepth) $maxdepth
   set insert_symbol(paths) [cleanup_paths $paths] ;# remove ~ and other strange path combinations
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
-  set new_symbol_browser_ext $ext
+  set insert_symbol(ext) $ext
   if {[winfo exists .ins]} {
     raise .ins
     return
@@ -5033,10 +5035,10 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   toplevel .ins
   frame .ins.top -takefocus 0
   frame .ins.top2 -takefocus 0
-  panedwindow  .ins.center -orient horizontal -height 8c
-  frame .ins.center.leftdir  -takefocus 0
-  frame .ins.center.left  -takefocus 0
-  frame .ins.center.right -width 250 -height 250 -bg white -takefocus 0
+  panedwindow  .ins.center -orient horizontal
+  frame .ins.center.leftdir  -takefocus 0  -height 40
+  frame .ins.center.left  -takefocus 0  -height 40
+  frame .ins.center.right -width 50 -height 40 -bg white -takefocus 0
   .ins.center add .ins.center.leftdir
   .ins.center add .ins.center.left
   .ins.center add .ins.center.right
@@ -5046,12 +5048,12 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
 
-  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirtails) -width 20 -height 20 \
+  listbox .ins.center.leftdir.l -listvariable insert_symbol(dirtails) -width 20 -height 4 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
 
-  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 40 -height 20 \
+  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 20 -height 4 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5066,18 +5068,17 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   pack .ins.center.leftdir.s -fill y -side left
 
   label .ins.top2.dir_l -text {Full path:}
-  entry .ins.top2.dir_e -width 60 -state readonly \
+  entry .ins.top2.dir_e -width 20 -state readonly \
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.pat_l -text Pattern:
-  entry .ins.top.pat_e -width 20 -highlightcolor red -highlightthickness 2 \
+  entry .ins.top.pat_e -width 15 -highlightcolor red -highlightthickness 2 \
      -textvariable insert_symbol(regex) -highlightbackground [option get . background {}]
   label .ins.top.dir_l -text { Symbol ref: }
-  entry .ins.top.dir_e -width 40 -state readonly \
+  entry .ins.top.dir_e -width 20 -state readonly \
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.ext_l -text Ext:
-  entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable new_symbol_browser_ext
+  entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable insert_symbol(ext)
   button .ins.top.upd -takefocus 0 -text Update -command {
-    set insert_symbol(paths) $new_symbol_browser_paths
     insert_symbol_update_dirs
     insert_symbol_filelist
   }
@@ -5092,10 +5093,13 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   "
   bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist"
   bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_select_preview"
-  bind .ins.center.left.l <KeyPress-Return> "
+  bind .ins.center.left.l <KeyPress-Return> {
+    if {$insert_symbol(action) eq {load}} {
+      .ins.bottom.load invoke
+    }
     xschem preview_window close .ins.center.right {}
     destroy .ins
-  "
+  }
   bind .ins.center.left.l <Enter> "
     if { \[xschem get ui_state\] & 8192 } {
       xschem abort_operation
@@ -5111,7 +5115,15 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
       destroy .ins
     }
   }
+  button .ins.bottom.load -text {Load file} -command {
+    insert_symbol_place load
+  }
+ 
+  checkbutton .ins.bottom.sym -text {Place symbol} -onvalue symbol -offvalue load -variable insert_symbol(action)
+
   pack .ins.bottom.dismiss -side left
+  pack .ins.bottom.load -side left
+  pack .ins.bottom.sym -side left
   pack .ins.bottom.n -side left
   pack .ins.bottom.nitems -side left
   pack .ins.top2.dir_l -side left
@@ -5119,13 +5131,28 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   pack .ins.top.pat_l -side left
   pack .ins.top.pat_e -side left
   pack .ins.top.dir_l -side left
-  pack .ins.top.dir_e -side left
+  pack .ins.top.dir_e -side left -fill x -expand 1
   pack .ins.top.upd -side left
   pack .ins.top.ext_l -side left
   pack .ins.top.ext_e -side left
-
+  if { [info exists insert_symbol(geometry)]} {
+    wm geometry .ins "${insert_symbol(geometry)}"
+  } else {
+    wm geometry .ins 800x300
+  }
+  update
+  if { [info exists insert_symbol(sp0)]} {
+    .ins.center sash place 0 $insert_symbol(sp0) 1
+  }
+  if { [info exists insert_symbol(sp1)]} {
+    .ins.center sash place 1 $insert_symbol(sp1) 1
+  }
+  bind .ins <Configure> {
+    set insert_symbol(geometry) [wm geometry .ins]
+    set insert_symbol(sp0) [lindex [.ins.center sash coord 0] 0]
+    set insert_symbol(sp1) [lindex [.ins.center sash coord 1] 0]
+  }
   insert_symbol_update_dirs
-
   if {[info exists insert_symbol(dirindex)]} {.ins.center.leftdir.l selection set $insert_symbol(dirindex)}
   if {[info exists insert_symbol(fileindex)]} {
     .ins.center.left.l selection set $insert_symbol(fileindex)
@@ -5521,7 +5548,6 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   set Y [expr {[winfo pointery .dialog] - 25}]
 
   bind .dialog <Configure> {
-    # puts [wm geometry .dialog]
     set enter_text_default_geometry [wm geometry .dialog]
     regsub {\+.*} $enter_text_default_geometry {} enter_text_default_geometry
   }
@@ -6773,7 +6799,7 @@ proc infowindow {} {
     toplevel $z
     wm title $z {Info window}
     # wm transient $z [xschem get topwindow]
-    wm  geometry $z 90x24+0+400
+    wm geometry $z 90x24+0+400 ;# gridded window: grid units, not pixels
     wm iconname $z {Info window}
     wm withdraw $z
     wm protocol .infotext WM_DELETE_WINDOW "wm withdraw $z; set show_infowindow 0"
@@ -8264,6 +8290,8 @@ proc no_open_dialogs {} {
 ## "xschem_server_getdata" only one tcp listener per process
 ## "bespice_server_getdata" only one tcp listener per process
 ## "file_dialog_*" only one load_file_dialog window is allowed
+## new_symbol_browser_*
+## new_file_browser_*
 
 set tctx::global_list {
  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
@@ -8282,7 +8310,6 @@ set tctx::global_list {
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
- new_symbol_browser new_symbol_browser_depth new_symbol_browser_ext new_symbol_browser_paths
  no_ask_save no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
@@ -9853,6 +9880,12 @@ set_ne new_symbol_browser 0
 set_ne new_symbol_browser_paths {} ;# if empty use xschem search paths
 set_ne new_symbol_browser_depth 2 ;# depth to descend into each dir of the search paths
 set_ne new_symbol_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
+
+## New alternate load file browser (default: not enabled).
+set_ne new_file_browser 0
+set_ne new_file_browser_paths {} ;# if empty use xschem search paths
+set_ne new_file_browser_depth 2 ;# depth to descend into each dir of the search paths
+set_ne new_file_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
 set_ne file_dialog_ext {*}
 
