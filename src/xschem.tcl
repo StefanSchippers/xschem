@@ -5548,7 +5548,6 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   set Y [expr {[winfo pointery .dialog] - 25}]
 
   bind .dialog <Configure> {
-    # puts [wm geometry .dialog]
     set enter_text_default_geometry [wm geometry .dialog]
     regsub {\+.*} $enter_text_default_geometry {} enter_text_default_geometry
   }
@@ -6800,7 +6799,7 @@ proc infowindow {} {
     toplevel $z
     wm title $z {Info window}
     # wm transient $z [xschem get topwindow]
-    wm  geometry $z 90x24+0+400
+    wm geometry $z 90x24+0+400 ;# gridded window: grid units, not pixels
     wm iconname $z {Info window}
     wm withdraw $z
     wm protocol .infotext WM_DELETE_WINDOW "wm withdraw $z; set show_infowindow 0"
