@@ -5116,7 +5116,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
     insert_symbol_place load
   }
  
-  checkbutton .ins.bottom.sym -onvalue symbol -offvalue load -variable insert_symbol(action)
+  checkbutton .ins.bottom.sym -text {Place symbol} -onvalue symbol -offvalue load -variable insert_symbol(action)
 
   pack .ins.bottom.dismiss -side left
   pack .ins.bottom.load -side left
