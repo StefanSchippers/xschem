@@ -699,6 +699,19 @@ proc ev0 {args} {
   }
 } 
 
+# create the 'lassign' command if tcl does not have it (pre 8.5)
+if {[info commands lassign] eq {}} {
+  proc lassign { list args } {
+    set n 0
+    foreach i $args {
+      upvar $i v
+      set v [lindex $list $n]
+      incr n
+    }
+    return [lrange $list $n end]
+  }
+}
+
 # return "$n * $indent" spaces
 proc spaces {n {indent 4}} {
   set n [expr {$n * $indent}]
@@ -709,40 +722,32 @@ proc spaces {n {indent 4}} {
 # complex number operators
 # a + b
 proc cadd {a b} {
-  # lassign $a ra ia
-  # lassign $b rb ib
-  foreach {ra ia} $a break
-  foreach {rb ib} $b break
+  lassign $a ra ia
+  lassign $b rb ib
   set c [list [expr {$ra + $rb}] [expr {$ia + $ib}]]
   return $c
 }
 
 # a - b
 proc csub {a b} {
-  # lassign $a ra ia
-  # lassign $b rb ib
-  foreach {ra ia} $a break
-  foreach {rb ib} $b break
+  lassign $a ra ia
+  lassign $b rb ib
   set c [list [expr {$ra - $rb}] [expr {$ia - $ib}]]
   return $c
 }
 
 # a * b
 proc cmul {a b} {
-  # lassign $a ra ia
-  # lassign $b rb ib
-  foreach {ra ia} $a break
-  foreach {rb ib} $b break
+  lassign $a ra ia
+  lassign $b rb ib
   set c [list [expr {$ra * $rb - $ia * $ib}] [expr {$ra * $ib + $rb * $ia}]]
   return $c
 }
 
 # a / b
 proc cdiv {a b} {
-  # lassign $a ra ia
-  # lassign $b rb ib
-  foreach {ra ia} $a break
-  foreach {rb ib} $b break
+  lassign $a ra ia
+  lassign $b rb ib
   set ra [expr {double($ra)}]
   set ia [expr {double($ia)}]
   set rb [expr {double($rb)}]
@@ -755,8 +760,7 @@ proc cdiv {a b} {
 # 1/b
 proc cinv {b} {
 
-  # lassign $b rb ib
-  foreach {rb ib} $b break
+  lassign $b rb ib
   set rb [expr {double($rb)}]
   set ib [expr {double($ib)}]
   set m [expr {$rb * $rb + $ib * $ib}]
@@ -766,15 +770,13 @@ proc cinv {b} {
 
 # return real component
 proc creal {a} {
-  # lassign $a ra ia
-  foreach {ra ia} $a break
+  lassign $a ra ia
   return $ra
 }
 
 # return imaginary component
 proc cimag {a} {
-  # lassign $a ra ia
-  foreach {ra ia} $a break
+  lassign $a ra ia
   return $ia
 }
 
@@ -4939,8 +4941,7 @@ proc insert_symbol_update_dirs {} {
   set insert_symbol(dirs) {}
   
   foreach f $files {
-    # lassign $f ff fff
-    foreach {ff fff} $f break ;# pre-tcl8.5
+    lassign $f ff fff
     lappend insert_symbol(dirtails) $ff
     lappend insert_symbol(dirs) $fff
   } 
@@ -4995,8 +4996,7 @@ proc insert_symbol_filelist {} {
   set filelist {}
   set insert_symbol(fullpathlist) {}
   foreach f $files {
-    # lassign $f ff fff
-    foreach {ff fff} $f break ;# pre-tcl8.5
+    lassign $f ff fff
     lappend filelist $ff
     lappend insert_symbol(fullpathlist) $fff
   }
@@ -5327,13 +5327,10 @@ proc schpins_to_sympins {} {
         set textflip [expr {$flip}]
       }
       ## lassign not available pre-tck8.5
-      # lassign [rotation $x0 $y0 $linex1 $liney1 $rot $flip] linex1 liney1
-      foreach {linex1 liney1} [rotation $x0 $y0 $linex1 $liney1 $rot $flip] break
-      # lassign [rotation $x0 $y0 $linex2 $liney2 $rot $flip] linex2 liney2
-      foreach {linex2 liney2} [rotation $x0 $y0 $linex2 $liney2 $rot $flip] break
-      # lassign [order $linex1 $liney1 $linex2 $liney2] linex1 liney1 linex2 liney2
-      foreach {linex1 liney1 linex2 liney2} [order $linex1 $liney1 $linex2 $liney2] break
-      # lassign [rotation $x0 $y0 $textx0 $texty0 $rot $flip] textx0 texty0
+      lassign [rotation $x0 $y0 $linex1 $liney1 $rot $flip] linex1 liney1
+      lassign [rotation $x0 $y0 $linex2 $liney2 $rot $flip] linex2 liney2
+      lassign [order $linex1 $liney1 $linex2 $liney2] linex1 liney1 linex2 liney2
+      lassign [rotation $x0 $y0 $textx0 $texty0 $rot $flip] textx0 texty0
       foreach {textx0 texty0} [rotation $x0 $y0 $textx0 $texty0 $rot $flip] break
       puts $fd "B 5 $pinx1 $piny1 $pinx2 $piny2 \{name=$lab dir=$dir\}"
       puts $fd "L 4 $linex1 $liney1 $linex2 $liney2 \{\}"
