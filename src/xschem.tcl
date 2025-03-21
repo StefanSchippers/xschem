@@ -4827,8 +4827,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 # if paths empty use XSCHEM_LIBRARY_PATH list.
 # 'levels' is set to the number of levels to descend into.
 # 'level' is used internally by the function and should not be set.
-proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
-  # puts "get_list_of_dirs_with_symbols paths=$paths"
+proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+  # puts "get_list_of_dirs_with_files paths=$paths"
   global pathlist
   set dir_with_symbols {}
   if {$level == -1} { set level 0}
@@ -4849,7 +4849,7 @@ proc get_list_of_dirs_with_symbols {{paths {}} {levels -1} {ext {\.(sch|sym)$}} 
     set dirlist [glob -nocomplain -directory $i -type d *]
     if {$levels >=0 && $level + 1 > $levels} {return}
     foreach d $dirlist {
-      set dirs [get_list_of_dirs_with_symbols $d $levels $ext [expr {$level + 1} ]]
+      set dirs [get_list_of_dirs_with_files $d $levels $ext [expr {$level + 1} ]]
       if { $dirs ne {}} {set dir_with_symbols [concat $dir_with_symbols $dirs]}
     }
   }
@@ -4925,7 +4925,7 @@ proc insert_symbol_update_dirs {} {
   global insert_symbol
   # regenerate list of dirs
   set insert_symbol(dirs) [
-    get_list_of_dirs_with_symbols $insert_symbol(paths) $insert_symbol(maxdepth) $insert_symbol(ext)
+    get_list_of_dirs_with_files $insert_symbol(paths) $insert_symbol(maxdepth) $insert_symbol(ext)
   ]
   set insert_symbol(dirtails) {}
   foreach i $insert_symbol(dirs) {
@@ -4958,17 +4958,17 @@ proc insert_symbol_filelist {} {
     .ins.center.leftdir.l selection set active
   }
   set insert_symbol(dirindex) $sel
-  set paths [lindex $insert_symbol(dirs) $sel]
+  set path [lindex $insert_symbol(dirs) $sel]
   .ins.top2.dir_e configure -state normal
   .ins.top2.dir_e delete 0 end
-  .ins.top2.dir_e insert 0 $paths
+  .ins.top2.dir_e insert 0 $path
   .ins.top2.dir_e configure -state readonly
   # check if regex is valid
   set err [catch {regexp $insert_symbol(regex) {12345}} res]
   if {$err} {return}
   set f {}
-  if {$paths ne {} } {
-    set f [match_file $insert_symbol(regex) $paths 0]
+  if {$path ne {} } {
+    set f [match_file $insert_symbol(regex) $path 0]
   }
   set filelist {}
   set insert_symbol(fullpathlist) {}
