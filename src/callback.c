@@ -4130,7 +4130,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 }
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
-                                double c_snap, int draw_xhair, int crosshair_size, int enable_stretch, int aux)
+                                double c_snap, int draw_xhair, int crosshair_size,
+                                int enable_stretch, int cadence_compat, int aux)
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
@@ -4270,10 +4271,10 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        }
        #endif
 
-       /* In *NON* intuitive interface a button1 press with no modifiers will
-        * first unselect everything... 
+       /* In *NON* intuitive interface (or cadence compatibility)
+        * a button1 press with no modifiers will first unselect everything... 
         * For intuitive interface unselection see below... */
-       if(!xctx->intuitive_interface && no_shift_no_ctrl ) unselect_all(1);
+       if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) unselect_all(1);
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
         * since the mouse pointer is obscured and crosshair is snapped to grid points */
@@ -4745,7 +4746,7 @@ int rect_draw_active =  (xctx->ui_state & STARTRECT) ||
 
   case ButtonPress:
     handle_button_press(event, state, rstate, key, button, mx, my,
-                        c_snap, draw_xhair, crosshair_size, enable_stretch, aux);
+                        c_snap, draw_xhair, crosshair_size, enable_stretch, cadence_compat, aux);
     break;
 
   case ButtonRelease:
