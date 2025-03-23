@@ -1524,11 +1524,13 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
       }
     }
     /* if window was closed then tkwin == 0 --> do nothing */
-    if((!has_x || tkwin) && n >= 0 && n < MAX_NEW_WINDOWS) {
+    if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {
       if(tcl_ctx) tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
-      if(tcl_ctx) tclvareval("restore_ctx ", win_path, NULL);
-      tclvareval("housekeeping_ctx", NULL);
+      if(tcl_ctx) {
+        tclvareval("restore_ctx ", win_path, NULL);
+        tclvareval("housekeeping_ctx", NULL);
+      }
       if(tcl_ctx && has_x) tclvareval("reconfigure_layers_button {}", NULL);
       set_modify(-1); /* sets window title */
       return 0;

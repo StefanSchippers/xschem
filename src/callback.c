@@ -4642,7 +4642,8 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
               old_win_path, win_path, xctx->semaphore);
       new_schematic("switch", win_path, "", 1);
     }
-    tclvareval("housekeeping_ctx", NULL);
+    /* done in switch_window() */
+    /* tclvareval("housekeeping_ctx", NULL); */
   }
   /* artificially set semaphore to allow only redraw operations in switched schematic,
    * so we don't need  to switch tcl context which is costly performance-wise
