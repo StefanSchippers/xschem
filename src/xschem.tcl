@@ -8233,7 +8233,8 @@ proc quit_xschem { {force {}}} {
 proc raise_dialog {parent window_path } {
   global file_dialog_loadfile component_browser_on_top
   foreach i ".dialog .graphdialog .load" {
-    if {!$component_browser_on_top && [info exists file_dialog_loadfile ] && $file_dialog_loadfile == 2 && $i eq {.load} } {
+    if {!$component_browser_on_top && [info exists file_dialog_loadfile ] &&
+        $file_dialog_loadfile == 2 && $i eq {.load} } {
       continue
     }
     if {[winfo exists $i] && [winfo ismapped $i] && [winfo ismapped $parent] &&

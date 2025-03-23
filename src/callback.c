@@ -4525,255 +4525,258 @@ static void handle_double_click(int event, int state, KeySym key, int button,
 }
 
 
+static void update_statusbar(int persistent_command, int wire_draw_active)
+{
+
+  int line_draw_active = (xctx->ui_state & STARTLINE) || 
+                         ((xctx->ui_state2 & MENUSTARTLINE) && (xctx->ui_state & MENUSTART)) || 
+                         (persistent_command && (xctx->last_command & STARTLINE));
+  int poly_draw_active = (xctx->ui_state & STARTPOLYGON) || 
+                         ((xctx->ui_state2 & MENUSTARTPOLYGON) && (xctx->ui_state & MENUSTART)) || 
+                         (persistent_command && (xctx->last_command & STARTPOLYGON));
+  int arc_draw_active =  (xctx->ui_state & STARTARC) || 
+                         ((xctx->ui_state2 & MENUSTARTARC) && (xctx->ui_state & MENUSTART)) || 
+                         (persistent_command && (xctx->last_command & STARTARC));
+  int rect_draw_active =  (xctx->ui_state & STARTRECT) || 
+                         ((xctx->ui_state2 & MENUSTARTRECT) && (xctx->ui_state & MENUSTART)) || 
+                         (persistent_command && (xctx->last_command & STARTRECT));
+
+  if(wire_draw_active) {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
+  } else if(line_draw_active) {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW LINE! }", NULL);
+  } else if(poly_draw_active) {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW POLYGON! }", NULL);
+  } else if(arc_draw_active) {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW ARC! }", NULL);
+  } else if(rect_draw_active) {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW RECTANGLE! }", NULL);
+  } else {
+     tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
+  }
+
+  tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
+  tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
+                      xctx->top_path, ".statusbar.3 insert 0 $cadsnap", NULL);
+  tclvareval(xctx->top_path, ".statusbar.5 delete 0 end;",
+                      xctx->top_path, ".statusbar.5 insert 0 $cadgrid", NULL);
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
-int callback(const char *win_path, int event, int mx, int my, KeySym key,
-                 int button, int aux, int state)
+int callback(const char *win_path, int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
- char str[PATH_MAX + 100];
- int redraw_only;
- double c_snap;
-#ifndef __unix__
- short cstate = GetKeyState(VK_CAPITAL);
- short nstate = GetKeyState(VK_NUMLOCK);
-#else
- XKeyboardState kbdstate;
-#endif
-int enable_stretch = tclgetboolvar("enable_stretch");
-int draw_xhair = tclgetboolvar("draw_crosshair");
-int crosshair_size = tclgetintvar("crosshair_size");
-int infix_interface = tclgetboolvar("infix_interface");
-int rstate; /* (reduced state, without ShiftMask) */
-int snap_cursor = tclgetboolvar("snap_cursor");
-int cadence_compat = tclgetboolvar("cadence_compat");
-int persistent_command = tclgetboolvar("persistent_command");
-
-int wire_draw_active = (xctx->ui_state & STARTWIRE) || 
-                       ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) || 
-                       (persistent_command && (xctx->last_command & STARTWIRE));
-int line_draw_active = (xctx->ui_state & STARTLINE) || 
-                       ((xctx->ui_state2 & MENUSTARTLINE) && (xctx->ui_state & MENUSTART)) || 
-                       (persistent_command && (xctx->last_command & STARTLINE));
-int poly_draw_active = (xctx->ui_state & STARTPOLYGON) || 
-                       ((xctx->ui_state2 & MENUSTARTPOLYGON) && (xctx->ui_state & MENUSTART)) || 
-                       (persistent_command && (xctx->last_command & STARTPOLYGON));
-int arc_draw_active =  (xctx->ui_state & STARTARC) || 
-                       ((xctx->ui_state2 & MENUSTARTARC) && (xctx->ui_state & MENUSTART)) || 
-                       (persistent_command && (xctx->last_command & STARTARC));
-int rect_draw_active =  (xctx->ui_state & STARTRECT) || 
-                       ((xctx->ui_state2 & MENUSTARTRECT) && (xctx->ui_state & MENUSTART)) || 
-                       (persistent_command && (xctx->last_command & STARTRECT));
-
- /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
-  * events. Some remote connection softwares do not generate the correct coordinates
-  * on such events */
- if(fix_mouse_coord) {
-   if(event == KeyPress || event == KeyRelease) {
-     tclvareval("getmousex ", win_path, NULL);
-     mx = atoi(tclresult());
-     tclvareval("getmousey ", win_path, NULL);
-     my = atoi(tclresult());
-     dbg(1, "mx = %d  my=%d\n", mx, my);
-   }
- }
-
-#ifndef __unix__
- if(cstate & 0x0001) { /* caps lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
- } else if (nstate & 0x0001) { /* num lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
- } else { /* normal state */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
- }
-#else
- XGetKeyboardControl(display, &kbdstate);
- if(kbdstate.led_mask & 1) { /* caps lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
- } else if(kbdstate.led_mask & 2) { /* num lock */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
- } else { /* normal state */
-   tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
- }
-#endif
-
- if(wire_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
- } else if(line_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW LINE! }", NULL);
- } else if(poly_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW POLYGON! }", NULL);
- } else if(arc_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW ARC! }", NULL);
- } else if(rect_draw_active) {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW RECTANGLE! }", NULL);
- } else {
-    tclvareval(xctx->top_path, ".statusbar.10 configure -state normal -text { }", NULL);
- }
-
- tclvareval(xctx->top_path, ".statusbar.7 configure -text $netlist_type", NULL);
- tclvareval(xctx->top_path, ".statusbar.3 delete 0 end;",
-                     xctx->top_path, ".statusbar.3 insert 0 $cadsnap",
-                     NULL);
- tclvareval(xctx->top_path, ".statusbar.5 delete 0 end;",
-                     xctx->top_path, ".statusbar.5 insert 0 $cadgrid",
-                     NULL);
-
- #if 0
- /* exclude Motion and Expose events */
- if(event!=6 /* && event!=12 */) {
-   dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
-           state, event, win_path, old_win_path, xctx->semaphore+1);
- }
- #endif
+  char str[PATH_MAX + 100];
+  int redraw_only;
+  double c_snap;
+  #ifndef __unix__
+  short cstate = GetKeyState(VK_CAPITAL);
+  short nstate = GetKeyState(VK_NUMLOCK);
+  #else
+  XKeyboardState kbdstate;
+  #endif
+  int enable_stretch = tclgetboolvar("enable_stretch");
+  int draw_xhair = tclgetboolvar("draw_crosshair");
+  int crosshair_size = tclgetintvar("crosshair_size");
+  int infix_interface = tclgetboolvar("infix_interface");
+  int rstate; /* (reduced state, without ShiftMask) */
+  int snap_cursor = tclgetboolvar("snap_cursor");
+  int cadence_compat = tclgetboolvar("cadence_compat");
+  int persistent_command = tclgetboolvar("persistent_command");
+  int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
+                         ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) ||
+                         (persistent_command && (xctx->last_command & STARTWIRE));
  
- /* Schematic window context switch */
- redraw_only =0;
- if(strcmp(old_win_path, win_path) ) {
-   if( xctx->semaphore >= 1  || event == Expose) {
-     dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
-     redraw_only = 1;
-     new_schematic("switch_no_tcl_ctx", win_path, "", 1);
-   } else {
-     dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
-             old_win_path, win_path, xctx->semaphore);
-     new_schematic("switch", win_path, "", 1);
-   }
-   tclvareval("housekeeping_ctx", NULL);
- }
- /* artificially set semaphore to allow only redraw operations in switched schematic,
-  * so we don't need  to switch tcl context which is costly performance-wise
-  */
- if(redraw_only) {
-   dbg(1, "callback(): incrementing semaphore for redraw_only\n");
-   xctx->semaphore++;
- }
-
- xctx->semaphore++; /* to recognize recursive callback() calls */
-
- c_snap = tclgetdoublevar("cadsnap");
- #ifdef __unix__
- state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
- #endif
- state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
- state &= ~LockMask; /* filter out Caps Lock */
- rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
- rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
- rstate &= ~Button1Mask; /* ignore button-1 */
- if(xctx->semaphore >= 2)
- {
-   if(debug_var>=2)
-     if(event != MotionNotify) 
-       fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
-               xctx->semaphore, event, xctx->ui_state);
- }
- xctx->mousex=X_TO_XSCHEM(mx);
- xctx->mousey=Y_TO_XSCHEM(my);
- xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
- xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
-
- if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
-   my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
-     xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
-   statusmsg(str,1);
- }
-
- dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
-
- #if defined(__unix__) && HAS_CAIRO==1
- if(xctx->ui_state & GRABSCREEN) {
-   grabscreen(win_path, event, mx, my, key, button, aux, state);
- } else 
- #endif
- switch(event)
- {
-
-  case LeaveNotify:
-    if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
-    if(snap_cursor) draw_snap_cursor(1); /* erase */
-    tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
-    xctx->mouse_inside = 0;
-    break;
-
-  case EnterNotify:
-    handle_enter_notify(draw_xhair, crosshair_size);
-    break;
-
-  case Expose:
-    dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
-    MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
-    {
-      XRectangle xr[1];
-      xr[0].x=(short)mx;
-      xr[0].y=(short)my;
-      xr[0].width=(unsigned short)button;
-      xr[0].height=(unsigned short)aux;
-      /* redraw selection on expose, needed if no backing store available on the server 20171112 */
-      XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
-      rebuild_selected_array();
-      if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
-        compare_schematics("");
-      } else {
-        draw_selection(xctx->gc[SELLAYER],0);
-      }
-      XSetClipMask(display, xctx->gc[SELLAYER], None);
+  /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
+   * events. Some remote connection softwares do not generate the correct coordinates
+   * on such events */
+  if(fix_mouse_coord) {
+    if(event == KeyPress || event == KeyRelease) {
+      tclvareval("getmousex ", win_path, NULL);
+      mx = atoi(tclresult());
+      tclvareval("getmousey ", win_path, NULL);
+      my = atoi(tclresult());
+      dbg(1, "mx = %d  my=%d\n", mx, my);
     }
-    dbg(1, "callback(): Expose\n");
-    break;
+  }
+ 
+  #ifndef __unix__
+  if(cstate & 0x0001) { /* caps lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+  } else if (nstate & 0x0001) { /* num lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+  } else { /* normal state */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+  }
+  #else
+  XGetKeyboardControl(display, &kbdstate);
+  if(kbdstate.led_mask & 1) { /* caps lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+  } else if(kbdstate.led_mask & 2) { /* num lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+  } else { /* normal state */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+  }
+  #endif
 
-  case ConfigureNotify:
-    dbg(1,"callback(): ConfigureNotify event\n");
-    resetwin(1, 1, 0, 0, 0);
-    draw();
-    break;
+  update_statusbar(persistent_command, wire_draw_active);
 
-  case MotionNotify:
-    handle_motion_notify(event, key, state, rstate, button, mx, my,
-                         aux, draw_xhair, enable_stretch, 
-                         snap_cursor, wire_draw_active);
+  #if 0
+  /* exclude Motion and Expose events */
+  if(event!=6 /* && event!=12 */) {
+    dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
+            state, event, win_path, old_win_path, xctx->semaphore+1);
+  }
+  #endif
+  
+  /* Schematic window context switch */
+  redraw_only =0;
+  if(strcmp(old_win_path, win_path) ) {
+    if( xctx->semaphore >= 1  || event == Expose) {
+      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
+      redraw_only = 1;
+      new_schematic("switch_no_tcl_ctx", win_path, "", 1);
+    } else {
+      dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
+              old_win_path, win_path, xctx->semaphore);
+      new_schematic("switch", win_path, "", 1);
+    }
+    tclvareval("housekeeping_ctx", NULL);
+  }
+  /* artificially set semaphore to allow only redraw operations in switched schematic,
+   * so we don't need  to switch tcl context which is costly performance-wise
+   */
+  if(redraw_only) {
+    dbg(1, "callback(): incrementing semaphore for redraw_only\n");
+    xctx->semaphore++;
+  }
+ 
+  xctx->semaphore++; /* to recognize recursive callback() calls */
+ 
+  c_snap = tclgetdoublevar("cadsnap");
+  #ifdef __unix__
+  state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */
+  #endif
+  state &= ~Mod2Mask; /* 20170511 filter out NumLock status */
+  state &= ~LockMask; /* filter out Caps Lock */
+  rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
+  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
+  rstate &= ~Button1Mask; /* ignore button-1 */
+  if(xctx->semaphore >= 2)
+  {
+    if(debug_var>=2)
+      if(event != MotionNotify) 
+        fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
+                xctx->semaphore, event, xctx->ui_state);
+  }
+  xctx->mousex=X_TO_XSCHEM(mx);
+  xctx->mousey=Y_TO_XSCHEM(my);
+  xctx->mousex_snap=my_round(xctx->mousex / c_snap) * c_snap;
+  xctx->mousey_snap=my_round(xctx->mousey / c_snap) * c_snap;
+ 
+  if(abs(mx-xctx->mx_save) > 8 || abs(my-xctx->my_save) > 8 ) {
+    my_snprintf(str, S(str), "mouse = %.16g %.16g - selected: %d path: %s",
+      xctx->mousex_snap, xctx->mousey_snap, xctx->lastsel, xctx->sch_path[xctx->currsch] );
+    statusmsg(str,1);
+  }
+ 
+  dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
+ 
+  #if defined(__unix__) && HAS_CAIRO==1
+  if(xctx->ui_state & GRABSCREEN) {
+    grabscreen(win_path, event, mx, my, key, button, aux, state);
+  } else 
+  #endif
+  switch(event)
+  {
+ 
+   case LeaveNotify:
+     if(draw_xhair) draw_crosshair(1, state); /* clear crosshair when exiting window */
+     if(snap_cursor) draw_snap_cursor(1); /* erase */
+     tclvareval(xctx->top_path, ".drw configure -cursor {}" , NULL);
+     xctx->mouse_inside = 0;
+     break;
+ 
+   case EnterNotify:
+     handle_enter_notify(draw_xhair, crosshair_size);
+     break;
+ 
+   case Expose:
+     dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
+     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
+     {
+       XRectangle xr[1];
+       xr[0].x=(short)mx;
+       xr[0].y=(short)my;
+       xr[0].width=(unsigned short)button;
+       xr[0].height=(unsigned short)aux;
+       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
+       XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
+       rebuild_selected_array();
+       if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
+         compare_schematics("");
+       } else {
+         draw_selection(xctx->gc[SELLAYER],0);
+       }
+       XSetClipMask(display, xctx->gc[SELLAYER], None);
+     }
+     dbg(1, "callback(): Expose\n");
+     break;
+ 
+   case ConfigureNotify:
+     dbg(1,"callback(): ConfigureNotify event\n");
+     resetwin(1, 1, 0, 0, 0);
+     draw();
+     break;
+ 
+   case MotionNotify:
+     handle_motion_notify(event, key, state, rstate, button, mx, my,
+                          aux, draw_xhair, enable_stretch, 
+                          snap_cursor, wire_draw_active);
+     break;
+ 
+   case KeyRelease:
+     /* force clear (even if mouse pos not changed) */
+     /* if(snap_cursor && (key == XK_Shift_L || key == XK_Shift_R) ) draw_snap_cursor(5); */
+     break;
+ 
+   case KeyPress:
+     handle_key_press(event, key, state, rstate, mx, my, button, aux,
+                      infix_interface, enable_stretch, win_path, c_snap,
+                      cadence_compat, wire_draw_active, snap_cursor);
+     break;
+ 
+   case ButtonPress:
+     handle_button_press(event, state, rstate, key, button, mx, my,
+                         c_snap, draw_xhair, crosshair_size, enable_stretch, cadence_compat, aux);
+     break;
+ 
+   case ButtonRelease:
+     handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
+                           draw_xhair, snap_cursor, wire_draw_active);
+     break;
+    
+   case -3:  /* double click  : edit prop */
+     handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
+     break;
+    
+   default:
+    dbg(1, "callback(): Event:%d\n",event);
     break;
-
-  case KeyRelease:
-    /* force clear (even if mouse pos not changed) */
-    /* if(snap_cursor && (key == XK_Shift_L || key == XK_Shift_R) ) draw_snap_cursor(5); */
-    break;
-
-  case KeyPress:
-    handle_key_press(event, key, state, rstate, mx, my, button, aux,
-                     infix_interface, enable_stretch, win_path, c_snap,
-                     cadence_compat, wire_draw_active, snap_cursor);
-    break;
-
-  case ButtonPress:
-    handle_button_press(event, state, rstate, key, button, mx, my,
-                        c_snap, draw_xhair, crosshair_size, enable_stretch, cadence_compat, aux);
-    break;
-
-  case ButtonRelease:
-    handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
-                          draw_xhair, snap_cursor, wire_draw_active);
-    break;
-   
-  case -3:  /* double click  : edit prop */
-    handle_double_click(event, state, key, button, mx, my, aux, cadence_compat);
-    break;
-   
-  default:
-   dbg(1, "callback(): Event:%d\n",event);
-   break;
- } /* switch(event) */
-
- if(xctx->semaphore > 0) xctx->semaphore--;
- if(redraw_only) {
-   xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
-   dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
-   if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
- }
- else
- if(strcmp(old_win_path, win_path)) {
-   if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
-   my_strncpy(old_win_path, win_path, S(old_win_path));
- }
+  } /* switch(event) */
+ 
+  if(xctx->semaphore > 0) xctx->semaphore--;
+  if(redraw_only) {
+    xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
+    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
+    if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
+  }
+  else
+  if(strcmp(old_win_path, win_path)) {
+    if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
+    my_strncpy(old_win_path, win_path, S(old_win_path));
+  }
   return 0;
 }
 
