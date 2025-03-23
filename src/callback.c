@@ -4527,6 +4527,12 @@ static void handle_double_click(int event, int state, KeySym key, int button,
 
 static void update_statusbar(int persistent_command, int wire_draw_active)
 {
+  #ifndef __unix__
+  short cstate = GetKeyState(VK_CAPITAL);
+  short nstate = GetKeyState(VK_NUMLOCK);
+  #else
+  XKeyboardState kbdstate;
+  #endif
 
   int line_draw_active = (xctx->ui_state & STARTLINE) || 
                          ((xctx->ui_state2 & MENUSTARTLINE) && (xctx->ui_state & MENUSTART)) || 
@@ -4540,6 +4546,26 @@ static void update_statusbar(int persistent_command, int wire_draw_active)
   int rect_draw_active =  (xctx->ui_state & STARTRECT) || 
                          ((xctx->ui_state2 & MENUSTARTRECT) && (xctx->ui_state & MENUSTART)) || 
                          (persistent_command && (xctx->last_command & STARTRECT));
+
+  #ifndef __unix__
+  if(cstate & 0x0001) { /* caps lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+  } else if (nstate & 0x0001) { /* num lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+  } else { /* normal state */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+  }
+  #else
+  XGetKeyboardControl(display, &kbdstate);
+  if(kbdstate.led_mask & 1) { /* caps lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
+  } else if(kbdstate.led_mask & 2) { /* num lock */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
+  } else { /* normal state */
+    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
+  }
+  #endif
+
 
   if(wire_draw_active) {
      tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
@@ -4570,12 +4596,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   char str[PATH_MAX + 100];
   int redraw_only;
   double c_snap;
-  #ifndef __unix__
-  short cstate = GetKeyState(VK_CAPITAL);
-  short nstate = GetKeyState(VK_NUMLOCK);
-  #else
-  XKeyboardState kbdstate;
-  #endif
   int enable_stretch = tclgetboolvar("enable_stretch");
   int draw_xhair = tclgetboolvar("draw_crosshair");
   int crosshair_size = tclgetintvar("crosshair_size");
@@ -4601,25 +4621,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     }
   }
  
-  #ifndef __unix__
-  if(cstate & 0x0001) { /* caps lock */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
-  } else if (nstate & 0x0001) { /* num lock */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
-  } else { /* normal state */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
-  }
-  #else
-  XGetKeyboardControl(display, &kbdstate);
-  if(kbdstate.led_mask & 1) { /* caps lock */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {CAPS LOCK SET! }", NULL);
-  } else if(kbdstate.led_mask & 2) { /* num lock */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state active -text {NUM LOCK SET! }", NULL);
-  } else { /* normal state */
-    tclvareval(xctx->top_path, ".statusbar.8 configure -state  normal -text {}", NULL);
-  }
-  #endif
-
   update_statusbar(persistent_command, wire_draw_active);
 
   #if 0
