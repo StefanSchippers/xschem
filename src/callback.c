@@ -4588,6 +4588,25 @@ static void update_statusbar(int persistent_command, int wire_draw_active)
                       xctx->top_path, ".statusbar.5 insert 0 $cadgrid", NULL);
 }
 
+static void handle_expose(int mx,int my,int button,int aux)
+{
+  XRectangle xr[1];
+  MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
+  xr[0].x=(short)mx;
+  xr[0].y=(short)my;
+  xr[0].width=(unsigned short)button;
+  xr[0].height=(unsigned short)aux;
+  /* redraw selection on expose, needed if no backing store available on the server 20171112 */
+  XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
+  rebuild_selected_array();
+  if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
+    compare_schematics("");
+  } else {
+    draw_selection(xctx->gc[SELLAYER],0);
+  }
+  XSetClipMask(display, xctx->gc[SELLAYER], None);
+}
+
 /* main window callback */
 /* mx and my are set to the mouse coord. relative to window  */
 /* win_path: set to .drw or sub windows .x1.drw, .x2.drw, ...  */
@@ -4705,25 +4724,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
  
    case Expose:
-     dbg(1, "callback: Expose, win_path=%s, %dx%d+%d+%d\n", win_path, button, aux, mx, my);
-     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], mx,my,button,aux,mx,my);
-     {
-       XRectangle xr[1];
-       xr[0].x=(short)mx;
-       xr[0].y=(short)my;
-       xr[0].width=(unsigned short)button;
-       xr[0].height=(unsigned short)aux;
-       /* redraw selection on expose, needed if no backing store available on the server 20171112 */
-       XSetClipRectangles(display, xctx->gc[SELLAYER], 0,0, xr, 1, Unsorted);
-       rebuild_selected_array();
-       if(tclgetboolvar("compare_sch") /* && xctx->sch_to_compare[0] */){
-         compare_schematics("");
-       } else {
-         draw_selection(xctx->gc[SELLAYER],0);
-       }
-       XSetClipMask(display, xctx->gc[SELLAYER], None);
-     }
-     dbg(1, "callback(): Expose\n");
+     handle_expose(mx,my,button,aux);
      break;
  
    case ConfigureNotify:
