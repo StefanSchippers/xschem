@@ -2470,9 +2470,10 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button,
                                  int mx, int my, int aux, int draw_xhair, int enable_stretch,
-                                 int snap_cursor, int wire_draw_active)
+                                 const char *win_path, int snap_cursor, int wire_draw_active)
 {
     char str[PATH_MAX + 100];
+    if(strcmp(win_path, xctx->current_win_path)) return;
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       return;
@@ -4130,11 +4131,12 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 }
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
-                                double c_snap, int draw_xhair, int crosshair_size,
-                                int enable_stretch, int cadence_compat, int aux)
+                                double c_snap, int draw_xhair, int crosshair_size, int enable_stretch,
+                                const char *win_path, int cadence_compat, int aux)
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
+   if(strcmp(win_path, xctx->current_win_path)) return;
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
@@ -4615,6 +4617,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   char str[PATH_MAX + 100];
   int redraw_only;
   double c_snap;
+  int tabbed_interface = tclgetboolvar("tabbed_interface");
   int enable_stretch = tclgetboolvar("enable_stretch");
   int draw_xhair = tclgetboolvar("draw_crosshair");
   int crosshair_size = tclgetintvar("crosshair_size");
@@ -4645,21 +4648,32 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   #if 0
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
-    dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
-            state, event, win_path, old_win_path, xctx->semaphore+1);
+    dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, semaphore=%d\n",
+            state, event, win_path, xctx->current_win_path, xctx->semaphore+1);
   }
   #endif
   
   /* Schematic window context switch */
-  redraw_only =0;
-  if(strcmp(old_win_path, win_path) ) {
-    if( xctx->semaphore >= 1  || event == Expose) {
-      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
+  redraw_only = 0;
+  if((event == FocusIn  || event == Expose || event == EnterNotify) &&
+     !tabbed_interface && strcmp(xctx->current_win_path, win_path) ) {
+    struct stat buf;
+    /* This will switch context only when copying stuff across windows */
+    if( event == EnterNotify && (!stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY))) {
+      dbg(1, "callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
+              xctx->current_win_path, win_path, xctx->semaphore);
+      new_schematic("switch", win_path, "", 1);
+    /* This does a "temporary" switch just to redraw obcured window parts */
+    } else if(event == Expose || xctx->semaphore >= 1 ) {
+      dbg(1, "callback(): switching window context for redraw ONLY: %s --> %s\n",
+              xctx->current_win_path, win_path);
       redraw_only = 1;
+      my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));      
       new_schematic("switch_no_tcl_ctx", win_path, "", 1);
-    } else {
+    /* this is the regular context switch when window gets focused */
+    } else if(event == FocusIn && xctx->semaphore == 0) {
       dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
-              old_win_path, win_path, xctx->semaphore);
+              xctx->current_win_path, win_path, xctx->semaphore);
       new_schematic("switch", win_path, "", 1);
     }
     /* done in switch_window() */
@@ -4735,7 +4749,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
    case MotionNotify:
      handle_motion_notify(event, key, state, rstate, button, mx, my,
-                          aux, draw_xhair, enable_stretch, 
+                          aux, draw_xhair, enable_stretch, win_path,
                           snap_cursor, wire_draw_active);
      break;
  
@@ -4752,7 +4766,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
    case ButtonPress:
      handle_button_press(event, state, rstate, key, button, mx, my,
-                         c_snap, draw_xhair, crosshair_size, enable_stretch, cadence_compat, aux);
+                         c_snap, draw_xhair, crosshair_size, enable_stretch, win_path, cadence_compat, aux);
      break;
  
    case ButtonRelease:
@@ -4774,11 +4788,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
     dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
     if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
-  }
-  else
-  if(strcmp(old_win_path, win_path)) {
-    if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
-    my_strncpy(old_win_path, win_path, S(old_win_path));
   }
   return 0;
 }

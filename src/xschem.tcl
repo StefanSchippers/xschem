@@ -8516,6 +8516,22 @@ proc getmousey {win} {
   return $rely
 }
 
+proc switch_window {parent topwin event window} {
+  # puts "$parent $topwin $event $window"
+  raise_dialog $parent $topwin
+  
+  if { $parent eq {.}} {
+    if { $window eq $parent} {
+      xschem callback .drw $event 0 0 0 0 0 0
+    }
+  } else {
+    if {$window eq $parent} {
+      # send a fake event just to force context switching in callback()
+      xschem callback $parent.drw $event 0 0 0 0 0 0
+    }
+  }
+}
+
 proc set_bindings {topwin} {
 global env has_x OS autofocus_mainwindow
   ###
@@ -8528,25 +8544,13 @@ global env has_x OS autofocus_mainwindow
   
     bind $parent <Expose> [list raise_dialog $parent $topwin]
     bind $parent <Visibility> [list raise_dialog $parent $topwin]
-    bind $parent <FocusIn> [list raise_dialog $parent $topwin]
-    # send non-existent event just to force change schematic window context.
-    bind $parent <Enter> "
-       if { {$parent} eq {.}} {
-         if { {%W} eq {$parent}} {
-           # send a fake event just to force context switching in callback()
-           xschem callback .drw -55 0 0 0 0 0 0
-         }
-       } else {
-         if { {%W} eq {$parent}} {
-           # send a fake event just to force context switching in callback()
-           xschem callback $parent.drw -55 0 0 0 0 0 0
-         }
-       }
-    "
+    # This event will cause a window context switch
+    bind $parent <Enter> "switch_window $parent $topwin %T %W"
+    # This event will cause a window context switch
+    bind $parent <FocusIn> "switch_window $parent $topwin %T %W"
     bind $topwin <Leave> "
       xschem callback %W %T %x %y 0 0 0 %s
       graph_show_measure stop
-      # $topwin configure -cursor {}
     "
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
 
@@ -8565,18 +8569,17 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
-    bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
+    if {$autofocus_mainwindow} {
+      bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
+    } else {
+      bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
+    }
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
     bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "
-         # if {\$draw_crosshair} {$topwin configure -cursor none}
-         destroy .ctxmenu
-         focus $topwin
-         xschem callback %W %T %x %y 0 0 0 0
-      "
+      bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
     } else {
       bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
       bind $topwin <Enter> "destroy .ctxmenu; xschem callback %W %T %x %y 0 0 0 0"
@@ -9736,7 +9739,7 @@ proc entry_replace_selection {w} {
 
 # focus the schematic window if mouse goes over it, even if a dialog box is displayed,
 # without needing to click. This allows to move/zoom/pan the schematic while editing attributes.
-set_ne autofocus_mainwindow 1
+set_ne autofocus_mainwindow 0
 if {$OS == "Windows"} {
   set_ne XSCHEM_TMP_DIR [xschem get temp_dir]
 } else {
