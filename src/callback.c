@@ -4615,6 +4615,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   char str[PATH_MAX + 100];
   int redraw_only;
   double c_snap;
+  int tabbed_interface = tclgetboolvar("tabbed_interface");
   int enable_stretch = tclgetboolvar("enable_stretch");
   int draw_xhair = tclgetboolvar("draw_crosshair");
   int crosshair_size = tclgetintvar("crosshair_size");
@@ -4645,21 +4646,24 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   #if 0
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
-    dbg(0, "callback(): state=%d event=%d, win_path=%s, old_win_path=%s, semaphore=%d\n",
-            state, event, win_path, old_win_path, xctx->semaphore+1);
+    dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, semaphore=%d\n",
+            state, event, win_path, xctx->current_win_path, xctx->semaphore+1);
   }
   #endif
   
   /* Schematic window context switch */
-  redraw_only =0;
-  if(strcmp(old_win_path, win_path) ) {
-    if( xctx->semaphore >= 1  || event == Expose) {
-      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n", old_win_path, win_path);
+  redraw_only = 0;
+  if((event == FocusIn  || event == Expose) &&
+     !tabbed_interface && strcmp(xctx->current_win_path, win_path) ) {
+    if( event == Expose || xctx->semaphore >= 1 ) {
+      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n",
+              xctx->current_win_path, win_path);
       redraw_only = 1;
+      my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));      
       new_schematic("switch_no_tcl_ctx", win_path, "", 1);
     } else {
       dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
-              old_win_path, win_path, xctx->semaphore);
+              xctx->current_win_path, win_path, xctx->semaphore);
       new_schematic("switch", win_path, "", 1);
     }
     /* done in switch_window() */
@@ -4774,11 +4778,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
     dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
     if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
-  }
-  else
-  if(strcmp(old_win_path, win_path)) {
-    if(old_win_path[0]) dbg(1, "callback(): reset old_win_path: %s <- %s\n", old_win_path, win_path);
-    my_strncpy(old_win_path, win_path, S(old_win_path));
   }
   return 0;
 }

@@ -327,8 +327,8 @@
 #### This allows to move/zoom/pan the schematic while editing attributes.
 #### Clicking in the schematic window usually closes the dialog box or starts
 #### editing a new component if clicking on a new component.
-#### default: enabled (1)
-# set autofocus_mainwindow 0
+#### default: NOT enabled (0)
+# set autofocus_mainwindow 1
 
 #### replace selected text in text widgets when pasting from clipboard
 #### default: enabled (1)
