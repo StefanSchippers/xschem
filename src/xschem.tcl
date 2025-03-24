@@ -8516,6 +8516,22 @@ proc getmousey {win} {
   return $rely
 }
 
+proc switch_window {parent topwin event window} {
+  # puts "$parent $topwin $event $window"
+  raise_dialog $parent $topwin
+  
+  if { $parent eq {.}} {
+    if { $window eq $parent} {
+      xschem callback .drw $event 0 0 0 0 0 0
+    }
+  } else {
+    if {$window eq $parent} {
+      # send a fake event just to force context switching in callback()
+      xschem callback $parent.drw $event 0 0 0 0 0 0
+    }
+  }
+}
+
 proc set_bindings {topwin} {
 global env has_x OS autofocus_mainwindow
   ###
@@ -8529,24 +8545,12 @@ global env has_x OS autofocus_mainwindow
     bind $parent <Expose> [list raise_dialog $parent $topwin]
     bind $parent <Visibility> [list raise_dialog $parent $topwin]
     # This event will cause a window context switch
-    bind $parent <FocusIn> "
-       raise_dialog $parent $topwin
-       if { {$parent} eq {.}} {
-         if { {%W} eq {$parent}} {
-           # send a fake event just to force context switching in callback()
-           xschem callback .drw %T 0 0 0 0 0 0
-         }
-       } else {
-         if { {%W} eq {$parent}} {
-           # send a fake event just to force context switching in callback()
-           xschem callback $parent.drw %T 0 0 0 0 0 0
-         }
-       }
-    "
+    bind $parent <Enter> "switch_window $parent $topwin %T %W"
+    # This event will cause a window context switch
+    bind $parent <FocusIn> "switch_window $parent $topwin %T %W"
     bind $topwin <Leave> "
       xschem callback %W %T %x %y 0 0 0 %s
       graph_show_measure stop
-      # $topwin configure -cursor {}
     "
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
 

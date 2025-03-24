@@ -4653,15 +4653,23 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   
   /* Schematic window context switch */
   redraw_only = 0;
-  if((event == FocusIn  || event == Expose) &&
+  if((event == FocusIn  || event == Expose || event == EnterNotify) &&
      !tabbed_interface && strcmp(xctx->current_win_path, win_path) ) {
-    if( event == Expose || xctx->semaphore >= 1 ) {
-      dbg(1, "callback(): semaphore >=2 (or Expose) switching window context: %s --> %s\n",
+    struct stat buf;
+    /* This will switch context only when copying stuff across windows */
+    if( event == EnterNotify && (!stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY))) {
+      dbg(1, "callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
+              xctx->current_win_path, win_path, xctx->semaphore);
+      new_schematic("switch", win_path, "", 1);
+    /* This does a "temporary" switch just to redraw obcured window parts */
+    } else if(event == Expose || xctx->semaphore >= 1 ) {
+      dbg(1, "callback(): switching window context for redraw ONLY: %s --> %s\n",
               xctx->current_win_path, win_path);
       redraw_only = 1;
       my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));      
       new_schematic("switch_no_tcl_ctx", win_path, "", 1);
-    } else {
+    /* this is the regular context switch when window gets focused */
+    } else if(event == FocusIn && xctx->semaphore == 0) {
       dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
               xctx->current_win_path, win_path, xctx->semaphore);
       new_schematic("switch", win_path, "", 1);
