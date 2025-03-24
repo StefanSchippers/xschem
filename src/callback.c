@@ -2470,9 +2470,10 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 
 static void handle_motion_notify(int event, KeySym key, int state, int rstate, int button,
                                  int mx, int my, int aux, int draw_xhair, int enable_stretch,
-                                 int snap_cursor, int wire_draw_active)
+                                 const char *win_path, int snap_cursor, int wire_draw_active)
 {
     char str[PATH_MAX + 100];
+    if(strcmp(win_path, xctx->current_win_path)) return;
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
       return;
@@ -4130,11 +4131,12 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 }
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
-                                double c_snap, int draw_xhair, int crosshair_size,
-                                int enable_stretch, int cadence_compat, int aux)
+                                double c_snap, int draw_xhair, int crosshair_size, int enable_stretch,
+                                const char *win_path, int cadence_compat, int aux)
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
+   if(strcmp(win_path, xctx->current_win_path)) return;
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
@@ -4747,7 +4749,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
    case MotionNotify:
      handle_motion_notify(event, key, state, rstate, button, mx, my,
-                          aux, draw_xhair, enable_stretch, 
+                          aux, draw_xhair, enable_stretch, win_path,
                           snap_cursor, wire_draw_active);
      break;
  
@@ -4764,7 +4766,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
    case ButtonPress:
      handle_button_press(event, state, rstate, key, button, mx, my,
-                         c_snap, draw_xhair, crosshair_size, enable_stretch, cadence_compat, aux);
+                         c_snap, draw_xhair, crosshair_size, enable_stretch, win_path, cadence_compat, aux);
      break;
  
    case ButtonRelease:
