@@ -4568,7 +4568,6 @@ static void update_statusbar(int persistent_command, int wire_draw_active)
   }
   #endif
 
-
   if(wire_draw_active) {
      tclvareval(xctx->top_path, ".statusbar.10 configure -state active -text {DRAW WIRE! }", NULL);
   } else if(line_draw_active) {
@@ -4608,7 +4607,6 @@ static void handle_expose(int mx,int my,int button,int aux)
   }
   XSetClipMask(display, xctx->gc[SELLAYER], None);
 }
-
 
 static int handle_window_switching(int event, int tabbed_interface, const char *win_path)
 {
@@ -4680,7 +4678,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
   update_statusbar(persistent_command, wire_draw_active);
 
-  #if 1
+  #if 0
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
     dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, old_win_path=%s, semaphore=%d\n",
