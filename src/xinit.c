@@ -1674,9 +1674,8 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
    * 
    * tclvareval("restore_ctx ", prev_window, NULL);
    * new_schematic("switch", prev_window, "", 1);
-   * tclvareval("housekeeping_ctx", NULL);
    */
-
+  tclvareval("housekeeping_ctx", NULL);
   if(has_x) windowid(toppath);
 }
 
