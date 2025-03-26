@@ -1832,7 +1832,7 @@ void launcher(void)
     } else { /* no action defined --> warning */
       const char *msg = "No action on launcher is defined (url or tclcommand)";
       dbg(0, "%s\n", msg);
-      if(has_x) tclvareval("alert_ {", msg, "} {}", NULL);
+      /* if(has_x) tclvareval("alert_ {", msg, "} {}", NULL); */ /* commented, annoying */
     }
     my_free(_ALLOC_ID_, &command);
     tcleval("after 300");
