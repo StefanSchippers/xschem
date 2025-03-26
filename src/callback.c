@@ -4349,7 +4349,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
          int stretch = (state & ControlMask ? 1 : 0) ^ enable_stretch;
          xctx->drag_elements = 1;
          /* select attached nets depending on ControlMask and enable_stretch */
-         if(stretch) {
+         if(stretch && !(state & ShiftMask)) {
            select_attached_nets(); /* stretch nets that land on selected instance pins */
          }
          /* if dragging instances with stretch enabled and Shift down add wires to pins
