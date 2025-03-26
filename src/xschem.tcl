@@ -8575,7 +8575,9 @@ global env has_x OS autofocus_mainwindow
       bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
     }
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
-    bind $topwin <KeyPress> "xschem callback %W %T %x %y %N 0 0 %s"
+    bind $topwin <KeyPress> "
+      if {{%K} eq {Escape}} { destroy .ctxmenu }
+      xschem callback %W %T %x %y %N 0 0 %s"
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
