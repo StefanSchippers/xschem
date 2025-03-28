@@ -1910,7 +1910,8 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem set schsymbolprop $newprop
     xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
     xschem save fast
-    xschem remove_symbols ;# purge all symbols to force a reload from disk 
+    # no! cellview_setlabels called from cellview inside a "foreach {i symbol} $syms {...}"
+    # xschem remove_symbols ;# purge all symbols to force a reload from disk 
     xschem load -keep_symbols -nodraw -noundoreset $current
     set netlist_type $save_netlist_type 
     xschem set netlist_type $netlist_type
@@ -1967,7 +1968,7 @@ proc cellview_edit_sym {w} {
 # derived_symbols: empty or 'derived_symbols'
 # upd: never set by caller (used iinternally to update)
 proc cellview { {derived_symbols {}} {upd 0}} {
-  global keep_symbols nolist_libs dark_gui_colorscheme netlist_type
+  global nolist_libs dark_gui_colorscheme netlist_type
 
   set save_netlist_type [xschem get netlist_type]
 
@@ -2096,7 +2097,7 @@ proc cellview { {derived_symbols {}} {upd 0}} {
   if {$upd} {return}
 
   frame .cv.bottom
-  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1"
+  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1; xschem reload_symbols"
   pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
