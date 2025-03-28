@@ -1947,9 +1947,9 @@ static void destroy_all_windows(int *window_count, int force)
               tclvareval("winfo toplevel ", window_path[i], NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
             }
-            delete_schematic_data(1);
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
+            delete_schematic_data(1);
             save_xctx[i] = NULL;
             if(has_x) {
               Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[i], mainwindow));
@@ -1999,9 +1999,9 @@ static void destroy_all_tabs(int *window_count, int force)
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path[i], NULL);
           if(has_x) tclvareval("delete_tab ", window_path[i], NULL);
-          delete_schematic_data(1);
           /* set saved ctx to main window if previous is about to be destroyed */
           if(savectx == save_xctx[i]) savectx = save_xctx[0];
+          delete_schematic_data(1);
           save_xctx[i] = NULL;
           my_strncpy(window_path[i], "", S(window_path[i]));
           (*window_count)--;
