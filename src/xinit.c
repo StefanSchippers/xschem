@@ -1299,7 +1299,8 @@ int preview_window(const char *what, const char *win_path, const char *fname)
       }
     }
   }
-  tclvareval("restore_ctx ", xctx->current_win_path, NULL);
+  if(xctx->current_win_path)
+    tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   semaphore--;
   return result;
 }
@@ -1843,10 +1844,11 @@ static void destroy_window(int *window_count, const char *win_path)
     }
     /* following 3 lines must be done also if window not closed */
     xctx = savectx; /* restore previous schematic or main window if previous destroyed */
-    tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+    if(xctx->current_win_path)
+      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
   } else {
-    dbg(0, "new_schematic() destroy_window: there are no additional tabs\n");
+    dbg(0, "new_schematic() destroy_window: there are no additional windows\n");
   }
 }
 
@@ -1901,7 +1903,8 @@ static void destroy_tab(int *window_count, const char *win_path)
       /* seems unnecessary; previous tab save_pixmap was not deleted */
       /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
  
-      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+      if(xctx->current_win_path)
+         tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
       resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
       draw();
@@ -1965,7 +1968,8 @@ static void destroy_all_windows(int *window_count, int force)
     }
     /* following 3 lines must be done also if windows not closed */
     xctx = savectx; /* restore previous schematic or main if old is destroyed */
-    tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+    if(xctx->current_win_path)
+      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
   }
 }
@@ -2007,7 +2011,8 @@ static void destroy_all_tabs(int *window_count, int force)
     }
     /* following 3 lines must be done also if windows not closed */
     xctx = savectx; /* restore previous schematic or main if old is destroyed */
-    tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
+    if(xctx->current_win_path)
+      tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
     draw();
   }

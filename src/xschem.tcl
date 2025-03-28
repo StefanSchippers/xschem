@@ -1988,13 +1988,11 @@ proc cellview { {derived_symbols {}} {upd 0}} {
     set font fixed
   }
 
+  set netlist_type $save_netlist_type 
+  xschem set netlist_type $netlist_type
+  xschem reload_symbols ;# purge unused symbols
+  xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
   if {!$upd} {
-    set netlist_type $save_netlist_type 
-    xschem set netlist_type $netlist_type
-    xschem reload_symbols ;# purge unused symbols
-    xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
-    puts "get netlist"
-
     catch {destroy .cv}
     toplevel .cv
     wm geometry .cv 800x200
@@ -8544,14 +8542,15 @@ global env has_x OS autofocus_mainwindow
   
     bind $parent <Expose> [list raise_dialog $parent $topwin]
     bind $parent <Visibility> [list raise_dialog $parent $topwin]
-    # This event will cause a window context switch
-    bind $parent <Enter> "switch_window $parent $topwin %T %W"
-    # This event will cause a window context switch
+
+    # Context switch
     bind $parent <FocusIn> "switch_window $parent $topwin %T %W"
+
     bind $topwin <Leave> "
       xschem callback %W %T %x %y 0 0 0 %s
       graph_show_measure stop
     "
+
     bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
 
     # transform mousewheel events into button4/5 events
@@ -8604,7 +8603,7 @@ global env has_x OS autofocus_mainwindow
       bind $topwin <Control-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ControlMask + $Mod1Mask}]}
       bind $topwin <Shift-Alt-KeyPress> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask + $Mod1Mask}]}
       bind $topwin <Shift-Insert> {xschem callback %W %T %x %y %N 0 0 [expr {$ShiftMask}]}
-      bind $topwin <MouseWheel> {
+      bind $topwin <MouseWheel> { ;# transform MouseWheel into button 4/5 presses.
         if {%D<0} {
           xschem callback %W 4 %x %y 0 5 0 %s
         } else {
