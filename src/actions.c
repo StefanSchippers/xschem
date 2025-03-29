@@ -3799,7 +3799,13 @@ void fix_restore_rect(double x1, double y1, double x2, double y2)
 }
 
 
-/*  20150927 select=1: select objects, select=0: unselect objects */
+/*  20150927 select=1: select objects, select=0: unselect objects
+ * uses static variables:
+ *   xctx->nl_xr, xctx->nl_yr, xctx->nl_xr2, xctx->nl_yr2: The selection box
+ *   xctx->nl_sel: selection mode (1=select, 0=unselect) as set in what == START
+ *   xctx->nl_dir: drag direction: 1=right, 1=left
+ *   xctx->nl_sem: semaphore used internally to detect misuse of the function.
+ */
 void select_rect(int stretch, int what, int select)
 {
  double nl_xx1, nl_yy1, nl_xx2, nl_yy2;
@@ -3818,9 +3824,12 @@ void select_rect(int stretch, int what, int select)
     drawtemprect(xctx->gctiled,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2);
     xctx->nl_xr2=xctx->mousex;xctx->nl_yr2=xctx->mousey;
 
+    /* redundant: done in select_inside()  and select_touch() */
+    #if 0
     /*  20171026 update unselected objects while dragging */
     rebuild_selected_array();
     draw_selection(xctx->gc[SELLAYER], 0);
+    #endif
     
     if(!xctx->nl_sel || (incremental_select && xctx->nl_dir == 0))
        select_inside(stretch, nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
