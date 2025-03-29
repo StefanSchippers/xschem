@@ -2508,15 +2508,16 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
     /* determine direction of a rectangle selection  (or unselection with ALT key) */
     if(xctx->ui_state & STARTSELECT && !(xctx->ui_state & (PLACE_SYMBOL | STARTPAN | PLACE_TEXT)) ) {
       /* Unselect by area : determine direction */
+      int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
       if( ((state & Button1Mask)  && SET_MODMASK) || (xctx->ui_state & DESEL_AREA)) { 
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
-        select_rect(enable_stretch, RUBBER,0);
+        select_rect(stretch, RUBBER,0);
       /* select by area : determine direction */
       } else if(state & Button1Mask) {
         if(mx >= xctx->mx_save) xctx->nl_dir = 0;
         else  xctx->nl_dir = 1;
-        select_rect(enable_stretch, RUBBER,1);
+        select_rect(stretch, RUBBER,1);
       }
     }
     /* draw objects being moved */
@@ -2545,8 +2546,9 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
       if(mx != xctx->mx_save || my != xctx->my_save) {
         xctx->mouse_moved = 1;
         if(!xctx->drag_elements) {
+          int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
           if( !(xctx->ui_state & STARTSELECT)) {
-            select_rect(enable_stretch, START,1);
+            select_rect(stretch, START,1);
             xctx->onetime=1;
           }
           if(abs(mx-xctx->mx_save) > 8 ||
@@ -2567,7 +2569,8 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
        !xctx->shape_point_selected &&
        !(xctx->ui_state & STARTSELECT) &&
        !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT))) { /* unselect area */
-      select_rect(enable_stretch, START,0);
+      int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
+      select_rect(stretch, START,0);
     }
     /* Select by area. Shift pressed */
     else if((state&Button1Mask) && (state & ShiftMask) && !(xctx->ui_state & STARTWIRE) &&
@@ -2575,7 +2578,8 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
              !xctx->drag_elements && !(xctx->ui_state & STARTPAN) ) {
       if(mx != xctx->mx_save || my != xctx->my_save) {
         if( !(xctx->ui_state & STARTSELECT)) {
-          select_rect(enable_stretch, START,1);
+          int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
+          select_rect(stretch, START,1);
         }
         if(abs(mx-xctx->mx_save) > 8 || 
            abs(my-xctx->my_save) > 8 ) { /* set reasonable threshold before unsel */
