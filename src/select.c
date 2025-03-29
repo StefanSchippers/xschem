@@ -1587,10 +1587,12 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 
+ #if 0
  if(!sel) {
    rebuild_selected_array();
    draw_selection(xctx->gc[SELLAYER], 0);
  }
+ #endif
 
 }
 
@@ -1722,10 +1724,12 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
  drawtemprect(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
  drawtempline(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0);
 
+ #if 0
  if(!sel) {
    rebuild_selected_array();
    draw_selection(xctx->gc[SELLAYER], 0);
  }
+ #endif
 
 }
 
