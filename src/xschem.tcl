@@ -8537,22 +8537,29 @@ global env has_x OS autofocus_mainwindow
   ### Tk event handling
   ###
 
-  # puts "set_binding: topwin=$topwin"
   if {($OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 0 ) && [info exists has_x]} {
     set parent [winfo toplevel $topwin]
+    # puts "set_binding: topwin=$topwin, parent=$parent"
   
-    bind $parent <Expose> [list raise_dialog $parent $topwin]
+    bind $parent <Expose> "if {{%W} eq {$parent}} {raise_dialog $parent $topwin}"
     bind $parent <Visibility> [list raise_dialog $parent $topwin]
 
-    # Context switch
-    bind $parent <FocusIn> "switch_window $parent $topwin %T %W"
-
-    bind $topwin <Leave> "
-      xschem callback %W %T %x %y 0 0 0 %s
-      graph_show_measure stop
+    # Context switch.
+    bind $parent <FocusIn> "
+      # if {{%W} eq {$parent}} {
+      #   xschem switch $topwin
+      # }
+      switch_window $parent $topwin %T %W
     "
 
-    bind $topwin <Expose> "xschem callback %W %T %x %y 0 %w %h %s"
+    bind $topwin <Leave> "
+      if {{%W} eq {$topwin}} {
+        xschem callback %W %T %x %y 0 0 0 %s
+        graph_show_measure stop
+      }
+    "
+
+    bind $topwin <Expose> "if {{%W} eq {$topwin}} {xschem callback %W %T %x %y 0 %w %h %s}"
 
     # transform mousewheel events into button4/5 events
     if {[info tclversion] > 8.7} {
@@ -8581,10 +8588,21 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "destroy .ctxmenu; focus $topwin; xschem callback %W %T %x %y 0 0 0 0"
+      bind $topwin <Enter> "
+        if {{%W} eq {$topwin}} {
+          destroy .ctxmenu
+          focus $topwin
+          xschem callback %W %T %x %y 0 0 0 0
+        }
+      "
     } else {
       bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "destroy .ctxmenu; xschem callback %W %T %x %y 0 0 0 0"
+      bind $topwin <Enter> "
+        if {{%W} eq {$topwin}} {
+          destroy .ctxmenu
+          xschem callback %W %T %x %y 0 0 0 0
+        }
+      "
     }
     bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
     bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}

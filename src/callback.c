@@ -2450,16 +2450,19 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
        in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
     if(stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY) )
     {
+      dbg(1, "xschem window *sending* selected objects: abort\n");
       copy_objects(ABORT);
       unselect_all(1);
     }
     /* xschem window *receiving* selected objects selection cleared --> abort */
     else if(xctx->paste_from == 1 && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
+      dbg(1, " xschem window *receiving* selected objects selection cleared: abort\n");
       abort_operation();
     }
     /*xschem window *receiving* selected objects 
      * no selected objects and selection file exists --> start merge */
     else if(xctx->lastsel == 0 && !stat(sel_file, &buf)) {
+      dbg(1,"xschem window *receiving* selected objects: start merge\n");
       xctx->mousex_snap = 490;
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
@@ -4637,8 +4640,7 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
                 xctx->current_win_path, win_path, xctx->semaphore);
         new_schematic("switch", win_path, "", 1);
       }
-      /* done in switch_window() */
-      /* tclvareval("housekeeping_ctx", NULL); */
+
     }
   } else {
     /* if something needs to be done in tabbed interface do it here */
