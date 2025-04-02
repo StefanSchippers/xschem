@@ -60,6 +60,8 @@ void deps_default_init(void)
 	dep_add("cc/argmachine/*",          find_cc_argmachine);
 	dep_add("cc/pragma_message/*",      find_cc_pragma_message);
 	dep_add("cc/static_libgcc/*",       find_cc_static_libgcc);
+	dep_add("cc/default_c23",           find_cc_is_c23);
+	dep_add("cc/disable_c23/*",         find_cc_disable_c23);
 
 	dep_add("libs/ldl",                 find_lib_ldl);
 	dep_add("libs/LoadLibrary/*",       find_lib_LoadLibrary);

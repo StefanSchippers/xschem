@@ -1183,3 +1183,73 @@ int find_cc_static_libgcc(const char *name, int logdepth, int fatal)
 	if (try_icl(logdepth, key, test_c, NULL, NULL, "-static-libgcc")) return 0;
 	return try_fail(logdepth, key);
 }
+
+/* returns 1 if test program fails to compile most probably due to compiler
+   being c23; returns 0 on success (compiler is surely not c23) */
+static int test_c23(int logdepth, int fatal, const char *cflags)
+{
+	const char *test_c =
+		NL "#include <stdio.h>"
+		NL "int foo();"
+		NL "int foo(char *s) { puts(s); } "
+		NL "int main()"
+		NL "{"
+		NL "	foo(\"OK\");"
+		NL "	return 0;"
+		NL "}"
+		NL;
+
+	require("cc/cc", logdepth, fatal);
+
+	if (try_flags(logdepth, NULL, test_c, cflags, NULL, "OK"))
+		return 0;
+
+	return 1;
+}
+
+int find_cc_is_c23(const char *name, int logdepth, int fatal)
+{
+	require("cc/cc", logdepth, fatal);
+
+	report("Checking if C compiler defaults to c23... ");
+	logprintf(logdepth, "find_cc_is_c23: detecting whether C compiler is c23 by default... \n");
+	logdepth++;
+
+	if (test_c23(logdepth, fatal, NULL)) {
+		put("cc/default_c23", strue);
+		report("Yes.\n");
+		return 0;
+	}
+
+	put("cc/default_c23", strue);
+	report("No.\n");
+	return 1;
+}
+
+int find_cc_disable_c23(const char *name, int logdepth, int fatal)
+{
+	if (require("cc/default_c23", logdepth, 0) == 0) {
+		static const char *cfs[] = {"-std=c17", "-std=c99", NULL};
+		const char **cf;
+
+		/* figure a suitable workaround */
+		report("Checking how to disable C23... ");
+		logprintf(logdepth, "find_cc_disable_c23: checking for a workaround...\n");
+		logdepth++;
+
+		for(cf = cfs; *cf != NULL; cf++) {
+			if (test_c23(logdepth, fatal, *cf) == 0) {
+				put("cc/disable_c23/cflags", *cf);
+				report("%s\n", *cf);
+				return 0;
+			}
+		}
+
+		report("failed to figure how to disable C23\n");
+		return 1;
+	}
+
+	put("cc/disable_c23/cflags", "");
+	report("C compiler is not C23 by default, no need to disable C23.\n");
+	return 0;
+}

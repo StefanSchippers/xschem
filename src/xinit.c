@@ -1500,7 +1500,7 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
   int n;
   char my_win_path[80];
   Tk_Window tkwin=NULL;
-  dbg(1, "switch_window(): win_path=%s\n", win_path);
+  dbg(1, "switch_window(): win_path=%s tcl_ctx=%d\n", win_path, tcl_ctx);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
   if(!win_path) {
     dbg(0, "switch_window(): no filename or window path given\n");

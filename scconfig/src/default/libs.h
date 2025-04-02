@@ -156,6 +156,6 @@ char *svn_info(int logdepth, const char *dir, const char *key);
 #else
 #	define no_implicit(RET_TYPE, FUNCT1, FUNCT2) \
 		"#ifndef " FUNCT1 "\n" \
-		"{ " #RET_TYPE " (*tmp)() = " FUNCT2 "; if (tmp) {}}\n" \
+		"{ " #RET_TYPE " (*tmp)() = (" #RET_TYPE "(*)()) " FUNCT2 "; if (tmp) {}}\n" \
 		"#endif\n"
 #endif

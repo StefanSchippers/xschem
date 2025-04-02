@@ -32,6 +32,8 @@ int find_alloca(const char *name, int logdepth, int fatal);
 int find__exit(const char *name, int logdepth, int fatal);
 int find_cc_pragma_message(const char *name, int logdepth, int fatal);
 int find_cc_static_libgcc(const char *name, int logdepth, int fatal);
+int find_cc_is_c23(const char *name, int logdepth, int fatal);
+int find_cc_disable_c23(const char *name, int logdepth, int fatal);
 
 /* libs */
 int find_lib_ldl(const char *name, int logdepth, int fatal);
