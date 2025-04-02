@@ -4139,7 +4139,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
 static void handle_button_press(int event, int state, int rstate, KeySym key, int button, int mx, int my,
                                 double c_snap, int draw_xhair, int crosshair_size, int enable_stretch,
-                                int tabbed_interface, const char *win_path, int cadence_compat, int aux)
+                                int tabbed_interface, const char *win_path, int aux)
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
@@ -4280,10 +4280,10 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        }
        #endif
 
-       /* In *NON* intuitive interface (or cadence compatibility)
+       /* In *NON* intuitive interface
         * a button1 press with no modifiers will first unselect everything... 
         * For intuitive interface unselection see below... */
-       if((cadence_compat || !xctx->intuitive_interface) && no_shift_no_ctrl) unselect_all(1);
+       if(!xctx->intuitive_interface && no_shift_no_ctrl) unselect_all(1);
 
        /* find closest object. Use snap coordinates if full crosshair is enabled
         * since the mouse pointer is obscured and crosshair is snapped to grid points */
@@ -4391,7 +4391,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 
 static void handle_button_release(int event, KeySym key, int state, int button, int mx, int my, 
                                   int aux, double c_snap, int enable_stretch, int draw_xhair,
-                                  int snap_cursor, int wire_draw_active)
+                                  int cadence_compat, int snap_cursor, int wire_draw_active)
 {
    char str[PATH_MAX + 100];
    if(waves_selected(event, key, state, button)) {
@@ -4428,6 +4428,30 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
      xctx->semaphore = savesem;
+   }
+
+   /* in cadence_compat mode a button release on a selected item will unselect everything
+    * but the item under the mouse. */
+   else if(cadence_compat && xctx->lastsel != 1 && state == Button1Mask && !xctx->mouse_moved) {
+     Selected sel;
+     int already_selected = 0;
+
+     sel = find_closest_obj(xctx->mousex_snap, xctx->mousey_snap, 0);
+     switch(sel.type) {
+       case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
+       case xTEXT:   if(xctx->text[sel.n].sel)          already_selected = 1; break;
+       case LINE:    if(xctx->line[sel.col][sel.n].sel) already_selected = 1; break;
+       case POLYGON: if(xctx->poly[sel.col][sel.n].sel) already_selected = 1; break;
+       case xRECT:   if(xctx->rect[sel.col][sel.n].sel) already_selected = 1; break;
+       case ARC:     if(xctx->arc[sel.col][sel.n].sel)  already_selected = 1; break;
+       case ELEMENT: if(xctx->inst[sel.n].sel)          already_selected = 1; break;
+       default: break;
+     } /*end switch */
+
+     if(already_selected) {
+       unselect_all(1);
+       select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
+     }
    }
 
    /* end wire creation when dragging in intuitive interface from an inst pin or wire endpoint */
@@ -4795,12 +4819,12 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
    case ButtonPress:
      handle_button_press(event, state, rstate, key, button, mx, my,
                          c_snap, draw_xhair, crosshair_size, enable_stretch, tabbed_interface, 
-                         win_path, cadence_compat, aux);
+                         win_path, aux);
      break;
  
    case ButtonRelease:
      handle_button_release(event, key, state, button, mx, my, aux, c_snap, enable_stretch,
-                           draw_xhair, snap_cursor, wire_draw_active);
+                           draw_xhair, cadence_compat, snap_cursor, wire_draw_active);
      break;
     
    case -3:  /* double click  : edit prop */
