@@ -3415,10 +3415,10 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
    }
    if( what & ADD)
    {
-     if(xctx->mousex_snap < xctx->nl_x1) xctx->nl_x1 = xctx->mousex_snap;
-     if(xctx->mousex_snap > xctx->nl_x2) xctx->nl_x2 = xctx->mousex_snap;
-     if(xctx->mousey_snap < xctx->nl_y1) xctx->nl_y1 = xctx->mousey_snap;
-     if(xctx->mousey_snap > xctx->nl_y2) xctx->nl_y2 = xctx->mousey_snap;
+     if(mousex_snap < xctx->nl_x1) xctx->nl_x1 = mousex_snap;
+     if(mousex_snap > xctx->nl_x2) xctx->nl_x2 = mousex_snap;
+     if(mousey_snap < xctx->nl_y1) xctx->nl_y1 = mousey_snap;
+     if(mousey_snap > xctx->nl_y2) xctx->nl_y2 = mousey_snap;
      /* closed poly */
      if(what & END) {
        /* delete last rubber */
@@ -3428,8 +3428,8 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
      /* add point */
      } else if(xctx->nl_polyx[xctx->nl_points] != xctx->nl_polyx[xctx->nl_points-1] ||
           xctx->nl_polyy[xctx->nl_points] != xctx->nl_polyy[xctx->nl_points-1]) {
-       xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
-       xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
+       xctx->nl_polyx[xctx->nl_points] = mousex_snap;
+       xctx->nl_polyy[xctx->nl_points] = mousey_snap;
      } else {
        return;
      }
@@ -3456,16 +3456,16 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
    }
    if(what & RUBBER)
    {
-     if(xctx->mousex_snap < xctx->nl_x1) xctx->nl_x1 = xctx->mousex_snap;
-     if(xctx->mousex_snap > xctx->nl_x2) xctx->nl_x2 = xctx->mousex_snap;
-     if(xctx->mousey_snap < xctx->nl_y1) xctx->nl_y1 = xctx->mousey_snap;
-     if(xctx->mousey_snap > xctx->nl_y2) xctx->nl_y2 = xctx->mousey_snap;
+     if(mousex_snap < xctx->nl_x1) xctx->nl_x1 = mousex_snap;
+     if(mousex_snap > xctx->nl_x2) xctx->nl_x2 = mousex_snap;
+     if(mousey_snap < xctx->nl_y1) xctx->nl_y1 = mousey_snap;
+     if(mousey_snap > xctx->nl_y2) xctx->nl_y2 = mousey_snap;
      /* fprintf(errfp, "new_poly: RUBBER\n"); */
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
-     xctx->nl_polyy[xctx->nl_points] = xctx->mousey_snap;
-     xctx->nl_polyx[xctx->nl_points] = xctx->mousex_snap;
+     xctx->nl_polyy[xctx->nl_points] = mousey_snap;
+     xctx->nl_polyx[xctx->nl_points] = mousex_snap;
      restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
-     /* xctx->nl_x2 = xctx->mousex_snap; xctx->nl_y2 = xctx->mousey_snap; */
+     /* xctx->nl_x2 = mousex_snap; xctx->nl_y2 = mousey_snap; */
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
    }
 }

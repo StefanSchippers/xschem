@@ -2133,6 +2133,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "color_ps=%d\n", color_ps); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "hilight_nets=%d\n", xctx->hilight_nets); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "semaphore=%d\n", xctx->semaphore); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "constr_mv=%d\n", xctx->constr_mv); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "ui_state=%d\n", xctx->ui_state); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "ui_state2=%d\n", xctx->ui_state2); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "drag_elements=%d\n", xctx->drag_elements); Tcl_AppendResult(interp, res, NULL);
@@ -2243,7 +2244,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, s, TCL_VOLATILE);
       }
     }
-
 
     /* help
      *  Print command help */
