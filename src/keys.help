@@ -95,7 +95,6 @@ Alt         'c'         Copy selected objects, insert wires when separating touc
 ctrl        'c'         Save to clipboard
 shift       'C'         Start arc placement
 shift+ctrl  'C'         Start circle placement
-alt         'C'         Toggle dim/brite background with rest of layers
 ctrl        'd'         Delete files
 -           'd'         Unselect selected object under the mouse pointer
 shift       'D'         Unselect selected objects by area
