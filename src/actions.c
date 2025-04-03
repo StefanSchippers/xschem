@@ -2045,9 +2045,9 @@ void get_additional_symbols(int what)
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
 
-      dbg(1, "get_additional_symbols(): schematic=%s\n", get_tok_value(xctx->inst[i].prop_ptr,"schematic",6));
       /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
       my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6));
+      dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
       schematic_token_found = xctx->tok_size;
       my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL));
       dbg(1, "get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size);
@@ -2061,7 +2061,7 @@ void get_additional_symbols(int what)
         dbg(1, "get_additional_symbols(): schematic not existing\n");
         dbg(1, "using: %s\n", symbol_base_sch);
       }
-      if(schematic_token_found && sch[0]) { /* "schematic" token exists  and a schematic is specified */
+      if(schematic_token_found && sch[0]) { /* `schematic` token exists  and a schematic is specified */
         int j;
         char *sym = NULL;
         char *symname_attr = NULL;

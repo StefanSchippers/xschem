@@ -5852,7 +5852,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Return the base_name field of a symbol with name or number `n`
      *   Normally this is empty. It is set for overloaded symbols, that is symbols
      *   derived from the base symbol due to instance based implementation selection
-     *   (the instance "schematic" attribute) */
+     *   (the instance `schematic` attribute) */
     else if(!strcmp(argv[1], "symbol_base_name"))
     {
       int i = -1, found = 0;
