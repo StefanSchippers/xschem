@@ -126,8 +126,6 @@ alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins
 alt         'j'         Create labels without 'i' prefix from highlighted nets/pins
 ctrl        'j'         Create ports from highlight nets
 alt+ctrl    'j'         Print list of highlighted nets/pins with label expansion
-shift       'J'         create xplot plot file for ngspice in simulation directory
-                        (just type xplot in ngspice)
 -           'j'         Print list of highlighted nets/pins
 -           'k'         Hilight selected nets
 ctrl+shift  'K'         highlight net passing through elements with 'propag' property set on pins
@@ -154,6 +152,8 @@ shift       'O'         Toggle Light / Dark colorscheme
 shift+ctrl  'O'         Load most recent file
 ctrl        'o'         Open file
 -           'p'         Place polygon. Operation ends by placing last point over first.
+ctrl        'p'         create xplot plot file for ngspice in simulation directory
+                        (just type xplot in ngspice)
 alt         'p'         Add symbol pin
 shift       'P'         Pan view area
 alt         'q'         Edit schematic file (dangerous!)

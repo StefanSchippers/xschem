@@ -3091,10 +3091,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case 'J':
-      if(rstate == 0) {
-        create_plot_cmd();
-      }
-      else if(SET_MODMASK ) { /* create labels with i prefix from hilight nets */
+      if(SET_MODMASK ) { /* create labels with i prefix from hilight nets */
         if(xctx->semaphore >= 2) break;
         print_hilight_net(2);
       }
@@ -3340,7 +3337,10 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case 'p':
-      if(EQUAL_MODMASK) { /* add symbol pin */
+      if(rstate == ControlMask) { /* create xplot commandof hilight signals  for ngspice */
+        create_plot_cmd();
+      }
+      else if(EQUAL_MODMASK) { /* add symbol pin */
         xctx->push_undo();
         unselect_all(1);
         storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
@@ -3743,8 +3743,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       break;
 
-    case 'z':
-      if(rstate == 0 && !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) { /* zoom box */
+    case 'z': 
+      /* zoom box */
+      if(rstate == 0 && !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) {
         dbg(1, "callback(): zoom_rectangle call\n");
         zoom_rectangle(START);
       }
