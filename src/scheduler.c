@@ -1418,8 +1418,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "format")) { /* alternate format attribute to use in netlist (or NULL) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            if(!xctx->format ) Tcl_SetResult(interp, "<NULL>",TCL_STATIC);
-            else Tcl_SetResult(interp, xctx->format,TCL_VOLATILE);
+            if(!xctx->custom_format ) Tcl_SetResult(interp, "<NULL>",TCL_STATIC);
+            else Tcl_SetResult(interp, xctx->custom_format,TCL_VOLATILE);
           }
           break;
           case 'g':
@@ -5345,7 +5345,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "format")) { /* set name of custom format attribute used for netlisting */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(_ALLOC_ID_, &xctx->format, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->custom_format, argv[3]);
           }
           else if(!strcmp(argv[2], "header_text")) { /* set header metadata (used for license info) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

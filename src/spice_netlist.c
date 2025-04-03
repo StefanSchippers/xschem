@@ -173,9 +173,11 @@ static int spice_netlist(FILE *fd, int spice_stop )
   int err = 0;
   int i, flag = 0;
   const char *type;
-  int top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
+  int lvs_netlist =  tclgetboolvar("lvs_netlist");
+  int top_sub = lvs_netlist || tclgetboolvar("top_is_subckt");
   int lvs_ignore = tclgetboolvar("lvs_ignore");
-  
+  if(lvs_netlist) my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
+  else my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
   if(!spice_stop) {
     dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
     xctx->prep_net_structs = 0;
@@ -263,11 +265,9 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  char cellname[PATH_MAX]; /* 20081211 overflow safe 20161122 */
  char *subckt_name;
  char *abs_path = NULL;
- int top_sub;
  int split_f;
  Str_hashtable subckt_table = {NULL, 0};
  Str_hashentry *model_entry;
- int lvs_ignore = tclgetboolvar("lvs_ignore");
  int save_prev_mod = xctx->prev_set_modify;
  struct stat buf;
  char *top_symbol_name = NULL;
@@ -278,7 +278,12 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  int npins = 0; /* top schematic number of i/o ports */
  Sch_pin_record *pinnumber_list = NULL; /* list of top sch i/o ports ordered wrt sim_pinnumber attr */
  int uppercase_subckt = tclgetboolvar("uppercase_subckt");
+ int lvs_netlist =  tclgetboolvar("lvs_netlist");
+ int top_sub = lvs_netlist || tclgetboolvar("top_is_subckt");
+ int lvs_ignore = tclgetboolvar("lvs_ignore");
 
+ if(lvs_netlist) my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
+ else  my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
  dbg(1, "global_spice_netlist(): invoking push_undo()\n");
@@ -339,7 +344,6 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
      netlist_options(i);
    }
  }
- top_sub = tclgetboolvar("lvs_netlist") || tclgetboolvar("top_is_subckt");
  if(!top_sub) fprintf(fd,"**");
  if(uppercase_subckt) 
    fprintf(fd,".SUBCKT %s", get_cell(xctx->sch[xctx->currsch], 0));

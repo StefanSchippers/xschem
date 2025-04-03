@@ -1137,6 +1137,7 @@ typedef struct {
   int hide_symbols; /* MIRRORED IN TCL */
   int netlist_type;
   char *format; /* "format", "verilog_format", "vhdl_format" or "tedax_format" */
+  char *custom_format; /* user specified format string to use for spice netlist (xschem set format command) */
   char *top_path;
   /* top_path is the path prefix of drawing canvas (current_win_path):
    * top_path is always "" in tabbed interface 

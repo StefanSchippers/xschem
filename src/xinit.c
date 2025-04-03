@@ -422,6 +422,7 @@ static void free_xschem_data()
   my_free(_ALLOC_ID_, &xctx->current_win_path);
   my_free(_ALLOC_ID_, &xctx->fill_type);
   my_free(_ALLOC_ID_, &xctx->format);
+  my_free(_ALLOC_ID_, &xctx->custom_format);
   my_free(_ALLOC_ID_, &xctx);
 }
 
@@ -684,8 +685,10 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->active_layer=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->hide_symbols = 0;
   xctx->netlist_type = CAD_SPICE_NETLIST;
-  xctx->format = NULL; /* custom format string for netlist, otherwise use
+  xctx->format = NULL; /* format string for netlist, (copied from custom_format) otherwise use
                         * "format", "verilog_format", "vhdl_format", "tedax_format" */
+  /* user specified format string to use for spice netlist (xschem set format command) */
+  xctx->custom_format = NULL;
   xctx->top_path = NULL;
   xctx->current_win_path = NULL;
   my_strdup2(_ALLOC_ID_, &xctx->top_path, top_path);
@@ -2753,8 +2756,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* set global variables fetching data from tcl code */
 
  /* if lvs_netlist is set also use lvs_format for devices netlisting rule if existing */
- if(tclgetboolvar("lvs_netlist")) tcleval("xschem set format lvs_format");
- else tcleval("xschem set format {}");
+ if(tclgetboolvar("lvs_netlist"))  my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
+ else my_strdup(_ALLOC_ID_, &xctx->format, NULL);
 
  if(cli_opt_netlist_type) {
    xctx->netlist_type = cli_opt_netlist_type;

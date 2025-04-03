@@ -9353,13 +9353,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   $topwin.menubar.simulation add cascade -label "LVS" -menu $topwin.menubar.simulation.lvs
   menu $topwin.menubar.simulation.lvs -tearoff 0
   $topwin.menubar.simulation.lvs add checkbutton -label "LVS netlist + Top level is a .subckt" \
-  -selectcolor $selectcolor -variable lvs_netlist -command {
-    if {$lvs_netlist == 1} {
-      xschem set format lvs_format 
-    } else {
-      xschem set format {}
-    }
-  }
+  -selectcolor $selectcolor -variable lvs_netlist 
   $topwin.menubar.simulation.lvs add checkbutton -label "Upper case .SUBCKT and .ENDS" \
   -selectcolor $selectcolor -variable uppercase_subckt
   $topwin.menubar.simulation.lvs add checkbutton -label "Top level is a .subckt" \
