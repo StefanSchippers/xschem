@@ -119,6 +119,7 @@ LeftButton Double click Terminate Polygon placement
 -          BackSpace    Back to parent schematic
 -          Delete       Delete selected objects
 -          Insert       Insert element from library
+shift      Insert       Open persistent insert symbol dialog box
 -          Print Scrn   Grab screen area
 -          Escape       Abort, redraw, unselect
 ctrl       Enter        Confirm closing dialog boxes
@@ -137,7 +138,7 @@ ctrl       Right        Next tab (if tabbed interface enabled)
 -           '#'         Highlight components with duplicated name (refdes)
 ctrl        '#'         Rename components with duplicated name (refdes)
 -           '5'         View only probes
-ctrl        '0-9'       set current layer (4 -13)
+ctrl        '0-9'       set current layer (0-9)
             '0'         set selected net or label to logic value '0'
             '1'         set selected net or label to logic value '1'
             '2'         set selected net or label to logic value 'X'
@@ -160,6 +161,7 @@ ctrl        'd'         Delete files
 shift       'D'         Unselect selected objects by area
 ctrl        'e'         Back to parent schematic
 -           'e'         Descend to schematic
+alt+shift   'E'         Edit selected schematic in a new window, new xschem process
 alt         'e'         Edit selected schematic in a new window
             '\'         Toggle Full screen
 shift       'F'         Horizontal flip selected objects
@@ -176,7 +178,9 @@ alt         'h'         create symbol pins from schematic pins
 ctrl        'h'         Follow http link or execute command (url, tclcommand properties)
 shift       'H'         Attach net labels to selected instance
 ctrl+shift  'H'         Make schematic and symbol from selected components
--           'i'         Descend to  symbol
+-           'i'         Descend to symbol
+ctrl        'i'         Open persistent insert symbol dialog box
+shift       'I'         Insert symbol
 alt         'i'         Edit selected symbol in a new window
 alt+shift   'J'         Create labels with 'i' prefix from highlighted nets/pins
 alt         'j'         Create labels without 'i' prefix from highlighted nets/pins
@@ -191,11 +195,13 @@ shift       'K'         Unhilight all nets
 ctrl        'k'         Unhilight selected nets
 alt         'k'         Select all nets attached to selected wire / label / pin.
 -           'l'         Start line
+shift       'L'         Toggle orthogonal routing (automatic H-V or V-H)
 ctrl        'l'         Make schematic view from selected symbol
 alt+shift   'l'         add lab_wire.sym to schematic
 alt         'l'         add lab_pin.sym to schematic
-ctrl+shift  'o'         Load most recent schematic
-ctrl        'o'         Load schematic
+shift       'O'         Toggle Light / Dark colorscheme
+shift+ctrl  'O'         Load most recent file
+ctrl        'o'         0pen file
 -           'm'         Move selected objects. 'm' and 'ctrl-m' commands are swapped if enable_stretch is set
 ctrl        'm'         Move selected objects, stretching wires attached to them
 Alt         'm'         Move selected objects, insert wires when separating touching instance pins/wires
@@ -209,8 +215,7 @@ shift       'O'         Toggle Light / Dark colorscheme
 ctrl        'o'         Load schematic
 -           'p'         Place polygon. Operation ends by placing last point over first.
 alt         'p'         Add symbol pin
-ctrl        'p'         Pan schematic view
-shift       'P'         Pan, other way to.
+shift       'P'         Pan view area
 alt         'q'         Edit schematic file (dangerous!)
 -           'q'         Edit prop
 shift       'Q'         Edit prop with vim
@@ -252,10 +257,8 @@ ctrl        'z'         Zoom out
 shift       '*'         Postscript/pdf print
 ctr+shift   '*'         Xpm/png print
 alt+shift   '*'         Svg print
-            '-'         dim colors
 ctrl        '-'         Test mode: change line width
 ctrl        '+'         Test mode: change line width
-            '+'         brite colors
 -           '_'         Toggle change line width
 -           '%'         Toggle draw grid
 ctrl        '='         Toggle fill rectangles

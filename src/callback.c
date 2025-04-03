@@ -2622,7 +2622,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(state==ControlMask) { /* choose layer */
         char n[30];
-        xctx->rectcolor = (int)key - '0'+4;
+        xctx->rectcolor = (int)key - '0';
         my_snprintf(n, S(n), "%d", xctx->rectcolor);
         tclvareval("xschem set rectcolor ", n, NULL);
 
@@ -2642,16 +2642,15 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         xctx->only_probes = !xctx->only_probes;
         tclsetboolvar("only_probes", xctx->only_probes);
         toggle_only_probes();
-      }  /* /20110112 */
-      break;
-
+        break;
+      }
     case '6':
     case '7':
     case '8':
     case '9':
       if(state==ControlMask) { /* choose layer */
         char n[30];
-        xctx->rectcolor = (int)key - '0'+4;
+        xctx->rectcolor = (int)key - '0';
         my_snprintf(n, S(n), "%d", xctx->rectcolor);
         tclvareval("xschem set rectcolor ", n, NULL);
 
@@ -3501,7 +3500,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         }
       }
 
-      else if(SET_MODMASK) { /* reload */
+      else if(EQUAL_MODMASK) { /* reload */
         if(xctx->semaphore >= 2) break;
         tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
                  "-message {Are you sure you want to reload from disk?}");
@@ -3582,7 +3581,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
         draw();
       }
-      else if(rstate==ControlMask) { /* testmode */
+      else if(rstate==ControlMask) { /* Unselect floater texts */
         unselect_attached_floaters();
       }
       
