@@ -3460,7 +3460,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         done_netlist = 1;
 
         save_keep = tclgetboolvar("keep_symbols");
-        tclsetboolvar("keep_symbols", keep_symbols);
+        if(keep_symbols) tclsetboolvar("keep_symbols", keep_symbols);
         if(xctx->netlist_type == CAD_SPICE_NETLIST)
           err = global_spice_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_VHDL_NETLIST)
