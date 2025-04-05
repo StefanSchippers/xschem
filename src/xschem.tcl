@@ -8582,6 +8582,19 @@ global env has_x OS autofocus_mainwindow
       bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
     }
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
+
+    #### test: show keybindings
+    # bind $topwin <KeyPress-slash> "
+    #   if {!\[info exists bindkeys\]} {
+    #     set bindkeys 1
+    #     xschem preview_window create $topwin
+    #     xschem preview_window draw $topwin [abs_sym_path bindkeys_cheatsheet.sym]
+    #   } else {
+    #     unset bindkeys
+    #     xschem preview_window $topwin close 
+    #     xschem redraw
+    #   }
+    # "
     bind $topwin <KeyPress> "
       if {{%K} eq {Escape}} { destroy .ctxmenu }
       xschem callback %W %T %x %y %N 0 0 %s"

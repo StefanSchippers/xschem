@@ -1267,7 +1267,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         dbg(1, "preview_window() draw, load schematic\n");
         load_schematic(1,fname, 0, 1);
       } else {
-        resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
+        if(xctx) resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
       }
       zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
       xctx = save_xctx;
