@@ -492,6 +492,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   register xSymbol *symptr;
   char *type;
   int lvs_ignore = 0;
+  int c_for_text;
   #if HAS_CAIRO==1
   const char *textfont;
   #endif
@@ -675,25 +676,19 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   draw_texts:
 
-  if(
-      !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
-      (
-         (layer==TEXTWIRELAYER && (xctx->inst[n].flags & PIN_OR_LABEL) ) ||
-         (xctx->sym_txt && (layer==TEXTLAYER) && !(xctx->inst[n].flags & PIN_OR_LABEL))
-      )
-    )
-  {
+  if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
+  if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+  if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     for(j=0;j< symptr->texts; ++j)
     {
       double xscale, yscale;
-
       get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
       if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
       if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       ROTATION(rot, flip, 0.0, 0.0,text.x0,text.y0,x1,y1);
-      textlayer = c;
+      textlayer = c_for_text;
       /* do not allow custom text color on hilighted instances */
       if(disabled == 1) textlayer = GRIDLAYER;
       else if(disabled == 2) textlayer = PINLAYER;
@@ -706,7 +701,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           else textlayer = symptr->text[j].layer;
         }
       }
-      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
+      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c_for_text;
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
         char *txtptr = NULL;
@@ -5037,7 +5032,7 @@ void draw(void)
             symptr->arcs[c] ||
             symptr->rects[c] ||
             symptr->polygons[c] ||
-            ((c==TEXTWIRELAYER || c==TEXTLAYER) && symptr->texts) )
+            ((c==cadlayers - 1) && symptr->texts) )
         {
             draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0);     /* ... then draw current layer      */
         }

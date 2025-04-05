@@ -901,6 +901,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   char *type;
   int lvs_ignore = 0;
   char *textfont;
+  int c_for_text;
 
   type = xctx->sym[xctx->inst[n].ptr].type;
   lvs_ignore=tclgetboolvar("lvs_ignore");
@@ -1097,15 +1098,9 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   } /* if( (!hide && xctx->enable_layer[layer]) || ... */
   
   draw_texts:
-
-  if(
-      !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&
-      (
-         (layer==TEXTWIRELAYER && (xctx->inst[n].flags & PIN_OR_LABEL) ) ||
-         (xctx->sym_txt && (layer==TEXTLAYER) && !(xctx->inst[n].flags & PIN_OR_LABEL))
-      )
-    )
-  {
+  if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
+  if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+  if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     const char *txtptr;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
@@ -1118,7 +1113,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
       txtptr= translate(n, text.txt_ptr);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
-      textlayer = c;
+      textlayer = c_for_text;
       /* do not allow custom text color on hilighted instances */
       if(disabled == 1) textlayer = GRIDLAYER;
       else if(disabled == 2) textlayer = PINLAYER;
@@ -1128,8 +1123,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
         if(lay != -1) textlayer = lay;
         else textlayer = symptr->text[j].layer;
       }
-      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c;
-      if(textlayer != c) set_ps_colors(textlayer);
+      if(textlayer < 0 || textlayer >= cadlayers) textlayer = c_for_text;
+      if(textlayer != c_for_text) set_ps_colors(textlayer);
 
        /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
