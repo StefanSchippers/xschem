@@ -245,8 +245,10 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    sub(/ value=/," c=")
    IGNORECASE=0
  }
- gsub(/ value=/," ")
- gsub(/ VALUE=/," ")
+ ### ?? too dangerous 
+ # gsub(/ value=/," ")
+ # gsub(/ VALUE=/," ")
+
  if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
 
  ## .save tran v(?1 GB ) v(?1 SB )

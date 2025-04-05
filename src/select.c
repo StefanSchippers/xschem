@@ -1254,7 +1254,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
 
 /* 20160503 return type field */
 Selected select_object(double mx,double my, unsigned short select_mode,
-                       int override_lock, Selected *selptr)
+                       int override_lock, const Selected *selptr)
 {
    Selected sel;
    xctx->already_selected = 0;

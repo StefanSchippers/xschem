@@ -252,7 +252,7 @@ static int kklex()
     int rd = 0;
     str--; 
 
-    sscanf(str, "%99[.0-9a-zA-Z_]%n", s, &rd);
+    sscanf(str, "%99[.0-9a-zA-Z_-]%n", s, &rd);
     kklval.val = atof_eng(s);
     str += rd;
     dbg(dbglev, "lex(): NUM: %s\n", s);
