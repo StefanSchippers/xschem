@@ -1242,7 +1242,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
     }
   }
   else if(!strcmp(what, "draw") ) {
-    int i;
+    int i, save_grid = tclgetboolvar("draw_grid");
     for(i = 0; i < 10; i++) {
       if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
@@ -1269,7 +1269,9 @@ int preview_window(const char *what, const char *win_path, const char *fname)
       } else {
         if(xctx) resetwin(1, 1, 0, 0, 0);  /* resetwin(create_pixmap, clear_pixmap, force) */
       }
+      Tcl_SetVar(interp, "draw_grid", "0", TCL_GLOBAL_ONLY);
       zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+      Tcl_SetVar(interp, "draw_grid", save_grid ? "1" : "0",  TCL_GLOBAL_ONLY);
       xctx = save_xctx;
       result = 1;
     }

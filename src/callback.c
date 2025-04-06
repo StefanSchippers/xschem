@@ -3255,7 +3255,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask) { /* clear schematic */
         if(xctx->semaphore >= 2) break;
-        tcleval("xschem clear SCHEMATIC");
+        tcleval("xschem clear schematic");
       }
       break;
 
@@ -3300,7 +3300,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask ) { /* clear symbol */
         if(xctx->semaphore >= 2) break;
-        tcleval("xschem clear SYMBOL");
+        tcleval("xschem clear symbol");
       }
       break;
 
@@ -4045,15 +4045,24 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case '>':
       if(xctx->semaphore >= 2) break;
       if(xctx->draw_single_layer< cadlayers-1) xctx->draw_single_layer++;
+      xctx->draw_single_layer = xctx->rectcolor;
       draw();
       break;
 
     case '<':
       if(xctx->semaphore >= 2) break;
-      if(xctx->draw_single_layer>=0 ) xctx->draw_single_layer--;
+      xctx->draw_single_layer = -1;
       draw();
       break;
 
+    case '?':
+      if(xctx->semaphore >= 2) break;
+      tcleval("textwindow \"${XSCHEM_SHAREDIR}/xschem.help\"");
+      break;
+    case XK_slash:
+     if(xctx->semaphore >= 2) break;
+     tcleval("show_bindkeys");
+     break;
     /* toggle flat netlist (only spice)  */
     case ':':
       if(!tclgetboolvar("flat_netlist")) {

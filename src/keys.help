@@ -69,9 +69,13 @@ ctrl       Enter        Confirm closing dialog boxes
 -          Up           Move up
 ctrl       Left         Previous tab (if tabbed interface enabled) 
 ctrl       Right        Next tab (if tabbed interface enabled)
+-           ':'         Toggle flat netlist
 -           '\'         Toggle fullscreen
 -           '!'         Break selected wires at any wire or component pin
                         connection
+shift       '<'         Show all layers
+shift       '>'         Show only current set layer
+-           '/'         Show fullscreen image of bindkeys
 -           ' '         Pan schematic
 -           ' '         When drawing lines or wires toggle between 
                         manhattan H-V, manhattan V-H or oblique path.
@@ -204,4 +208,3 @@ ctrl        '+'         Test mode: change line width
 ctrl        '='         Toggle fill rectangles
 -           '$'         Toggle pixmap  saving
 ctrl        '$'         Toggle use XCopyArea vs drawing primitives for drawing the screen
--           ':'         Toggle flat netlist

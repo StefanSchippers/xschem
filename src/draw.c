@@ -676,9 +676,10 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   draw_texts:
 
-  if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
-  if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
   if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+    if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
+    if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+    if(c != layer) c_for_text = c;
     for(j=0;j< symptr->texts; ++j)
     {
       double xscale, yscale;
@@ -702,6 +703,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         }
       }
       if(textlayer < 0 || textlayer >= cadlayers) textlayer = c_for_text;
+      if(xctx->draw_single_layer != -1 && textlayer != xctx->draw_single_layer) continue;
       /* display PINLAYER colored instance texts even if PINLAYER disabled */
       if(xctx->inst[n].color == -PINLAYER || xctx->enable_layer[textlayer]) {
         char *txtptr = NULL;
@@ -4983,14 +4985,14 @@ void draw(void)
     }
     dbg(3, "draw(): check4\n");
     for(c=0;c<cadlayers; ++c) {
-      if(xctx->draw_single_layer!=-1 && c != xctx->draw_single_layer) continue;
+      int draw_layer = (xctx->draw_single_layer == -1 || c == xctx->draw_single_layer);
       cc = c; if(xctx->only_probes) cc = GRIDLAYER;
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->lines[c]; ++i) {
+      if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->lines[c]; ++i) {
         xLine *l = &xctx->line[c][i];
         if(l->bus) drawline(cc, THICK, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
         else       drawline(cc, ADD, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->rects[c]; ++i) {
+      if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->rects[c]; ++i) {
         xRect *r = &xctx->rect[c][i]; 
         #if HAS_CAIRO==1
         if(c != GRIDLAYER || !(r->flags & (1 + 1024)))
@@ -5002,12 +5004,12 @@ void draw(void)
           if(r->fill) filledrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->fill, r->ellipse_a, r->ellipse_b);
         }
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
+      if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
         xArc **arc = xctx->arc;
         drawarc(cc, ADD, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b,
                 arc[c][i].fill, arc[c][i].dash);
       }
-      if(xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
+      if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
         xPoly *p = &xctx->poly[c][i];
         bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
@@ -5034,7 +5036,9 @@ void draw(void)
             symptr->polygons[c] ||
             ((c==cadlayers - 1) && symptr->texts) )
         {
-            draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0);     /* ... then draw current layer      */
+          if(c == 0 || c == cadlayers - 1 || draw_layer) {
+            draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0); /* ... then draw current layer */
+          }
         }
       }
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
@@ -5067,56 +5071,55 @@ void draw(void)
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
-    if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) {
-      for(i=0;i<xctx->texts; ++i)
-      {
-        const char *txt_ptr;
-        textlayer = xctx->text[i].layer;
-        if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
-        if(xctx->only_probes) textlayer = GRIDLAYER;
-        else if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-        #if HAS_CAIRO==1
-        if(!xctx->enable_layer[textlayer]) continue;
-        textfont = xctx->text[i].font;
-        if( (textfont && textfont[0]) || 
-            (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
-          cairo_font_slant_t slant;
-          cairo_font_weight_t weight;
-          textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? 
-            xctx->text[i].font : tclgetvar("cairo_font_name");
-          weight = ( xctx->text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
-          slant = CAIRO_FONT_SLANT_NORMAL;
-          if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
-          if(xctx->text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
+    for(i=0;i<xctx->texts; ++i)
+    {
+      const char *txt_ptr;
+      textlayer = xctx->text[i].layer;
+      if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
+      if(xctx->only_probes) textlayer = GRIDLAYER;
+      else if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
+      #if HAS_CAIRO==1
+      if(!xctx->enable_layer[textlayer]) continue;
+      if(xctx->draw_single_layer != -1 && xctx->draw_single_layer != textlayer) continue;
+      textfont = xctx->text[i].font;
+      if( (textfont && textfont[0]) || 
+          (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
+        cairo_font_slant_t slant;
+        cairo_font_weight_t weight;
+        textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? 
+          xctx->text[i].font : tclgetvar("cairo_font_name");
+        weight = ( xctx->text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
+        slant = CAIRO_FONT_SLANT_NORMAL;
+        if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
+        if(xctx->text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
  
-          cairo_save(xctx->cairo_ctx);
-          cairo_save(xctx->cairo_save_ctx);
-          xctx->cairo_font =
-                cairo_toy_font_face_create(textfont, slant, weight);
-          cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-          cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-          cairo_font_face_destroy(xctx->cairo_font);
-        }
-        #endif
-        txt_ptr =  get_text_floater(i);
-        dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
-        draw_string(textlayer, ADD, txt_ptr,
-          xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
-          xctx->text[i].x0,xctx->text[i].y0,
-          xctx->text[i].xscale, xctx->text[i].yscale);
-        #if HAS_CAIRO==1
-        if( (textfont && textfont[0]) || 
-            (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
-          cairo_restore(xctx->cairo_ctx);
-          cairo_restore(xctx->cairo_save_ctx);
-        }
-        #endif
-        #if HAS_CAIRO!=1
-        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
-        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
-        #endif
-      } /* for(i=0;i<xctx->texts; ++i) */
-    } /*  if(xctx->draw_single_layer ==-1 || xctx->draw_single_layer==TEXTLAYER) */
+        cairo_save(xctx->cairo_ctx);
+        cairo_save(xctx->cairo_save_ctx);
+        xctx->cairo_font =
+              cairo_toy_font_face_create(textfont, slant, weight);
+        cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+        cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+        cairo_font_face_destroy(xctx->cairo_font);
+      }
+      #endif
+      txt_ptr =  get_text_floater(i);
+      dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
+      draw_string(textlayer, ADD, txt_ptr,
+        xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
+        xctx->text[i].x0,xctx->text[i].y0,
+        xctx->text[i].xscale, xctx->text[i].yscale);
+      #if HAS_CAIRO==1
+      if( (textfont && textfont[0]) || 
+          (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
+        cairo_restore(xctx->cairo_ctx);
+        cairo_restore(xctx->cairo_save_ctx);
+      }
+      #endif
+      #if HAS_CAIRO!=1
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+      #endif
+    } /* for(i=0;i<xctx->texts; ++i) */
     if(xctx->only_probes) build_colors(1.0, 0);
     if(xctx->only_probes) {
       xctx->save_lw = xctx->lw;

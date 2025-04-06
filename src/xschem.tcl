@@ -8530,6 +8530,28 @@ proc switch_window {parent topwin event window} {
     }
   }
 }
+proc show_bindkeys {} {
+        global dark_colorscheme dim_value dim_bg
+        if {[winfo exists .bk]} {return}
+        toplevel .bk -bg {}
+        wm attributes .bk -fullscreen 1
+
+        set save $dark_colorscheme
+        set dark_colorscheme 0
+        set dim_value 0.0
+        set dim_bg 0.0
+        xschem build_colors
+
+        xschem preview_window create .bk
+        xschem preview_window draw .bk [abs_sym_path bindkeys_cheatsheet.sym]
+   
+        set dark_colorscheme $save
+        xschem build_colors
+
+        bind .bk <ButtonPress> {xschem preview_window destroy .bk }
+        bind .bk <KeyPress> {xschem preview_window destroy .bk }
+        bind .bk <Expose> {xschem preview_window draw .bk }
+}
 
 proc set_bindings {topwin} {
 global env has_x OS autofocus_mainwindow
@@ -8584,17 +8606,6 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
 
     #### test: show keybindings
-    # bind $topwin <KeyPress-slash> "
-    #   if {!\[info exists bindkeys\]} {
-    #     set bindkeys 1
-    #     xschem preview_window create $topwin
-    #     xschem preview_window draw $topwin [abs_sym_path bindkeys_cheatsheet.sym]
-    #   } else {
-    #     unset bindkeys
-    #     xschem preview_window $topwin close 
-    #     xschem redraw
-    #   }
-    # "
     bind $topwin <KeyPress> "
       if {{%K} eq {Escape}} { destroy .ctxmenu }
       xschem callback %W %T %x %y %N 0 0 %s"
@@ -8618,7 +8629,6 @@ global env has_x OS autofocus_mainwindow
       "
     }
     bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
-    bind $topwin  "?" {textwindow "${XSCHEM_SHAREDIR}/xschem.help"}
   
     # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
     if {$OS == "Windows" } {
@@ -8811,6 +8821,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.help add command -label "Help" -command "textwindow \"${XSCHEM_SHAREDIR}/xschem.help\" ro" \
        -accelerator {?}
   $topwin.menubar.help add command -label "Keys" -command "textwindow \"${XSCHEM_SHAREDIR}/keys.help\" ro"
+  $topwin.menubar.help add command -label "Show Keybindings" -command "show_bindkeys"
   $topwin.menubar.help add command -label "About XSCHEM" -command "about"
   
   $topwin.menubar.file add command -label "Clear Schematic"  -accelerator Ctrl+N\
