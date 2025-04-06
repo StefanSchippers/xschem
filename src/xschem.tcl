@@ -8532,21 +8532,21 @@ proc switch_window {parent topwin event window} {
 }
 proc show_bindkeys {} {
         global dark_colorscheme dim_value dim_bg
-        if {[winfo exists .bk]} {return}
+        if {[winfo exists .bk]} {wm deiconify .bk; raise .bk; return}
         toplevel .bk -bg {}
         wm attributes .bk -fullscreen 1
 
-        set save $dark_colorscheme
-        set dark_colorscheme 0
-        set dim_value 0.0
-        set dim_bg 0.0
-        xschem build_colors
+        # set save $dark_colorscheme
+        # set dark_colorscheme 0
+        # set dim_value 0.0
+        # set dim_bg 0.0
+        # xschem build_colors
 
         xschem preview_window create .bk
         xschem preview_window draw .bk [abs_sym_path bindkeys_cheatsheet.sym]
    
-        set dark_colorscheme $save
-        xschem build_colors
+        # set dark_colorscheme $save
+        # xschem build_colors
 
         bind .bk <ButtonPress> {xschem preview_window destroy .bk }
         bind .bk <KeyPress> {xschem preview_window destroy .bk }
@@ -10006,15 +10006,15 @@ if {!$rainbow_colors} {
   set_ne cadlayers 22
   ## 20171113
   set_ne light_colors {
-   "#ffffff" "#0044ee" "#aaaaaa" "#222222" "#229900"
-   "#bb2200" "#00ccee" "#ff0000" "#888800" "#00aaaa"
+   "#ffffff" "#0055ee" "#aaaaaa" "#222222" "#229900"
+   "#bb2200" "#0055ee" "#ff0000" "#888800" "#00aaaa"
    "#880088" "#00ff00" "#0000cc" "#666600" "#557755"
    "#aa2222" "#7ccc40" "#00ffcc" "#ce0097" "#d2d46b"
    "#ef6158" "#fdb200"}
   set_ne dark_colors {
    "#000000" "#00ccee" "#4f4f4f" "#cccccc" "#88dd00" 
    "#bb2200" "#00ccee" "#ff0000" "#ffff00" "#ffffff"
-   "#ff00ff" "#00ff00" "#0000ff" "#aaaa00" "#aaccaa"
+   "#ff00ff" "#00ff00" "#0044ff" "#aaaa00" "#aaccaa"
    "#ff7777" "#bfff81" "#00ffcc" "#ce0097" "#d2d46b" 
    "#ef6158" "#fdb200"}
 } else {
