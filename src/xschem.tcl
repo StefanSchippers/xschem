@@ -8568,9 +8568,7 @@ global env has_x OS autofocus_mainwindow
 
     # Context switch.
     bind $parent <FocusIn> "
-      # if {{%W} eq {$parent}} {
-      #   xschem switch $topwin
-      # }
+      focus $topwin ;# propagate focus to canvas
       switch_window $parent $topwin %T %W
     "
 
