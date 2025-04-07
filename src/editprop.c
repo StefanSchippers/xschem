@@ -1264,7 +1264,7 @@ static int edit_polygon_property(void)
   int oldbezier, bezier;
   int k;
   double x1=0., y1=0., x2=0., y2=0.;
-  int c, i, ii, old_dash;
+  int c, i, ii, old_dash, old_bus, bus;
   int drw = 0;
   char *oldprop = NULL;
   const char *dash;
@@ -1291,6 +1291,7 @@ static int edit_polygon_property(void)
      c = xctx->sel_array[ii].col;
 
      oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
+     old_bus = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0),"true") ;
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop);
      } else {
@@ -1299,6 +1300,7 @@ static int edit_polygon_property(void)
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
+     bus = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0),"true") ;
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
@@ -1313,7 +1315,8 @@ static int edit_polygon_property(void)
        xctx->poly[c][i].dash = (short)(d >= 0 ? d : 0);
      } else
        xctx->poly[c][i].dash = 0;
-     if(old_fill != xctx->poly[c][i].fill || old_dash != xctx->poly[c][i].dash || oldbezier != bezier) {
+     if(old_fill != xctx->poly[c][i].fill || old_dash != xctx->poly[c][i].dash ||
+        oldbezier != bezier || old_bus != bus) {
        if(!drw) {
          bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;

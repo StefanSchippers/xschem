@@ -597,7 +597,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       int bezier;
+      int bus;
       polygon = &(symptr->poly[layer])[j];
+      bus = !strboolcmp(get_tok_value(polygon->prop_ptr, "bus", 0), "true") ? THICK : NOW;
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       dash = (disabled == 1) ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -607,7 +609,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier); /* added fill */
+      drawpolygon(c, bus, x, y, polygon->points, polygon->fill, dash, bezier); /* added fill */
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
@@ -1349,6 +1351,7 @@ void drawtempline(GC gc, int what, double linex1,double liney1,double linex2,dou
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
+     RECTORDER(linex1, liney1, linex2, liney2);
      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
          linex1, liney1, linex2, liney2, linex1, liney1, BUS_WIDTH * xctx->lw);
    } else {
@@ -1933,12 +1936,25 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   fill = xctx->fill_pattern && ((xctx->fill_type[c] && poly_fill == 1) || poly_fill == 2 ) &&
          (x[0] == x[points-1]) && (y[0] == y[points-1]);
   bezier = (flags & 1)  && (points > 2);
-  if(dash) {
-    char dash_arr[2];
-    dash_arr[0] = dash_arr[1] = (char)dash;
-    XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
+
+  if(what == NOW) {
+    if(dash) {
+      char dash_arr[2];
+      dash_arr[0] = dash_arr[1] = (char)dash;
+      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
+    }
+  } else if(what == THICK) {
+    if(dash) {
+      char dash_arr[2];
+      dash_arr[0] = dash_arr[1] = (char) dash;
+      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+    } else {
+      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+    }
   }
+
   if(xctx->draw_window) {
     if(bezier) {
       drawbezier(xctx->window, xctx->gc[c], c, x, y, points, fill ? poly_fill : 0 );
@@ -1961,7 +1977,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     if(xctx->draw_pixmap)
        XFillPolygon(display, xctx->save_pixmap, gc, p, points, Polygontype, CoordModeOrigin);
   }
-  if(dash) {
+  if(dash || what == THICK) {
     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
   }
   my_free(_ALLOC_ID_, &p);
@@ -5012,8 +5028,9 @@ void draw(void)
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
         xPoly *p = &xctx->poly[c][i];
+        int bus = !strboolcmp(get_tok_value(p->prop_ptr, "bus", 0), "true") ? THICK : NOW;
         bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
-        drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash, bezier);
+        drawpolygon(cc, bus, p->x, p->y, p->points, p->fill, p->dash, bezier);
       }
       if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
       else i = -1;
