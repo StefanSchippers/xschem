@@ -3337,10 +3337,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case 'p':
-      if(rstate == ControlMask) { /* create xplot commandof hilight signals  for ngspice */
-        create_plot_cmd();
-      }
-      else if(EQUAL_MODMASK) { /* add symbol pin */
+      if(EQUAL_MODMASK) { /* add symbol pin */
         xctx->push_undo();
         unselect_all(1);
         storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
@@ -3349,6 +3346,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         rebuild_selected_array();
         move_objects(START,0,0,0);
         xctx->ui_state |= START_SYMPIN;
+      }
+      else if(rstate == ControlMask) {
+         place_net_label(2);
       }
       else if( !(xctx->ui_state & STARTPOLYGON) && rstate==0) { /* start polygon */
         if(xctx->semaphore >= 2) break;
@@ -3371,6 +3371,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         xctx->yorigin=-xctx->mousey_snap+xctx->areah*xctx->zoom/2.0;
         draw();
         redraw_w_a_l_r_p_z_rubbers(1);
+      }
+      else if(rstate == ControlMask) {
+         place_net_label(3);
       }
       break;
 
@@ -3734,6 +3737,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       if(rstate == 0) { /* highlight discrepanciens between selected instance pin and net names */
         hilight_net_pin_mismatches();
       }
+      if(rstate == ControlMask) { /* create xplot command of hilight signals for ngspice */
+        create_plot_cmd(); 
+      } 
       break;
 
     case 'y':

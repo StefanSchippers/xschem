@@ -9162,15 +9162,20 @@ proc build_widgets { {topwin {} } } {
      -command { update_schematic_header } -accelerator Shift+B
   $topwin.menubar.prop add command -background red -label "Edit file (danger!)" \
      -command "xschem edit_file" -accelerator Alt+Q
-  $topwin.menubar.sym add radiobutton -label "Show symbols" \
+
+  $topwin.menubar.sym add cascade -label "Show symbols" -menu $topwin.menubar.sym.sym
+  menu $topwin.menubar.sym.sym -tearoff 0
+  
+  $topwin.menubar.sym.sym add radiobutton -label "Show symbol details" \
      -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 0 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
-  $topwin.menubar.sym add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
+  $topwin.menubar.sym.sym add radiobutton -label "Show instance Bounding boxes for subcircuit symbols" \
      -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 1 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
-  $topwin.menubar.sym add radiobutton -label "Show instance Bounding boxes for all symbols" \
+  $topwin.menubar.sym.sym add radiobutton -label "Show instance Bounding boxes for all symbols" \
      -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 2 \
      -command {xschem set hide_symbols $hide_symbols; xschem redraw} -accelerator Alt+B
+
   $topwin.menubar.sym add command -label "Set symbol width" \
      -command {
         input_line "Enter Symbol width ($symbol_width)" "set symbol_width" $symbol_width 
@@ -9187,24 +9192,34 @@ proc build_widgets { {topwin {} } } {
           -command "schpins_to_sympins" -accelerator Alt+H
   $topwin.menubar.sym add command -label "Place symbol pin" \
           -command "xschem add_symbol_pin" -accelerator Alt+P
+  $topwin.menubar.sym add command -label "Place schematic input port" \
+          -command "xschem net_label 2" -accelerator Ctrl+P
+  $topwin.menubar.sym add command -label "Place schematic output port" \
+          -command "xschem net_label 3" -accelerator Ctrl+Shift+P
   $topwin.menubar.sym add command -label "Place net pin label" \
           -command "xschem net_label 1" -accelerator Alt+L
   $topwin.menubar.sym add command -label "Place net wire label" \
-          -command "xschem net_label 0" -accelerator Alt-Shift-L
+          -command "xschem net_label 0" -accelerator Alt+Shift+L
   $topwin.menubar.sym add command -label "Change selected inst. texts to floaters" \
           -command "xschem floaters_from_selected_inst"
   $topwin.menubar.sym add command -label "Unselect attached floaters" \
           -command "xschem unselect_attached_floaters"
-  $topwin.menubar.sym add command -label "Print list of highlight nets" \
+
+
+  $topwin.menubar.sym add cascade -label "List of nets" -menu $topwin.menubar.sym.list
+  menu $topwin.menubar.sym.list -tearoff 0
+
+  $topwin.menubar.sym.list add command -label "Print list of highlight nets" \
           -command "xschem print_hilight_net 1" -accelerator J
-  $topwin.menubar.sym add command -label "Print list of highlight nets, with buses expanded" \
+  $topwin.menubar.sym.list add command -label "Print list of highlight nets, with buses expanded" \
           -command "xschem print_hilight_net 3" -accelerator Alt-Ctrl-J
-  $topwin.menubar.sym add command -label "Create labels from highlight nets" \
+  $topwin.menubar.sym.list add command -label "Create labels from highlight nets" \
           -command "xschem print_hilight_net 4" -accelerator Alt-J
-  $topwin.menubar.sym add command -label "Create labels from highlight nets with 'i' prefix" \
+  $topwin.menubar.sym.list add command -label "Create labels from highlight nets with 'i' prefix" \
           -command "xschem print_hilight_net 2" -accelerator Alt-Shift-J
-  $topwin.menubar.sym add command -label "Create pins from highlight nets" \
+  $topwin.menubar.sym.list add command -label "Create pins from highlight nets" \
           -command "xschem print_hilight_net 0" -accelerator Ctrl-J
+
   $topwin.menubar.sym add checkbutton \
      -selectcolor $selectcolor  \
      -label "Search all search-paths for schematic associated to symbol" -variable search_schematic
@@ -9341,7 +9356,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation add command -label {Edit Netlist} \
      -command {edit_netlist [xschem get netlist_name fallback]}
   $topwin.menubar.simulation add command -label {Send highlighted nets to viewer} \
-    -command {xschem create_plot_cmd} -accelerator Shift+J
+    -command {xschem create_plot_cmd} -accelerator Ctrl+Shift+X
   $topwin.menubar.simulation add command -label {Changelog from current hierarchy} -command {
     viewdata [list_hierarchy]
   }

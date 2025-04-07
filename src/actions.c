@@ -1453,8 +1453,14 @@ void place_net_label(int type)
   if(type == 1) {
       const char *lab = tcleval("find_file_first lab_pin.sym");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
-  } else {
+  } else if(type == 0) {
       const char *lab = tcleval("find_file_first lab_wire.sym");
+      place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
+  } else if(type == 2) {
+      const char *lab = tcleval("find_file_first ipin.sym");
+      place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
+  } else if(type == 3) {
+      const char *lab = tcleval("find_file_first opin.sym");
       place_symbol(-1, lab, xctx->mousex_snap, xctx->mousey_snap, 0, 0, NULL, 4, 1, 1/*to_push_undo*/);
   }
   move_objects(START,0,0,0);
