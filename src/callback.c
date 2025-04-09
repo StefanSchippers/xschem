@@ -3892,6 +3892,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         tclsetboolvar("change_lw", 0);
         draw();
       }
+      else if(EQUAL_MODMASK) { 
+        tcleval("set change_lw 0; input_line \"Enter linewidth (float):\" \"xschem line_width\"");
+      }
       break;
     
     case XK_Return: 
