@@ -512,6 +512,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->ui_state = 0;
   xctx->ui_state2 = 0;
   xctx->lw = 0.0;
+  xctx->min_lw = 0;
   xctx->need_reb_sel_arr = 1;
   xctx->lastsel = 0;
   xctx->maxsel = 0;
@@ -2077,10 +2078,11 @@ void change_linewidth(double w)
     }
   /* explicitly set line width */
   } else {
+    xctx->min_lw = (int)w;
     xctx->lw=w;
   }
+  linew = XLINEWIDTH(xctx->lw);
   if(has_x) {
-    linew = INT_WIDTH(xctx->lw);
     dbg(1, "Line width = %d\n", linew);
     for(i=0;i<cadlayers; ++i) {
       XSetLineAttributes(display, xctx->gc[i], linew, LineSolid, LINECAP , LINEJOIN);
@@ -2097,8 +2099,8 @@ void change_linewidth(double w)
   }
   #if HAS_CAIRO==1
   if(has_x) {
-    cairo_set_line_width(xctx->cairo_ctx, INT_WIDTH(xctx->lw));
-    cairo_set_line_width(xctx->cairo_save_ctx, INT_WIDTH(xctx->lw));
+    cairo_set_line_width(xctx->cairo_ctx, linew);
+    cairo_set_line_width(xctx->cairo_save_ctx, linew);
   }
   #endif
 }

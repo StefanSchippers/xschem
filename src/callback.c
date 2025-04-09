@@ -3879,7 +3879,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       if(state & ControlMask) { /* change line width */
         xctx->lw = round_to_n_digits(xctx->lw + 0.5, 2);
         change_linewidth(xctx->lw);
-        tclsetboolvar("change_lw", 0);
         draw();
       }
       break;
@@ -3889,11 +3888,10 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         xctx->lw = round_to_n_digits(xctx->lw - 0.5, 2);
         if(xctx->lw < 0.0) xctx->lw = 0.0;
         change_linewidth(xctx->lw);
-        tclsetboolvar("change_lw", 0);
         draw();
       }
       else if(EQUAL_MODMASK) { 
-        tcleval("set change_lw 0; input_line \"Enter linewidth (float):\" \"xschem line_width\"");
+        tcleval("input_line \"Enter linewidth (float):\" \"xschem line_width\"");
       }
       break;
     

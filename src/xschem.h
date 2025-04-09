@@ -422,8 +422,8 @@ do { \
 
 #define SWAP(a,b, tmp) do { tmp = a; a = b; b = tmp; } while(0)
 
-#define XLINEWIDTH(x) ( tclgetboolvar("change_lw") ? ( (int)(x) == 0 ? 1 : (int)(x) ) : (int)(x) ) 
-#define INT_WIDTH(x) ((int)(x) == 0 ? 1 : (int)(x))
+#define XLINEWIDTH(x) MAJOR((tclgetboolvar("change_lw") ? ((int)(x) == 0 ? 1 : (int)(x)) : (int)(x)), xctx->min_lw)
+#define INT_WIDTH(x) MAJOR(((int)(x) == 0 ? 1 : (int)(x)), xctx->min_lw)
 #define INT_BUS_WIDTH(x) ( (int)( (BUS_WIDTH) * (x) ) == 0 ? 1 : (int)( (BUS_WIDTH) * (x) ) ) 
 
 /* set do double if you need more precision at the expense of memory */
@@ -942,6 +942,7 @@ typedef struct {
   double zoom;
   double mooz;
   double lw;
+  int min_lw; /* minimum allowed line width (for UHD displays) */
   unsigned int ui_state;   /* this signals that we are doing a net place,panning etc.
                            * used to prevent nesting of some commands */
   unsigned int ui_state2; /* sub states of ui_state MENUSTART bit */ 

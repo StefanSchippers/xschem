@@ -9110,7 +9110,6 @@ proc build_widgets { {topwin {} } } {
      -selectcolor $selectcolor -accelerator {_}
   $topwin.menubar.view add command -label "Set line width" -accelerator {Alt+-} \
        -command {
-         set change_lw 0
          input_line "Enter linewidth (float):" "xschem line_width"
        }
   $topwin.menubar.view add command -label "Set grid point size" \
