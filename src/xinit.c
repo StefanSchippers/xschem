@@ -2712,7 +2712,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetboolvar("color_ps", color_ps);
  }
  l_width=tclgetdoublevar("line_width");
- if(tclgetboolvar("change_lw")) l_width = -1.0;
  cadlayers=tclgetintvar("cadlayers");
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  fix_mouse_coord = tclgetboolvar("fix_mouse_coord");
@@ -2861,7 +2860,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
     /* load font from tcl 20171112 */
     tclsetvar("has_cairo","1");
     #endif
-
+    xctx->min_lw = (int)l_width;
+    if(tclgetboolvar("change_lw")) l_width = -1.0;
     change_linewidth(l_width);
     dbg(1, "Tcl_AppInit(): done xinit()\n");
     /* Set backing store window attribute */
