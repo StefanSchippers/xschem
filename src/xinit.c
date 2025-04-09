@@ -2072,7 +2072,7 @@ void change_linewidth(double w)
   if(w<0. || xctx->lw == -1.0) {
     double cs = tclgetdoublevar("cadsnap");
     if(tclgetboolvar("change_lw"))  {
-      xctx->lw=xctx->mooz * 0.09 * cs;
+      xctx->lw=xctx->mooz * 0.09 * cs * (1.0 + MAJOR(xctx->min_lw, 1.0) / 4.0);
       if(xctx->lw > 100.) xctx->lw = 100.;
       xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
     }
