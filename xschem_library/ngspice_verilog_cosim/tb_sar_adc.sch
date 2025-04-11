@@ -4,7 +4,7 @@ K {}
 V {}
 S {}
 E {}
-B 2 80 -880 1290 -510 {flags=graph
+B 2 80 -880 1140 -510 {flags=graph
 y1=0
 y2=3.3
 ypos1=0.27131944
@@ -37,7 +37,7 @@ logx=0
 logy=0
 digital=1
 linewidth_mult=1}
-B 2 80 -1640 1290 -920 {flags=graph
+B 2 80 -1640 1140 -920 {flags=graph
 y1=-0.35
 y2=4.9
 ypos1=0
@@ -63,6 +63,26 @@ i(vamm)"
 linewidth_mult=1}
 T { A simple DAC so that the result may be compared to the input.} 800 -250 0 0 0.4 0.4 {}
 T {Analog conversion for plotting} 220 -140 0 0 0.4 0.4 {}
+T {This is an example of a true mixed mode
+(analog + Digital) simulation using ngspice 
+for the analog part and Icarus Verilog 
+(or Verilator) for the verilog part.
+
+Instructions
+- You need Verilator and / or Icarus verilog installed.
+- Icarus verilog must be built with the --enable-libvvp option.
+- Build the icarus / Verilator object
+  (use the provided launchers) 
+- Edit the sar_adc/sar_adc_vlog.sym attributes.
+  There are two device_model attributes. Put an asterisc
+  before the device_model attribute you want *NOT* to use.
+  Example below enables Verilator object:
+     ***Icarus_verilog***
+     *device_model=".model dut d_cosim simulation=\\"ivlng\\" sim_args=[\\"adc\\"]"
+
+     ***Verilator***
+     device_model=".model dut d_cosim simulation=\\"./adc.so\\""
+} 1150 -1470 0 0 0.7 0.7 {}
 N 160 -290 160 -270 {lab=CLK}
 N 1330 -120 1330 -100 {lab=SUM}
 N 280 -290 280 -270 {lab=START}
@@ -146,7 +166,7 @@ C {lab_pin.sym} 300 -370 0 0 {name=p9 lab=START}
 C {lab_pin.sym} 600 -410 0 1 {name=p10 lab=VALID}
 C {lab_pin.sym} 600 -390 0 1 {name=p11 lab=D[5..0]}
 C {lab_pin.sym} 300 -350 0 0 {name=p12 lab=CLK}
-C {launcher.sym} 1030 -490 0 0 {name=h5
+C {launcher.sym} 150 -490 0 0 {name=h5
 descr="load waves" 
 tclcommand="xschem raw_read $netlist_dir/tb_sar_adc.raw tran"
 }
@@ -161,15 +181,11 @@ C {lab_pin.sym} 360 -160 0 1 {name=p5 lab=VALID_A}
 C {vsource.sym} 40 -90 0 0 {name=VCLOCK value="pulse 0 'VCC' 500n 10n 10n 490n 1u"}
 C {lab_pin.sym} 40 -60 0 0 {name=p6 lab=0}
 C {lab_pin.sym} 40 -140 0 0 {name=p13 lab=CLK}
-C {launcher.sym} 1030 -450 0 0 {name=h1
+C {launcher.sym} 1410 -390 0 0 {name=h1
 descr="Build Icarus Verilog object" 
 tclcommand="execute 1 sh -c \\"cd $netlist_dir; iverilog -o adc [abs_sym_path adc.v]\\""
 }
-C {launcher.sym} 1030 -410 0 0 {name=h2
+C {launcher.sym} 1410 -340 0 0 {name=h2
 descr="Build Verilator object" 
 tclcommand="execute 1 sh -c \\"cd $netlist_dir; ngspice vlnggen [abs_sym_path adc.v]\\""
-}
-C {launcher.sym} 1030 -360 0 0 {name=h3
-descr="test" 
-tclcommand="execute 1 xclock"
 }
