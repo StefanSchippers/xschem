@@ -1,0 +1,35 @@
+v {xschem version=3.4.7RC file_version=1.2}
+G {}
+K {type=primitive
+format="@name [ @@CLK @@COMP @@START ] [ @@SAMPLE @@VALID @@D[5..0] ] @model"
+template="name=A1 model=sar_adc"}
+V {}
+S {}
+E {}
+L 4 -160 -40 -120 -40 {}
+L 4 -160 0 -120 0 {}
+L 4 120 0 160 0 {}
+L 4 120 40 160 40 {}
+L 4 120 -40 160 -40 {}
+L 4 -160 40 -120 40 {}
+B 5 -162.5 -42.5 -157.5 -37.5 {name=CLK
+dir=in}
+B 5 -162.5 -2.5 -157.5 2.5 {name=COMP
+dir=in}
+B 5 157.5 -2.5 162.5 2.5 {name=VALID
+dir=out}
+B 5 157.5 37.5 162.5 42.5 {name=D[5..0]
+dir=out}
+B 5 157.5 -42.5 162.5 -37.5 {name=SAMPLE
+dir=out}
+B 5 -162.5 37.5 -157.5 42.5 {name=START
+dir=in}
+P 4 5 -120 -80 120 -80 120 80 -120 80 -120 -80 {}
+T {CLK} -110 -50 0 0 0.4 0.4 {}
+T {COMP} -110 -10 0 0 0.4 0.4 {}
+T {VALID} 110 -10 0 1 0.4 0.4 {}
+T {D[5..0]} 110 30 0 1 0.4 0.4 {}
+T {SAMPLE} 110 -50 0 1 0.4 0.4 {}
+T {START} -110 30 0 0 0.4 0.4 {}
+T {@symname} -120 -110 0 0 0.4 0.4 {}
+T {@name} -120 90 0 0 0.4 0.4 {}

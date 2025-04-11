@@ -172,6 +172,11 @@ int hook_postarg()
                 append("/local/xschem/xschem-lib-path", ":");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
+                append("/local/xschem/xschem-lib-path", "share/doc/xschem/ngspice_verilog_cosim");
+
+                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
+                append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/logic");
 
                 append("/local/xschem/xschem-lib-path", ":");

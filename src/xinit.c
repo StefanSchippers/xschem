@@ -2411,6 +2411,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
        tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
    my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/ngspice_verilog_cosim",
+       tclgetvar("XSCHEM_SHAREDIR"));
+   tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
       "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/logic",
        tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
@@ -2442,19 +2446,20 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tclsetintvar("running_in_src_dir", running_in_src_dir);
 #else /* windows */
  char *up_hier=NULL, *win_xschem_library_path=NULL;
- #define WIN_XSCHEM_LIBRARY_PATH_NUM 11
+ #define WIN_XSCHEM_LIBRARY_PATH_NUM 12
  const char *WIN_XSCHEM_LIBRARY_PATH[WIN_XSCHEM_LIBRARY_PATH_NUM] = {
    /*1*/  "xschem_library",
    /*2*/  "xschem_library/devices", 
    /*3*/  "examples",  /* See i==2 with WIN_XSCHEM_LIBRARY_PATH_NUM below */
    /*4*/  "ngspice", 
-   /*5*/  "logic", 
-   /*6*/  "xschem_simulator",
-   /*7*/  "generators", 
-   /*8*/  "inst_sch_select", 
-   /*9*/  "binto7seg", 
-   /*10*/ "pcb", 
-   /*11*/ "rom8k" };
+   /*5*/  "ngspice_verilog_cosim", 
+   /*6*/  "logic", 
+   /*7*/  "xschem_simulator",
+   /*8*/  "generators", 
+   /*9*/  "inst_sch_select", 
+   /*10*/  "binto7seg", 
+   /*11*/ "pcb", 
+   /*12*/ "rom8k" };
  GetModuleFileNameA(NULL, install_dir, MAX_PATH);
  change_to_unix_fn(install_dir);
  size_t dir_len=strlen(install_dir);

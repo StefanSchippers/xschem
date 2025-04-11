@@ -8,7 +8,7 @@ install: FORCE
 	$(SCCBOX) mkdir -p "$(system_library_dir)" "$(XDOCDIR)"/examples "$(XDOCDIR)"/pcb
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/logic "$(XDOCDIR)"/xTAG "$(XDOCDIR)"/binto7seg 
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/symgen "$(XDOCDIR)"/ngspice "$(XDOCDIR)"/rulz-r8c33
-	$(SCCBOX) mkdir -p "$(XDOCDIR)"/generators
+	$(SCCBOX) mkdir -p "$(XDOCDIR)"/generators  "$(XDOCDIR)"/ngspice_verilog_cosim
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/inst_sch_select
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/rom8k "$(XDOCDIR)"/gschem_import/sym
 	$(SCCBOX) install -f -d devices/*.sym "$(system_library_dir)"
@@ -23,6 +23,9 @@ install: FORCE
 	$(SCCBOX) install -f -d inst_sch_select/*.* "$(XDOCDIR)"/inst_sch_select
 	$(SCCBOX) install -f -d xTAG/*.sym* "$(XDOCDIR)"/xTAG
 	$(SCCBOX) install -f -d xTAG/*.sch "$(XDOCDIR)"/xTAG
+	$(SCCBOX) install -f -d ngspice_verilog_cosim/*.sym "$(XDOCDIR)"/ngspice_verilog_cosim
+	$(SCCBOX) install -f -d ngspice_verilog_cosim/*.sch "$(XDOCDIR)"/ngspice_verilog_cosim
+	$(SCCBOX) install -f -d ngspice_verilog_cosim/*.v "$(XDOCDIR)"/ngspice_verilog_cosim
 	$(SCCBOX) install -f -d logic/*.sym "$(XDOCDIR)"/logic
 	$(SCCBOX) install -f -d logic/*.sch "$(XDOCDIR)"/logic
 	$(SCCBOX) install -f -d logic/stimuli.* "$(XDOCDIR)"/logic
@@ -48,6 +51,7 @@ uninstall: FORCE
 			"$(system_library_dir)" \
 			"$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
 			"$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
+                        "$(XDOCDIR)"/ngspice_verilog_cosim/* \
 			"$(XDOCDIR)"/rom8k/* "$(XDOCDIR)"/xschem_simulator/* "$(XDOCDIR)"/binto7seg/* \
 			"$(XDOCDIR)"/rulz-r8c33/* "$(XDOCDIR)"/generators/* "$(XDOCDIR)"/inst_sch_select/* \
 			"$(XDOCDIR)"/gschem_import/*.sym \

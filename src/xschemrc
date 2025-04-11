@@ -19,6 +19,7 @@
 #### <install_root>/share/xschem/xschem_library/devices
 #### <install_root>/share/doc/xschem/examples
 #### <install_root>/share/doc/xschem/ngspice
+#### <install_root>/share/doc/xschem/ngspice_verilog_cosim
 #### <install_root>/share/doc/xschem/logic
 #### <install_root>/share/doc/xschem/xschem_simulator
 #### <install_root>/share/doc/xschem/generators
@@ -33,6 +34,7 @@
 #### ../xschem_library/devices
 #### ../xschem_library/examples
 #### ../xschem_library/ngspice
+#### ../xschem_library/ngspice_verilog_cosim
 #### ../xschem_library/logic
 #### ../xschem_library/xschem_simulator
 #### ../xschem_library/generators
@@ -48,6 +50,7 @@
 # append XSCHEM_LIBRARY_PATH :${XSCHEM_SHAREDIR}/xschem_library/devices
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/examples
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/ngspice
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/ngspice_verilog_cosim
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/logic
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xschem_simulator
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/generators
@@ -67,6 +70,7 @@
 # append XSCHEM_LIBRARY_PATH ";${XSCHEM_SHAREDIR}/xschem_library/devices"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/examples"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/ngspice"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/ngspice_verilog_cosim"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/logic"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xschem_simulator"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/generators"
