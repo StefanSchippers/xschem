@@ -4082,6 +4082,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *
      *   xschem raw clear [rawfile [type]]
      *     unload given file and type. If type not given delete all type sfrom rawfile
+     *     If a number 'n' is given as 'rawfile' delete the 'nth' raw file
      *     if no file is given unload all raw files.
      *
      *   xschem raw del name

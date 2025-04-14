@@ -1191,7 +1191,7 @@ static int test_c23(int logdepth, int fatal, const char *cflags)
 	const char *test_c =
 		NL "#include <stdio.h>"
 		NL "int foo();"
-		NL "int foo(char *s) { puts(s); } "
+		NL "int foo(char *s) { puts(s); return 0; } "
 		NL "int main()"
 		NL "{"
 		NL "	foo(\"OK\");"
@@ -1229,7 +1229,7 @@ int find_cc_is_c23(const char *name, int logdepth, int fatal)
 int find_cc_disable_c23(const char *name, int logdepth, int fatal)
 {
 	if (require("cc/default_c23", logdepth, 0) == 0) {
-		static const char *cfs[] = {"-std=c17", "-std=c99", NULL};
+		static const char *cfs[] = {"+-std=c17", "+-std=c99", NULL};
 		const char **cf;
 
 		/* figure a suitable workaround */
@@ -1239,8 +1239,8 @@ int find_cc_disable_c23(const char *name, int logdepth, int fatal)
 
 		for(cf = cfs; *cf != NULL; cf++) {
 			if (test_c23(logdepth, fatal, *cf) == 0) {
-				put("cc/disable_c23/cflags", *cf);
-				report("%s\n", *cf);
+				put("cc/disable_c23/cflags", (*cf)+1); /* +1 to remove the prefix + */
+				report("%s\n", (*cf)+1);
 				return 0;
 			}
 		}

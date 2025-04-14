@@ -1364,6 +1364,34 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->extra_prev_idx = 0;
       xctx->extra_idx = 0;
       xctx->extra_raw_n = 0;
+    } else if(file && isonlydigit(file)) {
+      int n, found = 0;
+      tclvareval("subst {", file, "}", NULL);
+      my_strncpy(f, tclresult(), S(f));
+      n = atoi(file);
+      if(xctx->extra_raw_n > 0 ) {
+        for(i = 0; i < xctx->extra_raw_n; i++) {
+          if( i == n) {
+            free_rawfile(&xctx->extra_raw_arr[i], 0, no_warning);
+            found++;
+            continue;
+          }
+          if(found) {
+            xctx->extra_raw_arr[i - found] = xctx->extra_raw_arr[i];
+          }
+        }
+        if(found != 0) {
+          xctx->extra_raw_n -= found;
+          xctx->extra_idx = 0;
+          xctx->extra_prev_idx = 0;
+          if(xctx->extra_raw_n) {
+            xctx->raw = xctx->extra_raw_arr[0];
+          } else {
+            tcleval("array unset ngspice::ngspice_data");
+            xctx->raw = NULL;
+          }
+        } else ret = 0;
+      } else ret = 0;
     } else { /* clear provided file if found, switch to first in remaining if any */
       int found = 0;
       tclvareval("subst {", file, "}", NULL);
