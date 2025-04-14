@@ -2799,10 +2799,11 @@ static void load_wire(FILE *fd)
       return;
     }
     ptr[i].prop_ptr = NULL;
-    ptr[i].end1 = ptr[i].end2 = ptr[i].bus = ptr[i].sel = 0;
+    ptr[i].end1 = ptr[i].end2 = ptr[i].sel = 0;
+    ptr[i].bus = 0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
     ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
-    if(!strboolcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") ) ptr[i].bus = 1;
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     ptr[i].node = NULL;
     xctx->wires++;
 }
@@ -3043,12 +3044,7 @@ static void load_line(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
-
-    if(!strboolcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") )
-      ptr[i].bus = 1;
-    else
-      ptr[i].bus = 0;
-
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -4438,10 +4434,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         ORDER(ll[c][i].x1, ll[c][i].y1, ll[c][i].x2, ll[c][i].y2);
         dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[c]);
-        if(!strboolcmp(get_tok_value(ll[c][i].prop_ptr,"bus", 0), "true") )
-          ll[c][i].bus = 1;
-        else
-          ll[c][i].bus = 0;
+        ll[c][i].bus = get_attr_val(get_tok_value(ll[c][i].prop_ptr,"bus", 0));
         attr = get_tok_value(ll[c][i].prop_ptr,"dash", 0);
         if( strcmp(attr, "") ) {
           int d = atoi(attr);
@@ -4799,10 +4792,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         ORDER(ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, ll[WIRELAYER][i].x2, ll[WIRELAYER][i].y2);
         dbg(2, "l_s_d(): loaded line: ptr=%lx\n", (unsigned long)ll[WIRELAYER]);
         ll[WIRELAYER][i].dash = 0;
-        if(!strboolcmp(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0), "true"))
-          ll[WIRELAYER][i].bus = 1;
-        else
-          ll[WIRELAYER][i].bus = 0;
+        ll[WIRELAYER][i].bus = get_attr_val(get_tok_value(ll[WIRELAYER][i].prop_ptr, "bus", 0));
         ll[WIRELAYER][i].sel = 0;
         lastl[WIRELAYER]++;
         break;

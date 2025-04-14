@@ -118,7 +118,8 @@ static void svg_drawbezier(double *x, double *y, int points)
   }
 }
 
-static void svg_drawpolygon(int c, int what, double *x, double *y, int points, int fill, int dash, int flags)
+static void svg_drawpolygon(int c, int what, double *x, double *y, int points,
+                            int fill, int dash, int flags, int bus)
 {
   double x1,y1,x2,y2;
   double xx, yy;
@@ -133,10 +134,16 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points, i
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-  if(fill == 0) {
-    fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 2) {
-   fprintf(fd, "style=\"fill-opacity:1.0;\" ");
+  if(bus || fill == 0 || fill == 2) {
+    if(bus) fprintf(fd, "style=\"stroke-width:%g; ", BUS_WIDTH * svg_linew);
+    else    fprintf(fd, "style=\"");
+    if(fill == 0) {
+      fprintf(fd,"fill:none;\" ");
+    } else if(fill == 2) {
+      fprintf(fd, "fill-opacity:1.0;\" ");
+    } else {
+      fprintf(fd, "\" ");
+    }
   }
   bezier = flags && (points > 2);
   if(bezier) {
@@ -702,7 +709,9 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer]; ++j) {
       int dash;
       int bezier;
+      int bus;
       polygon =&(symptr->poly[layer])[j];
+      bus = get_attr_val(get_tok_value(polygon->prop_ptr, "bus", 0));
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       dash = (disabled == 1) ? 3 : polygon->dash;
       { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
@@ -714,7 +723,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
           x[k]+= x0;
           y[k] += y0;
         }
-        svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier);
+        svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, bus);
         my_free(_ALLOC_ID_, &x);
         my_free(_ALLOC_ID_, &y);
       }
@@ -1062,8 +1071,9 @@ void svg_draw(void)
    }
    for(i=0;i<xctx->polygons[c]; ++i) {
      int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+     int bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr, "bus", 0));
      svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-                     xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
+                     xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, bus);
    }
    for(i=0;i<xctx->instances; ++i) {
      svg_draw_symbol(c,i,c,0,0,0.0,0.0);

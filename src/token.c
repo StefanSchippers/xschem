@@ -3464,7 +3464,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
 int isonlydigit(const char *s)
 {
   char c;
-  int res = 1;
+  int res = 0;
   int first = 1;
   if(s == NULL || *s == '\0') return 0;
   while( (c = *s++) ) {
@@ -3477,7 +3477,7 @@ int isonlydigit(const char *s)
     if(c < '0' || c > '9') {
       res = 0;
       break;
-    }
+    } else res = 1;
   }
   return res;
 }

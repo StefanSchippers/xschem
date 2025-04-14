@@ -267,10 +267,7 @@ static void merge_line(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    if(!strboolcmp(get_tok_value(ptr[i].prop_ptr, "bus", 0), "true") )
-      ptr[i].bus = 1;
-    else
-      ptr[i].bus = 0;
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     select_line(c,i, SELECTED, 1, 1);
     xctx->lines[c]++;
 }

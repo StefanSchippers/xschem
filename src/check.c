@@ -218,10 +218,8 @@ void trim_wires(void)
           }
           xctx->wire[xctx->wires].prop_ptr=NULL;
           my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
-          if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
-            xctx->wire[xctx->wires].bus=1;
-          else
-            xctx->wire[xctx->wires].bus=0;
+           xctx->wire[xctx->wires].bus =
+             get_attr_val(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0));
           xctx->wire[xctx->wires].node=NULL;
 
           my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
@@ -500,10 +498,8 @@ void break_wires_at_point(double x0, double y0, int align)
         xctx->wire[xctx->wires].sel=0;
         xctx->wire[xctx->wires].prop_ptr=NULL;
         my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
-        if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
-          xctx->wire[xctx->wires].bus=1;
-        else
-          xctx->wire[xctx->wires].bus=0;
+        xctx->wire[xctx->wires].bus =
+          get_attr_val(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0));
         xctx->wire[xctx->wires].node=NULL;
         hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
         dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
@@ -577,10 +573,8 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].sel=xctx->wire[i].sel;
                 xctx->wire[xctx->wires].prop_ptr=NULL;
                 my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
-                if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
-                  xctx->wire[xctx->wires].bus=1;
-                else
-                  xctx->wire[xctx->wires].bus=0;
+                xctx->wire[xctx->wires].bus =
+                   get_attr_val(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus", 0));
                 xctx->wire[xctx->wires].node=NULL;
                 hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
                 dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
@@ -673,10 +667,8 @@ void break_wires_at_pins(int remove)
             set_first_sel(WIRE, xctx->wires, 0);
             xctx->wire[xctx->wires].prop_ptr=NULL;
             my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
-            if(!strboolcmp(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0), "true"))
-              xctx->wire[xctx->wires].bus=1;
-            else
-              xctx->wire[xctx->wires].bus=0;
+            xctx->wire[xctx->wires].bus =
+              get_attr_val(get_tok_value(xctx->wire[xctx->wires].prop_ptr,"bus",0));
             xctx->wire[xctx->wires].node=NULL;
             hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
             xctx->need_reb_sel_arr=1;

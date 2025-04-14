@@ -79,20 +79,47 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
+/* if s is an integer return integer value
+ * else if s == (true | on | yes) return 1
+ * else if s == (false | off | no) return 0
+ * else return 0
+ */
+int get_attr_val(const char *str)
+{  
+  int s = 0;
+  if(isonlydigit(str)) {
+    s = atoi(str);
+  }
+  else if(!my_strcasecmp(str, "true") ||
+     !my_strcasecmp(str, "on") ||
+     !my_strcasecmp(str, "yes")) s = 1;
+  else if(!my_strcasecmp(str, "false") ||
+     !my_strcasecmp(str, "off") ||
+     !my_strcasecmp(str, "no")) s = 0;
+
+  return s;
+} 
+
+
+
 /* same as case insensitive strcmp(), but allow '1, true, on, yes' for true value
+ * any integer > 0 on str considered as 1
  * both in str and boolean */
 int strboolcmp(const char *str, const char *boolean)
 {
   int retval, s = 0, b = 0;
+  int strval = -1;
   if(!my_strcasecmp(boolean, "true")) b = 1;
   else if(!my_strcasecmp(boolean, "false")) b = 0;
   else b = -1;
-  if(!my_strcasecmp(str, "true") ||
-     !my_strcasecmp(str, "1") ||
+  if(isonlydigit(str)) {
+    strval = atoi(str);
+    s = strval ? 1 : 0;
+  }
+  else if(!my_strcasecmp(str, "true") ||
      !my_strcasecmp(str, "on") ||
      !my_strcasecmp(str, "yes")) s = 1;
   else if(!my_strcasecmp(str, "false") ||
-     !my_strcasecmp(str, "0") ||
      !my_strcasecmp(str, "off") ||
      !my_strcasecmp(str, "no")) s = 0;
   else s = -1;
@@ -1100,7 +1127,7 @@ static int edit_line_property(void)
         my_strdup(_ALLOC_ID_, &xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("retval"));
       }
-      xctx->line[c][n].bus = !strboolcmp(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0), "true");
+      xctx->line[c][n].bus = get_attr_val(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0));
       dash = get_tok_value(xctx->line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
@@ -1129,7 +1156,7 @@ static int edit_wire_property(void)
   int i, modified = 0;
   int preserve;
   char *oldprop=NULL;
-  const char *bus_ptr;
+  int bus;
 
   my_strdup(_ALLOC_ID_, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
@@ -1159,8 +1186,8 @@ static int edit_wire_property(void)
       } else {
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("retval"));
       }
-      bus_ptr = get_tok_value(xctx->wire[k].prop_ptr,"bus",0);
-      if(!strboolcmp(bus_ptr, "true")) {
+      bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
+      if(bus) {
         double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
@@ -1291,7 +1318,7 @@ static int edit_polygon_property(void)
      c = xctx->sel_array[ii].col;
 
      oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     old_bus = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0),"true") ;
+     old_bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("retval"), oldprop);
      } else {
@@ -1300,7 +1327,7 @@ static int edit_polygon_property(void)
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     bus = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0),"true") ;
+     bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )

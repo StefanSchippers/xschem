@@ -402,12 +402,12 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   #endif
   return 1;
 }
-static void set_lw(void)
+static void set_lw(double lw)
 {
- if(xctx->lw==0.0)
-   fprintf(fd, "%g setlinewidth\n",0.5);
+ if(lw==0.0)
+   fprintf(fd, "%g setlinewidth\n", 0.5);
  else
-   fprintf(fd, "%g setlinewidth\n",xctx->lw/1.2);
+   fprintf(fd, "%g setlinewidth\n", lw / 1.2);
 }
 
 static void set_ps_colors(unsigned int pixel)
@@ -519,7 +519,8 @@ static void ps_drawbezier(double *x, double *y, int points)
 
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
-static void ps_drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, int flags)
+static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
+                           int poly_fill, int dash, int flags, int bus)
 {
   double x1,y1,x2,y2;
   double xx, yy;
@@ -537,6 +538,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
   if(dash) {
     fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
   }
+  if(bus) set_lw(BUS_WIDTH * xctx->lw);
   bezier = flags && (points > 2);
   if(bezier) {
     ps_drawbezier(x, y, points);
@@ -556,6 +558,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points, in
   if(dash) {
     fprintf(fd, "[] 0 setdash\n");
   }
+  if(bus) set_lw(xctx->lw);
 }
 
 
@@ -625,7 +628,7 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
 }
 
 
-static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash)
+static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash, int bus)
 {
  double x1,y1,x2,y2;
  double psdash;
@@ -637,13 +640,11 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
   if( clip(&x1,&y1,&x2,&y2) )
   {
     psdash = dash / xctx->zoom;
-    if(dash) {
-      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
-    }
+    if(dash) fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    if(bus) set_lw(xctx->lw * BUS_WIDTH);
     ps_xdrawline(gc, x1, y1, x2, y2);
-    if(dash) {
-      fprintf(fd, "[] 0 setdash\n");
-    }
+    if(dash) fprintf(fd, "[] 0 setdash\n");
+    if(bus) set_lw(xctx->lw);
   }
 }
 
@@ -847,7 +848,7 @@ static void old_ps_draw_string(int gctext,  const char *str,
    ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
    ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
    ORDER(rx1,ry1,rx2,ry2);
-   ps_drawline(gctext,  rx1, ry1, rx2, ry2, 0);
+   ps_drawline(gctext,  rx1, ry1, rx2, ry2, 0, 0);
   }
   ++pos;
  }
@@ -1017,14 +1018,16 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
      ROTATION(rot, flip, 0.0,0.0,line->x1,line->y1,x1,y1);
      ROTATION(rot, flip, 0.0,0.0,line->x2,line->y2,x2,y2);
      ORDER(x1,y1,x2,y2);
-     ps_drawline(c, x0+x1, y0+y1, x0+x2, y0+y2, dash);
+     ps_drawline(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, line->bus);
     }
     for(j=0;j< symptr->polygons[layer]; ++j)
     {
       int dash;
       int bezier;
+      int bus;
       polygon = &(symptr->poly[layer])[j];
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+      bus = get_attr_val(get_tok_value(polygon->prop_ptr, "bus", 0));
       dash = (disabled == 1) ? 3 : polygon->dash;
       {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
         int k;
@@ -1035,7 +1038,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
           x[k]+= x0;
           y[k] += y0;
         }
-        ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier);
+        ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, bus);
         my_free(_ALLOC_ID_, &x);
         my_free(_ALLOC_ID_, &y);
       }
@@ -1423,7 +1426,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     fprintf(fd, "%g %g scale\n", scale, -scale);
     fprintf(fd, "1 setlinejoin 1 setlinecap\n");
 
-    set_lw();
+    set_lw(xctx->lw);
     ps_drawgrid();
 
     for(c=0;c<cadlayers; ++c)
@@ -1431,7 +1434,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       set_ps_colors(c);
       for(i=0;i<xctx->lines[c]; ++i)
         ps_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
-          xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash);
+          xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash, xctx->line[c][i].bus);
       if(xctx->rects[c]) fprintf(fd, "NP\n"); /* newpath */
       for(i=0;i<xctx->rects[c]; ++i)
       {
@@ -1461,8 +1464,9 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+        int bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr, "bus", 0));
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-          xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier);
+          xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, bus);
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
     } /* for(c=0;c<cadlayers; ++c) */
@@ -1481,7 +1485,8 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         color = get_color(entry->value);
       }
       set_ps_colors(color);
-      ps_drawline(color, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
+      ps_drawline(color, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2,
+                  0 ,xctx->wire[i].bus);
     }
   
     {

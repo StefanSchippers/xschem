@@ -250,10 +250,10 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      my_strdup(_ALLOC_ID_, &xctx->line[rectc][n].prop_ptr, prop_ptr);
      xctx->line[rectc][n].sel=sel;
      if(sel == SELECTED) set_first_sel(LINE, n, rectc);
-     if( prop_ptr && !strboolcmp(get_tok_value(prop_ptr, "bus", 0), "true") )
-       xctx->line[rectc][n].bus = 1;
-     else
-       xctx->line[rectc][n].bus = 0;
+     xctx->line[rectc][n].bus = 0;
+     if(prop_ptr) {
+        xctx->line[rectc][n].bus = get_attr_val(get_tok_value(prop_ptr, "bus", 0));
+     }
      if(prop_ptr && (attr = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(attr);
        xctx->line[rectc][n].dash = (char) (d >= 0 ? d : 0);
@@ -342,8 +342,10 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->wire[n].end1=0;
      xctx->wire[n].end2=0;
      my_strdup(_ALLOC_ID_, &xctx->wire[n].prop_ptr, prop_ptr);
-     if(prop_ptr && !strboolcmp(get_tok_value(prop_ptr,"bus",0), "true")) xctx->wire[n].bus=1;
-     else xctx->wire[n].bus=0;
+     xctx->wire[n].bus = 0;
+     if(prop_ptr) {
+       xctx->wire[n].bus = get_attr_val(get_tok_value(prop_ptr,"bus",0));
+     }
      xctx->wire[n].sel=sel;
      if(sel == SELECTED) set_first_sel(WIRE, n, 0);
      xctx->wires++;

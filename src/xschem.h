@@ -452,7 +452,7 @@ typedef struct
   short sel;
   char  *node;
   char *prop_ptr;
-  short bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
+  int bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
 } xWire;
 
 typedef struct
@@ -464,7 +464,7 @@ typedef struct
   unsigned short sel;
   char *prop_ptr;
   short dash;
-  short bus;
+  int bus;
 } xLine;
 
 #if HAS_CAIRO==1
@@ -1644,6 +1644,7 @@ extern char *my_strtok_r(char *str, const char *delim, const char *quote, int ke
 extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
+extern int get_attr_val(const char *str);
 extern int strboolcmp(const char *str, const char *boolean);
 extern char *my_strcasestr(const char *haystack, const char *needle);
 extern double mylog10(double x);
