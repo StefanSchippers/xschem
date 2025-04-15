@@ -1,0 +1,19 @@
+
+unit u
+voltage 12.0
+ground_node 0
+slope 0.1
+format hspice
+param pw 2.3
+param period 12
+beginfile stimuli.cir
+set PWM1 0
+s 1
+clock PWM1 pw period
+s 4999
+stop_clock PWM1
+set PWM1 0
+
+endfile
+
+

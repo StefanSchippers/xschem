@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.7RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -21,8 +21,8 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {}
 K {type=pmos
-format="@name @pinlist @model"
-template="name=X1 model=irf5305"}
+format="@name @pinlist @model m=@m"
+template="name=X1 model=irf5305 m=1"}
 V {}
 S {}
 E {}
