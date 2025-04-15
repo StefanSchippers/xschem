@@ -7467,9 +7467,9 @@ proc get_file_path {ff} {
 # Balloon help system, from https://wiki.tcl-lang.org/page/balloon+help
 #
 proc balloon {w help {pos 1}} {
-    bind $w <Any-Enter> "after 1000 [list balloon_show %W [list $help] $pos]"
-    bind $w <Any-Leave> "destroy %W.balloon"
-    bind $w <FocusOut> "destroy %W.balloon"
+    bind $w <Any-Enter> "after 1000   [list balloon_show %W [list $help] $pos]"
+    bind $w <Any-Leave> "after cancel [list balloon_show %W [list $help] $pos]; destroy %W.balloon"
+    bind $w <FocusOut>  "after cancel [list balloon_show %W [list $help] $pos]; destroy %W.balloon"
 }
 
 ### pos: 
