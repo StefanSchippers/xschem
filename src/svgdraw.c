@@ -787,11 +787,12 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   }
 
   draw_texts:
-  if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+  if( xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     const char *txtptr;
     if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
-    if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
-    if(c != layer) c_for_text = c;
+    else if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+    else if(c != layer) c_for_text = c;
+    else c_for_text = TEXTLAYER;
 
     for(j=0;j< symptr->texts; ++j) {
       double xscale, yscale;

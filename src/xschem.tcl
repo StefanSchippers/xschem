@@ -1068,6 +1068,7 @@ proc convert_to_pdf {filename dest} {
       }
     }
   } else {
+    # puts "rename  $filename $dest"
     file rename -force $filename $dest
   }
 }

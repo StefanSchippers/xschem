@@ -352,7 +352,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   xctx->draw_pixmap = 1;
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
-  resetwin(1, 1, 1, 0, 0);
+  resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
@@ -1101,11 +1101,12 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   } /* if( (!hide && xctx->enable_layer[layer]) || ... */
   
   draw_texts:
-  if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+  if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     const char *txtptr;
     if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
-    if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
-    if(c != layer) c_for_text = c;
+    else if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+    else if(c != layer) c_for_text = c;
+    else c_for_text = TEXTLAYER;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
       double xscale, yscale;
@@ -1269,14 +1270,16 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
-    dbg(1, "xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+    dbg(1, "create_ps(): xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->areax1 = -2*INT_WIDTH(xctx->lw);
     xctx->areay1 = -2*INT_WIDTH(xctx->lw);
     xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
     xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
-    dbg(1, "dx=%g, dy=%g\n", dx, dy);
+    dbg(1, "create_ps(): areax1=%d areay1=%d areax2=%d areay2=%d\n",
+       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
+    dbg(1, "create_ps(): dx=%g, dy=%g\n", dx, dy);
     /* fit schematic into adjusted size */
     zoom_full(0, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
     boundbox.x1 = xctx->areax1;
@@ -1576,6 +1579,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   /* restore original size and zoom factor */
   if(fullzoom == 1) {
     save_restore_zoom(0, &zi);
+    resetwin(1, 1, 1, 0, 0);
     change_linewidth(xctx->lw);
   }
 

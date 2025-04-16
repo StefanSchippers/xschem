@@ -680,8 +680,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
-    if(!(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
-    if(c != layer) c_for_text = c;
+    else if(!(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
+    else if(c != layer) c_for_text = c;
+    else c_for_text = TEXTLAYER;
     for(j=0;j< symptr->texts; ++j)
     {
       double xscale, yscale;
