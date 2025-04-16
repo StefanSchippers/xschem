@@ -701,3 +701,9 @@
 #### redefine some variables to emulate Cadence UI / bindkeys
 # source /home/schippes/share/xschem/cadence_style_rc
 
+#### reset some font attributes (man 3tk font).
+# font configure TkFixedFont -size 14
+# font configure TkDefaultFont -size 14
+# font configure TkTextFont -size 14
+# font configure TkMenuFont -size 14
+
