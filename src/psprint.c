@@ -1576,6 +1576,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   /* restore original size and zoom factor */
   if(fullzoom == 1) {
     save_restore_zoom(0, &zi);
+    change_linewidth(xctx->lw);
   }
 
 }
