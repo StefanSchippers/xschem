@@ -671,7 +671,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      svg_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
+      svg_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }

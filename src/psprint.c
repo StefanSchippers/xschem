@@ -872,7 +872,6 @@ static void ps_drawgrid()
  {
   ps_xdrawline(GRIDLAYER,(int)x,xctx->areay1+1, (int)x, xctx->areay2-1);
  }
- set_ps_colors(GRIDLAYER);
  tmp = floor((xctx->areay1+1)/delta)*delta-fmod(-xctx->yorigin* xctx->mooz,delta);
  for(x=floor((xctx->areax1+1)/delta)*delta-fmod(-xctx->xorigin* xctx->mooz,delta);x<xctx->areax2;x+=delta)
  {
@@ -929,7 +928,6 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     disabled = 1;
   }
   if(xctx->inst[n].color != -10000) c = get_color(xctx->inst[n].color);
-  set_ps_colors(c);
   if( (xctx->inst[n].flags & HIDE_INST) ||
       ((xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") )) ||
@@ -966,7 +964,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     #endif
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      ps_filledrect(c, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
+      set_ps_colors(SYMLAYER);
+      ps_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -975,6 +974,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
+      set_ps_colors(color);
       ps_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0, -1, -1);
     }
     /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
@@ -1010,6 +1010,9 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
 
   if(!hide) {
+    if(symptr->lines[layer] || symptr->polygons[layer] || symptr->arcs[layer]) {
+      set_ps_colors(c);
+    }
     for(j=0;j< symptr->lines[layer]; ++j)
     {
      int dash;
@@ -1064,7 +1067,11 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
 
   if( (!hide && xctx->enable_layer[layer]) ||
       (hide && layer == PINLAYER && xctx->enable_layer[layer]) ) {
-    if(symptr->rects[layer]) fprintf(fd, "NP\n"); /* newpath */
+    if(symptr->rects[layer]) {
+      fprintf(fd, "NP\n"); /* newpath */
+      set_ps_colors(c);
+    } 
+
     for(j=0;j< symptr->rects[layer]; ++j)
     {
        int dash;
@@ -1434,7 +1441,9 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
 
     for(c=0;c<cadlayers; ++c)
     {
-      set_ps_colors(c);
+      if(xctx->lines[c] || xctx->rects[c] || xctx->arcs[c] || xctx->polygons[c]) {
+        set_ps_colors(c);
+      }
       for(i=0;i<xctx->lines[c]; ++i)
         ps_drawline(c, xctx->line[c][i].x1, xctx->line[c][i].y1,
           xctx->line[c][i].x2, xctx->line[c][i].y2, xctx->line[c][i].dash, xctx->line[c][i].bus);
