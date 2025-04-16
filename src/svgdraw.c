@@ -437,8 +437,6 @@ static void old_svg_draw_string(int layer, const char *str,
 
  if(str==NULL) return;
  estr = my_expand(str, tclgetintvar("tabstop"));
- xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
- yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  #if HAS_CAIRO==1
  text_bbox_nocairo(estr, xscale, yscale, rot, flip, hcenter, vcenter,
                    x,y, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
@@ -450,6 +448,8 @@ static void old_svg_draw_string(int layer, const char *str,
    my_free(_ALLOC_ID_, &estr);
    return;
  }
+ xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
+ yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  x=rx1;y=ry1;
  if(rot&1) {y=ry2;rot=3;}
  else rot=0;

@@ -808,8 +808,6 @@ static void old_ps_draw_string(int gctext,  const char *str,
 
  if(str==NULL) return;
  estr = my_expand(str, tclgetintvar("tabstop"));
- xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
- yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  #if HAS_CAIRO==1
  text_bbox_nocairo(estr, xscale, yscale, rot, flip, hcenter, vcenter,
                    x1,y1, &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
@@ -822,6 +820,8 @@ static void old_ps_draw_string(int gctext,  const char *str,
    my_free(_ALLOC_ID_, &estr);
    return;
  }
+ xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
+ yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
  set_ps_colors(gctext);
  x1=rx1;y1=ry1;
  if(rot&1) {y1=ry2;rot=3;}

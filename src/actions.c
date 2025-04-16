@@ -3487,7 +3487,7 @@ int text_bbox(const char *str, double xscale, double yscale,
   cairo_text_extents_t ext;
   cairo_font_extents_t fext;
   double ww, hh, maxw;
-  
+
   /* if no cairo_ctx is available use text_bbox_nocairo().
   * will not match exactly font metrics when doing ps/svg output, but better than nothing */
   if(!has_x && !xctx->cairo_ctx) return text_bbox_nocairo(str, xscale, yscale, rot, flip, hcenter, vcenter, x1, y1,
@@ -3584,9 +3584,9 @@ int text_bbox(const char *str,double xscale, double yscale,
    if(length > w)
      w = length;
   }
-  w *= (FONTWIDTH+FONTWHITESPACE)*xscale* tclgetdoublevar("nocairo_font_xscale");
+  w *= (FONTWIDTH+FONTWHITESPACE)*xscale* tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
   *cairo_longest_line = w;
-  h *= (FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*yscale* tclgetdoublevar("nocairo_font_yscale");
+  h *= (FONTHEIGHT+FONTDESCENT+FONTWHITESPACE)*yscale* tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
   *rx1=x1;*ry1=y1;
   if(     rot==0) *ry1-=nocairo_vert_correct;
   else if(rot==1) *rx1+=nocairo_vert_correct;

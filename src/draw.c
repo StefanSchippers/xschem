@@ -352,8 +352,6 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
  }
  else {
   char *estr = my_expand(str, tclgetintvar("tabstop"));
-  xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
-  yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
   text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,
@@ -361,6 +359,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
     my_free(_ALLOC_ID_, &estr);
     return;
   }
+  xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
+  yscale*=tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale;
   x1=textx1;y1=texty1;
   if(rot&1) {y1=texty2;rot=3;}
   else rot=0;
