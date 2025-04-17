@@ -907,9 +907,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     int same_sim_type = 0;
     char *curr_sim_type = NULL;
     r = &xctx->rect[GRIDLAYER][i];
-    my_strdup2(_ALLOC_ID_, &curr_sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
     need_redraw = 0;
     if( !(r->flags & 1) ) continue; /* 1: graph; 3: graph_unlocked */
+    my_strdup2(_ALLOC_ID_, &curr_sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;

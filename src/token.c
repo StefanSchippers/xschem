@@ -3909,7 +3909,8 @@ const char *translate(int inst, const char* s)
     #ifdef __unix__
     if(get_sp_cur) {
       regfree(get_sp_cur);
-      get_sp_cur = NULL;
+      /* get_sp_cur = NULL; */
+      my_free(_ALLOC_ID_, &get_sp_cur);
     }
     #endif
   }

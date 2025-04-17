@@ -572,7 +572,7 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
   y1=Y_TO_PS(recty1);
   x2=X_TO_PS(rectx2);
   y2=Y_TO_PS(recty2);
-  if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&tmp,&tmp,&tmp,&tmp) )
+  if(rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2))
   {
     psdash = dash / xctx->zoom;
     if(dash) {
@@ -1233,7 +1233,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
       return;
     }
-    setbuf(fd, NULL); /*To prevent buffer errors, still investigating cause. */
+    /* setbuf(fd, NULL); */ /* To prevent buffer errors, still investigating cause. */
   }
   ps_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
