@@ -29,16 +29,16 @@ void statusmsg(char str[],int n)
 {
   if(!str) return;
   if(str[0]== '\0') {
-    my_free(1367, &xctx->infowindow_text);
+    my_free(_ALLOC_ID_, &xctx->infowindow_text);
     return;
   } else {
     if(n == 3) {
-      my_strdup(1368, &xctx->infowindow_text, str);
+      my_strdup(_ALLOC_ID_, &xctx->infowindow_text, str);
     } else if(n == 2) {
       if(xctx->infowindow_text && xctx->infowindow_text[0]) {
-        my_strcat(1369, &xctx->infowindow_text, "\n");
+        my_strcat(_ALLOC_ID_, &xctx->infowindow_text, "\n");
       }
-      my_strcat(1370, &xctx->infowindow_text, str);
+      my_strcat(_ALLOC_ID_, &xctx->infowindow_text, str);
     }
   }
   if(!has_x) return;
@@ -200,7 +200,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         dir = argv[5];
         if(!strcmp(dir, "inout") || !strcmp(dir, "out") ) flip = 1;
         if(!strcmp(dir, "inout")) linecol = 7;
-        my_mstrcat(1371, &prop, "name=", name, " dir=", dir, NULL);
+        my_mstrcat(_ALLOC_ID_, &prop, "name=", name, " dir=", dir, NULL);
         storeobject(-1, x - 2.5, y - 2.5, x + 2.5, y + 2.5, xRECT, PINLAYER, 0, prop);
         if(flip) {
           create_text(draw, x - 25, y - 5, 0, 1, name, NULL, 0.2, 0.2);
@@ -221,7 +221,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           xctx->draw_window = save;
         }
-        my_free(1372, &prop);
+        my_free(_ALLOC_ID_, &prop);
       } else {
         unselect_all(1);
         storeobject(-1, x - 2.5, y - 2.5, x + 2.5, y + 2.5, xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
@@ -281,24 +281,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       if(tclresult()[0]) {
         char *str = NULL;
-        my_strdup2(1373, &f, tclresult());
-        my_mstrcat(1374, &str, "flags=image,unscaled\nalpha=0.8\nimage=", f, "\n", NULL);
+        my_strdup2(_ALLOC_ID_, &f, tclresult());
+        my_mstrcat(_ALLOC_ID_, &str, "flags=image,unscaled\nalpha=0.8\nimage=", f, "\n", NULL);
 
         if(strstr(f, ".svg") == f + strlen(f) - 4 ) {
           if(tcleval("info exists svg_to_png")[0] == '1') {
-             my_mstrcat(1375, &str, "filter=\"", tclgetvar("svg_to_png"), "\"\n", NULL);
+             my_mstrcat(_ALLOC_ID_, &str, "filter=\"", tclgetvar("svg_to_png"), "\"\n", NULL);
           }
         }
         storeobject(-1, xctx->mousex_snap-100, xctx->mousey_snap-100, xctx->mousex_snap+100, xctx->mousey_snap+100,
                     xRECT, GRIDLAYER, SELECTED, str);
 
-        my_free(1376, &str);
+        my_free(_ALLOC_ID_, &str);
         xctx->need_reb_sel_arr=1;
         rebuild_selected_array();
         move_objects(START,0,0,0);
         xctx->ui_state |= START_SYMPIN;
       }
-      if(f) my_free(1377, &f);
+      if(f) my_free(_ALLOC_ID_, &f);
       Tcl_ResetResult(interp);
     }
 
@@ -360,7 +360,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(res == 1) {
         if(level >= 0) {
           xctx->raw->level = level;
-          my_strdup2(1378, &xctx->raw->schname, xctx->sch[level]);
+          my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[level]);
         }
         update_op();
         draw();
@@ -507,15 +507,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(!stat(sympath, &buf)) { /* file exists */
           if(xctx->time_last_modify < buf.st_mtime) {
-            my_mstrcat(1379, &res, "Warning: symbol ", sympath, " is newer than schematic\n", NULL);
+            my_mstrcat(_ALLOC_ID_, &res, "Warning: symbol ", sympath, " is newer than schematic\n", NULL);
           }
         } else { /* not found */
-            my_mstrcat(1380, &res, "Warning: symbol ", sympath, " not found\n", NULL);
+            my_mstrcat(_ALLOC_ID_, &res, "Warning: symbol ", sympath, " not found\n", NULL);
         }
-        my_mstrcat(1381, &res, "symbol ", my_itoa(i), " : ", sympath, "\n", NULL);
+        my_mstrcat(_ALLOC_ID_, &res, "symbol ", my_itoa(i), " : ", sympath, "\n", NULL);
       }
       Tcl_SetResult(interp, res, TCL_VOLATILE);
-      my_free(1382, &res);
+      my_free(_ALLOC_ID_, &res);
     }
 
     /* check_unique_names [1|0]
@@ -872,7 +872,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       display_hilights(what, &str);
       Tcl_SetResult(interp, str, TCL_VOLATILE);
-      my_free(1383, &str);
+      my_free(_ALLOC_ID_, &str);
     }
 
     /* draw_graph [n] [flags]
@@ -1125,10 +1125,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         l = expandlabel(argv[2], &tmp);
         llen = strlen(l);
         dbg(1, "l=%s\n", l ? l : "<NULL>");
-        result = my_malloc(1384, llen + 30);
+        result = my_malloc(_ALLOC_ID_, llen + 30);
         my_snprintf(result, llen + 30, "%s %d", l, tmp);
         Tcl_SetResult(interp, result, TCL_VOLATILE);
-        my_free(1385, &result);
+        my_free(_ALLOC_ID_, &result);
       }
     }
     else { cmd_found = 0;}
@@ -1824,11 +1824,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 4) {
         fqdev = get_fqdevice(argv[3], atoi(argv[4]), argv[2]);
         Tcl_SetResult(interp, fqdev, TCL_VOLATILE);
-        my_free(1386, &fqdev);
+        my_free(_ALLOC_ID_, &fqdev);
       } else if(argc > 2) {
         fqdev = get_fqdevice("", 0, argv[2]);
         Tcl_SetResult(interp, fqdev, TCL_VOLATILE);
-        my_free(1387, &fqdev);
+        my_free(_ALLOC_ID_, &fqdev);
       }
     }
 
@@ -1934,7 +1934,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            Tcl_SetResult(interp, (xctx->inst[inst].ptr+ xctx->sym)->rect[PINLAYER][n].prop_ptr, TCL_VOLATILE);
           } else {
             tmp = 100 + strlen(argv[4]) + strlen(argv[5]);
-            subtok = my_malloc(1388,tmp);
+            subtok = my_malloc(_ALLOC_ID_,tmp);
             my_snprintf(subtok, tmp, "%s(%s)", argv[5], argv[4]);
             value = get_tok_value(xctx->inst[inst].prop_ptr,subtok,0);
             if(!value[0]) {
@@ -1953,7 +1953,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               }
               Tcl_SetResult(interp, (char *)value, TCL_VOLATILE);
             }
-            my_free(1389, &subtok);
+            my_free(_ALLOC_ID_, &subtok);
           }
         }
       /* xschem getprop symbol lm358.sym [type] */
@@ -2054,9 +2054,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc < 4) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       if(argc == 5) t = atoi(argv[4]);
       else t = 0;
-      my_strdup(1390, &s, get_tok_value(argv[2], argv[3], t));
+      my_strdup(_ALLOC_ID_, &s, get_tok_value(argv[2], argv[3], t));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1391, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     /* get_tok_size
@@ -2542,11 +2542,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *instname = xctx->inst[i].instname ? xctx->inst[i].instname : "";
         char *type = (xctx->inst[i].ptr + xctx->sym)->type;
         type = type ? type : "";
-        if(i > 0) my_mstrcat(1392, &s, "\n", NULL);
-        my_mstrcat(1393, &s,  "{", instname, "} {", name, "} {", type, "}", NULL);
+        if(i > 0) my_mstrcat(_ALLOC_ID_, &s, "\n", NULL);
+        my_mstrcat(_ALLOC_ID_, &s,  "{", instname, "} {", name, "} {", type, "}", NULL);
       }
       Tcl_SetResult(interp, (char *)s, TCL_VOLATILE);
-      my_free(1394, &s);
+      my_free(_ALLOC_ID_, &s);
     }
     /* instance_net inst pin
      *   Return the name of the net attached to pin 'pin' of instance 'inst'
@@ -2675,7 +2675,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       rct=symbol->rect[PINLAYER];
       /* slotted devices: name= U1:2, pinnumber=2:5 */
       slot = -1;
-      tmpstr = my_malloc(1395, sizeof(xctx->inst[i].instname));
+      tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[i].instname));
       if((ss=strchr(xctx->inst[i].instname, ':')) ) {
         sscanf(ss+1, "%s", tmpstr);
         if(isonlydigit(tmpstr)) {
@@ -2694,7 +2694,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       get_inst_pin_coord(i, p, &pinx0, &piny0);
       my_snprintf(num, S(num), "{%s} %g %g", get_tok_value(rct[p].prop_ptr, "name", 0), pinx0, piny0);
       Tcl_SetResult(interp, num, TCL_VOLATILE);
-      my_free(1396, &tmpstr);
+      my_free(_ALLOC_ID_, &tmpstr);
     }
 
     /* instance_pins inst
@@ -2716,11 +2716,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           const char *pin;
           pin = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][p].prop_ptr, "name",0);
           if(!pin[0]) pin = "--ERROR--";
-          my_mstrcat(1397, &pins, "{", pin, "}", NULL);
-          if(p< no_of_pins-1) my_strcat(1398, &pins, " ");
+          my_mstrcat(_ALLOC_ID_, &pins, "{", pin, "}", NULL);
+          if(p< no_of_pins-1) my_strcat(_ALLOC_ID_, &pins, " ");
         }
         Tcl_SetResult(interp, pins, TCL_VOLATILE);
-        my_free(1399, &pins);
+        my_free(_ALLOC_ID_, &pins);
       }
     }
 
@@ -2767,16 +2767,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!pin[0]) pin = "--ERROR--";
           if(xctx->inst[i].node[p] && !strcmp(xctx->inst[i].node[p], argv[2]) &&
              !IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) {
-            my_mstrcat(1400, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
+            my_mstrcat(_ALLOC_ID_, &pins, "{ {", xctx->inst[i].instname, "} {", pin, NULL);
             get_inst_pin_coord(i, p, &pinx0, &piny0);
             my_strncpy(xx, dtoa(pinx0), S(xx));
             my_strncpy(yy, dtoa(piny0), S(yy));
-            my_mstrcat(1401, &pins, "} {", xx, "} {", yy, "} } ", NULL);
+            my_mstrcat(_ALLOC_ID_, &pins, "} {", xx, "} {", yy, "} } ", NULL);
           }
         }
       }
       Tcl_SetResult(interp, pins ? pins : "", TCL_VOLATILE);
-      my_free(1402, &pins);
+      my_free(_ALLOC_ID_, &pins);
     }
 
     /* is_generator symbol
@@ -2877,7 +2877,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
       hier_psprint(&res, 2);
       Tcl_SetResult(interp, res, TCL_VOLATILE);
-      my_free(1403, &res);
+      my_free(_ALLOC_ID_, &res);
     }
 
     /* list_hilights [sep | all | all_nets | all_inst]
@@ -2909,7 +2909,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       list_nets(&result);
       Tcl_SetResult(interp, result, TCL_VOLATILE);
-      my_free(1404, &result);
+      my_free(_ALLOC_ID_, &result);
     }
 
     /* list_tokens str with_quotes
@@ -3023,7 +3023,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               dbg(1, "xschem load: f=%s, ret=%d\n", f, ret);
               if(undo_reset) {
                 tclvareval("update_recent_file {", f, "}", NULL);
-                my_strdup(1405, &xctx->sch_path[xctx->currsch], ".");
+                my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
                 if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
                 str_hash_init(&xctx->portmap[xctx->currsch], HASHSIZE);
                 xctx->sch_path_hash[xctx->currsch] = 0;
@@ -3362,14 +3362,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 5) {
         char *strcopy = NULL, *strptr = NULL, *saveptr = NULL, *tok;
 
-        my_strdup(1406, &strcopy, argv[2]);
+        my_strdup(_ALLOC_ID_, &strcopy, argv[2]);
         strptr = strcopy;
 
         while( (tok = my_strtok_r(strptr, argv[3], argv[4], atoi(argv[5]), &saveptr)) ) {
           strptr = NULL;
           Tcl_AppendResult(interp, "{", tok, "}\n", NULL);
         }
-        my_free(1407, &strptr);
+        my_free(_ALLOC_ID_, &strptr);
 
       }
     }
@@ -3426,7 +3426,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int done_netlist = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
-      my_strdup(1408, &saveshow, tclgetvar("show_infowindow_after_netlist"));
+      my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
 
       my_strncpy(savedir, tclgetvar("netlist_dir"), S(savedir));
       for(i = 2; i < argc; i++) {
@@ -3504,7 +3504,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
          Tcl_SetResult(interp, my_itoa(err), TCL_VOLATILE);
         }
       }
-      my_free(1409, &saveshow);
+      my_free(_ALLOC_ID_, &saveshow);
     }
 
     /* new_process [f]
@@ -4671,9 +4671,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
         }
-        my_strdup(1410, &sym, tcl_hook2(symbol));
+        my_strdup(_ALLOC_ID_, &sym, tcl_hook2(symbol));
         sym_number=match_symbol(sym);
-        my_free(1411, &sym);
+        my_free(_ALLOC_ID_, &sym);
         if(sym_number>=0)
         {
           prefix=(get_tok_value(xctx->sym[sym_number].templ , "name",0))[0]; /* get new symbol prefix  */
@@ -4682,23 +4682,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         delete_inst_node(inst); /* 20180208 fix crashing bug: delete node info if changing symbol */
                              /* if number of pins is different we must delete these data *before* */
                              /* changing ysmbol, otherwise i might end up deleting non allocated data. */
-        my_strdup2(1412, &xctx->inst[inst].name, rel_sym_path(symbol));
+        my_strdup2(_ALLOC_ID_, &xctx->inst[inst].name, rel_sym_path(symbol));
         xctx->inst[inst].ptr=sym_number;
-        my_strdup(1413, &name, xctx->inst[inst].instname);
+        my_strdup(_ALLOC_ID_, &name, xctx->inst[inst].instname);
         if(name && name[0] )
         {
           /* 20110325 only modify prefix if prefix not NUL */
           if(prefix) name[0]=(char)prefix; /* change prefix if changing symbol type; */
-          my_strdup(1414, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
+          my_strdup(_ALLOC_ID_, &ptr,subst_token(xctx->inst[inst].prop_ptr, "name", name) );
           if(!fast) hash_names(-1, XINSERT);
           hash_names(inst, XDELETE);
           new_prop_string(inst, ptr,           /* sets also inst[].instname */
              tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
           hash_names(inst, XINSERT);
           set_inst_flags(&xctx->inst[inst]);
-          my_free(1415, &ptr);
+          my_free(_ALLOC_ID_, &ptr);
         }
-        my_free(1416, &name);
+        my_free(_ALLOC_ID_, &name);
         set_modify(1);
         /* draw(); */
         Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
@@ -4742,21 +4742,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hash_names(inst, XDELETE);
       set_inst_prop(inst);
 
-      my_strdup2(1417, &translated_sym, translate(inst, xctx->inst[inst].name));
+      my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
       sym_number=match_symbol(translated_sym);
 
       if(sym_number > 0) {
         delete_inst_node(inst);
         xctx->inst[inst].ptr=sym_number;
       }
-      if(subst) my_free(1418, &subst);
+      if(subst) my_free(_ALLOC_ID_, &subst);
       set_inst_flags(&xctx->inst[inst]);
       hash_names(inst, XINSERT);
       /* new symbol bbox after prop changes (may change due to text length) */
       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
       set_modify(-2); /* reset floaters caches */
       draw();
-      my_free(1419, &translated_sym);
+      my_free(_ALLOC_ID_, &translated_sym);
       Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
     }
 
@@ -4776,7 +4776,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem reset_symbol: instance not found", TCL_STATIC);
         return TCL_ERROR;
       } else {
-        my_strdup(1420, &xctx->inst[inst].name, argv[3]);
+        my_strdup(_ALLOC_ID_, &xctx->inst[inst].name, argv[3]);
       }
       Tcl_ResetResult(interp);
     }
@@ -4823,7 +4823,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       rn = resolved_net(net);
       Tcl_AppendResult(interp, rn, NULL);
-      my_free(1421, &rn);
+      my_free(_ALLOC_ID_, &rn);
     }
 
     /* rotate [x0 y0]
@@ -5267,7 +5267,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(exists) {
         viewer = atoi(tclgetvar("sim(spicewave,default)"));
         my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
-        my_strdup(1422, &viewer_name, tclgetvar(tcl_str));
+        my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
         dbg(1, "send_to_viewer: viewer_name=%s\n", viewer_name);
         if(strstr(viewer_name, "Gaw")) viewer=GAW;
         else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
@@ -5275,7 +5275,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           hilight_net(viewer);
           redraw_hilights(0);
         }
-        my_free(1423, &viewer_name);
+        my_free(_ALLOC_ID_, &viewer_name);
       }
       Tcl_ResetResult(interp);
     }
@@ -5346,13 +5346,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "format")) { /* set name of custom format attribute used for netlisting */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1424, &xctx->custom_format, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->custom_format, argv[3]);
           }
           else if(!strcmp(argv[2], "header_text")) { /* set header metadata (used for license info) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(!xctx->header_text || strcmp(xctx->header_text, argv[3])) {
               set_modify(1); xctx->push_undo();
-              my_strdup2(1425, &xctx->header_text, argv[3]);
+              my_strdup2(_ALLOC_ID_, &xctx->header_text, argv[3]);
             }
           }
           else if(!strcmp(argv[2], "hide_symbols")) { /* set to 0,1,2 for various hiding level of symbols */
@@ -5368,7 +5368,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
           else if(!strcmp(argv[2], "infowindow_text")) { /* ERC messages */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1426, &xctx->infowindow_text, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
           }
           else if(!strcmp(argv[2], "intuitive_interface")) { /* ERC messages */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -5418,7 +5418,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(n >= 0 && n <= xctx->currsch) {
               xctx->raw->level = atoi(argv[3]);
-              my_strdup2(1427, &xctx->raw->schname, xctx->sch[xctx->raw->level]);
+              my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[xctx->raw->level]);
               Tcl_SetResult(interp, my_itoa(n), TCL_VOLATILE);
             } else {
               Tcl_SetResult(interp, "-1", TCL_VOLATILE);
@@ -5440,23 +5440,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "schsymbolprop")) { /* set global symbol attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1428, &xctx->schsymbolprop, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, argv[3]);
           }
           else if(!strcmp(argv[2], "schprop")) { /* set schematic global spice attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1429, &xctx->schprop, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->schprop, argv[3]);
           }
           else if(!strcmp(argv[2], "schverilogprop")) { /* set schematic global verilog attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1430, &xctx->schverilogprop, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->schverilogprop, argv[3]);
           }
           else if(!strcmp(argv[2], "schvhdlprop")) { /* set schematic global vhdl attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1431, &xctx->schvhdlprop, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, argv[3]);
           }
           else if(!strcmp(argv[2], "schtedaxprop")) { /* set schematic global tedax attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            my_strdup(1432, &xctx->schtedaxprop, argv[3]);
+            my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, argv[3]);
           }
           else if(!strcmp(argv[2], "text_svg")) { /* set to 1 to use svg <text> elements */
             text_svg=atoi(argv[3]);
@@ -5490,10 +5490,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *s = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(1433, &s, argv[2]);
+      my_strdup(_ALLOC_ID_, &s, argv[2]);
       set_different_token(&s, argv[3], argv[4]);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1434, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     /* set_modify [n]
@@ -5598,20 +5598,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(fast == 0) {
               hash_names(-1, XINSERT);
             }
-            my_strdup2(1435, &old_name, xctx->inst[inst].instname);
+            my_strdup2(_ALLOC_ID_, &old_name, xctx->inst[inst].instname);
           }
           if(argc > 5) {
             if(!strcmp(argv[4], "allprops")) {
               hash_names(-1, XINSERT);
-              my_strdup2(1436, &subst, argv[5]);
+              my_strdup2(_ALLOC_ID_, &subst, argv[5]);
             } else {
-              my_strdup2(1437, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
+              my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], argv[5]));
             }
           } else if(argc > 4) {/* assume argc == 5 , delete attribute */
-            my_strdup2(1438, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL));
+            my_strdup2(_ALLOC_ID_, &subst, subst_token(xctx->inst[inst].prop_ptr, argv[4], NULL));
           } else if(argc > 3) {
             /* clear all instance prop_str */
-            my_free(1439, &subst);
+            my_free(_ALLOC_ID_, &subst);
 
           }
           hash_names(inst, XDELETE);
@@ -5619,15 +5619,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(old_name) {
             update_attached_floaters(old_name, inst, 0);
           }
-          my_strdup2(1440, &translated_sym, translate(inst, xctx->inst[inst].name));
+          my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name));
           sym_number=match_symbol(translated_sym);
 
           if(sym_number > 0) {
             delete_inst_node(inst);
             xctx->inst[inst].ptr=sym_number;
           }
-          if(subst) my_free(1441, &subst);
-          if(old_name) my_free(1442, &old_name);
+          if(subst) my_free(_ALLOC_ID_, &subst);
+          if(old_name) my_free(_ALLOC_ID_, &old_name);
           set_inst_flags(&xctx->inst[inst]);
           hash_names(inst, XINSERT);
           if(!fast) {
@@ -5636,7 +5636,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             set_modify(-2); /* reset floaters caches */
             draw();
           }
-          my_free(1443, &translated_sym);
+          my_free(_ALLOC_ID_, &translated_sym);
           Tcl_SetResult(interp, xctx->inst[inst].instname , TCL_VOLATILE);
         }
       } else if(argc > 2 && !strcmp(argv[2], "symbol")) {
@@ -5656,9 +5656,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         sym = &xctx->sym[i];
         if(argc > 5)
-          my_strdup2(1444, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], argv[5]));
+          my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], argv[5]));
         else
-          my_strdup2(1445, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], NULL)); /* delete attr */
+          my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], NULL)); /* delete attr */
 
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
       /*  0       1      2   3 4   5    6     
@@ -5697,14 +5697,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(strcmp(argv[6], get_tok_value(r->prop_ptr, argv[5], 0))) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1446, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
           }
         } else {
           get_tok_value(r->prop_ptr, argv[5], 0);
           if(xctx->tok_size) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1447, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
           }
         }
         if(change_done) set_modify(1);
@@ -5751,7 +5751,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-            my_free(1448, &estr);
+            my_free(_ALLOC_ID_, &estr);
             bbox(ADD, xx1, yy1, xx2, yy2);
           }
           /* verify if there is some difference */
@@ -5759,19 +5759,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(strcmp(argv[5], t->txt_ptr)) {
               change_done = 1;
               if(fast == 3 || fast == 0) xctx->push_undo();
-              my_strdup2(1449, &t->txt_ptr, argv[5]);
+              my_strdup2(_ALLOC_ID_, &t->txt_ptr, argv[5]);
             }
           } else if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1450, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
           }
         } else if(argc > 4) {
           get_tok_value(t->prop_ptr, argv[4], 0);
           if(xctx->tok_size) {
             change_done = 1;
             if(fast == 3 || fast == 0) xctx->push_undo();
-            my_strdup2(1451, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
+            my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
           }
         }
         if(change_done) {
@@ -5783,7 +5783,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                   t->yscale, t->rot, t->flip, t->hcenter,
                   t->vcenter, t->x0, t->y0,
                   &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-          my_free(1452, &estr);
+          my_free(_ALLOC_ID_, &estr);
           if(!fast) bbox(ADD, xx1, yy1, xx2, yy2);
         }
         if(!fast) {
@@ -5845,9 +5845,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char *s=NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 5) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
-      my_strdup(1453, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "<NULL>") ? argv[4] : NULL));
+      my_strdup(_ALLOC_ID_, &s, subst_token(argv[2], argv[3], strcmp(argv[4], "<NULL>") ? argv[4] : NULL));
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1454, &s);
+      my_free(_ALLOC_ID_, &s);
     }
     /* symbol_base_name n
      *   Return the base_name field of a symbol with name or number `n`
@@ -6113,7 +6113,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
         dbg(0, "%s\n----\n", s);
         Tcl_SetResult(interp, t, TCL_VOLATILE);
-        my_free(1455, &t);
+        my_free(_ALLOC_ID_, &t);
       }
     }
 
@@ -6213,10 +6213,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem translate: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
-        my_strdup2(1456, &s, translate(i, argv[3]));
+        my_strdup2(_ALLOC_ID_, &s, translate(i, argv[3]));
         Tcl_ResetResult(interp);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
-        my_free(1457, &s);
+        my_free(_ALLOC_ID_, &s);
       }
     }
 
@@ -6232,16 +6232,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int eat_escapes = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) eat_escapes = atoi(argv[3]);
-      if(argc > 6) my_strdup2(1458, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL));
-      else if(argc > 5) my_strdup2(1459, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL));
-      else if(argc > 4) my_strdup2(1460, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL));
+      if(argc > 6) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL));
+      else if(argc > 5) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL));
+      else if(argc > 4) my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL));
       else {
         Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
         return TCL_ERROR;
       }
       Tcl_ResetResult(interp);
       Tcl_SetResult(interp, s, TCL_VOLATILE);
-      my_free(1461, &s);
+      my_free(_ALLOC_ID_, &s);
     }
 
     /* trim_chars str sep
@@ -6364,7 +6364,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 0; i < xctx->texts; i++)
       if(xctx->text[i].flags & TEXT_FLOATER) {
-        my_free(1462, &xctx->text[i].floater_ptr); /* clear floater cached value */
+        my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr); /* clear floater cached value */
       }
       for(i = 0; i < xctx->instances; ++i) {
         symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
@@ -6427,10 +6427,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int n = atoi(argv[2]);
         if(n > 0 && n < xctx->wires) {
           xWire * const wire = xctx->wire;
-          my_mstrcat(1463, &r, dtoa(wire[n].x1), " ", NULL);
-          my_mstrcat(1464, &r, dtoa(wire[n].y1), " ", NULL);
-          my_mstrcat(1465, &r, dtoa(wire[n].x2), " ", NULL);
-          my_mstrcat(1466, &r, dtoa(wire[n].y2), NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].x1), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].y1), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].x2), " ", NULL);
+          my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].y2), NULL);
           Tcl_SetResult(interp, r, TCL_VOLATILE);
         }
       }
@@ -6737,9 +6737,9 @@ int tclvareval(const char *script, ...)
   va_list args;
 
   va_start(args, script);
-  size = my_strcat(1467, &str, script);
+  size = my_strcat(_ALLOC_ID_, &str, script);
   while( (p = va_arg(args, const char *)) ) {
-    size = my_strcat(1468, &str, p);
+    size = my_strcat(_ALLOC_ID_, &str, p);
     dbg(2, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
   }
   dbg(2, "tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size);
@@ -6749,6 +6749,6 @@ int tclvareval(const char *script, ...)
     dbg(0, "tclvareval(): error executing %s: %s\n", str, tclresult());
     Tcl_ResetResult(interp);
   }
-  my_free(1469, &str);
+  my_free(_ALLOC_ID_, &str);
   return return_code;
 }

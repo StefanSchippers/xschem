@@ -321,7 +321,7 @@ static void init_color_array(double dim, double dim_bg)
    if(g>0xff) g=0xff;
    if(b>0xff) b=0xff;
    my_snprintf(s, S(s), "#%02x%02x%02x", r, g, b);
-   my_strdup(2227, &xctx->color_array[i], s);
+   my_strdup(_ALLOC_ID_, &xctx->color_array[i], s);
  }
 }
 
@@ -375,55 +375,55 @@ static void free_xschem_data()
   xctx->delete_undo();
   free_simdata();
 
-  my_free(2228, &xctx->node_table);
-  my_free(2229, &xctx->hilight_table);
+  my_free(_ALLOC_ID_, &xctx->node_table);
+  my_free(_ALLOC_ID_, &xctx->hilight_table);
 
-  my_free(2230, &xctx->wire);
-  my_free(2231, &xctx->text);
-  my_free(2232, &xctx->inst);
+  my_free(_ALLOC_ID_, &xctx->wire);
+  my_free(_ALLOC_ID_, &xctx->text);
+  my_free(_ALLOC_ID_, &xctx->inst);
   for(i=0;i<cadlayers; ++i) {
-    my_free(2233, &xctx->rect[i]);
-    my_free(2234, &xctx->line[i]);
-    my_free(2235, &xctx->poly[i]);
-    my_free(2236, &xctx->arc[i]);
+    my_free(_ALLOC_ID_, &xctx->rect[i]);
+    my_free(_ALLOC_ID_, &xctx->line[i]);
+    my_free(_ALLOC_ID_, &xctx->poly[i]);
+    my_free(_ALLOC_ID_, &xctx->arc[i]);
   }
-  my_free(2237, &xctx->sym);
-  my_free(2238, &xctx->rect);
-  my_free(2239, &xctx->line);
-  my_free(2240, &xctx->poly);
-  my_free(2241, &xctx->arc);
-  my_free(2242, &xctx->rects);
-  my_free(2243, &xctx->polygons);
-  my_free(2244, &xctx->arcs);
-  my_free(2245, &xctx->lines);
-  my_free(2246, &xctx->maxr);
-  my_free(2247, &xctx->maxp);
-  my_free(2248, &xctx->maxa);
-  my_free(2249, &xctx->maxl);
-  my_free(2250, &xctx->sel_array);
+  my_free(_ALLOC_ID_, &xctx->sym);
+  my_free(_ALLOC_ID_, &xctx->rect);
+  my_free(_ALLOC_ID_, &xctx->line);
+  my_free(_ALLOC_ID_, &xctx->poly);
+  my_free(_ALLOC_ID_, &xctx->arc);
+  my_free(_ALLOC_ID_, &xctx->rects);
+  my_free(_ALLOC_ID_, &xctx->polygons);
+  my_free(_ALLOC_ID_, &xctx->arcs);
+  my_free(_ALLOC_ID_, &xctx->lines);
+  my_free(_ALLOC_ID_, &xctx->maxr);
+  my_free(_ALLOC_ID_, &xctx->maxp);
+  my_free(_ALLOC_ID_, &xctx->maxa);
+  my_free(_ALLOC_ID_, &xctx->maxl);
+  my_free(_ALLOC_ID_, &xctx->sel_array);
   for(i=0;i<CADMAXHIER; ++i) {
     if(xctx->portmap[i].table) str_hash_free(&xctx->portmap[i]);
-    if(xctx->sch[i]) my_free(2251, &xctx->sch[i]);
-    if(xctx->sch_path[i]) my_free(2252, &xctx->sch_path[i]);
-    if(xctx->hier_attr[i].templ) my_free(2253, &xctx->hier_attr[i].templ);
-    if(xctx->hier_attr[i].prop_ptr) my_free(2254, &xctx->hier_attr[i].prop_ptr);
-    if(xctx->hier_attr[i].symname) my_free(2255, &xctx->hier_attr[i].symname);
+    if(xctx->sch[i]) my_free(_ALLOC_ID_, &xctx->sch[i]);
+    if(xctx->sch_path[i]) my_free(_ALLOC_ID_, &xctx->sch_path[i]);
+    if(xctx->hier_attr[i].templ) my_free(_ALLOC_ID_, &xctx->hier_attr[i].templ);
+    if(xctx->hier_attr[i].prop_ptr) my_free(_ALLOC_ID_, &xctx->hier_attr[i].prop_ptr);
+    if(xctx->hier_attr[i].symname) my_free(_ALLOC_ID_, &xctx->hier_attr[i].symname);
   }
     
-  my_free(2256, &xctx->gridpoint);
-  my_free(2257, &xctx->biggridpoint);
-  my_free(2258, &xctx->gc);
-  my_free(2259, &xctx->gcstipple);
-  for(i=0;i<cadlayers; ++i) my_free(2260, &xctx->color_array[i]);
-  my_free(2261, &xctx->color_array);
-  my_free(2262, &xctx->enable_layer);
-  my_free(2263, &xctx->active_layer);
-  my_free(2264, &xctx->top_path);
-  my_free(2265, &xctx->current_win_path);
-  my_free(2266, &xctx->fill_type);
-  my_free(2267, &xctx->format);
-  my_free(2268, &xctx->custom_format);
-  my_free(2269, &xctx);
+  my_free(_ALLOC_ID_, &xctx->gridpoint);
+  my_free(_ALLOC_ID_, &xctx->biggridpoint);
+  my_free(_ALLOC_ID_, &xctx->gc);
+  my_free(_ALLOC_ID_, &xctx->gcstipple);
+  for(i=0;i<cadlayers; ++i) my_free(_ALLOC_ID_, &xctx->color_array[i]);
+  my_free(_ALLOC_ID_, &xctx->color_array);
+  my_free(_ALLOC_ID_, &xctx->enable_layer);
+  my_free(_ALLOC_ID_, &xctx->active_layer);
+  my_free(_ALLOC_ID_, &xctx->top_path);
+  my_free(_ALLOC_ID_, &xctx->current_win_path);
+  my_free(_ALLOC_ID_, &xctx->fill_type);
+  my_free(_ALLOC_ID_, &xctx->format);
+  my_free(_ALLOC_ID_, &xctx->custom_format);
+  my_free(_ALLOC_ID_, &xctx);
 }
 
 void create_gc(void)
@@ -453,7 +453,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 {
   int i, j;
 
-  xctx = my_calloc(2270, 1, sizeof(Xschem_ctx));
+  xctx = my_calloc(_ALLOC_ID_, 1, sizeof(Xschem_ctx));
   xctx->cur_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
@@ -542,12 +542,12 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     }
   }
   xctx->n_hash_objects = 0;
-  xctx->node_table = my_calloc(2271,  HASHSIZE, sizeof(Node_hashentry *));
+  xctx->node_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Node_hashentry *));
   xctx->inst_name_table.table = NULL;
   xctx->inst_name_table.size = 0;
   xctx->floater_inst_table.table = NULL;
   xctx->floater_inst_table.size = 0;
-  xctx->hilight_table = my_calloc(2272,  HASHSIZE, sizeof(Hilight_hashentry *));
+  xctx->hilight_table = my_calloc(_ALLOC_ID_,  HASHSIZE, sizeof(Hilight_hashentry *));
 
   xctx->window = xctx->save_pixmap = 0;
   xctx->xrect[0].width = xctx->xrect[0].height = xctx->xrect[0].x = xctx->xrect[0].y = 0;
@@ -601,21 +601,21 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->portmap[i].table = NULL;
     xctx->portmap[i].size = 0;
   }
-  my_strdup(2273, &xctx->sch_path[0],".");
+  my_strdup(_ALLOC_ID_, &xctx->sch_path[0],".");
 
   xctx->sch_inst_number[0] = 1;
   xctx->maxt=CADMAXTEXT;
   xctx->maxw=CADMAXWIRES;
   xctx->maxi=ELEMINST;
   xctx->maxs=ELEMDEF;
-  xctx->text=my_calloc(2274, xctx->maxt,sizeof(xText));
-  xctx->wire=my_calloc(2275, xctx->maxw,sizeof(xWire));
-  xctx->inst=my_calloc(2276, xctx->maxi , sizeof(xInstance) );
-  xctx->sym=my_calloc(2277, xctx->maxs , sizeof(xSymbol) );
-  xctx->maxr=my_calloc(2278, cadlayers, sizeof(int));
-  xctx->maxa=my_calloc(2279, cadlayers, sizeof(int));
-  xctx->maxp=my_calloc(2280, cadlayers, sizeof(int));
-  xctx->maxl=my_calloc(2281, cadlayers, sizeof(int));
+  xctx->text=my_calloc(_ALLOC_ID_, xctx->maxt,sizeof(xText));
+  xctx->wire=my_calloc(_ALLOC_ID_, xctx->maxw,sizeof(xWire));
+  xctx->inst=my_calloc(_ALLOC_ID_, xctx->maxi , sizeof(xInstance) );
+  xctx->sym=my_calloc(_ALLOC_ID_, xctx->maxs , sizeof(xSymbol) );
+  xctx->maxr=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->maxa=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->maxp=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->maxl=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   for(i=0;i<cadlayers; ++i)
   {
     xctx->maxr[i]=CADMAXOBJECTS;
@@ -623,28 +623,28 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->maxl[i]=CADMAXOBJECTS;
     xctx->maxa[i]=CADMAXOBJECTS;
   }
-  xctx->rect=my_calloc(2282, cadlayers, sizeof(xRect *));
-  xctx->line=my_calloc(2283, cadlayers, sizeof(xLine *));
-  xctx->poly=my_calloc(2284, cadlayers, sizeof(xPoly *));
-  xctx->arc=my_calloc(2285, cadlayers, sizeof(xArc *));
+  xctx->rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+  xctx->line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+  xctx->poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+  xctx->arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
   for(i=0;i<cadlayers; ++i)
   {
-    xctx->rect[i]=my_calloc(2286, xctx->maxr[i],sizeof(xRect));
-    xctx->arc[i]=my_calloc(2287, xctx->maxa[i],sizeof(xArc));
-    xctx->poly[i]=my_calloc(2288, xctx->maxp[i],sizeof(xPoly));
-    xctx->line[i]=my_calloc(2289, xctx->maxl[i],sizeof(xLine));
+    xctx->rect[i]=my_calloc(_ALLOC_ID_, xctx->maxr[i],sizeof(xRect));
+    xctx->arc[i]=my_calloc(_ALLOC_ID_, xctx->maxa[i],sizeof(xArc));
+    xctx->poly[i]=my_calloc(_ALLOC_ID_, xctx->maxp[i],sizeof(xPoly));
+    xctx->line[i]=my_calloc(_ALLOC_ID_, xctx->maxl[i],sizeof(xLine));
   }
-  xctx->rects=my_calloc(2290, cadlayers, sizeof(int));
-  xctx->polygons=my_calloc(2291, cadlayers, sizeof(int));
-  xctx->arcs=my_calloc(2292, cadlayers, sizeof(int));
-  xctx->lines=my_calloc(2293, cadlayers, sizeof(int));
+  xctx->rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  xctx->lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->maxsel=MAXGROUP;
-  xctx->sel_array=my_calloc(2294, xctx->maxsel, sizeof(Selected));
+  xctx->sel_array=my_calloc(_ALLOC_ID_, xctx->maxsel, sizeof(Selected));
   xctx->first_sel.n = -1;
   xctx->first_sel.type = 0;
   xctx->first_sel.col = 0;
-  xctx->biggridpoint=(XSegment*)my_calloc(2295, CADMAXGRIDPOINTS,sizeof(XSegment));
-  xctx->gridpoint=(XPoint*)my_calloc(2296, CADMAXGRIDPOINTS,sizeof(XPoint));
+  xctx->biggridpoint=(XSegment*)my_calloc(_ALLOC_ID_, CADMAXGRIDPOINTS,sizeof(XSegment));
+  xctx->gridpoint=(XPoint*)my_calloc(_ALLOC_ID_, CADMAXGRIDPOINTS,sizeof(XPoint));
   xctx->enable_drill = 0;
   xctx->prev_set_modify = -1;
   xctx->prev_crossx = xctx->prev_crossy = 0.0;
@@ -677,13 +677,13 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->edit_sym_i = -1;
   xctx->netlist_commands = 0;
   xctx->draw_pixmap = 1;
-  xctx->gc=my_calloc(2297, cadlayers, sizeof(GC));
-  xctx->gcstipple=my_calloc(2298, cadlayers, sizeof(GC));
-  xctx->color_array=my_calloc(2299, cadlayers, sizeof(char*));
-  xctx->enable_layer=my_calloc(2300, cadlayers, sizeof(int));
+  xctx->gc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(GC));
+  xctx->gcstipple=my_calloc(_ALLOC_ID_, cadlayers, sizeof(GC));
+  xctx->color_array=my_calloc(_ALLOC_ID_, cadlayers, sizeof(char*));
+  xctx->enable_layer=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->crosshair_layer = TEXTLAYER;
   xctx->n_active_layers = 0;
-  xctx->active_layer=my_calloc(2301, cadlayers, sizeof(int));
+  xctx->active_layer=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->hide_symbols = 0;
   xctx->netlist_type = CAD_SPICE_NETLIST;
   xctx->format = NULL; /* format string for netlist, (copied from custom_format) otherwise use
@@ -692,9 +692,9 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->custom_format = NULL;
   xctx->top_path = NULL;
   xctx->current_win_path = NULL;
-  my_strdup2(2302, &xctx->top_path, top_path);
-  my_strdup2(2303, &xctx->current_win_path, win_path);
-  xctx->fill_type=my_calloc(2304, cadlayers, sizeof(int));
+  my_strdup2(_ALLOC_ID_, &xctx->top_path, top_path);
+  my_strdup2(_ALLOC_ID_, &xctx->current_win_path, win_path);
+  xctx->fill_type=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   xctx->case_insensitive = 0;
   xctx->show_hidden_texts = 0;
   xctx->x_strcmp = strcmp;
@@ -765,7 +765,7 @@ int compare_schematics(const char *f)
   /* HASH SCHEMATIC 1 */
   for(i = 0; i < xctx->instances; ++i) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
-    my_realloc(2305, &s, l);
+    my_realloc(_ALLOC_ID_, &s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
@@ -774,7 +774,7 @@ int compare_schematics(const char *f)
   for(i=0;i<xctx->wires; ++i)
   {
     l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    my_realloc(2306, &s, l);
+    my_realloc(_ALLOC_ID_, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
     int_hash_lookup(&table1, s, i, XINSERT_NOREPLACE);
@@ -827,7 +827,7 @@ int compare_schematics(const char *f)
   /* HASH SCHEMATIC 2 , CHECK SCHEMATIC 2 WITH SCHEMATIC 1 */
   for(i = 0; i < xctx->instances; ++i) {
     l =  1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
-    my_realloc(2307, &s, l);
+    my_realloc(_ALLOC_ID_, &s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip, 
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
@@ -845,7 +845,7 @@ int compare_schematics(const char *f)
   for(i=0;i<xctx->wires; ++i)
   {
     l =1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    my_realloc(2308, &s, l);
+    my_realloc(_ALLOC_ID_, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
     int_hash_lookup(&table2, s, i, XINSERT_NOREPLACE);
@@ -875,7 +875,7 @@ int compare_schematics(const char *f)
   /* CHECK SCHEMATIC 1 WITH SCHEMATIC 2*/
   for(i = 0; i < xctx->instances; ++i) {
     l = 1024 + strlen(xctx->inst[i].prop_ptr ? xctx->inst[i].prop_ptr : "");
-    my_realloc(2309,&s, l);
+    my_realloc(_ALLOC_ID_,&s, l);
     my_snprintf(s, l, "C %s %g %g %d %d %s",  tcl_hook2(xctx->inst[i].name),
         xctx->inst[i].x0, xctx->inst[i].y0, xctx->inst[i].rot, xctx->inst[i].flip,
         xctx->inst[i].prop_ptr ?  xctx->inst[i].prop_ptr : "");
@@ -890,7 +890,7 @@ int compare_schematics(const char *f)
   for(i=0;i<xctx->wires; ++i)
   {
     l = 1024 + strlen(xctx->wire[i].prop_ptr ? xctx->wire[i].prop_ptr : "");
-    my_realloc(2310, &s, l);
+    my_realloc(_ALLOC_ID_, &s, l);
     my_snprintf(s, l, "N %g %g %g %g", xctx->wire[i].x1,  xctx->wire[i].y1,
         xctx->wire[i].x2, xctx->wire[i].y2);
     found = int_hash_lookup(&table2, s, i, XLOOKUP);
@@ -904,7 +904,7 @@ int compare_schematics(const char *f)
   int_hash_free(&table2);
   rebuild_selected_array();
   draw_selection(xctx->gc[SELLAYER], 0);
-  my_free(2311, &s);
+  my_free(_ALLOC_ID_, &s);
   return ret;
 }
 
@@ -917,7 +917,7 @@ static void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
- if(xctx->infowindow_text) my_free(2312, &xctx->infowindow_text);
+ if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
  delete_schematic_data(1);
@@ -936,18 +936,18 @@ static void xwin_exit(void)
    #else
    for(i = 0; i < cadlayers; ++i) Tk_FreePixmap(display, pixmap[i]);
    #endif
-   my_free(2313, &pixmap);
+   my_free(_ALLOC_ID_, &pixmap);
  }
  dbg(1, "xwin_exit(): clearing drawing data structures\n");
 
  /* global context - graphic preferences/settings */
  for(i=0;i<cadlayers; ++i) {
-   my_free(2314, &pixdata[i]);
+   my_free(_ALLOC_ID_, &pixdata[i]);
  }
- my_free(2315, &pixdata);
- my_free(2316, &cli_opt_tcl_command);
- my_free(2317, &cli_opt_preinit_command);
- my_free(2318, &cli_opt_tcl_post_command);
+ my_free(_ALLOC_ID_, &pixdata);
+ my_free(_ALLOC_ID_, &cli_opt_tcl_command);
+ my_free(_ALLOC_ID_, &cli_opt_preinit_command);
+ my_free(_ALLOC_ID_, &cli_opt_tcl_post_command);
  clear_expandlabel_data();
  get_sym_template(NULL, NULL); /* clear static data in function */
  list_tokens(NULL, 0); /* clear static data in function */
@@ -961,16 +961,16 @@ static void xwin_exit(void)
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  eval_expr_clear_table(); /* clear expression parser data */
  dbg(1, "xwin_exit(): removing font\n");
- for(i=0;i<127; ++i) my_free(2319, &character[i]);
+ for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);
  dbg(1, "xwin_exit(): closed display\n");
  my_strncpy(cli_opt_filename, "", S(cli_opt_filename));
- my_free(2320, &xschem_executable);
+ my_free(_ALLOC_ID_, &xschem_executable);
  dbg(1, "xwin_exit(): deleted undo buffer\n");
  /* delete cmdline stuff */
  for(i = 0 ; i < cli_opt_argc; ++i) {
-   my_free(2321, &cli_opt_argv[i]);
+   my_free(_ALLOC_ID_, &cli_opt_argv[i]);
  }
- my_free(2322, &cli_opt_argv);
+ my_free(_ALLOC_ID_, &cli_opt_argv);
  if(xschem_web_dirname[0]) tclvareval("file delete -force ", xschem_web_dirname, NULL);
  if(errfp!=stderr) fclose(errfp);
  errfp=stderr;
@@ -1255,7 +1255,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         if(current_file[i]) {
           delete_schematic_data(1);
         }
-        my_strdup(2323, &current_file[i], fname);
+        my_strdup(_ALLOC_ID_, &current_file[i], fname);
         xctx = NULL;      /* reset for preview */
         alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path); /* alloc data into xctx */
         init_pixdata(); /* populate xctx->fill_type array that is used in create_gc() to set fill styles */
@@ -1292,7 +1292,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
           delete_schematic_data(1);
           preview_xctx[i] = NULL;
         }
-        my_free(2324, &current_file[i]);
+        my_free(_ALLOC_ID_, &current_file[i]);
         xctx = save_xctx; /* restore schematic */
         save_xctx = NULL;
         /* set_modify(-1); */ /* no more needed as load_schematic() called with reset_undo=0 */
@@ -1833,14 +1833,14 @@ static void destroy_window(int *window_count, const char *win_path)
         if(savectx == xctx) savectx = save_xctx[0];
         if(has_x) {
           tclvareval("winfo toplevel ", win_path, NULL);
-          my_strdup2(2325, &toplevel, tclresult());
+          my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
         }
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {
           Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[n], mainwindow));
           tclvareval("destroy ", toplevel, NULL);
-          my_free(2326, &toplevel);
+          my_free(_ALLOC_ID_, &toplevel);
         }
         my_strncpy(window_path[n], "", S(window_path[n]));
         (*window_count)--;
@@ -1951,7 +1951,7 @@ static void destroy_all_windows(int *window_count, int force)
             char *toplevel = NULL;
             if(has_x) {
               tclvareval("winfo toplevel ", window_path[i], NULL);
-              my_strdup2(2327, &toplevel, tclresult());
+              my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
             }
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
@@ -1960,7 +1960,7 @@ static void destroy_all_windows(int *window_count, int force)
             if(has_x) {
               Tk_DestroyWindow(Tk_NameToWindow(interp, window_path[i], mainwindow));
               tclvareval("destroy ", toplevel, NULL);
-              my_free(2328, &toplevel);
+              my_free(_ALLOC_ID_, &toplevel);
             }
             /* delete Tcl context of deleted schematic window */
             tclvareval("delete_ctx ", window_path[i], NULL);
@@ -2472,31 +2472,31 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if (atoi(tclresult()) == 0)
  {
    running_in_src_dir = 1; /* no bin, so it's running in Visual studio source directory*/
-   my_strdup(2329, &up_hier, "../../..");
+   my_strdup(_ALLOC_ID_, &up_hier, "../../..");
  }
- else my_strdup(2330, &up_hier, "../share/xschem");
+ else my_strdup(_ALLOC_ID_, &up_hier, "../share/xschem");
  tclsetintvar("running_in_src_dir", running_in_src_dir);
- /* my_strcat(2331, &win_xschem_library_path, "."); */
+ /* my_strcat(_ALLOC_ID_, &win_xschem_library_path, "."); */
  for (i = 0; i < WIN_XSCHEM_LIBRARY_PATH_NUM; ++i) {
    if (i==2)
    {
-     my_free(2332, &up_hier);
+     my_free(_ALLOC_ID_, &up_hier);
      if (running_in_src_dir==0)
-       my_strdup(2333, &up_hier, "../share/doc/xschem");    
+       my_strdup(_ALLOC_ID_, &up_hier, "../share/doc/xschem");    
      else
-       my_strdup(2334, &up_hier, "../../../xschem_library");    
+       my_strdup(_ALLOC_ID_, &up_hier, "../../../xschem_library");    
    }
    my_snprintf(tmp, S(tmp),"%s/%s/%s", install_dir, up_hier, WIN_XSCHEM_LIBRARY_PATH[i]);
-   if (i > 0) my_strcat(2335, &win_xschem_library_path, "\;"); 
-   my_strcat(2336, &win_xschem_library_path, tmp);
+   if (i > 0) my_strcat(_ALLOC_ID_, &win_xschem_library_path, "\;"); 
+   my_strcat(_ALLOC_ID_, &win_xschem_library_path, tmp);
  }
  my_snprintf(tmp, S(tmp), "set tmp2 {%s}; "
    "while {[regsub {([^/]*\\.*[^./]+[^/]*)/\\.\\./?} $tmp2 {} tmp2]} {}; ", win_xschem_library_path); 
  const char *result2 = tcleval(tmp);
  const char *win_xschem_library_path_clean = tclgetvar("tmp2");
  tclsetvar("XSCHEM_LIBRARY_PATH", win_xschem_library_path_clean);
- my_free(2337, &win_xschem_library_path);
- my_free(2338, &up_hier);
+ my_free(_ALLOC_ID_, &win_xschem_library_path);
+ my_free(_ALLOC_ID_, &up_hier);
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL) {
    if (!stat(xschem_sharedir, &buf)) {
      tclsetvar("XSCHEM_SHAREDIR", xschem_sharedir);
@@ -2705,7 +2705,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                */
 
  /* resolve absolute pathname of xschem (argv[0]) for future usage */
- my_strdup(2339, &xschem_executable, get_file_path(xschem_executable));
+ my_strdup(_ALLOC_ID_, &xschem_executable, get_file_path(xschem_executable));
  dbg(1, "Tcl_AppInit(): resolved xschem_executable=%s\n", xschem_executable);
 
  /* get xschem globals from tcl variables set in xschemrc/xschem.tcl */
@@ -2742,19 +2742,19 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  /* initialize current schematic name to empty string to avoid gazillion checks in the code for NULL */
- my_strdup2(2340, &xctx->sch[xctx->currsch], "");
+ my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], "");
 
  xctx->crosshair_layer = tclgetintvar("crosshair_layer");
  if(xctx->crosshair_layer < 0 ) xctx->crosshair_layer = 2;
  if(xctx->crosshair_layer >= cadlayers ) xctx->crosshair_layer = 2;
 
  /* global context / graphic preferences/settings */
- pixdata=my_calloc(2341, cadlayers, sizeof(char*));
+ pixdata=my_calloc(_ALLOC_ID_, cadlayers, sizeof(char*));
  for(i=0;i<cadlayers; ++i)
  {
-   pixdata[i]=my_calloc(2342, 32, sizeof(char));
+   pixdata[i]=my_calloc(_ALLOC_ID_, 32, sizeof(char));
  }
- if(has_x) pixmap=my_calloc(2343, cadlayers, sizeof(Pixmap));
+ if(has_x) pixmap=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Pixmap));
 
  my_strncpy(xctx->plotfile, cli_opt_plotfile, S(xctx->plotfile));
  xctx->draw_window = tclgetintvar("draw_window");
@@ -2764,8 +2764,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* set global variables fetching data from tcl code */
 
  /* if lvs_netlist is set also use lvs_format for devices netlisting rule if existing */
- if(tclgetboolvar("lvs_netlist"))  my_strdup(2344, &xctx->format, "lvs_format");
- else my_strdup(2345, &xctx->format, NULL);
+ if(tclgetboolvar("lvs_netlist"))  my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
+ else my_strdup(_ALLOC_ID_, &xctx->format, NULL);
 
  if(cli_opt_netlist_type) {
    xctx->netlist_type = cli_opt_netlist_type;

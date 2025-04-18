@@ -28,7 +28,7 @@ void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
       dbg(3, "init_inst_iterator(): instances=%d\n", xctx->instances);
       
       if(xctx->instances) {
-        my_realloc(628, &ctx->instflag, xctx->instances*sizeof(unsigned short));
+        my_realloc(_ALLOC_ID_, &ctx->instflag, xctx->instances*sizeof(unsigned short));
         memset(ctx->instflag, 0, xctx->instances*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
@@ -72,7 +72,7 @@ Instentry *inst_iterator_next(Iterator_ctx *ctx)
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->instanceptr = xctx->inst_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(629, &ctx->instflag);
+      my_free(_ALLOC_ID_, &ctx->instflag);
       return NULL;
     }
   }
@@ -83,7 +83,7 @@ void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
       ctx->wireflag = NULL;
       dbg(3, "init_wire_iterator(): wires=%d\n", xctx->wires);
       if(xctx->wires) {
-        my_realloc(630, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
+        my_realloc(_ALLOC_ID_, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
         memset(ctx->wireflag, 0, xctx->wires*sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
@@ -127,7 +127,7 @@ Wireentry *wire_iterator_next(Iterator_ctx *ctx)
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->wireptr = xctx->wire_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(631, &ctx->wireflag);
+      my_free(_ALLOC_ID_, &ctx->wireflag);
       return NULL;
     }
   }
@@ -139,7 +139,7 @@ void init_object_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, do
       ctx->objectflag = NULL;
       dbg(3, "init_object_iterator(): objects=%d\n", xctx->n_hash_objects);
       if(xctx->n_hash_objects) {
-        my_realloc(632, &ctx->objectflag, xctx->n_hash_objects * sizeof(unsigned short));
+        my_realloc(_ALLOC_ID_, &ctx->objectflag, xctx->n_hash_objects * sizeof(unsigned short));
         memset(ctx->objectflag, 0, xctx->n_hash_objects * sizeof(unsigned short));
       }
       /* calculate square 4 1st corner of drawing area */
@@ -182,7 +182,7 @@ Objectentry *object_iterator_next(Iterator_ctx *ctx)
       ctx->tmpj = ctx->j % NBOXES; if(ctx->tmpj < 0) ctx->tmpj += NBOXES;
       ctx->objectptr = xctx->object_spatial_table[ctx->tmpi][ctx->tmpj];
     } else {
-      my_free(633, &ctx->objectflag);
+      my_free(_ALLOC_ID_, &ctx->objectflag);
       return NULL;
     }
   }

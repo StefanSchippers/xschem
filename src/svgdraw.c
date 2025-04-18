@@ -376,7 +376,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
   text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,textx1,texty1,textx2,texty2)) {
-    my_free(1604, &estr);
+    my_free(_ALLOC_ID_, &estr);
     return;
   }
   if(hcenter) {
@@ -400,7 +400,7 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     if(rot == 3 && flip == 1 ) { x=textx1;}
   }
   llength=0;
-  my_strdup2(1605, &sss, estr);
+  my_strdup2(_ALLOC_ID_, &sss, estr);
   tt=ss=sss;
   for(;;) {
     c=*ss;
@@ -418,8 +418,8 @@ static void svg_draw_string(int layer, const char *str, short rot, short flip, i
     }
     ++ss;
   }
-  my_free(1606, &sss);
-  my_free(1607, &estr);
+  my_free(_ALLOC_ID_, &sss);
+  my_free(_ALLOC_ID_, &estr);
 }
 
 
@@ -445,7 +445,7 @@ static void old_svg_draw_string(int layer, const char *str,
            &rx1,&ry1,&rx2,&ry2, &no_of_lines, &longest_line);
  #endif
  if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,rx1,ry1,rx2,ry2)) {
-   my_free(1608, &estr);
+   my_free(_ALLOC_ID_, &estr);
    return;
  }
  xscale*=tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale;
@@ -478,7 +478,7 @@ static void old_svg_draw_string(int layer, const char *str,
   }
   ++pos;
  }
- my_free(1609, &estr);
+ my_free(_ALLOC_ID_, &estr);
 }
 
 
@@ -544,7 +544,7 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
 
   alpha_str = get_tok_value(r->prop_ptr, "alpha", 0);
   if(alpha_str[0]) alpha = atof(alpha_str);
-  attr_len = my_strdup2(1610, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
+  attr_len = my_strdup2(_ALLOC_ID_, &attr, get_tok_value(r->prop_ptr, "image_data", 0));
   buffer = base64_decode(attr, attr_len, &buffer_size);
   filter = get_tok_value(r->prop_ptr, "filter", 0);
   if(attr_len > 5) {
@@ -562,8 +562,8 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
     jpg = -1;
   }
   if(jpg == -1) {
-    my_free(1611, &buffer);
-    my_free(1612, &attr);
+    my_free(_ALLOC_ID_, &buffer);
+    my_free(_ALLOC_ID_, &attr);
     return 0;
   }
 
@@ -604,8 +604,8 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
                 "xlink:href=\"data:image/svg+xml;base64,%s\"/>\n",
                 0.0, 0.0, w, h, transform, opacity, attr);
   }
-  my_free(1613, &buffer);
-  my_free(1614, &attr);
+  my_free(_ALLOC_ID_, &buffer);
+  my_free(_ALLOC_ID_, &attr);
   return 1;
 }
 
@@ -716,16 +716,16 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       dash = (disabled == 1) ? 3 : polygon->dash;
       { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
         int k;
-        double *x = my_malloc(1615, sizeof(double) * polygon->points);
-        double *y = my_malloc(1616, sizeof(double) * polygon->points);
+        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
+        double *y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
         for(k=0;k<polygon->points; ++k) {
           ROTATION(rot, flip, 0.0,0.0,polygon->x[k],polygon->y[k],x[k],y[k]);
           x[k]+= x0;
           y[k] += y0;
         }
         svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, bus);
-        my_free(1617, &x);
-        my_free(1618, &y);
+        my_free(_ALLOC_ID_, &x);
+        my_free(_ALLOC_ID_, &y);
       }
     }
     for(j=0;j< symptr->arcs[layer]; ++j) {
@@ -918,7 +918,7 @@ void svg_draw(void)
     else return;
   }
   svg_restore_lw();
-  svg_colors=my_calloc(1619, cadlayers, sizeof(Svg_color));
+  svg_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Svg_color));
   if(svg_colors==NULL){
     fprintf(errfp, "svg_draw(): calloc error\n");
     return;
@@ -945,7 +945,7 @@ void svg_draw(void)
   }
   my_strncpy(xctx->plotfile,"", S(xctx->plotfile));
 
-  unused_layer = my_calloc(1620, cadlayers, sizeof(int));
+  unused_layer = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
   #if 0
   *     /* Determine used layers. Disabled since we want hilight colors */
   *     for(c=0;c<cadlayers; ++c) unused_layer[c] = 1;
@@ -1152,8 +1152,8 @@ void svg_draw(void)
   fprintf(fd, "</svg>\n");
   fclose(fd);
   tclsetboolvar("draw_grid", old_grid);
-  my_free(1621, &svg_colors);
-  my_free(1622, &unused_layer);
+  my_free(_ALLOC_ID_, &svg_colors);
+  my_free(_ALLOC_ID_, &unused_layer);
   Tcl_SetResult(interp,"",TCL_STATIC);
 }
 

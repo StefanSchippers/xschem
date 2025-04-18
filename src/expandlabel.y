@@ -70,13 +70,13 @@ static char *expandlabel_strdup(char *src)
  char *ptr;
  if(src==NULL || src[0]=='\0') {
    ptr=NULL;
-   my_strdup(572, &ptr,"");
+   my_strdup(_ALLOC_ID_, &ptr,"");
    return ptr;
  }
  else
  {
   ptr=NULL;
-  my_strdup(573, &ptr,src);
+  my_strdup(_ALLOC_ID_, &ptr,src);
   dbg(3, "expandlabel_strdup(): duplicated %lu string %s\n",(unsigned long)ptr,src);
   return ptr;
  }
@@ -90,7 +90,7 @@ static char *expandlabel_strcat(char *s1, char *s2)
 
  if(s1) l1=strlen(s1);
  if(s2) l2=strlen(s2);
- res=my_malloc(574, l1+l2+1); /* 2 strings plus '\0' */
+ res=my_malloc(_ALLOC_ID_, l1+l2+1); /* 2 strings plus '\0' */
  if(s1) memcpy(res, s1, l1);
  if(s2) memcpy(res + l1 , s2, l2+1);
  else   memcpy(res + l1 , "", 1);
@@ -105,7 +105,7 @@ static char *expandlabel_strcat_char(char *s1, char c, char *s2)
 
  if(s1) l1=strlen(s1);
  if(s2) l2=strlen(s2);
- res=my_malloc(575, l1+l2+2); /* 2 strings plus 'c' and '\0' */
+ res=my_malloc(_ALLOC_ID_, l1+l2+2); /* 2 strings plus 'c' and '\0' */
  if(s1) memcpy(res, s1, l1);
  res[l1] = c;
  if(s2) memcpy(res + l1 + 1, s2, l2+1);
@@ -128,7 +128,7 @@ static char *expandlabel_strmult2(int n, char *s)
  if(n==0) return expandlabel_strdup("");
  len=strlen(s);
  prev=s;
- ss = str=my_malloc(576,  (len+1)*n);
+ ss = str=my_malloc(_ALLOC_ID_,  (len+1)*n);
  str[0]='\0';
  for(pos=s;pos<=s+len;pos++) {
    if(*pos==',' || *pos=='\0') {
@@ -162,7 +162,7 @@ static char *expandlabel_strmult(int n, char *s)
 
  if(n==0) return expandlabel_strdup("");
  len=strlen(s);
- str=pos=my_malloc(577,  (len+1)*n);
+ str=pos=my_malloc(_ALLOC_ID_,  (len+1)*n);
  for(i=1;i<=n;i++)
  {
   /* strcpy(pos,s); */
@@ -181,8 +181,8 @@ static char *expandlabel_strbus_suffix(char *s, int *n, char *suffix)
  int tmplen;             
  char *res=NULL;         
  char *tmp=NULL;        
- my_realloc(578, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
- my_realloc(579, &tmp, strlen(s) + strlen(suffix) + 30);
+ my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
  l=0;
  for(i=1;i<n[0];i++)     
  {                       
@@ -191,7 +191,7 @@ static char *expandlabel_strbus_suffix(char *s, int *n, char *suffix)
   memcpy(res+l,tmp, tmplen+1); /* 20180923 */
   l+=tmplen;             
  }                      
- my_free(580, &tmp);
+ my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s[%d]%s", s, n[i], suffix);
  return res;
 }                        
@@ -202,8 +202,8 @@ static char *expandlabel_strbus(char *s, int *n)
  int tmplen;
  char *res=NULL;
  char *tmp=NULL;
- my_realloc(581, &res, n[0]*(strlen(s)+20));
- my_realloc(582, &tmp, strlen(s)+30);
+ my_realloc(_ALLOC_ID_, &res, n[0]*(strlen(s)+20));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s)+30);
  l=0;
  for(i=1;i<n[0];i++)
  {
@@ -212,7 +212,7 @@ static char *expandlabel_strbus(char *s, int *n)
   memcpy(res+l,tmp, tmplen+1); /* 20180923 */
   l+=tmplen;
  }
- my_free(583, &tmp);
+ my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s[%d]", s, n[i]);
  return res;
 }
@@ -223,7 +223,7 @@ static void check_idx(int **ptr,int n)
  {
   idxsize*=2;
   dbg(3, "check_idx(): reallocating idx array: size=%d\n",idxsize);
-  my_realloc(584, ptr, idxsize*sizeof(int));
+  my_realloc(_ALLOC_ID_, ptr, idxsize*sizeof(int));
  }
 }
 
@@ -233,8 +233,8 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
  int tmplen;
  char *res=NULL;
  char *tmp=NULL;
- my_realloc(585, &res, n[0]*(strlen(s)+20));
- my_realloc(586, &tmp, strlen(s)+30);
+ my_realloc(_ALLOC_ID_, &res, n[0]*(strlen(s)+20));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s)+30);
  l=0;
  for(i=1;i<n[0];i++)
  {
@@ -243,7 +243,7 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
   memcpy(res+l,tmp, tmplen+1);
   l+=tmplen;
  }
- my_free(587, &tmp);
+ my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s%d", s, n[i]);
  return res;
 }
@@ -254,8 +254,8 @@ static char *expandlabel_strbus_nobracket_suffix(char *s, int *n, char *suffix)
  int tmplen;             
  char *res=NULL;        
  char *tmp=NULL;
- my_realloc(588, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
- my_realloc(589, &tmp, strlen(s) + strlen(suffix) + 30);
+ my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
  l=0;                    
  for(i=1;i<n[0];i++)     
  {                       
@@ -264,7 +264,7 @@ static char *expandlabel_strbus_nobracket_suffix(char *s, int *n, char *suffix)
   memcpy(res+l,tmp, tmplen+1);
   l+=tmplen;            
  }
- my_free(590, &tmp);
+ my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s%d%s", s, n[i], suffix);
  return res;             
 }     
@@ -308,28 +308,28 @@ int  *idx;  /* for bus index & bus index ranges */
 line:    /* empty */
          | list         {
                          dbg(dbg_var, "yyparse(): list, dest_string.str=%s\n", $1.str);
-                         my_strdup(591,  &(dest_string.str),$1.str); 
-                         my_free(592, &$1.str); 
+                         my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str); 
+                         my_free(_ALLOC_ID_, &$1.str); 
                          dest_string.m=$1.m;
                         }
 ;
 list:     B_NAME        { 
                          dbg(dbg_var, "yyparse(): B_NAME, $1=%s\n", $1);
                          $$.str = expandlabel_strdup($1);
-                         my_free(593, &$1);
+                         my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | B_LINE        {
                          dbg(dbg_var, "yyparse(): B_LINE\n");
                          $$.str = expandlabel_strdup($1); /* prima era =$1 */
-                         my_free(594, &$1);
+                         my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | list B_NAME   { 
                          dbg(dbg_var, "yyparse(): list B_NAME, $2=%s\n", $2);
                          $$.str = expandlabel_strcat($1.str, $2);
-                         my_free(595, &$1.str);
-                         my_free(596, &$2);
+                         my_free(_ALLOC_ID_, &$1.str);
+                         my_free(_ALLOC_ID_, &$2);
                          $$.m = $1.m;
                         }
         | list '*' B_NUM
@@ -339,29 +339,29 @@ list:     B_NAME        {
                          $$.str=expandlabel_strmult2($3,$1.str);
                          dbg(dbg_var, "yyparse(): |%s|\n",$$.str);
                          $$.m = $3 * $1.m;
-                         my_free(597, &$1.str);
+                         my_free(_ALLOC_ID_, &$1.str);
                         }
         | B_NUM '*' list
                         {
                          dbg(dbg_var, "yyparse(): B_NUM * list\n");
                          $$.str=expandlabel_strmult($1,$3.str);
                          $$.m = $1 * $3.m;
-                         my_free(598, &$3.str);
+                         my_free(_ALLOC_ID_, &$3.str);
                         }
         | list ',' list { 
                          dbg(dbg_var, "yyparse(): list , list\n");
                          $$.str=expandlabel_strcat_char($1.str, ',', $3.str);
                          $$.m = $1.m + $3.m;
-                         my_free(599, &$1.str);
-                         my_free(600, &$3.str);
+                         my_free(_ALLOC_ID_, &$1.str);
+                         my_free(_ALLOC_ID_, &$3.str);
                         }
         | list B_CAR list
                         {
                          dbg(dbg_var, "yyparse(): list B_CAR list\n");
                          $$.str=expandlabel_strcat_char($1.str, (char)$2, $3.str);
                          $$.m = $1.m + $3.m;
-                         my_free(601, &$1.str);
-                         my_free(602, &$3.str);
+                         my_free(_ALLOC_ID_, &$1.str);
+                         my_free(_ALLOC_ID_, &$3.str);
                         }
         | '(' list ')'  {
                          dbg(dbg_var, "yyparse(): ( list )\n");
@@ -371,29 +371,29 @@ list:     B_NAME        {
                         {
                          size_t size = strlen($1) + strlen($3) + 3;
                          dbg(dbg_var, "yyparse(): B_NAME [ B_NAME ] , $1=%s $3=%s\n", $1, $3);
-                         $$.str = my_malloc(603, size);
+                         $$.str = my_malloc(_ALLOC_ID_, size);
                          $$.m=-1;
                          my_snprintf($$.str, size, "%s[%s]", $1, $3);
-                         my_free(604, &$1);
-                         my_free(605, &$3);
+                         my_free(_ALLOC_ID_, &$1);
+                         my_free(_ALLOC_ID_, &$3);
                         }
         | B_NAME  '[' index  ']' 
                         {
                          dbg(dbg_var, "yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]);
                          $$.str=expandlabel_strbus($1,$3);
-                         my_free(606, &$1); 
+                         my_free(_ALLOC_ID_, &$1); 
                          $$.m=$3[0];
-                         my_free(607, &$3); 
+                         my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index  ']' B_TRAILER
                         {
                          dbg(dbg_var, "yyparse(): B_NAME [ index ] B_NAME, $1=%s $3=%d, $5=%s\n", $1, $3[0], $5);
                          $$.str=expandlabel_strbus_suffix($1, $3, $5);
-                         my_free(608, &$1);
-                         my_free(609, &$5);
+                         my_free(_ALLOC_ID_, &$1);
+                         my_free(_ALLOC_ID_, &$5);
                          $$.m=$3[0];
-                         my_free(610, &$3);
+                         my_free(_ALLOC_ID_, &$3);
                          idxsize=INITIALIDXSIZE;
                         }
 
@@ -401,19 +401,19 @@ list:     B_NAME        {
                         {
                          dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]);
                          $$.str=expandlabel_strbus_nobracket($1,$3);
-                         my_free(611, &$1);
+                         my_free(_ALLOC_ID_, &$1);
                          $$.m=$3[0];
-                         my_free(612, &$3); 
+                         my_free(_ALLOC_ID_, &$3); 
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index_nobracket  ']' B_TRAILER
                         {
                          dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d, $5=%s\n",$1, $3[0], $5);
                          $$.str=expandlabel_strbus_nobracket_suffix($1, $3, $5);
-                         my_free(613, &$1);
-                         my_free(614, &$5);
+                         my_free(_ALLOC_ID_, &$1);
+                         my_free(_ALLOC_ID_, &$5);
                          $$.m=$3[0];
-                         my_free(615, &$3);
+                         my_free(_ALLOC_ID_, &$3);
                          idxsize=INITIALIDXSIZE;
                         }
 
@@ -423,7 +423,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          /* start : end : extend : repetitions */
                          int r, i, sign, offset;
                          sign = XSIGN($3-$1);
-                         $$=my_malloc(616, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          offset = 0;
                          for(r=0; r < $7; r++) {
@@ -441,7 +441,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int sign;
 
                          sign = XSIGN($3-$1);
-                         $$=my_malloc(617, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          for(i=$1;;i+=sign*$5)
                          {
@@ -455,7 +455,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
         | B_IDXNUM ':' B_IDXNUM
                         {
                          int i;
-                         $$=my_malloc(618, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          for(i=$1;;i+=XSIGN($3-$1))
                          {
@@ -465,7 +465,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          }
                         }
         | B_IDXNUM      { 
-                         $$=my_malloc(619, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                           check_idx(&$$, ++$$[0]);
                          $$[$$[0]]=$1;
@@ -520,7 +520,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          /* start .. end .. offset .. repetitions */
                          int r, i, sign, offset;
                          sign = XSIGN($3-$1);
-                         $$=my_malloc(620, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          offset = 0;
                          for(r=0; r < $7; r++) {
@@ -538,7 +538,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          int sign;
 
                          sign = XSIGN($3-$1);
-                         $$=my_malloc(621, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          for(i=$1;;i+=sign*$5)
                          {
@@ -552,7 +552,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
 	| B_IDXNUM B_DOUBLEDOT B_IDXNUM
                         {
                          int i;
-                         $$=my_malloc(622, INITIALIDXSIZE*sizeof(int));
+                         $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                          for(i=$1;;i+=XSIGN($3-$1))
                          {

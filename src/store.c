@@ -28,7 +28,7 @@ void check_wire_storage(void)
  if(xctx->wires >= xctx->maxw)
  {
   xctx->maxw=(1+xctx->wires / CADMAXWIRES)*CADMAXWIRES;
-  my_realloc(1587, &xctx->wire, sizeof(xWire)*xctx->maxw);
+  my_realloc(_ALLOC_ID_, &xctx->wire, sizeof(xWire)*xctx->maxw);
  }
 }
 
@@ -37,7 +37,7 @@ void check_selected_storage(void)
  if(xctx->lastsel >= xctx->maxsel)
  {
   xctx->maxsel=(1+xctx->lastsel / MAXGROUP) * MAXGROUP;
-  my_realloc(1588, &xctx->sel_array, sizeof(Selected)*xctx->maxsel);
+  my_realloc(_ALLOC_ID_, &xctx->sel_array, sizeof(Selected)*xctx->maxsel);
  }
 }
 
@@ -46,7 +46,7 @@ void check_text_storage(void)
  if(xctx->texts >= xctx->maxt)
  {
   xctx->maxt=(1 + xctx->texts / CADMAXTEXT) * CADMAXTEXT;
-  my_realloc(1589, &xctx->text, sizeof(xText)*xctx->maxt);
+  my_realloc(_ALLOC_ID_, &xctx->text, sizeof(xText)*xctx->maxt);
  }
 }
 
@@ -57,7 +57,7 @@ void check_symbol_storage(void)
   dbg(1, "check_symbol_storage(): more than maxs, %s\n",
         xctx->sch[xctx->currsch] );
   xctx->maxs=(1 + xctx->symbols / ELEMDEF) * ELEMDEF;
-  my_realloc(1590, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
+  my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
  }
 
 }
@@ -71,7 +71,7 @@ void check_inst_storage(void)
   int i, old = xctx->maxi;
   
   xctx->maxi=(1 + xctx->instances / ELEMINST) * ELEMINST;
-  my_realloc(1591, &xctx->inst, sizeof(xInstance)*xctx->maxi);
+  my_realloc(_ALLOC_ID_, &xctx->inst, sizeof(xInstance)*xctx->maxi);
   #ifdef ZERO_REALLOC
   memset(xctx->inst + xctx->instances, 0, sizeof(xInstance) * (xctx->maxi - xctx->instances));
   #endif
@@ -86,7 +86,7 @@ void check_arc_storage(int c)
  if(xctx->arcs[c] >= xctx->maxa[c])
  {
   xctx->maxa[c]=(1 + xctx->arcs[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1592, &xctx->arc[c], sizeof(xArc)*xctx->maxa[c]);
+  my_realloc(_ALLOC_ID_, &xctx->arc[c], sizeof(xArc)*xctx->maxa[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->arc[c] + xctx->arcs[c], 0, sizeof(xArc) * (xctx->maxa[c] - xctx->arcs[c]));
   #endif
@@ -98,7 +98,7 @@ void check_box_storage(int c)
  if(xctx->rects[c] >= xctx->maxr[c])
  {
   xctx->maxr[c]=(1 + xctx->rects[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1593, &xctx->rect[c], sizeof(xRect)*xctx->maxr[c]);
+  my_realloc(_ALLOC_ID_, &xctx->rect[c], sizeof(xRect)*xctx->maxr[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->rect[c] + xctx->rects[c], 0, sizeof(xRect) * (xctx->maxr[c] - xctx->rects[c]));
   #endif
@@ -110,7 +110,7 @@ void check_line_storage(int c)
  if(xctx->lines[c] >= xctx->maxl[c])
  {
   xctx->maxl[c]=(1 + xctx->lines[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1594, &xctx->line[c], sizeof(xLine)*xctx->maxl[c]);
+  my_realloc(_ALLOC_ID_, &xctx->line[c], sizeof(xLine)*xctx->maxl[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->line[c] + xctx->lines[c], 0, sizeof(xLine) * (xctx->maxl[c] - xctx->lines[c]));
   #endif
@@ -122,7 +122,7 @@ void check_polygon_storage(int c)
  if(xctx->polygons[c] >= xctx->maxp[c])
  {
   xctx->maxp[c]=(1 + xctx->polygons[c] / CADMAXOBJECTS) * CADMAXOBJECTS;
-  my_realloc(1595, &xctx->poly[c], sizeof(xPoly)*xctx->maxp[c]);
+  my_realloc(_ALLOC_ID_, &xctx->poly[c], sizeof(xPoly)*xctx->maxp[c]);
   #ifdef ZERO_REALLOC
   memset(xctx->poly[c] + xctx->polygons[c], 0, sizeof(xPoly) * (xctx->maxp[c] - xctx->polygons[c]));
   #endif
@@ -150,7 +150,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   xctx->arc[rectc][n].a = a;
   xctx->arc[rectc][n].b = b;
   xctx->arc[rectc][n].prop_ptr = NULL;
-  my_strdup(1596, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
+  my_strdup(_ALLOC_ID_, &xctx->arc[rectc][n].prop_ptr, prop_ptr);
   xctx->arc[rectc][n].sel = sel;
   if(sel == SELECTED) set_first_sel(ARC, n, rectc);
 
@@ -192,10 +192,10 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   xctx->poly[rectc][n].y=NULL;
   xctx->poly[rectc][n].selected_point=NULL;
   xctx->poly[rectc][n].prop_ptr=NULL;
-  xctx->poly[rectc][n].x= my_calloc(1597, points, sizeof(double));
-  xctx->poly[rectc][n].y= my_calloc(1598, points, sizeof(double));
-  xctx->poly[rectc][n].selected_point= my_calloc(1599, points, sizeof(unsigned short));
-  my_strdup(1600, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
+  xctx->poly[rectc][n].x= my_calloc(_ALLOC_ID_, points, sizeof(double));
+  xctx->poly[rectc][n].y= my_calloc(_ALLOC_ID_, points, sizeof(double));
+  xctx->poly[rectc][n].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
+  my_strdup(_ALLOC_ID_, &xctx->poly[rectc][n].prop_ptr, prop_ptr);
   for(j=0;j<points; ++j) {
     xctx->poly[rectc][n].x[j] = x[j];
     xctx->poly[rectc][n].y[j] = y[j];
@@ -247,7 +247,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->line[rectc][n].y1=y1;
      xctx->line[rectc][n].y2=y2;
      xctx->line[rectc][n].prop_ptr=NULL;
-     my_strdup(1601, &xctx->line[rectc][n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->line[rectc][n].prop_ptr, prop_ptr);
      xctx->line[rectc][n].sel=sel;
      if(sel == SELECTED) set_first_sel(LINE, n, rectc);
      xctx->line[rectc][n].bus = 0;
@@ -281,7 +281,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].y2=y2;
      xctx->rect[rectc][n].prop_ptr=NULL;
      xctx->rect[rectc][n].extraptr=NULL;
-     my_strdup(1602, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
      if(sel == SELECTED) set_first_sel(xRECT, n, rectc);
 
@@ -341,7 +341,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->wire[n].node=NULL;
      xctx->wire[n].end1=0;
      xctx->wire[n].end2=0;
-     my_strdup(1603, &xctx->wire[n].prop_ptr, prop_ptr);
+     my_strdup(_ALLOC_ID_, &xctx->wire[n].prop_ptr, prop_ptr);
      xctx->wire[n].bus = 0;
      if(prop_ptr) {
        xctx->wire[n].bus = get_attr_val(get_tok_value(prop_ptr,"bus",0));
