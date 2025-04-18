@@ -175,7 +175,7 @@ int select_dangling_nets(void)
   char *type;
   double x0, y0, x1, y1, x2, y2;
 
-  table = my_calloc(_ALLOC_ID_, xctx->wires, sizeof(int));
+  table = my_calloc(1470, xctx->wires, sizeof(int));
   
   hash_instances();
   hash_wires();
@@ -315,7 +315,7 @@ int select_dangling_nets(void)
   xctx->need_reb_sel_arr = 1;
   rebuild_selected_array();
   draw_selection(xctx->gc[SELLAYER], 0);
-  my_free(_ALLOC_ID_, &table);
+  my_free(1471, &table);
   return ret;
 }
 
@@ -374,7 +374,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
      dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
      dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
-     my_free(_ALLOC_ID_, &estr);
+     my_free(1472, &estr);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);
@@ -404,7 +404,7 @@ static void del_rect_line_arc_poly()
    {
     if(c == GRIDLAYER) xctx->graph_lastsel = -1; /* invalidate last selected graph */
     ++j;
-    my_free(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr);
+    my_free(1473, &xctx->rect[c][i].prop_ptr);
     set_rect_extraptr(0, &xctx->rect[c][i]);
     deleted = 1;
     continue;
@@ -422,7 +422,7 @@ static void del_rect_line_arc_poly()
    {
     ++j;
     deleted = 1;
-    my_free(_ALLOC_ID_, &xctx->line[c][i].prop_ptr);
+    my_free(1474, &xctx->line[c][i].prop_ptr);
     continue;
    }
    if(j)
@@ -445,7 +445,7 @@ static void del_rect_line_arc_poly()
     else
       arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b,
                &tmp.x1, &tmp.y1, &tmp.x2, &tmp.y2);
-    my_free(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr);
+    my_free(1475, &xctx->arc[c][i].prop_ptr);
     deleted = 1;
     continue;
    }
@@ -470,10 +470,10 @@ static void del_rect_line_arc_poly()
       if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
     }
     ++j;
-    my_free(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr);
-    my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
-    my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
-    my_free(_ALLOC_ID_, &xctx->poly[c][i].selected_point);
+    my_free(1476, &xctx->poly[c][i].prop_ptr);
+    my_free(1477, &xctx->poly[c][i].x);
+    my_free(1478, &xctx->poly[c][i].y);
+    my_free(1479, &xctx->poly[c][i].selected_point);
     /*fprintf(errfp, "bbox: %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2); */
     deleted = 1;
     continue;
@@ -499,8 +499,8 @@ int delete_wires(int selected_flag)
     if(xctx->wire[i].sel == selected_flag) {
       ++j;
       /* hash_wire(XDELETE, i, 0); */ /* can not be done since wire deletions change wire idexes in array */
-      my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-      my_free(_ALLOC_ID_, &xctx->wire[i].node);
+      my_free(1480, &xctx->wire[i].prop_ptr);
+      my_free(1481, &xctx->wire[i].node);
 
       deleted = 1;
       continue;
@@ -546,11 +546,11 @@ void delete(int to_push_undo)
         cairo_restore(xctx->cairo_ctx);
       }
       #endif
-      my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
-      my_free(_ALLOC_ID_, &xctx->text[i].font);
-      my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);
-      my_free(_ALLOC_ID_, &xctx->text[i].floater_ptr);
-      my_free(_ALLOC_ID_, &xctx->text[i].txt_ptr);
+      my_free(1482, &xctx->text[i].prop_ptr);
+      my_free(1483, &xctx->text[i].font);
+      my_free(1484, &xctx->text[i].floater_instname);
+      my_free(1485, &xctx->text[i].floater_ptr);
+      my_free(1486, &xctx->text[i].txt_ptr);
       deleted = 1;
       ++j;
       continue;
@@ -572,12 +572,12 @@ void delete(int to_push_undo)
       deleted = 1;
       if(xctx->inst[i].prop_ptr != NULL)
       {
-        my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
+        my_free(1487, &xctx->inst[i].prop_ptr);
       }
       delete_inst_node(i);
-      my_free(_ALLOC_ID_, &xctx->inst[i].name);
-      my_free(_ALLOC_ID_, &xctx->inst[i].instname);
-      my_free(_ALLOC_ID_, &xctx->inst[i].lab);
+      my_free(1488, &xctx->inst[i].name);
+      my_free(1489, &xctx->inst[i].instname);
+      my_free(1490, &xctx->inst[i].lab);
       ++j;
       continue;
     }
@@ -947,7 +947,7 @@ static int select_attached_floaters(int inst, const char *name)
   char *attach = NULL;
   char *att_save, *att_ptr;
   if(!name || !name[0]) return found;
-  my_strdup2(_ALLOC_ID_, &attach, name);
+  my_strdup2(1491, &attach, name);
   att_ptr = attach;
   while( (name = my_strtok_r(att_ptr, " \n", "\"", 0, &att_save)) ) {
     att_ptr = NULL;
@@ -997,7 +997,7 @@ static int select_attached_floaters(int inst, const char *name)
       }
     }
   }
-  my_free(_ALLOC_ID_, &attach);
+  my_free(1492, &attach);
   return found;
 }
 
@@ -1424,7 +1424,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
-  my_free(_ALLOC_ID_, &estr);
+  my_free(1493, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1634,7 +1634,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
-  my_free(_ALLOC_ID_, &estr);
+  my_free(1494, &estr);
   #if HAS_CAIRO==1
   if(customfont) {
     cairo_restore(xctx->cairo_ctx);
@@ -1757,9 +1757,9 @@ int floaters_from_selected_inst()
         set_modify(1);
         first = 0;
       }
-      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
+      my_strdup2(1495, &xctx->inst[i].prop_ptr,
            subst_token(xctx->inst[i].prop_ptr, "hide_texts", "true"));
-      my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr,
+      my_strdup2(1496, &xctx->inst[i].prop_ptr,
            subst_token(xctx->inst[i].prop_ptr, "attach", xctx->inst[i].instname));
       set_inst_flags(&xctx->inst[i]);
       for(t = 0; t < sym->texts; t++) {

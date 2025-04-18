@@ -120,7 +120,7 @@ static void get_char(int c)
   dbg(dbglev, "get_char: %c |%s|\n", c, str);
   s[0] = (char)c;
   s[1] = '\0';
-  my_mstrcat(_ALLOC_ID_, &ret, s, NULL);
+  my_mstrcat(562, &ret, s, NULL);
   strptr = str;
 }
 
@@ -129,7 +129,7 @@ static void get_expr(double x)
   char xx[100];
   dbg(dbglev,"get_expr(): x=%g\n", x);
   my_snprintf(xx, S(xx), "%.15g", x);
-  my_mstrcat(_ALLOC_ID_, &ret, xx, NULL);
+  my_mstrcat(563, &ret, xx, NULL);
   strptr = str;
 }
 
@@ -167,10 +167,10 @@ static void kkerror(char *s)  /* Called by kkparse on error */
 {
   char *ss = NULL;
   dbg(dbglev, "error: |%s|\n\n   |%s|\n", s, str ? str : "<NULL>");
-  my_strdup2(_ALLOC_ID_, &ss, strptr);
+  my_strdup2(564, &ss, strptr);
   remove_expr(ss);
-  my_mstrcat(_ALLOC_ID_, &ret, ss, NULL);
-  my_free(_ALLOC_ID_, &ss);
+  my_mstrcat(565, &ret, ss, NULL);
+  my_free(566, &ss);
   lex_state = 0;
 }
 
@@ -185,8 +185,8 @@ static symrec *getsym(char *sym_name)
 symrec * putsym (char *sym_name)
 {
   symrec *ptr;
-  ptr = (symrec *) my_malloc(_ALLOC_ID_, sizeof (symrec));
-  ptr->name = (char *) my_malloc(_ALLOC_ID_, strlen (sym_name) + 1);
+  ptr = (symrec *) my_malloc(567, sizeof (symrec));
+  ptr->name = (char *) my_malloc(568, strlen (sym_name) + 1);
   strcpy (ptr->name,sym_name);
   ptr->next = (struct symrec *)sym_table;
   sym_table = ptr;
@@ -211,8 +211,8 @@ void eval_expr_clear_table(void)
   while(ptr) {
     symrec *tmp = ptr;
     ptr = ptr->next;
-    my_free(_ALLOC_ID_, &(tmp->name));
-    my_free(_ALLOC_ID_, &tmp);
+    my_free(569, &(tmp->name));
+    my_free(570, &tmp);
   }
 }
     
@@ -287,7 +287,7 @@ static int kklex()
 char *eval_expr(const char *s)
 {
   lex_state = 0;
-  if(ret) my_free(_ALLOC_ID_, &ret);
+  if(ret) my_free(571, &ret);
   strptr = str = s;
   kkparse();
   return ret;

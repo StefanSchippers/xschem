@@ -74,11 +74,11 @@ static void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == LONG && !strcmp("preinit", opt)) ) {
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
-        if(optval) my_strdup(_ALLOC_ID_, &cli_opt_preinit_command, optval);
+        if(optval) my_strdup(1051, &cli_opt_preinit_command, optval);
 
     } else if( (type == LONG && !strcmp("tcl", opt)) ) {
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
-        if(optval) my_strdup(_ALLOC_ID_, &cli_opt_tcl_command, optval);
+        if(optval) my_strdup(1052, &cli_opt_tcl_command, optval);
 
     } else if( (type == LONG && !strcmp("script", opt)) ) {
         dbg(1, "process_options(): passing tcl script file  to interpreter: %s\n", optval);
@@ -86,7 +86,7 @@ static void check_opt(char *opt, char *optval, int type)
 
     } else if( (type == LONG && !strcmp("command", opt)) ) {
         dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
-        if(optval)  my_strdup(_ALLOC_ID_, &cli_opt_tcl_post_command, optval);
+        if(optval)  my_strdup(1053, &cli_opt_tcl_post_command, optval);
 
     } else if( (type == LONG && !strcmp("diff", opt)) ) {
         dbg(1, "process_options(): diff with: %s\n", optval);

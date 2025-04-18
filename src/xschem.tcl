@@ -8536,7 +8536,8 @@ proc show_bindkeys {} {
         global dark_colorscheme dim_value dim_bg
         if {[winfo exists .bk]} {wm deiconify .bk; raise .bk; return}
         toplevel .bk -bg {}
-        wm attributes .bk -fullscreen 1
+        # wm attributes .bk -fullscreen 1
+        wm geometry .bk [winfo width .]x[winfo height .]+[winfo rootx .]+[expr {[winfo rooty .]+30}]
 
         # set save $dark_colorscheme
         # set dark_colorscheme 0

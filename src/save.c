@@ -38,11 +38,11 @@ char **parse_cmd_string(const char *cmd, int *argc)
   char *cmd_ptr, *cmd_save;
   dbg(1, "parse_cmd_string(): cmd=|%s|\n", cmd ? cmd : "<NULL>");
   if(!cmd || !cmd[0]) {
-    if(cmd_copy) my_free(_ALLOC_ID_, &cmd_copy);
+    if(cmd_copy) my_free(1101, &cmd_copy);
     return NULL;
   }
   *argc = 0;
-  my_strdup2(_ALLOC_ID_, &cmd_copy, cmd);
+  my_strdup2(1102, &cmd_copy, cmd);
   cmd_ptr = cmd_copy;
   while( (argv[*argc] = my_strtok_r(cmd_ptr, " \t", "'\"", 0, &cmd_save)) ) {
     cmd_ptr = NULL;
@@ -146,7 +146,7 @@ int filter_data(const char *din,  const size_t ilen,
   close(p1[1]);
   if(!ret) {
     oalloc = bufsize + 1; /* add extra space for final '\0' */
-    *dout = my_malloc(_ALLOC_ID_, oalloc);
+    *dout = my_malloc(1103, oalloc);
     *olen = 0;
     while( (n = read(p2[0], *dout + *olen, bufsize)) > 0) {
       *olen += n;
@@ -155,14 +155,14 @@ int filter_data(const char *din,  const size_t ilen,
         oalloc = *olen + bufsize + 1; /* add extra space for final '\0' */
         oalloc = ((oalloc << 2) + oalloc) >> 2; /* size up 1.25x */
         dbg(1, "filter_data() read %ld bytes, reallocate dout to %ld bytes, bufsize=%ld\n", n, oalloc, bufsize);
-        my_realloc(_ALLOC_ID_, dout, oalloc);
+        my_realloc(1104, dout, oalloc);
       }
     }
     if(*olen) (*dout)[*olen] = '\0'; /* so (if ascii) it can be used as a string */
   }
   if(n < 0 || !*olen) {
     if(oalloc) {
-      my_free(_ALLOC_ID_, dout);
+      my_free(1105, dout);
       *olen = 0;
     }
     fprintf(stderr, "no data read\n");
@@ -210,7 +210,7 @@ char *base64_encode(const unsigned char *data, const size_t input_length, size_t
 
   *output_length = 4 * ((input_length + 2) / 3);
   alloc_length = (1 + (*output_length / 4096)) * 4096;
-  encoded_data = my_malloc(_ALLOC_ID_, alloc_length);
+  encoded_data = my_malloc(1106, alloc_length);
   if (encoded_data == NULL) return NULL;
   cnt = 0;
   
@@ -222,7 +222,7 @@ char *base64_encode(const unsigned char *data, const size_t input_length, size_t
     if(j + 10  >= alloc_length) {
        dbg(1, "alloc-length=%ld, j=%d, output_length=%ld\n", alloc_length, j, *output_length);
        alloc_length += 4096;
-       my_realloc(_ALLOC_ID_, &encoded_data, alloc_length);
+       my_realloc(1107, &encoded_data, alloc_length);
     }
     if(brk && ( (cnt & 31) == 0) ) {
       *output_length += 1;
@@ -269,7 +269,7 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
   padding = 0;
   if (data[input_length - 1] == '=') padding++;
   if (data[input_length - 2] == '=') padding++;
-  decoded_data = my_malloc(_ALLOC_ID_, *output_length);
+  decoded_data = my_malloc(1108, *output_length);
   if (decoded_data == NULL) return NULL;
   cnt = 0;
   for (i = 0, j = 0; i < input_length;) {
@@ -312,12 +312,12 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
   
   int padding = (4-(input_length % 4))%4;
   static unsigned int pow85[] = {1, 85, 7225, 614125, 52200625};
-  unsigned char *paddedData = my_calloc(_ALLOC_ID_, input_length+padding, 1);
+  unsigned char *paddedData = my_calloc(1109, input_length+padding, 1);
   unsigned char *encoded_data;
   int i, idx = 0;
   memcpy( paddedData, data, input_length);
   *output_length = 5*(input_length+padding)/4;
-  encoded_data = my_malloc(_ALLOC_ID_, *output_length +1);
+  encoded_data = my_malloc(1110, *output_length +1);
   encoded_data[*output_length]=0;
   for (i = 0; i < input_length+padding; i+=4)
   {
@@ -350,7 +350,7 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
     encoded_data[idx]=b85_enc[encoded_data[idx]];
     ++idx;
   }
-  my_free(_ALLOC_ID_, &paddedData);
+  my_free(1111, &paddedData);
   *output_length-=padding;
   encoded_data[*output_length]=0;
   return encoded_data;
@@ -365,7 +365,7 @@ void transpose_matrix(double *a, int r, int c)
   int begin; /* holds start of cycle */
   int i;
   double tmp;
-  char *done = my_calloc(_ALLOC_ID_, r, c); /* hash to mark moved elements */
+  char *done = my_calloc(1112, r, c); /* hash to mark moved elements */
 
   done[0] = done[size] = 1; /* first and last matrix elements are not moved. */
   i = 1;
@@ -382,7 +382,7 @@ void transpose_matrix(double *a, int r, int c)
     /* Get Next Move */
     for (i = 1; i < size && done[i]; i++) ;
   }
-  my_free(_ALLOC_ID_, &done);
+  my_free(1113, &done);
 }
 
 static void skip_raw_ascii_points(int npoints, FILE *fd)
@@ -487,7 +487,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
   /* we store 4 variables (mag, phase, real and imag) but raw file has only real and imag */
   if(ac) rawvars >>= 1;
   /* read buffer */
-  tmp = my_calloc(_ALLOC_ID_, rawvars, (sizeof(double *) ));
+  tmp = my_calloc(1114, rawvars, (sizeof(double *) ));
 
   /* if sweep1 and sweep2 are given calculate actual npoints that will be loaded */
   npoints = raw->npoints[raw->datasets];
@@ -515,9 +515,9 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
     offset += raw->npoints[p];
   }
   /* allocate storage for binary block, add one data column for custom data plots */
-  if(!raw->values) raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
+  if(!raw->values) raw->values = my_calloc(1115, raw->nvars + 1, sizeof(SPICE_DATA *));
   for(p = 0 ; p <= raw->nvars; p++) {
-    my_realloc(_ALLOC_ID_,
+    my_realloc(1116,
        &raw->values[p], (offset + npoints) * sizeof(SPICE_DATA));
   }
   /* read binary block */
@@ -564,7 +564,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
     p++;
   }
   raw->npoints[raw->datasets] = npoints; /* if sweeep1 and sweep2 are given less points are read */
-  my_free(_ALLOC_ID_, &tmp);
+  my_free(1117, &tmp);
 }
 
 /* parse ascii raw header section:
@@ -615,13 +615,13 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
     else if(!my_strcasecmp(type, "sp")) type = "ac";
   }
   while((line = my_fgets(fd, NULL))) {
-    my_strdup2(_ALLOC_ID_, &lowerline, line);
+    my_strdup2(1118, &lowerline, line);
     strtolower(lowerline);
 
     /* after this line comes the ascii or binary blob made of nvars * npoints * sizeof(double) bytes */
     if(!strcmp(line, "Values:\n") || !strcmp(line, "Values:\r\n")) {
       if(sim_type) {
-        my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
+        my_strdup(1119, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
         read_raw_data_block(0, fd, raw, ac); 
@@ -640,7 +640,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     else if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
       if(sim_type) {
-        my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
+        my_strdup(1120, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
         read_raw_data_block(1, fd, raw, ac); 
@@ -721,7 +721,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
         goto read_dataset_done;
       }
       if(sim_type) {
-        my_realloc(_ALLOC_ID_, &raw->npoints, (raw->datasets+1) * sizeof(int));
+        my_realloc(1121, &raw->npoints, (raw->datasets+1) * sizeof(int));
         raw->npoints[raw->datasets] = npoints;
         /* multi-point OP is equivalent to a DC sweep. Change  sim_type */
         if(raw->npoints[raw->datasets] > 1 && !strcmp(sim_type, "op") ) {
@@ -768,7 +768,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
         goto read_dataset_done;
       }
       if(sim_type) {
-        my_realloc(_ALLOC_ID_, &raw->npoints, (raw->datasets+1) * sizeof(int));
+        my_realloc(1122, &raw->npoints, (raw->datasets+1) * sizeof(int));
         raw->npoints[raw->datasets] = npoints;
         /* multi-point OP is equivalent to a DC sweep. Change  sim_type */
         if(raw->npoints[raw->datasets] > 1 && !strcmp(sim_type, "op") ) {
@@ -779,9 +779,9 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
     if(sim_type && !done_header && variables) {
       char *ptr;
       /* get the list of lines with index and node name */
-      if(!raw->names) raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
-      if(!raw->cursor_b_val) raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
-      my_realloc(_ALLOC_ID_, &varname, strlen(line) + 1) ;
+      if(!raw->names) raw->names = my_calloc(1123, raw->nvars, sizeof(char *));
+      if(!raw->cursor_b_val) raw->cursor_b_val = my_calloc(1124, raw->nvars, sizeof(double));
+      my_realloc(1125, &varname, strlen(line) + 1) ;
       n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
@@ -798,31 +798,31 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
         ++ptr;
       }
       if(ac || (sim_type && !strcmp(sim_type, "ac")) ) { /* AC */
-        my_strcat(_ALLOC_ID_, &raw->names[i << 2], varname);
+        my_strcat(1126, &raw->names[i << 2], varname);
         int_hash_lookup(&raw->table, raw->names[i << 2], (i << 2), XINSERT_NOREPLACE);
         if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 1], "ph(", varname + 2, NULL);
+          my_mstrcat(1127, &raw->names[(i << 2) + 1], "ph(", varname + 2, NULL);
         } else {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 1], "ph(", varname, ")", NULL);
+          my_mstrcat(1128, &raw->names[(i << 2) + 1], "ph(", varname, ")", NULL);
         }
         int_hash_lookup(&raw->table, raw->names[(i << 2) + 1], (i << 2) + 1, XINSERT_NOREPLACE);
 
         if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 2], "re(", varname + 2, NULL);
+          my_mstrcat(1129, &raw->names[(i << 2) + 2], "re(", varname + 2, NULL);
         } else {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 2], "re(", varname, ")", NULL);
+          my_mstrcat(1130, &raw->names[(i << 2) + 2], "re(", varname, ")", NULL);
         }
         int_hash_lookup(&raw->table, raw->names[(i << 2) + 2], (i << 2) + 2, XINSERT_NOREPLACE);
 
         if(strstr(varname, "v(") == varname /* || strstr(varname, "i(") == varname */) {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 3], "im(", varname + 2, NULL);
+          my_mstrcat(1131, &raw->names[(i << 2) + 3], "im(", varname + 2, NULL);
         } else {
-          my_mstrcat(_ALLOC_ID_, &raw->names[(i << 2) + 3], "im(", varname, ")", NULL);
+          my_mstrcat(1132, &raw->names[(i << 2) + 3], "im(", varname, ")", NULL);
         }
         int_hash_lookup(&raw->table, raw->names[(i << 2) + 3], (i << 2) + 3, XINSERT_NOREPLACE);
 
       } else {
-        my_strcat(_ALLOC_ID_, &raw->names[i], varname);
+        my_strcat(1133, &raw->names[i], varname);
         int_hash_lookup(&raw->table, raw->names[i], i, XINSERT_NOREPLACE);
       }
       /* use hash table to store index number of variables */
@@ -832,7 +832,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
     if(sim_type && !strncmp(line, "Variables:", 10)) {
       variables = 1 ;
     }
-    my_free(_ALLOC_ID_, &line);
+    my_free(1134, &line);
   } /*  while((line = my_fgets(fd, NULL))  */
 
 
@@ -841,9 +841,9 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
     free_rawfile(rawptr, 0, no_warning);
   }
   read_dataset_done:
-  if(line) my_free(_ALLOC_ID_, &line);
-  if(lowerline) my_free(_ALLOC_ID_, &lowerline);
-  if(varname) my_free(_ALLOC_ID_, &varname);
+  if(line) my_free(1135, &line);
+  if(lowerline) my_free(1136, &lowerline);
+  if(varname) my_free(1137, &varname);
   if(exit_status == 1 && raw->datasets && raw->npoints) {
     dbg(dbglev, "raw file read: datasets=%d, last dataset points=%d, nvars=%d\n",
         raw->datasets,  raw->npoints[raw->datasets-1], raw->nvars);
@@ -869,24 +869,24 @@ void free_rawfile(Raw **rawptr, int dr, int no_warning)
   }
   if(raw->names) {
     for(i = 0 ; i < raw->nvars; ++i) {
-      my_free(_ALLOC_ID_, &raw->names[i]);
+      my_free(1138, &raw->names[i]);
     }
-    my_free(_ALLOC_ID_, &raw->names);
-    my_free(_ALLOC_ID_, &raw->cursor_b_val);
+    my_free(1139, &raw->names);
+    my_free(1140, &raw->cursor_b_val);
   }
   if(raw->values) {
     /* free also extra column for custom data plots */
     for(i = 0 ; i <= raw->nvars; ++i) {
-      my_free(_ALLOC_ID_, &raw->values[i]);
+      my_free(1141, &raw->values[i]);
     }
-    my_free(_ALLOC_ID_, &raw->values);
+    my_free(1142, &raw->values);
   }
-  if(raw->sim_type) my_free(_ALLOC_ID_, &raw->sim_type);
-  if(raw->npoints) my_free(_ALLOC_ID_, &raw->npoints);
-  if(raw->rawfile) my_free(_ALLOC_ID_, &raw->rawfile);
-  if(raw->schname) my_free(_ALLOC_ID_, &raw->schname);
+  if(raw->sim_type) my_free(1143, &raw->sim_type);
+  if(raw->npoints) my_free(1144, &raw->npoints);
+  if(raw->rawfile) my_free(1145, &raw->rawfile);
+  if(raw->schname) my_free(1146, &raw->schname);
   if(raw->table.table) int_hash_free(&raw->table);
-  my_free(_ALLOC_ID_, rawptr);
+  my_free(1147, rawptr);
 
   if(has_x) {
     tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
@@ -912,13 +912,13 @@ char *base64_from_file(const char *f, size_t *length)
     fd = my_fopen(f, fopen_read_mode);
     if(fd) {
       size_t bytes_read;
-      s = my_malloc(_ALLOC_ID_, len);
+      s = my_malloc(1148, len);
       if((bytes_read = fread(s, 1, len, fd)) < len) {
         dbg(0, "base64_from_file(): less bytes FROM %S, got %ld bytes\n", f, bytes_read);
       }
       fclose(fd);
       b64s = base64_encode(s, len, length, 1);
-      my_free(_ALLOC_ID_, &s);
+      my_free(1149, &s);
     }
     else {
       dbg(0, "base64_from_file(): failed to open file %s for reading\n", f);
@@ -957,7 +957,7 @@ int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, double swe
         s = base64_decode(b64_spice_data, length, &decoded_length);
         fwrite(s, decoded_length, 1, fd);
         fclose(fd);
-        my_free(_ALLOC_ID_, &s);
+        my_free(1150, &s);
         res = raw_read(tmp_filename, rawptr, type, 0, sweep1, sweep2);
         unlink(tmp_filename);
       } else {
@@ -977,15 +977,15 @@ int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
 
   if(!int_hash_lookup(&raw->table, varname, 0, XLOOKUP)) {
     raw->nvars++;
-    my_realloc(_ALLOC_ID_, &raw->names, raw->nvars * sizeof(char *));
-    my_realloc(_ALLOC_ID_, &raw->cursor_b_val, raw->nvars * sizeof(double));
+    my_realloc(1151, &raw->names, raw->nvars * sizeof(char *));
+    my_realloc(1152, &raw->cursor_b_val, raw->nvars * sizeof(double));
     raw->cursor_b_val[raw->nvars - 1] = 0.0;
     raw->names[raw->nvars - 1] = NULL;
-    my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
+    my_strdup2(1153, &raw->names[raw->nvars - 1], varname);
     int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
-    my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
+    my_realloc(1154, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
     raw->values[raw->nvars] = NULL;
-    my_realloc(_ALLOC_ID_, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
+    my_realloc(1155, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
     res = 1;
   }
   if(expr) {
@@ -1016,7 +1016,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
   dbg(1, "raw_read(): type=%s\n", type ? type : "<NULL>");
   fd = my_fopen(f, fopen_read_mode);
   if(fd) {
-    *rawptr = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+    *rawptr = my_calloc(1156, 1, sizeof(Raw));
     raw = *rawptr;
     raw->level = -1;
     raw->annot_p = -1;
@@ -1027,8 +1027,8 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
     if((res = read_dataset(fd, rawptr, type, no_warning)) == 1) {
       int i;
       set_modify(-2); /* clear text floater caches */
-      my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
-      my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
+      my_strdup2(1157, &raw->rawfile, f);
+      my_strdup2(1158, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
       raw->allpoints = 0;
       for(i = 0; i < raw->datasets; ++i) {
@@ -1084,7 +1084,7 @@ int raw_renamevar(const char *old_name, const char *new_name)
   if(n < 0) return ret;
   dbg(1, "n=%d, %s \n", n, entry->token);
   int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
-  my_strdup2(_ALLOC_ID_, &raw->names[n], new_name);
+  my_strdup2(1159, &raw->names[n], new_name);
   int_hash_lookup(&raw->table, raw->names[n], n, XINSERT); /* update hash table */
   ret = 1;
   return ret; 
@@ -1101,18 +1101,18 @@ int raw_deletevar(const char *name)
   if(n < 0) return ret;
   dbg(1, "n=%d, %s \n", n, entry->token);
   int_hash_lookup(&raw->table, entry->token, 0, XDELETE);
-  my_free(_ALLOC_ID_, &raw->names[n]);
+  my_free(1160, &raw->names[n]);
   for(i = n + 1; i < raw->nvars; i++) {
     int_hash_lookup(&raw->table, raw->names[i], i - 1, XINSERT); /* update hash table */
     raw->names[i - 1] = raw->names[i];
   }
-  my_free(_ALLOC_ID_, &raw->values[n]);
+  my_free(1161, &raw->values[n]);
   for(i = n + 1; i <= raw->nvars; i++) {
     raw->values[i - 1] = raw->values[i];
   }
   raw->nvars--;
-  my_realloc(_ALLOC_ID_, &raw->names, sizeof(char *) * raw->nvars);
-  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * raw->nvars + 1);
+  my_realloc(1162, &raw->names, sizeof(char *) * raw->nvars);
+  my_realloc(1163, &raw->values, sizeof(SPICE_DATA *) * raw->nvars + 1);
   ret = 1;
   return ret;
 }
@@ -1148,7 +1148,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
     if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
       double t;
 
-      xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+      xctx->raw = my_calloc(1164, 1, sizeof(Raw));
       raw = xctx->raw;
       raw->level = -1; 
       raw->sweep1 = -1.0;
@@ -1157,21 +1157,21 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       raw->annot_sweep_idx = -1;
   
       int_hash_init(&raw->table, HASHSIZE);
-      my_strdup2(_ALLOC_ID_, &raw->rawfile, name);
-      my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
-      my_strdup(_ALLOC_ID_, &raw->sim_type, type);
+      my_strdup2(1165, &raw->rawfile, name);
+      my_strdup2(1166, &raw->schname, xctx->sch[xctx->currsch]);
+      my_strdup(1167, &raw->sim_type, type);
       raw->level = xctx->currsch;
-      my_realloc(_ALLOC_ID_, &raw->npoints, 1 * sizeof(int)); /* for now assume only one dataset */
+      my_realloc(1168, &raw->npoints, 1 * sizeof(int)); /* for now assume only one dataset */
       raw->datasets = 1;
       raw->allpoints = number;
       raw->npoints[0] = number;
       raw->nvars = 1;
-      raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
-      raw->values[0] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
-      raw->values[1] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
-      raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
-      raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
-      my_strdup2(_ALLOC_ID_, &raw->names[0], sweepvar);
+      raw->values = my_calloc(1169, raw->nvars + 1, sizeof(SPICE_DATA *));
+      raw->values[0] = my_calloc(1170, number,  sizeof(SPICE_DATA));
+      raw->values[1] = my_calloc(1171, number,  sizeof(SPICE_DATA));
+      raw->names = my_calloc(1172, raw->nvars, sizeof(char *));
+      raw->cursor_b_val = my_calloc(1173, raw->nvars, sizeof(double));
+      my_strdup2(1174, &raw->names[0], sweepvar);
       int_hash_lookup(&raw->table, raw->names[0], 0, XINSERT_NOREPLACE);
 
       for(i = 0; i < number; i++) {
@@ -1240,7 +1240,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       save = xctx->raw; 
       xctx->raw = NULL;
       read_ret = table_read(f);
-      my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, type);
+      my_strdup(1175, &xctx->raw->sim_type, type);
       if(read_ret) {
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;
@@ -1500,7 +1500,7 @@ int table_read(const char *f)
     dbg(0, "table_read(): must clear current data file before loading new\n");
     return 0;
   }
-  xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+  xctx->raw = my_calloc(1176, 1, sizeof(Raw));
   raw = xctx->raw;
   raw->level = -1; 
   raw->annot_p = -1;
@@ -1542,7 +1542,7 @@ int table_read(const char *f)
       }
       if(!raw->datasets || (prev_prev_empty == 1 && prev_empty == 1) ) {
         raw->datasets++;
-        my_realloc(_ALLOC_ID_, &raw->npoints, raw->datasets * sizeof(int));
+        my_realloc(1177, &raw->npoints, raw->datasets * sizeof(int));
         dataset_points = 0;
       }
       prev_prev_empty = prev_empty = 0;
@@ -1556,9 +1556,9 @@ int table_read(const char *f)
         line_ptr = NULL;
         /* dbg(1,"%s ", line_tok); */
         if(nline == 0) { /* header line */
-          my_realloc(_ALLOC_ID_, &raw->names, (field + 1) * sizeof(char *));
+          my_realloc(1178, &raw->names, (field + 1) * sizeof(char *));
           raw->names[field] = NULL;
-          my_strcat(_ALLOC_ID_, &raw->names[field], line_tok);
+          my_strcat(1179, &raw->names[field], line_tok);
           int_hash_lookup(&raw->table, raw->names[field], field, XINSERT_NOREPLACE);
           raw->nvars = field + 1;
         } else { /* data line */
@@ -1580,19 +1580,19 @@ int table_read(const char *f)
       ++nline;
       if(nline == 1) {
         int f;
-        raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
+        raw->values = my_calloc(1180, raw->nvars + 1, sizeof(SPICE_DATA *));
         for(f = 0; f <= raw->nvars; f++) { /* one extra column for wave expressions */
-          my_realloc(_ALLOC_ID_, &raw->values[f], lines * sizeof(SPICE_DATA));
+          my_realloc(1181, &raw->values[f], lines * sizeof(SPICE_DATA));
         }
       }
       clear:
-      my_free(_ALLOC_ID_, &line);
+      my_free(1182, &line);
     } /* while(line ....) */
     raw->allpoints = 0;
     if(res == 1) {
       int i;
-      my_strdup2(_ALLOC_ID_, &raw->rawfile, f);
-      my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
+      my_strdup2(1183, &raw->rawfile, f);
+      my_strdup2(1184, &raw->schname, xctx->sch[xctx->currsch]);
       raw->level = xctx->currsch;
       raw->allpoints = 0;
       for(i = 0; i < raw->datasets; ++i) {
@@ -1604,7 +1604,7 @@ int table_read(const char *f)
     } else {
       dbg(0, "table_read(): no useful data found\n");
     }
-    raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
+    raw->cursor_b_val = my_calloc(1185, raw->nvars, sizeof(double));
     fclose(fd);
     return res;
   }
@@ -1709,18 +1709,18 @@ static double ravg_store(int what , int i, int p, int last, double value)
   } else if(what == 1) {
     if(i >= imax) {
       int new_size = i + 4;
-      my_realloc(_ALLOC_ID_, &arr, sizeof(double *) * new_size);
+      my_realloc(1186, &arr, sizeof(double *) * new_size);
       for(j = imax; j < new_size; ++j) {
-        arr[j] = my_calloc(_ALLOC_ID_, last + 1, sizeof(double));
+        arr[j] = my_calloc(1187, last + 1, sizeof(double));
       }
       imax = new_size;
     }
     arr[i][p] = value;
   } else if(what == 0 && imax) {
     for(j = 0; j < imax; ++j) {
-      my_free(_ALLOC_ID_, &arr[j]);
+      my_free(1188, &arr[j]);
     }
-    my_free(_ALLOC_ID_, &arr);
+    my_free(1189, &arr);
     imax = 0;
   }
   return 0.0;
@@ -1811,13 +1811,13 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       y = xctx->raw->values[yidx]; /* provided index */
     }
   }
-  my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
+  my_strdup2(1190, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
   dbg(1, "plot_raw_custom_data(): expr=%s, first=%d, last=%d\n", expr, first, last);
   while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
     if(stackptr1 >= STACKMAX -2) {
       dbg(0, "stack overflow in graph expression parsing. Interrupted\n");
-      my_free(_ALLOC_ID_, &ntok_copy);
+      my_free(1191, &ntok_copy);
       return -1;
     }
     ntok_ptr = NULL;
@@ -1900,7 +1900,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       idx = get_raw_index(n, NULL);
       if(idx == -1) {
         dbg(1, "plot_raw_custom_data(): no data found: %s\n", n);
-        my_free(_ALLOC_ID_, &ntok_copy);
+        my_free(1192, &ntok_copy);
         return -1; /* no data found in raw file */
       }
       stack1[stackptr1].i = SPICE_NODE;
@@ -1908,7 +1908,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       stackptr1++;
     }
   } /* while(n = my_strtok_r(...) */
-  my_free(_ALLOC_ID_, &ntok_copy);
+  my_free(1193, &ntok_copy);
   for(p = first ; p <= last; p++) {
     stackptr2 = 0;
     for(i = 0; i < stackptr1; ++i) {
@@ -2337,7 +2337,7 @@ void read_record(int firstchar, FILE *fp, int dbg_level)
     }
   }
   dbg(dbg_level,   "END SKIP RECORD\n");
-  my_free(_ALLOC_ID_, &str);
+  my_free(1194, &str);
 }
 
 /* skip line of text from file, stopping before '\n' or EOF */
@@ -2466,7 +2466,7 @@ void save_ascii_string(const char *ptr, FILE *fd, int newline)
 
   if(ptr == NULL) {
     if( fd == NULL) { /* used to clear static data */
-       my_free(_ALLOC_ID_, &strbuf);
+       my_free(1195, &strbuf);
        strbuf_size = 0;
        return;
     }
@@ -2475,11 +2475,11 @@ void save_ascii_string(const char *ptr, FILE *fd, int newline)
     return;
   }
   len = strlen(ptr) + CADCHUNKALLOC;
-  if(strbuf_size < len ) my_realloc(_ALLOC_ID_, &strbuf, (strbuf_size = len));
+  if(strbuf_size < len ) my_realloc(1196, &strbuf, (strbuf_size = len));
 
   strbuf[strbuf_pos++] = '{';
   while( (c = *ptr++) ) {
-    if(strbuf_pos > strbuf_size - 6) my_realloc(_ALLOC_ID_, &strbuf, (strbuf_size += CADCHUNKALLOC));
+    if(strbuf_pos > strbuf_size - 6) my_realloc(1197, &strbuf, (strbuf_size += CADCHUNKALLOC));
     if( c=='\\' || c=='{' || c=='}') strbuf[strbuf_pos++] = '\\';
     strbuf[strbuf_pos++] = (char)c;
   }
@@ -2569,7 +2569,7 @@ static void save_inst(FILE *fd, int select_only)
  dbg(1, "save_inst(): saving instances\n");
  inst=xctx->inst;
  oldversion = !strcmp(xctx->file_version, "1.0");
- embedded_saved = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(int));
+ embedded_saved = my_calloc(1198, xctx->symbols, sizeof(int));
  for(i=0;i<xctx->instances; ++i)
  {
   int ptr = inst[i].ptr;
@@ -2581,9 +2581,9 @@ static void save_inst(FILE *fd, int select_only)
   if(ptr >=0) xctx->sym[ptr].flags &=~EMBEDDED;
   fputs("C ", fd);
   if(oldversion) {
-    my_strdup2(_ALLOC_ID_, &tmp, add_ext(inst[i].name, ".sym"));
+    my_strdup2(1199, &tmp, add_ext(inst[i].name, ".sym"));
     save_ascii_string(tmp, fd, 0);
-    my_free(_ALLOC_ID_, &tmp);
+    my_free(1200, &tmp);
   } else {
     save_ascii_string(inst[i].name, fd, 0);
   }
@@ -2597,7 +2597,7 @@ static void save_inst(FILE *fd, int select_only)
     xctx->sym[ptr].flags |= EMBEDDED;
   }
  }
- my_free(_ALLOC_ID_, &embedded_saved);
+ my_free(1201, &embedded_saved);
 }
 
 static void save_wire(FILE *fd, int select_only)
@@ -2709,7 +2709,7 @@ static void write_xschem_file(FILE *fd)
   size_t tmpstring_size;
   char *header_ptr = xctx->header_text ? xctx->header_text : "";
   tmpstring_size = strlen(header_ptr) + 100;
-  tmpstring = my_malloc(_ALLOC_ID_, tmpstring_size);
+  tmpstring = my_malloc(1202, tmpstring_size);
   if(xctx->header_text && xctx->header_text[0]) {
     my_snprintf(tmpstring, tmpstring_size, "xschem version=%s file_version=%s\n%s",
         XSCHEM_VERSION, XSCHEM_FILE_VERSION, header_ptr);
@@ -2719,7 +2719,7 @@ static void write_xschem_file(FILE *fd)
   }
   fprintf(fd, "v ");
   save_ascii_string(tmpstring, fd, 1);
-  my_free(_ALLOC_ID_, &tmpstring);
+  my_free(1203, &tmpstring);
 
   if(xctx->schvhdlprop && !xctx->schsymbolprop) {
     get_tok_value(xctx->schvhdlprop,"type",0);
@@ -2827,13 +2827,13 @@ static void load_inst(int k, FILE *fd)
     xctx->inst[i].name=NULL;
     /* avoid as much as possible calls to rel_sym_path (slow) */
     #ifdef __unix__
-    if(name[0] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
-    else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
+    if(name[0] == '/') my_strdup2(1204, &xctx->inst[i].name, rel_sym_path(name));
+    else my_strdup2(1205, &xctx->inst[i].name, name);
     #else 
-    if(isupper(name[0]) && name[1] == ':' && name[1] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
-    else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
+    if(isupper(name[0]) && name[1] == ':' && name[1] == '/') my_strdup2(1206, &xctx->inst[i].name, rel_sym_path(name));
+    else my_strdup2(1207, &xctx->inst[i].name, name);
     #endif
-    my_free(_ALLOC_ID_, &tmp);
+    my_free(1208, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,
        &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
       fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
@@ -2847,14 +2847,14 @@ static void load_inst(int k, FILE *fd)
       xctx->inst[i].lab=NULL; /* assigned in link_symbols_to_instances */
       xctx->inst[i].node=NULL;
       load_ascii_string(&prop_ptr,fd);
-      my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, prop_ptr);
+      my_strdup(1209, &xctx->inst[i].prop_ptr, prop_ptr);
 
       set_inst_flags(&xctx->inst[i]);
       dbg(2, "load_inst(): n=%d name=%s prop=%s\n", i, xctx->inst[i].name? xctx->inst[i].name:"<NULL>",
                xctx->inst[i].prop_ptr? xctx->inst[i].prop_ptr:"<NULL>");
       xctx->instances++;
     }
-    my_free(_ALLOC_ID_, &prop_ptr);
+    my_free(1210, &prop_ptr);
 }
 
 static void load_polygon(FILE *fd)
@@ -2882,17 +2882,17 @@ static void load_polygon(FILE *fd)
     ptr[i].y=NULL;
     ptr[i].selected_point=NULL;
     ptr[i].prop_ptr=NULL;
-    ptr[i].x = my_calloc(_ALLOC_ID_, points, sizeof(double));
-    ptr[i].y = my_calloc(_ALLOC_ID_, points, sizeof(double));
-    ptr[i].selected_point= my_calloc(_ALLOC_ID_, points, sizeof(unsigned short));
+    ptr[i].x = my_calloc(1211, points, sizeof(double));
+    ptr[i].y = my_calloc(1212, points, sizeof(double));
+    ptr[i].selected_point= my_calloc(1213, points, sizeof(unsigned short));
     ptr[i].points=points;
     ptr[i].sel=0;
     for(j=0;j<points; ++j) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
         fprintf(errfp,"WARNING: missing fields for POLYGON points, ignoring.\n");
-        my_free(_ALLOC_ID_, &ptr[i].x);
-        my_free(_ALLOC_ID_, &ptr[i].y);
-        my_free(_ALLOC_ID_, &ptr[i].selected_point);
+        my_free(1214, &ptr[i].x);
+        my_free(1215, &ptr[i].y);
+        my_free(1216, &ptr[i].selected_point);
         read_line(fd, 0);
         return;
       }
@@ -3080,16 +3080,16 @@ static void read_xschem_file(FILE *fd)
 
 
         if((ptr2 = strstr(xctx->version_string, "xschem")) && (ptr2 - xctx->version_string < 50)) {
-          my_strdup2(_ALLOC_ID_, &ptr, subst_token(xctx->version_string, "xschem", NULL));
+          my_strdup2(1217, &ptr, subst_token(xctx->version_string, "xschem", NULL));
         }                 
-        my_strdup2(_ALLOC_ID_, &ptr, subst_token(ptr, "version", NULL));
-        my_strdup2(_ALLOC_ID_, &ptr, subst_token(ptr, "file_version", NULL));
+        my_strdup2(1218, &ptr, subst_token(ptr, "version", NULL));
+        my_strdup2(1219, &ptr, subst_token(ptr, "file_version", NULL));
         
         ptr2 = ptr;
         while(*ptr2 == ' ' || *ptr2 =='\t') ptr2++; /* strip leading spaces */
         if(*ptr2 == '\n') ptr2++; /* strip leading newline */
-        my_strdup2(_ALLOC_ID_, &xctx->header_text, ptr2);
-        my_free(_ALLOC_ID_,&ptr);
+        my_strdup2(1220, &xctx->header_text, ptr2);
+        my_free(1221,&ptr);
       }
       dbg(1, "read_xschem_file(): file_version=%s\n", xctx->file_version);
       break;
@@ -3137,7 +3137,7 @@ static void read_xschem_file(FILE *fd)
       break;
      case '[':
       found=0;
-      my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances-1].prop_ptr,
+      my_strdup(1222, &xctx->inst[xctx->instances-1].prop_ptr,
                 subst_token(xctx->inst[xctx->instances-1].prop_ptr, "embed", "true"));
       if(xctx->inst[xctx->instances-1].name) {
         my_snprintf(name_embedded, S(name_embedded), "%s/.xschem_embedded_%d_%s",
@@ -3153,7 +3153,7 @@ static void read_xschem_file(FILE *fd)
          /* if loading file coming back from embedded symbol delete temporary file */
          /* symbol from this temp file has already been loaded in go_back() */
          if(!xctx->x_strcmp(name_embedded, xctx->sym[i].name)) {
-           my_strdup2(_ALLOC_ID_, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
+           my_strdup2(1223, &xctx->sym[i].name, xctx->inst[xctx->instances-1].name);
            xunlink(name_embedded);
            found=1;break;
          }
@@ -3210,13 +3210,13 @@ void load_ascii_string(char **ptr, FILE *fd)
 
  for(;;)
  {
-  if(i+5>strlength) my_realloc(_ALLOC_ID_, &str,(strlength+=CADCHUNKALLOC));
+  if(i+5>strlength) my_realloc(1224, &str,(strlength+=CADCHUNKALLOC));
   c=fgetc(fd);
   if (c=='\r') continue;
   if(c==EOF) {
     fprintf(errfp, "EOF reached, malformed {...} string input, missing close brace\n");
-    my_free(_ALLOC_ID_, ptr);
-    my_free(_ALLOC_ID_, &str);
+    my_free(1225, ptr);
+    my_free(1226, &str);
     return;
   }
   if(begin) {
@@ -3236,9 +3236,9 @@ void load_ascii_string(char **ptr, FILE *fd)
   } else if(c=='{') begin=1;
  }
  dbg(2, "load_ascii_string(): string read=%s\n",str? str:"<NULL>");
- my_strdup(_ALLOC_ID_, ptr, str);
+ my_strdup(1227, ptr, str);
  dbg(2, "load_ascii_string(): loaded %s\n",*ptr? *ptr:"<NULL>");
- my_free(_ALLOC_ID_, &str);
+ my_free(1228, &str);
 }
 
 void make_symbol(void)
@@ -3359,7 +3359,7 @@ Sch_pin_record *sort_schematic_pins(int *npins)
       (*npins)++;
     }
   }
-  pinnumber_list = my_malloc(_ALLOC_ID_, sizeof(Sch_pin_record) * *npins);
+  pinnumber_list = my_malloc(1229, sizeof(Sch_pin_record) * *npins);
   *npins = 0;
   for(i=0;i<xctx->instances; ++i) {
     if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -3404,11 +3404,11 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   dbg(1, "save_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch] ? xctx->sch[xctx->currsch] : "<NULL>");
 
   if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
-    my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
+    my_strdup2(1230, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
   }
   else if(strcmp(schname, xctx->sch[xctx->currsch])) { /* user asks to save to a different filename */
-    my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
+    my_strdup2(1231, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
   }
   else { /* user asks to save to same filename */
@@ -3474,16 +3474,16 @@ void link_symbols_to_instances(int from)
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name)));
+    my_strdup2(1232, &name, tcl_hook2(translate(i, xctx->inst[i].name)));
     xctx->inst[i].ptr = match_symbol(name);
-    my_free(_ALLOC_ID_, &name);
+    my_free(1233, &name);
   }
   for(i = from; i < xctx->instances; ++i) {
     type=xctx->sym[xctx->inst[i].ptr].type;
     cond= type && IS_LABEL_SH_OR_PIN(type);
     if(cond) {
       xctx->inst[i].flags |= PIN_OR_LABEL; /* label or pin */
-      my_strdup2(_ALLOC_ID_, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
+      my_strdup2(1234, &xctx->inst[i].lab, get_tok_value(xctx->inst[i].prop_ptr,"lab",0));
     }
     else xctx->inst[i].flags &= ~PIN_OR_LABEL; /* ordinary symbol */
   }
@@ -3510,7 +3510,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
   xctx->prep_hash_wires=0;
-  my_strdup2(_ALLOC_ID_, &ffname, trim_chars(fname, " \t\n"));
+  my_strdup2(1235, &ffname, trim_chars(fname, " \t\n"));
   if(reset_undo) {
     xctx->clear_undo();
     xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
@@ -3522,7 +3522,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     tclvareval("is_xschem_file {", ffname, "}", NULL);
     if(!strcmp(tclresult(), "GENERATOR")) {
       size_t len = strlen(ffname);
-      if( ffname[len - 1] != ')') my_strcat(_ALLOC_ID_, &ffname, "()");
+      if( ffname[len - 1] != ')') my_strcat(1236, &ffname, "()");
     }
     if(is_generator(ffname)) generator = 1;
     my_strncpy(name, ffname, S(name));
@@ -3537,7 +3537,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], name);
+      my_strdup2(1237, &xctx->sch[xctx->currsch], name);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(name), S(xctx->current_name));
     /* local filename specified but coming (push, pop) from web object ... */
@@ -3552,7 +3552,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       } 
       /* local file name */
-      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], ffname);
+      my_strdup2(1238, &xctx->sch[xctx->currsch], ffname);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(ffname), S(xctx->current_name));
     } else { /* local file specified and not coming from web url */
@@ -3560,7 +3560,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
       my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
       /* local file name */
-      my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], ffname);
+      my_strdup2(1239, &xctx->sch[xctx->currsch], ffname);
       /* local relative reference */
       my_strncpy(xctx->current_name, rel_sym_path(ffname), S(xctx->current_name));
     }
@@ -3568,7 +3568,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     dbg(1, "load_schematic(): opening file for loading:%s, ffname=%s\n", name, ffname);
     dbg(1, "load_schematic(): sch[currsch]=%s\n", xctx->sch[xctx->currsch]);
     if(!name[0]) {
-      my_free(_ALLOC_ID_, &ffname);
+      my_free(1240, &ffname);
       return 0; /* empty filename */
     }
     if(reset_undo) {
@@ -3584,7 +3584,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       cmd = get_generator_command(ffname);
       if(cmd) {
         fd = popen(cmd, "r");
-        my_free(_ALLOC_ID_, &cmd);
+        my_free(1241, &cmd);
       } else fd = NULL;
     }
     else fd=my_fopen(name,fopen_read_mode);
@@ -3654,7 +3654,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     } else {
       my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
     }
-    my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch],  xctx->current_dirname, "/", name, NULL);
+    my_mstrcat(1242, &xctx->sch[xctx->currsch],  xctx->current_dirname, "/", name, NULL);
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();
@@ -3668,7 +3668,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     set_netlist_dir(2, NULL);
     drc_check(-1);
   }
-  my_free(_ALLOC_ID_, &ffname);
+  my_free(1243, &ffname);
   return ret;
 }
 
@@ -3692,7 +3692,7 @@ void delete_undo(void)
     xunlink(diff_name);
   }
   rmdir(xctx->undo_dirname);
-  my_free(_ALLOC_ID_, &xctx->undo_dirname);
+  my_free(1244, &xctx->undo_dirname);
   xctx->undo_initialized = 0;
 }
 
@@ -3701,7 +3701,7 @@ static void init_undo(void)
 {
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
-    if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+    if( !my_strdup(1245, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
       dbg(0, "init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       dbg(0, "init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */
@@ -3922,7 +3922,7 @@ static void get_sym_type(const char *symname, char **type,
   /* first look in already loaded symbols in xctx->sym[] array... */
   for(i=0;i<xctx->symbols; ++i) {
     if(xctx->x_strcmp(symname, xctx->sym[i].name) == 0) {
-      my_strdup2(_ALLOC_ID_, type, xctx->sym[i].type);
+      my_strdup2(1246, type, xctx->sym[i].type);
       found = 1;
       break;
     }
@@ -3943,7 +3943,7 @@ static void get_sym_type(const char *symname, char **type,
 
     if(fd==NULL) {
       dbg(1, "get_sym_type(): Symbol not found: %s\n",name);
-      my_strdup2(_ALLOC_ID_, type, "");
+      my_strdup2(1247, type, "");
     } else {
       char *globalprop=NULL;
       int fscan_ret;
@@ -3957,12 +3957,12 @@ static void get_sym_type(const char *symname, char **type,
           case 'G':
             load_ascii_string(&globalprop,fd);
             if(!found) {
-              my_strdup2(_ALLOC_ID_, type, get_tok_value(globalprop, "type", 0));
+              my_strdup2(1248, type, get_tok_value(globalprop, "type", 0));
             }
             break;
           case 'K':
             load_ascii_string(&globalprop,fd);
-            my_strdup2(_ALLOC_ID_, type, get_tok_value(globalprop, "type", 0));
+            my_strdup2(1249, type, get_tok_value(globalprop, "type", 0));
             if(type[0]) found = 1;
             break;
           case 'B':
@@ -3991,8 +3991,8 @@ static void get_sym_type(const char *symname, char **type,
         }
         read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
       }
-      my_free(_ALLOC_ID_, &globalprop);
-      my_free(_ALLOC_ID_, &rect.prop_ptr);
+      my_free(1250, &globalprop);
+      my_free(1251, &rect.prop_ptr);
       if(!embed_fd) fclose(fd);
     }
   }
@@ -4023,7 +4023,7 @@ static void align_sch_pins_with_sym(const char *name, int pos)
           name, symname);
         fail = 1;
       }
-      rect = (xRect *) my_malloc(_ALLOC_ID_, sizeof(xRect) * sym_n_pins);
+      rect = (xRect *) my_malloc(1252, sizeof(xRect) * sym_n_pins);
       dbg(1, "align_sch_pins_with_sym(): symbol: %s\n", symname);
       for(i=0; i < xctx->sym[pos].rects[PINLAYER]; ++i) {
         Int_hashentry *entry;
@@ -4044,10 +4044,10 @@ static void align_sch_pins_with_sym(const char *name, int pos)
           xctx->sym[pos].rect[PINLAYER][i] = rect[i];
         }
       }
-      my_free(_ALLOC_ID_, &rect);
+      my_free(1253, &rect);
     }
     int_hash_free(&pintable);
-    my_free(_ALLOC_ID_, &symtype);
+    my_free(1254, &symtype);
   }
 }
 
@@ -4061,14 +4061,14 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   char *pin_label = NULL;
 
   i = lastr[PINLAYER];
-  my_realloc(_ALLOC_ID_, &bb[PINLAYER], (i + 1) * sizeof(xRect));
+  my_realloc(1255, &bb[PINLAYER], (i + 1) * sizeof(xRect));
   bb[PINLAYER][i].x1 = i_x0 - 2.5; bb[PINLAYER][i].x2 = i_x0 + 2.5;
   bb[PINLAYER][i].y1 = i_y0 - 2.5; bb[PINLAYER][i].y2 = i_y0 + 2.5;
   RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
   bb[PINLAYER][i].prop_ptr = NULL;
   label = get_tok_value(prop_ptr, "lab", 0);
   save = strlen(label)+30;
-  pin_label = my_malloc(_ALLOC_ID_, save);
+  pin_label = my_malloc(1256, save);
   pin_label[0] = '\0';
   if (!strcmp(symtype, "ipin")) {
     my_snprintf(pin_label, save, "name=%s dir=in ", label);
@@ -4077,7 +4077,7 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   } else if (!strcmp(symtype, "iopin")) {
     my_snprintf(pin_label, save, "name=%s dir=inout ", label);
   }
-  my_strdup(_ALLOC_ID_, &bb[PINLAYER][i].prop_ptr, pin_label);
+  my_strdup(1257, &bb[PINLAYER][i].prop_ptr, pin_label);
   bb[PINLAYER][i].flags = 0;
   bb[PINLAYER][i].extraptr = 0;
   bb[PINLAYER][i].dash = 0;
@@ -4085,9 +4085,9 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   bb[PINLAYER][i].sel = 0;
   bb[PINLAYER][i].fill = 1;
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
-  my_strdup(_ALLOC_ID_, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
-  my_strcat(_ALLOC_ID_, &bb[PINLAYER][i].prop_ptr, pin_label);
-  my_free(_ALLOC_ID_, &pin_label);
+  my_strdup(1258, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
+  my_strcat(1259, &bb[PINLAYER][i].prop_ptr, pin_label);
+  my_free(1260, &pin_label);
   lastr[PINLAYER]++;
 }
 
@@ -4173,7 +4173,7 @@ static void calc_symbol_bbox(int pos)
 *    estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
 *    text_bbox(estr, tt[i].xscale, tt[i].yscale, rot, flip,
 *    tt[i].x0, tt[i].y0, &rx1,&ry1,&rx2,&ry2, &dtmp);
-*    my_free(_ALLOC_ID_, &estr);
+*    my_free(1261, &estr);
 *    tmp.x1=rx1;tmp.y1=ry1;tmp.x2=rx2;tmp.y2=ry2;
 *    updatebbox(count,&boundbox,&tmp);
 *  }
@@ -4230,15 +4230,15 @@ int load_sym_def(const char *name, FILE *embed_fd)
   short inst_rot, inst_flip;
   char *symname = NULL;
   char tag[1];
-  int *lastl = my_malloc(_ALLOC_ID_, cadlayers * sizeof(lastl));
-  int *lastr = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
-  int *lastp = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
-  int *lasta = my_malloc(_ALLOC_ID_, cadlayers * sizeof(int));
+  int *lastl = my_malloc(1262, cadlayers * sizeof(lastl));
+  int *lastr = my_malloc(1263, cadlayers * sizeof(int));
+  int *lastp = my_malloc(1264, cadlayers * sizeof(int));
+  int *lasta = my_malloc(1265, cadlayers * sizeof(int));
   int lastt;
-  xLine tmpline, **ll = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xLine *));
-  xRect tmprect, **bb = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xRect *));
-  xPoly tmppoly, **pp = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xPoly *));
-  xArc tmparc, **aa = my_malloc(_ALLOC_ID_, cadlayers * sizeof(xArc *));
+  xLine tmpline, **ll = my_malloc(1266, cadlayers * sizeof(xLine *));
+  xRect tmprect, **bb = my_malloc(1267, cadlayers * sizeof(xRect *));
+  xPoly tmppoly, **pp = my_malloc(1268, cadlayers * sizeof(xPoly *));
+  xArc tmparc, **aa = my_malloc(1269, cadlayers * sizeof(xArc *));
   xText tmptext, *tt;
   int endfile;
   char *skip_line;
@@ -4260,9 +4260,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
   dbg(1, "l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name);
   recursion_counter++;
   lcc=NULL;
-  my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));
+  my_realloc(1270, &lcc, (level + 1) * sizeof(Lcc));
   max_level = level + 1;
-  my_strdup2(_ALLOC_ID_, &transl_name, tcl_hook2(name));
+  my_strdup2(1271, &transl_name, tcl_hook2(name));
   dbg(1, "l_s_d(): transl_name=%s\n", transl_name);
   generator = is_generator(transl_name);
   if(generator) {
@@ -4274,7 +4274,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     } else {
       lcc[level].fd = NULL;
     }
-    my_free(_ALLOC_ID_, &translated_cmd);
+    my_free(1272, &translated_cmd);
   } else if(!embed_fd) { /* regular symbol: open file */
     if(!strcmp(xctx->file_version,"1.0")) {
       my_strncpy(sympath, abs_sym_path(transl_name, ".sym"), S(sympath));
@@ -4323,16 +4323,16 @@ int load_sym_def(const char *name, FILE *embed_fd)
   symbol[symbols].base_name=NULL;
   symbol[symbols].name=NULL;
 
-  symbol[symbols].line=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-  symbol[symbols].poly=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
-  symbol[symbols].arc=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-  symbol[symbols].rect=my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-  symbol[symbols].lines=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  symbol[symbols].rects=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  symbol[symbols].arcs=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  symbol[symbols].polygons=my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  symbol[symbols].line=my_calloc(1273, cadlayers, sizeof(xLine *));
+  symbol[symbols].poly=my_calloc(1274, cadlayers, sizeof(xPoly *));
+  symbol[symbols].arc=my_calloc(1275, cadlayers, sizeof(xArc *));
+  symbol[symbols].rect=my_calloc(1276, cadlayers, sizeof(xRect *));
+  symbol[symbols].lines=my_calloc(1277, cadlayers, sizeof(int));
+  symbol[symbols].rects=my_calloc(1278, cadlayers, sizeof(int));
+  symbol[symbols].arcs=my_calloc(1279, cadlayers, sizeof(int));
+  symbol[symbols].polygons=my_calloc(1280, cadlayers, sizeof(int));
 
-  my_strdup2(_ALLOC_ID_, &symbol[symbols].name,transl_name);
+  my_strdup2(1281, &symbol[symbols].name,transl_name);
   /* read symbol from file */
   while(1)
   {
@@ -4342,8 +4342,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
           dbg(1, "l_s_d(): fclose1, level=%d, fd=%p\n", level, lcc[level].fd);
           if(generator) pclose(lcc[level].fd);
           else fclose(lcc[level].fd);
-          my_free(_ALLOC_ID_, &lcc[level].prop_ptr);
-          my_free(_ALLOC_ID_, &lcc[level].symname);
+          my_free(1282, &lcc[level].prop_ptr);
+          my_free(1283, &lcc[level].symname);
           --level;
           continue;
       } else break;
@@ -4412,12 +4412,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
   
         if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
-          my_free(_ALLOC_ID_, &tmpline.prop_ptr);
+          my_free(1284, &tmpline.prop_ptr);
           continue;
         }
   
         i=lastl[c];
-        my_realloc(_ALLOC_ID_, &ll[c],(i+1)*sizeof(xLine));
+        my_realloc(1285, &ll[c],(i+1)*sizeof(xLine));
   
         ll[c][i].x1 = tmpline.x1;
         ll[c][i].y1 = tmpline.y1;
@@ -4456,9 +4456,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
           continue;
         }
   
-        tmppoly.x = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
-        tmppoly.y = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
-        tmppoly.selected_point = my_calloc(_ALLOC_ID_, poly_points, sizeof(unsigned short));
+        tmppoly.x = my_calloc(1286, poly_points, sizeof(double));
+        tmppoly.y = my_calloc(1287, poly_points, sizeof(double));
+        tmppoly.selected_point = my_calloc(1288, poly_points, sizeof(unsigned short));
         tmppoly.points = poly_points;
         for(k=0;k<poly_points; ++k) {
           if(fscanf(lcc[level].fd, "%lf %lf ",&(tmppoly.x[k]), &(tmppoly.y[k]) ) < 2 ) {
@@ -4475,15 +4475,15 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string( &tmppoly.prop_ptr, lcc[level].fd);
   
         if( !strboolcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
-          my_free(_ALLOC_ID_, &tmppoly.prop_ptr);
-          my_free(_ALLOC_ID_, &tmppoly.x);
-          my_free(_ALLOC_ID_, &tmppoly.y);
-          my_free(_ALLOC_ID_, &tmppoly.selected_point);
+          my_free(1289, &tmppoly.prop_ptr);
+          my_free(1290, &tmppoly.x);
+          my_free(1291, &tmppoly.y);
+          my_free(1292, &tmppoly.selected_point);
           continue; 
         }
   
         i=lastp[c];
-        my_realloc(_ALLOC_ID_, &pp[c],(i+1)*sizeof(xPoly));
+        my_realloc(1293, &pp[c],(i+1)*sizeof(xPoly));
   
         pp[c][i].x = tmppoly.x;
         pp[c][i].y = tmppoly.y;
@@ -4529,12 +4529,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string( &tmparc.prop_ptr, lcc[level].fd);
   
         if( !strboolcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
-          my_free(_ALLOC_ID_, &tmparc.prop_ptr);
+          my_free(1294, &tmparc.prop_ptr);
           continue;
         }
   
         i=lasta[c];
-        my_realloc(_ALLOC_ID_, &aa[c],(i+1)*sizeof(xArc));
+        my_realloc(1295, &aa[c],(i+1)*sizeof(xArc));
   
         aa[c][i].x = tmparc.x;
         aa[c][i].y = tmparc.y;
@@ -4592,13 +4592,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string(&tmprect.prop_ptr, lcc[level].fd);
   
         if( !strboolcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
-          my_free(_ALLOC_ID_, &tmprect.prop_ptr);
+          my_free(1296, &tmprect.prop_ptr);
           continue;
         }
   
         if (level>0 && c == PINLAYER) c = 7; /* Don't care about pins inside SYM: set on different layer */
         i=lastr[c];
-        my_realloc(_ALLOC_ID_, &bb[c],(i+1)*sizeof(xRect));
+        my_realloc(1297, &bb[c],(i+1)*sizeof(xRect));
   
         bb[c][i].x1 = tmprect.x1;
         bb[c][i].y1 = tmprect.y1;
@@ -4616,7 +4616,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         RECTORDER(bb[c][i].x1, bb[c][i].y1, bb[c][i].x2, bb[c][i].y2);
         /* don't load graphs of LCC schematic instances */
         if(strstr(get_tok_value(bb[c][i].prop_ptr, "flags", 0), "graph")) {
-          my_free(_ALLOC_ID_, &bb[c][i].prop_ptr);
+          my_free(1298, &bb[c][i].prop_ptr);
           continue;
         }
         dbg(2, "l_s_d(): loaded rect: ptr=%lx\n", (unsigned long)bb[c]);
@@ -4672,12 +4672,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
           if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
         }
         if( !strboolcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
-          my_free(_ALLOC_ID_, &tmptext.prop_ptr);
-          my_free(_ALLOC_ID_, &tmptext.txt_ptr);
+          my_free(1299, &tmptext.prop_ptr);
+          my_free(1300, &tmptext.txt_ptr);
           continue;
         }
         i=lastt;
-        my_realloc(_ALLOC_ID_, &tt,(i+1)*sizeof(xText));
+        my_realloc(1301, &tt,(i+1)*sizeof(xText));
         tt[i].font=NULL;
         tt[i].txt_ptr = tmptext.txt_ptr;
         tt[i].x0 = tmptext.x0;
@@ -4694,7 +4694,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
           dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
           rot = lcc[level].rot; flip = lcc[level].flip;
-          my_strdup2(_ALLOC_ID_, &tt[i].txt_ptr, tmp);
+          my_strdup2(1302, &tt[i].txt_ptr, tmp);
           dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
           /* allow annotation inside LCC instances. */
           if(!strcmp(tt[i].txt_ptr, "@spice_get_voltage")) {
@@ -4706,16 +4706,16 @@ int load_sym_def(const char *name, FILE *embed_fd)
               int i;
               for(i = 1; i <level; ++i) {
                 const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-                my_strcat(_ALLOC_ID_, &path, instname);
-                my_strcat(_ALLOC_ID_, &path, ".");
+                my_strcat(1303, &path, instname);
+                my_strcat(1304, &path, ".");
               }
             }
             if(path) new_size += strlen(path);
             lab = get_tok_value(prop_ptr, "lab", 0);
             new_size += strlen(lab) + 21; /* @spice_get_voltage(<lab>) */
-            my_realloc(_ALLOC_ID_, &tt[i].txt_ptr, new_size);
+            my_realloc(1305, &tt[i].txt_ptr, new_size);
             my_snprintf(tt[i].txt_ptr, new_size, "@spice_get_voltage(%s%s)", path ? path : "", lab);
-            my_free(_ALLOC_ID_, &path);
+            my_free(1306, &path);
             dbg(1, " --> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
           }
           /* @spice_get_current or @spice_get_current<n> */
@@ -4729,18 +4729,18 @@ int load_sym_def(const char *name, FILE *embed_fd)
               int i;
               for(i = 1; i <level; ++i) {
                 const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-                my_strcat(_ALLOC_ID_, &path, instname);
-                my_strcat(_ALLOC_ID_, &path, "."); 
+                my_strcat(1307, &path, instname);
+                my_strcat(1308, &path, "."); 
               }
             } 
             if(path) new_size += strlen(path);
             dev = get_tok_value(prop_ptr, "name", 0);
             new_size += strlen(tt[i].txt_ptr) + strlen(dev) + 2 + 1; /* tok(<dev>) */
-            my_realloc(_ALLOC_ID_, &txt_ptr, new_size);
+            my_realloc(1309, &txt_ptr, new_size);
             my_snprintf(txt_ptr, new_size, "%s(%s%s)", tt[i].txt_ptr, path ? path : "", dev);
-            my_free(_ALLOC_ID_, &tt[i].txt_ptr);
+            my_free(1310, &tt[i].txt_ptr);
             tt[i].txt_ptr = txt_ptr;
-            my_free(_ALLOC_ID_, &path);
+            my_free(1311, &path);
             dbg(1, "--> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
           } 
           ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
@@ -4752,7 +4752,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         if(level > 0 && symtype && !strcmp(symtype, "label")) {
           char lay[30];
           my_snprintf(lay, S(lay), " layer=%d", WIRELAYER);
-          my_strcat(_ALLOC_ID_, &tt[i].prop_ptr, lay);
+          my_strcat(1312, &tt[i].prop_ptr, lay);
         }
         dbg(1, "l_s_d(): loaded text : t=%s p=%s\n", tt[i].txt_ptr, tt[i].prop_ptr ? tt[i].prop_ptr : "<NULL>");
         set_text_flags(&tt[i]);
@@ -4770,12 +4770,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
   
         if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
-          my_free(_ALLOC_ID_, &tmpline.prop_ptr);
+          my_free(1313, &tmpline.prop_ptr);
           continue;
         }
       
         i = lastl[WIRELAYER];
-        my_realloc(_ALLOC_ID_, &ll[WIRELAYER],(i+1)*sizeof(xLine));
+        my_realloc(1314, &ll[WIRELAYER],(i+1)*sizeof(xLine));
         ll[WIRELAYER][i].x1 = tmpline.x1;
         ll[WIRELAYER][i].y1 = tmpline.y1;
         ll[WIRELAYER][i].x2 = tmpline.x2;
@@ -4885,7 +4885,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          }
          if(fd_tmp) {
            if (level+1 >= max_level) {
-             my_realloc(_ALLOC_ID_, &lcc, (max_level + 1) * sizeof(Lcc));
+             my_realloc(1315, &lcc, (max_level + 1) * sizeof(Lcc));
              max_level++;
            }
            ++level;
@@ -4912,8 +4912,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
              lcc[level].x0 += lcc[(level-1)].x0;
              lcc[level].y0 += lcc[(level-1)].y0;
            }
-           my_strdup(_ALLOC_ID_, &lcc[level].prop_ptr, prop_ptr);
-           my_strdup(_ALLOC_ID_, &lcc[level].symname, symname);
+           my_strdup(1316, &lcc[level].prop_ptr, prop_ptr);
+           my_strdup(1317, &lcc[level].symname, symname);
            dbg(1, "level incremented: level=%d, symname=%s, prop_ptr=%s sympath=%s\n", 
              level, symname, prop_ptr, sympath);
          }
@@ -4927,8 +4927,8 @@ int load_sym_def(const char *name, FILE *embed_fd)
         break;
       case ']':
         if(level) {
-          my_free(_ALLOC_ID_, &lcc[level].prop_ptr);
-          my_free(_ALLOC_ID_, &lcc[level].symname);
+          my_free(1318, &lcc[level].prop_ptr);
+          my_free(1319, &lcc[level].symname);
           --level;
         } else {
           endfile=1;
@@ -4974,25 +4974,25 @@ int load_sym_def(const char *name, FILE *embed_fd)
   /* given a .sch file used as instance in LCC schematics, order its pin
    * as in corresponding .sym file if it exists */
   align_sch_pins_with_sym(transl_name, symbols);
-  my_free(_ALLOC_ID_, &prop_ptr);
-  my_free(_ALLOC_ID_, &lastl);
-  my_free(_ALLOC_ID_, &lastr);
-  my_free(_ALLOC_ID_, &lastp);
-  my_free(_ALLOC_ID_, &lasta);
-  my_free(_ALLOC_ID_, &ll);
-  my_free(_ALLOC_ID_, &bb);
-  my_free(_ALLOC_ID_, &aa);
-  my_free(_ALLOC_ID_, &pp);
-  my_free(_ALLOC_ID_, &lcc);
-  my_free(_ALLOC_ID_, &aux_ptr);
-  my_free(_ALLOC_ID_, &symname);
-  my_free(_ALLOC_ID_, &symtype);
+  my_free(1320, &prop_ptr);
+  my_free(1321, &lastl);
+  my_free(1322, &lastr);
+  my_free(1323, &lastp);
+  my_free(1324, &lasta);
+  my_free(1325, &ll);
+  my_free(1326, &bb);
+  my_free(1327, &aa);
+  my_free(1328, &pp);
+  my_free(1329, &lcc);
+  my_free(1330, &aux_ptr);
+  my_free(1331, &symname);
+  my_free(1332, &symtype);
   recursion_counter--;
   sort_symbol_pins(xctx->sym[xctx->symbols].rect[PINLAYER],
                    xctx->sym[xctx->symbols].rects[PINLAYER],
                    xctx->sym[xctx->symbols].name);
   xctx->symbols++;
-  my_free(_ALLOC_ID_, &transl_name);
+  my_free(1333, &transl_name);
   return 1;
 }
 
@@ -5052,20 +5052,20 @@ void create_sch_from_sym(void)
   char *sch = NULL;
   size_t ln;
 
-  my_strdup(_ALLOC_ID_, &pinname[0], tcleval("rel_sym_path [find_file_first ipin.sym]"));
-  my_strdup(_ALLOC_ID_, &pinname[1], tcleval("rel_sym_path [find_file_first opin.sym]"));
-  my_strdup(_ALLOC_ID_, &pinname[2], tcleval("rel_sym_path [find_file_first iopin.sym]"));
-  my_strdup(_ALLOC_ID_, &generic_pin, tcleval("rel_sym_path [find_file_first generic_pin.sym]"));
+  my_strdup(1334, &pinname[0], tcleval("rel_sym_path [find_file_first ipin.sym]"));
+  my_strdup(1335, &pinname[1], tcleval("rel_sym_path [find_file_first opin.sym]"));
+  my_strdup(1336, &pinname[2], tcleval("rel_sym_path [find_file_first iopin.sym]"));
+  my_strdup(1337, &generic_pin, tcleval("rel_sym_path [find_file_first generic_pin.sym]"));
   
   if(pinname[0] && pinname[1] && pinname[2] && generic_pin) {
     rebuild_selected_array();
     if(xctx->lastsel > 1)  return;
     if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT)
     {
-      my_strdup2(_ALLOC_ID_, &sch,
+      my_strdup2(1338, &sch,
         get_tok_value(xctx->sym[xctx->inst[xctx->sel_array[0].n].ptr].prop_ptr, "schematic", 0));
       my_strncpy(schname, abs_sym_path(sch, ""), S(schname));
-      my_free(_ALLOC_ID_, &sch);
+      my_free(1339, &sch);
       if(!schname[0]) {
         my_strncpy(schname, add_ext(abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""),
              ".sch"), S(schname));
@@ -5097,13 +5097,13 @@ void create_sch_from_sym(void)
       rct = ptr->rect[GENERICLAYER];
       ypos=0;
       for(i=0;i<npin; ++i) {
-        my_strdup(_ALLOC_ID_, &prop, rct[i].prop_ptr);
+        my_strdup(1340, &prop, rct[i].prop_ptr);
         if(!prop) continue;
         sub_prop=strstr(prop,"name=")+5;
         if(!sub_prop) continue;
         x=-120.0;
         ln = 100+strlen(sub_prop);
-        my_realloc(_ALLOC_ID_, &str, ln);
+        my_realloc(1341, &str, ln);
         my_snprintf(str, ln, "name=g%d lab=%s", p++, sub_prop);
         fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", generic_pin, x, 20.0*(ypos++), 0.0, 0.0 );
         save_ascii_string(str, fd, 1);
@@ -5113,20 +5113,20 @@ void create_sch_from_sym(void)
       for(j=0;j<3; ++j) {
         if(j==1) ypos=0;
         for(i=0;i<npin; ++i) {
-          my_strdup(_ALLOC_ID_, &prop, rct[i].prop_ptr);
+          my_strdup(1342, &prop, rct[i].prop_ptr);
           if(!prop) continue;
           sub_prop=strstr(prop,"name=")+5;
           if(!sub_prop) continue;
           /* remove dir=... from prop string 20171004 */
-          my_strdup(_ALLOC_ID_, &sub2_prop, subst_token(sub_prop, "dir", NULL));
+          my_strdup(1343, &sub2_prop, subst_token(sub_prop, "dir", NULL));
   
-          my_strdup(_ALLOC_ID_, &dir, get_tok_value(rct[i].prop_ptr,"dir",0));
+          my_strdup(1344, &dir, get_tok_value(rct[i].prop_ptr,"dir",0));
           if(!sub2_prop) continue;
           if(!dir) continue;
           if(j==0) x=-120.0; else x=120.0;
           if(!strcmp(dir, pindir[j])) {
             ln = 100+strlen(sub2_prop);
-            my_realloc(_ALLOC_ID_, &str, ln);
+            my_realloc(1345, &str, ln);
             my_snprintf(str, ln, "name=g%d lab=%s", p++, sub2_prop);
             fprintf(fd, "C {%s} %.16g %.16g %.16g %.16g ", pinname[j], x, 20.0*(ypos++), 0.0, 0.0);
             save_ascii_string(str, fd, 1);
@@ -5135,18 +5135,18 @@ void create_sch_from_sym(void)
       }  /* for(j) */
       fclose(fd);
     } /* if(xctx->lastsel...) */
-    my_free(_ALLOC_ID_, &dir);
-    my_free(_ALLOC_ID_, &prop);
-    my_free(_ALLOC_ID_, &sub2_prop);
-    my_free(_ALLOC_ID_, &str);
+    my_free(1346, &dir);
+    my_free(1347, &prop);
+    my_free(1348, &sub2_prop);
+    my_free(1349, &str);
   } else {
     fprintf(errfp, "create_sch_from_sym(): location of schematic pins not found\n");
     tcleval("alert_ {create_sch_from_sym(): location of schematic pins not found} {}");
   }
-  my_free(_ALLOC_ID_, &pinname[0]);
-  my_free(_ALLOC_ID_, &pinname[1]);
-  my_free(_ALLOC_ID_, &pinname[2]);
-  my_free(_ALLOC_ID_, &generic_pin);
+  my_free(1350, &pinname[0]);
+  my_free(1351, &pinname[1]);
+  my_free(1352, &pinname[2]);
+  my_free(1353, &generic_pin);
 }
 
 int descend_symbol(void)
@@ -5189,20 +5189,20 @@ int descend_symbol(void)
   else return 0;
 
   /* build up current hierarchy path */
-  my_strdup(_ALLOC_ID_,  &str, xctx->inst[n].instname);
-  my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], str);
-  my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], ".");
+  my_strdup(1354,  &str, xctx->inst[n].instname);
+  my_strdup(1355, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
+  my_strcat(1356, &xctx->sch_path[xctx->currsch+1], str);
+  my_strcat(1357, &xctx->sch_path[xctx->currsch+1], ".");
   if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
   str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
 
   xctx->sch_path_hash[xctx->currsch+1] = 0;
-  my_free(_ALLOC_ID_, &str);
+  my_free(1358, &str);
 
   /* store hierarchy of inst attributes and sym templates for hierarchic parameter substitution */
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
+  my_strdup(1359, &xctx->hier_attr[xctx->currsch].prop_ptr,
             xctx->inst[n].prop_ptr);
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
+  my_strdup(1360, &xctx->hier_attr[xctx->currsch].templ,
             xctx->sym[xctx->inst[n].ptr].templ);
 
   if(!xctx->inst[n].embed)
@@ -5246,15 +5246,15 @@ int descend_symbol(void)
     /* ... we are in a schematic downloaded from web ... */
     if(web_url) {
       /* symbols have already been downloaded while loading parent schematic: set local file path */
-      my_mstrcat(_ALLOC_ID_, &sympath, xschem_web_dirname, "/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
-      my_strdup(_ALLOC_ID_, &current_dirname_save, xctx->current_dirname); /* save http url */
+      my_mstrcat(1361, &sympath, xschem_web_dirname, "/", get_cell_w_ext(tcl_hook2(name), 0), NULL);
+      my_strdup(1362, &current_dirname_save, xctx->current_dirname); /* save http url */
     }
     if(!sympath || stat(sympath, &buf)) { /* not found */
       dbg(1, "descend_symbol: not found: %s\n", sympath);
       if(is_generator(name)) {
-        my_strdup2(_ALLOC_ID_, &sympath, tcl_hook2(name));
+        my_strdup2(1363, &sympath, tcl_hook2(name));
       } else {
-        my_strdup2(_ALLOC_ID_, &sympath, abs_sym_path(tcl_hook2(name), ""));
+        my_strdup2(1364, &sympath, abs_sym_path(tcl_hook2(name), ""));
       }
     }
     dbg(1, "descend_symbol(): name=%s, sympath=%s, dirname=%s\n", name, sympath, xctx->current_dirname);
@@ -5263,9 +5263,9 @@ int descend_symbol(void)
     if(web_url) {
       /* restore web url current_dirname that is reset by load_schematic with local path */
       my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
-      my_free(_ALLOC_ID_, &current_dirname_save);
+      my_free(1365, &current_dirname_save);
     }
-    my_free(_ALLOC_ID_, &sympath);
+    my_free(1366, &sympath);
   }
   if(save_netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = save_netlist_type;
   xctx->loaded_symbol = 1;
