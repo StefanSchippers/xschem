@@ -1110,9 +1110,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   draw_texts:
   if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
     const char *txtptr;
-    if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
-    else if(xctx->sym_txt && !(xctx->inst[n].flags & PIN_OR_LABEL)) c_for_text = TEXTLAYER;
-    else if(c != layer) c_for_text = c;
+    if(c != layer) c_for_text = c;
+    else if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
     else c_for_text = TEXTLAYER;
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
