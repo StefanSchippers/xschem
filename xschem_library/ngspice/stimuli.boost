@@ -6,7 +6,7 @@ slope 0.1
 format hspice
 param pw 8.7
 param period 12
-beginfile stimuli.cir
+beginfile stimuli_boost.cir
 set SUPPLY 12
 set PWM1 0
 s 1

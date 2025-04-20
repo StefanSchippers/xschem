@@ -5,15 +5,15 @@ V {}
 S {}
 E {}
 B 2 880 -290 1430 -110 {flags=graph
-y1=2.5e-05
+y1=0.00013
 y2=45
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.0044053357
-x2=0.0045174308
+x1=0.0042932407
+x2=0.0044053357
 divx=5
 subdivx=1
 xlabmag=1.0
@@ -38,8 +38,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.0044053357
-x2=0.0045174308
+x1=0.0042932407
+x2=0.0044053357
 divx=5
 subdivx=1
 xlabmag=1.5
@@ -55,14 +55,14 @@ g1"
 linewidth_mult=1.2}
 B 2 880 -500 1430 -400 {flags=graph
 y1=1.3
-y2=8
+y2=7.5
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.0044053357
-x2=0.0045174308
+x1=0.0042932407
+x2=0.0044053357
 divx=5
 subdivx=1
 xlabmag=1.5
@@ -78,14 +78,14 @@ i(vbatt)"
 linewidth_mult=1.2}
 B 2 880 -590 1430 -500 {flags=graph
 y1=0
-y2=84
+y2=78
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.0044053357
-x2=0.0045174308
+x1=0.0042932407
+x2=0.0044053357
 divx=5
 subdivx=1
 xlabmag=1.5
@@ -101,14 +101,14 @@ i(vm1) supply * 24u ravg()"
 linewidth_mult=1.2}
 B 2 880 -700 1430 -590 {flags=graph
 y1=-0.014
-y2=2.9
+y2=2.6
 ypos1=0
 ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0.0044053357
-x2=0.0045174308
+x1=0.0042932407
+x2=0.0044053357
 divx=5
 subdivx=1
 xlabmag=1.5
@@ -156,7 +156,7 @@ place=end
 value="
 .ic v(diode)=12 v(batt)=42
 .param VCC=12
-.include stimuli.cir
+.include stimuli_boost.cir
 .option method=gear gmin=1e-12
 + itl1=1000 itl2=1000 itl4=1000 itl5=0
 .control
@@ -173,9 +173,9 @@ tclcommand="set_sim_defaults; set sim(spice,0,fg) 1; xschem netlist; xschem simu
 C {res.sym} 780 -150 0 0 {name=RLOAD value=30 footprint=1206 device=resistor m=1}
 C {lab_pin.sym} 800 -270 2 0 {name=l6 lab=BATT}
 C {lab_pin.sym} 780 -100 0 0 {name=l2 lab=0}
-C {capa.sym} 680 -150 0 0 {name=C1 m=1 value="100u ic=42" footprint=1206 device="ceramic capacitor"}
+C {capa.sym} 680 -150 0 0 {name=C1 m=1 value="30u ic=42" footprint=1206 device="ceramic capacitor"}
 C {lab_pin.sym} 680 -100 0 0 {name=l7 lab=0}
-C {lab_wire.sym} 510 -270 0 1 {name=l10 lab=DIODE}
+C {lab_wire.sym} 530 -270 0 1 {name=l10 lab=DIODE}
 C {lab_pin.sym} 80 -270 0 0 {name=l11 lab=SUPPLY}
 C {ammeter.sym} 780 -210 0 1 {name=vbatt}
 C {launcher.sym} 1160 -90 0 0 {name=h5

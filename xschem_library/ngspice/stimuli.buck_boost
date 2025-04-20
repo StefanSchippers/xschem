@@ -4,9 +4,9 @@ voltage 12.0
 ground_node 0
 slope 0.1
 format hspice
-param pw 2.3
+param pw 2.7
 param period 12
-beginfile stimuli.cir
+beginfile stimuli_buck_boost.cir
 set PWM1 0
 s 1
 clock PWM1 pw period

@@ -1335,6 +1335,9 @@ extern void svg_draw(void);
 extern void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, double ry2);
 extern void set_viewport_size(int w, int h, double lw);
 extern void print_image();
+extern int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
+                 int button, int aux, int state);
+extern int xserver_ok(void);
 extern const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext);
 extern const char *get_cell(const char *str, int no_of_dir);
 extern const char *get_cell_w_ext(const char *str, int no_of_dir);

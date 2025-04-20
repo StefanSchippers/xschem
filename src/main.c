@@ -78,7 +78,6 @@ int main(int argc, char **argv)
   int stdin_is_a_fifo = 0;
   struct stat statbuf;
   #endif
-  Display *display;
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
   signal(SIGILL, sig_handler);
@@ -92,17 +91,7 @@ int main(int argc, char **argv)
   errfp=stderr;
   /* 20181013 check for empty or non existing DISPLAY *before* calling Tk_Main or Tcl_Main */
 #ifdef __unix__
-  if(!getenv("DISPLAY") || !getenv("DISPLAY")[0]) has_x=0;
-  else {
-    display = XOpenDisplay(NULL);
-    if(!display) {
-      has_x=0;
-      fprintf(errfp, "\n   X server connection failed, although DISPLAY shell variable is set.\n"
-                     "   A possible reason is that the X server is not running or DISPLAY shell variable\n"
-                     "   is incorrectly set.\n"
-                     "   Starting Xschem in text only mode.\n\n");
-    } else XCloseDisplay(display);
-  }
+  has_x = xserver_ok();
 #endif
   cli_argc = argc;
   cli_opt_argc = process_options(argc, argv);
