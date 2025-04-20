@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.7RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -24,10 +24,74 @@ K {}
 V {}
 S {}
 E {}
+B 2 810 -420 1460 -120 {flags=graph
+y1=3.2
+y2=5
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=0.00040726616
+x2=0.00050167268
+divx=5
+subdivx=1
+xlabmag=1.0
+ylabmag=1.0
+node="nout
+nin
+ntriangle"
+color="4 7 6"
+dataset=-1
+unitx=1
+logx=0
+logy=0
+}
+B 2 810 -710 1460 -420 {flags=graph
+y1=0.027
+y2=0.48
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=0.00040726616
+x2=0.00050167268
+divx=5
+subdivx=1
+xlabmag=1.0
+ylabmag=1.0
+dataset=-1
+unitx=1
+logx=0
+logy=0
+color=6
+node=i(l1)}
+B 2 810 -1000 1460 -710 {flags=graph
+y1=0
+y2=0.89
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=0.00040726616
+x2=0.00050167268
+divx=5
+subdivx=1
+xlabmag=1.0
+ylabmag=1.0
+dataset=-1
+unitx=1
+logx=0
+logy=0
+color="15 17"
+node="power_in; i(vin) nin *  -1 * 6.67u 2 * ravg()
+power_out; i(vload) nout * 6.67u 2 * ravg()"}
 T {Buck Regulator
 This circuit is a simplified buck regulator.
 Instead of a digital logic block controlling the regulator,
-a simple triangle wave and comparator generates the switch pulses. } 20 -790 0 0 0.6 0.6 {}
+a simple triangle wave and comparator generates the switch pulses. } 30 -740 0 0 0.4 0.4 {}
 T {Copyright (C) 2011 DJ Delorie (dj delorie com)
 Distributed under the terms of the GNU General Public License,
 either verion 2 or (at your choice) any later version.} 20 -150 0 0 0.4 0.4 {}
@@ -54,8 +118,7 @@ N 230 -430 570 -430 {lab=nout}
 C {vsource.sym} 60 -310 0 0 {name=Vin value="DC pwl 0 0 50u 5V"}
 C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
 C {gnd.sym} 60 -220 0 0 {name=l2 lab=0}
-C {switch_ngspice.sym} 210 -470 3 0 {name=S1 model=swmod}
-C {diode.sym} 360 -370 2 0 {name=D1 model=DIODE area=1}
+C {diode.sym} 360 -370 2 0 {name=D1 model=BAR42 area=1}
 C {vsource.sym} 210 -320 0 0 {name=Vpulse value="pulse -0.06 0.14 0 
 + 3.32u 3.32u 1f 6.67u"}
 C {vsource.sym} 210 -260 0 0 {name=Vset value=3.3}
@@ -77,11 +140,16 @@ m=1
 value=18u
 footprint=1206
 device=inductor}
-C {code.sym} 780 -470 0 0 {name=MODELS value=".MODEL DIODE D(IS=1.139e-08 RS=0.99 CJO=9.3e-12 VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
-.MODEL swmod SW(VT=0 VH=0.01 RON=1 ROFF=100000)
+C {code_shown.sym} 300 -890 0 0 {name=MODELS value=".MODEL BAR42 D(IS=1.139e-08 RS=0.99 CJO=9.3e-12
++ VJ=1.6 M=0.411 BV=30 EG=0.7 ) 
 "}
-C {code_shown.sym} 790 -320 0 0 {name=COMMANDS value=".save all
-.tran 0.001us 0.25ms
+C {code_shown.sym} 50 -910 0 0 {name=COMMANDS value="
+.option savecurrents
+.control
+  save all
+  tran 0.001us 0.5ms
+  write buck.raw
+.endc
 "}
 C {lab_wire.sym} 650 -470 0 0 {name=l3 sig_type=std_logic lab=nout}
 C {lab_wire.sym} 350 -470 0 0 {name=l4 sig_type=std_logic lab=ndiode}
@@ -91,3 +159,11 @@ C {launcher.sym} 90 -580 0 0 {name=h1
 descr="Ctrl-click to go to Delorie's 
 project page for info"
 url="http://www.delorie.com/electronics/spice-stuff"}
+C {launcher.sym} 850 -90 0 0 {name=h5
+descr="load waves" 
+tclcommand="xschem raw_read $netlist_dir/buck.raw tran"
+}
+C {switch_ngspice.sym} 210 -470 3 0 {name=S1 model=SW1
+device_model=".MODEL SW1 SW 
++ VT=0.0 VH=0.01
++ RON=0.001 ROFF=10G"}

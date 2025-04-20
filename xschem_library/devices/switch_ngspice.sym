@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.7RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,7 +23,9 @@ G {}
 K {type=switch
 format="@name @@P @@M @@CP @@CM @model"
 template="name=S1 model=SW1
-device_model=\\".MODEL SW1 SW( VT=0.9 VH=0.01 RON=0.01 ROFF=10G )\\""
+device_model=\\".MODEL SW1 SW 
++ VT=0.9 VH=0.01
++ RON=0.01 ROFF=10G \\""
 }
 V {}
 S {}
