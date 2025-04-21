@@ -1199,7 +1199,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
         } 
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
-      if(strstr(result, "expr(")) {
+      if(result && strstr(result, "expr(")) {
         my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_vhdl_primitive(): after  translate3() result=%s\n", result);
@@ -2464,7 +2464,7 @@ int print_spice_element(FILE *fd, int inst)
           value = spiceprefixtag;
         }
 
-        if(strstr(value, "expr(")) {
+        if(value && strstr(value, "expr(")) {
           value =  eval_expr(value);
         }
         /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
@@ -2519,7 +2519,7 @@ int print_spice_element(FILE *fd, int inst)
   if(result) {
      my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
   }
-  if(strstr(result, "expr(")) {
+  if(result && strstr(result, "expr(")) {
     my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
   }
   if(result) fprintf(fd, "%s", result);
@@ -3156,7 +3156,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         }
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
-      if(strstr(result, "expr(")) {
+      if(result && strstr(result, "expr(")) {
         my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_verilog_primitive(): after  translate3() result=%s\n", result);
@@ -4654,7 +4654,7 @@ const char *translate(int inst, const char* s)
    * can be calculated */
   my_strdup2(_ALLOC_ID_, &result, spice_get_node(tcl_hook2(result)));
   
-  if(strstr(result, "expr(")) {
+  if(result && strstr(result, "expr(")) {
     dbg(1, "translate(): expr():%s\n", result);
     my_strdup2(_ALLOC_ID_, &result, eval_expr(
        translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
