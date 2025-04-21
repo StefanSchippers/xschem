@@ -664,8 +664,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     what = NOW;
     disabled = 1;
   }
-  if( (xctx->inst[n].flags & HIDE_INST) ||
-      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+  if( (xctx->inst[n].flags & HIDE_INST) || ((xctx->inst[n].ptr + xctx->sym)->flags & HIDE_INST) ||
+      (xctx->hide_symbols==1 && (xctx->inst[n].ptr + xctx->sym)->type &&
       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) ||
       (xctx->hide_symbols == 2) ) {
     hide = 1;
@@ -720,7 +720,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
 
-  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
+  if(layer == cadlayers) goto draw_texts;
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
 
   if(!hide) {
     for(j=0;j< symptr->lines[layer]; ++j)
@@ -821,7 +822,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
 
   draw_texts:
 
-  if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+  if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers)) {
     if(c != layer) c_for_text = c;
     else if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
     else c_for_text = TEXTLAYER;
@@ -921,7 +922,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
 
- if( (xctx->inst[n].flags & HIDE_INST) ||
+ if( (xctx->inst[n].flags & HIDE_INST) || ((xctx->inst[n].ptr + xctx->sym)->flags & HIDE_INST) ||
      (xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
      !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") ) ||
      (xctx->hide_symbols == 2) ) {
@@ -5197,7 +5198,11 @@ void draw(void)
             ((c==cadlayers - 1) && symptr->texts) )
         {
           if(c == 0 || c == cadlayers - 1 || draw_layer) {
-            draw_symbol(ADD, cc, i,c, 0, 0, 0.0, 0.0); /* ... then draw current layer */
+            draw_symbol(ADD, cc, i, c, 0, 0, 0.0, 0.0); /* ... then draw current layer */
+            if(c == cadlayers - 1) {
+              if(cc == c)  draw_symbol(ADD, c + 1, i, c + 1, 0, 0, 0.0, 0.0); /* ... draw texts */
+              else         draw_symbol(ADD, cc   , i, c + 1, 0, 0, 0.0, 0.0); /* ... draw texts */
+            }
           }
         }
       }

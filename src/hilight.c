@@ -2224,7 +2224,8 @@ void draw_hilight_net(int on_window)
       if( c==0 || /*draw_symbol call is needed on layer 0 to avoid redundant work (outside check) */
           symptr->lines[c] || symptr->rects[c] || symptr->arcs[c] || symptr->polygons[c] ||
           ((c == cadlayers - 1) && symptr->texts)) {
-        draw_symbol(ADD, col, i,c,0,0,0.0,0.0);
+        draw_symbol(ADD, col, i, c, 0, 0, 0.0, 0.0);
+        if(c == cadlayers - 1) draw_symbol(ADD, col, i, c + 1, 0, 0, 0.0, 0.0); /* draw texts */
       }
       filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);

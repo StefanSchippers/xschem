@@ -652,8 +652,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   }
   if(xctx->inst[n].color != -10000) c = get_color(xctx->inst[n].color);
 
-  if( (xctx->inst[n].flags & HIDE_INST) ||
-      ((xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+  if( (xctx->inst[n].flags & HIDE_INST) || ((xctx->inst[n].ptr + xctx->sym)->flags & HIDE_INST) ||
+      ((xctx->hide_symbols==1 && (xctx->inst[n].ptr + xctx->sym)->type &&
       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") )) ||
       (xctx->hide_symbols == 2) ) {
     hide = 1;
@@ -694,7 +694,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
 
-  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
+  if(layer == cadlayers) goto draw_texts;
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
 
   if(!hide) {
     for(j=0;j< symptr->lines[layer]; ++j) {
@@ -787,7 +788,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   }
 
   draw_texts:
-  if( xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+  if( xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers)) {
     const char *txtptr;
     if(c != layer) c_for_text = c;
     else if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
@@ -805,7 +806,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c_for_text;
       /* do not allow custom text color on hilighted instances */
-      if(disabled == 1) textlayer = GRIDLAYER;
+      if(disabled == 1) textlayer = GRIDLAYER; 
       else if(disabled == 2) textlayer = PINLAYER;
       else if( xctx->inst[n].color == -10000) {
         int lay;
@@ -1077,6 +1078,9 @@ void svg_draw(void)
    }
    for(i=0;i<xctx->instances; ++i) {
      svg_draw_symbol(c,i,c,0,0,0.0,0.0);
+     if(c == cadlayers - 1) {
+       svg_draw_symbol(c + 1 , i, c + 1, 0, 0, 0.0, 0.0); /* ... draw texts */
+     }
    }
   }
   prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */

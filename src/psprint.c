@@ -919,17 +919,16 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
 
   if(shorted_instance(n, lvs_ignore)) {
     c = PINLAYER;
-    what = NOW;
     disabled = 2;
   }
   else if(xctx->inst[n].flags & IGNORE_INST) {
     c = GRIDLAYER;
-    what = NOW;
     disabled = 1;
   }
   if(xctx->inst[n].color != -10000) c = get_color(xctx->inst[n].color);
-  if( (xctx->inst[n].flags & HIDE_INST) ||
-      ((xctx->hide_symbols==1 && (xctx->inst[n].ptr+ xctx->sym)->prop_ptr &&
+
+  if( (xctx->inst[n].flags & HIDE_INST) || ((xctx->inst[n].ptr + xctx->sym)->flags & HIDE_INST) ||
+      ((xctx->hide_symbols==1 && (xctx->inst[n].ptr + xctx->sym)->type &&
       !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") )) ||
       (xctx->hide_symbols == 2) ) {
     hide = 1;
@@ -996,7 +995,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   }
   else if(xctx->inst[n].flags&1)
   {
-   dbg(1, "draw_symbol(): skipping inst %d\n", n);
+   dbg(1, "ps_draw_symbol(): skipping inst %d\n", n);
    return;
   }
   flip = xctx->inst[n].flip;
@@ -1007,7 +1006,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   y0=xctx->inst[n].y0 + yoffset;
   symptr = (xctx->inst[n].ptr+ xctx->sym);
 
-  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) goto draw_texts;
+  if(layer == cadlayers) goto draw_texts;
+  if( (layer != PINLAYER && !xctx->enable_layer[layer]) ) return;
 
   if(!hide) {
     if(symptr->lines[layer] || symptr->polygons[layer] || symptr->arcs[layer]) {
@@ -1108,7 +1108,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   } /* if( (!hide && xctx->enable_layer[layer]) || ... */
   
   draw_texts:
-  if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers - 1)) {
+  if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers)) {
     const char *txtptr;
     if(c != layer) c_for_text = c;
     else if(xctx->inst[n].flags & PIN_OR_LABEL) c_for_text = TEXTWIRELAYER;
@@ -1485,7 +1485,10 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
     for(c=0;c<cadlayers; ++c) {
       for(i=0;i<xctx->instances; ++i) {
-        ps_draw_symbol(c, i,c,what,0,0,0.0,0.0);
+        ps_draw_symbol(c, i, c, what, 0,0, 0.0, 0.0);
+        if(c == cadlayers - 1) {
+          ps_draw_symbol(c + 1 , i, c + 1, what, 0, 0, 0.0, 0.0); /* ... draw texts */
+        }
       }
     }
     prepare_netlist_structs(0); /* NEEDED: data was cleared by trim_wires() */
