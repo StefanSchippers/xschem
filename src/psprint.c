@@ -252,8 +252,8 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
 
 static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double ry2)
 {
-  xRect *r = &xctx->rect[GRIDLAYER][i];
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
+  xRect *r = &xctx->rect[GRIDLAYER][i];
   Zoom_info zi;
   double  rw, rh, scale;
   cairo_surface_t* png_sfc;
