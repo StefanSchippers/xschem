@@ -8551,9 +8551,10 @@ proc show_bindkeys {} {
         # set dark_colorscheme $save
         # xschem build_colors
 
-        bind .bk <ButtonPress> {xschem preview_window destroy .bk }
-        bind .bk <KeyPress> {xschem preview_window destroy .bk }
+        bind .bk <ButtonPress> {xschem preview_window destroy .bk}
+        bind .bk <KeyPress> {xschem preview_window destroy .bk}
         bind .bk <Expose> {xschem preview_window draw .bk }
+        wm protocol .bk WM_DELETE_WINDOW {xschem preview_window destroy .bk}
 }
 
 proc set_bindings {topwin} {
