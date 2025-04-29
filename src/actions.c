@@ -2010,6 +2010,9 @@ void toggle_ignore(void)
         }
         set_inst_flags(&xctx->inst[i]);
         set_modify(1);
+        xctx->prep_hash_inst=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
       }
     }
     draw();
