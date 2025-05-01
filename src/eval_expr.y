@@ -37,7 +37,7 @@ static double rnd6(double x) {return round_to_n_digits(x, 6);}
 struct fn
 {
   char *fname;
-  double (*fnct)();
+  double (*fnct)(double);
   double value;
 };
 static int lex_state = 0;

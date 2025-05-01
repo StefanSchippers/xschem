@@ -2090,10 +2090,10 @@ void change_linewidth(double w)
     XSetLineAttributes (display, xctx->gctiled, linew, LineSolid, LINECAP , LINEJOIN);
   }
   if(!xctx->only_probes) {
-    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areax1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areay1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_LINE_W(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_LINE_W(xctx->lw);
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
   }
@@ -2237,10 +2237,10 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
        dbg(1, "resetwin(): create_pixmap=%d, clear_pixmap=%d, force=%d, width=%d, height=%d, pending_fullzoom=%d\n",
            create_pixmap, clear_pixmap, force, width, height, xctx->pending_fullzoom);
       /* if(wattr.map_state==IsUnmapped) return; */
-      xctx->areax2 = width + 2 * INT_WIDTH(xctx->lw);
-      xctx->areay2 = height + 2 * INT_WIDTH(xctx->lw);
-      xctx->areax1 = -2 * INT_WIDTH(xctx->lw);
-      xctx->areay1 = -2 * INT_WIDTH(xctx->lw);
+      xctx->areax2 = width + 2 * INT_LINE_W(xctx->lw);
+      xctx->areay2 = height + 2 * INT_LINE_W(xctx->lw);
+      xctx->areax1 = -2 * INT_LINE_W(xctx->lw);
+      xctx->areay1 = -2 * INT_LINE_W(xctx->lw);
       xctx->areaw = xctx->areax2 - xctx->areax1;
       xctx->areah = xctx->areay2 - xctx->areay1;
       /* if no force avoid unnecessary work if no resize */
@@ -2787,12 +2787,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_flat_netlist) {
    tclsetvar("flat_netlist","1");
  }
- xctx->areaw = CADWIDTH+4*INT_WIDTH(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
- xctx->areah = CADHEIGHT+4*INT_WIDTH(xctx->lw); /* to avoid drawing clipped rectangle borders at xctx->window edges */
- xctx->areax1 = -2*INT_WIDTH(xctx->lw);
- xctx->areay1 = -2*INT_WIDTH(xctx->lw);
- xctx->areax2 = xctx->areaw-2*INT_WIDTH(xctx->lw);
- xctx->areay2 = xctx->areah-2*INT_WIDTH(xctx->lw);
+ xctx->areaw = CADWIDTH+4*INT_LINE_W(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
+ xctx->areah = CADHEIGHT+4*INT_LINE_W(xctx->lw); /* to avoid drawing clipped rectangle borders at xctx->window edges */
+ xctx->areax1 = -2*INT_LINE_W(xctx->lw);
+ xctx->areay1 = -2*INT_LINE_W(xctx->lw);
+ xctx->areax2 = xctx->areaw-2*INT_LINE_W(xctx->lw);
+ xctx->areay2 = xctx->areah-2*INT_LINE_W(xctx->lw);
  xctx->xrect[0].x = 0;
  xctx->xrect[0].y = 0;
  xctx->xrect[0].width = CADWIDTH;

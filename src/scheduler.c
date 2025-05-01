@@ -2088,7 +2088,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "xrect[0].height=%d\n",
               xctx->xrect[0].height); Tcl_AppendResult(interp, res, NULL);
 
-      my_snprintf(res, S(res), "INT_WIDTH(lw)=%d\n", INT_WIDTH(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "INT_LINE_W(lw)=%d\n", INT_LINE_W(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "lw=%g\n", xctx->lw); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);

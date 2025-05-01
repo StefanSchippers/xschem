@@ -2816,18 +2816,18 @@ void zoom_full(int dr, int sel, int flags, double shrink)
     if(tclgetboolvar("change_lw")) {
       xctx->lw = 1.;
     }
-    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areax1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areay1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_LINE_W(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_LINE_W(xctx->lw);
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
   }
   calc_drawing_bbox(&boundbox, sel);
   dbg(1, "zoom_full: %s, %g %g  %g %g\n",
       xctx->current_win_path, boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
-  schw = xctx->areaw-4*INT_WIDTH(xctx->lw);
-  schh = xctx->areah-4*INT_WIDTH(xctx->lw);
+  schw = xctx->areaw-4*INT_LINE_W(xctx->lw);
+  schh = xctx->areah-4*INT_LINE_W(xctx->lw);
   bboxw = boundbox.x2-boundbox.x1;
   bboxh = boundbox.y2-boundbox.y1;
   xctx->zoom = bboxw / schw;
@@ -2895,10 +2895,10 @@ void set_viewport_size(int w, int h, double lw)
     xctx->xrect[0].y = 0;
     xctx->xrect[0].width = (unsigned short)w;
     xctx->xrect[0].height = (unsigned short)h;
-    xctx->areax2 = w+2*INT_WIDTH(lw);
-    xctx->areay2 = h+2*INT_WIDTH(lw);
-    xctx->areax1 = -2*INT_WIDTH(lw);
-    xctx->areay1 = -2*INT_WIDTH(lw);
+    xctx->areax2 = w+2*INT_LINE_W(lw);
+    xctx->areay2 = h+2*INT_LINE_W(lw);
+    xctx->areax1 = -2*INT_LINE_W(lw);
+    xctx->areay1 = -2*INT_LINE_W(lw);
     xctx->lw = lw;
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2-xctx->areay1;
@@ -2920,10 +2920,10 @@ void save_restore_zoom(int save, Zoom_info *zi)
     xctx->xrect[0].width = (unsigned short)zi->savew;
     xctx->xrect[0].height = (unsigned short)zi->saveh;
     dbg(1, "save_restore_zoom: restore width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
-    xctx->areax2 = zi->savew+2*INT_WIDTH(zi->savelw);
-    xctx->areay2 = zi->saveh+2*INT_WIDTH(zi->savelw);
-    xctx->areax1 = -2*INT_WIDTH(zi->savelw);
-    xctx->areay1 = -2*INT_WIDTH(zi->savelw);
+    xctx->areax2 = zi->savew+2*INT_LINE_W(zi->savelw);
+    xctx->areay2 = zi->saveh+2*INT_LINE_W(zi->savelw);
+    xctx->areax1 = -2*INT_LINE_W(zi->savelw);
+    xctx->areay1 = -2*INT_LINE_W(zi->savelw);
     xctx->lw = zi->savelw;
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2-xctx->areay1;
@@ -2940,8 +2940,8 @@ void zoom_box(double x1, double y1, double x2, double y2, double factor)
   if(factor == 0.) factor = 1.;
   RECTORDER(x1,y1,x2,y2);
   xctx->xorigin=-x1;xctx->yorigin=-y1;
-  xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_WIDTH(xctx->lw));
-  yy1=(y2-y1)/(xctx->areah-4*INT_WIDTH(xctx->lw));
+  xctx->zoom=(x2-x1)/(xctx->areaw-4*INT_LINE_W(xctx->lw));
+  yy1=(y2-y1)/(xctx->areah-4*INT_LINE_W(xctx->lw));
   if(yy1>xctx->zoom) xctx->zoom=yy1;
   xctx->zoom*= factor;
   xctx->mooz=1/xctx->zoom;
@@ -2964,8 +2964,8 @@ void zoom_rectangle(int what)
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xx1, xctx->nl_yy1, xctx->nl_xx2, xctx->nl_yy2);
     if( xctx->nl_x1 != xctx->nl_x2 || xctx->nl_y1 != xctx->nl_y2) {
       xctx->xorigin = -xctx->nl_x1; xctx->yorigin = -xctx->nl_y1;
-      xctx->zoom = (xctx->nl_x2 - xctx->nl_x1) / (xctx->areaw - 4 * INT_WIDTH(xctx->lw));
-      xctx->nl_yy1=(xctx->nl_y2 - xctx->nl_y1) / (xctx->areah - 4 * INT_WIDTH(xctx->lw));
+      xctx->zoom = (xctx->nl_x2 - xctx->nl_x1) / (xctx->areaw - 4 * INT_LINE_W(xctx->lw));
+      xctx->nl_yy1=(xctx->nl_y2 - xctx->nl_y1) / (xctx->areah - 4 * INT_LINE_W(xctx->lw));
       if(xctx->nl_yy1 > xctx->zoom) xctx->zoom = xctx->nl_yy1;
       xctx->mooz = 1 / xctx->zoom;
       change_linewidth(-1.);
@@ -3071,7 +3071,7 @@ void draw_stuff(void)
 static void restore_selection(double x1, double y1, double x2, double y2)
 {
   double xx1,yy1,xx2,yy2;
-  int intlw = 2 * INT_WIDTH(xctx->lw) + (int)xctx->cadhalfdotsize;
+  int intlw = 2 * INT_LINE_W(xctx->lw) + (int)xctx->cadhalfdotsize;
   xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
   RECTORDER(xx1,yy1,xx2,yy2);
   rebuild_selected_array();

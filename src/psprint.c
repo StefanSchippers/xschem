@@ -1277,10 +1277,10 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
     dbg(1, "create_ps(): xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
-    xctx->areax1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areay1 = -2*INT_WIDTH(xctx->lw);
-    xctx->areax2 = xctx->xrect[0].width+2*INT_WIDTH(xctx->lw);
-    xctx->areay2 = xctx->xrect[0].height+2*INT_WIDTH(xctx->lw);
+    xctx->areax1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areay1 = -2*INT_LINE_W(xctx->lw);
+    xctx->areax2 = xctx->xrect[0].width+2*INT_LINE_W(xctx->lw);
+    xctx->areay2 = xctx->xrect[0].height+2*INT_LINE_W(xctx->lw);
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
     dbg(1, "create_ps(): areax1=%d areay1=%d areax2=%d areay2=%d\n",
@@ -1568,7 +1568,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       }
     }
 
-    dbg(1, "ps_draw(): INT_WIDTH(lw)=%d plotfile=%s\n",INT_WIDTH(xctx->lw), xctx->plotfile);
+    dbg(1, "ps_draw(): INT_LINE_W(lw)=%d plotfile=%s\n",INT_LINE_W(xctx->lw), xctx->plotfile);
     fprintf(fd, "showpage\n\n");
   }
   if(what & 4) { /* trailer */

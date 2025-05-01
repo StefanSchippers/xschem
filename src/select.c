@@ -684,17 +684,17 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(SET) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET) call before bbox(START)} {}");
    }
-   xctx->areax1 = xctx->bbx1-2*INT_WIDTH(xctx->lw);
-   xctx->areax2 = xctx->bbx2+2*INT_WIDTH(xctx->lw);
-   xctx->areay1 = xctx->bby1-2*INT_WIDTH(xctx->lw);
-   xctx->areay2 = xctx->bby2+2*INT_WIDTH(xctx->lw);
+   xctx->areax1 = xctx->bbx1-2*INT_LINE_W(xctx->lw);
+   xctx->areax2 = xctx->bbx2+2*INT_LINE_W(xctx->lw);
+   xctx->areay1 = xctx->bby1-2*INT_LINE_W(xctx->lw);
+   xctx->areay2 = xctx->bby2+2*INT_LINE_W(xctx->lw);
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xctx->xrect[0].x = (short)(xctx->bbx1-INT_WIDTH(xctx->lw));
-   xctx->xrect[0].y = (short)(xctx->bby1-INT_WIDTH(xctx->lw));
-   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1+2*INT_WIDTH(xctx->lw));
-   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1+2*INT_WIDTH(xctx->lw));
+   xctx->xrect[0].x = (short)(xctx->bbx1-INT_LINE_W(xctx->lw));
+   xctx->xrect[0].y = (short)(xctx->bby1-INT_LINE_W(xctx->lw));
+   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1+2*INT_LINE_W(xctx->lw));
+   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1+2*INT_LINE_W(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
        dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
@@ -709,17 +709,17 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(SET_INSIDE) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET_INSIDE) call before bbox(START)} {}");
    }
-   xctx->areax1 = xctx->bbx1-2*INT_WIDTH(xctx->lw);
-   xctx->areax2 = xctx->bbx2+2*INT_WIDTH(xctx->lw);
-   xctx->areay1 = xctx->bby1-2*INT_WIDTH(xctx->lw);
-   xctx->areay2 = xctx->bby2+2*INT_WIDTH(xctx->lw);
+   xctx->areax1 = xctx->bbx1-2*INT_LINE_W(xctx->lw);
+   xctx->areax2 = xctx->bbx2+2*INT_LINE_W(xctx->lw);
+   xctx->areay1 = xctx->bby1-2*INT_LINE_W(xctx->lw);
+   xctx->areay2 = xctx->bby2+2*INT_LINE_W(xctx->lw);
    xctx->areaw = (xctx->areax2-xctx->areax1);
    xctx->areah = (xctx->areay2-xctx->areay1);
 
-   xctx->xrect[0].x = (short)(xctx->bbx1+INT_WIDTH(xctx->lw));
-   xctx->xrect[0].y = (short)(xctx->bby1+INT_WIDTH(xctx->lw));
-   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1-2*INT_WIDTH(xctx->lw));
-   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1-2*INT_WIDTH(xctx->lw));
+   xctx->xrect[0].x = (short)(xctx->bbx1+INT_LINE_W(xctx->lw));
+   xctx->xrect[0].y = (short)(xctx->bby1+INT_LINE_W(xctx->lw));
+   xctx->xrect[0].width = (unsigned short)(xctx->bbx2-xctx->bbx1-2*INT_LINE_W(xctx->lw));
+   xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1-2*INT_LINE_W(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
        dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",

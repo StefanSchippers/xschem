@@ -1482,12 +1482,12 @@ static void draw_snap_cursor_shape(GC gc, double x, double y, int snapcursor_siz
 static void erase_snap_cursor(double prev_x, double prev_y, int snapcursor_size) {
   if (fix_broken_tiled_fill || !_unix) {
       MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
-          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
-          2 * INT_WIDTH(xctx->lw) + 2 * snapcursor_size,
-          (int)X_TO_SCREEN(prev_x) - INT_WIDTH(xctx->lw) - snapcursor_size,
-          (int)Y_TO_SCREEN(prev_y) - INT_WIDTH(xctx->lw) - snapcursor_size);
+          (int)X_TO_SCREEN(prev_x) - INT_LINE_W(xctx->lw) - snapcursor_size,
+          (int)Y_TO_SCREEN(prev_y) - INT_LINE_W(xctx->lw) - snapcursor_size,
+          2 * INT_LINE_W(xctx->lw) + 2 * snapcursor_size,
+          2 * INT_LINE_W(xctx->lw) + 2 * snapcursor_size,
+          (int)X_TO_SCREEN(prev_x) - INT_LINE_W(xctx->lw) - snapcursor_size,
+          (int)Y_TO_SCREEN(prev_y) - INT_LINE_W(xctx->lw) - snapcursor_size);
   } else {
       draw_snap_cursor_shape(xctx->gctiled, prev_x, prev_y, snapcursor_size);
   }
@@ -1547,7 +1547,7 @@ static void erase_crosshair(int size) {
 
   int prev_cr_x = (int)X_TO_SCREEN(xctx->prev_crossx);
   int prev_cr_y = (int)Y_TO_SCREEN(xctx->prev_crossy);
-  int lw = INT_WIDTH(xctx->lw);
+  int lw = INT_LINE_W(xctx->lw);
   if(size) {
     MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
          prev_cr_x - 1 * lw - size, prev_cr_y - 1 * lw - size, 2 * lw + 2 * size, 2 * lw + 2 * size,

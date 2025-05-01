@@ -1151,7 +1151,7 @@ void svg_draw(void)
         xctx->text[i].xscale, xctx->text[i].yscale);
   }
 
-  dbg(1, "svg_draw(): INT_WIDTH(lw)=%d\n",INT_WIDTH(xctx->lw));
+  dbg(1, "svg_draw(): INT_LINE_W(lw)=%d\n",INT_LINE_W(xctx->lw));
   fprintf(fd, "</svg>\n");
   fclose(fd);
   tclsetboolvar("draw_grid", old_grid);

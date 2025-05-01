@@ -5355,7 +5355,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
 {  
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
-  int intlw = INT_WIDTH(lw);
+  int intlw = INT_LINE_W(lw);
   dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g, intlw=%d)\n", sx1, sy1, sx2, sy2, intlw);
   isx1=X_TO_SCREEN(sx1) - 2 * intlw;
   isy1=Y_TO_SCREEN(sy1) - 2 * intlw;
