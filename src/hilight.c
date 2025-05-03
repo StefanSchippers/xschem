@@ -2101,14 +2101,16 @@ char *resolved_net(const char *net)
       n_s1 = NULL;
       my_strdup2(_ALLOC_ID_, &resolved_net, net_name);
       dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
-      if(xctx->currsch > 0) { /* check if net passed by attribute instead of by port */
-        const char *ptr = get_tok_value(xctx->hier_attr[xctx->currsch - 1].prop_ptr, resolved_net, 0);
+      while(level > start_level) { /* check if net passed by attribute instead of by port */
+        const char *ptr = get_tok_value(xctx->hier_attr[level - 1].prop_ptr, resolved_net, 0);
         if(ptr && ptr[0]) {
           my_strdup2(_ALLOC_ID_, &resolved_net, ptr);
-          level--;
-          dbg(1, "lcc[%d].prop_ptr=%s\n", xctx->currsch - 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr);
+          dbg(1, "lcc[%d].prop_ptr=%s\n", level - 1, xctx->hier_attr[level - 1].prop_ptr);
           dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
+        } else {
+          break;
         }
+        level--;
       }
       while(level > start_level) { /* get net from parent nets attached to port if resolved_net is a port */
         entry = str_hash_lookup(&xctx->portmap[level], resolved_net, NULL, XLOOKUP);
