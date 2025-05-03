@@ -198,6 +198,7 @@ x1 XZ XVCC XVSS XA XB XC symbol_include
  <img src="tutorial_use_existing_subckt06.png">
  </li>
 
+
  <li><h3>Use a <kbd>spice_sym_def=".include &lt;file&gt;"</kbd> line in the symbol</h3>
  <p>
   The second method is to declare the symbol <kbd>type</kbd> as <kbd>subcircuit</kbd> and
@@ -226,6 +227,23 @@ x1 VSS TRIG OUT VSUPPLY CTRL TRIG DIS VSUPPLY ne555
   and if the symbol is reused in another design the .include line travels with the symbol and you
   don't have to add the line in the top level.
  </p>
+ </li>
+
+
+ <li><h3>Specify the subcircuit in the <kbd>spice_sym_def</kbd> attribute</h3>
+ <p>
+  instead of including yhe file specify the subcircuit directly into the <kbd>spice_sym_def</kbd> attrinute.
+ </p>
+ <pre class="code">
+spice_sym_def="
+.subckt symbol_include Z Y[5] Y[4] Y[3] Y[2]
++ VCC VSS
++ A[2] A[1] A[0] B C W=10 L=1 
+...
+...
+.ends
+" 
+ </pre>
  </li>
 
  <li><h3>Completely specify a subcircuit in the <kbd>format</kbd> attribute of the symbol</h3>
