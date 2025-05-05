@@ -11,4 +11,4 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Bash script
-        run: bash ${GITHUB_WORKSPACE}/bash.sh
+        run: bash ./bash.sh
