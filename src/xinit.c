@@ -717,9 +717,9 @@ static void delete_schematic_data(int delete_pixmap)
   clear_all_hilights();      /* data structs for hilighting nets/instances */
   get_unnamed_node(0, 0, 0); /* net### enumerator used for netlisting */
   clear_drawing();
-  if(has_x && delete_pixmap) {
+  if(delete_pixmap) {
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
-    free_gc();
+    if(has_x) free_gc();
   }
   /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire, 
    * inst & wire .node fields, instance name hash */
@@ -2132,7 +2132,7 @@ void create_memory_cairo_ctx(int what)
 static void resetcairo(int create, int clear, int force_or_resize)
 { 
   #if HAS_CAIRO==1
-  dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
+  dbg(0, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
      * we must destroy & recreate everything. xctx->cairo_sfc can be resized using cairo_*_surface_set_size

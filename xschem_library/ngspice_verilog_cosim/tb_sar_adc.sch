@@ -12,8 +12,8 @@ ypos2=4.2824898
 divy=5
 subdivy=1
 unity=1
-x1=0
-x2=0.00025
+x1=2.7777218e-05
+x2=9.3313218e-05
 divx=5
 subdivx=1
 xlabmag=1.0
@@ -45,8 +45,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=0
-x2=0.00025
+x1=2.7777218e-05
+x2=9.3313218e-05
 divx=5
 subdivx=1
 xlabmag=1.0
@@ -56,11 +56,13 @@ unitx=1
 logx=0
 logy=0
 digital=0
-color="4 8 10"
+color="4 8 10 9"
 node="INPUT
 xtest.test_v
-i(vamm)"
-linewidth_mult=1}
+i(vamm)
+xtest.sample 0.05 *"
+linewidth_mult=1
+hcursor1_y=1.0550322}
 T { A simple DAC so that the result may be compared to the input.} 800 -250 0 0 0.4 0.4 {}
 T {Analog conversion for plotting} 220 -140 0 0 0.4 0.4 {}
 T {This is an example of a true mixed mode
