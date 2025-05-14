@@ -1,3 +1,48 @@
+3.4.7:
+- Resolved_net(): resolve multiple levels of port-by-attribute propagation
+- Make xschem build with configure option --CFLAGS="-std=c23" (prepare for gcc-15 issues)
+- `/` command (show bindkeys) will use a toplevel window instead of fullscreen
+- Reduce size of ps exports by avoiding redundant set_ps_colors() calls
+- Honor `bus` attribute on lines / wires / polygons in svg and pdf exports
+- `xschem raw clear` command: allow to specify a number `n`; delete the`n-th` raw file
+- Add ngspice_verilog_cosim examples
+- Add bindkeys_cheatsheet.sch, moved shift-J to Ctrl-p (xplot creation)
+- Allow to change tcl flag `lvs_netlist` at runtime (just before netlist generation),
+  not only at xschem startup
+- Add new_file_browser_* variables in xschemrc to allow new symbol browser to be used also to load files
+- Add toolbar_icon_zoom and ctxmenu_icon_zoom xschemrc (integer) variables to enlarge icons on XUHD displays
+- Add menu option Simulation->LVS->Upper case .SUBCKT and .ENDS
+- Allow multi-selections when loading a file; limit max line width in change_linewidth() to
+  avoid strange artifacts at extreme zoom-ins
+- Add command `xschem raw rename old_node new_node`
+- New tcl variable grid_point_size to set size of grid points (for 4K+ displays)
+- evaluate infix expressions with expr(...) in attributes
+- Descend_schematic() return value indicates if descended into a valid schematic (1) or empty one (0)
+- Proc editdata: added Copy (to Clipboard) button
+- Differential scope2.sym, current mwasure scope_ammeter.sym
+- Embed graph inside scope symbol
+- Initial commit to add scope.sym symbol
+- Lock attribute extended to all objects
+- Floater objects: add command ctrl-u to unselect attached (so some instance with the attach=.. attribute)
+  objects, that is objects (not element instances) with a non empty name=... atttribute.
+  Extend upcate references of attached floaters to change instance name property and
+  `xschem setprop instance name` command
+- Added attribute `attach="name1 name2 ..."` for components to designate other objects to be
+  selected with it. Designated objects must have a matching `name=name1` attribute.
+  This allows to create object groups
+- Escape pressed while drawing polygon will cancel last segment instead of the whole poly
+- Ellipses rendered in ps/pdf export.
+- Lock graphs only if they have the same simulation type loaded. So zooming/panning a tran
+  plot will not affect dc or ac plots.
+- `AUTO SET` button in graph edit dialog box to automatically assign increasing colors to displayed waves
+- Added `d` to unselect object under the mouse, `Shift-D` to unselect by area, both work with or
+  without infix_interface, moved delete files to `Ctrl-d`, update keybinding docs
+- Add eval_expr.y for evaluation of generic math expressions in infix notation (expr(...) in attributes)
+- Added command `xschem set crosshair_layer` to change  layer used for crosshair drawing
+- If big_grid_points is not set draw always thin axes and mouse crosshairs; dashed axes
+- `xschem go_back 0` allows to go up in hierarchy *NOT* saving a modified schematic
+- Add new command `xschem get modified` (returns 1 if circuit needs to be saved)
+
 3.4.6:
 - Fix spurious change in tab name when netlisting if Trim Wires option enabled
 - Xschem raw values now returns full precision, no more 8 digit rounding, as this is
