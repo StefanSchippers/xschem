@@ -2132,7 +2132,7 @@ void create_memory_cairo_ctx(int what)
 static void resetcairo(int create, int clear, int force_or_resize)
 { 
   #if HAS_CAIRO==1
-  dbg(0, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
+  dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize 
      * we must destroy & recreate everything. xctx->cairo_sfc can be resized using cairo_*_surface_set_size
