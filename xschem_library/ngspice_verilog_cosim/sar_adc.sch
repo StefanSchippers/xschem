@@ -1,4 +1,4 @@
-v {xschem version=3.4.7RC file_version=1.2}
+v {xschem version=3.4.8RC file_version=1.2}
 G {}
 K {}
 V {}
@@ -83,6 +83,6 @@ C {lab_pin.sym} 930 -70 0 1 {name=p35 lab=COMP_A}
 C {noconn.sym} 170 -120 0 0 {name=l1}
 C {noconn.sym} 950 -180 3 0 {name=l2}
 C {noconn.sym} 860 -180 3 0 {name=l3}
-C {ccap.sym} 420 -360 0 0 {name=xb[6..1] C="?1 1p,'1p/2','1p/4','1p/8','1p/16','1p/32'"}
+C {ccap.sym} 420 -360 0 0 {name=xb[6..1] C="1p,'1p/2','1p/4','1p/8','1p/16','1p/32'"}
 C {lab_pin.sym} 360 -360 0 0 {name=p36 lab=VREF}
 C {lab_pin.sym} 360 -340 0 0 {name=p37 lab=D[5..0]}
