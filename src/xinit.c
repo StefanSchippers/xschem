@@ -408,6 +408,7 @@ static void free_xschem_data()
     if(xctx->hier_attr[i].templ) my_free(_ALLOC_ID_, &xctx->hier_attr[i].templ);
     if(xctx->hier_attr[i].prop_ptr) my_free(_ALLOC_ID_, &xctx->hier_attr[i].prop_ptr);
     if(xctx->hier_attr[i].symname) my_free(_ALLOC_ID_, &xctx->hier_attr[i].symname);
+    if(xctx->hier_attr[i].sym_extra) my_free(_ALLOC_ID_, &xctx->hier_attr[i].sym_extra);
   }
     
   my_free(_ALLOC_ID_, &xctx->gridpoint);
@@ -596,6 +597,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->sch_path_hash[i]=0;
     xctx->hier_attr[i].prop_ptr = NULL;
     xctx->hier_attr[i].templ = NULL;
+    xctx->hier_attr[i].sym_extra = NULL;
     xctx->hier_attr[i].symname = NULL;
     xctx->hier_attr[i].fd = NULL;
     xctx->portmap[i].table = NULL;

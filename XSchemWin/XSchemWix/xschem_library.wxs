@@ -26,6 +26,9 @@
 						<Component Id="cmp5BFCD659D613BCDD89442010C8B409AE" Guid="{BDAEE43C-6D3F-4F05-B1E3-C9D7D8DDC3FB}">
 							<File Id="fil075F132FD859EDF98C0AAD67FC8F77CA" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\attributes.sym" />
 						</Component>
+						<Component Id="cmp53A8AE8741A24AE5CCD997B132E6070C" Guid="{E4D63113-71ED-4AB5-89B6-0AE577CC4D06}">
+							<File Id="fil582A8CBBFD874D4BFAB219FCDFA7FC85" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\bindkeys_cheatsheet.sym" />
+						</Component>
 						<Component Id="cmp8B38271A0A2367D71EF3F44B18F002CB" Guid="{1F23D370-35A1-44AF-83A2-5585BB8C0C86}">
 							<File Id="filDF409E59853F402C6BB473747B49CD6C" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\bsource.sym" />
 						</Component>
@@ -275,6 +278,15 @@
 						<Component Id="cmpD97AE943007C3AC19332BBE4DD1231CC" Guid="{9E87B48E-7BAC-4BA7-ADB9-AF663E891C8F}">
 							<File Id="fil15C79DAD681B86515BAC306AF0B7612A" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\rnmos4.sym" />
 						</Component>
+						<Component Id="cmp49B46F4662130845E4343088AA42DE38" Guid="{4D3651EC-6851-40E4-8FEC-F2D8F78A9BB5}">
+							<File Id="filEED9882556970814AD7850C652FDEA66" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\scope.sym" />
+						</Component>
+						<Component Id="cmp83815AB254A25EFFFFCB48E7A26D44BB" Guid="{7397C2E7-9A69-4573-8B70-EAF1D93A945B}">
+							<File Id="fil203B1C3344DC9A8B41BC7E92B9B7B44D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\scope2.sym" />
+						</Component>
+						<Component Id="cmp8D77275A41AAFA9F1D403E6F70B3DDC5" Guid="{9783BD30-9157-4640-8200-263C7209C2D4}">
+							<File Id="fil8D85992D9C398152630DC07165348EB4" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\scope_ammeter.sym" />
+						</Component>
 						<Component Id="cmpE8B96CE880019FD2D8721E0EBA844767" Guid="{878EE5E2-EF78-46DD-AFA4-5F3EA4FEC61D}">
 							<File Id="fil24CC7B37174D5826F66B50EFFA44387A" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\devices\short.sym" />
 						</Component>
@@ -371,6 +383,7 @@
 			<ComponentRef Id="cmp6B88C7B9D8CFC4FF40D953C136587245" />
 			<ComponentRef Id="cmpDF5400FB08BB656821AB8CBB45FA321F" />
 			<ComponentRef Id="cmp5BFCD659D613BCDD89442010C8B409AE" />
+			<ComponentRef Id="cmp53A8AE8741A24AE5CCD997B132E6070C" />
 			<ComponentRef Id="cmp8B38271A0A2367D71EF3F44B18F002CB" />
 			<ComponentRef Id="cmpD042A22D0CFCBF4CF2BE08A941DD8077" />
 			<ComponentRef Id="cmp41894FA8F8DE5B9A1B24E5C840E37F54" />
@@ -454,6 +467,9 @@
 			<ComponentRef Id="cmpA6D9B275607613A4C61E8980D499B751" />
 			<ComponentRef Id="cmpE33D206A79E72DCC203BF9219CECA21A" />
 			<ComponentRef Id="cmpD97AE943007C3AC19332BBE4DD1231CC" />
+			<ComponentRef Id="cmp49B46F4662130845E4343088AA42DE38" />
+			<ComponentRef Id="cmp83815AB254A25EFFFFCB48E7A26D44BB" />
+			<ComponentRef Id="cmp8D77275A41AAFA9F1D403E6F70B3DDC5" />
 			<ComponentRef Id="cmpE8B96CE880019FD2D8721E0EBA844767" />
 			<ComponentRef Id="cmpCEAF5664B6AEF38BECFAF994B2D9A81A" />
 			<ComponentRef Id="cmp0F9FB8C96A0FFABEBE019FD047730B71" />

@@ -1732,6 +1732,7 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
     my_strdup2(_ALLOC_ID_, &to->hier_attr[i].prop_ptr, hier_attr[i].prop_ptr);
     my_strdup2(_ALLOC_ID_, &to->hier_attr[i].templ, hier_attr[i].templ);
     my_strdup2(_ALLOC_ID_, &to->hier_attr[i].symname, hier_attr[i].symname);
+    my_strdup2(_ALLOC_ID_, &to->hier_attr[i].sym_extra, hier_attr[i].sym_extra);
     if(to->portmap[i].table) str_hash_free(&to->portmap[i]);
     str_hash_init(&to->portmap[i], HASHSIZE);
     for(j = 0; j < HASHSIZE; j++) {
@@ -2457,6 +2458,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
              xctx->inst[n].prop_ptr);
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ, xctx->sym[xctx->inst[n].ptr].templ);
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra, 
+     get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
@@ -2554,6 +2557,7 @@ void go_back(int what)
   xctx->currsch--;
   my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr);
   my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ);
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra);
   save_modified = xctx->modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 

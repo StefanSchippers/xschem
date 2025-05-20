@@ -46,7 +46,7 @@ static int tedax_netlist(FILE *fd, int tedax_stop )
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
      my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
-     if(!strcmp(type,"noconn")) continue;
+     if(type && !strcmp(type,"noconn")) continue;
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_tedax_netlist */
        if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;

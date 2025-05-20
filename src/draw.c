@@ -60,7 +60,7 @@ static void my_cairo_fill(cairo_surface_t *src_surface, int x, int y, unsigned i
   cairo_surface_destroy(dest_surface); dest_surface = NULL;
 }
 #endif
-
+#ifdef __unix__
 int xserver_ok(void)
 {
   int has_x = 1;
@@ -77,6 +77,7 @@ int xserver_ok(void)
   }
   return has_x;
 }
+#endif
 
 int textclip(int x1,int y1,int x2,int y2,
           double xa,double ya,double xb,double yb)

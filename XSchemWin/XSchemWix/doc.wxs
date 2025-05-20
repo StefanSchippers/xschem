@@ -4669,8 +4669,14 @@
 						<Component Id="cmp6459B0DD74A47A086E6B614933AFC28C" Guid="{84B8FE38-A121-4078-9118-E17E2FBB5879}">
 							<File Id="fil407D827A4500F875A532804A7BE85429" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\autozero_comp_xyce.sch" />
 						</Component>
+						<Component Id="cmpF33E5835E3AFEC359F3EF52C98089341" Guid="{9C5468FA-E0E8-48D5-AD7D-64027F0CF28D}">
+							<File Id="fil66BA291CBF8131316F5F6D5990D604D1" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\boost.sch" />
+						</Component>
 						<Component Id="cmp89838BB57E0FD4179DCA4965EB90E8C7" Guid="{97778F38-5A7D-4D0A-A747-4639545FB0A0}">
 							<File Id="fil12622F9C466C8C2E0ADDBEFBAD8AE5BB" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\buck.sch" />
+						</Component>
+						<Component Id="cmp3A991DB4062245FBD1F578B76AAFB226" Guid="{054E1763-5900-4E07-9EAC-13B6BBB5E558}">
+							<File Id="filD559008F6B96294C31CED1F33673AE7E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\buck_boost.sch" />
 						</Component>
 						<Component Id="cmp80F17668356F715FB30000BA77553EBA" Guid="{1AEFCA10-5D52-4934-A5B4-774EFE511D5E}">
 							<File Id="fil76CC1010EF62948C6E2502EA33C400C3" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\buf_ngspice.sch" />
@@ -4810,6 +4816,12 @@
 						<Component Id="cmpC7926C63F014277EC36E893A1F3696D4" Guid="{A963CEAC-807D-436C-9E23-06C4A78DEE37}">
 							<File Id="filBA2604076D7BCA03B0B63CC6789EDECF" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\stimuli.autozero_comp_xyce" />
 						</Component>
+						<Component Id="cmp03A03DB4D153397E0DA0407EE473F082" Guid="{5176AC0D-F570-45D4-981F-6EC6A946E48C}">
+						<File Id="filB9F20714D53B540E8CC5524725C5CF51" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\stimuli.boost" />
+						</Component>
+						<Component Id="cmpD04400F1EAF6A42D0D8294DB788CBB41" Guid="{9B8DD435-4071-4879-A5A4-1CDA1A18FE4F}">
+							<File Id="fil447561B0211FCC08BEA84A759F30DFF1" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\stimuli.buck_boost" />
+						</Component>
 						<Component Id="cmpFEC120B795E6A9EA4ECF425320D6F3C6" Guid="{F03A60E9-8203-4423-B7D0-05A192C225AA}">
 							<File Id="filD02F5239991E52D47E5BD2AFD82780AA" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\tb_diff_amp.sch" />
 						</Component>
@@ -4827,6 +4839,44 @@
 						</Component>
 						<Component Id="cmp1F8997B22A7D08567BB15C73851418F2" Guid="{6D1FD93F-2994-44CD-9186-CA36C3AE8323}">
 							<File Id="fil95911A877A642C5D3E09DA8EB64DD3FC" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice\xor_ngspice.sym" />
+						</Component>
+					</Directory>
+					<Directory Id="dir592EAC8063F59728EDFDDF8860C7AB7D" Name="ngspice_verilog_cosim">
+						<Component Id="cmpA613D3DF715962FA6F2CBA41D25DB13E" Guid="{C1A35D78-9CB4-4D6A-918D-DE68F10B4155}">
+							<File Id="fil03361C0A2C32D62B27791E8ECED1D944" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\adc.v" />
+						</Component>
+						<Component Id="cmp4E71B6DF84D980F2F0B8C50AB43658F0" Guid="{96CE77BA-275F-4323-9AA4-91E76B012D3A}">
+							<File Id="filE03D5BEA71AB2635DC3AC17B379A52CC" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\ainv.sch" />
+						</Component>
+						<Component Id="cmp8A93880DC2E4C5A3881AD0EC7FEFD353" Guid="{82B70654-32F1-4179-A37B-8C2177FD70E6}">
+							<File Id="filF68354346C998ADE5B8F95FB7DA2046E" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\ainv.sym" />
+						</Component>
+						<Component Id="cmp82189982E4A04BEC40CD595C52D08238" Guid="{4D3F6031-AB81-4032-9D8B-F25CE13C6697}">
+							<File Id="fil86ECBF1B74549C4643D613A0E3B21A13" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\ccap.sch" />
+						</Component>
+						<Component Id="cmp1A0A6CB97A7498EC2529B2D077D2CB49" Guid="{997D01A1-B3A4-435E-A254-59E9C8DDE410}">
+							<File Id="fil36E4E4B1FB92391C12BF1B3091E8A799" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\ccap.sym" />
+						</Component>
+						<Component Id="cmpF54BFEBB28AD260C51E60995CD5EA5BE" Guid="{B81BA4B9-E0AA-4F13-9D35-21412152FC04}">
+							<File Id="fil24516EB14D3356260C6B077AB3797A3D" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\sar_adc.sch" />
+						</Component>
+						<Component Id="cmp6E3A3C7E0B1E887495798F4CDDDCBD75" Guid="{C620BFA6-1F7B-47D2-9330-C70E016B79FC}">
+							<File Id="fil173D3623CBA57948340532B73AC2D701" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\sar_adc.sym" />
+						</Component>
+						<Component Id="cmpE646B68F472ACF02B3830FB762289243" Guid="{2EDB25B8-21BA-4156-85CB-A61AF528D9AC}">
+							<File Id="filF62430DACDC1A0FB89E92D58A94D111B" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\sar_adc_vlog.sym" />
+						</Component>
+						<Component Id="cmp42527D9091DB5E008C537CA5714100E8" Guid="{41D9337E-94AE-4A75-B043-5EF5F07AF078}">
+							<File Id="fil099E99A272E800F9397CEE0088209F30" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\tb_sar_adc.sch" />
+						</Component>
+						<Component Id="cmpCEA3159E3193470BA8EC96C45FDAA7F6" Guid="{7B729546-951C-4649-8D13-16A65D1751EE}">
+							<File Id="filE525270814D1EB2BA3AB887D889F6A64" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\tb_sar_adc.sym" />
+						</Component>
+						<Component Id="cmp3B1CC84B767F30ED3AD8C41BFC813570" Guid="{3626950B-75DD-4E38-9DCA-EDB7E61D3AAE}">
+							<File Id="fil38FC455119481CBA3658DFCEE8AF6FCE" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\tgate.sch" />
+						</Component>
+						<Component Id="cmp9B377E4F4F91B41732596BC305A7FA8D" Guid="{EE4A39E3-91EB-43DB-8C7C-102E2308D5E2}">
+							<File Id="fil9B3C9375540E3B3046F32D6941025A39" KeyPath="yes" Source="$(var.xschemLibrarySrcDir)\ngspice_verilog_cosim\tgate.sym" />
 						</Component>
 					</Directory>
 					<Directory Id="dirBD835285122EBEFC359E369581C7F6C9" Name="pcb">
@@ -7975,7 +8025,9 @@
 			<ComponentRef Id="cmp81121000EE29EDB7D590EC4C84F1AA2A" />
 			<ComponentRef Id="cmpD009418B633A058FED795DBEBEBC109A" />
 			<ComponentRef Id="cmp6459B0DD74A47A086E6B614933AFC28C" />
+			<ComponentRef Id="cmpF33E5835E3AFEC359F3EF52C98089341" />
 			<ComponentRef Id="cmp89838BB57E0FD4179DCA4965EB90E8C7" />
+			<ComponentRef Id="cmp3A991DB4062245FBD1F578B76AAFB226" />
 			<ComponentRef Id="cmp80F17668356F715FB30000BA77553EBA" />
 			<ComponentRef Id="cmpBD9487EA59ED3AE24081A421B0769C70" />
 			<ComponentRef Id="cmp97AB2F4BC3ABE4634A8B25AB0F5E28BD" />
@@ -8022,12 +8074,26 @@
 			<ComponentRef Id="cmp77356AD341ED858C86F7395F40A57F7A" />
 			<ComponentRef Id="cmpDB6B5CBFE445584C13D50BDB01BBE11A" />
 			<ComponentRef Id="cmpC7926C63F014277EC36E893A1F3696D4" />
+			<ComponentRef Id="cmp03A03DB4D153397E0DA0407EE473F082" />
+			<ComponentRef Id="cmpD04400F1EAF6A42D0D8294DB788CBB41" />
 			<ComponentRef Id="cmpFEC120B795E6A9EA4ECF425320D6F3C6" />
 			<ComponentRef Id="cmpB653089DCFC0CAA251E4166A6E0EAE0C" />
 			<ComponentRef Id="cmp2015FC5E9167C308D6475A30BA070CCC" />
 			<ComponentRef Id="cmpCDAAA8F82466F91565BD09D130FB616A" />
 			<ComponentRef Id="cmp3CDEBE336A570223DF766E1A767D37CE" />
 			<ComponentRef Id="cmp1F8997B22A7D08567BB15C73851418F2" />
+			<ComponentRef Id="cmpA613D3DF715962FA6F2CBA41D25DB13E" />
+			<ComponentRef Id="cmp4E71B6DF84D980F2F0B8C50AB43658F0" />
+			<ComponentRef Id="cmp8A93880DC2E4C5A3881AD0EC7FEFD353" />
+			<ComponentRef Id="cmp82189982E4A04BEC40CD595C52D08238" />
+			<ComponentRef Id="cmp1A0A6CB97A7498EC2529B2D077D2CB49" />
+			<ComponentRef Id="cmpF54BFEBB28AD260C51E60995CD5EA5BE" />
+			<ComponentRef Id="cmp6E3A3C7E0B1E887495798F4CDDDCBD75" />
+			<ComponentRef Id="cmpE646B68F472ACF02B3830FB762289243" />
+			<ComponentRef Id="cmp42527D9091DB5E008C537CA5714100E8" />
+			<ComponentRef Id="cmpCEA3159E3193470BA8EC96C45FDAA7F6" />
+			<ComponentRef Id="cmp3B1CC84B767F30ED3AD8C41BFC813570" />
+			<ComponentRef Id="cmp9B377E4F4F91B41732596BC305A7FA8D" />
 			<ComponentRef Id="cmp55E5CC645BE7A7C627C0B2B83746BDF6" />
 			<ComponentRef Id="cmp638723DEE6C9B17E1C8E1594DA083185" />
 			<ComponentRef Id="cmp5B93C1BFDDB73CBE28A4459E3406D3AC" />

@@ -5204,6 +5204,8 @@ int descend_symbol(void)
             xctx->inst[n].prop_ptr);
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
             xctx->sym[xctx->inst[n].ptr].templ);
+  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra, 
+    get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
   if(!xctx->inst[n].embed)
     /* use -1 to keep track we are descending into symbol from instance with no embed attr

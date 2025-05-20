@@ -696,6 +696,7 @@ typedef struct
   char *prop_ptr;
   char *templ;
   char *symname;
+  char *sym_extra;
 } Lcc;
 
 typedef struct {

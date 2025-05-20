@@ -474,6 +474,8 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
     /* only additional symbols (created with instance schematic=... attr) will have this attribute */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
               tcl_hook2(xctx->sym[i].parent_prop_ptr));
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra, 
+      get_tok_value(xctx->sym[i].prop_ptr, "extra", 0));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
@@ -504,6 +506,8 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
      my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ);
    if(xctx->hier_attr[xctx->currsch - 1].prop_ptr)
      my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr);
+   if(xctx->hier_attr[xctx->currsch - 1].sym_extra)
+     my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra);
    my_free(_ALLOC_ID_, &abs_path);
    /* get_additional_symbols(0); */
    my_free(_ALLOC_ID_, &subckt_name);
