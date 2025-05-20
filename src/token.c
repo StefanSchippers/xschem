@@ -2456,6 +2456,7 @@ int print_spice_element(FILE *fd, int inst)
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
         if(strchr(val, '@')) {
+          #if 0
           if(parent_prop_ptr) {
             my_strdup2(_ALLOC_ID_, &val,
                    translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
@@ -2467,6 +2468,7 @@ int print_spice_element(FILE *fd, int inst)
               /* ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" --> ad="expr('int((1 + 1)/2) * 5 / 1 * 0.29')" */
             }
           } else {
+          #endif
             my_strdup2(_ALLOC_ID_, &val,
                    translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
             dbg(1, "print_spice_element(): 2nd round: val: |%s|\n", val);
@@ -2479,7 +2481,9 @@ int print_spice_element(FILE *fd, int inst)
               /* normal passgate.sym placement, nmos instance format string:
                *   @modeln --> nfet_01v8 */
             }
+          #if 0
           }
+          #endif
           dbg(1, "print_spice_element(): final: val: |%s|\n", val);
         }
         /* still unresolved: set to empty */
