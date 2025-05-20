@@ -2147,6 +2147,26 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
  my_free(_ALLOC_ID_, &token);
 }
 
+
+int has_token(const char *s, const char *tok)
+{
+  int i = 1;
+  int ret = 0;
+  char *item;
+
+  while(1) {
+    item = find_nth(s, " ", "", 1, i);
+    dbg(1, "item=%s, tok=%s\n", item, tok);
+    if(!item[0]) break;
+    else if(!strcmp(tok, item)) {
+      ret = 1;
+      break;
+    }
+    i++;
+  }
+  return ret;
+}
+
 int print_spice_element(FILE *fd, int inst)
 {
   int i=0, multip, itmp;
@@ -2398,7 +2418,6 @@ int print_spice_element(FILE *fd, int inst)
           parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
           parent_sym_extra = xctx->hier_attr[xctx->currsch - 1].sym_extra;
         }
-        dbg(1, "print_spice_element(): token: |%s|\n", token);
 
         /* consider this scenario:
          * instance of passgate.sym: W_N=5 L_N=0.2 W_P=10 L_P=0.3 m=1
@@ -2417,8 +2436,10 @@ int print_spice_element(FILE *fd, int inst)
          *           model=nfet_01v8
          */
 
-        if(parent_sym_extra && strstr(parent_sym_extra, token + 1)) { 
+        
+        if(parent_sym_extra && has_token(parent_sym_extra, token + 1)) { 
           /* do not translate extra pins with parent instance attributes */
+          dbg(1, "print_spice_element(): token: |%s|, parent_sym_extra=|%s|\n", token, parent_sym_extra);
           my_strdup2(_ALLOC_ID_, &val, 
                translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
         } else {
