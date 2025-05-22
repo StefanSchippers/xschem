@@ -2411,12 +2411,12 @@ int print_spice_element(FILE *fd, int inst)
         size_t tok_val_len;
         char *parent_prop_ptr = NULL;
         char *parent_templ = NULL;
-        char *parent_sym_extra = NULL;
+        /* char *parent_sym_extra = NULL; */
 
         if(xctx->currsch > 0) {
           parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
           parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
-          parent_sym_extra = xctx->hier_attr[xctx->currsch - 1].sym_extra;
+          /* parent_sym_extra = xctx->hier_attr[xctx->currsch - 1].sym_extra; */
         }
 
         /* consider this scenario:
@@ -2437,15 +2437,8 @@ int print_spice_element(FILE *fd, int inst)
          */
 
         
-        if(parent_sym_extra && has_token(parent_sym_extra, token + 1)) { 
-          /* do not translate extra pins with parent instance attributes */
-          dbg(1, "print_spice_element(): token: |%s|, parent_sym_extra=|%s|\n", token, parent_sym_extra);
-          my_strdup2(_ALLOC_ID_, &val, 
-               translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-        } else {
-          my_strdup2(_ALLOC_ID_, &val, 
-               translate3(token, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
-        }
+        my_strdup2(_ALLOC_ID_, &val, 
+             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
         /* can not put template in above translate3: ---------------------------^^^^
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
          * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
