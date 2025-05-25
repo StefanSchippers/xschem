@@ -8731,7 +8731,7 @@ proc select_raw {} {
   } 
   if {[info exists has_x]} {
     set filename [tk_getOpenFile -title "Select file" -multiple 0 -initialdir $netlist_dir \
-            -initialfile [file tail $filename]  -filetypes $types]
+            -parent .graphdialog -initialfile [file tail $filename]  -filetypes $types]
   }
   return $filename
 }
