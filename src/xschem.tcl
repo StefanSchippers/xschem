@@ -3438,7 +3438,8 @@ proc graph_edit_properties {n} {
   button .graphdialog.center.right.rawbut -text {Raw file:} -command {
     regsub {/$} $netlist_dir {} netlist_dir
    .graphdialog.center.right.rawentry delete 0 end
-   .graphdialog.center.right.rawentry insert 0 [string map [list $netlist_dir {$netlist_dir}] [select_raw]]
+   .graphdialog.center.right.rawentry insert 0 \
+     [string map [list $netlist_dir {$netlist_dir}] [select_raw .graphdialog]]
     graphdialog_set_raw_props
   }
 
@@ -8721,7 +8722,7 @@ proc switch_undo {} {
 }
 
 
-proc select_raw {} {
+proc select_raw {{parent {.}}} {
   global has_x netlist_dir
   regsub {/$} $netlist_dir {} netlist_dir
   set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
@@ -8731,7 +8732,7 @@ proc select_raw {} {
   } 
   if {[info exists has_x]} {
     set filename [tk_getOpenFile -title "Select file" -multiple 0 -initialdir $netlist_dir \
-            -parent .graphdialog -initialfile [file tail $filename]  -filetypes $types]
+            -parent $parent -initialfile [file tail $filename]  -filetypes $types]
   }
   return $filename
 }
@@ -8743,7 +8744,7 @@ proc load_raw {{type {}}} {
   if { [xschem raw_query loaded] != -1} { ;# unload existing raw file(s)
     xschem raw_clear
    }
-  set filename [select_raw]
+  set filename [select_raw [xschem get topwindow]]
   if {[file exists $filename]} {
     if {$type ne {}} {
       xschem raw_read $filename $type
@@ -9058,7 +9059,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves add command -label Clear -command {xschem raw_clear}
   $topwin.menubar.waves add separator
   $topwin.menubar.waves add command -label {Op Annotate} -command {
-       set retval [select_raw]
+       set retval [select_raw [xschem get topwindow]]
        set show_hidden_texts 1
        if {$retval ne {}} {
          xschem annotate_op $retval
@@ -9376,7 +9377,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   }
   $topwin.menubar.simulation.graph add command -label "Annotate Operating Point into schematic" \
     -command {
-       set retval [select_raw]
+       set retval [select_raw [xschem get topwindow]]
        set show_hidden_texts 1
        if {$retval ne {}} {
          xschem annotate_op $retval
