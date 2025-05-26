@@ -2329,7 +2329,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    return 0;
  }
  rebuild_selected_array();
- if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
+ if(/* xctx->lastsel !=1 || */ xctx->sel_array[0].type!=ELEMENT) {
    dbg(1, "descend_schematic(): wrong selection\n");
    return 0;
  }
