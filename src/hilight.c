@@ -585,6 +585,18 @@ void hilight_parent_pins(void)
 
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
 
+ /* propagate global nets */
+ for(j=0;j<HASHSIZE; ++j) {
+   entry=xctx->hilight_table[j];
+   for( entry=xctx->hilight_table[j]; entry; entry = entry->next) { 
+     if(entry->token[0] == ' ') continue; /* skip instances, process only nets */
+     if(record_global_node(3, NULL, entry->token)) {
+       dbg(1, "entry token=%s, value=%d\n", entry->token, entry->value);
+       bus_hilight_hash_lookup(entry->token,  entry->value, XINSERT);
+     }
+   }
+ }
+
  for(j=0;j<rects; ++j)
  {
   char *p_n_s1, *p_n_s2;
@@ -645,6 +657,18 @@ void hilight_child_pins(void)
  prepare_netlist_structs(0);
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
  inst_number = xctx->sch_inst_number[xctx->currsch-1];
+
+ /* propagate global nets */
+ for(j=0;j<HASHSIZE; ++j) {
+   entry=xctx->hilight_table[j];
+   for( entry=xctx->hilight_table[j]; entry; entry = entry->next) {
+     if(entry->token[0] == ' ') continue; /* skip instances, process only nets */
+     if(record_global_node(3, NULL, entry->token)) {
+       dbg(1, "entry token=%s, value=%d\n", entry->token, entry->value);
+       bus_hilight_hash_lookup(entry->token,  entry->value, XINSERT);
+     }
+   }
+ }
 
  /* may be set to -1 by descend_symbol to notify we are
   * descending into a smbol from an instance with no embed flag set 
