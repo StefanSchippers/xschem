@@ -8,7 +8,7 @@
 
 static const char *str, *strptr;
 static char *ret = NULL;
-
+static int engineering = 0;
 static int dbglev = 1;
 
 /* Data type for links in the chain of functions. */
@@ -128,7 +128,11 @@ static void get_expr(double x)
 {
   char xx[100];
   dbg(dbglev,"get_expr(): x=%g\n", x);
-  my_snprintf(xx, S(xx), "%.15g", x);
+  if(engineering) {
+    my_snprintf(xx, S(xx), "%s", dtoa_eng(x));
+  } else {
+    my_snprintf(xx, S(xx), "%.15g", x);
+  }
   my_mstrcat(_ALLOC_ID_, &ret, xx, NULL);
   strptr = str;
 }
@@ -147,6 +151,10 @@ static void remove_expr(char *s)
   while(*ptr) {
     if(strstr(ptr, "expr(") == ptr) {
       ptr += 5;
+      plev++;
+    }
+    else if(strstr(ptr, "expr_eng(") == ptr) {
+      ptr += 9;
       plev++;
     }
     if(*ptr == '(') plev++;
@@ -226,8 +234,18 @@ static int kklex()
      lex_state = 1; 
      str += 5;
      dbg(dbglev, "lex(): EXPR\n");
+     engineering = 0;
      return EXPR;
   }
+
+  else if(strstr(str, "expr_eng(") == str) {
+     lex_state = 1;
+     str += 9;
+     dbg(dbglev, "lex(): EXPR_ENG\n");
+     engineering = 1;
+     return EXPR;
+  }
+
   if(!lex_state) {
     c = *str++;
     if(c) {
