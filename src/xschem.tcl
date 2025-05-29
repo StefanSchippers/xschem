@@ -614,7 +614,7 @@ proc from_eng {i} {
   set str {}
   scan $i "%g%s" n str
   set str [string tolower $str]
-  if { [regexp {^meg} $str] } { set str {meg} } else {
+  if { [regexp {^meg} $str] } { set suffix {meg} } else {
     set suffix [string index $str 0]
   }
   set mult [switch $suffix {
