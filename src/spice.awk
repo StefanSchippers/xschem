@@ -303,7 +303,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
   {
     #       ............ --> matches ?n and ?-n         
-    if($j ~/^\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
+    # some CDL netlists have this: $SUB=?1 B where B is a node
+    if($j ~/^(.*=)?\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
     arg_num[j]=split($j,tmp,",")
     for(k=1;k<=arg_num[j]; k++) {
      arg_name[j,k]=tmp[k]
@@ -316,14 +317,20 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    for(j=2;j<=NF;j++)
    {
     #         ............ --> matches ?n and ?-n
-    if($j !~ /^\?-?[0-9]+$/)
+    # some CDL netlists have this: $SUB=?1 B where B is a node
+    if($j !~ /^(.*=)?\?-?[0-9]+$/)
     {
       printf "%s ", $j # if not a node just print it
     }
     else
     {
+     nmult=$(j)
+     if(nmult ~ /^(.*=)/) { # some CDL netlists have this: $SUB=?1 B where B is a node
+       sub(/=.*/, "=", nmult)
+       printf "%s", nmult
+     }
      nmult=$(j++)
-     sub(/\?/,"",nmult)
+     sub(/(.*=)?\?/,"",nmult)
      if(nmult+0==-1) nmult=arg_num[j]
      for(l=0;l<nmult+0;l++)
      {
