@@ -1,0 +1,67 @@
+v {xschem version=3.4.8RC file_version=1.2
+*
+* This file is part of XSCHEM,
+* a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
+* simulation.
+* Copyright (C) 1998-2024 Stefan Frederik Schippers
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+}
+G {}
+K {type=resistor
+
+function0="1"
+function1="0"
+
+format="tcleval([
+  if \{[sim_is_ngspice]\} \{
+    return \{@name @pinlist @value noisy=@noisy m=@m \}
+  \} else \{
+    return \{@name @pinlist @value m=@m \}
+  \}
+])"
+verilog_format="tran @name (@@P\\\\, @@M\\\\);"
+
+template="name=R1
+value=1k
+m=1"
+}
+V {}
+S {}
+E {}
+L 4 0 20 0 30 {}
+L 4 0 20 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 17.5 {}
+L 4 -7.5 12.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 7.5 {}
+L 4 -7.5 2.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -2.5 {}
+L 4 -7.5 -7.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 7.5 -12.5 {}
+L 4 -7.5 -17.5 0 -20 {}
+L 4 0 -30 0 -20 {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout propag=1 pinnumber=1 goto=1}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout propag=0 pinnumber=2 goto=0}
+T {@#0:pinnumber} -10 -26.25 0 1 0.2 0.2 {layer=13}
+T {@#1:pinnumber} -10 16.25 0 1 0.2 0.2 {layer=13}
+T {@#0:net_name} 10 -28.75 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 10 20 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@name} 15 -18.75 0 0 0.2 0.2 {}
+T {@value} 15 -6.25 0 0 0.2 0.2 {}
+T {m=@m} 15 6.25 0 0 0.2 0.2 {}
+T {@spice_get_current} -10 5 0 1 0.2 0.2 {layer=17}
+T {noisy=@noisy} -15 -13.75 0 1 0.2 0.2 {}
