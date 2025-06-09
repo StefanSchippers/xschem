@@ -36,6 +36,7 @@ verilog_format="tran @name (@@P\\\\, @@M\\\\);"
 
 template="name=R1
 value=1k
+noisy=1
 m=1"
 }
 V {}
