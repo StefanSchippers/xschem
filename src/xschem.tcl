@@ -3988,6 +3988,7 @@ proc open_sub_schematic {{inst {}} {inst_number 0}} {
   set res [xschem schematic_in_new_window force]
   # if successfull descend into indicated sub-schematic
   if {$res} {
+    xschem copy_hilights
     xschem new_schematic switch [xschem get last_created_window]
     if { $rawfile ne {}} {
       if {$sim_type eq {op}} {

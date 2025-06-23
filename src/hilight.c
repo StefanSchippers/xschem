@@ -206,6 +206,38 @@ Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, const 
   return entry;
 }
 
+/* copy hilight hash table to new created schematic. Used for Alt-e descend */
+void copy_hilights(void)
+{
+  int i;
+  Hilight_hashentry **entry, **new_entry;
+  Xschem_ctx *old_xctx = get_old_xctx();
+
+  for(i=0;i<HASHSIZE; ++i) {
+    entry = &old_xctx->hilight_table[i];
+    new_entry = &xctx->hilight_table[i];
+    while(entry && *entry) {
+      Hilight_hashentry *new = (Hilight_hashentry *)my_calloc(_ALLOC_ID_, 1, sizeof( Hilight_hashentry ));
+        
+      if(*new_entry) (*new_entry) = new;
+      xctx->hilight_nets = 1;
+      
+      my_strdup2(_ALLOC_ID_, &(new->token), (*entry)->token);
+      my_strdup2(_ALLOC_ID_, &(new->path), (*entry)->path);
+      new->hash = (*entry)->hash;
+      new->oldvalue = (*entry)->oldvalue;
+      new->value = (*entry)->value;
+      new->time = (*entry)->time;
+      new->next = NULL;
+
+      *new_entry = new;
+      entry = &(*entry)->next;
+      new_entry = &(*new_entry)->next;
+    }
+    if(*new_entry) (*new_entry)->next = NULL;
+  }
+}
+
 /* what:
  *  1: list only nets
  *  2: list only intances

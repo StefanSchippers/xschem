@@ -669,6 +669,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* copy_hilights
+     *   Copy hilights hash table from previous schematic to new created tab/window */
+    else if(!strcmp(argv[1], "copy_hilights"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      copy_hilights();
+      Tcl_ResetResult(interp);
+    }
 
     /* copy_hierarchy to from
      *   Copy hierarchy info from tab/window "from" to tab/window "to"
@@ -1464,7 +1472,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           break;
           case 'l':
           if(!strcmp(argv[2], "last_created_window")) { /* return win_path of last created tab or window */
-            Tcl_SetResult(interp, get_last_created_window(), TCL_VOLATILE);
+            Tcl_SetResult(interp, get_last_created_window_path(), TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "lastsel")) { /* number of selected objects */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}

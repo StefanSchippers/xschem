@@ -43,6 +43,7 @@ static char window_path[MAX_NEW_WINDOWS][WINDOW_PATH_SIZE];
 /* ==0 if no additional windows/tabs, ==1 if one additional window/tab, ... */
 static int window_count = 0;
 static int last_created_window = -1;
+static Xschem_ctx *old_xctx;
 
 /* ----------------------------------------------------------------------- */
 /* EWMH message handling routines 20071027... borrowed from wmctrl code */
@@ -95,7 +96,18 @@ char *get_window_path(int i)
   return window_path[i];
 }
 
-char *get_last_created_window(void)
+Xschem_ctx *get_old_xctx(void)
+{   
+  return old_xctx;
+}   
+
+
+int get_last_created_window(void)
+{
+  return last_created_window;
+}
+
+char *get_last_created_window_path(void)
 {
   if(last_created_window >= 0) {
     return window_path[last_created_window];
@@ -1653,6 +1665,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
     win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
     Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
   }
+  old_xctx = xctx;
   xctx = NULL;
   alloc_xschem_data(toppath, window_path[n]); /* alloc data into xctx */
   xctx->netlist_type = CAD_SPICE_NETLIST; /* for new windows start with spice netlist mode */
@@ -1764,6 +1777,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
 
   my_snprintf(win_path, S(win_path), ".x%d.drw", i);
   my_strncpy(window_path[i], win_path, S(window_path[i]));
+  old_xctx = xctx;
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */
   xctx->netlist_type = CAD_SPICE_NETLIST; /* for new windows start with spice netlist mode */
