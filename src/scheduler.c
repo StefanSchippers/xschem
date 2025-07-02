@@ -3435,6 +3435,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
+      set_netlist_dir(0, NULL);
 
       my_strncpy(savedir, tclgetvar("netlist_dir"), S(savedir));
       for(i = 2; i < argc; i++) {

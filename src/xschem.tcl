@@ -5483,6 +5483,9 @@ proc simuldir {} {
 proc set_netlist_dir { what {dir {} }} {
   global netlist_dir env OS has_x local_netlist_dir USER_CONF_DIR
 
+  if { ![info exists netlist_dir] } {
+    set netlist_dir {}
+  }
   #### set local-to-schematic-dir if local_netlist_dir tcl var is set
   simuldir
   regsub {/$} $netlist_dir {} netlist_dir
@@ -5490,16 +5493,15 @@ proc set_netlist_dir { what {dir {} }} {
 
   #### what == 0
   if {$what == 0} {
-    if {$netlist_dir ne {}} {
-      if {![file exist $netlist_dir]} {
-        if {[catch {file mkdir "$netlist_dir"} err]} {
-          puts stderr $err
-          if {[info exists has_x]} {
-            tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
-          } 
-        }
+    if {$netlist_dir eq {}} { set netlist_dir "$USER_CONF_DIR/simulations" }
+    if {![file exist $netlist_dir]} {
+      if {[catch {file mkdir "$netlist_dir"} err]} {
+        puts stderr $err
+        if {[info exists has_x]} {
+          tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
+        } 
       }
-    } 
+    }
   #### what == 1
   } else {
     # if local_netlist_dir is set can not provide a dir, set dir to netlist_dir as set by proc simuldir
@@ -8321,7 +8323,8 @@ set tctx::global_list {
  custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
- en_hilight_conn_inst enable_dim_bg enable_stretch enter_text_default_geometry filetmp
+ en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
+ enter_text_default_geometry filetmp
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
