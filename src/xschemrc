@@ -573,7 +573,14 @@
 ###########################################################################
 #### TCL COMMANDS TO BE EXECUTED AFTER GENERATING NETLIST
 ###########################################################################
+#### default: not set.
 # set netlist_postprocess {textfile $netlist_dir/[xschem get netlist_name fallback]}
+
+###########################################################################
+#### TCL COMMANDS TO BE EXECUTED AFTER LOADING A NEW FILE
+###########################################################################
+#### default: not set.
+# set load_file_postprocess {puts [xschem get schname]}
 
 ###########################################################################
 #### WEB URL DOWNLOAD HELPER APPLICATION

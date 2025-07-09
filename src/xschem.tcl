@@ -9636,6 +9636,15 @@ proc eval_netlist_postprocess {} {
   }
 }
 
+proc eval_load_file_postprocess {} {
+  global load_file_postprocess
+  if {[info exists load_file_postprocess]} {
+    if {[catch {uplevel #0 $load_file_postprocess} res]} {
+      puts "executing $load_file_postprocess:\n\n$res"
+    } 
+  }
+}
+
 proc setup_tcp_xschem { {port_number {}} } {
   global xschem_listen_port xschem_server_getdata
 

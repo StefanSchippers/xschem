@@ -3669,6 +3669,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     drc_check(-1);
   }
   my_free(_ALLOC_ID_, &ffname);
+  if(reset_undo == 1) tcleval("eval_load_file_postprocess");
   return ret;
 }
 
