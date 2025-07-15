@@ -653,6 +653,8 @@ void set_tcl_netlist_type(void)
       tclsetvar("netlist_type", "verilog");
     } else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
       tclsetvar("netlist_type", "vhdl");
+    } else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+      tclsetvar("netlist_type", "spectre");
     } else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
       tclsetvar("netlist_type", "tedax");
     } else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
@@ -719,6 +721,7 @@ int record_global_node(int what, FILE *fp, const char *node)
  } else if(what == 0) {
     for(i = 0;i < xctx->max_globals; ++i) {
        if(xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", xctx->globals[i]);
+       if(xctx->netlist_type == CAD_SPECTRE_NETLIST) fprintf(fp, "global %s\n", xctx->globals[i]); /*<<<<*/
        if(xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", xctx->globals[i]);
     }
  } else if(what == 2) {
@@ -1051,6 +1054,8 @@ int shorted_instance(int i, int lvs_ignore)
     if((inst[i].flags & SPICE_SHORT) || (sym[inst[i].ptr].flags & SPICE_SHORT) ) shorted = 1;
   } else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
     if((inst[i].flags & VERILOG_SHORT) || (sym[inst[i].ptr].flags & VERILOG_SHORT) ) shorted = 1;
+  } else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+    if((inst[i].flags & SPECTRE_SHORT) || (sym[inst[i].ptr].flags & SPECTRE_SHORT) ) shorted = 1;
   } else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
     if((inst[i].flags & VHDL_SHORT) || (sym[inst[i].ptr].flags & VHDL_SHORT) ) shorted = 1;
   } else if(xctx->netlist_type == CAD_TEDAX_NETLIST) 
@@ -1077,6 +1082,8 @@ int skip_instance(int i, int skip_short, int lvs_ignore)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? SPICE_SHORT : 0) | SPICE_IGNORE);
   else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? VERILOG_SHORT : 0) | VERILOG_IGNORE);
+  else if(xctx->netlist_type == CAD_SPECTRE_NETLIST)
+      skip =  skip_instance2(i, lvs_ignore, (skip_short ? SPECTRE_SHORT : 0) | SPECTRE_IGNORE);
   else if(xctx->netlist_type == CAD_VHDL_NETLIST)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? VHDL_SHORT : 0) | VHDL_IGNORE);
   else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
@@ -1153,6 +1160,10 @@ static int instcheck(int n, int p)
   if( xctx->netlist_type == CAD_VERILOG_NETLIST &&
        ((inst[n].flags & VERILOG_IGNORE) || 
        (k >= 0 && (sym[k].flags & VERILOG_IGNORE))) ) return 0;
+       
+  if( xctx->netlist_type == CAD_SPECTRE_NETLIST &&
+       ((inst[n].flags & SPECTRE_IGNORE) || 
+       (k >= 0 && (sym[k].flags & SPECTRE_IGNORE))) ) return 0;
        
   if( xctx->netlist_type == CAD_SPICE_NETLIST &&
        ((inst[n].flags & SPICE_IGNORE) || 
@@ -1315,6 +1326,7 @@ static int name_nodes_of_pins_labels_and_propagate()
         if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE)) continue;
         if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE)) continue;
         if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE)) continue;
+        if( xctx->netlist_type == CAD_SPECTRE_NETLIST && (inst[i].flags & SPECTRE_IGNORE)) continue;
         if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE)) continue;
         if( netlist_lvs_ignore && (inst[i].flags & LVS_IGNORE_OPEN)) continue;
       }

@@ -2159,6 +2159,163 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
 }
 
 
+void print_spectre_subckt_nodes(FILE *fd, int symbol)
+{
+ int i=0, multip;
+ const char *str_ptr=NULL;
+ register int c, state=TOK_BEGIN, space;
+ char *format=NULL, *format1 = NULL, *s, *token=NULL;
+ int pin_number;
+ size_t sizetok=0;
+ size_t token_pos=0;
+ int escape=0;
+ int no_of_pins=0;
+ char *result = NULL;
+ const char *tclres, *fmt_attr = NULL;
+
+ fmt_attr = xctx->format ? xctx->format : "spectre_format";
+ my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, fmt_attr, 2));
+ if(!xctx->tok_size && strcmp(fmt_attr, "spectre_format") )
+   my_strdup(_ALLOC_ID_, &format1, get_tok_value(xctx->sym[symbol].prop_ptr, "spectre_format", 2));
+ dbg(1, "print_spectre_subckt(): format1=%s\n", format1);
+
+ /* can not do this, since @symname is used as a token later in format parser */
+ /* my_strdup(_ALLOC_ID_, &format1,
+  * str_replace(format1, "@symname", get_cell(xctx->sym[symbol].name, 0), '\\', -1)); */
+
+ if(format1 && strstr(format1, "tcleval(") == format1) {
+    tclres = tcl_hook2(format1);
+    if(!strcmp(tclres, "?\n")) {
+      char *ptr = strrchr(format1 + 8, ')');
+      *ptr = '\0';
+      my_strdup(_ALLOC_ID_, &format,  format1 + 8);
+    } else my_strdup(_ALLOC_ID_, &format,  tclres);
+ } else {
+   my_strdup(_ALLOC_ID_, &format,  format1);
+ }
+ if(format1) my_free(_ALLOC_ID_, &format1);
+ dbg(1, "print_spectre_subckt(): format=%s\n", format);
+ if( format==NULL ) {
+   return; /* no format */
+ }
+ no_of_pins= xctx->sym[symbol].rects[PINLAYER];
+ s=format;
+
+ /* begin parsing format string */
+ while(1)
+ {
+  c=*s++;
+  if(c=='\\') {
+    escape=1;
+    c=*s++;
+  }
+  else escape=0;
+  if(c=='\n' && escape ) c=*s++; /* 20171030 eat escaped newlines */
+  space=SPACE(c);
+  if( state==TOK_BEGIN && (c=='@' || c=='%')  && !escape) state=TOK_TOKEN;
+  else if(state==TOK_TOKEN && token_pos > 1 &&
+     (
+       ( (space  || c == '%' || c == '@') && !escape ) ||
+       ( (!space && c != '%' && c != '@') && escape  )
+     )
+    ) {
+    state = TOK_SEP;
+  }
+
+  STR_ALLOC(&token, token_pos, &sizetok);
+  if(state==TOK_TOKEN) {
+    token[token_pos++]=(char)c;
+  }
+  else if(state==TOK_SEP)                    /* got a token */
+  {
+   token[token_pos]='\0';
+   token_pos=0;
+   if(!strcmp(token, "@spiceprefix")) {
+     /* do nothing */
+   }
+   else if(!strcmp(token, "@name")) {
+     /* do nothing */
+   }
+   else if(strcmp(token, "@symname")==0) {
+     break ;
+   }
+   else if(strcmp(token, "@pinlist")==0) {
+     Int_hashtable table = {NULL, 0};
+     int_hash_init(&table, 37);
+     for(i=0;i<no_of_pins; ++i)
+     {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spectre_ignore",0), "true")) {
+         const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
+         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+           str_ptr= expandlabel(name, &multip);
+           /* fprintf(fd, "%s ", str_ptr); */
+           my_mstrcat(_ALLOC_ID_, &result, str_ptr, " ", NULL);
+         }
+       }
+     }
+     int_hash_free(&table);
+   }
+   else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+     char *prop=NULL;
+     for(i = 0; i<no_of_pins; ++i) {
+       prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
+       if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
+     }
+     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spectre_ignore",0), "true")) {
+       /* fprintf(fd, "%s ", expandlabel(token+2, &multip)); */
+       my_mstrcat(_ALLOC_ID_, &result, expandlabel(token+2, &multip), " ", NULL);
+     }
+   }
+   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 20180911 */
+   else if(token[0]=='@' && token[1]=='#') {
+     char *pin_attr = NULL;
+     char *pin_num_or_name = NULL;
+     get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
+     pin_number = get_sym_pin_number(symbol, pin_num_or_name);
+     if(pin_number >= 0 && pin_number < no_of_pins) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spectre_ignore",0), "true")) {
+       str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
+       /* fprintf(fd, "%s ",  expandlabel(str_ptr, &multip)); */
+       my_mstrcat(_ALLOC_ID_, &result, expandlabel(str_ptr, &multip), " ", NULL);
+       }
+     }
+     my_free(_ALLOC_ID_, &pin_attr);
+     my_free(_ALLOC_ID_, &pin_num_or_name);
+   
+   }
+   /* this will print the other @parameters, usually "extra" nodes so they will be in the order
+    * specified by the format string. The 'extra' attribute is no more used to print extra nodes
+    * in spice_block_netlist(). */
+   else if(token[0] == '@') { /* given previous if() conditions not followed by @ or # */
+     /* if token not followed by white space it is not an extra node */
+     if( ( (space  || c == '%' || c == '@') && !escape ) ) {
+       /* fprintf(fd, "%s ",  token + 1); */
+       my_mstrcat(_ALLOC_ID_, &result, token + 1, " ", NULL);
+     }
+   }
+   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */ 
+   if(c == '@' || c =='%') s--;
+   state=TOK_BEGIN;
+  }
+                 /* 20151028 dont print escaping backslashes */
+  else if(state==TOK_BEGIN && c!='\0') {
+   /* do nothing */
+  }
+  if(c=='\0')
+  {
+   my_mstrcat(_ALLOC_ID_, &result, "\n", NULL);
+   break ;
+  }
+ }
+ if(result) {
+   fprintf(fd, "%s", result);
+   my_free(_ALLOC_ID_, &result);
+ }
+ my_free(_ALLOC_ID_, &format1);
+ my_free(_ALLOC_ID_, &format);
+ my_free(_ALLOC_ID_, &token);
+}
+
 int has_token(const char *s, const char *tok)
 {
   int i = 1;
@@ -2562,6 +2719,398 @@ int print_spice_element(FILE *fd, int inst)
   }
   if(result) fprintf(fd, "%s", result);
   dbg(1, "print_spice_element(): returning |%s|\n", result);
+  my_free(_ALLOC_ID_, &template);
+  my_free(_ALLOC_ID_, &format);
+  my_free(_ALLOC_ID_, &name);
+  my_free(_ALLOC_ID_, &token);
+  my_free(_ALLOC_ID_, &result);
+  if(spiceprefixtag) my_free(_ALLOC_ID_, &spiceprefixtag);
+  /* my_free(_ALLOC_ID_, &translatedvalue); */
+  return 1;
+}
+
+int print_spectre_element(FILE *fd, int inst)
+{
+  int i=0, multip, itmp;
+  const char *str_ptr=NULL;
+  register int c, state=TOK_BEGIN, space;
+  char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
+  const char *lab; 
+  const char *value = NULL;
+  /* char *translatedvalue = NULL; */
+  size_t sizetok=0;
+  size_t token_pos=0;
+  int escape=0;
+  int no_of_pins=0;
+  char *result = NULL;
+  size_t size = 0;
+  char *spiceprefixtag = NULL; 
+  const char *fmt_attr = NULL;
+
+  size = CADCHUNKALLOC;
+  my_realloc(_ALLOC_ID_, &result, size);
+  result[0] = '\0';
+
+  my_strdup(_ALLOC_ID_, &template, (xctx->inst[inst].ptr + xctx->sym)->templ);
+  my_strdup(_ALLOC_ID_, &name,xctx->inst[inst].instname);
+  if (!name) my_strdup(_ALLOC_ID_, &name, get_tok_value(template, "name", 0));
+
+  fmt_attr = xctx->format ? xctx->format : "spectre_format";
+  /* allow format string override in instance */
+  my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, fmt_attr, 2));
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size)
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2));
+  /* allow format string override in instance */
+  if(!xctx->tok_size && strcmp(fmt_attr, "spectre_format") )
+    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "spectre_format", 2));
+  /* get netlist format rule from symbol */
+  if(!xctx->tok_size && strcmp(fmt_attr, "spectre_format"))
+     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "spectre_format", 2));
+  if ((name==NULL) || (format==NULL)) {
+    my_free(_ALLOC_ID_, &template);
+    my_free(_ALLOC_ID_, &format);
+    my_free(_ALLOC_ID_, &name);
+    my_free(_ALLOC_ID_, &result);
+    return 0; /* do no netlist unwanted insts(no format) */
+  }
+  no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+  s=format;
+  dbg(1, "print_spectre_element(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
+  /* begin parsing format string */
+  while(1)
+  {
+    /* always make room for some characters so the single char writes to result do not need reallocs */
+    c=*s++;
+    if(c=='\\') {
+      escape=1;
+      c=*s++;
+    }
+    else escape=0;
+
+    if (c=='\n' && escape) c=*s++; /* 20171030 eat escaped newlines */
+    space=SPACE(c);
+    if ( state==TOK_BEGIN && (c=='@'|| c=='%')  && !escape ) state=TOK_TOKEN;
+    else if(state==TOK_TOKEN && token_pos > 1 &&
+       (
+         ( (space  || c == '%' || c == '@') && !escape ) ||
+         ( (!space && c != '%' && c != '@') && escape  )
+       )
+      ) {
+      dbg(1, "print_spectre_element(): c=%c, space=%d, escape=%d token_pos=%d\n", c, space, escape, token_pos);
+      state=TOK_SEP;
+    }
+    STR_ALLOC(&token, token_pos, &sizetok);
+    if(state==TOK_TOKEN) {
+      token[token_pos++]=(char)c;
+    }
+    else if (state==TOK_SEP)                    /* got a token */
+    {
+      char *val = NULL;
+      size_t token_exists = 0;
+      token[token_pos]='\0';
+      token_pos=0;
+
+      if(strcmp(token,"@symref")==0) 
+      {
+        const char *s = get_sym_name(inst, 9999, 1, 0);
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
+      }
+      else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
+      {
+        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0)));
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
+      }
+      else if (strcmp(token,"@symname_ext")==0) /* of course symname_ext must not be present in attributes */
+      {
+        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0)));
+        my_mstrcat(_ALLOC_ID_, &result, s, NULL);
+      }
+      else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
+      {
+        const char *topsch;
+        topsch = get_trailing_path(xctx->sch[0], 0, 1);
+        my_mstrcat(_ALLOC_ID_, &result, topsch, NULL);
+      }
+      else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present in attributes */
+      {
+        my_mstrcat(_ALLOC_ID_, &result, xctx->current_name, NULL);
+      }
+      else if(strcmp(token,"@savecurrent")==0)
+      {
+        char *instname = xctx->inst[inst].instname;
+
+        const char *sc = get_tok_value(xctx->inst[inst].prop_ptr, "savecurrent", 0);
+        if(!sc[0]) sc = get_tok_value(template, "savecurrent", 0);
+        if(!strboolcmp(sc , "true")) {
+          my_mstrcat(_ALLOC_ID_, &result, "\n.save I( ?1 ", instname, " )", NULL);
+        }
+      }
+      else if(strcmp(token,"@schname")==0) /* of course schname must not be present in attributes */
+      {
+        const char *schname = get_cell(xctx->current_name, 0);
+        my_mstrcat(_ALLOC_ID_, &result, schname, NULL);
+      }
+      else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
+                                           /* print multiplicity */
+      {                                    /* and node number: m1 n1 m2 n2 .... */
+        Int_hashtable table = {NULL, 0};
+        int_hash_init(&table, 37);
+        for(i=0;i<no_of_pins; ++i)
+        {
+          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+          int spectre_ignore = !strboolcmp(get_tok_value(prop, "spectre_ignore", 0), "true");
+          const char *name = get_tok_value(prop, "name", 0);
+          if(!spectre_ignore) {
+            if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+              str_ptr =  net_name(inst, i, &multip, 0, 1);
+  
+              my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
+            }
+          }
+        }
+        int_hash_free(&table);
+      }
+      else if(token[0]=='@' && token[1]=='@') {    /* recognize single pins 15112003 */
+        for(i=0;i<no_of_pins; ++i) {
+          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
+          if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
+            if(strboolcmp(get_tok_value(prop,"spectre_ignore",0), "true")) {
+              str_ptr =  net_name(inst,i, &multip, 0, 1);
+
+              my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
+            }
+            break;
+          }
+        }
+      }
+      /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+       * @#0, @#1:net_name, @#2:name, ... */
+      else if(token[0]=='@' && token[1]=='#') {
+        int n;
+        char *pin_attr = NULL;
+        char *pin_num_or_name = NULL;
+   
+        get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
+        n = get_inst_pin_number(inst, pin_num_or_name);
+        if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+          char *pin_attr_value = NULL;
+          int is_net_name = !strcmp(pin_attr, "net_name");
+          /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
+           *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
+          if(!is_net_name) {
+            pin_attr_value = get_pin_attr_from_inst(inst, n, pin_attr);
+            /* get pin_attr from instance pin attribute string */
+            if(!pin_attr_value) {
+             my_strdup(_ALLOC_ID_, &pin_attr_value,
+                get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][n].prop_ptr, pin_attr, 0));
+            }
+          }
+          /* @#n:net_name attribute (n = pin number or name) will translate to net name attached  to pin */
+          if(!pin_attr_value && is_net_name) {
+            prepare_netlist_structs(0);
+            my_strdup(_ALLOC_ID_, &pin_attr_value,
+                 xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
+          }
+          if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
+          value = pin_attr_value;
+          /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
+          if(value[0] && !strcmp(pin_attr, "pinnumber") ) {
+            char *ss;
+            int slot;
+            char *tmpstr = NULL;
+            tmpstr = my_malloc(_ALLOC_ID_, sizeof(xctx->inst[inst].instname));
+            if( (ss=strchr(xctx->inst[inst].instname, ':')) ) {
+              sscanf(ss+1, "%s", tmpstr);
+              if(isonlydigit(tmpstr)) {
+                slot = atoi(tmpstr);
+                if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
+              }
+            }
+            my_free(_ALLOC_ID_, &tmpstr);
+          }
+          my_mstrcat(_ALLOC_ID_, &result, value, NULL);
+          my_free(_ALLOC_ID_, &pin_attr_value);
+        }
+        else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
+          const char *si;
+          char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
+          si  = get_tok_value(prop, "spectre_ignore",0);
+          if(strboolcmp(si, "true")) {
+            str_ptr =  net_name(inst,n, &multip, 0, 1);
+
+            my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
+          }
+        }
+        my_free(_ALLOC_ID_, &pin_attr);
+        my_free(_ALLOC_ID_, &pin_num_or_name);
+      }
+      else if (!strncmp(token,"@tcleval", 8)) {
+        size_t s;
+        char *tclcmd=NULL;
+        const char *res;
+        s = token_pos + strlen(name) + strlen(xctx->inst[inst].name) + 100;
+        tclcmd = my_malloc(_ALLOC_ID_, s);
+        Tcl_ResetResult(interp);
+        my_snprintf(tclcmd, s, "tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
+        dbg(1, "print_spectre_element(): tclpropeval {%s} {%s} {%s}", token, name, xctx->inst[inst].name);
+        res = tcleval(tclcmd);
+
+        my_mstrcat(_ALLOC_ID_, &result, res, NULL);
+        my_free(_ALLOC_ID_, &tclcmd);
+      }
+      /* if spiceprefix==0 and token == @spiceprefix then set empty value */
+      else if (!tclgetboolvar("spiceprefix") && !strcmp(token, "@spiceprefix")) {
+        value=NULL;
+      /* else tcl var spiceprefix is enabled  */
+      }
+
+      else {
+        /* here a @token in format string will be replaced by value in instance prop_ptr
+         * or symbol template */
+        size_t tok_val_len;
+        char *parent_prop_ptr = NULL;
+        char *parent_templ = NULL;
+        /* char *parent_sym_extra = NULL; */
+
+        if(xctx->currsch > 0) {
+          parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
+          parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
+          /* parent_sym_extra = xctx->hier_attr[xctx->currsch - 1].sym_extra; */
+        }
+
+        /* consider this scenario:
+         * instance of passgate.sym: W_N=5 L_N=0.2 W_P=10 L_P=0.3 m=1
+         * instance based schematic (schematic=mypippo attr) will have also modeln=pippon
+         *    passgate.sym:
+         *      format="@name @pinlist @symname W_N=@W_N L_N=@L_N W_P=@W_P L_P=@L_P m=@m"
+         *      template=" ... modeln=nfet_01v8 modelp=pfet_01v8 m=1"
+         *    passgate.sch:
+         *       instance of nmos.sym: L=L_N W=W_N nf=1 m=1 model=@modeln
+         *         nmos.sym:
+         *           format="@name @pinlist @model L=@L W=@W nf=@nf 
+         *           + ad=@ad as=@as pd=@pd .... m=@m
+         *           template="name=M1 W=1 L=0.15 m=1 
+         *             ad=\"expr('int((@nf + 1)/2) * @W / @nf * 0.29')\"
+         *             ..."
+         *           model=nfet_01v8
+         */
+
+        
+        my_strdup2(_ALLOC_ID_, &val, 
+             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+        /* can not put template in above translate3: ---------------------------^^^^
+         * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
+         * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
+        if(strchr(val, '@')) {
+           my_strdup2(_ALLOC_ID_, &val,
+              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+        }
+        /* nmos instance format string: @model --> @modeln */
+        dbg(1, "print_spectre_element(): 1st round: val: |%s|\n", val);
+        if(strchr(val, '@')) {
+          #if 0
+          if(parent_prop_ptr) {
+            my_strdup2(_ALLOC_ID_, &val,
+                   translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
+            /* instance based passgate.sym placement, nmos instance format string: @modeln --> pippon */
+            /* ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" */
+            if(strchr(val, '@')) {
+              my_strdup2(_ALLOC_ID_, &val,
+                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
+              /* ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" --> ad="expr('int((1 + 1)/2) * 5 / 1 * 0.29')" */
+            }
+          } else {
+          #endif
+            my_strdup2(_ALLOC_ID_, &val,
+                   translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+            dbg(1, "print_spectre_element(): 2nd round: val: |%s|\n", val);
+            /* normal passgate.sym placement, nmos instance format string:
+                 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
+            if(strchr(val, '@')) {
+              my_strdup2(_ALLOC_ID_, &val,
+                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL));
+              dbg(1, "print_spectre_element(): 3nd round: val: |%s|\n", val);
+              /* normal passgate.sym placement, nmos instance format string:
+               *   @modeln --> nfet_01v8 */
+            }
+          #if 0
+          }
+          #endif
+          dbg(1, "print_spectre_element(): final: val: |%s|\n", val);
+        }
+        /* still unresolved: set to empty */
+        if(val[0] == '@') value = "";
+        else value = val;
+        token_exists = xctx->tok_size;
+        tok_val_len = strlen(value);
+        /* @spiceprefix needs a special tag for postprocessing */
+        if(!strcmp(token, "@spiceprefix") && value[0]) {
+          my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
+          my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
+          value = spiceprefixtag;
+        }
+
+        if(is_expr(value)) {
+          value =  eval_expr(value);
+        }
+        /* token=%xxxx and xxxx is not defined in prop_ptr or template: return xxxx */
+        if(!token_exists && token[0] =='%') {
+          my_mstrcat(_ALLOC_ID_, &result, token + 1, NULL);
+        }
+        /* And finally set the value of token into result string */
+        else if (value && value[0]!='\0') {
+           /* instance names (name) and node labels (lab) go thru the expandlabel function. */
+          /*if something else must be parsed, put an if here! */
+          if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
+                && ((lab = expandlabel(value, &itmp)) != NULL)) {
+            my_mstrcat(_ALLOC_ID_, &result, lab, NULL);
+          } else { 
+            my_mstrcat(_ALLOC_ID_, &result, value, NULL);
+          }
+        }
+      } /* else */
+
+      /* append token separator to output result ... */
+      if(c != '%' && c != '@' && c!='\0' ) {
+        char str[2];
+        str[0] = (unsigned char) c;
+        str[1] = '\0';
+        my_mstrcat(_ALLOC_ID_, &result, str, NULL);
+      }
+      /* ... unless it is the start of another token, so push back to input string */
+      if(c == '@' || c == '%' ) s--;
+      state=TOK_BEGIN;
+      my_free(_ALLOC_ID_, &val);
+    } /* else if (state==TOK_SEP) */
+
+    else if(state==TOK_BEGIN && c!='\0') {
+      char str[2];
+      str[0] = (unsigned char) c;
+      str[1] = '\0';
+      my_mstrcat(_ALLOC_ID_, &result, str, NULL);
+    }
+    if(c=='\0')
+    {
+      char str[2];
+      str[0] = '\n';
+      str[1] = '\0';
+      my_mstrcat(_ALLOC_ID_, &result, str, NULL);
+      break;
+    }
+  } /* while(1) */
+
+
+  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
+   * can be calculated */
+  if(result) {
+     my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
+  }
+  if(is_expr(result)) {
+    my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
+  }
+  if(result) fprintf(fd, "%s", result);
+  dbg(1, "print_spectre_element(): returning |%s|\n", result);
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);
   my_free(_ALLOC_ID_, &name);
@@ -3331,7 +3880,8 @@ void print_verilog_element(FILE *fd, int inst)
    if(strcmp(token, "name") && xctx->tok_size && (!extra || !strstr(extra, token))) {
      if(value[0] != '\0') /* token has a value */
      {
-       if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") && strcmp(token,"tedax_ignore")) {
+       if(strcmp(token,"spice_ignore") && strcmp(token,"vhdl_ignore") &&
+          strcmp(token,"tedax_ignore") && strcmp(token,"spectre_ignore")) {
          if(tmp == 0) {
            fprintf(fd, "#(\n---- start parameters\n");
            ++tmp;
@@ -4595,7 +5145,15 @@ const char *translate(int inst, const char* s)
         memcpy(result+result_pos,xctx->schvhdlprop, tmp+1);
         result_pos+=tmp;
       }
-   
+
+      else if(strcmp(token,"@schspectreprop")==0 && xctx->schspectreprop)
+      {   
+        tmp=strlen(xctx->schspectreprop);
+        STR_ALLOC(&result, tmp + result_pos, &size);
+        memcpy(result+result_pos,xctx->schspectreprop, tmp+1);
+        result_pos+=tmp;
+      }
+
       else if(strcmp(token,"@schprop")==0 && xctx->schprop)
       {
         tmp=strlen(xctx->schprop);
@@ -4612,6 +5170,7 @@ const char *translate(int inst, const char* s)
         memcpy(result+result_pos,xctx->schsymbolprop, tmp+1);
         result_pos+=tmp;
       }
+
       else if(strcmp(token,"@schtedaxprop")==0 && xctx->schtedaxprop)
       {
         tmp=strlen(xctx->schtedaxprop);

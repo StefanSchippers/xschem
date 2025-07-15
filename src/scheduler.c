@@ -1519,6 +1519,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
                 my_snprintf(f, S(f), "%s.v", get_cell(xctx->current_name, 0));
               }
+              else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+                my_snprintf(f, S(f), "%s.sim", get_cell(xctx->current_name, 0));
+              }
               else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
                 my_snprintf(f, S(f), "%s.tdx", get_cell(xctx->current_name, 0));
               }
@@ -1541,6 +1544,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
               Tcl_SetResult(interp, "vhdl", TCL_STATIC);
+            }
+            else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+              Tcl_SetResult(interp, "spectre", TCL_STATIC);
             }
             else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
               Tcl_SetResult(interp, "verilog", TCL_STATIC);
@@ -1630,6 +1636,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "schverilogprop")) /* get schematic "verilog" global attributes */
           {
              Tcl_SetResult(interp, xctx->schverilogprop ? xctx->schverilogprop : "", TCL_VOLATILE);
+          }
+          else if(!strcmp(argv[2], "schspectreprop")) /* get schematic "spectre" global attributes */
+          { 
+             Tcl_SetResult(interp, xctx->schspectreprop ? xctx->schspectreprop : "", TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "schsymbolprop")) /* get schematic "symbol" global attributes */
           {
@@ -3476,6 +3486,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           err = global_vhdl_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
           err = global_verilog_netlist(hier_netlist, alert);
+        else if(xctx->netlist_type == CAD_SPECTRE_NETLIST)
+          err = global_spectre_netlist(hier_netlist, alert);
         else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
           global_tedax_netlist(hier_netlist, alert);
         else
@@ -5398,6 +5410,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else if(!strcmp(argv[3], "vhdl")) {
               xctx->netlist_type=CAD_VHDL_NETLIST;
             }
+            else if(!strcmp(argv[3], "spectre")) {
+              xctx->netlist_type=CAD_SPECTRE_NETLIST;
+            }
             else if(!strcmp(argv[3], "verilog")) {
               xctx->netlist_type=CAD_VERILOG_NETLIST;
             }
@@ -5459,6 +5474,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->schverilogprop, argv[3]);
           }
+          else if(!strcmp(argv[2], "schspectreprop")) { /* set schematic global spectre attribute string */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strdup(_ALLOC_ID_, &xctx->schspectreprop, argv[3]);
+          } 
           else if(!strcmp(argv[2], "schvhdlprop")) { /* set schematic global vhdl attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, argv[3]);

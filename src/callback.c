@@ -3145,6 +3145,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
             err = global_spice_netlist(0, 1);
           else if(xctx->netlist_type == CAD_VHDL_NETLIST)
             err = global_vhdl_netlist(0, 1);
+          else if(xctx->netlist_type == CAD_SPECTRE_NETLIST)
+            err = global_spectre_netlist(0, 1);
           else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
             err = global_verilog_netlist(0, 1);
           else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
@@ -3545,7 +3547,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask) { /* toggle spice/vhdl netlist */
         xctx->netlist_type++;
-        if(xctx->netlist_type==6) xctx->netlist_type=1;
+        if(xctx->netlist_type==7) xctx->netlist_type=1;
         set_tcl_netlist_type();
         draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
       }

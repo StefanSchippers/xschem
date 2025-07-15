@@ -3,7 +3,7 @@ put /local/src {
  icon.c callback.c actions.c move.c check.c clip.c draw.c globals.c
  main.c netlist.c hash_iterator.c findnet.c scheduler.c store.c xinit.c
  select.c font.c editprop.c save.c paste.c token.c psprint.c node_hash.c
- hilight.c options.c vhdl_netlist.c svgdraw.c spice_netlist.c
+ hilight.c options.c vhdl_netlist.c svgdraw.c spice_netlist.c spectre_netlist.c
  tedax_netlist.c verilog_netlist.c parselabel.c expandlabel.c
  eval_expr.c in_memory_undo.c cairo_jpg.c
 }
@@ -12,7 +12,7 @@ put /local/src {
 put /local/install_shares {
  keys.help xschem.help xschem.tcl break.awk convert_to_verilog2001.awk
  flatten.awk flatten_tedax.awk flatten_savenodes.awk make_sym.awk make_sym_lcc.awk
- symgen.awk order_labels.awk sort_labels.awk spice.awk tedax.awk verilog.awk
+ symgen.awk order_labels.awk sort_labels.awk spice.awk spectre.awk tedax.awk verilog.awk
  vhdl.awk hspice_backannotate.tcl add_custom_menu.tcl create_graph.tcl
  add_custom_button.tcl change_index.tcl icon.xpm resources.tcl xschemrc
  ngspice_backannotate.tcl gschemtoxschem.awk mouse_bindings.tcl cadence_style_rc

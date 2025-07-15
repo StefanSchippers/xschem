@@ -2792,6 +2792,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(!strcmp(n, "spice")) xctx->netlist_type = CAD_SPICE_NETLIST;
    else if(!strcmp(n, "vhdl")) xctx->netlist_type = CAD_VHDL_NETLIST;
    else if(!strcmp(n, "verilog")) xctx->netlist_type = CAD_VERILOG_NETLIST;
+   else if(!strcmp(n, "spectre")) xctx->netlist_type = CAD_SPECTRE_NETLIST;
    else if(!strcmp(n, "tedax")) xctx->netlist_type = CAD_TEDAX_NETLIST;
    else if(!strcmp(n, "symbol")) xctx->netlist_type = CAD_SYMBOL_ATTRS;
  }
@@ -3038,6 +3039,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
        global_vhdl_netlist(1, 1);                   /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
        global_verilog_netlist(1, 1);                /* 1 means global netlist */
+     else if(xctx->netlist_type == CAD_SPECTRE_NETLIST)
+       global_spectre_netlist(1, 1);                /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
        global_tedax_netlist(1, 1);                  /* 1 means global netlist */
    } else {

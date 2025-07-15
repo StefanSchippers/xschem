@@ -441,6 +441,8 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
         if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
           err |= verilog_block_netlist(fd, i, alert);
+        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),"true")==0 )
+          err |= spectre_block_netlist(fd, i, alert);
         else if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
           err |= spice_block_netlist(fd, i, alert);
         else if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_primitive",0),"true"))

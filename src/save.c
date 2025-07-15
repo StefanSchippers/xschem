@@ -2746,6 +2746,9 @@ static void write_xschem_file(FILE *fd)
   fprintf(fd, "S ");
   save_ascii_string(xctx->schprop,fd, 1);
 
+  fprintf(fd, "F ");
+  save_ascii_string(xctx->schspectreprop,fd, 1);
+
   fprintf(fd, "E ");
   save_ascii_string(xctx->schtedaxprop,fd, 1);
 
@@ -3096,8 +3099,8 @@ static void read_xschem_file(FILE *fd)
      case '#':
       read_line(fd, 1);
       break;
-     case 'F': /* extension for future symbol floater labels */
-      read_line(fd, 1);
+     case 'F': /* spectre global attribute */
+      load_ascii_string(&xctx->schspectreprop,fd);
       break;
      case 'E':
       load_ascii_string(&xctx->schtedaxprop,fd);
@@ -4362,13 +4365,13 @@ int load_sym_def(const char *name, FILE *embed_fd)
       case '#':
         read_line(lcc[level].fd, 1);
         break;
-      case 'F': /* extension for future symbol floater labels */
-        read_line(lcc[level].fd, 1);
-        break;
       case 'E':
         load_ascii_string(&aux_ptr, lcc[level].fd);
         break;
       case 'V':
+        load_ascii_string(&aux_ptr, lcc[level].fd);
+        break;
+      case 'F':
         load_ascii_string(&aux_ptr, lcc[level].fd);
         break;
       case 'S':

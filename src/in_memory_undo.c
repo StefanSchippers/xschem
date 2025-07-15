@@ -271,6 +271,7 @@ void mem_push_undo(void)
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].gptr, xctx->schvhdlprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].vptr, xctx->schverilogprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].sptr, xctx->schprop);
+  my_strdup(_ALLOC_ID_, &xctx->uslot[slot].fptr, xctx->schspectreprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].kptr, xctx->schsymbolprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].eptr, xctx->schtedaxprop);
 
@@ -435,6 +436,7 @@ void mem_pop_undo(int redo, int set_modify_status)
 
   my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[slot].gptr);
   my_strdup(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[slot].vptr);
+  my_strdup(_ALLOC_ID_, &xctx->schspectreprop, xctx->uslot[slot].fptr);
   my_strdup(_ALLOC_ID_, &xctx->schprop, xctx->uslot[slot].sptr);
   my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[slot].kptr);
   my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[slot].eptr);

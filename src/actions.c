@@ -806,6 +806,12 @@ int set_sym_flags(xSymbol *sym)
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
        sym->flags |= SPICE_IGNORE;
 
+  ptr = get_tok_value(sym->prop_ptr,"spectre_ignore",0);
+  if(!strcmp(ptr, "short"))
+       sym->flags |= SPECTRE_SHORT;
+  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+       sym->flags |= SPECTRE_IGNORE;
+  
   ptr = get_tok_value(sym->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= VERILOG_SHORT;
@@ -858,6 +864,12 @@ int set_inst_flags(xInstance *inst)
     inst->flags |= SPICE_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= SPICE_IGNORE;
+
+  ptr = get_tok_value(inst->prop_ptr,"spectre_ignore",0);
+  if(!strcmp(ptr, "short"))
+    inst->flags |= SPECTRE_SHORT;
+  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    inst->flags |= SPECTRE_IGNORE;
   
   ptr = get_tok_value(inst->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
@@ -979,9 +991,10 @@ void clear_drawing(void)
  my_free(_ALLOC_ID_, &xctx->schsymbolprop);
  my_free(_ALLOC_ID_, &xctx->schprop);
  my_free(_ALLOC_ID_, &xctx->schvhdlprop);
+ my_free(_ALLOC_ID_, &xctx->schverilogprop);
+ my_free(_ALLOC_ID_, &xctx->schspectreprop);
  my_free(_ALLOC_ID_, &xctx->version_string);
  if(xctx->header_text) my_free(_ALLOC_ID_, &xctx->header_text);
- my_free(_ALLOC_ID_, &xctx->schverilogprop);
  for(i=0;i<xctx->wires; ++i)
  {
   my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
@@ -1977,10 +1990,11 @@ void toggle_ignore(void)
   int i, n, first = 1;
   char *attr;
   int flag = 0; /* 1: spice_ignore=true, 2: spice_ignore=short */
-  const char *spice_ignore_str;
+  const char *ignore_str;
   if(xctx->netlist_type == CAD_VERILOG_NETLIST) attr="verilog_ignore";
   else if(xctx->netlist_type == CAD_VHDL_NETLIST) attr="vhdl_ignore";
   else if(xctx->netlist_type == CAD_TEDAX_NETLIST) attr="tedax_ignore";
+  else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) attr="spectre_ignore";
   else if(xctx->netlist_type == CAD_SPICE_NETLIST) attr="spice_ignore";
   else attr = NULL;
   if(attr) {
@@ -1993,9 +2007,9 @@ void toggle_ignore(void)
           first = 0;
         }
         flag = 0;
-        spice_ignore_str = get_tok_value(xctx->inst[i].prop_ptr, attr, 0);
-        if(!strcmp(spice_ignore_str, "short")) flag = 2;
-        else if(!strboolcmp(spice_ignore_str, "true")) flag = 1;
+        ignore_str = get_tok_value(xctx->inst[i].prop_ptr, attr, 0);
+        if(!strcmp(ignore_str, "short")) flag = 2;
+        else if(!strboolcmp(ignore_str, "true")) flag = 1;
 
         if(flag == 0) flag = 1;
         else if(flag == 1) flag = 2;
@@ -2043,6 +2057,7 @@ void get_additional_symbols(int what)
       char *spice_sym_def = NULL;
       char *vhdl_sym_def = NULL;
       char *verilog_sym_def = NULL;
+      char *spectre_sym_def = NULL;
       char *default_schematic = NULL;
       char *sch = NULL;
       char symbol_base_sch[PATH_MAX] = "";
@@ -2052,6 +2067,7 @@ void get_additional_symbols(int what)
       dbg(1, "get_additional_symbols(): inst=%d (%s) sch=%s\n",i, xctx->inst[i].name,  sch);
       /* copy instance based *_sym_def attributes to symbol */
       my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
+      my_strdup(_ALLOC_ID_, &spectre_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spectre_sym_def",6));
       my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
       my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
 
@@ -2099,7 +2115,10 @@ void get_additional_symbols(int what)
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
                                          symptr->templ, 
                                          symname_attr, NULL));
-        dbg(1, "get_additional_symbols(): spice_sym_def=%s\n", spice_sym_def);
+        my_strdup(_ALLOC_ID_, &spectre_sym_def, 
+            translate3(spectre_sym_def, 1, xctx->inst[i].prop_ptr,
+                                         symptr->templ, 
+                                         symname_attr, NULL));
         my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
          * the base symbol will not be netlisted by *_block_netlist() */
@@ -2129,6 +2148,10 @@ void get_additional_symbols(int what)
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
                subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
           }
+          if(spectre_sym_def) {
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+               subst_token(xctx->sym[j].prop_ptr, "spectre_sym_def", spectre_sym_def));
+          }
           if(verilog_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "verilog_sym_def", verilog_sym_def));
@@ -2146,6 +2169,7 @@ void get_additional_symbols(int what)
       } /* if(xctx->tok_size && sch[0]) */
       my_free(_ALLOC_ID_, &sch);
       my_free(_ALLOC_ID_, &spice_sym_def);
+      my_free(_ALLOC_ID_, &spectre_sym_def);
       my_free(_ALLOC_ID_, &vhdl_sym_def);
       my_free(_ALLOC_ID_, &verilog_sym_def);
     } /* for(i=0;i<xctx->instances; ++i) */

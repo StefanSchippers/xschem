@@ -1,0 +1,37 @@
+v {xschem version=3.4.8RC file_version=1.2}
+G {}
+K {type=xline
+format="@name \\\\%vd( @@CP @@CM ) \\\\%vd( @@P @@M ) @name
+.model @name limit %( gain=@gain out_lower_limit=@lower_limit out_upper_limit=@upper_limit %)"
+template="name=alimit1 gain=3 lower_limit=-5.0 upper_limit=5.0"
+}
+V {}
+S {}
+F {}
+E {}
+L 4 2.5 -22.5 7.5 -22.5 {}
+L 4 5 -25 5 -20 {}
+L 4 -0 -30 -0 30 {}
+L 4 -20 -0 -0 -20 {}
+L 4 -20 -0 -0 20 {}
+L 4 -0 20 20 0 {}
+L 4 0 -20 20 0 {}
+L 4 -40 -20 -35 -20 {}
+L 4 -30 -20 -25 -20 {}
+L 4 -20 -20 -15 -20 {}
+L 4 -40 20 -35 20 {}
+L 4 -30 20 -25 20 {}
+L 4 -20 20 -15 20 {}
+B 5 -2.5 -32.5 2.5 -27.5 {name=P dir=inout}
+B 5 -2.5 27.5 2.5 32.5 {name=M dir=inout}
+B 5 -42.5 -22.5 -37.5 -17.5 {name=CP dir=in}
+B 5 -42.5 17.5 -37.5 22.5 {name=CM dir=in}
+T {@#0:net_name} 5 -42.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#1:net_name} 5 32.5 0 0 0.15 0.15 {layer=15 hide=instance}
+T {@#2:net_name} -45 -32.5 0 1 0.15 0.15 {layer=15 hide=instance}
+T {@#3:net_name} -45 22.5 0 1 0.15 0.15 {layer=15 hide=instance}
+T {@name
+@symname
+gain=@gain
+upper_limit=@upper_limit
+lower_limit=@lower_limit} 25 -20 0 0 0.15 0.15 {}

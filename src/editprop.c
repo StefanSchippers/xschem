@@ -1947,6 +1947,12 @@ void edit_property(int x)
     else
       tclsetvar("retval","");
    }
+   else if(xctx->netlist_type==CAD_SPECTRE_NETLIST) {
+    if(xctx->schspectreprop!=NULL)
+      tclsetvar("retval",xctx->schspectreprop);
+    else
+      tclsetvar("retval","");
+   }
    else if(xctx->netlist_type==CAD_SPICE_NETLIST) {
     if(xctx->schprop!=NULL)
       tclsetvar("retval",xctx->schprop);
@@ -1991,6 +1997,12 @@ void edit_property(int x)
         modified = 1;
         xctx->push_undo();
         my_strdup(_ALLOC_ID_, &xctx->schverilogprop, (char *) tclgetvar("retval"));
+
+     } else if(xctx->netlist_type==CAD_SPECTRE_NETLIST &&
+        (!xctx->schspectreprop || strcmp(xctx->schspectreprop, tclgetvar("retval") ) ) ) {
+        modified = 1;
+        xctx->push_undo();
+        my_strdup(_ALLOC_ID_, &xctx->schspectreprop, (char *) tclgetvar("retval"));
 
      } else if(xctx->netlist_type==CAD_SPICE_NETLIST && 
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("retval") ) ) ) {

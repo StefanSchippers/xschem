@@ -192,6 +192,8 @@ extern char win_temp_dir[PATH_MAX];
 #define VERILOG_SHORT 8192
 #define VHDL_SHORT 16384
 #define TEDAX_SHORT 32768
+#define SPECTRE_SHORT 65536
+#define SPECTRE_IGNORE 131072
 #define LVS_IGNORE (LVS_IGNORE_SHORT | LVS_IGNORE_OPEN)
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 40
@@ -212,6 +214,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CAD_VERILOG_NETLIST 3
 #define CAD_TEDAX_NETLIST 4
 #define CAD_SYMBOL_ATTRS 5
+#define CAD_SPECTRE_NETLIST 6
 
 /*  possible states, encoded in global 'ui_state' */
 #define STARTWIRE 1U
@@ -666,6 +669,7 @@ typedef struct
   char     *gptr;
   char     *vptr;
   char     *sptr;
+  char     *fptr; /* spectre global attr */
   char     *kptr;
   char     *eptr;
   int *lines;
@@ -929,6 +933,7 @@ typedef struct {
   char *schvhdlprop;
   char *schsymbolprop;
   char *schverilogprop;
+  char *schspectreprop;
   char *sch[CADMAXHIER];
   int currsch;
   char *version_string;
@@ -1495,12 +1500,14 @@ extern void store_arc(int pos, double x, double y, double r, double a, double b,
 
 extern void hier_psprint(char **res, int what);
 extern int global_spice_netlist(int global, int alert);
+extern int global_spectre_netlist(int global, int alert);
 extern int global_tedax_netlist(int global, int alert);
 extern int global_vhdl_netlist(int global, int alert);
 extern int global_verilog_netlist(int global, int alert);
 extern int vhdl_block_netlist(FILE *fd, int i, int alert);
 extern int verilog_block_netlist(FILE *fd, int i, int alert);
 extern int spice_block_netlist(FILE *fd, int i, int alert);
+extern int spectre_block_netlist(FILE *fd, int i, int alert);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
@@ -1636,6 +1643,8 @@ extern const char *translate3(const char* s, int eat_escapes, const char *s1,
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
 extern void print_spice_subckt_nodes(FILE *fd, int symbol);
+extern int print_spectre_element(FILE *fd, int inst);
+extern void print_spectre_subckt_nodes(FILE *fd, int symbol);
 extern void print_tedax_subckt(FILE *fd, int symbol);
 extern void print_vhdl_element(FILE *fd, int inst);
 extern void print_verilog_element(FILE *fd, int inst);

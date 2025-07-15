@@ -1004,6 +1004,15 @@ proc netlist {source_file show netlist_file} {
       textwindow $dest
    }
  } 
+
+ if {$netlist_type eq {spectre}} {
+   set cmd  ${XSCHEM_SHAREDIR}/spectre.awk
+     eval exec {awk -f $cmd -- $source_file > $dest}
+   if ![string compare $show "show"] {
+      textwindow $dest
+   }
+ } 
+
  if {$netlist_type eq {vhdl}} {
    set cmd $XSCHEM_SHAREDIR/vhdl.awk
    eval exec {awk -f $cmd $source_file > $dest}
@@ -1563,7 +1572,7 @@ proc set_sim_defaults {{reset {}}} {
   if {( $reset eq {reset} ) || ![info exists sim] || $failure} {
     if {[info exists sim]} {unset sim}
     # no simrc, set a reasonable default
-    set sim(tool_list) {spice spicewave verilog verilogwave vhdl vhdlwave}
+    set sim(tool_list) {spice spicewave spectre verilog verilogwave vhdl vhdlwave}
     if {$OS == "Windows"} {
       set_ne sim(spice,0,cmd) {ngspice -i "$N" -a}
     } else {
@@ -1626,6 +1635,16 @@ proc set_sim_defaults {{reset {}}} {
     set_ne sim(spicewave,n) 4
     set_ne sim(spicewave,default) 0
     
+    ### spectre (vacask simulator) 
+    set_ne sim(spectre,0,cmd) {vacask "$N"}
+    set sim(spectre,0,name) {Vacask}
+    set_ne sim(spectre,0,fg) 0
+    set_ne sim(spectre,0,st) 1
+
+    # number of configured spectre simulators, and default one
+    set_ne sim(spectre,n) 1
+    set_ne sim(spectre,default) 0
+
     ### icarus verilog
     set_ne sim(verilog,0,cmd) {sh -c "iverilog -o .verilog_object -g2012 '$N' && vvp .verilog_object"}
     set sim(verilog,0,name) {Icarus verilog}
@@ -8996,6 +9015,9 @@ proc build_widgets { {topwin {} } } {
      }
   $topwin.menubar.option.netlist add checkbutton -label "Split netlist" -variable split_files \
      -selectcolor $selectcolor -accelerator {} 
+  $topwin.menubar.option.netlist add radiobutton -label "Spectre netlist"\
+       -background grey60 -variable netlist_type -value spectre -accelerator {Ctrl+Shift+V} \
+       -selectcolor $selectcolor -command "xschem set netlist_type spectre; xschem redraw"
   $topwin.menubar.option.netlist add radiobutton -label "Spice netlist"\
        -background grey60 -variable netlist_type -value spice -accelerator {Ctrl+Shift+V} \
        -selectcolor $selectcolor -command "xschem set netlist_type spice; xschem redraw"

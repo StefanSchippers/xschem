@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,9 +23,11 @@ G {}
 K {type=nmos
 format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
 template="name=M1 model=nmos w=5u l=0.18u del=0 m=1"
-verilog_format="nmos #@del @name ( @@d , @@s , @@g );"}
+verilog_format="nmos #@del @name ( @@d , @@s , @@g );"
+spectre_format="@name ( @pinlist ) @model w=@w l=@l @extra $mfactor=@m"}
 V {}
 S {}
+F {}
 E {}
 L 4 5 -30 5 30 {}
 L 4 5 -20 20 -20 {}
