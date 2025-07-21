@@ -21,9 +21,9 @@ p{padding: 15px  30px 10px;}
  <!-- slide title -->
  <h1>NETLISTING</h1><br>
  <p>
-  XSCHEM has 3 predefined netlisting modes, <kbd>Spice</kbd>, <kbd>Verilog</kbd> and
+  XSCHEM has 4 predefined netlisting modes, <kbd>SPICE</kbd>, <kbd>Verilog</kbd>, <kbd>Spectre</kbd> and
   <kbd>VHDL</kbd>. Netlisting mode can be set in the <kbd>Options</kbd> menu
-  (<kbd>Vhdl</kbd>, <kbd>Verilog</kbd> <kbd>Spice</kbd> radio buttons)
+  (<kbd>Vhdl</kbd>, <kbd>Verilog</kbd> <kbd>SPICE</kbd> <kbd>Spectre</kbd> radio buttons)
   or with the <kbd>&lt;Shift&gt;V</kbd> key. Once a netlist mode is set, hitting the
   <kbd>Netlist</kbd> button on the top-right of the menu bar or the <kbd>n</kbd>
   key will produce the netlist file in the defined simulation directory.<br>
@@ -118,7 +118,7 @@ format="@name @pinlist @symname"</pre>
  <br>
  <h3> Other netlist formats</h3>
  <p>
-  All the concepts explained for SPICE netlist apply for Verilog and VHDL formats. 
+  All the concepts explained for SPICE netlist apply for Verilog, Spectre and VHDL formats. 
   Its up to the designer to ensure that the objects in the schematic are 'known' to the
   target simulator. For example a resistor is normally
   not used in VHDL or Verilog designs, so unless an appropriate 'format'

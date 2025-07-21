@@ -155,7 +155,8 @@ type=nmos
   <li><kbd>spice_ignore</kbd></li>
   <li><kbd>verilog_ignore</kbd></li>
   <li><kbd>tedax_ignore</kbd></li>
-  <p>These 4 attributes tell XSCHEM to ignore completely all instances of the symbol in the respective netlist formats.
+  <li><kbd>spectre_ignore</kbd></li>
+  <p>These 5 attributes tell XSCHEM to ignore completely all instances of the symbol in the respective netlist formats.
    Allowed values for these attributes are <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> and
    <kbd>short</kbd>
    If <kbd>short</kbd> is specified all symbol instances will short together all their pins. For this to work
@@ -182,6 +183,7 @@ type=nmos
   <li><kbd>spice_stop</kbd></li>
   <li><kbd>verilog_stop</kbd></li>
   <li><kbd>tedax_stop</kbd></li>
+  <li><kbd>spectre_stop</kbd></li>
   <p> These 4 attributes will avoid XSCHEM to descend into the schematic representation of the symbol
    (if there is one) when building the respective netlist format. For example, if an analog block
    has a schematic (.sch) file describing the circuit that is meaningless when doing a VHDL netlist,
@@ -192,6 +194,7 @@ type=nmos
   <li><kbd>spice_primitive</kbd></li>
   <li><kbd>vhdl_primitive</kbd></li>
   <li><kbd>verilog_primitive</kbd></li>
+  <li><kbd>spectre_primitive</kbd></li>
   <p> Same as above <kbd>_stop</kbd> attributes, but in this case the schematic subcircuit is completely ignored,
    only the 'format' string is dumped to netlist. No component/entity is generated in vhdl netlist, 
    no module declaration in verilog, no .subckt in spice, no schematic global attributes are exported to netlist.</p>
@@ -204,6 +207,7 @@ type=nmos
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>
   <li><kbd>vhdl_sym_def</kbd></li>
+  <li><kbd>spectre_sym_def</kbd></li>
   <p> If any of these attributes are present and not empty  and the symbol type is set to <kbd>subcircuit</kbd>
    the corresponding netlister will ignore the schematic subcircuit
    and dump into the netlist the content of this attribute. The typical usage is to include a file, example:<br>
@@ -401,7 +405,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
    for tEDAx netlists.
    <br><br>
   <li><kbd>sim_pinnumber</kbd></li>
-   For VHDL, SPICE, Verilog netlists: define the ordering of symbol ports in netlist.
+   For VHDL, SPICE, Verilog, Spectre netlists: define the ordering of symbol ports in netlist.
    If all symbol pins have a sim_pinnumber attribute this symbol will be netlisted 
    (in all netlist formats) with pins sorted in ascending order according to sim_pinnumber value.
    Start value of sim_pinnumber does not matter (may start at 1 or 0) , it is used as the sort key.
@@ -496,8 +500,9 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   <li><kbd>spice_netlist</kbd></li>
   <li><kbd>verilog_netlist</kbd></li>
   <li><kbd>vhdl_netlist</kbd></li>
+  <li><kbd>spectre_netlist</kbd></li>
   <p>
-   If any of these 3 properties if set to <kbd>true</kbd> the symbol will be netlisted in the specified format.
+   If any of these 4 properties if set to <kbd>true</kbd> the symbol will be netlisted in the specified format.
    This is only valid if the split file netlisting mode is active (<kbd>Options -&gt; Split netlist</kbd>).
    This is very rarely used but is required in mixed mode simulations, where part of the system will be
    handled by an analog simulator (spice) and another part of the system by a digital Verilog / VHDL simulator.
@@ -520,6 +525,12 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <li><kbd>device_model</kbd></li>
   <p>
    This attribute contains a SPICE .model or .subckt specification (<kbd>device_model=".model D1N4148 D ...."</kbd>)
+   that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
+  </p>
+  <li><kbd>spectre_device_model</kbd></li> 
+  <p>
+   This attribute contains a SPECTRE model or subckt specification
+   (<kbd>spectre_device_model="model D1N4148 D ...."</kbd>)
    that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
   </p>
   <li><kbd>schematic</kbd></li>
@@ -566,6 +577,15 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    expands to <kbd>patternR2[2],patternR2[1],patternR2[0]</kbd><br>
   <li><kbd>@symname</kbd></li>
   <p> This expands to the name of the symbol</p>
+  <li><kbd>@model</kbd></li>
+  <p> This expands to the name of the symbol, instead of taking the filename it will use the <kbd>model</kbd>
+   attribute as defined in the template symbol attribute. This is possible for spice and spectre netlists only.
+   Example:<br>
+   <pre class="code">
+     type=subcircuit
+     format="@name @pinlist @model gain=@gain offset=@offset"
+     template="name=X1 model=opamp gain=100 offset=0" </pre>
+  </p>
   <li><kbd>@symref</kbd></li>
   <p> This expands to the symbol reference exactly as specified in the instance (the <kbd>Symbol</kbd> textbox 
    if you edit the symbol attributes with <kbd>q</kbd> key).</p>
@@ -579,7 +599,7 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    the order they are set in the symbol</p>
   <li><kbd>@@pin</kbd></li>
   <p> This expands to the net that connect to symbol pin named <kbd>pin</kbd>. This substitution
-   takes place only when producing a netlist (Spice, Verilog, VHDL, tEDAx) so it is allowed to use this
+   takes place only when producing a netlist (Spice, Verilog, Spectre, VHDL, tEDAx) so it is allowed to use this
    value only in <kbd>format</kbd>,<kbd>vhdl_format</kbd>, <kbd>tedax_format</kbd> or <kbd>verilog_format</kbd>
    attributes (see <a href="netlisting.html">Netlisting slide)</a><br>
    The @#pin attribute is expanded to <kbd>?m net</kbd> where <kbd>m</kbd> is the pin multiplicity and
@@ -588,7 +608,7 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <li><kbd>@#n</kbd></li>
   <p>
    This expands to the net that connect to symbol pin at position <kbd>n</kbd> in the XSCHEM internal storage. This substitution
-   takes place only when producing a netlist (Spice, Verilog, VHDL, tEDAx) so it is allowed to use this
+   takes place only when producing a netlist (Spice, Verilog, Spectre, VHDL, tEDAx) so it is allowed to use this
    value only in <kbd>format</kbd>,<kbd>vhdl_format</kbd>, <kbd>tedax_format</kbd> or <kbd>verilog_format</kbd>
    attributes (see <a href="netlisting.html">Netlisting slide)</a><br>
    This method of accessing a net that connects to a pin is much faster than previous one since XSCHEM does not need to 
@@ -719,6 +739,10 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
   <li><kbd>@schverilogprop</kbd></li>
   <p>
    this expands to the <b>Verilog</b> global property string of the schematic containing the symbol
+  </p>
+  <li><kbd>@schspectreprop</kbd></li>
+  <p>
+   this expands to the <b>Spectre</b> global property string of the schematic containing the symbol
   </p>
  </ul><br>
  <h3>TCL ATTRIBUTE SUBSTITUTION</h3>

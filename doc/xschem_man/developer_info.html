@@ -92,7 +92,8 @@ p{padding: 15px  30px 10px;}
   have a property string attached. Any text can be present in a property string, however 
   in most cases the property string is organized as a set of <kbd>key=value</kbd> pairs separated by white space.
   In addition to object properties the schematic or symbol view has global properties attached. 
-  There is one global property defined per netlisting mode (currently SPICE, VHDL, Verilog, tEDAx) and one additional global property
+  There is one global property defined per netlisting mode (currently SPICE, VHDL, Verilog, tEDAx, Spectre)
+  and one additional global property
   for symbols (containing the netlisting rules usually).
   See the <a href="xschem_properties.html">XSCHEM properties</a> section of the manual for more info.
  </p>
@@ -226,7 +227,7 @@ template="name=U1 footprint=TO220"}</kbd>
  <p>
   Global properties define a property string bound to the parent schematic/symbol file,
   there is one global property record per netlisting mode, 
-  currently SPICE, VHDL, Verilog, tEDAx.<br>
+  currently SPICE, VHDL, Verilog, tEDAx, Spectre.<br>
   In addition (only in file_format 1.2 and newer) for schematics and symbols there is a global attribute ('K') 
   that defines how to netlist the schematic/symbol if placed as a 
   symbol into another parent schematic (should be set in the same way as the 'G' global attribute for symbols
@@ -807,6 +808,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> schprop </kbd> get schematic "spice" global attributes </li>
      <li><kbd> schvhdlprop </kbd> get schematic "vhdl" global attributes </li>
      <li><kbd> schverilogprop </kbd> get schematic "verilog" global attributes </li>
+     <li><kbd> schspectreprop </kbd> get schematic "spectre" global attributes </li>
      <li><kbd> schsymbolprop </kbd> get schematic "symbol" global attributes </li>
      <li><kbd> schtedaxprop </kbd> get schematic "tedax" global attributes </li>
      <li><kbd> sch_path </kbd> get hierarchy path. if 'n' given get hierpath of level 'n' </li>
@@ -1505,6 +1507,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> schsymbolprop </kbd> set global symbol attribute string </li>
      <li><kbd> schprop </kbd> set schematic global spice attribute string </li>
      <li><kbd> schverilogprop </kbd> set schematic global verilog attribute string </li>
+     <li><kbd> schspectreprop </kbd> set schematic global spectre attribute string </li>
      <li><kbd> schvhdlprop </kbd> set schematic global vhdl attribute string </li>
      <li><kbd> schtedaxprop </kbd> set schematic global tedax attribute string </li>
      <li><kbd> text_svg </kbd> set to 1 to use svg &lt;text&gt; elements </li>

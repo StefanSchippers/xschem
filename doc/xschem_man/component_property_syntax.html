@@ -161,7 +161,8 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <li><kbd>spice_ignore</kbd></li>
   <li><kbd>verilog_ignore</kbd></li>
   <li><kbd>tedax_ignore</kbd></li>
-  <p >These 4 attributes tell XSCHEM to ignore completely the instance in the respective netlist formats.
+  <li><kbd>spectre_ignore</kbd></li>
+  <p >These 5 attributes tell XSCHEM to ignore completely the instance in the respective netlist formats.
     Allowed values for these attributes are <kbd>true</kbd> (or <kbd>open</kbd>), <kbd>false</kbd> and
     <kbd>short</kbd>
     If <kbd>short</kbd> is specified the instance will short together all its pins. For this to work
@@ -193,6 +194,7 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
   <li><kbd>spice_sym_def</kbd></li>
   <li><kbd>verilog_sym_def</kbd></li>
   <li><kbd>vhdl_sym_def</kbd></li>
+  <li><kbd>spectre_sym_def</kbd></li>
   <p> If any of these attributes are present and not empty and the symbol type is set to <kbd>subcircuit</kbd>
    the corresponding netlister will ignore the schematic subcircuit for this specific instance
    and dump into the netlist the content of this attribute.
@@ -248,6 +250,15 @@ name="mchanged_name" model=\"nmos\" w="20u" l="3u" m="10"
    This attribute contains a SPICE .model or .subckt specification (<kbd>device_model=".model D1N4148 D ...."</kbd>)
    that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
    <kbd>device_model</kbd> attributes defined at instance level override the <kbd>device_model</kbd> set
+   in the symbol if any.
+  </p>
+
+  <li><kbd>spectre_device_model</kbd></li>
+  <p>
+   This attribute contains a SPECTRE model or subckt specification
+   (<kbd>spectre_device_model="model D1N4148 ...."</kbd>)
+   that will be printed at end of netlist only once for the specified component (D1N4148 in the example).
+   <kbd>spectre_device_model</kbd> attributes defined at instance level override the <kbd>spectre_device_model</kbd> set
    in the symbol if any.
   </p>
 

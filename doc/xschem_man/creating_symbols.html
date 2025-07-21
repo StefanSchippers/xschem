@@ -54,7 +54,21 @@ p{padding: 15px  30px 10px;}
 type=subcircuit
 format="@name @pinlist @symname"
 template="name=x1"
- </pre>
+ </pre><br>
+
+ <p class="important">
+  It is now possible to use @model instead of @symname to use a custom specified subcircuit name instead
+  of the symbol filename, see the following example for an opamp subcircuit with a gain parameter:
+ </p><br>
+
+ <pre class="code"style="width:500px;margin-left:40px;">
+type=subcircuit
+format="@name @pinlist @model gain=@gain"
+template="name=x1 gain=100 model=opamp"
+ </pre><br>
+
+ <p> the above extension is allowed only for spice and spectre netlists.</p>
+
  <p>
   These attributes are using by xschem to generate the subcircuit netlist line. the <kbd>format</kbd>
   attribute tells xschem that a line containing the instance name (<kbd>@name</kbd>, replaced by
