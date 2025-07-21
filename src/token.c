@@ -589,7 +589,8 @@ const char *get_sym_template(char *s,char *extra)
     if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) value[value_pos++]=(char)c;
   } else if(state==TOK_END) {
     value[value_pos]='\0';
-    if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
+    if((!extra || !strstr(extra, token)) && strcmp(token,"name") &&
+      strcmp(token,"spiceprefix") && strcmp(token,"model")) {
       memcpy(result+result_pos, value, value_pos+1);
       result_pos+=value_pos;
     }
@@ -601,7 +602,8 @@ const char *get_sym_template(char *s,char *extra)
     if(token_pos) {
       token[token_pos]='\0';
       dbg(1, "token=|%s|\n", token);
-      if((!extra || !strstr(extra, token)) && strcmp(token,"name") && strcmp(token,"spiceprefix")) {
+      if((!extra || !strstr(extra, token)) && strcmp(token,"name") &&
+        strcmp(token,"spiceprefix") && strcmp(token,"model")) {
         memcpy(result+result_pos, token, token_pos+1);
         result_pos+=token_pos;
         result[result_pos++] = (char)c;
@@ -2081,6 +2083,9 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
    else if(strcmp(token, "@symname")==0) {
      break ;
    }
+   else if(strcmp(token, "@model")==0) {
+     break ;
+   }
    else if(strcmp(token, "@pinlist")==0) {
      Int_hashtable table = {NULL, 0};
      int_hash_init(&table, 37);
@@ -2237,6 +2242,9 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
      /* do nothing */
    }
    else if(strcmp(token, "@symname")==0) {
+     break ;
+   }
+   else if(strcmp(token, "@model")==0) {
      break ;
    }
    else if(strcmp(token, "@pinlist")==0) {

@@ -672,7 +672,8 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);
   } else {
-    const char *s = get_cell(sanitize(name), 0);
+    const char *s = get_tok_value(xctx->sym[i].templ, "model",0);
+    if(!s[0]) s = get_cell(sanitize(name), 0);
     fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     if(uppercase_subckt)
       fprintf(fd, ".SUBCKT %s ", s);
