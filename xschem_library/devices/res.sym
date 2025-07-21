@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -26,7 +26,7 @@ function0="1"
 function1="0"
 
 format="@name @pinlist @value m=@m"
-
+spectre_format="@name ( @pinlist ) @model r=@value"
 verilog_format="tran @name (@@P\\\\, @@M\\\\);"
 
 tedax_format="footprint @name @footprint
@@ -41,9 +41,12 @@ value=1k
 footprint=1206
 device=resistor
 m=1"
+spectre_device_model="load \\"resistor.osdi\\"
+model @model resistor"
 }
 V {}
 S {}
+F {}
 E {}
 L 4 0 20 0 30 {}
 L 4 0 20 7.5 17.5 {}
