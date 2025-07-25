@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,10 +23,11 @@ G {}
 K {type=ammeter
 format="@name @pinlist 0 @savecurrent"
 template="name=Vmeas savecurrent=true spice_ignore=0"
-
-}
+spectre_format="@name ( @pinlist ) vsource dc=0"
+spectre_device_model="model vsource vsource"}
 V {}
 S {}
+F {}
 E {}
 L 4 0 -30 0 30 {}
 L 4 -7.5 0 -0 10 {}

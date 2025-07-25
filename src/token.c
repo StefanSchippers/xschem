@@ -3055,7 +3055,7 @@ int print_spectre_element(FILE *fd, int inst)
         /* @spiceprefix needs a special tag for postprocessing */
         if(!strcmp(token, "@spiceprefix") && value[0]) {
           my_realloc(_ALLOC_ID_, &spiceprefixtag, tok_val_len+22);
-          my_snprintf(spiceprefixtag, tok_val_len+22, "**** spice_prefix %s\n", value);
+          my_snprintf(spiceprefixtag, tok_val_len+22, "//// spice_prefix %s\n", value);
           value = spiceprefixtag;
         }
 

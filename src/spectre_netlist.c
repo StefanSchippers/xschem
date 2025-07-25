@@ -75,7 +75,7 @@ static int spectre_netlist(FILE *fd, int spectre_stop )
      type = (xctx->inst[i].ptr+ xctx->sym)->type;
      if( type && IS_PIN(type) ) {
        if(top_sub && !flag) {
-         fprintf(fd, "*.PININFO ");
+         fprintf(fd, "//.PININFO ");
          flag = 1;
        }
        if(top_sub) {
@@ -101,14 +101,14 @@ static int spectre_netlist(FILE *fd, int spectre_stop )
        if(xctx->netlist_count &&
           !strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
        if(!strcmp(type,"netlist_commands")) {
-         fprintf(fd,"**** begin user architecture code\n");
+         fprintf(fd,"//// begin user architecture code\n");
          print_spectre_element(fd, i) ;  /* this is the element line  */
-         fprintf(fd,"**** end user architecture code\n");
+         fprintf(fd,"//// end user architecture code\n");
        } else {
          char *val = NULL;
          const char *m;
          if(print_spectre_element(fd, i)) {
-           fprintf(fd, "**** end_element\n");
+           fprintf(fd, "//// end_element\n");
          }
          /* hash device_model attribute if any */
          my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[i].prop_ptr, "spectre_device_model", 2));
@@ -195,12 +195,12 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    dbg(0, "global_spectre_netlist(): problems opening netlist file\n");
    return 1;
  }
- fprintf(fd, "** sch_path: %s\n", xctx->sch[xctx->currsch]);
+ fprintf(fd, "// sch_path: %s\n", xctx->sch[xctx->currsch]);
 
  if(xctx->netlist_name[0]) {
    my_snprintf(cellname, S(cellname), "%s", get_cell_w_ext(xctx->netlist_name, 0));
  } else {
-   my_snprintf(cellname, S(cellname), "%s.spice", get_cell(xctx->sch[xctx->currsch], 0));
+   my_snprintf(cellname, S(cellname), "%s.spectre", get_cell(xctx->sch[xctx->currsch], 0));
  }
 
  first = 0;
@@ -214,13 +214,13 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
      my_strdup(_ALLOC_ID_, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
    }
    if(place && !strcmp(place, "header" )) {
-     if(first == 0) fprintf(fd,"**** begin user header code\n");
+     if(first == 0) fprintf(fd,"//// begin user header code\n");
      ++first;
      print_spectre_element(fd, i) ;  /* this is the element line  */
    }
   }
  }
- if(first) fprintf(fd,"**** end user header code\n");
+ if(first) fprintf(fd,"//// end user header code\n");
 
  /* netlist_options */
  for(i=0;i<xctx->instances; ++i) {
@@ -230,7 +230,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
      netlist_options(i);
    }
  }
- if(!top_sub) fprintf(fd,"**");
+ if(!top_sub) fprintf(fd,"//");
  if(uppercase_subckt) 
    fprintf(fd,"SUBCKT %s ( ", get_cell(xctx->sch[xctx->currsch], 0));
  else
@@ -280,7 +280,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
      my_strdup(_ALLOC_ID_, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
    }
    if(!place || (strcmp(place, "end") && strcmp(place, "header")) ) {
-     if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+     if(first == 0) fprintf(fd,"//// begin user architecture code\n");
      ++first;
      print_spectre_element(fd, i) ;  /* this is the element line  */
    }
@@ -289,15 +289,15 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
 
  xctx->netlist_count++;
 
- if(xctx->schprop && xctx->schprop[0]) {
-   if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+ if(xctx->schspectreprop && xctx->schspectreprop[0]) {
+   if(first == 0) fprintf(fd,"//// begin user architecture code\n");
    ++first;
-   fprintf(fd, "%s\n", xctx->schprop);
+   fprintf(fd, "%s\n", xctx->schspectreprop);
  }
- if(first) fprintf(fd,"**** end user architecture code\n");
+ if(first) fprintf(fd,"//// end user architecture code\n");
  /* /20100217 */
 
- if(!top_sub) fprintf(fd,"**");
+ if(!top_sub) fprintf(fd,"//");
  if(uppercase_subckt) 
    fprintf(fd, "ENDS\n");
  else
@@ -443,13 +443,13 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
     my_strdup(_ALLOC_ID_, &place,get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr,"place",0));
     if( type && !strcmp(type,"netlist_commands") ) {
      if(place && !strcmp(place, "end" )) {
-       if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+       if(first == 0) fprintf(fd,"//// begin user architecture code\n");
        ++first;
        print_spectre_element(fd, i) ;
      } else {
        my_strdup(_ALLOC_ID_, &place,get_tok_value(xctx->inst[i].prop_ptr,"place",0));
        if(place && !strcmp(place, "end" )) {
-         if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+         if(first == 0) fprintf(fd,"//// begin user architecture code\n");
          ++first;
          print_spectre_element(fd, i) ;
        }
@@ -462,7 +462,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  for(i=0;i<model_table.size; ++i) {
    model_entry=model_table.table[i];
    while(model_entry) {
-     if(first == 0) fprintf(fd,"**** begin user architecture code\n");
+     if(first == 0) fprintf(fd,"//// begin user architecture code\n");
      ++first;
      fprintf(fd, "%s\n",  model_entry->value);
      model_entry = model_entry->next;
@@ -470,11 +470,11 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  }
  str_hash_free(&model_table);
  str_hash_free(&subckt_table);
- if(first) fprintf(fd,"**** end user architecture code\n");
+ if(first) fprintf(fd,"//// end user architecture code\n");
 
 
  /* 20150922 added split_files check */
- if( !top_sub && !split_f) fprintf(fd, ".end\n");
+ /* if( !top_sub && !split_f) fprintf(fd, ".end\n"); */
 
  dbg(1, "global_spectre_netlist(): starting awk on netlist!\n");
 
@@ -543,11 +543,11 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
       err = 1;
       goto err;
     }
-    my_snprintf(cellname, S(cellname), "%s.spice", get_cell(name, 0));
+    my_snprintf(cellname, S(cellname), "%s.spectre", get_cell(name, 0));
   }
-  fprintf(fd, "\n* expanding   symbol:  %s # of pins=%d\n", name,xctx->sym[i].rects[PINLAYER] );
-  if(xctx->sym[i].base_name) fprintf(fd, "** sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
-  else fprintf(fd, "** sym_path: %s\n", sanitized_abs_sym_path(name, ""));
+  fprintf(fd, "\n// expanding   symbol:  %s # of pins=%d\n", name,xctx->sym[i].rects[PINLAYER] );
+  if(xctx->sym[i].base_name) fprintf(fd, "// sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
+  else fprintf(fd, "// sym_path: %s\n", sanitized_abs_sym_path(name, ""));
   my_strdup(_ALLOC_ID_, &sym_def, get_tok_value(xctx->sym[i].prop_ptr,"spectre_sym_def",0));
   if(sym_def) {
     char *symname_attr = NULL;
@@ -561,7 +561,7 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     const char *s = get_tok_value(xctx->sym[i].templ,"model",0);
     if(!s[0]) s = get_cell(sanitize(name), 0);
 
-    fprintf(fd, "** sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
+    fprintf(fd, "// sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     if(uppercase_subckt)
       fprintf(fd, "SUBCKT %s ( ", s);
      else
@@ -583,10 +583,10 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     get_additional_symbols(1);
     err |= spectre_netlist(fd, spectre_stop);  /* 20111113 added spectre_stop */
     err |= warning_overlapped_symbols(0);
-    if(xctx->schprop && xctx->schprop[0]) {
-      fprintf(fd,"**** begin user architecture code\n");
-      fprintf(fd, "%s\n", xctx->schprop);
-      fprintf(fd,"**** end user architecture code\n");
+    if(xctx->schspectreprop && xctx->schspectreprop[0]) {
+      fprintf(fd,"//// begin user architecture code\n");
+      fprintf(fd, "%s\n", xctx->schspectreprop);
+      fprintf(fd,"//// end user architecture code\n");
     }
     if(uppercase_subckt)
       fprintf(fd, "ENDS\n\n");

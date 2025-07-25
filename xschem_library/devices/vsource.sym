@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.2
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,9 +23,11 @@ G {}
 K {type=vsource
 format="@name @pinlist @value@savecurrent"
 template="name=V1 value=3 savecurrent=false"
-}
+spectre_format="@name ( @pinlist ) vsource @value"
+spectre_device_model="model vsource vsource"}
 V {}
 S {}
+F {}
 E {}
 L 4 2.5 -22.5 7.5 -22.5 {}
 L 4 5 -25 5 -20 {}

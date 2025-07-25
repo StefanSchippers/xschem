@@ -50,7 +50,7 @@ BEGIN{
 # join split lines
 {
 
-  if($0 ~ /^\*\*\*\* begin user (architecture|header) code/) {
+  if($0 ~ /^\/\/\/\/ begin user (architecture|header) code/) {
      user_code = 1
   }
   if($0 ~ /^[+]/ && !user_code) {
@@ -67,7 +67,7 @@ BEGIN{
     }
     line[lines++] = $0
   }
-  if($0 ~ /^\*\*\*\* end user (architecture|header) code/) {
+  if($0 ~ /^\/\/\/\/ end user (architecture|header) code/) {
     user_code = 0
   }
 }
@@ -150,29 +150,29 @@ function sign(x)
 function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 {
 
-  if($0 ~/\*\*\*\* end_element/){
+  if($0 ~/\/\/\/\/ end_element/){
     spiceprefix=""
     return
   }
-  if($0 ~/\*\*\*\* spice_prefix/){
+  if($0 ~/\/\/\/\/ spice_prefix/){
     spiceprefix=$3
     return
   }
-  if($0 ~/\*\*\*\* begin user header code/){ #20180129
+  if($0 ~/\/\/\/\/ begin user header code/){ #20180129
     user_code=1
     return
   }
-  if($0 ~/\*\*\*\* begin user architecture code/){ #20180129
+  if($0 ~/\/\/\/\/ begin user architecture code/){ #20180129
     user_code=1
     print
     return
   }
-  if($0 ~/\*\*\*\* end user architecture code/){ #20180129
+  if($0 ~/\/\/\/\/ end user architecture code/){ #20180129
     user_code=0
     print
     return
   }
-  if($0 ~/\*\*\*\* end user header code/){ #20180129
+  if($0 ~/\/\/\/\/ end user header code/){ #20180129
     user_code=0
     return
   }
@@ -182,7 +182,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   }
 
  # 20181208 do not process commented lines
- if($1 ~/^\*/) {
+ if($1 ~/^\//) {
    print
    return
  }
@@ -274,7 +274,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      }
    }
    
- } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
+ } else if( $1 ~ /^\/\.(ipin|opin|iopin)/ ) {
    num=split($2,name,",")
    for(i=1;i<=num;i++) print $1 " " name[i]
  } else if(  tolower($1) ~ /\.subckt/) {
