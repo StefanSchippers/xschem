@@ -2379,17 +2379,71 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  Tcl_CreateExitHandler(tclexit, 0);
 #ifdef __unix__
- /* XSCHEM_SHAREDIR set in shell variable */
+ /* ROBUST XSCHEM_SHAREDIR DETECTION */
+ int found_sharedir = 0;
+ char exe_path[PATH_MAX];
+ 
+ /* Priority 1: XSCHEM_SHAREDIR environment variable */
  if ((xschem_sharedir=getenv("XSCHEM_SHAREDIR")) != NULL && !stat(xschem_sharedir, &buf)) {
    tclsetvar("XSCHEM_SHAREDIR", xschem_sharedir);
- /* running in ./src/ directory */
- } else if( !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
-    tclsetvar("XSCHEM_SHAREDIR",pwd_dir);
- /* compile-time set XSCHEM_SHAREDIR */
- } else /* if(!stat(XSCHEM_SHAREDIR, &buf)) */ {
-   tclsetvar("XSCHEM_SHAREDIR", XSCHEM_SHAREDIR);
+   found_sharedir = 1;
+   dbg(1, "Using environment XSCHEM_SHAREDIR = %s\n", xschem_sharedir);
  }
- /* if still not found rely on xschemrc for setting this needed path */
+ 
+ /* Priority 2: Executable-relative detection using argv[0] */
+ if (!found_sharedir && xschem_executable) {
+   /* Use argv[0] for C89 compatibility - more portable than /proc/self/exe */
+   if (strchr(xschem_executable, '/')) {
+     /* argv[0] contains a path */
+     my_strncpy(exe_path, xschem_executable, sizeof(exe_path));
+     char *last_slash = strrchr(exe_path, '/');
+     if (last_slash) {
+       *last_slash = '\0'; /* exe_path now contains directory */
+       
+       /* Convert relative path to absolute if needed */
+       if (exe_path[0] != '/') {
+         char abs_path[PATH_MAX];
+         my_snprintf(abs_path, sizeof(abs_path), "%s/%s", pwd_dir, exe_path);
+         my_strncpy(exe_path, abs_path, sizeof(exe_path));
+       }
+       
+       /* Check if running from source directory */
+       my_snprintf(tmp, S(tmp), "%s/xschem.tcl", exe_path);
+       if (!stat(tmp, &buf)) {
+         my_snprintf(tmp, S(tmp), "%s/systemlib", exe_path);
+         if (!stat(tmp, &buf)) {
+           tclsetvar("XSCHEM_SHAREDIR", exe_path);
+           found_sharedir = 1;
+           dbg(1, "Detected source XSCHEM_SHAREDIR = %s\n", exe_path);
+         }
+       }
+       
+       /* Check installed location (bin/../share/xschem) */
+       if (!found_sharedir) {
+         my_snprintf(tmp, S(tmp), "%s/../share/xschem/xschem.tcl", exe_path);
+         if (!stat(tmp, &buf)) {
+           my_snprintf(tmp, S(tmp), "%s/../share/xschem", exe_path);
+           tclsetvar("XSCHEM_SHAREDIR", tmp);
+           found_sharedir = 1;
+           dbg(1, "Detected installed XSCHEM_SHAREDIR = %s\n", tmp);
+         }
+       }
+     }
+   }
+ }
+ 
+ /* Priority 3: Legacy current directory check */
+ if (!found_sharedir && !stat("./xschem.tcl", &buf) && !stat("./systemlib", &buf) && !stat("./xschem", &buf)) {
+    tclsetvar("XSCHEM_SHAREDIR",pwd_dir);
+    found_sharedir = 1;
+    dbg(1, "Using current directory XSCHEM_SHAREDIR = %s\n", pwd_dir);
+ }
+ 
+ /* Priority 4: Compile-time fallback */
+ if (!found_sharedir) {
+   tclsetvar("XSCHEM_SHAREDIR", XSCHEM_SHAREDIR);
+   dbg(1, "Using compile-time XSCHEM_SHAREDIR = %s\n", XSCHEM_SHAREDIR);
+ }
  
  my_snprintf(tmp, S(tmp),"regsub -all {~/} {%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
  tcleval(tmp);
