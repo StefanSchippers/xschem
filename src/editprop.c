@@ -125,7 +125,7 @@ int strboolcmp(const char *str, const char *boolean)
   else s = -1;
   if(s == -1 || b == -1) retval = strcmp(str, boolean);
   else retval = (s != b);
-  dbg(1, "strboolcmp(): str=%s boolean=%s retval=%d\n", str, boolean, retval);
+  dbg(2, "strboolcmp(): str=%s boolean=%s retval=%d\n", str, boolean, retval);
   return retval;
 }
 
