@@ -2396,18 +2396,17 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(strchr(xschem_executable, '/')) {
      /* argv[0] contains a path */
      char *last_slash;
-     my_strncpy(exe_path, xschem_executable, sizeof(exe_path));
+     if(xschem_executable[0] == '.' && xschem_executable[1] == '/') { /* './path/to/xschem' was called */
+       my_strncpy(exe_path, xschem_executable + 2, sizeof(exe_path)); /* remove ./ */
+     } else {
+       my_strncpy(exe_path, xschem_executable, sizeof(exe_path));
+     }
      last_slash = strrchr(exe_path, '/');
      if(last_slash) {
        *last_slash = '\0'; /* exe_path now contains directory */
        
        /* Convert relative path to absolute if needed */
-       if(exe_path[0] == '.' && exe_path[1] == '/') { /* './path/to/xschem' was called */
-         char abs_path[PATH_MAX];
-         my_snprintf(abs_path, sizeof(abs_path), "%s%s", pwd_dir, exe_path + 1);
-         my_strncpy(exe_path, abs_path, sizeof(exe_path));
-       }
-       else if(exe_path[0] != '/') { /* 'path/to/xschem' was called */
+       if(exe_path[0] != '/') { /* 'path/to/xschem' was called */
          char abs_path[PATH_MAX];
          my_snprintf(abs_path, sizeof(abs_path), "%s/%s", pwd_dir, exe_path);
          my_strncpy(exe_path, abs_path, sizeof(exe_path));
