@@ -24,7 +24,7 @@
 #define CADGLOBALS
 
 #define XSCHEM_VERSION "3.4.8RC"
-#define XSCHEM_FILE_VERSION "1.2"
+#define XSCHEM_FILE_VERSION "1.3" /* 1.3 introduces F {..} field for global Spectre attribute */
 
 #if HAS_PIPE == 1
 /* fdopen() */

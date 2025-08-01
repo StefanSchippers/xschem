@@ -122,6 +122,8 @@ p{padding: 15px  30px 10px;}
   <li><kbd>v</kbd> : XSCHEM Version string
   <li><kbd>S</kbd> : Global property associated to the .sch file for SPICE netlisting</li>
   <li><kbd>V</kbd> : Global property associated to the .sch file for VERILOG netlisting</li>
+  <li><kbd>F</kbd> : Global property associated to the .sch file for SPECTRE netlisting
+                     (file format 1.3 and newer) </li>
   <li><kbd>G</kbd> : Global property associated to the .sch file for VHDL netlisting OR
                      Global property associated to the .sym file for netlisting (in 1,2 file 
                      format <kbd>K</kbd> is used, although backward compatibility is guaranteed)</li>
@@ -189,11 +191,11 @@ T {NF=@nf} -5 -15 0 1 0.15 0.15 {}
  <h3>VERSION STRING</h3>
  <p>
   Example: <kbd><br>
-v {xschem version=2.9.7 file_version=1.2}</kbd>
+v {xschem version=3.4.7 file_version=1.3}</kbd>
  </p>
  <p>
   Two attributes are defined, the xschem version and the file format version.
-  Current file format version is 1.2. This string is guaranteed to be the first one in XSCHEM .sch and .sym files.
+  Current file format version is 1.3. This string is guaranteed to be the first one in XSCHEM .sch and .sym files.
 
   A comment can be added (by manually editing the xschem schematic or symbol file) as shown below:
  </p>
@@ -236,7 +238,8 @@ template="name=U1 footprint=TO220"}</kbd>
   telling netlisters what to do with the symbol, while global property 
   strings in schematic files corresponding to the active netlisting mode of XSCHEM are
   copied verbatim to the netlist.<br>
-  the object tag (S, V, G, E, K) is followed by the property string enclosed in curly braces 
+  File formats 1.3 and newer introduce also the SPECTRE global attribute ('F') for Spectre netlists.<br>
+  the object tag (S, V, G, E, F, K) is followed by the property string enclosed in curly braces 
   (<kbd>{...}</kbd>). This allows strings to contain any white space and newlines.
   Curly braces if present in the string are automatically escaped with the '\' character
   by XSCHEM when saving data.<br>
