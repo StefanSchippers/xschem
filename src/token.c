@@ -4022,7 +4022,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
    if(*multip <= 1) 
      my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d", xctx->netlist_unconn_cnt++);
    else
-     my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d[%d:0]", xctx->netlist_unconn_cnt++, *multip - 1);
+     my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d_[%d..0]", xctx->netlist_unconn_cnt++, *multip - 1);
    return expandlabel(unconn, &tmp);
  }
  else { /* xctx->inst[i].node[j] not NULL */
@@ -4035,12 +4035,12 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
      xctx->inst[i].node[j], atoi(xctx->inst[i].node[j]), *multip);
      if(hash_prefix_unnamed_net) {
        if(*multip>1)   /* unnamed is a bus */
-         my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j]), *multip-1);
+         my_snprintf(str_node, S(str_node), "%s_[%d..0]", (xctx->inst[i].node[j]), *multip-1);
        else
          my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j]) );
      } else {
        if(*multip>1)   /* unnamed is a bus */
-         my_snprintf(str_node, S(str_node), "%s[%d:0]", (xctx->inst[i].node[j])+1, *multip-1);
+         my_snprintf(str_node, S(str_node), "%s_[%d..0]", (xctx->inst[i].node[j])+1, *multip-1);
        else
          my_snprintf(str_node, S(str_node), "%s", (xctx->inst[i].node[j])+1 );
      }
