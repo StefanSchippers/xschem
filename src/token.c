@@ -4497,7 +4497,7 @@ const char *translate(int inst, const char* s)
   int level;
   Lcc *lcc;
   char *value1 = NULL;
-  int sim_is_xyce;
+  int sim_is_ngspice, sim_is_vacask /*, sim_is_xyce */;
   char *instname = NULL;
  
   if(!s && inst == -1) {
@@ -4535,7 +4535,9 @@ const char *translate(int inst, const char* s)
   /* if spice_get_* token not processed by tcl use enginering notation (2m, 3u, ...)  */
   if(!(strstr(s, "tcleval(") == s)) engineering = 1;
   instname = (inst >=0 && xctx->inst[inst].instname) ? xctx->inst[inst].instname : "";
-  sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0;
+  sim_is_ngspice = tcleval("sim_is_ngspice")[0] == '1' ? 1 : 0;
+  sim_is_vacask = tcleval("sim_is_vacask")[0] == '1' ? 1 : 0;
+  /* sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0; */
   level = xctx->currsch;
   lcc = xctx->hier_attr;
   size=CADCHUNKALLOC;
@@ -4899,7 +4901,7 @@ const char *translate(int inst, const char* s)
                     strlen(dev) + 21; /* some extra chars for i(..) wrapper */
               dbg(1, "dev=%s\n", dev);
               fqdev = my_malloc(_ALLOC_ID_, len);
-              if(!sim_is_xyce) {
+              if(sim_is_ngspice) {
                 int prefix, vsource;
                 char *prefix_ptr = strrchr(dev, '.'); /* last '.' in dev */
                 if(prefix_ptr) prefix = prefix_ptr[1]; /* character after last '.' */
@@ -4918,7 +4920,9 @@ const char *translate(int inst, const char* s)
                 } else {
                  my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
                 }
-              } else {
+              } else if(sim_is_vacask) {
+                my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
+              } else { /*xyce */
                 my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
               }
               strtolower(fqdev);
@@ -5072,7 +5076,7 @@ const char *translate(int inst, const char* s)
               len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
               dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
               fqdev = my_malloc(_ALLOC_ID_, len);
-              if(!sim_is_xyce) {
+              if(sim_is_ngspice) {
                 int vsource = (prefix == 'v') || (prefix == 'e');
                 if(path[0]) {
                   if(vsource) {
@@ -5101,7 +5105,9 @@ const char *translate(int inst, const char* s)
                     my_snprintf(fqdev, len, "i(@%s[i])", dev);
                   }
                 }
-              } else {
+              } else if(sim_is_vacask) {
+                my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
+              } else { /*xyce */
                 my_snprintf(fqdev, len, "i(%s%s)", path, dev);
               }
               if(param) my_free(_ALLOC_ID_, &param);

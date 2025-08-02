@@ -1444,11 +1444,11 @@ proc ngspice::get_node {n} {
 
 # test if currently set simulator is ngspice
 proc sim_is_ngspice {} {
-  global sim
+  global sim netlist_type
 
   set_sim_defaults
 
-  if { [info exists sim(spice,default)] } {
+  if {$netlist_type eq {spice} && [info exists sim(spice,default)] } {
     set idx $sim(spice,default)
     if { [regexp {ngspice} $sim(spice,$idx,cmd)] } {
       return 1
@@ -1463,11 +1463,11 @@ proc sim_is_Xyce {} {
 }
 
 proc sim_is_xyce {} {
-  global sim
+  global sim netlist_type
 
   set_sim_defaults
 
-  if { [info exists sim(spice,default)] } {
+  if {$netlist_type eq {spice} && [info exists sim(spice,default)] } {
     set idx $sim(spice,default)
     if { [regexp {[xX]yce} $sim(spice,$idx,cmd)] } {
       return 1
@@ -1475,6 +1475,20 @@ proc sim_is_xyce {} {
   }
   return 0
 }
+
+proc sim_is_vacask {} {
+  global sim netlist_type
+      
+  set_sim_defaults
+    
+  if {$netlist_type eq {spectre} && [info exists sim(spectre,default)] } {
+    set idx $sim(spectre,default)
+    if { [regexp {vacask} $sim(spectre,$idx,cmd)] } {
+      return 1
+    } 
+  } 
+  return 0 
+}   
 
 # tests if file f exists. One level of global scope 'subst' is done on f
 # to expand global variables / commands catching errors.
