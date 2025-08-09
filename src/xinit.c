@@ -3038,6 +3038,12 @@ int Tcl_AppInit(Tcl_Interp *inter)
    my_strncpy(xctx->sch_to_compare, abs_sym_path(cli_opt_diff, ""), S(xctx->sch_to_compare));
    tclsetvar("compare_sch", "1");
  } 
+
+ /*                                    */
+ /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
+ /*                                    */
+ tcleval("update; source_user_tcl_files");
+
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
     int file_loaded = 1;
@@ -3162,9 +3168,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  /*                                    */
- /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
+ /* SOURCE SUPPLIED TCL FILES          */
+ /* to be executed on any new window   */
+ /* creation                           */
  /*                                    */
- tcleval("update; source_user_tcl_files");
  tcleval("eval_user_startup_commands");
 
  /* source tcl file given on command line with --script */
