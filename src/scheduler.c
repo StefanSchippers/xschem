@@ -3506,12 +3506,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(err) {
         if(has_x) {
-          tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background red", NULL);
+          tclvareval(xctx->top_path, "catch {.menubar entryconfigure Netlist -background red}", NULL);
           tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
         }
       } else {
         if(has_x) {
-          tclvareval(xctx->top_path, ".menubar entryconfigure Netlist -background Green", NULL);
+          tclvareval(xctx->top_path, "catch {.menubar entryconfigure Netlist -background Green}", NULL);
           tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
         }
       }

@@ -890,7 +890,7 @@ void free_rawfile(Raw **rawptr, int dr, int no_warning)
 
   if(has_x) {
     tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
-    tclvareval(xctx->top_path, ".menubar entryconfigure Waves -background $simulate_bg", NULL);
+    tclvareval(xctx->top_path, "catch {.menubar entryconfigure Waves -background $simulate_bg}", NULL);
   }   
 
   if(dr) draw();
@@ -1060,10 +1060,10 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
     if(has_x) {
       if(sch_waves_loaded() >= 0) {
         tclvareval("set tctx::", xctx->current_win_path, "_waves Green", NULL);
-        tclvareval(xctx->top_path, ".menubar entryconfigure Waves -background Green", NULL);
+        tclvareval(xctx->top_path, "catch {.menubar entryconfigure Waves -background Green}", NULL);
       } else {
         tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
-        tclvareval(xctx->top_path, ".menubar entryconfigure Waves -background $simulate_bg", NULL);
+        tclvareval(xctx->top_path, "catch {.menubar entryconfigure Waves -background $simulate_bg}", NULL);
       }
     }
     return res;
@@ -3453,7 +3453,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
     if(fast) set_modify(2); /* only clear modified flag, no title/tab/sim buttons update */
     else     set_modify(0);
   }
-  tclvareval(xctx->top_path, ".menubar entryconfigure Simulate -background $simulate_bg", NULL);
+  tclvareval(xctx->top_path, "catch {.menubar entryconfigure Simulate -background $simulate_bg}", NULL);
   tclvareval("set tctx::", xctx->current_win_path, "_simulate $simulate_bg", NULL);
   tclvareval("catch {unset tctx::", xctx->current_win_path, "_simulate_id}", NULL);
   /* set local simulation directory if local_netlist_dir is set*/

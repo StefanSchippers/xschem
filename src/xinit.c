@@ -1641,7 +1641,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
   tclvareval("save_ctx ", xctx->current_win_path, NULL);
   (*window_count)++;
   if(has_x) {
-    tclvareval("[xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg", NULL);
+    tclvareval("catch {[xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg}", NULL);
     tcleval(".menubar.view entryconfigure {Tabbed interface} -state disabled");
   }
   n = -1;
@@ -3042,7 +3042,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                    */
  /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
  /*                                    */
- tcleval("update; source_user_tcl_files");
+ tcleval("source_user_tcl_files");
 
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
@@ -3172,7 +3172,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* to be executed on any new window   */
  /* creation                           */
  /*                                    */
- tcleval("eval_user_startup_commands");
+ tcleval("update; eval_user_startup_commands");
 
  /* source tcl file given on command line with --script */
  if(cli_opt_tcl_script[0]) {

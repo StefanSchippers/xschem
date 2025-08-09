@@ -980,7 +980,7 @@ proc netlist {source_file show netlist_file} {
  set waves_var tctx::${win_path}_waves
  if {[info exists has_x] && $waves_var ne $simulate_bg} {
    set $waves_var orange
-    $top_path.menubar entryconfigure Waves -background orange
+   catch {$top_path.menubar entryconfigure Waves -background orange}
  }
  
  set netlist_type [xschem get netlist_type]
@@ -2640,7 +2640,7 @@ proc simulate_from_button {{callback {}}} {
          # something went wrong. Forget about the process
          unset tctx::[xschem get current_win_path]_simulate_id
          set tctx::[xschem get current_win_path]_simulate $simulate_bg
-         [xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg
+         catch {[xschem get top_path].menubar entryconfigure Simulate -background $simulate_bg}
        }
      }
    }
@@ -2711,7 +2711,7 @@ proc simulate {{callback {}}} {
     if {[info exists has_x] && $id >= 0 } {
       set tctx::[xschem get current_win_path]_simulate_id $id
       set button_path [xschem get top_path].menubar
-      $button_path entryconfigure Simulate -background orange
+      catch {$button_path entryconfigure Simulate -background orange}
       set tctx::[xschem get current_win_path]_simulate orange
     }
 
@@ -8493,17 +8493,17 @@ proc set_simulate_button {top_path win_path} {
 
   if {![info exists execute(exitcode,last)]} {
     if { $current_win eq $win_path} {
-      $sim_button entryconfigure Simulate -background $simulate_bg
+      catch {$sim_button entryconfigure Simulate -background $simulate_bg}
     }
     set $simvar $simulate_bg
   } elseif { $execute(exitcode,last) == 0} {
     if { $current_win eq $win_path} {
-      $sim_button entryconfigure Simulate -background Green
+      catch {$sim_button entryconfigure Simulate -background Green}
     }
     set $simvar Green
   } else {   
     if { $current_win eq $win_path} {
-      $sim_button entryconfigure Simulate -background red
+      catch {$sim_button entryconfigure Simulate -background red}
     }
     set $simvar red
   }
@@ -8522,21 +8522,21 @@ proc set_sim_netlist_waves_buttons {} {
   set sim_var  tctx::${win_path}_simulate
   set waves_var tctx::${win_path}_waves
   if {![info exists $netlist_var] || [set $netlist_var] eq $simulate_bg} {
-    $top_path.menubar entryconfigure Netlist -background  $simulate_bg
+    catch {$top_path.menubar entryconfigure Netlist -background  $simulate_bg}
   } else { 
-     $top_path.menubar entryconfigure Netlist -background [set $netlist_var]
+     catch {$top_path.menubar entryconfigure Netlist -background [set $netlist_var]}
   }
 
   if {![info exists $sim_var] || [set $sim_var] eq $simulate_bg} {
-    $top_path.menubar entryconfigure Simulate -background  $simulate_bg
+    catch {$top_path.menubar entryconfigure Simulate -background  $simulate_bg}
   } else { 
-    $top_path.menubar entryconfigure Simulate -background [set $sim_var]
+    catch {$top_path.menubar entryconfigure Simulate -background [set $sim_var]}
   }
 
   if {![info exists $waves_var] || [set $waves_var] eq $simulate_bg} {
-    $top_path.menubar entryconfigure Waves -background  $simulate_bg
+    catch {$top_path.menubar entryconfigure Waves -background  $simulate_bg}
   } else { 
-    $top_path.menubar entryconfigure Waves -background [set $waves_var]
+    catch {$top_path.menubar entryconfigure Waves -background [set $waves_var]}
   }
 }
 
