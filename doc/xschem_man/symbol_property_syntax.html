@@ -559,6 +559,20 @@ verilog_format="xnor #(@risedel , @falldel ) @name ( @@Z , @@A , @@B );"
    wires and instances (in case of lcc symbols). If set to true (<kbd>symbol_ignore=true</kbd>)
    the corresponding element will not be displayed when the symbol is instantiated.
   </p>
+  <li><kbd>expr(....)</kbd></li>
+  <p>
+   The string inside the parenthesis will be evaluated if possible.
+   Example:
+  </p>
+  <pre class="code"> expr(@W * @m )</pre>
+  <p>
+   Will be replaced by the product of @W * @m, if @W and @m can be resolved to numbers.
+   If not the expression will be left as is with the substituted parameters.<br>
+   Suggestion: always put a space after a @param, otherwise xschem will not recognize
+   the correct param name.
+  </p>
+
+
  </ul>
  <h3>PREDEFINED SYMBOL VALUES</h3>
  <ul>
