@@ -21,7 +21,8 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {type=spice_parameters
 template="name=s1 value=\\"w=10u\\""
-format=".param @value"}
+format=".param @value"
+spectre_format="parameters @value"}
 V {}
 S {}
 E {}

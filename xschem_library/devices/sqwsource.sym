@@ -28,7 +28,9 @@ pulse 0 @vhi \\\\
 '0.01/@freq ' \\\\
 '0.49/@freq ' \\\\
 '1/@freq '"
+spectre_format="@name ( @pinlist ) vsource type=\\\"pulse\\\" val0=0 val1=@vhi delay=0.495/@freq rise=0.01/@freq fall=0.01/@freq width=0.49/@freq period=1/@freq"
 template="name=V1 vhi=3 freq=1e6"
+spectre_device_model="model vsource vsource"
 }
 V {}
 S {}

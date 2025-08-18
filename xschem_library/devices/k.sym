@@ -21,6 +21,8 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {type=coupler
 format="@name @L1 @L2 @K"
+spectre_format="@name ( ) mutual ind1=@L1 ind2=@L2 k=@K"
+spectre_device_model="model mutual mutual"
 template="name=K1 K=0.9 L1=L1 L2=L2"}
 V {}
 S {}
