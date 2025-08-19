@@ -4533,7 +4533,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         int n = atoi(argv[2]);
-        if(n == 1 && argc > 3) ret = record_global_node(1,NULL, argv[3]); /* insert node */
+        if(n == 4 && argc > 3) ret = record_global_node(4,NULL, argv[3]); /* insert node */
+        else if(n == 1 && argc > 3) ret = record_global_node(1,NULL, argv[3]); /* insert node */
         else if(n == 0) ret = record_global_node(0, stdout, NULL);
         else if(n == 2) ret = record_global_node(2, NULL, NULL);
         else if(n == 3 && argc > 3) ret = record_global_node(3, NULL, argv[3]); /* look up node */

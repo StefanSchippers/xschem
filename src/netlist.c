@@ -694,34 +694,48 @@ static void print_wires(void)
 }
 #endif
 
-/* store list of global nodes (global=1 set in symbol props) to be printed in netlist 28032003 */
-/* what: */
-/*      0: print list of global nodes and delete list */
-/*      1: add entry */
-/*      2: delete list only, no print */
-/*      3: look if node is a global */
+/* store list of global nodes (global=1 set in symbol props) to be printed in netlist 28032003
+ * what:
+ *      0: print list of global nodes
+ *      1: add entry
+ *      4: add ground entry (it is also a global). for Spectre
+ *      2: delete list only, no print
+ *      3: look if node is a global
+ * return value: 
+ * 1: global
+ * 2: ground (and global)
+ */
 int record_global_node(int what, FILE *fp, const char *node)
 {
  int i;
 
- if( what == 1 || what == 3) {
+ if( what == 1 || what == 3 || what == 4) {
     if(!node) return 0;
-    if(!strcmp(node, "0")) return 1;
+    if(!strcmp(node, "0")) return 2;
     for(i = 0;i < xctx->max_globals; ++i) {
-      if( !strcmp(node, xctx->globals[i] )) return 1; /* node is a global */
+      if( !strcmp(node, xctx->globals[i] )) {
+         if(xctx->global_type[i] == 1) return 2; /* node is a ground and global */
+         else return 1; /* node is a global */
+      }
     }
     if(what == 3) return 0; /* node is not a global */
     if(xctx->max_globals >= xctx->size_globals) {
        xctx->size_globals+=CADCHUNKALLOC;
        my_realloc(_ALLOC_ID_, &xctx->globals, xctx->size_globals*sizeof(char *) );
+       my_realloc(_ALLOC_ID_, &xctx->global_type, xctx->size_globals*sizeof(int) );
     }
-    xctx->globals[xctx->max_globals]=NULL;
+    xctx->globals[xctx->max_globals] = NULL;
+    if(what == 4) xctx->global_type[xctx->max_globals] = 1; /* ground and global (for Spectre) */
+    else xctx->global_type[xctx->max_globals] = 0; /* global */
     my_strdup(_ALLOC_ID_, &xctx->globals[xctx->max_globals], node);
     xctx->max_globals++;
  } else if(what == 0) {
     for(i = 0;i < xctx->max_globals; ++i) {
        if(xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", xctx->globals[i]);
-       if(xctx->netlist_type == CAD_SPECTRE_NETLIST) fprintf(fp, "global %s\n", xctx->globals[i]); /*<<<<*/
+       if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+         if(xctx->global_type[i] == 1) fprintf(fp, "ground %s\n", xctx->globals[i]);
+         else fprintf(fp, "global %s\n", xctx->globals[i]);
+       }
        if(xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", xctx->globals[i]);
     }
  } else if(what == 2) {
@@ -729,6 +743,7 @@ int record_global_node(int what, FILE *fp, const char *node)
        my_free(_ALLOC_ID_, &xctx->globals[i]);
     }
     my_free(_ALLOC_ID_, &xctx->globals);
+    my_free(_ALLOC_ID_, &xctx->global_type);
     xctx->size_globals = xctx->max_globals=0;
 
  }
@@ -1362,9 +1377,15 @@ static int name_nodes_of_pins_labels_and_propagate()
                 inst[i].node[0]);
       }
       /* handle global nodes (global=1 set as symbol property) 28032003 */
-      if(!strcmp(type,"label") && global_node && !strboolcmp(global_node, "true")) {
-        dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
-        record_global_node(1,NULL, inst[i].node[0]);
+      if(!strcmp(type,"label") && global_node) {
+        if( !strcmp(global_node, "ground")) {
+          dbg(1, "name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]);
+          record_global_node(4,NULL, inst[i].node[0]);
+        }
+        else if( !strboolcmp(global_node, "true")) {
+          dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
+          record_global_node(1,NULL, inst[i].node[0]);
+        }
       }
 
       /* do not count multiple labels/pins with same name */

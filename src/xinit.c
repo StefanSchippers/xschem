@@ -682,6 +682,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->max_globals = 0;
   xctx->size_globals = 0;
   xctx->globals = NULL;
+  xctx->global_type = NULL;
   xctx->save_netlist_type = 0;
   xctx->some_nets_added = 0;
   xctx->loaded_symbol = 0;

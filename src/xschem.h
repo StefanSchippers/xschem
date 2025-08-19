@@ -1079,6 +1079,7 @@ typedef struct {
   int max_globals;
   int size_globals; 
   char **globals; 
+  int *global_type; /* global_type[i]: 0:global, 1:ground and global (for Spectre) */
   /* load_schematic */
   int save_netlist_type;
   int loaded_symbol;
