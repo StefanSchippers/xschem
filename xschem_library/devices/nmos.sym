@@ -22,6 +22,7 @@ v {xschem version=3.4.6 file_version=1.2
 G {}
 K {type=nmos
 format="@spiceprefix@name @pinlist @model @extra m=@m"
+spectre_format="@spiceprefix@name ( @pinlist ) @model @extra $mfactor=@m"
 
 tedax_format="footprint @name @footprint
 value @name @value

@@ -22,6 +22,7 @@ v {xschem version=3.4.7RC file_version=1.2
 G {}
 K {type=pmos
 format="@name @pinlist @model m=@m"
+spectre_format="@name ( @pinlist ) @model m=@m"
 template="name=X1 model=irf5305 m=1"}
 V {}
 S {}

@@ -25,8 +25,7 @@ format="@spiceprefix@name @pinlist @model w=@w l=@l @extra m=@m"
 template="name=M1 model=nmos w=5u l=0.18u del=0 m=1"
 verilog_format="nmos #@del @name ( @@d , @@s , @@g );"
 spectre_format="@name ( @pinlist ) @model w=@w l=@l @extra $mfactor=@m"
-
-spectre_device_model="load \\"nmos.osdi\\""}
+}
 V {}
 S {}
 F {}

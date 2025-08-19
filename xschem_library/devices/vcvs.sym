@@ -22,6 +22,8 @@ v {xschem version=3.4.4 file_version=1.2
 G {}
 K {type=vcvs
 format="@name @pinlist @value"
+spectre_format="@name ( @pinlist ) vcvs gain=@value"
+spectre_device_model="model vcvs vcvs"
 template="name=E1 value=3"}
 V {}
 S {}

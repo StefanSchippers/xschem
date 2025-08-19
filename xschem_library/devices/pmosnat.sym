@@ -22,6 +22,7 @@ v {xschem version=3.4.6 file_version=1.2
 G {}
 K {type=pmos
 format="@name @pinlist vdd @model number=@m w=@w l=@l"
+spectre_format="@name ( @pinlist vdd ) @model number=@m w=@w l=@l"
 template="name=X1 model=npbsim3 m=1 w=5u l=2u"}
 V {}
 S {}

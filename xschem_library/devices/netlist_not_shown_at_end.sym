@@ -26,6 +26,9 @@ verilog_ignore=true
 template="name=s1 value=blabla"
 format="
 @value
+"
+spectre_format="
+@value
 "}
 V {}
 S {}

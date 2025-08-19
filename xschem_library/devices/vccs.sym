@@ -22,6 +22,8 @@ v {xschem version=3.4.6RC file_version=1.2
 G {}
 K {type=vccs
 format="@name @pinlist @value"
+spectre_format="@name ( @pinlist ) vccs gain=@value"
+spectre_device_model="model vccs vccs"
 template="name=G1 value=1e-6"}
 V {}
 S {}

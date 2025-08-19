@@ -22,6 +22,9 @@ v {xschem version=3.4.6 file_version=1.2
 G {}
 K {type=inductor
 format="@name @pinlist @value m=@m"
+spectre_format="@name ( @pinlist ) inductor l=@value $mfactor=@m"
+spectre_device_model="load \\"inductor.osdi\\"
+model inductor inductor"
 tedax_format="footprint @name @footprint 
 value @name @value
 device @name @device

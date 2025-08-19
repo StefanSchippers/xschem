@@ -22,6 +22,7 @@ v {xschem version=3.4.6 file_version=1.2
 G {}
 K {type=pnp
 format="@spiceprefix@name @pinlist @model area=@area m=@m"
+spectre_format="@name ( @pinlist )  @model area=@area $mfactor=@m"
 
 tedax_format="footprint @name @footprint
 value @name @value
