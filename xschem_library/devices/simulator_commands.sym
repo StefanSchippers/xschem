@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -35,9 +35,17 @@ format="tcleval(
 \}
 \} else \{ return \{\} \}
 ])"
-}
+
+spectre_format="tcleval(
+[if \{[catch \{sim_is_@simulator \} retval] \} \{
+  return \{\} \} elseif \{$retval\} \{ return \{
+@value
+\}
+\} else \{ return \{\} \}
+])"}
 V {}
 S {}
+F {}
 E {}
 L 4 20 30 60 30 {}
 L 4 20 40 40 40 {}
