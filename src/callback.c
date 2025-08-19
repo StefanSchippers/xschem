@@ -3163,12 +3163,12 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         }
         if(err) {
           if(has_x) {
-            tclvareval(xctx->top_path, "catch {.menubar entryconfigure Netlist -background red}", NULL);
+            tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Netlist -background red}", NULL);
             tclvareval("set tctx::", xctx->current_win_path, "_netlist red", NULL);
           }
         } else {
           if(has_x) {
-            tclvareval(xctx->top_path, "catch {.menubar entryconfigure Netlist -background Green}", NULL);
+            tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Netlist -background Green}", NULL);
             tclvareval("set tctx::", xctx->current_win_path, "_netlist Green", NULL);
           }
         }
