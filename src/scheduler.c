@@ -1520,7 +1520,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 my_snprintf(f, S(f), "%s.v", get_cell(xctx->current_name, 0));
               }
               else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
-                my_snprintf(f, S(f), "%s.sim", get_cell(xctx->current_name, 0));
+                my_snprintf(f, S(f), "%s.spectre", get_cell(xctx->current_name, 0));
               }
               else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
                 my_snprintf(f, S(f), "%s.tdx", get_cell(xctx->current_name, 0));
