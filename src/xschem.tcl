@@ -9098,6 +9098,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves add separator
   $topwin.menubar.waves add command -label Clear -command {xschem raw_clear}
   $topwin.menubar.waves add separator
+  $topwin.menubar.waves add command -label {Load first analysis found} -command {waves {}}
   $topwin.menubar.waves add command -label {Op Annotate} -command {
        set retval [select_raw [xschem get topwindow]]
        set show_hidden_texts 1
