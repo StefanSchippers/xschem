@@ -1443,6 +1443,9 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
      xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
      if(sel) {
        select_element(i, SELECTED, 1, 0);
+       /* following not done in select_element() due to fast=1 argument */
+       select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
+
      } else {
        select_element(i, 0, 1, 0);
      }
@@ -1653,6 +1656,8 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
    xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
    if(sel) {
      select_element(i, SELECTED, 1, 0);
+     /* following not done in select_element() due to fast=1 argument */
+     select_attached_floaters(i, get_tok_value(xctx->inst[i].prop_ptr, "attach", 0));
    } else {
      select_element(i, 0, 1, 0);
    }
