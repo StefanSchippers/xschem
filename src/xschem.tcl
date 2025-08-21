@@ -8195,19 +8195,28 @@ proc prev_tab {} {
   regsub {\.drw} $currwin {} tabname
   if {$tabname eq {}} { set tabname .x0}
   regsub {\.x} $tabname {} number
+  set found 0
   set next_tab $number
+  set wrap_tab $number
   set highest -10000000
+  set highest_all -10000000
   set xcoord [winfo rootx .tabs$tabname]
   for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
     if { $i == $number} { continue}
     if { [winfo exists .tabs.x$i] } {
       set tab_coord  [winfo rootx .tabs.x$i]
       if {$tab_coord < $xcoord && $tab_coord > $highest} {
+        set found 1
         set next_tab $i
         set highest $tab_coord
       }
+      if {$tab_coord > $highest_all} {
+        set highest_all $tab_coord
+        set wrap_tab $i
+      }
     }
   }
+  if {$found == 0} { set next_tab $wrap_tab}
   .tabs.x$next_tab invoke
 }
 
@@ -8218,19 +8227,28 @@ proc next_tab {} {
   regsub {\.drw} $currwin {} tabname
   if {$tabname eq {}} { set tabname .x0}
   regsub {\.x} $tabname {} number
+  set found 0
   set next_tab $number
+  set wrap_tab $number
   set lowest 10000000
+  set lowest_all 10000000
   set xcoord [winfo rootx .tabs$tabname]
   for {set i 0} {$i < $tctx::max_new_windows} { incr i} {
     if { $i == $number} { continue}
     if { [winfo exists .tabs.x$i] } {
       set tab_coord [winfo rootx .tabs.x$i]
       if {$tab_coord > $xcoord && $tab_coord < $lowest} {
+        set found 1
         set next_tab $i
         set lowest $tab_coord
       }
+      if {$tab_coord < $lowest_all} { 
+        set lowest_all $tab_coord
+        set wrap_tab $i
+      }
     }
   }
+  if {$found == 0} { set next_tab $wrap_tab}
   .tabs.x$next_tab invoke
 }
 
