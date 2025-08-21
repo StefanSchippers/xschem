@@ -5346,13 +5346,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             #endif
           }
           else if(!strcmp(argv[2], "cursor2_x")) { /* set graph cursor2 position */
+            int floaters = there_are_floaters();
             xctx->graph_cursor2_x = atof_spice(argv[3]);
 
             if(xctx->rects[GRIDLAYER] > 0) {
               Graph_ctx *gr = &xctx->graph_struct;
               xRect *r = &xctx->rect[GRIDLAYER][0];
               if(r->flags & 1) {
-                backannotate_at_cursor_b_pos(r, gr);
+                if(xctx->graph_flags & 4) {
+                  backannotate_at_cursor_b_pos(r, gr);
+                  if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+                }
               }
             }
           }
@@ -5933,8 +5937,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->graph_cursor2_x = xctx->graph_cursor1_x;
         xctx->graph_cursor1_x = tmp;
         if(tclgetboolvar("live_cursor2_backannotate")) {
-          backannotate_at_cursor_b_pos(r, gr);
-          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          if(xctx->graph_flags & 4) {
+            backannotate_at_cursor_b_pos(r, gr);
+            if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          }
         }
       }
     }

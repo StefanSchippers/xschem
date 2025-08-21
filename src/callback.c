@@ -771,51 +771,53 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     }
     /* swap cursors */
     else if((key == 's' && access_cond) ) {
-      double tmp, cursor1, cursor2;
-      int floaters = there_are_floaters();
-
-      if(r->flags & 4) { /* private_cursor */
-        const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
-        if(s[0]) {
-          cursor1 = atof_spice(s);
+      if( (xctx->graph_flags & 2) && (xctx->graph_flags & 4)) {
+        double tmp, cursor1, cursor2;
+        int floaters = there_are_floaters();
+  
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+          if(s[0]) {
+            cursor1 = atof_spice(s);
+          } else {
+            cursor1 = xctx->graph_cursor1_x;
+          }
         } else {
           cursor1 = xctx->graph_cursor1_x;
         }
-      } else {
-        cursor1 = xctx->graph_cursor1_x;
-      }
-
-      if(r->flags & 4) { /* private_cursor */
-        const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
-        if(s[0]) { 
-          cursor2 = atof_spice(s);
+  
+        if(r->flags & 4) { /* private_cursor */
+          const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+          if(s[0]) { 
+            cursor2 = atof_spice(s);
+          } else { 
+            cursor2 = xctx->graph_cursor2_x;
+          } 
         } else { 
           cursor2 = xctx->graph_cursor2_x;
-        } 
-      } else { 
-        cursor2 = xctx->graph_cursor2_x;
+        }
+  
+        tmp = cursor2;
+        cursor2 = cursor1;
+        cursor1 = tmp;
+  
+        if(r->flags & 4) {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
+        } else {
+          xctx->graph_cursor1_x = cursor1;
+        }
+        if(r->flags & 4) {
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
+        } else {
+          xctx->graph_cursor2_x = cursor2;
+        }
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        }
+        else need_all_redraw = 1;
       }
-
-      tmp = cursor2;
-      cursor2 = cursor1;
-      cursor1 = tmp;
-
-      if(r->flags & 4) {
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor1)));
-      } else {
-        xctx->graph_cursor1_x = cursor1;
-      }
-      if(r->flags & 4) {
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor2)));
-      } else {
-        xctx->graph_cursor2_x = cursor2;
-      }
-      if(tclgetboolvar("live_cursor2_backannotate")) {
-        backannotate_at_cursor_b_pos(r, gr);
-        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-        need_fullredraw = 1;
-      }
-      else need_all_redraw = 1;
     }
     /* measurement tooltip */
     else if((key == 'm') && access_cond) {
