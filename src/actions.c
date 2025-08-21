@@ -2516,7 +2516,9 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        Graph_ctx *gr = &xctx->graph_struct;
        xRect *r = &xctx->rect[GRIDLAYER][0];
        if(r->flags & 1) {
-         backannotate_at_cursor_b_pos(r, gr);
+         if(xctx->graph_flags & 4) {
+           backannotate_at_cursor_b_pos(r, gr);
+         }
        }
      }
    }
