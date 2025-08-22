@@ -249,6 +249,11 @@
 #### default: disabled (0), will ask confirmation.
 # set no_ask_simulate 1
 
+#### turn ERC warnings into errors
+#### default: disabled (0)
+# set erc_open_net_is_error 1
+# set erc_shorted_output_is_error 1
+
 #### set widget scaling (mainly for font display), this is useful on 4K displays
 #### default: unset (tk uses its default) > 1.0 ==> bigger 
 # set tk_scaling 1.7

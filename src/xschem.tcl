@@ -8391,7 +8391,7 @@ set tctx::global_list {
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
- enter_text_default_geometry filetmp
+ enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error filetmp
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
@@ -9990,6 +9990,8 @@ set_ne show_infowindow 0
 set_ne show_infowindow_after_netlist onerror 
 set_ne no_ask_save 0 ;# if set to 1 ctrl-s (save) will not ask to save
 set_ne no_ask_simulate 0 ;# if set to 1 no confirmation for simulation ('s')
+set_ne erc_open_net_is_error 0;# if set to 1 turn warnings into errors
+set_ne erc_shorted_output_is_error 0;# if set to 1 turn warnings into errors
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0

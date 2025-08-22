@@ -218,6 +218,7 @@ int traverse_node_hash()
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
+       if(tclgetboolvar("erc_open_net_is_error")) err |= 1;
      }
      else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
      {
@@ -225,6 +226,7 @@ int traverse_node_hash()
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
+       if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
      }
      else if(entry->d.in ==0 && entry->d.inout == 0)
      {
@@ -239,6 +241,7 @@ int traverse_node_hash()
        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
        if(incr_hi) incr_hilight_color();
        statusmsg(str,2);
+       if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
      }
    }
    dbg(1, "traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
