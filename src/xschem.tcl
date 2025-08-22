@@ -8162,12 +8162,11 @@ proc swap_tabs {x y what} {
   if {$what eq {press} } {
     # puts "From: [winfo containing $x $y]"
     set tctx::source_swap_tab [winfo containing $x $y]
-    puts $tctx::source_swap_tab
+    # puts $tctx::source_swap_tab
     set cond1 [regexp {\.tabs\.x} $tctx::source_swap_tab]
     if {$cond1} {
       button .tabs.mm -padx 2 -pady 0 -anchor nw -takefocus 0 -text [$tctx::source_swap_tab cget -text]
       bind . <B1-Motion> {
-        
         place .tabs.mm -x  [expr {[getmousex .tabs]-[winfo width .tabs.mm]/2 }] -y 0
         raise .tabs.mm
       }
