@@ -3308,14 +3308,15 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         }
       }
       else if((rstate == ControlMask) && cadence_compat) { /* simulate (for cadence users) */
+        int noask = tclgetboolvar("no_ask_simulate");
         if(xctx->semaphore >= 2) break;
         if(waves_selected(event, key, state, button)) {
           waves_callback(event, mx, my, key, button, aux, state);
           break;
         }
-        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+        if(!noask) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
                 "-message {Run circuit simulation?}");
-        if(strcmp(tclresult(),"ok")==0) {
+        if(noask || strcmp(tclresult(),"ok")==0) {
           tcleval("[xschem get top_path].menubar invoke Simulate");
         }
       }
@@ -3351,14 +3352,15 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case 's':
       if((rstate == 0) && !cadence_compat) { /* simulate (original keybind) */
+        int noask = tclgetboolvar("no_ask_simulate");
         if(xctx->semaphore >= 2) break;
         if(waves_selected(event, key, state, button)) {
           waves_callback(event, mx, my, key, button, aux, state);
           break;
         }
-        tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
+        if(!noask) tcleval("tk_messageBox -type okcancel -parent [xschem get topwindow] "
                 "-message {Run circuit simulation?}");
-        if(strcmp(tclresult(),"ok")==0) {
+        if(noask || strcmp(tclresult(),"ok")==0) {
           tcleval("[xschem get top_path].menubar invoke Simulate");
         }
       }

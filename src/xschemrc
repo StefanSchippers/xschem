@@ -243,7 +243,11 @@
 
 #### do not ask to save file when doing control-s or File -> Save
 #### default: disabled (0), will ask before saving.
-# set no_ask_save 0
+# set no_ask_save 1
+
+#### do not ask confirmation to simulate when presing 's'
+#### default: disabled (0), will ask confirmation.
+# set no_ask_simulate 1
 
 #### set widget scaling (mainly for font display), this is useful on 4K displays
 #### default: unset (tk uses its default) > 1.0 ==> bigger 

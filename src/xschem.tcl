@@ -7015,6 +7015,7 @@ proc viewdata {data {ro {}} {win .view}} {
   pack $viewdata_w.xscroll -side bottom -fill x
   # 20171103 insert at insertion cursor(insert tag) instead of 0.0
   $viewdata_w.text insert insert $data
+  bind $viewdata_w <Escape> "$viewdata_w.buttons.dismiss invoke"
   return $tctx::rcode
 }
 
@@ -8395,7 +8396,7 @@ set tctx::global_list {
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
- no_ask_save no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
+ no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
  search_found search_schematic search_select search_value select_touch selected_tok
@@ -9985,6 +9986,7 @@ set_ne sym_txt 1
 set_ne show_infowindow 0 
 set_ne show_infowindow_after_netlist onerror 
 set_ne no_ask_save 0 ;# if set to 1 ctrl-s (save) will not ask to save
+set_ne no_ask_simulate 0 ;# if set to 1 no confirmation for simulation ('s')
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0
