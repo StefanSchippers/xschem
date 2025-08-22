@@ -8172,7 +8172,7 @@ proc swap_tabs {x y what} {
       }
     }
   } else {
-    bind .tabs <B1-Motion> {}
+    bind . <B1-Motion> {}
     place forget .tabs.mm
     destroy .tabs.mm
     # puts "To: [winfo containing $x $y]"
