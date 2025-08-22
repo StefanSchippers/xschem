@@ -44,6 +44,7 @@ static char window_path[MAX_NEW_WINDOWS][WINDOW_PATH_SIZE];
 static int window_count = 0;
 static int last_created_window = -1;
 static Xschem_ctx *old_xctx;
+static char previous_win_path[200] = "";
 
 /* ----------------------------------------------------------------------- */
 /* EWMH message handling routines 20071027... borrowed from wmctrl code */
@@ -1569,7 +1570,6 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
 static int switch_tab(int *window_count, const char *win_path, int dr)
 {        
   int n;
-  static char previous_win_path[200] = "";
   const char *new_path = win_path;
   dbg(1, "switch_tab(): win_path=%s\n", win_path);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
@@ -1794,6 +1794,9 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
 
   my_snprintf(win_path, S(win_path), ".x%d.drw", i);
   my_strncpy(window_path[i], win_path, S(window_path[i]));
+  if(xctx->current_win_path) {
+    my_strncpy(previous_win_path, xctx->current_win_path, sizeof(previous_win_path));
+  }
   old_xctx = xctx;
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */
