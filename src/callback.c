@@ -3806,7 +3806,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         int save = xctx->semaphore;
         if(xctx->semaphore >= 2) break;
         xctx->semaphore = 0;
-        tcleval("next_tab");
+        /* tcleval("next_tab"); */
+        new_schematic("switch", "previous", "", 1);
         xctx->semaphore = save;
       }
       break;

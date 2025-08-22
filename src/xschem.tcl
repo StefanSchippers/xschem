@@ -8171,7 +8171,6 @@ proc swap_tabs {x y what} {
         raise .tabs.mm
       }
     }
-
   } else {
     bind .tabs <B1-Motion> {}
     place forget .tabs.mm

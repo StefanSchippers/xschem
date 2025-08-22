@@ -1527,6 +1527,9 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
     dbg(0, "switch_window(): no filename or window path given\n");
     return 1;
   }
+  if(win_path && !strcmp(win_path, "previous")) {
+    return 1; /* not used in window interface, only for tabbed interface */
+  }
   if(!strcmp(win_path, xctx->current_win_path)) return 0; /* already there */
   n = get_tab_or_window_number(win_path);
   if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
@@ -1566,26 +1569,39 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
 static int switch_tab(int *window_count, const char *win_path, int dr)
 {        
   int n;
-
+  static char previous_win_path[200] = "";
+  const char *new_path = win_path;
   dbg(1, "switch_tab(): win_path=%s\n", win_path);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
   if(!win_path) {
     dbg(0, "switch_tab(): no filename or window path given\n");
     return 1;
   }
-  if(!strcmp(win_path, xctx->current_win_path)) return 0; /* already there */
-  n = get_tab_or_window_number(win_path);
+
+  if(win_path && !strcmp(win_path, "previous")) {
+    if(previous_win_path[0]) {
+      new_path = previous_win_path;
+    }
+    else return 1;
+  }
+    
+  if(!strcmp(new_path, xctx->current_win_path)) return 0; /* already there */
+  n = get_tab_or_window_number(new_path);
   if(n == -1) {
-    dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", win_path);
+    dbg(0, "new_schematic(\"switch_tab\"...): no tab to switch to found: %s\n", new_path);
     return 1;
   }
   if(*window_count) {
-    dbg(1, "new_schematic() switch_tab: %s\n", win_path);
+    dbg(1, "new_schematic() switch_tab: %s\n", new_path);
     /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
+      if(xctx->current_win_path) {
+        my_strncpy(previous_win_path, xctx->current_win_path, sizeof(previous_win_path));
+      }
+      dbg(1, "switch_tab(): previous_win_path=%s\n", previous_win_path);
       tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
-      tclvareval("restore_ctx ", win_path, NULL);
+      tclvareval("restore_ctx ", new_path, NULL);
       tclvareval("housekeeping_ctx", NULL);
       if(has_x) tclvareval("reconfigure_layers_button {}", NULL);
       xctx->window = save_xctx[0]->window;

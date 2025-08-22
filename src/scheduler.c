@@ -5959,6 +5959,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* switch [window_path |schematic_name]
      *   Switch context to indicated window path or schematic name
      *   returns 0 if switch was successfull or 1 in case of errors
+     *   if "previous" given as window path switch to previously active tab
+     *   (only for tabbed interface)
      *   (no tabs/windows present or no matching win_path / schematic name
      *   found).
      */
