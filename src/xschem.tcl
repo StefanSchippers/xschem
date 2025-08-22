@@ -6169,6 +6169,9 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
   }
   pack .dialog.l1 .dialog.f1 -side top -fill x
   pack .dialog.f1.b1 -side left -fill x -expand yes
+  bind .dialog <Return> {.dialog.f1.b1 invoke}
+  bind .dialog <y> {.dialog.f1.b1 invoke}
+  bind .dialog <n> {.dialog.f1.b3 invoke}
   if { $cancel} {
     pack .dialog.f1.b2 -side left -fill x -expand yes
   }
