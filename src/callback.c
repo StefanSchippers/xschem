@@ -64,14 +64,13 @@ static int waves_selected(int event, KeySym key, int state, int button)
       (xctx->ui_state & GRAPHPAN) ||
       (event != -3 &&
          (
-           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + lmargin,  r->y1 + 8,  r->x2 - 20,  r->y2 - 8) ||
-           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x1 + 20,  r->y1 + 8) ||
-           POINTINSIDE(xctx->mousex, xctx->mousey, r->x2 - 20,  r->y2 - 8,  r->x2,  r->y2)
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 5,  r->y1 + 5,  r->x2 - 5,  r->y2 - 5) 
          )
       ) ||
-      ( event == -3 &&
-        (POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2 - 40,  r->y1 + 20) ||
-         POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 20,  r->y1,  r->x2 - 30,  r->y2 - 10))
+      (event == -3 && /* double click */
+         (
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + 5,  r->y1 + 5,  r->x2 - 5,  r->y2 - 5) 
+         )
       );
 
     if(check) {
