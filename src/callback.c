@@ -169,6 +169,11 @@ void abort_operation(void)
      xctx->ui_state &= ~PLACE_SYMBOL;
      xctx->ui_state &= ~PLACE_TEXT;
    }
+   if(xctx->ui_state & STARTMERGE) {
+     delete(1/* to_push_undo */);
+     xctx->ui_state &= ~STARTMERGE;
+     set_modify(0); /* aborted merge: no change, so reset modify flag set by delete() */
+   }
    return;
   }
   if(xctx->ui_state & STARTCOPY)
