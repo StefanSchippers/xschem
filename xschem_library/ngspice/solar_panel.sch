@@ -432,12 +432,14 @@ lab=TRIANG }
 C {vsource.sym} 550 -790 0 0 {name=Vref value=7}
 C {lab_pin.sym} 550 -760 0 0 {name=l17  lab=0 }
 C {lab_pin.sym} 760 -720 0 0 {name=l13  lab=CTRL1 }
-C {comp_ngspice.sym} 660 -890 0 0 {name=x3 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n}
+C {comp_ngspice.sym} 660 -890 0 0 {name=x3 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n
+select=AMPLITUDE}
 C {lab_pin.sym} 550 -860 0 0 {name=l16
 lab=REF}
 C {lab_pin.sym} 550 -920 0 0 {name=l15  lab=LED}
 C {lab_pin.sym} 830 -890 0 1 {name=l18  lab=LEVEL}
-C {comp_ngspice.sym} 950 -1000 0 0 {name=x4 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=1 COUT=1p}
+C {comp_ngspice.sym} 950 -1000 0 0 {name=x4 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=1 COUT=1p
+select=OFFSET}
 C {lab_pin.sym} 1060 -1000 0 1 {name=l19  lab=CTRL1 }
 C {lab_pin.sym} 160 -450 0 0 {name=l20  lab=SUN }
 C {spice_probe.sym} 850 -1030 0 1 {name=p4 analysis=tran}
