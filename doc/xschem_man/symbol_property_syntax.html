@@ -493,6 +493,10 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   <li><kbd>global</kbd></li>
   <p>
   a <kbd>global=true</kbd> property in a <kbd>label</kbd> type symbol will declare the corresponding net as 'global'.
+  <br> For spectre netlists a <kbd>global=ground</kbd> attribute will specify a ground node
+  (an alias for the '0' node) spiec netlister ignores the <kbd>ground</kbd> specification and will
+  just set the node as global.
+  In spectre netlist ground nodes are also global.
   Global nets in spice netlists are like global variables in a C program, these nets are accessible at any
   hierarchical level without the need of passing them through pin connections.
   </p>
