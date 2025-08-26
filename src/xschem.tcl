@@ -5689,6 +5689,9 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
     }
   }
   bind .dialog.txt <Shift-KeyRelease-Return> {return_release %W; .dialog.buttons.ok invoke}
+  .dialog.txt tag add sel 1.0 {end - 1 chars}
+  .dialog.txt mark set insert 1.0
+  focus .dialog.txt
   #grab set .dialog
   tkwait window .dialog
   return $retval
@@ -6514,22 +6517,28 @@ proc edit_prop {txtlabel} {
 
   tkwait visibility .dialog
   # select text after value= or lab= and place cursor just before selection
-  set regx {value *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
-  set regx1 {value *= *[^ \n]}
-  set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
-  .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
-  incr len -1
-  if {$idx eq {} } { 
-    set regx {lab *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
-    set regx1 {lab *= *[^ \n]}
-    set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
-    .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
-    incr len -1
-  }
-  if { $idx ne {} } {
-    .dialog.symprop tag add sel "$idx + $len chars" "$idx + $nchars chars"
-    .dialog.symprop mark set insert "$idx + $len chars"
-  }
+
+  set sym_sel_attr [xschem getprop symbol $symbol select]
+  if {$sym_sel_attr eq {*}} {
+     .dialog.symprop tag add sel 1.0 {end - 1 chars}
+     .dialog.symprop mark set insert 1.0
+  } else {
+    foreach attr [list $sym_sel_attr value lab name] {
+      if {$attr eq {}} {continue}
+      set regx {}
+      set regx1 {} 
+      append regx $attr { *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
+      append regx1 $attr { *= *[^ \n]}
+      set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
+      .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
+      incr len -1
+      if {$idx ne {}} break
+    }
+    if { $idx ne {} } {
+      .dialog.symprop tag add sel "$idx + $len chars" "$idx + $nchars chars"
+      .dialog.symprop mark set insert "$idx + $len chars"
+    }
+  } 
   focus .dialog.symprop
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
