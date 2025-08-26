@@ -394,20 +394,20 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   If this attribute is defined in symbol it will be used as a prefix to the symbol name and subcircuit
   expansion in verilog netlists.
   </p>
-  <li><kbd>dir</kbd></li>
+  <li><kbd>dir</kbd> (pin attribute)</li>
   <p> 
    Defines the direction of a symbol pin. Allowed values are <kbd>in</kbd>, <kbd>out</kbd>, <kbd>inout</kbd>.
   </p>
    <img src="symbol_property_syntax2.png">
   <a id="pinnumber">
-  <li><kbd>pinnumber</kbd></li>
+  <li><kbd>pinnumber</kbd> (pin attribute)</li>
   </a>
   <p> 
    For packaged devices (tEDAx netlists) : indicate the position of the pin on the package.
    This can be overriden at instance level by attributes <kbd>pinnumber(name)</kbd> set in the instance
    for tEDAx netlists.
    <br><br>
-  <li><kbd>sim_pinnumber</kbd></li>
+  <li><kbd>sim_pinnumber</kbd> (pin attribute)</li>
    For VHDL, SPICE, Verilog, Spectre netlists: define the ordering of symbol ports in netlist.
    If all symbol pins have a sim_pinnumber attribute this symbol will be netlisted 
    (in all netlist formats) with pins sorted in ascending order according to sim_pinnumber value.
@@ -432,16 +432,13 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   the other pin ordering.
   </p>
 
-
-
-
-  <li><kbd>propag=n</kbd></li>
+  <li><kbd>propag=n[,m,...]</kbd> (pin attribute)</li>
   <p>
   This attribute instructs xschem to do a 'propagate highlight' from the pin with this attribute to the
   pin <kbd>n</kbd>. The number 'n' refers to the pin sequence number (do a <kbd>shift-S</kbd> after
   selecting destination pin to know this information).
   </p>
-  <li><kbd>goto=n[,m,...]</kbd></li>
+  <li><kbd>goto=n[,m,...]</kbd> (pin attribute)</li>
   <p>
   This attribute is used in the xschem embedded digital simulation engine: propagate logic simulation
   to the output pins <kbd>n,[m,...]</kbd>. The logic function is defined via the 'function<kbd>n</kbd>'
@@ -450,7 +447,7 @@ m5 net1 b net2 VSSPIN nlv w=wn l=ln geomod=0 m=1
   </p>
    <img src="symbol_property_syntax4.png">
 
-  <li><kbd>clock=n</kbd></li>
+  <li><kbd>clock=n</kbd> (pin attribute)</li>
   <p>
    A <kbd>clock</kbd> attribute defined on input pins add some information on the pin function as follows:
    <ul>
