@@ -1763,7 +1763,7 @@ static void propagate_logic()
   for(i=0; i<xctx->instances; ++i)
     for(j=0;j < xctx->simdata[i].npin; ++j)
       xctx->simdata[i].pin[j].value=-10000;
-  
+  tclvareval(xctx->top_path, ".statusbar.12 configure -text {*BUSY*}", NULL);
   while(1) {
     dbg(1, "propagate_logic(): main loop iteration\n");
     found=0;
@@ -1867,6 +1867,7 @@ static void propagate_logic()
     if( tclresult()[0] == '1') break;
     ++iter;
   } /* while(1) */
+  tclvareval(xctx->top_path, ".statusbar.12 configure -text {}", NULL);
   /* my_free(_ALLOC_ID_, &propagated_net); */
 }
 

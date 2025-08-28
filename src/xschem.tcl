@@ -8763,6 +8763,7 @@ proc pack_widgets { { topwin {} } } {
     pack $topwin.statusbar.8 -side left 
     pack $topwin.statusbar.1 -side left -fill x
     pack $topwin.statusbar -side bottom -fill x 
+    pack $topwin.statusbar.12 -side left 
     pack $topwin.drw -side right -fill both -expand true
     setup_tabbed_interface
     if {$toolbar_visible}  {toolbar_show $topwin}
@@ -9536,11 +9537,13 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
          -width 7 -foreground black -takefocus 0
   entry_replace_selection $topwin.statusbar.5
   label $topwin.statusbar.6 -text "MODE:"
-  label $topwin.statusbar.7 -width 7 
+  label $topwin.statusbar.7 -width 7  ;# netlisting mode
   label $topwin.statusbar.11 -text {Stretch:}
-  label $topwin.statusbar.10 -activebackground green -text {}
+  label $topwin.statusbar.12 -fg red -text {} ;# xschem is ready or busy doing something
+
+  label $topwin.statusbar.10 -activebackground green -text {} ;# DRAW WIRE or DRAW LINE or ...
   label $topwin.statusbar.9 -textvariable enable_stretch
-  label $topwin.statusbar.8 -activebackground red -text {} 
+  label $topwin.statusbar.8 -activebackground red -text {} ;# Caps lock, Num lock status
   add_toolbuttons $topwin
 }
 
