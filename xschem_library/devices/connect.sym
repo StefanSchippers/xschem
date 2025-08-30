@@ -22,6 +22,9 @@ v {xschem version=3.4.6 file_version=1.2
 G {}
 K {type=resistor
 format="@name @pinlist 0.01 m=@m"
+spectre_format="@name ( @pinlist ) resistor r=0.01 $mfactor=@m"
+spectre_device_model="load \\"resistor.osdi\\"
+model resistor resistor"
 template="name=R1 m=1"}
 V {}
 S {}
