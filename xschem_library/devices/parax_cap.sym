@@ -22,6 +22,9 @@ v {xschem version=3.4.5 file_version=1.2
 G {}
 K {type=parax_cap
 format="@name @pinlist @gnd @value m=@m"
+spectre_format="@name ( @pinlist @gnd ) capacitor c=@value $mfactor=@m"
+spectre_device_model="load \\"capacitor.osdi\\"
+model capacitor capacitor"
 verilog_ignore=true
 template="name=C1 gnd=0 value=4f m=1"}
 V {}

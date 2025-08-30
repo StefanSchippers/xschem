@@ -32,6 +32,9 @@ format="tcleval([
     return \{@name @pinlist @value m=@m \}
   \}
 ])"
+spectre_format="@name ( @pinlist ) resistor r=@value has_noise=@noisy $mfactor=@m"
+spectre_device_model="load \\"resistor.osdi\\"
+model resistor resistor"
 verilog_format="tran @name (@@P\\\\, @@M\\\\);"
 
 template="name=R1

@@ -23,6 +23,7 @@ G {}
 K {type=poly_resistor
 comment="User must provide a 3-terminal subcircuit for this device"
 format="@spiceprefix@name @pinlist @model R=@R W=@W L=@L m=@m"
+spectre_format="@spiceprefix@name ( @pinlist ) @model R=@R W=@W L=@L m=@m"
 template="name=R1
 R=1
 W=1
