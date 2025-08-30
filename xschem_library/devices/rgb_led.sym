@@ -21,6 +21,7 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {type=diode
 format="@spiceprefix@name @pinlist @model"
+spectre_format="@spiceprefix@name ( @pinlist ) @model"
 tedax_format="footprint @name @footprint
 value @name @value
 device @name @device
