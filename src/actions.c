@@ -168,7 +168,7 @@ int set_modify(int mod)
       tclvareval("set tctx::", xctx->current_win_path, "_netlist $simulate_bg", NULL);
       my_snprintf(s, S(s), "tctx::%s_simulate_id", xctx->current_win_path);
       if(tclgetvar(s)) {
-        tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Simulate -background}", tclresult(), NULL);
+        tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Simulate -background ", tclresult(), "}", NULL);
         tclvareval("set tctx::", xctx->current_win_path, "_simulate ", tclresult(), NULL);
       } else {
         tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Simulate -background $simulate_bg}", NULL);
