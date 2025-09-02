@@ -106,7 +106,9 @@ void hier_psprint(char **res, int what)  /* netlister driver */
             dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
             load_schematic(1,filename, 0, 1);
             get_additional_symbols(1);
-            zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+            /* do a zoom with draw, this is needed to load embedded images into r->extraptr
+             *        |   */
+            zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
             if(what & 1) ps_draw(2, 1, 0); /* page */
             if(what & 2) { /* print cellname */
               my_strcat(_ALLOC_ID_, res, hier_psprint_mtime(xctx->sch[xctx->currsch]));
@@ -133,8 +135,6 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
-  zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
-  draw();
   if(what & 1) ps_draw(4, 1, 0); /* trailer */
 }
 

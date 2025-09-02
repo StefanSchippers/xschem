@@ -301,7 +301,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   }
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
-  dbg(1, "graph size: %dx%d\n", rwi, rhi);
+  dbg(1, "graph size, saving zoom : %dx%d\n", rwi, rhi);
   save_restore_zoom(1, &zi);
   set_viewport_size(rwi, rhi, xctx->lw);
 
@@ -353,6 +353,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
   resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
+  dbg(1, "restore zoom + resetwin: %dx%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
@@ -1276,7 +1277,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
-    dbg(1, "create_ps(): xrect.width=%d, xrect.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+    dbg(1, "create_ps(): save zoom, r.width=%d, r.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
     xctx->areax1 = -2*INT_LINE_W(xctx->lw);
     xctx->areay1 = -2*INT_LINE_W(xctx->lw);
     xctx->areax2 = xctx->xrect[0].width+2*INT_LINE_W(xctx->lw);
@@ -1592,6 +1593,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     save_restore_zoom(0, &zi);
     resetwin(1, 1, 1, 0, 0);
     change_linewidth(xctx->lw);
+    zoom_full(1, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   }
 
 }

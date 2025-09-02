@@ -2874,6 +2874,8 @@ void zoom_full(int dr, int sel, int flags, double shrink)
     xctx->yorigin = -boundbox.y1 + xctx->zoom * schh - bboxh - (1 - shrink) / 2 * xctx->zoom * schh;
   }
   dbg(1, "zoom_full(): dr=%d sel=%d flags=%d areaw=%d, areah=%d\n", sel, dr, flags, xctx->areaw, xctx->areah);
+  dbg(1, "zoom_full(): zoom=%g, xor=%g, yor=%g\n", xctx->zoom, xctx->xorigin, xctx->yorigin);
+  dbg(1, "zoom_full(): current_name=%s\n", xctx->current_name);
   if(flags & 1) change_linewidth(-1.);
   /* we do this here since change_linewidth may not be called  if flags & 1 == 0*/
   xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
@@ -2938,6 +2940,7 @@ void save_restore_zoom(int save, Zoom_info *zi)
 {
   if(save) {
     dbg(1, "save_restore_zoom: save width= %d, height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+    dbg(1, "                   zoom=%g\n", xctx->zoom);
     zi->savew = xctx->xrect[0].width;
     zi->saveh = xctx->xrect[0].height;
     zi->savelw = xctx->lw;
@@ -2961,6 +2964,7 @@ void save_restore_zoom(int save, Zoom_info *zi)
     xctx->yorigin = zi->saveyor;
     xctx->zoom = zi->savezoom;
     xctx->mooz = 1 / zi->savezoom;
+    dbg(1, "                   zoom=%g\n", xctx->zoom);
   }
 }
 
