@@ -2356,6 +2356,8 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
                                  int tabbed_interface, const char *win_path, int snap_cursor, int wire_draw_active)
 {
     char str[PATH_MAX + 100];
+    static double tk_scaling = 1.0;
+    tk_scaling = atof(tcleval("tk scaling"));
     if(!tabbed_interface && strcmp(win_path, xctx->current_win_path)) return;
     if( waves_selected(event, key, state, button)) {
       waves_callback(event, mx, my, key, button, aux, state);
@@ -2426,7 +2428,8 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
        !(xctx->ui_state & STARTPAN) && !(SET_MODMASK) && !xctx->shape_point_selected &&
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
-      if(mx != xctx->mx_save || my != xctx->my_save) {
+      /* make motion a bit sticky. require 10 pixels (screen units, not xschem units) */
+      if(abs(mx - xctx->mx_save) * tk_scaling > 10  || abs(my - xctx->my_save) * tk_scaling > 10) {
         xctx->mouse_moved = 1;
         if(!xctx->drag_elements) {
           int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
@@ -4360,7 +4363,11 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
       xctx->drag_elements = 0;
    }
    else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
-      move_objects(END,0,0,0);
+      if(!xctx->mouse_moved) { /* motion was below 10 screen units so no motion was set, abort */
+        move_objects(ABORT,0,0,0);
+      } else {
+        move_objects(END,0,0,0);
+      }
       xctx->constr_mv=0;
       tcleval("set constr_mv 0" );
       xctx->drag_elements = 0;
