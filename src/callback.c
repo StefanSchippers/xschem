@@ -4363,7 +4363,8 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
       xctx->drag_elements = 0;
    }
    else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
-      if(!xctx->mouse_moved) { /* motion was below 10 screen units so no motion was set, abort */
+      /* motion was below 10 screen units so no motion was set, abort */
+      if(!(state & ShiftMask) && !xctx->mouse_moved) {
         move_objects(ABORT,0,0,0);
       } else {
         move_objects(END,0,0,0);
