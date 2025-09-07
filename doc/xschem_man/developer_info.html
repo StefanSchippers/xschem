@@ -585,8 +585,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       arc</kbd></li><pre>
    Start a GUI placement of an arc.
    User should click 3 unaligned points to define the arc </pre>
-   <li><kbd>       attach_labels</kbd></li><pre>
-   Attach net labels to selected component(s) instance(s) </pre>
+   <li><kbd>       attach_labels [interactive]</kbd></li><pre>
+   Attach net labels to selected component(s) instance(s)
+   Optional integer 'interactive' (default: 0) is passed to attach_labels_to_inst().
+   setting interactive=2 will place lab_show.sym labels on unconnected instance pins </pre>
    <li><kbd>       bbox begin|end</kbd></li><pre>
    Start/end bounding box calculation: parameter is either 'begin' or 'end' </pre>
    <li><kbd>       break_wires [remove]</kbd></li><pre>
@@ -1562,6 +1564,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'val' not given (no attribute value) delete attribute from text
    If '-fast' argument is given does not redraw and is not undoable
    If '-fastundo' is given same as above but action is undoable.</pre>
+   <li><kbd>       show_unconnected_pins</kbd></li><pre>
+   Add a "lab_show.sym" to all instance pins that are not connected to anything </pre>
    <li><kbd>       simulate [callback]</kbd></li><pre>
    Run a simulation (start simulator configured as default in
    Tools -&gt; Configure simulators and tools)
@@ -1720,6 +1724,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Zoom out drawing </pre>
    <li><kbd>       zoom_selected</kbd></li><pre>
    Zoom to selection </pre>
+
 
 
 

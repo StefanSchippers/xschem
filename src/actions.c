@@ -1282,7 +1282,10 @@ int unselect_partial_sel_wires(void)
 }
 
 
-
+/* interactive = 0: do not present dialog box
+ * interactive = 1: present dialog box
+ * interactive = 2: attach lab_show to unconnected pins, no dialog box
+ */
 void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 20171005 */
 {
   xSymbol *symbol;
@@ -1294,6 +1297,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   char *prop=NULL; /*  20161122 overflow safe */
   char *symname_pin = NULL;
   char *symname_wire = NULL;
+  char *symname_show = NULL;
   char *type=NULL;
   short dir;
   int k,ii, skip;
@@ -1310,7 +1314,8 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
 
   my_strdup(_ALLOC_ID_, &symname_pin, tcleval("find_file_first lab_pin.sym"));
   my_strdup(_ALLOC_ID_, &symname_wire, tcleval("find_file_first lab_wire.sym"));
-  if(symname_pin && symname_wire) {
+  my_strdup(_ALLOC_ID_, &symname_show, tcleval("find_file_first lab_show.sym"));
+  if(symname_pin && symname_wire && symname_show) {
     rebuild_selected_array();
     k = xctx->lastsel;
     first_call=1;
@@ -1321,7 +1326,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       my_strcat(_ALLOC_ID_, &prop, "_");
       tclsetvar("custom_label_prefix",prop);
   
-      if(interactive && !do_all_inst) {
+      if(interactive == 1 && !do_all_inst) {
         dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
         tcleval("attach_labels_to_inst");
         if(!strcmp(tclgetvar("tctx::rcode"),"") ) {
@@ -1330,7 +1335,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
           return;
         }
       }
-      if(interactive == 0 ) {
+      if(interactive != 1 ) {
         tclsetvar("tctx::rcode", "yes");
         tclsetvar("use_lab_wire", "0");
         tclsetvar("use_label_prefix", "0");
@@ -1418,7 +1423,9 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
            } else {
              rot1=(short)((rot+rotated_text)%4); /*  20111103 20171208 text_rotation */
            }
-           if(!tclgetboolvar("use_lab_wire")) {
+           if(interactive == 2) {
+             place_symbol(-1,symname_show, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
+           } else if(!tclgetboolvar("use_lab_wire")) {
              place_symbol(-1,symname_pin, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
            } else {
              place_symbol(-1,symname_wire, pinx0, piny0, rot1, dir, prop, 2, first_call, 1/*to_push_undo*/);
@@ -1443,8 +1450,14 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     fprintf(errfp, "attach_labels_to_inst(): location of schematic labels not found\n");
     tcleval("alert_ {attach_labels_to_inst(): location of schematic labels not found} {}");
   }
+  /* if hilights are present in schematic propagate to new added labels */
+  if(xctx->hilight_nets) {
+    propagate_hilights(1, 0, XINSERT_NOREPLACE); 
+    redraw_hilights(0);
+  }
   my_free(_ALLOC_ID_, &symname_pin);
   my_free(_ALLOC_ID_, &symname_wire);
+  my_free(_ALLOC_ID_, &symname_show);
 }
 
 void delete_files(void)

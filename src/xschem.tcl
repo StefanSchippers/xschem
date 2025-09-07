@@ -9387,6 +9387,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.hilight add command -label {Un-highlight selected net/pins} \
      -command "xschem unhilight" -accelerator Ctrl+K
   # 20160413
+  $topwin.menubar.hilight add command -label {Show labels on unconnected instance pins} \
+      -command "xschem show_unconnected_pins"
   $topwin.menubar.hilight add checkbutton \
      -selectcolor $selectcolor -label {Auto-highlight net/pins} -variable auto_hilight
   $topwin.menubar.hilight add checkbutton -label {Enable highlight connected instances} \

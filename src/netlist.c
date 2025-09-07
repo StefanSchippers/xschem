@@ -1539,6 +1539,19 @@ static int reset_node_data_and_rehash()
   return err;
 }
 
+/* add lab_show.sym to instance pins that are not connected to wires / labels / other instances */
+void show_unconnected_pins(void)
+{
+  int i;
+  for(i = 0; i < xctx->instances; ++i)
+  {  
+    select_element(i, SELECTED, 1, 0);
+  }
+  rebuild_selected_array();
+  attach_labels_to_inst(2);
+  unselect_all(1);
+}
+
 int prepare_netlist_structs(int for_netl)
 {
   int err = 0;

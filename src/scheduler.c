@@ -377,12 +377,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       xctx->ui_state2 = MENUSTARTARC;
     }
 
-    /* attach_labels
-     *   Attach net labels to selected component(s) instance(s) */
+    /* attach_labels [interactive]
+     *   Attach net labels to selected component(s) instance(s)
+     *   Optional integer 'interactive' (default: 0) is passed to attach_labels_to_inst().
+     *   setting interactive=2 will place lab_show.sym labels on unconnected instance pins */
     else if(!strcmp(argv[1], "attach_labels"))
     {
+      int interactive = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      attach_labels_to_inst(0);
+      
+      if(argc > 2) interactive = atoi(argv[2]);
+      attach_labels_to_inst(interactive);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
@@ -5827,6 +5832,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         Tcl_ResetResult(interp);
       }
+    }
+    /* show_unconnected_pins
+     *   Add a "lab_show.sym" to all instance pins that are not connected to anything */
+    else if(!strcmp(argv[1], "show_unconnected_pins") )
+    {       
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      show_unconnected_pins();
+      Tcl_ResetResult(interp);
     }
     /* simulate [callback]
      *   Run a simulation (start simulator configured as default in
