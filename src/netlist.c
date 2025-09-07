@@ -1548,6 +1548,12 @@ void show_unconnected_pins(void)
     select_element(i, SELECTED, 1, 0);
   }
   rebuild_selected_array();
+  if(xctx->prep_net_structs == 0) {
+    prepare_netlist_structs(1);
+  }
+  if(xctx->hilight_nets == 0) {
+    traverse_node_hash();
+  }
   attach_labels_to_inst(2);
   unselect_all(1);
 }
