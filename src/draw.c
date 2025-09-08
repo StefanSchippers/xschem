@@ -3039,6 +3039,13 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   int j, k;
   double mark_size = gr->marginy/10.0;
 
+  #if 0
+  static double tk_scaling = 1.0;
+  int border;
+  tk_scaling = atof(tcleval("tk scaling"));
+  border = (int)(5.0 * tk_scaling); /* fixed number of screen pixels */
+  #endif
+
   /* calculate dash length for grid lines */
   dash_size = 1.5 * xctx->mooz;
   dash_size = dash_size < 1.0 ? 0.0: (dash_size > 3.0 ? 3.0 : 2.0);
@@ -3048,6 +3055,11 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
   /* graph bounding box */
   drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
+
+  #if 0
+  /* graph graph selection boundary */
+  drawrect(GRIDLAYER, NOW, gr->rx1+border, gr->ry1+border, gr->rx2-border, gr->ry2-border, 2, -1, -1);
+  #endif
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);

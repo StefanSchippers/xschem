@@ -38,7 +38,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   static double tk_scaling = 1.0;
   int border;
   tk_scaling = atof(tcleval("tk scaling"));
-  border = (int)(5.0 * tk_scaling * xctx->zoom); /* fixed number of screen pixels */
+  border = (int)(5.0 * tk_scaling); /* fixed number of screen pixels */
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   if(xctx->ui_state & excl) skip = 1;
@@ -66,6 +66,11 @@ static int waves_selected(int event, KeySym key, int state, int button)
 
     check =
       (xctx->ui_state & GRAPHPAN) ||
+      ((event == ButtonPress || event == ButtonRelease) && button == Button3 &&
+         (
+           POINTINSIDE(xctx->mousex, xctx->mousey, r->x1,  r->y1,  r->x2,  r->y2) 
+         )
+      ) ||
       (event != -3 &&
          (
            POINTINSIDE(xctx->mousex, xctx->mousey, r->x1 + border,  r->y1 + border,  r->x2 - border,  r->y2 - border) 
