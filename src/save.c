@@ -3909,7 +3909,7 @@ void pop_undo(int redo, int set_modify_status)
  * return symbol type in type pointer or "" if no type or no symbol found
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
-static void get_sym_type(const char *symname, char **type, 
+void get_sym_type(const char *symname, char **type, 
                          Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins)
 {
   int i, c, n = 0;

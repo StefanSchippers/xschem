@@ -1512,6 +1512,8 @@ extern int spectre_block_netlist(FILE *fd, int i, int alert);
 extern void remove_symbols(void);
 extern void remove_symbol(int i);
 extern void clear_drawing(void);
+extern void get_sym_type(const char *symname, char **type,       
+                         Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins);
 extern int is_from_web(const char *f);
 extern int load_sym_def(const char name[], FILE *embed_fd);
 extern int descend_symbol(void);

@@ -2066,6 +2066,22 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, filename, TCL_VOLATILE);
     }
 
+    /* get_sym_type symname
+     *   get "type" value from global attributes of symbol,
+     *   looking frst in loaded symbols, then looking in symbol file
+     *   symbols that are not already loaded in the design will not be loaded */
+    else if(!strcmp(argv[1], "get_sym_type") )
+    {
+      char *s=NULL;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+
+      if(argc < 3) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
+      get_sym_type(argv[2], &s, NULL, NULL, NULL);
+
+      Tcl_SetResult(interp, s, TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &s);
+    }
+
     /* get_tok str tok [with_quotes]
      *   get value of token 'tok' in string 'str'
      *   'with_quotes' (default:0) is an integer passed to get_tok_value() */

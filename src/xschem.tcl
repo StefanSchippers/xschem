@@ -4069,10 +4069,18 @@ proc is_xschem_file {f} {
         set generator 1
         # continue
       }
-      if { [regexp {^[TKGVSE] \{} $line] } { incr score }
+      if { [regexp {^[TKFGVSE] \{} $line] } { incr score }
       if { [regexp {^[BL] +[0-9]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
       if { [regexp {^N +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +[-0-9.eE]+ +\{} $line] } {incr score}
-      if { [regexp {^C +\{[^{}]+\} +[-0-9.eE]+ +[-0-9.eE]+ +[0-3]+ +[0-3]+ +\{} $line] } {incr instances; incr score}
+      if { [regexp {^C +\{[^{}]+\} +[-0-9.eE]+ +[-0-9.eE]+ +[0-3]+ +[0-3]+ +\{} $line] } {
+        set symname [regsub {([^{]+{)([^}]+)(}.*)} $line {\2}]
+        set type [xschem get_sym_type $symname]
+        # title/launcher instances in symbols are allowed, do not indicate it is a schematic.
+        if {![regexp "^(logo|launcher)$" $type]} {
+          incr instances
+          incr score
+        }
+      }
       if { [regexp "^v\[ \t\]+\{xschem\[ \t\]+version\[ \t\]*=.*\[ \t\]+file_version\[ \t\]*=" $line] } {
         set ret 1
       }
