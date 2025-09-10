@@ -8697,16 +8697,16 @@ global env has_x OS autofocus_mainwindow
       }
     }
  
-    bind $topwin <Double-Button-1> "puts DBP; xschem callback %W -3 %x %y 0 %b 0 %s"
+    bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
     if {$autofocus_mainwindow} {
       bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
     } else {
-      bind $topwin <ButtonPress> "puts BP; xschem callback %W %T %x %y 0 %b 0 %s"
+      bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
     }
-    bind $topwin <ButtonRelease> "puts BR; xschem callback %W %T %x %y 0 %b 0 %s"
+    bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
 
     #### test: show keybindings
     bind $topwin <KeyPress> "
