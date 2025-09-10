@@ -3778,7 +3778,7 @@ int place_text(int draw_text, double mx, double my)
   char *txt, *props, *hsize, *vsize;
 
   tclsetvar("props","");
-  tclsetvar("retval","");
+  tclsetvar("tctx::retval","");
 
   if(!tclgetvar("tctx::hsize"))
    tclsetvar("tctx::hsize","0.4");
@@ -3790,7 +3790,7 @@ int place_text(int draw_text, double mx, double my)
 
   dbg(1, "place_text(): hsize=%s vsize=%s\n",tclgetvar("tctx::hsize"), tclgetvar("tctx::vsize") );
   /* get: retval, hsize, vsize, props,  */
-  txt =  (char *)tclgetvar("retval");
+  txt =  (char *)tclgetvar("tctx::retval");
   props =  (char *)tclgetvar("props");
   hsize =  (char *)tclgetvar("tctx::hsize");
   vsize =  (char *)tclgetvar("tctx::vsize");

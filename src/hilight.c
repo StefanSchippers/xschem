@@ -2378,18 +2378,18 @@ void print_hilight_net(int show)
      tcleval(b1); /* add_lab_no_prefix */
    }
    if(show==1) {
-     my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp2);
+     my_snprintf(cmd, S(cmd), "set tctx::retval [ read_data_nonewline %s ]", filetmp2);
      tcleval(cmd);
-     tcleval("viewdata $::retval");
+     tcleval("viewdata $tctx::retval");
    }
  } else { /* show == 3 */
    tclsetvar("filetmp",filetmp1);
    if(system(cmd3)==-1) {  /* sort_labels.awk filetmp1 (writes changes into filetmp1) */
      fprintf(errfp, "print_hilight_net(): error executing cmd3\n");
    }
-   my_snprintf(cmd, S(cmd), "set ::retval [ read_data_nonewline %s ]", filetmp1);
+   my_snprintf(cmd, S(cmd), "set tctx::retval [ read_data_nonewline %s ]", filetmp1);
    tcleval(cmd);
-   tcleval("viewdata $::retval");
+   tcleval("viewdata $tctx::retval");
  }
  if(show==0)  {
    tcleval(a); /* create_pins */

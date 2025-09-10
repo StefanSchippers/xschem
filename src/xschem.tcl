@@ -22,7 +22,6 @@
 
 ### INUTILE integration (spice stimuli generator from a higher level description language)
 proc inutile_line {txtlabel} {
-   global retval
    toplevel .inutile_line -class Dialog
    set X [expr [winfo pointerx .inutile_line] - 60]
    set Y [expr [winfo pointery .inutile_line] - 35]
@@ -32,14 +31,14 @@ proc inutile_line {txtlabel} {
    entry .inutile_line.e1   -width 60
    entry_replace_selection .inutile_line.e1
    .inutile_line.e1 delete 0 end
-   .inutile_line.e1 insert 0 $retval
+   .inutile_line.e1 insert 0 $tctx::retval
    button .inutile_line.b1 -text "OK" -command  \
    {
-     set retval [.inutile_line.e1 get ]
+     set tctx::retval [.inutile_line.e1 get ]
      destroy .inutile_line
    }
    bind .inutile_line <Return> {
-     set retval [.inutile_line.e1 get ]
+     set tctx::retval [.inutile_line.e1 get ]
      destroy .inutile_line
    }
    pack .inutile_line.l1 -side top -fill x
@@ -48,7 +47,7 @@ proc inutile_line {txtlabel} {
    grab set .inutile_line
    focus .inutile_line.e1
    tkwait window .inutile_line
-   return $retval
+   return $tctx::retval
 }
 
 proc inutile_write_data {w f} {
@@ -142,7 +141,7 @@ proc inutile_translate {f} {
 }
 
 proc inutile { {filename {}} {wait {}} } {
-  global XSCHEM_SHAREDIR retval netlist_dir
+  global XSCHEM_SHAREDIR netlist_dir
 
   if {$wait ne {}} {
     xschem set semaphore [expr {[xschem get semaphore] +1}]
@@ -156,7 +155,7 @@ proc inutile { {filename {}} {wait {}} } {
   wm iconname .inutile "(IN)UTILE"
   # wm transient .inutile [xschem get topwindow]
   set utile_path $XSCHEM_SHAREDIR/utile
-  set retval {}
+  set tctx::retval {}
   frame .inutile.buttons
   pack .inutile.buttons -side bottom -fill x -pady 2m
   button .inutile.buttons.translate -text Translate -command "
@@ -168,11 +167,11 @@ proc inutile { {filename {}} {wait {}} } {
   text .inutile.text -undo 1 -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
   scrollbar .inutile.scroll -command {.inutile.text yview}
   button .inutile.buttons.save -text Save -command "
-    set retval \"$filename\"
+    set tctx::retval \"$filename\"
     set filename \[inutile_line {Filename}\]
     inutile_write_data .inutile.text \"$filename\""
   button .inutile.buttons.load -text Reload -command "
-    set retval \"$filename\"
+    set tctx::retval \"$filename\"
     set filename \[inutile_line {Filename}\]
     inutile_read_data .inutile.text \"$filename\""
   button .inutile.buttons.send -text "Template" -command "
@@ -1411,11 +1410,10 @@ proc ngspice::get_voltage {n} {
 }
 
 proc update_schematic_header {} {
-  global retval
-  set retval [xschem get header_text]
+  set tctx::retval [xschem get header_text]
   text_line {Header/License text:} 0
   if { $tctx::rcode ne {}} {
-    xschem set header_text $retval
+    xschem set header_text $tctx::retval
   }
 }
 
@@ -2270,7 +2268,7 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
 
 # recursive procedure
 proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
-  global nolist_libs traversal retval
+  global nolist_libs traversal 
 
   if {[info tclversion] >= 8.5} {
     set font {TkDefaultFont 10 bold} ;# Monospace
@@ -3229,7 +3227,7 @@ proc graph_update_nodelist {} {
 proc graph_fill_listbox {} {
   global graph_selected
   set pattern [.graphdialog.center.left.search get]
-  set retval {}
+  set retv {}
   set autoload [uplevel #0 {subst [xschem getprop rect 2 $graph_selected autoload 2]}]
   set rawfile [xschem getprop rect 2 $graph_selected rawfile]
   if {$rawfile ne {}} {
@@ -3247,15 +3245,15 @@ proc graph_fill_listbox {} {
       set res [xschem raw $autoload $rawfile $sim_type]
     }
     if {$res} {
-      set retval [graph_get_signal_list [xschem raw_query list] $pattern]
+      set retv [graph_get_signal_list [xschem raw_query list] $pattern]
       xschem raw switch_back
     }
     # puts "switch back"
   } elseif {[xschem raw loaded] != -1} {
-    set retval [graph_get_signal_list [xschem raw_query list] $pattern]
+    set retv [graph_get_signal_list [xschem raw_query list] $pattern]
   }
   .graphdialog.center.left.list1 delete 0 end
-  eval .graphdialog.center.left.list1 insert 0 $retval
+  eval .graphdialog.center.left.list1 insert 0 $retv
 
 }
 
@@ -5276,17 +5274,17 @@ proc create_user_xschemrc {} {
 }
 
 proc create_pins {} {
-  global env retval USER_CONF_DIR
+  global env USER_CONF_DIR
   global filetmp
 
-  set retval [ read_data_nonewline $filetmp ]
-  regsub -all {<} $retval {[} retval 
-  regsub -all {>} $retval {]} retval 
-  set lines [split $retval \n]
+  set tctx::retval [ read_data_nonewline $filetmp ]
+  regsub -all {<} $tctx::retval {[} tctx::retval 
+  regsub -all {>} $tctx::retval {]} tctx::retval 
+  set lines [split $tctx::retval \n]
   set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
   
-  # viewdata $retval
+  # viewdata $tctx::retval
   set pcnt 0
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch w]
@@ -5386,16 +5384,16 @@ proc schpins_to_sympins {} {
 
 
 proc add_lab_no_prefix {} { 
-  global env retval USER_CONF_DIR
+  global env USER_CONF_DIR
   global filetmp
 
   set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
-  set retval [ read_data_nonewline $filetmp ]
-  regsub -all {<} $retval {[} retval
-  regsub -all {>} $retval {]} retval
-  set lines [split $retval \n]
-  # viewdata $retval
+  set tctx::retval [ read_data_nonewline $filetmp ]
+  regsub -all {<} $tctx::retval {[} tctx::retval
+  regsub -all {>} $tctx::retval {]} tctx::retval
+  set lines [split $tctx::retval \n]
+  # viewdata $tctx::retval
   set pcnt 0
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch w]
@@ -5408,16 +5406,16 @@ proc add_lab_no_prefix {} {
 }
 
 proc add_lab_prefix {} {
-  global env retval USER_CONF_DIR
+  global env USER_CONF_DIR
   global filetmp
 
   set dirprefix [file dirname [rel_sym_path [find_file_first ipin.sym]]]
   if {$dirprefix == {.}} { set dirprefix {}} else {append dirprefix {/}}
-  set retval [ read_data_nonewline $filetmp ]
-  regsub -all {<} $retval {[} retval
-  regsub -all {>} $retval {]} retval
-  set lines [split $retval \n]
-  # viewdata $retval
+  set tctx::retval [ read_data_nonewline $filetmp ]
+  regsub -all {<} $tctx::retval {[} tctx::retval
+  regsub -all {>} $tctx::retval {]} tctx::retval
+  set lines [split $tctx::retval \n]
+  # viewdata $tctx::retval
   set pcnt 0
   set y 0
   set fd [open $USER_CONF_DIR/.clipboard.sch w]
@@ -5597,7 +5595,7 @@ proc set_netlist_dir { what {dir {} }} {
 
 
 proc enter_text {textlabel {preserve_disabled disabled}} {
-  global retval has_cairo preserve_unchanged_attrs wm_fix props enter_text_default_geometry
+  global has_cairo preserve_unchanged_attrs wm_fix props enter_text_default_geometry
   global text_tabs_setting tabstop
   set tctx::rcode {}
   toplevel .dialog -class Dialog
@@ -5619,7 +5617,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   label .dialog.f1.txtlab -text $textlabel
   eval text .dialog.txt -undo 1 -width 120 -height 9 $text_tabs_setting
   .dialog.txt delete 1.0 end
-  .dialog.txt insert 1.0 $retval
+  .dialog.txt insert 1.0 $tctx::retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
      -state $preserve_disabled
   pack .dialog.f1 -side top -fill x ;# -expand yes
@@ -5659,7 +5657,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   button .dialog.buttons.ok -text "OK" -command  \
   {
    set props [.dialog.edit.props.props get 1.0 {end - 1 chars}]
-   set retval [.dialog.txt get 1.0 {end - 1 chars}]
+   set tctx::retval [.dialog.txt get 1.0 {end - 1 chars}]
    if {$has_cairo} { 
      set tctx::hsize $tctx::vsize
    }
@@ -5668,7 +5666,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   }
   button .dialog.buttons.cancel -text "Cancel" -command  \
   {
-   set retval {}
+   set tctx::retval {}
    set tctx::rcode {}
    destroy .dialog 
   }
@@ -5692,7 +5690,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   pack .dialog.buttons.b4  -side left -fill x -expand yes
   pack .dialog.buttons -side bottom -fill x
   bind .dialog <Escape> {
-    if ![string compare $retval [.dialog.txt get 1.0 {end - 1 chars}]] {
+    if ![string compare $tctx::retval [.dialog.txt get 1.0 {end - 1 chars}]] {
       .dialog.buttons.cancel invoke
     }
   }
@@ -5702,7 +5700,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   focus .dialog.txt
   #grab set .dialog
   tkwait window .dialog
-  return $retval
+  return $tctx::retval
 }
 
 # will redefine puts to output into tclcmd_puts
@@ -6200,7 +6198,7 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
 
 
 proc edit_vi_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval symbol prev_symbol debug_var editor
+  global XSCHEM_TMP_DIR symbol prev_symbol debug_var editor
   global user_wants_copy_cell
  
   set netlist_type [xschem get netlist_type]
@@ -6209,16 +6207,16 @@ proc edit_vi_prop {txtlabel} {
   set filename .xschem_edit_file.[pid]
   if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
   set filename $filename.$suffix
-  write_data $retval $XSCHEM_TMP_DIR/$filename
+  write_data $tctx::retval $XSCHEM_TMP_DIR/$filename
   # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor $XSCHEM_TMP_DIR/$filename ;# 20161119
-  if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$retval\n---------\n"}
+  if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\nretval=$tctx::retval\n---------\n"}
   if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\nsymbol=$symbol\n---------\n"}
   set tmp [read_data $XSCHEM_TMP_DIR/$filename]
   file delete $XSCHEM_TMP_DIR/$filename
   if {$debug_var<=-1} {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
-  if [string compare $tmp $retval] {
-         set retval $tmp
+  if [string compare $tmp $tctx::retval] {
+         set tctx::retval $tmp
          if {$debug_var<=-1} {puts "modified"}
          set tctx::rcode ok
          return  $tctx::rcode
@@ -6229,7 +6227,7 @@ proc edit_vi_prop {txtlabel} {
 }
 
 proc edit_vi_netlist_prop {txtlabel} {
-  global XSCHEM_TMP_DIR retval debug_var editor
+  global XSCHEM_TMP_DIR debug_var editor
   global user_wants_copy_cell
  
   set netlist_type [xschem get netlist_type]
@@ -6237,20 +6235,20 @@ proc edit_vi_netlist_prop {txtlabel} {
   set filename .xschem_edit_file.[pid]
   if ![string compare $netlist_type "vhdl"] { set suffix vhd } else { set suffix v }
   set filename $filename.$suffix
-  regsub -all {\\?"} $retval {"} retval
-  regsub -all {\\?\\} $retval {\\} retval
-  write_data $retval $XSCHEM_TMP_DIR/$filename
+  regsub -all {\\?"} $tctx::retval {"} tctx::retval
+  regsub -all {\\?\\} $tctx::retval {\\} tctx::retval
+  write_data $tctx::retval $XSCHEM_TMP_DIR/$filename
   if { [regexp vim $editor] } { set ftype "\{-c :set filetype=$netlist_type\}" } else { set ftype {} }
   # since $editor can be an executable with options (gvim -f) I *need* to use eval
   eval execute_wait 0 $editor  $ftype $XSCHEM_TMP_DIR/$filename
-  if {$debug_var <= -1}  {puts "edit_vi_prop{}:\n--------\n$retval\n---------\n"}
+  if {$debug_var <= -1}  {puts "edit_vi_prop{}:\n--------\n$tctx::retval\n---------\n"}
   set tmp [read_data $XSCHEM_TMP_DIR/$filename]
   file delete $XSCHEM_TMP_DIR/$filename
   if {$debug_var <= -1}  {puts "edit_vi_prop{}:\n--------\n$tmp\n---------\n"}
-  if [string compare $tmp $retval] {
-         set retval $tmp
-         regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-         set retval \"${retval}\" 
+  if [string compare $tmp $tctx::retval] {
+         set tctx::retval $tmp
+         regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+         set tctx::retval \"${tctx::retval}\" 
          if {$debug_var <= -1}  {puts "modified"}
          set tctx::rcode ok
          return  $tctx::rcode
@@ -6326,13 +6324,13 @@ proc change_color {} {
 
 proc edit_prop {txtlabel} {
   global edit_prop_size infowindow_text edit_symbol_prop_new_sel edit_prop_pos
-  global prev_symbol retval symbol no_change_attrs preserve_unchanged_attrs copy_cell debug_var
-  global user_wants_copy_cell editprop_sympath retval_orig text_tabs_setting
+  global prev_symbol symbol no_change_attrs preserve_unchanged_attrs copy_cell debug_var
+  global user_wants_copy_cell editprop_sympath text_tabs_setting
   global tabstop
   set user_wants_copy_cell 0
   set tctx::rcode {}
-  set retval_orig $retval
-  if {$debug_var <= -1}  {puts " edit_prop{}: retval=$retval"}
+  set tctx::retval_orig $tctx::retval
+  if {$debug_var <= -1}  {puts " edit_prop{}: tctx::retval=$tctx::retval"}
   if { [winfo exists .dialog] } return
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog  -class Dialog 
@@ -6362,7 +6360,7 @@ proc edit_prop {txtlabel} {
   eval text .dialog.symprop -undo 1 -yscrollcommand \".dialog.yscroll set\" -setgrid 1 \
                   -xscrollcommand \".dialog.xscroll set\" -wrap none $text_tabs_setting
     .dialog.symprop delete 1.0 end
-    .dialog.symprop insert 1.0 $retval
+    .dialog.symprop insert 1.0 $tctx::retval
   scrollbar .dialog.yscroll -command  ".dialog.symprop yview"
   scrollbar .dialog.xscroll -command ".dialog.symprop xview" -orient horiz
   frame .dialog.f1
@@ -6380,11 +6378,11 @@ proc edit_prop {txtlabel} {
     raise .dialog .drw
   }
   button .dialog.f1.b1 -text "OK" -command   {
-    set retval [.dialog.symprop get 1.0 {end - 1 chars}]
+    set tctx::retval [.dialog.symprop get 1.0 {end - 1 chars}]
     if { $tctx::selected_tok ne {<ALL>} } {
-      regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-      set retval \"${retval}\"
-      set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+      regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+      set tctx::retval \"${tctx::retval}\"
+      set tctx::retval [xschem subst_tok $tctx::retval_orig $tctx::selected_tok $tctx::retval]
       set tctx::selected_tok {<ALL>}
     }
     set symbol [.dialog.f1.e2 get]
@@ -6440,7 +6438,7 @@ proc edit_prop {txtlabel} {
   checkbutton .dialog.f2.r1 -text "No change properties" -variable no_change_attrs -state normal
   checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
-  set tok_list "<ALL> [list_tokens $retval]"
+  set tok_list "<ALL> [list_tokens $tctx::retval]"
   set tctx::selected_tok {<ALL>}
   set tctx::old_selected_tok {<ALL>}
   label .dialog.f2.r4 -text {   Edit Attr:}
@@ -6470,7 +6468,7 @@ proc edit_prop {txtlabel} {
   pack .dialog.symprop  -fill both -expand yes
   bind .dialog.symprop <Shift-KeyRelease-Return> {return_release %W;.dialog.f1.b1 invoke}
   bind .dialog <Escape> {
-    if { ![string compare $retval [.dialog.symprop get 1.0 {end - 1 chars}]] && \
+    if { ![string compare $tctx::retval [.dialog.symprop get 1.0 {end - 1 chars}]] && \
          ![string compare $symbol [ .dialog.f1.e2 get]] } {
       .dialog.f1.b2 invoke
     }
@@ -6479,45 +6477,45 @@ proc edit_prop {txtlabel} {
     bind .dialog.f2.r5 <<ComboboxSelected>> {
       if {$tctx::old_selected_tok ne $tctx::selected_tok} {
         if { $tctx::old_selected_tok eq {<ALL>} } {
-          set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
+          set tctx::retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
         } else {
-          set retval [.dialog.symprop get 1.0 {end - 1 chars}]
-          regsub -all {(["\\])} $retval {\\\1} retval ;# vim syntax fix "
-          set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+          set tctx::retval [.dialog.symprop get 1.0 {end - 1 chars}]
+          regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;# vim syntax fix "
+          set tctx::retval \"${tctx::retval}\"
+          set tctx::retval_orig [xschem subst_tok $tctx::retval_orig $tctx::old_selected_tok $tctx::retval]
         }
       }
       if {$tctx::selected_tok eq {<ALL>} } { 
-        set retval $retval_orig
+        set tctx::retval $tctx::retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
-        # regsub -all {\\?"} $retval {"} retval
+        set tctx::retval [xschem get_tok $tctx::retval_orig $tctx::selected_tok 2]
+        # regsub -all {\\?"} $tctx::retval {"} tctx::retval
       }
       .dialog.symprop delete 1.0 end
-      .dialog.symprop insert 1.0 $retval
+      .dialog.symprop insert 1.0 $tctx::retval
       set tctx::old_selected_tok $tctx::selected_tok
     }
  
     bind .dialog.f2.r5 <KeyRelease> {
       set tctx::selected_tok [.dialog.f2.r5 get]
       if { $tctx::old_selected_tok eq {<ALL>}} {
-        set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
+        set tctx::retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
       } else {
-        set retval [.dialog.symprop get 1.0 {end - 1 chars}]
-        if {$retval ne {}} {
-          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-          set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+        set tctx::retval [.dialog.symprop get 1.0 {end - 1 chars}]
+        if {$tctx::retval ne {}} {
+          regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+          set tctx::retval \"${tctx::retval}\"
+          set tctx::retval_orig [xschem subst_tok $tctx::retval_orig $tctx::old_selected_tok $tctx::retval]
         }
       }
       if {$tctx::selected_tok eq {<ALL>} } {
-        set retval $retval_orig
+        set tctx::retval $tctx::retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
-        # regsub -all {\\?"} $retval {"} retval
+        set tctx::retval [xschem get_tok $tctx::retval_orig $tctx::selected_tok 2]
+        # regsub -all {\\?"} $tctx::retval {"} tctx::retval
       }
       .dialog.symprop delete 1.0 end
-      .dialog.symprop insert 1.0 $retval
+      .dialog.symprop insert 1.0 $tctx::retval
       set tctx::old_selected_tok $tctx::selected_tok
     }
   }
@@ -6529,7 +6527,7 @@ proc edit_prop {txtlabel} {
   tkwait visibility .dialog
   # select text after value= or lab= and place cursor just before selection
 
-  set sym_sel_attr [xschem get_tok $retval select] ;# get from instance
+  set sym_sel_attr [xschem get_tok $tctx::retval select] ;# get from instance
   if {$sym_sel_attr eq {}} {
     set sym_sel_attr [xschem getprop symbol $symbol select] ;# not found in instance, get from symbol
   }
@@ -6640,7 +6638,7 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs wm_fix tabstop
-  global retval debug_var retval_orig text_tabs_setting
+  global debug_var text_tabs_setting
 
 
   if {$preserve_disabled eq {disabled}} {
@@ -6662,13 +6660,11 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
          symbol          Symbol[K]   
          spectre         Spectre[F]} $tctx::selected_mode]
     set tctx::old_selected_mode $tctx::selected_mode
-    set retval [xschem get $glob_attr]
+    set tctx::retval [xschem get $glob_attr]
   }
 
-  
-
-  set retval_orig $retval
-  if $clear==1 then {set retval ""}
+  set tctx::retval_orig $tctx::retval
+  if $clear==1 then {set tctx::retval ""}
   set tctx::rcode {}
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog
@@ -6677,7 +6673,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   set X [expr {[winfo pointerx .dialog] - 60}]
   set Y [expr {[winfo pointery .dialog] - 35}]
 
-  set tok_list "<ALL> [list_tokens $retval]"
+  set tok_list "<ALL> [list_tokens $tctx::retval]"
   set tctx::selected_tok {<ALL>}
   set tctx::old_selected_tok {<ALL>}
   bind .dialog <Configure> {
@@ -6698,14 +6694,14 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   scrollbar .dialog.yscroll -command  ".dialog.textinput yview"
   scrollbar .dialog.xscroll -command ".dialog.textinput xview" -orient horiz
   .dialog.textinput delete 1.0 end
-  .dialog.textinput insert 1.0 $retval
+  .dialog.textinput insert 1.0 $tctx::retval
   button .dialog.f1.b1 -text "OK" -command  \
   {
-    set retval [.dialog.textinput get 1.0 {end - 1 chars}]
+    set tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]
     if { $tctx::selected_tok ne {<ALL>} } {
-      regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-      set retval \"${retval}\"
-      set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+      regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+      set tctx::retval \"${tctx::retval}\"
+      set tctx::retval [xschem subst_tok $tctx::retval_orig $tctx::selected_tok $tctx::retval]
       set tctx::selected_tok {<ALL>}
     }
 
@@ -6714,7 +6710,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   }
   button .dialog.f1.b2 -text "Cancel" -command  \
   {
-    set retval [.dialog.textinput get 1.0 {end - 1 chars}]
+    set tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]
     set tctx::rcode {}
     destroy .dialog
   }
@@ -6765,7 +6761,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.xscroll -side bottom -fill x
   pack .dialog.textinput   -expand yes -fill both
   bind .dialog <Escape> {
-    if ![string compare $retval [.dialog.textinput get 1.0 {end - 1 chars}]] {
+    if ![string compare $tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]] {
       .dialog.f1.b2 invoke
     }
   }
@@ -6774,44 +6770,44 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       bind .dialog.f1.r5 <<ComboboxSelected>> {
         if {$tctx::old_selected_tok ne $tctx::selected_tok} {
           if { $tctx::old_selected_tok eq {<ALL>} } {
-            set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
+            set tctx::retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
           } else {
-            set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-            set retval \"${retval}\"
-            set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+            set tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]
+            regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+            set tctx::retval \"${tctx::retval}\"
+            set tctx::retval_orig [xschem subst_tok $tctx::retval_orig $tctx::old_selected_tok $tctx::retval]
           }
         }
         if {$tctx::selected_tok eq {<ALL>} } {
-          set retval $retval_orig
+          set tctx::retval $tctx::retval_orig
         } else {
-          set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
-          # regsub -all {\\?"} $retval {"} retval
+          set tctx::retval [xschem get_tok $tctx::retval_orig $tctx::selected_tok 2]
+          # regsub -all {\\?"} $tctx::retval {"} tctx::retval
         }
         .dialog.textinput delete 1.0 end
-        .dialog.textinput insert 1.0 $retval
+        .dialog.textinput insert 1.0 $tctx::retval
         set tctx::old_selected_tok $tctx::selected_tok
       }
       bind .dialog.f1.r5 <KeyRelease> {
         set tctx::selected_tok [.dialog.f1.r5 get]
         if { $tctx::old_selected_tok eq {<ALL>}} {
-          set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
+          set tctx::retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
         } else {
-          set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-          if {$retval ne {}} {
-            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-            set retval \"${retval}\"
-            set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+          set tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]
+          if {$tctx::retval ne {}} {
+            regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+            set tctx::retval \"${tctx::retval}\"
+            set tctx::retval_orig [xschem subst_tok $tctx::retval_orig $tctx::old_selected_tok $tctx::retval]
           }
         }
         if {$tctx::selected_tok eq {<ALL>} } {
-          set retval $retval_orig
+          set tctx::retval $tctx::retval_orig
         } else {
-          set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
-          # regsub -all {\\?"} $retval {"} retval
+          set tctx::retval [xschem get_tok $tctx::retval_orig $tctx::selected_tok 2]
+          # regsub -all {\\?"} $tctx::retval {"} tctx::retval
         }
         .dialog.textinput delete 1.0 end
-        .dialog.textinput insert 1.0 $retval
+        .dialog.textinput insert 1.0 $tctx::retval
         set tctx::old_selected_tok $tctx::selected_tok
       }
   }
@@ -6820,16 +6816,15 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     if {$preserve_disabled eq {disabled}} {
       bind .dialog.f1.r7 <<ComboboxSelected>> {
         proc set_global_mode {} {
-          global retval retval_orig
 
-          set retval [.dialog.textinput get 1.0 {end - 1 chars}]
+          set tctx::retval [.dialog.textinput get 1.0 {end - 1 chars}]
           if { $tctx::selected_tok ne {<ALL>} } {
-            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-            set retval \"${retval}\"
-            set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+            regsub -all {(["\\])} $tctx::retval {\\\1} tctx::retval ;#"  editor is confused by the previous quote
+            set tctx::retval \"${tctx::retval}\"
+            set tctx::retval [xschem subst_tok $tctx::retval_orig $tctx::selected_tok $tctx::retval]
           }
 
-          if {$retval ne $retval_orig} {
+          if {$tctx::retval ne $tctx::retval_orig} {
             xschem push_undo
             xschem set_modify 1
             set glob_attr [string map {
@@ -6840,7 +6835,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
                 Symbol[K]   schsymbolprop
                 Spectre[F]  schspectreprop
                 } $tctx::old_selected_mode]
-            xschem set $glob_attr $retval
+            xschem set $glob_attr $tctx::retval
           }
           set mode [string map  {
              Spice[S]     spice
@@ -6861,12 +6856,12 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
           
           set tctx::old_selected_mode $tctx::selected_mode
           set $tctx::selected_tok {<ALL>}
-          set retval [xschem get $glob_attr]
-          set retval_orig $retval
-          set tok_list "<ALL> [list_tokens $retval]"
+          set tctx::retval [xschem get $glob_attr]
+          set tctx::retval_orig $tctx::retval
+          set tok_list "<ALL> [list_tokens $tctx::retval]"
           .dialog.f1.r5 configure -values $tok_list
           .dialog.textinput delete 1.0 end
-          .dialog.textinput insert 1.0 $retval
+          .dialog.textinput insert 1.0 $tctx::retval
         }
         set_global_mode
       }
@@ -6881,7 +6876,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   tkwait window .dialog
 
   if {$preserve_disabled eq {disabled}} {
-    if {$retval ne $retval_orig} {
+    if {$tctx::retval ne $tctx::retval_orig} {
       xschem push_undo
       xschem set_modify 1
       set glob_attr [string map {
@@ -6892,7 +6887,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
           Symbol[K]   schsymbolprop
           Spectre[F]  schspectreprop
           } $tctx::selected_mode]
-      xschem set $glob_attr $retval
+      xschem set $glob_attr $tctx::retval
     }
   }
 
@@ -7025,9 +7020,9 @@ proc infowindow {} {
 }
 
 proc editdata {{data {}} {title {Edit data}} } {
-  global text_tabs_setting tabstop retval
+  global text_tabs_setting tabstop
   set window .editdata
-  set retval $data
+  set tctx::retval $data
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel $window
   wm title $window $title
@@ -7040,7 +7035,7 @@ proc editdata {{data {}} {title {Edit data}} } {
      clipboard append \[$window.text get 1.0 {end - 1 chars}\]
   "
   button $window.buttons.ok -text OK -command "
-     set retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
+     set tctx::retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
   "
   button $window.buttons.cancel -text Cancel -command "destroy $window"
   pack $window.buttons.ok -side left -expand 1
@@ -7060,7 +7055,7 @@ proc editdata {{data {}} {title {Edit data}} } {
   $window.text insert insert $data
   tkwait window $window
   xschem set semaphore [expr {[xschem get semaphore] -1}]
-  return $retval
+  return $tctx::retval
 }
 
 proc textwindow {filename {ro {}}} {
@@ -7533,8 +7528,8 @@ proc swap_compare_schematics {} {
   }
 }
 proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
-  global wm_fix retval
-  set retval $preset
+  global wm_fix
+  set tctx::retval $preset
   if { [winfo exists .dialog] } {return}
   xschem set semaphore [expr {[xschem get semaphore] +1}]
   toplevel .dialog -class Dialog
@@ -7559,7 +7554,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
     if { {$cmd} ne {} } {
       eval $cmd \[.dialog.f1.e get\]
     }
-    set retval \[.dialog.f1.e get\]
+    set tctx::retval \[.dialog.f1.e get\]
     destroy .dialog
   "
   button .dialog.f2.cancel -text Cancel -command { destroy .dialog }
@@ -7574,7 +7569,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
   focus .dialog.f1.e
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
-  return $retval
+  return $tctx::retval
 }
 
 proc launcher {launcher_var {launcher_program {} } } {
@@ -7679,9 +7674,8 @@ proc balloon_show {w arg pos} {
 }
 
 proc context_menu { } {
-  global retval
 
-  set retval 0
+  set tctx::retval 0
   if {[info tclversion] >= 8.5} {
     set font TkDefaultFont
     # set font {Sans 8 bold}
@@ -7696,36 +7690,36 @@ proc context_menu { } {
   if { !$selection} {
     button .ctxmenu.b9 -text {Open most recent} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuRecent -compound left \
-      -font [subst $font] -command {set retval 9; destroy .ctxmenu} 
+      -font [subst $font] -command {set tctx::retval 9; destroy .ctxmenu} 
   }
   button .ctxmenu.b10 -text {Edit attributes} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
-    -font [subst $font] -command {set retval 10; destroy .ctxmenu}
+    -font [subst $font] -command {set tctx::retval 10; destroy .ctxmenu}
   button .ctxmenu.b11 -text {Edit attr in editor} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
-    -font [subst $font] -command {set retval 11; destroy .ctxmenu}
+    -font [subst $font] -command {set tctx::retval 11; destroy .ctxmenu}
   if {$selection} {
     button .ctxmenu.b12 -text {Descend schematic} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDown -compound left \
-      -font [subst $font] -command {set retval 12; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 12; destroy .ctxmenu}
     button .ctxmenu.b13 -text {Descend symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDownSym -compound left \
-      -font [subst $font] -command {set retval 13; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 13; destroy .ctxmenu}
     button .ctxmenu.b18 -text {Delete selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDelete -compound left \
-      -font [subst $font] -command {set retval 18; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 18; destroy .ctxmenu}
     button .ctxmenu.b7 -text {Cut selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCut -compound left \
-      -font [subst $font] -command {set retval 7; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 7; destroy .ctxmenu}
     button .ctxmenu.b15 -text {Copy selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCopy -compound left \
-      -font [subst $font] -command {set retval 15; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 15; destroy .ctxmenu}
     button .ctxmenu.b16 -text {Move selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuMove -compound left \
-      -font [subst $font] -command {set retval 16; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 16; destroy .ctxmenu}
     button .ctxmenu.b17 -text {Duplicate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDuplicate -compound left \
-      -font [subst $font] -command {set retval 17; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 17; destroy .ctxmenu}
     button .ctxmenu.b22 -text {Rotate selection} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuRotate -compound left \
       -font [subst $font] -command {xschem rotate; destroy .ctxmenu}
@@ -7742,38 +7736,38 @@ proc context_menu { } {
   if {!$selection} {
     button .ctxmenu.b14 -text {Go to upper level} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuUp -compound left \
-      -font [subst $font] -command {set retval 14; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 14; destroy .ctxmenu}
     button .ctxmenu.b1 -text {Insert symbol} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuSymbol -compound left \
-      -font [subst $font] -command {set retval 1; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 1; destroy .ctxmenu}
     button .ctxmenu.b2 -text {Insert wire} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuWire -compound left \
-      -font [subst $font] -command {set retval 2; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 2; destroy .ctxmenu}
     button .ctxmenu.b3 -text {Insert line} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuLine -compound left \
-      -font [subst $font] -command {set retval 3; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 3; destroy .ctxmenu}
     button .ctxmenu.b4 -text {Insert box} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuBox -compound left \
-      -font [subst $font] -command {set retval 4; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 4; destroy .ctxmenu}
     button .ctxmenu.b5 -text {Insert polygon} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuPoly -compound left \
-      -font [subst $font] -command {set retval 5; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 5; destroy .ctxmenu}
     button .ctxmenu.b19 -text {Insert arc} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuArc -compound left \
-      -font [subst $font] -command {set retval 19; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 19; destroy .ctxmenu}
     button .ctxmenu.b20 -text {Insert circle} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCircle -compound left \
-      -font [subst $font] -command {set retval 20; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 20; destroy .ctxmenu}
     button .ctxmenu.b6 -text {Insert text} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuText -compound left \
-      -font [subst $font] -command {set retval 6; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 6; destroy .ctxmenu}
     button .ctxmenu.b8 -text {Paste clipboard} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuPaste -compound left \
-      -font [subst $font] -command {set retval 8; destroy .ctxmenu}
+      -font [subst $font] -command {set tctx::retval 8; destroy .ctxmenu}
   }
   button .ctxmenu.b21 -text {Abort command} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuAbort -compound left \
-    -font [subst $font] -command {set retval 21; destroy .ctxmenu}
+    -font [subst $font] -command {set tctx::retval 21; destroy .ctxmenu}
 
   pack .ctxmenu.b21 -fill x -expand true
   if {!$selection} {
@@ -7817,9 +7811,9 @@ proc context_menu { } {
   tkwait window .ctxmenu
   # when context menu is destroyed an EnterNotify event is generated in the
   # main xschem window. We want to process this event before taking 
-  # actions based on $retval.
+  # actions based on $tctx::retval.
   update
-  return $retval
+  return $tctx::retval
 }
 
 proc tab_ctx_cmd {tab_but what} {
@@ -7931,7 +7925,7 @@ proc tab_ctx_cmd {tab_but what} {
 }
 
 proc tab_context_menu {tab_but} {
-  global retval search_schematic
+  global search_schematic
 
   # find filename associated with tab button
   set win_path [lindex [$tab_but cget -command] 3] ;# xschem new_schematic switch .x1.drw
@@ -7969,7 +7963,7 @@ proc tab_context_menu {tab_but} {
   # puts $counterpart
 
   # puts $tab_but
-  set retval 0
+  set tctx::retval 0
   if {[info tclversion] >= 8.5} {
     set font {Sans 8 bold}
   } else {
@@ -7983,33 +7977,33 @@ proc tab_context_menu {tab_but} {
      -fg black -background white -state disabled -disabledforeground black -font [subst $font]
   button .ctxmenu.b1 -text {Copy filename} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuCopy -compound left \
-    -font [subst $font] -command "set retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 1; tab_ctx_cmd $tab_but copy; destroy .ctxmenu"
   button .ctxmenu.b2 -text {Open directory} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuOpendir -compound left \
-    -font [subst $font] -command "set retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 2; tab_ctx_cmd $tab_but dir; destroy .ctxmenu"
   button .ctxmenu.b3 -text {Open circuit dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuTerm -compound left \
-    -font [subst $font] -command "set retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 3; tab_ctx_cmd $tab_but term; destroy .ctxmenu"
   button .ctxmenu.b4 -text {Open sim. dir. term.} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuTerm -compound left \
-    -font [subst $font] -command "set retval 4; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 4; tab_ctx_cmd $tab_but simterm; destroy .ctxmenu"
   if {$counterpart ne {}} {
     button .ctxmenu.b6 -text $msg -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image $img -compound left \
       -font [subst $font] \
-      -command "set retval 6; tab_ctx_cmd $tab_but {open {$counterpart} $filetype} ; destroy .ctxmenu"
+      -command "set tctx::retval 6; tab_ctx_cmd $tab_but {open {$counterpart} $filetype} ; destroy .ctxmenu"
   }
   if {$filetype ne {symbol}} {
     button .ctxmenu.b5 -text {Edit netlist} -padx 3 -pady 0 -anchor w -activebackground grey50 \
        -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuEdit -compound left \
-      -font [subst $font] -command "set retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
+      -font [subst $font] -command "set tctx::retval 5; tab_ctx_cmd $tab_but netlist; destroy .ctxmenu"
   }
   button .ctxmenu.b7 -text {Save} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuSave -compound left \
-    -font [subst $font] -command "set retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 7; tab_ctx_cmd $tab_but save; destroy .ctxmenu"
   button .ctxmenu.b8 -text {Close tab} -padx 3 -pady 0 -anchor w -activebackground grey50 \
      -bg {#d9d9d9} -fg black -activeforeground black -image CtxmenuDelete -compound left \
-    -font [subst $font] -command "set retval 8; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
+    -font [subst $font] -command "set tctx::retval 8; tab_ctx_cmd $tab_but close; destroy .ctxmenu"
 
   pack .ctxmenu.b0 -fill x -expand true
   pack .ctxmenu.b1 -fill x -expand true
@@ -8042,7 +8036,7 @@ proc tab_context_menu {tab_but} {
   wm geometry .ctxmenu "+$x+$y";# move away from screen edges
   bind .ctxmenu <Leave> {if { {%W} eq {.ctxmenu} } {destroy .ctxmenu}}
   tkwait window .ctxmenu
-  return $retval
+  return $tctx::retval
 }
 
 #
@@ -8540,13 +8534,15 @@ set tctx::global_list {
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
  no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
- ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
+ ps_paper_size rainbow_colors recentfile rotated_text search_case search_exact
  search_found search_schematic search_select search_value select_touch
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
- svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
+ svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop
+ tctx::colors tctx::hsize
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
- tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
+ tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
+ text_line_default_geometry text_replace_selection text_tabs_setting
  textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
  top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt
  use_cursor_for_selection use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell
@@ -9275,10 +9271,10 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves add separator
   $topwin.menubar.waves add command -label {Load first analysis found} -command {waves {}}
   $topwin.menubar.waves add command -label {Op Annotate} -command {
-       set retval [select_raw [xschem get topwindow]]
+       set tctx::retval [select_raw [xschem get topwindow]]
        set show_hidden_texts 1
-       if {$retval ne {}} {
-         xschem annotate_op $retval
+       if {$tctx::retval ne {}} {
+         xschem annotate_op $tctx::retval
        } else {
          xschem annotate_op
        }
@@ -9595,10 +9591,10 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   }
   $topwin.menubar.simulation.graph add command -label "Annotate Operating Point into schematic" \
     -command {
-       set retval [select_raw [xschem get topwindow]]
+       set tctx::retval [select_raw [xschem get topwindow]]
        set show_hidden_texts 1
-       if {$retval ne {}} {
-         xschem annotate_op $retval
+       if {$tctx::retval ne {}} {
+         xschem annotate_op $tctx::retval
        } else {
          xschem annotate_op
        }
@@ -10040,7 +10036,7 @@ set_ne debug_tcleval 0 ;# debug tclpropeval2 (tcleval() in xschem attributes)
 set_ne menu_debug_var 0
 set textwindow_wcounter 1
 set viewdata_wcounter 1
-set retval ""
+set tctx::retval ""
 set prev_symbol ""
 set symbol ""
 
