@@ -2438,7 +2438,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
       /* make motion a bit sticky. require 10 pixels (screen units, not xschem units) */
-      if(abs(mx - xctx->mx_save) * tk_scaling > 10  || abs(my - xctx->my_save) * tk_scaling > 10) {
+      if(abs(mx - xctx->mx_save) > tk_scaling * 10  || abs(my - xctx->my_save) > tk_scaling * 10) {
         xctx->mouse_moved = 1;
         if(!xctx->drag_elements) {
           int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
