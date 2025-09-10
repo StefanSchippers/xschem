@@ -6259,6 +6259,7 @@ proc edit_vi_netlist_prop {txtlabel} {
          return $tctx::rcode
   }
 }
+
 proc reset_colors {ask} {
   global dark_colors light_colors dark_colorscheme USER_CONF_DIR svg_colors ps_colors
   global light_colors_save dark_colors_save
@@ -6324,9 +6325,9 @@ proc change_color {} {
 }
 
 proc edit_prop {txtlabel} {
-  global edit_prop_size infowindow_text selected_tok edit_symbol_prop_new_sel edit_prop_pos
+  global edit_prop_size infowindow_text edit_symbol_prop_new_sel edit_prop_pos
   global prev_symbol retval symbol no_change_attrs preserve_unchanged_attrs copy_cell debug_var
-  global user_wants_copy_cell editprop_sympath retval_orig old_selected_tok text_tabs_setting
+  global user_wants_copy_cell editprop_sympath retval_orig text_tabs_setting
   global tabstop
   set user_wants_copy_cell 0
   set tctx::rcode {}
@@ -6380,11 +6381,11 @@ proc edit_prop {txtlabel} {
   }
   button .dialog.f1.b1 -text "OK" -command   {
     set retval [.dialog.symprop get 1.0 {end - 1 chars}]
-    if { $selected_tok ne {<ALL>} } {
+    if { $tctx::selected_tok ne {<ALL>} } {
       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
       set retval \"${retval}\"
-      set retval [xschem subst_tok $retval_orig $selected_tok $retval]
-      set selected_tok {<ALL>}
+      set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+      set tctx::selected_tok {<ALL>}
     }
     set symbol [.dialog.f1.e2 get]
     set abssymbol [abs_sym_path $symbol]
@@ -6440,11 +6441,11 @@ proc edit_prop {txtlabel} {
   checkbutton .dialog.f2.r2 -text "Preserve unchanged props" -variable preserve_unchanged_attrs -state normal
   checkbutton .dialog.f2.r3 -text "Copy cell" -variable copy_cell -state normal
   set tok_list "<ALL> [list_tokens $retval]"
-  set selected_tok {<ALL>}
-  set old_selected_tok {<ALL>}
+  set tctx::selected_tok {<ALL>}
+  set tctx::old_selected_tok {<ALL>}
   label .dialog.f2.r4 -text {   Edit Attr:}
   if  { [info tclversion] > 8.4} {
-    ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable selected_tok -width 14
+    ttk::combobox .dialog.f2.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
   }
   pack .dialog.f1.l2 -side left
   pack .dialog.f1.e2 -side left -fill x -expand yes
@@ -6476,48 +6477,48 @@ proc edit_prop {txtlabel} {
   }
   if  { [info tclversion] > 8.4} {
     bind .dialog.f2.r5 <<ComboboxSelected>> {
-      if {$old_selected_tok ne $selected_tok} {
-        if { $old_selected_tok eq {<ALL>} } {
+      if {$tctx::old_selected_tok ne $tctx::selected_tok} {
+        if { $tctx::old_selected_tok eq {<ALL>} } {
           set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
         } else {
           set retval [.dialog.symprop get 1.0 {end - 1 chars}]
           regsub -all {(["\\])} $retval {\\\1} retval ;# vim syntax fix "
           set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+          set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
         }
       }
-      if {$selected_tok eq {<ALL>} } { 
+      if {$tctx::selected_tok eq {<ALL>} } { 
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 2]
+        set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.symprop delete 1.0 end
       .dialog.symprop insert 1.0 $retval
-      set old_selected_tok $selected_tok
+      set tctx::old_selected_tok $tctx::selected_tok
     }
  
     bind .dialog.f2.r5 <KeyRelease> {
-      set selected_tok [.dialog.f2.r5 get]
-      if { $old_selected_tok eq {<ALL>}} {
+      set tctx::selected_tok [.dialog.f2.r5 get]
+      if { $tctx::old_selected_tok eq {<ALL>}} {
         set retval_orig [.dialog.symprop get 1.0 {end - 1 chars}]
       } else {
         set retval [.dialog.symprop get 1.0 {end - 1 chars}]
         if {$retval ne {}} {
           regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
           set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+          set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
         }
       }
-      if {$selected_tok eq {<ALL>} } {
+      if {$tctx::selected_tok eq {<ALL>} } {
         set retval $retval_orig
       } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 2]
+        set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
         # regsub -all {\\?"} $retval {"} retval
       }
       .dialog.symprop delete 1.0 end
       .dialog.symprop insert 1.0 $retval
-      set old_selected_tok $selected_tok
+      set tctx::old_selected_tok $tctx::selected_tok
     }
   }
   if {$edit_symbol_prop_new_sel == 1} { 
@@ -6639,11 +6640,35 @@ proc write_data {data f} {
 
 proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs wm_fix tabstop
-  global retval debug_var selected_tok retval_orig old_selected_tok text_tabs_setting
+  global retval debug_var retval_orig text_tabs_setting
+
+
+  if {$preserve_disabled eq {disabled}} {
+    set tctx::selected_mode [xschem get netlist_type]
+    set glob_attr [string map {
+          spice     schprop
+          vhdl      schvhdlprop
+          verilog   schverilogprop
+          tedax     schtedaxprop
+          symbol    schsymbolprop
+          spectre   schspectreprop
+        } $tctx::selected_mode]
+    set mode_list {Spice[S] Vhdl[G] Verilog[V] Tedax[E] Symbol[K] Spectre[F]}
+    set tctx::selected_mode [string map {
+         spice           Spice[S]    
+         vhdl            Vhdl[G]     
+         verilog         Verilog[V]  
+         tedax           Tedax[E]    
+         symbol          Symbol[K]   
+         spectre         Spectre[F]} $tctx::selected_mode]
+    set tctx::old_selected_mode $tctx::selected_mode
+    set retval [xschem get $glob_attr]
+  }
+
+  
+
   set retval_orig $retval
   if $clear==1 then {set retval ""}
-  if {$debug_var <= -1}  {puts " text_line{}: clear=$clear"}
-  if {$debug_var <= -1}  {puts " text_line{}: retval=$retval"}
   set tctx::rcode {}
   if { [winfo exists .dialog] } return
   toplevel .dialog  -class Dialog
@@ -6653,8 +6678,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   set Y [expr {[winfo pointery .dialog] - 35}]
 
   set tok_list "<ALL> [list_tokens $retval]"
-  set selected_tok {<ALL>}
-  set old_selected_tok {<ALL>}
+  set tctx::selected_tok {<ALL>}
+  set tctx::old_selected_tok {<ALL>}
   bind .dialog <Configure> {
     # puts [wm geometry .dialog]
     set text_line_default_geometry [wm geometry .dialog]
@@ -6677,14 +6702,15 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   button .dialog.f1.b1 -text "OK" -command  \
   {
     set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-    if { $selected_tok ne {<ALL>} } {
+    if { $tctx::selected_tok ne {<ALL>} } {
       regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
       set retval \"${retval}\"
-      set retval [xschem subst_tok $retval_orig $selected_tok $retval]
-      set selected_tok {<ALL>}
+      set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+      set tctx::selected_tok {<ALL>}
     }
-    destroy .dialog
+
     set tctx::rcode {ok}
+    destroy .dialog
   }
   button .dialog.f1.b2 -text "Cancel" -command  \
   {
@@ -6705,10 +6731,16 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   {
     .dialog.textinput delete 1.0 end
   }
-  label .dialog.f1.r4 -text {   Edit Attr:}
+
   if  { [info tclversion] > 8.4} {
-    ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable selected_tok -width 14
+    if {$preserve_disabled eq {disabled}} {
+      label .dialog.f1.r6 -text {Mode:}
+      ttk::combobox .dialog.f1.r7 -values $mode_list -textvariable tctx::selected_mode -width 14
+    }
+    label .dialog.f1.r4 -text {   Edit Attr:}
+    ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
   }
+
   checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
      -state $preserve_disabled
   pack .dialog.f0 -fill x
@@ -6720,8 +6752,12 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.f1.b3 -side left -fill x -expand yes
   pack .dialog.f1.b4 -side left -fill x -expand yes
   if  { [info tclversion] > 8.4} {
-    pack .dialog.f1.r4 -side left
-    pack .dialog.f1.r5 -side left
+      pack .dialog.f1.r4 -side left
+      pack .dialog.f1.r5 -side left
+    if {$preserve_disabled eq {disabled}} {
+      pack .dialog.f1.r6 -side left
+      pack .dialog.f1.r7 -side left
+    }
   }
 
 
@@ -6735,57 +6771,131 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   }
 
   if  { [info tclversion] > 8.4} {
-    bind .dialog.f1.r5 <<ComboboxSelected>> {
-      if {$old_selected_tok ne $selected_tok} {
-        if { $old_selected_tok eq {<ALL>} } {
+      bind .dialog.f1.r5 <<ComboboxSelected>> {
+        if {$tctx::old_selected_tok ne $tctx::selected_tok} {
+          if { $tctx::old_selected_tok eq {<ALL>} } {
+            set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
+          } else {
+            set retval [.dialog.textinput get 1.0 {end - 1 chars}]
+            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+            set retval \"${retval}\"
+            set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+          }
+        }
+        if {$tctx::selected_tok eq {<ALL>} } {
+          set retval $retval_orig
+        } else {
+          set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
+          # regsub -all {\\?"} $retval {"} retval
+        }
+        .dialog.textinput delete 1.0 end
+        .dialog.textinput insert 1.0 $retval
+        set tctx::old_selected_tok $tctx::selected_tok
+      }
+      bind .dialog.f1.r5 <KeyRelease> {
+        set tctx::selected_tok [.dialog.f1.r5 get]
+        if { $tctx::old_selected_tok eq {<ALL>}} {
           set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
         } else {
           set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-          set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+          if {$retval ne {}} {
+            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+            set retval \"${retval}\"
+            set retval_orig [xschem subst_tok $retval_orig $tctx::old_selected_tok $retval]
+          }
         }
-      }
-      if {$selected_tok eq {<ALL>} } {
-        set retval $retval_orig
-      } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 2]
-        # regsub -all {\\?"} $retval {"} retval
-      }
-      .dialog.textinput delete 1.0 end
-      .dialog.textinput insert 1.0 $retval
-      set old_selected_tok $selected_tok
-    }
- 
-    bind .dialog.f1.r5 <KeyRelease> {
-      set selected_tok [.dialog.f1.r5 get]
-      if { $old_selected_tok eq {<ALL>}} {
-        set retval_orig [.dialog.textinput get 1.0 {end - 1 chars}]
-      } else {
-        set retval [.dialog.textinput get 1.0 {end - 1 chars}]
-        if {$retval ne {}} {
-          regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
-          set retval \"${retval}\"
-          set retval_orig [xschem subst_tok $retval_orig $old_selected_tok $retval]
+        if {$tctx::selected_tok eq {<ALL>} } {
+          set retval $retval_orig
+        } else {
+          set retval [xschem get_tok $retval_orig $tctx::selected_tok 2]
+          # regsub -all {\\?"} $retval {"} retval
         }
+        .dialog.textinput delete 1.0 end
+        .dialog.textinput insert 1.0 $retval
+        set tctx::old_selected_tok $tctx::selected_tok
       }
-      if {$selected_tok eq {<ALL>} } {
-        set retval $retval_orig
-      } else {
-        set retval [xschem get_tok $retval_orig $selected_tok 2]
-        # regsub -all {\\?"} $retval {"} retval
+  }
+
+  if  { [info tclversion] > 8.4} {
+    if {$preserve_disabled eq {disabled}} {
+      bind .dialog.f1.r7 <<ComboboxSelected>> {
+        proc set_global_mode {} {
+          global retval retval_orig
+
+          set retval [.dialog.textinput get 1.0 {end - 1 chars}]
+          if { $tctx::selected_tok ne {<ALL>} } {
+            regsub -all {(["\\])} $retval {\\\1} retval ;#"  editor is confused by the previous quote
+            set retval \"${retval}\"
+            set retval [xschem subst_tok $retval_orig $tctx::selected_tok $retval]
+          }
+
+          if {$retval ne $retval_orig} {
+            xschem push_undo
+            xschem set_modify 1
+            set glob_attr [string map {
+                Spice[S]    schprop
+                Vhdl[G]     schvhdlprop
+                Verilog[V]  schverilogprop
+                Tedax[E]    schtedaxprop
+                Symbol[K]   schsymbolprop
+                Spectre[F]  schspectreprop
+                } $tctx::old_selected_mode]
+            xschem set $glob_attr $retval
+          }
+          set mode [string map  {
+             Spice[S]     spice
+             Vhdl[G]      vhdl
+             Verilog[V]   verilog
+             Tedax[E]     tedax
+             Symbol[K]    symbol
+             Spectre[F]   spectre} $tctx::selected_mode]
+  
+          set glob_attr [string map {
+                spice     schprop
+                vhdl      schvhdlprop
+                verilog   schverilogprop
+                tedax     schtedaxprop
+                symbol    schsymbolprop
+                spectre   schspectreprop 
+              } $mode]
+          
+          set tctx::old_selected_mode $tctx::selected_mode
+          set $tctx::selected_tok {<ALL>}
+          set retval [xschem get $glob_attr]
+          set retval_orig $retval
+          set tok_list "<ALL> [list_tokens $retval]"
+          .dialog.f1.r5 configure -values $tok_list
+          .dialog.textinput delete 1.0 end
+          .dialog.textinput insert 1.0 $retval
+        }
+        set_global_mode
       }
-      .dialog.textinput delete 1.0 end
-      .dialog.textinput insert 1.0 $retval
-      set old_selected_tok $selected_tok
     }
   }
+
   bind .dialog.textinput <Shift-KeyRelease-Return> {return_release %W; .dialog.f1.b1 invoke}
   #tkwait visibility .dialog
   #grab set .dialog
   #focus .dialog.textinput
   set tctx::rcode {}   
   tkwait window .dialog
+
+  if {$preserve_disabled eq {disabled}} {
+    if {$retval ne $retval_orig} {
+      xschem push_undo
+      xschem set_modify 1
+      set glob_attr [string map {
+          Spice[S]    schprop
+          Vhdl[G]     schvhdlprop
+          Verilog[V]  schverilogprop
+          Tedax[E]    schtedaxprop
+          Symbol[K]   schsymbolprop
+          Spectre[F]  schspectreprop
+          } $tctx::selected_mode]
+      xschem set $glob_attr $retval
+    }
+  }
+
   return $tctx::rcode
 }
 
@@ -8428,13 +8538,14 @@ set tctx::global_list {
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
- no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs old_selected_tok only_probes
+ no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile retval retval_orig rotated_text search_case search_exact
- search_found search_schematic search_select search_value select_touch selected_tok
+ search_found search_schematic search_select search_value select_touch
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop tctx::colors tctx::hsize
+ tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize text_line_default_geometry text_replace_selection text_tabs_setting
  textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
  top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt

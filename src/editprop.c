@@ -1929,41 +1929,43 @@ void edit_property(int x)
  {
    char *new_prop = NULL;
 
-   if(xctx->netlist_type==CAD_SYMBOL_ATTRS) {
-    if(xctx->schsymbolprop!=NULL)
-      tclsetvar("retval",xctx->schsymbolprop);
-    else
-      tclsetvar("retval","");
-   }
-   else if(xctx->netlist_type==CAD_VHDL_NETLIST) {
-    if(xctx->schvhdlprop!=NULL)
-      tclsetvar("retval",xctx->schvhdlprop);
-    else
-      tclsetvar("retval","");
-   }
-   else if(xctx->netlist_type==CAD_VERILOG_NETLIST) {
-    if(xctx->schverilogprop!=NULL)
-      tclsetvar("retval",xctx->schverilogprop);
-    else
-      tclsetvar("retval","");
-   }
-   else if(xctx->netlist_type==CAD_SPECTRE_NETLIST) {
-    if(xctx->schspectreprop!=NULL)
-      tclsetvar("retval",xctx->schspectreprop);
-    else
-      tclsetvar("retval","");
-   }
-   else if(xctx->netlist_type==CAD_SPICE_NETLIST) {
-    if(xctx->schprop!=NULL)
-      tclsetvar("retval",xctx->schprop);
-    else
-      tclsetvar("retval","");
-   }
-   else if(xctx->netlist_type==CAD_TEDAX_NETLIST) {
-    if(xctx->schtedaxprop!=NULL)
-      tclsetvar("retval",xctx->schtedaxprop);
-    else
-      tclsetvar("retval","");
+   if(x == 1) {
+     if(xctx->netlist_type==CAD_SYMBOL_ATTRS) {
+      if(xctx->schsymbolprop!=NULL)
+        tclsetvar("retval",xctx->schsymbolprop);
+      else
+        tclsetvar("retval","");
+     }
+     else if(xctx->netlist_type==CAD_VHDL_NETLIST) {
+      if(xctx->schvhdlprop!=NULL)
+        tclsetvar("retval",xctx->schvhdlprop);
+      else
+        tclsetvar("retval","");
+     }
+     else if(xctx->netlist_type==CAD_VERILOG_NETLIST) {
+      if(xctx->schverilogprop!=NULL)
+        tclsetvar("retval",xctx->schverilogprop);
+      else
+        tclsetvar("retval","");
+     }
+     else if(xctx->netlist_type==CAD_SPECTRE_NETLIST) {
+      if(xctx->schspectreprop!=NULL)
+        tclsetvar("retval",xctx->schspectreprop);
+      else
+        tclsetvar("retval","");
+     }
+     else if(xctx->netlist_type==CAD_SPICE_NETLIST) {
+      if(xctx->schprop!=NULL)
+        tclsetvar("retval",xctx->schprop);
+      else
+        tclsetvar("retval","");
+     }
+     else if(xctx->netlist_type==CAD_TEDAX_NETLIST) {
+      if(xctx->schtedaxprop!=NULL)
+        tclsetvar("retval",xctx->schtedaxprop);
+      else
+        tclsetvar("retval","");
+     }
    }
 
    if(x==0) {
@@ -1984,7 +1986,7 @@ void edit_property(int x)
    my_free(_ALLOC_ID_, &new_prop);
 
 
-   if(strcmp(tclgetvar("tctx::rcode"),"") )
+   if(x == 1 && strcmp(tclgetvar("tctx::rcode"),"") )
    {
      if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("retval") ) ) ) {
