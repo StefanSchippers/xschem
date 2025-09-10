@@ -418,7 +418,7 @@ static void find_closest_element(double mx, double my, int override_lock)
   double d = distance;
   for(i = 0;i < xctx->instances; ++i)
   {
-    dbg(1, "find_closest_element(): %s: %g %g %g %g\n",
+    dbg(2, "find_closest_element(): %s: %g %g %g %g\n",
            xctx->inst[i].instname, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
     if( POINTINSIDE(mx, my, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2) )
     {

@@ -196,7 +196,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
  xb = (b*b*xa - ab*ya - c*a) / denom;
  yb = (a*a*ya - ab*xa - c*b) / denom;
      /* debug ... */
-     dbg(1, "dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2);
+     dbg(2, "dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2);
  if(x1<x2)
  {
   if(xb >x1 && xb < x2)
@@ -204,7 +204,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
    tmp = a*xa + b*ya + c;
    distance3 = tmp*tmp / denom;
      /* debug ... */
-     dbg(1, "dist(); dist3 =  %.16g\n",distance3);
+     dbg(2, "dist(); dist3 =  %.16g\n",distance3);
    return distance3;
   }
   else
@@ -219,7 +219,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
   tmp = a*xa + b*ya + c;
   distance3 = tmp*tmp / denom;
     /* debug ... */
-    dbg(1, "dist(): dist3 =  %.16g\n",distance3);
+    dbg(2, "dist(): dist3 =  %.16g\n",distance3);
   return distance3;
   }
   else

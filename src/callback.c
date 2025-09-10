@@ -4677,7 +4677,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     statusmsg(str,1);
   }
  
-  dbg(1, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
+  dbg(2, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
  
   #if defined(__unix__) && HAS_CAIRO==1
   if(xctx->ui_state & GRABSCREEN) {
