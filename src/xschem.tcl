@@ -10037,7 +10037,11 @@ set_ne to_png {gm convert}
 set_ne to_pdf {ps2pdf}
 ## tab stop position
 set_ne tabstop 8
-set text_tabs_setting {-tabs "[expr {$tabstop * [font measure TkFixedFont 0]}] left" -tabstyle wordprocessor}
+if { [info tclversion] > 8.4 } {
+  set text_tabs_setting {-tabs "[expr {$tabstop * [font measure TkFixedFont 0]}] left" -tabstyle wordprocessor}
+} else {
+  set text_tabs_setting {-tabs "[expr {$tabstop * [font measure TkFixedFont 0]}] left"}
+}
 
 # selected graph user is editing attributes with graph GUI
 set_ne graph_bus 0
