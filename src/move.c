@@ -222,7 +222,7 @@ void draw_selection(GC g, int interruptable)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  dbg(1,"draw_selection %s\n", g == xctx->gctiled ? "gctiled" : "gcselect");
+  dbg(1,"draw_selection, %s, lastsel=%d\n", g == xctx->gctiled ? "gctiled" : "gcselect", xctx->lastsel);
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
 
   if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled && xctx->movelastsel > 800) {
@@ -504,7 +504,7 @@ void draw_selection(GC g, int interruptable)
      break;
    }
 #ifdef __unix__
-   if(pending_events() && interruptable)
+   if(interruptable && pending_events())
    {
     drawtemparc(g, END, 0.0, 0.0, 0.0, 0.0, 0.0);
     drawtemprect(g, END, 0.0, 0.0, 0.0, 0.0);
