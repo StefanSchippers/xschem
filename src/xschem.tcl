@@ -6460,8 +6460,10 @@ proc edit_prop {txtlabel} {
   pack .dialog.f2.r1 -side left
   pack .dialog.f2.r2 -side left
   pack .dialog.f2.r3 -side left
-  pack .dialog.f2.r4 -side left
-  if { [info tclversion] > 8.4 } { pack .dialog.f2.r5 -side left }
+  if { [info tclversion] > 8.4 } {
+    pack .dialog.f2.r4 -side left
+    pack .dialog.f2.r5 -side left
+  }
   pack .dialog.yscroll -side right -fill y 
   pack .dialog.xscroll -side bottom -fill x
   pack .dialog.symprop  -fill both -expand yes
@@ -6540,12 +6542,17 @@ proc edit_prop {txtlabel} {
       set regx1 {} 
       append regx $attr { *= *("([^"]|(\\"))+"|[^ \t\n"]+)} ;# vim syntax fix "
       append regx1 $attr { *= *[^ \n]}
-      set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
-      .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
-      incr len -1
+      if  { [info tclversion] > 8.4} {
+        set idx [.dialog.symprop search -regexp -nolinestop -count nchars $regx 1.0]
+        .dialog.symprop search -regexp -nolinestop -count len $regx1 1.0
+      } else {
+        set idx [.dialog.symprop search -regexp -count nchars $regx 1.0]
+        .dialog.symprop search -regexp -count len $regx1 1.0
+      }
       if {$idx ne {}} break
     }
     if { $idx ne {} } {
+      incr len -1
       .dialog.symprop tag add sel "$idx + $len chars" "$idx + $nchars chars"
       .dialog.symprop mark set insert "$idx + $len chars"
     }
@@ -6712,8 +6719,10 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.f1.b2 -side left -fill x -expand yes
   pack .dialog.f1.b3 -side left -fill x -expand yes
   pack .dialog.f1.b4 -side left -fill x -expand yes
-  pack .dialog.f1.r4 -side left
-  if  { [info tclversion] > 8.4} {pack .dialog.f1.r5 -side left}
+  if  { [info tclversion] > 8.4} {
+    pack .dialog.f1.r4 -side left
+    pack .dialog.f1.r5 -side left
+  }
 
 
   pack .dialog.yscroll -side right -fill y 
@@ -8688,16 +8697,16 @@ global env has_x OS autofocus_mainwindow
       }
     }
  
-    bind $topwin <Double-Button-1> "xschem callback %W -3 %x %y 0 %b 0 %s"
+    bind $topwin <Double-Button-1> "puts DBP; xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-2> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Double-Button-3> "xschem callback %W -3 %x %y 0 %b 0 %s"
     bind $topwin <Configure> "xschem callback %W %T %x %y 0 %w %h 0"
     if {$autofocus_mainwindow} {
       bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
     } else {
-      bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
+      bind $topwin <ButtonPress> "puts BP; xschem callback %W %T %x %y 0 %b 0 %s"
     }
-    bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
+    bind $topwin <ButtonRelease> "puts BR; xschem callback %W %T %x %y 0 %b 0 %s"
 
     #### test: show keybindings
     bind $topwin <KeyPress> "
