@@ -46,7 +46,7 @@ struct fn fn_array[]
       {"int"      , toint, 0},
       {"sin"      , sin, 0},
       {"cos"      , cos, 0},
-      {"exp"      , exp, 0},
+      {"tan"      , tan, 0},
       {"asin"     , asin, 0},
       {"acos"     , acos, 0},
       {"atan"     , atan, 0},
