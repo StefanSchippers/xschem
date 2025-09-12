@@ -3206,8 +3206,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
            "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
           );
         } else {
-          ask_new_file();
           xctx->semaphore--;
+          ask_new_file();
           tcleval("load_additional_files");
           xctx->semaphore++;
         }

@@ -610,7 +610,7 @@ void ask_new_file(void)
     char f[PATH_MAX]; /*  overflow safe 20161125 */
 
     if(!has_x) return;
-    if(xctx->modified) {
+    if(!tclgetboolvar("open_in_new_window_or_tab") && xctx->modified) {
       if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
@@ -629,22 +629,27 @@ void ask_new_file(void)
         if(strcmp(tclresult(), "ok")) skip = 1;
       }
       if(!skip) {
-        dbg(1, "ask_new_file(): load file: %s\n", f);
-        clear_all_hilights();
-        xctx->currsch = 0;
-        unselect_all(1);
-        remove_symbols();
-        xctx->zoom=CADINITIALZOOM;
-        xctx->mooz=1/CADINITIALZOOM;
-        xctx->xorigin=CADINITIALX;
-        xctx->yorigin=CADINITIALY;
-        load_schematic(1, f, 1, 1);
-        tclvareval("update_recent_file {", f, "}", NULL);
-        if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
-        my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
-        xctx->sch_path_hash[xctx->currsch] = 0;
-        xctx->sch_inst_number[xctx->currsch] = 1;
-        zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+        if(!tclgetboolvar("open_in_new_window_or_tab")) {
+          dbg(1, "ask_new_file(): load file: %s\n", f);
+          clear_all_hilights();
+          xctx->currsch = 0;
+          unselect_all(1);
+          remove_symbols();
+          xctx->zoom=CADINITIALZOOM;
+          xctx->mooz=1/CADINITIALZOOM;
+          xctx->xorigin=CADINITIALX;
+          xctx->yorigin=CADINITIALY;
+          load_schematic(1, f, 1, 1);
+          tclvareval("update_recent_file {", f, "}", NULL);
+          if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
+          my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch],".");
+          xctx->sch_path_hash[xctx->currsch] = 0;
+          xctx->sch_inst_number[xctx->currsch] = 1;
+          zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+        } else { /* load in new window/tab */
+          tclvareval("update_recent_file {", f, "}", NULL);
+          tclvareval("xschem load_new_window {", f, "}", NULL);
+        }
       }
     }
 }

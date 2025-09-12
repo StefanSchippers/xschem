@@ -5048,7 +5048,7 @@ proc insert_symbol_filelist {} {
 
 proc insert_symbol_place {action} {
   # puts insert_symbol_place
-  global insert_symbol
+  global insert_symbol open_in_new_window_or_tab
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
     set sel [.ins.center.left.l index active]
@@ -5065,7 +5065,11 @@ proc insert_symbol_place {action} {
         if {$action eq {symbol}} {
           xschem place_symbol $f
         } elseif {$action eq {load}} {
-          xschem load -gui $f
+          if {$open_in_new_window_or_tab} {
+            xschem load_new_window $f
+          } else {
+            xschem load -gui $f
+          }
         }
       }
     }
@@ -8533,6 +8537,7 @@ set tctx::global_list {
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
  no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
+ open_in_new_window_or_tab
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile rotated_text search_case search_exact
  search_found search_schematic search_select search_value select_touch
@@ -10178,6 +10183,11 @@ set_ne undo_type disk
 
 ## show tab bar (tabbed interface) 
 set_ne tabbed_interface 1
+
+## File->Open will open in a new window/tab instead of replacing content in current one 
+## if enabled.
+set_ne open_in_new_window_or_tab 0
+
 ## case insensitive symbol lookup (on case insensitive filesystems only!)
 set_ne case_insensitive 0
 
