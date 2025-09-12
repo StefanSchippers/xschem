@@ -618,7 +618,7 @@
 #### if enabled a File->Open action will open in a new window or tab
 #### instead of replacing content in current window/tab
 #### default: disabled (0) 
-# set open_in_new_window_or_tab 1
+# set open_in_new_window 1
 
 ###########################################################################
 #### ALTERNATE SYMBOL PLACEMENT BROWSER

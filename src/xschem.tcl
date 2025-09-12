@@ -5048,7 +5048,7 @@ proc insert_symbol_filelist {} {
 
 proc insert_symbol_place {action} {
   # puts insert_symbol_place
-  global insert_symbol open_in_new_window_or_tab
+  global insert_symbol open_in_new_window
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
     set sel [.ins.center.left.l index active]
@@ -5065,7 +5065,7 @@ proc insert_symbol_place {action} {
         if {$action eq {symbol}} {
           xschem place_symbol $f
         } elseif {$action eq {load}} {
-          if {$open_in_new_window_or_tab} {
+          if {$open_in_new_window} {
             xschem load_new_window $f
           } else {
             xschem load -gui $f
@@ -8507,7 +8507,7 @@ proc no_open_dialogs {} {
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 ## "tabbed_interface"
-## "open_in_new_window_or_tab"
+## "open_in_new_window"
 ## "case_insensitive" case insensitive symbol lookup (on case insensitive filesystems only!)
 ## "dark_colors_save"
 ## "light_colors_save" restore default colors
@@ -10186,7 +10186,7 @@ set_ne tabbed_interface 1
 
 ## File->Open will open in a new window/tab instead of replacing content in current one 
 ## if enabled.
-set_ne open_in_new_window_or_tab 0
+set_ne open_in_new_window 0
 
 ## case insensitive symbol lookup (on case insensitive filesystems only!)
 set_ne case_insensitive 0
