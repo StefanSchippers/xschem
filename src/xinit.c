@@ -1896,7 +1896,7 @@ static void destroy_window(int *window_count, const char *win_path)
 
 static void destroy_tab(int *window_count, const char *win_path)
 {
-  int i, n;
+  int i, n, prev;
   if(*window_count) {
     int close = 0;
     dbg(1, "new_schematic() destroy_tab\n");
@@ -1940,7 +1940,15 @@ static void destroy_tab(int *window_count, const char *win_path)
         (*window_count)--;
         if(*window_count == 0) tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
       }
-      xctx = save_xctx[0]; /* restore main (.drw) schematic */
+
+
+      prev = 0;
+      if(previous_win_path[0]) {
+        prev = get_tab_or_window_number(previous_win_path);
+        dbg(1, "%s, prev=%d\n", previous_win_path, prev);
+        if(prev == -1) prev = 0;
+      }
+      xctx = save_xctx[prev]; /* restore previous or main (.drw) schematic */
 
       /* seems unnecessary; previous tab save_pixmap was not deleted */
       /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
