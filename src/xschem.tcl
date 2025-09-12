@@ -8507,6 +8507,7 @@ proc no_open_dialogs {} {
 ## "viewdata_wcounter" should be kept unique as it is the number of open viewdatas
 ## "measure_id" should be kept unique since we allow only one measure tooltip in graphs
 ## "tabbed_interface"
+## "open_in_new_window_or_tab"
 ## "case_insensitive" case insensitive symbol lookup (on case insensitive filesystems only!)
 ## "dark_colors_save"
 ## "light_colors_save" restore default colors
@@ -8537,7 +8538,6 @@ set tctx::global_list {
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
  no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
- open_in_new_window_or_tab
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors recentfile rotated_text search_case search_exact
  search_found search_schematic search_select search_value select_touch
