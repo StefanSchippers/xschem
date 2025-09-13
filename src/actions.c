@@ -605,12 +605,12 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     return;
 }
 
-void ask_new_file(void)
+void ask_new_file(int in_new_window)
 {
     char f[PATH_MAX]; /*  overflow safe 20161125 */
 
     if(!has_x) return;
-    if(!tclgetboolvar("open_in_new_window") && xctx->modified) {
+    if(!(in_new_window || tclgetboolvar("open_in_new_window")) && xctx->modified) {
       if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
     }
     tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
@@ -629,7 +629,7 @@ void ask_new_file(void)
         if(strcmp(tclresult(), "ok")) skip = 1;
       }
       if(!skip) {
-        if(!tclgetboolvar("open_in_new_window")) {
+        if(!(in_new_window || tclgetboolvar("open_in_new_window"))) {
           dbg(1, "ask_new_file(): load file: %s\n", f);
           clear_all_hilights();
           xctx->currsch = 0;

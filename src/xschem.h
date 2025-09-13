@@ -1325,7 +1325,7 @@ extern int copy_hierarchy_data(const char *from_win_path, const char *to_win_pat
 extern int schematic_in_new_window(int new_process, int dr, int force);
 extern void symbol_in_new_window(int new_process);
 extern void new_xschem_process(const char *cell, int symbol);
-extern void ask_new_file(void);
+extern void ask_new_file(int in_new_window);
 extern void saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm, int fast);

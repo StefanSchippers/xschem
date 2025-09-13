@@ -3009,7 +3009,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
            "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
           );
         } else {
-          ask_new_file();
+          ask_new_file(0);
           tcleval("load_additional_files");
         }
       } else

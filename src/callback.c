@@ -3199,7 +3199,13 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case 'o':
-      if(rstate == ControlMask) { /* load */
+      if(EQUAL_MODMASK) { /* load in new tab/window */
+        xctx->semaphore--;
+        ask_new_file(1);
+        tcleval("load_additional_files");
+        xctx->semaphore++;
+      }
+      else if(rstate == ControlMask) { /* load */
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
           tcleval(
@@ -3207,7 +3213,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           );
         } else {
           xctx->semaphore--;
-          ask_new_file();
+          ask_new_file(0);
           tcleval("load_additional_files");
           xctx->semaphore++;
         }

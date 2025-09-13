@@ -9058,6 +9058,8 @@ proc build_widgets { {topwin {} } } {
       }
     }
   $topwin.menubar.file add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
+  $topwin.menubar.file add command -label "Open in new window" -command "xschem load_new_window" \
+    -accelerator {Alt+O}
   $topwin.menubar.file add command -label "Open Most Recent" \
     -command {xschem load -gui [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
@@ -9065,10 +9067,10 @@ proc build_widgets { {topwin {} } } {
   setup_recent_menu $topwin
   $topwin.menubar.file add command -label {Create new window/tab} -command "xschem new_schematic create"
 
-  $topwin.menubar.file add command -label "Open schematic in new window/tab" \
+  $topwin.menubar.file add command -label "Open selected schematic in new window" \
       -command "open_sub_schematic" -accelerator Alt+E
       # -command "xschem schematic_in_new_window" -accelerator Alt+E
-  $topwin.menubar.file add command -label "Open symbol in new window/tab" \
+  $topwin.menubar.file add command -label "Open selected symbol in new window" \
       -command "xschem symbol_in_new_window" -accelerator Alt+I
 
   $topwin.menubar.file add command -label "Delete files" -command "xschem delete_files" -accelerator {Shift-D}
