@@ -32,7 +32,7 @@ proc inutile_line {txtlabel} {
    entry_replace_selection .inutile_line.e1
    .inutile_line.e1 delete 0 end
    .inutile_line.e1 insert 0 $tctx::retval
-   button .inutile_line.b1 -text "OK" -command  \
+   button .inutile_line.b1 -text "OK" -takefocus 0 -command \
    {
      set tctx::retval [.inutile_line.e1 get ]
      destroy .inutile_line
@@ -92,14 +92,14 @@ proc inutile_alias_window {w filename} {
  set fileid [open $filename "RDONLY CREAT"]
  set testo [read $fileid]
  close $fileid
- frame $w.buttons
+ frame $w.buttons -takefocus 0
  pack $w.buttons -side bottom -fill x -pady 2m
  text $w.text -undo 1 -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30
  scrollbar $w.scroll -command "$w.text yview"
- button $w.buttons.dismiss -text Dismiss -command "destroy $w"
- button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\""
- button $w.buttons.load -text Reload -command "inutile_read_data $w.text \"$filename\""
+ button $w.buttons.dismiss -text Dismiss -command "destroy $w" -takefocus 0
+ button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\"" -takefocus 0
+ button $w.buttons.load -text Reload -command "inutile_read_data $w.text \"$filename\"" -takefocus 0
  pack $w.buttons.dismiss $w.buttons.save $w.buttons.load -side left -expand 1
  
  pack $w.scroll -side right -fill y
@@ -114,15 +114,15 @@ proc inutile_help_window {w filename} {
  wm iconname $w "ALIAS"
  # wm transient $w [xschem get topwindow]
  
- frame $w.buttons
+ frame $w.buttons -takefocus 0
  pack $w.buttons -side bottom -fill x -pady 2m
- button $w.buttons.dismiss -text Dismiss -command "destroy $w"
- button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\""
+ button $w.buttons.dismiss -text Dismiss -command "destroy $w" -takefocus 0
+ button $w.buttons.save -text Save -command "inutile_write_data $w.text \"$filename\"" -takefocus 0
  pack $w.buttons.dismiss  $w.buttons.save -side left -expand 1
  
  text $w.text -undo 1 -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30 -width 90
- scrollbar $w.scroll -command "$w.text yview"
+ scrollbar $w.scroll -command "$w.text yview" -takefocus 0
  pack $w.scroll -side right -fill y
  pack $w.text -expand yes -fill both
  set fileid [open $filename "RDONLY CREAT"]
@@ -156,25 +156,26 @@ proc inutile { {filename {}} {wait {}} } {
   # wm transient .inutile [xschem get topwindow]
   set utile_path $XSCHEM_SHAREDIR/utile
   set tctx::retval {}
-  frame .inutile.buttons
+  frame .inutile.buttons -takefocus 0
   pack .inutile.buttons -side bottom -fill x -pady 2m
-  button .inutile.buttons.translate -text Translate -command "
+  button .inutile.buttons.translate -takefocus 0 -text Translate -command "
     inutile_write_data .inutile.text \"$filename\"
     inutile_translate \"$filename\"
     inutile_get_time"
-  button .inutile.buttons.dismiss -text Dismiss -command "destroy .inutile"
-  button .inutile.buttons.code -text "Help" -command "inutile_help_window .inutile.help $utile_path/utile.txt"
+  button .inutile.buttons.dismiss -takefocus 0 -text Dismiss -command "destroy .inutile"
+  button .inutile.buttons.code -takefocus 0 -text "Help" \
+     -command "inutile_help_window .inutile.help $utile_path/utile.txt"
   text .inutile.text -undo 1 -relief sunken -bd 2 -yscrollcommand ".inutile.scroll set" -setgrid 1 -height 30
   scrollbar .inutile.scroll -command {.inutile.text yview}
-  button .inutile.buttons.save -text Save -command "
+  button .inutile.buttons.save -takefocus 0 -text Save -command "
     set tctx::retval \"$filename\"
     set filename \[inutile_line {Filename}\]
     inutile_write_data .inutile.text \"$filename\""
-  button .inutile.buttons.load -text Reload -command "
+  button .inutile.buttons.load -takefocus 0 -text Reload -command "
     set tctx::retval \"$filename\"
     set filename \[inutile_line {Filename}\]
     inutile_read_data .inutile.text \"$filename\""
-  button .inutile.buttons.send -text "Template" -command "
+  button .inutile.buttons.send -takefocus 0 -text "Template" -command "
     if { !\[string compare \[.inutile.text get 0.0 {end - 1 chars}\]  {}\]} {
       inutile_template  .inutile.text  $utile_path/template.stimuli}"
   label .inutile.buttons.timelab -text "time:"
@@ -517,9 +518,9 @@ proc list_running_cmds {} {
   set frame1 $top.f1
   set frame2 $top.f2
   set frame3 $top.f3
-  frame $frame1
-  frame $frame2
-  frame $frame3
+  frame $frame1 -takefocus 0
+  frame $frame2 -takefocus 0
+  frame $frame3 -takefocus 0
   set lb $frame2.lb
   listbox $lb -width 70 -height 8 -selectmode extended \
      -yscrollcommand "$frame2.yscroll set" \
@@ -531,13 +532,13 @@ proc list_running_cmds {} {
   pack  $lb -side bottom  -fill both -expand true
 
   bind $lb <Double-Button-1> [list $frame3.b3 invoke]
-  button $frame3.b1 -width 16 -text {Terminate selected} -command "kill_running_cmds $lb -15" \
+  button $frame3.b1 -width 16 -takefocus 0 -text {Terminate selected} -command "kill_running_cmds $lb -15" \
     -fg black -background yellow
-  button $frame3.b2 -width 16 -text {Kill selected} -command "kill_running_cmds $lb -9" \
+  button $frame3.b2 -width 16 -takefocus 0 -text {Kill selected} -command "kill_running_cmds $lb -9" \
     -fg black -background red
-  button $frame3.b3 -width 16 -text {View status} -command "view_process_status $lb" \
+  button $frame3.b3 -width 16 -takefocus 0 -text {View status} -command "view_process_status $lb" \
     -fg black -background PaleGreen
-  button $frame3.b4 -width 16 -text {Dismiss} \
+  button $frame3.b4 -width 16 -takefocus 0 -text {Dismiss} \
     -fg black -background PaleGreen -command "
     if {\[winfo exists .pstat\]} {
       after cancel [list update_process_status $lb]
@@ -599,9 +600,9 @@ proc sframeyview {container args} {
 
 # scrollable frame constructor
 proc sframe {container} {
-  frame $container.f
+  frame $container.f -takefocus 0
   scrollbar $container.vs -command "sframeyview $container" ;# sframeyview moveto commands
-  frame $container.f.scrl
+  frame $container.f.scrl -takefocus 0
   pack $container.f -expand yes -fill both -side left
   pack $container.vs -expand yes -fill y
   return $container.f.scrl
@@ -4173,7 +4174,7 @@ namespace eval c_toolbar {
         destroy $w.b$i
       }
       set i $c_t(top)
-      button $w.title -text Recent -pady 0 -padx 0 -state disabled -disabledforeground black \
+      button $w.title -text Recent -takefocus 0 -pady 0 -padx 0 -state disabled -disabledforeground black \
         -background grey60 -borderwidth 0 -font {TkDefaultFont 12 bold}
       pack $w.title -side top -fill x
       while {1} {
@@ -4663,8 +4664,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     .load.l.paneleft.list selection set $file_dialog_index1
   }
   label .load.buttons_bot.label  -text { File:}
-  entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 \
-    -highlightbackground [option get . background {}] -takefocus 0
+  entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 -takefocus 0 \
+    -highlightbackground [option get . background {}]
   entry_replace_selection .load.buttons_bot.entry
   label .load.buttons_bot.srclab  -text { Search:}
   entry .load.buttons_bot.src -width 18 -highlightcolor red -highlightthickness 2 \
@@ -8110,11 +8111,11 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
       set bg white
     }
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -background $bg 
+       frame $topwin.toolbar -relief raised -bd 0 -background $bg -takefocus 0
     }
     if { ![winfo exists $topwin.toolbar.b$name]} {
       button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 \
-      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd
+      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd -takefocus 0
       if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
     }
 }
@@ -8129,7 +8130,7 @@ proc toolbar_show { { topwin {} } } {
     # puts "toolbar_show: $topwin"
     set toolbar_visible 1
     if {![winfo exists  $topwin.toolbar]} {
-       frame $topwin.toolbar -relief raised -bd 0 -background white 
+       frame $topwin.toolbar -relief raised -bd 0 -background white -takefocus 0
     }
     if {[winfo ismapped $topwin.toolbar]} {return}
     if { $toolbar_horiz } { 
@@ -8148,10 +8149,10 @@ proc toolbar_show { { topwin {} } } {
     foreach b $toolbar_list {
         if { $b == "---" } {
             if { $toolbar_horiz } {
-                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -width 2
+                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -width 2 -takefocus 0
                 pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 1 -pady 0 -fill y
             } else {
-                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -height 2
+                frame $topwin.toolbar.sep$toolbar_sepn -background lightgrey -height 2 -takefocus 0
                 pack $topwin.toolbar.sep$toolbar_sepn -side $pos -padx 0 -pady 1 -fill x
             }
             incr toolbar_sepn
@@ -8253,7 +8254,7 @@ proc setup_tabbed_interface {} {
 
   if { $tabbed_interface } {
     if { [info exists has_x] && ![winfo exists .tabs] } {
-      frame .tabs
+      frame .tabs -takefocus 0 
       button .tabs.x0 -padx 2 -pady 0 -anchor nw -takefocus 0 \
           -text Main -command "xschem new_schematic switch .drw"
       bind .tabs.x0 <ButtonPress-3> {tab_context_menu %W}
@@ -8998,31 +8999,31 @@ proc build_widgets { {topwin {} } } {
     set selectcolor black
   }
 
-  menu $topwin.menubar -tearoff 0 -borderwidth 0
+  menu $topwin.menubar -tearoff 0 -borderwidth 0 -takefocus 0
 
   $topwin.menubar add cascade -label "File" -menu $topwin.menubar.file
-  menu $topwin.menubar.file -tearoff 0
+  menu $topwin.menubar.file -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Edit" -menu $topwin.menubar.edit
-  menu $topwin.menubar.edit -tearoff 0
+  menu $topwin.menubar.edit -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Options" -menu $topwin.menubar.option
-  menu $topwin.menubar.option -tearoff 0
+  menu $topwin.menubar.option -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "View" -menu $topwin.menubar.view
-  menu $topwin.menubar.view -tearoff 0
+  menu $topwin.menubar.view -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Properties" -menu $topwin.menubar.prop
-  menu $topwin.menubar.prop -tearoff 0
+  menu $topwin.menubar.prop -tearoff 0 -takefocus 0
 
   $topwin.menubar add cascade -label "Layers" -menu $topwin.menubar.layers
-  menu $topwin.menubar.layers -tearoff 0
+  menu $topwin.menubar.layers -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Tools" -menu $topwin.menubar.tools
-  menu $topwin.menubar.tools -tearoff 0
+  menu $topwin.menubar.tools -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Symbol" -menu $topwin.menubar.sym
-  menu $topwin.menubar.sym -tearoff 0
+  menu $topwin.menubar.sym -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Highlight" -menu $topwin.menubar.hilight
-  menu $topwin.menubar.hilight -tearoff 0
+  menu $topwin.menubar.hilight -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Simulation" -menu $topwin.menubar.simulation
-  menu $topwin.menubar.simulation -tearoff 0
+  menu $topwin.menubar.simulation -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Help" -menu $topwin.menubar.help
-  menu $topwin.menubar.help -tearoff 0
+  menu $topwin.menubar.help -tearoff 0 -takefocus 0
 
   if {$topwin eq {}} {
     . configure -menu .menubar
@@ -9060,7 +9061,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add command -label "Open Most Recent" \
     -command {xschem load -gui [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
-  menu $topwin.menubar.file.recent -tearoff 0
+  menu $topwin.menubar.file.recent -tearoff 0 -takefocus 0
   setup_recent_menu $topwin
   $topwin.menubar.file add command -label {Create new window/tab} -command "xschem new_schematic create"
 
@@ -9084,7 +9085,7 @@ proc build_widgets { {topwin {} } } {
      -command "xschem saveas {} symbol" -accelerator {Ctrl+Alt+S}
   # added svg, png 20171022
   $topwin.menubar.file add cascade -label "Image export" -menu $topwin.menubar.file.im_exp
-  menu $topwin.menubar.file.im_exp -tearoff 0
+  menu $topwin.menubar.file.im_exp -tearoff 0 -takefocus 0
   $topwin.menubar.file.im_exp add command -label "EPS Selection Export" -command "xschem print eps" 
   $topwin.menubar.file.im_exp add command -label "PDF/PS Export" -command "xschem print pdf" -accelerator {*}
   $topwin.menubar.file.im_exp add command -label "PDF/PS Export Full" -command "xschem print pdf_full"
@@ -9140,7 +9141,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.option add cascade -label "Crosshair" \
        -menu $topwin.menubar.option.crosshair
-  menu $topwin.menubar.option.crosshair -tearoff 0
+  menu $topwin.menubar.option.crosshair -tearoff 0 -takefocus 0
 
   $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
     -variable snap_cursor -selectcolor $selectcolor  -accelerator {Alt-Z}
@@ -9196,7 +9197,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.option add cascade -label "Netlist format / Symbol mode" \
        -menu $topwin.menubar.option.netlist
-  menu $topwin.menubar.option.netlist -tearoff 0
+  menu $topwin.menubar.option.netlist -tearoff 0 -takefocus 0
 
   $topwin.menubar.option.netlist add checkbutton -label "Flat netlist" -variable flat_netlist \
      -selectcolor $selectcolor -accelerator : \
@@ -9269,7 +9270,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar add cascade -label "Waves" -background {#888888} \
     -activebackground orange -menu $topwin.menubar.waves
-  menu  $topwin.menubar.waves -tearoff 0
+  menu  $topwin.menubar.waves -tearoff 0 -takefocus 0
   $topwin.menubar.waves add command -label {External viewer} -command {waves external}
   $topwin.menubar.waves add separator
   $topwin.menubar.waves add command -label Clear -command {xschem raw_clear}
@@ -9343,7 +9344,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.view add cascade -label "Show / Hide" \
        -menu $topwin.menubar.view.show 
-  menu $topwin.menubar.view.show -tearoff 0
+  menu $topwin.menubar.view.show -tearoff 0 -takefocus 0
 
   $topwin.menubar.view.show add checkbutton -label "Show ERC Info window" \
     -selectcolor $selectcolor -variable show_infowindow -command {
@@ -9383,7 +9384,7 @@ proc build_widgets { {topwin {} } } {
      -command "xschem edit_file" -accelerator Alt+Q
 
   $topwin.menubar.sym add cascade -label "Show symbols" -menu $topwin.menubar.sym.sym
-  menu $topwin.menubar.sym.sym -tearoff 0
+  menu $topwin.menubar.sym.sym -tearoff 0 -takefocus 0
   
   $topwin.menubar.sym.sym add radiobutton -label "Show symbol details" \
      -selectcolor $selectcolor -background grey60 -variable hide_symbols -value 0 \
@@ -9426,7 +9427,7 @@ proc build_widgets { {topwin {} } } {
 
 
   $topwin.menubar.sym add cascade -label "List of nets" -menu $topwin.menubar.sym.list
-  menu $topwin.menubar.sym.list -tearoff 0
+  menu $topwin.menubar.sym.list -tearoff 0 -takefocus 0
 
   $topwin.menubar.sym.list add command -label "Print list of highlight nets" \
           -command "xschem print_hilight_net 1" -accelerator J
@@ -9585,7 +9586,7 @@ proc build_widgets { {topwin {} } } {
 
 
   $topwin.menubar.simulation add cascade -label "Graphs" -menu $topwin.menubar.simulation.graph
-  menu $topwin.menubar.simulation.graph -tearoff 0
+  menu $topwin.menubar.simulation.graph -tearoff 0 -takefocus 0
   $topwin.menubar.simulation.graph add checkbutton -label {Auto highlight plotted nets} \
    -selectcolor $selectcolor  -variable auto_hilight_graph_nodes
   $topwin.menubar.simulation.graph add command -label {Add waveform graph} -command {xschem add_graph}
@@ -9611,7 +9612,7 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 
 
   $topwin.menubar.simulation add cascade -label "LVS" -menu $topwin.menubar.simulation.lvs
-  menu $topwin.menubar.simulation.lvs -tearoff 0
+  menu $topwin.menubar.simulation.lvs -tearoff 0 -takefocus 0
   $topwin.menubar.simulation.lvs add checkbutton -label "LVS netlist + Top level is a .subckt" \
   -selectcolor $selectcolor -variable lvs_netlist 
   $topwin.menubar.simulation.lvs add checkbutton -label "Upper case .SUBCKT and .ENDS" \
@@ -9657,15 +9658,13 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
     wm protocol $rootwin WM_DELETE_WINDOW "xschem new_schematic destroy $topwin.drw {}"
   }
 
-  frame $topwin.statusbar  
+  frame $topwin.statusbar   -takefocus 0
   label $topwin.statusbar.1 -text "STATUS BAR 1"  
   label $topwin.statusbar.2 -text "SNAP:"
-  entry $topwin.statusbar.3 \
-         -width 7 -foreground black -takefocus 0
+  entry $topwin.statusbar.3 -width 7 -foreground black -takefocus 0
   entry_replace_selection $topwin.statusbar.3
   label $topwin.statusbar.4 -text "GRID:"
-  entry $topwin.statusbar.5 \
-         -width 7 -foreground black -takefocus 0
+  entry $topwin.statusbar.5 -width 7 -foreground black -takefocus 0
   entry_replace_selection $topwin.statusbar.5
   label $topwin.statusbar.6 -text "MODE:"
   label $topwin.statusbar.7 -width 7  ;# netlisting mode
@@ -9929,6 +9928,8 @@ proc setup_tcp_bespice {} {
 # if {[file exists ./systemlib] && [file exists ./xschem.tcl] && [file exists ./xschem]} {
 #   set running_in_src_dir 1
 # }
+
+# tk_focusFollowsMouse
 
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
