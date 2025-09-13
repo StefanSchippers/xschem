@@ -156,6 +156,7 @@ ctrl        'n'         Clear schematic
 ctrl+shift  'N'         Clear symbol
 shift       'O'         Toggle Light / Dark colorscheme
 shift+ctrl  'O'         Load most recent file
+alt         'o'         Open file in a new tab / window
 ctrl        'o'         Open file
 -           'p'         Place polygon. Operation ends by placing last point over first.
 alt         'p'         Add symbol pin
@@ -177,6 +178,7 @@ ctrl        's'         Save schematic
 alt         's'         Reload current schematic from disk
 ctrl+alt    's'         Save-as symbol
 -           't'         Place text
+ctrl        't'         create new tab or window
 shift       'T'         Toggle *_ignore flag on selected instances
 alt         'u'         Align to current grid selected objects
 ctrl        'u'         Unselect attached floater objects

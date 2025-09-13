@@ -3454,10 +3454,15 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         }
       }
       else if(rstate & ControlMask) {
+        int save = xctx->semaphore;
         if(waves_selected(event, key, state, button)) {
           waves_callback(event, mx, my, key, button, aux, state);
           break; 
         }
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0;
+        new_schematic("create", NULL, NULL, 1);
+        xctx->semaphore = save;
       }
       break;
 

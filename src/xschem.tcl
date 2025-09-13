@@ -9065,7 +9065,8 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
   menu $topwin.menubar.file.recent -tearoff 0 -takefocus 0
   setup_recent_menu $topwin
-  $topwin.menubar.file add command -label {Create new window/tab} -command "xschem new_schematic create"
+  $topwin.menubar.file add command -label {Create new window/tab} -command "xschem new_schematic create" \
+     -accelerator {Ctrl+T}
 
   $topwin.menubar.file add command -label "Open selected schematic in new window" \
       -command "open_sub_schematic" -accelerator Alt+E
