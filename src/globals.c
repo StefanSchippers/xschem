@@ -184,6 +184,7 @@ int text_ps=1;  /* use ps font for text instead of xschem's internal vector font
 char bus_char[3] = {0, 0, 0};
 int yyparse_error = 0;
 char *xschem_executable=NULL;
+double tk_scaling = 1.0;
 Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
 char old_win_path[PATH_MAX] = ".drw"; /* previously switched window, used in callback() */

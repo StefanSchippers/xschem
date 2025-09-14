@@ -710,7 +710,7 @@
 #### FIX GRAPHIC PROBLEMS ON SOME DRIVERS/GPU CONFIGURATIONS
 ###########################################################################
 #### if you see garbage on screen / graphic artifacts while editing with
-#### xschem try to set this to 1. Default: not enabled (0)
+#### xschem try to set this to 1. Default: enabled (1)
 # set fix_broken_tiled_fill 0
 
 ###########################################################################

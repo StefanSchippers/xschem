@@ -1228,6 +1228,7 @@ extern double cadhalfdotsize;
 extern char bus_char[];
 extern int yyparse_error;
 extern char *xschem_executable;
+extern double tk_scaling;
 extern Tcl_Interp *interp;
 extern double *character[256];
 extern char old_win_path[PATH_MAX]; /* previously switched window, used in callback() */

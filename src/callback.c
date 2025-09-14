@@ -35,9 +35,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
   int draw_xhair = tclgetboolvar("draw_crosshair");
-  static double tk_scaling = 1.0;
   int border;
-  tk_scaling = atof(tcleval("tk scaling"));
   border = (int)(5.0 * tk_scaling); /* fixed number of screen pixels */
   rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
