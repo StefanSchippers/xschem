@@ -169,7 +169,7 @@ extern char win_temp_dir[PATH_MAX];
 #define CADMINZOOM 0.005
 #define CADHALFDOTSIZE 3.7
 #define CADNULLNODE -1      /*  no valid node number */
-#define CADWIREMINDIST 8.0
+#define CADWIREMINDIST 12.0
 #define CADMAXWIRES 200
 #define CADMAXTEXT 100
 #define CADMAXOBJECTS 100  /*  (initial) max # of lines, rects (for each layer!!) */

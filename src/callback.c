@@ -1843,6 +1843,7 @@ static int add_wire_from_wire(Selected *sel, double mx, double my)
     double y1 = xctx->wire[n].y1;
     double x2 = xctx->wire[n].x2;
     double y2 = xctx->wire[n].y2;
+    dbg(1, "add_wire_from_wire\n");
     if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
       unselect_all(1); 
       start_wire(xctx->mousex_snap, xctx->mousey_snap); 

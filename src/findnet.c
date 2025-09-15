@@ -33,8 +33,9 @@ static void find_closest_wire(double mx, double my, int override_lock)
  int i, w=-1;
  double threshold;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
   
+ dbg(1, "threshold=%g\n", threshold);
  for(i=0;i<xctx->wires; ++i)
  {
   if( (tmp = dist(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, mx, my)) < d )
@@ -117,7 +118,7 @@ static void find_closest_polygon(double mx, double my, int override_lock)
  double x1, y1, x2, y2;
  double threshold;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
  for(c=0;c<cadlayers; ++c)
  {
   if(!xctx->enable_layer[c]) continue;
@@ -162,7 +163,7 @@ static void find_closest_line(double mx, double my, int override_lock)
  int i, c, l = -1, col = 0;
  double threshold;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
  for(c=0;c<cadlayers; ++c)
  {
   if(!xctx->enable_layer[c]) continue;
@@ -329,7 +330,7 @@ static void find_closest_arc(double mx, double my, int override_lock)
  int match;
  double threshold;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
 
  for(c=0;c<cadlayers; ++c)
  {
@@ -379,7 +380,7 @@ static void find_closest_arc(double mx, double my, int override_lock)
 static void find_closest_box(double mx ,double my, int override_lock)
 {
  double tmp;
- double ds = xctx->cadhalfdotsize;
+ double threshold = CADWIREMINDIST * xctx->zoom * tk_scaling;
  int i, c, r=-1, col = 0;
  double d = distance;
 
@@ -389,11 +390,8 @@ static void find_closest_box(double mx ,double my, int override_lock)
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->rects[c]; ++i)
   {
-   double min = MINOR(xctx->rect[c][i].x2 - xctx->rect[c][i].x1,
-                      xctx->rect[c][i].y2 - xctx->rect[c][i].y1);
-   ds = (xctx->cadhalfdotsize * 8 <= min ) ? xctx->cadhalfdotsize : min / 8;
-   if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - ds, xctx->rect[c][i].y1 - ds,
-                         xctx->rect[c][i].x2 + ds, xctx->rect[c][i].y2 + ds) )
+   if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - threshold, xctx->rect[c][i].y1 - threshold,
+                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) )
    {
     tmp=dist_from_rect(mx, my, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
@@ -447,7 +445,7 @@ static void find_closest_text(double mx, double my, int override_lock)
  #endif
  char *estr = NULL;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling;
+ threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
   for(i=0;i<xctx->texts; ++i)
   {
    rot = xctx->text[i].rot;
