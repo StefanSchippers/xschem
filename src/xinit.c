@@ -1533,12 +1533,13 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
   }
   if(!strcmp(win_path, xctx->current_win_path)) return 0; /* already there */
   n = get_tab_or_window_number(win_path);
-  if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
-  else my_snprintf(my_win_path, S(my_win_path), ".x%d.drw", n);
   if(n == -1) {
     dbg(0, "new_schematic(\"switch\"...): no window to switch to found: %s\n", win_path);
     return 1;
   }
+  if(n == 0) my_snprintf(my_win_path, S(my_win_path), ".drw");
+  /* else my_snprintf(my_win_path, S(my_win_path), ".x%d.drw", n); */
+  else my_snprintf(my_win_path, S(my_win_path), "%s", window_path[n]);
   if(*window_count) {
     /* build my_win_path since win_path can also be a filename */
     dbg(1, "new_schematic(\"switch\"...): %s\n", my_win_path);
@@ -1615,8 +1616,8 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
   return 0;
 }
 
-/* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
-static void create_new_window(int *window_count, const char *noconfirm, const char *fname, int dr)
+/* non NULL and not empty win_path is used to avoid warning for duplicated filenames */
+static void create_new_window(int *window_count, const char *win_path, const char *fname, int dr)
 {
   double save_lw = xctx->lw;
   Window win_id = 0LU;
@@ -1626,7 +1627,7 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
 
   dbg(1, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
   
-  if(noconfirm && noconfirm[0]) confirm = 0;
+  if(win_path && win_path[0]) confirm = 0;
   my_strncpy(prev_window,  xctx->current_win_path, S(prev_window));
   if(confirm && fname && fname[0] && check_loaded(fname, toppath)) {
     char msg[PATH_MAX+100];
@@ -1672,8 +1673,13 @@ static void create_new_window(int *window_count, const char *noconfirm, const ch
     dbg(0, "new_schematic(\"create\"...): no more free slots\n");
     return;
   }
-  my_snprintf(window_path[n], S(window_path[n]), ".x%d.drw", n);
-  my_snprintf(toppath, S(toppath), ".x%d", n);
+  if(win_path && win_path[0] == '.') {
+    my_snprintf(window_path[n], S(window_path[n]), "%s.drw", win_path);
+    my_snprintf(toppath, S(toppath), "%s", win_path);
+  } else {
+    my_snprintf(window_path[n], S(window_path[n]), ".x%d.drw", n);
+    my_snprintf(toppath, S(toppath), ".x%d", n);
+  }
   if(has_x) {
     tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400", NULL);
     tclvareval("build_widgets ", toppath, NULL);

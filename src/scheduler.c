@@ -3569,7 +3569,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Open/destroy a new tab or window
      *     create: create new empty window or with 'file' loaded if 'file' given.
      *             The win_path must be given (even {} is ok).
-     *             non empty win_path ({1}) will avoid warnings if opening the
+     *             '1' win_path ({1}) will avoid warnings if opening the
      *             same file multiple times.
      *     destroy: destroy tab/window identified by win_path. Example:
      *              xschem new_schematic destroy .x1.drw
@@ -3855,7 +3855,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int fullzoom = 0;
         int w = 0, h = 0;
         int eps = 0;
-        double x1, y1, x2, y2;
+        double x1 = 0., y1 = 0., x2 = 0., y2 = 0.;
 
         if(!strcmp(argv[2],"eps")) eps = 1;
         if(eps && xctx->lastsel == 0) {
@@ -3930,7 +3930,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2], "png")) {
         double save_lw = xctx->lw;
         int w = 0, h = 0;
-        double x1, y1, x2, y2;
+        double x1 = 0., y1 = 0., x2 = 0., y2 = 0.;
         if(argc == 6) {
           if(xctx->lastsel) {
             xRect boundbox;
@@ -3993,7 +3993,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(!strcmp(argv[2], "svg")) {
         double save_lw = xctx->lw;
         int w = 0, h = 0;
-        double x1, y1, x2, y2;
+        double x1 = 0., y1 = 0., x2 = 0., y2 = 0.;
         if(argc == 6) {
           if(xctx->lastsel) {
             xRect boundbox;

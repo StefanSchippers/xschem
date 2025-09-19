@@ -2437,7 +2437,7 @@ static void handle_motion_notify(int event, KeySym key, int state, int rstate, i
        !(state & ShiftMask) && !(xctx->ui_state & (PLACE_SYMBOL | PLACE_TEXT)))
     {
       /* make motion a bit sticky. require 10 pixels (screen units, not xschem units) */
-      if(abs(mx - xctx->mx_save) > tk_scaling * 10  || abs(my - xctx->my_save) > tk_scaling * 10) {
+      if(abs(mx - xctx->mx_save) > tk_scaling * 5  || abs(my - xctx->my_save) > tk_scaling * 5) {
         xctx->mouse_moved = 1;
         if(!xctx->drag_elements) {
           int stretch = (state & ControlMask) ? !enable_stretch : enable_stretch;
@@ -4382,7 +4382,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
       xctx->drag_elements = 0;
    }
    else if(xctx->ui_state & STARTMOVE && xctx->drag_elements) {
-      /* motion was below 10 screen units so no motion was set, abort */
+      /* motion was below 5 screen units so no motion was set, abort */
       if(!(state & ShiftMask) && !xctx->mouse_moved) {
         move_objects(ABORT,0,0,0);
       } else {

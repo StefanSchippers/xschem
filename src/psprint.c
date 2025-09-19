@@ -80,7 +80,7 @@ static char ps_font_family[80] = "Helvetica"; /* Courier Times Helvetica Symbol 
 static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y2, int rot, int flip)
 {
   #if defined(HAS_LIBJPEG) && HAS_CAIRO==1
-  int i, jpg;
+  int i, jpg = -1;
   int size_x, size_y;
   unsigned char *ptr = NULL;
   int invertImage;

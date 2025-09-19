@@ -1,4 +1,4 @@
-v {xschem version=3.4.7RC file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 L 3 860 -680 910 -660 {}
 L 3 830 -800 1150 -800 {}
@@ -66,12 +67,12 @@ A 7 884.1666666666666 -210 39.58991173406564 210.3432488842396 198.9246444160511
 P 1 10 880 -480 870 -540 950 -520 910 -500 940 -470 920 -470 910 -450 890 -490 880 -470 880 -480 {dash=3}
 P 4 6 830 -460 830 -550 820 -500 780 -560 770 -520 810 -480 {bezier=1}
 P 15 11 870 -510 880 -550 900 -520 910 -540 920 -510 940 -520 920 -480 890 -490 860 -470 840 -520 870 -510 {fill=true}
-T {Welcome to XSCHEM!} 110 -1130 0 0 1 1 {layer=5}
+T {Welcome to XSCHEM!} 100 -1150 0 0 1 1 {layer=5}
 T {This is a test schematic window 
 
 On the left you see some sample circuits. You may descend into any of these by selecting one with a left mouse button click and
 pressing the 'e' key, or by menu 'Edit -> Push Schematic'. You can return here after descending into a schematic by hitting 
-'<Ctrl>-e' or by menu 'Edit -> Pop'.} 60 -1060 0 0 0.4 0.4 {}
+'<Ctrl>-e' or by menu 'Edit -> Pop'.} 60 -1070 0 0 0.4 0.4 {}
 T {Lines} 960 -680 0 0 0.6 0.6 {layer=4}
 T {Rectangles /
 Ellipses} 960 -640 0 0 0.6 0.6 {layer=4}
@@ -99,8 +100,8 @@ T {Simulation
 Graphs
 } 1530 -550 0 0 0.6 0.6 {layer=4}
 T {Bus rippers} 580 -380 0 0 0.6 0.6 {layer=4}
-T {Verilog-A example} 800 -940 0 0 0.4 0.4 {}
-T {Ngspice + Verilog Cosimulation example} 1190 -940 0 0 0.4 0.4 {}
+T {Verilog-A example} 800 -950 0 0 0.4 0.4 {}
+T {Ngspice + Verilog Cosimulation example} 1190 -950 0 0 0.4 0.4 {}
 N 910 -410 940 -410 {lab=#net1}
 N 860 -380 860 -360 {lab=#net2}
 N 860 -380 920 -380 {lab=#net2}
@@ -1501,5 +1502,6 @@ C {autozero_comp.sym} 480 -500 0 0 {name=x29}
 C {tb_symbol_include.sym} 480 -780 0 0 {name=x30}
 C {intuitive_interface_cheatsheet.sym} 1060 -100 0 0 {name=x31}
 C {test_nyquist.sym} 480 -460 0 0 {name=x32}
-C {tb_diff_amp.sym} 890 -890 0 0 {name=x33}
-C {tb_sar_adc.sym} 1360 -890 0 0 {name=x34}
+C {tb_diff_amp.sym} 890 -900 0 0 {name=x33}
+C {tb_sar_adc.sym} 1360 -870 0 0 {name=x34}
+C {tb_counter_wrapper.sym} 1360 -900 0 0 {name=x35}

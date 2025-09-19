@@ -87,8 +87,8 @@ void arg_auto_print_options(FILE *fout, const char *line_prefix, const char *pad
 			continue;
 		if (*t->help_txt == '$') {
 			int kl = strlen(t->arg_key);
-			if (kl > pl)
-				kl = pl;
+			if (kl >= pl)
+				kl = pl-1;
 			fprintf(fout, "%s--%s%s%s\n", line_prefix, t->arg_key, padding+kl, t->help_txt+1);
 		}
 		else

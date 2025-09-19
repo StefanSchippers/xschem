@@ -799,8 +799,8 @@ void my_realloc(int id, void *ptr,size_t size)
 char *my_free(int id, void *ptr)
 {
  if(*(void **)ptr) {
-   free(*(void **)ptr);
    dbg(3, "\nmy_free(%d,):  freeing %p\n", id, *(void **)ptr);
+   free(*(void **)ptr);
    *(void **)ptr=NULL;
  } else {
    dbg(3, "\n--> my_free(%d,): trying to free NULL pointer\n", id);
