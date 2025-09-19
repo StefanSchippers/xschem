@@ -285,6 +285,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  } else {
   # handle uncommon primitives that have a prefix before the device name
   if(tolower($1) in special_devs) { 
+    # YDELAY ?1 Rda[4],Rda[3],Rda[2],Rda[1],Rda[0] ?1 softrst[4],softrst[3],...
     devprefix = $1
     num = split($3, name, ",")
     $1 = ""
