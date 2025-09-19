@@ -391,7 +391,12 @@ static void find_closest_box(double mx ,double my, int override_lock)
   for(i=0;i<xctx->rects[c]; ++i)
   {
    if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - threshold, xctx->rect[c][i].y1 - threshold,
-                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) )
+                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) && 
+      !POINTINSIDE(mx, my, xctx->rect[c][i].x1 + threshold, xctx->rect[c][i].y1 + threshold,
+                         xctx->rect[c][i].x2 - threshold, xctx->rect[c][i].y2 - threshold))
+
+
+
    {
     tmp=dist_from_rect(mx, my, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
