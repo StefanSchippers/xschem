@@ -27,17 +27,6 @@ BEGIN{
  first=1
  user_code=0 #20180129
 
- # used to handle strange primitives that have a type word before the instance name
- special_devs["ymemristor"] = 1
- special_devs["ylin"] = 1
- special_devs["ydelay"] = 1
- special_devs["ytransline"] = 1
- special_devs["ypgbr"] = 1
- special_devs["ypowergridbranch"] = 1
- special_devs["yacc"] = 1
- special_devs[".model"] = 1
- special_devs[".subckt"] = 1
-
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
    # if(ARGV[1] == "-xyce") { xyce = 1} 
    for(i=2; i<= ARGC;i++) {
@@ -53,20 +42,9 @@ BEGIN{
   if($0 ~ /^\/\/\/\/ begin user (architecture|header) code/) {
      user_code = 1
   }
-  if($0 ~ /^[+]/ && !user_code) {
-    yy = yy " " substr($0,2)
-    next
-  }
-  else {
-    zz = yy
-    yy = $0
-    $0 = zz
-    if(first) { 
-      first=0
-      next
-    }
-    line[lines++] = $0
-  }
+
+  line[lines++] = $0
+
   if($0 ~ /^\/\/\/\/ end user (architecture|header) code/) {
     user_code = 0
   }
@@ -74,8 +52,6 @@ BEGIN{
 
 END{
   user_code = 0
-  $0=yy
-  line[lines++] = $0
 
   ## resolve parametric instance name vector multiplicity
   substitute_instance_param()
@@ -256,20 +232,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   gsub(","," ",$0)
   print $0
  } else {
-  # handle uncommon primitives that have a prefix before the device name
-  if(tolower($1) in special_devs) { 
-    devprefix = $1
-    num = split($3, name, ",")
-    $1 = ""
-    for(i = 0; i < num; i++) {
-      if(i) $1 = $1 ","
-      $1 = $1 devprefix
-    }
-    num = split($1, name, ",")
-    $0 = $0
-  } else {
-    num = split($1, name, ",")
-  }
+  num = split($1, name, ",")
   if(num==0) print ""
 
  
