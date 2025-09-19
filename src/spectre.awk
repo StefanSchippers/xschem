@@ -39,7 +39,7 @@ BEGIN{
  special_devs[".subckt"] = 1
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
-   if(ARGV[1] == "-xyce") { xyce = 1} 
+   # if(ARGV[1] == "-xyce") { xyce = 1} 
    for(i=2; i<= ARGC;i++) {
      ARGV[i-1] = ARGV[i]
    }
@@ -83,15 +83,10 @@ END{
   for(i=0; i<lines; i++) {
     $0 = line[i]
 
-    ## /place to insert processing awk hooks
-    if(xyce == 1) {
-      ## transform ".save" lines into ".print tran" *only* for spice_probe elements, not user code
-      if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?-?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
-        $1 = ""
-        $0 = ".print " $0
-      } 
-      gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
-    }
+    ## place to insert processing awk hooks
+    # if(xyce == 1) {
+    #   ...
+    # }
     process()
   }
 }
@@ -149,7 +144,8 @@ function sign(x)
 
 function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 {
-
+  indent = $0
+  sub(/[^ \t].*/, "", indent)
   if($0 ~/\/\/\/\/ end_element/){
     spiceprefix=""
     return
@@ -251,30 +247,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 
  if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
 
- ## .save tran v(?1 GB ) v(?1 SB )
- ## ? may be followed by -1 in some cases
- if(tolower($1) ~ /^\.(save|print)$/ && $0 ~/\?-?[0-9]/) {
-   $0 = tolower($0)
-   saveinstr = $1
-   if(!xyce) {
-     $1=""
-     $0 = $0 # reparse line for field splitting
-  
-     gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity) 
-     gsub(/\( */, "(")
-     gsub(/ *\)/, ")")
-     for(i=1; i<=NF; i++) {
-       savetype=$i; sub(/\(.*/,"", savetype)  # v(...)  --> v
-       sub(/^.*\(/,"", $i)
-       sub(/\).*/,"", $i)
-       num = split($i, name, ",")
-       for(j=1; j<= num; j++) {
-         print saveinstr " " savetype "(" name[j] ")"
-       }
-     }
-   }
-   
- } else if( $1 ~ /^\/\.(ipin|opin|iopin)/ ) {
+ if( $1 ~ /^\/\.(ipin|opin|iopin)/ ) {
    num=split($2,name,",")
    for(i=1;i<=num;i++) print $1 " " name[i]
  } else if(  tolower($1) ~ /subckt/) {
@@ -312,7 +285,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   }
   for(i=1;i<=num;i++)
   {
-   printf "%s ", spiceprefix name[i]
+   printf "%s ", indent spiceprefix name[i]
 
    for(j=2;j<=NF;j++)
    {
