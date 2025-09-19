@@ -440,9 +440,9 @@ proc insert_running_cmds {lb} {
 proc update_process_status {lb} {
   global execute has_x
   set exists 0
-  set selected [$lb curselection]
   if { ![info exists has_x]} {return}
-  if { [winfo exists .pstat] } {
+  if {[winfo exists .processlist] && [winfo exists .pstat] } {
+    set selected [$lb curselection]
     set pos [lindex [.pstat.text yview] 1]
     if {$pos == 1} {
       if { $selected ne {} && [llength $selected] == 1} {
@@ -547,7 +547,7 @@ proc list_running_cmds {} {
     destroy $top
 
   "
-
+  wm protocol $top WM_DELETE_WINDOW " $frame3.b4 invoke "
   pack $frame3.b1 $frame3.b2 $frame3.b3 $frame3.b4 -side left -fill x -expand 1
   pack $frame1 -fill x -expand 0
   pack $frame2 -fill both -expand 1
