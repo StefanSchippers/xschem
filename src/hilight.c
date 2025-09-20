@@ -1227,13 +1227,14 @@ static void send_net_to_graph(char **s, int simtype, const char *node)
   const char *expanded_tok;
   const char *tok;
   char ss[1024] = "";
+  int raw_level = (xctx->raw && xctx->raw->level != -1) ? xctx->raw->level : 0;
   if(!node || !node[0]) return;
   tok = node;
   node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
   if(tok[0] == '#') tok++;
   if(node_entry  && (node_entry->d.port == 0 ||
                      /* !strcmp(xctx->sch_path[xctx->currsch], ".") */
-                       xctx->currsch == xctx->raw->level
+                       xctx->currsch == raw_level
                     )) {
     char *t=NULL, *p=NULL;
     char *path;
