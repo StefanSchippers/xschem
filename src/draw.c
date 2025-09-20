@@ -2508,7 +2508,9 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   dbg(1, "set_thick_waves(): what=%d\n", what);
   if(what) {
       if(gr->hilight_wave == wcnt) {
+         int min = (int) tk_scaling * 2;
          values.line_width = XLINEWIDTH(2.4 * gr->linewidth_mult * xctx->lw);
+         if(values.line_width < min) values.line_width = min;
          XChangeGC(display, xctx->gc[wave_col], valuemask, &values);
       }
   } else {
