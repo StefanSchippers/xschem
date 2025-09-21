@@ -2913,7 +2913,7 @@ proc graph_edit_wave {n n_wave} {
     destroy .graphdialog
   }
   button .graphdialog.cancel -text Cancel -command {destroy .graphdialog}
-  for {set i 4} {$i < $cadlayers} {incr i} {
+  for {set i 0} {$i < $cadlayers} {incr i} {
     radiobutton .graphdialog.f.r$i -value $i -background [lindex $tctx::colors $i] \
          -variable graph_sel_color -command {graph_change_wave_color $graph_sel_wave } \
          -selectcolor white -foreground black
@@ -3542,7 +3542,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.bottom.apply -side left
   pack .graphdialog.bottom.cancel -side left
 
-  for {set i 4} {$i <= $cadlayers} {incr i} {
+  for {set i 0} {$i <= $cadlayers} {incr i} {
     if {$i == $cadlayers } {
       button .graphdialog.bottom.r$i -padx 1 -borderwidth 1 -pady 0 \
         -command "set_graph_default_colors" \
