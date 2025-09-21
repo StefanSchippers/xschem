@@ -713,10 +713,10 @@ if {[info commands lassign] eq {}} {
 }
 
 # return "$n * $indent" spaces
-proc spaces {n {indent 4}} {
+proc spaces {n {indent 4} {char { }}} {
   set n [expr {$n * $indent}]
   # return [format %${n}s {}]
-  return [string repeat { } $n]
+  return [string repeat $char $n]
 }
 
 # complex number operators
@@ -2313,7 +2313,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
     # puts "building frame $sf.f$cnt"
     frame $sf.f$cnt
     pack $sf.f$cnt -side top -fill x
-    label  $sf.f$cnt.i -text "[spaces $level 2]$instname" \
+    label  $sf.f$cnt.i -text "[spaces $level 1 {* }]$instname" \
         -width 25 -anchor w -padx 4 -borderwidth 1 \
         -relief sunken -pady 1 -font $font
     label  $sf.f$cnt.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
