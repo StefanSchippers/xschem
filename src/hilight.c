@@ -1220,55 +1220,35 @@ static void send_net_to_bespice(int simtype, const char *node)
   }
 }
 
-static void send_net_to_graph(char **s, int simtype, const char *node)
+static void send_net_to_graph(char **s, int simtype, const char *tok)
 {
   int c, k, tok_mult;
-  Node_hashentry *node_entry;
-  const char *expanded_tok;
-  const char *tok;
   char ss[1024] = "";
-  int raw_level = (xctx->raw && xctx->raw->level != -1) ? xctx->raw->level : 0;
-  if(!node || !node[0]) return;
-  tok = node;
-  node_entry = bus_node_hash_lookup(tok, "", XLOOKUP, 0, "", "", "", "");
-  if(tok[0] == '#') tok++;
-  if(node_entry  && (node_entry->d.port == 0 ||
-                     /* !strcmp(xctx->sch_path[xctx->currsch], ".") */
-                       xctx->currsch == raw_level
-                    )) {
-    char *t=NULL, *p=NULL;
-    char *path;
-    int start_level;
-    c = get_color(xctx->hilight_color);
-    expanded_tok = expandlabel(tok, &tok_mult);
-    my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
-    path = p;
-    start_level = sch_waves_loaded();
-    if(path) {
-      int skip = 0;
-      /* skip path components that are above the level where raw file was loaded */
-      while(*path && skip < start_level) {
-        if(*path == '.') skip++;
-        ++path;
-      }
-    }
-    strtolower(path);
-    for(k=1; k<=tok_mult; ++k) {
-      my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
-      strtolower(t);
-      if(simtype == 0 ) { /* ngspice */
-        dbg(1, "%s%s color=%d\n", path, t, c);
-        my_snprintf(ss, S(ss), "%s%s %d ", path, t, c);
-        my_strcat(_ALLOC_ID_, s, ss);
-      } else { /* Xyce */
-        my_snprintf(ss, S(ss), "%s%s %d", path, t, c);
-        my_strcat(_ALLOC_ID_, s, ss);
-      }
+  char *t=NULL;
+  char *fqnet;
 
+  if(!tok || !tok[0]) return;
+  if(tok[0] == '#') tok++;
+  c = get_color(xctx->hilight_color);
+  fqnet = resolved_net(tok);
+  if(!fqnet) return;
+  tok_mult = count_items(fqnet, ",", "");
+  for(k=1; k<=tok_mult; ++k) {
+    my_strdup(_ALLOC_ID_, &t, find_nth(fqnet, ",", "", 0, k));
+    if(!t) continue;
+    strtolower(t);
+    if(simtype == 0 ) { /* ngspice */
+      dbg(1, "s color=%d\n", t, c);
+      my_snprintf(ss, S(ss), "%s %d ", t, c);
+      my_strcat(_ALLOC_ID_, s, ss);
+    } else { /* Xyce */
+      my_snprintf(ss, S(ss), "%s %d", t, c);
+      my_strcat(_ALLOC_ID_, s, ss);
     }
-    my_free(_ALLOC_ID_, &p);
-    my_free(_ALLOC_ID_, &t);
+
   }
+  my_free(_ALLOC_ID_, &t);
+  my_free(_ALLOC_ID_, &fqnet);
 }
 
 static void send_net_to_gaw(int simtype, const char *node)
