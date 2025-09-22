@@ -1,4 +1,4 @@
-`timescale 1ns/1ns // needed for Icarus
+`timescale 1ps/1ps // needed for Icarus
 
 module counter (
     input clk,

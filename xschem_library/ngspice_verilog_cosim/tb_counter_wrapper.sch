@@ -5,7 +5,7 @@ V {}
 S {}
 F {}
 E {}
-B 2 40 -890 1080 -550 {flags=graph
+B 2 600 -930 1340 -590 {flags=graph
 y1=0
 y2=2
 ypos1=0.12703394
@@ -13,8 +13,8 @@ ypos2=1.7910429
 divy=5
 subdivy=1
 unity=1
-x1=7.3755098e-15
-x2=4e-05
+x1=0
+x2=2e-06
 divx=5
 subdivx=1
 xlabmag=1.0
@@ -33,7 +33,7 @@ unitx=1
 logx=0
 logy=0
 digital=1}
-B 2 40 -1220 1080 -890 {flags=graph
+B 2 600 -1260 1340 -930 {flags=graph
 y1=0
 y2=0.43
 ypos1=0
@@ -41,8 +41,8 @@ ypos2=2
 divy=5
 subdivy=1
 unity=1
-x1=7.3755098e-15
-x2=4e-05
+x1=0
+x2=2e-06
 divx=5
 subdivx=1
 xlabmag=1.0
@@ -69,20 +69,34 @@ N 790 -240 790 -210 {lab=count_out3}
 N 910 -240 910 -210 {lab=count_out2}
 N 1030 -240 1030 -210 {lab=count_out1}
 N 1150 -240 1150 -210 {lab=count_out0}
-C {vsource.sym} 70 -180 0 0 {name=VCLOCK value="pulse 0 'VCC' 500n 10n 10n 490n 1u"}
+C {vsource.sym} 70 -180 0 0 {name=VCLOCK value="pulse 0 'VDD' 49995p 10p 10p 49990p 100n"}
 C {lab_pin.sym} 70 -150 0 0 {name=p6 lab=0}
 C {lab_pin.sym} 70 -230 0 0 {name=p13 lab=CLK}
-C {code_shown.sym} 40 -490 0 0 {name=COMMANDS only_toplevel=false value="
-.param VCC=1.8
+C {code_shown.sym} 0 -1110 0 0 {name=COMMANDS only_toplevel=false value="
+.param VDD=1.8
 
 .control
+
+**** change default parameters of auto adc/dac bridges
+pre_set auto_bridge_d_in =
++ ( \\".model auto_adc adc_bridge(
++   in_low = '0.9 * 1.8 / 2' in_high = '1.1 * 1.8 / 2'
++   rise_delay=1e-11 fall_delay=1e-11 )\\"
++ \\"auto_bridge%d [ %s ] [ %s ] auto_adc\\" )
+
+pre_set auto_bridge_d_out =
++ ( \\".model auto_dac dac_bridge(
++   out_low = 0 out_high = 1.8
++   t_rise=1e-11 t_fall=1e-11 )\\"
++ \\"auto_bridge%d [ %s ] [ %s ] auto_dac\\" )
+
   save all
-  tran 10n 50u
+  tran 10p 2u
   remzerovec
   write tb_counter_wrapper.raw
 .endc
 "}
-C {launcher.sym} 480 -510 0 0 {name=h5
+C {launcher.sym} 630 -550 0 0 {name=h5
 descr="load waves" 
 tclcommand="xschem raw_read $netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran"
 }
@@ -94,17 +108,17 @@ C {counter.sym} 530 -430 0 0 {name=a1 model=counter
 **** the model you DON'T want to use:
 
 ***Verilator***
-*device_model=".model counter d_cosim simulation=\\"./counter.so\\""
+*device_model=".model counter d_cosim simulation=\\"./counter.so\\" delay=0"
 
 ***Icarus_verilog***
-device_model=".model counter d_cosim simulation=\\"ivlng\\" sim_args=[\\"counter\\"]"
+device_model=".model counter d_cosim simulation=\\"ivlng\\" sim_args=[\\"counter\\"] delay=0"
 
-tclcommand="edit_file counter.v"}
+tclcommand="edit_file [abs_sym_path counter.v]"}
 C {parax_cap.sym} 820 -380 0 0 {name=C2[3..0] gnd=0 value=1f m=1}
-C {launcher.sym} 890 -490 0 0 {name=h3
+C {launcher.sym} 1020 -490 0 0 {name=h3
 descr="Verilate Design" 
 tclcommand="execute 1 sh -c \\"cd $netlist_dir; ngspice vlnggen [abs_sym_path counter.v]\\""}
-C {launcher.sym} 890 -530 0 0 {name=h1
+C {launcher.sym} 1020 -530 0 0 {name=h1
 descr="Icarusate Design" 
 tclcommand="execute 1 sh -c \\"cd $netlist_dir; iverilog -o counter [abs_sym_path counter.v]\\""
 }
