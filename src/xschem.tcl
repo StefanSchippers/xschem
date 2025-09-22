@@ -3129,6 +3129,7 @@ proc graph_change_wave_color {{wave {}}} {
   global graph_sel_color graph_selected graph_schname
 
   if { [xschem get schname] ne $graph_schname } return
+  graph_push_undo
   #  get tag the cursor is on:
   if { $wave eq {}} {
     set sel_range [.graphdialog.center.right.text1 tag ranges sel]
