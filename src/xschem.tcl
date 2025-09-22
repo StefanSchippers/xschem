@@ -3330,7 +3330,7 @@ proc set_rect_flags {graph_selected} {
       xschem setprop -fast rect 2 $graph_selected flags "graph$unlocked$private_cursor" 
   }
 
-proc graphdialog_set_raw_props {} {
+proc graph_set_raw_props {} {
   global graph_selected
   xschem setprop -fast rect 2 $graph_selected rawfile [.graphdialog.center.right.rawentry get] 
   xschem setprop -fast rect 2 $graph_selected sim_type [.graphdialog.center.right.list get] 
@@ -3472,11 +3472,11 @@ proc graph_edit_properties {n} {
    .graphdialog.center.right.rawentry delete 0 end
    .graphdialog.center.right.rawentry insert 0 \
      [string map [list $netlist_dir {$netlist_dir}] [select_raw .graphdialog]]
-    graphdialog_set_raw_props
+    graph_set_raw_props
   }
 
-  bind .graphdialog.center.right.rawentry <KeyRelease> graphdialog_set_raw_props
-  bind .graphdialog.center.right.rawentry <Leave> graphdialog_set_raw_props
+  bind .graphdialog.center.right.rawentry <KeyRelease> graph_set_raw_props
+  bind .graphdialog.center.right.rawentry <Leave> graph_set_raw_props
 
   .graphdialog.center.right.rawentry insert 0 [xschem getprop rect 2 $graph_selected rawfile 2]
   .graphdialog.center.right.rawentry xview moveto 1
