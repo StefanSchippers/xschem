@@ -3401,7 +3401,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 5) {
         char *strcopy = NULL, *strptr = NULL, *saveptr = NULL, *tok;
 
-        my_strdup(_ALLOC_ID_, &strcopy, argv[2]);
+        my_strdup2(_ALLOC_ID_, &strcopy, argv[2]);
         strptr = strcopy;
 
         while( (tok = my_strtok_r(strptr, argv[3], argv[4], atoi(argv[5]), &saveptr)) ) {

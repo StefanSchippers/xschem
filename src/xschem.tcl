@@ -3089,7 +3089,6 @@ proc graph_delete_nodes {} {
     .graphdialog.center.right.text1 delete 1.0 end
     .graphdialog.center.right.text1 insert 1.0 $node
     xschem setprop -fast rect 2 $graph_selected color $col
-    graph_update_node $node
   }
 }
 
@@ -3442,10 +3441,16 @@ proc graph_edit_properties {n} {
   entry .graphdialog.center.left.search -width 10 
   entry_replace_selection .graphdialog.center.left.search
   button .graphdialog.center.left.add -text Add -command {
-    graph_add_nodes; graph_update_nodelist
+    graph_add_nodes
+    if { [xschem get schname] eq $graph_schname } {
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+    }
   }
   button .graphdialog.center.left.del -text Del -command {
-    graph_delete_nodes; graph_update_nodelist
+    graph_delete_nodes
+    if { [xschem get schname] eq $graph_schname } { 
+      graph_update_node [string trim [.graphdialog.center.right.text1 get 1.0 {end - 1 chars}] " \n"]
+    }
   }
   listbox .graphdialog.center.left.list1 -width 20 -height 5 -selectmode extended \
      -yscrollcommand {.graphdialog.center.left.yscroll set} \
