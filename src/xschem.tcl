@@ -3085,7 +3085,7 @@ proc graph_delete_nodes {} {
     set col [lreplace $col $index $index]
     set node [lreplace $node $index $index]
     set node [join $node \n]
-
+    graph_push_undo
     .graphdialog.center.right.text1 delete 1.0 end
     .graphdialog.center.right.text1 insert 1.0 $node
     xschem setprop -fast rect 2 $graph_selected color $col
