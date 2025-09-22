@@ -3173,6 +3173,8 @@ proc graph_tag_nodes {txt} {
 
 
   set start 0
+  # transform escaped newlines into two spaces, so tagging of multiline nodes is simpler
+  regsub -all "\\\\\n" $txt {  } txt
   if {[regexp {^tcleval\(} $txt]} {
     set start 8
     regsub {\)[ \n]*$} $txt {} txt
