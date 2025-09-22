@@ -7562,7 +7562,7 @@ proc input_line {txt {cmd {}} {preset {}}  {w 12}} {
     set tctx::retval \[.dialog.f1.e get\]
     destroy .dialog
   "
-  button .dialog.f2.cancel -text Cancel -command { destroy .dialog }
+  button .dialog.f2.cancel -text Cancel -command {  set tctx::retval {}; destroy .dialog }
   pack .dialog.f2.ok  -anchor w -side left
   pack .dialog.f2.cancel -anchor e
   pack .dialog.f1
