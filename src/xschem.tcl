@@ -3073,6 +3073,26 @@ proc graph_add_nodes {} {
   }
 }
 
+proc graph_delete_nodes {} {
+  global graph_selected
+  set tag [.graphdialog.center.right.text1 tag names insert]
+  if { [regexp {^t} $tag]} {
+    set change_done 1
+    set index [string range $tag 1 end]
+    set col  [xschem getprop rect 2 $graph_selected color]
+    set node [xschem my_strtok_r [xschem getprop rect 2 $graph_selected node] \n \" 1]
+
+    set col [lreplace $col $index $index]
+    set node [lreplace $node $index $index]
+    set node [join $node \n]
+
+    .graphdialog.center.right.text1 delete 1.0 end
+    .graphdialog.center.right.text1 insert 1.0 $node
+    xschem setprop -fast rect 2 $graph_selected color $col
+    graph_update_node $node
+  }
+}
+
 proc graph_get_signal_list {siglist pattern } {
   global graph_sort
   set direction {-decreasing}
@@ -3424,6 +3444,9 @@ proc graph_edit_properties {n} {
   button .graphdialog.center.left.add -text Add -command {
     graph_add_nodes; graph_update_nodelist
   }
+  button .graphdialog.center.left.del -text Del -command {
+    graph_delete_nodes; graph_update_nodelist
+  }
   listbox .graphdialog.center.left.list1 -width 20 -height 5 -selectmode extended \
      -yscrollcommand {.graphdialog.center.left.yscroll set} \
      -xscrollcommand {.graphdialog.center.left.xscroll set}
@@ -3433,8 +3456,9 @@ proc graph_edit_properties {n} {
   grid configure .graphdialog.center.left.labsearch -row 0 -column 0
   grid configure .graphdialog.center.left.search -row 0 -column 1 -sticky ew
   grid configure .graphdialog.center.left.add -row 0 -column 2 
-  grid .graphdialog.center.left.list1 - - .graphdialog.center.left.yscroll -sticky nsew
-  grid .graphdialog.center.left.xscroll - - -sticky nsew
+  grid configure .graphdialog.center.left.del -row 0 -column 3 
+  grid .graphdialog.center.left.list1 - - - .graphdialog.center.left.yscroll -sticky nsew
+  grid .graphdialog.center.left.xscroll - - - -sticky nsew
   grid rowconfig .graphdialog.center.left 0 -weight 0
   grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 2c
   # grid columnconfig .graphdialog.center.left 0 -weight 1
