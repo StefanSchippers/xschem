@@ -3150,7 +3150,7 @@ proc graph_change_wave_color {{wave {}}} {
       xschem draw_graph $graph_selected
     } else {
       set tag [.graphdialog.center.right.text1 tag names insert]
-      if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
+      # if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
       if { [regexp {^t} $tag]} {
         set index [string range $tag 1 end]
         set col  [xschem getprop rect 2 $graph_selected color]
@@ -3404,6 +3404,7 @@ proc graph_edit_properties {n} {
   # another row of buttons
   frame .graphdialog.top2 
   frame .graphdialog.top3 
+  frame .graphdialog.top4 
   panedwindow .graphdialog.center -orient horiz
   frame .graphdialog.bottom
   frame .graphdialog.center.left
@@ -3412,6 +3413,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top -side top -fill x 
   pack .graphdialog.top2 -side top -fill x 
   pack .graphdialog.top3 -side top -fill x 
+  pack .graphdialog.top4 -side top -fill x 
   pack .graphdialog.center -side top -fill both -expand yes
   pack .graphdialog.bottom -side top -fill x 
   # center-left frame
@@ -3427,12 +3429,14 @@ proc graph_edit_properties {n} {
   scrollbar .graphdialog.center.left.yscroll -command {.graphdialog.center.left.list1 yview}
   scrollbar .graphdialog.center.left.xscroll -orient horiz -command {.graphdialog.center.left.list1 xview}
 
-  grid .graphdialog.center.left.labsearch .graphdialog.center.left.search .graphdialog.center.left.add
+  grid configure .graphdialog.center.left.labsearch -row 0 -column 0
+  grid configure .graphdialog.center.left.search -row 0 -column 1 -sticky ew
+  grid configure .graphdialog.center.left.add -row 0 -column 2 
   grid .graphdialog.center.left.list1 - - .graphdialog.center.left.yscroll -sticky nsew
   grid .graphdialog.center.left.xscroll - - -sticky nsew
   grid rowconfig .graphdialog.center.left 0 -weight 0
   grid rowconfig .graphdialog.center.left 1 -weight 1 -minsize 2c
-  grid columnconfig .graphdialog.center.left 0 -weight 1
+  # grid columnconfig .graphdialog.center.left 0 -weight 1
   grid columnconfig .graphdialog.center.left 1 -weight 1
 
   # center right frame
@@ -3556,15 +3560,15 @@ proc graph_edit_properties {n} {
 
   for {set i 0} {$i <= $cadlayers} {incr i} {
     if {$i == $cadlayers } {
-      button .graphdialog.bottom.r$i -padx 1 -borderwidth 1 -pady 0 \
+      button .graphdialog.top4.r$i -padx 1 -borderwidth 1 -pady 0 \
         -command "set_graph_default_colors" \
         -text {AUTO SET}
     } else {
-      radiobutton .graphdialog.bottom.r$i -value $i -background [lindex $tctx::colors $i] \
+      radiobutton .graphdialog.top4.r$i -value $i -background [lindex $tctx::colors $i] \
         -variable graph_sel_color -command graph_change_wave_color \
         -selectcolor white -foreground black
     }
-    pack .graphdialog.bottom.r$i -side left
+    pack .graphdialog.top4.r$i -side left
   }
 
   # top2 frame
