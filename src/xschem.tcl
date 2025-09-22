@@ -9527,7 +9527,7 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.hilight add command \
    -label {Set schematic to compare and compare with} \
-   -command "set compare_sch 1; xschem compare_schematics" 
+   -command "xschem compare_schematics; set compare_sch 1" 
   $topwin.menubar.hilight add command \
    -label {Swap compare schematics} \
    -command "swap_compare_schematics" 
