@@ -3030,7 +3030,7 @@ proc graph_add_nodes_from_list {nodelist} {
 
 # add nodes from left listbox
 proc graph_add_nodes {} {
-  global graph_bus
+  global graph_bus graph_sel_color graph_selected
   set sel_idx [.graphdialog.center.left.list1 curselection]
   set sel {}
   if {$graph_bus} {
@@ -3059,7 +3059,17 @@ proc graph_add_nodes {} {
     set sel "${sel}\n"
   }
   if {$change_done} {
+    set tag [.graphdialog.center.right.text1 tag names insert]
+    if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
     .graphdialog.center.right.text1 insert {insert lineend + 1 char} $sel
+    # insert $graph_sel_color colors along with inserted nodes, so previous wave colors are preserved
+    if { [regexp {^t} $tag]} {
+      set index [string range $tag 1 end]
+      incr index
+      set col  [xschem getprop rect 2 $graph_selected color]
+      set col [linsert $col $index $graph_sel_color]
+      xschem setprop -fast rect 2 $graph_selected color $col
+    }
   }
 }
 
