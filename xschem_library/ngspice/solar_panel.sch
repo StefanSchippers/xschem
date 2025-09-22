@@ -134,9 +134,8 @@ x2=0.001
 divx=9
 
  unitx=m subdivx=4
-color="7 4 6 8 4"
-node="Panel power; i(Vpanel)\\\\
- v(PANEL) *
+color="7 4 6 8"
+node="Panel power; i(Vpanel) v(PANEL) *
 Led power; i(Vled) v(LED) *
 Avg.Pan. Pwr; i(Vpanel) v(PANEL) * 20u ravg()
 SUN \\\\%; SUN 100 *"
