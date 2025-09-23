@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 840 -580 1640 -170 {flags=graph
 y1=6.3e-14
@@ -89,8 +90,7 @@ analog begin
 end
 endmodule
 } 40 -870 0 0 0.2 0.2 {font=monospace}
-T {create a diff_amp.va file with following code 
-and compile it into a .osdi file with openvaf.} 190 -940 0 0 0.4 0.4 {}
+T {This symbol is described by a diff_amp.va Verilog-A file} 100 -920 0 0 0.4 0.4 {}
 N 180 -450 320 -450 {lab=B}
 N 80 -530 320 -530 {lab=A}
 N 520 -490 640 -490 {lab=Z}
@@ -128,4 +128,10 @@ C {launcher.sym} 670 -170 0 0 {name=h1
 descr="OP annotate" 
 tclcommand="xschem annotate_op"
 }
-C {diff_amp.sym} 420 -490 0 0 {name=X1 model=diff_amp_cell gain=100 amplitude=5 offset=2.5}
+C {diff_amp.sym} 420 -490 0 0 {name=X1 model=diff_amp_cell gain=100 amplitude=5 offset=2.5
+tclcommand="edit_file [abs_sym_path diff_amp.va]"}
+C {launcher.sym} 450 -390 0 0 {name=h2
+descr="Compile Verilog-A file" 
+
+tclcommand="execute 1 sh -c \\" openvaf [abs_sym_path diff_amp.va] \\"  "
+}

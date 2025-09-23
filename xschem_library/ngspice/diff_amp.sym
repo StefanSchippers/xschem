@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -28,7 +28,7 @@ template="name=X1 model=diff_amp_cell gain=40 amplitude=3 offset=1.5"
 device_model="tcleval(
 .control
 * following line specifies the location for the .osdi file so ngspice can use it.
-pre_osdi $USER_CONF_DIR/xschem_library/diff_amp.osdi
+pre_osdi [abs_sym_path diff_amp.osdi]
 .endc
 
 .model diff_amp_model diff_amp $ gain=40 amplitude=3 offset=1.5
@@ -40,6 +40,7 @@ N1 out in1 in2 diff_amp_model gain=gain amplitude=amplitude offset=offset
 }
 V {}
 S {}
+F {}
 E {}
 L 4 -100 -40 -80 -40 {}
 L 4 80 0 100 0 {}

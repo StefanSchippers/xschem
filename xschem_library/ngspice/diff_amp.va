@@ -1,0 +1,21 @@
+// importing libs
+`include "discipline.h"
+
+module diff_amp(
+  output electrical out, 
+  input electrical in1,
+  input electrical in2);
+
+(* desc="gain", units="", type="instance" *)   parameter real gain = 40 from [-inf: inf];
+(* desc="amplitude", units="", type="instance" *)    parameter real amplitude = 3 from [-inf: inf];
+(* desc="offset", units="", type="instance" *) parameter real offset = 1.5 from [-inf: inf];
+
+analog begin
+
+    V(out) <+ offset + amplitude / 2 * tanh( gain / amplitude * 2 * V(in1, in2));
+
+end
+endmodule
+
+
+
