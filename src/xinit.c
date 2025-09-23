@@ -1552,7 +1552,6 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
     }
     /* if window was closed then tkwin == 0 --> do nothing */
     if(tkwin && n >= 0 && n < MAX_NEW_WINDOWS) {
-      struct stat buf;
  
       if(tcl_ctx) tclvareval("save_ctx ", xctx->current_win_path, NULL);
       xctx = save_xctx[n];
@@ -1561,12 +1560,7 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
         tclvareval("housekeeping_ctx", NULL);
       }
       if(tcl_ctx && has_x) tclvareval("reconfigure_layers_button {}", NULL);
-      if(!stat( xctx->sch[xctx->currsch], &buf) && xctx->time_last_modify &&
-          xctx->time_last_modify != buf.st_mtime) {
-        set_modify(1);
-      } else {
-        set_modify(-1); /* sets window title */
-      }
+      set_modify(-1); /* sets window title */
       return 0;
     } else return 1;
   }
@@ -1603,7 +1597,6 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
     dbg(1, "new_schematic() switch_tab: %s\n", new_path);
     /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
-      struct stat buf;
       if(xctx->current_win_path) {
         my_strncpy(previous_win_path, xctx->current_win_path, sizeof(previous_win_path));
       }
@@ -1615,13 +1608,7 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
       if(has_x) tclvareval("reconfigure_layers_button {}", NULL);
       xctx->window = save_xctx[0]->window;
       if(dr) resetwin(1, 1, 1, 0, 0);
-        /* file exists and modification time on disk has changed since file loaded ... */
-      if(!stat( xctx->sch[xctx->currsch], &buf) && xctx->time_last_modify &&
-          xctx->time_last_modify != buf.st_mtime) {
-        set_modify(1);
-      } else {
-        set_modify(-1); /* sets window title */
-      }
+      set_modify(-1); /* sets window title */
       if(dr) draw();
       return 0;
     } else return 1;

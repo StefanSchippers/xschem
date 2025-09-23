@@ -4623,7 +4623,8 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   int wire_draw_active = (xctx->ui_state & STARTWIRE) ||
                          ((xctx->ui_state2 & MENUSTARTWIRE) && (xctx->ui_state & MENUSTART)) ||
                          (persistent_command && (xctx->last_command & STARTWIRE));
- 
+  struct stat buf;
+
   /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
    * events. Some remote connection softwares do not generate the correct coordinates
    * on such events */
@@ -4660,6 +4661,13 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
  
   xctx->semaphore++; /* to recognize recursive callback() calls */
  
+
+  /* file exists and modification time on disk has changed since file loaded ... */
+  if(!xctx->modified && !stat( xctx->sch[xctx->currsch], &buf) && xctx->time_last_modify &&
+     xctx->time_last_modify != buf.st_mtime) {
+     set_modify(1);
+  }
+
   c_snap = tclgetdoublevar("cadsnap");
   #ifdef __unix__
   state &= (1 <<13) -1; /* filter out anything above bit 12 (4096) */

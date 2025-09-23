@@ -5098,7 +5098,6 @@ void draw(void)
   #endif
 
   dbg(1, "draw()\n");
-  
   if(!xctx || xctx->no_draw) return;
   tk_scaling = atof(tcleval("tk scaling"));
   cs = tclgetdoublevar("cadsnap");
