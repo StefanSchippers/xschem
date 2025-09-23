@@ -2482,7 +2482,7 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   my_strdup2(_ALLOC_ID_, &ntok_copy, ntok);
   nptr = ntok_copy;
   my_strtok_r(nptr, ";,", "", 0, &saven); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ";, \n", "", 0, &saven)) ) {
+  while( (bit_name = my_strtok_r(NULL, ";, \\\n", "", 0, &saven)) ) {
     int idx;
     if(p >= *n_bits) break; /* security check to avoid out of bound writing */
     if( (idx = get_raw_index(bit_name, NULL)) != -1) {
