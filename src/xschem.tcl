@@ -9868,9 +9868,11 @@ proc set_replace_key_binding { {win_path {.drw}}} {
 }
 
 proc source_user_tcl_files {} {
-  global tcl_files
-  foreach i [subst $tcl_files] {
-    uplevel #0 [list source $i]
+  set subst_tcl_files [uplevel #0 {subst $tcl_files}]
+  foreach i $subst_tcl_files {
+    if {[catch "uplevel #0 {[list source $i]}" retval]} {
+      puts $retval
+    }
   }
 }
 
