@@ -9869,7 +9869,7 @@ proc set_replace_key_binding { {win_path {.drw}}} {
 
 proc source_user_tcl_files {} {
   global tcl_files
-  foreach i $tcl_files {
+  foreach i [subst $tcl_files] {
     uplevel #0 [list source $i]
   }
 }
