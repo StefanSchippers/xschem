@@ -209,6 +209,11 @@ int hook_postarg()
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/rom8k");
 
+                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
+                append("/local/xschem/xschem-lib-path", "/");
+                append("/local/xschem/xschem-lib-path", "share/doc/xschem/analyses");
+
         }
         return 0;
 }
