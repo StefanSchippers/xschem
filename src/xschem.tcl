@@ -1212,9 +1212,9 @@ proc save_sim_defaults {f} {
 }
 
 proc load_recent_file {} {
-  global USER_CONF_DIR recentfile has_x
+  global USER_CONF_DIR has_x
   # recent files
-  set recentfile {}
+  set tctx::recentfile {}
   if { [file exists $USER_CONF_DIR/recent_files] } {
     if {[catch { source $USER_CONF_DIR/recent_files } err] } {
       puts "Problems opening recent_files: $err"
@@ -1237,34 +1237,34 @@ proc load_recent_file {} {
 }
 
 proc update_recent_file {f {topwin {} } } {
-  global recentfile  has_x
+  global has_x
   # puts "update recent file, f=$f, topwin=$topwin"
-  set old $recentfile
-  set recentfile {}
-  lappend recentfile $f
+  set old $tctx::recentfile
+  set tctx::recentfile {}
+  lappend tctx::recentfile $f
   foreach i $old {
     if {[abs_sym_path $i] ne [abs_sym_path $f]} {
-      lappend recentfile [abs_sym_path $i]
+      lappend tctx::recentfile [abs_sym_path $i]
     }
   }
   # tcl8.4 errors if using lreplace past the last element
-  if { [llength $recentfile] > 10  } {
-    set recentfile [lreplace $recentfile 10 end]
+  if { [llength $tctx::recentfile] > 10  } {
+    set tctx::recentfile [lreplace $tctx::recentfile 10 end]
   }
   write_recent_file
   if { [info exists has_x] } {setup_recent_menu $topwin}
 }
 
 proc write_recent_file {} {
-  global recentfile USER_CONF_DIR
+  global USER_CONF_DIR
 
-  # puts "write recent file recentfile=$recentfile"
+  # puts "write recent file tctx::recentfile=$tctx::recentfile"
   set a [catch {open $USER_CONF_DIR/recent_files w} fd]
   if { $a } {
     puts "write_recent_file: error opening file $f: $fd"
     return
   }
-  puts $fd "set recentfile {$recentfile}"
+  puts $fd "set tctx::recentfile {$tctx::recentfile}"
 
   if {[info exists c_toolbar::c_t]} {
     set hash $c_toolbar::c_t(hash)
@@ -1284,11 +1284,10 @@ proc write_recent_file {} {
 }
 
 proc setup_recent_menu { { topwin {} } } {
-  global recentfile
   $topwin.menubar.file.recent delete 0 9
   set i 0
-  if { [info exists recentfile] } {
-    foreach i $recentfile {
+  if { [info exists tctx::recentfile] } {
+    foreach i $tctx::recentfile {
       $topwin.menubar.file.recent add command \
         -command "xschem load -gui {$i}" \
         -label [file tail $i]
@@ -8607,12 +8606,12 @@ set tctx::global_list {
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
  no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
- ps_paper_size rainbow_colors recentfile rotated_text search_case search_exact
+ ps_paper_size rainbow_colors rotated_text search_case search_exact
  search_found search_schematic search_select search_value select_touch
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop
- tctx::colors tctx::delay_flag tctx::hsize
+ tctx::colors tctx::delay_flag tctx::hsize tctx::recentfil
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
  text_line_default_geometry text_replace_selection text_tabs_setting
@@ -9054,7 +9053,7 @@ proc load_raw {{type {}}} {
 proc build_widgets { {topwin {} } } {
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
   global dark_gui_colorscheme draw_crosshair grid_point_size
-  global recentfile color_ps transparent_svg menu_debug_var enable_stretch
+  global color_ps transparent_svg menu_debug_var enable_stretch
   global netlist_show flat_netlist split_files compare_sch intuitive_interface
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width cadence_compat
   global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type snap_cursor
@@ -9128,7 +9127,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add command -label "Open in new window" -command "xschem load_new_window" \
     -accelerator {Alt+O}
   $topwin.menubar.file add command -label "Open Most Recent" \
-    -command {xschem load -gui [lindex "$recentfile" 0]} -accelerator {Ctrl+Shift+O}
+    -command {xschem load -gui [lindex "$tctx::recentfile" 0]} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
   menu $topwin.menubar.file.recent -tearoff 0 -takefocus 0
   setup_recent_menu $topwin

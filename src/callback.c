@@ -2104,7 +2104,7 @@ static void context_menu_action(double mx, double my)
       merge_file(2,".sch");
       break;
     case 9: /* load most recent file */
-      tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
+      tclvareval("xschem load -gui [lindex $tctx::recentfile 0]", NULL);
       break;
     case 10: /* edit attributes */
       edit_property(0);
@@ -3221,7 +3221,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case 'O':
       if(rstate == ControlMask ) { /* load most recent tile */
-        tclvareval("xschem load -gui [lindex $recentfile 0]", NULL);
+        tclvareval("xschem load -gui [lindex $tctx::recentfile 0]", NULL);
       }
       else if(rstate == 0) { /* toggle light/dark colorscheme 20171113 */
         int d_c;
