@@ -206,15 +206,25 @@ proc netlister {netlist_type} {
         set suffix [string range $type [string length $prefix] end]
         # Construct formatter function name
         set func [join [list "format_" "$suffix" "_" "$netlist_type"] ""]
-        #try {
-            set cmd [$func $name]
-            if {[string length $cmd] > 0} {
-                lappend blocks [format_sweep_chain_$netlist_type $name $cmd types]
+        try {
+            # Format analysis and post analysis script
+            set retval [$func $name]
+            if {[llength $retval] == 2} {
+                lassign $retval cmd postcmd
+            } else {
+                set cmd $retval
+                set postcmd ""
             }
-        #} on error (msg) {
-        #    puts "Error during formatting command $name"
-        #    continue
-        #}
+            # Format sweep and add it to analysis
+            set swcmd [format_sweep_chain_$netlist_type $name $cmd types]
+            # Wrap (swept) analysis and post analysis script in a block
+            if {[string length $swcmd] > 0} {
+                lappend blocks [wrap_analysis_$netlist_type $swcmd $postcmd]
+            }
+        } on error msg {
+            puts "Error formatting $name: $msg"
+            continue
+        }
     }
     return [wrap_control_$netlist_type $blocks]
 }
@@ -224,9 +234,14 @@ proc netlister {netlist_type} {
 # Netlister for VACASK
 #
 
+# Wrap analysis
+proc wrap_analysis_spectre {cmds postcmd} {
+    return "$cmds"
+}
+
 # Wrap in control block
 proc wrap_control_spectre {cmds} {
-    set control [indent [join $cmds "\n"] "  "]
+    set control [indent [join $cmds "\n\n"] "  "]
     return [join [list "//// begin user architecture code" "control" "$control" "endc" "//// end user architecture code"] "\n"]
 }
 
@@ -241,7 +256,7 @@ proc format_sweep_chain_spectre {name anstr types} {
         # Yes, reverse sweep chain
         set sweeplist [lreverse $sweeplist]
         # Join sweeps
-        set sweeps [join $sweeplist "\n"]
+        set sweeps [join "$sweeplist" "\n"]
         return "$sweeps\n  $anstr"
     } else {
         return "$anstr"
@@ -261,10 +276,9 @@ proc format_sweep_spectre {parent sweeplist types} {
             # Sweep has tag property
             try {
                 lappend swl [format_single_sweep_spectre $sweep]
-            } on error (msg) {
+            } on error msg {
                 # Stop traversing chain on error
-                puts "Error during formating command $sweep"
-                return 
+                error "$sweep: $msg"
             }
             # Recursion into parent sweep
             format_sweep_spectre $sweep swl typesdict
@@ -299,7 +313,7 @@ proc format_verbatim_spectre {name} {
             if {[sim_is_$sim]} {
                 set dump true
             }
-        } on error (msg) {}
+        } on error msg {}
     }
     if { !$dump } {
         return ""
@@ -377,7 +391,7 @@ proc format_analysis_hb_spectre {name} {
 proc format_postprocess_spectre {name} {
     set tool [format_args $name [list tool NV]]
     set file [format_args $name [list file NV]]
-    return "postprocess($tool, $file)"
+    return [list "postprocess($tool, $file)" ""]
 }
 
 
@@ -385,10 +399,25 @@ proc format_postprocess_spectre {name} {
 # Netlister for Ngspice
 #
 
+# Wrap analysis
+proc wrap_analysis_spice {cmds postcmd} {
+    set txt ""
+    if {[string length $postcmd] > 0} {
+        append txt "destroy all\n"
+    }
+    append txt $cmds
+    if {[string length $postcmd] > 0} {
+        # Write only if analysis succeeded
+        # append txt "\nif $#plots gt 1\n$postcmd\nend"
+        append txt "\n$postcmd"
+    }
+    return $txt
+}
+
 # Wrap in control block
 proc wrap_control_spice {cmds} {
-    set control [join $cmds "\n"]
-    return [join [list "**** begin user architecture code" ".control" "$control" ".endc" "**** end user architecture code"] "\n"]
+    set control [join $cmds "\n\n"]
+    return [join [list "**** begin user architecture code" ".control" "set filetype=binary" "" "$control" ".endc" "**** end user architecture code"] "\n"]
 }
 
 # Add sweep chain to analysis
@@ -411,10 +440,22 @@ proc format_sweep_chain_spice {name anstr types} {
     set sweep [ xschem getprop instance $name sweep ]
     set sweeplist {}
     format_sweep_spice $decoctlin $name sweeplist typesdict
-    # TODO: maximal sweep chain depths
-    # - op 2
-    # - dc1d 1
-    # - all others 0
+    # Limit sweep dimension for analyses
+    if {[string match "netlist_command_analysis_*" $antype]} {
+        if {$antype eq "netlist_command_analysis_op"} {
+            if {[llength $sweeplist] > 2} {
+                error "sweep dimension can be at most 2"
+            }
+        } elseif {$antype eq "netlist_command_analysis_dc1d"} {
+            if {[llength $sweeplist] > 1} {
+                error "sweep dimension can be at most 2"
+            }
+        } else {
+            if {[llength $sweeplist] > 0} {
+                error "sweep is not suported"
+            }
+        }
+    }
     # Do we have any sweeps
     if {[llength $sweeplist] > 0} {
         # Yes, join sweeps
@@ -438,10 +479,9 @@ proc format_sweep_spice {decoctlin parent sweeplist types} {
             # Sweep has tag property
             try {
                 lappend swl [format_single_sweep_spice $decoctlin $sweep]
-            } on error (msg) {
+            } on error msg {
                 # Stop traversing chain on error
-                puts "Error during formating command $sweep"
-                return 
+                error "$sweep: $msg"
             }
             # Recursion into parent sweep
             format_sweep_spice $decoctlin $sweep swl typesdict
@@ -468,23 +508,26 @@ proc format_sweep_spice_range {decoctlin name} {
     }
 }
 
+# Each formatter returns a list with two elements
+# - analysis
+# - rawfile write script / post-command script
+
 proc format_verbatim_spice {name} {
-    return [format_verbatim_spectre $name]
+    return [list [format_verbatim_spectre $name] ""]
 }
 
 proc format_analysis_op_spice {name} {
-    return "op"
+    return [list "op" "write $name.raw"]
 }
 
 proc format_analysis_dc1d_spice {name} {
     # 1D sweep formatting
     set swp [format_single_sweep_spice false $name]
-    return "dc $swp"
+    return [list "dc $swp" "write $name.raw"]
 }
 
 proc format_analysis_dcinc_spice {name} {
-    puts "$name: dcinc is not supported by Ngspice"
-    return ""
+    error "dcinc is not supported by Ngspice"
 }
 
 proc format_signal_output_spice {name} {
@@ -515,23 +558,23 @@ proc format_signal_output_spice {name} {
 
 proc format_analysis_dcxf_spice {name} {
     set output "[format_signal_output_spice $name]"
-    return "tf $output [format_args $name [list in UNV]]"
+    return [list "tf $output [format_args $name [list in UNV]]" "write $name.raw"]
 }
 
 proc format_analysis_ac_spice {name} {
     set swp "[format_sweep_spice_range true $name] "
-    return "ac $swp"
+    return [list "ac $swp" "write $name.raw"]
 }
 
 proc format_analysis_acxf_spice {name} {
-    puts "$name: acxf is not supported by Ngspice"
-    return ""
+    error "acxf is not supported by Ngspice"
 }
 
 proc format_analysis_noise_spice {name} {
     set output "[format_signal_output_spice $name]"
-    set swp "[format_sweep_spice_range true $name] "
-    return "noise $output [format_args $name [list in UNV]] $swp [format_args $name [list ptssum NV]]"
+    set swp "[format_sweep_spice_range true $name]"
+    set writer "write $name-integrated.raw\nsetplot previous\nwrite $name.raw"
+    return [list "noise $output [format_args $name [list in UNV]] $swp [format_args $name [list ptssum NV]]" "$writer"]
 }
 
 proc format_analysis_tran_spice {name} {
@@ -540,21 +583,17 @@ proc format_analysis_tran_spice {name} {
     if {$icmode eq "uic"} {
         append args " uic"
     }
-    return "tran $args"
+    return [list "tran $args" "write $name.raw"]
 }
 
 proc format_analysis_hb_spice {name} {
-    puts "$name: hb is not supported by Ngspice"
-    return ""
+    error "hb is not supported by Ngspice"
 }
 
 proc format_postprocess_spice {name} {
     global tcl_platform
     set tool [format_args $name [list tool NV]]
-    if {[string match "\"*\"" $tool]} {
-        # Quoted, unquote, use literally
-        set tool [string range $tool 1 end-1]
-    } else {
+    if {![string match "\"*\"" $tool]} {
         # Not quoted, check if it is PYTHON (VACASK variable for autodetected Python)
         if {$tool eq "PYTHON"} {
             if {$tcl_platform(platform) eq "windows"} {
@@ -564,13 +603,10 @@ proc format_postprocess_spice {name} {
             }
         }
     }
-    # Keep quotes around file
+    # Keep quotes around tool and file
     set file [format_args $name [list file NV]]
-    return "shell $tool $file"
+    return [list "shell $tool $file" ""]
 }
 
-
-
-# TODO: add ngspice formatting
-
 }
+

@@ -47,7 +47,7 @@ install: FORCE
 	$(SCCBOX) install -f -d gschem_import/sym/*.sym "$(XDOCDIR)"/gschem_import/sym
 	$(SCCBOX) install -f -d analyses/*.sch "$(XDOCDIR)"/analyses
 	$(SCCBOX) install -f -d analyses/*.sym "$(XDOCDIR)"/analyses
-	$(SCCBOX) install -f -d analyses/*.init.tcl "$(XDOCDIR)"/analyses
+	$(SCCBOX) install -f -d analyses/lib_init.tcl "$(XDOCDIR)"/analyses
 	$(SCCBOX) install -f -d analyses/README.md "$(XDOCDIR)"/analyses
 
 uninstall: FORCE
