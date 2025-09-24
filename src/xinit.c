@@ -3083,6 +3083,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                    */
  tcleval("source_user_tcl_files");
 
+ /*                                                                          */
+ /* Execute tcl commands given in tcl variable postinit_commands if existing */
+ /*                                                                          */
+ tcleval("eval_postinit_commands");
+
  if(cli_opt_filename[0]) {
     char f[PATH_MAX];
     int file_loaded = 1;
@@ -3233,9 +3238,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_tcl_post_command) {
    tcleval(cli_opt_tcl_post_command);
  }
-
- /* Execute tcl commands given in tcl variable postinit_commands if existing */
- tcleval("eval_postinit_commands");
 
  if(cli_opt_quit) {
    char s[40];
