@@ -1412,7 +1412,7 @@ proc ngspice::get_voltage {n} {
 
 proc update_schematic_header {} {
   set tctx::retval [xschem get header_text]
-  text_line {Header/License text:} 0
+  text_line {Header/License text:} 0 header
   if { $tctx::rcode ne {}} {
     xschem set header_text $tctx::retval
   }
@@ -6691,6 +6691,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs wm_fix tabstop
   global debug_var text_tabs_setting
 
+  set buttonstate $preserve_disabled
+  if {$preserve_disabled eq {header}} { set buttonstate {disabled}}
 
   if {$preserve_disabled eq {disabled}} {
     set tctx::selected_mode [xschem get netlist_type]
@@ -6784,12 +6786,14 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       label .dialog.f1.r6 -text {Mode:}
       ttk::combobox .dialog.f1.r7 -values $mode_list -textvariable tctx::selected_mode -width 14
     }
-    label .dialog.f1.r4 -text {   Edit Attr:}
-    ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
+    if { $preserve_disabled ne {header} } {
+      label .dialog.f1.r4 -text {   Edit Attr:}
+      ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
+    }
   }
 
   checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
-     -state $preserve_disabled
+     -state $buttonstate
   pack .dialog.f0 -fill x
   pack .dialog.f0.l2 -side left
   pack .dialog.f0.l1 -side left -expand yes
@@ -6799,8 +6803,10 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.f1.b3 -side left -fill x -expand yes
   pack .dialog.f1.b4 -side left -fill x -expand yes
   if  { [info tclversion] > 8.4} {
+    if { $preserve_disabled ne {header} } {
       pack .dialog.f1.r4 -side left
       pack .dialog.f1.r5 -side left
+    }
     if {$preserve_disabled eq {disabled}} {
       pack .dialog.f1.r6 -side left
       pack .dialog.f1.r7 -side left
@@ -6817,7 +6823,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     }
   }
 
-  if  { [info tclversion] > 8.4} {
+  if  { $preserve_disabled ne {header} && [info tclversion] > 8.4} {
       bind .dialog.f1.r5 <<ComboboxSelected>> {
         if {$tctx::old_selected_tok ne $tctx::selected_tok} {
           if { $tctx::old_selected_tok eq {<ALL>} } {

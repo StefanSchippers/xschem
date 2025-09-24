@@ -69,8 +69,9 @@ ctrl       Enter        Confirm closing dialog boxes
 -          Up           Move up
 ctrl       Left         Previous tab (if tabbed interface enabled) 
 ctrl       Right        Next tab (if tabbed interface enabled)
-ctrl+shift Tab          Previous tab (if tabbed interface enabled) 
-ctrl       Tab          Next tab (if tabbed interface enabled)
+shift      Tab          Right tab (if tabbed interface enabled) 
+ctrl+shift Tab          Left tab (if tabbed interface enabled) 
+ctrl       Tab          Previous tab (if tabbed interface enabled)
 -           ':'         Toggle flat netlist
 -           '\'         Toggle fullscreen
 -           '!'         Break selected wires at any wire or component pin

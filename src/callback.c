@@ -3848,6 +3848,14 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         tcleval("prev_tab");
         xctx->semaphore = save;
       }
+      else if(state == ShiftMask) { 
+        int save = xctx->semaphore;
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0; 
+        tcleval("next_tab");
+        xctx->semaphore = save;
+      } 
+
       break;
     
     case XK_Right:

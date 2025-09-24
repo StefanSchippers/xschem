@@ -463,8 +463,8 @@ T {-} 842.5 -126.25 0 0 0.18 0.18 {layer=7}
 T {-} 842.5 -137.5 0 0 0.18 0.18 {layer=6}
 T {Incr line width} 962.5 -366.25 0 0 0.18 0.18 {layer=6}
 T {Set line width} 882.5 -366.25 0 0 0.18 0.18 {layer=7}
-T {Next Tab} 2.5 -263.75 0 0 0.18 0.18 {layer=12}
-T {Previous Tab} 2.5 -297.5 0 0 0.18 0.18 {layer=6}
+T {Right Tab} 2.5 -263.75 0 0 0.18 0.18 {layer=12}
+T {Left Tab} 2.5 -297.5 0 0 0.18 0.18 {layer=6}
 T {Previous tab} 1222.5 -35 0 0 0.18 0.18 {layer=4}
 T {Move left} 1222.5 -12.5 0 0 0.18 0.18 {}
 T {Next tab} 1382.5 -35 0 0 0.18 0.18 {layer=4}
@@ -472,3 +472,4 @@ T {Move right} 1382.5 -12.5 0 0 0.18 0.18 {}
 T {Move down} 1302.5 -12.5 0 0 0.18 0.18 {}
 T {Move up} 1302.5 -92.5 0 0 0.18 0.18 {}
 T {Open last file} 762.5 -297.5 0 0 0.18 0.18 {layer=6}
+T {Previous Tab} 2.5 -275 0 0 0.18 0.18 {layer=4}
