@@ -4173,6 +4173,22 @@ namespace eval c_toolbar {
     set c_t($i,file) {}
   }
   
+  proc clear {} {
+    variable c_t
+    ## restore new recent component list...
+    ### ... first delete...
+    if {[info exists c_t(n)]} {
+      set c_t(top) 0
+      for {set i 0} {$i < $c_t(n)} {incr i} {
+        set c_t($i,text) {}
+        set c_t($i,command) {}
+        set c_t($i,file) {}
+      }
+    }
+    # ... then reload.
+    set c_t(hash) [xschem hash_string $::XSCHEM_LIBRARY_PATH]
+  }
+
   proc cleanup {} {
       variable c_t 
       if {![info exists c_t(n)]} return
@@ -9793,17 +9809,7 @@ proc set_paths {} {
   if {$pathlist eq {}} { set pathlist [pwd] }
   set_initial_dirs
 
-  ## restore new recent component list...
-  ### ... first delete...
-  if {[info exists c_toolbar::c_t(n)]} {
-    for {set i 0} {$i < $c_toolbar::c_t(n)} {incr i} {
-      set c_toolbar::c_t($i,text) {}
-      set c_toolbar::c_t($i,command) {}
-      set c_toolbar::c_t($i,file) {}
-    }   
-  }
-  # ... then reload.
-  set c_toolbar::c_t(hash) [xschem hash_string $::XSCHEM_LIBRARY_PATH]
+  c_toolbar::clear
   load_recent_file
 }
 
