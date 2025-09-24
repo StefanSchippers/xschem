@@ -1,0 +1,8 @@
+set netlist_dir $env(HOME)/.xschem/simulations
+set netlist_type spectre
+set editor {kwrite}
+
+set netlist_type spectre
+set netlist_show 1
+
+source analyses.init.tcl

@@ -27,6 +27,7 @@
 #### <install_root>/share/doc/xschem/binto7seg
 #### <install_root>/share/doc/xschem/pcb
 #### <install_root>/share/doc/xschem/rom8k
+#### <install_root>/share/doc/xschem/analyses
 
 #### For testing in build src directory
 #### if unset following paths are set and maintained if existing:
@@ -42,6 +43,7 @@
 #### ../xschem_library/binto7seg
 #### ../xschem_library/pcb
 #### ../xschem_library/rom8k
+#### ../xschem_library/analyses
 
 #### For testing after installation: uncomment following lines
 # set xschem_doc_dir [file dirname ${XSCHEM_SHAREDIR}]/doc/xschem
@@ -58,6 +60,7 @@
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/binto7seg
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/pcb
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/rom8k
+# append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/analyses
 #### Optional, often not needed...
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/symgen
 # append XSCHEM_LIBRARY_PATH :${xschem_doc_dir}/xTAG
@@ -78,6 +81,7 @@
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/binto7seg"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/pcb"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/rom8k"
+# append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/analyses"
 #### Optional, often not needed...
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/symgen"
 # append XSCHEM_LIBRARY_PATH ";${xschem_doc_dir}/xTAG"

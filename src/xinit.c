@@ -2559,6 +2559,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
       "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/rom8k",
        tclgetvar("XSCHEM_SHAREDIR"));
    tcleval(tmp);
+   my_snprintf(tmp, S(tmp), 
+      "append XSCHEM_LIBRARY_PATH : [file dirname \"%s\"]/xschem_library/analyses",
+       tclgetvar("XSCHEM_SHAREDIR"));
+   tcleval(tmp);
  }
  tclsetintvar("running_in_src_dir", running_in_src_dir);
 #else /* windows */
