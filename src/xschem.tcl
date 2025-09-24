@@ -5038,7 +5038,7 @@ proc insert_symbol_update_dirs {} {
   foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
     lappend files [list $f $ff]
   }
-  set files [lsort -dictionary -index 0 $files]
+  # set files [lsort -dictionary -index 0 $files]
   set insert_symbol(dirtails) {}
   set insert_symbol(dirs) {}
   
