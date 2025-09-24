@@ -570,10 +570,9 @@ proc get_running_cmds {} {
 
 # pause for $del_ms milliseconds, keep event loop responsive
 proc delay {del_ms} {
-  global delay_flag
-  after $del_ms {set delay_flag 1}
-  vwait delay_flag
-  unset delay_flag
+  after $del_ms {set tctx::delay_flag 1}
+  vwait tctx::delay_flag
+  unset tctx::delay_flag
 }  
 
 #### Scrollable frame 
@@ -1412,7 +1411,7 @@ proc ngspice::get_voltage {n} {
 
 proc update_schematic_header {} {
   set tctx::retval [xschem get header_text]
-  text_line {Header/License text:} 0
+  text_line {Header/License text:} 0 header
   if { $tctx::rcode ne {}} {
     xschem set header_text $tctx::retval
   }
@@ -6691,6 +6690,8 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   global text_line_default_geometry preserve_unchanged_attrs wm_fix tabstop
   global debug_var text_tabs_setting
 
+  set buttonstate $preserve_disabled
+  if {$preserve_disabled eq {header}} { set buttonstate {disabled}}
 
   if {$preserve_disabled eq {disabled}} {
     set tctx::selected_mode [xschem get netlist_type]
@@ -6784,12 +6785,14 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
       label .dialog.f1.r6 -text {Mode:}
       ttk::combobox .dialog.f1.r7 -values $mode_list -textvariable tctx::selected_mode -width 14
     }
-    label .dialog.f1.r4 -text {   Edit Attr:}
-    ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
+    if { $preserve_disabled ne {header} } {
+      label .dialog.f1.r4 -text {   Edit Attr:}
+      ttk::combobox .dialog.f1.r5 -values $tok_list -textvariable tctx::selected_tok -width 14
+    }
   }
 
   checkbutton .dialog.f0.l2 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
-     -state $preserve_disabled
+     -state $buttonstate
   pack .dialog.f0 -fill x
   pack .dialog.f0.l2 -side left
   pack .dialog.f0.l1 -side left -expand yes
@@ -6799,8 +6802,10 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   pack .dialog.f1.b3 -side left -fill x -expand yes
   pack .dialog.f1.b4 -side left -fill x -expand yes
   if  { [info tclversion] > 8.4} {
+    if { $preserve_disabled ne {header} } {
       pack .dialog.f1.r4 -side left
       pack .dialog.f1.r5 -side left
+    }
     if {$preserve_disabled eq {disabled}} {
       pack .dialog.f1.r6 -side left
       pack .dialog.f1.r7 -side left
@@ -6817,7 +6822,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
     }
   }
 
-  if  { [info tclversion] > 8.4} {
+  if  { $preserve_disabled ne {header} && [info tclversion] > 8.4} {
       bind .dialog.f1.r5 <<ComboboxSelected>> {
         if {$tctx::old_selected_tok ne $tctx::selected_tok} {
           if { $tctx::old_selected_tok eq {<ALL>} } {
@@ -8572,7 +8577,7 @@ set tctx::global_list {
  auto_hilight_graph_nodes autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points
  bus_replacement_char cadence_compat cadgrid cadlayers cadsnap cairo_font_name cairo_font_scale
  change_lw color_ps compare_sch constr_mv copy_cell crosshair_layer crosshair_size cursor_2_hook
- custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
+ custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
@@ -8591,7 +8596,7 @@ set tctx::global_list {
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop
- tctx::colors tctx::hsize
+ tctx::colors tctx::delay_flag tctx::hsize
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
  text_line_default_geometry text_replace_selection text_tabs_setting
@@ -9787,6 +9792,19 @@ proc set_paths {} {
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
   set_initial_dirs
+
+  ## restore new recent component list...
+  ### ... first delete...
+  if {[info exists c_toolbar::c_t(n)]} {
+    for {set i 0} {$i < $c_toolbar::c_t(n)} {incr i} {
+      set c_toolbar::c_t($i,text) {}
+      set c_toolbar::c_t($i,command) {}
+      set c_toolbar::c_t($i,file) {}
+    }   
+  }
+  # ... then reload.
+  set c_toolbar::c_t(hash) [xschem hash_string $::XSCHEM_LIBRARY_PATH]
+  load_recent_file
 }
 
 proc print_help_and_exit {} {
