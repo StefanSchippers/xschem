@@ -570,10 +570,9 @@ proc get_running_cmds {} {
 
 # pause for $del_ms milliseconds, keep event loop responsive
 proc delay {del_ms} {
-  global delay_flag
-  after $del_ms {set delay_flag 1}
-  vwait delay_flag
-  unset delay_flag
+  after $del_ms {set tctx::delay_flag 1}
+  vwait tctx::delay_flag
+  unset tctx::delay_flag
 }  
 
 #### Scrollable frame 
@@ -8578,7 +8577,7 @@ set tctx::global_list {
  auto_hilight_graph_nodes autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points
  bus_replacement_char cadence_compat cadgrid cadlayers cadsnap cairo_font_name cairo_font_scale
  change_lw color_ps compare_sch constr_mv copy_cell crosshair_layer crosshair_size cursor_2_hook
- custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme delay_flag
+ custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
@@ -8597,7 +8596,7 @@ set tctx::global_list {
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop
- tctx::colors tctx::hsize
+ tctx::colors tctx::delay_flag tctx::hsize
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
  text_line_default_geometry text_replace_selection text_tabs_setting
