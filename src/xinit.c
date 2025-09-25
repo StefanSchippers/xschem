@@ -1715,7 +1715,6 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
-  tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   tcleval("eval_user_startup_commands");
@@ -1726,6 +1725,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
    * new_schematic("switch", prev_window, "", 1);
    */
   tclvareval("housekeeping_ctx", NULL);
+  tclvareval("set_bindings ", window_path[n], NULL);
   if(has_x) windowid(toppath);
   if(dr) xctx->pending_fullzoom=1;
 }

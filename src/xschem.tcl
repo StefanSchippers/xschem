@@ -8923,8 +8923,8 @@ global env has_x OS autofocus_mainwindow
 
     # Context switch.
     bind $parent <FocusIn> "
-      # focus $topwin ;# propagate focus to canvas
       switch_window $parent $topwin %T %W
+      # focus $topwin ;# propagate focus to canvas
     "
 
     bind $topwin <Leave> "
@@ -8954,7 +8954,7 @@ global env has_x OS autofocus_mainwindow
     if {$autofocus_mainwindow} {
       bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
     } else {
-      bind $topwin <ButtonPress> "xschem callback %W %T %x %y 0 %b 0 %s"
+      bind $topwin <ButtonPress> "focus $topwin; xschem callback %W %T %x %y 0 %b 0 %s"
     }
     bind $topwin <ButtonRelease> "xschem callback %W %T %x %y 0 %b 0 %s"
 
@@ -9006,6 +9006,12 @@ global env has_x OS autofocus_mainwindow
         }
       }
     }
+
+    if {$parent eq {.}} { set parent {}}
+    bind ${parent}.statusbar.5 <Leave> \
+      "focus ${parent}.drw; set cadgrid \[${parent}.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
+    bind ${parent}.statusbar.3 <Leave> \
+      "focus ${parent}.drw; set cadsnap \[${parent}.statusbar.3 get\]; xschem set cadsnap \$cadsnap"
   }
 }
 
@@ -9035,10 +9041,6 @@ proc pack_widgets { { topwin {} } } {
     setup_tabbed_interface
     if {$toolbar_visible}  {toolbar_show $topwin}
 
-    bind $topwin.statusbar.5 <Leave> \
-      "focus $topwin.drw; set cadgrid \[$topwin.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
-    bind $topwin.statusbar.3 <Leave> \
-      "focus $topwin.drw; set cadsnap \[$topwin.statusbar.3 get\]; xschem set cadsnap \$cadsnap"
   }
   if {$topwin ne {}} {
     $topwin.menubar.view entryconfigure {Tabbed interface} -state disabled
@@ -9770,7 +9772,6 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   # used to check status of Simulate button later. This variable is constant, never changed
   frame $topwin.drw -background {} -takefocus 1
 
-  focus $topwin.drw
   if { $topwin == {} } {set rootwin .} else { set rootwin $topwin} 
   wm  title $rootwin "xschem - "
   wm iconname $rootwin "xschem - "
