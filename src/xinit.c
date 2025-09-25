@@ -1685,7 +1685,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
     my_snprintf(toppath, S(toppath), ".x%d", n);
   }
   if(has_x) {
-    tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400", NULL);
+    tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400 -takefocus 0", NULL);
     tclvareval("set_geom ", toppath, " [abs_sym_path {", fname, "}]", NULL);
     tclvareval("build_widgets ", toppath, NULL);
     tclvareval("pack_widgets ", toppath, NULL);

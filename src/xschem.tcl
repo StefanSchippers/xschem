@@ -9144,7 +9144,7 @@ proc build_widgets { {topwin {} } } {
   menu $topwin.menubar.edit -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Options" -menu $topwin.menubar.option
   menu $topwin.menubar.option -tearoff 0 -takefocus 0
-  topwin.menubar add cascade -label "View" -menu $topwin.menubar.view
+  $topwin.menubar add cascade -label "View" -menu $topwin.menubar.view
   menu $topwin.menubar.view -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Properties" -menu $topwin.menubar.prop
   menu $topwin.menubar.prop -tearoff 0 -takefocus 0
