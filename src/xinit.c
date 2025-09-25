@@ -1181,8 +1181,8 @@ void toggle_fullscreen(const char *topwin)
     xctx->pending_fullzoom=1;
     window_state(display , parent_id,normal); /* normal view */
     /* when switching back from fullscreen multiple ConfigureNotify events are generated. 
-     * pending_fullzoom does not work on the last corect ConfigureNotify event,
-     * so wee zoom_full() again */
+     * pending_fullzoom does not work on the last correct ConfigureNotify event,
+     * so we zoom_full() again */
   }
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
 }
@@ -1692,6 +1692,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
     Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
     win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
     Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
+    tclvareval("tkwait visibility ", toppath, NULL);
   }
   old_xctx = xctx;
   xctx = NULL;
@@ -3195,7 +3196,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      }
    }
    else {
-     tcleval("update");
+     tcleval("tkwait visibility .drw");
      svg_draw();
    }
  }
