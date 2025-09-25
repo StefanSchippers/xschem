@@ -1,8 +1,22 @@
+# Sample xschemrc for analyses library
+# Analyses library for visual circuit analysis setup. 
+# Copyright (C) 2025 Arpad Buermen
+
 set netlist_dir $env(HOME)/.xschem/simulations
-set netlist_type spectre
-set editor {kwrite}
+# set editor {kwrite}
 
-set netlist_type spectre
-set netlist_show 1
+# set netlist_show 1
 
-source analyses.init.tcl
+# set netlist_type spice
+set letlist_type spectre
+
+#
+# Add this part to your xschemrc to make the analyses library work
+#
+append postinit_commands {
+  foreach i $pathlist {
+    if {![catch {source $i/lib_init.tcl} retval]} {
+      puts "Sourced library init file $i/lib_init.tcl"
+    } 
+  }
+}
