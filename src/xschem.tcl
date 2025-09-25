@@ -8496,6 +8496,77 @@ proc set_tab_names {{mod {}}} {
     }
   }
 }
+proc store_geom {win filename} {
+  global tabbed_interface USER_CONF_DIR
+
+  # set geom [winfo width $win]x[winfo height $win]+[winfo rootx $win]+[winfo rooty $win]
+  set geom [wm geometry $win]
+  # puts "store_geom: geom=$geom"
+  set geom_file $USER_CONF_DIR/geometry
+  set geom_data {}
+  if {$win eq {.} || $tabbed_interface eq 0} {
+    if { [file exists $geom_file]} {
+      set geom_data [read_data $geom_file]
+    }
+    foreach {f g} $geom_data {
+      set geom_array($f) $g
+    }
+    set geom_array($filename) $geom
+
+    set geom_data {}
+    foreach i [array names geom_array] {
+      append geom_data $i { } $geom_array($i) \n
+    }
+    write_data $geom_data $geom_file
+  }
+}
+
+proc set_geom {win {filename {}}} {
+  global USER_CONF_DIR initial_geometry fullscreen
+  set ret {}
+  if {$fullscreen ne 0} {return}
+  # puts "set_geom: $win  $filename"
+  set geom_file $USER_CONF_DIR/geometry
+  if { [file exists $geom_file]} {
+    set geom_data [read_data $geom_file]
+    foreach {f g} $geom_data {
+      set geom_array($f) $g
+    }
+    if {$filename ne {} && [info exists geom_array($filename)]} {
+      set ret $geom_array($filename)
+    }
+  }
+  if {$ret ne {}} { 
+    wm geometry $win $ret
+    # puts "set to geometry: $ret"
+  } else {
+    wm geometry $win $initial_geometry
+    # puts "set to geometry: $initial_geometry"
+  }
+}
+
+proc get_geom {win {filename {}}} {
+  global USER_CONF_DIR initial_geometry
+  set ret {}
+  # puts "get_geom: $win  $filename" 
+  set geom_file $USER_CONF_DIR/geometry
+  if { [file exists $geom_file]} { 
+    set geom_data [read_data $geom_file]
+    foreach {f g} $geom_data {
+      set geom_array($f) $g
+    }
+    if {$filename ne {} && [info exists geom_array($filename)]} {
+      set ret $geom_array($filename)
+    }
+  }  
+  if {$ret ne {}} {
+    return $ret
+  } else {
+    return $initial_geometry
+  }  
+} 
+
+
 
 proc quit_xschem { {force {}}} {
   global tabbed_interface
@@ -9704,8 +9775,8 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
   wm  title $rootwin "xschem - "
   wm iconname $rootwin "xschem - "
   $rootwin configure  -background {}
-  wm  geometry $rootwin $initial_geometry
-  #wm maxsize . 1600 1200
+  # wm  geometry $rootwin $initial_geometry
+  # wm maxsize . 1600 1200
   if {$tabbed_interface} {
     wm protocol $rootwin WM_DELETE_WINDOW {
       xschem exit closewindow
@@ -10536,7 +10607,7 @@ if { ( $OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 
   # allow user to modify key bindings
   set_replace_key_binding
 
-  update
+  # update
   xschem windowid . ;# set icon for window
 } ;# end if {[exists has_x]}
 

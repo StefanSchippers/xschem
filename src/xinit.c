@@ -933,6 +933,9 @@ static void xwin_exit(void)
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
  }
+
+ if(has_x) tcleval("store_geom . [xschem get schname]");
+
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
@@ -1683,8 +1686,9 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   }
   if(has_x) {
     tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400", NULL);
+    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname, "}]", NULL);
     tclvareval("build_widgets ", toppath, NULL);
-    tclvareval("pack_widgets ", toppath, " ; update", NULL);
+    tclvareval("pack_widgets ", toppath, NULL);
     Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
     win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
     Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
@@ -1710,7 +1714,6 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
-  if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
   tclvareval("set_bindings ", window_path[n], NULL);
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
@@ -1723,6 +1726,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
    */
   tclvareval("housekeeping_ctx", NULL);
   if(has_x) windowid(toppath);
+  if(dr) xctx->pending_fullzoom=1;
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
@@ -1878,6 +1882,9 @@ static void destroy_window(int *window_count, const char *win_path)
           tclvareval("winfo toplevel ", win_path, NULL);
           my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
         }
+
+        tclvareval("store_geom ", toplevel, " [xschem get schname]" , NULL);
+
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {
@@ -2003,6 +2010,7 @@ static void destroy_all_windows(int *window_count, int force)
             if(has_x) {
               tclvareval("winfo toplevel ", window_path[i], NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
+              tclvareval("store_geom ", toplevel, " [xschem get schname]", NULL);
             }
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) savectx = save_xctx[0];
@@ -2369,6 +2377,7 @@ void tclmainloop(void)
 
 int Tcl_AppInit(Tcl_Interp *inter)
 {
+ char fname[PATH_MAX];
  const char *tmp_ptr;
  char *xschem_sharedir=NULL;
  char name[PATH_MAX]; /* overflow safe 20161122 */
@@ -3089,7 +3098,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
  tcleval("eval_postinit_commands");
 
  if(cli_opt_filename[0]) {
-    char f[PATH_MAX];
     int file_loaded = 1;
    /* check if local_netlist_dir is set and set netlist_dir accordingly
     * following call is needed since load_schematic() may be called with 
@@ -3097,47 +3105,43 @@ int Tcl_AppInit(Tcl_Interp *inter)
    set_netlist_dir(2, NULL);
    #ifdef __unix__
    if(is_from_web(cli_opt_filename)) {
-     my_snprintf(f, S(f), "%s", cli_opt_filename);
+     my_snprintf(fname, S(fname), "%s", cli_opt_filename);
    } else if(cli_opt_filename[0] == '~' && cli_opt_filename[1] == '/') {
-     my_snprintf(f, S(f), "%s%s", home_dir, cli_opt_filename + 1);
+     my_snprintf(fname, S(fname), "%s%s", home_dir, cli_opt_filename + 1);
    } else if(cli_opt_filename[0] == '.' && cli_opt_filename[1] == '/') {
-     my_snprintf(f, S(f), "%s%s", pwd_dir, cli_opt_filename + 1);
+     my_snprintf(fname, S(fname), "%s%s", pwd_dir, cli_opt_filename + 1);
    } else {
-     my_snprintf(f, S(f), "%s", abs_sym_path(cli_opt_filename, ""));
+     my_snprintf(fname, S(fname), "%s", abs_sym_path(cli_opt_filename, ""));
    }
    #else
-   my_strncpy(f, abs_sym_path(cli_opt_filename, ""), S(f));
+   my_strncpy(fname, abs_sym_path(cli_opt_filename, ""), S(fname));
    #endif
    dbg(1, "Tcl_AppInit(): cli_opt_filename %s given, removing symbols\n", cli_opt_filename);
    remove_symbols();
    /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
       to tcl is_xschem_file that could change xctx->netlist_type to symbol */
-   file_loaded = load_schematic(1, f, !cli_opt_do_netlist, 1);
+   file_loaded = load_schematic(1, fname, !cli_opt_do_netlist, 1);
    if(cli_opt_do_netlist) if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
-   tclvareval("update_recent_file {", f, "}", NULL);
+   tclvareval("update_recent_file {", fname, "}", NULL);
  } else /* if(!cli_opt_filename[0]) */
  {
    char *tmp;
-   char fname[PATH_MAX];
    int file_loaded = 1;
    tmp = (char *) tclgetvar("XSCHEM_START_WINDOW");
    #ifndef __unix__
    change_to_unix_fn(tmp);
    #endif
    dbg(1, "Tcl_AppInit(): tmp=%s\n", tmp? tmp: "<NULL>");
-   if(0 && cli_argc > 1)  /* disabled */
-     my_strncpy(fname, "", S(fname)); /* no load XSCHEM_START_WINDOW if cli args given */
-   else
-     my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
+   my_strncpy(fname, abs_sym_path(tmp, ""), S(fname));
     /* if cli_opt_do_netlist=1 call load_schematic with 'reset_undo=0' avoiding call 
        to tcl is_xschem_file that could change xctx->netlist_type to symbol */
    file_loaded = load_schematic(1, fname, !cli_opt_do_netlist, 1);
    if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
+ if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
  /* Necessary to tell xschem the initial area to display */
- zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  xctx->pending_fullzoom=1;
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {
@@ -3191,6 +3195,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      }
    }
    else {
+     tcleval("update");
      svg_draw();
    }
  }
