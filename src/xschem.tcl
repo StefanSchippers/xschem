@@ -10064,6 +10064,14 @@ proc setup_tcp_bespice {} {
   return 1
 }
 
+## this proc must be called for any created entry widgets
+proc entry_replace_selection {w} {
+  global text_replace_selection OS
+  if {$text_replace_selection && $OS != "Windows"} {
+    bind $w <<Paste>> {if {[%W selection present]} {%W delete sel.first sel.last}}
+  }
+}
+
 ### 
 ###   MAIN PROGRAM
 ###
@@ -10157,14 +10165,6 @@ if { [info exists has_x] && [info tclversion] >= 8.6 } {
        %W activate @%x,%y
      }
      tk::MenuButtonDown %W
-  }
-}
-
-## this proc must be called for any created entry widgets
-proc entry_replace_selection {w} {
-  global text_replace_selection OS
-  if {$text_replace_selection && $OS != "Windows"} {
-    bind $w <<Paste>> {if {[%W selection present]} {%W delete sel.first sel.last}}
   }
 }
 
