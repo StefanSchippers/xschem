@@ -8180,8 +8180,8 @@ proc toolbar_add {name cmd { help "" } {topwin {} } } {
        frame $topwin.toolbar -relief raised -bd 0 -background $bg -takefocus 0
     }
     if { ![winfo exists $topwin.toolbar.b$name]} {
-      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 \
-      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd -takefocus 0
+      button $topwin.toolbar.b$name -image img$name -relief flat -bd 0 -takefocus 0 \
+      -background $bg -fg $bg -height $toolbar_icon_size  -padx 0 -pady 0 -command $cmd
       if { $help == "" } { balloon $topwin.toolbar.b$name $name } else { balloon $topwin.toolbar.b$name $help }
     }
 }
@@ -9144,7 +9144,7 @@ proc build_widgets { {topwin {} } } {
   menu $topwin.menubar.edit -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Options" -menu $topwin.menubar.option
   menu $topwin.menubar.option -tearoff 0 -takefocus 0
-  $topwin.menubar add cascade -label "View" -menu $topwin.menubar.view
+  topwin.menubar add cascade -label "View" -menu $topwin.menubar.view
   menu $topwin.menubar.view -tearoff 0 -takefocus 0
   $topwin.menubar add cascade -label "Properties" -menu $topwin.menubar.prop
   menu $topwin.menubar.prop -tearoff 0 -takefocus 0
