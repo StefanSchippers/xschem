@@ -72,3 +72,8 @@ Nodesets and initial conditions specified with the `nodeset` and `ic` attributes
 A dcxf block runs the TF analysis. The value of the `in` attribute specifies the quoted name of the input source. This attribute is ignored in VACASK netlists because VACASK computes the transfer functions from all independent sources to the given output. 
 
 For the noise block the number of points per summary can be set with the `ptssum` attribute. This attribute is ignored in VACASK netlists. 
+
+
+# Credits
+
+The analyses library was created by Arpad Buermen. Send your comments to: arpad[dot]buermen[at]fe.uni-lj.si
