@@ -172,6 +172,7 @@ int help=0; /* help option set to global scope, printing help is deferred */
             /* when configuration xschemrc has been read 20140406 */
 FILE *errfp = NULL;
 int exit_code = 0; /* success */
+const char *xschem_library_path[] = XSCHEM_LIBRARY_PATH;
 char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 char user_conf_dir[PATH_MAX];
 char sel_file[PATH_MAX]="";

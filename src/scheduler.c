@@ -2184,6 +2184,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       my_snprintf(res, S(res), "need_reb_sel_arr=%d\n", xctx->need_reb_sel_arr); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "undo_type=%d\n", xctx->undo_type); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "******* end global variables:*******\n"); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n",
+        tclgetvar("XSCHEM_LIBRARY_PATH")); Tcl_AppendResult(interp, res, NULL);
 
 #ifdef __unix__
       my_snprintf(res, S(res), "******* Xserver options: *******\n"); Tcl_AppendResult(interp, res, NULL);
@@ -2214,9 +2216,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       #endif
       #ifdef USER_CONF_DIR
       my_snprintf(res, S(res), "USER_CONF_DIR=%s\n", USER_CONF_DIR); Tcl_AppendResult(interp, res, NULL);
-      #endif
-      #ifdef XSCHEM_LIBRARY_PATH
-      my_snprintf(res, S(res), "XSCHEM_LIBRARY_PATH=%s\n", XSCHEM_LIBRARY_PATH); Tcl_AppendResult(interp, res, NULL);
       #endif
       #ifdef HAS_SNPRINTF
       my_snprintf(res, S(res), "HAS_SNPRINTF=%s\n", HAS_SNPRINTF); Tcl_AppendResult(interp, res, NULL);

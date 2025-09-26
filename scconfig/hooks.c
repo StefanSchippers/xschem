@@ -155,64 +155,81 @@ int hook_postarg()
         }
 
         if (get("/local/xschem/xschem-lib-path") == NULL) {
-                put("/local/xschem/xschem-lib-path", get("/local/xschem/user-lib-path"));
-                append("/local/xschem/xschem-lib-path", ":");
-                append("/local/xschem/xschem-lib-path", get("/local/xschem/sys-lib-path"));
+                put("/local/xschem/xschem-lib-path", "\\\n    \"");
+                append("/local/xschem/xschem-lib-path", get("/local/xschem/user-lib-path"));
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
+                append("/local/xschem/xschem-lib-path", get("/local/xschem/sys-lib-path"));
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
+
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/examples");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/ngspice");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/ngspice_verilog_cosim");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/logic");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/xschem_simulator");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/generators");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/inst_sch_select");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/binto7seg");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/pcb");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/rom8k");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
 
-                append("/local/xschem/xschem-lib-path", ":");
+                append("/local/xschem/xschem-lib-path", "\"");
                 append("/local/xschem/xschem-lib-path", get("/local/xschem/prefix"));
                 append("/local/xschem/xschem-lib-path", "/");
                 append("/local/xschem/xschem-lib-path", "share/doc/xschem/analyses");
+                append("/local/xschem/xschem-lib-path", "\",\\\n    ");
+
+                append("/local/xschem/xschem-lib-path", "NULL");
 
         }
         return 0;

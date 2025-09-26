@@ -2504,10 +2504,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
    dbg(1, "Using compile-time XSCHEM_SHAREDIR = %s\n", XSCHEM_SHAREDIR);
  }
  
- my_snprintf(tmp, S(tmp),"regsub -all {~/} {%s} {%s/}", XSCHEM_LIBRARY_PATH, home_dir);
- tcleval(tmp);
- tclsetvar("XSCHEM_LIBRARY_PATH", tclresult());
-
+ /* build TCL XSCHEM_LIBRARY_PATH from const array of strings xschem_library_path */
+ tcleval("set XSCHEM_LIBRARY_PATH {}");
+ for(i = 0;; i++) {
+   if(!xschem_library_path[i]) break;
+   if(i) tcleval("append XSCHEM_LIBRARY_PATH :");
+   tclvareval("append XSCHEM_LIBRARY_PATH ", xschem_library_path[i], NULL);
+ }
 
  /* create user conf dir , remove ~ if present */
  my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);

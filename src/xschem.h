@@ -1215,6 +1215,7 @@ extern int help;
 extern char *cad_icon[];
 extern FILE *errfp;
 extern int exit_code;
+extern const char *xschem_library_path[];
 extern char home_dir[PATH_MAX]; /* home dir obtained via getpwuid */
 extern char user_conf_dir[PATH_MAX]; /* usually ~/.xschem */
 extern char sel_file[PATH_MAX];
