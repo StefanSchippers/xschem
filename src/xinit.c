@@ -1714,7 +1714,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
   if(has_x) {
-    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
+    tclvareval("set_geom ", toppath, " [xschem get schname]", NULL);
   }
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);

@@ -8536,6 +8536,14 @@ proc set_geom {win {filename {}}} {
       set ret $geom_array($filename)
     }
   }
+  set xmax [winfo screenwidth .] 
+  set ymax [winfo screenheight .] 
+  scan $ret {%dx%d+%d+%d} x y dx dy
+  puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
+  # off screen. do not use.
+  if { $dx > $xmax - 100 || $dy > $ymax - 100} {
+    set ret {}
+  }
   if {$ret ne {}} { 
     wm geometry $win $ret
     # puts "set to geometry: $ret"
