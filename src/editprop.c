@@ -1685,16 +1685,22 @@ static int update_symbol(const char *result, int x, int selected_inst)
         my_strdup(_ALLOC_ID_, &ptr, xctx->inst[*ii].prop_ptr);
       }
       /* set unique name of current inst */
-      if(!pushed) { xctx->push_undo(); pushed=1;}
-      if(!k) hash_names(-1, XINSERT);
-      hash_names(*ii, XDELETE);
-      dbg(1, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
+
       my_strdup2(_ALLOC_ID_, &old_name, xctx->inst[*ii].instname);
-      new_prop_string(*ii, ptr,               /* sets also inst[].instname */
-         tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
-      hash_names(*ii, XINSERT);
-      update_attached_floaters(old_name, *ii, 1);
-      dbg(1, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
+
+
+
+      if(strcmp(old_name, name)) {
+        if(!pushed) { xctx->push_undo(); pushed=1;}
+        if(!k) hash_names(-1, XINSERT);
+        hash_names(*ii, XDELETE);
+        dbg(1, "update_symbol(): delete %s\n", xctx->inst[*ii].instname);
+        new_prop_string(*ii, ptr,               /* sets also inst[].instname */
+           tclgetboolvar("disable_unique_names")); /* set new prop_ptr */
+        hash_names(*ii, XINSERT);
+        update_attached_floaters(old_name, *ii, 1);
+        dbg(1, "update_symbol(): insert %s\n", xctx->inst[*ii].instname);
+      }
       my_free(_ALLOC_ID_, &old_name);
     }
     set_inst_flags(&xctx->inst[*ii]);
