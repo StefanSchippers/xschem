@@ -3096,6 +3096,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetvar("compare_sch", "1");
  } 
 
+ /* must be before source_user_tcl_files, so event bindings defined there 
+  * will be correctly appended to default bindings */
+ tcleval("set_bindings .drw");
+
  /*                                    */
  /* SOURCE XSCHEMRC SUPPLIED TCL FILES */
  /*                                    */
@@ -3150,7 +3154,6 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  xctx->pending_fullzoom=1;
- tcleval("set_bindings .drw");
  if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
  /* Necessary to tell xschem the initial area to display */
 
