@@ -1686,13 +1686,12 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   }
   if(has_x) {
     tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400 -takefocus 0", NULL);
-    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
     tclvareval("build_widgets ", toppath, NULL);
     tclvareval("pack_widgets ", toppath, NULL);
+    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
     Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
     win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
     Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
-    tclvareval("tkwait visibility ", toppath, NULL);
   }
   old_xctx = xctx;
   xctx = NULL;
@@ -3042,7 +3041,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                                                                  */
  if(has_x) {
    tclsetintvar("tctx::max_new_windows", MAX_NEW_WINDOWS);
-   tcleval("pack_widgets; set_bindings .drw");
+   tcleval("pack_widgets");
  }
 
  fs=tclgetintvar("fullscreen");
@@ -3142,6 +3141,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
+ tcleval("set_bindings .drw");
  /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;
  if(cli_opt_do_netlist) {
