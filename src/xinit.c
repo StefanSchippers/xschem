@@ -1713,6 +1713,8 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
+  if(dr) xctx->pending_fullzoom=1;
+  tclvareval("set_bindings ", window_path[n], NULL);
   if(has_x) {
     tclvareval("set_geom ", toppath, " [xschem get schname]", NULL);
   }
@@ -1726,10 +1728,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
    * new_schematic("switch", prev_window, "", 1);
    */
   tclvareval("housekeeping_ctx", NULL);
-  tclvareval("set_bindings ", window_path[n], NULL);
   if(has_x) windowid(toppath);
-  if(dr) xctx->pending_fullzoom=1;
-  if(has_x) tclvareval("tkwait visibility ", toppath, ".drw", NULL);
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
@@ -3146,10 +3145,11 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
- if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
- tcleval("set_bindings .drw");
- /* Necessary to tell xschem the initial area to display */
  xctx->pending_fullzoom=1;
+ tcleval("set_bindings .drw");
+ if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
+ /* Necessary to tell xschem the initial area to display */
+
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {
      fprintf(errfp, "xschem: cant do a netlist without a filename\n");

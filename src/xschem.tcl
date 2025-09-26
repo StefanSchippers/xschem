@@ -8539,7 +8539,7 @@ proc set_geom {win {filename {}}} {
   set xmax [winfo screenwidth .] 
   set ymax [winfo screenheight .] 
   scan $ret {%dx%d+%d+%d} x y dx dy
-  puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
+  # puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
   # off screen. do not use.
   if { $dx > $xmax - 100 || $dy > $ymax - 100} {
     set ret {}
@@ -8551,6 +8551,8 @@ proc set_geom {win {filename {}}} {
     wm geometry $win $initial_geometry
     # puts "set to geometry: $initial_geometry"
   }
+  # tkwait visibility $win
+  update
 }
 
 proc get_geom {win {filename {}}} {
