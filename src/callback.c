@@ -4575,6 +4575,8 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
     if((event == FocusIn  || event == Expose || event == EnterNotify) &&
        strcmp(xctx->current_win_path, win_path) ) {
       struct stat buf;
+
+      if(xctx->pending_fullzoom == 1) return 0; /* no switching if opening a new window */
       dbg(1, "handle_window_switching(): event=%d, ui_state=%d win_path=%s\n",
           event, xctx->ui_state, win_path);
       /* This will switch context only when copying stuff across windows
@@ -4729,7 +4731,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
  
    case ConfigureNotify:
-     dbg(1,"callback(): ConfigureNotify event: %s\n", win_path);
+     dbg(1,"callback(): ConfigureNotify event: %s %dx%d\n", win_path, button, aux);
      resetwin(1, 1, 0, 0, 0);
      draw();
      break;

@@ -2272,7 +2272,7 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     #else
     XWindowAttributes wattr;
     #endif
-    dbg(1, "resetwin(): create=%d, clear=%d, force=%d, w=%d, h=%d\n", 
+    dbg(1, "\nresetwin(): create=%d, clear=%d, force=%d, w=%d, h=%d\n", 
             create_pixmap, clear_pixmap, force, w, h);
     if(w && h) {
       width = w;

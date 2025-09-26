@@ -8552,6 +8552,7 @@ proc set_geom {win {filename {}}} {
     }
   }
   if {$geom ne {}} { 
+    # puts "set_geom: setting geometry of $win to $geom"
     wm geometry $win $geom
     update
   }
