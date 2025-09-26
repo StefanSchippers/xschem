@@ -4729,7 +4729,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
  
    case ConfigureNotify:
-     dbg(1,"callback(): ConfigureNotify event\n");
+     dbg(1,"callback(): ConfigureNotify event: %s\n", win_path);
      resetwin(1, 1, 0, 0, 0);
      draw();
      break;

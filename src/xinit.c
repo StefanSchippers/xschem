@@ -1688,7 +1688,6 @@ static void create_new_window(int *window_count, const char *win_path, const cha
     tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400 -takefocus 0", NULL);
     tclvareval("build_widgets ", toppath, NULL);
     tclvareval("pack_widgets ", toppath, NULL);
-    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
     Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
     win_id = Tk_WindowId(Tk_NameToWindow(interp, window_path[n], mainwindow));
     Tk_ChangeWindowAttributes(Tk_NameToWindow(interp, window_path[n], mainwindow), CWBackingStore, &winattr);
@@ -1714,6 +1713,9 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   load_schematic(1, fname, 1, confirm);
+  if(has_x) {
+    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
+  }
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
   tcleval("eval_user_startup_commands");
@@ -1727,6 +1729,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   tclvareval("set_bindings ", window_path[n], NULL);
   if(has_x) windowid(toppath);
   if(dr) xctx->pending_fullzoom=1;
+  if(has_x) tclvareval("tkwait visibility ", toppath, ".drw", NULL);
 }
 
 /* non NULL and not empty noconfirm is used to avoid warning for duplicated filenames */
