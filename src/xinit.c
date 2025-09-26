@@ -1686,7 +1686,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   }
   if(has_x) {
     tclvareval("toplevel ", toppath, " -bg {} -width 400 -height 400 -takefocus 0", NULL);
-    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname, "}]", NULL);
+    tclvareval("set_geom ", toppath, " [abs_sym_path {", fname ? fname : "untitled.sch", "}]", NULL);
     tclvareval("build_widgets ", toppath, NULL);
     tclvareval("pack_widgets ", toppath, NULL);
     Tk_MakeWindowExist(Tk_NameToWindow(interp, window_path[n], mainwindow));
@@ -3223,6 +3223,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* creation                           */
  /*                                    */
  tcleval("update; eval_user_startup_commands");
+
+ /* set icon */
+ if(has_x) windowid(".");
 
  /* source tcl file given on command line with --script */
  if(cli_opt_tcl_script[0]) {

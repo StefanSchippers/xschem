@@ -10609,7 +10609,7 @@ if { ( $OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 
   set_replace_key_binding
 
   # update
-  xschem windowid . ;# set icon for window
+  # xschem windowid . ;# set icon for window
 } ;# end if {[exists has_x]}
 
 # read custom colors
