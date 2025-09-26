@@ -9012,7 +9012,10 @@ global env has_x OS autofocus_mainwindow
       "focus ${parent}.drw; set cadgrid \[${parent}.statusbar.5 get\]; xschem set cadgrid \$cadgrid"
     bind ${parent}.statusbar.3 <Leave> \
       "focus ${parent}.drw; set cadsnap \[${parent}.statusbar.3 get\]; xschem set cadsnap \$cadsnap"
+    
+    focus ${parent}.drw
   }
+  
 }
 
 ## this function sets up all tk windows and binds X events. It is executed by xinit.c after completing 
