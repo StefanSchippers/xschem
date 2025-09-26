@@ -2813,6 +2813,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      tcleval(name);
    }
  }
+
  if(debug_var==-10) debug_var=0;
  /*                                */
  /*  EXECUTE xschem.tcl            */
@@ -2923,16 +2924,18 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if(cli_opt_flat_netlist) {
    tclsetvar("flat_netlist","1");
  }
- xctx->areaw = CADWIDTH+4*INT_LINE_W(xctx->lw);  /* clip area extends 1 pixel beyond physical xctx->window area */
- xctx->areah = CADHEIGHT+4*INT_LINE_W(xctx->lw); /* to avoid drawing clipped rectangle borders at xctx->window edges */
+ /* clip area extends 1 pixel beyond physical xctx->window area */
+ /* to avoid drawing clipped rectangle borders at xctx->window edges */
+ xctx->areaw = (short unsigned int) tclgetintvar("canvas_width") + 4 * INT_LINE_W(xctx->lw);
+ xctx->areah = (short unsigned int) tclgetintvar("canvas_height") + 4 * INT_LINE_W(xctx->lw);
  xctx->areax1 = -2*INT_LINE_W(xctx->lw);
  xctx->areay1 = -2*INT_LINE_W(xctx->lw);
  xctx->areax2 = xctx->areaw-2*INT_LINE_W(xctx->lw);
  xctx->areay2 = xctx->areah-2*INT_LINE_W(xctx->lw);
  xctx->xrect[0].x = 0;
  xctx->xrect[0].y = 0;
- xctx->xrect[0].width = CADWIDTH;
- xctx->xrect[0].height = CADHEIGHT;
+ xctx->xrect[0].width = (short unsigned int) tclgetintvar("canvas_width");
+ xctx->xrect[0].height = (short unsigned int) tclgetintvar("canvas_height");
 
 
  my_strncpy(xctx->file_version, XSCHEM_FILE_VERSION, S(xctx->file_version));
@@ -2947,6 +2950,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  } else {
    my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
  }
+ 
 
  /*                      */
  /*  X INITIALIZATION    */

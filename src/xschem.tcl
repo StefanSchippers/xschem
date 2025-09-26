@@ -8523,60 +8523,39 @@ proc store_geom {win filename} {
 
 proc set_geom {win {filename {}}} {
   global USER_CONF_DIR initial_geometry fullscreen
-  set ret {}
+
+  set geom {}
   if {$fullscreen ne 0} {return}
-  # puts "set_geom: $win  $filename"
-  set geom_file $USER_CONF_DIR/geometry
-  if { [file exists $geom_file]} {
-    set geom_data [read_data $geom_file]
-    foreach {f g} $geom_data {
-      set geom_array($f) $g
-    }
-    if {$filename ne {} && [info exists geom_array($filename)]} {
-      set ret $geom_array($filename)
-    }
-  }
-  set xmax [winfo screenwidth .] 
-  set ymax [winfo screenheight .] 
-  scan $ret {%dx%d+%d+%d} x y dx dy
-  # puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
-  # off screen. do not use.
-  if { $dx > $xmax - 100 || $dy > $ymax - 100} {
-    set ret {}
-  }
-  if {$ret ne {}} { 
-    wm geometry $win $ret
-    # puts "set to geometry: $ret"
+  if {[info exists initial_geometry]} {
+    set geom $initial_geometry
   } else {
-    wm geometry $win $initial_geometry
-    # puts "set to geometry: $initial_geometry"
+    # puts "set_geom: $win  $filename"
+    set geom_file $USER_CONF_DIR/geometry
+    if { [file exists $geom_file]} {
+      set geom_data [read_data $geom_file]
+      foreach {f g} $geom_data {
+        set geom_array($f) $g
+      }
+      if {$filename ne {} && [info exists geom_array($filename)]} {
+        set geom $geom_array($filename)
+      }
+    }
+    set xmax [winfo screenwidth .] 
+    set ymax [winfo screenheight .] 
+    set n [scan $geom {%dx%d+%d+%d} x y dx dy]
+    if {$n == 4} {
+      # puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
+      # off screen. do not use.
+      if { $dx > $xmax - 100 || $dy > $ymax - 100} {
+        set geom {}
+      }
+    }
   }
-  # tkwait visibility $win
-  update
+  if {$geom ne {}} { 
+    wm geometry $win $geom
+    update
+  }
 }
-
-proc get_geom {win {filename {}}} {
-  global USER_CONF_DIR initial_geometry
-  set ret {}
-  # puts "get_geom: $win  $filename" 
-  set geom_file $USER_CONF_DIR/geometry
-  if { [file exists $geom_file]} { 
-    set geom_data [read_data $geom_file]
-    foreach {f g} $geom_data {
-      set geom_array($f) $g
-    }
-    if {$filename ne {} && [info exists geom_array($filename)]} {
-      set ret $geom_array($filename)
-    }
-  }  
-  if {$ret ne {}} {
-    return $ret
-  } else {
-    return $initial_geometry
-  }  
-} 
-
-
 
 proc quit_xschem { {force {}}} {
   global tabbed_interface
@@ -9137,6 +9116,7 @@ proc load_raw {{type {}}} {
 # bind Menubutton <Button-1> {tk::menubutton1 %W %X %Y}
 
 proc build_widgets { {topwin {} } } {
+  global canvas_height canvas_width
   global XSCHEM_SHAREDIR tabbed_interface simulate_bg OS sim
   global dark_gui_colorscheme draw_crosshair grid_point_size
   global color_ps transparent_svg menu_debug_var enable_stretch
@@ -9144,7 +9124,7 @@ proc build_widgets { {topwin {} } } {
   global draw_grid big_grid_points sym_txt change_lw incr_hilight symbol_width cadence_compat
   global cadsnap cadgrid draw_window toolbar_visible hide_symbols undo_type snap_cursor
   global disable_unique_names persistent_command autotrim_wires infix_interface orthogonal_wiring en_hilight_conn_inst
-  global local_netlist_dir editor netlist_type netlist_dir spiceprefix initial_geometry
+  global local_netlist_dir editor netlist_type netlist_dir spiceprefix
   if { $dark_gui_colorscheme} {
     set selectcolor white
   } else {
@@ -9783,14 +9763,12 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 
 
   # used to check status of Simulate button later. This variable is constant, never changed
-  frame $topwin.drw -background {} -takefocus 1
+  frame $topwin.drw -background {} -takefocus 1 -width $canvas_width -height $canvas_height
 
   if { $topwin == {} } {set rootwin .} else { set rootwin $topwin} 
   wm  title $rootwin "xschem - "
   wm iconname $rootwin "xschem - "
   $rootwin configure  -background {}
-  # wm  geometry $rootwin $initial_geometry
-  # wm maxsize . 1600 1200
   if {$tabbed_interface} {
     wm protocol $rootwin WM_DELETE_WINDOW {
       xschem exit closewindow
@@ -10098,6 +10076,15 @@ proc entry_replace_selection {w} {
 
 # tk_focusFollowsMouse
 
+# set or get scaling factor 
+if { [info exists tk_scaling] } {
+  # set scaling
+  tk scaling $tk_scaling ;# useful for 4k displays (set bigger widgets)
+} else {
+  # get scaling
+  set tk_scaling [tk scaling]
+}
+
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
 if { [info exists has_x]} {
@@ -10192,6 +10179,8 @@ if {$OS == "Windows"} {
 }
 
 # used in C code
+set_ne canvas_width [expr {int(800. * $tk_scaling)}]
+set_ne canvas_height [expr {int(500. * $tk_scaling)}]
 set_ne xschem_libs {}
 set_ne noprint_libs {}
 set_ne nolist_libs {}
@@ -10301,7 +10290,6 @@ set_ne erc_shorted_output_is_error 0;# if set to 1 turn warnings into errors
 set_ne symbol_width 150
 set_ne editor {gvim -f}
 set_ne rainbow_colors 0
-set_ne initial_geometry {900x600}
 set_ne edit_symbol_prop_new_sel {}
 if {$OS == "Windows"} {
   set_ne launcher_default_program [auto_execok start]
@@ -10606,7 +10594,6 @@ if { ( $OS== "Windows" || [string length [lindex [array get env DISPLAY] 1] ] > 
   font configure Underline-Font -underline true -size 24
   . configure -cursor left_ptr
   set_old_tk_fonts ;# for xschem compiled with old tcl-tk libs
-  if { [info exists tk_scaling] } {tk scaling $tk_scaling} ;# useful for 4k displays (set bigger widgets)
   set infowindow_text {}
   infowindow
 

@@ -43,6 +43,10 @@
 #define __unix__
 #endif
 
+/* stringification: STRINGIFY(xxxx) --> "xxxx" */
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x)
+
 /*  approximate PI definition */
 #define XSCH_PI 3.14159265358979323846264338327950288419716939937
 
@@ -138,8 +142,6 @@ extern char win_temp_dir[PATH_MAX];
 
 #define _ALLOC_ID_ 0 /* to be replaced with unique IDs in my_*() allocations for memory tracking
                       * see create_alloc_ids.awk */
-#define CADHEIGHT 700                   /*  initial window size */
-#define CADWIDTH 1000
 
 /* max number of windows (including main) a single xschem process can handle */
 #define MAX_NEW_WINDOWS 20
