@@ -1629,7 +1629,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   char prev_window[WINDOW_PATH_SIZE];
   int i, n, confirm = 1;
 
-  dbg(0, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
+  dbg(1, "new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count);
   
   if(win_path && win_path[0]) confirm = 0;
   my_strncpy(prev_window,  xctx->current_win_path, S(prev_window));
