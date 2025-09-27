@@ -1420,7 +1420,6 @@ void swap_windows(int dr)
     char wp_i[WINDOW_PATH_SIZE], wp_j[WINDOW_PATH_SIZE];
     Window window;
     int i = 0, j;
-    Tk_Window tkwin, mainwindow;
     char geometry[80];
 
     for(j = 1; j < MAX_NEW_WINDOWS; j++) {
@@ -1439,16 +1438,10 @@ void swap_windows(int dr)
     my_snprintf(wp_i, S(wp_i), "%s", save_xctx[i]->current_win_path); /* primary (.drw) window */
     my_snprintf(wp_j, S(wp_j), "%s", save_xctx[j]->current_win_path); /* sub (.x?.drw) window */
 
-    mainwindow = Tk_MainWindow(interp);
-    /* get parent of wp_j window, since window manager reparents application windows to a
-     * parent window with title bar and borders. This gives accurate geometry data */
-    tkwin = Tk_Parent(Tk_NameToWindow(interp, wp_j, mainwindow));
-
     /* get sub-window geometry and position. primary window wp_i will be sized and moved there. */
-    dbg(1, "swap_windows(): %s: %dx%d+%d+%d\n",
-            wp_j, Tk_Width(tkwin), Tk_Height(tkwin), Tk_X(tkwin), Tk_Y(tkwin));
-    my_snprintf(geometry, S(geometry), "%dx%d+%d+%d",
-            Tk_Width(tkwin), Tk_Height(tkwin), Tk_X(tkwin), Tk_Y(tkwin));
+    tclvareval("wm geometry ", save_xctx[j]->top_path, NULL);
+    my_snprintf(geometry, S(geometry), "%s", tclresult());
+    dbg(1, "geometry=%s\n", geometry);
 
     /* swap tcl contexts */
     tclvareval("save_ctx ", xctx->current_win_path, NULL);
@@ -1884,9 +1877,6 @@ static void destroy_window(int *window_count, const char *win_path)
           tclvareval("winfo toplevel ", win_path, NULL);
           my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
         }
-
-        tclvareval("store_geom ", toplevel, " [xschem get schname]" , NULL);
-
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {

@@ -1044,7 +1044,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int force = 0;
       const char *exit_status = "0";
 
-
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "closewindow")) closewindow = 1;
@@ -1063,6 +1062,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(has_x) tcleval("store_geom . [xschem get schname]");
               swap_windows(0);
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
               new_schematic("destroy", xctx->current_win_path, NULL, 0);
@@ -1077,10 +1077,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                if(closewindow) {
                  char s[40];
-                 my_snprintf(s, S(s), "exit %s", exit_status);
+                 my_snprintf(s, S(s), "exit %s", exit_status); /* xwin_exit() saves window geometry */
                  tcleval(s);
                }
-               else clear_schematic(0, 0);
+               else {
+                 if(has_x) tcleval("store_geom . [xschem get schname]");
+                 clear_schematic(0, 0);
+               }
             }
           }
         }
@@ -1095,6 +1098,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              if(has_x) tcleval("store_geom . [xschem get schname]");
               swap_tabs();
               set_modify(0);
               new_schematic("destroy", xctx->current_win_path, NULL, 1);
@@ -1108,15 +1112,20 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
                if(closewindow) {
                  char s[40];
-                 my_snprintf(s, S(s), "exit %s", exit_status);
+                 my_snprintf(s, S(s), "exit %s", exit_status); /* xwin_exit() saves window geometry */
                  tcleval(s);
                }
-               else clear_schematic(0, 0);
+               else {
+                 if(has_x) tcleval("store_geom . [xschem get schname]");
+                 clear_schematic(0, 0);
+               }
             }
           }
         }
       } else {
         if(force) set_modify(0); /* avoid ask to save downstream */
+        if(has_x) tclvareval("store_geom ", xctx->top_path[0] ? xctx->top_path : ".",
+                             " [xschem get schname]", NULL);
         new_schematic("destroy", xctx->current_win_path, NULL, 1);
       }
       Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
