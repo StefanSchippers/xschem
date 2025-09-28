@@ -8496,6 +8496,7 @@ proc set_tab_names {{mod {}}} {
     }
   }
 }
+
 proc store_geom {win filename} {
   global tabbed_interface USER_CONF_DIR
 
@@ -8506,24 +8507,36 @@ proc store_geom {win filename} {
   set geom_data {}
   if {$win eq {.} || $tabbed_interface eq 0} {
     if { [file exists $geom_file]} {
-      set geom_data [read_data $geom_file]
+      set fd [ open $geom_file]
+      while {[gets $fd line] >= 0} {
+        if { [llength $line] == 2} {
+          lassign $line f g
+          set d {}
+        } elseif {[llength $line] == 3} {
+          lassign $line f g d
+        } else {
+          continue
+        }
+        set geom_array($f) [list $g $d]
+      }
+      close $fd
     }
-    foreach {f g} $geom_data {
-      set geom_array($f) $g
-    }
-    set geom_array($filename) $geom
+    set geom_array($filename) [list $geom [clock seconds]]
 
     set geom_data {}
     foreach i [array names geom_array] {
       append geom_data $i { } $geom_array($i) \n
     }
+    puts $geom_data
+    puts ---
+    # set geom_data [lsort -stride 3 -index 2 -integer $geom_data]
+    puts $geom_data
     write_data $geom_data $geom_file
   }
 }
 
 proc set_geom {win {filename {}}} {
   global USER_CONF_DIR initial_geometry fullscreen
-
   set geom {}
   if {$fullscreen ne 0} {return}
   if {[info exists initial_geometry]} {
@@ -8532,12 +8545,23 @@ proc set_geom {win {filename {}}} {
     # puts "set_geom: $win  $filename"
     set geom_file $USER_CONF_DIR/geometry
     if { [file exists $geom_file]} {
-      set geom_data [read_data $geom_file]
-      foreach {f g} $geom_data {
-        set geom_array($f) $g
+
+      set fd [ open $geom_file]
+      while {[gets $fd line] >= 0} {
+        if { [llength $line] == 2} {
+          lassign $line f g
+          set d {}
+        } elseif {[llength $line] == 3} {
+          lassign $line f g d
+        } else {
+          continue
+        }
+        set geom_array($f) [list $g $d]
       }
+      close $fd
+       
       if {$filename ne {} && [info exists geom_array($filename)]} {
-        set geom $geom_array($filename)
+        set geom [lindex $geom_array($filename) 0]
       }
     }
     set xmax [winfo screenwidth .] 
@@ -8554,8 +8578,8 @@ proc set_geom {win {filename {}}} {
   if {$geom ne {}} { 
     # puts "set_geom: setting geometry of $win to $geom"
     wm geometry $win $geom
-    update
-  }
+  } 
+  update
 }
 
 proc quit_xschem { {force {}}} {

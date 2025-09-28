@@ -2269,8 +2269,8 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
     #else
     XWindowAttributes wattr;
     #endif
-    dbg(1, "\nresetwin(): create=%d, clear=%d, force=%d, w=%d, h=%d\n", 
-            create_pixmap, clear_pixmap, force, w, h);
+    dbg(1, "\nresetwin(): %s create=%d, clear=%d, force=%d, w=%d, h=%d\n", 
+            xctx->current_win_path, create_pixmap, clear_pixmap, force, w, h);
     if(w && h) {
       width = w;
       height = h;
@@ -3150,9 +3150,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
- xctx->pending_fullzoom=1;
  if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
- /* Necessary to tell xschem the initial area to display */
+ xctx->pending_fullzoom=1;
 
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {
