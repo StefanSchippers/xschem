@@ -3150,8 +3150,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(!file_loaded) tcleval("exit 1");
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
- if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
  xctx->pending_fullzoom=1;
+ if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
 
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {

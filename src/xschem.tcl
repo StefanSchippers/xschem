@@ -8527,10 +8527,11 @@ proc store_geom {win filename} {
     foreach i [array names geom_array] {
       append geom_data $i { } $geom_array($i) \n
     }
-    puts $geom_data
-    puts ---
+    # puts $geom_data
+    # puts ---
     # set geom_data [lsort -stride 3 -index 2 -integer $geom_data]
-    puts $geom_data
+    # puts $geom_data
+    # puts ===
     write_data $geom_data $geom_file
   }
 }
