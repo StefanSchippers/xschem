@@ -57,6 +57,8 @@ LeftButton Double click Terminate Polygon placement
                         XSCHEM KEY BINDINGS
 ----------------------------------------------------------------------
 -          BackSpace    Back to parent schematic
+shift      BackSpace    Open last closed schematic
+ctrl       BackSpace    Open last opened or saved schematic
 -          Delete       Delete selected objects
 -          Insert       Insert element from library
 shift      Insert       Open persistent insert symbol dialog box

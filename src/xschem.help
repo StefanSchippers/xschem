@@ -37,6 +37,8 @@ Options:
   --plotfile <file>    Use <file> as output for plot (png, svg, ps).
   --rcfile <file>      Use <file> as a rc file for startup instead of the
                        default xschemrc.
+  --lastclosed         Open last closed file
+  --lastopened         Open last opened or saved file
   -p  --postscript
       --pdf            Export pdf schematic.
       --png            Export png schematic.

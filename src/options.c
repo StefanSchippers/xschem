@@ -68,6 +68,14 @@ static void check_opt(char *opt, char *optval, int type)
         dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "<NULL>");
         if(optval) my_strncpy(cli_opt_rcfile, optval, S(cli_opt_rcfile));
 
+    } else if( (type == LONG && !strcmp("lastclosed", opt)) ) {
+        dbg(1, "process_options(): lastclosed specified\n");
+        cli_opt_lastclosed = 1;
+
+    } else if( (type == LONG && !strcmp("lastopened", opt)) ) {
+        dbg(1, "process_options(): lastopened specified\n");
+        cli_opt_lastopened = 1;
+
     } else if( (type == LONG && !strcmp("png", opt)) ) {
         dbg(1, "process_options(): will print png\n");
         cli_opt_do_print = 2;

@@ -3107,6 +3107,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                                                          */
  tcleval("eval_postinit_commands");
 
+ if(cli_opt_lastclosed) {
+    my_strncpy(cli_opt_filename, tcleval("get_lastclosed"), S(cli_opt_filename));
+ }
+
+ if(cli_opt_lastopened) {
+    my_strncpy(cli_opt_filename, tcleval("lindex $tctx::recentfile 0"), S(cli_opt_filename));
+ }
+
  if(cli_opt_filename[0]) {
     int file_loaded = 1;
    /* check if local_netlist_dir is set and set netlist_dir accordingly

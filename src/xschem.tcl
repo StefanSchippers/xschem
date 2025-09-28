@@ -8598,6 +8598,19 @@ proc set_geom {win {filename {}}} {
   update
 }
 
+proc get_lastclosed {} {
+  global USER_CONF_DIR
+
+  set ret {}
+  if {[file exists $USER_CONF_DIR/geometry]} {
+    set ret [lindex [read_data $USER_CONF_DIR/geometry] 0]
+    if {$ret eq [abs_sym_path untitled.sch]} {
+      set ret {}
+    }
+  }
+  return $ret
+}
+
 proc quit_xschem { {force {}}} {
   global tabbed_interface
 
@@ -8712,7 +8725,7 @@ set tctx::global_list {
  show_hidden_texts show_infowindow show_infowindow_after_netlist simconf_default_geometry
  simconf_vpos simulate_bg snap_cursor snap_cursor_size spiceprefix split_files svg_colors
  svg_font_name sym_txt symbol symbol_width tabstop tclcmd_txt tclstop
- tctx::colors tctx::delay_flag tctx::hsize tctx::recentfil
+ tctx::colors tctx::delay_flag tctx::hsize tctx::recentfile
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
  text_line_default_geometry text_replace_selection text_tabs_setting

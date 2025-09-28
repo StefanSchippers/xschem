@@ -3200,7 +3200,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case 'o':
       if(EQUAL_MODMASK) { /* load in new tab/window */
         xctx->semaphore--;
-        ask_new_file(1);
+        ask_new_file(1, NULL);
         tcleval("load_additional_files");
         xctx->semaphore++;
       }
@@ -3212,7 +3212,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           );
         } else {
           xctx->semaphore--;
-          ask_new_file(0);
+          ask_new_file(0, NULL);
           tcleval("load_additional_files");
           xctx->semaphore++;
         }
@@ -3924,9 +3924,20 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       redraw_w_a_l_r_p_z_rubbers(1);
       break;
     
-    case XK_BackSpace:  /* back */
+    case XK_BackSpace:
       if(xctx->semaphore >= 2) break;
-      go_back(1);
+      if(state == 0) go_back(1); /* go up in hierarchy */
+      else if(state == ShiftMask) {
+        /* load last closed file */
+        char f[PATH_MAX];
+        my_strncpy(f, tcleval("get_lastclosed"), S(f));
+        ask_new_file(0, f);
+      } else if(state == ControlMask) {
+        /* load last opened file */
+        char f[PATH_MAX];
+        my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+        ask_new_file(0, f);
+      }
       break;
     
 #if defined(__unix__) && HAS_CAIRO==1

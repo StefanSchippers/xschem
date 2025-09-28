@@ -605,7 +605,7 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     return;
 }
 
-void ask_new_file(int in_new_window)
+void ask_new_file(int in_new_window, char *filename)
 {
     char f[PATH_MAX]; /*  overflow safe 20161125 */
 
@@ -613,8 +613,12 @@ void ask_new_file(int in_new_window)
     if(!(in_new_window || tclgetboolvar("open_in_new_window")) && xctx->modified) {
       if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
     }
-    tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
-    my_snprintf(f, S(f),"%s", tclresult());
+    if(!filename || !filename[0]) {
+      tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
+      my_snprintf(f, S(f),"%s", tclresult());
+    } else {
+      my_strncpy(f, filename, S(f));
+    }
     if(f[0]) {
       char win_path[WINDOW_PATH_SIZE];
       int skip = 0;

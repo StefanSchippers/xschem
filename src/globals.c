@@ -213,6 +213,8 @@ char *cli_opt_preinit_command = NULL; /* tcl command given on command line with 
                                        * this commands will be executed before loading xschemrc */
 char *cli_opt_tcl_post_command = NULL; /* tcl command given on command line with --command <script> */
 int cli_opt_do_print=0;
+int cli_opt_lastclosed=0;
+int cli_opt_lastopened=0;
 int cli_opt_do_netlist=0;  /* set by process_options if user wants netllist from cmdline */
 int cli_opt_do_simulation=0;
 int cli_opt_do_waves=0;
