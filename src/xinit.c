@@ -3256,7 +3256,9 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  /* load additional files */
- for(i = 2; i < cli_opt_argc; ++i) {
+ if(cli_opt_lastopened || cli_opt_lastclosed) i = 1;
+ else i = 2;
+ for(; i < cli_opt_argc; ++i) {
    tclvareval("xschem load_new_window ",  cli_opt_argv[i], NULL);
  }
 
