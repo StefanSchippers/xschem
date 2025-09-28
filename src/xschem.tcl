@@ -8511,7 +8511,7 @@ proc store_geom {win filename} {
       while {[gets $fd line] >= 0} {
         if { [llength $line] == 2} {
           lassign $line f g
-          set d {}
+          set d {0}
         } elseif {[llength $line] == 3} {
           lassign $line f g d
         } else {
@@ -8529,10 +8529,25 @@ proc store_geom {win filename} {
     }
     # puts $geom_data
     # puts ---
-    # set geom_data [lsort -stride 3 -index 2 -integer $geom_data]
-    # puts $geom_data
+    set geom_data2 [lsort -stride 3 -decreasing -index 2 -integer $geom_data]
+    set geom_data3 {}
+    set j 0
+    foreach i $geom_data2 {
+      if {$geom_data3 ne {}} {
+        if {$j % 3 == 0} {
+          append geom_data3 \n
+        } else {
+          append geom_data3 { }
+        }
+      }
+      append geom_data3 $i 
+      incr j
+    }
+    
+    # puts $geom_data3
     # puts ===
-    write_data $geom_data $geom_file
+    set geom_data $geom_data3
+    write_data $geom_data\n $geom_file
   }
 }
 
