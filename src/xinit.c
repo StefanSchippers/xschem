@@ -1988,7 +1988,9 @@ static void destroy_all_windows(int *window_count, int force)
         else { 
           xctx = save_xctx[i];
           close = 0;
+          xctx->semaphore++; /* to avoid context switches when dialog below is shown */
           /* reset old focused window so callback() will force repaint on expose events */
+          dbg(1, "destroy_all_windows(): top_path=%s\n", xctx->top_path);
           if(!force && xctx->modified && has_x) {
             tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                     "[get_cell [xschem get schname] 0]"
@@ -1996,16 +1998,21 @@ static void destroy_all_windows(int *window_count, int force)
             if(strcmp(tclresult(),"ok")==0) close = 1;
           }
           else close = 1;
+          xctx->semaphore--;
           Tcl_ResetResult(interp);
           if(close) {
             char *toplevel = NULL;
             if(has_x) {
               tclvareval("winfo toplevel ", window_path[i], NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
+              dbg(1, "toplevel=%s\n", toplevel);
               tclvareval("store_geom ", toplevel, " [xschem get schname]", NULL);
             }
             /* set saved ctx to main window if previous is about to be destroyed */
-            if(savectx == save_xctx[i]) savectx = save_xctx[0];
+            if(savectx == save_xctx[i]) {
+              savectx = save_xctx[0];
+              dbg(1, "setting savectx to xctx[0]: current saved context=%s, i=%d\n", savectx->current_win_path, i);
+            }
             delete_schematic_data(1);
             save_xctx[i] = NULL;
             if(has_x) {

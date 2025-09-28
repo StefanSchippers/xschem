@@ -4604,6 +4604,7 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
         dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
                 xctx->current_win_path, win_path, xctx->semaphore);
         new_schematic("switch", win_path, "", 1);
+        dbg(1, "switching to %s\n", win_path);
       }
 
     }
