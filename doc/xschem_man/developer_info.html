@@ -1046,13 +1046,16 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    '-gui': ask to save modified file or warn if opening an already
        open file or opening a new(not existing) file.
    '-noundoreset': do not reset the undo history
+   '-lastclosed': open last closed file
+   '-lastcopened': open last opened file
    '-nosymbols': do not load symbols (used if loading a symbol instead of
        a schematic)
    '-nofullzoom': do not do a full zoom on new schematic.
    '-nodraw': do not draw.
    '-keep_symbols': retain symbols that are already loaded.</pre>
-   <li><kbd>       load_new_window [f]</kbd></li><pre>
+   <li><kbd>       load_new_window [-lastclosed | -lastopened] [f]</kbd></li><pre>
    Load schematic in a new tab/window. If 'f' not given prompt user
+   -lastclosed or -lastopened can be used to open the last closed or last opened file
    if 'f' is given as empty '{}' then open untitled.sch </pre>
    <li><kbd>       log f</kbd></li><pre>
    If 'f' is given output stderr messages to file 'f'
@@ -1138,7 +1141,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Open/destroy a new tab or window
      create: create new empty window or with 'file' loaded if 'file' given.
              The win_path must be given (even {} is ok).
-             non empty win_path ({1}) will avoid warnings if opening the
+             '1' win_path ({1}) will avoid warnings if opening the
              same file multiple times.
      destroy: destroy tab/window identified by win_path. Example:
               xschem new_schematic destroy .x1.drw
