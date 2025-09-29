@@ -2978,6 +2978,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   '-gui': ask to save modified file or warn if opening an already
      *       open file or opening a new(not existing) file.
      *   '-noundoreset': do not reset the undo history
+     *   '-lastclosed': open last closed file
+     *   '-lastcopened': open last opened file
      *   '-nosymbols': do not load symbols (used if loading a symbol instead of
      *       a schematic)
      *   '-nofullzoom': do not do a full zoom on new schematic.
@@ -2988,6 +2990,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
       int keep_symbols = 0, first;
+      int lastclosed = 0, lastopened = 0;
+      int first_loaded = 0;
       int i;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
@@ -2997,6 +3001,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             load_symbols = 0 ;
           } else if(!strcmp(argv[i], "-gui")) {
             force = 0;
+          } else if(!strcmp(argv[i], "-lastclosed")) {
+            lastclosed = 1;
+          } else if(!strcmp(argv[i], "-lastopened")) {
+            lastopened = 1;
           } else if(!strcmp(argv[i], "-noundoreset")) {
             undo_reset = 0;
           } else if(!strcmp(argv[i], "-nofullzoom")) {
@@ -3011,7 +3019,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       first = i;
-      if(argc==2) {
+      if(argc==first && !(lastclosed || lastopened)) {
         if(tclgetboolvar("new_file_browser")) {
           tcleval(
            "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
@@ -3021,15 +3029,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           tcleval("load_additional_files");
         }
       } else
-      for(i = first; i < argc; i++) {
+      for(i = first; i < argc || lastclosed || lastopened; i++) {
         char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
-        tcleval(f);
-        my_strncpy(f, tclresult(), S(f));
+
+        if(lastclosed) {
+          my_strncpy(f, tcleval("get_lastclosed"), S(f));
+          i--;
+          lastclosed = 0;
+        } else if(lastopened) {
+          my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+          i--;
+          lastopened = 0;
+        } else {
+          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
+          tcleval(f);
+          my_strncpy(f, tclresult(), S(f));
+        }
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
-          dbg(1, "scheduler(): load: filename=%s\n", argv[i]);
+          dbg(1, "scheduler(): load: filename=%s\n", f);
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
           if(!force && f[0] && check_loaded(f, win_path) ) {
             char msg[PATH_MAX + 100];
@@ -3048,7 +3067,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
             /* if(!undo_reset) xctx->push_undo(); */
-            if(i == first) {
+            if(!first_loaded) {
               if(undo_reset) xctx->currsch = 0;
               if(!keep_symbols) remove_symbols();
               if(!nofullzoom) {
@@ -3060,12 +3079,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
 
-            if(i > first) {
+            if(first_loaded) {
               ret = new_schematic("create", "noconfirm", f, 1);
               if(undo_reset) {
                 tclvareval("update_recent_file {", f, "}", NULL);
               }
             } else {
+              first_loaded = 1;
               ret = load_schematic(load_symbols, f, undo_reset, !force);
               dbg(1, "xschem load: f=%s, ret=%d\n", f, ret);
               if(undo_reset) {
@@ -3086,8 +3106,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, xctx->sch[xctx->currsch], TCL_STATIC);
     }
 
-    /* load_new_window [f]
+    /* load_new_window [-lastclosed | -lastopened] [f]
      *   Load schematic in a new tab/window. If 'f' not given prompt user
+     *   -lastclosed or -lastopened can be used to open the last closed or last opened file
      *   if 'f' is given as empty '{}' then open untitled.sch */
     else if(!strcmp(argv[1], "load_new_window") )
     {
@@ -3097,7 +3118,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         int i;
         for(i = 2; i < argc; i++) {
-          if(!is_from_web(argv[i])) {
+
+          if(!strcmp(argv[i], "-lastclosed")) {
+            my_strncpy(f, tcleval("get_lastclosed"), S(f));
+          } else if(!strcmp(argv[i], "-lastopened")) {    
+            my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+          } else if(!is_from_web(argv[i])) {
             my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
             tcleval(f);
             /* tclvareval("file normalize {", tclresult(), "}", NULL); */
