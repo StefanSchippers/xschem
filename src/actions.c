@@ -624,7 +624,7 @@ void ask_new_file(int in_new_window, char *filename)
       int skip = 0;
       dbg(1, "ask_new_file(): load: f=%s\n", f);
  
-      if(check_loaded(f, win_path)) {
+      if(check_loaded(f, win_path) && !filename) {
         char msg[PATH_MAX + 100];
         my_snprintf(msg, S(msg),
            "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "

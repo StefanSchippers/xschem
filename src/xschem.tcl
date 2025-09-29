@@ -8562,7 +8562,7 @@ proc set_geom {win {filename {}}} {
     set geom_file $USER_CONF_DIR/geometry
     if { [file exists $geom_file]} {
 
-      set fd [ open $geom_file]
+      set fd [open $geom_file]
       while {[gets $fd line] >= 0} {
         if { [llength $line] == 2} {
           lassign $line f g
@@ -8601,12 +8601,20 @@ proc set_geom {win {filename {}}} {
 proc get_lastclosed {} {
   global USER_CONF_DIR
 
+  set geom_file  $USER_CONF_DIR/geometry
   set ret {}
-  if {[file exists $USER_CONF_DIR/geometry]} {
-    set ret [lindex [read_data $USER_CONF_DIR/geometry] 0]
-    if {$ret eq [abs_sym_path untitled.sch]} {
-      set ret {}
+  if {[file exists $geom_file]} {
+    set fd [open $geom_file]
+    while {[gets $fd line] >= 0} {
+      set ret [lindex $line 0]
+      if {$ret eq [abs_sym_path untitled.sch]} {
+        continue
+      }
+      if { $ret ne {}} {
+        break
+      }
     }
+    close $fd
   }
   return $ret
 }
