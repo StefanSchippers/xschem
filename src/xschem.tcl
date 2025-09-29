@@ -10130,18 +10130,19 @@ proc entry_replace_selection {w} {
 
 # tk_focusFollowsMouse
 
-# set or get scaling factor 
-if { [info exists tk_scaling] } {
-  # set scaling
-  tk scaling $tk_scaling ;# useful for 4k displays (set bigger widgets)
-} else {
-  # get scaling
-  set tk_scaling [tk scaling]
-}
-
 set_ne dark_colorscheme 1
 set_ne dark_gui_colorscheme 0
 if { [info exists has_x]} {
+
+  # set or get scaling factor 
+  if { [info exists tk_scaling] } {
+    # set scaling
+    tk scaling $tk_scaling ;# useful for 4k displays (set bigger widgets)
+  } else {
+    # get scaling
+    set tk_scaling [tk scaling]
+  }
+
   if { $dark_gui_colorscheme == 0 } { ;# normal GUI
     option add *foreground black startupFile
     option add *activeForeground black startupFile
@@ -10233,8 +10234,14 @@ if {$OS == "Windows"} {
 }
 
 # used in C code
-set_ne canvas_width [expr {int(800. * $tk_scaling)}]
-set_ne canvas_height [expr {int(500. * $tk_scaling)}]
+
+if {[info exists tk_scaling]} {
+  set_ne canvas_width [expr {int(800. * $tk_scaling)}]
+  set_ne canvas_height [expr {int(500. * $tk_scaling)}]
+} else {
+  set_ne canvas_width 1000
+  set_ne canvas_height 700
+}
 set_ne xschem_libs {}
 set_ne noprint_libs {}
 set_ne nolist_libs {}
