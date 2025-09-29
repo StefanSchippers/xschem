@@ -8610,6 +8610,9 @@ proc get_lastclosed {} {
       if {$ret eq [abs_sym_path untitled.sch]} {
         continue
       }
+      if {[xschem check_loaded $ret] ne {}} {
+        continue
+      }
       if { $ret ne {}} {
         break
       }
@@ -8617,6 +8620,16 @@ proc get_lastclosed {} {
     close $fd
   }
   return $ret
+}
+
+proc get_lastopened {} {
+  set f {}
+  foreach f $tctx::recentfile {
+    if {[xschem check_loaded $f] eq {}} {
+      break
+    }
+  }
+  return $f
 }
 
 proc quit_xschem { {force {}}} {

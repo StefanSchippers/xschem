@@ -494,6 +494,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* check_loaded n <filename>
+     *   check if schematic / symbol file is already opened and return window path
+     *   the loaded schematic is in.
+     *   for <filename> use absolute path or use [abs_sym_path filename]
+     *     window_path[0] == ".drw"
+     *     window_path[1] == ".x1.drw"
+     *     ...
+     *   else return empty string */
+    else if(!strcmp(argv[1], "check_loaded"))
+    {
+      char win_path[WINDOW_PATH_SIZE] = "";
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc > 2) {
+        check_loaded(argv[2], win_path);
+      }
+      Tcl_SetResult(interp, win_path, TCL_VOLATILE);
+    }
+
     /* check_symbols
      *   List all used symbols in current schematic and warn if some symbol is newer */
     else if(!strcmp(argv[1], "check_symbols"))
@@ -3037,7 +3055,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           i--;
           lastclosed = 0;
         } else if(lastopened) {
-          my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+          my_strncpy(f, tcleval("get_lastopened"), S(f));
           i--;
           lastopened = 0;
         } else {
@@ -3122,7 +3140,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[i], "-lastclosed")) {
             my_strncpy(f, tcleval("get_lastclosed"), S(f));
           } else if(!strcmp(argv[i], "-lastopened")) {    
-            my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+            my_strncpy(f, tcleval("get_lastopened"), S(f));
           } else if(!is_from_web(argv[i])) {
             my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
             tcleval(f);

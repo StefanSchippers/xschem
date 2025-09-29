@@ -3938,7 +3938,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         /* load last opened file */
         char f[PATH_MAX];
         xctx->semaphore--;
-        my_strncpy(f, tcleval("lindex $tctx::recentfile 0"), S(f));
+        my_strncpy(f, tcleval("get_lastopened"), S(f));
         ask_new_file(1, f);
         xctx->semaphore++;
       }

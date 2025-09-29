@@ -1490,15 +1490,17 @@ int check_loaded(const char *f, char *win_path)
   int i;
   Xschem_ctx *ctx;
   int found = 0;
+  my_strncpy(win_path, "", S(window_path[i]));
   for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
-    ctx = save_xctx[i];
     dbg(1, "window_count=%d i=%d\n", window_count, i);
     /* if only one schematic it is not yet saved in save_xctx */
     if(window_count == 0 && i == 0)  {
       ctx = xctx;
       my_snprintf(window_path[0],  S(window_path[0]), ".drw" );
+    } else {
+      ctx = save_xctx[i];
     }
-    if(ctx) {
+    if(ctx && ctx->sch[ctx->currsch]) {
       dbg(1, "%s <--> %s\n", ctx->sch[ctx->currsch], f);
       if(!strcmp(ctx->sch[ctx->currsch], f)) {
         dbg(1, "check_loaded(): f=%s, sch=%s\n", f, ctx->sch[ctx->currsch]);
@@ -3112,7 +3114,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  if(cli_opt_lastopened) {
-    my_strncpy(cli_opt_filename, tcleval("lindex $tctx::recentfile 0"), S(cli_opt_filename));
+    my_strncpy(cli_opt_filename, tcleval("get_lastopened"), S(cli_opt_filename));
  }
 
  if(cli_opt_filename[0]) {

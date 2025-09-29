@@ -608,6 +608,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if descended into a vector instance change inst number we are into to 'n',
    (same rules as 'descend' command) without going up and descending again
    if 'draw' string is given redraw screen </pre>
+   <li><kbd>       check_loaded n &lt;filename&gt;</kbd></li><pre>
+   check if schematic / symbol file is already opened and return window path
+   the loaded schematic is in.
+   for &lt;filename&gt; use absolute path or use [abs_sym_path filename]
+     window_path[0] == ".drw"
+     window_path[1] == ".x1.drw"
+     ...
+   else return empty string </pre>
    <li><kbd>       check_symbols</kbd></li><pre>
    List all used symbols in current schematic and warn if some symbol is newer </pre>
    <li><kbd>       check_unique_names [1|0]</kbd></li><pre>
