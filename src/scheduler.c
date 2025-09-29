@@ -2997,7 +2997,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *       open file or opening a new(not existing) file.
      *   '-noundoreset': do not reset the undo history
      *   '-lastclosed': open last closed file
-     *   '-lastcopened': open last opened file
+     *   '-lastopened': open last opened file
      *   '-nosymbols': do not load symbols (used if loading a symbol instead of
      *       a schematic)
      *   '-nofullzoom': do not do a full zoom on new schematic.

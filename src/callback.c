@@ -3221,7 +3221,13 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case 'O':
       if(rstate == ControlMask ) { /* load most recent tile */
-        tclvareval("xschem load -gui [lindex $tctx::recentfile 0]", NULL);
+        xctx->semaphore--;
+        if(tclgetboolvar("open_in_new_window")) {
+          tclvareval("xschem load_new_window -lastopened", NULL);
+        } else {
+          tclvareval("xschem load -gui -lastopened", NULL);
+        }
+        xctx->semaphore++;
       }
       else if(rstate == 0) { /* toggle light/dark colorscheme 20171113 */
         int d_c;
@@ -3469,6 +3475,16 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       if(rstate == 0) { /* toggle spice_ignore, verilog_ignore, ... flag on selected instances. */
         toggle_ignore();
       }
+      else if(rstate == ControlMask ) { /* load last closed */
+        xctx->semaphore--;
+        if(tclgetboolvar("open_in_new_window")) {
+          tclvareval("xschem load_new_window -lastclosed", NULL);
+        } else {
+          tclvareval("xschem load -gui -lastclosed", NULL);
+        }
+        xctx->semaphore++;
+      }
+
       break;
 
     case 'u':
@@ -3927,21 +3943,6 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case XK_BackSpace:
       if(xctx->semaphore >= 2) break;
       if(state == 0) go_back(1); /* go up in hierarchy */
-      else if(state == ShiftMask) {
-        /* load last closed file */
-        char f[PATH_MAX];
-        xctx->semaphore--;
-        my_strncpy(f, tcleval("get_lastclosed"), S(f));
-        ask_new_file(1, f);
-        xctx->semaphore++;
-      } else if(state == ControlMask) {
-        /* load last opened file */
-        char f[PATH_MAX];
-        xctx->semaphore--;
-        my_strncpy(f, tcleval("get_lastopened"), S(f));
-        ask_new_file(1, f);
-        xctx->semaphore++;
-      }
       break;
     
 #if defined(__unix__) && HAS_CAIRO==1

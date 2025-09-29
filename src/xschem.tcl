@@ -9267,8 +9267,10 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add command -label "Open" -command "xschem load" -accelerator {Ctrl+O}
   $topwin.menubar.file add command -label "Open in new window" -command "xschem load_new_window" \
     -accelerator {Alt+O}
-  $topwin.menubar.file add command -label "Open Most Recent" \
-    -command {xschem load -gui [lindex "$tctx::recentfile" 0]} -accelerator {Ctrl+Shift+O}
+  $topwin.menubar.file add command -label "Open last closed" \
+    -command {xschem load -gui -lastclosed} -accelerator {Ctrl+Shift+T}
+  $topwin.menubar.file add command -label "Open most recent" \
+    -command {xschem load -gui -lastopened} -accelerator {Ctrl+Shift+O}
   $topwin.menubar.file add cascade -label "Open recent" -menu $topwin.menubar.file.recent
   menu $topwin.menubar.file.recent -tearoff 0 -takefocus 0
   setup_recent_menu $topwin

@@ -299,7 +299,7 @@ T {New win/tab} 442.5 -275 0 0 0.18 0.18 {layer=4}
 T {Toggle ignore} 442.5 -263.75 0 0 0.18 0.18 {layer=12}
 T {Text} 442.5 -252.5 0 0 0.18 0.18 {}
 T {-} 442.5 -286.25 0 0 0.18 0.18 {layer=7}
-T {-} 442.5 -297.5 0 0 0.18 0.18 {layer=6}
+T {Opn.Last closed} 442.5 -297.5 0 0 0.18 0.18 {layer=6}
 T {Unsel floaters} 602.5 -275 0 0 0.18 0.18 {layer=4}
 T {Redo} 602.5 -263.75 0 0 0.18 0.18 {layer=12}
 T {Undo} 602.5 -252.5 0 0 0.18 0.18 {}
@@ -471,5 +471,3 @@ T {Move down} 1302.5 -12.5 0 0 0.18 0.18 {}
 T {Move up} 1302.5 -92.5 0 0 0.18 0.18 {}
 T {Open last file} 762.5 -297.5 0 0 0.18 0.18 {layer=6}
 T {Previous Tab} 2.5 -275 0 0 0.18 0.18 {layer=4}
-T {Load last opened file} 1042.5 -355 0 0 0.18 0.18 {layer=4}
-T {Load last closed file} 1042.5 -343.75 0 0 0.18 0.18 {layer=12}
