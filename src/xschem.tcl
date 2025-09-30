@@ -9888,17 +9888,17 @@ tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get
 
 proc set_initial_dirs {} {
   global INITIALLOADDIR INITIALINSTDIR INITIALPROPDIR pathlist
-  set INITIALLOADDIR {}
-  set INITIALINSTDIR {}
-  set INITIALPROPDIR {}
   foreach i $pathlist  {
     if { [file exists $i] } {
-      set INITIALLOADDIR $i
-      set INITIALINSTDIR $i
-      set INITIALPROPDIR $i
+      if {![info exists INITIALLOADDIR]} {set INITIALLOADDIR $i}
+      if {![info exists INITIALINSTDIR]} {set INITIALINSTDIR $i}
+      if {![info exists INITIALPROPDIR]} {set INITIALPROPDIR $i}
       break
     }
   }
+  if {![info exists INITIALLOADDIR]} {set INITIALLOADDIR {}}
+  if {![info exists INITIALINSTDIR]} {set INITIALINSTDIR {}}
+  if {![info exists INITIALPROPDIR]} {set INITIALPROPDIR {}}
 }
 
 # called whenever XSCHEM_LUBRARY_PATH changes (see trace command at end) 
