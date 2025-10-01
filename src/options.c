@@ -24,8 +24,9 @@
 #define SHORT 1
 #define LONG 2
 
-static void check_opt(char *opt, char *optval, int type)
+static int check_opt(char *opt, char *optval, int type)
 {
+    int valid = 1;
     if( (type == SHORT && *opt == 'd') || (type == LONG && !strcmp("debug", opt)) ) {
         if(optval) debug_var = atoi(optval);
         else debug_var = 0;
@@ -179,7 +180,9 @@ static void check_opt(char *opt, char *optval, int type)
         has_x = 0;
     } else {
         fprintf(errfp, "Unknown option: %s\n", opt);
+        valid = 0;
     }
+    return valid;
 }
 
 int process_options(int argc, char *argv[])
@@ -258,7 +261,7 @@ int process_options(int argc, char *argv[])
           else if(*opt == 'o') {
             optval = argv[++i];
           }
-          check_opt(opt, optval, SHORT);
+          if(!check_opt(opt, optval, SHORT)) break;
           /* printf("opt: %c, value: %s\n", *opt, optval ? optval : "no value"); */
           ++opt;
         }
