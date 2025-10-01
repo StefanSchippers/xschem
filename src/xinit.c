@@ -1466,7 +1466,7 @@ void swap_windows(int dr)
 
     new_schematic("switch", wp_i, "", 0);
     /* move primary window to location of deleted window */
-    if(!dr) tclvareval("wm geometry . ", geometry, "; update", NULL);
+    if(!dr) tclvareval("wm withdraw .; update; wm geometry . ", geometry, "; wm deiconify .", NULL);
     resetwin(1, 1, 1, 0, 0);
     if(dr) draw();
     
