@@ -4934,6 +4934,7 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   
   global pathlist
   set dir_with_symbols {}
   if {$level == -1} { set level 0}
+  if {$levels >=0 && $level + 1 > $levels} {return {}}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
     set filelist [glob -nocomplain -directory $i -type f *]
@@ -4949,10 +4950,17 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   
       lappend dir_with_symbols $i
     }
     set dirlist [glob -nocomplain -directory $i -type d *]
-    if {$levels >=0 && $level + 1 > $levels} {return}
-    foreach d $dirlist {
-      set dirs [get_list_of_dirs_with_files $d $levels $ext [expr {$level + 1} ]]
-      if { $dirs ne {}} {set dir_with_symbols [concat $dir_with_symbols $dirs]}
+    if {$level < $levels} {
+      foreach d $dirlist {
+        set dirs [get_list_of_dirs_with_files $d $levels $ext [expr {$level + 1} ]]
+        if { $dirs ne {}} {
+          foreach dd $dirs {
+            if {[lsearch $dir_with_symbols $dd] < 0} {
+              set dir_with_symbols [concat $dir_with_symbols $dd]
+            }
+          }
+        }
+      }
     }
   }
   return $dir_with_symbols
@@ -5211,7 +5219,12 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
     }
   "
   bind .ins.center.leftdir.l <<ListboxSelect>> "insert_symbol_filelist"
-  bind .ins.center.left.l <<ListboxSelect>> "insert_symbol_select_preview"
+  bind .ins.center.left.l <<ListboxSelect>> {
+    if { [xschem get ui_state] & 8192 } {
+      xschem abort_operation
+    }
+    insert_symbol_select_preview
+  }
   bind .ins.center.left.l <KeyPress-Return> {
     if {$insert_symbol(action) eq {load}} {
       .ins.bottom.load invoke
@@ -5220,9 +5233,9 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
     destroy .ins
   }
   bind .ins.center.left.l <Enter> "
-    if { \[xschem get ui_state\] & 8192 } {
-      xschem abort_operation
-    }
+    # if { \[xschem get ui_state\] & 8192 } {
+    #   xschem abort_operation
+    # }
   "
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable insert_symbol(nitems)
@@ -5234,12 +5247,17 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
       destroy .ins
     }
   }
-  button .ins.bottom.load -text {Load file} -command {
+  button .ins.bottom.load -takefocus 0 -text {Load file} -command {
     insert_symbol_place load
   }
  
-  checkbutton .ins.bottom.sym -text {Place symbol} -onvalue symbol -offvalue load -variable insert_symbol(action)
-
+  checkbutton .ins.bottom.sym -text {Place symbol} -onvalue symbol -offvalue load -takefocus 0 \
+     -variable insert_symbol(action) \
+     -command {
+       if {$insert_symbol(action) eq {symbol}} {
+         insert_symbol_select_preview
+       }
+     }
   pack .ins.bottom.dismiss -side left
   pack .ins.bottom.load -side left
   pack .ins.bottom.sym -side left
@@ -8607,7 +8625,7 @@ proc get_lastclosed {} {
     set fd [open $geom_file]
     while {[gets $fd line] >= 0} {
       set ret [lindex $line 0]
-      if {$ret eq [abs_sym_path untitled.sch]} {
+      if {$ret eq [abs_sym_path untitled.sch] || $ret eq [abs_sym_path untitled.sym]} {
         continue
       }
       if {[xschem check_loaded $ret] ne {}} {
