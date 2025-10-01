@@ -5030,8 +5030,8 @@ proc insert_symbol_select_preview {} {
   }
 }
 
-proc insert_symbol_update_dirs {} {
-  # puts insert_symbol_update_dirs
+proc insert_symbol_dirlist {} {
+  # puts insert_symbol_dirlist
   global insert_symbol
   # regenerate list of dirs
   set insert_symbol(dirs) [
@@ -5041,20 +5041,21 @@ proc insert_symbol_update_dirs {} {
   foreach i $insert_symbol(dirs) {
     lappend insert_symbol(dirtails) [file tail $i]
   }
-  # sort dirs using dirtails as key
-  set files {}
-  foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
-    lappend files [list $f $ff]
-  }
-  # set files [lsort -dictionary -index 0 $files]
-  set insert_symbol(dirtails) {}
-  set insert_symbol(dirs) {}
-  
-  foreach f $files {
-    lassign $f ff fff
-    lappend insert_symbol(dirtails) $ff
-    lappend insert_symbol(dirs) $fff
-  } 
+
+  ## sort dirs using dirtails as key
+  #set files {}
+  #foreach f $insert_symbol(dirtails) ff $insert_symbol(dirs) {
+  #  lappend files [list $f $ff]
+  #}
+  #set files [lsort -dictionary -index 0 $files]
+  #set insert_symbol(dirtails) {}
+  #set insert_symbol(dirs) {}
+  #
+  #foreach f $files {
+  #  lassign $f ff fff
+  #  lappend insert_symbol(dirtails) $ff
+  #  lappend insert_symbol(dirs) $fff
+  #} 
 }
 
 #### fill list of files matching pattern
@@ -5112,7 +5113,7 @@ proc insert_symbol_filelist {} {
   }
   set insert_symbol(nitems) [llength $filelist]
   # assign listbox variable all at the end, it is faster...
-  set insert_symbol(list) $filelist
+  set insert_symbol(files) $filelist
 }
 
 proc insert_symbol_place {action} {
@@ -5180,7 +5181,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
 
-  listbox .ins.center.left.l -listvariable insert_symbol(list) -width 20 -height 4 \
+  listbox .ins.center.left.l -listvariable insert_symbol(files) -width 20 -height 4 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5200,13 +5201,13 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
   label .ins.top.pat_l -text Pattern:
   entry .ins.top.pat_e -width 15 -highlightcolor red -highlightthickness 2 \
      -textvariable insert_symbol(regex) -highlightbackground [option get . background {}]
-  label .ins.top.dir_l -text { Symbol ref: }
+  label .ins.top.dir_l -text { Sch/Sym ref: }
   entry .ins.top.dir_e -width 20 -state readonly \
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top.ext_l -text Ext:
   entry .ins.top.ext_e -width 15 -takefocus 0  -state normal -textvariable insert_symbol(ext)
   button .ins.top.upd -takefocus 0 -text Update -command {
-    insert_symbol_update_dirs
+    insert_symbol_dirlist
     insert_symbol_filelist
   }
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
@@ -5289,7 +5290,7 @@ proc insert_symbol {{paths {}} {maxdepth -1} {ext {.*}} {action {symbol}}} {
     set insert_symbol(sp0) [lindex [.ins.center sash coord 0] 0]
     set insert_symbol(sp1) [lindex [.ins.center sash coord 1] 0]
   }
-  insert_symbol_update_dirs
+  insert_symbol_dirlist
   if {[info exists insert_symbol(dirindex)]} {.ins.center.leftdir.l selection set $insert_symbol(dirindex)}
   if {[info exists insert_symbol(fileindex)]} {
     .ins.center.left.l selection set $insert_symbol(fileindex)
