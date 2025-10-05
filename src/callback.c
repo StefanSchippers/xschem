@@ -3964,7 +3964,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else {
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
-          tcleval("file_chooser new_file_browser_depth $new_file_browser_ext");
+          tcleval("file_chooser $new_file_browser_depth $new_file_browser_ext");
         } else {
           start_place_symbol();
         }
