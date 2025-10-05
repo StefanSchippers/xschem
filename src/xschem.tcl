@@ -9183,6 +9183,7 @@ proc housekeeping_ctx {} {
   xschem case_insensitive $case_insensitive
   set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
+  if {[winfo exists .ins]} { .ins.top3.upd invoke }
 }
 
 # callback that resets simulate button color at end of simulation
