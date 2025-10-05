@@ -5012,6 +5012,13 @@ proc file_chooser_draw_preview {f} {
     .ins.center.right configure -bg {}
     xschem preview_window create .ins.center.right {}
     xschem preview_window draw .ins.center.right "$f"
+
+
+    ## preview window draw causes a save / restore context.
+    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top3.upd invoke
+    ## this rewrites the file_chooser(dirtails) list variable and list loses selection...
+    # .ins.center.leftdir.l selection set  [.ins.center.leftdir.l index active]
+
     bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right {$f}"
     bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right {$f}"
     if {$file_chooser(action) eq {symbol}} {
@@ -5035,11 +5042,7 @@ proc file_chooser_select_preview {} {
   xschem preview_window close .ins.center.right {}
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
-  set sel [.ins.center.left.l curselection]
-  if {$sel eq {}} {
-    set sel [.ins.center.left.l index active]
-    .ins.center.left.l selection set active
-  }
+  set sel [.ins.center.left.l index active]
   if {$sel ne {} && [info exists file_chooser(fullpathlist)]} {
     set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
@@ -5070,14 +5073,13 @@ proc file_chooser_select_preview {} {
 }
 
 proc file_chooser_dirlist {} {
-  # puts file_chooser_dirlist
+  # puts "file_chooser_dirlist [xschem get topwindow]"
   global file_chooser pathlist dark_gui_colorscheme
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   # regenerate list of dirs
   set file_chooser(dirs) [
     get_list_of_dirs_with_files {} $file_chooser(maxdepth) $file_chooser(ext)
   ]
-
   set file_chooser(dirtails) {}
   set path_l  $pathlist
   foreach i $file_chooser(dirs) {
@@ -5113,12 +5115,8 @@ proc file_chooser_dirlist {} {
 proc file_chooser_filelist {} {
   global file_chooser
 
-  set sel [.ins.center.leftdir.l curselection]
   if {![info exists file_chooser(dirs)]} {return}
-  if {$sel eq {}} {
-    set sel [.ins.center.leftdir.l index active]
-    .ins.center.leftdir.l selection set active
-  }
+  set sel [.ins.center.leftdir.l index active]
   set file_chooser(dirindex) $sel
   set path [lindex $file_chooser(dirs) $sel]
   .ins.top2.dir_e configure -state normal
@@ -5134,7 +5132,7 @@ proc file_chooser_filelist {} {
   }
   set filelist {}
   set file_chooser(fullpathlist) {}
-  set sel [.ins.center.left.l curselection]
+  set sel [.ins.center.left.l index active]
   if {$sel ne {}} {
     set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
@@ -5154,15 +5152,38 @@ proc file_chooser_filelist {} {
   set file_chooser(files) $filelist
 }
 
+# called when double clicking a file item in the file_chooser file listbox
+proc file_chooser_symbol_or_schematic {{shift 0}} {
+  global file_chooser
+  if {[xschem get semaphore] > 0} {return}
+   set sel [.ins.center.left.l index active]
+  if {$sel ne {}} {
+    set f [lindex $file_chooser(fullpathlist) $sel]
+    if {$f ne {}} {
+      set type [is_xschem_file $f]
+      if {$type eq {SCHEMATIC}} {
+        if {$shift == 0} {
+          file_chooser_place load
+        } else {
+          file_chooser_place load_new_win
+        }
+      } elseif {$type eq {SYMBOL}} {
+        if {$shift == 0} {
+          set file_chooser(action) {symbol1} ;# only one time insert symbol
+          file_chooser_select_preview
+        } else {
+          file_chooser_place load_new_win
+        }
+      }
+    }
+  }
+}
+
 proc file_chooser_place {action} {
   # puts file_chooser_place
   global file_chooser open_in_new_window
   if {[xschem get semaphore] > 0} {return}
-  set sel [.ins.center.left.l curselection]
-  if {$sel eq {}} {
-    set sel [.ins.center.left.l index active]
-    .ins.center.left.l selection set active
-  }
+  set sel [.ins.center.left.l index active]
   if {$sel ne {}} {
     set f [lindex $file_chooser(fullpathlist) $sel]
     if {$f ne {}} {
@@ -5220,15 +5241,14 @@ proc file_chooser_search {} {
     set dirindex [lsearch -exact  $file_chooser(dirs) $dir]
     if {$dirindex != -1} {
       # puts "dirindex=$dirindex"
-      .ins.center.leftdir.l selection clear 0 end
-      .ins.center.leftdir.l selection set $dirindex
+      .ins.center.leftdir.l activate $dirindex
       .ins.center.leftdir.l see $dirindex
       file_chooser_filelist
       set fileindex [lsearch -exact  $file_chooser(files) $file]
       if {$fileindex != -1} {
         # puts "fileindex=$fileindex"
         .ins.center.left.l selection clear 0 end
-        .ins.center.left.l selection set $fileindex
+        .ins.center.left.l activate $fileindex
         .ins.center.left.l see $fileindex
         file_chooser_select_preview
       }
@@ -5315,7 +5335,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   global file_chooser
   set file_chooser(action) load
   set_ne file_chooser(fullpath) 0
-  set_ne file_chooser(ontop) 1
+  set_ne file_chooser(ontop) 0
   set file_chooser(maxdepth) $maxdepth
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   set file_chooser(ext) $ext
@@ -5352,7 +5372,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 40 -height 15 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
-    -exportselection 0
+    -exportselection 0 -selectmode single
 
   balloon .ins.center.leftdir.l [string cat \
     "The list of search paths is shown here\n" \
@@ -5367,7 +5387,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 15 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
-    -exportselection 0
+    -exportselection 0 -selectmode single
 
   scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
@@ -5518,6 +5538,9 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
      }
   balloon .ins.bottom.stickysym {persistent insert symbol mode}
 
+  bind .ins.center.left.l <Double-Button-1> {file_chooser_symbol_or_schematic 0}
+  bind .ins.center.left.l <Shift-Double-Button-1> {file_chooser_symbol_or_schematic 1}
+
   wm protocol .ins WM_DELETE_WINDOW {.ins.bottom.dismiss invoke}
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   pack .ins.bottom.dismiss -side left
@@ -5565,9 +5588,9 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     set file_chooser(sp1) [lindex [.ins.center sash coord 1] 0]
   }
   file_chooser_dirlist
-  if {[info exists file_chooser(dirindex)]} {.ins.center.leftdir.l selection set $file_chooser(dirindex)}
+  if {[info exists file_chooser(dirindex)]} {.ins.center.leftdir.l activate $file_chooser(dirindex)}
   if {[info exists file_chooser(fileindex)]} {
-    .ins.center.left.l selection set $file_chooser(fileindex)
+    .ins.center.left.l activate $file_chooser(fileindex)
     .ins.center.left.l see $file_chooser(fileindex)
   }
   file_chooser_filelist
@@ -9186,6 +9209,7 @@ proc housekeeping_ctx {} {
   set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
   if {[winfo exists .ins]} { .ins.top3.upd invoke }
+  # puts "housekeeping_ctx: [xschem get topwindow]"
 }
 
 # callback that resets simulate button color at end of simulation
@@ -10245,6 +10269,7 @@ proc set_initial_dirs {} {
 proc trace_set_paths {varname idxname op} {
   if {$varname eq {XSCHEM_LIBRARY_PATH} } {
     # puts stderr "executing set_paths after XSCHEM_LIBRARY_PATH change"
+    # puts stderr "   $::XSCHEM_LIBRARY_PATH"
     uplevel #0 set_paths
   }
 }
@@ -10286,14 +10311,16 @@ proc set_paths {} {
       set path_l_orig [split $XSCHEM_LIBRARY_PATH :]
     }
 
-    set pathlist [cleanup_paths $path_l_orig]
+    set pathlist_new [cleanup_paths $path_l_orig]
   }
-  if {$pathlist eq {}} { set pathlist [pwd] }
+  if {$pathlist_new eq {}} { set pathlist_new [pwd] }
+  set_ne pathlist {}
   set_initial_dirs
 
   c_toolbar::clear
   load_recent_file
-  if {[winfo exists .ins]} { .ins.top3.upd invoke }
+  if {[winfo exists .ins] && $pathlist_new ne $pathlist} {.ins.top3.upd invoke }
+  set pathlist $pathlist_new
 }
 
 proc print_help_and_exit {} {

@@ -1243,7 +1243,6 @@ int preview_window(const char *what, const char *win_path, const char *fname)
   dbg(1, "preview_window(): what=%s, win_path=%s, fname=%s\n", 
      what, win_path ? win_path : "<NULL>", fname ? fname : "<NULL>");
   dbg(1, "------\n");
-  tclvareval("save_ctx ", xctx->current_win_path, NULL);
   if(!strcmp(what, "create") && last_preview < 4) {
     int i;
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
@@ -1263,6 +1262,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
   }
   else if(!strcmp(what, "draw") ) {
     int i, save_grid = tclgetboolvar("draw_grid");
+    tclvareval("save_ctx ", xctx->current_win_path, NULL);
     for(i = 0; i < 10; i++) {
       if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
@@ -1295,6 +1295,8 @@ int preview_window(const char *what, const char *win_path, const char *fname)
       xctx = save_xctx;
       result = 1;
     }
+    if(xctx->current_win_path)
+      tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   }
   else if(!strcmp(what, "destroy") || !strcmp(what, "close")) {
     int i;
@@ -1324,8 +1326,6 @@ int preview_window(const char *what, const char *win_path, const char *fname)
       }
     }
   }
-  if(xctx->current_win_path)
-    tclvareval("restore_ctx ", xctx->current_win_path, NULL);
   semaphore--;
   return result;
 }
