@@ -5158,6 +5158,7 @@ proc file_chooser_filelist {} {
 proc file_chooser_place {action} {
   # puts file_chooser_place
   global file_chooser open_in_new_window
+  if {[xschem get semaphore] > 0} {return}
   set sel [.ins.center.left.l curselection]
   if {$sel eq {}} {
     set sel [.ins.center.left.l index active]
