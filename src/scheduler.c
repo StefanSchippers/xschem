@@ -3040,7 +3040,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc==first && !(lastclosed || lastopened)) {
         if(tclgetboolvar("new_file_browser")) {
           tcleval(
-           "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
+           "file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext"
           );
         } else {
           ask_new_file(0, NULL);

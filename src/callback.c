@@ -2932,8 +2932,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         descend_symbol();
       }
       else if(rstate == ControlMask) { /* insert sym */
-        if(tclgetboolvar("new_symbol_browser")) {
-          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        if(tclgetboolvar("new_file_browser")) {
+          tcleval("file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext");
         } else {
           tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
         }
@@ -2949,8 +2949,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case 'I':
       if(rstate == 0) { /* insert sym */
         if(xctx->semaphore >= 2) break;
-        if(tclgetboolvar("new_symbol_browser")) {
-          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        if(tclgetboolvar("new_file_browser")) {
+          tcleval("file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext");
         } else {
           start_place_symbol();
         }
@@ -3208,7 +3208,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
           tcleval(
-           "insert_symbol $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext load"
+           "file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext"
           );
         } else {
           xctx->semaphore--;
@@ -3955,16 +3955,16 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     
     case XK_Insert:
       if(state == ShiftMask) { /* insert sym */
-        if(tclgetboolvar("new_symbol_browser")) {
-          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        if(tclgetboolvar("new_file_browser")) {
+          tcleval("file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext");
         } else {
           tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
         }
       }
       else {
         if(xctx->semaphore >= 2) break;
-        if(tclgetboolvar("new_symbol_browser")) {
-          tcleval("insert_symbol $new_symbol_browser_paths $new_symbol_browser_depth $new_symbol_browser_ext");
+        if(tclgetboolvar("new_file_browser")) {
+          tcleval("file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext");
         } else {
           start_place_symbol();
         }
@@ -4608,7 +4608,7 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
         redraw_only = 1;
         my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));
         new_schematic("switch_no_tcl_ctx", win_path, "", 1);
-      /* This does a "temporary" switch just to redraw obcured window parts */
+      /* This does a "temporary" switch just to redraw obscured window parts */
       } else if(event == Expose || xctx->semaphore >= 1 ) {
         dbg(1, "callback(): switching window context for redraw ONLY: %s --> %s\n",
                 xctx->current_win_path, win_path);
