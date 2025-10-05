@@ -4970,11 +4970,12 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   
   if {$levels >=0 && $level > $levels} {return {}}
   if {$paths eq {}} {set paths $pathlist}
   foreach i $paths {
+    # puts "dir:$i"
     set filelist [glob -nocomplain -directory $i -type f *]
     set there_are_symbols 0
     foreach f $filelist {
       if {[regexp $ext $f]} {
-      # if {[is_xschem_file $f] ne {0}} {  }
+        # puts "match: $f"
         set there_are_symbols 1
         break
       }
@@ -4985,11 +4986,11 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   
     set dirlist [lsort -dictionary [glob -nocomplain -directory $i -type d *]]
     if {$level < $levels} {
       foreach d $dirlist {
-        set dirs [get_list_of_dirs_with_files $d $levels $ext [expr {$level + 1} ]]
+        set dirs [get_list_of_dirs_with_files [list $d] $levels $ext [expr {$level + 1} ]]
         if { $dirs ne {}} {
           foreach dd $dirs {
             if {[lsearch $dir_with_symbols $dd] < 0} {
-              set dir_with_symbols [concat $dir_with_symbols $dd]
+              lappend dir_with_symbols $dd
             }
           }
         }
