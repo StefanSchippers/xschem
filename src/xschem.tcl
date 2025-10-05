@@ -9052,7 +9052,7 @@ proc no_open_dialogs {} {
 ## "bespice_server_getdata" only one tcp listener per process
 ## "file_dialog_*" only one load_file_dialog window is allowed
 ## new_file_browser_*
-## file_chooser
+## some file_chooser(...) vars
 
 set tctx::global_list {
  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
@@ -9064,7 +9064,9 @@ set tctx::global_list {
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
- enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error filetmp
+ enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error 
+ file_chooser(maxdepth) file_chooser(ext) file_chooser(regex) file_chooser(action) 
+ filetmp
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
@@ -10291,6 +10293,7 @@ proc set_paths {} {
 
   c_toolbar::clear
   load_recent_file
+  if {[winfo exists .ins]} { .ins.top3.upd invoke }
 }
 
 proc print_help_and_exit {} {
