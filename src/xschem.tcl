@@ -5075,12 +5075,11 @@ proc file_chooser_dirlist {} {
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   # regenerate list of dirs
   set file_chooser(dirs) [
-    get_list_of_dirs_with_files $file_chooser(paths) $file_chooser(maxdepth) $file_chooser(ext)
+    get_list_of_dirs_with_files {} $file_chooser(maxdepth) $file_chooser(ext)
   ]
 
   set file_chooser(dirtails) {}
-  set path_l  $file_chooser(paths)
-  if {$path_l eq {}} { set path_l $pathlist}
+  set path_l  $pathlist
   foreach i $file_chooser(dirs) {
     set found 0
     foreach p $path_l {
@@ -5198,7 +5197,7 @@ proc file_chooser_search {} {
   set f {}
   if {$file_chooser(dirs) ne {} } {
     set allfiles [
-      match_file $file_chooser(regex) $file_chooser(paths) $file_chooser(maxdepth) $file_chooser(fullpath)
+      match_file $file_chooser(regex) {} $file_chooser(maxdepth) $file_chooser(fullpath)
     ]
     foreach i $allfiles {
       set err [catch {regexp $file_chooser(ext) $i} type]
@@ -5262,7 +5261,7 @@ proc file_chooser_browsedir {} {
 }
 
 proc file_chooser_edit_paths {} {
-  global pathlist XSCHEM_LIBRARY_PATH dark_gui_colorscheme
+  global pathlist XSCHEM_LIBRARY_PATH dark_gui_colorscheme file_chooser
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   set tctx::rcode 0
   toplevel .editpaths
@@ -5300,7 +5299,9 @@ proc file_chooser_edit_paths {} {
   regsub -all {:} $paths \n paths
   .editpaths.center.paths delete 1.0 end
   .editpaths.center.paths insert 1.0 $paths
+
   tkwait window .editpaths
+
   if {$tctx::rcode == 1} {
     set paths $tctx::retval
     regsub -all -line {^[ \t]*\n} $paths {} paths ;# remove blank lines
@@ -5310,13 +5311,12 @@ proc file_chooser_edit_paths {} {
 }
 
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
-proc file_chooser {{paths {}} {maxdepth -1} {ext {.*}} } {
+proc file_chooser { {maxdepth -1} {ext {.*}} } {
   global file_chooser
   set file_chooser(action) load
   set_ne file_chooser(fullpath) 0
   set_ne file_chooser(ontop) 1
   set file_chooser(maxdepth) $maxdepth
-  set file_chooser(paths) [cleanup_paths $paths] ;# remove ~ and other strange path combinations
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   set file_chooser(ext) $ext
   if {[winfo exists .ins]} {
@@ -5551,6 +5551,8 @@ proc file_chooser {{paths {}} {maxdepth -1} {ext {.*}} } {
     # wm geometry .ins 800x300
   }
   update
+  .ins.center paneconfigure .ins.center.leftdir -minsize [winfo reqwidth .ins.center.leftdir]
+  .ins.center paneconfigure .ins.center.left -minsize [winfo reqwidth .ins.center.left]
   if { [info exists file_chooser(sp0)]} {
     .ins.center sash place 0 $file_chooser(sp0) 1
   }
@@ -9590,7 +9592,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
       if {$new_file_browser} {
-        file_chooser $new_file_browser_paths $new_file_browser_depth $new_file_browser_ext
+        file_chooser $new_file_browser_depth $new_file_browser_ext
       } else {
         load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
       }
@@ -10245,7 +10247,7 @@ proc trace_set_paths {varname idxname op} {
 }
 proc cleanup_paths {paths} {
   global env
-  set pathlist {}
+  set path_l {}
   foreach i $paths {
     regsub {^~$} $i ${env(HOME)} i
     regsub {^~/} $i ${env(HOME)}/ i
@@ -10257,10 +10259,10 @@ proc cleanup_paths {paths} {
       set i [file normalize $i]
     }
     if { [file exists $i] } {
-      lappend pathlist $i
+      lappend path_l $i
     }
   }
-  return $pathlist
+  return $path_l
 }
 
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
@@ -10270,18 +10272,18 @@ proc set_paths {} {
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
-      set pathlist_orig [split $XSCHEM_LIBRARY_PATH \;]
+      set path_l_orig [split $XSCHEM_LIBRARY_PATH \;]
       if {$add_all_windows_drives} {
         set win_vol [file volumes]
         foreach disk $win_vol {
-          lappend pathlist_orig $disk
+          lappend path_l_orig $disk
         }
       }
     } else {
-      set pathlist_orig [split $XSCHEM_LIBRARY_PATH :]
+      set path_l_orig [split $XSCHEM_LIBRARY_PATH :]
     }
 
-    set pathlist [cleanup_paths $pathlist_orig]
+    set pathlist [cleanup_paths $path_l_orig]
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
   set_initial_dirs

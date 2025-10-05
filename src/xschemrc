@@ -629,9 +629,6 @@
 ###########################################################################
 #### uses a new file browser widget. Default: not enabled (0)
 # set new_file_browser 1
-#### defines a list of paths to search for. If empty uses all xschem
-#### XSCHEM_LIBRARY_PATH paths. Default: empty
-# set new_file_browser_paths {... ... ...}
 #### defines the depth to descend into each path. default: 0
 # set new_file_browser_depth 1
 #### defines the extensions to search for. Default: {\.(sch|sym|tcl)$}
