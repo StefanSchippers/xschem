@@ -5054,15 +5054,8 @@ proc file_chooser_select_preview {} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
         set dir [rel_sym_path $f]
-        .ins.top.dir_e configure -state normal
-        .ins.top.dir_e delete 0 end
-        .ins.top.dir_e  insert 0 $dir
-        .ins.top.dir_e configure -state readonly
-
-        .ins.top2.dir_e configure -state normal
-        .ins.top2.dir_e delete 0 end
-        .ins.top2.dir_e insert 0 $f
-        .ins.top2.dir_e configure -state readonly
+        set file_chooser(abs_filename $f
+        set file_chooser(rel_filename) $dir
         # global used to cancel delayed script
         after 200 "file_chooser_draw_preview {$f}"
       } else {
@@ -5120,10 +5113,7 @@ proc file_chooser_filelist {} {
   if {$sel eq {}} { return }
   set file_chooser(dirindex) $sel
   set path [lindex $file_chooser(dirs) $sel]
-  .ins.top2.dir_e configure -state normal
-  .ins.top2.dir_e delete 0 end
-  .ins.top2.dir_e insert 0 $path
-  .ins.top2.dir_e configure -state readonly
+  set file_chooser(abs_filename) $path
   # check if regex is valid
   set err [catch {regexp $file_chooser(regex) {12345}} res]
   if {$err} {return}
@@ -5287,10 +5277,24 @@ proc file_chooser_browsedir {} {
   }
 }
 
+proc file_chooser_set_paths {} {
+  global XSCHEM_LIBRARY_PATH
+  if {$tctx::rcode == 1} {
+    set paths $tctx::retval
+    regsub -all -line {^[ \t]*\n} $paths {} paths ;# remove blank lines
+    regsub -all \n $paths : paths
+    set XSCHEM_LIBRARY_PATH $paths
+  }
+}
+
 proc file_chooser_edit_paths {} {
   global pathlist XSCHEM_LIBRARY_PATH dark_gui_colorscheme file_chooser
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   set tctx::rcode 0
+  if {[winfo exists .editpaths]} {
+    raise .editpaths
+    return
+  }
   toplevel .editpaths
   frame .editpaths.top
   frame .editpaths.top2
@@ -5307,7 +5311,16 @@ proc file_chooser_edit_paths {} {
   button .editpaths.bottom.ok -text OK -command {
     set tctx::rcode 1
     set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
+    file_chooser_set_paths
+    .ins.top3.upd invoke 
     destroy .editpaths
+  }
+
+  button .editpaths.bottom.apply -text Apply -command {
+    set tctx::rcode 1
+    set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
+    file_chooser_set_paths
+    .ins.top3.upd invoke 
   }
   button .editpaths.bottom.dismiss -text Dismiss -command {
     destroy .editpaths
@@ -5316,9 +5329,19 @@ proc file_chooser_edit_paths {} {
     file_chooser_browsedir
   }
 
+  button .editpaths.bottom.show -text {Show XSCHEM_LIBRARY_PATH} -command {
+    set tctx::rcode 1
+    set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
+    file_chooser_set_paths
+    .ins.top3.upd invoke
+    if {[winfo exists .editdata]} {destroy .editdata}
+    editdata "set XSCHEM_LIBRARY_PATH {$XSCHEM_LIBRARY_PATH}" {XSCHEM_LIBRARY_PATH} char 0
+  }
+
   wm protocol .editpaths WM_DELETE_WINDOW {.editpaths.bottom.dismiss invoke}
   bind .editpaths  <KeyPress-Escape> {.editpaths.bottom.dismiss invoke}
-  pack .editpaths.bottom.ok .editpaths.bottom.dismiss .editpaths.bottom.browse -side left
+  pack .editpaths.bottom.ok .editpaths.bottom.apply .editpaths.bottom.dismiss -side left
+  pack .editpaths.bottom.browse .editpaths.bottom.show -side left
 
   set paths $XSCHEM_LIBRARY_PATH
   regsub {^[ :]+} $paths {} paths ;# remove leading : if present
@@ -5326,15 +5349,6 @@ proc file_chooser_edit_paths {} {
   regsub -all {:} $paths \n paths
   .editpaths.center.paths delete 1.0 end
   .editpaths.center.paths insert 1.0 $paths
-
-  tkwait window .editpaths
-
-  if {$tctx::rcode == 1} {
-    set paths $tctx::retval
-    regsub -all -line {^[ \t]*\n} $paths {} paths ;# remove blank lines
-    regsub -all \n $paths : paths
-    set XSCHEM_LIBRARY_PATH $paths
-  }
 }
 
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
@@ -5412,7 +5426,7 @@ proc file_chooser {} {
   pack .ins.center.leftdir.s -fill y -side left
 
   label .ins.top2.dir_l -text {Full path:}
-  entry .ins.top2.dir_e -width 20 -state readonly \
+  entry .ins.top2.dir_e -width 20 -state readonly -textvariable file_chooser(abs_filename) \
     -readonlybackground [option get . background {}] -takefocus 0
   label .ins.top3.pat_l -text Pattern:
   balloon .ins.top3.pat_l {Show files matching regular expression}
@@ -5421,7 +5435,7 @@ proc file_chooser {} {
   balloon .ins.top3.pat_e {Show files matching regular expression}
   label .ins.top.dir_l -text { Symbol Reference in schematic: }
   balloon .ins.top.dir_l "This is the relative path of the symbol\nwhen instantiated in the schematic"
-  entry .ins.top.dir_e -width 25 -state readonly -relief flat \
+  entry .ins.top.dir_e -width 25 -state readonly -relief flat -textvariable file_chooser(rel_filename) \
     -readonlybackground [option get . background {}] -takefocus 0
   balloon .ins.top.dir_e "This is the relative path of the symbol\nwhen instantiated in the schematic"
   button .ins.top.editpaths -takefocus 0 -text {Edit library paths} -command {
@@ -5450,6 +5464,8 @@ proc file_chooser {} {
   entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable new_file_browser_ext
   balloon .ins.top3.ext_e "show only files matching the\nextension regular expression"
   button .ins.top3.upd -takefocus 0 -text Update -command {
+    set file_chooser(abs_filename) {}
+    set file_chooser(rel_filename) {}
     set file_chooser(fullpathlist) {}
     set file_chooser(files) {}
     .ins.center.left.l selection clear 0 end
@@ -7411,7 +7427,7 @@ proc infowindow {} {
   return {}
 }
 
-proc editdata {{data {}} {title {Edit data}} } {
+proc editdata {{data {}} {title {Edit data}} {wrap {none}} {ro 1}} {
   global text_tabs_setting tabstop
   set window .editdata
   set tctx::retval $data
@@ -7422,7 +7438,7 @@ proc editdata {{data {}} {title {Edit data}} } {
   # wm transient $window [xschem get topwindow]
   frame $window.buttons
   pack $window.buttons -side bottom -fill x -pady 2m
-  button $window.buttons.copy -text Copy -command "
+  button $window.buttons.copy -text {Copy to clipboard} -command "
      clipboard clear
      clipboard append \[$window.text get 1.0 {end - 1 chars}\]
   "
@@ -7430,12 +7446,34 @@ proc editdata {{data {}} {title {Edit data}} } {
      set tctx::retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
   "
   button $window.buttons.cancel -text Cancel -command "destroy $window"
+
   pack $window.buttons.ok -side left -expand 1
   pack $window.buttons.cancel -side left -expand 1
   pack $window.buttons.copy -side left -expand 1
   
+  if { $ro ne {1} } {
+    button $window.buttons.saveas -text {Save a copy} -command {
+      proc editdata_save {} {
+        global OS env
+
+        if {$OS == "Windows"} {
+          set editdata_filename [tk_getSaveFile -initialdir $env(windir) ]
+        } else {
+          set editdata_filename [tk_getSaveFile -initialdir [pwd] ]
+        }
+        if { $editdata_filename != "" } {
+          set editdata_fileid [open $editdata_filename w]
+          puts -nonewline $editdata_fileid [.editdata.text get 1.0 {end - 1 chars}]
+          close $editdata_fileid
+        }
+      }
+      editdata_save
+    }
+    pack $window.buttons.saveas  -side left -expand 1
+  }
+
   eval text $window.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$window.yscroll set\" -setgrid 1 \
-       -xscrollcommand \"$window.xscroll set\" -wrap none -height 30 $text_tabs_setting
+       -xscrollcommand \"$window.xscroll set\" -wrap $wrap -height 30 $text_tabs_setting
   scrollbar $window.yscroll -command  "$window.text yview"
   scrollbar $window.xscroll -command "$window.text xview" -orient horiz
   pack $window.yscroll -side right -fill y
@@ -7497,7 +7535,7 @@ proc textwindow {filename {ro {}}} {
   return {}
 }
 
-proc viewdata {data {ro {}} {win .view}} {
+proc viewdata {data {ro {}} {win .view} {wrap none}} {
   global viewdata_wcounter viewdata_filename
   global viewdata_w OS viewdata_fileid env has_x text_tabs_setting tabstop
   if {![info exists has_x]} {return}
@@ -7536,7 +7574,7 @@ proc viewdata {data {ro {}} {win .view}} {
   }
 
   eval text $viewdata_w.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$viewdata_w.yscroll set\" -setgrid 1 \
-       -xscrollcommand \"$viewdata_w.xscroll set\" -wrap none -height 30 $text_tabs_setting
+       -xscrollcommand \"$viewdata_w.xscroll set\" -wrap $wrap -height 30 $text_tabs_setting
   scrollbar $viewdata_w.yscroll -command  "$viewdata_w.text yview" 
   scrollbar $viewdata_w.xscroll -command "$viewdata_w.text xview" -orient horiz
   pack $viewdata_w.yscroll -side right -fill y
