@@ -5042,7 +5042,7 @@ proc file_chooser_select_preview {} {
   xschem preview_window close .ins.center.right {}
   bind .ins.center.right <Expose> {}
   bind .ins.center.right <Configure> {}
-  set sel [.ins.center.left.l index active]
+  set sel [lindex [.ins.center.left.l curselection] 0]
   if {$sel ne {} && [info exists file_chooser(fullpathlist)]} {
     set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
@@ -5116,7 +5116,8 @@ proc file_chooser_filelist {} {
   global file_chooser
 
   if {![info exists file_chooser(dirs)]} {return}
-  set sel [.ins.center.leftdir.l index active]
+  set sel [lindex [.ins.center.leftdir.l curselection] 0]
+  if {$sel eq {}} { return }
   set file_chooser(dirindex) $sel
   set path [lindex $file_chooser(dirs) $sel]
   .ins.top2.dir_e configure -state normal
@@ -5132,7 +5133,7 @@ proc file_chooser_filelist {} {
   }
   set filelist {}
   set file_chooser(fullpathlist) {}
-  set sel [.ins.center.left.l index active]
+  set sel [lindex [.ins.center.left.l curselection] 0]
   if {$sel ne {}} {
     set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
