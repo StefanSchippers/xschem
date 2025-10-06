@@ -5431,8 +5431,8 @@ proc file_chooser {} {
   }
   balloon .ins.top.editpaths [string cat \
     "allows to edit XSCHEM_LIBRARY_PATH.\n" \
-    "A hash before a line will comment out the path\n" \
-    "so it will not be used. You can enable it\n" \
+    "A hash (#) before a line will comment out\n" \
+    "the path so it will not be used. You can enable it\n" \
     "later by removing the hash comment character"]
   checkbutton .ins.top.ontop  -takefocus 0 -text {Ontop   } -variable file_chooser(ontop) \
     -command {
