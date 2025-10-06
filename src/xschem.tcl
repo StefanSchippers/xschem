@@ -10368,10 +10368,8 @@ proc cleanup_paths {paths} {
   return $path_l
 }
 
-# when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
-# new library search path.
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives file_chooser
+  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
@@ -10386,15 +10384,16 @@ proc set_paths {} {
       set path_l_orig [split $XSCHEM_LIBRARY_PATH :]
     }
 
-    set pathlist_new [cleanup_paths $path_l_orig]
+    set pathlist [cleanup_paths $path_l_orig]
   }
-  if {$pathlist_new eq {}} { set pathlist_new [pwd] }
-  set_ne pathlist {}
+  if {$pathlist eq {}} { set pathlist [pwd] }
+
   set_initial_dirs
 
   c_toolbar::clear
   load_recent_file
-  set pathlist $pathlist_new
+  if {[winfo exists .ins]} { .ins.top3.upd invoke }
+
 }
 
 proc print_help_and_exit {} {
