@@ -10343,11 +10343,8 @@ proc trace_set_vars {varname idxname op} {
       }
     }
   }
-
-
-
-
 }
+
 proc cleanup_paths {paths} {
   global env
   set path_l {}
@@ -10383,7 +10380,6 @@ proc set_paths {} {
     } else {
       set path_l_orig [split $XSCHEM_LIBRARY_PATH :]
     }
-
     set pathlist [cleanup_paths $path_l_orig]
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
@@ -10393,7 +10389,6 @@ proc set_paths {} {
   c_toolbar::clear
   load_recent_file
   if {[winfo exists .ins]} { .ins.top3.upd invoke }
-
 }
 
 proc print_help_and_exit {} {
