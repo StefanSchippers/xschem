@@ -5250,6 +5250,7 @@ proc file_chooser_search {} {
         # puts "fileindex=$fileindex"
         .ins.center.left.l selection clear 0 end
         .ins.center.left.l activate $fileindex
+        .ins.center.left.l selection set $fileindex
         .ins.center.left.l see $fileindex
         file_chooser_select_preview
       }
@@ -5262,6 +5263,7 @@ proc file_chooser_search {} {
     }
   }
 }
+
 proc file_chooser_browsedir {} {
   set pos [.editpaths.center.paths index insert]
   set row [regsub {\..*} $pos {}]
@@ -5335,6 +5337,7 @@ proc file_chooser_edit_paths {} {
 proc file_chooser { {maxdepth -1} {ext {.*}} } {
   global file_chooser
   set file_chooser(action) load
+  set file_chooser(path_changed) 0
   set_ne file_chooser(fullpath) 0
   set_ne file_chooser(ontop) 0
   set file_chooser(maxdepth) $maxdepth
@@ -5373,7 +5376,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 40 -height 15 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
-    -exportselection 0 -selectmode single
+    -exportselection 0
 
   balloon .ins.center.leftdir.l [string cat \
     "The list of search paths is shown here\n" \
@@ -5388,8 +5391,14 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 15 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
-    -exportselection 0 -selectmode single
+    -exportselection 0
 
+  balloon .ins.center.left.l [string cat \
+    "List of symbols in selected directory\n" \
+    "Double click on a schematic will load in current window\n" \
+    "Shift-Double click on a schematic will load it in a new window\n" \
+    "Double click on a symbol will place the symbol in current window\n" \
+    "Shift-Double click on a symbol will load it in a new window"] 0 1
   scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
 
@@ -5438,6 +5447,11 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable file_chooser(ext)
   balloon .ins.top3.ext_e "show only files matching the\nextension regular expression"
   button .ins.top3.upd -takefocus 0 -text Update -command {
+    set file_chooser(fullpathlist) {}
+    set file_chooser(files) {}
+    .ins.center.left.l selection clear 0 end
+    xschem preview_window close .ins.center.right {}
+    .ins.center.right configure -bg white
     file_chooser_dirlist
     file_chooser_filelist
   }
@@ -5494,11 +5508,6 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     xschem preview_window close .ins.center.right {}
     destroy .ins
   }
-  bind .ins.center.left.l <Enter> "
-    # if { \[xschem get ui_state\] & 8192 } {
-    #   xschem abort_operation
-    # }
-  "
   bind .ins.top.lev_e <KeyRelease> {
     file_chooser_dirlist
     file_chooser_filelist
@@ -9198,7 +9207,7 @@ proc save_ctx {context} {
 
 proc housekeeping_ctx {} {
   global has_x simulate_bg show_hidden_texts case_insensitive draw_window hide_symbols
-  global netlist_type intuitive_interface
+  global netlist_type intuitive_interface file_chooser
   if {![info exists has_x]} {return}
   uplevel #0 {
   }
@@ -9209,8 +9218,12 @@ proc housekeeping_ctx {} {
   xschem case_insensitive $case_insensitive
   set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
-  if {[winfo exists .ins]} { .ins.top3.upd invoke }
-  # puts "housekeeping_ctx: [xschem get topwindow]"
+  if {[winfo exists .ins]} {
+    if {$file_chooser(path_changed)} {
+      .ins.top3.upd invoke
+      set file_chooser(path_changed) 0
+    }
+  }
 }
 
 # callback that resets simulate button color at end of simulation
@@ -10297,7 +10310,7 @@ proc cleanup_paths {paths} {
 # when XSCHEM_LIBRARY_PATH is changed call this function to refresh and cache
 # new library search path.
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives
+  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives file_chooser
   # puts stderr "caching search paths"
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
@@ -10320,7 +10333,9 @@ proc set_paths {} {
 
   c_toolbar::clear
   load_recent_file
-  if {[winfo exists .ins] && $pathlist_new ne $pathlist} {.ins.top3.upd invoke }
+  if {$pathlist_new ne $pathlist} {
+    set file_chooser(path_changed) 1
+  }
   set pathlist $pathlist_new
 }
 
