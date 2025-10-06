@@ -3039,9 +3039,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       first = i;
       if(argc==first && !(lastclosed || lastopened)) {
         if(tclgetboolvar("new_file_browser")) {
-          tcleval(
-           "file_chooser $new_file_browser_depth $new_file_browser_ext"
-          );
+          tcleval("file_chooser");
         } else {
           ask_new_file(0, NULL);
           tcleval("load_additional_files");

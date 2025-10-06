@@ -5074,11 +5074,11 @@ proc file_chooser_select_preview {} {
 
 proc file_chooser_dirlist {} {
   # puts "file_chooser_dirlist [xschem get topwindow]"
-  global file_chooser pathlist dark_gui_colorscheme
+  global file_chooser pathlist dark_gui_colorscheme new_file_browser_depth new_file_browser_ext
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   # regenerate list of dirs
   set file_chooser(dirs) [
-    get_list_of_dirs_with_files {} $file_chooser(maxdepth) $file_chooser(ext)
+    get_list_of_dirs_with_files {} $new_file_browser_depth $new_file_browser_ext
   ]
   set file_chooser(dirtails) {}
   set path_l  $pathlist
@@ -5113,7 +5113,7 @@ proc file_chooser_dirlist {} {
 
 #### fill list of files matching pattern
 proc file_chooser_filelist {} {
-  global file_chooser
+  global file_chooser new_file_browser_ext
 
   if {![info exists file_chooser(dirs)]} {return}
   set sel [lindex [.ins.center.leftdir.l curselection] 0]
@@ -5143,7 +5143,7 @@ proc file_chooser_filelist {} {
   .ins.center.left.l activate $sel
   .ins.center.left.l selection set $sel
   foreach i $f {
-    set err [catch {regexp $file_chooser(ext) $i} type]
+    set err [catch {regexp $new_file_browser_ext $i} type]
     if {!$err && $type} {
       set fname [file tail $i]
       lappend filelist $fname
@@ -5213,7 +5213,7 @@ proc file_chooser_place {action} {
 }
 
 proc file_chooser_search {} {
-  global file_chooser
+  global file_chooser new_file_browser_depth new_file_browser_ext
   # check if regex is valid
   set err [catch {regexp $file_chooser(regex) {12345}} res]
   if {$err} {return}
@@ -5221,10 +5221,10 @@ proc file_chooser_search {} {
   set f {}
   if {$file_chooser(dirs) ne {} } {
     set allfiles [
-      match_file $file_chooser(regex) {} $file_chooser(maxdepth) $file_chooser(fullpath)
+      match_file $file_chooser(regex) {} $new_file_browser_depth $file_chooser(fullpath)
     ]
     foreach i $allfiles {
-      set err [catch {regexp $file_chooser(ext) $i} type]
+      set err [catch {regexp $new_file_browser_ext $i} type]
       if {!$err && $type} {
         incr nth
         if {$nth == $file_chooser(nth)} {
@@ -5338,15 +5338,14 @@ proc file_chooser_edit_paths {} {
 }
 
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
-proc file_chooser { {maxdepth -1} {ext {.*}} } {
-  global file_chooser
+proc file_chooser {} {
+  global file_chooser new_file_browser_ext new_file_browser_depth
   set file_chooser(action) load
-  set file_chooser(path_changed) 0
+  set file_chooser(old_new_file_browser_ext) $new_file_browser_ext
+  set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
   set_ne file_chooser(fullpath) 0
   set_ne file_chooser(ontop) 0
-  set file_chooser(maxdepth) $maxdepth
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
-  set file_chooser(ext) $ext
   if {[winfo exists .ins]} {
     raise .ins
     return
@@ -5377,7 +5376,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
 
-  listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 40 -height 15 \
+  listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 40 -height 5 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5392,7 +5391,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     "primary directory.\n" \
     "Only directories containing xschem files\n" \
     "matching the \"Ext\" pattern are shown."] 0 1
-  listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 15 \
+  listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 5 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5445,10 +5444,10 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     }
   balloon .ins.top.ontop "Make the file browser window always\nshow above current xschem window"
   label .ins.top.lev_l -text {Levels down:}
-  entry .ins.top.lev_e -width 3  -takefocus 0 -textvariable file_chooser(maxdepth)
+  entry .ins.top.lev_e -width 3  -takefocus 0 -textvariable new_file_browser_depth
   label .ins.top3.ext_l -text Ext:
   balloon .ins.top3.ext_l "show only files matching the\nextension regular expression"
-  entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable file_chooser(ext)
+  entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable new_file_browser_ext
   balloon .ins.top3.ext_e "show only files matching the\nextension regular expression"
   button .ins.top3.upd -takefocus 0 -text Update -command {
     set file_chooser(fullpathlist) {}
@@ -5511,10 +5510,6 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     }
     xschem preview_window close .ins.center.right {}
     destroy .ins
-  }
-  bind .ins.top.lev_e <KeyRelease> {
-    file_chooser_dirlist
-    file_chooser_filelist
   }
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable file_chooser(nitems)
@@ -5603,6 +5598,7 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
   }
   file_chooser_dirlist
   file_chooser_filelist
+  set file_chooser(old_dirs) $file_chooser(dirs)
   return {}
 }
 #######################################################################
@@ -9083,7 +9079,6 @@ proc no_open_dialogs {} {
 ## "xschem_server_getdata" only one tcp listener per process
 ## "bespice_server_getdata" only one tcp listener per process
 ## "file_dialog_*" only one load_file_dialog window is allowed
-## new_file_browser_*
 ## some file_chooser(...) vars
 
 set tctx::global_list {
@@ -9097,7 +9092,7 @@ set tctx::global_list {
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT) 
  enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error 
- file_chooser(maxdepth) file_chooser(ext) file_chooser(regex) file_chooser(action) 
+ file_chooser(regex) file_chooser(action) file_chooser(dirs)
  filetmp
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
@@ -9106,6 +9101,7 @@ set tctx::global_list {
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
+ new_file_browser_depth new_file_browser_ext
  no_ask_save no_ask_simulate no_change_attrs nolist_libs noprint_libs only_probes
  orthogonal_wiring path pathlist persistent_command preserve_unchanged_attrs prev_symbol ps_colors
  ps_paper_size rainbow_colors rotated_text search_case search_exact
@@ -9217,12 +9213,6 @@ proc housekeeping_ctx {} {
   xschem case_insensitive $case_insensitive
   set_sim_netlist_waves_buttons 
   .statusbar.7 configure -text $netlist_type
-  if {[winfo exists .ins]} {
-    if {$file_chooser(path_changed)} {
-      .ins.top3.upd invoke
-      set file_chooser(path_changed) 0
-    }
-  }
 }
 
 # callback that resets simulate button color at end of simulation
@@ -9632,7 +9622,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.file add command -label "Component browser" -accelerator {Shift-Ins, Ctrl-I} \
     -command {
       if {$new_file_browser} {
-        file_chooser $new_file_browser_depth $new_file_browser_ext
+        file_chooser
       } else {
         load_file_dialog {Insert symbol} *.sym INITIALINSTDIR 2
       }
@@ -10279,12 +10269,46 @@ proc set_initial_dirs {} {
 }
 
 # called whenever XSCHEM_LUBRARY_PATH changes (see trace command at end) 
-proc trace_set_paths {varname idxname op} {
+proc trace_set_vars {varname idxname op} {
   if {$varname eq {XSCHEM_LIBRARY_PATH} } {
     # puts stderr "executing set_paths after XSCHEM_LIBRARY_PATH change"
     # puts stderr "   $::XSCHEM_LIBRARY_PATH"
     uplevel #0 set_paths
+  } elseif {$varname eq {new_file_browser_ext}} {
+    uplevel #0 {
+      if {![info exists file_chooser(old_new_file_browser_ext)] ||
+           $file_chooser(old_new_file_browser_ext) ne $new_file_browser_ext} {
+        set file_chooser(old_new_file_browser_ext) $new_file_browser_ext
+        if {[winfo exists .ins]} {
+          .ins.top3.upd invoke 
+        }
+      }
+    }
+  } elseif {$varname eq {new_file_browser_depth}} {
+    uplevel #0 {
+      if {![info exists file_chooser(old_new_file_browser_depth)] || 
+           $file_chooser(old_new_file_browser_depth) ne $new_file_browser_depth} {
+        set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
+        if {[winfo exists .ins]} {
+          .ins.top3.upd invoke
+        }
+      }
+    }
+  } elseif {$varname eq {file_chooser} && idxname eq {dirs}} {
+    uplevel #0 {
+      if {![info exists file_chooser(old_dirs)] || 
+           $file_chooser(old_dirs) ne $file_chooser(dirs)} {
+        set file_chooser(old_dirs) $file_chooser(dirs)
+        if {[winfo exists .ins]} {
+          .ins.top3.upd invoke
+        }
+      }
+    }
   }
+
+
+
+
 }
 proc cleanup_paths {paths} {
   global env
@@ -10332,9 +10356,6 @@ proc set_paths {} {
 
   c_toolbar::clear
   load_recent_file
-  if {$pathlist_new ne $pathlist} {
-    set file_chooser(path_changed) 1
-  }
   set pathlist $pathlist_new
 }
 
@@ -11101,5 +11122,8 @@ setup_tcp_xschem
 setup_tcp_bespice
 
 # automatically build pathlist whenever XSCHEM_LIBRARY_PATH changes
-trace add variable XSCHEM_LIBRARY_PATH write trace_set_paths
+trace add variable XSCHEM_LIBRARY_PATH write trace_set_vars
+# trigger file_chooser update
+trace add variable new_file_browser_depth write trace_set_vars
+trace add variable new_file_browser_ext write trace_set_vars
 

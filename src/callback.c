@@ -2933,7 +2933,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask) { /* insert sym */
         if(tclgetboolvar("new_file_browser")) {
-          tcleval("file_chooser $new_file_browser_depth $new_file_browser_ext");
+          tcleval("file_chooser");
         } else {
           tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
         }
@@ -2950,7 +2950,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       if(rstate == 0) { /* insert sym */
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
-          tcleval("file_chooser $new_file_browser_depth $new_file_browser_ext");
+          tcleval("file_chooser");
         } else {
           start_place_symbol();
         }
@@ -3207,9 +3207,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else if(rstate == ControlMask) { /* load */
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
-          tcleval(
-           "file_chooser $new_file_browser_depth $new_file_browser_ext"
-          );
+          tcleval("file_chooser");
         } else {
           xctx->semaphore--;
           ask_new_file(0, NULL);
@@ -3956,7 +3954,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case XK_Insert:
       if(state == ShiftMask) { /* insert sym */
         if(tclgetboolvar("new_file_browser")) {
-          tcleval("file_chooser $new_file_browser_depth $new_file_browser_ext");
+          tcleval("file_chooser");
         } else {
           tcleval("load_file_dialog {Insert symbol} *.\\{sym,tcl\\} INITIALINSTDIR 2");
         }
@@ -3964,7 +3962,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else {
         if(xctx->semaphore >= 2) break;
         if(tclgetboolvar("new_file_browser")) {
-          tcleval("file_chooser $new_file_browser_depth $new_file_browser_ext");
+          tcleval("file_chooser");
         } else {
           start_place_symbol();
         }
