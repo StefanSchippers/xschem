@@ -5139,7 +5139,9 @@ proc file_chooser_filelist {} {
     # puts "set fileindex=$sel"
   }
   if {$sel eq {}} { set sel 0}
+  .ins.center.left.l selection clear 0 end
   .ins.center.left.l activate $sel
+  .ins.center.left.l selection set $sel
   foreach i $f {
     set err [catch {regexp $file_chooser(ext) $i} type]
     if {!$err && $type} {
@@ -5243,6 +5245,8 @@ proc file_chooser_search {} {
     if {$dirindex != -1} {
       # puts "dirindex=$dirindex"
       .ins.center.leftdir.l activate $dirindex
+      .ins.center.leftdir.l selection clear 0 end
+      .ins.center.leftdir.l selection set $dirindex
       .ins.center.leftdir.l see $dirindex
       file_chooser_filelist
       set fileindex [lsearch -exact  $file_chooser(files) $file]
@@ -5598,11 +5602,6 @@ proc file_chooser { {maxdepth -1} {ext {.*}} } {
     set file_chooser(sp1) [lindex [.ins.center sash coord 1] 0]
   }
   file_chooser_dirlist
-  if {[info exists file_chooser(dirindex)]} {.ins.center.leftdir.l activate $file_chooser(dirindex)}
-  if {[info exists file_chooser(fileindex)]} {
-    .ins.center.left.l activate $file_chooser(fileindex)
-    .ins.center.left.l see $file_chooser(fileindex)
-  }
   file_chooser_filelist
   return {}
 }
