@@ -5054,7 +5054,7 @@ proc file_chooser_select_preview {} {
       set type [is_xschem_file $f]
       if {$type ne {0}} {
         set dir [rel_sym_path $f]
-        set file_chooser(abs_filename $f
+        set file_chooser(abs_filename) $f
         set file_chooser(rel_filename) $dir
         # global used to cancel delayed script
         after 200 "file_chooser_draw_preview {$f}"
@@ -5353,7 +5353,7 @@ proc file_chooser_edit_paths {} {
 
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
 proc file_chooser {} {
-  global file_chooser new_file_browser_ext new_file_browser_depth
+  global file_chooser new_file_browser_ext new_file_browser_depth USER_CONF_DIR
   set file_chooser(action) load
   set file_chooser(old_new_file_browser_ext) $new_file_browser_ext
   set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
@@ -5595,6 +5595,23 @@ proc file_chooser {} {
   pack .ins.top3.ext_e -side left
   if { [info exists file_chooser(geometry)]} {
     wm geometry .ins "${file_chooser(geometry)}"
+  } elseif {[file exists $USER_CONF_DIR/file_chooser_geometry]} {
+      source $USER_CONF_DIR/file_chooser_geometry
+      set valid 0
+      set xmax [winfo screenwidth .]
+      set ymax [winfo screenheight .] 
+      if {[info exists file_chooser(geometry)]} {
+        set n [scan $file_chooser(geometry) {%dx%d+%d+%d} x y dx dy]
+        if {$n == 4} {
+          # puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
+          # off screen. do not use.
+          set valid 1
+          if { $dx > $xmax - 100 || $dy > $ymax - 100} {
+            set valid 0
+          }
+        }
+      }
+      if {$valid} {wm geometry .ins "${file_chooser(geometry)}"}
   } else {
     # wm geometry .ins 800x300
   }
@@ -5611,6 +5628,12 @@ proc file_chooser {} {
     set file_chooser(geometry) [wm geometry .ins]
     set file_chooser(sp0) [lindex [.ins.center sash coord 0] 0]
     set file_chooser(sp1) [lindex [.ins.center sash coord 1] 0]
+ 
+    write_data [string cat \
+      "set file_chooser(geometry) $file_chooser(geometry)\n" \
+      "set file_chooser(sp0) $file_chooser(sp0)\n" \
+      "set file_chooser(sp1) $file_chooser(sp1)\n" \
+    ] $USER_CONF_DIR/file_chooser_geometry
   }
   file_chooser_dirlist
   file_chooser_filelist
