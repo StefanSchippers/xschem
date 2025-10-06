@@ -5615,9 +5615,9 @@ proc file_chooser {} {
   } else {
     # wm geometry .ins 800x300
   }
-  update
   .ins.center paneconfigure .ins.center.leftdir -minsize [winfo reqwidth .ins.center.leftdir]
   .ins.center paneconfigure .ins.center.left -minsize [winfo reqwidth .ins.center.left]
+  update
   if { [info exists file_chooser(sp0)]} {
     .ins.center sash place 0 $file_chooser(sp0) 1
   }
@@ -5625,6 +5625,8 @@ proc file_chooser {} {
     .ins.center sash place 1 $file_chooser(sp1) 1
   }
   bind .ins <Configure> {
+    # puts "sash0: [.ins.center sash coord 0]"
+    # puts "sash1: [.ins.center sash coord 1]"
     set file_chooser(geometry) [wm geometry .ins]
     set file_chooser(sp0) [lindex [.ins.center sash coord 0] 0]
     set file_chooser(sp1) [lindex [.ins.center sash coord 1] 0]
