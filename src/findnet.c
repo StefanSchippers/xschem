@@ -394,9 +394,6 @@ static void find_closest_box(double mx ,double my, int override_lock)
                          xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) && 
       !POINTINSIDE(mx, my, xctx->rect[c][i].x1 + threshold, xctx->rect[c][i].y1 + threshold,
                          xctx->rect[c][i].x2 - threshold, xctx->rect[c][i].y2 - threshold))
-
-
-
    {
     tmp=dist_from_rect(mx, my, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                   xctx->rect[c][i].x2, xctx->rect[c][i].y2);
@@ -444,13 +441,12 @@ static void find_closest_text(double mx, double my, int override_lock)
  short rot, flip;
  double xx1, xx2, yy1, yy2;
  int i, r=-1, tmp;
- double threshold, dtmp;
+ double dtmp;
  #if HAS_CAIRO==1
  int customfont;
  #endif
  char *estr = NULL;
  double d = distance;
- threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
   for(i=0;i<xctx->texts; ++i)
   {
    rot = xctx->text[i].rot;
@@ -472,12 +468,16 @@ static void find_closest_text(double mx, double my, int override_lock)
    #endif
    if(POINTINSIDE(mx, my, xx1, yy1, xx2, yy2))
    {
-    r = i; d = 0;
-     dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, d);
+    dtmp = dist_from_rect(mx, my, xx1, yy1, xx2, yy2);
+    if(dtmp < d) {
+      d = dtmp;
+      r = i;
+      dbg(2, "find_closest_text(): finding closest text, texts=%d, dist=%.16g\n", i, d);
+    }
    }
   } /* end for i */
 
- if( r != -1 && d <= threshold &&
+ if( r != -1 &&
    (override_lock || strboolcmp(get_tok_value(xctx->text[r].prop_ptr, "lock", 0), "true")) )
  {
   sel.n = r; sel.type = xTEXT;
