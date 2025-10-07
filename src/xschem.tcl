@@ -5440,8 +5440,6 @@ proc file_chooser {} {
   balloon .ins.top.dir_e "This is the relative path of the symbol\nwhen instantiated in the schematic"
   button .ins.top.editpaths -takefocus 0 -text {Edit library paths} -command {
     file_chooser_edit_paths
-    file_chooser_dirlist
-    file_chooser_filelist
   }
   balloon .ins.top.editpaths [string cat \
     "allows to edit XSCHEM_LIBRARY_PATH.\n" \
@@ -5511,21 +5509,26 @@ proc file_chooser {} {
   #   file_chooser_select_preview
   # }
   bind .ins.center.leftdir.l <<ListboxSelect>> {
-    set file_chooser(abs_filename) {}
-    set file_chooser(rel_filename) {}
-    set file_chooser(fullpathlist) {}
-    set file_chooser(files) {}
-    .ins.center.left.l selection clear 0 end
-    xschem preview_window close .ins.center.right {}
-    .ins.center.right configure -bg white
-
-    file_chooser_filelist
+    listbox:select %W
+    if {[.ins.center.leftdir.l curselection] ne {}} {
+      set file_chooser(abs_filename) {}
+      set file_chooser(rel_filename) {}
+      set file_chooser(fullpathlist) {}
+      set file_chooser(files) {}
+      .ins.center.left.l selection clear 0 end
+      xschem preview_window close .ins.center.right {}
+      .ins.center.right configure -bg white
+      file_chooser_filelist
+    }
   }
   bind .ins.center.left.l <<ListboxSelect>> {
-    if { [xschem get ui_state] & 8192 } {
-      xschem abort_operation
+    listbox:select %W
+    if {[.ins.center.left.l curselection] ne {}} {
+      if { [xschem get ui_state] & 8192 } {
+        xschem abort_operation
+      }
+      file_chooser_select_preview
     }
-    file_chooser_select_preview
   }
   bind .ins.center.left.l <KeyPress-Return> {
     if {$file_chooser(action) eq {load}} {
@@ -10340,6 +10343,7 @@ proc set_initial_dirs {} {
 
 # called whenever XSCHEM_LUBRARY_PATH changes (see trace command at end) 
 proc trace_set_vars {varname idxname op} {
+  # puts trace_set_vars
   if {$varname eq {XSCHEM_LIBRARY_PATH} } {
     # puts stderr "executing set_paths after XSCHEM_LIBRARY_PATH change"
     # puts stderr "   $::XSCHEM_LIBRARY_PATH"
@@ -10716,6 +10720,26 @@ if { [info exists has_x] && [info tclversion] >= 8.6 } {
      tk::MenuButtonDown %W
   }
 }
+
+#####################################################################################
+## Procedures to set the PRIMARY selection of selected listbox elements with listbox
+## created with -exportselection 0. Courtesy Mark G. Saye
+#####################################################################################
+## use with:   bind .l <<ListboxSelect>> [list listbox:select %W]
+proc listbox:select {W} {
+  selection clear -displayof $W
+  selection own -command {} $W
+  selection handle -type UTF8_STRING $W [list listbox:handle $W]
+  selection handle $W [list listbox:handle $W]
+}
+
+proc listbox:handle {W offset maxChars} {
+  set list {}
+  foreach index [$W curselection] { lappend list [$W get $index] }
+  set text [join $list \n]
+  return [string range $text $offset [expr {$offset+$maxChars-1}]]
+}
+#####################################################################################
 
 # focus the schematic window if mouse goes over it, even if a dialog box is displayed,
 # without needing to click. This allows to move/zoom/pan the schematic while editing attributes.
