@@ -5511,8 +5511,15 @@ proc file_chooser {} {
   #   file_chooser_select_preview
   # }
   bind .ins.center.leftdir.l <<ListboxSelect>> {
+    set file_chooser(abs_filename) {}
+    set file_chooser(rel_filename) {}
+    set file_chooser(fullpathlist) {}
+    set file_chooser(files) {}
+    .ins.center.left.l selection clear 0 end
+    xschem preview_window close .ins.center.right {}
+    .ins.center.right configure -bg white
+
     file_chooser_filelist
-    file_chooser_select_preview
   }
   bind .ins.center.left.l <<ListboxSelect>> {
     if { [xschem get ui_state] & 8192 } {
