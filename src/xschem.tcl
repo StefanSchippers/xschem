@@ -7044,21 +7044,24 @@ proc symbolParse {file} {
 }
 
 proc read_data_nonewline {f} {
-  set fid [open $f r]
+  set res [catch {open $f r} fid]
+  if {$res} { puts "read_data_nonewline: $fid"; return {}}
   set data [read -nonewline $fid]
   close $fid
   return $data
 }
 
 proc read_data {f} {
-  set fid [open $f r]
+  set res [catch {open $f r} fid]
+  if {$res} { puts "read_data: $fid"; return {}}
   set data [read $fid]
   close $fid
   return $data
 }
 
 proc read_data_window {w f} {
-  set fid [open $f r]
+  set res [catch {open $f r} fid]
+  if {$res} { puts "read_data_window: $fid"; return {}}
   set t [read $fid]
   #  $w delete 0.0 end
   ## 20171103 insert text at cursor position instead of at beginning (insert index tag)
@@ -7067,7 +7070,9 @@ proc read_data_window {w f} {
 }
 
 proc write_data {data f} {
-  set fid [open $f w]
+
+  set res [catch {open $f w} fid]
+  if {$res} { puts "write_data: $fid"; return {}}
   puts  -nonewline $fid $data
   close $fid
   return {}
@@ -7497,9 +7502,12 @@ proc editdata {{data {}} {title {Edit data}} {wrap {none}} {ro 1}} {
           set editdata_filename [tk_getSaveFile -initialdir [pwd] ]
         }
         if { $editdata_filename != "" } {
-          set editdata_fileid [open $editdata_filename w]
-          puts -nonewline $editdata_fileid [.editdata.text get 1.0 {end - 1 chars}]
-          close $editdata_fileid
+          if {[catch {open $editdata_filename w} editdata_fileid]} {
+            puts "editdata: $editdata_fileid"
+          } else {
+            puts -nonewline $editdata_fileid [.editdata.text get 1.0 {end - 1 chars}]
+            close $editdata_fileid
+          }
         }
       }
       editdata_save
@@ -7546,9 +7554,12 @@ proc textwindow {filename {ro {}}} {
   if { $ro eq {} } {
     button $textwindow_w.buttons.save -text "Save" -command \
      { 
-      set textwindow_fileid [open $textwindow_filename w]
-      puts -nonewline $textwindow_fileid [$textwindow_w.text get 1.0 {end - 1 chars}]
-      close $textwindow_fileid 
+      if {[catch {open $textwindow_filename w} textwindow_fileid]} {
+        puts "textwindow: $textwindow_fileid"
+      } else {
+        puts -nonewline $textwindow_fileid [$textwindow_w.text get 1.0 {end - 1 chars}]
+        close $textwindow_fileid 
+      }
       destroy $textwindow_w
      }
     pack $textwindow_w.buttons.save  -side left -expand 1
@@ -7563,10 +7574,12 @@ proc textwindow {filename {ro {}}} {
   pack $textwindow_w.xscroll -side bottom -fill x
   bind $textwindow_w <Escape> "$textwindow_w.buttons.dismiss invoke"
   set textwindow_fileid [open $filename r]
-
-  # 20171103 insert at insertion cursor(insert tag) instead of 0.0
-  $textwindow_w.text insert insert [read $textwindow_fileid]
-  close $textwindow_fileid
+  if {[catch {open $filename r} textwindow_fileid]} {
+    puts "textwindow: $textwindow_fileid"
+  } else {
+    $textwindow_w.text insert insert [read $textwindow_fileid]
+    close $textwindow_fileid
+  }
   return {}
 }
 
@@ -7600,9 +7613,12 @@ proc viewdata {data {ro {}} {win .view} {wrap none}} {
         set viewdata_filename [tk_getSaveFile -initialdir [pwd] ]
       }
       if { $viewdata_filename != "" } {
-        set viewdata_fileid [open $viewdata_filename w]
-        puts -nonewline $viewdata_fileid [$viewdata_w.text get 1.0 {end - 1 chars}]
-        close $viewdata_fileid
+        if {[catch {open $viewdata_filename w} viewdata_fileid]} {
+          puts "viewdata: $viewdata_fileid"
+        } else {
+          puts -nonewline $viewdata_fileid [$viewdata_w.text get 1.0 {end - 1 chars}]
+          close $viewdata_fileid
+        }
       }
     } 
     pack $viewdata_w.buttons.saveas  -side left -expand 1
