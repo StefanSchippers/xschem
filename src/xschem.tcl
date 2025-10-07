@@ -10420,7 +10420,6 @@ proc set_paths {} {
 
   c_toolbar::clear
   load_recent_file
-  if {[winfo exists .ins]} { .ins.top3.upd invoke }
 }
 
 proc print_help_and_exit {} {
