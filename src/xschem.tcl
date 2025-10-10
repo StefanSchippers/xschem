@@ -5383,12 +5383,14 @@ proc file_chooser_saveas {} {
     if {[xschem get modified]} { ;# modified
       if {[xschem get schname] eq $f} { ;# file name not changed
         xschem saveas $f
+        .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       } else { ;# file name changed
         set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
         xschem saveas $f
+        .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       }
     } else { ;# not modified
@@ -5399,11 +5401,13 @@ proc file_chooser_saveas {} {
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
         xschem saveas $f
+        .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       }
     }
   } else { ;# file does not exist
     xschem saveas $f
+    .ins.top2.save configure -bg [option get . background {}]
     file_chooser_filelist
   }
 }
