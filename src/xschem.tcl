@@ -5031,8 +5031,8 @@ proc file_chooser_draw_preview {f} {
   }
 }
 
-proc file_chooser_select_preview {} {
-  # puts "file_chooser_select_preview"
+proc file_chooser_preview {} {
+  # puts "file_chooser_preview"
   global file_chooser
   if {[info exists file_chooser(f)]} {
     after cancel ".ins.center.right configure -bg white"
@@ -5048,7 +5048,7 @@ proc file_chooser_select_preview {} {
     # puts "set fileindex=$sel"
     .ins.center.left.l see $sel
     set f [lindex $file_chooser(fullpathlist) $sel]
-    # puts "file_chooser_select_preview: f=$f"
+    # puts "file_chooser_preview: f=$f"
     if {$f ne {}} {
       set file_chooser(f) $f
       set type [is_xschem_file $f]
@@ -5163,7 +5163,7 @@ proc file_chooser_symbol_or_schematic {{shift 0}} {
       } elseif {$type eq {SYMBOL}} {
         if {$shift == 0} {
           set file_chooser(action) {symbol1} ;# only one time insert symbol
-          file_chooser_select_preview
+          file_chooser_preview
         } else {
           file_chooser_place load_new_win
         }
@@ -5202,6 +5202,36 @@ proc file_chooser_place {action} {
   }
 }
 
+proc file_chooser_select {f} {
+  global file_chooser
+  if {$f ne {}} {
+    set dir [file dirname $f]
+    set file [file tail $f]
+    set dirtail [file tail $dir]
+    # puts "file=$file"
+    # puts "   dirtail=$dirtail"
+    # puts "   dir=$dir"
+    set dirindex [lsearch -exact  $file_chooser(dirs) $dir]
+    if {$dirindex != -1} {
+      # puts "dirindex=$dirindex"
+      .ins.center.leftdir.l activate $dirindex
+      .ins.center.leftdir.l selection clear 0 end
+      .ins.center.leftdir.l selection set $dirindex
+      .ins.center.leftdir.l see $dirindex
+      file_chooser_filelist
+      set fileindex [lsearch -exact  $file_chooser(files) $file]
+      if {$fileindex != -1} {
+        # puts "fileindex=$fileindex"
+        .ins.center.left.l selection clear 0 end
+        .ins.center.left.l activate $fileindex
+        .ins.center.left.l selection set $fileindex
+        .ins.center.left.l see $fileindex
+        file_chooser_preview
+      }
+    }
+  }
+}
+
 proc file_chooser_search {} {
   global file_chooser new_file_browser_depth new_file_browser_ext
   # check if regex is valid
@@ -5225,30 +5255,7 @@ proc file_chooser_search {} {
     }
   } 
   if {$f ne {}} {
-    set dir [file dirname $f]
-    set file [file tail $f]
-    set dirtail [file tail $dir]
-    # puts "file=$file"
-    # puts "   dirtail=$dirtail"
-    # puts "   dir=$dir"
-    set dirindex [lsearch -exact  $file_chooser(dirs) $dir]
-    if {$dirindex != -1} {
-      # puts "dirindex=$dirindex"
-      .ins.center.leftdir.l activate $dirindex
-      .ins.center.leftdir.l selection clear 0 end
-      .ins.center.leftdir.l selection set $dirindex
-      .ins.center.leftdir.l see $dirindex
-      file_chooser_filelist
-      set fileindex [lsearch -exact  $file_chooser(files) $file]
-      if {$fileindex != -1} {
-        # puts "fileindex=$fileindex"
-        .ins.center.left.l selection clear 0 end
-        .ins.center.left.l activate $fileindex
-        .ins.center.left.l selection set $fileindex
-        .ins.center.left.l see $fileindex
-        file_chooser_select_preview
-      }
-    }
+    file_chooser_select $f
   } else {
     if {$file_chooser(nth) > 0} {
       incr file_chooser(nth) -1
@@ -5351,6 +5358,55 @@ proc file_chooser_edit_paths {} {
   .editpaths.center.paths insert 1.0 $paths
 }
 
+proc file_chooser_saveas {} {
+  global file_chooser
+
+  set f $file_chooser(abs_filename)
+  if {[file exists $f]} {
+    if {[file isdirectory $f]} {return} 
+    if {[xschem get modified]} { ;# modified
+      if {[xschem get schname] eq $f} { ;# file name not changed
+        xschem saveas $f
+        file_chooser_filelist
+      } else { ;# file name changed
+        set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
+            -icon warning -parent .ins -type okcancel]
+        if {$answer ne {ok}} { return }
+        xschem saveas $f
+        file_chooser_filelist
+      }
+    } else { ;# not modified
+      if {[xschem get schname] eq $f} { ;# file name not changed
+        # ...
+      } else { ;# file name changed
+        set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
+            -icon warning -parent .ins -type okcancel]
+        if {$answer ne {ok}} { return }
+        xschem saveas $f
+        file_chooser_filelist
+      }
+    }
+  } else { ;# file does not exist
+    xschem saveas $f
+    file_chooser_filelist
+  }
+}
+
+proc file_chooser_delete {} {
+  global file_chooser
+
+  set f $file_chooser(abs_filename)
+  if {[file exists $f]} {
+    if {[file isdirectory $f]} { return }
+    set answer [tk_messageBox -message "Delete $f ?" \
+        -icon warning -parent .ins -type okcancel]
+    if {$answer eq {ok}} {
+      file delete -force $f
+      file_chooser_filelist
+    }
+  }
+}
+
 #### maxdepth: how many levels to descend for each $paths directory (-1: no limit)
 proc file_chooser {} {
   global file_chooser new_file_browser_ext new_file_browser_depth USER_CONF_DIR
@@ -5359,6 +5415,7 @@ proc file_chooser {} {
   set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
   set_ne file_chooser(fullpath) 0
   set_ne file_chooser(ontop) 0
+  set_ne file_chooser(enter) 0 ;# let file_chooser show current open schematic file name when mouse enters
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   if {[winfo exists .ins]} {
     raise .ins
@@ -5404,7 +5461,7 @@ proc file_chooser {} {
     "\"Levels down\" entry are shown after the\n" \
     "primary directory.\n" \
     "Only directories containing xschem files\n" \
-    "matching the \"Ext\" pattern are shown."] 0 1
+    "matching the \"Ext\" pattern are shown."] 0 1 3000
   listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 5 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
@@ -5415,7 +5472,7 @@ proc file_chooser {} {
     "Double click on a schematic will load in current window\n" \
     "Shift-Double click on a schematic will load it in a new window\n" \
     "Double click on a symbol will place the symbol in current window\n" \
-    "Shift-Double click on a symbol will load it in a new window"] 0 1
+    "Shift-Double click on a symbol will load it in a new window"] 0 1 3000
   scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
 
@@ -5426,8 +5483,16 @@ proc file_chooser {} {
   pack .ins.center.leftdir.s -fill y -side left
 
   label .ins.top2.dir_l -text {Full path:}
-  entry .ins.top2.dir_e -width 20 -state readonly -textvariable file_chooser(abs_filename) \
+  entry .ins.top2.dir_e -width 20 -state normal -textvariable file_chooser(abs_filename) \
     -readonlybackground [option get . background {}] -takefocus 0
+
+  button .ins.top2.save  -takefocus 0 -text {Save current window} -command {
+    file_chooser_saveas
+  }
+  button .ins.top2.delete  -takefocus 0 -text {Delete} -command {
+    file_chooser_delete
+  }
+
   label .ins.top3.pat_l -text Pattern:
   balloon .ins.top3.pat_l {Show files matching regular expression}
   entry .ins.top3.pat_e -width 15 -highlightcolor red -highlightthickness 2 \
@@ -5493,20 +5558,26 @@ proc file_chooser {} {
   button .ins.top3.clear -takefocus 0 -text Clear -command {
     .ins.top3.pat_e delete 0 end
     file_chooser_filelist
-    file_chooser_select_preview
+    file_chooser_preview
   }
   balloon .ins.top3.clear {Clear pattern entry box}
   # -command {
   #   file_chooser_search
   #   file_chooser_filelist
-  #   file_chooser_select_preview
+  #   file_chooser_preview
   # }
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
+  bind .ins <Enter> {
+    if {{%W} eq {.ins} && $file_chooser(enter) } {
+      file_chooser_select [xschem get schname]
+      set file_chooser(enter) 0 ;# do not reset shown filename to current xschem filename when entering again
+    }
+  }
 
   # bind .ins.top3.pat_e <KeyRelease> {
   #   file_chooser_search
   #   file_chooser_filelist
-  #   file_chooser_select_preview
+  #   file_chooser_preview
   # }
   bind .ins.center.leftdir.l <<ListboxSelect>> {
     listbox:select %W
@@ -5527,7 +5598,7 @@ proc file_chooser {} {
       if { [xschem get ui_state] & 8192 } {
         xschem abort_operation
       }
-      file_chooser_select_preview
+      file_chooser_preview
     }
   }
   bind .ins.center.left.l <KeyPress-Return> {
@@ -5560,7 +5631,7 @@ proc file_chooser {} {
   button .ins.bottom.sym -text {Place symbol} -takefocus 0 \
      -command {
        set file_chooser(action) {symbol1} ;# only one time insert symbol
-       file_chooser_select_preview
+       file_chooser_preview
      }
   balloon .ins.bottom.sym {insert the currently selected symbol}
 
@@ -5568,7 +5639,7 @@ proc file_chooser {} {
      -variable file_chooser(action) \
      -command {
        if {$file_chooser(action) eq {symbol}} { ;# persistent insert symbol
-         file_chooser_select_preview
+         file_chooser_preview
        }
      }
   balloon .ins.bottom.stickysym {persistent insert symbol mode}
@@ -5577,7 +5648,6 @@ proc file_chooser {} {
   bind .ins.center.left.l <Shift-Double-Button-1> {file_chooser_symbol_or_schematic 1}
 
   wm protocol .ins WM_DELETE_WINDOW {.ins.bottom.dismiss invoke}
-  bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   pack .ins.bottom.dismiss -side left
   pack .ins.bottom.load -side left
   pack .ins.bottom.load_new_win -side left
@@ -5587,6 +5657,8 @@ proc file_chooser {} {
   pack .ins.bottom.nitems -side left
   pack .ins.top2.dir_l -side left
   pack .ins.top2.dir_e -side left -fill x -expand 1
+  pack .ins.top2.delete -side left
+  pack .ins.top2.save -side left
   pack .ins.top3.upd -side left
   pack .ins.top3.pat_l -side left
   pack .ins.top3.pat_e -side left
@@ -8150,8 +8222,8 @@ proc get_file_path {ff} {
 #
 # Balloon help system, from https://wiki.tcl-lang.org/page/balloon+help
 #
-proc balloon {w help {pos 1} {motion_kill 0}} {
-    bind $w <Enter>     "after 1000   [list balloon_show %W [list $help] $pos]"
+proc balloon {w help {pos 1} {motion_kill 0} {delay 1000}} {
+    bind $w <Enter>     "after $delay   [list balloon_show %W [list $help] $pos]"
     bind $w <Leave>     "after cancel [list balloon_show %W [list $help] $pos]; destroy %W.balloon"
     if {$motion_kill} {
       bind $w <Motion> "
@@ -9481,22 +9553,17 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "
-        if {{%W} eq {$topwin}} {
-          destroy .ctxmenu
-          focus $topwin
-          xschem callback %W %T %x %y 0 0 0 0
-        }
-      "
-    } else {
-      bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
-      bind $topwin <Enter> "
-        if {{%W} eq {$topwin}} {
-          destroy .ctxmenu
-          xschem callback %W %T %x %y 0 0 0 0
-        }
-      "
     }
+    bind $topwin <Enter> "
+      if {{%W} eq {$topwin}} {
+        if {\[winfo exists .ins\]} {
+          set file_chooser(enter) 1 ;# so first time mouse enters file chooser current file will be shown
+        }
+        destroy .ctxmenu
+        if {\$autofocus_mainwindow} {focus $topwin}
+        xschem callback %W %T %x %y 0 0 0 0
+      }
+    "
     bind $topwin <Unmap> " wm withdraw .infotext; set show_infowindow 0 "
   
     # on Windows Alt key mask is reported as 131072 (1<<17) so build masks manually with values passed from C code 
