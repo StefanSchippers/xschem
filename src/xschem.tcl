@@ -5352,7 +5352,7 @@ proc file_chooser_edit_paths {} {
     file_chooser_browsedir
   }
 
-  button .editpaths.bottom.show -text {Show XSCHEM_LIBRARY_PATH} -command {
+  button .editpaths.bottom.show -text {Show resulting XSCHEM_LIBRARY_PATH} -command {
     set tctx::rcode 1
     set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
     file_chooser_set_paths
@@ -5513,6 +5513,7 @@ proc file_chooser {} {
     file_chooser_delete
   }
 
+  balloon .ins.top2.delete "Delete the shown file"
   label .ins.top3.pat_l -text Pattern:
   balloon .ins.top3.pat_l {Show files matching regular expression}
   entry .ins.top3.pat_e -width 15 -highlightcolor red -highlightthickness 2 \
@@ -5546,7 +5547,14 @@ proc file_chooser {} {
   balloon .ins.top3.ext_l "show only files matching the\nextension regular expression"
   entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable new_file_browser_ext
   balloon .ins.top3.ext_e "show only files matching the\nextension regular expression"
-  button .ins.top3.upd -takefocus 0 -text Update -command {
+
+  button .ins.top3.select_current -takefocus 0 -text {Select current} -command {
+    set file_chooser(regex) {}
+    file_chooser_select [xschem get schname] 
+  }
+  balloon .ins.top3.select_current "Select directory and file name\nof current active xschem window"
+
+  button .ins.top3.upd -takefocus 0 -text "Reload" -command {
     set file_chooser(abs_filename) {}
     set file_chooser(rel_filename) {}
     set file_chooser(fullpathlist) {}
@@ -5557,7 +5565,7 @@ proc file_chooser {} {
     file_chooser_dirlist
     file_chooser_filelist
   }
-  balloon .ins.top3.upd {Update list of files matching pattern}
+  balloon .ins.top3.upd "Reset and reload list of files"
 
   button .ins.top3.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
     file_chooser_search current
@@ -5594,7 +5602,8 @@ proc file_chooser {} {
   bind .ins <KeyPress-Escape> {.ins.bottom.dismiss invoke}
   bind .ins <Enter> {
     if {{%W} eq {.ins} && $file_chooser(enter) } {
-      file_chooser_select [xschem get schname]
+      # set file_chooser(regex) {}
+      # file_chooser_select [xschem get schname]
       if {[xschem get modified]} {
         .ins.top2.save configure -bg red
       } else {
@@ -5604,11 +5613,9 @@ proc file_chooser {} {
     }
   }
 
-  # bind .ins.top3.pat_e <KeyRelease> {
-  #   file_chooser_search
-  #   file_chooser_filelist
-  #   file_chooser_preview
-  # }
+  bind .ins.top3.pat_e <KeyRelease> {
+    file_chooser_search current
+  }
   bind .ins.center.leftdir.l <<ListboxSelect>> {
     listbox:select %W
     if {[.ins.center.leftdir.l curselection] ne {}} {
@@ -5689,6 +5696,7 @@ proc file_chooser {} {
   pack .ins.top2.dir_e -side left -fill x -expand 1
   pack .ins.top2.delete -side left
   pack .ins.top2.save -side left
+  pack .ins.top3.select_current -side left
   pack .ins.top3.upd -side left
   pack .ins.top3.pat_l -side left
   pack .ins.top3.pat_e -side left
