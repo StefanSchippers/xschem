@@ -5528,7 +5528,7 @@ proc file_chooser {} {
     file_chooser_edit_paths
   }
   balloon .ins.top.editpaths [string cat \
-    "allows to edit XSCHEM_LIBRARY_PATH.\n" \
+    "Allows to edit XSCHEM_LIBRARY_PATH.\n" \
     "A hash (#) before a line will comment out\n" \
     "the path so it will not be used. You can enable it\n" \
     "later by removing the hash comment character"]
@@ -5544,9 +5544,9 @@ proc file_chooser {} {
   label .ins.top.lev_l -text {Levels down:}
   entry .ins.top.lev_e -width 3  -takefocus 0 -textvariable new_file_browser_depth
   label .ins.top3.ext_l -text Ext:
-  balloon .ins.top3.ext_l "show only files matching the\nextension regular expression"
+  balloon .ins.top3.ext_l "Show only files matching the\nextension regular expression"
   entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable new_file_browser_ext
-  balloon .ins.top3.ext_e "show only files matching the\nextension regular expression"
+  balloon .ins.top3.ext_e "Show only files matching the\nextension regular expression"
 
   button .ins.top3.select_current -takefocus 0 -text {Select current} -command {
     set file_chooser(regex) {}
@@ -5570,12 +5570,12 @@ proc file_chooser {} {
   button .ins.top3.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
     file_chooser_search current
   }
-  balloon .ins.top3.search_curr "show and select match\n in current directory"
+  balloon .ins.top3.search_curr "Show and select match\n in current directory"
   button .ins.top3.search -takefocus 0 -text {Search first} -activebackground red -command {
     set file_chooser(nth) 1
     file_chooser_search
   }
-  balloon .ins.top3.search {show and select first match}
+  balloon .ins.top3.search "Show and select first match\nlooking in all directories"
   button .ins.top3.prev -takefocus 0 -text Prev -command {
     incr file_chooser(nth) -1
     file_chooser_search
@@ -5587,7 +5587,7 @@ proc file_chooser {} {
   }
   balloon .ins.top3.next {show and select next match}
   checkbutton .ins.top3.fullpath -takefocus 0 -variable file_chooser(fullpath) -text {match full path  }
-  balloon .ins.top3.fullpath "perform regular expression matching on\nfull path instead of only file name"
+  balloon .ins.top3.fullpath "Perform regular expression matching on\nfull path instead of only file name"
   button .ins.top3.clear -takefocus 0 -text Clear -command {
     .ins.top3.pat_e delete 0 end
     file_chooser_filelist
