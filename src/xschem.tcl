@@ -5149,7 +5149,7 @@ proc file_chooser_filelist {} {
 proc file_chooser_symbol_or_schematic {{shift 0}} {
   global file_chooser
   if {[xschem get semaphore] > 0} {return}
-   set sel [.ins.center.left.l index active]
+  set sel [.ins.center.left.l index active]
   if {$sel ne {}} {
     set f [lindex $file_chooser(fullpathlist) $sel]
     if {$f ne {}} {
@@ -5204,7 +5204,7 @@ proc file_chooser_place {action} {
 
 proc file_chooser_select {f} {
   global file_chooser
-  if {$f ne {}} {
+  if {$f ne {} && [info exists file_chooser(dirs)] && [info exists file_chooser(files)]} {
     set dir [file dirname $f]
     set file [file tail $f]
     set dirtail [file tail $dir]
@@ -5232,7 +5232,7 @@ proc file_chooser_select {f} {
   }
 }
 
-proc file_chooser_search {} {
+proc file_chooser_search {{current {}}} {
   global file_chooser new_file_browser_depth new_file_browser_ext
   # check if regex is valid
   set err [catch {regexp $file_chooser(regex) {12345}} res]
@@ -5247,9 +5247,25 @@ proc file_chooser_search {} {
       set err [catch {regexp $new_file_browser_ext $i} type]
       if {!$err && $type} {
         incr nth
-        if {$nth == $file_chooser(nth)} {
-          set f $i
-          break
+        if {$current ne {}} {
+          set dir1 [file dirname $i]
+          set sel [.ins.center.leftdir.l index active]
+          if {$sel ne {}} {
+            set dir2 [lindex $file_chooser(dirs) $sel]
+            # puts "  dir1=$dir1\n  dir2=$dir2\n  sel=$sel\n------\n"
+            if {$dir2 ne {}} {
+              if {$dir1 eq $dir2} {
+                set f $i
+                set file_chooser(nth) $nth
+	        break
+              }
+            }
+          }
+        } else {
+          if {$nth == $file_chooser(nth)} {
+            set f $i
+            break
+          }
         }
       }
     }
@@ -5538,6 +5554,11 @@ proc file_chooser {} {
     file_chooser_filelist
   }
   balloon .ins.top3.upd {Update list of files matching pattern}
+
+  button .ins.top3.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
+    file_chooser_search current
+  }
+  balloon .ins.top3.search_curr "show and select match\n in current directory"
   button .ins.top3.search -takefocus 0 -text {Search first} -activebackground red -command {
     set file_chooser(nth) 1
     file_chooser_search
@@ -5668,6 +5689,7 @@ proc file_chooser {} {
   pack .ins.top3.pat_l -side left
   pack .ins.top3.pat_e -side left
   pack .ins.top3.clear -side left
+  pack .ins.top3.search_curr -side left
   pack .ins.top3.search -side left
   pack .ins.top3.prev -side left
   pack .ins.top3.next -side left

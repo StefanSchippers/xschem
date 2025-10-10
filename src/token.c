@@ -5239,6 +5239,26 @@ const char *translate(int inst, const char* s)
             dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
             i--;
           }
+          /* substitute remaing @params */
+          i = level;
+          while(i > 0) {
+            if(strchr(value1, '@')) {
+              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL));
+              dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+            } else break;
+            i--;
+          }
+
+          /* substitute remaing @params */
+          i = level;
+          while(i > 0) {
+            if(strchr(value1, '@')) {
+              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL,  NULL, NULL));
+              dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+            } else break;
+            i--;
+          } 
+
           tmp=strlen(value1);
           STR_ALLOC(&result, tmp + result_pos, &size);
           memcpy(result+result_pos, value1, tmp+1);
