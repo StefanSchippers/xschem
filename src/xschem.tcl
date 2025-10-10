@@ -9553,6 +9553,8 @@ global env has_x OS autofocus_mainwindow
     bind $topwin <KeyRelease> "xschem callback %W %T %x %y %N 0 0 %s"
     if {$autofocus_mainwindow} {
       bind $topwin <Motion> "focus $topwin; xschem callback %W %T %x %y 0 0 0 %s"
+    } else {
+      bind $topwin <Motion> "xschem callback %W %T %x %y 0 0 0 %s"
     }
     bind $topwin <Enter> "
       if {{%W} eq {$topwin}} {
