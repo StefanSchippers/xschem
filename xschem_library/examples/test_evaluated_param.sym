@@ -1,0 +1,21 @@
+v {xschem version=3.4.8RC file_version=1.3}
+G {}
+K {type=subcircuit
+format="@name @pinlist @symname"
+template="name=x1 DEL=3"
+extra=DEL
+default_schematic=ignore}
+V {}
+S {}
+F {}
+E {}
+L 7 -150 0 -130 0 {}
+L 7 130 0 150 0 {}
+B 5 -152.5 -2.5 -147.5 2.5 {name=A sig_type=std_logic dir=inout}
+B 5 147.5 -2.5 152.5 2.5 {name=Z sig_type=std_logic dir=inout}
+P 4 5 130 -10 -130 -10 -130 10 130 10 130 -10 {}
+T {@symname} -93 -8.5 0 0 0.3 0.3 {}
+T {@name} 135 -22 0 0 0.2 0.2 {}
+T {A} -125 -4 0 0 0.2 0.2 {}
+T {param: DEL=@DEL} -90 -35 0 0 0.3 0.3 {}
+T {Z} 125 -4 0 1 0.2 0.2 {}
