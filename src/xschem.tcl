@@ -5415,7 +5415,7 @@ proc file_chooser {} {
   set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
   set_ne file_chooser(fullpath) 0
   set_ne file_chooser(ontop) 0
-  set_ne file_chooser(enter) 0 ;# let file_chooser show current open schematic file name when mouse enters
+  set file_chooser(enter) 1 ;# let file_chooser show current open schematic file name when mouse enters
   # xschem set semaphore [expr {[xschem get semaphore] +1}]
   if {[winfo exists .ins]} {
     raise .ins
@@ -5570,6 +5570,11 @@ proc file_chooser {} {
   bind .ins <Enter> {
     if {{%W} eq {.ins} && $file_chooser(enter) } {
       file_chooser_select [xschem get schname]
+      if {[xschem get modified]} {
+        .ins.top2.save configure -bg red
+      } else {
+        .ins.top2.save configure -bg [option get . background {}]
+      } 
       set file_chooser(enter) 0 ;# do not reset shown filename to current xschem filename when entering again
     }
   }
