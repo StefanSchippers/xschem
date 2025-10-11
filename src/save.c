@@ -1240,8 +1240,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       save = xctx->raw; 
       xctx->raw = NULL;
       read_ret = table_read(f);
-      my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, type);
       if(read_ret) {
+        my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, type);
         xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
         xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = xctx->extra_raw_n;
@@ -1500,17 +1500,17 @@ int table_read(const char *f)
     dbg(0, "table_read(): must clear current data file before loading new\n");
     return 0;
   }
-  xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
-  raw = xctx->raw;
-  raw->level = -1; 
-  raw->annot_p = -1;
-  raw->annot_sweep_idx = -1;
-
   /* quick inspect file and get upper bound of number of data lines */
   ufd = open(f, O_RDONLY);
   if(ufd < 0) goto err;
   count_lines_bytes(ufd, &lines, &bytes);
   close(ufd);
+
+  xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+  raw = xctx->raw;
+  raw->level = -1; 
+  raw->annot_p = -1;
+  raw->annot_sweep_idx = -1;
 
   int_hash_init(&raw->table, HASHSIZE);
   fd = my_fopen(f, fopen_read_mode);

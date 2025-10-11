@@ -4962,7 +4962,12 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 # if paths empty use XSCHEM_LIBRARY_PATH list.
 # 'levels' is set to the number of levels to descend into.
 # 'level' is used internally by the function and should not be set.
-proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   {level -1}} {
+# incl_base_levels: if set to 1 always include level 0 dirs
+proc get_list_of_dirs_with_files {{paths {}} {levels -1} \
+                                  {ext {\.(sch|sym)$}}  \
+                                  {level -1} \
+                                  {incl_base_levels 1} \
+                                 } {
   # puts "get_list_of_dirs_with_files paths=$paths"
   global pathlist
   set dir_with_symbols {}
@@ -4973,14 +4978,16 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} {ext {\.(sch|sym)$}}   
     # puts "dir:$i"
     set filelist [glob -nocomplain -directory $i -type f *]
     set there_are_symbols 0
-    foreach f $filelist {
-      if {[regexp $ext $f]} {
-        # puts "match: $f"
-        set there_are_symbols 1
-        break
+    if {$incl_base_levels == 0 || $level > 0} {
+      foreach f $filelist {
+        if {[regexp $ext $f]} {
+          # puts "match: $f"
+          set there_are_symbols 1
+          break
+        }
       }
     }
-    if {$there_are_symbols} {
+    if {($incl_base_levels && $level == 0) || $there_are_symbols} {
       lappend dir_with_symbols $i
     }
     set dirlist [lsort -dictionary [glob -nocomplain -directory $i -type d *]]
