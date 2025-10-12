@@ -4201,7 +4201,6 @@ namespace eval c_toolbar {
   set c_t(top) 0
   for {set i 0} {$i < $c_t(n)} {incr i} {
     set c_t($i,text) {}
-    set c_t($i,command) {}
     set c_t($i,file) {}
   }
   
@@ -4213,7 +4212,6 @@ namespace eval c_toolbar {
       set c_t(top) 0
       for {set i 0} {$i < $c_t(n)} {incr i} {
         set c_t($i,text) {}
-        set c_t($i,command) {}
         set c_t($i,file) {}
       }
     }
@@ -4235,10 +4233,8 @@ namespace eval c_toolbar {
           set k [expr {$i - $j}]
           if {$k < 0 } { set k [expr {$k + $n}]}
           set c_t($k,text) $c_t($i,text)
-          set c_t($k,command) $c_t($i,command)
           set c_t($k,file) $c_t($i,file)
           set c_t($i,text) {}
-          set c_t($i,command) {}
           set c_t($i,file) {}
         }
         if {$f ne {} && ![file exists $f]} {
@@ -4250,6 +4246,15 @@ namespace eval c_toolbar {
         set i [expr {($i + 1) % $n} ]
         if {$i == $top} break
       }
+  }
+
+  proc command {i} {
+    variable c_t
+    set f $c_t($i,file)
+    set file_dialog_retval {}
+    if {[xschem get ui_state] & 8192 } { xschem abort_operation }
+    file_dialog_display_preview $f
+    xschem place_symbol $f
   }
 
   proc display {} {
@@ -4271,7 +4276,7 @@ namespace eval c_toolbar {
         -background grey60 -borderwidth 0 -font {TkDefaultFont 12 bold}
       pack $w.title -side top -fill x
       while {1} {
-        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command $c_t($i,command) -takefocus 0
+        button $w.b$i -text $c_t($i,text)  -pady 0 -padx 0 -command "c_toolbar::command $i" -takefocus 0
         pack $w.b$i -side top -fill x
         set i [expr {($i + 1) % $n}]
         if { $i == $c_t(top) } break
@@ -4288,11 +4293,6 @@ namespace eval c_toolbar {
     set ret 1
     set i [expr { ($c_t(top)-1) % $c_t(n) } ];# last element
     set c_t($i,file) $f
-    set c_t($i,command) "
-      set file_dialog_retval {}
-      if { \[xschem get ui_state\] & 8192 } { xschem abort_operation }
-      file_dialog_display_preview {$f}
-      xschem place_symbol {$f} "
     set c_t($i,text)  [file tail [file rootname $f]]
     set c_t(top) $i
     if {$ret} {write_recent_file}
