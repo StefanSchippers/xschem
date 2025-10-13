@@ -903,11 +903,43 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
 
 /* if pin or label has missing lab=... attribute get and set from attached nets */
 static void set_lab_or_pin_inst_attr(int i, int j, const char *node)
-{
+{  
+
+  int port = 0;
+  char *dir=NULL;
+  char *sig_type=NULL;
+  char *verilog_type=NULL;
+  char *value=NULL;
+  char *class=NULL;
+
+
+  if(!node || !node[0]) return;
+  if(node[0] == '#') {
+    node++;
+  }
   if(j == 0 && IS_LABEL_OR_PIN(xctx->sym[xctx->inst[i].ptr].type)) {
     if(!xctx->inst[i].lab || !xctx->inst[i].lab[0]) {
       my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, "lab", node));
       set_inst_flags(&xctx->inst[i]);
+
+      if(for_netlist) {
+        if(strcmp(xctx->sym[xctx->inst[i].ptr].type,"label")) port = 1;
+        my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(xctx->inst[i].prop_ptr,"sig_type",0));
+        my_strdup(_ALLOC_ID_, &verilog_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
+        my_strdup(_ALLOC_ID_, &value,get_tok_value(xctx->inst[i].prop_ptr,"value",0));
+        my_strdup(_ALLOC_ID_, &class,get_tok_value(xctx->inst[i].prop_ptr,"class",0));
+        my_strdup2(_ALLOC_ID_, &dir,
+              get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][0].prop_ptr, "dir",0));
+      }
+
+      bus_node_hash_lookup(xctx->inst[i].node[0],    /* insert node in hash table */
+         dir, XINSERT, port, sig_type, verilog_type, value, class);
+
+      if(dir) my_free(_ALLOC_ID_, &dir);
+      if(sig_type) my_free(_ALLOC_ID_, &sig_type);
+      if(verilog_type) my_free(_ALLOC_ID_, &verilog_type);
+      if(value) my_free(_ALLOC_ID_, &value);
+      if(class) my_free(_ALLOC_ID_, &class);
     }
   }
 }
@@ -980,6 +1012,7 @@ static int wirecheck(int k)    /* recursive routine */
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
  
+  dbg(1, "wirecheck: %d\n", k);
   x1 = wire[k].x1; y1 = wire[k].y1;
   x2 = wire[k].x2; y2 = wire[k].y2;
   /* ordered bbox */
@@ -1351,17 +1384,6 @@ static int name_nodes_of_pins_labels_and_propagate()
       xctx->hilight_nets=1;
     }
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
-      #if 0
-      if(for_netlist) {
-        /* 20150918 skip labels / pins if ignore property specified on instance */
-        if( xctx->netlist_type == CAD_VERILOG_NETLIST && (inst[i].flags & VERILOG_IGNORE)) continue;
-        if( xctx->netlist_type == CAD_SPICE_NETLIST && (inst[i].flags & SPICE_IGNORE)) continue;
-        if( xctx->netlist_type == CAD_VHDL_NETLIST && (inst[i].flags & VHDL_IGNORE)) continue;
-        if( xctx->netlist_type == CAD_SPECTRE_NETLIST && (inst[i].flags & SPECTRE_IGNORE)) continue;
-        if( xctx->netlist_type == CAD_TEDAX_NETLIST && (inst[i].flags & TEDAX_IGNORE)) continue;
-        if( netlist_lvs_ignore && (inst[i].flags & LVS_IGNORE_OPEN)) continue;
-      }
-      #endif
       port=0;
       my_strdup2(_ALLOC_ID_, &dir, "");
       if(strcmp(type,"label")) {  /* instance is a port (not a label) */
