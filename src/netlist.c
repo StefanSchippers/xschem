@@ -901,6 +901,17 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
  return err;
 }
 
+/* if pin or label has missing lab=... attribute get and set from attached nets */
+static void set_lab_or_pin_inst_attr(int i, int j, const char *node)
+{
+  if(j == 0 && IS_LABEL_OR_PIN(xctx->sym[xctx->inst[i].ptr].type)) {
+    if(!xctx->inst[i].lab || !xctx->inst[i].lab[0]) {
+      my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, "lab", node));
+      set_inst_flags(&xctx->inst[i]);
+    }
+  }
+}
+
 static void set_inst_node(int i, int j, const char *node)
 {
   xInstance * const inst = xctx->inst;
@@ -908,7 +919,9 @@ static void set_inst_node(int i, int j, const char *node)
   xRect *rect = (inst[i].ptr + xctx->sym)->rect[PINLAYER];
   int skip;
 
+  if(!node || !node[0]) return;
   if(!inst[i].node) return;
+  if(!inst[i].instname) return;
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
   expandlabel(inst[i].instname, &inst_mult);
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
@@ -919,7 +932,10 @@ static void set_inst_node(int i, int j, const char *node)
     const char *dir = get_tok_value(rect[j].prop_ptr, "dir",0);
     bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, 0,"","","","");
   }
-  if(node && node[0] == '#') { /* update multilicity of unnamed node */
+
+  set_lab_or_pin_inst_attr(i, j, node);
+
+  if(node[0] == '#') { /* update multilicity of unnamed node */
     int pin_mult; 
     expandlabel(get_tok_value(rect[j].prop_ptr, "name", 0), &pin_mult);
     get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j]) + 4));
@@ -1370,34 +1386,44 @@ static int name_nodes_of_pins_labels_and_propagate()
         my_strdup(_ALLOC_ID_, &value,get_tok_value(inst[i].prop_ptr,"value",0));
         my_strdup(_ALLOC_ID_, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
+
+
       my_strdup(_ALLOC_ID_, &inst[i].node[0], inst[i].lab);
+
+
+      /* do not assign node if pin/label has no 'lab' attribute */
+      #if 0
       if(!(inst[i].node[0])) {
         my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value(xctx->sym[inst[i].ptr].templ, "lab",0));
         dbg(1, "name_nodes_of_pins_labels_and_propagate(): no lab attr on instance, pick from symbol: %s\n",
                 inst[i].node[0]);
       }
-      /* handle global nodes (global=1 set as symbol property) 28032003 */
-      if(!strcmp(type,"label") && global_node) {
-        if( !strcmp(global_node, "ground")) {
-          dbg(1, "name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]);
-          record_global_node(4,NULL, inst[i].node[0]);
+      #endif
+
+      if(inst[i].node[0]) {
+        /* handle global nodes (global=1 set as symbol property) 28032003 */
+        if(!strcmp(type,"label") && global_node) {
+          if( !strcmp(global_node, "ground")) {
+            dbg(1, "name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]);
+            record_global_node(4,NULL, inst[i].node[0]);
+          }
+          else if( !strboolcmp(global_node, "true")) {
+            dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
+            record_global_node(1,NULL, inst[i].node[0]);
+          }
         }
-        else if( !strboolcmp(global_node, "true")) {
-          dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
-          record_global_node(1,NULL, inst[i].node[0]);
-        }
+  
+        /* do not count multiple labels/pins with same name */
+        bus_node_hash_lookup(inst[i].node[0],    /* insert node in hash table */
+           dir, XINSERT, port, sig_type, verilog_type, value, class);
+  
+        get_inst_pin_coord(i, 0, &x0, &y0);
+        get_square(x0, y0, &sqx, &sqy);
+        /* name nets that touch ioin opin alias instances */
+        err |= name_attached_nets(x0, y0, sqx, sqy, inst[i].node[0]);
+        /* name instances that touch ioin opin alias instances */
+        err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
       }
-
-      /* do not count multiple labels/pins with same name */
-      bus_node_hash_lookup(inst[i].node[0],    /* insert node in hash table */
-         dir, XINSERT, port, sig_type, verilog_type, value, class);
-
-      get_inst_pin_coord(i, 0, &x0, &y0);
-      get_square(x0, y0, &sqx, &sqy);
-      /* name nets that touch ioin opin alias instances */
-      err |= name_attached_nets(x0, y0, sqx, sqy, inst[i].node[0]);
-      /* name instances that touch ioin opin alias instances */
-      err |= name_attached_inst(i, x0, y0, sqx, sqy, inst[i].node[0]);
     } /* if(type && ... */
   } /* for(i=0;i<instances... */
   if(dir) my_free(_ALLOC_ID_, &dir);
@@ -1465,34 +1491,6 @@ static int name_unlabeled_instances()
   int const instances = xctx->instances;
   int rects;
     
-  /* name nets that do not touch ipin opin alias instances */
-
-  #if 0 /* does not work */
-  int all_unconn;
-  for (i = 0; i < instances; ++i)
-  {
-    if(!inst[i].node) continue;
-    if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
-    if(inst[i].ptr != -1) {
-      rects=(inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-      all_unconn = 0;
-      for(j = 0; j < rects; ++j) {
-        if(inst[i].node[j] == NULL)
-        {
-          all_unconn++;
-        }
-      }
-      if(rects > 0 && all_unconn == rects && for_netlist > 0 && xctx->netlist_count > 0) {
-        char str[2048];
-        my_snprintf(str, S(str), "Error: %s all pins disconnected,", inst[i].instname);
-        statusmsg(str,2);
-        xctx->inst[i].color = -PINLAYER;
-        xctx->hilight_nets=1;
-      }
-    }
-  }
-  #endif
-
   dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
   for (i = 0; i < instances; ++i)
   {
