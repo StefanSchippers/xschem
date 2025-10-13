@@ -7084,7 +7084,9 @@ proc edit_prop {txtlabel} {
 
   set sym_sel_attr [xschem get_tok $tctx::retval select] ;# get from instance
   if {$sym_sel_attr eq {}} {
-    set sym_sel_attr [xschem getprop symbol $symbol select] ;# not found in instance, get from symbol
+    if {[catch {xschem getprop symbol $symbol select} sym_sel_attr]} {
+      set sym_sel_attr {}
+    }
   }
   if {$sym_sel_attr eq {*}} {
      .dialog.symprop tag add sel 1.0 {end - 1 chars}
