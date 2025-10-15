@@ -58,9 +58,19 @@ static double find_closest_bezier(double mx, double my, double d, int c, int i, 
   double t, t1, tmp;
   double xp, yp, xp1, yp1;
   double x0, x1, x2, y0, y1, y2;
-  double *x = xctx->poly[c][i].x;
-  double *y = xctx->poly[c][i].y;
-  int points = xctx->poly[c][i].points;
+  double ds = xctx->cadhalfdotsize;
+  xPoly *p = &xctx->poly[c][i];
+  int points = p->points;
+  double *x = p->x;
+  double *y = p->y;
+
+  for(b = 0; b < points; b++) {
+    if(POINTINSIDE(xctx->mousex, xctx->mousey, p->x[b] - ds, p->y[b] - ds,
+                      p->x[b] + ds, p->y[b] + ds)) {
+        *l = i; d = ds / 2.0; *col = c;
+        return d;
+    }
+  }
 
   for(b = 0; b < points - 2; b++) {
     if(points == 3) { /* 3 points: only one bezier */
