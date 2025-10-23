@@ -664,6 +664,10 @@ proc to_eng {args} {
   return $s
 }
 
+proc = {args} {
+  ev7 $args
+}
+
 ## evaluate expression with 7 significant digits.
 ## if expression has errors or does not evaluate return expression as is
 proc ev7 {args} {
@@ -6300,11 +6304,11 @@ proc return_release {window} {
   $window delete "$curs - 1 chars" $curs
 }
 
-
 proc tclcmd_ok_button {} {
   global tclcmd_txt tclcmd_puts
 
   set tclcmd_txt [.tclcmd.t get 1.0 end]
+  regsub {^ *= *} $tclcmd_txt {= } tclcmd_txt
   redef_puts 
   catch {uplevel #0 $tclcmd_txt} tclcmd_puts
   rename puts {}
@@ -6318,40 +6322,57 @@ proc tclcmd_ok_button {} {
 
 # evaluate a tcl command from GUI
 proc tclcmd {} {
-  global tclcmd_txt
+  global tclcmd_txt tclcmd_default_geometry
+  set_ne tclcmd_default_geometry {}
   if {[winfo exists .tclcmd]} {
     destroy .tclcmd
   }
-  toplevel .tclcmd -class Dialog
-  # wm transient .tclcmd [xschem get topwindow]
+  toplevel .tclcmd -class dialog
   label .tclcmd.txtlab -text {Enter TCL expression. Shift-Return will evaluate}
   panedwindow .tclcmd.p -orient vert
-  text .tclcmd.t -undo 1 -width 100 -height 3
+
+  bind .tclcmd <Configure> {
+    set tclcmd_default_geometry [wm geometry .tclcmd]
+  }   
+
+  frame .tclcmd.t
+  text .tclcmd.t.t -width 60 -height 4 -font {Monospace 12} -yscrollcommand ".tclcmd.t.yscroll set"
+  scrollbar .tclcmd.t.yscroll -command  ".tclcmd.t.t yview"
+
   frame .tclcmd.r
-  text .tclcmd.r.r -undo 1 -width 100 -height 8 -yscrollcommand ".tclcmd.r.yscroll set"
+  text .tclcmd.r.r -width 60 -height 5 -font {Monospace 12} -yscrollcommand ".tclcmd.r.yscroll set"
   scrollbar .tclcmd.r.yscroll -command  ".tclcmd.r.r yview"
+
   .tclcmd.p add .tclcmd.t .tclcmd.r
-  .tclcmd.t insert 1.0 $tclcmd_txt
+  .tclcmd.t.t insert 1.0 $tclcmd_txt
 
   frame .tclcmd.b
-  button .tclcmd.b.clear -text Clear -command {
+  button .tclcmd.b.cleari -text {Clear Input} -command {
+    .tclcmd.t.t delete 1.0 end
+  }
+  button .tclcmd.b.clear -text {Clear Results} -command {
     .tclcmd.r.r delete 1.0 end
   }
   button .tclcmd.b.close -text Close -command {
-    set tclcmd_txt [.tclcmd.t get 1.0 {end - 1 chars}]
+    set tclcmd_txt [.tclcmd.t.t get 1.0 {end - 1 chars}]
     destroy .tclcmd
   }
   button .tclcmd.b.ok -text Evaluate -command {tclcmd_ok_button}
   # bind .tclcmd.t <Shift-KeyPress-Return> { .tclcmd.b.ok invoke }
-  bind .tclcmd.t <Shift-KeyRelease-Return> {return_release %W; .tclcmd.b.ok invoke }
+  bind .tclcmd.t.t <Shift-KeyRelease-Return> {return_release %W; .tclcmd.b.ok invoke }
+  bind .tclcmd <Escape> {.tclcmd.b.close invoke}
   pack .tclcmd.txtlab -side top -fill x
   pack .tclcmd.b -side bottom -fill x
   pack .tclcmd.p -side top -fill  both -expand yes
   pack .tclcmd.r.yscroll -side right -fill y
   pack .tclcmd.r.r -side top -fill  both -expand yes
+  pack .tclcmd.t.yscroll -side right -fill y
+  pack .tclcmd.t.t -side top -fill  both -expand yes
   pack .tclcmd.b.ok -side left -expand yes -fill x
-  pack .tclcmd.b.close -side left -expand yes -fill x
   pack .tclcmd.b.clear -side left -expand yes -fill x
+  pack .tclcmd.b.cleari -side left -expand yes -fill x
+  pack .tclcmd.b.close -side left -expand yes -fill x
+  if { $tclcmd_default_geometry ne {}} {wm geometry .tclcmd $tclcmd_default_geometry}
 }
 
 proc select_layers {} {
@@ -9324,7 +9345,7 @@ set tctx::global_list {
  tctx::colors tctx::delay_flag tctx::hsize tctx::recentfile
  tctx::selected_mode tctx::old_selected_mode tctx::old_selected_tok tctx::selected_tok
  tctx::rcode tctx::vsize tctx::tctx::retval tctx::retval_orig
- text_line_default_geometry text_replace_selection text_tabs_setting
+ tclcmd_default_geometry text_line_default_geometry text_replace_selection text_tabs_setting
  textwindow_fileid textwindow_filename textwindow_w toolbar_horiz toolbar_list toolbar_visible
  top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt
  use_cursor_for_selection use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell
@@ -10243,7 +10264,7 @@ proc build_widgets { {topwin {} } } {
     -accelerator {Print Scrn}
   $topwin.menubar.tools add command -label "Search" -accelerator Ctrl+F -command  property_search
   $topwin.menubar.tools add command -label "Align to Grid" -accelerator Alt+U -command  "xschem align"
-  $topwin.menubar.tools add command -label "Execute TCL command" -command  "tclcmd"
+  $topwin.menubar.tools add command -label "Execute TCL command" -command  "tclcmd" -accelerator {=}
   $topwin.menubar.tools add command -label "Join/Trim wires" \
      -command "xschem trim_wires" -accelerator {&}
   $topwin.menubar.tools add command -label "Break wires at selected instance pins" \

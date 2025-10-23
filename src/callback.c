@@ -3768,7 +3768,9 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case '=': 
-      if(state & ControlMask) { /* toggle fill rectangles */
+      if(state  == 0) { /* tcl command console */
+        tcleval("tclcmd");  
+      } else if(state & ControlMask) { /* toggle fill rectangles */
         int x;
         xctx->fill_pattern++;
         if(xctx->fill_pattern==2) xctx->fill_pattern=0;
