@@ -6248,7 +6248,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           "xschem text requires 8 additional arguments", TCL_STATIC); return TCL_ERROR;}
 
       create_text(atoi(argv[9]), atof(argv[2]), atof(argv[3]), atoi(argv[4]), atoi(argv[5]),
-                    argv[6], argv[7], atof(argv[8]), atof(argv[9]));
+                    argv[6], argv[7], atof(argv[8]), atof(argv[8]));
       Tcl_ResetResult(interp);
     }
 
