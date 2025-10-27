@@ -6307,8 +6307,8 @@ proc return_release {window} {
 proc tclcmd_ok_button {} {
   global tclcmd_txt tclcmd_puts
 
-  set tclcmd_txt [.tclcmd.t get 1.0 end]
-  regsub {^ *= *} $tclcmd_txt {= } tclcmd_txt
+  set tclcmd_txt [.tclcmd.t.t get 1.0 end]
+  regsub -all -line {^ *= *} $tclcmd_txt {= } tclcmd_txt
   redef_puts 
   catch {uplevel #0 $tclcmd_txt} tclcmd_puts
   rename puts {}
@@ -6336,11 +6336,11 @@ proc tclcmd {} {
   }   
 
   frame .tclcmd.t
-  text .tclcmd.t.t -width 60 -height 4 -font {Monospace 12} -yscrollcommand ".tclcmd.t.yscroll set"
+  text .tclcmd.t.t -width 60 -height 4 -font {Monospace 10} -yscrollcommand ".tclcmd.t.yscroll set"
   scrollbar .tclcmd.t.yscroll -command  ".tclcmd.t.t yview"
 
   frame .tclcmd.r
-  text .tclcmd.r.r -width 60 -height 5 -font {Monospace 12} -yscrollcommand ".tclcmd.r.yscroll set"
+  text .tclcmd.r.r -width 60 -height 5 -font {Monospace 10} -yscrollcommand ".tclcmd.r.yscroll set"
   scrollbar .tclcmd.r.yscroll -command  ".tclcmd.r.r yview"
 
   .tclcmd.p add .tclcmd.t .tclcmd.r
