@@ -665,7 +665,8 @@ proc to_eng {args} {
 }
 
 proc = {args} {
-  ev7 $args
+  set r [ev7 $args]
+  puts $r
 }
 
 ## evaluate expression with 7 significant digits.
@@ -6268,9 +6269,11 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
 # will redefine puts to output into tclcmd_puts
 proc redef_puts {} {
   global tclcmd_puts
+  set tclcmd_puts {}
   if ![llength [info command ::tcl::puts]] {
     rename puts ::tcl::puts
     proc puts args {
+      global tclcmd_puts
       set la [llength $args]
       if {$la<1 || $la>3} {
         error "usage: puts ?-nonewline? ?channel? string"
@@ -6360,6 +6363,9 @@ proc tclcmd {} {
   button .tclcmd.b.ok -text Evaluate -command {tclcmd_ok_button}
   # bind .tclcmd.t <Shift-KeyPress-Return> { .tclcmd.b.ok invoke }
   bind .tclcmd.t.t <Shift-KeyRelease-Return> {return_release %W; .tclcmd.b.ok invoke }
+  bind .tclcmd.t.t <Shift-Delete> {
+    .tclcmd.r.r delete 1.0 end
+  }
   bind .tclcmd <Escape> {.tclcmd.b.close invoke}
   pack .tclcmd.txtlab -side top -fill x
   pack .tclcmd.b -side bottom -fill x
