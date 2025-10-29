@@ -1450,7 +1450,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'new_process' is given start a new xschem process
    if 'nodraw' is given do not draw loaded schematic
    returns '1' if a new schematic was opened, 0 otherwise </pre>
-   <li><kbd>       search regex|exact select tok val [match_case]</kbd></li><pre>
+   <li><kbd>       search regex|exact select tok val [no_match_case] [nodraw]</kbd></li><pre>
    Search instances / wires / rects / texts with attribute string containing 'tok'
    and value 'val'
    search can be exact ('exact') or as a regular expression ('regex')
@@ -1466,11 +1466,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        cell::name : will search for 'val' in the symbol name
        cell::&lt;attr&gt; will search for 'val' in symbol attribute 'attr'
          example: xschem search regex 0 cell::template GAIN=100
-    match_case:
-      1 : Match case
-      0 : Do not match case
-      If not given assume 1 (Match case)</pre>
-   <li><kbd>       select instance|wire|text id [clear] [fast]</kbd></li><pre>
+    if 'no_match_case' is specified do not consider case sensitivity in search
+    if 'nodraw' is specified do not draw search result</pre>
+   <li><kbd>       select instance|wire|text id [clear] [fast] [nodraw]</kbd></li><pre>
        select rect|line|poly|arc layer id [clear] [fast]
        Select indicated instance or wire or text, or
        Select indicated (layer, number) rectangle, line, polygon, arc.
@@ -1478,7 +1476,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        for all other objects 'id' is the position in the respective arrays
        if 'clear' is specified does an unselect operation
        if 'fast' is specified avoid sending information to infowindow and status bar
-       if 'nodraw' is given on select instance do not draw selection
+       if 'nodraw' is given do not draw selection
        returns 1 if something selected, 0 otherwise </pre>
    <li><kbd>       select_all</kbd></li><pre>
    Selects all objects in schematic </pre>

@@ -902,7 +902,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
   /*my_strncpy(s,xctx->wire[i].prop_ptr!=NULL?xctx->wire[i].prop_ptr:"<NULL>",256); */
   if(!strboolcmp(get_tok_value(xctx->wire[i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
-  if( !fast )
+  if(!(fast & 1))
   {
     my_snprintf(str, S(str), "Info: selected wire: n=%d end1=%d end2=%d\nnode=%s",i,
            xctx->wire[i].end1, xctx->wire[i].end2,
@@ -925,16 +925,22 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
   if( xctx->wire[i].sel == SELECTED) set_first_sel(WIRE, i, 0);
   if(select_mode) {
    dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2);
-   if(xctx->wire[i].bus)
-     drawtempline(xctx->gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
-   else
-     drawtempline(xctx->gc[SELLAYER], ADD, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+   if(xctx->wire[i].bus) {
+     if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+                       xctx->wire[i].x2, xctx->wire[i].y2);
+   } else {
+     if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], ADD, xctx->wire[i].x1, xctx->wire[i].y1,
+                       xctx->wire[i].x2, xctx->wire[i].y2);
+   }
   }
   else {
-   if(xctx->wire[i].bus)
-     drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
-   else
-     drawtempline(xctx->gctiled, NOW, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
+   if(xctx->wire[i].bus) {
+     if(!(fast & 2)) drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
+                       xctx->wire[i].x2, xctx->wire[i].y2);
+   } else {
+     if(!(fast & 2)) drawtempline(xctx->gctiled, NOW, xctx->wire[i].x1, xctx->wire[i].y1,
+                       xctx->wire[i].x2, xctx->wire[i].y2);
+   }
   }
   xctx->need_reb_sel_arr=1;
 }
@@ -1061,6 +1067,10 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   xctx->need_reb_sel_arr=1;
 }
 
+/* fast == 1: do not update status line
+ * fast == 2: do not draw / undraw selected elements
+ * fast == 3: 1 + 2
+ */
 void select_text(int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
@@ -1070,7 +1080,7 @@ void select_text(int i, unsigned short select_mode, int fast, int override_lock)
   #endif
   if(!strboolcmp(get_tok_value(xctx->text[i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
-  if(!fast) {
+  if(!(fast & 1)) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
     my_snprintf(str, S(str), "Info: selected text %d: properties: %s", i,s);
     statusmsg(str,3);
@@ -1084,12 +1094,12 @@ void select_text(int i, unsigned short select_mode, int fast, int override_lock)
   #endif
   if(select_mode) {
     set_first_sel(xTEXT, i, 0);
-    draw_temp_string(xctx->gc[SELLAYER],ADD, get_text_floater(i),
+    if(!(fast & 2)) draw_temp_string(xctx->gc[SELLAYER],ADD, get_text_floater(i),
       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
       xctx->text[i].x0, xctx->text[i].y0,
       xctx->text[i].xscale, xctx->text[i].yscale);
   } else {
-    draw_temp_string(xctx->gctiled,NOW, get_text_floater(i),
+    if(!(fast & 2)) draw_temp_string(xctx->gctiled,NOW, get_text_floater(i),
       xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
       xctx->text[i].x0, xctx->text[i].y0,
       xctx->text[i].xscale, xctx->text[i].yscale);
@@ -1102,6 +1112,10 @@ void select_text(int i, unsigned short select_mode, int fast, int override_lock)
   xctx->need_reb_sel_arr=1;
 }
 
+/* fast == 1: do not update status line
+ * fast == 2: do not draw / undraw selected elements
+ * fast == 3: 1 + 2
+ */
 void select_box(int c, int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
@@ -1109,7 +1123,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
 
   if(!strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
-  if(!fast)
+  if(!(fast & 1))
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected box : layer=%d, n=%d properties: %s",c-4,i,s);
@@ -1130,11 +1144,11 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
     } else {
       xctx->rect[c][i].sel |= select_mode;
     }
-    drawtemprect(xctx->gc[SELLAYER], ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+    if(!(fast & 2)) drawtemprect(xctx->gc[SELLAYER], ADD, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                     xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   } else {
     xctx->rect[c][i].sel = 0;
-    drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,   
+    if(!(fast & 2)) drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,   
                                xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   }
   if( xctx->rect[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->rect[c][i].sel = SELECTED;
@@ -1144,11 +1158,15 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
 
 
 
+/* fast == 1: do not update status line
+ * fast == 2: do not draw / undraw selected elements
+ * fast == 3: 1 + 2
+ */
 void select_arc(int c, int i, unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];   /* overflow safe */
   char s[256];    /* overflow safe */
-  if(!fast)
+  if(!(fast & 1))
   {
    my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
@@ -1161,11 +1179,11 @@ void select_arc(int c, int i, unsigned short select_mode, int fast, int override
   }
   if(select_mode) {
     xctx->arc[c][i].sel = select_mode;
-    drawtemparc(xctx->gc[SELLAYER], ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
+   if(!(fast & 2))  drawtemparc(xctx->gc[SELLAYER], ADD, xctx->arc[c][i].x, xctx->arc[c][i].y,
                               xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   } else {
     xctx->arc[c][i].sel = 0;
-    drawtemparc(xctx->gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
+    if(!(fast & 2)) drawtemparc(xctx->gctiled, NOW, xctx->arc[c][i].x, xctx->arc[c][i].y,
                               xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
   }
   if(xctx->arc[c][i].sel == SELECTED) set_first_sel(ARC, i, c);
@@ -1182,7 +1200,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast, int over
 
   if(!strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
-  if(!fast)
+  if(!(fast & 1) )
   {
    my_strncpy(s,xctx->poly[c][i].prop_ptr!=NULL?xctx->poly[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected polygon: layer=%d, n=%d properties: %s",c-4,i,s);
@@ -1195,11 +1213,11 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast, int over
   bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
-    drawtemppolygon(xctx->gc[SELLAYER], NOW,
+    if(!(fast & 2)) drawtemppolygon(xctx->gc[SELLAYER], NOW,
        xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, bezier);
   }
   else {
-    drawtemppolygon(xctx->gctiled, NOW,
+    if(!(fast & 2)) drawtemppolygon(xctx->gctiled, NOW,
        xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, bezier);
   }
   if(xctx->poly[c][i].sel == SELECTED) set_first_sel(POLYGON, i, c);
@@ -1213,7 +1231,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
 
   if(!strboolcmp(get_tok_value(xctx->line[c][i].prop_ptr, "lock", 0), "true") &&
       select_mode == SELECTED && !override_lock) return;
-  if(!fast)
+  if(!(fast & 1) )
   {
    my_strncpy(s,xctx->line[c][i].prop_ptr!=NULL?xctx->line[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected line: layer=%d, n=%d properties: %s",c-4,i,s);
@@ -1234,20 +1252,22 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
   }
   if(xctx->line[c][i].sel == SELECTED) set_first_sel(LINE, i, c);
   if(select_mode) {
-   if(xctx->line[c][i].bus)
-     drawtempline(xctx->gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+   if(xctx->line[c][i].bus) {
+     if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                        xctx->line[c][i].x2, xctx->line[c][i].y2);
-   else
-     drawtempline(xctx->gc[SELLAYER], ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
+   } else {
+     if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], ADD, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                      xctx->line[c][i].x2, xctx->line[c][i].y2);
+   }
   }
   else {
-    if(xctx->line[c][i].bus)
-      drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
+    if(xctx->line[c][i].bus) {
+      if(!(fast & 2)) drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                  xctx->line[c][i].x2, xctx->line[c][i].y2);
-    else
-      drawtempline(xctx->gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
+    } else {
+      if(!(fast & 2)) drawtempline(xctx->gctiled, NOW, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                  xctx->line[c][i].x2, xctx->line[c][i].y2);
+    }
   }
   xctx->need_reb_sel_arr=1;
 }

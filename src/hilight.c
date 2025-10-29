@@ -772,7 +772,7 @@ int win_regexec(const char *options, const char *pattern, const char *name)
  *       0 : regex search
  *       1 : exact search
  */
-int search(const char *tok, const char *val, int sub, int sel, int match_case)
+int search(const char *tok, const char *val, int sub, int sel, int match_case, int dr)
 {
  int save_draw;
  int i,c, col = 7,tmp,bus=0;
@@ -1060,11 +1060,11 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case)
  if(found) {
   if(tclgetboolvar("incr_hilight")) incr_hilight_color();
    if(sel == -1) {
-     draw();
+     if(dr) draw();
    }
    if(sel) {
      rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
-     draw_selection(xctx->gc[SELLAYER], 0);
+     if(dr) draw_selection(xctx->gc[SELLAYER], 0);
    }
    else redraw_hilights(0);
  }

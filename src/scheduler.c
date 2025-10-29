@@ -5104,7 +5104,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
 
-    /* search regex|exact select tok val [match_case]
+    /* search regex|exact select tok val [no_match_case] [nodraw]
      *   Search instances / wires / rects / texts with attribute string containing 'tok'
      *   and value 'val'
      *   search can be exact ('exact') or as a regular expression ('regex')
@@ -5120,10 +5120,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *       cell::name : will search for 'val' in the symbol name
      *       cell::<attr> will search for 'val' in symbol attribute 'attr'
      *         example: xschem search regex 0 cell::template GAIN=100
-     *    match_case:
-     *      1 : Match case
-     *      0 : Do not match case
-     *      If not given assume 1 (Match case)
+     *    if 'no_match_case' is specified do not consider case sensitivity in search
+     *    if 'nodraw' is specified do not draw search result
      */
     else if(!strcmp(argv[1], "search") || !strcmp(argv[1], "searchmenu"))
     {
@@ -5132,16 +5130,23 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       /* xschem search regex|exact 0|1|-1   tok val [match_case] */
       int select, r;
       int match_case = 1;
+      int draw = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 6 && argv[6][0] == '0') match_case = 0;
+      if(argc > 6) {
+        int i;
+        for(i = 0; i < argc; i++) {
+          if(!strcmp(argv[i], "no_match_case")) match_case = 0;
+          if(!strcmp(argv[i], "nodraw")) draw = 0;
+        }
+      }
       if(argc < 6) {
         Tcl_SetResult(interp, "xschem search requires 4 or 5 additional fields.", TCL_STATIC);
         return TCL_ERROR;
       }
       if(argc > 5) {
         select = atoi(argv[3]);
-        if(!strcmp(argv[2], "regex") )  r = search(argv[4],argv[5],0,select, match_case);
-        else  r = search(argv[4],argv[5],1,select, match_case);
+        if(!strcmp(argv[2], "regex") )  r = search(argv[4],argv[5],0,select, match_case, draw);
+        else  r = search(argv[4],argv[5],1,select, match_case, draw);
         if(r == 0) {
           if(has_x && !strcmp(argv[1], "searchmenu"))
             tcleval("tk_messageBox -type ok -parent [xschem get topwindow] -message {Not found.}");
@@ -5153,7 +5158,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* select instance|wire|text id [clear] [fast]
+    /* select instance|wire|text id [clear] [fast] [nodraw]
      * select rect|line|poly|arc layer id [clear] [fast]
      * Select indicated instance or wire or text, or
      * Select indicated (layer, number) rectangle, line, polygon, arc.
@@ -5161,7 +5166,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * for all other objects 'id' is the position in the respective arrays
      * if 'clear' is specified does an unselect operation
      * if 'fast' is specified avoid sending information to infowindow and status bar
-     * if 'nodraw' is given on select instance do not draw selection
+     * if 'nodraw' is given do not draw selection
      * returns 1 if something selected, 0 otherwise */
     else if(!strcmp(argv[1], "select"))
     {
@@ -5184,7 +5189,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
        for(i = 4; i < argc; i++) {
          if(!strcmp(argv[i], "clear")) sel = 0;
          if(!strcmp(argv[i], "fast")) fast |= 1;
-         if(!strcmp(argv[i], "nodraw") && !strcmp(argv[2], "instance")) fast |= 2;
+         if(!strcmp(argv[i], "nodraw")) fast |= 2;
        }
       }
       if(!strcmp(argv[2], "instance") && argc > 3) {

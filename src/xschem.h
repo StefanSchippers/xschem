@@ -1342,7 +1342,7 @@ extern Hilight_hashentry *inst_hilight_hash_lookup(int i, int value, int what);
 /* wrapper to bus_hilight_hash_lookup that provides a signal path instead of using xctx->sch_path */
 extern Hilight_hashentry *hier_hilight_hash_lookup(const char *token, int value, const char *path, int what);
 extern Hilight_hashentry *hilight_lookup(const char *token, int value, int what);
-extern int search(const char *tok, const char *val, int sub, int sel, int match_case);
+extern int search(const char *tok, const char *val, int sub, int sel, int match_case, int dr);
 extern int process_options(int argc, char **argv);
 extern void calc_drawing_bbox(xRect *boundbox, int selected);
 extern int ps_draw(int what, int fullzoom, int eps);
