@@ -1503,7 +1503,7 @@ extern int storeobject(int pos, double x1,double y1,double x2,double y2,
 extern void store_poly(int pos, double *x, double *y, int points,
            unsigned int rectcolor, unsigned short sel, char *prop_ptr);
 extern void store_arc(int pos, double x, double y, double r, double a, double b,
-               unsigned int rectcolor, unsigned short sel, char *prop_ptr);
+               unsigned int rectcolor, unsigned short sel, const char *prop_ptr);
 
 extern void hier_psprint(char **res, int what);
 extern int global_spice_netlist(int global, int alert);

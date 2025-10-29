@@ -582,9 +582,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    The optional 'level' integer specifies the hierarchy level the raw file refers to.
    This is necessary if annotate_op is called from a sub schematic at a hierarchy
    level &gt; 0 but simulation was done at top level (hierarchy 0, for example)</pre>
-   <li><kbd>       arc</kbd></li><pre>
-   Start a GUI placement of an arc.
-   User should click 3 unaligned points to define the arc </pre>
+   <li><kbd>       arc [x y r a b layer prop]</kbd></li><pre>
+   if arguments are given (center x and y, radius r, start angle a, end angle b, layer number)
+   place specified arc, otherwise start a GUI placement of an arc.
+   For GUI placement user should click 3 unaligned points to define the arc </pre>
    <li><kbd>       attach_labels [interactive]</kbd></li><pre>
    Attach net labels to selected component(s) instance(s)
    Optional integer 'interactive' (default: 0) is passed to attach_labels_to_inst().

@@ -130,7 +130,7 @@ void check_polygon_storage(int c)
 }
 
 void store_arc(int pos, double x, double y, double r, double a, double b,
-               unsigned int rectc, unsigned short sel, char *prop_ptr)
+               unsigned int rectc, unsigned short sel, const char *prop_ptr)
 {
   int n, j;
   const char *dash, *fill_ptr;

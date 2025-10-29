@@ -367,14 +367,37 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* arc
-     *   Start a GUI placement of an arc.
-     *   User should click 3 unaligned points to define the arc */
+    /* arc [x y r a b layer prop]
+     *   if arguments are given (center x and y, radius r, start angle a, end angle b, layer number)
+     *   place specified arc, otherwise start a GUI placement of an arc.
+     *   For GUI placement user should click 3 unaligned points to define the arc */
     else if(!strcmp(argv[1], "arc"))
     {
+      const char *prop = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->ui_state |= MENUSTART;
-      xctx->ui_state2 = MENUSTARTARC;
+      if(argc > 8) {
+        prop = argv[8];
+      }
+      if(argc > 7) {
+        double x = atof(argv[2]);
+        double y = atof(argv[3]);
+        double r = atof(argv[4]);
+        double a = atof(argv[5]);
+        double b = atof(argv[6]);
+        int layer = atoi(argv[7]);
+
+        if(layer >= 0 && layer < cadlayers) {
+          store_arc(-1, x, y, r, a, b, layer, 0, prop);
+          set_modify(1);
+          Tcl_SetResult(interp, "1", TCL_STATIC);
+        } else {
+          Tcl_SetResult(interp, "0", TCL_STATIC);
+        }
+      } else {
+        xctx->ui_state |= MENUSTART;
+        xctx->ui_state2 = MENUSTARTARC;
+        Tcl_SetResult(interp, "1", TCL_STATIC);
+      }
     }
 
     /* attach_labels [interactive]
