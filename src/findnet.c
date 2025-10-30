@@ -351,9 +351,19 @@ static void find_closest_arc(double mx, double my, int override_lock)
     dist *= dist; /* square d */
     angle = fmod(atan2(xctx->arc[c][i].y-my, mx-xctx->arc[c][i].x)*180./XSCH_PI, 360.);
     if(angle<0.) angle +=360.;
-    angle1 = xctx->arc[c][i].a;
-    angle2 = fmod(xctx->arc[c][i].a + xctx->arc[c][i].b, 360.);
-
+      angle1 = xctx->arc[c][i].a;
+      angle2 = fmod(xctx->arc[c][i].a + xctx->arc[c][i].b, 360.);
+    if(xctx->arc[c][i].b < 0) {
+      angle1 = fmod(xctx->arc[c][i].a + xctx->arc[c][i].b, 360.);
+      if(angle1 < 0.) angle1 += 360.;
+      angle2 = fmod(xctx->arc[c][i].a, 360.);
+      if(angle2 < 0.) angle2 += 360.;
+    } else {
+      angle1 = fmod(xctx->arc[c][i].a, 360.);
+      if(angle1 < 0.) angle1 += 360.;
+      angle2 = fmod(xctx->arc[c][i].a + xctx->arc[c][i].b, 360.);
+      if(angle2 < 0.) angle2 += 360.;
+    }
     match=0;
     if(dist < d) {
       if(xctx->arc[c][i].b==360.) match=1;
@@ -367,7 +377,7 @@ static void find_closest_arc(double mx, double my, int override_lock)
         }
       }
     }
-    dbg(1, "find_closest_arc(): dist = %g, angle = %g\n", dist, angle);
+    dbg(1, "find_closest_arc(): dist = %g, angle = %g, angle1=%g, angle2=%g\n", dist, angle, angle1, angle2);
     dbg(1, "find_closest_arc(): center=%g, %g: mouse: %g:%g\n",
                              xctx->arc[c][i].x, xctx->arc[c][i].y, mx, my);
     if(match ) {
