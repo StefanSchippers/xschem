@@ -1934,19 +1934,13 @@ void arc_bbox(double x, double y, double r, double a, double b,
     *by2 = y+r;
     return;
   }
-
   if(b < 0.) {
-    double aa = a;
-    a = fmod(aa + b, 360.);
-    if(a < 0)  a +=  360.;
-    b = fmod(aa, 360.);
-    if(b < 0) b += 360.;
-  } else {
-    b = fmod(a + b, 360.);
-    if(b < 0)  b += 360.;
-    a = fmod(a, 360.);
-    if(a < 0) a += 360.;
+    double aaa = a;
+    a = aaa + b;
+    b = -b;
   }
+  a = fmod(a, 360.);
+  if(a<0) a+=360.;
   aa = (int)(ceil(a/90.))*90;
   bb = (int)(floor((a+b)/90.))*90;
 
