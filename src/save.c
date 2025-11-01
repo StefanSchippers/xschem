@@ -1548,11 +1548,15 @@ int table_read(const char *f)
       prev_prev_empty = prev_empty = 0;
       line_ptr = line;
       field = 0;
-      #ifdef __unix__
-      while( (line_tok = strtok_r(line_ptr, ", \t\n", &line_save)) ) {
-      #else
-      while( (line_tok = my_strtok_r(line_ptr, ", \t\n", "", 0, &line_save)) ) {
-      #endif
+      /*
+       * #ifdef __unix__
+       * while( (line_tok = strtok_r(line_ptr, ", \t\n", &line_save)) ) {
+       * #else
+       */
+      while( (line_tok = my_strtok_r(line_ptr, ", \t\n", "\"", 0, &line_save)) ) {
+      /*
+       * #endif
+       */
         line_ptr = NULL;
         /* dbg(1,"%s ", line_tok); */
         if(nline == 0) { /* header line */

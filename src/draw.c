@@ -2759,7 +2759,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
               if(gr->logx) xx = mylog10(gv[p]);
               else xx = gv[p];
               if(p == ofs) xx0 = gv0[p];
-              wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
+              wrap = xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
               if(wrap) {
                  sweepvar_wrap++;
                  cnt = 0;
@@ -3788,7 +3788,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         xx = gv[p];
 
       if(p == ofs) xx0 = gv0[p];
-      wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
+      wrap = xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
       if(first != -1) {                      /* there is something to plot ... */
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
@@ -3933,7 +3933,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
           if(gr->logy) yy = mylog10(gvy[p]);
           else  yy = gvy[p];
           if(p == ofs) xx0 = gv0[p];
-          wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
+          wrap = xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
               dbg(1, "find_closest_wave(): last=%d\n", last);
@@ -4256,7 +4256,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
              * are simulated and thos no equality test can be done, and any "approx equal" test si going
              * to do unexpected things (liek in simulations with very dense steps) */
             if(p == ofs) xx0 = gv0[p]; /* gv[p];*/
-            wrap = !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
+            wrap = xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
             #if 1 /* plot one point before start and one point after end so
                    * waves will extend to whole graph area even if there are few points
                    * but NOT if we are about to wrap (missing 1st/last point in 2-var dc sweeps) */
