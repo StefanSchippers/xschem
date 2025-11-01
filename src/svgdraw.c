@@ -237,6 +237,10 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
  double xx1, yy1, xx2, yy2;
  int fs, fa;
 
+  if(b < 0.0) {
+    a = a + b;
+    b = -b;
+  }
   xx=X_TO_SCREEN(x);
   yy=Y_TO_SCREEN(y);
   rr=r*xctx->mooz;

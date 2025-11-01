@@ -606,6 +606,11 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
  double x1, y1, x2, y2;
  double psdash;
 
+  if(b < 0.0) {
+    a = a + b;
+    b = -b;
+  }
+
   xx=X_TO_PS(x);
   yy=Y_TO_PS(y);
   rr=r*xctx->mooz;
