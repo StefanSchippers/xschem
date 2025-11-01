@@ -6175,7 +6175,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         /* free_rawfile(&xctx->raw, 0, 0); */
         table_read(f);
+         
         if(sch_waves_loaded() >= 0) {
+          my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, "table");
           draw();
         }
       }
