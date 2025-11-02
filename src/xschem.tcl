@@ -5397,14 +5397,14 @@ proc file_chooser_saveas {} {
     if {[file isdirectory $f]} {return} 
     if {[xschem get modified]} { ;# modified
       if {[xschem get schname] eq $f} { ;# file name not changed
-        xschem saveas $f
+        xschem saveas 
         .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       } else { ;# file name changed
         set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
-        xschem saveas $f
+        xschem saveas 
         .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       }
@@ -5415,7 +5415,7 @@ proc file_chooser_saveas {} {
         set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
-        xschem saveas $f
+        xschem saveas
         .ins.top2.save configure -bg [option get . background {}]
         file_chooser_filelist
       }
@@ -5522,6 +5522,8 @@ proc file_chooser {} {
     -readonlybackground [option get . background {}] -takefocus 0
 
   button .ins.top2.save  -takefocus 0 -text {Save current window} -command {
+    set file_chooser(regex) {}
+    file_chooser_select [xschem get schname]
     file_chooser_saveas
   }
   button .ins.top2.delete  -takefocus 0 -text {Delete} -command {

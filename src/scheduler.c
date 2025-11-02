@@ -3089,7 +3089,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int skip = 0;
           dbg(1, "scheduler(): load: filename=%s\n", f);
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
-          if(!force && f[0] && check_loaded(f, win_path) ) {
+          if(!force && f[0] && check_loaded(f, win_path) &&
+              xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -3173,7 +3174,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(f[0]) {
            char win_path[WINDOW_PATH_SIZE];
            dbg(1, "f=%s\n", f);
-           if(check_loaded(f, win_path)) {
+           if(check_loaded(f, win_path) && xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
              char msg[PATH_MAX + 100];
              my_snprintf(msg, S(msg),
                 "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "

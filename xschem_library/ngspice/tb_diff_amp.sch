@@ -94,11 +94,12 @@ T {This symbol is described by a diff_amp.va Verilog-A file} 100 -920 0 0 0.4 0.
 N 180 -450 320 -450 {lab=B}
 N 80 -530 320 -530 {lab=A}
 N 520 -490 640 -490 {lab=Z}
-N 60 -290 180 -290 {lab=0}
+N 80 -290 180 -290 {lab=0}
 N 180 -330 180 -290 {lab=0}
 N 80 -330 80 -290 {lab=0}
 N 80 -530 80 -390 {lab=A}
 N 180 -450 180 -390 {lab=B}
+N 60 -290 80 -290 {lab=0}
 C {lab_pin.sym} 640 -490 0 1 {name=p1 sig_type=std_logic lab=Z}
 C {lab_pin.sym} 80 -530 0 0 {name=p2 sig_type=std_logic lab=A}
 C {lab_pin.sym} 180 -450 0 0 {name=p3 sig_type=std_logic lab=B}

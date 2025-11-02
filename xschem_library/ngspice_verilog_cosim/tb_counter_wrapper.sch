@@ -8,8 +8,8 @@ E {}
 B 2 600 -930 1340 -590 {flags=graph
 y1=0
 y2=2
-ypos1=0.12703394
-ypos2=1.7910429
+ypos1=-0.021063888
+ypos2=2.0015494
 divy=5
 subdivy=1
 unity=1
@@ -61,7 +61,7 @@ Analog nodes can be plotted and saved
 in raw file.} 880 -400 0 0 0.3 0.3 {layer=7}
 N 70 -230 70 -210 {lab=CLK}
 N 410 -430 460 -430 {lab=CLK}
-N 600 -430 860 -430 {bus=1 lab=count_out[3..0]}
+N 820 -430 860 -430 {bus=1 lab=count_out[3..0]}
 N 820 -430 820 -390 {lab=count_out[3..0]}
 N 1210 -150 1210 -130 {lab=SUM}
 N 790 -150 1210 -150 {lab=SUM}
@@ -69,6 +69,7 @@ N 790 -240 790 -210 {lab=count_out3}
 N 910 -240 910 -210 {lab=count_out2}
 N 1030 -240 1030 -210 {lab=count_out1}
 N 1150 -240 1150 -210 {lab=count_out0}
+N 600 -430 820 -430 {bus=1 lab=count_out[3..0]}
 C {vsource.sym} 70 -180 0 0 {name=VCLOCK value="pulse 0 'VDD' 49995p 10p 10p 49990p 100n"}
 C {lab_pin.sym} 70 -150 0 0 {name=p6 lab=0}
 C {lab_pin.sym} 70 -230 0 0 {name=p13 lab=CLK}

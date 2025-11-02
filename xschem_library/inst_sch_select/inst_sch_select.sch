@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 1240 -590 2040 -80 {flags=graph
 y1=0
@@ -149,7 +150,8 @@ schematic=comp3_pex2
 spice_sym_def="tcleval(.include [abs_sym_path comp3_pex2.cir])"
 
 verilog_sym_def="verilog stuff"
-vhdl_sym_def="vhdl stuff"}
+vhdl_sym_def="vhdl stuff"
+tclcommand="textwindow [abs_sym_path comp3_pex2.cir]"}
 C {comp3.sym} 480 -580 0 0 {name=x5
 schematic=comp3_empty.sch}
 C {comp3.sym} 480 -290 0 0 {name=x6
