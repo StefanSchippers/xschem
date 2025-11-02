@@ -70,7 +70,9 @@ logx=0
 logy=0
 hilight_wave=-1
 color="4 7"
-node="plus minus"}
+node="plus
+minus"}
+B 3 670 -620 1200 -200 {fill=0 dash=5}
 T {Default instance:
 Uses comp3.sch} 320 -960 0 0 0.4 0.4 { layer=7}
 T {Alternate instance:
@@ -102,9 +104,10 @@ referenced by a
 in spice_sym_def
 No schematic used} 10 -500 0 0 0.4 0.4 { layer=10}
 T {Symbol based
-implementation selection.} 650 -530 2 1 0.8 0.8 {}
-T {The 'spice_sym_def ' attribute is defined inside the
-symbol, this applies to all placements of this symbol} 640 -510 0 0 0.4 0.4 { layer=4 slant=oblique}
+implementation selection.} 710 -530 2 1 0.6 0.6 {}
+T {The 'spice_sym_def ' attribute is defined
+inside the symbol, this applies to all
+placements of this symbol} 690 -510 0 0 0.4 0.4 { layer=4 slant=oblique}
 T {In all cases where an external netlist file
 is provided either directly or by a .include
 line xschem will adapt port order of instances

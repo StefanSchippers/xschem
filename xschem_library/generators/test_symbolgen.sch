@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 20 -380 660 -110 {flags=graph
 y1=0
@@ -62,11 +63,9 @@ that takes a 'buf' or 'inv'
 argument.} 830 -830 0 0 0.5 0.5 {}
 T {Click on symbol with Control key
 pressed to see the generator script} 900 -620 0 0 0.3 0.3 {}
-N 30 -560 30 -520 {
+N 30 -560 30 -460 {
 lab=IN}
 N 30 -560 110 -560 {
-lab=IN}
-N 30 -520 30 -460 {
 lab=IN}
 N 30 -460 110 -460 {
 lab=IN}
@@ -80,11 +79,9 @@ N 1000 -560 1120 -560 {
 lab=IN_BUF2}
 N 620 -470 620 -440 {
 lab=VCC}
-N 840 -560 840 -520 {
+N 840 -560 840 -460 {
 lab=IN}
 N 840 -560 920 -560 {
-lab=IN}
-N 840 -520 840 -460 {
 lab=IN}
 N 840 -460 920 -460 {
 lab=IN}
