@@ -1159,11 +1159,13 @@ void toggle_fullscreen(const char *topwin)
     }
     tclvareval("pack forget ", xctx->top_path, ".tabs", NULL);
     tclvareval("pack forget ", xctx->top_path, ".statusbar", NULL);
+    tclvareval(xctx->top_path[0] ? xctx->top_path : ".", " configure -menu {}", NULL);
     xctx->menu_removed |= 1; /* menu_removed bit 0 == 1: other bars were removed */
   } else if(xctx->menu_removed) { /* bars were removed so pack them back */
     tclvareval("pack forget ", xctx->top_path, ".drw", NULL);
     tclvareval("pack ", xctx->top_path, ".statusbar  -side bottom -fill x", NULL);
     tclvareval("pack ", xctx->top_path, ".drw  -side right -fill both -expand true", NULL);
+    tclvareval(xctx->top_path[0] ? xctx->top_path : ".", " configure -menu .menubar", NULL);
     if(tclgetboolvar("tabbed_interface")) {
       tclvareval("pack_tabs", NULL);
     }
