@@ -1134,6 +1134,7 @@ void toggle_fullscreen(const char *topwin)
   Window *framewin_child_ptr;
   unsigned int framewindow_nchildren;
   int fs;
+  char *toplevel = (xctx->top_path[0] ? xctx->top_path : ".");
 
   dbg(1, "toggle_fullscreen(): topwin=%s\n", topwin);
   if(!strcmp(topwin, ".drw")) {
@@ -1159,13 +1160,13 @@ void toggle_fullscreen(const char *topwin)
     }
     tclvareval("pack forget ", xctx->top_path, ".tabs", NULL);
     tclvareval("pack forget ", xctx->top_path, ".statusbar", NULL);
-    tclvareval(xctx->top_path[0] ? xctx->top_path : ".", " configure -menu {}", NULL);
+    tclvareval(toplevel, " configure -menu {}", NULL);
     xctx->menu_removed |= 1; /* menu_removed bit 0 == 1: other bars were removed */
   } else if(xctx->menu_removed) { /* bars were removed so pack them back */
     tclvareval("pack forget ", xctx->top_path, ".drw", NULL);
     tclvareval("pack ", xctx->top_path, ".statusbar  -side bottom -fill x", NULL);
     tclvareval("pack ", xctx->top_path, ".drw  -side right -fill both -expand true", NULL);
-    tclvareval(xctx->top_path[0] ? xctx->top_path : ".", " configure -menu .menubar", NULL);
+    tclvareval(toplevel, " configure -menu .menubar", NULL);
     if(tclgetboolvar("tabbed_interface")) {
       tclvareval("pack_tabs", NULL);
     }
@@ -1697,6 +1698,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   save_xctx[n] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
   if(has_x) xctx->window = win_id;
+  xctx->menu_removed = save_xctx[0]->menu_removed;
   xctx->lw = save_lw; /* preserve line width on new tabs*/
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
@@ -1815,6 +1817,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   save_xctx[i] = xctx;
   dbg(1, "new_schematic() draw, load schematic\n");
   xctx->window = save_xctx[0]->window;
+  xctx->menu_removed = save_xctx[0]->menu_removed;
   xctx->lw = save_lw; /* preserve line width on new tabs*/
   set_snap(0); /* set default value specified in xschemrc as 'snap' else CADSNAP */
   set_grid(0); /* set default value specified in xschemrc as 'grid' else CADGRID */
