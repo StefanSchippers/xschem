@@ -1572,6 +1572,7 @@ static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
 static int switch_tab(int *window_count, const char *win_path, int dr)
 {        
   int n;
+  int save_menu_removed, save_fullscreen, save_toolbar_visible;
   const char *new_path = win_path;
   dbg(1, "switch_tab(): win_path=%s\n", win_path);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
@@ -1602,9 +1603,20 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
       }
       dbg(1, "switch_tab(): previous_win_path=%s\n", previous_win_path);
       tclvareval("save_ctx ", xctx->current_win_path, NULL);
+      /* xctx->menu_removed should be unique for all tabs in tabbed interface */
+      /* same for tcl vars fullscreen and toolbar_visible */
+      save_menu_removed =  xctx->menu_removed;
+      save_fullscreen = tclgetintvar("fullscreen");
+      save_toolbar_visible = tclgetintvar("toolbar_visible");
+
       xctx = save_xctx[n];
       tclvareval("restore_ctx ", new_path, NULL);
       tclvareval("housekeeping_ctx", NULL);
+
+      xctx->menu_removed = save_menu_removed;
+      tclsetintvar("fullscreen", save_fullscreen);
+      tclsetintvar("toolbar_visible", save_toolbar_visible);
+
       if(has_x) tclvareval("reconfigure_layers_button {}", NULL);
       xctx->window = save_xctx[0]->window;
       if(dr) resetwin(1, 1, 1, 0, 0);

@@ -35,6 +35,7 @@ install: FORCE
 	$(SCCBOX) install -f -d pcb/*.sym "$(XDOCDIR)"/pcb
 	$(SCCBOX) install -f -d ngspice/*.sym "$(XDOCDIR)"/ngspice
 	$(SCCBOX) install -f -d ngspice/*.sch "$(XDOCDIR)"/ngspice
+	$(SCCBOX) install -f -d ngspice/*.va "$(XDOCDIR)"/ngspice
 	$(SCCBOX) install -f -d ngspice/stimuli.* "$(XDOCDIR)"/ngspice
 	$(SCCBOX) install -f -d rom8k/*.sym "$(XDOCDIR)"/rom8k
 	$(SCCBOX) install -f -d rom8k/*.sch "$(XDOCDIR)"/rom8k
