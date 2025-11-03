@@ -10552,6 +10552,7 @@ proc cleanup_paths {paths} {
   foreach i $paths {
     regsub {^~$} $i ${env(HOME)} i
     regsub {^~/} $i ${env(HOME)}/ i
+    regsub -all {/+} $i {/} i
     if {![string compare $i .]} {
       # ...
     } elseif { [regexp {^#} $i] } {
