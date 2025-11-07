@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>3.10</ProductVersion>
+    <ProductVersion>3.14</ProductVersion>
     <ProjectGuid>91fbaa21-56d3-42e7-a3e8-df92c89cd027</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>XSchem</OutputName>
@@ -47,15 +47,15 @@
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
-    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+    <Error Text="The WiX Toolset v3.14 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see https://github.com/wixtoolset/wix3/releases/" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent />
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>C:\"Program Files (x86)"\"WiX Toolset v3.11"\bin\heat.exe dir "..\..\..\..\doc"  -dr INSTALLFOLDER -cg doc -gg -sfrag -var "var.docSrcDir" -out $(ProjectDir)heat_doc.wxs
-C:\"Program Files (x86)"\"WiX Toolset v3.11"\bin\heat.exe dir "..\..\..\..\xschem_library" -dr INSTALLFOLDER -cg xschem_library -gg -sfrag -var "var.xschemLibrarySrcDir" -out $(ProjectDir)heat_xschem_library.wxs
-curl.exe --output $(ProjectDir)..\..\doc\xschem_man\xschem_manual.pdf --url https://xschem.sourceforge.io/stefan/xschem_man/xschem_man.pdf</PreBuildEvent>
+    <PreBuildEvent>"$(WIX)bin\heat.exe" dir "..\..\..\..\doc"  -dr INSTALLFOLDER -cg doc -gg -sfrag -var "var.docSrcDir" -out "$(ProjectDir)heat_doc.wxs"
+"$(WIX)bin\heat.exe" dir "..\..\..\..\xschem_library" -dr INSTALLFOLDER -cg xschem_library -gg -sfrag -var "var.xschemLibrarySrcDir" -out "$(ProjectDir)heat_xschem_library.wxs"
+curl.exe --output "$(ProjectDir)..\..\doc\xschem_man\xschem_manual.pdf" --url https://xschem.sourceforge.io/stefan/xschem_man/xschem_man.pdf</PreBuildEvent>
   </PropertyGroup>
   <!--
 	To modify your build process, add your task inside one of the targets below and uncomment it.

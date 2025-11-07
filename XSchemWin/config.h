@@ -30,3 +30,5 @@
 
 /* Unneeded in Windows build, but specified here to be consistent with Linux */
 /* #define FIX_BROKEN_TILED_FILL 1 */
+
+#define XSCHEM_LIBRARY_PATH { "C:/" }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.7" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
+	<Product Id="*" Name="Xschem" Language="1033" Version="3.4.8" Manufacturer="Xschem" UpgradeCode="0deb9c17-cbbd-491c-be3e-24446b27ccd5">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 		<WixVariable Id="WixUILicenseRtf"
 					 Value="License.rtf" />
@@ -94,14 +94,21 @@
 			</Component>
 		</ComponentGroup>
 		<Property Id='ACTIVE_TCL_VERSION'>
-			<RegistrySearch Id='ActiveTCL_version'
+			<RegistrySearch Id='ActiveTCL_version_wow64'
 							Root='HKLM'
 							Key='SOFTWARE\WOW6432Node\ActiveState\ActiveTcl'
 							Name='CurrentVersion'
 							Type='raw' />
 		</Property>
+		<Property Id='ACTIVE_TCL_VERSION_64'>
+			<RegistrySearch Id='ActiveTCL_version_64bit'
+							Root='HKLM'
+							Key='SOFTWARE\ActiveState\ActiveTcl'
+							Name='CurrentVersion'
+							Type='raw' />
+		</Property>
 		<Condition Message='ActiveTcl v8.6 must be installed'>
-			<![CDATA[Installed or ACTIVE_TCL_VERSION >= "8.6"]]>
+			<![CDATA[Installed or ACTIVE_TCL_VERSION >= "8.6" or ACTIVE_TCL_VERSION_64 >= "8.6"]]>
 		</Condition>
 
 		<InstallExecuteSequence>
