@@ -6179,17 +6179,22 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   if { $wm_fix } { tkwait visibility .dialog }
   wm geometry .dialog "${enter_text_default_geometry}+$X+$Y"
   frame .dialog.f1
+  frame .dialog.f2
   label .dialog.f1.txtlab -text $textlabel
-  eval text .dialog.txt -undo 1 -width 120 -height 9 $text_tabs_setting
-  .dialog.txt delete 1.0 end
-  .dialog.txt insert 1.0 $tctx::retval
+  eval text .dialog.f2.txt -undo 1 -width 90 -height 9 $text_tabs_setting -yscrollcommand \".dialog.f2.yscroll set\"
+  scrollbar .dialog.f2.yscroll -command  ".dialog.f2.txt yview"
+
+  .dialog.f2.txt delete 1.0 end
+  .dialog.f2.txt insert 1.0 $tctx::retval
   checkbutton .dialog.f1.l1 -text "preserve unchanged props" -variable preserve_unchanged_attrs \
      -state $preserve_disabled
   pack .dialog.f1 -side top -fill x ;# -expand yes
+  pack .dialog.f2 -side top -fill both -expand yes
   pack .dialog.f1.l1 -side left
   pack .dialog.f1.txtlab -side left -expand yes -fill x
 
-  pack .dialog.txt -side top -fill  both -expand yes
+  pack .dialog.f2.txt -side left -fill both -expand yes
+  pack .dialog.f2.yscroll -side left -expand no -fill y
   frame .dialog.edit
   frame .dialog.edit.hsize
   frame .dialog.edit.vsize
@@ -6222,7 +6227,7 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   button .dialog.buttons.ok -text "OK" -command  \
   {
    set props [.dialog.edit.props.props get 1.0 {end - 1 chars}]
-   set tctx::retval [.dialog.txt get 1.0 {end - 1 chars}]
+   set tctx::retval [.dialog.f2.txt get 1.0 {end - 1 chars}]
    if {$has_cairo} { 
      set tctx::hsize $tctx::vsize
    }
@@ -6242,12 +6247,12 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
     set a [tk_getOpenFile -parent .dialog -initialdir $INITIALTEXTDIR ]
     if [string compare $a ""] {
      set INITIALTEXTDIR [file dirname $a]
-     read_data_window  .dialog.txt  $a
+     read_data_window  .dialog.f2.txt  $a
     }
   }
   button .dialog.buttons.b4 -text "Del" -command \
   {
-    .dialog.txt delete 1.0 end
+    .dialog.f2.txt delete 1.0 end
   }
   pack .dialog.buttons.ok  -side left -fill x -expand yes
   pack .dialog.buttons.cancel  -side left -fill x -expand yes
@@ -6255,14 +6260,14 @@ proc enter_text {textlabel {preserve_disabled disabled}} {
   pack .dialog.buttons.b4  -side left -fill x -expand yes
   pack .dialog.buttons -side bottom -fill x
   bind .dialog <Escape> {
-    if ![string compare $tctx::retval [.dialog.txt get 1.0 {end - 1 chars}]] {
+    if ![string compare $tctx::retval [.dialog.f2.txt get 1.0 {end - 1 chars}]] {
       .dialog.buttons.cancel invoke
     }
   }
-  bind .dialog.txt <Shift-KeyRelease-Return> {return_release %W; .dialog.buttons.ok invoke}
-  .dialog.txt tag add sel 1.0 {end - 1 chars}
-  .dialog.txt mark set insert 1.0
-  focus .dialog.txt
+  bind .dialog.f2.txt <Shift-KeyRelease-Return> {return_release %W; .dialog.buttons.ok invoke}
+  .dialog.f2.txt tag add sel 1.0 {end - 1 chars}
+  .dialog.f2.txt mark set insert 1.0
+  focus .dialog.f2.txt
   #grab set .dialog
   tkwait window .dialog
   return $tctx::retval
