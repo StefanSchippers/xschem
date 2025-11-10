@@ -6315,9 +6315,20 @@ proc tclcmd_ok_button {} {
   set tclcmd_txt [.tclcmd.t.t get 1.0 end]
   regsub -all -line {^ *= *} $tclcmd_txt {= } tclcmd_txt
   redef_puts 
-  catch {uplevel #0 $tclcmd_txt} tclcmd_puts
+  catch {uplevel #0 $tclcmd_txt} tclcmd_cmd
   rename puts {}
   rename ::tcl::puts puts
+  if {$tclcmd_cmd ne {}} {
+    if {$tclcmd_puts ne {}} {
+      if {[string index $tclcmd_puts end] != "\n"} {
+        append tclcmd_puts \n $tclcmd_cmd
+      } else {
+        append tclcmd_puts $tclcmd_cmd
+      }
+    } else {
+      set tclcmd_puts $tclcmd_cmd
+    }
+  }
   if {$tclcmd_puts != {} && [string index $tclcmd_puts end] != "\n"} {
     append tclcmd_puts "\n"
   }
