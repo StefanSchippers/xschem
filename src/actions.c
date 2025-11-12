@@ -114,6 +114,7 @@ const char *get_text_floater(int i)
       instname = get_tok_value(xctx->text[i].prop_ptr, "name", 0);
       if(!xctx->tok_size) {
         instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
+        if(xctx->tok_size && !strboolcmp(instname, "true")) instname = "true";
       }
     }
     inst = get_instance(instname);
@@ -940,7 +941,10 @@ int set_text_flags(xText *t)
       t->flags |= strboolcmp(str, "true")  ? 0 : HIDE_TEXT;
     }
     str = get_tok_value(t->prop_ptr, "name", 0);
-    if(!xctx->tok_size) str = get_tok_value(t->prop_ptr, "floater", 0);
+    if(!xctx->tok_size) {
+      str = get_tok_value(t->prop_ptr, "floater", 0);
+      if(xctx->tok_size && !strboolcmp(str, "true")) str = "true";
+    }
     t->flags |= xctx->tok_size ? TEXT_FLOATER : 0;
     my_strdup2(_ALLOC_ID_, &t->floater_instname, str);
   }
@@ -2290,6 +2294,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
       if(strcmp(tclresult(), "yes") ) fallback = 0; /* 'no' or 'cancel' */
        if(!strcmp(tclresult(), "") ) { /* 'cancel' */
          cancel = 1;
+         my_strncpy(filename,"", PATH_MAX);
        }
     }
   }

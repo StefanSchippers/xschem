@@ -5203,10 +5203,15 @@ const char *translate(int inst, const char* s)
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
         /* add nothing */
-      } else if(inst >= 0) {
-        value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
-        if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
-          value=get_tok_value(xctx->sym[xctx->inst[inst].ptr].templ, token+1, 0);
+      } else {
+        if(inst >= 0) {
+          value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+          if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
+            value=get_tok_value(xctx->sym[xctx->inst[inst].ptr].templ, token+1, 0);
+          }
+        } else {
+          xctx->tok_size = 1;
+          value = token + 1;
         }
         if(!xctx->tok_size) { /* above lines did not find a value for token */
           if(token[0] =='%') {
@@ -5285,7 +5290,7 @@ const char *translate(int inst, const char* s)
    * can be calculated */
   my_strdup2(_ALLOC_ID_, &result, spice_get_node(tcl_hook2(result)));
   
-  if(is_expr(result)) {
+  if(is_expr(result) && inst >= 0) {
     dbg(1, "translate(): expr():%s\n", result);
     my_strdup2(_ALLOC_ID_, &result, eval_expr(
        translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
