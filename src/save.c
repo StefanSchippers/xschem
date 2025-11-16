@@ -1747,34 +1747,36 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define INTEG 18
 #define AVG 19
 #define DERIV 20
-#define EXCH 21
-#define DUP 22
-#define RAVG 23 /* running average */
-#define DB20 24
-#define DERIV0 25 /* derivative to first sweep variable, regardless of specified sweep_idx */
-#define PREV 26 /* previous point */
-#define DEL 27 /* delay by an anount of sweep axis distance */
-#define MAX 28 /* clip data above given argument */
-#define MIN 29 /* clip data below given argument */
-#define ATAN 30
-#define ASIN 31
-#define ACOS 32
-#define COSH 33
-#define SINH 34
-#define ATANH 35
-#define ACOSH 36
-#define ASINH 37
-#define IDX 38 /* index of point in raw file (0, 1, 2, ...) */
-#define REAL 39
-#define IMAG 40
-#define GT 41 /* greater than */
-#define LT 42 /* greater than */
-#define EQ 43
-#define NE 44
-#define GE 45
-#define LE 46
-#define COND 47 /* conditional expression: X cond Y ? --> X if conf == 1 else Y */
-#define CPH 48 /* continuous phase. Instead of -180..+180 avoid discontinuities */
+#define DERIV2 21 /* 3 point deriv */
+#define EXCH 22
+#define DUP 23
+#define RAVG 24 /* running average */
+#define DB20 25
+#define DERIV0 26 /* derivative to first sweep variable, regardless of specified sweep_idx */
+#define DERIV20 27 /* 3 point derivative to first sweep variable, regardless of specified sweep_idx */
+#define PREV 28 /* previous point */
+#define DEL 29 /* delay by an anount of sweep axis distance */
+#define MAX 30 /* clip data above given argument */
+#define MIN 31 /* clip data below given argument */
+#define ATAN 32
+#define ASIN 33
+#define ACOS 34
+#define COSH 35
+#define SINH 36
+#define ATANH 37
+#define ACOSH 38
+#define ASINH 39
+#define IDX 40 /* index of point in raw file (0, 1, 2, ...) */
+#define REAL 41
+#define IMAG 42
+#define GT 43 /* greater than */
+#define LT 44 /* greater than */
+#define EQ 45
+#define NE 46
+#define GE 47
+#define LE 48
+#define COND 49 /* conditional expression: X cond Y ? --> X if conf == 1 else Y */
+#define CPH 50 /* continuous phase. Instead of -180..+180 avoid discontinuities */
 
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -1881,7 +1883,17 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       if(first > 0) first--;
     }
     else if(!strcmp(n, "deriv0()")) {
-      stack1[stackptr1++].i = DERIV0;
+      stack1[stackptr1++].i = DERIV0; /* derivative calculation to first sweep var */
+      if(first > 0) first--;
+      if(first > 0) first--;
+    }
+    else if(!strcmp(n, "deriv2()")) { /* 3 point derivative calculation */
+      stack1[stackptr1++].i = DERIV2;
+      if(first > 0) first--;
+      if(first > 0) first--;
+    }
+    else if(!strcmp(n, "deriv20()")) { /* 3 point derivative calculation to first sweep var */
+      stack1[stackptr1++].i = DERIV20;
       if(first > 0) first--;
       if(first > 0) first--;
     }
@@ -2086,7 +2098,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             }
             stack2[stackptr2 - 1] =  result;
             break;
-          #if ORDER_DERIV==1
           case DERIV: 
             if( p == first ) {
               result = 0;
@@ -2117,8 +2128,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             }
             stack2[stackptr2 - 1] =  result;
             break;
-          #else /* second order backward differentiation formulas */
-          case DERIV:
+          case DERIV2:
             if( p == first ) {
               result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
@@ -2150,7 +2160,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             }
             stack2[stackptr2 - 1] =  result;
             break;
-          case DERIV0:
+          case DERIV20:
             if( p == first ) {
               result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
@@ -2182,7 +2192,6 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             }
             stack2[stackptr2 - 1] =  result;
             break;
-          #endif
           case PREV:
             if(p == first) {
               result = stack2[stackptr2 - 1];
