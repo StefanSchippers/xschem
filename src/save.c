@@ -1140,12 +1140,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
         ) break;
     }
 
-    for(i = 0; i < xctx->extra_raw_n; i++) {
-      if( !strcmp(xctx->extra_raw_arr[i]->rawfile, name) &&
-          !strcmp(xctx->extra_raw_arr[i]->sim_type, type)
-        ) break;
-    } 
-    if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
+    if(i >= xctx->extra_raw_n) { /* file not already loaded: create it and switch to it */
       double t;
 
       xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
@@ -1188,6 +1183,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       xctx->extra_prev_idx = xctx->extra_idx;
       xctx->extra_idx = i; 
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
+      ret = 0;
     }
   } else {
     ret = 0;
