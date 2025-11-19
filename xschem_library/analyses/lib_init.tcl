@@ -226,12 +226,10 @@ proc netlister {netlist_type} {
         try {
             # Format analysis and post analysis script
             set retval [$func $name]
-            if {[llength $retval] == 2} {
-                lassign $retval cmd postcmd
-            } else {
-                set cmd $retval
-                set postcmd ""
-            }
+            # retval has 2 members: 
+            # - command and 
+            # - post-command (for writing results in ngpice, empty string for spectre)
+            lassign $retval cmd postcmd
             # Format sweep and add it to analysis
             set swcmd [format_sweep_chain_$netlist_type $name $cmd types]
             # Wrap (swept) analysis and post analysis script in a block
@@ -335,12 +333,12 @@ proc format_verbatim_spectre {name} {
     if { !$dump } {
         return ""
     }
-    return [format_args $name [list verbatim NV]]
+    return [list [format_args $name [list verbatim NV]] ""]
 }
 
 proc format_analysis_op_spectre {name} {
     set args [format_args $name [list nodeset N store N write N]]
-    return "analysis $name op [parenthesize $args]"
+    return [list "analysis $name op [parenthesize $args]" ""]
 }
 
 proc format_analysis_dc1d_spectre {name} {
@@ -349,12 +347,12 @@ proc format_analysis_dc1d_spectre {name} {
     set anstr "analysis $name op [parenthesize $args]"
     # 1D sweep formatting
     set swp [format_single_sweep_spectre $name]
-    return "$swp\n  $anstr"
+    return [list "$swp\n  $anstr" ""]
 }
 
 proc format_analysis_dcinc_spectre {name} {
     set args [format_args $name [list nodeset N store N write N writeop N]]
-    return "analysis $name dcinc [parenthesize $args]"
+    return [list "analysis $name dcinc [parenthesize $args]" ""]
 }
 
 proc format_signal_output_spectre {name} {
@@ -371,20 +369,20 @@ proc format_signal_output_spectre {name} {
 proc format_analysis_dcxf_spectre {name} {
     set args "out=[format_signal_output_spectre $name] "
     append args [format_args $name [list nodeset N store N write N writeop N]]
-    return "analysis $name dcxf [parenthesize $args]"
+    return [list "analysis $name dcxf [parenthesize $args]" ""]
 }
 
 proc format_analysis_ac_spectre {name} {
     set args "[format_sweep_spectre_range $name] "
     append args [format_args $name [list nodeset N store N write N writeop N]]
-    return "analysis $name ac [parenthesize $args]"
+    return [list "analysis $name ac [parenthesize $args]" ""]
 }
 
 proc format_analysis_acxf_spectre {name} {
     set args "out=[format_signal_output_spectre $name] "
     append args "[format_sweep_spectre_range $name] "
     append args [format_args $name [list nodeset N store N write N writeop N]]
-    return "analysis $name acxf [parenthesize $args]"
+    return [list "analysis $name acxf [parenthesize $args]" ""]
 }
 
 proc format_analysis_noise_spectre {name} {
@@ -392,17 +390,17 @@ proc format_analysis_noise_spectre {name} {
     append args "[format_args $name [list in N]] "
     append args "[format_sweep_spectre_range $name] "
     append args [format_args $name [list nodeset N store N write N writeop N]]
-    return "analysis $name noise [parenthesize $args]"
+    return [list "analysis $name noise [parenthesize $args]" ""]
 }
 
 proc format_analysis_tran_spectre {name} {
     set args [format_args $name [list step N stop N start N maxstep N icmode N nodeset N ic N store N write N]]
-    return "analysis $name tran [parenthesize $args]"
+    return [list "analysis $name tran [parenthesize $args]" ""]
 }
 
 proc format_analysis_hb_spectre {name} {
     set args [format_args $name [list freq N nharm N immax N truncate N samplefac N nper N sample N harmonic N imorder N nodeset N store N write N]]
-    return "analysis $name hb [parenthesize $args]"
+    return [list "analysis $name hb [parenthesize $args]" ""]
 }
 
 proc format_postprocess_spectre {name} {
