@@ -4,6 +4,7 @@ This library makes it possible to set up simulations in a way similar to that in
 
 Each block displays only those attributes that are specified (i.e. the string length is>0). Netlisting is triggered by the `command_block.sym` block. In order for the netlister to generate the control block you have to place it in the schematic exactly once. In order for netlisting and symbol rendering to work you have to source the `analyses.init.tcl` script at Xschem startup by adding the following line to xschemrc. 
 ```
+append XSCHEM_LIBRARY_PATH :/usr/local/share/doc/xschem/analyses
 append postinit_commands {
   foreach i $pathlist {
     if {![catch {source $i/lib_init.tcl} retval]} {
