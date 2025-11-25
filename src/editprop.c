@@ -1316,7 +1316,6 @@ static int edit_polygon_property(void)
      c = xctx->sel_array[ii].col;
 
      oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     /* oldbus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0)); */
      oldbus = xctx->poly[c][i].bus;
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
