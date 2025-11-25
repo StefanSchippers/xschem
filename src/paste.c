@@ -231,7 +231,7 @@ static void merge_polygon(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     select_polygon(c,i, SELECTED, 1, 1);
     xctx->polygons[c]++;
 }

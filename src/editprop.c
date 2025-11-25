@@ -1186,14 +1186,13 @@ static int edit_wire_property(void)
       } else {
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("tctx::retval"));
       }
-      bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
+      xctx->wire[k].bus = bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
       if(bus) {
         double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
         else { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
         bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
-        xctx->wire[k].bus=1;
       } else {
         if(oldbus){
           double ov, y1, y2;
@@ -1201,7 +1200,6 @@ static int edit_wire_property(void)
           if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
           else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
           bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
-          xctx->wire[k].bus=0;
         }
       }
     }
@@ -1291,7 +1289,7 @@ static int edit_polygon_property(void)
   int oldbezier, bezier;
   int k;
   double x1=0., y1=0., x2=0., y2=0.;
-  int c, i, ii, old_dash, old_bus, bus;
+  int c, i, ii, old_dash, oldbus, bus;
   int drw = 0;
   char *oldprop = NULL;
   const char *dash;
@@ -1318,7 +1316,8 @@ static int edit_polygon_property(void)
      c = xctx->sel_array[ii].col;
 
      oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     old_bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
+     /* oldbus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0)); */
+     oldbus = xctx->poly[c][i].bus;
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
      } else {
@@ -1327,7 +1326,7 @@ static int edit_polygon_property(void)
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
-     bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
+     xctx->poly[c][i].bus = bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
@@ -1343,7 +1342,7 @@ static int edit_polygon_property(void)
      } else
        xctx->poly[c][i].dash = 0;
      if(old_fill != xctx->poly[c][i].fill || old_dash != xctx->poly[c][i].dash ||
-        oldbezier != bezier || old_bus != bus) {
+        oldbezier != bezier || oldbus != bus) {
        if(!drw) {
          bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;

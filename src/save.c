@@ -2924,6 +2924,7 @@ static void load_polygon(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     xctx->polygons[c]++;
 }
 
@@ -4520,7 +4521,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           pp[c][i].dash = 0;
   
         pp[c][i].sel = 0;
-  
+        pp[c][i].bus = get_attr_val(get_tok_value(pp[c][i].prop_ptr,"bus", 0));
         dbg(2, "l_s_d(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
         lastp[c]++;
         break;

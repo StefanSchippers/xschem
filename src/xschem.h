@@ -519,6 +519,7 @@ typedef struct
   char *prop_ptr;
   short fill;
   short dash;
+  int bus;
 } xPoly;
 
 typedef struct

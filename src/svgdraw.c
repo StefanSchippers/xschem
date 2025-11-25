@@ -714,9 +714,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     for(j=0;j< symptr->polygons[layer]; ++j) {
       int dash;
       int bezier;
-      int bus;
       polygon =&(symptr->poly[layer])[j];
-      bus = get_attr_val(get_tok_value(polygon->prop_ptr, "bus", 0));
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       dash = (disabled == 1) ? 3 : polygon->dash;
       { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
@@ -728,7 +726,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
           x[k]+= x0;
           y[k] += y0;
         }
-        svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, bus);
+        svg_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, polygon->bus);
         my_free(_ALLOC_ID_, &x);
         my_free(_ALLOC_ID_, &y);
       }
@@ -1076,9 +1074,8 @@ void svg_draw(void)
    }
    for(i=0;i<xctx->polygons[c]; ++i) {
      int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
-     int bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr, "bus", 0));
      svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-                     xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, bus);
+                     xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, xctx->poly[c][i].bus);
    }
    for(i=0;i<xctx->instances; ++i) {
      svg_draw_symbol(c,i,c,0,0,0.0,0.0);

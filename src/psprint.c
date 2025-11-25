@@ -1033,10 +1033,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     {
       int dash;
       int bezier;
-      int bus;
       polygon = &(symptr->poly[layer])[j];
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
-      bus = get_attr_val(get_tok_value(polygon->prop_ptr, "bus", 0));
       dash = (disabled == 1) ? 3 : polygon->dash;
       {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
         int k;
@@ -1047,7 +1045,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
           x[k]+= x0;
           y[k] += y0;
         }
-        ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, bus);
+        ps_drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, bezier, polygon->bus);
         my_free(_ALLOC_ID_, &x);
         my_free(_ALLOC_ID_, &y);
       }
@@ -1481,9 +1479,8 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
-        int bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr, "bus", 0));
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
-          xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, bus);
+          xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, xctx->poly[c][i].bus);
       }
       dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
     } /* for(c=0;c<cadlayers; ++c) */
