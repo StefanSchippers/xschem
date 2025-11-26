@@ -11103,7 +11103,6 @@ set_ne case_insensitive 0
 
 ## New alternate load file browser (default: not enabled).
 set_ne new_file_browser 0
-set_ne new_file_browser_paths {} ;# if empty use xschem search paths
 set_ne new_file_browser_depth 0 ;# depth to descend into each dir of the search paths
 set_ne new_file_browser_ext {\.(sch|sym|tcl)$} ;# file extensions (a regex) to look for
 
