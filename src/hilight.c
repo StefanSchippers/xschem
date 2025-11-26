@@ -2226,7 +2226,7 @@ void draw_hilight_net(int on_window)
      if(i >= xctx->wires) break;
    }
    if( (entry = bus_hilight_hash_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
-     if(xctx->wire[i].bus)
+     if(xctx->wire[i].bus == -1.0)
        drawline(get_color(entry->value), THICK,
           xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
      else

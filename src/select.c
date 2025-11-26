@@ -795,7 +795,7 @@ void unselect_all(int dr)
       xctx->wire[i].sel = 0;
       {
         if(dr) {
-          if(xctx->wire[i].bus)
+          if(xctx->wire[i].bus == -1.0)
             drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
                                                xctx->wire[i].x2, xctx->wire[i].y2);
           else
@@ -861,7 +861,7 @@ void unselect_all(int dr)
       {
        xctx->line[c][i].sel = 0;
        if(dr) {
-         if(xctx->line[c][i].bus)
+         if(xctx->line[c][i].bus == -1.0)
            drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                         xctx->line[c][i].x2, xctx->line[c][i].y2);
          else
@@ -926,7 +926,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
   if( xctx->wire[i].sel == SELECTED) set_first_sel(WIRE, i, 0);
   if(select_mode) {
    dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2);
-   if(xctx->wire[i].bus) {
+   if(xctx->wire[i].bus == -1.0) {
      if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1,
                        xctx->wire[i].x2, xctx->wire[i].y2);
    } else {
@@ -935,7 +935,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
    }
   }
   else {
-   if(xctx->wire[i].bus) {
+   if(xctx->wire[i].bus == -1.0) {
      if(!(fast & 2)) drawtempline(xctx->gctiled, THICK, xctx->wire[i].x1, xctx->wire[i].y1,
                        xctx->wire[i].x2, xctx->wire[i].y2);
    } else {
@@ -1253,7 +1253,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
   }
   if(xctx->line[c][i].sel == SELECTED) set_first_sel(LINE, i, c);
   if(select_mode) {
-   if(xctx->line[c][i].bus) {
+   if(xctx->line[c][i].bus == -1.0) {
      if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                        xctx->line[c][i].x2, xctx->line[c][i].y2);
    } else {
@@ -1262,7 +1262,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
    }
   }
   else {
-    if(xctx->line[c][i].bus) {
+    if(xctx->line[c][i].bus == -1.0) {
       if(!(fast & 2)) drawtempline(xctx->gctiled, THICK, xctx->line[c][i].x1, xctx->line[c][i].y1,
                                  xctx->line[c][i].x2, xctx->line[c][i].y2);
     } else {

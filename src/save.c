@@ -1904,7 +1904,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "exch()")) stack1[stackptr1++].i = EXCH;
     else if(!strcmp(n, "dup()")) stack1[stackptr1++].i = DUP;
     else if(!strcmp(n, "idx()")) stack1[stackptr1++].i = IDX;
-    else if( (strtod(n, &endptr)), endptr > n) { /* NUMBER */
+    else if( (strtod(n, &endptr), endptr) > n) { /* NUMBER */
       stack1[stackptr1].i = NUMBER;
       stack1[stackptr1++].d = atof_spice(n);
     }
@@ -2812,7 +2812,7 @@ static void load_wire(FILE *fd)
     }
     ptr[i].prop_ptr = NULL;
     ptr[i].end1 = ptr[i].end2 = ptr[i].sel = 0;
-    ptr[i].bus = 0;
+    ptr[i].bus = 0.0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
     ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));

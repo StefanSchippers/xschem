@@ -521,7 +521,7 @@ static void ps_drawbezier(double *x, double *y, int points)
 /* Convex Nonconvex Complex */
 #define Polygontype Nonconvex
 static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
-                           int poly_fill, int dash, int flags, int bus)
+                           int poly_fill, int dash, int flags, double bus)
 {
   double x1,y1,x2,y2;
   double xx, yy;
@@ -539,7 +539,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
   if(dash) {
     fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
   }
-  if(bus) set_lw(BUS_WIDTH * xctx->lw);
+  if(bus == -1.0) set_lw(BUS_WIDTH * xctx->lw);
   bezier = flags && (points > 2);
   if(bezier) {
     ps_drawbezier(x, y, points);
@@ -559,7 +559,7 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
   if(dash) {
     fprintf(fd, "[] 0 setdash\n");
   }
-  if(bus) set_lw(xctx->lw);
+  if(bus == -1.0) set_lw(xctx->lw);
 }
 
 
@@ -634,7 +634,7 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
 }
 
 
-static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash, int bus)
+static void ps_drawline(int gc, double linex1,double liney1,double linex2,double liney2, int dash, double bus)
 {
  double x1,y1,x2,y2;
  double psdash;
@@ -647,10 +647,10 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
   {
     psdash = dash / xctx->zoom;
     if(dash) fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
-    if(bus) set_lw(xctx->lw * BUS_WIDTH);
+    if(bus == -1.0) set_lw(xctx->lw * BUS_WIDTH);
     ps_xdrawline(gc, x1, y1, x2, y2);
     if(dash) fprintf(fd, "[] 0 setdash\n");
-    if(bus) set_lw(xctx->lw);
+    if(bus == -1.0) set_lw(xctx->lw);
   }
 }
 

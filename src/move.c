@@ -382,7 +382,7 @@ void draw_selection(GC g, int interruptable)
       double x2 = xctx->rx2 + xctx->deltax;
       double y2 = xctx->ry2 + xctx->deltay;
       dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
-      if(xctx->wire[n].bus) {
+      if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
       } else {
         drawtemp_manhattanline(g, ADD, x1, y1, x2, y2, 1);
@@ -395,7 +395,7 @@ void draw_selection(GC g, int interruptable)
       double x2 = xctx->rx2;
       double y2 = xctx->ry2;
       dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
-      if(xctx->wire[n].bus) {
+      if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x2, y2, x1, y1, 1);
       } else {
         drawtemp_manhattanline(g, ADD, x2, y2, x1, y1, 1);
@@ -408,7 +408,7 @@ void draw_selection(GC g, int interruptable)
       double x2 = xctx->rx2 + xctx->deltax;
       double y2 = xctx->ry2 + xctx->deltay;
       dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
-      if(xctx->wire[n].bus) {
+      if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
       } else {
         drawtemp_manhattanline(g, ADD, x1, y1, x2, y2, 1);
@@ -430,7 +430,7 @@ void draw_selection(GC g, int interruptable)
      ORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
      if(xctx->line[c][n].sel==SELECTED)
      {
-       if(xctx->line[c][n].bus)
+       if(xctx->line[c][n].bus == -1.0)
          drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                 xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
        else
@@ -439,14 +439,14 @@ void draw_selection(GC g, int interruptable)
      }
      else if(xctx->line[c][n].sel==SELECTED1)
      {
-       if(xctx->line[c][n].bus)
+       if(xctx->line[c][n].bus == -1.0)
          drawtempline(g, THICK, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
        else
          drawtempline(g, ADD, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay, xctx->rx2, xctx->ry2);
      }
      else if(xctx->line[c][n].sel==SELECTED2)
      {
-       if(xctx->line[c][n].bus)
+       if(xctx->line[c][n].bus == -1.0)
          drawtempline(g, THICK, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);
        else
          drawtempline(g, ADD, xctx->rx1, xctx->ry1, xctx->rx2+xctx->deltax, xctx->ry2+xctx->deltay);

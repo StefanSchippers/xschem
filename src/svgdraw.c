@@ -42,11 +42,11 @@ static void svg_restore_lw(void)
    svg_linew = (xctx->lw <= 0.01 ? 0.2 : xctx->lw) * 1.2;
 }
 
-static void svg_xdrawline(int layer, int bus, double x1, double y1, double x2, double y2, int dash)
+static void svg_xdrawline(int layer, double bus, double x1, double y1, double x2, double y2, int dash)
 {
  fprintf(fd,"<path class=\"l%d\" ", layer);
  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
- if(bus) fprintf(fd, "style=\"stroke-width:%g;\" ", BUS_WIDTH * svg_linew);
+ if(bus == -1.0) fprintf(fd, "style=\"stroke-width:%g;\" ", BUS_WIDTH * svg_linew);
  fprintf(fd,"d=\"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
 }
 
@@ -119,7 +119,7 @@ static void svg_drawbezier(double *x, double *y, int points)
 }
 
 static void svg_drawpolygon(int c, int what, double *x, double *y, int points,
-                            int fill, int dash, int flags, int bus)
+                            int fill, int dash, int flags, double bus)
 {
   double x1,y1,x2,y2;
   double xx, yy;
@@ -134,8 +134,8 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points,
   }
   fprintf(fd, "<path class=\"l%d\" ", c);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 1.4*dash/xctx->zoom, 1.4*dash/xctx->zoom);
-  if(bus || fill == 0 || fill == 2) {
-    if(bus) fprintf(fd, "style=\"stroke-width:%g; ", BUS_WIDTH * svg_linew);
+  if(bus == -1.0 || fill == 0 || fill == 2) {
+    if(bus == -1.0) fprintf(fd, "style=\"stroke-width:%g; ", BUS_WIDTH * svg_linew);
     else    fprintf(fd, "style=\"");
     if(fill == 0) {
       fprintf(fd,"fill:none;\" ");
@@ -282,7 +282,7 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
   }
 }
 
-static void svg_drawline(int gc, int bus, double linex1,double liney1,double linex2,double liney2, int dash)
+static void svg_drawline(int gc, double bus, double linex1,double liney1,double linex2,double liney2, int dash)
 {
  double x1,y1,x2,y2;
 

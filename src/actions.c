@@ -2812,7 +2812,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
      if(!xctx->hilight_nets || !xctx->wire[i].node || 
        !xctx->wire[i].node[0] || !bus_hilight_hash_lookup(xctx->wire[i].node, 0,XLOOKUP)) continue;
    }
-   if(xctx->wire[i].bus){
+   if(xctx->wire[i].bus == -1.0){
      ov = INT_BUS_WIDTH(xctx->lw)> xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
      if(xctx->wire[i].y1 < xctx->wire[i].y2) { y1 = xctx->wire[i].y1-ov; y2 = xctx->wire[i].y2+ov; }
      else                        { y1 = xctx->wire[i].y1+ov; y2 = xctx->wire[i].y2-ov; }

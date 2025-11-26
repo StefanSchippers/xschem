@@ -79,23 +79,27 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
   return tolower(*s1) - tolower(*s2);
 }
 
-/* if s is an integer return integer value
- * else if s == (true | on | yes) return 1
- * else if s == (false | off | no) return 0
- * else return 0
+/* if s is an double return double value
+ * else if s == ( 1 | true | on | yes) return -1.0
+ * else if s == (false | off | no) return 0.0
+ * else return 0.0
  */
-int get_attr_val(const char *str)
+double get_attr_val(const char *str)
 {  
-  int s = 0;
-  if(isonlydigit(str)) {
-    s = atoi(str);
-  }
+  double s = 0.0;
+  char *endptr;
+
+  if(!str) return 0.0;
   else if(!my_strcasecmp(str, "true") ||
+     !my_strcasecmp(str, "1") ||
      !my_strcasecmp(str, "on") ||
-     !my_strcasecmp(str, "yes")) s = 1;
+     !my_strcasecmp(str, "yes")) s = -1.0;
   else if(!my_strcasecmp(str, "false") ||
      !my_strcasecmp(str, "off") ||
-     !my_strcasecmp(str, "no")) s = 0;
+     !my_strcasecmp(str, "no")) s = 0.0;
+  else if((strtod(str, &endptr), endptr) > str) { /* NUMBER */
+    s = atof(str);
+  }
 
   return s;
 } 
@@ -1156,7 +1160,7 @@ static int edit_wire_property(void)
   int i, modified = 0;
   int preserve;
   char *oldprop=NULL;
-  int bus;
+  double bus;
 
   my_strdup(_ALLOC_ID_, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
@@ -1173,7 +1177,7 @@ static int edit_wire_property(void)
     xctx->push_undo();
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
-      int oldbus=0;
+      double oldbus=0.0;
       int k = xctx->sel_array[i].n;
       if(xctx->sel_array[i].type != WIRE) continue;
       /* does not seem to be necessary */
@@ -1187,7 +1191,7 @@ static int edit_wire_property(void)
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("tctx::retval"));
       }
       xctx->wire[k].bus = bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
-      if(bus) {
+      if(bus == -1.0) {
         double ov, y1, y2;
         ov = INT_BUS_WIDTH(xctx->lw) > xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
         if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
@@ -1288,8 +1292,8 @@ static int edit_polygon_property(void)
   int old_fill;
   int oldbezier, bezier;
   int k;
-  double x1=0., y1=0., x2=0., y2=0.;
-  int c, i, ii, old_dash, oldbus, bus;
+  double x1=0., y1=0., x2=0., y2=0., oldbus = 0.0, bus = 0.0;
+  int c, i, ii, old_dash;
   int drw = 0;
   char *oldprop = NULL;
   const char *dash;
