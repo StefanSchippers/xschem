@@ -215,9 +215,10 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
   if( strcmp(dash, "") ) {
     int d = atoi(dash);
     xctx->poly[rectc][n].dash = (char) (d >= 0 ? d : 0);
-  } else
+  } else {
     xctx->poly[rectc][n].dash = 0;
-
+  }
+  xctx->poly[rectc][n].bus = get_attr_val(get_tok_value(xctx->poly[rectc][n].prop_ptr,"bus",0));
 
   xctx->polygons[rectc]++;
 }

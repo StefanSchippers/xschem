@@ -742,9 +742,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     {
       int dash;
       int bezier;
-      int bus;
       polygon = &(symptr->poly[layer])[j];
-      bus = (polygon->bus == -1.0) ? THICK : NOW;
       bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
       dash = (disabled == 1) ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -754,7 +752,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         x[k]+= x0;
         y[k] += y0;
       }
-      drawpolygon(c, bus, x, y, polygon->points, polygon->fill, dash, bezier); /* added fill */
+      drawpolygon(c, NOW, x, y, polygon->points, polygon->fill, dash, polygon->bus, bezier); /* added fill */
       my_free(_ALLOC_ID_, &x);
       my_free(_ALLOC_ID_, &y);
     }
@@ -2053,15 +2051,21 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
 
 /* Unused 'what' parameter used in spice data draw_graph() 
  * to avoid unnecessary clipping (what = 0) */
-void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, int flags)
+void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, double bus, int flags)
 {
   double x1,y1,x2,y2;
   int fill, bezier;
   XPoint *p;
   int i;
+  int width = 0;
   short sx, sy;
   GC gc;
   if(!has_x) return;
+  if(bus == -1.0) what = THICK;
+  if(what == THICK) width = INT_BUS_WIDTH(xctx->lw);
+  else if(bus > 0.0) width = (int) (bus * xctx->mooz);
+  else width = XLINEWIDTH(xctx->lw);
+
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
   x2=X_TO_SCREEN(x2);
@@ -2087,22 +2091,17 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
          (x[0] == x[points-1]) && (y[0] == y[points-1]);
   bezier = (flags & 1)  && (points > 2);
 
-  if(what == NOW) {
-    if(dash) {
-      char dash_arr[2];
-      dash_arr[0] = dash_arr[1] = (char)dash;
-      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
-    }
-  } else if(what == THICK) {
-    if(dash) {
-      char dash_arr[2];
-      dash_arr[0] = dash_arr[1] = (char) dash;
-      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, xCap, xJoin);
-    } else {
-      XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
-    }
+  if(dash) {
+    char dash_arr[2];
+    dash_arr[0] = dash_arr[1] = (char)dash;
+    XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+  }
+  if(dash) {
+    XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
+  } else if(bus > 0.0) {
+    XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
+  } else {
+    XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
   }
 
   if(xctx->draw_window) {
@@ -2127,8 +2126,8 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     if(xctx->draw_pixmap)
        XFillPolygon(display, xctx->save_pixmap, gc, p, points, Polygontype, CoordModeOrigin);
   }
-  if(dash || what == THICK) {
-    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+  if(dash || what == THICK || bus > 0.0) {
+    XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
   my_free(_ALLOC_ID_, &p);
 }
@@ -5180,9 +5179,8 @@ void draw(void)
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
         xPoly *p = &xctx->poly[c][i];
-        int what = (p->bus == -1.0) ? THICK : NOW;
         bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
-        drawpolygon(cc, what, p->x, p->y, p->points, p->fill, p->dash, bezier);
+        drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash, p->bus, bezier);
       }
       if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);
       else i = -1;

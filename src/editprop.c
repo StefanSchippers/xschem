@@ -1298,6 +1298,7 @@ static int edit_polygon_property(void)
   char *oldprop = NULL;
   const char *dash;
   int preserve, modified = 0;
+  double width;
 
   dbg(1, "edit_property(): input property:\n");
   my_strdup(_ALLOC_ID_, &oldprop, xctx->poly[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
@@ -1331,6 +1332,10 @@ static int edit_polygon_property(void)
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
      xctx->poly[c][i].bus = bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
+     if(bus > 0.0) width = bus / 2.0;
+     else width = xctx->cadhalfdotsize;
+     if(oldbus / 2.0 > width) width = oldbus / 2.0;
+
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
        xctx->poly[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
@@ -1356,8 +1361,7 @@ static int edit_polygon_property(void)
          if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
          if(k==0 || xctx->poly[c][i].y[k] > y2) y2 = xctx->poly[c][i].y[k];
        }
-       bbox(ADD, x1-xctx->cadhalfdotsize, y1-xctx->cadhalfdotsize,
-                    x2+xctx->cadhalfdotsize, y2+xctx->cadhalfdotsize);
+       bbox(ADD, x1-width, y1-width, x2+width, y2+width);
      }
    }
    if(drw) {

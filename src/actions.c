@@ -3545,7 +3545,7 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
      /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0);
      xctx->ui_state &= ~STARTPOLYGON;
-     drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0, 0);
+     drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0, 0.0, 0);
      my_free(_ALLOC_ID_, &xctx->nl_polyx);
      my_free(_ALLOC_ID_, &xctx->nl_polyy);
      xctx->nl_maxpoints = xctx->nl_points = 0;

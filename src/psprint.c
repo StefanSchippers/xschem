@@ -527,6 +527,12 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
   double xx, yy;
   double psdash;
   int i, bezier;
+  double width;
+
+  if(bus == -1.0) width = BUS_WIDTH * xctx->lw;
+  else if(bus > 0.0) width = bus * xctx->mooz;
+  else width = -1.0;
+
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_PS(x1);
   y1=Y_TO_PS(y1);
@@ -536,10 +542,13 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
     return;
   }
   psdash = dash / xctx->zoom;
+  if(bus > 0.0) {
+    fprintf(fd, "0 setlinejoin 2 setlinecap\n");
+  }
   if(dash) {
     fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
   }
-  if(bus == -1.0) set_lw(BUS_WIDTH * xctx->lw);
+  if(width >= 0.0) set_lw(1.2 * width);
   bezier = flags && (points > 2);
   if(bezier) {
     ps_drawbezier(x, y, points);
@@ -559,7 +568,10 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
   if(dash) {
     fprintf(fd, "[] 0 setdash\n");
   }
-  if(bus == -1.0) set_lw(xctx->lw);
+  if(width >= 0.0) set_lw(xctx->lw);
+  if(bus > 0.0) {
+    fprintf(fd, "1 setlinejoin 1 setlinecap\n");
+  }
 }
 
 
