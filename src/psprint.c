@@ -612,11 +612,16 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
   }
 }
 
-static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, int dash)
+static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, double bus, int dash)
 {
  double xx,yy,rr;
  double x1, y1, x2, y2;
  double psdash;
+ double width;
+
+ if(bus == -1.0) width = BUS_WIDTH * xctx->lw;
+ else if(bus > 0.0) width = bus * xctx->mooz;
+ else width = -1.0;
 
   if(b < 0.0) {
     a = a + b;
@@ -635,12 +640,20 @@ static void ps_drawarc(int gc, int fillarc, double x,double y,double r,double a,
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
     psdash = dash / xctx->zoom;
+    if(bus > 0.0) {
+      fprintf(fd, "0 setlinejoin 2 setlinecap\n");
+    }
     if(dash) {
       fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
     }
+    if(width >= 0.0) set_lw(1.2 * width);
     ps_xdrawarc(gc, fillarc, xx, yy, rr, a, b);
     if(dash) {
       fprintf(fd, "[] 0 setdash\n");
+    }
+    if(width >= 0.0) set_lw(xctx->lw);
+    if(bus > 0.0) {
+      fprintf(fd, "1 setlinejoin 1 setlinecap\n");
     }
   }
 }
@@ -1077,7 +1090,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
       ROTATION(rot, flip, 0.0,0.0,arc->x,arc->y,x1,y1);
-      ps_drawarc(c, arc->fill, x0+x1, y0+y1, arc->r, angle, arc->b, dash);
+      ps_drawarc(c, arc->fill, x0+x1, y0+y1, arc->r, angle, arc->b, arc->bus, dash);
     }
   } /* if(!hide) */
 
@@ -1487,7 +1500,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       for(i=0;i<xctx->arcs[c]; ++i)
       {
         ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
-          xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+          xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].bus, xctx->arc[c][i].dash);
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
@@ -1537,10 +1550,10 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         }
         i = wireptr->n;
         if( xctx->wire[i].end1 >1 ) {
-          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, xctx->cadhalfdotsize, 0, 360, 0);
+          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x1, xctx->wire[i].y1, xctx->cadhalfdotsize, 0, 360, 0.0, 0);
         }
         if( xctx->wire[i].end2 >1 ) {
-          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->cadhalfdotsize, 0, 360, 0);
+          ps_drawarc(WIRELAYER, 1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->cadhalfdotsize, 0, 360, 0.0, 0);
         }
       }
     }

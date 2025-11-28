@@ -770,7 +770,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
       ROTATION(rot, flip, 0.0, 0.0,arc->x,arc->y,x1,y1);
-      drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, dash);
+      drawarc(c,what, x0+x1, y0+y1, arc->r, angle, arc->b, arc->fill, arc->bus, dash);
     }
   } /* if(!hide) */
 
@@ -1714,13 +1714,24 @@ void filledarc(int c, int what, double x, double y, double r, double a, double b
  }
 }
 
-void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill, int dash)
+void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill, double bus, int dash)
 {
  static int i=0;
  static XArc xarc[CADDRAWBUFFERSIZE];
  double x1, y1, x2, y2; /* arc bbox */
  double xx1, yy1, xx2, yy2; /* complete circle bbox in screen coords */
  GC gc;
+ int width;
+
+ if(bus == -1.0) {
+   what = NOW;
+   width = INT_BUS_WIDTH(xctx->lw);
+ } else if(bus > 0.0) {
+   what = NOW;
+   width = (int) (bus * xctx->mooz);
+ } else {
+   width = XLINEWIDTH(xctx->lw);
+ }
 
  if(arc_fill || dash) what = NOW;
 
@@ -1769,12 +1780,19 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
   y2=Y_TO_SCREEN(y2);
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
-   if(dash) {
-     char dash_arr[2];
-     dash_arr[0] = dash_arr[1] = (char)dash;
-     XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
-   }
+
+    if(dash) {
+      char dash_arr[2];
+      dash_arr[0] = dash_arr[1] = (char)dash;
+      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+    }
+    if(dash) {
+      XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
+    } else if(bus > 0.0) { 
+      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
+    } else if(bus == -1.0) {
+      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
+    }     
 
    if(xctx->draw_window) {
      XDrawArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
@@ -1798,9 +1816,10 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
      }
    }
-   if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP , LINEJOIN);
+   if(dash || bus > 0.0) {
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
+
   }
  }
  else if((what & END) && i)
@@ -2100,7 +2119,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
   } else if(bus > 0.0) {
     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
-  } else {
+  } else if(bus == -1.0) {
     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
   }
 
@@ -5174,7 +5193,7 @@ void draw(void)
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->arcs[c]; ++i) {
         xArc **arc = xctx->arc;
         drawarc(cc, ADD, arc[c][i].x, arc[c][i].y, arc[c][i].r, arc[c][i].a, arc[c][i].b,
-                arc[c][i].fill, arc[c][i].dash);
+                arc[c][i].fill, arc[c][i].bus, arc[c][i].dash);
       }
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
@@ -5213,7 +5232,7 @@ void draw(void)
         }
       }
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
-      drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0);
+      drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
       drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }

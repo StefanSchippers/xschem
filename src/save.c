@@ -2968,6 +2968,7 @@ static void load_arc(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     xctx->arcs[c]++;
 }
 
@@ -4584,6 +4585,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           aa[c][i].dash = (short)(d >= 0 ? d : 0);
         } else
           aa[c][i].dash = 0;
+        aa[c][i].bus = get_attr_val(get_tok_value(aa[c][i].prop_ptr,"bus", 0));
         aa[c][i].sel = 0;
         dbg(2, "l_s_d(): loaded arc: ptr=%lx\n", (unsigned long)aa[c]);
         lasta[c]++;

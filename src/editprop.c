@@ -1224,6 +1224,8 @@ static int edit_arc_property(void)
   char *oldprop = NULL;
   const char *dash, *fill_ptr;
   int preserve, modified = 0;
+  double bus = 0.0, oldbus = 0.0;
+  double width;
 
   my_strdup(_ALLOC_ID_, &oldprop, xctx->arc[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
@@ -1243,7 +1245,7 @@ static int edit_arc_property(void)
 
      i = xctx->sel_array[ii].n;
      c = xctx->sel_array[ii].col;
-
+     oldbus = xctx->arc[c][i].bus;
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->arc[c][i].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
 
@@ -1266,14 +1268,18 @@ static int edit_arc_property(void)
      } else
        xctx->arc[c][i].dash = 0;
 
+     bus = xctx->arc[c][i].bus = get_attr_val(get_tok_value(xctx->arc[c][i].prop_ptr,"bus",0));
+     if(bus > 0.0) width = bus / 2.0;
+     else width = xctx->cadhalfdotsize;
+     if(oldbus / 2.0 > width) width = oldbus / 2.0;
 
-     if(old_fill != xctx->arc[c][i].fill || old_dash != xctx->arc[c][i].dash) {
+     if(oldbus != bus || old_fill != xctx->arc[c][i].fill || old_dash != xctx->arc[c][i].dash) {
        if(!drw) {
          bbox(START,0.0,0.0,0.0,0.0);
          drw = 1;
        }
        arc_bbox(xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, 0, 360, &x1,&y1,&x2,&y2);
-       bbox(ADD, x1, y1, x2, y2);
+       bbox(ADD, x1 - width, y1 - width, x2 + width, y2 + width);
      }
    }
    if(drw) {

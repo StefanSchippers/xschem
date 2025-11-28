@@ -533,6 +533,7 @@ typedef struct
   char *prop_ptr;
   short fill;
   short dash;
+  double bus;
 } xArc;
 
 typedef struct
@@ -1459,7 +1460,8 @@ extern void fix_restore_rect(double x1, double y1, double x2, double y2);
 extern void drawtemprect(GC gc, int what, double rectx1,double recty1,
             double rectx2,double recty2);
 extern void drawtemparc(GC gc, int what, double x, double y, double r, double a, double b);
-extern void drawarc(int c, int what, double x, double y, double r, double a, double b, int arc_fill, int dash);
+extern void drawarc(int c, int what, double x, double y, double r, double a, double b,
+            int arc_fill, double bus, int dash);
 extern void filledarc(int c, int what, double x, double y, double r, double a, double b);
 extern void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flags);
 extern void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int fill);

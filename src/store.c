@@ -167,7 +167,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
     xctx->arc[rectc][n].dash = (char) (d >= 0 ? d : 0);
   } else
     xctx->arc[rectc][n].dash = 0;
-
+  xctx->arc[rectc][n].bus = get_attr_val(get_tok_value(xctx->arc[rectc][n].prop_ptr,"bus",0));
   xctx->arcs[rectc]++;
 }
 

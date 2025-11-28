@@ -240,12 +240,17 @@ static void svg_drawcircle(int gc, int fillarc, double x,double y,double r,doubl
   }
 }
 
-static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, int dash)
+static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a, double b, double bus, int dash)
 {
  double xx,yy,rr;
  double x1, y1, x2, y2;
  double xx1, yy1, xx2, yy2;
  int fs, fa;
+ double width;
+
+ if(bus == -1.0) width = BUS_WIDTH * svg_linew;
+ else if(bus > 0.0) width = bus * xctx->mooz;
+ else width = -1.0;
 
   if(b < 0.0) {
     a = a + b;
@@ -278,16 +283,26 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
       fs = b > 0 ? 0 : 1;
 
       fprintf(fd,"<path class=\"l%d\" ", gc);
+
       if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 0.8*dash/xctx->zoom, 0.8*dash/xctx->zoom);
-      if(fillarc == 0) {
-         fprintf(fd,"style=\"fill:none;\" ");
-         fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
-      } else if(fillarc == 2) {
-        fprintf(fd, "style=\"fill-opacity:1.0;\" ");
-        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
-      } else {
-        fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
-      }
+      if(width >= 0.0 || fillarc == 0 || fillarc == 2) {
+        if(width > 0) fprintf(fd, "style=\"stroke-width:%g; ", width);
+        else          fprintf(fd, "style=\"");
+        if(bus > 0.0) {
+          fprintf(fd, " stroke-linecap:square;\n");
+          fprintf(fd, " stroke-linejoin:miter;\n");
+        }   
+        if(fillarc == 0) {
+          fprintf(fd,"fill:none;\" ");
+          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
+        } else if(fillarc == 2) { 
+          fprintf(fd, "fill-opacity:1.0;\" ");
+          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
+        } else {
+          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
+        }   
+      } 
+
     }
   }
 }
@@ -754,7 +769,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       angle = fmod(angle, 360.);
       if(angle<0.) angle+=360.;
       ROTATION(rot, flip, 0.0,0.0,arc.x,arc.y,x1,y1);
-      svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, dash);
+      svg_drawarc(c, arc.fill, x0+x1, y0+y1, arc.r, angle, arc.b, arc.bus, dash);
     }
   } /* if(!hide) */
 
@@ -1080,7 +1095,7 @@ void svg_draw(void)
    for(i=0;i<xctx->arcs[c]; ++i)
    {
      svg_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r,
-                  xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].dash);
+                  xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].bus, xctx->arc[c][i].dash);
    }
    for(i=0;i<xctx->polygons[c]; ++i) {
      int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");

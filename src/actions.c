@@ -3336,7 +3336,7 @@ void new_arc(int what, double sweep, double mousex_snap, double mousey_snap)
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
       if(xctx->nl_r>0.) {
         xctx->push_undo();
-        drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0);
+        drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0.0, 0);
         store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, xctx->rectcolor, 0, NULL);
         set_modify(1);
       }
