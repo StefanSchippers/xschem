@@ -1106,6 +1106,9 @@ static int edit_line_property(void)
   const char *dash;
   int preserve, modified = 0;
   char *oldprop=NULL;
+  double bus = 0.0, oldbus = 0.0;
+  double width;
+
   my_strdup(_ALLOC_ID_, &oldprop, xctx->line[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
     tclsetvar("tctx::retval", oldprop);
@@ -1125,13 +1128,19 @@ static int edit_line_property(void)
       if(xctx->sel_array[i].type != LINE) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
+      oldbus = xctx->line[c][n].bus;
       if(oldprop && preserve == 1) {
         set_different_token(&xctx->line[c][n].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
       } else {
         my_strdup(_ALLOC_ID_, &xctx->line[c][n].prop_ptr,
                (char *) tclgetvar("tctx::retval"));
       }
-      xctx->line[c][n].bus = get_attr_val(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0));
+      bus = xctx->line[c][n].bus = get_attr_val(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0));
+
+      if(bus > 0.0) width = bus / 2.0;
+      else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
+      if(oldbus / 2.0 > width) width = oldbus / 2.0;
+
       dash = get_tok_value(xctx->line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
         int d = atoi(dash);
@@ -1139,11 +1148,11 @@ static int edit_line_property(void)
       } else
         xctx->line[c][n].dash = 0;
       if(xctx->line[c][n].y1 < xctx->line[c][n].y2) {
-        y1 = xctx->line[c][n].y1-INT_BUS_WIDTH(xctx->lw); y2 = xctx->line[c][n].y2+INT_BUS_WIDTH(xctx->lw);
+        y1 = xctx->line[c][n].y1 - width; y2 = xctx->line[c][n].y2 + width;
       } else {
-        y1 = xctx->line[c][n].y1+INT_BUS_WIDTH(xctx->lw); y2 = xctx->line[c][n].y2-INT_BUS_WIDTH(xctx->lw);
+        y1 = xctx->line[c][n].y1 + width; y2 = xctx->line[c][n].y2 - width;
       }
-      bbox(ADD, xctx->line[c][n].x1-INT_BUS_WIDTH(xctx->lw), y1, xctx->line[c][n].x2+INT_BUS_WIDTH(xctx->lw), y2);
+      bbox(ADD, xctx->line[c][n].x1 - width, y1, xctx->line[c][n].x2 + width, y2);
     }
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
@@ -1160,7 +1169,8 @@ static int edit_wire_property(void)
   int i, modified = 0;
   int preserve;
   char *oldprop=NULL;
-  double bus;
+  double bus = 0.0, oldbus = 0.0;
+  double width;
 
   my_strdup(_ALLOC_ID_, &oldprop, xctx->wire[xctx->sel_array[0].n].prop_ptr);
   if(oldprop && oldprop[0]) {
@@ -1177,7 +1187,7 @@ static int edit_wire_property(void)
     xctx->push_undo();
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
-      double oldbus=0.0;
+      double ov, y1, y2;
       int k = xctx->sel_array[i].n;
       if(xctx->sel_array[i].type != WIRE) continue;
       /* does not seem to be necessary */
@@ -1191,21 +1201,15 @@ static int edit_wire_property(void)
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("tctx::retval"));
       }
       xctx->wire[k].bus = bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
-      if(bus == -1.0) {
-        double ov, y1, y2;
-        ov = INT_BUS_WIDTH(xctx->lw) > xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-        if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
-        else { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
-        bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
-      } else {
-        if(oldbus){
-          double ov, y1, y2;
-          ov = INT_BUS_WIDTH(xctx->lw)> xctx->cadhalfdotsize ? INT_BUS_WIDTH(xctx->lw) : CADHALFDOTSIZE;
-          if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
-          else                        { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
-          bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
-        }
-      }
+
+      if(bus > 0.0) width = bus / 2.0;
+      else width = INT_BUS_WIDTH(xctx->lw / 2.0);
+      if(oldbus / 2.0 > width) width = oldbus / 2.0;
+
+      ov = width > xctx->cadhalfdotsize ? width : xctx->cadhalfdotsize;
+      if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
+      else { y1 = xctx->wire[k].y1+ov; y2 = xctx->wire[k].y2-ov; }
+      bbox(ADD, xctx->wire[k].x1-ov, y1 , xctx->wire[k].x2+ov , y2 );
     }
     bbox(SET , 0.0 , 0.0 , 0.0 , 0.0);
     draw();
@@ -1270,7 +1274,7 @@ static int edit_arc_property(void)
 
      bus = xctx->arc[c][i].bus = get_attr_val(get_tok_value(xctx->arc[c][i].prop_ptr,"bus",0));
      if(bus > 0.0) width = bus / 2.0;
-     else width = xctx->cadhalfdotsize;
+     else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
      if(oldbus / 2.0 > width) width = oldbus / 2.0;
 
      if(oldbus != bus || old_fill != xctx->arc[c][i].fill || old_dash != xctx->arc[c][i].dash) {
@@ -1339,7 +1343,8 @@ static int edit_polygon_property(void)
      xctx->poly[c][i].bus = bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
      if(bus > 0.0) width = bus / 2.0;
-     else width = xctx->cadhalfdotsize;
+     else width = xctx->cadhalfdotsize > INT_BUS_WIDTH(xctx->lw) / 2.0 ?
+            xctx->cadhalfdotsize : INT_BUS_WIDTH(xctx->lw) / 2.0;
      if(oldbus / 2.0 > width) width = oldbus / 2.0;
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);

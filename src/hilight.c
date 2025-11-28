@@ -2228,10 +2228,10 @@ void draw_hilight_net(int on_window)
    if( (entry = bus_hilight_hash_lookup(xctx->wire[i].node, 0, XLOOKUP)) ) {
      if(xctx->wire[i].bus == -1.0)
        drawline(get_color(entry->value), THICK,
-          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
+          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
      else
        drawline(get_color(entry->value), NOW,
-          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, 0, NULL);
+          xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
      if(xctx->cadhalfdotsize*xctx->mooz>=0.7) {
        if( xctx->wire[i].end1 >1 ) {
          filledarc(get_color(entry->value), NOW, xctx->wire[i].x1, xctx->wire[i].y1,
@@ -2270,7 +2270,7 @@ void draw_hilight_net(int on_window)
       filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
       drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
-      drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+      drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
      }
    }
  }

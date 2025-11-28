@@ -533,7 +533,7 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
         ROTATION(rot, flip, x1,y1,curr_x1,curr_y1,rx1,ry1);
         ROTATION(rot, flip, x1,y1,curr_x2,curr_y2,rx2,ry2);
         ORDER(rx1,ry1,rx2,ry2);
-        drawline(layer, what, rx1, ry1, rx2, ry2, 0, NULL);
+        drawline(layer, what, rx1, ry1, rx2, ry2, 0.0, 0, NULL);
      }
      ++pos;
      a += FONTWIDTH+FONTWHITESPACE;
@@ -734,9 +734,9 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0, 0.0,line->x2,line->y2,x2,y2);
       ORDER(x1,y1,x2,y2);
       if(line->bus == -1.0)
-        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, dash, NULL);
+        drawline(c,THICK, x0+x1, y0+y1, x0+x2, y0+y2, line->bus, dash, NULL);
       else
-        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash, NULL);
+        drawline(c,what, x0+x1, y0+y1, x0+x2, y0+y2, line->bus, dash, NULL);
     }
     for(j=0;j< symptr->polygons[layer]; ++j)
     {
@@ -887,7 +887,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         my_free(_ALLOC_ID_, &txtptr);
         #if HAS_CAIRO!=1
         drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
-        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+        drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         #endif
         #if HAS_CAIRO==1
         if( (textfont && textfont[0]) || (symptr->text[j].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
@@ -1325,7 +1325,8 @@ void draw_xhair_line(GC gc, int size, double linex1, double liney1, double linex
   }
 }
 
-void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2, int dash, void *ct)
+void drawline(int c, int what, double linex1, double liney1, double linex2, double liney2,
+              double bus, int dash, void *ct)
 {
   static int i = 0;
 #ifndef __unix__
@@ -1335,6 +1336,18 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
  double x1,y1,x2,y2;
  register XSegment *rr;
  char dash_arr[2];
+ int width;
+      
+ if(bus == -1.0) { 
+   what = THICK; 
+   width = INT_BUS_WIDTH(xctx->lw);
+ } else if(bus > 0.0) {
+   what = NOW;
+   width = (int) (bus * xctx->mooz);
+ } else {
+   width = XLINEWIDTH(xctx->lw);
+ }        
+
 
  if(dash && what !=THICK) what = NOW;
 
@@ -1384,10 +1397,25 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
    }
+
+
+    if(dash) {
+      dash_arr[0] = dash_arr[1] = (char)dash;
+      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
+      XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
+    } else if(bus > 0.0) {
+      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
+    } else if(bus == -1.0) {
+      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
+    }
+
+
+
+
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap)
     XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
-   if(dash) {
+   if(dash ||  bus > 0.0) {
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
   }
@@ -2886,8 +2914,8 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   }
   if(c1 >= gr->ypos1 && c1 <=gr->ypos2) {
     set_thick_waves(1, wcnt, wave_col, gr);
-    drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0, ct);
-    drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0, ct);
+    drawline(wave_col, NOW, lx1, ylow, lx2, ylow, 0.0, 0, ct);
+    drawline(wave_col, NOW, lx1, yhigh, lx2, yhigh, 0.0, 0, ct);
     for(p = first ; p <= last; p++) {
       /* calculate value of bus by adding all binary bits */
       /* hex_digits = */
@@ -2904,10 +2932,10 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
       }
       if(p > first &&  strcmp(busval, old_busval)) {
         /* draw transition ('X') */
-        drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0, ct);
-        drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0, ct);
-        drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0, ct);
-        drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0, ct);
+        drawline(BACKLAYER, NOW, xval-x_size, yhigh, xval+x_size, yhigh, 0.0, 0, ct);
+        drawline(BACKLAYER, NOW, xval-x_size, ylow,  xval+x_size, ylow, 0.0, 0, ct);
+        drawline(wave_col, NOW, xval-x_size, ylow,  xval+x_size, yhigh, 0.0, 0, ct);
+        drawline(wave_col, NOW, xval-x_size, yhigh, xval+x_size, ylow, 0.0, 0, ct);
         /* draw hex bus value if there is enough room */
         if(  fabs(xval - xval_old) > hex_digits * charwidth) {
           draw_string(wave_col, NOW, old_busval, 2, 0, 1, 0, (xval + xval_old) * 0.5,
@@ -3090,13 +3118,13 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
       if(axis_end(subwx, deltax, gr->gx2)) break;
-      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), (int)dash_size, ct);
+      drawline(GRIDLAYER, ADD, W_X(subwx),   W_Y(gr->gy2), W_X(subwx),   W_Y(gr->gy1), 0.0, (int)dash_size, ct);
     }
     if(!axis_within_range(wx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
     if(axis_end(wx, deltax, gr->gx2)) break;
     /* swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), (int)dash_size, ct);
-    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0, ct); /* axis marks */
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), 0.0, (int)dash_size, ct);
+    drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0.0, 0, ct); /* axis marks */
     /* X-axis labels */
     if(gr->logx) 
       draw_string(3, NOW, dtoa_eng(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx),
@@ -3106,8 +3134,8 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx1),   W_Y(gr->gy1), 0, ct);
-  drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx1),   W_Y(gr->gy1), 0.0, 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx2),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy1), 0.0, 0, ct);
   /* horizontal grid lines */
   if(!gr->digital) {
     deltay = axis_increment(gr->gy1, gr->gy2, gr->divy, gr->logy);
@@ -3123,12 +3151,12 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
           subwy = wy + deltay * (double)k / ((double)gr->subdivy + 1.0);
         if(!axis_within_range(subwy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
         if(axis_end(subwy, deltay, gr->gy2)) break;
-        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), (int)dash_size, ct);
+        drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(subwy),   W_X(gr->gx2), W_Y(subwy), 0.0, (int)dash_size, ct);
       }
       if(!axis_within_range(wy, gr->gy1, gr->gy2, deltay, gr->subdivy)) continue;
       if(axis_end(wy, deltay, gr->gy2)) break;
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), (int)dash_size, ct);
-      drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0, ct); /* axis marks */
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(wy),   W_X(gr->gx2), W_Y(wy), 0.0, (int)dash_size, ct);
+      drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0.0, 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
         draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity), 0, 1, 0, 1, 
@@ -3139,16 +3167,16 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
     }
   }
   /* first and last horizontal box delimiters */
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy1), W_X(gr->gx2),   W_Y(gr->gy1), 0, ct);
-  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy2), 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy1), W_X(gr->gx2),   W_Y(gr->gy1), 0.0, 0, ct);
+  drawline(GRIDLAYER, ADD, W_X(gr->gx1),   W_Y(gr->gy2), W_X(gr->gx2),   W_Y(gr->gy2), 0.0, 0, ct);
   /* Horizontal axis (if in viewport) */
   if(!gr->digital && gr->gy1 <= 0 && gr->gy2 >= 0)
-    drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0, ct);
+    drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0.0, 0, ct);
   /* Vertical axis (if in viewport) 
    * swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
   if(gr->gx1 <= 0 && gr->gx2 >= 0)
-    drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0, ct);
-  drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0, ct);
+    drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0.0, 0, ct);
+  drawline(GRIDLAYER, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, ct);
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
@@ -3361,7 +3389,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   if(gr->logx) pos = mylog10(pos);
   xx = W_X(pos);
   if(xx >= gr->x1 && xx <= gr->x2) {
-    drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 1, NULL);
+    drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 0.0, 1, NULL);
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
@@ -3405,8 +3433,8 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
       dtmp = a; a = b; b = dtmp;
     }
     yline = (ty1 + ty2) * 0.5;
-    if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 1, NULL);
-    if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 1, NULL);
+    if( tx1 - a > 4.0) drawline(3, NOW, a + 2, yline, tx1 - 2, yline, 0.0, 1, NULL);
+    if( b - tx2 > 4.0) drawline(3, NOW, tx2 + 2, yline, b - 2, yline, 0.0, 1, NULL);
   }
 }
 
@@ -3423,7 +3451,7 @@ static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
   if(gr->logy) pos = mylog10(pos);
   yy = W_Y(pos);
   if(yy >= gr->y1 && yy <= gr->y2) {
-    drawline(cursor_color, NOW, gr->rx1 + 10, yy, gr->rx2 - 10, yy, 1, NULL);
+    drawline(cursor_color, NOW, gr->rx1 + 10, yy, gr->rx2 - 10, yy, 0.0, 1, NULL);
     if(gr->unity != 1.0)
        my_snprintf(tmpstr, S(tmpstr), " %.5g%c ", gr->unity * active_cursory , gr->unity_suffix);
     else
@@ -3470,8 +3498,8 @@ static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
       dtmp = a; a = b; b = dtmp;
     }
     xline = tx1 + 10;
-    if( ty1 - a > 4.0) drawline(3, NOW, xline, a + 2, xline, ty1 - 2, 1, NULL);
-    if( b - ty2 > 4.0) drawline(3, NOW, xline, ty2 + 2, xline, b - 2, 1, NULL);
+    if( ty1 - a > 4.0) drawline(3, NOW, xline, a + 2, xline, ty1 - 2, 0.0, 1, NULL);
+    if( b - ty2 > 4.0) drawline(3, NOW, xline, ty2 + 2, xline, b - 2, 0.0, 1, NULL);
   }
 
 }
@@ -5175,8 +5203,8 @@ void draw(void)
       cc = c; if(xctx->only_probes) cc = GRIDLAYER;
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->lines[c]; ++i) {
         xLine *l = &xctx->line[c][i];
-        if(l->bus == -1.0) drawline(cc, THICK, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
-        else       drawline(cc, ADD, l->x1, l->y1, l->x2, l->y2, l->dash, NULL);
+        if(l->bus == -1.0) drawline(cc, THICK, l->x1, l->y1, l->x2, l->y2, l->bus, l->dash, NULL);
+        else       drawline(cc, ADD, l->x1, l->y1, l->x2, l->y2, l->bus, l->dash, NULL);
       }
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->rects[c]; ++i) {
         xRect *r = &xctx->rect[c][i]; 
@@ -5234,7 +5262,7 @@ void draw(void)
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
       drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
-      drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+      drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     cc = WIRELAYER; if(xctx->only_probes) cc = GRIDLAYER;
     if(xctx->draw_single_layer==-1 || xctx->draw_single_layer==WIRELAYER) {
@@ -5251,15 +5279,15 @@ void draw(void)
         }
         if(xctx->wire[i].bus == -1.0) {
           drawline(cc, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
-            xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
+            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
         }
         else
           drawline(cc, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
-            xctx->wire[i].x2,xctx->wire[i].y2, 0, NULL);
+            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
       }
       update_conn_cues(cc, 1, xctx->draw_window);
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
-      drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+      drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     for(i=0;i<xctx->texts; ++i)
     {
@@ -5307,7 +5335,7 @@ void draw(void)
       #endif
       #if HAS_CAIRO!=1
       drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
-      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, NULL);
+      drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
       #endif
     } /* for(i=0;i<xctx->texts; ++i) */
     if(xctx->only_probes) build_colors(1.0, 0);

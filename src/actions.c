@@ -3185,7 +3185,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           storeobject(-1, nl_xx1,nl_yy1,nl_xx2,nl_yy1,WIRE,0,0,NULL);
           modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy1, 0, NULL);
+          drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy1, 0.0, 0, NULL);
         }
         if(xctx->nl_y2!=xctx->nl_y1) {
           nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1; 
@@ -3194,7 +3194,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           storeobject(-1, nl_xx2,nl_yy1,nl_xx2,nl_yy2,WIRE,0,0,NULL);
           modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,NOW, nl_xx2,nl_yy1,nl_xx2,nl_yy2, 0, NULL);
+          drawline(WIRELAYER,NOW, nl_xx2,nl_yy1,nl_xx2,nl_yy2, 0.0, 0, NULL);
         }
       } else if(xctx->manhattan_lines & 2) {
         if(xctx->nl_y2!=xctx->nl_y1) {
@@ -3204,7 +3204,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           storeobject(-1, nl_xx1,nl_yy1,nl_xx1,nl_yy2,WIRE,0,0,NULL);
           modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx1,nl_yy2, 0, NULL);
+          drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx1,nl_yy2, 0.0, 0, NULL);
         }
         if(xctx->nl_x2!=xctx->nl_x1) {
           nl_xx1=xctx->nl_x1;nl_yy1=xctx->nl_y1;
@@ -3213,7 +3213,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           storeobject(-1, nl_xx1,nl_yy2,nl_xx2,nl_yy2,WIRE,0,0,NULL);
           modified = 1;
           hash_wire(XINSERT, xctx->wires-1, 1);
-          drawline(WIRELAYER,NOW, nl_xx1,nl_yy2,nl_xx2,nl_yy2, 0, NULL);
+          drawline(WIRELAYER,NOW, nl_xx1,nl_yy2,nl_xx2,nl_yy2, 0.0, 0, NULL);
         }
       } else {
         nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
@@ -3222,7 +3222,7 @@ void new_wire(int what, double mx_snap, double my_snap)
         storeobject(-1, nl_xx1,nl_yy1,nl_xx2,nl_yy2,WIRE,0,0,NULL);
         modified = 1;
         hash_wire(XINSERT, xctx->wires-1, 1);
-        drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2, 0, NULL);
+        drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2, 0.0, 0, NULL);
       }
       xctx->prep_hi_structs = 0;
       if(tclgetboolvar("autotrim_wires")) trim_wires();
@@ -3390,7 +3390,7 @@ void new_line(int what, double mx_snap, double my_snap)
           ORDER(nl_xx1,nl_yy1,nl_xx2,nl_yy1);
           storeobject(-1, nl_xx1,nl_yy1,nl_xx2,nl_yy1,LINE,xctx->rectcolor,0,NULL);
           modified = 1;
-          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy1, 0, NULL);
+          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy1, 0.0, 0, NULL);
         }
         if(xctx->nl_y2!=xctx->nl_y1) {
           nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
@@ -3398,7 +3398,7 @@ void new_line(int what, double mx_snap, double my_snap)
           ORDER(nl_xx2,nl_yy1,nl_xx2,nl_yy2);
           storeobject(-1, nl_xx2,nl_yy1,nl_xx2,nl_yy2,LINE,xctx->rectcolor,0,NULL);
           modified = 1;
-          drawline(xctx->rectcolor,NOW, nl_xx2,nl_yy1,nl_xx2,nl_yy2, 0, NULL);
+          drawline(xctx->rectcolor,NOW, nl_xx2,nl_yy1,nl_xx2,nl_yy2, 0.0, 0, NULL);
         }
       } else if(xctx->manhattan_lines & 2) {
         if(xctx->nl_y2!=xctx->nl_y1) {
@@ -3407,7 +3407,7 @@ void new_line(int what, double mx_snap, double my_snap)
           ORDER(nl_xx1,nl_yy1,nl_xx1,nl_yy2);
           storeobject(-1, nl_xx1,nl_yy1,nl_xx1,nl_yy2,LINE,xctx->rectcolor,0,NULL);
           modified = 1;
-          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx1,nl_yy2, 0, NULL);
+          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx1,nl_yy2, 0.0, 0, NULL);
         }
         if(xctx->nl_x2!=xctx->nl_x1) {
           nl_xx1=xctx->nl_x1;nl_yy1=xctx->nl_y1;
@@ -3415,7 +3415,7 @@ void new_line(int what, double mx_snap, double my_snap)
           ORDER(nl_xx1,nl_yy2,nl_xx2,nl_yy2);
           storeobject(-1, nl_xx1,nl_yy2,nl_xx2,nl_yy2,LINE,xctx->rectcolor,0,NULL);
           modified = 1;
-          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy2,nl_xx2,nl_yy2, 0, NULL);
+          drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy2,nl_xx2,nl_yy2, 0.0, 0, NULL);
         }
       } else {
         nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
@@ -3423,7 +3423,7 @@ void new_line(int what, double mx_snap, double my_snap)
         ORDER(nl_xx1,nl_yy1,nl_xx2,nl_yy2);
         storeobject(-1, nl_xx1,nl_yy1,nl_xx2,nl_yy2,LINE,xctx->rectcolor,0,NULL);
         modified = 1;
-        drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2, 0, NULL);
+        drawline(xctx->rectcolor,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2, 0.0, 0, NULL);
       }
       if(modified) set_modify(1);
     }

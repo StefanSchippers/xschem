@@ -215,9 +215,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           drawrect(PINLAYER, NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0, -1, -1);
           filledrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 1, -1, -1);
           if(flip) {
-            drawline(linecol, NOW, x -20, y, x, y, 0, NULL);
+            drawline(linecol, NOW, x -20, y, x, y, 0.0, 0, NULL);
           } else {
-            drawline(linecol, NOW, x, y, x + 20, y, 0, NULL);
+            drawline(linecol, NOW, x, y, x + 20, y, 0.0, 0, NULL);
           }
           xctx->draw_window = save;
         }
@@ -2178,6 +2178,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               xctx->xrect[0].height); Tcl_AppendResult(interp, res, NULL);
 
       my_snprintf(res, S(res), "INT_LINE_W(lw)=%d\n", INT_LINE_W(xctx->lw)); Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "INT_BUS_WIDTH(xctx->lw)=%d\n", INT_BUS_WIDTH(xctx->lw));
+              Tcl_AppendResult(interp, res, NULL);
+      my_snprintf(res, S(res), "cadhalfdotsize=%g\n", xctx->cadhalfdotsize); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "lw=%g\n", xctx->lw); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "wires=%d\n", xctx->wires); Tcl_AppendResult(interp, res, NULL);
       my_snprintf(res, S(res), "instances=%d\n", xctx->instances); Tcl_AppendResult(interp, res, NULL);
@@ -2912,7 +2915,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         storeobject(pos, x1,y1,x2,y2,LINE,xctx->rectcolor,0,prop_str);
         if(draw) {
           save = xctx->draw_window; xctx->draw_window = 1;
-          drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, NULL);
+          drawline(xctx->rectcolor,NOW, x1,y1,x2,y2, 0.0, 0, NULL);
           xctx->draw_window = save;
         }
         set_modify(1);
@@ -6612,7 +6615,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_net_structs=0;
         xctx->prep_hash_wires=0;
         save = xctx->draw_window; xctx->draw_window = 1;
-        drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0, NULL);
+        drawline(WIRELAYER,NOW, x1,y1,x2,y2, 0.0, 0, NULL);
         xctx->draw_window = save;
         if(tclgetboolvar("autotrim_wires")) trim_wires();
         set_modify(1);
