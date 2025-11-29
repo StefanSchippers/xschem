@@ -95,6 +95,7 @@ static void merge_box(FILE *fd)
     RECTORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     attr = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(attr, "")) {
       int d = atoi(attr);
@@ -155,8 +156,7 @@ static void merge_arc(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string(&ptr[i].prop_ptr, fd);
-
-
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr,"bus",0));
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
@@ -171,8 +171,6 @@ static void merge_arc(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr,"bus",0));
-
     select_arc(c,i, SELECTED, 1, 1);
     xctx->arcs[c]++;
 }
@@ -218,6 +216,7 @@ static void merge_polygon(FILE *fd)
       }
     }
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
@@ -232,7 +231,6 @@ static void merge_polygon(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     select_polygon(c,i, SELECTED, 1, 1);
     xctx->polygons[c]++;
 }
@@ -261,6 +259,7 @@ static void merge_line(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     dash = get_tok_value(ptr[i].prop_ptr,"dash",0);
     if(strcmp(dash, "")) {
       int d = atoi(dash);
@@ -268,7 +267,6 @@ static void merge_line(FILE *fd)
     } else {
       ptr[i].dash = 0;
     }
-    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     select_line(c,i, SELECTED, 1, 1);
     xctx->lines[c]++;
 }

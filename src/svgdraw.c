@@ -44,9 +44,23 @@ static void svg_restore_lw(void)
 
 static void svg_xdrawline(int layer, double bus, double x1, double y1, double x2, double y2, int dash)
 {
+ double width;
+
+ if(bus == -1.0) width = BUS_WIDTH * svg_linew;
+ else if(bus > 0.0) width = bus * xctx->mooz;
+ else width = -1.0;
+
  fprintf(fd,"<path class=\"l%d\" ", layer);
  if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 0.8*dash/xctx->zoom, 0.8*dash/xctx->zoom);
- if(bus == -1.0) fprintf(fd, "style=\"stroke-width:%g;\" ", BUS_WIDTH * svg_linew);
+  if(width >= 0.0) {
+    if(width > 0) fprintf(fd, "style=\"stroke-width:%g; ", width);
+    else          fprintf(fd, "style=\"");
+    if(bus > 0.0) {
+      fprintf(fd, " stroke-linecap:square;\n");
+      fprintf(fd, " stroke-linejoin:miter;\n");
+    }
+    fprintf(fd, "\" ");
+  }
  fprintf(fd,"d=\"M%g %gL%g %g\"/>\n", x1, y1, x2, y2);
 }
 
@@ -56,15 +70,34 @@ static void svg_xdrawpoint(int layer, double x1, double y1)
  fprintf(fd,"M%g %gL%g %gL%g%gL%g %gL%g %gz\"/>\n", x1, y1, x1+1.0, y1, x1+1.0, y1+1.0, x1, y1+1.0, x1, y1);
 }
 
-static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2, int dash, int fill)
+static void svg_xfillrectangle(int layer, double x1, double y1, double x2, double y2,
+                               double bus, int dash, int fill)
 {
+  double width;
+                           
+  if(bus == -1.0) width = BUS_WIDTH * svg_linew;
+  else if(bus > 0.0) width = bus * xctx->mooz;
+  else width = -1.0;
+
   fprintf(fd,"<path class=\"l%d\" ", layer);
   if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 0.8*dash/xctx->zoom, 0.8*dash/xctx->zoom);
-  if(fill == 0) {
-    fprintf(fd,"style=\"fill:none;\" ");
-  } else if(fill == 2) {
-   fprintf(fd, "style=\"fill-opacity:1.0;\" ");
-  }
+
+
+  if(width >= 0.0 || fill == 0 || fill == 2) {
+    if(width > 0) fprintf(fd, "style=\"stroke-width:%g; ", width);
+    else          fprintf(fd, "style=\"");
+    if(bus > 0.0) {
+      fprintf(fd, " stroke-linecap:square;\n");
+      fprintf(fd, " stroke-linejoin:miter;\n");
+    } 
+    if(fill == 0) { 
+      fprintf(fd,"fill:none;\" ");
+    } else if(fill == 2) {
+      fprintf(fd, "fill-opacity:1.0;\" ");
+    } else {
+      fprintf(fd, "\" ");
+    }   
+  }     
   fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
@@ -172,9 +205,14 @@ static void svg_drawpolygon(int c, int what, double *x, double *y, int points,
 }
 
 static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2,
-                           int dash, int fill, int e_a, int e_b)
+                           double bus, int dash, int fill, int e_a, int e_b)
 {
- double x1,y1,x2,y2;
+  double x1,y1,x2,y2;
+  double width;
+                           
+  if(bus == -1.0) width = BUS_WIDTH * svg_linew;
+  else if(bus > 0.0) width = bus * xctx->mooz;
+  else width = -1.0;
 
   x1=X_TO_SCREEN(rectx1);
   y1=Y_TO_SCREEN(recty1);
@@ -204,18 +242,29 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
 
         fprintf(fd,"<path class=\"l%d\" ", gc);
         if(dash) fprintf(fd, "stroke-dasharray=\"%g,%g\" ", 0.8*dash/xctx->zoom, 0.8*dash/xctx->zoom);
-        if(fill == 0) {
-           fprintf(fd,"style=\"fill:none;\" ");
-           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2);
-        } else if(fill == 2) {
-          fprintf(fd, "style=\"fill-opacity:1.0;\" ");
-          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
-        } else {
-          fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
-        }
+
+
+        if(width >= 0.0 || fill == 0 || fill == 2) {
+          if(width > 0) fprintf(fd, "style=\"stroke-width:%g; ", width);
+          else          fprintf(fd, "style=\"");
+          if(bus > 0.0) {
+            fprintf(fd, " stroke-linecap:square;\n");
+            fprintf(fd, " stroke-linejoin:miter;\n");
+          } 
+          if(fill == 0) { 
+            fprintf(fd,"fill:none;\" ");
+            fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2);
+          } else if(fill == 2) {
+            fprintf(fd, "fill-opacity:1.0;\" ");
+            fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
+          } else {
+            fprintf(fd, "\" ");
+            fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
+          }   
+        }     
       }
     } else {
-      svg_xfillrectangle(gc, x1,y1,x2,y2, dash, fill);
+      svg_xfillrectangle(gc, x1,y1,x2,y2, bus, dash, fill);
     }
   }
 }
@@ -700,7 +749,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      svg_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
+      svg_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
+      0.0, 0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -709,7 +759,8 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
-      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0, -1, -1);
+      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 
+      0.0, 2, 0, -1, -1);
     }
   }
   else if(xctx->inst[n].flags&1) {
@@ -809,7 +860,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
             ellipse_a %= 360;
           }
         }
-        svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->fill, ellipse_a, ellipse_b);
+        svg_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, rect->fill, ellipse_a, ellipse_b);
       }
     }
   }
@@ -1088,7 +1139,7 @@ void svg_draw(void)
      } else {
        svg_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                          xctx->rect[c][i].x2, xctx->rect[c][i].y2,
-                         xctx->rect[c][i].dash,  xctx->rect[c][i].fill,
+                         xctx->rect[c][i].bus, xctx->rect[c][i].dash, xctx->rect[c][i].fill,
                          xctx->rect[c][i].ellipse_a, xctx->rect[c][i].ellipse_b);
      }
    }

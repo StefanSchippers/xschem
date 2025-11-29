@@ -212,7 +212,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
         if(draw) {
           save = xctx->draw_window; xctx->draw_window = 1;
-          drawrect(PINLAYER, NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0, -1, -1);
+          drawrect(PINLAYER, NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 0.0, 0, -1, -1);
           filledrect(PINLAYER,NOW, x - 2.5, y - 2.5, x + 2.5, y + 2.5, 1, -1, -1);
           if(flip) {
             drawline(linecol, NOW, x -20, y, x, y, 0.0, 0, NULL);
@@ -4678,7 +4678,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           int e_a = xctx->rect[c][n].ellipse_a;
           int e_b = xctx->rect[c][n].ellipse_b;
           save = xctx->draw_window; xctx->draw_window = 1;
-          drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0, e_a, e_b);
+          drawrect(xctx->rectcolor,NOW, x1,y1,x2,y2, 0.0, 0, e_a, e_b);
           filledrect(xctx->rectcolor, NOW, x1, y1, x2, y2, 1, -1, -1);
           xctx->draw_window = save;
         }

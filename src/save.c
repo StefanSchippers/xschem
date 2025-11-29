@@ -2999,6 +2999,7 @@ static void load_box(FILE *fd)
     ptr[i].prop_ptr=NULL;
     ptr[i].sel=0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
+    ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2;
@@ -4649,6 +4650,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           bb[c][i].dash = (short)(d >= 0 ? d : 0);
         } else bb[c][i].dash = 0;
   
+        bb[c][i].bus = get_attr_val(get_tok_value(bb[c][i].prop_ptr,"bus", 0));
         attr = get_tok_value(bb[c][i].prop_ptr,"ellipse", 0);
         if( strcmp(attr, "") ) {
           int a;

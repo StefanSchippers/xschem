@@ -576,10 +576,15 @@ static void ps_drawpolygon(int c, int what, double *x, double *y, int points,
 
 
 static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,double recty2,
-     int dash, int fill, int e_a, int e_b)
+     double bus, int dash, int fill, int e_a, int e_b)
 {
  double x1,y1,x2,y2;
  double psdash;
+ double width;
+
+ if(bus == -1.0) width = BUS_WIDTH * xctx->lw;
+ else if(bus > 0.0) width = bus * xctx->mooz;
+ else width = -1.0;
 
   x1=X_TO_PS(rectx1);
   y1=Y_TO_PS(recty1);
@@ -588,9 +593,15 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
   if(rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2))
   {
     psdash = dash / xctx->zoom;
-    if(dash) {
-      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+
+    if(bus > 0.0) {
+      fprintf(fd, "0 setlinejoin 2 setlinecap\n");
     }
+    if(dash) { 
+      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    }   
+    if(width >= 0.0) set_lw(1.2 * width);
+
     if(e_a != -1) {
       double rx = (x2 - x1) / 2.0;
       double ry = (y2 - y1) / 2.0;
@@ -608,7 +619,11 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
     }
     if(dash) {
       fprintf(fd, "[] 0 setdash\n");
-    }
+    } 
+    if(width >= 0.0) set_lw(xctx->lw);
+    if(bus > 0.0) {
+      fprintf(fd, "1 setlinejoin 1 setlinecap\n");
+    }   
   }
 }
 
@@ -663,6 +678,12 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
 {
  double x1,y1,x2,y2;
  double psdash;
+ double width;
+  
+ if(bus == -1.0) width = BUS_WIDTH * xctx->lw;
+ else if(bus > 0.0) width = bus * xctx->mooz;
+ else width = -1.0;
+
 
   x1=X_TO_PS(linex1);
   y1=Y_TO_PS(liney1);
@@ -671,11 +692,21 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
   if( clip(&x1,&y1,&x2,&y2) )
   {
     psdash = dash / xctx->zoom;
-    if(dash) fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
-    if(bus == -1.0) set_lw(xctx->lw * BUS_WIDTH);
+    if(bus > 0.0) {
+      fprintf(fd, "0 setlinejoin 2 setlinecap\n");
+    }      
+    if(dash) {
+      fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
+    }
+    if(width >= 0.0) set_lw(1.2 * width);
     ps_xdrawline(gc, x1, y1, x2, y2);
-    if(dash) fprintf(fd, "[] 0 setdash\n");
-    if(bus == -1.0) set_lw(xctx->lw);
+    if(dash) {
+      fprintf(fd, "[] 0 setdash\n");
+    }
+    if(width >= 0.0) set_lw(xctx->lw);
+    if(bus > 0.0) {
+      fprintf(fd, "1 setlinejoin 1 setlinecap\n");
+    }
   }
 }
 
@@ -995,7 +1026,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     else if((xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
       set_ps_colors(SYMLAYER);
-      ps_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, 0, -1, -1);
+      ps_filledrect(SYMLAYER, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
+                   0.0,  0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -1005,7 +1037,8 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
       set_ps_colors(color);
-      ps_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, 0, -1, -1);
+      ps_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
+                    0.0, 2, 0, -1, -1);
     }
     /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
     if(what != 7) {
@@ -1131,7 +1164,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
              ellipse_a %= 360;
            }
          }              
-         ps_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, dash, rect->fill, ellipse_a, ellipse_b);
+         ps_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, rect->fill, ellipse_a, ellipse_b);
        }
     }
   } /* if( (!hide && xctx->enable_layer[layer]) || ... */
@@ -1492,7 +1525,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         if(c != GRIDLAYER || !(xctx->rect[c][i].flags & 1) )  {
           ps_filledrect(c, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
             xctx->rect[c][i].x2, xctx->rect[c][i].y2,
-            xctx->rect[c][i].dash, xctx->rect[c][i].fill,
+            xctx->rect[c][i].bus, xctx->rect[c][i].dash, xctx->rect[c][i].fill,
             xctx->rect[c][i].ellipse_a, xctx->rect[c][i].ellipse_b);
         }
       }

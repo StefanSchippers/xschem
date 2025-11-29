@@ -500,6 +500,7 @@ typedef struct
   void *extraptr; /* generic data pointer (images) */
   short fill; /* 0: no fill, 1: stippled fill, 2: solid fill */
   short dash;
+  double bus;
   int ellipse_a, ellipse_b;
   /* bit0=1 for graph function, bit1=1 for unlocked x axis
    * bit10: image embedding (png)
@@ -1444,7 +1445,7 @@ extern void get_sym_text_layer(int inst, int text_n, int *layer);
 extern void draw_symbol(int what,int c, int n,int layer,
             short tmp_flip, short tmp_rot, double xoffset, double yoffset);
 extern void drawrect(int c, int what, double rectx1,double recty1,
-            double rectx2,double recty2, int dash, int e_a, int e_b);
+            double rectx2,double recty2, double bus, int dash, int e_a, int e_b);
 extern void filledrect(int c, int what, double rectx1,double recty1,
             double rectx2,double recty2, int fill, int e_a, int e_b);
 

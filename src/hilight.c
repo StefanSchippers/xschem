@@ -2269,7 +2269,7 @@ void draw_hilight_net(int on_window)
       }
       filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
-      drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
+      drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
      }
    }

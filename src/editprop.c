@@ -1013,7 +1013,8 @@ static int edit_rect_property(int x)
   const char *attr;
   int preserve, modified = 0;
   char *oldprop=NULL;
-
+  double bus = 0.0, oldbus = 0.0;
+  double width;
   if(x < 0 || x > 2) {
     fprintf(errfp, "edit_rect_property() : unknown parameter x=%d\n",x);
     return 0;
@@ -1039,12 +1040,17 @@ static int edit_rect_property(int x)
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
       n = xctx->sel_array[i].n;
+      oldbus = xctx->rect[c][n].bus;
       if(oldprop && preserve == 1) {
         set_different_token(&xctx->rect[c][n].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
       } else {
         my_strdup(_ALLOC_ID_, &xctx->rect[c][n].prop_ptr,
                (char *) tclgetvar("tctx::retval"));
       }
+      bus = xctx->rect[c][n].bus = get_attr_val(get_tok_value(xctx->rect[c][n].prop_ptr,"bus",0));
+      if(bus > 0.0) width = bus / 2.0;
+      else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
+      if(oldbus / 2.0 > width) width = oldbus / 2.0;
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from attributes */
 
       set_rect_extraptr(0, &xctx->rect[c][n]);
@@ -1087,7 +1093,8 @@ static int edit_rect_property(int x)
            draw_image(0, &xctx->rect[c][n], &xctx->rect[c][n].x1, &xctx->rect[c][n].y1,
                          &xctx->rect[c][n].x2, &xctx->rect[c][n].y2, 0, 0);
          }
-         bbox(ADD, xctx->rect[c][n].x1, xctx->rect[c][n].y1,  xctx->rect[c][n].x2, xctx->rect[c][n].y2);
+         bbox(ADD, xctx->rect[c][n].x1 - width, xctx->rect[c][n].y1 - width,
+                   xctx->rect[c][n].x2 + width, xctx->rect[c][n].y2 + width);
       }
     }
     if(drw) {

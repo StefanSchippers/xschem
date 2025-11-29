@@ -698,7 +698,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     }
     else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                        (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-      drawrect(SYMLAYER, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 0, -1, -1);
+      drawrect(SYMLAYER, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
+               0.0, 0, -1, -1);
       xctx->inst[n].flags|=1;
       return;
     }
@@ -707,7 +708,8 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
-      drawrect(color, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 2, -1, -1);
+      drawrect(color, NOW, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
+               0.0, 2, -1, -1);
     }
   } else if(xctx->inst[n].flags&1) {
     dbg(2, "draw_symbol(): skipping inst %d\n", n);
@@ -812,7 +814,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           }
         }
         RECTORDER(x1,y1,x2,y2);
-        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, dash, ellipse_a, ellipse_b);
+        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, ellipse_a, ellipse_b);
         if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->fill,
                                   ellipse_a, ellipse_b);
       }
@@ -886,7 +888,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           x0+x1, y0+y1, xscale, yscale);
         my_free(_ALLOC_ID_, &txtptr);
         #if HAS_CAIRO!=1
-        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
+        drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
         drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
         #endif
         #if HAS_CAIRO==1
@@ -1393,24 +1395,14 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
   if( clip(&x1,&y1,&x2,&y2) )
   {
    if(dash) {
-     dash_arr[0] = dash_arr[1] = (char) dash;
+     dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
+     XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
+   } else if(bus > 0.0) {
+     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
+   } else if(bus == -1.0) {
+     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
    }
-
-
-    if(dash) {
-      dash_arr[0] = dash_arr[1] = (char)dash;
-      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-      XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
-    } else if(bus > 0.0) {
-      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
-    } else if(bus == -1.0) {
-      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
-    }
-
-
-
 
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap)
@@ -1813,8 +1805,6 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
       char dash_arr[2];
       dash_arr[0] = dash_arr[1] = (char)dash;
       XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-    }
-    if(dash) {
       XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
     } else if(bus > 0.0) { 
       XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
@@ -2142,8 +2132,6 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     char dash_arr[2];
     dash_arr[0] = dash_arr[1] = (char)dash;
     XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-  }
-  if(dash) {
     XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
   } else if(bus > 0.0) {
     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
@@ -2227,7 +2215,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
   }
 }
 
-void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, int dash,
+void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double recty2, double bus, int dash,
               int e_a, int e_b)
 {
  static int i=0;
@@ -2235,9 +2223,21 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
  double x1,y1,x2,y2;
  double xx1,yy1,xx2,yy2;
  char dash_arr[2];
+ int width;
 
  if(!has_x) return;
+      
+ if(bus == -1.0) { 
+   what = NOW; 
+   width = INT_BUS_WIDTH(xctx->lw);
+ } else if(bus > 0.0) {
+   what = NOW;
+   width = (int) (bus * xctx->mooz);
+ } else {
+   width = XLINEWIDTH(xctx->lw);
+ }        
  if(dash) what = NOW;
+
  if(e_a != -1) what = NOW; /* ellipse */
  if(what & NOW)
  {
@@ -2250,8 +2250,13 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    if(dash) {
      dash_arr[0] = dash_arr[1] = (char)dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), xDashType, xCap, xJoin);
-   }
+     XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
+   } else if(bus > 0.0) {
+     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
+   } else if(bus == -1.0) {
+     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
+   }     
+
    if(xctx->draw_window) {
      if(e_a != -1) {
        XDrawArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
@@ -2276,8 +2281,8 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
        (unsigned int)y2 - (unsigned int)y1);
      }
    }
-   if(dash) {
-     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw) ,LineSolid, LINECAP, LINEJOIN);
+   if(dash || bus > 0.0) {
+     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
   }
  }
@@ -3100,7 +3105,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   /* background */
   filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
   /* graph bounding box */
-  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
+  drawrect(GRIDLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0.0, 2, -1, -1);
 
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -5214,7 +5219,7 @@ void draw(void)
         if(c != GRIDLAYER || !(r->flags & 1) )
         #endif
         {
-          drawrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->dash, r->ellipse_a, r->ellipse_b);
+          drawrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->bus, r->dash, r->ellipse_a, r->ellipse_b);
           if(r->fill) filledrect(cc, ADD, r->x1, r->y1, r->x2, r->y2, r->fill, r->ellipse_a, r->ellipse_b);
         }
       }
@@ -5261,7 +5266,7 @@ void draw(void)
       }
       filledrect(cc, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawarc(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
-      drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
+      drawrect(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(cc, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
     }
     cc = WIRELAYER; if(xctx->only_probes) cc = GRIDLAYER;
@@ -5334,7 +5339,7 @@ void draw(void)
       }
       #endif
       #if HAS_CAIRO!=1
-      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
+      drawrect(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(textlayer, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);
       #endif
     } /* for(i=0;i<xctx->texts; ++i) */

@@ -285,7 +285,10 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      my_strdup(_ALLOC_ID_, &xctx->rect[rectc][n].prop_ptr, prop_ptr);
      xctx->rect[rectc][n].sel=sel;
      if(sel == SELECTED) set_first_sel(xRECT, n, rectc);
-
+     xctx->rect[rectc][n].bus = 0.0;
+     if(prop_ptr) {
+        xctx->rect[rectc][n].bus = get_attr_val(get_tok_value(prop_ptr, "bus", 0));
+     } 
      if(prop_ptr && (attr = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(attr);
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);
