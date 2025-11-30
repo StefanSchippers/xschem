@@ -1407,7 +1407,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap)
     XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
-   if(dash ||  bus > 0.0) {
+   if(dash ||  bus > 0.0 || bus == -1.0) {
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
   }
@@ -1834,7 +1834,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
      }
    }
-   if(dash || bus > 0.0) {
+   if(dash || bus > 0.0 || bus == -1.0) {
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
 
@@ -2099,9 +2099,14 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   GC gc;
   if(!has_x) return;
   if(bus == -1.0) what = THICK;
-  if(what == THICK) width = INT_BUS_WIDTH(xctx->lw);
-  else if(bus > 0.0) width = (int) (bus * xctx->mooz);
-  else width = XLINEWIDTH(xctx->lw);
+
+  if(bus == -1.0) { 
+    width = INT_BUS_WIDTH(xctx->lw);
+  } else if(bus > 0.0) {
+    width = (int) (bus * xctx->mooz);
+  } else {
+    width = XLINEWIDTH(xctx->lw);
+  }        
 
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
@@ -2161,7 +2166,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
     if(xctx->draw_pixmap)
        XFillPolygon(display, xctx->save_pixmap, gc, p, points, Polygontype, CoordModeOrigin);
   }
-  if(dash || what == THICK || bus > 0.0) {
+  if(dash || bus > 0.0 || bus == -1.0) {
     XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
   my_free(_ALLOC_ID_, &p);
@@ -2281,7 +2286,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
        (unsigned int)y2 - (unsigned int)y1);
      }
    }
-   if(dash || bus > 0.0) {
+   if(dash || bus > 0.0 || bus == -1.0) {
      XSetLineAttributes (display, xctx->gc[c], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
    }
   }
