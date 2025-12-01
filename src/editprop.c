@@ -1048,9 +1048,11 @@ static int edit_rect_property(int x)
                (char *) tclgetvar("tctx::retval"));
       }
       bus = xctx->rect[c][n].bus = get_attr_val(get_tok_value(xctx->rect[c][n].prop_ptr,"bus",0));
-      if(bus > 0.0) width = bus / 2.0;
+
+      if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
       else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
-      if(oldbus / 2.0 > width) width = oldbus / 2.0;
+      if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
+
       set_rect_flags(&xctx->rect[c][n]); /* set cached .flags bitmask from attributes */
 
       set_rect_extraptr(0, &xctx->rect[c][n]);
@@ -1144,9 +1146,9 @@ static int edit_line_property(void)
       }
       bus = xctx->line[c][n].bus = get_attr_val(get_tok_value(xctx->line[c][n].prop_ptr,"bus",0));
 
-      if(bus > 0.0) width = bus / 2.0;
+      if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
       else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
-      if(oldbus / 2.0 > width) width = oldbus / 2.0;
+      if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
 
       dash = get_tok_value(xctx->line[c][n].prop_ptr,"dash",0);
       if( strcmp(dash, "") ) {
@@ -1209,9 +1211,9 @@ static int edit_wire_property(void)
       }
       xctx->wire[k].bus = bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
 
-      if(bus > 0.0) width = bus / 2.0;
-      else width = INT_BUS_WIDTH(xctx->lw / 2.0);
-      if(oldbus / 2.0 > width) width = oldbus / 2.0;
+      if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
+      else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
+      if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
 
       ov = width > xctx->cadhalfdotsize ? width : xctx->cadhalfdotsize;
       if(xctx->wire[k].y1 < xctx->wire[k].y2) { y1 = xctx->wire[k].y1-ov; y2 = xctx->wire[k].y2+ov; }
@@ -1280,9 +1282,9 @@ static int edit_arc_property(void)
        xctx->arc[c][i].dash = 0;
 
      bus = xctx->arc[c][i].bus = get_attr_val(get_tok_value(xctx->arc[c][i].prop_ptr,"bus",0));
-     if(bus > 0.0) width = bus / 2.0;
+     if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
      else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
-     if(oldbus / 2.0 > width) width = oldbus / 2.0;
+     if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
 
      if(oldbus != bus || old_fill != xctx->arc[c][i].fill || old_dash != xctx->arc[c][i].dash) {
        if(!drw) {
@@ -1349,10 +1351,9 @@ static int edit_polygon_property(void)
      bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
      xctx->poly[c][i].bus = bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
-     if(bus > 0.0) width = bus / 2.0;
-     else width = xctx->cadhalfdotsize > INT_BUS_WIDTH(xctx->lw) / 2.0 ?
-            xctx->cadhalfdotsize : INT_BUS_WIDTH(xctx->lw) / 2.0;
-     if(oldbus / 2.0 > width) width = oldbus / 2.0;
+     if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
+     else width = MAJOR(INT_BUS_WIDTH(xctx->lw) / 2.0, xctx->cadhalfdotsize);
+     if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
 
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )

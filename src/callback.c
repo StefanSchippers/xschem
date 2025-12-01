@@ -3724,13 +3724,15 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       break;
 
     case '_':                                         /* toggle change line width */
-      if(!tclgetboolvar("change_lw")) {
+      if(!xctx->change_lw) {
           tcleval("alert_ { enabling change line width} {}");
           tclsetvar("change_lw","1");
+          xctx->change_lw = 1;
       }
       else {
           tcleval("alert_ { disabling change line width} {}");
           tclsetvar("change_lw","0");
+          xctx->change_lw = 0;
       }
       break;
 

@@ -1345,7 +1345,7 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    width = INT_BUS_WIDTH(xctx->lw);
  } else if(bus > 0.0) {
    what = NOW;
-   width = (int) (bus * xctx->mooz);
+   width = XLINEWIDTH(bus * xctx->mooz);
  } else {
    width = XLINEWIDTH(xctx->lw);
  }        
@@ -1424,9 +1424,9 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
    if(dash) {
      dash_arr[0] = dash_arr[1] = (char) dash;
      XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
-     XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), xDashType, xCap, xJoin);
+     XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
    } else {
-     XSetLineAttributes (display, xctx->gc[c], INT_BUS_WIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+     XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
    }
    if(xctx->draw_window) XDrawLine(display, xctx->window, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
    if(xctx->draw_pixmap) XDrawLine(display, xctx->save_pixmap, xctx->gc[c], (int)x1, (int)y1, (int)x2, (int)y2);
@@ -1748,7 +1748,7 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
    width = INT_BUS_WIDTH(xctx->lw);
  } else if(bus > 0.0) {
    what = NOW;
-   width = (int) (bus * xctx->mooz);
+   width = XLINEWIDTH(bus * xctx->mooz);
  } else {
    width = XLINEWIDTH(xctx->lw);
  }
@@ -2103,7 +2103,7 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(bus == -1.0) { 
     width = INT_BUS_WIDTH(xctx->lw);
   } else if(bus > 0.0) {
-    width = (int) (bus * xctx->mooz);
+    width = XLINEWIDTH(bus * xctx->mooz);
   } else {
     width = XLINEWIDTH(xctx->lw);
   }        
@@ -2237,7 +2237,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    width = INT_BUS_WIDTH(xctx->lw);
  } else if(bus > 0.0) {
    what = NOW;
-   width = (int) (bus * xctx->mooz);
+   width = XLINEWIDTH(bus * xctx->mooz);
  } else {
    width = XLINEWIDTH(xctx->lw);
  }        

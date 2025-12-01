@@ -1420,6 +1420,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->case_insensitive), TCL_VOLATILE);
           }
+          else if(!strcmp(argv[2], "change_lw")) { /* change line width when zooming */
+            if(xctx->change_lw != 0 ) Tcl_SetResult(interp, "1",TCL_STATIC);
+            else Tcl_SetResult(interp, "0",TCL_STATIC);
+          }
           else if(!strcmp(argv[2], "color_ps")) { /* color postscript flag */
             if(color_ps != 0 ) Tcl_SetResult(interp, "1",TCL_STATIC);
             else Tcl_SetResult(interp, "0",TCL_STATIC);
@@ -1555,6 +1559,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'm':
+          if(!strcmp(argv[2], "min_lw")) { /* minimum line width */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp, dtoa(xctx->min_lw),TCL_VOLATILE);
+          }
           if(!strcmp(argv[2], "modified")) { /* schematic is in modified state (needs a save) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->modified),TCL_VOLATILE);
@@ -5421,6 +5429,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             set_snap( atof(argv[3]) );
             change_linewidth(-1.);
             draw();
+          }
+          else if(!strcmp(argv[2], "change_lw")) { /* allow change line width when zooming */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            xctx->change_lw = atoi(argv[3]);
+            tclsetboolvar("change_lw", xctx->change_lw);
           }
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
             color_ps=atoi(argv[3]);

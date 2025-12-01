@@ -2896,7 +2896,7 @@ void zoom_full(int dr, int sel, int flags, double shrink)
   double bboxw, bboxh, schw, schh;
   double cs = tclgetdoublevar("cadsnap");
   if(flags & 1) {
-    if(tclgetboolvar("change_lw")) {
+    if(xctx->change_lw) {
       xctx->lw = 1.;
     }
     xctx->areax1 = -2*INT_LINE_W(xctx->lw);

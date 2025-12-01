@@ -716,6 +716,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->x_strcmp = strcmp;
   xctx->fill_pattern = 1;
   xctx->draw_window = 0;
+  xctx->change_lw = 1;
   xctx->do_copy_area = 1;
   xctx->time_last_modify = 0;
 }
@@ -2147,7 +2148,7 @@ void change_linewidth(double w)
   dbg(1, "change_linewidth(): w = %g, win_path=%s lw=%g\n", w, xctx->current_win_path, xctx->lw);
   if(w<0. || xctx->lw == -1.0) {
     double cs = tclgetdoublevar("cadsnap");
-    if(tclgetboolvar("change_lw"))  {
+    if(xctx->change_lw)  {
       xctx->lw=xctx->mooz * 0.09 * cs * (1.0 + MAJOR(xctx->min_lw, 1.0) / 4.0);
       if(xctx->lw > 100.) xctx->lw = 100.;
       xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
@@ -2404,6 +2405,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 #endif
  int i;
  double l_width;
+ int change_lw;
  struct stat buf;
  int running_in_src_dir;
  int fs;
@@ -2868,6 +2870,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    tclsetboolvar("color_ps", color_ps);
  }
  l_width=tclgetdoublevar("line_width");
+ change_lw=tclgetboolvar("change_lw");
  cadlayers=tclgetintvar("cadlayers");
  fix_broken_tiled_fill = tclgetboolvar("fix_broken_tiled_fill");
  fix_mouse_coord = tclgetboolvar("fix_mouse_coord");
@@ -3021,7 +3024,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
     tclsetvar("has_cairo","1");
     #endif
     xctx->min_lw = (int)l_width;
-    if(tclgetboolvar("change_lw")) l_width = -1.0;
+    xctx->change_lw = change_lw;
+    if(xctx->change_lw) l_width = -1.0;
     change_linewidth(l_width);
     dbg(1, "Tcl_AppInit(): done xinit()\n");
     /* Set backing store window attribute */

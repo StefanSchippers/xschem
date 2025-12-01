@@ -10161,7 +10161,7 @@ proc build_widgets { {topwin {} } } {
          }
 
   $topwin.menubar.view add checkbutton -label "Toggle variable line width" -variable change_lw \
-     -selectcolor $selectcolor -accelerator {_}
+     -selectcolor $selectcolor -accelerator {_} -command "xschem set change_lw $change_lw"
   $topwin.menubar.view add command -label "Set line width" -accelerator {Alt+-} \
        -command {
          input_line "Enter linewidth (float):" "xschem line_width"
