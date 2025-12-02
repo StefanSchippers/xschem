@@ -22,11 +22,11 @@
 
 #include "xschem.h"
 
-static Str_hashtable model_table = {NULL, 0}; /* safe even with multiple schematics */
+static Str_hashtable spectre_model_table = {NULL, 0}; /* safe even with multiple schematics */
 
-static char *model_name_result = NULL; /* safe even with multiple schematics */
+static char *spectre_mod_name_res = NULL; /* safe even with multiple schematics */
 
-static char *model_name(const char *m)
+static char *spectre_model_name(const char *m)
 {
   char *m_lower = NULL;
   char *modelname = NULL;
@@ -36,22 +36,22 @@ static char *model_name(const char *m)
   my_strdup(_ALLOC_ID_, &m_lower, m);
   strtolower(m_lower);
   my_realloc(_ALLOC_ID_, &modelname, l);
-  my_realloc(_ALLOC_ID_, &model_name_result, l);
+  my_realloc(_ALLOC_ID_, &spectre_mod_name_res, l);
   if((ptr = strstr(m_lower, "subckt"))) {
-    n = sscanf(ptr, "subckt %s %s", model_name_result, modelname);
+    n = sscanf(ptr, "subckt %s %s", spectre_mod_name_res, modelname);
   } else if((ptr = strstr(m_lower, "model"))) {
-    n = sscanf(ptr, "model %s %s", model_name_result, modelname);
+    n = sscanf(ptr, "model %s %s", spectre_mod_name_res, modelname);
   } else {
-     n = sscanf(m_lower, " %s %s", model_name_result, modelname);
+     n = sscanf(m_lower, " %s %s", spectre_mod_name_res, modelname);
   }
-  if(n<2) my_strncpy(model_name_result, m_lower, l);
+  if(n<2) my_strncpy(spectre_mod_name_res, m_lower, l);
   else {
     /* build a hash key value with no spaces to make device_model attributes with different spaces equivalent*/
-    my_strcat(_ALLOC_ID_, &model_name_result, modelname);
+    my_strcat(_ALLOC_ID_, &spectre_mod_name_res, modelname);
   }
   my_free(_ALLOC_ID_, &modelname);
   my_free(_ALLOC_ID_, &m_lower);
-  return model_name_result;
+  return spectre_mod_name_res;
 }
 
 static int spectre_netlist(FILE *fd, int spectre_stop )
@@ -115,16 +115,16 @@ static int spectre_netlist(FILE *fd, int spectre_stop )
          m = val;
          if(strchr(val, '@')) m = translate(i, val);
          else m = tcl_hook2(m);
-         if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
+         if(m[0]) str_hash_lookup(&spectre_model_table, spectre_model_name(m), m, XINSERT);
          else {
            my_strdup2(_ALLOC_ID_, &val,
                get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "spectre_device_model", 2));
            m = val;
            if(strchr(val, '@')) m = translate(i, val);
            else m = tcl_hook2(m);
-           if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
+           if(m[0]) str_hash_lookup(&spectre_model_table, spectre_model_name(m), m, XINSERT);
          }
-         my_free(_ALLOC_ID_, &model_name_result);
+         my_free(_ALLOC_ID_, &spectre_mod_name_res);
          my_free(_ALLOC_ID_, &val);
        }
      }
@@ -177,7 +177,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, HASHSIZE);
- str_hash_init(&model_table, HASHSIZE);
+ str_hash_init(&spectre_model_table, HASHSIZE);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
@@ -459,8 +459,8 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
 
  }
  /* print device_model attributes */
- for(i=0;i<model_table.size; ++i) {
-   model_entry=model_table.table[i];
+ for(i=0;i<spectre_model_table.size; ++i) {
+   model_entry=spectre_model_table.table[i];
    while(model_entry) {
      if(first == 0) fprintf(fd,"//// begin user architecture code\n");
      ++first;
@@ -468,7 +468,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
      model_entry = model_entry->next;
    }
  }
- str_hash_free(&model_table);
+ str_hash_free(&spectre_model_table);
  str_hash_free(&subckt_table);
  if(first) fprintf(fd,"//// end user architecture code\n");
 
