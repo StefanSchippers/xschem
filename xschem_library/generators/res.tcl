@@ -26,7 +26,10 @@ proc from_eng {i} {
 }
 
 set arg1 [lindex $argv 0]
-if {$arg1 eq {}} {puts stderr "empty arg"; set arg1 1K}
+if {$arg1 eq {}} {
+    puts stderr "empty arg"
+    set arg1 1K
+}
 if {[from_eng $arg1] > 0.1} {
     puts stderr "res value=|$arg1|"
     puts "v {xschem version=3.4.0 file_version=1.2

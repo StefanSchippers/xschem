@@ -133,7 +133,11 @@ proc draw_trim_wiregrid {} {
     set n [xschem get lastsel]
     xschem unselect_all
     ## if all wires trimmed correctly we should have 129*128*2 = 33024 segments.
-    if {$n == 33024} {puts "Trim wire test: $n segments, OK"} else {puts "Trim wire test FAIL"}
+    if {$n == 33024} {
+        puts "Trim wire test: $n segments, OK"
+    } else {
+        puts "Trim wire test FAIL"
+    }
     xschem clear force
 }
 
