@@ -34,14 +34,13 @@ if {[lsearch -exact $toolbar_list MyButton] < 0} {
   }
 
   ## Create an image object. Name should be img<name of button>
-  image create photo imgMyButton 
+  image create photo imgMyButton
   imgMyButton put $MyButtonData
-
 }
 
 ## Create the toolbar button
 ## constructor  name         tcl command        tooltip    topwindow
-toolbar_add   MyButton      { puts SMILE! }     "SMILE!"     $topwin
+toolbar_add MyButton { puts SMILE! } "SMILE!" $topwin
 ## Destroy and rebuild the toolbar, but see better option here under ...
 # toolbar_hide
 # toolbar_show

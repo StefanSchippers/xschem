@@ -13,7 +13,7 @@
 ## optionally with logging to catch memory leaks:
 # xschem -d 3 -l log --script /path/to/xschemtest.tcl
 ## and then running: xschemtest
-## running this test with different xschem versions with profiling enabled (-pg) 
+## running this test with different xschem versions with profiling enabled (-pg)
 ## allows to see differences in number of function calls / time spent.
 
 ## move schematic and redraw in a loop.
@@ -21,8 +21,8 @@ proc draw_test {{filelist {-}} {hide_graphs 0}} {
   global show_pin_net_names hide_empty_graphs
   set hide_empty_graphs $hide_graphs
   set show_pin_net_names 1
-  foreach f $filelist  {
-    if { $f ne {-}} {
+  foreach f $filelist {
+    if {$f ne {-}} {
       xschem load [abs_sym_path $f]
     }
     xschem search regex 1 lab . ;# select all nets
@@ -31,22 +31,22 @@ proc draw_test {{filelist {-}} {hide_graphs 0}} {
     set increment 5.0
     set n 30.0
     set a [time {
-      for { set i 0 } { $i < $n } { incr i} {
+      for {set i 0} {$i < $n} {incr i} {
         set x [xschem get xorigin]
         set y [xschem get yorigin]
-        set x [expr {$x +$increment}]
-        set y [expr {$y +$increment}]
+        set x [expr {$x + $increment}]
+        set y [expr {$y + $increment}]
         xschem origin $x $y
         xschem redraw
       }
     }]
     set a [lindex $a 0]
-    set fps [expr {$n / $a * 1e6} ] ;# calculate drawing frames per second
+    set fps [expr {$n / $a * 1e6}] ;# calculate drawing frames per second
     puts "$f: draw speed: $fps fps"
   }
   set show_pin_net_names 0
 }
-proc test_windows { {tabs 0} {destroy 1} } {
+proc test_windows {{tabs 0} {destroy 1}} {
   global tabbed_interface
 
   xschem clear force
@@ -83,7 +83,7 @@ proc copy_paste_test {{f mos_power_ampli.sch}} {
   xschem select_all
   set n [xschem get lastsel]
   xschem copy
-  for { set i 3000 } {$i < 12001} { set i [expr {$i + 3000}]} {
+  for {set i 3000} {$i < 12001} {set i [expr {$i + 3000}]} {
     xschem paste 0 $i
     xschem paste 0 -$i
     xschem paste $i 0
@@ -96,7 +96,7 @@ proc copy_paste_test {{f mos_power_ampli.sch}} {
   update
   xschem select_all
   set m [xschem get lastsel]
-  if { $m == $n * 33 } {
+  if {$m == $n * 33} {
     puts "Copy / paste 32 additional circuits: $m elements == $n * 33. OK"
   } else {
     puts "Copy / paste 32 additional circuits: $m elements != $n * 33. FAIL"
@@ -113,7 +113,7 @@ proc draw_trim_wiregrid {} {
   xschem set no_undo 1
   for {set i 0} {$i < 129} {incr i} {
     set x [expr {$i * 40.0}]
-    set y [expr {128.0*40}]
+    set y [expr {128.0 * 40}]
     xschem wire $x 0 $x $y
   }
   for {set i 0} {$i < 129} {incr i} {
@@ -133,7 +133,11 @@ proc draw_trim_wiregrid {} {
   set n [xschem get lastsel]
   xschem unselect_all
   ## if all wires trimmed correctly we should have 129*128*2 = 33024 segments.
-  if {$n == 33024} { puts "Trim wire test: $n segments, OK"} else { puts "Trim wire test FAIL"}
+  if {$n == 33024} {
+    puts "Trim wire test: $n segments, OK"
+  } else {
+    puts "Trim wire test FAIL"
+  }
   xschem clear force
 }
 
@@ -152,7 +156,7 @@ proc print_test {{view 0}} {
     set printfile [file rootname $f].$t
     xschem load $filepath
     puts "Printing: $printfile in $t format"
-    xschem print $t  $printfile
+    xschem print $t $printfile
     if {$view && $OS ne {Windows}} {
       execute 0 xdg-open $printfile
       alert_ "Opening print file. Check if $printfile print file looks fine"
@@ -172,9 +176,9 @@ proc print_test {{view 0}} {
 proc test_xschem_simulation {{f simulate_ff.sch}} {
   global tclstop OS
   xschem load [abs_sym_path $f]
-  ## search element with tclcommand attribute 
+  ## search element with tclcommand attribute
   if {$OS ne {Windows}} {
-    xschem search regex  1 tclcommand {}
+    xschem search regex 1 tclcommand {}
   } else {
     xschem search exact 1 name h3
   }
@@ -208,14 +212,14 @@ proc netlist_test {} {
   } {
     xschem set netlist_type $t
     xschem load [abs_sym_path $f]
-    if {$t eq {verilog}} { set t v}
-    if {$t eq {tedax}} { set t tdx}
+    if {$t eq {verilog}} {set t v}
+    if {$t eq {tedax}} {set t tdx}
     set netlist_file $netlist_dir/[file rootname $f].$t
     file delete $netlist_file
     xschem netlist
     ## check netlist hashes, compare with gold hashes
     set netlist_hash [xschem hash_file $netlist_file 1]
-    if { $netlist_hash == $h } {
+    if {$netlist_hash == $h} {
       puts "$f netlist check OK"
     } else {
       puts "$f netlist check, expected hash: ${h}, calculated hash: ${netlist_hash}, FAIL"
@@ -232,7 +236,7 @@ proc xschemtest {{view 0}} {
     netlist_test
     print_test $view
     draw_test [list 0_examples_top.sch rom8k.sch greycnt.sch autozero_comp.sch \
-               loading.sch mos_power_ampli.sch LCC_instances.sch simulate_ff.sch]
+      loading.sch mos_power_ampli.sch LCC_instances.sch simulate_ff.sch]
 
     copy_paste_test mos_power_ampli.sch
     draw_trim_wiregrid

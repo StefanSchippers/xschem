@@ -24,4 +24,3 @@ proc gtkwave_server {sock addr port} {
 
 set gtkwave_port 2022
 socket -server gtkwave_server $gtkwave_port
-

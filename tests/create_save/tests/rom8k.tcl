@@ -1,33 +1,33 @@
 xschem set rectcolor 3
-xschem line 850 -270 850 -60 
-xschem line 1050 -270 1050 -60 
-xschem line 1250 -270 1250 -60 
+xschem line 850 -270 850 -60
+xschem line 1050 -270 1050 -60
+xschem line 1250 -270 1250 -60
 xschem set rectcolor 8
-xschem line  820 -220 850 -220 
-xschem line  850 -220 850 -180 
-xschem line  850 -180 950 -180 
-xschem line  950 -220 950 -180 
-xschem line  950 -220 1050 -220 
-xschem line  1050 -220 1050 -180 
-xschem line  1050 -180 1150 -180 
-xschem line  1150 -220 1150 -180 
-xschem line  1150 -220 1250 -220 
-xschem line  1250 -220 1250 -180 
-xschem line  1250 -180 1300 -180 
-xschem line  950 -160 950 -120 
-xschem line  950 -160 980 -160 
-xschem line  980 -160 980 -120 
-xschem line  980 -120 1150 -120 
-xschem line  1150 -160 1150 -120 
-xschem line  1150 -160 1180 -160 
-xschem line  1180 -160 1180 -120 
-xschem line  1180 -120 1300 -120 
-xschem line  820 -120 950 -120 
+xschem line 820 -220 850 -220
+xschem line 850 -220 850 -180
+xschem line 850 -180 950 -180
+xschem line 950 -220 950 -180
+xschem line 950 -220 1050 -220
+xschem line 1050 -220 1050 -180
+xschem line 1050 -180 1150 -180
+xschem line 1150 -220 1150 -180
+xschem line 1150 -220 1250 -220
+xschem line 1250 -220 1250 -180
+xschem line 1250 -180 1300 -180
+xschem line 950 -160 950 -120
+xschem line 950 -160 980 -160
+xschem line 980 -160 980 -120
+xschem line 980 -120 1150 -120
+xschem line 1150 -160 1150 -120
+xschem line 1150 -160 1180 -160
+xschem line 1180 -160 1180 -120
+xschem line 1180 -120 1300 -120
+xschem line 820 -120 950 -120
 xschem set rectcolor 7
-xschem rect 950 -250 980 -80 
-xschem rect 1150 -250 1180 -80 
+xschem rect 950 -250 980 -80
+xschem rect 1150 -250 1180 -80
 xschem set rectcolor 21
-xschem rect 10 -970 240 -750 
+xschem rect 10 -970 240 -750
 xschem wire 150 -580 150 -560 {lab=vss}
 xschem wire 150 -420 150 -400 {lab=vss}
 xschem wire 10 -270 10 -250 {lab=vss}
@@ -53,7 +53,7 @@ vvss vss 0 0
 *.dc vvcc 0 2 0.1
 .tran 0.2n 480n uic
 
-** download models from here: 
+** download models from here:
 ** http://www.amarketplaceofideas.com/wp-content/uploads/2014/11/180nm-V1.7z
 ** and save to 'models_rom8k.txt' in simulation directory
 .include models_rom8k.txt

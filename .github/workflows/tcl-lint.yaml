@@ -1,0 +1,23 @@
+name: Tcl Linting and Formatting
+
+on: [push, pull_request]
+
+jobs:
+  tcl-lint:
+    runs-on: ubuntu-latest
+    name: Tcl Code Quality
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Check Tcl formatting
+        run: make format-check
+
+      - name: Run tclint
+        run: make lint
