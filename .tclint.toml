@@ -17,4 +17,5 @@ ignore = [
 [style]
 # Extend the default line length to 180 characters
 # Many lines in the codebase are long due to complex Tcl command chains and embedded strings
+indent = 2
 line-length = 180
