@@ -5,8 +5,8 @@ exec tclsh "$0" "$@"
 set arg1 [lindex $argv 0]
 set rout [lindex $argv 1]
 # puts stderr "arg1=|$arg1| $rout=|$rout|"
-if { $arg1 eq {inv}} {
-puts "v {xschem version=3.1.0 file_version=1.2}
+if {$arg1 eq {inv}} {
+    puts "v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 xvhdl_primitive=true
 xverilog_primitive=true
@@ -29,7 +29,7 @@ T {y} 7.5 -6.5 0 1 0.2 0.2 {}
 T {a} -17.5 -6.5 0 0 0.2 0.2 {}
 "
 } else {
-puts "v {xschem version=3.1.0 file_version=1.2}
+    puts "v {xschem version=3.1.0 file_version=1.2}
 K {type=subcircuit
 xvhdl_primitive=true
 xverilog_primitive=true

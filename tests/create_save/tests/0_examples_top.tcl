@@ -1,11 +1,11 @@
-xschem line 910 -560 960 -540 
-xschem line 880 -680 1200 -680 
-xschem line 900 -540 950 -560 
-xschem line 900 -550 950 -530 
-xschem line 910 -530 960 -550 
-xschem rect 940 -510 960 -450 
-xschem rect 900 -490 970 -470 
-xschem rect 910 -510 930 -450 
+xschem line 910 -560 960 -540
+xschem line 880 -680 1200 -680
+xschem line 900 -540 950 -560
+xschem line 900 -550 950 -530
+xschem line 910 -530 960 -550
+xschem rect 940 -510 960 -450
+xschem rect 900 -490 970 -470
+xschem rect 910 -510 930 -450
 xschem wire 870 -300 990 -300 {lab=#net1}
 xschem wire 910 -340 910 -250 {lab=#net2}
 xschem wire 910 -270 970 -270 {lab=#net2}

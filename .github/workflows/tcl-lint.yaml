@@ -1,0 +1,31 @@
+name: Tcl Linting and Formatting
+
+on: [push, pull_request]
+
+jobs:
+  tcl-lint:
+    runs-on: ubuntu-latest
+    name: Tcl Code Quality
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install tclint
+        run: pip install tclint
+
+      - name: Check Tcl formatting with tclfmt
+        run: |
+          # Check if all Tcl files are formatted correctly (excluding src/xschem.tcl)
+          tclfmt --check --exclude "src/xschem.tcl" .
+
+      - name: Run tclint on Tcl files
+        run: |
+          # Run tclint with the configuration file
+          # This will check all .tcl files except those excluded in .tclint.toml
+          find . -name "*.tcl" -type f ! -path "./src/xschem.tcl" -exec tclint -c .tclint.toml {} \;

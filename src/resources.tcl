@@ -1,26 +1,24 @@
 #
 #  File: resources.tcl
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-
-
 
 
 ##
@@ -41,14 +39,14 @@
 ## # so we set white background and eliminate alpha channel (unsupported in gif).
 ## convert  -background white -alpha remove -alpha off  paste.png -transparent white gif:-|base64
 ##
-## Following shell function (and call) converts a png base64 encoded to proper 
+## Following shell function (and call) converts a png base64 encoded to proper
 ## gif89a base64 encoded format:
 ##   to_gif () {
 ##     echo "image create photo $1 -data \""
 ##     echo -n "$2" | base64 -d |convert -background white -alpha remove -alpha off - -transparent white gif:- |base64
 ##     echo '"'
 ##   }
-## 
+##
 ##   to_gif imgFileOpen "...."
 
 ##
@@ -69,7 +67,7 @@
 # # set light colorscheme, set transparent svg background
 # # draw image inside the border in green color
 # # set line with 40 disable change line width, redraw
-# # move away the border, full zoom the image 
+# # move away the border, full zoom the image
 # # export svg:
 #  xschem print svg 1.svg 400 400 0 0 100 100
 # # edit svg, change .l4 layer from green to black (#000000)
@@ -77,21 +75,19 @@
 # gm convert -size 16x16 1.svg 1.png
 # convert -background white -alpha remove -alpha off 1.png -transparent white 1.gif
 # base64 1.gif
-# # the output is the 16x16 image with transparent background, antialiasing 
+# # the output is the 16x16 image with transparent background, antialiasing
 # # and base64 encoded
 # #
 # #
 # #
 
 
-
 ## FILE
 
 
-if { $dark_gui_colorscheme == 0 } {
-
-image create photo ximgFileOpen
-ximgFileOpen put "
+if {$dark_gui_colorscheme == 0} {
+    image create photo ximgFileOpen
+    ximgFileOpen put "
 R0lGODlhGAAYAPYAAAAAAAEBAQMDAwQEBAUFBQcHBwgICAkJCQsLCw0NDRISEhMTExcXFxkZGRwc
 HB0dHR4eHiEhISYmJisrKywsLDAwMDExMTIyMjY2Njc3Nzk5OUREREVFRUZGRk5OTlRUVFlZWVpa
 Wl1dXV5eXmBgYGhoaGlpaW1tbW5ubm9vb3BwcHl5eXp6en19fYGBgYKCgouLi5OTk5SUlJWVlZ2d
@@ -105,8 +101,8 @@ KuHi4+Ti3ysLubbr7LoLEOrt8gAIEBcJ8/MIFx0L+fILOoBg8K8dAxAoIBRkBwFFiwgL10V4IUNC
 RFsSZNigcJEUBRs6OHbEdEEHEQwjMWEgkqRDSgAdkjihgcKRzZs4b6Kg4WSSz58+AwEAOw==
 "
 
-image create photo ximgFileSave
-ximgFileSave put "
+    image create photo ximgFileSave
+    ximgFileSave put "
 R0lGODlhGAAYAPUAAAAAAAEBAQICAgMDAwQEBAUFBQcHBzExMT4+Pj8/P0FBQUNDQ0REREVFRUdH
 R0hISElJSV9fX2BgYGFhYWJiYmVlZWdnZ2hoaGlpaW1tbW5ubm9vb3BwcHNzc3R0dJOTk6Ghoaam
 pqqqqq2trbGxsbKysrOzs7a2trq6usHBwcLCwsPDw8TExMbGxsfHx8rKytXV1ebm5urq6uzs7O3t
@@ -117,8 +113,8 @@ GrCdkwbCwp6lprLGycqxQrPKz8fN0NDMOs7TxtXX2Gza3Mne36XVa+JskUMkZeIGDSdETE5P8/T0
 HiRpSvr7/ENBADs=
 "
 
-image create photo ximgFileReload
-ximgFileReload put "
+    image create photo ximgFileReload
+    ximgFileReload put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgQEBAUFBQcHBwgICAsLCw0NDQ4ODg8PDxMTExQUFBoaGhsb
 GxwcHB8fHyAgICEhIScnJysrKywsLDg4OD4+Pj8/P0BAQEFBQUJCQkZGRk9PT1VVVVZWVmFhYWdn
 Z2hoaGlpaWtra2xsbHNzc4yMjJaWlpqamqSkpKWlpaqqqq2trbOzs7a2tri4uL6+vsHBwcPDw8TE
@@ -132,10 +128,10 @@ Sz0l2BTNJIY3EyY+hiTmhj4nQofuwueFSEVK9O+SS/XB7kkCCAxDChQIEypUmAIDMGTOIjYjQCGB
 xIvPKqhYRqCjx48gPRrQsELIjhsyUqpcyXLljiL+YsqcSXNRIAA7
 "
 
-## EDIT
+    ## EDIT
 
-image create photo ximgEditUndo
-ximgEditUndo put "
+    image create photo ximgEditUndo
+    ximgEditUndo put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgMDAwUFBQcHBw0NDQ4ODg8PDxAQEBERERMTExQUFBUVFRcX
 FxgYGBkZGRsbGxwcHB0dHR4eHiAgICIiIioqKiwsLENDQ0REREtLS1NTU1RUVFxcXGFhYWdnZ2ho
 aGlpaWpqamxsbHJycnR0dHV1dXd3d3h4eHx8fICAgISEhIWFhYaGhoqKipCQkJGRkZSUlJWVlZqa
@@ -149,8 +145,8 @@ mEIox7oFBgXJCShFhkIpra4ZODc0MyskGxUFEjTWhEYlILgaNWiKER4wPEDg0OMQlBIVREl60iJD
 C3/XoqTYhChLlhsrhAjDFEXFC0VTfOwYaUiJkkVRgpEilAXjzJs4GQUCADs=
 "
 
-image create photo ximgEditRedo
-ximgEditRedo put "
+    image create photo ximgEditRedo
+    ximgEditRedo put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgUFBQcHBw0NDQ4ODhAQEBERERISEhUVFRcXFxgYGBoaGhwc
 HB0dHR4eHiAgICEhISMjIyoqKkNDQ0REREtLS1NTU1ZWVl1dXWBgYGdnZ2hoaGlpaWpqamtra2xs
 bG1tbXJycnNzc3R0dHV1dXZ2dnd3d3h4eHt7e3x8fH9/f4KCgoODg4SEhIWFhYeHh4qKipCQkJGR
@@ -164,8 +160,8 @@ BhxIpUYlBs0EBr+z6SNEpU83vhMXITE2Nzg5FsCaRIU9MkDQQIOHkieETjUooYqQlBYVYpA6xAHA
 hBFOClkREgOHFWMJF5TgpHGHD4SJZLAgqRFJRkVKlCSSAtKTzZs4bwYCADs=
 "
 
-image create photo ximgEditCopy
-ximgEditCopy put "
+    image create photo ximgEditCopy
+    ximgEditCopy put "
 R0lGODlhGAAYAPYAAAAAAAcHBwoKCg4ODhAQEBERESUlJSsrKywsLC0tLS4uLi8vLzAwMDExMTMz
 Mzg4ODk5OTo6OkBAQEFBQURERFJSUlNTU1RUVFVVVVpaWmFhYWRkZGVlZXd3d35+foGBgYODg4SE
 hIWFhYaGhoiIiJWVlZaWlpmZmZ+fn6urq66urq+vr7S0tLW1tbm5ubu7u76+vr+/v8DAwMTExMzM
@@ -180,8 +176,8 @@ Ax+oUPWg0WORDRugaOTIGIQCgAiKZBBKVBIABZLjygVhoS0myRYdWCjq4eEDxiA4W5AcSrQoo0AA
 Ow==
 "
 
-image create photo ximgEditCut
-ximgEditCut put "
+    image create photo ximgEditCut
+    ximgEditCut put "
 R0lGODlhGAAYAPcAAAAAAAEBAQICAgMDAwQEBAUFBQYGBgcHBwgICAkJCQsLCwwMDA0NDQ4ODhAQ
 EBERERISEhMTExUVFRYWFhcXFxoaGhsbGx0dHR4eHh8fHyIiIiMjIyQkJCUlJScnJysrKywsLC0t
 LS8vLzExMTMzMzU1NTY2Njg4ODk5OTo6Ojs7Ozw8PD4+Pj8/P0JCQkNDQ0REREVFRUhISExMTE5O
@@ -205,8 +201,8 @@ gWFhFgALMz0ZRURSS7HwBmWUSNWBBTSkFVMMczRiE046iUTJIXnkEchQI5WkQwwLqESZSE9dlBFH
 AIDwUUgNmeHED+VRxGJtI85oI0MBAQA7
 "
 
-image create photo ximgEditPaste
-ximgEditPaste put "
+    image create photo ximgEditPaste
+    ximgEditPaste put "
 R0lGODlhGAAYAPYAAAAAAAEBAQUFBQoKCgsLCw4ODg8PDxAQEBkZGRsbGx0dHR8fHyAgICEhISMj
 IyYmJicnJy0tLS4uLi8vLzAwMDIyMjMzMzU1NTg4ODk5OUFBQUJCQkREREVFRUZGRkxMTE1NTVBQ
 UFFRUVRUVFdXV1paWl1dXWpqanR0dHd3d3h4eHx8fH19fX5+foODg4iIiI2NjY+Pj5ycnJ6enqCg
@@ -221,8 +217,8 @@ J3szKJwwlIRDAYcFxYF0J7ATBwAZgqhcuXLXuVTUjPm64C2mTF7IVPkI0eKFz58/VZAQ4q2o0aOp
 AgEAOw==
 "
 
-image create photo ximgEditDelete
-ximgEditDelete put "
+    image create photo ximgEditDelete
+    ximgEditDelete put "
 R0lGODlhGAAYAPUAAAAAAAEBAQICAgMDAwYGBgcHBw0NDRAQEBQUFBUVFRkZGRoaGi4uLjAwMDEx
 MTw8PD09PUBAQEZGRklJSVNTU1RUVFhYWICAgIGBgYuLi4+Pj5KSkpOTk5ubm6ioqKmpqaqqqra2
 tre3t8PDw8bGxsfHx8zMzM3Nzdra2vHx8fLy8vPz8/T09Pb29vn5+fr6+vz8/P39/f7+/gAAAAAA
@@ -232,8 +228,8 @@ FQYFEiRUSjIfDwMHFBYJAw8eYEsyHQwDnAMMHZdMYgecBhl7TiwaBqWnTjOZDZ2eoE2MjgkVFqQP
 H6FHfX8GFIMUhoiKSG4Kh3N1d3moR2JkZkNoDGuLV1lbXV9Pv7DJr+Xm5+ivQQA7
 "
 
-image create photo ximgEditDuplicate
-ximgEditDuplicate put "
+    image create photo ximgEditDuplicate
+    ximgEditDuplicate put "
 R0lGODlhGAAYAPcAAAAAAAEBAQICAgMDAwQEBAUFBQYGBgcHBwgICAkJCQsLCwwMDA0NDRERERIS
 EhMTExQUFBkZGRoaGhwcHB0dHR4eHh8fHyIiIiQkJCcnJygoKCkpKSsrKywsLC4uLi8vLzMzMzQ0
 NDY2Njk5OTs7Oz09PT4+Pj8/P0BAQEFBQUREREdHR0lJSUpKSktLS09PT1JSUlRUVFVVVVdXV1pa
@@ -257,8 +253,8 @@ GMRjA77OJPUJhJxSHO03iGMDPRFgI+jlNFAiCA5UxYID6tcRQQoCcJ5MMADBw4cghsgDECUsqIYD
 v6W4AEF13LBCCTDCiAIKMs5IYwku6EAQZIz16GOPhfwYEAA7
 "
 
-image create photo ximgEditMove
-ximgEditMove put "
+    image create photo ximgEditMove
+    ximgEditMove put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgYGBgcHBwkJCQsLCxQUFBkZGRoaGhsbGx8fHyEhISIiIiMj
 IyUlJTc3Nzs7Oz4+Pj8/P0VFRUdHR0lJSUtLS05OTlJSUmRkZGdnZ2lpaWpqanNzc3h4eH19fYqK
 io2NjZCQkJiYmJmZmZycnJ+fn6GhoaampqqqqrS0tLi4uMLCwsPDw9TU1NbW1uDg4OPj4+Tk5OXl
@@ -272,8 +268,8 @@ kUElLtbEGBUriEEiyczMGgoFFSk7xBLBwAMSJvb4wA4dDAXJcKCVQQUDADjwIEOgjVAQZ8iA4CDE
 qHKCgnwgkQPjoCCePIoc6TEQADs=
 "
 
-image create photo ximgEditPushSch
-ximgEditPushSch put "
+    image create photo ximgEditPushSch
+    ximgEditPushSch put "
 R0lGODlhGAAYAPUAAAAAAAEBAQICAgYGBhAQEBMTExUVFRYWFhgYGBoaGhsbGxwcHB0dHSAgIC4u
 LjExMTc3Nz4+PnR0dHh4eHx8fIODg4SEhIeHh4iIiIuLi5KSkpOTk5aWlpycnKCgoLCwsNzc3N7e
 3t/f3+Dg4OLi4uTk5OXl5ebm5ufn5+np6ezs7PPz8/T09Pb29vr6+vz8/P39/f7+/gAAAAAAAAAA
@@ -283,8 +279,8 @@ fStWQy0eDwsJA4EDCQsOHS1EMCEYBYFcBRUhh0QkGAubAAkXIUgwKBQNgQsTJKBGMCoTrmILEimz
 R7UUCVwJu72qKRcHWgcVKMVKogkHGKlMRiEbG9TVeiuG29/g1UEAOw==
 "
 
-image create photo ximgEditPushSym
-ximgEditPushSym put "
+    image create photo ximgEditPushSym
+    ximgEditPushSym put "
 R0lGODlhGAAYAPUAAAAAAAUFBQoKCgwMDBISEhcXFxsbGx8fHyAgICcnJygoKCwsLDIyMjQ0NDg4
 OD09PUNDQ01NTVJSUlVVVVtbW15eXmVlZWpqam1tbXJycoaGho+Pj5mZmZ2dnaqqqq+vr7e3t7i4
 uLy8vMLCwsrKys/Pz9PT09jY2N3d3eLi4ujo6O7u7vLy8vf39/v7+wAAAAAAAAAAAAAAAAAAAAAA
@@ -295,8 +291,8 @@ CAlvE18oAQAhTRQAGXS5DRYWF0PIGHQKZtEA01+GzRYYvghvEl8nxLMvZg9aK6ELRB8eHw8Aq6yS
 JiMbBgABa00LolgIgKgyASAABBkwMQkCADs=
 "
 
-image create photo ximgEditPop
-ximgEditPop put "
+    image create photo ximgEditPop
+    ximgEditPop put "
 R0lGODlhGAAYAPUAAAAAAAEBAQICAgYGBhAQEBMTExUVFRYWFhgYGBoaGhsbGxwcHB0dHSAgIC4u
 LjExMTc3Nz4+PnR0dHh4eHx8fIODg4SEhIeHh4iIiIuLi5KSkpOTk5aWlpycnKCgoLCwsNzc3N7e
 3t/f3+Dg4OLi4uTk5OXl5ebm5ufn5+np6ezs7PPz8/T09Pb29vr6+vz8/P39/f7+/gAAAAAAAAAA
@@ -306,13 +302,13 @@ DRNpSCMYDIODCF1GMCEYBoyMBF11Mi0eDwwIA5UAAwgIDx0rRDAtJSUjEKEQI6wtmakRoREua7eV
 uVEuvIy+S8C4usTBg8NKxb3HzMl6y3YfGxzX2BsftV/d3t9LQQA7
 "
 
-## OPTION
+    ## OPTION
 
 
-## VIEW
+    ## VIEW
 
-image create photo ximgViewZoomIn
-ximgViewZoomIn put "
+    image create photo ximgViewZoomIn
+    ximgViewZoomIn put "
 R0lGODlhGAAYAPUAAAAAAAEBAQYGBggICBERERISEhMTExQUFBoaGjc3Nzg4OD4+PkFBQUJCQklJ
 SUpKSktLS0xMTF5eXl9fX2BgYGxsbHd3d3l5eXp6enx8fIODg4SEhIWFhZGRkZKSkpOTk5SUlLu7
 u7y8vL29vcDAwMHBwcLCws/Pz9DQ0NHR0dbW1tfX19ra2tvb29zc3N3d3eDg4O7u7u/v7/X19fb2
@@ -324,8 +320,8 @@ mqepeBMzfKT3sfnWHFg1RAQuUwBBiRqyqJSaBDBgJJhUqQ8GQGsEETKE4YUSHSsw2HmlhkAGFmKU
 3GDRIcLIOwcivOFDxcqGCRG2dPnSaUwOkiYlSqCw5JPKESNjggAAOw==
 "
 
-image create photo ximgViewZoomOut
-ximgViewZoomOut put "
+    image create photo ximgViewZoomOut
+    ximgViewZoomOut put "
 R0lGODlhGAAYAPUAAAAAAAEBAQYGBggICBERERISEhMTExQUFBoaGjc3Nz4+PkFBQUJCQklJSUpK
 SktLS0xMTF5eXl9fX2BgYHd3d3l5eXp6enx8fIODg4SEhIWFhZGRkZKSkpOTk5SUlLu7u7y8vL29
 vcDAwMHBwcLCws/Pz9DQ0NHR0dbW1tfX19ra2tvb29zc3N3d3eDg4O7u7u/v7/X19fb29vf39/r6
@@ -336,8 +332,8 @@ vTU2LghqDCO1twC5Nr6+wMIAxKWnqa3UCrBqDbRVEqGCE2FCGYrdagecQyCn5AAQIESImd0EHjF9
 FoChhC1KcxbxggQuqOCTpIaKDRDGrTkAwUOLR1SsZJAAYUuDCV/AjXnnBEq9jVSOGBkTBAA7
 "
 
-image create photo ximgViewZoomBox
-ximgViewZoomBox put "
+    image create photo ximgViewZoomBox
+    ximgViewZoomBox put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgQEBAUFBQYGBgcHBwgICAoKCgsLCwwMDBYWFhcXFxoaGhsb
 Gx0dHSMjIysrKzQ0NDY2NkBAQEFBQUJCQkNDQ0lJSUpKSk1NTVFRUVJSUlZWVldXV1tbW1xcXF5e
 XmJiYmNjY2RkZGlpaWpqamtra3t7e4aGho+Pj5aWlpeXl5ubm6ampqurq66urq+vr7i4uLq6uru7
@@ -352,8 +348,8 @@ DwcBWlA0SO6ixEFL3nG05HFivn0OeWA06a+hxZUbHZaM+fJjPpfxZubD4K2Ez59Af4bgpTFfCgi3
 ktoaQKEGSB0pMFCgMOHC1KlVr1L4AEMgSESKwIZVlAjUoEAAOw==
 "
 
-image create photo ximgViewToggleColors
-ximgViewToggleColors put "
+    image create photo ximgViewToggleColors
+    ximgViewToggleColors put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAg8PDxERERISEhMTExQUFBUVFRYWFhkZGRsbGx4eHiUlJSYm
 JicnJykpKSoqKj4+PkJCQkNDQ0RERE5OTk9PT1FRUVJSUlRUVFdXV1hYWFlZWVpaWltbW2JiYmNj
 Y2RkZGdnZ2hoaGpqamtra2xsbG9vb3BwcHFxcXJycnNzc3R0dICAgIGBgYKCgo6Ojo+Pj5CQkJGR
@@ -370,8 +366,8 @@ m5ak2bMkybpUuzZoVq2xuXb1EgQsQilCQ0oMQ5eqR9IxXmaVKEKIEkRMFjJwGhQmSREq9wY5ohAp
 9T1DJaCkDgQAOw==
 "
 
-image create photo ximgViewRedraw
-ximgViewRedraw put "
+    image create photo ximgViewRedraw
+    ximgViewRedraw put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgMDAwQEBAUFBQYGBgkJCQoKCgsLCwwMDA8PDxAQEBERERMT
 ExQUFBUVFRsbGxwcHB8fHyQkJCkpKSsrKy0tLS4uLjExMTQ0NDg4ODo6Ojs7Ozw8PD09PUREREVF
 RUZGRkdHR0lJSUpKSkxMTE5OTk9PT1JSUlNTU1VVVVdXV1hYWF5eXl9fX2BgYGFhYWJiYmNjY2Rk
@@ -386,16 +382,16 @@ kDOxjFEU0YSJCxEBdeU4KOBDky9Z0nGi0wYGOQE+4uSjtMXESx/D7NAxEuqXCSk5w6hCeAHGE2bD
 pKSo8MHFjzEzTXVhwgQdnaimAgEAOw==
 "
 
-## PROPERTIES
+    ## PROPERTIES
 
 
-## LAYERS
+    ## LAYERS
 
 
-## TOOLS
+    ## TOOLS
 
-image create photo ximgToolInsertSymbol
-ximgToolInsertSymbol put "
+    image create photo ximgToolInsertSymbol
+    ximgToolInsertSymbol put "
 R0lGODlhGAAYAPUAAAAAAAYGBgkJCRcXFxoaGh0dHSAgICYmJiwsLDMzMzg4OEdHR0hISFFRUWtr
 a2xsbHd3d3l5eYKCgoWFhYiIiJGRkZmZmZ6enqOjo6enp6qqqqysrLu7u7+/v8vLy83Nzdra2t3d
 3enp6fPz8/f39wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -405,8 +401,8 @@ EFsQShdbDkYhWxFLBgADGhobQ40Aj0oJXpeOS3RdIRYWE59KkZOVBXmIWw9DnF0Ne31/QyQdHBhb
 CnFwc1wVRx9oZwFqR1nGXGBKUFRUVk7U1dbX2EVBADs=
 "
 
-image create photo ximgToolInsertText
-ximgToolInsertText put "
+    image create photo ximgToolInsertText
+    ximgToolInsertText put "
 R0lGODlhGAAYAPUAAAAAAAMDAwQEBAgICBERERMTExUVFRYWFh8fHyAgICIiIjQ0NERERFVVVVZW
 VlhYWGZmZnd3d3h4eH19fY2NjZSUlKCgoKqqqqurq7u7u729vcvLy83NzdDQ0NHR0dLS0t3d3eHh
 4eLi4u3t7e7u7vLy8vX19fb29vz8/P39/f7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -416,8 +412,8 @@ GoUkaIiJZhQQjY6NEiVmHHxTZiULBJqbmgofiqChomQmDJynnAYSVZSVdQRVKhMNtLW2thejurtc
 QQA7
 "
 
-image create photo ximgToolInsertWire
-ximgToolInsertWire put "
+    image create photo ximgToolInsertWire
+    ximgToolInsertWire put "
 R0lGODlhGAAYAPUAAAQEBA8PDzs7Ozw8PD09PUREREVFRU5OTk9PT1BQUGJiYmNjY2RkZGVlZWho
 aGlpaXd3d3h4eHx8fH19fX5+foaGhoeHh5OTk5SUlJubm6WlpaampsHBwcnJycrKysvLy8/Pz9DQ
 0NTU1NXV1dnZ2dra2ujo6O7u7u/v7/Hx8fLy8vz8/P39/f7+/gAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -427,15 +423,15 @@ GWN/QhwAAByHRImLjUOPjJEuk5WWipSRl5WdnJqVgYOFjXcCCQl8fnUlEQpxc4dmD0cMa4cpGF5g
 Yo0hVVdZkU0ghpFHWkEAOw==
 "
 
-image create photo ximgToolInsertLine
-ximgToolInsertLine put "
+    image create photo ximgToolInsertLine
+    ximgToolInsertLine put "
 R0lGODlhGAAYAPMAAAQEBAcHByAgICEhIcHBwcLCwsjIyMnJyfLy8gAAAAAAAAAAAAAAAAAAAAAA
 AAAAACH5BAEAAAkALAAAAAAYABgAAAQ1MMlJq7046827/2AojmTZIQahrmxRGAhmDAFg33gwGDKN
 /wAd74JiGVWvmGnJbDqf0Kg0EwEAOw==
 "
 
-image create photo ximgToolInsertRect
-ximgToolInsertRect put "
+    image create photo ximgToolInsertRect
+    ximgToolInsertRect put "
 R0lGODlhGAAYAPQAAAAAAAgICAkJCQsLCxsbG0BAQEFBQV5eXl9fX2BgYGFhYWlpaWpqapaWlp6e
 np+fn8TExMXFxeTk5Pn5+fr6+v39/QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEA
 ABYALAAAAAAYABgAAAWPoCVWVFlO56SaVCW+FnQUdG3bBwSLzgD8wGBw4NhZGoDBgcFsOg++hhFJ
@@ -443,8 +439,8 @@ kBhhEgJAuqNar6LsdgqogsNaLsx7tojVL/b5TTbP0/UvmN4t6698a35tgXGDd2N9dnt4in9GhSJy
 jImCi4CNlo87kUeHlHCSSUtOpVCVLz1Cq0BERjI3sTUKOjskJiorLCYuIiEAOw==
 "
 
-image create photo ximgToolInsertPolygon
-ximgToolInsertPolygon put "
+    image create photo ximgToolInsertPolygon
+    ximgToolInsertPolygon put "
 R0lGODlhGAAYAPUAAAEBAQUFBQoKCg8PDxMTExcXFxoaGh4eHiYmJiwsLDExMTY2Njk5OUBAQEpK
 SlRUVFdXV1lZWV5eXmRkZGdnZ3d3d39/f4KCgoqKio6OjpCQkJmZmaampqqqqq6urrCwsLu7u76+
 vsTExMnJyc7OztPT09nZ2eHh4ebm5ujo6Ozs7PPz8/j4+Pv7+wAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -455,8 +451,8 @@ vVmILhcAB0YHvr6tQyNRJS4dURgb0tPTyUQFABguhQ1rRBIADSRRHt5DnwJlxOZCKWDa7EKFAAOd
 8cFRuvcu4wDN+8HgeQsCADs=
 "
 
-image create photo ximgToolInsertArc
-ximgToolInsertArc put "
+    image create photo ximgToolInsertArc
+    ximgToolInsertArc put "
 R0lGODlhGAAYAPUAAAMDAwQEBAwMDA8PDxYWFh8fHyEhISwsLDExMTk5OUREREVFRU9PT1dXV15e
 XmBgYGZmZm5ubnR0dHd3d4GBgYSEhIqKio+Pj5ycnKKioqenp6qqqrm5ucnJydbW1tjY2Nzc3OHh
 4ebm5ujo6Orq6vLy8vX19fn5+QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -466,8 +462,8 @@ Jk4ACWyDSyYJTxOKVyFxAR6QTBlPDZZMgAAgm0obTxWgQyd5CKVDDE9WqhNPHaooogAbsxxPGLi6
 sxpPt6oUsbMPTyWzGwEOs0tBADs=
 "
 
-image create photo ximgToolInsertCircle
-ximgToolInsertCircle put "
+    image create photo ximgToolInsertCircle
+    ximgToolInsertCircle put "
 R0lGODlhGAAYAPYAAAAAAAEBAQICAgYGBgcHBwgICAkJCQoKCgsLCwwMDBMTExQUFBUVFRkZGRoa
 GhsbGxwcHB0dHR4eHh8fHykpKSoqKjQ0NDU1NTY2Njc3Nzw8PD09PT4+Pj8/P0pKSktLS0xMTFBQ
 UFFRUVJSUlNTU2BgYGFhYWNjY2dnZ2hoaGlpaWpqam1tbW9vb3BwcHFxcXJycn19fX5+fn9/f4CA
@@ -483,8 +479,8 @@ H+nLUISoPDI/jK2AZAQViUcT6YEgoCFJJG4LFIBzSqjcuX5QXBB49kPaJGo7IHa50CYp1wICvXIU
 UaKkSI5ix5KNM6UhgSoNHz68iqWhRjh/XZKs0FBBEydPK5L0K3qox41FjR45DQQAOw==
 "
 
-image create photo ximgToolSearch
-ximgToolSearch put "
+    image create photo ximgToolSearch
+    ximgToolSearch put "
 R0lGODlhGAAYAPUAAAAAAAoKChISEhYWFhkZGSIiIicnJysrKy0tLTMzMzc3Nzg4OEBAQFFRUVdX
 V1tbW11dXWNjY2RkZGpqamxsbHFxcXR0dLm5ub+/v8HBwcbGxsnJyc7Ozs/Pz+/v7/Hx8fj4+AAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -494,8 +490,8 @@ UQIADFFtCVFeB1ELg4WHeVUYR34AgEhxAAd0Ql1VeFEOVQeWQmxVBlshHghfYVcBE60fpVerAQAB
 Eq0hGxQLBgsVUBK7ARG/SBHJvsxGEM/R0tTVRNO80NhC2gkg3UMPCR7iROHnR0EAOw==
 "
 
-image create photo ximgToolJoinTrim
-ximgToolJoinTrim put "
+    image create photo ximgToolJoinTrim
+    ximgToolJoinTrim put "
 R0lGODlhGAAYAPUAAAAAAAEBAQMDAwQEBAUFBQsLCw0NDQ4ODhAQEBERERMTExQUFBkZGRoaGh8f
 HycnJykpKSoqKi4uLlRUVFdXV1hYWF9fX2NjY2RkZGVlZWhoaGlpaW9vb3BwcHJycnNzc3l5eXx8
 fIqKio2NjZCQkJiYmJubm5+fn6amprm5ub6+vr+/v8TExMbGxsjIyMnJycvLy87Ozs/Pz9HR0dLS
@@ -505,8 +501,8 @@ dX6AgRkzfn+BgQweiotCKBcblhkikZKbnJ2enjckFhmWFyicOCEPjQAbnTgceoGumzwzHqy0kjAX
 BXizkjwsFAhxHh4OGZI6JxIACBczOCAjwbwQFTI6PTeaizAnK4W1POOLQQA7
 "
 
-image create photo ximgToolBreak
-ximgToolBreak put "
+    image create photo ximgToolBreak
+    ximgToolBreak put "
 R0lGODlhGAAYAPUAAAAAAAEBAQICAgMDAwoKCgsLCw8PDxAQEBERERMTExUVFRYWFicnJywsLDEx
 MVFRUVJSUlNTU1RUVFZWVldXV1hYWFpaWlxcXF1dXWFhYWJiYmNjY2VlZWZmZmlpaXR0dHZ2dnl5
 eZqamqKioqamprS0tLa2tre3t7q6uru7u7+/v8DAwMTExMXFxcbGxsfHx8jIyMnJycrKysvLy8zM
@@ -516,18 +512,18 @@ LWEgf2gMESs5PScnbW4iKDpCOY1tOjmVXzqekZdCVyIzkSUlPTktEQwZLZxVHxSFF3gNIrBLHQcU
 F3G8KrlKHmMFFy2RxFsDHTOYZcpbFKXJYwoVKM9VJBlRHSAn2pHj5EZBADs=
 "
 
-## SYMBOL
+    ## SYMBOL
 
-## HIGHLIGHT
+    ## HIGHLIGHT
 
-## SIMULATE
+    ## SIMULATE
 
-## HELP
+    ## HELP
 
-## ACTION BUTTONS
+    ## ACTION BUTTONS
 
-image create photo ximgSimulate
-ximgSimulate put "
+    image create photo ximgSimulate
+    ximgSimulate put "
 R0lGODlhGAAYAPUAAAAAAAEBAQQEBAkJCQ8PDxoaGhsbGx4eHi8vLzY2Njw8PD09PUVFRUxMTE1N
 TVVVVV5eXnZ2dnp6ep2dnaCgoKGhoaioqL6+vsHBwcLCwtDQ0NHR0dbW1tfX19ra2tzc3OPj4+Tk
 5OXl5ejo6Onp6e/v7/Hx8fj4+Pn5+fr6+vv7+/7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -537,8 +533,8 @@ FG1KgIFyBhF+SIiJAIslh3mBgxQfbo4HiQgSGJNLIJUAB3V3TWdpa4ZvXwdiZGZXWZpUUB6NXLu8
 vb68QQA7
 "
 
-image create photo ximgNetlist
-ximgNetlist put "
+    image create photo ximgNetlist
+    ximgNetlist put "
 R0lGODlhGAAYAPUAAAAAAAUFBQcHBxERERISEiIiIiUlJSsrKzMzMzo6Oj8/P0tLS1JSUl5eXmBg
 YHNzc3d3d3x8fIKCgoaGhoiIiI6OjpGRkZaWlpmZmZ6enqOjo6enp6ioqK6urrGxsbq6usHBwcXF
 xcvLy9TU1NnZ2d3d3eXl5enp6e/v7/b29vn5+QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -549,8 +545,8 @@ ZBWcEZOXkH6UCXlEfAANjytiJldWIshufX+AskZ6KykHcnMAIRDj5B6fYQAaCOvsEudLkWRZW3Zf
 TCkZF4T6hBlN/wCNBAEAOw==
 "
 
-image create photo ximgWaves
-ximgWaves put "
+    image create photo ximgWaves
+    ximgWaves put "
 R0lGODlhGAAYAPUAAAEBAQUFBQsLCwwMDBISEhcXFxwcHCUlJTIyMj4+PktLS1FRUV1dXWNjY2Vl
 ZXV1dXp6eoeHh4uLi5OTk5iYmJmZmaOjo6ioqKqqqru7u729vcPDw8fHx8nJyc/Pz9DQ0NXV1dvb
 29zc3OLi4uXl5enp6e3t7fHx8fX19QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -560,13 +556,9 @@ JoUcaSRrAgAaWxV+EUOLbWkjlBiTaQ6SlGkoAW0bcGoQQwQRIqkiHyUpJB4iICEpKB0iIR5EUUUP
 YQS/BGJiwGNyRAidyWnGQw0AChnR0tPRggSEhYUMAJtPKZmUCd7fygvjpyGqqR3jzO26Zu9DHgMQ
 Hh33+fj6/PghygCTiRiASp3Bg+pIpHjwQZ5DJUEAADs=
 "
-
-
 } else {
-
-
-image create photo ximgWaves
-ximgWaves put "
+    image create photo ximgWaves
+    ximgWaves put "
 R0lGODlhGAAYAPUAAAAAAAoKCg4ODhISEhYWFhoaGh0dHSMjIyQkJCoqKi8vLzAwMDY2Njg4ODw8
 PEJCQkRERFVVVVxcXGZmZmxsbHR0dHh4eIWFhYqKipqampycnKKioq6urrS0tMHBwc3Nzdra2uPj
 4+jo6O3t7fPz8/T09Pr6+v7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -577,8 +569,8 @@ Jm0OcGoXQyMWB6kHCgQABQsHCQgAAQwHCAtEUUUYYSO/I2JiwGNyRB+dyWnGQxonHRDR0tPRgiOE
 hYUbJ5tPAJmUHt7fyhzjpwiqqQzjzO26Zu9DCyQXCwz3+fj6/PgIygCTHSCBSp3Bg+oKAMCgQJ5D
 JUEAADs=
 "
-image create photo ximgViewZoomIn
-ximgViewZoomIn put "
+    image create photo ximgViewZoomIn
+    ximgViewZoomIn put "
 R0lGODlhGAAYAPUAAAAAAAEBAQQEBAoKChERER8fHyIiIiUlJSgoKC8vLzAwMD4+PkNDQ0RERGtr
 a25ubnt7e3x8fIODg4WFhYiIiJOTk5+fn6CgoLOzs7a2tr29vcHBwcfHx8jIyOXl5evr6+7u7vf3
 9/n5+f///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -589,8 +581,8 @@ cpcCmY4QQwMWlZYCoqkXTwAKlCMiHRsbHRVfFRy2HYAjGAlCDBplHgVCq0PKBR5lGgtCC8Ujx1/K
 12zNzwtssWW0thy5ABW1Gxy/wUIEqJWho3MXA3ee76vxZh+lQwyyoPg0cTJ1aE6HAgU6OIKEZ8Ie
 M33+BJpg4AiCCXFSlQEhgVCbAw8wZJTzAYOaO0ikQLiA4UqWLSi9sFuyIEEkmTiRBAEAOw==
 "
-image create photo ximgToolInsertArc
-ximgToolInsertArc put "
+    image create photo ximgToolInsertArc
+    ximgToolInsertArc put "
 R0lGODlhGAAYAPUAAAAAAAYGBgoKCg0NDRcXFxkZGR4eHiMjIykpKTY2NkZGRlVVVVhYWF1dXWNj
 Y3BwcHV1dXt7e35+foiIiJGRkZmZmZ+fn6GhoaioqLCwsLq6uru7u8bGxs7OztPT097e3uDg4Onp
 6fDw8Pv7+/z8/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -599,16 +591,16 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAaHQIAQQDAcCoGhcsnUkJ6kkceyEDCvA6j2KZoQrktG
 ZTKhZEBa0SMJBh8kIaim0G4HIKLnx1BvIzp6dH1XAk4kHGyDSwIcTxOKVwZxIwiQTA1PGJZMgCQH
 m0oLTxGgQwF5HaVDGU9WqhNPCaoAoiQLswpPDri6swxPt6oSsbMWTwOzCyMXs0tBADs=
 "
-image create photo ximgSimulate
-ximgSimulate put "
+    image create photo ximgSimulate
+    ximgSimulate put "
 R0lGODlhGAAYAPQAAAAAAAEBAQUFBQ4ODhAQEBcXFxsbGxwcHCMjIyUlJSkpKS8vLz4+PkFBQVdX
 V19fX2JiYoWFhYmJiaGhoaqqqrOzs7q6usPDw8nJydDQ0OHh4eTk5PDw8Pb29vv7+////yH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAVxICCOZGmeaKqubKsK
 izK4ZnFVTiHQo6F5m0ljx/N9PhxMJEFsGTbHD5ACObie0aiSMVths8eO5cFUfcHHjaSLOqPVBDMU
 LX4gmicjOBNhxFcHc0caVFZOGkdJS3hePxpCjCwGNzmRLDAJbDybnJ2enCEAOw==
 "
-image create photo ximgToolSearch
-ximgToolSearch put "
+    image create photo ximgToolSearch
+    ximgToolSearch put "
 R0lGODlhGAAYAPUAAAAAAAcHBw4ODhAQEDExMTY2Njk5OT4+PkBAQEZGRouLi46OjpOTk5WVlZub
 m5ycnKKioqSkpKioqK6urr+/v8fHx8jIyMzMzNLS0tTU1NjY2N3d3ebm5unp6e3t7fX19f///wAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -618,8 +610,8 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAakQIBwSCwajwBDo7KpMArI42ACqlpBEkF0OMhYO5eO
 Ql1VeFESVRmWQmxVGlsAAxhfYVcfDa0CpVerHyAfDq0ABQwVGhULUA67Hw+/SA/JvsxGEM/R0tTV
 RNO80NhC2hcB3UMRFwPiROHnR0EAOw==
 "
-image create photo ximgEditUndo
-ximgEditUndo put "
+    image create photo ximgEditUndo
+    ximgEditUndo put "
 R0lGODlhGAAYAPUAAAAAAAICAgUFBQoKChISEhUVFRgYGB8fHyMjIyUlJSsrKy4uLjMzMzk5OT09
 PUJCQklJSVFRUVpaWmFhYWVlZWpqam9vb3V1dXp6en9/f4ODg4eHh4iIiI2NjZOTk5eXl5iYmJ6e
 nqOjo6ysrLS0tLu7u7y8vNXV1d/f3+Pj4+bm5urq6u/v7/Ly8vj4+Pz8/AAAAAAAAAAAAAAAAAAA
@@ -629,8 +621,8 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAaoQIBwSCwaj8ikcskUIhBNZAFTiRoLGdXHSjR0Ui8Q
 eC4tLoUsHAmcG2xtJhITFBUZHiQoLikUkkQIHSptYkMDCA8WIiojDkcFHShhSAYYJhi4RAQbWkoT
 GZtHBBoXSgMNEEkHf0oE5WNE0uns7UxBADs=
 "
-image create photo ximgEditPop
-ximgEditPop put "
+    image create photo ximgEditPop
+    ximgEditPop put "
 R0lGODlhGAAYAPUAAAAAAAICAgUFBQkJCQwMDBMTExYWFhsbGx8fHyEhIU9PT19fX2NjY2lpaWxs
 bHR0dHd3d3h4eHx8fIODg4eHh4uLi8HBwcjIyM7Ozt/f3+Li4ufn5+rq6uzs7O/v7/n5+f///wAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -639,8 +631,8 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAaNQIBwSCwaj8ikkkggLJUIhyPxPCIeG06EWh0asCBQ
 R3LoAgqTTTi8oRiqBUpmvdZU3krDZE5fZyhlSFcafX0bW0cJDxyFhR2IRAMLGBobH40gHxsbGAxO
 kQcHCBeYFwihA0oWmBYCVauNrU8CsIWyS7Ssrri1fbdKubG7wL10v0oKDg3LzA4KZtDR0lVBADs=
 "
-image create photo ximgFileSave
-ximgFileSave put "
+    image create photo ximgFileSave
+    ximgFileSave put "
 R0lGODlhGAAYAPUAAAAAAAEBAQUFBQoKChMTExUVFRkZGSoqKjU1NTk5OT4+PkVFRUlJSU5OTlJS
 UlVVVVlZWV5eXmxsbIuLi4yMjJGRkZaWlpiYmJ2dnaCgoLa2trq6ury8vMHBwc7Ozvj4+P///wAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -650,8 +642,8 @@ Zbz5eCCE4sTrVRQPCoOi23EMiBb2xz0UcEAUCGwaC3h6fEICHYAIXV4Thl57RIogFQmOIBaRIJNE
 ixQJbJqcHw2UEhcPDJmbQ3mSFQ0KCgsKCQgMFa2ckh+/v52jpK/DxseuQrDHzMTKzc3JAMvQw9LU
 1WzX2cbb3KPSa99skEMNZd8fGwxETE5P8PHxEw1pSvf4+UNBADs=
 "
-image create photo ximgEditCopy
-ximgEditCopy put "
+    image create photo ximgEditCopy
+    ximgEditCopy put "
 R0lGODlhGAAYAPUAAAAAAAEBAQQEBAgICA0NDRMTExgYGCgoKDMzMzs7Oz8/P0FBQUZGRkpKSktL
 S1RUVGZmZmlpaXd3d3l5eX5+foGBgYiIiJqamp6enqWlpaurq6ysrLu7u8XFxcfHx8zMzM7OztDQ
 0NTU1Nra2u7u7u/v7/Hx8fX19fj4+P///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -661,8 +653,8 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAa+QAEqRSwaiwuAcqk0HJ/FCZNZIGYg2CyWQnxMl9VU
 gpoAISkhiRCLeUsaKRuSqJZpYICvaJ+UoRclF4knJb6/viahIqSJUEdSShMgyQAYIxrR0tMgHQNo
 aAQIBEsHB2AIBdgAHIdKCkRJ5Ckc46OlAA6a7+MOFg5KBBUU1/H34wADCmQSBAA7
 "
-image create photo ximgEditDelete
-ximgEditDelete put "
+    image create photo ximgEditDelete
+    ximgEditDelete put "
 R0lGODlhGAAYAPQAAAAAAAEBAQUFBQsLCw4ODiUlJTMzMzk5OTw8PEhISFZWVldXV2RkZGxsbHBw
 cHR0dH5+fqenp6urq6ysrLa2trm5ub+/v8PDw8/Pz9HR0ebm5urq6u/v7/Ly8vj4+Pz8/CH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAWPICCOZGmeaKqubMsK
@@ -670,8 +662,8 @@ KMwSRjGQQ2EQK9FkFgVJYcE0eCkCRPOhJEQJykcDQcYOFE9HgjhIOp7KQaZSXD6cSWTzuQhdjMxn
 /skwXCIfZ955WFsDDh18fngADBh0dXcuZh8bEhF7bi9YWhNdE2BiZCdKGmFPAFFTVSo+QG8iRBlH
 PTU3Izk7LZ0ktoa5uru8KCEAOw==
 "
-image create photo ximgToolInsertPolygon
-ximgToolInsertPolygon put "
+    image create photo ximgToolInsertPolygon
+    ximgToolInsertPolygon put "
 R0lGODlhGAAYAPUAAAAAAAQEBAcHBwwMDBMTExcXFxkZGR4eHiYmJiwsLDExMTY2Njs7O0FBQURE
 RE9PT1FRUVVVVVlZWWZmZm9vb3FxcXV1dX19fYCAgIiIiJubm6GhoaampqioqLW1tb+/v8bGxsnJ
 yc7OztPT09nZ2eHh4eXl5ejo6Ozs7PDw8PX19fr6+v7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -681,8 +673,8 @@ cdCJribRrRiAGEVLC0B6/UhFPQThvBrIZDNEe00GIFEoakOCTBxRIQdLUSBxTRosJEpLIlkaBkwS
 LCsDTAV+USkVmEMEUQ9EDA6wDhQoWSQORYUaQxVgvVmIABcsJUYlvr6tQwtRCQARURYT0tPTyUQn
 LBYAhR9rRBssHwpREN5DnyplxOZCBWDa7EKFLCmd8cFRuvcA4yzN+8HgeQsCADs=
 "
-image create photo ximgViewRedraw
-ximgViewRedraw put "
+    image create photo ximgViewRedraw
+    ximgViewRedraw put "
 R0lGODlhGAAYAPUAAAAAAAICAgUFBQoKCg0NDRISEhcXFxsbGx4eHiUlJSgoKC0tLTAwMDc3Nz8/
 P0JCQkZGRktLS0xMTFFRUVZWVlpaWl9fX2FhYWdnZ25ubnd3d3h4eH5+foCAgISEhI+Pj5ubm5+f
 n6Ghoaenp6qqqq2trbOzs7a2trm5ubu7u8LCwsfHx8vLy9LS0tbW1tvb2+Tk5Orq6u/v7/Dw8Pb2
@@ -693,8 +685,8 @@ NjQlCmRbAhZznycPbwIUqH0pE6wNKTWfKxQDrAkkajY1LBWSUwILFRcQFCMzNCoXBWWDzCkREiIp
 uW8dvjYqEQkMpFsDIZ82GeJlCybmGXhCFWB9Jg7vCGm/LSEQiW8OJS5UiMBw4J0QBRIkjDI4JAgA
 Ow==
 "
-image create photo ximgFileOpen
-ximgFileOpen put "
+    image create photo ximgFileOpen
+    ximgFileOpen put "
 R0lGODlhGAAYAPUAAAAAAAEBAQcHBwgICA8PDxMTExcXFx8fHyYmJi4uLjY2Njk5OT8/P0NDQ0VF
 RUpKSldXV2JiYmtra3R0dH19fYKCgoaGho+Pj5GRkZaWlp+fn6Kioqampqurq7Gxsbm5ucbGxsnJ
 yc3NzdPT09nZ2d7e3uHh4ebm5ujo6Ozs7PLy8vT09Pr6+v///wAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -704,8 +696,8 @@ dgWSOBgLhlq9QAyEh45YzGK16njWSoMQJjx3eXV3V4OEIRBCAwgLCwqNjY8Kko6TCwldFhgYF52e
 n6CemxYpdnOnqHcpJqapri0rJiIqr68rIh8pta4pHxwou6koHBgmwagmGBUlx6clFBIkzXMkEhAj
 02IjEA3Y2VciDQkh31chCQYf5S0fBgIRGE7y8/TzGBECXvr7SUEAOw==
 "
-image create photo ximgToolJoinTrim
-ximgToolJoinTrim put "
+    image create photo ximgToolJoinTrim
+    ximgToolJoinTrim put "
 R0lGODlhGAAYAPUAAAAAAAICAgUFBScnJykpKS4uLjAwMDQ0NDs7O0BAQEZGRllZWWBgYGdnZ29v
 b3JycnV1dYODg4aGho2NjZCQkJaWlpqampycnKCgoKenp6ioqNHR0dbW1tjY2ODg4Obm5uvr6+/v
 7/Ly8vT09Pr6+v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -715,8 +707,8 @@ idPYEi0fy0RUEmkU5mGlRCK1L4e4vMQnUQp6e3wlFoCBAHODHxOGegsXFZEWEI2HlpeYmUkEDhgW
 kRcLhwMRHYMlFZYDFHZ8qYcFE6evegcXI3SugQgaIW0TEx4WegIMGyUhFwUDEg+BthwZBkgElWYH
 DAma20EAOw==
 "
-image create photo ximgViewToggleColors
-ximgViewToggleColors put "
+    image create photo ximgViewToggleColors
+    ximgViewToggleColors put "
 R0lGODlhGAAYAPUAAAAAAAICAgYGBg0NDQ4ODhERERQUFBsbGx0dHSEhISUlJSsrKy4uLjMzMzU1
 NT09PUFBQUVFRUtLS09PT1JSUmNjY21tbXFxcX19fYuLi42NjZCQkJWVlZiYmJ2dnaSkpKenp6io
 qK2trbGxsbu7u7y8vMHBwdXV1dnZ2eTk5Obm5urq6uzs7PDw8P7+/gAAAAAAAAAAAAAAAAAAAAAA
@@ -728,8 +720,8 @@ FQUFCwwJHCUjaRgsEkPWrL1nIiRH4OLk5rq7LRgGEyElHAkMC9rRF7/Otcq2rRuXEyTeVJPHKpmo
 JbNUgLh1rledWABKnboQDR0IBQ+JULKUIdMKTp4WjAwJwAGhOgQaJFrUACYkZULizLl4J88eLSF+
 TowhAoFDIFFnJvwCICAOhwdEqODMOEIErCENHiDAKMRJiShcpRjhoABjEAA7
 "
-image create photo ximgEditDuplicate
-ximgEditDuplicate put "
+    image create photo ximgEditDuplicate
+    ximgEditDuplicate put "
 R0lGODlhGAAYAPUAAAAAAAEBAQQEBAkJCQ0NDRERERQUFBsbGx8fHyAgICUlJSoqKi8vLzIyMjU1
 NTk5OT8/P0FBQUdHR0lJSVFRUVZWVl1dXWJiYmVlZWtra25ubnJycnd3d319fYCAgISEhIuLi42N
 jZKSkpaWlpubm5+fn6KioqWlpaioqK2trbS0tLi4uL+/v8LCwsTExMvLy9HR0dfX19vb293d3eLi
@@ -742,8 +734,8 @@ AAMA4BuTggIGGm9qkICAQEiGGWOIDNRxY8OAA6psiGhA5AGKkEPc6VgBAZWJlXc6wBQy8FAWQlQE
 nGTYCWCknV1aMBDtWVPZkKE6RL5JIWKE1atYR4hoQfSBDX1gbxBRUGJFi7NnWbBIq3ZtCxUkiiCb
 S5fugLpBAAA7
 "
-image create photo ximgToolBreak
-ximgToolBreak put "
+    image create photo ximgToolBreak
+    ximgToolBreak put "
 R0lGODlhGAAYAPQAAAAAAAMDAwQEBDMzMzQ0NDo6Oj8/P0BAQEVFRUhISEtLS1lZWWVlZYaGhomJ
 iYuLi5aWlpmZmZ6enqOjo6enp6ioqKysrM7OztPT09jY2Onp6erq6u/v7/T09Pz8/P///yH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAWGICCOZGmeaKqaAtJA
@@ -751,8 +743,8 @@ MBQta4lM26d/UF0SlB3PRxpEhD0igCDpIJWHCufToVQ2EeXiQqUUgA+lMWMxCAAKhXLJQIwE53V8
 LZ8jGIR1GiAoWDISBUoPFV8TUxgMShEcFRNOjQdKEEIdE4KTQhEEcz6UOxV5a586GxQInSsLEjER
 DwqpdLKzIiEAOw==
 "
-image create photo ximgNetlist
-ximgNetlist put "
+    image create photo ximgNetlist
+    ximgNetlist put "
 R0lGODlhGAAYAPUAAAAAAAYGBgkJCRAQEBYWFhoaGiIiIiYmJisrKzQ0NDo6Oj4+PkVFRU5OTlFR
 UVdXV1xcXGFhYWZmZmlpaW5ubnFxcXd3d3l5eX19fYODg4iIiIyMjJ+fn6Ghoa2trbS0tMDAwMXF
 xczMzNTU1Nra2t3d3e3t7fj4+Pr6+v///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -762,8 +754,8 @@ GIkiBjyKojhZHhJSqAdRS/GaPsK28J1KXYZiBxKDgwx5DVAPEX19HAEAWmyMk30oIANiCBabnAsA
 KJSUKCQQKRMlqKkbn6GTKCYTY0egKLW1jKMGa2QVnBmTl5B+lCF5RHwpHY8AYgVXVgnGbn1/gLJG
 egACI3JzKQoa4eINn2EpECLp6hjlS5FkWVt2X0wCEROE+IQRTf3+RkEAADs=
 "
-image create photo ximgFileReload
-ximgFileReload put "
+    image create photo ximgFileReload
+    ximgFileReload put "
 R0lGODlhGAAYAPUAAAAAAAICAgYGBggICA0NDRISEhQUFBsbGyEhISQkJCoqKiwsLDExMTMzMzg4
 OD4+PkFBQUdHR0lJSUxMTFJSUlVVVVpaWltbW2VlZWlpaXNzc4yMjJOTk5SUlJ6enqqqqrCwsLm5
 ub6+vsDAwMfHx9PT09TU1NjY2N/f3+Pj4+Xl5evr6+zs7PHx8ff39/r6+v///wAAAAAAAAAAAAAA
@@ -773,8 +765,8 @@ Z2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAavQIBwSCwaj8ikcskkEhiCJnLhcQyUA8Nhyz0YKK0Q
 DAAJHJgmjR1GDicbCEYdpkYIGgVHroKnRQIESLWBt1K8gL5NwH8jGBnIycrKGCOAiI7RjS8mLdLX
 jyUXiy/d3t/g3i4iFwULDg/p6uvs6wu6UvHy8/TxQQA7
 "
-image create photo ximgEditRedo
-ximgEditRedo put "
+    image create photo ximgEditRedo
+    ximgEditRedo put "
 R0lGODlhGAAYAPUAAAAAAAEBAQUFBQoKChISEhoaGh8fHyIiIiQkJCkpKSwsLDQ0NDk5OT4+PkJC
 QkpKSlNTU1paWmFhYWVlZWtra25ubnV1dXh4eH19fYCAgIeHh4uLi42NjZOTk5eXl5iYmKKioqmp
 qbS0tLu7u7y8vNXV1dzc3OHh4eXl5ejo6O/v7/Hx8fj4+P///wAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -784,16 +776,16 @@ d+j9eg7NwqOy6ZRacFRHoTxANqQTC85vqTwLRwIJGG99hy0rIHREAgohKoiSJhgCRAmQkogrH2hD
 CBsriCwre3CkHAlEAxN6JiIdFxQTEhEjfFmqRA0hJyAVDgYDRGUoG55DAhgkF2JXLSYcW0UKFxJK
 Hikb00UPDMNJFhncRQfkRwZVSJZj7e7v7kEAOw==
 "
-image create photo ximgToolInsertText
-ximgToolInsertText put "
+    image create photo ximgToolInsertText
+    ximgToolInsertText put "
 R0lGODlhGAAYAPQAAAAAAAEBAQoKCg0NDRERER0dHSIiIi0tLTIyMkJCQkRERFVVVV9fX2tra3Jy
 coKCgoeHh4iIiJmZmaenp6qqqru7u8vLy93d3eDg4Orq6u7u7vv7+////wAAAAAAAAAAACH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAVrICCOREkMwqiuKnFx
 cNywtHjE+FTXTOT7j8JuSCwad4eFcslcCmmGDW6Ky9QKUioVsysovuBwYkw4ms9Fh2TNXkMGRYRW
 VhxYNPg8/nJA+/+AQwIVeoV6GRA0cnNUGjUPFJGSk5MLgZeYOyEAOw==
 "
-image create photo ximgEditCut
-ximgEditCut put "
+    image create photo ximgEditCut
+    ximgEditCut put "
 R0lGODlhGAAYAPUAAAAAAAEBAQQEBAsLCw8PDxAQEBUVFRkZGR8fHyIiIiUlJSoqKi4uLjMzMzU1
 NTo6Ojw8PERERElJSUxMTFRUVFVVVVpaWl1dXWJiYmRkZGpqamxsbHJycnV1dXp6en5+foeHh4uL
 i46OjpKSkpaWlpubm56enqKioqampqioqK2trbGxsbe3t7q6ury8vMHBwcTExMnJyc7OztPT09TU
@@ -805,8 +797,8 @@ IiwZk0YDCRAKfA5yWTEaCAhoRwIID+EAD+Q+PTgnDerLITDP0Sc5Pjtw7EjlYluRBSJy8OBVxpiM
 DhZK3Jg3Ixk+UTZGYPgwI9WqAgAYfJAhi9aBRz0kUbKEaYiBCy86+XgxoY8PEoEGvXhQRECiNBo4
 VoBi08LBgDhz6vQ0wIABAj4AwPAQ02KHmTRCqsDI4mMGF6xCmIQwodEW2CH4zqo1EgQAOw==
 "
-image create photo ximgEditMove
-ximgEditMove put "
+    image create photo ximgEditMove
+    ximgEditMove put "
 R0lGODlhGAAYAPUAAAAAAAICAgYGBgoKCgwMDBERERcXFxsbGxwcHCkpKTw8PEdHR0tLS1VVVVlZ
 WV5eXmNjY2ZmZmdnZ29vb3JycnV1dYKCgoeHh4yMjJWVlZubm62trbGxsbS0tLi4uMHBwcTExMjI
 yNra2tzc3OTk5Ovr6/b29vn5+f///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -816,8 +808,8 @@ ZYQykc7odGlzzJBR8Lg8/hEYHx/TfA+vGwUNHWYaGYWGhhoUSQsdHHZVRgoRVQSPRAIEVREKkH8c
 HgxJFISHhxokJh4OA38ffHsnHxCtr3sjGUcbJWm8JCcoIxgIYV7FBwghIxVgnUMXEQXNRFvS1dbS
 QQA7
 "
-image create photo ximgViewZoomBox
-ximgViewZoomBox put "
+    image create photo ximgViewZoomBox
+    ximgViewZoomBox put "
 R0lGODlhGAAYAPUAAAAAAAEBAQYGBgsLCwwMDBISEhUVFRsbGx0dHSMjIyoqKjExMTc3Nzg4OEFB
 QUVFRUdHR1FRUVRUVFlZWWRkZGlpaXBwcHl5eYSEhJaWlpubm5ycnKGhoaSkpKmpqa6urrKysra2
 try8vL+/v8nJycvLy9TU1Nzc3OLi4uTk5Onp6fPz8/X19fv7+/7+/gAAAAAAAAAAAAAAAAAAAAAA
@@ -828,8 +820,8 @@ LhlUQgMPHyosJBYHQo6hogAEDBITDwhHaa6vAgoLl0etr0IFGyEPQwLAwQcoLhXHya8HKS4Uz6DB
 ANLNRNCi2s6318EI0+B83VTf1rne5evY6r/i0e5HIZwZ+fr7+hx51UcunKBDcE6LEQ6IJLgQYsQI
 Eg4jQow4okMEX0SSKNG4UWORIAA7
 "
-image create photo ximgToolInsertSymbol
-ximgToolInsertSymbol put "
+    image create photo ximgToolInsertSymbol
+    ximgToolInsertSymbol put "
 R0lGODlhGAAYAPUAAAAAAAgICAwMDBYWFiIiIiUlJTIyMjQ0NEBAQERERFNTU1VVVVhYWFxcXGFh
 YWZmZm5ubnd3d3p6en19fYaGhoiIiJOTk5SUlK6urre3t7i4uMfHx8zMzNPT09nZ2d/f3+Li4uXl
 5ejo6Pb29vn5+f///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -839,16 +831,16 @@ wGBgeM/cSXHj9VTe8Eqmw40QQ15NUjEqjQpDBRERFVsVSg5bF0YEWxRLHyUiCwsKQ40lj0ocXpeO
 S3RdBA8PEp9KkZOVIHmIWxZDnF0Ye31/QwEICQ1bG3Fwc1wQRwZoZyRqR1nGXGBKUFRUVk7U1dbX
 2EVBADs=
 "
-image create photo ximgToolInsertWire
-ximgToolInsertWire put "
+    image create photo ximgToolInsertWire
+    ximgToolInsertWire put "
 R0lGODlhGAAYAPQAAAAAAAEBAQ4ODhERERcXFyUlJSoqKi8vLzAwMDY2Nj4+PllZWWRkZGtra2xs
 bHh4eIODg4eHh5aWlpubm52dna+vr7Gxsbu7u8PDw8TExPDw8Pv7+wAAAAAAAAAAAAAAACH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAV0ICCOZGmeppAkAuqK
 CDRN0PGegnM9z9W0N5IhMhFJIoYgqSAjEGgFJWmBsVgwCylpwNBoGECtSLHZKMQkshk9Up/ZADc8
 Xn6z5XD8vQ7nesFsCxkVFVhoBREUTlBiQxIiE0hiAg07PT9oBzI0NmwqCGFzNyEAOw==
 "
-image create photo ximgEditPushSch
-ximgEditPushSch put "
+    image create photo ximgEditPushSch
+    ximgEditPushSch put "
 R0lGODlhGAAYAPQAAAAAAAICAgUFBQkJCQwMDBMTExYWFhgYGB0dHSEhIU9PT19fX2NjY2lpaWxs
 bHd3d3h4eHx8fIODg4eHh4uLi8HBwcjIyM7OztHR0d/f3+Pj4+Xl5enp6ezs7Pn5+f///yH5BAAA
 AAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAWLICCOZGmeaKquLKA4
@@ -856,16 +848,16 @@ TSw7SitUX67nlcDeu13vhwvyfCug8TNMFo1NlRKKlD6DURPhcEBYlh9LgksoDRYXzcYD9mw0GMag
 lHh0wLtOJHFCPDR4HxsQfCgHEhlgGhMIKwUTiUEaFAYtBRIbOxuULSIGEBw5HBEHnSN+GxwPhaYi
 CQ4OrK0iBGWzt7gkIQA7
 "
-image create photo ximgToolInsertRect
-ximgToolInsertRect put "
+    image create photo ximgToolInsertRect
+    ximgToolInsertRect put "
 R0lGODlhGAAYAPMAAAAAAAICAgUFBQYGBhsbGzs7O2FhYWlpaZWVlZ6enqGhob+/v+Tk5PT09P//
 /wAAACH5BAAAAAAAIf8LSW1hZ2VNYWdpY2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAASAEEgg
 qr1YzF3U+mAYKsUmGY2jrizbGCZwOI2C3HiupEc8M4TYhsBw9Ey/oFBCNPocwCWzeNwkpYBmdXKV
 ap9RLxWsXH6R0LLwbE1j2Vy32IkOm8d1dQwu6d7pbXZreIF6Jnwycn9bfTQ2OZA7gBMoLZYrLzEd
 IpwgCSUxGaIWGxEAOw==
 "
-image create photo ximgEditPaste
-ximgEditPaste put "
+    image create photo ximgEditPaste
+    ximgEditPaste put "
 R0lGODlhGAAYAPUAAAAAAAICAgoKCg8PDxERERQUFB8fHyIiIiQkJCwsLDExMTQ0NEREREpKSlNT
 U1VVVVxcXF9fX2FhYXJycnd3d3x8fIGBgYeHh4uLi5WVlaKioqWlpaioqK+vr7Kysru7u729vcbG
 xsrKys/Pz9HR0dnZ2d/f3+Li4uTk5O/v7/Hx8fT09Pr6+v///wAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -875,14 +867,14 @@ xFKwgrtoKOECebjfb4hFYExQGtBScs/nh7RUUCd9hEkkRhtEUCAtIwyPkJAmLRxGBAwHiy0gaQAk
 lJ2MnGmflQAOHxaao2ilRh6BT6KdrgAYjau0oEYDUbOku2i/rbsVKR9GBSYsm7qmsCtGC3usXbUS
 IxlGAh8qzcCmwt/E4V0fLSEH6uvreuVRk4V9Ip3x8nuHaQkdFhT+//8ucDDQqaDBg2iCAAA7
 "
-image create photo ximgToolInsertLine
-ximgToolInsertLine put "
+    image create photo ximgToolInsertLine
+    ximgToolInsertLine put "
 R0lGODlhGAAYAPIAAAAAAA0NDTc3Nz09PT4+Pt7e3vj4+Pv7+yH5BAAAAAAAIf8LSW1hZ2VNYWdp
 Y2sOZ2FtbWE9MC40NTQ1NDUALAAAAAAYABgAAAMtCLrc/jDKSau9OOvNew0CIY6kKASQUBxs67KF
 kK5vHUNgqROn5//AoHBILEoSADs=
 "
-image create photo ximgToolInsertCircle
-ximgToolInsertCircle put "
+    image create photo ximgToolInsertCircle
+    ximgToolInsertCircle put "
 R0lGODlhGAAYAPUAAAAAAAEBAQUFBQkJCQ4ODhISEiEhISYmJi8vLz4+PkBAQEdHR0tLS0xMTFJS
 UlZWVlhYWGtra2xsbHx8fH5+foKCgo+Pj5KSkpWVlZiYmJycnKysrLOzs7S0tMPDw8jIyNXV1dbW
 1uLi4uTk5Ovr6+zs7PPz8/b29vj4+P7+/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -894,8 +886,8 @@ SSMcCdVECh0jFhba3N1CCR0iS9IN5qQe2BBXEu4Azc+8vsDdBRnFTrI+tOvmIBCGJwzKbHASjBUH
 FB4WWKpAosSmYJ9CqTpgAYUiB42gPOJgx0KlIXRIoMAjoYECBQ0kABJEKMwYDybOeOjQgY0bGQ8U
 OHUasACDFSxauGBYUGvVsSRLmjQVEgQAOw==
 "
-image create photo ximgEditPushSym
-ximgEditPushSym put "
+    image create photo ximgEditPushSym
+    ximgEditPushSym put "
 R0lGODlhGAAYAPUAAAAAAAQEBAgICA0NDRERERcXFx0dHSIiIicnJywsLDAwMDU1NT09PUNDQ0dH
 R0hISFBQUFVVVWJiYmZmZnBwcHl5eY2NjZKSkpWVlZqamqGhoaSkpKqqqq2trbKysry8vMLCwsfH
 x8vLy83NzdPT09fX19jY2N/f3+Dg4OTk5Ojo6O3t7fPz8/X19fr6+v///wAAAAAAAAAAAAAAAAAA
@@ -905,8 +897,8 @@ KHTCvsQh08Iq6LDM2NPkC6io4OcEXegwYV0fBHtDBiJRKxmDTAIeKBKKCAeSkwsHCAV0HnhYKhgH
 ViObZi1eQxITE4Yak6wIChJ+LktDZiFaAyFnAUMmJyZvHF8HLi8OTRsvFnS5IhkZGEPIF3QlZtEv
 01+GzRkXvidvHV8IxLMAZiBaBKEkRBARECAvq6ySCQwUKS8ua00kolhWPKjCAeCLExYwMQkCADs=
 "
-image create photo ximgViewZoomOut
-ximgViewZoomOut put "
+    image create photo ximgViewZoomOut
+    ximgViewZoomOut put "
 R0lGODlhGAAYAPUAAAAAAAICAgQEBAoKChAQEB8fHyIiIiUlJSgoKC8vLz4+PkNDQ0RERGtra25u
 bnt7e3x8fIODg4WFhYiIiJ+fn6CgoLOzs7a2tr29vcHBwcjIyOXl5evr6+7u7vf39/n5+f///wAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA

@@ -4,25 +4,25 @@ xschem delete
 xschem set rectcolor 20
 xschem rect 350 -550 940 -290
 xschem wire 310 -330 380 -330 {lab=INPUT_B}
-xschem wire  310 -370 380 -370 {lab=INPUT_A}
-xschem wire  760 -420 830 -420 {lab=B}
-xschem wire  760 -460 830 -460 {lab=A}
-xschem wire  480 -350 520 -350 {lab=B}
-xschem wire  930 -440 970 -440 {lab=OUTPUT_Y}
-xschem wire  310 -440 380 -440 {lab=INPUT_F}
-xschem wire  310 -480 380 -480 {lab=INPUT_E}
-xschem wire  480 -460 520 -460 {lab=A}
-xschem wire  550 -190 670 -190 {lab=VCCFILT}
-xschem wire  590 -130 590 -110 {lab=ANALOG_GND}
-xschem wire  790 -190 940 -190 {lab=VCC5}
-xschem wire  890 -130 890 -110 {lab=ANALOG_GND}
-xschem wire  730 -110 890 -110 {lab=ANALOG_GND}
-xschem wire  730 -160 730 -110 {lab=ANALOG_GND}
-xschem wire  590 -110 730 -110 {lab=ANALOG_GND}
-xschem wire  520 -460 760 -460 {lab=A}
-xschem wire  580 -420 760 -420 {lab=B}
-xschem wire  580 -420 580 -350 {lab=B}
-xschem wire  520 -350 580 -350 {lab=B}
+xschem wire 310 -370 380 -370 {lab=INPUT_A}
+xschem wire 760 -420 830 -420 {lab=B}
+xschem wire 760 -460 830 -460 {lab=A}
+xschem wire 480 -350 520 -350 {lab=B}
+xschem wire 930 -440 970 -440 {lab=OUTPUT_Y}
+xschem wire 310 -440 380 -440 {lab=INPUT_F}
+xschem wire 310 -480 380 -480 {lab=INPUT_E}
+xschem wire 480 -460 520 -460 {lab=A}
+xschem wire 550 -190 670 -190 {lab=VCCFILT}
+xschem wire 590 -130 590 -110 {lab=ANALOG_GND}
+xschem wire 790 -190 940 -190 {lab=VCC5}
+xschem wire 890 -130 890 -110 {lab=ANALOG_GND}
+xschem wire 730 -110 890 -110 {lab=ANALOG_GND}
+xschem wire 730 -160 730 -110 {lab=ANALOG_GND}
+xschem wire 590 -110 730 -110 {lab=ANALOG_GND}
+xschem wire 520 -460 760 -460 {lab=A}
+xschem wire 580 -420 760 -420 {lab=B}
+xschem wire 580 -420 580 -350 {lab=B}
+xschem wire 520 -350 580 -350 {lab=B}
 xschem instance ../xschem_library/pcb/74ls00.sym 420 -350 0 0 {name=U1:2  risedel=100 falldel=200}
 xschem instance ../xschem_library/pcb/74ls00.sym 870 -440 0 0 {name=U1:1  risedel=100 falldel=200}
 xschem instance ../xschem_library/devices/lab_pin.sym 970 -440 0 1 {name=p0 lab=OUTPUT_Y}

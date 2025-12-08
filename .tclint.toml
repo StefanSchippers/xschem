@@ -1,0 +1,20 @@
+# Tclint configuration for xschem
+# https://github.com/nmoroze/tclint
+
+# Exclude files that cause parsing errors or are too complex for tclint
+exclude = [
+  "src/xschem.tcl",  # Has parsing issues with bareword in expression
+]
+
+# Ignore certain rules that are too strict for this codebase
+# command-args: Many eval and expr commands use dynamic arguments
+# unbraced-expr: Legacy code style, would require extensive refactoring
+ignore = [
+  "command-args",
+  "unbraced-expr",
+]
+
+[style]
+# Extend the default line length to 180 characters
+# Many lines in the codebase are long due to complex Tcl command chains and embedded strings
+line-length = 180

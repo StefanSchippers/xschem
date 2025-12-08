@@ -3,8 +3,8 @@
 exec tclsh "$0" "$@"
 
 set arg1 [lindex $argv 0]
-if { $arg1 eq {inv}} {
-puts {v {xschem version=3.1.0 file_version=1.2}
+if {$arg1 eq {inv}} {
+    puts {v {xschem version=3.1.0 file_version=1.2}
 G {
 y <= not a after 0.1 ns ;}
 K {}
@@ -31,7 +31,7 @@ C {lab_pin.sym} 190 -130 0 0 {name=p3 lab=0}
 C {n.sym} 170 -180 0 0 {name=m1 model=cmosn w=wn l=lln m=1}
 }
 } else {
-puts {v {xschem version=3.1.0 file_version=1.2}
+    puts {v {xschem version=3.1.0 file_version=1.2}
 G {
 y <= not a after 0.1 ns ;}
 K {}

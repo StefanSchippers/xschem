@@ -5,7 +5,7 @@ exec tclsh "$0" "$@"
 set model [lindex $argv 0]
 
 if {$model eq {nfet_g5v0d10v5}} {
-puts {
+    puts {
 
 v {xschem version=3.1.0 file_version=1.2}
 G {}
@@ -13,16 +13,16 @@ K {type=nmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.5
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -59,22 +59,22 @@ T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@sp
 hide=true}
 }
 } elseif {$model eq {pfet_g5v0d10v5}} {
-puts {v {xschem version=3.1.0 file_version=1.2}
+    puts {v {xschem version=3.1.0 file_version=1.2}
 G {}
 K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.5
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -112,22 +112,22 @@ T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@sp
 hide=true}
 }
 } elseif {$model eq {pfet_01v8}} {
-puts {v {xschem version=3.1.0 file_version=1.2}
+    puts {v {xschem version=3.1.0 file_version=1.2}
 G {}
 K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.15
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -164,25 +164,23 @@ hide=true}
 T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@spiceprefix@name\\.msky130_fd_pr__@model\\[id])\}]]] )} 32.5 -30 0 0 0.15 0.15 {layer=15
 hide=true}
 }
-
-
-} else { ;# default: nfet_01v8
-puts {v {xschem version=3.1.0 file_version=1.2 }
+} else { # default: nfet_01v8
+    puts {v {xschem version=3.1.0 file_version=1.2 }
 G {}
 K {type=nmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.15
 W=1
-nf=1 
+nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0

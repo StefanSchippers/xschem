@@ -8,8 +8,8 @@ set topwin [xschem get top_path]
 ## Add a "MyButton" button to toolbar_list
 
 if {[lsearch -exact $toolbar_list MyButton] < 0} {
-  lappend toolbar_list MyButton
-  set MyButtonData {
+    lappend toolbar_list MyButton
+    set MyButtonData {
     R0lGODlhGAAYAPcAACIiIiMjIyUlJSYmJicnJykpKSoqKisrKywsLDAwMDExMTIyMjMzMzQ0NDU1
     NTY2Njc3Nzg4ODk5OTo6Oj09PT4+Pj8/P0FBQUJCQkNDQ0REREVFRUZGRklJSUxMTE1NTU5OTlFR
     UVJSUlNTU1lZWVpaWltbW1xcXF1dXV5eXl9fX2FhYWNjY2RkZGZmZmdnZ2hoaGlpaWtra2xsbG1t
@@ -33,15 +33,14 @@ if {[lsearch -exact $toolbar_list MyButton] < 0} {
     Ow==
   }
 
-  ## Create an image object. Name should be img<name of button>
-  image create photo imgMyButton 
-  imgMyButton put $MyButtonData
-
+    ## Create an image object. Name should be img<name of button>
+    image create photo imgMyButton
+    imgMyButton put $MyButtonData
 }
 
 ## Create the toolbar button
 ## constructor  name         tcl command        tooltip    topwindow
-toolbar_add   MyButton      { puts SMILE! }     "SMILE!"     $topwin
+toolbar_add MyButton { puts SMILE! } "SMILE!" $topwin
 ## Destroy and rebuild the toolbar, but see better option here under ...
 # toolbar_hide
 # toolbar_show
