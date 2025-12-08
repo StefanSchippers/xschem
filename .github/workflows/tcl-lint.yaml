@@ -19,7 +19,7 @@ jobs:
       - name: Check Tcl formatting with tclfmt
         run: |
           # Check if all Tcl files are formatted correctly (excluding src/xschem.tcl)
-          uvx tclfmt --check --exclude "src/xschem.tcl" .
+          uvx --from tclint tclfmt --check --exclude "src/xschem.tcl" .
 
       - name: Run tclint on Tcl files
         run: |
