@@ -34,4 +34,19 @@ uninstall: FORCE
 	cd src/utile && $(MAKE) uninstall
 	cd src && $(MAKE) uninstall
 
+lint: FORCE
+	@echo "Running tclint on Tcl files..."
+	@find . -name "*.tcl" -type f ! -path "./src/xschem.tcl" -exec uvx tclint -c .tclint.toml {} \;
+	@echo "Linting complete."
+
+format: FORCE
+	@echo "Formatting Tcl files..."
+	@uvx --from tclint tclfmt -c .tclint.toml --in-place --exclude "src/xschem.tcl" .
+	@echo "Formatting complete."
+
+format-check: FORCE
+	@echo "Checking Tcl formatting..."
+	@uvx --from tclint tclfmt -c .tclint.toml --check --exclude "src/xschem.tcl" .
+	@echo "Format check complete."
+
 FORCE:

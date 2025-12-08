@@ -16,13 +16,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Check Tcl formatting with tclfmt
-        run: |
-          # Check if all Tcl files are formatted correctly (excluding src/xschem.tcl)
-          uvx --from tclint tclfmt -c .tclint.toml --check --exclude "src/xschem.tcl" .
+      - name: Check Tcl formatting
+        run: make format-check
 
-      - name: Run tclint on Tcl files
-        run: |
-          # Run tclint with the configuration file
-          # This will check all .tcl files except those excluded in .tclint.toml
-          find . -name "*.tcl" -type f ! -path "./src/xschem.tcl" -exec uvx tclint -c .tclint.toml {} \;
+      - name: Run tclint
+        run: make lint
