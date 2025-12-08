@@ -6,6 +6,8 @@ jobs:
   tcl-lint:
     runs-on: ubuntu-latest
     name: Tcl Code Quality
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout source
