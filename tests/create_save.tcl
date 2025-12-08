@@ -29,37 +29,37 @@ file delete -force $testname/results
 file mkdir $testname/results
 
 proc create_save {} {
-    global testname pathlist xschem_cmd num_fatals
-    set results_dir ${testname}/results
-    if {[file exists ${testname}/tests]} {
-        set ff [lsort [glob -directory ${testname}/tests -tails \{.*,*\}]]
-        foreach f $ff {
-            if {$f eq {..} || $f eq {.}} {continue}
-            if {[regexp {\.(tcl)$} $f]} {
-                set fn_sch [regsub {tcl$} $f {sch}]
-                set a [catch "open \"$results_dir/$fn_sch\" w" fd]
-                if {!$a} {
-                    puts $fd "v {xschem version=2.9.5 file_version=1.1}"
-                    puts $fd "G {}"
-                    puts $fd "V {}"
-                    puts $fd "S {}"
-                    puts $fd "E {}"
-                    close $fd
-                    set filename [regsub {\.tcl$} $f {}]
-                    set output ${filename}_debug.txt
-                    if {[catch {eval exec {$xschem_cmd ${results_dir}/$fn_sch --pipe -d 1 --script ${testname}/tests/${f} 2> ${results_dir}/$output}} msg]} {
-                        puts "FATAL: $msg"
-                        incr num_fatals
-                    } else {
-                        lappend pathlist $output
-                        lappend pathlist "${filename}.sch"
-                        cleanup_debug_file ${results_dir}/$output
-                        cleanup_debug_file ${results_dir}/$fn_sch
-                    }
-                }
-            }
+  global testname pathlist xschem_cmd num_fatals
+  set results_dir ${testname}/results
+  if {[file exists ${testname}/tests]} {
+    set ff [lsort [glob -directory ${testname}/tests -tails \{.*,*\}]]
+    foreach f $ff {
+      if {$f eq {..} || $f eq {.}} {continue}
+      if {[regexp {\.(tcl)$} $f]} {
+        set fn_sch [regsub {tcl$} $f {sch}]
+        set a [catch "open \"$results_dir/$fn_sch\" w" fd]
+        if {!$a} {
+          puts $fd "v {xschem version=2.9.5 file_version=1.1}"
+          puts $fd "G {}"
+          puts $fd "V {}"
+          puts $fd "S {}"
+          puts $fd "E {}"
+          close $fd
+          set filename [regsub {\.tcl$} $f {}]
+          set output ${filename}_debug.txt
+          if {[catch {eval exec {$xschem_cmd ${results_dir}/$fn_sch --pipe -d 1 --script ${testname}/tests/${f} 2> ${results_dir}/$output}} msg]} {
+            puts "FATAL: $msg"
+            incr num_fatals
+          } else {
+            lappend pathlist $output
+            lappend pathlist "${filename}.sch"
+            cleanup_debug_file ${results_dir}/$output
+            cleanup_debug_file ${results_dir}/$fn_sch
+          }
         }
+      }
     }
+  }
 }
 
 create_save

@@ -24,10 +24,10 @@ set tcases [list "create_save" "open_close" "netlisting"]
 set log_fn "results.log"
 
 proc summarize_all {fn fd} {
-    puts $fd "$fn"
-    set b [catch "open \"$fn\" r" fdread]
-    set num_fail 0
-    if (!$b) {
+  puts $fd "$fn"
+  set b [catch "open \"$fn\" r" fdread]
+  set num_fail 0
+  if (!$b) {
     while {[gets $fdread line] >=0} {
       if { [regexp {[FAIL]$} $line] || [regexp {[GOLD\?]$} $line] || [regexp {^[FATAL]} $line]} {
         puts $fd $line
@@ -43,17 +43,17 @@ proc summarize_all {fn fd} {
 
 set a [catch "open \"$log_fn\" w" fd]
 if {!$a} {
-    foreach tc $tcases {
-        puts "Start source ${tc}.tcl"
-        if {[catch {eval exec {tclsh ${tc}.tcl} > ${tc}_output.txt} msg]} {
-            puts "Something seems to have gone wrong with $tc, but we will ignore it: $msg"
-        }
-        summarize_all ${tc}.log $fd
-        puts "Finish source ${tc}.tcl"
+  foreach tc $tcases {
+    puts "Start source ${tc}.tcl"
+    if {[catch {eval exec {tclsh ${tc}.tcl} > ${tc}_output.txt} msg]} {
+      puts "Something seems to have gone wrong with $tc, but we will ignore it: $msg"
     }
-    close $fd
+    summarize_all ${tc}.log $fd
+    puts "Finish source ${tc}.tcl"
+  }
+  close $fd
 } else {
-    puts "Couldn't open $log_fn to write.  Investigate please."
+  puts "Couldn't open $log_fn to write.  Investigate please."
 }
 
 source test_utility.tcl

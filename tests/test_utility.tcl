@@ -25,58 +25,58 @@ set xschem_cmd "xschem"
 
 # From Glenn Jackman (Stack Overflow answer)
 proc comp_file {file1 file2} {
-    # optimization: check file size first
-    set equal 0
-    if {[file size $file1] == [file size $file2]} {
-        set fh1 [open $file1 r]
-        set fh2 [open $file2 r]
-        set equal [string equal [read $fh1] [read $fh2]]
-        close $fh1
-        close $fh2
-    }
-    return $equal
+  # optimization: check file size first
+  set equal 0
+  if {[file size $file1] == [file size $file2]} {
+    set fh1 [open $file1 r]
+    set fh2 [open $file2 r]
+    set equal [string equal [read $fh1] [read $fh2]]
+    close $fh1
+    close $fh2
+  }
+  return $equal
 }
 
 proc print_results {testname pathlist num_fatals} {
-    if {[file exists ${testname}/gold]} {
-        set a [catch "open \"$testname.log\" w" fd]
-        if {$a} {
-            puts "Couldn't open $f"
-        } else {
-            set i 0
-            set num_fail 0
-            set num_gold 0
-            foreach f $pathlist {
-                incr i
-                if {![file exists $testname/gold/$f]} {
-                    puts $fd "$i. $f: GOLD?"
-                    incr num_gold
-                    continue
-                }
-                if {![file exists $testname/results/$f]} {
-                    puts $fd "$i. $f: RESULT?"
-                    continue
-                }
-                if ([comp_file $testname/gold/$f $testname/results/$f]) {
+  if {[file exists ${testname}/gold]} {
+    set a [catch "open \"$testname.log\" w" fd]
+    if {$a} {
+      puts "Couldn't open $f"
+    } else {
+      set i 0
+      set num_fail 0
+      set num_gold 0
+      foreach f $pathlist {
+        incr i
+        if {![file exists $testname/gold/$f]} {
+          puts $fd "$i. $f: GOLD?"
+          incr num_gold
+          continue
+        }
+        if {![file exists $testname/results/$f]} {
+          puts $fd "$i. $f: RESULT?"
+          continue
+        }
+        if ([comp_file $testname/gold/$f $testname/results/$f]) {
           puts $fd "$i. $f: PASS"
         } else {
           puts $fd "$i. $f: FAIL"
           incr num_fail
         }
-            }
-            puts $fd "Summary:"
-            puts $fd "Num failed: $num_fail      Num missing gold: $num_gold      Num passed: [expr $i-$num_fail-$num_gold]"
-            if {$num_fatals} {
-                puts $fd "FATAL: $num_fatals.  Please search for FATAL in its output file for more detail"
-            }
-            close $fd
-        }
-    } else {
-        puts "No gold folder.  Set results as gold please."
+      }
+      puts $fd "Summary:"
+      puts $fd "Num failed: $num_fail      Num missing gold: $num_gold      Num passed: [expr $i-$num_fail-$num_gold]"
+      if {$num_fatals} {
+        puts $fd "FATAL: $num_fatals.  Please search for FATAL in its output file for more detail"
+      }
+      close $fd
     }
+  } else {
+    puts "No gold folder.  Set results as gold please."
+  }
 }
 
 # Edit lines that change each time regression is ran
 proc cleanup_debug_file {output} {
-    eval exec {awk -f cleanup_debug_file.awk $output}
+  eval exec {awk -f cleanup_debug_file.awk $output}
 }

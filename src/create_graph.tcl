@@ -23,33 +23,33 @@
 
 # procedure to create a graph in an empty xschem window and display waveforms
 proc create_graph {title rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 12 13 14}}} {
-    # clear window if not already empty
-    xschem clear force
+  # clear window if not already empty
+  xschem clear force
 
-    # add title text
-    xschem text 30 -350 0 0 $title {} 0.5 1
-    # clear loaded raw file if any
-    xschem raw_clear
-    # set current layer to graph layer (grey, layer 2)
-    xschem set rectcolor 2
-    # create a 300x400 rectangle
-    xschem rect 0 -300 400 0
-    # make it a graph
-    xschem setprop rect 2 0 flags graph
-    # read a simulation raw file
-    xschem raw_read $rawfile $analysis
-    # add nodes to display
-    xschem setprop rect 2 0 node $node
-    # set node colors
-    xschem setprop rect 2 0 color $color
-    # set thinner graph line widths
-    xschem setprop rect 2 0 linewidth_mult 0.5
-    # make xschem display full the graph rectangle
-    xschem zoom_full
-    # full zoom graph data on x axis
-    xschem setprop rect 2 0 fullxzoom
-    # full zoom graph data on y axis
-    xschem setprop rect 2 0 fullyzoom
-    # clear modified flag so we can quit without xschem asking to save changed file.
-    xschem set_modify 0
+  # add title text
+  xschem text 30 -350 0 0 $title {} 0.5 1
+  # clear loaded raw file if any
+  xschem raw_clear
+  # set current layer to graph layer (grey, layer 2)
+  xschem set rectcolor 2
+  # create a 300x400 rectangle
+  xschem rect 0 -300 400 0
+  # make it a graph
+  xschem setprop rect 2 0 flags graph
+  # read a simulation raw file
+  xschem raw_read $rawfile $analysis
+  # add nodes to display
+  xschem setprop rect 2 0 node $node
+  # set node colors
+  xschem setprop rect 2 0 color $color
+  # set thinner graph line widths
+  xschem setprop rect 2 0 linewidth_mult 0.5
+  # make xschem display full the graph rectangle
+  xschem zoom_full
+  # full zoom graph data on x axis
+  xschem setprop rect 2 0 fullxzoom
+  # full zoom graph data on y axis
+  xschem setprop rect 2 0 fullyzoom
+  # clear modified flag so we can quit without xschem asking to save changed file.
+  xschem set_modify 0
 }

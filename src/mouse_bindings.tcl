@@ -36,129 +36,129 @@
 ################################################################################
 
 proc mouse_buttons {b m} {
-    # filter out Cap-Lock, Num-Lock, and Undefined keys
-    set m [expr {$m & ~(2 + 16 + 32)}]
-    # puts "modifier state: $m"
-    switch $m {
-        # {None}
-        0 {
-            switch $b {
-                8 {xschem zoom_full center}
-                9 {xschem unhilight_all}
-            }
-        }
-        # {Shift}
-        1 {
-            switch $b {
-                8 {xschem set_modify 1; xschem save}
-                9 {}
-            }
-        }
-        # {Cntl}
-        4 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Cntl}
-        5 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Alt}
-        8 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Alt}
-        9 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Cntl+Alt}
-        12 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Cntl+Alt}
-        13 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Winkey}
-        64 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Winkey}
-        65 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Cntl+Winkey}
-        68 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Cntl+Winkey}
-        69 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Alt+Winkey}
-        72 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Alt+Winkey}
-        73 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Cntl+Alt+Winkey}
-        76 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
-        # {Shift+Cntl+Alt+Winkey}
-        77 {
-            switch $b {
-                8 {}
-                9 {}
-            }
-        }
+  # filter out Cap-Lock, Num-Lock, and Undefined keys
+  set m [expr {$m & ~(2 + 16 + 32)}]
+  # puts "modifier state: $m"
+  switch $m {
+    # {None}
+    0 {
+      switch $b {
+        8 {xschem zoom_full center}
+        9 {xschem unhilight_all}
+      }
     }
+    # {Shift}
+    1 {
+      switch $b {
+        8 {xschem set_modify 1; xschem save}
+        9 {}
+      }
+    }
+    # {Cntl}
+    4 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Cntl}
+    5 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Alt}
+    8 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Alt}
+    9 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Cntl+Alt}
+    12 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Cntl+Alt}
+    13 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Winkey}
+    64 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Winkey}
+    65 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Cntl+Winkey}
+    68 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Cntl+Winkey}
+    69 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Alt+Winkey}
+    72 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Alt+Winkey}
+    73 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Cntl+Alt+Winkey}
+    76 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+    # {Shift+Cntl+Alt+Winkey}
+    77 {
+      switch $b {
+        8 {}
+        9 {}
+      }
+    }
+  }
 }
 
 # the global variable 'has_x' is provided by xschem. It is defined to '1'
 # if graphics has been initialized.
 
 if {[info exists has_x]} {
-    #  puts "Loading ~/.xschem/mouse_bindings.tcl"
-    bind .drw <Any-Button> {+mouse_buttons %b %s}
+  #  puts "Loading ~/.xschem/mouse_bindings.tcl"
+  bind .drw <Any-Button> {+mouse_buttons %b %s}
 }

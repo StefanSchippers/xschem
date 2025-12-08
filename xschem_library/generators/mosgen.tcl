@@ -5,7 +5,7 @@ exec tclsh "$0" "$@"
 set model [lindex $argv 0]
 
 if {$model eq {nfet_g5v0d10v5}} {
-    puts {
+  puts {
 
 v {xschem version=3.1.0 file_version=1.2}
 G {}
@@ -59,7 +59,7 @@ T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@sp
 hide=true}
 }
 } elseif {$model eq {pfet_g5v0d10v5}} {
-    puts {v {xschem version=3.1.0 file_version=1.2}
+  puts {v {xschem version=3.1.0 file_version=1.2}
 G {}
 K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
@@ -112,7 +112,7 @@ T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@sp
 hide=true}
 }
 } elseif {$model eq {pfet_01v8}} {
-    puts {v {xschem version=3.1.0 file_version=1.2}
+  puts {v {xschem version=3.1.0 file_version=1.2}
 G {}
 K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
@@ -165,7 +165,7 @@ T {tcleval(id=[to_eng [ngspice::get_node [subst -nocommand \{i(\\@m.$\{path\}@sp
 hide=true}
 }
 } else { # default: nfet_01v8
-    puts {v {xschem version=3.1.0 file_version=1.2 }
+  puts {v {xschem version=3.1.0 file_version=1.2 }
 G {}
 K {type=nmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"

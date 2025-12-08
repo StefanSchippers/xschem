@@ -17,16 +17,16 @@
 # spacing: vertical spacing between one pin and the following.
 #
 proc place_pins {filename symname {x 0} {y 0} {spacing 40}} {
-    set i 0
-    set fd [open $filename r]
-    set pinlist [read -nonewline $fd]
-    close $fd
-    foreach {name num} $pinlist {
-        puts "$name num"
-        # xschem instance sym_name x y rot flip [prop] [n]
-        xschem instance $symname $x $y 0 0 "name=p$num lab=$name" $i
-        incr i
-        incr y $spacing
-    }
-    xschem redraw
+  set i 0
+  set fd [open $filename r]
+  set pinlist [read -nonewline $fd]
+  close $fd
+  foreach {name num} $pinlist {
+    puts "$name num"
+    # xschem instance sym_name x y rot flip [prop] [n]
+    xschem instance $symname $x $y 0 0 "name=p$num lab=$name" $i
+    incr i
+    incr y $spacing
+  }
+  xschem redraw
 }
