@@ -24,7 +24,7 @@ END  { endfile(_filename_) }
 #-----------------------------------------------------
 
 
-function beginfile(fname) 
+function beginfile(fname)
 {
  ip=0; op=0; i=0
  delete pin
@@ -34,36 +34,36 @@ function beginfile(fname)
 }
 
 {
- gsub(/</,"[",$0) 
- gsub(/>/,"]",$0) 
+ gsub(/</,"[",$0)
+ gsub(/>/,"]",$0)
 }
 
 / inputOutput *$/{
- op++; 
+ op++;
  i++
  pin[i] = $1
  dir[i] = "B"
 }
 
 / output *$/{
- op++; 
+ op++;
  i++
  pin[i] = $1
  dir[i] = "O"
 }
 
 / input *$/{
- ip++; 
+ ip++;
  i++
  pin[i] = $1
  dir[i] = "I"
 }
 
-function endfile(fname) 
+function endfile(fname)
 {
  sub(/\/pin\/text\.txt/,"",fname)
- sub(/.*\//,"",fname) 
- fname = fname ".sch" 
+ sub(/.*\//,"",fname)
+ fname = fname ".sch"
 
  dir["n"] = pin["n"] = i
  compact_pinlist(pin,dir)
@@ -129,24 +129,24 @@ function compact_pinlist(pin, dir                 ,i,ii,base,curr,curr_n,np)
  delete pin_ret
  delete net_ret
  delete dir_ret
- 
+
  np=pin["n"]
  if(np) {
    ii=1
    for(i=1;i<=np;i++) {
      base =lab_name( pin[i] )
      if(i==1) {curr=base; curr_n=i}
-     else { 
+     else {
        if(base != curr) {
          pin_ret[ii] = compact_label(pin,curr_n,i-1)
-         dir_ret[ii] = dir[i-1] 
+         dir_ret[ii] = dir[i-1]
          ii++
          curr=base;curr_n=i
        }
      }
    }
    pin_ret[ii] = compact_label(pin,curr_n,np)
-   dir_ret[ii] = dir[np] 
+   dir_ret[ii] = dir[np]
    pin_ret["n"] =  dir_ret["n"] = ii
  }
 }
@@ -165,10 +165,10 @@ function compact_label(ar,a,b,        ret,start,i)
           else {ret = ret ar[i-1] ","; start=i }
         }
       }
-      else if(lab_name(ar[i])!=lab_name(ar[i-1]) || 
-              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 && 
+      else if(lab_name(ar[i])!=lab_name(ar[i-1]) ||
+              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 &&
               lab_index(ar[i]) != lab_index(ar[i-1])+1) ) {
-        if(start<i-1) 
+        if(start<i-1)
           ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[i-1]) "],"
         else
           ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) "],"
@@ -180,7 +180,7 @@ function compact_label(ar,a,b,        ret,start,i)
     if(start < b)  ret = ret (b-start+1) "*" ar[b]
     else ret = ret ar[b]
   }
-  else if(start<b)   
+  else if(start<b)
     ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[b]) "]"
   else
     ret = ret lab_name(ar[b]) "[" lab_index(ar[b]) "]"

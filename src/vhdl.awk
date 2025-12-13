@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: vhdl.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -130,14 +130,14 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
  component_name=$2
  no_print=1
 }
- 
+
 
 (component==1){
  if($4==":=") $5=get_number($5)
  if($5==":=") $6=get_number($6)
  if($1 ~ /\[.*:.*\]/)
  {
-  arch_sig_name[component_name,$1]=s_b($1)  # array used to compare 
+  arch_sig_name[component_name,$1]=s_b($1)  # array used to compare
 					    # actual ports in instances, if they match
 					    # avoid indexes (to/downto)
   xx=s_i($1)
@@ -155,7 +155,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
     $4=vector_type xxx[1] " downto " xxx[2] ")"
   else
     $4=vector_type xxx[1] " to " xxx[2] ")"
-  $1=s_b($1) 
+  $1=s_b($1)
   print "  " $0
  }
  else print $0
@@ -195,12 +195,12 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
   $1=s_b($1)
   print "  " $0
  }
- else print $0 
+ else print $0
  entity_ports[$1]=1
  if($1=="end" && $2==entity_name) entity=0
  no_print=1
 }
- 
+
 
 #### BEGIN RESOLVE SIGNALS
 
@@ -216,10 +216,10 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
 		       # omit bit ranges ( CNT => CNT(3 downto 0)  --> CNT => CNT )
  print $0
  no_print=1
-} 
+}
 
 /^[ \t]*(signal|constant|variable)[ \t]+/{                 ### dangerous <<< 07062002 added "variable"
- 
+
  if( $NF ~ /\[[^:,]+:[^:,]+\]$/)    # 09112003, corrected to recognize only XXX[3:1] and not XXX[3:1],AA[3]
  {
    up=$NF
@@ -285,7 +285,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
  {
   i = arch_signal_num[ii]
   ## 04062002 don't add _vector if user defined type
-  if(arch_sig_type_array[i] ~ /^(boolean|bit|real|std_logic|integer)$/) 
+  if(arch_sig_type_array[i] ~ /^(boolean|bit|real|std_logic|integer)$/)
     vector_type=arch_sig_type_array[i] "_vector ("
   else
     vector_type=arch_sig_type_array[i] " ("
@@ -294,22 +294,22 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
   hsort(tmp, n)
   if(n>1 || (arch_index_array[i] !~ /no_index/)  )  #11092003 if not no_index treat as a bus
   {
-   if(check(tmp,n)) 
+   if(check(tmp,n))
    {
     if(arch_signal_dir[i] == " downto ")
     {
-     arch_sig_name[entity_name, i "[" tmp[1] ":" tmp[n] "]"]=i 
+     arch_sig_name[entity_name, i "[" tmp[1] ":" tmp[n] "]"]=i
      printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[1] " downto " tmp[n] ")"  #04062002
     }
     else
     {
-     arch_sig_name[entity_name, i "[" tmp[n] ":" tmp[1] "]"]=i 
+     arch_sig_name[entity_name, i "[" tmp[n] ":" tmp[1] "]"]=i
      printf "%s",arch_signal_class[i] " " i " : " vector_type tmp[n] " to " tmp[1] ")" #04062002
     }
    }
    else print "\n**** ERROR >>>> " i " non contigous bus ->" n, "|" arch_index_array[i] "|"
   }
-  else 
+  else
   {
     # we do not declare parametrized subranges as normally will result in redeclaration
     # of a port signal
@@ -328,7 +328,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
         printf "%s",arch_signal_class[i] " " basename " : " vector_type range #04062002
        }
        else continue
-    } 
+    }
     else
       printf "%s",arch_signal_class[i] " " i " : " arch_sig_type_array[i]
   }
@@ -339,7 +339,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
       # if(tolower(arch_sig_type_array[i]) ~ /vector/) sep="\""
       if(n>1 || (arch_index_array[i] !~ /no_index/)  ) sep="\""
       else sep = "'"
-      if( arch_value_array[i] !~ sep) 
+      if( arch_value_array[i] !~ sep)
         arch_value_array[i] = sep arch_value_array[i] sep
     }
     printf "%s"," := " arch_value_array[i]
@@ -373,7 +373,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
      actual_port_mult=split(inst_actual_port[j],actual_port_array,",")
    }
    else {
-     actual_port_mult=1 
+     actual_port_mult=1
      actual_port_array[1]=inst_actual_port[j]
    }
    ck2[j] = check2(actual_port_array,actual_port_mult)
@@ -392,21 +392,21 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
        actual_port_mult=split(inst_actual_port[j],actual_port_array,",")
      }
      else {
-       actual_port_mult=1 
+       actual_port_mult=1
        actual_port_array[1]=inst_actual_port[j]
      }
-    
+
      # force to actual multiplicty unresolved (due to params) symbol pin multiplicity
      parametrized_formal_range=0       # 20100408
      if(inst_formal_port_mult[j]<0) {
-       parametrized_formal_range=1     # 20100408 
+       parametrized_formal_range=1     # 20100408
        inst_formal_port_mult[j] = actual_port_mult
        inst_formal_up[j] = actual_port_mult -1  #assume inst_formal_low=0 in case of parametrized vector port...
      }
 
      a=((i-1)*inst_formal_port_mult[j]) % actual_port_mult+1
      b=(-1+i*inst_formal_port_mult[j]) % actual_port_mult+1
-     #print "\n-- a=" a " b=" b " formal port mult=" inst_formal_port_mult[j] 
+     #print "\n-- a=" a " b=" b " formal port mult=" inst_formal_port_mult[j]
      if(j>0 && j!=g) printf " ,\n"
      else if(j>0)    printf "\n"
      if(inst_formal_port_mult[j]>1  && actual_port_mult>1  && ck2[j]) {
@@ -438,13 +438,13 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
 
         # 20100408 if formal range contains generic and actual port width is 1 specify formal bit index in assignment
         if( (parametrized_formal_range || (inst_formal_port_mult[j]>1)) && actual_port_mult==1) {
-								 # patch for single bit actual port 
+								 # patch for single bit actual port
 								 # assigned on vector formal port 23112002
 
           # 20170920
           if( parametrized_formal_range && inst_actual_port[j] ~/\[.*:.*\]/) {
-            printf "%s","   " inst_formal_port[j] " => " get_number(actual_port) 
-          } else 
+            printf "%s","   " inst_formal_port[j] " => " get_number(actual_port)
+          } else
           # /20170920
  	  for(num=inst_formal_low[j]; ; num+=sign(inst_formal_up[j] - inst_formal_low[j])) {
                if(num !=inst_formal_low[j]) printf " ,\n"
@@ -459,7 +459,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
          formal_index= (inst_formal_up[j] >= inst_formal_low[j]) ? \
                 remainder(inst_formal_up[j]-num+1+inst_formal_low[j], inst_formal_port_mult[j]) + inst_formal_low[j]: \
                 remainder(inst_formal_up[j]+num-1+inst_formal_up[j] , inst_formal_port_mult[j]) + inst_formal_up[j]
-         
+
          if(num !=a) printf " ,\n"
          								#07062002 aggiunto get_number x generici
          printf "%s","   " inst_formal_port[j] "(" formal_index ") => " to_round_brackets(get_number(actual_port_array[num]))
@@ -487,7 +487,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
    sub(/^.*:/,"",index_low)
    sub(/\].*$/,"",index_low)
    if(  (index_up !~/^[0-9]+$/) || (index_low !~/^[0-9]+$/)  ) {
-    inst_formal_port_mult[p]=-1  # component port index contains parameter, multiplicity cant be resolved 
+    inst_formal_port_mult[p]=-1  # component port index contains parameter, multiplicity cant be resolved
     inst_formal_up[p]=0
     inst_formal_low[p]=0
    }
@@ -495,7 +495,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
      inst_formal_port_mult[p] = abs(index_up - index_low) + 1
      inst_formal_up[p]=index_up
      inst_formal_low[p]=index_low
-     #print "--port assignment:  port " s_b($1)  "  formal idx hi=" index_up " lo=" index_low 
+     #print "--port assignment:  port " s_b($1)  "  formal idx hi=" index_up " lo=" index_low
    }
  }
  else {
@@ -503,7 +503,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
    inst_formal_up[p]=0
    inst_formal_low[p]=0
  }
- # if formal port = a[2:2] translate as a(2) 
+ # if formal port = a[2:2] translate as a(2)
  if(index_up == index_low && $1 ~ /\[.*:.*\]/)
    inst_formal_port[p] = s_b($1) "(" index_up ")"
  else
@@ -522,7 +522,7 @@ primitive==1{primitive_line=primitive_line " " $0; next  } # 20071217
  port_map=1
  no_print=1
 }
- 
+
 
 /^port map/{
  if(!port_map){
@@ -553,9 +553,9 @@ function remainder(n,div,     x) {
   x=n%div
   if(x<o) return x+div
   return x
-} 
+}
 
-function abs(x) 
+function abs(x)
 {
  if(x+0<0) return -x
  else return x
@@ -618,13 +618,13 @@ function check(arr,n      ,i,start,ok)
  return 1
 }
 
-# check if an array of indexes (sig[3]) arr[1],arr[2]..... 
+# check if an array of indexes (sig[3]) arr[1],arr[2].....
 # is contigous and decreeasing
 function check2(arr,n     ,a,name,i,start,ok)
 {
  name=s_b(arr[1])
  start=s_i(arr[1])
- if(arr[1] !~ /[0-9]+/) 
+ if(arr[1] !~ /[0-9]+/)
  {
   if(n>1) return 0
   else return 1
@@ -645,7 +645,7 @@ function check2(arr,n     ,a,name,i,start,ok)
  }
  return 1
 }
- 
+
 function s_i(a)
 {
  sub(/.*\[/,"",a)
@@ -701,24 +701,24 @@ function compact_pinlist(pin, dir                 ,i,ii,base,curr,curr_n,np)
  delete pin_ret
  delete net_ret
  delete dir_ret
- 
+
  np=pin["n"]
  if(np) {
    ii=1
    for(i=1;i<=np;i++) {
      base =s_b( pin[i] )
      if(i==1) {curr=base; curr_n=i}
-     else { 
+     else {
        if(base != curr) {
          pin_ret[ii] = compact_label(pin,curr_n,i-1)
-         dir_ret[ii] = dir[i-1] 
+         dir_ret[ii] = dir[i-1]
          ii++
          curr=base;curr_n=i
        }
      }
    }
    pin_ret[ii] = compact_label(pin,curr_n,np)
-   dir_ret[ii] = dir[np] 
+   dir_ret[ii] = dir[np]
    pin_ret["n"] =  dir_ret["n"] = ii
  }
 }
@@ -737,10 +737,10 @@ function compact_label(ar,a,b,        ret,start,i)
           else {ret = ret ar[i-1] ","; start=i }
         }
       }
-      else if(s_b(ar[i])!=s_b(ar[i-1]) || 
-              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 && 
+      else if(s_b(ar[i])!=s_b(ar[i-1]) ||
+              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 &&
               lab_index(ar[i]) != lab_index(ar[i-1])+1) ) {
-        if(start<i-1) 
+        if(start<i-1)
           ret = ret s_b(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[i-1]) "],"
         else
           ret = ret s_b(ar[start]) "[" lab_index(ar[start]) "],"
@@ -752,7 +752,7 @@ function compact_label(ar,a,b,        ret,start,i)
     if(start < b)  ret = ret (b-start+1) "*" ar[b]
     else ret = ret ar[b]
   }
-  else if(start<b)   
+  else if(start<b)
     ret = ret s_b(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[b]) "]"
   else
     ret = ret s_b(ar[b]) "[" lab_index(ar[b]) "]"

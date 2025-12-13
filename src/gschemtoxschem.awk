@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: gschemtoxschem.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -33,7 +33,7 @@ BEGIN{
   debug=0 # set to 1 to print debug info to stderr
 }
 
-#### on first line 
+#### on first line
 FNR==1{
   if(FILENAME ~/\.sym$/) is_symbol = 1
   sch = FILENAME
@@ -63,7 +63,7 @@ FNR==1{
       y2 = $5 / 10
       lines = lines  "L 4 " order(x1, y1, x2, y2) " {}\n"
     }
-    
+
     #### Text objects
     # T x y color size visibility show angle alignment num_lines
     # 1 2 3  4     5       6        7    8      9        10
@@ -122,14 +122,14 @@ FNR==1{
           # if($0 ~ /^(device|description|footprint|source|numslots)=/) {
           #   attributes = $0
           #   sub(/=.*/, "", attributes)
-          #   if(extra !="") extra = extra " " 
-          #   if(extra_pinnumber !="") extra_pinnumber = extra_pinnumber " " 
+          #   if(extra !="") extra = extra " "
+          #   if(extra_pinnumber !="") extra_pinnumber = extra_pinnumber " "
           #   extra = extra attributes
           #   extra_pinnumber = extra_pinnumber "-"
           # }
 
           save = $0
-          sub(/^device=/, "type=") 
+          sub(/^device=/, "type=")
           if ($0 ~/^value=IO/) { # inconsistency in io-1.sym
             $0 = "type=IO"
           }
@@ -138,7 +138,7 @@ FNR==1{
             if($0 ~/=OUTPUT/) {pin = 1; sub(/=.*/, "=opin"); template_attrs = template_attrs "lab=xxx "}
             if($0 ~/=IO/) {pin = 1; sub(/=.*/, "=iopin"); template_attrs = template_attrs "lab=xxx "}
             if(is_symbol && has_schematic) global_attrs = "type=subcircuit\n" global_attrs
-            else global_attrs = $0 "\n" global_attrs 
+            else global_attrs = $0 "\n" global_attrs
           }
           $0 = save
           if(show == 1) {
@@ -156,8 +156,8 @@ FNR==1{
       if(visibility) {
         texts = texts  "T {" text "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {" text_align "}\n"
       }
-    } 
-       
+    }
+
     #### box objects
     else if($0 ~ /^B/){
       x1 = $2 / 10
@@ -169,24 +169,24 @@ FNR==1{
       boxes = boxes "L 4 " x1 " " (-y2) " " x2 " " (-y2) " {}\n"
       boxes = boxes "L 4 " x1 " " (-y2) " " x1 " " (-y1) " {}\n"
     }
-    
+
     #### circle objects
     else if($0 ~ /^V/){ #circle
       circles = circles "A 4 " ($2/10) " " (-$3/10) " " ($4/10) " " 0 " " 360 " {}\n"
     }
-    
+
     #### arc objects
     # A 1000 1000 100 90 180 3 0 0 0 -1 -1
     else if($0 ~ /^A/){ #arc
       arcs = arcs "A 4 " ($2/10) " " (-$3/10) " " ($4/10) " " ($5) " " ($6) " {}\n"
     }
-    
+
     #### path objects: use xschem polygon
     # H 3 0 0 0 -1 -1 1 -1 -1 -1 -1 -1 5 <--n_lines
     #path object --> simulate with polygon
     else if($0 ~ /^H/){
       numlines =$NF
-      polys = polys "P 4 " numlines " " 
+      polys = polys "P 4 " numlines " "
       for(i = 0; i < numlines; i++) {
         getline
         sub(/,/, " ", $0)
@@ -197,11 +197,11 @@ FNR==1{
           polyx[i] = $2/10
           polyy[i] = -$3/10
         }
-        polys = polys polyx[i] " " polyy[i] " " 
+        polys = polys polyx[i] " " polyy[i] " "
       }
       polys = polys "{fill=true}\n"
     }
-    
+
     #### net (wire) objects
     # N 39000 50400 39000 51000 4
     else if($0 ~/^N/) {
@@ -248,12 +248,12 @@ FNR==1{
         wires = wires "C {lab_wire.sym} " tx " " ty " 0 1 {" propstring "}\n"
       }
     }
-    
+
     #### component instance object
-    #               selectable angle flip 
+    #               selectable angle flip
     #C 36700 54700    1         90     0   resistor-1.sym
     #component
-    else if($0 ~ /^C/){  
+    else if($0 ~ /^C/){
       cx = $2/10
       cy=-$3/10
       crot = $5/90
@@ -295,7 +295,7 @@ FNR==1{
                 getline
                 continue
               }
-              
+
             }
             gsub(/ /, "\\\\\\\\ ", $0) # prefix spaces with double backslash
             propstring = propstring $0 "\n"
@@ -314,7 +314,7 @@ FNR==1{
       }
       components = components  "C {" symbol "} " cx " " cy " " crot " " cflip " {" propstring "}\n"
     }
-      
+
     #### pin object
     # P 900 100 750 100 1 0 0
     else if($0 ~ /^P/){
@@ -322,9 +322,9 @@ FNR==1{
       pin_idx++
       pin_line[pin_idx] =  "L 3 " order($2, $3, $4, $5) " {}"
       if($8 == 0) {
-        pin_box[pin_idx] = "B 5 " $2-halfpinsize " " (-$3-halfpinsize) " " $2+halfpinsize " " (-$3+halfpinsize) 
+        pin_box[pin_idx] = "B 5 " $2-halfpinsize " " (-$3-halfpinsize) " " $2+halfpinsize " " (-$3+halfpinsize)
       } else {
-        pin_box[pin_idx] = "B 5 " $4-halfpinsize " " (-$5-halfpinsize) " " $4+halfpinsize " " (-$5+halfpinsize) 
+        pin_box[pin_idx] = "B 5 " $4-halfpinsize " " (-$5-halfpinsize) " " $4+halfpinsize " " (-$5+halfpinsize)
       }
       ret = getline
       if($0 == "{") {
@@ -363,19 +363,19 @@ FNR==1{
                  attr = "name"
                  found_name = 1
               }
-              if(attr == "pintype") { 
+              if(attr == "pintype") {
                 found_pintype=1
                 attr = "dir"
                 if(value=="clk") value = "in"
                 if(value!="in" && value !="out") value = "inout"
               }
-      
+
               if(attr == "pinseq") {
                 pin_index[value] = pin_idx
                 pinseq++
                 if(value > max_pinseq) max_pinseq = value
               }
-              gsub(/\\/, "\\\\\\\\", value) # replace single slash with double backslash. 
+              gsub(/\\/, "\\\\\\\\", value) # replace single slash with double backslash.
               gsub(/ /, "\\\\\\\\ ", value) # prefix spaces with double backslash
               gsub(/\\_/, "_", value)
               pin_attr[pin_idx, nattr] = attr
@@ -430,14 +430,14 @@ function print_header()
       sub(/:.*/,"", netname)
       sub(/.*:/, "", pinnumber)
       template_attrs = template_attrs netname "=" netname "\n"
-      if(extra !="") extra = extra " " 
-      if(extra_format !="") extra_format = extra_format " " 
-      if(extra_pinnumber !="") extra_pinnumber = extra_pinnumber " " 
-      extra = extra netname 
-      extra_pinnumber = extra_pinnumber pinnumber 
+      if(extra !="") extra = extra " "
+      if(extra_format !="") extra_format = extra_format " "
+      if(extra_pinnumber !="") extra_pinnumber = extra_pinnumber " "
+      extra = extra netname
+      extra_pinnumber = extra_pinnumber pinnumber
       extra_format = extra_format "@" netname
     }
- 
+
   }
   if(extra) {
     extra = "extra=\"" extra "\""
@@ -446,7 +446,7 @@ function print_header()
     extra_pinnumber = "extra_pinnumber=\"" extra_pinnumber "\""
   }
 
-  if(pin == 1) spice_attrs = tedax_attrs="" 
+  if(pin == 1) spice_attrs = tedax_attrs=""
   else if(pin == 2) {
     spice_attrs = tedax_attrs=""
     sub(/type=[^ ]+\n/, "type=label\n", global_attrs)
@@ -465,13 +465,13 @@ function print_header()
   template_attrs = "template=\"" template_attrs "\"\n"
 
   if(FILENAME ~/\.sym$/) {
-    if(global_attrs !~ /type=/) 
-    if(pin == 2) { 
+    if(global_attrs !~ /type=/)
+    if(pin == 2) {
       global_attrs = "type=label\n" global_attrs
     } else {
       global_attrs = "type=symbol\n" global_attrs
     }
-    print "K {" global_attrs template_attrs tedax_attrs spice_attrs 
+    print "K {" global_attrs template_attrs tedax_attrs spice_attrs
     if(extra) {
       print extra
     }
@@ -498,11 +498,11 @@ function file_exists(f,     r, c)
   else return 1
 }
 
-function order(x1, y1, x2, y2,       tmp) 
+function order(x1, y1, x2, y2,       tmp)
 {
   y1 = -y1
   y2 = -y2
-  if(x2<x1) { 
+  if(x2<x1) {
     tmp = x1; x1 = x2; x2 = tmp; tmp = y1; y1 = y2; y2 = tmp
   } else if(x2 == x1 && y2 < y1) {
     tmp = y1; y1 = y2; y2 = tmp
@@ -510,7 +510,7 @@ function order(x1, y1, x2, y2,       tmp)
   return x1 " " y1 " " x2 " " y2
 }
 
-function rectorder(x1, y1, x2, y2,       tmp) 
+function rectorder(x1, y1, x2, y2,       tmp)
 {
   y1 = -y1
   y2 = -y2
@@ -647,7 +647,7 @@ END{
       len = length(pin_value[idx, j])
       correct_align()
       if( visible ) {
-        if(pin_attr[idx, j] ~/^pinnumber$/) text_attr="layer=13" 
+        if(pin_attr[idx, j] ~/^pinnumber$/) text_attr="layer=13"
         else text_attr=""
         print "T {" attr "} " xt " " (-yt) " " int(angle/90) " " flip " " size " " size " {" text_attr text_align "}"
       }
@@ -655,4 +655,4 @@ END{
     npin++
   } # end print pins
 }
- 
+

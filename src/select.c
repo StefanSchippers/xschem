@@ -28,7 +28,7 @@
  * Recursive routine
  */
 static void check_connected_nets(int stop_at_junction, int n)
-{ 
+{
   int k, touches;
   xWire * const wire = xctx->wire;
   Wireentry *wireptr;
@@ -36,7 +36,7 @@ static void check_connected_nets(int stop_at_junction, int n)
   char *type;
   double x1, y1, x2, y2;
   Iterator_ctx ctx;
-  
+
   x1 = wire[n].x1;
   y1 = wire[n].y1;
   x2 = wire[n].x2;
@@ -78,7 +78,7 @@ static void check_connected_nets(int stop_at_junction, int n)
                   (wire[n].x1 == wire[k].x2 && wire[n].y1 == wire[k].y2 && wire[n].end1 < 2 && wire[k].end2 < 2) ||
                   (wire[n].x2 == wire[k].x1 && wire[n].y2 == wire[k].y1 && wire[n].end2 < 2 && wire[k].end1 < 2) ||
                   (wire[n].x2 == wire[k].x2 && wire[n].y2 == wire[k].y2 && wire[n].end2 < 2 && wire[k].end2 < 2);
-      } 
+      }
       if(touches) {
         xctx->wire[k].sel = SELECTED;
         check_connected_nets(stop_at_junction, k); /* recursive check */
@@ -87,7 +87,7 @@ static void check_connected_nets(int stop_at_junction, int n)
   }
 }
 
-/* stop_at_junction==1 --> stop selecting wires at 'T' junctions 
+/* stop_at_junction==1 --> stop selecting wires at 'T' junctions
  * stop_at_junction==2 --> select only wires directly attached to selected net/instance
  */
 void select_connected_nets(int stop_at_junction)
@@ -132,7 +132,7 @@ void select_connected_nets(int stop_at_junction)
             xRect *rct;
             int n = iptr->n;
             double x1, y1;
-  
+
             if(n == i) continue;
             type = (xctx->inst[n].ptr+ xctx->sym)->type;
             if( type && (!strcmp(type, "label") || !strcmp(type, "probe")) ) {
@@ -176,7 +176,7 @@ int select_dangling_nets(void)
   double x0, y0, x1, y1, x2, y2;
 
   table = my_calloc(_ALLOC_ID_, xctx->wires, sizeof(int));
-  
+
   hash_instances();
   hash_wires();
 
@@ -229,7 +229,7 @@ int select_dangling_nets(void)
                   touch(wire[w].x1, wire[w].y1, wire[w].x2, wire[w].y2, wire[i].x2, wire[i].y2) ||
                   touch(wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, wire[w].x1, wire[w].y1) ||
                   touch(wire[i].x1, wire[i].y1, wire[i].x2, wire[i].y2, wire[w].x2, wire[w].y2);
-        if(touches) { 
+        if(touches) {
           table[i] = 1; /* wire[i] also not dangling */
           done = 0;
         }
@@ -296,7 +296,7 @@ int select_dangling_nets(void)
         if(!rct) continue;
         rects = (xctx->inst[n].ptr + xctx->sym)->rects[PINLAYER];
         for(p = 0; p < rects; p++)
-        { 
+        {
           get_inst_pin_coord(n, p, &x1, &y1);
           touches = (x0 == x1 && y0 == y1);
           if(touches) {
@@ -734,9 +734,9 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  }
 }
 
-/* n = -1 : clear first selected info 
- * n = -2 : return first selected element if still selected, or get first from 
- *          selected list. If no elements selected return first selected item (j = 0) 
+/* n = -1 : clear first selected info
+ * n = -2 : return first selected element if still selected, or get first from
+ *          selected list. If no elements selected return first selected item (j = 0)
  * n >= 0 : store indicated element as first selected
  */
 int set_first_sel(unsigned short type, int n, unsigned int col)
@@ -744,7 +744,7 @@ int set_first_sel(unsigned short type, int n, unsigned int col)
   if(n == -2) {
     int j;
     /* retrieve first selected element (if still selected)... */
-    if(xctx->first_sel.n >=0 && xctx->first_sel.type == ELEMENT && 
+    if(xctx->first_sel.n >=0 && xctx->first_sel.type == ELEMENT &&
        xctx->inst[xctx->first_sel.n].sel == SELECTED) {
       for(j=0; j < xctx->lastsel; j++) {
         if(xctx->sel_array[j].type == ELEMENT && xctx->sel_array[j].n == xctx->first_sel.n) {
@@ -948,7 +948,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
 
 
 static int select_attached_floaters(int inst, const char *name)
-{ 
+{
   int i, c;
   int found = 0;
   char *attach = NULL;
@@ -971,7 +971,7 @@ static int select_attached_floaters(int inst, const char *name)
           select_line(c, i, SELECTED, 1, 1);
         }
       }
-  
+
       for(i = 0; i < xctx->polygons[c]; i++) {
         if(!strcmp(name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
           found = 1;
@@ -983,14 +983,14 @@ static int select_attached_floaters(int inst, const char *name)
           found = 1;
           select_arc(c, i, SELECTED, 1, 1);
         }
-      } 
+      }
     }
     for(i = 0; i < xctx->wires; i++) {
       if(!strcmp(name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
        found = 1;
        select_wire(i, SELECTED, 1, 1);
       }
-    } 
+    }
     for(i = 0; i < xctx->texts; i++) {
       if(!strcmp(name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
        found = 1;
@@ -1042,7 +1042,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
       }
     }
     tcleval("infowindow");
-    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",i, 
+    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  w = %.16g h = %.16g",i,
        xctx->inst[i].xx1, xctx->inst[i].yy1,
        xctx->inst[i].xx2-xctx->inst[i].xx1, xctx->inst[i].yy2-xctx->inst[i].yy1
     );
@@ -1149,7 +1149,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
                                     xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   } else {
     xctx->rect[c][i].sel = 0;
-    if(!(fast & 2)) drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,   
+    if(!(fast & 2)) drawtemprect(xctx->gctiled, NOW, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
                                xctx->rect[c][i].x2, xctx->rect[c][i].y2);
   }
   if( xctx->rect[c][i].sel == (SELECTED1|SELECTED2|SELECTED3|SELECTED4)) xctx->rect[c][i].sel = SELECTED;
@@ -1173,7 +1173,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast, int override
    my_snprintf(str, S(str), "Info: selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,3);
    tcleval("infowindow");
- 
+
    my_snprintf(str, S(str), "n=%4d x = %.16g  y = %.16g  r = %.16g a = %.16g b = %.16g",
       i, xctx->arc[c][i].x, xctx->arc[c][i].y, xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b);
    statusmsg(str,1);
@@ -1279,7 +1279,7 @@ Selected select_object(double mx,double my, unsigned short select_mode,
 {
    Selected sel;
    xctx->already_selected = 0;
-   if(!selptr) 
+   if(!selptr)
      sel = find_closest_obj(mx, my, override_lock);
    else
      sel = *selptr;
@@ -1441,7 +1441,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
   #endif
   estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
   text_bbox(estr,
-             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
+             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip,
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
@@ -1485,7 +1485,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
    if(!xctx->enable_layer[c]) continue;
    for(i=0;i<xctx->polygons[c]; ++i) {
      int k, selected_points, flag;
- 
+
      polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
      if(RECT_OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
      selected_points = 0;
@@ -1510,7 +1510,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
          if(sel && stretch) select_polygon(c, i, SELECTED1, 1, 0);
        }
      }
- 
+
    }
    for(i=0;i<xctx->lines[c]; ++i)
    {
@@ -1604,7 +1604,7 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
         select_box(c, i,SELECTED4,1, 0);
       }
     }
- 
+
    } /* end for i */
  } /* end for c */
  drawtemparc(xctx->gc[SELLAYER], END, 0.0, 0.0, 0.0, 0.0, 0.0);
@@ -1654,7 +1654,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
 
   estr = my_expand(get_text_floater(i), tclgetintvar("tabstop"));
   text_bbox(estr,
-             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip, 
+             xctx->text[i].xscale, xctx->text[i].yscale, (short)select_rot, (short)select_flip,
              xctx->text[i].hcenter, xctx->text[i].vcenter,
              xctx->text[i].x0, xctx->text[i].y0,
              &xx1,&yy1, &xx2,&yy2, &tmpint, &dtmp);
@@ -1689,7 +1689,7 @@ void select_touch(double x1,double y1, double x2, double y2, int sel) /*added un
    if(!xctx->enable_layer[c]) continue;
    for(i=0;i<xctx->polygons[c]; ++i) {
      int k, flag;
- 
+
      polygon_bbox(xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points, &xa, &ya, &xb, &yb);
      if(RECT_OUTSIDE(xa, ya, xb, yb, x1, y1, x2, y2)) continue;
      flag=0;
@@ -1800,15 +1800,15 @@ int floaters_from_selected_inst()
         txty0 = symtxt->y0;
         txtrot = symtxt->rot;
         txtflip = symtxt->flip;
-       
+
         rot = (txtrot + ( (instflip && (txtrot & 1) ) ? instrot+2 : instrot) ) & 0x3;
         flip = txtflip ^ instflip;
-  
+
         ROTATION(instrot, instflip, 0.0, 0.0, txtx0, txty0, x0, y0);
         x0 += instx0;
         y0 += insty0;
-  
-        create_text(0, x0, y0, rot, flip, symtxt->txt_ptr, 
+
+        create_text(0, x0, y0, rot, flip, symtxt->txt_ptr,
               subst_token(symtxt->prop_ptr, "name", xctx->inst[i].instname),
               symtxt->xscale, symtxt->yscale);
         xctx->text[xctx->texts - 1].sel = SELECTED;

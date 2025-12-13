@@ -1,7 +1,7 @@
 /* File: parselabel.l
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2023 Stefan Frederik Schippers
  *
@@ -36,7 +36,7 @@
 static int parselabel_debug = 0;
 #include "xschem.h"
 
-/* 
+/*
 extern int xctx;
 extern int has_x;
 extern FILE *errfp;
@@ -77,8 +77,8 @@ static void str_char_replace(char s[], char chr, char repl_chr)
            if(s[i]==chr)
            {
                s[i]=repl_chr;
-           }  
-           i++; 
+           }
+           i++;
      }
 }
 
@@ -121,14 +121,14 @@ const char *expandlabel(const char *s, int *m)
    l = strlen(s)+400;
    cmd = my_malloc(_ALLOC_ID_, l);
    fprintf(errfp, "syntax error in %s\n", s);
-   my_snprintf(cmd, l, 
+   my_snprintf(cmd, l,
      "tk_messageBox -icon error -type ok -parent [xschem get topwindow] "
      "-message {Syntax error in identifier expansion: %s\nschematic:\n%s}", s, xctx->sch[xctx->currsch]);
    if(has_x) tcleval(cmd);
    my_free(_ALLOC_ID_, &cmd);
 
  }
- if(parselabel_debug >= 3) 
+ if(parselabel_debug >= 3)
    fprintf(errfp, "expandlabel(): returning %s  from %s mult=%d\n",dest_string.str, s, dest_string.m);
  if(dest_string.str) {
    *m = dest_string.m;

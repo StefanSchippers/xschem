@@ -76,5 +76,5 @@ function endfile(f,   i)
    }
    close(f)
  }
-} 
+}
 

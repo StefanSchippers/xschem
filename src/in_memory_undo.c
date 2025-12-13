@@ -142,7 +142,7 @@ static void free_undo_symbols(int slot)
       }
       my_free(_ALLOC_ID_, &sym->poly[c]);
       sym->polygons[c] = 0;
-  
+
       for(j = 0;j<sym->lines[c]; ++j) {
         if(sym->line[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->line[c][j].prop_ptr);
@@ -150,7 +150,7 @@ static void free_undo_symbols(int slot)
       }
       my_free(_ALLOC_ID_, &sym->line[c]);
       sym->lines[c] = 0;
-  
+
       for(j = 0;j<sym->arcs[c]; ++j) {
         if(sym->arc[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->arc[c][j].prop_ptr);
@@ -158,7 +158,7 @@ static void free_undo_symbols(int slot)
       }
       my_free(_ALLOC_ID_, &sym->arc[c]);
       sym->arcs[c] = 0;
-  
+
       for(j = 0;j<sym->rects[c]; ++j) {
         if(sym->rect[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->rect[c][j].prop_ptr);
@@ -333,7 +333,7 @@ void mem_push_undo(void)
       xctx->uslot[slot].pptr[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
       memcpy(xctx->uslot[slot].pptr[c][i].x, xctx->poly[c][i].x, points * sizeof(double));
       memcpy(xctx->uslot[slot].pptr[c][i].y, xctx->poly[c][i].y, points * sizeof(double));
-      memcpy(xctx->uslot[slot].pptr[c][i].selected_point, xctx->poly[c][i].selected_point, 
+      memcpy(xctx->uslot[slot].pptr[c][i].selected_point, xctx->poly[c][i].selected_point,
         points * sizeof(unsigned short));
       my_strdup(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].prop_ptr, xctx->poly[c][i].prop_ptr);
     }
@@ -386,7 +386,7 @@ void mem_push_undo(void)
 }
 
 /* redo:
- * 0: undo (with push current state for allowing following redo) 
+ * 0: undo (with push current state for allowing following redo)
  * 4: undo, do not push state for redo
  * 1: redo
  * 2: read top data from undo stack without changing undo stack
@@ -480,7 +480,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       xctx->poly[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
       memcpy(xctx->poly[c][i].x, xctx->uslot[slot].pptr[c][i].x, points * sizeof(double));
       memcpy(xctx->poly[c][i].y, xctx->uslot[slot].pptr[c][i].y, points * sizeof(double));
-      memcpy(xctx->poly[c][i].selected_point, xctx->uslot[slot].pptr[c][i].selected_point, 
+      memcpy(xctx->poly[c][i].selected_point, xctx->uslot[slot].pptr[c][i].selected_point,
         points * sizeof(unsigned short));
     }
   }

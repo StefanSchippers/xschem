@@ -280,12 +280,12 @@ int hook_detect_target()
                                 append("cc/cflags", " ");
                                 append("cc/cflags", get("cc/argstd/Wall"));
                         }
-                        
+
                         if (require("cc/argstd/std_c89",  0, 0) == 0) {
                                append("cc/cflags", " ");
                                append("cc/cflags", get("cc/argstd/std_c89"));
                         }
-                        
+
                         if (require("cc/argstd/pedantic",  0, 0) == 0) {
                                 append("cc/cflags", " ");
                                 append("cc/cflags", get("cc/argstd/pedantic"));
@@ -305,7 +305,7 @@ int hook_detect_target()
                                 append("cc/ldflags", get("cc/argstd/pg"));
                         }
                         /* no-pie no more needed it seems */
-                        /* 
+                        /*
                         if (require("cc/argstd/no-pie",  0, 0) == 0) {
                                 append("cc/cflags", " ");
                                 append("cc/cflags", get("cc/argstd/no-pie"));

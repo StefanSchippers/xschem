@@ -107,7 +107,7 @@ proc mouse_buttons { b m } {
    }
 }
 
-# the global variable 'has_x' is provided by xschem. It is defined to '1' 
+# the global variable 'has_x' is provided by xschem. It is defined to '1'
 # if graphics has been initialized.
 
 if { [ info exists has_x ] } {

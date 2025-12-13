@@ -1,7 +1,7 @@
 /* File: expandlabel.y
- * 
+ *
  * This file is part of XSCHEM,
- * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+ * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
  * simulation.
  * Copyright (C) 1998-2023 Stefan Frederik Schippers
  *
@@ -39,13 +39,13 @@ typedef struct          /* used in expandlabel.y */
 } Stringptr;
 #endif
 
-#define YYERROR_VERBOSE 
+#define YYERROR_VERBOSE
 #define INITIALIDXSIZE 8
 
 extern Stringptr dest_string; /* 20140108 */
 static int idxsize=INITIALIDXSIZE;
 extern int yylex();
-/* 
+/*
 extern FILE *errfp;
 extern void *my_malloc(int id, size_t size);
 extern void my_free(int id, void *ptr);
@@ -169,33 +169,33 @@ static char *expandlabel_strmult(int n, char *s)
   memcpy(pos, s, len); /* 20180923 */
   pos[len]=',';
   pos+=len+1;
- } 
+ }
  *(pos-1)='\0';
  return str;
 }
 
 
 static char *expandlabel_strbus_suffix(char *s, int *n, char *suffix)
-{                        
- int i,l;                
- int tmplen;             
- char *res=NULL;         
- char *tmp=NULL;        
+{
+ int i,l;
+ int tmplen;
+ char *res=NULL;
+ char *tmp=NULL;
  my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
  my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
  l=0;
- for(i=1;i<n[0];i++)     
- {                       
-  tmplen = sprintf(tmp, "%s[%d]%s,", s, n[i], suffix); 
+ for(i=1;i<n[0];i++)
+ {
+  tmplen = sprintf(tmp, "%s[%d]%s,", s, n[i], suffix);
   /* strcpy(res+l,tmp); */
   memcpy(res+l,tmp, tmplen+1); /* 20180923 */
-  l+=tmplen;             
- }                      
+  l+=tmplen;
+ }
  my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s[%d]%s", s, n[i], suffix);
  return res;
-}                        
-                  
+}
+
 static char *expandlabel_strbus(char *s, int *n)
 {
  int i,l;
@@ -219,7 +219,7 @@ static char *expandlabel_strbus(char *s, int *n)
 
 static void check_idx(int **ptr,int n)
 {
- if(n>=idxsize) 
+ if(n>=idxsize)
  {
   idxsize*=2;
   dbg(3, "check_idx(): reallocating idx array: size=%d\n",idxsize);
@@ -249,25 +249,25 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
 }
 
 static char *expandlabel_strbus_nobracket_suffix(char *s, int *n, char *suffix)
-{                        
- int i,l;                
- int tmplen;             
- char *res=NULL;        
+{
+ int i,l;
+ int tmplen;
+ char *res=NULL;
  char *tmp=NULL;
  my_realloc(_ALLOC_ID_, &res, n[0] * (strlen(s) + strlen(suffix) + 30));
  my_realloc(_ALLOC_ID_, &tmp, strlen(s) + strlen(suffix) + 30);
- l=0;                    
- for(i=1;i<n[0];i++)     
- {                       
+ l=0;
+ for(i=1;i<n[0];i++)
+ {
   tmplen = sprintf(tmp, "%s%d%s,", s, n[i], suffix);
   /* strcpy(res+l,tmp); */
   memcpy(res+l,tmp, tmplen+1);
-  l+=tmplen;            
+  l+=tmplen;
  }
  my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s%d%s", s, n[i], suffix);
- return res;             
-}     
+ return res;
+}
 
 %}
 
@@ -308,12 +308,12 @@ int  *idx;  /* for bus index & bus index ranges */
 line:    /* empty */
          | list         {
                          dbg(dbg_var, "yyparse(): list, dest_string.str=%s\n", $1.str);
-                         my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str); 
-                         my_free(_ALLOC_ID_, &$1.str); 
+                         my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str);
+                         my_free(_ALLOC_ID_, &$1.str);
                          dest_string.m=$1.m;
                         }
 ;
-list:     B_NAME        { 
+list:     B_NAME        {
                          dbg(dbg_var, "yyparse(): B_NAME, $1=%s\n", $1);
                          $$.str = expandlabel_strdup($1);
                          my_free(_ALLOC_ID_, &$1);
@@ -325,7 +325,7 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
-        | list B_NAME   { 
+        | list B_NAME   {
                          dbg(dbg_var, "yyparse(): list B_NAME, $2=%s\n", $2);
                          $$.str = expandlabel_strcat($1.str, $2);
                          my_free(_ALLOC_ID_, &$1.str);
@@ -348,7 +348,7 @@ list:     B_NAME        {
                          $$.m = $1 * $3.m;
                          my_free(_ALLOC_ID_, &$3.str);
                         }
-        | list ',' list { 
+        | list ',' list {
                          dbg(dbg_var, "yyparse(): list , list\n");
                          $$.str=expandlabel_strcat_char($1.str, ',', $3.str);
                          $$.m = $1.m + $3.m;
@@ -367,7 +367,7 @@ list:     B_NAME        {
                          dbg(dbg_var, "yyparse(): ( list )\n");
                          $$=$2;
                         }
-        | B_NAME  '[' B_NAME  ']' 
+        | B_NAME  '[' B_NAME  ']'
                         {
                          size_t size = strlen($1) + strlen($3) + 3;
                          dbg(dbg_var, "yyparse(): B_NAME [ B_NAME ] , $1=%s $3=%s\n", $1, $3);
@@ -377,13 +377,13 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$1);
                          my_free(_ALLOC_ID_, &$3);
                         }
-        | B_NAME  '[' index  ']' 
+        | B_NAME  '[' index  ']'
                         {
                          dbg(dbg_var, "yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]);
                          $$.str=expandlabel_strbus($1,$3);
-                         my_free(_ALLOC_ID_, &$1); 
+                         my_free(_ALLOC_ID_, &$1);
                          $$.m=$3[0];
-                         my_free(_ALLOC_ID_, &$3); 
+                         my_free(_ALLOC_ID_, &$3);
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index  ']' B_TRAILER
@@ -397,13 +397,13 @@ list:     B_NAME        {
                          idxsize=INITIALIDXSIZE;
                         }
 
-        | B_NAME  '[' index_nobracket  ']' 
+        | B_NAME  '[' index_nobracket  ']'
                         {
                          dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]);
                          $$.str=expandlabel_strbus_nobracket($1,$3);
                          my_free(_ALLOC_ID_, &$1);
                          $$.m=$3[0];
-                         my_free(_ALLOC_ID_, &$3); 
+                         my_free(_ALLOC_ID_, &$3);
                          idxsize=INITIALIDXSIZE;
                         }
         | B_NAME  '[' index_nobracket  ']' B_TRAILER
@@ -464,7 +464,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                           if(i==$3) break;
                          }
                         }
-        | B_IDXNUM      { 
+        | B_IDXNUM      {
                          $$=my_malloc(_ALLOC_ID_, INITIALIDXSIZE*sizeof(int));
                          $$[0]=0;
                           check_idx(&$$, ++$$[0]);
@@ -487,7 +487,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
-                         int i;                                 
+                         int i;
                          int sign;
 
                          sign = XSIGN($5-$3);
@@ -497,7 +497,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                           $$[$$[0]]=i;
                           if(sign==1 && i + $7 > $5) break;
                           if(sign==-1 && i - $7 < $5) break;
-                         }                                      
+                         }
                         }
         | index ',' B_IDXNUM ':' B_IDXNUM
                         {
@@ -578,9 +578,9 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                         }
 	| index_nobracket ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM
                         {
-                         int i;   
+                         int i;
                          int sign;
-                         
+
                          sign = XSIGN($5-$3);
                          for(i=$3;;i+=sign*$7)
                          {

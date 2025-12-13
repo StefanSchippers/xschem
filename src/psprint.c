@@ -99,7 +99,7 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
 
   /* screen position */
   sx1=X_TO_SCREEN(x1);
-  sy1=Y_TO_SCREEN(y1); 
+  sy1=Y_TO_SCREEN(y1);
   sx2=X_TO_SCREEN(x2);
   sy2=Y_TO_SCREEN(y2);
   if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
@@ -125,7 +125,7 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
       if(filter) {
         jpg = 2; /* svg */
       }
-    } 
+    }
     else jpg = -1; /* some invalid data */
   } else {
     jpg = -1;
@@ -194,16 +194,16 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   fprintf(fd, "{ << /ImageType 1\n");
   fprintf(fd, "     /Width %g\n", (double)size_x);
   fprintf(fd, "     /Height %g\n", (double)size_y);
-  
+
   if(!flip)
   {
     if(rot==1) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 %g]\n",
            (double)size_y, (double)size_x, (double)size_y);
     else if(rot==2) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g %g]\n",
            (double)size_x, (double)size_y, (double)size_x, (double)size_y);
-    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n", 
+    else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n",
            (double)size_y, (double)size_x, (double)size_x);
-    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)size_x, (double)size_y); 
+    else fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n", (double)size_x, (double)size_y);
   }
   else
   {
@@ -214,7 +214,7 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
     else if(rot==3) fprintf(fd, "     /ImageMatrix [%g 0 0 %g 0 0]\n",
           -(double)size_y, (double)size_x);
     else fprintf(fd, "     /ImageMatrix [%g 0 0 %g %g 0]\n",
-          -(double)size_x, (double)size_y, (double)size_x); 
+          -(double)size_x, (double)size_y, (double)size_x);
   }
   fprintf(fd, "     /DataSource Data\n");
   fprintf(fd, "     /BitsPerComponent 8\n");
@@ -240,7 +240,7 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   fprintf(fd, "%s", ascii85EncodedJpeg);
   #endif
   fprintf(fd, "~>\n");
-  
+
   fprintf(fd, "grestore\n");
   my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
   free(jpgData);
@@ -262,7 +262,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   int d_c;
   unsigned char* jpgData = NULL;
   size_t fileSize = 0;
-  /* 
+  /*
    * FILE* fp;
    * static char str[PATH_MAX];
    */
@@ -340,7 +340,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   cairo_set_source_surface(ct, xctx->cairo_save_sfc, 0, 0);
   cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
   cairo_paint(ct);
-  setup_graph_data(i, 0, &xctx->graph_struct); 
+  setup_graph_data(i, 0, &xctx->graph_struct);
   draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, (void *)ct);
   #endif
   cairo_image_surface_write_to_jpeg_mem(png_sfc, &jpgData, &fileSize, quality);
@@ -384,7 +384,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   for (j = 0; j < oLength; ++j)
   {
     fputc(ascii85EncodedJpeg[j],fd);
-    if(j > 0 && (j % 64) == 0) 
+    if(j > 0 && (j % 64) == 0)
     {
       fputc('\n',fd);
       /* if (ascii85Encode[i+1]=='%') idx=63; imageMagic does this for some reason?!
@@ -395,11 +395,11 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   fprintf(fd, "%s", ascii85EncodedJpeg);
   #endif
   fprintf(fd, "~>\n");
-  
+
   fprintf(fd, "grestore\n");
 
   my_free(_ALLOC_ID_, &ascii85EncodedJpeg);
-  
+
   #endif
   return 1;
 }
@@ -447,7 +447,7 @@ static void ps_xdrawpoint(int layer, double x1, double y1)
  * 1 : stippled fill
  * 2 : solid fill
  *
- * fill_type[i]: 
+ * fill_type[i]:
  * 0 : no fill
  * 1 : patterned (stippled) fill
  * 2 : solid fill
@@ -597,9 +597,9 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
     if(bus > 0.0) {
       fprintf(fd, "0 setlinejoin 2 setlinecap\n");
     }
-    if(dash) { 
+    if(dash) {
       fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
-    }   
+    }
     if(width >= 0.0) set_lw(1.2 * width);
 
     if(e_a != -1) {
@@ -619,11 +619,11 @@ static void ps_filledrect(int gc, double rectx1,double recty1,double rectx2,doub
     }
     if(dash) {
       fprintf(fd, "[] 0 setdash\n");
-    } 
+    }
     if(width >= 0.0) set_lw(xctx->lw);
     if(bus > 0.0) {
       fprintf(fd, "1 setlinejoin 1 setlinecap\n");
-    }   
+    }
   }
 }
 
@@ -679,7 +679,7 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
  double x1,y1,x2,y2;
  double psdash;
  double width;
-  
+
  if(bus == -1.0) width = BUS_WIDTH * xctx->lw;
  else if(bus > 0.0) width = bus * xctx->mooz;
  else width = -1.0;
@@ -694,7 +694,7 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
     psdash = dash / xctx->zoom;
     if(bus > 0.0) {
       fprintf(fd, "0 setlinejoin 2 setlinecap\n");
-    }      
+    }
     if(dash) {
       fprintf(fd, "[%g %g] 0 setdash\n", psdash, psdash);
     }
@@ -712,8 +712,8 @@ static void ps_drawline(int gc, double linex1,double liney1,double linex2,double
 
 
 
-static void ps_draw_string_line(int layer, char *s, double x, double y, double size, 
-           short rot, short flip, int lineno, double fontheight, double fontascent, 
+static void ps_draw_string_line(int layer, char *s, double x, double y, double size,
+           short rot, short flip, int lineno, double fontheight, double fontascent,
            double fontdescent, int llength, int no_of_lines, double longest_line)
 {
   double ix, iy;
@@ -807,7 +807,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
   estr = my_expand(str, tclgetintvar("tabstop"));
   text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter,
           x,y, &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
-  
+
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
     my_free(_ALLOC_ID_, &estr);
@@ -840,7 +840,7 @@ static void ps_draw_string(int layer, const char *str, short rot, short flip, in
     c=*ss;
     if(c=='\n' || c==0) {
       *ss='\0';
-      ps_draw_string_line(layer, tt, x, y, size, rot, flip, lineno, 
+      ps_draw_string_line(layer, tt, x, y, size, rot, flip, lineno,
               height, ascent, descent, llength, no_of_lines, longest_line);
       ++lineno;
       if(c==0) break;
@@ -952,7 +952,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
 {                           /* a "for(i=0;i<cadlayers; ++i)" loop */
   int j, hide = 0, disabled = 0;
   double x0,y0,x1,y1,x2,y2;
-  short flip; 
+  short flip;
   int textlayer;
   xLine *line;
   xRect *rect;
@@ -968,7 +968,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   type = xctx->sym[xctx->inst[n].ptr].type;
   lvs_ignore=tclgetboolvar("lvs_ignore");
   if(xctx->inst[n].ptr == -1) return;
-  if(layer == 0) { 
+  if(layer == 0) {
     xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
@@ -1040,12 +1040,12 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
       ps_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
                     0.0, 2, 0, -1, -1);
     }
-    /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */ 
+    /* pdfmarks, only if doing hierarchy print and if symbol has a subcircuit */
     if(what != 7) {
       char fname[PATH_MAX];
       if(!strcmp(xctx->sym[xctx->inst[n].ptr].type, "subcircuit")) {
         get_sch_from_sym(fname, xctx->inst[n].ptr+ xctx->sym, n, 0);
-        fprintf(fd, 
+        fprintf(fd,
           "[ "
           "/Rect [ %g %g %g %g ] "
           "/Border [0 0 0] "
@@ -1132,7 +1132,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     if(symptr->rects[layer]) {
       fprintf(fd, "NP\n"); /* newpath */
       set_ps_colors(c);
-    } 
+    }
 
     for(j=0;j< symptr->rects[layer]; ++j)
     {
@@ -1148,7 +1148,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
        } else {
          int ellipse_a = rect->ellipse_a;
          int ellipse_b = rect->ellipse_b;
-      
+
          if(ellipse_a != -1 && ellipse_b != 360) {
            if(flip) {
              ellipse_a = 180 - ellipse_a - ellipse_b;
@@ -1163,12 +1163,12 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
              }
              ellipse_a %= 360;
            }
-         }              
+         }
          ps_filledrect(c, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, rect->fill, ellipse_a, ellipse_b);
        }
     }
   } /* if( (!hide && xctx->enable_layer[layer]) || ... */
-  
+
   draw_texts:
   if(xctx->sym_txt && !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) && (layer == cadlayers)) {
     const char *txtptr;
@@ -1178,7 +1178,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
     for(j=0;j< (xctx->inst[n].ptr+ xctx->sym)->texts; ++j)
     {
       double xscale, yscale;
-        
+
       get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
       /* if(xscale*FONTWIDTH* xctx->mooz<1) continue; */
@@ -1208,7 +1208,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
           my_snprintf(ps_font_family, S(ps_font_family), textfont);
           my_snprintf(ps_font_name, S(ps_font_name), textfont);
         }
-        if( symptr->text[j].flags & TEXT_BOLD) { 
+        if( symptr->text[j].flags & TEXT_BOLD) {
           if( (symptr->text[j].flags & TEXT_ITALIC) || (symptr->text[j].flags & TEXT_OBLIQUE) ) {
             my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
           } else {
@@ -1334,7 +1334,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     /* this zoom only done to reset lw */
     zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
     /* adjust aspect ratio to paper size */
-    if(landscape) 
+    if(landscape)
       xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
@@ -1380,7 +1380,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     }
     margin = 0.0;
   }
-    
+
   if(what & 1) {/* prolog */
     dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
     if(!eps) {
@@ -1409,14 +1409,14 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       fprintf(fd, "%%%%Page 1 1\n");
     }
     fprintf(fd, "%%%%BeginProlog\n\n");
-  
+
     for(i = 0; i < sizeof(utf8_enc)/sizeof(char *); ++i) {
       fprintf(fd, "%s", utf8_enc[i]);
     }
     for(i = 0; i < sizeof(utf8)/sizeof(char *); ++i) {
       fprintf(fd, "%s", utf8[i]);
     }
-  
+
     fprintf(fd, "/Times /Times chararr recode\n");
     fprintf(fd, "/Times-Bold /Times-Bold chararr recode\n");
     fprintf(fd, "/Times-Oblique /Times-Oblique chararr recode\n");
@@ -1429,7 +1429,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
     fprintf(fd, "/Courier-Bold /Courier-Bold chararr recode\n");
     fprintf(fd, "/Courier-Oblique /Courier-Oblique chararr recode\n");
     fprintf(fd, "/Courier-BoldOblique /Courier-BoldOblique chararr recode\n");
-  
+
     fprintf(fd,"/cm {28.346457 mul} bind def\n");
     fprintf(fd,"/LT {lineto} bind def\n");
     fprintf(fd,"/MT {moveto} bind def\n");
@@ -1492,7 +1492,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       scale = (pagex - 2 * margin) / dx;
       dbg(1, "scale=%g\n", scale);
     }
-    fprintf(fd, "%g %g translate\n", 
+    fprintf(fd, "%g %g translate\n",
       -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
     fprintf(fd, "%g %g scale\n", scale, -scale);
     fprintf(fd, "1 setlinejoin 1 setlinecap\n");
@@ -1511,7 +1511,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       if(xctx->rects[c]) fprintf(fd, "NP\n"); /* newpath */
       for(i=0;i<xctx->rects[c]; ++i)
       {
-        
+
         if (c == GRIDLAYER && (xctx->rect[c][i].flags & 1024)) { /* image */
           xRect* r = &xctx->rect[c][i];
           /* PNG Code Here */
@@ -1532,7 +1532,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       if(xctx->arcs[c]) fprintf(fd, "NP\n"); /* newpath */
       for(i=0;i<xctx->arcs[c]; ++i)
       {
-        ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y, 
+        ps_drawarc(c, xctx->arc[c][i].fill, xctx->arc[c][i].x, xctx->arc[c][i].y,
           xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].bus, xctx->arc[c][i].dash);
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
@@ -1563,7 +1563,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       ps_drawline(color, xctx->wire[i].x1,xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2,
                   0 ,xctx->wire[i].bus);
     }
-  
+
     {
       double x1, y1, x2, y2;
       Wireentry *wireptr;
@@ -1596,7 +1596,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       textlayer = xctx->text[i].layer;
       if(!xctx->show_hidden_texts && (xctx->text[i].flags & HIDE_TEXT)) continue;
       if(textlayer < 0 ||  textlayer >= cadlayers) textlayer = TEXTLAYER;
-  
+
       my_snprintf(ps_font_family, S(ps_font_name), "Helvetica");
       my_snprintf(ps_font_name, S(ps_font_name), "Helvetica");
       textfont = xctx->text[i].font;
@@ -1604,7 +1604,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         my_snprintf(ps_font_family, S(ps_font_family), textfont);
         my_snprintf(ps_font_name, S(ps_font_name), textfont);
       }
-      if( xctx->text[i].flags & TEXT_BOLD) { 
+      if( xctx->text[i].flags & TEXT_BOLD) {
         if( (xctx->text[i].flags & TEXT_ITALIC) || (xctx->text[i].flags & TEXT_OBLIQUE) ) {
           my_snprintf(ps_font_family, S(ps_font_family), "%s-BoldOblique", ps_font_name);
         } else {
@@ -1615,7 +1615,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
       else if( xctx->text[i].flags & TEXT_OBLIQUE)
         my_snprintf(ps_font_family, S(ps_font_family), "%s-Oblique", ps_font_name);
-  
+
       if(text_ps) {
         ps_draw_string(textlayer, get_text_floater(i),
           xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,

@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: order_labels.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -28,10 +28,10 @@ BEGIN{
 NF=2 {
   i++
   pin[i]=$1
-  
+
   # 20111116
   dir[$1] = $2
-} 
+}
 END{
   pin["n"]=i
   hsort(pin, pin["n"])
@@ -50,14 +50,14 @@ function compact_pinlist(pin                  ,i,ii,base,curr,curr_n,np)
 {
  delete pin_ret
  delete dir_ret
- 
+
  np=pin["n"]
  if(np) {
    ii=1
    for(i=1;i<=np;i++) {
      base =lab_name( pin[i] )
      if(i==1) {curr=base; curr_n=i}
-     else { 
+     else {
        if(base != curr) {
          pin_ret[ii] = compact_label(pin,curr_n,i-1)
          dir_ret[ii] = dir[pin[i-1]]  # 20111116
@@ -69,7 +69,7 @@ function compact_pinlist(pin                  ,i,ii,base,curr,curr_n,np)
    pin_ret[ii] = compact_label(pin,curr_n,np)
    dir_ret[ii] = dir[pin[np]] # 20111116
    pin_ret["n"] = ii
-   
+
  }
 }
 
@@ -87,10 +87,10 @@ function compact_label(ar,a,b,        ret,start,i)
           else {ret = ret ar[i-1] ","; start=i }
         }
       }
-      else if(lab_name(ar[i])!=lab_name(ar[i-1]) || 
-              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 && 
+      else if(lab_name(ar[i])!=lab_name(ar[i-1]) ||
+              ( lab_index(ar[i]) != lab_index(ar[i-1])-1 &&
               lab_index(ar[i]) != lab_index(ar[i-1])+1) ) {
-        if(start<i-1) 
+        if(start<i-1)
           ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[i-1]) "],"
         else
           ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) "],"
@@ -102,7 +102,7 @@ function compact_label(ar,a,b,        ret,start,i)
     if(start < b)  ret = ret (b-start+1) "*" ar[b]
     else ret = ret ar[b]
   }
-  else if(start<b)   
+  else if(start<b)
     ret = ret lab_name(ar[start]) "[" lab_index(ar[start]) ":" lab_index(ar[b]) "]"
   else
     ret = ret lab_name(ar[b]) "[" lab_index(ar[b]) "]"
@@ -162,7 +162,7 @@ function hsort(array,n,    rarray,l,j,ir,i,rra)
   }
   array[i]=rarray
  }
-}                                            
+}
 
 function comp(a,b)
 {

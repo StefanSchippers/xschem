@@ -18,7 +18,7 @@ BEGIN{
 
     print "C {"  a "} " x*2000,y*2000, 0, 0, "{}"
 
-   
+
   }
   close(command)
 

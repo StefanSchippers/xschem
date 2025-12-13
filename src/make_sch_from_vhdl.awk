@@ -133,7 +133,7 @@ BEGIN{
 }
 
 (package_body>0 || package_decl) { next }
- 
+
 
 
 
@@ -188,7 +188,7 @@ BEGIN{
    gsub(/[ \t]+/,"",index_high)
 
   }
-  else 
+  else
   {
    index_high=index_low=0
   }
@@ -200,7 +200,7 @@ BEGIN{
 #        A_READ(21) => ADD_READ2_N(21),
 # where A_READ is a component pin declared as:
 # A_READ : IN std_logic_vector(21 TO 22);
-# 
+#
 # then in the schematic the assignment will look like:
 #
 #                                      |
@@ -223,17 +223,17 @@ BEGIN{
 
   if(is_bus) pin_label=pin_label "[" index_high ":" index_low "]"
 
-  if($0 ~ /:=/) 
-  {  
+  if($0 ~ /:=/)
+  {
    value=$0
    sub(/^.*:= */,"", value) #15122003 added spaces after :=
    sub(/;/,"", value)
    gsub(/"/,"\\\\\"", value)
    value= "\"" value "\""
   }
- 
+
   type=$3
-  if(type=="in") 
+  if(type=="in")
   {
     type="ipin"
     type_pin[n_pin]=sig_type
@@ -284,8 +284,8 @@ BEGIN{
   if(sig_type ~ /[ \t]+/) sig_type="\"" sig_type "\""
 
   pin_label=$1
-  if($0 ~ /:=/) 
-  {  
+  if($0 ~ /:=/)
+  {
    value=$0
    sub(/^.*:= */,"", value)   #15122003 spaces after := added
    sub(/;/,"", value)
@@ -306,11 +306,11 @@ BEGIN{
 
 # end component
 ( $1=="end" && $2 ~ "component" && !package_decl){
-  end_component=1 
+  end_component=1
   if(!(toupper(name) in cell))
   {
    #print ">>>>> end component: " name
-   print "G {}" > schname 
+   print "G {}" > schname
    print_sch(schname,type_pin, dir_pin, value_pin, class_pin, num_pin, opin, ipin,spin,
             n_pin, ip, op, sp)
    close(schname)
@@ -448,8 +448,8 @@ inline_function==1{
   #print "port assignment: " component_hi[component_name,formal_basename], component_low[component_name,formal_basename]
 #
 #  This piece of code deals with single bit assignments on
-#  vector ports, so we group the single bits in a unique node label, 
-#  preserving the right order 
+#  vector ports, so we group the single bits in a unique node label,
+#  preserving the right order
 #
   if(doing_slice && prev_formal_basename!=formal_basename)
   {
@@ -457,16 +457,16 @@ inline_function==1{
   }
 
   if(formal_index ~ /^[0-9]+$/ && component_pins[component_name,formal_basename]>1)
-  { 
+  {
     #print "port assignment: slice port assign: " pin_label, "formal_index=" formal_index
     prev_formal_basename=formal_basename
     doing_slice=1
     slice_pin_array[formal_index]=pin_label
     next
-  } 
+  }
   else if(formal_index ~ /[0-9]+:[0-9]+/ && component_pins[component_name,formal_basename]>1)
   {
-     #print "port assignment:  slice bus port assign" 
+     #print "port assignment:  slice bus port assign"
      split(formal_index, formal_index_array,":")
      formal_index_array[1]= formal_index_array[1]+0
      formal_index_array[0]= formal_index_array[0]+0
@@ -496,8 +496,8 @@ inline_function==1{
 
 #
 #  This piece of code deals with single bit assignments on
-#  vector ports, so we group the single bits in a unique node label, 
-#  preserving the right order 
+#  vector ports, so we group the single bits in a unique node label,
+#  preserving the right order
 #
 function print_slice(       c_h,c_l, slice, slice_pin )
 {
@@ -586,9 +586,9 @@ function add_inst_pin(pin_label)
  {
   if($2=="architecture") tmp=$3  # 20071213 handle "end arhitecture name" vs "end name"
   else tmp=$2
-  
+
  }
- if(tmp==arch_label) 
+ if(tmp==arch_label)
  {
   start_code=0
   next
@@ -605,12 +605,12 @@ function add_inst_pin(pin_label)
 
   if(doing_slice)
   {
-   #print " slice port assign 3" 
+   #print " slice port assign 3"
    print_slice()
   }
 
   start_inst=0
-  print_signals(inst_name, component_name, i_name_pin, i_type_pin, i_dir_pin, i_value_pin,i_class_pin, i_num_pin, 
+  print_signals(inst_name, component_name, i_name_pin, i_type_pin, i_dir_pin, i_value_pin,i_class_pin, i_num_pin,
                 i_opin, i_ipin,i_n_pin, i_ip, i_op)
  }
 
@@ -679,17 +679,17 @@ function add_inst_pin(pin_label)
   }
   pin_label=$1  #toupper
   if(is_bus) pin_label=pin_label "[" index_high ":" index_low "]"
-  if($0 ~ /:=/) 
-  {  
+  if($0 ~ /:=/)
+  {
    value=$0
    sub(/^.*:= */,"", value) #15122003 spaces after := added
    sub(/;/,"", value)
    gsub(/"/,"\\\\\"", value)
    value= "\"" value "\""
   }
- 
+
   type=$3
-  if(type=="in") 
+  if(type=="in")
   {
     type="ipin"
     e_type_pin[e_n_pin]=sig_type
@@ -737,8 +737,8 @@ function add_inst_pin(pin_label)
   sub(/[ \t]*(:=|;).*$/,"",sig_type)
   if(sig_type ~ /[ \t]+/) sig_type="\"" sig_type "\""
   pin_label=$1
-  if($0 ~ /:=/) 
-  {  
+  if($0 ~ /:=/)
+  {
    value=$0
    sub(/^.*:= */,"", value) # 15122003 spaces after := added
    sub(/;/,"", value)
@@ -759,7 +759,7 @@ function add_inst_pin(pin_label)
 # end entity
 ( $1=="end" && $2 ~ name) || ( $1=="end" && $2=="entity"  && $3 ~ name) {  # 20071213 handle "end entity name"
   print "end entity: " $0
-  end_entity=1 
+  end_entity=1
 
 }
 
@@ -769,26 +769,26 @@ function add_inst_pin(pin_label)
 /^[ \t]*signal[ \t]/,/;/ {
  if(start_arch==1)
  {
-   if($1=="signal" || $1=="constant" )   
+   if($1=="signal" || $1=="constant" )
    {
     list=""
     class=$1
    }
-  
-   list= list " " $0 " " 
-   
+
+   list= list " " $0 " "
+
    if($0 ~ /;/)
    {
     signals = list
     sub(class,"",signals)
     sub(/:.*$/,"",signals)
     gsub(/[ \t,]+/, " ", signals)
-  
+
     sig_type=list
     sub(/[ \t]*:=.*$/,"", sig_type)
     sub(/^.*:[ \t]*/,"", sig_type)
     sub(/[ \t]*;.*$/,"", sig_type)
-  
+
        if(list ~ /:=/)
        {
         value=list
@@ -798,11 +798,11 @@ function add_inst_pin(pin_label)
         value= "\"" value "\""
        }
     n_sig=split(signals,pin_label_array)
-   
+
     for(i=1;i<=n_sig;i++)
     {
        pin_label=pin_label_array[i] #toupper
-  
+
        #print "encountered signal\n"
        s_type=sig_type
        sub(/_vector.*/,"",s_type)
@@ -821,9 +821,9 @@ function add_inst_pin(pin_label)
         gsub(/[ \t]+/,"",index_low)	#23122003 remove spaces in indexes
         gsub(/[ \t]+/,"",index_high)
        }
-       
+
        if(is_bus) pin_label=pin_label "[" index_high ":" index_low "]"
-     
+
        type="signal"
        e_type_pin[e_n_pin]=s_type
        e_class_pin[e_n_pin]=class
@@ -834,23 +834,23 @@ function add_inst_pin(pin_label)
        entity_full_name[basename(pin_label)]=pin_label
        entity_pin_type[basename(pin_label)]=s_type
     }
-   } 
- } 
-  
+   }
+ }
+
 }
 
- 
 
 
- 
+
+
 
 END{
 
  for( i in entity_pin_type ) { print i " - " entity_pin_type[i] }
-  
+
 
  print "G {" code_lines "}" >entname
- 
+
  if(attribute !~/^[ \t]*$/) print "C {devices/attributes} 0 -200 0 0 {" attribute " }" >entname
  if(port_attribute !~/^[ \t]*$/) print "C {devices/port_attributes} 0 -400 0 0 {" port_attribute " }" >entname
  if(use !~/^[ \t]*$/) print "C {devices/use} 400 -400 0 0 {" use " }" >entname
@@ -864,9 +864,9 @@ END{
 
 function vhdl_to_cad(s)
 {
- 
+
  sub(/[ \t]*\([ \t]*/,"[",s)
- sub(/[ \t]+(to|downto)[ \t]+/,":",s) 
+ sub(/[ \t]+(to|downto)[ \t]+/,":",s)
  sub(/[ \t]*\)[ \t]*/,"]",s)
  gsub(/[ \t]/,"",s)
  if(s in entity_full_name) s=entity_full_name[s]
@@ -903,7 +903,7 @@ function print_sch(schname,type_pin, dir_pin, value_pin, class_pin, num_pin, opi
  y=0
  x=-40
  sch_x_offset=230
- 
+
  for(i=0;i<n_pin;i++)
  {
   dir=dir_pin[i]
@@ -963,7 +963,7 @@ function print_sch(schname,type_pin, dir_pin, value_pin, class_pin, num_pin, opi
  }
 }
 
-function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin, 
+function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
 	value_pin,class_pin, num_pin, i_opin, i_ipin, n_pin, ip, op,  # 20090407 ioin and opin renamed to i_ipin and i_opin
                   n,m,y,x,i,value, num,sig_type,dir)  #local vars       to avoid clash with component arrays
 {
@@ -977,11 +977,11 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
  {
    yoffset=prev_size=0
    xoffset+=920
- } 
+ }
  yoffset += ((prev_size+n)/2+1)*space
 
 
- 
+
  for(i=0;i<n_pin;i++)
  {
   dir=dir_pin[i]
@@ -1018,7 +1018,7 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
    # ypin=y+num*space+yoffset
    # /20090407
   }
- 
+
   if(dir=="generic")
   {
    pin_lower=basename(tolower(i_ipin[num]))
@@ -1028,15 +1028,15 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
      sig_type =  entity_pin_type[pin_lower]
    }
    all_signals = all_signals   "C {devices/lab_pin} " xpin " " ypin " 0 0" \
-         " {name=g" g_pin++ " type=" sig_type " lab=" i_ipin[num] " " 
+         " {name=g" g_pin++ " type=" sig_type " lab=" i_ipin[num] " "
 
-   # if(value !="") all_signals = all_signals   "value=" value "}\n" 
-   # else all_signals = all_signals   "}\n" 
+   # if(value !="") all_signals = all_signals   "value=" value "}\n"
+   # else all_signals = all_signals   "}\n"
    # bug fix: since generics assigned to instances are not declared elsewhere
    # use the generic name also for the value property
    all_signals = all_signals   "value=" i_ipin[num] "}\n"   # <<< 21042002
   }
- 
+
   if(dir=="ipin")
   {
    pin_lower=basename(tolower(i_ipin[num]))
@@ -1046,11 +1046,11 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
      sig_type =  entity_pin_type[pin_lower]
    }
    all_signals = all_signals   "C {devices/lab_pin} " xpin " " ypin " 0 0 " \
-         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_ipin[num] " " 
-   if(value !="") all_signals = all_signals   "value=" value "}\n" 
-   else all_signals = all_signals   "}\n" 
+         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_ipin[num] " "
+   if(value !="") all_signals = all_signals   "value=" value "}\n"
+   else all_signals = all_signals   "}\n"
   }
- 
+
   if(dir=="opin")
   {
    pin_lower=basename(tolower(i_opin[num]))
@@ -1060,11 +1060,11 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
      sig_type =  entity_pin_type[pin_lower]
    }
    all_signals = all_signals   "C {devices/lab_pin} " xpin " " ypin " 0 1 " \
-         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_opin[num] " " 
-   if(value !="") all_signals = all_signals   "value=" value "}\n" 
-   else all_signals = all_signals   "}\n" 
+         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_opin[num] " "
+   if(value !="") all_signals = all_signals   "value=" value "}\n"
+   else all_signals = all_signals   "}\n"
   }
- 
+
   if(dir=="iopin")
   {
    pin_lower=basename(tolower(i_opin[num]))
@@ -1074,9 +1074,9 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
      sig_type =  entity_pin_type[pin_lower]
    }
    all_signals = all_signals   "C {devices/lab_pin} " xpin " " ypin " 0 1 " \
-         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_opin[num] " " 
-   if(value !="") all_signals = all_signals   "value=" value "}\n" 
-   else all_signals = all_signals   "}\n" 
+         " {name=p" p_pin++ " sig_type=" sig_type " lab=" i_opin[num] " "
+   if(value !="") all_signals = all_signals   "value=" value "}\n"
+   else all_signals = all_signals   "}\n"
   }
  }
 
@@ -1091,7 +1091,7 @@ function print_signals(inst_name, component_name, name_pin, type_pin, dir_pin,
 
  prev_size=n
  if( idx in cell_pin_x) prev_size+=8
-}  
+}
 
 function sign(x)
 {

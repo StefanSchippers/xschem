@@ -29,7 +29,7 @@ static const char *hier_psprint_mtime(const char *file_name)
   static char date[200];
   struct stat time_buf;
   struct tm *tm;
-  my_strncpy(date, "xxxxxxxx_xxxxxx", S(date)); 
+  my_strncpy(date, "xxxxxxxx_xxxxxx", S(date));
   if(!stat(file_name , &time_buf)) {
     tm=localtime(&(time_buf.st_mtime) );
     strftime(date, sizeof(date), "%Y%m%d_%H%M%S", tm);
@@ -38,8 +38,8 @@ static const char *hier_psprint_mtime(const char *file_name)
   return date;
 }
 
-/* 
- * what: 
+/*
+ * what:
  * 1 : ps/pdf print
  * 2 : list hierarchy
  */
@@ -52,7 +52,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   struct stat buf;
   Str_hashtable subckt_table = {NULL, 0};
   int save_prev_mod = xctx->prev_set_modify;
- 
+
   save = xctx->do_copy_area;
   xctx->do_copy_area = 0;
   if((what & 1)  && !ps_draw(1, 1, 0)) return; /* prolog */
@@ -208,7 +208,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
     {
      if(skip_instance(i, 1, lvs_ignore)) continue;
      type = (xctx->inst[i].ptr+ xctx->sym)->type;
- 
+
      if( type && !IS_LABEL_OR_PIN(type) ) {
        /* already done in global_spice_netlist */
        if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
@@ -301,7 +301,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    bus_char[1] = str_tmp[1];
  }
  xctx->netlist_count=0;
- my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
+ my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
  fd=fopen(netl_filename, "w");
@@ -345,7 +345,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    }
  }
  if(!top_sub) fprintf(fd,"**");
- if(uppercase_subckt) 
+ if(uppercase_subckt)
    fprintf(fd,".SUBCKT %s", get_cell(xctx->sch[xctx->currsch], 0));
  else
    fprintf(fd,".subckt %s", get_cell(xctx->sch[xctx->currsch], 0));
@@ -357,7 +357,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    dbg(1, "found top level symbol %s\n", top_symbol_name);
    load_sym_def(top_symbol_name, NULL);
    found_top_symbol = 1;
-   if(xctx->sym[xctx->symbols - 1].type != NULL && 
+   if(xctx->sym[xctx->symbols - 1].type != NULL &&
      /* only use the symbol if it has pins and is a subcircuit ? */
      /* !strcmp(xctx->sym[xctx->symbols - 1].type, "subcircuit") && */
        xctx->sym[xctx->symbols - 1].rects[PINLAYER] > 0) {
@@ -412,7 +412,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  /* /20100217 */
 
  if(!top_sub) fprintf(fd,"**");
- if(uppercase_subckt) 
+ if(uppercase_subckt)
    fprintf(fd, ".ENDS\n");
  else
    fprintf(fd, ".ends\n");
@@ -437,9 +437,9 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  /* preserve current level instance flags before descending hierarchy for netlisting, restore later */
  stored_flags = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(unsigned int));
  for(i=0;i<xctx->instances; ++i) stored_flags[i] = xctx->inst[i].color;
- 
+
  if(global)
- { 
+ {
    int saved_hilight_nets = xctx->hilight_nets;
    int web_url = is_from_web(xctx->current_dirname);
    char *current_dirname_save = NULL;
@@ -474,7 +474,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
     /* only additional symbols (created with instance schematic=... attr) will have this attribute */
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
               tcl_hook2(xctx->sym[i].parent_prop_ptr));
-    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra, 
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra,
       get_tok_value(xctx->sym[i].prop_ptr, "extra", 0));
     my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
@@ -629,7 +629,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   char *name = NULL;
   const char *default_schematic;
   int uppercase_subckt = tclgetboolvar("uppercase_subckt");
- 
+
   split_f = tclgetboolvar("split_files");
 
   if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
@@ -680,18 +680,18 @@ int spice_block_netlist(FILE *fd, int i, int alert)
      else
       fprintf(fd, ".subckt %s ", s);
     print_spice_subckt_nodes(fd, i);
-  
+
     my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[i].prop_ptr,"extra",0) );
     /* this is now done in print_spice_subckt_nodes */
     /*
      * fprintf(fd, "%s ", extra ? extra : "" );
      */
-   
+
     /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
     fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
-  
+
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
     get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */

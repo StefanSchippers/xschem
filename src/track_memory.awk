@@ -1,14 +1,14 @@
 #!/usr/bin/awk -f
 # memory leak analyzer. Run xschem with options "-d 3 -l log", do some operations you want to check
-# then *from this directory* launch: 
+# then *from this directory* launch:
 # ./track_memory.awk /path/to/log [nosource]
-# it will print the amount of leaked memory (total, leak) 
-# and the allocation that was not freed, with the source code line (if 'nosource' not given) 
+# it will print the amount of leaked memory (total, leak)
+# and the allocation that was not freed, with the source code line (if 'nosource' not given)
 # total and leak should indicate same amount of bytes, it is a cross check for the script.
 BEGIN{
   show_source = 1
   max = 0
-  total = 0 
+  total = 0
   malloc = 0
   free = 0
   realloc = 0
@@ -21,7 +21,7 @@ BEGIN{
 }
 
 # my_malloc(234,): allocating 1a01ff0 , 10 bytes
-/^my_[mc]alloc\(/{ 
+/^my_[mc]alloc\(/{
   id = $1
   sub(/.*\(/,"", id)
   sub(/,.*/,"",id)
@@ -33,7 +33,7 @@ BEGIN{
 }
 
 # my_free(977,):  freeing 198efc0
-/^my_free\(/{ 
+/^my_free\(/{
   if(!($3 in address)) {
     print "Double free: " $0 " Log file line: " NR
   } else {

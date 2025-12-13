@@ -33,9 +33,9 @@ void here(double i)
 /* super simple 32 bit hashing function for files
  * It is suppoded to be used on text files.
  * Calculates the same hash on windows (crlf) and unix (lf) text files.
- * If you want high collision resistance and 
+ * If you want high collision resistance and
  * avoid 'birthday problem' collisions use a better hash function, like md5sum
- * or sha256sum 
+ * or sha256sum
  */
 unsigned int hash_file(const char *f, int skip_path_lines)
 {
@@ -107,8 +107,8 @@ const char *get_text_floater(int i)
     if(!xctx->floater_inst_table.table) {
       floater_hash_all_names();
     }
-      
-    if(xctx->text[i].floater_instname) 
+
+    if(xctx->text[i].floater_instname)
       instname = xctx->text[i].floater_instname;
     else {
       instname = get_tok_value(xctx->text[i].prop_ptr, "name", 0);
@@ -128,7 +128,7 @@ const char *get_text_floater(int i)
       }
       dbg(1, "floater: %s\n",txt_ptr);
     } else {
-      /* do just a tcl substitution if floater does not reference an existing instance 
+      /* do just a tcl substitution if floater does not reference an existing instance
        * (but name=something or floater=something attribute must be present) and text
        * matches tcleval(...) or contains '@' */
       if(strstr(txt_ptr, "tcleval(") == txt_ptr || strchr(txt_ptr, '@')) {
@@ -139,7 +139,7 @@ const char *get_text_floater(int i)
     }
   }
   return txt_ptr;
-} 
+}
 
 /* mod:
  *   0 : clear modified flag, update title and tab names, upd. simulation button colors.
@@ -154,7 +154,7 @@ const char *get_text_floater(int i)
 int set_modify(int mod)
 {
   int i, floaters = 0;
-  
+
   dbg(1, "set_modify(): %d, prev_set_modify=%d\n", mod, xctx->prev_set_modify);
 
   /* set modify state */
@@ -187,8 +187,8 @@ int set_modify(int mod)
         tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Waves -background $simulate_bg}", NULL);
       }
     }
-  }  
-  
+  }
+
   /* clear floater caches */
   if(mod == 1 || mod == -2 || mod == -1) {
     for(i = 0; i < xctx->texts; i++)
@@ -279,7 +279,7 @@ char *escape_chars(const char *source, const char *charset)
           dest[d++] = source[s];
       }
     } else {
-      if(strchr(charset, source[s])) { 
+      if(strchr(charset, source[s])) {
         dest[d++] = '\\';
         dest[d++] = source[s];
       } else {
@@ -337,15 +337,15 @@ void set_grid(double newgrid)
 }
 
 
-/* 
+/*
  *
- *   
+ *
  * what==0: force creation of $netlist_dir (if netlist_dir variable not empty)
  *           and return current setting.
- * 
+ *
  * what==1: if no dir given prompt user
- *           else set netlist_dir to dir  
- *   
+ *           else set netlist_dir to dir
+ *
  * what==2: just set netlist_dir according to local_netlist_dir setting
  */
 int set_netlist_dir(int what, const char *dir)
@@ -363,9 +363,9 @@ int set_netlist_dir(int what, const char *dir)
 /* wrapper to TCL function */
 /* remove parameter section of symbol generator before calculating abs path : xxx(a,b) -> xxx */
 const char *sanitized_abs_sym_path(const char *s, const char *ext)
-{   
+{
   char c[PATH_MAX+1000];
-      
+
   my_snprintf(c, S(c), "abs_sym_path [regsub {\\(.*} {%s} {}] {%s}", s, ext);
   tcleval(c);
   return tclresult();
@@ -493,12 +493,12 @@ void new_xschem_process(const char* cell, int symbol)
   ZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
-  /* "detach" (-b) is not processed for Windows, so 
+  /* "detach" (-b) is not processed for Windows, so
      use DETACHED_PROCESS in CreateProcessA to not create
      a TCL shell
   */
-  if (!cell || !cell[0]) { 
-    if (!symbol) 
+  if (!cell || !cell[0]) {
+    if (!symbol)
       my_snprintf(cmd_line, S(cmd_line), "%s -b -s --tcl \"set XSCHEM_START_WINDOW {}\"", xschem_executable);
     else
       my_snprintf(cmd_line, S(cmd_line), "%s -b -y --tcl \"set XSCHEM_START_WINDOW {}\"", xschem_executable);
@@ -537,7 +537,7 @@ const char *get_file_path(char *f)
  *  1 : file saved or not needed to save since no change
  * -1 : user cancel
  *  0 : file not saved due to errors or per user request
- *  confirm: 
+ *  confirm:
  *    0 : do not ask user to save
  *    1 : ask user to save
  *  fast:
@@ -557,7 +557,7 @@ int save(int confirm, int fast)
       force = 1;
       confirm = 0;
     }
-  } 
+  }
 
   if(force || xctx->modified)
   {
@@ -624,7 +624,7 @@ void ask_new_file(int in_new_window, char *filename)
       char win_path[WINDOW_PATH_SIZE];
       int skip = 0;
       dbg(1, "ask_new_file(): load: f=%s\n", f);
- 
+
       if(check_loaded(f, win_path) && !filename &&
           xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
         char msg[PATH_MAX + 100];
@@ -687,7 +687,7 @@ void remove_symbol(int j)
     }
     my_free(_ALLOC_ID_, &xctx->sym[j].poly[c]);
     xctx->sym[j].polygons[c] = 0;
- 
+
     for(i=0;i<xctx->sym[j].lines[c]; ++i) {
       if(xctx->sym[j].line[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].line[c][i].prop_ptr);
@@ -695,7 +695,7 @@ void remove_symbol(int j)
     }
     my_free(_ALLOC_ID_, &xctx->sym[j].line[c]);
     xctx->sym[j].lines[c] = 0;
- 
+
     for(i=0;i<xctx->sym[j].arcs[c]; ++i) {
       if(xctx->sym[j].arc[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].arc[c][i].prop_ptr);
@@ -703,7 +703,7 @@ void remove_symbol(int j)
     }
     my_free(_ALLOC_ID_, &xctx->sym[j].arc[c]);
     xctx->sym[j].arcs[c] = 0;
- 
+
     for(i=0;i<xctx->sym[j].rects[c]; ++i) {
       if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &xctx->sym[j].rect[c][i].prop_ptr);
@@ -822,7 +822,7 @@ int set_sym_flags(xSymbol *sym)
        sym->flags |= SPECTRE_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
        sym->flags |= SPECTRE_IGNORE;
-  
+
   ptr = get_tok_value(sym->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= VERILOG_SHORT;
@@ -869,7 +869,7 @@ int set_inst_flags(xInstance *inst)
     inst->flags |= HIDE_INST;
   if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
     inst->flags |= HIDE_SYMBOL_TEXTS;
-              
+
   ptr = get_tok_value(inst->prop_ptr,"spice_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= SPICE_SHORT;
@@ -881,25 +881,25 @@ int set_inst_flags(xInstance *inst)
     inst->flags |= SPECTRE_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= SPECTRE_IGNORE;
-  
+
   ptr = get_tok_value(inst->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VERILOG_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= VERILOG_IGNORE;
-  
+
   ptr = get_tok_value(inst->prop_ptr,"vhdl_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VHDL_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= VHDL_IGNORE;
-  
+
   ptr = get_tok_value(inst->prop_ptr,"tedax_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= TEDAX_SHORT;
   else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
     inst->flags |= TEDAX_IGNORE;
-  
+
   ptr = get_tok_value(inst->prop_ptr,"lvs_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= LVS_IGNORE_SHORT;
@@ -958,13 +958,13 @@ void reset_caches(void)
   dbg(1, "reset_caches()\n");
   for(i = 0; i < xctx->instances; i++) {
     set_inst_flags(&xctx->inst[i]);
-  }     
-  for(i = 0; i < xctx->symbols; i++) { 
+  }
+  for(i = 0; i < xctx->symbols; i++) {
     set_sym_flags(&xctx->sym[i]);
-  }     
+  }
 }
 
-/* what: 
+/* what:
  * 1: create
  * 0: clear
  */
@@ -1151,7 +1151,7 @@ int connect_by_kissing(void)
         wptr = wptr->next;
       }
       if(kissing) {
-     
+
         if(!done_undo) {
           xctx->push_undo();
           done_undo = 1;
@@ -1339,7 +1339,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       my_strdup(_ALLOC_ID_, &prop, xctx->inst[xctx->sel_array[j].n].instname);
       my_strcat(_ALLOC_ID_, &prop, "_");
       tclsetvar("custom_label_prefix",prop);
-  
+
       if(interactive == 1 && !do_all_inst) {
         dbg(1,"attach_labels_to_inst(): invoking tcl attach_labels_to_inst\n");
         tcleval("attach_labels_to_inst");
@@ -1369,7 +1369,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
           xctx->inst[xctx->sel_array[j].n].x0,
           xctx->inst[xctx->sel_array[j].n].y0,
           xctx->sym[xctx->inst[xctx->sel_array[j].n].ptr].name);
-  
+
       x0 = xctx->inst[xctx->sel_array[j].n].x0;
       y0 = xctx->inst[xctx->sel_array[j].n].y0;
       rot = xctx->inst[xctx->sel_array[j].n].rot;
@@ -1377,29 +1377,29 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       symbol = xctx->sym + xctx->inst[xctx->sel_array[j].n].ptr;
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
-  
+
       for(i=0;i<npin; ++i) {
          my_strdup(_ALLOC_ID_, &labname,get_tok_value(rct[i].prop_ptr,"name",1));
          dbg(1,"attach_labels_to_inst(): 2 --> labname=%s\n", labname);
-  
+
          pinx0 = (rct[i].x1+rct[i].x2)/2;
          piny0 = (rct[i].y1+rct[i].y2)/2;
-  
+
          if(strcmp(get_tok_value(rct[i].prop_ptr,"dir",0),"in")) dir=1; /*  out or inout pin */
          else dir=0; /*  input pin */
-  
+
          /*  opin or iopin on left of symbol--> reverse orientation 20171205 */
          if(rotated_text ==-1 && dir==1 && pinx0<0) dir=0;
-  
+
          ROTATION(rot, flip, 0.0, 0.0, pinx0, piny0, pinx0, piny0);
-  
+
          pinx0 += x0;
          piny0 += y0;
-  
+
          get_square(pinx0, piny0, &sqx, &sqy);
          iptr=xctx->instpin_spatial_table[sqx][sqy];
          wptr=xctx->wire_spatial_table[sqx][sqy];
-  
+
          skip=0;
          while(iptr) {
            ii = iptr->n;
@@ -1407,7 +1407,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
              iptr = iptr->next;
              continue;
            }
-  
+
            if( iptr->x0 == pinx0 && iptr->y0 == piny0 ) {
              skip=1;
              break;
@@ -1428,7 +1428,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
              my_strcat(_ALLOC_ID_, &prop, (char *)tclgetvar("custom_label_prefix"));
            }
            /*  /20171005 */
-  
+
            my_strcat(_ALLOC_ID_, &prop, labname);
            dir ^= flip; /*  20101129  20111030 */
            if(rotated_text ==-1) {
@@ -1466,7 +1466,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
   }
   /* if hilights are present in schematic propagate to new added labels */
   if(xctx->hilight_nets) {
-    propagate_hilights(1, 0, XINSERT_NOREPLACE); 
+    propagate_hilights(1, 0, XINSERT_NOREPLACE);
     redraw_hilights(0);
   }
   my_free(_ALLOC_ID_, &symname_pin);
@@ -1603,7 +1603,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   }
   dbg(1, "place_symbol(): done set_inst_prop()\n");  /*  03-02-2000 */
 
-  
+
   xctx->instances++;/* translate expects the correct balue of xctx->instances */
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
@@ -1647,10 +1647,10 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
         dbg(0, "%s", msg);
         if(has_x) tclvareval("alert_ {", msg, "} {} 1", NULL);
         #if 1
-        if(xctx->inst[n].instname) my_free(_ALLOC_ID_, &xctx->inst[n].instname);       
-        if(xctx->inst[n].name) my_free(_ALLOC_ID_, &xctx->inst[n].name);       
-        if(xctx->inst[n].prop_ptr) my_free(_ALLOC_ID_, &xctx->inst[n].prop_ptr);       
-        if(xctx->inst[n].lab) my_free(_ALLOC_ID_, &xctx->inst[n].lab);       
+        if(xctx->inst[n].instname) my_free(_ALLOC_ID_, &xctx->inst[n].instname);
+        if(xctx->inst[n].name) my_free(_ALLOC_ID_, &xctx->inst[n].name);
+        if(xctx->inst[n].prop_ptr) my_free(_ALLOC_ID_, &xctx->inst[n].prop_ptr);
+        if(xctx->inst[n].lab) my_free(_ALLOC_ID_, &xctx->inst[n].lab);
         if(prop) my_free(_ALLOC_ID_, &prop);
         xctx->instances--;
         return 0;
@@ -1701,7 +1701,7 @@ void symbol_in_new_window(int new_process)
   char filename[PATH_MAX];
   char win_path[WINDOW_PATH_SIZE];
   rebuild_selected_array();
-  
+
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
     if(tclgetboolvar("search_schematic")) {
       my_strncpy(filename, abs_sym_path(xctx->current_name, ".sym"), S(filename));
@@ -1736,7 +1736,7 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
   Str_hashentry **fromnext;
   Str_hashentry **tonext;
 
-  
+
   if(!get_window_count()) { return 0; }
   save_xctx = get_save_xctx();
   n = get_tab_or_window_number(from_win_path);
@@ -1889,7 +1889,7 @@ void launcher(void)
 }
 
 
-/* get symbol reference of instance 'inst', looking into 
+/* get symbol reference of instance 'inst', looking into
  * instance 'schematic' attribute (and appending '.sym') if set
  * or get it from inst[inst].name.
  * perform tcl substitution of the result and
@@ -1904,9 +1904,9 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
   my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
   schematic_token_found = xctx->tok_size;
-  if(sch && sch[0]) 
+  if(sch && sch[0])
     my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-  if(sch && sch[0]) 
+  if(sch && sch[0])
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
        str_replace(sch, "@symname", get_cell(xctx->inst[inst].name, 0), '\\', -1)));
 
@@ -1916,12 +1916,12 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
    */
 
   dbg(1, "get_sym_name(): sch=%s\n", sch);
-  if(schematic_token_found) { /* token exists */ 
+  if(schematic_token_found) { /* token exists */
     if(abs_path)
       sym = abs_sym_path(sch, ".sym");
     else
       sym = add_ext(rel_sym_path(sch), ".sym");
-  } 
+  }
   else {
     if(abs_path)
       sym = abs_sym_path(tcl_hook2(xctx->inst[inst].name), "");
@@ -1937,7 +1937,7 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
 void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
 {
   int c, j;
-  
+
   dest_sym->minx = src_sym->minx;
   dest_sym->maxx = src_sym->maxx;
   dest_sym->miny = src_sym->miny;
@@ -1974,14 +1974,14 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
   for(c = 0;c<cadlayers; ++c) {
     /* symbol lines */
     dest_sym->line[c] = my_calloc(_ALLOC_ID_, src_sym->lines[c], sizeof(xLine));
-    for(j = 0; j < src_sym->lines[c]; ++j) { 
+    for(j = 0; j < src_sym->lines[c]; ++j) {
       dest_sym->line[c][j] = src_sym->line[c][j];
       dest_sym->line[c][j].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &dest_sym->line[c][j].prop_ptr, src_sym->line[c][j].prop_ptr);
     }
     /* symbol rects */
     dest_sym->rect[c] = my_calloc(_ALLOC_ID_, src_sym->rects[c], sizeof(xRect));
-    for(j = 0; j < src_sym->rects[c]; ++j) { 
+    for(j = 0; j < src_sym->rects[c]; ++j) {
       dest_sym->rect[c][j] = src_sym->rect[c][j];
       dest_sym->rect[c][j].prop_ptr = NULL;
       dest_sym->rect[c][j].extraptr = NULL;
@@ -1989,14 +1989,14 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
     }
     /* symbol arcs */
     dest_sym->arc[c] = my_calloc(_ALLOC_ID_, src_sym->arcs[c], sizeof(xArc));
-    for(j = 0; j < src_sym->arcs[c]; ++j) { 
+    for(j = 0; j < src_sym->arcs[c]; ++j) {
       dest_sym->arc[c][j] = src_sym->arc[c][j];
       dest_sym->arc[c][j].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &dest_sym->arc[c][j].prop_ptr, src_sym->arc[c][j].prop_ptr);
     }
     /* symbol polygons */
     dest_sym->poly[c] = my_calloc(_ALLOC_ID_, src_sym->polygons[c], sizeof(xPoly));
-    for(j = 0; j < src_sym->polygons[c]; ++j) { 
+    for(j = 0; j < src_sym->polygons[c]; ++j) {
       int points = src_sym->poly[c][j].points;
       dest_sym->poly[c][j] = src_sym->poly[c][j];
       dest_sym->poly[c][j].prop_ptr = NULL;
@@ -2025,7 +2025,7 @@ void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
     my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
     my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, src_sym->text[j].floater_instname);
   }
-}   
+}
 
 void toggle_ignore(void)
 {
@@ -2057,7 +2057,7 @@ void toggle_ignore(void)
         else if(flag == 1) flag = 2;
         else flag = 0;
 
-      
+
         if(flag == 1) {
           my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
         } else if(flag == 2) {
@@ -2104,7 +2104,7 @@ void get_additional_symbols(int what)
       char *sch = NULL;
       char symbol_base_sch[PATH_MAX] = "";
       size_t schematic_token_found = 0;
-      
+
       if(xctx->inst[i].ptr < 0) continue;
       dbg(1, "get_additional_symbols(): inst=%d (%s) sch=%s\n",i, xctx->inst[i].name,  sch);
       /* copy instance based *_sym_def attributes to symbol */
@@ -2120,7 +2120,7 @@ void get_additional_symbols(int what)
 
       my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL));
       dbg(1, "  get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size);
-    
+
       my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
          str_replace(sch, "@symname", get_cell(xctx->inst[i].name, 0), '\\', -1)));
       dbg(1, "  get_additional_symbols(): sch=%s\n", sch);
@@ -2155,13 +2155,13 @@ void get_additional_symbols(int what)
 
         my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
         my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(i, 9999, 1, 1), NULL);
-        my_strdup(_ALLOC_ID_, &spice_sym_def, 
+        my_strdup(_ALLOC_ID_, &spice_sym_def,
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
-                                         symptr->templ, 
+                                         symptr->templ,
                                          symname_attr, NULL));
-        my_strdup(_ALLOC_ID_, &spectre_sym_def, 
+        my_strdup(_ALLOC_ID_, &spectre_sym_def,
             translate3(spectre_sym_def, 1, xctx->inst[i].prop_ptr,
-                                         symptr->templ, 
+                                         symptr->templ,
                                          symname_attr, NULL));
         my_free(_ALLOC_ID_, &symname_attr);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
@@ -2180,7 +2180,7 @@ void get_additional_symbols(int what)
           /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
            * be skipped */
           if(default_schematic) {
-            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
               subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
           }
           /* if symbol has no corresponding schematic file use symbol base schematic */
@@ -2189,11 +2189,11 @@ void get_additional_symbols(int what)
               subst_token(xctx->sym[j].prop_ptr, "schematic", symbol_base_sch));
           }
           if(spice_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
           }
           if(spectre_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr, 
+             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "spectre_sym_def", spectre_sym_def));
           }
           if(verilog_sym_def) {
@@ -2263,7 +2263,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
     /* instance based symbol selection */
     /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
     my_strdup2(_ALLOC_ID_, &str_tmp, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
-    if(str_tmp[0]) 
+    if(str_tmp[0])
       my_strdup2(_ALLOC_ID_, &str_tmp, translate3(str_tmp, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
     /*
      * my_strdup(_ALLOC_ID_, &str_tmp, translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6),
@@ -2286,7 +2286,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
       else my_strncpy(filename, abs_sym_path(sch, ""), PATH_MAX);
     }
   }
-  
+
   if(has_x && fallback && !is_gen && filename[0]) {
     file_exists = !stat(filename, &buf);
     if(!file_exists) {
@@ -2339,7 +2339,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
   dbg(1, "get_sch_from_sym(): sym->name=%s, filename=%s\n", sym->name, filename);
 }
 
-/* When descended into an i-th instance of a vector instance this function allows 
+/* When descended into an i-th instance of a vector instance this function allows
  * to change the path to the j-th instance. the instnumber parameters follows the same rules
  * as descend_schematic() */
 int change_sch_path(int instnumber, int dr)
@@ -2389,7 +2389,7 @@ int change_sch_path(int instnumber, int dr)
  * if set_title == 0 do not set window title (faster)
  *              == 1 do set_title
  *              == 2 do not process instance pins/nets
- *              == 4 do not descend into i-th instance of vecrtor instance. just 
+ *              == 4 do not descend into i-th instance of vecrtor instance. just
  *                 concatenate instance name as is to path and descend.
  *              above flags can be ORed together */
 int descend_schematic(int instnumber, int fallback, int alert, int set_title)
@@ -2416,7 +2416,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    {
      char cmd[PATH_MAX+1000];
      char res[PATH_MAX];
- 
+
      my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
      my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
      tcleval(cmd);
@@ -2439,12 +2439,12 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    ) return 0;
    if(xctx->modified) {
      int ret;
- 
+
      ret = save(1, 0);
      /* if circuit is changed but not saved before descending
       * state will be inconsistent when returning, can not propagare hilights
       * save() return value:
-      *  1 : file saved 
+      *  1 : file saved
       * -1 : user cancel
       *  0 : file not saved due to errors or per user request
       */
@@ -2453,7 +2453,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    }
    /*  build up current hierarchy path */
    dbg(1, "descend_schematic(): selected instname=%s\n", xctx->inst[n].instname);
- 
+
    if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
      if(set_title & 4)  {
        my_strdup2(_ALLOC_ID_, &str, xctx->inst[n].instname);
@@ -2532,10 +2532,10 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      my_free(_ALLOC_ID_, &pin_node);
    }
 
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr, 
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
              xctx->inst[n].prop_ptr);
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ, xctx->sym[xctx->inst[n].ptr].templ);
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra, 
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra,
      get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
@@ -2546,7 +2546,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    xctx->sch_inst_number[xctx->currsch] = inst_number;
    dbg(1, "descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]);
    dbg(1, "descend_schematic(): inst_number=%d\n", inst_number);
- 
+
    xctx->previous_instance[xctx->currsch]=n;
    xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
    xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
@@ -2564,7 +2564,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        propagate_hilights(1, 0, XINSERT_NOREPLACE);
      }
      dbg(1, "descend_schematic(): before zoom(): prep_hash_inst=%d\n", xctx->prep_hash_inst);
-  
+
      if(xctx->rects[GRIDLAYER] > 0 && tcleval("info exists ngspice::ngspice_data")[0] == '0') {
        Graph_ctx *gr = &xctx->graph_struct;
        xRect *r = &xctx->rect[GRIDLAYER][0];
@@ -2580,8 +2580,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  return descend_ok;
 }
 
-/* 
- * what: 
+/*
+ * what:
  * 1: ask gui user confirm if schematic modified
  * 2: do *NOT* reset window title
  */
@@ -2609,7 +2609,7 @@ void go_back(int what)
       else if(!strcmp(tclresult(), "") ) return;
     }
     /* do not automatically save if confirm==0. Script developers should take care of this */
-    /* 
+    /*
      * else {
      *   save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
      * }
@@ -2649,7 +2649,7 @@ void go_back(int what)
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(xctx->hilight_nets) {
-    if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins(); 
+    if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
@@ -2788,7 +2788,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
   {
    if(selected == 1 && !xctx->rect[c][i].sel) continue;
    /* skip graph objects if no datafile loaded */
-   if(c == GRIDLAYER && xctx->rect[c][i].flags) {  
+   if(c == GRIDLAYER && xctx->rect[c][i].flags) {
      if(hide_graphs && !waves) continue;
    }
    rect.x1=xctx->rect[c][i].x1;
@@ -2809,7 +2809,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     * str = get_tok_value(xctx->wire[i].prop_ptr, "lab",0);
     * if(!str[0] || !bus_hilight_hash_lookup(str, 0,XLOOKUP)) continue;
     */
-     if(!xctx->hilight_nets || !xctx->wire[i].node || 
+     if(!xctx->hilight_nets || !xctx->wire[i].node ||
        !xctx->wire[i].node[0] || !bus_hilight_hash_lookup(xctx->wire[i].node, 0,XLOOKUP)) continue;
    }
    if(xctx->wire[i].bus == -1.0){
@@ -2830,8 +2830,8 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
  }
  if(has_x && selected != 2) {
    for(i=0;i<xctx->texts; ++i)
-   { 
-     int no_of_lines; 
+   {
+     int no_of_lines;
      double longest_line;
      if(selected == 1 && !xctx->text[i].sel) continue;
 
@@ -3109,11 +3109,11 @@ void draw_stuff(void)
        #ifdef STORE
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2, xRECT,xctx->rectcolor, 0, NULL);
-       #else 
+       #else
        drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
-  
+
      for(i = 0; i < n; ++i)
       {
        w=(xctx->areaw*xctx->zoom/80) * rand() / (RAND_MAX+1.0);
@@ -3126,11 +3126,11 @@ void draw_stuff(void)
        #ifdef STORE
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
-       #else 
+       #else
        drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
-  
+
      for(i = 0; i < n; ++i)
      {
        w=xctx->zoom * rand() / (RAND_MAX+1.0);
@@ -3143,7 +3143,7 @@ void draw_stuff(void)
        #ifdef STORE
        xctx->rectcolor = (int) (16.0*rand()/(RAND_MAX+1.0))+4;
        storeobject(-1, x1, y1, x2, y2,xRECT,xctx->rectcolor, 0, NULL);
-       #else 
+       #else
        drawtemprect(xctx->gc[xctx->rectcolor], ADD, x1, y1, x2, y2);
        #endif
      }
@@ -3188,7 +3188,7 @@ void new_wire(int what, double mx_snap, double my_snap)
           drawline(WIRELAYER,NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy1, 0.0, 0, NULL);
         }
         if(xctx->nl_y2!=xctx->nl_y1) {
-          nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1; 
+          nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
           nl_xx2 = xctx->nl_x2; nl_yy2 = xctx->nl_y2;
           ORDER(nl_xx2,nl_yy1,nl_xx2,nl_yy2);
           storeobject(-1, nl_xx2,nl_yy1,nl_xx2,nl_yy2,WIRE,0,0,NULL);
@@ -3280,7 +3280,7 @@ void change_layer()
        store_arc(-1, x1, y1, r, a, b, xctx->rectcolor, 0, xctx->arc[c][n].prop_ptr);
      }
      if(type==POLYGON && xctx->poly[c][n].sel==SELECTED) {
-        store_poly(-1, xctx->poly[c][n].x, xctx->poly[c][n].y, 
+        store_poly(-1, xctx->poly[c][n].x, xctx->poly[c][n].y,
                        xctx->poly[c][n].points, xctx->rectcolor, 0, xctx->poly[c][n].prop_ptr);
      }
      else if(type==xRECT && xctx->rect[c][n].sel==SELECTED) {
@@ -3294,7 +3294,7 @@ void change_layer()
      else if(type==xTEXT && xctx->text[n].sel==SELECTED) {
        if(xctx->rectcolor != xctx->text[n].layer) {
          char *p;
-         my_strdup2(_ALLOC_ID_, &xctx->text[n].prop_ptr, 
+         my_strdup2(_ALLOC_ID_, &xctx->text[n].prop_ptr,
            subst_token(xctx->text[n].prop_ptr, "layer", dtoa(xctx->rectcolor) ));
          xctx->text[n].layer = xctx->rectcolor;
          p = xctx->text[n].prop_ptr;
@@ -3438,10 +3438,10 @@ void new_line(int what, double mx_snap, double my_snap)
     drawtemp_manhattanline(xctx->gctiled, NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2, 0);
     restore_selection(xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2);
     xctx->nl_x2 = mx_snap; xctx->nl_y2 = my_snap;
-    if(!(what & CLEAR)) { 
+    if(!(what & CLEAR)) {
       drawtemp_manhattanline(xctx->gc[xctx->rectcolor], NOW, xctx->nl_x1, xctx->nl_y1, xctx->nl_x2, xctx->nl_y2, 0);
-    }    
-  }        
+    }
+  }
 }
 
 void new_rect(int what, double mousex_snap, double mousey_snap)
@@ -3664,7 +3664,7 @@ int text_bbox(const char *str,double xscale, double yscale,
 {
  register int c=0, length =0;
  double w, h;
-  
+
   w=0;h=1;
   *cairo_lines = 1;
   if(str!=NULL) while( str[c] )
@@ -3870,7 +3870,7 @@ void pan(int what, int mx, int my)
   }
 }
 
-/* instead of doing a drawtemprect(xctx->gctiled, NOW, ....) do 4 
+/* instead of doing a drawtemprect(xctx->gctiled, NOW, ....) do 4
  * XCopy Area operations */
 void fix_restore_rect(double x1, double y1, double x2, double y2)
 {
@@ -3907,7 +3907,7 @@ void select_rect(int stretch, int what, int select)
  double nl_xx1, nl_yy1, nl_xx2, nl_yy2;
  int incremental_select = tclgetboolvar("incremental_select");
  int sel_touch = tclgetboolvar("select_touch");
- dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex=%g mousey=%g\n", 
+ dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex=%g mousey=%g\n",
         what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex, xctx->mousey);
  if(what & RUBBER)
  {
@@ -3959,7 +3959,7 @@ void select_rect(int stretch, int what, int select)
 
     if(!sel_touch || xctx->nl_dir == 0)
       select_inside(stretch, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
-    else 
+    else
       select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
     draw_selection(xctx->gc[SELLAYER], 0);

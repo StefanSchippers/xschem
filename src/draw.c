@@ -84,7 +84,7 @@ int textclip(int x1,int y1,int x2,int y2,
 /* check if some of (xa,ya-xb,yb) is inside (x1,y1-x2,y2) */
 /* coordinates should be ordered, x1<x2,ya<yb and so on... */
 {
- /* 
+ /*
  dbg(2, "textclip(): %.16g %.16g %.16g %.16g - %d %d %d %d\n",
  X_TO_SCREEN(xa),Y_TO_SCREEN(ya), X_TO_SCREEN(xb),Y_TO_SCREEN(yb),x1,y1,x2,y2);
  */
@@ -110,7 +110,7 @@ void print_image()
   if(!xctx->plotfile[0]) {
     /* tclvareval("tk_getSaveFile -title {Select destination file} -initialfile {",
      *   get_cell(xctx->sch[xctx->currsch], 0), ".png} -initialdir {", lastdir, "}", NULL); */
-    tclvareval("save_file_dialog {Select destination file} *.png INITIALLOADDIR {", pwd_dir, "/", 
+    tclvareval("save_file_dialog {Select destination file} *.png INITIALLOADDIR {", pwd_dir, "/",
       get_cell(xctx->sch[xctx->currsch], 0), ".png}", NULL);
     r = tclresult();
     if(r[0]) {
@@ -128,7 +128,7 @@ void print_image()
   save = xctx->do_copy_area;
   xctx->do_copy_area=0;
   draw();
-  
+
 
   #if HAS_CAIRO == 1 /* use cairo native support for png writing, no need to convert
                       * XPM and handles Xrender extensions for transparent embedded images */
@@ -212,7 +212,7 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
     x1 = rmx;
     y1 = rmy;
     dbg(1, "grabscreen(): got point1: %d %d\n", x1, y1);
-    grab_state = 1;  
+    grab_state = 1;
   }
 
   if(grab_state == 1 && event == MotionNotify) {
@@ -262,7 +262,7 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
         XDestroyWindow(display, clientwin);
         return 0;
       }
-      dbg(1, "sfc: w=%d, h=%d\n", 
+      dbg(1, "sfc: w=%d, h=%d\n",
             cairo_xlib_surface_get_width(sfc),
             cairo_xlib_surface_get_height(sfc));
       subsfc = cairo_surface_create_for_rectangle(sfc, x1, y1, grab_w, grab_h);
@@ -356,7 +356,7 @@ static void cairo_draw_string_line(cairo_t *c_ctx, char *s,
   double line_delta;
   double lines;
   double vc; /* 20171121 vert correct */
-  
+
   if(s==NULL) return;
   if(llength==0) return;
 
@@ -410,14 +410,14 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   if(size*xctx->mooz<3.0) return; /* too small */
   if(size*xctx->mooz>1600) return; /* too big */
   estr = my_expand(str, tclgetintvar("tabstop"));
-  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y, 
+  text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x,y,
             &textx1,&texty1,&textx2,&texty2, &no_of_lines, &longest_line);
   if(!textclip(xctx->areax1,xctx->areay1,xctx->areax2,
                xctx->areay2,textx1,texty1,textx2,texty2)) {
     my_free(_ALLOC_ID_, &estr);
     return;
   }
-  
+
   if(hcenter) {
     if(rot == 0 && flip == 0 ) { x=textx1;}
     if(rot == 1 && flip == 0 ) { y=texty1;}
@@ -616,7 +616,7 @@ void get_sym_text_size(int inst, int text_n, double *xscale, double *yscale)
 }
 
 
-/* 
+/*
  * layer: the set of symbol objects on xschem layer 'layer' to draw
  * c    : the layer 'c' to draw those objects on (if != layer it is the hilight color)
  */
@@ -645,7 +645,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
   lvs_ignore=tclgetboolvar("lvs_ignore");
   if(!has_x) return;
   if(xctx->inst[n].ptr == -1) return;
-  if(layer == 0) { 
+  if(layer == 0) {
     xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
@@ -792,7 +792,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         double xx2 = x0 + x2;
         double yy2 = y0 + y2;
         draw_image(1, rect, &xx1, &yy1, &xx2, &yy2, rot, flip);
-      } else 
+      } else
       #endif
       {
         int ellipse_a = rect->ellipse_a;
@@ -879,7 +879,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         /* do another round of substitutions if some @var are found, but if not found leave @var as is */
         dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n",
                 txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>");
-         my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr, 
+         my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr,
            xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL));
         dbg(1, "draw_symbol(): after translate3: str=%s\n", txtptr);
         draw_string(textlayer, what, txtptr,
@@ -919,7 +919,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  #if HAS_CAIRO==1
  int customfont;
  #endif
- 
+
  if(xctx->inst[n].ptr == -1) return;
  if(!has_x) return;
 
@@ -931,7 +931,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
  } else {
    hide = 0;
  }
- 
+
  flip = xctx->inst[n].flip;
  if(tmp_flip) flip = !flip;
  rot = (xctx->inst[n].rot + rot ) & 0x3;
@@ -948,14 +948,14 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    }
    else if(!xctx->only_probes && (xctx->inst[n].x2 - xctx->inst[n].x1) * xctx->mooz < 3 &&
                       (xctx->inst[n].y2 - xctx->inst[n].y1) * xctx->mooz < 3) {
-     drawtemprect(gc, what, xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset, 
+     drawtemprect(gc, what, xctx->inst[n].xx1 + xoffset, xctx->inst[n].yy1 + yoffset,
                             xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
      xctx->inst[n].flags|=1;
      return;
    }
    else xctx->inst[n].flags&=~1;
    if(hide) {
-     /* 
+     /*
       * symptr = (xctx->inst[n].ptr+ xctx->sym);
       * x0=xctx->inst[n].x0;
       * y0=xctx->inst[n].y0;
@@ -1008,7 +1008,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
        my_free(_ALLOC_ID_, &y);
      }
    }
-  
+
    for(j=0;j< symptr->rects[layer]; ++j)
    {
     rect = &(symptr->rect[layer])[j];
@@ -1031,14 +1031,14 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      ROTATION(rot, flip, 0.0, 0.0,arc->x,arc->y,x1,y1);
      drawtemparc(gc, what, x0+x1, y0+y1, arc->r, angle, arc->b);
    }
- 
+
    if( !(xctx->inst[n].flags & HIDE_SYMBOL_TEXTS) &&  layer==SELLAYER && xctx->sym_txt)
    {
     char *txtptr = NULL;
     for(j=0;j< symptr->texts; ++j)
     {
      double xscale, yscale;
-        
+
      get_sym_text_size(n, j, &xscale, &yscale);
      text = symptr->text[j];
      if(!text.txt_ptr || !text.txt_ptr[0] || xscale*FONTWIDTH*xctx->mooz<1) continue;
@@ -1049,7 +1049,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      #endif
      my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr));
       /* do another round of substitutions if some @var are found, but if not found leave @var as is */
-      my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr, 
+      my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr,
         xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL));
      dbg(1, "draw_temp_symbol(): after translate3: str=%s\n", txtptr);
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
@@ -1061,7 +1061,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
        cairo_restore(xctx->cairo_ctx);
      }
      #endif
-  
+
     }
    }
  }
@@ -1079,8 +1079,8 @@ static void drawgrid()
   int grid_point_size = -1;
   char dash_arr[2];
   int axes = tclgetboolvar("draw_grid_axes");
- 
-  psize_ptr = tclgetvar("grid_point_size"); 
+
+  psize_ptr = tclgetvar("grid_point_size");
   if(psize_ptr[0]) grid_point_size = atoi(psize_ptr);
   if(axes) {
     dash_arr[0] = dash_arr[1] = (char) 3;
@@ -1239,7 +1239,7 @@ static void drawgrid()
     }
   }
   #endif
-  
+
   #if DRAW_ALL_CAIRO==1
   if(xctx->draw_pixmap) cairo_stroke(xctx->cairo_save_ctx);
   if(xctx->draw_window) cairo_stroke(xctx->cairo_ctx);
@@ -1285,14 +1285,14 @@ static void my_cairo_drawpoints(cairo_t *ct, int layer, XPoint *points, int npoi
 static void check_cairo_drawline(void *cr, int layer, double x1, double y1, double x2, double y2, int dash)
 {
   if (cr==NULL) return;
-  cairo_t *ct = (cairo_t *)cr; 
+  cairo_t *ct = (cairo_t *)cr;
   my_cairo_drawline(cr, layer, x1, y1, x2, y2, dash);
 }
 
 static void check_cairo_drawpoints(void *cr, int layer, XPoint *points, int npoints)
 {
   if (cr==NULL) return;
-  cairo_t *ct = (cairo_t *)cr; 
+  cairo_t *ct = (cairo_t *)cr;
   my_cairo_drawpoints(cr, layer, points, npoints);
 }
 #endif
@@ -1339,16 +1339,16 @@ void drawline(int c, int what, double linex1, double liney1, double linex2, doub
  register XSegment *rr;
  char dash_arr[2];
  int width;
-      
- if(bus == -1.0) { 
-   what = THICK; 
+
+ if(bus == -1.0) {
+   what = THICK;
    width = INT_BUS_WIDTH(xctx->lw);
  } else if(bus > 0.0) {
    what = NOW;
    width = XLINEWIDTH(bus * xctx->mooz);
  } else {
    width = XLINEWIDTH(xctx->lw);
- }        
+ }
 
 
  if(dash && what !=THICK) what = NOW;
@@ -1806,18 +1806,18 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
       dash_arr[0] = dash_arr[1] = (char)dash;
       XSetDashes(display, xctx->gc[c], 0, dash_arr, 1);
       XSetLineAttributes (display, xctx->gc[c], width, xDashType, xCap, xJoin);
-    } else if(bus > 0.0) { 
+    } else if(bus > 0.0) {
       XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
     } else if(bus == -1.0) {
       XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
-    }     
+    }
 
    if(xctx->draw_window) {
      XDrawArc(display, xctx->window, xctx->gc[c], (int)xx1, (int)yy1,
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
    if(xctx->draw_pixmap) {
-     XDrawArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1, 
+     XDrawArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1,
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
    }
 
@@ -1827,10 +1827,10 @@ void drawarc(int c, int what, double x, double y, double r, double a, double b, 
      else             gc = xctx->gcstipple[c];
      if(arc_fill) {
        if(xctx->draw_window)
-         XFillArc(display, xctx->window, gc, (int)xx1, (int)yy1, 
+         XFillArc(display, xctx->window, gc, (int)xx1, (int)yy1,
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
        if(xctx->draw_pixmap)
-         XFillArc(display, xctx->save_pixmap, gc, (int)xx1, (int)yy1, 
+         XFillArc(display, xctx->save_pixmap, gc, (int)xx1, (int)yy1,
               (int)(xx2-xx1), (int)(yy2-yy1), (int)(a*64), (int)(b*64));
      }
    }
@@ -2080,13 +2080,13 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
     }
   }
   XDrawLines(display, w, gc, p, i, CoordModeOrigin);
-  if(fill == 1) 
+  if(fill == 1)
     XFillPolygon(display, w, xctx->gcstipple[c], p, i, Polygontype, CoordModeOrigin);
-  else if(fill==2) 
+  else if(fill==2)
     XFillPolygon(display, w, xctx->gc[c], p, i, Polygontype, CoordModeOrigin);
 }
 
-/* Unused 'what' parameter used in spice data draw_graph() 
+/* Unused 'what' parameter used in spice data draw_graph()
  * to avoid unnecessary clipping (what = 0) */
 void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fill, int dash, double bus, int flags)
 {
@@ -2100,13 +2100,13 @@ void drawpolygon(int c, int what, double *x, double *y, int points, int poly_fil
   if(!has_x) return;
   if(bus == -1.0) what = THICK;
 
-  if(bus == -1.0) { 
+  if(bus == -1.0) {
     width = INT_BUS_WIDTH(xctx->lw);
   } else if(bus > 0.0) {
     width = XLINEWIDTH(bus * xctx->mooz);
   } else {
     width = XLINEWIDTH(xctx->lw);
-  }        
+  }
 
   polygon_bbox(x, y, points, &x1,&y1,&x2,&y2);
   x1=X_TO_SCREEN(x1);
@@ -2205,7 +2205,7 @@ void drawtemppolygon(GC gc, int what, double *x, double *y, int points, int flag
         }
       }
       if(bezier) {
-        drawbezier(xctx->window, gc, 0, x, y, points, 0); 
+        drawbezier(xctx->window, gc, 0, x, y, points, 0);
       } else {
         p = my_malloc(_ALLOC_ID_, sizeof(XPoint) * points);
         for(i=0;i<points; ++i) {
@@ -2231,16 +2231,16 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
  int width;
 
  if(!has_x) return;
-      
- if(bus == -1.0) { 
-   what = NOW; 
+
+ if(bus == -1.0) {
+   what = NOW;
    width = INT_BUS_WIDTH(xctx->lw);
  } else if(bus > 0.0) {
    what = NOW;
    width = XLINEWIDTH(bus * xctx->mooz);
  } else {
    width = XLINEWIDTH(xctx->lw);
- }        
+ }
  if(dash) what = NOW;
 
  if(e_a != -1) what = NOW; /* ellipse */
@@ -2260,7 +2260,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, CapProjecting, JoinMiter);
    } else if(bus == -1.0) {
      XSetLineAttributes (display, xctx->gc[c], width, LineSolid, LINECAP, LINEJOIN);
-   }     
+   }
 
    if(xctx->draw_window) {
      if(e_a != -1) {
@@ -2277,7 +2277,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
    {
      if(e_a != -1) {
        XDrawArc(display, xctx->save_pixmap, xctx->gc[c], (int)xx1, (int)yy1,
-       (unsigned int)xx2 - (unsigned int)xx1, 
+       (unsigned int)xx2 - (unsigned int)xx1,
        (unsigned int)yy2 - (unsigned int)yy1, e_a * 64, e_b * 64);
 
      } else {
@@ -2340,7 +2340,7 @@ void drawtemprect(GC gc, int what, double rectx1,double recty1,double rectx2,dou
   if( rectclip(xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2,&x1,&y1,&x2,&y2) )
   {
    if((fix_broken_tiled_fill || !_unix) && gc == xctx->gctiled) {
-     /* 
+     /*
       * MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
       *     rectx1, recty1, rectx2, recty2, rectx1, recty1, xctx->lw);
       */
@@ -2462,7 +2462,7 @@ static double get_unit(const char *val)
   return 1.0;
 }
 
-/* return hierarchy level where raw file was loaded (so may include top level 0) or -1 
+/* return hierarchy level where raw file was loaded (so may include top level 0) or -1
  * if there is no matching schematic name up in the hierarchy */
 int sch_waves_loaded(void)
 {
@@ -2477,7 +2477,7 @@ int sch_waves_loaded(void)
         dbg(1, "sch_waves_loaded(): returning %d\n", i);
         return i;
       }
-    } 
+    }
   }
   return -1;
 }
@@ -2506,10 +2506,10 @@ static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int 
       hexdigit <<= 1;
     } else {
       ++hex;
-      if(x) 
+      if(x)
         busval[hex_digits - hex] = 'X';
       else
-        busval[hex_digits - hex] = hexstr[hexdigit]; 
+        busval[hex_digits - hex] = hexstr[hexdigit];
       hexdigit = 0; /* prepare for next hex digit */
       bin = 0;
       x = 0;
@@ -2517,15 +2517,15 @@ static void get_bus_value(int n_bits, int hex_digits, SPICE_DATA **idx_arr, int 
   }
   if(bin) { /* process (incomplete) MSB nibble */
     ++hex;
-    if(x) 
+    if(x)
       busval[hex_digits - hex] = 'X';
     else {
       hexdigit <<= (3 - bin);
-      busval[hex_digits - hex] = hexstr[hexdigit]; 
+      busval[hex_digits - hex] = hexstr[hexdigit];
     }
   }
   busval[hex_digits] = '\0';
-} 
+}
 
 
 /* idx_arr malloc-ated and returned, caller must free! */
@@ -2632,7 +2632,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
 
     /* if doing double variable DC sweeps raw->datasets == 1 but there are multiple curves.
      * find_closest_wave() may return a dataset number that is > 0 but its a "virtual" dataset
-     * since double DC sweeps just do multiple sweeps by wrapping the sweep variable 
+     * since double DC sweeps just do multiple sweeps by wrapping the sweep variable
      */
     if(dset >= raw->datasets) dset = 0;
 
@@ -2642,7 +2642,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       raw->datasets = 1;
       save_npoints = raw->npoints[0];
       raw->npoints[0] = raw->allpoints;
-    }   
+    }
     xx1 = xx2 = get_raw_value(dset, idx, 0);
     for(k = 0; k < xctx->raw->npoints[dset]; k++) {
       double v = get_raw_value(dset, idx, k);
@@ -2716,7 +2716,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       sptr = sweep;
       start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
-  
+
       while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
         char *nd = NULL;
         char str_extra_idx[30];
@@ -2795,7 +2795,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           } else {
             v = get_raw_index(express, NULL);
           }
-          my_free(_ALLOC_ID_, &express); 
+          my_free(_ALLOC_ID_, &express);
           dbg(1, "graph_fullyzoom(): v=%d\n", v);
         }
         if(xctx->raw && v >= 0) {
@@ -2836,7 +2836,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                 ++cnt;
               }
             } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
-  
+
             done:
 
             /* offset pointing to next dataset */
@@ -2853,7 +2853,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
           extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
           raw = xctx->raw;
-        }   
+        }
 
       } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "\"", 0, &saven)) ) */
       if(max == min) max += 0.01;
@@ -2880,11 +2880,11 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
   }
 }
 
-/* draw bussed signals: ntok is a comma separated list of items, first item is bus name, 
+/* draw bussed signals: ntok is a comma separated list of items, first item is bus name,
  * following are bits that are bundled together:
    LDA,LDA[3],LDA[2],LDA1],LDA[0]
  */
-static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx_arr, 
+static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx_arr,
          int first, int last, int wave_col, int sweep_idx, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
 {
   int p;
@@ -2912,7 +2912,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
     return;
   }
   for(p=0;p<cadlayers; ++p) {
-    XSetLineAttributes(display, xctx->gc[p], 
+    XSetLineAttributes(display, xctx->gc[p],
        XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP, LINEJOIN);
   }
   if(gr->logx) {
@@ -3010,7 +3010,7 @@ static void draw_graph_points(int idx, int first, int last,
   /* if( 1 || !digital || (c1 >= gr->ypos1 && c1 <= gr->ypos2) ) { */
   for(p = first ; p <= last; p++) {
     yy = gv[p];
-     
+
     /* Below CLIP calls (for digital and non digital graphs) for Windows
      * clamp y-value of waves to be inside graph area. Not a clean solution
      * but avoids drawing outside of graph area when moving vertically on Windows
@@ -3022,7 +3022,7 @@ static void draw_graph_points(int idx, int first, int last,
       yy = c + yy *s2;
       #if !defined(__unix__)
       yy = CLIP(DS_Y(yy), Y_TO_SCREEN(gr->y1), Y_TO_SCREEN(gr->y2));
-      #else 
+      #else
       yy = CLIP(DS_Y(yy), -30000, 30000); /* only clip to 16 bit signed short limits */
       #endif
       /* Build poly y array. Translate from graph coordinates to screen coordinates  */
@@ -3032,7 +3032,7 @@ static void draw_graph_points(int idx, int first, int last,
       if(gr->logy) yy = mylog10(yy);
       #if !defined(__unix__)
       yy = CLIP(S_Y(yy), Y_TO_SCREEN(gr->y1), Y_TO_SCREEN(gr->y2));
-      #else 
+      #else
       yy = CLIP(S_Y(yy), -30000, 30000); /* only clip to 16 bit signed short limits */
       #endif
       point[poly_npoints].y = (short)yy;
@@ -3123,7 +3123,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
     if(gr->subdivx > 0) for(k = 1; k <=gr->subdivx; ++k) {
       double subwx;
       if(gr->logx)
-        subwx = wx + deltax * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0)); 
+        subwx = wx + deltax * mylog10(1.0 + (double)k * 9.0 / ((double)gr->subdivx + 1.0));
       else
         subwx = wx + deltax * (double)k / ((double)gr->subdivx + 1.0);
       if(!axis_within_range(subwx, gr->gx1, gr->gx2, deltax, gr->subdivx)) continue;
@@ -3136,7 +3136,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy2), W_X(wx),   W_Y(gr->gy1), 0.0, (int)dash_size, ct);
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0.0, 0, ct); /* axis marks */
     /* X-axis labels */
-    if(gr->logx) 
+    if(gr->logx)
       draw_string(3, NOW, dtoa_eng(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx),
                 gr->y2 + mark_size + 5 * gr->txtsizex, gr->txtsizex, gr->txtsizex);
     else
@@ -3169,9 +3169,9 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0.0, 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
-        draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity), 0, 1, 0, 1, 
+        draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity), 0, 1, 0, 1,
                   gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy), gr->txtsizey, gr->txtsizey);
-      else 
+      else
         draw_string(3, NOW, dtoa_eng(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
                   gr->txtsizey, gr->txtsizey);
     }
@@ -3182,7 +3182,7 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   /* Horizontal axis (if in viewport) */
   if(!gr->digital && gr->gy1 <= 0 && gr->gy2 >= 0)
     drawline(GRIDLAYER, ADD, W_X(gr->gx1), W_Y(0), W_X(gr->gx2), W_Y(0), 0.0, 0, ct);
-  /* Vertical axis (if in viewport) 
+  /* Vertical axis (if in viewport)
    * swap order of gy1 and gy2 since grap y orientation is opposite to xorg orientation */
   if(gr->gx1 <= 0 && gr->gx2 >= 0)
     drawline(GRIDLAYER, ADD, W_X(0),   W_Y(gr->gy2), W_X(0),   W_Y(gr->gy1), 0.0, 0, ct);
@@ -3330,7 +3330,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->marginx = tmp;
   tmp = gr->rh * 0.14;
   gr->marginy = tmp;
-  /* calculate graph bounding box (container - margin) 
+  /* calculate graph bounding box (container - margin)
    * This is the box where plot is done */
   gr->x1 =  gr->rx1 + gr->marginx;
   gr->x2 =  gr->rx2 - gr->marginx * 0.35; /* less space for right margin */
@@ -3342,12 +3342,12 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 
   /* label text size calculations */
   gr->txtsizelab = gr->marginy * 0.006;
-  /* 
+  /*
    * tmp =  gr->w * 0.00044;
    * if(tmp < gr->txtsizelab) gr->txtsizelab = tmp;
    */
   if(xctx->graph_flags & 2)
-    gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh ); 
+    gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh );
   else
     gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
   gr->txtsizelab *= gr->magx;
@@ -3412,7 +3412,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
 
 static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
 {
-  int tmp; 
+  int tmp;
   char tmpstr[100];
   double txtsize = gr->txtsizex;
   double tx1, ty1, tx2, ty2;
@@ -3449,14 +3449,14 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
 }
 
 static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
-{   
+{
   double yy, pos = active_cursory;
   double tx1, ty1, tx2, ty2, dtmp;
   int tmp;
   char tmpstr[100];
   double txtsize = gr->txtsizey;
   double th;
-  
+
   if(gr->digital) return;
   if(gr->logy) pos = mylog10(pos);
   yy = W_Y(pos);
@@ -3536,7 +3536,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   if(gr->legend || gr->digital) {
     /* draw node labels in graph */
     if(bus_msb) {
-      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", 
+      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]",
            find_nth(ntok, ";,", "\"", 0, 1), gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", "\"", 0, 1));
     } else {
@@ -3551,7 +3551,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
          my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
          my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
       }
-        
+
       if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
       my_free(_ALLOC_ID_, &alias_ptr);
@@ -3566,7 +3566,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.4 * s2;
       else
         yt = s1 * (double)(n_nodes - wcnt) * gr->gh + gr->gh * 0.1 * s2;
-  
+
       if(yt <= gr->ypos2 && yt >= gr->ypos1) {
         #if HAS_CAIRO == 1
         if(gr->hilight_wave == wcnt) {
@@ -3629,7 +3629,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   }
   if(!gr->legend && !gr->digital) return;
   if(measure_p >= 0) {
-   
+
     /* draw node values in graph */
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3663,7 +3663,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       get_bus_value(n_bits, hex_digits, idx_arr, measure_p - 1, tmpstr, vthl, vthh);
     }
     if(!bus_msb && !gr->digital) {
-      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0, 
+      draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
          gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
           gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
       dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_x, yy);
@@ -3687,7 +3687,7 @@ int embed_rawfile(const char *rawfile)
   int res = 0;
   size_t len;
   char *ptr;
-  
+
   dbg(1, "embed_rawfile(): rawfile=%s\n", rawfile);
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     xInstance *i = &xctx->inst[xctx->sel_array[0].n];
@@ -3701,10 +3701,10 @@ int embed_rawfile(const char *rawfile)
 }
 
 /* when double clicking in a graph if this happens on a wave label
- * what == 1: 
+ * what == 1:
  *   look up the wave and call tcl "graph_edit_wave <graph> <wave>"
  *   with graph index and wave index
- * what == 2: 
+ * what == 2:
  *   look up the wave and draw in bold
  * return 1 if a wave was found
  */
@@ -3720,8 +3720,8 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
 
   /* get plot data */
   my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
-  my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0)); 
-  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
+  my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
   nptr = node;
   cptr = color;
   sptr = sweep;
@@ -3833,12 +3833,12 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     register SPICE_DATA *gv0 = raw->values[0];
     ofs_end = ofs + raw->npoints[dset];
     first = -1;
-    last = ofs; 
+    last = ofs;
 
     /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
     if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
     for(p = ofs ; p < ofs_end; p++) {
-      if(gr->logx) 
+      if(gr->logx)
         xx = mylog10(gv[p]);
       else
         xx = gv[p];
@@ -3869,7 +3869,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
       }
     }
- 
+
     done:
 
     /* offset pointing to next dataset */
@@ -3899,24 +3899,24 @@ int find_closest_wave(int i, Graph_ctx *gr)
   if(!xctx->raw) {
     dbg(0, "find_closest_wave(): no raw struct allocated\n");
     return -1;
-  }   
+  }
   if(gr->digital) return -1;
 
   autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
-  if(autoload == 0) autoload = 2; 
+  if(autoload == 0) autoload = 2;
   yval = G_Y(xctx->mousey);
   xval = G_X(xctx->mousex);
   /* get data to plot */
   my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
-  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
 
   ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
   if(!ptr[0]) {
     if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
     else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
-  } else { 
+  } else {
     my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
-  }   
+  }
 
   my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
@@ -3979,9 +3979,9 @@ int find_closest_wave(int i, Graph_ctx *gr)
         gvy = raw->values[idx];
         dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
-        /* Process "npoints" simulation items 
+        /* Process "npoints" simulation items
          * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
-        last = ofs; 
+        last = ofs;
         dbg(1, "find_closest_wave(): xval=%g yval=%g\n", xval, yval);
         for(p = ofs ; p < ofs_end; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
@@ -4044,7 +4044,7 @@ int find_closest_wave(int i, Graph_ctx *gr)
 
 
 /* flags:
- *  1: do final XCopyArea (copy 2nd buffer areas to screen) 
+ *  1: do final XCopyArea (copy 2nd buffer areas to screen)
  *     If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
  *     This makes drawing faster and removes a 'tearing' effect when moving around.
  *  2: draw x-cursor1
@@ -4075,16 +4075,16 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   char *sim_type = NULL;
   int save_extra_idx = -1;
   double cursor1, cursor2;
- 
+
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
-  
+
   if(r->flags & 4) { /* private_cursor */
     const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
     if(s[0]) {
       cursor1 = atof_eng(s);
-    } else { 
+    } else {
       cursor1 = xctx->graph_cursor1_x;
     }
   } else {
@@ -4107,7 +4107,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   dbg(0, "draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
   dbg(0, "draw_graph(): i = %d, flags = %d graph_flags=%d\n", i, flags, xctx->graph_flags);
   #endif
- 
+
   /* draw stuff */
   if(flags & 8) {
     int autoload = 0;
@@ -4127,16 +4127,16 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     draw_graph_grid(gr, ct);
     /* get data to plot */
     my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
-    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0)); 
-    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0)); 
+    my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0));
+    my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
 
     ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
     if(!ptr[0]) {
       if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
       else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
-    } else { 
+    } else {
       my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
-    }   
+    }
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
     dbg(1, "draw_graph(): graph %d: custom_rawfile=%s autoload=%d sim_type=%s\n",
         i, custom_rawfile, autoload, sim_type);
@@ -4158,9 +4158,9 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
       measure_x = 0.0;
       measure_prev_x = 0.0;
       if(custom_rawfile[0]) {
-        if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : 
+        if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
            (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
-          valid_rawfile = 0; 
+          valid_rawfile = 0;
         }
       }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
@@ -4267,7 +4267,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         double xx0 = 0.0; /* the first sweep value */
         double start;
         double end;
-        int n_bits = 1; 
+        int n_bits = 1;
         SPICE_DATA **idx_arr = NULL;
         int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
         XPoint *point = NULL;
@@ -4289,15 +4289,15 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
           register SPICE_DATA *gv0 = xctx->raw->values[0];
-            
+
           ofs_end = ofs + xctx->raw->npoints[dset];
           first = -1;
           poly_npoints = 0;
           my_realloc(_ALLOC_ID_, &point, xctx->raw->npoints[dset] * sizeof(XPoint));
-          /* Process "npoints" simulation items 
+          /* Process "npoints" simulation items
            * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
           prev_x = 0;
-          last = ofs; 
+          last = ofs;
 
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
@@ -4408,7 +4408,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
         if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1)
-           show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color, 
+           show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color,
               idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr, r, cursor1);
 
         my_free(_ALLOC_ID_, &point);
@@ -4435,7 +4435,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
   } /* if(flags & 8) */
-  /* 
+  /*
    * bbox(START, 0.0, 0.0, 0.0, 0.0);
    * bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
    * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
@@ -4456,13 +4456,13 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
-      /* 
+      /*
        * MyXCopyArea(display, xctx->save_pixmap, xctx->window, xctx->gc[0], xctx->xrect[0].x, xctx->xrect[0].y,
        *   xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
        */
-      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0], 
+      MyXCopyAreaDouble(display, xctx->save_pixmap, xctx->window, xctx->gc[0],
         gr->rx1, gr->ry1, gr->rx2, gr->ry2, gr->rx1, gr->ry1, 0.0);
-    
+
     }
   }
   /* bbox(END, 0.0, 0.0, 0.0, 0.0); */
@@ -4581,7 +4581,7 @@ void *my_memmem(const void *haystack, size_t hlen, const void *needle, size_t nl
  *    1: invert colors
  *    2: set white to transparent
  *    4: set black to transparent
- *    8: set transparent to white 
+ *    8: set transparent to white
  *   16: set transparent to black
  *   32: blend with white, remove alpha
  *   64: blend with black, remove alpha
@@ -4643,22 +4643,22 @@ int edit_image(int what, xRect *r)
 
       /* set white to transparent */
       if(what & 2) {
-        if(r > 242  && g > 242 && b >242) {r = g = b = a = 0;} 
+        if(r > 242  && g > 242 && b >242) {r = g = b = a = 0;}
       }
 
       /* set black to transparent */
       if(what & 4) {
-        if(r < 13 && g < 13 && b < 13) {r = g = b = a = 0;} 
+        if(r < 13 && g < 13 && b < 13) {r = g = b = a = 0;}
       }
 
       /* set transparent to white */
       if(what & 8) {
-        if(a == 0) {r = g = b = a = 0xff;} 
+        if(a == 0) {r = g = b = a = 0xff;}
       }
 
       /* set transparent to black */
       if(what & 16) {
-        if(a == 0) {r = g = b = 0x00; a = 0xff;} 
+        if(a == 0) {r = g = b = 0x00; a = 0xff;}
       }
 
       /* remove alpha, blend with white */
@@ -4708,9 +4708,9 @@ int edit_image(int what, xRect *r)
       closure.pos = 0;
       cairo_image_surface_write_to_jpeg_mem(emb_ptr->image, &closure.buffer, &closure.pos, jpeg_quality);
       closure.size = closure.pos;
-      #endif 
+      #endif
     }
-    
+
     /* put base64 encoded data to rect image_data attribute */
     encoded_data = base64_encode((unsigned char *)closure.buffer, closure.size, &olength, 0);
     my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "image_data", encoded_data));
@@ -4722,7 +4722,7 @@ int edit_image(int what, xRect *r)
 }
 
 /* returns a cairo surface.
- * `filename` should be a  png or jpeg image or anything else that can be converted to png 
+ * `filename` should be a  png or jpeg image or anything else that can be converted to png
  * or jpeg via a `filter` pipeline. (example: filter="gm convert - png:-")
  * buffer returns the content of filename or the filtered result if filter is given.
  *  `size` is set to the size of the returned data */
@@ -4763,7 +4763,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
       return NULL;
     }
     if(filedata && my_memmem(filedata, filesize, "<svg", 4) &&
-       my_memmem(filedata, filesize, "xmlns", 5)) { 
+       my_memmem(filedata, filesize, "xmlns", 5)) {
       if(filter) svg = 1;
       else {
         dbg(0, "get_surface_from_file():\n");
@@ -4773,7 +4773,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         return NULL;
       }
     }
-  
+
     if(filter) {
       size_t filtered_img_size = 0;
       char *filtered_img_data = NULL;
@@ -4788,7 +4788,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
       closure.size = filesize;
       closure.pos = 0;
     }
-  
+
     if(closure.size > 4) {
       if(!strncmp((char *)closure.buffer, "\x89PNG", 4)) jpg = 0;
       else if(!strncmp((char *)closure.buffer, "\xFF\xD8\xFF", 3)) jpg = 1;
@@ -4813,7 +4813,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         return NULL;
       }
     }
-    if(svg) { /* if the file type is SVG return in buffer the plain file, 
+    if(svg) { /* if the file type is SVG return in buffer the plain file,
                * not the filtered content, This way we don't lose resolution */
       *buffer = (unsigned char *)filedata;
       *size = filesize;
@@ -4853,7 +4853,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
     my_free(_ALLOC_ID_, &closure.buffer);
     return NULL;
   }
-   
+
   if(closure.buffer == NULL) {
     dbg(0, "get_surface_from_b64data(): decoding base64 data for image failed\n");
     return NULL;
@@ -4868,7 +4868,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
   } else if(jpg == 2) { /* svg */
     size_t filtered_img_size = 0;
     char *filtered_img_data = NULL;
-    int ret = 
+    int ret =
       filter_data((char *)closure.buffer, closure.size, &filtered_img_data, &filtered_img_size, filter);
     my_free(_ALLOC_ID_, &closure.buffer);
     closure.buffer = (unsigned char *)filtered_img_data;
@@ -4894,7 +4894,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
 
 /* rot and flip for rotated / flipped symbols
  * dr: 1 draw image
- *     0 only load image and build base64 
+ *     0 only load image and build base64
  */
 int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2, int rot, int flip)
 {
@@ -5081,7 +5081,7 @@ void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, dou
   set_viewport_size(rwi, rhi, xctx->lw);
 
   /* zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0); */
-  
+
   xctx->xorigin = -rx1;
   xctx->yorigin = -ry1;
   xctx->zoom=(rx2-rx1)/(rwi - 1);
@@ -5102,7 +5102,7 @@ void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, dou
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
                xctx->xrect[0].width, xctx->xrect[0].height);
 #else
-  /* pixmap doesn't work on windows 
+  /* pixmap doesn't work on windows
        Copy from cairo_save_sfc and use cairo
        to draw in the data points to embed the graph */
     png_sfc = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, xctx->xrect[0].width, xctx->xrect[0].height);
@@ -5188,7 +5188,7 @@ void draw(void)
       XFillRectangle(display, xctx->save_pixmap, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
     }
-    if(xctx->draw_window) 
+    if(xctx->draw_window)
       XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
     dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
@@ -5217,7 +5217,7 @@ void draw(void)
         else       drawline(cc, ADD, l->x1, l->y1, l->x2, l->y2, l->bus, l->dash, NULL);
       }
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->rects[c]; ++i) {
-        xRect *r = &xctx->rect[c][i]; 
+        xRect *r = &xctx->rect[c][i];
         #if HAS_CAIRO==1
         if(c != GRIDLAYER || !(r->flags & (1 + 1024)))
         #else
@@ -5310,17 +5310,17 @@ void draw(void)
       if(!xctx->enable_layer[textlayer]) continue;
       if(xctx->draw_single_layer != -1 && xctx->draw_single_layer != textlayer) continue;
       textfont = xctx->text[i].font;
-      if( (textfont && textfont[0]) || 
+      if( (textfont && textfont[0]) ||
           (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
         cairo_font_slant_t slant;
         cairo_font_weight_t weight;
-        textfont = (xctx->text[i].font && xctx->text[i].font[0]) ? 
+        textfont = (xctx->text[i].font && xctx->text[i].font[0]) ?
           xctx->text[i].font : tclgetvar("cairo_font_name");
         weight = ( xctx->text[i].flags & TEXT_BOLD) ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL;
         slant = CAIRO_FONT_SLANT_NORMAL;
         if(xctx->text[i].flags & TEXT_ITALIC) slant = CAIRO_FONT_SLANT_ITALIC;
         if(xctx->text[i].flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
- 
+
         cairo_save(xctx->cairo_ctx);
         cairo_save(xctx->cairo_save_ctx);
         xctx->cairo_font =
@@ -5337,7 +5337,7 @@ void draw(void)
         xctx->text[i].x0,xctx->text[i].y0,
         xctx->text[i].xscale, xctx->text[i].yscale);
       #if HAS_CAIRO==1
-      if( (textfont && textfont[0]) || 
+      if( (textfont && textfont[0]) ||
           (xctx->text[i].flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
         cairo_restore(xctx->cairo_ctx);
         cairo_restore(xctx->cairo_save_ctx);
@@ -5366,7 +5366,7 @@ void draw(void)
            xctx->xrect[0].width, xctx->xrect[0].height, xctx->xrect[0].x, xctx->xrect[0].y);
       }
       #if !defined(__unix__) && HAS_CAIRO==1
-      else 
+      else
         my_cairo_fill(xctx->cairo_sfc, xctx->xrect[0].x, xctx->xrect[0].y,
                       xctx->xrect[0].width, xctx->xrect[0].height);
       #endif
@@ -5402,7 +5402,7 @@ void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x
   #if HAS_CAIRO==1
   my_cairo_fill(xctx->cairo_save_sfc, dest_x, dest_y, width, height);
   #endif
-  /* 
+  /*
    * #elif (defined(__unix__)  && HAS_CAIRO==1) || DRAW_ALL_CAIRO==1
    * cairo_set_source_surface(xctx->cairo_ctx, xctx->cairo_save_sfc, 0, 0);
    * cairo_paint(xctx->cairo_ctx);
@@ -5415,7 +5415,7 @@ void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x
 void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
      double sx1, double sy1, double sx2, double sy2,
      double dx1, double dy1, double lw)
-{  
+{
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
   int intlw = INT_LINE_W(lw);
@@ -5427,7 +5427,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
 
   idx1=X_TO_SCREEN(dx1) - 2 * intlw;
   idy1=Y_TO_SCREEN(dy1) - 2 * intlw;
-  
+
   width = (unsigned int)isx2 - (unsigned int)isx1;
   height = (unsigned int)isy2 - (unsigned int)isy1;
   #if !defined(__unix__)

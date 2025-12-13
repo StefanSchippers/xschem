@@ -34,7 +34,7 @@ static void find_closest_wire(double mx, double my, int override_lock)
  double threshold;
  double d = distance;
  threshold = CADWIREMINDIST * CADWIREMINDIST * xctx->zoom * xctx->zoom * tk_scaling * tk_scaling;
-  
+
  dbg(1, "threshold=%g\n", threshold);
  for(i=0;i<xctx->wires; ++i)
  {
@@ -46,7 +46,7 @@ static void find_closest_wire(double mx, double my, int override_lock)
  if( w != -1 && d <= threshold &&
    (override_lock || strboolcmp(get_tok_value(xctx->wire[w].prop_ptr, "lock", 0), "true")) )
  {
-  sel.n = w; sel.type = WIRE; 
+  sel.n = w; sel.type = WIRE;
   distance = d;
  }
 }
@@ -137,7 +137,7 @@ static void find_closest_polygon(double mx, double my, int override_lock)
     xPoly *p = &xctx->poly[c][i];
     bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
     bezier = bezier && (p->points > 2);
-    
+
     if(bezier) {
       d = find_closest_bezier(mx, my, d, c, i, &l, &col);
     } else {
@@ -210,7 +210,7 @@ int find_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
 
   x1 = X_TO_XSCHEM(xctx->areax1);
   y1 = Y_TO_XSCHEM(xctx->areay1);
-  x2 = X_TO_XSCHEM(xctx->areax2); 
+  x2 = X_TO_XSCHEM(xctx->areax2);
   y2 = Y_TO_XSCHEM(xctx->areay2);
 
   hash_instances();
@@ -409,7 +409,7 @@ static void find_closest_box(double mx ,double my, int override_lock)
   for(i=0;i<xctx->rects[c]; ++i)
   {
    if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - threshold, xctx->rect[c][i].y1 - threshold,
-                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) && 
+                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) &&
       !POINTINSIDE(mx, my, xctx->rect[c][i].x1 + threshold, xctx->rect[c][i].y1 + threshold,
                          xctx->rect[c][i].x2 - threshold, xctx->rect[c][i].y2 - threshold))
    {

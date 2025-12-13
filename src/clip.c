@@ -136,7 +136,7 @@ void clip_xy_to_short(double x, double y, short *sx, short *sy)
   *sy = (short) (y * r);
 }
 
-/* 
+/*
  *static short clip_to_short(double n)
  *{
  *  return n > SHRT_MAX ? SHRT_MAX : n < SHRT_MIN ? SHRT_MIN : n;

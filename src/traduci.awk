@@ -38,7 +38,7 @@ function replace_pattern(old, new)
 
 
 {
- __a[__lines++] = $0 
+ __a[__lines++] = $0
 }
 
 function beginfile(f)
@@ -57,5 +57,5 @@ function endfile(f,   i)
    }
    close(f)
  }
-} 
+}
 

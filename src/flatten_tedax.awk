@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: flatten_tedax.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -71,7 +71,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
   for(i = start[cell]+1; i <= end[cell]-1; i++) {
     $0 = netlist[i]
     reparse()
-    # __subcircuit__ pcb_voltage_protection x0 
+    # __subcircuit__ pcb_voltage_protection x0
     # __map__ VOUT -> VOUTXX
     # __map__  ... -> ...
     if($1 == "__subcircuit__") {
@@ -80,7 +80,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
       subpos = i
       sub(/__subcircuit__/, "subcircuit", $0)
       out("#" spaces(hier * 2 - 1) $0)
-      submaplist = "" 
+      submaplist = ""
       for(i++; ;i++) {
         $0 = netlist[i]
         reparse()
@@ -91,9 +91,9 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
         sub(/__map__/, "map", $0)
         out("#" spaces(hier * 2 - 1) $0)
       }
-      
+
       expand(subcell, subinst, path subinst hiersep, submaplist)
- 
+
       i--; continue; # redo processing of current line
     }
     if($1 == "conn") {
@@ -112,7 +112,7 @@ function expand(cell, instname, path, maplist,       i, j, subpos, subcell, subi
 
 function spaces(n,     s)
 {
-  n = (n > 0) ? n - 1 : 0 
+  n = (n > 0) ? n - 1 : 0
   s ="                        "
   while(length(s) < n) s = s s
   return substr(s,1,n)
@@ -120,7 +120,7 @@ function spaces(n,     s)
 
 function out(s)
 {
-  if(length(s) > 512) 
+  if(length(s) > 512)
     print "flatten_tedax: WARNING: >> " s "\n  line length > 512 chars, this breaks tEDAx" > "/dev/stderr"
   print s
 }
@@ -130,7 +130,7 @@ function dbg(s)
   if(debug) print s > "/dev/stderr"
 }
 
-function resolve_node(node, path, maplist,     arr, n, retnode, i) 
+function resolve_node(node, path, maplist,     arr, n, retnode, i)
 {
   dbg("resolve_node: node=" node " maplist=" maplist)
   gsub(/\\ /, SUBSEP "s", maplist)

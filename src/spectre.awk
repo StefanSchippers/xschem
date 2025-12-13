@@ -1,22 +1,22 @@
-#!/usr/bin/awk -f 
+#!/usr/bin/awk -f
 #
 #  File: spice.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -28,7 +28,7 @@ BEGIN{
  user_code=0 #20180129
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
-   # if(ARGV[1] == "-xyce") { xyce = 1} 
+   # if(ARGV[1] == "-xyce") { xyce = 1}
    for(i=2; i<= ARGC;i++) {
      ARGV[i-1] = ARGV[i]
    }
@@ -55,7 +55,7 @@ END{
 
   ## resolve parametric instance name vector multiplicity
   substitute_instance_param()
-  
+
   for(i=0; i<lines; i++) {
     $0 = line[i]
 
@@ -113,7 +113,7 @@ function substitute_instance_param(    i, j, name, first, last)
 }
 
 
-function sign(x) 
+function sign(x)
 {
   return x<0 ? -1 : x>0 ? 1 : 0
 }
@@ -162,22 +162,22 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  #20150922 handle the case of pmos elements that netlist also a diode
  # format="@name @pinlist @model w=@w l=@l geomod=0 m=@m
  # #dx#name 0 @@b dnwell area=... pj=..."
- # replace #dx#name with dx prefix added on all @name elements 
+ # replace #dx#name with dx prefix added on all @name elements
  # example:
- # m6[3] GWL WLDECF[3] WL[3] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[2] GWL WLDECF[2] WL[2] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[1] GWL WLDECF[1] WL[1] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[0] GWL WLDECF[0] WL[0] HDD phv w=50u l=10u geomod=0 m=1 
- # dxm6[3] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[2] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[1] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[0] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
+ # m6[3] GWL WLDECF[3] WL[3] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[2] GWL WLDECF[2] WL[2] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[1] GWL WLDECF[1] WL[1] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[0] GWL WLDECF[0] WL[0] HDD phv w=50u l=10u geomod=0 m=1
+ # dxm6[3] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[2] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[1] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[0] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
  #20151027 do this for all fields
  for(i=1; i<=NF;i++) {
-   
+
    if($i ~/^##[a-zA-Z_]+/) {
      sub(/^##/, "", $i)
-   } else 
+   } else
    if($i ~/^#[a-zA-Z_0-9]+#[a-zA-Z_]+/) {
      iprefix=$i
      sub(/^#/,"",iprefix)
@@ -187,8 +187,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      ## 20160301 add '?1' if missing in format string
      if(i>1 && ( $(i-1) !~/^\?/) )  {
        $i = "?1 " $i
-     } 
-     $0 = $0  # reparse input line 
+     }
+     $0 = $0  # reparse input line
    }
  }
  ## 20140506 do not transform {} of variation groups
@@ -217,7 +217,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    sub(/ value=/," c=")
    IGNORECASE=0
  }
- ### ?? too dangerous 
+ ### ?? too dangerous
  # gsub(/ value=/," ")
  # gsub(/ VALUE=/," ")
 
@@ -235,10 +235,10 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   num = split($1, name, ",")
   if(num==0) print ""
 
- 
+
   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
   {
-    #       ............ --> matches ?n and ?-n         
+    #       ............ --> matches ?n and ?-n
     # some CDL netlists have this: $SUB=?1 B where B is a node
     if($j ~/^(.*=)?\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
     arg_num[j]=split($j,tmp,",")

@@ -1,21 +1,21 @@
 #!/usr/bin/awk -f
 # File: stimuli.awk
-# 
+#
 # This file is part of XSCHEM,
 # a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 # simulation.
 # Copyright (C) 1998-2023 Stefan Frederik Schippers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -72,7 +72,7 @@
 #		    - prefixing a bus assignment with the tilde char (~) produces inverted data:
 #		      ex: set apad ~AA'0101'FF ---> 0101 0101 1010 0000 0000
 #		    - NEW!!!! added relative_powermill format, which generates stimuli files
-#		      with no explicit reference to absolute time, usefull for interactive mode 
+#		      with no explicit reference to absolute time, usefull for interactive mode
 #		      simulations, (generated file can be read with read_cmd_file command)
 #		      example:
 #			rel_node_v no=aaa
@@ -93,9 +93,9 @@
 #		      By the way, why not padding with "x" chars which mean don't
 #		      change?
 #	01/01/2000  - tobinary() pads missing bits with "x" chars, removed the test
-#		      on space described above. I hope this does not introduce 
+#		      on space described above. I hope this does not introduce
 #		      side effects/bugs.
-#	10/01/2000  - Removed explicit pathnames. this is no more an awk script but a 
+#	10/01/2000  - Removed explicit pathnames. this is no more an awk script but a
 #		      sh script, which in turn runs awk.
 #	21/01/2000  - bugfix: the last "set whatever_node 1" assigment in stimuli file
 #		      was incorrectly translated to "force_node_v no=whatever_node v=1"
@@ -105,21 +105,21 @@
 #		      assignment (relative_powermill only)
 #	01-06-2000  - dump lines are printed in the position they appear, not at end of file.
 #		      eldo and spice keywords work as before
-#	24-10-2001  - fixed a bug in write_pwl_pair.(incorrect eldo stimuli generation in 
+#	24-10-2001  - fixed a bug in write_pwl_pair.(incorrect eldo stimuli generation in
 #		      case of assignment at time=previous time+slope).
 #	21-11-2001  - NEW! ncsim format
 #       03-12-2001  - clock and stop_clock directives, handled by external clock.awk program
-#       04-12-2001  - Improvements in ncsim format (dont cares, single bit and bus slice 
+#       04-12-2001  - Improvements in ncsim format (dont cares, single bit and bus slice
 #		      assignments	
-#	12-07-2002  - Improvements in the clock keyword, now high and low voltage levels can 
+#	12-07-2002  - Improvements in the clock keyword, now high and low voltage levels can
 #		      be specified too, no backward compatibility issues, see help file
 #		      When pressing the Translate button the simulated time is printed
 #       24-07-2002  - various bug fixes (ncsim bus slice notation using () instead of [] to
-#		      avoid confusing the ncsim TCL interpreter,when using the ncsim source 
+#		      avoid confusing the ncsim TCL interpreter,when using the ncsim source
 #	  	      command )
-#       23-08-2002  - in ncsim format comments are printed on translated file to indicate the 
+#       23-08-2002  - in ncsim format comments are printed on translated file to indicate the
 #                     beginning of an alias
-#	28-10-2002  - optional index delimiters in buswidth declaration: ex: buswidth add 4 < > 
+#	28-10-2002  - optional index delimiters in buswidth declaration: ex: buswidth add 4 < >
 #		      --> add<3> add<2> add<1> add<0>
 #	28-10-2002  - create_eldo_bus keyword can be specified to force bus creation for xelga
 #		      plots even when the eldo_simple option is used
@@ -127,10 +127,10 @@
 #		      set vxp 8.0 20000 ==> 20K resistance
 #       29-10-2003  - New keyword "ground" to specify low voltage level (Vil), similarly to "voltage" for Vih
 #       08-09-2005  - New ground_node keyword for specifying different gnd node for sources
-#       20100301    - new syntax for set instruction, 
+#       20100301    - new syntax for set instruction,
 #                       set <signal> <sigval> [res=<resval>] [vhi=<hival>] [vlo=<lowval>] [slope=<slopeval>]
 #                     all values can be parametrs and simple arithmetic expressions with parameters
-#                   - added simple expression parser on params, supported operators : +, -, *, /, expressions 
+#                   - added simple expression parser on params, supported operators : +, -, *, /, expressions
 #                     evaluated frol left to right, no parenthesis, and no operator priority..
 #                     examples:
 #                       param tck 2500
@@ -140,7 +140,7 @@
 #                       set a vx-0.3
 #                       s tck-tds
 #
-#                    
+#
 #
 # sample input:
 #   time 0
@@ -148,7 +148,7 @@
 #   unit u
 #   voltage 1.8
 #   bus apad apad8 apad7 apad6 apad5 apad4 apad3 apad2 apad1 apad0
-#    
+#
 #   set vneg_h 1 ; set initial state
 #   set vnegon 1
 #   set vxws_off 1
@@ -157,9 +157,9 @@
 #   set sw_to_neg 1
 #   set vxh 0
 #   set apad 000
-#    
+#
 #   s 110
-#    
+#
 #   set apad 1ff
 #   set arrpwh 0
 #   s 8
@@ -168,7 +168,7 @@
 #   set vnegon 0
 #   s 7
 #
-# usage: 
+# usage:
 #  expand_alias.awk stimuli3 | clock.awk |stimuli.awk
 
 BEGIN{
@@ -197,16 +197,16 @@ BEGIN{
  }
 }
 
-/^[ \t]*beginfile[ \t]+/{ 
+/^[ \t]*beginfile[ \t]+/{
   reset_all();file=$2
-  next 
+  next
 }
 
-/<<<alias>>>/{ 
-  if(format != "ncsim")  next 
+/<<<alias>>>/{
+  if(format != "ncsim")  next
   $0 = $1 " " $2  " " $3 " " $4 # 20100212
 }
-  
+
 /^[ \t]*(eldo|spice)[ \t]+/{$1="";$0=substr($0,2);dump[++dumpline]=$0;next}
 
 # 20170419 added {time} to be replaced with actual time value in dump string
@@ -221,7 +221,7 @@ BEGIN{
 /^[ \t]*halfvoltage[ \t]+/{ halfvoltage=$2; halfvoltageset=1} # 20160412
 /^[ \t]*unit[ \t]+/{ unit=$2}
 /^[ \t]*ground_node[ \t]+/{ gndnode=$2}
-/^[ \t]*format[ \t]+/{ 
+/^[ \t]*format[ \t]+/{
   if($2=="hspice") {
     format="eldo"
     variant="hspice"
@@ -236,7 +236,7 @@ BEGIN{
   ground=$2
   if(!halfvoltageset) {   # 20170405
     if(is_number(voltage) && is_number(ground)) {
-      halfvoltage=(voltage+ground) / 2 
+      halfvoltage=(voltage+ground) / 2
     } else {
       halfvoltage = "'(" voltage "+" ground ")/2)'"
     }
@@ -246,17 +246,17 @@ BEGIN{
   voltage = $2
   if(!halfvoltageset) {  # 20170405
     if(is_number(voltage) && is_number(ground)) {
-      halfvoltage=(voltage+ground) / 2 
+      halfvoltage=(voltage+ground) / 2
     } else {
       halfvoltage = "'(" voltage "+" ground ")/2'"
     }
   }
 }
-   
+
 /^[ \t]*reset_sim[ \t]*/{if(format=="ncsim") print "reset" >file}    # usefull in ncsim
 /^[ \t]*s[ \t]+/{
  time+=$2
- if(format=="ncsim" && time >=0 ) 
+ if(format=="ncsim" && time >=0 )
  {
   print "run " $2 " " unit "s" >file
  }
@@ -280,8 +280,8 @@ BEGIN{
   print "; time= " time > file
   powmill_statement++
   delete set_list
-  
- } 
+
+ }
 }
 
 /^[ \t]*buswidth[ \t]+/{
@@ -291,7 +291,7 @@ BEGIN{
   for(i=($3); i>=1;i--)
    bus[$2,i]=$2 openbracket  $3-i closebracket
 
-   
+
 }
 
 /^[ \t]*bus[ \t]+/{
@@ -310,7 +310,7 @@ BEGIN{
 /^[ \t]*set[ \t]+/{
 
  # 20100301
- res = ron 
+ res = ron
  vhi = voltage
  vlo = ground
  slp=slope
@@ -318,7 +318,7 @@ BEGIN{
  for(i=4; i<=NF; i++) {
    if($i ~ /^;/) break
    #20150918 delete $i after using it
-   if((i==4) && ($i+0>0) && NF==4 ) { res=$i;$i=""; break} 
+   if((i==4) && ($i+0>0) && NF==4 ) { res=$i;$i=""; break}
    if(tolower($i)  ~ /^r(es)?=/) { res=$i; sub(/^.*=/,"",res); $i="" }
    if(tolower($i)  ~ /^vhi(gh)?=/) { vhi=$i; sub(/^.*=/,"",vhi); $i="" }
    if(tolower($i)  ~ /^vlow?=/) { vlo=$i; sub(/^.*=/,"",vlo); $i="" }
@@ -333,7 +333,7 @@ BEGIN{
      halfvoltage = "'(" vhi "+" vlo ")/2'"
    }
  }
-     
+
  if($2 in buswidth)
  {
   if($3 ~ /^~/)  # inversion flag on bus assignment
@@ -354,13 +354,13 @@ BEGIN{
    w=buswidth[$2]
    low=s_i(bus[$2,w])		# LSB bit of the bus
    high=s_i(bus[$2,w-num+1])		# MSB bit of the bus
-   if(num < w && num >1 ) 
-   { 
-    sig=sig "(" high ":" low ")" ; quote="\"" 
-   }
-   if(num < w && num ==1) 
+   if(num < w && num >1 )
    {
-    sig=sig "(" low ")" ; quote="'" 
+    sig=sig "(" high ":" low ")" ; quote="\""
+   }
+   if(num < w && num ==1)
+   {
+    sig=sig "(" low ")" ; quote="'"
    }
    if($3 !~ /[zZxX]/)
    {
@@ -370,7 +370,7 @@ BEGIN{
    {
     print "release " sig >file
    }
-   else 
+   else
    {
     sig= "." $2
     gsub(/\./,":",sig)
@@ -395,7 +395,7 @@ BEGIN{
    v=substr(binstring,i,1)
    if(v !~ /[xX]/)
    {
-     set_list[s]=v      # used to build the set of signals forced between 
+     set_list[s]=v      # used to build the set of signals forced between
 			# successive s lines
    }
 
@@ -413,7 +413,7 @@ BEGIN{
   {
     $3=1
   }
- 
+
   if($3 !~ /^[xX]$/)
   {
    $3=$0
@@ -467,10 +467,10 @@ function end_file(){
   print "**************************************\n" > file
   for(i in signalname)
   {
-    use_z = ( (format !~ /_simple/) && signalz[i] ) 
+    use_z = ( (format !~ /_simple/) && signalz[i] )
     ix=i
     gsub(/\./,"_",ix)
-    if(!use_z) 
+    if(!use_z)
       printf simplesignalname[i]>file
     else
       printf signalname[i]>file
@@ -483,7 +483,7 @@ function end_file(){
        # 20100224 quotes instead of parenthesis used for value=....
        # as per new eldo syntax. this makes it compatible w eldo and hspice
        print "R" ix " XX" ix " " i " value='v(VR" ix ")'">file
-     else 
+     else
        print "R" ix " XX" ix " " i " 'v(VR" ix ")'">file
      printf "%s",signalres[i]>file
      for(j=1;j<=signal[i,"n"];j++)
@@ -509,7 +509,7 @@ function end_file(){
   print "; POWERMILL VECTOR FILE">file
   print "type vec">file
   printf "signal ">file
-  for(i=1;i<=signals;i++)  
+  for(i=1;i<=signals;i++)
     printf signal_list[i] " " >file
   printf "\n" >file
   print "slope " slope*mult>file
@@ -529,7 +529,7 @@ function end_file(){
     if(j>1) x-=slp
     v=signal[i,"value",j]
     if(v>halfvoltage) vv="1"
-    if(v==halfvoltage) vv="z" 
+    if(v==halfvoltage) vv="z"
     if(v<halfvoltage) vv="0"
     if(output[x]=="") output[x]=chars(signals,"_")
     output[x]=setbit(output[x],vv,signals-k)
@@ -615,18 +615,18 @@ function write_pwl_pair( name, value,res, vhi, vlo,slope,   timex, namex,vv,vv1,
   else {v = value; pwlres=res}
   namex=name
   gsub(/\./,"_",namex)
-  if(!(name in signalname) ) 
+  if(!(name in signalname) )
   {
    timex=time < 0 ? 0: time
    signal_list[++signals]=name
-   signalname[name]="V" namex " XX" namex " " gndnode " PWL " 
-   simplesignalname[name]="V" namex " " name " " gndnode " PWL " 
+   signalname[name]="V" namex " XX" namex " " gndnode " PWL "
+   simplesignalname[name]="V" namex " " name " " gndnode " PWL "
    signal[name,"time",1]= timex
    signal[name,"value",1]= v
    signal[name,"n"]= 1
    #                                         20170810 0 instead of gndnode
    #                                          |
-   signalres[name]="VR" namex " VR" namex " " 0 " PWL " 
+   signalres[name]="VR" namex " VR" namex " " 0 " PWL "
    signalres[name,"value",1]= pwlres
   }
   if(signal[name,"value", signal[name,"n"] ]!=v || signalres[name,"value", signal[name,"n"] ]!=pwlres)
@@ -641,10 +641,10 @@ function write_pwl_pair( name, value,res, vhi, vlo,slope,   timex, namex,vv,vv1,
    }
    ## 20151112
    else if(timex+slope == signal[name,"time",signal[name,"n"]] ) {
-    n = signal[name,"n"] 
+    n = signal[name,"n"]
     signal[name,"value",n]= v
     signalres[name,"value",n]= pwlres
-   } 
+   }
    else
    {
      if( timex > signal[name,"time",signal[name,"n"]] )
@@ -657,11 +657,11 @@ function write_pwl_pair( name, value,res, vhi, vlo,slope,   timex, namex,vv,vv1,
 
      ## 20100302 interpolation if signal change occurs before conpleting previous transaction
      else if(timex < signal[name,"time",signal[name,"n"]] ){
-      n = signal[name,"n"] 
-      vv1 = signal[name,"value",n-1] 
-      vv2 = signal[name,"value",n] 
-      tt1 = signal[name,"time",n-1] 
-      tt2 = signal[name,"time",n] 
+      n = signal[name,"n"]
+      vv1 = signal[name,"value",n-1]
+      vv2 = signal[name,"value",n]
+      tt1 = signal[name,"time",n-1]
+      tt2 = signal[name,"time",n]
       vv = vv1 + (vv2-vv1)/(tt2-tt1) * (timex-tt1)
       signal[name,"time",n]=timex
       signal[name,"value",n]= vv
@@ -674,7 +674,7 @@ function write_pwl_pair( name, value,res, vhi, vlo,slope,   timex, namex,vv,vv1,
       signal[name,"time",n]=timex+slope
       signal[name,"value",n]= v
       signalres[name,"value",n]= pwlres
-     } 
+     }
    }
   }
 }
@@ -752,7 +752,7 @@ function binary( n, width,          a,i,str)
  }
  return str
 }
- 
+
 function binval(str,       i,n)
 # returns the decimal value of the binary number encoded in "str"
 {
@@ -803,7 +803,7 @@ function hsort(array,ra,n,    rarray,l,j,ir,i,rra)
   array[i]=rarray
  }
 }
-   
+
 function setbit( string, replace, pos,        reversepos,len)
 # returns <string> with bits starting at position <pos>
 # set to <replace>, position 0 being relative to the rightmost bit
@@ -851,7 +851,7 @@ function reset_all()
  delete dump
  time=0
  origin=0
- 
+
 }
 
 function break_lines(filename,    quote, j, lines, line, l, i, count, style )
@@ -863,7 +863,7 @@ function break_lines(filename,    quote, j, lines, line, l, i, count, style )
  close(filename)
 
 			# 20120410
- lines = lines + 0	# do NOT remove, solves a problem with gawk 3.0.5 where a variable used as 
+ lines = lines + 0	# do NOT remove, solves a problem with gawk 3.0.5 where a variable used as
 			# array index is "magically" converted to string
 
 
@@ -871,10 +871,10 @@ function break_lines(filename,    quote, j, lines, line, l, i, count, style )
  for(l=1;l<=lines;l++)
  {
   $0=line[l]
- 
+
   if($0 ~ /^\* ELDO/) {style="+"}
   if($0 ~ /^; POWERMILL/) {style="\\"}
- 
+
   count=0
   if(NF==0) print "">filename
 
@@ -886,7 +886,7 @@ function break_lines(filename,    quote, j, lines, line, l, i, count, style )
      if(substr($i,j,1)=="'") quote = !quote
    }
    # print "+++ " quote, $i, count
-     
+
    printf "%s ", $i>filename
    count++
    if(( count>=15 && !quote)  || i==NF)

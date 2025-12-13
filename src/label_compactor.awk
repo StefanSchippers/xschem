@@ -45,7 +45,7 @@ function compact_label(lab)
 
      if( start!=-1 &&  lab_array[i] != name )
          print_signal()
-     if( (startbus!=-1) && (lab_name(lab_array[i]) != busname) ) 
+     if( (startbus!=-1) && (lab_name(lab_array[i]) != busname) )
          print_bus()
      # 09032004 fix for errors on buses like D[5],D[4],D[2],D[1]
      if( (startbus!=-1) && (lab_name(lab_array[i]) == busname) && (bus_current+1!=last) )
@@ -58,7 +58,7 @@ function compact_label(lab)
          print_bus()
    }
    else {
-     if(lab_name(lab_array[i]) != busname&& startbus!=-1) 
+     if(lab_name(lab_array[i]) != busname&& startbus!=-1)
        print_bus()
      if( (start!=-1) && ( lab_array[i] != name) )
        print_signal()
@@ -97,7 +97,7 @@ function lab_name(lab)
 }
 
 
-function lab_index(lab) 
+function lab_index(lab)
 {
  sub(/.*\[/,"",lab)
  sub(/\].*/,"",lab)
@@ -107,7 +107,7 @@ function lab_index(lab)
 # end user code
 
 {
- a[lines++] = $0 
+ a[lines++] = $0
 }
 
 function beginfile(f)
@@ -123,8 +123,8 @@ function endfile(f)
   print a[i] > f
  }
  close(f)
-} 
+}
 
-' $@ 
+' $@
 
 

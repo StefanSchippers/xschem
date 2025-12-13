@@ -1,4 +1,4 @@
-# Analyses library for visual circuit analysis setup. 
+# Analyses library for visual circuit analysis setup.
 # Copyright (C) 2025 Arpad Buermen
 #
 # This program is free software; you can redistribute it and/or modify
@@ -226,8 +226,8 @@ proc netlister {netlist_type} {
         try {
             # Format analysis and post analysis script
             set retval [$func $name]
-            # retval has 2 members: 
-            # - command and 
+            # retval has 2 members:
+            # - command and
             # - post-command (for writing results in ngpice, empty string for spectre)
             lassign $retval cmd postcmd
             # Format sweep and add it to analysis
@@ -564,7 +564,7 @@ proc format_signal_output_spice {name} {
         set outn [string range $outn 1 end-1]
     }
     # Is outn empty
-    if {[string length $outn] == 0} {   
+    if {[string length $outn] == 0} {
         return "v($outp)"
     } else {
         return "v($outp,$outn)"

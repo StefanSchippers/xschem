@@ -74,7 +74,7 @@ static void svg_xfillrectangle(int layer, double x1, double y1, double x2, doubl
                                double bus, int dash, int fill)
 {
   double width;
-                           
+
   if(bus == -1.0) width = BUS_WIDTH * svg_linew;
   else if(bus > 0.0) width = bus * xctx->mooz;
   else width = -1.0;
@@ -89,15 +89,15 @@ static void svg_xfillrectangle(int layer, double x1, double y1, double x2, doubl
     if(bus > 0.0) {
       fprintf(fd, " stroke-linecap:square;\n");
       fprintf(fd, " stroke-linejoin:miter;\n");
-    } 
-    if(fill == 0) { 
+    }
+    if(fill == 0) {
       fprintf(fd,"fill:none;\" ");
     } else if(fill == 2) {
       fprintf(fd, "fill-opacity:1.0;\" ");
     } else {
       fprintf(fd, "\" ");
-    }   
-  }     
+    }
+  }
   fprintf(fd,"d=\"M%g %gL%g %gL%g %gL%g %gL%g %gz\"/>\n", x1, y1, x2, y1, x2, y2, x1, y2, x1, y1);
 }
 
@@ -209,7 +209,7 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
 {
   double x1,y1,x2,y2;
   double width;
-                           
+
   if(bus == -1.0) width = BUS_WIDTH * svg_linew;
   else if(bus > 0.0) width = bus * xctx->mooz;
   else width = -1.0;
@@ -250,8 +250,8 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
           if(bus > 0.0) {
             fprintf(fd, " stroke-linecap:square;\n");
             fprintf(fd, " stroke-linejoin:miter;\n");
-          } 
-          if(fill == 0) { 
+          }
+          if(fill == 0) {
             fprintf(fd,"fill:none;\" ");
             fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2);
           } else if(fill == 2) {
@@ -260,8 +260,8 @@ static void svg_filledrect(int gc, double rectx1,double recty1,double rectx2,dou
           } else {
             fprintf(fd, "\" ");
             fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rx, ry, fa, fs, xx2, yy2, cx, cy);
-          }   
-        }     
+          }
+        }
       }
     } else {
       svg_xfillrectangle(gc, x1,y1,x2,y2, bus, dash, fill);
@@ -340,17 +340,17 @@ static void svg_drawarc(int gc, int fillarc, double x,double y,double r,double a
         if(bus > 0.0) {
           fprintf(fd, " stroke-linecap:square;\n");
           fprintf(fd, " stroke-linejoin:miter;\n");
-        }   
+        }
         if(fillarc == 0) {
           fprintf(fd,"fill:none;\" ");
           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %g\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2);
-        } else if(fillarc == 2) { 
+        } else if(fillarc == 2) {
           fprintf(fd, "fill-opacity:1.0;\" ");
           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
         } else {
           fprintf(fd, "d=\"M%g %g A%g %g 0 %d %d %g %gL%g %gz\"/>\n", xx1, yy1, rr, rr, fa, fs, xx2, yy2, xx, yy);
-        }   
-      } 
+        }
+      }
 
     }
   }
@@ -379,7 +379,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   double line_delta;
   double lines;
   char col[20];
-  if(color_ps) 
+  if(color_ps)
     my_snprintf(col, S(col), "#%02x%02x%02x",
       svg_colors[layer].red, svg_colors[layer].green, svg_colors[layer].blue);
   else if(tclgetboolvar("dark_colorscheme"))
@@ -388,16 +388,16 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
     my_snprintf(col, S(col), "#%02x%02x%02x", 0, 0, 0);
   if(s==NULL) return;
   if(llength==0) return;
-  
+
   line_delta = lineno*fontheight;
   lines = (no_of_lines-1)*fontheight;
-  
+
   ix=X_TO_SCREEN(x);
   iy=Y_TO_SCREEN(y);
   if(rot&1) {
     rot1=3;
   } else rot1=0;
-  
+
   if(     rot==0 && flip==0) {iy+=line_delta+fontascent;}
   else if(rot==1 && flip==0) {iy+=longest_line;ix=ix-fontheight+fontascent-lines+line_delta;}
   else if(rot==2 && flip==0) {iy=iy-fontheight-lines+line_delta+fontascent; ix=ix-longest_line;}
@@ -406,7 +406,7 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   else if(rot==1 && flip==1) {ix=ix-fontheight+line_delta-lines+fontascent;}
   else if(rot==2 && flip==1) {iy=iy-fontheight-lines+line_delta+fontascent;}
   else if(rot==3 && flip==1) {iy=iy+longest_line;ix+=line_delta+fontascent;}
-  
+
   fprintf(fd,"<text fill=\"%s\"  xml:space=\"preserve\" font-size=\"%g\" ", col, size*xctx->mooz);
   if(strcmp(svg_font_weight, "normal")) fprintf(fd, "font-weight=\"%s\" ", svg_font_weight);
   if(strcmp(svg_font_style, "normal")) fprintf(fd, "font-style=\"%s\" ", svg_font_style);
@@ -417,13 +417,13 @@ static void svg_draw_string_line(int layer, char *s, double x, double y, double 
   while(*s) {
     switch(*s) {
       case '<':
-        fputs("&lt;", fd); 
+        fputs("&lt;", fd);
         break;
       case '>':
-        fputs("&gt;", fd); 
+        fputs("&gt;", fd);
         break;
       case '&':
-        fputs("&amp;", fd); 
+        fputs("&amp;", fd);
         break;
       default:
        fputc(*s, fd);
@@ -608,7 +608,7 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
   /* screen position */
   if(RECT_OUTSIDE(x1, y1, x2, y2,
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
-     
+
   if(rot == 1 || rot == 3) {
     w = fabs(y2 - y1);
     h = fabs(x2 - x1);
@@ -629,12 +629,12 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
     if(!strncmp(attr, "/9j/", 4)) jpg = 1;
     else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
 
-    else if(my_memmem(buffer, buffer_size, "<svg", 4) && 
+    else if(my_memmem(buffer, buffer_size, "<svg", 4) &&
             my_memmem(buffer, buffer_size, "xmlns", 5)) {
       if(filter) {
-        jpg = 2; /* svg */ 
+        jpg = 2; /* svg */
       }
-    } 
+    }
     else jpg = -1; /* some invalid data */
   } else {
     jpg = -1;
@@ -668,7 +668,7 @@ static int svg_embedded_image(xRect *r, double rx1, double ry1, double rx2, doub
     }
   }
 
-  my_snprintf(transform, S(transform), 
+  my_snprintf(transform, S(transform),
     "transform=\"translate(%g,%g) rotate(%d) scale(%g,%g)\"", xorig, yorig, rot * 90, scalex, scaley);
   if(alpha == 1.0)  strcpy(opacity, "");
   else my_snprintf(opacity, S(opacity), "style=\"opacity:%g;\"", alpha);
@@ -709,7 +709,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
   type = xctx->sym[xctx->inst[n].ptr].type;
   lvs_ignore=tclgetboolvar("lvs_ignore");
   if(xctx->inst[n].ptr == -1) return;
-  if(layer == 0) { 
+  if(layer == 0) {
     xctx->inst[n].flags &= ~IGNORE_INST; /* clear bit */
     if( type && strcmp(type, "launcher") && strcmp(type, "logo") &&
         strcmp(type, "probe") &&
@@ -759,7 +759,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
     }
     if(hide) {
       int color = (disabled==1) ? GRIDLAYER : (disabled == 2) ? PINLAYER : SYMLAYER;
-      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2, 
+      svg_filledrect(color, xctx->inst[n].xx1, xctx->inst[n].yy1, xctx->inst[n].xx2, xctx->inst[n].yy2,
       0.0, 2, 0, -1, -1);
     }
   }
@@ -874,7 +874,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
 
     for(j=0;j< symptr->texts; ++j) {
       double xscale, yscale;
-        
+
       get_sym_text_size(n, j, &xscale, &yscale);
       text = symptr->text[j];
       /* if(xscale*FONTWIDTH* xctx->mooz<1) continue; */
@@ -884,7 +884,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c_for_text;
       /* do not allow custom text color on hilighted instances */
-      if(disabled == 1) textlayer = GRIDLAYER; 
+      if(disabled == 1) textlayer = GRIDLAYER;
       else if(disabled == 2) textlayer = PINLAYER;
       else if( xctx->inst[n].color == -10000) {
         int lay;
@@ -909,7 +909,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
           my_snprintf(svg_font_style, S(svg_font_style), "italic");
         if( symptr->text[j].flags & TEXT_OBLIQUE)
           my_snprintf(svg_font_style, S(svg_font_style), "oblique");
-        if(text_svg) 
+        if(text_svg)
           svg_draw_string(textlayer, txtptr,
             (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
             flip^text.flip, text.hcenter, text.vcenter,
@@ -1007,16 +1007,16 @@ void svg_draw(void)
   dx=xctx->xrect[0].width;
   dy=xctx->xrect[0].height;
   dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
- 
+
   if(xctx->plotfile[0]) {
     fd=fopen(xctx->plotfile, "w");
-    if(!fd) { 
+    if(!fd) {
       dbg(0, "can not open file: %s\n", xctx->plotfile);
       return;
     }
   } else {
     fd=fopen("plot.svg", "w");
-    if(!fd) { 
+    if(!fd) {
       dbg(0, "can not open file: %s\n", "plot.svg");
       return;
     }
@@ -1070,14 +1070,14 @@ void svg_draw(void)
   fprintf(fd, "<svg xmlns=\"http://www.w3.org/2000/svg\""
               " xmlns:xlink=\"http://www.w3.org/1999/xlink\""
               " width=\"%g\" height=\"%g\" version=\"1.1\">\n", dx, dy);
- 
+
   fprintf(fd, "<style type=\"text/css\">\n");  /* use css stylesheet 20121119 */
 
   /* fill_pattern:
    * 0 : no fill
    * 1 : stippled fill
    * 2 : solid fill
-   * fill_type[i]: 
+   * fill_type[i]:
    * 0 : no fill
    * 1 : patterned (stippled) fill
    * 2 : solid fill
@@ -1085,15 +1085,15 @@ void svg_draw(void)
   for(i=0;i<cadlayers; ++i){
     if(unused_layer[i]) continue;
     fprintf(fd, ".l%d{\n", i);
-    if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0) 
-      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.2;\n", 
+    if( xctx->fill_pattern == 0 || xctx->fill_type[i] == 0)
+      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.2;\n",
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if( xctx->fill_pattern == 2 && xctx->fill_type[i]) 
+    else if( xctx->fill_pattern == 2 && xctx->fill_type[i])
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else if( xctx->fill_pattern && xctx->fill_type[i] == 2) 
+    else if( xctx->fill_pattern && xctx->fill_type[i] == 2)
       fprintf(fd, "  fill: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
-    else 
-      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n", 
+    else
+      fprintf(fd, "  fill: #%02x%02x%02x; fill-opacity: 0.5;\n",
          svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     fprintf(fd, "  stroke: #%02x%02x%02x;\n", svg_colors[i].red, svg_colors[i].green, svg_colors[i].blue);
     fprintf(fd, "  stroke-linecap:round;\n");
@@ -1105,10 +1105,10 @@ void svg_draw(void)
     }
     fprintf(fd, "}\n");
   }
- 
+
   fprintf(fd, "text {font-family: %s;}\n", tclgetvar("svg_font_name"));
   fprintf(fd, "</style>\n");
- 
+
   /* background */
   fprintf(fd, "<rect class=\"l0\" x=\"%g\" y=\"%g\" width=\"%g\" height=\"%g\"/>\n", 0.0, 0.0, dx, dy);
   svg_drawgrid();
@@ -1167,7 +1167,7 @@ void svg_draw(void)
     if(xctx->hilight_nets && (entry=bus_hilight_hash_lookup( xctx->wire[i].node, 0, XLOOKUP))) {
       color = get_color(entry->value);
     }
-    svg_drawline(color, xctx->wire[i].bus, xctx->wire[i].x1, 
+    svg_drawline(color, xctx->wire[i].bus, xctx->wire[i].x1,
      xctx->wire[i].y1,xctx->wire[i].x2,xctx->wire[i].y2, 0);
   }
 
@@ -1215,8 +1215,8 @@ void svg_draw(void)
       my_snprintf(svg_font_style, S(svg_font_style), "italic");
     if( xctx->text[i].flags & TEXT_OBLIQUE)
       my_snprintf(svg_font_style, S(svg_font_style), "oblique");
- 
-    if(text_svg) 
+
+    if(text_svg)
       svg_draw_string(textlayer, get_text_floater(i),
         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
         xctx->text[i].x0,xctx->text[i].y0,

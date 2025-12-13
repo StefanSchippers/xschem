@@ -1,21 +1,21 @@
 #
 #  File: create_graph.tcl
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -31,7 +31,7 @@ proc create_graph {title rawfile node {analysis tran} {color {4 5 6 7 8 9 10 11 
   # clear loaded raw file if any
   xschem raw_clear
   # set current layer to graph layer (grey, layer 2)
-  xschem set rectcolor 2 
+  xschem set rectcolor 2
   # create a 300x400 rectangle
   xschem rect 0 -300 400 0
   # make it a graph

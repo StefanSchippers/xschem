@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: make_sch_from_spice.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -39,8 +39,8 @@ BEGIN{
  while ( "ls $HOME/.xschem/xschem_library/xschem_sky130/sky130_stdcells/*.sym"|getline sym )
  {
    insert_symbol(sym, "sky130_stdcells")
- } 
- 
+ }
+
 
  # while ( "ls $HOME/share/xschem/xschem_library/devices/*.sym"|getline sym )
  # {
@@ -55,7 +55,7 @@ BEGIN{
   inherited_pin["VPWR"]=1
   inherited_pin["VNB"]=1
   inherited_pin["VPB"]=1
- 
+
   skip_symbol_prefix= "sky130_fd_sc_hd__"
   # sym_type = "subcircuit"
   sym_type = "primitive" # do not use schematics although they will be generated
@@ -82,19 +82,19 @@ BEGIN{
 ########################## END JOIN ##########################
 
   skip=0
-  for(i=0;i<netlist_lines; i++) { 
+  for(i=0;i<netlist_lines; i++) {
     $0=netlist[i]
     process_subckts()
   }
 
   skip=0
-  for(i=0;i<netlist_lines; i++) { 
+  for(i=0;i<netlist_lines; i++) {
     $0=netlist[i]
     process()
   }
 }
 
-function translate(cellname) 
+function translate(cellname)
 {
  if     (cellname=="nmos") return "enbsim3"
  else if(cellname=="pmos") return "epbsim3"
@@ -136,7 +136,7 @@ function insert_symbol(sym, lib,          n,cellname, name, dir, tmp)
 
 function process_subckts(         j, i,name)
 {
- if(skip==1 && toupper($1) ==".ENDS") { skip=0; return } 
+ if(skip==1 && toupper($1) ==".ENDS") { skip=0; return }
  if(skip==1) return
  if(toupper($1) ==".SUBCKT") {
    curr_subckt=$2
@@ -155,7 +155,7 @@ function process_subckts(         j, i,name)
        pin_ar[curr_subckt,"format"]=pin_ar[curr_subckt,"format"] " @@" $i
        j++
      } else {
-       if(pin_ar[curr_subckt,"extra"]) 
+       if(pin_ar[curr_subckt,"extra"])
          pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " " $i
        else
          pin_ar[curr_subckt,"extra"] = $i
@@ -167,10 +167,10 @@ function process_subckts(         j, i,name)
    pin_ar[curr_subckt,"n"]=j-1
    if(skip_symbol_prefix)
      pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " prefix=" skip_symbol_prefix
-   get_template(template) 
+   get_template(template)
    if(skip_symbol_prefix)
      pin_ar[curr_subckt,"extra"] = pin_ar[curr_subckt,"extra"] " prefix"
-   print "\n\n\n process_subckt() : " curr_subckt "--> " 
+   print "\n\n\n process_subckt() : " curr_subckt "--> "
    for(i=1; i<= pin_ar[curr_subckt,"n"]; i++) printf "%s ", pin_ar[curr_subckt,i]; printf "\n"
  }
  else if($1 ~ /^\*\.PININFO/) {
@@ -179,27 +179,27 @@ function process_subckts(         j, i,name)
      if($i ~ /:I$/ ) pin_ar[curr_subckt, "dir", name] = "I"
      else if($i ~ /:O$/ ) pin_ar[curr_subckt, "dir", name] = "O"
      else if($i ~ /:B$/ ) pin_ar[curr_subckt, "dir", name] = "B"
-     else { print "ERROR in .PININFO: ", $i " --> " $0 ; exit} 
+     else { print "ERROR in .PININFO: ", $i " --> " $0 ; exit}
    }
  }
  else if(toupper($1) ~ /^\*\.(I|O|IO)PIN/) {
-  if($1 ~ /^\*\.ipin/) { pin_ar[curr_subckt, "dir", $2] = "I" } 
-  else if($1 ~ /^\*\.opin/) { pin_ar[curr_subckt, "dir", $2] = "O" } 
-  else if($1 ~ /^\*\.iopin/) { pin_ar[curr_subckt, "dir", $2] = "B" } 
+  if($1 ~ /^\*\.ipin/) { pin_ar[curr_subckt, "dir", $2] = "I" }
+  else if($1 ~ /^\*\.opin/) { pin_ar[curr_subckt, "dir", $2] = "O" }
+  else if($1 ~ /^\*\.iopin/) { pin_ar[curr_subckt, "dir", $2] = "B" }
  }
 }
 
-function get_template(t,         templ, i) 
+function get_template(t,         templ, i)
 {
  templ=""
  if(t) for(i=t;i<=NF;i++) {
-  templ = templ $i " " 
+  templ = templ $i " "
  }
  pin_ar[curr_subckt,"template"] = pin_ar[curr_subckt,"template"] " " templ
 }
 
 
-   
+
 function process(         i,name,param)
 {
  print "process(): skip = "  skip " --> " $0
@@ -223,7 +223,7 @@ function process(         i,name,param)
    sp=ip=op=n_pin=0
    all_signals=""
    delete net_ar
-   subckt_netlist = ""  # 20111009 all netlist lines except component instances (X) 
+   subckt_netlist = ""  # 20111009 all netlist lines except component instances (X)
 
  }
  else if(toupper($1) ~ /^.ENDS/) {
@@ -231,12 +231,12 @@ function process(         i,name,param)
 
    compact_pinlist( "" , curr_subckt)
    print "----------------------------------------------------------"
-     
+
    for(i=1;i<= dir_ret["n"] ; i++) {
      print dir_ret[i] "   " pin_ret[i]
-   }   
+   }
    print "\n\n"
-         
+
    print_sch(curr_subckt, dir_ret, pin_ret)
    print_sym(curr_subckt, pin_ar[curr_subckt,"template"], \
      pin_ar[curr_subckt,"format"], pin_ar[curr_subckt,"name"], \
@@ -303,7 +303,7 @@ function process(         i,name,param)
      #print "  dir_ret " i " ------> " dir_ret[i] "   " pin_ret[i] " <-- " net_ret[i]
    }
    #print "\n\n"
-   param = get_param(param) 
+   param = get_param(param)
    print_signals( inst, inst_sub, param, pin_ret, dir_ret, net_ret )
  }
  else { # other components, M, R, C, D, .... 20111009
@@ -327,7 +327,7 @@ function compact_pinlist(inst,inst_sub                  , prevgroup, group,i,ii,
  delete pin_ret
  delete net_ret
  delete dir_ret
- 
+
  np=pin_ar[inst_sub,"n"]
  # print " compact_pinlist: inst=" inst " np= " np " inst_sub=" inst_sub
  if(np) {
@@ -340,7 +340,7 @@ function compact_pinlist(inst,inst_sub                  , prevgroup, group,i,ii,
 
        base =lab_name( pin_ar[inst_sub,i] )
        if(i==1) {prevgroup=group; curr=base; curr_n=i}
-       else { 
+       else {
          if(prevgroup || base != curr) {
            if(prevgroup) pin_ret[ii] = pin_ar[inst_sub,i-1]
            else pin_ret[ii] = compact_label(inst_sub,pin_ar,curr_n,i-1)
@@ -407,7 +407,7 @@ function compact_label_str(str,        a, b, ar, ret,start,i)
       }
 
       else if( lab_index(ar[start])!=lab_index(ar[i]) &&           # range count != element count
-               abs(start-i)!=abs(lab_index(ar[start])-lab_index(ar[i]))) { 
+               abs(start-i)!=abs(lab_index(ar[start])-lab_index(ar[i]))) {
         if(start<i-1 && lab_index(ar[start]) == lab_index(ar[i-1]) )
           ret = ret (i-start) "*" ar[i-1] ",";
         else if(start<i-1)
@@ -463,14 +463,14 @@ function compact_label(name, ar,a,b,        ret,start,i)
       else if(lab_name(ar[name,i])!=lab_name(ar[name,i-1])) {
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
-        else if(start<i-1) 
+        else if(start<i-1)
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,i-1]) "],"
         else
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
         start=i
       }
       else if(lab_index(ar[name,i]) != lab_index(ar[name,i-1])-1 &&
-              lab_index(ar[name,i]) != lab_index(ar[name,i-1])+1  ) {             
+              lab_index(ar[name,i]) != lab_index(ar[name,i-1])+1  ) {
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
         else if(start<i-1)
@@ -495,9 +495,9 @@ function compact_label(name, ar,a,b,        ret,start,i)
     if(start < b)  ret = ret (b-start+1) "*" ar[name,b]
     else ret = ret ar[name,b]
   }
-  else if(start<b && lab_index(ar[name,start]) == lab_index(ar[name,b]))   
-    ret = ret (b-start+1) "*" ar[name,b] 
-  else if(start<b)   
+  else if(start<b && lab_index(ar[name,start]) == lab_index(ar[name,b]))
+    ret = ret (b-start+1) "*" ar[name,b]
+  else if(start<b)
     ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,b]) "]"
   else
     ret = ret lab_name(ar[name,b]) "[" lab_index(ar[name,b]) "]"
@@ -537,11 +537,11 @@ function print_sch(schname, dir, pin,
    else if(dir[i]=="O" || dir[i]=="B") op++
    else {print "ERROR: print_sch(): undefined dir[i], i=",i, "schname=", schname, "pin[i]=", pin[i]; exit}
  }
-  
+
  y=0
  x=-40
  sch_x_offset=230
- 
+
  for(i=1;i<=n_pin;i++)
  {
   pin_dir=dir[i]
@@ -580,12 +580,12 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
  n_pin=pin["n"]
  n_net=net["n"]
  n_dir=dir["n"]
- 
+
  print " print_signals() : component_name = ", component_name
  if(n_dir != n_pin) { print " n_dir vs n_pin mismatch: inst / comp = " inst_name " / " component_name ; exit }
  if(n_net != n_pin) { print " n_net vs n_pin mismatch: inst / comp = " inst_name " / " component_name ; exit }
 
- ip=op=0 
+ ip=op=0
  for(i=1; i<=n_net; i++) {
    if(dir[i] ~ /[OB]/) {
      op++
@@ -604,7 +604,7 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
  {
    yoffset=prev_size=0
    xoffset+=920
- } 
+ }
  yoffset += ((prev_size+n)/2+1)*space
 
  inum =onum=0
@@ -614,44 +614,44 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
    idx=(component_name SUBSEP pin[i])
    if( idx in pin_x)
    {
-     #print "print_signals() : " idx " found in library" 
+     #print "print_signals() : " idx " found in library"
      xpin=xoffset+pin_x[idx]
      ypin=yoffset+pin_y[idx]
    }
    else
    {
-     #print "print_signals() : " idx " NOT found in library" 
+     #print "print_signals() : " idx " NOT found in library"
      if(curr_dir=="O" || curr_dir=="B") {
        xpin=-x+xoffset
        ypin=y+onum*space+yoffset
        onum++
      }
      else {
-       xpin=x+xoffset 
+       xpin=x+xoffset
        ypin=y+inum*space+yoffset
        inum++
      }
    }
-  
+
    if(curr_dir=="I")
    {
      all_signals = all_signals   "C {" devices_prefix "lab_pin.sym} " xpin " " ypin " 0 0 " \
-           " {name=p" p_pin++ " lab=" net[i] " " 
-     all_signals = all_signals   "}\n" 
+           " {name=p" p_pin++ " lab=" net[i] " "
+     all_signals = all_signals   "}\n"
    }
-  
+
    if(curr_dir=="O")
    {
      all_signals = all_signals   "C {" devices_prefix "lab_pin.sym} " xpin " " ypin " 0 1 " \
-           " {name=p" p_pin++ " lab=" net[i] " " 
-     all_signals = all_signals   "}\n" 
+           " {name=p" p_pin++ " lab=" net[i] " "
+     all_signals = all_signals   "}\n"
    }
-  
+
    if(curr_dir=="B")
    {
      all_signals = all_signals   "C {" devices_prefix "lab_pin.sym} " xpin " " ypin " 0 1 " \
-           " {name=p" p_pin++ " lab=" net[i] " " 
-     all_signals = all_signals   "}\n" 
+           " {name=p" p_pin++ " lab=" net[i] " "
+     all_signals = all_signals   "}\n"
    }
  }
 
@@ -667,7 +667,7 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
 
  prev_size=n
  if( idx in pin_x) prev_size+=8
-}  
+}
 
 
 
@@ -676,7 +676,7 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
 function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin,
 		size,space,width,lwidth,textdist,labsize,titlesize,
 		i,name,text_voffset,lab_voffset,ip,op,n_pin ,m,x,y,n,
-		iii,ooo) 
+		iii,ooo)
 {
  size=2.5
  space=20
@@ -706,9 +706,9 @@ function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin
  iii = format_translate(template, extra)
  if(iii) iii = " " iii
 
- # since awk strings use backslash escapes and sub also uses backslash escapes (example for \& substitution) 
+ # since awk strings use backslash escapes and sub also uses backslash escapes (example for \& substitution)
  # there are 2 levels of escape substitutions, we need \\\\ to generate one \.
- # in the xschem file \\\\ is reduced to \\ in the format string and finally format contains one \ 
+ # in the xschem file \\\\ is reduced to \\ in the format string and finally format contains one \
  if(skip_symbol_prefix) sub(skip_symbol_prefix, "@prefix\\\\\\\\\\\\\\\\", subckt_name)
  print "format=\"@name" format " " subckt_name iii  "\"" > sym
  print "template=\"name=x1" template "\"" > sym
@@ -717,18 +717,18 @@ function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin
  #       titlesize, titlesize, "{}" >sym
  print "T {@symname}" ,0, -text_voffset*titlesize,0,0,
        titlesize, titlesize, "{hcenter=true}" >sym
- 
+
  n_pin=pin["n"]
- ip=op=0 
+ ip=op=0
  for(i=1; i<=n_pin; i++) {
    if(dir[i] ~ /[OB]/) {
-     op++  
-   } 
+     op++
+   }
    else if(dir[i] ~ /I/) ip++
    else {print "ERROR: print_sym(): undefined dir[]   i=" i " inst=" inst " sub=" component_name ; exit}
- } 
+ }
 
- 
+
 
 
  n=ip;if(op>n) n=op
@@ -776,7 +776,7 @@ function print_sym(sym, template, format, subckt_name, sym_type, extra, dir, pin
  }
  close(sym)
 }
- 
+
 
 #------------------------------
 
@@ -787,12 +787,12 @@ function escape_brackets(s       , ss)
   return ss
 }
 
-function abs(a) 
+function abs(a)
 {
  return a>0 ? a: -a
 }
 
-function format_translate(s, extra,            n_extra, extra_arr, extra_hash, c,quote,str,n,i,ss,sss) 
+function format_translate(s, extra,            n_extra, extra_arr, extra_hash, c,quote,str,n,i,ss,sss)
 {
 
  # 20140321
@@ -810,19 +810,19 @@ function format_translate(s, extra,            n_extra, extra_arr, extra_hash, c
  str=""
  n_extra = split(extra, extra_arr)
  for(i = 1; i <= n_extra; i++) extra_hash[ extra_arr[i] ] = 1
- 
+
 
  n=split(s,ss)
  for(i=1;i<=n;i++) {
    gsub(SUBSEP," ", ss[i])
    print "subckt params: " ss[i]
    if(ss[i] ~ /[^=]+=[^=]+/) {
-     split(ss[i],sss,"=") 
+     split(ss[i],sss,"=")
      if(!(sss[1] in extra_hash)) ss[i] = sss[1] "=@" sss[1]
      else ss[i] = ""
    }
    str = str ss[i]
-   if(i<n && ss[i] ) str=str " " 
+   if(i<n && ss[i] ) str=str " "
  }
  delete extra_hash
  return str

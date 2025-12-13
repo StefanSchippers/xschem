@@ -238,7 +238,7 @@ void draw_selection(GC g, int interruptable)
    {
     case xTEXT:
      if(xctx->rotatelocal) {
-       ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0, 
+       ROTATION(xctx->move_rot, xctx->move_flip, xctx->text[n].x0, xctx->text[n].y0,
          xctx->text[n].x0, xctx->text[n].y0, xctx->rx1,xctx->ry1);
      } else {
        ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
@@ -545,7 +545,7 @@ void update_attached_floaters(const char *from_name, int inst, int sel)
      new_attach = str_replace(attach, from_name, to_name, 1, 1);
      my_strdup(_ALLOC_ID_, &xctx->inst[inst].prop_ptr,
                subst_token(xctx->inst[inst].prop_ptr, "attach", new_attach) );
- 
+
      for(c = 0; c < cadlayers; c++) {
       for(i = 0; i < xctx->rects[c]; i++) {
         if(!sel || xctx->rect[c][i].sel == SELECTED) {
@@ -564,40 +564,40 @@ void update_attached_floaters(const char *from_name, int inst, int sel)
         }
       }
       for(i = 0; i < xctx->lines[c]; i++) {
-        if((!sel || xctx->line[c][i].sel == SELECTED) && 
+        if((!sel || xctx->line[c][i].sel == SELECTED) &&
            !strcmp(from_name, get_tok_value(xctx->line[c][i].prop_ptr, "name", 0))) {
-          my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, 
+          my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr,
                     subst_token(xctx->line[c][i].prop_ptr, "name", to_name) );
         }
       }
-  
+
       for(i = 0; i < xctx->polygons[c]; i++) {
-        if((!sel || xctx->poly[c][i].sel == SELECTED) && 
+        if((!sel || xctx->poly[c][i].sel == SELECTED) &&
            !strcmp(from_name, get_tok_value(xctx->poly[c][i].prop_ptr, "name", 0))) {
-          my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, 
+          my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr,
                     subst_token(xctx->poly[c][i].prop_ptr, "name", to_name) );
 
         }
       }
       for(i = 0; i < xctx->arcs[c]; i++) {
-        if((!sel || xctx->arc[c][i].sel == SELECTED) && 
+        if((!sel || xctx->arc[c][i].sel == SELECTED) &&
            !strcmp(from_name, get_tok_value(xctx->arc[c][i].prop_ptr, "name", 0))) {
-          my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, 
+          my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr,
                     subst_token(xctx->arc[c][i].prop_ptr, "name", to_name) );
         }
       }
     }
     for(i = 0; i < xctx->wires; i++) {
-      if((!sel || xctx->wire[i].sel == SELECTED) && 
+      if((!sel || xctx->wire[i].sel == SELECTED) &&
            !strcmp(from_name, get_tok_value(xctx->wire[i].prop_ptr, "name", 0))) {
-          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, 
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr,
                     subst_token(xctx->wire[i].prop_ptr, "name", to_name) );
       }
     }
     for(i = 0; i < xctx->texts; i++) {
-      if((!sel || xctx->text[i].sel == SELECTED) && 
+      if((!sel || xctx->text[i].sel == SELECTED) &&
            !strcmp(from_name, get_tok_value(xctx->text[i].prop_ptr, "name", 0))) {
-          my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr, 
+          my_strdup(_ALLOC_ID_, &xctx->text[i].prop_ptr,
                     subst_token(xctx->text[i].prop_ptr, "name", to_name) );
         set_text_flags(&xctx->text[i]);
       }
@@ -612,11 +612,11 @@ void copy_objects(int what)
   int newpropcnt;
   double tmpx, tmpy;
   char *estr = NULL;
- 
+
   #if HAS_CAIRO==1
   int customfont;
   #endif
- 
+
   if(what & START)
   {
    xctx->rotatelocal=0;
@@ -684,7 +684,7 @@ void copy_objects(int what)
     if(xctx->drag_elements && xctx->deltax==0 && xctx->deltay == 0) {
        xctx->ui_state &= ~STARTCOPY;
        return;
-    }        
+    }
 
     if( !xctx->kissing ) {
       dbg(1, "copy_objects(): push undo state\n");
@@ -736,11 +736,11 @@ void copy_objects(int what)
         xctx->sel_array[i].n=xctx->wires;
         storeobject(-1, xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2,WIRE,0,xctx->wire[n].sel,xctx->wire[n].prop_ptr);
         xctx->wire[n].sel=0;
-  
+
         l = xctx->wires -1;
       }
     }
-  
+
     for(k=0;k<cadlayers; ++k)
     {
      for(i=0;i<xctx->lastsel; ++i)
@@ -783,10 +783,10 @@ void copy_objects(int what)
         storeobject(-1, xctx->rx1, xctx->ry1, xctx->rx2, xctx->ry2, LINE, c,
            xctx->line[c][n].sel, xctx->line[c][n].prop_ptr);
         xctx->line[c][n].sel=0;
-        
+
         l = xctx->lines[c] - 1;
         break;
-  
+
        case POLYGON:
         if(c!=k) break;
         {
@@ -840,13 +840,13 @@ void copy_objects(int what)
         if(angle<0.) angle+=360.;
         xctx->arc[c][n].sel=0;
         xctx->sel_array[i].n=xctx->arcs[c];
-  
+
         store_arc(-1, xctx->rx1+xctx->deltax, xctx->ry1+xctx->deltay,
                    xctx->arc[c][n].r, angle, xctx->arc[c][n].b, c, SELECTED, xctx->arc[c][n].prop_ptr);
-     
+
         l = xctx->arcs[c] - 1;
         break;
-  
+
        case xRECT:
         if(c!=k) break;
         if(xctx->rotatelocal) {
@@ -869,7 +869,7 @@ void copy_objects(int what)
         l = xctx->rects[c] - 1;
         flip_rotate_ellipse(&xctx->rect[c][l], xctx->move_rot, xctx->move_flip);
         break;
-  
+
        case xTEXT:
         if(k!=TEXTLAYER) break;
         check_text_storage();
@@ -902,15 +902,15 @@ void copy_objects(int what)
         set_text_flags(&xctx->text[xctx->texts]);
         xctx->text[xctx->texts].xscale=xctx->text[n].xscale;
         xctx->text[xctx->texts].yscale=xctx->text[n].yscale;
-  
+
         l = xctx->texts;
-        
+
         #if HAS_CAIRO==1 /* bbox after copy */
         customfont = set_text_custom_font(&xctx->text[l]);
         #endif
         estr = my_expand(get_text_floater(l), tclgetintvar("tabstop"));
         text_bbox(estr, xctx->text[l].xscale,
-          xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip, 
+          xctx->text[l].yscale, xctx->text[l].rot,xctx->text[l].flip,
           xctx->text[l].hcenter, xctx->text[l].vcenter,
           xctx->text[l].x0, xctx->text[l].y0,
           &xctx->rx1,&xctx->ry1, &xctx->rx2,&xctx->ry2, &tmpi, &dtmp);
@@ -920,7 +920,7 @@ void copy_objects(int what)
           cairo_restore(xctx->cairo_ctx);
         }
         #endif
-  
+
         xctx->sel_array[i].n=xctx->texts;
         xctx->texts++;
          dbg(2, "copy_objects(): done copy string\n");
@@ -929,10 +929,10 @@ void copy_objects(int what)
         break;
       } /* end switch(xctx->sel_array[i].type) */
      } /* end for(i=0;i<xctx->lastsel; ++i) */
-  
-  
+
+
     } /* end for(k=0;k<cadlayers; ++k) */
-  
+
     for(i = 0; i < xctx->lastsel; ++i) {
       n = xctx->sel_array[i].n;
       if(xctx->sel_array[i].type == ELEMENT) {
@@ -963,7 +963,7 @@ void copy_objects(int what)
         xctx->inst[xctx->instances].y0 = xctx->ry1+xctx->deltay;
         set_first_sel(ELEMENT, xctx->instances, 0);
         xctx->inst[xctx->instances].sel = SELECTED;
-        xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot + ( (xctx->move_flip && 
+        xctx->inst[xctx->instances].rot = (xctx->inst[xctx->instances].rot + ( (xctx->move_flip &&
            (xctx->inst[xctx->instances].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
         xctx->inst[xctx->instances].flip = (xctx->move_flip? !xctx->inst[n].flip:xctx->inst[n].flip);
         my_strdup2(_ALLOC_ID_, &xctx->inst[xctx->instances].instname, xctx->inst[n].instname);
@@ -1094,7 +1094,7 @@ static void place_moved_wire(int n, int orthogonal_wiring)
    *                                               |
    *                                            (V)|
    *                  (H) selected                 |
-   *           o----------------------------------- 
+   *           o-----------------------------------
    *        rx1,ry1(new)
    */
   else if(wire[n].sel == SELECTED1 && (xctx->manhattan_lines & 2)) /* V - H */
@@ -1160,7 +1160,7 @@ void move_objects(int what, int merge, double dx, double dy)
   #endif
   xLine ** const line = xctx->line;
   xWire * const wire = xctx->wire;
- 
+
   dbg(1, "move_objects: what=%d, dx=%g, dy=%g\n", what, dx, dy);
   if(what & START)
   {
@@ -1189,7 +1189,7 @@ void move_objects(int what, int merge, double dx, double dy)
      pop_undo(0, 0);
      if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    }
-   
+
    xctx->move_rot=xctx->move_flip=0;
    xctx->deltax=xctx->deltay=0.;
    xctx->ui_state &= ~STARTMOVE;
@@ -1286,10 +1286,10 @@ void move_objects(int what, int merge, double dx, double dy)
          }
 
          place_moved_wire(n, orthogonal_wiring);
-         
+
        }
        break;
- 
+
       case LINE:
        if(c!=k) break;
        if(xctx->rotatelocal) {
@@ -1303,7 +1303,7 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             line[c][n].x2, line[c][n].y2, xctx->rx2,xctx->ry2);
        }
- 
+
        if( line[c][n].sel & (SELECTED|SELECTED1) )
        {
         xctx->rx1+=xctx->deltax;
@@ -1327,7 +1327,7 @@ void move_objects(int what, int merge, double dx, double dy)
        line[c][n].x2=xctx->rx2;
        line[c][n].y2=xctx->ry2;
        break;
- 
+
       case POLYGON:
        if(c!=k) break;
        {
@@ -1342,7 +1342,7 @@ void move_objects(int what, int merge, double dx, double dy)
            if(j==0 || p->y[j] < by1) by1 = p->y[j];
            if(j==0 || p->x[j] > bx2) bx2 = p->x[j];
            if(j==0 || p->y[j] > by2) by2 = p->y[j];
- 
+
            if( p->sel==SELECTED || p->selected_point[j]) {
              if(xctx->rotatelocal) {
                ROTATION(xctx->move_rot, xctx->move_flip, savex0, savey0, p->x[j], p->y[j],
@@ -1351,7 +1351,7 @@ void move_objects(int what, int merge, double dx, double dy)
                ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1, p->x[j], p->y[j],
                         xctx->rx1,xctx->ry1);
              }
- 
+
              p->x[j] =  xctx->rx1+xctx->deltax;
              p->y[j] =  xctx->ry1+xctx->deltay;
            }
@@ -1364,7 +1364,7 @@ void move_objects(int what, int merge, double dx, double dy)
          }
        }
        break;
- 
+
       case ARC:
        if(c!=k) break;
        if(xctx->rotatelocal) {
@@ -1408,7 +1408,7 @@ void move_objects(int what, int merge, double dx, double dy)
        }
 
        break;
- 
+
       case xRECT:
        if(c!=k) break;
        /* bbox before move */
@@ -1423,7 +1423,7 @@ void move_objects(int what, int merge, double dx, double dy)
          ROTATION(xctx->move_rot, xctx->move_flip, xctx->x1, xctx->y1,
             xctx->rect[c][n].x2, xctx->rect[c][n].y2, xctx->rx2,xctx->ry2);
        }
- 
+
        flip_rotate_ellipse(&xctx->rect[c][n], xctx->move_rot, xctx->move_flip);
 
        if( xctx->rect[c][n].sel == SELECTED) {
@@ -1464,11 +1464,11 @@ void move_objects(int what, int merge, double dx, double dy)
        {
          xctx->rx2+=xctx->deltax;
        }
- 
+
        tx1 = xctx->rx1;
        ty1 = xctx->ry1;
        RECTORDER(xctx->rx1,xctx->ry1,xctx->rx2,xctx->ry2);
- 
+
        if( xctx->rx2 == tx1) {
          if(xctx->rect[c][n].sel==SELECTED1) xctx->rect[c][n].sel = SELECTED2;
          else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED1;
@@ -1481,15 +1481,15 @@ void move_objects(int what, int merge, double dx, double dy)
          else if(xctx->rect[c][n].sel==SELECTED2) xctx->rect[c][n].sel = SELECTED4;
          else if(xctx->rect[c][n].sel==SELECTED4) xctx->rect[c][n].sel = SELECTED2;
        }
- 
+
        xctx->rect[c][n].x1 = xctx->rx1;
        xctx->rect[c][n].y1 = xctx->ry1;
        xctx->rect[c][n].x2 = xctx->rx2;
        xctx->rect[c][n].y2 = xctx->ry2;
- 
+
        /* bbox after move */
        break;
- 
+
       case xTEXT:
        if(k!=TEXTLAYER) break;
        #if HAS_CAIRO==1  /* bbox before move */
@@ -1518,7 +1518,7 @@ void move_objects(int what, int merge, double dx, double dy)
        xctx->text[n].rot=(xctx->text[n].rot +
         ( (xctx->move_flip && (xctx->text[n].rot & 1) ) ? xctx->move_rot+2 : xctx->move_rot) ) & 0x3;
        xctx->text[n].flip=xctx->move_flip^xctx->text[n].flip;
- 
+
        #if HAS_CAIRO==1  /* bbox after move */
        customfont = set_text_custom_font(&xctx->text[n]);
        #endif
@@ -1533,15 +1533,15 @@ void move_objects(int what, int merge, double dx, double dy)
          cairo_restore(xctx->cairo_ctx);
        }
        #endif
- 
+
        break;
- 
+
       default:
        break;
      } /* end switch(xctx->sel_array[i].type) */
     } /* end for(i=0;i<xctx->lastsel; ++i) */
    } /*end for(k=0;k<cadlayers; ++k) */
- 
+
    for(i = 0; i < xctx->lastsel; ++i) {
      n = xctx->sel_array[i].n;
      if(xctx->sel_array[i].type == ELEMENT) {
@@ -1562,7 +1562,7 @@ void move_objects(int what, int merge, double dx, double dy)
        symbol_bbox(n,
           &xctx->inst[n].x1, &xctx->inst[n].y1,
           &xctx->inst[n].x2, &xctx->inst[n].y2);
-     } 
+     }
    }
    if(!firsti || !firstw) {
      xctx->prep_net_structs=0;
@@ -1572,11 +1572,11 @@ void move_objects(int what, int merge, double dx, double dy)
    check_collapsing_objects();
    unselect_partial_sel_wires();
    if(tclgetboolvar("autotrim_wires")) trim_wires();
- 
+
    if(xctx->hilight_nets) {
      propagate_hilights(1, 1, XINSERT_NOREPLACE);
    }
- 
+
    xctx->ui_state &= ~STARTMOVE;
    if(xctx->ui_state & STARTMERGE) xctx->ui_state |= SELECTION; /* leave selection state so objects can be deleted */
    xctx->ui_state &= ~STARTMERGE;

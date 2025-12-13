@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: make_sym.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -38,10 +38,10 @@ FNR == 1 {
     _filename_ = FILENAME
     beginfile(FILENAME)
 }
- 
+
 END  { endfile(_filename_) }
- 
- 
+
+
 function beginfile(f)
 {
  sym=name=f
@@ -57,8 +57,8 @@ function beginfile(f)
    if(symline ~ /\} *$/) start=0
   }
   close(sym)
-  
-   
+
+
  size=2.5
  space=20
  lwidth=20
@@ -73,11 +73,11 @@ function beginfile(f)
   printf "%s", "K {type=subcircuit\nformat=\"@name @pinlist @symname\"\n"  >sym
   printf "%s\n", "template=\"name=x1\""  >sym
   printf "%s", "}\n"  >sym
- } 
+ }
  else print template >sym
  print "T {@symname}" ,-length(name_ext)/2*titlesize*30, -text_voffset*titlesize,0,0,
        titlesize, titlesize, "{}" >sym
- 
+
 
 }
 
@@ -165,7 +165,7 @@ function process_line()
  pin_label=""
  value=""
  generic_type=""
- 
+
  if($0 ~ /^.*lab=/)
  {
   pin_label=$0
@@ -180,14 +180,14 @@ function process_line()
   sub(/[}].*$/,"",verilog_type)
   sub(/ $/,"",verilog_type)
  }
- 
+
  if($0 ~ /^.*sig_type=/)
  {
   sig_type=$0
   sub(/^.*sig_type=/,"",sig_type)
   sub(/[ }].*$/,"",sig_type)
  }
- 
+
  if($0 ~ /^.*generic_type=/)
  {
   generic_type=$0
@@ -200,7 +200,7 @@ function process_line()
  if($0 ~ /^.*value=/)
  {
   value=$0
-  if(value ~ /value="/) 
+  if(value ~ /value="/)
   {
    sub(/^.*value="/,"",value)
    value= "\"" substr(value,1, match(value, /[^\\]"/)  ) "\""
@@ -250,7 +250,7 @@ function endfile(f) {
  for(ii=0;ii<n_pin;ii++)
  {
   i = index_pin[ii] # 20140519
-  
+
   dir=dir_pin[i]
   value=value_pin[i]
 
@@ -361,4 +361,4 @@ function comp(a,b)
   return a<b
 }
 
- 
+

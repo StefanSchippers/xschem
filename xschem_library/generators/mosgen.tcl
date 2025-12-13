@@ -13,16 +13,16 @@ K {type=nmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.5
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -65,16 +65,16 @@ K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.5
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -118,16 +118,16 @@ K {type=pmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.15
 W=1
 nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0
@@ -173,16 +173,16 @@ K {type=nmos
 lvs_format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W nf=@nf m=@mult"
 format="@spiceprefix@name @pinlist sky130_fd_pr__@model L=@L W=@W
 + nf=@nf ad=@ad as=@as pd=@pd ps=@ps
-+ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd 
++ nrd=@nrd nrs=@nrs sa=@sa sb=@sb sd=@sd
 + mult=@mult m=@mult"
 template="name=M1
 L=0.15
 W=1
-nf=1 
+nf=1
 mult=1
-ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\" 
+ad=\\"'int((nf+1)/2) * W/nf * 0.29'\\"
 pd=\\"'2*int((nf+1)/2) * (W/nf + 0.29)'\\"
-as=\\"'int((nf+2)/2) * W/nf * 0.29'\\" 
+as=\\"'int((nf+2)/2) * W/nf * 0.29'\\"
 ps=\\"'2*int((nf+2)/2) * (W/nf + 0.29)'\\"
 nrd=\\"'0.29 / W'\\" nrs=\\"'0.29 / W'\\"
 sa=0 sb=0 sd=0

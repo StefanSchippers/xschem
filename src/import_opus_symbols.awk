@@ -1,8 +1,8 @@
 #!/usr/bin/awk -f
-# import a opus generated list of symbols (cell_pinouts) 
-# (generated with the cell_binding.il skill) 
+# import a opus generated list of symbols (cell_pinouts)
+# (generated with the cell_binding.il skill)
 # and outputs a tcl source file.
-# this source file can be sourced by the xschem tcl interpreter 
+# this source file can be sourced by the xschem tcl interpreter
 # to generate schematics and symbols
 # IMPORTANT: set the target library in library variable !!!!
 #
@@ -26,7 +26,7 @@ BEGIN{
     delete opins
     delete iopins
   }
-  
+
   if($6=="input") ipins[$4]=1
   if($6=="output") opins[$4]=1
   if($6=="inputOutput") iopins[$4]=1
@@ -43,20 +43,20 @@ END{
 function print_cell()
 {
  print "set cellname " library "/" oldcell
- printf "set gensch_i_pin {" 
- for(i in ipins) { 
+ printf "set gensch_i_pin {"
+ for(i in ipins) {
   printf "%s ", i
  }
  printf "}\n"
 
  printf "set gensch_o_pin {"
- for(i in opins) { 
+ for(i in opins) {
   printf "%s ", i
  }
  printf "}\n"
 
  printf "set gensch_io_pin {"
- for(i in iopins) { 
+ for(i in iopins) {
   printf "%s ", i
  }
  printf "}\n"

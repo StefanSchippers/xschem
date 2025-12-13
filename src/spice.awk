@@ -1,22 +1,22 @@
-#!/usr/bin/awk -f 
+#!/usr/bin/awk -f
 #
 #  File: spice.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -39,7 +39,7 @@ BEGIN{
  special_devs[".subckt"] = 1
 
  while( (ARGV[1] ~ /^[-]/) || (ARGV[1] ~ /^$/) ) {
-   if(ARGV[1] == "-xyce") { xyce = 1} 
+   if(ARGV[1] == "-xyce") { xyce = 1}
    for(i=2; i<= ARGC;i++) {
      ARGV[i-1] = ARGV[i]
    }
@@ -61,7 +61,7 @@ BEGIN{
     zz = yy
     yy = $0
     $0 = zz
-    if(first) { 
+    if(first) {
       first=0
       next
     }
@@ -79,7 +79,7 @@ END{
 
   ## resolve parametric instance name vector multiplicity
   substitute_instance_param()
-  
+
   for(i=0; i<lines; i++) {
     $0 = line[i]
 
@@ -89,7 +89,7 @@ END{
       if(tolower($0) ~/^[ \t]*\.save[ \t]+.*\?-?[0-9]+/) {   # .save file=test1.raw format=raw v( ?1 C2  )
         $1 = ""
         $0 = ".print " $0
-      } 
+      }
       gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
     }
     process()
@@ -142,7 +142,7 @@ function substitute_instance_param(    i, j, name, first, last)
 }
 
 
-function sign(x) 
+function sign(x)
 {
   return x<0 ? -1 : x>0 ? 1 : 0
 }
@@ -190,22 +190,22 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  #20150922 handle the case of pmos elements that netlist also a diode
  # format="@name @pinlist @model w=@w l=@l geomod=0 m=@m
  # #dx#name 0 @@b dnwell area=... pj=..."
- # replace #dx#name with dx prefix added on all @name elements 
+ # replace #dx#name with dx prefix added on all @name elements
  # example:
- # m6[3] GWL WLDECF[3] WL[3] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[2] GWL WLDECF[2] WL[2] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[1] GWL WLDECF[1] WL[1] HDD phv w=50u l=10u geomod=0 m=1 
- # m6[0] GWL WLDECF[0] WL[0] HDD phv w=50u l=10u geomod=0 m=1 
- # dxm6[3] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[2] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[1] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
- # dxm6[0] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)' 
+ # m6[3] GWL WLDECF[3] WL[3] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[2] GWL WLDECF[2] WL[2] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[1] GWL WLDECF[1] WL[1] HDD phv w=50u l=10u geomod=0 m=1
+ # m6[0] GWL WLDECF[0] WL[0] HDD phv w=50u l=10u geomod=0 m=1
+ # dxm6[3] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[2] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[1] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
+ # dxm6[0] 0 HDD dnwell area='(50u + 73u)*(10u + 32u)' pj='2*(50u +73u)+2*(10u +32u)'
  #20151027 do this for all fields
  for(i=1; i<=NF;i++) {
-   
+
    if($i ~/^##[a-zA-Z_]+/) {
      sub(/^##/, "", $i)
-   } else 
+   } else
    if($i ~/^#[a-zA-Z_0-9]+#[a-zA-Z_]+/) {
      iprefix=$i
      sub(/^#/,"",iprefix)
@@ -215,8 +215,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      ## 20160301 add '?1' if missing in format string
      if(i>1 && ( $(i-1) !~/^\?/) )  {
        $i = "?1 " $i
-     } 
-     $0 = $0  # reparse input line 
+     }
+     $0 = $0  # reparse input line
    }
  }
  ## 20140506 do not transform {} of variation groups
@@ -245,7 +245,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    sub(/ value=/," c=")
    IGNORECASE=0
  }
- ### ?? too dangerous 
+ ### ?? too dangerous
  # gsub(/ value=/," ")
  # gsub(/ VALUE=/," ")
 
@@ -259,8 +259,8 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    if(!xyce) {
      $1=""
      $0 = $0 # reparse line for field splitting
-  
-     gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity) 
+
+     gsub(/ *\?-?[0-9]+ */, "")   # in some cases ?-1 is printed (unknow multiplicity)
      gsub(/\( */, "(")
      gsub(/ *\)/, ")")
      for(i=1; i<=NF; i++) {
@@ -273,7 +273,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
        }
      }
    }
-   
+
  } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
    num=split($2,name,",")
    for(i=1;i<=num;i++) print $1 " " name[i]
@@ -284,7 +284,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   print $0
  } else {
   # handle uncommon primitives that have a prefix before the device name
-  if(tolower($1) in special_devs) { 
+  if(tolower($1) in special_devs) {
     # YDELAY ?1 Rda[4],Rda[3],Rda[2],Rda[1],Rda[0] ?1 softrst[4],softrst[3],...
     devprefix = $1
     num = split($3, name, ",")
@@ -300,10 +300,10 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   }
   if(num==0) print ""
 
- 
+
   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
   {
-    #       ............ --> matches ?n and ?-n         
+    #       ............ --> matches ?n and ?-n
     # some CDL netlists have this: $SUB=?1 B where B is a node
     if($j ~/^(.*=)?\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
     arg_num[j]=split($j,tmp,",")

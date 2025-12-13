@@ -69,13 +69,13 @@ void check_inst_storage(void)
  if(xctx->instances >= xctx->maxi)
  {
   int i, old = xctx->maxi;
-  
+
   xctx->maxi=(1 + xctx->instances / ELEMINST) * ELEMINST;
   my_realloc(_ALLOC_ID_, &xctx->inst, sizeof(xInstance)*xctx->maxi);
   #ifdef ZERO_REALLOC
   memset(xctx->inst + xctx->instances, 0, sizeof(xInstance) * (xctx->maxi - xctx->instances));
   #endif
-  /* clear all flag bits (to avoid random data in bit 8, that can not be cleraed 
+  /* clear all flag bits (to avoid random data in bit 8, that can not be cleraed
    * by set_inst_flags() */
   for(i = old; i < xctx->maxi; i++) xctx->inst[i].flags = 0;
  }
@@ -171,7 +171,7 @@ void store_arc(int pos, double x, double y, double r, double a, double b,
   xctx->arcs[rectc]++;
 }
 
-void store_poly(int pos, double *x, double *y, int points, unsigned int rectc, 
+void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
                 unsigned short sel, char *prop_ptr)
 {
   int n, j;
@@ -288,7 +288,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
      xctx->rect[rectc][n].bus = 0.0;
      if(prop_ptr) {
         xctx->rect[rectc][n].bus = get_attr_val(get_tok_value(prop_ptr, "bus", 0));
-     } 
+     }
      if(prop_ptr && (attr = get_tok_value(prop_ptr,"dash",0))[0]) {
        int d = atoi(attr);
        xctx->rect[rectc][n].dash = (char) (d >= 0 ? d : 0);

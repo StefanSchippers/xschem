@@ -1,22 +1,22 @@
-#!/usr/bin/awk -f 
+#!/usr/bin/awk -f
 #
 #  File: tedax.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -30,14 +30,14 @@ BEGIN{
 # conn    U1:2  INPUT_A  A    1:4:9:12    1
 
 /^[ \t]*#/{ print; next}
-/^begin netlist/{ 
+/^begin netlist/{
   print
   next
 }
 
-/^begin_inst .* numslots/{ 
+/^begin_inst .* numslots/{
   reparse()
-  numslots=$4; 
+  numslots=$4;
   if(numslots ==0) numslots = 1
   next
 }
@@ -78,7 +78,7 @@ $1=="device"||$1=="footprint"{
   }
   next
 }
-  
+
 # conn U1 Tx2In Tx2\ In 10 10
 /^conn/{
   reparse()
@@ -137,7 +137,7 @@ $1=="device"||$1=="footprint"{
       print "pinname", i_arr[1], i_arr[2], n_arr[3]
     }
   }
- 
+
   for(ii = 0; ii < footprint_n; ii++) { # used to preserve ordering
     i = footprint_num[ii]
     print "footprint", i, footprint[i]
@@ -157,7 +157,7 @@ $1=="device"||$1=="footprint"{
   delete device
   delete device_num # used to preserve ordering
   device_n = 0
-  
+
   next
 }
 

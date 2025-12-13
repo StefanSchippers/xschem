@@ -4,16 +4,16 @@ BEGIN{
 
 }
 
-{ 
+{
   debug=0
   if($1=="model") macro=$2
 
   if( $1=="inst") {
-   props="" 
+   props=""
    inst_nonets=1
    printf "%s ", expand_label(prefix[macro] $2)
   }
-  
+
   if($1=="nets") {
     inst_nonets=0
     $1=""; $0 = $0
@@ -30,7 +30,7 @@ BEGIN{
       if ( !(macroport[macro,i] in instport) ) {
         print "hercules2spice: " macroport[macro,i] " not in instport (" $0 ")" > "/dev/stderr"
       }
-      s = expand_label(instport[ macroport[macro,i] ] ) 
+      s = expand_label(instport[ macroport[macro,i] ] )
       expand_label(macroport[macro,i])  # calculate label_width ...
       printf "@%d %s ", label_width,s
     }
@@ -40,13 +40,13 @@ BEGIN{
   if( $1 == "props" ) {
     $1=""; $0 = $0
     sub(/^ /, "")
-    n = split($0, s_arr, /\\/) 
+    n = split($0, s_arr, /\\/)
     props=""
     for(i=1; i<=n; i+=2) {
       if( 1 ) {     ##############  s_arr[i] ~ /^[wWlL]$/) {
-        if(props !="") props = props " " 
+        if(props !="") props = props " "
         props = props s_arr[i] "=\"" s_arr[i+1] "\""
-      } 
+      }
     }
   }
 
@@ -66,7 +66,7 @@ BEGIN{
     if(startmacro!="") print ".ends"
     printf  "\n.subckt %s ", $3
     startmacro=$1
-  } 
+  }
 
   if($1=="prefix") {
     prefix[macroname] = $2
@@ -102,7 +102,7 @@ BEGIN{
       if(defaults !="") defaults = defaults " "
       defaults = defaults s_arr[i] "=\"" s_arr[i+1] "\""
     }
- 
+
   }
 
 
@@ -138,13 +138,13 @@ BEGIN{
   }
 
 
-     
+
 }
 
 END{
   print ".ends"
 }
-  
+
 
 
 
@@ -193,8 +193,8 @@ function expand_label(s,               tmp, n, i, j, l, mult, s_arr, lab, idx_le
       l = l expand_label( substr(s_arr[i], 1, tmp-1) ">")
       if(l!="") l = l ","
       l = l expand_label( lab "<" substr(s_arr[i], tmp+1))
-      
-      
+
+
 
     } else if(s_arr[i] ~ /^[^<>]+<[0-9]+:[0-9]+:[0-9]+>$/) {
       lab = incr = idx_left = idx_right = s_arr[i]

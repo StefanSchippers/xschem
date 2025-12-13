@@ -198,7 +198,7 @@ int traverse_node_hash()
  Node_hashentry *entry;
  char str[2048]; /* 20161122 overflow safe */
  int incr_hi;
- 
+
  incr_hi = tclgetboolvar("incr_hilight");
  for(i=0;i<HASHSIZE; ++i)
  {
@@ -261,7 +261,7 @@ void print_vhdl_signals(FILE *fd)
   int i, found;
   int mult,j;
   char *class=NULL;
- 
+
   found=0;
   for(i=0;i<HASHSIZE; ++i) {
     ptr = xctx->node_table[i];
@@ -324,7 +324,7 @@ void print_verilog_signals(FILE *fd)
   Node_hashentry *ptr;
   int i, found;
   int mult,j;
- 
+
   dbg(2, " print_verilog_signals(): entering routine\n");
   found=0;
   for(i=0;i<HASHSIZE; ++i) {
@@ -401,7 +401,7 @@ void list_nets(char **result)
     ptr = xctx->node_table[i];
     while(ptr) {
       if(!ptr->d.port) {
-        my_mstrcat(_ALLOC_ID_, result, 
+        my_mstrcat(_ALLOC_ID_, result,
           "{", ptr->token, " ", "net", "}\n", NULL);
       }
       ptr = ptr->next;

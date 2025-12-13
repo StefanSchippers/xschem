@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: viewdraw_import.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2021 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -61,7 +61,7 @@ BEGIN{
 
 # read viewdraw file, remove DOS cr characters
 {
-  gsub(/\r/, "") 
+  gsub(/\r/, "")
   line[lines++] = $0
 }
 
@@ -390,7 +390,7 @@ function yscale(y)
   return -y
 }
 
-# distance transformations (like circle radius) 
+# distance transformations (like circle radius)
 function lenscale(len)
 {
   return len
@@ -420,7 +420,7 @@ function get_fields_after(n,     str, nf, i, a, arr)
 #used to poke what's next wihout advancing read to next line
 function next_line()
 {
-  return line[lineno + 1] 
+  return line[lineno + 1]
 }
 
 # xschem rectangle coordinates are ordered for efficiency reasons

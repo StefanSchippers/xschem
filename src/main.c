@@ -45,7 +45,7 @@ static void sig_handler(int s){
       fprintf(errfp, "xinit(): problems creating emergency save dir\n");
       tcleval("exit 1");
     }
-  
+
     if(rename(xctx->undo_dirname, emergency_dir)) {
       fprintf(errfp, "rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
     }
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
      setvbuf(stdout, NULL, _IOLBF, 0); /* set to line buffer mode */
      if(statbuf.st_mode & S_IFIFO) stdin_is_a_fifo = 1; /* input coming from a command pipe */
   }
-  
+
   if(!stdin_is_a_fifo && getpgrp() != tcgetpgrp(STDOUT_FILENO) && !cli_opt_no_readline) {
     cli_opt_detach = 1;
   }

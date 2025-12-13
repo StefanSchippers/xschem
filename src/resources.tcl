@@ -1,21 +1,21 @@
 #
 #  File: resources.tcl
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -41,14 +41,14 @@
 ## # so we set white background and eliminate alpha channel (unsupported in gif).
 ## convert  -background white -alpha remove -alpha off  paste.png -transparent white gif:-|base64
 ##
-## Following shell function (and call) converts a png base64 encoded to proper 
+## Following shell function (and call) converts a png base64 encoded to proper
 ## gif89a base64 encoded format:
 ##   to_gif () {
 ##     echo "image create photo $1 -data \""
 ##     echo -n "$2" | base64 -d |convert -background white -alpha remove -alpha off - -transparent white gif:- |base64
 ##     echo '"'
 ##   }
-## 
+##
 ##   to_gif imgFileOpen "...."
 
 ##
@@ -69,7 +69,7 @@
 # # set light colorscheme, set transparent svg background
 # # draw image inside the border in green color
 # # set line with 40 disable change line width, redraw
-# # move away the border, full zoom the image 
+# # move away the border, full zoom the image
 # # export svg:
 #  xschem print svg 1.svg 400 400 0 0 100 100
 # # edit svg, change .l4 layer from green to black (#000000)
@@ -77,7 +77,7 @@
 # gm convert -size 16x16 1.svg 1.png
 # convert -background white -alpha remove -alpha off 1.png -transparent white 1.gif
 # base64 1.gif
-# # the output is the 16x16 image with transparent background, antialiasing 
+# # the output is the 16x16 image with transparent background, antialiasing
 # # and base64 encoded
 # #
 # #

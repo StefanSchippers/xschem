@@ -89,14 +89,14 @@ symrec  *tptr; /* For returning symbol-table pointers */
 /* Grammar follows */
 %%
 input:
-        | input line 
+        | input line
 ;
 
-line:   
+line:
           XCHAR                   {get_char($1);}
         | EXPR exp ')'            {get_expr($2);lex_state = 0;}
         | EXPR '\'' exp '\'' ')'  {get_expr($3);lex_state = 0;}
-        | EXPR exp error          
+        | EXPR exp error
 ;
 
 exp:      NUM                     {$$ = $1;}
@@ -223,7 +223,7 @@ void eval_expr_clear_table(void)
     my_free(_ALLOC_ID_, &tmp);
   }
 }
-    
+
 
 static int kklex()
 {
@@ -231,7 +231,7 @@ static int kklex()
 
   if(!str) { return 0; }
   if(strstr(str, "expr(") == str) {
-     lex_state = 1; 
+     lex_state = 1;
      str += 5;
      dbg(dbglev, "lex(): EXPR\n");
      engineering = 0;
@@ -268,7 +268,7 @@ static int kklex()
   {
     char s[100] ="";
     int rd = 0;
-    str--; 
+    str--;
 
     sscanf(str, "%99[.0-9a-zA-Z_-]%n", s, &rd);
     kklval.val = atof_eng(s);

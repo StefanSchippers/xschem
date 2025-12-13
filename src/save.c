@@ -84,13 +84,13 @@ int filter_data(const char *din,  const size_t ilen,
   dbg(1, "p2[0] = %d\n", p2[0]);
   dbg(1, "p2[1] = %d\n", p2[1]);
 
-   
+
   signal(SIGPIPE, SIG_IGN); /* so attempting write/read a broken pipe won't kill program */
-/* 
+/*
  *                                  p2
- *  -------------------   p2[0] <--------- p2[1]   -------------------  
- * |   Parent program  |                          |   Child filter    |    
- *  -------------------   p1[1] ---------> p1[0]   -------------------  
+ *  -------------------   p2[0] <--------- p2[1]   -------------------
+ * |   Parent program  |                          |   Child filter    |
+ *  -------------------   p1[1] ---------> p1[0]   -------------------
  *                                  p1
  */
   fflush(NULL); /* flush all stdio streams before process forking */
@@ -130,7 +130,7 @@ int filter_data(const char *din,  const size_t ilen,
       fprintf(stderr, "error: conversion failed\n");
       ret = 1;
     }
-    _exit(ret); /* childs should always use _exit() to avoid 
+    _exit(ret); /* childs should always use _exit() to avoid
                  * flushing open stdio streams and other unwanted side effects */
   }
   /* parent */
@@ -213,7 +213,7 @@ char *base64_encode(const unsigned char *data, const size_t input_length, size_t
   encoded_data = my_malloc(_ALLOC_ID_, alloc_length);
   if (encoded_data == NULL) return NULL;
   cnt = 0;
-  
+
   for (i = 0, j = 0; i < input_length;) {
     octet_a = i < input_length ? (unsigned char)data[i++] : 0;
     octet_b = i < input_length ? (unsigned char)data[i++] : 0;
@@ -263,7 +263,7 @@ unsigned char *base64_decode(const char *data, const size_t input_length, size_t
   unsigned char *decoded_data;
   int i, j, sextet[4], triple, cnt, padding;
   size_t actual_length;
-  
+
   actual_length = input_length;
   *output_length = input_length / 4 * 3 + 4; /* add 4 more just in case... */
   padding = 0;
@@ -309,7 +309,7 @@ unsigned char *ascii85_encode(const unsigned char *data, const size_t input_leng
     'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
     'q', 'r', 's', 't', 'u'
   };
-  
+
   int padding = (4-(input_length % 4))%4;
   static unsigned int pow85[] = {1, 85, 7225, 614125, 52200625};
   unsigned char *paddedData = my_calloc(_ALLOC_ID_, input_length+padding, 1);
@@ -399,9 +399,9 @@ static void skip_raw_ascii_points(int npoints, FILE *fd)
         dbg(1, "found empty line --> break\n");
         break;
       }
-    }   
+    }
   }
-}     
+}
 
 static int read_raw_ascii_point(int ac, double *tmp, FILE *fd)
 {
@@ -463,8 +463,8 @@ static int read_raw_ascii_point(int ac, double *tmp, FILE *fd)
 
 /* SPICE RAWFILE ROUTINES */
 /* read the ascii / binary portion of a ngspice raw simulation file
- * data layout in memory arranged to maximize cache locality 
- * when looking up data 
+ * data layout in memory arranged to maximize cache locality
+ * when looking up data
  */
 static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
 {
@@ -475,7 +475,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
     long filepos;
   #else
     __int3264 filepos;
-  #endif 
+  #endif
   int npoints;
   int rawvars = raw->nvars;
 
@@ -547,17 +547,17 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
         else /* magnitude */
           /* avoid 0 for dB calculations */
           if(tmp[vv] == 0.0 && tmp[vv + 1] == 0.0) raw->values[v][offset + p] = 1e-35f;
-          else raw->values[v][offset + p] = 
+          else raw->values[v][offset + p] =
                   (SPICE_DATA)sqrt(tmp[vv] * tmp[vv] + tmp[vv + 1] * tmp[vv + 1]);
         /* AC analysis: calculate phase */
-        if(tmp[vv] == 0.0 && tmp[vv + 1] == 0.0) raw->values[v + 1] [offset + p] = 0.0; 
+        if(tmp[vv] == 0.0 && tmp[vv + 1] == 0.0) raw->values[v + 1] [offset + p] = 0.0;
         else raw->values[v + 1] [offset + p] =
                 (SPICE_DATA)(atan2(tmp[vv + 1], tmp[vv]) * 180.0 / XSCH_PI);
 
         raw->values[v + 2] [offset + p] = (SPICE_DATA)tmp[vv];     /* real part */
         raw->values[v + 3] [offset + p] = (SPICE_DATA)tmp[vv + 1]; /* imaginary part */
       }
-    } 
+    }
     else for(v = 0; v < raw->nvars; v++) {
       raw->values[v][offset + p] = (SPICE_DATA)tmp[v];
     }
@@ -591,7 +591,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
  * Binary:
  */
 static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning)
-{ 
+{
   int variables = 0, i, done_points = 0;
   char *line = NULL, *varname = NULL, *lowerline = NULL;
   int n = 0, done_header = 0, ac = 0;
@@ -599,7 +599,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
   int dbglev=1;
   const char *sim_type = NULL;
   Raw *raw;
- 
+
   if(!rawptr) {
     dbg(0, "read_dataset(): NULL rawptr given\n");
     return 0;
@@ -624,7 +624,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
         my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
-        read_raw_data_block(0, fd, raw, ac); 
+        read_raw_data_block(0, fd, raw, ac);
         raw->datasets++;
         exit_status = 1;
       } else {
@@ -635,7 +635,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
       sim_type = NULL; /* ready for next header */
       done_points = 0;
       ac = 0;
-    } 
+    }
 
     /* after this line comes the binary blob made of nvars * npoints * sizeof(double) bytes */
     else if(!strcmp(line, "Binary:\n") || !strcmp(line, "Binary:\r\n")) {
@@ -643,10 +643,10 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
         my_strdup(_ALLOC_ID_, &raw->sim_type, sim_type);
         done_header = 1;
         dbg(dbglev, "read_dataset(): read binary block, nvars=%d npoints=%d\n", nvars, npoints);
-        read_raw_data_block(1, fd, raw, ac); 
+        read_raw_data_block(1, fd, raw, ac);
         raw->datasets++;
         exit_status = 1;
-      } else { 
+      } else {
         dbg(dbglev, "read_dataset(): skip binary block, nvars=%d npoints=%d\n", nvars, npoints);
         xfseek(fd, nvars * npoints * sizeof(double), SEEK_CUR); /* skip binary block */
       }
@@ -678,7 +678,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
       if(!type) type = "op";
       if(!strcmp(type, "op")) sim_type = "op";
       dbg(dbglev, "read_dataset(): op sim_type=%s\n", sim_type ? sim_type : "<NULL>");
-    } 
+    }
     else if(!strncmp(line, "Plotname:", 9) && strstr(lowerline, "integrated noise")) {
       if(!type) type = "op";
       else if(!strcmp(type, "noise")) {
@@ -891,7 +891,7 @@ void free_rawfile(Raw **rawptr, int dr, int no_warning)
   if(has_x) {
     tclvareval("set tctx::", xctx->current_win_path, "_waves $simulate_bg", NULL);
     tclvareval("catch {", xctx->top_path, ".menubar entryconfigure Waves -background $simulate_bg}", NULL);
-  }   
+  }
 
   if(dr) draw();
 }
@@ -1035,7 +1035,7 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
         raw->allpoints +=  raw->npoints[i];
       }
       dbg(0, "Raw file data read: %s\n", f);
-      dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n", 
+      dbg(0, "points=%d, vars=%d, datasets=%d sim_type=%s\n",
              raw->allpoints, raw->nvars, raw->datasets, raw->sim_type ? raw->sim_type : "<NULL>");
 
       if(xctx->graph_flags & 4) { /* if cursor2 is enabled in first graph setup schematic annotation */
@@ -1075,11 +1075,11 @@ int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, doub
 }
 
 int raw_renamevar(const char *old_name, const char *new_name)
-{       
+{
   int n, ret = 0;
-  Raw *raw = xctx->raw; 
+  Raw *raw = xctx->raw;
   Int_hashentry *entry;
-      
+
   n = get_raw_index(old_name, &entry);
   if(n < 0) return ret;
   dbg(1, "n=%d, %s \n", n, entry->token);
@@ -1087,14 +1087,14 @@ int raw_renamevar(const char *old_name, const char *new_name)
   my_strdup2(_ALLOC_ID_, &raw->names[n], new_name);
   int_hash_lookup(&raw->table, raw->names[n], n, XINSERT); /* update hash table */
   ret = 1;
-  return ret; 
-}         
+  return ret;
+}
 
 int raw_deletevar(const char *name)
 {
   int ret = 0;
   int i, n;
-  Raw *raw = xctx->raw; 
+  Raw *raw = xctx->raw;
   Int_hashentry *entry;
 
   n = get_raw_index(name, &entry);
@@ -1145,12 +1145,12 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
 
       xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
       raw = xctx->raw;
-      raw->level = -1; 
+      raw->level = -1;
       raw->sweep1 = -1.0;
       raw->sweep2 = -1.0;
       raw->annot_p = -1;
       raw->annot_sweep_idx = -1;
-  
+
       int_hash_init(&raw->table, HASHSIZE);
       my_strdup2(_ALLOC_ID_, &raw->rawfile, name);
       my_strdup2(_ALLOC_ID_, &raw->schname, xctx->sch[xctx->currsch]);
@@ -1181,7 +1181,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
     } else { /* file found: switch to it */
       dbg(1, "new_rawfile() %d read: found: switch to it\n", i);
       xctx->extra_prev_idx = xctx->extra_idx;
-      xctx->extra_idx = i; 
+      xctx->extra_idx = i;
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
       ret = 0;
     }
@@ -1194,7 +1194,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
 /* what == 0: do nothing and return 0
  * what == 1: read another raw file and switch to it (make it the current one)
  *            if type == table use table_read() to read an ascii table
- * what == 2: switch raw file. If filename given switch to that one, 
+ * what == 2: switch raw file. If filename given switch to that one,
  * else if filename is an integer switch to that raw file index,
  * else switch to next
  * what == 3: remove a raw file. If no filename given remove all
@@ -1229,11 +1229,11 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     dbg(1, "extra_rawfile: table_read: f=%s\n", f);
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if( !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) break;
-    } 
+    }
     if(i >= xctx->extra_raw_n) { /* file not already loaded: read it and switch to it */
       int read_ret = 0;
       Raw *save;
-      save = xctx->raw; 
+      save = xctx->raw;
       xctx->raw = NULL;
       read_ret = table_read(f);
       if(read_ret) {
@@ -1255,7 +1255,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     } else { /* file found: switch to it */
       dbg(1, "extra_rawfile() %d read: found: switch to it\n", i);
       xctx->extra_prev_idx = xctx->extra_idx;
-      xctx->extra_idx = i; 
+      xctx->extra_idx = i;
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** read ************* */
@@ -1267,7 +1267,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       else if(!my_strcasecmp(type, "sp")) type = "ac";
     }
     for(i = 0; i < xctx->extra_raw_n; i++) {
-      if(xctx->extra_raw_arr[i]->sim_type && 
+      if(xctx->extra_raw_arr[i]->sim_type &&
          !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&
          (!type || !strcmp(xctx->extra_raw_arr[i]->sim_type, type) )
         ) break;
@@ -1328,7 +1328,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       i = atoi(file);
       if(i >= 0 && i < xctx->extra_raw_n) { /* if file found switch to it ... */
         dbg(1, "extra_rawfile() switch %d: found: switch %d to it\n", xctx->extra_idx, i);
-        xctx->extra_prev_idx = xctx->extra_idx; 
+        xctx->extra_prev_idx = xctx->extra_idx;
         xctx->extra_idx = i;
       } else {
         if(!no_warning) {
@@ -1429,7 +1429,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       dbg(1, "extra_raw_n = %d\n", xctx->extra_raw_n);
       Tcl_AppendResult(interp, my_itoa(xctx->extra_idx), " current\n", NULL);
       for(i = 0; i < xctx->extra_raw_n; i++) {
-        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->rawfile, " ", 
+        Tcl_AppendResult(interp, my_itoa(i), " ", xctx->extra_raw_arr[i]->rawfile, " ",
             xctx->extra_raw_arr[i]->sim_type ? xctx->extra_raw_arr[i]->sim_type : "<NULL>", "\n",  NULL);
       }
     }
@@ -1456,7 +1456,7 @@ int update_op()
     }
     Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ vars", my_itoa( xctx->raw->nvars), TCL_GLOBAL_ONLY);
     Tcl_SetVar2(interp, "ngspice::ngspice_data", "n\\ points", "1", TCL_GLOBAL_ONLY);
-  } 
+  }
   return res;
 }
 
@@ -1504,7 +1504,7 @@ int table_read(const char *f)
 
   xctx->raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
   raw = xctx->raw;
-  raw->level = -1; 
+  raw->level = -1;
   raw->annot_p = -1;
   raw->annot_sweep_idx = -1;
 
@@ -1688,8 +1688,8 @@ int get_raw_index(const char *node, Int_hashentry **entry_ret)
   return -1;
 }
 
-/* store calculated custom graph data for later retrieval as in running average calculations 
- * what: 
+/* store calculated custom graph data for later retrieval as in running average calculations
+ * what:
  * 0: clear data
  * 1: store value
  * 2: retrieve value
@@ -1700,7 +1700,7 @@ static double ravg_store(int what , int i, int p, int last, double value)
   static double **arr = NULL;
   int j;
 
-  /* 
+  /*
   dbg(0, "ravg_store: what= %d i= %d p= %d last= %d value=%g\n",
               what, i, p, last, value);
   */
@@ -2022,7 +2022,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
               stack1[i].prev = result;
             }
             ravg_store(1, i, p, last, result);
-            
+
             while(stack1[i].prevp <= last && x[p] - x[stack1[i].prevp] > stack2[stackptr2 - 1]) {
               /* dbg(1, "%g  -->  %g\n", x[stack1[i].prevp], x[p]); */
               stack1[i].prevp++;
@@ -2071,7 +2071,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
               stack1[i].prev = stack2[stackptr2 - 1];
             } else {
               if((x[p] != x[first])) {
-                avg = stack1[i].prev * (x[p - 1] - x[first]) + 
+                avg = stack1[i].prev * (x[p - 1] - x[first]) +
                     (x[p] - x[p - 1]) * (stack1[i].prevy + stack2[stackptr2 - 1]) * 0.5;
                 avg /= (x[p] - x[first]);
               } else  {
@@ -2086,7 +2086,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             stack2[stackptr2] =  stack2[stackptr2 - 1];
             stackptr2++;
             break;
-          case INTEG: 
+          case INTEG:
             if( p == first ) {
               result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
@@ -2098,13 +2098,13 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             }
             stack2[stackptr2 - 1] =  result;
             break;
-          case DERIV: 
+          case DERIV:
             if( p == first ) {
               result = 0;
               stack1[i].prevy = stack2[stackptr2 - 1];
               stack1[i].prev = 0;
             } else {
-              if((x[p] != x[p - 1])) 
+              if((x[p] != x[p - 1]))
                 result =  (stack2[stackptr2 - 1] - stack1[i].prevy) / (x[p] - x[p - 1]);
               else
                 result = stack1[i].prev;
@@ -2150,7 +2150,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
               double fa = stack1[i].prevprevy;
               double fb = stack1[i].prevy;
               double fc = stack2[stackptr2 - 1];
-              if(a != 0.0) 
+              if(a != 0.0)
                 result = (fa - b_on_d * fb - (1 - b_on_d) * fc ) / (a - c * b_on_d);
               else
                 result = stack1[i].prev;
@@ -2273,8 +2273,8 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
             stack2[stackptr2 - 1] =  20 * mylog10(stack2[stackptr2 - 1]);
             break;
           case SGN:
-            stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 : 
-                                    stack2[stackptr2 - 1] < 0.0 ? -1 : 0; 
+            stack2[stackptr2 - 1] = stack2[stackptr2 - 1] > 0.0 ? 1 :
+                                    stack2[stackptr2 - 1] < 0.0 ? -1 : 0;
             break;
         } /* switch(...) */
       } /* if(stackptr2 > 0) */
@@ -2289,7 +2289,7 @@ double get_raw_value(int dataset, int idx, int point)
 {
   int i, ofs;
   ofs = 0;
-  if(dataset >= xctx->raw->datasets) { 
+  if(dataset >= xctx->raw->datasets) {
     dbg(0, "get_raw_value(): dataset(%d) >= datasets(%d)\n", dataset,  xctx->raw->datasets);
   }
   if(xctx->raw && xctx->raw->values && dataset < xctx->raw->datasets) {
@@ -2841,7 +2841,7 @@ static void load_inst(int k, FILE *fd)
     #ifdef __unix__
     if(name[0] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
     else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
-    #else 
+    #else
     if(isupper(name[0]) && name[1] == ':' && name[1] == '/') my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, rel_sym_path(name));
     else my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, name);
     #endif
@@ -3096,10 +3096,10 @@ static void read_xschem_file(FILE *fd)
 
         if((ptr2 = strstr(xctx->version_string, "xschem")) && (ptr2 - xctx->version_string < 50)) {
           my_strdup2(_ALLOC_ID_, &ptr, subst_token(xctx->version_string, "xschem", NULL));
-        }                 
+        }
         my_strdup2(_ALLOC_ID_, &ptr, subst_token(ptr, "version", NULL));
         my_strdup2(_ALLOC_ID_, &ptr, subst_token(ptr, "file_version", NULL));
-        
+
         ptr2 = ptr;
         while(*ptr2 == ' ' || *ptr2 =='\t') ptr2++; /* strip leading spaces */
         if(*ptr2 == '\n') ptr2++; /* strip leading newline */
@@ -3186,7 +3186,7 @@ static void read_xschem_file(FILE *fd)
           str = read_line(fd, 1);
           if(!str || !strncmp(str, "]", 1)) break;
           n = fscanf(fd, " ");
-          (void)n; /* avoid compiler warnings if n unused. can not remove n since ignoring 
+          (void)n; /* avoid compiler warnings if n unused. can not remove n since ignoring
                     * fscanf return value yields another warning */
         }
       }
@@ -3312,7 +3312,7 @@ static int pin_compare(const void *a, const void *b)
   int result;
   xRect *aa = (xRect *)a;
   xRect *bb = (xRect *)b;
-  
+
   tmp = get_tok_value(aa->prop_ptr, "sim_pinnumber", 0);
   pinnumber_a = tmp[0] ?  atoi(tmp) : -1;
   tmp = get_tok_value(bb->prop_ptr, "sim_pinnumber", 0);
@@ -3358,7 +3358,7 @@ static void sort_symbol_pins(xRect *pin_array, int npins, const char *name)
 /* Caller must free returned pointer (if not NULL)
  * number of i/o ports found returned into npins */
 Sch_pin_record *sort_schematic_pins(int *npins)
-{                  
+{
   int i, do_sort = -1;
   const char *pinnumber;
   Sch_pin_record *pinnumber_list = NULL;
@@ -3396,9 +3396,9 @@ Sch_pin_record *sort_schematic_pins(int *npins)
   }
   if(do_sort) {
     qsort(pinnumber_list, *npins, sizeof(Sch_pin_record), schpin_compare);
-  }   
+  }
   return pinnumber_list;
-}             
+}
 
 /* ALWAYS call with absolute path in schname!!! */
 /* return value:
@@ -3455,7 +3455,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   my_snprintf(msg, S(msg), "get_directory {%s}", schname);
   my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
   /* why clear all these? */
-  /* 
+  /*
    * xctx->prep_hi_structs=0;
    * xctx->prep_net_structs=0;
    * xctx->prep_hash_inst=0;
@@ -3502,7 +3502,7 @@ void link_symbols_to_instances(int from)
     }
     else xctx->inst[i].flags &= ~PIN_OR_LABEL; /* ordinary symbol */
   }
-  /* symbol_bbox() might call translate() that might call prepare_netlist_structs() that 
+  /* symbol_bbox() might call translate() that might call prepare_netlist_structs() that
    * needs .lab field set above, so this must be done last */
   for(i = from; i < xctx->instances; ++i) {
     symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);
@@ -3520,7 +3520,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   char msg[PATH_MAX+100];
   struct stat buf;
   int i, ret = 1; /* success */
-  
+
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
   xctx->prep_hash_inst=0;
@@ -3562,10 +3562,10 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       my_snprintf(sympath, S(sympath), "%s",  xschem_web_dirname);
       /* ffname does not begin with $XSCHEM_TMP_DIR/xschem_web and ffname does not exist */
 
-      if(strstr(ffname, sympath) != ffname /* && stat(ffname, &buf)*/) { 
+      if(strstr(ffname, sympath) != ffname /* && stat(ffname, &buf)*/) {
         my_snprintf(msg, S(msg), "get_directory {%s}", ffname);
         my_strncpy(xctx->current_dirname,  tcleval(msg), S(xctx->current_dirname));
-      } 
+      }
       /* local file name */
       my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], ffname);
       /* local relative reference */
@@ -3764,7 +3764,7 @@ void push_undo(void)
       /* the following 2 statements are a replacement for dup2() which is not c89
        * however these are not atomic, if another thread takes stdin
        * in between we are in trouble */
-      #if(HAS_DUP2) 
+      #if(HAS_DUP2)
       dup2(pd[0], 0);
       #else
       close(0); /* close stdin */
@@ -3801,7 +3801,7 @@ void push_undo(void)
 }
 
 /* redo:
- * 0: undo (with push current state for allowing following redo) 
+ * 0: undo (with push current state for allowing following redo)
  * 4: undo, do not push state for redo
  * 1: redo
  * 2: read top data from undo stack without changing undo stack
@@ -3921,7 +3921,7 @@ void pop_undo(int redo, int set_modify_status)
  * return symbol type in type pointer or "" if no type or no symbol found
  * if pintable given (!=NULL) hash all symbol pins
  * if embed_fd is not NULL read symbol from embedded '[...]' tags using embed_fd file pointer */
-void get_sym_type(const char *symname, char **type, 
+void get_sym_type(const char *symname, char **type,
                          Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins)
 {
   int i, c, n = 0;
@@ -3953,7 +3953,7 @@ void get_sym_type(const char *symname, char **type,
   if( !found ) {
     dbg(1, "get_sym_type(): open file %s, pintable %s\n",name, pintable ? "set" : "<NULL>");
     /* ... if not found open file and look for 'type' into the global attributes. */
-    
+
     if(embed_fd) fd = embed_fd;
     else fd=my_fopen(name,fopen_read_mode);
 
@@ -4417,7 +4417,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           read_line(lcc[level].fd, 0);
           continue;
         }
-  
+
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
            &tmpline.x2, &tmpline.y2) < 4 ) {
           fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
@@ -4426,21 +4426,21 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         tmpline.prop_ptr = NULL;
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
-  
+
         if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
           my_free(_ALLOC_ID_, &tmpline.prop_ptr);
           continue;
         }
-  
+
         i=lastl[c];
         my_realloc(_ALLOC_ID_, &ll[c],(i+1)*sizeof(xLine));
-  
+
         ll[c][i].x1 = tmpline.x1;
         ll[c][i].y1 = tmpline.y1;
         ll[c][i].x2 = tmpline.x2;
         ll[c][i].y2 = tmpline.y2;
         ll[c][i].prop_ptr = tmpline.prop_ptr;
-  
+
         if (level>0) {
           rot = lcc[level].rot; flip = lcc[level].flip;
           ROTATION(rot, flip, 0.0, 0.0, ll[c][i].x1, ll[c][i].y1, rx1, ry1);
@@ -4471,7 +4471,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           read_line(lcc[level].fd, 0);
           continue;
         }
-  
+
         tmppoly.x = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
         tmppoly.y = my_calloc(_ALLOC_ID_, poly_points, sizeof(double));
         tmppoly.selected_point = my_calloc(_ALLOC_ID_, poly_points, sizeof(unsigned short));
@@ -4486,27 +4486,27 @@ int load_sym_def(const char *name, FILE *embed_fd)
             tmppoly.x[k] = lcc[level].x0 + rx1;  tmppoly.y[k] = lcc[level].y0 + ry1;
           }
         }
-  
+
         tmppoly.prop_ptr=NULL;
         load_ascii_string( &tmppoly.prop_ptr, lcc[level].fd);
-  
+
         if( !strboolcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
           my_free(_ALLOC_ID_, &tmppoly.prop_ptr);
           my_free(_ALLOC_ID_, &tmppoly.x);
           my_free(_ALLOC_ID_, &tmppoly.y);
           my_free(_ALLOC_ID_, &tmppoly.selected_point);
-          continue; 
+          continue;
         }
-  
+
         i=lastp[c];
         my_realloc(_ALLOC_ID_, &pp[c],(i+1)*sizeof(xPoly));
-  
+
         pp[c][i].x = tmppoly.x;
         pp[c][i].y = tmppoly.y;
         pp[c][i].selected_point = tmppoly.selected_point;
         pp[c][i].prop_ptr = tmppoly.prop_ptr;
         pp[c][i].points = poly_points;
-  
+
         fill_ptr = get_tok_value(pp[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
           pp[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
@@ -4514,14 +4514,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
           pp[c][i].fill = 1;
         else
           pp[c][i].fill = 0;
-  
+
         attr = get_tok_value(pp[c][i].prop_ptr,"dash", 0);
         if( strcmp(attr, "") ) {
           int d = atoi(attr);
           pp[c][i].dash = (short)(d >= 0 ? d : 0);
         } else
           pp[c][i].dash = 0;
-  
+
         pp[c][i].sel = 0;
         pp[c][i].bus = get_attr_val(get_tok_value(pp[c][i].prop_ptr,"bus", 0));
         dbg(2, "l_s_d(): loaded polygon: ptr=%lx\n", (unsigned long)pp[c]);
@@ -4534,7 +4534,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           read_line(lcc[level].fd, 0);
           continue;
         }
-  
+
         if( fscanf(lcc[level].fd, "%lf %lf %lf %lf %lf ",&tmparc.x, &tmparc.y,
            &tmparc.r, &tmparc.a, &tmparc.b) < 5 ) {
           fprintf(errfp,"l_s_d(): WARNING: missing fields for ARC object, ignoring\n");
@@ -4543,22 +4543,22 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         tmparc.prop_ptr = NULL;
         load_ascii_string( &tmparc.prop_ptr, lcc[level].fd);
-  
+
         if( !strboolcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
           my_free(_ALLOC_ID_, &tmparc.prop_ptr);
           continue;
         }
-  
+
         i=lasta[c];
         my_realloc(_ALLOC_ID_, &aa[c],(i+1)*sizeof(xArc));
-  
+
         aa[c][i].x = tmparc.x;
         aa[c][i].y = tmparc.y;
         aa[c][i].r = tmparc.r;
         aa[c][i].a = tmparc.a;
         aa[c][i].b = tmparc.b;
         aa[c][i].prop_ptr = tmparc.prop_ptr;
-  
+
         if (level>0) {
           rot = lcc[level].rot; flip = lcc[level].flip;
           if (flip) {
@@ -4598,7 +4598,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           read_line(lcc[level].fd, 0);
           continue;
         }
-  
+
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmprect.x1, &tmprect.y1,
            &tmprect.x2, &tmprect.y2) < 4 ) {
           fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
@@ -4607,22 +4607,22 @@ int load_sym_def(const char *name, FILE *embed_fd)
         }
         tmprect.prop_ptr = NULL;
         load_ascii_string(&tmprect.prop_ptr, lcc[level].fd);
-  
+
         if( !strboolcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
           my_free(_ALLOC_ID_, &tmprect.prop_ptr);
           continue;
         }
-  
+
         if (level>0 && c == PINLAYER) c = 7; /* Don't care about pins inside SYM: set on different layer */
         i=lastr[c];
         my_realloc(_ALLOC_ID_, &bb[c],(i+1)*sizeof(xRect));
-  
+
         bb[c][i].x1 = tmprect.x1;
         bb[c][i].y1 = tmprect.y1;
         bb[c][i].x2 = tmprect.x2;
         bb[c][i].y2 = tmprect.y2;
         bb[c][i].prop_ptr = tmprect.prop_ptr;
-  
+
         if (level>0) {
           rot = lcc[level].rot; flip = lcc[level].flip;
           ROTATION(rot, flip, 0.0, 0.0, bb[c][i].x1, bb[c][i].y1, rx1, ry1);
@@ -4649,7 +4649,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           int d = atoi(attr);
           bb[c][i].dash = (short)(d >= 0 ? d : 0);
         } else bb[c][i].dash = 0;
-  
+
         bb[c][i].bus = get_attr_val(get_tok_value(bb[c][i].prop_ptr,"bus", 0));
         attr = get_tok_value(bb[c][i].prop_ptr,"ellipse", 0);
         if( strcmp(attr, "") ) {
@@ -4665,7 +4665,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           bb[c][i].ellipse_a = -1;
           bb[c][i].ellipse_b = -1;
         }
-  
+
         bb[c][i].sel = 0;
         bb[c][i].extraptr = NULL;
         set_rect_flags(&bb[c][i]);
@@ -4681,7 +4681,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
           continue;
         }
         load_ascii_string(&tmptext.prop_ptr, lcc[level].fd);
-  
+
         is_floater = 0;
         get_tok_value(tmptext.prop_ptr, "name", 2);
         if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
@@ -4748,9 +4748,9 @@ int load_sym_def(const char *name, FILE *embed_fd)
               for(i = 1; i <level; ++i) {
                 const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
                 my_strcat(_ALLOC_ID_, &path, instname);
-                my_strcat(_ALLOC_ID_, &path, "."); 
+                my_strcat(_ALLOC_ID_, &path, ".");
               }
-            } 
+            }
             if(path) new_size += strlen(path);
             dev = get_tok_value(prop_ptr, "name", 0);
             new_size += strlen(tt[i].txt_ptr) + strlen(dev) + 2 + 1; /* tok(<dev>) */
@@ -4760,7 +4760,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
             tt[i].txt_ptr = txt_ptr;
             my_free(_ALLOC_ID_, &path);
             dbg(1, "--> tt[i].txt_ptr=%s\n", tt[i].txt_ptr);
-          } 
+          }
           ROTATION(rot, flip, 0.0, 0.0, tt[i].x0, tt[i].y0, rx1, ry1);
           tt[i].x0 = lcc[level].x0 + rx1;  tt[i].y0 = lcc[level].y0 + ry1;
           tt[i].rot = (tt[i].rot + ((lcc[level].flip && (tt[i].rot & 1)) ?
@@ -4777,21 +4777,21 @@ int load_sym_def(const char *name, FILE *embed_fd)
         ++lastt;
         break;
       case 'N': /* store wires as lines on layer WIRELAYER. */
-  
+
         tmpline.prop_ptr = NULL;
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
            &tmpline.x2, &tmpline.y2) < 4 ) {
           fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
-        }    
+        }
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
-  
+
         if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
           my_free(_ALLOC_ID_, &tmpline.prop_ptr);
           continue;
         }
-      
+
         i = lastl[WIRELAYER];
         my_realloc(_ALLOC_ID_, &ll[WIRELAYER],(i+1)*sizeof(xLine));
         ll[WIRELAYER][i].x1 = tmpline.x1;
@@ -4799,7 +4799,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         ll[WIRELAYER][i].x2 = tmpline.x2;
         ll[WIRELAYER][i].y2 = tmpline.y2;
         ll[WIRELAYER][i].prop_ptr = tmpline.prop_ptr;
-  
+
         if (level>0) {
           rot = lcc[level].rot; flip = lcc[level].flip;
           ROTATION(rot, flip, 0.0, 0.0, ll[WIRELAYER][i].x1, ll[WIRELAYER][i].y1, rx1, ry1);
@@ -4829,7 +4829,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
            endfile = 1;
            continue;
          }
-  
+
          if(generator) {
            /* for generators (data from a pipe) can not inspect next line (fseek/ftell) looking for
             * embedded symbols. Assume no embedded symbol follows */
@@ -4852,7 +4852,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
            xfseek(lcc[level].fd, filepos, SEEK_SET); /* rewind file pointer */
          }
          dbg(1, "l_s_d(): level=%d, symname=%s symtype=%s\n", level, symname, symtype);
-         
+
          if(  /* add here symbol types not to consider when loading schematic-as-symbol instances */
              !symtype ||
              !strcmp(symtype, "logo") ||
@@ -4882,7 +4882,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          }
          /* replace i/o/iopin.sym filename with better looking (for LCC symbol) pins */
          use_lcc_pins(level, symtype, &sympath);
-  
+
          dbg(1, "l_s_d(): fopen2(%s), level=%d\n",sympath, level);
          /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
          if ((fd_tmp = my_fopen(sympath, fopen_read_mode)) == NULL) {
@@ -4919,7 +4919,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
            if (level > 1) {
              short rot, flip;
              static const int map[4]={0,3,2,1};
-  
+
              flip = lcc[level-1].flip;
              rot = lcc[level-1].rot;
              ROTATION(rot, flip, 0.0, 0.0, lcc[level].x0, lcc[level].y0,lcc[level].x0, lcc[level].y0);
@@ -4932,7 +4932,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
            }
            my_strdup(_ALLOC_ID_, &lcc[level].prop_ptr, prop_ptr);
            my_strdup(_ALLOC_ID_, &lcc[level].symname, symname);
-           dbg(1, "level incremented: level=%d, symname=%s, prop_ptr=%s sympath=%s\n", 
+           dbg(1, "level incremented: level=%d, symname=%s, prop_ptr=%s sympath=%s\n",
              level, symname, prop_ptr, sympath);
          }
          break;
@@ -5017,7 +5017,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
 void make_schematic_symbol_from_sel(void)
 {
   char filename[PATH_MAX] = "";
-  char name[1024]; 
+  char name[1024];
 
   my_snprintf(name, S(name), "save_file_dialog {Save file} * INITIALLOADDIR");
   tcleval(name);
@@ -5034,7 +5034,7 @@ void make_schematic_symbol_from_sel(void)
     place_symbol(-1, filename, 0, 0, 0, 0, NULL, 4, 1, 0/*to_push_undo*/);
     if (has_x)
     {
-      my_snprintf(name, S(name), 
+      my_snprintf(name, S(name),
         "tk_messageBox -type okcancel -parent [xschem get topwindow] "
         "-message {do you want to make symbol view for %s ?}", filename);
       tcleval(name);
@@ -5074,7 +5074,7 @@ void create_sch_from_sym(void)
   my_strdup(_ALLOC_ID_, &pinname[1], tcleval("rel_sym_path [find_file_first opin.sym]"));
   my_strdup(_ALLOC_ID_, &pinname[2], tcleval("rel_sym_path [find_file_first iopin.sym]"));
   my_strdup(_ALLOC_ID_, &generic_pin, tcleval("rel_sym_path [find_file_first generic_pin.sym]"));
-  
+
   if(pinname[0] && pinname[1] && pinname[2] && generic_pin) {
     rebuild_selected_array();
     if(xctx->lastsel > 1)  return;
@@ -5137,7 +5137,7 @@ void create_sch_from_sym(void)
           if(!sub_prop) continue;
           /* remove dir=... from prop string 20171004 */
           my_strdup(_ALLOC_ID_, &sub2_prop, subst_token(sub_prop, "dir", NULL));
-  
+
           my_strdup(_ALLOC_ID_, &dir, get_tok_value(rct[i].prop_ptr,"dir",0));
           if(!sub2_prop) continue;
           if(!dir) continue;
@@ -5192,7 +5192,7 @@ int descend_symbol(void)
       /* if circuit is changed but not saved before descending
        * state will be inconsistent when returning, can not propagare hilights
        * save() return value:
-       *  1 : file saved 
+       *  1 : file saved
        * -1 : user cancel
        *  0 : file not saved due to errors or per user request
        */
@@ -5222,7 +5222,7 @@ int descend_symbol(void)
             xctx->inst[n].prop_ptr);
   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ,
             xctx->sym[xctx->inst[n].ptr].templ);
-  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra, 
+  my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra,
     get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
   if(!xctx->inst[n].embed)

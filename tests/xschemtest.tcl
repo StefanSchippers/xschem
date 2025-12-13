@@ -13,7 +13,7 @@
 ## optionally with logging to catch memory leaks:
 # xschem -d 3 -l log --script /path/to/xschemtest.tcl
 ## and then running: xschemtest
-## running this test with different xschem versions with profiling enabled (-pg) 
+## running this test with different xschem versions with profiling enabled (-pg)
 ## allows to see differences in number of function calls / time spent.
 
 ## move schematic and redraw in a loop.
@@ -172,7 +172,7 @@ proc print_test {{view 0}} {
 proc test_xschem_simulation {{f simulate_ff.sch}} {
   global tclstop OS
   xschem load [abs_sym_path $f]
-  ## search element with tclcommand attribute 
+  ## search element with tclcommand attribute
   if {$OS ne {Windows}} {
     xschem search regex  1 tclcommand {}
   } else {

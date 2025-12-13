@@ -150,7 +150,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    bus_char[1] = str_tmp[1];
  }
  xctx->netlist_count=0;
- my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
+ my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
@@ -197,7 +197,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
  {
    int saved_hilight_nets = xctx->hilight_nets;
    int web_url = is_from_web(xctx->current_dirname);
-   char *current_dirname_save = NULL; 
+   char *current_dirname_save = NULL;
 
    unselect_all(1);
    /* ensure all unused symbols purged before descending hierarchy */

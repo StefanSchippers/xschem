@@ -7,10 +7,10 @@
 # LDPRECH          6
 #
 # place pin objects (squares on layer 5)  and labels in the current symbol window.
-# pins are placed at growing y coordinates (going down in xschem coordinate system) 
+# pins are placed at growing y coordinates (going down in xschem coordinate system)
 # parameters:
 # filename: name for the file holding the list of pins.
-# 2 columns are assumed: pin name and pin number 
+# 2 columns are assumed: pin name and pin number
 # dir: pin direction (in, out or inout)
 # x, y: coordinate for first pin
 # spacing: vertical spacing between one pin and the following.

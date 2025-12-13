@@ -34,7 +34,7 @@ static unsigned int hi_hash(const char *tok)
       hash += (hash << 5) + c;
     }
     xctx->sch_path_hash[xctx->currsch] = hash;
-  } else { 
+  } else {
     hash = xctx->sch_path_hash[xctx->currsch];
   }
   while ( (c = (unsigned char)*tok++) ) {
@@ -48,8 +48,8 @@ static void hilight_hash_free_entry(Hilight_hashentry *entry)
   Hilight_hashentry *tmp;
   while(entry) {
     tmp = entry->next;
-    my_free(_ALLOC_ID_, &entry->token); 
-    my_free(_ALLOC_ID_, &entry->path); 
+    my_free(_ALLOC_ID_, &entry->token);
+    my_free(_ALLOC_ID_, &entry->path);
     my_free(_ALLOC_ID_, &entry);
     entry = tmp;
   }
@@ -79,7 +79,7 @@ static Hilight_hashentry *hilight_hash_lookup(const char *token, int value, int 
 {
   unsigned int hashcode, index;
   Hilight_hashentry **preventry;
- 
+
   if(token==NULL) return NULL;
   hashcode=hi_hash(token);
   index=hashcode % HASHSIZE;
@@ -151,7 +151,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   char *string=NULL;
   Hilight_hashentry *ptr1=NULL, *ptr2=NULL;
   int mult;
- 
+
   dbg(1, "bus_hilight_hash_lookup(): token=%s value=%d what=%d\n",
        token ? token : "<NULL>", value, what);
   xctx->some_nets_added = 0;
@@ -218,10 +218,10 @@ void copy_hilights(void)
     new_entry = &xctx->hilight_table[i];
     while(entry && *entry) {
       Hilight_hashentry *new = (Hilight_hashentry *)my_calloc(_ALLOC_ID_, 1, sizeof( Hilight_hashentry ));
-        
+
       if(*new_entry) (*new_entry) = new;
       xctx->hilight_nets = 1;
-      
+
       my_strdup2(_ALLOC_ID_, &(new->token), (*entry)->token);
       my_strdup2(_ALLOC_ID_, &(new->path), (*entry)->path);
       new->hash = (*entry)->hash;
@@ -267,7 +267,7 @@ void display_hilights(int what, char **str)
         my_strcat(_ALLOC_ID_, str,"}");
         first = 0;
       }
-      skip: 
+      skip:
       entry = entry->next;
     }
   }
@@ -282,7 +282,7 @@ static int there_are_hilights()
     if(hiptr[i]) return 1;
   }
   for(i = 0; i < xctx->instances; ++i) {
-    if(inst[i].color != -10000) return 1; 
+    if(inst[i].color != -10000) return 1;
   }
   return 0;
 }
@@ -304,13 +304,13 @@ int hilight_graph_node(const char *node, int col)
   path_skip++; /* skip initial '.' */
   /* skip path components that are above the level where raw file was loaded */
   while(*path_skip && skip < start_level) {
-    if(*path_skip == '.') skip++; 
+    if(*path_skip == '.') skip++;
     ++path_skip;
-  } 
+  }
 
   my_strdup2(_ALLOC_ID_, &n, node);
   nptr = n;
-  
+
   dbg(1, "hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col);
   if(strstr(n, "i(v.")) {current = 1; nptr += 4;}
   else if(strstr(n, "I(V.")) {current = 1; nptr += 4;}
@@ -326,7 +326,7 @@ int hilight_graph_node(const char *node, int col)
     nptr = ptr2 + 1;
     if(!strstr(path_skip, path3))
       my_mstrcat(_ALLOC_ID_, &path2, path, path3, ".", NULL);
-    else 
+    else
       my_strdup2(_ALLOC_ID_, &path2, path);
   }
   else {
@@ -347,7 +347,7 @@ int hilight_graph_node(const char *node, int col)
   return 1;
 }
 
-/* by default: 
+/* by default:
  * xctx->active_layer[0] = 7
  * xctx->active_layer[1] = 8
  * xctx->active_layer[2] = 10  if 9 is disabled it is skipped
@@ -375,7 +375,7 @@ void incr_hilight_color(void)
   dbg(1, "incr_hilight_color(): xctx->hilight_color=%d\n", xctx->hilight_color);
 }
 
-static void set_rawfile_for_bespice() 
+static void set_rawfile_for_bespice()
 {
   char raw_file[PATH_MAX];
   char netlist_file[PATH_MAX];
@@ -392,7 +392,7 @@ static void set_rawfile_for_bespice()
   tclvareval("puts $bespice_server_getdata(sock) ",
               "{create_equivalent_nets \"", raw_file, "\" \"", netlist_file, "\"}",
               NULL);
-  /* (3) make sure that the raw file is used for commands plotting voltages and currents 
+  /* (3) make sure that the raw file is used for commands plotting voltages and currents
             this is important if more than one file has been opened. */
   tclvareval("puts $bespice_server_getdata(sock) ",
               "{use_file_for_link_to_schematic \"", raw_file, "\"}",
@@ -460,7 +460,7 @@ void create_plot_cmd(void)
         c = get_color(entry->value);
         ++idx;
         if(viewer == NGSPICE) {
-          sprintf(color_str, "%02x/%02x/%02x", 
+          sprintf(color_str, "%02x/%02x/%02x",
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           if(idx > 9) {
             idx = 2;
@@ -481,7 +481,7 @@ void create_plot_cmd(void)
         }
         if(viewer == GAW) {
           char *t=NULL, *p=NULL;
-          sprintf(color_str, "%02x%02x%02x", 
+          sprintf(color_str, "%02x%02x%02x",
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           my_strdup(_ALLOC_ID_, &t, tok);
           my_strdup2(_ALLOC_ID_, &p, (entry->path)+1);
@@ -502,12 +502,12 @@ void create_plot_cmd(void)
         }
         if(viewer == BESPICE) {
           char *t=NULL, *p=NULL;
-          sprintf(color_str, "#%02x%02x%02x", 
+          sprintf(color_str, "#%02x%02x%02x",
             xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8, xctx->xcolor_array[c].blue>>8);
           my_strdup(_ALLOC_ID_, &t, tok);
           my_strdup2(_ALLOC_ID_, &p, (entry->path)+1);
 
-          /* bespice command syntax : 
+          /* bespice command syntax :
                 add_voltage_on_spice_node_to_plot <plot name> <section name> <hierarchical spice node name> <flag clear> [<color>]
                     plot name is "*" => automatic
                     section name is empty => automatic or user defined
@@ -560,7 +560,7 @@ void hilight_net_pin_mismatches(void)
   int mult;
   xRect *rct;
   int incr_hi;
-  
+
   incr_hi = tclgetboolvar("incr_hilight");
   rebuild_selected_array();
   prepare_netlist_structs(0);
@@ -608,7 +608,7 @@ void hilight_parent_pins(void)
  inst_number = xctx->sch_inst_number[xctx->currsch];
 
  /* may be set to -1 by descend_symbol to notify we are
-  * descending into a smbol from an instance with no embed flag set 
+  * descending into a smbol from an instance with no embed flag set
   * this is used when descending into symbols created from generators */
  if(inst_number == -1) inst_number = 1;
 
@@ -620,7 +620,7 @@ void hilight_parent_pins(void)
  /* propagate global nets */
  for(j=0;j<HASHSIZE; ++j) {
    entry=xctx->hilight_table[j];
-   for( entry=xctx->hilight_table[j]; entry; entry = entry->next) { 
+   for( entry=xctx->hilight_table[j]; entry; entry = entry->next) {
      if(entry->token[0] == ' ') continue; /* skip instances, process only nets */
      if(record_global_node(3, NULL, entry->token)) {
        dbg(1, "entry token=%s, value=%d\n", entry->token, entry->value);
@@ -651,7 +651,7 @@ void hilight_parent_pins(void)
     if(entry)
     {
       dbg(1, "found hilight entry in child: %s\n", entry->token);
-      bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0, 
+      bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
     else
@@ -662,7 +662,7 @@ void hilight_parent_pins(void)
        * in the hierarchy. If you want to see how child pins propagate upstream
        * you should unhilight all net probes, hilight the desired child pins and then go up */
 
-      /* 
+      /*
        * bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
        *     ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XDELETE);
        */
@@ -703,7 +703,7 @@ void hilight_child_pins(void)
  }
 
  /* may be set to -1 by descend_symbol to notify we are
-  * descending into a smbol from an instance with no embed flag set 
+  * descending into a smbol from an instance with no embed flag set
   * this is used when descending into symbols created from generators */
  if(inst_number == -1) inst_number = 1;
 
@@ -752,7 +752,7 @@ static int bus_search(const char*s)
 }
 
 #ifndef __unix__
-int win_regexec(const char *options, const char *pattern, const char *name) 
+int win_regexec(const char *options, const char *pattern, const char *name)
 {
   if (options!=NULL)
     tclvareval("regexp {", options,"} {", pattern, "} {", name, "}", NULL);
@@ -797,7 +797,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
  }
  save_draw = xctx->draw_window;
  xctx->draw_window=1;
- /* replace strcmp and strstr with my_strcasecmp and my_strcasestr 
+ /* replace strcmp and strstr with my_strcasecmp and my_strcasestr
   * if SPICE or VHDL (case insensitive) netlist mode is set */
  if(!match_case) {
    comparefn = my_strcasecmp;
@@ -808,7 +808,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
    cflags |= REG_ICASE; /* ignore case for Spice and VHDL (these are case insensitive netlists) */
  }
  if(regcomp(&re, val , cflags)) return TCL_ERROR;
- #else 
+ #else
  if(!match_case) {
    my_strdup(_ALLOC_ID_, &regexp_options, "-nocase");
  }
@@ -1119,7 +1119,7 @@ static void drill_hilight(int mode)
           if( (entry=bus_hilight_hash_lookup(netbitname, 0, XLOOKUP)) ) {
             if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
               xctx->inst[i].color = entry->value;
-              inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE); 
+              inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE);
             }
             my_strdup(_ALLOC_ID_, &propagate_str, get_tok_value(rct[j].prop_ptr, "propag", 0));
             if(propagate_str) {
@@ -1204,7 +1204,7 @@ static void send_net_to_bespice(int simtype, const char *node)
     my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     for(k=1; k<=tok_mult; ++k) {
       my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
-      /* bespice command syntax : 
+      /* bespice command syntax :
             add_voltage_on_spice_node_to_plot <plot name> <section name> <hierarchical spice node name> <flag clear> [<color>]
                 plot name is "*" => automatic
                 section name is empty => automatic or user defined
@@ -1298,7 +1298,7 @@ static void send_current_to_bespice(int simtype, const char *node)
   const char *tok;
   char color_str[30];
   char *t=NULL, *p=NULL;
-  
+
   set_rawfile_for_bespice();
 
   if(!node || !node[0]) return;
@@ -1311,7 +1311,7 @@ static void send_current_to_bespice(int simtype, const char *node)
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   for(k=1; k<=tok_mult; ++k) {
     my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
-    /* bespice command syntax : 
+    /* bespice command syntax :
         add_current_through_spice_device_to_plot <plot name> <section name> <hierarchical spice device name> <flag clear> [<color>]
             plot name is "*" => automatic
             section name is empty => automatic or user defined
@@ -1358,7 +1358,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
       my_snprintf(ss, S(ss), "i(%s%s%s) %d", there_is_hierarchy ? "v." : "", path, t, c);
       my_strcat(_ALLOC_ID_, s, ss);
     } else { /* Xyce */
-      /* 
+      /*
       my_snprintf(ss, S(ss), "%s%s%s#branch %d", there_is_hierarchy ? "v." : "",
                   path, (there_is_hierarchy ? t+1 : t) , c);
       */
@@ -1428,7 +1428,7 @@ void propagate_hilights(int set, int clear, int mode)
 
   dbg(1, "propagate_hilights() for %s\n", xctx->current_name);
   en_hi = tclgetboolvar("en_hilight_conn_inst");
-  
+
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; ++i) {
     if(xctx->inst[i].ptr < 0 ) {
@@ -1437,7 +1437,7 @@ void propagate_hilights(int set, int clear, int mode)
       continue;
     }
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
-    hilight_connected_inst = en_hi && 
+    hilight_connected_inst = en_hi &&
       ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
     /* hilight/clear instances with highlight=true attr set and en_hilight_conn_inst option is set ... */
     if(type && !IS_LABEL_SH_OR_PIN(type)) {
@@ -1473,7 +1473,7 @@ void propagate_hilights(int set, int clear, int mode)
       entry=bus_hilight_hash_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set) {
         xctx->inst[i].color = entry->value;
-        inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE); 
+        inst_hilight_hash_lookup(i, entry->value, XINSERT_NOREPLACE);
       }
       else if(!entry && clear) xctx->inst[i].color = -10000;
     }
@@ -1702,7 +1702,7 @@ static void create_simdata(void)
       xctx->simdata[i].pin[j].go_to=NULL;
       my_snprintf(function, S(function), "function%d", j);
       my_strdup(_ALLOC_ID_, &xctx->simdata[i].pin[j].function, get_tok_value(symbol->prop_ptr, function, 0));
-      my_strdup(_ALLOC_ID_, &xctx->simdata[i].pin[j].go_to, 
+      my_strdup(_ALLOC_ID_, &xctx->simdata[i].pin[j].go_to,
                 get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "goto", 0));
       str = get_tok_value(symbol->rect[PINLAYER][j].prop_ptr, "clock", 0);
       xctx->simdata[i].pin[j].clock = str[0] ? str[0] - '0' : -1;
@@ -1810,9 +1810,9 @@ static void propagate_logic()
             if(newval != 4 && xctx->simdata[i].pin[propagate].value != val ) {
               found=1; /* keep looping until no more nets are found. */
               xctx->simdata[i].pin[propagate].value = val;
-              dbg(1, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n", 
+              dbg(1, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n",
                   xctx->inst[i].instname, j, xctx->inst[i].node[propagate], val);
-            } 
+            }
           } /* while( ith-goto )  */
         } /* if((xctx->simdata && xctx->simdata[i].pin && xctx->simdata[i].pin[j].go_to) */
       } /* for(j...) */
@@ -1825,7 +1825,7 @@ static void propagate_logic()
       for(j=0;j < xctx->simdata[i].npin; ++j) {
         if(xctx->simdata[i].pin[j].value != -10000) {
           if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
-          entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP); 
+          entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
           if(!entry || xctx->hilight_time != entry->time) {
             hilight_hash_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
             dbg(1, "propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
@@ -1860,7 +1860,7 @@ void logic_set(int value, int num, const char *net_name)
   int big =  xctx->wires> 2000 || xctx->instances > 2000 ;
   static const int map[] = {LOGIC_0, LOGIC_1, LOGIC_X, LOGIC_Z, LOGIC_NOUP};
   Hilight_hashentry  *entry;
- 
+
   tclsetvar("tclstop", "0");
   prepare_netlist_structs(0);
   if(!xctx->simdata) create_simdata();
@@ -2060,7 +2060,7 @@ void select_hilight_net(void)
  for(i=0;i<xctx->instances; ++i) {
 
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
-  hilight_connected_inst = en_hi && 
+  hilight_connected_inst = en_hi &&
     ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
   if( xctx->inst[i].color != -10000) {
     dbg(1, "select_hilight_net(): instance %d flags & HILIGHT_CONN true\n", i);
@@ -2092,7 +2092,7 @@ void select_hilight_net(void)
  xctx->need_reb_sel_arr = 1;
  rebuild_selected_array(); /* sets or clears xctx->ui_state SELECTION flag */
  redraw_hilights(0);
- 
+
 }
 
 
@@ -2324,13 +2324,13 @@ void print_hilight_net(int show)
      /* before invoking this function, in this case --> skip */
      if(node_entry && !strcmp(xctx->sch_path[xctx->currsch], entry->path)) {
        if(show==3) {
-         if(xctx->netlist_type == CAD_SPICE_NETLIST) 
-           fprintf(fd, ".save v(%s%s)\n", 
-              entry->path + 1, 
+         if(xctx->netlist_type == CAD_SPICE_NETLIST)
+           fprintf(fd, ".save v(%s%s)\n",
+              entry->path + 1,
               entry->token[0] == '#' ? entry->token + 1 : entry->token  );
          else
-           fprintf(fd, "%s%s\n", 
-              entry->path + 1, 
+           fprintf(fd, "%s%s\n",
+              entry->path + 1,
               entry->token[0] == '#' ? entry->token + 1 : entry->token  );
        } else if(show==1) {
          fprintf(fd, "%s\n",  entry->token);
@@ -2407,7 +2407,7 @@ void list_hilights(int all)
           entry->token, "  ", my_itoa(entry->value), "\n", NULL);
      }
    }
- } else 
+ } else
  for(i=0;i<HASHSIZE; ++i) {
    entry=xctx->hilight_table[i];
    while(entry) {

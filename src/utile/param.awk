@@ -1,28 +1,28 @@
 #!/usr/bin/awk -f
 # File: param.awk
-# 
+#
 # This file is part of XSCHEM,
 # a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 # simulation.
 # Copyright (C) 1998-2023 Stefan Frederik Schippers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 # 20200212 added simple expression parsing
 
-# 20170830 
+# 20170830
 BEGIN{
  for(i=0;i<=127;i++)
  {
@@ -34,7 +34,7 @@ BEGIN{
 {
   gsub (/[ \t]*=[ \t]*/, "=")
 }
-  
+
 
 /^\.*param/{
  param[$2]=arith($3)
@@ -59,9 +59,9 @@ BEGIN{
     }
     else {
      $nf = arith($nf)
-    }  
+    }
   }
-}   
+}
 
 
  #20171117 ascii string --> hex
@@ -85,7 +85,7 @@ BEGIN{
 
 
 
-# 20150718 generic replacer of {param} patterns 
+# 20150718 generic replacer of {param} patterns
 # example: set vcc '{param}? 1.2 : {vhigh}'
 function replace(s,       pre, par, post)
 {
@@ -134,7 +134,7 @@ function arith(s,      op, n, ss, j, valid_expr, arith_operators)
   }
  }
  if(!valid_expr) return sss
- # if the result of an arithmetic evaluation is 1 return 1.0 
+ # if the result of an arithmetic evaluation is 1 return 1.0
  # otherwise stimuli.awk will translate it to the high logic value
  else if(arith_operators && lab==1) return "1.0"
  else return lab

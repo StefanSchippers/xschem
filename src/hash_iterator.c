@@ -26,7 +26,7 @@ void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, doub
 {
       ctx->instflag = NULL;
       dbg(3, "init_inst_iterator(): instances=%d\n", xctx->instances);
-      
+
       if(xctx->instances) {
         my_realloc(_ALLOC_ID_, &ctx->instflag, xctx->instances*sizeof(unsigned short));
         memset(ctx->instflag, 0, xctx->instances*sizeof(unsigned short));

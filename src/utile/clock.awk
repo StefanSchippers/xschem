@@ -1,27 +1,27 @@
 #!/usr/bin/awk -f
 # File: clock.awk
-# 
+#
 # This file is part of XSCHEM,
 # a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 # simulation.
 # Copyright (C) 1998-2023 Stefan Frederik Schippers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 
-# 
+#
 #  plugin for clock expansion
 #
 # clock <signal> <pulse> <period> [invert] [high value] [low value]
@@ -30,7 +30,7 @@
 #___________________|       |____________|       |__________
 #                   |       |            |
 #                   |<pulse>|            |
-#                   |<----- period ----->|     
+#                   |<----- period ----->|
 #                   |
 #             clock_start
 #				Stefan, 04122001
@@ -41,7 +41,7 @@ BEGIN {
   OFMT="%.14g" # better precision
   CONVFMT="%.14g"
   old_event=-1
-} 
+}
 
 ## stefan fix 20100630: reset absolute time if multiple beginfile--endfile given
 /^[ \t]*beginfile[ \t]+/{
@@ -49,7 +49,7 @@ BEGIN {
 }
 
 /^[ \t]*clock[ \t]+/{
-  
+
  sub(/[ \t]*;.*/,"")
  clock_name = $2
  clock_start[clock_name]=time
@@ -67,7 +67,7 @@ BEGIN {
   if($6!="") clock_low[clock_name]=$6
   else       clock_low[clock_name]=0
  }
- 
+
  print "set " clock_name  " " value(clock_name, clock_state[clock_name])
  next
 }
@@ -128,7 +128,7 @@ function next_event(             k, i, clock_event1, clock_event2)
 {
  k=0
  for(i in clock_start)
- { 
+ {
   clock_event1 = int( (time-clock_start[i])/clock_period[i])*clock_period[i] + clock_start[i]
   while(clock_event1 <= time) {
      clock_event1+=clock_period[i]
@@ -137,14 +137,14 @@ function next_event(             k, i, clock_event1, clock_event2)
   while(clock_event2 <= time) {
      clock_event2+=clock_period[i]
   }
-  if(clock_event1 < clock_event2) 
+  if(clock_event1 < clock_event2)
     clock_event = clock_event1+0
-  else 
+  else
     clock_event = clock_event2+0
   if(!k) { event=clock_event ; current_clock=i; k=1}
-  else if(clock_event < event) 
+  else if(clock_event < event)
   {
-   event = clock_event 
+   event = clock_event
    current_clock=i
   }
   else if( abs(clock_event - event)<1e-12 )
@@ -163,7 +163,7 @@ function value(clock_name, i) {
  else return clock_low[clock_name]
 }
 
-function abs(x) 
+function abs(x)
 {
   return x<0? -x : x
 }

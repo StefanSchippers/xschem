@@ -408,7 +408,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int interactive = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      
+
       if(argc > 2) interactive = atoi(argv[2]);
       attach_labels_to_inst(interactive);
       Tcl_ResetResult(interp);
@@ -1701,7 +1701,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
              Tcl_SetResult(interp, xctx->schverilogprop ? xctx->schverilogprop : "", TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "schspectreprop")) /* get schematic "spectre" global attributes */
-          { 
+          {
              Tcl_SetResult(interp, xctx->schspectreprop ? xctx->schspectreprop : "", TCL_VOLATILE);
           }
           else if(!strcmp(argv[2], "schsymbolprop")) /* get schematic "symbol" global attributes */
@@ -1746,7 +1746,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "symbols")) { /* number of loaded symbols */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp, my_itoa(xctx->symbols), TCL_VOLATILE);
-          } 
+          }
 
           break;
           case 't':
@@ -1890,7 +1890,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* get_fqdevice instname param modelparam
      *   get the full pathname of "instname" device
-     *   modelparam: 
+     *   modelparam:
      *     0: current, 1: modelparam, 2: modelvoltage
      *   param: device parameter, like ib, gm, vth
      *   set param to {} (empty str) for just branch current of 2 terminal device
@@ -2385,18 +2385,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       const char *instname=NULL;
       int i, fast = 0;
-      
+
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; i++) {
         if(argv[i][0] == '-') {
           if(!strcmp(argv[i], "-fast")) {
             fast = 1;
           }
-        } else { 
+        } else {
           instname = argv[i];
           break;
         }
-      } 
+      }
       if(instname) {
         int inst;
         char *type;
@@ -2431,7 +2431,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* hilight_netname [-fast] net 
+    /* hilight_netname [-fast] net
      *   Highlight net name 'net'
      *   if '-fast' is given do not redraw hilights after operation */
     else if(!strcmp(argv[1], "hilight_netname"))
@@ -3049,7 +3049,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       for(i = 2; i < argc; i++) {
         if(argv[i][0] == '-') {
-          if(!strcmp(argv[i], "-nosymbols")) { 
+          if(!strcmp(argv[i], "-nosymbols")) {
             load_symbols = 0 ;
           } else if(!strcmp(argv[i], "-gui")) {
             force = 0;
@@ -3172,7 +3172,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
           if(!strcmp(argv[i], "-lastclosed")) {
             my_strncpy(f, tcleval("get_lastclosed"), S(f));
-          } else if(!strcmp(argv[i], "-lastopened")) {    
+          } else if(!strcmp(argv[i], "-lastopened")) {
             my_strncpy(f, tcleval("get_lastopened"), S(f));
           } else if(!is_from_web(argv[i])) {
             my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
@@ -3250,7 +3250,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int res = -2;
       struct stat buf;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 2) { 
+      if(argc > 2) {
         int i = get_symbol(rel_sym_path(argv[2]));
         if(i < 0 ) {
           if(!stat(argv[2], &buf)) { /* file exists */
@@ -3530,7 +3530,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   will create the netlist in different places.
      *   netlisting directory is reset to previous setting after completing this command
      *   If -messages is given return the ERC messages instead of just a fail (1)
-     *   or no fail (0) code. 
+     *   or no fail (0) code.
      *   If -erc is given it means netlister is called from gui, enable show infowindow
      *   If -nohier is given netlist only current level
      *   If -keep_symbols is given no not purge symbols encountered traversing the
@@ -4701,7 +4701,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {
           xctx->ui_state |= MENUSTART;
           xctx->ui_state2 = MENUSTARTRECT;
-        } 
+        }
       } else {
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTRECT;
@@ -5599,7 +5599,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "schspectreprop")) { /* set schematic global spectre attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->schspectreprop, argv[3]);
-          } 
+          }
           else if(!strcmp(argv[2], "schvhdlprop")) { /* set schematic global vhdl attribute string */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, argv[3]);
@@ -5720,7 +5720,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       argc -= shift;
 
 
-    /*   0       1       2     3    4     5  
+    /*   0       1       2     3    4     5
      * xschem setprop instance R4 value [30k]  */
       if(argc > 2 && !strcmp(argv[2], "instance")) {
         int inst;
@@ -5736,7 +5736,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           char *translated_sym = NULL;
           int sym_number = -1;
           char *subst = NULL, *old_name = NULL;;
-   
+
           if(!fast) {
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
             xctx->push_undo();
@@ -5811,7 +5811,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strdup2(_ALLOC_ID_, &sym->prop_ptr, subst_token(sym->prop_ptr, argv[4], NULL)); /* delete attr */
 
       } else if(argc > 5 && !strcmp(argv[2], "rect")) {
-      /*  0       1      2   3 4   5    6     
+      /*  0       1      2   3 4   5    6
        * xschem setprop rect c n token [value] */
         int change_done = 0;
         xRect *r;
@@ -5948,7 +5948,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* show_unconnected_pins
      *   Add a "lab_show.sym" to all instance pins that are not connected to anything */
     else if(!strcmp(argv[1], "show_unconnected_pins") )
-    {       
+    {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       show_unconnected_pins();
       Tcl_ResetResult(interp);
@@ -6192,7 +6192,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         /* free_rawfile(&xctx->raw, 0, 0); */
         table_read(f);
-         
+
         if(sch_waves_loaded() >= 0) {
           my_strdup(_ALLOC_ID_, &xctx->raw->sim_type, "table");
           draw();
@@ -6513,7 +6513,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* unselect_attached_floaters
-     *   Unselect objects (not symbol instances) attached to some instance with a 
+     *   Unselect objects (not symbol instances) attached to some instance with a
      *   non empty name=... attribute */
     else if(!strcmp(argv[1], "unselect_attached_floaters"))
     {
@@ -6644,7 +6644,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         } else {
           xctx->last_command = 0;
-          xctx->ui_state |= MENUSTART;                   
+          xctx->ui_state |= MENUSTART;
           xctx->ui_state2 = MENUSTARTWIRE;
         }
       } else {

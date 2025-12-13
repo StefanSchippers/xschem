@@ -26,7 +26,7 @@
 #endif
 static int check_includes(double x1a, double y1a, double x2a, double y2a,
                    double x1b, double y1b, double x2b, double y2b)
-{ 
+{
   if( x1b >= x1a && x2b <= x2a && y1b >= y1a && y2b <= y2a &&
       ( (x2a-x1a)*(y2b-y1b) == (x2b-x1b)*(y2a-y1a) ) /* parallel */
   ) {
@@ -37,7 +37,7 @@ static int check_includes(double x1a, double y1a, double x2a, double y2a,
 
 static int check_breaks(double x1, double y1, double x2, double y2, double x, double y)
 {
-  if( ( (x > x1 && x < x2) || (y > y1 && y < y2) ) && 
+  if( ( (x > x1 && x < x2) || (y > y1 && y < y2) ) &&
       ( (x2-x1)*(y-y1) == (x-x1)*(y2-y1) ) /* parallel */
   ) {
     return 1;
@@ -258,7 +258,7 @@ void trim_wires(void)
         }
         j = wptr->n;
         if(i == j || wireflag[j]) continue;
-  
+
         includes = check_includes(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
                                   xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2);
         if(includes) {
@@ -272,7 +272,7 @@ void trim_wires(void)
       }
     }
     /* dbg(1, "trim_wires(): included: %g\n", timer(1)); */
-  
+
     /* delete wires */
     j = 0;
     for(i=0;i<xctx->wires; ++i)
@@ -294,7 +294,7 @@ void trim_wires(void)
       changed = 1;
     }
     /* dbg(1, "trim_wires(): delete_1: %g\n", timer(1)); */
-  
+
     /* after wire deletions full rehash is needed */
     hash_wires();
 
@@ -335,12 +335,12 @@ void trim_wires(void)
               if(k == 1) xctx->wire[i].end1 += 1;
               else       xctx->wire[i].end2 += 1;
             }
-          } 
+          }
         }
       }
     }
     /* dbg(1, "trim_wires(): endpoints: %g\n", timer(1)); */
-  
+
     /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
     for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
@@ -353,7 +353,7 @@ void trim_wires(void)
         if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) &&
             /* parallel */
             (xctx->wire[i].x2 -  xctx->wire[i].x1) * (xctx->wire[j].y2 -  xctx->wire[j].y1) ==
-            (xctx->wire[j].x2 -  xctx->wire[j].x1) * (xctx->wire[i].y2 -  xctx->wire[i].y1) && 
+            (xctx->wire[j].x2 -  xctx->wire[j].x1) * (xctx->wire[i].y2 -  xctx->wire[i].y1) &&
             /* touch in wire[j].x1, wire[j].y1 */
             xctx->wire[j].x1 == x0 && xctx->wire[j].y1 == y0 &&
             /* no other connecting wires */
@@ -368,7 +368,7 @@ void trim_wires(void)
       }
     }
     /* dbg(1, "trim_wires(): merge: %g\n", timer(1)); */
-  
+
     /* delete wires */
     j = 0;
     for(i=0;i<xctx->wires; ++i)
@@ -426,7 +426,7 @@ static int touches_inst_pin(double x, double y, int inst)
 
 /* return 2 if x0, y0 is on the segment
  * return 1 if x0, y0 is less than cadsnap (10) from the segment
- * return 0 if nothing will be cut (mouse too far away or degenerated segment) 
+ * return 0 if nothing will be cut (mouse too far away or degenerated segment)
  * In this case x0, y0 are reset to the closest point on the segment */
 static int closest_point_calculation(double x1, double y1, double x2, double y2,
                                      double *x0, double *y0, int align)
@@ -500,7 +500,7 @@ void break_wires_at_point(double x0, double y0, int align)
         xctx->wire[xctx->wires].bus = xctx->wire[i].bus;
         xctx->wire[xctx->wires].node=NULL;
         hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
-        dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
+        dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n",
             xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
                          xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
         my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
@@ -558,9 +558,9 @@ void break_wires_at_pins(int remove)
                   i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
               if(!changed) { xctx->push_undo(); changed=1;}
               check_wire_storage();
-              if(!remove || !RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, x0, y0, 
+              if(!remove || !RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, x0, y0,
                              xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)
-                             || (!touches_inst_pin(xctx->wire[i].x1, xctx->wire[i].y1, k) && xctx->wire[i].end1 > 0) 
+                             || (!touches_inst_pin(xctx->wire[i].x1, xctx->wire[i].y1, k) && xctx->wire[i].end1 > 0)
                 ) {
                 xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
                 xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
@@ -574,7 +574,7 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].bus = xctx->wire[i].bus;
                 xctx->wire[xctx->wires].node=NULL;
                 hash_wire(XINSERT, xctx->wires, 0);  /* insertion happens at beginning of list */
-                dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n", 
+                dbg(1, "break_wires_at_pins(): hashing new wire %d: %g %g %g %g\n",
                     xctx->wires, xctx->wire[xctx->wires].x1, xctx->wire[xctx->wires].y1,
                                  xctx->wire[xctx->wires].x2, xctx->wire[xctx->wires].y2);
                 my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[i].node);
@@ -590,7 +590,7 @@ void break_wires_at_pins(int remove)
                   xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)) {
 
                 if(touches_inst_pin(xctx->wire[i].x2, xctx->wire[i].y2, k) || xctx->wire[i].end2 == 0) {
-                  dbg(1, "break_wires_at_pins(): wire %d needs to be deleted: %g %g %g %g\n", 
+                  dbg(1, "break_wires_at_pins(): wire %d needs to be deleted: %g %g %g %g\n",
                           i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2);
                   /* mark for deletion only if no other nets attached */
                   xctx->wire[i].sel = SELECTED4; /* use a special flag to later delete these wires
@@ -608,7 +608,7 @@ void break_wires_at_pins(int remove)
                            xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2);
               dbg(1, "i=%d, t1=%d, t2=%d, e1=%d, e2=%d\n", i, t1, t2, e1, e2);
               if(inside && ( (t1 && t2) || (t1 && e2 == 0) || (t2 && e1 == 0) )) {
-                xctx->wire[i].sel = SELECTED4; 
+                xctx->wire[i].sel = SELECTED4;
                 if(!changed) { xctx->push_undo(); changed=1;}
               }
             }

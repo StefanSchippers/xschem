@@ -34,7 +34,7 @@ if {[lsearch -exact $toolbar_list MyButton] < 0} {
   }
 
   ## Create an image object. Name should be img<name of button>
-  image create photo imgMyButton 
+  image create photo imgMyButton
   imgMyButton put $MyButtonData
 
 }

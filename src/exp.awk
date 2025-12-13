@@ -1,8 +1,8 @@
-#!/bin/sh 
+#!/bin/sh
 
 awk '
 
-BEGIN{ 
+BEGIN{
  number="[-+]?([0-9]+|[0-9]*\\.[0-9]+)([eE][+-]?[0-9]+)?"
  operator ="[+-*/]"
  begin="^("

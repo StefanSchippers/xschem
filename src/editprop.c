@@ -85,7 +85,7 @@ int my_strncasecmp(const char *s1, const char *s2, size_t n)
  * else return 0.0
  */
 double get_attr_val(const char *str)
-{  
+{
   double s = 0.0;
   char *endptr;
 
@@ -102,7 +102,7 @@ double get_attr_val(const char *str)
   }
 
   return s;
-} 
+}
 
 
 
@@ -167,7 +167,7 @@ char *my_fgets(FILE *fd, size_t *line_len)
 }
 
 /* split a string into tokens like standard strtok_r,
- * if keep_quote == 0: 
+ * if keep_quote == 0:
  *   if quote string is not empty any character matching quote is considered a quoting
  *   character, removed from input and all characters before next quote are considered
  *   as part of the token. backslash can be used to enter literal quoting characters and
@@ -185,13 +185,13 @@ char *my_fgets(FILE *fd, size_t *line_len)
  * "bbb"
  * ccc ddd
  * eee
- * 
+ *
  * my_strtok_r("aaa \\\"bbb\\\" \"ccc ddd\" eee", " ", "\"", 1);
  * aaa
  * \"bbb\"
  * "ccc ddd"
  * eee
- * 
+ *
  * my_strtok_r("aaa \\\"bbb\\\" \"ccc ddd\" eee", " ", "\"", 4);
  * aaa
  * \"bbb\"
@@ -237,7 +237,7 @@ size_t my_strdup(int id, char **dest, const char *src) /* empty source string --
 {
  size_t len;
 
- if(*dest == src && src!=NULL) 
+ if(*dest == src && src!=NULL)
    dbg(0, "my_strdup(): WARNING: src == *dest == %p, id=%d\n", src, id);
  if(src!=NULL && src[0]!='\0')  {
    len = strlen(src)+1;
@@ -471,7 +471,7 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
 size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates also empty string  */
 {
  size_t len;
- if(*dest == src && src!=NULL) 
+ if(*dest == src && src!=NULL)
    dbg(0, "my_strdup2(): WARNING: src == *dest == %p, id=%d\n", src, id);
  if(src!=NULL) {
    len = strlen(src)+1;
@@ -699,12 +699,12 @@ size_t my_strcat(int id, char **str, const char *append_str)
 
 /* same as my_strcat, but appending "" to NULL returns "" instead of NULL */
 size_t my_strcat2(int id, char **str, const char *append_str)
-{     
+{
   size_t s, a;
   dbg(3,"my_strcat(%d,): str=%s  append_str=%s\n", id,
     *str? *str : "<NULL>", append_str ? append_str : "<NULL>");
   if( *str != NULL)
-  { 
+  {
     s = strlen(*str);
     if(append_str == NULL || append_str[0]=='\0') return s;
     a = strlen(append_str) + 1;
@@ -924,7 +924,7 @@ float my_atof(const char *p)
 double my_atod(const char *p)
 {
   static const double p10[]={
-    1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 
+    1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9,
     1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 1e-16, 1e-17, 1e-18
   };
   int frac;
@@ -1413,7 +1413,7 @@ static int edit_text_property(int x)
   if(x < 0 || x > 2) {
     fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x);
     return 0;
-  }      
+  }
   dbg(1, "edit_text_property(): entering\n");
   sel = xctx->sel_array[0].n;
   my_strdup(_ALLOC_ID_, &oldprop, xctx->text[sel].prop_ptr);
@@ -1556,7 +1556,7 @@ int drc_check(int i)
       if(res) {
         const char *result;
         const char *replace_res;
-        
+
         replace_res = str_replace(res, "@symname", xctx->sym[xctx->inst[j].ptr].name, '\\', -1);
         result = tcleval(replace_res);
         if(result && result[0]) {
@@ -1572,7 +1572,7 @@ int drc_check(int i)
     if(has_x) {
       /* tclvareval("alert_ {", check_result, "} {}", NULL); */
       statusmsg(check_result, 3);
-      tcleval("show_infotext 1"); 
+      tcleval("show_infotext 1");
     } else {
       dbg(0, "%s\n", check_result);
     }
@@ -1677,7 +1677,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
     my_strdup2(_ALLOC_ID_, &translated_sym, translate(*ii, symbol));
     dbg(1, "update_symbol: %s -- %s\n", translated_sym, old_translated_sym);
     if(changed_symbol ||
-        ( !strcmp(symbol, xctx->inst[*ii].name) &&  strcmp(translated_sym, old_translated_sym) ) ) { 
+        ( !strcmp(symbol, xctx->inst[*ii].name) &&  strcmp(translated_sym, old_translated_sym) ) ) {
       sym_number=match_symbol(translated_sym); /* check if exist */
       if(sym_number>=0) {
         prefix=(get_tok_value(xctx->sym[sym_number].templ, "name",0))[0]; /* get new symbol prefix  */
@@ -1765,7 +1765,7 @@ static int edit_symbol_property(int x, int first_sel)
    *ii=xctx->sel_array[first_sel].n;
    *netl_com = 0;
    if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
-     *netl_com = 
+     *netl_com =
        !strcmp( (xctx->inst[*ii].ptr+ xctx->sym)->type, "netlist_commands");
    if(xctx->inst[*ii].prop_ptr!=NULL) {
      if(*netl_com && x==1) {
@@ -1821,7 +1821,7 @@ void change_elem_order(int n)
       xctx->semaphore--;
       if(strcmp(tclgetvar("tctx::retval"),"") )
       {
-        int c = 0; 
+        int c = 0;
         xctx->push_undo();
         modified = 1;
         xctx->prep_hash_inst=0;
@@ -1885,7 +1885,7 @@ void change_elem_order(int n)
     if(modified) set_modify(1);
   }
 }
-/* replace substring 'rep' in 'str' with 'with', if 'rep' not preceeded by an 'escape' char 
+/* replace substring 'rep' in 'str' with 'with', if 'rep' not preceeded by an 'escape' char
  * 'count' indicates the number of replacements to do or all if -1
  */
 char *str_replace(const char *str, const char *rep, const char *with, int escape, int count)
@@ -1914,7 +1914,7 @@ char *str_replace(const char *str, const char *rep, const char *with, int escape
   while(*s) {
     STR_ALLOC(&result, result_pos + with_len + 1, &size);
 
-    cond = (count == -1 || replacements < count)  && 
+    cond = (count == -1 || replacements < count)  &&
            ((s == str) || ((*(s - 1) != escape))) &&
            (!strncmp(s, rep, rep_len));
     if(cond) {
@@ -2019,7 +2019,7 @@ void edit_property(int x)
 
    if(x == 1 && strcmp(tclgetvar("tctx::rcode"),"") )
    {
-     if(xctx->netlist_type==CAD_SYMBOL_ATTRS && 
+     if(xctx->netlist_type==CAD_SYMBOL_ATTRS &&
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("tctx::retval") ) ) ) {
         xctx->push_undo();
         modified = 1;
@@ -2037,7 +2037,7 @@ void edit_property(int x)
         xctx->push_undo();
         my_strdup(_ALLOC_ID_, &xctx->schspectreprop, (char *) tclgetvar("tctx::retval"));
 
-     } else if(xctx->netlist_type==CAD_SPICE_NETLIST && 
+     } else if(xctx->netlist_type==CAD_SPICE_NETLIST &&
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
         xctx->push_undo();

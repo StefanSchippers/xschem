@@ -30,7 +30,7 @@ END  { endfile(_filename_) }
 }
 
 
-# T {nDisturbL[31],nDisturbL[29],nDi..... } 125 1686 0 1 0.2 0.2 {} 
+# T {nDisturbL[31],nDisturbL[29],nDi..... } 125 1686 0 1 0.2 0.2 {}
 # B 5 147.5 -1672.5 152.5 -1667.5 {name=ARBLEQALF[30],ARBLEQALF[28],...,ARBLEQALF[0] dir=inout }
 
 
@@ -73,7 +73,7 @@ function translate()
       sub(/.*\[/,"",idx)
       sub(/\]/,"",idx)
       idx+=0
-   
+
       if(ii>1 && ( (idx+2!=previdx) || (basename !=first_basename) ) ) {
         evenbus=0
         break
@@ -91,7 +91,7 @@ function translate()
 
 
 {
- __a[__lines++] = $0 
+ __a[__lines++] = $0
 }
 
 function beginfile(f)
@@ -110,5 +110,5 @@ function endfile(f,     i)
    }
    close(f)
  }
-} 
+}
 

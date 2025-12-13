@@ -1,22 +1,22 @@
 #!/bin/sh
 
 # File: utile.tcl
-# 
+#
 # This file is part of XSCHEM,
 # a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 # simulation.
 # Copyright (C) 1998-2023 Stefan Frederik Schippers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -32,13 +32,13 @@ proc text_window {w filename} {
  toplevel $w
  wm title $w "(IN)UTILE ALIAS FILE"
  wm iconname $w "ALIAS"
- 
+
  frame $w.buttons
  pack $w.buttons -side bottom -fill x -pady 2m
  button $w.buttons.dismiss -text Dismiss -command "destroy $w"
  button $w.buttons.code -text "See Code" -command "showCode $w"
  pack $w.buttons.dismiss $w.buttons.code -side left -expand 1
- 
+
  text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30
  scrollbar $w.scroll -command "$w.text yview"
@@ -47,7 +47,7 @@ proc text_window {w filename} {
  set fileid [open $filename "r"]
  $w.text insert 0.0 [read $fileid]
  close $fileid
-} 
+}
 
 proc entry_line {txtlabel} {
    global entry1
@@ -83,10 +83,10 @@ proc entry_line {txtlabel} {
 proc write_data {w f} {
  set fid [open $f "w"]
  set t [$w get  0.0 {end - 1 chars}]
- puts  -nonewline $fid $t 
+ puts  -nonewline $fid $t
  close $fid
 }
-  
+
 proc read_data {w f} {
  set fid [open $f "r"]
  set t [read $fid]
@@ -120,11 +120,11 @@ proc new_window {w filename} {
          translate $filename ; get_time"
  button $w.buttons.dismiss -text Dismiss -command "destroy $w"
  pack $w.buttons.dismiss  $w.buttons.translate -side left -expand 1
- 
+
  pack $w.scroll -side right -fill y
  pack $w.text -expand yes -fill both
 }
- 
+
 proc get_time {} {
  set fileid [open "inutile.simulationtime"  "RDONLY"]
  .buttons.time delete 0 end
@@ -132,8 +132,8 @@ proc get_time {} {
  close $fileid
  file delete "inutile.simulationtime"
 }
- 
- 
+
+
 proc alias_window {w filename} {
  catch {destroy $w}
  toplevel $w
@@ -152,24 +152,24 @@ proc alias_window {w filename} {
  button $w.buttons.save -text Save -command "write_data $w.text $filename"
  button $w.buttons.load -text Reload -command "read_data $w.text $filename"
  pack $w.buttons.dismiss $w.buttons.save $w.buttons.load -side left -expand 1
- 
+
  pack $w.scroll -side right -fill y
  pack $w.text -expand yes -fill both
  $w.text insert 0.0 $testo
-} 
+}
 
 proc help_window {w filename} {
  catch {destroy $w}
  toplevel $w
  wm title $w "(IN)UTILE ALIAS FILE"
  wm iconname $w "ALIAS"
- 
+
  frame $w.buttons
  pack $w.buttons -side bottom -fill x -pady 2m
  button $w.buttons.dismiss -text Dismiss -command "destroy $w"
  button $w.buttons.save -text Save -command "write_data $w.text $filename"
  pack $w.buttons.dismiss  $w.buttons.save -side left -expand 1
- 
+
  text $w.text -relief sunken -bd 2 -yscrollcommand "$w.scroll set" -setgrid 1 \
 	 -height 30 -width 90
  scrollbar $w.scroll -command "$w.text yview"
@@ -178,7 +178,7 @@ proc help_window {w filename} {
  set fileid [open $filename "RDONLY CREAT"]
  $w.text insert 0.0 [read $fileid]
  close $fileid
-} 
+}
 
 proc translate {f} {
  global tcl_platform
@@ -214,15 +214,15 @@ text .text -relief sunken -bd 2 -yscrollcommand ".scroll set" -setgrid 1 \
 scrollbar .scroll -command ".text yview"
 button .buttons.save -text Save -command {
   set entry1 $filename;set filename [entry_line {Filename}]
-  write_data .text $filename 
+  write_data .text $filename
 }
 button .buttons.load -text Reload -command {
   set entry1 $filename;set filename [entry_line {Filename}]
-  read_data .text $filename 
+  read_data .text $filename
 }
 button .buttons.send -text "Template" -command {
   if { ![string compare [.text get 0.0 {end - 1 chars}]  ""]  } then {
-    template  .text  $env(UTILE3_PATH)/template.stimuli 
+    template  .text  $env(UTILE3_PATH)/template.stimuli
   }
 }
 label .buttons.timelab -text "time:"
@@ -235,7 +235,7 @@ pack .scroll -side right -fill y
 pack .text -expand yes -fill both
 
 # 20140408
-if { [file exists $filename] }  {  
+if { [file exists $filename] }  {
   set fileid [open $filename "RDONLY"]
   .text insert 0.0 [read $fileid]
   close $fileid
@@ -248,10 +248,10 @@ regsub {\..*$} $tmp {} lines
 
 for {set i 1} {$i <= $lines} {incr i} {
  set tmp [.text get $i.0 "$i.0 lineend"]
- if [regexp {^(include)|(\.include)} $tmp  ] { 
-  alias_window .tw$i [lindex $tmp 1] 
+ if [regexp {^(include)|(\.include)} $tmp  ] {
+  alias_window .tw$i [lindex $tmp 1]
  }
-} 
+}
 
 
 

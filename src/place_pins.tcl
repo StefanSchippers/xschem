@@ -9,10 +9,10 @@
 #
 # place pin symbols (like ipin.sym, opin.sym, iopin.sym,
 # or devices/ipin.sym depending on your search path setting) in current schematic.
-# Pins are placed at growing y coordinates (going down in xschem coordinate system) 
+# Pins are placed at growing y coordinates (going down in xschem coordinate system)
 # parameters:
 # filename: name for the file holding the list of pins.
-# 2 columns are assumed: pin name and pin number 
+# 2 columns are assumed: pin name and pin number
 # symname: name of the pin to place (ipin.sym, opin.sym, devices/ipin.sym, ...).
 # x, y: coordinate for first pin
 # spacing: vertical spacing between one pin and the following.

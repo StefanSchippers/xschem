@@ -1,22 +1,22 @@
 #!/usr/bin/awk -f
 #
 #  File: verilog.awk
-#  
+#
 #  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit 
+#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 #  simulation.
 #  Copyright (C) 1998-2024 Stefan Frederik Schippers
-# 
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-# 
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -77,13 +77,13 @@ BEGIN{
         sub(/----pin\(/,"",prim_field)
         sub(/\)$/,"",prim_field)
         pport_mult = split(prim_field, prim_field_array,/,/)
-    
+
         # 20060919 BEGIN
         # if bussed port connected to primitive and primitive mult==1 print only basename of bus
         if(primitive_mult==1 && pport_mult>1) {
-          if(check2(prim_field_array, pport_mult)) 
-           printf "%s[%s:%s] ", prefix s_b(prim_field_array[1]), 
-              s_i(prim_field_array[1]), s_i(prim_field_array[pport_mult]) 
+          if(check2(prim_field_array, pport_mult))
+           printf "%s[%s:%s] ", prefix s_b(prim_field_array[1]),
+              s_i(prim_field_array[1]), s_i(prim_field_array[pport_mult])
           else {
             printf " { "
             for(s=1;s<= pport_mult; s++) {
@@ -92,8 +92,8 @@ BEGIN{
             }
             printf "}%s", primitive_line_sep[i+1]
          }
-        } 
-        else 
+        }
+        else
         # 20060919 end
 
         printf "%s", prim_field_array[1+(j-1) % pport_mult]   #  20140401 1+(j-1) % pport_mult instead of j
@@ -130,7 +130,7 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
   printf "%s ", signal_type[i]
 
   # 20161118
-  ntypes = split(signal_type[i], sigtype_arr) 
+  ntypes = split(signal_type[i], sigtype_arr)
   if(ntypes==2) {
     if( i in signal_delay) printf "%s ", signal_delay[i]
     printf "%s", i
@@ -144,7 +144,7 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
     printf " ;\n"
   } else {
     if( i in signal_delay) printf "%s ", signal_delay[i]
-    if(signal_index[i] !~ /no_index/) 
+    if(signal_index[i] !~ /no_index/)
     {
      if(tmp[1] ~ /:/) printf "[%s] ",tmp[1]
      else if(n==1) printf "[%s:%s] ",tmp[1], tmp[1]
@@ -156,7 +156,7 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
   }
  }
  # /20161118
- 
+
  siglist=0;
  print ""
  netlist=1
@@ -165,7 +165,7 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
 
 # store signals
 siglist==1 && ($1 in net_types) {
- # 20070525 recognize "reg real", "wire signed"  types and similar 
+ # 20070525 recognize "reg real", "wire signed"  types and similar
  if($2 in net_types) {
    if($3 ~ /^#/) basename=s_b($4)
    else basename=s_b($3)
@@ -199,7 +199,7 @@ siglist==1 && ($1 in net_types) {
    if($3=="="){
     val=$0
     sub(/.*=/,"",val)
-    sub(/;.*/,"",val) 
+    sub(/;.*/,"",val)
     signal_value[basename]=val
    }
    if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
@@ -211,7 +211,7 @@ siglist==1 && ($1 in net_types) {
  }
  next
 }
- 
+
 /---- begin signal list/{
  siglist=1;
  next
@@ -301,7 +301,7 @@ begin_module && $1 ~/^\);$/ {
    printf "\n);\n\n"
   }
  previous=""
- next 
+ next
 }
 
 # types of in/out/inout ports of module
@@ -335,7 +335,7 @@ NF==3 && netlist==0 && architecture==0 && ($1 in direction)  {
  next
 }
 
-/^---- end parameters/{ 
+/^---- end parameters/{
  parameters=0
  next
 }
@@ -412,7 +412,7 @@ function hsort(ra,n,    l,j,ir,i,rra)
   ra[i]=rra
  }
 }
-# check if an array of indexes (sig[3]) arr[1],arr[2]..... 
+# check if an array of indexes (sig[3]) arr[1],arr[2].....
 # is contigous and decreeasing
 # 20140409 handle ascending order as well as descending
 function check2(arr,n     ,decreasing,a,name,i,start,ok)

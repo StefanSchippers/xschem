@@ -315,7 +315,7 @@ static void merge_inst(int k,FILE *fd)
 /* merge selection if selection_load=1, otherwise ask for filename
  * selection_load:
  *                      0: ask filename to merge
- *                         if ext=="" else use ext as name 
+ *                         if ext=="" else use ext as name
  *                      1: merge selection
  *                      2: merge clipboard
  *                      if bit 3 is set do not start a  move_objects(RUBBER,0,0,0)

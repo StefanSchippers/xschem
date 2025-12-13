@@ -6,7 +6,7 @@
 # Warning:
 #	can be used on vhdl entities that have std_logic/std_logic_vector
 #       pins, any other types not recognized
-#	Also, types and ranges must NOT be referenced in packages or 
+#	Also, types and ranges must NOT be referenced in packages or
 #	as constants/variables, if this is the case use the design_analyzer
 #	"EDIF save as"  facility
 #

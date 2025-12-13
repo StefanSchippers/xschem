@@ -47,12 +47,12 @@ void floater_hash_all_names(void)
   int i;
   int_hash_free(&xctx->floater_inst_table);
   int_hash_init(&xctx->floater_inst_table, HASHSIZE);
-  for(i=0; i<xctx->instances; ++i) { 
+  for(i=0; i<xctx->instances; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
       int_hash_lookup(&xctx->floater_inst_table, xctx->inst[i].instname, i, XINSERT);
     }
   }
-}  
+}
 
 /* if cmd is wrapped inside tcleval(...) pass the content to tcl
  * for evaluation, return tcl result. If no tcleval(...) found return copy of cmd */
@@ -82,8 +82,8 @@ int is_generator(const char *name)
 {
   #ifdef __unix__
   int res = 0;
-  static regex_t *re = NULL; 
-  
+  static regex_t *re = NULL;
+
   if(!name) {
     if(re) {
       regfree(re);
@@ -112,7 +112,7 @@ int is_generator(const char *name)
 }
 
 /* cleanup syntax of symbol generators: xxx(a,b,c) --> xxx_a_b_c */
-const char *sanitize(const char *name) 
+const char *sanitize(const char *name)
 {
   static char *s = NULL;
   static char *empty="";
@@ -182,7 +182,7 @@ char *get_generator_command(const char *str)
 int match_symbol(const char *name)  /* never returns -1, if symbol not found load systemlib/missing.sym */
 {
   int i,found;
- 
+
   found=0;
   dbg(1, "match_symbol(): name=%s\n", name);
   for(i=0;i<xctx->symbols; ++i) {
@@ -360,32 +360,32 @@ const char *list_tokens(const char *s, int with_quotes)
 }
 
 static int get_sym_pin_number(int sym, const char *pin_name)
-{ 
+{
   int n = -1;
   if(isonlydigit(pin_name)) {
     n = atoi(pin_name);
-  } 
+  }
   else if(pin_name[0]) {
     for(n = 0 ; n < xctx->sym[sym].rects[PINLAYER]; ++n) {
       char *prop = xctx->sym[sym].rect[PINLAYER][n].prop_ptr;
       if(!strcmp(get_tok_value(prop,"name",0), pin_name)) break;
-    }  
-  }       
+    }
+  }
   return n;
-}   
+}
 
 int get_inst_pin_number(int inst, const char *pin_name)
 {
   int n = -1;
   if(isonlydigit(pin_name)) {
     n = atoi(pin_name);
-  } 
+  }
   else if(pin_name[0] && xctx->inst[inst].ptr >= 0) {
     for(n = 0 ; n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]; ++n) {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
       if(!strcmp(get_tok_value(prop,"name",0), pin_name)) break;
-    } 
-  }     
+    }
+  }
   return n;
 }
 
@@ -416,7 +416,7 @@ static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **p
     my_strdup2(_ALLOC_ID_, pin_attr, "");
   }
   dbg(1, "get_pin_and_attr(): token=%s, name=%s, attr=%s\n", token,
-      *pin_num_or_name ? *pin_num_or_name : "<NULL>", 
+      *pin_num_or_name ? *pin_num_or_name : "<NULL>",
       *pin_attr ? *pin_attr: "<NULL>");
 }
 
@@ -449,7 +449,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
   static char *translated_tok = NULL;
 
   xctx->tok_size = 0;
-  
+
   if(s==NULL) {
     if(tok == NULL) {
       my_free(_ALLOC_ID_, &result);
@@ -624,7 +624,7 @@ const char *get_sym_template(char *s,char *extra)
 }
 
 /* caller is responsible for freeing up storage for return value
- * return NULL if no matching token found 
+ * return NULL if no matching token found
  * caller is responsible for freeing up storage for pin_attr_value */
 static char *get_pin_attr_from_inst(int inst, int pin, const char *attr)
 {
@@ -715,7 +715,7 @@ void hash_names(int inst, int action)
 /* return -1 if name is not used, else return first instance number with same name found
  * old_basename: base name (without [...]) of instance name the new 'name' was built from
  * brkt: pointer to '[...]' part of instance name (or empty string if no [...] found)
- * q: integer number added to 'name' when trying an unused instance name 
+ * q: integer number added to 'name' when trying an unused instance name
  *    (name = old_basename + q + bracket)
  *    or -1 if only testing for unique 'name'.
  */
@@ -767,14 +767,14 @@ void new_prop_string(int i, const char *old_prop, int dis_uniq_names)
   char *old_name_base = NULL;
   char *up_new_name = NULL;
   int is_used;
- 
+
   dbg(1, "new_prop_string(): i=%d, old_prop=%s\n", i, old_prop);
   if(old_prop==NULL) {
    my_free(_ALLOC_ID_, &xctx->inst[i].prop_ptr);
    return;
   }
   old_name_len = my_strdup(_ALLOC_ID_, &old_name,get_tok_value(old_prop,"name",0) ); /* added old_name_len */
- 
+
   if(old_name==NULL) {
    my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, old_prop);  /* changed to copy old props if no name */
    my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, "");
@@ -795,13 +795,13 @@ void new_prop_string(int i, const char *old_prop, int dis_uniq_names)
   if(!n) old_name_base[0] = '\0'; /* there is no basename (like in "[3:0]" or "12"), set to empty string */
   brkt=find_bracket(old_name); /* if no bracket found will point to end of string ('\0') */
   my_realloc(_ALLOC_ID_, &new_name, old_name_len + 40);
- 
+
 
   qq = get_last_used_index(old_name_base, brkt); /*  */
   for(q = qq;; ++q) {
     my_snprintf(new_name, old_name_len + 40, "%s%d%s", old_name_base, q, brkt);
     is_used = name_is_used(new_name, old_name_base, brkt, q);
-    if(is_used == -1 ) break; 
+    if(is_used == -1 ) break;
   }
   my_free(_ALLOC_ID_, &old_name_base);
   dbg(1, "new_prop_string(): new_name=%s\n", new_name);
@@ -958,10 +958,10 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  if(!xctx->tok_size)
    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, fmt_attr, 2));
  /* allow format string override in instance */
- if(xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
+ if(xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))
     my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->inst[inst].prop_ptr, "vhdl_format", 2));
  /* get netlist format rule from symbol */
- if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))               
+ if(!xctx->tok_size && strcmp(fmt_attr, "vhdl_format"))
    my_strdup(_ALLOC_ID_, &format, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "vhdl_format", 2));
  if((name==NULL) || (format==NULL) ) {
    my_free(_ALLOC_ID_, &template);
@@ -1042,7 +1042,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0)));
      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
    }
-   else if (strcmp(token,"@symname_ext")==0) 
+   else if (strcmp(token,"@symname_ext")==0)
    {
      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0)));
      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
@@ -1096,7 +1096,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     }
    }
 
-   /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+   /* reference by pin number instead of pin name, allows faster lookup of the attached net name
     * @#0, @#1:net_name, @#2:name, ... */
    else if(token[0]=='@' && token[1]=='#') {
      int n;
@@ -1197,7 +1197,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
      * can be calculated. Before that do also a round of translation to remove remaining @params */
     if(result) {
       dbg(1, "print_vhdl_primitive(): before translate3() result=%s\n", result);
-      if(strchr(result, '@')) { 
+      if(strchr(result, '@')) {
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
           my_strdup2(_ALLOC_ID_, &result,
@@ -1205,18 +1205,18 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
           /* can not put template in above translate3: -----------------------^^^^
            * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
            * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
-          if(strchr(result, '@')) { 
+          if(strchr(result, '@')) {
              my_strdup2(_ALLOC_ID_, &result,
                 translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
           }
-        } 
+        }
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
       if(is_expr(result)) {
         my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
       }
       dbg(1, "print_vhdl_primitive(): after  translate3() result=%s\n", result);
-    } 
+    }
     if(result) fprintf(fd, "%s", result);
     fputc('\n',fd);
     fprintf(fd, "---- end primitive\n");
@@ -1417,7 +1417,7 @@ const char *get_trailing_path(const char *str, int no_of_dir, int skip_ext)
   size_t ext_pos, dir_pos;
   int n_ext, n_dir, c, i, generator = 0;
 
-  if(str == NULL) return NULL;  
+  if(str == NULL) return NULL;
   my_strncpy(s, str, S(s));
   len = strlen(s);
 
@@ -1750,7 +1750,7 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
   {
     my_strdup(_ALLOC_ID_, &generic_type,
        get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"generic_type",0));
-    my_strdup(_ALLOC_ID_, &generic_value, 
+    my_strdup(_ALLOC_ID_, &generic_value,
        get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"value", 0) );
     str_tmp = get_tok_value(xctx->sym[symbol].rect[GENERICLAYER][i].prop_ptr,"name",0);
     if(!tmp) fprintf(fd, "generic (\n");
@@ -1879,7 +1879,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 }
 
 /* This function is used to generate the @pinlist replacement getting port order
- * from the spice_sym_def attribute (either directly or by loading the provided .include file), 
+ * from the spice_sym_def attribute (either directly or by loading the provided .include file),
  * checking with the corresponding symbol pin name and getting the net name attached to it.
  * Any name mismatch is reported, in this case the function does nothing and the default xschem
  * symbol port ordering will be used. */
@@ -1904,7 +1904,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     char *net, *net_save;
     Str_hashentry *entry;
     Str_hashtable table = {NULL, 0};
-    
+
     my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->inst[inst].prop_ptr, "schematic", 0));
     if(!symname[0]) {
       my_strdup2(_ALLOC_ID_, &symname, get_tok_value(xctx->sym[symbol].prop_ptr, "schematic", 0));
@@ -1990,7 +1990,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
         dbg(0, "has_included_subcircuit(): %s symbol and .subckt pins do not match. Discard port order\n",
                 symname);
         if(has_x)
-           tclvareval("alert_ {has_included_subcircuit(): ", symname, 
+           tclvareval("alert_ {has_included_subcircuit(): ", symname,
                    " symbol and .subckt pins do not match. Discard .subckt port order}", NULL);
       }
       if(tmp_result) my_free(_ALLOC_ID_, &tmp_result);
@@ -2128,7 +2128,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      }
      my_free(_ALLOC_ID_, &pin_attr);
      my_free(_ALLOC_ID_, &pin_num_or_name);
-   
+
    }
    /* this will print the other @parameters, usually "extra" nodes so they will be in the order
     * specified by the format string. The 'extra' attribute is no more used to print extra nodes
@@ -2140,7 +2140,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
        my_mstrcat(_ALLOC_ID_, &result, token + 1, " ", NULL);
      }
    }
-   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */ 
+   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */
    if(c == '@' || c =='%') s--;
    state=TOK_BEGIN;
   }
@@ -2289,7 +2289,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
      }
      my_free(_ALLOC_ID_, &pin_attr);
      my_free(_ALLOC_ID_, &pin_num_or_name);
-   
+
    }
    /* this will print the other @parameters, usually "extra" nodes so they will be in the order
     * specified by the format string. The 'extra' attribute is no more used to print extra nodes
@@ -2301,7 +2301,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
        my_mstrcat(_ALLOC_ID_, &result, token + 1, " ", NULL);
      }
    }
-   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */ 
+   /* if(c!='%' && c!='@' && c!='\0' ) fputc(c,fd); */
    if(c == '@' || c =='%') s--;
    state=TOK_BEGIN;
   }
@@ -2349,7 +2349,7 @@ int print_spice_element(FILE *fd, int inst)
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
-  const char *lab; 
+  const char *lab;
   const char *value = NULL;
   /* char *translatedvalue = NULL; */
   size_t sizetok=0;
@@ -2358,7 +2358,7 @@ int print_spice_element(FILE *fd, int inst)
   int no_of_pins=0;
   char *result = NULL;
   size_t size = 0;
-  char *spiceprefixtag = NULL; 
+  char *spiceprefixtag = NULL;
   const char *fmt_attr = NULL;
 
   size = CADCHUNKALLOC;
@@ -2425,7 +2425,7 @@ int print_spice_element(FILE *fd, int inst)
       token[token_pos]='\0';
       token_pos=0;
 
-      if(strcmp(token,"@symref")==0) 
+      if(strcmp(token,"@symref")==0)
       {
         const char *s = get_sym_name(inst, 9999, 1, 0);
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
@@ -2479,7 +2479,7 @@ int print_spice_element(FILE *fd, int inst)
             if(!spice_ignore) {
               if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
                 str_ptr =  net_name(inst, i, &multip, 0, 1);
-  
+
                 my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
               }
             }
@@ -2500,13 +2500,13 @@ int print_spice_element(FILE *fd, int inst)
           }
         }
       }
-      /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+      /* reference by pin number instead of pin name, allows faster lookup of the attached net name
        * @#0, @#1:net_name, @#2:name, ... */
       else if(token[0]=='@' && token[1]=='#') {
         int n;
         char *pin_attr = NULL;
         char *pin_num_or_name = NULL;
-   
+
         get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
         n = get_inst_pin_number(inst, pin_num_or_name);
         if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -2604,16 +2604,16 @@ int print_spice_element(FILE *fd, int inst)
          *    passgate.sch:
          *       instance of nmos.sym: L=L_N W=W_N nf=1 m=1 model=@modeln
          *         nmos.sym:
-         *           format="@name @pinlist @model L=@L W=@W nf=@nf 
+         *           format="@name @pinlist @model L=@L W=@W nf=@nf
          *           + ad=@ad as=@as pd=@pd .... m=@m
-         *           template="name=M1 W=1 L=0.15 m=1 
+         *           template="name=M1 W=1 L=0.15 m=1
          *             ad=\"expr('int((@nf + 1)/2) * @W / @nf * 0.29')\"
          *             ..."
          *           model=nfet_01v8
          */
 
-        
-        my_strdup2(_ALLOC_ID_, &val, 
+
+        my_strdup2(_ALLOC_ID_, &val,
              translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
         /* can not put template in above translate3: ---------------------------^^^^
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
@@ -2681,7 +2681,7 @@ int print_spice_element(FILE *fd, int inst)
           if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
                 && ((lab = expandlabel(value, &itmp)) != NULL)) {
             my_mstrcat(_ALLOC_ID_, &result, lab, NULL);
-          } else { 
+          } else {
             my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           }
         }
@@ -2743,7 +2743,7 @@ int print_spectre_element(FILE *fd, int inst)
   const char *str_ptr=NULL;
   register int c, state=TOK_BEGIN, space;
   char *template=NULL,*format=NULL, *s, *name=NULL,  *token=NULL;
-  const char *lab; 
+  const char *lab;
   const char *value = NULL;
   /* char *translatedvalue = NULL; */
   size_t sizetok=0;
@@ -2752,7 +2752,7 @@ int print_spectre_element(FILE *fd, int inst)
   int no_of_pins=0;
   char *result = NULL;
   size_t size = 0;
-  char *spiceprefixtag = NULL; 
+  char *spiceprefixtag = NULL;
   const char *fmt_attr = NULL;
 
   size = CADCHUNKALLOC;
@@ -2819,7 +2819,7 @@ int print_spectre_element(FILE *fd, int inst)
       token[token_pos]='\0';
       token_pos=0;
 
-      if(strcmp(token,"@symref")==0) 
+      if(strcmp(token,"@symref")==0)
       {
         const char *s = get_sym_name(inst, 9999, 1, 0);
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
@@ -2872,7 +2872,7 @@ int print_spectre_element(FILE *fd, int inst)
           if(!spectre_ignore) {
             if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
               str_ptr =  net_name(inst, i, &multip, 0, 1);
-  
+
               my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
             }
           }
@@ -2892,13 +2892,13 @@ int print_spectre_element(FILE *fd, int inst)
           }
         }
       }
-      /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+      /* reference by pin number instead of pin name, allows faster lookup of the attached net name
        * @#0, @#1:net_name, @#2:name, ... */
       else if(token[0]=='@' && token[1]=='#') {
         int n;
         char *pin_attr = NULL;
         char *pin_num_or_name = NULL;
-   
+
         get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
         n = get_inst_pin_number(inst, pin_num_or_name);
         if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -2996,16 +2996,16 @@ int print_spectre_element(FILE *fd, int inst)
          *    passgate.sch:
          *       instance of nmos.sym: L=L_N W=W_N nf=1 m=1 model=@modeln
          *         nmos.sym:
-         *           format="@name @pinlist @model L=@L W=@W nf=@nf 
+         *           format="@name @pinlist @model L=@L W=@W nf=@nf
          *           + ad=@ad as=@as pd=@pd .... m=@m
-         *           template="name=M1 W=1 L=0.15 m=1 
+         *           template="name=M1 W=1 L=0.15 m=1
          *             ad=\"expr('int((@nf + 1)/2) * @W / @nf * 0.29')\"
          *             ..."
          *           model=nfet_01v8
          */
 
-        
-        my_strdup2(_ALLOC_ID_, &val, 
+
+        my_strdup2(_ALLOC_ID_, &val,
              translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
         /* can not put template in above translate3: ---------------------------^^^^
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
@@ -3073,7 +3073,7 @@ int print_spectre_element(FILE *fd, int inst)
           if (!(strcmp(token+1,"name") && strcmp(token+1,"lab"))  /* expand name/labels */
                 && ((lab = expandlabel(value, &itmp)) != NULL)) {
             my_mstrcat(_ALLOC_ID_, &result, lab, NULL);
-          } else { 
+          } else {
             my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           }
         }
@@ -3145,7 +3145,7 @@ void print_tedax_element(FILE *fd, int inst)
  const char *tmp;
  int instance_based=0;
  size_t sizetok=0;
- size_t token_pos=0; 
+ size_t token_pos=0;
  int escape=0;
  int no_of_pins=0;
  int subcircuit = 0;
@@ -3186,7 +3186,7 @@ void print_tedax_element(FILE *fd, int inst)
    int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
-     my_strdup2(_ALLOC_ID_, &pinname, 
+     my_strdup2(_ALLOC_ID_, &pinname,
        get_tok_value(xctx->sym[xctx->inst[inst].ptr].rect[PINLAYER][i].prop_ptr,"name",0));
      my_strdup2(_ALLOC_ID_, &pin, expandlabel(pinname, &pin_mult));
      if(!int_hash_lookup(&table, pinname, 1, XINSERT_NOREPLACE)) {
@@ -3194,8 +3194,8 @@ void print_tedax_element(FILE *fd, int inst)
        for(n = 0; n < net_mult; ++n) {
          my_strdup(_ALLOC_ID_, &netbit, find_nth(net, ",", "", 0, n+1));
          my_strdup(_ALLOC_ID_, &pinbit, find_nth(pin, ",", "", 0, n+1));
-         fprintf(fd, "__map__ %s -> %s\n", 
-           pinbit ? pinbit : "__UNCONNECTED_PIN__", 
+         fprintf(fd, "__map__ %s -> %s\n",
+           pinbit ? pinbit : "__UNCONNECTED_PIN__",
            netbit ? netbit : "__UNCONNECTED_PIN__");
        }
      }
@@ -3240,7 +3240,7 @@ void print_tedax_element(FILE *fd, int inst)
      }
      my_free(_ALLOC_ID_, &pinnumber);
    }
-  
+
    if(extra){
      char netstring[40];
      /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
@@ -3252,7 +3252,7 @@ void print_tedax_element(FILE *fd, int inst)
        /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
        /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */
        instance_based=0;
-  
+
        /* alternate instance based extra net naming: net:<pinumber>=netname */
        my_snprintf(netstring, S(netstring), "net:%s", extra_pinnumber_token);
        dbg(1, "print_tedax_element(): netstring=%s\n", netstring);
@@ -3261,7 +3261,7 @@ void print_tedax_element(FILE *fd, int inst)
        if(!extra_token_val[0]) extra_token_val=get_tok_value(template, extra_token, 0);
        else instance_based=1;
        if(!extra_token_val[0]) extra_token_val="--UNDEF--";
-  
+
        fprintf(fd, "conn %s %s %s %s %d", name, extra_token_val, extra_token, extra_pinnumber_token, i+1);
        ++i;
        if(instance_based) fprintf(fd, " # instance_based");
@@ -3323,7 +3323,7 @@ void print_tedax_element(FILE *fd, int inst)
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0)));
       fputs(s, fd);
     }
-    else if (strcmp(token,"@symname_ext")==0) 
+    else if (strcmp(token,"@symname_ext")==0)
     {
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0)));
       fputs(s, fd);
@@ -3381,7 +3381,7 @@ void print_tedax_element(FILE *fd, int inst)
       int n;
       char *pin_attr = NULL;
       char *pin_num_or_name = NULL;
-   
+
       get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
       n = get_inst_pin_number(inst, pin_num_or_name);
       if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -3534,10 +3534,10 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    if( state==TOK_BEGIN && (c=='@' || c=='%') && !escape ) state=TOK_TOKEN;
    else if(state==TOK_TOKEN && token_pos > 1 &&
       (
-        ( (space  || c == '%' || c == '@') && !escape ) || 
+        ( (space  || c == '%' || c == '@') && !escape ) ||
         ( (!space && c != '%' && c != '@') && escape  )
       )
-     ) { 
+     ) {
      state=TOK_SEP;
    }
 
@@ -3585,7 +3585,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0)));
       my_mstrcat(_ALLOC_ID_, &result, s, NULL);
     }
-    else if (strcmp(token,"@symname_ext")==0) 
+    else if (strcmp(token,"@symname_ext")==0)
     {
       const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0)));
       my_mstrcat(_ALLOC_ID_, &result, s, NULL);
@@ -3636,13 +3636,13 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      }
     }
 
-    /* reference by pin number instead of pin name, allows faster lookup of the attached net name 
+    /* reference by pin number instead of pin name, allows faster lookup of the attached net name
      * @#0, @#1:net_name, @#2:name, ... */
     else if(token[0]=='@' && token[1]=='#') {
       int n;
       char *pin_attr = NULL;
       char *pin_num_or_name = NULL;
- 
+
       get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
       n = get_inst_pin_number(inst, pin_num_or_name);
       if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -3727,16 +3727,16 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
    if(c=='\0')
    {
     char *parent_prop_ptr = NULL;
-                   
+
     if(xctx->currsch > 0) {
       parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
-    }   
+    }
 
     /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
      * can be calculated. Before that do also a round of translation to remove remaining @params */
     if(result) {
       dbg(1, "print_verilog_primitive(): before translate3() result=%s\n", result);
-      if(strchr(result, '@')) { 
+      if(strchr(result, '@')) {
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
           my_strdup2(_ALLOC_ID_, &result,
@@ -3831,7 +3831,7 @@ void print_verilog_element(FILE *fd, int inst)
  my_strdup(_ALLOC_ID_, &v_extra, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilog_extra", 0));
  /* extra is the list of attributes NOT to consider as instance parameters */
  my_strdup(_ALLOC_ID_, &extra, get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "extra", 0));
- my_strdup(_ALLOC_ID_, &verilogprefix, 
+ my_strdup(_ALLOC_ID_, &verilogprefix,
     get_tok_value(xctx->sym[xctx->inst[inst].ptr].prop_ptr, "verilogprefix", 0));
  if(verilogprefix) {
    my_strdup(_ALLOC_ID_, &symname, verilogprefix);
@@ -3984,8 +3984,8 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
  char *pinname = NULL;
 
 
- /* if merging a ngspice_probe.sym element it contains a @@p token, 
-  * so translate calls net_name, but we are placing the merged objects, 
+ /* if merging a ngspice_probe.sym element it contains a @@p token,
+  * so translate calls net_name, but we are placing the merged objects,
   * no net name is assigned yet */
  if(!xctx->inst[i].node) {
    return expandlabel("", multip);
@@ -4019,7 +4019,7 @@ const char *net_name(int i, int j, int *multip, int hash_prefix_unnamed_net, int
        xctx->hilight_nets=1;
      }
    }
-   if(*multip <= 1) 
+   if(*multip <= 1)
      my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d", xctx->netlist_unconn_cnt++);
    else
      my_snprintf(unconn, S(unconn), "__UNCONNECTED_PIN__%d_[%d..0]", xctx->netlist_unconn_cnt++, *multip - 1);
@@ -4116,7 +4116,7 @@ char *trim_chars(const char *str, const char *sep)
 }
 
 /* find nth field in str separated by sep. 1st field is position 1
- * separators inside quotes are not considered as field separators 
+ * separators inside quotes are not considered as field separators
  * if keep_quote == 1 keep quoting characters  and backslashes in returned field
  * if keep_quote == 4 same as above but remove surrounding "..."
  * find_nth("aaa,bbb,ccc,ddd", ",", 0, 2)  --> bbb
@@ -4293,7 +4293,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
     size_t tmp;
     prepare_netlist_structs(0);
     str_ptr =  net_name(inst,n, &multip, 0, 1);
-    tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars 
+    tmp = strlen(str_ptr) +100 ; /* always make room for some extra chars
                                   * so 1-char writes to result do not need reallocs */
 
     value = my_malloc(_ALLOC_ID_, tmp);
@@ -4305,16 +4305,16 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
   return value;
 }
 
-/* This routine processes the entire string returned by translate, looks 
- * for "@spice_get_node <spice_node> " patterns and replaces with the 
+/* This routine processes the entire string returned by translate, looks
+ * for "@spice_get_node <spice_node> " patterns and replaces with the
  * Spice simulated value for that node.
  * the format is "some_text@spice_get_node <spice_node> some_additional_text"
  * Examples:
  *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id])
- *     will translate to: 
+ *     will translate to:
  *   Id=6.6177u
  *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id]) A
- *     will translate to: 
+ *     will translate to:
  *   Id=6.6177uA
  * note the required separator spaces around the spice node. Spaces are used here as
  * separators since spice nodes don't allow spaces.
@@ -4381,7 +4381,7 @@ const char *spice_get_node(const char *token)
 
 /* caller must free returned value
  * get the full pathname of "instname" device
- * modelparam: 
+ * modelparam:
  *   0: current, 1: modelparam, 2: modelvoltage
  * param: device parameter, like "ib", "gm", "vth"
  * set param to {} (empty str) for just branch current of 2 terminal device
@@ -4449,7 +4449,7 @@ char *get_fqdevice(const char *param, int modelparam, const char *instname)
   dbg(1, "fqdev=%s\n", fqdev);
   strtolower(fqdev);
   idx = get_raw_index(fqdev, NULL);
-  /* special handling for resistors that are converted to b sources: 
+  /* special handling for resistors that are converted to b sources:
    * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
    */
   if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
@@ -4476,7 +4476,7 @@ char *get_fqdevice(const char *param, int modelparam, const char *instname)
 const char *translate(int inst, const char* s)
 {
   #ifdef __unix__
-  static regex_t *get_sp_cur = NULL; 
+  static regex_t *get_sp_cur = NULL;
   #endif
   static const char *empty="";
   static char *result=NULL; /* safe to keep even with multiple schematics */
@@ -4499,7 +4499,7 @@ const char *translate(int inst, const char* s)
   char *value1 = NULL;
   int sim_is_ngspice, sim_is_vacask /*, sim_is_xyce */;
   char *instname = NULL;
- 
+
   if(!s && inst == -1) {
     if(result) my_free(_ALLOC_ID_, &result);
     #ifdef __unix__
@@ -4510,11 +4510,11 @@ const char *translate(int inst, const char* s)
     }
     #endif
   }
- 
+
   if(!s || !xctx || !xctx->inst) {
     return empty;
   }
- 
+
   #ifdef __unix__
   if(!get_sp_cur) {
     get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
@@ -4525,9 +4525,9 @@ const char *translate(int inst, const char* s)
         "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", REG_NOSUB | REG_EXTENDED);
   }
   #endif
- 
+
   sp_prefix = tclgetboolvar("spiceprefix");
- 
+
   if(inst >= xctx->instances) {
     dbg(0, "translate(): instance number out of bounds: %d\n", inst);
     return empty;
@@ -4543,9 +4543,9 @@ const char *translate(int inst, const char* s)
   size=CADCHUNKALLOC;
   my_realloc(_ALLOC_ID_, &result,size);
   result[0]='\0';
- 
+
   dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "<NULL>" , instname);
- 
+
   while(1)
   {
     c=*s++;
@@ -4560,9 +4560,9 @@ const char *translate(int inst, const char* s)
        (
          ( (space  || c == '%' || c == '@') && !escape ) ||
          ( (!space && c != '%' && c != '@') && escape  )
-       )                          
+       )
       ) state=TOK_SEP;
-  
+
     STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
     if(state==TOK_TOKEN) token[token_pos++]=(char)c;
@@ -4592,13 +4592,13 @@ const char *translate(int inst, const char* s)
        const char *path = xctx->sch_path[xctx->currsch] + 1;
        int start_level = sch_waves_loaded(), skip = 0;
        if(start_level == -1) start_level = 0;
-   
+
        /* skip path components that are above the level where raw file was loaded */
        while(*path && skip < start_level) {
          if(*path == '.') skip++;
          ++path;
        }
-   
+
        tmp=strlen(path);
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos, path, tmp+1);
@@ -4637,7 +4637,7 @@ const char *translate(int inst, const char* s)
           my_free(_ALLOC_ID_, &value);
         }
       } else if(inst >= 0 && strcmp(token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
-   
+
        get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst, 0);
        if(!stat(file_name , &time_buf)) {
          tm=localtime(&(time_buf.st_mtime) );
@@ -4749,19 +4749,19 @@ const char *translate(int inst, const char* s)
                 }
               }
               if(net) my_free(_ALLOC_ID_, &net);
-            } 
+            }
           }
         }
       }
-   
+
       /* copy as is: processed by spice_get_node() later
        * the format is "some_text@spice_get_node <spice_node> some_additional_text"
        * Examples:
        *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id])
-       *     will translate to: 
+       *     will translate to:
        *   Id=6.6177u
        *   Id=@spice_get_node i(\@m.@path@spiceprefix@name\.msky130_fd_pr__@model\[id]) A
-       *     will translate to: 
+       *     will translate to:
        *   Id=6.6177uA
        * note the required separator spaces around the spice node. Spaces are used here as
        * separators since spice nodes don't allow spaces.
@@ -4807,12 +4807,12 @@ const char *translate(int inst, const char* s)
               len = strlen(path) + strlen(instname) + strlen(net) + 2;
               dbg(1, "net=%s\n", net);
               fqnet = my_malloc(_ALLOC_ID_, len);
-   
-   
+
+
               global_net = strrchr(net, '.');
               if(global_net == NULL) global_net = net;
               else global_net++;
-   
+
               if(inst < 0 || record_global_node(3, NULL, global_net)) {
                 strtolower(net);
                 my_snprintf(fqnet, len, "%s", global_net);
@@ -4855,7 +4855,7 @@ const char *translate(int inst, const char* s)
       /* @spice_get_current(...) or @spice_get_current_<param>(...)
        * @spice_get_modelparam(...) or @spice_get_modelparam_<param>(...)
        * @spice_get_modelvoltage(...) or @spice_get_modelvoltage_<param>(...)
-       * 
+       *
        * Only @spice_get_current(...) and @spice_get_current_<param>(...) are processed
        * the other types are ignored */
       #ifdef __unix__
@@ -5048,7 +5048,7 @@ const char *translate(int inst, const char* s)
             /* token contans _param after @spice_get_current or @spice_get_modelparam
              * or  @spice_get_modelvoltage */
             if(strcmp(token, "@spice_get_current") &&
-               strcmp(token, "@spice_get_modelparam") && 
+               strcmp(token, "@spice_get_modelparam") &&
                strcmp(token, "@spice_get_modelvoltage")) {
               int n = 0;
               param = my_malloc(_ALLOC_ID_, strlen(token) + 1);
@@ -5117,7 +5117,7 @@ const char *translate(int inst, const char* s)
               if(idx >= 0) {
                 val = xctx->raw->cursor_b_val[idx];
               }
-              /* special handling for resistors that are converted to b sources: 
+              /* special handling for resistors that are converted to b sources:
                * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
                */
               if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
@@ -5161,7 +5161,7 @@ const char *translate(int inst, const char* s)
       }
 
       else if(strcmp(token,"@schspectreprop")==0 && xctx->schspectreprop)
-      {   
+      {
         tmp=strlen(xctx->schspectreprop);
         STR_ALLOC(&result, tmp + result_pos, &size);
         memcpy(result+result_pos,xctx->schspectreprop, tmp+1);
@@ -5176,7 +5176,7 @@ const char *translate(int inst, const char* s)
         result_pos+=tmp;
       }
       /* /20100217 */
-   
+
       else if(strcmp(token,"@schsymbolprop")==0 && xctx->schsymbolprop)
       {
         tmp=strlen(xctx->schsymbolprop);
@@ -5193,7 +5193,7 @@ const char *translate(int inst, const char* s)
         result_pos+=tmp;
       }
       /* /20100217 */
-   
+
       else if(strcmp(token,"@schverilogprop")==0 && xctx->schverilogprop)
       {
         tmp=strlen(xctx->schverilogprop);
@@ -5262,7 +5262,7 @@ const char *translate(int inst, const char* s)
               dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
             } else break;
             i--;
-          } 
+          }
 
           tmp=strlen(value1);
           STR_ALLOC(&result, tmp + result_pos, &size);
@@ -5285,11 +5285,11 @@ const char *translate(int inst, const char* s)
   } /* while(1) */
   dbg(2, "translate(): returning %s\n", result);
   my_free(_ALLOC_ID_, &token);
-  /* resolve spice_get_node patterns. 
+  /* resolve spice_get_node patterns.
    * if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
   my_strdup2(_ALLOC_ID_, &result, spice_get_node(tcl_hook2(result)));
-  
+
   if(is_expr(result) && inst >= 0) {
     dbg(1, "translate(): expr():%s\n", result);
     my_strdup2(_ALLOC_ID_, &result, eval_expr(
@@ -5439,8 +5439,8 @@ const char *translate2(Lcc *lcc, int level, char* s)
  * ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6
  * using s1, s2, s3 in turn to resolve @tokens
  * if no definition for @token is found return @token as is in s
- * if s==NULL return emty string 
- * eat_escapes: 
+ * if s==NULL return emty string
+ * eat_escapes:
  *   bit0 == 0 --> keep escapes
  *        == 1 --> remove escapes
  *   bit1 == 0 --> return unchanged token if no value found in s* strings
@@ -5457,7 +5457,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
  size_t sizetok=0;
  size_t token_pos=0;
  const char *value;
- int i, escape=0; 
+ int i, escape=0;
  size_t found_value = 0;
  const char *escape_pos = NULL;
  const char *sptr[5]; /* 1...4 used */
@@ -5484,7 +5484,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
      (
        ( (space  || c == '%' || c == '@') && !escape ) ||
        ( (!space && c != '%' && c != '@') && escape  )
-     )                          
+     )
     ) state=TOK_SEP;
   if( s > escape_pos ) escape = 0;
   s++;

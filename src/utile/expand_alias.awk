@@ -1,21 +1,21 @@
 #!/usr/bin/awk -f
 # File: expand_alias.awk
-# 
+#
 # This file is part of XSCHEM,
 # a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
 # simulation.
 # Copyright (C) 1998-2023 Stefan Frederik Schippers
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -33,7 +33,7 @@
 # sample input:
 #
 #  alias ciclo_we par1 par2
-#   
+#
 #  set apad 0
 #  set dqpad 0
 #  s .1
@@ -45,9 +45,9 @@
 #  set dqpad 0
 #  set wenpad 1
 #  s .1
-#   
+#
 #  endalias
-# 
+#
 #  ciclo_we aa 55
 #  ciclo_we 55 aa
 
@@ -82,7 +82,7 @@ function process_line()
   alias[name , "l" line++]=$0
   if($1 ~ /^endalias *$/)
   {
-   alias[name , "lines"]=line-1 
+   alias[name , "lines"]=line-1
    beginalias=0;
   }
   return
@@ -92,7 +92,7 @@ function process_line()
   expand_alias($0)
  }
  else print $0
-} 
+}
 
 
 # 20150718 generic replacer of {param} patterns in macro lines
@@ -117,11 +117,11 @@ function replace(name, s,       pre, par, post)
   return s
 }
 
-# 20110630 
+# 20110630
 function analyze_params_in_expressions(name, s,       ss, s_arr, i, o, o_arr, n)
 {
   s=replace(name, s)  #20150918 new {par} format to avoid ambiguities in complex patterns
-    
+
   ss=""
   n = split(s, s_arr, /[=\-\/\+\*]/)   # 20150810 added '=' for substituting 'set sig 0 slope=slp' with slp=param
   o = split(s, o_arr, /[^=\-\+\*\/]+/) # 20150810 added '='

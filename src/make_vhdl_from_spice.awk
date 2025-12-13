@@ -2,7 +2,7 @@
 gawk '
 
 BEGIN{
- 
+
 #  ar["a", 1] = "A[3]"
 #  ar["a", 2] = "A[3]"
 #  ar["a", 3] = "A[3]"
@@ -49,13 +49,13 @@ BEGIN{
 ########################## END JOIN ##########################
 
    skip=0
-   for(i=0;i<netlist_lines; i++) { 
+   for(i=0;i<netlist_lines; i++) {
      $0=netlist[i]
      process_subckts()
    }
 
    skip=0
-   for(i=0;i<netlist_lines; i++) { 
+   for(i=0;i<netlist_lines; i++) {
      $0=netlist[i]
      process()
    }
@@ -66,7 +66,7 @@ BEGIN{
 
 function process_subckts(         i,name)
 {
- if(skip==1 && toupper($1) ==".ENDS") { skip=0; return } 
+ if(skip==1 && toupper($1) ==".ENDS") { skip=0; return }
  if(skip==1) return
  if(toupper($1) ==".SUBCKT") {
    curr_subckt=$2
@@ -79,8 +79,8 @@ function process_subckts(         i,name)
      pin_ar[curr_subckt,i-2]=$i
    }
    pin_ar[curr_subckt,"n"]=i-3
-   pin_ar[curr_subckt,"template"] = get_template(template) 
-   print "\n\n\n process_subckt() : " curr_subckt "--> " 
+   pin_ar[curr_subckt,"template"] = get_template(template)
+   print "\n\n\n process_subckt() : " curr_subckt "--> "
    for(i=1; i<= pin_ar[curr_subckt,"n"]; i++) printf "%s ", pin_ar[curr_subckt,i]; printf "\n"
  }
  else if(toupper($1) ~ /^\*\.PININFO/) {
@@ -89,27 +89,27 @@ function process_subckts(         i,name)
      if($i ~ /:I$/ ) pin_ar[curr_subckt, "dir", name] = "I"
      else if($i ~ /:O$/ ) pin_ar[curr_subckt, "dir", name] = "O"
      else if($i ~ /:B$/ ) pin_ar[curr_subckt, "dir", name] = "B"
-     else { print "ERROR" ; exit} 
+     else { print "ERROR" ; exit}
    }
  }
  else if(toupper($1) ~ /^\*\.(I|O|IO)PIN/) {
-  if($1 ~ /^\*\.ipin/) { pin_ar[curr_subckt, "dir", $2] = "I" } 
-  else if($1 ~ /^\*\.opin/) { pin_ar[curr_subckt, "dir", $2] = "O" } 
-  else if($1 ~ /^\*\.iopin/) { pin_ar[curr_subckt, "dir", $2] = "B" } 
+  if($1 ~ /^\*\.ipin/) { pin_ar[curr_subckt, "dir", $2] = "I" }
+  else if($1 ~ /^\*\.opin/) { pin_ar[curr_subckt, "dir", $2] = "O" }
+  else if($1 ~ /^\*\.iopin/) { pin_ar[curr_subckt, "dir", $2] = "B" }
  }
 }
 
-function get_template(t,         templ, i) 
+function get_template(t,         templ, i)
 {
  templ=""
  if(t) for(i=t;i<=NF;i++) {
-  templ = templ $i " " 
+  templ = templ $i " "
  }
  return templ
 }
 
 
-   
+
 function process(         i,name,param)
 {
  print "process(): skip = "  skip " --> " $0
@@ -128,12 +128,12 @@ function process(         i,name,param)
 
    compact_pinlist( "" , curr_subckt)
    print "----------------------------------------------------------"
-     
+
    for(i=1;i<= dir_ret["n"] ; i++) {
      print dir_ret[i] "   " pin_ret[i]
-   }   
+   }
    print "\n\n"
-         
+
    print_sch(curr_subckt, dir_ret, pin_ret)
    print "----------------------------------------------------------"
 
@@ -178,7 +178,7 @@ function process(         i,name,param)
      print "  dir_ret " i " ------> " dir_ret[i] "   " pin_ret[i] " <-- " net_ret[i]
    }
    print "\n\n"
-   param = get_param(param) 
+   param = get_param(param)
    print_signals( inst, inst_sub, param, pin_ret, dir_ret, net_ret )
  }
 }
@@ -197,7 +197,7 @@ function compact_pinlist(inst,inst_sub                  ,i,ii,base,curr,curr_n,n
  delete pin_ret
  delete net_ret
  delete dir_ret
- 
+
  np=pin_ar[inst_sub,"n"]
  print " compact_pinlist: np= " np
  if(np) {
@@ -205,7 +205,7 @@ function compact_pinlist(inst,inst_sub                  ,i,ii,base,curr,curr_n,n
    for(i=1;i<=np;i++) {
      base =lab_name( pin_ar[inst_sub,i] )
      if(i==1) {curr=base; curr_n=i}
-     else { 
+     else {
        if(base != curr) {
          pin_ret[ii] = compact_label(inst_sub,pin_ar,curr_n,i-1)
          if(inst) net_ret[ii] = compact_label(inst,net_ar,curr_n,i-1)
@@ -252,7 +252,7 @@ function compact_label(name, ar,a,b,        ret,start,i)
             lab_index(ar[name,i]) != lab_index(ar[name,start])   ) ) {
         if(start<i-1 && lab_index(ar[name,start]) == lab_index(ar[name,i-1]) )
           ret = ret (i-start) "*" ar[name,i-1] ",";
-        else if(start<i-1) 
+        else if(start<i-1)
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,i-1]) "],"
         else
           ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) "],"
@@ -264,9 +264,9 @@ function compact_label(name, ar,a,b,        ret,start,i)
     if(start < b)  ret = ret (b-start+1) "*" ar[name,b]
     else ret = ret ar[name,b]
   }
-  else if(start<b && lab_index(ar[name,start]) == lab_index(ar[name,b]))   
-    ret = ret (b-start+1) "*" ar[name,b] 
-  else if(start<b)   
+  else if(start<b && lab_index(ar[name,start]) == lab_index(ar[name,b]))
+    ret = ret (b-start+1) "*" ar[name,b]
+  else if(start<b)
     ret = ret lab_name(ar[name,start]) "[" lab_index(ar[name,start]) ":" lab_index(ar[name,b]) "]"
   else
     ret = ret lab_name(ar[name,b]) "[" lab_index(ar[name,b]) "]"
@@ -303,7 +303,7 @@ function print_sch(schname, dir, pin,
    else if(dir[i]=="O" || dir[i]=="B") op++
    else {print "ERROR: print_sch(): undefined dir[]"; exit}
  }
- 
+
  for(i=1;i<=n_pin;i++)
  {
   pin_dir=dir[i]
@@ -336,45 +336,45 @@ function print_signals( inst_name, component_name, param, pin,dir,net,
  n_pin=pin["n"]
  n_net=net["n"]
  n_dir=dir["n"]
- 
+
  print " print_signals() : component_name = ", component_name
  if(n_dir != n_pin) { print " n_dir vs n_pin mismatch: inst / comp = " inst_name " / " component_name ; exit }
  if(n_net != n_pin) { print " n_net vs n_pin mismatch: inst / comp = " inst_name " / " component_name ; exit }
 
- all_signals=all_signals inst_name " : " component_name "\nPORT MAP(\n" 
+ all_signals=all_signals inst_name " : " component_name "\nPORT MAP(\n"
 
  for(i=1;i<=n_net;i++)
  {
    curr_dir=dir[i]
-   all_signals = all_signals "    " pin[i] " => " net[i] 
+   all_signals = all_signals "    " pin[i] " => " net[i]
 
    if(i<n_net) all_signals = all_signals ",\n"
    else        all_signals = all_signals "\n"
  }
  all_signals=all_signals ");\n\n"
 
-}  
+}
 
 
 
 #------------------------------
 
-function abs(a) 
+function abs(a)
 {
  return a>0 ? a: -a
 }
 
-function format_translate(s,             str,n,i,ss,sss) 
+function format_translate(s,             str,n,i,ss,sss)
 {
  str=""
  n=split(s,ss)
  for(i=1;i<=n;i++) {
    if(ss[i] ~ /.+=.+/) {
-     split(ss[i],sss,"=") 
+     split(ss[i],sss,"=")
      ss[i] = sss[i] "=@" sss[1]
    }
    str = str ss[i]
-   if(i<n) str=str " " 
+   if(i<n) str=str " "
  }
  return str
 }

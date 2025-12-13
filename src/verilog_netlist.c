@@ -108,7 +108,7 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */
 
- my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d", 
+ my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0),getpid());
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
@@ -136,7 +136,7 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
   if( type && (strcmp(type,"timescale")==0 || strcmp(type,"verilog_preprocessor")==0) )
   {
    str_tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr , fmt_attr, 2);
-   if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))               
+   if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
       str_tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "verilog_format", 2);
 
    my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
@@ -487,15 +487,15 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
      if( type && ( strcmp(type,"timescale")==0  || strcmp(type,"verilog_preprocessor")==0) )
      {
       str_tmp = get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, fmt_attr, 2);
-      if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format")) 
+      if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
          str_tmp = get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "verilog_format", 2);
       my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
       fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string) : "<NULL>");
      }
     }
- 
 
-    my_strdup(_ALLOC_ID_, &verilogprefix, 
+
+    my_strdup(_ALLOC_ID_, &verilogprefix,
        get_tok_value(xctx->sym[i].prop_ptr, "verilogprefix", 0));
     if(verilogprefix) {
       my_strdup(_ALLOC_ID_, &symname, verilogprefix);
@@ -506,13 +506,13 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     my_free(_ALLOC_ID_, &verilogprefix);
 
 
- 
+
     fprintf(fd, "module %s (\n", sanitize(symname));
     my_free(_ALLOC_ID_, &symname);
     /*print_generic(fd, "entity", i); */
-  
+
     dbg(1, "verilog_block_netlist():       entity ports\n");
-  
+
     /* print port list */
     tmp=0;
     for(j=0;j<xctx->sym[i].rects[PINLAYER]; ++j)
@@ -527,7 +527,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
       }
     }
     int_hash_free(&table);
-  
+
     if(extra) {
       for(extra_ptr = extra; ; extra_ptr=NULL) {
         extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr1);
@@ -549,7 +549,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
       if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
         my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
                   xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
-        my_strdup(_ALLOC_ID_, &port_value, 
+        my_strdup(_ALLOC_ID_, &port_value,
           get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
         my_strdup(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
         if(strcmp(dir_tmp,"in")){
@@ -594,13 +594,13 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
       if(skip_instance(l, 1, lvs_ignore)) continue;
       if(xctx->netlist_count &&
         !strboolcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
-  
+
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
       if(type && !strcmp(type,"netlist_commands")) {
         fprintf(fd, "%s\n", get_tok_value(xctx->inst[l].prop_ptr,"value", 0));
       }
     }
-  
+
     if(xctx->schverilogprop && xctx->schverilogprop[0]) {
       fprintf(fd, "%s\n", xctx->schverilogprop);
     }
