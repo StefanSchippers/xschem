@@ -465,9 +465,11 @@ void merge_file(int selection_load, const char ext[])
      dbg(1, "End merge_file(): loaded file %s: wire=%d inst=%d ui_state=%ld\n",
              name, xctx->wires , xctx->instances, xctx->ui_state);
      move_objects(START,0,0,0);
-     xctx->mousex_snap = xctx->mx_double_save;
-     xctx->mousey_snap = xctx->my_double_save;
-     if(rubber) move_objects(RUBBER,0,0,0);
+     if(xctx->lastsel) {
+       xctx->mousex_snap = xctx->mx_double_save;
+       xctx->mousey_snap = xctx->my_double_save;
+       if(rubber) move_objects(RUBBER,0,0,0);
+     }
     } else {
       dbg(0, "merge_file(): can not open %s\n", name);
       xctx->paste_from = 0;
