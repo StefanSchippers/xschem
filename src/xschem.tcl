@@ -6282,6 +6282,7 @@ proc redef_puts {} {
   if ![llength [info command ::tcl::puts]] {
     rename puts ::tcl::puts
     proc puts args {
+      # ::tcl::puts "puts: args=$args"
       global tclcmd_puts
       set la [llength $args]
       if {$la<1 || $la>3} {
@@ -6305,8 +6306,10 @@ proc redef_puts {} {
         lappend cmd $channel $s
         eval $cmd
       }
+      return {}
     };# puts
   }
+  return {}
 }
 
 # return key release, used to remove last entered character
