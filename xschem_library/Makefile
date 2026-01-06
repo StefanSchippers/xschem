@@ -62,7 +62,11 @@ uninstall: FORCE
 			"$(XDOCDIR)"/gschem_import/*.sym \
 			"$(XDOCDIR)"/gschem_import/*.sch \
 			"$(XDOCDIR)"/gschem_import/sym/*.sym \
-			"$(XDOCDIR)"/gschem_import/sym
+			"$(XDOCDIR)"/gschem_import/sym \
+			"$(XDOCDIR)"/analyses/*.sym \
+			"$(XDOCDIR)"/analyses/*.sch \
+			"$(XDOCDIR)"/analyses/lib_init.tcl \
+			"$(XDOCDIR)"/analyses/README.md
 clean:
 
 distclean:
