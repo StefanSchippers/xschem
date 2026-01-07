@@ -2214,10 +2214,8 @@ static void resetcairo(int create, int clear, int force_or_resize)
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize
      * we must destroy & recreate everything. xctx->cairo_sfc can be resized using cairo_*_surface_set_size
      * being based on window */
-    cairo_font_face_destroy(cairo_get_font_face(xctx->cairo_save_ctx));
     cairo_destroy(xctx->cairo_save_ctx);
     cairo_surface_destroy(xctx->cairo_save_sfc);
-    cairo_font_face_destroy(cairo_get_font_face(xctx->cairo_ctx));
     cairo_destroy(xctx->cairo_ctx);
     cairo_surface_destroy(xctx->cairo_sfc);
     xctx->cairo_save_ctx = NULL;
