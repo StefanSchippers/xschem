@@ -228,7 +228,7 @@ void windowid(const char *win_path)
     if (framewindow_nchildren==0) fprintf(errfp, "no framewin child\n");
     else fprintf(errfp, "framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
   }
-
+  XFree(framewin_child_ptr);
   /* here I create the icon pixmap,to be used when iconified,  */
 #ifdef __unix__
   if(!cad_icon_pixmap) {
@@ -2214,8 +2214,10 @@ static void resetcairo(int create, int clear, int force_or_resize)
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize
      * we must destroy & recreate everything. xctx->cairo_sfc can be resized using cairo_*_surface_set_size
      * being based on window */
+    cairo_font_face_destroy(cairo_get_font_face(xctx->cairo_save_ctx));
     cairo_destroy(xctx->cairo_save_ctx);
     cairo_surface_destroy(xctx->cairo_save_sfc);
+    cairo_font_face_destroy(cairo_get_font_face(xctx->cairo_ctx));
     cairo_destroy(xctx->cairo_ctx);
     cairo_surface_destroy(xctx->cairo_sfc);
     xctx->cairo_save_ctx = NULL;
@@ -2271,7 +2273,9 @@ static void resetcairo(int create, int clear, int force_or_resize)
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
     cairo_font_face_destroy(xctx->cairo_font);
+    xctx->cairo_font = NULL;
     cairo_font_options_destroy(options);
+    options = NULL;
   }
   #endif /* HAS_CAIRO */
 }
