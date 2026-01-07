@@ -487,7 +487,7 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
   /* we store 4 variables (mag, phase, real and imag) but raw file has only real and imag */
   if(ac) rawvars >>= 1;
   /* read buffer */
-  tmp = my_calloc(_ALLOC_ID_, rawvars, (sizeof(double *) ));
+  tmp = my_calloc(_ALLOC_ID_, rawvars, (sizeof(double) ));
 
   /* if sweep1 and sweep2 are given calculate actual npoints that will be loaded */
   npoints = raw->npoints[raw->datasets];
