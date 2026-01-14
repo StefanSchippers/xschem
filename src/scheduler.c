@@ -282,7 +282,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(tclresult()[0]) {
         char *str = NULL;
         my_strdup2(_ALLOC_ID_, &f, tclresult());
-        my_mstrcat(_ALLOC_ID_, &str, "flags=image,unscaled\nalpha=0.8\nimage=", f, "\n", NULL);
+        my_mstrcat(_ALLOC_ID_, &str, "flags=image,unscaled\nalpha=0.8\nimage=\"", f, "\"\n", NULL);
 
         if(strstr(f, ".svg") == f + strlen(f) - 4 ) {
           if(tcleval("info exists svg_to_png")[0] == '1') {
