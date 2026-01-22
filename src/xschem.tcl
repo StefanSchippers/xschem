@@ -1678,7 +1678,7 @@ proc set_sim_defaults {{reset {}}} {
 
     # A server communicating with bespice wave was set up in the function setup_tcp_bespice().
     # This server is listening on port $bespice_listen_port.
-    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port "$n.raw" }
+    set_ne sim(spicewave,3,cmd) {$env(HOME)/analog_flavor_eval/bin/bspwave --socket localhost $bespice_listen_port}
     set sim(spicewave,3,name) {Bespice wave}
     set_ne sim(spicewave,3,fg) 0
     set_ne sim(spicewave,3,st) 0
