@@ -24,7 +24,7 @@ K {type=label
 function0="L"
 global=ground
 format="*.alias @lab"
-template="name=l1 lab=GND"}
+template="name=l1 lab=0"}
 V {}
 S {}
 F {}
