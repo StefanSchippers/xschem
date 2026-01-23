@@ -90,8 +90,8 @@ END{
         $1 = ""
         $0 = ".print " $0
       }
-      gsub(/ [mM] *= *1 *$/,"") # xyce does not like m=# fields (multiplicity) removing m=1 is no an issue anyway
     }
+    gsub(/ [mM] *= *1 *$/,"") # removing m=1 is no an issue anyway
     process()
   }
 }
