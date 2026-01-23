@@ -1865,6 +1865,15 @@ void launcher(void)
     else if(xctx->sel_array[0].type==WIRE)    prop_ptr = xctx->wire[n].prop_ptr;
     else if(xctx->sel_array[0].type==xTEXT)   prop_ptr = xctx->text[n].prop_ptr;
     my_strdup2(_ALLOC_ID_, &command, get_tok_value(prop_ptr,"tclcommand",0));
+    if(strchr(command, '@')) {
+      my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL));
+      if(xctx->sel_array[0].type==ELEMENT) {
+        xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
+        if(strchr(command, '@')) {
+          my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, sym->prop_ptr, NULL, NULL, NULL));
+        }
+      }
+    }
     my_strncpy(program, get_tok_value(prop_ptr,"program",0), S(program)); /* handle backslashes */
     url = get_tok_value(prop_ptr,"url",0); /* handle backslashes */
     dbg(1, "launcher(): url=%s\n", url);
