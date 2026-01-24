@@ -1854,6 +1854,7 @@ void launcher(void)
   tcleval("update");
   if(xctx->lastsel ==1)
   {
+    size_t tclcommand_found;
     double mx=xctx->mousex, my=xctx->mousey;
     n=xctx->sel_array[0].n;
     c=xctx->sel_array[0].col;
@@ -1864,7 +1865,12 @@ void launcher(void)
     else if(xctx->sel_array[0].type==LINE)    prop_ptr = xctx->line[c][n].prop_ptr;
     else if(xctx->sel_array[0].type==WIRE)    prop_ptr = xctx->wire[n].prop_ptr;
     else if(xctx->sel_array[0].type==xTEXT)   prop_ptr = xctx->text[n].prop_ptr;
-    my_strdup2(_ALLOC_ID_, &command, get_tok_value(prop_ptr,"tclcommand",0));
+    my_strdup2(_ALLOC_ID_, &command, get_tok_value(prop_ptr, "tclcommand", 0));
+    tclcommand_found = xctx->tok_size;
+    if(!tclcommand_found && xctx->sel_array[0].type==ELEMENT) {
+      xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
+      my_strdup2(_ALLOC_ID_, &command, get_tok_value(sym->prop_ptr, "tclcommand", 0));
+    }
     if(strchr(command, '@')) {
       my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL));
       if(xctx->sel_array[0].type==ELEMENT) {
