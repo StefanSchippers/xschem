@@ -482,12 +482,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(gr->unitx != 1.0)
         my_snprintf(sx, S(sx), "%.5g%c", gr->unitx * xval, gr->unitx_suffix);
       else
-        my_strncpy(sx, dtoa_eng(xval), S(sx));
+        my_strncpy(sx, dtoa_eng(xval, 5), S(sx));
 
       if(gr->unitx != 1.0)
         my_snprintf(sy, S(sy), "%.4g%c", gr->unity * yval, gr->unity_suffix);
       else
-        my_strncpy(sy, dtoa_eng(yval), S(sy));
+        my_strncpy(sy, dtoa_eng(yval, 5), S(sy));
 
       tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
       tcleval("graph_show_measure");
@@ -650,7 +650,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           logcursor = mylog10(cursor);
         }
         if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, 5), NULL);
           cursor = atof_eng(tclresult());
           if(r->flags & 4) {
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(cursor)));
@@ -680,7 +680,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           logcursor = mylog10(cursor);
         }
         if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, 5), NULL);
           cursor = atof_eng(tclresult());
           if(r->flags & 4) {
             my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(cursor)));
@@ -705,7 +705,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           logcursor = mylog10(cursor);
         }
         if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, 5), NULL);
           cursor = atof_eng(tclresult());
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor1_y", dtoa(cursor)));
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */
@@ -720,7 +720,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           logcursor = mylog10(cursor);
         }
         if(fabs(xctx->mousey - W_Y(logcursor)) < 10) {
-          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor), NULL);
+          tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, 5), NULL);
           cursor = atof_eng(tclresult());
           my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "hcursor2_y", dtoa(cursor)));
           event = 0; button = 0; /* avoid further processing ButtonPress that might set GRAPHPAN */

@@ -1701,7 +1701,7 @@ extern char *my_itoa(int i);
 extern double atof_spice(const char *s);
 extern double atof_eng(const char *s); /* same as atof_spice, but recognizes 'M' as Mega and 'm' as Milli */
 extern char *dtoa(double i);
-extern char *dtoa_eng(double i);
+extern char *dtoa_eng(double i, int precision);
 extern char *dtoa_prec(double i);
 extern double my_round(double a);
 extern double round_to_n_digits(double x, int n);

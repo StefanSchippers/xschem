@@ -328,7 +328,6 @@ size_t my_snprintf(char *str, size_t size, const char *fmt, ...)
   va_list args;
   va_start(args, fmt);
   size_of_print = vsnprintf(str, size, fmt, args);
-
   if(has_x && size_of_print >=size) { /* output was truncated  */
     snprintf(s, S(s), "alert_ { Warning: overflow in my_snprintf print size=%d, buffer size=%d} {}",
              size_of_print, size);
@@ -583,13 +582,13 @@ char *dtoa(double i)
   return s;
 }
 
-char *dtoa_eng(double i)
+char *dtoa_eng(double i, int precision)
 {
-  static char s[70];
+  static char s[80];
   size_t n;
   int suffix = 0;
   double absi = fabs(i);
-  dbg(1,  "dtoa_eng(): i=%.17g, absi=%.17g\n", i, absi);
+  dbg(1,  "dtoa_eng(): i=%.17g, absi=%.17g, precision=%d\n", i, absi, precision);
   if     (absi == 0.0)        {            suffix =  0 ;}
   else if(absi < 0.999999e-23) { i  = 0.0 ; suffix =  0 ;}
   else if(absi > 0.999999e12)  { i /= 1e12; suffix = 'T';}
@@ -604,9 +603,10 @@ char *dtoa_eng(double i)
   else if(absi > 0.999999e-15) { i *= 1e15; suffix = 'f';}
   else                        { i *= 1e18; suffix = 'a';}
   if(suffix) {
-    n = my_snprintf(s, S(s), "%.5g%c", i, suffix);
+    /* can not use my_snprintf() here due to indirect precision */
+    n = sprintf(s, "%.*g%c", precision, i, suffix);
   } else {
-    n = my_snprintf(s, S(s), "%.5g", i);
+    n = sprintf(s, "%.*g", precision, i);
   }
   if(xctx) xctx->tok_size = n;
   return s;

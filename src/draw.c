@@ -3137,10 +3137,10 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
     drawline(GRIDLAYER, ADD, W_X(wx),   W_Y(gr->gy1), W_X(wx),   W_Y(gr->gy1) + mark_size, 0.0, 0, ct); /* axis marks */
     /* X-axis labels */
     if(gr->logx)
-      draw_string(3, NOW, dtoa_eng(pow(10, wx) * gr->unitx), 0, 0, 1, 0, W_X(wx),
+      draw_string(3, NOW, dtoa_eng(pow(10, wx) * gr->unitx, 5), 0, 0, 1, 0, W_X(wx),
                 gr->y2 + mark_size + 5 * gr->txtsizex, gr->txtsizex, gr->txtsizex);
     else
-      draw_string(3, NOW, dtoa_eng(wx * gr->unitx), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
+      draw_string(3, NOW, dtoa_eng(wx * gr->unitx, 5), 0, 0, 1, 0, W_X(wx), gr->y2 + mark_size + 5 * gr->txtsizex,
                 gr->txtsizex, gr->txtsizex);
   }
   /* first and last vertical box delimiters */
@@ -3169,10 +3169,10 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
       drawline(GRIDLAYER, ADD, W_X(gr->gx1) - mark_size, W_Y(wy),   W_X(gr->gx1), W_Y(wy), 0.0, 0, ct); /* axis marks */
       /* Y-axis labels */
       if(gr->logy)
-        draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity), 0, 1, 0, 1,
+        draw_string(3, NOW, dtoa_eng(pow(10, wy) * gr->unity, 5), 0, 1, 0, 1,
                   gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy), gr->txtsizey, gr->txtsizey);
       else
-        draw_string(3, NOW, dtoa_eng(wy * gr->unity), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
+        draw_string(3, NOW, dtoa_eng(wy * gr->unity, 5), 0, 1, 0, 1, gr->x1 - mark_size - 5 * gr->txtsizey, W_Y(wy),
                   gr->txtsizey, gr->txtsizey);
     }
   }
@@ -3403,7 +3403,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
     if(gr->unitx != 1.0)
        my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
     else
-       my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx));
+       my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx, 5));
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
     filledrect(0, NOW,  tx1, ty1, tx2, ty2, 2, -1, -1);
     draw_string(cursor_color, NOW, tmpstr, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, txtsize, txtsize);
@@ -3435,7 +3435,7 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
   if(gr->unitx != 1.0)
      my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
   else
-     my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(diffw));
+     my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(diffw, 5));
   text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
   if( tx2 - tx1 < diff ) {
     draw_string(3, NOW, tmpstr, 2, 0, 1, 0, xx, yy, txtsize, txtsize);
@@ -3465,7 +3465,7 @@ static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
     if(gr->unity != 1.0)
        my_snprintf(tmpstr, S(tmpstr), " %.5g%c ", gr->unity * active_cursory , gr->unity_suffix);
     else
-       my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(active_cursory));
+       my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(active_cursory, 5));
     text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 0, gr->rx1 + 5, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
     th = (ty2 - ty1) / 2.; /* half text height */
     ty1 -= th;
@@ -3499,7 +3499,7 @@ static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
   if(gr->unity != 1.0)
      my_snprintf(tmpstr, S(tmpstr), " %.4g%c ", gr->unity * diffh , gr->unity_suffix);
   else
-     my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(diffh));
+     my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(diffh, 5));
   text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 1, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
   if( 2 * (ty2 - ty1) < diff ) {
     filledrect(0, NOW,  tx1, ty1, tx2, ty2, 2, -1, -1);

@@ -127,9 +127,9 @@ static void get_char(int c)
 static void get_expr(double x)
 {
   char xx[100];
-  dbg(dbglev,"get_expr(): x=%g\n", x);
+  dbg(dbglev,"get_expr(): x=%g, enginenering=%d\n", x, engineering);
   if(engineering) {
-    my_snprintf(xx, S(xx), "%s", dtoa_eng(x));
+    my_snprintf(xx, S(xx), "%s", dtoa_eng(x, engineering));
   } else {
     my_snprintf(xx, S(xx), "%.15g", x);
   }
@@ -157,6 +157,11 @@ static void remove_expr(char *s)
       ptr += 9;
       plev++;
     }
+    else if(strstr(ptr, "expr_eng4(") == ptr) {
+      ptr += 10;
+      plev++;
+    }
+
     if(*ptr == '(') plev++;
     if(*ptr == ')') {
       plev--;
@@ -242,7 +247,15 @@ static int kklex()
      lex_state = 1;
      str += 9;
      dbg(dbglev, "lex(): EXPR_ENG\n");
-     engineering = 1;
+     engineering = 5;
+     return EXPR;
+  }
+
+  else if(strstr(str, "expr_eng4(") == str) { 
+     lex_state = 1;
+     str += 10;
+     dbg(dbglev, "lex(): EXPR_ENG4\n");
+     engineering = 4;
      return EXPR;
   }
 
