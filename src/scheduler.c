@@ -51,6 +51,22 @@ void statusmsg(char str[],int n)
   }
 }
 
+static int get_text(const char *s)
+{
+  int i, found=0;
+  if(isonlydigit(s)) {
+    i=atoi(s);
+    found = 1;
+  } else for(i=0;i<xctx->texts; ++i) {
+    if(!strcmp(get_tok_value(xctx->text[i].prop_ptr, "name", 0), s)) {
+      found=1;
+      break;
+    }
+  }
+  if(!found || i < 0 || i >= xctx->texts) return -1;
+  return i;
+}
+
 static int get_symbol(const char *s)
 {
   int i, found=0;
@@ -1952,8 +1968,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Get attribute 'attr' of rectangle number 'num' on layer 'layer'
      *
      * getprop text num attr
-     *   Get attribute 'attr' of text number 'num'
-     *   if attribute is 'txt_ptr' return the text
+     *   Get attribute 'attr' of text number 'num', 'num' can also be the name attribute 
+     *   of the text object
+     *   if 'attr' is 'txt_ptr' return the text string
      *
      * getprop wire num attr
      *   Get attribute 'attr' of wire number 'num'
@@ -2073,7 +2090,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem getprop text needs <n> <token>", TCL_STATIC);
           return TCL_ERROR;
         } else {
-          int n = atoi(argv[3]);
+          int n = get_text(argv[3]);
+          if(n < 0) {
+            Tcl_AppendResult(interp, "xschem getprop: text object not found:", argv[3], NULL);
+            return TCL_ERROR;
+          }
           if(!strcmp(argv[4], "txt_ptr"))
             Tcl_SetResult(interp, xctx->text[n].txt_ptr, TCL_VOLATILE);
           else

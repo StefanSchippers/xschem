@@ -853,7 +853,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    return result of get_cell_w_ext function </pre>
    <li><kbd>       get_fqdevice instname param modelparam</kbd></li><pre>
    get the full pathname of "instname" device
-   modelparam: 
+   modelparam:
      0: current, 1: modelparam, 2: modelvoltage
    param: device parameter, like ib, gm, vth
    set param to {} (empty str) for just branch current of 2 terminal device
@@ -899,8 +899,9 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Get attribute 'attr' of rectangle number 'num' on layer 'layer'
       
        getprop text num attr
-   Get attribute 'attr' of text number 'num'
-   if attribute is 'txt_ptr' return the text
+   Get attribute 'attr' of text number 'num', 'num' can also be the name attribute 
+   of the text object
+   if 'attr' is 'txt_ptr' return the text string
       
        getprop wire num attr
    Get attribute 'attr' of wire number 'num'
@@ -947,7 +948,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Highlight instance 'inst'
        if '-fast' is specified do not redraw
    'inst' can be an instance name or number </pre>
-   <li><kbd>       hilight_netname [-fast] net </kbd></li><pre>
+   <li><kbd>       hilight_netname [-fast] net</kbd></li><pre>
    Highlight net name 'net'
    if '-fast' is given do not redraw hilights after operation </pre>
    <li><kbd>       image [invert|white_transp|black_transp|transp_white|transp_black|write_back|</kbd></li><pre>
@@ -1140,7 +1141,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    will create the netlist in different places.
    netlisting directory is reset to previous setting after completing this command
    If -messages is given return the ERC messages instead of just a fail (1)
-   or no fail (0) code. 
+   or no fail (0) code.
    If -erc is given it means netlister is called from gui, enable show infowindow
    If -nohier is given netlist only current level
    If -keep_symbols is given no not purge symbols encountered traversing the
@@ -1695,7 +1696,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       unselect_all [draw]</kbd></li><pre>
    Unselect everything. If draw is given and set to '0' no drawing is done </pre>
    <li><kbd>       unselect_attached_floaters</kbd></li><pre>
-   Unselect objects (not symbol instances) attached to some instance with a 
+   Unselect objects (not symbol instances) attached to some instance with a
    non empty name=... attribute </pre>
    <li><kbd>       update_all_sym_bboxes</kbd></li><pre>
    Update all symbol bounding boxes </pre>
