@@ -33,6 +33,8 @@ static double toint(double x);
 static void get_expr(double x);
 static void get_char(int c);
 static double rnd6(double x) {return round_to_n_digits(x, 6);}
+static double rnd1(double x) {return round_to_n_digits(x, 1);}
+static double rnd(double x) {return my_round(x);}
 
 struct fn
 {
@@ -54,7 +56,9 @@ struct fn fn_array[]
       {"ln"       , log, 0},
       {"exp"      , exp, 0},
       {"sqrt"     , sqrt, 0},
-      {"round"    , rnd6, 0},
+      {"round6"   , rnd6, 0},
+      {"round1"   , rnd1, 0},
+      {"round"    , rnd, 0},
       {"pi"       , NULL, 3.141592653589793},
       {"e"        , NULL, 2.718281828459045},
       {"k"        , NULL, 1.380649e-23},
