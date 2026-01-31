@@ -4154,7 +4154,10 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 
    /* button1 click to select another instance while edit prop dialog open */
    else if(button==Button1 && xctx->semaphore >= 2) {
-     if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
+     if(tcleval("winfo exists .dialog.f2.txt")[0] == '1') { /* proc enter_text */
+       tcleval(".dialog.buttons.ok invoke");
+       return;
+     } else if(tcleval("winfo exists .dialog.textinput")[0] == '1') { /* proc text_line */
        tcleval(".dialog.f1.b1 invoke");
        return;
      } else if(tcleval("winfo exists .dialog.txt")[0] == '1') { /* proc enter_text */
