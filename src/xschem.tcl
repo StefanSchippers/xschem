@@ -243,7 +243,7 @@ proc execute_fileevent {id} {
   global execute OS has_x errorCode
 
   append execute(data,$id) [read $execute(pipe,$id) 1024]
-  if { $OS != {Windows} } {
+  if { ![regexp -nocase {windows} $OS] && ![regexp -nocase {cygwin} $OS]} {
     set eof [eof $execute(pipe,$id)]
     # handle processes that close stdout. Read pipe will go into eof condition
     # but process is still running. Doing a close operation in blocking mode
