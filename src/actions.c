@@ -563,7 +563,7 @@ int save(int confirm, int fast)
   {
     dbg(1, "save(): force=%d modified=%d\n", force, xctx->modified);
     if(confirm) {
-      tcleval("ask_save_optional");
+      tcleval("ask_save");
       if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
       else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch], fast);
       else return 0; /* user clicks "no" */
@@ -2619,7 +2619,7 @@ void go_back(int what)
   if(xctx->modified)
   {
     if(confirm) {
-      tcleval("ask_save_optional");
+      tcleval("ask_save");
       if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
       else if(!strcmp(tclresult(), "") ) return;
     }

@@ -3404,7 +3404,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         if(!strcmp(xctx->sch[xctx->currsch],"") || strstr(xctx->sch[xctx->currsch], "untitled")) {
           saveas(NULL, SCHEMATIC);
         } else {
-          save(1, 0);
+          int confirm = !tclgetboolvar("no_ask_save");
+          save(confirm, 0);
         }
       }
 
@@ -3858,7 +3859,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       break;
 
-    case XK_ISO_Left_Tab:
+    case XK_ISO_Left_Tab: /* Shift is pressed */
       if(state == (ControlMask | ShiftMask)) {
         int save = xctx->semaphore;
         if(xctx->semaphore >= 2) break;
