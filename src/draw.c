@@ -3529,6 +3529,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
     if(sch_waves_loaded() >= 0) stok = xctx->raw->names[sweep_idx];
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
+    my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
     draw_string(wave_color, NOW, tmpstr, 2, 1, 0, 0,
        gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry2-2, gr->txtsizelab, gr->txtsizelab);
   }
@@ -3577,6 +3578,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
           cairo_font_face_destroy(xctx->cairo_font);
         }
         #endif
+        my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
         draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
           xt, DW_Y(yt), gr->digtxtsizelab * gr->magy, gr->digtxtsizelab * gr->magy);
         #if HAS_CAIRO == 1
@@ -3599,6 +3601,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         cairo_font_face_destroy(xctx->cairo_font);
       }
       #endif
+      my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
       draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
           gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1, gr->txtsizelab, gr->txtsizelab);
       #if HAS_CAIRO == 1
@@ -4240,14 +4243,20 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
       idx = -1;
       expression = 0;
       if(!bus_msb) {
+        char *match;
         if(strstr(ntok_copy, ";")) {
           my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
         } else {
           my_strdup2(_ALLOC_ID_, &express, ntok_copy);
         }
         dbg(1, "express=|%s|\n", express);
-        if(strpbrk(express, " \n\t")) {
+        
+        match = strpbrk(express, " \n\t");
+        if( match  && (match == express || *(match - 1) != '\\')) {
           expression = 1;
+        }
+        if(match && match > express && *(match - 1) == '\\') {
+          my_strdup2(_ALLOC_ID_, &express, str_replace(express, "\\ ", " ", 0, -1));
         }
       }
       if(sch_waves_loaded() != -1 && tclgetboolvar("auto_hilight_graph_nodes")) {
