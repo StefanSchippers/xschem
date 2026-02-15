@@ -3132,10 +3132,11 @@ proc graph_delete_nodes {} {
 
 proc graph_get_signal_list {siglist pattern } {
   global graph_sort
+  set siglist [split $siglist \n]
   set direction {-decreasing}
   if {$graph_sort} {set direction {-increasing}}
   set result {}
-  set siglist [join [lsort $direction -dictionary $siglist] \n]
+  set siglist [lsort $direction -dictionary $siglist]
   # just check if pattern is a valid regexp
   set err [catch {regexp $pattern {12345}} res]
   if {$err} {set pattern {}}

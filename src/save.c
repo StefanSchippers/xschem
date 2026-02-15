@@ -782,7 +782,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
       if(!raw->names) raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
       if(!raw->cursor_b_val) raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_realloc(_ALLOC_ID_, &varname, strlen(line) + 1) ;
-      n = sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+      n = sscanf(line, "%*[\t]%d%*[\t]%[^\t]", &i, varname); /* read index and name of saved waveform */
       if(n < 2) {
         dbg(0, "read_dataset(): WAARNING: malformed raw file, aborting\n");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
