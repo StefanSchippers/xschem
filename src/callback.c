@@ -3857,8 +3857,24 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         new_schematic("switch", "previous", "", 1);
         xctx->semaphore = save;
       }
+#ifndef __unix__
+      else if(state == ShiftMask) { 
+        int save = xctx->semaphore;
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0; 
+        tcleval("next_tab");
+        xctx->semaphore = save;
+      }
+      else if(state == (ControlMask | ShiftMask)) {
+        int save = xctx->semaphore;
+        if(xctx->semaphore >= 2) break;
+        xctx->semaphore = 0;
+        tcleval("prev_tab");
+        xctx->semaphore = save;
+      }
+#endif
       break;
-
+#ifdef __unix__
     case XK_ISO_Left_Tab: /* Shift is pressed */
       if(state == (ControlMask | ShiftMask)) {
         int save = xctx->semaphore;
@@ -3876,7 +3892,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
 
       break;
-
+#endif   
     case XK_Right:
       if(state == ControlMask) {
         int save = xctx->semaphore;

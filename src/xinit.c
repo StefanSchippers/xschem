@@ -210,7 +210,7 @@ void windowid(const char *win_path)
 
   unsigned int ww;
   Window framewin, rootwindow, parent_of_topwindow;
-  Window *framewin_child_ptr;
+  Window *framewin_child_ptr=NULL;
   unsigned int framewindow_nchildren;
 
   dbg(1, "windowid(): win_path=%s\n", win_path);
@@ -228,7 +228,8 @@ void windowid(const char *win_path)
     if (framewindow_nchildren==0) fprintf(errfp, "no framewin child\n");
     else fprintf(errfp, "framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
   }
-  XFree(framewin_child_ptr);
+  if (framewin_child_ptr!=NULL)
+    XFree(framewin_child_ptr);
   /* here I create the icon pixmap,to be used when iconified,  */
 #ifdef __unix__
   if(!cad_icon_pixmap) {
@@ -1132,7 +1133,7 @@ void toggle_fullscreen(const char *topwin)
   char normal[]="remove,fullscreen";
   unsigned int topwin_id;
   Window rootwindow, parent_id;
-  Window *framewin_child_ptr;
+  Window *framewin_child_ptr=NULL;
   unsigned int framewindow_nchildren;
   int fs;
   char *toplevel = (xctx->top_path[0] ? xctx->top_path : ".");

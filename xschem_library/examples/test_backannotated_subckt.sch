@@ -74,7 +74,7 @@ if \{ [info commands calc_rc] eq \{\} \} \{
     proc calc_rc \{ L W \} \{
      if \{[catch \{expr 1200*$L/$W\} res]\} \{set res -1\}
      if \{[catch \{expr 1e-3*$W*$L\} cap]\} \{set cap -1\}
-     return \\"Res=$res Cap=$cap\\"
+     return \"Res=$res Cap=$cap\"
     \}
     puts [info body calc_rc]
     puts \{############\}
