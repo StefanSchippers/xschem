@@ -4691,7 +4691,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
 
   update_statusbar(persistent_command, wire_draw_active);
 
-  #if 1
+  #if 0
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
     dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, old_win_path=%s, semaphore=%d\n",
