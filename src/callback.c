@@ -4100,6 +4100,8 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 {
    int use_cursor_for_sel = tclgetintvar("use_cursor_for_selection");
    int excl = xctx->ui_state & (STARTWIRE | STARTRECT | STARTLINE | STARTPOLYGON | STARTARC);
+
+   state &= ~(Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask ); /* ignore ButtonStates */
    if(!tabbed_interface && strcmp(win_path, xctx->current_win_path)) return;
    dbg(1, "callback(): ButtonPress  ui_state=%d state=%d\n",xctx->ui_state,state);
    if(waves_selected(event, key, state, button)) {
@@ -4689,7 +4691,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
 
   update_statusbar(persistent_command, wire_draw_active);
 
-  #if 0
+  #if 1
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
     dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, old_win_path=%s, semaphore=%d\n",

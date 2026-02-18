@@ -1147,13 +1147,14 @@ proc key_binding {  s  d { win_path {.drw} } } {
   if { [regexp ButtonPress-5 $d] } { set state [expr {$state +0x1000}] }
   # puts "$state $key <${s}>"
   if {[regexp ButtonPress- $d]} {
+    # puts "bind $win_path <${s}> xschem callback %W %T %x %y 0 $key 0 $state"
     bind $win_path "<${s}>" "xschem callback %W %T %x %y 0 $key 0 $state"
   } else {
     if {![string compare $d {} ] } {
-      # puts  "bind .drw  <${s}> {}"
+      # puts  "bind $win_path  <${s}> {}"
       bind $win_path "<${s}>" {}
     } else {
-      # puts  "bind .drw  <${s}> xschem callback %W %T %x %y $keysym 0 0 $state"
+      # puts  "bind $win_path  <${s}> xschem callback %W %T %x %y $keysym 0 0 $state"
       bind $win_path  "<${s}>" "xschem callback %W %T %x %y $keysym 0 0 $state"
     }
   }
