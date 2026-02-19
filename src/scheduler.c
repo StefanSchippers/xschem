@@ -1967,7 +1967,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   Get attribute 'attr' of rectangle number 'num' on layer 'layer'
      *
      * getprop text num attr
-     *   Get attribute 'attr' of text number 'num', 'num' can also be the name attribute 
+     *   Get attribute 'attr' of text number 'num', 'num' can also be the name attribute
      *   of the text object
      *   if 'attr' is 'txt_ptr' return the text string
      *

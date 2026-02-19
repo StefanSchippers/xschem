@@ -604,9 +604,9 @@ char *dtoa_eng(double i, int precision)
   else                        { i *= 1e18; suffix = 'a';}
   if(suffix) {
     /* can not use my_snprintf() here due to indirect precision */
-    if(suffix == 'M') 
+    if(suffix == 'M')
       n = sprintf(s, "%.*gMEG", precision, i);
-    else 
+    else
       n = sprintf(s, "%.*g%c", precision, i, suffix);
   } else {
     n = sprintf(s, "%.*g", precision, i);

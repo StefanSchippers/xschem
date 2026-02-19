@@ -4250,7 +4250,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           my_strdup2(_ALLOC_ID_, &express, ntok_copy);
         }
         dbg(1, "express=|%s|\n", express);
-        
+
         match = strpbrk(express, " \n\t");
         if( match  && (match == express || *(match - 1) != '\\')) {
           expression = 1;
