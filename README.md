@@ -1,6 +1,7 @@
 
 ## NOTICE
-Xschem is already hosted on [codeberg](https://codeberg.org/stef_xschem/xschem/) This will replace github after a transitional period.
+Xschem is already hosted on [codeberg](https://codeberg.org/stef_xschem/xschem/).
+This will replace github after a transitional period.
 
 # xschem
 
