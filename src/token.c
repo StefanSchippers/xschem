@@ -613,7 +613,7 @@ const char *get_sym_template(char *s,char *extra)
   }
   escape = (c=='\\' && !escape);
   if(c=='\0') {
-    if(result[result_pos] != '\0') result[result_pos++] = '\0';
+    if(result_pos && result[result_pos - 1 ] != '\0') result[result_pos++] = '\0';
     break;
   }
  }
