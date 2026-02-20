@@ -170,7 +170,7 @@ static void remove_expr(char *s)
     if(*ptr == ')') {
       plev--;
       if(plev == 0) ptr++;
-      if(!ptr) break;
+      if(!*ptr) break;
     }
     *s = *ptr;
     ptr++;
