@@ -373,6 +373,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* Xyce uses a 1-point DC transfer characteristic for operating point (OP) data */
         res = extra_rawfile(1, f, "dc", -1.0, -1.0);
       }
+      if(res != 1) { /* try to load a tran analysis (display 1stpoint as OP data in schematic) */
+        res = extra_rawfile(1, f, "tran", -1.0, -1.0);
+      }
       if(res == 1) {
         if(level >= 0) {
           xctx->raw->level = level;
