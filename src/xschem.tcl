@@ -9262,6 +9262,7 @@ proc quit_xschem { {force {}}} {
 
   xschem new_schematic destroy_all $force
   xschem new_schematic switch .drw
+  if {[winfo exists .ins]} { .ins.bottom.dismiss invoke }
   set remaining [xschem exit closewindow $force]
   return $remaining
 }
