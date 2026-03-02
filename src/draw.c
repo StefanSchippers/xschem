@@ -4539,12 +4539,11 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
   } /* if(flags & 8) */
-  /*
-   * bbox(START, 0.0, 0.0, 0.0, 0.0);
-   * bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
-   * bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-   */
+  
   if(flags & 8) {
+    bbox(START, 0.0, 0.0, 0.0, 0.0);
+    bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+    bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
     /* cursor1 */
     if((flags & 2)) draw_cursor(cursor1, cursor2, 1, gr);
     /* cursor2 */
@@ -4557,6 +4556,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     if(flags & 128) draw_hcursor(gr->hcursor1_y, 15, gr);
     /* hcursor2 */
     if(flags & 256) draw_hcursor(gr->hcursor2_y, 19, gr);
+    bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
   if(flags & 1) { /* copy save buffer to screen */
     if(!xctx->draw_window) {
@@ -4569,7 +4569,6 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 
     }
   }
-  /* bbox(END, 0.0, 0.0, 0.0, 0.0); */
 }
 
 /* flags:
