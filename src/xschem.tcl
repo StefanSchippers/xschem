@@ -3411,7 +3411,7 @@ proc graph_set_raw_props {} {
 
 proc graph_edit_properties {n} {
   global graph_bus graph_sort graph_digital graph_selected graph_sel_color graph_legend
-  global graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
+  global graph_vlegend graph_unlocked graph_schname graph_logx graph_logy cadlayers graph_rainbow
   global graph_linewidth_mult graph_change_done has_x graph_dialog_default_geometry
   global graph_autoload graph_private_cursor
 
@@ -3438,6 +3438,8 @@ proc graph_edit_properties {n} {
   if {[xschem getprop rect 2 $n logy] == 1} {set graph_logy 1}
   set graph_legend 1
   if {[xschem getprop rect 2 $n legend] == 0} {set graph_legend 0}
+  set graph_vlegend 0
+  if {[xschem getprop rect 2 $n vlegend] == 1} {set graph_vlegend 1}
   set graph_digital 0
   if {[xschem getprop rect 2 $n digital] == 1} {set graph_digital 1}
 
@@ -3641,7 +3643,6 @@ proc graph_edit_properties {n} {
     pack .graphdialog.top4.r$i -side left
   }
 
-  # top2 frame
   checkbutton .graphdialog.top.legend -text {Legend} -variable graph_legend -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
@@ -3650,6 +3651,17 @@ proc graph_edit_properties {n} {
          xschem draw_graph $graph_selected
        }
      }
+
+  # top2 frame
+  checkbutton .graphdialog.top2.vlegend -text {V. legend} -variable graph_vlegend -indicatoron 1 \
+    -command { 
+       if { [xschem get schname] eq $graph_schname } {
+         graph_push_undo
+         xschem setprop -fast rect 2 $graph_selected vlegend $graph_vlegend
+         xschem draw_graph $graph_selected
+       }
+     } 
+
   label .graphdialog.top2.labunitx -text {X units}
   spinbox .graphdialog.top2.unitx -values {f p n u m 1 k M G T} -width 2 \
    -command {
@@ -3761,7 +3773,7 @@ proc graph_edit_properties {n} {
   if {$graph_mode eq {}} { set graph_mode Line}
   .graphdialog.top2.mode set $graph_mode
 
-  pack .graphdialog.top2.labunitx .graphdialog.top2.unitx \
+  pack .graphdialog.top2.vlegend .graphdialog.top2.labunitx .graphdialog.top2.unitx \
        .graphdialog.top2.labunity .graphdialog.top2.unity -side left
 
   pack .graphdialog.top2.labdivx .graphdialog.top2.divx \
@@ -9362,7 +9374,8 @@ set tctx::global_list {
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
- graph_sel_wave graph_selected graph_sort graph_unlocked graph_use_ctrl_key hide_empty_graphs
+ graph_sel_wave graph_selected graph_sort graph_unlocked graph_use_ctrl_key 
+ graph_vlegend hide_empty_graphs
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type

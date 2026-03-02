@@ -872,6 +872,7 @@ typedef struct
 typedef struct {
   int digital;
   int legend; /* display graph legend */
+  int vlegend; /* vertical legend */
   double rx1, ry1, rx2, ry2, rw, rh; /* container rectangle, xschem coordinates */
   double sx1, sy1, sx2, sy2; /* screen coordinates of above */
   /* graph box (smaller than rect container due to margins) in xschem coordinates*/

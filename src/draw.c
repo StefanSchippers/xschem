@@ -3264,6 +3264,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->legend = 1;
   val = get_tok_value(r->prop_ptr,"legend", 0);
   if(val[0]) gr->legend = atoi(val);
+  gr->vlegend = 0;
+  val = get_tok_value(r->prop_ptr,"vlegend", 0);
+  if(val[0]) gr->vlegend = atoi(val);
 
   /* draw mode (0: Line, 1: Histo. Default: Line) */
   val = get_tok_value(r->prop_ptr,"mode", 0);
@@ -3519,7 +3522,6 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         int flags, const char *ntok, const char *stok, const char *bus_msb, Graph_ctx *gr)
 {
   char tmpstr[1024];
-
   /* clipping everything outside container area */
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3558,7 +3560,35 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
       my_free(_ALLOC_ID_, &alias_ptr);
       my_free(_ALLOC_ID_, &ntok_ptr);
     }
-    if(gr->digital) {
+    if(gr->vlegend && !gr->digital) { 
+      double xt = gr->rx1 + 5;
+      double yt;
+      yt = gr->y1 + (double)wcnt / (double)n_nodes * (gr->h) ;
+      if(!(flags & 2)) { /* NOT cursor1 with measures */
+        #if HAS_CAIRO == 1
+        if(gr->hilight_wave == wcnt) {
+          xctx->cairo_font =
+                cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+          cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+          cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+          cairo_font_face_destroy(xctx->cairo_font);
+        }
+        #endif
+        dbg(0, "%g %g %s\n", xt, yt, tmpstr);
+        my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
+        draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
+          xt, yt, gr->txtsizey * gr->magy * 0.5, gr->txtsizey * gr->magy * 0.5);
+        #if HAS_CAIRO == 1
+        if(gr->hilight_wave == wcnt) {
+          xctx->cairo_font =
+                cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+          cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+          cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+          cairo_font_face_destroy(xctx->cairo_font);
+        }
+        #endif
+      }
+    } else if(gr->digital) {
       double xt = gr->x1 - 15 * gr->txtsizelab;
       double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
       double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
@@ -3622,7 +3652,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
        const char *bus_msb, int wave_color, int idx, SPICE_DATA **idx_arr,
        int n_bits, int n_nodes, const char *ntok, int wcnt, Graph_ctx *gr, xRect *r, double cursor1)
 {
-  char tmpstr[1024];
+  char tmpstr[1024] = "";
   double yy;
   /* show values of signals if cursor1 active */
   if(idx == -1) return;
@@ -3632,8 +3662,17 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   }
   if(!gr->legend && !gr->digital) return;
   if(measure_p >= 0) {
-
     /* draw node values in graph */
+    char *ntok_ptr = NULL;
+    char *alias_ptr = NULL;
+    if(strstr(ntok, ";")) {
+       my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
+       my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
+    }
+    else {
+       my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
+       my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
+    }
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
@@ -3642,6 +3681,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       double diffx;
       char *fmt1, *fmt2;
       double yy1;
+
 
       if( gr->logx) cursor1 = mylog10(cursor1);
       yy1 = xctx->raw->values[idx][measure_p-1];
@@ -3665,7 +3705,34 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       vthl = gr->gy1 * 0.8 + gr->gy2 * 0.2;
       get_bus_value(n_bits, hex_digits, idx_arr, measure_p - 1, tmpstr, vthl, vthh);
     }
-    if(!bus_msb && !gr->digital) {
+
+    if(gr->vlegend && !gr->digital) {
+      char str[1024];
+      double xt = gr->rx1 + 5;
+      double yt = gr->y1 + (double)wcnt / (double)n_nodes * (gr->h) ;
+      if(!bus_msb) my_snprintf(str, S(str), "%s (%s)", alias_ptr, tmpstr);
+      else my_snprintf(str, S(str), "%s", alias_ptr);
+      #if HAS_CAIRO == 1
+      if(gr->hilight_wave == wcnt) {
+        xctx->cairo_font =
+              cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+        cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+        cairo_font_face_destroy(xctx->cairo_font);
+      }
+      #endif
+      draw_string(wave_color, NOW, str, 0, 0, 0, 0,
+         xt, yt, gr->txtsizey * gr->magy * 0.5, gr->txtsizey * gr->magy * 0.5);
+      #if HAS_CAIRO == 1
+      if(gr->hilight_wave == wcnt) {
+        xctx->cairo_font =
+              cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+        cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+        cairo_font_face_destroy(xctx->cairo_font);
+      }
+      #endif
+    } else if(!bus_msb && !gr->digital) {
       draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
          gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
           gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
@@ -3682,6 +3749,8 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       }
     }
     bbox(END, 0.0, 0.0, 0.0, 0.0);
+    my_free(_ALLOC_ID_, &alias_ptr);
+    my_free(_ALLOC_ID_, &ntok_ptr);
   } /* if(measure_p >= 0) */
 }
 
@@ -3739,7 +3808,33 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
       sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) sweep_idx = 0;
     }
-    if(gr->digital) {
+    if(gr->vlegend && !gr->digital) {
+      double xt1 = gr->rx1 + 5;
+      double xt2 = gr->x1 - 5;
+      double yt1 = gr->y1 + (double)wcnt / (double)n_nodes * (gr->h);
+      double yt2 = yt1 + 1.0 / (double)n_nodes * (gr->h);
+      if(POINTINSIDE(xctx->mousex_snap, xctx->mousey_snap, xt1, yt1, xt2, yt2)) {
+        char s[30];
+        ret = 1;
+        if(what == 1) {
+          int save = gr->hilight_wave;
+          my_snprintf(s, S(s), "%d %d", i, wcnt);
+          gr->hilight_wave = wcnt;
+          tclvareval("graph_edit_wave ", s, NULL);
+          gr->hilight_wave = save;
+        } else {
+           if(gr->hilight_wave == wcnt) {
+             gr->hilight_wave = -1;
+             my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                        subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+           } else {
+             gr->hilight_wave = wcnt;
+             my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                        subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+           }
+        }
+      }
+    } else if(gr->digital) {
       double xt1 = gr->rx1; /* <-- waves_selected() is more restrictive than this */
       double xt2 = gr->x1 - 20 * gr->txtsizelab;
       double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
