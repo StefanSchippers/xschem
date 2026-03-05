@@ -3174,9 +3174,14 @@ proc touches {sel tag} {
 }
 
 proc set_graph_default_colors {} {
-  global graph_selected graph_schname
+  global graph_selected graph_schname cadlayers
   if { [xschem get schname] ne $graph_schname } return
-  xschem setprop -fast rect 2 $graph_selected color "4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21"
+  set n_nodes [xschem count_items [xschem getprop rect 2 $graph_selected node] "\n" \"]
+  set color {}
+  for {set i 0} {$i < $n_nodes} { incr i} {
+    append color [expr {$i%($cadlayers - 4) + 4}] { }
+  }
+  xschem setprop -fast rect 2 $graph_selected color $color
   graph_update_nodelist
   xschem draw_graph $graph_selected
 }

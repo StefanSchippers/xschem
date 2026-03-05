@@ -3577,7 +3577,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         dbg(1, "%g %g %s\n", xt, yt, tmpstr);
         my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
-          xt, yt, gr->txtsizey * gr->magy * 0.5, gr->txtsizey * gr->magy * 0.5);
+          xt, yt, gr->txtsizey * gr->magy * 0.4, gr->txtsizey * gr->magy * 0.4);
         #if HAS_CAIRO == 1
         if(gr->hilight_wave == wcnt) {
           xctx->cairo_font =
@@ -3722,7 +3722,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       }
       #endif
       draw_string(wave_color, NOW, str, 0, 0, 0, 0,
-         xt, yt, gr->txtsizey * gr->magy * 0.5, gr->txtsizey * gr->magy * 0.5);
+         xt, yt, gr->txtsizey * gr->magy * 0.4, gr->txtsizey * gr->magy * 0.4);
       #if HAS_CAIRO == 1
       if(gr->hilight_wave == wcnt) {
         xctx->cairo_font =
