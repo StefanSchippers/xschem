@@ -3574,7 +3574,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
           cairo_font_face_destroy(xctx->cairo_font);
         }
         #endif
-        dbg(0, "%g %g %s\n", xt, yt, tmpstr);
+        dbg(1, "%g %g %s\n", xt, yt, tmpstr);
         my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
           xt, yt, gr->txtsizey * gr->magy * 0.5, gr->txtsizey * gr->magy * 0.5);
