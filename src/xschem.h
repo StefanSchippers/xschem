@@ -288,8 +288,6 @@ extern char win_temp_dir[PATH_MAX];
 /*    1215497, 1823231, 2734867, 4102283, 6153409, 9230113, 13845163 */
 
 #define HASHSIZE 31627
-#define MAX_RAW_N 50 /* max number of raw files that can be loaded */
-
                    /*  parameters passed to action functions, see actions.c */
 #define END      1 /*  endop */
 #define START    2 /*  begin placing something */
@@ -1116,9 +1114,10 @@ typedef struct {
 
   /* data for additional raw files */
   int extra_idx;                    /* current raw file */
-  int extra_prev_idx;               /* previous crrent (to switch back) */
-  Raw *extra_raw_arr[MAX_RAW_N]; /* array of pointers to Raw structure */
+  int extra_prev_idx;               /* previous current (to switch back) */
+  Raw **extra_raw_arr;              /* array of pointers to Raw structure */
   int extra_raw_n;                  /* number of elements in array */
+  int extra_raw_size;               /* size of raw_arr (will be incremented if needed) */
 
 
   /*    */

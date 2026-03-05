@@ -1126,13 +1126,21 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
   Raw *raw;
   int number = (int)floor((end - start) / step) + 1;
 
+  /* allocate xctx->extra_raw_arr array */
+  if(xctx->extra_raw_n >= xctx->extra_raw_size) {
+    int old_size = xctx->extra_raw_size;
+    xctx->extra_raw_size += 20; 
+    my_realloc(_ALLOC_ID_, &xctx->extra_raw_arr, sizeof(Raw *) * xctx->extra_raw_size);
+    memset(xctx->extra_raw_arr + old_size, 0, sizeof(Raw *) * (xctx->extra_raw_size - old_size));
+  }
+
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
     xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
     xctx->extra_raw_n++;
   }
 
-  if(xctx->extra_raw_n < MAX_RAW_N && name && type) {
+  if(xctx->extra_raw_n < xctx->extra_raw_size  && name && type) {
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type &&
          !strcmp(xctx->extra_raw_arr[i]->rawfile, name) &&
@@ -1216,6 +1224,15 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
   dbg(1, "extra_rawfile(): what=%d, no_warning=%d, file=%s, type=%s\n",
       what, no_warning, file ? file : "<NULL>", type ? type : "<NULL>");
   if(what == 0) return 0;
+
+  /* allocate xctx->extra_raw_arr array */
+  if(xctx->extra_raw_n >= xctx->extra_raw_size) {
+    int old_size = xctx->extra_raw_size;
+    xctx->extra_raw_size += 20; 
+    my_realloc(_ALLOC_ID_, &xctx->extra_raw_arr, sizeof(Raw *) * xctx->extra_raw_size);
+    memset(xctx->extra_raw_arr + old_size, 0, sizeof(Raw *) * (xctx->extra_raw_size - old_size));
+  }
+
   /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
   if(xctx->raw && xctx->extra_raw_n == 0) {
     dbg(1, "insert extra_raw_arr[0]\n");
@@ -1223,7 +1240,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     xctx->extra_raw_n++;
   }
   /* **************** table_read ************* */
-  if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file && (type && !strcmp(type, "table"))) {
+  if(what == 1 && xctx->extra_raw_n < xctx->extra_raw_size && file && (type && !strcmp(type, "table"))) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     dbg(1, "extra_rawfile: table_read: f=%s\n", f);
@@ -1259,7 +1276,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** read ************* */
-  } else if(what == 1 && xctx->extra_raw_n < MAX_RAW_N && file /* && type*/) {
+  } else if(what == 1 && xctx->extra_raw_n < xctx->extra_raw_size && file /* && type*/) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     if(type) {
@@ -1360,6 +1377,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->extra_prev_idx = 0;
       xctx->extra_idx = 0;
       xctx->extra_raw_n = 0;
+      my_free(_ALLOC_ID_, &xctx->extra_raw_arr);
+      xctx->extra_raw_size = 0;
     } else if(file && isonlydigit(file)) {
       int n, found = 0;
       tclvareval("subst {", file, "}", NULL);
@@ -1385,6 +1404,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
           } else {
             tcleval("array unset ngspice::ngspice_data");
             xctx->raw = NULL;
+            my_free(_ALLOC_ID_, &xctx->extra_raw_arr);
+            xctx->extra_raw_size = 0;
           }
         } else ret = 0;
       } else ret = 0;
@@ -1419,6 +1440,8 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
           } else {
             tcleval("array unset ngspice::ngspice_data");
             xctx->raw = NULL;
+            my_free(_ALLOC_ID_, &xctx->extra_raw_arr);
+            xctx->extra_raw_size = 0;
           }
         } else ret = 0;
       } else ret = 0;

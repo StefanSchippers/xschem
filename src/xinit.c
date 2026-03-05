@@ -497,9 +497,11 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->xorigin=CADINITIALX;
   xctx->yorigin=CADINITIALY;
   xctx->raw = NULL;
+  xctx->extra_raw_arr = NULL;
+  xctx->extra_raw_size = 0;
+  xctx->extra_raw_n = 0;
   xctx->extra_idx = 0;
   xctx->extra_prev_idx = 0;
-  xctx->extra_raw_n = 0;
   xctx->graph_master = -1;
   xctx->graph_cursor1_x = 0;
   xctx->graph_cursor2_x = 0;
