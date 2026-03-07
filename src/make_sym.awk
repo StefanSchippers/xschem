@@ -71,6 +71,7 @@ function beginfile(f)
  print "v {xschem version=3.4.8RC file_version=1.3}" > sym
  if(template !~/^{[ \t\n]*$/) {
   printf "%s", "K {type=subcircuit\nformat=\"@name @pinlist @symname\"\n"  >sym
+  printf "%s", "spectre_format=\"@name ( @pinlist ) @symname\"\n"  >sym
   printf "%s\n", "template=\"name=x1\""  >sym
   printf "%s", "}\n"  >sym
  }
