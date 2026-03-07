@@ -575,7 +575,10 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
      */
 
     /* 20081206 new get_sym_template does not return token=value pairs where token listed in extra */
-    fprintf(fd, "\nparameters %s", get_sym_template(xctx->sym[i].templ, extra));
+    s = get_sym_template(xctx->sym[i].templ, extra);
+    if(s && s[0] && strchr(s, '=')) {
+      fprintf(fd, "\nparameters %s", get_sym_template(xctx->sym[i].templ, extra));
+    }
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
 
