@@ -29,11 +29,11 @@ N 260 -140 320 -270 {lab=VSS}
 N 260 -300 320 -170 {lab=#net1}
 N 200 -310 260 -310 {lab=#net1}
 N 200 -130 260 -130 {lab=VSS}
-C {devices/vcvs.sym} 400 -150 0 0 {name=E3 value=-0.5}
-C {devices/vcvs.sym} 400 -290 0 0 {name=E2 value=0.5}
-C {devices/vcvs.sym} 200 -220 0 0 {name=E1 value=1}
-C {devices/ipin.sym} 80 -240 0 0 {name=p8 lab=vin}
-C {devices/opin.sym} 480 -80 0 0 {name=p7 lab=vn}
-C {devices/iopin.sym} 480 -220 0 0 {name=p2 lab=vcm}
-C {devices/opin.sym} 480 -360 0 0 {name=p1 lab=vp}
-C {devices/iopin.sym} 200 -80 1 0 {name=p3 lab=VSS}
+C {vcvs.sym} 400 -150 0 0 {name=E3 value=-0.5}
+C {vcvs.sym} 400 -290 0 0 {name=E2 value=0.5}
+C {vcvs.sym} 200 -220 0 0 {name=E1 value=1}
+C {ipin.sym} 80 -240 0 0 {name=p8 lab=vin}
+C {opin.sym} 480 -80 0 0 {name=p7 lab=vn}
+C {iopin.sym} 480 -220 0 0 {name=p2 lab=vcm}
+C {opin.sym} 480 -360 0 0 {name=p1 lab=vp}
+C {iopin.sym} 200 -80 1 0 {name=p3 lab=VSS}
