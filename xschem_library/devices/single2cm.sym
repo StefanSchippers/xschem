@@ -1,9 +1,21 @@
 v {xschem version=3.4.8RC file_version=1.3}
 G {}
-K {type=subcircuit
-format="@name @pinlist @symname"
-template="name=x1"
-}
+K {type=primitive
+format="@name @pinlist @symname gain=@gain"
+template="name=x1 gain=1"
+device_model="
+* from device_model attribute
+.subckt single2cm vin VSS vp vcm vn gain = 1
+*.ipin vin
+*.opin vn
+*.iopin vcm
+*.opin vp
+*.iopin VSS
+E3 vcm vn net1 VSS '-gain / 2'
+E2 vp vcm net1 VSS 'gain / 2'
+E1 net1 VSS vin VSS 'gain'
+.ends
+"}
 V {}
 S {}
 F {}
@@ -73,10 +85,10 @@ L 4 -10 25 10 -10 {}
 L 7 60 0 80 0 {}
 L 7 -30 50 -30 70 {}
 B 4 -60 -50 60 50 {fill = false}
-B 5 77.5 -42.5 82.5 -37.5 {name=vp dir=out}
 B 5 -82.5 -12.5 -77.5 -7.5 {name=vin dir=in}
-B 5 77.5 -2.5 82.5 2.5 {name=vcm dir=inout}
 B 5 -32.5 67.5 -27.5 72.5 {name=VSS dir=inout}
+B 5 77.5 -42.5 82.5 -37.5 {name=vp dir=out}
+B 5 77.5 -2.5 82.5 2.5 {name=vcm dir=inout}
 B 5 77.5 37.5 82.5 42.5 {name=vn dir=out}
 A 4 -30 30 1.767766952966369 225 360 {fill=true}
 A 4 30 0 1.767766952966369 225 360 {fill=true}
@@ -91,6 +103,9 @@ T {vin} -90 -29 0 0 0.2 0.2 {}
 T {vcm} 90 -19 0 1 0.2 0.2 {}
 T {VSS} -20 74 2 1 0.2 0.2 {}
 T {vn} 85 21 0 1 0.2 0.2 {}
-T {1} -22.5 5 0 0 0.15 0.15 {}
-T {0.5} 37.5 -15 0 0 0.15 0.15 {}
-T {-0.5} 37.5 25 0 0 0.15 0.15 {}
+T {E1} -42.5 -5 0 1 0.15 0.15 {layer=4}
+T {E2} 17.5 -25 0 1 0.15 0.15 {layer=4}
+T {E3} 17.5 15 0 1 0.15 0.15 {layer=4}
+T {@gain} -22.5 5 0 0 0.15 0.15 {}
+T {expr( @gain / 2 )} 37.5 -15 0 0 0.15 0.15 {}
+T {expr( -@gain / 2 )} 37.5 25 0 0 0.15 0.15 {}
