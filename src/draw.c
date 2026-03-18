@@ -4840,7 +4840,6 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
   struct stat buf;
   int svg = 0;
   cairo_surface_t *surface = NULL;
-
   *buffer = NULL;
   *size = 0;
   if(filename && filename[0]) {
@@ -4876,60 +4875,55 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         return NULL;
       }
     }
-
-    if(filter) {
-      size_t filtered_img_size = 0;
-      char *filtered_img_data = NULL;
-      filter_data(filedata, filesize, &filtered_img_data, &filtered_img_size, filter);
-      if(!svg) my_free(_ALLOC_ID_, &filedata);
-      closure.buffer = (unsigned char *)filtered_img_data;
-      closure.size = filtered_img_size;
-      closure.pos = 0;
-    } else { /* no filter attribute */
-      closure.buffer = (unsigned char *)filedata;
-      filedata = NULL;
-      closure.size = filesize;
-      closure.pos = 0;
-    }
-
-    if(closure.size > 4) {
-      if(!strncmp((char *)closure.buffer, "\x89PNG", 4)) jpg = 0;
-      else if(!strncmp((char *)closure.buffer, "\xFF\xD8\xFF", 3)) jpg = 1;
-      else jpg = -1;
-    } else {
-      jpg = -1;
-    }
-    if(closure.buffer) {
-      if(jpg == 0) {
-        surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
-      } else if(jpg == 1) {
-        #if defined(HAS_LIBJPEG)
-        surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
-        #endif
-      }
-      if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-        if(jpg != 1) dbg(0, "get_surface_from_file(): failure creating image surface from %s\n", filename);
-        if(surface) cairo_surface_destroy(surface);
-        my_free(_ALLOC_ID_, &closure.buffer);
-        *buffer = NULL;
-        *size = 0;
-        return NULL;
-      }
-    }
-    if(svg) { /* if the file type is SVG return in buffer the plain file,
-               * not the filtered content, This way we don't lose resolution */
-      *buffer = (unsigned char *)filedata;
-      *size = filesize;
-      my_free(_ALLOC_ID_, &closure.buffer);
-    } else {
-      *buffer = closure.buffer;
-      *size = closure.size;
-    }
   } /* if(filename...) */
-  else {
-    dbg(0, "get_surface_from_file(): no filename was given\n");
+  if(filter) {
+    size_t filtered_img_size = 0;
+    char *filtered_img_data = NULL;
+    filter_data(filedata, filesize, &filtered_img_data, &filtered_img_size, filter);
+    if(!svg) my_free(_ALLOC_ID_, &filedata);
+    closure.buffer = (unsigned char *)filtered_img_data;
+    closure.size = filtered_img_size;
+    closure.pos = 0;
+  } else { /* no filter attribute */
+    closure.buffer = (unsigned char *)filedata;
+    filedata = NULL;
+    closure.size = filesize;
+    closure.pos = 0;
   }
 
+  if(closure.size > 4) {
+    if(!strncmp((char *)closure.buffer, "\x89PNG", 4)) jpg = 0;
+    else if(!strncmp((char *)closure.buffer, "\xFF\xD8\xFF", 3)) jpg = 1;
+    else jpg = -1;
+  } else {
+    jpg = -1;
+  }
+  if(closure.buffer) {
+    if(jpg == 0) {
+      surface = cairo_image_surface_create_from_png_stream(png_reader, &closure);
+    } else if(jpg == 1) {
+      #if defined(HAS_LIBJPEG)
+      surface = cairo_image_surface_create_from_jpeg_mem(closure.buffer, closure.size);
+      #endif
+    }
+    if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+      if(jpg != 1) dbg(0, "get_surface_from_file(): failure creating image surface from %s\n", filename);
+      if(surface) cairo_surface_destroy(surface);
+      my_free(_ALLOC_ID_, &closure.buffer);
+      *buffer = NULL;
+      *size = 0;
+      return NULL;
+    }
+  }
+  if(svg) { /* if the file type is SVG return in buffer the plain file,
+             * not the filtered content, This way we don't lose resolution */
+    *buffer = (unsigned char *)filedata;
+    *size = filesize;
+    my_free(_ALLOC_ID_, &closure.buffer);
+  } else {
+    *buffer = closure.buffer;
+    *size = closure.size;
+  }
   return surface;
 }
 
@@ -5039,7 +5033,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       return 0;
     }
   /******* ... or read PNG from file (image attribute) *******/
-  } else if(filename[0]) {
+  } else if(filename[0] || (filter && filter[0])) {
     unsigned char *buffer = NULL;
     size_t size = 0;
     char *encoded_data = NULL;
