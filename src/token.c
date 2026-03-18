@@ -2588,12 +2588,12 @@ int print_spice_element(FILE *fd, int inst)
         size_t tok_val_len;
         char *parent_prop_ptr = NULL;
         char *parent_templ = NULL;
-        /* char *parent_sym_extra = NULL; */
+        char *schname_attr = NULL;
+        my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
 
         if(xctx->currsch > 0) {
           parent_prop_ptr = xctx->hier_attr[xctx->currsch - 1].prop_ptr;
           parent_templ = xctx->hier_attr[xctx->currsch - 1].templ;
-          /* parent_sym_extra = xctx->hier_attr[xctx->currsch - 1].sym_extra; */
         }
 
         /* consider this scenario:
@@ -2613,7 +2613,6 @@ int print_spice_element(FILE *fd, int inst)
          *           model=nfet_01v8
          */
 
-
         my_strdup2(_ALLOC_ID_, &val,
              translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
         /* can not put template in above translate3: ---------------------------^^^^
@@ -2626,21 +2625,9 @@ int print_spice_element(FILE *fd, int inst)
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
         if(strchr(val, '@')) {
-          #if 0
-          if(parent_prop_ptr) {
             my_strdup2(_ALLOC_ID_, &val,
-                   translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
-            /* instance based passgate.sym placement, nmos instance format string: @modeln --> pippon */
-            /* ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" */
-            if(strchr(val, '@')) {
-              my_strdup2(_ALLOC_ID_, &val,
-                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
-              /* ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" --> ad="expr('int((1 + 1)/2) * 5 / 1 * 0.29')" */
-            }
-          } else {
-          #endif
-            my_strdup2(_ALLOC_ID_, &val,
-                   translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+                   translate3(val, 1, schname_attr, xctx->inst[inst].prop_ptr, NULL, NULL));
+            /*                        ............ --> replace @symname with symbol name */
             dbg(1, "print_spice_element(): 2nd round: val: |%s|\n", val);
             /* normal passgate.sym placement, nmos instance format string:
                  ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
@@ -2651,11 +2638,9 @@ int print_spice_element(FILE *fd, int inst)
               /* normal passgate.sym placement, nmos instance format string:
                *   @modeln --> nfet_01v8 */
             }
-          #if 0
-          }
-          #endif
           dbg(1, "print_spice_element(): final: val: |%s|\n", val);
         }
+        my_free(_ALLOC_ID_, &schname_attr);
         /* still unresolved: set to empty */
         if(val[0] == '@') value = "";
         else value = val;
