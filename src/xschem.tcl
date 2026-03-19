@@ -683,9 +683,11 @@ proc ev7 {args} {
 
 ## evaluate expression. if expression has errors or does not evaluate return expression as is
 proc ev {args} {
+  global ev_precision
+  if {[info exists ev_precision]} {set pr $ev_precision} else {set pr 4}
   set i [join $args]
   if {![catch {uplevel #0 expr $i} res]} {
-    return [format %.4g $res]
+    return [format %.${pr}g $res]
   } else {
     # puts stderr "proc ev: $res"
     return $args
@@ -9373,7 +9375,7 @@ set tctx::global_list {
  dim_bg dim_value disable_unique_names do_all_inst draw_crosshair draw_grid draw_grid_axes
  draw_window edit_prop_pos edit_prop_size edit_symbol_prop_new_sel editprop_sympath
  en_hilight_conn_inst enable_dim_bg enable_stretch env(PDK) env(PDK_ROOT)
- enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error
+ enter_text_default_geometry erc_open_net_is_error erc_shorted_output_is_error ev_precision
  file_chooser(regex) file_chooser(action) file_chooser(dirs)
  filetmp
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
@@ -11015,6 +11017,7 @@ set_ne graph_use_ctrl_key 0;# if set forces to use Control key to operate on gra
 set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne verilog_bitblast 0
+set_ne ev_precision 4
 set_ne search_schematic 0
 # if set to 1 search symbols (if not in any of the XSCHEM_LIBRARY_PATH directories) in [pwd]
 # instead of in the directory of currently loaded schematic.

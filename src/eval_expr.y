@@ -237,7 +237,7 @@ void eval_expr_clear_table(void)
 static int kklex()
 {
   int c;
-
+  int eng = tclgetintvar("ev_precision");
   if(!str) { return 0; }
   if(strstr(str, "expr(") == str) {
      lex_state = 1;
@@ -251,7 +251,7 @@ static int kklex()
      lex_state = 1;
      str += 9;
      dbg(dbglev, "lex(): EXPR_ENG\n");
-     engineering = 5;
+     engineering = eng;
      return EXPR;
   }
 

@@ -156,6 +156,10 @@
 #### Allowed values:  spice, verilog, vhdl, tedax, default: spice
 # set netlist_type spice
 
+#### significant digits of the TCL 'ev' procedure, used to round numbers in netlists and shown device values.
+#### default: 4
+# set ev_precision 6
+
 #### Some netlisting options (these are the defaults)
 # set verilog_2001 1
 
