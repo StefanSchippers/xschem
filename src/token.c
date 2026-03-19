@@ -5210,6 +5210,8 @@ const char *translate(int inst, const char* s)
           }
         } else {
           int i = level;
+          char *schname_attr = NULL; 
+          my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
           my_strdup2(_ALLOC_ID_, &value1, value);
           /* recursive substitution of value using parent level prop_ptr attributes */
           while(i > 0) {
@@ -5230,6 +5232,9 @@ const char *translate(int inst, const char* s)
             dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
             i--;
           }
+          if(strchr(value1, '@')) {
+            my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL));
+          }
           /* substitute remaing @params */
           i = level;
           while(i > 0) {
@@ -5239,7 +5244,7 @@ const char *translate(int inst, const char* s)
             } else break;
             i--;
           }
-
+          my_free(_ALLOC_ID_, &schname_attr);
           /* substitute remaing @params */
           i = level;
           while(i > 0) {
