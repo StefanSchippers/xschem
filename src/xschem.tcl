@@ -10393,6 +10393,10 @@ proc build_widgets { {topwin {} } } {
     -command {
           input_line {Set netlist file name} {xschem set netlist_name} [xschem get netlist_name] 40
     }
+  $topwin.menubar.simulation add command -label "Set netlist / graph / annotation precision" \
+       -command { 
+         input_line "Enter precision (int):" "set ev_precision" $ev_precision
+       }
   $topwin.menubar.simulation add checkbutton -label "Show netlist after netlist command" \
      -selectcolor $selectcolor -variable netlist_show -accelerator {Shift+A}
   $topwin.menubar.simulation add checkbutton -label "Keep symbols when traversing hierarchy" \
