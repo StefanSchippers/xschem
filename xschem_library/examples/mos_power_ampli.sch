@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -27,6 +27,7 @@ template="name=x1"
 }
 V {}
 S {}
+F {}
 E {}
 L 15 270 -540 340 -470 {}
 L 15 270 -410 340 -470 {}
@@ -408,15 +409,15 @@ node="[format %.4g [expr ([ngspice::get_voltage e6] - [ngspice::get_voltage c6])
 descr = power
 }
 C {ngspice_get_expr.sym} 130 -690 0 1 {name=r33 
-node="[format %.4g [expr ([ngspice::get_voltage c7] - [ngspice::get_voltage c5]) * [ngspice::get_current \{q7[ic]\}]]]"
+node="[to_eng ([ngspice::get_voltage c7] - [ngspice::get_voltage c5]) * [ngspice::get_current \{q7[ic]\}]]"
 descr = power
 }
 C {ngspice_get_expr.sym} 200 -590 0 0 {name=r34 
-node="[format %.4g [expr ([ngspice::get_voltage c5] - [ngspice::get_voltage e9]) * [ngspice::get_current \{q5[ic]\}]]]"
+node="[to_eng ([ngspice::get_voltage c5] - [ngspice::get_voltage e9]) * [ngspice::get_current \{q5[ic]\}]]"
 descr = power
 }
 C {ngspice_get_expr.sym} 320 -590 0 1 {name=r35 
-node="[format %.4g [expr ([ngspice::get_voltage c9] - [ngspice::get_voltage e9]) * [ngspice::get_current \{q9[ic]\}]]]"
+node="[to_eng ([ngspice::get_voltage c9] - [ngspice::get_voltage e9]) * [ngspice::get_current \{q9[ic]\}]]"
 descr = power
 }
 C {ngspice_get_expr.sym} 330 -850 0 1 {name=r36 
@@ -477,8 +478,8 @@ C {ngspice_get_expr.sym} 1130 -860 0 0 {name=r22
 node="[ngspice::get_current \{xm1.rd[i]\}]" 
 descr = current
 }
-C {ngspice_get_expr.sym} 610 -830 0 1 {name=r20 
-node="[format %.4g [expr [ngspice::get_current \{q6[ic]\}] / [ngspice::get_current \{q6[ib]\}] ] ]"
+C {ngspice_get_expr.sym} 550 -820 0 1 {name=r20 
+node="[to_eng [ngspice::get_current \{q6[ic]\}] / [ngspice::get_current \{q6[ib]\}]] "
 descr = beta
 }
 C {ngspice_get_expr.sym} 130 -730 0 1 {name=r21 

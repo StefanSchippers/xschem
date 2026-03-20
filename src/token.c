@@ -4229,7 +4229,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
               else if(idx < 0) {
                 valstr = "-";
               } else {
-                valstr = engineering? dtoa_eng(val, 5) : dtoa(val);
+                valstr = engineering? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
               }
               my_strdup2(_ALLOC_ID_, &pin_attr_value, valstr);
               dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
@@ -4343,7 +4343,7 @@ const char *spice_get_node(const char *token)
     } else {
       /* always use engineering as these tokens are generated from single
        * @spice_get_node(...) patterns */
-      valstr = dtoa_eng(val, 5);
+      valstr = dtoa_eng(val, xctx->ev_precision);
     }
     dbg(1, "valstr=%s\n", valstr);
     my_strdup2(_ALLOC_ID_, &token2, str_replace(token, "@spice_get_node ", "", 0, 1));
@@ -4722,7 +4722,7 @@ const char *translate(int inst, const char* s)
                     xctx->tok_size = 5;
                     len = 5;
                   } else {
-                    valstr = engineering ? dtoa_eng(val, 5) : dtoa(val);
+                    valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
                     len = xctx->tok_size;
                   }
                   if(len) {
@@ -4823,7 +4823,7 @@ const char *translate(int inst, const char* s)
               } else {
                 /* always use engineering as these tokens are generated from single
                  * @spice_get_voltage patterns */
-                valstr = dtoa_eng(val, 5);
+                valstr = dtoa_eng(val, xctx->ev_precision);
                 len = xctx->tok_size;
               }
               if(len) {
@@ -4924,7 +4924,7 @@ const char *translate(int inst, const char* s)
               } else {
                 /* always use engineering as these tokens are generated from single
                  * @spice_get_voltage patterns */
-                valstr = dtoa_eng(val, 5);
+                valstr = dtoa_eng(val, xctx->ev_precision);
                 len = xctx->tok_size;
               }
               if(len) {
@@ -4990,7 +4990,7 @@ const char *translate(int inst, const char* s)
                 double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
                 double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
                 val = val1 - val2;
-                valstr = engineering ? dtoa_eng(val, 5) : dtoa(val);
+                valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
                 len = xctx->tok_size;
               }
               if(len) {
@@ -5123,7 +5123,7 @@ const char *translate(int inst, const char* s)
                 xctx->tok_size = 1;
                 len = 1;
               } else {
-                valstr = engineering ? dtoa_eng(val, 5) : dtoa(val);
+                valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
                 len = xctx->tok_size;
               }
               if(len) {

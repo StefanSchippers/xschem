@@ -635,6 +635,9 @@ proc from_eng {i} {
 
 ## convert number to engineering form
 proc to_eng {args} {
+  global ev_precision
+  if {[info exists ev_precision]} {set pr $ev_precision} else {set pr 4}
+
   set suffix {}
 
   if {[ catch {uplevel #0 expr [join $args]} i]} {
@@ -657,9 +660,9 @@ proc to_eng {args} {
   } else                   { set mult 1e18 ; set suffix a}
   if {$suffix ne {}} {
     set i [expr {$i * $mult}]
-    set s [format  {%.5g%s} $i $suffix]
+    set s [format %.${pr}g%s $i $suffix]
   } else {
-    set s [format  {%.5g} $i]
+    set s [format %.${pr}g $i]
   }
   return $s
 }

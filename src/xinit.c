@@ -524,6 +524,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->version_string = NULL;
   xctx->header_text = NULL;
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
+  xctx->ev_precision= 4;  /* copied from TCL ev_precision var in draw() and draw_graph() */
   xctx->currsch = 0;
   xctx->constr_mv = 0; /* constrained move (vertical (2) / horizontal (1) ) */
   xctx->ui_state = 0;

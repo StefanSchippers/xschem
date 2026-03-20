@@ -1119,7 +1119,7 @@ typedef struct {
   int extra_raw_n;                  /* number of elements in array */
   int extra_raw_size;               /* size of raw_arr (will be incremented if needed) */
 
-
+  int ev_precision; /* copied from TCL ev_precision var in draw() and draw_graph() */
   /*    */
   /* data related to all graphs, so not stored in per-graph graph_struct */
   double graph_cursor1_x, graph_cursor2_x;

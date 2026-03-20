@@ -22,7 +22,6 @@
 
 #include "xschem.h"
 
-
 #define xDashType LineOnOffDash
 /* CapNotLast, CapButt, CapRound or CapProjecting */
 #define xCap CapNotLast
@@ -3404,7 +3403,7 @@ static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_
   if(xx >= gr->x1 && xx <= gr->x2) {
     drawline(cursor_color, NOW, xx, gr->ry1, xx, gr->ry2, 0.0, 1, NULL);
     if(gr->unitx != 1.0)
-       my_snprintf(tmpstr, S(tmpstr), "%.5g%c", gr->unitx * active_cursorx , gr->unitx_suffix);
+       sprintf(tmpstr, "%.*g%c", xctx->ev_precision, gr->unitx * active_cursorx , gr->unitx_suffix);
     else
        my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(active_cursorx, 5));
     text_bbox(tmpstr, txtsize, txtsize, 2, flip, 0, 0, xx + xoffs, gr->ry2-1, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
@@ -3436,7 +3435,7 @@ static void draw_cursor_difference(double c1, double c2, Graph_ctx *gr)
   diffw = fabs(c2 - c1);
 
   if(gr->unitx != 1.0)
-     my_snprintf(tmpstr, S(tmpstr), "%.4g%c", gr->unitx * diffw , gr->unitx_suffix);
+     sprintf(tmpstr, "%.*g%c", xctx->ev_precision, gr->unitx * diffw , gr->unitx_suffix);
   else
      my_snprintf(tmpstr, S(tmpstr), "%s",  dtoa_eng(diffw, 5));
   text_bbox(tmpstr, txtsize, txtsize, 2, 0, 1, 0, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
@@ -3466,7 +3465,7 @@ static void draw_hcursor(double active_cursory, int cursor_color, Graph_ctx *gr)
   if(yy >= gr->y1 && yy <= gr->y2) {
     drawline(cursor_color, NOW, gr->rx1 + 10, yy, gr->rx2 - 10, yy, 0.0, 1, NULL);
     if(gr->unity != 1.0)
-       my_snprintf(tmpstr, S(tmpstr), " %.5g%c ", gr->unity * active_cursory , gr->unity_suffix);
+       sprintf(tmpstr, " %.*g%c ", xctx->ev_precision, gr->unity * active_cursory , gr->unity_suffix);
     else
        my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(active_cursory, 5));
     text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 0, gr->rx1 + 5, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
@@ -3500,7 +3499,7 @@ static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
   if(gr->digital) return;
   diffh = fabs(c2 - c1);
   if(gr->unity != 1.0)
-     my_snprintf(tmpstr, S(tmpstr), " %.4g%c ", gr->unity * diffh , gr->unity_suffix);
+     sprintf(tmpstr, " %.*g%c ", xctx->ev_precision, gr->unity * diffh , gr->unity_suffix);
   else
      my_snprintf(tmpstr, S(tmpstr), " %s ",  dtoa_eng(diffh, 5));
   text_bbox(tmpstr, txtsize, txtsize, 0, 0, 0, 1, xx, yy, &tx1, &ty1, &tx2, &ty2, &tmp, &dtmp);
@@ -3681,7 +3680,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       double diffx;
       char *fmt1, *fmt2;
       double yy1;
-
+      int prec = xctx->ev_precision;
 
       if( gr->logx) cursor1 = mylog10(cursor1);
       yy1 = xctx->raw->values[idx][measure_p-1];
@@ -3690,14 +3689,15 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       yy = yy1 + diffy / diffx * (cursor1 - measure_prev_x);
       if(XSIGN0(gr->gy1) != XSIGN0(gr->gy2) && fabs(yy) < 1e-12 * fabs(gr->gh)) yy = 0.0;
       if(yy != 0.0  && fabs(yy * gr->unity) < 1.0e-3) {
-        fmt1="%.2e";
-        fmt2="%.2e%c";
+        prec = 2;
+        fmt1="%.*e";
+        fmt2="%.*e%c";
       } else {
-        fmt1="%.4g";
-        fmt2="%.4g%c";
+        fmt1="%.*g";
+        fmt2="%.*g%c";
       }
-      if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), fmt2, yy * gr->unity, gr->unity_suffix);
-      else  my_snprintf(tmpstr, S(tmpstr), fmt1, yy);
+      if(gr->unity != 1.0) sprintf(tmpstr, fmt2, prec, yy * gr->unity, gr->unity_suffix);
+      else  sprintf(tmpstr, fmt1, prec, yy);
     } else {
       double vthl, vthh;
       int hex_digits = ((n_bits - 1) >> 2) + 1;
@@ -4174,6 +4174,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   int save_extra_idx = -1;
   double cursor1, cursor2;
 
+  xctx->ev_precision = tclgetintvar("ev_precision");
   if(xctx->only_probes) return;
   if(RECT_OUTSIDE( gr->sx1, gr->sy1, gr->sx2, gr->sy2,
       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2)) return;
@@ -5259,6 +5260,7 @@ void draw(void)
   if(!xctx || xctx->no_draw) return;
   tk_scaling = atof(tcleval("tk scaling"));
   cs = tclgetdoublevar("cadsnap");
+  xctx->ev_precision = tclgetintvar("ev_precision");
   cairo_font_scale  = tclgetdoublevar("cairo_font_scale");
   xctx->cadhalfdotsize = CADHALFDOTSIZE * (cs < 20. ? cs : 20.) / 10.;
   xctx->crosshair_layer = tclgetintvar("crosshair_layer");
