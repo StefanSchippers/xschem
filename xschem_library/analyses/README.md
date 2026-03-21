@@ -37,7 +37,6 @@ The following analyses are supported
 |dcxf.sym  |small signal dc transfer function |dcxf        |tf      |
 |ac.sym    |small signal ac                   |ac          |ac      |
 |acxf.sym  |small signal ac transfer function |acxf        |-       |
-|acstb.sym |small signal ac stability         |acstb       |-       |
 |noise.sym |small signal noise                |noise       |noise   |
 |tran.sym  |transient                         |tran        |tran    |
 |hb.sym    |harmonc balance                   |hb          |-       |

@@ -5008,6 +5008,11 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} \
   if {$level == -1} { set level 0}
   if {$levels >=0 && $level > $levels} {return {}}
   if {$paths eq {}} {set paths $pathlist}
+
+
+  # if invalid pattern set to empty
+  set err [catch {regexp $ext {12345}} res]
+  if {$err} {set ext {}}
   foreach i $paths {
     # puts "dir:$i"
     set filelist [glob -nocomplain -directory $i -type f *]
@@ -5085,7 +5090,6 @@ proc file_chooser_preview {} {
   bind .ins.center.right <Configure> {}
   set sel [lindex [.ins.center.left.l curselection] 0]
   if {$sel ne {} && [info exists file_chooser(fullpathlist)]} {
-    set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
     .ins.center.left.l see $sel
     set f [lindex $file_chooser(fullpathlist) $sel]
@@ -5156,27 +5160,31 @@ proc file_chooser_filelist {} {
   set path [lindex $file_chooser(dirs) $sel]
   set file_chooser(abs_filename) $path
   # check if regex is valid
-  set err [catch {regexp $file_chooser(regex) {12345}} res]
-  if {$err} {return}
+  set regex $file_chooser(regex)
+  set err [catch {regexp $regex {12345}} res]
+  if {$err} {set regex {}}
   set f {}
   if {$path ne {} } {
-    set f [match_file $file_chooser(regex) [list $path] 0 $file_chooser(fullpath)]
+    set f [match_file $regex [list $path] 0 $file_chooser(fullpath)]
   }
   set filelist {}
   set file_chooser(fullpathlist) {}
   set sel [lindex [.ins.center.left.l curselection] 0]
   if {$sel ne {}} {
-    set file_chooser(fileindex) $sel
     # puts "set fileindex=$sel"
   }
   if {$sel eq {}} { set sel 0}
   .ins.center.left.l selection clear 0 end
   .ins.center.left.l activate $sel
   .ins.center.left.l selection set $sel
+  # just check if pattern is a valid regexp
+  set nfbe $new_file_browser_ext
+  set err [catch {regexp $nfbe {12345}} res1]
+  if {$err} {set nfbe {}}
   foreach i $f {
-    set err [catch {regexp $new_file_browser_ext $i} type]
+    set fname [file tail $i]
+    set err [catch {regexp $nfbe $fname} type]
     if {!$err && $type} {
-      set fname [file tail $i]
       lappend filelist $fname
       lappend file_chooser(fullpathlist) $i
     }
@@ -5273,19 +5281,254 @@ proc file_chooser_select {f} {
   }
 }
 
-proc file_chooser_search {{current {}}} {
-  global file_chooser new_file_browser_depth new_file_browser_ext
+#### Display preview of selected symbol and start sym placement
+proc file_chooser_search_all_draw_preview {f} {
+  global file_chooser
+  # puts "file_chooser_draw_preview"
+  if {[winfo exists .ins]} {
+    .ins.center.right configure -bg {}
+    xschem preview_window create .ins.center.right {}
+    xschem preview_window draw .ins.center.right "$f"
+  
+
+    ## preview window draw causes a save / restore context.
+    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top3.upd invoke
+    ## this rewrites the file_chooser(dirtails) list variable and list loses selection...
+    # .ins.center.leftdir.l selection set  [.ins.center.leftdir.l index active]
+  
+    bind .ins.center.right <Expose> "xschem preview_window draw .ins.center.right {$f}"
+    bind .ins.center.right <Configure> "xschem preview_window draw .ins.center.right {$f}"
+    if {$file_chooser(action) eq {symbol}} {
+      file_chooser_search_all_place symbol
+    } 
+    if {$file_chooser(action) eq {symbol1}} {
+      set file_chooser(action) {load}
+      file_chooser_search_all_place symbol
+    }
+  }
+}
+
+proc file_chooser_search_all_preview {} {
+  # puts "file_chooser_preview"
+  global file_chooser
+  if {[info exists file_chooser(f)]} {
+    after cancel ".ins.center.right configure -bg white"
+    after cancel "file_chooser_draw_preview {$file_chooser(f)}"
+    unset file_chooser(f)
+  }
+  xschem preview_window close .ins.center.right {}
+  bind .ins.center.right <Expose> {}
+  bind .ins.center.right <Configure> {}
+  set sel [lindex [.searchall.c.lb curselection] 0]
+  if {$sel ne {} && [info exists file_chooser(searchall)]} {
+    # puts "set fileindex=$sel"
+    set f [lindex $file_chooser(searchall) $sel]
+    # puts "file_chooser_preview: f=$f" 
+    if {$f ne {}} {
+      set file_chooser(f) $f
+      set type [is_xschem_file $f]
+      if {$type ne {0}} {
+        set dir [rel_sym_path $f]
+        set file_chooser(abs_filename) $f
+        set file_chooser(rel_filename) $dir
+        # global used to cancel delayed script
+        after 200 "file_chooser_search_all_draw_preview {$f}"
+      } else {
+        after 200 {.ins.center.right configure -bg white}
+      }
+    }
+  }
+}
+
+proc file_chooser_search_all_place {action} {
+  # puts file_chooser_place
+  global file_chooser open_in_new_window
+  if {[xschem get semaphore] > 0} {return}
+  set sel [.searchall.c.lb index active]
+  if {$sel ne {}} {
+    set f [lindex $file_chooser(searchall) $sel]
+    if {$f ne {}} {
+      set type [is_xschem_file $f]
+      # puts "file_chooser_place: file=$f, type=$type"
+      if {$type ne {0}} {
+        if { [xschem get ui_state] & 8192 } {
+          xschem abort_operation
+        }
+        if {$action eq {symbol}} {
+          xschem place_symbol $f
+        } elseif {$action eq {load}} {
+          if {$open_in_new_window} {
+            xschem load_new_window $f
+          } else {
+            xschem load -gui $f
+          }
+        } elseif {$action eq {load_new_win}} {
+         xschem load_new_window $f
+        }
+      }
+    }
+  }
+}
+
+# called when double clicking a file item in the file_chooser search all listbox
+proc file_chooser_search_all_open {{shift 0}} { 
+  global file_chooser
+  if {[xschem get semaphore] > 0} {return}
+  set sel [.searchall.c.lb index active]
+  if {$sel ne {}} {
+    set f [lindex $file_chooser(searchall) $sel]
+    if {$f ne {}} {
+      set type [is_xschem_file $f]
+      if {$type eq {SCHEMATIC}} {
+        if {$shift == 0} {
+          file_chooser_search_all_place load
+        } else {
+          file_chooser_search_all_place load_new_win
+        } 
+      } elseif {$type eq {SYMBOL}} {
+        if {$shift == 0} {
+          set file_chooser(action) {symbol1} ;# only one time insert symbol
+          file_chooser_search_all_preview
+        } else {
+          file_chooser_search_all_place load_new_win
+        }
+      }
+    }
+  }
+} 
+
+proc file_chooser_search_all {} {
+  global file_chooser new_file_browser_depth new_file_browser_ext USER_CONF_DIR
+  # just check if pattern is a valid regexp
+  set file_chooser(searchall) {}
+  set nfbe $new_file_browser_ext
+  set err [catch {regexp $nfbe {12345}} res1]
+  if {$err} {set nfbe {}}
+  set regex $file_chooser(regex)
   # check if regex is valid
-  set err [catch {regexp $file_chooser(regex) {12345}} res]
-  if {$err} {return}
+  set err [catch {regexp $regex {12345}} res1]
+  if {$err} {set regex {}}
   set nth 0
   set f {}
   if {$file_chooser(dirs) ne {} } {
     set allfiles [
-      match_file $file_chooser(regex) {} $new_file_browser_depth $file_chooser(fullpath)
+      match_file $regex {} $new_file_browser_depth $file_chooser(fullpath)
+    ]
+    puts ""
+    foreach i $allfiles {
+      set err [catch {regexp $nfbe $i} type]
+      if {!$err && $type} {
+        lappend file_chooser(searchall) $i
+      }
+    }
+  }
+  if {[winfo exists .searchall]} {return}
+  toplevel .searchall
+  frame .searchall.t
+  frame .searchall.c
+  frame .searchall.b
+  listbox .searchall.c.lb -width 70 -height 28 -listvariable file_chooser(searchall) -selectmode single \
+     -yscrollcommand ".searchall.c.yscroll set" \
+     -xscrollcommand ".searchall.c.xscroll set"
+  scrollbar .searchall.c.yscroll -command ".searchall.c.lb yview"
+  scrollbar .searchall.c.xscroll -orient horiz -command ".searchall.c.lb xview"
+  pack  .searchall.c.yscroll -side right -fill y
+  pack  .searchall.c.xscroll -side bottom -fill x
+  pack  .searchall.c.lb -side bottom  -fill both -expand true
+
+  pack .searchall.t -fill x -expand true
+  pack .searchall.c -fill both -expand true
+  pack .searchall.b -fill x -expand true
+  bind .searchall.c.lb <Double-Button-1> {file_chooser_search_all_open 0}
+  bind .searchall.c.lb <Shift-Double-Button-1> {file_chooser_search_all_open r10}
+  bind .searchall.c.lb <<ListboxSelect>> {
+    if {[.searchall.c.lb curselection] ne {}} {
+      if { [xschem get ui_state] & 8192 } {
+        xschem abort_operation
+      }
+      file_chooser_search_all_preview
+    }
+  }
+
+  if { [info exists file_chooser(search_all_geometry)]} {
+    wm geometry .searchall "${file_chooser(search_all_geometry)}"
+  } elseif {[file exists $USER_CONF_DIR/file_chooser_search_all_geometry]} {
+      source $USER_CONF_DIR/file_chooser_search_all_geometry
+      set valid 0
+      set xmax [winfo screenwidth .]
+      set ymax [winfo screenheight .]
+      if {[info exists file_chooser(geometry)]} {
+        set n [scan $file_chooser(search_all_geometry) {%dx%d+%d+%d} x y dx dy]
+        if {$n == 4} {
+          # puts "xmax=$xmax, ymax=$ymax, x=$x, y=$y dx=$dx dy=$dy"
+          # off screen. do not use.
+          set valid 1
+          if { $dx > $xmax - 100 || $dy > $ymax - 100} {
+            set valid 0
+          }
+        }
+      }
+      if {$valid} {wm geometry .searchall "${file_chooser(search_all_geometry)}"}
+  } else {
+    # wm geometry .searchall 800x300
+  } 
+
+  bind .searchall <Configure> {
+    set file_chooser(search_all_geometry) [wm geometry .searchall]
+
+    write_data [string cat \
+      "set file_chooser(search_all_geometry) $file_chooser(search_all_geometry)\n" \
+    ] $USER_CONF_DIR/file_chooser_search_all_geometry
+  }
+
+
+
+  button .searchall.b.dismiss -takefocus 0 -text Dismiss -command {
+    if { [xschem get ui_state] & 8192 } {
+      xschem abort_operation
+    } else {
+      destroy .searchall
+    }
+  }
+
+  button .searchall.b.load -takefocus 0 -text {Open} -command {
+    file_chooser_search_all_place load
+  }
+  
+  button .searchall.b.load_new_win -takefocus 0 -text {Open in new Window / Tab} -command {
+    file_chooser_search_all_place load_new_win 
+  }
+  
+  button .searchall.b.sym -text {Place symbol} -takefocus 0 \
+     -command {
+       set file_chooser(action) {symbol1} ;# only one time insert symbol
+       file_chooser_search_all_preview
+     }
+
+  pack .searchall.b.dismiss .searchall.b.load .searchall.b.load_new_win .searchall.b.sym -side left
+  wm protocol .searchall WM_DELETE_WINDOW {.searchall.b.dismiss invoke}
+  bind .searchall <KeyPress-Escape> {.searchall.b.dismiss invoke}
+  return {}
+}
+
+proc file_chooser_search {{current {}}} {
+  global file_chooser new_file_browser_depth new_file_browser_ext
+  # just check if pattern is a valid regexp
+  set nfbe $new_file_browser_ext
+  set err [catch {regexp $nfbe {12345}} res1]
+  if {$err} {set nfbe {}}
+  set regex $file_chooser(regex)
+  # check if regex is valid
+  set err [catch {regexp $regex {12345}} res]
+  if {$err} {set regex {}}
+  set nth 0
+  set f {}
+  if {$file_chooser(dirs) ne {} } {
+    set allfiles [
+      match_file $regex {} $new_file_browser_depth $file_chooser(fullpath)
     ]
     foreach i $allfiles {
-      set err [catch {regexp $new_file_browser_ext $i} type]
+      set err [catch {regexp $nfbe $i} type]
       if {!$err && $type} {
         incr nth
         if {$current ne {}} {
@@ -5492,8 +5735,9 @@ proc file_chooser {} {
     wm transient .ins {}
   }
   frame .ins.top -takefocus 0
-  frame .ins.top3 -takefocus 0
   frame .ins.top2 -takefocus 0
+  frame .ins.top3 -takefocus 0
+  frame .ins.top4 -takefocus 0
   panedwindow  .ins.center -orient horizontal
   frame .ins.center.leftdir  -takefocus 0
   frame .ins.center.left  -takefocus 0
@@ -5505,6 +5749,7 @@ proc file_chooser {} {
   pack .ins.top -side top -fill x
   pack .ins.top2 -side top -fill x
   pack .ins.top3 -side top -fill x
+  pack .ins.top4 -side top -fill x
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
 
@@ -5543,7 +5788,7 @@ proc file_chooser {} {
   pack .ins.center.leftdir.l -expand 1 -fill both -side left
   pack .ins.center.leftdir.s -fill y -side left
 
-  label .ins.top2.dir_l -text {Full path:}
+  label .ins.top2.dir_l -text {Full path:} -width 12
   entry .ins.top2.dir_e -width 20 -state normal -textvariable file_chooser(abs_filename) \
     -readonlybackground [option get . background {}] -takefocus 0
 
@@ -5557,9 +5802,9 @@ proc file_chooser {} {
   }
 
   balloon .ins.top2.delete "Delete the shown file"
-  label .ins.top3.pat_l -text Pattern:
+  label .ins.top3.pat_l -text Pattern: -width 12
   balloon .ins.top3.pat_l {Show files matching regular expression}
-  entry .ins.top3.pat_e -width 15 -highlightcolor red -highlightthickness 2 \
+  entry .ins.top3.pat_e -width 30 -highlightcolor red -highlightthickness 2 \
      -textvariable file_chooser(regex) -highlightbackground [option get . background {}]
   balloon .ins.top3.pat_e {Show files matching regular expression}
   label .ins.top.dir_l -text { Symbol Reference in schematic: }
@@ -5586,18 +5831,18 @@ proc file_chooser {} {
   balloon .ins.top.ontop "Make the file browser window always\nshow above current xschem window"
   label .ins.top.lev_l -text {Levels down:}
   entry .ins.top.lev_e -width 3  -takefocus 0 -textvariable new_file_browser_depth
-  label .ins.top3.ext_l -text Ext:
+  label .ins.top3.ext_l -text {  Extension:}
   balloon .ins.top3.ext_l "Show only files matching the\nextension regular expression"
-  entry .ins.top3.ext_e -width 15 -takefocus 0  -state normal -textvariable new_file_browser_ext
+  entry .ins.top3.ext_e -width 30 -takefocus 0  -state normal -textvariable new_file_browser_ext
   balloon .ins.top3.ext_e "Show only files matching the\nextension regular expression"
 
-  button .ins.top3.select_current -takefocus 0 -text {Select current} -command {
+  button .ins.top4.select_current -takefocus 0 -text {Select current} -command {
     set file_chooser(regex) {}
     file_chooser_select [xschem get schname]
   }
-  balloon .ins.top3.select_current "Select directory and file name\nof current active xschem window"
+  balloon .ins.top4.select_current "Select directory and file name\nof current active xschem window"
 
-  button .ins.top3.upd -takefocus 0 -text "Reload" -command {
+  button .ins.top4.upd -takefocus 0 -text "Reload" -command {
     set file_chooser(abs_filename) {}
     set file_chooser(rel_filename) {}
     set file_chooser(fullpathlist) {}
@@ -5608,35 +5853,39 @@ proc file_chooser {} {
     file_chooser_dirlist
     file_chooser_filelist
   }
-  balloon .ins.top3.upd "Reset and reload list of files"
+  balloon .ins.top4.upd "Reset and reload list of files"
 
-  button .ins.top3.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
+  button .ins.top4.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
     file_chooser_search current
   }
-  balloon .ins.top3.search_curr "Show and select match\n in current directory"
-  button .ins.top3.search -takefocus 0 -text {Search first} -activebackground red -command {
+  balloon .ins.top4.search_curr "Show and select match\n in current directory"
+  button .ins.top4.search_all -takefocus 0 -text {Search all} -activebackground red -command {
+    file_chooser_search_all
+  }
+  balloon .ins.top4.search_all "Show all matches in all directories"
+  button .ins.top4.search -takefocus 0 -text {Search first} -activebackground red -command {
     set file_chooser(nth) 1
     file_chooser_search
   }
-  balloon .ins.top3.search "Show and select first match\nlooking in all directories"
-  button .ins.top3.prev -takefocus 0 -text Prev -command {
+  balloon .ins.top4.search "Show and select first match\nlooking in all directories"
+  button .ins.top4.prev -takefocus 0 -text Prev -command {
     incr file_chooser(nth) -1
     file_chooser_search
   }
-  balloon .ins.top3.prev {show and select previous match}
-  button .ins.top3.next -takefocus 0 -text Next -command {
+  balloon .ins.top4.prev {show and select previous match}
+  button .ins.top4.next -takefocus 0 -text Next -command {
     incr file_chooser(nth)
     file_chooser_search
   }
-  balloon .ins.top3.next {show and select next match}
-  checkbutton .ins.top3.fullpath -takefocus 0 -variable file_chooser(fullpath) -text {match full path  }
-  balloon .ins.top3.fullpath "Perform regular expression matching on\nfull path instead of only file name"
-  button .ins.top3.clear -takefocus 0 -text Clear -command {
+  balloon .ins.top4.next {show and select next match}
+  checkbutton .ins.top4.fullpath -takefocus 0 -variable file_chooser(fullpath) -text {match full path  }
+  balloon .ins.top4.fullpath "Perform regular expression matching on\nfull path instead of only file name"
+  button .ins.top4.clear -takefocus 0 -text Clear -command {
     .ins.top3.pat_e delete 0 end
     file_chooser_filelist
     file_chooser_preview
   }
-  balloon .ins.top3.clear {Clear pattern entry box}
+  balloon .ins.top4.clear {Clear pattern entry box}
   # -command {
   #   file_chooser_search
   #   file_chooser_filelist
@@ -5691,6 +5940,7 @@ proc file_chooser {} {
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable file_chooser(nitems)
   button .ins.bottom.dismiss -takefocus 0 -text Dismiss -command {
+    if {[winfo exists .searchall]} { .searchall.b.dismiss invoke }
     if {![winfo exists .editpaths]} {
       if { [xschem get ui_state] & 8192 } {
         xschem abort_operation
@@ -5700,11 +5950,11 @@ proc file_chooser {} {
       }
     }
   }
-  button .ins.bottom.load -takefocus 0 -text {Load file in active Window / Tab} -command {
+  button .ins.bottom.load -takefocus 0 -text {Open} -command {
     file_chooser_place load
   }
 
-  button .ins.bottom.load_new_win -takefocus 0 -text {Load in new Window / Tab} -command {
+  button .ins.bottom.load_new_win -takefocus 0 -text {Open in new Window / Tab} -command {
     file_chooser_place load_new_win
   }
 
@@ -5739,16 +5989,17 @@ proc file_chooser {} {
   pack .ins.top2.dir_e -side left -fill x -expand 1
   pack .ins.top2.delete -side left
   pack .ins.top2.save -side left
-  pack .ins.top3.select_current -side left
-  pack .ins.top3.upd -side left
+  pack .ins.top4.select_current -side left
+  pack .ins.top4.upd -side left
   pack .ins.top3.pat_l -side left
   pack .ins.top3.pat_e -side left
-  pack .ins.top3.clear -side left
-  pack .ins.top3.search_curr -side left
-  pack .ins.top3.search -side left
-  pack .ins.top3.prev -side left
-  pack .ins.top3.next -side left
-  pack .ins.top3.fullpath -side left
+  pack .ins.top4.clear -side left
+  pack .ins.top4.search_all -side left
+  pack .ins.top4.search_curr -side left
+  pack .ins.top4.search -side left
+  pack .ins.top4.prev -side left
+  pack .ins.top4.next -side left
+  pack .ins.top4.fullpath -side left
   pack .ins.top.dir_l -side left
   pack .ins.top.dir_e -side left -fill x -expand 1
   pack .ins.top.ontop -side left
@@ -6822,6 +7073,7 @@ proc ask_save { {ask {save file?}} {cancel 1}} {
   }
   # needed, otherwise problems when descending with double clixk 23012004
   tkwait visibility .dialog
+  raise .dialog
   grab set .dialog
   tkwait window .dialog
   xschem set semaphore [expr {[xschem get semaphore] -1}]
@@ -7846,6 +8098,9 @@ proc sub_match_file { f {paths {}} {maxdepth -1} {first 0} {fullpath 1}} {
               ] {
       set skip 0
       foreach k $nolist_libs {
+        # just check if pattern is a valid regexp
+        set err [catch {regexp $k {12345}} res1]
+        if {$err} {continue}
         if {[regexp $k $j]} {
           set skip 1
           break
@@ -7923,6 +8178,9 @@ proc sub_find_file { f {paths {}} {maxdepth -1} {first 0}} {
 
       set skip 0
       foreach k $nolist_libs {
+        # just check if pattern is a valid regexp
+        set err [catch {regexp $k {12345}} res1]
+        if {$err} {continue}
         if {[regexp $k $j]} {
           set skip 1
           break
@@ -8002,6 +8260,9 @@ proc get_directory {f} {
 # set 'n' last directory components to every symbol
 proc fix_symbols {n {pattern {}}} {
   xschem push_undo
+  # just check if pattern is a valid regexp
+  set err [catch {regexp $pattern {12345}} res1]
+  if {$err} {return}
   foreach {i s t} [xschem instance_list] {
     if {$pattern ne {} && ![regexp $pattern $s]} {continue}
     if {![regexp {\(.*\)$} $s param]} { set param {}}

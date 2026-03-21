@@ -157,15 +157,9 @@ proc display_ac {symname} {
     return [format_props $symname $names]
 }
 
-# Display ACXF analysis
+# Display XF analysis
 proc display_acxf {symname} {
     set names [list sweep N outp N outn N from N to N step N mode N points N values N nodeset SG store N write N writeop N]
-    return [format_props $symname $names]
-}
-
-# Display ACSTB analysis
-proc display_acstb {symname} {
-    set names [list sweep N probe N localgnd N from N to N step N mode N points N values N nodeset SG store N write N writeop N]
     return [format_props $symname $names]
 }
 
@@ -391,13 +385,6 @@ proc format_analysis_acxf_spectre {name} {
     return [list "analysis $name acxf [parenthesize $args]" ""]
 }
 
-proc format_analysis_acstb_spectre {name} {
-    set args "[format_args $name [list probe N localgnd N]] "
-    append args "[format_sweep_spectre_range $name] "
-    append args [format_args $name [list nodeset N store N write N writeop N]]
-    return [list "analysis $name acstb [parenthesize $args]" ""]
-}
-
 proc format_analysis_noise_spectre {name} {
     set args "out=[format_signal_output_spectre $name] "
     append args "[format_args $name [list in N]] "
@@ -596,10 +583,6 @@ proc format_analysis_ac_spice {name} {
 
 proc format_analysis_acxf_spice {name} {
     error "acxf is not supported by Ngspice"
-}
-
-proc format_analysis_acstb_spice {name} {
-    error "acstb is not supported by Ngspice"
 }
 
 proc format_analysis_noise_spice {name} {
