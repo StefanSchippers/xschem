@@ -5061,7 +5061,7 @@ proc file_chooser_draw_preview {f} {
 
 
     ## preview window draw causes a save / restore context.
-    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top3.upd invoke
+    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top4.upd invoke
     ## this rewrites the file_chooser(dirtails) list variable and list loses selection...
     # .ins.center.leftdir.l selection set  [.ins.center.leftdir.l index active]
 
@@ -5292,7 +5292,7 @@ proc file_chooser_search_all_draw_preview {f} {
   
 
     ## preview window draw causes a save / restore context.
-    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top3.upd invoke
+    ## restore_ctx writes XSCHEM_LIBRARY_PATH --> set_paths --> .ins.top4.upd invoke
     ## this rewrites the file_chooser(dirtails) list variable and list loses selection...
     # .ins.center.leftdir.l selection set  [.ins.center.leftdir.l index active]
   
@@ -5619,7 +5619,7 @@ proc file_chooser_edit_paths {} {
     set tctx::rcode 1
     set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
     file_chooser_set_paths
-    .ins.top3.upd invoke
+    .ins.top4.upd invoke
     destroy .editpaths
   }
 
@@ -5627,7 +5627,7 @@ proc file_chooser_edit_paths {} {
     set tctx::rcode 1
     set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
     file_chooser_set_paths
-    .ins.top3.upd invoke
+    .ins.top4.upd invoke
   }
   button .editpaths.bottom.dismiss -text Dismiss -command {
     destroy .editpaths
@@ -5640,7 +5640,7 @@ proc file_chooser_edit_paths {} {
     set tctx::rcode 1
     set tctx::retval [.editpaths.center.paths get 1.0 {end - 1 chars}]
     file_chooser_set_paths
-    .ins.top3.upd invoke
+    .ins.top4.upd invoke
     if {[winfo exists .editdata]} {destroy .editdata}
     editdata "set XSCHEM_LIBRARY_PATH {$XSCHEM_LIBRARY_PATH}" {XSCHEM_LIBRARY_PATH} char 0
   }
@@ -10831,7 +10831,7 @@ proc trace_set_vars {varname idxname op} {
            $file_chooser(old_new_file_browser_ext) ne $new_file_browser_ext} {
         set file_chooser(old_new_file_browser_ext) $new_file_browser_ext
         if {[winfo exists .ins]} {
-          .ins.top3.upd invoke
+          .ins.top4.upd invoke
         }
       }
     }
@@ -10841,7 +10841,7 @@ proc trace_set_vars {varname idxname op} {
            $file_chooser(old_new_file_browser_depth) ne $new_file_browser_depth} {
         set file_chooser(old_new_file_browser_depth) $new_file_browser_depth
         if {[winfo exists .ins]} {
-          .ins.top3.upd invoke
+          .ins.top4.upd invoke
         }
       }
     }
@@ -10851,7 +10851,7 @@ proc trace_set_vars {varname idxname op} {
            $file_chooser(old_dirs) ne $file_chooser(dirs)} {
         set file_chooser(old_dirs) $file_chooser(dirs)
         if {[winfo exists .ins]} {
-          .ins.top3.upd invoke
+          .ins.top4.upd invoke
         }
       }
     }
