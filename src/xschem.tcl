@@ -668,7 +668,7 @@ proc to_eng {args} {
 }
 
 proc = {args} {
-  set r [ev7 $args]
+  set r [ev $args]
   puts $r
 }
 
@@ -699,9 +699,11 @@ proc ev {args} {
 
 ## evaluate expression. if expression has errors or does not evaluate return 0
 proc ev0 {args} {
+  global ev_precision
+  if {[info exists ev_precision]} {set pr $ev_precision} else {set pr 4}
   set i [join $args]
   if {![catch {uplevel #0 expr $i} res]} {
-    return [format %.4g $res]
+    return [format %.${pr}g $res]
   } else {
     # puts stderr "proc ev0: $res"
     return 0
