@@ -452,11 +452,33 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* determine if mouse pointer is below xaxis or left of yaxis in some graph */
     setup_graph_data(i, 0, gr);
 
-   /* check if user clicked on a wave label -> draw wave in bold */
-    if(event == ButtonPress && button == Button3 &&
-             edit_wave_attributes(2, i, gr)) {
-      draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
-      return 0;
+   /* check if user clicked on a wave or a wave label -> draw wave in bold */
+    if(event == ButtonPress && button == Button3) {
+      /* button3 click on a wave */
+      if(POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2 , gr->y2)) {
+        int wcnt, save;
+        save = gr->hilight_wave;
+        find_closest_wave(i, gr, &wcnt);
+        if(gr->hilight_wave >= 0) {
+          gr->hilight_wave = -1;
+          my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                     subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+        } else {
+          gr->hilight_wave = wcnt;
+          my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                     subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+        }
+
+        if(save != gr->hilight_wave) {
+          draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
+        }
+      /* button3 click on wave label */
+      } else {
+        if( edit_wave_attributes(2, i, gr)) {
+          draw_graph(i, 1 + 8 + (xctx->graph_flags & (2 | 4 | 128 | 256)), gr, NULL); /* draw data in graph box */
+          return 0;
+        }
+      }
     }
 
     /* destroy / show measurement widget */
@@ -846,7 +868,8 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           track_dset = -1; /* all datasets */
         }
         if(track_dset < 0) {
-          track_dset = find_closest_wave(i, gr);
+          int tmp;
+          track_dset = find_closest_wave(i, gr, &tmp);
         } else {
           track_dset = -1; /* all datasets */
         }

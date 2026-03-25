@@ -3976,20 +3976,20 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   } /* for(dset...) */
   return idx;
 }
-
-int find_closest_wave(int i, Graph_ctx *gr)
+/* return in node_number the node index that is closest to mouse coordinates */
+int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
 {
   double xval, yval;
   char *node = NULL, *sweep = NULL;
   int sweep_idx = 0;
   char *saven, *saves, *nptr, *sptr;
   const char *ntok, *stok;
-  int wcnt = 0, idx, expression;
+  int wcnt = -1, idx, expression;
+  char *ntok_copy = NULL; /* copy of ntok without %<n> */
   char *express = NULL;
   xRect *r = &xctx->rect[GRIDLAYER][i];
-  int autoload = 0, closest_dataset = -1;
+  int autoload = 0, closest_dataset = -1, node_dataset = -1;
   double min=-1.0;
-  Raw *raw = NULL;
   char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
   char *sim_type = NULL;
   const char *ptr;
@@ -4000,8 +4000,11 @@ int find_closest_wave(int i, Graph_ctx *gr)
   }
   if(gr->digital) return -1;
 
+  *node_number = -1;
   autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
-  if(autoload == 0) autoload = 2;
+  if(autoload == 0) autoload = 2; /* 2: switch */
+  else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
+
   yval = G_Y(xctx->mousey);
   xval = G_X(xctx->mousex);
   /* get data to plot */
@@ -4010,51 +4013,92 @@ int find_closest_wave(int i, Graph_ctx *gr)
 
   ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
   if(!ptr[0]) {
-    if(raw && raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, raw->rawfile);
+    if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
     else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
   } else {
     my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
   }
 
   my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
-  if(sch_waves_loaded()!= -1 && custom_rawfile[0]) {
-    extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type : xctx->raw->sim_type, -1.0, -1.0);
-  }
-  raw = xctx->raw;
 
   nptr = node;
   sptr = sweep;
   /* process each node given in "node" attribute, get also associated sweep var if any*/
-  while( (ntok = my_strtok_r(nptr, "\n", "\"", 0, &saven)) ) {
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
+    char *nd = NULL;
+    int valid_rawfile = 1;
+    wcnt++;
     if(strstr(ntok, ",")) {
       if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
     }
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = sptr = NULL;
     dbg(1, "ntok=%s\n", ntok);
+
+    if(custom_rawfile[0]) {
+      if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
+         (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
+        valid_rawfile = 0;
+      }
+    }
+
     if(stok && stok[0]) {
       sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) {
         sweep_idx = 0;
       }
     }
+    my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
+
+    if(nd[0]) {
+      int pos = 1;
+      if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
+      if(xctx->raw && xctx->raw->values) {
+        char *node_rawfile = NULL;
+        char *node_sim_type = NULL;
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
+              sim_type[0] ? sim_type : xctx->raw->sim_type);
+        dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+        if(node_rawfile && node_rawfile[0]) {
+          if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
+            my_free(_ALLOC_ID_, &node_rawfile);
+            my_free(_ALLOC_ID_, &node_sim_type);
+            valid_rawfile = 0;
+          }
+        }
+        my_free(_ALLOC_ID_, &node_rawfile);
+        my_free(_ALLOC_ID_, &node_sim_type);
+      }
+      if(pos == 2) node_dataset = atoi(nd);
+      else node_dataset = -1;
+      dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
+      my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
+    } else {
+      node_dataset = -1;
+      my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
+    }
+    if(nd) my_free(_ALLOC_ID_, &nd);
+
     /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
     idx = -1;
     expression = 0;
-    if(raw->values) {
-      if(strstr(ntok, ";")) {
-        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok, ";", "\"", 0, 2));
+    if(xctx->raw->values) {
+      if(strstr(ntok_copy, ";")) {
+        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
       } else {
-        my_strdup2(_ALLOC_ID_, &express, ntok);
+        my_strdup2(_ALLOC_ID_, &express, ntok_copy);
       }
       if(strpbrk(express, " \n\t")) {
         expression = 1;
       }
     }
-    if(expression) idx = raw->nvars;
+    if(expression) idx = xctx->raw->nvars;
     else idx = get_raw_index(express, NULL);
-    dbg(1, "find_closest_wave(): expression=%d, idx=%d\n", expression, idx);
-    if( idx != -1 ) {
+    dbg(1, "find_closest_wave(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx);
+    if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) {
       int p, dset, ofs, ofs_end;
       int first, last;
       double xx, yy ; /* the p-th point */
@@ -4066,15 +4110,16 @@ int find_closest_wave(int i, Graph_ctx *gr)
       start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
       /* loop through all datasets found in raw file */
-      for(dset = 0 ; dset < raw->datasets; dset++) {
+      for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
         double prev_x = 0.0;
         int cnt=0, wrap;
-        register SPICE_DATA *gvx = raw->values[sweep_idx];
-        register SPICE_DATA *gv0 = raw->values[0];
+        register SPICE_DATA *gvx = xctx->raw->values[sweep_idx];
+        register SPICE_DATA *gv0 = xctx->raw->values[0];
         register SPICE_DATA *gvy;
-        ofs_end = ofs + raw->npoints[dset];
+        if(node_dataset != -1 && node_dataset != dset) goto done;
+        ofs_end = ofs + xctx->raw->npoints[dset];
         if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL);
-        gvy = raw->values[idx];
+        gvy = xctx->raw->values[idx];
         dbg(1, "find_closest_wave(): dset=%d\n", dset);
         first = -1;
         /* Process "npoints" simulation items
@@ -4099,21 +4144,23 @@ int find_closest_wave(int i, Graph_ctx *gr)
              sweepvar_wrap++;
           }
           if(xx >= start && xx <= end) {
+            double tmp;
             if(first == -1) first = p;
             if( p > ofs && XSIGN(xval - xx) != XSIGN(xval - prev_x)) {
-
+               tmp = fabs(yval - yy);
                if(min < 0.0) {
-                  min = fabs(yval - yy);
+                  min = tmp;
                   closest_dataset = sweepvar_wrap;
+                  *node_number = wcnt;
                } else {
-                 double tmp = fabs(yval - yy);
                  if(tmp < min) {
                    min = tmp;
                    closest_dataset = sweepvar_wrap;
+                   *node_number = wcnt;
                  }
                }
-               dbg(1, "find_closest_wave(): xval=%g yval=%g xx=%g yy=%g sweepvar_wrap=%d ntok=%s stok=%s\n",
-                   xval, yval, xx, yy, sweepvar_wrap, ntok, stok? stok : "<NULL>");
+               dbg(1, "find_closest_wave(): dset=%d expression=%d idx=%d wcnt=%d dist=%g sweepvar_wrap=%d ntok=%s stok=%s\n",
+                   dset, expression, idx, wcnt, tmp, sweepvar_wrap, ntok, stok? stok : "<NULL>");
             }
             last = p;
             ++cnt;
@@ -4121,22 +4168,24 @@ int find_closest_wave(int i, Graph_ctx *gr)
           prev_x = xx;
         } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
         /* offset pointing to next dataset */
+        done:
         ofs = ofs_end;
         sweepvar_wrap++;
       } /* for(dset...) */
 
     } /*  if( (idx = get_raw_index(ntok, NULL)) != -1 ) */
-    ++wcnt;
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
-  dbg(0, "closest dataset=%d\n", closest_dataset);
+  dbg(0, "closest dataset=%d wave index=%d\n", closest_dataset, *node_number);
   if(express) my_free(_ALLOC_ID_, &express);
 
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL, -1.0, -1.0);
   my_free(_ALLOC_ID_, &custom_rawfile);
   my_free(_ALLOC_ID_, &sim_type);
 
+  if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
   my_free(_ALLOC_ID_, &node);
   my_free(_ALLOC_ID_, &sweep);
+  dbg(1, "find_closest_wave(): node_number = %d\n", *node_number);
   return closest_dataset;
 }
 
@@ -4311,7 +4360,6 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         xctx->raw->npoints[0] = xctx->raw->allpoints;
       }
 
-      my_free(_ALLOC_ID_, &nd);
       dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
 
       tmp_ptr = find_nth(ntok_copy, ";", "\"", 4, 2);
