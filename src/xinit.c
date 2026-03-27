@@ -1974,10 +1974,26 @@ static void destroy_tab(int *window_count, const char *win_path)
       prev = 0;
       if(previous_win_path[0]) {
         prev = get_tab_or_window_number(previous_win_path);
-        dbg(1, "%s, prev=%d\n", previous_win_path, prev);
+        dbg(0, "%s, prev=%d\n", previous_win_path, prev);
         if(prev == -1) prev = 0;
       }
       xctx = save_xctx[prev]; /* restore previous or main (.drw) schematic */
+
+      /* set previous tab so context will switch to that tab after destroying next one */
+      if(prev > 0) {
+        int last_tab = -1;
+        int prev_last_tab = -1;
+        for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
+          if(save_xctx[i] != NULL) {
+            prev_last_tab = last_tab;
+            last_tab = i;
+          }
+        }
+        dbg(0, "last_tab=%d\n", prev_last_tab);
+        if(prev_last_tab >=0) {
+          my_strncpy(previous_win_path, save_xctx[prev_last_tab]->current_win_path, sizeof(previous_win_path));
+        }
+      }
 
       /* seems unnecessary; previous tab save_pixmap was not deleted */
       /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
