@@ -78,6 +78,10 @@ Execute specified tcl commands after completing startup.
 Execute specified tcl file as a command script (perhaps with xschem  commands).
 .TP
 
+.B --command <tcl_cmd>
+Execute specified tcl commands after completing startup.
+.TP
+
 .B --diff <file>
 Show differences with given file.
 .TP
@@ -104,6 +108,10 @@ Set netlist type to tEDAx.
 
 .B -s, --spice
 Set netlist type to SPICE.
+.TP
+
+.B --spectre
+Set netlist type to SPECTRE.
 .TP
 
 .B -y, --symbol
@@ -145,6 +153,14 @@ Use <file> as output for plot export (png, svg, postscript/pdf)
 
 .B --rcfile <file>
 Use <file> as a rc file for startup instead of the default xschemrc.
+.TP
+
+.B --lastclosed
+Open last closed file.
+.TP
+
+.B --lastopened
+Open last opened or saved file.
 .TP
 
 .B -p, --postscript, --pdf
