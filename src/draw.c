@@ -5435,9 +5435,16 @@ void draw(void)
           if(i >= xctx->wires) break;
         }
         if(xctx->wire[i].bus == -1.0) {
-          drawline(cc, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
-            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
+          if(skip_wire(i))
+            drawline(GRIDLAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+              xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 2, NULL);
+          else 
+            drawline(cc, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+              xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
         }
+        else if(skip_wire(i)) 
+         drawline(GRIDLAYER, NOW, xctx->wire[i].x1,xctx->wire[i].y1,
+            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 2, NULL);
         else
           drawline(cc, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
             xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);

@@ -1213,7 +1213,7 @@ static int edit_wire_property(void)
         my_strdup(_ALLOC_ID_, &xctx->wire[k].prop_ptr,(char *) tclgetvar("tctx::retval"));
       }
       xctx->wire[k].bus = bus = get_attr_val(get_tok_value(xctx->wire[k].prop_ptr,"bus",0));
-
+      set_wire_flags(&xctx->wire[k]);
       if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
       else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
       if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;

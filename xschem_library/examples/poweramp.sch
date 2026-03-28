@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 L 18 845 -530 880 -530 {}
 L 18 845 -530 845 -450 {}
@@ -35,8 +36,8 @@ L 18 880 -530 900 -580 {}
 L 18 880 -530 880 -450 {}
 L 18 900 -580 900 -400 {}
 B 2 1200 -500 1880 -310 {flags=graph
-y1 = -0.00095
-y2 = 12
+y1 = -0.0022
+y2 = 11
 divy = 6
 x1=0.0246194
 x2=0.0249318
@@ -50,7 +51,8 @@ unitx=m
 linewidth_mult=2.3
 
 autoload=1
-sim_type=tran}
+sim_type=tran
+hilight_wave=-1}
 B 2 1200 -830 1880 -520 {flags=graph
 y1 = -50
 y2 = 61
@@ -121,7 +123,7 @@ T {actual value
 T {actual value
 50u} 400 -360 0 0 0.4 0.4 {}
 T {actual value
-50u} 50 -750 0 0 0.4 0.4 {}
+50u} 40 -760 0 0 0.4 0.4 {}
 T {actual value
 50u} 80 -290 0 0 0.4 0.4 {}
 T {actual value
@@ -166,17 +168,24 @@ N 550 -310 550 -290 {lab=VSS}
 N 650 -700 710 -700 {lab=OUTM}
 N 650 -240 710 -240 {lab=OUTP}
 N 240 -220 260 -220 {lab=INX}
-N 260 -680 350 -680 {lab=VSSX}
-N 240 -860 240 -840 {lab=VPP}
-N 260 -680 260 -650 {lab=VSSX}
-N 260 -590 260 -570 {lab=VSS}
-N 240 -680 260 -680 {lab=VSSX}
-N 180 -680 240 -680 {lab=VSSX}
+N 260 -680 350 -680 {lab=VSSX
+}
+N 240 -860 240 -840 {lab=VPP
+}
+N 260 -680 260 -650 {lab=VSSX
+}
+N 260 -590 260 -570 {lab=VSS
+}
+N 240 -680 260 -680 {lab=VSSX
+}
+N 180 -680 240 -680 {lab=VSSX
+}
 N 870 -1200 890 -1200 {lab=IN_INT}
 N 870 -1200 870 -1130 {lab=IN_INT}
 N 400 -1000 400 -980 {lab=VPP}
 N 400 -540 400 -520 {lab=VPP}
-N 860 -700 860 -520 {lab=OUTM}
+N 860 -700 860 -520 {lab=OUTM
+spice_ignore=short}
 N 860 -460 860 -240 {lab=OUTP}
 N 350 -890 400 -890 {lab=FBN}
 N 350 -430 400 -430 {lab=FB}
@@ -189,7 +198,8 @@ N 320 -1140 320 -1130 { lab=VSS}
 N 320 -1210 320 -1200 { lab=VPP}
 N 400 -920 400 -890 { lab=FBN}
 N 400 -460 400 -430 { lab=FB}
-N 240 -780 240 -680 { lab=VSSX}
+N 240 -780 240 -680 { lab=VSSX
+}
 N 240 -320 240 -220 { lab=INX}
 N 220 -1210 230 -1210 {lab=#net1}
 N 220 -1050 230 -1050 {lab=#net2}
@@ -208,7 +218,8 @@ C {lab_pin.sym} 360 -1130 0 1 {name=p3 lab=VSS}
 C {lab_pin.sym} 860 -240 0 1 {name=p14 lab=OUTP
 text_size_1=0.7
 text_size_0=0.7}
-C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8}
+C {res.sym} 860 -490 0 1 {name=R1 m=1 value=8
+}
 C {lab_pin.sym} 500 -1150 0 0 {name=p26 lab=VSS}
 C {lab_pin.sym} 540 -1190 0 0 {name=p31 lab=IN}
 C {vcvs.sym} 610 -1170 0 0 {name=E3 value=\{gain*0.99\}}
@@ -254,16 +265,23 @@ C {vsource.sym} 870 -1100 0 0 {name=V3
 xvalue="dc 0 pulse -.1 .1 1m .1u .1u 10.1u 20u" 
 value="dc 0 sin 0 1 \{frequ\} 1m"
 }
-C {res.sym} 240 -810 0 1 {name=R4 m=1 value=50k}
-C {lab_pin.sym} 240 -860 0 0 {name=p18 lab=VPP}
-C {res.sym} 260 -620 0 1 {name=R5 m=1 value=50k}
-C {lab_pin.sym} 260 -570 0 0 {name=p10 lab=VSS}
+C {res.sym} 240 -810 0 1 {name=R4 m=1 value=50k
+}
+C {lab_pin.sym} 240 -860 0 0 {name=p18 lab=VPP
+}
+C {res.sym} 260 -620 0 1 {name=R5 m=1 value=50k
+}
+C {lab_pin.sym} 260 -570 0 0 {name=p10 lab=VSS
+}
 C {res.sym} 400 -950 0 1 {name=R8 m=1 value=50k}
 C {capa.sym} 170 -220 1 0 {name=C4 m=1 value="100n ; ic=0"}
 C {lab_pin.sym} 140 -220 0 0 {name=p0 lab=IN}
-C {capa.sym} 150 -680 1 0 {name=C1 m=1 value="100n ; ic=0"}
-C {lab_pin.sym} 120 -680 0 0 {name=p17 lab=VSS}
-C {lab_pin.sym} 240 -710 0 0 {name=p22 lab=VSSX}
+C {capa.sym} 150 -680 1 0 {name=C1 m=1 value="100n ; ic=0"
+}
+C {lab_pin.sym} 120 -680 0 0 {name=p17 lab=VSS
+}
+C {lab_pin.sym} 240 -710 0 0 {name=p22 lab=VSSX
+}
 C {res.sym} 920 -1200 1 1 {name=R10 m=1 value=2}
 C {lab_pin.sym} 400 -1000 0 0 {name=p24 lab=VPP}
 C {res.sym} 400 -490 0 1 {name=R13 m=1 value=50k}
@@ -335,8 +353,9 @@ C {spice_probe.sym} 350 -1210 0 0 {name=p45 analysis=tran }
 C {spice_probe.sym} 350 -1050 0 0 {name=p46 analysis=tran }
 C {launcher.sym} 1325 -1225 0 0 {name=h5 
 descr="load ngspice waves" 
-tclcommand="
-xschem raw read $netlist_dir/poweramp.raw tran; xschem redraw
+tclcommand=" xschem raw clear $netlist_dir/poweramp.raw tran
+xschem raw read $netlist_dir/poweramp.raw tran
+xschem redraw
 "
 }
 C {launcher.sym} 1450 -30 0 0 {name=h6

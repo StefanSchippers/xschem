@@ -462,6 +462,7 @@ typedef struct
   char  *node;
   char *prop_ptr;
   double bus; /*  20171201 cache here wire "bus" property, to avoid too many get_tok_value() calls */
+  int flags; /* stores the *_ignore flags, see xInstance */
 } xWire;
 
 typedef struct
@@ -1291,6 +1292,7 @@ extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
 extern char *base64_from_file(const char *f, size_t *length);
 extern int set_rect_flags(xRect *r);
 extern int set_text_flags(xText *t);
+extern int set_wire_flags(xWire *wire);
 extern int set_inst_flags(xInstance *inst);
 extern int set_sym_flags(xSymbol *sym);
 extern void reset_caches(void);
@@ -1773,6 +1775,7 @@ extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern void show_unconnected_pins(void);
 extern int prepare_netlist_structs(int for_netlist);
+extern int skip_wire(int i);
 extern int skip_instance(int i,  int skip_short, int lvs_ignore);
 extern int shorted_instance(int i, int lvs_ignore);
 extern int compare_schematics(const char *filename);

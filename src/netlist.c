@@ -510,7 +510,7 @@ void hash_wire(int what, int n, int incremental)
   int x1a, x2a, y1a, y2a;
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
-
+  if(skip_wire(n)) return;
   dbg(1, "hash_wire(): what=%d n=%d incremental=%d\n",  what, n, incremental);
   wire[n].end1 = wire[n].end2=-1;
   x1=wire[n].x1;
@@ -1011,7 +1011,7 @@ static int wirecheck(int k)    /* recursive routine */
   double x1, y1, x2, y2;
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
-
+  if(skip_wire(k)) return err;
   dbg(1, "wirecheck: %d\n", k);
   x1 = wire[k].x1; y1 = wire[k].y1;
   x2 = wire[k].x2; y2 = wire[k].y2;
@@ -1035,6 +1035,7 @@ static int wirecheck(int k)    /* recursive routine */
       /*check if wire[k]  touches wires in square [tmpi, tmpj] */
       for(wptr = xctx->wire_spatial_table[tmpi][tmpj]; wptr; wptr = wptr->next) {
         int n = wptr->n;
+        if(skip_wire(n)) continue;
         if(n == k) { /* itself */
           err |= name_attached_inst_to_net(k, tmpi, tmpj);
           continue;
@@ -1067,6 +1068,7 @@ static int name_attached_nets(double x0, double y0, int sqx, int sqy, const char
   Wireentry *wptr;
   for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
     int n = wptr->n;
+    if(skip_wire(n)) continue;
     if(touch(wire[n].x1, wire[n].y1, wire[n].x2, wire[n].y2, x0,y0)) {
       if(!wire[n].node) {
         my_strdup(_ALLOC_ID_,  &wire[n].node, node);
@@ -1127,6 +1129,33 @@ int shorted_instance(int i, int lvs_ignore)
 
   return shorted;
 }
+
+static int skip_wire2(int i, int lvs_ignore, int mask)
+{ 
+  int skip = 0;
+  if(xctx->wire[i].flags & mask) skip = 1;
+  else if(lvs_ignore && (xctx->wire[i].flags & LVS_IGNORE)) skip = 1;
+  return skip;
+} 
+
+int skip_wire(int i)
+{ 
+  int skip = 0;
+  if(xctx->netlist_type == CAD_SPICE_NETLIST)
+      skip =  skip_wire2(i, netlist_lvs_ignore, SPICE_IGNORE);
+  else if(xctx->netlist_type == CAD_VERILOG_NETLIST)
+      skip =  skip_wire2(i, netlist_lvs_ignore, VERILOG_IGNORE);
+  else if(xctx->netlist_type == CAD_SPECTRE_NETLIST)
+      skip =  skip_wire2(i, netlist_lvs_ignore, SPECTRE_IGNORE);
+  else if(xctx->netlist_type == CAD_VHDL_NETLIST)
+      skip =  skip_wire2(i, netlist_lvs_ignore, VHDL_IGNORE);
+  else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
+      skip =  skip_wire2(i, netlist_lvs_ignore, TEDAX_IGNORE);
+  else skip = 0;
+
+  dbg(1, "skip_wire(): wire %d skip=%d\n", i, skip);
+  return skip;
+}   
 
 static int skip_instance2(int i, int lvs_ignore, int mask)
 {
@@ -1464,6 +1493,7 @@ static int set_unnamed_net(int i)
 {
   int err = 0;
   char tmp_str[30];
+  if(skip_wire(i)) return err;
   my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
   my_strdup(_ALLOC_ID_, &xctx->wire[i].node, tmp_str);
   my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, "lab", tmp_str));
@@ -1481,6 +1511,7 @@ static int name_unlabeled_nets()
   dbg(2, "name_unlabeled_nets(): naming nets that dont touch labels\n");
   for (i = 0; i < xctx->wires; ++i)
   {
+    if(skip_wire(i)) continue;
     if(xctx->wire[i].node == NULL)
     {
       err |= set_unnamed_net(i);

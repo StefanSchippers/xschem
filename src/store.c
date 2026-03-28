@@ -351,6 +351,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
        xctx->wire[n].bus = get_attr_val(get_tok_value(prop_ptr,"bus",0));
      }
      xctx->wire[n].sel=sel;
+     set_wire_flags(&xctx->wire[n]);
      if(sel == SELECTED) set_first_sel(WIRE, n, 0);
      xctx->wires++;
      modified = 1;

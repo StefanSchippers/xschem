@@ -2836,9 +2836,11 @@ static void load_wire(FILE *fd)
     ptr[i].prop_ptr = NULL;
     ptr[i].end1 = ptr[i].end2 = ptr[i].sel = 0;
     ptr[i].bus = 0.0;
+    ptr[i].flags = 0;
     load_ascii_string( &ptr[i].prop_ptr, fd);
     ORDER(ptr[i].x1, ptr[i].y1, ptr[i].x2, ptr[i].y2);
     ptr[i].bus = get_attr_val(get_tok_value(ptr[i].prop_ptr, "bus", 0));
+    set_wire_flags(&ptr[i]);
     ptr[i].node = NULL;
     xctx->wires++;
 }

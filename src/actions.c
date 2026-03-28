@@ -850,6 +850,42 @@ int set_sym_flags(xSymbol *sym)
   return 0;
 }
 
+
+
+int set_wire_flags(xWire *wire)
+{
+  const char *ptr;
+  wire->flags = 0;
+
+  ptr = get_tok_value(wire->prop_ptr,"spice_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= SPICE_IGNORE;
+
+  ptr = get_tok_value(wire->prop_ptr,"spectre_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= SPECTRE_IGNORE;
+
+  ptr = get_tok_value(wire->prop_ptr,"verilog_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= VERILOG_IGNORE;
+
+  ptr = get_tok_value(wire->prop_ptr,"vhdl_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= VHDL_IGNORE;
+
+  ptr = get_tok_value(wire->prop_ptr,"tedax_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= TEDAX_IGNORE;
+
+  ptr = get_tok_value(wire->prop_ptr,"lvs_ignore",0);
+  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+    wire->flags |= LVS_IGNORE_OPEN;
+
+  dbg(1, "set_wire_flags: wire flags=%d\n", wire->flags);
+  return 0;
+}
+
+
 int set_inst_flags(xInstance *inst)
 {
   const char *ptr;
@@ -956,6 +992,9 @@ void reset_caches(void)
 {
   int i;
   dbg(1, "reset_caches()\n");
+  for(i = 0; i < xctx->wires; i++) {
+    set_wire_flags(&xctx->wire[i]);
+  }
   for(i = 0; i < xctx->instances; i++) {
     set_inst_flags(&xctx->inst[i]);
   }
@@ -2072,7 +2111,6 @@ void toggle_ignore(void)
         else if(flag == 1) flag = 2;
         else flag = 0;
 
-
         if(flag == 1) {
           my_strdup(_ALLOC_ID_, &xctx->inst[i].prop_ptr, subst_token(xctx->inst[i].prop_ptr, attr, "true"));
         } else if(flag == 2) {
@@ -2086,6 +2124,37 @@ void toggle_ignore(void)
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
       }
+
+      if(xctx->sel_array[n].type == WIRE) {
+        i = xctx->sel_array[n].n;
+        if(first) {
+          xctx->push_undo();
+          first = 0;
+        }
+        flag = 0;
+        ignore_str = get_tok_value(xctx->wire[i].prop_ptr, attr, 0);
+        if(!strcmp(ignore_str, "short")) flag = 2;
+        else if(!strboolcmp(ignore_str, "true")) flag = 1;
+
+        if(flag == 0) flag = 1;
+        else if(flag == 1) flag = 2;
+        else flag = 0;
+
+        if(flag == 1) {
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, attr, "true"));
+        } else if(flag == 2) {
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, attr, "short"));
+        } else {
+          my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, subst_token(xctx->wire[i].prop_ptr, attr, NULL));
+        }
+
+        set_wire_flags(&xctx->wire[i]);
+        set_modify(1);
+        xctx->prep_hash_inst=0;
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+      }
+
     }
     draw();
   }

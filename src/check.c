@@ -65,6 +65,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
   y2 = Y_TO_XSCHEM(xctx->areay2);
   for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
     k=wireptr->n;
+    if(skip_wire(k)) continue;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */
     if(LINE_OUTSIDE(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x1, y1, x2, y2)) continue;
     for(l = 0;l < 2; ++l) {
@@ -82,6 +83,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
       get_square(x0, y0, &sqx, &sqy);
       for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
+        if(skip_wire(i)) continue;
         if(i == k) {
           continue; /* no check wire against itself */
         }
@@ -103,6 +105,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
     save_draw = xctx->draw_window; xctx->draw_window = dr_win;
     for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
       i = wireptr->n;
+      if(skip_wire(i)) continue;
       /* optimization when editing small areas (detailed zoom)  of a huge schematic */
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,
                       wire[i].x2, wire[i].y2, x1, y1, x2, y2)) continue;
@@ -170,6 +173,7 @@ void trim_wires(void)
     /* break all wires */
     for(i=0;i<xctx->wires; ++i) {
       int hashloopcnt = 0;
+      if(skip_wire(i)) continue;
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
       get_square(x0, y0, &sqx, &sqy);
@@ -187,6 +191,7 @@ void trim_wires(void)
         }
         j = wptr->n;
         if(i == j) continue;
+        if(skip_wire(j)) continue;
         ++hashloopcnt;
         breaks = check_breaks(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0, y0);
         if(breaks) { /* wire[i] breaks wire[j] */
@@ -241,6 +246,7 @@ void trim_wires(void)
     memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
     for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
+      if(skip_wire(i)) continue;
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
       get_square(x0, y0, &sqx, &sqy);
@@ -257,6 +263,7 @@ void trim_wires(void)
           } else break;
         }
         j = wptr->n;
+        if(skip_wire(j)) continue;
         if(i == j || wireflag[j]) continue;
 
         includes = check_includes(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
@@ -307,6 +314,7 @@ void trim_wires(void)
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;
       xctx->wire[i].end1 = xctx->wire[i].end2 = 0;
+      if(skip_wire(i)) continue;
       get_square(x0, y0, &sqx, &sqy);
       k=1;
       for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
@@ -321,6 +329,7 @@ void trim_wires(void)
           } else break;
         }
         j = wptr->n;
+        if(skip_wire(j)) continue;
         if(i == j) continue;
         if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) ) {
           /* not parallel */
@@ -344,11 +353,13 @@ void trim_wires(void)
     /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
     for(i=0;i<xctx->wires; ++i) {
       if(wireflag[i]) continue;
+      if(skip_wire(i)) continue;
       x0 = xctx->wire[i].x2;
       y0 = xctx->wire[i].y2;
       get_square(x0, y0, &sqx, &sqy);
       for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         j = wptr->n;
+        if(skip_wire(j)) continue;
         if(i == j || wireflag[j]) continue;
         if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) &&
             /* parallel */
@@ -495,6 +506,7 @@ void break_wires_at_point(double x0, double y0, int align)
         xctx->wire[xctx->wires].x2=x0;
         xctx->wire[xctx->wires].y2=y0;
         xctx->wire[xctx->wires].sel=0;
+        xctx->wire[xctx->wires].flags = xctx->wire[i].flags;
         xctx->wire[xctx->wires].prop_ptr=NULL;
         my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[i].prop_ptr);
         xctx->wire[xctx->wires].bus = xctx->wire[i].bus;
@@ -566,6 +578,7 @@ void break_wires_at_pins(int remove)
                 xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
                 xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
                 xctx->wire[xctx->wires].end2 = 1;
+                xctx->wire[xctx->wires].flags = xctx->wire[i].flags;
                 xctx->wire[xctx->wires].x2=x0;
                 xctx->wire[xctx->wires].y2=y0;
                 xctx->wire[xctx->wires].sel=xctx->wire[i].sel;
@@ -660,6 +673,7 @@ void break_wires_at_pins(int remove)
             xctx->wire[xctx->wires].y2=y0;
             xctx->wire[xctx->wires].end1 = xctx->wire[i].end1;
             xctx->wire[xctx->wires].end2 = 1;
+            xctx->wire[xctx->wires].flags = xctx->wire[i].flags;
             xctx->wire[xctx->wires].sel=SELECTED;
             set_first_sel(WIRE, xctx->wires, 0);
             xctx->wire[xctx->wires].prop_ptr=NULL;
