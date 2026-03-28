@@ -2150,7 +2150,7 @@ void toggle_ignore(void)
 
         set_wire_flags(&xctx->wire[i]);
         set_modify(1);
-        xctx->prep_hash_inst=0;
+        xctx->prep_hash_wires=0;
         xctx->prep_net_structs=0;
         xctx->prep_hi_structs=0;
       }
