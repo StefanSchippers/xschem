@@ -36,9 +36,7 @@ BEGIN{
  }
 }
 
-# join split lines
 {
-
   if($0 ~ /^\/\/\/\/ begin user (architecture|header) code/) {
      user_code = 1
   }
@@ -120,6 +118,7 @@ function sign(x)
 
 function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 {
+  gsub(/ *= */, "=")
   indent = $0
   sub(/[^ \t].*/, "", indent)
   if($0 ~/\/\/\/\/ end_element/){
@@ -154,7 +153,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   }
 
  # 20181208 do not process commented lines
- if($1 ~/^\//) {
+ if($1 ~/^\/\//) {
    print
    return
  }
@@ -223,13 +222,19 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
 
  if($0 ~ /^D/ ) sub(/PERI[ \t]*=/,"PJ=")
 
- if( $1 ~ /^\/\.(ipin|opin|iopin)/ ) {
-   num=split($2,name,",")
-   for(i=1;i<=num;i++) print $1 " " name[i]
- } else if(  tolower($1) ~ /subckt/) {
+ #### this is never executed: commented lines are processed and skipped above
+ # if( $1 ~ /^\/\/\.(ipin|opin|iopin)/ ) {
+ #   num=split($2,name,",")
+ #   for(i=1;i<=num;i++) print $1 " " name[i]
+ # } else
+
+ if(  tolower($1) ~ /subckt/) {
   # remove m=.. from subcircuit definition since m= is a multiplier not a param
   sub(/ m=[0-9]+/," ",$0)
   gsub(","," ",$0)
+  for(i = 1; i <= NF; i++) {
+    $i = q($i)
+  }
   print $0
  } else {
   num = split($1, name, ",")
@@ -248,7 +253,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
   }
   for(i=1;i<=num;i++)
   {
-   printf "%s ", indent spiceprefix name[i]
+   printf "%s ", indent spiceprefix q(name[i])
 
    for(j=2;j<=NF;j++)
    {
@@ -256,7 +261,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
     # some CDL netlists have this: $SUB=?1 B where B is a node
     if($j !~ /^(.*=)?\?-?[0-9]+$/)
     {
-      printf "%s ", $j # if not a node just print it
+      printf "%s ", q($j) # if not a node just print it
     }
     else
     {
@@ -271,7 +276,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      for(l=0;l<nmult+0;l++)
      {
       ii=(l+nmult*(i-1))%arg_num[j]+1
-      printf "%s ", arg_name[j,ii]
+      printf "%s ", q(arg_name[j,ii])
      }
     }
    }
@@ -280,3 +285,15 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
  }
 }
 
+
+
+function q(s)
+{
+  if(s ~/.+=.+/) return s
+  if(s ~ /^[()=]$/) return s
+  if(s ~ /[^a-zA-Z0-9_$]/) {
+    gsub(/'/, "''", s)
+    s = "'" s "'"
+  }
+  return s
+}

@@ -274,9 +274,11 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      }
    }
 
- } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
-   num=split($2,name,",")
-   for(i=1;i<=num;i++) print $1 " " name[i]
+ #### this is never executed: commented lines are processed and skipped above
+ # } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
+ #   num=split($2,name,",")
+ #   for(i=1;i<=num;i++) print $1 " " name[i]
+
  } else if(  tolower($1) ~ /\.subckt/) {
   # remove m=.. from subcircuit definition since m= is a multiplier not a param
   sub(/ m=[0-9]+/," ",$0)
