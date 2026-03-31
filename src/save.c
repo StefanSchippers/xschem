@@ -1800,6 +1800,10 @@ static double ravg_store(int what , int i, int p, int last, double value)
 #define LE 48
 #define COND 49 /* conditional expression: X cond Y ? --> X if conf == 1 else Y */
 #define CPH 50 /* continuous phase. Instead of -180..+180 avoid discontinuities */
+#define PI 51
+#define K 52
+#define E 53
+#define Q 54
 
 
 #define ORDER_DERIV 1 /* 1 or 2: 1st order or 2nd order differentiation. 1st order is faster */
@@ -1888,6 +1892,10 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     else if(!strcmp(n, "min()")) stack1[stackptr1++].i = MIN;
     else if(!strcmp(n, "im()")) stack1[stackptr1++].i = IMAG;
     else if(!strcmp(n, "re()")) stack1[stackptr1++].i = REAL;
+    else if(!strcmp(n, "pi()")) stack1[stackptr1++].i = PI;
+    else if(!strcmp(n, "k()")) stack1[stackptr1++].i = K; /* Boltzman constant */
+    else if(!strcmp(n, "e()")) stack1[stackptr1++].i = E; 
+    else if(!strcmp(n, "q()")) stack1[stackptr1++].i = Q; /* electron charge */
     else if(!strcmp(n, "del()")) {
       int d, t = 0, p = 0;
       /* set 'first' to beginning of dataset containing 'first' */
@@ -1950,6 +1958,10 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
       if(stack1[i].i == NUMBER) { /* number */
         stack2[stackptr2++] = stack1[i].d;
       }
+      else if(stack1[i].i == PI) stack2[stackptr2++] = XSCH_PI;
+      else if(stack1[i].i == K) stack2[stackptr2++] = 1.380649e-23; /* Boltzman constant */
+      else if(stack1[i].i == E) stack2[stackptr2++] = exp(1);
+      else if(stack1[i].i == Q) stack2[stackptr2++] = 1.602176634e-19; /* electron charge */
       else if(stack1[i].i == IDX) {
         stack2[stackptr2++] = (double)p;
       }
