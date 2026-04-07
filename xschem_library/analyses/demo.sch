@@ -141,7 +141,7 @@ store=""
 write=""
 writeop=""
 }
-C {acxf.sym} 960 1100 0 0 {name=acxf1
+C {acxf.sym} 960 1120 0 0 {name=acxf1
 only_toplevel=false 
 order="8"
 sweep=""
@@ -158,9 +158,9 @@ store=""
 write=""
 writeop=""
 }
-C {noise.sym} 960 1340 0 0 {name=noise1
+C {noise.sym} 1190 1120 0 0 {name=noise1
 only_toplevel=false 
-order="9"
+order="11"
 sweep=""
 outp="\\"out\\""
 outn=""
@@ -177,9 +177,9 @@ store=""
 write=""
 writeop=""
 }
-C {hb.sym} 960 1590 0 0 {name=hb1
+C {hb.sym} 1190 1370 0 0 {name=hb1
 only_toplevel=false 
-order="10"
+order="12"
 sweep=""
 freq=[100k]
 nharm=10
@@ -194,9 +194,9 @@ nodeset=""
 store=""
 write=""
 }
-C {postproc.sym} 1160 1100 0 0 {name=postproc1
+C {postproc.sym} 1190 1560 0 0 {name=postproc1
 only_toplevel=false 
-order="12"
+order="20"
 tool="PYTHON"
 file="\\"script.py\\""
 }
@@ -209,4 +209,37 @@ verbatim="* A comment
 }
 C {command_block.sym} 470 1110 0 0 {name=CMD
 only_toplevel=false
+}
+C {acstb.sym} 960 1320 0 0 {name=acstb1
+only_toplevel=false 
+order="9"
+sweep=""
+probe="\\"vfb\\""
+localgnd=""
+from=10
+to=100k
+step=""
+mode="\\"dec\\""
+points="10"
+values=""
+nodeset=""
+store=""
+write=""
+writeop=""
+}
+C {acsp.sym} 960 1530 0 0 {name=acsp1
+only_toplevel=false 
+order="10"
+sweep=""
+ports="[\\"v1\\", \\"r1\\"]"
+from=10
+to=100k
+step=""
+mode="\\"dec\\""
+points="10"
+values=""
+nodeset=""
+store=""
+write=""
+writeop=""
 }
