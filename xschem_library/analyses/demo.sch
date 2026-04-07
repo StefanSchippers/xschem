@@ -160,7 +160,7 @@ writeop=""
 }
 C {noise.sym} 1190 1120 0 0 {name=noise1
 only_toplevel=false 
-order="10"
+order="11"
 sweep=""
 outp="\\"out\\""
 outn=""
@@ -179,7 +179,7 @@ writeop=""
 }
 C {hb.sym} 1190 1370 0 0 {name=hb1
 only_toplevel=false 
-order="11"
+order="12"
 sweep=""
 freq=[100k]
 nharm=10
@@ -196,7 +196,7 @@ write=""
 }
 C {postproc.sym} 1190 1560 0 0 {name=postproc1
 only_toplevel=false 
-order="12"
+order="20"
 tool="PYTHON"
 file="\\"script.py\\""
 }
@@ -216,6 +216,22 @@ order="9"
 sweep=""
 probe="\\"vfb\\""
 localgnd=""
+from=10
+to=100k
+step=""
+mode="\\"dec\\""
+points="10"
+values=""
+nodeset=""
+store=""
+write=""
+writeop=""
+}
+C {acsp.sym} 960 1530 0 0 {name=acsp1
+only_toplevel=false 
+order="10"
+sweep=""
+ports="[\\"v1\\", \\"r1\\"]"
 from=10
 to=100k
 step=""
