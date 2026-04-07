@@ -9402,6 +9402,52 @@ proc set_tab_names {{mod {}}} {
   }
 }
 
+# what:
+#      STORE    : store tab
+#      GET      : get most recent tab
+#      PREVIOUS : get tab before most recent
+#      CLEAR    : clear all entries
+#      REMOVE   : remove specified tab
+#      LIST     : get full queue of tabs
+# win_path:
+#      .drw: main window
+#      .x1.drw, .x2.drw: additional tabs
+#      if unspecified or empty set to current tab.
+proc tab_queue {what {win_path {}}} {
+  if {$win_path eq {}} {
+    set win_path [xschem get current_win_path]
+  }
+  if {$what eq {STORE}} {
+    # remove matching existing entries
+    while {[set pos [lsearch -exact $tctx::tab_queue $win_path]] >= 0} {
+      set tctx::tab_queue [lreplace $tctx::tab_queue $pos $pos]
+    }
+    lappend tctx::tab_queue $win_path
+    return $win_path
+  } elseif {$what eq {GET}} {
+    return [lindex $tctx::tab_queue end]
+  } elseif {$what eq {PREVIOUS}} {
+    set tab [lindex $tctx::tab_queue end-1]
+    if {$tab eq {}} {set tab {.drw}}
+    return $tab
+  } elseif {$what eq {CLEAR}} {
+    set tctx::tab_queue {.drw}
+    return {}
+  } elseif {$what eq {REMOVE}} {
+    set found 0
+    if {$win_path ne {.drw}} { ;# do not allow to remove main tab
+      # remove matching existing entries
+      while {[set pos [lsearch -exact $tctx::tab_queue $win_path]] >= 0} {
+        set found 1
+        set tctx::tab_queue [lreplace $tctx::tab_queue $pos $pos]
+      }
+    }
+    return $found
+  } elseif {$what eq {LIST}} {
+    return $tctx::tab_queue
+  }
+}
+
 proc store_geom {win filename} {
   global tabbed_interface USER_CONF_DIR
 
@@ -9600,6 +9646,7 @@ namespace eval tctx {
   variable source_swap_tab
   variable dest_swap_tab
   variable colors
+  variable tab_queue  {.drw} ;# list of last accessed tabs
 }
 
 ## list of dialogs: when open do not perform context switching

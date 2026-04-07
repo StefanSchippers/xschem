@@ -44,7 +44,6 @@ static char window_path[MAX_NEW_WINDOWS][WINDOW_PATH_SIZE];
 static int window_count = 0;
 static int last_created_window = -1;
 static Xschem_ctx *old_xctx;
-static char previous_win_path[200] = "";
 
 /* ----------------------------------------------------------------------- */
 /* EWMH message handling routines 20071027... borrowed from wmctrl code */
@@ -1578,7 +1577,8 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
 {
   int n;
   int save_menu_removed, save_fullscreen, save_toolbar_visible;
-  const char *new_path = win_path;
+  char new_path[200];
+  my_strncpy(new_path, win_path, sizeof(new_path));
   dbg(1, "switch_tab(): win_path=%s\n", win_path);
   if(xctx->semaphore) return 1; /* some editing operation ongoing. do nothing */
   if(!win_path) {
@@ -1587,10 +1587,7 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
   }
 
   if(win_path && !strcmp(win_path, "previous")) {
-    if(previous_win_path[0]) {
-      new_path = previous_win_path;
-    }
-    else return 1;
+    my_strncpy(new_path, tcleval("tab_queue PREVIOUS"), sizeof(new_path));
   }
 
   if(!strcmp(new_path, xctx->current_win_path)) return 0; /* already there */
@@ -1603,10 +1600,6 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
     dbg(1, "new_schematic() switch_tab: %s\n", new_path);
     /* if no matching tab found --> do nothing */
     if(n >= 0 && n < MAX_NEW_WINDOWS) {
-      if(xctx->current_win_path) {
-        my_strncpy(previous_win_path, xctx->current_win_path, sizeof(previous_win_path));
-      }
-      dbg(1, "switch_tab(): previous_win_path=%s\n", previous_win_path);
       tclvareval("save_ctx ", xctx->current_win_path, NULL);
       /* xctx->menu_removed should be unique for all tabs in tabbed interface */
       /* same for tcl vars fullscreen and toolbar_visible */
@@ -1627,6 +1620,7 @@ static int switch_tab(int *window_count, const char *win_path, int dr)
       if(dr) resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
       if(dr) draw();
+      tcleval("tab_queue STORE");
       return 0;
     } else return 1;
   }
@@ -1822,9 +1816,6 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
 
   my_snprintf(win_path, S(win_path), ".x%d.drw", i);
   my_strncpy(window_path[i], win_path, S(window_path[i]));
-  if(xctx->current_win_path) {
-    my_strncpy(previous_win_path, xctx->current_win_path, sizeof(previous_win_path));
-  }
   old_xctx = xctx;
   xctx = NULL;
   alloc_xschem_data("", win_path); /* alloc data into xctx */
@@ -1849,6 +1840,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
   xctx->yorigin=CADINITIALY;
   load_schematic(1,fname, 1, confirm);
   if(dr) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97); /* draw */
+  tcleval("tab_queue STORE");
   /* xctx->pending_fullzoom=1; */
 }
 
@@ -1947,6 +1939,7 @@ static void destroy_tab(int *window_count, const char *win_path)
     else close = 1;
     Tcl_ResetResult(interp);
     if(close) {
+      char new_path[200];
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
         if(!strcmp(win_path, window_path[i])) {
@@ -1958,6 +1951,9 @@ static void destroy_tab(int *window_count, const char *win_path)
         dbg(0, "new_schematic(\"destroy_tab\"...): no tab to destroy found: %s\n", win_path);
         return;
       }
+
+      my_strncpy(new_path, tcleval("tab_queue PREVIOUS"), S(new_path));
+      tcleval("tab_queue REMOVE"); /* clear current tab from queue */
       if(n >= 1 && n < MAX_NEW_WINDOWS) {
         tclvareval("delete_ctx ", win_path, NULL);
         tclvareval("delete_tab ", win_path, NULL);
@@ -1970,30 +1966,11 @@ static void destroy_tab(int *window_count, const char *win_path)
         if(*window_count == 0) tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
       }
 
-
-      prev = 0;
-      if(previous_win_path[0]) {
-        prev = get_tab_or_window_number(previous_win_path);
-        dbg(0, "%s, prev=%d\n", previous_win_path, prev);
-        if(prev == -1) prev = 0;
-      }
+      
+      prev = get_tab_or_window_number(new_path);
+      if(prev == -1) prev = 0;
       xctx = save_xctx[prev]; /* restore previous or main (.drw) schematic */
 
-      /* set previous tab so context will switch to that tab after destroying next one */
-      if(prev > 0) {
-        int last_tab = -1;
-        int prev_last_tab = -1;
-        for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
-          if(save_xctx[i] != NULL) {
-            prev_last_tab = last_tab;
-            last_tab = i;
-          }
-        }
-        dbg(0, "last_tab=%d\n", prev_last_tab);
-        if(prev_last_tab >=0) {
-          my_strncpy(previous_win_path, save_xctx[prev_last_tab]->current_win_path, sizeof(previous_win_path));
-        }
-      }
 
       /* seems unnecessary; previous tab save_pixmap was not deleted */
       /* resetwin(1, 0, 0, 0, 0); */ /* create pixmap.  resetwin(create_pixmap, clear_pixmap, force, w, h) */
@@ -2002,6 +1979,7 @@ static void destroy_tab(int *window_count, const char *win_path)
          tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
       resetwin(1, 1, 1, 0, 0);
       set_modify(-1); /* sets window title */
+      tcleval("tab_queue STORE");
       draw();
     }
   } else {

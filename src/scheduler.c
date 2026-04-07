@@ -6187,7 +6187,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_AppendResult(interp, get_window_path(i), " {", ctx->sch[ctx->currsch], "}\n", NULL);
         }
       }
-      dbg(1, "check_loaded: return %d\n", found);
+      dbg(1, "tab_list: return %d\n", found);
       return found;
     }
 
