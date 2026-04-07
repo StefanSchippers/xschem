@@ -939,7 +939,7 @@ static void xwin_exit(void)
    return;
  }
 
- if(has_x) tcleval("store_geom . [xschem get schname]");
+ if(has_x) tcleval("store_geom . [xschem get current_name]");
 
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
@@ -1337,7 +1337,7 @@ int preview_window(const char *what, const char *win_path, const char *fname)
   return result;
 }
 
-
+/* win_path: window path (.drw, .x2.drw, ...) or filename (poweramp.sch) */
 int get_tab_or_window_number(const char *win_path)
 {
   int i, n = -1;
@@ -1731,7 +1731,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   if(dr) xctx->pending_fullzoom=1;
   tclvareval("set_bindings ", window_path[n], NULL);
   if(has_x) {
-    tclvareval("set_geom ", toppath, " [xschem get schname]", NULL);
+    tclvareval("set_geom ", toppath, " [xschem get current_name]", NULL);
   }
   tclvareval("set_replace_key_binding ", window_path[n], NULL);
   tclvareval("save_ctx ", window_path[n], NULL);
@@ -2045,7 +2045,7 @@ static void destroy_all_windows(int *window_count, int force)
               tclvareval("winfo toplevel ", window_path[i], NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
               dbg(1, "toplevel=%s\n", toplevel);
-              tclvareval("store_geom ", toplevel, " [xschem get schname]", NULL);
+              tclvareval("store_geom ", toplevel, " [xschem get current_name]", NULL);
             }
             /* set saved ctx to main window if previous is about to be destroyed */
             if(savectx == save_xctx[i]) {
@@ -3203,7 +3203,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  xctx->pending_fullzoom=1;
- if(has_x) tclvareval("set_geom . [xschem get schname]", NULL);
+ if(has_x) tclvareval("set_geom . [xschem get current_name]", NULL);
 
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {

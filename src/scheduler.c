@@ -1136,7 +1136,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-              if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+              if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
               swap_windows(0);
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
               new_schematic("destroy", xctx->current_win_path, NULL, 0);
@@ -1155,7 +1155,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                  tcleval(s);
                }
                else {
-                 if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+                 if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
                  clear_schematic(0, 0);
                }
             }
@@ -1172,7 +1172,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-              if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+              if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
               swap_tabs();
               set_modify(0);
               new_schematic("destroy", xctx->current_win_path, NULL, 1);
@@ -1190,7 +1190,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                  tcleval(s);
                }
                else {
-                 if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+                 if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
                  clear_schematic(0, 0);
                }
             }
@@ -1198,7 +1198,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       } else {
         if(force) set_modify(0); /* avoid ask to save downstream */
-        if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+        if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
         new_schematic("destroy", xctx->current_win_path, NULL, 1);
       }
       Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
@@ -3135,7 +3135,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
-          if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get schname]");
+          if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
           dbg(1, "scheduler(): load: filename=%s\n", f);
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
           if(!force && f[0] && check_loaded(f, win_path) &&

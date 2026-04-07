@@ -9422,6 +9422,7 @@ proc store_geom {win filename} {
         } else {
           continue
         }
+        set f [rel_sym_path $f]
         set geom_array($f) [list $g $d]
       }
       close $fd
@@ -9482,6 +9483,7 @@ proc set_geom {win {filename {}}} {
         } else {
           continue
         }
+        set f [rel_sym_path $f]
         set geom_array($f) [list $g $d]
       }
       close $fd
@@ -9517,9 +9519,10 @@ proc get_lastclosed {} {
     set fd [open $geom_file]
     while {[gets $fd line] >= 0} {
       set ret [lindex $line 0]
-      if {$ret eq [abs_sym_path untitled.sch] || $ret eq [abs_sym_path untitled.sym]} {
+      if {$ret eq {untitled.sch} || $ret eq {untitled.sym}} {
         continue
       }
+      set ret [abs_sym_path $ret]
       if {[xschem check_loaded $ret] ne {}} {
         continue
       }
