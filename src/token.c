@@ -4567,6 +4567,12 @@ const char *translate(int inst, const char* s)
        STR_ALLOC(&result, tmp + result_pos, &size);
        memcpy(result+result_pos,tmp_sym_name, tmp+1);
        result_pos+=tmp;
+      } else if(inst >= 0 && strcmp(token,"@lvs_ignore")==0) {
+       char *lvs = tclgetboolvar("lvs_ignore") ? "1" : "0";
+       tmp = strlen(lvs);
+       STR_ALLOC(&result, tmp + result_pos, &size);
+       memcpy(result+result_pos, lvs, tmp+1);
+       result_pos+=tmp;
       } else if(inst >= 0 && strcmp(token,"@symname")==0) {
        tmp_sym_name = get_sym_name(inst, 0, 0, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";

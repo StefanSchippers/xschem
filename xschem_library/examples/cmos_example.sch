@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 1690 -960 2250 -630 {flags=graph,unlocked
 
@@ -183,7 +184,7 @@ autoload=1}
 T {CMOS DIFFERENTIAL AMPLIFIER
 EXAMPLE. DC simulation} 30 -680 0 0 0.4 0.4 {}
 T {tcleval([xschem raw info])} 20 -960 0 0 0.4 0.4 {floater=true layer=16}
-T {AC Analysis} 1060 -1010 0 0 0.6 0.6 { layer=6}
+T {AC Analysis} 1060 -1000 0 0 0.6 0.6 { layer=6}
 T {Transient Analysis} 1060 -510 0 0 0.6 0.6 { layer=6}
 T {DC Analysis} 1690 -1000 0 0 0.6 0.6 { layer=6}
 T {Loaded Raw files:} 20 -1010 0 0 0.6 0.6 {}

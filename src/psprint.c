@@ -1651,7 +1651,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   /* restore original size and zoom factor */
   if(fullzoom == 1) {
     save_restore_zoom(0, &zi);
-    resetwin(1, 1, 1, 0, 0);
+    resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
     change_linewidth(xctx->lw);
     zoom_full(1, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   }

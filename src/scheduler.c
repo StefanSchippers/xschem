@@ -4009,7 +4009,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           resetwin(1, 1, 1, w, h);
           ps_draw(7, fullzoom, eps);
           save_restore_zoom(0, &zi);
-          resetwin(1, 1, 1, 0, 0);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
           change_linewidth(save_lw);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
@@ -4039,7 +4039,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           resetwin(1, 1, 1, w, h);
           ps_draw(7, fullzoom, eps);
           save_restore_zoom(0, &zi);
-          resetwin(1, 1, 1, 0, 0);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
           change_linewidth(save_lw);
         } else {
           fullzoom = 0;
@@ -4077,7 +4077,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0, &zi);
-          resetwin(1, 1, 1, 0, 0);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
           change_linewidth(save_lw);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
@@ -4107,7 +4107,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           resetwin(1, 1, 1, w, h);
           print_image();
           save_restore_zoom(0, &zi);
-          resetwin(1, 1, 1, 0, 0);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
           change_linewidth(save_lw);
         } else {
           print_image();
@@ -4137,8 +4137,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             unselect_all(0);
           }
           else zoom_full(0, 0, 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          resetwin(1, 1, 1, w, h);
           svg_draw();
           save_restore_zoom(0, &zi);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
+          change_linewidth(save_lw);
         } else if(argc == 10 || xctx->lastsel) {
           if(xctx->lastsel) {
             xRect boundbox;
@@ -4164,13 +4167,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
+          resetwin(1, 1, 1, w, h);
           svg_draw();
           save_restore_zoom(0, &zi);
+          resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
+          change_linewidth(save_lw);
         } else {
           svg_draw();
         }
-        resetwin(1, 1, 1, 0, 0);
-        change_linewidth(save_lw);
       }
       draw();
       Tcl_ResetResult(interp);

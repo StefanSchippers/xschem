@@ -84,6 +84,8 @@ symrec  *tptr; /* For returning symbol-table pointers */
 %token <val>  NUM /* Simple double precision number */
 %token <tptr> FNCT /* Variable and Function */
 %type  <val>  exp
+%right ':'
+%right '?'
 %right '='
 %left '-' '+'
 %left '*' '/' '%'
@@ -113,6 +115,7 @@ exp:      NUM                     {$$ = $1;}
         | exp '/' exp             {$$ = $1 / $3;}
         | '-' exp %prec NEG       {$$ = -$2;}
         | exp '^' exp             {$$ = pow ($1, $3);}
+        | exp '?' exp ':' exp     {$$ = $1 ? $3 : $5;}
         | '(' exp ')'             {$$ = $2;}
 ;
 /* End of grammar */
