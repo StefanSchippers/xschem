@@ -303,6 +303,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   rhi = (int)(rh * scale + 1.0);
   dbg(1, "graph size, saving zoom : %dx%d\n", rwi, rhi);
   save_restore_zoom(1, &zi);
+  xctx->lw *= scale;
   set_viewport_size(rwi, rhi, xctx->lw);
 
   /* zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0); */

@@ -5224,6 +5224,7 @@ void svg_embedded_graph(FILE *fd, int i, double rx1, double ry1, double rx2, dou
   rwi = (int) (rw * scale + 1.0);
   rhi = (int) (rh * scale + 1.0);
   save_restore_zoom(1, &zi);
+  xctx->lw *= scale;
   set_viewport_size(rwi, rhi, xctx->lw);
 
   /* zoom_box(rx1 - xctx->lw, ry1 - xctx->lw, rx2 + xctx->lw, ry2 + xctx->lw, 1.0); */
