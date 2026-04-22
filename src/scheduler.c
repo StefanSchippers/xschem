@@ -2991,8 +2991,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   set line width to floating point number 'n' */
     else if(!strcmp(argv[1], "line_width"))
     {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        change_linewidth(atof(argv[2]));
+        double w;
+        w = atof(argv[2]);
+        change_linewidth(w);
+        tclsetdoublevar("line_width", w);
         Tcl_ResetResult(interp);
       }
     }
@@ -5475,6 +5479,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "change_lw")) { /* allow change line width when zooming */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->change_lw = atoi(argv[3]);
+            dbg(1, "xschem change_lw: change_lw = %d\n", xctx->change_lw);
             tclsetboolvar("change_lw", xctx->change_lw);
           }
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
@@ -5555,11 +5560,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             my_strdup(_ALLOC_ID_, &xctx->infowindow_text, argv[3]);
           }
-          else if(!strcmp(argv[2], "intuitive_interface")) { /* ERC messages */
+          else if(!strcmp(argv[2], "intuitive_interface")) { /* set intuitive interface */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->intuitive_interface = atoi(argv[3]);
           }
-
+          else if(!strcmp(argv[2], "line_width")) /* set line width */
+          {
+            double w;
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            w = atof(argv[3]);
+            change_linewidth(w);
+            tclsetdoublevar("line_width", w);
+            Tcl_ResetResult(interp);
+          }
         } else { /* argv[2][0] >= 'n' */
           if(!strcmp(argv[2], "netlist_name")) { /* set custom netlist name */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
