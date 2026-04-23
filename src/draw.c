@@ -3337,7 +3337,10 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->x1 =  gr->rx1 + gr->marginx;
   gr->x2 =  gr->rx2 - gr->marginx * 0.35; /* less space for right margin */
   if(gr->digital) gr->y1 = gr->ry1 + gr->marginy * 0.4; /* less top space for digital graphs */
-  else gr->y1 =  gr->ry1 + gr->marginy;
+  else {
+    if(gr->vlegend) gr->y1 =  gr->ry1 + gr->marginy / 3.0;
+    else            gr->y1 =  gr->ry1 + gr->marginy;
+  }
   gr->y2 =  gr->ry2 - gr->marginy;
   gr->w = gr->x2 - gr->x1;
   gr->h = gr->y2 - gr->y1;
@@ -3710,7 +3713,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       char str[1024];
       double xt = gr->rx1 + 5;
       double yt = gr->y1 + (double)wcnt / (double)n_nodes * (gr->h) ;
-      if(!bus_msb) my_snprintf(str, S(str), "%s (%s)", alias_ptr, tmpstr);
+      if(!bus_msb) my_snprintf(str, S(str), "%s\n(%s)", alias_ptr, tmpstr);
       else my_snprintf(str, S(str), "%s", alias_ptr);
       #if HAS_CAIRO == 1
       if(gr->hilight_wave == wcnt) {
