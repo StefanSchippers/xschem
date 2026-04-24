@@ -3358,7 +3358,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
     gr->digtxtsizelab = 0.000900 * fabs( gr->h / gr->posh * gr->gh );
   else
     gr->digtxtsizelab = 0.001200 * fabs( gr->h / gr->posh * gr->gh );
-  gr->txtsizelab *= gr->magx;
+  gr->txtsizelab *= gr->maglegend;
 
   /* x axis, y axis text sizes */
   gr->txtsizey = gr->h / gr->divy * 0.0095;
@@ -3374,7 +3374,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
   gr->txtsizex *= gr->magx;
 
-  /* signal names (legend) size. */
+  /* signal names (vertical legend) size. */
   gr->txtsizelegend = gr->h * 0.00095;
   gr->txtsizelegend *= gr->maglegend;
   dbg(1, "setup_graph_data(): txtsizelegend=%g, maglegend=%g\n", gr->txtsizelegend, gr->maglegend);

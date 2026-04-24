@@ -3796,7 +3796,7 @@ proc graph_edit_properties {n} {
     xschem draw_graph $graph_selected
   }
 
-  label .graphdialog.top5.xlabmag -text { X/Y lab mag:}
+  label .graphdialog.top5.xlabmag -text { X lab mag:}
   entry .graphdialog.top5.xmag -width 4
   entry_replace_selection .graphdialog.top5.xmag
   bind .graphdialog.top5.xmag <KeyRelease> {
@@ -3805,7 +3805,7 @@ proc graph_edit_properties {n} {
     xschem draw_graph $graph_selected
   } 
 
-  label .graphdialog.top5.ylabmag -text { }
+  label .graphdialog.top5.ylabmag -text { Y lab mag:}
   entry .graphdialog.top5.ymag -width 4
   entry_replace_selection .graphdialog.top5.ymag
   bind .graphdialog.top5.ymag <KeyRelease> {
