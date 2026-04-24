@@ -892,12 +892,12 @@ typedef struct {
   double dscy, dsdy;
   int divx, divy;
   int subdivx, subdivy;
-  double magx, magy;
+  double magx, magy, maglegend;
   double unitx, unity;
   int unitx_suffix; /* 'n' or 'u' or 'M' or 'k' ... */
   int unity_suffix;
   int mode; /* default:0   0:Line, 1:HistoV, 2:HistoH */
-  double txtsizelab, digtxtsizelab, txtsizey, txtsizex;
+  double txtsizelab, digtxtsizelab, txtsizey, txtsizex, txtsizelegend;
   int dataset;
   int hilight_wave; /* wave index */
   int logx, logy;

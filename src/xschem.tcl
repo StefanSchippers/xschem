@@ -3479,6 +3479,7 @@ proc graph_edit_properties {n} {
   frame .graphdialog.top2
   frame .graphdialog.top3
   frame .graphdialog.top4
+  frame .graphdialog.top5
   panedwindow .graphdialog.center -orient horiz
   frame .graphdialog.bottom
   frame .graphdialog.center.left
@@ -3488,6 +3489,7 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top2 -side top -fill x
   pack .graphdialog.top3 -side top -fill x
   pack .graphdialog.top4 -side top -fill x
+  pack .graphdialog.top5 -side top -fill x
   pack .graphdialog.center -side top -fill both -expand yes
   pack .graphdialog.bottom -side top -fill x
   # center-left frame
@@ -3655,7 +3657,7 @@ proc graph_edit_properties {n} {
     pack .graphdialog.top4.r$i -side left
   }
 
-  checkbutton .graphdialog.top.legend -text {Legend} -variable graph_legend -indicatoron 1 \
+  checkbutton .graphdialog.top5.legend -text {Legend} -variable graph_legend -indicatoron 1 \
     -command {
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
@@ -3665,7 +3667,7 @@ proc graph_edit_properties {n} {
      }
 
   # top2 frame
-  checkbutton .graphdialog.top2.vlegend -text {V. legend} -variable graph_vlegend -indicatoron 1 \
+  checkbutton .graphdialog.top5.vlegend -text {V. legend} -variable graph_vlegend -indicatoron 1 \
     -command { 
        if { [xschem get schname] eq $graph_schname } {
          graph_push_undo
@@ -3785,8 +3787,40 @@ proc graph_edit_properties {n} {
   if {$graph_mode eq {}} { set graph_mode Line}
   .graphdialog.top2.mode set $graph_mode
 
-  pack .graphdialog.top2.vlegend .graphdialog.top2.labunitx .graphdialog.top2.unitx \
+  label .graphdialog.top5.legendlabmag -text { Legend mag:}
+  entry .graphdialog.top5.legendmag -width 4
+  entry_replace_selection .graphdialog.top5.legendmag
+  bind .graphdialog.top5.legendmag <KeyRelease> {
+    graph_push_undo
+    xschem setprop rect 2 $graph_selected legendmag [.graphdialog.top5.legendmag get]
+    xschem draw_graph $graph_selected
+  }
+
+  label .graphdialog.top5.xlabmag -text { X/Y lab mag:}
+  entry .graphdialog.top5.xmag -width 4
+  entry_replace_selection .graphdialog.top5.xmag
+  bind .graphdialog.top5.xmag <KeyRelease> {
+    graph_push_undo
+    xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top5.xmag get]
+    xschem draw_graph $graph_selected
+  } 
+
+  label .graphdialog.top5.ylabmag -text { }
+  entry .graphdialog.top5.ymag -width 4
+  entry_replace_selection .graphdialog.top5.ymag
+  bind .graphdialog.top5.ymag <KeyRelease> {
+    graph_push_undo
+    xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top5.ymag get]
+    xschem draw_graph $graph_selected
+  }
+
+  pack .graphdialog.top2.labunitx .graphdialog.top2.unitx \
        .graphdialog.top2.labunity .graphdialog.top2.unity -side left
+
+  pack .graphdialog.top5.legend \
+       .graphdialog.top5.vlegend .graphdialog.top5.legendlabmag .graphdialog.top5.legendmag \
+       .graphdialog.top5.xlabmag .graphdialog.top5.xmag .graphdialog.top5.ylabmag .graphdialog.top5.ymag \
+       -side left
 
   pack .graphdialog.top2.labdivx .graphdialog.top2.divx \
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
@@ -3881,26 +3915,7 @@ proc graph_edit_properties {n} {
     xschem draw_graph $graph_selected
   }
 
-  label .graphdialog.top3.xlabmag -text { X/Y lab mag:}
-  entry .graphdialog.top3.xmag -width 4
-  entry_replace_selection .graphdialog.top3.xmag
-  bind .graphdialog.top3.xmag <KeyRelease> {
-    graph_push_undo
-    xschem setprop rect 2 $graph_selected xlabmag [.graphdialog.top3.xmag get]
-    xschem draw_graph $graph_selected
-  }
 
-  label .graphdialog.top3.ylabmag -text { }
-  entry .graphdialog.top3.ymag -width 4
-  entry_replace_selection .graphdialog.top3.ymag
-  bind .graphdialog.top3.ymag <KeyRelease> {
-    graph_push_undo
-    xschem setprop rect 2 $graph_selected ylabmag [.graphdialog.top3.ymag get]
-    xschem draw_graph $graph_selected
-  }
-
-
-  pack .graphdialog.top.legend -side left
   pack .graphdialog.top.incr -side left
   pack .graphdialog.top.bus -side left
   pack .graphdialog.top.priv_curs -side left
@@ -3915,8 +3930,9 @@ proc graph_edit_properties {n} {
   .graphdialog.top3.ymax insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
   .graphdialog.top3.xmax insert 0 [xschem getprop rect 2 $graph_selected x2]
-  .graphdialog.top3.xmag insert 0 [xschem getprop rect 2 $graph_selected xlabmag]
-  .graphdialog.top3.ymag insert 0 [xschem getprop rect 2 $graph_selected ylabmag]
+  .graphdialog.top5.xmag insert 0 [xschem getprop rect 2 $graph_selected xlabmag]
+  .graphdialog.top5.ymag insert 0 [xschem getprop rect 2 $graph_selected ylabmag]
+  .graphdialog.top5.legendmag insert 0 [xschem getprop rect 2 $graph_selected legendmag]
 
   # top3 frame
   set graph_rainbow [xschem getprop rect 2 $graph_selected rainbow]
@@ -3973,8 +3989,10 @@ proc graph_edit_properties {n} {
   pack .graphdialog.top3.logx .graphdialog.top3.logy \
    .graphdialog.top3.xlabmin .graphdialog.top3.xmin .graphdialog.top3.xlabmax .graphdialog.top3.xmax \
    .graphdialog.top3.ylabmin .graphdialog.top3.ymin .graphdialog.top3.ylabmax .graphdialog.top3.ymax \
-   .graphdialog.top3.xlabmag .graphdialog.top3.xmag .graphdialog.top3.ylabmag .graphdialog.top3.ymag \
    -fill x -expand yes -side left
+
+  pack .graphdialog.top5.xlabmag .graphdialog.top5.xmag .graphdialog.top5.ylabmag .graphdialog.top5.ymag \
+    -side left
   # binding
   bind .graphdialog.center.left.search <KeyRelease> {
     graph_fill_listbox

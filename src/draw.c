@@ -3197,7 +3197,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
 
   dbg(1, "setup_graph_data: i=%d\n", i);
   /* default values */
-  gr->magx = gr->magy = 1.0;
+  gr->magx = gr->magy = gr->maglegend = 1.0;
   gr->divx = gr->divy = 5;
   gr->subdivx = gr->subdivy = 0;
   gr->logx = gr->logy = 0;
@@ -3235,6 +3235,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->txtsizelab = 0.3;
   gr->txtsizex = 0.3;
   gr->txtsizey = 0.3;
+  gr->txtsizelegend = 0.3;
 
   /* container (embedding rectangle) coordinates */
   gr->rx1 = r->x1;
@@ -3289,6 +3290,8 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(val[0]) gr->magx = atof(val);
   val = get_tok_value(r->prop_ptr,"ylabmag", 0);
   if(val[0]) gr->magy = atof(val);
+  val = get_tok_value(r->prop_ptr,"legendmag", 0);
+  if(val[0]) gr->maglegend = atof(val);
   val = get_tok_value(r->prop_ptr,"subdivx", 0);
   if(val[0]) gr->subdivx = atoi(val);
   val = get_tok_value(r->prop_ptr,"subdivy", 0);
@@ -3370,6 +3373,11 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   tmp = gr->marginy * 0.0065;
   if(tmp < gr->txtsizex) gr->txtsizex = tmp;
   gr->txtsizex *= gr->magx;
+
+  /* signal names (legend) size. */
+  gr->txtsizelegend = gr->h * 0.00095;
+  gr->txtsizelegend *= gr->maglegend;
+  dbg(1, "setup_graph_data(): txtsizelegend=%g, maglegend=%g\n", gr->txtsizelegend, gr->maglegend);
 
   /* cache coefficients for faster graph --> xschem coord transformations */
   gr->cx = gr->w / gr->gw;
@@ -3578,8 +3586,9 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         #endif
         dbg(1, "%g %g %s\n", xt, yt, tmpstr);
         my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
+        dbg(1, "txtsizelegend=%g\n", gr->txtsizelegend);
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
-          xt, yt, gr->txtsizey * gr->magy * 0.4, gr->txtsizey * gr->magy * 0.4);
+          xt, yt, gr->txtsizelegend, gr->txtsizelegend);
         #if HAS_CAIRO == 1
         if(gr->hilight_wave == wcnt) {
           xctx->cairo_font =
