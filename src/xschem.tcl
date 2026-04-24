@@ -3930,9 +3930,18 @@ proc graph_edit_properties {n} {
   .graphdialog.top3.ymax insert 0 [xschem getprop rect 2 $graph_selected y2]
   .graphdialog.top3.xmin insert 0 [xschem getprop rect 2 $graph_selected x1]
   .graphdialog.top3.xmax insert 0 [xschem getprop rect 2 $graph_selected x2]
-  .graphdialog.top5.xmag insert 0 [xschem getprop rect 2 $graph_selected xlabmag]
-  .graphdialog.top5.ymag insert 0 [xschem getprop rect 2 $graph_selected ylabmag]
-  .graphdialog.top5.legendmag insert 0 [xschem getprop rect 2 $graph_selected legendmag]
+
+  set tmp [xschem getprop rect 2 $graph_selected xlabmag]
+  if {$tmp eq {}} { set tmp 1.0}
+  .graphdialog.top5.xmag insert 0 $tmp
+
+  set tmp [xschem getprop rect 2 $graph_selected ylabmag]`
+  if {$tmp eq {}} { set tmp 1.0}
+  .graphdialog.top5.ymag insert 0 $tmp
+
+  set tmp [xschem getprop rect 2 $graph_selected legendmag]
+  if {$tmp eq {}} { set tmp 1.0}
+  .graphdialog.top5.legendmag insert 0 $tmp
 
   # top3 frame
   set graph_rainbow [xschem getprop rect 2 $graph_selected rainbow]
