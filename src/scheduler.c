@@ -5720,7 +5720,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       Tcl_ResetResult(interp);
     }
-    /* setprop [-fast|-fastundo] instance|symbol|text|rect ref tok [val]
+    /* setprop [-fast|-fastundo] instance|symbol|text|rect|wire ref tok [val]
      *
      * setprop [-fast] instance inst [tok] [val]
      *   set attribute 'tok' of instance (name or number) 'inst' to value 'val'
@@ -5740,10 +5740,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If 'val' not given (no attribute value) delete attribute from rect
      *   If '-fast' argument is given does not redraw and is not undoable
      *   If '-fastundo' s given same as above but action is undoable.
-     *
+     *    
      * setprop rect 2 n fullxzoom
      * setprop rect 2 n fullyzoom
      *   These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
+     *
+     * setprop wire [-fast|-fastundo] n tok [val]
+     *   Set attribute 'tok' of wire number'n'
+     *   If 'val' not given (no attribute value) delete attribute from wire
+     *   If '-fast' argument is given does not redraw and is not undoable
+     *   If '-fastundo' s given same as above but action is undoable.
      *
      * setprop [-fast|-fastundo] text n [tok] [val]
      *   Set attribute 'tok' of text number 'n'
@@ -5930,7 +5936,57 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(END,0.0,0.0,0.0,0.0);
         }
         Tcl_ResetResult(interp);
+      } else if(argc > 5 && !strcmp(argv[2], "wire")) {
+      /*  0       1      2   3   4     5
+       * xschem setprop wire n token [value] */
+        double bus, oldbus, width, ov, y1, y2;
+        int change_done = 0;
+        xWire *w;
+        int n = atoi(argv[3]);
+        if(!(n >=0 && n < xctx->wires) ) {
+          Tcl_SetResult(interp, "xschem setprop wire: wrong wire number", TCL_STATIC);
+          return TCL_ERROR;
+        }
+        w = &xctx->wire[n];
+        oldbus = w->bus;
+        if(!fast) {
+          bbox(START,0.0,0.0,0.0,0.0);
+        }
+        if(argc > 5) {
+          /* verify if there is some difference */
+          if(strcmp(argv[5], get_tok_value(w->prop_ptr, argv[4], 0))) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(_ALLOC_ID_, &w->prop_ptr, subst_token(w->prop_ptr, argv[4], argv[5]));
+          }
+        } else {
+          get_tok_value(w->prop_ptr, argv[4], 0);
+          if(xctx->tok_size) {
+            change_done = 1;
+            if(fast == 3 || fast == 0) xctx->push_undo();
+            my_strdup2(_ALLOC_ID_, &w->prop_ptr, subst_token(w->prop_ptr, argv[4], NULL)); /* delete attr */
+          }
+        }
+        if(change_done) set_modify(1);
+        w->bus = bus = get_attr_val(get_tok_value(w->prop_ptr,"bus", 0));
+        set_wire_flags(w); /* set cached .flags bitmask from attributes */
 
+
+        if(!fast) {
+          if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
+          else width = INT_BUS_WIDTH(xctx->lw) / 2.0;
+          if(oldbus / 2.0 > width) width = XLINEWIDTH(oldbus) / 2.0;
+    
+          ov = width > xctx->cadhalfdotsize ? width : xctx->cadhalfdotsize;
+          if(w->y1 < w->y2) { y1 = w->y1 - ov; y2 = w->y2 + ov; }
+          else { y1 = w->y1 + ov; y2 = w->y2 - ov; }
+          bbox(ADD, w->x1 - ov, y1 , w->x2 + ov , y2 );
+          /* redraw rect with new props */
+          bbox(SET,0.0,0.0,0.0,0.0);
+          draw();
+          bbox(END,0.0,0.0,0.0,0.0);
+        }
+        Tcl_ResetResult(interp);
       } else if(argc > 3 && !strcmp(argv[2], "text")) {
       /*  0       1      2   3   4      5      6
        * xschem setprop text n [token] value [fast|fastundo]

@@ -1554,7 +1554,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    3 : set modified flag, do nothing else.
   -1 : set title, rst floater caches.
   -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).</pre>
-   <li><kbd>       setprop [-fast|-fastundo] instance|symbol|text|rect ref tok [val]</kbd></li><pre>
+   <li><kbd>       setprop [-fast|-fastundo] instance|symbol|text|rect|wire ref tok [val]</kbd></li><pre>
       
        setprop [-fast] instance inst [tok] [val]
    set attribute 'tok' of instance (name or number) 'inst' to value 'val'
@@ -1574,10 +1574,16 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If 'val' not given (no attribute value) delete attribute from rect
    If '-fast' argument is given does not redraw and is not undoable
    If '-fastundo' s given same as above but action is undoable.
-      
+    
        setprop rect 2 n fullxzoom
        setprop rect 2 n fullyzoom
    These commands do full x/y zoom of graph 'n' (on layer 2, this is hardcoded).
+      
+       setprop wire [-fast|-fastundo] n tok [val]
+   Set attribute 'tok' of wire number'n'
+   If 'val' not given (no attribute value) delete attribute from wire
+   If '-fast' argument is given does not redraw and is not undoable
+   If '-fastundo' s given same as above but action is undoable.
       
        setprop [-fast|-fastundo] text n [tok] [val]
    Set attribute 'tok' of text number 'n'
