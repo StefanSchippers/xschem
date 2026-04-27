@@ -5836,10 +5836,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(old_name) my_free(_ALLOC_ID_, &old_name);
           set_inst_flags(&xctx->inst[inst]);
           hash_names(inst, XINSERT);
+          set_modify(1); /* set modified state */
           if(!fast) {
             /* new symbol bbox after prop changes (may change due to text length) */
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            set_modify(-2); /* reset floaters caches */
             draw();
           }
           my_free(_ALLOC_ID_, &translated_sym);
