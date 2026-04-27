@@ -5936,7 +5936,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           bbox(END,0.0,0.0,0.0,0.0);
         }
         Tcl_ResetResult(interp);
-      } else if(argc > 5 && !strcmp(argv[2], "wire")) {
+      } else if(argc > 4 && !strcmp(argv[2], "wire")) {
       /*  0       1      2   3   4     5
        * xschem setprop wire n token [value] */
         double bus, oldbus, width, ov, y1, y2;
