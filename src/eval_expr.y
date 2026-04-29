@@ -78,6 +78,12 @@ double     val; /* For returning numbers. */
 symrec  *tptr; /* For returning symbol-table pointers */
 }
 
+%token LE
+%token GE
+%token GT
+%token LT
+%token EQ
+%token NE
 %token STREND 0
 %token <c> XCHAR
 %token EXPR       /* expr( */
@@ -87,6 +93,8 @@ symrec  *tptr; /* For returning symbol-table pointers */
 %right ':'
 %right '?'
 %right '='
+%left LT GT LE GE
+%left EQ NE
 %left '-' '+'
 %left '*' '/' '%'
 %left NEG /* Negation--unary minus */
@@ -108,7 +116,13 @@ line:
 exp:      NUM                     {$$ = $1;}
         | FNCT '(' exp ')'        {$$ = $1 ? ($1->fnctptr ? (*($1->fnctptr))($3) : 0.0) : 0.0;}
         | FNCT                    {$$ = $1 ? $1->value : 0.0;}
-        | exp '+' exp             {$$ = $1 + $3;		 }
+        | exp EQ exp              {$$ = ($1 == $3);}
+        | exp NE exp              {$$ = ($1 != $3);}
+        | exp LT exp              {$$ = ($1 < $3);}
+        | exp GT exp              {$$ = ($1 > $3);}
+        | exp LE exp              {$$ = ($1 <= $3);}
+        | exp GE exp              {$$ = ($1 >= $3);}
+        | exp '+' exp             {$$ = $1 + $3;}
         | exp '-' exp             {$$ = $1 - $3;}
         | exp '*' exp             {$$ = $1 * $3;}
         | exp '%' exp             {$$ = (int)$1 % (int)$3;}
@@ -319,6 +333,14 @@ static int kklex()
     return 0; /* error : undefined identifier */
   }
   /* Any other character is a token by itself.        */
+
+  if     (c == '=' && *str == '=') {str++; return EQ;}
+  else if(c == '!' && *str == '=') {str++; return NE;}
+  else if(c == '<' && *str == '=') {str++; return LE;}
+  else if(c == '>' && *str == '=') {str++; return GE;}
+  else if(c == '<') {return LT;}
+  else if(c == '>') {return GT;}
+
   return c;
 }
 
