@@ -1619,7 +1619,8 @@ void auto_set_wire_bus(int start, int end)
   if(xctx->netlist_count) return; /* do this only in top level */
   if(end > xctx->wires) return;
   if(start < 0) return;
-  if(!xctx->prep_hi_structs) return;
+  
+  prepare_netlist_structs(0); /* update all wires .node fields */
   cc = WIRELAYER; if(xctx->only_probes) cc = GRIDLAYER;
   regcomp(&re, "(.+\\[.+(:|\\.\\.)[^.]+\\])|(,)", REG_NOSUB | REG_EXTENDED);
 
