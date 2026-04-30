@@ -5447,6 +5447,10 @@ void draw(void)
           ++i;
           if(i >= xctx->wires) break;
         }
+
+
+        if(tclgetboolvar("auto_set_wire_bus")) auto_set_wire_bus(i, i + 1);
+
         if(xctx->wire[i].bus == -1.0) {
           if(skip_wire(i))
             drawline(GRIDLAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,

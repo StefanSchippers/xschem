@@ -1609,6 +1609,54 @@ void show_unconnected_pins(void)
   unselect_all(1);
 }
 
+void auto_set_wire_bus(int start, int end)
+{
+  int i, bus = 0;
+  double oldbus;
+  regex_t re;
+  int cc;
+
+  if(xctx->netlist_count) return; /* do this only in top level */
+  if(end > xctx->wires) return;
+  if(start < 0) return;
+  cc = WIRELAYER; if(xctx->only_probes) cc = GRIDLAYER;
+  regcomp(&re, "(.+\\[.+(:|\\.\\.)[^.]+\\])|(,)", REG_NOSUB | REG_EXTENDED);
+
+  for(i = start;i < end; ++i) {
+    bus = 0;
+    oldbus = xctx->wire[i].bus;
+    if(!regexec(&re, xctx->wire[i].node, 0 , NULL, 0) ) bus = 1;
+    if( (oldbus == 0.0 && bus == 1) || (oldbus == -1.0 && bus == 0) ) {
+      dbg(1, "auto_set_wire_bus(): i=%d, oldbus=%g bus=%d\n", i, oldbus, bus);
+      set_modify(1);
+      dbg(1, "auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr);
+      my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr,
+         subst_token(xctx->wire[i].prop_ptr, "bus", bus ? "1" : NULL));
+      xctx->wire[i].bus = bus ? -1.0 : 0.0;
+      dbg(1, "auto_set_wire_bus():  wire[%d].bus=%g, lab=%s\n", i, xctx->wire[i].bus, xctx->wire[i].node);
+      dbg(1, "auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr);
+      if(xctx->wire[i].bus == -1.0) {
+        if(skip_wire(i))
+          drawline(GRIDLAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 2, NULL);
+        else 
+          drawline(cc, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
+            xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
+      }
+      else if(skip_wire(i))
+       drawline(GRIDLAYER, NOW, xctx->wire[i].x1,xctx->wire[i].y1,
+          xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 2, NULL);
+      else  
+        drawline(cc, ADD, xctx->wire[i].x1,xctx->wire[i].y1,
+          xctx->wire[i].x2,xctx->wire[i].y2, xctx->wire[i].bus, 0, NULL);
+
+
+    }
+  }
+
+  regfree(&re);
+}
+
 int prepare_netlist_structs(int for_netl)
 {
   int err = 0;

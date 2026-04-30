@@ -249,6 +249,10 @@
 #### default: 0
 # set autotrim_wires 0
 
+#### if set automatically set bus attribute of wires from their names
+#### default: 0
+# set auto_set_wire_bus 1
+
 #### do not ask to save file when doing control-s or File -> Save
 #### default: disabled (0), will ask before saving.
 # set no_ask_save 1

@@ -6373,6 +6373,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         xctx->prep_hash_wires=0;
         hash_wires();
       }
+      else if(argc > 2 && atoi(argv[2]) == 7) {
+        auto_set_wire_bus(0, xctx->wires);
+      }
       else if(argc > 5 && atoi(argv[2]) == 2) {
         /* example: xschem test 2 .xctrl. LDCP_REF 8 */
         prepare_netlist_structs(0);

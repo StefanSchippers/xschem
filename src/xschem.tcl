@@ -9711,7 +9711,8 @@ proc no_open_dialogs {} {
 set tctx::global_list {
  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
  SKYWATER_STDCELLS XSCHEM_LIBRARY_PATH add_all_windows_drives auto_hilight
- auto_hilight_graph_nodes autofocus_mainwindow autotrim_wires bespice_listen_port big_grid_points
+ auto_hilight_graph_nodes autofocus_mainwindow auto_set_wire_bus autotrim_wires
+ bespice_listen_port big_grid_points
  bus_replacement_char cadence_compat cadgrid cadlayers cadsnap cairo_font_name cairo_font_scale
  change_lw color_ps compare_sch constr_mv copy_cell crosshair_layer crosshair_size cursor_2_hook
  custom_label_prefix custom_token dark_colors dark_colorscheme dark_gui_colorscheme
@@ -11410,6 +11411,7 @@ set_ne persistent_command 0
 set_ne intuitive_interface 1
 set_ne use_cursor_for_selection 0
 set_ne autotrim_wires 0
+set_ne auto_set_wire_bus 0
 set_ne cadence_compat 0
 set_ne infix_interface 1
 set_ne snap_cursor 0

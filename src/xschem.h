@@ -1774,6 +1774,7 @@ extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);
 extern void show_unconnected_pins(void);
+extern void auto_set_wire_bus(int start, int end);
 extern int prepare_netlist_structs(int for_netlist);
 extern int skip_wire(int i);
 extern int skip_instance(int i,  int skip_short, int lvs_ignore);
