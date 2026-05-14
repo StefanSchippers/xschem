@@ -33,18 +33,21 @@ static int brute_force(int logdepth, const char *test_c, const char *basedir)
 		return res;
 
 	for(n = 0; (n < fileno) && !res; n++) {
-		tmp = malloc(strlen(basedir) + strlen(files[n]) + 4);
-		sprintf(tmp, "%s/%s", basedir, files[n]);
+		size_t tmp_len = strlen(basedir) + strlen(files[n]) + 4;
+		tmp = malloc(tmp_len);
+		snprintf(tmp, tmp_len, "%s/%s", basedir, files[n]);
 		filelist(logdepth+1, tmp, &ifileno, &ifiles);
 		free(tmp);
 		for(m = 0; (m < ifileno) && !res; m++) {
-			tmp = malloc(strlen(basedir) + strlen(files[n]) + strlen(ifiles[m]) + 16);
-			sprintf(tmp, "%s/%s/%s/ruby.h", basedir, files[n], ifiles[m]);
+			size_t tmp2_len = strlen(basedir) + strlen(files[n]) + strlen(ifiles[m]) + 16;
+			tmp = malloc(tmp2_len);
+			snprintf(tmp, tmp2_len, "%s/%s/%s/ruby.h", basedir, files[n], ifiles[m]);
 
 			if (is_file(tmp)) {
-				sprintf(tmp, "-I%s/%s/%s", basedir, files[n], ifiles[m]);
-				ldflags = malloc(strlen(files[n]) + 16);
-				sprintf(ldflags, "-lruby%s", files[n]);
+				snprintf(tmp, tmp2_len, "-I%s/%s/%s", basedir, files[n], ifiles[m]);
+				size_t ldf_len = strlen(files[n]) + 16;
+				ldflags = malloc(ldf_len);
+				snprintf(ldflags, ldf_len, "-lruby%s", files[n]);
 				res = try_icl(logdepth, "libs/script/ruby", test_c, NULL, tmp, ldflags);
 				free(ldflags);
 			}
