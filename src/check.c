@@ -224,6 +224,7 @@ void trim_wires(void)
           xctx->wire[xctx->wires].prop_ptr=NULL;
           my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].prop_ptr, xctx->wire[j].prop_ptr);
           xctx->wire[xctx->wires].bus = xctx->wire[j].bus;
+          xctx->wire[xctx->wires].flags = xctx->wire[j].flags;
           xctx->wire[xctx->wires].node=NULL;
 
           my_strdup(_ALLOC_ID_, &xctx->wire[xctx->wires].node, xctx->wire[j].node);
