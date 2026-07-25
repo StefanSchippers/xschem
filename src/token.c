@@ -4466,8 +4466,9 @@ char *get_fqdevice(const char *param, int modelparam, const char *instname)
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
 /* if s==NULL return emty string */
-const char *translate(int inst, const char* s)
+const char *translate(int inst, const char *s)
 {
+  static int mutex = 0;
   #ifdef __unix__
   static regex_t *get_sp_cur = NULL;
   #endif
@@ -4507,6 +4508,7 @@ const char *translate(int inst, const char* s)
   if(!s || !xctx || !xctx->inst) {
     return empty;
   }
+
   #ifdef __unix__
   if(!get_sp_cur) {
     get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));
@@ -4524,6 +4526,13 @@ const char *translate(int inst, const char* s)
     dbg(0, "translate(): instance number out of bounds: %d\n", inst);
     return empty;
   }
+
+  if(mutex > 0) {
+    dbg(0, "translate(): reentrant call, mutex=%d, skip and return empty string", mutex);
+    return empty;
+  }
+  mutex++;
+
   /* if spice_get_* token not processed by tcl use enginering notation (2m, 3u, ...)  */
   if(!(strstr(s, "tcleval(") == s)) engineering = 1;
   instname = (inst >=0 && xctx->inst[inst].instname) ? xctx->inst[inst].instname : "";
@@ -5308,6 +5317,7 @@ const char *translate(int inst, const char* s)
        translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
                               NULL, NULL)));
   }
+  mutex--;
   return result;
 }
 
