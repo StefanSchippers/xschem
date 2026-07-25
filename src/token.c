@@ -4492,7 +4492,7 @@ const char *translate(int inst, const char* s)
   char *value1 = NULL;
   int sim_is_ngspice, sim_is_vacask /*, sim_is_xyce */;
   char *instname = NULL;
-
+  
   if(!s && inst == -1) {
     if(result) my_free(_ALLOC_ID_, &result);
     #ifdef __unix__
@@ -4507,7 +4507,6 @@ const char *translate(int inst, const char* s)
   if(!s || !xctx || !xctx->inst) {
     return empty;
   }
-
   #ifdef __unix__
   if(!get_sp_cur) {
     get_sp_cur = my_malloc(_ALLOC_ID_, sizeof(regex_t));

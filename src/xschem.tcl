@@ -6960,7 +6960,10 @@ proc tclpropeval2 {s} {
     return $res
   } elseif { $xschem_execute_scripts eq {ask}} {
     if {[info exists has_x]} {
-      xschem set semaphore [expr {[xschem get semaphore] +1}]
+      # completely disable event processing in callback()
+      # the alert box causes an Expose event, wicht triggers draw() and translate()
+      # but this procedure may be  called from within a translate() call...
+      xschem set semaphore [expr {[xschem get semaphore] + 3}]
       set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
       append msg " WARNING:\n"
       append msg "   Allowing script execution is a potential security vulnerability,\n"
@@ -6972,7 +6975,7 @@ proc tclpropeval2 {s} {
       append msg " Current (default) setting is 'ask'."
 
       set answer [alert_ $msg {} 0 1]
-      xschem set semaphore [expr {[xschem get semaphore] -1}]
+      xschem set semaphore [expr {[xschem get semaphore] - 3}]
       # set answer [tk_messageBox -parent [xschem get topwindow] -message $msg -type yesno]
       if {$answer  eq {1}} {
         set xschem_execute_scripts yes

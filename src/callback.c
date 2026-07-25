@@ -4713,6 +4713,11 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
                          (persistent_command && (xctx->last_command & STARTWIRE));
   struct stat buf;
 
+
+  if(xctx->semaphore >= 3) {
+    dbg(0, "reentrant callback() call disabled, semaphore = %d\n", xctx->semaphore);
+    return 0;
+  }
   /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
    * events. Some remote connection softwares do not generate the correct coordinates
    * on such events */
@@ -4809,10 +4814,6 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
 
    case ConfigureNotify:
-     if(xctx->semaphore >= 2 && !redraw_only) {
-       xctx->semaphore--;
-       return 0;
-     }
      dbg(1,"callback(): ConfigureNotify event: %s %dx%d\n", win_path, button, aux);
      resetwin(1, 1, 0, 0, 0);
      draw();
