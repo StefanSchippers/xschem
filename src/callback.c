@@ -4715,7 +4715,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
 
 
   if(xctx->semaphore >= 3) {
-    dbg(0, "reentrant callback() call disabled, semaphore = %d\n", xctx->semaphore);
+    dbg(1, "reentrant callback() call disabled, semaphore = %d\n", xctx->semaphore);
     return 0;
   }
   /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
