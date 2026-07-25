@@ -60,19 +60,21 @@ const char *tcl_hook2(const char *cmd)
 {
   static char *result = NULL;
   static const char *empty="";
-  char *unescaped_res;
 
   if(cmd == NULL) {
     my_free(_ALLOC_ID_, &result);
     return empty;
   }
   if(strstr(cmd, "tcleval(") == cmd) {
-    unescaped_res = str_replace(cmd, "\\}", "}", 0, -1);
+    char *unescaped_res = NULL;
+    my_strdup2(_ALLOC_ID_, &unescaped_res, str_replace(cmd, "\\}", "}", 0, -1));
     tclvareval("tclpropeval2 {", unescaped_res, "}" , NULL);
+    my_free(_ALLOC_ID_, &unescaped_res);
+    dbg(1, "tcl_hook2: tclresult()=%s\n", tclresult());
     my_strdup2(_ALLOC_ID_, &result, tclresult());
-    /* dbg(0, "tcl_hook2: return: %s\n", result);*/
+    dbg(1, "tcl_hook2: return 1: %s\n", result);
   } else {
-    /* dbg(0, "tcl_hook2: return: %s\n", cmd); */
+    dbg(1, "tcl_hook2: return 2: %s\n", cmd); 
     my_strdup2(_ALLOC_ID_, &result, cmd);
   }
   return result;
@@ -4312,10 +4314,15 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
  * caveats: only one @spice_get_node is allowed in a string for now.
  */
 
-const char *spice_get_node(const char *token)
+char *spice_get_node(const char *token)
 {
   const char *pos;
+  static char *s = NULL;
 
+  if(token == NULL) {
+    my_free(_ALLOC_ID_, &s);
+    return NULL;
+  }
   if((pos = strstr(token, "@spice_get_node "))) {
     char *node = NULL;
     char *token2 = NULL;
@@ -4325,7 +4332,6 @@ const char *spice_get_node(const char *token)
     size_t len;
     double val = 0.0;
     const char *valstr;
-    const char *s;
 
     dbg(1, "token=%s\n", token);
     node = my_malloc(_ALLOC_ID_, strlen(token) + 1);
@@ -4352,13 +4358,14 @@ const char *spice_get_node(const char *token)
       node[len] = ' ';
       node[len + 1] = '\0';
     }
-    s = str_replace(token2, node, valstr, 0, 1);
+    my_strdup2(_ALLOC_ID_, &s, str_replace(token2, node, valstr, 0, 1));
     dbg(1, "s=%s\n", s);
     my_free(_ALLOC_ID_, &token2);
     my_free(_ALLOC_ID_, &node);
     return s;
   } else {
-    return token;
+    my_strdup2(_ALLOC_ID_, &s, token);
+    return s;
   }
 }
 
@@ -4526,8 +4533,7 @@ const char *translate(int inst, const char* s)
   /* sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0; */
   level = xctx->currsch;
   lcc = xctx->hier_attr;
-  size=CADCHUNKALLOC;
-  my_realloc(_ALLOC_ID_, &result,size);
+  STR_ALLOC(&result, result_pos, &size);
   result[0]='\0';
 
   dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "<NULL>" , instname);
@@ -4549,7 +4555,6 @@ const char *translate(int inst, const char* s)
        )
       ) state=TOK_SEP;
 
-    STR_ALLOC(&result, result_pos, &size);
     STR_ALLOC(&token, token_pos, &sizetok);
     if(state==TOK_TOKEN) token[token_pos++]=(char)c;
     else if(state==TOK_SEP)
@@ -4612,9 +4617,10 @@ const char *translate(int inst, const char* s)
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
             if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
               const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
-              tmp = strlen(str_ptr) +100 ;
+              tmp = strlen(str_ptr);
               STR_ALLOC(&result, tmp + result_pos, &size);
-              result_pos += my_snprintf(result + result_pos, tmp, "%s", str_ptr);
+              memcpy(result+result_pos,str_ptr, tmp+1);
+              result_pos+=tmp;
             }
             break;
           }
@@ -4725,13 +4731,14 @@ const char *translate(int inst, const char* s)
                     len = 3;
                   } else if(idx < 0) {
                     valstr = "-";
-                    xctx->tok_size = 5;
-                    len = 5;
+                    xctx->tok_size = 1;
+                    len = 1;
                   } else {
                     valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
                     len = xctx->tok_size;
                   }
                   if(len) {
+                    len = strlen(valstr);
                     STR_ALLOC(&result, len + result_pos, &size);
                     memcpy(result+result_pos, valstr, len+1);
                     result_pos += len;
@@ -4833,6 +4840,7 @@ const char *translate(int inst, const char* s)
                 len = xctx->tok_size;
               }
               if(len) {
+                len = strlen(valstr);
                 STR_ALLOC(&result, len + result_pos, &size);
                 memcpy(result+result_pos, valstr, len+1);
                 result_pos += len;
@@ -4934,6 +4942,7 @@ const char *translate(int inst, const char* s)
                 len = xctx->tok_size;
               }
               if(len) {
+                len = strlen(valstr);
                 STR_ALLOC(&result, len + result_pos, &size);
                 memcpy(result+result_pos, valstr, len+1);
                 result_pos += len;
@@ -5000,6 +5009,7 @@ const char *translate(int inst, const char* s)
                 len = xctx->tok_size;
               }
               if(len) {
+                len = strlen(valstr);
                 STR_ALLOC(&result, len + result_pos, &size);
                 memcpy(result+result_pos, valstr, len+1);
                 result_pos += len;
@@ -5133,6 +5143,7 @@ const char *translate(int inst, const char* s)
                 len = xctx->tok_size;
               }
               if(len) {
+                len = strlen(valstr);
                 STR_ALLOC(&result, len + result_pos, &size);
                 memcpy(result+result_pos, valstr, len+1);
                 result_pos += len;
@@ -5273,7 +5284,9 @@ const char *translate(int inst, const char* s)
       else result[result_pos++]=(char)c;
       state=TOK_BEGIN;
     } /* else if(state==TOK_SEP) */
-    else if(state==TOK_BEGIN) result[result_pos++]=(char)c;
+    else if(state==TOK_BEGIN) {
+      result[result_pos++]=(char)c;
+    }
     if(c=='\0')
     {
       result[result_pos]='\0';
@@ -5285,7 +5298,10 @@ const char *translate(int inst, const char* s)
   /* resolve spice_get_node patterns.
    * if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
-  my_strdup2(_ALLOC_ID_, &result, spice_get_node(tcl_hook2(result)));
+
+
+  my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result));
+  my_strdup2(_ALLOC_ID_, &result, spice_get_node(result));
 
   if(is_expr(result) && inst >= 0) {
     dbg(1, "translate(): expr():%s\n", result);

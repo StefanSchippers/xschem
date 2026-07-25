@@ -6924,8 +6924,7 @@ proc tclpropeval {s instname symname} {
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s} {
-  global debug_tcleval env path debug_var sch_basename
-
+  global debug_tcleval env path debug_var sch_basename xschem_execute_scripts has_x
   set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
@@ -6956,9 +6955,43 @@ proc tclpropeval2 {s} {
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
-  if { [catch {uplevel #0 "subst \{$s\}"} res] } {
-    if { $debug_tcleval > 0} { puts "tclpropeval2 warning: $s --> $res"}
+  if { $xschem_execute_scripts eq {no} } {
     set res ?\n
+    return $res
+  } elseif { $xschem_execute_scripts eq {ask}} {
+    if {[info exists has_x]} {
+      xschem set semaphore [expr {[xschem get semaphore] +1}]
+      set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
+      append msg " WARNING:\n"
+      append msg "   Allowing script execution is a potential security vulnerability,\n"
+      append msg "   Do it only for schematics obtained from trusted sources.\n\n"
+      append msg " To avoid this message look for variable 'xschem_execute_scripts'\n"
+      append msg " in your xschemrc file,\n"
+      append msg " set it to 'yes' to permanently ENABLE scripts,\n"
+      append msg " or set it to 'no' to permanently DISABLE scripts.\n"
+      append msg " Current (default) setting is 'ask'."
+
+      set answer [alert_ $msg {} 0 1]
+      xschem set semaphore [expr {[xschem get semaphore] -1}]
+      # set answer [tk_messageBox -parent [xschem get topwindow] -message $msg -type yesno]
+      if {$answer  eq {1}} {
+        set xschem_execute_scripts yes
+      } elseif {$answer eq {0}} {
+        set xschem_execute_scripts no
+      }
+    } else {
+      set xschem_execute_scripts yes
+    }
+  }
+  if { $xschem_execute_scripts eq {yes} } {  
+    focus [xschem get top_path].drw
+    if { [catch {uplevel #0 "subst \{$s\}"} res] } {
+      if { $debug_tcleval > 0} { puts "tclpropeval2 warning: $s --> $res"}
+      set res ?\n
+    }
+  } else {
+    set res ?\n
+    return $res
   }
   # puts "tclpropeval2: res=|$res|"
   return $res
@@ -9731,7 +9764,8 @@ set tctx::global_list {
  top_is_subckt transparent_svg undo_type unselect_partial_sel_wires uppercase_subckt
  use_cursor_for_selection use_lab_wire use_label_prefix use_tclreadline user_wants_copy_cell
  verilog_2001 verilog_bitblast
- viewdata_fileid viewdata_filename viewdata_w xschem_libs xschem_listen_port zoom_full_center
+ viewdata_fileid viewdata_filename viewdata_w xschem_execute_scripts xschem_libs
+ xschem_listen_port zoom_full_center
 }
 
 ## list of global arrays to save/restore on context switching
@@ -11551,6 +11585,7 @@ set_ne terminal xterm
 # xschem tcp port number (listen to port and execute commands from there if set)
 # set a port number in xschemrc if you want accept remote connections.
 set_ne xschem_listen_port {}
+set_ne xschem_execute_scripts ask
 
 # server for bespice waveform connection (listen to port and send commands to bespice if set)
 # set a port number in xschemrc if you want xschem to be able to cross-probe to bespice

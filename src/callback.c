@@ -4809,12 +4809,20 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
 
    case ConfigureNotify:
+     if(xctx->semaphore >= 2 && !redraw_only) {
+       xctx->semaphore--;
+       return 0;
+     }
      dbg(1,"callback(): ConfigureNotify event: %s %dx%d\n", win_path, button, aux);
      resetwin(1, 1, 0, 0, 0);
      draw();
      break;
 
    case MotionNotify:
+     if(xctx->semaphore >= 2 && !redraw_only) {
+       xctx->semaphore--;
+       return 0;
+     }
      handle_motion_notify(event, key, state, rstate, button, mx, my,
                           aux, draw_xhair, enable_stretch, tabbed_interface, win_path,
                           snap_cursor, wire_draw_active);

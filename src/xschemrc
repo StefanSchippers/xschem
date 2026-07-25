@@ -536,6 +536,17 @@
 # set xschem_listen_port 2021
 
 ###########################################################################
+#### EXECUTE SCRIPTS WITH 'tcleval(...)' or '@tcleval(...)'
+###########################################################################
+#### possible values: 
+####   yes: allow scripts.
+####   no:  do not allow scripts, always return empty result.
+####   ask: (default) ask to the user if GUI is present. If no GUI is present 
+####        then allow scripts.
+#### Default: ask
+# set xschem_execute_scripts yes
+
+###########################################################################
 #### BESPICE WAVE SOCKET CONNECTION
 ###########################################################################
 #### set bespice wave listening port; default: not enabled

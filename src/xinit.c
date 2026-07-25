@@ -981,6 +981,7 @@ static void xwin_exit(void)
  find_nth(NULL, "", "", 0, 0); /* clear static data in function */
  trim_chars(NULL, ""); /* clear static data in function */
  tcl_hook2(NULL); /* clear static data in function */
+ spice_get_node(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  eval_expr_clear_table(); /* clear expression parser data */
  dbg(1, "xwin_exit(): removing font\n");
