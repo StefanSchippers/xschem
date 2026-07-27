@@ -6987,7 +6987,6 @@ proc tclpropeval2 {s} {
     }
   }
   if { $xschem_execute_scripts eq {yes} } {  
-    focus [xschem get top_path].drw
     if { [catch {uplevel #0 "subst \{$s\}"} res] } {
       if { $debug_tcleval > 0} { puts "tclpropeval2 warning: $s --> $res"}
       set res ?\n
