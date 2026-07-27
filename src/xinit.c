@@ -3211,6 +3211,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
    if(cli_opt_do_netlist) set_modify(-1); /* set tab/window title */
  }
  xctx->pending_fullzoom=1;
+ /* necessary if the dialog to allow tcl scripts in schematics is shown. 
+  * the dialog sets semaphore to 3 to avoid nested calls, so some ConfigureNotify events and resetwindow 
+  * calls are lost */
+ resetwin(1, 0, 0, 0, 0);
  if(has_x) tclvareval("set_geom . [xschem get current_name]", NULL);
 
  if(cli_opt_do_netlist) {
