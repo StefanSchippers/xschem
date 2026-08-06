@@ -1561,7 +1561,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  int i,j,n;
  char name[PATH_MAX];
  char name1[PATH_MAX];
- char tclev = 0;
 
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
@@ -1571,13 +1570,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  }
  if(!name1[0]) return 0;
  dbg(1, "place_symbol(): 1: name1=%s first_call=%d\n",name1, first_call);
- /* remove tcleval( given in file selector, if any ... */
- if(strstr(name1, "tcleval(")) {
-   tclev = 1;
-   my_snprintf(name1, S(name1), "%s", str_replace(name1, "tcleval(", "", 0, -1));
- }
- dbg(1, "place_symbol(): 2: name1=%s\n",name1);
-
+ my_strncpy(name1, tcl_hook2(name1), S(name1));
  tclvareval("is_xschem_file {", name1, "}", NULL);
  if(!strcmp(tclresult(), "GENERATOR")) {
    size_t len = strlen(name1);
@@ -1587,12 +1580,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
    my_strncpy(name, name1, S(name));
  }
  my_strncpy(name1, rel_sym_path(name), S(name1));
- /* ... and re-add tcleval( around relative path symbol name */
- if(tclev) {
-   my_snprintf(name, S(name), "tcleval(%s", name1);
- } else {
-   my_strncpy(name, name1, S(name));
- }
+ my_strncpy(name, name1, S(name));
  if(name[0]) {
    if(first_call && to_push_undo) xctx->push_undo();
  } else  return 0;
