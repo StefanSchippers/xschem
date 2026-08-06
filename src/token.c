@@ -5313,6 +5313,7 @@ const char *translate(int inst, const char *s)
    * can be calculated */
 
 
+  mutex--;
   my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result));
   my_strdup2(_ALLOC_ID_, &result, spice_get_node(result));
 
@@ -5322,7 +5323,6 @@ const char *translate(int inst, const char *s)
        translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
                               NULL, NULL)));
   }
-  mutex--;
   return result;
 }
 
