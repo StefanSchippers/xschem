@@ -6945,7 +6945,7 @@ proc tclpropeval {s instname symname} {
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
-proc tclpropeval2 {s} {
+proc tclpropeval2 {s {ask 1}} {
   global debug_tcleval env path debug_var sch_basename xschem_execute_scripts has_x
   set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
@@ -6980,7 +6980,7 @@ proc tclpropeval2 {s} {
   if { $xschem_execute_scripts eq {no} } {
     set res ?\n
     return $res
-  } elseif { $xschem_execute_scripts eq {ask}} {
+  } elseif { $ask && $xschem_execute_scripts eq {ask}} {
     if {[info exists has_x]} {
       # completely disable event processing in callback()
       # the alert box causes an Expose event, wicht triggers draw() and translate()
@@ -7298,7 +7298,7 @@ proc edit_prop {txtlabel} {
   }
   wm geometry .dialog "${edit_prop_size}+$X+$Y"
   set prev_symbol $symbol
-  set editprop_sympath [get_directory [abs_sym_path [tclpropeval2 $symbol]]]
+  set editprop_sympath [get_directory [abs_sym_path [tclpropeval2 $symbol 0]]]
   frame .dialog.f4
   label .dialog.f4.l1  -text $txtlabel
   label .dialog.f4.path  -text "Path:"
