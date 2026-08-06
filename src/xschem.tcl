@@ -6900,6 +6900,28 @@ proc property_search {} {
   return {}
 }
 
+# Sets some useful global vars to be sed in launcher scripts.
+proc set_xschem_vars {} {
+  global path sch_basename
+  set raw_level [xschem get raw_level]
+  set netlist_type [xschem get netlist_type]
+  set path [string range [xschem get sch_path] 1 end]
+  set sch_basename [file tail [file rootname [xschem get current_name]]]
+  # skip hierarchy components above the level where raw file has been loaded.
+  # node path names to look up in raw file begin from there.
+  set skip 0
+  while { $skip < $raw_level } {
+    regsub {^[^.]*\.} $path {} path
+    incr skip
+  }
+
+  if { $netlist_type eq {spice} } {
+    # this is necessary if spiceprefix is being used in netlists
+    regsub {^([^xX])} $path {x\1} path
+    while { [regsub {\.([^xX])} $path {.x\1} path] } {}
+  }
+}
+
 #20171029
 # allows to call TCL hooks from 'format' strings during netlisting
 # example of symbol spice format definition:

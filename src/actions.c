@@ -1925,6 +1925,7 @@ void launcher(void)
     if(url[0] || (program[0])) { /* open url with appropriate program */
       tclvareval("launcher {", url, "} {", program, "}", NULL);
     } else if(command && command[0]){
+      tcleval("set_xschem_vars");
       dbg(1, "launcher(): command=%s\n", command);
       if(Tcl_GlobalEval(interp, command) != TCL_OK) {
         dbg(0, "%s\n", tclresult());
