@@ -1207,15 +1207,17 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
       if(strchr(result, '@')) {
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
+          char *res = NULL;
           my_strdup2(_ALLOC_ID_, &result,
-            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
+            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL, res));
           /* can not put template in above translate3: -----------------------^^^^
            * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
            * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
           if(strchr(result, '@')) {
              my_strdup2(_ALLOC_ID_, &result,
-                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL, res));
           }
+          my_free(_ALLOC_ID_, &res);
         }
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
@@ -1914,6 +1916,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     int i;
     int exp_no_of_pins = 0; /* number of single bit ports, ie all buses expanded */
     char *net, *net_save;
+    char *res = NULL;
     Str_hashentry *entry;
     Str_hashtable table = {NULL, 0};
 
@@ -1928,7 +1931,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(inst, 9999, 1, 1), NULL);
     translated_sym_def = translate3(spice_sym_def, 1, xctx->inst[inst].prop_ptr,
                                                       xctx->sym[symbol].templ,
-                                                      symname_attr, NULL);
+                                                      symname_attr, NULL, res);
     dbg(1, "has_included_subcircuit(): translated_sym_def=%s\n", translated_sym_def);
     dbg(1, "has_included_subcircuit(): symname=%s\n", symname);
 
@@ -1966,6 +1969,7 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
     tclvareval("has_included_subcircuit {", get_cell(symname, 0), "} {",
                 translated_sym_def, "} ", my_itoa(exp_no_of_pins), NULL);
 
+    my_free(_ALLOC_ID_, &res);
     my_free(_ALLOC_ID_, &symname_attr);
     if(tclresult()[0]) { /* a valid spice_sym_def netlist was found */
       char *subckt_pin, *pin_save;
@@ -2604,6 +2608,7 @@ int print_spice_element(FILE *fd, int inst)
         char *parent_prop_ptr = NULL;
         char *parent_templ = NULL;
         char *schname_attr = NULL;
+        char *res = NULL;
         my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
 
         if(xctx->currsch > 0) {
@@ -2629,26 +2634,26 @@ int print_spice_element(FILE *fd, int inst)
          */
 
         my_strdup2(_ALLOC_ID_, &val,
-             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, res));
         /* can not put template in above translate3: ---------------------------^^^^
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
          * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
         if(strchr(val, '@')) {
            my_strdup2(_ALLOC_ID_, &val,
-              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL, res));
         }
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spice_element(): 1st round: val: |%s|\n", val);
         if(strchr(val, '@')) {
             my_strdup2(_ALLOC_ID_, &val,
-                   translate3(val, 1, schname_attr, xctx->inst[inst].prop_ptr, NULL, NULL));
+                   translate3(val, 1, schname_attr, xctx->inst[inst].prop_ptr, NULL, NULL, res));
             /*                        ............ --> replace @symname with symbol name */
             dbg(1, "print_spice_element(): 2nd round: val: |%s|\n", val);
             /* normal passgate.sym placement, nmos instance format string:
                  ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
             if(strchr(val, '@')) {
               my_strdup2(_ALLOC_ID_, &val,
-                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL));
+                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL, res));
               dbg(1, "print_spice_element(): 3nd round: val: |%s|\n", val);
               /* normal passgate.sym placement, nmos instance format string:
                *   @modeln --> nfet_01v8 */
@@ -2686,6 +2691,7 @@ int print_spice_element(FILE *fd, int inst)
             my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           }
         }
+        if(res) my_free(_ALLOC_ID_, &res);
       } /* else */
 
       /* append token separator to output result ... */
@@ -2984,6 +2990,7 @@ int print_spectre_element(FILE *fd, int inst)
         size_t tok_val_len;
         char *parent_prop_ptr = NULL;
         char *parent_templ = NULL;
+        char *res = NULL;
         /* char *parent_sym_extra = NULL; */
 
         if(xctx->currsch > 0) {
@@ -3011,45 +3018,29 @@ int print_spectre_element(FILE *fd, int inst)
 
 
         my_strdup2(_ALLOC_ID_, &val,
-             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
+             translate3(token, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, res));
         /* can not put template in above translate3: ---------------------------^^^^
          * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
          * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
         if(strchr(val, '@')) {
            my_strdup2(_ALLOC_ID_, &val,
-              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+              translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL, res));
         }
         /* nmos instance format string: @model --> @modeln */
         dbg(1, "print_spectre_element(): 1st round: val: |%s|\n", val);
         if(strchr(val, '@')) {
-          #if 0
-          if(parent_prop_ptr) {
+          my_strdup2(_ALLOC_ID_, &val,
+                 translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, res));
+          dbg(1, "print_spectre_element(): 2nd round: val: |%s|\n", val);
+          /* normal passgate.sym placement, nmos instance format string:
+               ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
+          if(strchr(val, '@')) {
             my_strdup2(_ALLOC_ID_, &val,
-                   translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
-            /* instance based passgate.sym placement, nmos instance format string: @modeln --> pippon */
-            /* ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" */
-            if(strchr(val, '@')) {
-              my_strdup2(_ALLOC_ID_, &val,
-                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, parent_templ, NULL));
-              /* ad="expr('int((1 + 1)/2) * W_N / 1 * 0.29')" --> ad="expr('int((1 + 1)/2) * 5 / 1 * 0.29')" */
-            }
-          } else {
-          #endif
-            my_strdup2(_ALLOC_ID_, &val,
-                   translate3(val, 0, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-            dbg(1, "print_spectre_element(): 2nd round: val: |%s|\n", val);
+                   translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL, res));
+            dbg(1, "print_spectre_element(): 3nd round: val: |%s|\n", val);
             /* normal passgate.sym placement, nmos instance format string:
-                 ad="expr('int((@nf + 1)/2) * @W / @nf * 0.29')" --> ad="expr('int((1 + 1)/2) * W_N/ 1 * 0.29')" */
-            if(strchr(val, '@')) {
-              my_strdup2(_ALLOC_ID_, &val,
-                     translate3(val, 0, xctx->inst[inst].prop_ptr, parent_templ, NULL, NULL));
-              dbg(1, "print_spectre_element(): 3nd round: val: |%s|\n", val);
-              /* normal passgate.sym placement, nmos instance format string:
-               *   @modeln --> nfet_01v8 */
-            }
-          #if 0
+             *   @modeln --> nfet_01v8 */
           }
-          #endif
           dbg(1, "print_spectre_element(): final: val: |%s|\n", val);
         }
         /* still unresolved: set to empty */
@@ -3082,6 +3073,7 @@ int print_spectre_element(FILE *fd, int inst)
             my_mstrcat(_ALLOC_ID_, &result, value, NULL);
           }
         }
+        if(res) my_free(_ALLOC_ID_, &res);
       } /* else */
 
       /* append token separator to output result ... */
@@ -3752,18 +3744,20 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     if(result) {
       dbg(1, "print_verilog_primitive(): before translate3() result=%s\n", result);
       if(strchr(result, '@')) {
+        char *res = NULL;
         /* netlist_commands often have @ characters due to ngspice syntax. Do not translate */
         if(strcmp(xctx->sym[xctx->inst[inst].ptr].type, "netlist_commands")) {
           my_strdup2(_ALLOC_ID_, &result,
-            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL));
+            translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, NULL, NULL, res));
           /* can not put template in above translate3: -----------------------^^^^
            * if instance has VHI=VHI, format string has VHI=@VHI, and symbol template has VHI=3
            * we do not want token @VHI to resolve to 3, but stop at VHI as specified in instance */
           if(strchr(result, '@')) {
              my_strdup2(_ALLOC_ID_, &result,
-                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL));
+                translate3(result, 0, xctx->inst[inst].prop_ptr, parent_prop_ptr, template, NULL, res));
           }
         }
+        if(res) my_free(_ALLOC_ID_, &res);
       }
       my_strdup2(_ALLOC_ID_, &result, tcl_hook2(result)); /* tcl evaluation if tcleval(....) */
       if(is_expr(result)) {
@@ -5254,6 +5248,7 @@ const char *translate(int inst, const char *s, char *result)
         } else {
           int i = level;
           char *schname_attr = NULL; 
+          char *res = NULL;
           my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
           my_strdup2(_ALLOC_ID_, &value1, value);
           /* recursive substitution of value using parent level prop_ptr attributes */
@@ -5276,13 +5271,13 @@ const char *translate(int inst, const char *s, char *result)
             i--;
           }
           if(strchr(value1, '@')) {
-            my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL));
+            my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL, res));
           }
           /* substitute remaing @params */
           i = level;
           while(i > 0) {
             if(strchr(value1, '@')) {
-              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL));
+              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL, res));
               dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
             } else break;
             i--;
@@ -5292,7 +5287,7 @@ const char *translate(int inst, const char *s, char *result)
           i = level;
           while(i > 0) {
             if(strchr(value1, '@')) {
-              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL,  NULL, NULL));
+              my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL,  NULL, NULL, res));
               dbg(1, "2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
             } else break;
             i--;
@@ -5303,6 +5298,7 @@ const char *translate(int inst, const char *s, char *result)
           memcpy(result+result_pos, value1, tmp+1);
           result_pos+=tmp;
           my_free(_ALLOC_ID_, &value1);
+          if(res) my_free(_ALLOC_ID_, &res);
         }
       }
       token_pos = 0;
@@ -5334,18 +5330,19 @@ const char *translate(int inst, const char *s, char *result)
   my_strdup2(_ALLOC_ID_, &result, spice_get_node(result));
 
   if(is_expr(result) && inst >= 0) {
+    char *res = NULL;
     dbg(1, "translate(): expr():%s\n", result);
     my_strdup2(_ALLOC_ID_, &result, eval_expr(
        translate3(result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
-                              NULL, NULL)));
+                              NULL, NULL, res)));
+    my_free(_ALLOC_ID_, &res);
   }
   return result;
 }
 
-const char *translate2(Lcc *lcc, int level, char* s)
+const char *translate2(Lcc *lcc, int level, char* s, char *result)
 {
   static const char *empty="";
-  static char *result = NULL;
   int i, escape = 0;
   register int c, state = TOK_BEGIN, space;
   const char *tmp_sym_name;
@@ -5353,7 +5350,6 @@ const char *translate2(Lcc *lcc, int level, char* s)
   char  *token = NULL, *value = NULL;
 
   if(!s) {
-    my_free(_ALLOC_ID_, &result);
     return empty;
   }
   size = CADCHUNKALLOC;
@@ -5490,11 +5486,10 @@ const char *translate2(Lcc *lcc, int level, char* s)
  *        == 1 --> return empty token if no definition found in s* strings
  */
 const char *translate3(const char *s, int eat_escapes, const char *s1,
-                       const char *s2, const char *s3, const char *s4)
+                       const char *s2, const char *s3, const char *s4, char *translated_tok)
 {
  static const char *empty="";
- static char *translated_tok = NULL;
- static char *result=NULL; /* safe to keep even with multiple schematics */
+ char *result=NULL; /* safe to keep even with multiple schematics */
  register int c, state=TOK_BEGIN, space;
  char *token=NULL;
  size_t sizetok=0;
@@ -5506,8 +5501,6 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
  const char *sptr[5]; /* 1...4 used */
 
  if(!s || !xctx) {
-   my_free(_ALLOC_ID_, &result);
-   my_free(_ALLOC_ID_, &translated_tok);
    return empty;
  }
  xctx->tok_size = 0;
@@ -5593,6 +5586,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
  dbg(1, "translate3(): result=|%s|\n", result);
  my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
  xctx->tok_size = found_value;
+ if(result) my_free(_ALLOC_ID_, &result);
  return translated_tok;
 }
 

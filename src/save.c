@@ -4752,10 +4752,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         tt[i].floater_instname = tmptext.floater_instname;
         dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
         if (level>0) {
-          const char* tmp = translate2(lcc, level, tt[i].txt_ptr);
+          char *res = NULL;
+          const char* tmp = translate2(lcc, level, tt[i].txt_ptr, res);
           dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
           rot = lcc[level].rot; flip = lcc[level].flip;
           my_strdup2(_ALLOC_ID_, &tt[i].txt_ptr, tmp);
+          my_free(_ALLOC_ID_, &res);
           dbg(1, "l_s_d(): txt3: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
           /* allow annotation inside LCC instances. */
           if(!strcmp(tt[i].txt_ptr, "@spice_get_voltage")) {

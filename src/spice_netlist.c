@@ -668,11 +668,13 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   if(sym_def) {
     char *symname_attr = NULL;
     const char *translated_sym_def;
+    char *res = NULL;
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(name, 0), NULL);
-    translated_sym_def = translate3(sym_def, 1, xctx->sym[i].templ, symname_attr, NULL, NULL);
+    translated_sym_def = translate3(sym_def, 1, xctx->sym[i].templ, symname_attr, NULL, NULL, res);
     my_free(_ALLOC_ID_, &symname_attr);
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);
+    my_free(_ALLOC_ID_, &res);
   } else {
     const char *s = get_tok_value(xctx->sym[i].templ, "model",0);
     if(!s[0]) s = get_cell(sanitize(name), 0);

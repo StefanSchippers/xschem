@@ -1542,6 +1542,7 @@ int drc_check(int i)
   char *check_result = NULL;
   int start = 0;
   int end = xctx->instances;
+  char *res1 = NULL;
 
   if(!tcleval("info procs fet_drc")[0]) {
     return ret;
@@ -1554,7 +1555,8 @@ int drc_check(int i)
     my_strdup(_ALLOC_ID_, &drc, get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "drc", 2));
     if(drc) {
       my_strdup(_ALLOC_ID_, &res, translate3(drc, 1,
-                xctx->inst[j].prop_ptr, xctx->sym[xctx->inst[j].ptr].templ, NULL, NULL));
+                xctx->inst[j].prop_ptr, xctx->sym[xctx->inst[j].ptr].templ, NULL, NULL, res1));
+      my_free(_ALLOC_ID_, &res1);
       dbg(1, "drc_check(): res = |%s|, drc=|%s|\n", res, drc);
       if(res) {
         const char *result;
