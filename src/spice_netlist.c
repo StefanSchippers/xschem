@@ -221,25 +221,27 @@ static int spice_netlist(FILE *fd, int spice_stop )
        } else {
          char *val = NULL;
          const char *m;
+         char *res = NULL;
          if(print_spice_element(fd, i)) {
            fprintf(fd, "**** end_element\n");
          }
          /* hash device_model attribute if any */
          my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2));
          m = val;
-         if(strchr(val, '@')) m = translate(i, val);
+         if(strchr(val, '@')) m = translate(i, val, res);
          else m = tcl_hook2(m);
          if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          else {
            my_strdup2(_ALLOC_ID_, &val,
                get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "device_model", 2));
            m = val;
-           if(strchr(val, '@')) m = translate(i, val);
+           if(strchr(val, '@')) m = translate(i, val, res);
            else m = tcl_hook2(m);
            if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          }
          my_free(_ALLOC_ID_, &model_name_result);
          my_free(_ALLOC_ID_, &val);
+         if(res) my_free(_ALLOC_ID_, &res);
        }
      }
     }

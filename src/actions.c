@@ -122,8 +122,10 @@ const char *get_text_floater(int i)
       if(xctx->text[i].floater_ptr) {
         txt_ptr = xctx->text[i].floater_ptr;
       } else {
+        char *res = NULL;
         /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
-        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr, res));
+        my_free(_ALLOC_ID_, &res);
         txt_ptr = xctx->text[i].floater_ptr;
       }
       dbg(1, "floater: %s\n",txt_ptr);
@@ -132,9 +134,11 @@ const char *get_text_floater(int i)
        * (but name=something or floater=something attribute must be present) and text
        * matches tcleval(...) or contains '@' */
       if(strstr(txt_ptr, "tcleval(") == txt_ptr || strchr(txt_ptr, '@')) {
+        char *res = NULL;
         /* my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr)); */
-        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr, res));
         txt_ptr = xctx->text[i].floater_ptr;
+        my_free(_ALLOC_ID_, &res);
       }
     }
   }
@@ -1561,6 +1565,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  int i,j,n;
  char name[PATH_MAX];
  char name1[PATH_MAX];
+ char *res = NULL;
 
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
@@ -1634,7 +1639,8 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->instances++;/* translate expects the correct balue of xctx->instances */
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
-  my_strncpy(name, translate(n, name), S(name));
+  my_strncpy(name, translate(n, name, res), S(name));
+  my_free(_ALLOC_ID_, &res);
   /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
   if(strcmp(name, name1)) {
     remove_symbol(i);

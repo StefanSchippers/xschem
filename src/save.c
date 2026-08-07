@@ -3521,6 +3521,7 @@ void link_symbols_to_instances(int from)
   int cond, i, merge = 1;
   char *type=NULL;
   char *name = NULL;
+  char *res = NULL;
 
   if(from < 0 ) {
     from = 0;
@@ -3530,7 +3531,8 @@ void link_symbols_to_instances(int from)
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name)));
+    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name, res)));
+    my_free(_ALLOC_ID_, &res);
     xctx->inst[i].ptr = match_symbol(name);
     my_free(_ALLOC_ID_, &name);
   }
@@ -5217,6 +5219,8 @@ int descend_symbol(void)
   int n = 0;
   struct stat buf;
   int save_netlist_type = xctx->netlist_type;
+  char *res = NULL;
+
   if(xctx->currsch + 1 >= CADMAXHIER) {
     dbg(0, "descend_symbol(): max hierarchy depth reached: %d", CADMAXHIER);
     return 0;
@@ -5240,7 +5244,8 @@ int descend_symbol(void)
       if(ret == 0) clear_all_hilights();
       if(ret == -1) return 0; /* user cancel */
     }
-    my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name));
+    my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name, res));
+    my_free(_ALLOC_ID_, &res);
     /* dont allow descend in the default missing symbol */
     if((xctx->inst[n].ptr+ xctx->sym)->type &&
        !strcmp( (xctx->inst[n].ptr+ xctx->sym)->type,"missing")) return 0;

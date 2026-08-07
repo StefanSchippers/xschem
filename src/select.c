@@ -354,6 +354,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    {
      double xscale, yscale;
      char *estr = NULL;
+     char *res = NULL;
      get_sym_text_size(i, j, &xscale, &yscale);
 
      text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
@@ -361,7 +362,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      sym_flip = flip;
      sym_rot = rot;
      dbg(1, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"<NULL>");
-     tmp_txt = translate(i, text.txt_ptr);
+     tmp_txt = translate(i, text.txt_ptr, res);
      dbg(1, "symbol_bbox(): translated text: %s\n", tmp_txt);
      if(tmp_txt && !strncmp(tmp_txt, "@spice", 6)) continue; /* annotator texts not used in bbox */
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
@@ -376,6 +377,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
      dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
      my_free(_ALLOC_ID_, &estr);
+     my_free(_ALLOC_ID_, &res);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);
