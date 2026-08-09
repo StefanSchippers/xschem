@@ -4920,7 +4920,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       hash_names(inst, XDELETE);
       set_inst_prop(inst);
 
-      my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name, res));
+      my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name, &res));
       my_free(_ALLOC_ID_, &res);
       sym_number=match_symbol(translated_sym);
 
@@ -5873,7 +5873,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(old_name) {
             update_attached_floaters(old_name, inst, 0);
           }
-          my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name, res));
+          my_strdup2(_ALLOC_ID_, &translated_sym, translate(inst, xctx->inst[inst].name, &res));
           my_free(_ALLOC_ID_, &res);
           sym_number=match_symbol(translated_sym);
 
@@ -6536,7 +6536,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem translate: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
-        my_strdup2(_ALLOC_ID_, &s, translate(i, argv[3], res));
+        my_strdup2(_ALLOC_ID_, &s, translate(i, argv[3], &res));
         my_free(_ALLOC_ID_, &res);
         Tcl_ResetResult(interp);
         Tcl_SetResult(interp, s, TCL_VOLATILE);
@@ -6558,11 +6558,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 3) eat_escapes = atoi(argv[3]);
       if(argc > 6) 
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL, res));
+        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL, &res));
       else if(argc > 5)
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL, res));
+        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL, &res));
       else if(argc > 4)
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL, res));
+        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL, &res));
       else {
         Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
         return TCL_ERROR;

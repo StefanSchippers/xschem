@@ -881,7 +881,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       /* if(xscale*FONTWIDTH* xctx->mooz<1) continue; */
       if(!xctx->show_hidden_texts && (symptr->text[j].flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
       if( hide && text.txt_ptr && strcmp(text.txt_ptr, "@symname") && strcmp(text.txt_ptr, "@name") ) continue;
-      txtptr= translate(n, text.txt_ptr, res);
+      txtptr= translate(n, text.txt_ptr, &res);
       ROTATION(rot, flip, 0.0,0.0,text.x0,text.y0,x1,y1);
       textlayer = c_for_text;
       /* do not allow custom text color on hilighted instances */

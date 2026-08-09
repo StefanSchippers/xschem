@@ -141,7 +141,7 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
       str_tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "verilog_format", 2);
 
    my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
-   fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string, res) : "<NULL>");
+   fprintf(fd, "%s\n", str_tmp ? translate(i, tmp_string, &res) : "<NULL>");
    my_free(_ALLOC_ID_, &res);
   }
  }
@@ -493,7 +493,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
       if(!xctx->tok_size && strcmp(fmt_attr, "verilog_format"))
          str_tmp = get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "verilog_format", 2);
       my_strdup(_ALLOC_ID_, &tmp_string, str_tmp);
-      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string, res) : "<NULL>");
+      fprintf(fd, "%s\n", str_tmp ? translate(j, tmp_string, &res) : "<NULL>");
       my_free(_ALLOC_ID_, &res);
      }
     }

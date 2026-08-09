@@ -124,7 +124,7 @@ const char *get_text_floater(int i)
       } else {
         char *res = NULL;
         /* cache floater translated text to avoid re-evaluating every time schematic is drawn */
-        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr, res));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(inst, xctx->text[i].txt_ptr, &res));
         my_free(_ALLOC_ID_, &res);
         txt_ptr = xctx->text[i].floater_ptr;
       }
@@ -136,7 +136,7 @@ const char *get_text_floater(int i)
       if(strstr(txt_ptr, "tcleval(") == txt_ptr || strchr(txt_ptr, '@')) {
         char *res = NULL;
         /* my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr)); */
-        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr, res));
+        my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr, &res));
         txt_ptr = xctx->text[i].floater_ptr;
         my_free(_ALLOC_ID_, &res);
       }
@@ -1639,7 +1639,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   xctx->instances++;/* translate expects the correct balue of xctx->instances */
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
-  my_strncpy(name, translate(n, name, res), S(name));
+  my_strncpy(name, translate(n, name, &res), S(name));
   my_free(_ALLOC_ID_, &res);
   /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
   if(strcmp(name, name1)) {
@@ -1906,11 +1906,11 @@ void launcher(void)
     }
     if(strchr(command, '@')) {
       char *res = NULL;
-      my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL, res));
+      my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL, &res));
       if(xctx->sel_array[0].type==ELEMENT) {
         xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
         if(strchr(command, '@')) {
-          my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, sym->prop_ptr, NULL, NULL, NULL, res));
+          my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, sym->prop_ptr, NULL, NULL, NULL, &res));
         }
       }
       my_free(_ALLOC_ID_, &res);
@@ -1957,7 +1957,7 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
   schematic_token_found = xctx->tok_size;
   if(sch && sch[0]) {
-    my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, res));
+    my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
     my_free(_ALLOC_ID_, &res);
   }
   if(sch && sch[0])
@@ -2203,7 +2203,7 @@ void get_additional_symbols(int what)
       dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
       schematic_token_found = xctx->tok_size;
 
-      my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, res));
+      my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, &res));
       my_free(_ALLOC_ID_, &res);
       dbg(1, "  get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size);
 
@@ -2246,12 +2246,12 @@ void get_additional_symbols(int what)
             translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
                                          symptr->templ,
                                          symname_attr, NULL,
-                                         res));
+                                         &res));
         my_strdup(_ALLOC_ID_, &spectre_sym_def,
             translate3(spectre_sym_def, 1, xctx->inst[i].prop_ptr,
                                          symptr->templ,
                                          symname_attr, NULL,
-                                         res));
+                                         &res));
         my_free(_ALLOC_ID_, &symname_attr);
         my_free(_ALLOC_ID_, &res);
         /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
@@ -2355,7 +2355,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
     /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
     my_strdup2(_ALLOC_ID_, &str_tmp, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
     if(str_tmp[0]) {
-      my_strdup2(_ALLOC_ID_, &str_tmp, translate3(str_tmp, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, res));
+      my_strdup2(_ALLOC_ID_, &str_tmp, translate3(str_tmp, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
       my_free(_ALLOC_ID_, &res);
     }
     /*

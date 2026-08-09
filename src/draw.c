@@ -875,12 +875,12 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
         }
         #endif
         dbg(1, "draw_symbol(): drawing string: before translate(): text.txt_ptr=%s\n", text.txt_ptr);
-        my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr, res));
+        my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr, &res));
         /* do another round of substitutions if some @var are found, but if not found leave @var as is */
         dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n",
                 txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>");
         my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr,
-           xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, res));
+           xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, &res));
         my_free(_ALLOC_ID_, &res);
         dbg(1, "draw_symbol(): after translate3: str=%s\n", txtptr);
         draw_string(textlayer, what, txtptr,
@@ -1049,10 +1049,10 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
      #if HAS_CAIRO==1
      customfont = set_text_custom_font(&text);
      #endif
-     my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr, res));
+     my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr, &res));
      /* do another round of substitutions if some @var are found, but if not found leave @var as is */
      my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 0, xctx->inst[n].prop_ptr,
-        xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, res));
+        xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, &res));
      my_free(_ALLOC_ID_, &res);
      dbg(1, "draw_temp_symbol(): after translate3: str=%s\n", txtptr);
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,

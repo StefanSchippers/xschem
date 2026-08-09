@@ -3531,7 +3531,7 @@ void link_symbols_to_instances(int from)
     dbg(2, "link_symbols_to_instances(): inst=%d\n", i);
     dbg(2, "link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name);
     dbg(2, "link_symbols_to_instances(): -------\n");
-    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name, res)));
+    my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name, &res)));
     my_free(_ALLOC_ID_, &res);
     xctx->inst[i].ptr = match_symbol(name);
     my_free(_ALLOC_ID_, &name);
@@ -4753,7 +4753,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         dbg(1, "l_s_d(): txt1: level=%d tt[i].txt_ptr=%s, i=%d\n", level, tt[i].txt_ptr, i);
         if (level>0) {
           char *res = NULL;
-          const char* tmp = translate2(lcc, level, tt[i].txt_ptr, res);
+          const char* tmp = translate2(lcc, level, tt[i].txt_ptr, &res);
           dbg(1, "l_s_d(): txt2: tt[i].txt_ptr=%s, i=%d\n",  tt[i].txt_ptr, i);
           rot = lcc[level].rot; flip = lcc[level].flip;
           my_strdup2(_ALLOC_ID_, &tt[i].txt_ptr, tmp);
@@ -5246,7 +5246,7 @@ int descend_symbol(void)
       if(ret == 0) clear_all_hilights();
       if(ret == -1) return 0; /* user cancel */
     }
-    my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name, res));
+    my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name, &res));
     my_free(_ALLOC_ID_, &res);
     /* dont allow descend in the default missing symbol */
     if((xctx->inst[n].ptr+ xctx->sym)->type &&
