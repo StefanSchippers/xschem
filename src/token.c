@@ -5585,7 +5585,6 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
   * can be calculated */
  dbg(1, "translate3(): result=|%s|\n", result);
  my_strdup2(_ALLOC_ID_, translated_tok, tcl_hook2(result));
- dbg(0, "translate3: %p\n", translated_tok);
  xctx->tok_size = found_value;
  if(result) my_free(_ALLOC_ID_, &result);
  return *translated_tok;
