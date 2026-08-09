@@ -2538,16 +2538,18 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   int p;
   char *saven, *nptr, *ntok_copy = NULL;
   const char *bit_name;
-  *n_bits = count_items(ntok, ";,", "") - 1;
+  p = 0;
+  yyparse_error = -1;
+  my_strdup2(_ALLOC_ID_, &ntok_copy, expandlabel(find_nth(ntok, ";", "\"", 4, 2), NULL));
+  yyparse_error = 0;
+  *n_bits = count_items(ntok_copy, ",", "");
+  idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(SPICE_DATA *));
   dbg(1, "get_bus_idx_array(): ntok=%s\n", ntok);
   dbg(1, "get_bus_idx_array(): *n_bits=%d\n", *n_bits);
-  idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(SPICE_DATA *));
-  p = 0;
-  my_strdup2(_ALLOC_ID_, &ntok_copy, ntok);
   nptr = ntok_copy;
-  my_strtok_r(nptr, ";,", "", 0, &saven); /*strip off bus name (1st field) */
-  while( (bit_name = my_strtok_r(NULL, ";, \\\n", "", 0, &saven)) ) {
+  while( (bit_name = my_strtok_r(nptr, ";, \\\n", "", 0, &saven)) ) {
     int idx;
+    nptr = NULL;
     if(p >= *n_bits) break; /* security check to avoid out of bound writing */
     if( (idx = get_raw_index(bit_name, NULL)) != -1) {
       idx_arr[p] = xctx->raw->values[idx];
@@ -2789,12 +2791,15 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         my_free(_ALLOC_ID_, &nd);
         dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
 
-        tmp_ptr = find_nth(ntok_copy, ";", "\"", 4, 2);
+        yyparse_error = -1;
+        my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(find_nth(ntok_copy, ";", "\"", 4, 2), NULL));
+        yyparse_error = 0;
         if(strstr(tmp_ptr, ",")) {
-          tmp_ptr = find_nth(tmp_ptr, ",", "\"", 4, 1);
+          my_strdup2(_ALLOC_ID_, &tmp_ptr, find_nth(tmp_ptr, ",", "\"", 4, 1));
           /* also trim spaces */
           my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
         }
+        my_free(_ALLOC_ID_, &tmp_ptr);
         dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
         stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
         nptr = sptr = NULL;
@@ -3579,22 +3584,19 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
            find_nth(ntok, ";,", "\"", 0, 1), gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s",find_nth(ntok, ";,", "\"", 0, 1));
     } else {
-      char *ntok_ptr = NULL;
       char *alias_ptr = NULL;
-      dbg(1, "ntok=%s\n", ntok);
+      yyparse_error = -1;
       if(strstr(ntok, ";")) {
          my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
-         my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
       }
       else {
          my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
-         my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
       }
+      yyparse_error = 0;
 
       if(gr->unity != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", alias_ptr, gr->unity_suffix);
       else  my_snprintf(tmpstr, S(tmpstr), "%s", alias_ptr);
       my_free(_ALLOC_ID_, &alias_ptr);
-      my_free(_ALLOC_ID_, &ntok_ptr);
     }
     if(gr->vlegend && !gr->digital) { 
       double xt = gr->rx1 + 5;
@@ -3701,15 +3703,12 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   if(!gr->legend && !gr->digital) return;
   if(measure_p >= 0) {
     /* draw node values in graph */
-    char *ntok_ptr = NULL;
     char *alias_ptr = NULL;
     if(strstr(ntok, ";")) {
        my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
-       my_strdup2(_ALLOC_ID_, &ntok_ptr, find_nth(ntok, ";", "\"", 0, 2));
     }
     else {
        my_strdup2(_ALLOC_ID_, &alias_ptr, ntok);
-       my_strdup2(_ALLOC_ID_, &ntok_ptr, ntok);
     }
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
@@ -3789,7 +3788,6 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
     }
     bbox(END, 0.0, 0.0, 0.0, 0.0);
     my_free(_ALLOC_ID_, &alias_ptr);
-    my_free(_ALLOC_ID_, &ntok_ptr);
   } /* if(measure_p >= 0) */
 }
 
@@ -4401,12 +4399,16 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 
       dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
 
-      tmp_ptr = find_nth(ntok_copy, ";", "\"", 4, 2);
+      yyparse_error = -1;
+      my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(find_nth(ntok_copy, ";", "\"", 4, 2), NULL));
+      yyparse_error = 0;
+      dbg(1, "tmp_ptr=|%s|\n", tmp_ptr);
       if(strstr(tmp_ptr, ",")) {
-        tmp_ptr = find_nth(tmp_ptr, ",", "\"", 4, 1);
+        my_strdup2(_ALLOC_ID_, &tmp_ptr, find_nth(tmp_ptr, ",", "\"", 4, 1));
         /* also trim spaces */
         my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
       }
+      my_free(_ALLOC_ID_, &tmp_ptr);
       dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
       stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);

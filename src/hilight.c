@@ -1213,8 +1213,8 @@ static void send_net_to_bespice(int simtype, const char *node)
     c = get_color(xctx->hilight_color);
     sprintf(color_str, "#%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
-    expanded_tok = expandlabel(tok, &tok_mult);
     my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
+    expanded_tok = expandlabel(tok, &tok_mult);
     for(k=1; k<=tok_mult; ++k) {
       my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
       /* bespice command syntax :
@@ -1282,12 +1282,12 @@ static void send_net_to_gaw(int simtype, const char *node)
     c = get_color(xctx->hilight_color);
     sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                        xctx->xcolor_array[c].blue>>8);
-    expanded_tok = expandlabel(tok, &tok_mult);
     tcleval("setup_tcp_gaw");
     if(tclresult()[0] == '0') return;
     my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
     path = p;
     strtolower(path);
+    expanded_tok = expandlabel(tok, &tok_mult);
     for(k=1; k<=tok_mult; ++k) {
       my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
       strtolower(t);
@@ -1320,8 +1320,8 @@ static void send_current_to_bespice(int simtype, const char *node)
   c = get_color(xctx->hilight_color);
   sprintf(color_str, "#%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
-  expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
+  expanded_tok = expandlabel(tok, &tok_mult);
   for(k=1; k<=tok_mult; ++k) {
     my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     /* bespice command syntax :
@@ -1350,7 +1350,6 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   if(!node || !node[0]) return;
   tok = node;
   c = get_color(xctx->hilight_color);
-  expanded_tok = expandlabel(tok, &tok_mult);
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   path = p;
   start_level = sch_waves_loaded();
@@ -1364,6 +1363,7 @@ static void send_current_to_graph(char **s, int simtype, const char *node)
   }
   strtolower(path);
   there_is_hierarchy = (strstr(path, ".") != NULL);
+  expanded_tok = expandlabel(tok, &tok_mult);
   for(k=1; k<=tok_mult; ++k) {
     my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     strtolower(t);
@@ -1397,13 +1397,13 @@ static void send_current_to_gaw(int simtype, const char *node)
   c = get_color(xctx->hilight_color);
   sprintf(color_str, "%02x%02x%02x", xctx->xcolor_array[c].red>>8, xctx->xcolor_array[c].green>>8,
                                      xctx->xcolor_array[c].blue>>8);
-  expanded_tok = expandlabel(tok, &tok_mult);
   tcleval("setup_tcp_gaw");
   if(tclresult()[0] == '0') return;
   my_strdup2(_ALLOC_ID_, &p, xctx->sch_path[xctx->currsch]+1);
   path = p;
   strtolower(path);
   there_is_hierarchy = (xctx->currsch > 0);
+  expanded_tok = expandlabel(tok, &tok_mult);
   for(k=1; k<=tok_mult; ++k) {
     my_strdup(_ALLOC_ID_, &t, find_nth(expanded_tok, ",", "", 0, k));
     strtolower(t);

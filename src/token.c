@@ -680,7 +680,7 @@ int get_last_used_index(const char *old_basename, const char *brkt)
  * action can be XINSERT or XDELETE to insert or remove items */
 void hash_names(int inst, int action)
 {
-  int i, xmult, start, stop;
+  int i, start, stop;
   char *upinst = NULL;
   char *upinst_ptr, *upinst_state, *single_name;
   dbg(1, "hash_names(): inst=%d, action=%d\n", inst, action);
@@ -699,7 +699,7 @@ void hash_names(int inst, int action)
         start, stop, xctx->inst[inst].instname? xctx->inst[inst].instname : "<NULL>");
   for(i = start; i < stop; ++i) {
     if(xctx->inst[i].instname && xctx->inst[i].instname[0]) {
-      my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, &xmult));
+      my_strdup(_ALLOC_ID_, &upinst, expandlabel(xctx->inst[i].instname, NULL));
       strtoupper(upinst);
 
       upinst_ptr = upinst;
@@ -724,11 +724,11 @@ void hash_names(int inst, int action)
 
 static int name_is_used(char *name, const char *old_basename, const char *brkt, int q)
 {
-  int xmult, used = -1;
+  int used = -1;
   char *upinst = NULL;
   char *upinst_ptr, *upinst_state, *single_name;
   Int_hashentry *entry;
-  my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, &xmult));
+  my_strdup(_ALLOC_ID_, &upinst, expandlabel(name, NULL));
   strtoupper(upinst);
   upinst_ptr = upinst;
   while( (single_name = my_strtok_r(upinst_ptr, ",", "", 0, &upinst_state)) ) {
@@ -977,7 +977,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
  dbg(1, "print_vhdl_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
 
  fprintf(fd, "---- start primitive ");
- lab=expandlabel(name, &tmp);
+ expandlabel(name, &tmp);
  fprintf(fd, "%d\n",tmp);
  /* begin parsing format string */
  while(1)
@@ -1876,7 +1876,7 @@ void print_verilog_param(FILE *fd, int symbol)
 
 void print_tedax_subckt(FILE *fd, int symbol)
 {
- int i=0, multip;
+ int i=0;
  int no_of_pins=0;
  const char *str_ptr=NULL;
 
@@ -1886,7 +1886,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
   {
     if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), "true")) {
       str_ptr=
-        expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), &multip);
+        expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), NULL);
       fprintf(fd, "%s ", str_ptr);
     }
   }
@@ -3521,7 +3521,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   dbg(1, "print_verilog_primitive(): name=%s, format=%s xctx->netlist_count=%d\n",name,format, xctx->netlist_count);
 
   fprintf(fd, "---- start primitive ");
-  lab=expandlabel(name, &tmp);
+  expandlabel(name, &tmp);
   fprintf(fd, "%d\n",tmp);
   /* begin parsing format string */
   while(1)
