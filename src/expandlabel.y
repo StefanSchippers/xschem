@@ -304,11 +304,14 @@ int  *idx;  /* for bus index & bus index ranges */
 %left ','
 %left '*'
 
+%destructor {my_free(_ALLOC_ID_, &$$); } <idx>
+%destructor {my_free(_ALLOC_ID_, &$$.str); } <ptr>
+%destructor {my_free(_ALLOC_ID_, &$$); } <str>
 /* Grammar follows */
 %%
 
 
-line:    /* empty */
+line: %empty     /* empty */
          | list         {
                          dbg(dbg_var, "yyparse(): list, dest_string.str=%s\n", $1.str);
                          my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str);
@@ -481,6 +484,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         {
                          /* start : end : extend : repetitions */
                          int r, i, sign, offset;
+                         (void)$1;
                          sign = XSIGN($5-$3);
                          offset = 0;
                          for(r=0; r < $9; r++) {
@@ -498,6 +502,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                          int i;
                          int sign;
 
+                         (void)$1;
                          sign = XSIGN($5-$3);
                          for(i=$3;;i+=sign*$7)
                          {
@@ -511,6 +516,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
         | index ',' B_IDXNUM ':' B_IDXNUM
                         {
                          int i;
+                         (void)$1;
                          for(i=$3;;i+=XSIGN($5-$3))
                          {
                           ++$$[0];
@@ -521,6 +527,7 @@ index:    B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM ':' B_IDXNUM
                         }
         | index ',' B_IDXNUM
                         {
+                         (void)$1;
                          ++$$[0];
                          check_idx(&$$, $$[0]);
                          $$[$$[0]]=$3;
@@ -579,6 +586,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                         {
                          /* start .. end .. offset .. repetitions */
                          int r, i, sign, offset;
+                         (void)$1;
                          sign = XSIGN($5-$3);
                          offset = 0;
                          for(r=0; r < $9; r++) {
@@ -596,6 +604,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                          int i;
                          int sign;
 
+                         (void)$1;
                          sign = XSIGN($5-$3);
                          for(i=$3;;i+=sign*$7)
                          {
@@ -609,6 +618,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
 	| index_nobracket ',' B_IDXNUM B_DOUBLEDOT B_IDXNUM
                         {
                          int i;
+                         (void)$1;
                          for(i=$3;;i+=XSIGN($5-$3))
                          {
                           ++$$[0];
@@ -619,6 +629,7 @@ index_nobracket: B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT B_IDXNUM B_DOUBLEDOT 
                         }
 	| index_nobracket ',' B_IDXNUM
                         {
+                         (void)$1;
                          ++$$[0];
                          check_idx(&$$, $$[0]);
                          $$[$$[0]]=$3;
