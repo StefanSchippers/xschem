@@ -9767,7 +9767,7 @@ set tctx::global_list {
  fix_broken_tiled_fill flat_netlist fullscreen gaw_fd gaw_tcp_address graph_autoload graph_bus
  graph_change_done graph_dialog_default_geometry graph_digital graph_legend graph_linewidth_mult
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
- graph_sel_wave graph_selected graph_sort graph_unlocked graph_use_ctrl_key 
+ graph_sel_wave graph_selected graph_select_to_zoom graph_sort graph_unlocked graph_use_ctrl_key 
  graph_vlegend hide_empty_graphs
  hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
@@ -11465,6 +11465,7 @@ set_ne uppercase_subckt 0
 set_ne lvs_ignore 0
 set_ne hide_empty_graphs 0 ;# if set to 1 waveform boxes will be hidden if no raw file loaded
 set_ne graph_use_ctrl_key 0;# if set forces to use Control key to operate on graphs
+set_ne graph_select_to_zoom 0;  #if set requires graph box to be selected to allow to zoom / pan with mouse / keys.
 set_ne spiceprefix 1
 set_ne verilog_2001 1
 set_ne verilog_bitblast 0

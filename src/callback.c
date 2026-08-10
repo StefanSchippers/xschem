@@ -31,6 +31,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
   int rstate; /* state without ShiftMask */
   int i, check;
   int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
+  int graph_select_to_zoom = tclgetboolvar("graph_select_to_zoom");
   int is_inside = 0, skip = 0;
   static unsigned int excl = STARTZOOM | STARTRECT | STARTLINE | STARTWIRE |
                              STARTPAN | STARTSELECT | STARTMOVE | STARTCOPY;
@@ -41,9 +42,11 @@ static int waves_selected(int event, KeySym key, int state, int button)
   rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   if(xctx->ui_state & excl) skip = 1;
   /* else if(event != -3 && sch_waves_loaded() < 0 ) skip = 1; */
+
   /* allow to work on graphs even if ctrl released while in GRAPHPAN mode
    * This is useful on touchpads with TappingDragLock enabled */
-  else if(graph_use_ctrl_key && !(state & ControlMask) && !(xctx->ui_state & GRAPHPAN)) skip = 1;
+  else if(!graph_select_to_zoom && graph_use_ctrl_key &&
+          !(state & ControlMask) && !(xctx->ui_state & GRAPHPAN)) skip = 1;
   else if(SET_MODMASK) skip = 1;
   else if(event == MotionNotify && (state & Button2Mask)) skip = 1;
   else if(event == MotionNotify && (state & Button1Mask) && (state & ShiftMask)) skip = 1;
@@ -53,15 +56,16 @@ static int waves_selected(int event, KeySym key, int state, int button)
   /* else if(event == KeyPress && (state & ShiftMask)) skip = 1; */
   else if(!skip) for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     double lmargin;
+    int sel;
     xRect *r;
     r = &xctx->rect[GRIDLAYER][i];
+    if(!(r->flags & 1) ) continue;
+    sel = (r->sel == SELECTED);
     lmargin = (r->x2 - r->x1) / 20.;
     lmargin = lmargin < 3. ? 3. : lmargin;
     lmargin = lmargin > 20. ? 20. : lmargin;
-    if(!(r->flags & 1) ) continue;
     if( !graph_use_ctrl_key && !(state & ControlMask) &&
        !strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
-
     check =
       (xctx->ui_state & GRAPHPAN) ||
       ((event == ButtonPress || event == ButtonRelease) && button == Button3 &&
@@ -80,7 +84,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
          )
       );
 
-    if(check) {
+    if(check && (sel || !graph_select_to_zoom)) {
        is_inside = 1;
        if(! (xctx->ui_state & GRAPHPAN) ) {
          xctx->graph_master = i;
@@ -423,6 +427,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   Graph_ctx *gr;
   int rstate; /* reduced state wit ShiftMask bit filtered out */
   int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
+  int graph_select_to_zoom = tclgetboolvar("graph_select_to_zoom");
   int i, dataset = 0;
   int need_fullredraw = 0, need_all_redraw = 0, need_redraw = 0, need_redraw_master = 0;
   double xx1 = 0.0, xx2 = 0.0, yy1, yy2;
@@ -431,7 +436,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
-  int access_cond = !graph_use_ctrl_key || (state & ControlMask);
+  int access_cond = graph_select_to_zoom && (!graph_use_ctrl_key || (state & ControlMask));
 
   dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   /* if(event != -3 && !xctx->raw) return 0; */

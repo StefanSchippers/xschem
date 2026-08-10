@@ -690,6 +690,14 @@
 # set graph_use_ctrl_key 1
 
 ###########################################################################
+#### REQUIRE GRAPH TO BE SELECTED TO OPERATE ON IT.
+###########################################################################
+#### if enabled requires graph to be selected to allow panning / zooming 
+#### waveforms.
+#### Default: 0 (not set)
+# set graph_select_to_zoom 1
+
+###########################################################################
 #### HIDE GRAPHS IF NO SPICE DATA LOADED
 ###########################################################################
 #### if enabled graphs will be hidden if no data is loaded.
