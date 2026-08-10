@@ -436,7 +436,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int save_mouse_at_end = 0, clear_graphpan_at_end = 0;
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
-  int access_cond = graph_select_to_zoom && (!graph_use_ctrl_key || (state & ControlMask));
+  int access_cond = graph_select_to_zoom || (!graph_use_ctrl_key || (state & ControlMask));
 
   dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   /* if(event != -3 && !xctx->raw) return 0; */
