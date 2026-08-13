@@ -3807,6 +3807,7 @@ void print_verilog_element(FILE *fd, int inst)
  size_t sizetok=0, sizeval=0;
  size_t token_pos=0, value_pos=0;
  int quote=0;
+ int escape=0;
  const char *fmt_attr = NULL;
  Int_hashtable table = {NULL, 0};
  const char *fmt;
@@ -3867,8 +3868,11 @@ void print_verilog_element(FILE *fd, int inst)
   c=*s++;
   if(c=='\\')
   {
+    escape=1;
     c=*s++;
   }
+  else 
+   escape = 0;
   space=SPACE(c);
   if( (state==TOK_BEGIN || state==TOK_ENDTOK) && !space && c != '=') state=TOK_TOKEN;
   else if( state==TOK_TOKEN && space) state=TOK_ENDTOK;
@@ -3881,7 +3885,8 @@ void print_verilog_element(FILE *fd, int inst)
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE)
   {
-    value[value_pos++]=(char)c;
+    if(c=='"' && !escape) quote=!quote;
+    else value[value_pos++]=(char)c;
   }
   else if(state==TOK_ENDTOK || state==TOK_SEP) {
     if(token_pos) {
