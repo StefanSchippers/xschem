@@ -211,11 +211,22 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      sub(/^#/,"",iprefix)
      sub(/#.*/,"",iprefix)
      sub("#" iprefix "#", iprefix,$i)
-     gsub(/,/, "," iprefix,$i)
+     gsub(/,/, "," iprefix, $i)
      ## 20160301 add '?1' if missing in format string
      if(i>1 && ( $(i-1) !~/^\?/) )  {
        $i = "?1 " $i
      }
+     $0 = $0  # reparse input line
+   }
+   # prefix applied to symbol pin, like for example prepending negation operator '~' to pin: 
+   # format= ... #~#@@A[3:0] --> #~#?4 A[3],A[2],A[1],A[0] --> ~A[3],~A[2],~A[1],~A[0]
+   if($i ~/^#[~a-zA-Z_0-9]+#\?/) {
+     iprefix=$i
+     sub(/^#/,"",iprefix)
+     sub(/#.*/,"",iprefix)
+     sub("#" iprefix "#", "",$i)
+     $(i+1) = iprefix $(i+1)
+     gsub(/,/, "," iprefix, $(i+1))
      $0 = $0  # reparse input line
    }
  }
@@ -274,76 +285,76 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
      }
    }
 
- #### this is never executed: commented lines are processed and skipped above
- # } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
- #   num=split($2,name,",")
- #   for(i=1;i<=num;i++) print $1 " " name[i]
-
- } else if(  tolower($1) ~ /\.subckt/) {
-  # remove m=.. from subcircuit definition since m= is a multiplier not a param
-  sub(/ m=[0-9]+/," ",$0)
-  gsub(","," ",$0)
-  print $0
- } else {
-  # handle uncommon primitives that have a prefix before the device name
-  if(tolower($1) in special_devs) {
-    # YDELAY ?1 Rda[4],Rda[3],Rda[2],Rda[1],Rda[0] ?1 softrst[4],softrst[3],...
-    devprefix = $1
-    num = split($3, name, ",")
-    $1 = ""
-    for(i = 0; i < num; i++) {
-      if(i) $1 = $1 ","
-      $1 = $1 devprefix
-    }
-    num = split($1, name, ",")
-    $0 = $0
+  #### this is never executed: commented lines are processed and skipped above
+  # } else if( $1 ~ /^\*\.(ipin|opin|iopin)/ ) {
+  #   num=split($2,name,",")
+  #   for(i=1;i<=num;i++) print $1 " " name[i]
+ 
+  } else if(  tolower($1) ~ /\.subckt/) {
+   # remove m=.. from subcircuit definition since m= is a multiplier not a param
+   sub(/ m=[0-9]+/," ",$0)
+   gsub(","," ",$0)
+   print $0
   } else {
-    num = split($1, name, ",")
-  }
-  if(num==0) print ""
-
-
-  for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
-  {
-    #       ............ --> matches ?n and ?-n
-    # some CDL netlists have this: $SUB=?1 B where B is a node
-    if($j ~/^(.*=)?\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
-    arg_num[j]=split($j,tmp,",")
-    for(k=1;k<=arg_num[j]; k++) {
-     arg_name[j,k]=tmp[k]
-    }
-  }
-  for(i=1;i<=num;i++)
-  {
-   printf "%s ", spiceprefix name[i]
-
-   for(j=2;j<=NF;j++)
-   {
-    #         ............ --> matches ?n and ?-n
-    # some CDL netlists have this: $SUB=?1 B where B is a node
-    if($j !~ /^(.*=)?\?-?[0-9]+$/)
-    {
-      printf "%s ", $j # if not a node just print it
-    }
-    else
-    {
-     nmult=$(j)
-     if(nmult ~ /^(.*=)/) { # some CDL netlists have this: $SUB=?1 B where B is a node
-       sub(/=.*/, "=", nmult)
-       printf "%s", nmult
+   # handle uncommon primitives that have a prefix before the device name
+   if(tolower($1) in special_devs) {
+     # YDELAY ?1 Rda[4],Rda[3],Rda[2],Rda[1],Rda[0] ?1 softrst[4],softrst[3],...
+     devprefix = $1
+     num = split($3, name, ",")
+     $1 = ""
+     for(i = 0; i < num; i++) {
+       if(i) $1 = $1 ","
+       $1 = $1 devprefix
      }
-     nmult=$(j++)
-     sub(/(.*=)?\?/,"",nmult)
-     if(nmult+0==-1) nmult=arg_num[j]
-     for(l=0;l<nmult+0;l++)
-     {
-      ii=(l+nmult*(i-1))%arg_num[j]+1
-      printf "%s ", arg_name[j,ii]
-     }
-    }
+     num = split($1, name, ",")
+     $0 = $0
+   } else {
+     num = split($1, name, ",")
    }
-   printf "\n"
+   if(num==0) print ""
+ 
+ 
+   for(j=2;j<=NF;j+=1)  		# start from 2 not from 3 20070221
+   {
+     #       ............ --> matches ?n and ?-n
+     # some CDL netlists have this: $SUB=?1 B where B is a node
+     if($j ~/^(.*=)?\?-?[0-9]+$/) continue	# handle the case that $2 not pinlist  20070221
+     arg_num[j]=split($j,tmp,",")
+     for(k=1;k<=arg_num[j]; k++) {
+      arg_name[j,k]=tmp[k]
+     }
+   }
+   for(i=1;i<=num;i++)
+   {
+    printf "%s ", spiceprefix name[i]
+ 
+    for(j=2;j<=NF;j++)
+    {
+     #         ............ --> matches ?n and ?-n
+     # some CDL netlists have this: $SUB=?1 B where B is a node
+     if($j !~ /^(.*=)?\?-?[0-9]+$/)
+     {
+       printf "%s ", $j # if not a node just print it
+     }
+     else
+     {
+      nmult=$(j)
+      if(nmult ~ /^(.*=)/) { # some CDL netlists have this: $SUB=?1 B where B is a node
+        sub(/=.*/, "=", nmult)
+        printf "%s", nmult
+      }
+      nmult=$(j++)
+      sub(/(.*=)?\?/,"",nmult)
+      if(nmult+0==-1) nmult=arg_num[j]
+      for(l=0;l<nmult+0;l++)
+      {
+       ii=(l+nmult*(i-1))%arg_num[j]+1
+       printf "%s ", arg_name[j,ii]
+      }
+     }
+    }
+    printf "\n"
+   }
   }
- }
 }
 

@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -21,9 +21,11 @@ v {xschem version=3.4.4 file_version=1.2
 }
 G {
 Y <=  A xor B after delay ;}
+K {}
 V {
 assign #del Y=A^B;}
 S {}
+F {}
 E {}
 C {ipin.sym} 150 -320 0 0 {name=p2 lab=A}
 C {ipin.sym} 150 -350 0 0 {name=p3 lab=B}
@@ -38,3 +40,6 @@ library ieee;
 --         use SYNOPSYS.ATTRIBUTES.ALL;
 }
 C {title.sym} 160 -30 0 0 {name=l2}
+C {noconn.sym} 920 -350 0 0 {name=l1}
+C {noconn.sym} 150 -350 0 1 {name=l3}
+C {noconn.sym} 150 -320 0 1 {name=l4}

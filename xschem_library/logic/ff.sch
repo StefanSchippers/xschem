@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -30,6 +30,7 @@ end if ;
 end process ;
 
  }
+K {}
 V {reg iQ;
 always @(posedge CK or posedge RST) begin
   if(RST)    iQ=0;
@@ -39,6 +40,7 @@ end
 assign #del Q=iQ;
 }
 S {}
+F {}
 E {}
 C {ipin.sym} 60 -150 0 0 {name=p1 lab=D}
 C {opin.sym} 130 -130 0 0 {name=p2 verilog_type=wire lab=Q}
@@ -49,3 +51,7 @@ C {use.sym} 100 -440 0 0 {------------------------------------------------
 library ieee;
         use ieee.std_logic_1164.all;
         use ieee.numeric_std.all;}
+C {noconn.sym} 130 -130 0 0 {name=l1}
+C {noconn.sym} 60 -150 0 1 {name=l3}
+C {noconn.sym} 60 -130 0 1 {name=l4}
+C {noconn.sym} 60 -110 0 1 {name=l5}

@@ -1,4 +1,4 @@
-v {xschem version=3.4.6RC file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -180,6 +180,7 @@ ADD=3;
 end
 }
 S {}
+F {}
 E {}
 T {Double edge triggered Flip FLop} 1090 -660 0 0 0.5 0.5 {}
 N 440 -350 470 -350 {lab=A}
@@ -197,8 +198,7 @@ N 810 -360 840 -360 {lab=A}
 N 920 -360 950 -360 {lab=Y_BUF}
 N 780 -90 810 -90 {lab=B}
 N 890 -90 920 -90 {lab=BN}
-N 1300 -430 1310 -430 {lab=#net1}
-N 1300 -570 1310 -570 {lab=#net2}
+N 1300 -570 1310 -570 {lab=#net1}
 N 1350 -550 1380 -550 {lab=AL1}
 N 1350 -610 1350 -550 {lab=AL1}
 N 1300 -610 1350 -610 {lab=AL1}
@@ -209,6 +209,9 @@ N 1080 -570 1170 -570 {lab=CK}
 N 1080 -610 1160 -610 {lab=A}
 N 1110 -470 1160 -470 {lab=A}
 N 1110 -610 1110 -470 {lab=A}
+N 1300 -430 1310 -430 {lab=#net2}
+N 990 -690 990 -670 {lab=DOUT[7:0]}
+N 940 -840 940 -820 {lab=DATA_OUT[7:0]}
 C {title.sym} 160 -30 0 0 {name=l2}
 C {nr2.sym} 510 -330 0 0 {name=x1 }
 C {lab_pin.sym} 440 -350 2 1 {name=p20 lab=A}
@@ -307,3 +310,15 @@ C {lab_pin.sym} 1230 -540 2 1 {name=p56 lab=RST verilog_type=reg}
 C {lab_pin.sym} 1230 -400 2 1 {name=p58 lab=RST verilog_type=reg}
 C {lab_pin.sym} 1350 -610 0 1 {name=p65 lab=AL1}
 C {lab_pin.sym} 1350 -470 0 1 {name=p66 lab=AL2}
+C {noconn.sym} 160 -430 1 0 {name=l1}
+C {noconn.sym} 160 -390 1 0 {name=l3}
+C {noconn.sym} 160 -350 1 0 {name=l4}
+C {noconn.sym} 160 -320 1 0 {name=l5}
+C {noconn.sym} 160 -300 1 0 {name=l6}
+C {noconn.sym} 160 -280 1 0 {name=l7}
+C {noconn.sym} 160 -260 1 0 {name=l8}
+C {noconn.sym} 160 -240 1 0 {name=l9}
+C {noconn.sym} 160 -220 1 0 {name=l10}
+C {noconn.sym} 160 -200 1 0 {name=l11}
+C {noconn.sym} 990 -670 0 0 {name=l12}
+C {noconn.sym} 940 -820 0 0 {name=l13}
