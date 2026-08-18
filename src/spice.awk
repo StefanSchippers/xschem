@@ -220,7 +220,7 @@ function process(        i,j, iprefix, saveinstr, savetype, saveanalysis)
    }
    # prefix applied to symbol pin, like for example prepending negation operator '~' to pin: 
    # format= ... #~#@@A[3:0] --> #~#?4 A[3],A[2],A[1],A[0] --> ~A[3],~A[2],~A[1],~A[0]
-   if($i ~/^#[~a-zA-Z_0-9]+#\?/) {
+   if($i ~/^#[~a-zA-Z_0-9]+#\?-?[0-9]+/) {
      iprefix=$i
      sub(/^#/,"",iprefix)
      sub(/#.*/,"",iprefix)
