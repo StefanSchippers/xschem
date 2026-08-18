@@ -23,7 +23,7 @@ G {}
 K {type=subcircuit
 vhdl_stop=true 
 verilog_stop=true
-format="@name #~#@@D @pinlist @symname" 
+format="@name @pinlist @symname" 
 template="name=x1 delay=\\"400 ps\\" del=400"
 generic_type="delay=time"}
 V {}
