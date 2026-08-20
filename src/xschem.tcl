@@ -6954,14 +6954,16 @@ proc set_xschem_vars {} {
 # they can be used together with TCL xschem command to query instance or symbol
 # attributes.
 #
-proc tclpropeval {s instname symname} {
-  # puts "tclpropeval: $s $instname $symname"
-  global env debug_var
+proc tclpropeval {s instn symn} {
+  # puts "tclpropeval: $s $instn $symn"
+  global env debug_var debug_tcleval instname symname
+  if {![info exists instname]} {set instname $instn}
+  if {![info exists symname]} {set symname $symn}
   regsub {^@tcleval\(} $s {} s
   regsub {\)([ \t\n]*)$} $s {\1} s
-  # puts "tclpropeval: $s $instname $symname"
-  if { [catch {subst $s} res] } {
-    # puts stderr $res
+
+  if { [catch {uplevel #0 "subst \{$s\}"} res] } {
+    if { $debug_tcleval > 0} { puts "tclpropeval warning: $s --> $res"}
     set res ?\n
   }
   return $res

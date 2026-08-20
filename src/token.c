@@ -3913,9 +3913,9 @@ void print_verilog_element(FILE *fd, int inst)
          if( !generic_type || strcmp(get_tok_value(generic_type,token, 0), "time")  ) {
            if(tmp1) fprintf(fd, " ,\n");
            if( generic_type && !strcmp(get_tok_value(generic_type,token, 0), "string")  ) {
-             fprintf(fd, "  .%s ( \"%s\" )", token, value);
+             fprintf(fd, "  .%s ( \"%s\" )", token, tcl_hook2(value));
            } else {
-             fprintf(fd, "  .%s ( %s )", token, value);
+             fprintf(fd, "  .%s ( %s )", token, tcl_hook2(value));
            }
            tmp1=1;
          }

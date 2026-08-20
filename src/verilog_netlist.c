@@ -555,7 +555,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
                   xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
         my_strdup(_ALLOC_ID_, &port_value,
           get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"value", 0) );
-        my_strdup(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
+        my_strdup2(_ALLOC_ID_, &dir_tmp, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"dir",0) );
         if(strcmp(dir_tmp,"in")){
            if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"wire"); /* 20070720 changed reg to wire */
         } else {
