@@ -7859,7 +7859,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
   tkwait window .dialog
 
   if {$preserve_disabled eq {disabled}} {
-    if {$tctx::retval ne $tctx::retval_orig} {
+    if { $tctx::rcode ne {} && $tctx::retval ne $tctx::retval_orig} {
       xschem push_undo
       xschem set_modify 1
       set glob_attr [string map {
