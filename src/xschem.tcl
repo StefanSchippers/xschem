@@ -5932,11 +5932,34 @@ proc file_chooser {} {
     }
   }
   bind .ins.center.left.l <KeyPress-Return> {
-    if {$file_chooser(action) eq {load}} {
-      .ins.bottom.load invoke
+
+    proc handle_return {} {
+      global file_chooser
+      set type {}
+      set sel [lindex [.ins.center.left.l curselection] 0]
+      if {$sel ne {} && [info exists file_chooser(fullpathlist)]} {
+        set f [lindex $file_chooser(fullpathlist) $sel]
+        # puts ">>>> $f"
+        if {$f ne {}} {
+          set type [is_xschem_file $f]
+        }
+      }
+      if {$type eq {SYMBOL}} {
+        if {1} { ;#Close file browser on Return key press and place selected symbol
+          xschem place_symbol $f
+          xschem preview_window close .ins.center.right {}
+          destroy .ins
+        } else { ;# Place symbol on Return key press but leave file browser open.
+          set file_chooser(action) {symbol1} ;# only one time insert symbol
+          file_chooser_preview
+        }
+      } else {
+        .ins.bottom.load invoke
+        xschem preview_window close .ins.center.right {}
+        destroy .ins
+      }
     }
-    xschem preview_window close .ins.center.right {}
-    destroy .ins
+    handle_return
   }
   label .ins.bottom.n -text { N. of items:}
   label .ins.bottom.nitems -textvariable file_chooser(nitems)
