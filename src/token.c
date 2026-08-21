@@ -4585,12 +4585,16 @@ const char *translate(int inst, const char *s, char **result)
     else if(state==TOK_SEP)
     {
       token[token_pos]='\0';
+      /* treat @name like any other token in the "else {...}" clause ...*/
+      #if 0
       if(!strcmp(token, "@name")) {
         tmp = strlen(instname);
         STR_ALLOC(result, tmp + result_pos, &size);
         memcpy(*result+result_pos, instname, tmp+1);
         result_pos+=tmp;
-      } else if(inst >= 0 && strcmp(token,"@symref")==0) {
+      } else
+      #endif
+      if(inst >= 0 && strcmp(token,"@symref")==0) {
        tmp_sym_name = get_sym_name(inst, 9999, 1, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
        tmp=strlen(tmp_sym_name);
