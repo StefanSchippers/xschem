@@ -431,7 +431,7 @@ lab=TRIANG }
 C {vsource.sym} 550 -790 0 0 {name=Vref value=7}
 C {lab_pin.sym} 550 -760 0 0 {name=l17  lab=0 }
 C {lab_pin.sym} 760 -720 0 0 {name=l13  lab=CTRL1 }
-C {comp_ngspice.sym} 660 -890 0 0 {name=x3 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n
+C {comp_ngspice.sym} 660 -890 0 0 {name=x3 GAIN=100 OFFSET=0.5 AMPLITUDE=1 ROUT=7k COUT=1n ZZ=@ROUT
 select=AMPLITUDE}
 C {lab_pin.sym} 550 -860 0 0 {name=l16
 lab=REF}
