@@ -1598,9 +1598,9 @@ void print_vhdl_element(FILE *fd, int inst)
 
          /* 20080213  put "" around string type generics! */
          if( generic_type && !strcmp(get_tok_value(generic_type,token, 0), "string")  ) {
-           fprintf(fd, "  %s => \"%s\"", token, value);
+           fprintf(fd, "  %s => \"%s\"", token, tcl_hook2(value));
          } else {
-           fprintf(fd, "  %s => %s", token, value);
+           fprintf(fd, "  %s => %s", token, tcl_hook2(value));
          }
          /* /20080213 */
 
