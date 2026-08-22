@@ -50,4 +50,3 @@ T {AMPLITUDE=@AMPLITUDE} 8.75 21.25 0 0 0.2 0.2 {}
 T {@#PLUS:spice_get_voltage} -38.125 -17.34375 0 0 0.0625 0.0625 {layer=15}
 T {@#MINUS:spice_get_voltage} -38.125 13.90625 0 0 0.0625 0.0625 {layer=15}
 T {@#OUT:spice_get_voltage} 25.625 -8.59375 0 1 0.0625 0.0625 {layer=15}
-T {@ZZ\\\\xx} -10 -58.25 0 0 0.2 0.2 {}
