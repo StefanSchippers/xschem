@@ -4487,7 +4487,444 @@ char *get_fqdevice(const char *param, int modelparam, const char *instname)
 }
 
 
+static void handle_spice_get_voltage2(int inst, char *instname, char *token,
+       char **result, size_t *result_pos, size_t *size)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  int live = tclgetboolvar("live_cursor2_backannotate");
+  if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+    char *fqnet = NULL;
+    const char *path =  xctx->sch_path[xctx->currsch] + 1;
+    char *net = NULL;
+    char *global_net;
+    size_t len;
+    int idx, n, multip;
+    double val = 0.0;
+    const char *valstr;
+    size_t tmp = strlen(token) + 1;
+    if(path) {
+      int skip = 0;
+      /* skip path components that are above the level where raw file was loaded */
+      while(*path && skip < start_level) {
+        if(*path == '.') skip++;
+        ++path;
+      }
+      net = my_malloc(_ALLOC_ID_, tmp);
+      n = sscanf(token + 19, "%[^)]", net);
+      expandlabel(net, &multip);
+      if(n == 1 && multip == 1) {
+        len = strlen(path) + strlen(instname) + strlen(net) + 2;
+        dbg(1, "net=%s\n", net);
+        fqnet = my_malloc(_ALLOC_ID_, len);
 
+
+        global_net = strrchr(net, '.');
+        if(global_net == NULL) global_net = net;
+        else global_net++;
+
+        if(inst < 0 || record_global_node(3, NULL, global_net)) {
+          strtolower(net);
+          my_snprintf(fqnet, len, "%s", global_net);
+        } else {
+          strtolower(net);
+          my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
+        }
+        strtolower(fqnet);
+        dbg(0, "translate(): inst=%d, net=%s, fqnet=%s start_level=%d\n", inst, net, fqnet, start_level);
+        idx = get_raw_index(fqnet, NULL);
+        if(idx >= 0) {
+          val = xctx->raw->cursor_b_val[idx];
+        }
+        if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
+          valstr = "0.0";
+          xctx->tok_size = 3;
+          len = 3;
+        } else if(idx < 0) {
+          valstr = "-";
+          xctx->tok_size = 1;
+          len = 1;
+        } else {
+          /* always use engineering as these tokens are generated from single
+           * @spice_get_voltage patterns */
+          valstr = dtoa_eng(val, xctx->ev_precision);
+          len = xctx->tok_size;
+        }
+        if(len) {
+          len = strlen(valstr);
+          STR_ALLOC(result, len + *result_pos, size);
+          memcpy(*result+*result_pos, valstr, len+1);
+          *result_pos += len;
+        }
+        dbg(1, "instname %s, net=%s, fqnet=%s idx=%d valstr=%s\n", instname,  net, fqnet, idx, valstr);
+        my_free(_ALLOC_ID_, &fqnet);
+      }
+      my_free(_ALLOC_ID_, &net);
+    }
+  }
+}
+
+static void handle_spice_get_voltage(int inst, int engineering,
+             char **result, size_t *result_pos, size_t *size)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  int live = tclgetboolvar("live_cursor2_backannotate");
+  if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+    int multip;
+    int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+    if(no_of_pins == 1) {
+      char *fqnet = NULL;
+      const char *path =  xctx->sch_path[xctx->currsch] + 1;
+      char *net = NULL;
+      size_t len;
+      int idx;
+      double val = 0.0;
+      const char *valstr;
+      if(path) {
+        prepare_netlist_structs(0);
+        if(xctx->inst[inst].lab) {
+          my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
+        }
+        if(net == NULL || net[0] == '\0') {
+          my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
+        }
+        if(multip == 1 && net && net[0]) {
+          char *rn;
+          dbg(1, "translate() @spice_get_voltage: inst=%d\n", inst);
+          dbg(1, "                                net=%s\n", net);
+          rn = resolved_net(net);
+          if(rn) {
+            my_strdup2(_ALLOC_ID_, &fqnet, rn);
+            if(rn) my_free(_ALLOC_ID_, &rn);
+            strtolower(fqnet);
+            dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
+            idx = get_raw_index(fqnet, NULL);
+            if(idx >= 0) {
+              val = xctx->raw->cursor_b_val[idx];
+            }
+            if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
+              valstr = "0.0";
+              xctx->tok_size = 3;
+              len = 3;
+            } else if(idx < 0) {
+              valstr = "-";
+              xctx->tok_size = 1;
+              len = 1;
+            } else {
+              valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
+              len = xctx->tok_size;
+            }
+            if(len) {
+              len = strlen(valstr);
+              STR_ALLOC(result, len + *result_pos, size);
+              memcpy(*result+*result_pos, valstr, len+1);
+              *result_pos += len;
+            }
+            dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
+            if(fqnet) my_free(_ALLOC_ID_, &fqnet);
+          }
+        }
+        if(net) my_free(_ALLOC_ID_, &net);
+      }
+    }
+  }
+}
+
+static void handle_spice_get_current(char *instname, int engineering, int sim_is_ngspice, int sim_is_vacask,
+        char *token, char **result, size_t *result_pos, size_t *size)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  int live = tclgetboolvar("live_cursor2_backannotate");
+  if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+    char *fqdev = NULL;
+    const char *path =  xctx->sch_path[xctx->currsch] + 1;
+    char *dev = NULL, *param = NULL;
+    int modelparam = 0; /* 0: current, 1: modelparam, 2: modelvoltage */
+    size_t len;
+    int idx;
+    int error = 0;
+    double val = 0.0;
+    const char *valstr;
+    if(path) {
+      int skip = 0;
+      /* skip path components that are above the level where raw file was loaded */
+      while(*path && skip < start_level) {
+        if(*path == '.') skip++;
+        ++path;
+      }
+      /* token contans _param after @spice_get_current or @spice_get_modelparam
+       * or  @spice_get_modelvoltage */
+      if(strcmp(token, "@spice_get_current") &&
+         strcmp(token, "@spice_get_modelparam") &&
+         strcmp(token, "@spice_get_modelvoltage")) {
+        int n = 0;
+        param = my_malloc(_ALLOC_ID_, strlen(token) + 1);
+        n = sscanf(token, "@spice_get_current_%s", param);
+        if(n == 0) {
+          n = sscanf(token, "@spice_get_modelparam_%s", param);
+          modelparam = 1;
+        }
+        if(n == 0) {
+          n = sscanf(token, "@spice_get_modelvoltage_%s", param);
+          modelparam = 2;
+        }
+        if(n == 0) {
+          my_free(_ALLOC_ID_, &param);
+          error = 1;
+        }
+      }
+      if(!error) {
+        char *iprefix = modelparam == 0 ? "i(" : modelparam == 1 ? "" : "v(";
+        char *ipostfix = modelparam == 1 ? "" : ")";
+        int prefix;
+        my_strdup2(_ALLOC_ID_, &dev, instname);
+        strtolower(dev);
+        prefix=dev[0];
+        len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
+        dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
+        fqdev = my_malloc(_ALLOC_ID_, len);
+        if(sim_is_ngspice) {
+          int vsource = (prefix == 'v') || (prefix == 'e');
+          if(path[0]) {
+            if(vsource) {
+              my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
+            } else if(prefix=='q') {
+              my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                          iprefix, prefix, path, dev, param ? param : "ic", ipostfix);
+            } else if(prefix=='d' || prefix == 'm') {
+              my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
+                          iprefix, prefix, path, dev, param ? param : "id", ipostfix);
+            } else if(prefix=='i') {
+              my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
+            } else {
+              my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
+            }
+          } else {
+            if(vsource) {
+              my_snprintf(fqdev, len, "i(%s)", dev);
+            } else if(prefix == 'q') {
+              my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "ic", ipostfix);
+            } else if(prefix == 'd' || prefix == 'm') {
+              my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "id", ipostfix);
+            } else if(prefix == 'i') {
+              my_snprintf(fqdev, len, "i(@%s[current])", dev);
+            } else {
+              my_snprintf(fqdev, len, "i(@%s[i])", dev);
+            }
+          }
+        } else if(sim_is_vacask) {
+          my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
+        } else { /*xyce */
+          my_snprintf(fqdev, len, "i(%s%s)", path, dev);
+        }
+        if(param) my_free(_ALLOC_ID_, &param);
+        dbg(1, "fqdev=%s\n", fqdev);
+        strtolower(fqdev);
+        idx = get_raw_index(fqdev, NULL);
+        if(idx >= 0) {
+          val = xctx->raw->cursor_b_val[idx];
+        }
+        /* special handling for resistors that are converted to b sources:
+         * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
+         */
+        if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
+          if(path[0]) {
+            my_snprintf(fqdev, len, "i(@b.%sb%s[i])", path, dev);
+          } else {
+            my_snprintf(fqdev, len, "i(@b%s[i])", dev);
+          }
+          dbg(1, "fqdev=%s\n", fqdev);
+          idx = get_raw_index(fqdev, NULL);
+          if(idx >= 0) {
+            val = xctx->raw->cursor_b_val[idx];
+          }
+        }
+        if(idx < 0) {
+          valstr = "-";
+          xctx->tok_size = 1;
+          len = 1;
+        } else {
+          valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
+          len = xctx->tok_size;
+        }
+        if(len) {
+          len = strlen(valstr);
+          STR_ALLOC(result, len + *result_pos, size);
+          memcpy(*result+*result_pos, valstr, len+1);
+          *result_pos += len;
+        }
+        dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
+        my_free(_ALLOC_ID_, &fqdev);
+        my_free(_ALLOC_ID_, &dev);
+      } /* if(!error) */
+    } /* if(path) */
+  } /* (live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
+}
+
+
+static void handle_spice_get_diff_voltage(int inst, int engineering,
+             char **result, size_t *result_pos, size_t *size)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  int live = tclgetboolvar("live_cursor2_backannotate");
+  if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+    int multip;
+    int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
+    if(no_of_pins == 2) {
+      char *fqnet1 = NULL, *fqnet2 = NULL;
+      const char *path =  xctx->sch_path[xctx->currsch] + 1;
+      const char *net1, *net2;
+      size_t len;
+      int idx1, idx2;
+      double val = 0.0, val1 = 0.0, val2 = 0.0;
+      const char *valstr;
+      if(path) {
+        int gnd1 = 0, gnd2 = 0;
+        int skip = 0;
+        /* skip path components that are above the level where raw file was loaded */
+        while(*path && skip < start_level) {
+          if(*path == '.') skip++;
+          ++path;
+        }
+        prepare_netlist_structs(0);
+        net1 = net_name(inst, 0, &multip, 0, 0);
+        len = strlen(path) + strlen(net1) + 1;
+        dbg(1, "net1=%s\n", net1);
+        fqnet1 = my_malloc(_ALLOC_ID_, len);
+        my_snprintf(fqnet1, len, "%s%s", path, net1);
+        strtolower(fqnet1);
+        net2 = net_name(inst, 1, &multip, 0, 0);
+        len = strlen(path) + strlen(net2) + 1;
+        dbg(1, "net2=%s\n", net2);
+        fqnet2 = my_malloc(_ALLOC_ID_, len);
+        my_snprintf(fqnet2, len, "%s%s", path, net2);
+        strtolower(fqnet2);
+        dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
+        dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
+        if(!strcmp(fqnet1, "0") || !my_strcasecmp(fqnet1, "GND")) gnd1 = 1;
+        if(!strcmp(fqnet2, "0") || !my_strcasecmp(fqnet2, "GND")) gnd2 = 1;
+        idx1 = get_raw_index(fqnet1, NULL);
+        idx2 = get_raw_index(fqnet2, NULL);
+        if( (!gnd1 && idx1 < 0) || (!gnd2 && idx2 < 0) ) {
+          valstr = "-";
+          xctx->tok_size = 1;
+          len = 1;
+        } else {
+          double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
+          double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
+          val = val1 - val2;
+          valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
+          len = xctx->tok_size;
+        }
+        if(len) {
+          len = strlen(valstr);
+          STR_ALLOC(result, len + *result_pos, size);
+          memcpy(*result + *result_pos, valstr, len+1);
+          *result_pos += len;
+        }
+        dbg(1, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
+            inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr);
+        my_free(_ALLOC_ID_, &fqnet1);
+        my_free(_ALLOC_ID_, &fqnet2);
+      }
+    }
+  }
+}
+
+
+static void handle_spice_get_current2(char *instname, int engineering, int sim_is_ngspice, int sim_is_vacask,
+        char *token, char **result, size_t *result_pos, size_t *size)
+{
+  int start_level; /* hierarchy level where waves were loaded */
+  int live = tclgetboolvar("live_cursor2_backannotate");
+  if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
+    char *fqdev = NULL;
+    const char *path =  xctx->sch_path[xctx->currsch] + 1;
+    char *dev = NULL, *param = NULL;
+    size_t len;
+    int idx, n = 0;
+    double val = 0.0;
+    const char *valstr;
+    size_t tmp = strlen(token) + 1;
+    if(path) {
+      int skip = 0;
+      /* skip path components that are above the level where raw file was loaded */
+      while(*path && skip < start_level) {
+        if(*path == '.') skip++;
+        ++path;
+      }
+      dev = my_malloc(_ALLOC_ID_, tmp);
+      dbg(1, "%s\n", token);
+      if(!strncmp(token, "@spice_get_current(", 19)) {
+        n = sscanf(token + 19, "%[^)]", dev);
+      } else {
+        param = my_malloc(_ALLOC_ID_, tmp);
+        n = sscanf(token, "@spice_get_current_%[^(](%[^)]", param, dev);
+        dbg(1, "token=%s, param=%s, dev=%s\n", token, param, dev);
+        if(n < 2) {
+          my_free(_ALLOC_ID_, &param);
+          n = sscanf(token, "@spice_get_current[^(](%[^)]", dev);
+        }
+      }
+      if(n >= 1) {
+        strtolower(dev);
+        len = strlen(path) + strlen(instname) +
+              strlen(dev) + 21; /* some extra chars for i(..) wrapper */
+        dbg(1, "dev=%s\n", dev);
+        fqdev = my_malloc(_ALLOC_ID_, len);
+        if(sim_is_ngspice) {
+          int prefix, vsource;
+          char *prefix_ptr = strrchr(dev, '.'); /* last '.' in dev */
+          if(prefix_ptr) prefix = prefix_ptr[1]; /* character after last '.' */
+          else prefix=dev[0];
+          dbg(1, "prefix=%c, path=%s\n", prefix, path);
+          vsource = (prefix == 'v') || (prefix == 'e');
+          if(vsource) {
+            my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
+          } else if(prefix == 'q') {
+            my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "ic");
+          } else if(prefix == 'd' || prefix == 'm') {
+            my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "id");
+            dbg(1, "translate(): fqdev=%s\n", fqdev);
+          } else if(prefix == 'i') {
+            my_snprintf(fqdev, len, "i(@%c.%s%s.%s[current])", prefix, path, instname, dev);
+          } else {
+           my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
+          }
+        } else if(sim_is_vacask) {
+          my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
+        } else { /*xyce */
+          my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
+        }
+        strtolower(fqdev);
+        dbg(1, "fqdev=%s\n", fqdev);
+        idx = get_raw_index(fqdev, NULL);
+        if(idx >= 0) {
+          val = xctx->raw->cursor_b_val[idx];
+        }
+        if(idx < 0) {
+          valstr = "-";
+          xctx->tok_size = 1;
+          len = 1;
+        } else {
+          /* always use engineering as these tokens are generated from single
+           * @spice_get_voltage patterns */
+          valstr = dtoa_eng(val, xctx->ev_precision);
+          len = xctx->tok_size;
+        }
+        if(len) {
+          len = strlen(valstr);
+          STR_ALLOC(result, len + *result_pos, size);
+          memcpy(*result+*result_pos, valstr, len+1);
+          *result_pos += len;
+        }
+        dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
+        my_free(_ALLOC_ID_, &fqdev);
+      } /* if(n == 1) */
+      if(param) my_free(_ALLOC_ID_, &param);
+      my_free(_ALLOC_ID_, &dev);
+    } /* if(path) */
+  } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
+}
 
 /* substitute given tokens in a string with their corresponding values */
 /* ex.: name=@name w=@w l=@l ---> name=m112 w=3e-6 l=0.8e-6 */
@@ -4585,15 +5022,6 @@ const char *translate(int inst, const char *s, char **result)
     else if(state==TOK_SEP)
     {
       token[token_pos]='\0';
-      /* treat @name like any other token in the "else {...}" clause ...*/
-      #if 0
-      if(!strcmp(token, "@name")) {
-        tmp = strlen(instname);
-        STR_ALLOC(result, tmp + result_pos, &size);
-        memcpy(*result+result_pos, instname, tmp+1);
-        result_pos+=tmp;
-      } else
-      #endif
       if(inst >= 0 && strcmp(token,"@symref")==0) {
        tmp_sym_name = get_sym_name(inst, 9999, 1, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
@@ -4719,67 +5147,7 @@ const char *translate(int inst, const char *s, char **result)
       }
       else if(inst >= 0 && strcmp(token,"@spice_get_voltage")==0 && xctx->inst[inst].ptr >= 0)
       {
-        int start_level; /* hierarchy level where waves were loaded */
-        int live = tclgetboolvar("live_cursor2_backannotate");
-        if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
-          int multip;
-          int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
-          if(no_of_pins == 1) {
-            char *fqnet = NULL;
-            const char *path =  xctx->sch_path[xctx->currsch] + 1;
-            char *net = NULL;
-            size_t len;
-            int idx;
-            double val = 0.0;
-            const char *valstr;
-            if(path) {
-              prepare_netlist_structs(0);
-              if(xctx->inst[inst].lab) {
-                my_strdup2(_ALLOC_ID_, &net, expandlabel(xctx->inst[inst].lab, &multip));
-              }
-              if(net == NULL || net[0] == '\0') {
-                my_strdup2(_ALLOC_ID_, &net, net_name(inst, 0, &multip, 0, 0));
-              }
-              if(multip == 1 && net && net[0]) {
-                char *rn;
-                dbg(1, "translate() @spice_get_voltage: inst=%s\n", instname);
-                dbg(1, "                                net=%s\n", net);
-                rn = resolved_net(net);
-                if(rn) {
-                  my_strdup2(_ALLOC_ID_, &fqnet, rn);
-                  if(rn) my_free(_ALLOC_ID_, &rn);
-                  strtolower(fqnet);
-                  dbg(1, "translate() @spice_get_voltage: fqnet=%s start_level=%d\n", fqnet, start_level);
-                  idx = get_raw_index(fqnet, NULL);
-                  if(idx >= 0) {
-                    val = xctx->raw->cursor_b_val[idx];
-                  }
-                  if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
-                    valstr = "0.0";
-                    xctx->tok_size = 3;
-                    len = 3;
-                  } else if(idx < 0) {
-                    valstr = "-";
-                    xctx->tok_size = 1;
-                    len = 1;
-                  } else {
-                    valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
-                    len = xctx->tok_size;
-                  }
-                  if(len) {
-                    len = strlen(valstr);
-                    STR_ALLOC(result, len + result_pos, &size);
-                    memcpy(*result+result_pos, valstr, len+1);
-                    result_pos += len;
-                  }
-                  dbg(1, "inst %d, net=%s, fqnet=%s idx=%d valstr=%s\n", inst,  net, fqnet, idx, valstr);
-                  if(fqnet) my_free(_ALLOC_ID_, &fqnet);
-                }
-              }
-              if(net) my_free(_ALLOC_ID_, &net);
-            }
-          }
-        }
+        handle_spice_get_voltage(inst, engineering, result, &result_pos, &size);
       }
 
       /* copy as is: processed by spice_get_node() later
@@ -4808,78 +5176,7 @@ const char *translate(int inst, const char *s, char **result)
       }
       else if(strncmp(token,"@spice_get_voltage(", 19)==0 )
       {
-        int start_level; /* hierarchy level where waves were loaded */
-        int live = tclgetboolvar("live_cursor2_backannotate");
-        dbg(1, "--> %s\n", token);
-        if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
-          char *fqnet = NULL;
-          const char *path =  xctx->sch_path[xctx->currsch] + 1;
-          char *net = NULL;
-          char *global_net;
-          size_t len;
-          int idx, n, multip;
-          double val = 0.0;
-          const char *valstr;
-          tmp = strlen(token) + 1;
-          if(path) {
-            int skip = 0;
-            /* skip path components that are above the level where raw file was loaded */
-            while(*path && skip < start_level) {
-              if(*path == '.') skip++;
-              ++path;
-            }
-            net = my_malloc(_ALLOC_ID_, tmp);
-            n = sscanf(token + 19, "%[^)]", net);
-            expandlabel(net, &multip);
-            if(n == 1 && multip == 1) {
-              len = strlen(path) + strlen(instname) + strlen(net) + 2;
-              dbg(1, "net=%s\n", net);
-              fqnet = my_malloc(_ALLOC_ID_, len);
-
-
-              global_net = strrchr(net, '.');
-              if(global_net == NULL) global_net = net;
-              else global_net++;
-
-              if(inst < 0 || record_global_node(3, NULL, global_net)) {
-                strtolower(net);
-                my_snprintf(fqnet, len, "%s", global_net);
-              } else {
-                strtolower(net);
-                my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
-              }
-              strtolower(fqnet);
-              dbg(1, "translate(): inst=%d, net=%s, fqnet=%s start_level=%d\n", inst, net, fqnet, start_level);
-              idx = get_raw_index(fqnet, NULL);
-              if(idx >= 0) {
-                val = xctx->raw->cursor_b_val[idx];
-              }
-              if(!strcmp(fqnet, "0") || !my_strcasecmp(fqnet, "GND")) {
-                valstr = "0.0";
-                xctx->tok_size = 3;
-                len = 3;
-              } else if(idx < 0) {
-                valstr = "-";
-                xctx->tok_size = 1;
-                len = 1;
-              } else {
-                /* always use engineering as these tokens are generated from single
-                 * @spice_get_voltage patterns */
-                valstr = dtoa_eng(val, xctx->ev_precision);
-                len = xctx->tok_size;
-              }
-              if(len) {
-                len = strlen(valstr);
-                STR_ALLOC(result, len + result_pos, &size);
-                memcpy(*result+result_pos, valstr, len+1);
-                result_pos += len;
-              }
-              dbg(1, "instname %s, net=%s, fqnet=%s idx=%d valstr=%s\n", instname,  net, fqnet, idx, valstr);
-              my_free(_ALLOC_ID_, &fqnet);
-            }
-            my_free(_ALLOC_ID_, &net);
-          }
-        }
+        handle_spice_get_voltage2(inst, instname, token, result, &result_pos, &size);
       }
       /* @spice_get_current(...) or @spice_get_current_<param>(...)
        * @spice_get_modelparam(...) or @spice_get_modelparam_<param>(...)
@@ -4893,163 +5190,11 @@ const char *translate(int inst, const char *s, char **result)
       else if ((win_regexec(NULL/*options*/, "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
       #endif
       {
-        int start_level; /* hierarchy level where waves were loaded */
-        int live = tclgetboolvar("live_cursor2_backannotate");
-        if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
-          char *fqdev = NULL;
-          const char *path =  xctx->sch_path[xctx->currsch] + 1;
-          char *dev = NULL, *param = NULL;
-          size_t len;
-          int idx, n = 0;
-          double val = 0.0;
-          const char *valstr;
-          tmp = strlen(token) + 1;
-          if(path) {
-            int skip = 0;
-            /* skip path components that are above the level where raw file was loaded */
-            while(*path && skip < start_level) {
-              if(*path == '.') skip++;
-              ++path;
-            }
-            dev = my_malloc(_ALLOC_ID_, tmp);
-            dbg(1, "%s\n", token);
-            if(!strncmp(token, "@spice_get_current(", 19)) {
-              n = sscanf(token + 19, "%[^)]", dev);
-            } else {
-              param = my_malloc(_ALLOC_ID_, tmp);
-              n = sscanf(token, "@spice_get_current_%[^(](%[^)]", param, dev);
-              dbg(1, "token=%s, param=%s, dev=%s\n", token, param, dev);
-              if(n < 2) {
-                my_free(_ALLOC_ID_, &param);
-                n = sscanf(token, "@spice_get_current[^(](%[^)]", dev);
-              }
-            }
-            if(n >= 1) {
-              strtolower(dev);
-              len = strlen(path) + strlen(instname) +
-                    strlen(dev) + 21; /* some extra chars for i(..) wrapper */
-              dbg(1, "dev=%s\n", dev);
-              fqdev = my_malloc(_ALLOC_ID_, len);
-              if(sim_is_ngspice) {
-                int prefix, vsource;
-                char *prefix_ptr = strrchr(dev, '.'); /* last '.' in dev */
-                if(prefix_ptr) prefix = prefix_ptr[1]; /* character after last '.' */
-                else prefix=dev[0];
-                dbg(1, "prefix=%c, path=%s\n", prefix, path);
-                vsource = (prefix == 'v') || (prefix == 'e');
-                if(vsource) {
-                  my_snprintf(fqdev, len, "i(%c.%s%s.%s)", prefix, path, instname, dev);
-                } else if(prefix == 'q') {
-                  my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "ic");
-                } else if(prefix == 'd' || prefix == 'm') {
-                  my_snprintf(fqdev, len, "i(@%c.%s%s.%s[%s])", prefix, path, instname, dev, param ? param : "id");
-                  dbg(1, "translate(): fqdev=%s\n", fqdev);
-                } else if(prefix == 'i') {
-                  my_snprintf(fqdev, len, "i(@%c.%s%s.%s[current])", prefix, path, instname, dev);
-                } else {
-                 my_snprintf(fqdev, len, "i(@%c.%s%s.%s[i])", prefix, path, instname, dev);
-                }
-              } else if(sim_is_vacask) {
-                my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
-              } else { /*xyce */
-                my_snprintf(fqdev, len, "i(%s%s.%s)", path, instname, dev);
-              }
-              strtolower(fqdev);
-              dbg(1, "fqdev=%s\n", fqdev);
-              idx = get_raw_index(fqdev, NULL);
-              if(idx >= 0) {
-                val = xctx->raw->cursor_b_val[idx];
-              }
-              if(idx < 0) {
-                valstr = "-";
-                xctx->tok_size = 1;
-                len = 1;
-              } else {
-                /* always use engineering as these tokens are generated from single
-                 * @spice_get_voltage patterns */
-                valstr = dtoa_eng(val, xctx->ev_precision);
-                len = xctx->tok_size;
-              }
-              if(len) {
-                len = strlen(valstr);
-                STR_ALLOC(result, len + result_pos, &size);
-                memcpy(*result+result_pos, valstr, len+1);
-                result_pos += len;
-              }
-              dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
-              my_free(_ALLOC_ID_, &fqdev);
-            } /* if(n == 1) */
-            if(param) my_free(_ALLOC_ID_, &param);
-            my_free(_ALLOC_ID_, &dev);
-          } /* if(path) */
-        } /* if((start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
+        handle_spice_get_current2(instname, engineering, sim_is_ngspice, sim_is_vacask, token, result, &result_pos, &size);
       }
       else if(inst >= 0 && strcmp(token,"@spice_get_diff_voltage")==0  && xctx->inst[inst].ptr >= 0)
       {
-        int start_level; /* hierarchy level where waves were loaded */
-        int live = tclgetboolvar("live_cursor2_backannotate");
-        if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
-          int multip;
-          int no_of_pins= (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER];
-          if(no_of_pins == 2) {
-            char *fqnet1 = NULL, *fqnet2 = NULL;
-            const char *path =  xctx->sch_path[xctx->currsch] + 1;
-            const char *net1, *net2;
-            size_t len;
-            int idx1, idx2;
-            double val = 0.0, val1 = 0.0, val2 = 0.0;
-            const char *valstr;
-            if(path) {
-              int gnd1 = 0, gnd2 = 0;
-              int skip = 0;
-              /* skip path components that are above the level where raw file was loaded */
-              while(*path && skip < start_level) {
-                if(*path == '.') skip++;
-                ++path;
-              }
-              prepare_netlist_structs(0);
-              net1 = net_name(inst, 0, &multip, 0, 0);
-              len = strlen(path) + strlen(net1) + 1;
-              dbg(1, "net1=%s\n", net1);
-              fqnet1 = my_malloc(_ALLOC_ID_, len);
-              my_snprintf(fqnet1, len, "%s%s", path, net1);
-              strtolower(fqnet1);
-              net2 = net_name(inst, 1, &multip, 0, 0);
-              len = strlen(path) + strlen(net2) + 1;
-              dbg(1, "net2=%s\n", net2);
-              fqnet2 = my_malloc(_ALLOC_ID_, len);
-              my_snprintf(fqnet2, len, "%s%s", path, net2);
-              strtolower(fqnet2);
-              dbg(1, "translate(): fqnet1=%s start_level=%d\n", fqnet1, start_level);
-              dbg(1, "translate(): fqnet2=%s start_level=%d\n", fqnet2, start_level);
-              if(!strcmp(fqnet1, "0") || !my_strcasecmp(fqnet1, "GND")) gnd1 = 1;
-              if(!strcmp(fqnet2, "0") || !my_strcasecmp(fqnet2, "GND")) gnd2 = 1;
-              idx1 = get_raw_index(fqnet1, NULL);
-              idx2 = get_raw_index(fqnet2, NULL);
-              if( (!gnd1 && idx1 < 0) || (!gnd2 && idx2 < 0) ) {
-                valstr = "-";
-                xctx->tok_size = 1;
-                len = 1;
-              } else {
-                double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
-                double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
-                val = val1 - val2;
-                valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
-                len = xctx->tok_size;
-              }
-              if(len) {
-                len = strlen(valstr);
-                STR_ALLOC(result, len + result_pos, &size);
-                memcpy(*result+result_pos, valstr, len+1);
-                result_pos += len;
-              }
-              dbg(1, "inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
-                  inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr);
-              my_free(_ALLOC_ID_, &fqnet1);
-              my_free(_ALLOC_ID_, &fqnet2);
-            }
-          }
-        }
+        handle_spice_get_diff_voltage(inst, engineering, result, &result_pos, &size);
       }
       else if(
                strncmp(token,"@spice_get_current", 18)==0 ||
@@ -5057,132 +5202,7 @@ const char *translate(int inst, const char *s, char **result)
                strncmp(token,"@spice_get_modelvoltage", 23)==0
              )
       {
-        int start_level; /* hierarchy level where waves were loaded */
-        int live = tclgetboolvar("live_cursor2_backannotate");
-        if(live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) {
-          char *fqdev = NULL;
-          const char *path =  xctx->sch_path[xctx->currsch] + 1;
-          char *dev = NULL, *param = NULL;
-          int modelparam = 0; /* 0: current, 1: modelparam, 2: modelvoltage */
-          size_t len;
-          int idx;
-          int error = 0;
-          double val = 0.0;
-          const char *valstr;
-          if(path) {
-            int skip = 0;
-            /* skip path components that are above the level where raw file was loaded */
-            while(*path && skip < start_level) {
-              if(*path == '.') skip++;
-              ++path;
-            }
-            /* token contans _param after @spice_get_current or @spice_get_modelparam
-             * or  @spice_get_modelvoltage */
-            if(strcmp(token, "@spice_get_current") &&
-               strcmp(token, "@spice_get_modelparam") &&
-               strcmp(token, "@spice_get_modelvoltage")) {
-              int n = 0;
-              param = my_malloc(_ALLOC_ID_, strlen(token) + 1);
-              n = sscanf(token, "@spice_get_current_%s", param);
-              if(n == 0) {
-                n = sscanf(token, "@spice_get_modelparam_%s", param);
-                modelparam = 1;
-              }
-              if(n == 0) {
-                n = sscanf(token, "@spice_get_modelvoltage_%s", param);
-                modelparam = 2;
-              }
-              if(n == 0) {
-                my_free(_ALLOC_ID_, &param);
-                error = 1;
-              }
-            }
-            if(!error) {
-              char *iprefix = modelparam == 0 ? "i(" : modelparam == 1 ? "" : "v(";
-              char *ipostfix = modelparam == 1 ? "" : ")";
-              int prefix;
-              my_strdup2(_ALLOC_ID_, &dev, instname);
-              strtolower(dev);
-              prefix=dev[0];
-              len = strlen(path) + strlen(dev) + 40; /* some extra chars for i(..) wrapper */
-              dbg(1, "token=%s, dev=%s param=%s\n", token, dev, param ? param : "<NULL>");
-              fqdev = my_malloc(_ALLOC_ID_, len);
-              if(sim_is_ngspice) {
-                int vsource = (prefix == 'v') || (prefix == 'e');
-                if(path[0]) {
-                  if(vsource) {
-                    my_snprintf(fqdev, len, "i(%c.%s%s)", prefix, path, dev);
-                  } else if(prefix=='q') {
-                    my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
-                                iprefix, prefix, path, dev, param ? param : "ic", ipostfix);
-                  } else if(prefix=='d' || prefix == 'm') {
-                    my_snprintf(fqdev, len, "%s@%c.%s%s[%s]%s",
-                                iprefix, prefix, path, dev, param ? param : "id", ipostfix);
-                  } else if(prefix=='i') {
-                    my_snprintf(fqdev, len, "i(@%c.%s%s[current])", prefix, path, dev);
-                  } else {
-                    my_snprintf(fqdev, len, "i(@%c.%s%s[i])", prefix, path, dev);
-                  }
-                } else {
-                  if(vsource) {
-                    my_snprintf(fqdev, len, "i(%s)", dev);
-                  } else if(prefix == 'q') {
-                    my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "ic", ipostfix);
-                  } else if(prefix == 'd' || prefix == 'm') {
-                    my_snprintf(fqdev, len, "%s@%s[%s]%s", iprefix, dev, param ? param : "id", ipostfix);
-                  } else if(prefix == 'i') {
-                    my_snprintf(fqdev, len, "i(@%s[current])", dev);
-                  } else {
-                    my_snprintf(fqdev, len, "i(@%s[i])", dev);
-                  }
-                }
-              } else if(sim_is_vacask) {
-                my_snprintf(fqdev, len, "%s%s.flow(br)", path, instname);
-              } else { /*xyce */
-                my_snprintf(fqdev, len, "i(%s%s)", path, dev);
-              }
-              if(param) my_free(_ALLOC_ID_, &param);
-              dbg(1, "fqdev=%s\n", fqdev);
-              strtolower(fqdev);
-              idx = get_raw_index(fqdev, NULL);
-              if(idx >= 0) {
-                val = xctx->raw->cursor_b_val[idx];
-              }
-              /* special handling for resistors that are converted to b sources:
-               * i(@r.x4.r1[i]) --> i(@b.x4.br1[i])
-               */
-              if(idx < 0 && !strncmp(fqdev, "i(@r", 4)) {
-                if(path[0]) {
-                  my_snprintf(fqdev, len, "i(@b.%sb%s[i])", path, dev);
-                } else {
-                  my_snprintf(fqdev, len, "i(@b%s[i])", dev);
-                }
-                dbg(1, "fqdev=%s\n", fqdev);
-                idx = get_raw_index(fqdev, NULL);
-                if(idx >= 0) {
-                  val = xctx->raw->cursor_b_val[idx];
-                }
-              }
-              if(idx < 0) {
-                valstr = "-";
-                xctx->tok_size = 1;
-                len = 1;
-              } else {
-                valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
-                len = xctx->tok_size;
-              }
-              if(len) {
-                len = strlen(valstr);
-                STR_ALLOC(result, len + result_pos, &size);
-                memcpy(*result+result_pos, valstr, len+1);
-                result_pos += len;
-              }
-              dbg(1, "instname %s, dev=%s, fqdev=%s idx=%d valstr=%s\n", instname,  dev, fqdev, idx, valstr);
-              my_free(_ALLOC_ID_, &fqdev);
-              my_free(_ALLOC_ID_, &dev);
-            } /* if(!error) */
-          } /* if(path) */
-        } /* (live && (start_level = sch_waves_loaded()) >= 0 && xctx->raw->annot_p>=0) */
+        handle_spice_get_current(instname, engineering, sim_is_ngspice, sim_is_vacask, token, result, &result_pos, &size);
       }
       else if(strcmp(token,"@schvhdlprop")==0 && xctx->schvhdlprop)
       {
@@ -5235,7 +5255,7 @@ const char *translate(int inst, const char *s, char **result)
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
       } else if(!sp_prefix && !strcmp(token, "@spiceprefix")) {
         /* add nothing */
-      } else {
+      } else { /* Handle all other non special @tokens */
         if(inst >= 0) {
           value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
           if(!xctx->tok_size && xctx->inst[inst].ptr >= 0) {
@@ -5311,8 +5331,8 @@ const char *translate(int inst, const char *s, char **result)
         }
       }
       token_pos = 0;
-      if(c == '@' || c == '%') s--;
-      else {
+      if(c == '@' || c == '%') s--; /* push back for next token processing */
+      else { /* append separator char */
         STR_ALLOC(result, 1 + result_pos, &size);
         (*result)[result_pos++]=(char)c;
       }
