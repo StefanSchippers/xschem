@@ -7912,6 +7912,11 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
     set tctx::rcode 1
     destroy .alert
   }
+  button .alert.b3 -text Copy -command  \
+  "
+    clipboard clear
+    clipboard append [list $txtlabel]
+  "
   if {$yesno} {
     button .alert.b2 -text "No" -command  \
     {
@@ -7922,6 +7927,7 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
 
   pack .alert.l1 -side top -fill both -expand yes
   pack .alert.b1 -side left -fill x -expand yes
+  pack .alert.b3 -side left -fill x -expand yes
   if {$yesno} {pack .alert.b2 -side left -fill x -expand yes}
   tkwait visibility .alert
   # grab set .alert
