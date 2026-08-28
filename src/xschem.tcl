@@ -6945,6 +6945,41 @@ proc set_xschem_vars {} {
   }
 }
 
+proc check_tcleval_perms {ask} {
+  global xschem_execute_scripts has_x
+  if { $xschem_execute_scripts eq {no} } {
+    return 0
+  } elseif { $ask && $xschem_execute_scripts eq {ask}} {
+    if {[info exists has_x]} {
+      # completely disable event processing in callback()
+      # the alert box causes an Expose event, wicht triggers draw() and translate()
+      # but this procedure may be  called from within a translate() call...
+      xschem set semaphore [expr {[xschem get semaphore] + 3}]
+      set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
+      append msg " WARNING:\n"
+      append msg "   Allowing script execution is a potential security vulnerability,\n"
+      append msg "   Do it only for schematics obtained from trusted sources.\n\n"
+      append msg " To avoid this message look for variable 'xschem_execute_scripts'\n"
+      append msg " in your xschemrc file,\n"
+      append msg " set it to 'yes' to permanently ENABLE scripts,\n"
+      append msg " or set it to 'no' to permanently DISABLE scripts.\n"
+      append msg " Current (default) setting is 'ask'."
+
+      set answer [alert_ $msg {} 0 1]
+      xschem set semaphore [expr {[xschem get semaphore] - 3}]
+      # set answer [tk_messageBox -parent [xschem get topwindow] -message $msg -type yesno]
+      if {$answer  eq {1}} {
+        set xschem_execute_scripts yes
+      } elseif {$answer eq {0}} {
+        set xschem_execute_scripts no
+      }
+    } else {
+      set xschem_execute_scripts yes
+    }
+  }
+  return 1
+}
+
 #20171029
 # allows to call TCL hooks from 'format' strings during netlisting
 # example of symbol spice format definition:
@@ -6954,24 +6989,36 @@ proc set_xschem_vars {} {
 # they can be used together with TCL xschem command to query instance or symbol
 # attributes.
 #
-proc tclpropeval {s instn symn} {
+proc tclpropeval {s instn symn {ask 1}} {
+  global xschem_execute_scripts
   # puts "tclpropeval: $s $instn $symn"
   global env debug_var debug_tcleval instname symname
   if {![info exists instname]} {set instname $instn}
   if {![info exists symname]} {set symname $symn}
-  regsub {^@tcleval\(} $s {} s
-  regsub {\)([ \t\n]*)$} $s {\1} s
 
-  if { [catch {uplevel #0 "subst \{$s\}"} res] } {
-    if { $debug_tcleval > 0} { puts "tclpropeval warning: $s --> $res"}
+  if {![check_tcleval_perms $ask]} {
     set res ?\n
+    return $res
   }
-  return $res
+
+  if { $xschem_execute_scripts eq {yes} } {
+    regsub {^@tcleval\(} $s {} s
+    regsub {\)([ \t\n]*)$} $s {\1} s
+
+    if { [catch {uplevel #0 "subst \{$s\}"} res] } {
+      if { $debug_tcleval > 0} { puts "tclpropeval warning: $s --> $res"}
+      set res ?\n
+    }
+    return $res
+  } else {
+    set res ?\n
+    return $res
+  }
 }
 
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s {ask 1}} {
-  global debug_tcleval env path debug_var sch_basename xschem_execute_scripts has_x
+  global debug_tcleval env path debug_var sch_basename xschem_execute_scripts
   set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
@@ -7002,36 +7049,9 @@ proc tclpropeval2 {s {ask 1}} {
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
-  if { $xschem_execute_scripts eq {no} } {
+  if {![check_tcleval_perms $ask]} {
     set res ?\n
     return $res
-  } elseif { $ask && $xschem_execute_scripts eq {ask}} {
-    if {[info exists has_x]} {
-      # completely disable event processing in callback()
-      # the alert box causes an Expose event, wicht triggers draw() and translate()
-      # but this procedure may be  called from within a translate() call...
-      xschem set semaphore [expr {[xschem get semaphore] + 3}]
-      set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
-      append msg " WARNING:\n"
-      append msg "   Allowing script execution is a potential security vulnerability,\n"
-      append msg "   Do it only for schematics obtained from trusted sources.\n\n"
-      append msg " To avoid this message look for variable 'xschem_execute_scripts'\n"
-      append msg " in your xschemrc file,\n"
-      append msg " set it to 'yes' to permanently ENABLE scripts,\n"
-      append msg " or set it to 'no' to permanently DISABLE scripts.\n"
-      append msg " Current (default) setting is 'ask'."
-
-      set answer [alert_ $msg {} 0 1]
-      xschem set semaphore [expr {[xschem get semaphore] - 3}]
-      # set answer [tk_messageBox -parent [xschem get topwindow] -message $msg -type yesno]
-      if {$answer  eq {1}} {
-        set xschem_execute_scripts yes
-      } elseif {$answer eq {0}} {
-        set xschem_execute_scripts no
-      }
-    } else {
-      set xschem_execute_scripts yes
-    }
   }
   if { $xschem_execute_scripts eq {yes} } {  
     if { [catch {uplevel #0 "subst \{$s\}"} res] } {

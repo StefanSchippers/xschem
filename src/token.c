@@ -3811,6 +3811,7 @@ void print_verilog_element(FILE *fd, int inst)
  const char *fmt_attr = NULL;
  Int_hashtable table = {NULL, 0};
  const char *fmt;
+ char *pin_name = NULL;
 
  fmt_attr = xctx->format ? xctx->format : "verilog_format";
 
@@ -3947,17 +3948,32 @@ void print_verilog_element(FILE *fd, int inst)
  {
    xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
    if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
-     const char *name = get_tok_value(ptr->rect[PINLAYER][i].prop_ptr, "name", 0);
-     if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+     my_strdup2(_ALLOC_ID_, &pin_name, get_tok_value(ptr->rect[PINLAYER][i].prop_ptr, "name", 0));
+     if(!int_hash_lookup(&table, pin_name, 1, XINSERT_NOREPLACE)) {
        if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
        {
-         if(tmp) fprintf(fd,"\n");
-         fprintf(fd, "  ?%d %s %s ", multip, get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), str_ptr);
-         tmp=1;
+        if(strchr(pin_name, ',') && !strchr(pin_name , '[')) {
+          int num = count_items(pin_name, ",", "");
+          int k;
+          for(k = 0; k < num; k++) {
+            char *p = NULL;
+            char *n;
+            my_strdup2(_ALLOC_ID_, &p, find_nth(pin_name, ",", "", 0, k+1));
+            n = find_nth(str_ptr, ",", "", 0, k+1);
+            fprintf(fd, "  ?1 %s %s ", p, n);
+            my_free(_ALLOC_ID_, &p);
+            tmp = 1;
+          }
+        } else {
+          if(tmp) fprintf(fd,"\n");
+          fprintf(fd, "  ?%d %s %s ", multip, pin_name, str_ptr);
+          tmp=1;
+        }
        }
      }
    }
  }
+ if(pin_name) my_free(_ALLOC_ID_, &pin_name);
  int_hash_free(&table);
  if(v_extra) {
    const char *val;
