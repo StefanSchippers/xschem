@@ -7947,8 +7947,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
 
   pack .alert.l1 -side top -fill both -expand yes
   pack .alert.b1 -side left -fill x -expand yes
-  pack .alert.b3 -side left -fill x -expand yes
   if {$yesno} {pack .alert.b2 -side left -fill x -expand yes}
+  pack .alert.b3 -side left -fill x -expand yes
   tkwait visibility .alert
   # grab set .alert
   focus .alert.b1
