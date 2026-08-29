@@ -4413,7 +4413,7 @@ proc file_dialog_set_colors2 {} {
 }
 
 proc file_dialog_set_names1 {} {
-  global file_dialog_names1 file_dialog_files1 load_file_dialog_fullpath
+  global file_dialog_names1 file_dialog_files1 load_file_dialog_fullpath lib_alias
 
   set file_dialog_names1 {}
   foreach i $file_dialog_files1 {
@@ -4421,6 +4421,9 @@ proc file_dialog_set_names1 {} {
       set item $i
     } else {
       set item [get_cell $i 0]
+    }
+    if {[info exists lib_alias($item)]} {
+      set item $lib_alias($item)
     }
     lappend file_dialog_names1 $item
   }
@@ -5251,6 +5254,7 @@ proc file_chooser_preview {} {
 proc file_chooser_dirlist {} {
   # puts "file_chooser_dirlist [xschem get topwindow]"
   global file_chooser pathlist dark_gui_colorscheme new_file_browser_depth new_file_browser_ext
+  global lib_alias
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   # regenerate list of dirs
   set file_chooser(dirs) [
@@ -5269,6 +5273,9 @@ proc file_chooser_dirlist {} {
         set t [substring_remove $pp $i begin]
         # puts "$p\n  $pp\n  $i\n  $t"
         if {$t ne $i} {
+          if {[info exists lib_alias($i)]} {
+            set t $lib_alias($i)
+          }
           lappend file_chooser(dirtails) $t
           set found 1
           break
@@ -5631,7 +5638,7 @@ proc file_chooser_delete {} {
 }
 
 proc fuzzy_chooser_inline {q} {
-  global file_chooser new_file_browser_depth new_file_browser_ext pathlist
+  global file_chooser new_file_browser_depth new_file_browser_ext pathlist lib_alias
   if {$q eq {}} {
     set file_chooser(files) {}
     set file_chooser(fullpathlist) {}
@@ -5676,7 +5683,11 @@ proc fuzzy_chooser_inline {q} {
     foreach p $pathlist {
       set pp [file dirname $p]/
       if {[string first $pp $d] == 0} {
-        set t [string range $d [string length $pp] end]
+        if {[info exists lib_alias($d)]} {
+          set t $lib_alias($d)
+        } else {
+          set t [string range $d [string length $pp] end]
+        }
         break
       }
     }
@@ -8438,6 +8449,19 @@ proc try_download_url {dirname sch_or_sym} {
   }
 }
 
+# reverse lib_alias array lookup (find path given alias)
+proc alias_lib {alias} {
+  global lib_alias
+  foreach {l a} [array get lib_alias] {
+    if {$a eq $alias} {
+      return $l
+    }
+  }
+  return {}
+}
+
+
+
 # Given an absolute path 'symbol' of a symbol/schematic remove the path prefix
 # if file is in a library directory (a $pathlist dir)
 # Example: rel_sym_path /home/schippes/share/xschem/xschem_library/devices/iopin.sym
@@ -8457,6 +8481,16 @@ proc rel_sym_path {symbol {paths {}} } {
   #     set symbol [pwd]/$symbol
   #   }
   # }
+
+  # return library alias name if existing 
+  if {[regexp {^/} $symbol]} {
+    set lib [file dirname $symbol]
+    set tail [file tail $symbol]
+    if {[info exists ::lib_alias($lib)]} {
+      return $::lib_alias($lib)/$tail
+    }
+  }
+
   set curr_dirname [pwd]
   set name {}
   foreach path_elem $paths {
@@ -8558,6 +8592,17 @@ proc abs_sym_path {fname {ext {} } {paths {}}} {
   }
   ## if fname is present in one of the paths paths get the absolute path
   set name {}
+
+  # if symbol reference uses an alias return associated library path
+  if {[regexp {^[^/]+/[^/]+$} $fname]} {
+    set alias [file dirname $fname]
+    set tail [file tail $fname]
+    set lib [alias_lib $alias]
+    if {$lib ne {}} {
+      return $lib/$tail
+    }
+  }
+
   foreach path_elem $paths {
     if { ![string compare $path_elem .]  && [info exist curr_dirname]} {
       set path_elem $curr_dirname
@@ -9848,7 +9893,7 @@ set tctx::global_list {
 ## EXCEPTIONS, not to be saved/restored:
 ## execute
 set tctx::global_array_list {
-  replace_key dircolor sim enable_layer ngspice::ngspice_data
+  replace_key dircolor sim enable_layer ngspice::ngspice_data lib_alias
 }
 
 proc delete_ctx {context} {
@@ -11079,7 +11124,7 @@ proc trace_set_vars {varname idxname op} {
         }
       }
     }
-  } elseif {$varname eq {file_chooser} && idxname eq {dirs}} {
+  } elseif {$varname eq {file_chooser} && $idxname eq {dirs}} {
     uplevel #0 {
       if {![info exists file_chooser(old_dirs)] ||
            $file_chooser(old_dirs) ne $file_chooser(dirs)} {
@@ -11092,20 +11137,35 @@ proc trace_set_vars {varname idxname op} {
   }
 }
 
+proc cleanup_path {path} {
+  global env
+  # replace ~ with HOME or ~/ with HOME/
+  regsub {^~$} $path ${env(HOME)} path
+  regsub {^~/} $path ${env(HOME)}/ path
+  ## replace all runs of multiple / with single / 
+  regsub -all {/+} $path {/} path
+  ## replace all '/./' with '/'
+  while {[regsub {/\./} $path {/} path]} {}
+  ## transform  a/b/../c to a/c or a/b/c/.. to a/b
+  while {[regsub {([^/]*\.*[^./]+[^/]*)/\.\./?} $path {} path] } {}
+  ## remove trailing '/'  or '/.'
+  while {[regsub {/\.?$} $path {} path]} {}
+  if {![string compare $path .]} {
+    # ...
+  } elseif { [regexp {\.\.\/} $path] } {
+    set path [file normalize $path]
+  }
+  return $path
+}
+
 proc cleanup_paths {paths} {
   global env
   set path_l {}
   foreach i $paths {
-    regsub {^~$} $i ${env(HOME)} i
-    regsub {^~/} $i ${env(HOME)}/ i
-    regsub -all {/+} $i {/} i
-    if {![string compare $i .]} {
-      # ...
-    } elseif { [regexp {^#} $i] } {
+    if { [regexp {^#} $i] } {
       continue
-    } elseif { [regexp {\.\.\/} $i] } {
-      set i [file normalize $i]
     }
+    set i [cleanup_path $i]
     if { [file exists $i] } {
       lappend path_l $i
     }
@@ -11114,21 +11174,33 @@ proc cleanup_paths {paths} {
 }
 
 proc set_paths {} {
-  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives
+  global XSCHEM_LIBRARY_PATH pathlist OS add_all_windows_drives lib_alias
   # puts stderr "caching search paths"
+  array unset lib_alias
   if { [info exists XSCHEM_LIBRARY_PATH] } {
     if {$OS == "Windows"} {
-      set path_l_orig [split $XSCHEM_LIBRARY_PATH \;]
+      set path_l_orig1 [split $XSCHEM_LIBRARY_PATH \;]
       if {$add_all_windows_drives} {
         set win_vol [file volumes]
         foreach disk $win_vol {
-          lappend path_l_orig $disk
+          lappend path_l_orig1 $disk
         }
       }
     } else {
-      set path_l_orig [split $XSCHEM_LIBRARY_PATH :]
+      set path_l_orig1 [split $XSCHEM_LIBRARY_PATH :]
     }
-    set pathlist [cleanup_paths $path_l_orig]
+
+    # recognize path elemnts with alias: /some/path/for/xschem | alias
+    foreach p $path_l_orig1 {
+      if {[regexp {^[^|]+[|][^|]+$} $p]} {
+        regsub { *[|] *} $p {|} p
+        lassign [split $p {|}] path alias
+        set lib_alias([cleanup_path $path]) $alias
+        set p $path
+      }
+      lappend path_l_orig2 $p
+    }
+    set pathlist [cleanup_paths $path_l_orig2]
   }
   if {$pathlist eq {}} { set pathlist [pwd] }
 
@@ -11931,4 +12003,3 @@ trace add variable XSCHEM_LIBRARY_PATH write trace_set_vars
 # trigger file_chooser update
 trace add variable new_file_browser_depth write trace_set_vars
 trace add variable new_file_browser_ext write trace_set_vars
-
