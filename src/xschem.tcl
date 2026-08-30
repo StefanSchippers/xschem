@@ -8594,7 +8594,7 @@ proc abs_sym_path {fname {ext {} } {paths {}}} {
   set name {}
 
   # if symbol reference uses an alias return associated library path
-  if {[regexp {^[^/]+/[^/]+$} $fname]} {
+  if {[regexp {^[^/]+/[^/]+} $fname]} {
     set alias [file dirname $fname]
     set tail [file tail $fname]
     set lib [alias_lib $alias]

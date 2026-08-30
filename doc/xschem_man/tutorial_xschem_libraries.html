@@ -169,7 +169,46 @@ p{padding: 15px  30px 10px;}
       append XSCHEM_LIBRARY_PATH :${PDK_ROOT}/${PDK}/libs.tech/xschem
   }
  </pre>
-
+ <h1> Library aliases</h1>
+ <p>
+  It is possible to associate an arbitrary name (alias) to a design libtrary using this syntax
+  in <kbd>XSCHEM_LIBRARY_PATH</kbd>:
+ </p><br>
+ <pre class="code">
+  set XSCHEM_LIBRARY_PATH {}
+  append XSCHEM_LIBRARY_PATH ":~/.xschem/xschem_library/test_library_aliases | test_alias"
+  append XSCHEM_LIBRARY_PATH ":${XSCHEM_SHAREDIR}/xschem_library/devices     | devs"
+  append XSCHEM_LIBRARY_PATH ":${XSCHEM_SHAREDIR}/../doc/xschem/examples     | ex"
+  append XSCHEM_LIBRARY_PATH ":${XSCHEM_SHAREDIR}/../doc/xschem/ngspice      | ng"
+ </pre><br>
+ <p>
+  symbol references in the schematic will be:
+ </p><br>
+ <pre class="code">
+  test_alias/sym1.sym
+  devs/vsource.sym
+  ng/inv-2.sym
+ </pre> <br>
+ <p>
+  This allows you to use arbitrary names for your design libraries or re-route existing schematic bindings to
+  arbitrary paths.
+ </p>
+ <p>
+  It is possible to use the directory separator (<kbd>/</kbd>) in alias names, like:
+ </p><br>
+ <pre class="code">
+  append XSCHEM_LIBRARY_PATH ":${XSCHEM_SHAREDIR}/../doc/xschem/ngspice      | cmos130/ng"
+ </pre><br>
+ <p> 
+  The schematic reference will be for a symbol:
+ </p><br>
+ <pre class="code">
+   cmos130/ng/inv-2.sym
+ </pre><br>
+ <p class="important">
+  As a result of the above alias definition syntax vertical bars (<kbd>|</kbd>) can not be used in design
+  library paths and alias names. Spaces around the <kbd>|</kbd> character are ignored and chopped away.
+ </p>
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
