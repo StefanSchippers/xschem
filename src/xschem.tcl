@@ -825,7 +825,7 @@ proc tabulate {text {sep ",\t "}} {
     set found_data 1
 
     # change separators to { }
-    regsub -all $sep $line $used_sep line
+    literal_regsub -all $sep $line $used_sep line
 
     # transform resulting line into a proper list
     set line [split $line $used_sep]
@@ -6466,7 +6466,7 @@ proc set_netlist_dir { what {dir {} }} {
       set netlist_dir $new_dir
     }
   } ;# what == 1
-  regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
+  literal_regsub {^~/} $netlist_dir ${env(HOME)}/ netlist_dir
   regsub {/$} $netlist_dir {} netlist_dir
   # return $netlist_dir if valid and existing, else return empty string
   if {$netlist_dir ne {} && [file exists $netlist_dir]} {
@@ -8472,7 +8472,7 @@ proc rel_sym_path {symbol {paths {}} } {
   # puts "rel_sym_path: $symbol    $paths"
 
   if { $paths eq {}} {set paths $pathlist}
-  regsub {^~/} $symbol ${env(HOME)}/ symbol
+  literal_regsub {^~/} $symbol ${env(HOME)}/ symbol
   # if {$OS eq "Windows"} {
   #   if {![regexp {^[A-Za-z]\:/} $symbol]} {
   #     set symbol [pwd]/$symbol
@@ -11138,11 +11138,51 @@ proc trace_set_vars {varname idxname op} {
   }
 }
 
+#                         0        1        2          3
+# literal_regsub [-all] pattern string replacement [resultvar]
+# similar to regsub, but replacement string has no special meaning for &, \1, \2, \0, ...
+proc literal_regsub {args} {
+  set opt {}
+  while {[llength $args] > 0} {
+    set option [lindex $args 0]
+    switch -regexp -- $option {
+      -[^-]+ {
+        lappend opt $option
+        set args [lrange $args 1 end]
+      }
+      -- {
+        set args [lrange $args 1 end]
+        break
+      }
+      default {
+        break
+      }
+    }
+  }
+
+  if {[llength $args] == 3} {
+    lassign $args pattern input replacement
+    # Escape replacement syntax used by regsub.
+    set replacement [string map [list "\\" "\\\\" "&" "\\&"] $replacement]
+    set arg [list $pattern $input $replacement]
+    set command  [linsert $opt 0 regsub]
+    return [eval $command $arg]
+  } elseif {[llength $args] == 4} {
+    lassign $args pattern input replacement result
+    # Escape replacement syntax used by regsub.
+    set replacement [string map [list "\\" "\\\\" "&" "\\&"] $replacement]
+    upvar 1 $result res
+    set arg [list $pattern $input $replacement res]
+    set command  [linsert $opt 0 regsub]
+    return [eval $command $arg]
+  }
+}
+
 proc cleanup_path {path} {
   global env
   # replace ~ with HOME or ~/ with HOME/
-  regsub {^~$} $path ${env(HOME)} path
-  regsub {^~/} $path ${env(HOME)}/ path
+  literal_regsub {^~$} $path ${env(HOME)} path
+  literal_regsub {^~/} $path ${env(HOME)}/ path
   ## replace all runs of multiple / with single / 
   regsub -all {/+} $path {/} path
   ## replace all '/./' with '/'

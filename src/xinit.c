@@ -2557,7 +2557,10 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
 
  /* create user conf dir , remove ~ if present */
- my_snprintf(tmp, S(tmp),"regsub {^~/} {%s} {%s/}", USER_CONF_DIR, home_dir);
+ /* escape special characters in regsub replacement string , like &, \0, ... */
+ my_snprintf(tmp, S(tmp),
+    "regsub {^~/} {%s} [string map [list \"\\\\\" \"\\\\\\\\\" \"&\" \"\\\\&\"] {%s/}]",
+    USER_CONF_DIR, home_dir);
  tcleval(tmp);
  my_snprintf(user_conf_dir, S(user_conf_dir), "%s", tclresult());
  tclsetvar("USER_CONF_DIR", user_conf_dir);

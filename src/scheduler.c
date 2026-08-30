@@ -364,8 +364,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
       } else {
         my_snprintf(f, S(f), "%s/%s.raw",  tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0));
@@ -713,8 +712,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         ret = compare_schematics(f);
       }
@@ -1067,8 +1065,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       char f[PATH_MAX + 100];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         embed_rawfile(f);
       }
@@ -3133,8 +3130,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           i--;
           lastopened = 0;
         } else {
-          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
-          tcleval(f);
+          tclvareval("cleanup_path {", argv[i], "}", NULL);
           my_strncpy(f, tclresult(), S(f));
         }
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
@@ -3219,8 +3215,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           } else if(!strcmp(argv[i], "-lastopened")) {
             my_strncpy(f, tcleval("get_lastopened"), S(f));
           } else if(!is_from_web(argv[i])) {
-            my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[i], home_dir);
-            tcleval(f);
+            tclvareval("cleanup_path {", argv[i], "}", NULL);
             /* tclvareval("file normalize {", tclresult(), "}", NULL); */
             my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
           } else {
@@ -3273,8 +3268,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char f[PATH_MAX + 100];
         FILE *fp;
 
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         fp = fopen(f, "w");
         if(fp) errfp = fp;
@@ -3450,8 +3444,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         merge_file(0, "");  /* 2nd param not used for merge 25122002 */
       }
       else {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         merge_file(0, f);
       }
@@ -3686,8 +3679,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         new_xschem_process(f, 0);
       } else new_xschem_process("", 0);
@@ -3725,8 +3717,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(argc == 4) r = new_schematic(argv[2], argv[3], NULL, 1);
         else if(argc >= 5) {
           char f[PATH_MAX + 100];
-          my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
-          tcleval(f);
+          tclvareval("cleanup_path {", argv[4], "}", NULL);
           my_strncpy(f, abs_sym_path(tclresult(), ""), S(f));
           r = new_schematic(argv[2], argv[3], f, dr);
         }
@@ -3941,8 +3932,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc == 4) res = preview_window(argv[2], argv[3], NULL);
       else if(argc == 5) {
         char f[PATH_MAX + 100];
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[4], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[4], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         res = preview_window(argv[2], argv[3], f);
       }
@@ -4615,8 +4605,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         tcleval("array unset ngspice::ngspice_data");
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         /* free_rawfile(&xctx->raw, 0, 0); */
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         if(argc > 5) {
           sweep1 = atof_spice(argv[4]);
@@ -5098,8 +5087,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
       if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
       }
       if(argc > 3) {
@@ -6341,8 +6329,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* free_rawfile(&xctx->raw, 1, 0); */
         draw();
       } else if(argc > 2) {
-        my_snprintf(f, S(f),"regsub {^~/} {%s} {%s/}", argv[2], home_dir);
-        tcleval(f);
+        tclvareval("cleanup_path {", argv[2], "}", NULL);
         my_strncpy(f, tclresult(), S(f));
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         /* free_rawfile(&xctx->raw, 0, 0); */
