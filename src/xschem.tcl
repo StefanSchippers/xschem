@@ -11233,9 +11233,13 @@ proc set_paths {} {
 
     # recognize path elemnts with alias: /some/path/for/xschem | alias
     foreach p $path_l_orig1 {
-      if {[regexp {^[^|]+[|][^|]+$} $p]} {
-        regsub { *[|] *} $p {|} p
-        lassign [split $p {|}] path alias
+      # if {[regexp {^[^|]+[|][^|]+$} $p]} {}
+      if {[regexp {[|]} $p]} {
+        regsub { +[|] +} $p {|} p
+        regsub {([^\\])\|} $p "\\1\x00" p ;# transform | to \x00
+        regsub -all {\\\|} $p {|} p       ;# transform all \| to |
+        lassign [split $p \x00] path alias
+        puts "--> $path    $alias"
         set lib_alias([cleanup_path $path]) $alias
         set p $path
       }
