@@ -6958,7 +6958,7 @@ proc set_xschem_vars {} {
 
 proc check_tcleval_perms {ask} {
   global xschem_execute_scripts has_x
-  if { $xschem_execute_scripts eq {no} } {
+  if { $ask && $xschem_execute_scripts eq {no} } {
     return 0
   } elseif { $ask && $xschem_execute_scripts eq {ask}} {
     if {[info exists has_x]} {
@@ -7012,7 +7012,7 @@ proc tclpropeval {s instn symn {ask 1}} {
     return $res
   }
 
-  if { $xschem_execute_scripts eq {yes} } {
+  if { !$ask || $xschem_execute_scripts eq {yes} } {
     regsub {^@tcleval\(} $s {} s
     regsub {\)([ \t\n]*)$} $s {\1} s
 
@@ -7060,11 +7060,12 @@ proc tclpropeval2 {s {ask 1}} {
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
-  if {![check_tcleval_perms $ask]} {
+  set allow [check_tcleval_perms $ask]
+  if {!$allow} {
     set res ?\n
     return $res
   }
-  if { $xschem_execute_scripts eq {yes} } {  
+  if { !$ask || $xschem_execute_scripts eq {yes} } {  
     if { [catch {uplevel #0 "subst \{$s\}"} res] } {
       if { $debug_tcleval > 0} { puts "tclpropeval2 warning: $s --> $res"}
       set res ?\n
