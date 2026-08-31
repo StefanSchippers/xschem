@@ -910,9 +910,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(argc > 2) {
           int n = atoi(argv[2]);
-          ret = descend_schematic(n, 0, 0, set_title);
+          ret = descend_schematic(n, 2, 0, set_title);
         } else {
-          ret = descend_schematic(0, 0, 0, set_title);
+          ret = descend_schematic(0, 2, 0, set_title);
         }
       }
       Tcl_SetResult(interp, dtoa(ret), TCL_VOLATILE);

@@ -11138,8 +11138,8 @@ proc trace_set_vars {varname idxname op} {
   }
 }
 
-#                         0        1        2          3
-# literal_regsub [-all] pattern string replacement [resultvar]
+#                             0        1        2          3
+# literal_regsub [-all ...] pattern string replacement [resultvar]
 # similar to regsub, but replacement string has no special meaning for &, \1, \2, \0, ...
 proc literal_regsub {args} {
   set opt {}

@@ -2382,7 +2382,7 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 
   if(has_x && fallback && !is_gen && filename[0]) {
     file_exists = !stat(filename, &buf);
-    if(!file_exists) {
+    if(!file_exists && fallback == 1) {
       tclvareval("ask_save {Schematic ", filename, "\ndoes not exist.\nDescend into base schematic?}", NULL);
       if(strcmp(tclresult(), "yes") ) fallback = 0; /* 'no' or 'cancel' */
        if(!strcmp(tclresult(), "") ) { /* 'cancel' */
