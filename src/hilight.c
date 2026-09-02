@@ -645,14 +645,14 @@ void hilight_parent_pins(void)
     if(!strpbrk(translated, "@%")) break;
     translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
     dbg(1, "hilight_parent_pins(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr);
-    dbg(0, "hilight_parent_pins(): translated=%s\n\n", translated);
+    dbg(1, "hilight_parent_pins(): translated=%s\n\n", translated);
   }
   my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(eval_expr(translated), &mult));
   my_free(_ALLOC_ID_, &translated);
 
 
 
-  dbg(0, "hilight_parent_pins(): pin_node=%s\n", pin_node);
+  dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
 
   p_n_s1 = pin_node;
   dbg(1, "p_n_s1=%s\n", p_n_s1);
