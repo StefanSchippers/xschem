@@ -2385,7 +2385,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       xschem_cmd_help(argc, argv);
     }
-
+    /* hier_attr
+     *   Debug command */
+    else if(!strcmp(argv[1], "hier_attr")) {
+      int k;
+      char s[500];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      for(k = xctx->currsch; k >= 0; k--) {
+        if(xctx->hier_attr[k].prop_ptr) {
+          my_snprintf(s, S(s), "\nlevel=%d, attr=\n%s\n", k, xctx->hier_attr[k].prop_ptr);
+          Tcl_AppendResult(interp, s, NULL);
+        }
+      }
+    }
     /* hier_psprint [file]
      *   Hierarchical postscript / pdf print
      *   if 'file' is not given show a fileselector dialog box */

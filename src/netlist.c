@@ -947,16 +947,21 @@ static void set_lab_or_pin_inst_attr(int i, int j, const char *node)
 static void set_inst_node(int i, int j, const char *node)
 {
   xInstance * const inst = xctx->inst;
-  int inst_mult;
   xRect *rect = (inst[i].ptr + xctx->sym)->rect[PINLAYER];
-  int skip;
-
+  int skip, k;
+  char *tr_node = NULL;
   if(!node || !node[0]) return;
   if(!inst[i].node) return;
   if(!inst[i].instname) return;
   dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
-  expandlabel(inst[i].instname, &inst_mult);
-  my_strdup(_ALLOC_ID_,  &inst[i].node[j], node);
+
+  my_strdup2(_ALLOC_ID_, &tr_node, node);
+  for(k = xctx->currsch - 1; k >= 0; k--) {
+    if(!strpbrk(tr_node, "@%")) break;
+    translate3(tr_node, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_node);
+  }
+  my_strdup(_ALLOC_ID_,  &inst[i].node[j], eval_expr(tr_node));
+  my_free(_ALLOC_ID_, &tr_node);
   skip = skip_instance(i, 1, netlist_lvs_ignore);
   if(!for_netlist || skip) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
@@ -969,6 +974,17 @@ static void set_inst_node(int i, int j, const char *node)
 
   if(node[0] == '#') { /* update multilicity of unnamed node */
     int pin_mult;
+    int inst_mult;
+    char *tr_instname = NULL;
+
+    my_strdup2(_ALLOC_ID_, &tr_instname, inst[i].instname);
+    for(k = xctx->currsch - 1; k >= 0; k--) {
+      if(!strpbrk(tr_instname, "@%")) break;
+      translate3(tr_instname, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_instname);
+    }
+    expandlabel(eval_expr(tr_instname), &inst_mult);
+    my_free(_ALLOC_ID_, &tr_instname);
+
     expandlabel(get_tok_value(rect[j].prop_ptr, "name", 0), &pin_mult);
     get_unnamed_node(2, pin_mult * inst_mult, atoi((inst[i].node[j]) + 4));
   }
@@ -1418,6 +1434,8 @@ static int name_nodes_of_pins_labels_and_propagate()
       xctx->hilight_nets=1;
     }
     if(type && inst[i].node && IS_LABEL_OR_PIN(type) ) { /* instance must have a pin! */
+      char *tr_lab = NULL;
+      int k;
       port=0;
       my_strdup2(_ALLOC_ID_, &dir, "");
       if(strcmp(type,"label")) {  /* instance is a port (not a label) */
@@ -1443,9 +1461,13 @@ static int name_nodes_of_pins_labels_and_propagate()
         my_strdup(_ALLOC_ID_, &class,get_tok_value(inst[i].prop_ptr,"class",0));
       }
 
-
-      my_strdup(_ALLOC_ID_, &inst[i].node[0], inst[i].lab);
-
+      my_strdup2(_ALLOC_ID_, &tr_lab, inst[i].lab);
+      for(k = xctx->currsch - 1; k >= 0; k--) {
+        if(!strpbrk(tr_lab, "@%")) break;
+        translate3(tr_lab, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_lab);
+      }
+      my_strdup(_ALLOC_ID_, &inst[i].node[0], eval_expr(tr_lab));
+      my_free(_ALLOC_ID_, &tr_lab);
 
       /* do not assign node if pin/label has no 'lab' attribute */
       #if 0
@@ -1786,7 +1808,7 @@ int sym_vs_sch_pins(int all)
   int err = 0;
   char **lab_array =NULL;
   int lab_array_size = 0;
-  int i, j, k, symbol, pin_cnt=0, pin_match, mult;
+  int i, j, k, symbol, pin_cnt=0, pin_match;
   struct stat buf;
   char name[PATH_MAX];
   char *type = NULL;
@@ -1928,7 +1950,7 @@ int sym_vs_sch_pins(int all)
               /* generators or names with @ characters in general need translate() to process
                * arguments. This can not be done in this context (the current schematic we are looking
                * into is not loaded), so skip test */
-              if( strchr(name, '@')) {
+              if( strpbrk(name, "@%")) {
                 dbg(1, "sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n",
                    name);
                 break;
@@ -1937,7 +1959,7 @@ int sym_vs_sch_pins(int all)
               symbol = match_symbol(name);
               my_strdup(_ALLOC_ID_, &type, xctx->sym[symbol].type);
               if(type && IS_PIN(type)) {
-                my_strdup(_ALLOC_ID_, &lab, expandlabel(get_tok_value(tmp, "lab", 0), &mult));
+                my_strdup(_ALLOC_ID_, &lab, get_tok_value(tmp, "lab", 0));
                 if(pin_cnt >= lab_array_size) {
                   lab_array_size += CADCHUNKALLOC;
                   my_realloc(_ALLOC_ID_, &lab_array, lab_array_size * sizeof(char *));
@@ -1948,7 +1970,7 @@ int sym_vs_sch_pins(int all)
                 pin_match = 0;
                 for(j=0; j < rects; ++j) {
                   my_strdup(_ALLOC_ID_, &pin_name,
-                    expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
+                    get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
                   my_strdup(_ALLOC_ID_, &pin_dir, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
 
 
@@ -2037,7 +2059,7 @@ int sym_vs_sch_pins(int all)
         }
         for(j=0; j < rects; ++j) {
           my_strdup(_ALLOC_ID_, &pin_name,
-             expandlabel(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0), &mult));
+             get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
           pin_match = 0;
           for(k=0; k<pin_cnt; ++k) {
             if(pin_name && !strcmp(lab_array[k], pin_name)) {

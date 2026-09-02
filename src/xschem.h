@@ -1657,6 +1657,7 @@ extern char *find_nth(const char *str, const char *sep, const char *quote, int k
 extern int isonlydigit(const char *s);
 extern char *spice_get_node(const char *token);
 extern char *get_fqdevice(const char *param, int modelparam, const char *instname);
+extern char *recursive_subst(const char *value);
 extern const char *translate(int inst, const char* s, char **result);
 extern const char* translate2(Lcc *lcc, int level, char* s, char **result);
 extern const char *translate3(const char* s, int eat_escapes, const char *s1,
@@ -1733,6 +1734,7 @@ extern void check_polygon_storage(int c);
 extern void eval_expr_init_table(void);
 extern void eval_expr_clear_table(void);
 extern char *eval_expr(const char *s);
+extern char *is_expr(const char *str);
 extern const char *expandlabel(const char *s, int *m);
 extern void parse(const char *s);
 extern void clear_expandlabel_data(void);

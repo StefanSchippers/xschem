@@ -595,12 +595,12 @@ void hilight_net_pin_mismatches(void)
 
 void hilight_parent_pins(void)
 {
- int rects, i, j, k;
+ int rects, i, j;
  Hilight_hashentry *entry;
  const char *pin_name;
  char *pin_node = NULL;
  char *net_node=NULL;
- int mult, net_mult, inst_number;
+ int net_mult, inst_number;
 
  if(!xctx->hilight_nets) return;
  prepare_netlist_structs(0);
@@ -631,15 +631,28 @@ void hilight_parent_pins(void)
 
  for(j=0;j<rects; ++j)
  {
+  char *translated = NULL;
   char *p_n_s1, *p_n_s2;
+  int k, mult;
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
   dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
   pin_name = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0);
   dbg(1, "pin_name=%s\n", pin_name);
   if(!pin_name[0]) continue;
-  my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
-  dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
+  my_strdup(_ALLOC_ID_, &translated, pin_name);
+  for(k = xctx->currsch; k >= 0; k--) {
+    if(!strpbrk(translated, "@%")) break;
+    translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
+    dbg(1, "hilight_parent_pins(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr);
+    dbg(0, "hilight_parent_pins(): translated=%s\n\n", translated);
+  }
+  my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(eval_expr(translated), &mult));
+  my_free(_ALLOC_ID_, &translated);
+
+
+
+  dbg(0, "hilight_parent_pins(): pin_node=%s\n", pin_node);
 
   p_n_s1 = pin_node;
   dbg(1, "p_n_s1=%s\n", p_n_s1);
@@ -675,8 +688,7 @@ void hilight_parent_pins(void)
 
 void hilight_child_pins(void)
 {
- int j, k, rects;
- const char *pin_name;
+ int j, rects;
  char *pin_node = NULL;
  char *net_node=NULL;
  Hilight_hashentry *entry;
@@ -710,18 +722,31 @@ void hilight_child_pins(void)
  for(j=0;j<rects; ++j)
  {
   char *p_n_s1, *p_n_s2;
-  dbg(1, "hilight_child_pins(): inst_number=%d\n", inst_number);
+  char *tr_pin_name = NULL;
+  char *pin_name = NULL;
+  int k;
+  dbg(1, "\n\nhilight_child_pins(): inst_number=%d\n", inst_number);
 
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
-  dbg(1, "hilight_child_pins(): net_node=%s\n", net_node);
-  pin_name = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0);
+  dbg(1, "  hilight_child_pins(): net_node=%s\n", net_node);
+  my_strdup2(_ALLOC_ID_, &pin_name,
+       get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0));
   if(!pin_name[0]) continue;
-  my_strdup(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
-  dbg(1, "hilight_child_pins(): pin_node=%s\n", pin_node);
+  for(k = xctx->currsch - 1; k >= 0; k--) {
+    if(!strpbrk(pin_name, "@%")) break;
+    translate3(pin_name, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &pin_name);
+  }
+  my_strdup2(_ALLOC_ID_, &tr_pin_name, eval_expr(pin_name));
+  dbg(1, "  pin_name=%s, currsch=%d\n", pin_name, xctx->currsch);
+  dbg(1, "  tr_pin_name=%s, currsch=%d\n", tr_pin_name, xctx->currsch);
+  my_strdup(_ALLOC_ID_, &pin_node, expandlabel(tr_pin_name, &mult));
+  my_free(_ALLOC_ID_, &tr_pin_name);
+  my_free(_ALLOC_ID_, &pin_name);
+  dbg(1, "  hilight_child_pins(): pin_node=%s\n", pin_node);
   p_n_s1 = pin_node;
   for(k = 1; k<=mult; ++k) {
-    dbg(1, "hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
+    dbg(1, "  hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
                                (inst_number-1)*mult+k, k, inst_number, mult);
     xctx->currsch--;
     entry = bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
@@ -1483,6 +1508,8 @@ void propagate_hilights(int set, int clear, int mode)
       }
     /* ... else hilight/clear pin/label instances attached to hilight nets */
     } else if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
+      dbg(1, "propagate_hilights(): inst:%s, node=%s\n",
+               xctx->inst[i].instname, xctx->inst[i].node[0]);
       entry=bus_hilight_hash_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set) {
         xctx->inst[i].color = entry->value;
@@ -2280,7 +2307,7 @@ void draw_hilight_net(int on_window)
         draw_symbol(ADD, col, i, c, 0, 0, 0.0, 0.0);
         if(c == cadlayers - 1) draw_symbol(ADD, col, i, c + 1, 0, 0, 0.0, 0.0); /* draw texts */
       }
-      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* last parameter must be 2! */
+      filledrect(col, END, 0.0, 0.0, 0.0, 0.0, 2, -1, -1); /* fill parameter must be 2! */
       drawarc(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0);
       drawrect(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, -1, -1);
       drawline(col, END, 0.0, 0.0, 0.0, 0.0, 0.0, 0, NULL);

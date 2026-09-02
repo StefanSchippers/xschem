@@ -228,14 +228,14 @@ static int spice_netlist(FILE *fd, int spice_stop )
          /* hash device_model attribute if any */
          my_strdup2(_ALLOC_ID_, &val, get_tok_value(xctx->inst[i].prop_ptr, "device_model", 2));
          m = val;
-         if(strchr(val, '@')) m = translate(i, val, &res);
+         if(strpbrk(val, "@%")) m = translate(i, val, &res);
          else m = tcl_hook2(m);
          if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          else {
            my_strdup2(_ALLOC_ID_, &val,
                get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, "device_model", 2));
            m = val;
-           if(strchr(val, '@')) m = translate(i, val, &res);
+           if(strpbrk(val, "@%")) m = translate(i, val, &res);
            else m = tcl_hook2(m);
            if(m[0]) str_hash_lookup(&model_table, model_name(m), m, XINSERT);
          }
@@ -466,6 +466,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
     if(xctx->sym[i].flags & (SPICE_IGNORE | SPICE_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
+
     /* store parent symbol template attr (before descending into it) and parent instance prop_ptr
      * into xctx->hier_attr[0].templ and xctx->hier_attr[0.prop_ptr,
      * to resolve subschematic instances with model=@modp in format string,
@@ -478,7 +479,8 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
               tcl_hook2(xctx->sym[i].parent_prop_ptr));
     my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra,
       get_tok_value(xctx->sym[i].prop_ptr, "extra", 0));
-    my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(xctx->sym[i].name, ""));
+
+    my_strdup(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path))
     {
       if(!web_url) {

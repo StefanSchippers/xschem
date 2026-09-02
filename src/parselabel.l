@@ -127,7 +127,8 @@ const char *expandlabel(const char *s, int *m)
    fprintf(errfp, "syntax error in %s\n", s);
    my_snprintf(cmd, l,
      "tk_messageBox -icon error -type ok -parent [xschem get topwindow] "
-     "-message {Syntax error in identifier expansion: %s\nschematic:\n%s}", s, xctx->sch[xctx->currsch]);
+     "-message {Syntax error in identifier expansion: %s\nschematic:\n%s}", s,
+      xctx->sch[xctx->currsch] ? xctx->sch[xctx->currsch] : "<NULL>");
    if(has_x) {
      xctx->semaphore += 3;
      tcleval(cmd);
@@ -169,7 +170,7 @@ DDOT {SP}".."{SP}
 CLN {SP}":"{SP}
 MULTIP {SP}"*"{SP}
 LAB [-(a-zA-Z_%$~"+#!/\\<>]
-LAB_NODASH [(a-zA-Z_%$~"+#!/\\<>]
+LAB_NODASH [(a-zA-Z_%$~"+@#!/\\<>]
   /* includes numbers */
 LAB_NUM [-a-zA-Z_%$~"+#!/\\<>0-9]
   /* includes numbers and space and *+(). */

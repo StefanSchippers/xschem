@@ -337,6 +337,20 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
     if(xctx->sym[i].flags & (VERILOG_IGNORE | VERILOG_SHORT)) continue;
     if(lvs_ignore && (xctx->sym[i].flags & LVS_IGNORE)) continue;
     if(!xctx->sym[i].type) continue;
+
+    /* store parent symbol template attr (before descending into it) and parent instance prop_ptr
+     * into xctx->hier_attr[0].templ and xctx->hier_attr[0.prop_ptr,
+     * to resolve subschematic instances with model=@modp in format string,
+     * modp will be first looked up in instance prop_ptr string, and if not found
+     * in parent symbol template string */
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].templ,
+              tcl_hook2(xctx->sym[i].templ));
+    /* only additional symbols (created with instance schematic=... attr) will have this attribute */
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].prop_ptr,
+              tcl_hook2(xctx->sym[i].parent_prop_ptr));
+    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch - 1].sym_extra,
+      get_tok_value(xctx->sym[i].prop_ptr, "extra", 0));
+
     my_strdup2(_ALLOC_ID_, &abs_path, abs_sym_path(tcl_hook2(xctx->sym[i].name), ""));
     if(strcmp(xctx->sym[i].type,"subcircuit")==0 && check_lib(1, abs_path)) {
       if(!web_url) {
@@ -522,12 +536,18 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     for(j=0;j<xctx->sym[i].rects[PINLAYER]; ++j)
     {
       if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
-        const char *name = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0);
-        if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
+        char *name = NULL;
+        char *tr_name = NULL;
+        my_strdup2(_ALLOC_ID_, &name, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
+        translate3(name, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
+           NULL, NULL, NULL, &tr_name);
+        if(!int_hash_lookup(&table, tr_name, 1, XINSERT_NOREPLACE)) {
           if(tmp) fprintf(fd, " ,\n");
           ++tmp;
-          fprintf(fd,"  %s", name);
+          fprintf(fd,"  %s", eval_expr(tr_name));
         }
+        my_free(_ALLOC_ID_, &name);
+        my_free(_ALLOC_ID_, &tr_name);
       }
     }
     int_hash_free(&table);
@@ -550,6 +570,8 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     int_hash_init(&table, 37);
     for(j=0;j<xctx->sym[i].rects[PINLAYER]; ++j)
     {
+      char *name = NULL;
+      char *tr_name = NULL;
       if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
         my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
                   xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
@@ -562,14 +584,20 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
            if(!sig_type || sig_type[0]=='\0') my_strdup(_ALLOC_ID_, &sig_type,"wire");
         }
         str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
-        if(!int_hash_lookup(&table, str_tmp, 1, XINSERT_NOREPLACE)) {
+        my_strdup2(_ALLOC_ID_, &name, str_tmp);
+        translate3(name, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
+           NULL, NULL, NULL, &tr_name);
+
+        if(!int_hash_lookup(&table, tr_name, 1, XINSERT_NOREPLACE)) {
           fprintf(fd,"  %s %s ;\n",
-            strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input", str_tmp);
-          fprintf(fd,"  %s %s", sig_type, str_tmp);
+            strcmp(dir_tmp,"in")? ( strcmp(dir_tmp,"out")? "inout" :"output"  ) : "input", eval_expr(tr_name));
+          fprintf(fd,"  %s %s", sig_type, eval_expr(tr_name));
           if(port_value &&port_value[0])
             fprintf(fd," = %s", port_value);
           fprintf(fd," ;\n");
         }
+        my_free(_ALLOC_ID_, &name);
+        my_free(_ALLOC_ID_, &tr_name);
       }
     }
     int_hash_free(&table);

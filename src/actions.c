@@ -133,7 +133,7 @@ const char *get_text_floater(int i)
       /* do just a tcl substitution if floater does not reference an existing instance
        * (but name=something or floater=something attribute must be present) and text
        * matches tcleval(...) or contains '@' */
-      if(strstr(txt_ptr, "tcleval(") == txt_ptr || strchr(txt_ptr, '@')) {
+      if(strstr(txt_ptr, "tcleval(") == txt_ptr || strpbrk(txt_ptr, "@%")) {
         char *res = NULL;
         /* my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, tcl_hook2(xctx->text[i].txt_ptr)); */
         my_strdup2(_ALLOC_ID_, &xctx->text[i].floater_ptr, translate(-1, xctx->text[i].txt_ptr, &res));
@@ -1904,12 +1904,12 @@ void launcher(void)
       xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
       my_strdup2(_ALLOC_ID_, &command, get_tok_value(sym->prop_ptr, "tclcommand", 0));
     }
-    if(strchr(command, '@')) {
+    if(strpbrk(command, "@%")) {
       char *res = NULL;
       my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL, &res));
       if(xctx->sel_array[0].type==ELEMENT) {
         xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
-        if(strchr(command, '@')) {
+        if(strpbrk(command, "@%")) {
           my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, sym->prop_ptr, NULL, NULL, NULL, &res));
         }
       }
@@ -2258,6 +2258,7 @@ void get_additional_symbols(int what)
          * the base symbol will not be netlisted by *_block_netlist() */
         found = ignore_schematic ? NULL : int_hash_lookup(&sym_table, sym, 0, XLOOKUP);
         if(!found) {
+          char *tr_prop_ptr = NULL;
           j = xctx->symbols;
           int_hash_lookup(&sym_table, sym, j, XINSERT);
           dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
@@ -2266,7 +2267,14 @@ void get_additional_symbols(int what)
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 
-          my_strdup(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr, xctx->inst[i].prop_ptr);
+          translate3(xctx->inst[i].prop_ptr, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL,NULL, &tr_prop_ptr);
+          my_strdup(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr, eval_expr(tr_prop_ptr));
+          dbg(1, "get_additional_symbols(): inst:%s prop_ptr:%s\n",xctx->inst[i].instname, xctx->inst[i].prop_ptr);
+          dbg(1, "get_additional_symbols(): currsch=%d\n", xctx->currsch);
+          dbg(1, "get_additional_symbols(): xctx->hier_attr[0].prop_ptr=%s\n", 
+               xctx->hier_attr[0].prop_ptr ? xctx->hier_attr[0].prop_ptr : "<NULL>");
+          dbg(1, "get_additional_symbols(): tr_prop_ptr=%s\n", tr_prop_ptr ? tr_prop_ptr : "<NULL>");
+          my_free(_ALLOC_ID_, &tr_prop_ptr);
           /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
            * be skipped */
           if(default_schematic) {
@@ -2317,6 +2325,7 @@ void get_additional_symbols(int what)
 }
 /* fallback = 1: if schematic attribute is set but file not existing fallback
  * to defaut symbol schematic (symname.sym -> symname.sch)
+ * fallback = 2: same as above but will not ask user 
  * if inst == -1 use only symbol reference */
 void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
 {
@@ -2590,6 +2599,12 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
    str_hash_init(&xctx->portmap[xctx->currsch + 1], HASHSIZE);
 
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
+             xctx->inst[n].prop_ptr);
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ, xctx->sym[xctx->inst[n].ptr].templ);
+   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra,
+     get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
+
    if(!(set_title & 2)) for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
      const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
      char *pin_node = NULL, *net_node = NULL;
@@ -2597,13 +2612,23 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      char *single_p, *single_n = NULL, *single_n_ptr = NULL;
      char *p_n_s1 = NULL;
      char *p_n_s2 = NULL;
+     char *translated=NULL;
 
      if(!pin_name[0]) continue;
      if(!xctx->inst[n].node[i]) continue;
 
-     my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(pin_name, &mult));
+     my_strdup2(_ALLOC_ID_, &translated, pin_name);
+
+     for(k = xctx->currsch; k >= 0; k--) {
+       if(!strpbrk(translated, "@%")) break;
+       dbg(1, "descend_schematic(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr);
+       translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
+     }
+     my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(eval_expr(translated), &mult));
+     my_free(_ALLOC_ID_, &translated);
      my_strdup2(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[n].node[i], &net_mult));
 
+     dbg(1, "descend_schematic(): pin_node=%s\n", pin_node);
      p_n_s1 = pin_node;
      for(k = 1; k<=mult; ++k) {
          single_p = my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2);
@@ -2624,12 +2649,6 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      my_free(_ALLOC_ID_, &net_node);
      my_free(_ALLOC_ID_, &pin_node);
    }
-
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr,
-             xctx->inst[n].prop_ptr);
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ, xctx->sym[xctx->inst[n].ptr].templ);
-   my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra,
-     get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
    dbg(1,"descend_schematic(): inst_number=%d\n", inst_number);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
@@ -2727,9 +2746,6 @@ void go_back(int what)
 
   xctx->sch_path_hash[xctx->currsch] = 0;
   xctx->currsch--;
-  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ);
-  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra);
   save_modified = xctx->modified; /* we propagate modified flag (cleared by load_schematic */
                             /* by default) to parent schematic if going back from embedded symbol */
 
@@ -2745,6 +2761,9 @@ void go_back(int what)
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].prop_ptr);
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].templ);
+  my_free(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra);
   xctx->xorigin=xctx->zoom_array[xctx->currsch].x;
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
   xctx->zoom=xctx->zoom_array[xctx->currsch].zoom;

@@ -348,8 +348,13 @@ static int kklex()
 char *eval_expr(const char *s)
 {
   lex_state = 0;
-  if(ret) my_free(_ALLOC_ID_, &ret);
-  strptr = str = s;
-  kkparse();
-  return ret;
+  if(is_expr(s)) {
+    if(ret) my_free(_ALLOC_ID_, &ret);
+    strptr = str = s;
+    kkparse();
+    return ret;
+  } else {
+    my_strdup(_ALLOC_ID_, &ret, s);
+    return ret;
+  }
 }
