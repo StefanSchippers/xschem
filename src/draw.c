@@ -813,7 +813,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           }
         }
         RECTORDER(x1,y1,x2,y2);
-        drawrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, ellipse_a, ellipse_b);
+        drawrect(c, what, x0+x1, y0+y1, x0+x2, y0+y2, rect->bus, dash, ellipse_a, ellipse_b);
         if(rect->fill) filledrect(c,what, x0+x1, y0+y1, x0+x2, y0+y2, rect->fill,
                                   ellipse_a, ellipse_b);
       }
@@ -2236,7 +2236,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
  double xx1,yy1,xx2,yy2;
  char dash_arr[2];
  int width;
-
+ 
  if(!has_x) return;
 
  if(bus == -1.0) {
@@ -2303,8 +2303,7 @@ void drawrect(int c, int what, double rectx1,double recty1,double rectx2,double 
   if(i>=CADDRAWBUFFERSIZE)
   {
    if(xctx->draw_window) XDrawRectangles(display, xctx->window, xctx->gc[c], r,i);
-   if(xctx->draw_pixmap)
-     XDrawRectangles(display, xctx->save_pixmap, xctx->gc[c], r,i);
+   if(xctx->draw_pixmap) XDrawRectangles(display, xctx->save_pixmap, xctx->gc[c], r,i);
    i=0;
   }
   x1=X_TO_SCREEN(rectx1);

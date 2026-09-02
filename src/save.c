@@ -4125,7 +4125,7 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   bb[PINLAYER][i].y1 = i_y0 - 2.5; bb[PINLAYER][i].y2 = i_y0 + 2.5;
   RECTORDER(bb[PINLAYER][i].x1, bb[PINLAYER][i].y1, bb[PINLAYER][i].x2, bb[PINLAYER][i].y2);
   bb[PINLAYER][i].prop_ptr = NULL;
-  label = get_tok_value(prop_ptr, "lab", 0);
+  label = get_tok_value(prop_ptr, "lab", 1);
   save = strlen(label)+30;
   pin_label = my_malloc(_ALLOC_ID_, save);
   pin_label[0] = '\0';
@@ -4138,11 +4138,12 @@ static void add_pinlayer_boxes(int *lastr, xRect **bb,
   }
   my_strdup(_ALLOC_ID_, &bb[PINLAYER][i].prop_ptr, pin_label);
   bb[PINLAYER][i].flags = 0;
-  bb[PINLAYER][i].extraptr = 0;
+  bb[PINLAYER][i].extraptr = NULL;
   bb[PINLAYER][i].dash = 0;
   bb[PINLAYER][i].ellipse_a =  bb[PINLAYER][i].ellipse_b = -1;
   bb[PINLAYER][i].sel = 0;
   bb[PINLAYER][i].fill = 1;
+  bb[PINLAYER][i].bus = 0.0;
   /* add to symbol pins remaining attributes from schematic pins, except name= and lab= */
   my_strdup(_ALLOC_ID_, &pin_label, get_sym_template(prop_ptr, "lab"));   /* remove name=...  and lab=... */
   my_strcat(_ALLOC_ID_, &bb[PINLAYER][i].prop_ptr, pin_label);
