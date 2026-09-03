@@ -5527,7 +5527,8 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
         result_pos+=tmp;
       }
       else if (strcmp(token, "@symname") == 0) {
-        tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
+        tmp_sym_name = get_cell(get_tok_value(lcc[level].prop_ptr, "schematic", 0), 0);
+        if(!tmp_sym_name[0]) tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
         STR_ALLOC(result, tmp + result_pos, &size);
         memcpy(*result + result_pos, tmp_sym_name, tmp + 1);
