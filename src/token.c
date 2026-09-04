@@ -822,7 +822,6 @@ void new_prop_string(int i, const char *old_prop, int dis_uniq_names)
 void check_unique_names(int rename)
 {
   int i, first = 1, modified = 0;
-  int newpropcnt = 0;
   char *tmp = NULL;
   int used;
 
@@ -866,7 +865,6 @@ void check_unique_names(int rename)
   if(rename) for(i=0;i<xctx->instances; ++i) {
     if( (xctx->inst[i].color != -10000)) {
       my_strdup(_ALLOC_ID_, &tmp, xctx->inst[i].prop_ptr);
-      newpropcnt++;
       new_prop_string(i, tmp, 0);
       hash_names(i, XINSERT);
       symbol_bbox(i, &xctx->inst[i].x1, &xctx->inst[i].y1, &xctx->inst[i].x2, &xctx->inst[i].y2);

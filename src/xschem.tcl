@@ -6956,7 +6956,7 @@ proc set_xschem_vars {} {
   }
 }
 
-proc check_tcleval_perms {ask} {
+proc check_tcleval_perms {ask {s {}}} {
   global xschem_execute_scripts has_x
   if { $ask && $xschem_execute_scripts eq {no} } {
     return 0
@@ -6967,6 +6967,8 @@ proc check_tcleval_perms {ask} {
       # but this procedure may be  called from within a translate() call...
       xschem set semaphore [expr {[xschem get semaphore] + 3}]
       set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
+      append msg " Script:\n"
+      append msg "$s\n"
       append msg " WARNING:\n"
       append msg "   Allowing script execution is a potential security vulnerability,\n"
       append msg "   Do it only for schematics obtained from trusted sources.\n\n"
@@ -7007,7 +7009,7 @@ proc tclpropeval {s instn symn {ask 1}} {
   if {![info exists instname]} {set instname $instn}
   if {![info exists symname]} {set symname $symn}
 
-  if {![check_tcleval_perms $ask]} {
+  if {![check_tcleval_perms $ask $s]} {
     set res ?\n
     return $res
   }
@@ -7030,6 +7032,7 @@ proc tclpropeval {s instn symn {ask 1}} {
 # this hook is called in translate() if whole string is contained in a tcleval(...) construct
 proc tclpropeval2 {s {ask 1}} {
   global debug_tcleval env path debug_var sch_basename xschem_execute_scripts
+  set ss $s
   set raw_level [xschem get raw_level]
   set netlist_type [xschem get netlist_type]
   # puts "tclpropeval2: s=|$s|"
@@ -7060,7 +7063,7 @@ proc tclpropeval2 {s {ask 1}} {
   regsub {\)([ \n\t]*)$} $s {\1} s
   # puts "tclpropeval2: s=|$s|"
   # puts "tclpropeval2: subst $s=|[subst $s]|"
-  set allow [check_tcleval_perms $ask]
+  set allow [check_tcleval_perms $ask $ss]
   if {!$allow} {
     set res ?\n
     return $res
@@ -11231,6 +11234,7 @@ proc set_paths {} {
       set path_l_orig1 [split $XSCHEM_LIBRARY_PATH :]
     }
 
+    set path_l_orig2 {}
     # recognize path elemnts with alias: /some/path/for/xschem | alias
     foreach p $path_l_orig1 {
       # if {[regexp {^[^|]+[|][^|]+$} $p]} {}

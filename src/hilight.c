@@ -1771,7 +1771,7 @@ void free_simdata(void)
 static void propagate_logic()
 {
   /* char *propagated_net=NULL; */
-  int found, iter = 0 /* , mult */;
+  int found;
   int i, j, npin;
   int propagate;
   Hilight_hashentry  *entry;
@@ -1886,7 +1886,6 @@ static void propagate_logic()
     /* get out from infinite loops (circuit is oscillating) */
     tclvareval("update; expr {$::tclstop == 1}", NULL);
     if( tclresult()[0] == '1') break;
-    ++iter;
   } /* while(1) */
   tclvareval(xctx->top_path, ".statusbar.12 configure -text {}", NULL);
   /* my_free(_ALLOC_ID_, &propagated_net); */

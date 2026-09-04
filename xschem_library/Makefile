@@ -6,6 +6,7 @@ include ../Makefile.conf
 
 install: FORCE
 	$(SCCBOX) mkdir -p "$(system_library_dir)" "$(XDOCDIR)"/examples "$(XDOCDIR)"/pcb
+	$(SCCBOX) mkdir -p "$(XDOCDIR)"/examples/test_arametric_ports
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/logic "$(XDOCDIR)"/xTAG "$(XDOCDIR)"/binto7seg 
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/symgen "$(XDOCDIR)"/ngspice "$(XDOCDIR)"/rulz-r8c33
 	$(SCCBOX) mkdir -p "$(XDOCDIR)"/generators  "$(XDOCDIR)"/ngspice_verilog_cosim
@@ -17,6 +18,8 @@ install: FORCE
 	$(SCCBOX) install -f -d examples/*.sch "$(XDOCDIR)"/examples
 	$(SCCBOX) install -f -d examples/*.cir "$(XDOCDIR)"/examples
 	$(SCCBOX) install -f -d examples/stimuli.* "$(XDOCDIR)"/examples
+	$(SCCBOX) install -f -d examples/test_parametric_ports/*.sym "$(XDOCDIR)"/examples/test_parametric_ports
+	$(SCCBOX) install -f -d examples/test_parametric_ports/*.sch "$(XDOCDIR)"/examples/test_parametric_ports
 	$(SCCBOX) install -f -d binto7seg/*.sym "$(XDOCDIR)"/binto7seg
 	$(SCCBOX) install -f -d binto7seg/*.sch "$(XDOCDIR)"/binto7seg
 	$(SCCBOX) install -f -d generators/* "$(XDOCDIR)"/generators
@@ -54,6 +57,7 @@ install: FORCE
 uninstall: FORCE
 	$(SCCBOX) rm -f "$(system_library_dir)"/* \
 			"$(system_library_dir)" \
+                        "$(XDOCDIR)"/examples/test_parametric_ports/* \
 			"$(XDOCDIR)"/examples/* "$(XDOCDIR)"/pcb/* \
 			"$(XDOCDIR)"/ngspice/* "$(XDOCDIR)"/symgen/* "$(XDOCDIR)"/logic/* "$(XDOCDIR)"/xTAG/* \
                         "$(XDOCDIR)"/ngspice_verilog_cosim/* \

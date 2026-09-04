@@ -425,7 +425,6 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
 static int waves_callback(int event, int mx, int my, KeySym key, int button, int aux, int state)
 {
   Graph_ctx *gr;
-  int rstate; /* reduced state wit ShiftMask bit filtered out */
   int graph_use_ctrl_key = tclgetboolvar("graph_use_ctrl_key");
   int graph_select_to_zoom = tclgetboolvar("graph_select_to_zoom");
   int i, dataset = 0;
@@ -440,8 +439,6 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
   dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   /* if(event != -3 && !xctx->raw) return 0; */
-  rstate = state; /* rstate does not have ShiftMask bit, so easier to test for KeyPress events */
-  rstate &= ~ShiftMask; /* don't use ShiftMask, identifying characters is sufficient */
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
