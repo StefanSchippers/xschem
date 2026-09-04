@@ -7923,6 +7923,10 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 # (this works only if nowait is unset).
 proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   global has_x
+  if {[winfo exists .alert]} {
+    set tctx::rcode {}
+    return {}
+  }
   set tctx::rcode 1
   if {![info exists has_x] } {return}
   toplevel .alert -class Dialog
