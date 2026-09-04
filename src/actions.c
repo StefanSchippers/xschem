@@ -1956,6 +1956,11 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
   my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
   schematic_token_found = xctx->tok_size;
+
+  if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->hier_attr[0].prop_ptr && xctx->currsch==1) {
+    translate3(sch, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL, NULL, &sch);
+  }
+
   if(sch && sch[0]) {
     my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
     my_free(_ALLOC_ID_, &res);
@@ -2200,8 +2205,13 @@ void get_additional_symbols(int what)
 
       /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
       my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6));
-      dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
       schematic_token_found = xctx->tok_size;
+
+      if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->hier_attr[0].prop_ptr) {
+        translate3(sch, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL, NULL, &sch);
+      }
+
+      dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
 
       my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, &res));
       my_free(_ALLOC_ID_, &res);

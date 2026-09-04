@@ -4579,7 +4579,7 @@ static void handle_spice_get_voltage2(int inst, char *instname, char *token,
           my_snprintf(fqnet, len, "%s%s.%s", path, instname, net);
         }
         strtolower(fqnet);
-        dbg(0, "translate(): inst=%d, net=%s, fqnet=%s start_level=%d\n", inst, net, fqnet, start_level);
+        dbg(1, "translate(): inst=%d, net=%s, fqnet=%s start_level=%d\n", inst, net, fqnet, start_level);
         idx = get_raw_index(fqnet, NULL);
         if(idx >= 0) {
           val = xctx->raw->cursor_b_val[idx];
@@ -5053,7 +5053,7 @@ const char *translate(int inst, const char *s, char **result)
   struct tm *tm;
   char file_name[PATH_MAX];
   const char *value;
-  int escape=0, engineering = 0;
+  int escape=0, engineering = 0, parenthesis = 0;
   char date[200];
   int sp_prefix;
   char *value1 = NULL;
@@ -5113,12 +5113,16 @@ const char *translate(int inst, const char *s, char **result)
     else escape=0;
     space=SPACE(c);
     if( state==TOK_BEGIN && (c=='@' || c=='%' ) && !escape  ) state=TOK_TOKEN; /* 20161210 escape */
-    else if(state==TOK_TOKEN && token_pos > 1 &&
-       (
-         ( (space  || c == '%' || c == '@') && !escape ) ||
-         ( (!space && c != '%' && c != '@') && escape  )
-       )
-      ) state=TOK_SEP;
+    else if(state==TOK_TOKEN) {
+      if(c == '(' && !escape) parenthesis++;
+      if(c == ')' && !escape) parenthesis--;
+      if(token_pos > 1 && parenthesis == 0 && 
+         (
+           ( (space  || c == '%' || c == '@') && !escape ) ||
+           ( (!space && c != '%' && c != '@') && escape  )
+         )
+        ) state=TOK_SEP;
+    }
 
     STR_ALLOC(&token, token_pos, &sizetok);
     if(state==TOK_TOKEN) token[token_pos++]=(char)c;
@@ -5514,7 +5518,6 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
           int i;
           for(i = 1; i <level; ++i) {
             const char *instname = get_tok_value(lcc[i].prop_ptr, "name", 0);
-            dbg(0, "adding %s to %s\n", instname, path);
             my_strcat(_ALLOC_ID_, &path, instname);
             my_strcat(_ALLOC_ID_, &path, ".");
           }
