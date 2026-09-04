@@ -1957,8 +1957,8 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
   schematic_token_found = xctx->tok_size;
 
-  if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->hier_attr[0].prop_ptr && xctx->currsch==1) {
-    translate3(sch, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL, NULL, &sch);
+  if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch>=1 && xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
+    translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
   }
 
   if(sch && sch[0]) {
@@ -2207,8 +2207,9 @@ void get_additional_symbols(int what)
       my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6));
       schematic_token_found = xctx->tok_size;
 
-      if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->hier_attr[0].prop_ptr) {
-        translate3(sch, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL, NULL, &sch);
+      if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch >= 1 &&
+         xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
+        translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
       }
 
       dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
@@ -2277,12 +2278,17 @@ void get_additional_symbols(int what)
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 
-          translate3(xctx->inst[i].prop_ptr, 1, xctx->hier_attr[0].prop_ptr, NULL, NULL,NULL, &tr_prop_ptr);
+          if( xctx->currsch >= 1) {
+            translate3(xctx->inst[i].prop_ptr, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr,
+               NULL, NULL,NULL, &tr_prop_ptr);
+            dbg(1, "get_additional_symbols(): xctx->hier_attr.prop_ptr=%s\n", 
+               xctx->hier_attr[xctx->currsch - 1].prop_ptr ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : "<NULL>");
+          } else {
+            my_strdup(_ALLOC_ID_, &tr_prop_ptr, xctx->inst[i].prop_ptr);
+          }
           my_strdup(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr, eval_expr(tr_prop_ptr));
           dbg(1, "get_additional_symbols(): inst:%s prop_ptr:%s\n",xctx->inst[i].instname, xctx->inst[i].prop_ptr);
           dbg(1, "get_additional_symbols(): currsch=%d\n", xctx->currsch);
-          dbg(1, "get_additional_symbols(): xctx->hier_attr[0].prop_ptr=%s\n", 
-               xctx->hier_attr[0].prop_ptr ? xctx->hier_attr[0].prop_ptr : "<NULL>");
           dbg(1, "get_additional_symbols(): tr_prop_ptr=%s\n", tr_prop_ptr ? tr_prop_ptr : "<NULL>");
           my_free(_ALLOC_ID_, &tr_prop_ptr);
           /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
