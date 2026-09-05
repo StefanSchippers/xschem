@@ -1506,5 +1506,5 @@ C {tb_diff_amp.sym} 890 -900 0 0 {name=x33}
 C {tb_sar_adc.sym} 1360 -870 0 0 {name=x34}
 C {tb_counter_wrapper.sym} 1360 -900 0 0 {name=x35}
 C {tb_test_evaluated_param.sym} 480 -1000 0 0 {name=x36}
-C {test_parametric_ports/tb_param_ports.sym} 480 -960 0 0 {name=x37}
-C {test_parametric_ports/tb_param_ports_lcc.sym} 480 -920 0 0 {name=x38}
+C {test_parametric_ports/tb_param_ports.sym} 480 -960 0 0 {name=xp1}
+C {test_parametric_ports/tb_param_ports_lcc.sym} 480 -920 0 0 {name=xp2}
