@@ -5416,12 +5416,12 @@ const char *translate(int inst, const char *s, char **result)
   my_strdup2(_ALLOC_ID_, result, tcl_hook2(*result));
   my_strdup2(_ALLOC_ID_, result, spice_get_node(*result));
 
-  if(is_expr(*result) && inst >= 0) {
+  if((strpbrk(*result, "@%") || is_expr(*result)) && inst >= 0) {
     char *res = NULL;
     dbg(1, "translate(): expr():%s\n", *result);
     my_strdup2(_ALLOC_ID_, result, eval_expr(
        translate3(*result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
-                              NULL, NULL, &res)));
+                              xctx->sym[xctx->inst[inst].ptr].prop_ptr, NULL, &res)));
     my_free(_ALLOC_ID_, &res);
   }
   return *result;
