@@ -448,6 +448,7 @@ C {simulator_commands_shown.sym} 0 -250 0 0 {name=COMMANDS
 simulator=ngspice
 only_toplevel=false 
 value="
+.options savecurrents
 .param VCC=10 VGATE=10
 .control
 save all

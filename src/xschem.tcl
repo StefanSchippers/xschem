@@ -6966,9 +6966,15 @@ proc check_tcleval_perms {ask {s {}}} {
       # the alert box causes an Expose event, wicht triggers draw() and translate()
       # but this procedure may be  called from within a translate() call...
       xschem set semaphore [expr {[xschem get semaphore] + 3}]
+
+      # if script is too long show only part of it
+      set ss $s
+      if {[string length $ss] > 80} {
+        set ss "[string range $s 0 79]\n..."
+      }
       set    msg " Allow xschem to execute scripts embedded in schematics?\n\n"
       append msg " Script:\n"
-      append msg "$s\n"
+      append msg "$ss\n"
       append msg " WARNING:\n"
       append msg "   Allowing script execution is a potential security vulnerability,\n"
       append msg "   Do it only for schematics obtained from trusted sources.\n\n"

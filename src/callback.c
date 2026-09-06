@@ -64,7 +64,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
     lmargin = (r->x2 - r->x1) / 20.;
     lmargin = lmargin < 3. ? 3. : lmargin;
     lmargin = lmargin > 20. ? 20. : lmargin;
-    if( !graph_use_ctrl_key && !(state & ControlMask) &&
+    if( !sel &&
        !strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
     check =
       (xctx->ui_state & GRAPHPAN) ||
