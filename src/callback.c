@@ -1954,7 +1954,7 @@ static int edit_rect_point(int state)
    rect_c = xctx->sel_array[0].col;
   /* rectangle point: Check is user is clicking a control point of a rectangle */
   if(rect_n >= 0) {
-    double ds = xctx->cadhalfdotsize * 2 * xctx->zoom;
+    double ds = xctx->cadhalfdotsize * 4 * xctx->zoom * tk_scaling;
     xRect *p = &xctx->rect[rect_c][rect_n];
 
     xctx->need_reb_sel_arr=1;

@@ -398,7 +398,7 @@ static void find_closest_arc(double mx, double my, int override_lock)
 static void find_closest_box(double mx ,double my, int override_lock)
 {
  double tmp;
- double threshold = CADWIREMINDIST * xctx->zoom * tk_scaling;
+ double threshold = CADWIREMINDIST * xctx->zoom * tk_scaling * 2;
  int i, c, r=-1, col = 0;
  double d = distance;
 
@@ -408,8 +408,8 @@ static void find_closest_box(double mx ,double my, int override_lock)
   if(!xctx->enable_layer[c]) continue;
   for(i=0;i<xctx->rects[c]; ++i)
   {
-   if( POINTINSIDE(mx, my, xctx->rect[c][i].x1 - threshold, xctx->rect[c][i].y1 - threshold,
-                         xctx->rect[c][i].x2 + threshold, xctx->rect[c][i].y2 + threshold) &&
+   if( POINTINSIDE(mx, my, xctx->rect[c][i].x1, xctx->rect[c][i].y1,
+                         xctx->rect[c][i].x2, xctx->rect[c][i].y2) &&
       !POINTINSIDE(mx, my, xctx->rect[c][i].x1 + threshold, xctx->rect[c][i].y1 + threshold,
                          xctx->rect[c][i].x2 - threshold, xctx->rect[c][i].y2 - threshold))
    {
