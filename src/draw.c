@@ -4399,11 +4399,10 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         save_npoints = xctx->raw->npoints[0];
         xctx->raw->npoints[0] = xctx->raw->allpoints;
       }
-
       dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
-
+      my_strdup2(_ALLOC_ID_, &tmp_ptr, trim_chars(find_nth(ntok_copy, ";", "\"", 4, 2), "\n "));
       yyparse_error = -1;
-      my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(find_nth(ntok_copy, ";", "\"", 4, 2), NULL));
+      if(!strchr(tmp_ptr, ' ')) my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(tmp_ptr, NULL));
       yyparse_error = 0;
       dbg(1, "tmp_ptr=|%s|\n", tmp_ptr);
       if(strstr(tmp_ptr, ",")) {

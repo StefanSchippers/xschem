@@ -877,12 +877,15 @@ write test_ac.raw
 set appendwrite
 
 ac dec 10 1000 10G
+remzerovec
 write test_ac.raw
 alter IBIAS=10u
 ac dec 10 1000 10G
+remzerovec
 write test_ac.raw
 alter IBIAS=100u
 ac dec 10 1000 10G
+remzerovec
 write test_ac.raw
 
 .endc
