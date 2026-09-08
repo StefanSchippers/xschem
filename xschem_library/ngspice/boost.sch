@@ -1,8 +1,9 @@
-v {xschem version=3.4.7RC file_version=1.2}
+v {xschem version=3.4.8RC file_version=1.3}
 G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 880 -290 1430 -110 {flags=graph
 y1=0.00013
@@ -29,7 +30,8 @@ unitx=1
 logx=0
 logy=0
 hilight_wave=-1
-linewidth_mult=1.2}
+linewidth_mult=1.2
+legendmag=1.5}
 B 2 880 -400 1430 -290 {flags=graph
 y1=0
 y2=13
@@ -52,7 +54,8 @@ hilight_wave=2
 color="4 7"
 node="pwm1
 g1"
-linewidth_mult=1.2}
+linewidth_mult=1.2
+legendmag=1.5}
 B 2 880 -500 1430 -400 {flags=graph
 y1=1.3
 y2=7.5
@@ -75,7 +78,8 @@ hilight_wave=-1
 color="4 7"
 node="i(vm1)
 i(vbatt)"
-linewidth_mult=1.2}
+linewidth_mult=1.2
+legendmag=1.5}
 B 2 880 -590 1430 -500 {flags=graph
 y1=0
 y2=78
@@ -98,7 +102,8 @@ hilight_wave=-1
 color="4 7"
 node="i(vbatt) batt * 24u ravg()
 i(vm1) supply * 24u ravg()"
-linewidth_mult=1.2}
+linewidth_mult=1.2
+legendmag=1.5}
 B 2 880 -700 1430 -590 {flags=graph
 y1=-0.014
 y2=2.6
@@ -122,7 +127,8 @@ color="4 10 8"
 node="M3_PWR; diode i(vm3) * 24u ravg()
 D2_PWR; i(vm2) diode batt - * 24u ravg()
 L_PWR;L1 DIODE - i(vm1) * 24u ravg()"
-linewidth_mult=1.2}
+linewidth_mult=1.2
+legendmag=1.5}
 T {@name} 295 -318.75 0 0 0.2 0.2 {name=Rind1}
 T {@value} 295 -306.25 0 0 0.2 0.2 {name=Rind1}
 T {m=@m} 295 -293.75 0 0 0.2 0.2 {name=Rind1}

@@ -3935,7 +3935,7 @@ proc graph_edit_properties {n} {
   if {$tmp eq {}} { set tmp 1.0}
   .graphdialog.top5.xmag insert 0 $tmp
 
-  set tmp [xschem getprop rect 2 $graph_selected ylabmag]`
+  set tmp [xschem getprop rect 2 $graph_selected ylabmag]
   if {$tmp eq {}} { set tmp 1.0}
   .graphdialog.top5.ymag insert 0 $tmp
 
