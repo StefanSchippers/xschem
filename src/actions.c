@@ -1906,11 +1906,11 @@ void launcher(void)
     }
     if(strpbrk(command, "@%")) {
       char *res = NULL;
-      my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, prop_ptr, NULL, NULL, NULL, &res));
+      my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, prop_ptr, NULL, NULL, NULL, &res));
       if(xctx->sel_array[0].type==ELEMENT) {
         xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
         if(strpbrk(command, "@%")) {
-          my_strdup2(_ALLOC_ID_, &command, translate3(command, 1, sym->prop_ptr, NULL, NULL, NULL, &res));
+          my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, sym->prop_ptr, NULL, NULL, NULL, &res));
         }
       }
       my_free(_ALLOC_ID_, &res);
