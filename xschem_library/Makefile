@@ -20,6 +20,7 @@ install: FORCE
 	$(SCCBOX) install -f -d examples/stimuli.* "$(XDOCDIR)"/examples
 	$(SCCBOX) install -f -d examples/test_parametric_ports/*.sym "$(XDOCDIR)"/examples/test_parametric_ports
 	$(SCCBOX) install -f -d examples/test_parametric_ports/*.sch "$(XDOCDIR)"/examples/test_parametric_ports
+	$(SCCBOX) install -f -d examples/test_parametric_ports/stimuli.* "$(XDOCDIR)"/examples/test_parametric_ports
 	$(SCCBOX) install -f -d binto7seg/*.sym "$(XDOCDIR)"/binto7seg
 	$(SCCBOX) install -f -d binto7seg/*.sch "$(XDOCDIR)"/binto7seg
 	$(SCCBOX) install -f -d generators/* "$(XDOCDIR)"/generators

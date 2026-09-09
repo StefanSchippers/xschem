@@ -1657,7 +1657,7 @@ extern char *find_nth(const char *str, const char *sep, const char *quote, int k
 extern int isonlydigit(const char *s);
 extern char *spice_get_node(const char *token);
 extern char *get_fqdevice(const char *param, int modelparam, const char *instname);
-extern char *recursive_subst(const char *value);
+extern char *recursive_subst(const char *value, int symbol);
 extern const char *translate(int inst, const char* s, char **result);
 extern const char* translate2(Lcc *lcc, int level, char* s, char **result);
 extern const char *translate3(const char* s, int eat_escapes, const char *s1,

@@ -4974,7 +4974,7 @@ static void handle_spice_get_current2(char *instname, int engineering, int sim_i
 }
 
 /* caller should free returned value when done */
-char *recursive_subst(const char *value)
+char *recursive_subst(const char *value, int symbol)
 {
   char *value1 = NULL;
   int i = xctx->currsch;
@@ -4990,12 +4990,12 @@ char *recursive_subst(const char *value)
     const char *tok;
     if(v && v[0] == '@') v++;
     tok = get_tok_value(lcc[i-1].prop_ptr, v, 0);
-    if(xctx->tok_size && tok[0]) {
+    if(xctx->tok_size /* && tok[0] */) {
       dbg(1, "tok=%s\n", tok);
       my_strdup2(_ALLOC_ID_, &value1, tok);
     } else {
       tok = get_tok_value(lcc[i-1].templ,  v, 0);
-      if(xctx->tok_size && tok[0]) {
+      if(xctx->tok_size /* && tok[0] */) {
         dbg(1, "from parent template: tok=%s\n", tok);
         my_strdup2(_ALLOC_ID_, &value1, tok);
       }
@@ -5004,15 +5004,18 @@ char *recursive_subst(const char *value)
     i--;
   }
   if(strpbrk(value1, "@%")) {
-    my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL, &res));
+    my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL, &res));
   }
   /* substitute remaing @params */
   i = xctx->currsch;
   while(i > 0) {
     if(strpbrk(value1, "@%")) {
-      my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL, &res));
+      my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL, &res));
       dbg(1, "  2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
-    } else break;
+    } else {
+      break;
+    }
+   
     i--;
   }
   my_free(_ALLOC_ID_, &schname_attr);
@@ -5020,11 +5023,22 @@ char *recursive_subst(const char *value)
   i = xctx->currsch;
   while(i > 0) {
     if(strpbrk(value1, "@%")) {
-      my_strdup(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL,  NULL, NULL, &res));
+      my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL, NULL, NULL, &res));
       dbg(1, "  3 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
-    } else break;
+    } else {
+      break;
+    }
+
     i--;
   }
+
+  if(symbol >= 0) {
+    const char *subst = get_tok_value(xctx->sym[symbol].prop_ptr, value1, 3);
+    if(xctx->tok_size) {
+      my_strdup2(_ALLOC_ID_, &value1, subst);
+    }
+  }
+
   if(res) my_free(_ALLOC_ID_, &res);
   my_strdup2(_ALLOC_ID_, &value1, eval_expr(value1));
   dbg(1, "\n\nrecursive_subst(): returning %s\n", value1);
@@ -5104,7 +5118,7 @@ const char *translate(int inst, const char *s, char **result)
   while(1)
   {
     c=*s++;
-    if(c=='\\') {
+    if(c=='\\' && !escape) {
       escape=1;
       c=*s++; /* do not remove: breaks translation of format strings in netlists (escaping %) */
     }
@@ -5117,11 +5131,10 @@ const char *translate(int inst, const char *s, char **result)
       if(token_pos > 1 && parenthesis == 0 && 
          (
            ( (space  || c == '%' || c == '@') && !escape ) ||
-           ( (!space && c != '%' && c != '@') && escape  )
+           ( escape  )
          )
         ) state=TOK_SEP;
     }
-
     STR_ALLOC(&token, token_pos, &sizetok);
     if(state==TOK_TOKEN) token[token_pos++]=(char)c;
     else if(state==TOK_SEP)
@@ -5292,10 +5305,12 @@ const char *translate(int inst, const char *s, char **result)
       #ifdef __unix__
       else if(!regexec(get_sp_cur, token, 0 , NULL, 0) )
       # else
-      else if ((win_regexec(NULL/*options*/, "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
+      else if ((win_regexec(NULL/*options*/,
+              "^@spice_get_(current|modelparam|modelvoltage)(_[a-zA-Z][a-zA-Z0-9_]*)*\\(", token)))
       #endif
       {
-        handle_spice_get_current2(instname, engineering, sim_is_ngspice, sim_is_vacask, token, result, &result_pos, &size);
+        handle_spice_get_current2(instname, engineering, sim_is_ngspice, sim_is_vacask,
+                                  token, result, &result_pos, &size);
       }
       else if(inst >= 0 && strcmp(token,"@spice_get_diff_voltage")==0  && xctx->inst[inst].ptr >= 0)
       {
@@ -5307,7 +5322,8 @@ const char *translate(int inst, const char *s, char **result)
                strncmp(token,"@spice_get_modelvoltage", 23)==0
              )
       {
-        handle_spice_get_current(instname, engineering, sim_is_ngspice, sim_is_vacask, token, result, &result_pos, &size);
+        handle_spice_get_current(instname, engineering, sim_is_ngspice, sim_is_vacask,
+                                 token, result, &result_pos, &size);
       }
       else if(strcmp(token,"@schvhdlprop")==0 && xctx->schvhdlprop)
       {
@@ -5380,7 +5396,7 @@ const char *translate(int inst, const char *s, char **result)
             result_pos+=tmp;
           }
         } else {
-          value1 = recursive_subst(value);
+          value1 = recursive_subst(value, inst >= 0 ? xctx->inst[inst].ptr : -1);
           tmp=strlen(value1);
           STR_ALLOC(result, tmp + result_pos, &size);
           memcpy(*result+result_pos, value1, tmp+1);
@@ -5389,8 +5405,13 @@ const char *translate(int inst, const char *s, char **result)
         }
       }
       token_pos = 0;
-      if(c == '@' || c == '%') s--; /* push back for next token processing */
-      else { /* append separator char */
+      if(c == '@' || c == '%') {
+        s--; /* push back for next token processing */
+        if(escape) {
+          s--; /* if escaped leave escape to be processed too */
+          escape = 0;
+        }
+      } else { /* append separator char */
         STR_ALLOC(result, 1 + result_pos, &size);
         (*result)[result_pos++]=(char)c;
       }
@@ -5407,23 +5428,17 @@ const char *translate(int inst, const char *s, char **result)
       break;
     }
   } /* while(1) */
-  dbg(2, "translate(): returning %s\n", *result);
   my_free(_ALLOC_ID_, &token);
   /* resolve spice_get_node patterns.
    * if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
    * can be calculated */
 
-  my_strdup2(_ALLOC_ID_, result, tcl_hook2(*result));
-  my_strdup2(_ALLOC_ID_, result, spice_get_node(*result));
-
-  if((strpbrk(*result, "@%") || is_expr(*result)) && inst >= 0) {
-    char *res = NULL;
-    dbg(1, "translate(): expr():%s\n", *result);
-    my_strdup2(_ALLOC_ID_, result, eval_expr(
-       translate3(*result, 1, xctx->inst[inst].prop_ptr, xctx->sym[xctx->inst[inst].ptr].templ,
-                              xctx->sym[xctx->inst[inst].ptr].prop_ptr, NULL, &res)));
-    my_free(_ALLOC_ID_, &res);
+  if(*result && (*result)[0]) {
+    my_strdup2(_ALLOC_ID_, result, tcl_hook2(*result));
+    my_strdup2(_ALLOC_ID_, result, spice_get_node(*result));
+    my_strdup2(_ALLOC_ID_, result, eval_expr(*result));
   }
+  dbg(2, "translate(): returning %s\n", *result);
   return *result;
 }
 

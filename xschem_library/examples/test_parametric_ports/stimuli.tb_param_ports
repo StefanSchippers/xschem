@@ -1,0 +1,26 @@
+unit n
+voltage 1.8
+slope 1
+format hspice
+buswidth INA 3
+buswidth INB 8
+buswidth INC 5
+buswidth IND 4
+beginfile stimuli_tb_param_ports.cir
+set VDD 1.8
+set INA 0
+set INB 00
+set INC 00
+set IND 00
+s 10
+set INA 7
+set INB ff
+set INC 1f
+set IND f
+s 40
+set INA 0
+set INB 00
+set INC 00
+set IND 00
+s 40
+endfile

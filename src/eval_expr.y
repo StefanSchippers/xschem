@@ -354,7 +354,7 @@ char *eval_expr(const char *s)
     kkparse();
     return ret;
   } else {
-    my_strdup(_ALLOC_ID_, &ret, s);
+    my_strdup2(_ALLOC_ID_, &ret, s);
     return ret;
   }
 }
