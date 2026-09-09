@@ -11014,7 +11014,7 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.simulation.graph add command -label {Add waveform graph} -command {xschem add_graph}
   $topwin.menubar.simulation.graph add command -label {Add waveform reload launcher} -command {
       xschem place_symbol [find_file_first launcher.sym] "name=h5\ndescr=\"load waves\"
-tclcommand=\"xschem raw_read \$netlist_dir/[file tail [file rootname [xschem get current_name]]].raw tran\"
+tclcommand=\"xschem raw_read \$netlist_dir/@schname\\\\.raw tran\"
 "
   }
   $topwin.menubar.simulation.graph add command -label "Annotate Operating Point into schematic" \

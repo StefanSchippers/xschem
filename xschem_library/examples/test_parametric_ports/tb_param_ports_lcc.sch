@@ -5,7 +5,7 @@ V {}
 S {}
 F {}
 E {}
-B 2 160 -1550 640 -1180 {flags=graph
+B 2 270 -1580 750 -1210 {flags=graph
 y1=-0.11
 y2=2
 ypos1=0
@@ -28,7 +28,7 @@ unitx=1
 logx=0
 logy=0
 }
-B 2 660 -1550 1140 -1180 {flags=graph
+B 2 770 -1580 1250 -1210 {flags=graph
 y1=-0.11
 y2=2
 ypos1=0
@@ -51,7 +51,7 @@ unitx=1
 logx=0
 logy=0
 }
-B 2 1160 -1550 1640 -1180 {flags=graph
+B 2 1270 -1580 1750 -1210 {flags=graph
 y1=-0.11
 y2=2
 ypos1=0
@@ -74,7 +74,7 @@ unitx=1
 logx=0
 logy=0
 }
-B 2 1660 -1550 2140 -1180 {flags=graph
+B 2 1770 -1580 2250 -1210 {flags=graph
 y1=-0.11
 y2=2
 ypos1=0
@@ -97,42 +97,60 @@ unitx=1
 logx=0
 logy=0
 }
-T {netlists ok in Spice and Verilog} 980 -1650 0 0 0.8 0.8 {}
-N 1270 -890 1350 -890 {lab=OUTB[7:0]}
-N 770 -890 850 -890 {lab=OUTA[2:0]}
-N 550 -890 580 -890 {lab=INA[2:0]}
-N 1050 -890 1080 -890 {lab=INB[7:0]}
-N 2260 -890 2340 -890 {lab=OUTD[3:0]}
-N 2270 -310 2360 -310 {lab=OUTC[4:0]}
-C {lab_pin.sym} 850 -890 0 1 {name=p1 lab=OUTA[2:0]}
-C {lab_pin.sym} 550 -890 0 0 {name=p2 lab=INA[2:0]}
-C {test_parametric_ports/inv.sch} 1160 -890 0 0 {name=x2 width=8
+T {netlists ok in Spice and Verilog} 1090 -1630 0 0 0.8 0.8 {}
+N 1270 -920 1350 -920 {lab=OUTB[7:0]}
+N 770 -920 850 -920 {lab=OUTA[2:0]}
+N 550 -920 580 -920 {lab=INA[2:0]}
+N 1050 -920 1080 -920 {lab=INB[7:0]}
+N 2260 -920 2340 -920 {lab=OUTD[3:0]}
+N 2270 -360 2360 -360 {lab=OUTC[4:0]}
+C {lab_pin.sym} 850 -920 0 1 {name=p1 lab=OUTA[2:0]}
+C {lab_pin.sym} 550 -920 0 0 {name=p2 lab=INA[2:0]}
+C {test_parametric_ports/inv.sch} 1160 -920 0 0 {name=x2 width=8
 schematic=inv2}
-C {lab_pin.sym} 1350 -890 0 1 {name=p3 lab=OUTB[7:0]}
-C {lab_pin.sym} 1050 -890 0 0 {name=p4 lab=INB[7:0]}
-C {test_parametric_ports/inv.sch} 660 -890 0 0 {name=x4 width=3
+C {lab_pin.sym} 1350 -920 0 1 {name=p3 lab=OUTB[7:0]}
+C {lab_pin.sym} 1050 -920 0 0 {name=p4 lab=INB[7:0]}
+C {test_parametric_ports/inv.sch} 660 -920 0 0 {name=x4 width=3
 schematic=inv1}
-C {test_parametric_ports/buf.sch} 1920 -890 0 0 {name=x1 width=4 schematic=buf1
+C {test_parametric_ports/buf.sch} 1920 -920 0 0 {name=x1 width=4 schematic=buf1
 inv=inv3}
-C {lab_pin.sym} 2340 -890 0 1 {name=p7 lab=OUTD[3:0]}
-C {lab_pin.sym} 1570 -890 0 0 {name=p8 lab=IND[3:0]}
-C {lab_pin.sym} 2360 -310 0 1 {name=p5 lab=OUTC[4:0]
+C {lab_pin.sym} 2340 -920 0 1 {name=p7 lab=OUTD[3:0]}
+C {lab_pin.sym} 1570 -920 0 0 {name=p8 lab=IND[3:0]}
+C {lab_pin.sym} 2360 -360 0 1 {name=p5 lab=OUTC[4:0]
 }
-C {lab_pin.sym} 580 -310 0 0 {name=p6 lab=INC[4:0]
+C {lab_pin.sym} 580 -360 0 0 {name=p6 lab=INC[4:0]
 }
-C {test_parametric_ports/double_buf.sch} 1430 -310 0 0 {name=x3 width=5
+C {test_parametric_ports/double_buf.sch} 1430 -360 0 0 {name=x3 width=5
 schematic=double_buf1.sch
 buf=buf2
 inv=inv4}
-C {ipin.sym} 570 -30 0 0 { name=p9 lab=IND[3:0] }
-C {ipin.sym} 570 -50 0 0 { name=p10 lab=INC[4:0] }
-C {ipin.sym} 570 -70 0 0 { name=p11 lab=INB[7:0] }
-C {ipin.sym} 570 -90 0 0 { name=p12 lab=INA[2:0] }
-C {opin.sym} 2280 -30 0 0 { name=p13 lab=OUTD[3:0] }
-C {opin.sym} 2280 -50 0 0 { name=p14 lab=OUTC[4:0] }
-C {opin.sym} 2280 -70 0 0 { name=p15 lab=OUTB[7:0] }
-C {opin.sym} 2280 -90 0 0 { name=p16 lab=OUTA[2:0] }
-C {code.sym} 110 -630 0 0 {name="MODELS"
+C {ipin.sym} 110 -130 0 0 { name=p9 lab=IND[3:0] }
+C {ipin.sym} 110 -150 0 0 { name=p10 lab=INC[4:0] }
+C {ipin.sym} 110 -170 0 0 { name=p11 lab=INB[7:0] }
+C {ipin.sym} 110 -190 0 0 { name=p12 lab=INA[2:0] }
+C {opin.sym} 290 -130 0 0 { name=p13 lab=OUTD[3:0] }
+C {opin.sym} 290 -150 0 0 { name=p14 lab=OUTC[4:0] }
+C {opin.sym} 290 -170 0 0 { name=p15 lab=OUTB[7:0] }
+C {opin.sym} 290 -190 0 0 { name=p16 lab=OUTA[2:0] }
+C {title.sym} 150 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {code_shown.sym} 20 -900 0 0 {name=COMMANDS only_toplevel=false value="
+.include stimuli_@schname\\\\.cir
+.control
+  tran 1n 110n
+  remzerovec
+  write @schname\\\\.raw
+.endc
+"
+verilog_ignore=true}
+C {parax_cap.sym} 800 -910 0 0 {name=C1[2:0] gnd=0 value=100f m=1}
+C {parax_cap.sym} 1300 -910 0 0 {name=C2[7:0] gnd=0 value=100f m=1}
+C {parax_cap.sym} 2290 -910 0 0 {name=C3[3:0] gnd=0 value=100f m=1}
+C {parax_cap.sym} 2310 -350 0 0 {name=C4[4:0] gnd=0 value=100f m=1}
+C {launcher.sym} 320 -1170 0 0 {name=h2
+descr="load waves"
+tclcommand="xschem raw_read $netlist_dir/@schname\\\\.raw tran"
+}
+C {code.sym} 20 -630 0 0 {name="MODELS"
 spice_ignore=0
 only_toplevel=false value="
 ** From the ngspice distribution:
@@ -203,20 +221,3 @@ only_toplevel=false value="
 +vgs_max=4 vds_max=4 vbs_max=4
 "
 verilog_ignore=true}
-C {code_shown.sym} 50 -420 0 0 {name=COMMANDS only_toplevel=false value="
-.include stimuli_@schname\\\\.cir
-.control
-  tran 1n 110n
-  remzerovec
-  write @schname\\\\.raw
-.endc
-"
-verilog_ignore=true}
-C {launcher.sym} 160 -1150 0 0 {name=h5
-descr="load waves"
-tclcommand="xschem raw_read $netlist_dir/tb_param_ports_lcc.raw tran"
-}
-C {parax_cap.sym} 800 -880 0 0 {name=C1[2:0] gnd=0 value=100f m=1}
-C {parax_cap.sym} 1300 -880 0 0 {name=C2[7:0] gnd=0 value=100f m=1}
-C {parax_cap.sym} 2290 -880 0 0 {name=C3[3:0] gnd=0 value=100f m=1}
-C {parax_cap.sym} 2310 -300 0 0 {name=C4[4:0] gnd=0 value=100f m=1}

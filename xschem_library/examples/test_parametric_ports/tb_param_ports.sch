@@ -122,15 +122,25 @@ C {test_parametric_ports/double_buf.sym} 1160 -270 0 0 {name=x3 width=5
 schematic=double_buf1.sch
 buf=buf3
 inv=inv4}
-C {ipin.sym} 600 -340 0 0 { name=p9 lab=IND[3:0] }
-C {ipin.sym} 600 -360 0 0 { name=p10 lab=INC[4:0] }
-C {ipin.sym} 600 -380 0 0 { name=p11 lab=INB[7:0] }
-C {ipin.sym} 600 -400 0 0 { name=p12 lab=INA[2:0] }
-C {opin.sym} 1690 -340 0 0 { name=p13 lab=OUTD[3:0] }
-C {opin.sym} 1690 -360 0 0 { name=p14 lab=OUTC[4:0] }
-C {opin.sym} 1690 -380 0 0 { name=p15 lab=OUTB[7:0] }
-C {opin.sym} 1690 -400 0 0 { name=p16 lab=OUTA[2:0] }
-C {code.sym} 130 -510 0 0 {name="MODELS"
+C {ipin.sym} 300 -100 0 0 { name=p9 lab=IND[3:0] }
+C {ipin.sym} 300 -120 0 0 { name=p10 lab=INC[4:0] }
+C {ipin.sym} 300 -140 0 0 { name=p11 lab=INB[7:0] }
+C {ipin.sym} 300 -160 0 0 { name=p12 lab=INA[2:0] }
+C {opin.sym} 440 -100 0 0 { name=p13 lab=OUTD[3:0] }
+C {opin.sym} 440 -120 0 0 { name=p14 lab=OUTC[4:0] }
+C {opin.sym} 440 -140 0 0 { name=p15 lab=OUTB[7:0] }
+C {opin.sym} 440 -160 0 0 { name=p16 lab=OUTA[2:0] }
+C {title.sym} 160 -30 0 0 {name=l1 author="Stefan Schippers"}
+C {code_shown.sym} 20 -440 0 0 {name=COMMANDS only_toplevel=false value="
+.include stimuli_@schname\\\\.cir
+.control
+  tran 1n 110n
+  remzerovec
+  write @schname\\\\.raw
+.endc
+"
+verilog_ignore=true}
+C {code.sym} 20 -200 0 0 {name="MODELS"
 spice_ignore=0
 only_toplevel=false value="
 ** From the ngspice distribution:
@@ -201,16 +211,7 @@ only_toplevel=false value="
 +vgs_max=4 vds_max=4 vbs_max=4
 "
 verilog_ignore=true}
-C {code_shown.sym} 70 -300 0 0 {name=COMMANDS only_toplevel=false value="
-.include stimuli_@schname\\\\.cir
-.control
-  tran 1n 110n
-  remzerovec
-  write @schname\\\\.raw
-.endc
-"
-verilog_ignore=true}
-C {launcher.sym} 150 -670 0 0 {name=h5
+C {launcher.sym} 220 -660 0 0 {name=h5
 descr="load waves"
-tclcommand="xschem raw_read $netlist_dir/tb_param_ports.raw tran"
+tclcommand="xschem raw_read $netlist_dir/@schname\\\\.raw tran"
 }

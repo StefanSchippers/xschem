@@ -5003,7 +5003,8 @@ char *recursive_subst(const char *value, int symbol)
     dbg(1, "  1 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
     i--;
   }
-  if(strpbrk(value1, "@%")) {
+  if(strstr(value1, "@schname")) {
+    dbg(1, "value1=%s\n", value1);
     my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL, &res));
   }
   /* substitute remaing @params */
