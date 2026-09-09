@@ -190,27 +190,30 @@ proc test_xschem_simulation {{f simulate_ff.sch}} {
 proc netlist_test {} {
   global netlist_dir
   foreach {f t h} {
-    rom8k.sch               spice        33778382
-    greycnt.sch             verilog    1945914565
-    autozero_comp.sch       spice      4088769413
-    test_generators.sch     spice      2372200619
-    inst_sch_select.sch     spice      1842909154
-    test_bus_tap.sch        spice      1953773013
-    loading.sch             vhdl       2975204502
-    mos_power_ampli.sch     spice      2505489310
-    hierarchical_tedax.sch  tedax       998070173
-    LCC_instances.sch       spice       473865116
-    pcb_test1.sch           tedax      1925087189
-    test_doublepin.sch      spice       586121853
-    simulate_ff.sch         spice       574849766
-    test_symbolgen.sch      spice      4067585306
-    test_mosgen.sch         spice      1164161729
+    rom8k.sch                                     spice        33778382
+    greycnt.sch                                   verilog    1945914565
+    autozero_comp.sch                             spice      4088769413
+    test_generators.sch                           spice      2372200619
+    inst_sch_select.sch                           spice      1842909154
+    test_bus_tap.sch                              spice      1953773013
+    loading.sch                                   vhdl       2975204502
+    mos_power_ampli.sch                           spice      2505489310
+    hierarchical_tedax.sch                        tedax       998070173
+    LCC_instances.sch                             spice       473865116
+    pcb_test1.sch                                 tedax      1925087189
+    test_doublepin.sch                            spice       586121853
+    test_parametric_ports/tb_param_ports_lcc.sch  spice      2718544314
+    test_parametric_ports/tb_param_ports_lcc.sch  verilog    1069054205
+    tb_test_evaluated_param.sch                   spice      1189251012
+    simulate_ff.sch                               spice       574849766
+    test_symbolgen.sch                            spice      4067585306
+    test_mosgen.sch                               spice      1164161729
   } {
     xschem set netlist_type $t
     xschem load [abs_sym_path $f]
     if {$t eq {verilog}} { set t v}
     if {$t eq {tedax}} { set t tdx}
-    set netlist_file $netlist_dir/[file rootname $f].$t
+    set netlist_file $netlist_dir/[file tail [file rootname $f]].$t
     file delete $netlist_file
     xschem netlist
     ## check netlist hashes, compare with gold hashes
