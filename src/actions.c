@@ -1882,7 +1882,7 @@ void launcher(void)
   char program[PATH_MAX];
   char *command = NULL;
   int n, c;
-  char *prop_ptr=NULL, *schname_attr = NULL;
+  char *prop_ptr=NULL;
   rebuild_selected_array();
   tcleval("update");
   if(xctx->lastsel ==1)
@@ -1904,10 +1904,11 @@ void launcher(void)
       xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
       my_strdup2(_ALLOC_ID_, &command, get_tok_value(sym->prop_ptr, "tclcommand", 0));
     }
-    my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
     if(strpbrk(command, "@%")) {
-      char *res = NULL;
+      char *res = NULL, *schname_attr = NULL;
+      my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
       my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, prop_ptr, schname_attr, NULL, NULL, &res));
+      my_free(_ALLOC_ID_, &schname_attr);
       if(xctx->sel_array[0].type==ELEMENT) {
         xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
         if(strpbrk(command, "@%")) {
