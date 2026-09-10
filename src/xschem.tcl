@@ -3222,10 +3222,9 @@ proc graph_change_wave_color {{wave {}}} {
       xschem draw_graph $graph_selected
     } else {
       set tag [.graphdialog.center.right.text1 tag names insert]
-      if {$tag eq {}} {
-        set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]
-      }
-      # if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
+      # if {$tag eq {}} {
+      #   set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]
+      # }
       if { [regexp {^t} $tag]} {
         set index [string range $tag 1 end]
         set col  [xschem getprop rect 2 $graph_selected color]
@@ -3285,7 +3284,7 @@ proc graph_tag_nodes {txt} {
           lappend col $graph_sel_color
         }
         set b [lindex $tctx::colors $col_idx]
-        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.1 + $c chars"
+        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.2 + $c chars"
         if { [info tclversion] > 8.4} {
           .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
         } else {
