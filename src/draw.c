@@ -4798,8 +4798,12 @@ int edit_image(int what, xRect *r)
   surface = &emb_ptr->image;
   cairo_surface_flush(*surface);
   if(attr[0]) {
-    if(!strncmp(attr, "/9j/", 4)) jpg = 1;
-    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0;
+    size_t len;
+    unsigned char *decoded = base64_decode(attr, strlen(attr), &len);
+    if(my_memmem(decoded, len, "<svg", 4) &&
+          my_memmem(decoded, len, "xmlns", 5)) jpg = 2; /* svg */
+    else if(!strncmp(attr, "/9j/", 4)) jpg = 1; /* jpg */
+    else if(!strncmp(attr, "iVBOR", 5)) jpg = 0; /* png */
     else jpg = -1; /* some invalid data */
   } else {
    jpg = -1;
@@ -4883,8 +4887,9 @@ int edit_image(int what, xRect *r)
     char *encoded_data = NULL;
     size_t olength;
     png_to_byte_closure_t closure;
-    if(jpg == 0) {
+    if(jpg == 0 || jpg == 2) {
       /* write PNG to in-memory buffer */
+      /* svg images are also written back as png images! */
       closure.buffer = NULL;
       closure.size = 0;
       closure.pos = 0;
