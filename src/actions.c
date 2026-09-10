@@ -397,7 +397,8 @@ const char *rel_sym_path(const char *s)
 const char *add_ext(const char *f, const char *ext)
 {
   static char ff[PATH_MAX]; /* safe to keep even with multiple schematics */
-  char *p;
+  const char *p;
+  char *pos; /* position where to write extension */
   int i;
 
   dbg(1, "add_ext(): f=%s ext=%s\n", f, ext);
@@ -405,14 +406,14 @@ const char *add_ext(const char *f, const char *ext)
   else {
     if((p=strrchr(f,'.'))) {
       my_strncpy(ff, f, (p-f) + 1);
-      p = ff + (p-f);
+      pos = ff + (p-f);
       dbg(1, "add_ext(): 1: ff=%s\n", ff);
     } else {
       i = my_strncpy(ff, f, S(ff));
-      p = ff+i;
+      pos = ff+i;
       dbg(1, "add_ext(): 2: ff=%s\n", ff);
     }
-    my_strncpy(p, ext, S(ff)-(p-ff));
+    my_strncpy(pos, ext, S(ff)-(pos-ff));
     dbg(1, "add_ext(): 3: ff=%s\n", ff);
   }
   return ff;

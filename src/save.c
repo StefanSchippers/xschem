@@ -4063,7 +4063,7 @@ void get_sym_type(const char *symname, char **type,
  * as in corresponding .sym file if it exists */
 static void align_sch_pins_with_sym(const char *name, int pos)
 {
-  char *ptr;
+  const char *ptr;
   char symname[PATH_MAX];
   char *symtype = NULL;
   const char *pinname;

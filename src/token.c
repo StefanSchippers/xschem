@@ -923,9 +923,9 @@ int xis_quoted(const char *s)
 }
 
 
-char *is_expr(const char *str)
+const char *is_expr(const char *str)
 {
-  char *ret = NULL;
+  const char *ret = NULL;
   if(str) {
     ret = strstr(str, "expr(");
     if(!ret) ret = strstr(str, "expr_eng(");

@@ -264,7 +264,7 @@ void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source 
  if(src!=NULL && src[0]!='\0')
  {
   /* 20180924 replace strndup() */
-  char *p = memchr(src, '\0', n);
+  const char *p = memchr(src, '\0', n);
   if(p) n = p - src;
   *dest = my_malloc(id, n+1);
   if(*dest) {
