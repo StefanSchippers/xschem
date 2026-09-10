@@ -3222,6 +3222,9 @@ proc graph_change_wave_color {{wave {}}} {
       xschem draw_graph $graph_selected
     } else {
       set tag [.graphdialog.center.right.text1 tag names insert]
+      if {$tag eq {}} {
+        set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]
+      }
       # if { $tag eq {}} {set tag [.graphdialog.center.right.text1 tag names {insert - 1 char}]}
       if { [regexp {^t} $tag]} {
         set index [string range $tag 1 end]
