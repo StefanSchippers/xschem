@@ -3596,12 +3596,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *fname = NULL;
       const char *path;
       char savedir[PATH_MAX];
+      char save_netlistname[PATH_MAX];
       int done_netlist = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       yyparse_error = 0;
       my_strdup(_ALLOC_ID_, &saveshow, tclgetvar("show_infowindow_after_netlist"));
       set_netlist_dir(0, NULL);
 
+      my_strncpy(save_netlistname, xctx->netlist_name, S(save_netlistname));
       my_strncpy(savedir, tclgetvar("netlist_dir"), S(savedir));
       for(i = 2; i < argc; i++) {
         if(argv[i][0] == '-') {
@@ -3649,10 +3651,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(has_x) tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                             "-message {Please Set netlisting mode (Options menu)}");
         tclsetboolvar("keep_symbols", save_keep);
-
-        if(erc == 0) {
-          my_strncpy(xctx->netlist_name, "", S(xctx->netlist_name));
-        }
       }
       else {
          if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
@@ -3673,6 +3671,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       tclsetvar("show_infowindow_after_netlist", saveshow);
       tcleval("eval_netlist_postprocess");
       set_netlist_dir(1, savedir);
+      my_strncpy(xctx->netlist_name, save_netlistname, S(xctx->netlist_name));
       if(done_netlist) {
         if(messages) {
           Tcl_SetResult(interp, xctx->infowindow_text, TCL_VOLATILE);
