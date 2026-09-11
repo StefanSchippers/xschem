@@ -1,7 +1,7 @@
 
 ## NOTICE
 Xschem is now hosted also on [codeberg](https://codeberg.org/stef_xschem/xschem/).
-All xschem repositories are exact mirrors, so chose the one that works best for you.
+All xschem repositories are exact mirrors, so choose the one that works best for you.
 
 # xschem
 
