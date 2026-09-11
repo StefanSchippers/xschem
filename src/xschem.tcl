@@ -3279,6 +3279,7 @@ proc graph_tag_nodes {txt} {
     set n 0
     if { $tt ne {} } {
       foreach t $tt c $cc {
+        puts "t=$t c=$c"
         set col_idx [lindex $col $n]
         # add missing colors
         if {$col_idx eq {}} {
@@ -3286,7 +3287,9 @@ proc graph_tag_nodes {txt} {
           lappend col $graph_sel_color
         }
         set b [lindex $tctx::colors $col_idx]
-        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.1 + $c chars"
+        incr c
+        .graphdialog.center.right.text1 tag add t$n "1.0 + $t chars" "1.0 + $c chars"
+        puts "range=[.graphdialog.center.right.text1 tag range t$n]"
         if { [info tclversion] > 8.4} {
           .graphdialog.center.right.text1 tag configure t$n -background $b -selectbackground grey40
         } else {
