@@ -202,7 +202,7 @@ proc netlist_test {} {
     LCC_instances.sch                             spice       473865116
     pcb_test1.sch                                 tedax      1925087189
     test_doublepin.sch                            spice       586121853
-    test_parametric_ports/tb_param_ports_lcc.sch  spice      2718544314
+    test_parametric_ports/tb_param_ports_lcc.sch  spice      3752996922
     test_parametric_ports/tb_param_ports_lcc.sch  verilog    1069054205
     tb_test_evaluated_param.sch                   spice      1189251012
     simulate_ff.sch                               spice       574849766
