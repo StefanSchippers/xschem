@@ -7949,7 +7949,7 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   if {![info exists has_x] } {return}
   toplevel .alert -class Dialog
   wm title .alert {Alert}
-  wm transient .alert [xschem get topwindow]
+  # wm transient .alert [xschem get topwindow]
   set X [expr {[winfo pointerx .alert] - 70}]
   set Y [expr {[winfo pointery .alert] - 60}]
   if { [string compare $position ""] != 0 } {
@@ -7981,6 +7981,10 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
       destroy .alert
     }
   }
+  wm protocol .alert  WM_DELETE_WINDOW {
+    set tctx::rcode 0 
+    destroy .alert
+  }
 
   pack .alert.l1 -side top -fill both -expand yes
   pack .alert.b1 -side left -fill x -expand yes
@@ -7989,8 +7993,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   tkwait visibility .alert
   # grab set .alert
   focus .alert.b1
-  bind .alert <Return> { destroy .alert }
-  bind .alert <Escape> { destroy .alert }
+  bind .alert <Return> { set tctx::rcode 1; destroy .alert }
+  bind .alert <Escape> { set tctx::rcode 0; destroy .alert }
   bind .alert <Visibility> {
     if { [winfo exists .alert] && [winfo ismapped .alert] && [winfo ismapped .] && [wm stackorder .alert isbelow . ]} {
       if { [winfo exists .drw] } {
@@ -9793,7 +9797,7 @@ proc quit_xschem { {force {}}} {
 
 proc raise_dialog {parent window_path } {
   global file_dialog_loadfile component_browser_on_top
-  foreach i ".dialog .graphdialog .load" {
+  foreach i ".alert .dialog .graphdialog .load" {
     if {!$component_browser_on_top && [info exists file_dialog_loadfile ] &&
         $file_dialog_loadfile == 2 && $i eq {.load} } {
       continue
