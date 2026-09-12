@@ -3537,6 +3537,7 @@ proc graph_edit_properties {n} {
     -command {
       if {$graph_autoload} {
         xschem setprop -fast rect 2 $graph_selected autoload 1
+        graph_set_raw_props
       } else {
         xschem setprop -fast rect 2 $graph_selected autoload 0
       }
