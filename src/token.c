@@ -5041,7 +5041,7 @@ char *recursive_subst(const char *value, int symbol)
   }
 
   if(res) my_free(_ALLOC_ID_, &res);
-  my_strdup2(_ALLOC_ID_, &value1, eval_expr(value1));
+  /* my_strdup2(_ALLOC_ID_, &value1, eval_expr(value1)); */
   dbg(1, "\n\nrecursive_subst(): returning %s\n", value1);
   return value1;
 }
@@ -5397,7 +5397,14 @@ const char *translate(int inst, const char *s, char **result)
             result_pos+=tmp;
           }
         } else {
-          value1 = recursive_subst(value, inst >= 0 ? xctx->inst[inst].ptr : -1);
+          my_strdup2(_ALLOC_ID_, &value1, value);
+          dbg(1, "translate(): value1=%s\n", value1);
+          if(strpbrk(value1, "@%")) {
+            translate3(value1, 1, xctx->inst[inst].prop_ptr,
+              xctx->sym[xctx->inst[inst].ptr].templ, NULL, NULL, &value1);
+            dbg(1, "translate(): value1=%s\n", value1);
+          }
+          value1 = recursive_subst(value1, inst >= 0 ? xctx->inst[inst].ptr : -1);
           tmp=strlen(value1);
           STR_ALLOC(result, tmp + result_pos, &size);
           memcpy(*result+result_pos, value1, tmp+1);
