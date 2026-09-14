@@ -4991,20 +4991,20 @@ char *recursive_subst(const char *value, int symbol)
     if(v && v[0] == '@') v++;
     tok = get_tok_value(lcc[i-1].prop_ptr, v, 0);
     if(xctx->tok_size /* && tok[0] */) {
-      dbg(1, "tok=%s\n", tok);
+      dbg(1, "recursive_subst(): tok=%s\n", tok);
       my_strdup2(_ALLOC_ID_, &value1, tok);
     } else {
       tok = get_tok_value(lcc[i-1].templ,  v, 0);
       if(xctx->tok_size /* && tok[0] */) {
-        dbg(1, "from parent template: tok=%s\n", tok);
+        dbg(1, "recursive_subst(): from parent template: tok=%s\n", tok);
         my_strdup2(_ALLOC_ID_, &value1, tok);
       }
     }
-    dbg(1, "  1 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+    dbg(1, "  1 recursive_subst(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
     i--;
   }
   if(strstr(value1, "@schname")) {
-    dbg(1, "value1=%s\n", value1);
+    dbg(1, "recursive_subst(): value1=%s\n", value1);
     my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, schname_attr, NULL, NULL, NULL, &res));
   }
   /* substitute remaing @params */
@@ -5012,7 +5012,7 @@ char *recursive_subst(const char *value, int symbol)
   while(i > 0) {
     if(strpbrk(value1, "@%")) {
       my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].prop_ptr, NULL, NULL, NULL, &res));
-      dbg(1, "  2 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+      dbg(1, "  2 recursive_subst(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
     } else {
       break;
     }
@@ -5025,7 +5025,7 @@ char *recursive_subst(const char *value, int symbol)
   while(i > 0) {
     if(strpbrk(value1, "@%")) {
       my_strdup2(_ALLOC_ID_, &value1, translate3(value1, 1, lcc[i-1].templ, NULL, NULL, NULL, &res));
-      dbg(1, "  3 translate(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
+      dbg(1, "  3 recursive_subst(): lcc[%d].prop_ptr=%s, value1=%s\n", i-1, lcc[i-1].prop_ptr, value1);
     } else {
       break;
     }
