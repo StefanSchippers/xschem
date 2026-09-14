@@ -4357,31 +4357,33 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         dbg(0, "draw_graph(): n_nodes=%d\n", n_nodes);
         wcnt--; /* nosense, but avoid a crash */
       }
+      dbg(1, "draw_graph(): nd=%s\n", nd);
       /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
       /* if %n rawfile.raw is specified use rawfile.raw for this node */
 
       if(nd[0]) {
         int pos = 1;
+        char *node_rawfile = NULL;
+        char *node_sim_type = NULL;
         if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
-        if(xctx->raw && xctx->raw->values) {
-          char *node_rawfile = NULL;
-          char *node_sim_type = NULL;
-          tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
-          my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
-          tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
-          my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
-                sim_type[0] ? sim_type : xctx->raw->sim_type);
-          dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
-          if(node_rawfile && node_rawfile[0]) {
-            if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
-              my_free(_ALLOC_ID_, &node_rawfile);
-              my_free(_ALLOC_ID_, &node_sim_type);
-              valid_rawfile = 0;
-            }
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_sim_type,
+               tclresult()[0] ? tclresult() :
+               sim_type[0] ? sim_type : 
+               (xctx->raw && xctx->raw->sim_type) ? xctx->raw->sim_type :
+               "" );
+        dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+        if(node_rawfile && node_rawfile[0]) {
+          if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
+            my_free(_ALLOC_ID_, &node_rawfile);
+            my_free(_ALLOC_ID_, &node_sim_type);
+            valid_rawfile = 0;
           }
-          my_free(_ALLOC_ID_, &node_rawfile);
-          my_free(_ALLOC_ID_, &node_sim_type);
         }
+        my_free(_ALLOC_ID_, &node_rawfile);
+        my_free(_ALLOC_ID_, &node_sim_type);
         if(pos == 2) node_dataset = atoi(nd);
         else node_dataset = -1;
         dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
