@@ -4807,6 +4807,7 @@ int edit_image(int what, xRect *r)
     else if(!strncmp(attr, "/9j/", 4)) jpg = 1; /* jpg */
     else if(!strncmp(attr, "iVBOR", 5)) jpg = 0; /* png */
     else jpg = -1; /* some invalid data */
+    my_free(_ALLOC_ID_, &decoded);
   } else {
    jpg = -1;
   }
