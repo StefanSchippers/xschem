@@ -5229,10 +5229,10 @@ proc file_chooser_draw_preview {f} {
 proc file_chooser_preview {} {
   # puts "file_chooser_preview"
   global file_chooser
-  if {[info exists file_chooser(f)]} {
+  if {[info exists file_chooser(preview)]} {
     after cancel ".ins.center.right configure -bg white"
-    after cancel "file_chooser_draw_preview {$file_chooser(f)}"
-    unset file_chooser(f)
+    after cancel "file_chooser_draw_preview {$file_chooser(preview)}"
+    unset file_chooser(preview)
   }
   xschem preview_window close .ins.center.right {}
   bind .ins.center.right <Expose> {}
@@ -5244,7 +5244,7 @@ proc file_chooser_preview {} {
     set f [lindex $file_chooser(fullpathlist) $sel]
     # puts "file_chooser_preview: f=$f"
     if {$f ne {}} {
-      set file_chooser(f) $f
+      set file_chooser(preview) $f
       set type [is_xschem_file $f]
       if {$type ne {0}} {
         set dir [rel_sym_path $f]
@@ -5415,9 +5415,19 @@ proc file_chooser_place {action} {
 proc file_chooser_select {f} {
   global file_chooser
   if {$f ne {} && [info exists file_chooser(dirs)] && [info exists file_chooser(files)]} {
-    set dir [file dirname $f]
+    set isdir 0
+    if {[lsearch -exact $file_chooser(dirs) $f] >= 0} { set isdir 1}
+    if {$isdir} {
+      set dir $f
+    } else {
+      set dir [file dirname $f]
+    }
     if {$file_chooser(searchall) == 0} {
-      set file [file tail $f]
+      if {$isdir} {
+        set file {}
+      } else {
+        set file [file tail $f]
+      }
     } else {
       set file $f
     }
@@ -5431,14 +5441,16 @@ proc file_chooser_select {f} {
       .ins.center.leftdir.l selection set $dirindex
       .ins.center.leftdir.l see $dirindex
       file_chooser_filelist
-      set fileindex [lsearch -exact  $file_chooser(files) $file]
-      if {$fileindex != -1} {
-        # puts "fileindex=$fileindex"
-        .ins.center.left.l selection clear 0 end
-        .ins.center.left.l activate $fileindex
-        .ins.center.left.l selection set $fileindex
-        .ins.center.left.l see $fileindex
-        file_chooser_preview
+      if {$file ne {}} {
+        set fileindex [lsearch -exact  $file_chooser(files) $file]
+        if {$fileindex != -1} {
+          # puts "fileindex=$fileindex"
+          .ins.center.left.l selection clear 0 end
+          .ins.center.left.l activate $fileindex
+          .ins.center.left.l selection set $fileindex
+          .ins.center.left.l see $fileindex
+          file_chooser_preview
+        }
       }
     }
   }
@@ -6096,13 +6108,22 @@ proc file_chooser {} {
       "set file_chooser(sp1) $file_chooser(sp1)\n" \
     ] $USER_CONF_DIR/file_chooser_geometry
   }
-  set file_chooser(files) {}
-  set file_chooser(fullpathlist) {}
-  set file_chooser(nitems) 0
-  set file_chooser(searchall) 0
-  file_chooser_dirlist
-  file_chooser_filelist
-  set file_chooser(old_dirs) $file_chooser(dirs)
+
+
+
+  if { ![info exists file_chooser(dirs)]} {
+    set file_chooser(files) {}
+    set file_chooser(fullpathlist) {}
+    set file_chooser(nitems) 0
+    set file_chooser(searchall) 0
+    file_chooser_dirlist
+    file_chooser_filelist
+    set file_chooser(old_dirs) $file_chooser(dirs)
+  } else {
+    if {[info exists file_chooser(abs_filename)] && $file_chooser(abs_filename) ne {}} {
+      file_chooser_select $file_chooser(abs_filename)
+    }
+  }
   return {}
 }
 #######################################################################
