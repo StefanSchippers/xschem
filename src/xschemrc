@@ -95,9 +95,11 @@
 #### each line contains a dircolor(pattern) followed by a color
 #### color can be an ordinary name (grey, brown, blue) or a hex code {#77aaff}
 #### hex code must be enclosed in braces
+#### Only the directory tails are matched.
 #### these are the defaults:
-# set dircolor(/share/xschem/) red
-# set dircolor(/share/doc/xschem/) {#338844}
+# set dircolor(devices) {#008800}
+# set dircolor(xschem_library) {#990000}
+
 
 ###########################################################################
 #### WINDOW TO OPEN ON STARTUP: XSCHEM_START_WINDOW

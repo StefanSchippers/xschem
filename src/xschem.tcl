@@ -4378,7 +4378,7 @@ namespace eval c_toolbar {
 ## end c_toolbar namespace
 
 proc file_dialog_set_colors1 {} {
-  global file_dialog_files1 dircolor
+  global file_dialog_files1 dircolor file_dialog_names1
   for {set i 0} { $i< [.load.l.paneleft.list index end] } { incr i} {
     set maxlen 0
     set name "[lindex $file_dialog_files1 $i]"
@@ -4386,7 +4386,7 @@ proc file_dialog_set_colors1 {} {
     foreach j [array names dircolor] {
       set pattern $j
       set color $dircolor($j)
-      set len [string length [regexp -inline $pattern $name]]
+      set len [string length [regexp -inline $pattern [file tail [lindex $file_dialog_names1 $i]]]]
       if { $len > $maxlen } {
         .load.l.paneleft.list itemconfigure $i -foreground $color -selectforeground $color
         set maxlen $len
@@ -4396,26 +4396,26 @@ proc file_dialog_set_colors1 {} {
 }
 
 proc file_dialog_set_colors2 {} {
-  global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1
+  global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1 file_dialog_names1
   set dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-  for {set i 0} { $i< [.load.l.paneright.f.list index end] } { incr i} {
-    set maxlen 0
+  set maxlen 0
+  set col black
+  foreach j [array names dircolor] {
+    set pattern $j
+    set color $dircolor($j)
+    set name1 [file tail [lindex $file_dialog_names1 $file_dialog_index1]]
+    set len [string length [regexp -inline $pattern $name1]]
+    if { $len > $maxlen } {
+      set col $color
+      set maxlen $len
+    }
+  }
+  for {set i 0} { $i< [.load.l.paneright.f.list index end] } {incr i} {
     set name "$dir1/[lindex $file_dialog_files2 $i]"
     if {[ file isdirectory $name]} {
       .load.l.paneright.f.list itemconfigure $i -foreground blue
-      foreach j [array names dircolor] {
-        set pattern $j
-        set color $dircolor($j)
-        set len [string length [regexp -inline $pattern $dir1]]
-        # puts "len=$len\npattern=$pattern\nname=$name\n\n\n"
-        if { $len > $maxlen } {
-          .load.l.paneright.f.list itemconfigure $i -foreground $color -selectforeground $color
-          set maxlen $len
-        }
-      }
-
     } else {
-      .load.l.paneright.f.list itemconfigure $i -foreground black
+      .load.l.paneright.f.list itemconfigure $i -foreground $col
     }
   }
 }
@@ -5262,7 +5262,7 @@ proc file_chooser_preview {} {
 proc file_chooser_dirlist {} {
   # puts "file_chooser_dirlist [xschem get topwindow]"
   global file_chooser pathlist dark_gui_colorscheme new_file_browser_depth new_file_browser_ext
-  global lib_alias
+  global lib_alias dircolor
   if {$dark_gui_colorscheme} { set col {cyan} } else { set col {blue} }
   # regenerate list of dirs
   set file_chooser(dirs) [
@@ -5295,8 +5295,21 @@ proc file_chooser_dirlist {} {
   set i 0
   foreach p $file_chooser(dirs) {
     # puts "--> $p"
+    set tail [lindex $file_chooser(dirtails) $i]
     if {[lsearch -exact $path_l $p] != -1} {
-      .ins.center.leftdir.l itemconfigure $i -foreground $col -selectforeground $col
+      set maxlen 0
+      foreach j [array names dircolor] {
+        set pattern $j
+        set custom_color $dircolor($j)
+        set len [string length [regexp -inline $pattern $tail]]
+        if { $len > $maxlen } {
+          .ins.center.leftdir.l itemconfigure $i -foreground $custom_color -selectforeground $custom_color
+          set maxlen $len
+        }
+      }
+      if { $maxlen == 0 } {
+        .ins.center.leftdir.l itemconfigure $i -foreground $col -selectforeground $col
+      }
     }
     incr i
   }
@@ -11663,8 +11676,8 @@ set tclcmd_txt {}
 ###
 
 if { ![info exists dircolor] } {
-  set_ne dircolor(/share/xschem/) red
-  set_ne dircolor(/share/doc/xschem/) {#338844}
+  set_ne dircolor(devices) {#008800}
+  set_ne dircolor(xschem_library) {#990000}
 }
 
 set_ne file_dialog_globfilter {*}
