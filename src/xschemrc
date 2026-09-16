@@ -92,14 +92,26 @@
 ###########################################################################
 #### SET CUSTOM COLORS FOR XSCHEM LIBRARIES MATCHING CERTAIN PATTERNS
 ###########################################################################
-#### each line contains a dircolor(pattern) followed by a color
-#### color can be an ordinary name (grey, brown, blue) or a hex code {#77aaff}
+#### each line contains a "dircolor(pattern)" followed by a color
+#### or a "dircolor(pattern)" followed by a two element list like "{#aa0000 green}"
+#### where the first element is the foreground color and the second one is the background color
+#### color/background can be an ordinary name (grey, brown, blue) or a hex code {#77aaff}
 #### hex code must be enclosed in braces
-#### Only the directory tails are matched.
 #### these are the defaults:
-# set dircolor(devices) {#008800}
-# set dircolor(xschem_library) {#990000}
-
+# set dircolor(/devices$) {#007700}
+# set dircolor(/logic$) {#770000}
+# set dircolor(/examples$) {#770000}
+# set dircolor(/generators$) {#770000}
+# set dircolor(/ngspice$) {#770000}
+# set dircolor(/rom8k$) {#770000}
+# set dircolor(/analyses$) {#770000}
+# set dircolor(/xschem_simulator$) {#770000}
+# set dircolor(/ngspice_verilog_cosim$) {#770000}
+# set dircolor(/inst_sch_select$) {#770000}
+# set dircolor(/xTAG$) {#770000}
+# set dircolor(/pcb$) {#770000}
+# set dircolor(/library_LCC_stefan$) {#770000}
+# set dircolor(/binto7seg$) {#770000}
 
 ###########################################################################
 #### WINDOW TO OPEN ON STARTUP: XSCHEM_START_WINDOW

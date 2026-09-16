@@ -4379,43 +4379,66 @@ namespace eval c_toolbar {
 
 proc file_dialog_set_colors1 {} {
   global file_dialog_files1 dircolor file_dialog_names1
+  set def_fg [option get . foreground {}]
+  set def_bg [option get . background {}]
   for {set i 0} { $i< [.load.l.paneleft.list index end] } { incr i} {
-    set maxlen 0
     set name "[lindex $file_dialog_files1 $i]"
-    .load.l.paneleft.list itemconfigure $i -foreground black -selectforeground black
+    set col {}
+    set bg {}
+    set maxlen 0
     foreach j [array names dircolor] {
       set pattern $j
-      set color $dircolor($j)
-      set len [string length [regexp -inline $pattern [file tail [lindex $file_dialog_names1 $i]]]]
+      set color [lindex $dircolor($j) 0]
+      set background [lindex $dircolor($j) 1]
+      set len [string length [regexp -inline $pattern [lindex $file_dialog_names1 $i]]]
       if { $len > $maxlen } {
-        .load.l.paneleft.list itemconfigure $i -foreground $color -selectforeground $color
+        set col $color
+        set bg $background
         set maxlen $len
       }
     }
+    if {$col eq {}} {set col $def_fg}
+    if {$bg eq {}} {set bg $def_bg}
+    .load.l.paneleft.list itemconfigure $i -foreground $col   -selectforeground $col \
+                                           -background $bg
   }
 }
 
 proc file_dialog_set_colors2 {} {
   global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1 file_dialog_names1
+  global dark_gui_colorscheme
   set dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
   set maxlen 0
-  set col black
+  set col [option get . foreground {}]
+  set bg {}
+  set name1 [lindex $file_dialog_names1 $file_dialog_index1]
   foreach j [array names dircolor] {
     set pattern $j
-    set color $dircolor($j)
-    set name1 [file tail [lindex $file_dialog_names1 $file_dialog_index1]]
+    set color [lindex $dircolor($j) 0]
+    set background [lindex $dircolor($j) 1]
     set len [string length [regexp -inline $pattern $name1]]
     if { $len > $maxlen } {
       set col $color
+      set bg $background
       set maxlen $len
     }
   }
+  set def_bg [option get . background {}]
+  if {$dark_gui_colorscheme} { set dircol {cyan} } else { set dircol {blue} }
+  # puts "$name1 $col $bg"
   for {set i 0} { $i< [.load.l.paneright.f.list index end] } {incr i} {
     set name "$dir1/[lindex $file_dialog_files2 $i]"
     if {[ file isdirectory $name]} {
-      .load.l.paneright.f.list itemconfigure $i -foreground blue
+      .load.l.paneright.f.list itemconfigure $i -foreground $dircol -selectforeground $dircol \
+                   -background $def_bg 
     } else {
-      .load.l.paneright.f.list itemconfigure $i -foreground $col
+      if {$bg ne {}} {
+        .load.l.paneright.f.list itemconfigure $i -foreground $col -selectforeground $col \
+                                                  -background $bg  
+      } else {
+        .load.l.paneright.f.list itemconfigure $i -foreground $col    -selectforeground $col \
+                                                  -background $def_bg 
+      }
     }
   }
 }
@@ -4823,10 +4846,10 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
-  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 -bg {grey90} \
+  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 \
     -highlightbackground [option get . background {}]
   eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
-    -fg black -background {grey90} -highlightthickness 0 -relief flat -borderwidth 0 \
+    -highlightthickness 0 -relief flat -borderwidth 0 \
     -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
     -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
   if { ![catch {.load.l.paneleft.list cget -justify}]} {
@@ -4873,8 +4896,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set selmode extended
   }
 
-  listbox .load.l.paneright.f.list  -background {grey90} -listvariable file_dialog_files2 -width 20 -height 12\
-    -fg black -highlightcolor red -highlightthickness 2 \
+  listbox .load.l.paneright.f.list -listvariable file_dialog_files2 -width 20 -height 12\
+    -highlightcolor red -highlightthickness 2 \
     -highlightbackground [option get . background {}] \
     -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode $selmode \
     -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
@@ -5293,23 +5316,36 @@ proc file_chooser_dirlist {} {
     if {$found == 0} {lappend file_chooser(dirtails) [file tail $i]}
   }
   set i 0
+  if {$dark_gui_colorscheme} { set def_fg {cyan} } else { set def_fg {blue} }
+  set def_bg [option get . background {}]
   foreach p $file_chooser(dirs) {
     # puts "--> $p"
-    set tail [lindex $file_chooser(dirtails) $i]
+    if {[info exists lib_alias($p)]} {
+      set filename [lindex $file_chooser(dirtails) $i]
+    } else {
+      set filename $p
+    }
     if {[lsearch -exact $path_l $p] != -1} {
       set maxlen 0
+      set col {}
+      set bg {}
       foreach j [array names dircolor] {
         set pattern $j
-        set custom_color $dircolor($j)
-        set len [string length [regexp -inline $pattern $tail]]
+        set custom_color [lindex $dircolor($j) 0]
+        set custom_bg [lindex $dircolor($j) 1]
+        set len [string length [regexp -inline $pattern $filename]]
         if { $len > $maxlen } {
-          .ins.center.leftdir.l itemconfigure $i -foreground $custom_color -selectforeground $custom_color
+          set col $custom_color
+          set bg $custom_bg
           set maxlen $len
         }
       }
-      if { $maxlen == 0 } {
-        .ins.center.leftdir.l itemconfigure $i -foreground $col -selectforeground $col
-      }
+      if {$col eq {}} {set col $def_fg}
+      if {$bg eq {}} {set bg $def_bg}
+
+      .ins.center.leftdir.l itemconfigure $i \
+            -foreground $col -selectforeground $col \
+            -background $bg 
     }
     incr i
   }
@@ -5317,12 +5353,33 @@ proc file_chooser_dirlist {} {
 
 #### fill list of files matching pattern
 proc file_chooser_filelist {} {
-  global file_chooser new_file_browser_ext new_file_browser_depth
+  global file_chooser new_file_browser_ext new_file_browser_depth dircolor lib_alias
   if {![info exists file_chooser(dirs)]} {return}
   set sel [lindex [.ins.center.leftdir.l curselection] 0]
   if {$sel eq {}} { return }
   set file_chooser(dirindex) $sel
   set path [lindex $file_chooser(dirs) $sel]
+
+  set to_match $path
+  if {[info exists lib_alias($path)]} {
+    set to_match [lindex $file_chooser(dirtails) $sel]
+  }
+  set col {}
+  set bg {}
+  set maxlen 0
+  foreach j [array names dircolor] {
+    set pattern $j
+    set color [lindex $dircolor($j) 0]
+    set background [lindex $dircolor($j) 1]
+    set len [string length [regexp -inline $pattern $to_match]]
+    if { $len > $maxlen } {
+      set col $color
+      set bg $background
+      set maxlen $len
+    } 
+  }
+  if {$col eq {}} {set col [option get . foreground {}]}
+  if {$bg eq {}} {set bg [option get . background {}]}
   set file_chooser(abs_filename) $path
   set file_chooser(rel_filename) {}
   # check if regex is valid
@@ -5366,6 +5423,8 @@ proc file_chooser_filelist {} {
   set file_chooser(nitems) [llength $filelist]
   # assign listbox variable all at the end, it is faster...
   set file_chooser(files) $filelist
+  .ins.center.left.l configure -foreground $col -background $bg \
+                               -selectforeground $col
 }
 
 # called when double clicking a file item in the file_chooser file listbox
@@ -5786,7 +5845,7 @@ proc file_chooser {} {
   pack .ins.center -side top -expand 1 -fill both
   pack .ins.bottom -side top -fill x
 
-  listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 40 -height 5 \
+  listbox .ins.center.leftdir.l -listvariable file_chooser(dirtails) -width 20 -height 5 \
     -yscrollcommand ".ins.center.leftdir.s set" -highlightcolor red -highlightthickness 2 \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
@@ -5803,6 +5862,7 @@ proc file_chooser {} {
     "matching the \"Ext\" pattern are shown."] 0 1 3000
   listbox .ins.center.left.l -listvariable file_chooser(files) -width 20 -height 5 \
     -yscrollcommand ".ins.center.left.s set" -highlightcolor red -highlightthickness 2 \
+    -xscrollcommand ".ins.center.left.hs set" \
     -activestyle underline -highlightbackground [option get . background {}] \
     -exportselection 0
 
@@ -5814,9 +5874,11 @@ proc file_chooser {} {
     "Shift-Double click on a symbol will load it in a new window"] 0 1 3000
   scrollbar .ins.center.leftdir.s -command ".ins.center.leftdir.l yview" -takefocus 0
   scrollbar .ins.center.left.s -command ".ins.center.left.l yview" -takefocus 0
+  scrollbar .ins.center.left.hs -command ".ins.center.left.l xview" -orient horiz -takefocus 0
 
-  pack .ins.center.left.l -expand 1 -fill both -side left
-  pack .ins.center.left.s -fill y -side left
+  pack .ins.center.left.s -fill y -side right
+  pack .ins.center.left.hs -side bottom -fill x
+  pack .ins.center.left.l -expand 1 -fill both
 
   pack .ins.center.leftdir.l -expand 1 -fill both -side left
   pack .ins.center.leftdir.s -fill y -side left
@@ -5880,7 +5942,7 @@ proc file_chooser {} {
     fuzzy_chooser_inline [.ins.top3.fzf_e get]
   }
 
-  button .ins.top4.reset -takefocus 0 -text "Reset" -command {
+  button .ins.top4.reset -takefocus 0 -text "Home" -command {
     set file_chooser(regex) {}
     set file_chooser(abs_filename) {}
     set file_chooser(rel_filename) {}
@@ -5893,13 +5955,13 @@ proc file_chooser {} {
     file_chooser_filelist
     file_chooser_select [xschem get schname]
   }
-  balloon .ins.top4.reset "Reset and re-reads list of files"
+  balloon .ins.top4.reset "Reset and re-reads list of files,\nselect entry in current window"
 
   button .ins.top4.search_curr -takefocus 0 -text {Search curr. dir.} -activebackground red -command {
     file_chooser_search current
   }
   balloon .ins.top4.search_curr "Show and select match\n in current directory"
-  checkbutton .ins.top4.search_all -takefocus 0 -variable file_chooser(searchall) -text {Search all} \
+  checkbutton .ins.top4.search_all -takefocus 0 -variable file_chooser(searchall) -text {Search in all dirs} \
     -activebackground red -command {
       file_chooser_search
     }
@@ -5919,7 +5981,10 @@ proc file_chooser {} {
     file_chooser_search
   }
   balloon .ins.top4.next {show and select next match}
-  checkbutton .ins.top4.fullpath -takefocus 0 -variable file_chooser(fullpath) -text {match full path  }
+  checkbutton .ins.top4.fullpath -takefocus 0 -variable file_chooser(fullpath) -text {Match full path  } \
+     -command {
+       file_chooser_search current
+     }
   balloon .ins.top4.fullpath "Perform regular expression matching on\nfull path instead of only file name"
   button .ins.top4.clear -takefocus 0 -text Clear -command {
     .ins.top3.pat_e delete 0 end
@@ -6121,21 +6186,17 @@ proc file_chooser {} {
       "set file_chooser(sp1) $file_chooser(sp1)\n" \
     ] $USER_CONF_DIR/file_chooser_geometry
   }
-
-
-
   if { ![info exists file_chooser(dirs)]} {
     set file_chooser(files) {}
     set file_chooser(fullpathlist) {}
     set file_chooser(nitems) 0
     set file_chooser(searchall) 0
-    file_chooser_dirlist
-    file_chooser_filelist
-    set file_chooser(old_dirs) $file_chooser(dirs)
-  } else {
-    if {[info exists file_chooser(abs_filename)] && $file_chooser(abs_filename) ne {}} {
-      file_chooser_select $file_chooser(abs_filename)
-    }
+  }
+  file_chooser_dirlist
+  file_chooser_filelist
+  set file_chooser(old_dirs) $file_chooser(dirs)
+  if {[info exists file_chooser(abs_filename)] && $file_chooser(abs_filename) ne {}} {
+    file_chooser_select $file_chooser(abs_filename)
   }
   return {}
 }
@@ -11565,7 +11626,7 @@ if { [info exists has_x]} {
     option add *insertBackground {white} startupFile
     option add *selectColor {grey10} startupFile ;# checkbuttons, radiobuttons
     option add *selectForeground black
-    option add *selectBackground grey70
+    option add *selectBackground grey30
     if { [info tclversion] > 8.4} {
       ttk::style configure TCombobox -fieldbackground grey20
     }
@@ -11676,8 +11737,20 @@ set tclcmd_txt {}
 ###
 
 if { ![info exists dircolor] } {
-  set_ne dircolor(devices) {#008800}
-  set_ne dircolor(xschem_library) {#990000}
+  set_ne dircolor(/devices$) {#007700}
+  set_ne dircolor(/logic$) {#770000}
+  set_ne dircolor(/examples$) {#770000}
+  set_ne dircolor(/generators$) {#770000}
+  set_ne dircolor(/ngspice$) {#770000}
+  set_ne dircolor(/rom8k$) {#770000}
+  set_ne dircolor(/analyses$) {#770000}
+  set_ne dircolor(/xschem_simulator$) {#770000}
+  set_ne dircolor(/ngspice_verilog_cosim$) {#770000}
+  set_ne dircolor(/inst_sch_select$) {#770000}
+  set_ne dircolor(/xTAG$) {#770000}
+  set_ne dircolor(/pcb$) {#770000}
+  set_ne dircolor(/library_LCC_stefan$) {#770000}
+  set_ne dircolor(/binto7seg$) {#770000}
 }
 
 set_ne file_dialog_globfilter {*}
