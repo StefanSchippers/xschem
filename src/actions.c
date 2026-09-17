@@ -557,7 +557,7 @@ int save(int confirm, int fast)
   /* current schematic exists on disk ... */
   if(!stat(name, &buf)) {
     /* ... and modification time on disk has changed since file loaded ... */
-    if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+    if(xctx->time_last_modify!= -1 && xctx->time_last_modify != buf.st_mtime) {
       /* ... so force a save. save_schematic() will again ask to save if file has been written externally */
       force = 1;
       confirm = 0;

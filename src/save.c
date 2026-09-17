@@ -3469,7 +3469,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   }
   else { /* user asks to save to same filename */
     if(!stat(xctx->sch[xctx->currsch], &buf)) {
-      if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+      if(xctx->time_last_modify != -1 && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("ask_save \"Schematic file: ", xctx->sch[xctx->currsch],
             "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
         if(strcmp(tclresult(), "yes") ) return 0;
@@ -3635,9 +3635,9 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         xctx->time_last_modify =  buf.st_mtime;
       } else {
         /* xctx->time_last_modify = time(NULL); */ /* file does not exist, set mtime to current time */
-        xctx->time_last_modify = 0; /* file does not exist, set mtime to 0 (undefined)*/
+        xctx->time_last_modify = -1; /* file does not exist, set mtime to -1 (undefined)*/
       }
-    } else {xctx->time_last_modify = 0;} /* undefined */
+    } else {xctx->time_last_modify = -1;} /* undefined */
     if(generator) {
       char *cmd;
       cmd = get_generator_command(ffname);
@@ -3694,7 +3694,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     dbg(1, "load_schematic(): %s, returning\n", xctx->sch[xctx->currsch]);
   } else { /* ffname == NULL or empty */
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
-    if(reset_undo) xctx->time_last_modify = 0; /* no file given, set mtime to 0 (undefined) */
+    if(reset_undo) xctx->time_last_modify = -1; /* no file given, set mtime to -1 (undefined) */
     clear_drawing();
     for(i=0;; ++i) {
       if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {

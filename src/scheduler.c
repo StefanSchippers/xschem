@@ -585,7 +585,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(sympath, abs_sym_path(name, ""), S(sympath));
         }
         if(!stat(sympath, &buf)) { /* file exists */
-          if(xctx->time_last_modify < buf.st_mtime) {
+          if(xctx->time_last_modify != -1 && xctx->time_last_modify < buf.st_mtime) {
             my_mstrcat(_ALLOC_ID_, &res, "Warning: symbol ", sympath, " is newer than schematic\n", NULL);
           }
         } else { /* not found */
