@@ -8257,6 +8257,15 @@ proc textwindow {filename {ro {}}} {
   pack $textwindow_w.buttons -side bottom -fill x -pady 2m
   button $textwindow_w.buttons.dismiss -text Dismiss -command "destroy $textwindow_w"
   pack $textwindow_w.buttons.dismiss -side left -expand 1
+  button $textwindow_w.buttons.copy -text {Copy} \
+    -command  "
+      clipboard clear
+      clipboard append \[$textwindow_w.text get sel.first sel.last\]
+    "
+  pack $textwindow_w.buttons.copy -side left -expand 1
+  button $textwindow_w.buttons.selectall -text {Select all} \
+         -command  "$textwindow_w.text tag add sel 1.0 {end - 1 chars}"
+  pack $textwindow_w.buttons.selectall -side left -expand 1
   if { $ro eq {} } {
     button $textwindow_w.buttons.save -text "Save" -command \
      {
