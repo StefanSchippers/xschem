@@ -1910,6 +1910,10 @@ void launcher(void)
     if(strpbrk(command, "@%")) {
       char *res = NULL, *schname_attr = NULL;
       my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
+      my_mstrcat(_ALLOC_ID_, &schname_attr, " index=\"", my_itoa(n), "\"", NULL);
+      if(xctx->sel_array[0].type==ELEMENT) {
+        my_mstrcat(_ALLOC_ID_, &schname_attr, " symname=\"", xctx->inst[n].name, "\"", NULL);
+      }
       my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, prop_ptr, schname_attr, NULL, NULL, &res));
       my_free(_ALLOC_ID_, &schname_attr);
       if(xctx->sel_array[0].type==ELEMENT) {
