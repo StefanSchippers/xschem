@@ -8181,21 +8181,24 @@ proc editdata {{data {}} {title {Edit data}} {wrap {none}} {ro 1}} {
   # wm transient $window [xschem get topwindow]
   frame $window.buttons
   pack $window.buttons -side bottom -fill x -pady 2m
-  button $window.buttons.copy -text {Copy to clipboard} -command "
+  button $window.buttons.copy -text {Copy} -command "
      clipboard clear
-     clipboard append \[$window.text get 1.0 {end - 1 chars}\]
+     clipboard append \[$window.text get sel.first sel.last\]
   "
   button $window.buttons.ok -text OK -command "
      set tctx::retval \[$window.text get 1.0 {end - 1 chars}\]; destroy $window
   "
   button $window.buttons.cancel -text Cancel -command "destroy $window"
+  button $window.buttons.selectall -text {Select all} \
+         -command "$window.text tag add sel 1.0 {end - 1 chars}"
 
   pack $window.buttons.ok -side left -expand 1
   pack $window.buttons.cancel -side left -expand 1
   pack $window.buttons.copy -side left -expand 1
+  pack $window.buttons.selectall -side left -expand 1
 
   if { $ro ne {1} } {
-    button $window.buttons.saveas -text {Save a copy} -command {
+    button $window.buttons.saveas -text {Save As} -command {
       proc editdata_save {} {
         global OS env
 
@@ -8308,6 +8311,15 @@ proc viewdata {data {ro {}} {win .view} {wrap none}} {
   button $viewdata_w.buttons.dismiss -text Dismiss -command  "destroy $viewdata_w"
   pack $viewdata_w.buttons.dismiss -side left -expand 1
 
+  button $viewdata_w.buttons.copy -text {Copy} \
+    -command  "
+      clipboard clear
+      clipboard append \[$viewdata_w.text get sel.first sel.last\]
+    "
+  pack $viewdata_w.buttons.copy -side left -expand 1
+  button $viewdata_w.buttons.selectall -text {Select all} \
+         -command  "$viewdata_w.text tag add sel 1.0 {end - 1 chars}"
+  pack $viewdata_w.buttons.selectall -side left -expand 1
   if { $ro eq {} } {
     button $viewdata_w.buttons.saveas -text {Save As} -command  {
       if {$OS == "Windows"} {
@@ -8326,7 +8338,6 @@ proc viewdata {data {ro {}} {win .view} {wrap none}} {
     }
     pack $viewdata_w.buttons.saveas  -side left -expand 1
   }
-
   eval text $viewdata_w.text -undo 1 -relief sunken -bd 2 -yscrollcommand \"$viewdata_w.yscroll set\" -setgrid 1 \
        -xscrollcommand \"$viewdata_w.xscroll set\" -wrap $wrap -height 30 $text_tabs_setting
   scrollbar $viewdata_w.yscroll -command  "$viewdata_w.text yview"
