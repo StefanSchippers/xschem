@@ -1061,6 +1061,10 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
    {
      my_mstrcat(_ALLOC_ID_, &result, get_cell(xctx->current_name, 0), NULL);
    }
+   else if(strcmp(token,"@index")==0)
+   {
+     my_mstrcat(_ALLOC_ID_, &result, my_itoa(inst), NULL);
+   }
    else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
    {
      const char *topsch;
@@ -2487,6 +2491,10 @@ int print_spice_element(FILE *fd, int inst)
         const char *schname = get_cell(xctx->current_name, 0);
         my_mstrcat(_ALLOC_ID_, &result, schname, NULL);
       }
+      else if(strcmp(token,"@index")==0)
+      {
+        my_mstrcat(_ALLOC_ID_, &result, my_itoa(inst), NULL);
+      }
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
                                            /* print multiplicity */
       {                                    /* and node number: m1 n1 m2 n2 .... */
@@ -2867,6 +2875,10 @@ int print_spectre_element(FILE *fd, int inst)
       {
         const char *schname = get_cell(xctx->current_name, 0);
         my_mstrcat(_ALLOC_ID_, &result, schname, NULL);
+      }
+      else if(strcmp(token,"@index")==0)
+      {
+        my_mstrcat(_ALLOC_ID_, &result, my_itoa(inst), NULL);
       }
       else if(strcmp(token,"@pinlist")==0) /* of course pinlist must not be present in attributes */
                                            /* print multiplicity */
@@ -3336,6 +3348,10 @@ void print_tedax_element(FILE *fd, int inst)
     {
      fputs(get_cell(xctx->current_name, 0), fd);
     }
+    else if(strcmp(token,"@index")==0)
+    {
+      fputs(my_itoa(inst), fd);
+    }
     else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
     {
       const char *topsch;
@@ -3613,6 +3629,10 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
                                          /* in hash table */
     {
       my_mstrcat(_ALLOC_ID_, &result, get_cell(xctx->current_name, 0), NULL);
+    }
+    else if(strcmp(token,"@index")==0)
+    {
+      my_mstrcat(_ALLOC_ID_, &result, my_itoa(inst), NULL);
     }
     else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
     {
@@ -5250,6 +5270,12 @@ const char *translate(int inst, const char *s, char **result)
         tmp = strlen(schname);
         STR_ALLOC(result, tmp + result_pos, &size);
         memcpy(*result+result_pos, schname, tmp+1);
+        result_pos+=tmp;
+      } else if(strcmp(token,"@index")==0) {
+        const char *index = my_itoa(inst);
+        tmp = strlen(index);
+        STR_ALLOC(result, tmp + result_pos, &size);
+        memcpy(*result+result_pos, index, tmp+1);
         result_pos+=tmp;
       } else if(strcmp(token,"@topschname")==0)  {
          const char *topsch;
