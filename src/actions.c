@@ -579,12 +579,14 @@ int save(int confirm, int fast)
   return 1; /* circuit not changed: always succeeed */
 }
 
-void saveas(const char *f, int type) /*  changed name from ask_save_file to saveas 20121201 */
+/* return 1 if a save was done, 0 otherwise */
+int saveas(const char *f, int type) /*  changed name from ask_save_file to saveas 20121201 */
 {
     char name[PATH_MAX+1000];
     char filename[PATH_MAX];
     char res[PATH_MAX];
     char *p;
+    int saved = 0;
     if(!f && has_x) {
       my_strncpy(filename , xctx->sch[xctx->currsch], S(filename));
       if(type == SYMBOL) {
@@ -604,11 +606,11 @@ void saveas(const char *f, int type) /*  changed name from ask_save_file to save
     }
     else res[0]='\0';
 
-    if(!res[0]) return;
+    if(!res[0]) return saved;
     dbg(1, "saveas(): res = %s\n", res);
-    save_schematic(res, 0);
+    saved = save_schematic(res, 0);
     tclvareval("update_recent_file {", res,"}",  NULL);
-    return;
+    return saved;
 }
 
 void ask_new_file(int in_new_window, char *filename)

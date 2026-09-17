@@ -5095,6 +5095,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       const char *fptr;
       char f[PATH_MAX + 100];
+      int saved = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
       if(argc > 2) {
@@ -5103,15 +5104,16 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       if(argc > 3) {
         fptr = !strcmp(f, "") ? NULL : f;
-        if(!strcmp(argv[3], "schematic")) saveas(fptr, SCHEMATIC);
-        else if(!strcmp(argv[3], "symbol")) saveas(fptr, SYMBOL);
-        else saveas(fptr, SCHEMATIC);
+        if(!strcmp(argv[3], "schematic")) saved = saveas(fptr, SCHEMATIC);
+        else if(!strcmp(argv[3], "symbol")) saved = saveas(fptr, SYMBOL);
+        else saved = saveas(fptr, SCHEMATIC);
       }
       else if(argc > 2) {
         fptr = !strcmp(f, "") ? NULL : f;
-        saveas(fptr, SCHEMATIC);
+        saved = saveas(fptr, SCHEMATIC);
       }
-      else saveas(NULL, SCHEMATIC);
+      else saved = saveas(NULL, SCHEMATIC);
+      Tcl_SetResult(interp, my_itoa(saved), TCL_VOLATILE);
     }
 
     /* sch_pinlist

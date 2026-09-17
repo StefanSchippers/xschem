@@ -5684,15 +5684,17 @@ proc file_chooser_saveas {} {
     if {[file isdirectory $f]} {return}
     if {[xschem get modified]} { ;# modified
       if {[xschem get schname] eq $f} { ;# file name not changed
-        xschem saveas
-        .ins.top2.save configure -bg [option get . background {}]
+        if {[xschem saveas]} {
+          .ins.top2.save configure -bg [option get . background {}]
+        }
         file_chooser_filelist
       } else { ;# file name changed
         set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
-        xschem saveas
-        .ins.top2.save configure -bg [option get . background {}]
+        if {[xschem saveas]} {
+          .ins.top2.save configure -bg [option get . background {}]
+        }
         file_chooser_filelist
       }
     } else { ;# not modified
@@ -5702,14 +5704,16 @@ proc file_chooser_saveas {} {
         set answer [tk_messageBox -message "Warning: file $f already exists. Overwrite?" \
             -icon warning -parent .ins -type okcancel]
         if {$answer ne {ok}} { return }
-        xschem saveas
-        .ins.top2.save configure -bg [option get . background {}]
+        if {[xschem saveas]} {
+          .ins.top2.save configure -bg [option get . background {}]
+        }
         file_chooser_filelist
       }
     }
   } else { ;# file does not exist
-    xschem saveas $f
-    .ins.top2.save configure -bg [option get . background {}]
+    if {[xschem saveas $f]} {
+      .ins.top2.save configure -bg [option get . background {}]
+    }
     file_chooser_filelist
   }
 }
@@ -11357,6 +11361,7 @@ proc set_paths {} {
 
     set path_l_orig2 {}
     # recognize path elemnts with alias: /some/path/for/xschem | alias
+    set first 1
     foreach p $path_l_orig1 {
       # if {[regexp {^[^|]+[|][^|]+$} $p]} {}
       if {[regexp {[|]} $p]} {
@@ -11364,11 +11369,19 @@ proc set_paths {} {
         regsub {([^\\])\|} $p "\\1\x00" p ;# transform | to \x00
         regsub -all {\\\|} $p {|} p       ;# transform all \| to |
         lassign [split $p \x00] path alias
-        puts "--> $path    $alias"
-        set lib_alias([cleanup_path $path]) $alias
+        set clean_path [cleanup_path $path]
+        if {$first} {
+          puts "setting library aliases:"
+          set first 0
+        }
+        puts "  $alias -> $clean_path"
+        set lib_alias($clean_path) $alias
         set p $path
       }
       lappend path_l_orig2 $p
+    }
+    if {!$first} {
+      puts "done."
     }
     set pathlist [cleanup_paths $path_l_orig2]
   }

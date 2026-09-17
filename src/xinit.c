@@ -1244,12 +1244,15 @@ int preview_window(const char *what, const char *win_path, const char *fname)
 
   /* avoid reentrant calls for example if an alert box is displayed while loading file to preview,
    * and an Expose event calls another preview draw */
-  if(semaphore) return 0;
+  if(semaphore) {
+    dbg(0, "  preview_window(): semaphore=%d, returning\n", semaphore);
+    return 0;
+  }
   ++semaphore;
-  dbg(1, "preview_window(): what=%s, win_path=%s, fname=%s\n",
-     what, win_path ? win_path : "<NULL>", fname ? fname : "<NULL>");
+  dbg(1, "preview_window(): what=%s, win_path=%s, fname=%s last_preview==%d\n",
+     what, win_path ? win_path : "<NULL>", fname ? fname : "<NULL>", last_preview);
   dbg(1, "------\n");
-  if(!strcmp(what, "create") && last_preview < 4) {
+  if(!strcmp(what, "create") && last_preview < 10) {
     int i;
     dbg(1, "preview_window() create, save ctx, win_path=%s\n", win_path);
 
@@ -1309,9 +1312,10 @@ int preview_window(const char *what, const char *win_path, const char *fname)
     for(i = 0; i < 10; i++) {
       if(Tk_NameToWindow(interp, win_path, mainwindow) == tkpre_window[i] && tkpre_window[i]) break;
     }
-    dbg(1, "preview_window(): destroy slot %d\n", i);
     if(i < 10) {
+      dbg(1, "  preview_window(): %s slot %d\n", what, i);
       if(preview_xctx[i]) {
+        dbg(1, "  slot found\n");
         save_xctx = xctx; /* save current schematic */
         xctx = preview_xctx[i];
         if(current_file[i]) {
@@ -1321,14 +1325,14 @@ int preview_window(const char *what, const char *win_path, const char *fname)
         my_free(_ALLOC_ID_, &current_file[i]);
         xctx = save_xctx; /* restore schematic */
         save_xctx = NULL;
-        /* set_modify(-1); */ /* no more needed as load_schematic() called with reset_undo=0 */
         result = 1;
-        if(!strcmp(what, "destroy")) {
-          Tk_DestroyWindow(tkpre_window[i]);
-        }
-        tkpre_window[i] = NULL;
-        last_preview--;
       }
+      /* set_modify(-1); */ /* no more needed as load_schematic() called with reset_undo=0 */
+      if(!strcmp(what, "destroy")) {
+        Tk_DestroyWindow(tkpre_window[i]);
+      }
+      tkpre_window[i] = NULL;
+      last_preview--;
     }
   }
   semaphore--;

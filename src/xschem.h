@@ -1342,7 +1342,7 @@ extern int schematic_in_new_window(int new_process, int dr, int force);
 extern void symbol_in_new_window(int new_process);
 extern void new_xschem_process(const char *cell, int symbol);
 extern void ask_new_file(int in_new_window, char *filename);
-extern void saveas(const char *f, int type);
+extern int saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm, int fast);
 extern void save_ascii_string(const char *ptr, FILE *fd, int newline);
