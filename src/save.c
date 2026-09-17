@@ -3491,6 +3491,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   /* update time stamp */
   if(!stat(schname, &buf)) {
     xctx->time_last_modify =  buf.st_mtime;
+    xctx->warn_disk_file_modified = 1; /* re-enable warning if underlying file changed */
   }
   my_strncpy(xctx->current_name, rel_sym_path(schname), S(xctx->current_name));
   my_snprintf(msg, S(msg), "get_directory {%s}", schname);

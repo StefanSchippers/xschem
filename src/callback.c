@@ -2355,6 +2355,18 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
 {
     struct stat buf;
     dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
+    
+    /* Issue a warning if underlying file has been touched */
+    dbg(1, "handle_enter_notify(): warn_disk_file_modified=%d\n", xctx->warn_disk_file_modified);
+    if(xctx->warn_disk_file_modified == 1 && !stat(xctx->sch[xctx->currsch], &buf)) {
+      if(xctx->time_last_modify && xctx->time_last_modify != buf.st_mtime) {
+        tclvareval("alert_ \"Schematic file: ", xctx->sch[xctx->currsch],
+            "\nHas been changed since opening.\" {}", NULL);
+        xctx->warn_disk_file_modified = 0;
+      }
+      dbg(1, "handle_enter_notify(): %ld - %ld\n", xctx->time_last_modify, buf.st_mtime);
+    }
+
     xctx->mouse_inside = 1;
     if(draw_xhair) {
       if(crosshair_size == 0) {

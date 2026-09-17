@@ -1176,6 +1176,7 @@ typedef struct {
   int do_copy_area;
   double cadhalfdotsize;
   time_t time_last_modify;
+  int warn_disk_file_modified;
   int undo_type; /* 0: on disk, 1: in memory */
   void (*push_undo)(void);
   void (*pop_undo)(int, int);

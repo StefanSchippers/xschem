@@ -722,6 +722,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->change_lw = 1;
   xctx->do_copy_area = 1;
   xctx->time_last_modify = 0;
+  xctx->warn_disk_file_modified = 1; /* if 1 warn user if underlying file has been changed */
 }
 
 static void delete_schematic_data(int delete_pixmap)
