@@ -1494,6 +1494,8 @@ extern int textclip(int x1,int y1,int x2,int y2,
            double xa,double ya,double xb,double yb);
 extern double dist_from_rect(double mx,
               double my, double x1, double y1, double x2, double y2);
+extern double dist_from_element(double mx,
+              double my, double x1, double y1, double x2, double y2);
 extern double dist(double x1,double y1,double x2,double y2,double xa,double ya);
 extern double rectdist(double x1,double y1,double x2,double y2,double xa,double ya);
 extern int touch(double,double,double,double,double,double);

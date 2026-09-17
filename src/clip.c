@@ -169,11 +169,27 @@ double dist_from_rect(double mx, double my, double x1, double y1, double x2, dou
  tmp=fabs(y2-my);
  if(tmp < dist) dist=tmp;
 
- dbg(1, "dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
- dbg(1, "dist_from_rect(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
- dbg(1, "dist_from_rect(): dist=%.16g\n",dist);
+ dbg(2, "dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
+ dbg(2, "dist_from_rect(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
+ dbg(2, "dist_from_rect(): dist=%.16g\n",dist);
  return dist*dist;
 }
+
+double dist_from_element(double mx, double my, double x1, double y1, double x2, double y2)
+{/* return square of dist... */
+ double dist;
+ double cx, cy;
+  
+ cx = (x1 + x2) / 2;  
+ cy = (y1 + y2) / 2;  
+
+ dist = (mx - cx) * (mx - cx) + (my - cy) * (my - cy);
+ dbg(2, "dist_from_element(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
+ dbg(2, "dist_from_element(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
+ dbg(2, "dist_from_element(): dist=%.16g\n",dist);
+ return dist;
+}
+
 
 double dist(double x1,double y1,double x2,double y2,double xa,double ya)
 /* works if segments are given from left to right, i.e. x1<=x2 */
