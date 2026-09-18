@@ -4061,7 +4061,7 @@ void select_rect(int stretch, int what, int select)
     if(!xctx->nl_sel || (incremental_select && xctx->nl_dir == 0))
        select_inside(stretch, itexts, nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
     else if(incremental_select && xctx->nl_dir == 1 && sel_touch)
-       select_touch(nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
+       select_touch(itexts, nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
     nl_xx1=xctx->nl_xr;nl_xx2=xctx->nl_xr2;nl_yy1=xctx->nl_yr;nl_yy2=xctx->nl_yr2;
     RECTORDER(nl_xx1,nl_yy1,nl_xx2,nl_yy2);
     drawtemprect(xctx->gc[SELLAYER],NOW, nl_xx1,nl_yy1,nl_xx2,nl_yy2);
@@ -4098,7 +4098,7 @@ void select_rect(int stretch, int what, int select)
     if(!sel_touch || xctx->nl_dir == 0)
       select_inside(stretch, itexts, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else
-      select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
+      select_touch(itexts, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
     draw_selection(xctx->gc[SELLAYER], 0);
     xctx->ui_state &= ~STARTSELECT;
