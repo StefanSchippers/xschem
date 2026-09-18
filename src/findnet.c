@@ -440,7 +440,14 @@ static void find_closest_element(double mx, double my, int override_lock)
            xctx->inst[i].instname, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2);
     if( POINTINSIDE(mx, my, xctx->inst[i].x1, xctx->inst[i].y1, xctx->inst[i].x2, xctx->inst[i].y2) )
     {
-      tmp=dist_from_element(mx, my, xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
+      /* bbox with texts */
+      tmp=dist_from_element(mx, my, xctx->inst[i].x1, xctx->inst[i].y1,
+                                    xctx->inst[i].x2, xctx->inst[i].y2);
+      /* bbox without texts */
+      /*
+       * tmp=dist_from_element(mx, my, xctx->inst[i].xx1, xctx->inst[i].yy1,
+       *                               xctx->inst[i].xx2, xctx->inst[i].yy2);
+       */
       if(tmp < d)
       {
         r = i; d = tmp;
