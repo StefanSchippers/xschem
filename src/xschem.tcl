@@ -2265,6 +2265,7 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
   set traversal(cnt) 0
   set save_keep $keep_symbols
   set keep_symbols 1
+  set current_win [xschem get current_win_path]
   xschem unselect_all
   xschem set no_draw 1 ;# disable screen update
   xschem set no_undo 1 ;# disable undo
@@ -2286,7 +2287,7 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
   pack .trav.top.pad -side left -fill x
   frame .trav.center
   set sf [sframe .trav.center]
-  hier_traversal 0 $only_subckts $all_hierarchy
+  hier_traversal 0 $only_subckts $all_hierarchy $current_win
   xschem set no_draw 0
   xschem set no_undo 0
   set keep_symbols $save_keep
@@ -2318,7 +2319,7 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
 }
 
 # recursive procedure
-proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
+proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1} {current_win {}}} {
   global nolist_libs traversal
 
   if {[info tclversion] >= 8.5} {
@@ -2393,6 +2394,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
             }"
     button $sf.f$cnt.upd -text Upd  -padx 4 -borderwidth 1 -pady 0 -font $font \
       -command "
+        xschem switch $current_win
         traversal_setlabels $sf.f$cnt.s [list $parent_sch] [list $instname] [list $inst_sch] \
         [list $sym_sch] [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def]
         set traversal(geom) \[winfo geometry .trav\]
@@ -2411,7 +2413,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
       set descended [xschem descend 1 6]
       if {$descended} {
         incr level
-        set dp [hier_traversal $level $only_subckts 1]
+        set dp [hier_traversal $level $only_subckts 1 $current_win]
         xschem go_back 2
         incr level -1
       } else { ;# descended into a blank schematic. Go back.
