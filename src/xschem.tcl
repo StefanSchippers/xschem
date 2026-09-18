@@ -2083,7 +2083,7 @@ proc cellview { {derived_symbols {}}} {
   label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.inst -text { INST} -width 8 -bg grey60 -anchor w -padx 4 -font $font
   label .cv.top.sch -text NETLIST -width 45 -bg grey60 -anchor w -padx 4 -font $font
-  label .cv.top.pad -text {      } -width 4 -bg grey60 -font $font
+  label .cv.top.pad -text {      } -width 10 -bg grey60 -font $font
   pack .cv.top.sym .cv.top.inst .cv.top.sch -side left -fill x -expand 1
   pack .cv.top.pad -side left -fill x
   frame .cv.center
@@ -2191,6 +2191,12 @@ proc cellview { {derived_symbols {}}} {
   pack .cv.bottom -side top -fill x -expand no
   sframeyview .cv.center place
   set maxsize [expr {[winfo height ${sf}] + [winfo height .cv.top] + [winfo height .cv.bottom]}]
+
+  set width  \
+      [expr {[winfo width .cv.top.sym] + [winfo width .cv.top.inst] +
+             [winfo width .cv.top.sch] + [winfo width .cv.top.pad] + 80}]
+  wm geometry .cv ${width}x${maxsize}
+
   wm maxsize .cv 9999 $maxsize
   bind .cv.center.f <Configure> {sframeyview .cv.center}
   bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
