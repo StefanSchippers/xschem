@@ -1424,7 +1424,7 @@ extern Selected select_object(double mx,double my, unsigned short sel_mode,
 extern int set_first_sel(unsigned short type, int n, unsigned int col);
 extern void unselect_all(int dr);
 extern void select_attached_nets(void);
-extern void select_inside(int stretch, double x1,double y1, double x2, double y2, int sel);
+extern void select_inside(int stretch, int itexts, double x1,double y1, double x2, double y2, int sel);
 extern void select_touch(double x1,double y1, double x2, double y2, int sel);
 /*  Select all nets that are dangling, ie not attached to any non pin/port/probe components */
 extern int select_dangling_nets(void);

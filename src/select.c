@@ -364,7 +364,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      dbg(1, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"<NULL>");
      tmp_txt = translate(i, text.txt_ptr, &res);
      dbg(1, "symbol_bbox(): translated text: %s\n", tmp_txt);
-     if(tmp_txt && !strncmp(tmp_txt, "@spice", 6)) continue; /* annotator texts not used in bbox */
+     if(text.txt_ptr && !strncmp(text.txt_ptr, "@spice", 6)) continue; /* annotator texts not used in bbox */
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
      #if HAS_CAIRO==1
      customfont=set_text_custom_font(&text);
@@ -1396,7 +1396,7 @@ void select_attached_nets(void)
   rebuild_selected_array();
 }
 
-void select_inside(int stretch, double x1,double y1, double x2, double y2, int sel)
+void select_inside(int stretch, int itexts, double x1,double y1, double x2, double y2, int sel)
 {
  int c,i, tmpint;
  double x, y, r, a, b, xa, ya, xb, yb; /* arc */
@@ -1461,7 +1461,17 @@ void select_inside(int stretch, double x1,double y1, double x2, double y2, int s
  }
  for(i=0;i<xctx->instances; ++i)
  {
-   if(RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2, x1,y1,x2,y2))
+   double rect_inside;
+   if(itexts) {
+     rect_inside = RECT_INSIDE(xctx->inst[i].x1, xctx->inst[i].y1,
+                               xctx->inst[i].x2, xctx->inst[i].y2,
+                               x1,y1,x2,y2);
+   } else {
+     rect_inside = RECT_INSIDE(xctx->inst[i].xx1, xctx->inst[i].yy1,
+                               xctx->inst[i].xx2, xctx->inst[i].yy2,
+                               x1,y1,x2,y2);
+   }
+   if(rect_inside)
    {
      xctx->ui_state |= SELECTION; /* set xctx->ui_state to SELECTION also if unselecting by area ???? */
      if(sel) {

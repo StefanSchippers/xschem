@@ -5364,6 +5364,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "select_inside"))
     {
       int sel = SELECTED;
+      int itexts = tclgetboolvar("inst_texts_in_area_select");
       double x1, y1, x2, y2;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 6 && argv[6][0] == '0') sel = 0;
@@ -5371,7 +5372,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       y1 = atof(argv[3]);
       x2 = atof(argv[4]);
       y2 = atof(argv[5]);
-      select_inside(tclgetboolvar("enable_stretch"), x1, y1, x2, y2, sel);
+      select_inside(tclgetboolvar("enable_stretch"), itexts, x1, y1, x2, y2, sel);
       Tcl_ResetResult(interp);
     }
 

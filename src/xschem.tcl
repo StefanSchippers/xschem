@@ -10014,7 +10014,8 @@ set tctx::global_list {
  graph_logx graph_logy graph_private_cursor graph_rainbow graph_schname graph_sel_color
  graph_sel_wave graph_selected graph_select_to_zoom graph_sort graph_unlocked graph_use_ctrl_key 
  graph_vlegend hide_empty_graphs
- hide_symbols incr_hilight incremental_select infix_interface infowindow_text intuitive_interface
+ hide_symbols incr_hilight incremental_select infix_interface infowindow_text
+ inst_texts_in_area_select intuitive_interface
  keep_symbols launcher_default_program light_colors line_width live_cursor2_backannotate
  local_netlist_dir lvs_ignore lvs_netlist measure_text netlist_dir netlist_show netlist_type
  new_file_browser_depth new_file_browser_ext
@@ -11834,6 +11835,7 @@ set_ne draw_window 0
 set_ne show_hidden_texts 0
 set_ne incr_hilight 1
 set_ne enable_stretch 0
+set_ne inst_texts_in_area_select 0
 set_ne constr_mv 0
 set_ne unselect_partial_sel_wires 0
 set_ne load_file_dialog_fullpath 1

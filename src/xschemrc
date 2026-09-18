@@ -318,6 +318,11 @@
 #### Enabling this option swaps the two drag modes.
 # set enable_stretch 0
 
+#### inst_texts_in_area_select: if set to 1 include instance texts in bounding box
+#### to enclose when doing area selects
+#### Default: not enabled(0)
+# set inst_texts_in_area_select 1
+
 #### enable drawing crosshairs at mouse coordinates. Default: disabled (0)
 # set draw_crosshair 1
 

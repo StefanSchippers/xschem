@@ -4044,6 +4044,7 @@ void select_rect(int stretch, int what, int select)
  double nl_xx1, nl_yy1, nl_xx2, nl_yy2;
  int incremental_select = tclgetboolvar("incremental_select");
  int sel_touch = tclgetboolvar("select_touch");
+ int itexts = tclgetboolvar("inst_texts_in_area_select");
  dbg(1, "select_rect(): what=%d, mousex_save=%g mousey_save=%g, mousex=%g mousey=%g\n",
         what, xctx->mx_double_save, xctx->my_double_save, xctx->mousex, xctx->mousey);
  if(what & RUBBER)
@@ -4058,7 +4059,7 @@ void select_rect(int stretch, int what, int select)
     xctx->nl_xr2=xctx->mousex;xctx->nl_yr2=xctx->mousey;
 
     if(!xctx->nl_sel || (incremental_select && xctx->nl_dir == 0))
-       select_inside(stretch, nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
+       select_inside(stretch, itexts, nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
     else if(incremental_select && xctx->nl_dir == 1 && sel_touch)
        select_touch(nl_xx1, nl_yy1, nl_xx2, nl_yy2, xctx->nl_sel);
     nl_xx1=xctx->nl_xr;nl_xx2=xctx->nl_xr2;nl_yy1=xctx->nl_yr;nl_yy2=xctx->nl_yr2;
@@ -4095,7 +4096,7 @@ void select_rect(int stretch, int what, int select)
     drawtemprect(xctx->gctiled, NOW, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2);
 
     if(!sel_touch || xctx->nl_dir == 0)
-      select_inside(stretch, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
+      select_inside(stretch, itexts, xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
     else
       select_touch(xctx->nl_xr,xctx->nl_yr,xctx->nl_xr2,xctx->nl_yr2, xctx->nl_sel);
 
