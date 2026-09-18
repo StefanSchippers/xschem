@@ -284,6 +284,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  int top_sub = lvs_netlist || tclgetboolvar("top_is_subckt");
  int lvs_ignore = tclgetboolvar("lvs_ignore");
 
+ has_included_subcircuit(-1, -1, NULL);
  if(lvs_netlist) my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
  else  my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
  exit_code = 0; /* reset exit code */

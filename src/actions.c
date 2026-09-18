@@ -2311,6 +2311,14 @@ void get_additional_symbols(int what)
             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
               subst_token(xctx->sym[j].prop_ptr, "schematic", symbol_base_sch));
           }
+
+          /* we keep a copy of the schematic attribute specified in symbol */
+          if(!is_gen && sch && sch[0]) {
+            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
+               subst_token(xctx->sym[j].prop_ptr, "inst_schematic", sch));
+            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
+               subst_token(xctx->sym[j].prop_ptr, "from_inst", xctx->inst[i].instname));
+          }
           if(spice_sym_def) {
              my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
                subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));

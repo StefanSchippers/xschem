@@ -2068,6 +2068,7 @@ proc cellview { {derived_symbols {}} {upd 0}} {
     set font fixed
   }
 
+  set current_win [xschem get current_win_path]
   set netlist_type $save_netlist_type
   xschem set netlist_type $netlist_type
   xschem reload_symbols ;# purge unused symbols
@@ -2080,7 +2081,7 @@ proc cellview { {derived_symbols {}} {upd 0}} {
     raise .cv
     frame .cv.top
     label .cv.top.sym -text {   SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
-    label .cv.top.sch -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
+    label .cv.top.sch -text NETLIST -width 45 -bg grey60 -anchor w -padx 4 -font $font
     label .cv.top.pad -text {      } -width 4 -bg grey60 -font $font
     pack .cv.top.sym .cv.top.sch -side left -fill x -expand 1
     pack .cv.top.pad -side left -fill x
@@ -2093,16 +2094,17 @@ proc cellview { {derived_symbols {}} {upd 0}} {
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
   # puts "syms=$syms"
   foreach {i symbol} $syms {
-    if { [catch {set base_name [xschem symbol_base_name $symbol]}] } {
-      set base_name $symbol
-    }
-    # puts "i=$i, symbol=$symbol"
+    set base_name [xschem symbol_base_name $symbol]
+    # following 2 attributes are defined in derived symbols created by get_additional_symbols()
+    set inst_schematic [xschem getprop symbol $i inst_schematic]
+    set from_inst [xschem getprop symbol $i from_inst]
+    # puts "    i=$i, symbol=$symbol, base_name=$base_name"
     set derived_symbol 0
     if {$base_name ne {}} {
       set derived_symbol 1
     }
     if { [catch {xschem get_sch_from_sym -1 $symbol} abs_sch ]} {
-      set abs_sch [abs_sym_path [add_ext $symbol .sch]]
+      set abs_sch [abs_sym_path $symbol]
     }
     if {$derived_symbol} {
       set abs_sym [abs_sym_path $base_name]
@@ -2130,23 +2132,32 @@ proc cellview { {derived_symbols {}} {upd 0}} {
         pack $sf.f$i -side top -fill x
         label  $sf.f$i.l -text $symbol -width 30 -anchor w -padx 4 -borderwidth 1 \
           -relief sunken -pady 1 -font $font
-        if {$derived_symbol} {
-          $sf.f$i.l configure -fg $instfg
-        }
         # puts $sf.f$i.s
         entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
         button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
                -command "cellview_edit_sym $sf.f$i.l"
         button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
                -command "cellview_edit_item $symbol $sf.f$i.s"
-        if {$sym_spice_sym_def eq {}} {
+      }
+
+      if {$derived_symbol} {
+        $sf.f$i.l configure -fg $instfg
+      }
+
+      $sf.f$i.s delete 0 end
+      if {$sym_spice_sym_def eq {}} {
+        if {$derived_symbol} {
+          # wanted to put also $from_inst here, but entry content is used in cellview_setlabels
+          #                        |
           $sf.f$i.s insert 0 $sym_sch
         } else {
-          if {$derived_symbol} {
-            $sf.f$i.s insert 0 {defined in instance spice_sym_def}
-          } else {
-            $sf.f$i.s insert 0 {defined in symbol spice_sym_def}
-          }
+          $sf.f$i.s insert 0 $sym_sch
+        }
+      } else {
+        if {$derived_symbol} {
+          $sf.f$i.s insert 0 "$inst_schematic, defined in instance $from_inst spice_sym_def"
+        } else {
+          $sf.f$i.s insert 0 "[file rootname [get_cell $sym_sch 0]], defined in symbol spice_sym_def"
         }
       }
 
@@ -2176,7 +2187,8 @@ proc cellview { {derived_symbols {}} {upd 0}} {
   if {$upd} {return}
 
   frame .cv.bottom
-  button .cv.bottom.update -text Update -command "cellview [list $derived_symbols] 1; xschem reload_symbols"
+  button .cv.bottom.update -text Update \
+     -command "xschem switch $current_win; cellview [list $derived_symbols] 1; xschem reload_symbols"
   pack .cv.bottom.update -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
@@ -2275,7 +2287,7 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
   frame .trav.top
   label .trav.top.inst -text {INSTANCE} -width 25 -bg grey60 -anchor w -padx 4 -font $font
   label .trav.top.sym  -text {SYMBOL} -width 30 -bg grey60 -anchor w -padx 4 -font $font
-  label .trav.top.sch  -text SCHEMATIC -width 45 -bg grey60 -anchor w -padx 4 -font $font
+  label .trav.top.sch  -text NETLIST -width 45 -bg grey60 -anchor w -padx 4 -font $font
   label .trav.top.pad  -text {        } -bg grey60 -font $font
   pack .trav.top.inst -side left -fill x -expand 1
   pack .trav.top.sym .trav.top.sch -side left -fill x
@@ -2340,7 +2352,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
     set schematic [xschem get_sch_from_sym $i]
     set sch_exists [expr {[file exists $schematic] ? {} : {**missing**}}]
     set inst_sch [rel_sym_path $schematic]
-    set sch_rootname [file tail [file rootname $inst_sch]]
+    set sch_rootname [get_cell $inst_sch 0]
     set inst_spice_sym_def [xschem getprop instance $i spice_sym_def]
     set sym_spice_sym_def [xschem getprop instance $i cell::spice_sym_def]
     if {$only_subckts && ($type ne {subcircuit})} { continue }
@@ -2367,9 +2379,9 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1}} {
     entry $sf.f$cnt.s -width 45 -borderwidth 1 -relief sunken -font $font
     if {$type eq {subcircuit}} {
       if {$inst_spice_sym_def ne {}} {
-        $sf.f$cnt.s insert 0 "$sch_rootname defined in instance spice_sym_def"
+        $sf.f$cnt.s insert 0 "$sch_rootname, defined in instance spice_sym_def"
       } elseif {$sym_spice_sym_def ne {}} {
-        $sf.f$cnt.s insert 0 "$sch_rootname defined in symbol spice_sym_def"
+        $sf.f$cnt.s insert 0 "$sch_rootname, defined in symbol spice_sym_def"
       } else {
         $sf.f$cnt.s insert 0 "$inst_sch"
       }
@@ -6052,7 +6064,6 @@ proc file_chooser {} {
       set sel [lindex [.ins.center.left.l curselection] 0]
       if {$sel ne {} && [info exists file_chooser(fullpathlist)]} {
         set f [lindex $file_chooser(fullpathlist) $sel]
-        # puts ">>>> $f"
         if {$f ne {}} {
           set type [is_xschem_file $f]
         }

@@ -1667,6 +1667,7 @@ extern const char *translate3(const char* s, int eat_escapes, const char *s1,
                               const char *s2, const char *s3, const char *s4, char **translated_tok);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
+extern int has_included_subcircuit(int inst, int symbol, char **result);
 extern void print_spice_subckt_nodes(FILE *fd, int symbol);
 extern int print_spectre_element(FILE *fd, int inst);
 extern void print_spectre_subckt_nodes(FILE *fd, int symbol);

@@ -1897,12 +1897,17 @@ void print_tedax_subckt(FILE *fd, int symbol)
  * checking with the corresponding symbol pin name and getting the net name attached to it.
  * Any name mismatch is reported, in this case the function does nothing and the default xschem
  * symbol port ordering will be used. */
-static int has_included_subcircuit(int inst, int symbol, char **result)
+int has_included_subcircuit(int inst, int symbol, char **result)
 {
   char *spice_sym_def = NULL;
   const char *translated_sym_def;
   int ret = 0;
+  static int alerts = 1;
 
+  if(symbol < 0 && inst < 0) { /* reset alerts */
+     alerts = 1;
+     return 0;
+  }
 
   my_strdup2(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[inst].prop_ptr, "spice_sym_def", 2));
   if(!spice_sym_def[0]) {
@@ -2005,9 +2010,13 @@ static int has_included_subcircuit(int inst, int symbol, char **result)
       } else {
         dbg(0, "has_included_subcircuit(): %s symbol and .subckt pins do not match. Discard port order\n",
                 symname);
-        if(has_x)
-           tclvareval("alert_ {has_included_subcircuit(): ", symname,
-                   " symbol and .subckt pins do not match. Discard .subckt port order}", NULL);
+        if(has_x && alerts) {
+           tclvareval("alert_ {has_included_subcircuit():\n", symname,
+                   "symbol and .subckt pins do not match. Discard .subckt port order\n",
+                   "Continue issuing alerts?} {} 0 1",
+                    NULL);
+           if(!strcmp(tclresult(), "0")) alerts = 0;
+        }
       }
       if(tmp_result) my_free(_ALLOC_ID_, &tmp_result);
       my_free(_ALLOC_ID_, &subckt_pinlist);
