@@ -25,8 +25,7 @@ spice_ignore=true
 verilog_ignore=true
 tedax_ignore=true
 vhdl_ignore=true
-template="code=ARCHITECTURE 
-\\"Use global schematic properties for code\\""}
+template="name=a1 code=ARCHITECTURE"}
 V {}
 S {}
 F {}
@@ -44,3 +43,5 @@ T {-- SPICE --
 -- SYMBOL --
 @schsymbolprop
 } 45 5 0 0 0.3 0.3 {font=monospace layer=8}
+T {Use global properties for code in 
+parent schematic.} 0 -90 0 0 0.4 0.4 {hide=instance layer=7}

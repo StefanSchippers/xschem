@@ -31,5 +31,4 @@ C {opin.sym} 200 -530 0 0 {name=p20 lab=OUT}
 C {noconn.sym} 200 -530 0 0 {name=l1}
 C {noconn.sym} 120 -550 0 1 {name=l2}
 C {noconn.sym} 120 -500 0 1 {name=l3}
-C {architecture.sym} 280 -620 0 0 {code=ARCHITECTURE 
-"Use global schematic properties for code"}
+C {architecture.sym} 310 -620 0 0 {name=a1 code=ARCHITECTURE}

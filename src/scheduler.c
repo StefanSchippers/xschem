@@ -5835,7 +5835,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           return TCL_ERROR;
         }
         if((inst = get_instance(argv[3])) < 0 ) {
-          Tcl_SetResult(interp, "xschem setprop: instance not found", TCL_STATIC);
+          Tcl_AppendResult(interp, "xschem setprop: instance not found:", argv[3],
+                                   " - ", xctx->current_name, NULL);
           return TCL_ERROR;
         } else {
           char *translated_sym = NULL;

@@ -159,13 +159,8 @@ C {comp3.sym} 480 -580 0 0 {name=x5
 schematic=comp3_empty.sch}
 C {comp3.sym} 480 -290 0 0 {name=x6
 schematic=comp3_file
-spice_sym_def="tcleval(
-  [read_data_nonewline [abs_sym_path comp3_file.cir]]
-)"
-
-vhdl_sym_def="tcleval(
-  [read_data_nonewline [abs_sym_path comp3_file.cir]]
-)"
+spice_sym_def="tcleval([read_data_nonewline [abs_sym_path comp3_file.cir]])"
+vhdl_sym_def="tcleval([read_data_nonewline [abs_sym_path comp3_file.cir]])"
 tclcommand="textwindow [abs_sym_path comp3_file.cir]"}
 C {comp3_read.sym} 890 -280 0 0 {name=x7
 

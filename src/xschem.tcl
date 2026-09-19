@@ -2207,17 +2207,17 @@ proc cellview { {derived_symbols {}}} {
 
 ############ traversal
 proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
-                          inst_spice_sym_def sym_spice_sym_def} {
+                          inst_spice_sym_def sym_spice_sym_def type} {
   global traversal dark_gui_colorscheme netlist_type
   set sf .trav.center.f.scrl
 
   set save_netlist_type [xschem get netlist_type]
-  # puts "traversal_setlabels: $w parent: |$parent_sch| inst: $instname def: $sym_sch $inst_sch --> [$w get]"
+  # puts "  traversal_setlabels: $w parent: |$parent_sch| "
+  # puts "      inst: $instname def: $sym_sch $inst_sch --> [$w get]"
   # update schematic
-  if {$parent_sch ne {} && $sym_spice_sym_def eq {} &&  $inst_spice_sym_def eq {} } {
-    set current [xschem get current_name]
+  if {$parent_sch ne {} && $sym_spice_sym_def eq {} && 
+      $inst_spice_sym_def eq {} && $type eq {subcircuit}} {
     if { $inst_sch ne [$w get] } {
-      xschem load -undoreset -nodraw $parent_sch
       if { [$w get] eq  $sym_sch} {
         xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
       } else {
@@ -2227,7 +2227,6 @@ proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
       xschem save fast
       set inst_sch [$w get]
       # puts "inst_sch set to: $inst_sch"
-      xschem load -undoreset -nodraw $current
       set netlist_type $save_netlist_type
       xschem set netlist_type $netlist_type
     }
@@ -2334,7 +2333,7 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1} {current_win {
     set font fixed
   }
   set parent_sch [xschem get current_name]
-  # puts $parent_sch
+  # puts "hier_traversal: $parent_sch"
   set sf .trav.center.f.scrl
   set done_print 0
   set schpath [xschem get sch_path]
@@ -2402,14 +2401,15 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1} {current_win {
       -command "
         xschem switch $current_win
         traversal_setlabels $sf.f$cnt.s [list $parent_sch] [list $instname] [list $inst_sch] \
-        [list $sym_sch] [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def]
+        [list $sym_sch] [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def] \
+        [list $type]
         set traversal(geom) \[winfo geometry .trav\]
         destroy .trav
         traversal $traversal(only_subckts) $traversal(all_hierarchy)
       "
 
     traversal_setlabels $sf.f$cnt.s $parent_sch $instname $inst_sch $sym_sch \
-                        $default_sch $inst_spice_sym_def $sym_spice_sym_def
+                        $default_sch $inst_spice_sym_def $sym_spice_sym_def $type
     pack $sf.f$cnt.i -side left -fill x -expand 1
     pack $sf.f$cnt.l $sf.f$cnt.s -side left -fill x
     pack $sf.f$cnt.bsym $sf.f$cnt.bsch $sf.f$cnt.upd -side left
@@ -2417,12 +2417,15 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1} {current_win {
     if {$type eq {subcircuit} && $all_hierarchy} {
       xschem select instance $i fast nodraw
       set descended [xschem descend 1 6]
+      # puts "descend into $instname"
       if {$descended} {
         incr level
         set dp [hier_traversal $level $only_subckts 1 $current_win]
+        # puts "descended, go_back"
         xschem go_back 2
         incr level -1
       } else { ;# descended into a blank schematic. Go back.
+        # puts "Not descended, go_back"
         xschem go_back 2
       }
     }
