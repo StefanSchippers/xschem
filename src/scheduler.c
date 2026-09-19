@@ -2171,6 +2171,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc < 3) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
       inst = get_instance(argv[2]);
+      if(inst < 0) {
+        Tcl_SetResult(interp, "xschem get_sym_name: instance not found", TCL_STATIC);
+        return TCL_ERROR;
+      }
+
       if(argc > 3) {ndir = atoi(argv[3]);}
       if(argc > 4) {ext = atoi(argv[4]);}
       if(argc > 5) {abs_path = atoi(argv[5]);}
