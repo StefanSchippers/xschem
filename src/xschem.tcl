@@ -1976,9 +1976,9 @@ proc cellview_setlabels {w symbol derived_symbol} {
       $w configure -bg $symbg
     }
   }
-  puts ===============
+  # puts ===============
   if {$sym_sch ne $new_sch && $sym_spice_sym_def eq {}} {
-    puts "Changing schematic attribute in symbol"
+    puts "Changing schematic attribute in symbol $symbol"
     xschem load -keep_symbols -nodraw -noundoreset $symbol
     set oldprop [xschem get schsymbolprop]
     if { $new_sch eq $default_sch } {
@@ -1997,10 +1997,10 @@ proc cellview_setlabels {w symbol derived_symbol} {
     xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
     puts "get netlist"
   }
-  puts sym_sch=$sym_sch
-  puts default_sch=$default_sch
-  puts new_sch=$new_sch
-  puts symbol=$symbol
+  # puts sym_sch=$sym_sch
+  # puts default_sch=$default_sch
+  # puts new_sch=$new_sch
+  # puts symbol=$symbol
 }
 
 proc cellview_edit_item {symbol w} {
@@ -2046,9 +2046,41 @@ proc cellview_edit_sym {w} {
 
 # derived_symbols: empty or 'derived_symbols'
 # upd: never set by caller (used iinternally to update)
-proc cellview { {derived_symbols {}}} {
+proc cellview { {derived_symbols {}} {upd 0}} {
   global nolist_libs dark_gui_colorscheme netlist_type
 
+  if {$upd == 1} {
+    xschem reload_symbols ;# purge unused symbols
+    xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
+    set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
+    set sf .cv.center.f.scrl
+    foreach {i symbol} $syms {
+      set base_name [xschem symbol_base_name $symbol]
+      set derived_symbol 0
+      if {$base_name ne {}} {
+        set derived_symbol 1
+      }
+      if {$derived_symbol} {
+        set abs_sym [abs_sym_path $base_name]
+      } else {
+        set abs_sym [abs_sym_path $symbol]
+      }
+      set skip 0
+      foreach j $nolist_libs {
+        if {[regexp $j $abs_sym]} {
+          set skip 1
+          break
+        }
+      }
+      if {$skip} { continue }
+
+      set type [xschem getprop symbol $symbol type]
+      if {$type eq {subcircuit}} {
+        # puts "$sf.f$i.s $symbol $derived_symbol"
+        cellview_setlabels $sf.f$i.s $symbol $derived_symbol
+      }
+    }
+  }
   if {[winfo exists .cv]} {destroy .cv}
   set save_netlist_type [xschem get netlist_type]
 
@@ -2076,7 +2108,6 @@ proc cellview { {derived_symbols {}}} {
   xschem netlist -keep_symbols -noalert;# traverse the hierarchy and retain all encountered symbols
 
   toplevel .cv
-  wm geometry .cv 800x200
   update
   raise .cv
   frame .cv.top
@@ -2090,6 +2121,7 @@ proc cellview { {derived_symbols {}}} {
   set sf [sframe .cv.center]
 
   set syms [join [lsort -index 1 [xschem symbols $derived_symbols]]]
+
   # puts "syms=$syms"
   foreach {i symbol} $syms {
     set base_name [xschem symbol_base_name $symbol]
@@ -2133,9 +2165,9 @@ proc cellview { {derived_symbols {}}} {
       # puts $sf.f$i.s
       entry $sf.f$i.s -width 45 -borderwidth 1 -relief sunken -font $font
       button $sf.f$i.sym -text Sym -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "cellview_edit_sym $sf.f$i.l"
+             -command "xschem switch $current_win; cellview_edit_sym $sf.f$i.l"
       button $sf.f$i.sch -text Sch -padx 4 -borderwidth 1 -pady 0 -font $font \
-             -command "cellview_edit_item $symbol $sf.f$i.s"
+             -command "xschem switch $current_win; cellview_edit_item $symbol $sf.f$i.s"
 
       if {$derived_symbol} {
         $sf.f$i.l configure -fg $instfg
@@ -2182,8 +2214,10 @@ proc cellview { {derived_symbols {}}} {
 
   frame .cv.bottom
   button .cv.bottom.update -text Update \
-     -command "xschem switch $current_win; cellview [list $derived_symbols]; xschem reload_symbols"
-  pack .cv.bottom.update -side left
+     -command "xschem switch $current_win; cellview [list $derived_symbols] 1; xschem reload_symbols"
+  button .cv.bottom.ok -text OK \
+     -command "destroy .cv"
+  pack .cv.bottom.update .cv.bottom.ok -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
   pack .cv.top -side top -fill x -expand no
