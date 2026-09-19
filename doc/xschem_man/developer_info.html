@@ -913,6 +913,12 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       get_sch_from_sym inst [symbol]</kbd></li><pre>
    get schematic associated with instance 'inst'
    if inst==-1 and a 'symbol' name is given get sch associated with symbol </pre>
+   <li><kbd>       get_sym_name inst [ndir] [ext] [abs_path]</kbd></li><pre>
+       get symbol referenced by instance `inst`, either by the instance `schematic` attribute
+       or by looking in instance symbol reference (xctx-&gt;inst[i].name)
+       ndir: specify how many directory components return in the result
+       ext: append extension if not zero
+       abs_path: get full path as found in library search paths </pre>
    <li><kbd>       get_sym_type symname</kbd></li><pre>
    get "type" value from global attributes of symbol,
    looking frst in loaded symbols, then looking in symbol file
@@ -1633,10 +1639,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>
    Switch context to indicated window path or schematic name
    returns 0 if switch was successfull or 1 in case of errors
-   if "previous" given as window path switch to previously active tab
-   (only for tabbed interface)
    (no tabs/windows present or no matching win_path / schematic name
-   found).</pre>
+   found).
+   if "previous" given as window path switch to previously active tab
+   (only for tabbed interface)</pre>
    <li><kbd>       symbols [n | 'derived_symbols']</kbd></li><pre>
    if 'n' given list symbol with name or number 'n', else list all
    if 'derived_symbols' is given list also symbols derived from base symbol

@@ -2159,6 +2159,24 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_SetResult(interp, filename, TCL_VOLATILE);
     }
 
+    /* get_sym_name inst [ndir] [ext] [abs_path]
+     * get symbol referenced by instance `inst`, either by the instance `schematic` attribute
+     * or by looking in instance symbol reference (xctx->inst[i].name)
+     * ndir: specify how many directory components return in the result
+     * ext: append extension if not zero
+     * abs_path: get full path as found in library search paths */
+    else if(!strcmp(argv[1], "get_sym_name") )
+    {
+      int inst = -1, abs_path = 0, ndir=9999, ext = 1;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {Tcl_SetResult(interp, "Missing arguments", TCL_STATIC);return TCL_ERROR;}
+      inst = get_instance(argv[2]);
+      if(argc > 3) {ndir = atoi(argv[3]);}
+      if(argc > 4) {ext = atoi(argv[4]);}
+      if(argc > 5) {abs_path = atoi(argv[5]);}
+      Tcl_SetResult(interp, (char *)get_sym_name(inst, ndir, ext, abs_path), TCL_VOLATILE);
+    }
+
     /* get_sym_type symname
      *   get "type" value from global attributes of symbol,
      *   looking frst in loaded symbols, then looking in symbol file

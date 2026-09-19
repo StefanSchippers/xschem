@@ -2047,7 +2047,7 @@ proc cellview_edit_sym {w} {
 # derived_symbols: empty or 'derived_symbols'
 # upd: never set by caller (used iinternally to update)
 proc cellview { {derived_symbols {}} {upd 0}} {
-  global nolist_libs dark_gui_colorscheme netlist_type
+  global nolist_libs dark_gui_colorscheme netlist_type cellview_geometry
 
   if {$upd == 1} {
     xschem reload_symbols ;# purge unused symbols
@@ -2215,8 +2215,16 @@ proc cellview { {derived_symbols {}} {upd 0}} {
   frame .cv.bottom
   button .cv.bottom.update -text Update \
      -command "xschem switch $current_win; cellview [list $derived_symbols] 1; xschem reload_symbols"
-  button .cv.bottom.ok -text OK \
-     -command "destroy .cv"
+  button .cv.bottom.ok -text OK -command {
+    set cellview_geometry [winfo geometry .cv]
+    destroy .cv
+  }
+
+  wm protocol .cv  WM_DELETE_WINDOW {
+    .cv.bottom.ok invoke
+  } 
+
+
   pack .cv.bottom.update .cv.bottom.ok -side left
   label .cv.bottom.status -text {STATUS LINE}
   pack .cv.bottom.status -fill x -expand yes
@@ -2229,9 +2237,18 @@ proc cellview { {derived_symbols {}} {upd 0}} {
   set width  \
       [expr {[winfo width .cv.top.sym] + [winfo width .cv.top.inst] +
              [winfo width .cv.top.sch] + [winfo width .cv.top.pad] + 80}]
-  wm geometry .cv ${width}x${maxsize}
 
-  wm maxsize .cv 9999 $maxsize
+  if {$upd == 0} {
+    wm maxsize .cv 9999 $maxsize
+  }
+  if {![info exists cellview_geometry]} {
+    wm geometry .cv ${width}x${maxsize}
+    update idletasks
+    set cellview_geometry [winfo geometry .cv]
+  } else {
+    wm geometry .cv $cellview_geometry
+  }
+
   bind .cv.center.f <Configure> {sframeyview .cv.center}
   bind .cv <ButtonPress-4> { sframeyview .cv.center scroll -0.1}
   bind .cv <ButtonPress-5> { sframeyview .cv.center scroll 0.1}
