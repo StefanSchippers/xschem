@@ -1966,22 +1966,15 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
   schematic_token_found = xctx->tok_size;
 
-  if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch>=1 && xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
-    translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
-  }
-
   if(sch && sch[0]) {
+    if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch>=1 && xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
+      translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
+    }
     my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
     my_free(_ALLOC_ID_, &res);
-  }
-  if(sch && sch[0])
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
        str_replace(sch, "@symname", get_cell(xctx->inst[inst].name, 0), '\\', -1)));
-
-  /*
-   * sch = tcl_hook2(str_replace(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6), "@symname",
-   *      get_cell(xctx->inst[inst].name, 0), '\\', -1));
-   */
+  }
 
   dbg(1, "get_sym_name(): sch=%s\n", sch);
   if(schematic_token_found) { /* token exists */
@@ -1989,8 +1982,7 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
       sym = abs_sym_path(sch, ".sym");
     else
       sym = add_ext(rel_sym_path(sch), ".sym");
-  }
-  else {
+  } else {
     if(abs_path)
       sym = abs_sym_path(tcl_hook2(xctx->inst[inst].name), "");
     else
