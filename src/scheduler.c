@@ -3099,7 +3099,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* load [-nosymbols|-gui|-noundoreset|-nofullzoom|-keep_symbols] f
+    /* load [-nosymbols|-gui|-noundoreset|-nofullzoom|-nodraw|-keep_symbols] f
      *   Load a new file 'f'.
      *   '-gui': ask to save modified file or warn if opening an already
      *       open file or opening a new(not existing) file.

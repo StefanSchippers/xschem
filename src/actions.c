@@ -2516,7 +2516,7 @@ int change_sch_path(int instnumber, int dr)
  * if set_title == 0 do not set window title (faster)
  *              == 1 do set_title
  *              == 2 do not process instance pins/nets
- *              == 4 do not descend into i-th instance of vecrtor instance. just
+ *              == 4 do not descend into i-th instance of vector instance. just
  *                 concatenate instance name as is to path and descend.
  *              above flags can be ORed together */
 int descend_schematic(int instnumber, int fallback, int alert, int set_title)

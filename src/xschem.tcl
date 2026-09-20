@@ -2258,31 +2258,41 @@ proc cellview { {derived_symbols {}} {upd 0}} {
 
 ############ traversal
 proc traversal_setlabels {w parent_sch instname inst_sch sym_sch default_sch
-                          inst_spice_sym_def sym_spice_sym_def type} {
+                          inst_spice_sym_def sym_spice_sym_def type {upd 0}} {
   global traversal dark_gui_colorscheme netlist_type
   set sf .trav.center.f.scrl
 
   set save_netlist_type [xschem get netlist_type]
   # puts "  traversal_setlabels: $w parent: |$parent_sch| "
   # puts "      inst: $instname def: $sym_sch $inst_sch --> [$w get]"
-  # update schematic
-  if {$parent_sch ne {} && $sym_spice_sym_def eq {} && 
-      $inst_spice_sym_def eq {} && $type eq {subcircuit}} {
-    if { $inst_sch ne [$w get] } {
-      if { [$w get] eq  $sym_sch} {
-        xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
-      } else {
-        xschem setprop -fast instance $instname schematic [$w get]  ;# set schematic attr on instance
+
+  ## update schematic
+  if {$parent_sch ne {}} {
+    if {$upd && $traversal(topname) ne $parent_sch} {
+      xschem load -noundoreset -nofullzoom -nodraw $parent_sch
+    }  
+    if {$sym_spice_sym_def eq {} && 
+        $inst_spice_sym_def eq {} && $type eq {subcircuit}} {
+      if { $inst_sch ne [$w get] } {
+        if { [$w get] eq  $sym_sch} {
+          xschem setprop -fast instance $instname schematic  ;# remove schematic attr on instance
+        } else {
+          xschem setprop -fast instance $instname schematic [$w get]  ;# set schematic attr on instance
+        }
+        xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
+        xschem save fast
+        set inst_sch [$w get]
+        # puts "inst_sch set to: $inst_sch"
+        set netlist_type $save_netlist_type
+        xschem set netlist_type $netlist_type
       }
-      xschem set_modify 3 ;# set only modified flag to force a save, do not update window/tab titles
-      xschem save fast
-      set inst_sch [$w get]
-      # puts "inst_sch set to: $inst_sch"
-      set netlist_type $save_netlist_type
-      xschem set netlist_type $netlist_type
     }
   }
-  # /update schematic
+  if {$upd && $traversal(topname) ne $parent_sch} {
+    xschem load -noundoreset -nofullzoom -nodraw $traversal(topname)
+  }
+  ## /update schematic
+
   if {$dark_gui_colorscheme} {
     set instfg orange1
     set symfg SeaGreen1
@@ -2319,6 +2329,8 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
   set traversal(only_subckts) $only_subckts
   set traversal(all_hierarchy) $all_hierarchy
   set traversal(cnt) 0
+  set traversal(toplevel) [xschem get currsch]
+  set traversal(topname) [xschem get current_name]
   set save_keep $keep_symbols
   set keep_symbols 1
   set current_win [xschem get current_win_path]
@@ -2350,7 +2362,9 @@ proc traversal {{only_subckts 1} {all_hierarchy 1}} {
 
   frame .trav.bottom
   label .trav.bottom.status -text {STATUS LINE}
-  pack .trav.bottom.status -fill x -expand yes
+  button .trav.bottom.ok -text OK
+  pack .trav.bottom.ok -side left
+  pack .trav.bottom.status -fill x -expand yes -side left
   pack .trav.top -side top -fill x -expand no
   pack .trav.center -side top -fill both -expand yes
   pack .trav.bottom -side top -fill x -expand no
@@ -2453,14 +2467,14 @@ proc hier_traversal {{level 0} {only_subckts 0} {all_hierarchy 1} {current_win {
         xschem switch $current_win
         traversal_setlabels $sf.f$cnt.s [list $parent_sch] [list $instname] [list $inst_sch] \
         [list $sym_sch] [list $default_sch] [list $inst_spice_sym_def] [list $sym_spice_sym_def] \
-        [list $type]
+        [list $type] 1
         set traversal(geom) \[winfo geometry .trav\]
         destroy .trav
         traversal $traversal(only_subckts) $traversal(all_hierarchy)
       "
 
     traversal_setlabels $sf.f$cnt.s $parent_sch $instname $inst_sch $sym_sch \
-                        $default_sch $inst_spice_sym_def $sym_spice_sym_def $type
+                        $default_sch $inst_spice_sym_def $sym_spice_sym_def $type 0
     pack $sf.f$cnt.i -side left -fill x -expand 1
     pack $sf.f$cnt.l $sf.f$cnt.s -side left -fill x
     pack $sf.f$cnt.bsym $sf.f$cnt.bsch $sf.f$cnt.upd -side left
