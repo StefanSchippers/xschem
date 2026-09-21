@@ -416,12 +416,12 @@ extern char win_temp_dir[PATH_MAX];
 
 /* given a dest_string of size 'size', allocate space to make sure it can
  * hold 'add' characters */
-#define  STR_ALLOC(dest_string, add, size) \
+#define  STR_ALLOC(id, dest_string, add, size) \
 do { \
   register size_t __str_alloc_tmp__ = add; \
   if( __str_alloc_tmp__ >= *size) { \
     *size = __str_alloc_tmp__ + CADCHUNKALLOC; \
-    my_realloc(_ALLOC_ID_, dest_string, *size); \
+    my_realloc(id, dest_string, *size); \
   } \
 } while(0)
 
@@ -680,6 +680,8 @@ typedef struct
   char     *fptr; /* spectre global attr */
   char     *kptr;
   char     *eptr;
+  char *header_text;
+  char *version_string;
   int *lines;
   int *rects;
   int *polygons;

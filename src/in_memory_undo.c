@@ -256,6 +256,15 @@ void mem_delete_undo(void)
     my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr);
     my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].sptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].vptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].gptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].eptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].fptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].kptr);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].header_text);
+    my_free(_ALLOC_ID_, &xctx->uslot[slot].version_string);
+
   }
   xctx->mem_undo_initialized = 0;
 }
@@ -274,6 +283,8 @@ void mem_push_undo(void)
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].fptr, xctx->schspectreprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].kptr, xctx->schsymbolprop);
   my_strdup(_ALLOC_ID_, &xctx->uslot[slot].eptr, xctx->schtedaxprop);
+  my_strdup(_ALLOC_ID_, &xctx->uslot[slot].header_text, xctx->header_text);
+  my_strdup(_ALLOC_ID_, &xctx->uslot[slot].version_string, xctx->version_string);
 
   free_undo_lines(slot);
   free_undo_rects(slot);
@@ -440,6 +451,8 @@ void mem_pop_undo(int redo, int set_modify_status)
   my_strdup(_ALLOC_ID_, &xctx->schprop, xctx->uslot[slot].sptr);
   my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[slot].kptr);
   my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[slot].eptr);
+  my_strdup(_ALLOC_ID_, &xctx->header_text, xctx->uslot[slot].header_text);
+  my_strdup(_ALLOC_ID_, &xctx->version_string, xctx->uslot[slot].version_string);
 
   for(c = 0;c<cadlayers; ++c) {
     /* lines */
@@ -494,6 +507,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->inst[i].name = NULL;
     xctx->inst[i].instname = NULL;
     xctx->inst[i].lab = NULL;
+    xctx->inst[i].node = NULL;
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].prop_ptr, xctx->uslot[slot].iptr[i].prop_ptr);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, xctx->uslot[slot].iptr[i].name);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, xctx->uslot[slot].iptr[i].instname);

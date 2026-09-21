@@ -94,7 +94,7 @@ function print_source(add)
 {
   print "  address[ " add ", " idx[add] " ]= " address[add]
   if(show_source) {
-    pipe = "egrep -n 'my_(malloc|calloc|realloc|free|mstrcat|strcat|strncat|strdup|strdup2)\\(" idx[add] \
+    pipe = "egrep -n '(my_(malloc|calloc|realloc|free|mstrcat|strcat|strncat|strdup|strdup2))\\(" idx[add] \
     ",' *.c xschem.h"
     while( pipe | getline a) print "    " a
     close(pipe)

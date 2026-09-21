@@ -329,6 +329,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    double text_x0, text_y0;
    short sym_rot, sym_flip;
    double xx1,yy1,xx2,yy2;
+   char *res = NULL;
    #if HAS_CAIRO==1
    int customfont;
    #endif
@@ -354,7 +355,6 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    {
      double xscale, yscale;
      char *estr = NULL;
-     char *res = NULL;
      get_sym_text_size(i, j, &xscale, &yscale);
 
      text = (xctx->inst[i].ptr+ xctx->sym)->text[j];
@@ -377,7 +377,6 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
      dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
      my_free(_ALLOC_ID_, &estr);
-     my_free(_ALLOC_ID_, &res);
      #if HAS_CAIRO==1
      if(customfont) {
        cairo_restore(xctx->cairo_ctx);
@@ -388,6 +387,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(xx2>*x2) *x2=xx2;
      if(yy2>*y2) *y2=yy2;
    }
+   if(res) my_free(_ALLOC_ID_, &res);
    dbg(1, "symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n", xctx->inst[i].instname, *x1, *y1, *x2, *y2);
 }
 

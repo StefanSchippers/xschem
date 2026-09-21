@@ -236,8 +236,8 @@ int set_different_token(char **s,const char *new, const char *old)
   else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
-  STR_ALLOC(&value, value_pos, &sizeval);
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE) {
    value[value_pos++]=(char)c;
@@ -273,8 +273,8 @@ int set_different_token(char **s,const char *new, const char *old)
   else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote && !escape) state=TOK_END;
-  STR_ALLOC(&value, value_pos, &sizeval);
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE) {
    value[value_pos++]=(char)c;
@@ -332,7 +332,7 @@ const char *list_tokens(const char *s, int with_quotes)
     else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
     else if( state==TOK_SEP && !space) state=TOK_VALUE;
     else if( state==TOK_VALUE && space && !quote && !escape ) state=TOK_END;
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
     if(c=='"') {
       if(!escape) quote=!quote;
     }
@@ -477,7 +477,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
     else if( state==TOK_SEP && !space) state=TOK_VALUE;
     else if( state==TOK_VALUE && space && !quote && !escape ) state=TOK_END;
-    /* don't use STR_ALLOC() for efficiency reasons */
+    /* don't use STR_ALLOC(_ALLOC_ID_, ) for efficiency reasons */
     if(value_pos>=size) {
       size+=CADCHUNKALLOC;
       my_realloc(_ALLOC_ID_, &result,size);
@@ -561,7 +561,7 @@ const char *get_sym_template(char *s,char *extra)
    return "";
  }
  l = strlen(s);
- STR_ALLOC(&result, l+1, &sizeres);
+ STR_ALLOC(_ALLOC_ID_, &result, l+1, &sizeres);
  result[0] = '\0';
  sizetok = sizeval = CADCHUNKALLOC;
  my_realloc(_ALLOC_ID_, &value,sizeval);
@@ -576,8 +576,8 @@ const char *get_sym_template(char *s,char *extra)
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
   dbg(1, " --> state=%d\n", state);
-  STR_ALLOC(&value, value_pos, &sizeval);
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(c=='"') {
     if(!escape) quote=!quote;
   }
@@ -999,7 +999,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     state=TOK_SEP;
   }
 
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
     token[token_pos++]=(char)c; /* 20171029 remove escaping backslashes */
   }
@@ -1293,8 +1293,8 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     space=SPACE(c);
     if(c == '"' && !escape) quote=!quote;
     /* alloc data */
-    STR_ALLOC(&result, result_pos, &size);
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, &result, result_pos, &size);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
 
     /* parsing state machine                                    */
     /* states:                                                  */
@@ -1328,7 +1328,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
             tmp = 2;
           }
 
-          STR_ALLOC(&result, tmp+2 + result_pos, &size);
+          STR_ALLOC(_ALLOC_ID_, &result, tmp+2 + result_pos, &size);
           memcpy(result + result_pos, "=", 1);
           memcpy(result + result_pos+1, new_val_copy, tmp);
           memcpy(result + result_pos+1+tmp, " ", 1);
@@ -1367,7 +1367,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
             new_val_copy = "\"\"";
             tmp = 2;
           }
-          STR_ALLOC(&result, tmp + result_pos, &size);
+          STR_ALLOC(_ALLOC_ID_, &result, tmp + result_pos, &size);
           memcpy(result + result_pos ,new_val_copy, tmp + 1);
           result_pos += tmp;
           done_subst = 1;
@@ -1403,7 +1403,7 @@ const char *subst_token(const char *s, const char *tok, const char *new_val)
     if(new_val_copy) {
       if(!new_val_copy[0]) new_val_copy = "\"\"";
       tmp = strlen(new_val_copy) + strlen(tok) + 2;
-      STR_ALLOC(&result, tmp + result_pos, &size);
+      STR_ALLOC(_ALLOC_ID_, &result, tmp + result_pos, &size);
       if(result_pos > 1 && (result[result_pos - 2] == ' ' || result[result_pos - 2] == '\n')) {
         /* result_pos guaranteed to be > 0 */
         my_snprintf(result + result_pos - 1, size, "%s=%s", tok, new_val_copy );
@@ -1574,8 +1574,8 @@ void print_vhdl_element(FILE *fd, int inst)
    else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
    else if( state==TOK_SEP && !space) state=TOK_VALUE;
    else if( state==TOK_VALUE && space && !quote) state=TOK_END;
-   STR_ALLOC(&value, value_pos, &sizeval);
-   STR_ALLOC(&token, token_pos, &sizetok);
+   STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+   STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
    if(state==TOK_TOKEN) token[token_pos++]=(char)c;
    else if(state==TOK_VALUE) {
      if(c=='"' && !escape) quote=!quote;
@@ -1717,8 +1717,8 @@ void print_generic(FILE *fd, char *ent_or_comp, int symbol)
    else if( (state==TOK_TOKEN || state==TOK_ENDTOK) && c=='=') state=TOK_SEP;
    else if( state==TOK_SEP && !space) state=TOK_VALUE;
    else if( state==TOK_VALUE && space && !quote) state=TOK_END;
-   STR_ALLOC(&value, value_pos, &sizeval);
-   STR_ALLOC(&token, token_pos, &sizetok);
+   STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+   STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
    if(state==TOK_TOKEN) token[token_pos++]=(char)c;
    else if(state==TOK_VALUE)
    {
@@ -1823,8 +1823,8 @@ void print_verilog_param(FILE *fd, int symbol)
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
 
-  STR_ALLOC(&value, value_pos, &sizeval);
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE)
   {
@@ -2091,7 +2091,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
     state = TOK_SEP;
   }
 
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
     token[token_pos++]=(char)c;
   }
@@ -2258,7 +2258,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
     state = TOK_SEP;
   }
 
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) {
     token[token_pos++]=(char)c;
   }
@@ -2445,7 +2445,7 @@ int print_spice_element(FILE *fd, int inst)
       dbg(1, "print_spice_element(): c=%c, space=%d, escape=%d token_pos=%d\n", c, space, escape, token_pos);
       state=TOK_SEP;
     }
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
     if(state==TOK_TOKEN) {
       token[token_pos++]=(char)c;
     }
@@ -2830,7 +2830,7 @@ int print_spectre_element(FILE *fd, int inst)
       dbg(1, "print_spectre_element(): c=%c, space=%d, escape=%d token_pos=%d\n", c, space, escape, token_pos);
       state=TOK_SEP;
     }
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
     if(state==TOK_TOKEN) {
       token[token_pos++]=(char)c;
     }
@@ -3308,7 +3308,7 @@ void print_tedax_element(FILE *fd, int inst)
      state=TOK_SEP;
    }
 
-   STR_ALLOC(&token, token_pos, &sizetok);
+   STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
    if(state==TOK_TOKEN) {
      token[token_pos++]=(char)c; /* 20171029 remove escaping backslashes */
    }
@@ -3570,7 +3570,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      state=TOK_SEP;
    }
 
-   STR_ALLOC(&token, token_pos, &sizetok);
+   STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
    if(state==TOK_TOKEN) {
       token[token_pos++]=(char)c;
    }
@@ -3916,8 +3916,8 @@ void print_verilog_element(FILE *fd, int inst)
   else if( state==TOK_SEP && !space) state=TOK_VALUE;
   else if( state==TOK_VALUE && space && !quote) state=TOK_END;
 
-  STR_ALLOC(&value, value_pos, &sizeval);
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &value, value_pos, &sizeval);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_VALUE)
   {
@@ -4627,7 +4627,7 @@ static void handle_spice_get_voltage2(int inst, char *instname, char *token,
         }
         if(len) {
           len = strlen(valstr);
-          STR_ALLOC(result, len + *result_pos, size);
+          STR_ALLOC(_ALLOC_ID_, result, len + *result_pos, size);
           memcpy(*result+*result_pos, valstr, len+1);
           *result_pos += len;
         }
@@ -4691,7 +4691,7 @@ static void handle_spice_get_voltage(int inst, int engineering,
             }
             if(len) {
               len = strlen(valstr);
-              STR_ALLOC(result, len + *result_pos, size);
+              STR_ALLOC(_ALLOC_ID_, result, len + *result_pos, size);
               memcpy(*result+*result_pos, valstr, len+1);
               *result_pos += len;
             }
@@ -4824,7 +4824,7 @@ static void handle_spice_get_current(char *instname, int engineering, int sim_is
         }
         if(len) {
           len = strlen(valstr);
-          STR_ALLOC(result, len + *result_pos, size);
+          STR_ALLOC(_ALLOC_ID_, result, len + *result_pos, size);
           memcpy(*result+*result_pos, valstr, len+1);
           *result_pos += len;
         }
@@ -4893,7 +4893,7 @@ static void handle_spice_get_diff_voltage(int inst, int engineering,
         }
         if(len) {
           len = strlen(valstr);
-          STR_ALLOC(result, len + *result_pos, size);
+          STR_ALLOC(_ALLOC_ID_, result, len + *result_pos, size);
           memcpy(*result + *result_pos, valstr, len+1);
           *result_pos += len;
         }
@@ -4989,7 +4989,7 @@ static void handle_spice_get_current2(char *instname, int engineering, int sim_i
         }
         if(len) {
           len = strlen(valstr);
-          STR_ALLOC(result, len + *result_pos, size);
+          STR_ALLOC(_ALLOC_ID_, result, len + *result_pos, size);
           memcpy(*result+*result_pos, valstr, len+1);
           *result_pos += len;
         }
@@ -5103,6 +5103,7 @@ const char *translate(int inst, const char *s, char **result)
   char date[200];
   int sp_prefix;
   char *value1 = NULL;
+  char *value2 = NULL;
   int sim_is_ngspice, sim_is_vacask /*, sim_is_xyce */;
   char *instname = NULL;
   
@@ -5144,7 +5145,7 @@ const char *translate(int inst, const char *s, char **result)
   sim_is_ngspice = tcleval("sim_is_ngspice")[0] == '1' ? 1 : 0;
   sim_is_vacask = tcleval("sim_is_vacask")[0] == '1' ? 1 : 0;
   /* sim_is_xyce = tcleval("sim_is_xyce")[0] == '1' ? 1 : 0; */
-  STR_ALLOC(result, result_pos, &size);
+  STR_ALLOC(_ALLOC_ID_, result, result_pos, &size);
   (*result)[0]='\0';
 
   dbg(1, "translate(): substituting props in <%s>, instance <%s>\n", s ? s : "<NULL>" , instname);
@@ -5169,7 +5170,7 @@ const char *translate(int inst, const char *s, char **result)
          )
         ) state=TOK_SEP;
     }
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
     if(state==TOK_TOKEN) token[token_pos++]=(char)c;
     else if(state==TOK_SEP)
     {
@@ -5178,20 +5179,20 @@ const char *translate(int inst, const char *s, char **result)
        tmp_sym_name = get_sym_name(inst, 9999, 1, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
        tmp=strlen(tmp_sym_name);
-       STR_ALLOC(result, tmp + result_pos, &size);
+       STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
        memcpy(*result+result_pos,tmp_sym_name, tmp+1);
        result_pos+=tmp;
       } else if(inst >= 0 && strcmp(token,"@lvs_ignore")==0) {
        char *lvs = tclgetboolvar("lvs_ignore") ? "1" : "0";
        tmp = strlen(lvs);
-       STR_ALLOC(result, tmp + result_pos, &size);
+       STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
        memcpy(*result+result_pos, lvs, tmp+1);
        result_pos+=tmp;
       } else if(inst >= 0 && strcmp(token,"@symname")==0) {
        tmp_sym_name = get_sym_name(inst, 0, 0, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
        tmp=strlen(tmp_sym_name);
-       STR_ALLOC(result, tmp + result_pos, &size);
+       STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
        memcpy(*result+result_pos,tmp_sym_name, tmp+1);
        result_pos+=tmp;
       } else if(strcmp(token,"@path")==0) {
@@ -5206,14 +5207,14 @@ const char *translate(int inst, const char *s, char **result)
        }
 
        tmp=strlen(path);
-       STR_ALLOC(result, tmp + result_pos, &size);
+       STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
        memcpy(*result+result_pos, path, tmp+1);
        result_pos+=tmp;
       } else if(inst >= 0 && strcmp(token,"@symname_ext")==0) {
        tmp_sym_name = get_sym_name(inst, 0, 1, 0);
        tmp_sym_name=tmp_sym_name ? tmp_sym_name : "";
        tmp=strlen(tmp_sym_name);
-       STR_ALLOC(result, tmp + result_pos, &size);
+       STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
        memcpy(*result+result_pos,tmp_sym_name, tmp+1);
        result_pos+=tmp;
       /* recognize single pins 15112003 */
@@ -5227,7 +5228,7 @@ const char *translate(int inst, const char *s, char **result)
             if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
               const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
               tmp = strlen(str_ptr);
-              STR_ALLOC(result, tmp + result_pos, &size);
+              STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
               memcpy(*result+result_pos,str_ptr, tmp+1);
               result_pos+=tmp;
             }
@@ -5238,7 +5239,7 @@ const char *translate(int inst, const char *s, char **result)
         value = get_pin_attr(token, inst, engineering);
         if(value) {
           tmp=strlen(value);
-          STR_ALLOC(result, tmp + result_pos, &size);
+          STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
           memcpy(*result+result_pos, value, tmp+1);
           result_pos+=tmp;
           my_free(_ALLOC_ID_, &value);
@@ -5249,7 +5250,7 @@ const char *translate(int inst, const char *s, char **result)
        if(!stat(file_name , &time_buf)) {
          tm=localtime(&(time_buf.st_mtime) );
          tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-         STR_ALLOC(result, tmp + result_pos, &size);
+         STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
          memcpy(*result+result_pos, date, tmp+1);
          result_pos+=tmp;
        }
@@ -5258,7 +5259,7 @@ const char *translate(int inst, const char *s, char **result)
        if(!stat(file_name , &time_buf)) {
          tm=localtime(&(time_buf.st_mtime) );
          tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-         STR_ALLOC(result, tmp + result_pos, &size);
+         STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
          memcpy(*result+result_pos, date, tmp+1);
          result_pos+=tmp;
        }
@@ -5267,39 +5268,39 @@ const char *translate(int inst, const char *s, char **result)
        if(!stat(file_name , &time_buf)) {
          tm=localtime(&(time_buf.st_mtime) );
          tmp=strftime(date, sizeof(date), "%Y-%m-%d  %H:%M:%S", tm);
-         STR_ALLOC(result, tmp + result_pos, &size);
+         STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
          memcpy(*result+result_pos, date, tmp+1);
          result_pos+=tmp;
        }
       } else if(strcmp(token,"@schname_ext")==0) {
         /* tmp=strlen(xctx->sch[xctx->currsch]);*/
         tmp = strlen(xctx->current_name);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         /* memcpy(result+result_pos,xctx->sch[xctx->currsch], tmp+1); */
         memcpy(*result+result_pos, xctx->current_name, tmp+1);
         result_pos+=tmp;
       } else if(strcmp(token,"@schname")==0) {
         const char *schname = get_cell(xctx->current_name, 0);
         tmp = strlen(schname);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos, schname, tmp+1);
         result_pos+=tmp;
       } else if(strcmp(token,"@index")==0) {
         const char *index = my_itoa(inst);
         tmp = strlen(index);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos, index, tmp+1);
         result_pos+=tmp;
       } else if(strcmp(token,"@topschname")==0)  {
          const char *topsch;
          topsch = get_trailing_path(xctx->sch[0], 0, 1);
          tmp = strlen(topsch);
-         STR_ALLOC(result, tmp + result_pos, &size);
+         STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
          memcpy(*result+result_pos, topsch, tmp+1);
          result_pos+=tmp;
       } else if(inst >= 0 && strcmp(token,"@prop_ptr")==0 && xctx->inst[inst].prop_ptr) {
         tmp=strlen(xctx->inst[inst].prop_ptr);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->inst[inst].prop_ptr, tmp+1);
         result_pos+=tmp;
       }
@@ -5328,7 +5329,7 @@ const char *translate(int inst, const char *s, char **result)
        */
       else if(strcmp(token,"@spice_get_node")==0 )
       {
-        STR_ALLOC(result, 15 + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, 15 + result_pos, &size);
         memcpy(*result+result_pos, token, 16);
         result_pos += 15;
       }
@@ -5368,7 +5369,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schvhdlprop")==0 && xctx->schvhdlprop)
       {
         tmp=strlen(xctx->schvhdlprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schvhdlprop, tmp+1);
         result_pos+=tmp;
       }
@@ -5376,7 +5377,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schspectreprop")==0 && xctx->schspectreprop)
       {
         tmp=strlen(xctx->schspectreprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schspectreprop, tmp+1);
         result_pos+=tmp;
       }
@@ -5384,7 +5385,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schprop")==0 && xctx->schprop)
       {
         tmp=strlen(xctx->schprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schprop, tmp+1);
         result_pos+=tmp;
       }
@@ -5393,7 +5394,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schsymbolprop")==0 && xctx->schsymbolprop)
       {
         tmp=strlen(xctx->schsymbolprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schsymbolprop, tmp+1);
         result_pos+=tmp;
       }
@@ -5401,7 +5402,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schtedaxprop")==0 && xctx->schtedaxprop)
       {
         tmp=strlen(xctx->schtedaxprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schtedaxprop, tmp+1);
         result_pos+=tmp;
       }
@@ -5410,7 +5411,7 @@ const char *translate(int inst, const char *s, char **result)
       else if(strcmp(token,"@schverilogprop")==0 && xctx->schverilogprop)
       {
         tmp=strlen(xctx->schverilogprop);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos,xctx->schverilogprop, tmp+1);
         result_pos+=tmp;
       /* if spiceprefix==0 and token == @spiceprefix then set empty value */
@@ -5430,7 +5431,7 @@ const char *translate(int inst, const char *s, char **result)
           if(token[0] =='%') {
             /* no definition found -> subst with token without leading % */
             tmp=token_pos -1 ; /* we need token_pos -1 chars, ( strlen(token+1) ) , excluding leading '%' */
-            STR_ALLOC(result, tmp + result_pos, &size);
+            STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
             /* dbg(2, "translate(): token=%s, token_pos = %d\n", token, token_pos); */
             memcpy(*result+result_pos, token + 1, tmp+1);
             result_pos+=tmp;
@@ -5458,12 +5459,13 @@ const char *translate(int inst, const char *s, char **result)
             }
             dbg(1, "translate(): value1=%s\n", value1);
           }
-          value1 = recursive_subst(value1, inst >= 0 ? xctx->inst[inst].ptr : -1);
-          tmp=strlen(value1);
-          STR_ALLOC(result, tmp + result_pos, &size);
-          memcpy(*result+result_pos, value1, tmp+1);
+          value2 = recursive_subst(value1, inst >= 0 ? xctx->inst[inst].ptr : -1);
+          tmp=strlen(value2);
+          STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
+          memcpy(*result+result_pos, value2, tmp+1);
           result_pos+=tmp;
           my_free(_ALLOC_ID_, &value1);
+          my_free(_ALLOC_ID_, &value2);
         }
       }
       token_pos = 0;
@@ -5474,18 +5476,18 @@ const char *translate(int inst, const char *s, char **result)
           escape = 0;
         }
       } else { /* append separator char */
-        STR_ALLOC(result, 1 + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, 1 + result_pos, &size);
         (*result)[result_pos++]=(char)c;
       }
       state=TOK_BEGIN;
     } /* else if(state==TOK_SEP) */
     else if(state==TOK_BEGIN) {
-      STR_ALLOC(result, 1 + result_pos, &size);
+      STR_ALLOC(_ALLOC_ID_, result, 1 + result_pos, &size);
       (*result)[result_pos++]=(char)c;
     }
     if(c=='\0')
     {
-      STR_ALLOC(result, 1 + result_pos, &size);
+      STR_ALLOC(_ALLOC_ID_, result, 1 + result_pos, &size);
       (*result)[result_pos]='\0';
       break;
     }
@@ -5533,8 +5535,8 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
     if( state==TOK_BEGIN && (c=='@' || c=='%' ) ) state=TOK_TOKEN;
     else if(state==TOK_TOKEN && token_pos > 1 &&
        ( ( (space || c == '%' || c == '@') ) || escape) ) state = TOK_SEP;
-    STR_ALLOC(result, result_pos, &size);
-    STR_ALLOC(&token, token_pos, &sizetok);
+    STR_ALLOC(_ALLOC_ID_, result, result_pos, &size);
+    STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
     if (state == TOK_TOKEN) token[token_pos++] = (char)c;
     else if (state == TOK_SEP) {
       token[token_pos] = '\0';
@@ -5571,7 +5573,7 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
           i--;
         }
         tmp = strlen(value);
-        STR_ALLOC(result, tmp + 1 + result_pos, &size); /* +1 to add leading '%' */
+        STR_ALLOC(_ALLOC_ID_, result, tmp + 1 + result_pos, &size); /* +1 to add leading '%' */
         /* prefix substituted token with a '%' so it will be recognized by translate()
          * for last level translation with instance placement prop_ptr attributes at
          * drawing/netlisting time. */
@@ -5582,7 +5584,7 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
       else if (strncmp(token, "@spice_get_voltage", 18) == 0 ||
                strncmp(token, "@spice_get_current", 18) == 0) { /* return unchanged */
         tmp = strlen(token);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result + result_pos, token, tmp + 1);
         result_pos += tmp;
       }
@@ -5599,7 +5601,7 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
         }
         dbg(1, "path=%s\n", path);
         tmp=strlen(path);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result+result_pos, path, tmp+1);
         my_free(_ALLOC_ID_, &path);
         result_pos+=tmp;
@@ -5608,14 +5610,14 @@ const char *translate2(Lcc *lcc, int level, char* s, char **result)
         tmp_sym_name = get_cell(get_tok_value(lcc[level].prop_ptr, "schematic", 0), 0);
         if(!tmp_sym_name[0]) tmp_sym_name = lcc[level].symname ? get_cell(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
       else if (strcmp(token, "@symname_ext") == 0) {
         tmp_sym_name = lcc[level].symname ? get_cell_w_ext(lcc[level].symname, 0) : "";
         tmp = strlen(tmp_sym_name);
-        STR_ALLOC(result, tmp + result_pos, &size);
+        STR_ALLOC(_ALLOC_ID_, result, tmp + result_pos, &size);
         memcpy(*result + result_pos, tmp_sym_name, tmp + 1);
         result_pos += tmp;
       }
@@ -5688,7 +5690,7 @@ const char *translate3(const char *s, int eat_escapes, const char *s1,
     ) state=TOK_SEP;
   if( s > escape_pos ) escape = 0;
   s++;
-  STR_ALLOC(&token, token_pos, &sizetok);
+  STR_ALLOC(_ALLOC_ID_, &token, token_pos, &sizetok);
   if(state==TOK_TOKEN) token[token_pos++]=(char)c;
   else if(state==TOK_SEP) {
    found_value = 0;

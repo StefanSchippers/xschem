@@ -1231,16 +1231,9 @@ static int source_tcl_file(char *s)
 }
 static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 {
-  int i, j;
+  int i, c;
   /* shallow copy */
   /* memcpy(dest, source, sizeof(Xschem_ctx)); */
-
-  dest->schvhdlprop = NULL;
-  dest->schverilogprop = NULL;
-  dest->schprop = NULL;
-  dest->schspectreprop = NULL;
-  dest->schsymbolprop = NULL;
-  dest->schtedaxprop = NULL;
 
   my_strdup(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
   my_strdup(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
@@ -1249,25 +1242,92 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   my_strdup(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
   my_strdup(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
 
-  dest->version_string = NULL;
   my_strdup(_ALLOC_ID_, &dest->version_string, source->version_string);
-  dest->header_text = NULL;
   my_strdup(_ALLOC_ID_, &dest->header_text, source->header_text);
 
-  dest->lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-  dest->rect = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-  dest->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-  dest->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+  for(c = 0; c < cadlayers; ++c) {
+    dest->maxl[c] = dest->lines[c] = source->lines[c];
+    dest->line[c] = my_calloc(_ALLOC_ID_, dest->lines[c], sizeof(xLine));
+    for(i = 0;i<dest->lines[c]; ++i) {
+      dest->line[c][i] = source->line[c][i];
+      dest->line[c][i].prop_ptr = NULL;
+      my_strdup(_ALLOC_ID_, &dest->line[c][i].prop_ptr, source->line[c][i].prop_ptr);
+    }
 
-  memcpy(dest->lines, source->lines, sizeof(source->lines[0]) * cadlayers);
-  memcpy(dest->rects, source->rects, sizeof(source->rects[0]) * cadlayers);
-  memcpy(dest->arcs, source->arcs, sizeof(source->arcs[0]) * cadlayers);
-  memcpy(dest->polygons, source->polygons, sizeof(source->polygons[0]) * cadlayers);
-  
+    dest->maxr[c] = dest->rects[c] = source->rects[c];
+    dest->rect[c] = my_calloc(_ALLOC_ID_, dest->rects[c], sizeof(xRect));
+    for(i = 0;i<dest->rects[c]; ++i) {
+      dest->rect[c][i] = source->rect[c][i];
+      dest->rect[c][i].prop_ptr = NULL;
+      my_strdup(_ALLOC_ID_, &dest->rect[c][i].prop_ptr, source->rect[c][i].prop_ptr);
+    }
+
+    dest->maxa[c] = dest->arcs[c] = source->arcs[c];
+    dest->arc[c] = my_calloc(_ALLOC_ID_, dest->arcs[c], sizeof(xArc));
+    for(i = 0;i<dest->arcs[c]; ++i) {
+      dest->arc[c][i] = source->arc[c][i];
+      dest->arc[c][i].prop_ptr = NULL;
+      my_strdup(_ALLOC_ID_, &dest->arc[c][i].prop_ptr, source->arc[c][i].prop_ptr);
+    }
+
+    dest->maxp[c] = dest->polygons[c] = source->polygons[c];
+    dest->poly[c] = my_calloc(_ALLOC_ID_, dest->polygons[c], sizeof(xPoly));
+    for(i = 0;i<dest->polygons[c]; ++i) {
+      int points = source->poly[c][i].points;
+      dest->poly[c][i] = source->poly[c][i];
+      dest->poly[c][i].prop_ptr = NULL;
+      my_strdup(_ALLOC_ID_, &dest->poly[c][i].prop_ptr, source->poly[c][i].prop_ptr);
+      dest->poly[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
+      dest->poly[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
+      dest->poly[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
+      memcpy(dest->poly[c][i].x, source->poly[c][i].x, points * sizeof(double));
+      memcpy(dest->poly[c][i].y, source->poly[c][i].y, points * sizeof(double));
+      memcpy(dest->poly[c][i].selected_point, source->poly[c][i].selected_point,
+        points * sizeof(unsigned short));
+    }
+  }
+
+  dest->maxi = dest->instances = source->instances;
+  dest->inst = my_calloc(_ALLOC_ID_, dest->instances, sizeof(xInstance));
+  for(i = 0;i<dest->instances; ++i) {
+    dest->inst[i] = source->inst[i];
+    dest->inst[i].prop_ptr = NULL;
+    dest->inst[i].name = NULL;
+    dest->inst[i].instname = NULL;
+    dest->inst[i].lab = NULL;
+    dest->inst[i].node = NULL;
+    my_strdup2(_ALLOC_ID_, &dest->inst[i].prop_ptr, source->inst[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->inst[i].name, source->inst[i].name);
+    my_strdup2(_ALLOC_ID_, &dest->inst[i].instname, source->inst[i].instname);
+    my_strdup2(_ALLOC_ID_, &dest->inst[i].lab, source->inst[i].lab);
+  }
+
+  dest->maxt = dest->texts = source->texts;
+  dest->text = my_calloc(_ALLOC_ID_, dest->texts, sizeof(xText));
+  for(i = 0;i<dest->texts; ++i) {
+    dest->text[i] = source->text[i];
+    dest->text[i].txt_ptr = NULL;
+    dest->text[i].font = NULL;
+    dest->text[i].floater_instname = NULL;
+    dest->text[i].floater_ptr = NULL;
+    dest->text[i].prop_ptr = NULL;
+    my_strdup2(_ALLOC_ID_, &dest->text[i].prop_ptr, source->text[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->text[i].txt_ptr, source->text[i].txt_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->text[i].font, source->text[i].font);
+    my_strdup2(_ALLOC_ID_, &dest->text[i].floater_instname, source->text[i].floater_instname);
+    my_strdup2(_ALLOC_ID_, &dest->text[i].floater_ptr, source->text[i].floater_ptr);
+  }
+
+  dest->maxw = dest->wires = source->wires;
+  dest->wire = my_calloc(_ALLOC_ID_, dest->wires, sizeof(xWire));
+  for(i = 0;i<dest->wires; ++i) {
+    dest->wire[i] = source->wire[i];
+    dest->wire[i].prop_ptr = NULL;
+    dest->wire[i].node = NULL;
+    my_strdup(_ALLOC_ID_, &dest->wire[i].prop_ptr, source->wire[i].prop_ptr);
+  }
+
+
 
   /* ... to be continued ... */
 

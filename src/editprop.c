@@ -1920,7 +1920,7 @@ char *str_replace(const char *str, const char *rep, const char *with, int escape
     my_realloc(_ALLOC_ID_, &result, size);
   }
   while(*s) {
-    STR_ALLOC(&result, result_pos + with_len + 1, &size);
+    STR_ALLOC(_ALLOC_ID_, &result, result_pos + with_len + 1, &size);
 
     cond = (count == -1 || replacements < count)  &&
            ((s == str) || ((*(s - 1) != escape))) &&
