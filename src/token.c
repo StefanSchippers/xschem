@@ -5072,6 +5072,10 @@ char *recursive_subst(const char *value, int symbol)
   if(res) my_free(_ALLOC_ID_, &res);
   /* my_strdup2(_ALLOC_ID_, &value1, eval_expr(value1)); */
   dbg(1, "\n\nrecursive_subst(): returning %s\n", value1);
+  if(value1 && value1[0] == '@') {
+    /* still unresolved, return as empty string */
+    my_strdup2(_ALLOC_ID_, &value1, "");
+  }
   return value1;
 }
 
@@ -5420,7 +5424,7 @@ const char *translate(int inst, const char *s, char **result)
           }
         } else {
           xctx->tok_size = 1;
-          value = token + 1;
+          value = token;
         }
         if(!xctx->tok_size) { /* above lines did not find a value for token */
           if(token[0] =='%') {
@@ -5435,8 +5439,23 @@ const char *translate(int inst, const char *s, char **result)
           my_strdup2(_ALLOC_ID_, &value1, value);
           dbg(1, "translate(): value1=%s\n", value1);
           if(strpbrk(value1, "@%")) {
-            translate3(value1, 1, xctx->inst[inst].prop_ptr,
-              xctx->sym[xctx->inst[inst].ptr].templ, NULL, NULL, &value1);
+            char *globalprop;
+
+            /* find definition in global properties if no prior definition found */
+            if(xctx->netlist_type      == CAD_VERILOG_NETLIST) globalprop = xctx->schverilogprop;
+            else if(xctx->netlist_type == CAD_VHDL_NETLIST)    globalprop = xctx->schvhdlprop;
+            else if(xctx->netlist_type == CAD_TEDAX_NETLIST)   globalprop = xctx->schtedaxprop;
+            else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) globalprop = xctx->schspectreprop;
+            else if(xctx->netlist_type == CAD_SPICE_NETLIST)   globalprop = xctx->schprop;
+            else if(xctx->netlist_type == CAD_SYMBOL_ATTRS)    globalprop = xctx->schsymbolprop;
+            else globalprop = NULL;
+
+            if(inst >=0)  {
+              translate3(value1, 1, xctx->inst[inst].prop_ptr,
+                xctx->sym[xctx->inst[inst].ptr].templ, globalprop, NULL, &value1);
+            } else {
+              translate3(value1, 1, globalprop, NULL, NULL, NULL, &value1);
+            }
             dbg(1, "translate(): value1=%s\n", value1);
           }
           value1 = recursive_subst(value1, inst >= 0 ? xctx->inst[inst].ptr : -1);

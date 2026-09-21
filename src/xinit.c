@@ -520,6 +520,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->schvhdlprop=NULL;   /* vhdl property string */
   xctx->schsymbolprop=NULL; /* symbol property string */
   xctx->schverilogprop=NULL;/* verilog */
+  xctx->schspectreprop=NULL;/* spectre / VACASK */
   xctx->version_string = NULL;
   xctx->header_text = NULL;
   xctx->rectcolor= 4;  /* this is the current layer when xschem started. */
@@ -742,8 +743,6 @@ static void delete_schematic_data(int delete_pixmap)
     resetwin(0, 1, 1, 0, 0);  /* delete preview pixmap, delete cairo surfaces */
     if(has_x) free_gc();
   }
-  /* delete instances, wires, lines, rects, arcs, polys, texts, hash_inst, hash_wire,
-   * inst & wire .node fields, instance name hash */
   remove_symbols();
   str_replace(NULL, NULL, NULL, 0, -1);
   escape_chars(NULL, "");
@@ -1230,6 +1229,105 @@ static int source_tcl_file(char *s)
   }
   return TCL_OK;
 }
+static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
+{
+  int i, j;
+  /* shallow copy */
+  /* memcpy(dest, source, sizeof(Xschem_ctx)); */
+
+  dest->schvhdlprop = NULL;
+  dest->schverilogprop = NULL;
+  dest->schprop = NULL;
+  dest->schspectreprop = NULL;
+  dest->schsymbolprop = NULL;
+  dest->schtedaxprop = NULL;
+
+  my_strdup(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
+  my_strdup(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
+  my_strdup(_ALLOC_ID_, &dest->schprop          , source->schprop            );
+  my_strdup(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
+  my_strdup(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
+  my_strdup(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
+
+  dest->version_string = NULL;
+  my_strdup(_ALLOC_ID_, &dest->version_string, source->version_string);
+  dest->header_text = NULL;
+  my_strdup(_ALLOC_ID_, &dest->header_text, source->header_text);
+
+  dest->lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  dest->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  dest->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  dest->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  dest->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+  dest->rect = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+  dest->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
+  dest->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+
+  memcpy(dest->lines, source->lines, sizeof(source->lines[0]) * cadlayers);
+  memcpy(dest->rects, source->rects, sizeof(source->rects[0]) * cadlayers);
+  memcpy(dest->arcs, source->arcs, sizeof(source->arcs[0]) * cadlayers);
+  memcpy(dest->polygons, source->polygons, sizeof(source->polygons[0]) * cadlayers);
+  
+
+  /* ... to be continued ... */
+
+}
+
+/* what: 
+ *   1: initialize, alloc data
+ *   2: cache current schematic
+ *   3: lookup schematic indicated in `sch_name` and switch to it
+ *   4: switch back to original schematic
+ *   5: free data
+ *
+ * returns: 
+ *   1: all ok
+ *   0: some error.
+ */
+int cache_schematic(int what, const char *sch_name)
+{
+  static Ptr_hashtable cache_table = {NULL, 0};
+  static Xschem_ctx *orig_xctx;
+  int hash_size = 6247;
+  Ptr_hashentry *entry;
+  int i;
+  int ret = 1;
+  
+  if(what == 1) { /* alloc data */
+    ptr_hash_init(&cache_table, hash_size); 
+  } else if(what == 2) { /* cache current schematic if not already present */
+    if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) {
+      Xschem_ctx *save_xctx;
+      save_xctx = xctx; /* save current schematic */
+      xctx = NULL;
+      alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
+      schematic_deep_copy(xctx, save_xctx);
+      ptr_hash_lookup(&cache_table, save_xctx->current_name, xctx, XINSERT_NOREPLACE);
+      xctx = save_xctx; /* restore current schematic */
+    }
+  } else if(what == 3) { /* lookup schematic indicated in `sch_name` and switch to it */
+    orig_xctx = xctx; /* save pointer so we can return to it later */
+    if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
+      xctx = (Xschem_ctx *)entry->value;
+    }
+  } else if(what == 4) { /* switch back to original schematic */
+    xctx = orig_xctx;
+  } else if(what == 5) { /* free data */
+    Xschem_ctx *save_xctx;
+    save_xctx = xctx;
+    for(i = 0; i < cache_table.size; ++i) {
+      entry = cache_table.table[i];
+      while(entry) {
+        xctx = (Xschem_ctx *) entry->value;
+        free_xschem_data();
+        entry = entry->next;
+      }
+    }
+    xctx = save_xctx;
+    ptr_hash_free(&cache_table);
+  }
+  return ret;
+}
 
 int preview_window(const char *what, const char *win_path, const char *fname)
 {
@@ -1487,8 +1585,6 @@ void swap_windows(int dr)
     if(dr) draw();
   }
 }
-
-
 
 /* check if filename is already loaded into a tab or window */
 /* caller should supply a win_path string for storing matching window path */

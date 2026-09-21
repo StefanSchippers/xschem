@@ -504,6 +504,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* cache_schematic what sch_name
+     *   what:
+     *     1: initialize, alloc data
+     *     2: cache current schematic
+     *     3: lookup schematic indicated in `sch_name` and switch to it
+     *     4: switch back to original schematic
+     *     5: free data */
+    else if(!strcmp(argv[1], "cache_schematic"))
+    {
+      const char *sch_name = NULL;
+      int what = 0;
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem cache_schematic: missing arguments.", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      if(argc > 3) {
+        sch_name = argv[3];
+      }
+      what = atoi(argv[2]);
+      cache_schematic(what, sch_name);
+    }
+
     /* case_insensitive 1|0
      *   Set case insensitive symbol lookup. Use only on case insensitive filesystems */
     else if(!strcmp(argv[1], "case_insensitive"))
@@ -6429,29 +6452,29 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         del_object_table();
         Tcl_ResetResult(interp);
       }
-      else if(argc > 2 && atoi(argv[2]) == 5) {
+      else if(argc > 2 && atoi(argv[2]) == 2) {
         xctx->prep_hash_inst=0;
         hash_instances();
       }
-      else if(argc > 2 && atoi(argv[2]) == 4) {
+      else if(argc > 2 && atoi(argv[2]) == 3) {
         xctx->prep_hash_object=0;
         hash_objects();
       }
-      else if(argc > 2 && atoi(argv[2]) == 6) {
+      else if(argc > 2 && atoi(argv[2]) == 4) {
         xctx->prep_hash_wires=0;
         hash_wires();
       }
-      else if(argc > 2 && atoi(argv[2]) == 7) {
+      else if(argc > 2 && atoi(argv[2]) == 5) {
         auto_set_wire_bus(0, xctx->wires);
       }
-      else if(argc > 5 && atoi(argv[2]) == 2) {
+      else if(argc > 5 && atoi(argv[2]) == 6) {
         /* example: xschem test 2 .xctrl. LDCP_REF 8 */
         prepare_netlist_structs(0);
         hier_hilight_hash_lookup(argv[4], atoi(argv[5]), argv[3], XINSERT);
         propagate_hilights(1, 0, XINSERT_NOREPLACE);
         Tcl_ResetResult(interp);
       }
-      else if(argc > 2 && atoi(argv[2]) == 3) {
+      else if(argc > 2 && atoi(argv[2]) == 7) {
 
         char *s = "aa	bb	cc	dd\n"
                   "eee	fff	ggg	hhh";
@@ -6461,6 +6484,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         dbg(0, "%s\n----\n", s);
         Tcl_SetResult(interp, t, TCL_VOLATILE);
         my_free(_ALLOC_ID_, &t);
+      }
+      else if(argc > 2 && atoi(argv[2]) == 8) {
+        dbg(0, "sizeof(xctx)=%d\n", sizeof(Xschem_ctx));
       }
     }
 

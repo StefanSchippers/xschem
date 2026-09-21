@@ -1162,12 +1162,13 @@ typedef struct {
   /* top_path is the path prefix of drawing canvas (current_win_path):
    * top_path is always "" in tabbed interface 
    * current_win_path
-   *    canvas           top_path
-   *  ----------------------------
-   *    ".drw"            ""
-   *    ".x1.drw"         ".x1"
+   *    canvas           top_path           top_path
+   *                   multi window      tabbed interface
+   *  -----------------------------------------------------
+   *    ".drw"            ""                    ""
+   *    ".x1.drw"         ".x1"                 ""
    */
-  char *current_win_path; /* .drw or .x1.drw, .... ; always .drw in tabbed interface */
+  char *current_win_path; /* .drw or .x1.drw, .x2.drw .... (also in tabbed interface). */
   int *fill_type; /* for every layer: 0: no fill, 1, solid fill, 2: stipple fill */
   int fill_pattern;
   int draw_pixmap; /* pixmap used as 2nd buffer */
@@ -1810,6 +1811,7 @@ extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *win_path);
+extern int cache_schematic(int what, const char *sch_name);
 extern int preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname, int dr);
 extern void toggle_fullscreen(const char *topwin);
