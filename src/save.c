@@ -1117,6 +1117,22 @@ int raw_deletevar(const char *name)
   return ret;
 }
 
+/* allocate xctx->extra_raw_arr array */
+static void allocate_raw_slots()
+{
+  if(xctx->extra_raw_n >= xctx->extra_raw_size) {
+    int old_size = xctx->extra_raw_size;
+    xctx->extra_raw_size += 20;
+    my_realloc(_ALLOC_ID_, &xctx->extra_raw_arr, sizeof(Raw *) * xctx->extra_raw_size);
+    memset(xctx->extra_raw_arr + old_size, 0, sizeof(Raw *) * (xctx->extra_raw_size - old_size));
+  }
+  /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
+  if(xctx->raw && xctx->extra_raw_n == 0) {
+    xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
+    xctx->extra_raw_n++;
+  }   
+}
+
 /* create a new raw file with '(max - min) / step' points with only a sweep variable in it. */
 int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double end, double step)
@@ -1126,20 +1142,7 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
   Raw *raw;
   int number = (int)floor((end - start) / step) + 1;
 
-  /* allocate xctx->extra_raw_arr array */
-  if(xctx->extra_raw_n >= xctx->extra_raw_size) {
-    int old_size = xctx->extra_raw_size;
-    xctx->extra_raw_size += 20; 
-    my_realloc(_ALLOC_ID_, &xctx->extra_raw_arr, sizeof(Raw *) * xctx->extra_raw_size);
-    memset(xctx->extra_raw_arr + old_size, 0, sizeof(Raw *) * (xctx->extra_raw_size - old_size));
-  }
-
-  /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
-  if(xctx->raw && xctx->extra_raw_n == 0) {
-    xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
-    xctx->extra_raw_n++;
-  }
-
+  allocate_raw_slots();
   if(xctx->extra_raw_n < xctx->extra_raw_size  && name && type) {
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type &&
@@ -1225,25 +1228,12 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       what, no_warning, file ? file : "<NULL>", type ? type : "<NULL>");
   if(what == 0) return 0;
 
-  /* allocate xctx->extra_raw_arr array */
-  if(xctx->extra_raw_n >= xctx->extra_raw_size) {
-    int old_size = xctx->extra_raw_size;
-    xctx->extra_raw_size += 20; 
-    my_realloc(_ALLOC_ID_, &xctx->extra_raw_arr, sizeof(Raw *) * xctx->extra_raw_size);
-    memset(xctx->extra_raw_arr + old_size, 0, sizeof(Raw *) * (xctx->extra_raw_size - old_size));
-  }
-
-  /* if not already done insert base raw file (if there is one) into xctx->extra_raw_arr[0] */
-  if(xctx->raw && xctx->extra_raw_n == 0) {
-    dbg(1, "insert extra_raw_arr[0]\n");
-    xctx->extra_raw_arr[xctx->extra_raw_n] = xctx->raw;
-    xctx->extra_raw_n++;
-  }
   /* **************** table_read ************* */
-  if(what == 1 && xctx->extra_raw_n < xctx->extra_raw_size && file && (type && !strcmp(type, "table"))) {
+  if(what == 1 && file && (type && !strcmp(type, "table"))) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     dbg(1, "extra_rawfile: table_read: f=%s\n", f);
+    allocate_raw_slots();
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if( !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) break;
     }
@@ -1276,13 +1266,14 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** read ************* */
-  } else if(what == 1 && xctx->extra_raw_n < xctx->extra_raw_size && file /* && type*/) {
+  } else if(what == 1 && file /* && type*/) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     if(type) {
       if(!my_strcasecmp(type, "spectrum")) type = "ac";
       else if(!my_strcasecmp(type, "sp")) type = "ac";
     }
+    allocate_raw_slots();
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type &&
          !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&

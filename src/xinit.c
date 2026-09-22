@@ -437,6 +437,7 @@ static void free_xschem_data()
   my_free(_ALLOC_ID_, &xctx->fill_type);
   my_free(_ALLOC_ID_, &xctx->format);
   my_free(_ALLOC_ID_, &xctx->custom_format);
+  my_free(_ALLOC_ID_, &xctx->infowindow_text);
   my_free(_ALLOC_ID_, &xctx);
 }
 
@@ -1304,6 +1305,8 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   #if HAS_CAIRO==1
   dest->cairo_ctx = source->cairo_ctx;
   dest->cairo_save_ctx = source->cairo_save_ctx;
+  dest->cairo_sfc = source->cairo_sfc;
+  dest->cairo_save_sfc = source->cairo_save_sfc;
   dest->cairo_font = source->cairo_font;
   #endif
   
@@ -1341,6 +1344,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
       dest->rect[c][i] = source->rect[c][i];
       dest->rect[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &dest->rect[c][i].prop_ptr, source->rect[c][i].prop_ptr);
+      dest->rect[c][i].extraptr = NULL;
     }
 
     dest->maxa[c] = dest->arcs[c] = source->arcs[c];
@@ -1436,6 +1440,7 @@ int cache_schematic(int what, const char *sch_name)
   int ret = 1;
   
   if(what == 1) { /* alloc data */
+    orig_xctx = xctx; /* save pointer so we can return to it later */
     ptr_hash_init(&cache_table, hash_size); 
   } else if(what == 2) { /* cache current schematic if not already present */
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
@@ -1444,16 +1449,18 @@ int cache_schematic(int what, const char *sch_name)
       xctx = NULL;
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
       schematic_deep_copy(xctx, save_xctx);
+      dbg(0, "storing: %s\n", xctx->current_name);
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
     }
   } else if(what == 3) { /* lookup schematic indicated in `sch_name` and switch to it */
-    orig_xctx = xctx; /* save pointer so we can return to it later */
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
       xctx = (Xschem_ctx *)entry->value;
+      dbg(0, "found %s, switch to it\n", xctx->current_name);
     }
   } else if(what == 4) { /* switch back to original schematic */
     xctx = orig_xctx;
+    dbg(0, "switch back to %s\n", xctx->current_name);
   } else if(what == 5) { /* free data */
     Xschem_ctx *save_xctx;
     save_xctx = xctx;
@@ -1461,6 +1468,7 @@ int cache_schematic(int what, const char *sch_name)
       entry = cache_table.table[i];
       while(entry) {
         xctx = (Xschem_ctx *) entry->value;
+        dbg(0, "deleting: %s\n", xctx->current_name);
         delete_netlist_structs();
         get_unnamed_node(0, 0, 0);
         clear_drawing();

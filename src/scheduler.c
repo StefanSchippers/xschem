@@ -6514,6 +6514,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int_hash_free(&a);
         int_hash_free(&b);
       }
+      else if(argc > 2 && atoi(argv[2]) == 9) {
+        dbg(0, "xctx=%p\n", xctx);
+        if(xctx) dbg(0, "instances=%d\n", xctx->instances);
+        if(xctx) dbg(0, "symbols=%d\n", xctx->symbols);
+      }
     }
 
     /* text x y rot flip text props size draw
