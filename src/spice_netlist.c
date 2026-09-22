@@ -802,6 +802,29 @@ void str_hash_init(Str_hashtable *hashtable, int size)
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Str_hashentry *));
 }
 
+int str_hash_copy(Str_hashtable *dest, Str_hashtable *source)
+{
+  int i;
+  if (!source || !dest) return 1; /* nothing done */
+  dest->size = source->size;
+  dest->table = my_calloc(_ALLOC_ID_, dest->size, sizeof(Str_hashentry *));
+  for(i = 0; i < source->size; ++i) {
+    Str_hashentry *sentry = source->table[i];
+    Str_hashentry **dentry = &dest->table[i];
+    while(sentry) {
+      Str_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Str_hashentry));
+      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      my_strdup(_ALLOC_ID_, &new_node->value, sentry->value);
+      new_node->hash = sentry->hash;
+      new_node->next = NULL;
+      *dentry = new_node;
+      dentry = &new_node->next;
+      sentry = sentry->next;
+    }
+  }
+  return 0;
+}
+
 static void str_hash_free_entry(Str_hashentry *entry)
 {
   Str_hashentry *tmp;
@@ -898,6 +921,29 @@ void int_hash_init(Int_hashtable *hashtable, int size)
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Int_hashentry *));
 }
 
+int int_hash_copy(Int_hashtable *dest, Int_hashtable *source)
+{
+  int i;
+  if (!source || !dest) return 1; /* nothing done */
+  dest->size = source->size;
+  dest->table = my_calloc(_ALLOC_ID_, dest->size, sizeof(Int_hashentry *));
+  for(i = 0; i < source->size; ++i) {
+    Int_hashentry *sentry = source->table[i];
+    Int_hashentry **dentry = &dest->table[i];
+    while(sentry) {
+      Int_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Int_hashentry));
+      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      new_node->value = sentry->value;
+      new_node->hash = sentry->hash;
+      new_node->next = NULL;
+      *dentry = new_node;
+      dentry = &new_node->next;
+      sentry = sentry->next;
+    }
+  }
+  return 0;
+}
+
 static void int_hash_free_entry(Int_hashentry *entry)
 {
   Int_hashentry *tmp;
@@ -908,7 +954,6 @@ static void int_hash_free_entry(Int_hashentry *entry)
     entry = tmp;
   }
 }
-
 
 void int_hash_free(Int_hashtable *hashtable)
 {
@@ -993,6 +1038,29 @@ void ptr_hash_init(Ptr_hashtable *hashtable, int size)
   }
   hashtable->size = size;
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Ptr_hashentry *));
+}
+
+int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source)
+{
+  int i;
+  if (!source || !dest) return 1; /* nothing done */
+  dest->size = source->size;
+  dest->table = my_calloc(_ALLOC_ID_, dest->size, sizeof(Ptr_hashentry *));
+  for(i = 0; i < source->size; ++i) {
+    Ptr_hashentry *sentry = source->table[i];
+    Ptr_hashentry **dentry = &dest->table[i];
+    while(sentry) {
+      Ptr_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Ptr_hashentry));
+      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      new_node->value = sentry->value;
+      new_node->hash = sentry->hash;
+      new_node->next = NULL;
+      *dentry = new_node;
+      dentry = &new_node->next;
+      sentry = sentry->next;
+    }
+  }
+  return 0;
 }
 
 static void ptr_hash_free_entry(Ptr_hashentry *entry)

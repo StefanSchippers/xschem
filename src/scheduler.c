@@ -513,9 +513,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *     5: free data */
     else if(!strcmp(argv[1], "cache_schematic"))
     {
-      const char *sch_name = NULL;
+      const char *sch_name;
       int what = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      sch_name = xctx->current_name;
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem cache_schematic: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
@@ -3138,7 +3139,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "load") )
     {
       int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
-      int keep_symbols = 0, first;
+      int keep_symbols = tclgetboolvar("keep_symbols");
+      int first;
       int lastclosed = 0, lastopened = 0;
       int first_loaded = 0;
       int i;
@@ -3637,7 +3639,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int hier_netlist = 1;
       int i, messages = 0;
       int alert = 1;
-      int keep_symbols=0, save_keep;
+      int keep_symbols=tclgetboolvar("keep_symbols");
+      int save_keep;
       int erc = 0;
       const char *fname = NULL;
       const char *path;
@@ -6486,7 +6489,30 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_free(_ALLOC_ID_, &t);
       }
       else if(argc > 2 && atoi(argv[2]) == 8) {
-        dbg(0, "sizeof(xctx)=%d\n", sizeof(Xschem_ctx));
+        Int_hashtable a = {NULL, 0};
+        Int_hashtable b = {NULL, 0};
+
+        int_hash_init(&a, 1);
+
+        int_hash_lookup(&a, "aaaa", 1111, XINSERT);
+        int_hash_lookup(&a, "bbbb", 2222, XINSERT);
+        int_hash_lookup(&a, "cccc", 3333, XINSERT);
+        int_hash_lookup(&a, "dddd", 4444, XINSERT);
+        int_hash_lookup(&a, "eeee", 5555, XINSERT);
+        int_hash_lookup(&a, "ffff", 6666, XINSERT);
+        int_hash_lookup(&a, "gggg", 7777, XINSERT);
+        int_hash_lookup(&a, "hhhh", 8888, XINSERT);
+        int_hash_lookup(&a, "iiii", 9999, XINSERT);
+        
+        int_hash_copy(&b, &a);
+
+
+        dbg(0, "%d\n", int_hash_lookup(&b, "dddd", 0, XLOOKUP)->value);
+        dbg(0, "%d\n", int_hash_lookup(&b, "aaaa", 0, XLOOKUP)->value);
+        dbg(0, "%d\n", int_hash_lookup(&b, "bbbb", 0, XLOOKUP)->value);
+        dbg(0, "%d\n", int_hash_lookup(&b, "ffff", 0, XLOOKUP)->value);
+        int_hash_free(&a);
+        int_hash_free(&b);
       }
     }
 

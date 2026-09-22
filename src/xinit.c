@@ -460,6 +460,8 @@ void free_gc()
   for(i=0;i<cadlayers; ++i) {
     XFreeGC(display,xctx->gc[i]);
     XFreeGC(display,xctx->gcstipple[i]);
+    xctx->gc[i] = 0;
+    xctx->gcstipple[i] = 0;
   }
 }
 
@@ -612,6 +614,8 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->sch[i] = NULL;
     xctx->sch_path[i]=NULL;
     xctx->sch_path_hash[i]=0;
+    xctx->sch_inst_number[i]=0;
+    xctx->previous_instance[i]=0;
     xctx->hier_attr[i].prop_ptr = NULL;
     xctx->hier_attr[i].templ = NULL;
     xctx->hier_attr[i].sym_extra = NULL;
@@ -1229,25 +1233,102 @@ static int source_tcl_file(char *s)
   }
   return TCL_OK;
 }
+
 static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 {
   int i, c;
-  /* shallow copy */
-  /* memcpy(dest, source, sizeof(Xschem_ctx)); */
-
+  
+  for(i = 0; i < CADMAXHIER; ++i) {
+    my_strdup(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
+    my_strdup(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
+    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].prop_ptr, source->hier_attr[i].prop_ptr);
+    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
+    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
+    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
+    dest->zoom_array[i] = source->zoom_array[i];
+    str_hash_copy(&(dest->portmap[i]), &(source->portmap[i]));
+  }
+  
   my_strdup(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
   my_strdup(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
   my_strdup(_ALLOC_ID_, &dest->schprop          , source->schprop            );
   my_strdup(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
   my_strdup(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
   my_strdup(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
-
   my_strdup(_ALLOC_ID_, &dest->version_string, source->version_string);
   my_strdup(_ALLOC_ID_, &dest->header_text, source->header_text);
 
+  dest->currsch = source->currsch;
+  my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
+  my_strncpy(dest->file_version, source->file_version, S(dest->file_version));
+  dest->xorigin = source->xorigin;
+  dest->yorigin = source->yorigin;
+  dest->zoom = source->zoom;
+  dest->mooz = source->mooz;
+  dest->lw = source->lw;
+  dest->min_lw = source->min_lw;
+  dest->ui_state = source->ui_state;
+  dest->ui_state2 = source->ui_state2;
+  dest->constr_mv = source->constr_mv;
+  dest->mousex = source->mousex;
+  dest->mousey = source->mousey;
+  dest->mousex_snap = source->mousex_snap;
+  dest->mousey_snap = source->mousey_snap;
+  dest->areax1 = source->areax1;
+  dest->areax2 = source->areax2;
+  dest->areay1 = source->areay1;
+  dest->areay2 = source->areay2;
+  dest->areaw = source->areaw;
+  dest->areah = source->areah;
+
+  my_strncpy(dest->netlist_name, source->netlist_name, S(dest->netlist_name));
+  my_strncpy(dest->current_dirname, source->current_dirname, S(dest->current_dirname));
+  dest->xrect[0] = source->xrect[0];
+  
+  memcpy(dest->color_index, source->color_index, sizeof(dest->color_index));
+  memcpy(dest->xcolor_array, source->xcolor_array, sizeof(dest->xcolor_array));
+
+  dest->need_reb_sel_arr = 1;
+  dest->simdata = NULL;
+  dest->simdata_ninst = 0;
+  dest->prep_net_structs = 0;
+  dest->prep_hi_structs = 0;
+  dest->prep_net_structs = 0;
+  dest->prep_hi_structs = 0;
+  dest->prep_hash_inst = 0;
+  dest->prep_hash_object = 0;
+  dest->prep_hash_wires = 0;
+
+  dest->window = source->window;
+  dest->save_pixmap = source->save_pixmap;
+  #if HAS_CAIRO==1
+  dest->cairo_ctx = source->cairo_ctx;
+  dest->cairo_save_ctx = source->cairo_save_ctx;
+  dest->cairo_font = source->cairo_font;
+  #endif
+  
+  dest->gctiled = source->gctiled;
+  for(c = 0; c < cadlayers; ++c) {
+    dest->gc[c] = source->gc[c];
+    dest->gcstipple[c] = source->gcstipple[c];
+    my_strdup(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
+    dest->enable_layer[c] = source->enable_layer[c];
+    dest->active_layer[c] = source->active_layer[c];
+    dest->fill_type[c] = source->fill_type[c];
+  }
+
+  dest->n_active_layers = source->n_active_layers;
+
+  dest->netlist_type = source->netlist_type;
+
+
+  my_strdup(_ALLOC_ID_, &dest->format, source->format);
+  my_strdup(_ALLOC_ID_, &dest->custom_format, source->custom_format);
+  
+
   for(c = 0; c < cadlayers; ++c) {
     dest->maxl[c] = dest->lines[c] = source->lines[c];
-    dest->line[c] = my_calloc(_ALLOC_ID_, dest->lines[c], sizeof(xLine));
+    my_realloc(_ALLOC_ID_, &dest->line[c], dest->lines[c] * sizeof(xLine));
     for(i = 0;i<dest->lines[c]; ++i) {
       dest->line[c][i] = source->line[c][i];
       dest->line[c][i].prop_ptr = NULL;
@@ -1255,7 +1336,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     }
 
     dest->maxr[c] = dest->rects[c] = source->rects[c];
-    dest->rect[c] = my_calloc(_ALLOC_ID_, dest->rects[c], sizeof(xRect));
+    my_realloc(_ALLOC_ID_, &dest->rect[c], dest->rects[c] * sizeof(xRect));
     for(i = 0;i<dest->rects[c]; ++i) {
       dest->rect[c][i] = source->rect[c][i];
       dest->rect[c][i].prop_ptr = NULL;
@@ -1263,7 +1344,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     }
 
     dest->maxa[c] = dest->arcs[c] = source->arcs[c];
-    dest->arc[c] = my_calloc(_ALLOC_ID_, dest->arcs[c], sizeof(xArc));
+    my_realloc(_ALLOC_ID_, &dest->arc[c], dest->arcs[c] * sizeof(xArc));
     for(i = 0;i<dest->arcs[c]; ++i) {
       dest->arc[c][i] = source->arc[c][i];
       dest->arc[c][i].prop_ptr = NULL;
@@ -1271,7 +1352,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     }
 
     dest->maxp[c] = dest->polygons[c] = source->polygons[c];
-    dest->poly[c] = my_calloc(_ALLOC_ID_, dest->polygons[c], sizeof(xPoly));
+    my_realloc(_ALLOC_ID_, &dest->poly[c], dest->polygons[c] * sizeof(xPoly));
     for(i = 0;i<dest->polygons[c]; ++i) {
       int points = source->poly[c][i].points;
       dest->poly[c][i] = source->poly[c][i];
@@ -1288,7 +1369,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   }
 
   dest->maxi = dest->instances = source->instances;
-  dest->inst = my_calloc(_ALLOC_ID_, dest->instances, sizeof(xInstance));
+  my_realloc(_ALLOC_ID_, &dest->inst, dest->instances * sizeof(xInstance));
   for(i = 0;i<dest->instances; ++i) {
     dest->inst[i] = source->inst[i];
     dest->inst[i].prop_ptr = NULL;
@@ -1303,7 +1384,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   }
 
   dest->maxt = dest->texts = source->texts;
-  dest->text = my_calloc(_ALLOC_ID_, dest->texts, sizeof(xText));
+  my_realloc(_ALLOC_ID_, &dest->text, dest->texts * sizeof(xText));
   for(i = 0;i<dest->texts; ++i) {
     dest->text[i] = source->text[i];
     dest->text[i].txt_ptr = NULL;
@@ -1319,7 +1400,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   }
 
   dest->maxw = dest->wires = source->wires;
-  dest->wire = my_calloc(_ALLOC_ID_, dest->wires, sizeof(xWire));
+  my_realloc(_ALLOC_ID_, &dest->wire, dest->wires * sizeof(xWire));
   for(i = 0;i<dest->wires; ++i) {
     dest->wire[i] = source->wire[i];
     dest->wire[i].prop_ptr = NULL;
@@ -1327,10 +1408,11 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     my_strdup(_ALLOC_ID_, &dest->wire[i].prop_ptr, source->wire[i].prop_ptr);
   }
 
-
-
-  /* ... to be continued ... */
-
+  dest->maxs = dest->symbols = source->symbols;
+  my_realloc(_ALLOC_ID_, &dest->sym, dest->symbols * sizeof(xSymbol));
+  for(i = 0;i<dest->symbols; ++i) {
+    copy_symbol(&dest->sym[i], &source->sym[i]);
+  } 
 }
 
 /* what: 
@@ -1356,13 +1438,13 @@ int cache_schematic(int what, const char *sch_name)
   if(what == 1) { /* alloc data */
     ptr_hash_init(&cache_table, hash_size); 
   } else if(what == 2) { /* cache current schematic if not already present */
-    if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) {
+    if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
       Xschem_ctx *save_xctx;
       save_xctx = xctx; /* save current schematic */
       xctx = NULL;
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
       schematic_deep_copy(xctx, save_xctx);
-      ptr_hash_lookup(&cache_table, save_xctx->current_name, xctx, XINSERT_NOREPLACE);
+      ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
     }
   } else if(what == 3) { /* lookup schematic indicated in `sch_name` and switch to it */
@@ -1379,6 +1461,10 @@ int cache_schematic(int what, const char *sch_name)
       entry = cache_table.table[i];
       while(entry) {
         xctx = (Xschem_ctx *) entry->value;
+        delete_netlist_structs();
+        get_unnamed_node(0, 0, 0);
+        clear_drawing();
+        remove_symbols();
         free_xschem_data();
         entry = entry->next;
       }

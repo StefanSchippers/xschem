@@ -1646,18 +1646,25 @@ extern Objectentry *object_iterator_next(Iterator_ctx *ctx);
 extern void check_unique_names(int rename);
 
 extern unsigned int str_hash(const char *tok);
+
+extern void str_hash_init(Str_hashtable *hashtable, int size);
 extern void str_hash_free(Str_hashtable *hashtable);
 extern Str_hashentry *str_hash_lookup(Str_hashtable *hashtable,
        const char *token, const char *value, int what);
-extern void str_hash_init(Str_hashtable *hashtable, int size);
+extern int str_hash_copy(Str_hashtable *dest, Str_hashtable *source);
+
 extern void int_hash_init(Int_hashtable *hashtable, int size);
 extern void int_hash_free(Int_hashtable *hashtable);
 extern Int_hashentry *int_hash_lookup(Int_hashtable *hashtable,
        const char *token, const int value, int what);
+extern int int_hash_copy(Int_hashtable *dest, Int_hashtable *source);
+
 extern void ptr_hash_init(Ptr_hashtable *hashtable, int size);
 extern void ptr_hash_free(Ptr_hashtable *hashtable);
 extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
        const char *token,  void * const value, int what);
+extern int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source);
+
 extern char *trim_chars(const char *str, const char *sep);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
