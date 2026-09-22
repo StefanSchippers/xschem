@@ -1223,6 +1223,7 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
 
   what &= 0xf; /* remove warning bit */
   if(type && !type[0]) type = NULL; /* empty string as type will be considered NULL */
+  allocate_raw_slots();
 
   dbg(1, "extra_rawfile(): what=%d, no_warning=%d, file=%s, type=%s\n",
       what, no_warning, file ? file : "<NULL>", type ? type : "<NULL>");
@@ -1233,7 +1234,6 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     dbg(1, "extra_rawfile: table_read: f=%s\n", f);
-    allocate_raw_slots();
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if( !strcmp(xctx->extra_raw_arr[i]->rawfile, f)) break;
     }
@@ -1266,14 +1266,13 @@ int extra_rawfile(int what, const char *file, const char *type, double sweep1, d
       xctx->raw = xctx->extra_raw_arr[xctx->extra_idx];
     }
   /* **************** read ************* */
-  } else if(what == 1 && file /* && type*/) {
+  } else if(what == 1 && xctx->extra_raw_n < xctx->extra_raw_size && file /* && type*/) {
     tclvareval("subst {", file, "}", NULL);
     my_strncpy(f, tclresult(), S(f));
     if(type) {
       if(!my_strcasecmp(type, "spectrum")) type = "ac";
       else if(!my_strcasecmp(type, "sp")) type = "ac";
     }
-    allocate_raw_slots();
     for(i = 0; i < xctx->extra_raw_n; i++) {
       if(xctx->extra_raw_arr[i]->sim_type &&
          !strcmp(xctx->extra_raw_arr[i]->rawfile, f) &&

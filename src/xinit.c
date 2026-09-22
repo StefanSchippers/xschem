@@ -1441,8 +1441,9 @@ int cache_schematic(int what, const char *sch_name)
   
   if(what == 1) { /* alloc data */
     orig_xctx = xctx; /* save pointer so we can return to it later */
+    dbg(0, "init data, storing %s\n", xctx->current_name);
     ptr_hash_init(&cache_table, hash_size); 
-  } else if(what == 2) { /* cache current schematic if not already present */
+  } else if(what == 2) { /* copy current schematic if not already present */
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
       Xschem_ctx *save_xctx;
       save_xctx = xctx; /* save current schematic */
@@ -1471,6 +1472,7 @@ int cache_schematic(int what, const char *sch_name)
         dbg(0, "deleting: %s\n", xctx->current_name);
         delete_netlist_structs();
         get_unnamed_node(0, 0, 0);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         clear_drawing();
         remove_symbols();
         free_xschem_data();
