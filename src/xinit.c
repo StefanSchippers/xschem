@@ -1238,26 +1238,28 @@ static int source_tcl_file(char *s)
 static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 {
   int i, c;
+
+  dest->intuitive_interface = source->intuitive_interface;
   
   for(i = 0; i < CADMAXHIER; ++i) {
-    my_strdup(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
-    my_strdup(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
-    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].prop_ptr, source->hier_attr[i].prop_ptr);
-    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
-    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
-    my_strdup(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
+    my_strdup2(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
+    my_strdup2(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].prop_ptr, source->hier_attr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
     dest->zoom_array[i] = source->zoom_array[i];
     str_hash_copy(&(dest->portmap[i]), &(source->portmap[i]));
   }
   
-  my_strdup(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
-  my_strdup(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
-  my_strdup(_ALLOC_ID_, &dest->schprop          , source->schprop            );
-  my_strdup(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
-  my_strdup(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
-  my_strdup(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
-  my_strdup(_ALLOC_ID_, &dest->version_string, source->version_string);
-  my_strdup(_ALLOC_ID_, &dest->header_text, source->header_text);
+  my_strdup2(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
+  my_strdup2(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
+  my_strdup2(_ALLOC_ID_, &dest->schprop          , source->schprop            );
+  my_strdup2(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
+  my_strdup2(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
+  my_strdup2(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
+  my_strdup2(_ALLOC_ID_, &dest->version_string, source->version_string);
+  my_strdup2(_ALLOC_ID_, &dest->header_text, source->header_text);
 
   dest->currsch = source->currsch;
   my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
@@ -1282,23 +1284,30 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   dest->areaw = source->areaw;
   dest->areah = source->areah;
 
+  dest->graph_master = source->graph_master;
+  dest->graph_cursor1_x = source->graph_cursor1_x;
+  dest->graph_cursor2_x = source->graph_cursor2_x;
+  dest->graph_flags = source->graph_flags;
+  dest->graph_top = source->graph_top;
+  dest->graph_bottom = source->graph_bottom;
+  dest->graph_left = source->graph_left;
+  dest->graph_lastsel = source->graph_lastsel;
+  dest->graph_struct.hilight_wave = source->graph_struct.hilight_wave;
+
+  raw_copy(&dest->raw, source->raw);
+  /* extra_raw_arr_copy(dest, source); */
+
+  my_strncpy(dest->plotfile, source->plotfile, S(dest->plotfile));
   my_strncpy(dest->netlist_name, source->netlist_name, S(dest->netlist_name));
   my_strncpy(dest->current_dirname, source->current_dirname, S(dest->current_dirname));
+
+  dest->hilight_nets = source->hilight_nets;
+  hilight_hash_copy(dest, source);
+  node_hash_copy(dest, source);
+
   dest->xrect[0] = source->xrect[0];
-  
   memcpy(dest->color_index, source->color_index, sizeof(dest->color_index));
   memcpy(dest->xcolor_array, source->xcolor_array, sizeof(dest->xcolor_array));
-
-  dest->need_reb_sel_arr = 1;
-  dest->simdata = NULL;
-  dest->simdata_ninst = 0;
-  dest->prep_net_structs = 0;
-  dest->prep_hi_structs = 0;
-  dest->prep_net_structs = 0;
-  dest->prep_hi_structs = 0;
-  dest->prep_hash_inst = 0;
-  dest->prep_hash_object = 0;
-  dest->prep_hash_wires = 0;
 
   dest->window = source->window;
   dest->save_pixmap = source->save_pixmap;
@@ -1314,7 +1323,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   for(c = 0; c < cadlayers; ++c) {
     dest->gc[c] = source->gc[c];
     dest->gcstipple[c] = source->gcstipple[c];
-    my_strdup(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
+    my_strdup2(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
     dest->enable_layer[c] = source->enable_layer[c];
     dest->active_layer[c] = source->active_layer[c];
     dest->fill_type[c] = source->fill_type[c];
@@ -1325,8 +1334,8 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   dest->netlist_type = source->netlist_type;
 
 
-  my_strdup(_ALLOC_ID_, &dest->format, source->format);
-  my_strdup(_ALLOC_ID_, &dest->custom_format, source->custom_format);
+  my_strdup2(_ALLOC_ID_, &dest->format, source->format);
+  my_strdup2(_ALLOC_ID_, &dest->custom_format, source->custom_format);
   
 
   for(c = 0; c < cadlayers; ++c) {
@@ -1335,7 +1344,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     for(i = 0;i<dest->lines[c]; ++i) {
       dest->line[c][i] = source->line[c][i];
       dest->line[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest->line[c][i].prop_ptr, source->line[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->line[c][i].prop_ptr, source->line[c][i].prop_ptr);
     }
 
     dest->maxr[c] = dest->rects[c] = source->rects[c];
@@ -1343,7 +1352,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     for(i = 0;i<dest->rects[c]; ++i) {
       dest->rect[c][i] = source->rect[c][i];
       dest->rect[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest->rect[c][i].prop_ptr, source->rect[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->rect[c][i].prop_ptr, source->rect[c][i].prop_ptr);
       dest->rect[c][i].extraptr = NULL;
     }
 
@@ -1352,7 +1361,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     for(i = 0;i<dest->arcs[c]; ++i) {
       dest->arc[c][i] = source->arc[c][i];
       dest->arc[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest->arc[c][i].prop_ptr, source->arc[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->arc[c][i].prop_ptr, source->arc[c][i].prop_ptr);
     }
 
     dest->maxp[c] = dest->polygons[c] = source->polygons[c];
@@ -1361,7 +1370,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
       int points = source->poly[c][i].points;
       dest->poly[c][i] = source->poly[c][i];
       dest->poly[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest->poly[c][i].prop_ptr, source->poly[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->poly[c][i].prop_ptr, source->poly[c][i].prop_ptr);
       dest->poly[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
       dest->poly[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
       dest->poly[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
@@ -1409,7 +1418,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
     dest->wire[i] = source->wire[i];
     dest->wire[i].prop_ptr = NULL;
     dest->wire[i].node = NULL;
-    my_strdup(_ALLOC_ID_, &dest->wire[i].prop_ptr, source->wire[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->wire[i].prop_ptr, source->wire[i].prop_ptr);
   }
 
   dest->maxs = dest->symbols = source->symbols;
@@ -1420,11 +1429,11 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 }
 
 /* what: 
- *   1: initialize, alloc data
- *   2: cache current schematic
+ *   1: save current schematic
+ *   2: copy current schematic
  *   3: lookup schematic indicated in `sch_name` and switch to it
- *   4: switch back to original schematic
- *   5: free data
+ *   4: free data
+ *   5: get info
  *
  * returns: 
  *   1: all ok
@@ -1433,43 +1442,56 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 int cache_schematic(int what, const char *sch_name)
 {
   static Ptr_hashtable cache_table = {NULL, 0};
-  static Xschem_ctx *orig_xctx;
+  static Xschem_ctx *orig_xctx = NULL;
   int hash_size = 6247;
   Ptr_hashentry *entry;
   int i;
   int ret = 1;
   
-  if(what == 1) { /* alloc data */
-    orig_xctx = xctx; /* save pointer so we can return to it later */
-    dbg(0, "init data, storing %s\n", xctx->current_name);
-    ptr_hash_init(&cache_table, hash_size); 
+  if(what == 1) { /* save current schematic in hash table */
+    if(cache_table.table == NULL) {
+      dbg(0, "init hash table\n");
+      ptr_hash_init(&cache_table, hash_size);
+    }
+    if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
+      dbg(0, "saving: %s as %s\n", xctx->current_name, sch_name);
+      ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
+    }
   } else if(what == 2) { /* copy current schematic if not already present */
+    if(cache_table.table == NULL) {
+      dbg(0, "init hash table\n");
+      ptr_hash_init(&cache_table, hash_size);
+    }
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
       Xschem_ctx *save_xctx;
       save_xctx = xctx; /* save current schematic */
       xctx = NULL;
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
       schematic_deep_copy(xctx, save_xctx);
-      dbg(0, "storing: %s\n", xctx->current_name);
+      dbg(0, "store copy: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
     }
-  } else if(what == 3) { /* lookup schematic indicated in `sch_name` and switch to it */
+  } else if(what == 3 && cache_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
+      if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
+        dbg(0, "saving: %s\n", xctx->current_name);
+        ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
+      }
+      if(orig_xctx == NULL) {
+        dbg(0, "saving %p  %s into orig_xctx\n", xctx, xctx->current_name);
+        orig_xctx = xctx;
+      }
+      dbg(0, "overwriting: %p  %s\n", xctx, xctx->current_name);
       xctx = (Xschem_ctx *)entry->value;
-      dbg(0, "found %s, switch to it\n", xctx->current_name);
+      dbg(0, "found %s saved as %s, switch to it\n", xctx->current_name, sch_name);
     }
-  } else if(what == 4) { /* switch back to original schematic */
-    xctx = orig_xctx;
-    dbg(0, "switch back to %s\n", xctx->current_name);
-  } else if(what == 5) { /* free data */
-    Xschem_ctx *save_xctx;
-    save_xctx = xctx;
+  } else if(what == 4 && cache_table.table) { /* free data */
     for(i = 0; i < cache_table.size; ++i) {
       entry = cache_table.table[i];
       while(entry) {
         xctx = (Xschem_ctx *) entry->value;
-        dbg(0, "deleting: %s\n", xctx->current_name);
+        dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
         delete_netlist_structs();
         get_unnamed_node(0, 0, 0);
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
@@ -1479,9 +1501,25 @@ int cache_schematic(int what, const char *sch_name)
         entry = entry->next;
       }
     }
-    xctx = save_xctx;
+    if(orig_xctx) {
+      xctx = orig_xctx;
+      dbg(0, "restoring from orig_xctx: %p  %s\n", xctx, xctx->current_name);
+    }
     ptr_hash_free(&cache_table);
+  } else if(what == 5) { /* info */
+    dbg(0, "current: %p  %s\n", xctx, xctx->current_name);
+    if( cache_table.table) {
+      for(i = 0; i < cache_table.size; ++i) {
+        entry = cache_table.table[i];
+        while(entry) {
+          Xschem_ctx *stored_xctx = (Xschem_ctx *) entry->value;
+          dbg(0, "  stored: %p  %s, saved as %s\n", stored_xctx, stored_xctx->current_name, entry->token);
+          entry = entry->next;
+        }
+      }
+    }
   }
+  
   return ret;
 }
 

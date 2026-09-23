@@ -506,11 +506,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* cache_schematic what sch_name
      *   what:
-     *     1: initialize, alloc data
-     *     2: cache current schematic
-     *     3: lookup schematic indicated in `sch_name` and switch to it
-     *     4: switch back to original schematic
-     *     5: free data */
+     *   1: save current schematic
+     *   2: copy current schematic
+     *   3: lookup schematic indicated in `sch_name` and switch to it
+     *   4: free data
+     *   5: get info */
     else if(!strcmp(argv[1], "cache_schematic"))
     {
       const char *sch_name;
@@ -6518,6 +6518,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         dbg(0, "xctx=%p\n", xctx);
         if(xctx) dbg(0, "instances=%d\n", xctx->instances);
         if(xctx) dbg(0, "symbols=%d\n", xctx->symbols);
+      }
+      else if(argc > 2 && (atoi(argv[2]) == 10 || atoi(argv[2]) == 11)) {
+        static Raw *saveraw = NULL;
+        if(xctx->raw && atoi(argv[2]) == 10) {
+          Raw *newraw = NULL;
+          saveraw = xctx->raw;
+          raw_copy(&newraw, xctx->raw);
+          xctx->raw = newraw;
+        } else if(atoi(argv[2]) == 11) {
+          xctx->raw = saveraw;
+        }
       }
     }
 

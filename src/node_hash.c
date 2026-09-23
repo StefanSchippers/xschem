@@ -191,6 +191,33 @@ void node_hash_free(void) /* remove the whole hash table  */
  }
 }
 
+int node_hash_copy(Xschem_ctx *dest, Xschem_ctx *source)
+{
+  int i;
+  if (!source || !dest) return 1; /* nothing done */
+  if (!source->node_table || !dest->node_table) return 1; /* nothing done */
+  for(i = 0; i < HASHSIZE; ++i) {
+    Node_hashentry *sentry = source->node_table[i];
+    Node_hashentry **dentry = &dest->node_table[i];
+    while(sentry) {
+      Node_hashentry *new_node =  my_calloc(_ALLOC_ID_, 1, sizeof(Node_hashentry));
+      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      my_strdup(_ALLOC_ID_, &new_node->sig_type, sentry->sig_type);
+      my_strdup(_ALLOC_ID_, &new_node->verilog_type, sentry->verilog_type);
+      my_strdup(_ALLOC_ID_, &new_node->value, sentry->value);
+      my_strdup(_ALLOC_ID_, &new_node->class, sentry->class);
+      my_strdup(_ALLOC_ID_, &new_node->orig_tok, sentry->orig_tok);
+      new_node->hash = sentry->hash;
+      new_node->d = sentry->d;
+      new_node->next = NULL;
+      *dentry = new_node;
+      dentry = &new_node->next;
+      sentry = sentry->next;
+    }
+  }
+  return 0;
+}
+
 int traverse_node_hash()
 {
  int i;

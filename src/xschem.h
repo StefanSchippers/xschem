@@ -1291,6 +1291,7 @@ extern int raw_read_from_attr(Raw **rawptr, const char *type, double sweep1, dou
 extern int raw_add_vector(const char *varname, const char *expr, int sweep_idx);
 extern int raw_renamevar(const char *old_name, const char *new_name);
 extern int raw_deletevar(const char *name);
+extern void allocate_raw_slots(void);
 extern int new_rawfile(const char *name, const char *type, const char *sweepvar,
                        double start, double end, double step);
 extern char *base64_from_file(const char *f, size_t *length);
@@ -1310,6 +1311,8 @@ extern int  get_raw_index(const char *node, Int_hashentry **entry_ret);
 extern void free_rawfile(Raw **rawptr, int dr, int no_warning);
 extern int update_op();
 extern int extra_rawfile(int what, const char *f, const char *type, double sweep1, double sweep2);
+extern int raw_copy(Raw **dest_raw, Raw *source_raw);
+extern int extra_raw_arr_copy(Xschem_ctx *dest, Xschem_ctx *source);
 extern int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, double sweep1, double sweep2);
 extern int table_read(const char *f);
 extern double get_raw_value(int dataset, int idx, int point);
@@ -1765,6 +1768,7 @@ extern int record_global_node(int what, FILE *fp, const char *node);
 extern int count_items(const char *s, const char *sep, const char *quote);
 extern int get_unnamed_node(int what, int mult, int node);
 extern void node_hash_free(void);
+extern int node_hash_copy(Xschem_ctx *dest, Xschem_ctx *source);
 extern int traverse_node_hash();
 extern Node_hashentry
                 *bus_node_hash_lookup(const char *token, const char *dir,int what, int port, char *sig_type,
@@ -1786,6 +1790,7 @@ extern void  select_connected_nets(int stop_at_junction);
 extern char *resolved_net(const char *net);
 extern void draw_hilight_net(int on_window);
 extern void copy_hilights(void);
+extern int hilight_hash_copy(Xschem_ctx *dest, Xschem_ctx *source);
 extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);
 extern void set_tcl_netlist_type(void);

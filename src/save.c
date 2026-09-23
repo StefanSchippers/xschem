@@ -998,6 +998,78 @@ int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
   return res;
 }
 
+int raw_copy(Raw **dest_raw, Raw *source_raw)
+{
+  int i;
+  if(dest_raw == NULL) return 0;
+  if(!source_raw) {
+    *dest_raw = NULL;
+    return 0;
+  }
+  if(!*dest_raw) {
+    dbg(1, "raw_copy(): allocating raw struct\n");
+    *dest_raw = my_calloc(_ALLOC_ID_, 1, sizeof(Raw));
+  }
+  my_strdup2(_ALLOC_ID_, &(*dest_raw)->rawfile, source_raw->rawfile);
+
+  (*dest_raw)->names = my_calloc(_ALLOC_ID_, source_raw->nvars, sizeof(char *));
+  for(i = 0; i < source_raw->nvars; i++) {
+    my_strdup2(_ALLOC_ID_, &(*dest_raw)->names[i], source_raw->names[i]);
+  }
+
+  (*dest_raw)->values = my_calloc(_ALLOC_ID_, (source_raw->nvars + 1), sizeof(SPICE_DATA *));
+  for(i = 0; i <= source_raw->nvars; i++) { /* one extra column for wave expressions */
+    (*dest_raw)->values[i] = my_calloc(_ALLOC_ID_, source_raw->allpoints, sizeof(SPICE_DATA));
+    memcpy((*dest_raw)->values[i], source_raw->values[i], source_raw->allpoints * sizeof(SPICE_DATA));
+  }
+
+  (*dest_raw)->cursor_b_val = my_calloc(_ALLOC_ID_, source_raw->nvars, sizeof(double));
+  memcpy((*dest_raw)->cursor_b_val, source_raw->cursor_b_val, source_raw->nvars * sizeof(double));
+
+  (*dest_raw)->npoints = my_calloc(_ALLOC_ID_, source_raw->datasets, sizeof(int));
+  memcpy((*dest_raw)->npoints, source_raw->npoints, source_raw->datasets * sizeof(int));
+
+  my_strdup2(_ALLOC_ID_, &(*dest_raw)->sim_type, source_raw->sim_type);
+  my_strdup2(_ALLOC_ID_, &(*dest_raw)->schname, source_raw->schname);
+  (*dest_raw)->nvars = source_raw->nvars;
+  (*dest_raw)->allpoints = source_raw->allpoints;
+  (*dest_raw)->datasets = source_raw->datasets;
+  (*dest_raw)->annot_p = source_raw->annot_p;
+  (*dest_raw)->annot_x = source_raw->annot_x;
+  (*dest_raw)->annot_sweep_idx = source_raw->annot_sweep_idx;
+  (*dest_raw)->level = source_raw->level;
+  (*dest_raw)->sweep1 = source_raw->sweep1;
+  (*dest_raw)->sweep2 = source_raw->sweep2;
+
+  int_hash_copy(&(*dest_raw)->table, &source_raw->table);
+  return 1;
+}
+
+int extra_raw_arr_copy(Xschem_ctx *dest, Xschem_ctx *source)
+{
+  if(!source || !source->extra_raw_arr) return 0;
+  if(!dest) return 0;
+  dest->extra_idx = source->extra_idx;
+  dest->extra_prev_idx = source->extra_prev_idx;
+  dest->extra_raw_n = source->extra_raw_n;
+  dest->extra_raw_size = source->extra_raw_size;
+  if(source->extra_raw_size) {
+    dest->extra_raw_arr = my_calloc(_ALLOC_ID_, source->extra_raw_size, sizeof(Raw *));
+
+    if(source->extra_raw_n) {
+      int i;
+      for(i = 0; i < source->extra_raw_n; i++) {
+        if(i == 0) {
+          dest->extra_raw_arr[i] = source->raw;
+        } else {
+          raw_copy(&dest->extra_raw_arr[i], source->extra_raw_arr[i]);
+        }
+      }
+    }
+  }
+  return 1;
+}
+
 /* read a ngspice raw file (with data portion in binary format) */
 int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, double sweep1, double sweep2)
 {
@@ -1118,7 +1190,7 @@ int raw_deletevar(const char *name)
 }
 
 /* allocate xctx->extra_raw_arr array */
-static void allocate_raw_slots()
+void allocate_raw_slots(void)
 {
   if(xctx->extra_raw_n >= xctx->extra_raw_size) {
     int old_size = xctx->extra_raw_size;
