@@ -2169,7 +2169,7 @@ void toggle_ignore(void)
 /* what = 1: start
  * what = 0 : end : should NOT be called if match_symbol() has been executed between start & end
  */
-void new_get_additional_symbols(int what)
+void get_additional_symbols(int what)
 {
   int i;
   static int num_syms; /* no context switch between start and end so it is safe */
@@ -2178,6 +2178,7 @@ void new_get_additional_symbols(int what)
   struct stat buf;
   int is_gen = 0;
 
+  num_syms = xctx->symbols;
   if(what == 1) { /* start */
     /* handle instances with "schematic=..." attribute (polymorphic symbols) */
     for(i=0;i<xctx->instances; ++i) {
@@ -2247,7 +2248,6 @@ void new_get_additional_symbols(int what)
           /* init hash table only if we need to use it */
           if(!sym_table.table) {
             int_hash_init(&sym_table, 367);
-            num_syms = xctx->symbols;
             for(s = 0; s < xctx->symbols; ++s) {
               int_hash_lookup(&sym_table, xctx->sym[s].name, s, XINSERT);
             }
@@ -2362,192 +2362,6 @@ void new_get_additional_symbols(int what)
   }
 }
 
-
-void get_additional_symbols(int what)
-{
-  int i;
-  static int num_syms; /* no context switch between start and end so it is safe */
-  Int_hashentry *found;
-  Int_hashtable sym_table = {NULL, 0};
-  struct stat buf;
-  int is_gen = 0;
-
-  if(what == 1) { /* start */
-    int_hash_init(&sym_table, HASHSIZE);
-    num_syms = xctx->symbols;
-    for(i = 0; i < xctx->symbols; ++i) {
-      int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
-    }
-    /* handle instances with "schematic=..." attribute (polymorphic symbols) */
-    for(i=0;i<xctx->instances; ++i) {
-      char *spice_sym_def = NULL;
-      char *vhdl_sym_def = NULL;
-      char *verilog_sym_def = NULL;
-      char *spectre_sym_def = NULL;
-      char *default_schematic = NULL;
-      char *sch = NULL;
-      char symbol_base_sch[PATH_MAX] = "";
-      size_t schematic_token_found = 0;
-      char *res = NULL;
-
-      if(xctx->inst[i].ptr < 0) continue;
-      dbg(1, "get_additional_symbols(): inst=%d (%s) sch=%s\n",i, xctx->inst[i].name,  sch);
-      /* copy instance based *_sym_def attributes to symbol */
-      my_strdup(_ALLOC_ID_, &spice_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spice_sym_def",6));
-      my_strdup(_ALLOC_ID_, &spectre_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spectre_sym_def",6));
-      my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
-      my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
-
-      /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
-      my_strdup2(_ALLOC_ID_, &sch, get_tok_value(xctx->inst[i].prop_ptr,"schematic", 6));
-      schematic_token_found = xctx->tok_size;
-
-
-      if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch >= 1 &&
-         xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
-        translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
-      }
-
-      dbg(1, "get_additional_symbols(): schematic=%s\n", sch);
-
-      my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, &res));
-      my_free(_ALLOC_ID_, &res);
-      dbg(1, "  get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size);
-
-      my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
-         str_replace(sch, "@symname", get_cell(xctx->inst[i].name, 0), '\\', -1)));
-      dbg(1, "  get_additional_symbols(): sch=%s\n", sch);
-
-      /* schematic does not exist */
-      if(sch[0] && stat(abs_sym_path(sch, ""), &buf)) {
-        my_snprintf(symbol_base_sch, PATH_MAX, "%s.sch", get_cell(xctx->sym[xctx->inst[i].ptr].name, 9999));
-        dbg(1, "get_additional_symbols(): schematic not existing\n");
-        dbg(1, "using: %s\n", symbol_base_sch);
-      }
-      if(schematic_token_found && sch[0]) { /* `schematic` token exists  and a schematic is specified */
-        int j;
-        char *sym = NULL;
-        char *symname_attr = NULL;
-        int ignore_schematic = 0;
-        char *res = NULL;
-        xSymbol *symptr = xctx->inst[i].ptr + xctx->sym;
-        my_strdup2(_ALLOC_ID_, &default_schematic, get_tok_value(symptr->prop_ptr,"default_schematic",0));
-        ignore_schematic = !strcmp(default_schematic, "ignore");
-
-        dbg(1, "get_additional_symbols(): inst=%d, sch=%s instname=%s\n", i, sch, xctx->inst[i].instname);
-        dbg(1, "get_additional_symbols(): current_name=%s\n", xctx->current_name);
-
-        is_gen = is_generator(sch);
-
-        if(is_gen) {
-          my_strdup2(_ALLOC_ID_, &sym, sch);
-          dbg(1, "get_additional_symbols(): generator\n");
-        } else {
-          my_strdup2(_ALLOC_ID_, &sym, add_ext(rel_sym_path(sch), ".sym"));
-        }
-
-        my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
-        my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(i, 9999, 1, 1), NULL);
-        my_strdup(_ALLOC_ID_, &spice_sym_def,
-            translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
-                                         symptr->templ,
-                                         symname_attr, NULL,
-                                         &res));
-        my_strdup(_ALLOC_ID_, &spectre_sym_def,
-            translate3(spectre_sym_def, 1, xctx->inst[i].prop_ptr,
-                                         symptr->templ,
-                                         symname_attr, NULL,
-                                         &res));
-        my_free(_ALLOC_ID_, &symname_attr);
-        my_free(_ALLOC_ID_, &res);
-        /* if instance symbol has default_schematic set to ignore copy the symbol anyway, since
-         * the base symbol will not be netlisted by *_block_netlist() */
-        found = ignore_schematic ? NULL : int_hash_lookup(&sym_table, sym, 0, XLOOKUP);
-        if(!found) {
-          char *tr_prop_ptr = NULL;
-          j = xctx->symbols;
-          int_hash_lookup(&sym_table, sym, j, XINSERT);
-          dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
-          check_symbol_storage();
-          /* check_symbol_storage() may relocate symbols, update pointer */
-          symptr = xctx->inst[i].ptr + xctx->sym;
-
-          copy_symbol(&xctx->sym[j], symptr);
-          xctx->sym[j].base_name = symptr->name;
-          my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
-
-          if( xctx->currsch >= 1) {
-            translate3(xctx->inst[i].prop_ptr, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr,
-               NULL, NULL,NULL, &tr_prop_ptr);
-            dbg(1, "get_additional_symbols(): xctx->hier_attr.prop_ptr=%s\n", 
-               xctx->hier_attr[xctx->currsch - 1].prop_ptr ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : "<NULL>");
-          } else {
-            my_strdup(_ALLOC_ID_, &tr_prop_ptr, xctx->inst[i].prop_ptr);
-          }
-          my_strdup(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr, eval_expr(tr_prop_ptr));
-          dbg(1, "get_additional_symbols(): inst:%s prop_ptr:%s\n",xctx->inst[i].instname, xctx->inst[i].prop_ptr);
-          dbg(1, "get_additional_symbols(): currsch=%d\n", xctx->currsch);
-          dbg(1, "get_additional_symbols(): tr_prop_ptr=%s\n", tr_prop_ptr ? tr_prop_ptr : "<NULL>");
-          my_free(_ALLOC_ID_, &tr_prop_ptr);
-          /* the copied symbol will not inherit the default_schematic attribute otherwise it will also
-           * be skipped */
-          if(default_schematic) {
-            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-              subst_token(xctx->sym[j].prop_ptr, "default_schematic", NULL)); /* delete attribute */
-          }
-          /* if symbol has no corresponding schematic file use symbol base schematic */
-          if(!is_gen && symbol_base_sch[0]) {
-            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-              subst_token(xctx->sym[j].prop_ptr, "schematic", symbol_base_sch));
-          }
-          /* we keep a copy of the schematic attribute specified in symbol */
-          if(!is_gen && sch && sch[0]) {
-            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "inst_schematic", sch));
-            my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "from_inst", xctx->inst[i].instname));
-          }
-          if(spice_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "spice_sym_def", spice_sym_def));
-          }
-          if(spectre_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "spectre_sym_def", spectre_sym_def));
-          }
-          if(verilog_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "verilog_sym_def", verilog_sym_def));
-          }
-          if(vhdl_sym_def) {
-             my_strdup(_ALLOC_ID_, &xctx->sym[j].prop_ptr,
-               subst_token(xctx->sym[j].prop_ptr, "vhdl_sym_def", vhdl_sym_def));
-          }
-          xctx->symbols++;
-
-
-
-
-        } else {
-         j = found->value;
-        }
-        my_free(_ALLOC_ID_, &sym);
-        my_free(_ALLOC_ID_, &default_schematic);
-      } /* if(xctx->tok_size && sch[0]) */
-      my_free(_ALLOC_ID_, &sch);
-      my_free(_ALLOC_ID_, &spice_sym_def);
-      my_free(_ALLOC_ID_, &spectre_sym_def);
-      my_free(_ALLOC_ID_, &vhdl_sym_def);
-      my_free(_ALLOC_ID_, &verilog_sym_def);
-    } /* for(i=0;i<xctx->instances; ++i) */
-    int_hash_free(&sym_table);
-  } else { /* end */
-    for(i = xctx->symbols - 1; i >= num_syms; --i) {
-      remove_symbol(i);
-    }
-    xctx->symbols = num_syms;
-  }
-}
 /* fallback = 1: if schematic attribute is set but file not existing fallback
  * to defaut symbol schematic (symname.sym -> symname.sch)
  * fallback = 2: same as above but will not ask user 
