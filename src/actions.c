@@ -2263,6 +2263,10 @@ void get_additional_symbols(int what)
           int_hash_lookup(&sym_table, sym, j, XINSERT);
           dbg(1, "get_additional_symbols(): adding symbol %s\n", sym);
           check_symbol_storage();
+
+          /* check_symbol_storage() may relocate symbols, update pointer */
+          symptr = xctx->inst[i].ptr + xctx->sym;
+
           copy_symbol(&xctx->sym[j], symptr);
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
