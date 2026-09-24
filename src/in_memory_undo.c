@@ -442,8 +442,11 @@ void mem_pop_undo(int redo, int set_modify_status)
     my_free(_ALLOC_ID_, &xctx->arc[i]);
   }
 
-  remove_symbols();
-  my_free(_ALLOC_ID_, &xctx->sym);
+  if(!tclgetboolvar("keep_symbols")) {
+    remove_symbols();
+    my_free(_ALLOC_ID_, &xctx->sym);
+    xctx->maxs = xctx->symbols = 0;
+  }
 
   my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[slot].gptr);
   my_strdup(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[slot].vptr);
@@ -515,11 +518,29 @@ void mem_pop_undo(int redo, int set_modify_status)
   }
 
   /* symbols */
-  xctx->maxs = xctx->symbols = xctx->uslot[slot].symbols;
-  xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
+  if(!xctx->sym) {
+    xctx->maxs = xctx->symbols = xctx->uslot[slot].symbols;
+    xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
+    for(i = 0; i < xctx->uslot[slot].symbols; ++i) {
+      copy_symbol(&xctx->sym[i], &xctx->uslot[slot].symptr[i]);
+    }
+  } else {
+    Int_hashtable sym_table = {NULL, 0};
+    int_hash_init(&sym_table, 367);
 
-  for(i = 0;i<xctx->symbols; ++i) {
-    copy_symbol(&xctx->sym[i], &xctx->uslot[slot].symptr[i]);
+    for(i = 0; i < xctx->symbols; ++i) {
+      int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
+    }
+
+    for(i = 0; i < xctx->uslot[slot].symbols; ++i) {
+      const char *sym = xctx->uslot[slot].symptr[i].name;
+      if(!int_hash_lookup(&sym_table, sym, 0, XLOOKUP)) {
+        check_symbol_storage();
+        copy_symbol(&xctx->sym[xctx->symbols], &xctx->uslot[slot].symptr[i]);
+        xctx->symbols++;
+      }
+    }
+    int_hash_free(&sym_table);
   }
 
   /* texts */
