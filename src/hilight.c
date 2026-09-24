@@ -222,6 +222,7 @@ int hilight_hash_copy(Xschem_ctx *dest, Xschem_ctx *source)
     Hilight_hashentry **dentry = &dest->hilight_table[i];
     while(sentry) {
       Hilight_hashentry *new_node =  my_calloc(_ALLOC_ID_, 1, sizeof(Hilight_hashentry));
+      dbg(1, "hilight_hash_copy(): copied node: %s -> %d\n", sentry->token, sentry->value);
       my_strdup2(_ALLOC_ID_, &new_node->token, sentry->token);
       my_strdup2(_ALLOC_ID_, &new_node->path, sentry->path);
       new_node->hash = sentry->hash;

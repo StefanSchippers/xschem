@@ -937,7 +937,6 @@ int compare_schematics(const char *f)
 static void xwin_exit(void)
 {
  int i;
-
  if(!init_done) {
    dbg(0, "xwin_exit() double call, doing nothing...\n");
    return;
@@ -1493,6 +1492,7 @@ int cache_schematic(int what, const char *sch_name)
         xctx = (Xschem_ctx *) entry->value;
         dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
         delete_netlist_structs();
+        clear_all_hilights();
         get_unnamed_node(0, 0, 0);
         extra_rawfile(3, NULL, NULL, -1.0, -1.0);
         clear_drawing();
