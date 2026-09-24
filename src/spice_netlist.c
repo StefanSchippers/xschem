@@ -57,7 +57,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->do_copy_area = 0;
   if((what & 1)  && !ps_draw(1, 1, 0)) return; /* prolog */
   xctx->push_undo();
-  str_hash_init(&subckt_table, HASHSIZE);
+  str_hash_init(&subckt_table, 367);
   zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   if(what & 1) ps_draw(2, 1, 0); /* page */
   if(what & 2) { /* print cellname */
@@ -293,8 +293,8 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- str_hash_init(&subckt_table, HASHSIZE);
- str_hash_init(&model_table, HASHSIZE);
+ str_hash_init(&subckt_table, 367);
+ str_hash_init(&model_table, 367);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
@@ -526,7 +526,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   xctx->pop_undo(4, 0);
+   xctx->pop_undo(4, 0); /* to re-populate only used symbols */
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));

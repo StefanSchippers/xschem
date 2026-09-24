@@ -1840,7 +1840,7 @@ int sym_vs_sch_pins(int all)
       Int_hashtable pin_table = {NULL, 0};
       int p;
       int unique_pins = 0;
-      int_hash_init(&pin_table, HASHSIZE);
+      int_hash_init(&pin_table, 367);
       for(p = 0; p < rects; p++) {
         const char *pname = get_tok_value(xctx->sym[i].rect[PINLAYER][p].prop_ptr, "name", 0);
         if(!int_hash_lookup(&pin_table, pname, i, XINSERT_NOREPLACE)) {

@@ -133,7 +133,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  /* to be printed before any entity declarations */
 
  xctx->netlist_count=0;
- str_hash_init(&subckt_table, HASHSIZE);
+ str_hash_init(&subckt_table, 367);
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  fd=fopen(netl_filename, "w");
@@ -404,7 +404,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    int web_url = is_from_web(xctx->current_dirname);
    char *current_dirname_save = NULL;
 
-   str_hash_init(&subckt_table, HASHSIZE);
+   str_hash_init(&subckt_table, 367);
    unselect_all(1);
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();

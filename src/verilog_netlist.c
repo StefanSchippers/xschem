@@ -104,7 +104,7 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- str_hash_init(&subckt_table, HASHSIZE);
+ str_hash_init(&subckt_table, 367);
  xctx->netlist_count=0;
  /* top sch properties used for library use declarations and type definitions */
  /* to be printed before any entity declarations */

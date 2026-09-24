@@ -178,8 +178,8 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
- str_hash_init(&subckt_table, HASHSIZE);
- str_hash_init(&spectre_model_table, HASHSIZE);
+ str_hash_init(&subckt_table, 367);
+ str_hash_init(&spectre_model_table, 367);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
  bus_char[0] = bus_char[1] = '\0';
  xctx->hiersep[0]='.'; xctx->hiersep[1]='\0';
