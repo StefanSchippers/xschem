@@ -1316,11 +1316,15 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   dy=boundbox.y2-boundbox.y1;
 
   /* xschem drawing bbox decides if portrait or landscape */
+  /* Disabled since we want uniform orientation, expecially in hierarchical ps/pdf exports */
+  #if 0
   if(fullzoom == 1) {
     calc_drawing_bbox(&boundbox, 0);
     dx=boundbox.x2-boundbox.x1;
     dy=boundbox.y2-boundbox.y1;
   }
+  #endif
+
   if(dx >= dy) {
     landscape = 1;
   } else {
