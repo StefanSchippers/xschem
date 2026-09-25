@@ -1041,16 +1041,24 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
                                         /* in hash table */
    {
      char *res = NULL;
-     const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res));
+     const char *s;
+     char *gsn = NULL;
+     my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+     s = sanitize(translate(inst, gsn, &res));
      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
      my_free(_ALLOC_ID_, &res);
+     my_free(_ALLOC_ID_, &gsn);
    }
    else if (strcmp(token,"@symname_ext")==0)
    {
      char *res = NULL;
-     const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0), &res));
+     const char *s;
+     char *gsn = NULL;
+     my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 1, 0));
+     s = sanitize(translate(inst, gsn, &res));
      my_mstrcat(_ALLOC_ID_, &result, s, NULL);
      my_free(_ALLOC_ID_, &res);
+     my_free(_ALLOC_ID_, &gsn);
    }
    else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                         /* in hash table */
@@ -1507,6 +1515,7 @@ void print_vhdl_element(FILE *fd, int inst)
   const char *fmt_attr = NULL;
   Int_hashtable table = {NULL, 0};
   const char *fmt;
+  char *gsn = NULL;
 
   fmt_attr = xctx->format ? xctx->format : "vhdl_format";
 
@@ -1540,16 +1549,18 @@ void print_vhdl_element(FILE *fd, int inst)
 
  /* print instance name and subckt */
   dbg(2, "print_vhdl_element(): printing inst name & subcircuit name\n");
+  my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
   if( (lab = expandlabel(name, &tmp)) != NULL) {
     char *res = NULL;
-    fprintf(fd, "%d %s : %s\n", tmp, lab, sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res)) );
+    fprintf(fd, "%d %s : %s\n", tmp, lab, sanitize(translate(inst, gsn, &res)) );
     my_free(_ALLOC_ID_, &res);
   } else { /*  name in some strange format, probably an error */
     char *res = NULL;
-    fprintf(fd, "1 %s : %s\n", name, sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res)) );
+    fprintf(fd, "1 %s : %s\n", name, sanitize(translate(inst, gsn, &res)) );
     my_free(_ALLOC_ID_, &res);
   }
   dbg(2, "print_vhdl_element(): printing generics passed as properties\n");
+  my_free(_ALLOC_ID_, &gsn);
 
 
   /* -------- print generics passed as properties */
@@ -2464,16 +2475,24 @@ int print_spice_element(FILE *fd, int inst)
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         char *res = NULL;
-        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res));
+        char *gsn = NULL;
+        const char *s;
+        my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+        s = sanitize(translate(inst, gsn, &res));
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         my_free(_ALLOC_ID_, &res);
+        my_free(_ALLOC_ID_, &gsn);
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname_ext must not be present in attributes */
       {
         char *res = NULL;
-        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0), &res));
+        char *gsn = NULL;
+        const char *s;
+        my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 1, 0));
+        s = sanitize(translate(inst, gsn, &res));
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         my_free(_ALLOC_ID_, &res);
+        my_free(_ALLOC_ID_, &gsn);
       }
       else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
       {
@@ -2849,16 +2868,24 @@ int print_spectre_element(FILE *fd, int inst)
       else if (strcmp(token,"@symname")==0) /* of course symname must not be present in attributes */
       {
         char *res = NULL;
-        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res));
+        char *gsn = NULL;
+        const char *s;
+        my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+        s = sanitize(translate(inst, gsn, &res));
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         my_free(_ALLOC_ID_, &res);
+        my_free(_ALLOC_ID_, &gsn);
       }
       else if (strcmp(token,"@symname_ext")==0) /* of course symname_ext must not be present in attributes */
-      {
+      { 
         char *res = NULL;
-        const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0), &res));
+        char *gsn = NULL;
+        const char *s;
+        my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 1, 0));
+        s = sanitize(translate(inst, gsn, &res));
         my_mstrcat(_ALLOC_ID_, &result, s, NULL);
         my_free(_ALLOC_ID_, &res);
+        my_free(_ALLOC_ID_, &gsn);
       }
       else if(strcmp(token,"@topschname")==0) /* of course topschname must not be present in attributes */
       {
@@ -3192,11 +3219,13 @@ void print_tedax_element(FILE *fd, int inst)
    int pin_mult;
    int n;
    char *res = NULL;
+   char *gsn = NULL;
    Int_hashtable table={NULL, 0};
    subcircuit = 1;
-   fprintf(fd, "__subcircuit__ %s %s\n",
-       sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res)), xctx->inst[inst].instname);
+   my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+   fprintf(fd, "__subcircuit__ %s %s\n", sanitize(translate(inst, gsn, &res)), xctx->inst[inst].instname);
    my_free(_ALLOC_ID_, &res);
+   my_free(_ALLOC_ID_, &gsn);
    int_hash_init(&table, 37);
    for(i=0;i<no_of_pins; ++i) {
      my_strdup2(_ALLOC_ID_, &net, net_name(inst,i, &net_mult, 0, 1));
@@ -3331,20 +3360,27 @@ void print_tedax_element(FILE *fd, int inst)
       const char *s = get_sym_name(inst, 9999, 1, 0);
       fputs(s, fd);
     }
-    else if(strcmp(token,"@symname")==0)        /* of course symname must not be present  */
-                                        /* in hash table */
-    {
+    else if (strcmp(token,"@symname")==0)
+    {                                 
       char *res = NULL;
-      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res));
+      char *gsn = NULL;
+      const char *s;
+      my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+      s = sanitize(translate(inst, gsn, &res));
       fputs(s, fd);
       my_free(_ALLOC_ID_, &res);
-    }
+      my_free(_ALLOC_ID_, &gsn);
+    } 
     else if (strcmp(token,"@symname_ext")==0)
-    {
+    { 
       char *res = NULL;
-      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0), &res));
+      char *gsn = NULL;
+      const char *s;
+      my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 1, 0));
+      s = sanitize(translate(inst, gsn, &res));
       fputs(s, fd);
       my_free(_ALLOC_ID_, &res);
+      my_free(_ALLOC_ID_, &gsn);
     }
     else if(strcmp(token,"@schname_ext")==0)        /* of course schname must not be present  */
                                                 /* in hash table */
@@ -3614,20 +3650,27 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       const char *s = get_sym_name(inst, 9999, 1, 0);
       my_mstrcat(_ALLOC_ID_, &result, s, NULL);
     }
-    else if(strcmp(token,"@symname")==0) /* of course symname must not be present  */
-                                         /* in hash table */
-    {
+    else if (strcmp(token,"@symname")==0)
+    {                                 
       char *res = NULL;
-      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 0, 0), &res));
+      char *gsn = NULL;
+      const char *s;
+      my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 0, 0));
+      s = sanitize(translate(inst, gsn, &res));
       my_mstrcat(_ALLOC_ID_, &result, s, NULL);
       my_free(_ALLOC_ID_, &res);
-    }
+      my_free(_ALLOC_ID_, &gsn);
+    } 
     else if (strcmp(token,"@symname_ext")==0)
-    {
+    { 
       char *res = NULL;
-      const char *s = sanitize(translate(inst, get_sym_name(inst, 0, 1, 0), &res));
+      char *gsn = NULL;
+      const char *s;
+      my_strdup2(_ALLOC_ID_, &gsn, get_sym_name(inst, 0, 1, 0));
+      s = sanitize(translate(inst, gsn, &res));
       my_mstrcat(_ALLOC_ID_, &result, s, NULL);
       my_free(_ALLOC_ID_, &res);
+      my_free(_ALLOC_ID_, &gsn);
     }
     else if(strcmp(token,"@schname_ext")==0) /* of course schname must not be present  */
                                          /* in hash table */
