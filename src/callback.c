@@ -436,17 +436,20 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   int track_dset = -2; /* used to find dataset of closest wave to mouse if 't' is pressed */
   xRect *r = NULL;
   int access_cond = graph_select_to_zoom || (!graph_use_ctrl_key || (state & ControlMask));
+  #if HAS_CAIRO==1
+  cairo_font_face_t *temp_font;
+  #endif
 
   dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
   /* if(event != -3 && !xctx->raw) return 0; */
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
   cairo_save(xctx->cairo_save_ctx);
-  xctx->cairo_font =
+  temp_font =
         cairo_toy_font_face_create("Sans-Serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-  cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-  cairo_font_face_destroy(xctx->cairo_font);
+  cairo_set_font_face(xctx->cairo_ctx, temp_font);
+  cairo_set_font_face(xctx->cairo_save_ctx, temp_font);
+  cairo_font_face_destroy(temp_font);
   #endif
   gr = &xctx->graph_struct;
   if((i = xctx->graph_master) >= 0 && ((r = &xctx->rect[GRIDLAYER][i])->flags & 1)) {

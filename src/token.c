@@ -3502,7 +3502,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
   register int c, state=TOK_BEGIN, space;
   const char *lab;
   char *template=NULL,*format=NULL,*s=NULL, *name=NULL, *token=NULL, *tr_name = NULL;
-  const char *value;
+  char *value = NULL;
   size_t sizetok=0;
   size_t token_pos=0;
   int escape=0;
@@ -3579,10 +3579,11 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     token[token_pos]='\0';
     token_pos=0;
 
-    value = get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0);
+    my_strdup2(_ALLOC_ID_, &value, get_tok_value(xctx->inst[inst].prop_ptr, token+1, 0));
     /* xctx->tok_size==0 indicates that token(+1) does not exist in instance attributes */
-    if(!xctx->tok_size)
-    value=get_tok_value(template, token+1, 0);
+    if(!xctx->tok_size) {
+      my_strdup2(_ALLOC_ID_, &value, get_tok_value(template, token+1, 0));
+    }
     if(!xctx->tok_size && token[0] =='%') {
       my_mstrcat(_ALLOC_ID_, &result, token + 1, NULL);
     } else if(value && value[0]!='\0') {
@@ -3592,7 +3593,6 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      translate3(value, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
            NULL, NULL, NULL, &tr_value);
      my_strdup2(_ALLOC_ID_, &tr_value, eval_expr(tr_value));
-
      if(!(strcmp(token+1,"name"))) {
  
        if( (lab=expandlabel(tr_value, &tmp)) != NULL)
@@ -3690,6 +3690,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
       n = get_inst_pin_number(inst, pin_num_or_name);
       if(n>=0  && pin_attr[0] && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
         char *pin_attr_value = NULL;
+        char *pval;
         int is_net_name = !strcmp(pin_attr, "net_name");
         /* get pin_attr value from instance: "pinnumber(ENABLE)=5" --> return 5, attr "pinnumber" of pin "ENABLE"
          *                                   "pinnumber(3)=6       --> return 6, attr "pinnumber" of 4th pin */
@@ -3708,9 +3709,9 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
                xctx->inst[inst].node && xctx->inst[inst].node[n] ? xctx->inst[inst].node[n] : "?");
         }
         if(!pin_attr_value ) my_strdup(_ALLOC_ID_, &pin_attr_value, "--UNDEF--");
-        value = pin_attr_value;
+        pval = pin_attr_value;
         /* recognize slotted devices: instname = "U3:3", value = "a:b:c:d" --> value = "c" */
-        if(value[0] && !strcmp(pin_attr, "pinnumber") ) {
+        if(pval[0] && !strcmp(pin_attr, "pinnumber") ) {
           char *ss;
           int slot;
           char *tmpstr = NULL;
@@ -3719,12 +3720,12 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
             sscanf(ss+1, "%s", tmpstr);
             if(isonlydigit(tmpstr)) {
               slot = atoi(tmpstr);
-              if(strstr(value,":")) value = find_nth(value, ":", "", 0, slot);
+              if(strstr(pval,":")) pval = find_nth(pval, ":", "", 0, slot);
             }
           }
           my_free(_ALLOC_ID_, &tmpstr);
         }
-        my_mstrcat(_ALLOC_ID_, &result, value, NULL);
+        my_mstrcat(_ALLOC_ID_, &result, pval, NULL);
         my_free(_ALLOC_ID_, &pin_attr_value);
       }
       else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -3760,6 +3761,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
     }
     if(c == '@' || c == '%') s--;
     state=TOK_BEGIN;
+    my_free(_ALLOC_ID_, &value);
    }
    else if(state==TOK_BEGIN && c!='\0')  {
      char str[2];

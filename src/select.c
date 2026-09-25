@@ -527,9 +527,6 @@ int delete_wires(int selected_flag)
 void delete(int to_push_undo)
 {
   int i, j, deleted = 0;
-  #if HAS_CAIRO==1
-  int customfont;
-  #endif
 
   dbg(3, "delete(): start\n");
   j = 0;
@@ -541,14 +538,6 @@ void delete(int to_push_undo)
   {
     if(xctx->text[i].sel == SELECTED)
     {
-      #if HAS_CAIRO==1
-      customfont = set_text_custom_font(&xctx->text[i]);
-      #endif
-      #if HAS_CAIRO==1
-      if(customfont) {
-        cairo_restore(xctx->cairo_ctx);
-      }
-      #endif
       my_free(_ALLOC_ID_, &xctx->text[i].prop_ptr);
       my_free(_ALLOC_ID_, &xctx->text[i].font);
       my_free(_ALLOC_ID_, &xctx->text[i].floater_instname);

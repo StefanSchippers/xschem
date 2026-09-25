@@ -3930,6 +3930,7 @@ int create_text(int draw_text, double x, double y, int rot, int flip, const char
 
   if(draw_text) {
     #if HAS_CAIRO==1
+    cairo_font_face_t *temp_font;
     textfont = t->font;
     if((textfont && textfont[0]) || (t->flags & (TEXT_BOLD | TEXT_OBLIQUE | TEXT_ITALIC))) {
       cairo_font_slant_t slant;
@@ -3941,11 +3942,10 @@ int create_text(int draw_text, double x, double y, int rot, int flip, const char
       if(t->flags & TEXT_OBLIQUE) slant = CAIRO_FONT_SLANT_OBLIQUE;
       cairo_save(xctx->cairo_ctx);
       cairo_save(xctx->cairo_save_ctx);
-      xctx->cairo_font =
-            cairo_toy_font_face_create(textfont, slant, weight);
-      cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
-      cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
-      cairo_font_face_destroy(xctx->cairo_font);
+      temp_font = cairo_toy_font_face_create(textfont, slant, weight);
+      cairo_set_font_face(xctx->cairo_ctx, temp_font);
+      cairo_set_font_face(xctx->cairo_save_ctx, temp_font);
+      cairo_font_face_destroy(temp_font);
     }
     #endif
     save_draw=xctx->draw_window;

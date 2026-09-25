@@ -575,7 +575,6 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 #if HAS_CAIRO==1
   xctx->cairo_ctx = xctx->cairo_save_ctx = NULL;
   xctx->cairo_sfc = xctx->cairo_save_sfc = NULL;
-  xctx->cairo_font = NULL;
 #endif
   xctx->gctiled = 0;
   /* get_unnamed_node() */
@@ -1004,6 +1003,9 @@ static void xwin_exit(void)
  tcleval("if {[info exists xschem_server_getdata(server)]} { close $xschem_server_getdata(server) }");
  tcleval("if {[info exists bespice_server_getdata(server)]} { close $bespice_server_getdata(server) }");
  if(!cli_opt_detach) printf("\n");
+ #if HAS_CAIRO==1
+ cairo_debug_reset_static_data();  /* so valgrind does not report leaked data I can not control */
+ #endif
  init_done=0; /* 20150409 to avoid multiple calls */
 }
 
@@ -1315,7 +1317,6 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
   dest->cairo_save_ctx = source->cairo_save_ctx;
   dest->cairo_sfc = source->cairo_sfc;
   dest->cairo_save_sfc = source->cairo_save_sfc;
-  dest->cairo_font = source->cairo_font;
   #endif
   
   dest->gctiled = source->gctiled;
@@ -2532,6 +2533,7 @@ void create_memory_cairo_ctx(int what)
 static void resetcairo(int create, int clear, int force_or_resize)
 {
   #if HAS_CAIRO==1
+  cairo_font_face_t *temp_font;
   dbg(1, "resetcairo() %d, %d, %d\n", create, clear, force_or_resize);
   if(clear && force_or_resize) {
     /* xctx->cairo_save_sfc is based on pixmap and pixmaps are not resizeable, so on resize
@@ -2563,12 +2565,12 @@ static void resetcairo(int create, int clear, int force_or_resize)
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
       fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
     }
-    xctx->cairo_font =
+    temp_font =
        cairo_toy_font_face_create(tclgetvar("cairo_font_name"), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-    /* dbg(0, "1 refcount=%d\n", cairo_font_face_get_reference_count(xctx->cairo_font)); */
+    /* dbg(0, "1 refcount=%d\n", cairo_font_face_get_reference_count(temp_font)); */
     xctx->cairo_save_ctx = cairo_create(xctx->cairo_save_sfc);
     cairo_set_antialias (xctx->cairo_save_ctx, CAIRO_ANTIALIAS_NONE);
-    cairo_set_font_face(xctx->cairo_save_ctx, xctx->cairo_font);
+    cairo_set_font_face(xctx->cairo_save_ctx, temp_font);
     cairo_set_font_size(xctx->cairo_save_ctx, 20);
 
     cairo_set_font_options(xctx->cairo_save_ctx, options);
@@ -2588,13 +2590,12 @@ static void resetcairo(int create, int clear, int force_or_resize)
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
     cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE);
-    cairo_set_font_face(xctx->cairo_ctx, xctx->cairo_font);
+    cairo_set_font_face(xctx->cairo_ctx, temp_font);
     cairo_set_font_size(xctx->cairo_ctx, 20);
     cairo_set_font_options(xctx->cairo_ctx, options);
     cairo_set_line_join(xctx->cairo_ctx, CAIRO_LINE_JOIN_ROUND);
     cairo_set_line_cap(xctx->cairo_ctx, CAIRO_LINE_CAP_ROUND);
-    cairo_font_face_destroy(xctx->cairo_font);
-    xctx->cairo_font = NULL;
+    cairo_font_face_destroy(temp_font);
     cairo_font_options_destroy(options);
     options = NULL;
   }
