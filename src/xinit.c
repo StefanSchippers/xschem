@@ -1428,8 +1428,8 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 }
 
 /* what: 
- *   1: save current schematic
- *   2: copy current schematic
+ *   1: insert current schematic
+ *   2: insert copy of current schematic
  *   3: lookup schematic indicated in `sch_name` and switch to it
  *   4: free data
  *   5: get info
@@ -1441,13 +1441,13 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
 int cache_schematic(int what, const char *sch_name)
 {
   static Ptr_hashtable cache_table = {NULL, 0};
-  static Xschem_ctx *orig_xctx = NULL;
   int hash_size = 6247;
   Ptr_hashentry *entry;
   int i;
   int ret = 1;
   
   if(what == 1) { /* save current schematic in hash table */
+    dbg(0, "*** Insert ***\n");
     if(cache_table.table == NULL) {
       dbg(0, "init hash table\n");
       ptr_hash_init(&cache_table, hash_size);
@@ -1457,6 +1457,7 @@ int cache_schematic(int what, const char *sch_name)
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
     }
   } else if(what == 2) { /* copy current schematic if not already present */
+    dbg(0, "*** Store copy ***\n");
     if(cache_table.table == NULL) {
       dbg(0, "init hash table\n");
       ptr_hash_init(&cache_table, hash_size);
@@ -1472,41 +1473,42 @@ int cache_schematic(int what, const char *sch_name)
       xctx = save_xctx; /* restore current schematic */
     }
   } else if(what == 3 && cache_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
+    dbg(0, "*** Lookup %s ***\n", sch_name);
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
+      Xschem_ctx *new_xctx = entry->value;
+      dbg(0, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
       if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
-        dbg(0, "saving: %s\n", xctx->current_name);
-        ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
+        dbg(0, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
+        ptr_hash_lookup(&cache_table, xctx->current_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
       }
-      if(orig_xctx == NULL) {
-        dbg(0, "saving %p  %s into orig_xctx\n", xctx, xctx->current_name);
-        orig_xctx = xctx;
-      }
-      dbg(0, "overwriting: %p  %s\n", xctx, xctx->current_name);
+      dbg(0, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
       xctx = (Xschem_ctx *)entry->value;
-      dbg(0, "found %s saved as %s, switch to it\n", xctx->current_name, sch_name);
     }
   } else if(what == 4 && cache_table.table) { /* free data */
+    dbg(0, "*** Delete ***\n");
     for(i = 0; i < cache_table.size; ++i) {
       entry = cache_table.table[i];
       while(entry) {
-        xctx = (Xschem_ctx *) entry->value;
-        dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
-        delete_netlist_structs();
-        clear_all_hilights();
-        get_unnamed_node(0, 0, 0);
-        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
-        clear_drawing();
-        remove_symbols();
-        free_xschem_data();
+        Xschem_ctx *new_xctx = entry->value;
+        if( new_xctx != xctx) {
+          Xschem_ctx *save_xctx = xctx;
+          xctx = new_xctx;
+          dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
+          delete_netlist_structs();
+          clear_all_hilights();
+          get_unnamed_node(0, 0, 0);
+          extra_rawfile(3, NULL, NULL, -1.0, -1.0);
+          clear_drawing();
+          remove_symbols();
+          free_xschem_data();
+          xctx = save_xctx;
+        }
         entry = entry->next;
       }
     }
-    if(orig_xctx) {
-      xctx = orig_xctx;
-      dbg(0, "restoring from orig_xctx: %p  %s\n", xctx, xctx->current_name);
-    }
     ptr_hash_free(&cache_table);
   } else if(what == 5) { /* info */
+    dbg(0, "*** Info ***\n");
     dbg(0, "current: %p  %s\n", xctx, xctx->current_name);
     if( cache_table.table) {
       for(i = 0; i < cache_table.size; ++i) {
