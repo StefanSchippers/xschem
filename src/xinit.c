@@ -1445,7 +1445,7 @@ int cache_schematic(int what, const char *sch_name)
   int hash_size = 6247;
   Ptr_hashentry *entry;
   int i;
-  int ret = 1;
+  int ret = 0;
   
   if(what == 1) { /* save current schematic in hash table */
     dbg(0, "*** Insert ***\n");
@@ -1454,6 +1454,7 @@ int cache_schematic(int what, const char *sch_name)
       ptr_hash_init(&cache_table, hash_size);
     }
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
+      ret = 1;
       dbg(0, "saving: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
     }
@@ -1465,6 +1466,7 @@ int cache_schematic(int what, const char *sch_name)
     }
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
       Xschem_ctx *save_xctx;
+      ret = 1;
       save_xctx = xctx; /* save current schematic */
       xctx = NULL;
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
@@ -1477,6 +1479,7 @@ int cache_schematic(int what, const char *sch_name)
     dbg(0, "*** Lookup %s ***\n", sch_name);
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
       Xschem_ctx *new_xctx = entry->value;
+      ret = 1;
       dbg(0, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
       if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
         dbg(0, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
@@ -1493,6 +1496,7 @@ int cache_schematic(int what, const char *sch_name)
         Xschem_ctx *new_xctx = entry->value;
         if( new_xctx != xctx) {
           Xschem_ctx *save_xctx = xctx;
+          ret = 1;
           xctx = new_xctx;
           dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
           delete_netlist_structs();
@@ -1509,6 +1513,7 @@ int cache_schematic(int what, const char *sch_name)
     }
     ptr_hash_free(&cache_table);
   } else if(what == 5) { /* info */
+    ret = 1;
     dbg(0, "*** Info ***\n");
     dbg(0, "current: %p  %s\n", xctx, xctx->current_name);
     if( cache_table.table) {

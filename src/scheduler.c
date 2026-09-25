@@ -515,6 +515,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       const char *sch_name;
       int what = 0;
+      int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       sch_name = xctx->current_name;
       if(argc < 3) {
@@ -525,7 +526,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         sch_name = argv[3];
       }
       what = atoi(argv[2]);
-      cache_schematic(what, sch_name);
+      ret = cache_schematic(what, sch_name);
+      Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
     /* case_insensitive 1|0
