@@ -1232,7 +1232,6 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
             x0+x1, y0+y1, xscale, yscale);
         }
       }
-      if(textlayer != c) set_ps_colors(c);
     }
     if(res) my_free(_ALLOC_ID_, &res);
   }
