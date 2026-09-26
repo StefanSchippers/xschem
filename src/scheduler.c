@@ -504,7 +504,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* cache_schematic what sch_name
+    /* fork_schematic what sch_name
      *   what:
      *   1: save current schematic
      *   2: copy current schematic
@@ -512,7 +512,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   4: free data
      *   6: free indicated sch_name
      *   5: get info */
-    else if(!strcmp(argv[1], "cache_schematic"))
+    else if(!strcmp(argv[1], "fork_schematic"))
     {
       char *sch_name = NULL;
       int what = 0;
@@ -520,14 +520,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       my_strdup2(_ALLOC_ID_, &sch_name, xctx->current_name);
       if(argc < 3) {
-        Tcl_SetResult(interp, "xschem cache_schematic: missing arguments.", TCL_STATIC);
+        Tcl_SetResult(interp, "xschem fork_schematic: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
       }
       if(argc > 3) {
         my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
       what = atoi(argv[2]);
-      ret = cache_schematic(what, sch_name);
+      ret = fork_schematic(what, sch_name);
       my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }

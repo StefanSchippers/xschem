@@ -1440,7 +1440,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
  *   1: all ok
  *   0: some error.
  */
-int cache_schematic(int what, const char *sch_name)
+int fork_schematic(int what, const char *sch_name)
 {
   static Ptr_hashtable cache_table = {NULL, 0};
   int hash_size = 6247;
