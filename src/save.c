@@ -1059,8 +1059,8 @@ int extra_raw_arr_copy(Xschem_ctx *dest, Xschem_ctx *source)
     if(source->extra_raw_n) {
       int i;
       for(i = 0; i < source->extra_raw_n; i++) {
-        if(i == 0) {
-          dest->extra_raw_arr[i] = source->raw;
+        if(i == source->extra_idx) {
+          dest->extra_raw_arr[i] = dest->raw;
         } else {
           raw_copy(&dest->extra_raw_arr[i], source->extra_raw_arr[i]);
         }

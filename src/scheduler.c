@@ -1393,30 +1393,39 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
-    /* fork_schematic what sch_name
+    /* fork_sch what sch_name [flags]
      *   what:
-     *   1: save current schematic
-     *   2: copy current schematic
+     *   1: insert current schematic
+     *   2: insert copy of current schematic
      *   3: lookup schematic indicated in `sch_name` and switch to it
      *   4: free data
-     *   6: free indicated sch_name
-     *   5: get info */
-    else if(!strcmp(argv[1], "fork_schematic"))
+     *   5: get info
+     *   6: free indicated `sch_name`
+     * flags: 
+     *   1: set window title [default]
+     *   2: copy only metadata (yields an empty schematic)
+     *   4:
+     */
+    else if(!strcmp(argv[1], "fork_sch"))
     {
       char *sch_name = NULL;
       int what = 0;
+      int flags = 1;
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       my_strdup2(_ALLOC_ID_, &sch_name, xctx->current_name);
       if(argc < 3) {
-        Tcl_SetResult(interp, "xschem fork_schematic: missing arguments.", TCL_STATIC);
+        Tcl_SetResult(interp, "xschem fork_sch: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
+      }
+      if(argc > 4) {
+        flags = atoi(argv[4]);
       }
       if(argc > 3) {
         my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
       what = atoi(argv[2]);
-      ret = fork_schematic(what, sch_name);
+      ret = fork_sch(what, sch_name, flags);
       my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }

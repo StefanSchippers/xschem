@@ -1824,7 +1824,7 @@ extern void list_hilights(int all);
 extern void change_layer();
 extern void launcher();
 extern void windowid(const char *win_path);
-extern int fork_schematic(int what, const char *sch_name);
+extern int fork_sch(int what, const char *sch_name, int flags);
 extern int preview_window(const char *what, const char *tk_win_path, const char *fname);
 extern int new_schematic(const char *what, const char *win_path, const char *fname, int dr);
 extern void toggle_fullscreen(const char *topwin);

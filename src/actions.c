@@ -154,7 +154,7 @@ const char *get_text_floater(int i)
  *  -2 : rst floater caches, update simulation button colors (Simulate, Waves, Netlist).
  * If floaters are present set_modify(1) (after a modify operation) must be done before draw()
  * to invalidate cached floater string values  before redrawing
- * return 1 if floaters are found (mod==-2 or mod == 1 or mod == -1) */
+ * return number of floaters  if floaters are found (mod==-2 or mod == 1 or mod == -1) */
 int set_modify(int mod)
 {
   int i, floaters = 0;
