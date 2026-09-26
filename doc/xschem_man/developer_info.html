@@ -602,6 +602,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Rebuild color palette using values of tcl vars dim_value and dim_bg </pre>
    <li><kbd>       callback win_path event mx my key button aux state</kbd></li><pre>
    Invoke the callback event dispatcher with a software event </pre>
+   <li><kbd>       cache_schematic what sch_name</kbd></li><pre>
+   what:
+   1: save current schematic
+   2: copy current schematic
+   3: lookup schematic indicated in `sch_name` and switch to it
+   4: free data
+   6: free indicated sch_name
+   5: get info </pre>
    <li><kbd>       case_insensitive 1|0</kbd></li><pre>
    Set case insensitive symbol lookup. Use only on case insensitive filesystems </pre>
    <li><kbd>       change_elem_order n</kbd></li><pre>
@@ -1155,6 +1163,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    If -erc is given it means netlister is called from gui, enable show infowindow
    If -nohier is given netlist only current level
    If -keep_symbols is given no not purge symbols encountered traversing the
+   if -noalert is given do not alert user if one schematic down the hierarchy is missing
    design hierarchy </pre>
    <li><kbd>       new_process [f]</kbd></li><pre>
    Start a new xschem process for a schematic.
@@ -1462,6 +1471,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    schematic (issues a warning).
    if 'new_process' is given start a new xschem process
    if 'nodraw' is given do not draw loaded schematic
+   if 'force' is given no warning is given even if opening an already open schematic
    returns '1' if a new schematic was opened, 0 otherwise </pre>
    <li><kbd>       search regex|exact select tok val [no_match_case] [nodraw]</kbd></li><pre>
    Search instances / wires / rects / texts with attribute string containing 'tok'

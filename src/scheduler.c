@@ -510,23 +510,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   2: copy current schematic
      *   3: lookup schematic indicated in `sch_name` and switch to it
      *   4: free data
+     *   6: free indicated sch_name
      *   5: get info */
     else if(!strcmp(argv[1], "cache_schematic"))
     {
-      const char *sch_name;
+      char *sch_name = NULL;
       int what = 0;
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      sch_name = xctx->current_name;
+      my_strdup2(_ALLOC_ID_, &sch_name, xctx->current_name);
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem cache_schematic: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
       }
       if(argc > 3) {
-        sch_name = argv[3];
+        my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
       what = atoi(argv[2]);
       ret = cache_schematic(what, sch_name);
+      my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
 
@@ -3633,6 +3635,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   If -erc is given it means netlister is called from gui, enable show infowindow
      *   If -nohier is given netlist only current level
      *   If -keep_symbols is given no not purge symbols encountered traversing the
+     *   if -noalert is given do not alert user if one schematic down the hierarchy is missing
      *   design hierarchy */
     else if(!strcmp(argv[1], "netlist") )
     {
@@ -5200,6 +5203,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   schematic (issues a warning).
      *   if 'new_process' is given start a new xschem process
      *   if 'nodraw' is given do not draw loaded schematic
+     *   if 'force' is given no warning is given even if opening an already open schematic
      *   returns '1' if a new schematic was opened, 0 otherwise */
     else if(!strcmp(argv[1], "schematic_in_new_window"))
     {

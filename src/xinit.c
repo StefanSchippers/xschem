@@ -1434,6 +1434,7 @@ static void schematic_deep_copy(Xschem_ctx *dest, Xschem_ctx *source)
  *   3: lookup schematic indicated in `sch_name` and switch to it
  *   4: free data
  *   5: get info
+ *   6: free indicated `sch_name`
  *
  * returns: 
  *   1: all ok
@@ -1448,20 +1449,20 @@ int cache_schematic(int what, const char *sch_name)
   int ret = 0;
   
   if(what == 1) { /* save current schematic in hash table */
-    dbg(0, "*** Insert ***\n");
+    dbg(1, "*** Insert ***\n");
     if(cache_table.table == NULL) {
-      dbg(0, "init hash table\n");
+      dbg(1, "init hash table\n");
       ptr_hash_init(&cache_table, hash_size);
     }
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
       ret = 1;
-      dbg(0, "saving: %s as %s\n", xctx->current_name, sch_name);
+      dbg(1, "saving: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
     }
   } else if(what == 2) { /* copy current schematic if not already present */
-    dbg(0, "*** Store copy ***\n");
+    dbg(1, "*** Store copy ***\n");
     if(cache_table.table == NULL) {
-      dbg(0, "init hash table\n");
+      dbg(1, "init hash table\n");
       ptr_hash_init(&cache_table, hash_size);
     }
     if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
@@ -1471,25 +1472,25 @@ int cache_schematic(int what, const char *sch_name)
       xctx = NULL;
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
       schematic_deep_copy(xctx, save_xctx);
-      dbg(0, "store copy: %s as %s\n", xctx->current_name, sch_name);
+      dbg(1, "store copy: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
     }
   } else if(what == 3 && cache_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
-    dbg(0, "*** Lookup %s ***\n", sch_name);
+    dbg(1, "*** Lookup %s ***\n", sch_name);
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
       Xschem_ctx *new_xctx = entry->value;
       ret = 1;
-      dbg(0, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
+      dbg(1, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
       if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
-        dbg(0, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
+        dbg(1, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
         ptr_hash_lookup(&cache_table, xctx->current_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
       }
-      dbg(0, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
+      dbg(1, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
       xctx = (Xschem_ctx *)entry->value;
     }
   } else if(what == 4 && cache_table.table) { /* free data */
-    dbg(0, "*** Delete ***\n");
+    dbg(1, "*** Delete ***\n");
     for(i = 0; i < cache_table.size; ++i) {
       entry = cache_table.table[i];
       while(entry) {
@@ -1498,13 +1499,14 @@ int cache_schematic(int what, const char *sch_name)
           Xschem_ctx *save_xctx = xctx;
           ret = 1;
           xctx = new_xctx;
-          dbg(0, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
+          dbg(1, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
           delete_netlist_structs();
           clear_all_hilights();
           get_unnamed_node(0, 0, 0);
           extra_rawfile(3, NULL, NULL, -1.0, -1.0);
           clear_drawing();
           remove_symbols();
+          record_global_node(2, NULL, NULL); /* delete global node array */
           free_xschem_data();
           xctx = save_xctx;
         }
@@ -1512,6 +1514,27 @@ int cache_schematic(int what, const char *sch_name)
       }
     }
     ptr_hash_free(&cache_table);
+  } else if(what == 6) { /* delete specified `sch_name` */
+    
+    if((entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP))) {
+      Xschem_ctx *new_xctx = entry->value;
+      if(new_xctx != xctx) {
+        Xschem_ctx *save_xctx = xctx; /* save current schematic */
+        ret = 1;
+        xctx = new_xctx;
+        ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XDELETE);
+        dbg(1, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
+        delete_netlist_structs();
+        clear_all_hilights();
+        get_unnamed_node(0, 0, 0);
+        extra_rawfile(3, NULL, NULL, -1.0, -1.0);
+        clear_drawing();
+        remove_symbols();
+        record_global_node(2, NULL, NULL); /* delete global node array */
+        free_xschem_data();
+        xctx = save_xctx; /* restore current schematic */
+      }
+    }
   } else if(what == 5) { /* info */
     ret = 1;
     dbg(0, "*** Info ***\n");
@@ -1527,7 +1550,6 @@ int cache_schematic(int what, const char *sch_name)
       }
     }
   }
-  
   return ret;
 }
 
