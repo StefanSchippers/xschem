@@ -1531,6 +1531,7 @@ int fork_sch(int what, const char *sch_name, int flags)
     dbg(1, "*** Lookup %s ***\n", sch_name);
     if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
       Xschem_ctx *new_xctx = entry->value;
+      Xschem_ctx *save_xctx = xctx;
       ret = 1;
       dbg(1, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
       if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
@@ -1539,8 +1540,12 @@ int fork_sch(int what, const char *sch_name, int flags)
       }
       dbg(1, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
       xctx = (Xschem_ctx *)entry->value;
+      /* set window paths to current */
+      dbg(0, "sch_fork 3: update current_win_path; %s\n", save_xctx->current_win_path);
+      my_strdup2(_ALLOC_ID_, &xctx->top_path, save_xctx->top_path);
+      my_strdup2(_ALLOC_ID_, &xctx->current_win_path, save_xctx->current_win_path);
       /* update tab/window title */
-      if(flags & 1) set_modify(-1);
+      if(has_x && (flags & 1)) set_modify(-1);
     }
   } else if(what == 4 && cache_table.table) { /* free data */
     dbg(1, "*** Delete ***\n");
@@ -2461,6 +2466,21 @@ static void destroy_all_windows(int *window_count, int force)
   }
 }
 
+static void switch_window_info(int *window_count)
+{
+  int i;
+  if(*window_count) {
+    dbg(1, "new_schematic() switch_window_info\n");
+    for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
+      if(save_xctx[i]) {
+        dbg(0, "i = %d xctx = %p  %s  window_path %s  current_win_path %s\n",
+            i, save_xctx[i], save_xctx[i]->current_name, window_path[i], save_xctx[i]->current_win_path);
+      }
+    }
+  }
+
+}
+
 static void destroy_all_tabs(int *window_count, int force)
 {
   int i;
@@ -2541,6 +2561,8 @@ int new_schematic(const char *what, const char *win_path, const char *fname, int
     else return switch_window(&window_count, win_path, 1);
   } else if(!strcmp(what, "switch_no_tcl_ctx") && !tabbed_interface) {
     switch_window(&window_count, win_path, 0);
+  } else if(!strcmp(what, "info")) {
+    switch_window_info(&window_count);
   }
   return window_count;
 }

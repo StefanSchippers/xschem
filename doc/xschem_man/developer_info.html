@@ -602,14 +602,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Rebuild color palette using values of tcl vars dim_value and dim_bg </pre>
    <li><kbd>       callback win_path event mx my key button aux state</kbd></li><pre>
    Invoke the callback event dispatcher with a software event </pre>
-   <li><kbd>       fork_schematic what sch_name</kbd></li><pre>
-   what:
-   1: save current schematic
-   2: copy current schematic
-   3: lookup schematic indicated in `sch_name` and switch to it
-   4: free data
-   6: free indicated sch_name
-   5: get info </pre>
    <li><kbd>       case_insensitive 1|0</kbd></li><pre>
    Set case insensitive symbol lookup. Use only on case insensitive filesystems </pre>
    <li><kbd>       change_elem_order n</kbd></li><pre>
@@ -780,6 +772,18 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Flip selection vertically, each object around its center </pre>
    <li><kbd>       floaters_from_selected_inst</kbd></li><pre>
    flatten to current level selected instance texts </pre>
+   <li><kbd>       fork_sch what sch_name [flags]</kbd></li><pre>
+   what:
+   1: insert current schematic
+   2: insert copy of current schematic
+   3: lookup schematic indicated in `sch_name` and switch to it
+   4: free data
+   5: get info
+   6: free indicated `sch_name`
+       flags: 
+   1: set window title [default]
+   2: copy only metadata (yields an empty schematic)
+   4:</pre>
    <li><kbd>       fullscreen</kbd></li><pre>
    Toggle fullscreen modes: fullscreen with menu &amp; status, fullscreen, normal </pre>
    <li><kbd>       get var</kbd></li><pre>
@@ -1183,6 +1187,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
               If 'draw' is given and set to 0 do not redraw after switching tab
               (only tab i/f)
               if win_path set to "previous" switch to previous schematic.
+     info:   return information about active tabs/windows
    Main window/tab has win_path set to .drw,
    Additional windows/tabs have win_path set to .x1.drw, .x2.drw and so on...</pre>
    <li><kbd>       only_probes</kbd></li><pre>

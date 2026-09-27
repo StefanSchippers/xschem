@@ -3775,6 +3775,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *              If 'draw' is given and set to 0 do not redraw after switching tab
      *              (only tab i/f)
      *              if win_path set to "previous" switch to previous schematic.
+     *     info:   return information about active tabs/windows
      *   Main window/tab has win_path set to .drw,
      *   Additional windows/tabs have win_path set to .x1.drw, .x2.drw and so on...
      */
