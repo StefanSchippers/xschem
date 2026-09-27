@@ -6535,15 +6535,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(xctx) dbg(0, "instances=%d\n", xctx->instances);
         if(xctx) dbg(0, "symbols=%d\n", xctx->symbols);
       }
-      else if(argc > 2 && (atoi(argv[2]) == 10 || atoi(argv[2]) == 11)) {
-        static Raw *saveraw = NULL;
-        if(xctx->raw && atoi(argv[2]) == 10) {
-          Raw *newraw = NULL;
-          saveraw = xctx->raw;
-          raw_copy(&newraw, xctx->raw);
-          xctx->raw = newraw;
-        } else if(atoi(argv[2]) == 11) {
-          xctx->raw = saveraw;
+      else if(argc > 2 && atoi(argv[2]) == 10) {
+        int i;
+        Xschem_ctx **ctx = get_save_xctx();
+        
+        for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+          dbg(0, "%d: %s %s\n", i, get_window_path(i), ctx[i] ? ctx[i]->current_win_path : "NULL");
         }
       }
     }
