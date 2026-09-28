@@ -2500,6 +2500,7 @@ static void destroy_all_tabs(int *window_count, int force)
   char window_path[WINDOW_PATH_SIZE];
   Xschem_ctx *savectx;
   savectx = xctx;
+  dbg(1, "destroy_all_tabs() before: savectx->sch[0]=%s\n", savectx->sch[0]);
   if(*window_count) {
     int close;
     dbg(1, "new_schematic() destroy_all_tabs\n");
@@ -2535,6 +2536,7 @@ static void destroy_all_tabs(int *window_count, int force)
       }
     }
     /* following 3 lines must be done also if windows not closed */
+    dbg(1, "destroy_all_tabs() after: savectx->sch[0]=%s\n", savectx->sch[0]);
     xctx = savectx; /* restore previous schematic or main if old is destroyed */
     if(xctx->current_win_path)
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);

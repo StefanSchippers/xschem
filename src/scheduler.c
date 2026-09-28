@@ -6552,7 +6552,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Xschem_ctx **ctx = get_save_xctx();
         
         for(i = 0; i < MAX_NEW_WINDOWS; i++) {
-          dbg(0, "%d: %s %s\n", i, get_window_path(i), ctx[i] ? ctx[i]->current_win_path : "NULL");
+          dbg(0, "%d: %p  %s %s  sch[0]: %p  %s\n", 
+              i, ctx[i], get_window_path(i), 
+              ctx[i] ? ctx[i]->current_win_path : "NULL",
+              ctx[i] ? ctx[i]->sch[0] : NULL , ctx[i] ? ctx[i]->sch[0] : "NULL"
+             );
         }
       }
     }
