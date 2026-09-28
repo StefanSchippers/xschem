@@ -748,8 +748,8 @@ static void delete_schematic_data(int delete_pixmap)
   /* free_rawfile(&xctx->raw, 0); */
   statusmsg("", 1); /* clear allocated string */
   record_global_node(2, NULL, NULL); /* delete global node array */
-  fork_sch(4, NULL, 0);  /* delete forked schematics */
   free_xschem_data(); /* delete the xctx struct */
+  fork_sch(4, NULL, 0);  /* delete forked schematics */
 }
 
 int compare_schematics(const char *f)
@@ -1469,7 +1469,7 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
 
 }
 
-void update_save_xctx(Xschem_ctx *old, Xschem_ctx *new)
+static void update_save_xctx(Xschem_ctx *old, Xschem_ctx *new)
 {
   int i;
   if(window_count) {
@@ -1481,6 +1481,21 @@ void update_save_xctx(Xschem_ctx *old, Xschem_ctx *new)
     }     
   }
 }
+
+static int check_in_save_xctx(Xschem_ctx *ctx)
+{   
+  int i; 
+  if(window_count) {
+    for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
+      if(save_xctx[i] == ctx) {
+        dbg(1, "check_in_save_xctx(): found another tab showing %s\n", ctx->current_name);
+        return 1;
+      }
+    }     
+  } 
+  return 0;
+} 
+
 
 /* what: 
  *   1: insert current schematic
@@ -1574,7 +1589,8 @@ int fork_sch(int what, const char *sch_name, int flags)
       entry = fork_table.table[i];
       while(entry) {
         Xschem_ctx *new_xctx = entry->value;
-        if( new_xctx != xctx) { /* do not zap the schematic we are into */
+        /* do not zap the schematic we are into or schematic in another window / tab */
+        if( new_xctx != xctx && !check_in_save_xctx(new_xctx)) {
           Xschem_ctx *save_xctx = xctx;
           ret = 1;
           xctx = new_xctx;
@@ -2363,7 +2379,7 @@ static void destroy_tab(int *window_count, const char *win_path)
     else close = 1;
     Tcl_ResetResult(interp);
     if(close) {
-      char new_path[200];
+      char new_path[WINDOW_PATH_SIZE];
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
         if(save_xctx[i] && save_xctx[i]->current_win_path &&
@@ -2500,10 +2516,10 @@ static void destroy_all_tabs(int *window_count, int force)
   char window_path[WINDOW_PATH_SIZE];
   Xschem_ctx *savectx;
   savectx = xctx;
-  dbg(1, "destroy_all_tabs() before: savectx->sch[0]=%s\n", savectx->sch[0]);
   if(*window_count) {
     int close;
     dbg(1, "new_schematic() destroy_all_tabs\n");
+    dbg(1, "destroy_all_tabs() before: savectx->sch[0]=%s\n", savectx->sch[0]);
     for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
       if(save_xctx[i] && save_xctx[i]->current_win_path) {
         my_strncpy(window_path, save_xctx[i]->current_win_path, WINDOW_PATH_SIZE);

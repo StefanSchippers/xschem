@@ -1176,9 +1176,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
+              swap_tabs();
               /* make a copy since xctx is about to be destroyed */
               my_strdup(_ALLOC_ID_, &win_path_copy, xctx->current_win_path);
-              swap_tabs();
               set_modify(0);
               new_schematic("destroy", win_path_copy, NULL, 1);
               my_free(_ALLOC_ID_, &win_path_copy);
