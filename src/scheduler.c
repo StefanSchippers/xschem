@@ -1134,10 +1134,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              char *win_path_copy = NULL;
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
               swap_windows(0);
+              /* make a copy since xctx is about to be destroyed */
+              my_strdup(_ALLOC_ID_, &win_path_copy, xctx->current_win_path);
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
-              new_schematic("destroy", xctx->current_win_path, NULL, 0);
+              new_schematic("destroy", win_path_copy, NULL, 0);
+              my_free(_ALLOC_ID_, &win_path_copy);
               draw();
             }
           } else {
@@ -1170,10 +1174,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+              char *win_path_copy = NULL;
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
+              /* make a copy since xctx is about to be destroyed */
+              my_strdup(_ALLOC_ID_, &win_path_copy, xctx->current_win_path);
               swap_tabs();
               set_modify(0);
-              new_schematic("destroy", xctx->current_win_path, NULL, 1);
+              new_schematic("destroy", win_path_copy, NULL, 1);
+              my_free(_ALLOC_ID_, &win_path_copy);
             }
           } else {
             if(has_x && !force && xctx->modified) {
@@ -1195,9 +1203,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
         }
       } else {
+        char *win_path_copy = NULL;
         if(force) set_modify(0); /* avoid ask to save downstream */
         if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
-        new_schematic("destroy", xctx->current_win_path, NULL, 1);
+        /* make a copy since xctx is about to be destroyed */
+        my_strdup(_ALLOC_ID_, &win_path_copy, xctx->current_win_path);
+        new_schematic("destroy", win_path_copy, NULL, 1);
+        my_free(_ALLOC_ID_, &win_path_copy);
       }
       Tcl_SetResult(interp, my_itoa(get_window_count()), TCL_VOLATILE);
     }
@@ -1404,13 +1416,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      * flags: 
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)
-     *   4:
+     *   4: draw schematic when switching [default]
      */
     else if(!strcmp(argv[1], "fork_sch"))
     {
       char *sch_name = NULL;
       int what = 0;
-      int flags = 1;
+      int flags = 5;
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       my_strdup2(_ALLOC_ID_, &sch_name, xctx->current_name);

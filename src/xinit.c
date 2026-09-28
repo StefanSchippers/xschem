@@ -1234,39 +1234,28 @@ static int source_tcl_file(char *s)
 /* flags: 
  *   1: DNU - set window title (used in fork_sch)
  *   2: copy only metadata, not schematic data(yields an empty schematic)
- *   4:
  */
 static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
 {
   int i, c;
 
-  
-  for(i = 0; i < CADMAXHIER; ++i) {
-    my_strdup2(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
-    my_strdup2(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
-    dest->sch_path_hash[i] = source->sch_path_hash[i];
-    dest->sch_inst_number[i] = source->sch_inst_number[i];
-    dest->previous_instance[i] = source->previous_instance[i];
-    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].prop_ptr, source->hier_attr[i].prop_ptr);
-    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
-    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
-    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
-    dest->zoom_array[i] = source->zoom_array[i];
-    str_hash_copy(&(dest->portmap[i]), &(source->portmap[i]));
+  /* METADATA */
+  dest->gctiled = source->gctiled;
+  for(c = 0; c < cadlayers; ++c) {
+    dest->gc[c] = source->gc[c];
+    dest->gcstipple[c] = source->gcstipple[c];
+    my_strdup2(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
+    dest->enable_layer[c] = source->enable_layer[c];
+    dest->active_layer[c] = source->active_layer[c];
+    dest->fill_type[c] = source->fill_type[c];
   }
+  dest->n_active_layers = source->n_active_layers;
+  dest->netlist_type = source->netlist_type;
+  dest->crosshair_layer = source->crosshair_layer;
+  my_strdup2(_ALLOC_ID_, &dest->format, source->format);
+  my_strdup2(_ALLOC_ID_, &dest->custom_format, source->custom_format);
   
-  my_strdup2(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
-  my_strdup2(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
-  my_strdup2(_ALLOC_ID_, &dest->schprop          , source->schprop            );
-  my_strdup2(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
-  my_strdup2(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
-  my_strdup2(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
-  my_strdup2(_ALLOC_ID_, &dest->version_string, source->version_string);
-  my_strdup2(_ALLOC_ID_, &dest->header_text, source->header_text);
 
-  dest->currsch = source->currsch;
-  my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
-  my_strncpy(dest->file_version, source->file_version, S(dest->file_version));
   dest->xorigin = source->xorigin;
   dest->yorigin = source->yorigin;
   dest->zoom = source->zoom;
@@ -1290,42 +1279,13 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
   dest->areah = source->areah;
   dest->intuitive_interface = source->intuitive_interface;
 
-  dest->graph_master = source->graph_master;
-  dest->graph_cursor1_x = source->graph_cursor1_x;
-  dest->graph_cursor2_x = source->graph_cursor2_x;
-  dest->graph_flags = source->graph_flags;
-  dest->graph_top = source->graph_top;
-  dest->graph_bottom = source->graph_bottom;
-  dest->graph_left = source->graph_left;
-  dest->graph_lastsel = source->graph_lastsel;
-  dest->graph_struct.hilight_wave = source->graph_struct.hilight_wave;
-
-  raw_copy(&dest->raw, source->raw);
-  extra_raw_arr_copy(dest, source);
-
-  my_strncpy(dest->plotfile, source->plotfile, S(dest->plotfile));
-  my_strncpy(dest->netlist_name, source->netlist_name, S(dest->netlist_name));
-  my_strncpy(dest->current_dirname, source->current_dirname, S(dest->current_dirname));
-
   dest->hilight_color = source->hilight_color;
   dest->hilight_nets = source->hilight_nets;
   dest->rectcolor = source->rectcolor;
   dest->cadhalfdotsize = source->cadhalfdotsize;
-  dest->time_last_modify = source->time_last_modify;
-  dest->warn_disk_file_modified = source->warn_disk_file_modified;
-  dest->undo_type = source->undo_type;
-  dest->modified = source->modified;
-  dest->prev_set_modify = source->prev_set_modify;
-  dest->semaphore = source->semaphore;
 
   dest->ev_precision = source->ev_precision;
   my_strncpy(dest->hiersep, source->hiersep, S(source->hiersep));
-  hilight_hash_copy(dest, source);
-  node_hash_copy(dest, source);
-
-  dest->xrect[0] = source->xrect[0];
-  memcpy(dest->color_index, source->color_index, sizeof(dest->color_index));
-  memcpy(dest->xcolor_array, source->xcolor_array, sizeof(dest->xcolor_array));
 
   dest->window = source->window;
   dest->save_pixmap = source->save_pixmap;
@@ -1353,25 +1313,70 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
   dest->cairo_sfc = source->cairo_sfc;
   dest->cairo_save_sfc = source->cairo_save_sfc;
   #endif
-  
-  dest->gctiled = source->gctiled;
-  for(c = 0; c < cadlayers; ++c) {
-    dest->gc[c] = source->gc[c];
-    dest->gcstipple[c] = source->gcstipple[c];
-    my_strdup2(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
-    dest->enable_layer[c] = source->enable_layer[c];
-    dest->active_layer[c] = source->active_layer[c];
-    dest->fill_type[c] = source->fill_type[c];
+
+  dest->xrect[0] = source->xrect[0];
+  memcpy(dest->color_index, source->color_index, sizeof(dest->color_index));
+  memcpy(dest->xcolor_array, source->xcolor_array, sizeof(dest->xcolor_array));
+
+  if(flags & 2) { /* copy metadata only */
+    return;
   }
 
-  dest->n_active_layers = source->n_active_layers;
-  dest->netlist_type = source->netlist_type;
-  dest->crosshair_layer = source->crosshair_layer;
-
-
-  my_strdup2(_ALLOC_ID_, &dest->format, source->format);
-  my_strdup2(_ALLOC_ID_, &dest->custom_format, source->custom_format);
+  /* SCHEMATIC DATA */
+  for(i = 0; i < CADMAXHIER; ++i) {
+    my_strdup2(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
+    my_strdup2(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
+    dest->sch_path_hash[i] = source->sch_path_hash[i];
+    dest->sch_inst_number[i] = source->sch_inst_number[i];
+    dest->previous_instance[i] = source->previous_instance[i];
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].prop_ptr, source->hier_attr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
+    my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
+    dest->zoom_array[i] = source->zoom_array[i];
+    str_hash_copy(&(dest->portmap[i]), &(source->portmap[i]));
+  }
   
+  my_strdup2(_ALLOC_ID_, &dest->schvhdlprop      , source->schvhdlprop        );
+  my_strdup2(_ALLOC_ID_, &dest->schverilogprop   , source->schverilogprop     );
+  my_strdup2(_ALLOC_ID_, &dest->schprop          , source->schprop            );
+  my_strdup2(_ALLOC_ID_, &dest->schspectreprop   , source->schspectreprop     );
+  my_strdup2(_ALLOC_ID_, &dest->schsymbolprop    , source->schsymbolprop      );
+  my_strdup2(_ALLOC_ID_, &dest->schtedaxprop     , source->schtedaxprop       );
+  my_strdup2(_ALLOC_ID_, &dest->version_string, source->version_string);
+  my_strdup2(_ALLOC_ID_, &dest->header_text, source->header_text);
+
+  dest->currsch = source->currsch;
+  my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
+  my_strncpy(dest->file_version, source->file_version, S(dest->file_version));
+
+  dest->graph_master = source->graph_master;
+  dest->graph_cursor1_x = source->graph_cursor1_x;
+  dest->graph_cursor2_x = source->graph_cursor2_x;
+  dest->graph_flags = source->graph_flags;
+  dest->graph_top = source->graph_top;
+  dest->graph_bottom = source->graph_bottom;
+  dest->graph_left = source->graph_left;
+  dest->graph_lastsel = source->graph_lastsel;
+  dest->graph_struct.hilight_wave = source->graph_struct.hilight_wave;
+
+  raw_copy(&dest->raw, source->raw);
+  extra_raw_arr_copy(dest, source);
+
+  my_strncpy(dest->plotfile, source->plotfile, S(dest->plotfile));
+  my_strncpy(dest->netlist_name, source->netlist_name, S(dest->netlist_name));
+  my_strncpy(dest->current_dirname, source->current_dirname, S(dest->current_dirname));
+
+  dest->time_last_modify = source->time_last_modify;
+  dest->warn_disk_file_modified = source->warn_disk_file_modified;
+  dest->undo_type = source->undo_type;
+  dest->modified = source->modified;
+  dest->prev_set_modify = source->prev_set_modify;
+  dest->semaphore = source->semaphore;
+
+  hilight_hash_copy(dest, source);
+  node_hash_copy(dest, source);
+
 
   for(c = 0; c < cadlayers; ++c) {
     dest->maxl[c] = dest->lines[c] = source->lines[c];
@@ -1464,6 +1469,19 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
 
 }
 
+void update_save_xctx(Xschem_ctx *old, Xschem_ctx *new)
+{
+  int i;
+  if(window_count) {
+    for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
+      if(save_xctx[i] == old) {
+        save_xctx[i] = new;
+        break;
+      }
+    }     
+  }
+}
+
 /* what: 
  *   1: insert current schematic
  *   2: insert copy of current schematic
@@ -1472,15 +1490,17 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
  *   5: get info
  *   6: free indicated `sch_name`
  * flags:
- *   passed to sch_deep_copy()
- *
+ *   also passed to sch_deep_copy()
+ *   1: set window/tab title
+ *   2: sch_deep_copy will copy only metadata (no schematic objects) used to create an empty schematic.
+ *   4: draw schematic when switching
  * returns: 
  *   1: all ok
  *   0: some error.
  */
 int fork_sch(int what, const char *sch_name, int flags)
 {
-  static Ptr_hashtable cache_table = {NULL, 0};
+  static Ptr_hashtable fork_table = {NULL, 0};
   int hash_size = 6247;
   Ptr_hashentry *entry;
   int i;
@@ -1489,26 +1509,31 @@ int fork_sch(int what, const char *sch_name, int flags)
   if(what == 1) { /* save current schematic in hash table */
     Xschem_ctx *save_xctx = xctx;
     dbg(1, "*** Insert ***\n");
-    if(cache_table.table == NULL) {
+    if(fork_table.table == NULL) {
       dbg(1, "init hash table\n");
-      ptr_hash_init(&cache_table, hash_size);
+      ptr_hash_init(&fork_table, hash_size);
     }
-    if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
+    if(!ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
       ret = 1;
       dbg(1, "saving: %s as %s\n", xctx->current_name, sch_name);
-      ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
+      ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
     }
     xctx = NULL;
     alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
-    sch_deep_copy(xctx, save_xctx, flags);
-    clear_schematic(0, 0);
+    sch_deep_copy(xctx, save_xctx, 2 | flags); /* 2 flag: don't copy schematic data */
+    set_untitled_name(0);
+    update_save_xctx(save_xctx, xctx);
+    if(has_x) {
+      if(flags & 1) set_modify(-1);
+      if(flags & 4) draw();
+    }
   } else if(what == 2) { /* copy current schematic if not already present */
     dbg(1, "*** Store copy ***\n");
-    if(cache_table.table == NULL) {
+    if(fork_table.table == NULL) {
       dbg(1, "init hash table\n");
-      ptr_hash_init(&cache_table, hash_size);
+      ptr_hash_init(&fork_table, hash_size);
     }
-    if(!ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) {
+    if(!ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
       Xschem_ctx *save_xctx;
       ret = 1;
       save_xctx = xctx; /* save current schematic */
@@ -1516,19 +1541,19 @@ int fork_sch(int what, const char *sch_name, int flags)
       alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
       sch_deep_copy(xctx, save_xctx, flags);
       dbg(1, "store copy: %s as %s\n", xctx->current_name, sch_name);
-      ptr_hash_lookup(&cache_table, sch_name, xctx, XINSERT_NOREPLACE);
+      ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
     }
-  } else if(what == 3 && cache_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
+  } else if(what == 3 && fork_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
     dbg(1, "*** Lookup %s ***\n", sch_name);
-    if( (entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP)) ) {
+    if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) ) {
       Xschem_ctx *new_xctx = entry->value;
       Xschem_ctx *save_xctx = xctx;
       ret = 1;
       dbg(1, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
-      if(!ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
+      if(!ptr_hash_lookup(&fork_table, xctx->current_name, NULL, XLOOKUP)) { /* not in hash table ... */
         dbg(1, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
-        ptr_hash_lookup(&cache_table, xctx->current_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
+        ptr_hash_lookup(&fork_table, xctx->current_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
       }
       dbg(1, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
       xctx = (Xschem_ctx *)entry->value;
@@ -1537,15 +1562,19 @@ int fork_sch(int what, const char *sch_name, int flags)
       my_strdup2(_ALLOC_ID_, &xctx->top_path, save_xctx->top_path);
       my_strdup2(_ALLOC_ID_, &xctx->current_win_path, save_xctx->current_win_path);
       /* update tab/window title */
-      if(has_x && (flags & 1)) set_modify(-1);
+      update_save_xctx(save_xctx, xctx);
+      if(has_x) {
+        if(flags & 1) set_modify(-1);
+        if(flags & 4) draw();
+      }
     }
-  } else if(what == 4 && cache_table.table) { /* free data */
+  } else if(what == 4 && fork_table.table) { /* free data */
     dbg(1, "*** Delete ***\n");
-    for(i = 0; i < cache_table.size; ++i) {
-      entry = cache_table.table[i];
+    for(i = 0; i < fork_table.size; ++i) {
+      entry = fork_table.table[i];
       while(entry) {
         Xschem_ctx *new_xctx = entry->value;
-        if( new_xctx != xctx) {
+        if( new_xctx != xctx) { /* do not zap the schematic we are into */
           Xschem_ctx *save_xctx = xctx;
           ret = 1;
           xctx = new_xctx;
@@ -1563,16 +1592,16 @@ int fork_sch(int what, const char *sch_name, int flags)
         entry = entry->next;
       }
     }
-    ptr_hash_free(&cache_table);
+    ptr_hash_free(&fork_table);
   } else if(what == 6) { /* delete specified `sch_name` */
     
-    if((entry = ptr_hash_lookup(&cache_table, sch_name, NULL, XLOOKUP))) {
+    if((entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP))) {
       Xschem_ctx *new_xctx = entry->value;
-      if(new_xctx != xctx) {
+      if(new_xctx != xctx) { /* do not allow to delete the schematic we are into */
         Xschem_ctx *save_xctx = xctx; /* save current schematic */
         ret = 1;
         xctx = new_xctx;
-        ptr_hash_lookup(&cache_table, xctx->current_name, NULL, XDELETE);
+        ptr_hash_lookup(&fork_table, xctx->current_name, NULL, XDELETE);
         dbg(1, "deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token);
         delete_netlist_structs();
         clear_all_hilights();
@@ -1589,9 +1618,9 @@ int fork_sch(int what, const char *sch_name, int flags)
     ret = 1;
     dbg(0, "*** Info ***\n");
     dbg(0, "current: %p  %s\n", xctx, xctx->current_name);
-    if( cache_table.table) {
-      for(i = 0; i < cache_table.size; ++i) {
-        entry = cache_table.table[i];
+    if(fork_table.table) {
+      for(i = 0; i < fork_table.size; ++i) {
+        entry = fork_table.table[i];
         while(entry) {
           Xschem_ctx *stored_xctx = (Xschem_ctx *) entry->value;
           dbg(0, "  stored: %p  %s, saved as %s\n", stored_xctx, stored_xctx->current_name, entry->token);
@@ -2280,20 +2309,18 @@ static void destroy_window(int *window_count, const char *win_path)
       }
       if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
         char *toplevel = NULL;
-        char win_path_copy[WINDOW_PATH_SIZE];
         /* delete Tcl context of deleted schematic window */
         tclvareval("delete_ctx ", win_path, NULL);
         xctx = save_xctx[n];
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
 
-        my_strncpy(win_path_copy, save_xctx[n]->current_win_path, WINDOW_PATH_SIZE);
         delete_schematic_data(1);
         save_xctx[n] = NULL;
         if(has_x) {
-          tclvareval("winfo toplevel ", win_path_copy, NULL);
+          tclvareval("winfo toplevel ", win_path, NULL);
           my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
-          Tk_DestroyWindow(Tk_NameToWindow(interp, win_path_copy, mainwindow));
+          Tk_DestroyWindow(Tk_NameToWindow(interp, win_path, mainwindow));
           tclvareval("destroy ", toplevel, NULL);
           my_free(_ALLOC_ID_, &toplevel);
         }

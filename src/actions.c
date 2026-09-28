@@ -2815,50 +2815,56 @@ void go_back(int what)
  }
 }
 
+void set_untitled_name(int symbol)
+{
+ int i;
+ struct stat buf;
+ char name[PATH_MAX];
+ if(symbol == 1) {
+   xctx->netlist_type = CAD_SYMBOL_ATTRS;
+   set_tcl_netlist_type();
+   for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
+     if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
+     else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
+     if(stat(name, &buf)) break;
+   } 
+   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
+   my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
+   my_strncpy(xctx->current_name, name, S(xctx->current_name));
+ } else {
+   xctx->netlist_type = CAD_SPICE_NETLIST;
+   set_tcl_netlist_type();
+   for(i=0;; ++i) {
+     if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
+     else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
+     if(stat(name, &buf)) break;
+   }
+   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
+   my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
+   my_strncpy(xctx->current_name, name, S(xctx->current_name));
+ }
+
+}
+
 void clear_schematic(int cancel, int symbol)
 {
-      if(cancel == 1) cancel=save(1, 0);
-      if(cancel != -1) { /* -1 means user cancel save request */
-        char name[PATH_MAX];
-        struct stat buf;
-        int i;
-        xctx->currsch = 0;
-        unselect_all(1);
-        remove_symbols();
-        clear_drawing();
-        if(symbol == 1) {
-          xctx->netlist_type = CAD_SYMBOL_ATTRS;
-          set_tcl_netlist_type();
-          for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
-            if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
-            else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
-            if(stat(name, &buf)) break;
-          }
-          my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
-          my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
-          my_strncpy(xctx->current_name, name, S(xctx->current_name));
-        } else {
-          xctx->netlist_type = CAD_SPICE_NETLIST;
-          set_tcl_netlist_type();
-          for(i=0;; ++i) {
-            if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
-            else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
-            if(stat(name, &buf)) break;
-          }
-          my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
-          my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
-          my_strncpy(xctx->current_name, name, S(xctx->current_name));
-        }
-        draw();
-        set_modify(0);
-        xctx->prep_hash_inst=0;
-        xctx->prep_hash_wires=0;
-        xctx->prep_net_structs=0;
-        xctx->prep_hi_structs=0;
-        if(has_x) {
-          set_modify(-1);
-        }
-      }
+ if(cancel == 1) cancel=save(1, 0);
+ if(cancel != -1) { /* -1 means user cancel save request */
+   xctx->currsch = 0;
+   unselect_all(1);
+   remove_symbols();
+   clear_drawing();
+   set_untitled_name(symbol);
+   draw();
+   set_modify(0);
+   xctx->prep_hash_inst=0;
+   xctx->prep_hash_wires=0;
+   xctx->prep_net_structs=0;
+   xctx->prep_hi_structs=0;
+   if(has_x) {
+     set_modify(-1);
+   }
+ }
 }
 
 #ifndef __unix__
