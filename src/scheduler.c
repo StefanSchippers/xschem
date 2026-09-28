@@ -1438,7 +1438,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
       what = atoi(argv[2]);
-      ret = fork_sch(what, sch_name, flags);
+      ret = fork_sch(what, sch_name, flags, 0);
       my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }

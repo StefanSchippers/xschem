@@ -934,7 +934,7 @@ static void xwin_exit(void)
  }
 
  if(has_x) tcleval("store_geom . [xschem get current_name]");
- fork_sch(4, NULL, 0);
+ fork_sch(4, NULL, 0, 1);
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
@@ -1555,7 +1555,7 @@ static int check_in_save_xctx(Xschem_ctx *ctx)
  *   1: all ok
  *   0: some error.
  */
-int fork_sch(int what, const char *sch_name, int flags)
+int fork_sch(int what, const char *sch_name, int flags, int dbglev)
 {
   static Ptr_hashtable fork_table = {NULL, 0};
   int hash_size = 6247;
@@ -1616,7 +1616,7 @@ int fork_sch(int what, const char *sch_name, int flags)
         dbg(1, "overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name);
         xctx = (Xschem_ctx *)entry->value;
         /* set window paths to current */
-        dbg(0, "sch_fork 3: update current_win_path; %s\n", save_xctx->current_win_path);
+        dbg(1, "sch_fork 3: update current_win_path; %s\n", save_xctx->current_win_path);
         my_strdup2(_ALLOC_ID_, &xctx->top_path, save_xctx->top_path);
         my_strdup2(_ALLOC_ID_, &xctx->current_win_path, save_xctx->current_win_path);
         /* update tab/window title */
@@ -1651,7 +1651,7 @@ int fork_sch(int what, const char *sch_name, int flags)
           free_xschem_data();
           xctx = save_xctx;
         } else {
-          dbg(0, "can not delete the schematic we are in or a schematic in another window / tab\n");
+          dbg(dbglev, "can not delete the schematic we are in or a schematic in another window / tab\n");
         }
         entry = entry->next;
       }
@@ -1678,7 +1678,7 @@ int fork_sch(int what, const char *sch_name, int flags)
         free_xschem_data();
         xctx = save_xctx; /* restore current schematic */
       } else {
-        dbg(0, "can not delete the schematic we are in or a schematic in another window / tab\n");
+        dbg(dbglev, "can not delete the schematic we are in or a schematic in another window / tab\n");
       }
     }
   } else if(what == 5) { /* info */
