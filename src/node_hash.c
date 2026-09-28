@@ -184,7 +184,7 @@ void node_hash_free(void) /* remove the whole hash table  */
  int i;
 
  dbg(2, "node_hash_free(): removing hash table\n");
- for(i=0;i<HASHSIZE; ++i)
+ if(xctx && xctx->node_table) for(i=0;i<HASHSIZE; ++i)
  {
   node_hash_free_entry( xctx->node_table[i] );
   xctx->node_table[i] = NULL;

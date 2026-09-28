@@ -3330,7 +3330,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         /* must be set to zero, otherwise switch_tab/switch_win does not proceed
          * and these are necessary when closing tabs/windows */
         xctx->semaphore = 0;
-        tcleval("quit_xschem");
+        tcleval("exit 0");
       }
       else if(rstate==0) { /* edit attributes */
         if(xctx->semaphore >= 2) break;

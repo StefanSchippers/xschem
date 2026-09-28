@@ -1116,6 +1116,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int force = 0;
       const char *exit_status = "0";
 
+      dbg(1, "`xschem exit` called\n");
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "closewindow")) closewindow = 1;

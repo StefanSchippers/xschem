@@ -9983,16 +9983,6 @@ proc get_lastopened {} {
   return $f
 }
 
-proc quit_xschem { {force {}}} {
-  global tabbed_interface
-
-  xschem new_schematic switch .drw
-  xschem new_schematic destroy_all $force
-  if {[winfo exists .ins]} { .ins.bottom.dismiss invoke }
-  set remaining [xschem exit closewindow $force]
-  return $remaining
-}
-
 proc raise_dialog {parent window_path } {
   global file_dialog_loadfile component_browser_on_top
   foreach i ".alert .dialog .graphdialog .load" {
@@ -10731,7 +10721,7 @@ proc build_widgets { {topwin {} } } {
     xschem exit
   }
   $topwin.menubar.file add command -label "Quit Xschem" -accelerator {Ctrl+Q} -command {
-    quit_xschem
+    exit 0
   }
   $topwin.menubar.option add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -selectcolor $selectcolor -command {
