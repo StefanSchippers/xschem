@@ -1246,7 +1246,7 @@ extern char *xschem_executable;
 extern double tk_scaling;
 extern Tcl_Interp *interp;
 extern double *character[256];
-extern char old_win_path[PATH_MAX]; /* previously switched window, used in callback() */
+extern char *old_win_path; /* previously switched window, used in callback() */
 extern const char fopen_read_mode[]; /* "r" on unix, "rb" on windows */
 
 /*********** Cmdline options  (used at xinit, and then not used anymore) ***********/

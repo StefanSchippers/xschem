@@ -4681,14 +4681,14 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
         dbg(1, "callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
                 xctx->current_win_path, win_path, xctx->semaphore);
         redraw_only = 1;
-        my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));
+        my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
         new_schematic("switch_no_tcl_ctx", win_path, "", 1);
       /* This does a "temporary" switch just to redraw obscured window parts */
       } else if(event == Expose || xctx->semaphore >= 1 ) {
         dbg(1, "callback(): switching window context for redraw ONLY: %s --> %s\n",
                 xctx->current_win_path, win_path);
         redraw_only = 1;
-        my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));
+        my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
         new_schematic("switch_no_tcl_ctx", win_path, "", 1);
       /* this is the regular context switch when window gets focused */
       } else if(event == FocusIn && xctx->semaphore == 0) {
@@ -4879,7 +4879,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
     dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
     if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
-    my_strncpy(old_win_path, xctx->current_win_path, S(old_win_path));
+    my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
   }
   return 0;
 }

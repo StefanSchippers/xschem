@@ -981,6 +981,7 @@ static void xwin_exit(void)
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);
  dbg(1, "xwin_exit(): closed display\n");
  my_strncpy(cli_opt_filename, "", S(cli_opt_filename));
+ my_free(_ALLOC_ID_, &old_win_path);
  my_free(_ALLOC_ID_, &xschem_executable);
  dbg(1, "xwin_exit(): deleted undo buffer\n");
  /* delete cmdline stuff */
@@ -1951,7 +1952,7 @@ void swap_windows(int dr)
     new_schematic("switch", wp_j, "", 0);
     resetwin(1, 1, 1, 0, 0);
 
-    my_snprintf(old_win_path, S(old_win_path), "");
+    my_strdup2(_ALLOC_ID_, &old_win_path, "");
     if(dr) draw();
   }
 }
@@ -3374,6 +3375,8 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                */
  /*  END EXECUTE xschem.tcl        */
  /*                                */
+
+ my_strdup2(_ALLOC_ID_, &old_win_path, ".drw");
 
  /* resolve absolute pathname of xschem (argv[0]) for future usage */
  my_strdup(_ALLOC_ID_, &xschem_executable, get_file_path(xschem_executable));

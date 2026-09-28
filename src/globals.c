@@ -188,7 +188,7 @@ char *xschem_executable=NULL;
 double tk_scaling = 1.0;
 Tcl_Interp *interp = NULL;
 double *character[256]; /* array or per-char coordinates of xschem internal vector font */
-char old_win_path[PATH_MAX] = ".drw"; /* previously switched window, used in callback() */
+char *old_win_path = NULL; /* previously switched window, used in callback() */
 #ifndef __unix__
 char win_temp_dir[PATH_MAX]="";
 const char fopen_read_mode[] = "rb";
