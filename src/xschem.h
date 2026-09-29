@@ -721,15 +721,13 @@ typedef struct {
 
 
 /* generic string hash table */
-
-typedef struct str_hashentry Str_hashentry;
-struct str_hashentry
+typedef struct str_hashentry
 {
   struct str_hashentry *next;
   unsigned int hash;
   char *token;
   char *value;
-};
+} Str_hashentry;
 
 typedef struct {
   Str_hashentry **table;
@@ -737,14 +735,13 @@ typedef struct {
 } Str_hashtable;
 
 /* generic int hash table */
-typedef struct int_hashentry Int_hashentry;
-struct int_hashentry
+typedef struct int_hashentry
 {
   struct int_hashentry *next;
   unsigned int hash;
   char *token;
   int value;
-};
+} Int_hashentry;
 
 typedef struct {
   Int_hashentry **table;
@@ -752,22 +749,20 @@ typedef struct {
 } Int_hashtable;
 
 /* generic pointer hash table */
-typedef struct ptr_hashentry Ptr_hashentry;
-struct ptr_hashentry
+typedef struct ptr_hashentry
 {
   struct ptr_hashentry *next;
   unsigned int hash;
   char *token;
   void *value;
-};
+} Ptr_hashentry;
 
 typedef struct {
   Ptr_hashentry **table;
   int size;
 } Ptr_hashtable;
 
-typedef struct node_hashentry Node_hashentry;
-struct node_hashentry
+typedef struct node_hashentry
 {
   struct node_hashentry *next;
   unsigned int hash;
@@ -778,11 +773,10 @@ struct node_hashentry
   char *class;
   char *orig_tok;
   Drivers d;
-};
+} Node_hashentry;
 
 
-typedef struct hilight_hashentry Hilight_hashentry;
-struct hilight_hashentry
+typedef struct hilight_hashentry
 {
   struct hilight_hashentry *next;
   unsigned int hash;
@@ -791,7 +785,7 @@ struct hilight_hashentry
   int oldvalue;  /* used for FF simulation */
   int value;  /* hilight color */
   int time; /*delta-time for sims */
-};
+} Hilight_hashentry;
 
 typedef struct {
   /* spice raw file specific data */
