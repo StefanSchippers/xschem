@@ -1546,6 +1546,23 @@ static int check_in_save_xctx(Xschem_ctx *ctx)
   return 0;
 } 
 
+int delete_fork_entry(Xschem_ctx *ctx)
+{
+  int i;
+  Ptr_hashentry *entry = NULL;
+  if(fork_table.table) for(i = 0; i < fork_table.size; ++i) {
+    entry = fork_table.table[i];
+    while(entry) {
+      Xschem_ctx *fork_ctx = entry->value;
+      if(fork_ctx == ctx) {
+        ptr_hash_lookup(&fork_table, entry->token, NULL, XDELETE);
+        return 1;
+      }
+      entry = entry->next;
+    }
+  }
+  return 0;
+}
 
 /* what: 
  *   1: insert current schematic
@@ -2399,13 +2416,8 @@ static void destroy_window(int *window_count, const char *win_path)
       }
       if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
         char *toplevel = NULL;
-        Ptr_hashentry *entry;
 
-        if(fork_table.table &&
-           (entry = ptr_hash_lookup(&fork_table, save_xctx[n]->current_name, NULL, XLOOKUP)) &&
-           entry->value == save_xctx[n]) {
-           ptr_hash_lookup(&fork_table, save_xctx[n]->current_name, NULL, XDELETE);
-        }
+        delete_fork_entry(save_xctx[n]);
 
         /* delete Tcl context of deleted schematic window */
         tclvareval("delete_ctx ", win_path, NULL);
@@ -2478,13 +2490,8 @@ static void destroy_tab(int *window_count, const char *win_path)
       my_strdup2(_ALLOC_ID_, &new_path, tcleval("tab_queue PREVIOUS"));
       tcleval("tab_queue REMOVE"); /* clear current tab from queue */
       if(n >= 1 && n < MAX_NEW_WINDOWS) {
-        Ptr_hashentry *entry;
 
-        if(fork_table.table && 
-            (entry = ptr_hash_lookup(&fork_table, save_xctx[n]->current_name, NULL, XLOOKUP)) &&
-            entry->value == save_xctx[n]) {
-          ptr_hash_lookup(&fork_table, save_xctx[n]->current_name, NULL, XDELETE);
-        }
+        delete_fork_entry(save_xctx[n]);
 
         tclvareval("delete_ctx ", win_path, NULL);
         tclvareval("delete_tab ", win_path, NULL);
@@ -2551,7 +2558,6 @@ static void destroy_all_windows(int *window_count, int force)
           Tcl_ResetResult(interp);
           if(close) {
             char *toplevel = NULL;
-            Ptr_hashentry *entry;
             if(has_x) {
               tclvareval("winfo toplevel ", window_path, NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
@@ -2564,11 +2570,7 @@ static void destroy_all_windows(int *window_count, int force)
               dbg(1, "setting savectx to xctx[0]: current saved context=%s, i=%d\n", savectx->current_win_path, i);
             }
 
-            if(fork_table.table && 
-                (entry = ptr_hash_lookup(&fork_table, save_xctx[i]->current_name, NULL, XLOOKUP)) &&
-                entry->value == save_xctx[i]) {
-              ptr_hash_lookup(&fork_table, save_xctx[i]->current_name, NULL, XDELETE);
-            } 
+            delete_fork_entry(save_xctx[i]);
 
             delete_schematic_data(1);
             save_xctx[i] = NULL;
@@ -2639,18 +2641,13 @@ static void destroy_all_tabs(int *window_count, int force)
         else close = 1;
         Tcl_ResetResult(interp);
         if(close) {
-          Ptr_hashentry *entry;
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path, NULL);
           if(has_x) tclvareval("delete_tab ", window_path, NULL);
           /* set saved ctx to main window if previous is about to be destroyed */
           if(savectx == save_xctx[i]) savectx = save_xctx[0];
 
-          if(fork_table.table &&
-              (entry = ptr_hash_lookup(&fork_table, save_xctx[i]->current_name, NULL, XLOOKUP)) &&
-              entry->value == save_xctx[i]) {
-            ptr_hash_lookup(&fork_table, save_xctx[i]->current_name, NULL, XDELETE);
-          } 
+          delete_fork_entry(save_xctx[i]);
 
           delete_schematic_data(1);
           save_xctx[i] = NULL;
