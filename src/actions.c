@@ -628,12 +628,10 @@ void ask_new_file(int in_new_window, char *filename)
       my_strncpy(f, filename, S(f));
     }
     if(f[0]) {
-      char win_path[WINDOW_PATH_SIZE];
       int skip = 0;
       dbg(1, "ask_new_file(): load: f=%s\n", f);
 
-      if(check_loaded(f, win_path) && !filename &&
-          xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
+      if(check_loaded(f) && !filename) {
         char msg[PATH_MAX + 100];
         my_snprintf(msg, S(msg),
            "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -1735,7 +1733,6 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
 void symbol_in_new_window(int new_process)
 {
   char filename[PATH_MAX];
-  char win_path[WINDOW_PATH_SIZE];
   rebuild_selected_array();
 
   if(xctx->lastsel !=1 || xctx->sel_array[0].type!=ELEMENT) {
@@ -1749,7 +1746,7 @@ void symbol_in_new_window(int new_process)
   }
   else {
     my_strncpy(filename, abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), S(filename));
-    if(!check_loaded(filename, win_path)) {
+    if(!check_loaded(filename)) {
       if(new_process) new_xschem_process(filename, 1);
       else new_schematic("create", NULL, filename, 1);
     }
@@ -1835,7 +1832,6 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
 int schematic_in_new_window(int new_process, int dr, int force)
 {
   char filename[PATH_MAX];
-  char win_path[WINDOW_PATH_SIZE];
   rebuild_selected_array();
   if(xctx->lastsel == 0) {
     if(new_process) new_xschem_process(xctx->sch[xctx->currsch], 0);
@@ -1871,7 +1867,7 @@ int schematic_in_new_window(int new_process, int dr, int force)
        )
     ) return 0;
     get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n, 0);
-    if(force || !check_loaded(filename, win_path)) {
+    if(force || !check_loaded(filename)) {
       if(new_process) new_xschem_process(filename, 0);
       else new_schematic("create", "noalert", filename, dr);
     }

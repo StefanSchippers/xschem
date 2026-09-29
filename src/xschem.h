@@ -145,7 +145,6 @@ extern char win_temp_dir[PATH_MAX];
 
 /* max number of windows (including main) a single xschem process can handle */
 #define MAX_NEW_WINDOWS 20
-#define WINDOW_PATH_SIZE 30
 
 #define BACKLAYER 0
 #define WIRELAYER 1
@@ -1570,7 +1569,7 @@ extern int load_schematic(int load_symbol, const char *fname, int reset_undo, in
 extern int get_tab_or_window_number(const char *win_path);
 extern void swap_tabs(void);
 extern void swap_windows(int dr);
-extern int check_loaded(const char *f, char *win_path);
+extern Xschem_ctx *check_loaded(const char *f);
 extern char *get_last_created_window_path(void);
 extern int get_last_created_window(void);
 extern char *get_window_path(int i);

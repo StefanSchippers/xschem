@@ -560,12 +560,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   else return empty string */
     else if(!strcmp(argv[1], "check_loaded"))
     {
-      char win_path[WINDOW_PATH_SIZE] = "";
+      Xschem_ctx *ctx = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        check_loaded(argv[2], win_path);
+        ctx = check_loaded(argv[2]);
       }
-      Tcl_SetResult(interp, win_path, TCL_VOLATILE);
+      if(ctx) 
+        Tcl_SetResult(interp, ctx->current_win_path, TCL_VOLATILE);
+      else
+        Tcl_SetResult(interp, "", TCL_VOLATILE);
     }
 
     /* check_symbols
@@ -3220,13 +3223,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           my_strncpy(f, tclresult(), S(f));
         }
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
-          char win_path[WINDOW_PATH_SIZE];
           int skip = 0;
           if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
           dbg(1, "scheduler(): load: filename=%s\n", f);
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
-          if(!force && f[0] && check_loaded(f, win_path) &&
-              xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
+          if(!force && f[0] && check_loaded(f)) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -3235,7 +3236,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               tcleval(msg);
               if(strcmp(tclresult(), "ok")) skip = 1;
             }
-            else dbg(0, "xschem load: %s already open: %s\n", f, win_path);
+            else dbg(0, "xschem load: %s already open.\n", f);
           }
           if(!skip) {
             int ret;
@@ -3308,9 +3309,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strncpy(f, argv[i], S(f));
           }
           if(f[0]) {
-           char win_path[WINDOW_PATH_SIZE];
            dbg(1, "f=%s\n", f);
-           if(check_loaded(f, win_path) && xctx->current_win_path && strcmp(win_path, xctx->current_win_path)) {
+           if(check_loaded(f)) {
              char msg[PATH_MAX + 100];
              my_snprintf(msg, S(msg),
                 "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
