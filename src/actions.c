@@ -1794,9 +1794,7 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
     to->sch_path_hash[i] = sch_path_hash[i];
     to->sch_inst_number[i] = sch_inst_number[i];
     to->previous_instance[i] = previous_instance[i];
-    to->zoom_array[i].x = zoom_array[i].x;
-    to->zoom_array[i].y = zoom_array[i].y;
-    to->zoom_array[i].zoom = zoom_array[i].zoom;
+    to->zoom_array[i] = zoom_array[i];
     to->hier_attr[i].x0 = hier_attr[i].x0;
     to->hier_attr[i].y0 = hier_attr[i].y0;
     to->hier_attr[i].rot = hier_attr[i].rot;
@@ -1807,22 +1805,7 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
     my_strdup2(_ALLOC_ID_, &to->hier_attr[i].symname, hier_attr[i].symname);
     my_strdup2(_ALLOC_ID_, &to->hier_attr[i].sym_extra, hier_attr[i].sym_extra);
     if(to->portmap[i].table) str_hash_free(&to->portmap[i]);
-    str_hash_init(&to->portmap[i], HASHSIZE);
-    for(j = 0; j < HASHSIZE; j++) {
-      if(!from->portmap[i].table || !from->portmap[i].table[j]) continue;
-      fromnext = &(from->portmap[i].table[j]);
-      tonext =  &(to->portmap[i].table[j]);
-      while(*fromnext) {
-        Str_hashentry *e;
-        e = my_calloc(_ALLOC_ID_, 1, sizeof(Str_hashentry));
-        e->hash = (*fromnext)->hash;
-        my_strdup2(_ALLOC_ID_, &e->token, (*fromnext)->token);
-        my_strdup2(_ALLOC_ID_, &e->value, (*fromnext)->value);
-        *tonext = e;
-        fromnext = &( (*fromnext)->next );
-        tonext = &( (*tonext)->next );
-      }
-    }
+    str_hash_copy(&(to->portmap[i]), &(from->portmap[i]));
   }
   return 1;
 }

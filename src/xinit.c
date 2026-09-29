@@ -1352,6 +1352,10 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
     my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].templ, source->hier_attr[i].templ);
     my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].sym_extra, source->hier_attr[i].sym_extra);
     my_strdup2(_ALLOC_ID_, &dest->hier_attr[i].symname, source->hier_attr[i].symname);
+    dest->hier_attr[i].x0 = source->hier_attr[i].x0;
+    dest->hier_attr[i].y0 = source->hier_attr[i].y0;
+    dest->hier_attr[i].rot = source->hier_attr[i].rot;
+    dest->hier_attr[i].flip = source->hier_attr[i].flip;
     dest->zoom_array[i] = source->zoom_array[i];
     str_hash_copy(&(dest->portmap[i]), &(source->portmap[i]));
   }
@@ -1546,7 +1550,8 @@ static int check_in_save_xctx(Xschem_ctx *ctx)
   return 0;
 } 
 
-int delete_fork_entry(Xschem_ctx *ctx)
+/* search fork hash table by value instead of by key, to compare the exact xctx pointer */
+int delete_fork_sch(Xschem_ctx *ctx)
 {
   int i;
   Ptr_hashentry *entry = NULL;
@@ -1595,8 +1600,10 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     }
     if(!ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
       ret = 1;
-      dbg(1, "saving: %s as %s\n", xctx->current_name, sch_name);
+      dbg(1, "Saving: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
+    } else {
+      dbg(dbglev, "Not saving: %s already present\n", sch_name);
     }
     xctx = NULL;
     alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
@@ -1623,6 +1630,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       dbg(1, "store copy: %s as %s\n", xctx->current_name, sch_name);
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = save_xctx; /* restore current schematic */
+    } else {
+      dbg(dbglev, "Not saving: %s already present\n", sch_name);
     }
   } else if(what == 3 && fork_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
     dbg(1, "*** Lookup %s ***\n", sch_name);
@@ -1648,9 +1657,11 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           if(flags & 1) set_modify(-1);
           if(flags & 4) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
         }
+      } else {
+        dbg(dbglev, "Another window / tab already contains %s\n", sch_name);
       }
     } else {
-      dbg(0, "schematic to lookup already in another window / tab\n");
+      dbg(dbglev, "schematic to lookup not found:%s\n", sch_name);
     }
   } else if(what == 4 && fork_table.table) { /* free data */
     dbg(1, "*** Delete ***\n");
@@ -1703,6 +1714,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       } else {
         dbg(dbglev, "can not delete the schematic we are in or a schematic in another window / tab\n");
       }
+    } else {
+      dbg(dbglev, "schematic to delete not found:%s\n", sch_name);
     }
   } else if(what == 5) { /* info */
     ret = 1;
@@ -2416,16 +2429,15 @@ static void destroy_window(int *window_count, const char *win_path)
       }
       if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
         char *toplevel = NULL;
-
-        delete_fork_entry(save_xctx[n]);
-
         /* delete Tcl context of deleted schematic window */
         tclvareval("delete_ctx ", win_path, NULL);
         xctx = save_xctx[n];
         /* set saved ctx to main window if current is to be destroyed */
         if(savectx == xctx) savectx = save_xctx[0];
 
+        delete_fork_sch(save_xctx[n]);
         delete_schematic_data(1);
+
         save_xctx[n] = NULL;
         if(has_x) {
           tclvareval("winfo toplevel ", win_path, NULL);
@@ -2491,12 +2503,13 @@ static void destroy_tab(int *window_count, const char *win_path)
       tcleval("tab_queue REMOVE"); /* clear current tab from queue */
       if(n >= 1 && n < MAX_NEW_WINDOWS) {
 
-        delete_fork_entry(save_xctx[n]);
-
         tclvareval("delete_ctx ", win_path, NULL);
         tclvareval("delete_tab ", win_path, NULL);
         xctx = save_xctx[n];
+
+        delete_fork_sch(save_xctx[n]);
         delete_schematic_data(1);
+
         save_xctx[n] = NULL;
         /* delete Tcl context of deleted schematic window */
         (*window_count)--;
@@ -2570,9 +2583,9 @@ static void destroy_all_windows(int *window_count, int force)
               dbg(1, "setting savectx to xctx[0]: current saved context=%s, i=%d\n", savectx->current_win_path, i);
             }
 
-            delete_fork_entry(save_xctx[i]);
-
+            delete_fork_sch(save_xctx[i]);
             delete_schematic_data(1);
+
             save_xctx[i] = NULL;
             if(has_x) {
               Tk_DestroyWindow(Tk_NameToWindow(interp, window_path, mainwindow));
@@ -2647,9 +2660,9 @@ static void destroy_all_tabs(int *window_count, int force)
           /* set saved ctx to main window if previous is about to be destroyed */
           if(savectx == save_xctx[i]) savectx = save_xctx[0];
 
-          delete_fork_entry(save_xctx[i]);
-
+          delete_fork_sch(save_xctx[i]);
           delete_schematic_data(1);
+
           save_xctx[i] = NULL;
           (*window_count)--;
           if(has_x && *window_count == 0) tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");

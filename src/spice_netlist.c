@@ -813,8 +813,8 @@ int str_hash_copy(Str_hashtable *dest, Str_hashtable *source)
     Str_hashentry **dentry = &dest->table[i];
     while(sentry) {
       Str_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Str_hashentry));
-      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
-      my_strdup(_ALLOC_ID_, &new_node->value, sentry->value);
+      my_strdup2(_ALLOC_ID_, &new_node->token, sentry->token);
+      my_strdup2(_ALLOC_ID_, &new_node->value, sentry->value);
       new_node->hash = sentry->hash;
       new_node->next = NULL;
       *dentry = new_node;
@@ -932,7 +932,7 @@ int int_hash_copy(Int_hashtable *dest, Int_hashtable *source)
     Int_hashentry **dentry = &dest->table[i];
     while(sentry) {
       Int_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Int_hashentry));
-      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      my_strdup2(_ALLOC_ID_, &new_node->token, sentry->token);
       new_node->value = sentry->value;
       new_node->hash = sentry->hash;
       new_node->next = NULL;
@@ -1051,7 +1051,7 @@ int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source)
     Ptr_hashentry **dentry = &dest->table[i];
     while(sentry) {
       Ptr_hashentry *new_node = my_calloc(_ALLOC_ID_, 1, sizeof(Ptr_hashentry));
-      my_strdup(_ALLOC_ID_, &new_node->token, sentry->token);
+      my_strdup2(_ALLOC_ID_, &new_node->token, sentry->token);
       new_node->value = sentry->value;
       new_node->hash = sentry->hash;
       new_node->next = NULL;
