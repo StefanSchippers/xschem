@@ -50,7 +50,7 @@ static void instinsert(int n, int x, int y)
   newptr->next=ptr;
   newptr->n=n;
   xctx->inst_spatial_table[x][y]=newptr;
-  dbg(2, "instinsert(): inserting object %d at %d,%d\n",n,x,y);
+  dbg(2, ("instinsert(): inserting object %d at %d,%d\n",n,x,y));
 }
 
 static Instentry *delinstentry(Instentry *t)
@@ -72,7 +72,7 @@ void del_inst_table(void)
     for(j=0;j<NBOXES; ++j)
       xctx->inst_spatial_table[i][j] = delinstentry(xctx->inst_spatial_table[i][j]);
   xctx->prep_hash_inst=0;
-  dbg(1, "del_inst_table(): cleared object hash table\n");
+  dbg(1, ("del_inst_table(): cleared object hash table\n"));
 }
 
 /* what:
@@ -155,7 +155,7 @@ void del_object_table(void)
       xctx->object_spatial_table[i][j] = delobjectentry(xctx->object_spatial_table[i][j]);
   xctx->prep_hash_object=0;
   xctx->n_hash_objects = 0;
-  dbg(1, "del_object_table(): cleared object hash table\n");
+  dbg(1, ("del_object_table(): cleared object hash table\n"));
 }
 
 
@@ -188,7 +188,7 @@ static void objectinsert(int type, int n, int c, int x, int y)
   newptr->n=n;
   newptr->c=c;
   xctx->object_spatial_table[x][y]=newptr;
-  dbg(2, "objectnsert(): inserting object %d %d %d at %d,%d\n",type, n, c, x, y);
+  dbg(2, ("objectnsert(): inserting object %d %d %d at %d,%d\n",type, n, c, x, y));
 }
 
 /* what:
@@ -352,7 +352,7 @@ static void instpininsert(int n,int pin, double x0, double y0, int x, int y)
  newptr->y0=y0;
  newptr->pin=pin;
  xctx->instpin_spatial_table[x][y]=newptr;
- dbg(2, "instpininsert(): inserting inst %d at %d,%d\n",n,x,y);
+ dbg(2, ("instpininsert(): inserting inst %d at %d,%d\n",n,x,y));
 }
 
 
@@ -405,7 +405,7 @@ static void wireinsert(int n, int x, int y)
   newptr->next=ptr;
   newptr->n=n;
   xctx->wire_spatial_table[x][y]=newptr;
-  dbg(2, "wireinsert(): inserting wire %d at %d,%d\n",n,x,y);
+  dbg(2, ("wireinsert(): inserting wire %d at %d,%d\n",n,x,y));
 }
 
 static Wireentry *delwireentry(Wireentry *t)
@@ -511,7 +511,7 @@ void hash_wire(int what, int n, int incremental)
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
   if(skip_wire(n)) return;
-  dbg(1, "hash_wire(): what=%d n=%d incremental=%d\n",  what, n, incremental);
+  dbg(1, ("hash_wire(): what=%d n=%d incremental=%d\n",  what, n, incremental));
   wire[n].end1 = wire[n].end2=-1;
   x1=wire[n].x1;
   x2=wire[n].x2;
@@ -578,16 +578,16 @@ int check_lib(int what, const char *s)
  if(what & 2) tcleval("llength $noprint_libs");
  if(what & 4) tcleval("llength $nolist_libs");
  range = atoi(tclresult());
- dbg(1, "check_lib(): s=%s, range=%d\n", s, range);
+ dbg(1, ("check_lib(): s=%s, range=%d\n", s, range));
 
  for(i=0;i<range; ++i){
   if(what & 1 ) my_snprintf(str, S(str), "lindex $xschem_libs %d",i);
   if(what & 2 ) my_snprintf(str, S(str), "lindex $noprint_libs %d",i);
   if(what & 4 ) my_snprintf(str, S(str), "lindex $nolist_libs %d",i);
   tcleval(str);
-  dbg(1, "check_lib(): %s -> %s\n", str, tclresult());
+  dbg(1, ("check_lib(): %s -> %s\n", str, tclresult()));
   my_snprintf(str, S(str), "regexp {%s} {%s}", tclresult(), s);
-  dbg(1, "check_lib(): str=%s\n", str);
+  dbg(1, ("check_lib(): str=%s\n", str));
   tcleval(str);
   if( tclresult()[0] == '1') found=1;
  }
@@ -673,14 +673,14 @@ static void print_wires(void)
  for(i=0;i<NBOXES; ++i) {
    for(j=0;j<NBOXES; ++j)
    {
-    dbg(1, "print_wires(): %4d%4d :\n",i,j);
+    dbg(1, ("print_wires(): %4d%4d :\n",i,j));
     ptr=xctx->wire_spatial_table[i][j];
     while(ptr)
     {
-     dbg(1, "print_wires(): %6d\n", ptr->n);
+     dbg(1, ("print_wires(): %6d\n", ptr->n));
      ptr=ptr->next;
     }
-    dbg(1, "print_wires(): \n");
+    dbg(1, ("print_wires(): \n"));
    }
  }
  ptr=xctx->wire_spatial_table[0][1];
@@ -778,7 +778,7 @@ void get_inst_pin_coord(int i, int j, double *x, double *y)
 /* what==3 -> get node multiplicity */
 int get_unnamed_node(int what, int mult,int node)
 {
-  dbg(2, "get_unnamed_node(): what=%d mult=%d node=%d\n", what, mult, node);
+  dbg(2, ("get_unnamed_node(): what=%d mult=%d node=%d\n", what, mult, node));
   if(what==0) { /* initialize unnamed node data structures */
     xctx->new_node=0;
     my_free(_ALLOC_ID_, &xctx->node_mult);
@@ -807,7 +807,7 @@ int get_unnamed_node(int what, int mult,int node)
     return 0;
   }
   else { /* what=3 , return node multiplicity */
-    dbg(2, "get_unnamed_node(): returning mult=%d\n", xctx->node_mult[node]);
+    dbg(2, ("get_unnamed_node(): returning mult=%d\n", xctx->node_mult[node]));
     return xctx->node_mult[node];
   }
 }
@@ -828,7 +828,7 @@ static void name_generics()
   int const instances = xctx->instances;
 
   /* name generic pins from attached labels */
-  dbg(2, "name_generics(): naming generics from attached labels\n");
+  dbg(2, ("name_generics(): naming generics from attached labels\n"));
   if(for_netlist) for (i=0;i<instances; ++i) { /* ... assign node fields on all (non label) instances */
     if(skip_instance(i, 0, netlist_lvs_ignore)) continue;
     my_strdup(_ALLOC_ID_, &type,(inst[i].ptr+ xctx->sym)->type);
@@ -856,7 +856,7 @@ static void name_generics()
             if((iptr->x0==x0) && (iptr->y0==y0)) {
               if((inst[n].ptr+ xctx->sym)->type && inst[n].node[p] != NULL &&
                  !strcmp((inst[n].ptr+ xctx->sym)->type, "label")) {
-                dbg(2, "name_generics(): naming generic %s\n", inst[n].node[p]);
+                dbg(2, ("name_generics(): naming generic %s\n", inst[n].node[p]));
                 my_strdup(_ALLOC_ID_,  &inst[i].node[j], get_tok_value(inst[n].prop_ptr,"value",0) );
                 if(!for_netlist) {
                   my_strdup(_ALLOC_ID_, &sig_type,"");
@@ -889,7 +889,7 @@ static int signal_short( const char *tag, const char *n1, const char *n2)
  {
    err |= 1;
    my_snprintf(str, S(str), "Error: %s shorted: %s - %s", tag, n1, n2);
-   dbg(1, "signal_short(): signal_short: shorted: %s - %s", n1, n2);
+   dbg(1, ("signal_short(): signal_short: shorted: %s - %s", n1, n2));
    statusmsg(str,2);
    if(!xctx->netlist_count) {
       bus_hilight_hash_lookup(n1, xctx->hilight_color, XINSERT);
@@ -953,7 +953,7 @@ static void set_inst_node(int i, int j, const char *node)
   if(!node || !node[0]) return;
   if(!inst[i].node) return;
   if(!inst[i].instname) return;
-  dbg(1, "set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node);
+  dbg(1, ("set_inst_node(): inst %s pin %d <-- %s\n", inst[i].instname, j, node));
 
   my_strdup2(_ALLOC_ID_, &tr_node, node);
   for(k = xctx->currsch - 1; k >= 0; k--) {
@@ -1008,8 +1008,8 @@ static int name_attached_inst_to_net(int k, int sqx, int sqy)
     if(!inst[n].node) continue;
     if(touch(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x0, y0)) {
       if(!inst[n].node[p]) {
-        dbg(1, "name_attached_inst_to_net(): inst %s, pin %d <-- %s\n",
-              inst[n].instname, p, wire[k].node ? wire[k].node : "<NULL>");
+        dbg(1, ("name_attached_inst_to_net(): inst %s, pin %d <-- %s\n",
+              inst[n].instname, p, wire[k].node ? wire[k].node : "<NULL>"));
         set_inst_node(n, p, wire[k].node);
         err |= instcheck(n, p);
       } else {
@@ -1028,7 +1028,7 @@ static int wirecheck(int k)    /* recursive routine */
   Wireentry *wptr;
   xWire * const wire = xctx->wire;
   if(skip_wire(k)) return err;
-  dbg(1, "wirecheck: %d\n", k);
+  dbg(1, ("wirecheck: %d\n", k));
   x1 = wire[k].x1; y1 = wire[k].y1;
   x2 = wire[k].x2; y2 = wire[k].y2;
   /* ordered bbox */
@@ -1150,10 +1150,10 @@ static int skip_wire2(int i, int lvs_ignore, int mask)
 { 
   int skip = 0;
   if(xctx->wire[i].flags & mask) {
-    dbg(1, "i=%d flags=%d, mask=%d\n", i, xctx->wire[i].flags, mask);
+    dbg(1, ("i=%d flags=%d, mask=%d\n", i, xctx->wire[i].flags, mask));
     skip = 1;
   } else if(lvs_ignore && (xctx->wire[i].flags & LVS_IGNORE)) {
-    dbg(1, "lvs_ignore is set, i=%d flags=%d\n", i, xctx->wire[i].flags);
+    dbg(1, ("lvs_ignore is set, i=%d flags=%d\n", i, xctx->wire[i].flags));
     skip = 1;
   }
   return skip;
@@ -1174,7 +1174,7 @@ int skip_wire(int i)
       skip =  skip_wire2(i, netlist_lvs_ignore, TEDAX_IGNORE);
   else skip = 0;
 
-  dbg(1, "skip_wire(): wire %d skip=%d\n", i, skip);
+  dbg(1, ("skip_wire(): wire %d skip=%d\n", i, skip));
   return skip;
 }   
 
@@ -1204,7 +1204,7 @@ int skip_instance(int i, int skip_short, int lvs_ignore)
       skip =  skip_instance2(i, lvs_ignore, (skip_short ? TEDAX_SHORT : 0) | TEDAX_IGNORE);
   else skip = 0;
 
-  dbg(1, "skip_instance(): instance %d skip=%d\n", i, skip);
+  dbg(1, ("skip_instance(): instance %d skip=%d\n", i, skip));
   return skip;
 }
 
@@ -1235,12 +1235,12 @@ static int find_pass_through_symbols(int what, int ninst)
       for(j = 0; j < xctx->sym[k].rects[PINLAYER]; ++j) {
         const char *pin_name = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
         if(int_hash_lookup(&table, pin_name, j, XINSERT_NOREPLACE)) {
-          dbg(1, "   pass thru symbol found\n");
+          dbg(1, ("   pass thru symbol found\n"));
           pt_symbol[k] = 1;
         }
       }
       int_hash_free(&table);
-      if(pt_symbol[k]) dbg(1, "duplicated pins: %s\n", xctx->sym[k].name);
+      if(pt_symbol[k]) dbg(1, ("duplicated pins: %s\n", xctx->sym[k].name));
     }
     my_free(_ALLOC_ID_, &symtable);
   } else if(what ==1) { /* query */
@@ -1336,7 +1336,7 @@ static int instcheck(int n, int p)
     } else {
       if(for_netlist>0) err |= signal_short("Bus tap", inst[n].node[p], inst[n].node[0]);
     }
-    dbg(1, "instcheck: bus tap node: p=%d, %s, tap=%s\n", p, inst[n].node[p], inst[n].node[0]);
+    dbg(1, ("instcheck: bus tap node: p=%d, %s, tap=%s\n", p, inst[n].node[p], inst[n].node[0]));
     my_free(_ALLOC_ID_, &node_base_name);
   }
 
@@ -1356,8 +1356,8 @@ static int instcheck(int n, int p)
         other_pin = get_tok_value(xctx->sym[k].rect[PINLAYER][j].prop_ptr, "name", 0);
       }
       if(!strcmp(other_pin, pin_name)) {
-        dbg(1, "instcheck: inst %s pin %s(%d) <--> pin %s(%d)\n", inst[n].instname, pin_name, p, other_pin, j);
-        dbg(1, "instcheck: node: %s\n", inst[n].node[p]);
+        dbg(1, ("instcheck: inst %s pin %s(%d) <--> pin %s(%d)\n", inst[n].instname, pin_name, p, other_pin, j));
+        dbg(1, ("instcheck: node: %s\n", inst[n].node[p]));
         if(!inst[n].node[j]) {
           set_inst_node(n, j, inst[n].node[p]);
           get_inst_pin_coord(n, j, &x0, &y0);
@@ -1396,7 +1396,7 @@ static int name_nodes_of_pins_labels_and_propagate()
   static int startlevel = 0; /* safe to keep even with multiple schematic windows, netlist is not interruptable */
 
   if(xctx->netlist_count == 0 ) startlevel = xctx->currsch;
-  dbg(2, "name_nodes_of_pins_labels_and_propagate(): naming pins from attrs\n");
+  dbg(2, ("name_nodes_of_pins_labels_and_propagate(): naming pins from attrs\n"));
   /* print_erc is 1 the first time prepare_netlist_structs() is called on top level while
    * doing the netlist, when netlist of sub blocks is completed and toplevel is reloaded
    * a second prepare_netlist_structs() is called to name unnamed nets, in this second call
@@ -1473,8 +1473,8 @@ static int name_nodes_of_pins_labels_and_propagate()
       #if 0
       if(!(inst[i].node[0])) {
         my_strdup(_ALLOC_ID_, &inst[i].node[0], get_tok_value(xctx->sym[inst[i].ptr].templ, "lab",0));
-        dbg(1, "name_nodes_of_pins_labels_and_propagate(): no lab attr on instance, pick from symbol: %s\n",
-                inst[i].node[0]);
+        dbg(1, ("name_nodes_of_pins_labels_and_propagate(): no lab attr on instance, pick from symbol: %s\n",
+                inst[i].node[0]));
       }
       #endif
 
@@ -1482,11 +1482,11 @@ static int name_nodes_of_pins_labels_and_propagate()
         /* handle global nodes (global=1 set as symbol property) 28032003 */
         if(!strcmp(type,"label") && global_node) {
           if( !strcmp(global_node, "ground")) {
-            dbg(1, "name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]);
+            dbg(1, ("name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]));
             record_global_node(4,NULL, inst[i].node[0]);
           }
           else if( !strboolcmp(global_node, "true")) {
-            dbg(1, "name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]);
+            dbg(1, ("name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]));
             record_global_node(1,NULL, inst[i].node[0]);
           }
         }
@@ -1535,7 +1535,7 @@ static int name_unlabeled_nets()
   int err = 0;
   int i;
   /* name nets that do not touch ipin opin alias instances */
-  dbg(2, "name_unlabeled_nets(): naming nets that dont touch labels\n");
+  dbg(2, ("name_unlabeled_nets(): naming nets that dont touch labels\n"));
   for (i = 0; i < xctx->wires; ++i)
   {
     if(skip_wire(i)) continue;
@@ -1555,7 +1555,7 @@ static int set_unnamed_inst(int i, int j)
   int sqx, sqy;
   double x0, y0;
   my_snprintf(tmp_str, S(tmp_str), "#net%d", get_unnamed_node(1,0,0));
-  dbg(1, "set_unnamed_inst(): inst %s pin %d, net %s\n", inst[i].instname, j, tmp_str);
+  dbg(1, ("set_unnamed_inst(): inst %s pin %d, net %s\n", inst[i].instname, j, tmp_str));
   set_inst_node(i, j, tmp_str);
   get_inst_pin_coord(i, j, &x0, &y0);
   get_square(x0, y0, &sqx, &sqy);
@@ -1571,7 +1571,7 @@ static int name_unlabeled_instances()
   int const instances = xctx->instances;
   int rects;
 
-  dbg(2, "name_unlabeled_instances(): naming nets that dont touch labels\n");
+  dbg(2, ("name_unlabeled_instances(): naming nets that dont touch labels\n"));
   for (i = 0; i < instances; ++i)
   {
     if(!inst[i].node) continue;
@@ -1597,7 +1597,7 @@ static int reset_node_data_and_rehash()
   int const instances = xctx->instances;
 
   /* reset wire & inst node labels */
-  dbg(2, "reset_node_data_and_rehash(): rehashing wires and instance pins in spatial hash table\n");
+  dbg(2, ("reset_node_data_and_rehash(): rehashing wires and instance pins in spatial hash table\n"));
   hash_wires();
   for (i=0;i<instances; ++i)
   {
@@ -1657,14 +1657,14 @@ void auto_set_wire_bus(int start, int end)
     if(!xctx->wire[i].node) continue;
     if(!regexec(&re, xctx->wire[i].node, 0 , NULL, 0) ) bus = 1;
     if( (oldbus == 0.0 && bus == 1) || (oldbus == -1.0 && bus == 0) ) {
-      dbg(1, "auto_set_wire_bus(): i=%d, oldbus=%g bus=%d\n", i, oldbus, bus);
+      dbg(1, ("auto_set_wire_bus(): i=%d, oldbus=%g bus=%d\n", i, oldbus, bus));
       set_modify(1);
-      dbg(1, "auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr);
+      dbg(1, ("auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr));
       my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr,
          subst_token(xctx->wire[i].prop_ptr, "bus", bus ? "1" : NULL));
       xctx->wire[i].bus = bus ? -1.0 : 0.0;
-      dbg(1, "auto_set_wire_bus():  wire[%d].bus=%g, lab=%s\n", i, xctx->wire[i].bus, xctx->wire[i].node);
-      dbg(1, "auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr);
+      dbg(1, ("auto_set_wire_bus():  wire[%d].bus=%g, lab=%s\n", i, xctx->wire[i].bus, xctx->wire[i].node));
+      dbg(1, ("auto_set_wire_bus():  wire[%d].prop_ptr=%s\n", i, xctx->wire[i].prop_ptr));
       if(xctx->wire[i].bus == -1.0) {
         if(skip_wire(i))
           drawline(GRIDLAYER, THICK, xctx->wire[i].x1,xctx->wire[i].y1,
@@ -1696,7 +1696,7 @@ int prepare_netlist_structs(int for_netl)
   if(for_netlist>0 && xctx->prep_net_structs) return 0;
   else if(!for_netlist && xctx->prep_hi_structs) return 0;
 
-  dbg(1, "prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]);
+  dbg(1, ("prepare_netlist_structs(): extraction: %s\n", xctx->sch[xctx->currsch]));
 
   reset_caches(); /* update cached flags: necessary if some tcleval() is used for cached attrs */
 
@@ -1723,7 +1723,7 @@ int prepare_netlist_structs(int for_netl)
     xctx->prep_net_structs=1;
     xctx->prep_hi_structs=1;
   } else xctx->prep_hi_structs=1;
-  dbg(1, "prepare_netlist_structs(): returning\n");
+  dbg(1, ("prepare_netlist_structs(): returning\n"));
   /* avoid below call: it in turn calls prepare_netlist_structs(), too many side effects */
   /* propagate_hilights(1, 0, XINSERT_NOREPLACE);*/
   return err;
@@ -1747,7 +1747,7 @@ void delete_netlist_structs(void)
 {
  int i;
   /* erase node data structures */
-   dbg(1, "delete_netlist_structs(): begin erasing\n");
+   dbg(1, ("delete_netlist_structs(): begin erasing\n"));
   for(i=0;i<xctx->instances; ++i)
   {
    delete_inst_node(i);
@@ -1759,7 +1759,7 @@ void delete_netlist_structs(void)
   /* erase inst and wire topological hash tables */
   del_inst_pin_table();
   node_hash_free();
-  dbg(1, "delete_netlist_structs(): end erasing\n");
+  dbg(1, ("delete_netlist_structs(): end erasing\n"));
   xctx->prep_net_structs=0;
   xctx->prep_hi_structs=0;
 }
@@ -1775,12 +1775,12 @@ int warning_overlapped_symbols(int sel)
 
   int_hash_init(&table, HASHSIZE);
   for(i = 0; i < xctx->instances; ++i) {
-    dbg(1, "instance:%s: %s\n", xctx->inst[i].instname, xctx->inst[i].name);
+    dbg(1, ("instance:%s: %s\n", xctx->inst[i].instname, xctx->inst[i].name));
     my_snprintf(s, S(s), "%g %g %g %g",
        xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
 
-    dbg(1, "  bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2);
-    dbg(1, "  s=%s\n", s);
+    dbg(1, ("  bbox: %g %g %g %g\n", xctx->inst[i].xx1, xctx->inst[i].yy1, xctx->inst[i].xx2, xctx->inst[i].yy2));
+    dbg(1, ("  s=%s\n", s));
     found =  int_hash_lookup(&table, s, i, XINSERT_NOREPLACE);
     if(found) {
       if(sel == 0) {
@@ -1847,7 +1847,7 @@ int sym_vs_sch_pins(int all)
           unique_pins++;
         }
       }
-      dbg(1, "%s: rects=%d, unique_pins=%d\n", xctx->sym[i].name, rects, unique_pins);
+      dbg(1, ("%s: rects=%d, unique_pins=%d\n", xctx->sym[i].name, rects, unique_pins));
       int_hash_free(&pin_table);
       /* pass through symbols, duplicated pins: do not check with schematic */
       if(rects > unique_pins) continue;
@@ -1935,7 +1935,7 @@ int sym_vs_sch_pins(int all)
               my_strncpy(name, tcl_hook2(tmp), S(name));
 
               if(!strcmp(f_version,"1.0") ) {
-                dbg(1, "sym_vs_sch_pins(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") );
+                dbg(1, ("sym_vs_sch_pins(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") ));
                 my_strncpy(name, add_ext(name, ".sym"), S(name));
               }
 
@@ -1951,8 +1951,8 @@ int sym_vs_sch_pins(int all)
                * arguments. This can not be done in this context (the current schematic we are looking
                * into is not loaded), so skip test */
               if( strpbrk(name, "@%")) {
-                dbg(1, "sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n",
-                   name);
+                dbg(1, ("sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n",
+                   name));
                 break;
               }
 
@@ -2016,7 +2016,7 @@ int sym_vs_sch_pins(int all)
                   statusmsg(str,2);
                   err |= 1;
                   for(j = 0; j < xctx->instances; ++j) {
-                    dbg(1, "inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[i].name);
+                    dbg(1, ("inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[i].name));
                     if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
                       xctx->inst[j].color = -PINLAYER;
                       xctx->hilight_nets=1;
@@ -2040,7 +2040,7 @@ int sym_vs_sch_pins(int all)
           read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
           if(!f_version[0]) {
             my_snprintf(f_version, S(f_version), "1.0");
-            dbg(1, "sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version);
+            dbg(1, ("sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version));
           }
         } /* while(!endfile) */
         fclose(fd);

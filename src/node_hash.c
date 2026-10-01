@@ -38,8 +38,8 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  Drivers d;
 
  if(token==NULL || token[0]==0 ) return NULL;
- dbg(3, "node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
-        token, dir, what, port);
+ dbg(3, ("node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
+        token, dir, what, port));
  d.in=d.out=d.inout=0;
  if(dir && dir[0]) {
    if(!strcmp(dir,"in") )  d.in=1;
@@ -72,10 +72,10 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     entry->d.inout=d.inout;
     entry->hash=hashcode;
     *preventry=entry;
-    dbg(3, "node_hash_lookup(): hashing %s : value=%s\n\n",
-           entry->token, entry->value? entry->value:"<NULL>");
-    dbg(3, "node_hash_lookup(): hashing %s in=%d out=%d inout=%d port=%d\n",
-                token, d.in, d.out, d.inout, d.port);
+    dbg(3, ("node_hash_lookup(): hashing %s : value=%s\n\n",
+           entry->token, entry->value? entry->value:"<NULL>"));
+    dbg(3, ("node_hash_lookup(): hashing %s in=%d out=%d inout=%d port=%d\n",
+                token, d.in, d.out, d.inout, d.port));
    }
    return NULL; /* whether inserted or not return NULL since it was not in */
   }
@@ -109,8 +109,8 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
       my_strdup(_ALLOC_ID_,  &(entry->value), value);
     if(class && class[0] !='\0')
       my_strdup(_ALLOC_ID_,  &(entry->class), class);
-    dbg(3, "node_hash_lookup(): hashing %s : value=%s\n\n",
-           entry->token, entry->value? entry->value:"<NULL>");
+    dbg(3, ("node_hash_lookup(): hashing %s : value=%s\n\n",
+           entry->token, entry->value? entry->value:"<NULL>"));
     return entry;
    }
   }
@@ -135,9 +135,9 @@ Node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int wha
  }
  else
  {
-   dbg(3, "bus_node_hash_lookup(): expanding node: %s\n", token);
+   dbg(3, ("bus_node_hash_lookup(): expanding node: %s\n", token));
    my_strdup(_ALLOC_ID_, &string, expandlabel(token,&mult));
-   dbg(3, "bus_node_hash_lookup(): done expanding node: %s\n", token);
+   dbg(3, ("bus_node_hash_lookup(): done expanding node: %s\n", token));
  }
  if(string==NULL) return NULL;
  string_ptr = start = string;
@@ -150,7 +150,7 @@ Node_hashentry *bus_node_hash_lookup(const char *token, const char *dir, int wha
     /* insert one bus element at a time in hash table */
     ptr1=node_hash_lookup(start, dir, what,port, sig_type, verilog_type, value, class, token);
     if(!ptr2) ptr2=ptr1;
-    dbg(3, "bus_node_hash_lookup(): processing node: %s\n", start);
+    dbg(3, ("bus_node_hash_lookup(): processing node: %s\n", start));
     *string_ptr=c;     /* ....restore original char */
     start=string_ptr+1;
   }
@@ -183,7 +183,7 @@ void node_hash_free(void) /* remove the whole hash table  */
 {
  int i;
 
- dbg(2, "node_hash_free(): removing hash table\n");
+ dbg(2, ("node_hash_free(): removing hash table\n"));
  if(xctx && xctx->node_table) for(i=0;i<HASHSIZE; ++i)
  {
   node_hash_free_entry( xctx->node_table[i] );
@@ -273,8 +273,8 @@ int traverse_node_hash()
        if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
      }
    }
-   dbg(1, "traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
-        entry->token, entry->d.in, entry->d.out, entry->d.inout, entry->d.port);
+   dbg(1, ("traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
+        entry->token, entry->d.in, entry->d.out, entry->d.inout, entry->d.port));
 
    entry = entry->next;
   }
@@ -294,7 +294,7 @@ void print_vhdl_signals(FILE *fd)
     ptr = xctx->node_table[i];
     while(ptr) {
       if(strstr(ptr->token, ".")) {
-        dbg(2, "print_vhdl_signals(): record field, skipping: %s\n", ptr->token);
+        dbg(2, ("print_vhdl_signals(): record field, skipping: %s\n", ptr->token));
         ptr = ptr->next;
         continue; /* signal is a record field, no declaration */
       }
@@ -306,8 +306,8 @@ void print_vhdl_signals(FILE *fd)
         else {
           mult=1;
         }
-        dbg(2, "print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
-              ptr->token,mult, ptr->value?ptr->value:"<NULL>");
+        dbg(2, ("print_vhdl_signals(): node: %s mult: %d value=%s \n\n",
+              ptr->token,mult, ptr->value?ptr->value:"<NULL>"));
         if( ptr->class && ptr->class[0] )
           my_strdup(_ALLOC_ID_, &class, ptr->class);
         else
@@ -352,7 +352,7 @@ void print_verilog_signals(FILE *fd)
   int i, found;
   int mult,j;
 
-  dbg(2, " print_verilog_signals(): entering routine\n");
+  dbg(2, (" print_verilog_signals(): entering routine\n"));
   found=0;
   for(i=0;i<HASHSIZE; ++i) {
     ptr = xctx->node_table[i];
@@ -365,8 +365,8 @@ void print_verilog_signals(FILE *fd)
         else {
          mult=1;
         }
-        dbg(2, " print_verilog_signals(): node: %s mult: %d value=%s \n\n",
-               ptr->token,mult, ptr->value?ptr->value:"<NULL>");
+        dbg(2, (" print_verilog_signals(): node: %s mult: %d value=%s \n\n",
+               ptr->token,mult, ptr->value?ptr->value:"<NULL>"));
         if(mult>1) {
           for(j=mult-1;j>=0;j--) {
             if(ptr->verilog_type && ptr->verilog_type[0]) {

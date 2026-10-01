@@ -63,8 +63,8 @@ static void yyerror (const char *s)  /* Called by yyparse on error */
 {
   if(yyparse_error == 0 ) {
     yyparse_error = 1;
-    dbg(0, "yyerror(): yyparse():%s\n", s);
-    dbg(0, "    schematic: %s\n", xctx->sch[xctx->currsch]);
+    info("yyerror(): yyparse():%s\n", s);
+    info("    schematic: %s\n", xctx->sch[xctx->currsch]);
   }
 }
 
@@ -80,7 +80,7 @@ static char *expandlabel_strdup(char *src)
  {
   ptr=NULL;
   my_strdup(_ALLOC_ID_, &ptr,src);
-  dbg(3, "expandlabel_strdup(): duplicated %lu string %s\n",(unsigned long)ptr,src);
+  dbg(3, ("expandlabel_strdup(): duplicated %lu string %s\n",(unsigned long)ptr,src));
   return ptr;
  }
 }
@@ -127,7 +127,7 @@ static char *expandlabel_strmult2(int n, char *s)
  register char *pos,*prev;
  char *str, *ss;
 
- dbg(3, "expandlabel_strmult2(): n=%d s=%s\n", n, s);
+ dbg(3, ("expandlabel_strmult2(): n=%d s=%s\n", n, s));
  if(n==0) return expandlabel_strdup("");
  len=strlen(s);
  prev=s;
@@ -225,7 +225,7 @@ static void check_idx(int **ptr,int n)
  if(n>=idxsize)
  {
   while(idxsize <= n) idxsize*=2;
-  dbg(3, "check_idx(): reallocating idx array: idxsize=%d, n=%d\n",idxsize, n);
+  dbg(3, ("check_idx(): reallocating idx array: idxsize=%d, n=%d\n",idxsize, n));
   my_realloc(_ALLOC_ID_, ptr, idxsize*sizeof(int));
  }
 }
@@ -313,26 +313,26 @@ int  *idx;  /* for bus index & bus index ranges */
 
 line: %empty     /* empty */
          | list         {
-                         dbg(dbg_var, "yyparse(): list, dest_string.str=%s\n", $1.str);
+                         dbg(dbg_var, ("yyparse(): list, dest_string.str=%s\n", $1.str));
                          my_strdup(_ALLOC_ID_,  &(dest_string.str),$1.str);
                          my_free(_ALLOC_ID_, &$1.str);
                          dest_string.m=$1.m;
                         }
 ;
 list:     B_NAME        {
-                         dbg(dbg_var, "yyparse(): B_NAME, $1=%s\n", $1);
+                         dbg(dbg_var, ("yyparse(): B_NAME, $1=%s\n", $1));
                          $$.str = expandlabel_strdup($1);
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | B_LINE        {
-                         dbg(dbg_var, "yyparse(): B_LINE\n");
+                         dbg(dbg_var, ("yyparse(): B_LINE\n"));
                          $$.str = expandlabel_strdup($1); /* prima era =$1 */
                          my_free(_ALLOC_ID_, &$1);
                          $$.m = 1;
                         }
         | list B_NAME   {
-                         dbg(dbg_var, "yyparse(): list B_NAME, $2=%s\n", $2);
+                         dbg(dbg_var, ("yyparse(): list B_NAME, $2=%s\n", $2));
                          $$.str = expandlabel_strcat($1.str, $2);
                          my_free(_ALLOC_ID_, &$1.str);
                          my_free(_ALLOC_ID_, &$2);
@@ -340,22 +340,22 @@ list:     B_NAME        {
                         }
         | list '*' B_NUM
                         {
-                         dbg(dbg_var, "yyparse(): list * B_NUM\n");
-                         dbg(dbg_var, "yyparse(): |%s| %d \n",$1.str,$3);
+                         dbg(dbg_var, ("yyparse(): list * B_NUM\n"));
+                         dbg(dbg_var, ("yyparse(): |%s| %d \n",$1.str,$3));
                          $$.str=expandlabel_strmult2($3,$1.str);
-                         dbg(dbg_var, "yyparse(): |%s|\n",$$.str);
+                         dbg(dbg_var, ("yyparse(): |%s|\n",$$.str));
                          $$.m = $3 * $1.m;
                          my_free(_ALLOC_ID_, &$1.str);
                         }
         | B_NUM '*' list
                         {
-                         dbg(dbg_var, "yyparse(): B_NUM * list\n");
+                         dbg(dbg_var, ("yyparse(): B_NUM * list\n"));
                          $$.str=expandlabel_strmult($1,$3.str);
                          $$.m = $1 * $3.m;
                          my_free(_ALLOC_ID_, &$3.str);
                         }
         | list ',' list {
-                         dbg(dbg_var, "yyparse(): list , list\n");
+                         dbg(dbg_var, ("yyparse(): list , list\n"));
                          $$.str=expandlabel_strcat_char($1.str, ',', $3.str);
                          $$.m = $1.m + $3.m;
                          my_free(_ALLOC_ID_, &$1.str);
@@ -363,20 +363,20 @@ list:     B_NAME        {
                         }
         | list B_CAR list
                         {
-                         dbg(dbg_var, "yyparse(): list B_CAR list\n");
+                         dbg(dbg_var, ("yyparse(): list B_CAR list\n"));
                          $$.str=expandlabel_strcat_char($1.str, (char)$2, $3.str);
                          $$.m = $1.m + $3.m;
                          my_free(_ALLOC_ID_, &$1.str);
                          my_free(_ALLOC_ID_, &$3.str);
                         }
         | '(' list ')'  {
-                         dbg(dbg_var, "yyparse(): ( list )\n");
+                         dbg(dbg_var, ("yyparse(): ( list )\n"));
                          $$=$2;
                         }
         | B_NAME  '[' B_NAME  ']'
                         {
                          size_t size = strlen($1) + strlen($3) + 3;
-                         dbg(dbg_var, "yyparse(): B_NAME [ B_NAME ] , $1=%s $3=%s\n", $1, $3);
+                         dbg(dbg_var, ("yyparse(): B_NAME [ B_NAME ] , $1=%s $3=%s\n", $1, $3));
                          $$.str = my_malloc(_ALLOC_ID_, size);
                          $$.m=-1;
                          my_snprintf($$.str, size, "%s[%s]", $1, $3);
@@ -385,7 +385,7 @@ list:     B_NAME        {
                         }
         | B_NAME  '[' index  ']'
                         {
-                         dbg(dbg_var, "yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]);
+                         dbg(dbg_var, ("yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]));
                          $$.str=expandlabel_strbus($1,$3);
                          my_free(_ALLOC_ID_, &$1);
                          $$.m=$3[0];
@@ -394,7 +394,7 @@ list:     B_NAME        {
                         }
         | B_NAME  '[' index  ']' B_TRAILER
                         {
-                         dbg(dbg_var, "yyparse(): B_NAME [ index ] B_NAME, $1=%s $3=%d, $5=%s\n", $1, $3[0], $5);
+                         dbg(dbg_var, ("yyparse(): B_NAME [ index ] B_NAME, $1=%s $3=%d, $5=%s\n", $1, $3[0], $5));
                          $$.str=expandlabel_strbus_suffix($1, $3, $5);
                          my_free(_ALLOC_ID_, &$1);
                          my_free(_ALLOC_ID_, &$5);
@@ -405,7 +405,7 @@ list:     B_NAME        {
 
         | B_NAME  '[' index_nobracket  ']'
                         {
-                         dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]);
+                         dbg(dbg_var, ("yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]));
                          $$.str=expandlabel_strbus_nobracket($1,$3);
                          my_free(_ALLOC_ID_, &$1);
                          $$.m=$3[0];
@@ -414,7 +414,7 @@ list:     B_NAME        {
                         }
         | B_NAME  '[' index_nobracket  ']' B_TRAILER
                         {
-                         dbg(dbg_var, "yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d, $5=%s\n",$1, $3[0], $5);
+                         dbg(dbg_var, ("yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d, $5=%s\n",$1, $3[0], $5));
                          $$.str=expandlabel_strbus_nobracket_suffix($1, $3, $5);
                          my_free(_ALLOC_ID_, &$1);
                          my_free(_ALLOC_ID_, &$5);

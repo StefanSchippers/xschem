@@ -54,7 +54,7 @@ void rebuild_selected_array() /* can be used only if new selected set is lower *
 {
  int i,c;
 
- dbg(2, "rebuild selected array\n");
+ dbg(2, ("rebuild selected array\n"));
  if(!xctx->need_reb_sel_arr) return;
  xctx->lastsel=0;
  for(i=0;i<xctx->texts; ++i)
@@ -201,9 +201,9 @@ static void update_symbol_bboxes(short rot, short flip)
   for(i=0;i<xctx->movelastsel; ++i)
   {
     n = xctx->sel_array[i].n;
-    dbg(1, "update_symbol_bboxes(): i=%d, movelastsel=%d, n=%d\n", i, xctx->movelastsel, n);
+    dbg(1, ("update_symbol_bboxes(): i=%d, movelastsel=%d, n=%d\n", i, xctx->movelastsel, n));
     if(xctx->sel_array[i].type == ELEMENT) {
-      dbg(1, "update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot);
+      dbg(1, ("update_symbol_bboxes(): symbol flip=%d, rot=%d\n",  xctx->inst[n].flip, xctx->inst[n].rot));
       save_flip = xctx->inst[n].flip;
       save_rot = xctx->inst[n].rot;
       xctx->inst[n].flip = flip ^ xctx->inst[n].flip;
@@ -222,7 +222,7 @@ void draw_selection(GC g, int interruptable)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  dbg(1,"draw_selection, %s, lastsel=%d\n", g == xctx->gctiled ? "gctiled" : "gcselect", xctx->lastsel);
+  dbg(1,("draw_selection, %s, lastsel=%d\n", g == xctx->gctiled ? "gctiled" : "gcselect", xctx->lastsel));
   if(g != xctx->gctiled) xctx->movelastsel = xctx->lastsel;
 
   if((fix_broken_tiled_fill || !_unix) && g == xctx->gctiled && xctx->movelastsel > 800) {
@@ -381,7 +381,7 @@ void draw_selection(GC g, int interruptable)
       double y1 = xctx->ry1 + xctx->deltay;
       double x2 = xctx->rx2 + xctx->deltax;
       double y2 = xctx->ry2 + xctx->deltay;
-      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      dbg(1, ("draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines));
       if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
       } else {
@@ -394,7 +394,7 @@ void draw_selection(GC g, int interruptable)
       double y1 = xctx->ry1 + xctx->deltay;
       double x2 = xctx->rx2;
       double y2 = xctx->ry2;
-      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      dbg(1, ("draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines));
       if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x2, y2, x1, y1, 1);
       } else {
@@ -407,7 +407,7 @@ void draw_selection(GC g, int interruptable)
       double y1 = xctx->ry1;
       double x2 = xctx->rx2 + xctx->deltax;
       double y2 = xctx->ry2 + xctx->deltay;
-      dbg(1, "draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines);
+      dbg(1, ("draw_selection() wire: %g %g - %g %g  manhattan=%d\n", x1, y1, x2, y2, xctx->manhattan_lines));
       if(xctx->wire[n].bus == -1.0) {
         drawtemp_manhattanline(g, THICK, x1, y1, x2, y2, 1);
       } else {
@@ -620,7 +620,7 @@ void copy_objects(int what)
   if(what & START)
   {
    xctx->rotatelocal=0;
-   dbg(1, "copy_objects(): START copy\n");
+   dbg(1, ("copy_objects(): START copy\n"));
    rebuild_selected_array();
    if(xctx->lastsel==0) return;
    update_symbol_bboxes(0, 0);
@@ -673,7 +673,7 @@ void copy_objects(int what)
   {
     int l, firstw, firsti;
 
-    dbg(1, "end copy: unlink sel_file\n");
+    dbg(1, ("end copy: unlink sel_file\n"));
     xunlink(sel_file);
     if(xctx->deltax != 0 || xctx->deltay != 0) set_first_sel(0, -1, 0); /* reset first selected object */
     if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
@@ -687,7 +687,7 @@ void copy_objects(int what)
     }
 
     if( !xctx->kissing ) {
-      dbg(1, "copy_objects(): push undo state\n");
+      dbg(1, ("copy_objects(): push undo state\n"));
       xctx->push_undo();
     }
 
@@ -883,8 +883,8 @@ void copy_objects(int what)
         xctx->text[xctx->texts].txt_ptr=NULL;
         my_strdup2(_ALLOC_ID_, &xctx->text[xctx->texts].txt_ptr,xctx->text[n].txt_ptr);
         xctx->text[n].sel=0;
-         dbg(2, "copy_objects(): current str=%s\n",
-          xctx->text[xctx->texts].txt_ptr);
+         dbg(2, ("copy_objects(): current str=%s\n",
+          xctx->text[xctx->texts].txt_ptr));
         xctx->text[xctx->texts].x0=xctx->rx1+xctx->deltax;
         xctx->text[xctx->texts].y0=xctx->ry1+xctx->deltay;
         xctx->text[xctx->texts].rot=(xctx->text[n].rot +
@@ -923,7 +923,7 @@ void copy_objects(int what)
 
         xctx->sel_array[i].n=xctx->texts;
         xctx->texts++;
-         dbg(2, "copy_objects(): done copy string\n");
+         dbg(2, ("copy_objects(): done copy string\n"));
         break;
        default:
         break;
@@ -1161,7 +1161,7 @@ void move_objects(int what, int merge, double dx, double dy)
   xLine ** const line = xctx->line;
   xWire * const wire = xctx->wire;
 
-  dbg(1, "move_objects: what=%d, dx=%g, dy=%g\n", what, dx, dy);
+  dbg(1, ("move_objects: what=%d, dx=%g, dy=%g\n", what, dx, dy));
   if(what & START)
   {
    xctx->rotatelocal=0;
@@ -1220,7 +1220,7 @@ void move_objects(int what, int merge, double dx, double dy)
   {
    int firsti, firstw;
 
-   dbg(1, "end move: unlink sel_file\n");
+   dbg(1, ("end move: unlink sel_file\n"));
    xunlink(sel_file);
    xctx->paste_from = 0; /* end of a paste from clipboard command */
    if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
@@ -1234,7 +1234,7 @@ void move_objects(int what, int merge, double dx, double dy)
    /* no undo push for MERGE ad PLACE, already done before */
    if(!xctx->kissing &&
       !(xctx->ui_state & (START_SYMPIN | STARTMERGE | PLACE_SYMBOL | PLACE_TEXT)) ) {
-     dbg(1, "move_objects(END): push undo state\n");
+     dbg(1, ("move_objects(END): push undo state\n"));
      xctx->push_undo();
    }
    if((xctx->ui_state & PLACE_SYMBOL)) {

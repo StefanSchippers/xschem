@@ -35,7 +35,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
    err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
  }
 
- dbg(1, "vhdl_netlist():       architecture declarations\n");
+ dbg(1, ("vhdl_netlist():       architecture declarations\n"));
  fprintf(fd, "//// begin user declarations\n");
  for(l=0;l<xctx->instances; ++l)
  {
@@ -47,11 +47,11 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
  }
  fprintf(fd, "//// end user declarations\n");
 
- dbg(1, "vhdl_netlist():       print erc checks\n");
+ dbg(1, ("vhdl_netlist():       print erc checks\n"));
  if(!vhdl_stop) print_vhdl_signals(fd);
- dbg(1, "vhdl_netlist():       done print erc checks\n");
+ dbg(1, ("vhdl_netlist():       done print erc checks\n"));
 
- dbg(1, "vhdl_netlist():       attributes\n");
+ dbg(1, ("vhdl_netlist():       attributes\n"));
  fprintf(fd, "//// begin user attributes\n");
  for(l=0;l<xctx->instances; ++l)
  {
@@ -71,7 +71,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
    for(i=0;i<xctx->instances; ++i) /* ... print all element except ipin opin labels use package */
    {                       /* dont print elements with vhdl_ignore=true set in symbol */
     if(skip_instance(i, 1, lvs_ignore)) continue;
-    dbg(2, "vhdl_netlist():       into the netlisting loop\n");
+    dbg(2, ("vhdl_netlist():       into the netlisting loop\n"));
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[i].ptr+ xctx->sym)->type);
     if( type &&
        ( !IS_LABEL_SH_OR_PIN(type) &&
@@ -96,7 +96,7 @@ static int vhdl_netlist(FILE *fd , int vhdl_stop)
    }
  }
  if(type) my_free(_ALLOC_ID_, &type);
- dbg(1, "vhdl_netlist():       end\n");
+ dbg(1, ("vhdl_netlist():       end\n"));
  if(!vhdl_stop && !xctx->netlist_count) redraw_hilights(0); /* draw_hilight_net(1); */
  return err;
 }
@@ -139,7 +139,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  fd=fopen(netl_filename, "w");
 
  if(fd==NULL){
-   dbg(0, "global_vhdl_netlist(): problems opening netlist file\n");
+   info("global_vhdl_netlist(): problems opening netlist file\n");
    return 1;
  }
  fprintf(fd, "-- sch_path: %s\n", xctx->sch[xctx->currsch]);
@@ -150,9 +150,9 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    my_snprintf(cellname, S(cellname), "%s.vhdl", get_cell(xctx->sch[xctx->currsch], 0));
  }
 
- dbg(1, "global_vhdl_netlist(): opening %s for writing\n",netl_filename);
+ dbg(1, ("global_vhdl_netlist(): opening %s for writing\n",netl_filename));
 
- dbg(1, "global_vhdl_netlist(): printing top level packages\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level packages\n"));
   for(i=0;i<xctx->instances; ++i)
   {
    if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -167,7 +167,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    }
   }
 
- dbg(1, "global_vhdl_netlist(): printing top level use statements\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level use statements\n"));
   for(i=0;i<xctx->instances; ++i)
   {
    if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -178,7 +178,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    }
   }
 
- dbg(1, "global_vhdl_netlist(): printing top level entity\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level entity\n"));
 
  /* 20071015 already done in print_generic() */
  /* fprintf(fd," --- entity %s is\n", get_cell( xctx->sch[xctx->currsch], 0) ); */
@@ -231,7 +231,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
 
 
  /* print top subckt ipin/opins */
- dbg(1, "global_vhdl_netlist(): printing top level out pins\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level out pins\n"));
  tmp=0;
  for(i=0;i<xctx->instances; ++i)
  {
@@ -249,7 +249,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
   }
  }
 
- dbg(1, "global_vhdl_netlist(): printing top level inout pins\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level inout pins\n"));
  for(i=0;i<xctx->instances; ++i)
  {
   if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -266,7 +266,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
   }
  }
 
- dbg(1, "global_vhdl_netlist(): printing top level input pins\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level input pins\n"));
  for(i=0;i<xctx->instances; ++i)
  {
   if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -284,7 +284,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  }
  if(tmp) fprintf(fd,"\n);\n");
 
- dbg(1, "global_vhdl_netlist(): printing top level port attributes\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level port attributes\n"));
   for(i=0;i<xctx->instances; ++i)
   {
    if(skip_instance(i, 1, lvs_ignore)) continue;
@@ -300,7 +300,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
         get_cell( sanitize(xctx->sch[xctx->currsch]), 0),
         get_cell( sanitize(xctx->sch[xctx->currsch]), 0));
 
- dbg(1, "global_vhdl_netlist(): printing top level used components\n");
+ dbg(1, ("global_vhdl_netlist(): printing top level used components\n"));
  /* print all components */
  subckt_name=NULL;
  get_additional_symbols(1);
@@ -361,7 +361,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  str_hash_free(&subckt_table);
  my_free(_ALLOC_ID_, &subckt_name);
 
- dbg(1, "global_vhdl_netlist(): netlisting  top level\n");
+ dbg(1, ("global_vhdl_netlist(): netlisting  top level\n"));
  err |= vhdl_netlist(fd, 0);
  fprintf(fd,"//// begin user architecture code\n");
 
@@ -416,7 +416,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
 
-    dbg(2, "global_vhdl_netlist(): last defined symbol=%d\n",xctx->symbols);
+    dbg(2, ("global_vhdl_netlist(): last defined symbol=%d\n",xctx->symbols));
    subckt_name=NULL;
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
@@ -480,7 +480,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  propagate_hilights(1, 0, XINSERT_NOREPLACE);
  draw_hilight_net(1);
  my_free(_ALLOC_ID_, &stored_flags);
- dbg(1, "global_vhdl_netlist(): starting awk on netlist!\n");
+ dbg(1, ("global_vhdl_netlist(): starting awk on netlist!\n"));
  if(!split_f) {
    fclose(fd);
    if(tclgetboolvar("netlist_show")) {
@@ -538,17 +538,17 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
        tclgetvar("netlist_dir"), get_cell(xctx->sym[i].name, 0), getpid());
-    dbg(1, "vhdl_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
+    dbg(1, ("vhdl_block_netlist(): split_files: netl_filename=%s\n", netl_filename));
     fd=fopen(netl_filename, "w");
     if(!fd) {
-      dbg(0, "vhdl_block_netlist(): unable to write file %s\n", netl_filename);
+      info("vhdl_block_netlist(): unable to write file %s\n", netl_filename);
       err = 1;
       goto err;
     }
     my_snprintf(cellname, S(cellname), "%s.vhdl", get_cell(xctx->sym[i].name, 0) );
   }
 
-  dbg(1, "vhdl_block_netlist(): expanding %s\n",  xctx->sym[i].name);
+  dbg(1, ("vhdl_block_netlist(): expanding %s\n",  xctx->sym[i].name));
   fprintf(fd, "\n-- expanding   symbol:  %s # of pins=%d\n",
         xctx->sym[i].name,xctx->sym[i].rects[PINLAYER] );
   if(xctx->sym[i].base_name) fprintf(fd, "-- sym_path: %s\n", abs_sym_path(xctx->sym[i].base_name, ""));
@@ -561,7 +561,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     fprintf(fd, "-- sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
     load_schematic(1,filename, 0, alert);
     get_additional_symbols(1);
-    dbg(1, "vhdl_block_netlist():       packages\n");
+    dbg(1, ("vhdl_block_netlist():       packages\n"));
     for(l=0;l<xctx->instances; ++l)
     {
      if(skip_instance(l, 1, lvs_ignore)) continue;
@@ -570,7 +570,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
       fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
     }
 
-    dbg(1, "vhdl_block_netlist():       use statements\n");
+    dbg(1, ("vhdl_block_netlist():       use statements\n"));
     for(l=0;l<xctx->instances; ++l)
     {
      if(skip_instance(l, 1, lvs_ignore)) continue;
@@ -579,11 +579,11 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
       fprintf(fd, "%s\n", xctx->inst[l].prop_ptr);
     }
 
-    dbg(1, "vhdl_block_netlist():       entity generics\n");
+    dbg(1, ("vhdl_block_netlist():       entity generics\n"));
     /* print entity generics */
     print_generic(fd, "entity", i);
 
-    dbg(1, "vhdl_block_netlist():       entity ports\n");
+    dbg(1, ("vhdl_block_netlist():       entity ports\n"));
     /* print entity ports */
     tmp=0;
     int_hash_init(&table, 37);
@@ -612,7 +612,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     int_hash_free(&table);
     if(tmp) fprintf(fd, "\n);\n");
 
-    dbg(1, "vhdl_block_netlist():       port attributes\n");
+    dbg(1, ("vhdl_block_netlist():       port attributes\n"));
     for(l=0;l<xctx->instances; ++l)
     {
      if(skip_instance(l, 1, lvs_ignore)) continue;
@@ -624,14 +624,14 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     }
     fprintf(fd,"end %s ;\n\n", get_cell(sanitize(xctx->sym[i].name), 0) );
 
-    dbg(1, "vhdl_block_netlist():       architecture\n");
+    dbg(1, ("vhdl_block_netlist():       architecture\n"));
     fprintf(fd,"architecture arch_%s of %s is\n\n",
        get_cell(sanitize(xctx->sym[i].name), 0),
        get_cell(sanitize(xctx->sym[i].name), 0) );
     /*    get_cell( xctx->sch[xctx->currsch], 0), get_cell( xctx->sch[xctx->currsch], 0)); */
     /* load current schematic to print used components */
 
-    dbg(1, "vhdl_block_netlist():       used components\n");
+    dbg(1, ("vhdl_block_netlist():       used components\n"));
     /* print all components */
     if(!vhdl_stop) {
       get_additional_symbols(1);
@@ -695,7 +695,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
       get_additional_symbols(0);
     } /* if(!vhdl_stop) */
     my_free(_ALLOC_ID_, &abs_path);
-    dbg(1, "vhdl_block_netlist():  netlisting %s\n", get_cell( xctx->sch[xctx->currsch], 0));
+    dbg(1, ("vhdl_block_netlist():  netlisting %s\n", get_cell( xctx->sch[xctx->currsch], 0)));
     err |= vhdl_netlist(fd, vhdl_stop);
     fprintf(fd,"//// begin user architecture code\n");
 

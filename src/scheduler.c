@@ -43,11 +43,11 @@ void statusmsg(char str[],int n)
   }
   if(!has_x) return;
   if(n == 2 || n == 3) {
-    dbg(3, "statusmsg(): n = 2, str = %s\n", str);
+    dbg(3, ("statusmsg(): n = 2, str = %s\n", str));
   }
   else {
     tclvareval(xctx->top_path, ".statusbar.1 configure -text {", str, "}", NULL);
-    dbg(3, "statusmsg(str, %d): -> str = %s\n", n, str);
+    dbg(3, ("statusmsg(str, %d): -> str = %s\n", n, str));
   }
 }
 
@@ -137,7 +137,7 @@ static void xschem_cmd_help(int argc, const char **argv)
   }
   #endif
   if(has_x) tcleval("alert_ { No application to display html documentation} {}");
-  else  dbg(0, "No application to display html documentation\n");
+  else  info("No application to display html documentation\n");
   return;
   done:
   my_strncpy(prog, tclresult(), S(prog));
@@ -499,8 +499,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       callback( argv[2], atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), (KeySym)atol(argv[6]),
                atoi(argv[7]), atoi(argv[8]), atoi(argv[9]) );
-      dbg(2, "callback %s %s %s %s %s %s %s %s\n",
-          argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]);
+      dbg(2, ("callback %s %s %s %s %s %s %s %s\n",
+          argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9]));
       Tcl_ResetResult(interp);
     }
 
@@ -1119,7 +1119,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int force = 0;
       const char *exit_status = "0";
 
-      dbg(1, "`xschem exit` called\n");
+      dbg(1, ("`xschem exit` called\n"));
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "closewindow")) closewindow = 1;
@@ -1130,7 +1130,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* non tabbed interface */
         if(!tclgetboolvar("tabbed_interface")) {
           int wc = get_window_count();
-          dbg(1, "wc=%d\n", wc);
+          dbg(1, ("wc=%d\n", wc));
           if(wc > 0 ) {
             if(!force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
@@ -1170,7 +1170,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         /* tabbed interface */
         else {
           int wc = get_window_count();
-          dbg(1, "wc=%d\n", wc);
+          dbg(1, ("wc=%d\n", wc));
           if(wc > 0 ) {
             if(has_x && !force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
@@ -1233,7 +1233,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         l = expandlabel(argv[2], &tmp);
         llen = strlen(l);
-        dbg(1, "l=%s\n", l ? l : "<NULL>");
+        dbg(1, ("l=%s\n", l ? l : "<NULL>"));
         result = my_malloc(_ALLOC_ID_, llen + 30);
         my_snprintf(result, llen + 30, "%s %d", l, tmp);
         Tcl_SetResult(interp, result, TCL_VOLATILE);
@@ -1858,7 +1858,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                   size_t slen = strlen(s);
                   if(s[slen - 1] == '/') s[slen - 1] = '\0';
                   my_strncpy(win_temp_dir, s, S(win_temp_dir));
-                  dbg(2, "scheduler(): win_temp_dir is %s\n", win_temp_dir);
+                  dbg(2, ("scheduler(): win_temp_dir is %s\n", win_temp_dir));
                   Tcl_SetResult(interp, s, TCL_VOLATILE);
                 }
               }
@@ -2072,7 +2072,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else if(strstr(argv[4], "cell::") ) {
           tmp = get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr, argv[4]+6, with_quotes);
-          dbg(1, "scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp);
+          dbg(1, ("scheduler(): xschem getprop: looking up instance %d prop cell::|%s| : |%s|\n", i, argv[4]+6, tmp));
           Tcl_SetResult(interp, (char *) tmp, TCL_VOLATILE);
         } else {
           Tcl_SetResult(interp, (char *)get_tok_value(xctx->inst[i].prop_ptr, argv[4], with_quotes), TCL_VOLATILE);
@@ -2535,17 +2535,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if( type && xctx->inst[inst].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
                 /* sets xctx->hilight_nets=1 */
             if(!bus_hilight_hash_lookup(xctx->inst[inst].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
-              dbg(1, "xschem hilight_instname: node=%s\n", xctx->inst[inst].node[0]);
+              dbg(1, ("xschem hilight_instname: node=%s\n", xctx->inst[inst].node[0]));
               if(incr_hi) incr_hilight_color();
             }
           } else {
-            dbg(1, "xschem hilight_instname: setting hilight flag on inst %d\n",inst);
+            dbg(1, ("xschem hilight_instname: setting hilight flag on inst %d\n",inst));
             /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
             xctx->inst[inst].color = xctx->hilight_color;
             inst_hilight_hash_lookup(inst, xctx->hilight_color, XINSERT_NOREPLACE);
             if(incr_hi) incr_hilight_color();
           }
-          dbg(1, "hilight_nets=%d\n", xctx->hilight_nets);
+          dbg(1, ("hilight_nets=%d\n", xctx->hilight_nets));
           if(!fast) {
             if(xctx->hilight_nets) propagate_hilights(1, 0, XINSERT_NOREPLACE);
             redraw_hilights(0);
@@ -3225,7 +3225,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           int skip = 0;
           if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
-          dbg(1, "scheduler(): load: filename=%s\n", f);
+          dbg(1, ("scheduler(): load: filename=%s\n", f));
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
           if(!force && f[0] && check_loaded(f)) {
             char msg[PATH_MAX + 100];
@@ -3236,7 +3236,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               tcleval(msg);
               if(strcmp(tclresult(), "ok")) skip = 1;
             }
-            else dbg(0, "xschem load: %s already open.\n", f);
+            else info("xschem load: %s already open.\n", f);
           }
           if(!skip) {
             int ret;
@@ -3254,7 +3254,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 xctx->yorigin=CADINITIALY;
               }
             }
-            dbg(1, "scheduler: undo_reset=%d\n", undo_reset);
+            dbg(1, ("scheduler: undo_reset=%d\n", undo_reset));
 
             if(first_loaded) {
               int dr = nofullzoom * 2 + !nodraw;
@@ -3265,7 +3265,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             } else {
               first_loaded = 1;
               ret = load_schematic(load_symbols, f, undo_reset, !force);
-              dbg(1, "xschem load: f=%s, ret=%d\n", f, ret);
+              dbg(1, ("xschem load: f=%s, ret=%d\n", f, ret));
               if(undo_reset) {
                 tclvareval("update_recent_file {", f, "}", NULL);
                 my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
@@ -3309,7 +3309,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             my_strncpy(f, argv[i], S(f));
           }
           if(f[0]) {
-           dbg(1, "f=%s\n", f);
+           dbg(1, ("f=%s\n", f));
            if(check_loaded(f)) {
              char msg[PATH_MAX + 100];
              my_snprintf(msg, S(msg),
@@ -3333,7 +3333,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(!cancel) {
           if(f[0]) {
-           dbg(1, "f=%s\n", f);
+           dbg(1, ("f=%s\n", f));
            new_schematic("create", "noconfirm", f, 1);
            tclvareval("update_recent_file {", f, "}", NULL);
           } else {
@@ -3358,7 +3358,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strncpy(f, tclresult(), S(f));
         fp = fopen(f, "w");
         if(fp) errfp = fp;
-        else dbg(0, "xschem log: problems opening file %s\n", f);
+        else info("xschem log: problems opening file %s\n", f);
     }
       else if(argc==2 && errfp != stderr) { fclose(errfp); errfp=stderr; }
     }
@@ -3396,7 +3396,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "log_write"))
     {
       if(argc > 2) {
-        dbg(0, "%s\n", argv[2]);
+        info("%s\n", argv[2]);
       }
     }
 
@@ -3730,7 +3730,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
       else {
          if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
-         else dbg(0, "Can not write into the netlist directory. Please check");
+         else info("Can not write into the netlist directory. Please check");
          err = 1;
       }
       if(err) {
@@ -3859,7 +3859,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char **av;
         av = parse_cmd_string(argv[2], &c);
         for(i = 0; i < c; ++i) {
-          dbg(0, "--> %s\n", av[i]);
+          info("--> %s\n", av[i]);
         }
       }
     }
@@ -4067,7 +4067,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[2],"eps")) eps = 1;
         if(eps && xctx->lastsel == 0) {
           if(has_x) tcleval("alert_ {EPS export works only on a selection} {}");
-          else  dbg(0, "EPS export works only on a selection\n");
+          else  info("EPS export works only on a selection\n");
         } else if(argc == 6 && eps == 0) {
           if(xctx->lastsel) {
             xRect boundbox;
@@ -4184,7 +4184,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
-          dbg(1, "w=%d h=%d, lw=%g bbox=%g %g %g %g\n", w, h, xctx->lw, x1, y1, x2, y2);
+          dbg(1, ("w=%d h=%d, lw=%g bbox=%g %g %g %g\n", w, h, xctx->lw, x1, y1, x2, y2));
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
@@ -4247,7 +4247,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(w == 0) w = (int) fabs(x2 - x1);
           if(h == 0) h = (int) fabs(y2 - y1);
-          dbg(1, "w=%d, h=%d\n", w, h);
+          dbg(1, ("w=%d, h=%d\n", w, h));
           save_restore_zoom(1, &zi);
           set_viewport_size(w, h, xctx->lw);
           zoom_box(x1, y1, x2, y2, 1.0);
@@ -5146,7 +5146,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       int fast = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      dbg(1, "scheduler(): saving: current schematic\n");
+      dbg(1, ("scheduler(): saving: current schematic\n"));
       for(i = 2; i < argc; i++) {
         if(!strcmp(argv[i], "fast")) fast |= 1;
       }
@@ -5570,7 +5570,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         viewer = atoi(tclgetvar("sim(spicewave,default)"));
         my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
         my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
-        dbg(1, "send_to_viewer: viewer_name=%s\n", viewer_name);
+        dbg(1, ("send_to_viewer: viewer_name=%s\n", viewer_name));
         if(strstr(viewer_name, "Gaw")) viewer=GAW;
         else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
         if(viewer) {
@@ -5601,7 +5601,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "change_lw")) { /* allow change line width when zooming */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             xctx->change_lw = atoi(argv[3]);
-            dbg(1, "xschem change_lw: change_lw = %d\n", xctx->change_lw);
+            dbg(1, ("xschem change_lw: change_lw = %d\n", xctx->change_lw));
             tclsetboolvar("change_lw", xctx->change_lw);
           }
           else if(!strcmp(argv[2], "color_ps")) { /* set color psoscript (1 or 0) */
@@ -5722,7 +5722,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               xctx->netlist_type=CAD_SYMBOL_ATTRS;
             }
             else {
-              dbg(0, "Warning: undefined netlist format: %s\n", argv[3]);
+              info("Warning: undefined netlist format: %s\n", argv[3]);
             }
             set_tcl_netlist_type();
           }
@@ -5790,12 +5790,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           else if(!strcmp(argv[2], "semaphore")) { /* debug */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            dbg(1, "scheduler(): set semaphore to %s\n", argv[3]);
+            dbg(1, ("scheduler(): set semaphore to %s\n", argv[3]));
             xctx->semaphore=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "show_hidden_texts")) { /* set to 1 to enable showing texts with attr hide=true */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-            dbg(1, "scheduler(): set show_hidden_texts to %s\n", argv[3]);
+            dbg(1, ("scheduler(): set show_hidden_texts to %s\n", argv[3]));
             xctx->show_hidden_texts=atoi(argv[3]);
           }
           else if(!strcmp(argv[2], "sym_txt")) { /* set to 0 to hide symbol texts */
@@ -6385,7 +6385,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_AppendResult(interp, get_window_path(i), " {", ctx->sch[ctx->currsch], "}\n", NULL);
         }
       }
-      dbg(1, "tab_list: return %d\n", found);
+      dbg(1, ("tab_list: return %d\n", found));
       return found;
     }
 
@@ -6447,13 +6447,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       if(argc > 2 && atoi(argv[2]) == 1) {
         hash_objects();
-        dbg(0, "n_hash_objects=%d\n", xctx->n_hash_objects);
+        info("n_hash_objects=%d\n", xctx->n_hash_objects);
 
         for(init_object_iterator(&ctx, -420., -970., 1300., -250.); (objectptr = object_iterator_next(&ctx)) ;) {
           type = objectptr->type;
           n = objectptr->n;
           c = objectptr->c;
-          dbg(0, "type=%d, n=%d c=%d\n", type, n, c);
+          info("type=%d, n=%d c=%d\n", type, n, c);
           switch(type) {
             case ELEMENT:
               select_element(n, SELECTED, 1, 1);
@@ -6531,17 +6531,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int_hash_copy(&b, &a);
 
 
-        dbg(0, "%d\n", int_hash_lookup(&b, "dddd", 0, XLOOKUP)->value);
-        dbg(0, "%d\n", int_hash_lookup(&b, "aaaa", 0, XLOOKUP)->value);
-        dbg(0, "%d\n", int_hash_lookup(&b, "bbbb", 0, XLOOKUP)->value);
-        dbg(0, "%d\n", int_hash_lookup(&b, "ffff", 0, XLOOKUP)->value);
+        info("%d\n", int_hash_lookup(&b, "dddd", 0, XLOOKUP)->value);
+        info("%d\n", int_hash_lookup(&b, "aaaa", 0, XLOOKUP)->value);
+        info("%d\n", int_hash_lookup(&b, "bbbb", 0, XLOOKUP)->value);
+        info("%d\n", int_hash_lookup(&b, "ffff", 0, XLOOKUP)->value);
         int_hash_free(&a);
         int_hash_free(&b);
       }
       else if(argc > 2 && atoi(argv[2]) == 9) {
-        dbg(0, "xctx=%p\n", xctx);
-        if(xctx) dbg(0, "instances=%d\n", xctx->instances);
-        if(xctx) dbg(0, "symbols=%d\n", xctx->symbols);
+        info("xctx=%p\n", xctx);
+        if(xctx) info("instances=%d\n", xctx->instances);
+        if(xctx) info("symbols=%d\n", xctx->symbols);
       }
       else if(argc > 2 && atoi(argv[2]) == 10) {
         int i;
@@ -6549,7 +6549,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         
         for(i = 0; i < MAX_NEW_WINDOWS; i++) {
           if(!ctx[i]) continue;
-          dbg(0, "%d: %p  %s %s  sch[0]: %p  %s\n", 
+          info("%d: %p  %s %s  sch[0]: %p  %s\n", 
               i, ctx[i], get_window_path(i), 
               ctx[i] ? ctx[i]->current_win_path : "NULL",
               ctx[i] ? ctx[i]->sch[0] : NULL , ctx[i] ? ctx[i]->sch[0] : "NULL"
@@ -6738,7 +6738,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        dbg(1, "xschem undo_type %s\n", argv[2]);
+        dbg(1, ("xschem undo_type %s\n", argv[2]));
         if(!strcmp(argv[2], "disk")) {
           if(xctx->undo_type == 1) {
             mem_delete_undo(); /*reset memory undo */
@@ -6971,7 +6971,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   For debug */
     if(!strcmp(argv[1], "xcb_info"))
     {
-      dbg(0, "maximum xcb req length=%u\n", xcb_get_maximum_request_length(xcb_conn));
+      info("maximum xcb req length=%u\n", xcb_get_maximum_request_length(xcb_conn));
     }
     else { cmd_found = 0;}
     #endif
@@ -6985,7 +6985,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       double x1, y1, x2, y2, factor;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      dbg(1, "scheduler(): xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]);
+      dbg(1, ("scheduler(): xschem zoom_box: argc=%d, argv[2]=%s\n", argc, argv[2]));
       if(argc==6 || argc == 7) {
         x1 = atof(argv[2]);
         y1 = atof(argv[3]);
@@ -7085,7 +7085,7 @@ double tclgetdoublevar(const char *s)
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
-    dbg(0, "%s\n", tclresult());
+    info("%s\n", tclresult());
     return 0.0;
   }
   return atof_spice(p);
@@ -7096,7 +7096,7 @@ int tclgetintvar(const char *s)
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
-    dbg(0, "%s\n", tclresult());
+    info("%s\n", tclresult());
     return 0;
   }
   return atoi(p);
@@ -7108,11 +7108,11 @@ int tclgetboolvar(const char *s)
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
-    dbg(0, "%s\n", tclresult());
+    info("%s\n", tclresult());
     return 0;
   }
   if(Tcl_GetBoolean(interp, p, &res) == TCL_ERROR) {
-    dbg(0, "%s\n", tclresult());
+    info("%s\n", tclresult());
     return 0;
   }
   return res;
@@ -7123,7 +7123,7 @@ const char *tclgetvar(const char *s)
   const char *p;
   p = Tcl_GetVar(interp, s, TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
   if(!p) {
-    dbg(1, "%s\n", tclresult());
+    dbg(1, ("%s\n", tclresult()));
     return NULL;
   }
   return p;
@@ -7188,13 +7188,13 @@ int tclvareval(const char *script, ...)
   size = my_strcat(_ALLOC_ID_, &str, script);
   while( (p = va_arg(args, const char *)) ) {
     size = my_strcat(_ALLOC_ID_, &str, p);
-    dbg(2, "tclvareval(): p=%s, str=%s, size=%d\n", p, str, size);
+    dbg(2, ("tclvareval(): p=%s, str=%s, size=%d\n", p, str, size));
   }
-  dbg(2, "tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size);
+  dbg(2, ("tclvareval(): script=%s, str=%s, size=%d\n", script, str ? str : "<NULL>", size));
   return_code = Tcl_EvalEx(interp, str, (int)size, TCL_EVAL_GLOBAL);
   va_end(args);
   if(return_code != TCL_OK) {
-    dbg(0, "tclvareval(): error executing %s: %s\n", str, tclresult());
+    info("tclvareval(): error executing %s: %s\n", str, tclresult());
     Tcl_ResetResult(interp);
   }
   my_free(_ALLOC_ID_, &str);

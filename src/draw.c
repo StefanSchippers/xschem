@@ -151,7 +151,7 @@ void print_image()
   #else /* no cairo */
   #ifdef __unix__
   XpmWriteFileFromPixmap(display, "plot.xpm", xctx->save_pixmap, 0, NULL ); /* .gz ???? */
-  dbg(1, "print_image(): Window image saved\n");
+  dbg(1, ("print_image(): Window image saved\n"));
   if(xctx->plotfile[0]) {
     my_snprintf(cmd, S(cmd), "convert_to_png plot.xpm {%s}", xctx->plotfile);
     tcleval(cmd);
@@ -209,7 +209,7 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
 
     x1 = rmx;
     y1 = rmy;
-    dbg(1, "grabscreen(): got point1: %d %d\n", x1, y1);
+    dbg(1, ("grabscreen(): got point1: %d %d\n", x1, y1));
     grab_state = 1;
   }
 
@@ -217,7 +217,7 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
     static int xx1, xx2, yy1, yy2;
     xx1 = x1; yy1 = y1; xx2 = x2; yy2 = y2;
     INT_RECTORDER(xx1, yy1, xx2, yy2);
-    dbg(1, "Motion: %d %d %d %d\n", xx1, yy1, xx2, yy2);
+    dbg(1, ("Motion: %d %d %d %d\n", xx1, yy1, xx2, yy2));
     if(!first_motion) {
       XDrawRectangle(display, clientwin, gc, xx1 - 1, yy1 - 1, xx2 - xx1 + 2, yy2 - yy1 + 2);
     }
@@ -251,21 +251,21 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
       xctx->push_undo();
       grab_w = (x2 - x1 + 1);
       grab_h = (y2 - y1 + 1);
-      dbg(1, "grabscreen(): grab area: %d %d - %d %d\n", x1, y1, x2, y2);
-      dbg(1, "grabscreen(): root w=%d, h=%d\n", displayw, displayh);
+      dbg(1, ("grabscreen(): grab area: %d %d - %d %d\n", x1, y1, x2, y2));
+      dbg(1, ("grabscreen(): root w=%d, h=%d\n", displayw, displayh));
       sfc =  cairo_xlib_surface_create(display, rw, visual, displayw, displayh);
       if(!sfc || cairo_surface_status(sfc) != CAIRO_STATUS_SUCCESS) {
-        dbg(0, "grabscreen(): failure creating sfc\n");
+        info("grabscreen(): failure creating sfc\n");
         XFreeGC(display, gc);
         XDestroyWindow(display, clientwin);
         return 0;
       }
-      dbg(1, "sfc: w=%d, h=%d\n",
+      dbg(1, ("sfc: w=%d, h=%d\n",
             cairo_xlib_surface_get_width(sfc),
-            cairo_xlib_surface_get_height(sfc));
+            cairo_xlib_surface_get_height(sfc)));
       subsfc = cairo_surface_create_for_rectangle(sfc, x1, y1, grab_w, grab_h);
       if(!subsfc || cairo_surface_status(subsfc) != CAIRO_STATUS_SUCCESS) {
-        dbg(0, "grabscreen(): failure creating subsfc\n");
+        info("grabscreen(): failure creating subsfc\n");
         cairo_surface_destroy(sfc);
         XFreeGC(display, gc);
         XDestroyWindow(display, clientwin);
@@ -278,9 +278,9 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
       cairo_surface_destroy(subsfc);
       cairo_surface_destroy(sfc);
       closure.size = closure.pos;
-      dbg(1, "closure.size = %ld\n", closure.size);
+      dbg(1, ("closure.size = %ld\n", closure.size));
       encoded_data = base64_encode((unsigned char *)closure.buffer, closure.size, &olength, 0);
-      dbg(1, "olength = %ld\n", olength);
+      dbg(1, ("olength = %ld\n", olength));
       my_free(_ALLOC_ID_, &closure.buffer);
       my_mstrcat(_ALLOC_ID_, &prop, "flags=image,unscaled\nalpha=0.8\nimage_data=", encoded_data, NULL);
       my_free(_ALLOC_ID_, &encoded_data);
@@ -441,8 +441,8 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   cairo_set_font_size(xctx->cairo_ctx, size*xctx->mooz);
   cairo_set_font_size(xctx->cairo_save_ctx, size*xctx->mooz);
   cairo_font_extents(xctx->cairo_ctx, &fext);
-  dbg(1, "draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
-       size * xctx->mooz, fext.height, fext.ascent, fext.descent);
+  dbg(1, ("draw_string(): size * mooz=%g height=%g ascent=%g descent=%g\n",
+       size * xctx->mooz, fext.height, fext.ascent, fext.descent));
   llength=0;
   my_strdup2(_ALLOC_ID_, &sss, estr);
   tt=ss=sss;
@@ -487,9 +487,9 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
  double longest_line;
 
  if(str==NULL || !has_x ) return;
- dbg(2, "draw_string(): string=%s\n",str);
+ dbg(2, ("draw_string(): string=%s\n",str));
  if(xscale*FONTWIDTH*xctx->mooz<1) {
-   dbg(1, "draw_string(): xscale=%.16g zoom=%.16g \n",xscale,xctx->zoom);
+   dbg(1, ("draw_string(): xscale=%.16g zoom=%.16g \n",xscale,xctx->zoom));
    return;
  }
  else {
@@ -552,7 +552,7 @@ void draw_temp_string(GC gctext, int what, const char *str, short rot, short fli
  if(!has_x) return;
 
  estr = my_expand(str, tclgetintvar("tabstop"));
- dbg(2, "draw_string(): string=%s\n",estr);
+ dbg(2, ("draw_string(): string=%s\n",estr));
  if(!text_bbox(estr, xscale, yscale, rot, flip, hcenter, vcenter, x1,y1,
      &textx1,&texty1,&textx2,&texty2, &tmp, &dtmp)) {
    my_free(_ALLOC_ID_, &estr);
@@ -710,7 +710,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
                0.0, 2, -1, -1);
     }
   } else if(xctx->inst[n].flags&1) {
-    dbg(2, "draw_symbol(): skipping inst %d\n", n);
+    dbg(2, ("draw_symbol(): skipping inst %d\n", n));
     return;
   }
   flip = xctx->inst[n].flip;
@@ -873,17 +873,17 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
           cairo_font_face_destroy(temp_font);
         }
         #endif
-        dbg(1, "draw_symbol(): drawing string: before translate(): text.txt_ptr=%s\n", text.txt_ptr);
+        dbg(1, ("draw_symbol(): drawing string: before translate(): text.txt_ptr=%s\n", text.txt_ptr));
         my_strdup2(_ALLOC_ID_, &txtptr, translate(n, text.txt_ptr, &res));
         /* do another round of substitutions if some @var are found, but if not found leave @var as is */
-        dbg(1, "draw_symbol(): drawing string: str=%s prop=%s\n",
-                txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>");
+        dbg(1, ("draw_symbol(): drawing string: str=%s prop=%s\n",
+                txtptr, text.prop_ptr ?  text.prop_ptr : "<NULL>"));
         if(strpbrk(txtptr, "@%")) {
           my_strdup2(_ALLOC_ID_, &txtptr, translate3(txtptr, 1, xctx->inst[n].prop_ptr,
              xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, &res));
         }
         my_free(_ALLOC_ID_, &res);
-        dbg(1, "draw_symbol(): after translate3: str=%s\n", txtptr);
+        dbg(1, ("draw_symbol(): after translate3: str=%s\n", txtptr));
         draw_string(textlayer, what, txtptr,
           (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
           flip^text.flip, text.hcenter, text.vcenter,
@@ -972,7 +972,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
                            xctx->inst[n].xx2 + xoffset, xctx->inst[n].yy2 + yoffset);
    }
  } else if(xctx->inst[n].flags&1) {
-   dbg(2, "draw_symbol(): skipping inst %d\n", n);
+   dbg(2, ("draw_symbol(): skipping inst %d\n", n));
    return;
  } /* /20150424 */
 
@@ -1057,7 +1057,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
          xctx->sym[xctx->inst[n].ptr].templ, NULL, NULL, &res));
      }
      my_free(_ALLOC_ID_, &res);
-     dbg(1, "draw_temp_symbol(): after translate3: str=%s\n", txtptr);
+     dbg(1, ("draw_temp_symbol(): after translate3: str=%s\n", txtptr));
      if(txtptr[0]) draw_temp_string(gc, what, txtptr,
        (text.rot + ( (flip && (text.rot & 1) ) ? rot+2 : rot) ) & 0x3,
        flip^text.flip, text.hcenter, text.vcenter, x0+x1, y0+y1, xscale, yscale);
@@ -1100,7 +1100,7 @@ static void drawgrid()
     }
   }
   #endif
-  dbg(1, "drawgrid(): draw grid\n");
+  dbg(1, ("drawgrid(): draw grid\n"));
   if( !tclgetboolvar("draw_grid") || !has_x) return;
   delta=tclgetdoublevar("cadgrid")*xctx->mooz;
   #if DRAW_ALL_CAIRO==1
@@ -2081,7 +2081,6 @@ void drawbezier(Drawable w, GC gc, int c, double *x, double *y, int points, int 
       }
       p[i].x = (short)X_TO_SCREEN(xp);
       p[i].y = (short)Y_TO_SCREEN(yp);
-      /* dbg(0, "i=%d, p[i].x=%d, p[i].y=%d\n", i, p[i].x, p[i].y); */
       i++;
     }
   }
@@ -2413,7 +2412,7 @@ static double axis_increment(double a, double b, int div, int freq)
   delta = fabs(delta);
   scale = pow(10.0, floor(mylog10(delta)));
   scaled_delta =  delta / scale; /* 1 <= scaled_delta < 10 */
-  dbg(1, "a=%g, b=%g, scale=%g, scaled_delta=%g --> ", a, b, scale, scaled_delta);
+  dbg(1, ("a=%g, b=%g, scale=%g, scaled_delta=%g --> ", a, b, scale, scaled_delta));
   if(freq && scaled_delta > 2.5) scaled_delta = 10.0;
   else if(freq && scaled_delta > 1.9) scaled_delta = 5.0;
   else if(freq && scaled_delta > 1.4) scaled_delta = 2.0;
@@ -2422,7 +2421,7 @@ static double axis_increment(double a, double b, int div, int freq)
   else if(scaled_delta > 2.2) scaled_delta = 5.0;
   else if(scaled_delta > 1.1) scaled_delta = 2.0;
   else scaled_delta = 1.0;
-  dbg(1, "scaled_delta = %g, scaled_delta * scale * sign=%g\n", scaled_delta, scaled_delta * scale * sign);
+  dbg(1, ("scaled_delta = %g, scaled_delta * scale * sign=%g\n", scaled_delta, scaled_delta * scale * sign));
   return scaled_delta * scale * sign;
 }
 
@@ -2474,12 +2473,12 @@ int sch_waves_loaded(void)
   int i;
   if(!xctx->raw || xctx->raw->level == -1) return -1;
   else if(xctx->raw && xctx->raw->values && xctx->raw->names && xctx->raw->schname) {
-    dbg(1, "sch_waves_loaded(): raw->schname=%s\n", xctx->raw->schname);
+    dbg(1, ("sch_waves_loaded(): raw->schname=%s\n", xctx->raw->schname));
     for(i = xctx->currsch; i >= 0; i--) {
-      dbg(1, "sch_waves_loaded(): %d --> %s\n", i, xctx->sch[i]);
+      dbg(1, ("sch_waves_loaded(): %d --> %s\n", i, xctx->sch[i]));
       if( !xctx->sch[i] ) continue;
       if( !strcmp(xctx->raw->schname, xctx->sch[i]) ) {
-        dbg(1, "sch_waves_loaded(): returning %d\n", i);
+        dbg(1, ("sch_waves_loaded(): returning %d\n", i));
         return i;
       }
     }
@@ -2546,8 +2545,8 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
   yyparse_error = 0;
   *n_bits = count_items(ntok_copy, ",", "");
   idx_arr = my_malloc(_ALLOC_ID_, (*n_bits) * sizeof(SPICE_DATA *));
-  dbg(1, "get_bus_idx_array(): ntok=%s\n", ntok);
-  dbg(1, "get_bus_idx_array(): *n_bits=%d\n", *n_bits);
+  dbg(1, ("get_bus_idx_array(): ntok=%s\n", ntok));
+  dbg(1, ("get_bus_idx_array(): *n_bits=%d\n", *n_bits));
   nptr = ntok_copy;
   while( (bit_name = my_strtok_r(nptr, ";, \\\n", "", 0, &saven)) ) {
     int idx;
@@ -2558,7 +2557,6 @@ static SPICE_DATA **get_bus_idx_array(const char *ntok, int *n_bits)
     } else {
       idx_arr[p] = NULL;
     }
-    /* dbg(0, "get_bus_idx_array(): bit_name=%s, p=%d\n", bit_name, p); */
     ++p;
   }
   my_free(_ALLOC_ID_, &ntok_copy);
@@ -2573,7 +2571,7 @@ static void set_thick_waves(int what, int wcnt, int wave_col, Graph_ctx *gr)
   unsigned long valuemask;
   XGCValues values;
   valuemask = GCLineWidth;
-  dbg(1, "set_thick_waves(): what=%d\n", what);
+  dbg(1, ("set_thick_waves(): what=%d\n", what));
   if(what) {
       if(gr->hilight_wave == wcnt) {
          int min = (int) tk_scaling * 2;
@@ -2622,7 +2620,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       }
     }
     idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
-    dbg(1, "graph_fullxzoom(): sweep idx=%d\n", idx);
+    dbg(1, ("graph_fullxzoom(): sweep idx=%d\n", idx));
     if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
 
@@ -2668,7 +2666,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
       xx1 = mylog10(xx1);
       xx2 = mylog10(xx2);
     }
-    dbg(1, "graph_fullxzoom(): xx1=%g, xx2=%g\n");
+    dbg(1, ("graph_fullxzoom(): xx1=%g, xx2=%g\n"));
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x1", dtoa(xx1)));
     my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "x2", dtoa(xx2)));
 
@@ -2712,7 +2710,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
 
       autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
       if(autoload == 0) autoload = 2;
-      dbg(1, "graph_fullyzoom(): graph_dataset=%d\n", graph_dataset);
+      dbg(1, ("graph_fullyzoom(): graph_dataset=%d\n", graph_dataset));
       my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
       my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
 
@@ -2759,7 +2757,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
             my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
                   sim_type[0] ? sim_type : xctx->raw->sim_type);
-            dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+            dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
             if(node_rawfile && node_rawfile[0]) {
               if(!extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0)) {
                 my_free(_ALLOC_ID_, &node);
@@ -2775,7 +2773,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           }
           if(pos == 2) node_dataset = atoi(nd);
           else node_dataset = -1;
-          dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
+          dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
           my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
         } else {
           node_dataset = -1;
@@ -2791,7 +2789,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         }
 
         my_free(_ALLOC_ID_, &nd);
-        dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
+        dbg(1, ("ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset));
 
         yyparse_error = -1;
         my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(find_nth(ntok_copy, ";", "\"", 4, 2), NULL));
@@ -2802,14 +2800,14 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
           my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
         }
         my_free(_ALLOC_ID_, &tmp_ptr);
-        dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
+        dbg(1, ("ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>"));
         stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
         nptr = sptr = NULL;
         if(stok && stok[0]) {
           sweep_idx = get_raw_index(stok, NULL);
           if( sweep_idx == -1) sweep_idx = 0;
         }
-        dbg(1, "graph_fullyzoom(): ntok_copy=%s\n", ntok_copy);
+        dbg(1, ("graph_fullyzoom(): ntok_copy=%s\n", ntok_copy));
         v = -1;
         if(!bus_msb) {
           char *express = NULL;
@@ -2826,7 +2824,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             v = get_raw_index(express, NULL);
           }
           my_free(_ALLOC_ID_, &express);
-          dbg(1, "graph_fullyzoom(): v=%d\n", v);
+          dbg(1, ("graph_fullyzoom(): v=%d\n", v));
         }
         if(xctx->raw && v >= 0) {
           int dataset = node_dataset >=0 ? node_dataset : graph_dataset;
@@ -2938,7 +2936,7 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
   Raw *raw = xctx->raw;
 
   if(!raw) {
-    dbg(0, "draw_graph_bus_points(): no raw struct allocated\n");
+    info("draw_graph_bus_points(): no raw struct allocated\n");
     return;
   }
   for(p=0;p<cadlayers; ++p) {
@@ -3013,12 +3011,12 @@ static void draw_graph_points(int idx, int first, int last,
   register SPICE_DATA *gv;
 
   if(!raw) {
-    dbg(0, "draw_graph_points(): no raw struct allocated\n");
+    info("draw_graph_points(): no raw struct allocated\n");
     return;
   }
   gv = raw->values[idx];
 
-  dbg(1, "draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt);
+  dbg(1, ("draw_graph_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt));
   if(idx == -1) return;
   for(p=0;p<cadlayers; ++p) {
     if(gr->mode == 1 || gr->mode == 2) { /* Histograms */
@@ -3082,7 +3080,6 @@ static void draw_graph_points(int idx, int first, int last,
         pt =  point + offset;
         size = poly_npoints - offset;
         if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
-        /* dbg(0, "draw_graph_points(): drawing from %d, size %d\n", offset, size);*/
         XDrawLines(display, w, xctx->gc[wave_col], pt, size, CoordModeOrigin);
         if(offset + size >= poly_npoints) break;
         offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
@@ -3226,7 +3223,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   const char *val;
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
-  dbg(1, "setup_graph_data: i=%d\n", i);
+  dbg(1, ("setup_graph_data: i=%d\n", i));
   /* default values */
   gr->magx = gr->magy = gr->maglegend = 1.0;
   gr->divx = gr->divy = 5;
@@ -3410,7 +3407,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   /* signal names (vertical legend) size. */
   gr->txtsizelegend = gr->h * 0.00095;
   gr->txtsizelegend *= gr->maglegend;
-  dbg(1, "setup_graph_data(): txtsizelegend=%g, maglegend=%g\n", gr->txtsizelegend, gr->maglegend);
+  dbg(1, ("setup_graph_data(): txtsizelegend=%g, maglegend=%g\n", gr->txtsizelegend, gr->maglegend));
 
   /* cache coefficients for faster graph --> xschem coord transformations */
   gr->cx = gr->w / gr->gw;
@@ -3616,9 +3613,9 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
           cairo_font_face_destroy(temp_font);
         }
         #endif
-        dbg(1, "%g %g %s\n", xt, yt, tmpstr);
+        dbg(1, ("%g %g %s\n", xt, yt, tmpstr));
         my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
-        dbg(1, "txtsizelegend=%g\n", gr->txtsizelegend);
+        dbg(1, ("txtsizelegend=%g\n", gr->txtsizelegend));
         draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
           xt, yt, gr->txtsizelegend, gr->txtsizelegend);
         #if HAS_CAIRO == 1
@@ -3653,7 +3650,7 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
         my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
         draw_string(wave_color, NOW, tmpstr, 2, 0, 0, 0,
           xt, DW_Y(yt), gr->digtxtsizelab * gr->magy, gr->digtxtsizelab * gr->magy);
-        dbg(1, "draw_graph_variables(): h=%g, posh=%g, gh=%g\n", gr->h, gr->posh, gr->gh);
+        dbg(1, ("draw_graph_variables(): h=%g, posh=%g, gh=%g\n", gr->h, gr->posh, gr->gh));
         #if HAS_CAIRO == 1
         if(gr->hilight_wave == wcnt) {
           cairo_restore(xctx->cairo_ctx);
@@ -3697,7 +3694,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
   /* show values of signals if cursor1 active */
   if(idx == -1) return;
   if(!xctx->raw) {
-    dbg(0, "show_node_measures(): no raw struct allocated\n");
+    info("show_node_measures(): no raw struct allocated\n");
     return;
   }
   if(!gr->legend && !gr->digital) return;
@@ -3776,7 +3773,7 @@ static void show_node_measures(int measure_p, double measure_x, double measure_p
       draw_string(wave_color, NOW, tmpstr, 0, 0, 0, 0,
          gr->rx1 + 2 + gr->rw / n_nodes * wcnt, gr->ry1 + gr->txtsizelab * 60,
           gr->txtsizelab * 0.8, gr->txtsizelab * 0.8);
-      dbg(1, "node: %s, x=%g, value=%g\n", ntok, measure_x, yy);
+      dbg(1, ("node: %s, x=%g, value=%g\n", ntok, measure_x, yy));
     }
     else if(gr->digital) {
       double xt = gr->x1 - 15 * gr->txtsizelab;
@@ -3799,7 +3796,7 @@ int embed_rawfile(const char *rawfile)
   size_t len;
   char *ptr;
 
-  dbg(1, "embed_rawfile(): rawfile=%s\n", rawfile);
+  dbg(1, ("embed_rawfile(): rawfile=%s\n", rawfile));
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     xInstance *i = &xctx->inst[xctx->sel_array[0].n];
     xctx->push_undo();
@@ -3842,7 +3839,7 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
     ctok = my_strtok_r(cptr, " ", "", 0, &savec);
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = cptr = sptr = NULL;
-    dbg(1, "ntok=%s ctok=%s\n", ntok, ctok? ctok: "<NULL>");
+    dbg(1, ("ntok=%s ctok=%s\n", ntok, ctok? ctok: "<NULL>"));
     if(stok && stok[0]) {
       sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) sweep_idx = 0;
@@ -3958,7 +3955,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
   int dataset = gr->dataset;
   Raw *raw = xctx->raw;
   if(!raw) {
-    dbg(0, "calc_custom_data_yrange(): no raw struct allocated\n");
+    info("calc_custom_data_yrange(): no raw struct allocated\n");
     return idx;
   }
   ofs = 0;
@@ -4034,7 +4031,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   const char *ptr;
 
   if(!xctx->raw) {
-    dbg(0, "find_closest_wave(): no raw struct allocated\n");
+    info("find_closest_wave(): no raw struct allocated\n");
     return -1;
   }
   if(gr->digital) return -1;
@@ -4072,7 +4069,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
     }
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = sptr = NULL;
-    dbg(1, "ntok=%s\n", ntok);
+    dbg(1, ("ntok=%s\n", ntok));
 
     if(custom_rawfile[0]) {
       if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
@@ -4100,7 +4097,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
         tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
         my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
               sim_type[0] ? sim_type : xctx->raw->sim_type);
-        dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+        dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
         if(node_rawfile && node_rawfile[0]) {
           if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
             my_free(_ALLOC_ID_, &node_rawfile);
@@ -4113,7 +4110,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
       }
       if(pos == 2) node_dataset = atoi(nd);
       else node_dataset = -1;
-      dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
+      dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
       my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
     } else {
       node_dataset = -1;
@@ -4136,7 +4133,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
     }
     if(expression) idx = xctx->raw->nvars;
     else idx = get_raw_index(express, NULL);
-    dbg(1, "find_closest_wave(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx);
+    dbg(1, ("find_closest_wave(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx));
     if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) {
       int p, dset, ofs, ofs_end;
       int first, last;
@@ -4159,12 +4156,12 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
         ofs_end = ofs + xctx->raw->npoints[dset];
         if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL);
         gvy = xctx->raw->values[idx];
-        dbg(1, "find_closest_wave(): dset=%d\n", dset);
+        dbg(1, ("find_closest_wave(): dset=%d\n", dset));
         first = -1;
         /* Process "npoints" simulation items
          * p loop split repeated 2 timed (for x and y points) to preserve cache locality */
         last = ofs;
-        dbg(1, "find_closest_wave(): xval=%g yval=%g\n", xval, yval);
+        dbg(1, ("find_closest_wave(): xval=%g yval=%g\n", xval, yval));
         for(p = ofs ; p < ofs_end; p++) {
           if(gr->logx) xx = mylog10(gvx[p]);
           else xx = gvx[p];
@@ -4174,7 +4171,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
           wrap = xctx->raw->sim_type && !strcmp(xctx->raw->sim_type, "dc") && cnt > 1 && gv0[p] == xx0;
           if(first != -1) {
             if(xx > end || xx < start || wrap) {
-              dbg(1, "find_closest_wave(): last=%d\n", last);
+              dbg(1, ("find_closest_wave(): last=%d\n", last));
               first = -1;
             }
           }
@@ -4198,8 +4195,8 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
                    *node_number = wcnt;
                  }
                }
-               dbg(1, "find_closest_wave(): dset=%d expression=%d idx=%d wcnt=%d dist=%g sweepvar_wrap=%d ntok=%s stok=%s\n",
-                   dset, expression, idx, wcnt, tmp, sweepvar_wrap, ntok, stok? stok : "<NULL>");
+               dbg(1, ("find_closest_wave(): dset=%d expression=%d idx=%d wcnt=%d dist=%g sweepvar_wrap=%d ntok=%s stok=%s\n",
+                   dset, expression, idx, wcnt, tmp, sweepvar_wrap, ntok, stok? stok : "<NULL>"));
             }
             last = p;
             ++cnt;
@@ -4214,7 +4211,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
 
     } /*  if( (idx = get_raw_index(ntok, NULL)) != -1 ) */
   } /* while( (ntok = my_strtok_r(nptr, "\n\t ", "", 0, &saven)) ) */
-  dbg(0, "closest dataset=%d wave index=%d\n", closest_dataset, *node_number);
+  info("closest dataset=%d wave index=%d\n", closest_dataset, *node_number);
   if(express) my_free(_ALLOC_ID_, &express);
 
   if(sch_waves_loaded()!= -1 && custom_rawfile[0]) extra_rawfile(5, NULL, NULL, -1.0, -1.0);
@@ -4224,7 +4221,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
   my_free(_ALLOC_ID_, &node);
   my_free(_ALLOC_ID_, &sweep);
-  dbg(1, "find_closest_wave(): node_number = %d\n", *node_number);
+  dbg(1, ("find_closest_wave(): node_number = %d\n", *node_number));
   return closest_dataset;
 }
 
@@ -4290,9 +4287,9 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   }
 
   #if 0
-  dbg(0, "draw_graph(): window: %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
-  dbg(0, "draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
-  dbg(0, "draw_graph(): i = %d, flags = %d graph_flags=%d\n", i, flags, xctx->graph_flags);
+  info("draw_graph(): window: %d %d %d %d\n", xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
+  info("draw_graph(): graph: %g %g %g %g\n", gr->sx1, gr->sy1, gr->sx2, gr->sy2);
+  info("draw_graph(): i = %d, flags = %d graph_flags=%d\n", i, flags, xctx->graph_flags);
   #endif
 
   /* draw stuff */
@@ -4325,8 +4322,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
       my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
     }
     my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
-    dbg(1, "draw_graph(): graph %d: custom_rawfile=%s autoload=%d sim_type=%s\n",
-        i, custom_rawfile, autoload, sim_type);
+    dbg(1, ("draw_graph(): graph %d: custom_rawfile=%s autoload=%d sim_type=%s\n",
+        i, custom_rawfile, autoload, sim_type));
     save_extra_idx = xctx->extra_idx;
 
     nptr = node;
@@ -4352,11 +4349,11 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
       }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
       if(wcnt >= n_nodes) {
-        dbg(0, "draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
-        dbg(0, "draw_graph(): n_nodes=%d\n", n_nodes);
+        info("draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
+        info("draw_graph(): n_nodes=%d\n", n_nodes);
         wcnt--; /* nosense, but avoid a crash */
       }
-      dbg(1, "draw_graph(): nd=%s\n", nd);
+      dbg(1, ("draw_graph(): nd=%s\n", nd));
       /* if %<n> is specified after node name, <n> is the dataset number to plot in graph */
       /* if %n rawfile.raw is specified use rawfile.raw for this node */
 
@@ -4373,7 +4370,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
                sim_type[0] ? sim_type : 
                (xctx->raw && xctx->raw->sim_type) ? xctx->raw->sim_type :
                "" );
-        dbg(1, "node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type);
+        dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
         if(node_rawfile && node_rawfile[0]) {
           if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
             my_free(_ALLOC_ID_, &node_rawfile);
@@ -4385,7 +4382,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         my_free(_ALLOC_ID_, &node_sim_type);
         if(pos == 2) node_dataset = atoi(nd);
         else node_dataset = -1;
-        dbg(1, "nd=|%s|, node_dataset = %d\n", nd, node_dataset);
+        dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
         my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
       } else {
         node_dataset = -1;
@@ -4400,23 +4397,23 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         save_npoints = xctx->raw->npoints[0];
         xctx->raw->npoints[0] = xctx->raw->allpoints;
       }
-      dbg(1, "ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset);
+      dbg(1, ("ntok=|%s|\nntok_copy=|%s|\nnode_dataset=%d\n", ntok, ntok_copy, node_dataset));
       my_strdup2(_ALLOC_ID_, &tmp_ptr, trim_chars(find_nth(ntok_copy, ";", "\"", 4, 2), "\n "));
       yyparse_error = -1;
       if(!strchr(tmp_ptr, ' ')) my_strdup2(_ALLOC_ID_, &tmp_ptr, expandlabel(tmp_ptr, NULL));
       yyparse_error = 0;
-      dbg(1, "tmp_ptr=|%s|\n", tmp_ptr);
+      dbg(1, ("tmp_ptr=|%s|\n", tmp_ptr));
       if(strstr(tmp_ptr, ",")) {
         my_strdup2(_ALLOC_ID_, &tmp_ptr, find_nth(tmp_ptr, ",", "\"", 4, 1));
         /* also trim spaces */
         my_strdup2(_ALLOC_ID_, &bus_msb, trim_chars(tmp_ptr, "\n "));
       }
       my_free(_ALLOC_ID_, &tmp_ptr);
-      dbg(1, "ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>");
+      dbg(1, ("ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>"));
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
       stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
       cptr = sptr = NULL;
-      dbg(1, "ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "<NULL>");
+      dbg(1, ("ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "<NULL>"));
       if(ctok && ctok[0]) wc = atoi(ctok);
       if(wc < 0) wc = 4;
       if(wc >= cadlayers) wc = cadlayers - 1;
@@ -4437,7 +4434,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         } else {
           my_strdup2(_ALLOC_ID_, &express, ntok_copy);
         }
-        dbg(1, "express=|%s|\n", express);
+        dbg(1, ("express=|%s|\n", express));
 
         match = strpbrk(express, " \n\t");
         if( match  && (match == express || *(match - 1) != '\\')) {
@@ -4453,7 +4450,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           else         hilight_graph_node(bus_msb, wc);
         }
       }
-      dbg(1, "express=%s, bus_msb=%s\n", express ? express : "<NULL>", bus_msb ? bus_msb : "<NULL>");
+      dbg(1, ("express=%s, bus_msb=%s\n", express ? express : "<NULL>", bus_msb ? bus_msb : "<NULL>"));
       /* quickly find index number of ntok_copy variable to be plotted */
       if(sch_waves_loaded() != -1 && valid_rawfile &&
          (expression || (idx = get_raw_index(bus_msb ? bus_msb : express, NULL)) != -1)) {
@@ -4672,10 +4669,10 @@ static void draw_graph_all(int flags)
   int  i, sch_loaded, hide_graphs;
   int bbox_set = 0;
   int save_bbx1 = 0, save_bby1 = 0, save_bbx2 = 0, save_bby2 = 0;
-  dbg(1, "draw_graph_all(): flags=%d\n", flags);
+  dbg(1, ("draw_graph_all(): flags=%d\n", flags));
   /* save bbox data, since draw_graph_all() is called from draw() which may be called after a bbox(SET) */
   sch_loaded = (sch_waves_loaded() >= 0);
-  dbg(1, "draw_graph_all(): sch_loaded=%d\n", sch_loaded);
+  dbg(1, ("draw_graph_all(): sch_loaded=%d\n", sch_loaded));
   hide_graphs =  tclgetboolvar("hide_empty_graphs");
   if(sch_loaded || !hide_graphs) {
     #if HAS_CAIRO==1
@@ -4922,7 +4919,7 @@ int edit_image(int what, xRect *r)
     my_free(_ALLOC_ID_, &closure.buffer);
     my_free(_ALLOC_ID_, &encoded_data);
   }
-  dbg(1, "size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride);
+  dbg(1, ("size_x = %d, size_y = %d, stride = %d\n", size_x, size_y, stride));
   return 1;
 }
 
@@ -4946,7 +4943,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
   *size = 0;
   if(filename && filename[0]) {
     if(stat(filename, &buf)) {
-      dbg(0, "get_surface_from_file(): file %s not found.\n", filename);
+      info("get_surface_from_file(): file %s not found.\n", filename);
       return NULL;
     }
     filesize = (size_t)buf.st_size;
@@ -4957,22 +4954,22 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
         filedata = my_malloc(_ALLOC_ID_, filesize);
         if((bytes_read = fread(filedata, 1, filesize, fd)) < filesize) {
           filesize = bytes_read;
-          dbg(0, "get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
+          info("get_surface_from_file(): less bytes read than expected from %s, got %ld bytes\n",
               filename, bytes_read);
         }
         fclose(fd);
       }
     } else {
-      dbg(0, "get_surface_from_file(): file %s has zero size\n", filename);
+      info("get_surface_from_file(): file %s has zero size\n", filename);
       return NULL;
     }
     if(filedata && my_memmem(filedata, filesize, "<svg", 4) &&
        my_memmem(filedata, filesize, "xmlns", 5)) {
       if(filter) svg = 1;
       else {
-        dbg(0, "get_surface_from_file():\n");
-        dbg(0, "  A SVG file is specified but no 'filter' attribute to convert to png was given\n");
-        dbg(0, "  May be no 'svg_to_png' variable was specified in xschemrc\n");
+        info("get_surface_from_file():\n");
+        info("  A SVG file is specified but no 'filter' attribute to convert to png was given\n");
+        info("  May be no 'svg_to_png' variable was specified in xschemrc\n");
         my_free(_ALLOC_ID_, &filedata);
         return NULL;
       }
@@ -5009,7 +5006,7 @@ static cairo_surface_t *get_surface_from_file(const char *filename, const char *
       #endif
     }
     if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-      if(jpg != 1) dbg(0, "get_surface_from_file(): failure creating image surface from %s\n", filename);
+      if(jpg != 1) info("get_surface_from_file(): failure creating image surface from %s\n", filename);
       if(surface) cairo_surface_destroy(surface);
       my_free(_ALLOC_ID_, &closure.buffer);
       *buffer = NULL;
@@ -5054,7 +5051,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
   }
 
   if(closure.buffer == NULL) {
-    dbg(0, "get_surface_from_b64data(): decoding base64 data for image failed\n");
+    info("get_surface_from_b64data(): decoding base64 data for image failed\n");
     return NULL;
   }
 
@@ -5082,7 +5079,7 @@ static cairo_surface_t *get_surface_from_b64data(const char *attr, size_t attr_l
     }
   }
   if(!surface || cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
-    dbg(0, "get_surface_from_b64data(): failure creating image surface from \"image_data\" attribute\n");
+    info("get_surface_from_b64data(): failure creating image surface from \"image_data\" attribute\n");
     if(surface) cairo_surface_destroy(surface);
     surface = NULL;
   }
@@ -5160,10 +5157,10 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
   if(ptr[0]) alpha = atof(ptr);
   w = cairo_image_surface_get_width (emb_ptr->image);
   h = cairo_image_surface_get_height (emb_ptr->image);
-  dbg(1, "draw_image() w=%d, h=%d\n", w, h);
+  dbg(1, ("draw_image() w=%d, h=%d\n", w, h));
   x = X_TO_SCREEN(xx1);
   y = Y_TO_SCREEN(yy1);
-  dbg(1, "draw_image() x=%g, y=%g\n", x, y);
+  dbg(1, ("draw_image() x=%g, y=%g\n", x, y));
   if(r->flags & 2048) { /* resize container rectangle to fit image */
     *x2 = *x1 + w;
     *y2 = *y1 + h;
@@ -5182,7 +5179,7 @@ int draw_image(int dr, xRect *r, double *x1, double *y1, double *x2, double *y2,
       scaley = rh/h * xctx->mooz;
     }
   }
-  dbg(1, "draw_image() : rectangle coords: %g %g %g %g\n", *x1, *y1, *x2, *y2);
+  dbg(1, ("draw_image() : rectangle coords: %g %g %g %g\n", *x1, *y1, *x2, *y2));
   if(dr) {
     cairo_save(xctx->cairo_ctx);
     cairo_save(xctx->cairo_save_ctx);
@@ -5358,7 +5355,7 @@ void draw(void)
   const char *textfont;
   #endif
 
-  dbg(1, "draw()\n");
+  dbg(1, ("draw()\n"));
   if(!xctx || xctx->no_draw) return;
   tk_scaling = atof(tcleval("tk scaling"));
   cs = tclgetdoublevar("cadsnap");
@@ -5392,7 +5389,7 @@ void draw(void)
     if(xctx->draw_window)
       XFillRectangle(display, xctx->window, xctx->gc[BACKLAYER], xctx->areax1, xctx->areay1,
                      xctx->areaw, xctx->areah);
-    dbg(1, "draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
+    dbg(1, ("draw(): window: %d %d %d %d\n",xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2));
     if(!xctx->only_probes) drawgrid();
     /* 2: draw cursor 1
      * 4: draw cursor 2 */
@@ -5408,7 +5405,7 @@ void draw(void)
       hash_instances();
       hash_wires();
     }
-    dbg(3, "draw(): check4\n");
+    dbg(3, ("draw(): check4\n"));
     for(c=0;c<cadlayers; ++c) {
       int draw_layer = (xctx->draw_single_layer == -1 || c == xctx->draw_single_layer);
       cc = c; if(xctx->only_probes) cc = GRIDLAYER;
@@ -5546,7 +5543,7 @@ void draw(void)
       }
       #endif
       txt_ptr =  get_text_floater(i);
-      dbg(1, "draw(): drawing string %d = %s\n",i, txt_ptr);
+      dbg(1, ("draw(): drawing string %d = %s\n",i, txt_ptr));
       draw_string(textlayer, ADD, txt_ptr,
         xctx->text[i].rot, xctx->text[i].flip, xctx->text[i].hcenter, xctx->text[i].vcenter,
         xctx->text[i].x0,xctx->text[i].y0,
@@ -5611,7 +5608,7 @@ int XSetTile(Display* display, GC gc, Pixmap s_pixmap)
 void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y,
      unsigned int width, unsigned int height, int dest_x, int dest_y)
 {
-  dbg(1, "MyXCopyArea(%d, %d, %u, %u)\n", src_x, src_y, width, height);
+  dbg(1, ("MyXCopyArea(%d, %d, %u, %u)\n", src_x, src_y, width, height));
   #if !defined(__unix__)
   XCopyArea(display, src, dest, gc, src_x, src_y, width, height, dest_x, dest_y);
   #if HAS_CAIRO==1
@@ -5634,7 +5631,7 @@ void MyXCopyAreaDouble(Display* display, Drawable src, Drawable dest, GC gc,
   double isx1, isy1, isx2, isy2, idx1, idy1;
   unsigned int width, height;
   int intlw = INT_LINE_W(lw);
-  dbg(1, "MyXCopyAreaDouble(%g, %g, %g, %g, intlw=%d)\n", sx1, sy1, sx2, sy2, intlw);
+  dbg(1, ("MyXCopyAreaDouble(%g, %g, %g, %g, intlw=%d)\n", sx1, sy1, sx2, sy2, intlw));
   isx1=X_TO_SCREEN(sx1) - 2 * intlw;
   isy1=Y_TO_SCREEN(sy1) - 2 * intlw;
   isx2=X_TO_SCREEN(sx2) + 2 * intlw;

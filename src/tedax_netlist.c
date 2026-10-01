@@ -154,7 +154,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
  fd=fopen(netl_filename, "w");
  if(fd==NULL){
-   dbg(0, "global_tedax_netlist(): problems opening netlist file\n");
+   info("global_tedax_netlist(): problems opening netlist file\n");
    return 1;
  }
  fprintf(fd, "## sch_path: %s\n", xctx->sch[xctx->currsch]);
@@ -174,7 +174,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    }
  }
 
- dbg(1, "global_tedax_netlist(): opening %s for writing\n",netl_filename);
+ dbg(1, ("global_tedax_netlist(): opening %s for writing\n",netl_filename));
  fprintf(fd,"tEDAx v1\nbegin netlist v1 %s\n", get_cell( xctx->sch[xctx->currsch], 0) );
 
  tedax_netlist(fd, 0);
@@ -210,7 +210,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    subckt_name=NULL;
-   dbg(2, "global_tedax_netlist(): last defined symbol=%d\n",xctx->symbols);
+   dbg(2, ("global_tedax_netlist(): last defined symbol=%d\n",xctx->symbols));
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
@@ -274,7 +274,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
  /* record_global_node(2, NULL, NULL); */ /* delete list --> do it in xwin_exit() */
  fprintf(fd, "__HIERSEP__ %s\n", xctx->hiersep);
 
- dbg(1, "global_tedax_netlist(): starting awk on netlist!\n");
+ dbg(1, ("global_tedax_netlist(): starting awk on netlist!\n"));
 
  fclose(fd);
  if(tclgetboolvar("netlist_show")) {

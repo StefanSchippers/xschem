@@ -301,7 +301,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   }
   rwi = (int)(rw * scale + 1.0);
   rhi = (int)(rh * scale + 1.0);
-  dbg(1, "graph size, saving zoom : %dx%d\n", rwi, rhi);
+  dbg(1, ("graph size, saving zoom : %dx%d\n", rwi, rhi));
   save_restore_zoom(1, &zi);
   xctx->lw *= scale;
   set_viewport_size(rwi, rhi, xctx->lw);
@@ -314,7 +314,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   xctx->mooz = 1 / xctx->zoom;
 
   resetwin(1, 1, 1, rwi, rhi);
-  dbg(1, "lw=%g\n", xctx->lw);
+  dbg(1, ("lw=%g\n", xctx->lw));
   save_draw_grid = tclgetboolvar("draw_grid");
   tclsetvar("draw_grid", "0");
   save_draw_window = xctx->draw_window;
@@ -328,7 +328,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   setup_graph_data(i, 0, &xctx->graph_struct);
   draw_graph(i, 8 + (xctx->graph_flags & (4 | 2 | 128 | 256)), &xctx->graph_struct, NULL);
 
-  dbg(1, "width=%d, rwi=%d height=%d rhi=%d\n", xctx->xrect[0].width, rwi, xctx->xrect[0].height, rhi);
+  dbg(1, ("width=%d, rwi=%d height=%d rhi=%d\n", xctx->xrect[0].width, rwi, xctx->xrect[0].height, rhi));
   #ifdef __unix__
   png_sfc = cairo_xlib_surface_create(display, xctx->save_pixmap, visual,
      xctx->xrect[0].width, xctx->xrect[0].height);
@@ -354,7 +354,7 @@ static int ps_embedded_graph(int i, double rx1, double ry1, double rx2, double r
   tclsetboolvar("draw_grid", save_draw_grid);
   save_restore_zoom(0, &zi);
   resetwin(1, 1, 1, xctx->xrect[0].width, xctx->xrect[0].height);
-  dbg(1, "restore zoom + resetwin: %dx%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+  dbg(1, ("restore zoom + resetwin: %dx%d\n", xctx->xrect[0].width, xctx->xrect[0].height));
   change_linewidth(xctx->lw);
   tclsetboolvar("dark_colorscheme", d_c);
   build_colors(0, 0);
@@ -415,7 +415,7 @@ static void set_lw(double lw)
 static void set_ps_colors(unsigned int pixel)
 {
 
-   dbg(1, "set_ps_colors(): setting color %u\n", pixel);
+   dbg(1, ("set_ps_colors(): setting color %u\n", pixel));
    if(color_ps) fprintf(fd, "%g %g %g RGB\n",
      (double)ps_colors[pixel].red/256.0, (double)ps_colors[pixel].green/256.0,
      (double)ps_colors[pixel].blue/256.0);
@@ -722,7 +722,7 @@ static void ps_draw_string_line(int layer, char *s, double x, double y, double s
   unsigned char c, offset;
   double line_delta;
   double lines;
-  dbg(1, "ps_draw_string_line(): drawing |%s| on layer %d\n", s, layer);
+  dbg(1, ("ps_draw_string_line(): drawing |%s| on layer %d\n", s, layer));
   if(s==NULL) return;
   if(llength==0) return;
   fprintf(fd, "GS\n");
@@ -1061,7 +1061,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
   }
   else if(xctx->inst[n].flags&1)
   {
-   dbg(1, "ps_draw_symbol(): skipping inst %d\n", n);
+   dbg(1, ("ps_draw_symbol(): skipping inst %d\n", n));
    return;
   }
   flip = xctx->inst[n].flip;
@@ -1277,7 +1277,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   static Zoom_info zi;
   Hilight_hashentry *entry;
 
-  dbg(1, "create_ps(): what = %d, fullzoom=%d\n", what, fullzoom);
+  dbg(1, ("create_ps(): what = %d, fullzoom=%d\n", what, fullzoom));
   if(tcleval("info exists ps_paper_size")[0] == '1') {
     double tmp;
     my_strncpy(papername, tcleval("lindex $ps_paper_size 0"), S(papername));
@@ -1330,7 +1330,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   } else {
     landscape = 0;
   }
-  dbg(1, "dx=%g, dy=%g\n", dx, dy);
+  dbg(1, ("dx=%g, dy=%g\n", dx, dy));
 
 
   if(fullzoom == 1) {
@@ -1343,16 +1343,16 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       xctx->xrect[0].height = (short unsigned int) (xctx->xrect[0].width * pagey / pagex);
     else
       xctx->xrect[0].width = (short unsigned int) (xctx->xrect[0].height * pagey / pagex);
-    dbg(1, "create_ps(): save zoom, r.width=%d, r.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height);
+    dbg(1, ("create_ps(): save zoom, r.width=%d, r.height=%d\n", xctx->xrect[0].width, xctx->xrect[0].height));
     xctx->areax1 = -2*INT_LINE_W(xctx->lw);
     xctx->areay1 = -2*INT_LINE_W(xctx->lw);
     xctx->areax2 = xctx->xrect[0].width+2*INT_LINE_W(xctx->lw);
     xctx->areay2 = xctx->xrect[0].height+2*INT_LINE_W(xctx->lw);
     xctx->areaw = xctx->areax2-xctx->areax1;
     xctx->areah = xctx->areay2 - xctx->areay1;
-    dbg(1, "create_ps(): areax1=%d areay1=%d areax2=%d areay2=%d\n",
-       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2);
-    dbg(1, "create_ps(): dx=%g, dy=%g\n", dx, dy);
+    dbg(1, ("create_ps(): areax1=%d areay1=%d areax2=%d areay2=%d\n",
+       xctx->areax1, xctx->areay1, xctx->areax2, xctx->areay2));
+    dbg(1, ("create_ps(): dx=%g, dy=%g\n", dx, dy));
     /* fit schematic into adjusted size */
     zoom_full(0, 0, 0 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
     boundbox.x1 = xctx->areax1;
@@ -1387,7 +1387,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   }
 
   if(what & 1) {/* prolog */
-    dbg(1, "ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2);
+    dbg(1, ("ps_draw(): bbox: x1=%g y1=%g x2=%g y2=%g\n", boundbox.x1, boundbox.y1, boundbox.x2, boundbox.y2));
     if(!eps) {
       fprintf(fd, "%%!PS-Adobe-3.0\n");
     } else {
@@ -1492,10 +1492,10 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       "/Dest /%s "
       "/DEST pdfmark\n", get_cell_w_ext(sanitize(xctx->current_name), 0));
     scaley = scale = (pagey-2 * margin) / dy;
-    dbg(1, "scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy);
+    dbg(1, ("scale=%g pagex=%g pagey=%g dx=%g dy=%g\n", scale, pagex, pagey, dx, dy));
     if(dx * scale > (pagex - 2 * margin)) {
       scale = (pagex - 2 * margin) / dx;
-      dbg(1, "scale=%g\n", scale);
+      dbg(1, ("scale=%g\n", scale));
     }
     fprintf(fd, "%g %g translate\n",
       -scale * boundbox.x1 + margin, pagey - (scaley - scale) * dy - margin + scale * boundbox.y1);
@@ -1545,7 +1545,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
           xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, xctx->poly[c][i].bus);
       }
-      dbg(1, "create_ps(): starting drawing symbols on layer %d\n", c);
+      dbg(1, ("create_ps(): starting drawing symbols on layer %d\n", c));
     } /* for(c=0;c<cadlayers; ++c) */
 
     /* bring outside previous for(c=0...) loop since ps_embedded_graph() calls ps_draw_symbol() */
@@ -1634,7 +1634,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
       }
     }
 
-    dbg(1, "ps_draw(): INT_LINE_W(lw)=%d plotfile=%s\n",INT_LINE_W(xctx->lw), xctx->plotfile);
+    dbg(1, ("ps_draw(): INT_LINE_W(lw)=%d plotfile=%s\n",INT_LINE_W(xctx->lw), xctx->plotfile));
     fprintf(fd, "showpage\n\n");
   }
   if(what & 4) { /* trailer */

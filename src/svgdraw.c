@@ -1008,18 +1008,18 @@ void svg_draw(void)
   tclsetvar("draw_grid", "0");
   dx=xctx->xrect[0].width;
   dy=xctx->xrect[0].height;
-  dbg(1, "svg_draw(): dx=%g  dy=%g\n", dx, dy);
+  dbg(1, ("svg_draw(): dx=%g  dy=%g\n", dx, dy));
 
   if(xctx->plotfile[0]) {
     fd=fopen(xctx->plotfile, "w");
     if(!fd) {
-      dbg(0, "can not open file: %s\n", xctx->plotfile);
+      info("can not open file: %s\n", xctx->plotfile);
       return;
     }
   } else {
     fd=fopen("plot.svg", "w");
     if(!fd) {
-      dbg(0, "can not open file: %s\n", "plot.svg");
+      info("can not open file: %s\n", "plot.svg");
       return;
     }
   }
@@ -1064,7 +1064,7 @@ void svg_draw(void)
   *           }
   *         }
   *       }
-  *       dbg(1, "used_layer[%d] = %d\n", c, used_layer[c]);
+  *       dbg(1, ("used_layer[%d] = %d\n", c, used_layer[c]));
   *     }
   *     /* End determine used layer */
   #endif
@@ -1230,7 +1230,7 @@ void svg_draw(void)
         xctx->text[i].xscale, xctx->text[i].yscale);
   }
 
-  dbg(1, "svg_draw(): INT_LINE_W(lw)=%d\n",INT_LINE_W(xctx->lw));
+  dbg(1, ("svg_draw(): INT_LINE_W(lw)=%d\n",INT_LINE_W(xctx->lw)));
   fprintf(fd, "</svg>\n");
   fclose(fd);
   tclsetboolvar("draw_grid", old_grid);

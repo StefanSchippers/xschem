@@ -203,7 +203,7 @@ static void mem_init_undo(void)
 {
   int slot;
 
-  dbg(1, "mem_init_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
+  dbg(1, ("mem_init_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
   if(!xctx->mem_undo_initialized) {
     for(slot = 0;slot<MAX_UNDO; slot++) {
       xctx->uslot[slot].lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
@@ -223,7 +223,7 @@ static void mem_init_undo(void)
 void mem_clear_undo(void)
 {
   int slot;
-  dbg(1, "mem_clear_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
+  dbg(1, ("mem_clear_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
@@ -244,7 +244,7 @@ void mem_clear_undo(void)
 void mem_delete_undo(void)
 {
   int slot;
-  dbg(1, "mem_delete_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized);
+  dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
   if(!xctx->mem_undo_initialized) return;
   mem_clear_undo();
   for(slot = 0;slot<MAX_UNDO; slot++) {

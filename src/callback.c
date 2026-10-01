@@ -155,7 +155,7 @@ void abort_operation(void)
 {
   xctx->no_draw = 0;
   tcleval("set constr_mv 0" );
-  dbg(1, "abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command);
+  dbg(1, ("abort_operation(): Escape: ui_state=%d, last_command=%d\n", xctx->ui_state, xctx->last_command));
   xctx->constr_mv=0;
 
   if(xctx->ui_state & STARTPOLYGON) new_polygon(END, xctx->mousex_snap, xctx->mousey_snap);
@@ -241,8 +241,8 @@ void start_line(double mx, double my)
 
 void start_wire(double mx, double my)
 {
-  dbg(1, "start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
-      xctx->ui_state, xctx->ui_state2, xctx->last_command);
+  dbg(1, ("start_wire(): ui_state=%d, ui_state2=%d last_command=%d\n",
+      xctx->ui_state, xctx->ui_state2, xctx->last_command));
   xctx->last_command = STARTWIRE;
   if(xctx->ui_state & STARTWIRE) {
     if(tclgetboolvar("orthogonal_wiring") && !tclgetboolvar("constr_mv")){
@@ -317,14 +317,14 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
     }
     start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
     end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
-    dbg(1, "start=%g, end=%g\n", start, end);
+    dbg(1, ("start=%g, end=%g\n", start, end));
     if(gr->logx) {
       start = pow(10, start);
       end = pow(10, end);
     }
-    dbg(1, "cursor b pos: %g dataset=%d\n",  cursor2, gr->dataset);
+    dbg(1, ("cursor b pos: %g dataset=%d\n",  cursor2, gr->dataset));
     if(dataset < 0) dataset = 0; /* if all datasets are plotted use first for backannotation */
-    dbg(1, "dataset=%d\n", dataset);
+    dbg(1, ("dataset=%d\n", dataset));
     ofs = 0;
     for(dset = 0 ; dset < raw->datasets; dset++) {
       double prev_x, prev_prev_x;
@@ -348,16 +348,16 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
         }
         if(xx >= start && xx <= end) {
           if(dataset == sweepvar_wrap) {
-            dbg(1, "xx=%g cursor2=%g first=%d last=%d start=%g end=%g p=%d wrap=%d sweepvar_wrap=%d ofs=%d\n",
-              xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs);
+            dbg(1, ("xx=%g cursor2=%g first=%d last=%d start=%g end=%g p=%d wrap=%d sweepvar_wrap=%d ofs=%d\n",
+              xx, cursor2, first, last, start, end, p, wrap, sweepvar_wrap, ofs));
             if(first == -1) first = p;
             if(p == first) {
               if(xx == cursor2) {goto found;}
               s = XSIGN0(xx - cursor2);
-              dbg(1, "s=%d\n", s);
+              dbg(1, ("s=%d\n", s));
             } else {
               int ss =  XSIGN0(xx -  cursor2);
-              dbg(1, "s=%d, ss=%d\n", s, ss);
+              dbg(1, ("s=%d, ss=%d\n", s, ss));
               if(ss != s) {goto found;}
             }
             last = p;
@@ -385,7 +385,7 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
           p = first;
         }
       }
-      dbg(1, "xx=%g, p=%d\n", xx, p);
+      dbg(1, ("xx=%g, p=%d\n", xx, p));
       Tcl_UnsetVar(interp, "ngspice::ngspice_data", TCL_GLOBAL_ONLY);
       raw->annot_p = p;
       raw->annot_x = cursor2;
@@ -440,7 +440,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   cairo_font_face_t *temp_font;
   #endif
 
-  dbg(1, "uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags);
+  dbg(1, ("uistate=%d, graph_flags=%d\n", xctx->ui_state, xctx->graph_flags));
   /* if(event != -3 && !xctx->raw) return 0; */
   #if HAS_CAIRO==1
   cairo_save(xctx->cairo_ctx);
@@ -892,7 +892,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(!xctx->graph_left) xctx->mx_double_save = xctx->mousex_snap;
     if(xctx->graph_left) xctx->my_double_save = xctx->mousey_snap;
   }
-  dbg(1, "graph_master=%d\n", xctx->graph_master);
+  dbg(1, ("graph_master=%d\n", xctx->graph_master));
 
   finish:
 
@@ -1004,7 +1004,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         delta_threshold = 0.01;
         /* selected or locked or master */
         if( r->sel || (same_sim_type && !(r->flags & 2)) || i == xctx->graph_master) {
-          dbg(1, "moving waves: %d\n", i);
+          dbg(1, ("moving waves: %d\n", i));
           if(fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->cx * delta) * delta_threshold) {
             xx1 = gr->gx1 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
             xx2 = gr->gx2 + (xctx->mx_double_save - xctx->mousex_snap) / gr->cx;
@@ -1403,7 +1403,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   /* update saved mouse position after processing all graphs */
   if(save_mouse_at_end) {
     if( fabs(xctx->mx_double_save - xctx->mousex_snap) > fabs(gr->master_cx * gr->master_gw) * delta_threshold) {
-      dbg(1, "save mouse pos\n");
+      dbg(1, ("save mouse pos\n"));
       xctx->mx_double_save = xctx->mousex_snap;
       xctx->my_double_save = xctx->mousey_snap;
     }
@@ -1630,7 +1630,7 @@ void draw_crosshair(int what, int state)
   int snap_cursor = tclgetintvar("snap_cursor");
   double mx, my;
   int changed = 0;
-  dbg(1, "draw_crosshair(): what=%d\n", what);
+  dbg(1, ("draw_crosshair(): what=%d\n", what));
   sdw = xctx->draw_window;
   sdp = xctx->draw_pixmap;
 
@@ -1648,7 +1648,7 @@ void draw_crosshair(int what, int state)
         /* mouse position changed, so find new closest net or pin */
         find_closest_net_or_symbol_pin(xctx->mousex_snap, xctx->mousey_snap, &mx, &my);
         changed = 1; /* we force a cursor redraw */
-        dbg(1, "find\n");
+        dbg(1, ("find\n"));
       }
     } else {
       /* draw_snap_cursor(what); */
@@ -1661,7 +1661,7 @@ void draw_crosshair(int what, int state)
   if(!changed && !(what & 4) && mx == xctx->prev_crossx && my == xctx->prev_crossy) {
     return;
   }
-  dbg(1, "draw %d\n", what);
+  dbg(1, ("draw %d\n", what));
   xctx->draw_pixmap = 0;
   xctx->draw_window = 1;
   if(what & 1) { /* delete previous */
@@ -1721,8 +1721,8 @@ static void snapped_wire(double c_snap)
 
 static int check_menu_start_commands(int state, double c_snap, int mx, int my)
 {
-  dbg(1, "check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n",
-      xctx->ui_state, xctx->ui_state2, xctx->last_command);
+  dbg(1, ("check_menu_start_commands(): ui_state=%x, ui_state2=%x last_command=%d\n",
+      xctx->ui_state, xctx->ui_state2, xctx->last_command));
 
   if((xctx->ui_state & MENUSTART) && (xctx->ui_state2 & MENUSTARTDESEL) ) {
     if(xctx->ui_state & DESEL_CLICK) {
@@ -1847,7 +1847,7 @@ static int add_wire_from_inst(Selected *sel, double mx, double my)
       }
     }
     if(i < npin) {
-      dbg(1, "pin: %g %g\n", pinx0, piny0);
+      dbg(1, ("pin: %g %g\n", pinx0, piny0));
       unselect_all(1);
       start_wire(xctx->mousex_snap, xctx->mousey_snap);
       if(prev_state == STARTWIRE) {
@@ -1871,7 +1871,7 @@ static int add_wire_from_wire(Selected *sel, double mx, double my)
     double y1 = xctx->wire[n].y1;
     double x2 = xctx->wire[n].x2;
     double y2 = xctx->wire[n].y2;
-    dbg(1, "add_wire_from_wire\n");
+    dbg(1, ("add_wire_from_wire\n"));
     if( (mx == x1 && my == y1) || (mx == x2 && my == y2) ) {
       unselect_all(1);
       start_wire(xctx->mousex_snap, xctx->mousey_snap);
@@ -1889,7 +1889,7 @@ static int add_wire_from_wire(Selected *sel, double mx, double my)
 static int edit_line_point(int state)
 {
    int line_n = -1, line_c = -1;
-   dbg(1, "1 Line selected\n");
+   dbg(1, ("1 Line selected\n"));
    line_n = xctx->sel_array[0].n;
    line_c = xctx->sel_array[0].col;
   /* lineangle point: Check is user is clicking a control point of a lineangle */
@@ -1921,7 +1921,7 @@ static int edit_line_point(int state)
 static int edit_wire_point(int state)
 {
    int wire_n = -1;
-   dbg(1, "edit_wire_point, ds = %g\n", xctx->cadhalfdotsize);
+   dbg(1, ("edit_wire_point, ds = %g\n", xctx->cadhalfdotsize));
    wire_n = xctx->sel_array[0].n;
   /* wire point: Check is user is clicking a control point of a wire */
   if(wire_n >= 0) {
@@ -1952,7 +1952,7 @@ static int edit_wire_point(int state)
 static int edit_rect_point(int state)
 {
    int rect_n = -1, rect_c = -1;
-   dbg(1, "1 Rectangle selected\n");
+   dbg(1, ("1 Rectangle selected\n"));
    rect_n = xctx->sel_array[0].n;
    rect_c = xctx->sel_array[0].col;
   /* rectangle point: Check is user is clicking a control point of a rectangle */
@@ -1993,7 +1993,7 @@ static int edit_rect_point(int state)
 static int edit_polygon_point(int state)
 {
    int poly_n = -1, poly_c = -1;
-   dbg(1, "1 Polygon selected\n");
+   dbg(1, ("1 Polygon selected\n"));
    poly_n = xctx->sel_array[0].n;
    poly_c = xctx->sel_array[0].col;
   /* polygon point: Check is user is clicking a control point of a polygon */
@@ -2010,7 +2010,7 @@ static int edit_polygon_point(int state)
           POINTINSIDE(xctx->mousex, xctx->mousey, p->x[i] - ds, p->y[i] - ds,
                         p->x[i] + ds, p->y[i] + ds)
         ) {
-          dbg(1, "selecting point %d\n", i);
+          dbg(1, ("selecting point %d\n", i));
           p->selected_point[i] = 1;
           xctx->shape_point_selected = 1;
           break;
@@ -2253,8 +2253,8 @@ static void end_shape_point_edit(double c_snap)
 {
      int save = xctx->modified;
      double sx, sy;
-     dbg(1, "%g %g %g %g\n",
-         xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap);
+     dbg(1, ("%g %g %g %g\n",
+         xctx->mx_double_save, xctx->my_double_save, xctx->mousex_snap, xctx->mousey_snap));
      if(xctx->lastsel == 1 && xctx->sel_array[0].type==POLYGON) {
         int k;
         int n = xctx->sel_array[0].n;
@@ -2357,17 +2357,17 @@ void unselect_attached_floaters(void)
 static void handle_enter_notify(int draw_xhair, int crosshair_size)
 {
     struct stat buf;
-    dbg(2, "callback(): Enter event, ui_state=%d\n", xctx->ui_state);
+    dbg(2, ("callback(): Enter event, ui_state=%d\n", xctx->ui_state));
     
     /* Issue a warning if underlying file has been touched */
-    dbg(1, "handle_enter_notify(): warn_disk_file_modified=%d\n", xctx->warn_disk_file_modified);
+    dbg(1, ("handle_enter_notify(): warn_disk_file_modified=%d\n", xctx->warn_disk_file_modified));
     if(xctx->warn_disk_file_modified == 1 && !stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify!= -1  && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("alert_ \"Schematic file: ", xctx->sch[xctx->currsch],
             "\nHas been changed since opening.\" {}", NULL);
         xctx->warn_disk_file_modified = 0;
       }
-      dbg(1, "handle_enter_notify(): %ld - %ld\n", xctx->time_last_modify, buf.st_mtime);
+      dbg(1, ("handle_enter_notify(): %ld - %ld\n", xctx->time_last_modify, buf.st_mtime));
     }
 
     xctx->mouse_inside = 1;
@@ -2382,19 +2382,19 @@ static void handle_enter_notify(int draw_xhair, int crosshair_size)
        in another xschem xctx->window; STARTCOPY set and selection file does not exist any more */
     if(stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY) )
     {
-      dbg(1, "xschem window *sending* selected objects: abort\n");
+      dbg(1, ("xschem window *sending* selected objects: abort\n"));
       copy_objects(ABORT);
       unselect_all(1);
     }
     /* xschem window *receiving* selected objects selection cleared --> abort */
     else if(xctx->paste_from == 1 && stat(sel_file, &buf) && (xctx->ui_state & STARTMERGE)) {
-      dbg(1, " xschem window *receiving* selected objects selection cleared: abort\n");
+      dbg(1, (" xschem window *receiving* selected objects selection cleared: abort\n"));
       abort_operation();
     }
     /*xschem window *receiving* selected objects
      * no selected objects and selection file exists --> start merge */
     else if(xctx->lastsel == 0 && !stat(sel_file, &buf)) {
-      dbg(1,"xschem window *receiving* selected objects: start merge\n");
+      dbg(1,("xschem window *receiving* selected objects: start merge\n"));
       xctx->mousex_snap = 490;
       xctx->mousey_snap = -340;
       merge_file(1, ".sch");
@@ -2568,7 +2568,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
             tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
           }
         }
-        dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
+        dbg(1, ("callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]));
       }
       break;
 
@@ -2596,7 +2596,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
             tclvareval("reconfigure_layers_button [winfo parent ", win_path, "]", NULL);
           }
         }
-        dbg(1, "callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]);
+        dbg(1, ("callback(): new color: %d\n",xctx->color_index[xctx->rectcolor]));
       }
       break;
 
@@ -2908,7 +2908,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
             tool = tclgetintvar("sim(spicewave,default)");
             my_snprintf(str, PATH_MAX + 100, "sim(spicewave,%d,name)", tool);
             my_strdup(_ALLOC_ID_, &tool_name, tclgetvar(str));
-            dbg(1,"callback(): tool_name=%s\n", tool_name);
+            dbg(1,("callback(): tool_name=%s\n", tool_name));
             if(strstr(tool_name, "Gaw")) tool=GAW;
             else if(strstr(tool_name, "Bespice")) tool=BESPICE;
             my_free(_ALLOC_ID_, &tool_name);
@@ -3201,7 +3201,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         if(xctx->semaphore >= 2) break;
         unselect_all(1);
         if( set_netlist_dir(0, NULL) ) {
-          dbg(1, "callback(): -------------\n");
+          dbg(1, ("callback(): -------------\n"));
           if(xctx->netlist_type == CAD_SPICE_NETLIST)
             err = global_spice_netlist(0, 1);
           else if(xctx->netlist_type == CAD_VHDL_NETLIST)
@@ -3215,11 +3215,11 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           else
             tcleval("tk_messageBox -type ok -parent [xschem get topwindow] "
                     "-message {Please Set netlisting mode (Options menu)}");
-          dbg(1, "callback(): -------------\n");
+          dbg(1, ("callback(): -------------\n"));
         }
         else {
            if(has_x) tcleval("alert_ {Can not write into the netlist directory. Please check} {}");
-           else dbg(0, "Can not write into the netlist directory. Please check");
+           else info("Can not write into the netlist directory. Please check");
            err = 1;
         }
         if(err) {
@@ -3299,7 +3299,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if( !(xctx->ui_state & STARTPOLYGON) && rstate==0) { /* start polygon */
         if(xctx->semaphore >= 2) break;
-        dbg(1, "callback(): start polygon\n");
+        dbg(1, ("callback(): start polygon\n"));
         if(infix_interface) {
           xctx->mx_double_save=xctx->mousex_snap;
           xctx->my_double_save=xctx->mousey_snap;
@@ -3364,7 +3364,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case 'r':
       if(/* !xctx->ui_state && */ rstate==0) { /* start rect */
-        dbg(1, "callback(): start rect\n");
+        dbg(1, ("callback(): start rect\n"));
         if(xctx->semaphore >= 2) break;
         if(infix_interface) {
           xctx->mx_double_save=xctx->mousex_snap;
@@ -3718,7 +3718,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case 'z':
       /* zoom box */
       if(rstate == 0 && !(xctx->ui_state & (STARTRECT | STARTLINE | STARTWIRE | STARTPOLYGON | STARTARC))) {
-        dbg(1, "callback(): zoom_rectangle call\n");
+        dbg(1, ("callback(): zoom_rectangle call\n"));
         zoom_rectangle(START);
       }
       else if(rstate==ControlMask) { /* zoom out */
@@ -4059,7 +4059,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case '\\':
       if(state==0) { /* fullscreen */
-        dbg(1, "callback(): toggle fullscreen, win_path=%s\n", win_path);
+        dbg(1, ("callback(): toggle fullscreen, win_path=%s\n", win_path));
         toggle_fullscreen(win_path);
       }
       break;
@@ -4148,8 +4148,8 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
 
    state &= ~(Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask ); /* ignore ButtonStates */
    if(!tabbed_interface && strcmp(win_path, xctx->current_win_path)) return;
-   dbg(1, "callback(): ButtonPress  ui_state=%d state=%d semaphore=%d\n",xctx->ui_state,state, xctx->semaphore);
-   dbg(1, "callback(): win_path=%s\n", win_path);
+   dbg(1, ("callback(): ButtonPress  ui_state=%d state=%d semaphore=%d\n",xctx->ui_state,state, xctx->semaphore));
+   dbg(1, ("callback(): win_path=%s\n", win_path));
    if(waves_selected(event, key, state, button)) {
      waves_callback(event, mx, my, key, button, aux, state);
      return;
@@ -4305,7 +4305,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
        }
-       dbg(1, "sel.type=%d\n", sel.type);
+       dbg(1, ("sel.type=%d\n", sel.type));
        /* determine if closest object was already selected when button1 was pressed */
        switch(sel.type) {
          case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;
@@ -4335,7 +4335,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        /* select the object under the mouse and rebuild the selected array */
        if(!already_selected) select_object(xctx->mousex, xctx->mousey, SELECTED, 0, &sel);
        rebuild_selected_array();
-       dbg(1, "Button1Press to select objects, lastsel = %d\n", xctx->lastsel);
+       dbg(1, ("Button1Press to select objects, lastsel = %d\n", xctx->lastsel));
 
        /* if clicking on some object endpoints or vertices set shape_point_selected
         * this information will be used in Motion events to draw the stretched vertices */
@@ -4357,7 +4357,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
           if(edit_wire_point(state)) return; /* sets xctx->shape_point_selected */
          }
        }
-       dbg(1, "shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel);
+       dbg(1, ("shape_point_selected=%d, lastsel=%d\n", xctx->shape_point_selected, xctx->lastsel));
 
        /* intuitive interface: directly drag elements */
        if(sel.type && xctx->intuitive_interface && xctx->lastsel >= 1 &&
@@ -4412,7 +4412,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      return;
    }
    xctx->ui_state &= ~DESEL_CLICK;
-   dbg(1, "release: shape_point_selected=%d\n", xctx->shape_point_selected);
+   dbg(1, ("release: shape_point_selected=%d\n", xctx->shape_point_selected));
    /* bring up context menu if no pending operation */
    if(state == Button3Mask && xctx->semaphore <2) {
      if(!end_place_move_copy_zoom()) {
@@ -4506,7 +4506,7 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
      redraw_w_a_l_r_p_z_rubbers(1);
      return;
    }
-   dbg(1, "callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state);
+   dbg(1, ("callback(): ButtonRelease  ui_state=%d state=%d\n",xctx->ui_state,state));
    if(xctx->semaphore >= 2) return;
    if(xctx->ui_state & STARTSELECT) {
      if(state & ControlMask) {
@@ -4542,7 +4542,7 @@ static void handle_double_click(int event, int state, KeySym key, int button,
       return;
     } else {
      if(xctx->semaphore >= 2) return;
-     dbg(1, "callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state);
+     dbg(1, ("callback(): DoubleClick  ui_state=%d state=%d\n",xctx->ui_state,state));
      if(button==Button1) {
        Selected sel;
        if(!xctx->lastsel && xctx->ui_state ==  0) {
@@ -4668,35 +4668,35 @@ static int handle_window_switching(int event, int tabbed_interface, const char *
       struct stat buf;
 
       if(xctx->pending_fullzoom == 1) return 0; /* no switching if opening a new window */
-      dbg(1, "handle_window_switching(): event=%d, ui_state=%d win_path=%s\n",
-          event, xctx->ui_state, win_path);
+      dbg(1, ("handle_window_switching(): event=%d, ui_state=%d win_path=%s\n",
+          event, xctx->ui_state, win_path));
       /* This will switch context only when copying stuff across windows
        * this is the window *receiving* copied objects */
       tcleval("destroy .ctxmenu");
       if( event == EnterNotify && !stat(sel_file, &buf) && (xctx->ui_state & STARTCOPY)) {
-        dbg(1, "callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
-                xctx->current_win_path, win_path, xctx->semaphore);
+        dbg(1, ("callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
+                xctx->current_win_path, win_path, xctx->semaphore));
         new_schematic("switch", win_path, "", 1);
       /* switch context to window *sending* copied objects, when returning back in */
       } else if( event == EnterNotify && /* stat(sel_file, &buf) && */ (save_xctx[n]->ui_state & STARTCOPY)) {
-        dbg(1, "callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
-                xctx->current_win_path, win_path, xctx->semaphore);
+        dbg(1, ("callback(): switching window context for copy : %s --> %s, semaphore=%d\n",
+                xctx->current_win_path, win_path, xctx->semaphore));
         redraw_only = 1;
         my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
         new_schematic("switch_no_tcl_ctx", win_path, "", 1);
       /* This does a "temporary" switch just to redraw obscured window parts */
       } else if(event == Expose || xctx->semaphore >= 1 ) {
-        dbg(1, "callback(): switching window context for redraw ONLY: %s --> %s\n",
-                xctx->current_win_path, win_path);
+        dbg(1, ("callback(): switching window context for redraw ONLY: %s --> %s\n",
+                xctx->current_win_path, win_path));
         redraw_only = 1;
         my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
         new_schematic("switch_no_tcl_ctx", win_path, "", 1);
       /* this is the regular context switch when window gets focused */
       } else if(event == FocusIn && xctx->semaphore == 0) {
-        dbg(1, "callback(): switching window context: %s --> %s, semaphore=%d\n",
-                xctx->current_win_path, win_path, xctx->semaphore);
+        dbg(1, ("callback(): switching window context: %s --> %s, semaphore=%d\n",
+                xctx->current_win_path, win_path, xctx->semaphore));
         new_schematic("switch", win_path, "", 1);
-        dbg(1, "switching to %s\n", win_path);
+        dbg(1, ("switching to %s\n", win_path));
       }
 
     }
@@ -4730,7 +4730,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
 
 
   if(xctx->semaphore >= 3) {
-    dbg(1, "reentrant callback() call disabled, semaphore = %d\n", xctx->semaphore);
+    dbg(1, ("reentrant callback() call disabled, semaphore = %d\n", xctx->semaphore));
     return 0;
   }
   /* this fix uses an alternative method for getting mouse coordinates on KeyPress/KeyRelease
@@ -4742,7 +4742,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
       mx = atoi(tclresult());
       tclvareval("getmousey ", win_path, NULL);
       my = atoi(tclresult());
-      dbg(1, "mx = %d  my=%d\n", mx, my);
+      dbg(1, ("mx = %d  my=%d\n", mx, my));
     }
   }
 
@@ -4751,7 +4751,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   #if 0
   /* exclude Motion and Expose events */
   if(event!=6 /* && event!=12 */) {
-    dbg(0, "callback(): state=%d event=%d, win_path=%s, current_win_path=%s, old_win_path=%s, semaphore=%d\n",
+    info("callback(): state=%d event=%d, win_path=%s, current_win_path=%s, old_win_path=%s, semaphore=%d\n",
             state, event, win_path, xctx->current_win_path, old_win_path, xctx->semaphore+1);
   }
   #endif
@@ -4763,7 +4763,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
    * so we don't need  to switch tcl context which is costly performance-wise
    */
   if(redraw_only) {
-    dbg(1, "callback(): incrementing semaphore for redraw_only\n");
+    dbg(1, ("callback(): incrementing semaphore for redraw_only\n"));
     xctx->semaphore++;
   }
 
@@ -4803,7 +4803,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
     statusmsg(str,1);
   }
 
-  dbg(2, "key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK);
+  dbg(2, ("key=%d EQUAL_MODMASK=%d, SET_MODMASK=%d\n", key, SET_MODMASK, EQUAL_MODMASK));
 
   #if defined(__unix__) && HAS_CAIRO==1
   if(xctx->ui_state & GRABSCREEN) {
@@ -4829,7 +4829,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
 
    case ConfigureNotify:
-     dbg(1,"callback(): ConfigureNotify event: %s %dx%d\n", win_path, button, aux);
+     dbg(1,("callback(): ConfigureNotify event: %s %dx%d\n", win_path, button, aux));
      resetwin(1, 1, 0, 0, 0);
      draw();
      break;
@@ -4871,14 +4871,14 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
      break;
 
    default:
-    dbg(1, "callback(): Event:%d\n",event);
+    dbg(1, ("callback(): Event:%d\n",event));
     break;
   } /* switch(event) */
 
   if(xctx->semaphore > 0) xctx->semaphore--;
   if(redraw_only) {
     xctx->semaphore--; /* decrement articially incremented semaphore (see above) */
-    dbg(1, "callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path);
+    dbg(1, ("callback(): semaphore >=2 restoring window context: %s <-- %s\n", old_win_path, win_path));
     if(old_win_path[0]) new_schematic("switch_no_tcl_ctx", old_win_path, "", 1);
     my_strdup2(_ALLOC_ID_, &old_win_path, xctx->current_win_path);
   }

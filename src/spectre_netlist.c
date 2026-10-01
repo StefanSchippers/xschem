@@ -65,7 +65,7 @@ static int spectre_netlist(FILE *fd, int spectre_stop )
   if(lvs_netlist) my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
   else my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
   if(!spectre_stop) {
-    dbg(1, "spectre_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
+    dbg(1, ("spectre_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name));
     xctx->prep_net_structs = 0;
     err |= prepare_netlist_structs(1);
     err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
@@ -174,7 +174,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  else  my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
- dbg(1, "global_spectre_netlist(): invoking push_undo()\n");
+ dbg(1, ("global_spectre_netlist(): invoking push_undo()\n"));
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
@@ -191,10 +191,10 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
- dbg(1, "global_spectre_netlist(): opening %s for writing\n",netl_filename);
+ dbg(1, ("global_spectre_netlist(): opening %s for writing\n",netl_filename));
  fd=fopen(netl_filename, "w");
  if(fd==NULL) {
-   dbg(0, "global_spectre_netlist(): problems opening netlist file\n");
+   info("global_spectre_netlist(): problems opening netlist file\n");
    return 1;
  }
  fprintf(fd, "// sch_path: %s\n", xctx->sch[xctx->currsch]);
@@ -242,7 +242,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  /* print top subckt ipin/opins */
  my_strdup2(_ALLOC_ID_, &top_symbol_name, abs_sym_path(add_ext(xctx->current_name, ".sym"), ""));
  if(!stat(top_symbol_name, &buf)) { /* if top level has a symbol use the symbol for pin ordering */
-   dbg(1, "found top level symbol %s\n", top_symbol_name);
+   dbg(1, ("found top level symbol %s\n", top_symbol_name));
    load_sym_def(top_symbol_name, NULL);
    found_top_symbol = 1;
    if(xctx->sym[xctx->symbols - 1].type != NULL &&
@@ -337,7 +337,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   dbg(1, "global_spectre_netlist(): invoking pop_undo(2, 0)\n");
+   dbg(1, ("global_spectre_netlist(): invoking pop_undo(2, 0)\n"));
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
@@ -345,7 +345,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    subckt_name=NULL;
-   dbg(2, "global_spectre_netlist(): last defined symbol=%d\n",xctx->symbols);
+   dbg(2, ("global_spectre_netlist(): last defined symbol=%d\n",xctx->symbols));
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
@@ -373,7 +373,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
       }
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      dbg(1, "global_spectre_netlist(): subckt_name=%s\n", subckt_name);
+      dbg(1, ("global_spectre_netlist(): subckt_name=%s\n", subckt_name));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
@@ -405,7 +405,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
-   dbg(1, "global_spectre_netlist(): invoking pop_undo(0, 0)\n");
+   dbg(1, ("global_spectre_netlist(): invoking pop_undo(0, 0)\n"));
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
@@ -418,7 +418,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
    }
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
-   dbg(1, "spectre_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
+   dbg(1, ("spectre_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name));
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
@@ -478,7 +478,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
  /* 20150922 added split_files check */
  /* if( !top_sub && !split_f) fprintf(fd, ".end\n"); */
 
- dbg(1, "global_spectre_netlist(): starting awk on netlist!\n");
+ dbg(1, ("global_spectre_netlist(): starting awk on netlist!\n"));
 
 
  if(!split_f) {
@@ -534,14 +534,14 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
   }
   my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
 
-  dbg(1, "spectre_block_netlist(): filename=%s\n", filename);
+  dbg(1, ("spectre_block_netlist(): filename=%s\n", filename));
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
          tclgetvar("netlist_dir"), get_cell(name, 0), getpid());
-    dbg(1, "spectre_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
+    dbg(1, ("spectre_block_netlist(): split_files: netl_filename=%s\n", netl_filename));
     fd=fopen(netl_filename, "w");
     if(!fd) {
-      dbg(0, "spectre_block_netlist(): unable to write file %s\n", netl_filename);
+      info("spectre_block_netlist(): unable to write file %s\n", netl_filename);
       err = 1;
       goto err;
     }

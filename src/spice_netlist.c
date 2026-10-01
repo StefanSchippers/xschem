@@ -34,7 +34,7 @@ static const char *hier_psprint_mtime(const char *file_name)
     tm=localtime(&(time_buf.st_mtime) );
     strftime(date, sizeof(date), "%Y%m%d_%H%M%S", tm);
   }
-  dbg(1, "hier_psprint_mtime(): file_name=%s, date=%s\n", file_name, date);
+  dbg(1, ("hier_psprint_mtime(): file_name=%s, date=%s\n", file_name, date));
   return date;
 }
 
@@ -66,7 +66,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
     my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
     my_strcat(_ALLOC_ID_, res, "}\n");
   }
-  dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
+  dbg(1,("--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) ));
   unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
@@ -103,7 +103,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         if(is_generator(filename) || !stat(filename, &buf)) {
           if(str_hash_lookup(&subckt_table, get_cell_w_ext(filename, 0), "", XINSERT_NOREPLACE)==NULL) {
             /* for printing we go down to bottom regardless of spice_stop attribute */
-            dbg(1, "hier_psprint(): loading file: |%s|\n", filename);
+            dbg(1, ("hier_psprint(): loading file: |%s|\n", filename));
             load_schematic(1,filename, 0, 1);
             get_additional_symbols(1);
             /* do a zoom with draw, this is needed to load embedded images into r->extraptr
@@ -116,7 +116,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
               my_strcat(_ALLOC_ID_, res, xctx->sch[xctx->currsch]);
               my_strcat(_ALLOC_ID_, res, "}\n");
             }
-            dbg(1,"--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) );
+            dbg(1,("--> %s\n", get_cell(xctx->sch[xctx->currsch], 0) ));
           }
         }
       }
@@ -179,7 +179,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
   if(lvs_netlist) my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
   else my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
   if(!spice_stop) {
-    dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
+    dbg(1, ("spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name));
     xctx->prep_net_structs = 0;
     err |= prepare_netlist_structs(1);
     err |= traverse_node_hash();  /* print all warnings about unconnected floatings etc */
@@ -289,7 +289,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  else  my_strdup(_ALLOC_ID_, &xctx->format, xctx->custom_format);
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
- dbg(1, "global_spice_netlist(): invoking push_undo()\n");
+ dbg(1, ("global_spice_netlist(): invoking push_undo()\n"));
  xctx->push_undo();
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
@@ -306,10 +306,10 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  xctx->netlist_count=0;
  my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
    tclgetvar("netlist_dir"), get_cell(xctx->sch[xctx->currsch], 0), getpid());
- dbg(1, "global_spice_netlist(): opening %s for writing\n",netl_filename);
+ dbg(1, ("global_spice_netlist(): opening %s for writing\n",netl_filename));
  fd=fopen(netl_filename, "w");
  if(fd==NULL) {
-   dbg(0, "global_spice_netlist(): problems opening netlist file\n");
+   info("global_spice_netlist(): problems opening netlist file\n");
    return 1;
  }
  fprintf(fd, "** sch_path: %s\n", xctx->sch[xctx->currsch]);
@@ -357,7 +357,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  /* print top subckt ipin/opins */
  my_strdup2(_ALLOC_ID_, &top_symbol_name, abs_sym_path(add_ext(xctx->current_name, ".sym"), ""));
  if(!stat(top_symbol_name, &buf)) { /* if top level has a symbol use the symbol for pin ordering */
-   dbg(1, "found top level symbol %s\n", top_symbol_name);
+   dbg(1, ("found top level symbol %s\n", top_symbol_name));
    load_sym_def(top_symbol_name, NULL);
    found_top_symbol = 1;
    if(xctx->sym[xctx->symbols - 1].type != NULL &&
@@ -452,7 +452,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   dbg(1, "global_spice_netlist(): invoking pop_undo(2, 0)\n");
+   dbg(1, ("global_spice_netlist(): invoking pop_undo(2, 0)\n"));
    xctx->pop_undo(2, 0);
    /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
@@ -460,7 +460,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    subckt_name=NULL;
-   dbg(2, "global_spice_netlist(): last defined symbol=%d\n",xctx->symbols);
+   dbg(2, ("global_spice_netlist(): last defined symbol=%d\n",xctx->symbols));
    get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
@@ -490,7 +490,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
       }
       /* xctx->sym can be SCH or SYM, use hash to avoid writing duplicate subckt */
       my_strdup(_ALLOC_ID_, &subckt_name, get_cell(xctx->sym[i].name, 0));
-      dbg(1, "global_spice_netlist(): subckt_name=%s\n", subckt_name);
+      dbg(1, ("global_spice_netlist(): subckt_name=%s\n", subckt_name));
       if (str_hash_lookup(&subckt_table, subckt_name, "", XLOOKUP)==NULL)
       {
         /* do not insert symbols with default_schematic attribute set to ignore in hash since these symbols
@@ -522,7 +522,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
-   dbg(1, "global_spice_netlist(): invoking pop_undo(0, 0)\n");
+   dbg(1, ("global_spice_netlist(): invoking pop_undo(0, 0)\n"));
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
@@ -535,7 +535,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
      my_strncpy(xctx->current_dirname, tclresult(),  S(xctx->current_dirname));
    }
    my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
-   dbg(1, "spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name);
+   dbg(1, ("spice_netlist(): invoke prepare_netlist_structs for %s\n", xctx->current_name));
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
@@ -595,7 +595,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  /* 20150922 added split_files check */
  if( !top_sub && !split_f) fprintf(fd, ".end\n");
 
- dbg(1, "global_spice_netlist(): starting awk on netlist!\n");
+ dbg(1, ("global_spice_netlist(): starting awk on netlist!\n"));
 
 
  if(!split_f) {
@@ -651,14 +651,14 @@ int spice_block_netlist(FILE *fd, int i, int alert)
   }
   my_strdup(_ALLOC_ID_, &name, tcl_hook2(xctx->sym[i].name));
 
-  dbg(1, "spice_block_netlist(): filename=%s\n", filename);
+  dbg(1, ("spice_block_netlist(): filename=%s\n", filename));
   if(split_f) {
     my_snprintf(netl_filename, S(netl_filename), "%s/.%s_%d",
          tclgetvar("netlist_dir"), get_cell(name, 0), getpid());
-    dbg(1, "spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename);
+    dbg(1, ("spice_block_netlist(): split_files: netl_filename=%s\n", netl_filename));
     fd=fopen(netl_filename, "w");
     if(!fd) {
-      dbg(0, "spice_block_netlist(): unable to write file %s\n", netl_filename);
+      info("spice_block_netlist(): unable to write file %s\n", netl_filename);
       err = 1;
       goto err;
     }
@@ -796,7 +796,7 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
 void str_hash_init(Str_hashtable *hashtable, int size)
 {
   if(hashtable->size !=0 || hashtable->table != NULL) {
-    dbg(0, "str_hash_init(): Warning hash table not empty, possible data leak\n");
+    info("str_hash_init(): Warning hash table not empty, possible data leak\n");
   }
   hashtable->size = size;
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Str_hashentry *));
@@ -915,7 +915,7 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
 void int_hash_init(Int_hashtable *hashtable, int size)
 {
   if(hashtable->size !=0 || hashtable->table != NULL) {
-    dbg(0, "int_hash_init(): Warning hash table not empty, possible data leak\n");
+    info("int_hash_init(): Warning hash table not empty, possible data leak\n");
   }
   hashtable->size = size;
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Int_hashentry *));
@@ -1034,7 +1034,7 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
 void ptr_hash_init(Ptr_hashtable *hashtable, int size)
 {
   if(hashtable->size !=0 || hashtable->table != NULL) {
-    dbg(0, "ptr_hash_init(): Warning hash table not empty, possible data leak\n");
+    info("ptr_hash_init(): Warning hash table not empty, possible data leak\n");
   }
   hashtable->size = size;
   hashtable->table = my_calloc(_ALLOC_ID_, size, sizeof(Ptr_hashentry *));

@@ -1326,7 +1326,22 @@ extern void create_plot_cmd(void);
 extern int set_modify(int mod); /* return number of floaters */
 extern int there_are_floaters(void);
 extern char *my_expand(const char *s, int tabstop) ;
-extern void dbg(int level, char *fmt, ...);
+
+
+#ifdef __OPTIMIZE__
+    #define dbg(level, args)
+#else
+
+    #define dbg(level, args) \
+        do { \
+            if (debug_var >= (level)) { \
+                dbg_internal args; \
+            } \
+        } while (0)
+#endif
+
+extern void dbg_internal(char *fmt, ...);
+extern void info(char *fmt, ...);
 extern unsigned int hash_file(const char *f, int skip_path_lines);
 extern void here(double i);
 extern void print_version(void);

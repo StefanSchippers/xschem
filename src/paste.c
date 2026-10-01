@@ -352,7 +352,7 @@ void merge_file(int selection_load, const char ext[])
        my_strncpy(filename, ext, S(filename));
        name = filename;
      }
-     dbg(1, "merge_file(): sch=%d name=%s\n",xctx->currsch,name);
+     dbg(1, ("merge_file(): sch=%d name=%s\n",xctx->currsch,name));
     }
     else if(selection_load==1)
     {
@@ -462,8 +462,8 @@ void merge_file(int selection_load, const char ext[])
      else fclose(fd);
 
      xctx->ui_state |= STARTMERGE;
-     dbg(1, "End merge_file(): loaded file %s: wire=%d inst=%d ui_state=%ld\n",
-             name, xctx->wires , xctx->instances, xctx->ui_state);
+     dbg(1, ("End merge_file(): loaded file %s: wire=%d inst=%d ui_state=%ld\n",
+             name, xctx->wires , xctx->instances, xctx->ui_state));
      move_objects(START,0,0,0);
      if(xctx->lastsel) {
        xctx->mousex_snap = xctx->mx_double_save;
@@ -471,7 +471,7 @@ void merge_file(int selection_load, const char ext[])
        if(rubber) move_objects(RUBBER,0,0,0);
      }
     } else {
-      dbg(0, "merge_file(): can not open %s\n", name);
+      info("merge_file(): can not open %s\n", name);
       xctx->paste_from = 0;
     }
     set_modify(1);

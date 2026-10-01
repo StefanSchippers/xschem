@@ -25,7 +25,7 @@
 void init_inst_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2)
 {
       ctx->instflag = NULL;
-      dbg(3, "init_inst_iterator(): instances=%d\n", xctx->instances);
+      dbg(3, ("init_inst_iterator(): instances=%d\n", xctx->instances));
 
       if(xctx->instances) {
         my_realloc(_ALLOC_ID_, &ctx->instflag, xctx->instances*sizeof(unsigned short));
@@ -81,7 +81,7 @@ Instentry *inst_iterator_next(Iterator_ctx *ctx)
 void init_wire_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2)
 {
       ctx->wireflag = NULL;
-      dbg(3, "init_wire_iterator(): wires=%d\n", xctx->wires);
+      dbg(3, ("init_wire_iterator(): wires=%d\n", xctx->wires));
       if(xctx->wires) {
         my_realloc(_ALLOC_ID_, &ctx->wireflag, xctx->wires*sizeof(unsigned short));
         memset(ctx->wireflag, 0, xctx->wires*sizeof(unsigned short));
@@ -137,7 +137,7 @@ Wireentry *wire_iterator_next(Iterator_ctx *ctx)
 void init_object_iterator(Iterator_ctx *ctx, double x1, double y1, double x2, double y2)
 {
       ctx->objectflag = NULL;
-      dbg(3, "init_object_iterator(): objects=%d\n", xctx->n_hash_objects);
+      dbg(3, ("init_object_iterator(): objects=%d\n", xctx->n_hash_objects));
       if(xctx->n_hash_objects) {
         my_realloc(_ALLOC_ID_, &ctx->objectflag, xctx->n_hash_objects * sizeof(unsigned short));
         memset(ctx->objectflag, 0, xctx->n_hash_objects * sizeof(unsigned short));

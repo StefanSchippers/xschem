@@ -40,7 +40,7 @@ void compile_font(void)
   rebuild_selected_array();
   character[code] = my_calloc(_ALLOC_ID_, xctx->lastsel*4+1, sizeof(double));
   character[code][0] = (double)xctx->lastsel;
-  dbg(2, "compile_font(): character[%d][]={%.16g",code,character[code][0]);
+  dbg(2, ("compile_font(): character[%d][]={%.16g",code,character[code][0]));
   for(i=0;i<xctx->lastsel; ++i)
   {
    character[code][i*4+1] =
@@ -51,11 +51,11 @@ void compile_font(void)
       xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].x2-code*FONTOFFSET;
    character[code][i*4+4] =
       xctx->line[xctx->sel_array[i].col][xctx->sel_array[i].n].y2+FONTHEIGHT;
-   dbg(2, ",\n%.16g,%.16g,%.16g,%.16g",
+   dbg(2, (",\n%.16g,%.16g,%.16g,%.16g",
     character[code][i*4+1],character[code][i*4+2],
-    character[code][i*4+3],character[code][i*4+4]);
+    character[code][i*4+3],character[code][i*4+4]));
   }
-  dbg(2, "};\n");
+  dbg(2, ("};\n"));
  }
  clear_drawing();
  unselect_all(1);

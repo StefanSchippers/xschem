@@ -32,19 +32,19 @@ static int check_opt(char *opt, char *optval, int type)
         else debug_var = 0;
 
     } else if( (type == SHORT && *opt == 'S') || (type == LONG && !strcmp("simulate", opt)) ) {
-        dbg(1, "process_options(): will do simulation\n");
+        dbg(1, ("process_options(): will do simulation\n"));
         cli_opt_do_simulation = 1;
 
     } else if( (type == SHORT && *opt == 'W') || (type == LONG && !strcmp("waves", opt)) ) {
-        dbg(1, "process_options(): will show waves\n");
+        dbg(1, ("process_options(): will show waves\n"));
         cli_opt_do_waves = 1;
 
     } else if( (type == SHORT && *opt == 'n') || (type == LONG && !strcmp("netlist", opt)) ) {
-        dbg(1, "process_options(): will do netlist\n");
+        dbg(1, ("process_options(): will do netlist\n"));
         cli_opt_do_netlist = 1;
 
     } else if( (type == SHORT && *opt == 'f') || (type == LONG && !strcmp("flat_netlist", opt)) ) {
-        dbg(1, "process_options(): set flat netlist\n");
+        dbg(1, ("process_options(): set flat netlist\n"));
         cli_opt_flat_netlist = 1;
 
     } else if( (type == SHORT && *opt == 'r') || (type == LONG && !strcmp("no_readline", opt)) ) {
@@ -54,64 +54,64 @@ static int check_opt(char *opt, char *optval, int type)
         cli_opt_no_readline = 1;
 
     } else if( (type == SHORT && *opt == 'p') || (type == LONG && !strcmp("postscript", opt)) ) {
-        dbg(1, "process_options(): will print postscript/pdf\n");
+        dbg(1, ("process_options(): will print postscript/pdf\n"));
         cli_opt_do_print = 1;
 
     } else if( (type == LONG && !strcmp("pdf", opt)) ) {
-        dbg(1, "process_options(): will print postscript/pdf\n");
+        dbg(1, ("process_options(): will print postscript/pdf\n"));
         cli_opt_do_print = 1;
 
     } else if( (type == LONG && !strcmp("plotfile", opt)) ) {
-        dbg(1, "process_options(): user plotfile specified: %s\n", optval ? optval : "<NULL>");
+        dbg(1, ("process_options(): user plotfile specified: %s\n", optval ? optval : "<NULL>"));
         if(optval) my_strncpy(cli_opt_plotfile, optval, S(cli_opt_plotfile));
 
     } else if( (type == LONG && !strcmp("rcfile", opt)) ) {
-        dbg(1, "process_options(): user rcfile specified: %s\n", optval ? optval : "<NULL>");
+        dbg(1, ("process_options(): user rcfile specified: %s\n", optval ? optval : "<NULL>"));
         if(optval) my_strncpy(cli_opt_rcfile, optval, S(cli_opt_rcfile));
 
     } else if( (type == LONG && !strcmp("lastclosed", opt)) ) {
-        dbg(1, "process_options(): lastclosed specified\n");
+        dbg(1, ("process_options(): lastclosed specified\n"));
         cli_opt_lastclosed = 1;
 
     } else if( (type == LONG && !strcmp("lastopened", opt)) ) {
-        dbg(1, "process_options(): lastopened specified\n");
+        dbg(1, ("process_options(): lastopened specified\n"));
         cli_opt_lastopened = 1;
 
     } else if( (type == LONG && !strcmp("png", opt)) ) {
-        dbg(1, "process_options(): will print png\n");
+        dbg(1, ("process_options(): will print png\n"));
         cli_opt_do_print = 2;
 
     } else if( (type == LONG && !strcmp("preinit", opt)) ) {
-        dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
+        dbg(1, ("process_options(): passing tcl command to interpreter: %s\n", optval));
         if(optval) my_strdup(_ALLOC_ID_, &cli_opt_preinit_command, optval);
 
     } else if( (type == LONG && !strcmp("tcl", opt)) ) {
-        dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
+        dbg(1, ("process_options(): passing tcl command to interpreter: %s\n", optval));
         if(optval) my_strdup(_ALLOC_ID_, &cli_opt_tcl_command, optval);
 
     } else if( (type == LONG && !strcmp("script", opt)) ) {
-        dbg(1, "process_options(): passing tcl script file  to interpreter: %s\n", optval);
+        dbg(1, ("process_options(): passing tcl script file  to interpreter: %s\n", optval));
         if(optval) my_strncpy(cli_opt_tcl_script, optval, S(cli_opt_tcl_script));
 
     } else if( (type == LONG && !strcmp("command", opt)) ) {
-        dbg(1, "process_options(): passing tcl command to interpreter: %s\n", optval);
+        dbg(1, ("process_options(): passing tcl command to interpreter: %s\n", optval));
         if(optval)  my_strdup(_ALLOC_ID_, &cli_opt_tcl_post_command, optval);
 
     } else if( (type == LONG && !strcmp("diff", opt)) ) {
-        dbg(1, "process_options(): diff with: %s\n", optval);
+        dbg(1, ("process_options(): diff with: %s\n", optval));
         if(optval) my_strncpy(cli_opt_diff, optval, S(cli_opt_diff));
 
     } else if( (type == LONG && !strcmp("tcp_port", opt)) ) {
-        dbg(1, "process_options(): setting tcp port: %s\n", optval);
+        dbg(1, ("process_options(): setting tcp port: %s\n", optval));
         if(optval) tcp_port = atoi(optval);
         else tcp_port = 0;
 
     } else if( (type == LONG && !strcmp("svg", opt)) ) {
-        dbg(1, "process_options(): will print png\n");
+        dbg(1, ("process_options(): will print png\n"));
         cli_opt_do_print = 3;
 
     } else if( (type == SHORT && *opt == 'c') || (type == LONG && !strcmp("color_ps", opt)) ) {
-        dbg(1, "process_options(): set color postscript\n");
+        dbg(1, ("process_options(): set color postscript\n"));
         color_ps = 1;
 
     } else if( (type == SHORT && *opt == 'i') || (type == LONG && !strcmp("no_rcload", opt)) ) {
@@ -122,7 +122,7 @@ static int check_opt(char *opt, char *optval, int type)
           errfp = fopen(optval, "w");
           if(!errfp) {
             errfp = stderr;
-            dbg(0, "Problems opening log file: %s\n", optval);
+            info("Problems opening log file: %s\n", optval);
           } else {
             setvbuf(errfp, NULL, _IOLBF, 0); /* line (_IOLBF) or disable (_IONBF) buffering on error log */
           }
@@ -131,27 +131,27 @@ static int check_opt(char *opt, char *optval, int type)
         if(optval) my_strncpy(cli_opt_netlist_dir, optval, S(cli_opt_netlist_dir));
 
     } else if( (type == SHORT && *opt == 'N') || (type == LONG && !strcmp("netlist_filename", opt)) ) {
-        dbg(1, "process_options(): set netlist name to %s\n", optval);
+        dbg(1, ("process_options(): set netlist name to %s\n", optval));
         if(optval) my_strncpy(cli_opt_initial_netlist_name, optval, S(cli_opt_initial_netlist_name));
 
     } else if( (type == SHORT && *opt == 's') || (type == LONG && !strcmp("spice", opt)) ) {
-        dbg(1, "process_options(): set netlist type to spice\n");
+        dbg(1, ("process_options(): set netlist type to spice\n"));
         cli_opt_netlist_type = CAD_SPICE_NETLIST;
 
     } else if( type == LONG && !strcmp("spectre", opt) ) {
-        dbg(1, "process_options(): set netlist type to spectre\n");
+        dbg(1, ("process_options(): set netlist type to spectre\n"));
         cli_opt_netlist_type = CAD_SPECTRE_NETLIST;
 
     } else if( (type == SHORT && *opt == 'y') || (type == LONG && !strcmp("symbol", opt)) ) {
-        dbg(1, "process_options(): set netlist type to symbol\n");
+        dbg(1, ("process_options(): set netlist type to symbol\n"));
         cli_opt_netlist_type = CAD_SYMBOL_ATTRS;
 
     } else if( (type == SHORT && *opt == 'V') || (type == LONG && !strcmp("vhdl", opt)) ) {
-        dbg(1, "process_options(): set netlist type to vhdl\n");
+        dbg(1, ("process_options(): set netlist type to vhdl\n"));
         cli_opt_netlist_type = CAD_VHDL_NETLIST;
 
     } else if( (type == SHORT && *opt == 'w') || (type == LONG && !strcmp("verilog", opt)) ) {
-        dbg(1, "process_options(): set netlist type to verilog\n");
+        dbg(1, ("process_options(): set netlist type to verilog\n"));
         cli_opt_netlist_type = CAD_VERILOG_NETLIST;
 
     } else if( (type == SHORT && *opt == 'b') || (type == LONG && !strcmp("detach", opt)) ) {
@@ -162,7 +162,7 @@ static int check_opt(char *opt, char *optval, int type)
         cli_opt_quit = 1;
         has_x = 0;
     } else if( (type == SHORT && *opt == 't') || (type == LONG && !strcmp("tedax", opt)) ) {
-        dbg(1, "process_options(): set netlist type to tEDAx\n");
+        dbg(1, ("process_options(): set netlist type to tEDAx\n"));
         cli_opt_netlist_type = CAD_TEDAX_NETLIST;
 
     } else if( (type == SHORT && *opt == 'q') || (type == LONG && !strcmp("quit", opt)) ) {
@@ -272,7 +272,7 @@ int process_options(int argc, char *argv[])
     }
   }
   if (arg_cnt > 1) {
-    dbg(1, "process_option(): file name given: %s\n",argv[1]);
+    dbg(1, ("process_option(): file name given: %s\n",argv[1]));
     my_strncpy(cli_opt_filename, argv[1], S(cli_opt_filename));
 #ifndef __unix__
     change_to_unix_fn(cli_opt_filename);

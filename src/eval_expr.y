@@ -138,7 +138,7 @@ exp:      NUM                     {$$ = $1;}
 static void get_char(int c)
 {
   char s[2];
-  dbg(dbglev, "get_char: %c |%s|\n", c, str);
+  dbg(dbglev, ("get_char: %c |%s|\n", c, str));
   s[0] = (char)c;
   s[1] = '\0';
   my_mstrcat(_ALLOC_ID_, &ret, s, NULL);
@@ -148,7 +148,7 @@ static void get_char(int c)
 static void get_expr(double x)
 {
   char xx[100];
-  dbg(dbglev,"get_expr(): x=%g, enginenering=%d\n", x, engineering);
+  dbg(dbglev,("get_expr(): x=%g, enginenering=%d\n", x, engineering));
   if(engineering) {
     my_snprintf(xx, S(xx), "%s", dtoa_eng(x, engineering));
   } else {
@@ -200,7 +200,7 @@ static void remove_expr(char *s)
 static void kkerror(char *s)  /* Called by kkparse on error */
 {
   char *ss = NULL;
-  dbg(dbglev, "error: |%s|\n\n   |%s|\n", s, str ? str : "<NULL>");
+  dbg(dbglev, ("error: |%s|\n\n   |%s|\n", s, str ? str : "<NULL>"));
   my_strdup2(_ALLOC_ID_, &ss, strptr);
   remove_expr(ss);
   my_mstrcat(_ALLOC_ID_, &ret, ss, NULL);
@@ -260,7 +260,7 @@ static int kklex()
   if(strstr(str, "expr(") == str) {
      lex_state = 1;
      str += 5;
-     dbg(dbglev, "lex(): EXPR\n");
+     dbg(dbglev, ("lex(): EXPR\n"));
      engineering = 0;
      return EXPR;
   }
@@ -268,7 +268,7 @@ static int kklex()
   else if(strstr(str, "expr_eng(") == str) {
      lex_state = 1;
      str += 9;
-     dbg(dbglev, "lex(): EXPR_ENG\n");
+     dbg(dbglev, ("lex(): EXPR_ENG\n"));
      engineering = xctx->ev_precision;
      return EXPR;
   }
@@ -276,7 +276,7 @@ static int kklex()
   else if(strstr(str, "expr_eng4(") == str) { 
      lex_state = 1;
      str += 10;
-     dbg(dbglev, "lex(): EXPR_ENG4\n");
+     dbg(dbglev, ("lex(): EXPR_ENG4\n"));
      engineering = 4;
      return EXPR;
   }
@@ -285,10 +285,10 @@ static int kklex()
     c = *str++;
     if(c) {
       kklval.c = c;
-      dbg(dbglev, "lex(): XCHAR; %c\n", c);
+      dbg(dbglev, ("lex(): XCHAR; %c\n", c));
       return XCHAR;
     } else {
-     dbg(dbglev, "lex(): STREND\n");
+     dbg(dbglev, ("lex(): STREND\n"));
      return STREND;
     }
   }
@@ -308,7 +308,7 @@ static int kklex()
     sscanf(str, "%99[.0-9a-zA-Z_-]%n", s, &rd);
     kklval.val = atof_eng(s);
     str += rd;
-    dbg(dbglev, "lex(): NUM: %s\n", s);
+    dbg(dbglev, ("lex(): NUM: %s\n", s));
     return NUM;
   }
   /* Char starts an identifier => read the name.       */
@@ -329,7 +329,7 @@ static int kklex()
     symbuf[i] = '\0';
     s = getsym(symbuf);
     kklval.tptr = s;
-    dbg(dbglev, "ylex: FNCT=%s\n", symbuf);
+    dbg(dbglev, ("ylex: FNCT=%s\n", symbuf));
     if(s) return FNCT;
     return 0; /* error : undefined identifier */
   }

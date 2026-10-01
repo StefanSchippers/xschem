@@ -42,7 +42,7 @@ static void check_connected_nets(int stop_at_junction, int n)
   x2 = wire[n].x2;
   y2 = wire[n].y2;
   RECTORDER(x1, y1, x2, y2);
-  dbg(1, "check_connected_nets(): n=%d, %g %g %g %g\n", n, x1, y1, x2, y2);
+  dbg(1, ("check_connected_nets(): n=%d, %g %g %g %g\n", n, x1, y1, x2, y2));
   for(init_inst_iterator(&ctx, x1, y1, x2, y2); (instptr = inst_iterator_next(&ctx)) ;) {
     k = instptr->n;
     type = (xctx->inst[k].ptr+ xctx->sym)->type;
@@ -117,9 +117,9 @@ void select_connected_nets(int stop_at_junction)
           get_inst_pin_coord(i, p, &x0, &y0);
           get_square(x0, y0, &sqx, &sqy);
           for(wptr = xctx->wire_spatial_table[sqx][sqy]; wptr; wptr = wptr->next) {
-             dbg(1, "select_connected_nets(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
+             dbg(1, ("select_connected_nets(): x0=%g y0=%g wire[%d]=%g %g %g %g\n",
                  x0, y0, wptr->n, xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
-                                  xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2);
+                                  xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2));
              if (touch(xctx->wire[wptr->n].x1, xctx->wire[wptr->n].y1,
                  xctx->wire[wptr->n].x2, xctx->wire[wptr->n].y2, x0,y0)) {
                xctx->wire[wptr->n].sel = SELECTED;
@@ -203,7 +203,7 @@ int select_dangling_nets(void)
         touches = touch(xctx->wire[w].x1, xctx->wire[w].y1, xctx->wire[w].x2, xctx->wire[w].y2, x0, y0);
         if(touches) {
           table[w] = 1; /* wire[w] is NOT dangling */
-          dbg(1, "wire %d touches inst %d\n", w, i);
+          dbg(1, ("wire %d touches inst %d\n", w, i));
         }
       }
     }
@@ -349,7 +349,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
    xctx->inst[i].yy1 = *y1;               /* for easier select */
    xctx->inst[i].xx2 = *x2;
    xctx->inst[i].yy2 = *y2;
-   dbg(2, "symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n",xctx->inst[i].instname,*x1, *y1, *x2, *y2);
+   dbg(2, ("symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n",xctx->inst[i].instname,*x1, *y1, *x2, *y2));
    /* strings bbox */
    for(j=0;j< (xctx->inst[i].ptr+ xctx->sym)->texts; ++j)
    {
@@ -361,9 +361,9 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(!xctx->show_hidden_texts && (text.flags & (HIDE_TEXT | HIDE_TEXT_INSTANTIATED))) continue;
      sym_flip = flip;
      sym_rot = rot;
-     dbg(1, "symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"<NULL>");
+     dbg(1, ("symbol_bbox(): instance %d text n: %d text str=%s\n", i,j, text.txt_ptr? text.txt_ptr:"<NULL>"));
      tmp_txt = translate(i, text.txt_ptr, &res);
-     dbg(1, "symbol_bbox(): translated text: %s\n", tmp_txt);
+     dbg(1, ("symbol_bbox(): translated text: %s\n", tmp_txt));
      if(text.txt_ptr && !strncmp(text.txt_ptr, "@spice", 6)) continue; /* annotator texts not used in bbox */
      ROTATION(rot, flip, 0.0,0.0,text.x0, text.y0,text_x0,text_y0);
      #if HAS_CAIRO==1
@@ -374,8 +374,8 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
        (text.rot + ( (sym_flip && (text.rot & 1) ) ? sym_rot+2 : sym_rot)) &0x3,
        sym_flip ^ text.flip, text.hcenter, text.vcenter,
        x0+text_x0,y0+text_y0, &xx1,&yy1,&xx2,&yy2, &tmp, &dtmp);
-     dbg(1, "symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2);
-     dbg(1, "symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw);
+     dbg(1, ("symbol bbox: text bbox: %s, %g %g %g %g\n", tmp_txt, xx1, yy1, xx2, yy2));
+     dbg(1, ("symbol bbox: text bbox: zoom=%g, lw=%g\n", xctx->zoom, xctx->lw));
      my_free(_ALLOC_ID_, &estr);
      #if HAS_CAIRO==1
      if(customfont) {
@@ -388,7 +388,7 @@ void symbol_bbox(int i, double *x1,double *y1, double *x2, double *y2)
      if(yy2>*y2) *y2=yy2;
    }
    if(res) my_free(_ALLOC_ID_, &res);
-   dbg(1, "symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n", xctx->inst[i].instname, *x1, *y1, *x2, *y2);
+   dbg(1, ("symbol_bbox(): instance=%s %.16g %.16g %.16g %.16g\n", xctx->inst[i].instname, *x1, *y1, *x2, *y2));
 }
 
 
@@ -528,7 +528,7 @@ void delete(int to_push_undo)
 {
   int i, j, deleted = 0;
 
-  dbg(3, "delete(): start\n");
+  dbg(3, ("delete(): start\n"));
   j = 0;
   rebuild_selected_array();
   if(to_push_undo && xctx->lastsel) xctx->push_undo();
@@ -549,9 +549,9 @@ void delete(int to_push_undo)
     }
     if(j)
     {
-      dbg(1, "select(); deleting string %d\n",i-j);
+      dbg(1, ("select(); deleting string %d\n",i-j));
       xctx->text[i-j] = xctx->text[i];
-      dbg(1, "select(); new string %d = %s\n",i-j,xctx->text[i-j].txt_ptr);
+      dbg(1, ("select(); new string %d = %s\n",i-j,xctx->text[i-j].txt_ptr));
     }
   }
   xctx->texts -= j;
@@ -612,7 +612,7 @@ void delete_only_rect_line_arc_poly(void)
 
 void bbox(int what,double x1,double y1, double x2, double y2)
 {
- dbg(1, "bbox: what=%d\n", what);
+ dbg(1, ("bbox: what=%d\n", what));
  switch(what)
  {
   case START:
@@ -638,7 +638,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
-   dbg(2, "bbox(ADD): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2);
+   dbg(2, ("bbox(ADD): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2));
    x1=X_TO_SCREEN(x1);
    y1=Y_TO_SCREEN(y1);
    x2=X_TO_SCREEN(x2);
@@ -664,8 +664,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
      xctx->areah =  xctx->saveh;
      xctx->xrect[0] = xctx->savexrect;
      if(has_x) {
-       dbg(2, "bbox(END): resetting clip area: %d %d %d %d\n",
-          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+       dbg(2, ("bbox(END): resetting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height));
        set_clip_mask(END);
      }
      xctx->bbox_set=0;
@@ -689,8 +689,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1+2*INT_LINE_W(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
-       dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
-          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+       dbg(2, ("bbox(SET): setting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height));
    }
    break;
 
@@ -714,8 +714,8 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    xctx->xrect[0].height = (unsigned short)(xctx->bby2-xctx->bby1-2*INT_LINE_W(xctx->lw));
    if(has_x) {
      set_clip_mask(SET);
-       dbg(2, "bbox(SET): setting clip area: %d %d %d %d\n",
-          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height);
+       dbg(2, ("bbox(SET): setting clip area: %d %d %d %d\n",
+          xctx->xrect[0].x, xctx->xrect[0].y, xctx->xrect[0].width, xctx->xrect[0].height));
    }
    break;
 
@@ -750,19 +750,19 @@ int set_first_sel(unsigned short type, int n, unsigned int col)
         }
       }
     }
-    dbg(1, "set_first_sel(): j=%d, i=%d\n", j, xctx->sel_array[j].n);
+    dbg(1, ("set_first_sel(): j=%d, i=%d\n", j, xctx->sel_array[j].n));
     if(j >= xctx->lastsel) j = 0;
     return j;
   } else if(n == -1) { /* reset first_sel */
     xctx->first_sel.type = 0;
     xctx->first_sel.n = -1;
     xctx->first_sel.col = 0;
-    dbg(1, "set_first_sel(): clearing\n");
+    dbg(1, ("set_first_sel(): clearing\n"));
   } else if(xctx->first_sel.n == -1) {
     xctx->first_sel.type = type;
     xctx->first_sel.n = n;
     xctx->first_sel.col = col;
-    dbg(1, "set_first_sel(): storing %d\n", n);
+    dbg(1, ("set_first_sel(): storing %d\n", n));
   }
   return 0;
 }
@@ -776,7 +776,7 @@ void unselect_all(int dr)
  #endif
   set_first_sel(0, -1, 0);
   if((xctx->ui_state & SELECTION) || xctx->lastsel) {
-    dbg(1, "unselect_all(%d): start\n", dr);
+    dbg(1, ("unselect_all(%d): start\n", dr));
     xctx->ui_state = 0;
     xctx->lastsel = 0;
     for(i=0;i<xctx->wires; ++i)
@@ -884,7 +884,7 @@ void unselect_all(int dr)
     xctx->ui_state &= ~SELECTION;
     my_snprintf(str, S(str), "%s/%s", user_conf_dir, ".selection.sch"); /* 20161115  PWD->HOME */
     xunlink(str);
-    dbg(2, "unselect_all(1): done\n");
+    dbg(2, ("unselect_all(1): done\n"));
   }
 }
 
@@ -916,7 +916,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
   }
   if( xctx->wire[i].sel == SELECTED) set_first_sel(WIRE, i, 0);
   if(select_mode) {
-   dbg(1, "select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2);
+   dbg(1, ("select(): wire[%d].end1=%d, ,end2=%d\n", i, xctx->wire[i].end1, xctx->wire[i].end2));
    if(xctx->wire[i].bus == -1.0) {
      if(!(fast & 2)) drawtempline(xctx->gc[SELLAYER], THICK, xctx->wire[i].x1, xctx->wire[i].y1,
                        xctx->wire[i].x2, xctx->wire[i].y2);
@@ -1274,7 +1274,7 @@ Selected select_object(double mx,double my, unsigned short select_mode,
      sel = find_closest_obj(mx, my, override_lock);
    else
      sel = *selptr;
-   dbg(1, "select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type);
+   dbg(1, ("select_object(): sel.n=%d, sel.col=%d, sel.type=%d\n", sel.n, sel.col, sel.type));
 
    switch(sel.type)
    {
@@ -1823,7 +1823,7 @@ int floaters_from_selected_inst()
               symtxt->xscale, symtxt->yscale);
         xctx->text[xctx->texts - 1].sel = SELECTED;
         set_text_flags(&xctx->text[xctx->texts - 1]);
-        dbg(1, "instance %d: symtext %d: %s\n", i, t, symtxt->txt_ptr);
+        dbg(1, ("instance %d: symtext %d: %s\n", i, t, symtxt->txt_ptr));
       }
     }
   }

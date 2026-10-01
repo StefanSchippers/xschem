@@ -59,7 +59,7 @@ static void hilight_hash_free(void) /* remove the whole hash table  */
 {
  int i;
 
- dbg(2, "hilight_hash_free(): removing hash table\n");
+ dbg(2, ("hilight_hash_free(): removing hash table\n"));
  for(i=0;i<HASHSIZE; ++i)
  {
   hilight_hash_free_entry( xctx->hilight_table[i] );
@@ -133,7 +133,7 @@ Hilight_hashentry *inst_hilight_hash_lookup(int i,  int value, int what)
   int label = 0;
   Hilight_hashentry *entry;
   if(IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) label = 1;
-  dbg(1, "inst_hilight_hash_lookup: token=%s value=%d what=%d\n", token, value, what);
+  dbg(1, ("inst_hilight_hash_lookup: token=%s value=%d what=%d\n", token, value, what));
   inst_tok = my_malloc(_ALLOC_ID_, len);
   /* instance name uglyfication: add a space at beginning so it will never match a valid net name */
   /* use 2 spaces for pins/labels to distinguish from other instances */
@@ -152,13 +152,13 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
   Hilight_hashentry *ptr1=NULL, *ptr2=NULL;
   int mult;
 
-  dbg(1, "bus_hilight_hash_lookup(): token=%s value=%d what=%d\n",
-       token ? token : "<NULL>", value, what);
+  dbg(1, ("bus_hilight_hash_lookup(): token=%s value=%d what=%d\n",
+       token ? token : "<NULL>", value, what));
   xctx->some_nets_added = 0;
   if(token==NULL) return NULL;
   /* if( token[0] == '#' || !strpbrk(token, "*[],.:")) { */
   if( token[0] == '#' || !strpbrk(token, "*,.:")) {
-    dbg(2, "bus_hilight_hash_lookup(): inserting: %s, value:%d\n", token, value);
+    dbg(2, ("bus_hilight_hash_lookup(): inserting: %s, value:%d\n", token, value));
     ptr1=hilight_hash_lookup(token, value, what);
     if(!ptr1) xctx->some_nets_added = 1;
     return ptr1;
@@ -173,7 +173,7 @@ Hilight_hashentry *bus_hilight_hash_lookup(const char *token, int value, int wha
     if(c==','|| c=='\0') {
       *string_ptr='\0';  /* set end string at comma position.... */
       /* insert one bus element at a time in hash table */
-      dbg(2, "bus_hilight_hash_lookup(): inserting: %s, value:%d\n", start,value);
+      dbg(2, ("bus_hilight_hash_lookup(): inserting: %s, value:%d\n", start,value));
       ptr1=hilight_hash_lookup(start, value, what);
       if(!ptr1) xctx->some_nets_added = 1;
       if(ptr1 && !ptr2) {
@@ -222,7 +222,7 @@ int hilight_hash_copy(Xschem_ctx *dest, Xschem_ctx *source)
     Hilight_hashentry **dentry = &dest->hilight_table[i];
     while(sentry) {
       Hilight_hashentry *new_node =  my_calloc(_ALLOC_ID_, 1, sizeof(Hilight_hashentry));
-      dbg(1, "hilight_hash_copy(): copied node: %s -> %d\n", sentry->token, sentry->value);
+      dbg(1, ("hilight_hash_copy(): copied node: %s -> %d\n", sentry->token, sentry->value));
       my_strdup2(_ALLOC_ID_, &new_node->token, sentry->token);
       my_strdup2(_ALLOC_ID_, &new_node->path, sentry->path);
       new_node->hash = sentry->hash;
@@ -258,7 +258,7 @@ void display_hilights(int what, char **str)
       if(ptr[0] == ' ' && ptr[1] == ' ' ) goto skip; /* do not list net labels / pins / net_show */
       if(ptr[0] == ' ') instance = 1;
       else instance = 0;
-      dbg(1, "what=%d, instance=%d, token=%s\n", what, instance, ptr);
+      dbg(1, ("what=%d, instance=%d, token=%s\n", what, instance, ptr));
       if( ((what & 1) && !instance)  || ((what & 2) && instance) ) {
         if(instance) ptr++; /* skip uglyfication space */
         if(!first) my_strcat(_ALLOC_ID_, str, " ");
@@ -312,7 +312,7 @@ int hilight_graph_node(const char *node, int col)
   my_strdup2(_ALLOC_ID_, &n, node);
   nptr = n;
 
-  dbg(1, "hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col);
+  dbg(1, ("hilight_graph_node(): path_skip=%s, %s: %d\n", path_skip, node, col));
   if(strstr(n, "i(v.")) {current = 1; nptr += 4;}
   else if(strstr(n, "I(V.")) {current = 1; nptr += 4;}
   else if(strstr(n, "i(")) {current = 1; nptr += 2;}
@@ -340,7 +340,7 @@ int hilight_graph_node(const char *node, int col)
   entry = hier_hilight_hash_lookup(nptr, -col, path2, XLOOKUP);
   if(!entry || entry->value != -col ) {
     hier_hilight_hash_lookup(nptr, -col, path2, XINSERT);
-    dbg(1, "hilight_graph_node(): propagate_hilights(), col=%d\n", col);
+    dbg(1, ("hilight_graph_node(): propagate_hilights(), col=%d\n", col));
     propagate_hilights(1, 0, XINSERT_NOREPLACE);
   }
   my_free(_ALLOC_ID_, &n);
@@ -373,7 +373,7 @@ int get_color(int value)
 void incr_hilight_color(void)
 {
   xctx->hilight_color = (xctx->hilight_color + 1) % (xctx->n_active_layers * cadlayers);
-  dbg(1, "incr_hilight_color(): xctx->hilight_color=%d\n", xctx->hilight_color);
+  dbg(1, ("incr_hilight_color(): xctx->hilight_color=%d\n", xctx->hilight_color));
 }
 
 static void set_rawfile_for_bespice()
@@ -429,7 +429,7 @@ void create_plot_cmd(void)
     viewer = tclgetintvar("sim(spicewave,default)");
     my_snprintf(tcl_str, S(tcl_str), "sim(spicewave,%d,name)", viewer);
     my_strdup(_ALLOC_ID_, &viewer_name, tclgetvar(tcl_str));
-    dbg(1,"create_plot_cmd(): viewer_name=%s\n", viewer_name);
+    dbg(1,("create_plot_cmd(): viewer_name=%s\n", viewer_name));
     if(strstr(viewer_name, "Gaw")) viewer=GAW;
     else if(strstr(viewer_name, "Bespice")) viewer=BESPICE;
     else if(strstr(viewer_name, "Ngspice")) viewer=NGSPICE;
@@ -546,7 +546,7 @@ void clear_all_hilights(void)
   for(i=0;i<xctx->instances; ++i) {
     xctx->inst[i].color = -10000 ;
   }
-  dbg(1, "clear_all_hilights(): clearing\n");
+  dbg(1, ("clear_all_hilights(): clearing\n"));
 }
 
 void hilight_net_pin_mismatches(void)
@@ -573,14 +573,14 @@ void hilight_net_pin_mismatches(void)
     symbol = xctx->sym + xctx->inst[j].ptr;
     npin = symbol->rects[PINLAYER];
     rct=symbol->rect[PINLAYER];
-    dbg(1, "hilight_net_pin_mismatches(): \n");
+    dbg(1, ("hilight_net_pin_mismatches(): \n"));
     for(i=0;i<npin; ++i) {
       my_strdup(_ALLOC_ID_, &labname,get_tok_value(rct[i].prop_ptr,"name",0));
       my_strdup(_ALLOC_ID_, &lab, expandlabel(labname, &mult));
       my_strdup(_ALLOC_ID_, &netname, net_name(j,i, &mult, 0, 0));
-      dbg(1, "hilight_net_pin_mismatches(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname);
+      dbg(1, ("hilight_net_pin_mismatches(): i=%d labname=%s explabname = %s  net = %s\n", i, labname, lab, netname));
       if(netname && strcmp(lab, netname)) {
-        dbg(1, "hilight_net_pin_mismatches(): hilight: %s\n", netname);
+        dbg(1, ("hilight_net_pin_mismatches(): hilight: %s\n", netname));
         bus_hilight_hash_lookup(netname, xctx->hilight_color, XINSERT_NOREPLACE);
         if(incr_hi) incr_hilight_color();
       }
@@ -613,8 +613,8 @@ void hilight_parent_pins(void)
   * this is used when descending into symbols created from generators */
  if(inst_number == -1) inst_number = 1;
 
- dbg(1, "hilight_parent_pins(): previous_instance=%d\n", xctx->previous_instance[xctx->currsch]);
- dbg(1, "hilight_parent_pins(): inst_number=%d\n", inst_number);
+ dbg(1, ("hilight_parent_pins(): previous_instance=%d\n", xctx->previous_instance[xctx->currsch]));
+ dbg(1, ("hilight_parent_pins(): inst_number=%d\n", inst_number));
 
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
 
@@ -624,7 +624,7 @@ void hilight_parent_pins(void)
    for( entry=xctx->hilight_table[j]; entry; entry = entry->next) {
      if(entry->token[0] == ' ') continue; /* skip instances, process only nets */
      if(record_global_node(3, NULL, entry->token)) {
-       dbg(1, "entry token=%s, value=%d\n", entry->token, entry->value);
+       dbg(1, ("entry token=%s, value=%d\n", entry->token, entry->value));
        bus_hilight_hash_lookup(entry->token,  entry->value, XINSERT);
      }
    }
@@ -637,26 +637,26 @@ void hilight_parent_pins(void)
   int k, mult;
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
-  dbg(1, "hilight_parent_pins(): net_node=%s\n", net_node);
+  dbg(1, ("hilight_parent_pins(): net_node=%s\n", net_node));
   pin_name = get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0);
-  dbg(1, "pin_name=%s\n", pin_name);
+  dbg(1, ("pin_name=%s\n", pin_name));
   if(!pin_name[0]) continue;
   my_strdup(_ALLOC_ID_, &translated, pin_name);
   for(k = xctx->currsch; k >= 0; k--) {
     if(!strpbrk(translated, "@%")) break;
     translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
-    dbg(1, "hilight_parent_pins(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr);
-    dbg(1, "hilight_parent_pins(): translated=%s\n\n", translated);
+    dbg(1, ("hilight_parent_pins(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr));
+    dbg(1, ("hilight_parent_pins(): translated=%s\n\n", translated));
   }
   my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(eval_expr(translated), &mult));
   my_free(_ALLOC_ID_, &translated);
 
 
 
-  dbg(1, "hilight_parent_pins(): pin_node=%s\n", pin_node);
+  dbg(1, ("hilight_parent_pins(): pin_node=%s\n", pin_node));
 
   p_n_s1 = pin_node;
-  dbg(1, "p_n_s1=%s\n", p_n_s1);
+  dbg(1, ("p_n_s1=%s\n", p_n_s1));
   for(k = 1; k<=mult; ++k) {
     xctx->currsch++;
     entry = bus_hilight_hash_lookup(my_strtok_r(p_n_s1, ",", "", 0, &p_n_s2), 0, XLOOKUP);
@@ -664,7 +664,7 @@ void hilight_parent_pins(void)
     xctx->currsch--;
     if(entry)
     {
-      dbg(1, "found hilight entry in child: %s\n", entry->token);
+      dbg(1, ("found hilight entry in child: %s\n", entry->token));
       bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
           ((inst_number - 1) * mult + k - 1) % net_mult + 1), entry->value, XINSERT);
     }
@@ -709,7 +709,7 @@ void hilight_child_pins(void)
    for( entry=xctx->hilight_table[j]; entry; entry = entry->next) {
      if(entry->token[0] == ' ') continue; /* skip instances, process only nets */
      if(record_global_node(3, NULL, entry->token)) {
-       dbg(1, "entry token=%s, value=%d\n", entry->token, entry->value);
+       dbg(1, ("entry token=%s, value=%d\n", entry->token, entry->value));
        bus_hilight_hash_lookup(entry->token,  entry->value, XINSERT);
      }
    }
@@ -726,11 +726,11 @@ void hilight_child_pins(void)
   char *tr_pin_name = NULL;
   char *pin_name = NULL;
   int k;
-  dbg(1, "\n\nhilight_child_pins(): inst_number=%d\n", inst_number);
+  dbg(1, ("\n\nhilight_child_pins(): inst_number=%d\n", inst_number));
 
   if(!xctx->inst[i].node || !xctx->inst[i].node[j]) continue;
   my_strdup(_ALLOC_ID_, &net_node, expandlabel(xctx->inst[i].node[j], &net_mult));
-  dbg(1, "  hilight_child_pins(): net_node=%s\n", net_node);
+  dbg(1, ("  hilight_child_pins(): net_node=%s\n", net_node));
   my_strdup2(_ALLOC_ID_, &pin_name,
        get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][j].prop_ptr,"name",0));
   if(!pin_name[0]) continue;
@@ -739,16 +739,16 @@ void hilight_child_pins(void)
     translate3(pin_name, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &pin_name);
   }
   my_strdup2(_ALLOC_ID_, &tr_pin_name, eval_expr(pin_name));
-  dbg(1, "  pin_name=%s, currsch=%d\n", pin_name, xctx->currsch);
-  dbg(1, "  tr_pin_name=%s, currsch=%d\n", tr_pin_name, xctx->currsch);
+  dbg(1, ("  pin_name=%s, currsch=%d\n", pin_name, xctx->currsch));
+  dbg(1, ("  tr_pin_name=%s, currsch=%d\n", tr_pin_name, xctx->currsch));
   my_strdup(_ALLOC_ID_, &pin_node, expandlabel(tr_pin_name, &mult));
   my_free(_ALLOC_ID_, &tr_pin_name);
   my_free(_ALLOC_ID_, &pin_name);
-  dbg(1, "  hilight_child_pins(): pin_node=%s\n", pin_node);
+  dbg(1, ("  hilight_child_pins(): pin_node=%s\n", pin_node));
   p_n_s1 = pin_node;
   for(k = 1; k<=mult; ++k) {
-    dbg(1, "  hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
-                               (inst_number-1)*mult+k, k, inst_number, mult);
+    dbg(1, ("  hilight_child_pins(): looking nth net:%d, k=%d, inst_number=%d, mult=%d\n",
+                               (inst_number-1)*mult+k, k, inst_number, mult));
     xctx->currsch--;
     entry = bus_hilight_hash_lookup(find_nth(net_node, ",", "", 0,
       ((inst_number - 1) * mult + k - 1) % net_mult + 1), 0, XLOOKUP);
@@ -845,7 +845,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
    my_strdup(_ALLOC_ID_, &regexp_options, "-nocase");
  }
  #endif
- dbg(1, "search():val=%s\n", val);
+ dbg(1, ("search():val=%s\n", val));
  if(!sel) {
    col=xctx->hilight_color;
  }
@@ -875,10 +875,10 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
        str = get_tok_value(xctx->inst[i].prop_ptr, tok,0);
        has_token = xctx->tok_size;
      }
-     dbg(1, "search(): inst=%d, tok=%s, val=%s \n", i,tok, str);
+     dbg(1, ("search(): inst=%d, tok=%s, val=%s \n", i,tok, str));
   
      if(bus && sub) {
-      dbg(1, "search(): doing substr search on bus sig:%s inst=%d tok=%s val=%s\n", str,i,tok,val);
+      dbg(1, ("search(): doing substr search on bus sig:%s inst=%d tok=%s val=%s\n", str,i,tok,val));
       str=expandlabel(str,&tmp);
      }
      if(str && has_token) {
@@ -895,7 +895,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
            if( !strcmp(tok, "lab") && type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
              bus_hilight_hash_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
            } else {
-             dbg(1, "search(): setting hilight flag on inst %d\n",i);
+             dbg(1, ("search(): setting hilight flag on inst %d\n",i));
              /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
              xctx->inst[i].color = col;
              inst_hilight_hash_lookup(i, col, XINSERT_NOREPLACE);
@@ -941,7 +941,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
          found = 1;
        }
        else {
-         dbg(2, "search():  not found wire=%d, tok=%s, val=%s search=%s\n", i,tok, str,val);
+         dbg(2, ("search():  not found wire=%d, tok=%s, val=%s search=%s\n", i,tok, str,val));
        }
      }
    }
@@ -969,8 +969,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
          found = 1;
        }
        else {
-         dbg(2, "search(): not found line=%d col=%d, tok=%s, val=%s search=%s\n",
-                             i, c, tok, str, val);
+         dbg(2, ("search(): not found line=%d col=%d, tok=%s, val=%s search=%s\n",
+                             i, c, tok, str, val));
        }
      }
    }
@@ -997,8 +997,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
            found = 1;
        }
        else {
-         dbg(2, "search(): not found rect=%d col=%d, tok=%s, val=%s search=%s\n",
-                             i, c, tok, str, val);
+         dbg(2, ("search(): not found rect=%d col=%d, tok=%s, val=%s search=%s\n",
+                             i, c, tok, str, val));
        }
      }
    }
@@ -1026,8 +1026,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
            found = 1;
        }
        else {
-         dbg(2, "search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
-                             i, c, tok, str, val);
+         dbg(2, ("search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
+                             i, c, tok, str, val));
        }
      }
    }
@@ -1055,8 +1055,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
            found = 1;
        }
        else {
-         dbg(2, "search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
-                             i, c, tok, str, val);
+         dbg(2, ("search(): not found arc=%d col=%d, tok=%s, val=%s search=%s\n",
+                             i, c, tok, str, val));
        }
      }
    }
@@ -1089,8 +1089,8 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
          found = 1;
      }
      else {
-       dbg(2, "search(): not found text=%d, tok=%s, val=%s search=%s\n",
-                           i, tok, str, val);
+       dbg(2, ("search(): not found text=%d, tok=%s, val=%s search=%s\n",
+                           i, tok, str, val));
      }
    }
  }
@@ -1151,10 +1151,10 @@ static void drill_hilight(int mode)
         }
         /* mult here will be set to net multiplicity */
         expandlabel(netname, &mult);
-        dbg(1, "inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult);
+        dbg(1, ("inst=%s, pin=%d, netname=%s, mult=%d\n", xctx->inst[i].instname, j, netname, mult));
         for(k = 1; k <= mult; ++k) {
           netbitname = find_nth(netname, ",", "", 0, k);
-          dbg(1, "netbitname=%s\n", netbitname);
+          dbg(1, ("netbitname=%s\n", netbitname));
           if( (entry=bus_hilight_hash_lookup(netbitname, 0, XLOOKUP)) ) {
             if( hilight_connected_inst || (symbol->type && IS_LABEL_SH_OR_PIN(symbol->type)) ) {
               xctx->inst[i].color = entry->value;
@@ -1164,12 +1164,12 @@ static void drill_hilight(int mode)
             if(propagate_str) {
               int n = 1;
               const char *propag;
-              dbg(1, "drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str);
+              dbg(1, ("drill_hilight(): inst=%d propagate_str=%s\n", i, propagate_str));
               while((propag = find_nth(propagate_str, ",", "", 0, n++))[0]) {
                 propagate = atoi(propag);
 
                 if(propagate < 0 || propagate >= npin) {
-                   dbg(0, "Error: inst: %s, pin %d, propag set to %s <<%d>>\n",
+                   info("Error: inst: %s, pin %d, propag set to %s <<%d>>\n",
                      xctx->inst[i].instname, j, propagate_str, propagate);
                      continue;
                 }
@@ -1183,7 +1183,7 @@ static void drill_hilight(int mode)
                   my_strdup2(_ALLOC_ID_, &propagated_net, net_name(i, propagate, &mult2, 1, 0));
                 }
                 netbitname = find_nth(propagated_net, ",", "", 0, k);
-                dbg(1, "netbitname=%s\n", netbitname);
+                dbg(1, ("netbitname=%s\n", netbitname));
                 /* add net to highlight list */
                 if(!netbitname[0]) continue;
                 propag_entry = bus_hilight_hash_lookup(netbitname, entry->value, mode);
@@ -1206,7 +1206,7 @@ int hilight_netname(const char *name, int fast)
 {
   Node_hashentry *node_entry;
   prepare_netlist_structs(0);
-  dbg(1, "hilight_netname(): entering\n");
+  dbg(1, ("hilight_netname(): entering\n"));
   rebuild_selected_array();
   node_entry = bus_node_hash_lookup(name, "", XLOOKUP, 0, "", "", "", "");
                     /* sets xctx->hilight_nets=1 */
@@ -1277,7 +1277,7 @@ static void send_net_to_graph(char **s, int simtype, const char *tok)
     if(!t) continue;
     strtolower(t);
     if(simtype == 0 ) { /* ngspice */
-      dbg(1, "s color=%d\n", t, c);
+      dbg(1, ("s color=%d\n", t, c));
       my_snprintf(ss, S(ss), "%s %d ", t, c);
       my_strcat(_ALLOC_ID_, s, ss);
     } else { /* Xyce */
@@ -1465,13 +1465,13 @@ void propagate_hilights(int set, int clear, int mode)
   char *type;
   int en_hi;
 
-  dbg(1, "propagate_hilights() for %s\n", xctx->current_name);
+  dbg(1, ("propagate_hilights() for %s\n", xctx->current_name));
   en_hi = tclgetboolvar("en_hilight_conn_inst");
 
   prepare_netlist_structs(0);
   for(i = 0; i < xctx->instances; ++i) {
     if(xctx->inst[i].ptr < 0 ) {
-      dbg(0, "propagate_hilights(): .ptr<0, unbound symbol: inst %d, name=%s sch=%s\n",
+      info("propagate_hilights(): .ptr<0, unbound symbol: inst %d, name=%s sch=%s\n",
           i, xctx->inst[i].instname, xctx->current_name);
       continue;
     }
@@ -1509,8 +1509,8 @@ void propagate_hilights(int set, int clear, int mode)
       }
     /* ... else hilight/clear pin/label instances attached to hilight nets */
     } else if(type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
-      dbg(1, "propagate_hilights(): inst:%s, node=%s\n",
-               xctx->inst[i].instname, xctx->inst[i].node[0]);
+      dbg(1, ("propagate_hilights(): inst:%s, node=%s\n",
+               xctx->inst[i].instname, xctx->inst[i].node[0]));
       entry=bus_hilight_hash_lookup( xctx->inst[i].node[0], 0, XLOOKUP);
       if(entry && set) {
         xctx->inst[i].color = entry->value;
@@ -1561,7 +1561,7 @@ static int eval_logic_expr(int inst, int output)
 
   stack[0] = 2; /* default if nothing is calculated: LOGIC_X */
   str = xctx->simdata[inst].pin[output].function;
-  dbg(1, "eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "<NULL>");
+  dbg(1, ("eval_logic_expr(): inst=%d pin=%d function=%s\n", inst, output, str ? str : "<NULL>"));
   if(!str) return 2; /* no logic function defined, return LOGIC_X */
   while(str[pos]) {
     switch(str[pos]) {
@@ -1711,11 +1711,11 @@ static int eval_logic_expr(int inst, int output)
         pos--; /* push back last non digit character */
         stack[sp++] = get_logic_value(inst, atoi(num));
       }
-      else dbg(0, "eval_logic_expr(): stack overflow!\n");
+      else info("eval_logic_expr(): stack overflow!\n");
     }
     ++pos;
   } /* while */
-  dbg(1, "eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]);
+  dbg(1, ("eval_logic_expr(): inst %d output %d, returning %d\n", inst, output, stack[0]));
   return stack[0];
 }
 
@@ -1787,7 +1787,7 @@ static void propagate_logic()
       xctx->simdata[i].pin[j].value=-10000;
   tclvareval(xctx->top_path, ".statusbar.12 configure -text {*BUSY*}", NULL);
   while(1) {
-    dbg(1, "propagate_logic(): main loop iteration\n");
+    dbg(1, ("propagate_logic(): main loop iteration\n"));
     found=0;
     for(i=0; i<xctx->instances; ++i) {
       npin = xctx->simdata[i].npin;
@@ -1821,19 +1821,19 @@ static void propagate_logic()
                 }
             }
           }
-          dbg(1, "propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata[i].pin[j].go_to);
+          dbg(1, ("propagate_logic(): inst=%d pin %d, goto=%s\n", i,j, xctx->simdata[i].pin[j].go_to));
           while(1) {
             propag = find_nth(xctx->simdata[i].pin[j].go_to, ",", "", 0, n);
             ++n;
             if(!propag[0]) break;
             propagate = atoi(propag);
             if(propagate < 0 || propagate >= npin) {
-               dbg(1, "Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
-                 xctx->inst[i].instname, j, xctx->simdata[i].pin[j].go_to, propagate);
+               dbg(1, ("Error: inst: %s, pin %d, goto set to %s <<%d>>\n",
+                 xctx->inst[i].instname, j, xctx->simdata[i].pin[j].go_to, propagate));
                  continue;
             }
             if(!xctx->inst[i].node[propagate]) {
-              dbg(1, "Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate);
+              dbg(1, ("Error: inst %s, output in %d unconnected\n", xctx->inst[i].instname, propagate));
               break;
             }
             /* get net to propagate hilight to...*/
@@ -1851,8 +1851,8 @@ static void propagate_logic()
             if(newval != 4 && xctx->simdata[i].pin[propagate].value != val ) {
               found=1; /* keep looping until no more nets are found. */
               xctx->simdata[i].pin[propagate].value = val;
-              dbg(1, "propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n",
-                  xctx->inst[i].instname, j, xctx->inst[i].node[propagate], val);
+              dbg(1, ("propagate_logic(): DRIVERS inst %s pin %d, net %s --> value %d\n",
+                  xctx->inst[i].instname, j, xctx->inst[i].node[propagate], val));
             }
           } /* while( ith-goto )  */
         } /* if((xctx->simdata && xctx->simdata[i].pin && xctx->simdata[i].pin[j].go_to) */
@@ -1869,16 +1869,16 @@ static void propagate_logic()
           entry = hilight_hash_lookup(xctx->inst[i].node[j], 0, XLOOKUP);
           if(!entry || xctx->hilight_time != entry->time) {
             hilight_hash_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
-            dbg(1, "propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
-                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
+            dbg(1, ("propagate_logic(): UPDATE1 inst %s pin %d, net %s --> value %d\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value));
           } else if(entry->value != xctx->simdata[i].pin[j].value &&
                      xctx->simdata[i].pin[j].value != LOGIC_Z) {
             hilight_hash_lookup(xctx->inst[i].node[j], xctx->simdata[i].pin[j].value, XINSERT);
-            dbg(1, "propagate_logic(): UPDATE2 inst %s pin %d, net %s --> value %d\n",
-                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
+            dbg(1, ("propagate_logic(): UPDATE2 inst %s pin %d, net %s --> value %d\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value));
           } else {
-            dbg(1, "propagate_logic(): UPDATE3 inst %s pin %d, net %s --> value %d NOT assigned\n",
-                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value);
+            dbg(1, ("propagate_logic(): UPDATE3 inst %s pin %d, net %s --> value %d NOT assigned\n",
+                xctx->inst[i].instname, j, xctx->inst[i].node[j], xctx->simdata[i].pin[j].value));
           }
         }
       }
@@ -1970,7 +1970,7 @@ void hilight_net(int viewer)
   char *s = NULL;
   incr_hi = tclgetboolvar("incr_hilight");
   prepare_netlist_structs(0);
-  dbg(1, "hilight_net(): entering\n");
+  dbg(1, ("hilight_net(): entering\n"));
   rebuild_selected_array();
   tcleval("sim_is_xyce");
   sim_is_xyce = atoi( tclresult() );
@@ -1980,12 +1980,12 @@ void hilight_net(int viewer)
     case WIRE:
          /* sets xctx->hilight_nets=1 */
      if(!xctx->wire[n].node) break;
-     dbg(1, "hilight_net(): wire[n].node=%s, incr_hi=%d\n", xctx->wire[n].node, incr_hi);
+     dbg(1, ("hilight_net(): wire[n].node=%s, incr_hi=%d\n", xctx->wire[n].node, incr_hi));
      if(!bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XINSERT_NOREPLACE)) {
        if(viewer == XSCHEM_GRAPH) {
          send_net_to_graph(&s, sim_is_xyce, xctx->wire[n].node);
-         dbg(1, "1 hilight_net(): send_net_to_graph() sets s=%s\n", s);
-         dbg(1, "hilight_net(): wire[n].node=%s\n", xctx->wire[n].node);
+         dbg(1, ("1 hilight_net(): send_net_to_graph() sets s=%s\n", s));
+         dbg(1, ("hilight_net(): wire[n].node=%s\n", xctx->wire[n].node));
        } else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->wire[n].node);
        else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->wire[n].node);
      }
@@ -1997,12 +1997,12 @@ void hilight_net(int viewer)
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
-       dbg(1, "hilight_net(): node[0]=%s, incr_hi=%d\n", xctx->inst[n].node[0], incr_hi);
+       dbg(1, ("hilight_net(): node[0]=%s, incr_hi=%d\n", xctx->inst[n].node[0], incr_hi));
        if(!bus_hilight_hash_lookup(xctx->inst[n].node[0], xctx->hilight_color, XINSERT_NOREPLACE)) {
          if(viewer == XSCHEM_GRAPH) {
            send_net_to_graph(&s, sim_is_xyce, xctx->inst[n].node[0]);
-           dbg(1, "2 hilight_net(): send_net_to_graph() sets s=%s\n", s);
-           dbg(1, "hilight_net(): inst[n].node[0]=%s\n", xctx->inst[n].node[0]);
+           dbg(1, ("2 hilight_net(): send_net_to_graph() sets s=%s\n", s));
+           dbg(1, ("hilight_net(): inst[n].node[0]=%s\n", xctx->inst[n].node[0]));
          }
          else if(viewer == GAW) send_net_to_gaw(sim_is_xyce, xctx->inst[n].node[0]);
          else if(viewer == BESPICE) send_net_to_bespice(sim_is_xyce, xctx->inst[n].node[0]);
@@ -2011,7 +2011,7 @@ void hilight_net(int viewer)
          incr_hilight_color();
        }
      } else {
-       dbg(1, "hilight_net(): setting hilight flag on inst %d\n",n);
+       dbg(1, ("hilight_net(): setting hilight flag on inst %d\n",n));
        /* xctx->hilight_nets=1; */  /* done in hilight_hash_lookup() */
        xctx->inst[n].color = xctx->hilight_color;
        inst_hilight_hash_lookup(n, xctx->hilight_color, XINSERT_NOREPLACE);
@@ -2043,7 +2043,7 @@ void unhilight_net(void)
 
   rebuild_selected_array();
   prepare_netlist_structs(0);
-  dbg(1, "unhilight_net(): entering\n");
+  dbg(1, ("unhilight_net(): entering\n"));
   for(i=0;i<xctx->lastsel; ++i) {
    n = xctx->sel_array[i].n;
    switch(xctx->sel_array[i].type) {
@@ -2103,7 +2103,7 @@ void select_hilight_net(void)
   hilight_connected_inst = en_hi &&
     ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
   if( xctx->inst[i].color != -10000) {
-    dbg(1, "select_hilight_net(): instance %d flags & HILIGHT_CONN true\n", i);
+    dbg(1, ("select_hilight_net(): instance %d flags & HILIGHT_CONN true\n", i));
      xctx->inst[i].sel = SELECTED;
      set_first_sel(ELEMENT, i, 0);
   }
@@ -2159,7 +2159,7 @@ char *resolved_net(const char *net)
     int start_level;
     char *path = xctx->sch_path[level] + 1, *path2 = NULL, *path2_ptr = NULL;
 
-    dbg(1, "resolved_net(): net=%s\n", net);
+    dbg(1, ("resolved_net(): net=%s\n", net));
     start_level = sch_waves_loaded();
     if(start_level == -1) start_level = 0;
     if(net[0] == '#') net++;
@@ -2170,7 +2170,7 @@ char *resolved_net(const char *net)
         ++path;
       }
     }
-    dbg(1, "path=%s\n", path);
+    dbg(1, ("path=%s\n", path));
     my_strdup2(_ALLOC_ID_, &exp_net, expandlabel(net, &mult));
     n_s1 = exp_net;
     for(k = 0; k < mult; k++) {
@@ -2178,13 +2178,13 @@ char *resolved_net(const char *net)
       level = xctx->currsch;
       n_s1 = NULL;
       my_strdup2(_ALLOC_ID_, &resolved_net, net_name);
-      dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
+      dbg(1, ("resolved_net(): resolved_net=%s\n", resolved_net));
       while(level > start_level) { /* check if net passed by attribute instead of by port */
         const char *ptr = get_tok_value(xctx->hier_attr[level - 1].prop_ptr, resolved_net, 0);
         if(ptr && ptr[0]) {
           my_strdup2(_ALLOC_ID_, &resolved_net, ptr);
-          dbg(1, "lcc[%d].prop_ptr=%s\n", level - 1, xctx->hier_attr[level - 1].prop_ptr);
-          dbg(1, "resolved_net(): resolved_net=%s\n", resolved_net);
+          dbg(1, ("lcc[%d].prop_ptr=%s\n", level - 1, xctx->hier_attr[level - 1].prop_ptr));
+          dbg(1, ("resolved_net(): resolved_net=%s\n", resolved_net));
         } else {
           break;
         }
@@ -2194,7 +2194,7 @@ char *resolved_net(const char *net)
         entry = str_hash_lookup(&xctx->portmap[level], resolved_net, NULL, XLOOKUP);
         if(entry) {
           my_strdup2(_ALLOC_ID_, &resolved_net, entry->value);
-          dbg(1, "resolved_net(): while loop: resolved_net=%s\n", resolved_net);
+          dbg(1, ("resolved_net(): while loop: resolved_net=%s\n", resolved_net));
         }
         else break;
         level--;
@@ -2211,7 +2211,7 @@ char *resolved_net(const char *net)
         }
         path2_ptr++;
       }
-      dbg(1, "path2=%s level=%d start_level=%d\n", path2, level, start_level);
+      dbg(1, ("path2=%s level=%d start_level=%d\n", path2, level, start_level));
 
       if(record_global_node(3, NULL, resolved_net)) {
         my_strdup2(_ALLOC_ID_, &rnet, resolved_net);
@@ -2224,7 +2224,7 @@ char *resolved_net(const char *net)
     my_free(_ALLOC_ID_, &path2);
     my_free(_ALLOC_ID_, &exp_net);
   }
-  dbg(1, "resolved_net(): got %s, return %s\n", net, rnet);
+  dbg(1, ("resolved_net(): got %s, return %s\n", net, rnet));
   return rnet;
 }
 
@@ -2241,7 +2241,7 @@ void draw_hilight_net(int on_window)
  Iterator_ctx ctx;
 
  if(!xctx->hilight_nets) return;
- dbg(3, "draw_hilight_net(): xctx->prep_hi_structs=%d\n", xctx->prep_hi_structs);
+ dbg(3, ("draw_hilight_net(): xctx->prep_hi_structs=%d\n", xctx->prep_hi_structs));
  prepare_netlist_structs(0);
  save_draw = xctx->draw_window;
  xctx->draw_window = on_window;
@@ -2358,7 +2358,7 @@ void print_hilight_net(int show)
  for(i=0;i<HASHSIZE; ++i) {
    entry=xctx->hilight_table[i];
    while(entry) {
-     dbg(1, "print_hilight_net(): (hilight_hashentry *)entry->token=%s\n", entry->token);
+     dbg(1, ("print_hilight_net(): (hilight_hashentry *)entry->token=%s\n", entry->token));
      node_entry = bus_node_hash_lookup(entry->token, "", XLOOKUP, 0, "", "", "", "");
      /* 20170926 test for not null node_entry, this may happen if a hilighted net name has been changed */
      /* before invoking this function, in this case --> skip */

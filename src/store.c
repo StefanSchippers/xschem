@@ -54,8 +54,8 @@ void check_symbol_storage(void)
 {
  if(xctx->symbols >= xctx->maxs)
  {
-  dbg(1, "check_symbol_storage(): more than maxs, %s\n",
-        xctx->sch[xctx->currsch] );
+  dbg(1, ("check_symbol_storage(): more than maxs, %s\n",
+        xctx->sch[xctx->currsch] ));
   xctx->maxs=(1 + xctx->symbols / ELEMDEF) * ELEMDEF;
   my_realloc(_ALLOC_ID_, &xctx->sym, sizeof(xSymbol)*xctx->maxs);
  }
@@ -186,7 +186,7 @@ void store_poly(int pos, double *x, double *y, int points, unsigned int rectc,
    }
    n=pos;
   }
-  dbg(2, "store_poly(): storing POLYGON %d\n",n);
+  dbg(2, ("store_poly(): storing POLYGON %d\n",n));
 
   xctx->poly[rectc][n].x=NULL;
   xctx->poly[rectc][n].y=NULL;
@@ -242,7 +242,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
       }
       n=pos;
      }
-     dbg(2, "storeobject(): storing LINE %d\n",n);
+     dbg(2, ("storeobject(): storing LINE %d\n",n));
      xctx->line[rectc][n].x1=x1;
      xctx->line[rectc][n].x2=x2;
      xctx->line[rectc][n].y1=y1;
@@ -275,7 +275,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
       }
       n=pos;
      }
-     dbg(2, "storeobject(): storing RECT %d\n",n);
+     dbg(2, ("storeobject(): storing RECT %d\n",n));
      xctx->rect[rectc][n].x1=x1;
      xctx->rect[rectc][n].x2=x2;
      xctx->rect[rectc][n].y1=y1;
@@ -336,7 +336,7 @@ int storeobject(int pos, double x1,double y1,double x2,double y2,
       }
       n=pos;
      }
-     dbg(2, "storeobject(): storing WIRE %d\n",n);
+     dbg(2, ("storeobject(): storing WIRE %d\n",n));
      xctx->wire[n].x1=x1;
      xctx->wire[n].y1=y1;
      xctx->wire[n].x2=x2;

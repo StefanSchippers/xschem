@@ -169,9 +169,9 @@ double dist_from_rect(double mx, double my, double x1, double y1, double x2, dou
  tmp=fabs(y2-my);
  if(tmp < dist) dist=tmp;
 
- dbg(2, "dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
- dbg(2, "dist_from_rect(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
- dbg(2, "dist_from_rect(): dist=%.16g\n",dist);
+ dbg(2, ("dist_from_rect(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2));
+ dbg(2, ("dist_from_rect(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey));
+ dbg(2, ("dist_from_rect(): dist=%.16g\n",dist));
  return dist*dist;
 }
 
@@ -184,9 +184,9 @@ double dist_from_element(double mx, double my, double x1, double y1, double x2, 
  cy = (y1 + y2) / 2;  
 
  dist = (mx - cx) * (mx - cx) + (my - cy) * (my - cy);
- dbg(2, "dist_from_element(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2);
- dbg(2, "dist_from_element(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey);
- dbg(2, "dist_from_element(): dist=%.16g\n",dist);
+ dbg(2, ("dist_from_element(): x1,y1,x2,y2=%.16g,%.16g,%.16g,%.16g\n",x1,y1,x2,y2));
+ dbg(2, ("dist_from_element(): mx,my==%.16g,%.16g\n",xctx->mousex,xctx->mousey));
+ dbg(2, ("dist_from_element(): dist=%.16g\n",dist));
  return dist;
 }
 
@@ -212,7 +212,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
  xb = (b*b*xa - ab*ya - c*a) / denom;
  yb = (a*a*ya - ab*xa - c*b) / denom;
      /* debug ... */
-     dbg(2, "dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2);
+     dbg(2, ("dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2));
  if(x1<x2)
  {
   if(xb >x1 && xb < x2)
@@ -220,7 +220,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
    tmp = a*xa + b*ya + c;
    distance3 = tmp*tmp / denom;
      /* debug ... */
-     dbg(2, "dist(); dist3 =  %.16g\n",distance3);
+     dbg(2, ("dist(); dist3 =  %.16g\n",distance3));
    return distance3;
   }
   else
@@ -235,7 +235,7 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
   tmp = a*xa + b*ya + c;
   distance3 = tmp*tmp / denom;
     /* debug ... */
-    dbg(2, "dist(): dist3 =  %.16g\n",distance3);
+    dbg(2, ("dist(): dist3 =  %.16g\n",distance3));
   return distance3;
   }
   else
