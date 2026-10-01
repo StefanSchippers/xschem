@@ -211,40 +211,35 @@ double dist(double x1,double y1,double x2,double y2,double xa,double ya)
  denom = a*a + b*b;
  xb = (b*b*xa - ab*ya - c*a) / denom;
  yb = (a*a*ya - ab*xa - c*b) / denom;
-     /* debug ... */
-     dbg(2, ("dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2));
+ dbg(2, ("dist(): dist1 = %.16g dist2 = %.16g\n",distance1,distance2));
  if(x1<x2)
  {
   if(xb >x1 && xb < x2)
   {
-   tmp = a*xa + b*ya + c;
-   distance3 = tmp*tmp / denom;
-     /* debug ... */
-     dbg(2, ("dist(); dist3 =  %.16g\n",distance3));
-   return distance3;
+    tmp = a*xa + b*ya + c;
+    distance3 = tmp*tmp / denom;
+    dbg(2, ("dist(); dist3 =  %.16g\n",distance3));
+    return distance3;
   }
   else
   {
-   return MINOR(distance1,distance2);
+    return MINOR(distance1,distance2);
   }
  }
  else /* vert. lines */
  {
   if(yb >y1 && yb < y2)
   {
-  tmp = a*xa + b*ya + c;
-  distance3 = tmp*tmp / denom;
-    /* debug ... */
+    tmp = a*xa + b*ya + c;
+    distance3 = tmp*tmp / denom;
     dbg(2, ("dist(): dist3 =  %.16g\n",distance3));
-  return distance3;
+    return distance3;
   }
   else
   {
-   return MINOR(distance1,distance2);
+    return MINOR(distance1,distance2);
   }
  }
-    /* debug ... */
-    if(debug_var>=0) {fprintf(errfp, "dist(): Internal error, \n");exit(1);}
 }
 
 int touch(double x1,double y1,double x2,double y2,double xa,double ya)

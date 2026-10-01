@@ -170,14 +170,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
    Tcl_SetResult(interp, "Missing arguments.", TCL_STATIC);
    return TCL_ERROR;
  }
- if(debug_var>=2) {
-   int i;
-   fprintf(errfp, "xschem():");
-   for(i=0; i<argc; ++i) {
-     fprintf(errfp, "%s ", argv[i]);
-   }
-   fprintf(errfp, "\n");
+ dbg(2, ("xschem(): "));
+ for(i=0; i<argc; ++i) {
+   dbg(2, ("%s ", argv[i]));
  }
+ dbg(2, ("\n"));
  /*
   * ********** xschem commands  IN SORTED ORDER !!! *********
   */

@@ -4940,8 +4940,6 @@ static void handle_spice_get_diff_voltage(int inst, int engineering,
           memcpy(*result + *result_pos, valstr, len+1);
           *result_pos += len;
         }
-        dbg(1, ("inst %d, fqnet1=%s fqnet2=%s idx1=%d idx2=%d, val1=%g val2=%g valstr=%s\n",
-            inst, fqnet1, fqnet2, idx1, idx2, val1, val2, valstr));
         my_free(_ALLOC_ID_, &fqnet1);
         my_free(_ALLOC_ID_, &fqnet2);
       }
