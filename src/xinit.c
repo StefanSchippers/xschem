@@ -218,10 +218,8 @@ void windowid(const char *win_path)
   dbg(1,("framewinID=%x\n", (unsigned int) framewin));
   dbg(1,("framewin nchilds=%d\n", (unsigned int)framewindow_nchildren));
   dbg(1,("framewin parentID=%x\n", (unsigned int) parent_of_topwindow));
-  if (debug_var>=1) {
-    if (framewindow_nchildren==0) info("no framewin child\n");
-    else info("framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
-  }
+  if (framewindow_nchildren==0) dbg(1, ("no framewin child\n"));
+  else dbg(1, ("framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]));
   if (framewin_child_ptr!=NULL)
     XFree(framewin_child_ptr);
   /* here I create the icon pixmap,to be used when iconified,  */
@@ -3850,10 +3848,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      tcleval("exit 1");
    }
    if(set_netlist_dir(0, NULL)) { /* necessary to create netlist dir if not existing */
-     if(debug_var>=1) {
-       if(tclgetboolvar("flat_netlist"))
-         info("xschem: flat netlist requested\n");
-     }
+     if(tclgetboolvar("flat_netlist")) dbg(1, ("xschem: flat netlist requested\n"));
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
        global_spice_netlist(1, 1);                  /* 1 means global netlist */
      else if(xctx->netlist_type == CAD_VHDL_NETLIST)
