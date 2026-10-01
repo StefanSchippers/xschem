@@ -10721,7 +10721,7 @@ proc build_widgets { {topwin {} } } {
     xschem exit
   }
   $topwin.menubar.file add command -label "Quit Xschem" -accelerator {Ctrl+Q} -command {
-    xschem exit 0 closewindow
+    quit_xschem
   }
   $topwin.menubar.option add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -selectcolor $selectcolor -command {
@@ -11663,6 +11663,19 @@ proc setup_tcp_bespice {} {
   # puts "hasn't been defined in your xschemrc file."
   return 1
 }
+
+# closes all additional tabs and main window. 
+# force flag  set to 'force' will force closure even if file modified, with no alert
+proc quit_xschem { {force {}}} {
+  global tabbed_interface
+
+  xschem new_schematic switch .drw
+  xschem new_schematic destroy_all $force
+  if {[winfo exists .ins]} { .ins.bottom.dismiss invoke }
+  set remaining [xschem exit closewindow $force]
+  return $remaining
+}
+
 
 ## this proc must be called for any created entry widgets
 proc entry_replace_selection {w} {

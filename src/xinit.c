@@ -1648,19 +1648,20 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       ret = 1;
       dbg(0, ("Saving: %p  %s as %s\n", xctx, xctx->current_name, sch_name));
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
+      xctx = NULL;
+      alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
+      sch_deep_copy(xctx, save_xctx, 2 | flags); /* 2 flag: don't copy schematic data */
+      set_untitled_name(0);
+      update_save_xctx(xctx, save_xctx);
+      dbg(0, ("creating: %p  %s\n", xctx, xctx->current_name));
+      if(has_x) {
+        if(flags & 1) set_modify(-1);
+        if(flags & 4) draw();
+      }
     } else {
       dbg(dbglev, ("Not saving: %s already present\n", sch_name));
     }
-    xctx = NULL;
-    alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
-    sch_deep_copy(xctx, save_xctx, 2 | flags); /* 2 flag: don't copy schematic data */
-    set_untitled_name(0);
-    update_save_xctx(xctx, save_xctx);
-    dbg(0, ("creating: %p  %s\n", xctx, xctx->current_name));
-    if(has_x) {
-      if(flags & 1) set_modify(-1);
-      if(flags & 4) draw();
-    }
+
   } else if(what == 2) { /* copy current schematic if not already present */
     dbg(1, ("*** Store copy ***\n"));
     if(fork_table.table == NULL) {
@@ -1680,6 +1681,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     } else {
       dbg(dbglev, ("Not saving: %s already present\n", sch_name));
     }
+
+
   } else if(what == 3 && fork_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
     dbg(1, ("*** Lookup %s ***\n", sch_name));
     if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) ) {
@@ -1733,6 +1736,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     } else {
       dbg(dbglev, ("schematic to lookup not found:%s\n", sch_name));
     }
+
+
   } else if(what == 4 && fork_table.table) { /* free data */
     dbg(1, ("*** Delete ***\n"));
     for(i = 0; i < fork_table.size; ++i) {
@@ -1754,6 +1759,24 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       }
     }
     ptr_hash_free(&fork_table);
+
+
+  } else if(what == 5) { /* info */
+    ret = 1;
+    info("*** Info ***\n");
+    info("current: %p  %s\n", xctx, xctx->current_name);
+    if(fork_table.table) {
+      for(i = 0; i < fork_table.size; ++i) {
+        entry = fork_table.table[i];
+        while(entry) {
+          Xschem_ctx *stored_xctx = (Xschem_ctx *) entry->value;
+          info(" stored: %p  %s, saved as %s\n", stored_xctx, stored_xctx->current_name, entry->token);
+          entry = entry->next;
+        }
+      }
+    }
+
+
   } else if(what == 6) { /* delete specified `sch_name` */
     if((entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP))) {
       Xschem_ctx *new_xctx = entry->value;
@@ -1772,21 +1795,9 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     } else {
       dbg(dbglev, ("schematic to delete not found:%s\n", sch_name));
     }
-  } else if(what == 5) { /* info */
-    ret = 1;
-    info("*** Info ***\n");
-    info("current: %p  %s\n", xctx, xctx->current_name);
-    if(fork_table.table) {
-      for(i = 0; i < fork_table.size; ++i) {
-        entry = fork_table.table[i];
-        while(entry) {
-          Xschem_ctx *stored_xctx = (Xschem_ctx *) entry->value;
-          info(" stored: %p  %s, saved as %s\n", stored_xctx, stored_xctx->current_name, entry->token);
-          entry = entry->next;
-        }
-      }
-    }
   }
+
+
   return ret;
 }
 
