@@ -1578,7 +1578,6 @@ static int is_in_fork_sch(Xschem_ctx *ctx)
     while(entry) {
       Xschem_ctx *fork_ctx = entry->value;
       if(fork_ctx == ctx) {
-        /* ptr_hash_lookup(&fork_table, entry->token, NULL, XDELETE); */
         return 1;
       }
       entry = entry->next;
@@ -1603,7 +1602,6 @@ static char *get_new_fork_sch_key(const char *key)
   return new_key;
 }
 
-#if 0
 static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
 {
   Ptr_hashentry* entry = NULL;
@@ -1617,7 +1615,6 @@ static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
   my_free(_ALLOC_ID_, &key);
   return entry;
 }
-#endif
 
 /* what: 
  *   1: insert current schematic
@@ -1690,13 +1687,13 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       Xschem_ctx *new_xctx = entry->value;
       Xschem_ctx *save_xctx = xctx;
       int schedule_delete = 0;
-      if(!check_in_save_xctx(new_xctx)) { /* already in another tab, do nothing... */
+      if(!check_in_save_xctx(new_xctx)) { /* if in another tab, do nothing... */
         ret = 1;
         /* save current schematic or shred it if empty */
-        if(is_empty_schematic(xctx)) {
+        if(is_empty_schematic(xctx)) { /* shred current schematic*/
           dbg(0, "deleting empty schematic: %p  %s\n", xctx, xctx->current_name);
           schedule_delete = 1;
-        } else {
+        } else { /* save */
           dbg(0, "found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name);
           if(!(entry = ptr_hash_lookup(&fork_table, xctx->current_name, NULL, XLOOKUP))) { /* not in hash table ... */
             dbg(0, "saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name);
@@ -1704,7 +1701,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           } else {
             char *new_key;
             dbg(0, "not saving: %p  %s, already present\n", xctx, xctx->current_name);
-            if(entry->value != xctx) {
+             
+            if(0 && entry->value != xctx) {
               dbg(0, "   but it's a different version: %p\n", entry->value);
               new_key = get_new_fork_sch_key(xctx->current_name);
               dbg(0, "saving: %p  %s as %s\n", xctx, xctx->current_name, new_key);
