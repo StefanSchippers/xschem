@@ -1328,7 +1328,7 @@ extern int there_are_floaters(void);
 extern char *my_expand(const char *s, int tabstop) ;
 
 
-#ifdef __OPTIMIZE__
+#if 1 || __OPTIMIZE__ == 1
     #define dbg(level, args)
 #else
 

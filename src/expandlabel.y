@@ -205,6 +205,8 @@ static char *expandlabel_strbus(char *s, int *n)
  int tmplen;
  char *res=NULL;
  char *tmp=NULL;
+
+ (void) dbg_var; /* necessary since in optimized code (-O2 compiler flag) dbg() is wiped out, avoid compiler warnings */
  my_realloc(_ALLOC_ID_, &res, n[0]*(strlen(s)+20));
  my_realloc(_ALLOC_ID_, &tmp, strlen(s)+30);
  l=0;

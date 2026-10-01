@@ -599,6 +599,7 @@ static int read_dataset(FILE *fd, Raw **rawptr, const char *type, int no_warning
   int dbglev=1;
   const char *sim_type = NULL;
   Raw *raw;
+  (void) dbglev; /* necessary since in optimized code (-O2 compiler flag) dbg() is wiped out */
 
   if(!rawptr) {
     info("read_dataset(): NULL rawptr given\n");

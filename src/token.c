@@ -4895,7 +4895,6 @@ static void handle_spice_get_diff_voltage(int inst, int engineering,
       const char *net1, *net2;
       size_t len;
       int idx1, idx2;
-      double val = 0.0, val1 = 0.0, val2 = 0.0;
       const char *valstr;
       if(path) {
         int gnd1 = 0, gnd2 = 0;
@@ -4931,7 +4930,7 @@ static void handle_spice_get_diff_voltage(int inst, int engineering,
         } else {
           double val1 = gnd1 ? 0.0 : xctx->raw->cursor_b_val[idx1];
           double val2 = gnd2 ? 0.0 : xctx->raw->cursor_b_val[idx2];
-          val = val1 - val2;
+          double val = val1 - val2;
           valstr = engineering ? dtoa_eng(val, xctx->ev_precision) : dtoa(val);
           len = xctx->tok_size;
         }

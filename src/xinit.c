@@ -226,6 +226,7 @@ void windowid(const char *win_path)
     XFree(framewin_child_ptr);
   /* here I create the icon pixmap,to be used when iconified,  */
 #ifdef __unix__
+  (void) i; /* necessary since in optimized code (-O2 compiler flag) dbg() is wiped out */
   if(!cad_icon_pixmap) {
     i=XpmCreatePixmapFromData(display,framewin, cad_icon,&cad_icon_pixmap, &cad_icon_mask, NULL);
     dbg(1, ("windowid(): creating icon pixmap returned: %d\n",i));
@@ -727,7 +728,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 
 static void delete_schematic_data(int delete_pixmap)
 {
-  dbg(0, ("delete_schematic_data: %p %s\n", xctx, xctx->current_name));
+  dbg(1, ("delete_schematic_data: %p %s\n", xctx, xctx->current_name));
   unselect_all(1);
   /* clear static data in get_tok_value() must be done after unselect_all(1)
    * as this functions re-uses get_tok_value() */

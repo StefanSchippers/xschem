@@ -148,6 +148,7 @@ static void get_char(int c)
 static void get_expr(double x)
 {
   char xx[100];
+  (void) dbglev;
   dbg(dbglev,("get_expr(): x=%g, enginenering=%d\n", x, engineering));
   if(engineering) {
     my_snprintf(xx, S(xx), "%s", dtoa_eng(x, engineering));

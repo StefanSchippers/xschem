@@ -3821,8 +3821,8 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
   int n_nodes; /* number of variables to display in a single graph */
-  char *saven, *savec, *saves, *nptr, *cptr, *sptr;
-  const char *ntok, *ctok, *stok;
+  char *saven, *saves, *nptr, *cptr, *sptr;
+  const char *ntok, *stok;
   int wcnt = 0, ret = 0;
   xRect *r = &xctx->rect[GRIDLAYER][i];
 
@@ -3836,10 +3836,9 @@ int edit_wave_attributes(int what, int i, Graph_ctx *gr)
   n_nodes = count_items(node, "\n", "\"");
   /* process each node given in "node" attribute, get also associated color/sweep var if any */
   while( (ntok = my_strtok_r(nptr, "\n", "\"", 0, &saven)) ) {
-    ctok = my_strtok_r(cptr, " ", "", 0, &savec);
     stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
     nptr = cptr = sptr = NULL;
-    dbg(1, ("ntok=%s ctok=%s\n", ntok, ctok? ctok: "<NULL>"));
+    dbg(1, ("ntok=%s \n", ntok));
     if(stok && stok[0]) {
       sweep_idx = get_raw_index(stok, NULL);
       if( sweep_idx == -1) sweep_idx = 0;
@@ -4142,6 +4141,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
       double start;
       double end;
       int sweepvar_wrap = 0; /* incremented on new dataset or sweep variable wrap */
+      (void) last;
       ofs = 0;
       start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
       end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;

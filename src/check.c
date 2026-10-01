@@ -160,6 +160,7 @@ void trim_wires(void)
   Wireentry *wptr;
   unsigned short *wireflag=NULL;
 
+  (void) doloops;
   doloops = 0;
   xctx->prep_hash_wires = 0;
   /* timer(0); */
@@ -173,6 +174,7 @@ void trim_wires(void)
     /* break all wires */
     for(i=0;i<xctx->wires; ++i) {
       int hashloopcnt = 0;
+      (void) hashloopcnt;
       if(skip_wire(i)) continue;
       x0 = xctx->wire[i].x1;
       y0 = xctx->wire[i].y1;

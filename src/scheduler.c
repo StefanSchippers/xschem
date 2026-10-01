@@ -3240,6 +3240,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(!skip) {
             int ret;
+            (void) ret;
             clear_all_hilights();
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
