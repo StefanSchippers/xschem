@@ -6507,15 +6507,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_ResetResult(interp);
       }
       else if(argc > 2 && atoi(argv[2]) == 7) {
-
-        char *s = "aa	bb	cc	dd\n"
-                  "eee	fff	ggg	hhh";
-
-        char *t = my_expand(s, 8);
-
-        dbg(0, "%s\n----\n", s);
-        Tcl_SetResult(interp, t, TCL_VOLATILE);
-        my_free(_ALLOC_ID_, &t);
+        char s[14];
+        size_t r;
+        r = my_snprintf(s, S(s), "->%p", (void *) xctx);
+        Tcl_SetResult(interp, my_itoa((int)r), TCL_VOLATILE);
       }
       else if(argc > 2 && atoi(argv[2]) == 8) {
         Int_hashtable a = {NULL, 0};
@@ -6553,6 +6548,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Xschem_ctx **ctx = get_save_xctx();
         
         for(i = 0; i < MAX_NEW_WINDOWS; i++) {
+          if(!ctx[i]) continue;
           dbg(0, "%d: %p  %s %s  sch[0]: %p  %s\n", 
               i, ctx[i], get_window_path(i), 
               ctx[i] ? ctx[i]->current_win_path : "NULL",

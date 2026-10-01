@@ -1765,10 +1765,7 @@ int copy_hierarchy_data(const char *from_win_path, const char *to_win_path)
   int *previous_instance;
   Zoom *zoom_array;
   Lcc *hier_attr;
-  int i, j;
-  Str_hashentry **fromnext;
-  Str_hashentry **tonext;
-
+  int i;
 
   if(!get_window_count()) { return 0; }
   save_xctx = get_save_xctx();

@@ -83,10 +83,9 @@ int textclip(int x1,int y1,int x2,int y2,
 /* check if some of (xa,ya-xb,yb) is inside (x1,y1-x2,y2) */
 /* coordinates should be ordered, x1<x2,ya<yb and so on... */
 {
- /*
- dbg(2, "textclip(): %.16g %.16g %.16g %.16g - %d %d %d %d\n",
- X_TO_SCREEN(xa),Y_TO_SCREEN(ya), X_TO_SCREEN(xb),Y_TO_SCREEN(yb),x1,y1,x2,y2);
- */
+ /* dbg(2, "textclip(): %.16g %.16g %.16g %.16g - %d %d %d %d\n",
+  * X_TO_SCREEN(xa),Y_TO_SCREEN(ya), X_TO_SCREEN(xb),Y_TO_SCREEN(yb),x1,y1,x2,y2);
+  */
  /* drawtemprect(xctx->gc[WIRELAYER],xa,ya,xb,yb); */
  if          (X_TO_SCREEN(xa)>x2) return 0;
  else if     (Y_TO_SCREEN(ya)>y2) return 0;

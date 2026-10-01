@@ -3190,7 +3190,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask) { /* clear schematic */
         if(xctx->semaphore >= 2) break;
-        tcleval("xschem clear schematic");
+        clear_schematic(1, 0); /*cancel=1: ask user to save if modified; symbol=0: clear schematic*/
       }
       break;
 
@@ -3664,6 +3664,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
         int save_sem;
         if(xctx->semaphore >= 2) break;
         save_sem = xctx->semaphore;
+        xctx->semaphore = 0;
         tcleval("xschem exit");
         xctx->semaphore = save_sem;
       }

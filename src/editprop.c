@@ -458,7 +458,7 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
     memcpy(string + n, prev, l+1);
     n += l;
   } else {
-    dbg(1, "my_snprintf(): overflow, target size=%d, format=%s\n", size, format);
+    dbg(0, "my_snprintf(): overflow, target size=%d, format=%s\n", size, format);
   }
 
   va_end(args);
