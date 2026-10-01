@@ -1292,14 +1292,14 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
   if(what & 1) { /* prolog */
     numpages = 0;
     if(!(fd = open_tmpfile("psplot_", ".ps", psfile)) ) {
-      fprintf(errfp, "ps_draw(): can not create tmpfile %s\n", *psfile);
+      info("ps_draw(): can not create tmpfile %s\n", *psfile);
       return;
     }
     /* setbuf(fd, NULL); */ /* To prevent buffer errors, still investigating cause. */
   }
   ps_colors=my_calloc(_ALLOC_ID_, cadlayers, sizeof(Ps_color));
   if(ps_colors==NULL){
-    fprintf(errfp, "create_ps(): calloc error\n");
+    info("create_ps(): calloc error\n");
     return;
   }
 

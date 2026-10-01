@@ -34,7 +34,7 @@ static void sig_handler(int s){
   const char *emergency_dir;
 
   if(s==SIGINT) {
-    fprintf(errfp, "Use 'exit' to close the program\n");
+    info("Use 'exit' to close the program\n");
     return;
   }
 
@@ -42,28 +42,28 @@ static void sig_handler(int s){
     my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_",
              get_cell(xctx->sch[xctx->currsch], 0));
     if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
-      fprintf(errfp, "xinit(): problems creating emergency save dir\n");
+      info("xinit(): problems creating emergency save dir\n");
       tcleval("exit 1");
     }
 
     if(rename(xctx->undo_dirname, emergency_dir)) {
-      fprintf(errfp, "rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
+      info("rename dir %s to %s failed\n", xctx->undo_dirname, emergency_dir);
     }
-    fprintf(errfp, "EMERGENCY SAVE DIR: %s\n", emergency_dir);
+    info("EMERGENCY SAVE DIR: %s\n", emergency_dir);
   }
 
 
 
 
-  fprintf(errfp, "\nFATAL: signal %d\n", s);
-  fprintf(errfp, "while editing: %s\n", get_cell(xctx->sch[xctx->currsch], 0));
+  info("\nFATAL: signal %d\n", s);
+  info("while editing: %s\n", get_cell(xctx->sch[xctx->currsch], 0));
   exit(EXIT_FAILURE);
 }
 
 #ifdef HANDLE_SIGCHLD
 static void child_handler(int signum)
 {
-  fprintf(errfp, "SIGCHLD received\n");
+  info("SIGCHLD received\n");
   #ifdef __unix__
   wait(NULL);
   #endif
@@ -78,6 +78,7 @@ int main(int argc, char **argv)
   int stdin_is_a_fifo = 0;
   struct stat statbuf;
   #endif
+  errfp=stderr;
   signal(SIGINT, sig_handler);
   signal(SIGSEGV, sig_handler);
   signal(SIGILL, sig_handler);
@@ -88,7 +89,6 @@ int main(int argc, char **argv)
   signal(SIGCHLD, child_handler); /* avoid zombies 20180925 --> conflicts with tcl exec */
   #endif
 
-  errfp=stderr;
   /* 20181013 check for empty or non existing DISPLAY *before* calling Tk_Main or Tcl_Main */
 #ifdef __unix__
   has_x = xserver_ok();
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
   my_strdup(_ALLOC_ID_, &xschem_executable, argv[0]);
   if(debug_var>=1 && !has_x)
-    fprintf(errfp, "main(): no DISPLAY set, assuming no X available\n");
+    info("main(): no DISPLAY set, assuming no X available\n");
   /* if cli_opt_detach is 1 no interactive command shell is created ...
    * using cli_opt_detach if no windowing exists (has_x == 0) is non sense so do nothing
    */
@@ -119,7 +119,6 @@ int main(int argc, char **argv)
     cli_opt_argv[i] = NULL;
     my_strdup(_ALLOC_ID_, &cli_opt_argv[i], argv[i]);
   }
-
 
   if(cli_opt_detach) {
     fclose(stdin);

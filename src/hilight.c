@@ -439,7 +439,7 @@ void create_plot_cmd(void)
   my_snprintf(plotfile, S(plotfile), "%s/xplot", tclgetvar("netlist_dir"));
   if(viewer == NGSPICE) {
     if(!(fd = fopen(plotfile, "w"))) {
-      fprintf(errfp, "create_plot_cmd(): error opening xplot file for writing\n");
+      info("create_plot_cmd(): error opening xplot file for writing\n");
       return;
     }
     fprintf(fd, "*ngspice plot file\n.control\n");
@@ -819,12 +819,12 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
  int only_text_search = 0;
 
  if(!tok) {
-   fprintf(errfp, "search(): warning: null tok key\n");
+   info("search(): warning: null tok key\n");
    return TCL_ERROR;
  }
  if(!strcmp(tok, "txt_ptr")) only_text_search = 1;
  if(!val) {
-   fprintf(errfp, "search(): warning: null val key\n");
+   info("search(): warning: null val key\n");
    return TCL_ERROR;
  }
  save_draw = xctx->draw_window;
@@ -2341,13 +2341,13 @@ void print_hilight_net(int show)
  prepare_netlist_structs(1); /* use full prepare_netlist_structs(1)  to recognize pin direction */
                              /* when creating pins from hilight nets 20171221 */
  if(!(fd = open_tmpfile("hilight2_", "", &filename_ptr)) ) {
-   fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
+   info("print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    return;
  }
  my_strdup(_ALLOC_ID_, &filetmp2, filename_ptr);
  fclose(fd);
  if(!(fd = open_tmpfile("hilight1_", "", &filename_ptr))) {
-   fprintf(errfp, "print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
+   info("print_hilight_net(): can not create tmpfile %s\n", filename_ptr);
    my_free(_ALLOC_ID_, &filetmp2);
    return;
  }
@@ -2390,7 +2390,7 @@ void print_hilight_net(int show)
  if(show != 3) {
    tclsetvar("filetmp",filetmp2);
    if(system(cmd2)==-1) { /* order_labels.awk filetmp1 > filetmp2 */
-     fprintf(errfp, "print_hilight_net(): error executing cmd2\n");
+     info("print_hilight_net(): error executing cmd2\n");
    }
    if(show==2) { /* create labels from hilight pins with 'i' prefix */
      tcleval(b); /* add_lab_prefix */
@@ -2406,7 +2406,7 @@ void print_hilight_net(int show)
  } else { /* show == 3 */
    tclsetvar("filetmp",filetmp1);
    if(system(cmd3)==-1) {  /* sort_labels.awk filetmp1 (writes changes into filetmp1) */
-     fprintf(errfp, "print_hilight_net(): error executing cmd3\n");
+     info("print_hilight_net(): error executing cmd3\n");
    }
    my_snprintf(cmd, S(cmd), "set tctx::retval [ read_data_nonewline %s ]", filetmp1);
    tcleval(cmd);

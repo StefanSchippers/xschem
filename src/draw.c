@@ -47,7 +47,7 @@ static void my_cairo_fill(cairo_surface_t *src_surface, int x, int y, unsigned i
   HDC dc = GetDC(hwnd);
   cairo_surface_t *dest_surface = cairo_win32_surface_create(dc);
   if (cairo_surface_status(dest_surface) != CAIRO_STATUS_SUCCESS) {
-    fprintf(errfp, "ERROR: invalid cairo surface to copy over\n");
+    info("ERROR: invalid cairo surface to copy over\n");
   }
   cairo_t *ct = cairo_create(dest_surface);
   cairo_surface_flush(src_surface);
@@ -68,7 +68,7 @@ int xserver_ok(void)
     display = XOpenDisplay(NULL);
     if(!display) {
       has_x=0;
-      fprintf(errfp, "\n   X server connection failed, although DISPLAY shell variable is set.\n"
+      info("\n   X server connection failed, although DISPLAY shell variable is set.\n"
                      "   A possible reason is that the X server is not running or DISPLAY shell variable\n"
                      "   is incorrectly set.\n"
                      "   Starting Xschem in text only mode.\n\n");
@@ -404,7 +404,6 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
   (void)what; /* UNUSED in cairo version, avoid compiler warning */
   if(str==NULL || !has_x ) return;
   size = xscale*52.*cairo_font_scale;
-  /*fprintf(errfp, "size=%.16g\n", size*xctx->mooz); */
   if(size*xctx->mooz<3.0) return; /* too small */
   if(size*xctx->mooz>1600) return; /* too big */
   estr = my_expand(str, tclgetintvar("tabstop"));
@@ -450,7 +449,6 @@ void draw_string(int layer, int what, const char *str, short rot, short flip, in
     c=*ss;
     if(c=='\n' || c==0) {
       *ss='\0';
-      /*fprintf(errfp, "cairo_draw_string(): tt=%s, longest line: %d\n", tt, longest_line); */
       if(xctx->draw_window) cairo_draw_string_line(xctx->cairo_ctx, tt, x, y, rot, flip,
          lineno, fext.height, fext.ascent, fext.descent, llength, no_of_lines, longest_line);
       if(xctx->draw_pixmap) cairo_draw_string_line(xctx->cairo_save_ctx, tt, x, y, rot, flip,

@@ -179,7 +179,7 @@ static int check_opt(char *opt, char *optval, int type)
         cli_opt_quit = 1;
         has_x = 0;
     } else {
-        fprintf(errfp, "Unknown option: %s\n", opt);
+        info("Unknown option: %s\n", opt);
         valid = 0;
     }
     return valid;

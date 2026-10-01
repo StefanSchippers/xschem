@@ -2515,7 +2515,7 @@ const char *create_tmpdir(char *prefix)
     }
     dbg(1, ("create_tmpdir(): failed to create %s\n", str));
   }
-  fprintf(errfp, "create_tmpdir(): failed to create %s, aborting\n", str);
+  info("create_tmpdir(): failed to create %s, aborting\n", str);
   return NULL; /* failed to create random dir 5 times */
 }
 
@@ -2542,7 +2542,7 @@ FILE *open_tmpfile(char *prefix, char *suffix, char **filename)
     }
     dbg(1, ("open_tmpfile(): failed to create %s\n", str));
   }
-  fprintf(errfp, "open_tmpfile(): failed to create %s, aborting\n", str);
+  info("open_tmpfile(): failed to create %s, aborting\n", str);
   return NULL; /* failed to create random filename 5 times */
 }
 
@@ -2877,7 +2877,7 @@ static void load_text(FILE *fd)
     &xctx->text[i].x0, &xctx->text[i].y0, &xctx->text[i].rot,
     &xctx->text[i].flip, &xctx->text[i].xscale,
     &xctx->text[i].yscale)<6) {
-    fprintf(errfp,"WARNING:  missing fields for TEXT object, ignoring\n");
+    info("WARNING:  missing fields for TEXT object, ignoring\n");
     read_line(fd, 0);
     return;
   }
@@ -2901,7 +2901,7 @@ static void load_wire(FILE *fd)
     i = xctx->wires;
     dbg(3, ("load_wire(): start\n"));
     if(fscanf(fd, "%lf %lf %lf %lf",&ptr[i].x1, &ptr[i].y1, &ptr[i].x2, &ptr[i].y2 )<4) {
-      fprintf(errfp,"WARNING:  missing fields for WIRE object, ignoring\n");
+      info("WARNING:  missing fields for WIRE object, ignoring\n");
       read_line(fd, 0);
       return;
     }
@@ -2945,7 +2945,7 @@ static void load_inst(int k, FILE *fd)
     my_free(_ALLOC_ID_, &tmp);
     if(fscanf(fd, "%lf %lf %hd %hd", &xctx->inst[i].x0, &xctx->inst[i].y0,
        &xctx->inst[i].rot, &xctx->inst[i].flip) < 4) {
-      fprintf(errfp,"WARNING: missing fields for INSTANCE object, ignoring.\n");
+      info("WARNING: missing fields for INSTANCE object, ignoring.\n");
       read_line(fd, 0);
     } else {
       xctx->inst[i].color=-10000;
@@ -2975,12 +2975,12 @@ static void load_polygon(FILE *fd)
 
     dbg(3, ("load_polygon(): start\n"));
     if(fscanf(fd, "%d %d",&c, &points)<2) {
-      fprintf(errfp,"WARNING: missing fields for POLYGON object, ignoring.\n");
+      info("WARNING: missing fields for POLYGON object, ignoring.\n");
       read_line(fd, 0);
       return;
     }
     if(c<0 || c>=cadlayers) {
-      fprintf(errfp,"WARNING: wrong layer number for POLYGON object, ignoring.\n");
+      info("WARNING: wrong layer number for POLYGON object, ignoring.\n");
       read_line(fd, 0);
       return;
     }
@@ -2998,7 +2998,7 @@ static void load_polygon(FILE *fd)
     ptr[i].sel=0;
     for(j=0;j<points; ++j) {
       if(fscanf(fd, "%lf %lf ",&(ptr[i].x[j]), &(ptr[i].y[j]))<2) {
-        fprintf(errfp,"WARNING: missing fields for POLYGON points, ignoring.\n");
+        info("WARNING: missing fields for POLYGON points, ignoring.\n");
         my_free(_ALLOC_ID_, &ptr[i].x);
         my_free(_ALLOC_ID_, &ptr[i].y);
         my_free(_ALLOC_ID_, &ptr[i].selected_point);
@@ -3034,7 +3034,7 @@ static void load_arc(FILE *fd)
     dbg(3, ("load_arc(): start\n"));
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
-      fprintf(errfp,"WARNING: wrong or missing layer number for ARC object, ignoring.\n");
+      info("WARNING: wrong or missing layer number for ARC object, ignoring.\n");
       read_line(fd, 0);
       return;
     }
@@ -3043,7 +3043,7 @@ static void load_arc(FILE *fd)
     ptr=xctx->arc[c];
     if(fscanf(fd, "%lf %lf %lf %lf %lf ",&ptr[i].x, &ptr[i].y,
            &ptr[i].r, &ptr[i].a, &ptr[i].b) < 5) {
-      fprintf(errfp,"WARNING:  missing fields for ARC object, ignoring\n");
+      info("WARNING:  missing fields for ARC object, ignoring\n");
       read_line(fd, 0);
       return;
     }
@@ -3078,7 +3078,7 @@ static void load_box(FILE *fd)
     dbg(3, ("load_box(): start\n"));
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
-      fprintf(errfp,"WARNING: wrong or missing layer number for xRECT object, ignoring.\n");
+      info("WARNING: wrong or missing layer number for xRECT object, ignoring.\n");
       read_line(fd, 0);
       return;
     }
@@ -3087,7 +3087,7 @@ static void load_box(FILE *fd)
     ptr=xctx->rect[c];
     if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1,
        &ptr[i].x2, &ptr[i].y2) < 4) {
-      fprintf(errfp,"WARNING:  missing fields for xRECT object, ignoring\n");
+      info("WARNING:  missing fields for xRECT object, ignoring\n");
       read_line(fd, 0);
       return;
     }
@@ -3140,7 +3140,7 @@ static void load_line(FILE *fd)
     dbg(3, ("load_line(): start\n"));
     n = fscanf(fd, "%d",&c);
     if(n != 1 || c < 0 || c >= cadlayers) {
-      fprintf(errfp,"WARNING: Wrong or missing layer number for LINE object, ignoring\n");
+      info("WARNING: Wrong or missing layer number for LINE object, ignoring\n");
       read_line(fd, 0);
       return;
     }
@@ -3148,7 +3148,7 @@ static void load_line(FILE *fd)
     i=xctx->lines[c];
     ptr=xctx->line[c];
     if(fscanf(fd, "%lf %lf %lf %lf ",&ptr[i].x1, &ptr[i].y1, &ptr[i].x2, &ptr[i].y2) < 4) {
-      fprintf(errfp,"WARNING:  missing fields for LINE object, ignoring\n");
+      info("WARNING:  missing fields for LINE object, ignoring\n");
       read_line(fd, 0);
       return;
     }
@@ -3326,7 +3326,7 @@ void load_ascii_string(char **ptr, FILE *fd)
   c=fgetc(fd);
   if (c=='\r') continue;
   if(c==EOF) {
-    fprintf(errfp, "EOF reached, malformed {...} string input, missing close brace\n");
+    info("EOF reached, malformed {...} string input, missing close brace\n");
     my_free(_ALLOC_ID_, ptr);
     my_free(_ALLOC_ID_, &str);
     return;
@@ -3374,7 +3374,7 @@ static void make_schematic(const char *schname)
   if(!xctx->lastsel)  return;
   if (!(fd = fopen(schname, "w")))
   {
-    fprintf(errfp, "make_schematic(): problems opening file %s \n", schname);
+    info("make_schematic(): problems opening file %s \n", schname);
     tcleval("alert_ {file opening for write failed!} {}");
     return;
   }
@@ -3534,7 +3534,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   }
   if(!(fd=fopen(schname,"w")))
   {
-    fprintf(errfp, "save_schematic(): problems opening file %s \n",schname);
+    info("save_schematic(): problems opening file %s \n",schname);
     tcleval("alert_ {file opening for write failed!} {}");
     return 0;
   }
@@ -3707,7 +3707,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       size_t len;
       ret = 0;
       if(alert) {
-        fprintf(errfp, "load_schematic(): unable to open file: %s, ffname=%s\n", name, ffname );
+        info("load_schematic(): unable to open file: %s, ffname=%s\n", name, ffname );
         if(has_x) {
           my_snprintf(msg, S(msg), "update; alert_ {Unable to open file: %s}", ffname);
           tcleval(msg);
@@ -3845,7 +3845,7 @@ void push_undo(void)
          xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = popen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "push_undo(): failed to open write pipe %s\n", diff_name);
+      info("push_undo(): failed to open write pipe %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -3872,7 +3872,7 @@ void push_undo(void)
       #endif
       execlp("gzip", "gzip", "--fast", "-c", NULL);       /* replace current process with comand */
       /* never gets here */
-      fprintf(errfp, "push_undo(): problems with execlp\n");
+      info("push_undo(): problems with execlp\n");
       _exit(1);
     }
     close(pd[0]);                                       /* close read side of pipe */
@@ -3881,7 +3881,7 @@ void push_undo(void)
     my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
     fd = fopen(diff_name,"w");
     if(!fd) {
-      fprintf(errfp, "push_undo(): failed to open undo file %s\n", diff_name);
+      info("push_undo(): failed to open undo file %s\n", diff_name);
       xctx->no_undo=1;
       return;
     }
@@ -3951,7 +3951,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=popen(diff_name, "r");
   if(!fd) {
-    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
+    info("pop_undo(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -3984,7 +3984,7 @@ void pop_undo(int redo, int set_modify_status)
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, xctx->cur_undo_ptr%MAX_UNDO);
   fd=my_fopen(diff_name, fopen_read_mode);
   if(!fd) {
-    fprintf(errfp, "pop_undo(): failed to open read pipe %s\n", diff_name);
+    info("pop_undo(): failed to open read pipe %s\n", diff_name);
     xctx->no_undo=1;
     return;
   }
@@ -4084,7 +4084,7 @@ void get_sym_type(const char *symname, char **type,
           case 'B':
            fscan_ret = fscanf(fd, "%d",&c);
            if(fscan_ret != 1 || c <0 || c>=cadlayers) {
-             fprintf(errfp,"get_sym_type(): box layer wrong or missing or > defined cadlayers, "
+             info("get_sym_type(): box layer wrong or missing or > defined cadlayers, "
                            "ignoring, increase cadlayers\n");
              ungetc(tag[0], fd);
              read_record(tag[0], fd, 1);
@@ -4268,7 +4268,7 @@ static void calc_symbol_bbox(int pos)
      int k;
      ++count;
      for(k=0; k<xctx->sym[pos].poly[c][i].points; ++k) {
-       /*fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
+       /*info("  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
        if(k==0 || xctx->sym[pos].poly[c][i].x[k] < x1) x1 = xctx->sym[pos].poly[c][i].x[k];
        if(k==0 || xctx->sym[pos].poly[c][i].y[k] < y1) y1 = xctx->sym[pos].poly[c][i].y[k];
        if(k==0 || xctx->sym[pos].poly[c][i].x[k] > x2) x2 = xctx->sym[pos].poly[c][i].x[k];
@@ -4420,7 +4420,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     my_snprintf(sympath, S(sympath), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "systemlib/missing.sym");
     if((lcc[level].fd=my_fopen(sympath, fopen_read_mode))==NULL)
     {
-     fprintf(errfp, "l_s_d(): systemlib/missing.sym missing, I give up\n");
+     info("l_s_d(): systemlib/missing.sym missing, I give up\n");
      tcleval("exit");
     }
   }
@@ -4514,14 +4514,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
       case 'L':
         fscan_ret = fscanf(lcc[level].fd, "%d",&c);
         if(fscan_ret != 1 || c < 0 || c>=cadlayers) {
-          fprintf(errfp,"l_s_d(): WARNING: wrong or missing line layer\n");
+          info("l_s_d(): WARNING: wrong or missing line layer\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
 
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
            &tmpline.x2, &tmpline.y2) < 4 ) {
-          fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
+          info("l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4563,12 +4563,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
         break;
       case 'P':
         if(fscanf(lcc[level].fd, "%d %d",&c, &poly_points) < 2 ) {
-          fprintf(errfp,"l_s_d(): WARNING: missing fields for POLYGON object, ignoring\n");
+          info("l_s_d(): WARNING: missing fields for POLYGON object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
         if(c < 0 || c>=cadlayers) {
-          fprintf(errfp,"l_s_d(): WARNING: wrong polygon layer\n");
+          info("l_s_d(): WARNING: wrong polygon layer\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4579,7 +4579,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         tmppoly.points = poly_points;
         for(k=0;k<poly_points; ++k) {
           if(fscanf(lcc[level].fd, "%lf %lf ",&(tmppoly.x[k]), &(tmppoly.y[k]) ) < 2 ) {
-            fprintf(errfp,"l_s_d(): WARNING: missing fields for POLYGON object\n");
+            info("l_s_d(): WARNING: missing fields for POLYGON object\n");
           }
           if (level>0) {
             rot = lcc[level].rot; flip = lcc[level].flip;
@@ -4631,14 +4631,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
       case 'A':
         fscan_ret = fscanf(lcc[level].fd, "%d",&c);
         if(fscan_ret != 1 || c < 0 || c>=cadlayers) {
-          fprintf(errfp,"l_s_d(): Wrong or missing arc layer\n");
+          info("l_s_d(): Wrong or missing arc layer\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
 
         if( fscanf(lcc[level].fd, "%lf %lf %lf %lf %lf ",&tmparc.x, &tmparc.y,
            &tmparc.r, &tmparc.a, &tmparc.b) < 5 ) {
-          fprintf(errfp,"l_s_d(): WARNING: missing fields for ARC object, ignoring\n");
+          info("l_s_d(): WARNING: missing fields for ARC object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4695,14 +4695,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
       case 'B':
         fscan_ret = fscanf(lcc[level].fd, "%d",&c);
         if(fscan_ret != 1 || c < 0 || c>=cadlayers) {
-          fprintf(errfp,"l_s_d(): WARNING: wrong or missing box layer\n");
+          info("l_s_d(): WARNING: wrong or missing box layer\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
 
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmprect.x1, &tmprect.y1,
            &tmprect.x2, &tmprect.y2) < 4 ) {
-          fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
+          info("l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4777,7 +4777,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         load_ascii_string(&tmptext.txt_ptr, lcc[level].fd);
         if(fscanf(lcc[level].fd, "%lf %lf %hd %hd %lf %lf ",&tmptext.x0, &tmptext.y0, &tmptext.rot,
            &tmptext.flip, &tmptext.xscale, &tmptext.yscale) < 6 ) {
-          fprintf(errfp,"l_s_d(): WARNING:  missing fields for Text object, ignoring\n");
+          info("l_s_d(): WARNING:  missing fields for Text object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4884,7 +4884,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
         tmpline.prop_ptr = NULL;
         if(fscanf(lcc[level].fd, "%lf %lf %lf %lf ",&tmpline.x1, &tmpline.y1,
            &tmpline.x2, &tmpline.y2) < 4 ) {
-          fprintf(errfp,"l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
+          info("l_s_d(): WARNING:  missing fields for LINE object, ignoring\n");
           read_line(lcc[level].fd, 0);
           continue;
         }
@@ -4920,14 +4920,14 @@ int load_sym_def(const char *name, FILE *embed_fd)
       case 'C': /* symbol is LCC: contains components */
          load_ascii_string(&symname, lcc[level].fd);
          if (fscanf(lcc[level].fd, "%lf %lf %hd %hd", &inst_x0, &inst_y0, &inst_rot, &inst_flip) < 4) {
-           fprintf(errfp, "l_s_d(): WARNING: missing fields for COMPONENT object, ignoring\n");
+           info("l_s_d(): WARNING: missing fields for COMPONENT object, ignoring\n");
            read_line(lcc[level].fd, 0);
            continue;
          }
          load_ascii_string(&prop_ptr, lcc[level].fd);
          dbg(1, ("l_s_d() component: level=%d, sym=%s, prop_ptr = %s\n", level, symname, prop_ptr));
          if(level + 1 >=CADMAXHIER) {
-           fprintf(errfp, "l_s_d(): Symbol recursively instantiating symbol: max depth reached, skipping\n");
+           info("l_s_d(): Symbol recursively instantiating symbol: max depth reached, skipping\n");
            if(has_x) tcleval("alert_ {Symbol recursively instantiating symbol: max depth reached, skipping} {} 1");
            endfile = 1;
            continue;
@@ -4990,7 +4990,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
          /* find out if symbol is in an external file or embedded, set fd_tmp accordingly */
          if ((fd_tmp = my_fopen(sympath, fopen_read_mode)) == NULL) {
            char c;
-           fprintf(errfp, "l_s_d(): unable to open file to read schematic: %s\n", sympath);
+           info("l_s_d(): unable to open file to read schematic: %s\n", sympath);
            if(!generator) {
              filepos = xftell(lcc[level].fd); /* store file pointer position to inspect next char */
              read_line(lcc[level].fd, 1);
@@ -5200,7 +5200,7 @@ void create_sch_from_sym(void)
       }
       if(!(fd=fopen(schname,"w")))
       {
-        fprintf(errfp, "create_sch_from_sym(): problems opening file %s \n",schname);
+        info("create_sch_from_sym(): problems opening file %s \n",schname);
         tcleval("alert_ {file opening for write failed!} {}");
         return;
       }
@@ -5261,7 +5261,7 @@ void create_sch_from_sym(void)
     my_free(_ALLOC_ID_, &sub2_prop);
     my_free(_ALLOC_ID_, &str);
   } else {
-    fprintf(errfp, "create_sch_from_sym(): location of schematic pins not found\n");
+    info("create_sch_from_sym(): location of schematic pins not found\n");
     tcleval("alert_ {create_sch_from_sym(): location of schematic pins not found} {}");
   }
   my_free(_ALLOC_ID_, &pinname[0]);
@@ -5350,7 +5350,7 @@ int descend_symbol(void)
     my_snprintf(name_embedded, S(name_embedded),
       "%s/.xschem_embedded_%d_%s", tclgetvar("XSCHEM_TMP_DIR"), getpid(), get_cell_w_ext(name, 0));
     if(!(fd = fopen(name_embedded, "w")) ) {
-      fprintf(errfp, "descend_symbol(): problems opening file %s \n", name_embedded);
+      info("descend_symbol(): problems opening file %s \n", name_embedded);
     } else {
       save_embedded_symbol(xctx->inst[n].ptr+xctx->sym, fd);
       fclose(fd);
@@ -5495,7 +5495,7 @@ void save_selection(int what)
 
  if(!(fd=fopen(name,"w")))
  {
-    fprintf(errfp, "save_selection(): problems opening file %s \n", name);
+    info("save_selection(): problems opening file %s \n", name);
     tcleval("alert_ {file opening for write failed!} {}");
     return;
  }

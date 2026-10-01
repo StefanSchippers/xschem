@@ -4789,7 +4789,7 @@ int callback(const char *win_path, int event, int mx, int my, KeySym key, int bu
   {
     if(debug_var>=2)
       if(event != MotionNotify)
-        fprintf(errfp, "callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
+        info("callback(): reentrant call of callback(), semaphore=%d, ev=%d, ui_state=%d\n",
                 xctx->semaphore, event, xctx->ui_state);
   }
   xctx->mousex=X_TO_XSCHEM(mx);

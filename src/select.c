@@ -477,7 +477,6 @@ static void del_rect_line_arc_poly()
     my_free(_ALLOC_ID_, &xctx->poly[c][i].x);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].y);
     my_free(_ALLOC_ID_, &xctx->poly[c][i].selected_point);
-    /*fprintf(errfp, "bbox: %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2); */
     deleted = 1;
     continue;
    }
@@ -617,7 +616,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
  {
   case START:
    if(xctx->bbox_set==1) {
-     fprintf(errfp, "ERROR: rentrant bbox() call\n");
+     info("ERROR: rentrant bbox() call\n");
      tcleval("alert_ {ERROR: reentrant bbox() call} {}");
    }
    xctx->bbx1 = 300000000; /* screen coordinates */
@@ -635,7 +634,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    break;
   case ADD:
    if(xctx->bbox_set==0) {
-     fprintf(errfp, "ERROR: bbox(ADD) call before bbox(START)\n");
+     info("ERROR: bbox(ADD) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(ADD) call before bbox(START)} {}");
    }
    dbg(2, ("bbox(ADD): %.16g %.16g %.16g %.16g\n", x1, y1, x2, y2));
@@ -673,7 +672,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
    break;
   case SET:
    if(xctx->bbox_set==0) {
-     fprintf(errfp, "ERROR: bbox(SET) call before bbox(START)\n");
+     info("ERROR: bbox(SET) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET) call before bbox(START)} {}");
    }
    xctx->areax1 = xctx->bbx1-2*INT_LINE_W(xctx->lw);
@@ -698,7 +697,7 @@ void bbox(int what,double x1,double y1, double x2, double y2)
 
   case SET_INSIDE: /* do not add line widths to clip rectangle so everything remains inside */
    if(xctx->bbox_set==0) {
-     fprintf(errfp, "ERROR: bbox(SET_INSIDE) call before bbox(START)\n");
+     info("ERROR: bbox(SET_INSIDE) call before bbox(START)\n");
      tcleval("alert_ {ERROR: bbox(SET_INSIDE) call before bbox(START)} {}");
    }
    xctx->areax1 = xctx->bbx1-2*INT_LINE_W(xctx->lw);

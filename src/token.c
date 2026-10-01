@@ -3285,14 +3285,10 @@ void print_tedax_element(FILE *fd, int inst)
 
    if(extra){
      char netstring[40];
-     /* fprintf(errfp, "extra_pinnumber: |%s|\n", extra_pinnumber); */
-     /* fprintf(errfp, "extra: |%s|\n", extra); */
      for(extra_ptr = extra, extra_pinnumber_ptr = extra_pinnumber; ; extra_ptr=NULL, extra_pinnumber_ptr=NULL) {
        extra_pinnumber_token=my_strtok_r(extra_pinnumber_ptr, " ", "", 0, &saveptr1);
        extra_token=my_strtok_r(extra_ptr, " ", "", 0, &saveptr2);
        if(!extra_token) break;
-       /* fprintf(errfp, "extra_pinnumber_token: |%s|\n", extra_pinnumber_token); */
-       /* fprintf(errfp, "extra_token: |%s|\n", extra_token); */
        instance_based=0;
 
        /* alternate instance based extra net naming: net:<pinumber>=netname */
@@ -3408,7 +3404,6 @@ void print_tedax_element(FILE *fd, int inst)
      for(i=0;i<no_of_pins; ++i)
      {
        str_ptr =  net_name(inst,i, &multip, 0, 1);
-       /* fprintf(errfp, "inst: %s  --> %s\n", name, str_ptr); */
        fprintf(fd, "?%d %s ", multip, str_ptr);
      }
     }
@@ -3503,7 +3498,6 @@ void print_tedax_element(FILE *fd, int inst)
       tcleval(tclcmd);
       fprintf(fd, "%s", tclresult());
       my_free(_ALLOC_ID_, &tclcmd);
-      /* fprintf(errfp, "%s\n", tclcmd); */
     } /* /20171029 */
 
 

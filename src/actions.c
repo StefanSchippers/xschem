@@ -436,7 +436,7 @@ void new_xschem_process(const char *cell, int symbol)
 
   dbg(1, ("new_xschem_process(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol));
   if(stat(xschem_executable,&buf)) {
-    fprintf(errfp, "new_xschem_process(): executable not found\n");
+    info("new_xschem_process(): executable not found\n");
     return;
   }
   fflush(NULL); /* flush all stdio streams before process forking */
@@ -468,12 +468,12 @@ void new_xschem_process(const char *cell, int symbol)
       }
     } else {
       /* error */
-      fprintf(errfp, "new_xschem_process(): fork error 1\n");
+      info("new_xschem_process(): fork error 1\n");
       _exit(1);
     }
   } else {
     /* error */
-    fprintf(errfp, "new_xschem_process(): fork error 2\n");
+    info("new_xschem_process(): fork error 2\n");
     tcleval("exit 1");
   }
 }
@@ -485,7 +485,7 @@ void new_xschem_process(const char* cell, int symbol)
   struct stat buf;
   dbg(1, ("new_xschem_process(): executable: %s, cell=%s, symbol=%d\n", xschem_executable, cell, symbol));
   if (stat(xschem_executable, &buf)) {
-    fprintf(errfp, "new_xschem_process(): executable not found\n");
+    info("new_xschem_process(): executable not found\n");
     return;
   }
   /* According to Stackoverflow, system should be avoided because it's resource heavy
@@ -1505,7 +1505,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
       bbox(END , 0.0 , 0.0 , 0.0 , 0.0);
     }
   } else {
-    fprintf(errfp, "attach_labels_to_inst(): location of schematic labels not found\n");
+    info("attach_labels_to_inst(): location of schematic labels not found\n");
     tcleval("alert_ {attach_labels_to_inst(): location of schematic labels not found} {}");
   }
   /* if hilights are present in schematic propagate to new added labels */
@@ -2743,7 +2743,7 @@ void go_back(int what)
      */
   }
   if(save_ok==0) {
-    fprintf(errfp, "go_back(): file opening for write failed! %s \n", xctx->current_name);
+    info("go_back(): file opening for write failed! %s \n", xctx->current_name);
     tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {}", NULL);
   }
   unselect_all(1);
@@ -2898,7 +2898,6 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
     if(selected == 1 && !xctx->poly[c][i].sel) continue;
     ++count;
     for(k=0; k<xctx->poly[c][i].points; ++k) {
-      /* fprintf(errfp, "  poly: point %d: %.16g %.16g\n", k, pp[c][i].x[k], pp[c][i].y[k]); */
       if(k==0 || xctx->poly[c][i].x[k] < x1) x1 = xctx->poly[c][i].x[k];
       if(k==0 || xctx->poly[c][i].y[k] < y1) y1 = xctx->poly[c][i].y[k];
       if(k==0 || xctx->poly[c][i].x[k] > x2) x2 = xctx->poly[c][i].x[k];
@@ -3630,14 +3629,11 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
    }
    if( what & PLACE )
    {
-     /* fprintf(errfp, "new_poly: PLACE, nl_points=%d\n", xctx->nl_points); */
      xctx->nl_polyy[xctx->nl_points]=mousey_snap;
      xctx->nl_polyx[xctx->nl_points]=mousex_snap;
      xctx->nl_points++;
      xctx->nl_polyx[xctx->nl_points]=xctx->nl_polyx[xctx->nl_points-1]; /* prepare next point for rubber */
      xctx->nl_polyy[xctx->nl_points] = xctx->nl_polyy[xctx->nl_points-1];
-     /* fprintf(errfp, "added point: %.16g %.16g\n", xctx->nl_polyx[xctx->nl_points-1],
-         xctx->nl_polyy[xctx->nl_points-1]); */
      xctx->nl_x1=xctx->nl_x2=mousex_snap;xctx->nl_y1=xctx->nl_y2=mousey_snap;
      xctx->ui_state |= STARTPOLYGON;
      set_modify(1);
@@ -3675,7 +3671,6 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
      xctx->push_undo();
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
-     /* fprintf(errfp, "new_poly: finish: nl_points=%d\n", xctx->nl_points); */
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0);
      xctx->ui_state &= ~STARTPOLYGON;
      drawpolygon(xctx->rectcolor, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0, 0, 0.0, 0);
@@ -3689,7 +3684,6 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
      if(mousex_snap > xctx->nl_x2) xctx->nl_x2 = mousex_snap;
      if(mousey_snap < xctx->nl_y1) xctx->nl_y1 = mousey_snap;
      if(mousey_snap > xctx->nl_y2) xctx->nl_y2 = mousey_snap;
-     /* fprintf(errfp, "new_poly: RUBBER\n"); */
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      xctx->nl_polyy[xctx->nl_points] = mousey_snap;
      xctx->nl_polyx[xctx->nl_points] = mousex_snap;
@@ -4046,7 +4040,7 @@ void select_rect(int stretch, int what, int select)
  if(what & RUBBER)
  {
     if(xctx->nl_sem==0) {
-      fprintf(errfp, "ERROR: select_rect() RUBBER called before START\n");
+      info("ERROR: select_rect() RUBBER called before START\n");
       tcleval("alert_ {ERROR: select_rect() RUBBER called before START} {}");
     }
     nl_xx1=xctx->nl_xr;nl_xx2=xctx->nl_xr2;nl_yy1=xctx->nl_yr;nl_yy2=xctx->nl_yr2;
@@ -4067,12 +4061,6 @@ void select_rect(int stretch, int what, int select)
  }
  else if(what & START)
  {
-    /*
-     * if(xctx->nl_sem==1) {
-     *  fprintf(errfp, "ERROR: reentrant call of select_rect()\n");
-     *  tcleval("alert_ {ERROR: reentrant call of select_rect()} {}");
-     * }
-     */
     xctx->nl_sel = select;
     xctx->ui_state |= STARTSELECT;
 

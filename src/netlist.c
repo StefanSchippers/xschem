@@ -604,17 +604,14 @@ void netlist_options(int i)
     bus_char[1] = str[1];
     /* tclsetvar("bus_replacement_char", str); */
   }
-  /* fprintf(errfp, "netlist_options(): bus_char=%s\n", str); */
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_ignore", 0);
   if(str[0]) {
-    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strboolcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
     else tclsetintvar("lvs_ignore", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_netlist", 0);
   if(str[0]) {
-    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strboolcmp(str, "true")) {
       tclsetintvar("lvs_netlist", 1);
       my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
@@ -627,14 +624,12 @@ void netlist_options(int i)
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "top_is_subckt", 0);
   if(str[0]) {
-    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strboolcmp(str, "true")) tclsetintvar("top_is_subckt", 1);
     else tclsetintvar("top_is_subckt", 0);
   }
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "spiceprefix", 0);
   if(str[0]) {
-    /* fprintf(errfp, "netlist_options(): prop_ptr=%s\n", xctx->inst[i].prop_ptr); */
     if(!strboolcmp(str, "false")) tclsetvar("spiceprefix", "0");
     else tclsetvar("spiceprefix", "1");
   }
@@ -1881,13 +1876,13 @@ int sym_vs_sch_pins(int all)
             case 'L':
             case 'B':
               if(fscanf(fd, "%d",&tmpi)< 1) {
-                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                 info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
                  read_line(fd, 0);
                  break;
               }
             case 'N':
               if(fscanf(fd, "%lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd) < 4) {
-                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                 info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
                  read_line(fd, 0);
                  break;
               }
@@ -1895,13 +1890,13 @@ int sym_vs_sch_pins(int all)
               break;
             case 'P':
               if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {
-                fprintf(errfp,"sym_vs_sch_pins(): WARNING: missing fields for POLYGON object, ignoring.\n");
+                info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON object, ignoring.\n");
                 read_line(fd, 0);
                 break;
               }
               for(j=0;j<tmpi; ++j) {
                 if(fscanf(fd, "%lf %lf ",&tmpd, &tmpd)<2) {
-                  fprintf(errfp,"sym_vs_sch_pins(): WARNING: missing fields for POLYGON points, ignoring.\n");
+                  info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON points, ignoring.\n");
                   read_line(fd, 0);
                 }
               }
@@ -1909,12 +1904,12 @@ int sym_vs_sch_pins(int all)
               break;
             case 'A':
               if(fscanf(fd, "%d",&tmpi)< 1) {
-                 fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
+                 info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
                  read_line(fd, 0);
                  break;
               }
               if(fscanf(fd, "%lf %lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd, &tmpd) < 5) {
-                fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
+                info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
                 read_line(fd, 0);
                 break;
               }
@@ -1923,7 +1918,7 @@ int sym_vs_sch_pins(int all)
             case 'T':
               load_ascii_string(&tmp,fd);
               if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ", &tmpd, &tmpd, &tmps, &tmps, &tmpd, &tmpd) < 6 ) {
-                fprintf(errfp,"sym_vs_sch_pins(): WARNING:  missing fields for TEXT object, ignoring\n");
+                info("sym_vs_sch_pins(): WARNING:  missing fields for TEXT object, ignoring\n");
                 read_line(fd, 0);
                 break;
               }
@@ -1940,7 +1935,7 @@ int sym_vs_sch_pins(int all)
               }
 
               if(fscanf(fd, "%lf %lf %hd %hd", &tmpd, &tmpd, &tmps, &tmps) < 4) {
-                fprintf(errfp,"sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
+                info("sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
                   filename);
                 read_line(fd, 0);
                 break;
@@ -2010,7 +2005,6 @@ int sym_vs_sch_pins(int all)
                 }
                 if(!pin_match) {
                   char str[2048];
-                  /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
                   my_snprintf(str, S(str), "Error: Symbol %s: schematic pin: %s not in symbol",
                               xctx->sym[i].name, lab);
                   statusmsg(str,2);
@@ -2069,7 +2063,6 @@ int sym_vs_sch_pins(int all)
           }
           if(!pin_match) {
             char str[2048];
-            /* fprintf(errfp, "  unmatched sch / sym pin: %s\n", lab); */
             my_snprintf(str, S(str), "Error: Symbol %s: symbol pin: %s not in schematic",
                         xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
             statusmsg(str,2);

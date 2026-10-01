@@ -358,7 +358,6 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
 
   va_start(args, format);
 
-  /* fprintf(errfp, "my_snprintf(): size=%d, format=%s\n", size, format); */
   prev = format;
   format_spec = 0;
   overflow = 0;
@@ -469,7 +468,6 @@ size_t my_snprintf(char *string, size_t size, const char *format, ...)
   }
 
   va_end(args);
-  /* fprintf(errfp, "my_snprintf(): returning: |%s|\n", string); */
   return n;
 }
 #endif /* HAS_SNPRINTF */
@@ -767,7 +765,7 @@ void *my_calloc(int id, size_t nmemb, size_t size)
    if(size*nmemb > 0) {
      ptr=calloc(nmemb, size);
      if(ptr == NULL)
-        fprintf(errfp,"my_calloc(%d,): allocation failure %ld * %ld bytes\n", id, nmemb, size);
+        info("my_calloc(%d,): allocation failure %ld * %ld bytes\n", id, nmemb, size);
      dbg(3, ("\nmy_calloc(%d,): allocating %p , %lu bytes\n",
                id, ptr, (unsigned long) (size*nmemb)));
    }
@@ -780,7 +778,7 @@ void *my_malloc(int id, size_t size)
  void *ptr;
  if(size>0) {
    ptr=malloc(size);
-   if(ptr == NULL) fprintf(errfp,"my_malloc(%d,): allocation failure for %ld bytes\n", id, size);
+   if(ptr == NULL) info("my_malloc(%d,): allocation failure for %ld bytes\n", id, size);
    dbg(3, ("\nmy_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size));
  }
  else ptr=NULL;
@@ -801,7 +799,7 @@ void my_realloc(int id, void *ptr,size_t size)
  } else {
    tmp = realloc(*(void **)ptr,size);
    if(tmp == NULL) {
-     fprintf(errfp,"my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
+     info("my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
    } else {
       *(void **)ptr = tmp;
       dbg(3, ("\nmy_realloc(%d,): reallocating %s --> %p to %lu bytes\n",
@@ -830,7 +828,7 @@ int my_strncpy(char *d, const char *s, size_t n)
 {
   int i = 0;
   n -= 1;
-  dbg(3, ("my_strncpy():  copying %s to %lu\n", s, (unsigned long)d));
+  dbg(3, ("my_strncpy():  copying %s to %p\n", s, (void *)d));
   while( (d[i] = s[i]) )
   {
     if(i == n) {
@@ -1026,7 +1024,7 @@ static int edit_rect_property(int x)
   double bus = 0.0, oldbus = 0.0;
   double width;
   if(x < 0 || x > 2) {
-    fprintf(errfp, "edit_rect_property() : unknown parameter x=%d\n",x);
+    info("edit_rect_property() : unknown parameter x=%d\n",x);
     return 0;
   }
   my_strdup(_ALLOC_ID_, &oldprop, xctx->rect[xctx->sel_array[0].col][xctx->sel_array[0].n].prop_ptr);
@@ -1421,7 +1419,7 @@ static int edit_text_property(int x)
   char *oldprop = NULL;
 
   if(x < 0 || x > 2) {
-    fprintf(errfp, "edit_text_property() : unknown parameter x=%d\n",x);
+    info("edit_text_property() : unknown parameter x=%d\n",x);
     return 0;
   }
   dbg(1, ("edit_text_property(): entering\n"));

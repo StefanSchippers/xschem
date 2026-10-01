@@ -1838,7 +1838,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               DWORD ret_val = GetTempPath(MAX_PATH, tmp_buffer_path);
               if(ret_val > MAX_PATH || (ret_val == 0)) {
                 Tcl_SetResult(interp, "xschem get temp_dir failed\n", TCL_STATIC);
-                fprintf(errfp, "xschem get temp_dir: path error\n");
+                info("xschem get temp_dir: path error\n");
                 tcleval("exit 1");
               }
               else {
@@ -1847,7 +1847,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 int err = wcstombs_s(&num_char_converted, s, MAX_PATH, tmp_buffer_path, MAX_PATH); /*unicode TBD*/
                 if(err != 0) {
                   Tcl_SetResult(interp, "xschem get temp_dir conversion failed\n", TCL_STATIC);
-                  fprintf(errfp, "xschem get temp_dir: conversion error\n");
+                  info("xschem get temp_dir: conversion error\n");
                   tcleval("exit 1");
                 }
                 else {
@@ -7130,8 +7130,8 @@ const char *tclgetvar(const char *s)
 const char *tcleval(const char str[])
 {
   if(Tcl_GlobalEval(interp, str) != TCL_OK) {
-    fprintf(errfp, "tcleval(): evaluation of script: %s failed\n", str);
-    fprintf(errfp, "         : %s\n", Tcl_GetStringResult(interp));
+    info("tcleval(): evaluation of script: %s failed\n", str);
+    info("         : %s\n", Tcl_GetStringResult(interp));
     Tcl_ResetResult(interp);
   }
   return Tcl_GetStringResult(interp);
@@ -7144,7 +7144,7 @@ const char *tclresult(void)
 void tclsetvar(const char *s, const char *value)
 {
   if(!Tcl_SetVar(interp, s, value, TCL_GLOBAL_ONLY)) {
-    fprintf(errfp, "tclsetvar(): error setting variable %s to %s\n", s, value);
+    info("tclsetvar(): error setting variable %s to %s\n", s, value);
   }
 }
 
@@ -7153,7 +7153,7 @@ void tclsetdoublevar(const char *s, const double value)
   char str[80];
   sprintf(str, "%.16g", value);
   if(!Tcl_SetVar(interp, s, str, TCL_GLOBAL_ONLY)) {
-    fprintf(errfp, "tclsetdoublevar(): error setting variable %s to %g\n", s, value);
+    info("tclsetdoublevar(): error setting variable %s to %g\n", s, value);
   }
 }
 
@@ -7162,14 +7162,14 @@ void tclsetintvar(const char *s, const int value)
   char str[80];
   sprintf(str, "%d", value);
   if(!Tcl_SetVar(interp, s, str, TCL_GLOBAL_ONLY)) {
-    fprintf(errfp, "tclsetintvar(): error setting variable %s to %d\n", s, value);
+    info("tclsetintvar(): error setting variable %s to %d\n", s, value);
   }
 }
 
 void tclsetboolvar(const char *s, const int value)
 {
   if(!Tcl_SetVar(interp, s, (value ? "1" : "0"), TCL_GLOBAL_ONLY)) {
-    fprintf(errfp, "tclsetboolvar(): error setting variable %s to %d\n", s, value);
+    info("tclsetboolvar(): error setting variable %s to %d\n", s, value);
   }
 }
 

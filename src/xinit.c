@@ -77,7 +77,7 @@ static int client_msg(Display *disp, Window win, char *msg, /* {{{ */
         return EXIT_SUCCESS;
     }
     else {
-        fprintf(errfp, "Cannot send %s event.\n", msg);
+        info("Cannot send %s event.\n", msg);
         return EXIT_FAILURE;
     }
 }/*}}}*/
@@ -219,8 +219,8 @@ void windowid(const char *win_path)
   dbg(1,("framewin nchilds=%d\n", (unsigned int)framewindow_nchildren));
   dbg(1,("framewin parentID=%x\n", (unsigned int) parent_of_topwindow));
   if (debug_var>=1) {
-    if (framewindow_nchildren==0) fprintf(errfp, "no framewin child\n");
-    else fprintf(errfp, "framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
+    if (framewindow_nchildren==0) info("no framewin child\n");
+    else info("framewin child 0=%x\n", (unsigned int)framewin_child_ptr[0]);
   }
   if (framewin_child_ptr!=NULL)
     XFree(framewin_child_ptr);
@@ -325,7 +325,7 @@ static void init_color_array(double dim, double dim_bg)
      g +=(int)((g/5.)*tmp_dim);
      b +=(int)((b/5.)*tmp_dim);
    }
-   /* fprintf(errfp, "init_color_array: colors: %.16g %.16g %.16g dim=%.16g c=%d\n", r, g, b, dim, i); */
+   /* info("init_color_array: colors: %.16g %.16g %.16g dim=%.16g c=%d\n", r, g, b, dim, i); */
    if(r>0xff) r=0xff;
    if(g>0xff) g=0xff;
    if(b>0xff) b=0xff;
@@ -374,7 +374,7 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
    else if(empty) xctx->fill_type[i] = 0;
    else xctx->fill_type[i]=1;
    if(rainbow_colors && i>5) xctx->fill_type[i]=2; /* 20171212 solid fill style */
-   /*fprintf(errfp, "fill_type[%d]= %d\n", i, xctx->fill_type[i]); */
+   /*info("fill_type[%d]= %d\n", i, xctx->fill_type[i]); */
  }
 }
 
@@ -1056,7 +1056,7 @@ int build_colors(double dim, double dim_bg)
     }
     tcleval("llength $tctx::colors");
     if(atoi(tclresult())<cadlayers){
-      fprintf(errfp,"Tcl var tctx::colors not set correctly\n");
+      info("Tcl var tctx::colors not set correctly\n");
       return -1; /* fail */
     } else {
       tcleval("regsub -all {\"} $tctx::colors {} svg_colors");
@@ -1210,12 +1210,12 @@ static int source_tcl_file(char *s)
   if(Tcl_EvalFile(interp, s)==TCL_ERROR) {
 
     my_strncpy(lineno,  my_itoa(Tcl_GetErrorLine(interp)), S(lineno));
-    fprintf(errfp, "Tcl_AppInit() error: can not execute %s, please fix:\n", s);
-    fprintf(errfp, "%s", tclresult());
+    info("Tcl_AppInit() error: can not execute %s, please fix:\n", s);
+    info("%s", tclresult());
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
-    fprintf(errfp, "\nLine No: %d\n", Tcl_GetErrorLine(interp));
+    info("\nLine No: %d\n", Tcl_GetErrorLine(interp));
     #endif
-    fprintf(errfp, "\n");
+    info("\n");
     #if TCL_MAJOR_VERSION >= 8 && TCL_MINOR_VERSION >=6
     my_mstrcat(_ALLOC_ID_, &tmp, 
       "tk_messageBox -icon error -type ok -message {Tcl_AppInit() err 1: can not execute ",
@@ -2890,7 +2890,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
          xctx->xrect[0].width, xctx->xrect[0].height);
     #endif
     if(cairo_surface_status(xctx->cairo_save_sfc)!=CAIRO_STATUS_SUCCESS) {
-      fprintf(errfp, "ERROR: invalid cairo xcb surface\n");
+      info("ERROR: invalid cairo xcb surface\n");
     }
     temp_font =
        cairo_toy_font_face_create(tclgetvar("cairo_font_name"), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -2912,7 +2912,7 @@ static void resetcairo(int create, int clear, int force_or_resize)
         xctx->xrect[0].width, xctx->xrect[0].height);
     #endif
     if(cairo_surface_status(xctx->cairo_sfc)!=CAIRO_STATUS_SUCCESS) {
-      fprintf(errfp, "ERROR: invalid cairo surface\n");
+      info("ERROR: invalid cairo surface\n");
     }
     xctx->cairo_ctx = cairo_create(xctx->cairo_sfc);
     cairo_set_antialias (xctx->cairo_ctx, CAIRO_ANTIALIAS_NONE);
@@ -3073,7 +3073,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  eval_expr_init_table();
  /* get PWD and HOME */
  if(!getcwd(pwd_dir, PATH_MAX)) {
-   fprintf(errfp, "Tcl_AppInit(): getcwd() failed\n");
+   info("Tcl_AppInit(): getcwd() failed\n");
  }
 #ifdef __unix__
  if ((home_buff = getenv("HOME")) == NULL) {
@@ -3326,7 +3326,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      dbg(1, ("Tcl_AppInit(): created root directory to setup and create for user conf dir: %s\n", user_conf_dir));
    }
    else {
-     fprintf(errfp, "Tcl_AppInit(): failure creating %s\n", user_conf_dir);
+     info("Tcl_AppInit(): failure creating %s\n", user_conf_dir);
      Tcl_Exit(EXIT_FAILURE);
    }
  }
@@ -3342,14 +3342,14 @@ int Tcl_AppInit(Tcl_Interp *inter)
      my_snprintf(dstfile, S(dstfile), "%s/xschemrc", user_conf_dir);
      my_snprintf(srcfile, S(srcfile), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
      tclvareval("file copy {", srcfile, "} {", dstfile, "}", NULL);
-     fprintf(stderr, "Created %s dir with template xschemrc\n", user_conf_dir);
+     info("Created %s dir with template xschemrc\n", user_conf_dir);
    } else {
-    fprintf(errfp, "Tcl_AppInit(): failure creating %s\n", user_conf_dir);
+    info("Tcl_AppInit(): failure creating %s\n", user_conf_dir);
     Tcl_Exit(EXIT_FAILURE);
    }
 
  }
- fprintf(errfp, "Using run time directory XSCHEM_SHAREDIR = %s\n", tclgetvar("XSCHEM_SHAREDIR"));
+ info("Using run time directory XSCHEM_SHAREDIR = %s\n", tclgetvar("XSCHEM_SHAREDIR"));
  /* Execute tcl script given on command line with --preinit, before sourcing xschemrc */
  if(cli_opt_preinit_command) {
    tcleval(cli_opt_preinit_command);
@@ -3365,21 +3365,21 @@ int Tcl_AppInit(Tcl_Interp *inter)
      if (running_in_src_dir == 1) {
        my_snprintf(name, S(name), "%s/../../XSchemWix/xschemrc", install_dir);
        if (!stat(name, &buf)) {
-         fprintf(errfp, "Sourcing %s init file\n", name);
+         info("Sourcing %s init file\n", name);
          source_tcl_file(name);
        }
      }
      else {
        my_snprintf(name, S(name), "%s/xschemrc", tclgetvar("XSCHEM_SHAREDIR"));
        if (!stat(name, &buf)) {
-         fprintf(errfp, "Tcl_AppInit(): sourcing %s\n", name);
+         info("Tcl_AppInit(): sourcing %s\n", name);
          source_tcl_file(name);
        }
      }
      #else
      my_snprintf(name, S(name), "%s/xschemrc",tclgetvar("XSCHEM_SHAREDIR"));
      if(!stat(name, &buf)) {
-       fprintf(errfp, "Sourcing %s init file\n", name);
+       info("Sourcing %s init file\n", name);
        source_tcl_file(name);
      }
      #endif
@@ -3389,13 +3389,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
      my_snprintf(name, S(name), cli_opt_rcfile);
      if(stat(name, &buf) ) {
        /* cli_opt_rcfile given on cmdline is not existing */
-       fprintf(errfp, "Tcl_AppInit() err 2: cannot find %s\n", name);
+       info("Tcl_AppInit() err 2: cannot find %s\n", name);
        Tcl_ResetResult(interp);
        Tcl_Exit(EXIT_FAILURE);
        return TCL_ERROR;
      }
      else {
-       fprintf(errfp, "Sourcing %s init file\n", name);
+       info("Sourcing %s init file\n", name);
        source_tcl_file(name);
      }
    }
@@ -3404,13 +3404,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
      if(!running_in_src_dir) {
        my_snprintf(name, S(name), "%s/xschemrc",pwd_dir);
        if(!stat(name, &buf)) {
-         fprintf(errfp, "Sourcing %s init file\n", name);
+         info("Sourcing %s init file\n", name);
          source_tcl_file(name);
        } else {
          /* ... or look for (user_conf_dir)/xschemrc */
          my_snprintf(name, S(name), "%s/xschemrc", user_conf_dir);
          if(!stat(name, &buf)) {
-           fprintf(errfp, "Sourcing %s init file\n", name);
+           info("Sourcing %s init file\n", name);
            source_tcl_file(name);
          }
        }
@@ -3444,7 +3444,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*  START LOOKING FOR xschem.tcl */
  /*                               */
  if(!tclgetvar("XSCHEM_SHAREDIR")) {
-   fprintf(errfp, "Tcl_AppInit() err 3: cannot find xschem.tcl\n");
+   info("Tcl_AppInit() err 3: cannot find xschem.tcl\n");
    if(has_x) {
      tcleval( "wm withdraw .");
      tcleval(
@@ -3479,7 +3479,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  }
  /* set tcp port given in cmdline if any */
  if(tcp_port > 0) {
-   if(tcp_port < 1024) fprintf(errfp, "please use port numbers >=1024 on command line\n");
+   if(tcp_port < 1024) info("please use port numbers >=1024 on command line\n");
    else {
      my_snprintf(name, S(name), "set xschem_listen_port %d", tcp_port);
      tcleval(name);
@@ -3492,7 +3492,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /*                                */
  my_snprintf(name, S(name), "%s/%s", tclgetvar("XSCHEM_SHAREDIR"), "xschem.tcl");
  if(stat(name, &buf) ) {
-   fprintf(errfp, "Tcl_AppInit() err 4: cannot find %s\n", name);
+   info("Tcl_AppInit() err 4: cannot find %s\n", name);
    if(has_x) {
      tcleval( "wm withdraw .");
      tcleval(
@@ -3633,7 +3633,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  if( has_x ) {
     mainwindow=Tk_MainWindow(interp);
     if(!mainwindow) {
-       fprintf(errfp, "Tcl_AppInit() err 6: Tk_MainWindow returned NULL...\n");
+       info("Tcl_AppInit() err 6: Tk_MainWindow returned NULL...\n");
        return TCL_ERROR;
     }
     display = Tk_Display(mainwindow);
@@ -3662,7 +3662,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
     /*
     if (!XMatchVisualInfo(
         display, XDefaultScreen(display), 24, TrueColor, &vinfo)
-    ) return fprintf(errfp, "no 32 bit visual\n");
+    ) return info("no 32 bit visual\n");
     visual = vinfo.visual;
     */
     dbg(1, ("Tcl_AppInit(): done step b of xinit()\n"));
@@ -3846,13 +3846,13 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(cli_opt_do_netlist) {
    if(!cli_opt_filename[0]) {
-     fprintf(errfp, "xschem: cant do a netlist without a filename\n");
+     info("xschem: cant do a netlist without a filename\n");
      tcleval("exit 1");
    }
    if(set_netlist_dir(0, NULL)) { /* necessary to create netlist dir if not existing */
      if(debug_var>=1) {
        if(tclgetboolvar("flat_netlist"))
-         fprintf(errfp, "xschem: flat netlist requested\n");
+         info("xschem: flat netlist requested\n");
      }
      if(xctx->netlist_type == CAD_SPICE_NETLIST)
        global_spice_netlist(1, 1);                  /* 1 means global netlist */
@@ -3865,7 +3865,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
      else if(xctx->netlist_type == CAD_TEDAX_NETLIST)
        global_tedax_netlist(1, 1);                  /* 1 means global netlist */
    } else {
-    fprintf(errfp, "xschem: please set netlist_dir in xschemrc\n");
+    info("xschem: please set netlist_dir in xschemrc\n");
    }
  }
  if(cli_opt_do_print) {
@@ -3903,7 +3903,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(cli_opt_do_simulation) {
    if(!cli_opt_filename[0]) {
-     fprintf(errfp, "xschem: can't do a simulation without a filename\n");
+     info("xschem: can't do a simulation without a filename\n");
      tcleval("exit 1");
    }
    tcleval( "simulate");
@@ -3911,7 +3911,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
 
  if(cli_opt_do_waves) {
    if(!cli_opt_filename[0]) {
-     fprintf(errfp, "xschem: can't show simulation waves without a filename\n");
+     info("xschem: can't show simulation waves without a filename\n");
      tcleval("exit 1");
    }
    tcleval( "waves [file tail \"[xschem get schname]\"]");
