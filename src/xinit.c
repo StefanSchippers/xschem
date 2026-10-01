@@ -1235,7 +1235,31 @@ static int source_tcl_file(char *s)
   return TCL_OK;
 }
 
-
+static void inherit_graphic_context(Xschem_ctx *new, Xschem_ctx *old)
+{ 
+  int c;
+        
+  new->window = old->window;
+  new->gctiled = old->gctiled;
+  new->save_pixmap = old->save_pixmap;
+  new->lw = old->lw;
+  new->min_lw = old->min_lw;
+  #if HAS_CAIRO==1
+  new->cairo_ctx = old->cairo_ctx;
+  new->cairo_save_ctx = old->cairo_save_ctx;
+  new->cairo_sfc = old->cairo_sfc;
+  new->cairo_save_sfc = old->cairo_save_sfc;
+  #endif
+      
+  for(c = 0; c < cadlayers; ++c) {
+    new->gc[c] = old->gc[c];
+    new->gcstipple[c] = old->gcstipple[c];
+    my_strdup2(_ALLOC_ID_, &new->color_array[c], old->color_array[c]);
+    new->enable_layer[c] = old->enable_layer[c];
+    new->active_layer[c] = old->active_layer[c];
+    new->fill_type[c] = old->fill_type[c];
+  }   
+}
 
 /* flags: 
  *   1: DNU - set window title (used in fork_sch)
@@ -1247,28 +1271,7 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
   /* Xschem_ctx *save_xctx = xctx; */
 
   /* METADATA */
-  dest->window = source->window;
-  dest->gctiled = source->gctiled;
-  dest->save_pixmap = source->save_pixmap;
-  dest->lw = source->lw;
-  dest->min_lw = source->min_lw;
-  #if HAS_CAIRO==1
-  dest->cairo_ctx = source->cairo_ctx;
-  dest->cairo_save_ctx = source->cairo_save_ctx;
-  dest->cairo_sfc = source->cairo_sfc;
-  dest->cairo_save_sfc = source->cairo_save_sfc;
-  #endif
-
-  for(c = 0; c < cadlayers; ++c) {
-    dest->gc[c] = source->gc[c];
-    dest->gcstipple[c] = source->gcstipple[c];
-    my_strdup2(_ALLOC_ID_, &dest->color_array[c], source->color_array[c]);
-    dest->enable_layer[c] = source->enable_layer[c];
-    dest->active_layer[c] = source->active_layer[c];
-    dest->fill_type[c] = source->fill_type[c];
-  }
-
-  #if 1 /* resetwin() should take care for this ? */
+  inherit_graphic_context(dest, source);
   dest->areax1 = source->areax1;
   dest->areax2 = source->areax2;
   dest->areay1 = source->areay1;
@@ -1276,13 +1279,6 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, int flags)
   dest->areaw = source->areaw;
   dest->areah = source->areah;
   dest->xrect[0] = source->xrect[0];
-  #endif
-
-  #if 0
-  xctx = dest;
-  resetwin(1, 0, 1, 0, 0);
-  xctx = save_xctx;
-  #endif
 
   dest->n_active_layers = source->n_active_layers;
   dest->netlist_type = source->netlist_type;
@@ -1506,51 +1502,29 @@ static int is_empty_schematic(Xschem_ctx *c)
   return res;
 }
 
- 
- 
-
-static void update_save_xctx(Xschem_ctx *new, Xschem_ctx *old)
+static int update_save_xctx(Xschem_ctx *new, Xschem_ctx *old)
 {
   int i;
+
   if(window_count) {
     /* a tab with the `new` schematic is already present. Do nothing. */
     for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
-      if(save_xctx[i] == new) {
-        return;
+      if(save_xctx[i] && save_xctx[i] == new) {
+        dbg(1, ("update_save_xctx(): tab with new schematic already present: do nothing\n"));
+        return 0;
       }
     }
+
     for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
-      if(save_xctx[i] == old) {
-        int c;
+      if(save_xctx[i] && save_xctx[i] == old) {
+        dbg(1, ("update_save_xctx(): save_xctx[%d]=%p found, updating\n", i, save_xctx[i]));
         /* replacing an existing schematic in a tab: preserve these variables */
-        new->window = old->window;
-        new->gctiled = old->gctiled;
-        new->save_pixmap = old->save_pixmap;
-        new->lw = old->lw;
-        new->min_lw = old->min_lw;
-        #if HAS_CAIRO==1
-        new->cairo_ctx = old->cairo_ctx;
-        new->cairo_save_ctx = old->cairo_save_ctx;
-        new->cairo_sfc = old->cairo_sfc;
-        new->cairo_save_sfc = old->cairo_save_sfc;
-        #endif
-      
-        for(c = 0; c < cadlayers; ++c) {
-          new->gc[c] = old->gc[c];
-          new->gcstipple[c] = old->gcstipple[c];
-          my_strdup2(_ALLOC_ID_, &new->color_array[c], old->color_array[c]);
-          new->enable_layer[c] = old->enable_layer[c];
-          new->active_layer[c] = old->active_layer[c];
-          new->fill_type[c] = old->fill_type[c];
-        }
-
-
-
         save_xctx[i] = new;
-        break;
+        return 1;
       }
     }     
   }
+  return 0;
 }
 
 static int check_in_save_xctx(Xschem_ctx *ctx)
@@ -1601,6 +1575,8 @@ static char *get_new_fork_sch_key(const char *key)
   return new_key;
 }
 
+
+#if 0
 static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
 {
   Ptr_hashentry* entry = NULL;
@@ -1614,6 +1590,7 @@ static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
   my_free(_ALLOC_ID_, &key);
   return entry;
 }
+#endif
 
 /* what: 
  *   1: insert current schematic
@@ -1638,7 +1615,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
   int ret = 0;
   
   if(what == 1) { /* save current schematic in hash table */
-    Xschem_ctx *save_xctx = xctx;
+    Xschem_ctx *xctx_save = xctx;
     dbg(1, ("*** Insert ***\n"));
     if(fork_table.table == NULL) {
       dbg(1, ("init hash table\n"));
@@ -1649,10 +1626,11 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       dbg(0, ("Saving: %p  %s as %s\n", xctx, xctx->current_name, sch_name));
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
       xctx = NULL;
-      alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
-      sch_deep_copy(xctx, save_xctx, 2 | flags); /* 2 flag: don't copy schematic data */
+      alloc_xschem_data(xctx_save->top_path, xctx_save->current_win_path);
+      sch_deep_copy(xctx, xctx_save, 2 | flags); /* 2 flag: don't copy schematic data */
       set_untitled_name(0);
-      update_save_xctx(xctx, save_xctx);
+      inherit_graphic_context(xctx, xctx_save);
+      update_save_xctx(xctx, xctx_save);
       dbg(0, ("creating: %p  %s\n", xctx, xctx->current_name));
       if(has_x) {
         if(flags & 1) set_modify(-1);
@@ -1669,15 +1647,15 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       ptr_hash_init(&fork_table, fork_hash_size);
     }
     if(!ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
-      Xschem_ctx *save_xctx;
+      Xschem_ctx *xctx_save;
       ret = 1;
-      save_xctx = xctx; /* save current schematic */
+      xctx_save = xctx; /* save current schematic */
       xctx = NULL;
-      alloc_xschem_data(save_xctx->top_path, save_xctx->current_win_path);
-      sch_deep_copy(xctx, save_xctx, flags);
+      alloc_xschem_data(xctx_save->top_path, xctx_save->current_win_path);
+      sch_deep_copy(xctx, xctx_save, flags);
       dbg(1, ("store copy: %s as %s\n", xctx->current_name, sch_name));
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
-      xctx = save_xctx; /* restore current schematic */
+      xctx = xctx_save; /* restore current schematic */
     } else {
       dbg(dbglev, ("Not saving: %s already present\n", sch_name));
     }
@@ -1687,13 +1665,13 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     dbg(1, ("*** Lookup %s ***\n", sch_name));
     if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) ) {
       Xschem_ctx *new_xctx = entry->value;
-      Xschem_ctx *save_xctx = xctx;
+      Xschem_ctx *xctx_save = xctx;
       int schedule_delete = 0;
       if(!check_in_save_xctx(new_xctx)) { /* if in another tab, do nothing... */
         ret = 1;
         /* save current schematic or shred it if empty */
         if(is_empty_schematic(xctx)) { /* shred current schematic*/
-          dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
+          dbg(0, ("scheduled deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
           schedule_delete = 1;
         } else { /* save */
           dbg(0, ("found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name));
@@ -1715,13 +1693,15 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           dbg(0, ("overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name));
         }
         /* set window paths to current */
-        dbg(1, ("sch_fork 3: update current_win_path; %s\n", save_xctx->current_win_path));
-        my_strdup2(_ALLOC_ID_, &new_xctx->top_path, save_xctx->top_path);
-        my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, save_xctx->current_win_path);
+        dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx_save->current_win_path));
+        my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx_save->top_path);
+        my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, xctx_save->current_win_path);
         /* update tab/window title */
-        update_save_xctx(new_xctx, save_xctx);
+        inherit_graphic_context(new_xctx, xctx_save);
+        update_save_xctx(new_xctx, xctx_save);
         if(schedule_delete) {
-          xctx = save_xctx;
+          xctx = xctx_save;
+          dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
           delete_schematic_data(0); /* no reason to save empty junk */
         }
         xctx = new_xctx;
@@ -1746,12 +1726,12 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         Xschem_ctx *new_xctx = entry->value;
         /* do not zap the schematic we are into or schematic in another window / tab */
         if( new_xctx != xctx && !check_in_save_xctx(new_xctx)) {
-          Xschem_ctx *save_xctx = xctx;
+          Xschem_ctx *xctx_save = xctx;
           xctx = new_xctx;
           dbg(0, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token));
           delete_schematic_data(0);
           ret = 1;
-          xctx = save_xctx;
+          xctx = xctx_save;
         } else {
           dbg(dbglev, ("can not delete the schematic we are in or a schematic in another window / tab\n"));
         }
@@ -1782,13 +1762,13 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       Xschem_ctx *new_xctx = entry->value;
       /* do not zap the schematic we are into or schematic in another window / tab */
       if(new_xctx != xctx && !check_in_save_xctx(new_xctx)) {
-        Xschem_ctx *save_xctx = xctx; /* save current schematic */
+        Xschem_ctx *xctx_save = xctx; /* save current schematic */
         ptr_hash_lookup(&fork_table, sch_name, NULL, XDELETE);
         xctx = new_xctx;
         dbg(0, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, sch_name));
         delete_schematic_data(0);
         ret = 1;
-        xctx = save_xctx; /* restore current schematic */
+        xctx = xctx_save; /* restore current schematic */
       } else {
         dbg(dbglev, ("can not delete the schematic we are in or a schematic in another window / tab\n"));
       }
