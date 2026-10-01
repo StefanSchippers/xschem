@@ -10721,7 +10721,7 @@ proc build_widgets { {topwin {} } } {
     xschem exit
   }
   $topwin.menubar.file add command -label "Quit Xschem" -accelerator {Ctrl+Q} -command {
-    exit 0
+    xschem exit 0 closewindow
   }
   $topwin.menubar.option add checkbutton -label "Color Postscript/SVG" -variable color_ps \
      -selectcolor $selectcolor -command {
