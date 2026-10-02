@@ -8116,6 +8116,7 @@ proc text_line {txtlabel clear {preserve_disabled disabled} } {
 # otherwise use specified coordinates example: alert_ {hello, world} +300+400
 # if nowait is 1 do not wait for user to close dialog box
 # if yesnow is 1 show yes and no buttons and return user choice (1 / 0).
+# if yesnow is 2 show yes no and cancel buttons and return user choice (1 / 0 / {}).
 # (this works only if nowait is unset).
 proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
   global has_x
@@ -8152,10 +8153,17 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
     clipboard clear
     clipboard append [list $txtlabel]
   "
-  if {$yesno} {
+  if {$yesno >= 1} {
     button .alert.b2 -text "No" -command  \
     {
       set tctx::rcode 0
+      destroy .alert
+    }
+  }
+  if {$yesno == 2} {
+    button .alert.b4 -text "Cancel" -command  \
+    {
+      set tctx::rcode {}
       destroy .alert
     }
   }
@@ -8166,7 +8174,8 @@ proc alert_ {txtlabel {position +200+300} {nowait {0}} {yesno 0}} {
 
   pack .alert.l1 -side top -fill both -expand yes
   pack .alert.b1 -side left -fill x -expand yes
-  if {$yesno} {pack .alert.b2 -side left -fill x -expand yes}
+  if {$yesno >= 1} {pack .alert.b2 -side left -fill x -expand yes}
+  if {$yesno == 2} {pack .alert.b4 -side left -fill x -expand yes}
   pack .alert.b3 -side left -fill x -expand yes
   tkwait visibility .alert
   # grab set .alert

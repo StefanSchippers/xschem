@@ -1559,6 +1559,7 @@ static int is_in_fork_sch(Xschem_ctx *ctx)
   return 0;
 }
 
+#if 0
 /* caller should free returned string */
 static char *get_new_fork_sch_key(const char *key)
 {
@@ -1574,7 +1575,7 @@ static char *get_new_fork_sch_key(const char *key)
   }
   return new_key;
 }
-
+#endif
 
 #if 0
 static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
@@ -1625,6 +1626,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       ret = 1;
       dbg(0, ("Saving: %p  %s as %s\n", xctx, xctx->current_name, sch_name));
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
+
+      /* create an empty schematic */
       xctx = NULL;
       alloc_xschem_data(xctx_save->top_path, xctx_save->current_win_path);
       sch_deep_copy(xctx, xctx_save, 2 | flags); /* 2 flag: don't copy schematic data */
@@ -1636,6 +1639,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         if(flags & 1) set_modify(-1);
         if(flags & 4) draw();
       }
+
     } else {
       dbg(dbglev, ("Not saving: %s already present\n", sch_name));
     }
@@ -1661,60 +1665,95 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     }
 
 
-  } else if(what == 3 && fork_table.table) { /* lookup schematic indicated in `sch_name` and switch to it */
+  } else if(what == 3 && fork_table.table) { /* lookup schematic given in `sch_name` and switch to it */
     dbg(1, ("*** Lookup %s ***\n", sch_name));
-    if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) ) {
+    if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) &&
+         entry->value != xctx) {
       Xschem_ctx *new_xctx = entry->value;
       Xschem_ctx *xctx_save = xctx;
       int schedule_delete = 0;
       if(!check_in_save_xctx(new_xctx)) { /* if in another tab, do nothing... */
-        ret = 1;
-        /* save current schematic or shred it if empty */
-        if(is_empty_schematic(xctx)) { /* shred current schematic*/
-          dbg(0, ("scheduled deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
-          schedule_delete = 1;
-        } else { /* save */
-          dbg(0, ("found %p  %s saved as %s, switch to it\n", new_xctx, new_xctx->current_name, sch_name));
-          if(!(entry = ptr_hash_lookup(&fork_table, xctx->current_name, NULL, XLOOKUP))) { /* not in hash table ... */
-            dbg(0, ("saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name));
-            ptr_hash_lookup(&fork_table, xctx->current_name, xctx, XINSERT_NOREPLACE); /* ... so save it now */
-          } else {
-            char *new_key;
-            dbg(0, ("not saving: %p  %s, already present\n", xctx, xctx->current_name));
-             
-            if(0 && entry->value != xctx) {
-              dbg(0, ("   but it's a different version: %p\n", entry->value));
-              new_key = get_new_fork_sch_key(xctx->current_name);
-              dbg(0, ("saving: %p  %s as %s\n", xctx, xctx->current_name, new_key));
-              ptr_hash_lookup(&fork_table, new_key, xctx, XINSERT_NOREPLACE);
-              my_free(_ALLOC_ID_, &new_key);
+        int save_ok = 0, proceed = 1;
+        if(dbglev == 0 && xctx->modified) { /* ask user only if dbglev is 0 */
+          tcleval("ask_save_optional");
+          if(!strcmp(tclresult(), "yes") ) { /* user wants to save */
+            save_ok = save_schematic(xctx->sch[xctx->currsch], 1);
+            if(save_ok==0) {
+              info("fork_sch(): file opening for write failed! %s \n", xctx->current_name);
+              tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {} 0 2", NULL);
+              proceed = 0;
+            } else {
+              proceed = 1;
             }
+          } else if(!strcmp(tclresult(), "no")) {
+            proceed = 1; /* user click "no save" */
+          } else if(!strcmp(tclresult(), "")) {
+            proceed = 0; /* user click "cancel" */
           }
-          dbg(0, ("overwriting: %p  %s with %p  %s\n", xctx, xctx->current_name, new_xctx, new_xctx->current_name));
         }
-        /* set window paths to current */
-        dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx_save->current_win_path));
-        my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx_save->top_path);
-        my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, xctx_save->current_win_path);
-        /* update tab/window title */
-        inherit_graphic_context(new_xctx, xctx_save);
-        update_save_xctx(new_xctx, xctx_save);
-        if(schedule_delete) {
-          xctx = xctx_save;
-          dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
-          delete_schematic_data(0); /* no reason to save empty junk */
-        }
-        xctx = new_xctx;
-
-        if(has_x) {
-          if(flags & 1) set_modify(-1);
-          if(flags & 4) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+        if(proceed) { /* only switch if current file does not need a save */
+          ret = 1;
+          /* save current schematic or shred it if empty */
+          if(is_empty_schematic(xctx)) { /* shred current schematic*/
+            if(!is_in_fork_sch(xctx) && !check_in_save_xctx(xctx)) {
+              dbg(0, ("schedule deletion of empty schematic: %p  %s\n", xctx, xctx->current_name));
+              schedule_delete = 1;
+            } else {
+              dbg(0, ("Not deleting empty schematic: %p  %s, saved in fork_sch or another win/tab\n",
+                   xctx, xctx->current_name));
+            }
+          } else { /* save */
+            dbg(0, ("found %p  %s saved as %s, switch to it\n",
+                 new_xctx, new_xctx->current_name, sch_name));
+            /* not in hash table ... */
+            if(!(entry = ptr_hash_lookup(&fork_table, xctx->current_name, NULL, XLOOKUP))) {
+              dbg(0, ("saving: %p  %s as %s\n", xctx, xctx->current_name, xctx->current_name));
+              /* ... so save it now */
+              ptr_hash_lookup(&fork_table, xctx->current_name, xctx, XINSERT_NOREPLACE);
+            } else {
+              dbg(0, ("not saving: %p  %s, already present\n", xctx, xctx->current_name));
+               
+              if(entry->value != xctx) {
+                /* char *new_key; */
+                dbg(0, ("   but it's a different version, schedule deletion: %p, delete.\n",
+                     entry->value));
+                /* new_key = get_new_fork_sch_key(xctx->current_name);
+                 * dbg(0, ("saving: %p  %s as %s\n", xctx, xctx->current_name, new_key));
+                 * ptr_hash_lookup(&fork_table, new_key, xctx, XINSERT_NOREPLACE);
+                 * my_free(_ALLOC_ID_, &new_key);
+                 */
+                 schedule_delete = 1;
+              }
+            }
+            dbg(0, ("overwriting: %p  %s with %p  %s\n",
+                 xctx, xctx->current_name, new_xctx, new_xctx->current_name));
+          }
+          /* set window paths to current */
+          dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx_save->current_win_path));
+          my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx_save->top_path);
+          my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, xctx_save->current_win_path);
+          /* update tab/window title */
+          inherit_graphic_context(new_xctx, xctx_save);
+          update_save_xctx(new_xctx, xctx_save);
+          if(schedule_delete) {
+            xctx = xctx_save;
+            dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
+            delete_schematic_data(0); /* no reason to save empty junk */
+          }
+          xctx = new_xctx;
+  
+          if(has_x) {
+            if(flags & 1) set_modify(-1);
+            if(flags & 4) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          }
+        } else {
+          dbg(dbglev, ("Current schematic: %s is modified, please save\n", xctx->current_name));
         }
       } else {
         dbg(dbglev, ("Another window / tab already contains %s\n", sch_name));
       }
     } else {
-      dbg(dbglev, ("schematic to lookup not found:%s\n", sch_name));
+      dbg(dbglev, ("Schematic to lookup not found or already current: %s\n", sch_name));
     }
 
 
@@ -1733,7 +1772,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           ret = 1;
           xctx = xctx_save;
         } else {
-          dbg(dbglev, ("can not delete the schematic we are in or a schematic in another window / tab\n"));
+          dbg(dbglev, 
+            ("Can not delete the schematic we are in or presentin another window/tab\n"));
         }
         entry = entry->next;
       }

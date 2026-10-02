@@ -1418,18 +1418,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)
      *   4: draw schematic when switching [default]
+     * dbglev: 
+     *   0: print informations, ask user to save a modified schematic [default]
+     *  >0: print info only if debug_var >-dbglev, do not prompt user
      */
     else if(!strcmp(argv[1], "fork_sch"))
     {
       char *sch_name = NULL;
       int what = 0;
       int flags = 5;
+      int dbglev = 0;
       int ret = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       my_strdup2(_ALLOC_ID_, &sch_name, xctx->current_name);
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem fork_sch: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
+      }
+      if(argc > 5) {
+        dbglev = atoi(argv[5]);
       }
       if(argc > 4) {
         flags = atoi(argv[4]);
@@ -1438,7 +1445,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
       what = atoi(argv[2]);
-      ret = fork_sch(what, sch_name, flags, 0);
+      ret = fork_sch(what, sch_name, flags, dbglev);
       my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
     }
