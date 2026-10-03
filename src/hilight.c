@@ -380,9 +380,9 @@ static void set_rawfile_for_bespice()
 {
   char raw_file[PATH_MAX];
   char netlist_file[PATH_MAX];
-  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  tcleval("file rootname [xschem get current_name].raw");
   my_strncpy(raw_file, tclresult(), S(raw_file));
-  tcleval("file tail [file rootname [xschem get schname 0]].spice");
+  tcleval("file rootname [xschem get current_name].spice");
   my_strncpy(netlist_file, tclresult(), S(netlist_file));
 
   /* (1) make sure that the raw file has been opened */
@@ -420,7 +420,7 @@ void create_plot_cmd(void)
 
   tcleval("sim_is_xyce");
   simtype = atoi( tclresult() );
-  tcleval("file tail [file rootname [xschem get schname 0]].raw");
+  tcleval("file rootname [xschem get current_name].raw");
   my_strncpy(rawfile, tclresult(), S(rawfile));
   tcleval("info exists sim");
   if(tclresult()[0] == '1') exists = 1;

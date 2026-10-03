@@ -3619,7 +3619,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   char *ffname = NULL; /*copy of fname so I can change it */
   char msg[PATH_MAX+100];
   struct stat buf;
-  int i, ret = 1; /* success */
+  int ret = 1; /* success */
 
   xctx->prep_hi_structs=0;
   xctx->prep_net_structs=0;
@@ -3752,24 +3752,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
     if(reset_undo) xctx->time_last_modify = -1; /* no file given, set mtime to -1 (undefined) */
     clear_drawing();
-    for(i=0;; ++i) {
-      if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
-        if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
-        else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
-      } else {
-        if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
-        else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
-      }
-      if(stat(name, &buf)) break;
-    }
-    my_strncpy(xctx->current_name, name, S(xctx->current_name));
-    if(getenv("PWD")) {
-      /* $env(PWD) better than pwd_dir as it does not dereference symlinks */
-      my_strncpy(xctx->current_dirname, getenv("PWD"), S(xctx->current_dirname));
-    } else {
-      my_strncpy(xctx->current_dirname, pwd_dir, S(xctx->current_dirname));
-    }
-    my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch],  xctx->current_dirname, "/", name, NULL);
+    set_untitled_name((xctx->netlist_type == CAD_SYMBOL_ATTRS));
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();

@@ -211,11 +211,11 @@ int set_modify(int mod)
       ) {
       char *top_path =  xctx->top_path[0] ? xctx->top_path : ".";
       if(xctx->modified == 1) {
-        tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
-        tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]*\"", NULL);
+        tclvareval("wm title ", top_path, " \"xschem - [xschem get current_name]*\"", NULL);
+        tclvareval("wm iconname ", top_path, " \"xschem - [xschem get current_name]*\"", NULL);
       } else {
-        tclvareval("wm title ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
-        tclvareval("wm iconname ", top_path, " \"xschem - [file tail [xschem get schname]]\"", NULL);
+        tclvareval("wm title ", top_path, " \"xschem - [xschem get current_name]\"", NULL);
+        tclvareval("wm iconname ", top_path, " \"xschem - [xschem get current_name]\"", NULL);
       }
       dbg(1, ("modified=%d, schname=%s\n", xctx->modified, xctx->current_name));
       if(xctx->modified) tcleval("set_tab_names *");
@@ -2789,37 +2789,6 @@ void go_back(int what)
 
   dbg(1, ("go_back(): current path: %s\n", xctx->sch_path[xctx->currsch]));
  }
-}
-
-void set_untitled_name(int symbol)
-{
- int i;
- struct stat buf;
- char name[PATH_MAX];
- if(symbol == 1) {
-   xctx->netlist_type = CAD_SYMBOL_ATTRS;
-   set_tcl_netlist_type();
-   for(i=0;; ++i) { /* find a non-existent untitled[-n].sym */
-     if(i == 0) my_snprintf(name, S(name), "%s.sym", "untitled");
-     else my_snprintf(name, S(name), "%s-%d.sym", "untitled", i);
-     if(stat(name, &buf)) break;
-   } 
-   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
-   my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
-   my_strncpy(xctx->current_name, name, S(xctx->current_name));
- } else {
-   xctx->netlist_type = CAD_SPICE_NETLIST;
-   set_tcl_netlist_type();
-   for(i=0;; ++i) {
-     if(i == 0) my_snprintf(name, S(name), "%s.sch", "untitled");
-     else my_snprintf(name, S(name), "%s-%d.sch", "untitled", i);
-     if(stat(name, &buf)) break;
-   }
-   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
-   my_mstrcat(_ALLOC_ID_, &xctx->sch[xctx->currsch], pwd_dir, "/", name, NULL);
-   my_strncpy(xctx->current_name, name, S(xctx->current_name));
- }
-
 }
 
 void clear_schematic(int cancel, int symbol)

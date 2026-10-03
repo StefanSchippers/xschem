@@ -2877,7 +2877,7 @@ proc setup_tcp_gaw {} {
   if {$custom_netlist_file ne {}} {
     set s [file rootname $custom_netlist_file]
   } else {
-    set s [file tail [file rootname [xschem get schname 0]]]
+    set s [file rootname [xschem get current_name]]
   }
   if { ![info exists gaw_fd] && [catch {eval socket $gaw_tcp_address} gaw_fd] } {
     puts "Problems opening socket to gaw on address $gaw_tcp_address"
@@ -9789,12 +9789,12 @@ proc set_tab_names {{mod {}}} {
 
   if {[info exists has_x] && $tabbed_interface } {
     set currwin [xschem get current_win_path]
-    set currsch [xschem get schname]
+    set cur_name [xschem get current_name]
     regsub {\.drw} $currwin {} tabname
     if {$tabname eq {}} { set tabname .x0}
-    .tabs$tabname configure -text [file tail $currsch]$mod -background $tab_color
-    # puts ".tabs$tabname --> name=[file tail $currsch]$mod"
-    balloon .tabs$tabname $currsch
+    .tabs$tabname configure -text $cur_name$mod -background $tab_color
+    # puts ".tabs$tabname --> name=[file tail $cur_name]$mod"
+    balloon .tabs$tabname [xschem get schname]
     for { set i 0} { $i < $tctx::max_new_windows} { incr i} {
       if { [winfo exists .tabs.x$i] && ($tabname ne ".x$i")} {
          .tabs.x$i configure -background $tctx::tab_bg
@@ -10561,7 +10561,7 @@ proc switch_undo {} {
 proc select_raw {{parent {.}}} {
   global has_x netlist_dir
   regsub {/$} $netlist_dir {} netlist_dir
-  set filename $netlist_dir/[file tail [file rootname [xschem get schname]]].raw
+  set filename $netlist_dir/[file rootname [xschem get current_name]].raw
   set types {
       {{Raw Files}       {.raw}        }
       {{All Files}        *            }
@@ -11197,10 +11197,10 @@ proc build_widgets { {topwin {} } } {
     }
   }
   $topwin.menubar.simulation add command -label {Utile Stimuli Editor (GUI)} -command {
-     inutile [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
+     inutile [xschem get current_dirname]/stimuli.[file rootname [xschem get current_name]]
   }
   $topwin.menubar.simulation add command -label {Utile Stimuli Translate} -command {
-     inutile_translate  [xschem get current_dirname]/stimuli.[file rootname [file tail [xschem get schname]]]
+     inutile_translate  [xschem get current_dirname]/stimuli.[file rootname [xschem get current_name]]
   }
   $topwin.menubar.simulation add command -label {Shell [simulation path]} -command {
      if { [set_netlist_dir 0] ne "" } {

@@ -5623,6 +5623,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             xctx->constr_mv = atoi(argv[3]);
             if(xctx->constr_mv < 0 || xctx->constr_mv > 2) xctx->constr_mv = 0;
           }
+          else if(!strcmp(argv[2], "current_name")) { /* set current_name field of current schematic */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            my_strncpy(xctx->current_name, argv[3], S(xctx->current_name));
+          }
           else if(!strcmp(argv[2], "cursor1_x")) { /* set graph cursor1 position */
             xctx->graph_cursor1_x = atof_spice(argv[3]);
 
@@ -6554,11 +6558,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         
         for(i = 0; i < MAX_NEW_WINDOWS; i++) {
           if(!ctx[i]) continue;
-          info("%d: %p  %s %s  sch[0]: %p  %s\n", 
-              i, ctx[i], get_window_path(i), 
-              ctx[i] ? ctx[i]->current_win_path : "NULL",
-              ctx[i] ? ctx[i]->sch[0] : NULL , ctx[i] ? ctx[i]->sch[0] : "NULL"
-             );
+          info("%d: %p  %s  %s\n", 
+              i, ctx[i], get_window_path(i), get_save_xctx()[i]->current_name);
         }
       }
     }
