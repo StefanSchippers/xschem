@@ -303,7 +303,9 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
       save_npoints = raw->npoints[0];
       raw->npoints[0] = raw->allpoints;
     }
-    sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
+    /* "label; expression" sweep attribute takes precedence, else plain sweep variable */
+    sweep_idx = graph_sweep_expr_col(get_tok_value(r->prop_ptr, "sweep", 0), NULL);
+    if(sweep_idx < 0) sweep_idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
     if(sweep_idx < 0) sweep_idx = 0;
     if(r->flags & 4) { /* private_cursor */
       const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
@@ -912,7 +914,9 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     my_free(_ALLOC_ID_, &rawfile);
     my_free(_ALLOC_ID_, &sim_type);
 
-    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
+    /* "label; expression" sweep attribute takes precedence, else plain sweep variable */
+    idx = graph_sweep_expr_col(get_tok_value(r->prop_ptr, "sweep", 0), NULL);
+    if(idx < 0) idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
     dset = dataset == -1 ? 0 : dataset;
 
     if(idx < 0 ) idx = 0;
