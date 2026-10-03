@@ -316,6 +316,24 @@ The following syntax:
   If <kbd>v(a) v(z)</kbd> is specified in the Sweep textbox (or <kbd>a z</kbd>) the <kbd>z</kbd> signal
   will be plotted vs <kbd>a</kbd> and the <kbd>a</kbd> signal will be plotted vs <kbd>z</kbd>.<br>
   <img src="graphs22.png"><br><br>
+ </p>
+
+  <h3>Plot vs an expression (custom sweep axis)</h3>
+  <p>
+   The <kbd>Sweep</kbd> textbox also accepts the same <kbd>"label; expression"</kbd> format
+   used for graph waves. The RPN expression is evaluated point by point and its result is
+   used as the X-axis for all the waves in the graph, and <kbd>label</kbd> is shown on the
+   X-axis instead of a raw file variable name.<br>
+   Example: <kbd>Gain; v(out) v(in) / db20()</kbd> plots all the waves in the graph as
+   <kbd>dB20(out/in)</kbd> and labels the X-axis <kbd>Gain</kbd>.<br>
+   If the text after the semicolon is just a raw file variable name, like
+   <kbd>Time; time</kbd>, that variable is used for the X-axis and <kbd>Time</kbd> is shown
+   on the X-axis instead of <kbd>time</kbd>.<br>
+   Inside the sweep expression the operators that need a sweep reference,
+   like <kbd>integ()</kbd>, <kbd>deriv()</kbd>, <kbd>del()</kbd> and <kbd>avg()</kbd>,
+   use the first variable in the raw file as sweep axis. Note that when an expression is
+   used, the same X-axis is applied to all the waves in the graph, so the one-variable-per-wave
+   syntax like <kbd>v(a) v(z)</kbd> above is not available in that case.
   </p>
 
  <!-- end of slide -->

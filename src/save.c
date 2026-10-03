@@ -514,9 +514,10 @@ static void read_raw_data_block(int binary, FILE *fd, Raw *raw, int ac)
   for(p = 0 ; p < raw->datasets; p++) {
     offset += raw->npoints[p];
   }
-  /* allocate storage for binary block, add one data column for custom data plots */
-  if(!raw->values) raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
-  for(p = 0 ; p <= raw->nvars; p++) {
+  /* allocate storage for binary block, add one data column for custom data plots
+   * and one for sweep expressions ("label; expression" graph sweep attribute) */
+  if(!raw->values) raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 2, sizeof(SPICE_DATA *));
+  for(p = 0 ; p <= raw->nvars + 1; p++) {
     my_realloc(_ALLOC_ID_,
        &raw->values[p], (offset + npoints) * sizeof(SPICE_DATA));
   }
@@ -876,8 +877,8 @@ void free_rawfile(Raw **rawptr, int dr, int no_warning)
     my_free(_ALLOC_ID_, &raw->cursor_b_val);
   }
   if(raw->values) {
-    /* free also extra column for custom data plots */
-    for(i = 0 ; i <= raw->nvars; ++i) {
+    /* free also extra columns for custom data plots and sweep expressions */
+    for(i = 0 ; i <= raw->nvars + 1; ++i) {
       my_free(_ALLOC_ID_, &raw->values[i]);
     }
     my_free(_ALLOC_ID_, &raw->values);
@@ -984,13 +985,17 @@ int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
     raw->names[raw->nvars - 1] = NULL;
     my_strdup2(_ALLOC_ID_, &raw->names[raw->nvars - 1], varname);
     int_hash_lookup(&raw->table, raw->names[raw->nvars - 1], raw->nvars - 1, XINSERT_NOREPLACE);
-    my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 1) * sizeof(SPICE_DATA *));
-    raw->values[raw->nvars] = NULL;
-    my_realloc(_ALLOC_ID_, &raw->values[raw->nvars], raw->allpoints * sizeof(SPICE_DATA));
+    my_realloc(_ALLOC_ID_, &raw->values, (raw->nvars + 2) * sizeof(SPICE_DATA *));
+    /* shift the two reserved expression columns (nvars, nvars+1 before the nvars
+     * increment) up by one so the new variable can take their place */
+    raw->values[raw->nvars + 1] = raw->values[raw->nvars];
+    raw->values[raw->nvars]     = raw->values[raw->nvars - 1];
+    raw->values[raw->nvars - 1] = NULL;
+    my_realloc(_ALLOC_ID_, &raw->values[raw->nvars - 1], raw->allpoints * sizeof(SPICE_DATA));
     res = 1;
   }
   if(expr) {
-    plot_raw_custom_data(sweep_idx, 0, raw->allpoints -1, expr, varname);
+    plot_raw_custom_data(sweep_idx, 0, raw->allpoints -1, expr, varname, -1);
   } else if(res == 1) {
     for(f = 0; f < raw->allpoints; f++) {
       raw->values[raw->nvars - 1][f] = 0.0;
@@ -1018,10 +1023,12 @@ int raw_copy(Raw **dest_raw, Raw *source_raw)
     my_strdup2(_ALLOC_ID_, &(*dest_raw)->names[i], source_raw->names[i]);
   }
 
-  (*dest_raw)->values = my_calloc(_ALLOC_ID_, (source_raw->nvars + 1), sizeof(SPICE_DATA *));
-  for(i = 0; i <= source_raw->nvars; i++) { /* one extra column for wave expressions */
-    (*dest_raw)->values[i] = my_calloc(_ALLOC_ID_, source_raw->allpoints, sizeof(SPICE_DATA));
-    memcpy((*dest_raw)->values[i], source_raw->values[i], source_raw->allpoints * sizeof(SPICE_DATA));
+  (*dest_raw)->values = my_calloc(_ALLOC_ID_, (source_raw->nvars + 2), sizeof(SPICE_DATA *));
+  for(i = 0; i <= source_raw->nvars + 1; i++) { /* extra columns for wave expressions and sweep expressions */
+    if(source_raw->values[i]) {
+      (*dest_raw)->values[i] = my_calloc(_ALLOC_ID_, source_raw->allpoints, sizeof(SPICE_DATA));
+      memcpy((*dest_raw)->values[i], source_raw->values[i], source_raw->allpoints * sizeof(SPICE_DATA));
+    }
   }
 
   (*dest_raw)->cursor_b_val = my_calloc(_ALLOC_ID_, source_raw->nvars, sizeof(double));
@@ -1180,12 +1187,13 @@ int raw_deletevar(const char *name)
     raw->names[i - 1] = raw->names[i];
   }
   my_free(_ALLOC_ID_, &raw->values[n]);
-  for(i = n + 1; i <= raw->nvars; i++) {
+  /* shift the two reserved expression columns too */
+  for(i = n + 1; i <= raw->nvars + 1; i++) {
     raw->values[i - 1] = raw->values[i];
   }
   raw->nvars--;
   my_realloc(_ALLOC_ID_, &raw->names, sizeof(char *) * raw->nvars);
-  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * raw->nvars + 1);
+  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * (raw->nvars + 2));
   ret = 1;
   return ret;
 }
@@ -1245,9 +1253,10 @@ int new_rawfile(const char *name, const char *type, const char *sweepvar,
       raw->allpoints = number;
       raw->npoints[0] = number;
       raw->nvars = 1;
-      raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
+      raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 2, sizeof(SPICE_DATA *));
       raw->values[0] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
       raw->values[1] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
+      raw->values[2] = my_calloc(_ALLOC_ID_, number,  sizeof(SPICE_DATA));
       raw->names = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(char *));
       raw->cursor_b_val = my_calloc(_ALLOC_ID_, raw->nvars, sizeof(double));
       my_strdup2(_ALLOC_ID_, &raw->names[0], sweepvar);
@@ -1666,8 +1675,8 @@ int table_read(const char *f)
       ++nline;
       if(nline == 1) {
         int f;
-        raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 1, sizeof(SPICE_DATA *));
-        for(f = 0; f <= raw->nvars; f++) { /* one extra column for wave expressions */
+        raw->values = my_calloc(_ALLOC_ID_, raw->nvars + 2, sizeof(SPICE_DATA *));
+        for(f = 0; f <= raw->nvars + 1; f++) { /* extra columns for wave expressions and sweep expressions */
           my_realloc(_ALLOC_ID_, &raw->values[f], lines * sizeof(SPICE_DATA));
         }
       }
@@ -1877,7 +1886,9 @@ typedef struct {
   int prevp;
 } Stack1;
 
-int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, const char *yname)
+/* ycol < 0: output to the reserved custom data column (or the named column if
+ * yname is given); ycol >= 0: output to the given data column */
+int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, const char *yname, int ycol)
 {
   int i, p, idx;
   const char *n;
@@ -1886,16 +1897,22 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
   double stack2[STACKMAX]={0}, tmp, result, avg;
   int stackptr1 = 0, stackptr2 = 0;
   SPICE_DATA *y;
+  int yidx;
   SPICE_DATA *x = xctx->raw->values[sweep_idx];
   SPICE_DATA *sweepx = xctx->raw->values[0];
 
-  y = xctx->raw->values[xctx->raw->nvars]; /* custom plot data column */
-  if(yname != NULL) {
-    int yidx = get_raw_index(yname, NULL);
-    if(yidx >= 0) {
-      y = xctx->raw->values[yidx]; /* provided index */
+  if(ycol >= 0) {
+    yidx = ycol; /* provided data column */
+  } else {
+    yidx = xctx->raw->nvars; /* custom plot data column */
+    if(yname != NULL) {
+      int named_idx = get_raw_index(yname, NULL);
+      if(named_idx >= 0) {
+        yidx = named_idx; /* provided index */
+      }
     }
   }
+  y = xctx->raw->values[yidx];
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
   dbg(1, ("plot_raw_custom_data(): expr=%s, first=%d, last=%d\n", expr, first, last));
@@ -2373,7 +2390,79 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
     y[p] = (SPICE_DATA)stack2[0];
   } /* for(p = first ...) */
   ravg_store(0, 0, 0, 0, 0.0); /* clear data */
-  return xctx->raw->nvars;
+  return yidx;
+}
+
+/* resolve the "sweep" attribute of a graph to a raw file data column index.
+ * the attribute may be:
+ * - a raw file variable name (or space separated list of variable names,
+ *   one per graph wave, like "v(a) v(z)") --> return -1 and let the caller
+ *   handle it with get_raw_index()
+ * - "label; variable" --> return the data column index of 'variable'
+ *   (used to show 'label' instead of the variable name on the x axis)
+ * - "label; expression" --> evaluate 'expression' (same RPN expression
+ *   syntax as graph waves) into the reserved sweep expression data column
+ *   (index nvars+1) using the first raw file variable as sweep reference
+ *   for integ()/deriv()/del()/avg() operators, and return that column index.
+ * *label_ret: if not NULL receives a my_malloc'd copy of 'label'
+ *   (caller must free it). Empty label (like "; expression") --> NULL. */
+int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
+{
+  char *label = NULL, *expr = NULL, *tmp = NULL;
+  const char *semi, *match;
+  int idx = -1;
+  Raw *raw = xctx->raw;
+
+  if(label_ret) *label_ret = NULL;
+  if(!raw || !raw->values || !sweep_attr || !sweep_attr[0]) return -1;
+  semi = strchr(sweep_attr, ';');
+  if(!semi) return -1; /* plain sweep variable(s), legacy handling */
+
+  /* label: everything before the first ';', trimmed of leading spaces
+   * (copy, so the caller's string is not modified) */
+  if(semi > sweep_attr) {
+    const char *lp = sweep_attr;
+    while(lp < semi && *lp == ' ') lp++;
+    if(lp < semi) {
+      my_strndup(_ALLOC_ID_, &label, lp, semi - lp);
+    }
+  }
+  /* expression: everything after the first ';' */
+  my_strdup2(_ALLOC_ID_, &expr, semi + 1);
+  tmp = expr;
+  while(tmp[0] == ' ' || tmp[0] == '\t') tmp++;
+  expr = tmp;
+  tmp = expr + strlen(expr);
+  while(tmp > expr && (tmp[-1] == ' ' || tmp[-1] == '\t')) {
+    tmp[-1] = '\0';
+    tmp--;
+  }
+  if(tmp == expr) expr[0] = '\0'; /* expression was only spaces */
+
+  if(!expr[0]) { /* just "label;": use the first raw file variable with 'label' */
+    idx = 0;
+  } else {
+    /* same test used for graph waves: unescaped space means RPN expression */
+    match = strpbrk(expr, " \n\t");
+    if(match && (match == expr || *(match - 1) != '\\')) {
+      idx = plot_raw_custom_data(0, 0, raw->allpoints - 1, expr, NULL, raw->nvars + 1);
+      if(idx < 0) {
+        info("graph_sweep_expr_col(): no data found in sweep expression \"%s\", using 1st raw file variable\n", expr);
+        idx = 0;
+      }
+    } else { /* single token: raw file variable name */
+      if(match && match > expr && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &expr, str_replace(expr, "\\ ", " ", 0, -1));
+      }
+      idx = get_raw_index(expr, NULL);
+      if(idx < 0) {
+        info("graph_sweep_expr_col(): no data found for sweep variable \"%s\", using 1st raw file variable\n", expr);
+        idx = 0;
+      }
+    }
+  }
+  if(label_ret) *label_ret = label;
+  return idx;
 }
 
 double get_raw_value(int dataset, int idx, int point)
