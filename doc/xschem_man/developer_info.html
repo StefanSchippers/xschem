@@ -614,7 +614,6 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       check_loaded n &lt;filename&gt;</kbd></li><pre>
    check if schematic / symbol file is already opened and return window path
    the loaded schematic is in.
-   for &lt;filename&gt; use absolute path or use [abs_sym_path filename]
      window_path[0] == ".drw"
      window_path[1] == ".x1.drw"
      ...
@@ -783,7 +782,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
        flags: 
    1: set window title [default]
    2: copy only metadata (yields an empty schematic)
-   4: draw schematic when switching [default]</pre>
+   4: draw schematic when switching [default]
+       dbglev: 
+   0: print informations, ask user to save a modified schematic [default]
+  &gt;0: print info only if debug_var &gt;-dbglev, do not prompt user</pre>
    <li><kbd>       fullscreen</kbd></li><pre>
    Toggle fullscreen modes: fullscreen with menu &amp; status, fullscreen, normal </pre>
    <li><kbd>       get var</kbd></li><pre>
@@ -1541,6 +1543,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> color_ps </kbd> set color psoscript (1 or 0) </li>
      <li><kbd> crosshair_layer </kbd> set layer for mouse crosshair </li>
      <li><kbd> constr_mv </kbd> set constrained move (1=horiz, 2=vert, 0=none) </li>
+     <li><kbd> current_name </kbd> set current_name field of current schematic </li>
      <li><kbd> cursor1_x </kbd> set graph cursor1 position </li>
      <li><kbd> cursor2_x </kbd> set graph cursor2 position </li>
      <li><kbd> draw_window </kbd> set drawing to window (1 or 0) </li>
