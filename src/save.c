@@ -3525,7 +3525,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
     set_modify(-1); /* set title to new filename */
   }
   else { /* user asks to save to same filename */
-    if(!stat(xctx->sch[xctx->currsch], &buf)) {
+    if(has_x && !stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify != -1 && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("ask_save \"Schematic file: ", xctx->sch[xctx->currsch],
             "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
@@ -5175,7 +5175,7 @@ void create_sch_from_sym(void)
         my_strncpy(schname, add_ext(abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""),
              ".sch"), S(schname));
       }
-      if( !stat(schname, &buf) ) {
+      if(has_x && !stat(schname, &buf) ) {
         tclvareval("ask_save \"Create schematic file: ", schname,
             "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
         if(strcmp(tclresult(), "yes") ) {

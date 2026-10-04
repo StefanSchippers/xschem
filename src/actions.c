@@ -569,7 +569,7 @@ int save(int confirm, int fast)
   if(force || xctx->modified)
   {
     dbg(1, ("save(): force=%d modified=%d\n", force, xctx->modified));
-    if(confirm) {
+    if(has_x && confirm) {
       tcleval("ask_save");
       if(!strcmp(tclresult(), "") ) return -1; /* user clicks "Cancel" */
       else if(!strcmp(tclresult(), "yes") ) return save_schematic(xctx->sch[xctx->currsch], fast);
@@ -2733,7 +2733,7 @@ void go_back(int what)
   /* if current sym/schematic is changed ask save before going up */
   if(xctx->modified)
   {
-    if(confirm) {
+    if(has_x && confirm) {
       tcleval("ask_save");
       if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
       else if(!strcmp(tclresult(), "") ) return;
