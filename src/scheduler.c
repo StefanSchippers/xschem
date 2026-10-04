@@ -5733,7 +5733,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else {
               info("Warning: undefined netlist format: %s\n", argv[3]);
             }
-            set_tcl_netlist_type();
+            set_tcl_netlist_type(xctx);
           }
           else if(!strcmp(argv[2], "no_draw")) { /* set no drawing flag (0 or 1) */
             int s = atoi(argv[3]);

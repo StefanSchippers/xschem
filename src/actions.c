@@ -2799,7 +2799,7 @@ void clear_schematic(int cancel, int symbol)
    unselect_all(1);
    remove_symbols();
    clear_drawing();
-   set_untitled_name(symbol);
+   set_unique_sch_name(xctx, symbol ? "untitled.sym" : "untitled.sch");
    draw();
    set_modify(0);
    xctx->prep_hash_inst=0;
