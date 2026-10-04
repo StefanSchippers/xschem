@@ -380,7 +380,8 @@ const char *abs_sym_path(const char *s, const char *ext)
 {
   char c[PATH_MAX+1000];
 
-  my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext);
+  if(!s) return NULL;
+  my_snprintf(c, S(c), "abs_sym_path {%s} {%s}", s, ext ? ext : "");
   tcleval(c);
   return tclresult();
 }
@@ -389,6 +390,7 @@ const char *abs_sym_path(const char *s, const char *ext)
 const char *rel_sym_path(const char *s)
 {
   char c[PATH_MAX+1000];
+  if(!s) return NULL;
   my_snprintf(c, S(c), "rel_sym_path {%s}", s);
   tcleval(c);
   return tclresult();
