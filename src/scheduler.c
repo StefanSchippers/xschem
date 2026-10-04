@@ -550,7 +550,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* check_loaded n <filename>
      *   check if schematic / symbol file is already opened and return window path
      *   the loaded schematic is in.
-     *   for <filename> use absolute path or use [abs_sym_path filename]
      *     window_path[0] == ".drw"
      *     window_path[1] == ".x1.drw"
      *     ...
@@ -560,7 +559,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Xschem_ctx *ctx = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        ctx = check_loaded(argv[2]);
+        ctx = check_loaded(xctx, rel_sym_path(argv[2]));
       }
       if(ctx) 
         Tcl_SetResult(interp, ctx->current_win_path, TCL_VOLATILE);
@@ -3231,7 +3230,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
           dbg(1, ("scheduler(): load: filename=%s\n", f));
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
-          if(!force && f[0] && check_loaded(f)) {
+          if(!force && f[0] && check_loaded(xctx, rel_sym_path(f))) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -3315,7 +3314,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(f[0]) {
            dbg(1, ("f=%s\n", f));
-           if(check_loaded(f)) {
+           if(check_loaded(xctx, rel_sym_path(f))) {
              char msg[PATH_MAX + 100];
              my_snprintf(msg, S(msg),
                 "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "

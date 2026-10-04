@@ -631,7 +631,7 @@ void ask_new_file(int in_new_window, char *filename)
       int skip = 0;
       dbg(1, ("ask_new_file(): load: f=%s\n", f));
 
-      if(check_loaded(f) && !filename) {
+      if(check_loaded(xctx, rel_sym_path(f)) && !filename) {
         char msg[PATH_MAX + 100];
         my_snprintf(msg, S(msg),
            "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -1745,8 +1745,9 @@ void symbol_in_new_window(int new_process)
     else new_schematic("create", NULL, filename, 1);
   }
   else {
-    my_strncpy(filename, abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""), S(filename));
-    if(!check_loaded(filename)) {
+    const char *sym = tcl_hook2(xctx->inst[xctx->sel_array[0].n].name);
+    my_strncpy(filename, abs_sym_path(sym, ""), S(filename));
+    if(!check_loaded(xctx, sym)) {
       if(new_process) new_xschem_process(filename, 1);
       else new_schematic("create", NULL, filename, 1);
     }
@@ -1847,7 +1848,7 @@ int schematic_in_new_window(int new_process, int dr, int force)
        )
     ) return 0;
     get_sch_from_sym(filename, xctx->inst[xctx->sel_array[0].n].ptr+ xctx->sym, xctx->sel_array[0].n, 0);
-    if(force || !check_loaded(filename)) {
+    if(force || !check_loaded(xctx, rel_sym_path(filename))) {
       if(new_process) new_xschem_process(filename, 0);
       else new_schematic("create", "noalert", filename, dr);
     }

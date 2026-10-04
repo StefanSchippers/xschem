@@ -754,21 +754,23 @@ static void delete_schematic_data(int delete_pixmap)
 }
 
 
-static int name_in_save_xctx_or_fork_sch(Xschem_ctx *ctx, const char *sch_name)
+Xschem_ctx *check_loaded(Xschem_ctx *ctx, const char *sch_name)
 {
-  int i, found = 0;
+  int i;
+  Xschem_ctx *found = NULL;
+  Ptr_hashentry *entry;
 
-  if(!sch_name) return 0;
+  if(!sch_name) return NULL;
   if(ctx && !strcmp(sch_name, ctx->current_name)) {
-    found = 1;
+    found = ctx;
   }
   if(!found) for(i = 0; i < MAX_NEW_WINDOWS; ++i) {
     if(save_xctx[i] && !strcmp(sch_name, save_xctx[i]->current_name)) {
-      found = 1;
+      found = save_xctx[i];
       break;
     } 
   }
-  if(!found && ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) found = 1;
+  if(!found && (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP))) found = entry->value;
   return found;
 }
 
@@ -790,7 +792,7 @@ void set_unique_sch_name(Xschem_ctx *ctx, const char *name)
   for(i=0;; ++i) {
     if(i == 0) my_snprintf(schname, S(schname), "%s.sch", basename);
     else my_snprintf(schname, S(schname), "%s-%d.sch", basename, i);
-    if(stat(schname, &buf) && !name_in_save_xctx_or_fork_sch(ctx, schname)) break;
+    if(stat(schname, &buf) && !check_loaded(ctx, schname)) break;
   }  
   my_free(_ALLOC_ID_, &ctx->sch[ctx->currsch]);
   my_mstrcat(_ALLOC_ID_, &ctx->sch[ctx->currsch], present_dir, "/", schname, NULL);
@@ -1682,8 +1684,8 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       /* create an empty schematic */
       xctx = NULL;
       alloc_xschem_data(xctx_save->top_path, xctx_save->current_win_path);
-      sch_deep_copy(xctx, xctx_save, "untitled.sch", 2 | flags); /* 2 flag: don't copy schematic data */
-      inherit_graphic_context(xctx, xctx_save);
+      sch_deep_copy(xctx, xctx_save, "", 2 | flags); /* 2 flag: don't copy schematic data */
+      set_unique_sch_name(xctx, "untitled.sch");
       update_save_xctx(xctx, xctx_save);
       dbg(0, ("creating: %p  %s\n", xctx, xctx->current_name));
       if(has_x) {
@@ -1721,7 +1723,6 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     if( (entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) &&
          entry->value != xctx) {
       Xschem_ctx *new_xctx = entry->value;
-      Xschem_ctx *xctx_save = xctx;
       int schedule_delete = 0;
       if(check_in_save_xctx(new_xctx) < 0) { /* Only do something if not already in a tab/win */
         ret = 1;
@@ -1742,9 +1743,9 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           } else {
             dbg(0, ("not saving: %p  %s, already present\n", xctx, xctx->current_name));
              
-            if(entry->value != xctx) {
+            if(entry->value != xctx && !xctx->modified) {
               /* char *new_key; */
-              dbg(0, ("   but it's a different version, schedule deletion: %p, delete.\n",
+              dbg(0, ("   but it's a different version and unmodified, schedule deletion: %p, delete.\n",
                    entry->value));
               /* new_key = get_new_fork_sch_key(xctx->current_name);
                * dbg(0, ("saving: %p  %s as %s\n", xctx, xctx->current_name, new_key));
@@ -1754,25 +1755,26 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
                schedule_delete = 1;
             }
           }
-          dbg(0, ("overwriting: %p  %s with %p  %s\n",
-               xctx, xctx->current_name, new_xctx, new_xctx->current_name));
         }
         /* set window paths to current */
-        dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx_save->current_win_path));
-        my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx_save->top_path);
-        my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, xctx_save->current_win_path);
-        inherit_graphic_context(new_xctx, xctx_save);
-        update_save_xctx(new_xctx, xctx_save);
-        if(schedule_delete) {
-          xctx = xctx_save;
-          dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
-          delete_schematic_data(0); /* no reason to save empty junk */
-        }
-        xctx = new_xctx;
-        set_tcl_netlist_type(xctx);
-        if(has_x) {
-          if(flags & 1) set_modify(-1);
-          if(flags & 4) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+        if(!xctx->modified) {
+          dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx->current_win_path));
+          my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx->top_path);
+          my_strdup2(_ALLOC_ID_, &new_xctx->current_win_path, xctx->current_win_path);
+          inherit_graphic_context(new_xctx, xctx);
+          update_save_xctx(new_xctx, xctx);
+          if(schedule_delete) {
+            dbg(0, ("deleting empty schematic: %p  %s\n", xctx, xctx->current_name));
+            delete_schematic_data(0); /* no reason to save empty junk */
+          }
+          xctx = new_xctx;
+          set_tcl_netlist_type(xctx);
+          if(has_x) {
+            if(flags & 1) set_modify(-1);
+            if(flags & 4) zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
+          }
+        } else{
+          dbg(dbglev, ("current schematic is modified: do nothing: %p  %s\n", xctx, xctx->current_name));
         }
       } else {
         dbg(dbglev, ("Another window / tab already contains %s\n", sch_name));
@@ -2106,6 +2108,7 @@ void swap_windows(int dr)
 
 /* check if filename is already loaded into a tab or window */
 /* ....                        */
+#if 0
 Xschem_ctx *check_loaded(const char *f)
 {
   int i;
@@ -2130,6 +2133,7 @@ Xschem_ctx *check_loaded(const char *f)
   }
   return found;
 }
+#endif
 
 /* win_path: .drw for main (first) window, .x1.drw, ... for additional windows */
 static int switch_window(int *window_count, const char *win_path, int tcl_ctx)
@@ -2265,7 +2269,7 @@ static void create_new_window(int *window_count, const char *win_path, const cha
   dbg(1, ("new_schematic() create: fname=%s *window_count = %d\n", fname, *window_count));
 
   if(win_path && win_path[0]) confirm = 0;
-  if(fname && fname[0] && check_loaded(fname)) {
+  if(fname && fname[0] && check_loaded(xctx, rel_sym_path(fname))) {
     loaded = 1;
     if(confirm) {
       char msg[PATH_MAX+100];
@@ -2388,7 +2392,7 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
 
   dbg(1, ("new_schematic() new_tab, creating...\n"));
   if(noconfirm && noconfirm[0]) confirm = 0;
-  ctx = check_loaded(fname);
+  ctx = check_loaded(xctx, rel_sym_path(fname));
   if(ctx) my_strdup2(_ALLOC_ID_, &open_path, ctx->current_win_path);
   else  my_strdup2(_ALLOC_ID_, &open_path, "");
   if(fname && fname[0] && ctx) {
