@@ -1864,6 +1864,7 @@ void launcher(void)
   char program[PATH_MAX];
   char *command = NULL;
   int n, c;
+  int inst = -1;
   char *prop_ptr=NULL;
   rebuild_selected_array();
   tcleval("update");
@@ -1873,8 +1874,11 @@ void launcher(void)
     double mx=xctx->mousex, my=xctx->mousey;
     n=xctx->sel_array[0].n;
     c=xctx->sel_array[0].col;
-    if     (xctx->sel_array[0].type==ELEMENT) prop_ptr = xctx->inst[n].prop_ptr;
-    else if(xctx->sel_array[0].type==xRECT)   prop_ptr = xctx->rect[c][n].prop_ptr;
+    
+    if(xctx->sel_array[0].type==ELEMENT) {
+      prop_ptr = xctx->inst[n].prop_ptr;
+      inst = n;
+    } else if(xctx->sel_array[0].type==xRECT)   prop_ptr = xctx->rect[c][n].prop_ptr;
     else if(xctx->sel_array[0].type==POLYGON) prop_ptr = xctx->poly[c][n].prop_ptr;
     else if(xctx->sel_array[0].type==ARC)     prop_ptr = xctx->arc[c][n].prop_ptr;
     else if(xctx->sel_array[0].type==LINE)    prop_ptr = xctx->line[c][n].prop_ptr;
@@ -1887,18 +1891,11 @@ void launcher(void)
       my_strdup2(_ALLOC_ID_, &command, get_tok_value(sym->prop_ptr, "tclcommand", 0));
     }
     if(strpbrk(command, "@%")) {
-      char *res = NULL, *schname_attr = NULL;
-      my_mstrcat(_ALLOC_ID_, &schname_attr, "schname=\"", get_cell(xctx->current_name, 0), "\"", NULL);
-      my_mstrcat(_ALLOC_ID_, &schname_attr, " index=\"", my_itoa(n), "\"", NULL);
-      if(xctx->sel_array[0].type==ELEMENT) {
-        my_mstrcat(_ALLOC_ID_, &schname_attr, " symname=\"", xctx->inst[n].name, "\"", NULL);
-      }
-      my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, prop_ptr, schname_attr, NULL, NULL, &res));
-      my_free(_ALLOC_ID_, &schname_attr);
+      char *res = NULL;
       if(xctx->sel_array[0].type==ELEMENT) {
         xSymbol *sym = xctx->inst[n].ptr + xctx->sym;
         if(strpbrk(command, "@%")) {
-          my_strdup2(_ALLOC_ID_, &command, translate3(command, 0, sym->prop_ptr, NULL, NULL, NULL, &res));
+          my_strdup2(_ALLOC_ID_, &command, translate3(command, inst, 0, sym->prop_ptr, NULL, NULL, NULL, &res));
         }
       }
       my_free(_ALLOC_ID_, &res);
@@ -1947,9 +1944,9 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
 
   if(sch && sch[0]) {
     if(!is_generator(sch) && strpbrk(sch, "@%") && xctx->currsch>=1 && xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
-      translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
+      translate3(sch, inst, 5, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
     }
-    my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
+    my_strdup2(_ALLOC_ID_, &sch, translate3(sch, -1, 5, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
     my_free(_ALLOC_ID_, &res);
     my_strdup2(_ALLOC_ID_, &sch, tcl_hook2(
        str_replace(sch, "@symname", get_cell(xctx->inst[inst].name, 0), '\\', -1)));
@@ -2184,12 +2181,12 @@ void get_additional_symbols(int what)
 
         if(strpbrk(sch, "@%") && !is_generator(sch) && xctx->currsch >= 1 &&
            xctx->hier_attr[xctx->currsch - 1].prop_ptr) {
-          translate3(sch, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
+          translate3(sch, i, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr, NULL, NULL, NULL, &sch);
         }
 
         dbg(1, ("get_additional_symbols(): schematic=%s\n", sch));
 
-        my_strdup2(_ALLOC_ID_, &sch, translate3(sch, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, &res));
+        my_strdup2(_ALLOC_ID_, &sch, translate3(sch, -1, 1, xctx->inst[i].prop_ptr, NULL, NULL, NULL, &res));
         my_free(_ALLOC_ID_, &res);
         dbg(1, ("  get_additional_symbols(): sch=%s tok_size= %ld\n", sch, xctx->tok_size));
 
@@ -2251,7 +2248,7 @@ void get_additional_symbols(int what)
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 
           if( xctx->currsch >= 1) {
-            translate3(xctx->inst[i].prop_ptr, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr,
+            translate3(xctx->inst[i].prop_ptr, i, 1, xctx->hier_attr[xctx->currsch - 1].prop_ptr,
                NULL, NULL,NULL, &tr_prop_ptr);
             dbg(1, ("get_additional_symbols(): xctx->hier_attr.prop_ptr=%s\n", 
                xctx->hier_attr[xctx->currsch - 1].prop_ptr ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : "<NULL>"));
@@ -2280,16 +2277,15 @@ void get_additional_symbols(int what)
           my_strdup(_ALLOC_ID_, &spectre_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"spectre_sym_def",6));
           my_strdup(_ALLOC_ID_, &verilog_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"verilog_sym_def",4));
           my_strdup(_ALLOC_ID_, &vhdl_sym_def, get_tok_value(xctx->inst[i].prop_ptr,"vhdl_sym_def",4));
-
           my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(sym, 0), NULL);
           my_mstrcat(_ALLOC_ID_, &symname_attr, " symref=", get_sym_name(i, 9999, 1, 1), NULL);
           my_strdup(_ALLOC_ID_, &spice_sym_def,
-              translate3(spice_sym_def, 1, xctx->inst[i].prop_ptr,
+              translate3(spice_sym_def, i, 1, xctx->inst[i].prop_ptr,
                                            symptr->templ,
                                            symname_attr, NULL,
                                            &res));
           my_strdup(_ALLOC_ID_, &spectre_sym_def,
-              translate3(spectre_sym_def, 1, xctx->inst[i].prop_ptr,
+              translate3(spectre_sym_def, -1, 1, xctx->inst[i].prop_ptr,
                                            symptr->templ,
                                            symname_attr, NULL,
                                            &res));
@@ -2382,13 +2378,9 @@ void get_sch_from_sym(char *filename, xSymbol *sym, int inst, int fallback)
     /* resolve schematic=generator.tcl( @n ) where n=11 is defined in instance attrs */
     my_strdup2(_ALLOC_ID_, &str_tmp, get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6));
     if(str_tmp[0]) {
-      my_strdup2(_ALLOC_ID_, &str_tmp, translate3(str_tmp, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
+      my_strdup2(_ALLOC_ID_, &str_tmp, translate3(str_tmp, inst, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res));
       my_free(_ALLOC_ID_, &res);
     }
-    /*
-     * my_strdup(_ALLOC_ID_, &str_tmp, translate3(get_tok_value(xctx->inst[inst].prop_ptr,"schematic", 6),
-     *          1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL));
-     */
   }
   if(!str_tmp || !str_tmp[0]) my_strdup2(_ALLOC_ID_, &str_tmp,  get_tok_value(sym->prop_ptr, "schematic", 6));
   if(str_tmp && str_tmp[0]) { /* schematic attribute in symbol or instance was given */
@@ -2640,7 +2632,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      for(k = xctx->currsch; k >= 0; k--) {
        if(!strpbrk(translated, "@%")) break;
        dbg(1, ("descend_schematic(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr));
-       translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
+       translate3(translated, -1, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
      }
      my_strdup2(_ALLOC_ID_, &pin_node, expandlabel(eval_expr(translated), &mult));
      my_free(_ALLOC_ID_, &translated);

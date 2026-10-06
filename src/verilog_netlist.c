@@ -539,7 +539,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
         char *name = NULL;
         char *tr_name = NULL;
         my_strdup2(_ALLOC_ID_, &name, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
-        translate3(name, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
+        translate3(name, -1, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
            NULL, NULL, NULL, &tr_name);
         if(!int_hash_lookup(&table, tr_name, 1, XINSERT_NOREPLACE)) {
           if(tmp) fprintf(fd, " ,\n");
@@ -585,7 +585,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
         }
         str_tmp = get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"name",0);
         my_strdup2(_ALLOC_ID_, &name, str_tmp);
-        translate3(name, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
+        translate3(name, -1, 1, xctx->currsch > 0 ? xctx->hier_attr[xctx->currsch - 1].prop_ptr : NULL,
            NULL, NULL, NULL, &tr_name);
 
         if(!int_hash_lookup(&table, tr_name, 1, XINSERT_NOREPLACE)) {

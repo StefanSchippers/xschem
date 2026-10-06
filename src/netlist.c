@@ -953,7 +953,7 @@ static void set_inst_node(int i, int j, const char *node)
   my_strdup2(_ALLOC_ID_, &tr_node, node);
   for(k = xctx->currsch - 1; k >= 0; k--) {
     if(!strpbrk(tr_node, "@%")) break;
-    translate3(tr_node, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_node);
+    translate3(tr_node, i, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_node);
   }
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], eval_expr(tr_node));
   my_free(_ALLOC_ID_, &tr_node);
@@ -975,7 +975,7 @@ static void set_inst_node(int i, int j, const char *node)
     my_strdup2(_ALLOC_ID_, &tr_instname, inst[i].instname);
     for(k = xctx->currsch - 1; k >= 0; k--) {
       if(!strpbrk(tr_instname, "@%")) break;
-      translate3(tr_instname, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_instname);
+      translate3(tr_instname, -1, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_instname);
     }
     expandlabel(eval_expr(tr_instname), &inst_mult);
     my_free(_ALLOC_ID_, &tr_instname);
@@ -1459,7 +1459,7 @@ static int name_nodes_of_pins_labels_and_propagate()
       my_strdup2(_ALLOC_ID_, &tr_lab, inst[i].lab);
       for(k = xctx->currsch - 1; k >= 0; k--) {
         if(!strpbrk(tr_lab, "@%")) break;
-        translate3(tr_lab, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_lab);
+        translate3(tr_lab, i, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_lab);
       }
       my_strdup(_ALLOC_ID_, &inst[i].node[0], eval_expr(tr_lab));
       my_free(_ALLOC_ID_, &tr_lab);

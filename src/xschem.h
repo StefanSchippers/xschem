@@ -1684,7 +1684,7 @@ extern char *get_fqdevice(const char *param, int modelparam, const char *instnam
 extern char *recursive_subst(const char *value, int symbol);
 extern const char *translate(int inst, const char* s, char **result);
 extern const char* translate2(Lcc *lcc, int level, char* s, char **result);
-extern const char *translate3(const char* s, int eat_escapes, const char *s1,
+extern const char *translate3(const char* s, int inst, int eat_escapes, const char *s1,
                               const char *s2, const char *s3, const char *s4, char **translated_tok);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
