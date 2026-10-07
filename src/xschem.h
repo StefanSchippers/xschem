@@ -403,6 +403,8 @@ extern char win_temp_dir[PATH_MAX];
 /* coordinate transformations graph to screen */
 #define S_X(x) (gr->scx * (x) + gr->sdx)
 #define S_Y(y) (gr->scy * (y) + gr->sdy)
+#define SM_X(v) (gr->ssx0 + (v) * gr->ss)
+#define SM_Y(v) (gr->ssy0 - (v) * gr->ss)
 /* for digital waves */
 #define DS_Y(y) (gr->dscy * (y) + gr->dsdy)
 
@@ -885,6 +887,8 @@ typedef struct {
   /* direct graph->screen transform */
   double scx, sdx, scy, sdy;
   double dscy, dsdy;
+  double ss, ssx0, ssy0;
+  double smith_z0;
   int divx, divy;
   int subdivx, subdivy;
   double magx, magy, maglegend;
