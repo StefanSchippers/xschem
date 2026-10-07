@@ -2617,7 +2617,9 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
         return 0;
       }
     }
-    idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
+    /* "label; expression" sweep attribute takes precedence, else plain sweep variable */
+    idx = graph_sweep_expr_col(get_tok_value(r->prop_ptr, "sweep", 0), NULL);
+    if(idx < 0) idx = get_raw_index(find_nth(get_tok_value(r->prop_ptr, "sweep", 0), ", ", "\"", 0, 1), NULL);
     dbg(1, ("graph_fullxzoom(): sweep idx=%d\n", idx));
     if(idx < 0 ) idx = 0;
     if(i != xctx->graph_master ) {
@@ -2692,6 +2694,8 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       int p, v;
       char *bus_msb = NULL;
       int sweep_idx = 0;
+      int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+      char *sweep_label = NULL;
       double val, start, end;
       double min=0.0, max=0.0;
       int firstyval = 1;
@@ -2740,6 +2744,10 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
             my_free(_ALLOC_ID_, &sim_type);
             return 0;
           }
+        }
+        if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+          sweep_resolved = 1;
+          sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
         }
         raw = xctx->raw;
         my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
@@ -2799,11 +2807,17 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
         }
         my_free(_ALLOC_ID_, &tmp_ptr);
         dbg(1, ("ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>"));
-        stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
-        nptr = sptr = NULL;
-        if(stok && stok[0]) {
-          sweep_idx = get_raw_index(stok, NULL);
-          if( sweep_idx == -1) sweep_idx = 0;
+        nptr = NULL;
+        if(sweep_expr_idx >= 0) {
+          /* sweep is "label; expression": all waves share the computed sweep column */
+          sweep_idx = sweep_expr_idx;
+        } else {
+          stok = my_strtok_r(sptr, "\n\t ", "\"", 0, &saves);
+          sptr = NULL;
+          if(stok && stok[0]) {
+            sweep_idx = get_raw_index(stok, NULL);
+            if( sweep_idx == -1) sweep_idx = 0;
+          }
         }
         dbg(1, ("graph_fullyzoom(): ntok_copy=%s\n", ntok_copy));
         v = -1;
@@ -2889,6 +2903,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       my_free(_ALLOC_ID_, &sweep);
       my_free(_ALLOC_ID_, &custom_rawfile);
       my_free(_ALLOC_ID_, &sim_type);
+      my_free(_ALLOC_ID_, &sweep_label);
       if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));
@@ -3557,7 +3572,8 @@ static void draw_hcursor_difference(double c1, double c2, Graph_ctx *gr)
 
 /* sweep variables on x-axis, node labels */
 static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int sweep_idx,
-        int flags, const char *ntok, const char *stok, const char *bus_msb, Graph_ctx *gr)
+        int flags, const char *ntok, const char *stok, const char *bus_msb,
+        const char *sweep_label, Graph_ctx *gr)
 {
   char tmpstr[1024];
   /* clipping everything outside container area */
@@ -3566,7 +3582,10 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
   /* draw sweep variable(s) on x-axis */
   if(wcnt == 0 || (stok && stok[0])) {
-    if(sch_waves_loaded() >= 0 && sweep_idx >= 0 && sweep_idx < xctx->raw->nvars ) {
+    if(sweep_label && sweep_label[0]) {
+      /* "label; expression" sweep attribute: show the label instead of a raw file variable name */
+      stok = sweep_label;
+    } else if(sch_waves_loaded() >= 0 && sweep_idx >= 0 && sweep_idx < xctx->raw->nvars) {
       stok = xctx->raw->names[sweep_idx];
     }
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
@@ -3982,7 +4001,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
         if(xx > end || xx < start ||         /* ... and we ran out of graph area ... */
           wrap) {                          /* ... or sweep variable changed direction */
           if(dataset == -1 || dataset == sweepvar_wrap) {
-            idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
+            idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL, -1);
           }
           first = -1;
         }
@@ -3999,7 +4018,7 @@ int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx *gr)
     } /* for(p = ofs ; p < ofs + raw->npoints[dset]; p++) */
     if(first != -1) {
       if(dataset == -1 || dataset == sweepvar_wrap) {
-        idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
+        idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL, -1);
       }
     }
 
@@ -4017,6 +4036,8 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   double xval, yval;
   char *node = NULL, *sweep = NULL;
   int sweep_idx = 0;
+  int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+  char *sweep_label = NULL;
   char *saven, *saves, *nptr, *sptr;
   const char *ntok, *stok;
   int wcnt = -1, idx, expression;
@@ -4066,23 +4087,31 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
     if(strstr(ntok, ",")) {
       if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
     }
-    stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
-    nptr = sptr = NULL;
-    dbg(1, ("ntok=%s\n", ntok));
-
     if(custom_rawfile[0]) {
       if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
          (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
         valid_rawfile = 0;
       }
     }
-
-    if(stok && stok[0]) {
-      sweep_idx = get_raw_index(stok, NULL);
-      if( sweep_idx == -1) {
-        sweep_idx = 0;
+    if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+      sweep_resolved = 1;
+      sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
+    }
+    if(sweep_expr_idx >= 0) {
+      /* sweep is "label; expression": all waves share the computed sweep column */
+      sweep_idx = sweep_expr_idx;
+      stok = NULL;
+    } else {
+      stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
+      if(stok && stok[0]) {
+        sweep_idx = get_raw_index(stok, NULL);
+        if( sweep_idx == -1) {
+          sweep_idx = 0;
+        }
       }
     }
+    nptr = sptr = NULL;
+    dbg(1, ("ntok=%s\n", ntok));
     my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
 
     if(nd[0]) {
@@ -4154,7 +4183,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
         register SPICE_DATA *gvy;
         if(node_dataset != -1 && node_dataset != dset) goto done;
         ofs_end = ofs + xctx->raw->npoints[dset];
-        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL);
+        if(expression) plot_raw_custom_data(sweep_idx, ofs, ofs_end - 1, express, NULL, -1);
         gvy = xctx->raw->values[idx];
         dbg(1, ("find_closest_wave(): dset=%d\n", dset));
         first = -1;
@@ -4221,6 +4250,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
   my_free(_ALLOC_ID_, &node);
   my_free(_ALLOC_ID_, &sweep);
+  my_free(_ALLOC_ID_, &sweep_label);
   dbg(1, ("find_closest_wave(): node_number = %d\n", *node_number));
   return closest_dataset;
 }
@@ -4242,6 +4272,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   int wc = 4, wave_color = 4;
   char *node = NULL, *color = NULL, *sweep = NULL;
   int sweep_idx = 0;
+  int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+  char *sweep_label = NULL;
   int n_nodes; /* number of variables to display in a single graph */
   char *saven, *savec, *saves, *nptr, *cptr, *sptr;
   const char *ntok, *ctok, *stok;
@@ -4347,6 +4379,10 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           valid_rawfile = 0;
         }
       }
+      if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+        sweep_resolved = 1;
+        sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
+      }
       my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
       if(wcnt >= n_nodes) {
         info("draw_graph(): WARNING: wcnt (wave #) >= n_nodes (counted # of waves)\n");
@@ -4411,19 +4447,26 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
       my_free(_ALLOC_ID_, &tmp_ptr);
       dbg(1, ("ntok_copy=|%s|, bus_msb=|%s|\n", ntok_copy, bus_msb ? bus_msb : "<NULL>"));
       ctok = my_strtok_r(cptr, " ", "", 0, &savec);
-      stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
-      cptr = sptr = NULL;
+      cptr = NULL;
       dbg(1, ("ntok_copy=%s ctok=%s\n", ntok_copy, ctok? ctok: "<NULL>"));
       if(ctok && ctok[0]) wc = atoi(ctok);
       if(wc < 0) wc = 4;
       if(wc >= cadlayers) wc = cadlayers - 1;
-      if(stok && stok[0]) {
-        sweep_idx = get_raw_index(stok, NULL);
-        if( sweep_idx == -1) {
-          sweep_idx = 0;
+      if(sweep_expr_idx >= 0) {
+        /* sweep is "label; expression": all waves share the computed sweep column */
+        sweep_idx = sweep_expr_idx;
+        stok = (wcnt == 0 && sweep_label) ? sweep_label : NULL;
+      } else {
+        stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
+        sptr = NULL;
+        if(stok && stok[0]) {
+          sweep_idx = get_raw_index(stok, NULL);
+          if( sweep_idx == -1) {
+            sweep_idx = 0;
+          }
         }
       }
-      draw_graph_variables(wcnt, wc, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, gr);
+      draw_graph_variables(wcnt, wc, n_nodes, sweep_idx, flags, ntok, stok, bus_msb, sweep_label, gr);
       /* if ntok_copy following possible 'alias;' definition contains spaces --> custom data plot */
       idx = -1;
       expression = 0;
@@ -4538,7 +4581,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
                                     sweep_idx, wcnt, n_nodes, gr, ct);
                     }
                   } else {
-                    if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
+                    if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL, -1);
                     draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
                   }
                 }
@@ -4588,7 +4631,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
                                sweep_idx, wcnt, n_nodes, gr, ct);
                 }
               } else {
-                if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL);
+                if(expression) idx = plot_raw_custom_data(sweep_idx, first, last, express, NULL, -1);
                 draw_graph_points(idx, first, last, point, wave_color, wcnt, n_nodes, gr, ct);
               }
             }
@@ -4628,6 +4671,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     my_free(_ALLOC_ID_, &node);
     my_free(_ALLOC_ID_, &color);
     my_free(_ALLOC_ID_, &sweep);
+    my_free(_ALLOC_ID_, &sweep_label);
   } /* if(flags & 8) */
   
   if(flags & 8) {
