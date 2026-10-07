@@ -3231,15 +3231,72 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
+/* Sample the part of the constant-X circle that lies inside the unit circle
+ * (the constant-X arc) as a polyline in data space (Gamma = u + jv).
+ * For this chart's convention (Gamma = (Z-1)/(Z+1), positive j up, as fixed
+ * by the constant-R circles), the constant-X circle has center (1, 1/X) and
+ * radius 1/|X|: it passes through the R = 0 point on the unit circle and
+ * through Gamma = 1 (R -> infinity).
+ * The full circle is sampled with 720 points; the kept points (|Gamma| <= 1,
+ * with a small tolerance) form a single contiguous, possibly wrapping, run.
+ * The run is emitted into u[]/v[] in sampling order, starting at the first
+ * kept point.  Returns the number of points (0 if none is inside the unit
+ * circle or if npts is too small to hold the run).
+ */
+static int smith_x_arc(double X, int npts, double *u, double *v)
+{
+  double cx, cy, rad, ang;
+  double pu[720], pv[720];
+  int keep[720];
+  int i, k, nkeep, start;
+
+  cx = 1.0;
+  cy = 1.0 / X;
+  rad = 1.0 / ((X < 0.0) ? -X : X);
+
+  nkeep = 0;
+  for(i = 0; i < 720; i++) {
+    ang = 2.0 * XSCH_PI * (double)i / 720.0;
+    pu[i] = cx + rad * cos(ang);
+    pv[i] = cy + rad * sin(ang);
+    keep[i] = (pu[i] * pu[i] + pv[i] * pv[i] <= 1.0001);
+    if(keep[i]) nkeep++;
+  }
+  if(nkeep == 0 || nkeep > npts) return 0;
+
+  /* the kept points form one contiguous circular run; walk backwards from
+   * the first kept index to find where the run starts (a gap is guaranteed
+   * because the kept arc is always shorter than the full circle) */
+  for(i = 0; i < 720; i++)
+    if(keep[i]) break;
+  start = i;
+  for(k = 0; k < 720 && keep[(start + 719) % 720]; k++)
+    start = (start + 719) % 720;
+
+  for(k = 0; k < nkeep; k++) {
+    i = (start + k) % 720;
+    u[k] = pu[i];
+    v[k] = pv[i];
+  }
+  return nkeep;
+}
+
 static void draw_smith_grid(Graph_ctx *gr, void *ct)
 {
   static const double r_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0 };
   static const char *r_labels[] = { "0.1", "0.2", "0.5", "1", "2", "5", "10" };
+  static const double x_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0,
+                                     -0.1, -0.2, -0.5, -1.0, -2.0, -5.0 };
+  static const char *x_labels[] = { "j0.1", "j0.2", "j0.5", "j1", "j2", "j5",
+                                    "-j0.1", "-j0.2", "-j0.5", "-j1", "-j2", "-j5" };
   const int n_r = 7;
+  const int n_x = 12;
   const int n_pts = 96;
   double circ_cx[8], circ_cy[8], circ_r[8];
+  double xu[720], xv[720];
   XPoint pts[n_pts + 1];
-  int i, ir, p, n_circ;
+  XPoint xpts[720];
+  int i, ir, p, n_circ, ix, n_xpts, ivtop;
   double cx, cy, rad, theta, u, v;
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
@@ -3314,6 +3371,32 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
     double lx = CLIP(SM_X(r / (1.0 + r)), -30000, 30000);
     double ly = CLIP(SM_Y(1.0 / (1.0 + r)), -30000, 30000) - 4.0;
     draw_string(3, NOW, r_labels[ir], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                gr->txtsizex, gr->txtsizex);
+  }
+
+  /* constant-X arcs: open polylines in data space, same style as the R circles */
+  for(ix = 0; ix < n_x; ix++) {
+    double lx, ly;
+    n_xpts = smith_x_arc(x_values[ix], 720, xu, xv);
+    if(n_xpts < 2) continue;
+    for(i = 0; i < n_xpts; i++) {
+      xpts[i].x = (short)CLIP(SM_X(xu[i]), -30000, 30000);
+      xpts[i].y = (short)CLIP(SM_Y(xv[i]), -30000, 30000);
+    }
+    for(p = 0; p < 2; p++) {
+      Drawable w;
+      if(p == 0 && xctx->draw_window) w = xctx->window;
+      else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
+    }
+    /* label at the topmost point of the arc, a few pixels above */
+    ivtop = 0;
+    for(i = 1; i < n_xpts; i++)
+      if(xv[i] > xv[ivtop]) ivtop = i;
+    lx = CLIP(SM_X(xu[ivtop]), -30000, 30000);
+    ly = CLIP(SM_Y(xv[ivtop]), -30000, 30000) - 4.0;
+    draw_string(3, NOW, x_labels[ix], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
                 gr->txtsizex, gr->txtsizex);
   }
 
