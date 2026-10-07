@@ -3821,14 +3821,14 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labmode -text {Mode}
   if  { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6
+    ttk::combobox .graphdialog.top2.mode -values {Line HistoV HistoH Smith} -width 6
     bind .graphdialog.top2.mode <<ComboboxSelected>> {
       graph_push_undo
       xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
       xschem draw_graph $graph_selected
     }
   } else {
-    spinbox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6 \
+    spinbox .graphdialog.top2.mode -values {Line HistoV HistoH Smith} -width 6 \
      -command {
         graph_push_undo
         xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
