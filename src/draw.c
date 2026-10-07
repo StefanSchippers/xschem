@@ -3463,7 +3463,7 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
        right = S_X(gr->gx2);
        top = S_Y(gr->gy2);
        bottom = S_Y(gr->gy1);
-       gr->ss = fmin((right - left) / dx, (bottom - top) / dy);
+        gr->ss = ((right - left) / dx < (bottom - top) / dy) ? ((right - left) / dx) : ((bottom - top) / dy);
        gr->ssx0 = ((left + right) / 2.0) - ((gr->gx1 + gr->gx2) / 2.0) * gr->ss;
        gr->ssy0 = ((top + bottom) / 2.0) - ((gr->gy1 + gr->gy2) / 2.0) * gr->ss;
      }
