@@ -1715,10 +1715,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      the voltage is 1.8
    If -1 is given as the instance number try to translate the string without using any
    instance specific data </pre>
-   <li><kbd>       translate3 str eat_escapes s1 [s2] [s3]</kbd></li><pre>
+   <li><kbd>       translate3 [-eat_escapes &lt;1|0&gt;] [-inst &lt;inst_n&gt;] str s1 [s2] [s3] [s4]</kbd></li><pre>
    Translate string 'str' replacing @xxx tokens with values in string s1 or if
      not found in string s2 or if not found in string s3
-     eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
+     -eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
+     if an instance number or name is set with -inst use inst attributes to resolve
      Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
      the voltage is 1.8 </pre>
    <li><kbd>       trim_chars str sep</kbd></li><pre>
