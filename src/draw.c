@@ -3311,10 +3311,11 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(val[0]) gr->vlegend = atoi(val);
 
   /* draw mode (0: Line, 1: Histo. Default: Line) */
-  val = get_tok_value(r->prop_ptr,"mode", 0);
-  if(!strcmp(val, "HistoV")) gr->mode = 1;
-  else if(!strcmp(val, "HistoH")) gr->mode = 2;
-  else gr->mode = 0;
+   val = get_tok_value(r->prop_ptr,"mode", 0);
+   if(!strcmp(val, "HistoV")) gr->mode = 1;
+   else if(!strcmp(val, "HistoH")) gr->mode = 2;
+   else if(!strcmp(val, "Smith")) gr->mode = 3;
+   else gr->mode = 0;
 
   /* get x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx", 0);
@@ -3357,9 +3358,16 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"y2", 0);
   if(val[0]) gr->gy2 = atof_eng(val);
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
-  val = get_tok_value(r->prop_ptr,"digital", 0);
-  if(val[0]) gr->digital = atoi(val);
-  if(gr->digital) {
+   val = get_tok_value(r->prop_ptr,"digital", 0);
+   if(val[0]) gr->digital = atoi(val);
+   if(gr->mode == 3) { /* Smith chart: force linear & non-digital, read reference impedance */
+     val = get_tok_value(r->prop_ptr,"smz0", 0);
+     gr->smith_z0 = val[0] ? atof_eng(val) : 50.0;
+     gr->logx = 0;
+     gr->logy = 0;
+     gr->digital = 0;
+   }
+   if(gr->digital) {
     val = get_tok_value(r->prop_ptr,"ypos1", 0);
     if(val[0]) gr->ypos1 = atof_eng(val);
     val = get_tok_value(r->prop_ptr,"ypos2", 0);
@@ -3437,10 +3445,30 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->sdx = (gr->dx + xctx->xorigin) * xctx->mooz;
   gr->scy = gr->cy * xctx->mooz;
   gr->sdy = (gr->dy + xctx->yorigin) * xctx->mooz;
-  /* direct graph --> screen for digital waves y axis */
-  gr->dscy = gr->dcy * xctx->mooz;
-  gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
-}
+   /* direct graph --> screen for digital waves y axis */
+   gr->dscy = gr->dcy * xctx->mooz;
+   gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
+
+   /* Smith chart: unified square mapping (data -> pixel), fit inside plot box */
+   if(gr->mode == 3) {
+     double dx, dy, left, right, top, bottom;
+     dx = gr->gx2 - gr->gx1;
+     dy = gr->gy2 - gr->gy1;
+     if(dx <= 0.0 || dy <= 0.0) {
+       gr->ss = 0.0;
+       dbg(1, ("setup_graph_data: Smith mode, degenerate span dx=%g dy=%g\n", dx, dy));
+     } else {
+       /* linear mapping spans edge-to-edge, so the pixel plot box is */
+       left = S_X(gr->gx1);
+       right = S_X(gr->gx2);
+       top = S_Y(gr->gy2);
+       bottom = S_Y(gr->gy1);
+       gr->ss = fmin((right - left) / dx, (bottom - top) / dy);
+       gr->ssx0 = ((left + right) / 2.0) - ((gr->gx1 + gr->gx2) / 2.0) * gr->ss;
+       gr->ssy0 = ((top + bottom) / 2.0) - ((gr->gy1 + gr->gy2) / 2.0) * gr->ss;
+     }
+   }
+ }
 
 static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
 {
