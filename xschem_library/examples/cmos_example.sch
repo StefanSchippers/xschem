@@ -193,7 +193,11 @@ T {Example of fetching a user
 parameter saved in raw file.} 730 -630 0 0 0.4 0.4 { layer=15}
 T {Power: @spice_get_voltage(power)\\W} 820 -540 0 0 0.4 0.4 {floater=true layer=15}
 T {gm=@spice_get_modelparam_gm} 510 -340 0 0 0.2 0.2 {name=m4 layer=7}
-T {gm=@spice_get_modelparam_gm} 680 -340 0 1 0.2 0.2 {name=m5 layer=7}
+T {gm=@spice_get_modelparam_gm} 670 -340 0 1 0.2 0.2 {name=m5 layer=7}
+T {OLD} 520 -400 0 0 0.2 0.2 {}
+T {OLD} 630 -400 0 0 0.2 0.2 {}
+T {NEW} 520 -350 0 0 0.2 0.2 {}
+T {NEW} 630 -350 0 0 0.2 0.2 {}
 N 30 -310 30 -280 {
 lab=VCC}
 N 30 -310 60 -310 {
@@ -376,7 +380,7 @@ C {lab_pin.sym} 60 -440 0 1 {name=p15 lab=MINUS}
 C {lab_pin.sym} 30 -500 0 0 {name=p16 lab=0}
 C {vsource.sym} 30 -530 0 0 {name=VPLUS value=2.5}
 C {lab_pin.sym} 60 -590 0 1 {name=p18 lab=PLUS}
-C {capa.sym} 750 -390 0 0 {name=CL
+C {capa.sym} 780 -390 0 0 {name=CL
 m=1
 value=0.2p
 footprint=1206
@@ -398,7 +402,7 @@ xschem raw_read $netlist_dir/cmos_example_ngspice.raw tran
 C {launcher.sym} 1310 -30 0 0 {name=h4
 descr="Graph Manual page"
 url="https://xschem.sourceforge.io/stefan/xschem_man/graphs.html"}
-C {ammeter.sym} 690 -370 0 1 {name=Vmeasr}
+C {ammeter.sym} 690 -370 0 0 {name=Vmeasr}
 C {simulator_commands.sym} 920 -360 0 0 {name=COMMANDS
 simulator=ngspice
 only_toplevel=true 
@@ -478,13 +482,13 @@ tclcommand="
 xschem raw switch; xschem redraw"
 
 }
-C {ngspice_get_value.sym} 480 -240 0 1 {name=r2 node=\\\\@@path\\\\m4[gm]
+C {ngspice_get_value.sym} 520 -360 0 0 {name=r2 node=\\\\@@path\\\\m4[gm]
 descr="gm="}
-C {ngspice_get_value.sym} 710 -240 0 0 {name=r3 node=\\\\@@path\\\\m5[gm]
+C {ngspice_get_value.sym} 630 -360 0 0 {name=r3 node=\\\\@@path\\\\m5[gm]
 descr="gm="}
 C {ngspice_get_value.sym} 610 -130 0 0 {name=r4 node=@$\{path\}m1[gm]
 descr="gm="}
-C {lab_pin.sym} 750 -360 0 0 {name=p20 lab=0}
+C {lab_pin.sym} 780 -360 0 0 {name=p20 lab=0}
 C {ngspice_get_value.sym} 700 -520 0 0 {name=r1 node=\\\\@@path\\\\m2[gm]
 descr="gm="}
 C {ngspice_get_value.sym} 490 -520 0 1 {name=r5 node=\\\\@@path\\\\m6[gm]
