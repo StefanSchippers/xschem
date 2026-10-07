@@ -2409,7 +2409,7 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
  *   (caller must free it). Empty label (like "; expression") --> NULL. */
 int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
 {
-  char *label = NULL, *expr = NULL, *tmp = NULL;
+  char *label = NULL, *expr = NULL, *tmp = NULL, *trim_expr = NULL;
   const char *semi, *match;
   int idx = -1;
   Raw *raw = xctx->raw;
@@ -2430,39 +2430,45 @@ int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
   }
   /* expression: everything after the first ';' */
   my_strdup2(_ALLOC_ID_, &expr, semi + 1);
-  tmp = expr;
+  /* use aux pointer, since we will modify it and we need the original one to free storage */
+  trim_expr = expr;
+  tmp = trim_expr;
   while(tmp[0] == ' ' || tmp[0] == '\t') tmp++;
-  expr = tmp;
-  tmp = expr + strlen(expr);
-  while(tmp > expr && (tmp[-1] == ' ' || tmp[-1] == '\t')) {
+  trim_expr = tmp;
+  tmp = trim_expr + strlen(trim_expr);
+  while(tmp > trim_expr && (tmp[-1] == ' ' || tmp[-1] == '\t')) {
     tmp[-1] = '\0';
     tmp--;
   }
-  if(tmp == expr) expr[0] = '\0'; /* expression was only spaces */
+  if(tmp == trim_expr) trim_expr[0] = '\0'; /* expression was only spaces */
 
-  if(!expr[0]) { /* just "label;": use the first raw file variable with 'label' */
+  if(!trim_expr[0]) { /* just "label;": use the first raw file variable with 'label' */
     idx = 0;
   } else {
     /* same test used for graph waves: unescaped space means RPN expression */
-    match = strpbrk(expr, " \n\t");
-    if(match && (match == expr || *(match - 1) != '\\')) {
-      idx = plot_raw_custom_data(0, 0, raw->allpoints - 1, expr, NULL, raw->nvars + 1);
+    match = strpbrk(trim_expr, " \n\t");
+    if(match && (match == trim_expr || *(match - 1) != '\\')) {
+      idx = plot_raw_custom_data(0, 0, raw->allpoints - 1, trim_expr, NULL, raw->nvars + 1);
       if(idx < 0) {
-        info("graph_sweep_expr_col(): no data found in sweep expression \"%s\", using 1st raw file variable\n", expr);
+        info("graph_sweep_expr_col(): no data found in sweep expression \"%s\", using 1st raw file variable\n",
+             trim_expr);
         idx = 0;
       }
     } else { /* single token: raw file variable name */
-      if(match && match > expr && *(match - 1) == '\\') {
-        my_strdup2(_ALLOC_ID_, &expr, str_replace(expr, "\\ ", " ", 0, -1));
+      if(match && match > trim_expr && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &trim_expr, str_replace(trim_expr, "\\ ", " ", 0, -1));
       }
-      idx = get_raw_index(expr, NULL);
+      idx = get_raw_index(trim_expr, NULL);
       if(idx < 0) {
-        info("graph_sweep_expr_col(): no data found for sweep variable \"%s\", using 1st raw file variable\n", expr);
+        info("graph_sweep_expr_col(): no data found for sweep variable \"%s\", using 1st raw file variable\n",
+             trim_expr);
         idx = 0;
       }
     }
   }
   if(label_ret) *label_ret = label;
+  else my_free(_ALLOC_ID_, &label); /* label pointer not sent back to caller, so free it now */
+  my_free(_ALLOC_ID_, &expr);
   return idx;
 }
 

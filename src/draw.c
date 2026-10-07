@@ -2770,6 +2770,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
                 my_free(_ALLOC_ID_, &sweep);
                 my_free(_ALLOC_ID_, &custom_rawfile);
                 my_free(_ALLOC_ID_, &sim_type);
+                if(sweep_label) my_free(_ALLOC_ID_, &sweep_label);
                 return 0;
               }
               raw = xctx->raw;
@@ -2903,7 +2904,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       my_free(_ALLOC_ID_, &sweep);
       my_free(_ALLOC_ID_, &custom_rawfile);
       my_free(_ALLOC_ID_, &sim_type);
-      my_free(_ALLOC_ID_, &sweep_label);
+      if(sweep_label) my_free(_ALLOC_ID_, &sweep_label);
       if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y1", dtoa(min)));
       my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "y2", dtoa(max)));

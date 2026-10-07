@@ -43,7 +43,7 @@ BEGIN{
     while(getline < filename) {
       if(create_id == 0) {
         if(!start) f = f "\n"
-        str = gensub(/(STR_ALLOC|(my_(malloc|calloc|realloc|free|strcat|strcat2|strncat|mstrcat|strdup|strdup2)))\([0-9]+,/, "\\1(_ALLOC_ID_,", "G")
+        str = gensub(/(STR_ALLOC|(my_(malloc|calloc|realloc|free|strcat|strcat2|strncat|mstrcat|strndup|strdup|strdup2)))\([0-9]+,/, "\\1(_ALLOC_ID_,", "G")
         if(str != $0) changed = 1
         f = f str
       } else {
