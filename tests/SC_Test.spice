@@ -1,0 +1,30 @@
+** sch_path: /home/rafmag/PDK/General/libraries/SmithChart/SC_Test.sch
+**.subckt SC_Test
+V2 net1 0 dc 0 ac 1 0 portnum=1 z0=50
+V1 net2 0 dc 0 ac 0 0 portnum=2 z0=50
+C2 net1 net2 100p
+L5 0 net2 68n
+R2 net2 0 100k
+**** begin user architecture code
+
+
+.temp 30
+.option savecurrents
+.save all
+.control
+  save all
+
+  sp lin 1000 50k 600meg
+
+  remzerovec
+
+  write SC_Test.raw
+
+  quit 0
+.endc
+
+
+
+**** end user architecture code
+**.ends
+.end
