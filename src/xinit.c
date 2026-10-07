@@ -1275,8 +1275,11 @@ static int source_tcl_file(char *s)
       tcleval( tmp);
       my_free(_ALLOC_ID_, &tmp);
       Tcl_Exit(EXIT_FAILURE);
+    } else {
+      if(tmp) my_free(_ALLOC_ID_, &tmp);
+      Tcl_Exit(EXIT_FAILURE);
     }
-    if(tmp) my_free(_ALLOC_ID_, &tmp);
+    /* should never come here... */
     return TCL_ERROR;
   }
   return TCL_OK;
