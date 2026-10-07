@@ -2546,9 +2546,12 @@ proc xschem_getdata {sock} {
   if {$debug_var<=-1} {puts "tcp<-- $xschem_server_getdata(line,$sock)"}
   # xschem command must be executed at global scope...
   redef_puts
-  uplevel #0 [list catch $xschem_server_getdata(line,$sock) tclcmd_puts]
+  set ret [catch [list uplevel #0 $xschem_server_getdata(line,$sock)] res]
   rename puts {}
   rename ::tcl::puts puts
+  # command generated an error, put error message as result
+  if {$ret != 0} { set tclcmd_puts $res\n }
+
   if {$debug_var<=-1} {puts "tcp--> $tclcmd_puts"}
   set xschem_server_getdata(res,$sock) "$tclcmd_puts"
   puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
@@ -6784,7 +6787,7 @@ proc redef_puts {} {
     rename puts ::tcl::puts
     proc puts args {
       # ::tcl::puts "puts: args=$args"
-      global tclcmd_puts
+      global tclcmd_puts debug_var
       set la [llength $args]
       if {$la<1 || $la>3} {
         error "usage: puts ?-nonewline? ?channel? string"
@@ -6801,6 +6804,7 @@ proc redef_puts {} {
       #set s [join $s] ;# (1) prevent braces at leading/tailing spaces
       if {$channel=="stdout" || $channel=="stderr"} {
         append tclcmd_puts $s$nl
+        if {$debug_var<=-1} {::tcl::puts "tclcmd_puts=$tclcmd_puts"}
       } else {
         set cmd ::tcl::puts
         if {$nl==""} {lappend cmd -nonewline}
