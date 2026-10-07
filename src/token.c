@@ -4240,6 +4240,39 @@ char *trim_chars(const char *str, const char *sep)
   return ptr;
 }
 
+/* find position of 'n'-th unescaped and unquoted separator character indicated in 'sep' list
+ * in the string 'str'. First occurrence is found with n = 1.
+ * 'quotechar' is a list of quoting characters (like: "\"'") 
+ * If no matching separator is found return -1
+ */
+ssize_t find_unescaped_sep(const char *str, const char *sep, const char *quotechar, int n)
+{
+  const char *ptr = str;
+  int escape = 0;
+  int quote = 0;
+  int index = 0;
+  char c;
+
+  if(n == 0) n = 1; /* n==0 is not accepted. First occurrence is 1 */
+  while((c = *ptr++)) {
+    if(c == '\\' && !escape) {
+      escape = 1;
+      continue;
+    }
+    else if(strchr(quotechar, c) && !escape) {
+      quote = !quote;
+      continue;
+    }
+    if(strchr(sep, c) && !quote && !escape) {
+      index++;
+      if(index == n) break;
+    }
+    escape = 0;
+  }
+  if(index == n) return (ssize_t) (ptr - str - 1);
+  return (ssize_t) -1;
+}
+
 /* find nth field in str separated by sep. 1st field is position 1
  * separators inside quotes are not considered as field separators
  * if keep_quote == 1 keep quoting characters  and backslashes in returned field

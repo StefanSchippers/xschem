@@ -1678,6 +1678,7 @@ extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
 extern int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source);
 
 extern char *trim_chars(const char *str, const char *sep);
+extern ssize_t find_unescaped_sep(const char *str, const char *sep, const char *quotechar, int n);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
 extern char *spice_get_node(const char *token);

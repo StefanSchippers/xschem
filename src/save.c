@@ -2410,21 +2410,22 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
 int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
 {
   char *label = NULL, *expr = NULL;
-  const char *semi, *match;
+  const char *match;
+  ssize_t semi = -1;
   int idx = -1;
   Raw *raw = xctx->raw;
 
   if(label_ret) *label_ret = NULL;
   if(!raw || !raw->values || !sweep_attr || !sweep_attr[0]) return -1;
 
-  semi = strchr(sweep_attr, ';');
-  if(semi) {
+  semi = find_unescaped_sep(sweep_attr, ";", "\"", 1);
+  if(semi >= 0) {
     /* get the sweep variable alias (everything before ';'), leading and trailing spaces stripped off */
     my_strdup2(_ALLOC_ID_, &label, trim_chars(find_nth(sweep_attr, ";", "\"", 0, 1), " \t"));
   } else return -1; /* plain sweep variable(s), legacy handling */
 
   /* expression: everything after the first ';' strip off leading and trailing white space */
-  my_strdup2(_ALLOC_ID_, &expr, trim_chars(semi + 1, " \t"));
+  my_strdup2(_ALLOC_ID_, &expr, trim_chars(find_nth(sweep_attr, ";", "\"", 0, 2), " \t"));
 
   if(!expr[0]) { /* just "label;": use the first raw file variable with 'label' */
     idx = 0;
