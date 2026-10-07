@@ -2416,18 +2416,13 @@ int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
 
   if(label_ret) *label_ret = NULL;
   if(!raw || !raw->values || !sweep_attr || !sweep_attr[0]) return -1;
-  semi = strchr(sweep_attr, ';');
-  if(!semi) return -1; /* plain sweep variable(s), legacy handling */
 
-  /* label: everything before the first ';', trimmed of leading spaces
-   * (copy, so the caller's string is not modified) */
-  if(semi > sweep_attr) {
-    const char *lp = sweep_attr;
-    while(lp < semi && *lp == ' ') lp++;
-    if(lp < semi) {
-      my_strndup(_ALLOC_ID_, &label, lp, semi - lp);
-    }
-  }
+  semi = strchr(sweep_attr, ';');
+  if(semi) {
+    /* get the sweep variable alias (everything before ';'), leading and trailing spaces stripped off */
+    my_strdup2(_ALLOC_ID_, &label, trim_chars(find_nth(sweep_attr, ";", "\"", 0, 1), " \t"));
+  } else return -1; /* plain sweep variable(s), legacy handling */
+
   /* expression: everything after the first ';' strip off leading and trailing white space */
   my_strdup2(_ALLOC_ID_, &expr, trim_chars(semi + 1, " \t"));
 
