@@ -2551,7 +2551,7 @@ proc xschem_getdata {sock} {
   rename ::tcl::puts puts
   # command generated an error, put error message as result
   if {$ret != 0} { set tclcmd_puts $res\n }
-
+  if {$ret == 0 } { append tclcmd_puts $res }
   if {$debug_var<=-1} {puts "tcp--> $tclcmd_puts"}
   set xschem_server_getdata(res,$sock) "$tclcmd_puts"
   puts -nonewline $sock "$xschem_server_getdata(res,$sock)"
