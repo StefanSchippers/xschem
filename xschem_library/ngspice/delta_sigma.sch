@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 900 -620 1700 -330 {flags=graph
 y1=-0.214318
@@ -127,15 +128,16 @@ value="
 .include models_65nm.txt
 .model switch sw vt='VCC/2' vh=0.2 ron=1000 roff=1G
 .param VCC=1.2
-.option method=GEAR
+.option method=GEAR savecurrents
 .measure tran avg1 AVG v(x1.qn) from=1u to=3u 
 .measure tran avg2 AVG v(x1.qn) from=4u to=6u
 .measure tran avg3 AVG v(x1.qn) from=7u to=9u
 .control
+  save all
+  save @m.x1.x42.m4[gm] @m.x1.x42.m3[gm] 
   tran 0.2n 9u uic
   write delta_sigma.raw
   set appendwrite
-  save all
   op
   write delta_sigma.raw
   quit 0

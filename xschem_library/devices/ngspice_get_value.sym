@@ -1,4 +1,4 @@
-v {xschem version=3.4.4 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -29,7 +29,8 @@ template="name=r1 node=xxx
 descr=\\"I=\\""}
 V {}
 S {}
+F {}
 E {}
 A 15 0 0 1.875 90 360 {fill=true}
-T {tcleval([ ngspice::get_node [subst -nocommand \{@node\\\}] ] )} 4.375 -8.59375 0 0 0.2 0.2 {vcenter=true layer=15}
+T {@spice_get_node @node} 4.375 -8.59375 0 0 0.2 0.2 {vcenter=true layer=15}
 T {@descr} 4.375 -21.09375 0 0 0.2 0.2 {vcenter=true layer=15}

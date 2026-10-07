@@ -550,7 +550,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     /* check_loaded n <filename>
      *   check if schematic / symbol file is already opened and return window path
      *   the loaded schematic is in.
-     *   for <filename> use absolute path or use [abs_sym_path filename]
      *     window_path[0] == ".drw"
      *     window_path[1] == ".x1.drw"
      *     ...
@@ -560,7 +559,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Xschem_ctx *ctx = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
-        ctx = check_loaded(argv[2]);
+        ctx = check_loaded(xctx, rel_sym_path(argv[2]));
       }
       if(ctx) 
         Tcl_SetResult(interp, ctx->current_win_path, TCL_VOLATILE);
@@ -3231,7 +3230,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
           dbg(1, ("scheduler(): load: filename=%s\n", f));
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
-          if(!force && f[0] && check_loaded(f)) {
+          if(!force && f[0] && check_loaded(xctx, rel_sym_path(f))) {
             char msg[PATH_MAX + 100];
             my_snprintf(msg, S(msg),
                "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -3315,7 +3314,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           if(f[0]) {
            dbg(1, ("f=%s\n", f));
-           if(check_loaded(f)) {
+           if(check_loaded(xctx, rel_sym_path(f))) {
              char msg[PATH_MAX + 100];
              my_snprintf(msg, S(msg),
                 "tk_messageBox -type okcancel -icon warning -parent [xschem get topwindow] "
@@ -5733,7 +5732,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             else {
               info("Warning: undefined netlist format: %s\n", argv[3]);
             }
-            set_tcl_netlist_type();
+            set_tcl_netlist_type(xctx);
           }
           else if(!strcmp(argv[2], "no_draw")) { /* set no drawing flag (0 or 1) */
             int s = atoi(argv[3]);
@@ -6669,29 +6668,64 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* translate3 str eat_escapes s1 [s2] [s3]
+
+
+    /* translate3 [-eat_escapes <1|0>] [-inst <inst_n>] str s1 [s2] [s3] [s4]
      *   Translate string 'str' replacing @xxx tokens with values in string s1 or if
      *     not found in string s2 or if not found in string s3
-     *     eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
+     *     -eat_escapes should be either 1 (remove backslashes) or 0 (keep them)
+     *     if an instance number or name is set with -inst use inst attributes to resolve
      *     Example: xschem translate3 {the voltage is @value} {name=x12} {name=x1 value=1.8}
      *     the voltage is 1.8 */
     else if(!strcmp(argv[1], "translate3") )
     {
       char *s = NULL;
       int eat_escapes = 0;
+      int inst = -1;
       char *res = NULL;
+      int argidx = 0;
+      const char *str = NULL, *s1 = NULL, *s2 = NULL, *s3 = NULL, *s4 = NULL;
+
+
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      if(argc > 3) eat_escapes = atoi(argv[3]);
-      if(argc > 6) 
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], argv[6], NULL, &res));
-      else if(argc > 5)
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], argv[5], NULL, NULL, &res));
-      else if(argc > 4)
-        my_strdup2(_ALLOC_ID_, &s, translate3(argv[2], eat_escapes, argv[4], NULL, NULL, NULL, &res));
-      else {
+      for(i = 2; i < argc; i++) {
+        if(argv[i][0] == '-') {
+          if(!strcmp(argv[i], "-eat_escapes")) {
+            if(argc > i + 1) {
+              i++;
+              eat_escapes = !strboolcmp(argv[i], "true");
+            }
+          } else if(!strcmp(argv[i], "-inst")) {
+            if(argc > i + 1) {
+              i++;
+              inst = get_instance(argv[i]);
+            }
+          }
+        } else {
+          break;
+        }
+      }
+      argidx = i;
+      
+      if(argc > argidx + 4) {
+        s4 = argv[argidx + 4];
+      }
+      if(argc > argidx + 3) {
+        s3 = argv[argidx + 3];
+      }
+      if(argc > argidx + 2) {
+        s2 = argv[argidx + 2];
+      }
+      if(argc > argidx + 1) {
+        s1 = argv[argidx + 1];
+      }
+      if(argc > argidx) {
+        str = argv[argidx];
+      } else {
         Tcl_SetResult(interp, "xschem translate3: missing arguments", TCL_STATIC);
         return TCL_ERROR;
       }
+      my_strdup2(_ALLOC_ID_, &s, translate3(str, inst, eat_escapes, s1, s2, s3, s4, &res));
       if(res) my_free(_ALLOC_ID_, &res);
       Tcl_ResetResult(interp);
       Tcl_SetResult(interp, s, TCL_VOLATILE);

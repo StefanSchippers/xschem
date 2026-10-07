@@ -644,7 +644,7 @@ void hilight_parent_pins(void)
   my_strdup(_ALLOC_ID_, &translated, pin_name);
   for(k = xctx->currsch; k >= 0; k--) {
     if(!strpbrk(translated, "@%")) break;
-    translate3(translated, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
+    translate3(translated, -1, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &translated);
     dbg(1, ("hilight_parent_pins(): xctx->hier_attr[%d].prop_ptr=%s\n", k, xctx->hier_attr[k].prop_ptr));
     dbg(1, ("hilight_parent_pins(): translated=%s\n\n", translated));
   }
@@ -736,7 +736,7 @@ void hilight_child_pins(void)
   if(!pin_name[0]) continue;
   for(k = xctx->currsch - 1; k >= 0; k--) {
     if(!strpbrk(pin_name, "@%")) break;
-    translate3(pin_name, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &pin_name);
+    translate3(pin_name, -1, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &pin_name);
   }
   my_strdup2(_ALLOC_ID_, &tr_pin_name, eval_expr(pin_name));
   dbg(1, ("  pin_name=%s, currsch=%d\n", pin_name, xctx->currsch));

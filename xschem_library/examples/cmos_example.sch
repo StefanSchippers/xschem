@@ -192,6 +192,8 @@ T {tcleval(Power: [to_eng [xschem raw value power 0]]W)} 820 -570 0 0 0.4 0.4 {f
 T {Example of fetching a user
 parameter saved in raw file.} 730 -630 0 0 0.4 0.4 { layer=15}
 T {Power: @spice_get_voltage(power)\\W} 820 -540 0 0 0.4 0.4 {floater=true layer=15}
+T {gm=@spice_get_modelparam_gm} 510 -340 0 0 0.2 0.2 {name=m4 layer=7}
+T {gm=@spice_get_modelparam_gm} 680 -340 0 1 0.2 0.2 {name=m5 layer=7}
 N 30 -310 30 -280 {
 lab=VCC}
 N 30 -310 60 -310 {
@@ -476,14 +478,14 @@ tclcommand="
 xschem raw switch; xschem redraw"
 
 }
-C {ngspice_get_value.sym} 480 -240 0 1 {name=r2 node=@$\{path\}m4[gm]
+C {ngspice_get_value.sym} 480 -240 0 1 {name=r2 node=\\\\@@path\\\\m4[gm]
 descr="gm="}
-C {ngspice_get_value.sym} 710 -240 0 0 {name=r3 node=@$\{path\}m5[gm]
+C {ngspice_get_value.sym} 710 -240 0 0 {name=r3 node=\\\\@@path\\\\m5[gm]
 descr="gm="}
 C {ngspice_get_value.sym} 610 -130 0 0 {name=r4 node=@$\{path\}m1[gm]
 descr="gm="}
 C {lab_pin.sym} 750 -360 0 0 {name=p20 lab=0}
-C {ngspice_get_value.sym} 700 -520 0 0 {name=r1 node=@$\{path\}m2[gm]
+C {ngspice_get_value.sym} 700 -520 0 0 {name=r1 node=\\\\@@path\\\\m2[gm]
 descr="gm="}
-C {ngspice_get_value.sym} 490 -520 0 1 {name=r5 node=@$\{path\}m6[gm]
+C {ngspice_get_value.sym} 490 -520 0 1 {name=r5 node=\\\\@@path\\\\m6[gm]
 descr="gm="}

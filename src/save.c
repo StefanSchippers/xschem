@@ -1004,9 +1004,10 @@ int raw_add_vector(const char *varname, const char *expr, int sweep_idx)
   return res;
 }
 
-int raw_copy(Raw **dest_raw, Raw *source_raw)
+int raw_copy(Raw **dest_raw, Raw *source_raw, Xschem_ctx *source)
 {
   int i;
+  
   if(dest_raw == NULL) return 0;
   if(!source_raw) {
     *dest_raw = NULL;
@@ -1038,7 +1039,7 @@ int raw_copy(Raw **dest_raw, Raw *source_raw)
   memcpy((*dest_raw)->npoints, source_raw->npoints, source_raw->datasets * sizeof(int));
 
   my_strdup2(_ALLOC_ID_, &(*dest_raw)->sim_type, source_raw->sim_type);
-  my_strdup2(_ALLOC_ID_, &(*dest_raw)->schname, source_raw->schname);
+  my_strdup2(_ALLOC_ID_, &(*dest_raw)->schname, source->sch[source->currsch]);
   (*dest_raw)->nvars = source_raw->nvars;
   (*dest_raw)->allpoints = source_raw->allpoints;
   (*dest_raw)->datasets = source_raw->datasets;
@@ -1070,7 +1071,7 @@ int extra_raw_arr_copy(Xschem_ctx *dest, Xschem_ctx *source)
         if(i == source->extra_idx) {
           dest->extra_raw_arr[i] = dest->raw;
         } else {
-          raw_copy(&dest->extra_raw_arr[i], source->extra_raw_arr[i]);
+          raw_copy(&dest->extra_raw_arr[i], source->extra_raw_arr[i], source);
         }
       }
     }
@@ -3613,7 +3614,7 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
     set_modify(-1); /* set title to new filename */
   }
   else { /* user asks to save to same filename */
-    if(!stat(xctx->sch[xctx->currsch], &buf)) {
+    if(has_x && !stat(xctx->sch[xctx->currsch], &buf)) {
       if(xctx->time_last_modify != -1 && xctx->time_last_modify != buf.st_mtime) {
         tclvareval("ask_save \"Schematic file: ", xctx->sch[xctx->currsch],
             "\nHas been changed since opening.\nSave anyway?\" 0", NULL);
@@ -3806,7 +3807,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
       if(!strcmp(name + len - 4, ".sym")) {
         if(xctx->netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = xctx->netlist_type;
         xctx->netlist_type = CAD_SYMBOL_ATTRS;
-        set_tcl_netlist_type();
+        set_tcl_netlist_type(xctx);
         xctx->loaded_symbol = 1;
       }
       clear_drawing();
@@ -3825,12 +3826,12 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
         if(!strcmp(tclresult(), "SYMBOL") || xctx->instances == 0) {
           if(xctx->netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = xctx->netlist_type;
           xctx->netlist_type = CAD_SYMBOL_ATTRS;
-          set_tcl_netlist_type();
+          set_tcl_netlist_type(xctx);
           xctx->loaded_symbol = 1;
         } else {
           if(xctx->loaded_symbol) {
             xctx->netlist_type = xctx->save_netlist_type;
-            set_tcl_netlist_type();
+            set_tcl_netlist_type(xctx);
           }
           xctx->loaded_symbol = 0;
         }
@@ -3841,7 +3842,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     /* if(reset_undo) xctx->time_last_modify = time(NULL); */ /* no file given, set mtime to current time */
     if(reset_undo) xctx->time_last_modify = -1; /* no file given, set mtime to -1 (undefined) */
     clear_drawing();
-    set_untitled_name((xctx->netlist_type == CAD_SYMBOL_ATTRS));
+    set_unique_sch_name(xctx, (xctx->netlist_type == CAD_SYMBOL_ATTRS) ? "untitled.sym" : "untitled.sch");
     if(reset_undo) set_modify(0);
   }
   check_collapsing_objects();
@@ -5263,7 +5264,7 @@ void create_sch_from_sym(void)
         my_strncpy(schname, add_ext(abs_sym_path(tcl_hook2(xctx->inst[xctx->sel_array[0].n].name), ""),
              ".sch"), S(schname));
       }
-      if( !stat(schname, &buf) ) {
+      if(has_x && !stat(schname, &buf) ) {
         tclvareval("ask_save \"Create schematic file: ", schname,
             "?\nWARNING: This schematic file already exists, it will be overwritten\"", NULL);
         if(strcmp(tclresult(), "yes") ) {
@@ -5468,7 +5469,7 @@ int descend_symbol(void)
   if(save_netlist_type != CAD_SYMBOL_ATTRS) xctx->save_netlist_type = save_netlist_type;
   xctx->loaded_symbol = 1;
   xctx->netlist_type = CAD_SYMBOL_ATTRS;
-  set_tcl_netlist_type();
+  set_tcl_netlist_type(xctx);
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   return 1;
 }

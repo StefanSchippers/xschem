@@ -312,10 +312,10 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
    save = xctx->netlist_type;
    xctx->netlist_type = CAD_SPECTRE_NETLIST;
-   set_tcl_netlist_type();
+   set_tcl_netlist_type(xctx);
    tcleval(tcl_cmd_netlist);
    xctx->netlist_type = save;
-   set_tcl_netlist_type();
+   set_tcl_netlist_type(xctx);
 
    if(debug_var==0) xunlink(netl_filename);
  }
@@ -556,7 +556,7 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     const char *translated_sym_def;
     char *res = NULL;
     my_mstrcat(_ALLOC_ID_, &symname_attr, "symname=", get_cell(name, 0), NULL);
-    translated_sym_def = translate3(sym_def, 1, xctx->sym[i].templ, symname_attr, NULL, NULL, &res);
+    translated_sym_def = translate3(sym_def, -1, 1, xctx->sym[i].templ, symname_attr, NULL, NULL, &res);
     my_free(_ALLOC_ID_, &symname_attr);
     fprintf(fd, "%s\n", translated_sym_def);
     my_free(_ALLOC_ID_, &sym_def);
@@ -606,10 +606,10 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     my_snprintf(tcl_cmd_netlist, S(tcl_cmd_netlist), "netlist {%s} noshow {%s}", netl_filename, cellname);
     save = xctx->netlist_type;
     xctx->netlist_type = CAD_SPECTRE_NETLIST;
-    set_tcl_netlist_type();
+    set_tcl_netlist_type(xctx);
     tcleval(tcl_cmd_netlist);
     xctx->netlist_type = save;
-    set_tcl_netlist_type();
+    set_tcl_netlist_type(xctx);
     if(debug_var==0) xunlink(netl_filename);
   }
   err:

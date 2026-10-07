@@ -3641,7 +3641,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       else if(rstate == ControlMask) { /* toggle spice/vhdl netlist */
         xctx->netlist_type++;
         if(xctx->netlist_type==7) xctx->netlist_type=1;
-        set_tcl_netlist_type();
+        set_tcl_netlist_type(xctx);
         draw(); /* needed to ungrey or grey out  components due to *_ignore attribute */
       }
       break;

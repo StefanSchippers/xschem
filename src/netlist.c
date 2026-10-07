@@ -640,19 +640,19 @@ void netlist_options(int i)
   }
 }
 
-void set_tcl_netlist_type(void)
+void set_tcl_netlist_type(Xschem_ctx *ctx)
 {
-    if(xctx->netlist_type == CAD_SPICE_NETLIST) {
+    if(ctx->netlist_type == CAD_SPICE_NETLIST) {
       tclsetvar("netlist_type", "spice");
-    }  else if(xctx->netlist_type == CAD_VERILOG_NETLIST) {
+    }  else if(ctx->netlist_type == CAD_VERILOG_NETLIST) {
       tclsetvar("netlist_type", "verilog");
-    } else if(xctx->netlist_type == CAD_VHDL_NETLIST) {
+    } else if(ctx->netlist_type == CAD_VHDL_NETLIST) {
       tclsetvar("netlist_type", "vhdl");
-    } else if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
+    } else if(ctx->netlist_type == CAD_SPECTRE_NETLIST) {
       tclsetvar("netlist_type", "spectre");
-    } else if(xctx->netlist_type == CAD_TEDAX_NETLIST) {
+    } else if(ctx->netlist_type == CAD_TEDAX_NETLIST) {
       tclsetvar("netlist_type", "tedax");
-    } else if(xctx->netlist_type == CAD_SYMBOL_ATTRS) {
+    } else if(ctx->netlist_type == CAD_SYMBOL_ATTRS) {
       tclsetvar("netlist_type", "symbol");
     } else {
       tclsetvar("netlist_type", "unknown");
@@ -953,7 +953,7 @@ static void set_inst_node(int i, int j, const char *node)
   my_strdup2(_ALLOC_ID_, &tr_node, node);
   for(k = xctx->currsch - 1; k >= 0; k--) {
     if(!strpbrk(tr_node, "@%")) break;
-    translate3(tr_node, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_node);
+    translate3(tr_node, i, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_node);
   }
   my_strdup(_ALLOC_ID_,  &inst[i].node[j], eval_expr(tr_node));
   my_free(_ALLOC_ID_, &tr_node);
@@ -975,7 +975,7 @@ static void set_inst_node(int i, int j, const char *node)
     my_strdup2(_ALLOC_ID_, &tr_instname, inst[i].instname);
     for(k = xctx->currsch - 1; k >= 0; k--) {
       if(!strpbrk(tr_instname, "@%")) break;
-      translate3(tr_instname, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_instname);
+      translate3(tr_instname, -1, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_instname);
     }
     expandlabel(eval_expr(tr_instname), &inst_mult);
     my_free(_ALLOC_ID_, &tr_instname);
@@ -1459,7 +1459,7 @@ static int name_nodes_of_pins_labels_and_propagate()
       my_strdup2(_ALLOC_ID_, &tr_lab, inst[i].lab);
       for(k = xctx->currsch - 1; k >= 0; k--) {
         if(!strpbrk(tr_lab, "@%")) break;
-        translate3(tr_lab, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_lab);
+        translate3(tr_lab, i, 1, xctx->hier_attr[k].prop_ptr, NULL, NULL, NULL, &tr_lab);
       }
       my_strdup(_ALLOC_ID_, &inst[i].node[0], eval_expr(tr_lab));
       my_free(_ALLOC_ID_, &tr_lab);

@@ -1303,7 +1303,7 @@ extern int  get_raw_index(const char *node, Int_hashentry **entry_ret);
 extern void free_rawfile(Raw **rawptr, int dr, int no_warning);
 extern int update_op();
 extern int extra_rawfile(int what, const char *f, const char *type, double sweep1, double sweep2);
-extern int raw_copy(Raw **dest_raw, Raw *source_raw);
+extern int raw_copy(Raw **dest_raw, Raw *source_raw, Xschem_ctx *source);
 extern int extra_raw_arr_copy(Xschem_ctx *dest, Xschem_ctx *source);
 extern int raw_read(const char *f, Raw **rawptr, const char *type, int no_warning, double sweep1, double sweep2);
 extern int table_read(const char *f);
@@ -1579,7 +1579,7 @@ extern int load_schematic(int load_symbol, const char *fname, int reset_undo, in
 extern int get_tab_or_window_number(const char *win_path);
 extern void swap_tabs(void);
 extern void swap_windows(int dr);
-extern Xschem_ctx *check_loaded(const char *f);
+extern Xschem_ctx *check_loaded(Xschem_ctx *ctx, const char *f);
 extern char *get_last_created_window_path(void);
 extern int get_last_created_window(void);
 extern char *get_window_path(int i);
@@ -1598,7 +1598,7 @@ extern void get_additional_symbols(int what);
 extern int change_sch_path(int instnumber, int dr);
 extern int descend_schematic(int instnumber, int fallback, int alert, int set_title);
 extern void go_back(int what); /* what == 1: confirm save; what == 2: do not reset window title */
-extern void set_untitled_name(int symbol);
+extern void set_unique_sch_name(Xschem_ctx *ctx, const char *name);
 extern void clear_schematic(int cancel, int symbol);
 extern void view_unzoom(double z);
 extern void view_zoom(double z);
@@ -1685,7 +1685,7 @@ extern char *get_fqdevice(const char *param, int modelparam, const char *instnam
 extern char *recursive_subst(const char *value, int symbol);
 extern const char *translate(int inst, const char* s, char **result);
 extern const char* translate2(Lcc *lcc, int level, char* s, char **result);
-extern const char *translate3(const char* s, int eat_escapes, const char *s1,
+extern const char *translate3(const char* s, int inst, int eat_escapes, const char *s1,
                               const char *s2, const char *s3, const char *s4, char **translated_tok);
 extern void print_tedax_element(FILE *fd, int inst);
 extern int print_spice_element(FILE *fd, int inst);
@@ -1802,7 +1802,7 @@ extern void copy_hilights(void);
 extern int hilight_hash_copy(Xschem_ctx *dest, Xschem_ctx *source);
 extern void display_hilights(int what, char **str);
 extern void redraw_hilights(int clear);
-extern void set_tcl_netlist_type(void);
+extern void set_tcl_netlist_type(Xschem_ctx *ctx);
 extern void show_unconnected_pins(void);
 extern void auto_set_wire_bus(int start, int end);
 extern int prepare_netlist_structs(int for_netlist);

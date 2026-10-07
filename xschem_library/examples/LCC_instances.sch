@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -26,6 +26,7 @@ template="name=X1"}
 V {}
 S {
 }
+F {}
 E {}
 L 4 220 -310 240 -330 {}
 L 4 220 -310 260 -310 {}
@@ -179,13 +180,17 @@ savecurrent=1
 }
 C {lab_pin.sym} 50 -180 0 0 {name=p4 lab=A}
 C {lab_pin.sym} 50 -80 0 0 {name=p5 lab=0}
-C {code_shown.sym} 510 -450 0 0 {name=STIMULI
+C {code_shown.sym} 520 -460 0 0 {name=STIMULI
 only_toplevel=true
 tclcommand="xschem edit_vi_prop"
 value="* .options SRCSTEPS=0
 .option savecurrents
 .control
 save all
+save @m.xkeeper.x2.m1[gm] 
++ @m.xkeeper.x2.m2[gm]
++ @m.xinv.m1[gm] 
++ @m.xinv.m2[gm]
 dc v1 0 3 0.001
 write LCC_instances.raw
 set appendwrite 
