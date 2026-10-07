@@ -1186,7 +1186,7 @@ int raw_deletevar(const char *name)
   }
   raw->nvars--;
   my_realloc(_ALLOC_ID_, &raw->names, sizeof(char *) * raw->nvars);
-  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * raw->nvars + 1);
+  my_realloc(_ALLOC_ID_, &raw->values, sizeof(SPICE_DATA *) * (raw->nvars + 1));
   ret = 1;
   return ret;
 }

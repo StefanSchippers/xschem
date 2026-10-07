@@ -3566,7 +3566,9 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
   /* draw sweep variable(s) on x-axis */
   if(wcnt == 0 || (stok && stok[0])) {
-    if(sch_waves_loaded() >= 0) stok = xctx->raw->names[sweep_idx];
+    if(sch_waves_loaded() >= 0 && sweep_idx >= 0 && sweep_idx < xctx->raw->nvars ) {
+      stok = xctx->raw->names[sweep_idx];
+    }
     if(gr->unitx != 1.0) my_snprintf(tmpstr, S(tmpstr), "%s[%c]", stok ? stok : "" , gr->unitx_suffix);
     else  my_snprintf(tmpstr, S(tmpstr), "%s", stok ? stok : "");
     my_snprintf(tmpstr, S(tmpstr), "%s", str_replace(tmpstr, "\\ ", " ", 0, -1));
