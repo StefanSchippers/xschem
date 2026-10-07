@@ -3231,6 +3231,95 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
+static void draw_smith_grid(Graph_ctx *gr, void *ct)
+{
+  static const double r_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0 };
+  static const char *r_labels[] = { "0.1", "0.2", "0.5", "1", "2", "5", "10" };
+  const int n_r = 7;
+  const int n_pts = 96;
+  double circ_cx[8], circ_cy[8], circ_r[8];
+  XPoint pts[n_pts + 1];
+  int i, ir, p, n_circ;
+  double cx, cy, rad, theta, u, v;
+
+  (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
+
+  /* clip to the plot box exactly like draw_graph_grid() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  /* solid grid-line width, same as draw_graph_grid() major lines */
+  XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+
+  /* circle table: [0] = unit circle, [1..n_r] = constant-R circles */
+  circ_cx[0] = 0.0; circ_cy[0] = 0.0; circ_r[0] = 1.0;
+  n_circ = 1;
+  for(ir = 0; ir < n_r; ir++) {
+    double r = r_values[ir];
+    circ_cx[n_circ] = r / (1.0 + r);
+    circ_cy[n_circ] = 0.0;
+    circ_r[n_circ] = 1.0 / (1.0 + r);
+    n_circ++;
+  }
+
+  /* draw each circle as a closed 96-segment polyline in data space, mapped via SM_X/SM_Y */
+  for(ir = 0; ir < n_circ; ir++) {
+    cx = circ_cx[ir];
+    cy = circ_cy[ir];
+    rad = circ_r[ir];
+    for(i = 0; i < n_pts; i++) {
+      theta = 2.0 * XSCH_PI * (double)i / (double)n_pts;
+      u = cx + rad * cos(theta);
+      v = cy + rad * sin(theta);
+      pts[i].x = (short)CLIP(SM_X(u), -30000, 30000);
+      pts[i].y = (short)CLIP(SM_Y(v), -30000, 30000);
+    }
+    pts[n_pts].x = pts[0].x; /* close the loop by repeating the first point */
+    pts[n_pts].y = pts[0].y;
+    for(p = 0; p < 2; p++) {
+      Drawable w;
+      if(p == 0 && xctx->draw_window) w = xctx->window;
+      else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      XDrawLines(display, w, xctx->gc[GRIDLAYER], pts, n_pts + 1, CoordModeOrigin);
+    }
+  }
+
+  /* real axis: straight line from (-1,0) to (1,0) */
+  for(p = 0; p < 2; p++) {
+    Drawable w;
+    if(p == 0 && xctx->draw_window) w = xctx->window;
+    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    XDrawLine(display, w, xctx->gc[GRIDLAYER],
+              (int)CLIP(SM_X(-1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000),
+              (int)CLIP(SM_X(1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000));
+  }
+
+  /* jX axis: straight line from (0,-1) to (0,1) */
+  for(p = 0; p < 2; p++) {
+    Drawable w;
+    if(p == 0 && xctx->draw_window) w = xctx->window;
+    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    XDrawLine(display, w, xctx->gc[GRIDLAYER],
+              (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(-1.0), -30000, 30000),
+              (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(1.0), -30000, 30000));
+  }
+
+  /* labels for constant-R circles, at the top of each circle, a few pixels above */
+  for(ir = 0; ir < n_r; ir++) {
+    double r = r_values[ir];
+    double lx = CLIP(SM_X(r / (1.0 + r)), -30000, 30000);
+    double ly = CLIP(SM_Y(1.0 / (1.0 + r)), -30000, 30000) - 4.0;
+    draw_string(3, NOW, r_labels[ir], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                gr->txtsizex, gr->txtsizex);
+  }
+
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
 void setup_graph_data(int i, int skip, Graph_ctx *gr)
 {
   double tmp;
@@ -4369,7 +4458,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     if(autoload == 0) autoload = 2; /* 2: switch */
     else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
     /* graph box, gridlines and axes */
-    draw_graph_grid(gr, ct);
+    if(gr->mode == 3) draw_smith_grid(gr, ct);
+    else draw_graph_grid(gr, ct);
     /* get data to plot */
     my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
     my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0));
