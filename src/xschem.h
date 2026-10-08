@@ -1333,7 +1333,7 @@ typedef struct {
   int n;    /* number of valid tokens */
 } smx_prog;
 extern int smith_expr_parse(const char *expr, smx_prog *prog);
-extern int smith_expr_eval_point(const smx_prog *prog, int p, double *re, double *im);
+extern int smith_expr_eval_point(const smx_prog *prog, int p, double z0, double *re, double *im);
 extern void draw_smith_points(int idx, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
 extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,

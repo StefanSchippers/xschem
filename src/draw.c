@@ -3150,9 +3150,9 @@ int smith_expr_parse(const char *expr, smx_prog *prog)
  * the result to *re/*im (complex result -> re/im, real -> (re, 0)).
  * Reads xctx->raw - the caller guarantees the right raw file is loaded
  * (point p of the selected dataset).  Returns 0 on success, -1 if the
- * point is invalid.  imp() normalizes with z0 = smith_z0 of the graph
- * currently being drawn (draw_graph() always uses xctx->graph_struct). */
-int smith_expr_eval_point(const smx_prog *prog, int p, double *re, double *im)
+ * point is invalid.  imp() normalizes with the z0 passed by the caller
+ * (the smith_z0 of the graph being drawn). */
+int smith_expr_eval_point(const smx_prog *prog, int p, double z0, double *re, double *im)
 {
   int i, stackptr;
   struct { int is_c; double re, im; } cstack[SMX_MAX];
@@ -3232,7 +3232,6 @@ int smith_expr_eval_point(const smx_prog *prog, int p, double *re, double *im)
           /* pop Z (complex or real), push Gamma = (Z - z0)/(Z + z0) */
           double z_re = cstack[stackptr - 1].re;
           double z_im = cstack[stackptr - 1].im;
-          double z0 = xctx->graph_struct.smith_z0;
           double den_re = z_re + z0, den_im = z_im;
           double den = den_re * den_re + den_im * den_im;
           double r_re, r_im;
@@ -3276,7 +3275,7 @@ int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *po
   for(p = first ; p <= last; p++) {
     double re, im;
 
-    if(smith_expr_eval_point(prog, p, &re, &im) != 0) return -1;
+    if(smith_expr_eval_point(prog, p, gr->smith_z0, &re, &im) != 0) return -1;
     /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
     point[poly_npoints].x = (short)CLIP(SM_X(re), -30000, 30000);
     point[poly_npoints].y = (short)CLIP(SM_Y(im), -30000, 30000);
@@ -3888,16 +3887,16 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
     /* Gamma(f_c): lerp of re/im between the bracketing sweep points */
     if(expression) {
       double re0, im0, re1, im1;
-      if(smith_expr_eval_point(prog, p, &re0, &im0) != 0) continue;
-      if(smith_expr_eval_point(prog, p + 1, &re1, &im1) != 0) continue;
+      if(smith_expr_eval_point(prog, p, gr->smith_z0, &re0, &im0) != 0) continue;
+      if(smith_expr_eval_point(prog, p + 1, gr->smith_z0, &re1, &im1) != 0) continue;
       re = re0 + t * (re1 - re0);
       im = im0 + t * (im1 - im0);
     } else {
       re = raw->values[idx + 2][p] + t * (raw->values[idx + 2][p + 1] - raw->values[idx + 2][p]);
       im = raw->values[idx + 3][p] + t * (raw->values[idx + 3][p + 1] - raw->values[idx + 3][p]);
     }
-    sx = SM_X(re);
-    sy = SM_Y(im);
+    sx = CLIP(SM_X(re), -30000, 30000);
+    sy = CLIP(SM_Y(im), -30000, 30000);
 
     /* marker: cursor1 = filled dot (radius 3), cursor2 = cross, 4-px arms */
     for(w = 0; w < 2; w++) {
@@ -5339,6 +5338,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
             if(dataset == -1 || dataset == sweepvar_wrap) {
               int rc;
               char name[1024];
+              char name_tmp[1024];
               char *alias_ptr = NULL;
               if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
               else wave_color = wc;
@@ -5365,7 +5365,12 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
                 } else {
                   my_snprintf(name, S(name), "%s", ntok);
                 }
-                if(gr->unity != 1.0) my_snprintf(name, S(name), "%s[%c]", name, gr->unity_suffix);
+                /* copy through a tmp buffer: my_snprintf with overlapping
+                 * src/dst (name -> name) is implementation-defined */
+                if(gr->unity != 1.0) {
+                  my_snprintf(name_tmp, S(name_tmp), "%s[%c]", name, gr->unity_suffix);
+                  my_snprintf(name, S(name), "%s", name_tmp);
+                }
                 my_snprintf(name, S(name), "%s", str_replace(name, "\\ ", " ", 0, -1));
                 draw_smith_cursor_markers(sweep_idx, ofs, ofs_end - 1, wave_color,
                     expression, idx, &smith_prog, name, flags, cursor1, cursor2,
