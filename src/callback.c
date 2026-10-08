@@ -549,36 +549,74 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     /* move cursor1 */
     /* set cursor position from master graph x-axis */
     else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 16 )) {
-      double c;
+      double c = 0.0;
+      int changed = 0;
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+      if(gr->mode == 3) {
+        /* Smith: snap to the plane-closest trace point under the mouse; no
+         * plotted point (or degenerate plane) -> leave the cursor unchanged */
+        double f = 0.0, u = 0.0, v = 0.0;
+        int wave = -1;
+        if(gr->ss > 0.0) {
+          u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+          v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+          if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+            c = f;
+            changed = 1;
+          }
+        }
       } else {
-        xctx->graph_cursor1_x = c;
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        changed = 1;
       }
-      need_all_redraw = 1;
+      if(changed) {
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor1_x = c;
+        }
+        need_all_redraw = 1;
+      }
     }
     /* move cursor2 */
     /* set cursor position from master graph x-axis */
     else if(event == MotionNotify && (state & Button1Mask) && (xctx->graph_flags & 32 )) {
-      double c;
+      double c = 0.0;
       int floaters = there_are_floaters();
+      int changed = 0;
 
-      c = G_X(xctx->mousex);
-      if(gr->logx) c = pow(10, c);
-      if(r->flags & 4) { /* private_cursor */
-        my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+      if(gr->mode == 3) {
+        /* Smith: snap to the plane-closest trace point under the mouse; no
+         * plotted point (or degenerate plane) -> leave the cursor unchanged */
+        double f = 0.0, u = 0.0, v = 0.0;
+        int wave = -1;
+        if(gr->ss > 0.0) {
+          u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+          v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+          if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+            c = f;
+            changed = 1;
+          }
+        }
       } else {
-        xctx->graph_cursor2_x = c;
+        c = G_X(xctx->mousex);
+        if(gr->logx) c = pow(10, c);
+        changed = 1;
       }
-      if(tclgetboolvar("live_cursor2_backannotate")) {
-        backannotate_at_cursor_b_pos(r, gr);
-        if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
-        need_fullredraw = 1;
-      } else {
-        need_all_redraw = 1;
+      if(changed) {
+        if(r->flags & 4) { /* private_cursor */
+          my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+        } else {
+          xctx->graph_cursor2_x = c;
+        }
+        if(tclgetboolvar("live_cursor2_backannotate")) {
+          backannotate_at_cursor_b_pos(r, gr);
+          if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
+          need_fullredraw = 1;
+        } else {
+          need_all_redraw = 1;
+        }
       }
     }
 
@@ -633,11 +671,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         } else {
           cursor1 = xctx->graph_cursor1_x;
         }
-        if(gr->logx ) {
-          cursor1 = mylog10(cursor1);
-        }
-        if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
-          xctx->graph_flags |= 16; /* Start move cursor1 */
+        if(gr->mode == 3) {
+          /* Smith: start the move when the mouse is within 10 px of any marker
+           * of this cursor (any trace; euclidean screen-pixel distance) */
+          int m, n;
+          int sx[64], sy[64];
+          n = smith_cursor_markers(i, cursor1, 64, sx, sy);
+          for(m = 0; m < n; m++) {
+            double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
+            double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
+            if(dx * dx + dy * dy < 10.0 * 10.0) {
+              xctx->graph_flags |= 16; /* Start move cursor1 */
+              break;
+            }
+          }
+        } else {
+          if(gr->logx ) {
+            cursor1 = mylog10(cursor1);
+          }
+          if(fabs(xctx->mousex - W_X(cursor1)) < 10) {
+            xctx->graph_flags |= 16; /* Start move cursor1 */
+          }
         }
       }
       if(xctx->graph_flags & 4) { /* cursor2 */
@@ -652,11 +706,27 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         } else {
           cursor2 = xctx->graph_cursor2_x;
         }
-        if(gr->logx) {
-          cursor2 = mylog10(cursor2);
-        }
-        if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
-          xctx->graph_flags |= 32; /* Start move cursor2 */
+        if(gr->mode == 3) {
+          /* Smith: start the move when the mouse is within 10 px of any marker
+           * of this cursor (any trace; euclidean screen-pixel distance) */
+          int m, n;
+          int sx[64], sy[64];
+          n = smith_cursor_markers(i, cursor2, 64, sx, sy);
+          for(m = 0; m < n; m++) {
+            double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
+            double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
+            if(dx * dx + dy * dy < 10.0 * 10.0) {
+              xctx->graph_flags |= 32; /* Start move cursor2 */
+              break;
+            }
+          }
+        } else {
+          if(gr->logx) {
+            cursor2 = mylog10(cursor2);
+          }
+          if(fabs(xctx->mousex - W_X(cursor2)) < 10) {
+            xctx->graph_flags |= 32; /* Start move cursor2 */
+          }
         }
       }
     }
@@ -767,15 +837,35 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       xctx->graph_flags ^= 2;
       need_all_redraw = 1;
       if(xctx->graph_flags & 2) {
-        double c = G_X(xctx->mousex);
+        double c = 0.0;
+        int changed = 0;
 
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) {
-          if(!get_tok_value(r->prop_ptr, "cursor1_x", 0)[0]) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+        if(gr->mode == 3) {
+          /* Smith: frequency = sweep value of the plane-closest trace point to
+           * the mouse; no plotted point (or degenerate plane) -> no change */
+          double f = 0.0, u = 0.0, v = 0.0;
+          int wave = -1;
+          if(gr->ss > 0.0) {
+            u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+            v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+            if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+              c = f;
+              changed = 1;
+            }
           }
         } else {
-          xctx->graph_cursor1_x = c;
+          c = G_X(xctx->mousex);
+          if(gr->logx) c = pow(10, c);
+          changed = 1;
+        }
+        if(changed) {
+          if(r->flags & 4) {
+            if(!get_tok_value(r->prop_ptr, "cursor1_x", 0)[0]) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor1_x", dtoa(c)));
+            }
+          } else {
+            xctx->graph_cursor1_x = c;
+          }
         }
       }
     }
@@ -785,15 +875,35 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
 
       xctx->graph_flags ^= 4;
       if(xctx->graph_flags & 4) {
-        double c = G_X(xctx->mousex);
+        double c = 0.0;
+        int changed = 0;
 
-        if(gr->logx) c = pow(10, c);
-        if(r->flags & 4) {
-          if(!get_tok_value(r->prop_ptr, "cursor2_x", 0)[0]) {
-            my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+        if(gr->mode == 3) {
+          /* Smith: frequency = sweep value of the plane-closest trace point to
+           * the mouse; no plotted point (or degenerate plane) -> no change */
+          double f = 0.0, u = 0.0, v = 0.0;
+          int wave = -1;
+          if(gr->ss > 0.0) {
+            u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+            v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+            if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+              c = f;
+              changed = 1;
+            }
           }
         } else {
-          xctx->graph_cursor2_x = c;
+          c = G_X(xctx->mousex);
+          if(gr->logx) c = pow(10, c);
+          changed = 1;
+        }
+        if(changed) {
+          if(r->flags & 4) {
+            if(!get_tok_value(r->prop_ptr, "cursor2_x", 0)[0]) {
+              my_strdup(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, "cursor2_x", dtoa(c)));
+            }
+          } else {
+            xctx->graph_cursor2_x = c;
+          }
         }
         if(tclgetboolvar("live_cursor2_backannotate")) {
           backannotate_at_cursor_b_pos(r, gr);
