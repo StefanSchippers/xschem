@@ -3036,8 +3036,8 @@ void draw_smith_points(int idx, int first, int last,
   }
   for(p = first ; p <= last; p++) {
     /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
-    point[poly_npoints].x = (short)SM_X(re[p]);
-    point[poly_npoints].y = (short)SM_Y(im[p]);
+    point[poly_npoints].x = (short)CLIP(SM_X(re[p]), -30000, 30000);
+    point[poly_npoints].y = (short)CLIP(SM_Y(im[p]), -30000, 30000);
     poly_npoints++;
   }
   set_thick_waves(1, wcnt, wave_color, gr);
@@ -4844,7 +4844,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         int smith_valid = 1;
         /* Smith chart: the wave must be a complex variable (4*i=mag, 4*i+1=ph,
          * 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted as a trace */
-        if(gr->mode == 3 && (idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+        if(gr->mode == 3 && (!xctx->raw->sim_type ||
+           strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
           info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n",
                bus_msb ? bus_msb : express);
           smith_valid = 0;
