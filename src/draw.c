@@ -3404,15 +3404,15 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   }
 
   /* labels for constant-R circles, on the real axis at each circle's
-   * real-axis crossing u = (R-1)/(R+1), a few pixels above the axis line
-   * (the text hangs down from its top edge, so lift it by its own height
-   * plus the gap) */
+   * real-axis crossing u = (R-1)/(R+1); horizontally centered on that
+   * crossing and placed a few pixels below the axis line (vertically
+   * centered on a point ~4 px below the axis) */
   for(ir = 0; ir < n_r; ir++) {
     double r = r_values[ir];
     double lu = (r - 1.0) / (1.0 + r);
     double lx = CLIP(SM_X(lu), -30000, 30000);
-    double ly = CLIP(SM_Y(0.0), -30000, 30000) - 3.0 - sm_font_px;
-    draw_string(3, NOW, r_labels[ir], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+    double ly = CLIP(SM_Y(0.0), -30000, 30000) + 4.0;
+    draw_string(3, NOW, r_labels[ir], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
                 sm_font, sm_font);
   }
 
@@ -3432,29 +3432,39 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       else continue;
       XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
     }
-    if(fabs(x_values[ix]) <= 1.0) {
-      /* |X| <= 1: label on the jX axis at the arc's inner crossing with
-       * it: u = 0, v = (1 - sqrt(1 - X*X)) / X (negative X mirrors below
-       * the real axis); offset a few pixels right of the jX axis line,
-       * centered vertically on the crossing */
-      u = 0.0;
-      v = (1.0 - sqrt(1.0 - x_values[ix] * x_values[ix])) / x_values[ix];
-      lx = CLIP(SM_X(0.0), -30000, 30000) + 4.0;
-      ly = CLIP(SM_Y(v), -30000, 30000);
-      draw_string(3, NOW, x_labels[ix], 0, 0, 0, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
-                  sm_font, sm_font);
-    } else {
-      /* |X| > 1: label at the arc's R=0 crossing, which lies exactly on
-       * the unit circle: u = X*X/(1+X*X), v = X/(1+X*X); offset a few
-       * pixels toward the chart interior (toward the origin) so the text
-       * does not sit on the unit circle */
-      u = x_values[ix] * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
-      v = x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
-      lx = CLIP(SM_X(u), -30000, 30000) - 4.0 * u;
-      ly = CLIP(SM_Y(v), -30000, 30000) + 4.0 * v;
-      draw_string(3, NOW, x_labels[ix], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
-                  sm_font, sm_font);
-    }
+    /* label: anchored at the arc's R=0 crossing, which lies exactly on the
+     * unit circle: u = (X*X - 1) / (1 + X*X), v = 2*X / (1 + X*X); offset
+     * ~6 pixels radially outside the unit circle (SM_Y flips v, hence the
+     * minus on ly) and center the text on that point */
+    u = (x_values[ix] * x_values[ix] - 1.0) / (1.0 + x_values[ix] * x_values[ix]);
+    v = 2.0 * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+    lx = CLIP(SM_X(u), -30000, 30000) + 6.0 * u;
+    ly = CLIP(SM_Y(v), -30000, 30000) - 6.0 * v;
+    draw_string(3, NOW, x_labels[ix], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                sm_font, sm_font);
+  }
+
+  /* Z0 readout: small label inside the plot box at the bottom-right corner,
+   * text = Z0 value + " Ω", same font as the R/X labels; right-aligned ~6 px
+   * left of the box right edge and ~4 px above the box bottom edge */
+  {
+    char z0str[32];
+    double z0w_px, z0x_scr, z0y_scr;
+#if HAS_CAIRO==1
+    cairo_text_extents_t z0ext;
+#endif
+    my_snprintf(z0str, S(z0str), "%g Ω", gr->smith_z0);
+#if HAS_CAIRO==1
+    cairo_set_font_size(xctx->cairo_ctx, sm_font*52.*cairo_font_scale*xctx->mooz);
+    cairo_text_extents(xctx->cairo_ctx, z0str, &z0ext);
+    z0w_px = (z0ext.x_advance > z0ext.width) ? z0ext.x_advance : z0ext.width;
+#else
+    z0w_px = 0.0;
+#endif
+    z0y_scr = gr->sy2 - 4.0;
+    z0x_scr = gr->sx2 - 6.0 - z0w_px;
+    draw_string(3, NOW, z0str, 0, 0, 0, 1, X_TO_XSCHEM(z0x_scr), Y_TO_XSCHEM(z0y_scr),
+                sm_font, sm_font);
   }
 
   bbox(END, 0.0, 0.0, 0.0, 0.0);
