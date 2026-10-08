@@ -3392,17 +3392,6 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
               (int)CLIP(SM_X(1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000));
   }
 
-  /* jX axis: straight line from (0,-1) to (0,1) */
-  for(p = 0; p < 2; p++) {
-    Drawable w;
-    if(p == 0 && xctx->draw_window) w = xctx->window;
-    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
-    else continue;
-    XDrawLine(display, w, xctx->gc[GRIDLAYER],
-              (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(-1.0), -30000, 30000),
-              (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(1.0), -30000, 30000));
-  }
-
   /* labels for constant-R circles, on the real axis at each circle's
    * real-axis crossing u = (R-1)/(R+1); horizontally centered on that
    * crossing and placed a few pixels below the axis line (vertically
@@ -3446,24 +3435,37 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
 
   /* Z0 readout: small label inside the plot box at the bottom-right corner,
    * text = Z0 value + " Ω", same font as the R/X labels; right-aligned ~6 px
-   * left of the box right edge and ~4 px above the box bottom edge */
+   * left of the box right edge, with the full text above the box bottom edge
+   * (baseline ~ font-height + 3 px above the bottom line).  With vcenter=0
+   * draw_string() anchors the top of the text at the given y, so place the
+   * top at (bottom edge - height - 3 - ascent) to land the baseline there. */
   {
     char z0str[32];
-    double z0w_px, z0x_scr, z0y_scr;
+    double z0w_px, z0h_px, z0asc_px, z0x_scr, z0y_scr;
 #if HAS_CAIRO==1
     cairo_text_extents_t z0ext;
+    cairo_font_extents_t z0fext;
 #endif
     my_snprintf(z0str, S(z0str), "%g Ω", gr->smith_z0);
 #if HAS_CAIRO==1
     cairo_set_font_size(xctx->cairo_ctx, sm_font*52.*cairo_font_scale*xctx->mooz);
     cairo_text_extents(xctx->cairo_ctx, z0str, &z0ext);
+    cairo_font_extents(xctx->cairo_ctx, &z0fext);
     z0w_px = (z0ext.x_advance > z0ext.width) ? z0ext.x_advance : z0ext.width;
+    z0h_px = z0fext.height;
+    z0asc_px = z0fext.ascent;
 #else
+    /* estimate from the vector-font cell: 65 font units tall
+     * (FONTHEIGHT above baseline, FONTDESCENT below), see text_bbox_nocairo() */
     z0w_px = 0.0;
+    z0h_px = (FONTHEIGHT + FONTDESCENT + FONTWHITESPACE) * sm_font *
+             tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+    z0asc_px = FONTHEIGHT * sm_font *
+               tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
 #endif
-    z0y_scr = gr->sy2 - 4.0;
+    z0y_scr = gr->sy2 - z0h_px - 3.0 - z0asc_px + cairo_vert_correct * xctx->mooz;
     z0x_scr = gr->sx2 - 6.0 - z0w_px;
-    draw_string(3, NOW, z0str, 0, 0, 0, 1, X_TO_XSCHEM(z0x_scr), Y_TO_XSCHEM(z0y_scr),
+    draw_string(3, NOW, z0str, 0, 0, 0, 0, X_TO_XSCHEM(z0x_scr), Y_TO_XSCHEM(z0y_scr),
                 sm_font, sm_font);
   }
 
