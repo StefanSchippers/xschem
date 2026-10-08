@@ -4885,13 +4885,13 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     /* cursor2 */
     if((flags & 4) && gr->mode != 3) draw_cursor(cursor2, cursor1, 3, gr);
     /* difference between cursors */
-    if((flags & 2) && (flags & 4)) draw_cursor_difference(cursor1, cursor2, gr);
+    if((flags & 2) && (flags & 4) && gr->mode != 3) draw_cursor_difference(cursor1, cursor2, gr);
     /* difference between hcursors */
     if((flags & 128) && (flags & 256)) draw_hcursor_difference(gr->hcursor1_y, gr->hcursor2_y, gr);
     /* hcursor1 */
-    if(flags & 128) draw_hcursor(gr->hcursor1_y, 15, gr);
+    if((flags & 128) && gr->mode != 3) draw_hcursor(gr->hcursor1_y, 15, gr);
     /* hcursor2 */
-    if(flags & 256) draw_hcursor(gr->hcursor2_y, 19, gr);
+    if((flags & 256) && gr->mode != 3) draw_hcursor(gr->hcursor2_y, 19, gr);
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
   if(flags & 1) { /* copy save buffer to screen */
