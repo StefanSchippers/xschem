@@ -3299,6 +3299,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   int i, ir, p, n_circ, ix, n_xpts;
   double cx, cy, rad, theta, u, v;
   double sm_font_px, sm_font;
+  GC gc_r, gc_x;
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
 
@@ -3327,6 +3328,18 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   /* solid grid-line width, same as draw_graph_grid() major lines */
   /* LineSolid is the default state after wave drawing; no save/restore needed */
   XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+
+  /* two-tone grid colors: constant-R circles in palette color 7 (red),
+   * constant-X arcs and the real/jX axes in palette color 4 (green, the
+   * SYMLAYER color); both read well on light (#ff0000, #229900) and dark
+   * (#ff0000, #88dd00) default schemes.  xctx->gc[i] is the persistent
+   * per-palette-color GC whose foreground build_colors() sets to
+   * color_index[i] -- the same GCs the wave-draw code uses via
+   * xctx->gc[wave_col]; nothing allocated here, nothing to free */
+  gc_r = xctx->gc[7];
+  gc_x = xctx->gc[4];
+  XSetLineAttributes(display, gc_r, XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+  XSetLineAttributes(display, gc_x, XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
 
   /* plot-box frame: full rectangle around the plot box, same four solid box
    * delimiters that draw_graph_grid() draws for normal graphs; a full box is
@@ -3377,7 +3390,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       if(p == 0 && xctx->draw_window) w = xctx->window;
       else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
       else continue;
-      XDrawLines(display, w, xctx->gc[GRIDLAYER], pts, n_pts + 1, CoordModeOrigin);
+      XDrawLines(display, w, gc_r, pts, n_pts + 1, CoordModeOrigin);
     }
   }
 
@@ -3387,7 +3400,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
     if(p == 0 && xctx->draw_window) w = xctx->window;
     else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
     else continue;
-    XDrawLine(display, w, xctx->gc[GRIDLAYER],
+    XDrawLine(display, w, gc_x,
               (int)CLIP(SM_X(-1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000),
               (int)CLIP(SM_X(1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000));
   }
@@ -3398,7 +3411,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
     if(p == 0 && xctx->draw_window) w = xctx->window;
     else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
     else continue;
-    XDrawLine(display, w, xctx->gc[GRIDLAYER],
+    XDrawLine(display, w, gc_x,
               (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(-1.0), -30000, 30000),
               (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(1.0), -30000, 30000));
   }
@@ -3430,7 +3443,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       if(p == 0 && xctx->draw_window) w = xctx->window;
       else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
       else continue;
-      XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
+      XDrawLines(display, w, gc_x, xpts, n_xpts, CoordModeOrigin);
     }
     /* label: anchored at the arc's R=0 crossing, which lies exactly on the
      * unit circle: u = (X*X - 1) / (1 + X*X), v = 2*X / (1 + X*X); offset
