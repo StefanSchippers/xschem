@@ -27,9 +27,37 @@ dataset=-1
 unitx=1
 logx=0
 logy=0
-rawfile=$netlist_dir/SC_Test.raw
 autoload=1
-sim_type=sp}
+sim_type=sp
+mode=Smith
+smz0=50
+rawfile=$netlist_dir/SC_Test.raw}
+B 2 1010 -440 1410 -40 {flags=graph
+y1=0.071
+y2=1
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=50000
+x2=6e+08
+divx=5
+subdivx=1
+xlabmag=1.0
+ylabmag=1.0
+legendmag=1.0
+node="Zin; net1 i(v2) / -1 * imp()"
+color=9
+dataset=-1
+unitx=1
+logx=0
+logy=0
+autoload=1
+sim_type=sp
+mode=Smith
+smz0=50
+rawfile=$netlist_dir/SC_Test_AC.raw}
 N 320 -130 320 -120 {lab=0}
 N 420 -130 420 -120 {lab=0}
 N 320 -220 350 -220 {lab=#net1}
@@ -62,8 +90,7 @@ value=".temp 30
   save all
   AC lin 1000 50k 600Meg
   remzerovec
-  set appendwrite
-  write $inputdir/SC_Test.raw all
+  write $inputdir/SC_Test_AC.raw all
   quit 0
 .endc
 

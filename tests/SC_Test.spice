@@ -1,4 +1,4 @@
-** sch_path: /home/rafmag/PDK/General/libraries/SmithChart/SC_Test.sch
+** sch_path: /home/rafmag/projects/xschem_fork/tests/SC_Test.sch
 **.subckt SC_Test
 V2 net1 0 dc 0 ac 1 0 portnum=1 z0=50
 V1 net2 0 dc 0 ac 0 0 portnum=2 z0=50
@@ -20,6 +20,11 @@ R2 net2 0 100k
 
   write SC_Test.raw
 
+  *** small-signal AC
+  save all
+  AC lin 1000 50k 600Meg
+  remzerovec
+  write $inputdir/SC_Test_AC.raw all
   quit 0
 .endc
 
