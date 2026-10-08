@@ -1348,6 +1348,13 @@ extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPo
  * failure path as well (i out of range, not a graph, no raw, not Smith mode,
  * digital graph, no plotted point). */
 extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret);
+/* Screen-px positions of every wave's cursor marker at frequency f on the
+ * Smith plane of graph rect i: Gamma(f) linearly interpolated between the
+ * bracketing sweep points, coords CLIP(SM_X/SM_Y, -30000, 30000). Same wave
+ * enumeration, guards, per-wave raw switch/restore and validation as
+ * smith_closest_point(). Writes up to max_n (x, y) integer pairs to sx[]/sy[]
+ * and returns the number of markers written (extra waves ignored). */
+extern int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
 extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);

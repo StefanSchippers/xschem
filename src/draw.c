@@ -5265,6 +5265,272 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   return -1;
 }
 
+/* Screen-px positions of every wave's cursor marker at frequency f:
+ * Gamma(f) linearly interpolated between bracketing sweep points
+ * (sv[p] <= f <= sv[p+1], t = (f - sv[p]) / (sv[p+1] - sv[p]), zero-denom skip),
+ * bare waves lerp values[idx+2][p..p+1] / values[idx+3][p..p+1];
+ * expression waves: smith_expr_parse() once per wave, then
+ * smith_expr_eval_point(prog, p, gr.smith_z0, ...) at p and p+1 and lerp.
+ * Skips waves where f is outside the sweep span, and |Gamma| > 1.05 + 1e-9.
+ * Coords CLIP(SM_X/SM_Y, -30000, 30000), written as int to sx[]/sy[].
+ * Same guards, raw switch/restore, validation, escaped-space handling,
+ * dataset gate and memory discipline as smith_closest_point (dbg(1) per-wave).
+ * Returns number of markers written. */
+int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
+{
+  char *node = NULL, *sweep = NULL;
+  int sweep_idx = 0;
+  int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+  char *sweep_label = NULL;
+  char *saven, *saves, *nptr, *sptr;
+  const char *ntok;
+  int wcnt = -1, idx, expression;
+  char *ntok_copy = NULL; /* copy of ntok without %<n> */
+  char *express = NULL;
+  xRect *r;
+  int autoload = 0;
+  int node_dataset = -1;
+  char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
+  char *sim_type = NULL;
+  const char *ptr;
+  Graph_ctx gr_local; /* SM_X/SM_Y macros dereference a `gr` pointer */
+  Graph_ctx *gr = &gr_local;
+  int save_extra_idx = -1;
+  char str_extra_idx[30];
+  int n = 0; /* number of markers written */
+
+  if(i < 0 || i >= xctx->rects[GRIDLAYER]) return 0;
+  r = &xctx->rect[GRIDLAYER][i];
+  if(!(r->flags & 1)) return 0; /* not a graph */
+  if(!xctx->raw) {
+    info("smith_cursor_markers(): no raw struct allocated\n");
+    return 0;
+  }
+
+  memset(&gr_local, 0, sizeof(gr_local));
+  setup_graph_data(i, 0, gr);
+  if(gr->mode != 3) return 0; /* Smith plane distance only makes sense in Smith mode */
+  if(gr->digital) return 0;
+
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  if(autoload == 0) autoload = 2; /* 2: switch */
+  else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
+
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
+
+  ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
+  if(!ptr[0]) {
+    if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
+    else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+  } else {
+    my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+  }
+  my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
+
+  nptr = node;
+  sptr = sweep;
+  /* per-wave raw switching is saved here and restored after each wave, so the
+   * function leaves xctx->raw as found (same save/restore as the draw path) */
+  save_extra_idx = xctx->extra_idx;
+  /* process each node given in "node" attribute, get also associated sweep var if any*/
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
+    char *nd = NULL;
+    int valid_rawfile = 1;
+    wcnt++;
+    if(strstr(ntok, ",")) {
+      if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
+    }
+    if(custom_rawfile[0]) {
+      if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
+         (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
+        valid_rawfile = 0;
+      }
+    }
+    if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+      sweep_resolved = 1;
+      sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
+    }
+    if(sweep_expr_idx >= 0) {
+      /* sweep is "label; expression": all waves share the computed sweep column */
+      sweep_idx = sweep_expr_idx;
+    } else {
+      char *stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
+      if(stok && stok[0]) {
+        sweep_idx = get_raw_index(stok, NULL);
+        if( sweep_idx == -1) {
+          sweep_idx = 0;
+        }
+      }
+    }
+    nptr = sptr = NULL;
+    dbg(1, ("ntok=%s\n", ntok));
+    my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
+
+    if(nd[0]) {
+      int pos = 1;
+      if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
+      if(xctx->raw && xctx->raw->values) {
+        char *node_rawfile = NULL;
+        char *node_sim_type = NULL;
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
+              sim_type[0] ? sim_type : xctx->raw->sim_type);
+        dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
+        if(node_rawfile && node_rawfile[0]) {
+          if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
+            my_free(_ALLOC_ID_, &node_rawfile);
+            my_free(_ALLOC_ID_, &node_sim_type);
+            valid_rawfile = 0;
+          }
+        }
+        my_free(_ALLOC_ID_, &node_rawfile);
+        my_free(_ALLOC_ID_, &node_sim_type);
+      }
+      if(pos == 2) node_dataset = atoi(nd);
+      else node_dataset = -1;
+      dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
+      my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
+    } else {
+      node_dataset = -1;
+      my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
+    }
+    if(nd) my_free(_ALLOC_ID_, &nd);
+
+    /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
+    idx = -1;
+    expression = 0;
+    if(xctx->raw && xctx->raw->values) {
+      char *match;
+      if(strstr(ntok_copy, ";")) {
+        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
+      } else {
+        my_strdup2(_ALLOC_ID_, &express, ntok_copy);
+      }
+      /* same backslash-aware test as the draw path: a bare wave name may
+       * contain escaped spaces (e.g. ngspice two-node voltage "V\ (n1 n2)") */
+      match = strpbrk(express, " \n\t");
+      if(match && (match == express || *(match - 1) != '\\')) {
+        expression = 1;
+      }
+      /* unescape "\ " -> " ", exactly as the draw path does, so the bare
+       * variable name resolves in the raw */
+      if(match && match > express && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &express, str_replace(express, "\\ ", " ", 0, -1));
+      }
+    }
+    if(expression) idx = xctx->raw->nvars;
+    else idx = get_raw_index(express, NULL);
+    dbg(1, ("smith_cursor_markers(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx));
+    if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) {
+      int dset, ofs, ofs_end;
+      int dataset;
+      int smith_valid = 1;
+      double lim;
+      register SPICE_DATA *gvx;
+      smx_prog smith_prog; /* Smith chart: RPN program of a "label; expression" wave */
+      /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
+       * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
+       * as a trace. "label; expression" entries are validated in
+       * smith_expr_parse() below. */
+      if(!expression && (!xctx->raw->sim_type ||
+         strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+        dbg(1, ("Smith chart: '%s' is not a complex (re/im) variable - skipped\n", express));
+        smith_valid = 0;
+      }
+      /* Smith chart: a "label; expression" wave entry: parse the RPN program
+       * once per wave, before the dataset loop; parse failure -> skip the
+       * wave the same way as the draw path */
+      if(expression && smith_valid) {
+        if(smith_expr_parse(express, &smith_prog) != 0) smith_valid = 0;
+      }
+      if(smith_valid) {
+        double t; /* interpolation parameter; -1: f outside the sweep span */
+        int p2;
+        dataset = node_dataset >= 0 ? node_dataset : gr->dataset;
+        lim = 1.05 + 1e-9; /* |Gamma| limit of the visible plane + epsilon */
+        ofs = 0;
+        /* loop through all datasets found in raw file */
+        for(dset = 0; dset < xctx->raw->datasets; dset++) {
+          int found;
+          /* dataset gate: same selection as the draw path (per-wave %<n>
+           * override, else the graph's selected dataset; -1: all datasets).
+           * Smith accepts only ac raws, so no sweep-variable wrap here */
+          if(dataset != -1 && dset != dataset) {
+            ofs += xctx->raw->npoints[dset];
+            continue;
+          }
+          if(n >= max_n) break; /* cap: extra markers ignored, raw still restored below */
+          gvx = xctx->raw->values[sweep_idx];
+          ofs_end = ofs + xctx->raw->npoints[dset];
+          /* find the bracketing p2 in [ofs..ofs_end-2] with gvx[p2] <= f <=
+           * gvx[p2+1] (sweep is the frequency, ascending, logx forced off in
+           * Smith mode); f outside the span -> no marker, same as the draw path */
+          found = 0;
+          t = -1.0;
+          for(p2 = ofs; p2 < ofs_end - 1; p2++) {
+            if(gvx[p2] <= f && f <= gvx[p2 + 1]) {
+              if(gvx[p2 + 1] == gvx[p2]) break; /* guard zero denominator */
+              t = (f - gvx[p2]) / (gvx[p2 + 1] - gvx[p2]);
+              found = 1;
+              break;
+            }
+          }
+          if(found) {
+            double re, im, re0, im0, re1, im1;
+            if(expression) {
+              if(smith_expr_eval_point(&smith_prog, p2, gr->smith_z0, &re0, &im0) != 0) found = 0;
+              else if(smith_expr_eval_point(&smith_prog, p2 + 1, gr->smith_z0, &re1, &im1) != 0) found = 0;
+              else {
+                re = re0 + t * (re1 - re0);
+                im = im0 + t * (im1 - im0);
+              }
+            } else {
+              re0 = xctx->raw->values[idx + 2][p2];
+              im0 = xctx->raw->values[idx + 3][p2];
+              re1 = xctx->raw->values[idx + 2][p2 + 1];
+              im1 = xctx->raw->values[idx + 3][p2 + 1];
+              re = re0 + t * (re1 - re0);
+              im = im0 + t * (im1 - im0);
+            }
+            if(found && re * re + im * im <= lim * lim) {
+              /* |Gamma| <= 1.05: inside the visible plane */
+              double sxv = CLIP(SM_X(re), -30000, 30000);
+              double syv = CLIP(SM_Y(im), -30000, 30000);
+              sx[n] = (int)sxv;
+              sy[n] = (int)syv;
+              n++;
+              dbg(1, ("smith_cursor_markers(): wcnt=%d dset=%d p2=%d t=%g re=%g im=%g -> px=(%d,%d)\n",
+                  wcnt, dset, p2, t, re, im, (int)sxv, (int)syv));
+            }
+          }
+          ofs = ofs_end;
+        } /* for(dset...) */
+      } /* if(smith_valid) */
+    } /* if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) */
+    /* restore the raw file found at entry: the per-wave raw switching must not
+     * leak between waves (same save/restore as the draw path) */
+    if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
+      my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
+      extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
+    }
+  } /* while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) */
+
+  if(express) my_free(_ALLOC_ID_, &express);
+  my_free(_ALLOC_ID_, &custom_rawfile);
+  my_free(_ALLOC_ID_, &sim_type);
+
+  if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
+  my_free(_ALLOC_ID_, &node);
+  my_free(_ALLOC_ID_, &sweep);
+  my_free(_ALLOC_ID_, &sweep_label);
+
+  dbg(1, ("smith_cursor_markers(): wrote %d markers for f=%g\n", n, f));
+  return n;
+}
+
 /* flags:
  *  1: do final XCopyArea (copy 2nd buffer areas to screen)
  *     If draw_graph_all() is called from draw() no need to do XCopyArea, as draw() does it already.
