@@ -3063,6 +3063,227 @@ void draw_smith_points(int idx, int first, int last,
   }
 }
 
+#define SMX_MAX 128
+
+typedef enum { SMX_NUM, SMX_VAR, SMX_PLUS, SMX_MINUS, SMX_MULT, SMX_DIV, SMX_IMP } smx_type;
+
+typedef struct {
+  smx_type t;
+  double d; /* SMX_NUM value */
+  int idx;  /* SMX_VAR: raw base column index (% 4 == 0) */
+} smx_tok;
+
+/* Smith chart: evaluate the "label; expression" RPN expression per sweep point
+ * with a complex value stack. Token recognition (in this order): the operators
+ * "+", "-", "*", "/", the "imp()" operator, real numbers, and raw variable
+ * names (push the COMPLEX re/im values of the var's base column). Operators are
+ * complex if either operand is complex, else real. imp() pops the top stack
+ * value Z (complex or real) and pushes Gamma = (Z - z0)/(Z + z0) with
+ * z0 = gr->smith_z0. The single remaining value (complex -> re/im,
+ * real -> (re, 0)) is plotted as a trace on the fixed Smith plane, mapped
+ * through SM_X()/SM_Y(). Returns 0 on success, -1 on error (after info()). */
+int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
+       int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+{
+  int i, p, x;
+  int poly_npoints = 0;
+  int prog_n = 0, stackptr, depth, rc = 0;
+  const char *n;
+  char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
+  smx_tok prog[SMX_MAX];
+  struct { int is_c; double re, im; } cstack[SMX_MAX];
+  Raw *raw = xctx->raw;
+
+  if(!raw) {
+    info("draw_smith_expr_points(): no raw struct allocated\n");
+    return -1;
+  }
+  if(!raw->sim_type || strcmp(raw->sim_type, "ac")) {
+    info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
+    return -1;
+  }
+  my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
+  ntok_ptr = ntok_copy;
+  dbg(1, ("draw_smith_expr_points: expr=%s, first=%d, last=%d\n", expr, first, last));
+  while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
+    int idx;
+    ntok_ptr = NULL;
+    if(prog_n >= SMX_MAX) {
+      info("Smith chart: expression too long - skipped\n");
+      rc = -1;
+      break;
+    }
+    dbg(1, ("  draw_smith_expr_points(): n = %s\n", n));
+    if(!strcmp(n, "+") || !strcmp(n, "-") || !strcmp(n, "*") || !strcmp(n, "/")) {
+      switch(n[0]) {
+        case '+': prog[prog_n].t = SMX_PLUS; break;
+        case '-': prog[prog_n].t = SMX_MINUS; break;
+        case '*': prog[prog_n].t = SMX_MULT; break;
+        default:  prog[prog_n].t = SMX_DIV; break;
+      }
+      prog_n++;
+    }
+    else if(!strcmp(n, "imp()")) {
+      prog[prog_n].t = SMX_IMP;
+      prog_n++;
+    }
+    else if( (strtod(n, &endptr), endptr) > n) { /* NUMBER */
+      prog[prog_n].t = SMX_NUM;
+      prog[prog_n].d = atof_spice(n);
+      prog_n++;
+    }
+    else { /* raw variable name: must resolve to an AC base column */
+      idx = get_raw_index(n, NULL);
+      if(idx == -1 || idx % 4 != 0 || idx + 3 >= raw->nvars) {
+        info("Smith chart: expression token '%s' not supported - skipped\n", n);
+        rc = -1;
+        break;
+      }
+      prog[prog_n].t = SMX_VAR;
+      prog[prog_n].idx = idx;
+      prog_n++;
+    }
+  } /* while(n = my_strtok_r(...)) */
+  my_free(_ALLOC_ID_, &ntok_copy);
+  if(rc == 0) {
+    /* static stack-shape check: simulate stack depths (NUM/VAR +1,
+     * + - * / -1, imp() 0); depth must never reach 0 and must end at 1 */
+    depth = 0;
+    for(i = 0; i < prog_n; i++) {
+      if(prog[i].t == SMX_NUM || prog[i].t == SMX_VAR) depth++;
+      else if(prog[i].t != SMX_IMP) depth--; /* SMX_PLUS/MINUS/MULT/DIV */
+      if(depth < 1) break;
+    }
+    if(depth != 1) {
+      info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
+      rc = -1;
+    }
+  }
+  if(rc != 0) return rc;
+
+  for(p = first ; p <= last; p++) {
+    stackptr = 0;
+    for(i = 0; i < prog_n; i++) {
+      switch(prog[i].t) {
+        case SMX_NUM:
+          cstack[stackptr].is_c = 0;
+          cstack[stackptr].re = prog[i].d;
+          cstack[stackptr].im = 0.0;
+          stackptr++;
+          break;
+        case SMX_VAR:
+          cstack[stackptr].is_c = 1;
+          cstack[stackptr].re = raw->values[prog[i].idx + 2][p];
+          cstack[stackptr].im = raw->values[prog[i].idx + 3][p];
+          stackptr++;
+          break;
+        case SMX_PLUS:
+        case SMX_MINUS:
+        case SMX_MULT:
+        case SMX_DIV:
+          {
+            int is_c = cstack[stackptr - 1].is_c || cstack[stackptr - 2].is_c;
+            double a_re = cstack[stackptr - 2].re, a_im = cstack[stackptr - 2].im;
+            double b_re = cstack[stackptr - 1].re, b_im = cstack[stackptr - 1].im;
+            double r_re = 0.0, r_im = 0.0;
+            if(is_c) {
+              /* a is the value below the top of the stack, b the top */
+              switch(prog[i].t) {
+                case SMX_PLUS:
+                  r_re = a_re + b_re;
+                  r_im = a_im + b_im;
+                  break;
+                case SMX_MINUS:
+                  r_re = a_re - b_re;
+                  r_im = a_im - b_im;
+                  break;
+                case SMX_MULT:
+                  r_re = a_re * b_re - a_im * b_im;
+                  r_im = a_re * b_im + a_im * b_re;
+                  break;
+                default: /* SMX_DIV: a / b = a * conj(b) / |b|^2 */
+                  {
+                    double den = b_re * b_re + b_im * b_im;
+                    if(den < 1e-300) { /* guard: divide by (near) zero */
+                      r_re = 0.0;
+                      r_im = 0.0;
+                    } else {
+                      r_re = (a_re * b_re + a_im * b_im) / den;
+                      r_im = (a_im * b_re - a_re * b_im) / den;
+                    }
+                  }
+                  break;
+              }
+            } else {
+              switch(prog[i].t) {
+                case SMX_PLUS:  r_re = a_re + b_re; break;
+                case SMX_MINUS: r_re = a_re - b_re; break;
+                case SMX_MULT:  r_re = a_re * b_re; break;
+                default:       r_re = (b_re != 0.0) ? a_re / b_re : 0.0; break;
+              }
+              r_im = 0.0;
+            }
+            cstack[stackptr - 2].is_c = is_c;
+            cstack[stackptr - 2].re = r_re;
+            cstack[stackptr - 2].im = r_im;
+            stackptr--;
+            break;
+          }
+        case SMX_IMP:
+          {
+            /* pop Z (complex or real), push Gamma = (Z - z0)/(Z + z0) */
+            double z_re = cstack[stackptr - 1].re;
+            double z_im = cstack[stackptr - 1].im;
+            double den_re = z_re + gr->smith_z0, den_im = z_im;
+            double den = den_re * den_re + den_im * den_im;
+            double r_re, r_im;
+            if(den < 1e-300) { /* guard: Z = -z0 */
+              r_re = 0.0;
+              r_im = 0.0;
+            } else {
+              r_re = ((z_re - gr->smith_z0) * den_re + z_im * den_im) / den;
+              r_im = (z_im * den_re - (z_re - gr->smith_z0) * den_im) / den;
+            }
+            cstack[stackptr - 1].is_c = 1;
+            cstack[stackptr - 1].re = r_re;
+            cstack[stackptr - 1].im = r_im;
+            break;
+          }
+      }
+    }
+    /* one value is guaranteed to remain on the stack (shape checked above) */
+    point[poly_npoints].x = (short)CLIP(SM_X(cstack[0].re), -30000, 30000);
+    point[poly_npoints].y = (short)CLIP(SM_Y(cstack[0].im), -30000, 30000);
+    poly_npoints++;
+  }
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p],
+       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  set_thick_waves(1, wcnt, wave_color, gr);
+  for(x = 0; x < 2; x++) {
+    Drawable  w;
+    int offset = 0, size;
+    XPoint *pt = point;
+    if(x == 0 && xctx->draw_window) w = xctx->window;
+    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    while(1) {
+      pt =  point + offset;
+      size = poly_npoints - offset;
+      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+      XDrawLines(display, w, xctx->gc[wave_color], pt, size, CoordModeOrigin);
+      if(offset + size >= poly_npoints) break;
+      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+    }
+  }
+  set_thick_waves(0, wcnt, wave_color, gr);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  return 0;
+}
+
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
 static void draw_graph_points(int idx, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
@@ -4842,9 +5063,11 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
         int digital = gr->digital;
         int smith_valid = 1;
-        /* Smith chart: the wave must be a complex variable (4*i=mag, 4*i+1=ph,
-         * 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted as a trace */
-        if(gr->mode == 3 && (!xctx->raw->sim_type ||
+        /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
+         * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
+         * as a trace. "label; expression" entries are validated inside
+         * draw_smith_expr_points() instead. */
+        if(gr->mode == 3 && !expression && (!xctx->raw->sim_type ||
            strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
           info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n",
                bus_msb ? bus_msb : express);
@@ -4882,9 +5105,16 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
            * (±1.5), so draw the whole selected dataset, no x-windowing */
           if(gr->mode == 3) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
+              int rc;
               if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
               else wave_color = wc;
-              draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
+              if(expression) {
+                rc = draw_smith_expr_points(ofs, ofs_end - 1, express, point,
+                    wave_color, wcnt, n_nodes, gr, ct);
+                if(rc == -1) goto done;
+              } else {
+                draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
+              }
             }
             goto done;
           }

@@ -1320,6 +1320,8 @@ extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
 extern void draw_smith_points(int idx, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
+extern int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
+              int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
 extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);
