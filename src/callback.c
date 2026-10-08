@@ -951,10 +951,12 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
   for(i=0; i< xctx->rects[GRIDLAYER]; ++i) {
     int same_sim_type = 0;
     char *curr_sim_type = NULL;
+    char *curr_mode = NULL;
     r = &xctx->rect[GRIDLAYER][i];
     need_redraw = 0;
     if( !(r->flags & 1) ) continue; /* 1: graph; 3: graph_unlocked */
     my_strdup2(_ALLOC_ID_, &curr_sim_type, get_tok_value(r->prop_ptr, "sim_type", 0));
+    my_strdup2(_ALLOC_ID_, &curr_mode, get_tok_value(r->prop_ptr, "mode", 0));
     gr->gx1 = gr->master_gx1;
     gr->gx2 = gr->master_gx2;
     gr->gw = gr->master_gw;
@@ -966,9 +968,16 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(!(xctx->rect[GRIDLAYER][xctx->graph_master].flags & 2) &&
        !strcmp(curr_sim_type,
           get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr, "sim_type", 0))) {
-      same_sim_type = 1;
+      /* a Smith chart x-axis (Re(Gamma)) differs from a normal graph's sweep axis,
+       * so the x-range only syncs between graphs of the same mode class:
+       * "Smith" is class Smith, anything else (incl. empty) is class normal */
+      int curr_smith = !strcmp(curr_mode, "Smith");
+      int master_smith = !strcmp(
+        get_tok_value(xctx->rect[GRIDLAYER][xctx->graph_master].prop_ptr, "mode", 0), "Smith");
+      if(curr_smith == master_smith) same_sim_type = 1;
     }
     my_free(_ALLOC_ID_, &curr_sim_type);
+    my_free(_ALLOC_ID_, &curr_mode);
 
     if(event == MotionNotify && (state & Button1Mask) && !xctx->graph_bottom &&
       !(xctx->graph_flags & (16 | 32 | 512 | 1024))) {
