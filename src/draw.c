@@ -5051,6 +5051,10 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   int save_extra_idx = -1;
   char str_extra_idx[30];
 
+  /* leave the return values defined on every path (also all the -1 paths below) */
+  *freq_ret = 0.0;
+  *wave_ret = -1;
+
   if(i < 0 || i >= xctx->rects[GRIDLAYER]) return -1;
   r = &xctx->rect[GRIDLAYER][i];
   if(!(r->flags & 1)) return -1; /* not a graph */
@@ -5063,9 +5067,6 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   setup_graph_data(i, 0, &gr);
   if(gr.mode != 3) return -1; /* Smith plane distance only makes sense in Smith mode */
   if(gr.digital) return -1;
-
-  *freq_ret = 0.0;
-  *wave_ret = -1;
 
   autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
   if(autoload == 0) autoload = 2; /* 2: switch */
@@ -5157,14 +5158,23 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
     /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
     idx = -1;
     expression = 0;
-    if(xctx->raw->values) {
+    if(xctx->raw && xctx->raw->values) {
+      char *match;
       if(strstr(ntok_copy, ";")) {
         my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
       } else {
         my_strdup2(_ALLOC_ID_, &express, ntok_copy);
       }
-      if(strpbrk(express, " \n\t")) {
+      /* same backslash-aware test as the draw path: a bare wave name may
+       * contain escaped spaces (e.g. ngspice two-node voltage "V\ (n1 n2)") */
+      match = strpbrk(express, " \n\t");
+      if(match && (match == express || *(match - 1) != '\\')) {
         expression = 1;
+      }
+      /* unescape "\ " -> " ", exactly as the draw path does, so the bare
+       * variable name resolves in the raw */
+      if(match && match > express && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &express, str_replace(express, "\\ ", " ", 0, -1));
       }
     }
     if(expression) idx = xctx->raw->nvars;
@@ -5183,7 +5193,7 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
        * smith_expr_parse() below. */
       if(!expression && (!xctx->raw->sim_type ||
          strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
-        info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n", express);
+        dbg(1, ("Smith chart: '%s' is not a complex (re/im) variable - skipped\n", express));
         smith_valid = 0;
       }
       /* Smith chart: a "label; expression" wave entry: parse the RPN program

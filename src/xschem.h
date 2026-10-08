@@ -1343,7 +1343,10 @@ extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPo
  * raw override and validation as the draw path), all points of the selected
  * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
  * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]) and *wave_ret
- * (0-based wave index) on success, or -1 if no plotted point. */
+ * (0-based wave index) on success, or -1 if no plotted point. *freq_ret and
+ * *wave_ret are set to 0.0 and -1 at entry, so they are defined on every
+ * failure path as well (i out of range, not a graph, no raw, not Smith mode,
+ * digital graph, no plotted point). */
 extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
