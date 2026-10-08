@@ -148,13 +148,25 @@ xschem print png \$pngdir/warm1.png $CAPBOX
 xschem draw_graph 0
 xschem print png \$pngdir/baseline.png $CAPBOX
 
-# trace: s_1_1 in the distinctive wave color
+# trace A: s_1_1 in the distinctive wave color
 xschem setprop rect 2 0 node "s_1_1"
 xschem select rect 2 0 clear nodraw
 xschem draw_graph 0
 xschem print png \$pngdir/warm2.png $CAPBOX
 xschem draw_graph 0
 xschem print png \$pngdir/trace.png $CAPBOX
+
+# trace B: the impedance z_1_1 converted Z->Gamma with the RPN imp() operator
+xschem setprop rect 2 0 node "Zin; z_1_1 imp()"
+xschem select rect 2 0 clear nodraw
+xschem draw_graph 0
+xschem print png \$pngdir/B.png $CAPBOX
+
+# trace C: Z = v(net1)/i(v2) (RPN) converted Z->Gamma with imp()
+xschem setprop rect 2 0 node "Zin2; v(net1) i(v2) / imp()"
+xschem select rect 2 0 clear nodraw
+xschem draw_graph 0
+xschem print png \$pngdir/C.png $CAPBOX
 
 puts \$outch "CAPTURE_DONE"
 close \$outch
@@ -169,13 +181,15 @@ for try in 1 2 3; do
     >"$RES/trace_check.stdout" 2>"$RES/trace_check.stderr"
   rc=$?
   if [ "$rc" -eq 0 ] && grep -q "CAPTURE_DONE" "$RES/trace_check.log" 2>/dev/null \
-     && [ -s "$RES/baseline.png" ] && [ -s "$RES/trace.png" ]; then
+     && [ -s "$RES/baseline.png" ] && [ -s "$RES/trace.png" ] \
+     && [ -s "$RES/B.png" ] && [ -s "$RES/C.png" ]; then
     break
   fi
   echo "attempt $try/3 failed (rc=$rc)"
   sleep 2
 done
-if [ "$rc" -ne 0 ] || [ ! -s "$RES/trace.png" ] || [ ! -s "$RES/baseline.png" ]; then
+if [ "$rc" -ne 0 ] || [ ! -s "$RES/trace.png" ] || [ ! -s "$RES/baseline.png" ] \
+   || [ ! -s "$RES/B.png" ] || [ ! -s "$RES/C.png" ]; then
   echo "FAIL: xschem capture did not complete (rc=$rc)"
   tail -15 "$RES/trace_check.stderr" 2>/dev/null
   exit 1
@@ -189,81 +203,111 @@ if grep -qi "not a complex" "$RES/trace_check.stderr" 2>/dev/null; then
   exit 1
 fi
 
-# --- count wave-color pixels: trace vs grid-only baseline ---
-python3 - "$RES/baseline.png" "$RES/trace.png" <<'PY'
+# --- wave-color pixel checks: (1) A=s_1_1 renders vs grid-only baseline, and
+# --- (2) pixel-equivalence of the imp() RPN traces B and C against A.
+# B = "Zin; z_1_1 imp()" and C = "Zin2; v(net1) i(v2) / imp()" must plot the
+# SAME physical curve as A (the reflection coefficient), so the wave-color
+# pixel sets must overlap >95% of the smaller set.
+python3 - "$RES/baseline.png" "$RES/trace.png" "$RES/B.png" "$RES/C.png" <<'PY'
 import sys
-base_fn, trace_fn = sys.argv[1], sys.argv[2]
+base_fn, a_fn, b_fn, c_fn = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 
-def analyze_pil(base_fn, trace_fn):
-    from PIL import Image
-    from collections import Counter
-    base = Image.open(base_fn).convert("RGB")
-    trace = Image.open(trace_fn).convert("RGB")
-    if base.size != trace.size:
-        print("FAIL: capture size mismatch %s vs %s" % (base.size, trace.size))
-        sys.exit(1)
-    w, h = base.size
-    bp, tp = base.load(), trace.load()
-    diff = 0
-    domdiff = Counter()
-    for y in range(h):
-        for x in range(w):
-            a, b = bp[x, y], tp[x, y]
-            if a != b:
-                diff += 1
-                domdiff[b] += 1
-    if not domdiff:
-        print("FAIL: trace and baseline identical - s_1_1 trace not rendered")
-        sys.exit(1)
-    wave = domdiff.most_common(1)[0][0]
-    wt = sum(1 for y in range(h) for x in range(w) if tp[x, y] == wave)
-    wb = sum(1 for y in range(h) for x in range(w) if bp[x, y] == wave)
-    print("CAPTURE_SIZE=%dx%d" % (w, h))
-    print("DIFF_PIXELS=%d" % diff)
-    print("WAVE_COLOR=%s" % (wave,))
-    print("WAVE_IN_TRACE=%d" % wt)
-    print("WAVE_IN_BASELINE=%d" % wb)
-    print("TOP_DIFF_COLORS=%s" % (domdiff.most_common(3),))
-    if diff > 500 and wt > 500 and wb < 200:
-        print("PASS: s_1_1 Smith trace rendered (%d wave-color px in trace, %d in grid-only baseline)" % (wt, wb))
-        sys.exit(0)
-    print("FAIL: not enough wave-color pixels (diff=%d trace=%d baseline=%d)" % (diff, wt, wb))
+def die(msg):
+    print("FAIL: " + msg)
     sys.exit(1)
 
 try:
     import numpy as np
     from PIL import Image
-    a = np.asarray(Image.open(base_fn).convert("RGB"))
-    b = np.asarray(Image.open(trace_fn).convert("RGB"))
-    if a.shape != b.shape:
-        print("FAIL: capture size mismatch %s vs %s" % (a.shape, b.shape))
-        sys.exit(1)
-    h, w, _ = a.shape
-    diffmask = (a != b).any(axis=2)
+    def load(fn):
+        return np.asarray(Image.open(fn).convert("RGB"))
+    base, A, B, C = load(base_fn), load(a_fn), load(b_fn), load(c_fn)
+    if not (base.shape == A.shape == B.shape == C.shape):
+        die("capture size mismatch %s" % ([i.shape for i in (base, A, B, C)],))
+    h, w, _ = A.shape
+    diffmask = (A != base).any(axis=2)
     diff = int(diffmask.sum())
     if diff == 0:
-        print("FAIL: trace and baseline identical - s_1_1 trace not rendered")
-        sys.exit(1)
-    diffpix = b[diffmask].reshape(-1, 3)
+        die("A and baseline identical - s_1_1 trace not rendered")
+    diffpix = A[diffmask].reshape(-1, 3)
     uniq, counts = np.unique(diffpix, axis=0, return_counts=True)
     wave = tuple(int(v) for v in uniq[int(counts.argmax())])
-    wave_in_trace = int((b == np.array(wave)).all(axis=2).sum())
-    wave_in_base = int((a == np.array(wave)).all(axis=2).sum())
-    order = np.argsort(-counts)
-    top = [(tuple(int(v) for v in uniq[i]), int(counts[i])) for i in order[:3]]
+    wv = np.array(wave)
+    m = lambda im: (im == wv).all(axis=2)
+    mA, mB, mC, mb = m(A), m(B), m(C), m(base)
+    ca, cb, cc, cbase = int(mA.sum()), int(mB.sum()), int(mC.sum()), int(mb.sum())
+    ab, ac = int((mA & mB).sum()), int((mA & mC).sum())
     print("CAPTURE_SIZE=%dx%d" % (w, h))
     print("DIFF_PIXELS=%d" % diff)
     print("WAVE_COLOR=%s" % (wave,))
-    print("WAVE_IN_TRACE=%d" % wave_in_trace)
-    print("WAVE_IN_BASELINE=%d" % wave_in_base)
-    print("TOP_DIFF_COLORS=%s" % (top,))
-    if diff > 500 and wave_in_trace > 500 and wave_in_base < 200:
-        print("PASS: s_1_1 Smith trace rendered (%d wave-color px in trace, %d in grid-only baseline)" % (wave_in_trace, wave_in_base))
-        sys.exit(0)
-    print("FAIL: not enough wave-color pixels (diff=%d trace=%d baseline=%d)" % (diff, wave_in_trace, wave_in_base))
-    sys.exit(1)
+    print("WAVE_IN_TRACE(A)=%d WAVE_IN_BASELINE=%d" % (ca, cbase))
+    print("COUNT_A=%d COUNT_B=%d COUNT_C=%d" % (ca, cb, cc))
+    print("OVERLAP_AB=%d OVERLAP_AC=%d" % (ab, ac))
+    if not (diff > 500 and ca > 500 and cbase < 200):
+        die("not enough wave-color pixels (diff=%d A=%d baseline=%d)" % (diff, ca, cbase))
+    print("PASS: s_1_1 Smith trace rendered (%d wave-color px in A, %d in grid-only baseline)"
+          % (ca, cbase))
+    rAB = ab / min(ca, cb) if min(ca, cb) > 0 else 0.0
+    rAC = ac / min(ca, cc) if min(ca, cc) > 0 else 0.0
+    print("AB_RATIO=%.4f AC_RATIO=%.4f" % (rAB, rAC))
+    bad = 0
+    for name, r in (("A~B", rAB), ("A~C", rAC)):
+        if r > 0.95:
+            print("PASS: %s pixel equivalence (%.1f%% > 95%%)" % (name, r * 100))
+        else:
+            print("FAIL: %s pixel equivalence (%.1f%% <= 95%%)" % (name, r * 100))
+            bad += 1
+    sys.exit(1 if bad else 0)
 except ImportError:
-    analyze_pil(base_fn, trace_fn)
+    # numpy unavailable: fall back to PIL for the render check; the overlap
+    # needs the array view, so reuse PIL pixel arrays.
+    def load(fn):
+        im = Image.open(fn).convert("RGB")
+        return im
+    base, A, B, C = load(base_fn), load(a_fn), load(b_fn), load(c_fn)
+    if not (base.size == A.size == B.size == C.size):
+        die("capture size mismatch %s" % ([i.size for i in (base, A, B, C)],))
+    w, h = A.size
+    pa, pb, pc, pbase = A.load(), B.load(), C.load(), base.load()
+    domdiff = {}
+    diff = 0
+    for y in range(h):
+        for x in range(w):
+            if pa[x, y] != pbase[x, y]:
+                diff += 1
+                domdiff[pa[x, y]] = domdiff.get(pa[x, y], 0) + 1
+    if diff == 0:
+        die("A and baseline identical - s_1_1 trace not rendered")
+    wave = max(domdiff, key=domdiff.get)
+    ca = sum(1 for y in range(h) for x in range(w) if pa[x, y] == wave)
+    cb = sum(1 for y in range(h) for x in range(w) if pb[x, y] == wave)
+    cc = sum(1 for y in range(h) for x in range(w) if pc[x, y] == wave)
+    cbase = sum(1 for y in range(h) for x in range(w) if pbase[x, y] == wave)
+    ab = sum(1 for y in range(h) for x in range(w)
+             if pa[x, y] == wave and pb[x, y] == wave)
+    ac = sum(1 for y in range(h) for x in range(w)
+             if pa[x, y] == wave and pc[x, y] == wave)
+    print("CAPTURE_SIZE=%dx%d" % (w, h))
+    print("DIFF_PIXELS=%d" % diff)
+    print("WAVE_COLOR=%s" % (wave,))
+    print("WAVE_IN_TRACE(A)=%d WAVE_IN_BASELINE=%d" % (ca, cbase))
+    print("COUNT_A=%d COUNT_B=%d COUNT_C=%d" % (ca, cb, cc))
+    print("OVERLAP_AB=%d OVERLAP_AC=%d" % (ab, ac))
+    if not (diff > 500 and ca > 500 and cbase < 200):
+        die("not enough wave-color pixels (diff=%d A=%d baseline=%d)" % (diff, ca, cbase))
+    print("PASS: s_1_1 Smith trace rendered (%d wave-color px in A, %d in grid-only baseline)"
+          % (ca, cbase))
+    rAB = ab / min(ca, cb) if min(ca, cb) > 0 else 0.0
+    rAC = ac / min(ca, cc) if min(ca, cc) > 0 else 0.0
+    print("AB_RATIO=%.4f AC_RATIO=%.4f" % (rAB, rAC))
+    bad = 0
+    for name, r in (("A~B", rAB), ("A~C", rAC)):
+        if r > 0.95:
+            print("PASS: %s pixel equivalence (%.1f%% > 95%%)" % (name, r * 100))
+        else:
+            print("FAIL: %s pixel equivalence (%.1f%% <= 95%%)" % (name, r * 100))
+            bad += 1
+    sys.exit(1 if bad else 0)
 PY
 pyrc=$?
 
