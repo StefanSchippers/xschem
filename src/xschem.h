@@ -1338,6 +1338,13 @@ extern void draw_smith_points(int idx, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
 extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
+/* Nearest plotted point on the Smith plane to (um, vm) [in Gamma units]:
+ * enumerates all waves of graph rect i (same wave-attribute parsing, per-wave
+ * raw override and validation as the draw path), all points of the selected
+ * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
+ * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]) and *wave_ret
+ * (0-based wave index) on success, or -1 if no plotted point. */
+extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
 extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);
