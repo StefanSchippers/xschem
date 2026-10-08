@@ -3556,14 +3556,30 @@ static int smith_x_arc(double X, int npts, double *u, double *v)
   return nkeep;
 }
 
+static const double smith_r_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0 };
+static const char *smith_r_labels[] = { "0.1", "0.2", "0.5", "1", "2", "5", "10" };
+static const double smith_x_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0,
+                                         -0.1, -0.2, -0.5, -1.0, -2.0, -5.0 };
+static const char *smith_x_labels[] = { "j0.1", "j0.2", "j0.5", "j1", "j2", "j5",
+                                        "-j0.1", "-j0.2", "-j0.5", "-j1", "-j2", "-j5" };
+
+/* Smith label font: about 4.5% of the unit circle diameter in pixels
+ * (the unit circle radius in pixels is gr->ss).  draw_string() renders
+ * a font of scale 1.0 at 52*cairo_font_scale*mooz pixels tall, so
+ * convert the pixel target into that xscale convention; clamp the pixel
+ * target so a degenerate data window cannot make the labels explode or
+ * vanish.  Shared by the grid and the label passes. */
+static double smith_label_font(Graph_ctx *gr)
+{
+  double sm_font_px = 0.045 * 2.0 * gr->ss;
+
+  if(sm_font_px < 3.0) sm_font_px = 3.0;
+  if(sm_font_px > 100.0) sm_font_px = 100.0;
+  return sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
+}
+
 static void draw_smith_grid(Graph_ctx *gr, void *ct)
 {
-  static const double r_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0 };
-  static const char *r_labels[] = { "0.1", "0.2", "0.5", "1", "2", "5", "10" };
-  static const double x_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0,
-                                     -0.1, -0.2, -0.5, -1.0, -2.0, -5.0 };
-  static const char *x_labels[] = { "j0.1", "j0.2", "j0.5", "j1", "j2", "j5",
-                                    "-j0.1", "-j0.2", "-j0.5", "-j1", "-j2", "-j5" };
   const int n_r = 7;
   const int n_x = 12;
   const int n_pts = 96;
@@ -3573,20 +3589,8 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   XPoint xpts[720];
   int i, ir, p, n_circ, ix, n_xpts;
   double cx, cy, rad, theta, u, v;
-  double sm_font_px, sm_font;
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
-
-  /* Smith label font: about 4.5% of the unit circle diameter in pixels
-   * (the unit circle radius in pixels is gr->ss).  draw_string() renders
-   * a font of scale 1.0 at 52*cairo_font_scale*mooz pixels tall, so
-   * convert the pixel target into that xscale convention; clamp the pixel
-   * target so a degenerate data window cannot make the labels explode or
-   * vanish. */
-  sm_font_px = 0.045 * 2.0 * gr->ss;
-  if(sm_font_px < 3.0) sm_font_px = 3.0;
-  if(sm_font_px > 100.0) sm_font_px = 100.0;
-  sm_font = sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
 
   /* clipping everything outside container area */
   /* background */
@@ -3607,7 +3611,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   circ_cx[0] = 0.0; circ_cy[0] = 0.0; circ_r[0] = 1.0;
   n_circ = 1;
   for(ir = 0; ir < n_r; ir++) {
-    double r = r_values[ir];
+    double r = smith_r_values[ir];
     circ_cx[n_circ] = r / (1.0 + r);
     circ_cy[n_circ] = 0.0;
     circ_r[n_circ] = 1.0 / (1.0 + r);
@@ -3648,23 +3652,11 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
               (int)CLIP(SM_X(1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000));
   }
 
-  /* labels for constant-R circles, on the real axis at each circle's
-   * real-axis crossing u = (R-1)/(R+1); horizontally centered on that
-   * crossing and placed a few pixels below the axis line (vertically
-   * centered on a point ~4 px below the axis) */
-  for(ir = 0; ir < n_r; ir++) {
-    double r = r_values[ir];
-    double lu = (r - 1.0) / (1.0 + r);
-    double lx = CLIP(SM_X(lu), -30000, 30000);
-    double ly = CLIP(SM_Y(0.0), -30000, 30000) + 4.0;
-    draw_string(3, NOW, r_labels[ir], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
-                sm_font, sm_font);
-  }
-
-  /* constant-X arcs: open polylines in data space, same style as the R circles */
+  /* constant-X arcs: open polylines in data space, same style as the R
+   * circles; the labels are drawn later by draw_smith_labels() so they
+   * stay above the traces */
   for(ix = 0; ix < n_x; ix++) {
-    double lx, ly;
-    n_xpts = smith_x_arc(x_values[ix], 720, xu, xv);
+    n_xpts = smith_x_arc(smith_x_values[ix], 720, xu, xv);
     if(n_xpts < 2) continue;
     for(i = 0; i < n_xpts; i++) {
       xpts[i].x = (short)CLIP(SM_X(xu[i]), -30000, 30000);
@@ -3677,15 +3669,53 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       else continue;
       XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
     }
-    /* label: anchored at the arc's R=0 crossing, which lies exactly on the
-     * unit circle: u = (X*X - 1) / (1 + X*X), v = 2*X / (1 + X*X); offset
-     * ~6 pixels radially outside the unit circle (SM_Y flips v, hence the
-     * minus on ly) and center the text on that point */
-    u = (x_values[ix] * x_values[ix] - 1.0) / (1.0 + x_values[ix] * x_values[ix]);
-    v = 2.0 * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+  }
+
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+/* Smith chart labels: R/X labels and the Z0 readout.  Called after the
+ * per-wave traces so the labels are never overpainted.  Same fonts,
+ * positions, colors and container clip as when they were part of
+ * draw_smith_grid(). */
+static void draw_smith_labels(Graph_ctx *gr)
+{
+  const int n_r = 7;
+  const int n_x = 12;
+  double sm_font = smith_label_font(gr);
+  int ir, ix;
+  double u, v;
+
+  /* same container clip as draw_smith_grid() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  /* labels for constant-R circles, on the real axis at each circle's
+   * real-axis crossing u = (R-1)/(R+1); horizontally centered on that
+   * crossing and placed a few pixels below the axis line (vertically
+   * centered on a point ~4 px below the axis) */
+  for(ir = 0; ir < n_r; ir++) {
+    double r = smith_r_values[ir];
+    double lu = (r - 1.0) / (1.0 + r);
+    double lx = CLIP(SM_X(lu), -30000, 30000);
+    double ly = CLIP(SM_Y(0.0), -30000, 30000) + 4.0;
+    draw_string(3, NOW, smith_r_labels[ir], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                sm_font, sm_font);
+  }
+
+  /* labels for constant-X arcs: anchored at the arc's R=0 crossing, which
+   * lies exactly on the unit circle: u = (X*X - 1) / (1 + X*X),
+   * v = 2*X / (1 + X*X); offset ~6 pixels radially outside the unit circle
+   * (SM_Y flips v, hence the minus on ly) and center the text on that point */
+  for(ix = 0; ix < n_x; ix++) {
+    double lx, ly;
+    double x = smith_x_values[ix];
+    u = (x * x - 1.0) / (1.0 + x * x);
+    v = 2.0 * x / (1.0 + x * x);
     lx = CLIP(SM_X(u), -30000, 30000) + 6.0 * u;
     ly = CLIP(SM_Y(v), -30000, 30000) - 6.0 * v;
-    draw_string(3, NOW, x_labels[ix], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+    draw_string(3, NOW, smith_x_labels[ix], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
                 sm_font, sm_font);
   }
 
@@ -3863,11 +3893,12 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
      gr->logx = 0;
      gr->logy = 0;
      gr->digital = 0;
-      /* Smith plane: fixed ±1.1 view of the Gamma plane, centered on Gamma=0;
-       * the x1/x2/y1/y2 attrs do not affect the Smith mapping (they are
-       * sweep-axis attrs). */
-      gr->gx1 = -1.1; gr->gx2 = 1.1;
-      gr->gy1 = -1.1; gr->gy2 = 1.1;
+      /* Smith plane: fixed ±1.05 view of the Gamma plane, centered on
+       * Gamma=0; the ±0.05 label margin (~33 px at the reference size)
+       * clears the R=0-crossing labels.  The x1/x2/y1/y2 attrs do not
+       * affect the Smith mapping (they are sweep-axis attrs). */
+      gr->gx1 = -1.05; gr->gx2 = 1.05;
+      gr->gy1 = -1.05; gr->gy2 = 1.05;
       gr->gw = gr->gx2 - gr->gx1; /* keep window width consistent with gx1/gx2 */
    }
    if(gr->digital) {
@@ -3952,7 +3983,9 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
    gr->dscy = gr->dcy * xctx->mooz;
    gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
 
-   /* Smith chart: unified square mapping (data -> pixel), fit inside plot box */
+   /* Smith chart: unified square mapping (data -> pixel); the square fits
+    * inside the plot box (the edge-to-edge span sets ss) but is centered
+    * on the container, not on the asymmetric plot box */
    if(gr->mode == 3) {
      double dx, dy, left, right, top, bottom;
       dx = gr->gx2 - gr->gx1;
@@ -3964,13 +3997,13 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
       bottom = S_Y(gr->gy1);
       if(dx <= 0.0 || dy <= 0.0) {
         gr->ss = 0.0;
-        gr->ssx0 = ((left + right) / 2.0);
-        gr->ssy0 = ((top + bottom) / 2.0);
+        gr->ssx0 = X_TO_SCREEN((gr->rx1 + gr->rx2) / 2.0);
+        gr->ssy0 = Y_TO_SCREEN((gr->ry1 + gr->ry2) / 2.0);
         dbg(1, ("setup_graph_data: Smith mode, degenerate span dx=%g dy=%g\n", dx, dy));
       } else {
         gr->ss = ((right - left) / dx < (bottom - top) / dy) ? ((right - left) / dx) : ((bottom - top) / dy);
-        gr->ssx0 = ((left + right) / 2.0) - ((gr->gx1 + gr->gx2) / 2.0) * gr->ss;
-        gr->ssy0 = ((top + bottom) / 2.0) + ((gr->gy1 + gr->gy2) / 2.0) * gr->ss;
+        gr->ssx0 = X_TO_SCREEN((gr->rx1 + gr->rx2) / 2.0);
+        gr->ssy0 = Y_TO_SCREEN((gr->ry1 + gr->ry2) / 2.0);
       }
    }
  }
@@ -5085,7 +5118,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
           /* Smith chart: the sweep variable is the frequency and the plane is fixed
-           * (±1.1), so draw the whole selected dataset, no x-windowing */
+           * (±1.05), so draw the whole selected dataset, no x-windowing */
           if(gr->mode == 3) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               int rc;
@@ -5238,6 +5271,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   } /* if(flags & 8) */
   
   if(flags & 8) {
+    /* Smith chart: labels/Z0 readout go on top, drawn after the traces */
+    if(gr->mode == 3) draw_smith_labels(gr);
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
