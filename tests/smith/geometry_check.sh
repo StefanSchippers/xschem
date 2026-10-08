@@ -22,9 +22,10 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
 #  Pixel-level sanity check for the Smith-chart plane change
-#  (commit 0e79f355): the fixed plane window is +/-1.1 in Gamma units
-#  (was +/-1.5) and the inner plot-box frame (the solid GRIDLAYER
-#  rectangle around the margin-inset plot box) is no longer drawn.
+#  (commit 9a0e69ca): the fixed plane window is +/-1.05 in Gamma units
+#  (was +/-1.1), the inner plot-box frame (the solid GRIDLAYER rectangle
+#  around the margin-inset plot box) is no longer drawn, and the square
+#  mapping is now centered on the CONTAINER (not the asymmetric plot box).
 #
 #  Renders the Smith chart of tests/SC_Test.sch (its graph rect 2 0,
 #  mode=Smith, 400x400 container in xschem units) on a virtual display
@@ -43,12 +44,23 @@
 #       pixels within 6 px of those four edges: the old frame would put
 #       ~1200+ px in the band; without it the nearest grid element
 #       (the unit circle) is >= 13 px away, so expect ~0. Threshold < 60.
-#    3. +/-1.1 window: the unit circle (the outermost element of the
+#    3. +/-1.05 window: the unit circle (the outermost element of the
 #       largest GRIDLAYER connected component, so that component's x/y
 #       extent IS its diameter) must span >= 85% of the square plot
-#       region: expected D = 2*min(plot_w, plot_h)/2.2
-#       = 0.909 * min-side (old +/-1.5 gave 0.667 -> would fail).
+#       region: expected D = 2*min(plot_w, plot_h)/2.1
+#       = 0.952 * min-side (a +/-1.1 window would give 2.1/2.2 = 0.955,
+#       still in range; a +/-1.5 window gives 2.1/3.0 = 0.70 -> fails).
 #       Upper guard 1.15 rejects a too-small window.
+#    4. container centering: setup_graph_data() now sets
+#       ssx0/ssy0 = X/Y_TO_SCREEN((rx1+rx2)/2, (ry1+ry2)/2), i.e. the
+#       square mapping is centered on the CONTAINER. So the unit-circle
+#       center (the largest-component bounding-box center, which is
+#       symmetric about Gamma=0) must match the CONTAINER center (the
+#       dashed SYMLAYER rectangle center) within a few px. The plot box
+#       is x-asymmetric (left margin 0.14*cw, right 0.35*0.14*cw =
+#       0.049*cw), so its center is ~0.0455*cw (~18 px at 400 px) to the
+#       right of the container center: the old plot-box centering would
+#       put the circle center ~18 px off and fail this check.
 #
 #  Usage: ./geometry_check.sh [xschem-binary]
 #  Needs:  Xvfb, gcc + X11 dev libs (warp helper), python3 + PIL + numpy.
@@ -289,21 +301,42 @@ dx = int(cx2b.max() - cx2b.min() + 1)
 dy = int(cy2b.max() - cy2b.min() + 1)
 plot_w = px2 - px1
 plot_h = py2 - py1
-D = 2.0 * min(plot_w, plot_h) / 2.2   # expected unit-circle diameter at +/-1.1
+D = 2.0 * min(plot_w, plot_h) / 2.1   # expected unit-circle diameter at +/-1.05
 check("grid present", int(gridbox.sum()) > 500 and int(comp.sum()) > 500,
       "grid px=%d, largest-component px=%d" % (int(gridbox.sum()), int(comp.sum())))
 if int(comp.sum()) <= 500:
     sys.exit(1)
 for name, ext in (("x-extent", dx), ("y-extent", dy)):
     ratio = ext / D
-    check("%s spans >85%% of the square plot region (+/-1.1)" % name,
+    check("%s spans >85%% of the square plot region (+/-1.05)" % name,
           0.85 <= ratio <= 1.15,
-          "extent=%d px, expected D=%.1f px, ratio=%.3f (old +/-1.5 gave 0.667)" % (ext, D, ratio))
+          "extent=%d px, expected D=%.1f px, ratio=%.3f (a +/-1.5 window gave 0.700)" % (ext, D, ratio))
+
+# --- container centering: the square mapping is centered on the CONTAINER
+# --- (setup_graph_data(): ssx0/ssy0 = X/Y_TO_SCREEN of the container center),
+# --- so the unit-circle center must equal the container center. The circle
+# --- center is the bounding-box center of the largest grid component (which
+# --- is symmetric about Gamma=0: unit circle + on-axis R circles + symmetric
+# --- X-arc pair + the real axis all bound exactly the unit circle). The
+# --- container center is the dashed SYMLAYER rectangle center measured above.
+# --- The plot box is x-asymmetric, so a plot-box centering would be ~0.0455*cw
+# --- (~18 px at 400 px) off; that is far outside the few-px tolerance.
+ccx = (cx1 + cx2) / 2.0
+ccy = (cy1 + cy2) / 2.0
+circle_cx = X1 + (cx2b.min() + cx2b.max()) / 2.0
+circle_cy = Y1 + (cy2b.min() + cy2b.max()) / 2.0
+CTOL = 5.0  # a few px: the mapping places Gamma=0 exactly on the container center
+dx_c = abs(circle_cx - ccx)
+dy_c = abs(circle_cy - ccy)
+check("circle center == container center (x)", dx_c <= CTOL,
+      "dx=%.1f px (circle x=%.1f, container x=%.1f, tol %.0f)" % (dx_c, circle_cx, ccx, CTOL))
+check("circle center == container center (y)", dy_c <= CTOL,
+      "dy=%.1f px (circle y=%.1f, container y=%.1f, tol %.0f)" % (dy_c, circle_cy, ccy, CTOL))
 
 if bad:
     print("%d geometry check(s) FAILED" % bad)
     sys.exit(1)
-print("PASS: all geometry checks (frame removed, +/-1.1 plane)")
+print("PASS: all geometry checks (frame removed, +/-1.05 plane, container-centered)")
 sys.exit(0)
 PY
 rc=$?
@@ -313,7 +346,7 @@ cat "$RES/geometry_check.log" 2>/dev/null
 echo
 
 if [ "$rc" -eq 0 ]; then
-  echo "ALL PASS (Smith chart geometry: no frame, +/-1.1 plane)"
+  echo "ALL PASS (Smith chart geometry: no frame, +/-1.05 plane, container-centered)"
   exit 0
 else
   echo "FAIL (geometry checks rc=$rc)"
