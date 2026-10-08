@@ -1413,6 +1413,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   4: free data
      *   5: get info
      *   6: free indicated `sch_name`
+     *   7: lookup sch_name, return 1 if found, 0 if not
      * flags: 
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)

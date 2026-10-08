@@ -1656,6 +1656,7 @@ static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
  *   4: free data
  *   5: get info
  *   6: free indicated `sch_name`
+ *   7: lookup sch_name, return 1 if found, 0 if not
  * flags:
  *   also passed to sch_deep_copy()
  *   1: set window/tab title
@@ -1825,8 +1826,11 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     } else {
       dbg(dbglev, ("schematic to delete not found:%s\n", sch_name));
     }
+  } else if(what == 7) { /* lookup sch_name, return 1 if found */
+    if(ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
+      ret = 1;
+    }
   }
-
 
   return ret;
 }
