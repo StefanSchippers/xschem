@@ -3301,6 +3301,12 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
 
+  /* clipping everything outside container area */
+  /* background */
+  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
+  /* graph bounding box */
+  drawrect(SYMLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0.0, 2, -1, -1);
+
   /* clip to the plot box exactly like draw_graph_grid() */
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
