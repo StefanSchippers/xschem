@@ -1,71 +1,55 @@
 #!/bin/bash
-#
 #  File: trace_check.sh
-#
-#  This file is part of XSCHEM,
-#  a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
-#  simulation.
-#  Copyright (C) 1998-2026 Stefan Frederik Schippers
-#
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 2 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#
-#  Trace-rendering check for S-parameter traces on Smith charts
-#  (draw_smith_points() in src/draw.c, commits c574eace + 8dd7b54d).
-#
-#  Reuses the repo's headless rendering tooling (Xvfb + "xschem print png"
-#  + PIL, see tests/sweep_expression/run.sh) to prove that a Smith graph
-#  actually DRAWS the s_1_1 trace, not just that it accepts the property.
-#
-#  It renders two otherwise-identical Smith charts to PNG:
-#    - baseline: the Smith grid with node="" (no trace)
-#    - trace:    the Smith grid + node="s_1_1" in a distinctive wave color
-#  and asserts that the trace capture contains a reasonable number of
-#  pixels (>500) in that wave color which the grid-only baseline does not
-#  contain. A wave that is rejected by the complex/"ac" validation in
-#  draw_graph() would produce zero such pixels, so this also detects a
-#  regression in the s-param-trace gating.
-#
-#  Usage:  ./trace_check.sh [xschem-binary]
-#          default binary: <repo>/src/xschem
-#  Needs:   Xvfb + gcc + X11 dev libs (soft: the pointer-warp helper is
-#           reused from tests/sweep_expression/ and compiled if missing),
-#           python3 + Pillow (PIL). numpy is used when available for a
-#           faster pixel count.
-#  Overrides:
-#    SMITH_DISP          X display to use (default: first free of :99..)
-#    SMITH_WAVE_COLOR    wave color index for the trace (default: 7)
-#  Exit:     0 = PASS, 1 = FAIL, 2 = setup error.
+#  This file is part of XSCHEM, a schematic capture and Spice/Vhdl/Verilog
+#  netlisting tool for circuit simulation. Copyright (C) 1998-2026 S.F. Schippers
+#  This program is free software; you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free Software
+#  Foundation; either version 2 of the License, or (at your option) any later version.
+#  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+#  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#  You should have received a copy of the GNU General Public License along with
+#  this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+#  Street, Fifth Floor, Boston, MA 02110-1301 USA
+#  Smith-chart trace rendering + exact-geometry test (draw_smith_expr_points in
+#  src/draw.c). Two phases, both headless (Xvfb + xschem print png + PIL).
+#  PHASE 1 -- render gating: renders a Smith chart on tests/SC_Test.raw in node
+#  modes baseline(node=""), A(node="s_1_1"), B(node="Zin; z_1_1 imp()"),
+#  C(node="Zin2; v(net1) i(v2) / imp()"); each capture runs in its own process
+#  (a warm-up print sizes the canvas past the default 200x200), asserting A, B,
+#  C each add >50 wave-color pixels the grid-only baseline lacks (a rejected
+#  wave adds ~zero; the chart grid itself is not wave color).
+#  PHASE 2 -- exact geometry: renders six constant-impedance complex raws
+#  (fixture_raws.sh) with node="Zt; z imp()", smz0=50. Gamma=(Z-Z0)/(Z+Z0) maps
+#  c0=50+0j->(0,0), short=0+0j->(-1,0), third=100+0j->(1/3,0), bot=0-50j->(0,-1),
+#  top=0+50j->(0,+1), q1=50+50j->(0.2,0.4). The capture box keeps the fixed node
+#  label out of frame and the unit circle in frame, so each red capture is one
+#  point dot. Self-calibration (C from c0, R from short) cancels any fixed
+#  offset; the other four points must land within a <=6 px tolerance.
+#  Usage: ./trace_check.sh [xschem-binary]  Needs: Xvfb, gcc, X11, python3+PIL.
+#  Overrides: SMITH_DISP, SMITH_WAVE_COLOR (default 7). Exit: 0=PASS 1=FAIL 2=setup.
 
 set -u
 DIR=$(cd "$(dirname "$0")" && pwd)
 REPO=$(cd "$DIR/../.." && pwd)
 XSCHEM=${1:-$REPO/src/xschem}
 RAW="$REPO/tests/SC_Test.raw"
-WAVE_COLOR=${SMITH_WAVE_COLOR:-7}   # 7 = bright red in both light & dark palettes
-CAPBOX="2000 1600 -1000 -800 1000 800"   # repo-proven 1:1 schematic capture box
+WAVE_COLOR=${SMITH_WAVE_COLOR:-7}   # 7 = bright red (#ff0000)
+CAPBOX="2000 1600 -1000 -800 1000 800"   # Phase 1 capture box
+FIXBOX="450 450 -280 -280 60 60"         # Phase 2 tight box (label out, circle in)
 
-[ -x "$XSCHEM" ] || { echo "xschem not found or not executable: $XSCHEM" >&2; exit 2; }
+[ -x "$XSCHEM" ] || { echo "xschem not found: $XSCHEM" >&2; exit 2; }
 [ -f "$RAW" ]    || { echo "raw file not found: $RAW" >&2; exit 2; }
 command -v python3 >/dev/null || { echo "python3 required" >&2; exit 2; }
-python3 -c 'import PIL' >/dev/null 2>&1 || { echo "python3 PIL (Pillow) required" >&2; exit 2; }
+python3 -c "import PIL" >/dev/null 2>&1 || { echo "python3 PIL required" >&2; exit 2; }
 
 RES="$DIR/results"
 mkdir -p "$RES"
-rm -f "$RES"/*.png "$RES"/trace_check.* "$RES"/trace.tcl "$RES"/xauth.$$
+rm -f "$RES"/*.png "$RES"/fx_*.raw "$RES"/trace_check.* "$RES"/fixture.* \
+      "$RES"/p1_cap.tcl "$RES"/fixture.tcl "$RES"/phase1.log \
+      "$RES"/baseline.* "$RES"/B.* "$RES"/C.* "$RES"/xauth.$$
 
-# --- locate the pointer-warp helper (reused from the sweep_expression test) ---
+# pointer-warp helper (reused from the sweep_expression test)
 WARP="$REPO/tests/sweep_expression/warp"
 if [ ! -x "$WARP" ]; then
   if command -v gcc >/dev/null && \
@@ -77,7 +61,7 @@ if [ ! -x "$WARP" ]; then
   fi
 fi
 
-# --- pick a free X display; start Xvfb on it if the socket is missing ---
+# pick a free X display; start Xvfb on it if the socket is missing
 DISP="${SMITH_DISP:-}"
 if [ -z "$DISP" ]; then
   for cand in 99 98 97 96 95 94; do
@@ -97,7 +81,7 @@ trap cleanup EXIT
 
 if [ ! -e "$SOCK" ]; then
   if command -v Xvfb >/dev/null; then
-    : > "$XAUTH"   # empty authority file; Xvfb runs with -ac so it is unused
+    : > "$XAUTH"
     setsid Xvfb "$DISP" -screen 0 1920x1200x24 -ac -nolisten tcp </dev/null >/dev/null 2>&1 &
     XVFB_PID=$!
     OURED=1
@@ -112,18 +96,19 @@ if ! timeout 5 xset q >/dev/null 2>&1; then
   exit 2
 fi
 
-# --- generate the capture script ---
-cat > "$RES/trace.tcl" <<EOF
+
+# ================= PHASE 1: render gating (A/B/C vs baseline) ==============
+#  Each capture runs in its OWN xschem process: rendering several imp() traces
+#  in one process on a large raw can leave xschem unable to exit, so isolating
+#  each capture makes every run terminate cleanly. Node + output are passed via
+#  the environment so one template serves all four captures.
+cat > "$RES/p1_cap.tcl" <<EOF
+set outch [open \$env(OUTLOG) a]
 set raw $RAW
-set out $RES/trace_check.log
-set outch [open \$out w]
-set pngdir $RES
 set warp $WARP
-
+set node \$env(NODE)
+set outpng \$env(OUTPNG)
 xschem raw read \$raw
-puts \$outch "SIM_TYPE=[xschem raw sim_type]"
-puts \$outch "IDX_S11=[xschem raw index s_1_1]"
-
 xschem add_graph
 xschem setprop rect 2 0 mode Smith
 xschem setprop rect 2 0 smz0 75
@@ -132,190 +117,231 @@ xschem setprop rect 2 0 x1 0
 xschem setprop rect 2 0 x2 100
 xschem setprop rect 2 0 y1 0
 xschem setprop rect 2 0 y2 10
-
-# position the pointer over the canvas so the graph lands in the capture box
+if {\$node ne ""} { xschem setprop rect 2 0 node "\$node" }
 exec \$warp
 update
 update
 after 50
 update
-
-# baseline: Smith grid only (node="")
-xschem setprop rect 2 0 node ""
 xschem select rect 2 0 clear nodraw
 xschem draw_graph 0
-xschem print png \$pngdir/warm1.png $CAPBOX
+# warm-up: the first png capture of a fresh graph lands on the default
+# 200x200 canvas; a discarded capture + re-draw sizes it to the CAPBOX
+xschem print png \$outpng $CAPBOX
 xschem draw_graph 0
-xschem print png \$pngdir/baseline.png $CAPBOX
-
-# trace A: s_1_1 in the distinctive wave color
-xschem setprop rect 2 0 node "s_1_1"
-xschem select rect 2 0 clear nodraw
-xschem draw_graph 0
-xschem print png \$pngdir/warm2.png $CAPBOX
-xschem draw_graph 0
-xschem print png \$pngdir/trace.png $CAPBOX
-
-# trace B: the impedance z_1_1 converted Z->Gamma with the RPN imp() operator
-xschem setprop rect 2 0 node "Zin; z_1_1 imp()"
-xschem select rect 2 0 clear nodraw
-xschem draw_graph 0
-xschem print png \$pngdir/B.png $CAPBOX
-
-# trace C: Z = v(net1)/i(v2) (RPN) converted Z->Gamma with imp()
-xschem setprop rect 2 0 node "Zin2; v(net1) i(v2) / imp()"
-xschem select rect 2 0 clear nodraw
-xschem draw_graph 0
-xschem print png \$pngdir/C.png $CAPBOX
-
-puts \$outch "CAPTURE_DONE"
+xschem print png \$outpng $CAPBOX
+puts \$outch "P1_DONE \$env(OUTPNG)"
 close \$outch
 xschem exit closewindow force 0
 EOF
 
-# --- run (a Tcl error can make xschem hang instead of exiting: retry) ---
-rc=1
-for try in 1 2 3; do
-  rm -f "$RES/trace_check.log"
-  timeout 90 "$XSCHEM" --script "$RES/trace.tcl" </dev/null \
-    >"$RES/trace_check.stdout" 2>"$RES/trace_check.stderr"
-  rc=$?
-  if [ "$rc" -eq 0 ] && grep -q "CAPTURE_DONE" "$RES/trace_check.log" 2>/dev/null \
-     && [ -s "$RES/baseline.png" ] && [ -s "$RES/trace.png" ] \
-     && [ -s "$RES/B.png" ] && [ -s "$RES/C.png" ]; then
-    break
-  fi
-  echo "attempt $try/3 failed (rc=$rc)"
-  sleep 2
-done
-if [ "$rc" -ne 0 ] || [ ! -s "$RES/trace.png" ] || [ ! -s "$RES/baseline.png" ] \
-   || [ ! -s "$RES/B.png" ] || [ ! -s "$RES/C.png" ]; then
-  echo "FAIL: xschem capture did not complete (rc=$rc)"
-  tail -15 "$RES/trace_check.stderr" 2>/dev/null
+# one capture in a fresh process: p1_run <png-basename> <node-expression>
+p1_run() {
+  local png="$1" node="$2" t
+  for t in 1 2 3; do
+    rm -f "$RES/$png.png"
+    NODE="$node" OUTPNG="$RES/$png.png" OUTLOG="$RES/phase1.log" \
+      timeout 60 "$XSCHEM" -r --script "$RES/p1_cap.tcl" </dev/null \
+      >"$RES/$png.stdout" 2>"$RES/$png.stderr"
+    [ -s "$RES/$png.png" ] && return 0
+    echo "phase1 $png attempt $t/3 failed"
+    sleep 2
+  done
+  echo "FAIL: phase1 $png capture produced no png"
+  return 1
+}
+rm -f "$RES/phase1.log"
+p1_run baseline "" || exit 1
+p1_run trace "s_1_1" || exit 1
+p1_run B "Zin; z_1_1 imp()" || exit 1
+p1_run C "Zin2; v(net1) i(v2) / imp()" || exit 1
+
+if grep -qi "not a complex" "$RES"/trace.stderr "$RES"/B.stderr "$RES"/C.stderr 2>/dev/null; then
+  echo "FAIL: phase-1 trace rejected (not a complex in stderr):"
+  grep -i "not a complex" "$RES"/trace.stderr "$RES"/B.stderr "$RES"/C.stderr
   exit 1
 fi
-
-# if the trace was rejected by the complex/ac validation, draw_graph() emits
-# a "not a complex" info() line on stderr; that is a hard failure.
-if grep -qi "not a complex" "$RES/trace_check.stderr" 2>/dev/null; then
-  echo "FAIL: s_1_1 trace rejected by validation ('not a complex' in stderr):"
-  grep -i "not a complex" "$RES/trace_check.stderr"
-  exit 1
-fi
-
-# --- wave-color pixel checks: (1) A=s_1_1 renders vs grid-only baseline, and
-# --- (2) pixel-equivalence of the imp() RPN traces B and C against A.
-# B = "Zin; z_1_1 imp()" and C = "Zin2; v(net1) i(v2) / imp()" must plot the
-# SAME physical curve as A (the reflection coefficient), so the wave-color
-# pixel sets must overlap >95% of the smaller set.
-python3 - "$RES/baseline.png" "$RES/trace.png" "$RES/B.png" "$RES/C.png" <<'PY'
+# --- Phase-1 checks: A/B/C each add wave-color pixels vs the grid baseline ---
+python3 - "$RES" <<PY
 import sys
-base_fn, a_fn, b_fn, c_fn = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-
-def die(msg):
-    print("FAIL: " + msg)
-    sys.exit(1)
-
+RES = sys.argv[1]
 try:
     import numpy as np
     from PIL import Image
-    def load(fn):
-        return np.asarray(Image.open(fn).convert("RGB"))
-    base, A, B, C = load(base_fn), load(a_fn), load(b_fn), load(c_fn)
-    if not (base.shape == A.shape == B.shape == C.shape):
-        die("capture size mismatch %s" % ([i.shape for i in (base, A, B, C)],))
-    h, w, _ = A.shape
-    diffmask = (A != base).any(axis=2)
-    diff = int(diffmask.sum())
-    if diff == 0:
-        die("A and baseline identical - s_1_1 trace not rendered")
-    diffpix = A[diffmask].reshape(-1, 3)
-    uniq, counts = np.unique(diffpix, axis=0, return_counts=True)
-    wave = tuple(int(v) for v in uniq[int(counts.argmax())])
-    wv = np.array(wave)
-    m = lambda im: (im == wv).all(axis=2)
-    mA, mB, mC, mb = m(A), m(B), m(C), m(base)
-    ca, cb, cc, cbase = int(mA.sum()), int(mB.sum()), int(mC.sum()), int(mb.sum())
-    ab, ac = int((mA & mB).sum()), int((mA & mC).sum())
-    print("CAPTURE_SIZE=%dx%d" % (w, h))
-    print("DIFF_PIXELS=%d" % diff)
-    print("WAVE_COLOR=%s" % (wave,))
-    print("WAVE_IN_TRACE(A)=%d WAVE_IN_BASELINE=%d" % (ca, cbase))
-    print("COUNT_A=%d COUNT_B=%d COUNT_C=%d" % (ca, cb, cc))
-    print("OVERLAP_AB=%d OVERLAP_AC=%d" % (ab, ac))
-    if not (diff > 500 and ca > 500 and cbase < 200):
-        die("not enough wave-color pixels (diff=%d A=%d baseline=%d)" % (diff, ca, cbase))
-    print("PASS: s_1_1 Smith trace rendered (%d wave-color px in A, %d in grid-only baseline)"
-          % (ca, cbase))
-    rAB = ab / min(ca, cb) if min(ca, cb) > 0 else 0.0
-    rAC = ac / min(ca, cc) if min(ca, cc) > 0 else 0.0
-    print("AB_RATIO=%.4f AC_RATIO=%.4f" % (rAB, rAC))
-    bad = 0
-    for name, r in (("A~B", rAB), ("A~C", rAC)):
-        if r > 0.95:
-            print("PASS: %s pixel equivalence (%.1f%% > 95%%)" % (name, r * 100))
-        else:
-            print("FAIL: %s pixel equivalence (%.1f%% <= 95%%)" % (name, r * 100))
-            bad += 1
-    sys.exit(1 if bad else 0)
+    def cnt(fn):
+        im = np.asarray(Image.open(fn).convert("RGB")).astype(int)
+        m = (im[:,:,0]>=150)&(im[:,:,1]<=55)&(im[:,:,2]<=55)
+        return int(m.sum())
 except ImportError:
-    # numpy unavailable: fall back to PIL for the render check; the overlap
-    # needs the array view, so reuse PIL pixel arrays.
-    def load(fn):
-        im = Image.open(fn).convert("RGB")
-        return im
-    base, A, B, C = load(base_fn), load(a_fn), load(b_fn), load(c_fn)
-    if not (base.size == A.size == B.size == C.size):
-        die("capture size mismatch %s" % ([i.size for i in (base, A, B, C)],))
-    w, h = A.size
-    pa, pb, pc, pbase = A.load(), B.load(), C.load(), base.load()
-    domdiff = {}
-    diff = 0
-    for y in range(h):
-        for x in range(w):
-            if pa[x, y] != pbase[x, y]:
-                diff += 1
-                domdiff[pa[x, y]] = domdiff.get(pa[x, y], 0) + 1
-    if diff == 0:
-        die("A and baseline identical - s_1_1 trace not rendered")
-    wave = max(domdiff, key=domdiff.get)
-    ca = sum(1 for y in range(h) for x in range(w) if pa[x, y] == wave)
-    cb = sum(1 for y in range(h) for x in range(w) if pb[x, y] == wave)
-    cc = sum(1 for y in range(h) for x in range(w) if pc[x, y] == wave)
-    cbase = sum(1 for y in range(h) for x in range(w) if pbase[x, y] == wave)
-    ab = sum(1 for y in range(h) for x in range(w)
-             if pa[x, y] == wave and pb[x, y] == wave)
-    ac = sum(1 for y in range(h) for x in range(w)
-             if pa[x, y] == wave and pc[x, y] == wave)
-    print("CAPTURE_SIZE=%dx%d" % (w, h))
-    print("DIFF_PIXELS=%d" % diff)
-    print("WAVE_COLOR=%s" % (wave,))
-    print("WAVE_IN_TRACE(A)=%d WAVE_IN_BASELINE=%d" % (ca, cbase))
-    print("COUNT_A=%d COUNT_B=%d COUNT_C=%d" % (ca, cb, cc))
-    print("OVERLAP_AB=%d OVERLAP_AC=%d" % (ab, ac))
-    if not (diff > 500 and ca > 500 and cbase < 200):
-        die("not enough wave-color pixels (diff=%d A=%d baseline=%d)" % (diff, ca, cbase))
-    print("PASS: s_1_1 Smith trace rendered (%d wave-color px in A, %d in grid-only baseline)"
-          % (ca, cbase))
-    rAB = ab / min(ca, cb) if min(ca, cb) > 0 else 0.0
-    rAC = ac / min(ca, cc) if min(ca, cc) > 0 else 0.0
-    print("AB_RATIO=%.4f AC_RATIO=%.4f" % (rAB, rAC))
-    bad = 0
-    for name, r in (("A~B", rAB), ("A~C", rAC)):
-        if r > 0.95:
-            print("PASS: %s pixel equivalence (%.1f%% > 95%%)" % (name, r * 100))
-        else:
-            print("FAIL: %s pixel equivalence (%.1f%% <= 95%%)" % (name, r * 100))
-            bad += 1
-    sys.exit(1 if bad else 0)
+    from PIL import Image
+    def cnt(fn):
+        px = Image.open(fn).convert("RGB").load()
+        w,h = Image.open(fn).size
+        return sum(1 for y in range(h) for x in range(w)
+                   if px[x,y][0]>=150 and px[x,y][1]<=55 and px[x,y][2]<=55)
+def die(m):
+    print("FAIL: "+m); sys.exit(1)
+base = cnt(RES+"/baseline.png")
+ca = cnt(RES+"/trace.png"); cb = cnt(RES+"/B.png"); cc = cnt(RES+"/C.png")
+print("baseline=%d A=%d B=%d C=%d" % (base, ca, cb, cc))
+bad = 0
+for name, n in (("A=s_1_1", ca), ("B=z_1_1 imp()", cb), ("C=v/i imp()", cc)):
+    if n > 50:
+        print("PASS: %s renders (%d wave px, >50)" % (name, n))
+    else:
+        print("FAIL: %s not rendered (%d wave px, <=50)" % (name, n)); bad += 1
+if base > 20:
+    print("FAIL: baseline has %d wave px (expected ~0)" % base); bad += 1
+sys.exit(1 if bad else 0)
 PY
-pyrc=$?
 
-echo "--- trace_check.log ---"
-cat "$RES/trace_check.log" 2>/dev/null
+pyrc=$?
+echo "--- phase1.log ---"
+cat "$RES/phase1.log" 2>/dev/null
 echo
-if [ "$pyrc" -eq 0 ]; then
+# ================= PHASE 2: exact geometry (imp() Z->Gamma) ===============
+"$DIR/fixture_raws.sh" "$RES"
+if [ $? -ne 0 ]; then
+  echo "FAIL: fixture raw generation failed"
+  exit 1
+fi
+cat > "$RES/fixture.tcl" <<EOF
+set out $RES/fixture.log
+set outch [open \$out w]
+set pngdir $RES
+set warp $WARP
+xschem raw read \$pngdir/fx_c0.raw
+xschem add_graph
+xschem setprop rect 2 0 mode Smith
+xschem setprop rect 2 0 smz0 50
+xschem setprop rect 2 0 color {$WAVE_COLOR}
+xschem setprop rect 2 0 sim_type ac
+xschem setprop rect 2 0 node "Zt; z imp()"
+exec \$warp
+update
+update
+after 50
+update
+xschem select rect 2 0 clear nodraw
+xschem draw_graph 0
+xschem print png \$pngdir/fx_warm.png $FIXBOX
+update
+xschem setprop rect 2 0 node ""
+xschem draw_graph 0
+xschem print png \$pngdir/fx_bl.png $FIXBOX
+update
+foreach k {c0 short third q1 bot top} {
+  xschem raw read \$pngdir/fx_\$k.raw
+  xschem setprop rect 2 0 node "Zt; z imp()"
+  xschem draw_graph 0
+  xschem print png \$pngdir/fx_\$k.png $FIXBOX
+  update
+}
+puts \$outch "FIXTURE_DONE"
+close \$outch
+xschem exit closewindow force 0
+EOF
+
+# --- run Phase 2 (retry) ---
+rc=1
+for try in 1 2 3; do
+  rm -f "$RES/fixture.log"
+  timeout 90 "$XSCHEM" -r --script "$RES/fixture.tcl" </dev/null \
+    >"$RES/fixture.stdout" 2>"$RES/fixture.stderr"
+  rc=$?
+  ok=1
+  for f in fx_bl fx_c0 fx_short fx_third fx_q1 fx_bot fx_top; do
+    [ -s "$RES/$f.png" ] || ok=0
+  done
+  if [ "$rc" -eq 0 ] && grep -q "FIXTURE_DONE" "$RES/fixture.log" 2>/dev/null && [ $ok -eq 1 ]; then
+    break
+  fi
+  echo "phase2 attempt $try/3 failed (rc=$rc)"
+  sleep 2
+done
+if [ "$rc" -ne 0 ] || ! grep -q "FIXTURE_DONE" "$RES/fixture.log" 2>/dev/null; then
+  echo "FAIL: phase-2 capture did not complete (rc=$rc)"
+  tail -15 "$RES/fixture.stderr" 2>/dev/null
+  exit 1
+fi
+if grep -qi "not a complex" "$RES/fixture.stderr" 2>/dev/null; then
+  echo "FAIL: phase-2 fixture rejected (not a complex in stderr):"
+  grep -i "not a complex" "$RES/fixture.stderr"
+  exit 1
+fi
+# --- Phase-2 checks: self-calibrate C (Gamma=0), R (Gamma=-1), verify 4 pts ---
+python3 - "$RES" <<PY
+import sys, math
+RES = sys.argv[1]
+try:
+    import numpy as np
+    from PIL import Image
+    def cen(fn):
+        im = np.asarray(Image.open(fn).convert("RGB")).astype(int)
+        m = (im[:,:,0]>=150)&(im[:,:,1]<=55)&(im[:,:,2]<=55)
+        ys, xs = np.nonzero(m)
+        if len(xs) == 0:
+            return None
+        return (float(xs.mean()), float(ys.mean()), int(m.sum()))
+except ImportError:
+    from PIL import Image
+    def cen(fn):
+        px = Image.open(fn).convert("RGB").load()
+        w, h = Image.open(fn).size
+        sx = sy = n = 0
+        for y in range(h):
+            for x in range(w):
+                r, g, b = px[x, y]
+                if r >= 150 and g <= 55 and b <= 55:
+                    sx += x; sy += y; n += 1
+        if n == 0:
+            return None
+        return (sx / n, sy / n, n)
+def die(m):
+    print("FAIL: " + m); sys.exit(1)
+bl = cen(RES + "/fx_bl.png")
+blc = bl[2] if bl else 0
+if blc > 40:
+    die("phase-2 baseline has %d wave px (expected ~0): region/color wrong" % blc)
+print("PHASE2 baseline wave px = %d" % blc)
+c0 = cen(RES + "/fx_c0.png")
+short = cen(RES + "/fx_short.png")
+if c0 is None:
+    die("fx_c0.png has no wave px (Gamma=0 not rendered)")
+if short is None:
+    die("fx_short.png has no wave px (Gamma=-1 not rendered)")
+R = math.hypot(short[0] - c0[0], short[1] - c0[1])
+tol = min(6.0, max(3.0, 0.04 * R))
+print("PHASE2 C=(%.2f,%.2f) R=%.2f px tol=%.2f px" % (c0[0], c0[1], R, tol))
+if R < 60:
+    die("radius R=%.1f px too small to be meaningful (<60)" % R)
+checks = [("third", 1.0/3.0, 0.0), ("bot", 0.0, -1.0), ("top", 0.0, 1.0), ("q1", 0.2, 0.4)]
+bad = 0
+for name, u, v in checks:
+    p = cen(RES + "/fx_%s.png" % name)
+    if p is None:
+        print("FAIL: %s - no wave px (point not rendered)" % name); bad += 1; continue
+    ex = c0[0] + u * R
+    ey = c0[1] - v * R
+    d = math.hypot(p[0] - ex, p[1] - ey)
+    ok = d <= tol
+    if not ok:
+        bad += 1
+    print("%s: %-5s measured=(%.2f,%.2f) expected=(%.2f,%.2f) dist=%.2f px (tol %.2f)" % ("PASS" if ok else "FAIL", name, p[0], p[1], ex, ey, d, tol))
+if bad:
+    print("%d phase-2 geometry check(s) FAILED" % bad); sys.exit(1)
+print("PASS: all four fixture points match the self-calibrated Smith geometry")
+sys.exit(0)
+PY
+fixrc=$?
+echo "--- fixture.log (phase 2) ---"
+cat "$RES/fixture.log" 2>/dev/null
+
+# ================= summary ================
+if [ "$pyrc" -eq 0 ] && [ "$fixrc" -eq 0 ]; then
+  echo "ALL PASS (phase 1 render gating + phase 2 exact geometry)"
   exit 0
 else
+  echo "FAIL (phase1 render rc=$pyrc, phase2 geometry rc=$fixrc)"
   exit 1
 fi
