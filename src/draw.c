@@ -3296,7 +3296,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   double xu[720], xv[720];
   XPoint pts[n_pts + 1];
   XPoint xpts[720];
-  int i, ir, p, n_circ, ix, n_xpts, ivtop;
+  int i, ir, p, n_circ, ix, n_xpts;
   double cx, cy, rad, theta, u, v;
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
@@ -3416,12 +3416,14 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       else continue;
       XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
     }
-    /* label at the topmost point of the arc, a few pixels above */
-    ivtop = 0;
-    for(i = 1; i < n_xpts; i++)
-      if(xv[i] > xv[ivtop]) ivtop = i;
-    lx = CLIP(SM_X(xu[ivtop]), -30000, 30000);
-    ly = CLIP(SM_Y(xv[ivtop]), -30000, 30000) - 4.0;
+    /* label at the arc's R=0 crossing, which lies exactly on the unit
+     * circle: u = X*X/(1+X*X), v = X/(1+X*X); offset a few pixels toward
+     * the chart interior (toward the origin) so the text does not sit on
+     * the unit circle */
+    u = x_values[ix] * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+    v = x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+    lx = CLIP(SM_X(u), -30000, 30000) - 4.0 * u;
+    ly = CLIP(SM_Y(v), -30000, 30000) + 4.0 * v;
     draw_string(3, NOW, x_labels[ix], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
                 gr->txtsizex, gr->txtsizex);
   }
