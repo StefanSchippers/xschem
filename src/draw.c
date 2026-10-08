@@ -3595,24 +3595,11 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
      gr->logx = 0;
      gr->logy = 0;
      gr->digital = 0;
-     /* The Smith plane must stay centered on Gamma=0. x1/x2/y1/y2 are shared
-      * with the sweep range of a normal graph, so an asymmetric data window
-      * would shift and over-scale the plane: re-center it on zero */
-     if(gr->gx1 > -gr->gx2) {
-       double h = gr->gx2 > -gr->gx1 ? gr->gx2 : -gr->gx1;
-       info("Smith graph: re-centering data window x %.6g..%.6g -> -%.6g..%.6g\n",
-            gr->gx1, gr->gx2, h, h);
-       gr->gx1 = -h;
-       gr->gx2 = h;
-       gr->gw = gr->gx2 - gr->gx1; /* keep window width consistent with gx1/gx2 */
-     }
-     if(gr->gy1 > -gr->gy2) {
-       double h = gr->gy2 > -gr->gy1 ? gr->gy2 : -gr->gy1;
-       info("Smith graph: re-centering data window y %.6g..%.6g -> -%.6g..%.6g\n",
-            gr->gy1, gr->gy2, h, h);
-       gr->gy1 = -h;
-       gr->gy2 = h;
-     }
+      /* Smith plane: fixed full-plane view, centered on Gamma=0; the x1/x2/y1/y2
+       * attrs do not affect the Smith mapping (they are sweep-axis attrs). */
+      gr->gx1 = -1.5; gr->gx2 = 1.5;
+      gr->gy1 = -1.5; gr->gy2 = 1.5;
+      gr->gw = gr->gx2 - gr->gx1; /* keep window width consistent with gx1/gx2 */
    }
    if(gr->digital) {
     val = get_tok_value(r->prop_ptr,"ypos1", 0);
