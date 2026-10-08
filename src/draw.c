@@ -3063,198 +3063,223 @@ void draw_smith_points(int idx, int first, int last,
   }
 }
 
-#define SMX_MAX 128
-
-typedef enum { SMX_NUM, SMX_VAR, SMX_PLUS, SMX_MINUS, SMX_MULT, SMX_DIV, SMX_IMP } smx_type;
-
-typedef struct {
-  smx_type t;
-  double d; /* SMX_NUM value */
-  int idx;  /* SMX_VAR: raw base column index (% 4 == 0) */
-} smx_tok;
-
-/* Smith chart: evaluate the "label; expression" RPN expression per sweep point
- * with a complex value stack. Token recognition (in this order): the operators
- * "+", "-", "*", "/", the "imp()" operator, real numbers, and raw variable
- * names (push the COMPLEX re/im values of the var's base column). Operators are
- * complex if either operand is complex, else real. imp() pops the top stack
- * value Z (complex or real) and pushes Gamma = (Z - z0)/(Z + z0) with
- * z0 = gr->smith_z0. The single remaining value (complex -> re/im,
- * real -> (re, 0)) is plotted as a trace on the fixed Smith plane, mapped
- * through SM_X()/SM_Y(). Returns 0 on success, -1 on error (after info()). */
-int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
-       int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+/* Smith chart: parse + validate the "label; expression" RPN expression
+ * into the program buffer prog (token recognition, in this order: the
+ * operators "+", "-", "*", "/", the "imp()" operator, real numbers, and
+ * raw variable names (push the COMPLEX re/im values of the var's base
+ * column)).  Operators are complex if either operand is complex, else
+ * real.  imp() pops the top stack value Z (complex or real) and pushes
+ * Gamma = (Z - z0)/(Z + z0).  The program must end with exactly one
+ * value on the stack.  Returns 0 on success, -1 on error (after info()). */
+int smith_expr_parse(const char *expr, smx_prog *prog)
 {
-  int i, p, x;
-  int quiet = first > 0;
-  int poly_npoints = 0;
-  int prog_n = 0, stackptr, depth, rc = 0;
+  int i, depth;
+  int prog_n = 0;
   const char *n;
   char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
-  smx_tok prog[SMX_MAX];
-  struct { int is_c; double re, im; } cstack[SMX_MAX];
   Raw *raw = xctx->raw;
 
   if(!raw) {
-    if(!quiet) info("draw_smith_expr_points(): no raw struct allocated\n");
+    info("smith_expr_parse(): no raw struct allocated\n");
     return -1;
   }
   if(!raw->sim_type || strcmp(raw->sim_type, "ac")) {
-    if(!quiet) info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
+    info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
     return -1;
   }
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
   ntok_ptr = ntok_copy;
-  dbg(1, ("draw_smith_expr_points: expr=%s, first=%d, last=%d\n", expr, first, last));
+  dbg(1, ("smith_expr_parse: expr=%s\n", expr));
   while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
     int idx;
     ntok_ptr = NULL;
     if(prog_n >= SMX_MAX) {
-      if(!quiet) info("Smith chart: expression too long - skipped\n");
-      rc = -1;
-      break;
+      info("Smith chart: expression too long - skipped\n");
+      my_free(_ALLOC_ID_, &ntok_copy);
+      return -1;
     }
-    dbg(1, ("  draw_smith_expr_points(): n = %s\n", n));
+    dbg(1, ("  smith_expr_parse(): n = %s\n", n));
     if(!strcmp(n, "+") || !strcmp(n, "-") || !strcmp(n, "*") || !strcmp(n, "/")) {
       switch(n[0]) {
-        case '+': prog[prog_n].t = SMX_PLUS; break;
-        case '-': prog[prog_n].t = SMX_MINUS; break;
-        case '*': prog[prog_n].t = SMX_MULT; break;
-        default:  prog[prog_n].t = SMX_DIV; break;
+        case '+': prog->tok[prog_n].t = SMX_PLUS; break;
+        case '-': prog->tok[prog_n].t = SMX_MINUS; break;
+        case '*': prog->tok[prog_n].t = SMX_MULT; break;
+        default:  prog->tok[prog_n].t = SMX_DIV; break;
       }
       prog_n++;
     }
     else if(!strcmp(n, "imp()")) {
-      prog[prog_n].t = SMX_IMP;
+      prog->tok[prog_n].t = SMX_IMP;
       prog_n++;
     }
     else if( (strtod(n, &endptr), endptr) > n) { /* NUMBER */
-      prog[prog_n].t = SMX_NUM;
-      prog[prog_n].d = atof_spice(n);
+      prog->tok[prog_n].t = SMX_NUM;
+      prog->tok[prog_n].d = atof_spice(n);
       prog_n++;
     }
     else { /* raw variable name: must resolve to an AC base column */
       idx = get_raw_index(n, NULL);
       if(idx == -1 || idx % 4 != 0 || idx + 3 >= raw->nvars) {
-        if(!quiet) info("Smith chart: expression token '%s' not supported - skipped\n", n);
-        rc = -1;
-        break;
+        info("Smith chart: expression token '%s' not supported - skipped\n", n);
+        my_free(_ALLOC_ID_, &ntok_copy);
+        return -1;
       }
-      prog[prog_n].t = SMX_VAR;
-      prog[prog_n].idx = idx;
+      prog->tok[prog_n].t = SMX_VAR;
+      prog->tok[prog_n].idx = idx;
       prog_n++;
     }
   } /* while(n = my_strtok_r(...)) */
   my_free(_ALLOC_ID_, &ntok_copy);
-  if(rc == 0) {
-    /* static stack-shape check: simulate stack depths (NUM/VAR +1,
-     * + - * / -1, imp() 0); depth must never reach 0 and must end at 1 */
-    depth = 0;
-    for(i = 0; i < prog_n; i++) {
-      if(prog[i].t == SMX_NUM || prog[i].t == SMX_VAR) depth++;
-      else if(prog[i].t != SMX_IMP) depth--; /* SMX_PLUS/MINUS/MULT/DIV */
-      if(depth < 1) break;
-    }
-    if(depth != 1) {
-      if(!quiet) info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
-      rc = -1;
+  /* static stack-shape check: simulate stack depths (NUM/VAR +1,
+   * + - * / -1, imp() 0); depth must never reach 0 and must end at 1 */
+  depth = 0;
+  for(i = 0; i < prog_n; i++) {
+    if(prog->tok[i].t == SMX_NUM || prog->tok[i].t == SMX_VAR) depth++;
+    else if(prog->tok[i].t != SMX_IMP) depth--; /* SMX_PLUS/MINUS/MULT/DIV */
+    if(depth < 1) break;
+  }
+  if(depth != 1) {
+    info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
+    return -1;
+  }
+  prog->n = prog_n;
+  return 0;
+}
+
+/* Smith chart: evaluate the RPN program for one sweep point p, writing
+ * the result to *re/*im (complex result -> re/im, real -> (re, 0)).
+ * Reads xctx->raw - the caller guarantees the right raw file is loaded
+ * (point p of the selected dataset).  Returns 0 on success, -1 if the
+ * point is invalid.  imp() normalizes with z0 = smith_z0 of the graph
+ * currently being drawn (draw_graph() always uses xctx->graph_struct). */
+int smith_expr_eval_point(const smx_prog *prog, int p, double *re, double *im)
+{
+  int i, stackptr;
+  struct { int is_c; double re, im; } cstack[SMX_MAX];
+  Raw *raw = xctx->raw;
+
+  if(!raw || !re || !im || p < 0 || p >= raw->allpoints) return -1;
+
+  stackptr = 0;
+  for(i = 0; i < prog->n; i++) {
+    switch(prog->tok[i].t) {
+      case SMX_NUM:
+        cstack[stackptr].is_c = 0;
+        cstack[stackptr].re = prog->tok[i].d;
+        cstack[stackptr].im = 0.0;
+        stackptr++;
+        break;
+      case SMX_VAR:
+        cstack[stackptr].is_c = 1;
+        cstack[stackptr].re = raw->values[prog->tok[i].idx + 2][p];
+        cstack[stackptr].im = raw->values[prog->tok[i].idx + 3][p];
+        stackptr++;
+        break;
+      case SMX_PLUS:
+      case SMX_MINUS:
+      case SMX_MULT:
+      case SMX_DIV:
+        {
+          int is_c = cstack[stackptr - 1].is_c || cstack[stackptr - 2].is_c;
+          double a_re = cstack[stackptr - 2].re, a_im = cstack[stackptr - 2].im;
+          double b_re = cstack[stackptr - 1].re, b_im = cstack[stackptr - 1].im;
+          double r_re = 0.0, r_im = 0.0;
+          if(is_c) {
+            /* a is the value below the top of the stack, b the top */
+            switch(prog->tok[i].t) {
+              case SMX_PLUS:
+                r_re = a_re + b_re;
+                r_im = a_im + b_im;
+                break;
+              case SMX_MINUS:
+                r_re = a_re - b_re;
+                r_im = a_im - b_im;
+                break;
+              case SMX_MULT:
+                r_re = a_re * b_re - a_im * b_im;
+                r_im = a_re * b_im + a_im * b_re;
+                break;
+              default: /* SMX_DIV: a / b = a * conj(b) / |b|^2 */
+                {
+                  double den = b_re * b_re + b_im * b_im;
+                  if(den < 1e-300) { /* guard: divide by (near) zero */
+                    r_re = 0.0;
+                    r_im = 0.0;
+                  } else {
+                    r_re = (a_re * b_re + a_im * b_im) / den;
+                    r_im = (a_im * b_re - a_re * b_im) / den;
+                  }
+                }
+                break;
+            }
+          } else {
+            switch(prog->tok[i].t) {
+              case SMX_PLUS:  r_re = a_re + b_re; break;
+              case SMX_MINUS: r_re = a_re - b_re; break;
+              case SMX_MULT:  r_re = a_re * b_re; break;
+              default:       r_re = (b_re != 0.0) ? a_re / b_re : 0.0; break;
+            }
+            r_im = 0.0;
+          }
+          cstack[stackptr - 2].is_c = is_c;
+          cstack[stackptr - 2].re = r_re;
+          cstack[stackptr - 2].im = r_im;
+          stackptr--;
+          break;
+        }
+      case SMX_IMP:
+        {
+          /* pop Z (complex or real), push Gamma = (Z - z0)/(Z + z0) */
+          double z_re = cstack[stackptr - 1].re;
+          double z_im = cstack[stackptr - 1].im;
+          double z0 = xctx->graph_struct.smith_z0;
+          double den_re = z_re + z0, den_im = z_im;
+          double den = den_re * den_re + den_im * den_im;
+          double r_re, r_im;
+          if(den < 1e-300) { /* guard: Z = -z0 */
+            r_re = 0.0;
+            r_im = 0.0;
+          } else {
+            r_re = ((z_re - z0) * den_re + z_im * den_im) / den;
+            r_im = (z_im * den_re - (z_re - z0) * den_im) / den;
+          }
+          cstack[stackptr - 1].is_c = 1;
+          cstack[stackptr - 1].re = r_re;
+          cstack[stackptr - 1].im = r_im;
+          break;
+        }
     }
   }
-  if(rc != 0) return rc;
+  /* one value is guaranteed to remain on the stack (shape checked in
+   * smith_expr_parse()) */
+  *re = cstack[0].re;
+  *im = cstack[0].im;
+  return 0;
+}
 
+/* Smith chart: fill point[] with the (already parsed) RPN program
+ * evaluated per sweep point and draw the trace on the fixed Smith plane
+ * (same drawing primitives as draw_smith_points()).
+ * Returns 0 on success, -1 on error. */
+int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,
+        int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+{
+  int p, x;
+  int poly_npoints = 0;
+  Raw *raw = xctx->raw;
+
+  if(!raw) {
+    info("draw_smith_expr_points(): no raw struct allocated\n");
+    return -1;
+  }
+  dbg(1, ("draw_smith_expr_points: first=%d, last=%d\n", first, last));
   for(p = first ; p <= last; p++) {
-    stackptr = 0;
-    for(i = 0; i < prog_n; i++) {
-      switch(prog[i].t) {
-        case SMX_NUM:
-          cstack[stackptr].is_c = 0;
-          cstack[stackptr].re = prog[i].d;
-          cstack[stackptr].im = 0.0;
-          stackptr++;
-          break;
-        case SMX_VAR:
-          cstack[stackptr].is_c = 1;
-          cstack[stackptr].re = raw->values[prog[i].idx + 2][p];
-          cstack[stackptr].im = raw->values[prog[i].idx + 3][p];
-          stackptr++;
-          break;
-        case SMX_PLUS:
-        case SMX_MINUS:
-        case SMX_MULT:
-        case SMX_DIV:
-          {
-            int is_c = cstack[stackptr - 1].is_c || cstack[stackptr - 2].is_c;
-            double a_re = cstack[stackptr - 2].re, a_im = cstack[stackptr - 2].im;
-            double b_re = cstack[stackptr - 1].re, b_im = cstack[stackptr - 1].im;
-            double r_re = 0.0, r_im = 0.0;
-            if(is_c) {
-              /* a is the value below the top of the stack, b the top */
-              switch(prog[i].t) {
-                case SMX_PLUS:
-                  r_re = a_re + b_re;
-                  r_im = a_im + b_im;
-                  break;
-                case SMX_MINUS:
-                  r_re = a_re - b_re;
-                  r_im = a_im - b_im;
-                  break;
-                case SMX_MULT:
-                  r_re = a_re * b_re - a_im * b_im;
-                  r_im = a_re * b_im + a_im * b_re;
-                  break;
-                default: /* SMX_DIV: a / b = a * conj(b) / |b|^2 */
-                  {
-                    double den = b_re * b_re + b_im * b_im;
-                    if(den < 1e-300) { /* guard: divide by (near) zero */
-                      r_re = 0.0;
-                      r_im = 0.0;
-                    } else {
-                      r_re = (a_re * b_re + a_im * b_im) / den;
-                      r_im = (a_im * b_re - a_re * b_im) / den;
-                    }
-                  }
-                  break;
-              }
-            } else {
-              switch(prog[i].t) {
-                case SMX_PLUS:  r_re = a_re + b_re; break;
-                case SMX_MINUS: r_re = a_re - b_re; break;
-                case SMX_MULT:  r_re = a_re * b_re; break;
-                default:       r_re = (b_re != 0.0) ? a_re / b_re : 0.0; break;
-              }
-              r_im = 0.0;
-            }
-            cstack[stackptr - 2].is_c = is_c;
-            cstack[stackptr - 2].re = r_re;
-            cstack[stackptr - 2].im = r_im;
-            stackptr--;
-            break;
-          }
-        case SMX_IMP:
-          {
-            /* pop Z (complex or real), push Gamma = (Z - z0)/(Z + z0) */
-            double z_re = cstack[stackptr - 1].re;
-            double z_im = cstack[stackptr - 1].im;
-            double den_re = z_re + gr->smith_z0, den_im = z_im;
-            double den = den_re * den_re + den_im * den_im;
-            double r_re, r_im;
-            if(den < 1e-300) { /* guard: Z = -z0 */
-              r_re = 0.0;
-              r_im = 0.0;
-            } else {
-              r_re = ((z_re - gr->smith_z0) * den_re + z_im * den_im) / den;
-              r_im = (z_im * den_re - (z_re - gr->smith_z0) * den_im) / den;
-            }
-            cstack[stackptr - 1].is_c = 1;
-            cstack[stackptr - 1].re = r_re;
-            cstack[stackptr - 1].im = r_im;
-            break;
-          }
-      }
-    }
-    /* one value is guaranteed to remain on the stack (shape checked above) */
-    point[poly_npoints].x = (short)CLIP(SM_X(cstack[0].re), -30000, 30000);
-    point[poly_npoints].y = (short)CLIP(SM_Y(cstack[0].im), -30000, 30000);
+    double re, im;
+
+    if(smith_expr_eval_point(prog, p, &re, &im) != 0) return -1;
+    /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
+    point[poly_npoints].x = (short)CLIP(SM_X(re), -30000, 30000);
+    point[poly_npoints].y = (short)CLIP(SM_Y(im), -30000, 30000);
     poly_npoints++;
   }
   for(p=0;p<cadlayers; ++p) {
@@ -3756,6 +3781,179 @@ static void draw_smith_labels(Graph_ctx *gr)
   }
 
   bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+/* pixel width of a string drawn by draw_string() at the given font scale
+ * (same estimation approach as the Z0 readout in draw_smith_labels()) */
+static double smith_text_width(const char *str, double font_scale)
+{
+#if HAS_CAIRO==1
+  cairo_text_extents_t ext;
+  cairo_set_font_size(xctx->cairo_ctx, font_scale*52.*cairo_font_scale*xctx->mooz);
+  cairo_text_extents(xctx->cairo_ctx, str, &ext);
+  return (ext.x_advance > ext.width) ? ext.x_advance : ext.width;
+#else
+  return (double)strlen(str) * (FONTWIDTH + FONTWHITESPACE) * font_scale *
+         tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale * xctx->mooz;
+#endif
+}
+
+/* Smith chart: cursor markers, per-wave readouts and the cursor frequency
+ * labels.  Called from draw_graph() right after a wave trace has been
+ * drawn (per selected dataset), only when a cursor flag is set.
+ *
+ * For each active cursor (cursor1: filled dot, cursor2: cross), one
+ * marker is drawn on this wave's trace at the common cursor frequency
+ * f_c: Gamma(f_c) with re/im linearly interpolated between the two
+ * bracketing sweep points - the very points the trace is built from -
+ * so all markers of one cursor sit at one frequency and land on the
+ * trace.  No marker/readout is drawn for a wave whose sweep span does
+ * not cover f_c.  The readout is placed next to each marker, in the
+ * wave color:
+ *   scattering wave:  NAME = |G| @thdeg [Z = R+jX Ohm] @ f
+ *   expression wave:  NAME = R+jX Ohm [Gamma = |G| @thdeg] @ f
+ * (ASCII stand-ins for angle/degree/Gamma: the vector font has no
+ * such glyphs, and the cairo build renders the Z0-readout-style
+ * Ohm glyph used here already).  A small "f = ..." label is drawn
+ * once per active cursor at the top-left of the plot square; the
+ * f_lab1/f_lab2 guards live in draw_graph(). */
+static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
+        int wave_color, int expression, int idx, const smx_prog *prog,
+        const char *name, int flags, double cursor1, double cursor2,
+        int *f_lab1, int *f_lab2, Graph_ctx *gr)
+{
+  SPICE_DATA *sv;
+  Raw *raw = xctx->raw;
+  double sm_font;
+  int c, i, p, w;
+
+  if(!raw) return;
+  sv = raw->values[sweep_idx];
+  sm_font = smith_label_font(gr);
+
+  /* "f = ..." labels: once per active cursor per graph, top-left inside
+   * the plot square; the second cursor's label starts 12 px past the
+   * first one's width */
+  {
+    char fstr1[80], fstr2[80];
+    double fx, fy, fw1 = 0.0;
+
+    fx = SM_X(-1.05) + 8.0;
+    fy = SM_Y(1.05) + 4.0;
+    if((flags & 2) && !*f_lab1) {
+      my_snprintf(fstr1, S(fstr1), "f = %s", dtoa_eng(cursor1, 5));
+      fw1 = smith_text_width(fstr1, sm_font);
+      draw_string(GRIDLAYER, NOW, fstr1, 0, 0, 0, 0,
+          X_TO_XSCHEM(fx), Y_TO_XSCHEM(fy), sm_font, sm_font);
+      *f_lab1 = 1;
+    }
+    if((flags & 4) && !*f_lab2) {
+      double x2 = fx;
+      my_snprintf(fstr2, S(fstr2), "f = %s", dtoa_eng(cursor2, 5));
+      if((flags & 2) && *f_lab1) x2 += fw1 + 12.0;
+      draw_string(GRIDLAYER, NOW, fstr2, 0, 0, 0, 0,
+          X_TO_XSCHEM(x2), Y_TO_XSCHEM(fy), sm_font, sm_font);
+      *f_lab2 = 1;
+    }
+  }
+
+  for(c = 0; c < 2; c++) {
+    double f_c, t, re, im, sx, sy;
+    int active;
+
+    if(c == 0) {
+      active = (flags & 2);
+      f_c = cursor1;
+    } else {
+      active = (flags & 4);
+      f_c = cursor2;
+    }
+    if(!active) continue;
+
+    /* find the bracketing p in [first..last-1] with
+     * sv[p] <= f_c <= sv[p+1] (sweep is the frequency, ascending,
+     * logx forced off in Smith mode); f_c outside the span -> no
+     * marker/readout for this wave */
+    p = -1;
+    for(i = first; i < last; i++) {
+      if(sv[i] <= f_c && f_c <= sv[i + 1]) {
+        p = i;
+        break;
+      }
+    }
+    if(p < 0) continue;
+    if(sv[p + 1] == sv[p]) continue; /* guard zero denominator */
+    t = (f_c - sv[p]) / (sv[p + 1] - sv[p]);
+
+    /* Gamma(f_c): lerp of re/im between the bracketing sweep points */
+    if(expression) {
+      double re0, im0, re1, im1;
+      if(smith_expr_eval_point(prog, p, &re0, &im0) != 0) continue;
+      if(smith_expr_eval_point(prog, p + 1, &re1, &im1) != 0) continue;
+      re = re0 + t * (re1 - re0);
+      im = im0 + t * (im1 - im0);
+    } else {
+      re = raw->values[idx + 2][p] + t * (raw->values[idx + 2][p + 1] - raw->values[idx + 2][p]);
+      im = raw->values[idx + 3][p] + t * (raw->values[idx + 3][p + 1] - raw->values[idx + 3][p]);
+    }
+    sx = SM_X(re);
+    sy = SM_Y(im);
+
+    /* marker: cursor1 = filled dot (radius 3), cursor2 = cross, 4-px arms */
+    for(w = 0; w < 2; w++) {
+      Drawable d;
+      if(w == 0 && xctx->draw_window) d = xctx->window;
+      else if(w == 1 && xctx->draw_pixmap) d = xctx->save_pixmap;
+      else continue;
+      if(c == 0) {
+        XFillArc(display, d, xctx->gc[wave_color], (int)sx - 3, (int)sy - 3, 7, 7, 0, 360 * 64);
+      } else {
+        XDrawLine(display, d, xctx->gc[wave_color],
+            (int)sx - 4, (int)sy - 4, (int)sx + 4, (int)sy + 4);
+        XDrawLine(display, d, xctx->gc[wave_color],
+            (int)sx - 4, (int)sy + 4, (int)sx + 4, (int)sy - 4);
+      }
+    }
+
+    /* readout: |G| = hypot(re, im), theta in degrees,
+     * Z = z0 * (1 + G) / (1 - G) (guard |1 - G|^2 < 1e-300 -> Z = inf) */
+    {
+      char rstr[256];
+      char zstr[64];
+      double rx, ry, w_px;
+      double abs_g, theta_deg;
+      double den_re, den_im, den;
+      double z_re, z_im;
+
+      abs_g = sqrt(re * re + im * im);
+      theta_deg = atan2(im, re) * 180.0 / XSCH_PI;
+      den_re = 1.0 - re;
+      den_im = -im;
+      den = den_re * den_re + den_im * den_im;
+      if(den < 1e-300) {
+        my_snprintf(zstr, S(zstr), "inf");
+      } else {
+        /* (1 + G) / (1 - G) = ((1 - |G|^2) + 2j*im(G)) / |1 - G|^2 */
+        z_re = gr->smith_z0 * (1.0 - re * re - im * im) / den;
+        z_im = gr->smith_z0 * 2.0 * im / den;
+        if(z_im >= 0.0) my_snprintf(zstr, S(zstr), "%g+j%g Ω", z_re, z_im);
+        else my_snprintf(zstr, S(zstr), "%g-j%g Ω", z_re, -z_im);
+      }
+      if(expression)
+        my_snprintf(rstr, S(rstr), "%s = %s [Gamma = %g @%.1fdeg] @ %s",
+            name, zstr, abs_g, theta_deg, dtoa_eng(f_c, 5));
+      else
+        my_snprintf(rstr, S(rstr), "%s = %g @%.1fdeg [Z = %s] @ %s",
+            name, abs_g, theta_deg, zstr, dtoa_eng(f_c, 5));
+      w_px = smith_text_width(rstr, sm_font);
+      /* keep the text inside the container: text + width <= right edge - 4 */
+      rx = sx + 8.0;
+      if(rx + w_px > gr->sx2 - 4.0) rx = gr->sx2 - 4.0 - w_px;
+      ry = (c == 0) ? sy - 16.0 : sy + 8.0;
+      draw_string(wave_color, NOW, rstr, 0, 0, 0, 0,
+          X_TO_XSCHEM(rx), Y_TO_XSCHEM(ry), sm_font, sm_font);
+    }
+  }
 }
 
 void setup_graph_data(int i, int skip, Graph_ctx *gr)
@@ -4857,6 +5055,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   char *sim_type = NULL;
   int save_extra_idx = -1;
   double cursor1, cursor2;
+  int f_lab1 = 0, f_lab2 = 0; /* Smith chart: "f = ..." labels drawn once per graph */
 
   xctx->ev_precision = tclgetintvar("ev_precision");
   if(xctx->only_probes) return;
@@ -5079,15 +5278,22 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
         int digital = gr->digital;
         int smith_valid = 1;
+        smx_prog smith_prog; /* Smith chart: RPN program of a "label; expression" wave */
         /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
          * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
-         * as a trace. "label; expression" entries are validated inside
-         * draw_smith_expr_points() instead. */
+         * as a trace. "label; expression" entries are validated in
+         * smith_expr_parse() below. */
         if(gr->mode == 3 && !expression && (!xctx->raw->sim_type ||
            strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
           info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n",
                bus_msb ? bus_msb : express);
           smith_valid = 0;
+        }
+        /* Smith chart: a "label; expression" wave entry: parse the RPN program
+         * once per wave, before the dataset loop; parse failure -> skip the
+         * wave the same way as a bare-variable validation failure */
+        if(gr->mode == 3 && expression && smith_valid) {
+          if(smith_expr_parse(express, &smith_prog) != 0) smith_valid = 0;
         }
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
@@ -5096,8 +5302,18 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           idx_arr = get_bus_idx_array(ntok_copy, &n_bits); /* idx_arr allocated by function, must free! */
         }
         bbox(START, 0.0, 0.0, 0.0, 0.0);
-        bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
-        bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        if(gr->mode == 3) {
+          /* Smith chart: the plane square (±1.05) is always inside the
+           * container, so clip to the container directly (instead of the
+           * plot box) - same clip as the Z0 readout in
+           * draw_smith_labels() - so the cursor readouts can reach the
+           * container edge */
+          bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+          bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+        } else {
+          bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
+          bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        }
         /* loop through all datasets found in raw file */
 
         if(sch_waves_loaded() != -1 && smith_valid) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
@@ -5122,14 +5338,39 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           if(gr->mode == 3) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               int rc;
+              char name[1024];
+              char *alias_ptr = NULL;
               if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
               else wave_color = wc;
               if(expression) {
-                rc = draw_smith_expr_points(ofs, ofs_end - 1, express, point,
+                rc = draw_smith_expr_points(&smith_prog, ofs, ofs_end - 1, point,
                     wave_color, wcnt, n_nodes, gr, ct);
                 if(rc == -1) goto done;
               } else {
                 draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
+              }
+              /* Smith chart: cursor markers + per-wave readouts at the cursor
+               * frequencies (only when a cursor flag is set) */
+              if((flags & 2) || (flags & 4)) {
+                /* legend label of this wave: identical logic as
+                 * draw_graph_variables() (alias part of ntok if present,
+                 * else the variable/expression base) */
+                if(bus_msb) {
+                  my_snprintf(name, S(name), "%s", find_nth(ntok, ";,", "\"", 0, 1));
+                } else if(strstr(ntok, ";")) {
+                  yyparse_error = -1;
+                  my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
+                  yyparse_error = 0;
+                  my_snprintf(name, S(name), "%s", alias_ptr);
+                } else {
+                  my_snprintf(name, S(name), "%s", ntok);
+                }
+                if(gr->unity != 1.0) my_snprintf(name, S(name), "%s[%c]", name, gr->unity_suffix);
+                my_snprintf(name, S(name), "%s", str_replace(name, "\\ ", " ", 0, -1));
+                draw_smith_cursor_markers(sweep_idx, ofs, ofs_end - 1, wave_color,
+                    expression, idx, &smith_prog, name, flags, cursor1, cursor2,
+                    &f_lab1, &f_lab2, gr);
+                if(alias_ptr) my_free(_ALLOC_ID_, &alias_ptr);
               }
             }
             goto done;

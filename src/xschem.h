@@ -1318,9 +1318,25 @@ extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx
 extern int sch_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
+/* Smith chart "label; expression" RPN program: a token sequence evaluated
+ * on a complex value stack (see smith_expr_parse()/
+ * smith_expr_eval_point()/draw_smith_expr_points() in draw.c) */
+#define SMX_MAX 128
+typedef enum { SMX_NUM, SMX_VAR, SMX_PLUS, SMX_MINUS, SMX_MULT, SMX_DIV, SMX_IMP } smx_type;
+typedef struct {
+  smx_type t;
+  double d; /* SMX_NUM value */
+  int idx;  /* SMX_VAR: raw base column index (% 4 == 0) */
+} smx_tok;
+typedef struct {
+  smx_tok tok[SMX_MAX];
+  int n;    /* number of valid tokens */
+} smx_prog;
+extern int smith_expr_parse(const char *expr, smx_prog *prog);
+extern int smith_expr_eval_point(const smx_prog *prog, int p, double *re, double *im);
 extern void draw_smith_points(int idx, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
-extern int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
+extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,
               int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
