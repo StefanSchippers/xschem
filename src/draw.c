@@ -3781,8 +3781,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-  /* draw sweep variable(s) on x-axis */
-  if(wcnt == 0 || (stok && stok[0])) {
+  /* draw sweep variable(s) on x-axis (normal-mode axis label: suppressed in Smith mode) */
+  if(gr->mode != 3 && (wcnt == 0 || (stok && stok[0]))) {
     if(sweep_label && sweep_label[0]) {
       /* "label; expression" sweep attribute: show the label instead of a raw file variable name */
       stok = sweep_label;
@@ -4846,7 +4846,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1)
+        if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1 && gr->mode != 3)
            show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color,
               idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr, r, cursor1);
 
@@ -4881,9 +4881,9 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
     /* cursor1 */
-    if((flags & 2)) draw_cursor(cursor1, cursor2, 1, gr);
+    if((flags & 2) && gr->mode != 3) draw_cursor(cursor1, cursor2, 1, gr);
     /* cursor2 */
-    if((flags & 4)) draw_cursor(cursor2, cursor1, 3, gr);
+    if((flags & 4) && gr->mode != 3) draw_cursor(cursor2, cursor1, 3, gr);
     /* difference between cursors */
     if((flags & 2) && (flags & 4)) draw_cursor_difference(cursor1, cursor2, gr);
     /* difference between hcursors */
