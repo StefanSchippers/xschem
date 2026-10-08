@@ -3586,7 +3586,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  alloc_xschem_data("", ".drw");
 
  /* create /tmp/xschem_web_xxx directory for remote objects */
- tmp_ptr = create_tmpdir("xschem_web_");
+ tmp_ptr = create_tmpdir("xschem_web_", "");
  if(!tmp_ptr) {
    info("xinit(): problems creating /tmp/xschem_web_xxxx dir\n");
  } else {

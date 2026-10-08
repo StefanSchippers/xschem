@@ -41,7 +41,7 @@ static void sig_handler(int s){
   if(xctx->undo_type == 0 ) { /* on disk undo */
     my_snprintf(emergency_prefix, S(emergency_prefix), "xschem_emergencysave_%s_",
              get_cell(xctx->sch[xctx->currsch], 0));
-    if( !(emergency_dir = create_tmpdir(emergency_prefix)) ) {
+    if( !(emergency_dir = create_tmpdir(emergency_prefix, "")) ) {
       info("xinit(): problems creating emergency save dir\n");
       tcleval("exit 1");
     }

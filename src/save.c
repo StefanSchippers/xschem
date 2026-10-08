@@ -2551,12 +2551,12 @@ char *read_line(FILE *fp, int dbg_level)
 /* return "/<prefix><random string of random_size characters>"
  * example: "/xschem_undo_dj5hcG38T2"
  */
-static const char *random_string(const char *prefix)
+static const char *random_string(const char *prefix, const char *prefix2)
 {
-  static const char *charset="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  static const char charset[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
-  size_t prefix_size, i;
+  size_t prefix_size, prefix_size2, i;
   static unsigned short once=1; /* safe even with multiple schematics, set once and never changed */
   int idx;
   if(once) {
@@ -2564,9 +2564,12 @@ static const char *random_string(const char *prefix)
     once=0;
   }
   prefix_size = strlen(prefix);
+  prefix_size2 = strlen(prefix2);
   str[0]='/';
-  memcpy(str+1, prefix, prefix_size);
-  for(i=prefix_size+1; i < prefix_size + random_size+1; ++i) {
+  memcpy(str + 1, prefix, prefix_size);
+  memcpy(str + 1 + prefix_size, prefix2, prefix_size2);
+  
+  for(i=prefix_size + prefix_size2 + 1; i < prefix_size + prefix_size2 + random_size+1; ++i) {
     idx = rand()%(sizeof(charset)-1);
     str[i] = charset[idx];
   }
@@ -2582,13 +2585,13 @@ static const char *random_string(const char *prefix)
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
-const char *create_tmpdir(char *prefix)
+const char *create_tmpdir(const char *prefix, const char *prefix2)
 {
   static char str[PATH_MAX]; /* safe even with multiple schematics if immediately copied */
   int i;
   struct stat buf;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
+    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix, prefix2));
     if(stat(str, &buf) && !mkdir(str, 0700) ) { /* dir must not exist */
       dbg(1, ("create_tmpdir(): created dir: %s\n", str));
       return str;
@@ -2603,7 +2606,7 @@ const char *create_tmpdir(char *prefix)
 /* */
 
 /* try to create a tmp file in $XSCHEM_TMP_DIR */
-/* ${XSCHEM_TMP_DIR}/<prefix><trailing random chars> */
+/* ${XSCHEM_TMP_DIR}/<prefix><trailing random chars><suffix> */
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
@@ -2614,7 +2617,7 @@ FILE *open_tmpfile(char *prefix, char *suffix, char **filename)
   FILE *fd;
   struct stat buf;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix), suffix);
+    my_snprintf(str, S(str), "%s%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix, ""), suffix);
     *filename = str;
     if(stat(str, &buf) && (fd = fopen(str, "w")) ) { /* file must not exist */
       dbg(1, ("open_tmpfile(): created file: %s\n", str));
@@ -3881,7 +3884,8 @@ static void init_undo(void)
 {
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
-    if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+    if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
+         create_tmpdir("", "xschem_undo_") )) {
       info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */

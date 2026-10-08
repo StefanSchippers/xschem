@@ -1893,6 +1893,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'u':
+          if(!strcmp(argv[2], "undo_dirname")) { /* return undo directory path */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp,  xctx->undo_dirname, TCL_STATIC);
+          }
           if(!strcmp(argv[2], "ui_state")) { /* return UI state */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp,  my_itoa(xctx->ui_state), TCL_VOLATILE);
