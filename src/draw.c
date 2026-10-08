@@ -3010,6 +3010,59 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
 }
 
 #define MAX_POLY_POINTS 4096*16
+/* Smith chart: plot the (re, im) columns of a complex raw variable
+ * (idx = 4*i -> values[idx]=mag, idx+1=ph, idx+2=re, idx+3=im)
+ * as a trace on the fixed Smith plane, mapped through SM_X()/SM_Y() */
+void draw_smith_points(int idx, int first, int last,
+         XPoint *point, int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+{
+  int p, x;
+  int poly_npoints = 0;
+  Raw *raw = xctx->raw;
+  register SPICE_DATA *re, *im;
+
+  if(!raw) {
+    info("draw_smith_points(): no raw struct allocated\n");
+    return;
+  }
+  re = raw->values[idx + 2];
+  im = raw->values[idx + 3];
+
+  dbg(1, ("draw_smith_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt));
+  if(idx == -1) return;
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p],
+       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  for(p = first ; p <= last; p++) {
+    /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
+    point[poly_npoints].x = (short)SM_X(re[p]);
+    point[poly_npoints].y = (short)SM_Y(im[p]);
+    poly_npoints++;
+  }
+  set_thick_waves(1, wcnt, wave_color, gr);
+  for(x = 0; x < 2; x++) {
+    Drawable  w;
+    int offset = 0, size;
+    XPoint *pt = point;
+    if(x == 0 && xctx->draw_window) w = xctx->window;
+    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    while(1) {
+      pt =  point + offset;
+      size = poly_npoints - offset;
+      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+      XDrawLines(display, w, xctx->gc[wave_color], pt, size, CoordModeOrigin);
+      if(offset + size >= poly_npoints) break;
+      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+    }
+  }
+  set_thick_waves(0, wcnt, wave_color, gr);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+}
+
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
 static void draw_graph_points(int idx, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
@@ -4788,6 +4841,14 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         XPoint *point = NULL;
         int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
         int digital = gr->digital;
+        int smith_valid = 1;
+        /* Smith chart: the wave must be a complex variable (4*i=mag, 4*i+1=ph,
+         * 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted as a trace */
+        if(gr->mode == 3 && (idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+          info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n",
+               bus_msb ? bus_msb : express);
+          smith_valid = 0;
+        }
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
@@ -4799,7 +4860,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         bbox(SET, 0.0, 0.0, 0.0, 0.0);
         /* loop through all datasets found in raw file */
 
-        if(sch_waves_loaded() != -1) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
+        if(sch_waves_loaded() != -1 && smith_valid) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
           double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
@@ -4816,6 +4877,16 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+          /* Smith chart: the sweep variable is the frequency and the plane is fixed
+           * (±1.5), so draw the whole selected dataset, no x-windowing */
+          if(gr->mode == 3) {
+            if(dataset == -1 || dataset == sweepvar_wrap) {
+              if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+              else wave_color = wc;
+              draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
+            }
+            goto done;
+          }
           for(p = ofs ; p < ofs_end; p++) {
             double xxprevious, xxfollowing;
 
