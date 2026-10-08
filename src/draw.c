@@ -3298,8 +3298,20 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   XPoint xpts[720];
   int i, ir, p, n_circ, ix, n_xpts;
   double cx, cy, rad, theta, u, v;
+  double sm_font_px, sm_font;
 
   (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
+
+  /* Smith label font: about 4.5% of the unit circle diameter in pixels
+   * (the unit circle radius in pixels is gr->ss).  draw_string() renders
+   * a font of scale 1.0 at 52*cairo_font_scale*mooz pixels tall, so
+   * convert the pixel target into that xscale convention; clamp the pixel
+   * target so a degenerate data window cannot make the labels explode or
+   * vanish. */
+  sm_font_px = 0.045 * 2.0 * gr->ss;
+  if(sm_font_px < 3.0) sm_font_px = 3.0;
+  if(sm_font_px > 100.0) sm_font_px = 100.0;
+  sm_font = sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
 
   /* clipping everything outside container area */
   /* background */
@@ -3391,13 +3403,17 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
               (int)CLIP(SM_X(0.0), -30000, 30000), (int)CLIP(SM_Y(1.0), -30000, 30000));
   }
 
-  /* labels for constant-R circles, at the top of each circle, a few pixels above */
+  /* labels for constant-R circles, on the real axis at each circle's
+   * real-axis crossing u = (R-1)/(R+1), a few pixels above the axis line
+   * (the text hangs down from its top edge, so lift it by its own height
+   * plus the gap) */
   for(ir = 0; ir < n_r; ir++) {
     double r = r_values[ir];
-    double lx = CLIP(SM_X(r / (1.0 + r)), -30000, 30000);
-    double ly = CLIP(SM_Y(1.0 / (1.0 + r)), -30000, 30000) - 4.0;
+    double lu = (r - 1.0) / (1.0 + r);
+    double lx = CLIP(SM_X(lu), -30000, 30000);
+    double ly = CLIP(SM_Y(0.0), -30000, 30000) - 3.0 - sm_font_px;
     draw_string(3, NOW, r_labels[ir], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
-                gr->txtsizex, gr->txtsizex);
+                sm_font, sm_font);
   }
 
   /* constant-X arcs: open polylines in data space, same style as the R circles */
@@ -3416,16 +3432,29 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
       else continue;
       XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
     }
-    /* label at the arc's R=0 crossing, which lies exactly on the unit
-     * circle: u = X*X/(1+X*X), v = X/(1+X*X); offset a few pixels toward
-     * the chart interior (toward the origin) so the text does not sit on
-     * the unit circle */
-    u = x_values[ix] * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
-    v = x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
-    lx = CLIP(SM_X(u), -30000, 30000) - 4.0 * u;
-    ly = CLIP(SM_Y(v), -30000, 30000) + 4.0 * v;
-    draw_string(3, NOW, x_labels[ix], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
-                gr->txtsizex, gr->txtsizex);
+    if(fabs(x_values[ix]) <= 1.0) {
+      /* |X| <= 1: label on the jX axis at the arc's inner crossing with
+       * it: u = 0, v = (1 - sqrt(1 - X*X)) / X (negative X mirrors below
+       * the real axis); offset a few pixels right of the jX axis line,
+       * centered vertically on the crossing */
+      u = 0.0;
+      v = (1.0 - sqrt(1.0 - x_values[ix] * x_values[ix])) / x_values[ix];
+      lx = CLIP(SM_X(0.0), -30000, 30000) + 4.0;
+      ly = CLIP(SM_Y(v), -30000, 30000);
+      draw_string(3, NOW, x_labels[ix], 0, 0, 0, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                  sm_font, sm_font);
+    } else {
+      /* |X| > 1: label at the arc's R=0 crossing, which lies exactly on
+       * the unit circle: u = X*X/(1+X*X), v = X/(1+X*X); offset a few
+       * pixels toward the chart interior (toward the origin) so the text
+       * does not sit on the unit circle */
+      u = x_values[ix] * x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+      v = x_values[ix] / (1.0 + x_values[ix] * x_values[ix]);
+      lx = CLIP(SM_X(u), -30000, 30000) - 4.0 * u;
+      ly = CLIP(SM_Y(v), -30000, 30000) + 4.0 * v;
+      draw_string(3, NOW, x_labels[ix], 0, 0, 1, 0, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                  sm_font, sm_font);
+    }
   }
 
   bbox(END, 0.0, 0.0, 0.0, 0.0);
