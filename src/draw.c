@@ -3086,6 +3086,7 @@ int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
        int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
 {
   int i, p, x;
+  int quiet = first > 0;
   int poly_npoints = 0;
   int prog_n = 0, stackptr, depth, rc = 0;
   const char *n;
@@ -3095,11 +3096,11 @@ int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
   Raw *raw = xctx->raw;
 
   if(!raw) {
-    info("draw_smith_expr_points(): no raw struct allocated\n");
+    if(!quiet) info("draw_smith_expr_points(): no raw struct allocated\n");
     return -1;
   }
   if(!raw->sim_type || strcmp(raw->sim_type, "ac")) {
-    info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
+    if(!quiet) info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
     return -1;
   }
   my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
@@ -3109,7 +3110,7 @@ int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
     int idx;
     ntok_ptr = NULL;
     if(prog_n >= SMX_MAX) {
-      info("Smith chart: expression too long - skipped\n");
+      if(!quiet) info("Smith chart: expression too long - skipped\n");
       rc = -1;
       break;
     }
@@ -3135,7 +3136,7 @@ int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
     else { /* raw variable name: must resolve to an AC base column */
       idx = get_raw_index(n, NULL);
       if(idx == -1 || idx % 4 != 0 || idx + 3 >= raw->nvars) {
-        info("Smith chart: expression token '%s' not supported - skipped\n", n);
+        if(!quiet) info("Smith chart: expression token '%s' not supported - skipped\n", n);
         rc = -1;
         break;
       }
@@ -3155,7 +3156,7 @@ int draw_smith_expr_points(int first, int last, const char *expr, XPoint *point,
       if(depth < 1) break;
     }
     if(depth != 1) {
-      info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
+      if(!quiet) info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
       rc = -1;
     }
   }
