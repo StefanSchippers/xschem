@@ -3310,6 +3310,25 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   /* LineSolid is the default state after wave drawing; no save/restore needed */
   XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
 
+  /* plot-box frame: full rectangle around the plot box, same four solid box
+   * delimiters that draw_graph_grid() draws for normal graphs; a full box is
+   * correct for Smith because the plane extends to negative values on both axes */
+  for(p = 0; p < 2; p++) {
+    Drawable w;
+    int px1, px2, py1, py2;
+    if(p == 0 && xctx->draw_window) w = xctx->window;
+    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    px1 = (int)CLIP(X_TO_SCREEN(gr->x1), -30000, 30000);
+    px2 = (int)CLIP(X_TO_SCREEN(gr->x2), -30000, 30000);
+    py1 = (int)CLIP(Y_TO_SCREEN(gr->y1), -30000, 30000);
+    py2 = (int)CLIP(Y_TO_SCREEN(gr->y2), -30000, 30000);
+    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py1, px2, py1);
+    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py2, px2, py2);
+    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py1, px1, py2);
+    XDrawLine(display, w, xctx->gc[GRIDLAYER], px2, py1, px2, py2);
+  }
+
   /* circle table: [0] = unit circle, [1..n_r] = constant-R circles */
   circ_cx[0] = 0.0; circ_cy[0] = 0.0; circ_r[0] = 1.0;
   n_circ = 1;
