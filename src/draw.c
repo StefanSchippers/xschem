@@ -3797,6 +3797,11 @@ static double smith_text_width(const char *str, double font_scale)
 #endif
 }
 
+/* |Gamma| limit of the fixed visible Smith plane (+epsilon): a marker, grab
+ * or snap point with re*re + im*im above SMITH_GAMMA_LIM^2 lies outside the
+ * plane and is skipped everywhere (draw, grab, snap) */
+#define SMITH_GAMMA_LIM (1.05 + 1e-9)
+
 /* Smith chart: cursor markers, per-wave readouts and the cursor frequency
  * labels.  Called from draw_graph() right after a wave trace has been
  * drawn (per selected dataset), only when a cursor flag is set.
@@ -3895,6 +3900,7 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
       re = raw->values[idx + 2][p] + t * (raw->values[idx + 2][p + 1] - raw->values[idx + 2][p]);
       im = raw->values[idx + 3][p] + t * (raw->values[idx + 3][p + 1] - raw->values[idx + 3][p]);
     }
+    if(re * re + im * im > SMITH_GAMMA_LIM * SMITH_GAMMA_LIM) continue; /* |Gamma| outside the plane */
     sx = CLIP(SM_X(re), -30000, 30000);
     sy = CLIP(SM_Y(im), -30000, 30000);
 
@@ -5204,7 +5210,7 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
       }
       if(smith_valid) {
         dataset = node_dataset >= 0 ? node_dataset : gr.dataset;
-        lim = 1.05 + 1e-9; /* |Gamma| limit of the visible plane + epsilon */
+        lim = SMITH_GAMMA_LIM; /* |Gamma| limit of the visible plane + epsilon */
         ofs = 0;
         /* loop through all datasets found in raw file */
         for(dset = 0; dset < xctx->raw->datasets; dset++) {
@@ -5271,7 +5277,8 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
  * bare waves lerp values[idx+2][p..p+1] / values[idx+3][p..p+1];
  * expression waves: smith_expr_parse() once per wave, then
  * smith_expr_eval_point(prog, p, gr.smith_z0, ...) at p and p+1 and lerp.
- * Skips waves where f is outside the sweep span, and |Gamma| > 1.05 + 1e-9.
+ * Skips a wave when f is outside its sweep span, or when the interpolated
+ * |Gamma(f)| > 1.05 + 1e-9 (outside the visible plane).
  * Coords CLIP(SM_X/SM_Y, -30000, 30000), written as int to sx[]/sy[].
  * Same guards, raw switch/restore, validation, escaped-space handling,
  * dataset gate and memory discipline as smith_closest_point (dbg(1) per-wave).
@@ -5450,7 +5457,7 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
         double t; /* interpolation parameter; -1: f outside the sweep span */
         int p2;
         dataset = node_dataset >= 0 ? node_dataset : gr->dataset;
-        lim = 1.05 + 1e-9; /* |Gamma| limit of the visible plane + epsilon */
+        lim = SMITH_GAMMA_LIM; /* |Gamma| limit of the visible plane + epsilon */
         ofs = 0;
         /* loop through all datasets found in raw file */
         for(dset = 0; dset < xctx->raw->datasets; dset++) {
@@ -5472,7 +5479,7 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
           t = -1.0;
           for(p2 = ofs; p2 < ofs_end - 1; p2++) {
             if(gvx[p2] <= f && f <= gvx[p2 + 1]) {
-              if(gvx[p2 + 1] == gvx[p2]) break; /* guard zero denominator */
+              if(gvx[p2 + 1] == gvx[p2]) continue; /* guard zero denominator */
               t = (f - gvx[p2]) / (gvx[p2 + 1] - gvx[p2]);
               found = 1;
               break;

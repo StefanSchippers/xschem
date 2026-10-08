@@ -673,16 +673,19 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         if(gr->mode == 3) {
           /* Smith: start the move when the mouse is within 10 px of any marker
-           * of this cursor (any trace; euclidean screen-pixel distance) */
+           * of this cursor (any trace; euclidean screen-pixel distance); a
+           * degenerate plane (ss <= 0) -> no grab */
           int m, n;
           int sx[64], sy[64];
-          n = smith_cursor_markers(i, cursor1, 64, sx, sy);
-          for(m = 0; m < n; m++) {
-            double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
-            double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
-            if(dx * dx + dy * dy < 10.0 * 10.0) {
-              xctx->graph_flags |= 16; /* Start move cursor1 */
-              break;
+          if(gr->ss > 0.0) {
+            n = smith_cursor_markers(i, cursor1, 64, sx, sy);
+            for(m = 0; m < n; m++) {
+              double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
+              double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
+              if(dx * dx + dy * dy < 10.0 * 10.0) {
+                xctx->graph_flags |= 16; /* Start move cursor1 */
+                break;
+              }
             }
           }
         } else {
@@ -708,16 +711,19 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         if(gr->mode == 3) {
           /* Smith: start the move when the mouse is within 10 px of any marker
-           * of this cursor (any trace; euclidean screen-pixel distance) */
+           * of this cursor (any trace; euclidean screen-pixel distance); a
+           * degenerate plane (ss <= 0) -> no grab */
           int m, n;
           int sx[64], sy[64];
-          n = smith_cursor_markers(i, cursor2, 64, sx, sy);
-          for(m = 0; m < n; m++) {
-            double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
-            double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
-            if(dx * dx + dy * dy < 10.0 * 10.0) {
-              xctx->graph_flags |= 32; /* Start move cursor2 */
-              break;
+          if(gr->ss > 0.0) {
+            n = smith_cursor_markers(i, cursor2, 64, sx, sy);
+            for(m = 0; m < n; m++) {
+              double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
+              double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
+              if(dx * dx + dy * dy < 10.0 * 10.0) {
+                xctx->graph_flags |= 32; /* Start move cursor2 */
+                break;
+              }
             }
           }
         } else {
