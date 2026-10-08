@@ -3603,25 +3603,6 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   /* LineSolid is the default state after wave drawing; no save/restore needed */
   XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
 
-  /* plot-box frame: full rectangle around the plot box, same four solid box
-   * delimiters that draw_graph_grid() draws for normal graphs; a full box is
-   * correct for Smith because the plane extends to negative values on both axes */
-  for(p = 0; p < 2; p++) {
-    Drawable w;
-    int px1, px2, py1, py2;
-    if(p == 0 && xctx->draw_window) w = xctx->window;
-    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
-    else continue;
-    px1 = (int)CLIP(X_TO_SCREEN(gr->x1), -30000, 30000);
-    px2 = (int)CLIP(X_TO_SCREEN(gr->x2), -30000, 30000);
-    py1 = (int)CLIP(Y_TO_SCREEN(gr->y1), -30000, 30000);
-    py2 = (int)CLIP(Y_TO_SCREEN(gr->y2), -30000, 30000);
-    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py1, px2, py1);
-    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py2, px2, py2);
-    XDrawLine(display, w, xctx->gc[GRIDLAYER], px1, py1, px1, py2);
-    XDrawLine(display, w, xctx->gc[GRIDLAYER], px2, py1, px2, py2);
-  }
-
   /* circle table: [0] = unit circle, [1..n_r] = constant-R circles */
   circ_cx[0] = 0.0; circ_cy[0] = 0.0; circ_r[0] = 1.0;
   n_circ = 1;
@@ -3882,10 +3863,11 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
      gr->logx = 0;
      gr->logy = 0;
      gr->digital = 0;
-      /* Smith plane: fixed full-plane view, centered on Gamma=0; the x1/x2/y1/y2
-       * attrs do not affect the Smith mapping (they are sweep-axis attrs). */
-      gr->gx1 = -1.5; gr->gx2 = 1.5;
-      gr->gy1 = -1.5; gr->gy2 = 1.5;
+      /* Smith plane: fixed ±1.1 view of the Gamma plane, centered on Gamma=0;
+       * the x1/x2/y1/y2 attrs do not affect the Smith mapping (they are
+       * sweep-axis attrs). */
+      gr->gx1 = -1.1; gr->gx2 = 1.1;
+      gr->gy1 = -1.1; gr->gy2 = 1.1;
       gr->gw = gr->gx2 - gr->gx1; /* keep window width consistent with gx1/gx2 */
    }
    if(gr->digital) {
@@ -5103,7 +5085,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
           /* Smith chart: the sweep variable is the frequency and the plane is fixed
-           * (±1.5), so draw the whole selected dataset, no x-windowing */
+           * (±1.1), so draw the whole selected dataset, no x-windowing */
           if(gr->mode == 3) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               int rc;
