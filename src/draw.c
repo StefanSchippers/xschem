@@ -3307,6 +3307,7 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
 
   /* solid grid-line width, same as draw_graph_grid() major lines */
+  /* LineSolid is the default state after wave drawing; no save/restore needed */
   XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
 
   /* circle table: [0] = unit circle, [1..n_r] = constant-R circles */
@@ -3624,21 +3625,23 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
    /* Smith chart: unified square mapping (data -> pixel), fit inside plot box */
    if(gr->mode == 3) {
      double dx, dy, left, right, top, bottom;
-     dx = gr->gx2 - gr->gx1;
-     dy = gr->gy2 - gr->gy1;
-     if(dx <= 0.0 || dy <= 0.0) {
-       gr->ss = 0.0;
-       dbg(1, ("setup_graph_data: Smith mode, degenerate span dx=%g dy=%g\n", dx, dy));
-     } else {
-       /* linear mapping spans edge-to-edge, so the pixel plot box is */
-       left = S_X(gr->gx1);
-       right = S_X(gr->gx2);
-       top = S_Y(gr->gy2);
-       bottom = S_Y(gr->gy1);
+      dx = gr->gx2 - gr->gx1;
+      dy = gr->gy2 - gr->gy1;
+      /* linear mapping spans edge-to-edge, so the pixel plot box is */
+      left = S_X(gr->gx1);
+      right = S_X(gr->gx2);
+      top = S_Y(gr->gy2);
+      bottom = S_Y(gr->gy1);
+      if(dx <= 0.0 || dy <= 0.0) {
+        gr->ss = 0.0;
+        gr->ssx0 = ((left + right) / 2.0);
+        gr->ssy0 = ((top + bottom) / 2.0);
+        dbg(1, ("setup_graph_data: Smith mode, degenerate span dx=%g dy=%g\n", dx, dy));
+      } else {
         gr->ss = ((right - left) / dx < (bottom - top) / dy) ? ((right - left) / dx) : ((bottom - top) / dy);
-       gr->ssx0 = ((left + right) / 2.0) - ((gr->gx1 + gr->gx2) / 2.0) * gr->ss;
-       gr->ssy0 = ((top + bottom) / 2.0) - ((gr->gy1 + gr->gy2) / 2.0) * gr->ss;
-     }
+        gr->ssx0 = ((left + right) / 2.0) - ((gr->gx1 + gr->gx2) / 2.0) * gr->ss;
+        gr->ssy0 = ((top + bottom) / 2.0) + ((gr->gy1 + gr->gy2) / 2.0) * gr->ss;
+      }
    }
  }
 
