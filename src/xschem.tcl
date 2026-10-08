@@ -3713,6 +3713,7 @@ proc graph_edit_properties {n} {
       xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
       xschem setprop -fast rect 2 $graph_selected smz0 [.graphdialog.top2.z0 get]
       set_rect_flags $graph_selected
+      xschem draw_graph $graph_selected
     }
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
@@ -3729,6 +3730,7 @@ proc graph_edit_properties {n} {
       xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
       xschem setprop -fast rect 2 $graph_selected smz0 [.graphdialog.top2.z0 get]
       set_rect_flags $graph_selected
+      xschem draw_graph $graph_selected
     }
   }
 
