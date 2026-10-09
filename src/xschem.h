@@ -50,11 +50,6 @@
 /*  approximate PI definition */
 #define XSCH_PI 3.14159265358979323846264338327950288419716939937
 
-/* undefine or comment to avoid experimental code */
-#if 0
-#define EXPERIMENTAL 1
-#endif
-
 #ifdef __unix__
 #ifndef NO_SCCONFIG
 #include "../config.h"
@@ -320,6 +315,7 @@ extern char win_temp_dir[PATH_MAX];
 #define XLOOKUP 1
 #define XDELETE 2
 #define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */
+#define XDELETE_ALL 4
 
 /* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1
@@ -1677,7 +1673,7 @@ extern Int_hashentry *int_hash_lookup(Int_hashtable *hashtable,
 extern int int_hash_copy(Int_hashtable *dest, Int_hashtable *source);
 
 extern void ptr_hash_init(Ptr_hashtable *hashtable, int size);
-extern void ptr_hash_free(Ptr_hashtable *hashtable);
+extern void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void *));
 extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
        const char *token,  void * const value, int what);
 extern int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source);

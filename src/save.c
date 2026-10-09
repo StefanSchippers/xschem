@@ -25,6 +25,62 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
+typedef struct undo_save {
+  int head_undo_ptr;
+  int cur_undo_ptr;
+  int tail_undo_ptr;
+  char *undo_dirname;
+} undo_save;
+
+
+void save_undo_freefunc(void *ptr)
+{
+  undo_save *undo_item_ptr = (undo_save *)ptr;
+  my_free(_ALLOC_ID_, &undo_item_ptr->undo_dirname);
+}
+
+int save_undo_table(Xschem_ctx *ctx, char *sch_name, char *undo_dirname, int what) {
+  undo_save *undo_item = NULL;
+  Ptr_hashentry *entry;
+  static Ptr_hashtable undo_dir_hash = {NULL, 0};
+  int res = 0;
+  if(what == XLOOKUP) {
+    if(undo_dir_hash.table) {
+      entry = ptr_hash_lookup(&undo_dir_hash, sch_name, NULL, XLOOKUP);
+      undo_item = entry->value;
+      ctx->head_undo_ptr = undo_item->head_undo_ptr;
+      ctx->cur_undo_ptr = undo_item->cur_undo_ptr;
+      ctx->tail_undo_ptr = undo_item->tail_undo_ptr;
+      my_strdup2(_ALLOC_ID_, &ctx->undo_dirname, undo_item->undo_dirname);
+      res = 1;
+    }
+  } else if(what == XINSERT_NOREPLACE || what == XINSERT) {
+    if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
+    undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
+    my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, ctx->undo_dirname);
+    undo_item->head_undo_ptr = ctx->head_undo_ptr;
+    undo_item->cur_undo_ptr = ctx->cur_undo_ptr;
+    undo_item->tail_undo_ptr = ctx->tail_undo_ptr;
+    ptr_hash_lookup(&undo_dir_hash, sch_name, (void *)undo_item, what);
+    res = 1;
+  } else if(what == XDELETE) {
+    if(undo_dir_hash.table) {
+      entry = ptr_hash_lookup(&undo_dir_hash, sch_name, NULL, XDELETE);
+      if(entry) {
+        undo_item = entry->value;
+        my_free(_ALLOC_ID_, &undo_item->undo_dirname);
+        my_free(_ALLOC_ID_, &undo_item);
+      }
+      res = 1;
+    }
+  } else if(what == XDELETE_ALL) {
+    if(undo_dir_hash.table) {
+      ptr_hash_free(&undo_dir_hash, save_undo_freefunc);
+      res = 1;
+    }
+  }
+  return res;
+}
 
 /* splits a command string into argv-like arguments
  * return # of args in *argc
@@ -3864,27 +3920,24 @@ void clear_undo(void)
 void delete_undo(void)
 {
   int i;
-  char diff_name[PATH_MAX]; /* overflow safe 20161122 */
+  char diff_name[PATH_MAX];
 
   dbg(1, ("delete_undo() called...\n"));
   if(!xctx->undo_initialized) return;
   clear_undo();
   xctx->undo_initialized = 0;
-  #ifdef EXPERIMENTAL
-  /* if cached schematic exists do not delete undo dir (Experimental) */
-  if(!fork_sch(7, xctx->current_name, 0, 0)) {
-  #endif
-    dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
-    for(i=0; i<MAX_UNDO; ++i) {
-      my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
-      xunlink(diff_name);
-    }
-    rmdir(xctx->undo_dirname);
-    my_free(_ALLOC_ID_, &xctx->undo_dirname);
-  #ifdef EXPERIMENTAL
+
+  #if 1
+  dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
+  for(i=0; i<MAX_UNDO; ++i) {
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
+    xunlink(diff_name);
   }
+  rmdir(xctx->undo_dirname);
+  my_free(_ALLOC_ID_, &xctx->undo_dirname);
   #endif
 }
+
 
 /* create undo directory in XSCHEM_TEMP_DIR */
 static void init_undo(void)

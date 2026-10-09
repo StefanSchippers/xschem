@@ -1063,26 +1063,29 @@ int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source)
   return 0;
 }
 
-static void ptr_hash_free_entry(Ptr_hashentry *entry)
+static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void *))
 {
   Ptr_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(_ALLOC_ID_, &(entry->token));
+    if(freefunc) {
+      (*freefunc)(entry->value);
+    }
     my_free(_ALLOC_ID_, &entry);
     entry = tmp;
   }
 }
 
 
-void ptr_hash_free(Ptr_hashtable *hashtable)
+void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void *))
 {
   if(hashtable->table) {
     int i;
     Ptr_hashentry **table = hashtable->table;
     for(i=0;i < hashtable->size; ++i)
     {
-      ptr_hash_free_entry( table[i] );
+      ptr_hash_free_entry( table[i], freefunc );
       table[i] = NULL;
     }
     my_free(_ALLOC_ID_, &(hashtable->table));

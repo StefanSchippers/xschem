@@ -1803,7 +1803,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         entry = entry->next;
       }
     }
-    ptr_hash_free(&fork_table);
+    ptr_hash_free(&fork_table, NULL);
 
 
   } else if(what == 5) { /* info */

@@ -2573,10 +2573,6 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      if(ret == 0) clear_all_hilights();
      if(ret == -1) return 0; /* user cancel */
    }
-   #ifdef EXPERIMENTAL
-   /* cache schematic (Experimental) */
-   fork_sch(2, xctx->current_name, 24, 0);
-   #endif
 
    /* analyze instance name, expand if vector instance (like xinv[3:0]) */
    dbg(1, ("descend_schematic(): selected instname=%s\n", xctx->inst[n].instname));
@@ -2781,18 +2777,6 @@ void go_back(int what)
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
   
-  #ifdef EXPERIMENTAL
-  /* restore cached schematic (Experimental) */
-  if(fork_sch(7, rel_sym_path(filename), 0, 0)) {
-     fork_sch(3, rel_sym_path(filename), 64 + 5, 0);
-     dbg(1, ("go_back(): restored %s\n", rel_sym_path(filename)));
-     fork_sch(6, xctx->current_name, 32, 0);
-     change_linewidth(-1.);
-     draw();
-     return;
-  }
-  else
-  #endif 
   load_schematic(1, filename, set_title, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
