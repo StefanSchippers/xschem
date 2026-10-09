@@ -3147,7 +3147,7 @@ int smith_expr_parse(const char *expr, smx_prog *prog)
 }
 
 /* Smith chart: evaluate the RPN program for one sweep point p, writing
- * the result to *re/*im (complex result -> re/im, real -> (re, 0)).
+ * the result to *re / *im (complex result -> re/im, real -> (re, 0)).
  * Reads xctx->raw - the caller guarantees the right raw file is loaded
  * (point p of the selected dataset).  Returns 0 on success, -1 if the
  * point is invalid.  imp() normalizes with the z0 passed by the caller
@@ -3648,7 +3648,9 @@ static void draw_smith_grid(Graph_ctx *gr, void *ct)
 {
   const int n_r = 7;
   const int n_x = 12;
-  const int n_pts = 96;
+  /* const int n_pts = 96 does not create a true compile constant in Gcc, so I get a warning
+   * about VLA pts[] */
+  enum {n_pts = 96};
   double circ_cx[8], circ_cy[8], circ_r[8];
   double xu[720], xv[720];
   XPoint pts[n_pts + 1];
