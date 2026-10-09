@@ -51,7 +51,7 @@
 #define XSCH_PI 3.14159265358979323846264338327950288419716939937
 
 /* undefine or comment to avoid experimental code */
-#if 1
+#if 0
 #define EXPERIMENTAL 1
 #endif
 
