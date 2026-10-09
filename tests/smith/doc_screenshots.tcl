@@ -45,6 +45,7 @@
 #  {img_w img_h x1 y1 x2 y2} and add <name> to doc_scene_list.
 #
 #  A running X server is required.
+#  Requires Tcl 8.4+ (8.5-only features such as {*}-list expansion are avoided).
 
 if {![info exists ::env(SCENE)]} { set ::env(SCENE) "smith01" }
 
@@ -165,7 +166,9 @@ if {$loaded < 0} {
 }
 diag "PASS autoload: raw loaded (level $loaded, vars=[xschem raw vars], sim_type=[xschem raw sim_type])"
 
-doc_capture $SCENE {*}$params
+## explicit argument passing (Tcl 8.4: no {*}-list expansion available)
+doc_capture $SCENE [lindex $params 0] [lindex $params 1] [lindex $params 2] \
+                   [lindex $params 3] [lindex $params 4] [lindex $params 5]
 
 diag "DONE scene=$SCENE"
 close $outch

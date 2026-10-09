@@ -197,15 +197,22 @@ import sys
 OUT = sys.argv[1]
 SCENE = sys.argv[2]
 
-# capture window of the scene (doc_screenshots.tcl: scene_smith01); the
-# gate mapping below only applies to scenes using this window
-IMG_W, IMG_H = 2000, 1600
-WX1, WY1, WX2, WY2 = -100.0, -1100.0, 1100.0, 0.0
+# capture window + image size of the scene (doc_screenshots.tcl: scene_smith01).
+# Only scenes using a known window are size-checked (smith01 for now); a future
+# scene with a different window gets added to SCENE_WINDOWS instead of being
+# rejected by the default 2000x1600 check.
+SCENE_WINDOWS = {
+    "smith01": (2000, 1600, -100.0, -1100.0, 1100.0, 0.0),
+}
 # user -> image px, per zoom_box() in src/actions.c:
 #   zoom = max((x2-x1)/img_w, (y2-y1)/img_h), anchored at (x1, y1);
 #   px = (user - win_min) / zoom
-ZOOM = max((WX2 - WX1) / IMG_W, (WY2 - WY1) / IMG_H)
-INV = 1.0 / ZOOM
+if SCENE in SCENE_WINDOWS:
+    IMG_W, IMG_H, WX1, WY1, WX2, WY2 = SCENE_WINDOWS[SCENE]
+    ZOOM = max((WX2 - WX1) / IMG_W, (WY2 - WY1) / IMG_H)
+    INV = 1.0 / ZOOM
+else:
+    IMG_W = IMG_H = None
 
 def user_to_px(ux, uy):
     return int(round((ux - WX1) * INV)), int(round((uy - WY1) * INV))
@@ -258,7 +265,7 @@ except ImportError:
                 nonblank += 1
 
 bad = 0
-if (W, H) != (IMG_W, IMG_H):
+if IMG_W is not None and (W, H) != (IMG_W, IMG_H):
     print("FAIL: %s is %dx%d, expected %dx%d" % (OUT, W, H, IMG_W, IMG_H))
     bad = 1
 if nonblank < 1000:

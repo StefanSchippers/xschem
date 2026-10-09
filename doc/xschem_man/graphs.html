@@ -344,14 +344,17 @@ The following syntax:
    and the outer ring is a short or an open circuit.<br>
    Unlike normal graphs, a Smith chart ignores the X/Y range settings: xschem always shows
    the square window |&Gamma;| &le; 1.05, centered on the chart rectangle.
-   Points with |&Gamma;| &gt; 1.05 are not drawn.<br>
-   The grid is made of circles of constant <kbd>R</kbd> and constant <kbd>X</kbd> from 0
-   to 9 in units of <kbd>Z0</kbd>, with <kbd>R</kbd>/<kbd>X</kbd> labels. The <kbd>Z0</kbd>
-   value of the chart is shown as a readout at the bottom-right corner of the chart.<br>
+   Points outside this window are clipped at the edge of the graph rectangle.<br>
+   The grid is made of constant-<kbd>R</kbd> circles at 0.1, 0.2, 0.5, 1, 2, 5 and 10 and
+   constant-<kbd>X</kbd> arcs at +/-0.1, +/-0.2, +/-0.5, +/-1, +/-2 and +/-5, all in units
+   of <kbd>Z0</kbd>, plus the unit circle and the real axis; <kbd>R</kbd> and j<kbd>X</kbd>
+   values are labelled on the grid. The <kbd>Z0</kbd> value of the chart is shown as a
+   readout at the bottom-right corner of the chart.<br>
    Smith charts are useful to view impedance, matching and S-parameter behavior over
    frequency, from AC or SP simulations.<br>
    The example below is the LNA_SP schematic from the examples library, showing two Smith
-   charts side by side: <kbd>S11</kbd> and <kbd>S22</kbd> from an SP simulation (top chart)
+   charts stacked one above the other: <kbd>S11</kbd> and <kbd>S22</kbd> from an SP
+   simulation (top chart)
    and the input impedance <kbd>Zin = -v(vx1)/i(vmes)</kbd> computed from a plain AC
    simulation with the <kbd>imp()</kbd> operator (bottom chart); the gain and noise graphs
    of the same design are visible on the right.<br>

@@ -28,6 +28,9 @@ src/parselabel.h
 src/rawtovcd
 src/xschem
 
+# test build artifacts
+tests/smith/warp
+
 /build
 CMakeLists.txt
 .vscode
