@@ -438,6 +438,76 @@ The following syntax:
    buttons or by editing the text area.
   </p>
 
+  <a id="smith_cursors"></a>
+  <h3>Smith chart cursors</h3>
+  <p>
+   The <kbd>a</kbd> and <kbd>b</kbd> keys place the horizontal cursors, same
+   as in a regular graph, but on a Smith plot the cursor position is a
+   frequency and each wave shows its own point on the plane at that
+   frequency. Placing a cursor with the mouse inside a Smith chart snaps the
+   cursor to the trace point closest to the mouse pointer; all waves in all
+   Smith charts of the schematic share the cursor frequency.
+  </p>
+  <p>
+   At each cursor frequency every wave is marked at its &Gamma; point in the
+   wave color: cursor A as a filled dot, cursor B as a cross (x). Marker size
+   follows the global zoom: zoom in and the markers grow, so they stay usable
+   at any scale.
+   <img src="smith02.png"><br>
+   The picture shows cursor A: one marker per wave, and the cursor frequency
+   at the bottom-left corner.
+   <img src="smith03.png"><br>
+   With both cursors active, each wave shows its dot (A) and cross (B) and
+   both frequency labels are shown.
+  </p>
+  <p>
+   A cursor can be dragged: press the <kbd>left</kbd> mouse button on (or
+   close to) one of its markers and move; the cursor follows the closest
+   trace point to the pointer, so you can sweep the cursor along the curves.
+  </p>
+  <p>
+   With a cursor active, every wave shows its values below the wave label, in
+   the wave color, two lines per cursor (cursor A's lines first, then cursor
+   B's): for waves plotted directly as &Gamma; (S-parameters): |&Gamma;| and
+   the angle in degrees on the first line, and the impedance Z = R+jX in ohms
+   on the second; for waves converted with <kbd>imp()</kbd> the two lines are
+   swapped (impedance first, &Gamma; second). Values are shown with at most 3
+   decimals.
+  </p>
+
+  <a id="smith_probe"></a>
+  <h3>Probing a Smith chart</h3>
+  <p>
+   Pressing <kbd>m</kbd> (or the <kbd>Measure</kbd> menu item) with the mouse
+   on the chart shows a text probe at the pointer: the &Gamma; value
+   (u+jv, magnitude, angle) and the impedance value (R+jX, magnitude, angle)
+   at that point.
+   <img src="smith04.png"><br>
+  </p>
+  <p>
+   Pressing the <kbd>right</kbd> mouse button on a cursor marker opens a
+   prompt preset with the current frequency; enter a value in hertz to move
+   that cursor to that exact frequency. Cancelling the prompt moves the
+   cursor to 0, inherited from regular graphs.
+  </p>
+  <p>
+   Pressing the <kbd>right</kbd> mouse button on a wave (not on a marker)
+   hilights that wave, like in a regular graph; with a wave hilighted,
+   <kbd>t</kbd> switches its dataset when multiple datasets are present in
+   the raw file (see the "Display a specific dataset for a node" section
+   above).
+  </p>
+  <p>
+   The standard graph zoom/pan commands work on Smith charts too; the cursor
+   markers are drawn at the zoomed size (see the "Smith chart cursors"
+   section above).
+   <!-- TODO: insert smith05.png (zoomed Smith chart with both cursors, markers larger) here -->
+  </p>
+  <p>
+   With the mouse outside the chart, the usual schematic functions apply; the
+   <kbd>graph_use_ctrl_key</kbd> option behaves exactly as documented above.
+  </p>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
