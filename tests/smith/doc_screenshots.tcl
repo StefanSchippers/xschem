@@ -91,12 +91,16 @@ proc die {line} {
 set doc_scene_list [list smith01]
 
 ## smith01: hero shot -- the whole LNA_SP schematic with both Smith
-## charts in frame (schematic user-space extent ~ x[-100..1100]
-## y[-1100..0]):
+## charts in frame. Tight crop of the rendered content (measured
+## content bbox ~ x[-124..1070] y[-1050..-403]; the long vsource value
+## text "dc 0 ac 1 0 portnum=1 z0=50 ..." centered at x=50 reaches out
+## to x~-124, well past the component anchor points at x~30). The window
+## adds a ~2% margin on every side so nothing is clipped; the image size
+## matches the window aspect so no black bands remain:
 ##   Smith chart #1 (SP raw):  rect (550,-940)-(810,-700), colors 10/17
 ##   Smith chart #2 (AC raw):  rect (550,-700)-(810,-460), color 21
 proc scene_smith01 {} {
-  return [list 2000 1600 -100 -1100 1100 0]
+  return [list 1000 542 -150 -1065 1095 -390]
 }
 
 ## ------------------------------------------------------------------

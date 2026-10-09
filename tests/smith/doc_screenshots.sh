@@ -32,13 +32,16 @@
 #       belong in the repo)
 #    7. gate-check each capture (python3 + PIL, same style as the
 #       other smith tests):
-#         smith01: 2000x1600 and non-blank;
+#         smith01: 1000x542 and non-blank;
 #                  Smith chart #1 (SP raw) shows trace px of colors
 #                  10 (s_1_1) and 17 (s_2_2);
 #                  Smith chart #2 (AC raw) shows trace px of color 21
 #                  -- the bare-name gate: the wave
 #                  "Zin(vx1); vx1 i(vmes) / -1 * imp()" must plot even
-#                  though the AC raw header name is "v(vx1)".
+#                  though the AC raw header name is "v(vx1)";
+#                  crop-tightness: the non-background content bbox must
+#                  not leave a black margin larger than ~3% of the
+#                  image on any side (the hero is a tight crop).
 #
 #  Usage: ./doc_screenshots.sh [scene ...]
 #          no args: run all currently-defined scenes.
@@ -202,7 +205,7 @@ SCENE = sys.argv[2]
 # scene with a different window gets added to SCENE_WINDOWS instead of being
 # rejected by the default 2000x1600 check.
 SCENE_WINDOWS = {
-    "smith01": (2000, 1600, -100.0, -1100.0, 1100.0, 0.0),
+    "smith01": (1000, 542, -150.0, -1065.0, 1095.0, -390.0),
 }
 # user -> image px, per zoom_box() in src/actions.c:
 #   zoom = max((x2-x1)/img_w, (y2-y1)/img_h), anchored at (x1, y1);
@@ -241,7 +244,12 @@ try:
             (np.abs(sub[:, :, 2] - b) <= TOL)
         return int(m.sum())
     bg = _im[0, 0]
-    nonblank = int((np.abs(_im.astype(int) - bg.astype(int)).max(axis=2) > 30).sum())
+    mask = np.abs(_im.astype(int) - bg.astype(int)).max(axis=2) > 30
+    nonblank = int(mask.sum())
+    _cols = np.where(mask.any(axis=0))[0]
+    _rows = np.where(mask.any(axis=1))[0]
+    bbox = ((int(_cols.min()), int(_cols.max()),
+             int(_rows.min()), int(_rows.max()))) if (len(_cols) and len(_rows)) else None
 except ImportError:
     from PIL import Image
     _im = Image.open(OUT).convert("RGB")
@@ -258,11 +266,17 @@ except ImportError:
         return n
     bg = px[0, 0]
     nonblank = 0
+    bx0 = bx1 = by0 = by1 = None
     for y in range(H):
         for x in range(W):
             p = px[x, y]
             if max(abs(p[0] - bg[0]), abs(p[1] - bg[1]), abs(p[2] - bg[2])) > 30:
                 nonblank += 1
+                if bx0 is None or x < bx0: bx0 = x
+                if bx1 is None or x > bx1: bx1 = x
+                if by0 is None or y < by0: by0 = y
+                if by1 is None or y > by1: by1 = y
+    bbox = (bx0, bx1, by0, by1) if nonblank else None
 
 bad = 0
 if IMG_W is not None and (W, H) != (IMG_W, IMG_H):
@@ -304,6 +318,28 @@ if SCENE == "smith01":
         print("FAIL BARE-NAME GATE: smith#2 color 21 trace not visible (%d px <= %d)"
               " -- wave 'vx1 i(vmes) / -1 * imp()' did not plot (raw header is v(vx1))"
               % (n21, THRESH))
+        bad = 1
+    # crop-tightness: the hero is a tight crop; the non-background content
+    # bbox must not leave a black margin larger than ~3% of the image
+    # dimension on any side (small, roughly symmetric margins are fine).
+    if bbox is not None:
+        c0, c1, r0, r1 = bbox
+        m_left = c0 * 100.0 / W
+        m_right = (W - 1 - c1) * 100.0 / W
+        m_top = r0 * 100.0 / H
+        m_bottom = (H - 1 - r1) * 100.0 / H
+        worst = max(m_left, m_right, m_top, m_bottom)
+        print("  crop bbox px=(%d,%d)-(%d,%d) margins: left=%.1f%% right=%.1f%% top=%.1f%% bottom=%.1f%%"
+              % (c0, r0, c1, r1, m_left, m_right, m_top, m_bottom))
+        if worst > 3.0:
+            print("FAIL CROP-TIGHTNESS: black margin >3%% on a side "
+                  "(left=%.1f%% right=%.1f%% top=%.1f%% bottom=%.1f%%)"
+                  % (m_left, m_right, m_top, m_bottom))
+            bad = 1
+        else:
+            print("PASS: crop tight (max margin %.1f%% <= 3%%)" % worst)
+    else:
+        print("FAIL CROP-TIGHTNESS: no non-background content found in %s" % OUT)
         bad = 1
 else:
     print("GATE %s: size=%dx%d nonblank=%d (no region checks defined for this scene)"
