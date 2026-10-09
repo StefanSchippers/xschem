@@ -508,6 +508,31 @@ The following syntax:
    <kbd>graph_use_ctrl_key</kbd> option behaves exactly as documented above.
   </p>
 
+  <a id="smith_notes"></a>
+  <h3>Smith chart notes and limitations</h3>
+  <ul>
+   <li>PLANE: The Smith plane is fixed to the region |&Gamma;| &le; 1 (plus a
+   small margin): the 1-ohm circle always fills the plot. Values with
+   |&Gamma;| greater than 1 are not drawn, so a trace breaks at that point;
+   a passive network's S-parameters stay inside the plane, but an active
+   (gain) network can leave it.</li>
+   <li>DATA: A Smith chart always plots two-variable (real/imaginary) data;
+   it does not accept scalar (single-value) waves. The S-parameter quantities
+   shown are the ones defined by the simulation (the port pairs set up in the
+   control script); the chart just draws their real and imaginary parts.</li>
+   <li>Z0: The reference impedance <kbd>Z0</kbd> is a per-graph property (set
+   in the graph properties dialog); only <kbd>imp()</kbd> conversions use it;
+   S-parameter data is plotted as saved.</li>
+   <li>CURSORS: The cursor frequency is shared by all Smith charts in the
+   schematic (see the Smith chart cursors section above).</li>
+   <li>ZOOM: In-graph zoom and panning do not apply to the fixed plane (see
+   the probing section above); only the overall display zoom changes the
+   chart size.</li>
+   <li>CLOSE: No other limitations; everything else (wave colors, labels,
+   datasets, the <kbd>graph_use_ctrl_key</kbd> option) behaves exactly as in
+   a regular graph.</li>
+  </ul>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
