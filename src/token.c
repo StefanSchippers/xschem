@@ -4443,6 +4443,7 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
       }
     }
     my_free(_ALLOC_ID_, &pin_attr_value);
+    my_free(_ALLOC_ID_, &value);
   }
   /* just @#pin was given */
   else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {

@@ -110,6 +110,10 @@ mode=Smith
 smz0=50
 color=21
 node="Zin(vx1); vx1 i(vmes) / -1 * imp()"}
+T {@name} 190 -621.25 2 1 0.2 0.2 {name=Vmes}
+T {@value} 180 -636.25 2 1 0.2 0.2 {name=Vmes}
+T {@spice_get_current} 236.25 -630 1 1 0.2 0.2 {layer=17
+name=Vmes}
 N 290 -750 370 -750 {lab=vx2}
 N 290 -490 290 -480 {lab=0}
 N 410 -690 410 -640 {lab=VC}
@@ -370,4 +374,6 @@ footprint=1206
 device=resistor
 m=1}
 C {gnd.sym} 190 -510 0 1 {name=l2 lab=0}
-C {vsource.sym} 230 -610 1 1 {name=Vmes value="dc 0 ac 0 0" savecurrent=true}
+C {vsource.sym} 230 -610 1 1 {name=Vmes value="dc 0 ac 0 0" savecurrent=true
+hide_texts=true
+attach=Vmes}
