@@ -419,9 +419,11 @@ The following syntax:
    <kbd>v(vx1) / i(vmes) * -1</kbd> (the port impedance seen by the measuring
    source, Vmes) and <kbd>imp()</kbd> converts it to Gamma.
    <kbd>imp()</kbd> needs the raw file to contain the actual port voltage and
-   port current. A plain AC simulation with the <kbd>remzerovec</kbd> option
-   saves them, and -v(port node)/i(port source) is then the physical port
-   impedance. S-parameter raw files must not be used with <kbd>imp()</kbd>:
+   port current. Because the measuring source is a zero-excitation source, the
+   simulator must be told to save its zero-value vectors: enabling zero-vector
+   saving in the control script does that, and -v(port node)/i(port source) is
+   then the physical port impedance. S-parameter raw files must not be used
+   with <kbd>imp()</kbd>:
    their saved port sources are not the real excitations, so the v()/i() values
    in an SP raw do not represent the port impedance.
   </p>
