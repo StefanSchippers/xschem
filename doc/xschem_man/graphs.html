@@ -334,6 +334,28 @@ The following syntax:
    use the first variable in the raw file as sweep axis. Note that when an expression is
    used, the same X-axis is applied to all the waves in the graph, so the one-variable-per-wave
    syntax like <kbd>v(a) v(z)</kbd> above is not available in that case.
+   </p>
+
+  <a id="smith_plots"><h3>Smith plots</h3></a>
+  <p>
+   A Smith chart displays the reflection coefficient &Gamma; for a port, normalized to a
+   reference impedance <kbd>Z0</kbd> that is configurable in the graph properties dialog,
+   with a default of 50 &Omega;. The center of the chart is a load equal to <kbd>Z0</kbd>,
+   and the outer ring is a short or an open circuit.<br>
+   Unlike normal graphs, a Smith chart ignores the X/Y range settings: xschem always shows
+   the square window |&Gamma;| &le; 1.05, centered on the chart rectangle.
+   Points with |&Gamma;| &gt; 1.05 are not drawn.<br>
+   The grid is made of circles of constant <kbd>R</kbd> and constant <kbd>X</kbd> from 0
+   to 9 in units of <kbd>Z0</kbd>, with <kbd>R</kbd>/<kbd>X</kbd> labels. The <kbd>Z0</kbd>
+   value of the chart is shown as a readout at the bottom-right corner of the chart.<br>
+   Smith charts are useful to view impedance, matching and S-parameter behavior over
+   frequency, from AC or SP simulations.<br>
+   The example below is the LNA_SP schematic from the examples library, showing two Smith
+   charts side by side: <kbd>S11</kbd> and <kbd>S22</kbd> from an SP simulation (top chart)
+   and the input impedance <kbd>Zin = -v(vx1)/i(vmes)</kbd> computed from a plain AC
+   simulation with the <kbd>imp()</kbd> operator (bottom chart); the gain and noise graphs
+   of the same design are visible on the right.<br>
+   <img src="smith01.png"><br>
   </p>
 
  <!-- end of slide -->
